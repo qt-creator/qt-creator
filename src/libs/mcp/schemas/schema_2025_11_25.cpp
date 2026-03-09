@@ -173,7 +173,7 @@ Utils::Result<BooleanSchema> fromJson<BooleanSchema>(const QJsonValue &val) {
         return Utils::ResultError("Missing required field: type");
     BooleanSchema result;
     if (obj.contains("default"))
-        result._default = obj.value("default").toBool();
+        result._default_ = obj.value("default").toBool();
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("title"))
@@ -185,8 +185,8 @@ Utils::Result<BooleanSchema> fromJson<BooleanSchema>(const QJsonValue &val) {
 
 QJsonObject toJson(const BooleanSchema &data) {
     QJsonObject obj{{"type", QString("boolean")}};
-    if (data._default.has_value())
-        obj.insert("default", *data._default);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
     if (data._description.has_value())
         obj.insert("description", *data._description);
     if (data._title.has_value())
@@ -3673,7 +3673,7 @@ Utils::Result<Tool::InputSchema> fromJson<Tool::InputSchema>(const QJsonValue &v
         return Utils::ResultError("Missing required field: type");
     Tool::InputSchema result;
     if (obj.contains("$schema"))
-        result._$schema = obj.value("$schema").toString();
+        result._dollarschema = obj.value("$schema").toString();
     if (obj.contains("properties") && obj["properties"].isObject()) {
         const QJsonObject mapObj_properties = obj["properties"].toObject();
         QMap<QString, QJsonObject> map_properties;
@@ -3696,8 +3696,8 @@ Utils::Result<Tool::InputSchema> fromJson<Tool::InputSchema>(const QJsonValue &v
 
 QJsonObject toJson(const Tool::InputSchema &data) {
     QJsonObject obj{{"type", QString("object")}};
-    if (data._$schema.has_value())
-        obj.insert("$schema", *data._$schema);
+    if (data._dollarschema.has_value())
+        obj.insert("$schema", *data._dollarschema);
     if (data._properties.has_value()) {
         QJsonObject map_properties;
         for (auto it = data._properties->constBegin(); it != data._properties->constEnd(); ++it)
@@ -3721,7 +3721,7 @@ Utils::Result<Tool::OutputSchema> fromJson<Tool::OutputSchema>(const QJsonValue 
         return Utils::ResultError("Missing required field: type");
     Tool::OutputSchema result;
     if (obj.contains("$schema"))
-        result._$schema = obj.value("$schema").toString();
+        result._dollarschema = obj.value("$schema").toString();
     if (obj.contains("properties") && obj["properties"].isObject()) {
         const QJsonObject mapObj_properties = obj["properties"].toObject();
         QMap<QString, QJsonObject> map_properties;
@@ -3744,8 +3744,8 @@ Utils::Result<Tool::OutputSchema> fromJson<Tool::OutputSchema>(const QJsonValue 
 
 QJsonObject toJson(const Tool::OutputSchema &data) {
     QJsonObject obj{{"type", QString("object")}};
-    if (data._$schema.has_value())
-        obj.insert("$schema", *data._$schema);
+    if (data._dollarschema.has_value())
+        obj.insert("$schema", *data._dollarschema);
     if (data._properties.has_value()) {
         QJsonObject map_properties;
         for (auto it = data._properties->constBegin(); it != data._properties->constEnd(); ++it)
@@ -4087,13 +4087,13 @@ Utils::Result<LegacyTitledEnumSchema> fromJson<LegacyTitledEnumSchema>(const QJs
         return Utils::ResultError("Missing required field: type");
     LegacyTitledEnumSchema result;
     if (obj.contains("default"))
-        result._default = obj.value("default").toString();
+        result._default_ = obj.value("default").toString();
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("enum") && obj["enum"].isArray()) {
         const QJsonArray arr = obj["enum"].toArray();
         for (const QJsonValue &v : arr) {
-            result._enum.append(v.toString());
+            result._enum_.append(v.toString());
         }
     }
     if (obj.contains("enumNames") && obj["enumNames"].isArray()) {
@@ -4113,12 +4113,12 @@ Utils::Result<LegacyTitledEnumSchema> fromJson<LegacyTitledEnumSchema>(const QJs
 
 QJsonObject toJson(const LegacyTitledEnumSchema &data) {
     QJsonObject obj{{"type", QString("string")}};
-    if (data._default.has_value())
-        obj.insert("default", *data._default);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
     if (data._description.has_value())
         obj.insert("description", *data._description);
     QJsonArray arr_enum_;
-    for (const auto &v : data._enum) arr_enum_.append(v);
+    for (const auto &v : data._enum_) arr_enum_.append(v);
     obj.insert("enum", arr_enum_);
     if (data._enumNames.has_value()) {
         QJsonArray arr_enumNames;
@@ -4159,7 +4159,7 @@ Utils::Result<NumberSchema> fromJson<NumberSchema>(const QJsonValue &val) {
         co_return Utils::ResultError("Missing required field: type");
     NumberSchema result;
     if (obj.contains("default"))
-        result._default = obj.value("default").toInt();
+        result._default_ = obj.value("default").toInt();
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("maximum"))
@@ -4175,8 +4175,8 @@ Utils::Result<NumberSchema> fromJson<NumberSchema>(const QJsonValue &val) {
 
 QJsonObject toJson(const NumberSchema &data) {
     QJsonObject obj{{"type", toJsonValue(data._type)}};
-    if (data._default.has_value())
-        obj.insert("default", *data._default);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
     if (data._description.has_value())
         obj.insert("description", *data._description);
     if (data._maximum.has_value())
@@ -4191,7 +4191,7 @@ QJsonObject toJson(const NumberSchema &data) {
 QString toString(const StringSchema::Format &v) {
     switch(v) {
         case StringSchema::Format::date: return "date";
-        case StringSchema::Format::date_time: return "date-time";
+        case StringSchema::Format::dateminustime: return "date-time";
         case StringSchema::Format::email: return "email";
         case StringSchema::Format::uri: return "uri";
     }
@@ -4202,7 +4202,7 @@ template<>
 Utils::Result<StringSchema::Format> fromJson<StringSchema::Format>(const QJsonValue &val) {
     const QString str = val.toString();
     if (str == "date") return StringSchema::Format::date;
-    if (str == "date-time") return StringSchema::Format::date_time;
+    if (str == "date-time") return StringSchema::Format::dateminustime;
     if (str == "email") return StringSchema::Format::email;
     if (str == "uri") return StringSchema::Format::uri;
     return Utils::ResultError("Invalid StringSchema::Format value: " + str);
@@ -4221,7 +4221,7 @@ Utils::Result<StringSchema> fromJson<StringSchema>(const QJsonValue &val) {
         co_return Utils::ResultError("Missing required field: type");
     StringSchema result;
     if (obj.contains("default"))
-        result._default = obj.value("default").toString();
+        result._default_ = obj.value("default").toString();
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("format") && obj["format"].isString())
@@ -4239,8 +4239,8 @@ Utils::Result<StringSchema> fromJson<StringSchema>(const QJsonValue &val) {
 
 QJsonObject toJson(const StringSchema &data) {
     QJsonObject obj{{"type", QString("string")}};
-    if (data._default.has_value())
-        obj.insert("default", *data._default);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
     if (data._description.has_value())
         obj.insert("description", *data._description);
     if (data._format.has_value())
@@ -4264,14 +4264,14 @@ Utils::Result<TitledMultiSelectEnumSchema::Items::AnyOfItem> fromJson<TitledMult
     if (!obj.contains("title"))
         return Utils::ResultError("Missing required field: title");
     TitledMultiSelectEnumSchema::Items::AnyOfItem result;
-    result._const = obj.value("const").toString();
+    result._const_ = obj.value("const").toString();
     result._title = obj.value("title").toString();
     return result;
 }
 
 QJsonObject toJson(const TitledMultiSelectEnumSchema::Items::AnyOfItem &data) {
     QJsonObject obj{
-        {"const", data._const},
+        {"const", data._const_},
         {"title", data._title}
     };
     return obj;
@@ -4318,7 +4318,7 @@ Utils::Result<TitledMultiSelectEnumSchema> fromJson<TitledMultiSelectEnumSchema>
         for (const QJsonValue &v : arr) {
             list_default_.append(v.toString());
         }
-        result._default = list_default_;
+        result._default_ = list_default_;
     }
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
@@ -4340,9 +4340,9 @@ QJsonObject toJson(const TitledMultiSelectEnumSchema &data) {
         {"items", toJson(data._items)},
         {"type", QString("array")}
     };
-    if (data._default.has_value()) {
+    if (data._default_.has_value()) {
         QJsonArray arr_default_;
-        for (const auto &v : *data._default) arr_default_.append(v);
+        for (const auto &v : *data._default_) arr_default_.append(v);
         obj.insert("default", arr_default_);
     }
     if (data._description.has_value())
@@ -4366,14 +4366,14 @@ Utils::Result<TitledSingleSelectEnumSchema::OneOfItem> fromJson<TitledSingleSele
     if (!obj.contains("title"))
         return Utils::ResultError("Missing required field: title");
     TitledSingleSelectEnumSchema::OneOfItem result;
-    result._const = obj.value("const").toString();
+    result._const_ = obj.value("const").toString();
     result._title = obj.value("title").toString();
     return result;
 }
 
 QJsonObject toJson(const TitledSingleSelectEnumSchema::OneOfItem &data) {
     QJsonObject obj{
-        {"const", data._const},
+        {"const", data._const_},
         {"title", data._title}
     };
     return obj;
@@ -4390,7 +4390,7 @@ Utils::Result<TitledSingleSelectEnumSchema> fromJson<TitledSingleSelectEnumSchem
         co_return Utils::ResultError("Missing required field: type");
     TitledSingleSelectEnumSchema result;
     if (obj.contains("default"))
-        result._default = obj.value("default").toString();
+        result._default_ = obj.value("default").toString();
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("oneOf") && obj["oneOf"].isArray()) {
@@ -4408,8 +4408,8 @@ Utils::Result<TitledSingleSelectEnumSchema> fromJson<TitledSingleSelectEnumSchem
 
 QJsonObject toJson(const TitledSingleSelectEnumSchema &data) {
     QJsonObject obj{{"type", QString("string")}};
-    if (data._default.has_value())
-        obj.insert("default", *data._default);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
     if (data._description.has_value())
         obj.insert("description", *data._description);
     QJsonArray arr_oneOf;
@@ -4433,7 +4433,7 @@ Utils::Result<UntitledMultiSelectEnumSchema::Items> fromJson<UntitledMultiSelect
     if (obj.contains("enum") && obj["enum"].isArray()) {
         const QJsonArray arr = obj["enum"].toArray();
         for (const QJsonValue &v : arr) {
-            result._enum.append(v.toString());
+            result._enum_.append(v.toString());
         }
     }
     if (obj.value("type").toString() != "string")
@@ -4444,7 +4444,7 @@ Utils::Result<UntitledMultiSelectEnumSchema::Items> fromJson<UntitledMultiSelect
 QJsonObject toJson(const UntitledMultiSelectEnumSchema::Items &data) {
     QJsonObject obj{{"type", QString("string")}};
     QJsonArray arr_enum_;
-    for (const auto &v : data._enum) arr_enum_.append(v);
+    for (const auto &v : data._enum_) arr_enum_.append(v);
     obj.insert("enum", arr_enum_);
     return obj;
 }
@@ -4465,7 +4465,7 @@ Utils::Result<UntitledMultiSelectEnumSchema> fromJson<UntitledMultiSelectEnumSch
         for (const QJsonValue &v : arr) {
             list_default_.append(v.toString());
         }
-        result._default = list_default_;
+        result._default_ = list_default_;
     }
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
@@ -4487,9 +4487,9 @@ QJsonObject toJson(const UntitledMultiSelectEnumSchema &data) {
         {"items", toJson(data._items)},
         {"type", QString("array")}
     };
-    if (data._default.has_value()) {
+    if (data._default_.has_value()) {
         QJsonArray arr_default_;
-        for (const auto &v : *data._default) arr_default_.append(v);
+        for (const auto &v : *data._default_) arr_default_.append(v);
         obj.insert("default", arr_default_);
     }
     if (data._description.has_value())
@@ -4514,13 +4514,13 @@ Utils::Result<UntitledSingleSelectEnumSchema> fromJson<UntitledSingleSelectEnumS
         return Utils::ResultError("Missing required field: type");
     UntitledSingleSelectEnumSchema result;
     if (obj.contains("default"))
-        result._default = obj.value("default").toString();
+        result._default_ = obj.value("default").toString();
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("enum") && obj["enum"].isArray()) {
         const QJsonArray arr = obj["enum"].toArray();
         for (const QJsonValue &v : arr) {
-            result._enum.append(v.toString());
+            result._enum_.append(v.toString());
         }
     }
     if (obj.contains("title"))
@@ -4532,12 +4532,12 @@ Utils::Result<UntitledSingleSelectEnumSchema> fromJson<UntitledSingleSelectEnumS
 
 QJsonObject toJson(const UntitledSingleSelectEnumSchema &data) {
     QJsonObject obj{{"type", QString("string")}};
-    if (data._default.has_value())
-        obj.insert("default", *data._default);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
     if (data._description.has_value())
         obj.insert("description", *data._description);
     QJsonArray arr_enum_;
-    for (const auto &v : data._enum) arr_enum_.append(v);
+    for (const auto &v : data._enum_) arr_enum_.append(v);
     obj.insert("enum", arr_enum_);
     if (data._title.has_value())
         obj.insert("title", *data._title);
@@ -4626,7 +4626,7 @@ Utils::Result<ElicitRequestFormParams::RequestedSchema> fromJson<ElicitRequestFo
         co_return Utils::ResultError("Missing required field: type");
     ElicitRequestFormParams::RequestedSchema result;
     if (obj.contains("$schema"))
-        result._$schema = obj.value("$schema").toString();
+        result._dollarschema = obj.value("$schema").toString();
     if (obj.contains("properties") && obj["properties"].isObject()) {
         const QJsonObject mapObj_properties = obj["properties"].toObject();
         QMap<QString, PrimitiveSchemaDefinition> map_properties;
@@ -4650,8 +4650,8 @@ Utils::Result<ElicitRequestFormParams::RequestedSchema> fromJson<ElicitRequestFo
 
 QJsonObject toJson(const ElicitRequestFormParams::RequestedSchema &data) {
     QJsonObject obj{{"type", QString("object")}};
-    if (data._$schema.has_value())
-        obj.insert("$schema", *data._$schema);
+    if (data._dollarschema.has_value())
+        obj.insert("$schema", *data._dollarschema);
     QJsonObject map_properties;
     for (auto it = data._properties.constBegin(); it != data._properties.constEnd(); ++it)
         map_properties.insert(it.key(), toJsonValue(it.value()));

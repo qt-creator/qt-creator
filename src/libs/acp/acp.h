@@ -1,4 +1,11 @@
-// This file is auto-generated. Do not edit manually.
+/*
+ This file is auto-generated. Do not edit manually.
+ Generated with:
+
+ /opt/homebrew/opt/python@3.14/bin/python3.14 \
+  scripts/generate_cpp_from_schema.py \
+  src/libs/acp/schema/schema.json src/libs/acp/acp.h --namespace Acp --cpp-output src/libs/acp/acp.cpp --export-macro ACPLIB_EXPORT --export-header acp_global.h
+*/
 #pragma once
 
 #include "acp_global.h"
@@ -33,9 +40,9 @@ struct McpCapabilities {
     std::optional<bool> _http;  //!< Agent supports [`McpServer::Http`].
     std::optional<bool> _sse;  //!< Agent supports [`McpServer::Sse`].
 
-    McpCapabilities& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    McpCapabilities& http(std::optional<bool> v) { _http = std::move(v); return *this; }
-    McpCapabilities& sse(std::optional<bool> v) { _sse = std::move(v); return *this; }
+    McpCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    McpCapabilities& http(std::optional<bool> v) { _http = v; return *this; }
+    McpCapabilities& sse(std::optional<bool> v) { _sse = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<bool>& http() const { return _http; }
@@ -80,10 +87,10 @@ struct PromptCapabilities {
     std::optional<bool> _embeddedContext;
     std::optional<bool> _image;  //!< Agent supports [`ContentBlock::Image`].
 
-    PromptCapabilities& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    PromptCapabilities& audio(std::optional<bool> v) { _audio = std::move(v); return *this; }
-    PromptCapabilities& embeddedContext(std::optional<bool> v) { _embeddedContext = std::move(v); return *this; }
-    PromptCapabilities& image(std::optional<bool> v) { _image = std::move(v); return *this; }
+    PromptCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    PromptCapabilities& audio(std::optional<bool> v) { _audio = v; return *this; }
+    PromptCapabilities& embeddedContext(std::optional<bool> v) { _embeddedContext = v; return *this; }
+    PromptCapabilities& image(std::optional<bool> v) { _image = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<bool>& audio() const { return _audio; }
@@ -117,7 +124,7 @@ struct SessionCapabilities {
      */
     std::optional<QJsonObject> __meta;
 
-    SessionCapabilities& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
+    SessionCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 };
@@ -149,11 +156,11 @@ struct AgentCapabilities {
     std::optional<QString> _promptCapabilities;  //!< Prompt capabilities supported by the agent.
     std::optional<QString> _sessionCapabilities;
 
-    AgentCapabilities& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    AgentCapabilities& loadSession(std::optional<bool> v) { _loadSession = std::move(v); return *this; }
-    AgentCapabilities& mcpCapabilities(std::optional<QString> v) { _mcpCapabilities = std::move(v); return *this; }
-    AgentCapabilities& promptCapabilities(std::optional<QString> v) { _promptCapabilities = std::move(v); return *this; }
-    AgentCapabilities& sessionCapabilities(std::optional<QString> v) { _sessionCapabilities = std::move(v); return *this; }
+    AgentCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    AgentCapabilities& loadSession(std::optional<bool> v) { _loadSession = v; return *this; }
+    AgentCapabilities& mcpCapabilities(const std::optional<QString> & v) { _mcpCapabilities = v; return *this; }
+    AgentCapabilities& promptCapabilities(const std::optional<QString> & v) { _promptCapabilities = v; return *this; }
+    AgentCapabilities& sessionCapabilities(const std::optional<QString> & v) { _sessionCapabilities = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<bool>& loadSession() const { return _loadSession; }
@@ -185,8 +192,8 @@ struct UnstructuredCommandInput {
     std::optional<QJsonObject> __meta;
     QString _hint;  //!< A hint to display when the input hasn't been provided yet
 
-    UnstructuredCommandInput& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    UnstructuredCommandInput& hint(QString v) { _hint = std::move(v); return *this; }
+    UnstructuredCommandInput& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    UnstructuredCommandInput& hint(const QString & v) { _hint = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& hint() const { return _hint; }
@@ -224,10 +231,10 @@ struct AvailableCommand {
     std::optional<QString> _input;  //!< Input for the command if required
     QString _name;  //!< Command name (e.g., `create_plan`, `research_codebase`).
 
-    AvailableCommand& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    AvailableCommand& description(QString v) { _description = std::move(v); return *this; }
-    AvailableCommand& input(std::optional<QString> v) { _input = std::move(v); return *this; }
-    AvailableCommand& name(QString v) { _name = std::move(v); return *this; }
+    AvailableCommand& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    AvailableCommand& description(const QString & v) { _description = v; return *this; }
+    AvailableCommand& input(const std::optional<QString> & v) { _input = v; return *this; }
+    AvailableCommand& name(const QString & v) { _name = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& description() const { return _description; }
@@ -252,9 +259,9 @@ struct AvailableCommandsUpdate {
     std::optional<QJsonObject> __meta;
     QList<AvailableCommand> _availableCommands;  //!< Commands the agent can execute
 
-    AvailableCommandsUpdate& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    AvailableCommandsUpdate& availableCommands(QList<AvailableCommand> v) { _availableCommands = std::move(v); return *this; }
-    AvailableCommandsUpdate& addAvailableCommand(AvailableCommand v) { _availableCommands.append(std::move(v)); return *this; }
+    AvailableCommandsUpdate& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    AvailableCommandsUpdate& availableCommands(const QList<AvailableCommand> & v) { _availableCommands = v; return *this; }
+    AvailableCommandsUpdate& addAvailableCommand(const AvailableCommand & v) { _availableCommands.append(v); return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QList<AvailableCommand>& availableCommands() const { return _availableCommands; }
@@ -309,10 +316,10 @@ struct SessionConfigSelectOption {
     QString _name;  //!< Human-readable label for this option value.
     QString _value;  //!< Unique identifier for this option value.
 
-    SessionConfigSelectOption& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SessionConfigSelectOption& description(std::optional<QString> v) { _description = std::move(v); return *this; }
-    SessionConfigSelectOption& name(QString v) { _name = std::move(v); return *this; }
-    SessionConfigSelectOption& value(QString v) { _value = std::move(v); return *this; }
+    SessionConfigSelectOption& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SessionConfigSelectOption& description(const std::optional<QString> & v) { _description = v; return *this; }
+    SessionConfigSelectOption& name(const QString & v) { _name = v; return *this; }
+    SessionConfigSelectOption& value(const QString & v) { _value = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& description() const { return _description; }
@@ -339,11 +346,11 @@ struct SessionConfigSelectGroup {
     QString _name;  //!< Human-readable label for this group.
     QList<SessionConfigSelectOption> _options;  //!< The set of option values in this group.
 
-    SessionConfigSelectGroup& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SessionConfigSelectGroup& group(QString v) { _group = std::move(v); return *this; }
-    SessionConfigSelectGroup& name(QString v) { _name = std::move(v); return *this; }
-    SessionConfigSelectGroup& options(QList<SessionConfigSelectOption> v) { _options = std::move(v); return *this; }
-    SessionConfigSelectGroup& addOption(SessionConfigSelectOption v) { _options.append(std::move(v)); return *this; }
+    SessionConfigSelectGroup& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SessionConfigSelectGroup& group(const QString & v) { _group = v; return *this; }
+    SessionConfigSelectGroup& name(const QString & v) { _name = v; return *this; }
+    SessionConfigSelectGroup& options(const QList<SessionConfigSelectOption> & v) { _options = v; return *this; }
+    SessionConfigSelectGroup& addOption(const SessionConfigSelectOption & v) { _options.append(v); return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& group() const { return _group; }
@@ -369,8 +376,8 @@ struct SessionConfigSelect {
     QString _currentValue;  //!< The currently selected value.
     QString _options;  //!< The set of selectable options.
 
-    SessionConfigSelect& currentValue(QString v) { _currentValue = std::move(v); return *this; }
-    SessionConfigSelect& options(QString v) { _options = std::move(v); return *this; }
+    SessionConfigSelect& currentValue(const QString & v) { _currentValue = v; return *this; }
+    SessionConfigSelect& options(const QString & v) { _options = v; return *this; }
 
     const QString& currentValue() const { return _currentValue; }
     const QString& options() const { return _options; }
@@ -396,11 +403,11 @@ struct SessionConfigOption {
     QString _id;  //!< Unique identifier for the configuration option.
     QString _name;  //!< Human-readable label for the option.
 
-    SessionConfigOption& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SessionConfigOption& category(std::optional<QString> v) { _category = std::move(v); return *this; }
-    SessionConfigOption& description(std::optional<QString> v) { _description = std::move(v); return *this; }
-    SessionConfigOption& id(QString v) { _id = std::move(v); return *this; }
-    SessionConfigOption& name(QString v) { _name = std::move(v); return *this; }
+    SessionConfigOption& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SessionConfigOption& category(const std::optional<QString> & v) { _category = v; return *this; }
+    SessionConfigOption& description(const std::optional<QString> & v) { _description = v; return *this; }
+    SessionConfigOption& id(const QString & v) { _id = v; return *this; }
+    SessionConfigOption& name(const QString & v) { _name = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& category() const { return _category; }
@@ -426,9 +433,9 @@ struct ConfigOptionUpdate {
     std::optional<QJsonObject> __meta;
     QList<SessionConfigOption> _configOptions;  //!< The full set of configuration options and their current values.
 
-    ConfigOptionUpdate& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ConfigOptionUpdate& configOptions(QList<SessionConfigOption> v) { _configOptions = std::move(v); return *this; }
-    ConfigOptionUpdate& addConfigOption(SessionConfigOption v) { _configOptions.append(std::move(v)); return *this; }
+    ConfigOptionUpdate& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ConfigOptionUpdate& configOptions(const QList<SessionConfigOption> & v) { _configOptions = v; return *this; }
+    ConfigOptionUpdate& addConfigOption(const SessionConfigOption & v) { _configOptions.append(v); return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QList<SessionConfigOption>& configOptions() const { return _configOptions; }
@@ -468,10 +475,10 @@ struct Annotations {
     std::optional<QString> _lastModified;
     std::optional<double> _priority;
 
-    Annotations& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    Annotations& audience(std::optional<QJsonArray> v) { _audience = std::move(v); return *this; }
-    Annotations& lastModified(std::optional<QString> v) { _lastModified = std::move(v); return *this; }
-    Annotations& priority(std::optional<double> v) { _priority = std::move(v); return *this; }
+    Annotations& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    Annotations& audience(const std::optional<QJsonArray> & v) { _audience = v; return *this; }
+    Annotations& lastModified(const std::optional<QString> & v) { _lastModified = v; return *this; }
+    Annotations& priority(std::optional<double> v) { _priority = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QJsonArray>& audience() const { return _audience; }
@@ -498,10 +505,10 @@ struct AudioContent {
     QString _data;
     QString _mimeType;
 
-    AudioContent& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    AudioContent& annotations(std::optional<QString> v) { _annotations = std::move(v); return *this; }
-    AudioContent& data(QString v) { _data = std::move(v); return *this; }
-    AudioContent& mimeType(QString v) { _mimeType = std::move(v); return *this; }
+    AudioContent& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    AudioContent& annotations(const std::optional<QString> & v) { _annotations = v; return *this; }
+    AudioContent& data(const QString & v) { _data = v; return *this; }
+    AudioContent& mimeType(const QString & v) { _mimeType = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& annotations() const { return _annotations; }
@@ -528,10 +535,10 @@ struct BlobResourceContents {
     std::optional<QString> _mimeType;
     QString _uri;
 
-    BlobResourceContents& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    BlobResourceContents& blob(QString v) { _blob = std::move(v); return *this; }
-    BlobResourceContents& mimeType(std::optional<QString> v) { _mimeType = std::move(v); return *this; }
-    BlobResourceContents& uri(QString v) { _uri = std::move(v); return *this; }
+    BlobResourceContents& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    BlobResourceContents& blob(const QString & v) { _blob = v; return *this; }
+    BlobResourceContents& mimeType(const std::optional<QString> & v) { _mimeType = v; return *this; }
+    BlobResourceContents& uri(const QString & v) { _uri = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& blob() const { return _blob; }
@@ -558,10 +565,10 @@ struct TextResourceContents {
     QString _text;
     QString _uri;
 
-    TextResourceContents& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    TextResourceContents& mimeType(std::optional<QString> v) { _mimeType = std::move(v); return *this; }
-    TextResourceContents& text(QString v) { _text = std::move(v); return *this; }
-    TextResourceContents& uri(QString v) { _uri = std::move(v); return *this; }
+    TextResourceContents& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    TextResourceContents& mimeType(const std::optional<QString> & v) { _mimeType = v; return *this; }
+    TextResourceContents& text(const QString & v) { _text = v; return *this; }
+    TextResourceContents& uri(const QString & v) { _uri = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& mimeType() const { return _mimeType; }
@@ -600,9 +607,9 @@ struct EmbeddedResource {
     std::optional<QString> _annotations;
     EmbeddedResourceResource _resource;
 
-    EmbeddedResource& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    EmbeddedResource& annotations(std::optional<QString> v) { _annotations = std::move(v); return *this; }
-    EmbeddedResource& resource(EmbeddedResourceResource v) { _resource = std::move(v); return *this; }
+    EmbeddedResource& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    EmbeddedResource& annotations(const std::optional<QString> & v) { _annotations = v; return *this; }
+    EmbeddedResource& resource(const EmbeddedResourceResource & v) { _resource = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& annotations() const { return _annotations; }
@@ -629,11 +636,11 @@ struct ImageContent {
     QString _mimeType;
     std::optional<QString> _uri;
 
-    ImageContent& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ImageContent& annotations(std::optional<QString> v) { _annotations = std::move(v); return *this; }
-    ImageContent& data(QString v) { _data = std::move(v); return *this; }
-    ImageContent& mimeType(QString v) { _mimeType = std::move(v); return *this; }
-    ImageContent& uri(std::optional<QString> v) { _uri = std::move(v); return *this; }
+    ImageContent& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ImageContent& annotations(const std::optional<QString> & v) { _annotations = v; return *this; }
+    ImageContent& data(const QString & v) { _data = v; return *this; }
+    ImageContent& mimeType(const QString & v) { _mimeType = v; return *this; }
+    ImageContent& uri(const std::optional<QString> & v) { _uri = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& annotations() const { return _annotations; }
@@ -665,14 +672,14 @@ struct ResourceLink {
     std::optional<QString> _title;
     QString _uri;
 
-    ResourceLink& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ResourceLink& annotations(std::optional<QString> v) { _annotations = std::move(v); return *this; }
-    ResourceLink& description(std::optional<QString> v) { _description = std::move(v); return *this; }
-    ResourceLink& mimeType(std::optional<QString> v) { _mimeType = std::move(v); return *this; }
-    ResourceLink& name(QString v) { _name = std::move(v); return *this; }
-    ResourceLink& size(std::optional<int> v) { _size = std::move(v); return *this; }
-    ResourceLink& title(std::optional<QString> v) { _title = std::move(v); return *this; }
-    ResourceLink& uri(QString v) { _uri = std::move(v); return *this; }
+    ResourceLink& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ResourceLink& annotations(const std::optional<QString> & v) { _annotations = v; return *this; }
+    ResourceLink& description(const std::optional<QString> & v) { _description = v; return *this; }
+    ResourceLink& mimeType(const std::optional<QString> & v) { _mimeType = v; return *this; }
+    ResourceLink& name(const QString & v) { _name = v; return *this; }
+    ResourceLink& size(std::optional<int> v) { _size = v; return *this; }
+    ResourceLink& title(const std::optional<QString> & v) { _title = v; return *this; }
+    ResourceLink& uri(const QString & v) { _uri = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& annotations() const { return _annotations; }
@@ -702,9 +709,9 @@ struct TextContent {
     std::optional<QString> _annotations;
     QString _text;
 
-    TextContent& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    TextContent& annotations(std::optional<QString> v) { _annotations = std::move(v); return *this; }
-    TextContent& text(QString v) { _text = std::move(v); return *this; }
+    TextContent& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    TextContent& annotations(const std::optional<QString> & v) { _annotations = v; return *this; }
+    TextContent& text(const QString & v) { _text = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& annotations() const { return _annotations; }
@@ -753,8 +760,8 @@ struct ContentChunk {
     std::optional<QJsonObject> __meta;
     QString _content;  //!< A single item of content
 
-    ContentChunk& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ContentChunk& content(QString v) { _content = std::move(v); return *this; }
+    ContentChunk& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ContentChunk& content(const QString & v) { _content = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& content() const { return _content; }
@@ -783,8 +790,8 @@ struct CurrentModeUpdate {
     std::optional<QJsonObject> __meta;
     QString _currentModeId;  //!< The ID of the current mode
 
-    CurrentModeUpdate& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    CurrentModeUpdate& currentModeId(QString v) { _currentModeId = std::move(v); return *this; }
+    CurrentModeUpdate& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    CurrentModeUpdate& currentModeId(const QString & v) { _currentModeId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& currentModeId() const { return _currentModeId; }
@@ -858,10 +865,10 @@ struct PlanEntry {
     QString _priority;
     QString _status;  //!< Current execution status of this task.
 
-    PlanEntry& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    PlanEntry& content(QString v) { _content = std::move(v); return *this; }
-    PlanEntry& priority(QString v) { _priority = std::move(v); return *this; }
-    PlanEntry& status(QString v) { _status = std::move(v); return *this; }
+    PlanEntry& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    PlanEntry& content(const QString & v) { _content = v; return *this; }
+    PlanEntry& priority(const QString & v) { _priority = v; return *this; }
+    PlanEntry& status(const QString & v) { _status = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& content() const { return _content; }
@@ -900,9 +907,9 @@ struct Plan {
      */
     QList<PlanEntry> _entries;
 
-    Plan& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    Plan& entries(QList<PlanEntry> v) { _entries = std::move(v); return *this; }
-    Plan& addEntry(PlanEntry v) { _entries.append(std::move(v)); return *this; }
+    Plan& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    Plan& entries(const QList<PlanEntry> & v) { _entries = v; return *this; }
+    Plan& addEntry(const PlanEntry & v) { _entries.append(v); return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QList<PlanEntry>& entries() const { return _entries; }
@@ -925,8 +932,8 @@ struct Content {
     std::optional<QJsonObject> __meta;
     QString _content;  //!< The actual content block.
 
-    Content& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    Content& content(QString v) { _content = std::move(v); return *this; }
+    Content& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    Content& content(const QString & v) { _content = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& content() const { return _content; }
@@ -957,10 +964,10 @@ struct Diff {
     std::optional<QString> _oldText;  //!< The original content (None for new files).
     QString _path;  //!< The file path being modified.
 
-    Diff& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    Diff& newText(QString v) { _newText = std::move(v); return *this; }
-    Diff& oldText(std::optional<QString> v) { _oldText = std::move(v); return *this; }
-    Diff& path(QString v) { _path = std::move(v); return *this; }
+    Diff& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    Diff& newText(const QString & v) { _newText = v; return *this; }
+    Diff& oldText(const std::optional<QString> & v) { _oldText = v; return *this; }
+    Diff& path(const QString & v) { _path = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& newText() const { return _newText; }
@@ -991,8 +998,8 @@ struct Terminal {
     std::optional<QJsonObject> __meta;
     QString _terminalId;
 
-    Terminal& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    Terminal& terminalId(QString v) { _terminalId = std::move(v); return *this; }
+    Terminal& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    Terminal& terminalId(const QString & v) { _terminalId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& terminalId() const { return _terminalId; }
@@ -1042,9 +1049,9 @@ struct ToolCallLocation {
     std::optional<int> _line;  //!< Optional line number within the file.
     QString _path;  //!< The file path being accessed or modified.
 
-    ToolCallLocation& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ToolCallLocation& line(std::optional<int> v) { _line = std::move(v); return *this; }
-    ToolCallLocation& path(QString v) { _path = std::move(v); return *this; }
+    ToolCallLocation& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ToolCallLocation& line(std::optional<int> v) { _line = v; return *this; }
+    ToolCallLocation& path(const QString & v) { _path = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<int>& line() const { return _line; }
@@ -1139,17 +1146,17 @@ struct ToolCall {
     QString _title;  //!< Human-readable title describing what the tool is doing.
     QString _toolCallId;  //!< Unique identifier for this tool call within the session.
 
-    ToolCall& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ToolCall& content(std::optional<QList<ToolCallContent>> v) { _content = std::move(v); return *this; }
-    ToolCall& addContent(ToolCallContent v) { if (!_content) _content = QList<ToolCallContent>{}; (*_content).append(std::move(v)); return *this; }
-    ToolCall& kind(std::optional<QString> v) { _kind = std::move(v); return *this; }
-    ToolCall& locations(std::optional<QList<ToolCallLocation>> v) { _locations = std::move(v); return *this; }
-    ToolCall& addLocation(ToolCallLocation v) { if (!_locations) _locations = QList<ToolCallLocation>{}; (*_locations).append(std::move(v)); return *this; }
-    ToolCall& rawInput(std::optional<QString> v) { _rawInput = std::move(v); return *this; }
-    ToolCall& rawOutput(std::optional<QString> v) { _rawOutput = std::move(v); return *this; }
-    ToolCall& status(std::optional<QString> v) { _status = std::move(v); return *this; }
-    ToolCall& title(QString v) { _title = std::move(v); return *this; }
-    ToolCall& toolCallId(QString v) { _toolCallId = std::move(v); return *this; }
+    ToolCall& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ToolCall& content(const std::optional<QList<ToolCallContent>> & v) { _content = v; return *this; }
+    ToolCall& addContent(const ToolCallContent & v) { if (!_content) _content = QList<ToolCallContent>{}; (*_content).append(v); return *this; }
+    ToolCall& kind(const std::optional<QString> & v) { _kind = v; return *this; }
+    ToolCall& locations(const std::optional<QList<ToolCallLocation>> & v) { _locations = v; return *this; }
+    ToolCall& addLocation(const ToolCallLocation & v) { if (!_locations) _locations = QList<ToolCallLocation>{}; (*_locations).append(v); return *this; }
+    ToolCall& rawInput(const std::optional<QString> & v) { _rawInput = v; return *this; }
+    ToolCall& rawOutput(const std::optional<QString> & v) { _rawOutput = v; return *this; }
+    ToolCall& status(const std::optional<QString> & v) { _status = v; return *this; }
+    ToolCall& title(const QString & v) { _title = v; return *this; }
+    ToolCall& toolCallId(const QString & v) { _toolCallId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QList<ToolCallContent>>& content() const { return _content; }
@@ -1193,15 +1200,15 @@ struct ToolCallUpdate {
     std::optional<QString> _title;  //!< Update the human-readable title.
     QString _toolCallId;  //!< The ID of the tool call being updated.
 
-    ToolCallUpdate& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ToolCallUpdate& content(std::optional<QJsonArray> v) { _content = std::move(v); return *this; }
-    ToolCallUpdate& kind(std::optional<QString> v) { _kind = std::move(v); return *this; }
-    ToolCallUpdate& locations(std::optional<QJsonArray> v) { _locations = std::move(v); return *this; }
-    ToolCallUpdate& rawInput(std::optional<QString> v) { _rawInput = std::move(v); return *this; }
-    ToolCallUpdate& rawOutput(std::optional<QString> v) { _rawOutput = std::move(v); return *this; }
-    ToolCallUpdate& status(std::optional<QString> v) { _status = std::move(v); return *this; }
-    ToolCallUpdate& title(std::optional<QString> v) { _title = std::move(v); return *this; }
-    ToolCallUpdate& toolCallId(QString v) { _toolCallId = std::move(v); return *this; }
+    ToolCallUpdate& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ToolCallUpdate& content(const std::optional<QJsonArray> & v) { _content = v; return *this; }
+    ToolCallUpdate& kind(const std::optional<QString> & v) { _kind = v; return *this; }
+    ToolCallUpdate& locations(const std::optional<QJsonArray> & v) { _locations = v; return *this; }
+    ToolCallUpdate& rawInput(const std::optional<QString> & v) { _rawInput = v; return *this; }
+    ToolCallUpdate& rawOutput(const std::optional<QString> & v) { _rawOutput = v; return *this; }
+    ToolCallUpdate& status(const std::optional<QString> & v) { _status = v; return *this; }
+    ToolCallUpdate& title(const std::optional<QString> & v) { _title = v; return *this; }
+    ToolCallUpdate& toolCallId(const QString & v) { _toolCallId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QJsonArray>& content() const { return _content; }
@@ -1254,9 +1261,9 @@ struct SessionNotification {
     QString _sessionId;  //!< The ID of the session this update pertains to.
     QString _update;  //!< The actual update content.
 
-    SessionNotification& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SessionNotification& sessionId(QString v) { _sessionId = std::move(v); return *this; }
-    SessionNotification& update(QString v) { _update = std::move(v); return *this; }
+    SessionNotification& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SessionNotification& sessionId(const QString & v) { _sessionId = v; return *this; }
+    SessionNotification& update(const QString & v) { _update = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& sessionId() const { return _sessionId; }
@@ -1272,8 +1279,8 @@ struct AgentNotification {
     QString _method;
     std::optional<QString> _params;
 
-    AgentNotification& method(QString v) { _method = std::move(v); return *this; }
-    AgentNotification& params(std::optional<QString> v) { _params = std::move(v); return *this; }
+    AgentNotification& method(const QString & v) { _method = v; return *this; }
+    AgentNotification& params(const std::optional<QString> & v) { _params = v; return *this; }
 
     const QString& method() const { return _method; }
     const std::optional<QString>& params() const { return _params; }
@@ -1297,9 +1304,9 @@ struct EnvVariable {
     QString _name;  //!< The name of the environment variable.
     QString _value;  //!< The value to set for the environment variable.
 
-    EnvVariable& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    EnvVariable& name(QString v) { _name = std::move(v); return *this; }
-    EnvVariable& value(QString v) { _value = std::move(v); return *this; }
+    EnvVariable& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    EnvVariable& name(const QString & v) { _name = v; return *this; }
+    EnvVariable& value(const QString & v) { _value = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& name() const { return _name; }
@@ -1338,15 +1345,15 @@ struct CreateTerminalRequest {
     std::optional<int> _outputByteLimit;
     QString _sessionId;  //!< The session ID for this request.
 
-    CreateTerminalRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    CreateTerminalRequest& args(std::optional<QStringList> v) { _args = std::move(v); return *this; }
-    CreateTerminalRequest& addArg(QString v) { if (!_args) _args = QStringList{}; (*_args).append(std::move(v)); return *this; }
-    CreateTerminalRequest& command(QString v) { _command = std::move(v); return *this; }
-    CreateTerminalRequest& cwd(std::optional<QString> v) { _cwd = std::move(v); return *this; }
-    CreateTerminalRequest& env(std::optional<QList<EnvVariable>> v) { _env = std::move(v); return *this; }
-    CreateTerminalRequest& addEnv(EnvVariable v) { if (!_env) _env = QList<EnvVariable>{}; (*_env).append(std::move(v)); return *this; }
-    CreateTerminalRequest& outputByteLimit(std::optional<int> v) { _outputByteLimit = std::move(v); return *this; }
-    CreateTerminalRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
+    CreateTerminalRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    CreateTerminalRequest& args(const std::optional<QStringList> & v) { _args = v; return *this; }
+    CreateTerminalRequest& addArg(const QString & v) { if (!_args) _args = QStringList{}; (*_args).append(v); return *this; }
+    CreateTerminalRequest& command(const QString & v) { _command = v; return *this; }
+    CreateTerminalRequest& cwd(const std::optional<QString> & v) { _cwd = v; return *this; }
+    CreateTerminalRequest& env(const std::optional<QList<EnvVariable>> & v) { _env = v; return *this; }
+    CreateTerminalRequest& addEnv(const EnvVariable & v) { if (!_env) _env = QList<EnvVariable>{}; (*_env).append(v); return *this; }
+    CreateTerminalRequest& outputByteLimit(std::optional<int> v) { _outputByteLimit = v; return *this; }
+    CreateTerminalRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QStringList>& args() const { return _args; }
@@ -1377,9 +1384,9 @@ struct KillTerminalCommandRequest {
     QString _sessionId;  //!< The session ID for this request.
     QString _terminalId;  //!< The ID of the terminal to kill.
 
-    KillTerminalCommandRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    KillTerminalCommandRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
-    KillTerminalCommandRequest& terminalId(QString v) { _terminalId = std::move(v); return *this; }
+    KillTerminalCommandRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    KillTerminalCommandRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
+    KillTerminalCommandRequest& terminalId(const QString & v) { _terminalId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& sessionId() const { return _sessionId; }
@@ -1410,11 +1417,11 @@ struct ReadTextFileRequest {
     QString _path;  //!< Absolute path to the file to read.
     QString _sessionId;  //!< The session ID for this request.
 
-    ReadTextFileRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ReadTextFileRequest& limit(std::optional<int> v) { _limit = std::move(v); return *this; }
-    ReadTextFileRequest& line(std::optional<int> v) { _line = std::move(v); return *this; }
-    ReadTextFileRequest& path(QString v) { _path = std::move(v); return *this; }
-    ReadTextFileRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
+    ReadTextFileRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ReadTextFileRequest& limit(std::optional<int> v) { _limit = v; return *this; }
+    ReadTextFileRequest& line(std::optional<int> v) { _line = v; return *this; }
+    ReadTextFileRequest& path(const QString & v) { _path = v; return *this; }
+    ReadTextFileRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<int>& limit() const { return _limit; }
@@ -1441,9 +1448,9 @@ struct ReleaseTerminalRequest {
     QString _sessionId;  //!< The session ID for this request.
     QString _terminalId;  //!< The ID of the terminal to release.
 
-    ReleaseTerminalRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ReleaseTerminalRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
-    ReleaseTerminalRequest& terminalId(QString v) { _terminalId = std::move(v); return *this; }
+    ReleaseTerminalRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ReleaseTerminalRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
+    ReleaseTerminalRequest& terminalId(const QString & v) { _terminalId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& sessionId() const { return _sessionId; }
@@ -1508,10 +1515,10 @@ struct PermissionOption {
     QString _name;  //!< Human-readable label to display to the user.
     QString _optionId;  //!< Unique identifier for this permission option.
 
-    PermissionOption& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    PermissionOption& kind(QString v) { _kind = std::move(v); return *this; }
-    PermissionOption& name(QString v) { _name = std::move(v); return *this; }
-    PermissionOption& optionId(QString v) { _optionId = std::move(v); return *this; }
+    PermissionOption& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    PermissionOption& kind(const QString & v) { _kind = v; return *this; }
+    PermissionOption& name(const QString & v) { _name = v; return *this; }
+    PermissionOption& optionId(const QString & v) { _optionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& kind() const { return _kind; }
@@ -1544,11 +1551,11 @@ struct RequestPermissionRequest {
     QString _sessionId;  //!< The session ID for this request.
     QString _toolCall;  //!< Details about the tool call requiring permission.
 
-    RequestPermissionRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    RequestPermissionRequest& options(QList<PermissionOption> v) { _options = std::move(v); return *this; }
-    RequestPermissionRequest& addOption(PermissionOption v) { _options.append(std::move(v)); return *this; }
-    RequestPermissionRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
-    RequestPermissionRequest& toolCall(QString v) { _toolCall = std::move(v); return *this; }
+    RequestPermissionRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    RequestPermissionRequest& options(const QList<PermissionOption> & v) { _options = v; return *this; }
+    RequestPermissionRequest& addOption(const PermissionOption & v) { _options.append(v); return *this; }
+    RequestPermissionRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
+    RequestPermissionRequest& toolCall(const QString & v) { _toolCall = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QList<PermissionOption>& options() const { return _options; }
@@ -1574,9 +1581,9 @@ struct TerminalOutputRequest {
     QString _sessionId;  //!< The session ID for this request.
     QString _terminalId;  //!< The ID of the terminal to get output from.
 
-    TerminalOutputRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    TerminalOutputRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
-    TerminalOutputRequest& terminalId(QString v) { _terminalId = std::move(v); return *this; }
+    TerminalOutputRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    TerminalOutputRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
+    TerminalOutputRequest& terminalId(const QString & v) { _terminalId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& sessionId() const { return _sessionId; }
@@ -1601,9 +1608,9 @@ struct WaitForTerminalExitRequest {
     QString _sessionId;  //!< The session ID for this request.
     QString _terminalId;  //!< The ID of the terminal to wait for.
 
-    WaitForTerminalExitRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    WaitForTerminalExitRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
-    WaitForTerminalExitRequest& terminalId(QString v) { _terminalId = std::move(v); return *this; }
+    WaitForTerminalExitRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    WaitForTerminalExitRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
+    WaitForTerminalExitRequest& terminalId(const QString & v) { _terminalId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& sessionId() const { return _sessionId; }
@@ -1633,10 +1640,10 @@ struct WriteTextFileRequest {
     QString _path;  //!< Absolute path to the file to write.
     QString _sessionId;  //!< The session ID for this request.
 
-    WriteTextFileRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    WriteTextFileRequest& content(QString v) { _content = std::move(v); return *this; }
-    WriteTextFileRequest& path(QString v) { _path = std::move(v); return *this; }
-    WriteTextFileRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
+    WriteTextFileRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    WriteTextFileRequest& content(const QString & v) { _content = v; return *this; }
+    WriteTextFileRequest& path(const QString & v) { _path = v; return *this; }
+    WriteTextFileRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& content() const { return _content; }
@@ -1654,9 +1661,9 @@ struct AgentRequest {
     QString _method;
     std::optional<QString> _params;
 
-    AgentRequest& id(RequestId v) { _id = std::move(v); return *this; }
-    AgentRequest& method(QString v) { _method = std::move(v); return *this; }
-    AgentRequest& params(std::optional<QString> v) { _params = std::move(v); return *this; }
+    AgentRequest& id(const RequestId & v) { _id = v; return *this; }
+    AgentRequest& method(const QString & v) { _method = v; return *this; }
+    AgentRequest& params(const std::optional<QString> & v) { _params = v; return *this; }
 
     const RequestId& id() const { return _id; }
     const QString& method() const { return _method; }
@@ -1679,7 +1686,7 @@ struct AuthenticateResponse {
      */
     std::optional<QJsonObject> __meta;
 
-    AuthenticateResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
+    AuthenticateResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 };
@@ -1722,9 +1729,9 @@ struct Error {
      */
     QString _message;
 
-    Error& code(QString v) { _code = std::move(v); return *this; }
-    Error& data(std::optional<QString> v) { _data = std::move(v); return *this; }
-    Error& message(QString v) { _message = std::move(v); return *this; }
+    Error& code(const QString & v) { _code = v; return *this; }
+    Error& data(const std::optional<QString> & v) { _data = v; return *this; }
+    Error& message(const QString & v) { _message = v; return *this; }
 
     const QString& code() const { return _code; }
     const std::optional<QString>& data() const { return _data; }
@@ -1752,10 +1759,10 @@ struct AuthMethod {
     QString _id;  //!< Unique identifier for this authentication method.
     QString _name;  //!< Human-readable name of the authentication method.
 
-    AuthMethod& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    AuthMethod& description(std::optional<QString> v) { _description = std::move(v); return *this; }
-    AuthMethod& id(QString v) { _id = std::move(v); return *this; }
-    AuthMethod& name(QString v) { _name = std::move(v); return *this; }
+    AuthMethod& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    AuthMethod& description(const std::optional<QString> & v) { _description = v; return *this; }
+    AuthMethod& id(const QString & v) { _id = v; return *this; }
+    AuthMethod& name(const QString & v) { _name = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& description() const { return _description; }
@@ -1800,10 +1807,10 @@ struct Implementation {
      */
     QString _version;
 
-    Implementation& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    Implementation& name(QString v) { _name = std::move(v); return *this; }
-    Implementation& title(std::optional<QString> v) { _title = std::move(v); return *this; }
-    Implementation& version(QString v) { _version = std::move(v); return *this; }
+    Implementation& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    Implementation& name(const QString & v) { _name = v; return *this; }
+    Implementation& title(const std::optional<QString> & v) { _title = v; return *this; }
+    Implementation& version(const QString & v) { _version = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& name() const { return _name; }
@@ -1852,12 +1859,12 @@ struct InitializeResponse {
      */
     QString _protocolVersion;
 
-    InitializeResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    InitializeResponse& agentCapabilities(std::optional<QString> v) { _agentCapabilities = std::move(v); return *this; }
-    InitializeResponse& agentInfo(std::optional<QString> v) { _agentInfo = std::move(v); return *this; }
-    InitializeResponse& authMethods(std::optional<QList<AuthMethod>> v) { _authMethods = std::move(v); return *this; }
-    InitializeResponse& addAuthMethod(AuthMethod v) { if (!_authMethods) _authMethods = QList<AuthMethod>{}; (*_authMethods).append(std::move(v)); return *this; }
-    InitializeResponse& protocolVersion(QString v) { _protocolVersion = std::move(v); return *this; }
+    InitializeResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    InitializeResponse& agentCapabilities(const std::optional<QString> & v) { _agentCapabilities = v; return *this; }
+    InitializeResponse& agentInfo(const std::optional<QString> & v) { _agentInfo = v; return *this; }
+    InitializeResponse& authMethods(const std::optional<QList<AuthMethod>> & v) { _authMethods = v; return *this; }
+    InitializeResponse& addAuthMethod(const AuthMethod & v) { if (!_authMethods) _authMethods = QList<AuthMethod>{}; (*_authMethods).append(v); return *this; }
+    InitializeResponse& protocolVersion(const QString & v) { _protocolVersion = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& agentCapabilities() const { return _agentCapabilities; }
@@ -1889,10 +1896,10 @@ struct SessionMode {
     SessionModeId _id;
     QString _name;
 
-    SessionMode& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SessionMode& description(std::optional<QString> v) { _description = std::move(v); return *this; }
-    SessionMode& id(SessionModeId v) { _id = std::move(v); return *this; }
-    SessionMode& name(QString v) { _name = std::move(v); return *this; }
+    SessionMode& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SessionMode& description(const std::optional<QString> & v) { _description = v; return *this; }
+    SessionMode& id(const SessionModeId & v) { _id = v; return *this; }
+    SessionMode& name(const QString & v) { _name = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& description() const { return _description; }
@@ -1918,10 +1925,10 @@ struct SessionModeState {
     QList<SessionMode> _availableModes;  //!< The set of modes that the Agent can operate in
     QString _currentModeId;  //!< The current mode the Agent is in.
 
-    SessionModeState& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SessionModeState& availableModes(QList<SessionMode> v) { _availableModes = std::move(v); return *this; }
-    SessionModeState& addAvailableMode(SessionMode v) { _availableModes.append(std::move(v)); return *this; }
-    SessionModeState& currentModeId(QString v) { _currentModeId = std::move(v); return *this; }
+    SessionModeState& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SessionModeState& availableModes(const QList<SessionMode> & v) { _availableModes = v; return *this; }
+    SessionModeState& addAvailableMode(const SessionMode & v) { _availableModes.append(v); return *this; }
+    SessionModeState& currentModeId(const QString & v) { _currentModeId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QList<SessionMode>& availableModes() const { return _availableModes; }
@@ -1951,9 +1958,9 @@ struct LoadSessionResponse {
      */
     std::optional<QString> _modes;
 
-    LoadSessionResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    LoadSessionResponse& configOptions(std::optional<QJsonArray> v) { _configOptions = std::move(v); return *this; }
-    LoadSessionResponse& modes(std::optional<QString> v) { _modes = std::move(v); return *this; }
+    LoadSessionResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    LoadSessionResponse& configOptions(const std::optional<QJsonArray> & v) { _configOptions = v; return *this; }
+    LoadSessionResponse& modes(const std::optional<QString> & v) { _modes = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QJsonArray>& configOptions() const { return _configOptions; }
@@ -1993,10 +2000,10 @@ struct NewSessionResponse {
      */
     QString _sessionId;
 
-    NewSessionResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    NewSessionResponse& configOptions(std::optional<QJsonArray> v) { _configOptions = std::move(v); return *this; }
-    NewSessionResponse& modes(std::optional<QString> v) { _modes = std::move(v); return *this; }
-    NewSessionResponse& sessionId(QString v) { _sessionId = std::move(v); return *this; }
+    NewSessionResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    NewSessionResponse& configOptions(const std::optional<QJsonArray> & v) { _configOptions = v; return *this; }
+    NewSessionResponse& modes(const std::optional<QString> & v) { _modes = v; return *this; }
+    NewSessionResponse& sessionId(const QString & v) { _sessionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QJsonArray>& configOptions() const { return _configOptions; }
@@ -2045,8 +2052,8 @@ struct PromptResponse {
     std::optional<QJsonObject> __meta;
     QString _stopReason;  //!< Indicates why the agent stopped processing the turn.
 
-    PromptResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    PromptResponse& stopReason(QString v) { _stopReason = std::move(v); return *this; }
+    PromptResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    PromptResponse& stopReason(const QString & v) { _stopReason = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& stopReason() const { return _stopReason; }
@@ -2069,9 +2076,9 @@ struct SetSessionConfigOptionResponse {
     std::optional<QJsonObject> __meta;
     QList<SessionConfigOption> _configOptions;  //!< The full set of configuration options and their current values.
 
-    SetSessionConfigOptionResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SetSessionConfigOptionResponse& configOptions(QList<SessionConfigOption> v) { _configOptions = std::move(v); return *this; }
-    SetSessionConfigOptionResponse& addConfigOption(SessionConfigOption v) { _configOptions.append(std::move(v)); return *this; }
+    SetSessionConfigOptionResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SetSessionConfigOptionResponse& configOptions(const QList<SessionConfigOption> & v) { _configOptions = v; return *this; }
+    SetSessionConfigOptionResponse& addConfigOption(const SessionConfigOption & v) { _configOptions.append(v); return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QList<SessionConfigOption>& configOptions() const { return _configOptions; }
@@ -2086,7 +2093,7 @@ ACPLIB_EXPORT QJsonObject toJson(const SetSessionConfigOptionResponse &data);
 struct SetSessionModeResponse {
     std::optional<QJsonObject> __meta;
 
-    SetSessionModeResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
+    SetSessionModeResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 };
@@ -2123,8 +2130,8 @@ struct AuthenticateRequest {
      */
     QString _methodId;
 
-    AuthenticateRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    AuthenticateRequest& methodId(QString v) { _methodId = std::move(v); return *this; }
+    AuthenticateRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    AuthenticateRequest& methodId(const QString & v) { _methodId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& methodId() const { return _methodId; }
@@ -2151,8 +2158,8 @@ struct CancelNotification {
     std::optional<QJsonObject> __meta;
     QString _sessionId;  //!< The ID of the session to cancel operations for.
 
-    CancelNotification& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    CancelNotification& sessionId(QString v) { _sessionId = std::move(v); return *this; }
+    CancelNotification& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    CancelNotification& sessionId(const QString & v) { _sessionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& sessionId() const { return _sessionId; }
@@ -2181,9 +2188,9 @@ struct FileSystemCapability {
     std::optional<bool> _readTextFile;  //!< Whether the Client supports `fs/read_text_file` requests.
     std::optional<bool> _writeTextFile;  //!< Whether the Client supports `fs/write_text_file` requests.
 
-    FileSystemCapability& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    FileSystemCapability& readTextFile(std::optional<bool> v) { _readTextFile = std::move(v); return *this; }
-    FileSystemCapability& writeTextFile(std::optional<bool> v) { _writeTextFile = std::move(v); return *this; }
+    FileSystemCapability& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    FileSystemCapability& readTextFile(std::optional<bool> v) { _readTextFile = v; return *this; }
+    FileSystemCapability& writeTextFile(std::optional<bool> v) { _writeTextFile = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<bool>& readTextFile() const { return _readTextFile; }
@@ -2219,9 +2226,9 @@ struct ClientCapabilities {
     std::optional<QString> _fs;
     std::optional<bool> _terminal;  //!< Whether the Client support all `terminal/*` methods.
 
-    ClientCapabilities& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ClientCapabilities& fs(std::optional<QString> v) { _fs = std::move(v); return *this; }
-    ClientCapabilities& terminal(std::optional<bool> v) { _terminal = std::move(v); return *this; }
+    ClientCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ClientCapabilities& fs(const std::optional<QString> & v) { _fs = v; return *this; }
+    ClientCapabilities& terminal(std::optional<bool> v) { _terminal = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& fs() const { return _fs; }
@@ -2237,8 +2244,8 @@ struct ClientNotification {
     QString _method;
     std::optional<QString> _params;
 
-    ClientNotification& method(QString v) { _method = std::move(v); return *this; }
-    ClientNotification& params(std::optional<QString> v) { _params = std::move(v); return *this; }
+    ClientNotification& method(const QString & v) { _method = v; return *this; }
+    ClientNotification& params(const std::optional<QString> & v) { _params = v; return *this; }
 
     const QString& method() const { return _method; }
     const std::optional<QString>& params() const { return _params; }
@@ -2274,10 +2281,10 @@ struct InitializeRequest {
     std::optional<QString> _clientInfo;
     QString _protocolVersion;  //!< The latest protocol version supported by the client.
 
-    InitializeRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    InitializeRequest& clientCapabilities(std::optional<QString> v) { _clientCapabilities = std::move(v); return *this; }
-    InitializeRequest& clientInfo(std::optional<QString> v) { _clientInfo = std::move(v); return *this; }
-    InitializeRequest& protocolVersion(QString v) { _protocolVersion = std::move(v); return *this; }
+    InitializeRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    InitializeRequest& clientCapabilities(const std::optional<QString> & v) { _clientCapabilities = v; return *this; }
+    InitializeRequest& clientInfo(const std::optional<QString> & v) { _clientInfo = v; return *this; }
+    InitializeRequest& protocolVersion(const QString & v) { _protocolVersion = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& clientCapabilities() const { return _clientCapabilities; }
@@ -2303,9 +2310,9 @@ struct HttpHeader {
     QString _name;  //!< The name of the HTTP header.
     QString _value;  //!< The value to set for the HTTP header.
 
-    HttpHeader& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    HttpHeader& name(QString v) { _name = std::move(v); return *this; }
-    HttpHeader& value(QString v) { _value = std::move(v); return *this; }
+    HttpHeader& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    HttpHeader& name(const QString & v) { _name = v; return *this; }
+    HttpHeader& value(const QString & v) { _value = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& name() const { return _name; }
@@ -2331,11 +2338,11 @@ struct McpServerHttp {
     QString _name;  //!< Human-readable name identifying this MCP server.
     QString _url;  //!< URL to the MCP server.
 
-    McpServerHttp& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    McpServerHttp& headers(QList<HttpHeader> v) { _headers = std::move(v); return *this; }
-    McpServerHttp& addHeader(HttpHeader v) { _headers.append(std::move(v)); return *this; }
-    McpServerHttp& name(QString v) { _name = std::move(v); return *this; }
-    McpServerHttp& url(QString v) { _url = std::move(v); return *this; }
+    McpServerHttp& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    McpServerHttp& headers(const QList<HttpHeader> & v) { _headers = v; return *this; }
+    McpServerHttp& addHeader(const HttpHeader & v) { _headers.append(v); return *this; }
+    McpServerHttp& name(const QString & v) { _name = v; return *this; }
+    McpServerHttp& url(const QString & v) { _url = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QList<HttpHeader>& headers() const { return _headers; }
@@ -2362,11 +2369,11 @@ struct McpServerSse {
     QString _name;  //!< Human-readable name identifying this MCP server.
     QString _url;  //!< URL to the MCP server.
 
-    McpServerSse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    McpServerSse& headers(QList<HttpHeader> v) { _headers = std::move(v); return *this; }
-    McpServerSse& addHeader(HttpHeader v) { _headers.append(std::move(v)); return *this; }
-    McpServerSse& name(QString v) { _name = std::move(v); return *this; }
-    McpServerSse& url(QString v) { _url = std::move(v); return *this; }
+    McpServerSse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    McpServerSse& headers(const QList<HttpHeader> & v) { _headers = v; return *this; }
+    McpServerSse& addHeader(const HttpHeader & v) { _headers.append(v); return *this; }
+    McpServerSse& name(const QString & v) { _name = v; return *this; }
+    McpServerSse& url(const QString & v) { _url = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QList<HttpHeader>& headers() const { return _headers; }
@@ -2394,13 +2401,13 @@ struct McpServerStdio {
     QList<EnvVariable> _env;  //!< Environment variables to set when launching the MCP server.
     QString _name;  //!< Human-readable name identifying this MCP server.
 
-    McpServerStdio& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    McpServerStdio& args(QStringList v) { _args = std::move(v); return *this; }
-    McpServerStdio& addArg(QString v) { _args.append(std::move(v)); return *this; }
-    McpServerStdio& command(QString v) { _command = std::move(v); return *this; }
-    McpServerStdio& env(QList<EnvVariable> v) { _env = std::move(v); return *this; }
-    McpServerStdio& addEnv(EnvVariable v) { _env.append(std::move(v)); return *this; }
-    McpServerStdio& name(QString v) { _name = std::move(v); return *this; }
+    McpServerStdio& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    McpServerStdio& args(const QStringList & v) { _args = v; return *this; }
+    McpServerStdio& addArg(const QString & v) { _args.append(v); return *this; }
+    McpServerStdio& command(const QString & v) { _command = v; return *this; }
+    McpServerStdio& env(const QList<EnvVariable> & v) { _env = v; return *this; }
+    McpServerStdio& addEnv(const EnvVariable & v) { _env.append(v); return *this; }
+    McpServerStdio& name(const QString & v) { _name = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QStringList& args() const { return _args; }
@@ -2454,11 +2461,11 @@ struct LoadSessionRequest {
     QList<McpServer> _mcpServers;  //!< List of MCP servers to connect to for this session.
     QString _sessionId;  //!< The ID of the session to load.
 
-    LoadSessionRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    LoadSessionRequest& cwd(QString v) { _cwd = std::move(v); return *this; }
-    LoadSessionRequest& mcpServers(QList<McpServer> v) { _mcpServers = std::move(v); return *this; }
-    LoadSessionRequest& addMcpServer(McpServer v) { _mcpServers.append(std::move(v)); return *this; }
-    LoadSessionRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
+    LoadSessionRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    LoadSessionRequest& cwd(const QString & v) { _cwd = v; return *this; }
+    LoadSessionRequest& mcpServers(const QList<McpServer> & v) { _mcpServers = v; return *this; }
+    LoadSessionRequest& addMcpServer(const McpServer & v) { _mcpServers.append(v); return *this; }
+    LoadSessionRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& cwd() const { return _cwd; }
@@ -2488,10 +2495,10 @@ struct NewSessionRequest {
     QString _cwd;  //!< The working directory for this session. Must be an absolute path.
     QList<McpServer> _mcpServers;  //!< List of MCP (Model Context Protocol) servers the agent should connect to.
 
-    NewSessionRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    NewSessionRequest& cwd(QString v) { _cwd = std::move(v); return *this; }
-    NewSessionRequest& mcpServers(QList<McpServer> v) { _mcpServers = std::move(v); return *this; }
-    NewSessionRequest& addMcpServer(McpServer v) { _mcpServers.append(std::move(v)); return *this; }
+    NewSessionRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    NewSessionRequest& cwd(const QString & v) { _cwd = v; return *this; }
+    NewSessionRequest& mcpServers(const QList<McpServer> & v) { _mcpServers = v; return *this; }
+    NewSessionRequest& addMcpServer(const McpServer & v) { _mcpServers.append(v); return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& cwd() const { return _cwd; }
@@ -2537,10 +2544,10 @@ struct PromptRequest {
     QList<ContentBlock> _prompt;
     QString _sessionId;  //!< The ID of the session to send this user message to
 
-    PromptRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    PromptRequest& prompt(QList<ContentBlock> v) { _prompt = std::move(v); return *this; }
-    PromptRequest& addPrompt(ContentBlock v) { _prompt.append(std::move(v)); return *this; }
-    PromptRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
+    PromptRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    PromptRequest& prompt(const QList<ContentBlock> & v) { _prompt = v; return *this; }
+    PromptRequest& addPrompt(const ContentBlock & v) { _prompt.append(v); return *this; }
+    PromptRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QList<ContentBlock>& prompt() const { return _prompt; }
@@ -2566,10 +2573,10 @@ struct SetSessionConfigOptionRequest {
     QString _sessionId;  //!< The ID of the session to set the configuration option for.
     QString _value;  //!< The ID of the configuration option value to set.
 
-    SetSessionConfigOptionRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SetSessionConfigOptionRequest& configId(QString v) { _configId = std::move(v); return *this; }
-    SetSessionConfigOptionRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
-    SetSessionConfigOptionRequest& value(QString v) { _value = std::move(v); return *this; }
+    SetSessionConfigOptionRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SetSessionConfigOptionRequest& configId(const QString & v) { _configId = v; return *this; }
+    SetSessionConfigOptionRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
+    SetSessionConfigOptionRequest& value(const QString & v) { _value = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& configId() const { return _configId; }
@@ -2595,9 +2602,9 @@ struct SetSessionModeRequest {
     QString _modeId;  //!< The ID of the mode to set.
     QString _sessionId;  //!< The ID of the session to set the mode for.
 
-    SetSessionModeRequest& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SetSessionModeRequest& modeId(QString v) { _modeId = std::move(v); return *this; }
-    SetSessionModeRequest& sessionId(QString v) { _sessionId = std::move(v); return *this; }
+    SetSessionModeRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SetSessionModeRequest& modeId(const QString & v) { _modeId = v; return *this; }
+    SetSessionModeRequest& sessionId(const QString & v) { _sessionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& modeId() const { return _modeId; }
@@ -2614,9 +2621,9 @@ struct ClientRequest {
     QString _method;
     std::optional<QString> _params;
 
-    ClientRequest& id(RequestId v) { _id = std::move(v); return *this; }
-    ClientRequest& method(QString v) { _method = std::move(v); return *this; }
-    ClientRequest& params(std::optional<QString> v) { _params = std::move(v); return *this; }
+    ClientRequest& id(const RequestId & v) { _id = v; return *this; }
+    ClientRequest& method(const QString & v) { _method = v; return *this; }
+    ClientRequest& params(const std::optional<QString> & v) { _params = v; return *this; }
 
     const RequestId& id() const { return _id; }
     const QString& method() const { return _method; }
@@ -2640,8 +2647,8 @@ struct CreateTerminalResponse {
     std::optional<QJsonObject> __meta;
     QString _terminalId;  //!< The unique identifier for the created terminal.
 
-    CreateTerminalResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    CreateTerminalResponse& terminalId(QString v) { _terminalId = std::move(v); return *this; }
+    CreateTerminalResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    CreateTerminalResponse& terminalId(const QString & v) { _terminalId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& terminalId() const { return _terminalId; }
@@ -2663,7 +2670,7 @@ struct KillTerminalCommandResponse {
      */
     std::optional<QJsonObject> __meta;
 
-    KillTerminalCommandResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
+    KillTerminalCommandResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 };
@@ -2685,8 +2692,8 @@ struct ReadTextFileResponse {
     std::optional<QJsonObject> __meta;
     QString _content;
 
-    ReadTextFileResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    ReadTextFileResponse& content(QString v) { _content = std::move(v); return *this; }
+    ReadTextFileResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    ReadTextFileResponse& content(const QString & v) { _content = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& content() const { return _content; }
@@ -2708,7 +2715,7 @@ struct ReleaseTerminalResponse {
      */
     std::optional<QJsonObject> __meta;
 
-    ReleaseTerminalResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
+    ReleaseTerminalResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 };
@@ -2730,8 +2737,8 @@ struct SelectedPermissionOutcome {
     std::optional<QJsonObject> __meta;
     QString _optionId;  //!< The ID of the option the user selected.
 
-    SelectedPermissionOutcome& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    SelectedPermissionOutcome& optionId(QString v) { _optionId = std::move(v); return *this; }
+    SelectedPermissionOutcome& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    SelectedPermissionOutcome& optionId(const QString & v) { _optionId = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& optionId() const { return _optionId; }
@@ -2764,8 +2771,8 @@ struct RequestPermissionResponse {
     std::optional<QJsonObject> __meta;
     QString _outcome;  //!< The user's decision on the permission request.
 
-    RequestPermissionResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    RequestPermissionResponse& outcome(QString v) { _outcome = std::move(v); return *this; }
+    RequestPermissionResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    RequestPermissionResponse& outcome(const QString & v) { _outcome = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const QString& outcome() const { return _outcome; }
@@ -2789,9 +2796,9 @@ struct TerminalExitStatus {
     std::optional<int> _exitCode;  //!< The process exit code (may be null if terminated by signal).
     std::optional<QString> _signal;  //!< The signal that terminated the process (may be null if exited normally).
 
-    TerminalExitStatus& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    TerminalExitStatus& exitCode(std::optional<int> v) { _exitCode = std::move(v); return *this; }
-    TerminalExitStatus& signal(std::optional<QString> v) { _signal = std::move(v); return *this; }
+    TerminalExitStatus& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    TerminalExitStatus& exitCode(std::optional<int> v) { _exitCode = v; return *this; }
+    TerminalExitStatus& signal(const std::optional<QString> & v) { _signal = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<int>& exitCode() const { return _exitCode; }
@@ -2817,10 +2824,10 @@ struct TerminalOutputResponse {
     QString _output;  //!< The terminal output captured so far.
     bool _truncated;  //!< Whether the output was truncated due to byte limits.
 
-    TerminalOutputResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    TerminalOutputResponse& exitStatus(std::optional<QString> v) { _exitStatus = std::move(v); return *this; }
-    TerminalOutputResponse& output(QString v) { _output = std::move(v); return *this; }
-    TerminalOutputResponse& truncated(bool v) { _truncated = std::move(v); return *this; }
+    TerminalOutputResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    TerminalOutputResponse& exitStatus(const std::optional<QString> & v) { _exitStatus = v; return *this; }
+    TerminalOutputResponse& output(const QString & v) { _output = v; return *this; }
+    TerminalOutputResponse& truncated(bool v) { _truncated = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<QString>& exitStatus() const { return _exitStatus; }
@@ -2846,9 +2853,9 @@ struct WaitForTerminalExitResponse {
     std::optional<int> _exitCode;  //!< The process exit code (may be null if terminated by signal).
     std::optional<QString> _signal;  //!< The signal that terminated the process (may be null if exited normally).
 
-    WaitForTerminalExitResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
-    WaitForTerminalExitResponse& exitCode(std::optional<int> v) { _exitCode = std::move(v); return *this; }
-    WaitForTerminalExitResponse& signal(std::optional<QString> v) { _signal = std::move(v); return *this; }
+    WaitForTerminalExitResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    WaitForTerminalExitResponse& exitCode(std::optional<int> v) { _exitCode = v; return *this; }
+    WaitForTerminalExitResponse& signal(const std::optional<QString> & v) { _signal = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
     const std::optional<int>& exitCode() const { return _exitCode; }
@@ -2871,7 +2878,7 @@ struct WriteTextFileResponse {
      */
     std::optional<QJsonObject> __meta;
 
-    WriteTextFileResponse& _meta(std::optional<QJsonObject> v) { __meta = std::move(v); return *this; }
+    WriteTextFileResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 };
