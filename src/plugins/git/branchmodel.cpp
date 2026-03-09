@@ -922,17 +922,35 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
 void BranchModel::setRemoteTracking(const QModelIndex &trackingIndex)
 {
     qCDebug(modelLog) << "setRemoteTracking() called: trackingIndex=" << trackingIndex;
-    QModelIndex current = currentBranch();
+    const QModelIndex current = currentBranch();
     QTC_ASSERT(current.isValid(), return);
     const QString currentName = fullName(current);
     const QString shortTracking = fullName(trackingIndex);
     const QString tracking = fullName(trackingIndex, true);
     qCDebug(modelLog) << "setRemoteTracking: currentName=" << currentName << "shortTracking=" << shortTracking << "tracking=" << tracking;
-    gitClient().synchronousSetTrackingBranch(d->workingDirectory, currentName, tracking);
-    d->currentBranch->tracking = shortTracking;
-    d->parallelTaskTreeRunner.start({d->updateUpstreamStatusTask(d->currentBranch)});
-    emit dataChanged(current, current);
-    qCDebug(modelLog) << "setRemoteTracking: tracking branch set and dataChanged emitted";
+    const ExecutableItem setTrackingBranchTask = gitClient().commandTask({
+        d->workingDirectory,
+        {"branch", "--set-upstream-to=" + tracking, currentName}
+    });
+
+    const QSyncTask sync([this, nodePtr = QPointer<BranchNode>(d->currentBranch), shortTracking] {
+        const QModelIndex idx = nodeToIndex(nodePtr.get(), ColumnBranch);
+        if (!idx.isValid())
+            return false;
+
+        d->currentBranch->tracking = shortTracking;
+        emit dataChanged(idx, idx);
+        qCDebug(modelLog) << "setRemoteTracking: tracking branch set and dataChanged emitted";
+        return true;
+    });
+
+    const Group recipe =  {
+        setTrackingBranchTask,
+        sync,
+        d->updateUpstreamStatusTask(d->currentBranch)
+    };
+
+    d->parallelTaskTreeRunner.start(recipe);
 }
 
 void BranchModel::setOldBranchesIncluded(bool value)

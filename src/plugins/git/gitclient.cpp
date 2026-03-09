@@ -3378,14 +3378,6 @@ QString GitClient::synchronousTrackingBranch(const FilePath &workingDirectory, c
     return remote + '/' + rBranch;
 }
 
-bool GitClient::synchronousSetTrackingBranch(const FilePath &workingDirectory,
-                                             const QString &branch, const QString &tracking)
-{
-    const CommandResult result = vcsSynchronousExec(workingDirectory,
-                                 {"branch", "--set-upstream-to=" + tracking, branch});
-    return result.result() == ProcessResult::FinishedWithSuccess;
-}
-
 void GitClient::handleMergeConflicts(const FilePath &workingDir, const QString &commit,
                                      const QStringList &files, const QString &abortCommand)
 {
