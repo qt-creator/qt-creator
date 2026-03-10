@@ -20,7 +20,7 @@
 
     To copy information about your \QC version that you can paste to the bug
     report, go to \uicontrol Help > \uicontrol {About \QC} and select
-    \uicontrol {Copy and Close}.
+    \uicontrol {Copy to Clipboard}.
 
     To copy detailed information about your system that you can paste to the bug
     report, go to \uicontrol Help > \uicontrol {System Information} and select
@@ -28,15 +28,9 @@
 
     To get commercial Qt support, go to \uicontrol Help >
     \uicontrol {Commercial Qt Support} and create a service request.
-    To check your licenses and services, go to \uicontrol Help >
-    \uicontrol {Qt Account}.
 
-    \section1 Give feedback
-
-    To rate \QC and send us feedback, go to \uicontrol Help >
-    \uicontrol {Give Feedback}.
-
-    Or, give feedback from your Qt account.
+    To check your licenses and services and send Qt feedback, go to
+    \uicontrol Help > \uicontrol {Qt Account}.
 
     \section1 Join discussions
 
