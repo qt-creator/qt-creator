@@ -15,6 +15,7 @@
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
@@ -408,8 +409,18 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     connect(m_certificatesAliasComboBox, &QComboBox::currentIndexChanged, this, updateAlias);
 
     // Application group
-
     QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->kit());
+    if (!qt || !qt->isAndroidQtVersion()) {
+        const QString message = Tr::tr("No valid Android Qt version configured for kit \"%1\". "
+                                       "Configure a Qt version in Projects > Manage Kits.")
+                                    .arg(m_step->kit()->displayName());
+        Core::MessageManager::writeFlashing(message);
+        auto errorLabel = new InfoLabel(message, InfoLabel::Error, this);
+        errorLabel->setWordWrap(true);
+        Column { errorLabel, noMargin }.attachTo(this);
+        return;
+    }
+
     const int minApiSupported = static_cast<const AndroidQtVersion *>(qt)->defaultMinimumSDK();
     QStringList targets = AndroidConfig::apiLevelNamesFor(
         sdkManager().filteredSdkPlatforms(minApiSupported));
