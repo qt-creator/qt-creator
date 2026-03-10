@@ -11,7 +11,7 @@
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <QtTaskTree/QNetworkReplyWrapper>
-#include <QtTaskTree/QTaskTree>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -232,32 +232,9 @@ static Group installRecipe(
 
 void setupInstallModule()
 {
-    class State
-    {
-    public:
-        State() = default;
-        State(const State &) {}
-        ~State()
-        {
-            for (auto tree : std::as_const(m_trees))
-                delete tree;
-        }
-
-        QTaskTree *createTree()
-        {
-            auto tree = new QTaskTree();
-            m_trees.append(tree);
-            QObject::connect(tree, &QTaskTree::done, tree, &QObject::deleteLater);
-            return tree;
-        };
-
-    private:
-        QList<QPointer<QTaskTree>> m_trees;
-    };
-
     registerProvider(
         "Install",
-        [state = State(),
+        [taskTreeRunner = std::make_shared<QParallelTaskTreeRunner>(),
          infoBarCleaner = InfoBarCleaner()](sol::state_view lua) mutable -> sol::object {
             sol::table async
                 = lua.script("return require('async')", "_install_async_").get<sol::table>();
@@ -284,7 +261,7 @@ void setupInstallModule()
             };
 
             install["install_cb"] =
-                [pluginSpec, &state, &infoBarCleaner](
+                [pluginSpec, taskTreeRunner, &infoBarCleaner](
                     const QString &msg,
                     const sol::table &installOptions,
                     const sol::function &callback) {
@@ -313,16 +290,15 @@ void setupInstallModule()
                         installOptionsList.append({url, name, version});
                     }
 
-                    auto install = [&state, pluginSpec, installOptionsList, callback]() {
-                        auto tree = state.createTree();
+                    auto install = [taskTreeRunner, pluginSpec, installOptionsList, callback] {
+                        const auto onSetup = [size = installOptionsList.size()](QTaskTree &taskTree) {
+                            auto progress = new TaskProgress(&taskTree);
+                            progress->setDisplayName(Tr::tr("Installing %n package(s)...", "", size));
+                        };
 
-                        auto progress = new TaskProgress(tree);
-                        progress->setDisplayName(
-                            Tr::tr("Installing %n package(s)...", "", installOptionsList.size()));
-
-                        tree->setRecipe(
-                            installRecipe(pluginSpec->appDataPath, installOptionsList, callback));
-                        tree->start();
+                        taskTreeRunner->start(
+                            installRecipe(pluginSpec->appDataPath, installOptionsList, callback),
+                            onSetup);
                     };
 
                     auto denied = [callback]() { callback(false, "User denied installation"); };
