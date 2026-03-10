@@ -118,6 +118,8 @@ public:
     Utils::Result<QFuture<QString>> group(const QString &path);
     Utils::Result<QFuture<uint>> groupId(const QString &path);
 
+    Utils::Result<QFuture<bool>> isSameFile(const QString &path1, const QString &path2);
+
 protected:
     bool exit();
 

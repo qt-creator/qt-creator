@@ -22,6 +22,11 @@ var MagicPacketMarker = "-magic-packet-marker-"
 
 var globalWaitGroup sync.WaitGroup
 
+type issamefile struct {
+	Path1 string
+	Path2 string
+}
+
 type command struct {
 	Type string
 	Id   int
@@ -43,6 +48,8 @@ type command struct {
 	SetPermissions setpermissions
 
 	Signal signal
+
+	IsSameFile issamefile
 }
 
 type errorresult struct {
@@ -149,6 +156,12 @@ type signal struct {
 type signalsuccess struct {
 	Type string
 	Id int
+}
+
+type issamefileresult struct {
+	Type string
+	Id   int
+	Result bool
 }
 
 func readPacket(decoder *cbor.Decoder) (*command, error) {
@@ -453,6 +466,28 @@ func processSignal(cmd command, out chan<- []byte) {
 	out <- data
 }
 
+func processIsSameFile(cmd command, out chan<- []byte) {
+	fileInfo1, err1 := os.Stat(cmd.IsSameFile.Path1)
+	if err1 != nil {
+		sendError(out, cmd, err1)
+		return
+	}
+
+	fileInfo2, err2 := os.Stat(cmd.IsSameFile.Path2)
+	if err2 != nil {
+		sendError(out, cmd, err2)
+		return
+	}
+	same := os.SameFile(fileInfo1, fileInfo2)
+
+	result, _ := cbor.Marshal(issamefileresult{
+		Type: "issamefileresult",
+		Id:   cmd.Id,
+		Result: same,
+	})
+	out <- result
+}
+
 func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
 	defer globalWaitGroup.Done()
 
@@ -511,6 +546,8 @@ func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
 		watcher.processAdd(cmd, out)
 	case "writefile":
 		processWriteFile(cmd, out)
+	case "issamefile":
+		processIsSameFile(cmd, out)
 	case "error":
 		result, _ := cbor.Marshal(errorresult{
 			Type:  "error",

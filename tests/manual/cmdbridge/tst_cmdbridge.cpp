@@ -508,6 +508,52 @@ The end.
             }
         }
     }
+
+    void testSameFile()
+    {
+        if (HostOsInfo::isLinuxHost())
+            QSKIP("Skipping test on Linux, as it will probably be case sensitive.");
+
+        Result<FilePath> bridgePath = CmdBridge::Client::getCmdBridgePath(
+            HostOsInfo::hostOs(),
+            HostOsInfo::hostArchitecture(),
+            FilePath::fromUserInput(libExecPath));
+        QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
+
+        CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
+        QTC_ASSERT_RESULT(client.start(), return);
+
+        const FilePath file1 = FilePath::fromUserInput(QDir::tempPath());
+        const FilePath file2 = FilePath::fromUserInput(QDir::rootPath());
+
+        auto result = client.isSameFile(file1.nativePath(), file2.nativePath());
+        QTC_ASSERT_RESULT(result, QFAIL("isSameFile failed"));
+        QVERIFY(!result->result());
+
+        const FilePath testDir = TemporaryDirectory::masterDirectoryFilePath()
+                                 / "test-samefile-symlinks";
+        QVERIFY_RESULT(testDir.ensureWritableDir());
+
+        const FilePath original = testDir / "original-file.txt";
+        original.writeFileContents("Hello World");
+
+        const auto link = testDir / "link.txt";
+        QVERIFY_RESULT(original.createSymLink(link));
+
+        result = client.isSameFile(original.path(), link.path());
+        QVERIFY_RESULT(result);
+        QVERIFY(result->result());
+
+        // Check if path is case in-sensitive:
+        const auto uppercased = original.withNewFileName("ORIGINAL-FILE.txt");
+        const bool isCaseInsensitive = uppercased.exists();
+        if (!isCaseInsensitive)
+            QVERIFY_RESULT(uppercased.writeFileContents("Other file"));
+
+        result = client.isSameFile(original.path(), uppercased.path());
+        QVERIFY_RESULT(result);
+        QCOMPARE(result->result(), isCaseInsensitive);
+    }
 };
 
 QTEST_GUILESS_MAIN(tst_CmdBridge)

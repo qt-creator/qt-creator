@@ -64,6 +64,7 @@ protected:
     virtual Result<uint> groupId(const FilePath &filePath) const;
     virtual Result<qint64> bytesAvailable(const FilePath &filePath) const;
     virtual Result<QByteArray> fileId(const FilePath &filePath) const;
+    virtual Result<bool> isSameFile(const FilePath &lhs, const FilePath &rhs) const;
 
     virtual Result<std::optional<FilePath>> refersToExecutableFile(
             const FilePath &filePath,
@@ -132,6 +133,7 @@ protected:
     Result<uint> groupId(const FilePath &filePath) const override;
     Result<qint64> bytesAvailable(const FilePath &filePath) const override;
     Result<QByteArray> fileId(const FilePath &filePath) const override;
+    Result<bool> isSameFile(const FilePath &lhs, const FilePath &rhs) const override;
 
     Result<std::optional<FilePath>> refersToExecutableFile(
             const FilePath &filePath,
@@ -203,6 +205,7 @@ protected:
     Result<uint> groupId(const FilePath &filePath) const override;
     Result<qint64> bytesAvailable(const FilePath &filePath) const override;
     Result<QByteArray> fileId(const FilePath &filePath) const override;
+    Result<bool> isSameFile(const FilePath &lhs, const FilePath &rhs) const override;
 
     Result<> iterateDirectory(
             const FilePath &filePath,

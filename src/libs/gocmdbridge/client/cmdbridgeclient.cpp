@@ -932,6 +932,19 @@ Result<QFuture<uint>> Client::groupId(const QString &path)
         });
 }
 
+Result<QFuture<bool>> Client::isSameFile(const QString &path1, const QString &path2)
+{
+    return createJob<bool>(
+        d.get(),
+        QCborMap{{"Type", "issamefile"}, {"IsSameFile", QCborMap{{"Path1", path1}, {"Path2", path2}}}},
+        [](QVariantMap map, QPromise<bool> &promise) {
+            ASSERT_TYPE("issamefileresult");
+
+            promise.addResult(map.value("Result").toBool());
+
+            return JobResult::Done;
+        });
+}
 
 bool Client::exit()
 {

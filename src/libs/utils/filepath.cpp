@@ -981,31 +981,23 @@ bool FilePath::isSameDevice(const FilePath &other) const
 
 bool FilePath::isSameFile(const FilePath &other) const
 {
-    if (*this == other)
-        return true;
-
     if (!isSameDevice(other))
         return false;
+
+    // Early exit if the paths are exactly the same.
+    if (pathView().compare(other.pathView(), Qt::CaseSensitive) == 0)
+        return true;
 
     Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
-    const Result<QByteArray> fileId = (*access)->fileId(*this);
-    if (!fileId) {
-        logError("isSameFile", fileId.error());
+    const Result<bool> isSame = (*access)->isSameFile(*this, other);
+    if (!isSame) {
+        logError("isSameFile", isSame.error());
         return false;
     }
-    const Result<QByteArray> otherFileId = (*access)->fileId(other);
-    if (!otherFileId) {
-        logError("isSameFile", otherFileId.error());
-        return false;
-    }
-
-    if (fileId->isEmpty() || otherFileId->isEmpty())
-        return false;
-
-    return *fileId == *otherFileId;
+    return *isSame;
 }
 
 static FilePaths appendExeExtensions(const FilePath &executable,

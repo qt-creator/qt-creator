@@ -78,6 +78,7 @@ protected:
     Utils::Result<uint> groupId(const Utils::FilePath &filePath) const override;
     Utils::Result<qint64> bytesAvailable(const Utils::FilePath &filePath) const override;
     Utils::Result<QByteArray> fileId(const Utils::FilePath &filePath) const override;
+    Utils::Result<bool> isSameFile(const Utils::FilePath &lhs, const Utils::FilePath &rhs) const override;
 
     Utils::Result<QByteArray> fileContents(const Utils::FilePath &filePath,
                                                  qint64 limit,

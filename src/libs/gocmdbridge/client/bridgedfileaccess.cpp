@@ -427,6 +427,19 @@ Result<QByteArray> FileAccess::fileId(const FilePath &filePath) const
     }
 }
 
+Result<bool> FileAccess::isSameFile(const FilePath &lhs, const FilePath &rhs) const
+{
+    try {
+        Result<QFuture<bool>> f = m_client->isSameFile(lhs.nativePath(), rhs.nativePath());
+        QTC_ASSERT_RESULT(f, return ResultError(f.error()));
+        return f->result();
+    } catch (const std::exception &e) {
+        return logError(
+            Tr::tr("Could not check if \"%1\" and \"%2\" are the same file: %3")
+                .arg(str(lhs), str(rhs), str(e)));
+    }
+}
+
 Result<FilePathInfo> FileAccess::filePathInfo(const FilePath &filePath) const
 {
     if (filePath.path() == "/") { // TODO: Add FilePath::isRoot()
