@@ -233,8 +233,8 @@ void tst_Acp::sessionIdAlias()
 
 void tst_Acp::errorCodeAlias()
 {
-    // ErrorCode is just an int alias
-    ErrorCode code = -32700;
+    // ErrorCode is a namespace with constexpr int constants
+    int code = ErrorCode::Parse_error;
     QCOMPARE(code, -32700);
 }
 
@@ -378,7 +378,7 @@ void tst_Acp::textContentRoundtrip()
     verifyRoundtrip<TextContent>(json);
 
     // With optional annotations
-    const QJsonObject json2 = jsonObj(R"({"text": "Hi", "annotations": "some-ref"})");
+    const QJsonObject json2 = jsonObj(R"({"text": "Hi", "annotations": {"priority": 0.5}})");
     verifyRoundtrip<TextContent>(json2);
 }
 
@@ -548,10 +548,12 @@ void tst_Acp::sessionConfigSelectGroupRoundtrip()
 
 void tst_Acp::contentRoundtrip()
 {
-    const QJsonObject json = jsonObj(R"({"content": "Some output text"})");
+    const QJsonObject json = jsonObj(R"({"content": {"type": "text", "text": "Some output text"}})");
     auto r = fromJson<Content>(QJsonValue(json));
     QVERIFY_RESULT(r);
-    QCOMPARE(r->content(), "Some output text");
+    auto *tc = std::get_if<TextContent>(&r->content());
+    QVERIFY(tc);
+    QCOMPARE(tc->text(), "Some output text");
     verifyRoundtrip<Content>(json);
 }
 
@@ -593,8 +595,8 @@ void tst_Acp::planEntryRoundtrip()
     auto r = fromJson<PlanEntry>(QJsonValue(json));
     QVERIFY_RESULT(r);
     QCOMPARE(r->content(), "Implement feature X");
-    QCOMPARE(r->priority(), "high");
-    QCOMPARE(r->status(), "pending");
+    QVERIFY(r->priority() == PlanEntryPriority::high);
+    QVERIFY(r->status() == PlanEntryStatus::pending);
     verifyRoundtrip<PlanEntry>(json);
 }
 
@@ -610,7 +612,7 @@ void tst_Acp::planRoundtrip()
     QVERIFY_RESULT(r);
     QCOMPARE(r->entries().size(), 2);
     QCOMPARE(r->entries().at(0)._content, "Step 1");
-    QCOMPARE(r->entries().at(1)._status, "pending");
+    QVERIFY(r->entries().at(1)._status == PlanEntryStatus::pending);
     verifyRoundtrip<Plan>(json);
 }
 
@@ -620,10 +622,12 @@ void tst_Acp::planRoundtrip()
 
 void tst_Acp::contentChunkRoundtrip()
 {
-    const QJsonObject json = jsonObj(R"({"content": "streaming chunk"})");
+    const QJsonObject json = jsonObj(R"({"content": {"type": "text", "text": "streaming chunk"}})");
     auto r = fromJson<ContentChunk>(QJsonValue(json));
     QVERIFY_RESULT(r);
-    QCOMPARE(r->content(), "streaming chunk");
+    auto *tc = std::get_if<TextContent>(&r->content());
+    QVERIFY(tc);
+    QCOMPARE(tc->text(), "streaming chunk");
     verifyRoundtrip<ContentChunk>(json);
 }
 
@@ -648,14 +652,16 @@ void tst_Acp::sessionModeRoundtrip()
 
 void tst_Acp::builderPatternTextContent()
 {
-    auto tc = TextContent().text("hello").annotations("ann-ref");
+    auto ann = Annotations().priority(0.5);
+    auto tc = TextContent().text("hello").annotations(ann);
     QCOMPARE(tc.text(), "hello");
-    QCOMPARE(*tc.annotations(), "ann-ref");
+    QVERIFY(tc.annotations().has_value());
+    QCOMPARE(*tc.annotations()->priority(), 0.5);
 
     // Serialize and verify
     QJsonObject json = toJson(tc);
     QCOMPARE(json["text"].toString(), "hello");
-    QCOMPARE(json["annotations"].toString(), "ann-ref");
+    QVERIFY(json.contains("annotations"));
 }
 
 void tst_Acp::builderPatternToolCall()
@@ -663,12 +669,12 @@ void tst_Acp::builderPatternToolCall()
     auto tc = ToolCall()
                   .toolCallId("tc-1")
                   .title("Reading file")
-                  .kind("read")
-                  .status("in_progress");
+                  .kind(ToolKind::read)
+                  .status(ToolCallStatus::in_progress);
     QCOMPARE(tc.toolCallId(), "tc-1");
     QCOMPARE(tc.title(), "Reading file");
-    QCOMPARE(*tc.kind(), "read");
-    QCOMPARE(*tc.status(), "in_progress");
+    QVERIFY(*tc.kind() == ToolKind::read);
+    QVERIFY(*tc.status() == ToolCallStatus::in_progress);
 }
 
 // =============================================================================

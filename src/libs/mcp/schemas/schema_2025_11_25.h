@@ -2,9 +2,9 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- /opt/homebrew/opt/python@3.14/bin/python3.14 \
+ C:\dev\bin\Python\314\python.exe \
   scripts/generate_cpp_from_schema.py \
-  --namespace Mcp::Generated::Schema::_2025_11_25 --cpp-output src/libs/mcp/schemas/schema_2025_11_25.cpp --export-macro MCPSERVER_EXPORT --export-header ../server/mcpserver_global.h src/libs/mcp/schemas/schema-2025-11-25.json src/libs/mcp/schemas/schema_2025_11_25.h
+  src/libs/mcp/schemas/schema-2025-11-25.json src/libs/mcp/schemas/schema_2025_11_25.h --namespace Mcp::Generated::Schema::_2025_11_25 --cpp-output src/libs/mcp/schemas/schema_2025_11_25.cpp --export-macro MCPSERVER_EXPORT --export-header ../server/mcpserver_global.h
 */
 #pragma once
 
@@ -4470,13 +4470,13 @@ MCPSERVER_EXPORT QJsonObject toJson(const TaskAugmentedRequestParams &data);
  * An error response that indicates that the server requires the client to provide additional information via an elicitation request.
  */
 struct URLElicitationRequiredError {
-    QString _error;
+    Error _error;
     std::optional<RequestId> _id;
 
-    URLElicitationRequiredError& error(const QString & v) { _error = v; return *this; }
+    URLElicitationRequiredError& error(const Error & v) { _error = v; return *this; }
     URLElicitationRequiredError& id(const std::optional<RequestId> & v) { _id = v; return *this; }
 
-    const QString& error() const { return _error; }
+    const Error& error() const { return _error; }
     const std::optional<RequestId>& id() const { return _id; }
 };
 

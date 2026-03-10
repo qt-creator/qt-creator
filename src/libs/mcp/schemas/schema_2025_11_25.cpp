@@ -6681,7 +6681,8 @@ Utils::Result<URLElicitationRequiredError> fromJson<URLElicitationRequiredError>
     if (!obj.contains("jsonrpc"))
         co_return Utils::ResultError("Missing required field: jsonrpc");
     URLElicitationRequiredError result;
-    result._error = obj.value("error").toString();
+    if (obj.contains("error") && obj["error"].isObject())
+        result._error = co_await fromJson<Error>(obj["error"]);
     if (obj.contains("id"))
         result._id = co_await fromJson<RequestId>(obj["id"]);
     if (obj.value("jsonrpc").toString() != "2.0")
@@ -6691,7 +6692,7 @@ Utils::Result<URLElicitationRequiredError> fromJson<URLElicitationRequiredError>
 
 QJsonObject toJson(const URLElicitationRequiredError &data) {
     QJsonObject obj{
-        {"error", data._error},
+        {"error", toJson(data._error)},
         {"jsonrpc", QString("2.0")}
     };
     if (data._id.has_value())

@@ -128,7 +128,8 @@ def _extract_anyof_enum(spec):
     if not consts or len(consts) < len(items) - 1:
         return None
     the_type = types_seen.pop()
-    return {"type": the_type, "enum": consts, "description": spec.get("description", "")}
+    return {"type": the_type, "enum": consts, "description": spec.get("description", ""),
+            "_original_items": items}
 
 def parse_enum(name, spec):
     prefix = doc_comment(spec.get('description', ''))
@@ -178,10 +179,40 @@ def parse_enum(name, spec):
         else:
             # Fallback: use QString typedef
             return prefix + f"using {name} = QString;\n"
-    # Handle integer enums (e.g. error codes) — alias to int
+    # Handle integer enums (e.g. error codes) — generate namespace with constexpr int constants
     if spec.get("type") == "integer" and "enum" in spec:
-        return prefix + f"using {name} = int;\n"
+        lines = [f"namespace {name} {{"]
+        # If we came from _extract_anyof_enum, use the original spec items for titles
+        orig_items = spec.get("_original_items")
+        for val in spec["enum"]:
+            # Try to find the title from the original anyOf/oneOf items
+            title = None
+            if orig_items:
+                for item in orig_items:
+                    if item.get("const") == val:
+                        title = item.get("title", "")
+                        break
+            if title:
+                const_name = sanitize_identifier(title)
+            else:
+                const_name = f"Code_{str(val).replace('-', 'Neg')}"
+            lines.append(f"    constexpr int {const_name} = {val};")
+        lines.append(f"}} // namespace {name}")
+        return prefix + "\n".join(lines)
     return ""
+
+def is_integer_const_namespace(type_name, types):
+    """Check if a type will be generated as a namespace of integer constants (not a C++ type).
+    These types should be referenced as 'int' in field declarations."""
+    if type_name not in types:
+        return False
+    spec = types[type_name]
+    normalised = _extract_anyof_enum(spec)
+    if normalised and normalised.get("type") == "integer":
+        return True
+    if spec.get("type") == "integer" and "enum" in spec:
+        return True
+    return False
 
 def is_simple_type_alias(type_name, types):
     """Check if a type is a simple primitive alias (e.g. using Foo = QString).
@@ -402,6 +433,274 @@ def _extract_ref(item):
     if len(refs) == 1:
         return refs[0]
     return None
+
+def _extract_nullable_ref(spec):
+    """Detect anyOf patterns of [{$ref: ...}, {type: "null"}] — a nullable reference.
+
+    Returns the $ref type name string on match, or None.
+    """
+    anyof = spec.get("anyOf", [])
+    if len(anyof) != 2:
+        return None
+    ref_items = [item for item in anyof if _extract_ref(item)]
+    null_items = [item for item in anyof if item.get("type") == "null"]
+    if len(ref_items) == 1 and len(null_items) == 1:
+        return ref_type(_extract_ref(ref_items[0]))
+    return None
+
+def _infer_discriminator_field(items):
+    """Infer a discriminator field from anyOf/oneOf items.
+
+    If every item has an inline property with a const value and they all share
+    the same property name, that property is the implicit discriminator.
+    Items without inline properties (e.g. bare $ref with a title) are allowed
+    as long as at least some items define the const field.
+    """
+    const_fields_per_item = []
+    for item in items:
+        inline_props = item.get("properties", {})
+        const_fields = {}
+        for prop_name, prop_spec in inline_props.items():
+            if "const" in prop_spec:
+                const_fields[prop_name] = prop_spec["const"]
+        const_fields_per_item.append(const_fields)
+
+    # Find field names that appear with const values in at least 2 items
+    from collections import Counter
+    field_counts = Counter()
+    for fields in const_fields_per_item:
+        for field_name in fields:
+            field_counts[field_name] += 1
+
+    # The discriminator must appear in all items that have inline properties
+    items_with_props = sum(1 for fields in const_fields_per_item if fields)
+    for field_name, count in field_counts.most_common():
+        if count >= items_with_props and count >= 2:
+            return field_name
+    return None
+
+def _parse_discriminated_union(name, spec, types=None):
+    """Generate code for a discriminated union with a discriminator field.
+
+    Supports two patterns:
+    1. Explicit: "discriminator": {"propertyName": "kind"} with oneOf items
+    2. Implicit: anyOf/oneOf items that all share an inline property with const values
+
+    Returns (code_string, variant_type_str) or None if not applicable.
+    """
+    disc_info = spec.get("discriminator")
+    disc_field = disc_info.get("propertyName") if disc_info else None
+    items = spec.get("oneOf", []) or spec.get("anyOf", [])
+    if not items:
+        return None
+
+    # If no explicit discriminator, try to infer one from inline const properties
+    if not disc_field:
+        disc_field = _infer_discriminator_field(items)
+    if not disc_field:
+        return None
+
+    # Extract (ref_type_name, discriminator_const_value) for each oneOf item
+    variants = []  # list of (cpp_type_name, disc_value, item_spec)
+    for item in items:
+        ref = _extract_ref(item)
+        # Get the discriminator const value from inline properties
+        disc_val = None
+        inline_props = item.get("properties", {})
+        disc_prop = inline_props.get(disc_field, {})
+        if "const" in disc_prop:
+            disc_val = disc_prop["const"]
+        elif item.get("title"):
+            # Fallback: use item title as discriminator value
+            disc_val = item["title"]
+
+        if ref and disc_val:
+            variants.append((ref_type(ref), disc_val, item))
+        elif not ref and disc_val and item.get("properties"):
+            # Inline object variant (like the "cancelled" variant in RequestPermissionOutcome)
+            # This is an inline struct with only the discriminator const field
+            # Check if it has any non-const properties
+            non_const_props = {k: v for k, v in inline_props.items()
+                               if not (v.get("type") == "string" and "const" in v)}
+            if not non_const_props:
+                # Pure discriminator-only variant — no payload struct
+                variants.append((None, disc_val, item))
+            else:
+                return None  # complex inline — bail to normal parse_union
+        else:
+            return None  # can't handle this item
+
+    if not variants:
+        return None
+
+    # Collect unique C++ type names (excluding None for inline-only variants)
+    cpp_types = [v[0] for v in variants if v[0] is not None]
+    unique_cpp_types = list(dict.fromkeys(cpp_types))  # preserve order, dedupe
+    has_duplicates = len(cpp_types) != len(unique_cpp_types)
+    has_inline_only = any(v[0] is None for v in variants)
+
+    # Check if we need a wrapper struct (duplicates exist or inline-only variants)
+    if has_duplicates or has_inline_only:
+        return _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_types, spec, types)
+    else:
+        # No duplicates — generate a using alias with discriminator-based dispatch
+        return _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types)
+
+
+def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_types, spec, types):
+    """Generate a wrapper struct for discriminated unions with duplicate types or inline-only variants."""
+    prefix = doc_comment(spec.get('description', ''))
+    lines = []
+
+    # Build the variant type
+    # Include std::monostate if there are inline-only (no-payload) variants
+    has_inline_only = any(v[0] is None for v in variants)
+    variant_members = list(unique_cpp_types)
+    if has_inline_only:
+        variant_members.insert(0, "std::monostate")
+    variant_type_str = ", ".join(variant_members)
+
+    lines.append(f"struct {name} {{")
+    lines.append(f"    using Variant = std::variant<{variant_type_str}>;")
+    lines.append(f"    Variant _value;")
+    lines.append(f"    QString _kind;  //!< discriminator value ({disc_field})")
+    lines.append(f"")
+    lines.append(f"    template<typename T> const T* get() const {{ return std::get_if<T>(&_value); }}")
+    lines.append(f"    const QString& kind() const {{ return _kind; }}")
+    lines.append(f"}};")
+    lines.append(f"")
+
+    # fromJson
+    fj = []
+    fj.append(f"template<>")
+    fj.append(f"inline Utils::Result<{name}> fromJson<{name}>(const QJsonValue &val) {{")
+    fj.append(f"    if (!val.isObject())")
+    fj.append(f'        co_return Utils::ResultError("Invalid {name}: expected object");')
+    fj.append(f"    const QJsonObject obj = val.toObject();")
+    fj.append(f"    const QString kind = obj.value(\"{disc_field}\").toString();")
+    fj.append(f"    {name} result;")
+    fj.append(f"    result._kind = kind;")
+
+    first = True
+    for cpp_type_name, disc_val, item in variants:
+        kw = "if" if first else "else if"
+        first = False
+        if cpp_type_name is not None:
+            fj.append(f"    {kw} (kind == \"{disc_val}\")")
+            fj.append(f"        result._value = co_await fromJson<{cpp_type_name}>(val);")
+        else:
+            fj.append(f"    {kw} (kind == \"{disc_val}\")")
+            fj.append(f"        result._value = std::monostate{{}};")
+
+    fj.append(f"    else")
+    fj.append(f'        co_return Utils::ResultError("Invalid {name}: unknown {disc_field} \\"" + kind + "\\"");')
+    fj.append(f"    co_return result;")
+    fj.append(f"}}")
+    lines.extend(use_return_if_no_co_await(fj))
+    lines.append(f"")
+
+    # toJson
+    lines.append(f"inline QJsonObject toJson(const {name} &data) {{")
+    lines.append(f"    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {{")
+    if has_inline_only:
+        lines.append(f"        using T = std::decay_t<decltype(v)>;")
+        lines.append(f"        if constexpr (std::is_same_v<T, std::monostate>) return {{}};")
+        lines.append(f"        else return toJson(v);")
+    else:
+        lines.append(f"        return toJson(v);")
+    lines.append(f"    }}, data._value);")
+    lines.append(f"    obj.insert(\"{disc_field}\", data._kind);")
+    lines.append(f"    return obj;")
+    lines.append(f"}}")
+    lines.append(f"")
+    lines.append(f"inline QJsonValue toJsonValue(const {name} &val) {{")
+    lines.append(f"    return toJson(val);")
+    lines.append(f"}}")
+
+    return prefix + "\n".join(lines), variant_type_str
+
+
+def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types):
+    """Generate a using alias with discriminator-based dispatch for unions without duplicate types."""
+    prefix = doc_comment(spec.get('description', ''))
+    lines = []
+    variant_type_str = ", ".join(unique_cpp_types)
+
+    lines.append(f"using {name} = std::variant<{variant_type_str}>;")
+    lines.append(f"")
+
+    # fromJson with discriminator dispatch
+    fj = []
+    fj.append(f"template<>")
+    fj.append(f"inline Utils::Result<{name}> fromJson<{name}>(const QJsonValue &val) {{")
+    fj.append(f"    if (!val.isObject())")
+    fj.append(f'        co_return Utils::ResultError("Invalid {name}: expected object");')
+    fj.append(f"    const QString dispatchValue = val.toObject().value(\"{disc_field}\").toString();")
+
+    first = True
+    for cpp_type_name, disc_val, item in variants:
+        kw = "if" if first else "else if"
+        first = False
+        fj.append(f"    {kw} (dispatchValue == \"{disc_val}\")")
+        fj.append(f"        co_return {name}(co_await fromJson<{cpp_type_name}>(val));")
+
+    fj.append(f'    co_return Utils::ResultError("Invalid {name}: unknown {disc_field} \\"" + dispatchValue + "\\"");')
+    fj.append(f"}}")
+    lines.extend(use_return_if_no_co_await(fj))
+    lines.append(f"")
+
+    # dispatchValue helper (must come before toJson since toJson uses it)
+    if _emit_comments:
+        lines.append(f"/** Returns the '{disc_field}' dispatch field value for the active variant. */")
+    lines.append(f"inline QString dispatchValue(const {name} &val) {{")
+    lines.append(f"    return std::visit([](const auto &v) -> QString {{")
+    lines.append(f"        using T = std::decay_t<decltype(v)>;")
+    # Build dispatch map: for each unique type, find its disc_val
+    type_to_disc = {}
+    for cpp_type_name, disc_val, item in variants:
+        if cpp_type_name not in type_to_disc:
+            type_to_disc[cpp_type_name] = disc_val
+    first = True
+    for cpp_type_name, disc_val in type_to_disc.items():
+        kw = "if constexpr" if first else "else if constexpr"
+        first = False
+        lines.append(f"        {kw} (std::is_same_v<T, {cpp_type_name}>) return \"{disc_val}\";")
+    lines.append(f"        return {{}};")
+    lines.append(f"    }}, val);")
+    lines.append(f"}}")
+    lines.append(f"")
+
+    # toJson — re-insert the discriminator field
+    lines.append(f"inline QJsonObject toJson(const {name} &val) {{")
+    lines.append(f"    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {{")
+    lines.append(f"        using T = std::decay_t<decltype(v)>;")
+    lines.append(f"        if constexpr (std::is_same_v<T, QJsonObject>) {{")
+    lines.append(f"            return v;")
+    lines.append(f"        }} else {{")
+    lines.append(f"            return toJson(v);")
+    lines.append(f"        }}")
+    lines.append(f"    }}, val);")
+    lines.append(f"    obj.insert(\"{disc_field}\", dispatchValue(val));")
+    lines.append(f"    return obj;")
+    lines.append(f"}}")
+    lines.append(f"")
+    lines.append(f"inline QJsonValue toJsonValue(const {name} &val) {{")
+    lines.append(f"    return toJson(val);")
+    lines.append(f"}}")
+
+    # Shared field accessors
+    ref_names = unique_cpp_types
+    if types:
+        for field, ret_type in find_shared_fields(ref_names, types):
+            lines.append(f"")
+            if _emit_comments:
+                lines.append(f"/** Returns the '{field}' field from the active variant. */")
+            lines.append(f"inline {ret_type} {field}(const {name} &val) {{")
+            lines.append(f"    return std::visit([](const auto &v) -> {ret_type} {{ return v._{field}; }}, val);")
+            lines.append(f"}}")
+
+    return prefix + "\n".join(lines), variant_type_str
+
 
 def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None):
     """Generate code for union types (std::variant)
@@ -665,8 +964,10 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
             # Generate toJsonValue function for primitive/list types
             lines.append(f"inline QJsonValue toJsonValue(const {name} &val) {{")
             lines.append("    return std::visit([](const auto &v) -> QJsonValue {")
-            lines.append("        using T = std::decay_t<decltype(v)>;")
-            if "std::monostate" in variant_types:
+            has_monostate = "std::monostate" in variant_types
+            if has_monostate or has_list:
+                lines.append("        using T = std::decay_t<decltype(v)>;")
+            if has_monostate:
                 lines.append("        if constexpr (std::is_same_v<T, std::monostate>) {")
                 lines.append("            return QJsonValue(QJsonValue::Null);")
                 lines.append("        } else")
@@ -1201,15 +1502,28 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             decl_type = f"std::optional<{t}>" if is_optional else t
             lines.extend(pre_lines)
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
-        # Handle $ref
-        elif "$ref" in spec:
-            t = ref_type(spec["$ref"])
-            t = nested_short_names.get(t, t)  # use short name if nested
+        # Handle $ref (direct or allOf-wrapped)
+        elif _extract_ref(spec):
+            t = ref_type(_extract_ref(spec))
+            if is_integer_const_namespace(t, types):
+                t = "int"  # namespace of int constants, not a C++ type
+            else:
+                t = nested_short_names.get(t, t)  # use short name if nested
             decl_type = f"std::optional<{t}>" if is_optional else t
             lines.extend(pre_lines)
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
-        elif spec.get("type") == "array" and "$ref" in spec.get("items", {}):
-            item_type = ref_type(spec["items"]["$ref"])
+        # Handle nullable $ref (anyOf with $ref + null)
+        elif _extract_nullable_ref(spec):
+            t = _extract_nullable_ref(spec)
+            if is_integer_const_namespace(t, types):
+                t = "int"
+            else:
+                t = nested_short_names.get(t, t)
+            decl_type = f"std::optional<{t}>"  # always optional (nullable)
+            lines.extend(pre_lines)
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+        elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
+            item_type = ref_type(_extract_ref(spec.get("items", {})))
             item_type = nested_short_names.get(item_type, item_type)  # use short name if nested
             decl_type = list_type(item_type, is_optional)
             lines.extend(pre_lines)
@@ -1288,11 +1602,20 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             inner_type = inline_enum_names[prop]
         elif prop in sub_struct_names:
             inner_type = sub_struct_names[prop]
-        elif "$ref" in spec:
-            inner_type = ref_type(spec["$ref"])
-            inner_type = nested_short_names.get(inner_type, inner_type)  # use short name if nested
-        elif spec.get("type") == "array" and "$ref" in spec.get("items", {}):
-            list_item_type = ref_type(spec["items"]["$ref"])
+        elif _extract_ref(spec):
+            inner_type = ref_type(_extract_ref(spec))
+            if is_integer_const_namespace(inner_type, types):
+                inner_type = "int"
+            else:
+                inner_type = nested_short_names.get(inner_type, inner_type)  # use short name if nested
+        elif _extract_nullable_ref(spec):
+            inner_type = _extract_nullable_ref(spec)
+            if is_integer_const_namespace(inner_type, types):
+                inner_type = "int"
+            else:
+                inner_type = nested_short_names.get(inner_type, inner_type)
+        elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
+            list_item_type = ref_type(_extract_ref(spec.get("items", {})))
             list_item_type = nested_short_names.get(list_item_type, list_item_type)  # use short name if nested
             inner_type = list_type(list_item_type)
         elif prop in array_item_struct_names:
@@ -1448,36 +1771,54 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             t_fj = f"{name}::{t}"  # inline sub-structs are always nested inside this struct
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isObject())")
             fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
-        elif "$ref" in spec:
-            t = ref_type(spec["$ref"])
-            # Use qualified short-name when the child type is nested inside this struct
-            t_fj = f"{name}::{nested_short_names[t]}" if t in nested_short_names else t
-            is_enum = is_enum_type(t, types)
-            is_union = is_union_type_name(t, types)
-            is_simple = is_simple_type_alias(t, types)
-            if is_simple:
-                # Simple primitive alias — read value directly
-                simple_type = types[t].get("type") if t in types else None
-                if simple_type == "string":
-                    fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isString())")
-                elif simple_type in ("integer", "number"):
+        elif _extract_ref(spec):
+            t = ref_type(_extract_ref(spec))
+            if is_integer_const_namespace(t, types):
+                # Integer const namespace — read as int directly
+                if is_optional:
                     fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isDouble())")
-                elif simple_type == "boolean":
-                    fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isBool())")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = obj[\"{prop}\"].toInt();")
                 else:
-                    fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
-                fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
-            elif is_enum:
-                fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isString())")
-                fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
-            elif is_union:
-                fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
-                fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                    fj_lines.append(f"    result._{sanitize_identifier(prop)} = obj.value(\"{prop}\").toInt();")
             else:
-                fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isObject())")
+                # Use qualified short-name when the child type is nested inside this struct
+                t_fj = f"{name}::{nested_short_names[t]}" if t in nested_short_names else t
+                is_enum = is_enum_type(t, types)
+                is_union = is_union_type_name(t, types)
+                is_simple = is_simple_type_alias(t, types)
+                if is_simple:
+                    # Simple primitive alias — read value directly
+                    simple_type = types[t].get("type") if t in types else None
+                    if simple_type == "string":
+                        fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isString())")
+                    elif simple_type in ("integer", "number"):
+                        fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isDouble())")
+                    elif simple_type == "boolean":
+                        fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isBool())")
+                    else:
+                        fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                elif is_enum:
+                    fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isString())")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                elif is_union:
+                    fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                else:
+                    fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isObject())")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+        elif _extract_nullable_ref(spec):
+            t = _extract_nullable_ref(spec)
+            if is_integer_const_namespace(t, types):
+                fj_lines.append(f"    if (obj.contains(\"{prop}\") && !obj[\"{prop}\"].isNull())")
+                fj_lines.append(f"        result._{sanitize_identifier(prop)} = obj[\"{prop}\"].toInt();")
+            else:
+                t_fj = f"{name}::{nested_short_names[t]}" if t in nested_short_names else t
+                # Nullable ref: only parse when present and non-null
+                fj_lines.append(f"    if (obj.contains(\"{prop}\") && !obj[\"{prop}\"].isNull())")
                 fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
-        elif spec.get("type") == "array" and "$ref" in spec.get("items", {}):
-            item_type = ref_type(spec["items"]["$ref"])
+        elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
+            item_type = ref_type(_extract_ref(spec.get("items", {})))
             # Use qualified short-name when the item type is nested inside this struct
             item_type_fj = f"{name}::{nested_short_names[item_type]}" if item_type in nested_short_names else item_type
             is_enum = is_enum_type(item_type, types)
@@ -1647,27 +1988,60 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 post_lines.append(f"        obj.insert(\"{prop}\", toJson(*data._{sanitize_identifier(prop)}));")
             else:
                 init_entries.append((prop, f"toJson(data._{sanitize_identifier(prop)})"))
-        elif "$ref" in spec:
-            t = ref_type(spec["$ref"])
-            is_enum = is_enum_type(t, types)
-            is_union = is_union_type_name(t, types)
-            is_simple = is_simple_type_alias(t, types)
-            if is_simple:
-                # Simple primitive aliases (e.g. QString) convert directly to QJsonValue
+        elif _extract_ref(spec):
+            t = ref_type(_extract_ref(spec))
+            if is_integer_const_namespace(t, types):
+                # Integer const namespace — serialize as plain int
                 if is_optional:
                     post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value())")
                     post_lines.append(f"        obj.insert(\"{prop}\", *data._{sanitize_identifier(prop)});")
                 else:
                     init_entries.append((prop, f"data._{sanitize_identifier(prop)}"))
             else:
-                val_fn = "toJsonValue" if (is_enum or is_union) else "toJson"
-                if is_optional:
+                is_enum = is_enum_type(t, types)
+                is_union = is_union_type_name(t, types)
+                is_simple = is_simple_type_alias(t, types)
+                if is_simple:
+                    # Simple primitive aliases (e.g. QString) convert directly to QJsonValue
+                    if is_optional:
+                        post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value())")
+                        post_lines.append(f"        obj.insert(\"{prop}\", *data._{sanitize_identifier(prop)});")
+                    else:
+                        init_entries.append((prop, f"data._{sanitize_identifier(prop)}"))
+                else:
+                    val_fn = "toJsonValue" if (is_enum or is_union) else "toJson"
+                    if is_optional:
+                        post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value())")
+                        post_lines.append(f"        obj.insert(\"{prop}\", {val_fn}(*data._{sanitize_identifier(prop)}));")
+                    else:
+                        init_entries.append((prop, f"{val_fn}(data._{sanitize_identifier(prop)})"))
+        elif _extract_nullable_ref(spec):
+            t = _extract_nullable_ref(spec)
+            if is_integer_const_namespace(t, types):
+                # Integer const namespace — serialize as plain int
+                post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value())")
+                post_lines.append(f"        obj.insert(\"{prop}\", *data._{sanitize_identifier(prop)});")
+                if prop in required:
+                    post_lines.append(f"    else")
+                    post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
+            else:
+                is_enum = is_enum_type(t, types)
+                is_union = is_union_type_name(t, types)
+                is_simple = is_simple_type_alias(t, types)
+                val_fn = "toJsonValue" if (is_enum or is_union) else ("" if is_simple else "toJson")
+                # Always optional (nullable) — emit when has_value
+                if val_fn:
                     post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value())")
                     post_lines.append(f"        obj.insert(\"{prop}\", {val_fn}(*data._{sanitize_identifier(prop)}));")
                 else:
-                    init_entries.append((prop, f"{val_fn}(data._{sanitize_identifier(prop)})"))
-        elif spec.get("type") == "array" and "$ref" in spec.get("items", {}):
-            item_type = ref_type(spec["items"]["$ref"])
+                    post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value())")
+                    post_lines.append(f"        obj.insert(\"{prop}\", *data._{sanitize_identifier(prop)});")
+                if prop in required:
+                    # Required but nullable: emit null when empty
+                    post_lines.append(f"    else")
+                    post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
+        elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
+            item_type = ref_type(_extract_ref(spec.get("items", {})))
             is_enum = is_enum_type(item_type, types)
             is_union = is_union_type_name(item_type, types)
             arr_fn = "toJsonValue" if (is_enum or is_union) else "toJson"
@@ -2328,6 +2702,10 @@ def main():
                     emitted.add(name)
             else:
                 has_additional_props = spec.get("additionalProperties") in ({}, True)
+                # Types with both properties and oneOf (discriminated struct+variant pattern)
+                # need additionalProperties to preserve variant-specific fields
+                if not has_additional_props and ("oneOf" in spec or "anyOf" in spec):
+                    has_additional_props = True
                 code.append(parse_struct(name, spec["properties"], types, spec.get("required", []), spec.get("description", ""), has_additional_props=has_additional_props))
                 emitted.add(name)
             continue
@@ -2401,6 +2779,13 @@ def main():
 def _emit_type_alias(name, spec, code, emitted, variant_signatures, alias_fromjson_emitted, types):
     """Emit a type alias (union or primitive alias) and record it as emitted."""
     if is_union_type(spec):
+        # Try discriminated union first (handles explicit discriminator field)
+        disc_result = _parse_discriminated_union(name, spec, types=types)
+        if disc_result is not None:
+            result, _ = disc_result
+            code.append(result)
+            emitted.add(name)
+            return
         _, signature = parse_union(name, spec, skip_to_json=True, skip_from_json=True, types=types)
         if signature in variant_signatures:
             result, _ = parse_union(name, spec, skip_to_json=True, skip_from_json=True, types=types)
