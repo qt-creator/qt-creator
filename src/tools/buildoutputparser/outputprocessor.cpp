@@ -7,7 +7,7 @@
 #include <projectexplorer/gccparser.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/msvcparser.h>
-#include <projectexplorer/osparser.h>
+#include <projectexplorer/outputparsers.h>
 #include <projectexplorer/taskhub.h>
 #include <qmakeprojectmanager/qmakeparser.h>
 #include <qtsupport/qtparser.h>
@@ -35,7 +35,7 @@ CompilerOutputProcessor::~CompilerOutputProcessor()
 void CompilerOutputProcessor::start()
 {
     Utils::OutputFormatter parser;
-    parser.addLineParser(new ProjectExplorer::OsParser);
+    parser.addLineParser(ProjectExplorer::createOsOutputParser());
     parser.addLineParser(new QmakeProjectManager::QMakeParser);
     parser.addLineParser(new ProjectExplorer::GnuMakeParser);
     parser.addLineParser(new QtSupport::QtParser);

@@ -85,7 +85,7 @@ QtcPlugin {
             "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
             "msvcparser.cpp", "msvcparser.h",
             "msvctoolchain.cpp", "msvctoolchain.h",
-            "osparser.cpp", "osparser.h",
+            "outputparsers.cpp", "outputparsers.h",
             "parseissuesdialog.cpp", "parseissuesdialog.h",
             "processparameters.cpp", "processparameters.h",
             "processstep.cpp", "processstep.h",

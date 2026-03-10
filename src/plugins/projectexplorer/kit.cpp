@@ -9,7 +9,7 @@
 #include "kitaspect.h"
 #include "kitmanager.h"
 #include "ioutputparser.h"
-#include "osparser.h"
+#include "outputparsers.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
@@ -617,7 +617,7 @@ Environment Kit::runEnvironment() const
 
 QList<OutputLineParser *> Kit::createOutputParsers() const
 {
-    QList<OutputLineParser *> parsers{new OsParser};
+    QList<OutputLineParser *> parsers{createOsOutputParser()};
     for (KitAspectFactory *factory : KitManager::kitAspectFactories())
         parsers << factory->createOutputParsers(this);
     return parsers;
