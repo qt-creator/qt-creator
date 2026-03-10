@@ -27,8 +27,6 @@ constexpr const char DocumentOnTypeFormattingRequest::methodName[];
 constexpr const char RenameRequest::methodName[];
 constexpr const char SignatureHelpRequest::methodName[];
 constexpr const char PrepareRenameRequest::methodName[];
-constexpr const char FoldingRangeRequest::methodName[];
-constexpr const char FoldingRangeRefreshRequest::methodName[];
 
 HoverContent LanguageServerProtocol::Hover::content() const
 {
