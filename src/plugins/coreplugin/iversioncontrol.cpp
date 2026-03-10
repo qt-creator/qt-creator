@@ -200,16 +200,6 @@ void IVersionControl::vcsFillFileActionMenu(QMenu *menu,
     Q_UNUSED(vcsFileState);
 }
 
-bool IVersionControl::vcsFileAction(const Utils::FilePath &topLevel,
-                                    const Utils::FilePath &relativePath,
-                                    FileAction action)
-{
-    Q_UNUSED(topLevel);
-    Q_UNUSED(relativePath);
-    Q_UNUSED(action)
-    return false;
-}
-
 /*!
     Provides the \a fileTracker function object for use in \c vscTopic() cache handling.
 

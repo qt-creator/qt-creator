@@ -179,9 +179,6 @@ public:
                                const Utils::FilePath &topLevel,
                                const Utils::FilePath &relativePath,
                                VcsFileState vcsFileState) final;
-    bool vcsFileAction(const Utils::FilePath &topLevel,
-                       const Utils::FilePath &filePath,
-                       FileAction action) final;
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
     QString vcsTopic(const FilePath &directory) final;
 
@@ -213,6 +210,9 @@ public:
     RepoUrl getRepoUrl(const QString &location) const override;
 
     FilePaths additionalToolsPath() const final;
+
+    bool vcsFileAction(const Utils::FilePath &topLevel, const Utils::FilePath &filePath,
+                       FileAction action);
 
     bool isCommitEditorOpen() const;
     void startCommit(CommitType commitType = SimpleCommit);

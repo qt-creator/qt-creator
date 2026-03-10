@@ -195,10 +195,6 @@ public:
                                        const Utils::FilePath &relativePath,
                                        VcsFileState vcsFileState);
 
-    virtual bool vcsFileAction(const Utils::FilePath &topLevel,
-                               const Utils::FilePath &relativePath,
-                               FileAction action);
-
     /*!
      * Shows the log for the \a relativePath within \a toplevel.
      */
