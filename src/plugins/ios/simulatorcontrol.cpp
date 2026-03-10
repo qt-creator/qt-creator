@@ -22,6 +22,7 @@
 #include <QLoggingCategory>
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 using namespace std;
 using namespace std::chrono;
@@ -144,8 +145,39 @@ QList<SimulatorInfo> SimulatorControl::availableSimulators()
     return s_availableDevices;
 }
 
+static QHash<QString, SimulatorRuntime> getRuntimes()
+{
+    QHash<QString, SimulatorRuntime> runtimes;
+    QString output;
+    runSimCtlCommand({"runtime", "list", "--json"}, &output);
+    const QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
+    if (!doc.isNull()) {
+        for (const QJsonValue &val : doc.object()) {
+            const QJsonObject obj = val.toObject();
+            SimulatorRuntime rt;
+            rt.id = obj.value("runtimeIdentifier").toString();
+            if (!rt.id.contains("SimRuntime.iOS"))
+                continue;
+            rt.version = obj.value("version").toString();
+            for (const QJsonValue &archVal : obj.value("supportedArchitectures").toArray()) {
+                const QString archStr = archVal.toString();
+                if (archStr == "arm64")
+                    rt.architectures.append(Abi::ArmArchitecture);
+                else if (archStr == "x86_64")
+                    rt.architectures.append(Abi::X86Architecture);
+            }
+            runtimes.insert(rt.id, rt);
+        }
+    } else {
+        qCDebug(simulatorLog) << "Error parsing json output from simctl runtime list. Output:"
+                              << output;
+    }
+    return runtimes;
+}
+
 static QList<SimulatorInfo> getAllSimulatorDevices()
 {
+    const QHash<QString, SimulatorRuntime> runtimes = getRuntimes();
     QList<SimulatorInfo> simulatorDevices;
     QString output;
     runSimCtlCommand({"list", "-j", devicesTag}, &output);
@@ -153,14 +185,17 @@ static QList<SimulatorInfo> getAllSimulatorDevices()
     if (!doc.isNull()) {
         const QJsonObject runtimeObject = doc.object().value(devicesTag).toObject();
         const QStringList keys = runtimeObject.keys();
-        for (const QString &runtime : keys) {
-            const QJsonArray devices = runtimeObject.value(runtime).toArray();
-            for (const QJsonValue deviceValue : devices) {
+        for (const QString &runtimeId : keys) {
+            if (!runtimes.contains(runtimeId))
+                continue;
+            const SimulatorRuntime runtime = runtimes.value(runtimeId);
+            const QJsonArray devices = runtimeObject.value(runtimeId).toArray();
+            for (const QJsonValue &deviceValue : devices) {
                 QJsonObject deviceObject = deviceValue.toObject();
                 SimulatorInfo device;
                 device.identifier = deviceObject.value(udidTag).toString();
                 device.name = deviceObject.value(nameTag).toString();
-                device.runtimeName = runtime;
+                device.runtime = runtime;
                 device.available = isAvailable(deviceObject);
                 device.state = deviceObject.value(stateTag).toString();
                 simulatorDevices.append(device);
@@ -175,7 +210,7 @@ static QList<SimulatorInfo> getAllSimulatorDevices()
 
 static QList<SimulatorInfo> getAvailableSimulators()
 {
-    auto filterSim = [](const SimulatorInfo &device) { return device.available;};
+    auto filterSim = [](const SimulatorInfo &device) { return device.available; };
     QList<SimulatorInfo> availableDevices = Utils::filtered(getAllSimulatorDevices(), filterSim);
     return availableDevices;
 }
@@ -417,16 +452,13 @@ QString SimulatorInfo::toString() const
         .arg(identifier)
         .arg(available)
         .arg(state)
-        .arg(runtimeName);
+        .arg(runtime.id);
 }
 
 bool SimulatorInfo::operator==(const SimulatorInfo &other) const
 {
-    return identifier == other.identifier
-            && state == other.state
-            && name == other.name
-            && available == other.available
-            && runtimeName == other.runtimeName;
+    return identifier == other.identifier && state == other.state && name == other.name
+           && available == other.available && runtime.id == other.runtime.id;
 }
 
 } // Ios::Internal

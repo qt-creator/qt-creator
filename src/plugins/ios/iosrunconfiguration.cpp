@@ -8,6 +8,7 @@
 #include "iostr.h"
 #include "simulatorcontrol.h"
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -46,7 +47,13 @@ const char deviceTypeKey[] = "Ios.device_type";
 
 static QString displayName(const SimulatorInfo &device)
 {
-    return QString("%1, %2").arg(device.name).arg(device.runtimeName);
+    return QString("%1 (iOS %2, %3)")
+        .arg(
+            device.name,
+            device.runtime.version,
+            Utils::transform(device.runtime.architectures, [](Abi::Architecture arch) {
+                return Abi::toString(arch);
+            }).join(", "));
 }
 
 static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
@@ -275,16 +282,8 @@ IosDeviceType IosDeviceTypeAspect::deviceType() const
                             Utils::equal(&SimulatorInfo::identifier, m_deviceType.identifier))) {
                  return m_deviceType;
         }
-        const QStringList parts = m_deviceType.displayName.split(QLatin1Char(','));
-        if (parts.count() < 2)
-            return toIosDeviceType(availableSimulators.last());
-
-        QList<SimulatorInfo> eligibleDevices;
-        eligibleDevices = Utils::filtered(availableSimulators, [parts](const SimulatorInfo &info) {
-            return info.name == parts.at(0) && info.runtimeName == parts.at(1);
-        });
-        return toIosDeviceType(eligibleDevices.isEmpty() ? availableSimulators.last()
-                                                         : eligibleDevices.last());
+        // Simulator device has vanished, choose one
+        return toIosDeviceType(availableSimulators.first());
     }
     return m_deviceType;
 }

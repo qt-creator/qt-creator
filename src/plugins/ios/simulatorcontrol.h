@@ -3,30 +3,24 @@
 
 #pragma once
 
+#include <projectexplorer/abi.h>
 #include <utils/filepath.h>
 
 #include <QObject>
 #include <QFuture>
 #include <QDebug>
 
-#include <memory>
-
 namespace Ios::Internal {
 
-class SimulatorControlPrivate;
-
-class SimulatorEntity
+class SimulatorRuntime
 {
 public:
-    QString name;
-    QString identifier;
-    bool operator <(const SimulatorEntity &o) const
-    {
-        return name < o.name;
-    }
+    QString id;
+    QString version;
+    QList<ProjectExplorer::Abi::Architecture> architectures;
 };
 
-class SimulatorInfo : public SimulatorEntity
+class SimulatorInfo
 {
 public:
     QString toString() const;
@@ -36,9 +30,14 @@ public:
     bool isShutdown() const { return state == "Shutdown"; }
     bool operator==(const SimulatorInfo &other) const;
     bool operator!=(const SimulatorInfo &other) const { return !(*this == other); }
+
+    QString name;
+    QString identifier;
+    bool operator<(const SimulatorInfo &o) const { return name < o.name; }
+
     bool available;
     QString state;
-    QString runtimeName;
+    SimulatorRuntime runtime;
 };
 
 class SimulatorControl
