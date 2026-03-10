@@ -1051,29 +1051,23 @@ void OutputPaneManager::showPage(int idx, int flags)
         ph = OutputPanePlaceHolder::getCurrent();
     }
 
-    // FIXME: Remove this and revert 8aadc39d488c and 87c273ab3f3d.
-    bool onlyFlash = !ph
-            || (g_outputPanes.at(currentIndex()).pane->hasFocus()
-                && !(flags & IOutputPane::WithFocus)
-                && idx != currentIndex());
-
-    if (onlyFlash) {
+    if (!ph) {
         g_outputPanes.at(idx).button->flash();
-    } else {
-        emit ph->visibilityChangeRequested(true);
-        // make the page visible
-        ph->setVisible(true);
-
-        ensurePageVisible(idx);
-        IOutputPane *out = g_outputPanes.at(idx).pane;
-        if (flags & IOutputPane::WithFocus) {
-            if (out->canFocus())
-                out->setFocus();
-        }
-
-        if (flags & IOutputPane::EnsureSizeHint)
-            ph->ensureSizeHintAsMinimum();
+        return;
     }
+
+    emit ph->visibilityChangeRequested(true);
+    ph->setVisible(true);
+
+    ensurePageVisible(idx);
+    IOutputPane *out = g_outputPanes.at(idx).pane;
+    if (flags & IOutputPane::WithFocus) {
+        if (out->canFocus())
+            out->setFocus();
+    }
+
+    if (flags & IOutputPane::EnsureSizeHint)
+        ph->ensureSizeHintAsMinimum();
 }
 
 void OutputPaneManager::focusInEvent(QFocusEvent *e)
