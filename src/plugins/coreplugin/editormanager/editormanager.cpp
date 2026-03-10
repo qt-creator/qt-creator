@@ -88,7 +88,6 @@ static const char kCurrentDocumentXPos[] = "CurrentDocument:XPos";
 static const char kCurrentDocumentYPos[] = "CurrentDocument:YPos";
 static const char kMakeWritableWarning[] = "Core.EditorManager.MakeWritable";
 
-static const char fileSystemCaseSensitivityKey[] = "Core/FileSystemCaseSensitivity";
 static const char preferredEditorFactoriesKey[] = "EditorManager/PreferredEditorFactories";
 
 static const char scratchBufferKey[] = "_q_emScratchBuffer";
@@ -1297,47 +1296,11 @@ void EditorManagerPrivate::readSettings()
 {
     QtcSettings *qs = ICore::settings();
 
-    const Qt::CaseSensitivity defaultSensitivity = OsSpecificAspects::fileNameCaseSensitivity(
-        HostOsInfo::hostOs());
-    const Qt::CaseSensitivity sensitivity = readFileSystemSensitivity(qs);
-    if (sensitivity == defaultSensitivity)
-        HostOsInfo::unsetOverrideFileNameCaseSensitivity();
-    else
-        HostOsInfo::setOverrideFileNameCaseSensitivity(sensitivity);
-
     const QHash<QString, IEditorFactory *> preferredEditorFactories = fromMap(
         qs->value(preferredEditorFactoriesKey).toMap());
     setUserPreferredEditorTypes(preferredEditorFactories);
 
     updateAutoSave();
-}
-
-Qt::CaseSensitivity EditorManagerPrivate::readFileSystemSensitivity(QtcSettings *settings)
-{
-    const Qt::CaseSensitivity defaultSensitivity = OsSpecificAspects::fileNameCaseSensitivity(
-        HostOsInfo::hostOs());
-    if (!settings->contains(fileSystemCaseSensitivityKey))
-        return defaultSensitivity;
-    bool ok = false;
-    const int sensitivitySetting = settings->value(fileSystemCaseSensitivityKey).toInt(&ok);
-    if (ok) {
-        switch (Qt::CaseSensitivity(sensitivitySetting)) {
-        case Qt::CaseSensitive:
-            return Qt::CaseSensitive;
-        case Qt::CaseInsensitive:
-            return Qt::CaseInsensitive;
-        }
-    }
-    return defaultSensitivity;
-}
-
-void EditorManagerPrivate::writeFileSystemSensitivity(Utils::QtcSettings *settings,
-                                                      Qt::CaseSensitivity sensitivity)
-{
-    settings->setValueWithDefault(fileSystemCaseSensitivityKey,
-                                  int(sensitivity),
-                                  int(OsSpecificAspects::fileNameCaseSensitivity(
-                                      HostOsInfo::hostOs())));
 }
 
 EditorFactories EditorManagerPrivate::findFactories(Id editorId, const FilePath &filePath)

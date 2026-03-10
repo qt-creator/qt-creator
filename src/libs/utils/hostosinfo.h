@@ -56,11 +56,6 @@ QTCREATOR_UTILS_EXPORT constexpr bool isAnyUnixHost()
 
 QTCREATOR_UTILS_EXPORT QString withExecutableSuffix(const QString &executable);
 
-QTCREATOR_UTILS_EXPORT void setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity);
-QTCREATOR_UTILS_EXPORT void unsetOverrideFileNameCaseSensitivity();
-
-QTCREATOR_UTILS_EXPORT Qt::CaseSensitivity fileNameCaseSensitivity();
-
 QTCREATOR_UTILS_EXPORT constexpr QChar pathListSeparator()
 {
     return OsSpecificAspects::pathListSeparator(hostOs());

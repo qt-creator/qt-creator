@@ -27,9 +27,6 @@
 
 namespace Utils::HostOsInfo {
 
-static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity = Qt::CaseSensitive;
-static bool m_useOverrideFileNameCaseSensitivity = false;
-
 OsArch hostArchitecture()
 {
 #ifdef Q_OS_WIN
@@ -51,17 +48,6 @@ OsArch hostArchitecture()
 #endif
 
     return arch;
-}
-
-void setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity)
-{
-    m_useOverrideFileNameCaseSensitivity = true;
-    m_overrideFileNameCaseSensitivity = sensitivity;
-}
-
-void unsetOverrideFileNameCaseSensitivity()
-{
-    m_useOverrideFileNameCaseSensitivity = false;
 }
 
 std::optional<quint64> totalMemoryInstalledInBytes()
@@ -92,13 +78,6 @@ const FilePath &root()
 {
     static const FilePath rootDir = FilePath::fromUserInput(QDir::rootPath());
     return rootDir;
-}
-
-Qt::CaseSensitivity fileNameCaseSensitivity()
-{
-    return m_useOverrideFileNameCaseSensitivity
-               ? m_overrideFileNameCaseSensitivity
-               : OsSpecificAspects::fileNameCaseSensitivity(hostOs());
 }
 
 OsArch binaryArchitecture()

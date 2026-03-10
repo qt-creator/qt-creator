@@ -25,11 +25,6 @@ namespace OsSpecificAspects {
 
 QTCREATOR_UTILS_EXPORT QString withExecutableSuffix(OsType osType, const QString &executable);
 
-constexpr Qt::CaseSensitivity fileNameCaseSensitivity(OsType osType)
-{
-    return osType == OsTypeWindows || osType == OsTypeMac ? Qt::CaseInsensitive : Qt::CaseSensitive;
-}
-
 constexpr Qt::CaseSensitivity envVarCaseSensitivity(OsType osType)
 {
     return osType == OsTypeWindows ? Qt::CaseInsensitive : Qt::CaseSensitive;
