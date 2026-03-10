@@ -2,7 +2,7 @@ QtcLibrary {
     name: "McpServerLib"
     Depends { name: "Utils" }
     Depends { name: "Qt"; submodules: ["core", "network"] }
-    Depends { name: "Qt.httpserver"; required: false }
+    Depends { name: "Qt.httpserver"; required: false; versionAtLeast: "6.11.0" }
 
     cpp.defines: base.concat("MCPSERVERLIB_LIBRARY")
 
@@ -17,10 +17,14 @@ QtcLibrary {
             "mcpserver.cpp",
             "mcpserver.h",
             "mcpserver_global.h",
-            "minihttpserver.h",
             "../schemas/schema_2025_11_25.cpp",
             "../schemas/schema_2025_11_25.h",
         ]
+    }
+    Group {
+        condition: !Qt.httpserver.present
+        prefix: "server/"
+        files: [ "minihttpserver.h" ]
     }
 
     Properties {
