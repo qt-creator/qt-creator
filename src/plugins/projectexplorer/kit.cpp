@@ -620,6 +620,7 @@ QList<OutputLineParser *> Kit::createOutputParsers() const
     QList<OutputLineParser *> parsers{createOsOutputParser()};
     for (KitAspectFactory *factory : KitManager::kitAspectFactories())
         parsers << factory->createOutputParsers(this);
+    parsers << createGenericOutputParser();
     return parsers;
 }
 

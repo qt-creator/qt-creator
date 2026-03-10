@@ -12,6 +12,7 @@
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
 #include "devicesupport/sshsettings.h"
+#include "outputparsers.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -1051,6 +1052,7 @@ QList<OutputLineParser *> createOutputParsers(BuildConfiguration *bc)
         if (OutputLineParser *parser = factory(bc))
             formatters << parser;
     }
+    formatters << createGenericOutputParser();
     return formatters;
 }
 

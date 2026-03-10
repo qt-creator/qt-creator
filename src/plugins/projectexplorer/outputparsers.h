@@ -5,10 +5,17 @@
 
 #include "projectexplorer_export.h"
 
+QT_FORWARD_DECLARE_CLASS(QObject)
+
 namespace Utils { class OutputLineParser; }
 
 namespace ProjectExplorer {
 
 PROJECTEXPLORER_EXPORT Utils::OutputLineParser *createOsOutputParser();
+PROJECTEXPLORER_EXPORT Utils::OutputLineParser *createGenericOutputParser();
+
+#ifdef WITH_TESTS
+namespace Internal { QObject *createGenericOutputParserTest(); }
+#endif
 
 } // namespace ProjectExplorer

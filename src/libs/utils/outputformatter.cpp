@@ -52,17 +52,21 @@ QString OutputLineParser::createLinkTarget(const FilePath &filePath, int line = 
 
 bool OutputLineParser::isLinkTarget(const QString &target)
 {
-    return target.startsWith(*linkPrefix());
+    // TODO: Can we use the generic file scheme for our internal links as well?
+    return target.startsWith(*linkPrefix()) || target.startsWith("file://");
 }
 
 Link OutputLineParser::parseLinkTarget(const QString &target)
 {
-    const QStringList parts = target.mid(linkPrefix()->size()).split(*linkSep());
+    const QStringList parts = target.startsWith(*linkPrefix)
+        ? target.mid(linkPrefix()->size()).split(*linkSep())
+        : target.mid(7).split(':');
     if (parts.isEmpty())
         return {};
-    return Link(FilePath::fromString(parts.first()),
-                parts.length() > 1 ? parts.at(1).toInt() : 0,
-                parts.length() > 2 ? parts.at(2).toInt() - 1 : 0);
+    return Link(
+        FilePath::fromString(parts.first()),
+        parts.length() > 1 ? parts.at(1).toInt() : 0,
+        parts.length() > 2 ? parts.at(2).toInt() - 1 : 0);
 }
 
 // The redirection mechanism is needed for broken build tools (e.g. xcodebuild) that get invoked
