@@ -6,6 +6,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/co_result.h>
+#include <utils/devicefileaccess.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/link.h>
@@ -168,6 +169,8 @@ private slots:
 
     void macrosInPaths();
 
+    void caseSensitivity();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -195,6 +198,45 @@ static bool touch(const QDir &dir, const QString &filename, bool fill, bool exec
 
 void tst_filepath::initTestCase()
 {
+    class TestDFA : public DeviceFileAccess
+    {
+    public:
+        TestDFA(Qt::CaseSensitivity caseSensitivity)
+            : m_caseSensitivity(caseSensitivity)
+        {}
+        Result<bool> isSameFile(const FilePath &path1, const FilePath &path2) const override
+        {
+            return path1.toUrlishString().compare(path2.toUrlishString(), m_caseSensitivity) == 0;
+        }
+        Qt::CaseSensitivity m_caseSensitivity;
+    };
+    DeviceFileHooks hooky;
+    hooky.isSameDevice = [](const FilePath &lhs, const FilePath &rhs) {
+        if (lhs.scheme() != rhs.scheme())
+            return false;
+        return true;
+    };
+
+    hooky.osType = [](const FilePath &) { return OsTypeLinux; };
+    hooky.fileAccess = [](const FilePath &path) -> Utils::Result<DeviceFileAccessPtr> {
+        static std::shared_ptr<TestDFA> dfaCase = std::make_shared<TestDFA>(Qt::CaseSensitive);
+        static std::shared_ptr<TestDFA> dfaNoCase = std::make_shared<TestDFA>(Qt::CaseInsensitive);
+
+        if (path.scheme() == "case") {
+            return dfaCase;
+        }
+        if (path.scheme() == "nocase" || path.scheme() == "win") {
+            return dfaNoCase;
+        }
+        return dfaCase;
+    };
+    hooky.osType = [](const FilePath &path) {
+        if (path.scheme() == "win")
+            return OsTypeWindows;
+        return OsTypeLinux;
+    };
+    DeviceFileHooks::setupDeviceFileHooks(hooky);
+
     // initialize test for tst_filepath::relativePath*()
     QVERIFY(tempDir.isValid());
     rootPath = QFileInfo(tempDir.path()).canonicalFilePath();
@@ -481,6 +523,9 @@ void tst_filepath::relativePathFromDir_data()
     QTest::addColumn<QString>("anchor");
     QTest::addColumn<QString>("result");
 
+    QTest::newRow("root") << "/"
+                          << "/"
+                          << ".";
     QTest::newRow("samedir") << "a/b/c/d"
                              << "a/b/c/d"
                              << ".";
@@ -534,9 +579,6 @@ void tst_filepath::relativePathFromDir_data()
     QTest::newRow("rightempty") << "/"
                                 << ""
                                 << "";
-    QTest::newRow("root") << "/"
-                          << "/"
-                          << ".";
     QTest::newRow("simple1") << "/a"
                              << "/"
                              << "a";
@@ -564,11 +606,10 @@ void tst_filepath::relativePathFromDir_data()
     QTest::newRow("normal3") << "/a/b/c"
                              << "/x/y"
                              << "../../a/b/c";
-    if (HostOsInfo::isWindowsHost()) {
-        QTest::newRow("different drive letter case") << "C:/myproject/main.cpp"
-                                                     << "c:/myproject"
-                                                     << "main.cpp";
-    }
+
+    QTest::newRow("different drive letter case") << "win://x/C:/myproject/main.cpp"
+                                                 << "win://x/c:/myproject"
+                                                 << "main.cpp";
 }
 
 void tst_filepath::relativePathFromDir()
@@ -1168,15 +1209,10 @@ void tst_filepath::comparison_data()
     QTest::addColumn<QString>("right");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("r1") << "Abc"
-                        << "abc" << false;
-    QTest::newRow("r3") << "x://y/Abc"
-                        << "x://y/abc" << false;
-
-    QTest::newRow("s1") << "abc"
-                        << "abc" << true;
-    QTest::newRow("s3") << "x://y/abc"
-                        << "x://y/abc" << true;
+    QTest::newRow("r1") << "Abc" << "abc" << false;
+    QTest::newRow("r2") << "abc" << "abc" << true;
+    QTest::newRow("r3") << "case://y/Abc" << "case://y/abc" << false;
+    QTest::newRow("r4") << "nocase://y/Abc" << "nocase://y/abc" << true;
 }
 
 void tst_filepath::linkFromString()
@@ -1813,8 +1849,6 @@ void tst_filepath::tmp_data()
     QTest::addRow("realtive-template") << "my-file-XXXXXXXX" << true;
     QTest::addRow("absolute-template") << QDir::tempPath() + "/my-file-XXXXXXXX" << true;
     QTest::addRow("non-existing-dir") << "/this/path/does/not/exist/my-file-XXXXXXXX" << false;
-
-    QTest::addRow("on-device") << "device://test/./my-file-XXXXXXXX" << true;
 }
 
 void tst_filepath::tmp()
@@ -1891,10 +1925,11 @@ void tst_filepath::isRootPath_data()
     QTest::newRow("local-root") << FilePath::fromString(QDir::rootPath()) << true;
     QTest::newRow("local-non-root") << FilePath::fromString(QDir::rootPath() + "x") << false;
 
+    QTest::newRow("remote-windows-root") << FilePath::fromString("win://test/c:/") << true;
+    QTest::newRow("remote-windows-root1") << FilePath::fromString("win://test/c:") << true;
+    QTest::newRow("remote-windows-not-root") << FilePath::fromString("win://test/c:/x") << false;
+
     if (HostOsInfo::isWindowsHost()) {
-        QTest::newRow("remote-windows-root") << FilePath::fromString("device://test/c:/") << true;
-        QTest::newRow("remote-windows-root1") << FilePath::fromString("device://test/c:") << true;
-        QTest::newRow("remote-windows-not-root") << FilePath::fromString("device://test/c:/x") << false;
         QTest::newRow("local-c-drive") << FilePath::fromString("c:/") << true;
         QTest::newRow("local-d-drive") << FilePath::fromString("d:/") << true;
         QTest::newRow("local-c-drive-noslash") << FilePath::fromString("c:") << false;
@@ -2518,6 +2553,37 @@ void tst_filepath::macrosInPaths()
 
     QCOMPARE(existingMacroLikePath.parentDir(), path);
     QCOMPARE(nonExistingMacroLikePath.parentDir(), nonExistingMacroLikePath / "..");
+}
+
+void tst_filepath::caseSensitivity()
+{
+    {
+        FilePath p = FilePath::fromUserInput("nocase://host/test/file");
+        FilePath p1 = FilePath::fromUserInput("nocase://host/test/FILE");
+
+        QCOMPARE(p, p1);
+    }
+    {
+        FilePath p2 = FilePath::fromUserInput("case://host/test/file");
+        FilePath p3 = FilePath::fromUserInput("case://host/test/FILE");
+
+        QVERIFY(p2 != p3);
+    }
+    {
+        FilePath p4 = FilePath::fromUserInput("case://host/test/file");
+        FilePath p5 = FilePath::fromUserInput("case://host/test");
+        QVERIFY(p4.isChildOf(p5));
+        FilePath p6 = FilePath::fromUserInput("case://host/TEST");
+        QVERIFY(!p4.isChildOf(p6));
+    }
+
+    {
+        FilePath p = FilePath::fromUserInput("nocase://host/test/file");
+        FilePath p1 = FilePath::fromUserInput("nocase://host/test/");
+        QVERIFY(p.isChildOf(p1));
+        FilePath p2 = FilePath::fromUserInput("nocase://host/TEST/");
+        QVERIFY(p.isChildOf(p2));
+    }
 }
 
 } // Utils

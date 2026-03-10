@@ -117,9 +117,9 @@ public:
     [[nodiscard]] FilePath stringAppended(const QString &str) const;
     [[nodiscard]] std::optional<FilePath> tailRemoved(const QString &str) const;
     [[nodiscard]] std::optional<FilePath> prefixRemoved(const QString &str) const;
-    bool startsWith(const QString &s) const;
-    bool endsWith(const QString &s) const;
-    bool contains(const QString &s) const;
+    bool startsWith(const QString &s, Qt::CaseSensitivity = Qt::CaseInsensitive) const;
+    bool endsWith(const QString &s, Qt::CaseSensitivity = Qt::CaseInsensitive) const;
+    bool contains(const QString &s, Qt::CaseSensitivity = Qt::CaseInsensitive) const;
 
     bool exists() const;
 
@@ -169,7 +169,6 @@ public:
     [[nodiscard]] FilePath operator/(const QString &str) const;
     FilePath &operator/=(const QString &str);
 
-    Qt::CaseSensitivity caseSensitivity() const;
     QChar pathComponentSeparator() const;
     QChar pathListSeparator() const;
 
