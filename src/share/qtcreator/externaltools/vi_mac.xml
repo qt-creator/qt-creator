@@ -18,7 +18,11 @@
         end applicationIsRunning
         set terminalWasRunning to applicationIsRunning(&quot;Terminal&quot;)
 
-        set editorScript to &quot;vi \&quot;%{CurrentDocument:FilePath}\&quot; +%{CurrentDocument:Row} +\&quot;normal %{CurrentDocument:Column}|\&quot;; exit&quot;
+        if "%{CurrentDocument:FilePath}" is "" then
+            set editorScript to &quot;vi ; exit&quot;
+        else
+            set editorScript to &quot;vi \&quot;%{CurrentDocument:FilePath}\&quot; +%{CurrentDocument:Row} +\&quot;normal %{CurrentDocument:Column}|\&quot;; exit&quot;
+        end if
         tell application &quot;Terminal&quot;
             --do script will open a new window if none given, but terminal already opens one if not running
             if terminalWasRunning then
@@ -29,10 +33,15 @@
             set currentTab to the result
             set currentWindow to first window whose tabs contains currentTab
             --set the geometry
-            set font size of current settings of currentTab to %{CurrentDocument:FontSize}
-            set number of columns of currentTab to %{CurrentDocument:ColumnCount}
-            set number of rows of currentTab to %{CurrentDocument:RowCount}
-            set position of currentWindow to {%{CurrentDocument:XPos}, %{CurrentDocument:YPos}}
+            if "%{CurrentDocument:FilePath}" is "" then
+                set number of columns of currentTab to 80
+                set number of rows of currentTab to 25
+            else
+                set font size of current settings of currentTab to %{CurrentDocument:FontSize}
+                set number of columns of currentTab to %{CurrentDocument:ColumnCount}
+                set number of rows of currentTab to %{CurrentDocument:RowCount}
+                set position of currentWindow to {%{CurrentDocument:XPos}, %{CurrentDocument:YPos}}
+            end if
             activate
             --make sure that the command has been called before waiting for it to end
             try --window might have closed
