@@ -8,7 +8,7 @@
     <description>Opens the current file in vi</description>
     <displayname>Edit with vi</displayname>
     <category>Text</category>
-    <executable>
+    <executable output="ignore" error="showinpane" modifiesdocument="no">
         <path>osascript</path>
         <input>
         --Terminal opens a window by default when it is not running, so check
