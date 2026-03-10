@@ -682,8 +682,7 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
 bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const
 {
     // false for any dir or file other than fossil checkout db-file
-    return !filePath.fileName().compare(Constants::FOSSILREPO, HostOsInfo::fileNameCaseSensitivity())
-           && filePath.isFile();
+    return filePath.withNewFileName(Constants::FOSSILREPO) == filePath && filePath.isFile();
 }
 
 bool FossilClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const

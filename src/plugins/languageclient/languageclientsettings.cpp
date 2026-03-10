@@ -950,13 +950,9 @@ bool LanguageFilter::isSupported(const FilePath &filePath, const QString &mimeTy
     }
     if (filePattern.isEmpty() && filePath.isEmpty())
         return mimeTypes.isEmpty();
-    const QRegularExpression::PatternOptions options
-        = filePath.caseSensitivity() == Qt::CaseInsensitive
-              ? QRegularExpression::CaseInsensitiveOption
-              : QRegularExpression::NoPatternOption;
-    auto regexps = Utils::transform(filePattern, [&options](const QString &pattern){
+    auto regexps = Utils::transform(filePattern, [](const QString &pattern){
         return QRegularExpression(QRegularExpression::wildcardToRegularExpression(pattern),
-                                  options);
+                                  QRegularExpression::CaseInsensitiveOption);
     });
     return Utils::anyOf(regexps, [filePath](const QRegularExpression &reg){
         return reg.match(filePath.toUrlishString()).hasMatch()

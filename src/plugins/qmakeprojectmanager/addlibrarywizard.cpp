@@ -49,15 +49,10 @@ static FancyLineEdit::AsyncValidationResult validateLibraryPath(const QString &i
 
     const QString fileName = filePath.fileName();
 
-    QRegularExpression::PatternOption option =
-        HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive
-            ? QRegularExpression::CaseInsensitiveOption
-            : QRegularExpression::NoPatternOption;
-
     const QStringList filters = qt_clean_filter_list(promptDialogFilter);
     for (const QString &filter : filters) {
         QString pattern = QRegularExpression::wildcardToRegularExpression(filter);
-        QRegularExpression regExp(pattern, option);
+        QRegularExpression regExp(pattern, QRegularExpression::CaseInsensitiveOption);
         if (regExp.match(fileName).hasMatch())
             return input;
     }

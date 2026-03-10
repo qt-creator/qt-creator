@@ -548,16 +548,17 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     });
 }
 
-bool SubversionPluginPrivate::isVcsDirectory(const FilePath &fileName) const
+bool SubversionPluginPrivate::isVcsDirectory(const FilePath &filePath) const
 {
-    const QString baseName = fileName.fileName();
-    const auto caseSensitivity = fileName.caseSensitivity();
-    return contains(
-               m_svnDirectories,
-               [baseName, caseSensitivity](const QString &s) {
-                   return !baseName.compare(s, caseSensitivity);
-               })
-           && fileName.isDir();
+    if (!filePath.isDir())
+        return false;
+
+    for (const auto &svnDirName : m_svnDirectories) {
+        if (filePath == filePath.withNewFileName(svnDirName))
+            return true;
+    }
+
+    return false;
 }
 
 bool SubversionPluginPrivate::activateCommit()

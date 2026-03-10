@@ -1896,7 +1896,7 @@ Id GitPluginPrivate::id() const
 
 bool GitPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 {
-    if (filePath.fileName().compare(".git", filePath.caseSensitivity()))
+    if (filePath.withNewFileName(".git") != filePath)
         return false;
     if (filePath.isDir())
         return true;

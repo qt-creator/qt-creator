@@ -339,10 +339,8 @@ static QString expressionForGlob(QString globPattern)
 bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeType &mimeType) const
 {
     if (std::optional<QString> _pattern = pattern()) {
-        QRegularExpression::PatternOption option = QRegularExpression::NoPatternOption;
-        if (fileName.caseSensitivity() == Qt::CaseInsensitive)
-            option = QRegularExpression::CaseInsensitiveOption;
-        const QRegularExpression regexp(expressionForGlob(*_pattern), option);
+        const QRegularExpression
+            regexp(expressionForGlob(*_pattern), QRegularExpression::CaseInsensitiveOption);
         if (regexp.isValid() && regexp.match(fileName.path()).hasMatch())
             return true;
     }

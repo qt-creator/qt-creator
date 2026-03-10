@@ -1153,14 +1153,9 @@ void tst_filepath::fromToString()
 
 void tst_filepath::comparison()
 {
-    QSKIP("Disabling until full path case sensitivity support is back.");
     QFETCH(QString, left);
     QFETCH(QString, right);
-    QFETCH(bool, hostSensitive);
     QFETCH(bool, expected);
-
-    HostOsInfo::setOverrideFileNameCaseSensitivity(hostSensitive ? Qt::CaseSensitive
-                                                                 : Qt::CaseInsensitive);
 
     FilePath l = FilePath::fromUserInput(left);
     FilePath r = FilePath::fromUserInput(right);
@@ -1171,26 +1166,17 @@ void tst_filepath::comparison_data()
 {
     QTest::addColumn<QString>("left");
     QTest::addColumn<QString>("right");
-    QTest::addColumn<bool>("hostSensitive");
     QTest::addColumn<bool>("expected");
 
     QTest::newRow("r1") << "Abc"
-                        << "abc" << true << false;
-    QTest::newRow("r2") << "Abc"
-                        << "abc" << false << true;
+                        << "abc" << false;
     QTest::newRow("r3") << "x://y/Abc"
-                        << "x://y/abc" << true << false;
-    QTest::newRow("r4") << "x://y/Abc"
-                        << "x://y/abc" << false << false;
+                        << "x://y/abc" << false;
 
     QTest::newRow("s1") << "abc"
-                        << "abc" << true << true;
-    QTest::newRow("s2") << "abc"
-                        << "abc" << false << true;
+                        << "abc" << true;
     QTest::newRow("s3") << "x://y/abc"
-                        << "x://y/abc" << true << true;
-    QTest::newRow("s4") << "x://y/abc"
-                        << "x://y/abc" << false << true;
+                        << "x://y/abc" << true;
 }
 
 void tst_filepath::linkFromString()

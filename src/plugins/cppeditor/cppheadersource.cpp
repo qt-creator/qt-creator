@@ -129,21 +129,6 @@ static QStringList baseDirWithAllDirectories(const QDir &baseDir, const QStringL
     return result;
 }
 
-static int commonFilePathLength(
-    const QString &s1, const QString &s2, Qt::CaseSensitivity caseSensitivity)
-{
-    int length = qMin(s1.size(), s2.size());
-    for (int i = 0; i < length; ++i)
-        if (caseSensitivity == Qt::CaseSensitive) {
-            if (s1[i] != s2[i])
-                return i;
-        } else {
-            if (s1[i].toLower() != s2[i].toLower())
-                return i;
-        }
-    return length;
-}
-
 static FilePath correspondingHeaderOrSourceInProject(const FilePath &filePath,
                                                      const QStringList &candidateFileNames,
                                                      const Project *project,
@@ -156,13 +141,14 @@ static FilePath correspondingHeaderOrSourceInProject(const FilePath &filePath,
     FilePath bestFilePath;
     int compareValue = 0;
     for (const FilePath &projectFile : projectFiles) {
-        int value = commonFilePathLength(
-            filePath.toUrlishString(), projectFile.toUrlishString(), filePath.caseSensitivity());
-        if (value > compareValue) {
-            compareValue = value;
-            bestFilePath = projectFile;
-        }
+        const FilePath common = FilePaths{projectFile, filePath}.commonPath();
+        if (common.path().length() < compareValue)
+            continue;
+
+        compareValue = common.path().length();
+        bestFilePath = projectFile;
     }
+
     if (!bestFilePath.isEmpty()) {
         QTC_ASSERT(bestFilePath.isFile(), return {});
         if (cacheUsage == CacheUsage::ReadWrite) {

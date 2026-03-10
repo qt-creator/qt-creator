@@ -147,8 +147,7 @@ void BazaarClient::annotate(const Utils::FilePath &workingDir, const QString &fi
 
 bool BazaarClient::isVcsDirectory(const FilePath &filePath) const
 {
-    return !filePath.fileName().compare(Constants::BAZAARREPO, filePath.caseSensitivity())
-           && filePath.isDir();
+    return filePath.isDir() && filePath == filePath.withNewFileName(Constants::BAZAARREPO);
 }
 
 bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const

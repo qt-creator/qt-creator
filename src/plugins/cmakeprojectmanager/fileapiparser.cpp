@@ -230,9 +230,8 @@ static std::vector<CMakeFileInfo> readCMakeFilesFile(const FilePath &cmakeFilesF
         info.path = cmakeFilesFile.withNewPath(input.value("path").toString());
 
         info.isCMake = input.value("isCMake").toBool();
-        const QString filename = info.path.fileName();
-        info.isCMakeListsDotTxt
-            = (filename.compare(Constants::CMAKE_LISTS_TXT, info.path.caseSensitivity()) == 0);
+        info.isCMakeListsDotTxt = info.path
+                                  == info.path.withNewFileName(Constants::CMAKE_LISTS_TXT);
 
         info.isGenerated = input.value("isGenerated").toBool();
         info.isExternal = input.value("isExternal").toBool();
