@@ -1284,7 +1284,7 @@ bool PluginSpec::resolveDependencies(const PluginSpecs &specs)
         if (!found) {
             if (dependency.type == PluginDependency::Required) {
                 const QString error = ::ExtensionSystem::Tr::tr(
-                                          "Could not resolve dependency '%1(%2)'")
+                                          "Could not resolve the dependency on plugin '%1(%2)'")
                                           .arg(dependency.id, dependency.version);
                 if (hasError())
                     setError(errorString() + '\n' + error);
