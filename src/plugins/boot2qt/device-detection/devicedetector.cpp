@@ -10,6 +10,7 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
 
@@ -23,9 +24,8 @@ namespace Qdb::Internal {
 
 static bool isAutodetectedQdbDevice(const IDevice::ConstPtr &device)
 {
-    return device
-        && device->type() == Qdb::Constants::QdbLinuxOsType
-        && device->isAutoDetected();
+    return device && device->type() == ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE
+           && device->isAutoDetected();
 }
 
 DeviceDetector::DeviceDetector()

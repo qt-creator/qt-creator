@@ -366,8 +366,7 @@
         \li In the \uicontrol {Test Results} view, select:
 
             \list
-                \li \inlineimage {icons/run_small.png} {Run All Tests}
-                    (\uicontrol {Run All Tests}) to run all tests.
+                \li \imagerunsmall (\uicontrol {Run All Tests}) to run all tests.
                  \li \inlineimage {icons/qtcreator-run-selected-tests.png} {Run Selected Tests}
                     (\uicontrol {Run Selected Tests}) to run the selected tests.
                  \li \inlineimage {icons/qtcreator-run-failed-tests.png} {Run Failed Tests}

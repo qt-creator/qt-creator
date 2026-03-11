@@ -2176,7 +2176,7 @@
 
         \li Make sure you use at least \QC 3.0.1
 
-        \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run) to
+        \li Select \imagerunsmall (\uicontrol Run) to
             check that the \l {Running applications}{build and run kit selector}
             picked a runnable target and you can run the application.
 

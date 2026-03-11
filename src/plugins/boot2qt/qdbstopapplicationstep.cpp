@@ -81,7 +81,7 @@ QdbStopApplicationStepFactory::QdbStopApplicationStepFactory()
 {
     registerStep<QdbStopApplicationStep>(Constants::QdbStopApplicationStepId);
     setDisplayName(Tr::tr("Stop already running application"));
-    setSupportedDeviceType(Constants::QdbLinuxOsType);
+    setSupportedDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }
 

@@ -947,7 +947,7 @@
     \section1 Add branches
 
     To create a new tracking or non-tracking branch, select
-    \inlineimage {icons/plus.png} {Add Branch} (\uicontrol {Add Branch}).
+    \imageplus (\uicontrol {Add Branch}).
 
     \image {qtcreator-git-add-branch.webp} {Add Branch dialog}
 

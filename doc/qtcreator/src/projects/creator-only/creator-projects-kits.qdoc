@@ -106,7 +106,7 @@
         \li Name of the kit. You can use variables to generate the kit name
             based on the values you set in the other fields.
 
-            Select \inlineimage {icons/qtcreator-desktopdevice-button.png} {Kit icon}
+            Select \imagedesktopdevicesmall (\uicontrol {Desktop icon})
             next to the field, and then select the image that is displayed in the
             kit selector for this kit. Select \uicontrol Browse to select an
             image in a supported file format (for example, PNG). The image is

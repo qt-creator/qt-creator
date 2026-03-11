@@ -72,8 +72,8 @@
 
     Move the mouse on a row to view more information about the function.
 
-    To move between rows, select \inlineimage {icons/prev.png} {Previous}
-    or \inlineimage {icons/next.png} {Next}.
+    To move between rows, select \imageprev (\uicontrol {Previous})
+    or \imagenext (\uicontrol {Next}).
 
     For more information about using Memcheck, see
     \l{Interpreting Memcheck's Output} in the Valgrind documentation.
@@ -288,8 +288,7 @@
     the \uicontrol Callers view and about the called functions in the
     \uicontrol Callees view.
 
-    Select \inlineimage {icons/prev.png} {Previous}
-    or \inlineimage {icons/next.png} {Next}
+    Select \imageprev (\uicontrol {Previous}) and \imagenext (\uicontrol {Next})
     To move between functions in the \uicontrol Callee view.
 
     To set the cost format, select \uicontrol $. You can view absolute

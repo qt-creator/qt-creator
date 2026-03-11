@@ -107,7 +107,7 @@ public:
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
         addSupportedRunConfig(QmlProjectManager::Constants::QML_RUNCONFIG_ID);
-        addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     }
 };
 
@@ -138,7 +138,7 @@ public:
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
         addSupportedRunConfig(QmlProjectManager::Constants::QML_RUNCONFIG_ID);
-        addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     }
 };
 
@@ -162,7 +162,7 @@ public:
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
         addSupportedRunConfig(QmlProjectManager::Constants::QML_RUNCONFIG_ID);
-        addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     }
 };
 
@@ -178,7 +178,7 @@ public:
                 runControl, NoQmlDebugServices, {.suppressDefaultStdOutHandling = true}));
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
-        addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
     }
 };

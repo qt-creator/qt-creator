@@ -352,11 +352,25 @@ void CMakeKitAspectFactory::addToMacroExpander(Kit *k, MacroExpander *expander) 
         });
 }
 
+static bool isKitSuitableForQtForMCUs(const Kit *k)
+{
+    // Some Boot2Qt kits are also suitable for Qt for MCUs
+    return k
+           && RunDeviceTypeKitAspect::deviceTypeId(k)
+                  == ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE
+           && k->id().name().startsWith("mcu.");
+}
+
 QSet<Id> CMakeKitAspectFactory::availableFeatures(const Kit *k) const
 {
+    QSet<Id> features = {};
     if (cmakeTool(k))
-        return { CMakeProjectManager::Constants::CMAKE_FEATURE_ID };
-    return {};
+        features.insert(CMakeProjectManager::Constants::CMAKE_FEATURE_ID);
+
+    if (isKitSuitableForQtForMCUs(k))
+        features.insert("MCU");
+
+    return features;
 }
 
 std::optional<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::autoDetect(

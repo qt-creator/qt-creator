@@ -190,10 +190,9 @@
     Select \key {Ctrl+F} to \l{Search in current file}{search} for a string in
     the output.
 
-    To increase or decrease the output text size, select
-    \inlineimage {icons/plus.png} {Zoom In} (\uicontrol {Zoom In}) or \key Ctrl++
-    or \inlineimage {icons/minus.png} {Zoom Out} (\uicontrol {Zoom Out}) or
-    \key Ctrl+-.
+    To increase or decrease the output text size, select \imageplus
+    (\uicontrol {Zoom In}) or \key Ctrl++ or \imageminus (\uicontrol {Zoom Out})
+    or \key Ctrl+-.
 
     To hide the output, select
     \inlineimage {icons/rightsidebaricon.png} {Hide Right Sidebar}

@@ -15,7 +15,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <boot2qt/qdbconstants.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
@@ -38,7 +37,7 @@ public:
         setDefaultDisplayName(Tr::tr("Automatic Application Manager Deploy Configuration"));
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
-        addSupportedTargetDeviceType(Qdb::Constants::QdbLinuxOsType);
+        addSupportedTargetDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
         setSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
 
         addInitialStep(Constants::CMAKE_PACKAGE_STEP_ID);

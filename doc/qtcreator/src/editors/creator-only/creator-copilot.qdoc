@@ -72,8 +72,8 @@
     \uicontrol {Request Copilot Suggestion} in the \l{Navigate with locator}
     {locator}.
 
-    Hover over a suggestion to show a toolbar with \inlineimage {icons/prev.png} {Previous}
-    and \inlineimage {icons/next.png} {Next}
+    Hover over a suggestion to show a toolbar with \imageprev
+    (\uicontrol {Previous}) and \imagenext (\uicontrol {Next})
     buttons for cycling between Copilot suggestions.
 
     To apply a suggestion as a whole, select \uicontrol Apply or \key Tab.

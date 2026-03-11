@@ -323,27 +323,19 @@ void MinimapOverlay::mousePressEvent(QMouseEvent *event)
     const QRect &thumb = tg.rect;
 
     if (thumb.contains(clickPos)) {
-        m_dragging = true;
-        m_dragStartValue = m_vScroll->value();
         m_dragOffset = clickPos.y() - thumb.top();
-
-        event->accept();
-        return;
     }
-
-    const int delta = (clickPos.y() < thumb.top()) ? -m_vScroll->pageStep() : m_vScroll->pageStep();
-    const int scrollPosition = m_vScroll->value() + delta;
-    m_vScroll->setValue(qBound(m_vScroll->minimum(), scrollPosition, m_vScroll->maximum()));
 
     event->accept();
 }
 
 void MinimapOverlay::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!m_vScroll || !m_dragging)
+    if (!m_vScroll || !m_dragOffset)
         return;
 
-    const int scrollPosition = minimapPixelPosToRangeValue(event->pos().y() - m_dragOffset);
+    m_dragging = true;
+    const int scrollPosition = minimapPixelPosToRangeValue(event->pos().y() - *m_dragOffset);
     m_vScroll->setValue(qBound(m_vScroll->minimum(), scrollPosition, m_vScroll->maximum()));
 
     event->accept();
@@ -353,10 +345,29 @@ void MinimapOverlay::mouseReleaseEvent(QMouseEvent *event)
 {
     if (!m_vScroll)
         return;
-    if (!m_dragging)
-        return;
 
+    const bool wasDragging = m_dragging;
+    m_dragOffset.reset();
     m_dragging = false;
+
+    if (!wasDragging) {
+        const ThumbGeometry tg = computeThumbGeometry();
+        const QRect &thumb = tg.rect;
+        if (event->modifiers() == Qt::AltModifier) {
+            // paging
+            const int delta = (event->pos().y() < thumb.center().y()) ? -m_vScroll->pageStep()
+                                                                      : m_vScroll->pageStep();
+            const int scrollPosition = m_vScroll->value() + delta;
+            m_vScroll->setValue(qBound(m_vScroll->minimum(), scrollPosition, m_vScroll->maximum()));
+        } else {
+            // jumping
+            const qreal scale = qreal(m_vScroll->singleStep()) / miniLineHeight();
+            const int clickPosition = m_vScroll->value()
+                                      + (event->pos().y() - thumb.center().y()) * scale;
+            m_vScroll->setValue(qBound(m_vScroll->minimum(), clickPosition, m_vScroll->maximum()));
+        }
+    }
+
     event->accept();
 }
 

@@ -52,7 +52,7 @@
         \li Name
         \li Description
     \row
-        \li \inlineimage {icons/snapshot.png} {Save Screenshot}
+        \li \imagecamera
         \li \uicontrol {Save Screenshot}
         \li Saves the currently visible part of the state chart as an image.
     \row
@@ -60,9 +60,9 @@
         \li \uicontrol {Export Canvas to Image}
         \li Saves the whole state chart as an image.
     \row
-        \li \inlineimage {icons/zoom-in.png} {Zoom In}
+        \li \imagezoomin
 
-            \inlineimage {icons/zoom-out.png} {Zoom Out}
+            \imagezoomout
         \li \uicontrol {Zoom In}
 
             \uicontrol {Zoom Out}

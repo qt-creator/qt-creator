@@ -230,7 +230,7 @@
     \section1 Zoom the timeline
 
     Use the slider on the toolbar to set the zooming level in \uicontrol Timeline.
-    Select the \imagezoomsmall and \imagezoombig buttons to zoom out of or into
+    Select the \imagezoomout and \imagezoomin buttons to zoom out of or into
     the view.
 
     \section1 Set keyframe track color
@@ -247,7 +247,7 @@
     \uicontrol{Timeline} view:
     \list
       \li Drag the playhead along the timeline.
-      \li Select \imagestartplayback or \key Space.
+      \li Select \imagerunsmall (\uicontrol {Play}) or \key Space.
     \endlist
 
     To preview the whole UI, select the run dropdown from the top toolbar,

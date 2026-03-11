@@ -25,7 +25,7 @@
 
     To add URLs for installing extensions from external registries
     or to install extensions from installation packages, select
-    \inlineimage {icons/settings.png} {Settings}.
+    \imagesettings (\uicontrol {Preferences}).
 
     \sa {Install extensions}, {Activate extensions}
 */

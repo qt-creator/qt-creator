@@ -75,7 +75,7 @@ QdbMakeDefaultAppStepFactory::QdbMakeDefaultAppStepFactory()
 {
     registerStep<QdbMakeDefaultAppStep>(Constants::QdbMakeDefaultAppStepId);
     setDisplayName(Tr::tr("Change default application"));
-    setSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+    setSupportedDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }
 

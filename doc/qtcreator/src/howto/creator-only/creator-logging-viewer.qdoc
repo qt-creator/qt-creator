@@ -52,8 +52,7 @@
     To temporarily stop logging, select
     \inlineimage {icons/stop_small.png} {Stop Logging}
     (\uicontrol {Stop Logging}). To continue logging, select
-    \inlineimage {icons/run_small.png} {Start Logging}
-    (\uicontrol {Start Logging}).
+    \imagerunsmall (\uicontrol {Start Logging}).
 
     Use regular expressions in the search field to filter the categories.
     By default, logging categories and messages coming directly from Qt are
