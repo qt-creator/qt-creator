@@ -158,9 +158,16 @@ void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
 
 bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
-    if (m_cppAspect() == TriState::Default)
-        return m_buildConfiguration->project()->projectLanguages().contains(
-                    ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    if (m_cppAspect() == TriState::Default) {
+        if (m_buildConfiguration->project()->projectLanguages().contains(
+                ProjectExplorer::Constants::CXX_LANGUAGE_ID)) {
+            return true;
+        }
+        // If there is no other debugger, enable cpp debugger as a fallback to avoid leaving user
+        // without any debugging support.
+        bool otherDebuggerenabled = useQmlDebugger() || usePythonDebugger();
+        return !otherDebuggerenabled;
+    }
     return m_cppAspect() == TriState::Enabled;
 }
 
