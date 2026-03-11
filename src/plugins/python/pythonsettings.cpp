@@ -10,6 +10,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/processprogress.h>
 
 #include <debugger/debuggerkitaspect.h>
@@ -984,7 +985,8 @@ void PythonSettings::createVirtualEnvironment(
     progress->setDisplayName(Tr::tr("Create Python venv"));
     QObject::connect(process, &Process::done, [directory, process, callback](){
         venvsCurrentlySettingUp().remove(directory);
-        if (process->result() == ProcessResult::FinishedWithSuccess) {
+        switch (process->result()) {
+        case ProcessResult::FinishedWithSuccess: {
             FilePath venvPython = directory.osType() == Utils::OsTypeWindows ? directory / "Scripts"
                                                                              : directory / "bin";
             venvPython = venvPython.pathAppended("python").withExecutableSuffix();
@@ -993,7 +995,25 @@ void PythonSettings::createVirtualEnvironment(
                     callback(venvPython);
                 emit instance()->virtualEnvironmentCreated(venvPython);
             }
+            break;
         }
+        case ProcessResult::FinishedWithError:
+            Core::MessageManager::writeFlashing(
+                Tr::tr("Venv creation failed:\n%1").arg(process->allOutput()));
+            break;
+        case ProcessResult::TerminatedAbnormally:
+            Core::MessageManager::writeFlashing(
+                Tr::tr("Venv creation terminated abnormally:\n%1").arg(process->errorString()));
+            break;
+        case ProcessResult::StartFailed:
+            Core::MessageManager::writeFlashing(
+                Tr::tr("Venv creation could not be started:\n%1").arg(process->allOutput()));
+            break;
+        case ProcessResult::Canceled:
+            Core::MessageManager::writeFlashing(Tr::tr("Venv creation canceled."));
+            break;
+        }
+
         process->deleteLater();
     });
     process->setCommand(command);
