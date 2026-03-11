@@ -19,6 +19,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/shutdownguard.h>
 
+#include <QtTaskTree/QConditional>
 #include <QtTaskTree/QMappedTaskTreeRunner>
 #include <QtTaskTree/QNetworkReplyWrapper>
 
@@ -52,7 +53,6 @@ public:
 
 static QHash<FilePath, ArServerData> s_arServers;
 static GuardedObject<QMappedTaskTreeRunner<FilePath>> s_arServerRunner;
-static GuardedObject<QParallelTaskTreeRunner> s_deserializerRunner;
 
 class ShutdownNotifier : public QObject
 {
@@ -260,7 +260,6 @@ void cleanShutdownPluginArServer(const FilePath &bauhausSuite)
 
 void shutdownAllPluginArServers()
 {
-    s_deserializerRunner->reset();
     s_arServers.clear();
     s_arServerRunner->reset();
 }
@@ -286,18 +285,17 @@ static QByteArray basicAuth(const QByteArray &secret)
     return "Basic " + QByteArray(secret).prepend(':').toBase64();
 }
 
-static void sendQuery(const QString &relative,
-                      const Utils::FilePath &bauhausSuite,
-                      const QJsonDocument &body,
-                      const OnDoneCallback &onSuccess,
-                      const OnDoneCallback &onError)
+static ExecutableItem sendQueryRecipe(const Storage<QByteArray> &replyStorage,
+                                      const QString &relative,
+                                      const FilePath &bauhausSuite,
+                                      const QJsonDocument &body = {})
 {
     const auto it = s_arServers.constFind(bauhausSuite);
     if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
-        return;
+        return errorItem;
 
     const QUrl serverUrl = it->m_serverUrl;
-    QTC_ASSERT(!serverUrl.isEmpty(), return);
+    QTC_ASSERT(!serverUrl.isEmpty(), return errorItem);
     const QUrl url = serverUrl.resolved(relative);
     const QByteArray auth = basicAuth(it->m_accessSecret);
 
@@ -305,21 +303,20 @@ static void sendQuery(const QString &relative,
     const auto onNetworkQuerySetup = [url, auth, body](QNetworkReplyWrapper &query) {
         setupQuery(query, url, auth, body);
     };
-
-    const auto onNetworkQueryDone
-            = [bauhausSuite, onSuccess, onError]
-            (const QNetworkReplyWrapper &query, DoneWith doneWith) {
+    const auto onNetworkQueryDone = [bauhausSuite, replyStorage](const QNetworkReplyWrapper &query,
+                                                                 DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         const QByteArray contentType = contentTypeFromRawHeader(reply);
+        *replyStorage = reply->readAll();
         if (doneWith == DoneWith::Success && status == 200 && contentType == s_jsonContentType)
-            return onSuccess(reply->readAll());
+            return DoneResult::Success;
         if (doneWith == DoneWith::Success && status > 200 && status < 300) // e.g. issue disposal
-            return onSuccess(reply->readAll());
-        return onError(reply->readAll());
+            return DoneResult::Success;
+        return DoneResult::Error;
     };
 
-    GlobalTaskTree::start({QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone)});
+    return QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone);
 }
 
 void requestArSessionStart(const FilePath &bauhausSuite, const OnSessionStarted &onStarted)
@@ -328,11 +325,12 @@ void requestArSessionStart(const FilePath &bauhausSuite, const OnSessionStarted 
     if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
         return;
 
-    const auto onSuccess = [bauhausSuite, onStarted](const QByteArray &reply) {
+    const Storage<QByteArray> replyStorage;
+    const auto onSuccess = [bauhausSuite, onStarted, replyStorage] {
         qCDebug(log) << "pluginar session started for" << bauhausSuite;
         // handle the response....
         QJsonParseError error;
-        QJsonDocument json = QJsonDocument::fromJson(reply, &error);
+        const QJsonDocument json = QJsonDocument::fromJson(*replyStorage, &error);
         if (error.error != QJsonParseError::NoError || !json.isObject()) {
             qCDebug(log) << "parse error (session start reply)";
             return DoneResult::Error;
@@ -349,14 +347,21 @@ void requestArSessionStart(const FilePath &bauhausSuite, const OnSessionStarted 
             onStarted(id);
         return DoneResult::Success;
     };
-    const auto onError = [bauhausSuite](const QByteArray &reply) {
+    const auto onError = [bauhausSuite, replyStorage] {
         qCDebug(log) << "error starting pluginar session for" << bauhausSuite;
-        qCDebug(log) << "resp:" << reply;
-        return DoneResult::Error;
+        qCDebug(log) << "resp:" << *replyStorage;
     };
 
     qCDebug(log) << "start pluginar session for" << bauhausSuite.toUserOutput();
-    sendQuery(it->m_arSessionStartRel, bauhausSuite, {}, onSuccess, onError);
+    const Group recipe {
+        replyStorage,
+        If (sendQueryRecipe(replyStorage, it->m_arSessionStartRel, bauhausSuite)) >> Then {
+            QSyncTask(onSuccess)
+        } >> Else {
+            QSyncTask(onError) && DoneResult::Error
+        }
+    };
+    GlobalTaskTree::start(recipe);
 }
 
 static void deserializeFileView(QPromise<Result<Dto::FileViewDto>> &promise,
@@ -384,21 +389,22 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
     jsonObj.insert("abort", abort);
     const QJsonDocument json{jsonObj};
 
-    const auto onSuccess = [bauhausSuite, sessionId](const QByteArray &reply) {
+    const Storage<QByteArray> replyStorage;
+    const auto onDeserializeSetup = [bauhausSuite, sessionId, replyStorage](QTaskTree &task) {
         qCDebug(log) << "pluginar session finished for" << bauhausSuite;
         // handle the response....
         const auto it = s_arServers.find(bauhausSuite);
         if (it == s_arServers.end())
-            return DoneResult::Error;
+            return SetupResult::StopWithError;
 
         it->m_runningSessions.remove(sessionId);
         QJsonParseError error;
-        QJsonDocument json = QJsonDocument::fromJson(reply, &error);
+        QJsonDocument json = QJsonDocument::fromJson(*replyStorage, &error);
         if (error.error != QJsonParseError::NoError || !json.isObject()) {
             qCDebug(log) << "parse error (session start reply)";
-            return DoneResult::Error;
+            return SetupResult::StopWithError;
         }
-        qCDebug(log) << reply;
+        qCDebug(log) << *replyStorage;
         const QJsonArray filesInfo = json.object().value("filesInfo").toArray();
         QByteArrayList jsonList;
         for (const QJsonValue &v : filesInfo)
@@ -415,22 +421,29 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
                                     bauhausSuite);
             }
         };
-        Group deserialize = For (iterator) >> Do {
+        const Group deserializeRecipe = For (iterator) >> Do {
             ParallelLimit(4),
             AsyncTask<Result<Dto::FileViewDto>>(onSetup, onDone, CallDoneFlag::OnSuccess)
         };
 
-        s_deserializerRunner->start(deserialize);
-        return DoneResult::Success;
+        task.setRecipe(deserializeRecipe);
+        return SetupResult::Continue;
     };
-    const auto onError = [bauhausSuite, sessionId](const QByteArray &reply) {
+    const auto onError = [bauhausSuite, sessionId, replyStorage] {
         qCDebug(log) << "error finishing pluginar session" << sessionId << "for" << bauhausSuite;
-        qCDebug(log) << "resp:" << reply;
-        return DoneResult::Error;
+        qCDebug(log) << "resp:" << *replyStorage;
     };
 
     qCDebug(log) << "finish pluginar session" << bauhausSuite << "session" << sessionId;
-    sendQuery(it->m_arSessionFinishRel, bauhausSuite, json, onSuccess, onError);
+    const Group recipe {
+        replyStorage,
+        If (sendQueryRecipe(replyStorage, it->m_arSessionFinishRel, bauhausSuite, json)) >> Then {
+            QTaskTreeTask(onDeserializeSetup)
+        } >> Else {
+            QSyncTask(onError) && DoneResult::Error
+        }
+    };
+    GlobalTaskTree::start(recipe);
 }
 
 void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, const QList<qint64> &issues)
@@ -444,20 +457,27 @@ void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, const QList<qint
         jsonArray.append(double(issue));
     const QJsonDocument json{jsonArray};
 
-    const auto onSuccess = [bauhausSuite](const QByteArray &reply) {
+    const Storage<QByteArray> replyStorage;
+    const auto onSuccess = [bauhausSuite, replyStorage] {
         qCDebug(log) << "dispose of issues succeeded" << bauhausSuite;
         // handle the response....
-        qCDebug(log) << reply;
-        return DoneResult::Success;
+        qCDebug(log) << *replyStorage;
     };
-    const auto onError = [bauhausSuite](const QByteArray &reply) {
+    const auto onError = [bauhausSuite, replyStorage] {
         qCDebug(log) << "error disposing issues for" << bauhausSuite;
-        qCDebug(log) << "resp:" << reply;
-        return DoneResult::Error;
+        qCDebug(log) << "resp:" << *replyStorage;
     };
 
     qCDebug(log) << "dispose issues for" << bauhausSuite << "session";
-    sendQuery(it->m_disposeIssuesRel, bauhausSuite, json, onSuccess, onError);
+    const Group recipe {
+        replyStorage,
+        If (sendQueryRecipe(replyStorage, it->m_disposeIssuesRel, bauhausSuite, json)) >> Then {
+            QSyncTask(onSuccess)
+        } >> Else {
+            QSyncTask(onError) && DoneResult::Error
+        }
+    };
+    GlobalTaskTree::start(recipe);
 }
 
 QString pluginArPipeOut(const Utils::FilePath &bauhausSuite, int sessionId)
