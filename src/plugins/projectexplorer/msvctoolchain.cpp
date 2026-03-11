@@ -21,6 +21,7 @@
 #include <utils/datafromprocess.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/globaltasktree.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
@@ -28,8 +29,6 @@
 #include <utils/shutdownguard.h>
 #include <utils/temporarydirectory.h>
 #include <utils/winutils.h>
-
-#include <QtTaskTree/QParallelTaskTreeRunner>
 
 #include <QComboBox>
 #include <QDateTime>
@@ -2252,8 +2251,6 @@ public:
     {
         return std::make_unique<ClangClToolchainConfigWidget>(bundle);
     }
-
-    mutable QParallelTaskTreeRunner m_taskTreeRunner;
 };
 
 static ExecutableItem detectClangClRecipe()
@@ -2328,7 +2325,7 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
         results.append(detectClangClToolChainInPath(clangClPath, known, ""));
 
     if (vswherePath().isExecutableFile())
-        m_taskTreeRunner.start({detectClangClRecipe()});
+        GlobalTaskTree::start({detectClangClRecipe()});
 
     return results;
 }
