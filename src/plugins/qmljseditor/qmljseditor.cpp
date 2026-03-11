@@ -51,6 +51,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/refactoroverlay.h>
+#include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/colorpreviewhoverhandler.h>
@@ -962,18 +963,35 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     if (!qmlJsEditorDocument()->isSemanticInfoOutdated()) {
         std::unique_ptr<AssistInterface> interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
-            QScopedPointer<IAssistProcessor> processor(
-                Internal::quickFixAssistProvider()->createProcessor(interface.get()));
-            QScopedPointer<IAssistProposal> proposal(processor->start(std::move(interface)));
-            if (!proposal.isNull()) {
-                GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
-                for (int index = 0; index < model->size(); ++index) {
-                    auto item = static_cast<const AssistProposalItem *>(model->proposalItem(index));
-                    QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
-                    QAction *action = refactoringMenu->addAction(op->description());
-                    connect(action, &QAction::triggered, this, [op]() { op->perform(); });
+            IAssistProcessor *processor = textDocument()->quickFixAssistProvider()->createProcessor(
+                interface.get());
+            auto handleProposal = [refactoringMenu = QPointer(refactoringMenu), processor](
+                                      IAssistProposal *proposal) {
+                QScopedPointer<IAssistProposal> proposalHolder(proposal);
+                QScopedPointer<IAssistProcessor> processorHolder(processor);
+
+                if (!refactoringMenu)
+                    return;
+
+                if (proposal) {
+                    GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
+                    for (int index = 0; index < model->size(); ++index) {
+                        auto item = static_cast<const AssistProposalItem *>(
+                            model->proposalItem(index));
+                        QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
+                        QAction *action = refactoringMenu->addAction(op->description());
+                        connect(action, &QAction::triggered, refactoringMenu, [op]() {
+                            op->perform();
+                        });
+                    }
                 }
-            }
+                refactoringMenu->setEnabled(!refactoringMenu->isEmpty());
+            };
+
+            if (IAssistProposal *proposal = processor->start(std::move(interface)))
+                handleProposal(proposal);
+             else
+                processor->setAsyncCompletionAvailableHandler(handleProposal);
         }
     }
 
