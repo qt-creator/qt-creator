@@ -257,6 +257,8 @@ jobs:
 
           file(READ ./Updates.xml updates_xml)
           # get the package sections, only for given compiler, without the "debug info" ones
+          string(REPLACE "&lt;" "<" updates_xml "${updates_xml}")
+          string(REPLACE "&gt;" ">" updates_xml "${updates_xml}")
           string(REGEX REPLACE "<PackageUpdate>" ";<PackageUpdate>" sections "${updates_xml}")
           list(FILTER sections EXCLUDE REGEX "<Name>.*debug.*</Name>")
           list(FILTER sections INCLUDE REGEX "<Name>.*${compiler_id}.*</Name>")
