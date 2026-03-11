@@ -412,8 +412,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
             if (!node->isLocal() || !node->isLeaf())
                 break;
 
-            if (node->status.ahead >= 0)
-                res += ' ' + arrowUp + QString::number(node->status.ahead);
+            res += ' ' + arrowUp + QString::number(node->status.ahead);
 
             if (!node->tracking.isEmpty()) {
                 if (node->status.behind >= 0)
@@ -569,7 +568,6 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
             d->parseOutputLine(l);
         d->flushOldEntries();
 
-        d->updateAllUpstreamStatus(d->rootNode->children.at(LocalBranches));
         if (d->currentBranch) {
             if (d->currentBranch->isLocal())
                 d->currentBranch = nullptr;
@@ -582,6 +580,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
                 Tr::tr("Detached HEAD"), "HEAD", {}, d->currentDateTime);
             local->prepend(d->headNode);
         }
+        d->updateAllUpstreamStatus(d->rootNode->children.at(LocalBranches));
     };
 
     const Group recipe {
@@ -1171,10 +1170,11 @@ ExecutableItem BranchModel::Private::updateUpstreamStatusTask(BranchNode *node)
         return successItem;
 
     QStringList arguments = {"rev-list", "--no-color", "--count"};
+    const QString fullRef = (node == headNode) ? "HEAD" : node->fullRef();
     if (node->tracking.isEmpty())
-        arguments += {node->fullRef(), "--not", "--remotes"};
+        arguments += {fullRef, "--not", "--remotes"};
     else
-        arguments += {"--left-right", node->fullRef() + "..." + node->tracking};
+        arguments += {"--left-right", fullRef + "..." + node->tracking};
 
     const auto commandHandler = [this, nodePtr = QPointer<BranchNode>(node)](const CommandResult &result) {
         if (!nodePtr)
