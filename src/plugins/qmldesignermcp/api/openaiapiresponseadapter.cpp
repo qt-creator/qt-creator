@@ -14,7 +14,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkRequest>
-#include <QRegularExpression>
 
 namespace QmlDesigner {
 
@@ -151,28 +150,7 @@ AiResponse OpenAiResponseApiAdapter::interpretResponse(const QByteArray &respons
 
     QString contentStr = extractTextFromOutput(root.value("output").toArray());
 
-    AiResponse aiResponse;
-
-    // Extract QML from fenced code blocks.
-    static QRegularExpression qmlCodeRegex(
-        R"(```(?:qml)?\s*\n(.*?)\n```)",
-        QRegularExpression::DotMatchesEverythingOption);
-
-    QRegularExpressionMatch match = qmlCodeRegex.match(contentStr);
-    if (match.hasMatch())
-        aiResponse.setQml(match.captured(1).trimmed());
-
-    // Build clean display text.
-    QString displayText = contentStr;
-    displayText.remove(qmlCodeRegex);
-    static QRegularExpression xmlTagRegex(R"(<[^>]+>.*?</[^>]+>)",
-                                          QRegularExpression::DotMatchesEverythingOption);
-    displayText.remove(xmlTagRegex);
-    static QRegularExpression excessNewlines(R"(\n{3,})");
-    displayText.replace(excessNewlines, "\n\n");
-    aiResponse.setText(displayText.trimmed());
-
-    return aiResponse;
+    return AiResponse(contentStr);
 }
 
 QJsonArray OpenAiResponseApiAdapter::buildUserMessage(const QString &text, const QUrl &imageUrl)

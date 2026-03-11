@@ -146,33 +146,7 @@ AiResponse ClaudeApiAdapter::interpretResponse(const QByteArray &response)
     // Extract text content
     QString contentStr = extractTextFromContent(root.value("content").toArray());
 
-    // Parse for QML code blocks
-    // This logic should match your existing AiApiUtils::aiResponseFromContent()
-    AiResponse aiResponse;
-
-    // Extract QML from code blocks
-    static QRegularExpression qmlCodeRegex(
-        R"(```(?:qml)?\s*\n(.*?)\n```)",
-        QRegularExpression::DotMatchesEverythingOption);
-
-    QRegularExpressionMatch match = qmlCodeRegex.match(contentStr);
-    if (match.hasMatch())
-        aiResponse.setQml(match.captured(1).trimmed());
-
-    // Build a clean text for display in the chat UI:
-    // remove QML code fences, XML tags (e.g. <selected_ids>), and collapse
-    // excess blank lines left behind so the message reads naturally.
-    QString displayText = contentStr;
-    displayText.remove(qmlCodeRegex);
-    static QRegularExpression xmlTagRegex(R"(<[^>]+>.*?</[^>]+>)",
-                                          QRegularExpression::DotMatchesEverythingOption);
-    displayText.remove(xmlTagRegex);
-    // Collapse 3+ consecutive newlines down to two (one blank line max)
-    static QRegularExpression excessNewlines(R"(\n{3,})");
-    displayText.replace(excessNewlines, "\n\n");
-    aiResponse.setText(displayText.trimmed());
-
-    return aiResponse;
+    return AiResponse(contentStr);
 }
 
 QJsonArray ClaudeApiAdapter::buildUserMessage(const QString &text, const QUrl &imageUrl)

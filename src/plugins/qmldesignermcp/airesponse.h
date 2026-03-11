@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QStringList>
+#include <QString>
 
 namespace QmlDesigner {
 
@@ -19,26 +19,20 @@ public:
         StructureError,
     };
 
-    AiResponse();
-    AiResponse(Error error);
+    AiResponse(const QString &text);
+    AiResponse(Error error, const QString &errorMessage = {});
 
-    QString qml() const;
     QString text() const;
     Error error() const;
-    QString errorString() const;
+    QString errorMessage() const;
 
-    void setError(Error error);
-    void setQml(const QString &qml);
-    void setText(const QString &text);
-
-    [[nodiscard]] static AiResponse requestError(const QString &error);
-    [[nodiscard]] static AiResponse structureError(const QString &error);
+    [[nodiscard]] static AiResponse requestError(const QString &erroMsg);
+    [[nodiscard]] static AiResponse structureError(const QString &erroMsg);
 
 private:
     Error m_error = Error::NoError;
-    QString m_qml;
     QString m_text;
-    QString m_errorString;
+    QString m_errorMessage;
 };
 
 } // namespace QmlDesigner

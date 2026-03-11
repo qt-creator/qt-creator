@@ -487,24 +487,12 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
     using Utils::FilePath;
 
     if (response.error() != AiResponse::Error::NoError) {
-        m_chatHistory->addSystemMessage(tr("Error: %1").arg(response.errorString()));
-        emit notifyAIResponseError(response.errorString());
+        m_chatHistory->addSystemMessage(tr("Error: %1").arg(response.errorMessage()));
+        emit notifyAIResponseError(response.errorMessage());
         return;
     }
 
-    // Show the AI's response in the chat.
-    // response.text() is the narrative explanation the model gave; fall back to a
-    // short summary only when the model returned pure code with no surrounding text.
-    const QString responseText = [&]() -> QString {
-        const QString text = response.text().trimmed();
-        if (!text.isEmpty())
-            return text;
-        if (!response.qml().isEmpty())
-            return tr("Generated QML code (%1 lines).").arg(response.qml().split('\n').size());
-        return tr("Done.");
-    }();
-
-    m_chatHistory->addAssistantMessage(responseText);
+    m_chatHistory->addAssistantMessage(response.text().trimmed());
 
     m_lastTransaction = AiTransaction(response);
 

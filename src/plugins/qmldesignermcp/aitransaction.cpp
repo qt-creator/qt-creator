@@ -3,13 +3,7 @@
 
 #include "aitransaction.h"
 
-#include "aiassistantutils.h"
 #include "airesponse.h"
-
-#include <modelnode.h>
-#include <qmldesignerplugin.h>
-
-#include <qmljs/qmljsdocument.h>
 
 namespace QmlDesigner {
 
@@ -17,39 +11,17 @@ AiTransaction::AiTransaction() = default;
 
 AiTransaction::AiTransaction(const AiResponse &response)
 {
-    const QString newQml = AiAssistantUtils::reformatQml(response.qml());
-    if (!newQml.isEmpty()) {
-        const QString currentQml = AiAssistantUtils::currentQmlText();
-        m_before.qml = currentQml;
-        m_after.qml = newQml;
-        if (m_before.qml != m_after.qml) {
-            m_producesQmlError = !AiAssistantUtils::isValidQmlCode(m_after.qml);
-            m_affectsQml = true;
-            m_isValid = true;
-        }
-    }
+    // TODO
 }
 
 void AiTransaction::commit()
 {
-    if (!isValid() || applied())
-        return;
-
-    if (m_affectsQml) {
-        AiAssistantUtils::setQml(m_after.qml);
-        m_applied = true;
-    }
+    // TODO
 }
 
 void AiTransaction::rollback()
 {
-    if (!isValid() || !applied())
-        return;
-
-    if (m_affectsQml)
-        AiAssistantUtils::setQml(m_before.qml);
-
-    m_applied = false;
+    // TODO
 }
 
 } // namespace QmlDesigner

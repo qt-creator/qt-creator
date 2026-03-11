@@ -70,10 +70,10 @@ public:
     virtual bool isResponseComplete(const QByteArray &response) const = 0;
 
     /**
-     * @brief Convert response to final AiResponse object
-     *
-     * Extracts the text content and any generated QML.
-     */
+    * @brief Convert response to AiResponse object
+    *
+    * Parses and extracts the text content and reports parsing errors.
+    */
     virtual AiResponse interpretResponse(const QByteArray &response) = 0;
 
     /**

@@ -46,15 +46,18 @@ RowLayout {
             spacing: 4
 
             // Content
-            Text {
+            TextEdit {
                 id: textContent
                 Layout.fillWidth: true
 
                 text: root.content
-                textFormat: root.messageType === ChatMessage.AssistantMessage ? Text.RichText
-                                                                              : Text.PlainText
-                wrapMode: Text.Wrap
+                textFormat: root.messageType === ChatMessage.AssistantMessage ? TextEdit.RichText
+                                                                              : TextEdit.PlainText
+                wrapMode: TextEdit.Wrap
                 font.pixelSize: StudioTheme.Values.baseFontSize
+
+                readOnly: true
+                selectByKeyboard: true
 
                 color: root.messageType === ChatMessage.SystemMessage
                     || root.messageType === ChatMessage.IterationMessage

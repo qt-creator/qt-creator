@@ -10,14 +10,14 @@
 
 namespace QmlDesigner {
 
-AiResponse::AiResponse() = default;
+AiResponse::AiResponse(const QString &text)
+    : m_text(text) {};
 
-AiResponse::AiResponse(Error error)
-{
-    setError(error);
-}
+AiResponse::AiResponse(Error error, const QString &erroMsg)
+    : m_error(error)
+    , m_errorMessage(erroMsg) {};
 
-QString AiResponse::errorString() const
+QString AiResponse::errorMessage() const
 {
     switch (error()) {
     case Error::NoError:
@@ -29,9 +29,9 @@ QString AiResponse::errorString() const
     case Error::EmptyMessage:
         return Tr::tr("Missing or invalid `content` string in `message`");
     case Error::RequestError:
-        return Tr::tr("Request error: %1").arg(m_errorString);
+        return Tr::tr("Request error: %1").arg(m_errorMessage);
     case Error::StructureError:
-        return Tr::tr("Structure error: %1").arg(m_errorString);
+        return Tr::tr("Structure error: %1").arg(m_errorMessage);
     }
 
     const int errorNo = static_cast<int>(error());
@@ -44,40 +44,14 @@ AiResponse::Error AiResponse::error() const
     return m_error;
 }
 
-void AiResponse::setError(Error error)
+AiResponse AiResponse::requestError(const QString &erroMsg)
 {
-    m_error = error;
+    return AiResponse(Error::RequestError, erroMsg);
 }
 
-void AiResponse::setQml(const QString &qml)
+AiResponse AiResponse::structureError(const QString &erroMsg)
 {
-    m_qml = qml;
-}
-
-void AiResponse::setText(const QString &text)
-{
-    m_text = text;
-}
-
-AiResponse AiResponse::requestError(const QString &error)
-{
-    AiResponse response;
-    response.setError(Error::RequestError);
-    response.m_errorString = error;
-    return response;
-}
-
-AiResponse AiResponse::structureError(const QString &error)
-{
-    AiResponse response;
-    response.setError(Error::StructureError);
-    response.m_errorString = error;
-    return response;
-}
-
-QString AiResponse::qml() const
-{
-    return m_qml;
+    return AiResponse(Error::StructureError, erroMsg);
 }
 
 QString AiResponse::text() const
