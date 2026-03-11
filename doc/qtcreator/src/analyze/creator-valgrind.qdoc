@@ -252,8 +252,7 @@
     to speed up program execution during profiling by pausing event
     logging. No events are counted while logging is paused.
 
-    Select \inlineimage {icons/reload_gray.png} {Reload}
-    to reset all event counters.
+    Select \imagereload (\uicontrol {Reset}) to reset all event counters.
 
     Select \inlineimage {icons/clean_pane_small.png} {Clean}
     to discard all collected data.

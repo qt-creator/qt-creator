@@ -96,9 +96,8 @@
 
     \section1 Reload files
 
-    If the files change outside \QC, select
-    \inlineimage {icons/reload_gray.png} {Reload Editor}
-    (\uicontrol {Reload Editor}) to compare them again and to show the results.
+    If the files change outside \QC, select \imagereload
+    (\uicontrol {Reload Diff}) to compare them again and to show the results.
 
     \section1 Paste changes for review
 

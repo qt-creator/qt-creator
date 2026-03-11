@@ -326,8 +326,7 @@
     To set the maximum number of log entries to show, go to \preferences >
     \uicontrol {Version Control} > \uicontrol Git > \uicontrol {Log count}.
 
-    Select \inlineimage {icons/reload_gray.png} {Reload}
-    (\uicontrol Reload) to rescan the files.
+    Select \imagereload (\uicontrol {Reload}) to rescan the files.
 
     \section1 View log entry details
 
@@ -514,8 +513,7 @@
     \uicontrol {Detect Moves Between Files},
     or \uicontrol {Detect Moves and Copies Between Files}.
 
-    To rescan the files, select \inlineimage {icons/reload_gray.png} {Reload}
-    (\uicontrol Reload).
+    To rescan the files, select \imagereload (\uicontrol {Reload}).
 
     Select the commit identifier to show a detailed description of the change
     in the \uicontrol {Git Show} view.
@@ -941,8 +939,7 @@
     For local and remote branches, double-click the branch name to view the
     change log.
 
-    To refresh the list of branches, select
-    \inlineimage {icons/reload_gray.png} {Refresh} (\uicontrol Refresh).
+    To refresh the list of branches, select \imagereload (\uicontrol Refresh).
 
     \section1 Add branches
 

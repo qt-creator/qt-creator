@@ -118,6 +118,7 @@ macro.imagerangeslidericon16                                 = "\\inlineimage ic
 macro.imagerecordfill                                        = "\\inlineimage icons/recordfill.png {the Record Fill button}"
 macro.imagerecticon16                                        = "\\inlineimage rect-icon16.png {the Rectangle component}"
 macro.imagereferencenode                                     = "\\inlineimage icons/reference_node.png {the reference node icon}"
+macro.imagereload                                            = "\\inlineimage icons/reload_gray.png {the Reload button}"
 macro.imagereset                                             = "\\inlineimage icons/reset.png {the Reset button}"
 macro.imagereverseorder                                      = "\\inlineimage icons/reverse_order.png {the Reverse Order button}"
 macro.imagerotateoff                                         = "\\inlineimage icons/rotate_off.png {the Rotate button}"

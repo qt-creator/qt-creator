@@ -49,8 +49,7 @@
             dialog.
     \endlist
 
-    Select \inlineimage {icons/reset.png} {Reset}
-    to reset the area.
+    Select \imagereload (\uicontrol {Reset}) to reset the area.
 
     \section1 Edit recordings
 
@@ -79,8 +78,8 @@
         \li Select \uicontrol End to set the last frame.
     \endlist
 
-    Select \inlineimage {icons/reset.png} {Reset}
-    to reset the crop area and trim range.
+    Select \imagereload (\uicontrol {Reset}) to reset the crop area and trim
+    range.
 
     \sa {Set up screen recording}, {Enable and disable plugins}
 */

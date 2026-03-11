@@ -50,7 +50,7 @@
         \li Select the icon of an issue type.
     \endlist
 
-    To refresh the list, select \inlineimage {icons/reload_gray.png} {Reload}.
+    To refresh the list, select \imagereload (\uicontrol {Reload}).
 
     To get help, select \inlineimage {icons/info.png} {Show Online Filter Help}.
 
