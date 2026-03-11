@@ -27,7 +27,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <QtTaskTree/QAbstractTaskTreeRunner>
+#include <QtTaskTree/QMappedTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>

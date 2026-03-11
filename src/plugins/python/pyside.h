@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QtTaskTree/QAbstractTaskTreeRunner>
+#include <QtTaskTree/QMappedTaskTreeRunner>
 
 #include <utils/filepath.h>
 

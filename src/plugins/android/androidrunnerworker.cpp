@@ -23,7 +23,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <QtTaskTree/QBarrier>
-#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QConditional>
 
 #include <utils/hostosinfo.h>
 #include <utils/port.h>

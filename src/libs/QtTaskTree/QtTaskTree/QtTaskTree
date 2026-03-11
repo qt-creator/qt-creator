@@ -1,0 +1,16 @@
+#ifndef QT_QTTASKTREE_MODULE_H
+#define QT_QTTASKTREE_MODULE_H
+#include <QtTaskTree/QtTaskTreeDepends>
+#include <QtTaskTree/qttasktreeglobal.h>
+#include <QtTaskTree/qbarriertask.h>
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/qnetworkreplywrappertask.h>
+#include <QtTaskTree/qprocesstask.h>
+#include <QtTaskTree/qtasktree.h>
+#include <QtTaskTree/qtasktreerunner.h>
+#include <QtTaskTree/qtcpsocketwrappertask.h>
+#if QT_CONFIG(concurrent)
+#include <QtTaskTree/qthreadfunctiontask.h>
+#endif
+#include <QtTaskTree/qttasktreeversion.h>
+#endif

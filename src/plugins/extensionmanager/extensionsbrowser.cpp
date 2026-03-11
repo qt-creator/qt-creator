@@ -24,9 +24,9 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <solutions/spinner/spinner.h>
-#include <QtTaskTree/qconditional.h>
+
+#include <QtTaskTree/QConditional>
 #include <QtTaskTree/QNetworkReplyWrapper>
-#include <QtTaskTree/QTaskTree>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>

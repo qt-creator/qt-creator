@@ -7,7 +7,7 @@
 #include "xmlprotocol/parser.h"
 
 #include <QtTaskTree/QBarrier>
-#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QConditional>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/qtcprocess.h>

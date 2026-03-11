@@ -10,7 +10,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtTaskTree/QAbstractTaskTreeRunner>
+#include <QtTaskTree/QMappedTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>

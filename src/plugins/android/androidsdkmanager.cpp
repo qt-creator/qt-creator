@@ -9,7 +9,7 @@
 #include <coreplugin/icore.h>
 
 #include <solutions/spinner/spinner.h>
-#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QConditional>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>

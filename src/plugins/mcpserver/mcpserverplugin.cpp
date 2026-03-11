@@ -34,7 +34,7 @@
 #include <QPushButton>
 #include <QTcpServer>
 
-#include <QtTaskTree/qtasktreerunner.h>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 using namespace Core;
 using namespace QtTaskTree;

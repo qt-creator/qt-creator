@@ -7,7 +7,7 @@
 #include "substitute.h"
 
 #include <QtTaskTree/QBarrier>
-#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QConditional>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>

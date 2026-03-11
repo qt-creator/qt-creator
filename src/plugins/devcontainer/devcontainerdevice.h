@@ -5,7 +5,7 @@
 
 #include <devcontainer/devcontainer.h>
 
-#include <QtTaskTree/QParallelTaskTreeRunner>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/qtcprocess.h>
 

@@ -17,7 +17,7 @@
 
 #include <projectexplorer/projectmanager.h>
 
-#include <QtTaskTree/QAbstractTaskTreeRunner>
+#include <QtTaskTree/QMappedTaskTreeRunner>
 
 #include <utils/aspects.h>
 #include <utils/environment.h>

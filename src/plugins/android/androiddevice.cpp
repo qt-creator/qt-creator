@@ -24,7 +24,7 @@
 
 #include <gocmdbridge/client/bridgedfileaccess.h>
 
-#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QConditional>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/devicefileaccess.h>

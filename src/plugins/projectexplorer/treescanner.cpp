@@ -8,8 +8,6 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <QtTaskTree/QSingleTaskTreeRunner>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/hostosinfo.h>

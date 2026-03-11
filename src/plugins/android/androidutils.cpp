@@ -26,7 +26,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
-#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QConditional>
 #include <QtTaskTree/QTcpSocketWrapper>
 
 #include <utils/algorithm.h>

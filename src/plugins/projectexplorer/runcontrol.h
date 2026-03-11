@@ -6,7 +6,7 @@
 #include "devicesupport/idevicefwd.h"
 #include "runconfiguration.h"
 
-#include <QtTaskTree/QSingleTaskTreeRunner>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>

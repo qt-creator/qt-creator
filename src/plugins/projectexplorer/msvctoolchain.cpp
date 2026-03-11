@@ -29,7 +29,7 @@
 #include <utils/temporarydirectory.h>
 #include <utils/winutils.h>
 
-#include <QtTaskTree/QAbstractTaskTreeRunner>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 #include <QComboBox>
 #include <QDateTime>

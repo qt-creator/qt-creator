@@ -27,13 +27,11 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <QtTaskTree/qconditional.h>
-
 #include <utils/algorithm.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/infobar.h>
 
-#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QConditional>
 
 #include <QLoggingCategory>
 #include <QMessageBox>

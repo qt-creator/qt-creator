@@ -23,7 +23,7 @@
 
 #include <diffeditor/diffeditorconstants.h>
 
-#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QConditional>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>

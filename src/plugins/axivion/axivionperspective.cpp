@@ -27,7 +27,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QConditional>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
