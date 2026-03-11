@@ -1205,7 +1205,8 @@ ExecutableItem BranchModel::Private::updateUpstreamStatusTask(BranchNode *node)
     return gitClient().commandTask({
         .workingDirectory = workingDirectory,
         .arguments = arguments,
-        .commandHandler = commandHandler
+        .flags = RunFlag::SuppressCommandLogging,
+        .commandHandler = commandHandler,
     });
 }
 
