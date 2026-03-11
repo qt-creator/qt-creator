@@ -15,6 +15,7 @@
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
+#include <utils/globaltasktree.h>
 #include <utils/qtcprocess.h>
 #include <utils/shutdownguard.h>
 
@@ -51,7 +52,6 @@ public:
 
 static QHash<FilePath, ArServerData> s_arServers;
 static GuardedObject<QMappedTaskTreeRunner<FilePath>> s_arServerRunner;
-static GuardedObject<QParallelTaskTreeRunner> s_networkRunner;
 static GuardedObject<QParallelTaskTreeRunner> s_deserializerRunner;
 
 class ShutdownNotifier : public QObject
@@ -319,7 +319,7 @@ static void sendQuery(const QString &relative,
         return onError(reply->readAll());
     };
 
-    s_networkRunner->start({QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone)});
+    GlobalTaskTree::start({QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone)});
 }
 
 void requestArSessionStart(const FilePath &bauhausSuite, const OnSessionStarted &onStarted)
@@ -502,7 +502,7 @@ void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QStri
         return DoneResult::Error;
     };
 
-    s_networkRunner->start({QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone)});
+    GlobalTaskTree::start({QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone)});
 }
 
 } // namespace Axivion::Internal
