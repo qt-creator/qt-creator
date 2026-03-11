@@ -5,6 +5,8 @@
 #include "qmltraceviewerwindow.h"
 #include "qmltraceviewersettings.h"
 
+#include "schema/api.h"
+
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QTimer>

@@ -16,5 +16,6 @@ QtcTool {
         "qmltraceviewersettings.h",
         "qmltraceviewerwindow.cpp",
         "qmltraceviewerwindow.h",
+        "schema/api.h",
     ]
 }

@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JSON-RPC Schema for the QML Trace Viewer application",
+  "description": "This schema defines the JSON-RPC requests that the QML Trace Viewer application can handle. See also: https://www.jsonrpc.org/specification",
+  "$defs": {
+    "RequestId": {
+      "description": "A uniquely identifying ID for a request in JSON-RPC.",
+      "type": [
+        "string",
+        "integer"
+      ]
+    },
+    "ApplicationResult": {
+      "description": "The result of a successful JSON-RPC request.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OpenTraceFileResult"
+        },
+        {
+          "$ref": "#/$defs/ErrorResponse"
+        }
+      ]
+    },
+    "ApplicationNotification": {
+      "description": "A JSON-RPC notification sent from the application to the client.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RequestShowSource"
+        }
+      ]
+    },
+    "ClientRequest": {
+      "description": "A JSON-RPC request sent from the client to the application.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OpenTraceFileRequest"
+        },
+        {
+          "$ref": "#/$defs/ExitRequest"
+        }
+      ]
+    },
+    "ErrorCode": {
+      "anyOf": [
+        {
+          "const": -32700,
+          "description": "**Parse error**: Invalid JSON was received by the server.\nAn error occurred on the server while parsing the JSON text.",
+          "format": "int32",
+          "title": "Parse error",
+          "type": "integer"
+        },
+        {
+          "const": -32600,
+          "description": "**Invalid request**: The JSON sent is not a valid Request object.",
+          "format": "int32",
+          "title": "Invalid request",
+          "type": "integer"
+        },
+        {
+          "const": -32601,
+          "description": "**Method not found**: The method does not exist or is not available.",
+          "format": "int32",
+          "title": "Method not found",
+          "type": "integer"
+        },
+        {
+          "const": -32602,
+          "description": "**Invalid params**: Invalid method parameter(s).",
+          "format": "int32",
+          "title": "Invalid params",
+          "type": "integer"
+        },
+        {
+          "const": -32603,
+          "description": "**Internal error**: Internal JSON-RPC error.\nReserved for implementation-defined server errors.",
+          "format": "int32",
+          "title": "Internal error",
+          "type": "integer"
+        },
+        {
+          "const": -32000,
+          "description": "**Authentication required**: Authentication is required before this operation can be performed.",
+          "format": "int32",
+          "title": "Authentication required",
+          "type": "integer"
+        },
+        {
+          "const": -32002,
+          "description": "**Resource not found**: A given resource, such as a file, was not found.",
+          "format": "int32",
+          "title": "Resource not found",
+          "type": "integer"
+        },
+        {
+          "description": "Other undefined error code.",
+          "format": "int32",
+          "title": "Other",
+          "type": "integer"
+        }
+      ],
+      "description": "Predefined error codes for common JSON-RPC and ACP-specific errors.\n\nThese codes follow the JSON-RPC 2.0 specification for standard errors\nand use the reserved range (-32000 to -32099) for protocol-specific errors."
+    },
+    "RequestShowSource": {
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0",
+          "type": "string"
+        },
+        "method": {
+          "const": "requestShowSource",
+          "type": "string"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "sourceFilePath": {
+              "type": "string",
+              "description": "The file path of the source file to show."
+            },
+            "lineNumber": {
+              "type": "integer",
+              "description": "The line number in the source file to show (1-based index)."
+            },
+            "columnNumber": {
+              "type": "integer",
+              "description": "The column number in the source file to show (1-based index)."
+            }
+          },
+          "required": [
+            "sourceFilePath",
+            "lineNumber",
+            "columnNumber"
+          ]
+        }
+      },
+      "required": [
+        "jsonrpc"
+      ]
+    },
+    "Error": {
+      "properties": {
+        "code": {
+          "description": "The error type that occurred.",
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "data": {
+          "description": "Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.)."
+        },
+        "message": {
+          "description": "A short description of the error. The message SHOULD be limited to a concise single sentence.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "type": "object"
+    },
+    "ErrorResponse": {
+      "description": "A response to a request that indicates an error occurred.",
+      "properties": {
+        "error": {
+          "$ref": "#/$defs/Error"
+        },
+        "id": {
+          "$ref": "#/$defs/RequestId"
+        },
+        "jsonrpc": {
+          "const": "2.0",
+          "type": "string"
+        }
+      },
+      "required": [
+        "error",
+        "jsonrpc",
+        "id"
+      ],
+      "type": "object"
+    },
+    "OpenTraceFileResult": {
+      "description": "After receiving an openTraceFile request, the application sends this response.",
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "boolean",
+          "description": "Indicates whether the trace file was successfully opened.",
+          "const": true
+        },
+        "id": {
+          "$ref": "#/$defs/RequestId"
+        },
+        "jsonrpc": {
+          "const": "2.0",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "jsonrpc",
+        "result"
+      ]
+    },
+    "ExitRequest": {
+      "description": "Request to exit the application.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/RequestId"
+        },
+        "jsonrpc": {
+          "const": "2.0",
+          "type": "string"
+        },
+        "method": {
+          "const": "exit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "jsonrpc",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "OpenTraceFileRequest": {
+      "description": "Request to open a trace file.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/RequestId"
+        },
+        "jsonrpc": {
+          "const": "2.0",
+          "type": "string"
+        },
+        "method": {
+          "const": "openTraceFile",
+          "type": "string"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "traceFilePath": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "method",
+            "traceFilePath"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}
