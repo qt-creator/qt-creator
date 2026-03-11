@@ -2078,6 +2078,15 @@ FilePath FilePath::chopped(int n) const
     return res;
 }
 
+FilePath FilePath::withNewFileName(const QString &newFileName) const
+{
+    const FilePath parent = parentDir();
+    if (parent.path() == ".")
+        return FilePath::fromString(newFileName);
+
+    return parent / newFileName;
+}
+
 /*!
     Returns a FilePath with local path \a newPath on the same device
     as the current object.

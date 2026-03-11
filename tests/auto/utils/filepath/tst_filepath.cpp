@@ -102,6 +102,9 @@ private slots:
     void withNewMappedPath_data();
     void withNewMappedPath();
 
+    void withNewFileName_data();
+    void withNewFileName();
+
     void stringAppended();
     void stringAppended_data();
     void url();
@@ -1508,6 +1511,34 @@ void tst_filepath::withNewMappedPath()
     QFETCH(FilePath, expected);
 
     QCOMPARE(templatePath.withNewMappedPath(path), expected);
+}
+
+void tst_filepath::withNewFileName_data()
+{
+    QTest::addColumn<FilePath>("path");
+    QTest::addColumn<QString>("newFileName");
+    QTest::addColumn<FilePath>("expected");
+
+    QTest::newRow("empty") << FilePath() << QString() << FilePath();
+    QTest::newRow("simple") << FilePath("/a/b") << QString("c.txt") << FilePath("/a/c.txt");
+    QTest::newRow("only-name") << FilePath("a") << QString("c.txt") << FilePath("c.txt");
+    QTest::newRow("relative") << FilePath("a/b") << QString("c.txt") << FilePath("a/c.txt");
+
+    QTest::newRow("with-device-empty")
+        << FilePath("docker://1234/") << QString() << FilePath("docker://1234/");
+    QTest::newRow("with-device") << FilePath("docker://1234/a/b") << QString("c.txt")
+                                 << FilePath("docker://1234/a/c.txt");
+    QTest::newRow("with-device-relative") << FilePath("docker://1234/./a/b") << QString("c.txt")
+                                          << FilePath("docker://1234/./a/c.txt");
+}
+
+void tst_filepath::withNewFileName()
+{
+    QFETCH(FilePath, path);
+    QFETCH(QString, newFileName);
+    QFETCH(FilePath, expected);
+
+    QCOMPARE(path.withNewFileName(newFileName), expected);
 }
 
 void tst_filepath::stringAppended_data()
