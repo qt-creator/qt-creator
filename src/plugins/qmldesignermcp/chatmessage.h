@@ -53,6 +53,9 @@ public:
     void setToolInfo(const QString &serverName, const QString &toolName);
     void setToolArgs(const QJsonObject &args);
 
+    QVariantList segments() const;
+    void setSegments(const QVariantList &segs);
+
     // Called when a tool call finishes updates tool state in place to mark it done or error.
     void complete(bool success);
 
@@ -61,6 +64,7 @@ private:
     QString m_content;
     QString m_toolName;
     QString m_serverName;
+    QVariantList m_segments;
     bool m_success = true;
     QDateTime m_timestamp;
     QJsonObject m_toolArgs;

@@ -39,6 +39,16 @@ void ChatMessage::setToolArgs(const QJsonObject &args)
     m_toolArgs = args;
 }
 
+QVariantList ChatMessage::segments() const
+{
+    return m_segments;
+}
+
+void ChatMessage::setSegments(const QVariantList &segs)
+{
+    m_segments = segs;
+}
+
 void ChatMessage::complete(bool success) {
     m_type = success ? ToolCallCompleted : ToolCallFailed;
     m_success = success;

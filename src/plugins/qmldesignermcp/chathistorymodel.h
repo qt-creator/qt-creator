@@ -23,6 +23,7 @@ public:
     enum Roles {
         TypeRole = Qt::UserRole + 1,
         ContentRole,
+        SegmentsRole,
         ToolNameRole,
         ServerNameRole,
         SuccessRole,

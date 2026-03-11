@@ -7,6 +7,7 @@
 
 #include <QFileInfo>
 #include <QJsonObject>
+#include <QRegularExpression>
 
 namespace QmlDesigner {
 
@@ -72,6 +73,47 @@ QString friendlyToolMessage(const QString &toolName, const QJsonObject &args)
     return display + "…";
 }
 
+QVariantList parseContentSegments(const QString &markdown)
+{
+    QVariantList segments;
+
+    static const QRegularExpression codeBlockRe("```([^\\n]*)\\n([\\s\\S]*?)```",
+                                                QRegularExpression::MultilineOption);
+
+    int lastEnd = 0;
+    auto it = codeBlockRe.globalMatch(markdown);
+
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+
+        const QString prose = markdown.mid(lastEnd, match.capturedStart() - lastEnd).trimmed();
+        if (!prose.isEmpty()) {
+            QVariantMap seg;
+            seg["type"] = QStringLiteral("prose");
+            seg["html"] = AiAssistantUtils::markdownToHtml(prose);
+            segments.append(seg);
+        }
+
+        QVariantMap seg;
+        seg["type"]     = QStringLiteral("code");
+        seg["code"]     = match.captured(2);
+        seg["language"] = match.captured(1).trimmed();
+        segments.append(seg);
+
+        lastEnd = match.capturedEnd();
+    }
+
+    const QString tail = markdown.mid(lastEnd).trimmed();
+    if (!tail.isEmpty()) {
+        QVariantMap seg;
+        seg["type"] = QStringLiteral("prose");
+        seg["html"] = AiAssistantUtils::markdownToHtml(tail);
+        segments.append(seg);
+    }
+
+    return segments;
+}
+
 } // anonymous namespace
 
 ChatHistoryModel::ChatHistoryModel(QObject *parent)
@@ -97,6 +139,8 @@ QVariant ChatHistoryModel::data(const QModelIndex &index, int role) const
         return message->type();
     case ContentRole:
         return message->content();
+    case SegmentsRole:
+        return message->segments();
     case ToolNameRole:
         return message->toolName();
     case ServerNameRole:
@@ -115,6 +159,7 @@ QHash<int, QByteArray> ChatHistoryModel::roleNames() const
     return {
         {TypeRole, "messageType"},
         {ContentRole, "content"},
+        {SegmentsRole,   "segments"},
         {ToolNameRole, "toolName"},
         {ServerNameRole, "serverName"},
         {SuccessRole, "success"},
@@ -139,9 +184,12 @@ void ChatHistoryModel::addUserMessage(const QString &content)
 
 void ChatHistoryModel::addAssistantMessage(const QString &content)
 {
+    auto *msg = new ChatMessage(ChatMessage::AssistantMessage,
+                                AiAssistantUtils::markdownToHtml(content), this);
+    msg->setSegments(parseContentSegments(content));
+
     beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
-    m_messages.append(new ChatMessage(ChatMessage::AssistantMessage,
-                                      AiAssistantUtils::markdownToHtml(content), this));
+    m_messages.append(msg);
     endInsertRows();
 }
 

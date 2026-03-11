@@ -11,12 +11,16 @@ RowLayout {
 
     required property int messageType
     required property string content
+    required property var segments
     required property string toolName
     required property string serverName
     required property bool success
 
     width: ListView.view.width
     spacing: 0
+
+    readonly property bool hasSegments: root.messageType === ChatMessage.AssistantMessage
+                                        && root.segments?.length > 0
 
     Rectangle {
         Layout.fillWidth: true
@@ -34,7 +38,6 @@ RowLayout {
 
         border.width: 0
 
-        // Content layout
         ColumnLayout {
             id: bubbleColumn
             anchors {
@@ -45,30 +48,78 @@ RowLayout {
             }
             spacing: 4
 
-            // Content
-            TextEdit {
-                id: textContent
+            // User message — plain prose
+            ChatProseSegment {
                 Layout.fillWidth: true
+                visible: root.messageType === ChatMessage.UserMessage
+                html: root.content
+                color: StudioTheme.Values.themeTextColor
+            }
+
+            // System / iteration message — plain text, dimmed and italic
+            TextEdit {
+                Layout.fillWidth: true
+                visible: root.messageType === ChatMessage.SystemMessage
+                      || root.messageType === ChatMessage.IterationMessage
 
                 text: root.content
-                textFormat: root.messageType === ChatMessage.AssistantMessage ? TextEdit.RichText
-                                                                              : TextEdit.PlainText
+                textFormat: TextEdit.PlainText
                 wrapMode: TextEdit.Wrap
                 font.pixelSize: StudioTheme.Values.baseFontSize
-
+                font.italic: true
                 readOnly: true
                 selectByKeyboard: true
+                color: StudioTheme.Values.themeTextColorDisabled
+            }
 
-                color: root.messageType === ChatMessage.SystemMessage
-                    || root.messageType === ChatMessage.IterationMessage
-                        ? StudioTheme.Values.themeTextColorDisabled
-                        : StudioTheme.Values.themeTextColor
+            // Tool call message — plain text
+            TextEdit {
+                Layout.fillWidth: true
+                visible: root.messageType === ChatMessage.ToolCallStarted
+                      || root.messageType === ChatMessage.ToolCallCompleted
+                      || root.messageType === ChatMessage.ToolCallFailed
 
-                font.italic: root.messageType === ChatMessage.SystemMessage
-                          || root.messageType === ChatMessage.IterationMessage
+                text: root.content
+                textFormat: TextEdit.PlainText
+                wrapMode: TextEdit.Wrap
+                font.pixelSize: StudioTheme.Values.baseFontSize
+                readOnly: true
+                selectByKeyboard: true
+                color: StudioTheme.Values.themeTextColor
+            }
 
-                // Open links that the LLM may include in its responses
-                onLinkActivated: function(link) { Qt.openUrlExternally(link) }
+            // Assistant message — flat HTML fallback when no segments
+            ChatProseSegment {
+                Layout.fillWidth: true
+                visible: root.messageType === ChatMessage.AssistantMessage && !root.hasSegments
+                html: root.content
+            }
+
+            // Assistant message — segmented (prose + code blocks)
+            Repeater {
+                model: root.hasSegments ? root.segments : []
+
+                delegate: Loader {
+                    id: segLoader
+                    Layout.fillWidth: true
+                    readonly property var seg: modelData
+                    sourceComponent: seg.type === "code" ? codeSegComp : proseSegComp
+
+                    Component {
+                        id: proseSegComp
+                        ChatProseSegment {
+                            html: segLoader.seg.html ?? ""
+                        }
+                    }
+
+                    Component {
+                        id: codeSegComp
+                        ChatCodeSegment {
+                            code: segLoader.seg.code ?? ""
+                            language: segLoader.seg.language ?? ""
+                        }
+                    }
+                }
             }
         }
     }
