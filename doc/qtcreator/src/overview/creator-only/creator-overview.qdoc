@@ -111,8 +111,7 @@
 
     \QC supports syntax highlighting also for other types of files than C++,
     QML, or JavaScript. It uses the
-    \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
-    {KSyntaxHighlighting} syntax highlighting engine with Kate syntax
+    \l {KSyntaxHighlighting} syntax highlighting engine with Kate syntax
     definitions. It comes with most of the commonly used Kate definitions,
     and you can download more definitions in the text editor preferences.
 

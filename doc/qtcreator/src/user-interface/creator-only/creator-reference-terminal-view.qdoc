@@ -9,11 +9,21 @@
 
     \title Open a terminal
 
-    When you select \uicontrol {Run in Terminal} and run an
-    application or the \uicontrol {Open Terminal} button to open a terminal,
-    it opens as an output view.
+    To open the \uicontrol Terminal view:
 
-    \image {qtcreator-output-terminal.webp} {Terminal pane}
+    \list
+        \li Go to \uicontrol View > \uicontrol Output, and then select
+            \uicontrol Terminal.
+        \li Select the \uicontrol Terminal output view.
+        \li Select \key {Alt+5} (or \key {Cmd+5} on \macos).
+        \li Select \uicontrol {Run in Terminal} in \uicontrol Projects >
+            \uicontrol {Run Settings} for an application, and then run the
+            application.
+        \li Select the \uicontrol {Open Terminal} button in \uicontrol Projects
+            > \uicontrol {Build Settings} > \uicontrol {Build Environment}.
+    \endlist
+
+    \image {qtcreator-output-terminal.webp} {Terminal}
 
     \section1 View output in the terminal
 
