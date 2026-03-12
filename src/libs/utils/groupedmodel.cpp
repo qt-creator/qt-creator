@@ -275,6 +275,13 @@ void GroupedModel::notifyRowChanged(int row)
     emit dataChanged(index(row, 0), index(row, columnCount() - 1));
 }
 
+void GroupedModel::notifyAllRowsChanged()
+{
+    if (m_volatileVariants.isEmpty())
+        return;
+    emit dataChanged(index(0, 0), index(m_volatileVariants.size() - 1, columnCount() - 1));
+}
+
 void GroupedModel::markRemoved(int row)
 {
     QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return);

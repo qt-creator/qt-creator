@@ -33,6 +33,7 @@ public:
     void markRemoved(int row);
     void removeItem(int row);
     void notifyRowChanged(int row);
+    void notifyAllRowsChanged();
     void apply();
     void cancel();
 
