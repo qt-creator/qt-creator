@@ -830,7 +830,7 @@ Result<Environment> getUnixEnvironment(
              {"-i",
               "sh",
               "-c",
-              QString::fromLatin1("source %1 >/dev/null && env -0").arg(scriptToSource.path())}});
+              QString::fromLatin1(". %1 >/dev/null && env -0").arg(scriptToSource.path())}});
     } else {
         getEnvProc.setCommand({envCommand, {"-0"}});
     }
@@ -848,7 +848,7 @@ Result<Environment> getUnixEnvironment(
                  {"-i",
                   "sh",
                   "-c",
-                  QString::fromLatin1("source %1 >/dev/null && env").arg(scriptToSource.path())}});
+                  QString::fromLatin1(". %1 >/dev/null && env").arg(scriptToSource.path())}});
         } else {
             getEnvProc.setCommand({envCommand, {}});
         }
