@@ -39,6 +39,10 @@ static QJsonObject defaultCargoJson()
                 "arguments": ["run"],
                 "workingDirectory": "%{ActiveProject:ProjectDirectory}"
             }
+        ],
+        "files.exclude": [
+            "target",
+            "Cargo.lock"
         ]
     })").object();
     return result;
