@@ -7,6 +7,8 @@
 
 #include <utils/filepath.h>
 
+#include <QVariant>
+
 #include <functional>
 #include <variant>
 
@@ -37,9 +39,6 @@ public:
     void setChanged(bool changed);
     void setIsNameUnique(const std::function<bool(QtVersion *)> &isNameUnique);
 
-    enum class Quality { Bad, Limited, Good }; // Keep sorted ascending by goodness.
-    Quality quality() const;
-
     QVariant data(int column, int role) const;
 
 private:
@@ -50,6 +49,9 @@ private:
     std::function<bool(QtVersion *)> m_isNameUnique;
     bool m_changed = false;
 };
+
+QVariant qtVersionData(const QtVersion *version, int column, int role,
+                       bool isChanged = false, bool hasNonUniqueName = false);
 
 void setupQtSettingsPage();
 

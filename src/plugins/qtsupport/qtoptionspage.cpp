@@ -134,27 +134,6 @@ void QtVersionItem::setIsNameUnique(const std::function<bool(QtVersion *)> &isNa
     m_isNameUnique = isNameUnique;
 }
 
-QtVersionItem::Quality QtVersionItem::quality() const
-{
-    const QtVersion *version = this->version();
-    QTC_ASSERT(version, return Quality::Bad);
-
-    if (!version->isValid())
-        return Quality::Bad;
-    if (!version->warningReason().isEmpty() || hasNonUniqueDisplayName())
-        return Quality::Limited;
-    const UnsupportedAbisInfo abisInfo = checkForUnsupportedAbis(version);
-    switch (abisInfo.status) {
-    case UnsupportedAbisInfo::Status::AllMissing:
-        return Quality::Bad;
-    case UnsupportedAbisInfo::Status::SomeMissing:
-        return Quality::Limited;
-    case UnsupportedAbisInfo::Status::Ok:
-        break;
-    }
-    return Quality::Good;
-}
-
 void QtVersionItem::setChanged(bool changed)
 {
     if (changed == m_changed)
@@ -162,10 +141,9 @@ void QtVersionItem::setChanged(bool changed)
     m_changed = changed;
 }
 
-QVariant QtVersionItem::data(int column, int role) const
+QVariant qtVersionData(const QtVersion *version, int column, int role,
+                       bool isChanged, bool hasNonUniqueName)
 {
-    const QtVersion *version = this->version();
-
     if (!version) {
         if (role == KitAspect::IsNoneRole && column == 0)
             return true;
@@ -186,14 +164,33 @@ QVariant QtVersionItem::data(int column, int role) const
             return version->qmakeFilePath().toUserOutput();
     }
 
-    if (role == Qt::FontRole && m_changed) {
+    if (role == Qt::FontRole && isChanged) {
         QFont font;
         font.setBold(true);
         return font;
     }
 
+    // Bad < Limited < Good, keep sorted ascending.
+    enum class Quality { Bad, Limited, Good };
+    const auto computeQuality = [&]() -> Quality {
+        if (!version->isValid())
+            return Quality::Bad;
+        if (!version->warningReason().isEmpty() || hasNonUniqueName)
+            return Quality::Limited;
+        const UnsupportedAbisInfo abisInfo = checkForUnsupportedAbis(version);
+        switch (abisInfo.status) {
+        case UnsupportedAbisInfo::Status::AllMissing:
+            return Quality::Bad;
+        case UnsupportedAbisInfo::Status::SomeMissing:
+            return Quality::Limited;
+        case UnsupportedAbisInfo::Status::Ok:
+            break;
+        }
+        return Quality::Good;
+    };
+
     if (role == Qt::DecorationRole && column == 0) {
-        switch (quality()) {
+        switch (computeQuality()) {
         case Quality::Good:
             return validVersionIcon();
         case Quality::Limited:
@@ -222,19 +219,24 @@ QVariant QtVersionItem::data(int column, int role) const
         } else {
             desc += row.arg(Tr::tr("Error"), version->invalidReason());
         }
-        if (hasNonUniqueDisplayName())
+        if (hasNonUniqueName)
             desc += row.arg(Tr::tr("Warning"), nonUniqueDisplayNameWarning());
         desc += "</dl>";
         return desc;
     }
 
     if (role == KitAspect::IdRole)
-        return uniqueId();
+        return version->uniqueId();
 
     if (role == KitAspect::QualityRole)
-        return int(quality());
+        return int(computeQuality());
 
-    return QVariant();
+    return {};
+}
+
+QVariant QtVersionItem::data(int column, int role) const
+{
+    return qtVersionData(version(), column, role, m_changed, hasNonUniqueDisplayName());
 }
 
 int QtVersionItem::uniqueId() const

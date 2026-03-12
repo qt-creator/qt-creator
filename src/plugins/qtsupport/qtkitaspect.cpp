@@ -50,42 +50,36 @@ public:
         , m_kit(kit)
     {}
 
-    ~QtVersionListModel() { qDeleteAll(m_items); }
-
     void reset()
     {
         beginResetModel();
-        qDeleteAll(m_items);
-        m_items.clear();
-
+        m_versions.clear();
         if (const IDevice::ConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
             const FilePath deviceRoot = device->rootPath();
-            const QtVersions versionsForBuildDevice = QtVersionManager::versions(
+            m_versions = QtVersionManager::versions(
                 [&deviceRoot](const QtVersion *qt) {
                     return qt->qmakeFilePath().isSameDevice(deviceRoot);
                 });
-            for (QtVersion *v : versionsForBuildDevice)
-                m_items.append(new QtVersionItem(v->uniqueId()));
         }
-        m_items.append(new QtVersionItem(-1)); // The "No Qt" entry.
+        m_versions.append(nullptr); // The "No Qt" entry.
         endResetModel();
     }
 
     int rowCount(const QModelIndex &parent = {}) const override
     {
-        return parent.isValid() ? 0 : m_items.size();
+        return parent.isValid() ? 0 : m_versions.size();
     }
 
     QVariant data(const QModelIndex &index, int role) const override
     {
-        if (!index.isValid() || index.row() < 0 || index.row() >= m_items.size())
+        if (!index.isValid() || index.row() < 0 || index.row() >= m_versions.size())
             return {};
-        return m_items[index.row()]->data(0, role);
+        return qtVersionData(m_versions[index.row()], 0, role);
     }
 
 private:
     const Kit &m_kit;
-    QList<QtVersionItem *> m_items;
+    QtVersions m_versions;
 };
 
 class QtKitAspectImpl final : public KitAspect
