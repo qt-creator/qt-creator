@@ -8,8 +8,6 @@
 
 #include <QAbstractTableModel>
 
-#include <type_traits>
-
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT GroupedModel : public QAbstractTableModel
@@ -120,15 +118,6 @@ protected:
     static QVariant toVariant(const ItemType &item)
     {
         return QVariant::fromValue<ItemType>(item);
-    }
-
-    QVariant variantData(const QVariant &item, int column, int role) const final
-    {
-        const ItemType v = fromVariant(item);
-        if constexpr (std::is_pointer_v<ItemType>)
-            return v->data(column, role);
-        else
-            return v.data(column, role);
     }
 };
 

@@ -137,7 +137,7 @@ private:
 // DebuggerItemModel
 // --------------------------------------------------------------------------
 
-class DebuggerModel : public Utils::TypedGroupedModel<DebuggerItem>
+class DebuggerModel final : public Utils::TypedGroupedModel<DebuggerItem>
 {
 public:
     DebuggerModel();
@@ -161,6 +161,11 @@ public:
                                       QString *logMessage = nullptr);
     void autoDetectUvscDebuggers();
     QString uniqueDisplayName(const QString &base);
+
+    QVariant variantData(const QVariant &item, int column, int role) const final
+    {
+        return fromVariant(item).data(column, role);
+    }
 
 private:
     PersistentSettingsWriter m_writer;

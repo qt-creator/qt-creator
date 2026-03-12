@@ -314,6 +314,11 @@ public:
         if (row >= 0)
             notifyRowChanged(row);
     }
+
+    QVariant variantData(const QVariant &item, int column, int role) const final
+    {
+        return fromVariant(item)->data(column, role);
+    }
 };
 
 // QtSettingsPageWidget
