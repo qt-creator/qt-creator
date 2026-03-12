@@ -208,16 +208,19 @@ public:
     }
 };
 
-class McpManagerPrivate
+static McpManagerSettingsPage &settingsPage()
 {
-public:
-    McpManagerSettingsPage settingsPage;
+    static McpManagerSettingsPage page;
+    return page;
+}
 
-    QList<McpManager::ServerInfo> builtInMcpServers;
-};
+static QList<McpManager::ServerInfo> &builtInMcpServers()
+{
+    static QList<McpManager::ServerInfo> servers;
+    return servers;
+}
 
 McpManager::McpManager()
-    : d(new McpManagerPrivate)
 {
     QObject::connect(
         &McpManagerSettings::instance().mcpServers,
@@ -241,26 +244,26 @@ bool McpManager::registerMcpServer(McpManager::ServerInfo info)
         }))
         return false;
 
-    d->builtInMcpServers.append(info);
-    emit mcpServersChanged();
+    builtInMcpServers().append(info);
+    emit instance().mcpServersChanged();
     return true;
 }
 
 void McpManager::removeMcpServer(const QString &id)
 {
-    auto &servers = d->builtInMcpServers;
+    auto &servers = builtInMcpServers();
     auto it = std::remove_if(servers.begin(), servers.end(), [&id](const McpManager::ServerInfo &s) {
         return s.id == id;
     });
     if (it != servers.end()) {
         servers.erase(it, servers.end());
-        emit mcpServersChanged();
+        emit instance().mcpServersChanged();
     }
 }
 
-QList<McpManager::ServerInfo> McpManager::mcpServers() const
+QList<McpManager::ServerInfo> McpManager::mcpServers()
 {
-    QList<McpManager::ServerInfo> servers = d->builtInMcpServers;
+    QList<McpManager::ServerInfo> servers = builtInMcpServers();
 
     McpManagerSettings::instance().mcpServers.forEachItem<McpServerAspect>(
         [&](const std::shared_ptr<McpServerAspect> &server) {
@@ -273,6 +276,7 @@ QList<McpManager::ServerInfo> McpManager::mcpServers() const
 
 void setupMcpManager()
 {
+    (void) settingsPage();
     (void) McpManager::instance();
 }
 

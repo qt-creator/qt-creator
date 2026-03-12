@@ -171,7 +171,7 @@ public:
 
         m_server.setCorsEnabled(settings.enableCors());
 
-        McpManager::instance().removeMcpServer(QT_MCPSERVER_MANAGER_ID);
+        McpManager::removeMcpServer(QT_MCPSERVER_MANAGER_ID);
 
         if (!settings.enabled()) {
             qCInfo(mcpPlugin) << "Mcp server is disabled in settings, not starting.";
@@ -206,7 +206,7 @@ public:
                 url,
                 {}};
 
-            QTC_CHECK(McpManager::instance().registerMcpServer(serverInfo));
+            QTC_CHECK(McpManager::registerMcpServer(serverInfo));
         }
     }
 

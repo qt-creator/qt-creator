@@ -30,20 +30,19 @@ public:
     };
 
 public:
-    McpManager();
     ~McpManager();
 
     static McpManager &instance();
 
-    bool registerMcpServer(ServerInfo info);
-    void removeMcpServer(const QString &id);
-    QList<ServerInfo> mcpServers() const;
+    static bool registerMcpServer(ServerInfo info);
+    static void removeMcpServer(const QString &id);
+    static QList<ServerInfo> mcpServers();
 
 signals:
     void mcpServersChanged();
 
 private:
-    std::unique_ptr<class McpManagerPrivate> d;
+    McpManager();
 };
 
 void setupMcpManager();
