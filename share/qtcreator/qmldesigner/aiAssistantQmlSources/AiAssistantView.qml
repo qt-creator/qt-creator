@@ -4,6 +4,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import StudioTheme as StudioTheme
 import AiAssistantBackend
@@ -23,46 +24,73 @@ Item {
             onTriggered: (prompt) => promptTextBox.text = prompt
         }
 
-        ChatView {
+        SplitView {
+            id: splitView
+
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.minimumHeight: 100
-            Layout.preferredHeight: 400
 
-            chatModel: root.rootView.chatHistory
-        }
+            orientation: Qt.Vertical
 
-        AssetImage {
-            id: attachedImage
+            handle: Rectangle {
+                implicitHeight: 8
+                color: SplitHandle.hovered || SplitHandle.pressed
+                       ? StudioTheme.Values.themeControlOutlineHover
+                       : "transparent"
 
-            Layout.alignment: Qt.AlignRight
-
-            visible: root.rootView.attachedImageSource !== ""
-            closable: true
-
-            onCloseRequest: {
-                root.rootView.attachedImageSource = ""
+                Text {
+                    color: StudioTheme.Values.themeTextColorDisabled
+                    font.family: StudioTheme.Constants.iconFont.family
+                    text: StudioTheme.Constants.dragmarks
+                    rotation: 90
+                    anchors.centerIn: parent
+                }
             }
-        }
 
-        PromptTextBox {
-            id: promptTextBox
+            ChatView {
+                SplitView.fillWidth: true
+                SplitView.preferredHeight: 300
+                SplitView.minimumHeight: 60
 
-            rootView: root.rootView
+                chatModel: root.rootView.chatHistory
+            }
 
-            Layout.fillWidth: true
-            Layout.preferredHeight: 80
-            Layout.minimumHeight: 50
-            Layout.maximumHeight: 200
+            ColumnLayout {
+                SplitView.fillWidth: true
+                SplitView.fillHeight: true
+                SplitView.minimumHeight: 70 + (attachedImage.visible ? attachedImage.height : 0)
 
-            onModelChanged: (modelName) => {
-                var supportsImageInput = /llama-4-(maverick|scout)/.test(modelName)
-                                         || modelName.startsWith("gemini")
-                                         || modelName.startsWith("gpt-")
+                AssetImage {
+                    id: attachedImage
 
-                promptTextBox.enableAttachImage = supportsImageInput
-                if (!supportsImageInput)
-                    root.rootView.attachedImageSource = ""
+                    Layout.alignment: Qt.AlignRight
+
+                    visible: root.rootView.attachedImageSource !== ""
+                    closable: true
+
+                    onCloseRequest: {
+                        root.rootView.attachedImageSource = ""
+                    }
+                }
+
+                PromptTextBox {
+                    id: promptTextBox
+
+                    rootView: root.rootView
+
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    onModelChanged: (modelName) => {
+                        var supportsImageInput = /llama-4-(maverick|scout)/.test(modelName)
+                                                 || modelName.startsWith("gemini")
+                                                 || modelName.startsWith("gpt-")
+
+                        promptTextBox.enableAttachImage = supportsImageInput
+                        if (!supportsImageInput)
+                            root.rootView.attachedImageSource = ""
+                    }
+                }
             }
         }
 
