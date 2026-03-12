@@ -27,7 +27,7 @@ class ToolRegistry;
  * @brief Request data for AI assistant
  */
 struct RequestData {
-    QString manifest;
+    QString instructions;
     QString userPrompt;
     QString currentQml;
     QString currentFilePath; // e.g. "Main.ui.qml"

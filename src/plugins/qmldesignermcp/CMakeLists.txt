@@ -18,7 +18,6 @@ add_qtc_plugin(QmlDesignerMcp
     aitransaction.cpp aitransaction.h
     chathistorymodel.cpp chathistorymodel.h
     chatmessage.cpp chatmessage.h
-    manifest.cpp manifest.h
     qmldesignermcpplugin.cpp qmldesignermcpplugin.h
 )
 

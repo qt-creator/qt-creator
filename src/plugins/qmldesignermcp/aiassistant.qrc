@@ -1,11 +1,9 @@
 <RCC>
     <qresource prefix="/AiAssistant">
         <file>images/ai.png</file>
-        <file>manifests/ai.manifest.json</file>
-        <file>manifests/ai_ui.manifest.json</file>
+        <file>instructions/ai.instructions.md</file>
         <file>images/aiKitIcon.png</file>
         <file>termsandconditions.html</file>
         <file>mcpconfig.json</file>
-        <file>mcp/qml_mcp_server.py</file>
     </qresource>
 </RCC>

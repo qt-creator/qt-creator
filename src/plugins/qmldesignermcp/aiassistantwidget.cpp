@@ -24,6 +24,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/environment.h>
 
 #include <QApplication>
@@ -135,17 +136,13 @@ void AiAssistantWidget::clear()
     emit removeFeedbackPopup();
 }
 
-void AiAssistantWidget::initManifest()
+void AiAssistantWidget::loadInstructions()
 {
     const QString extension = currentDesignDocument()->fileName().suffix().toLower();
-    if (extension.endsWith("qml")) {
-        m_manifest = Manifest::fromJsonResource(":/AiAssistant/manifests/ai.manifest.json");
-
-        if (extension == "ui.qml")
-            m_manifest.addManifest(Manifest::fromJsonResource(":/AiAssistant/manifests/ai_ui.manifest.json"));
-    } else {
-        m_manifest = {};
-    }
+    if (extension.endsWith("qml"))
+        m_instructions = Utils::FileUtils::fetchQrc(":/AiAssistant/instructions/ai.instructions.md");
+    else
+        m_instructions.clear();
 }
 
 void AiAssistantWidget::updateModelConfig()
@@ -198,7 +195,7 @@ QStringList AiAssistantWidget::getImageAssetsPaths() const
     QDirIterator it(resourePath.toFSPathString(), filters, QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext())
         imagePaths << Utils::FilePath::fromString(it.next())
-                          .relativePathFromDir(resourePath)
+                          .relativePathFromDir(currentDesignDocument()->projectFolder())
                           .toFSPathString();
 
     return imagePaths;
@@ -209,13 +206,13 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     if (prompt.isEmpty())
         return;
 
-    if (m_manifest.hasNoRules()) {
-        qWarning() << __FUNCTION__ << "Manifest has no rules";
+    if (m_instructions.isEmpty()) {
+        qWarning() << __FUNCTION__ << "AI instructions are empty";
         return;
     }
-    m_manifest.setTagsMap({
-        {"image_assets", getImageAssetsPaths().join('\n')},
-    });
+
+    QString instructions = m_instructions;
+    instructions.replace("[[image_assets]]", getImageAssetsPaths().join('\n'));
 
     m_chatHistory->addUserMessage(prompt);
 
@@ -227,7 +224,7 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     }
 
     RequestData reqData {
-        .manifest = m_manifest.toString(),
+        .instructions = instructions,
         .userPrompt = prompt,
         .currentQml = AiAssistantUtils::currentQmlText(),
         .currentFilePath = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName()

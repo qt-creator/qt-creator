@@ -5,7 +5,6 @@
 
 #include "aitransaction.h"
 #include "chathistorymodel.h"
-#include "manifest.h"
 
 #include <utils/uniqueobjectptr.h>
 
@@ -52,7 +51,7 @@ public:
     QAbstractListModel *chatHistory() const;
 
     void clear();
-    void initManifest();
+    void loadInstructions();
     void updateModelConfig();
     void removeMissingAttachedImage();
     void setProjectPath(const QString &projectPath);
@@ -112,7 +111,7 @@ private: // variables
     QString m_attachedImageSource;
     QString m_projectPath;
     QString m_projectStructure;
-    Manifest m_manifest;
+    QString m_instructions; // LLM instructions
     bool m_pendingStructureRefresh = false;
     bool m_termsAccepted = false;
     bool m_isGenerating = false;

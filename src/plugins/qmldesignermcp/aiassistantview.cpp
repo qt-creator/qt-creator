@@ -53,7 +53,7 @@ void AiAssistantView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    m_widget->initManifest();
+    m_widget->loadInstructions();
     m_widget->clear();
     m_widget->setProjectPath(
         QmlDesignerPlugin::instance()->currentDesignDocument()->projectFolder().toFSPathString());

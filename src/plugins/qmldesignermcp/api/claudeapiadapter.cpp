@@ -33,7 +33,7 @@ QByteArray ClaudeApiAdapter::createRequest(
     const QJsonArray &tools,
     const QJsonArray &conversationHistory)
 {
-    QString systemPrompt = data.manifest;
+    QString systemPrompt = data.instructions;
 
     if (!data.projectStructure.isEmpty()) {
         systemPrompt += "\n\n<project_structure>\n"

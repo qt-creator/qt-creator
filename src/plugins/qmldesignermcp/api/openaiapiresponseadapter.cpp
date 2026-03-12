@@ -33,7 +33,7 @@ QByteArray OpenAiResponseApiAdapter::createRequest(
     const QJsonArray &tools,
     const QJsonArray &conversationHistory)
 {
-    QString systemText = data.manifest;
+    QString systemText = data.instructions;
 
     if (!data.projectStructure.isEmpty()) {
         systemText += "\n\n<project_structure>\n"
