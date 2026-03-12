@@ -74,6 +74,10 @@ void MinimapOverlay::paintMinimap(QPainter *painter) const
     const qreal &scrollFraction = tg.scrollFraction;
     const QRect &thumbRect = tg.rect;
 
+    QColor overlay = creatorColor(Theme::Token_Foreground_Default);
+    overlay.setAlphaF(m_minimapAlpha);
+    painter->fillRect(thumbRect, overlay);
+
     if (m_minimap.height() > geo.height()) {
         int srcY = qRound(scrollFraction * (m_minimap.height() - geo.height()));
         const QRect srcRect(0, srcY, geo.width(), geo.height());
@@ -82,13 +86,6 @@ void MinimapOverlay::paintMinimap(QPainter *painter) const
     } else {
         painter->drawImage(geo.topLeft(), m_minimap);
     }
-
-    QColor overlay = creatorColor(Theme::Token_Foreground_Default);
-    overlay.setAlphaF(m_minimapAlpha);
-    painter->setCompositionMode(
-        creatorTheme()->colorScheme() == Qt::ColorScheme::Dark ? QPainter::CompositionMode_Lighten
-                                                               : QPainter::CompositionMode_Darken);
-    painter->fillRect(thumbRect, overlay);
 
     QPen pen;
     pen.setWidthF(m_editor->devicePixelRatio());

@@ -273,6 +273,16 @@ static void connectProcessToLog(
                     instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(line.trimmed()));
             }
         });
+
+    QObject::connect(&process, &Process::done, [instanceConfig, context, &process] {
+        if (process.error() != QProcess::UnknownError) {
+            const QString line = process.verboseExitMessage();
+            if (context.isEmpty())
+                instanceConfig.logFunction(line.trimmed());
+            else
+                instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(line.trimmed()));
+        }
+    });
 }
 
 static QString imageName(const InstanceConfig &instanceConfig)
