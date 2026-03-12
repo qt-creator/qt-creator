@@ -5,8 +5,7 @@
 
 #include "qtsupport_global.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/treemodel.h>
+#include <utils/filepath.h>
 
 #include <functional>
 #include <variant>
@@ -22,8 +21,11 @@ QTSUPPORT_EXPORT void linkWithQt();
 }
 
 namespace Internal {
-class QtVersionItem : public Utils::TreeItem
+
+class QtVersionItem
 {
+    Q_DISABLE_COPY(QtVersionItem)
+
 public:
     explicit QtVersionItem(QtVersion *version) : m_version(version) {}
     explicit QtVersionItem(int versionId) : m_version(versionId) {}
@@ -38,17 +40,18 @@ public:
     enum class Quality { Bad, Limited, Good }; // Keep sorted ascending by goodness.
     Quality quality() const;
 
-private:
-    QVariant data(int column, int role) const final;
+    QVariant data(int column, int role) const;
 
+private:
     bool hasNonUniqueDisplayName() const { return m_isNameUnique && !m_isNameUnique(version()); }
 
     std::variant<QtVersion *, int> m_version;
+
     std::function<bool(QtVersion *)> m_isNameUnique;
     bool m_changed = false;
 };
 
 void setupQtSettingsPage();
-}
 
+} // Internal
 } // QtSupport

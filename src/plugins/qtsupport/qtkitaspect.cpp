@@ -31,6 +31,7 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
+#include <QAbstractListModel>
 #include <QHBoxLayout>
 #include <QJsonValue>
 
@@ -41,17 +42,21 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-class QtVersionListModel : public TreeModel<TreeItem, QtVersionItem>
+class QtVersionListModel : public QAbstractListModel
 {
 public:
     QtVersionListModel(const Kit &kit, QObject *parent)
-        : TreeModel(parent)
+        : QAbstractListModel(parent)
         , m_kit(kit)
     {}
 
+    ~QtVersionListModel() { qDeleteAll(m_items); }
+
     void reset()
     {
-        clear();
+        beginResetModel();
+        qDeleteAll(m_items);
+        m_items.clear();
 
         if (const IDevice::ConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
             const FilePath deviceRoot = device->rootPath();
@@ -60,13 +65,27 @@ public:
                     return qt->qmakeFilePath().isSameDevice(deviceRoot);
                 });
             for (QtVersion *v : versionsForBuildDevice)
-                rootItem()->appendChild(new QtVersionItem(v->uniqueId()));
+                m_items.append(new QtVersionItem(v->uniqueId()));
         }
-        rootItem()->appendChild(new QtVersionItem(-1)); // The "No Qt" entry.
+        m_items.append(new QtVersionItem(-1)); // The "No Qt" entry.
+        endResetModel();
+    }
+
+    int rowCount(const QModelIndex &parent = {}) const override
+    {
+        return parent.isValid() ? 0 : m_items.size();
+    }
+
+    QVariant data(const QModelIndex &index, int role) const override
+    {
+        if (!index.isValid() || index.row() < 0 || index.row() >= m_items.size())
+            return {};
+        return m_items[index.row()]->data(0, role);
     }
 
 private:
     const Kit &m_kit;
+    QList<QtVersionItem *> m_items;
 };
 
 class QtKitAspectImpl final : public KitAspect
