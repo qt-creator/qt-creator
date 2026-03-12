@@ -9,12 +9,11 @@
 
     \title Download highlight definitions
 
-    \QC uses the \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
-    {KSyntaxHighlighting} syntax highlighting engine with Kate syntax definitions.
+    \QC uses the \l {KSyntaxHighlighting}
+    syntax highlighting engine with Kate syntax definitions.
     It comes with most of the commonly used Kate definitions, and you can download
     more definitions. For more information about the definition files, see
-    \l{https://docs.kde.org/stable5/en/kate/katepart/highlight.html}
-    {Working with Syntax Highlighting}.
+    \l {Working with Syntax Highlighting}.
 
     Font attributes that a syntax definition file explicitly specifies, such as
     bold, italic, underline, or strike through, are applied. Colors are applied

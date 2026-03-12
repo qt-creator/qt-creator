@@ -377,3 +377,11 @@
     \externalpage https://vcpkg.io/en/
     \title vcpkg
 */
+/*!
+    \externalpage https://api.kde.org/ksyntaxhighlighting-index.html
+    \title KSyntaxHighlighting
+*/
+/*!
+    \externalpage https://docs.kde.org/stable_kf6/en/kate/katepart/highlight.html
+    \title Working with Syntax Highlighting
+*/
