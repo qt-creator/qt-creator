@@ -289,7 +289,8 @@ void tst_SimpleLexer::literals()
     QFETCH(TokenKindList, expectedTokenKindList);
 
     LanguageFeatures features;
-    features.cxx14Enabled = true;
+    features.cxx23Enabled = features.cxx20Enabled = features.cxx17Enabled = features.cxx14Enabled
+        = features.cxx11Enabled = true;
     run(source, toTokens(expectedTokenKindList), false, CompareKind, false,
         features);
 }
@@ -327,8 +328,7 @@ void tst_SimpleLexer::literals_data()
                             << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_MINUS
                             << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
                             << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
-                            << T_NUMERIC_LITERAL << T_ERROR << T_ERROR
-                               ;
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL;
     QTest::newRow("float-literals") << source << expectedTokenKindList;
 
     source = // these are all the same
@@ -346,8 +346,8 @@ void tst_SimpleLexer::literals_data()
     expectedTokenKindList =
             TokenKindList() << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
                             << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
-                            << T_NUMERIC_LITERAL << T_ERROR << T_ERROR << T_ERROR
-                               ;
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL;
     QTest::newRow("integer-literals") << source << expectedTokenKindList;
 
     source =
@@ -397,6 +397,16 @@ void tst_SimpleLexer::literals_data()
             "61llU\n"
             "62LLU\n"
             "63LLu\n"
+            "63z\n"
+            "63Z\n"
+            "63zu\n"
+            "63Zu\n"
+            "63zU\n"
+            "63ZU\n"
+            "63uz\n"
+            "63Uz\n"
+            "63uZ\n"
+            "63UZ\n"
             "64lL\n"  // wrong
             "65Ll\n"  // wrong
             "66luu\n" // wrong
@@ -412,7 +422,10 @@ void tst_SimpleLexer::literals_data()
                             << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
                             << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
                             << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
-                            << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
                             << T_ERROR << T_ERROR << T_ERROR
                             << T_ERROR << T_ERROR << T_ERROR
                                ;

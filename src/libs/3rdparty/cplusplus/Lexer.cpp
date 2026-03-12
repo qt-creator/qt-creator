@@ -978,6 +978,15 @@ bool Lexer::scanOptionalIntegerSuffix(bool allowU)
         if (_yychar == 'u' || _yychar == 'U')
             yyinp();
         return true;
+    case 'z':
+    case 'Z':
+        if (_languageFeatures.cxx23Enabled) {
+            yyinp();
+            if (_yychar == 'u' || _yychar == 'U')
+                yyinp();
+            return true;
+        }
+        return false;
     default:
         return false;
     }
