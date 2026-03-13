@@ -34,8 +34,9 @@ public:
     void removeItem(int row);
     void notifyRowChanged(int row);
     void notifyAllRowsChanged();
-    void apply();
-    void cancel();
+
+    virtual void apply();
+    virtual void cancel();
 
     const QVariantList &variants() const;
     void setVariants(const QVariantList &items);

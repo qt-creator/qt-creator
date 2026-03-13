@@ -79,6 +79,7 @@ void GroupedModel::DisplayModel::addFilter(const QString &title, const Filter &f
     auto model = new FilterModel(filter);
     model->setObjectName(title);
     model->setSourceModel(m_base);
+    //model->sort(0);  //  FIXME: Double-check. This sorts alphabetically, which is not wanted for Kits
     m_filters.append(model);
 
     connect(model, &QAbstractItemModel::dataChanged, this, [this, model]
