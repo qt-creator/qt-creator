@@ -1,3 +1,7 @@
+option(BUILD_EXECUTABLE_QMLTRACEVIEWER_STANDALONE
+       "Creates an install target for standalone qmltraceviewer"
+       OFF)
+
 add_qtc_executable(qmltraceviewer
   CONDITION TARGET QmlProfiler
   DEPENDS app_version QmlProfiler
@@ -7,4 +11,32 @@ add_qtc_executable(qmltraceviewer
     qmltraceviewersettings.cpp qmltraceviewersettings.h
     qmltraceviewerwindow.h qmltraceviewerwindow.cpp
     schema/api.h
+)
+
+if (NOT TARGET qmltraceviewer OR NOT BUILD_EXECUTABLE_QMLTRACEVIEWER_STANDALONE)
+  return()
+endif()
+
+create_standalone_install_component(standalone_qmltraceviewer
+  TARGET qmltraceviewer
+  PLUGINS
+    platforminputcontexts
+    platforms
+    platformthemes
+    styles
+    wayland-decoration-client
+    wayland-graphics-integration-client
+    wayland-shell-integration
+    xcbglintegrations
+  IMPORTS
+    QML
+    Qt
+    QtCore
+    QtNetwork
+    QtQml
+    QtQuick
+    QtWayland
+  RESOURCES
+    themes
+    translations
 )

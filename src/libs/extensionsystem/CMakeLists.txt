@@ -18,8 +18,6 @@ add_qtc_library(ExtensionSystem
   SKIP_AUTOMOC pluginmanager.cpp
 )
 
-find_package(Qt6 COMPONENTS Test QUIET)
-
 # If ExtensionSystem was compiled with QtTest, it should provide the test options
 # and the test related API, regardless if Qt Creator was compiled with tests or not,
 # and regardless if an external plugin is compiled with tests or not.

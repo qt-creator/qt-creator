@@ -57,7 +57,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 if (WITH_TESTS)
-  set(QT_TEST_COMPONENT Test)
+  set(QT_TEST_COMPONENT_REQUIRED REQUIRED)
   set(IMPLICIT_DEPENDS Qt::Test)
 endif()
 
@@ -77,9 +77,13 @@ endif()
 
 find_package(Qt6
   ${IDE_QT_VERSION_MIN}
-  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml ${QT_TEST_COMPONENT}
+  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml
   REQUIRED
 )
+
+# Always look for Qt::Test since we always optionally want it for ExtensionSystem
+# but only required if WITH_TESTS=ON
+find_package(Qt6 COMPONENTS Test QUIET ${QT_TEST_COMPONENT_REQUIRED})
 
 find_package(Qt6 OPTIONAL_COMPONENTS Quick QuickWidgets Designer DesignerComponentsPrivate
                                      Help SerialPort Svg Tools LinguistTools QUIET)
