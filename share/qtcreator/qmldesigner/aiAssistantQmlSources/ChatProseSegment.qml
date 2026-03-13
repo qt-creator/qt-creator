@@ -14,6 +14,7 @@ TextEdit {
     readOnly: true
     selectByKeyboard: true
     color: StudioTheme.Values.themeTextColor
+    selectionColor: StudioTheme.Values.themeInteraction
 
     onLinkActivated: function(link) { Qt.openUrlExternally(link) }
 }

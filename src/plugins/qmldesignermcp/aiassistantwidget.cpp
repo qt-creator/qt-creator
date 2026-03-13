@@ -121,6 +121,10 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     qmlRegisterUncreatableType<ChatMessage>("AiAssistant", 1, 0, "ChatMessage",
                                             "ChatMessage is not creatable from QML");
 
+    // for GenerationState enum usage in QML
+    qmlRegisterUncreatableType<AiAssistantWidget>("AiGenerationState", 1, 0, "GenerationState",
+                                                  "GenerationState is not creatable from QML");
+
     connectRequestManager();
     reloadQmlSource();
     updateModelConfig();
@@ -359,12 +363,12 @@ void AiAssistantWidget::connectRequestManager()
     // Lifecycle signals
     connect(reqManager, &AgenticRequestManager::started,
             this, [this]() {
-                setIsGenerating(true);
+                setGenerationState(GenerationState::Generating);
             });
 
     connect(reqManager, &AgenticRequestManager::finished,
             this, [this]() {
-                setIsGenerating(false);
+                setGenerationState(GenerationState::Idle);
             });
 
     // Error handling
@@ -383,7 +387,8 @@ void AiAssistantWidget::connectRequestManager()
     // Progress signals
     connect(reqManager, &AgenticRequestManager::iterationStarted,
             this, [this](int iteration, int max) {
-                m_chatHistory->addIterationMessage(iteration, max);
+                if (showAgenticDebug)
+                    m_chatHistory->addIterationMessage(iteration, max);
             });
 
     // Show the model's reasoning text when it accompanies tool calls
@@ -395,6 +400,7 @@ void AiAssistantWidget::connectRequestManager()
     connect(reqManager, &AgenticRequestManager::toolCallStarted,
             this, [this](const QString &server, const QString &tool, const QJsonObject &args) {
                 m_chatHistory->addToolCallStarted(server, tool, args);
+                setGenerationState(GenerationState::CallingTool);
 
                 static const QSet<QString> structureMutatingTools = {
                     "create_qml",
@@ -407,6 +413,7 @@ void AiAssistantWidget::connectRequestManager()
     connect(reqManager, &AgenticRequestManager::toolCallFinished,
             this, [this](const QString &server, const QString &tool, bool success) {
                 m_chatHistory->completeToolCall(server, tool, success);
+                setGenerationState(GenerationState::ProcessingTool);
             });
 
     connect(reqManager, &AgenticRequestManager::logMessage,
@@ -431,11 +438,11 @@ void AiAssistantWidget::reloadQmlSource()
     m_quickWidget->setSource(url); // reload
 }
 
-void AiAssistantWidget::setIsGenerating(bool val)
+void AiAssistantWidget::setGenerationState(GenerationState state)
 {
-    if (m_isGenerating != val) {
-        m_isGenerating = val;
-        emit isGeneratingChanged();
+    if (m_generationState != state) {
+        m_generationState = state;
+        emit generationStateChanged();
     }
 }
 

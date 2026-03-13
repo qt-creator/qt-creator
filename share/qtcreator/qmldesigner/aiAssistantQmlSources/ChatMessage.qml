@@ -70,6 +70,7 @@ RowLayout {
                 readOnly: true
                 selectByKeyboard: true
                 color: StudioTheme.Values.themeTextColorDisabled
+                selectionColor: StudioTheme.Values.themeInteraction
             }
 
             // Tool call message — plain text
@@ -86,6 +87,7 @@ RowLayout {
                 readOnly: true
                 selectByKeyboard: true
                 color: StudioTheme.Values.themeTextColor
+                selectionColor: StudioTheme.Values.themeInteraction
             }
 
             // Assistant message — flat HTML fallback when no segments

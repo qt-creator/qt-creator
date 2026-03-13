@@ -7,8 +7,8 @@ import QtQuick.Controls.Basic as Basic
 import StudioControls as StudioControls
 import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
+import AiGenerationState
 import AiAssistantBackend
-import "../misc"
 
 Rectangle {
     id: root
@@ -58,7 +58,8 @@ Rectangle {
                 font.pixelSize: root.style.baseFontSize
                 color: root.style.text.idle
                 wrapMode: TextEdit.WordWrap
-                enabled: !root.rootView.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
+                enabled: root.rootView.generationState == GenerationState.Idle
+                         && root.rootView.hasValidModel && root.rootView.termsAccepted
 
                 placeholderText: enabled ? qsTr("Describe what you want to generate...") : ""
                 placeholderTextColor: root.style.text.placeholder
@@ -106,7 +107,8 @@ Rectangle {
 
                 buttonIcon: StudioTheme.Constants.link_medium
                 tooltip: qsTr("Attach an image.\nThe attached image will be included in the prompt for the AI to analyze and use its content in the response generation.")
-                enabled: !root.rootView.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
+                enabled: root.rootView.generationState == GenerationState.Idle
+                         && root.rootView.hasValidModel && root.rootView.termsAccepted
 
                 onClicked: assetImagesView.showWindow()
             }
@@ -117,28 +119,10 @@ Rectangle {
 
                 buttonIcon: StudioTheme.Constants.send_medium
                 tooltip: qsTr("Send")
-                enabled: textEdit.text !== "" && !root.rootView.isGenerating
+                enabled: textEdit.text !== "" && root.rootView.generationState == GenerationState.Idle
 
                 onClicked: root.send()
             }
-        }
-    }
-
-    Row {
-        x: 10
-        y: 2
-        visible: root.rootView.isGenerating
-
-        Text {
-            text: qsTr("Generating...")
-            color: StudioTheme.Values.themeTextColor
-            anchors.verticalCenter: parent.verticalCenter
-        }
-
-        BusyIndicator {
-            radius: 16
-            dotSize: 4
-            color: StudioTheme.Values.themeTextColor
         }
     }
 

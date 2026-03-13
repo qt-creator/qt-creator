@@ -9,6 +9,7 @@ import QtQuick.Layouts
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import AiGenerationState
 import AiAssistantBackend
 
 RowLayout {
@@ -18,7 +19,8 @@ RowLayout {
     property int splitIndex: presetPrompts.length
 
     property var rootView: AiAssistantBackend.rootView
-    readonly property bool isReady: !root.rootView.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
+    readonly property bool isReady: root.rootView.generationState == GenerationState.Idle
+                                    && root.rootView.hasValidModel && root.rootView.termsAccepted
 
     signal triggered(prompt: string)
 

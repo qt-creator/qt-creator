@@ -7,6 +7,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import StudioTheme as StudioTheme
+import AiGenerationState
 import AiAssistantBackend
 
 Item {
@@ -115,7 +116,7 @@ Item {
                 buttonIcon: StudioTheme.Constants.close_small
 
                 tooltip: qsTr("Clear conversation")
-                enabled: root.rootView.termsAccepted && !root.rootView.isGenerating
+                enabled: root.rootView.termsAccepted && root.rootView.generationState == GenerationState.Idle
 
                 onClicked: root.rootView.clearChat()
             }
@@ -127,7 +128,7 @@ Item {
                 buttonIcon: StudioTheme.Constants.settings_medium
 
                 tooltip: qsTr("Open AI Assistant settings.")
-                enabled: root.rootView.termsAccepted && !root.rootView.isGenerating
+                enabled: root.rootView.termsAccepted && root.rootView.generationState == GenerationState.Idle
 
                 onClicked: root.rootView.openModelSettings()
             }

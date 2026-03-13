@@ -172,6 +172,7 @@ Item {
                     font.family: "monospace"
                     font.pixelSize: StudioTheme.Values.baseFontSize
                     color: StudioTheme.Values.themeTextColor
+                    selectionColor: StudioTheme.Values.themeInteraction
                 }
             }
         }

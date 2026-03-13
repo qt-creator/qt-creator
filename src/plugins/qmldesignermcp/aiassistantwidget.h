@@ -33,7 +33,7 @@ class AiAssistantWidget : public QFrame
     Q_OBJECT
 
     Q_PROPERTY(bool termsAccepted MEMBER m_termsAccepted NOTIFY termsAcceptedChanged FINAL)
-    Q_PROPERTY(bool isGenerating MEMBER m_isGenerating NOTIFY isGeneratingChanged FINAL)
+    Q_PROPERTY(GenerationState generationState MEMBER m_generationState NOTIFY generationStateChanged FINAL)
     Q_PROPERTY(bool hasValidModel MEMBER m_hasValidModel NOTIFY hasValidModelChanged FINAL)
     Q_PROPERTY(QString attachedImageSource READ attachedImageSource WRITE setAttachedImageSource
                    NOTIFY attachedImageSourceChanged FINAL)
@@ -41,6 +41,9 @@ class AiAssistantWidget : public QFrame
     Q_PROPERTY(QAbstractListModel *chatHistory READ chatHistory CONSTANT)
 
 public:
+    enum class GenerationState { Idle, Generating, CallingTool, ProcessingTool };
+    Q_ENUM(GenerationState)
+
     AiAssistantWidget(AiAssistantView *view);
     ~AiAssistantWidget();
 
@@ -71,7 +74,7 @@ public:
 
 signals:
     void termsAcceptedChanged();
-    void isGeneratingChanged();
+    void generationStateChanged();
     void hasValidModelChanged();
     void attachedImageSourceChanged();
 
@@ -86,7 +89,7 @@ protected:
 
 private: // functions
     void reloadQmlSource();
-    void setIsGenerating(bool val);
+    void setGenerationState(GenerationState state);
     void setHasValidModel(bool val);
     void handleAiResponse(const AiResponse &response);
     void initializeMcp();
@@ -112,9 +115,9 @@ private: // variables
     QString m_projectPath;
     QString m_projectStructure;
     QString m_instructions; // LLM instructions
+    GenerationState m_generationState = GenerationState::Idle;
     bool m_pendingStructureRefresh = false;
     bool m_termsAccepted = false;
-    bool m_isGenerating = false;
     bool m_hasValidModel = false;
 };
 

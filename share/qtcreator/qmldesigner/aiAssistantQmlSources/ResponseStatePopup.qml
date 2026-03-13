@@ -7,6 +7,7 @@ import QtQuick
 import QtQuick.Layouts
 import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
+import AiGenerationState
 import AiAssistantBackend
 
 Rectangle {
@@ -64,8 +65,8 @@ Rectangle {
             timer.restart()
         }
 
-        function onIsGeneratingChanged() {
-            if (AiAssistantBackend.rootView.isGenerating)
+        function onGenerationStateChanged() {
+            if (AiAssistantBackend.rootView.generationState != GenerationState.Idle)
                 root.hidePopup()
         }
 

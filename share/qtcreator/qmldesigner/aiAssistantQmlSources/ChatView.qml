@@ -5,6 +5,8 @@ import QtQuick
 import QtQuick.Controls
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import AiGenerationState
+import AiAssistantBackend
 
 Rectangle {
     id: root
@@ -28,8 +30,8 @@ Rectangle {
         clip: true
 
         model: root.chatModel
-
         delegate: ChatMessage {}
+        footer: GenerationStateRow {}
 
         // Auto-scroll to bottom
         onCountChanged: {
