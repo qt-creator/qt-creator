@@ -80,13 +80,6 @@ bool TreeScanner::isFinished() const
     return m_futureWatcher.isFinished();
 }
 
-TreeScanner::Result TreeScanner::result() const
-{
-    if (isFinished())
-        return m_scanFuture.result();
-    return {};
-}
-
 TreeScanner::Result TreeScanner::release()
 {
     if (isFinished() && m_scanFuture.resultCount() > 0) {
@@ -96,12 +89,6 @@ TreeScanner::Result TreeScanner::release()
     }
     m_scanFuture = Future();
     return {};
-}
-
-void TreeScanner::reset()
-{
-    if (isFinished())
-        m_scanFuture = Future();
 }
 
 bool TreeScanner::isWellKnownBinary(const Utils::MimeType & /*mdb*/, const Utils::FilePath &fn)

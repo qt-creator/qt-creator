@@ -60,12 +60,8 @@ public:
     Future future() const;
     bool isFinished() const;
 
-    // Takes not-owning result
-    Result result() const;
     // Takes owning of result
     Result release();
-    // Clear scan results
-    void reset();
 
     // Standard filters helpers
     static bool isWellKnownBinary(const Utils::MimeType &mimeType, const Utils::FilePath &fn);
