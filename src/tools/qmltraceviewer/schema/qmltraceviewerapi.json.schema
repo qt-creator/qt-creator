@@ -25,7 +25,16 @@
       "description": "A JSON-RPC notification sent from the application to the client.",
       "anyOf": [
         {
-          "$ref": "#/$defs/RequestShowSource"
+          "$ref": "#/$defs/TraceFileLoadingStartedNotification"
+        },
+        {
+          "$ref": "#/$defs/TraceFileLoadingFinishedNotification"
+        },
+        {
+          "$ref": "#/$defs/TraceEventSelectedNotification"
+        },
+        {
+          "$ref": "#/$defs/TraceDiscardedNotification"
         }
       ]
     },
@@ -100,14 +109,81 @@
       ],
       "description": "Predefined error codes for common JSON-RPC and ACP-specific errors.\n\nThese codes follow the JSON-RPC 2.0 specification for standard errors\nand use the reserved range (-32000 to -32099) for protocol-specific errors."
     },
-    "RequestShowSource": {
+    "TraceFileLoadingStartedNotification": {
       "properties": {
         "jsonrpc": {
           "const": "2.0",
           "type": "string"
         },
         "method": {
-          "const": "requestShowSource",
+          "const": "traceFileLoadingStarted",
+          "type": "string"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "traceFilePath": {
+              "type": "string",
+              "description": "The file path of the trace file."
+            }
+          },
+          "required": [
+            "traceFilePath"
+          ]
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "method",
+        "params"
+      ]
+    },
+    "TraceFileLoadingFinishedNotification": {
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0",
+          "type": "string"
+        },
+        "method": {
+          "const": "traceFileLoadingFinished",
+          "type": "string"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "traceFilePath": {
+              "type": "string",
+              "description": "The file path of the trace file."
+            },
+            "successful": {
+              "type": "boolean",
+              "description": "The loading of the file was successful."
+            },
+            "errorMessage": {
+              "type": "string",
+              "description": "Error message in case of failure."
+            }
+          },
+          "required": [
+            "traceFilePath",
+            "successful"
+          ]
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "method",
+        "params"
+      ]
+    },
+    "TraceEventSelectedNotification": {
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0",
+          "type": "string"
+        },
+        "method": {
+          "const": "traceEventSelected",
           "type": "string"
         },
         "params": {
@@ -134,7 +210,25 @@
         }
       },
       "required": [
-        "jsonrpc"
+        "jsonrpc",
+        "method",
+        "params"
+      ]
+    },
+    "TraceDiscardedNotification": {
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0",
+          "type": "string"
+        },
+        "method": {
+          "const": "traceDiscarded",
+          "type": "string"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "method"
       ]
     },
     "Error": {

@@ -12,6 +12,8 @@ QtcTool {
         "qmltraceviewerinit.cpp",
         "qmltraceviewerinit.h",
         "qmltraceviewermain.cpp",
+        "qmltraceviewerrpc.cpp",
+        "qmltraceviewerrpc.h",
         "qmltraceviewersettings.cpp",
         "qmltraceviewersettings.h",
         "qmltraceviewerwindow.cpp",

@@ -17,7 +17,7 @@ public:
 
     // Not persisted:
     Utils::BoolAspect exitOnError{this};
-    Utils::BoolAspect printSourceLocations{this};
+    Utils::BoolAspect withNotifications{this};
 };
 
 QmlTraceViewerSettings &settings();

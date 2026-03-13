@@ -17,7 +17,7 @@ QmlTraceViewerSettings::QmlTraceViewerSettings()
 
     exitOnError.setDefaultValue(false);
 
-    printSourceLocations.setDefaultValue(false);
+    withNotifications.setDefaultValue(false);
 }
 
 QmlTraceViewerSettings &settings()

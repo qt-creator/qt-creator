@@ -5,8 +5,6 @@
 #include "qmltraceviewerwindow.h"
 #include "qmltraceviewersettings.h"
 
-#include "schema/api.h"
-
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QTimer>
@@ -50,13 +48,13 @@ int main(int argc, char *argv[])
     QCommandLineOption exitOnError(QStringList({"e", "exit-on-error"}),
                                    "Exit on error, with error message on stderr.");
     parser.addOption(exitOnError);
-    QCommandLineOption printSourceLocations(QStringList({"l", "print-source-locations"}),
-                                            "Prints current source location to stdout.");
-    parser.addOption(printSourceLocations);
+    QCommandLineOption withNotifications(QStringList({"r", "rpc"}),
+                                         "Activate JSON-RPC 2.0 through stdio.");
+    parser.addOption(withNotifications);
     parser.process(app);
 
     QmlTraceViewer::settings().exitOnError.setValue(parser.isSet(exitOnError));
-    QmlTraceViewer::settings().printSourceLocations.setValue(parser.isSet(printSourceLocations));
+    QmlTraceViewer::settings().withNotifications.setValue(parser.isSet(withNotifications));
 
     if (!parser.positionalArguments().isEmpty()) {
         const QString tracefile = parser.positionalArguments().constFirst();

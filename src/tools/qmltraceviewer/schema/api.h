@@ -2,7 +2,7 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- /opt/homebrew/opt/python@3.14/bin/python3.14 \
+ /usr/bin/python3 \
   scripts/generate_cpp_from_schema.py \
   src/tools/qmltraceviewer/schema/qmltraceviewerapi.json.schema src/tools/qmltraceviewer/schema/api.h --namespace QmlTraceViewer::Api::Schema
 */
@@ -219,7 +219,36 @@ inline QJsonObject toJson(const ApplicationResult &val) {
 inline QJsonValue toJsonValue(const ApplicationResult &val) {
     return toJson(val);
 }
-struct RequestShowSource {
+struct TraceDiscardedNotification {
+
+};
+
+template<>
+inline Utils::Result<TraceDiscardedNotification> fromJson<TraceDiscardedNotification>(const QJsonValue &val) {
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for TraceDiscardedNotification");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("jsonrpc"))
+        return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj.contains("method"))
+        return Utils::ResultError("Missing required field: method");
+    TraceDiscardedNotification result;
+    if (obj.value("jsonrpc").toString() != "2.0")
+        return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+    if (obj.value("method").toString() != "traceDiscarded")
+        return Utils::ResultError("Field 'method' must be 'traceDiscarded', got: " + obj.value("method").toString());
+    return result;
+}
+
+inline QJsonObject toJson(const TraceDiscardedNotification &data) {
+    QJsonObject obj{
+        {"jsonrpc", QString("2.0")},
+        {"method", QString("traceDiscarded")}
+    };
+    return obj;
+}
+
+struct TraceEventSelectedNotification {
     struct Params {
         QString _sourceFilePath;  //!< The file path of the source file to show.
         int _lineNumber;  //!< The line number in the source file to show (1-based index).
@@ -234,15 +263,15 @@ struct RequestShowSource {
         const int& columnNumber() const { return _columnNumber; }
     };
 
-    std::optional<Params> _params;
+    Params _params;
 
-    RequestShowSource& params(const std::optional<Params> & v) { _params = v; return *this; }
+    TraceEventSelectedNotification& params(const Params & v) { _params = v; return *this; }
 
-    const std::optional<Params>& params() const { return _params; }
+    const Params& params() const { return _params; }
 };
 
 template<>
-inline Utils::Result<RequestShowSource::Params> fromJson<RequestShowSource::Params>(const QJsonValue &val) {
+inline Utils::Result<TraceEventSelectedNotification::Params> fromJson<TraceEventSelectedNotification::Params>(const QJsonValue &val) {
     if (!val.isObject())
         return Utils::ResultError("Expected JSON object for Params");
     const QJsonObject obj = val.toObject();
@@ -252,14 +281,14 @@ inline Utils::Result<RequestShowSource::Params> fromJson<RequestShowSource::Para
         return Utils::ResultError("Missing required field: lineNumber");
     if (!obj.contains("columnNumber"))
         return Utils::ResultError("Missing required field: columnNumber");
-    RequestShowSource::Params result;
+    TraceEventSelectedNotification::Params result;
     result._sourceFilePath = obj.value("sourceFilePath").toString();
     result._lineNumber = obj.value("lineNumber").toInt();
     result._columnNumber = obj.value("columnNumber").toInt();
     return result;
 }
 
-inline QJsonObject toJson(const RequestShowSource::Params &data) {
+inline QJsonObject toJson(const TraceEventSelectedNotification::Params &data) {
     QJsonObject obj{
         {"sourceFilePath", data._sourceFilePath},
         {"lineNumber", data._lineNumber},
@@ -269,43 +298,194 @@ inline QJsonObject toJson(const RequestShowSource::Params &data) {
 }
 
 template<>
-inline Utils::Result<RequestShowSource> fromJson<RequestShowSource>(const QJsonValue &val) {
+inline Utils::Result<TraceEventSelectedNotification> fromJson<TraceEventSelectedNotification>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for RequestShowSource");
+        co_return Utils::ResultError("Expected JSON object for TraceEventSelectedNotification");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("jsonrpc"))
         co_return Utils::ResultError("Missing required field: jsonrpc");
-    RequestShowSource result;
+    if (!obj.contains("method"))
+        co_return Utils::ResultError("Missing required field: method");
+    if (!obj.contains("params"))
+        co_return Utils::ResultError("Missing required field: params");
+    TraceEventSelectedNotification result;
     if (obj.value("jsonrpc").toString() != "2.0")
         co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
-    if (obj.value("method").toString() != "requestShowSource")
-        co_return Utils::ResultError("Field 'method' must be 'requestShowSource', got: " + obj.value("method").toString());
+    if (obj.value("method").toString() != "traceEventSelected")
+        co_return Utils::ResultError("Field 'method' must be 'traceEventSelected', got: " + obj.value("method").toString());
     if (obj.contains("params") && obj["params"].isObject())
-        result._params = co_await fromJson<RequestShowSource::Params>(obj["params"]);
+        result._params = co_await fromJson<TraceEventSelectedNotification::Params>(obj["params"]);
     co_return result;
 }
 
-inline QJsonObject toJson(const RequestShowSource &data) {
+inline QJsonObject toJson(const TraceEventSelectedNotification &data) {
     QJsonObject obj{
         {"jsonrpc", QString("2.0")},
-        {"method", QString("requestShowSource")}
+        {"method", QString("traceEventSelected")},
+        {"params", toJson(data._params)}
     };
-    if (data._params.has_value())
-        obj.insert("params", toJson(*data._params));
+    return obj;
+}
+
+struct TraceFileLoadingFinishedNotification {
+    struct Params {
+        QString _traceFilePath;  //!< The file path of the trace file.
+        bool _successful;  //!< The loading of the file was successful.
+        std::optional<QString> _errorMessage;  //!< Error message in case of failure.
+
+        Params& traceFilePath(const QString & v) { _traceFilePath = v; return *this; }
+        Params& successful(bool v) { _successful = v; return *this; }
+        Params& errorMessage(const std::optional<QString> & v) { _errorMessage = v; return *this; }
+
+        const QString& traceFilePath() const { return _traceFilePath; }
+        const bool& successful() const { return _successful; }
+        const std::optional<QString>& errorMessage() const { return _errorMessage; }
+    };
+
+    Params _params;
+
+    TraceFileLoadingFinishedNotification& params(const Params & v) { _params = v; return *this; }
+
+    const Params& params() const { return _params; }
+};
+
+template<>
+inline Utils::Result<TraceFileLoadingFinishedNotification::Params> fromJson<TraceFileLoadingFinishedNotification::Params>(const QJsonValue &val) {
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for Params");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("traceFilePath"))
+        return Utils::ResultError("Missing required field: traceFilePath");
+    if (!obj.contains("successful"))
+        return Utils::ResultError("Missing required field: successful");
+    TraceFileLoadingFinishedNotification::Params result;
+    result._traceFilePath = obj.value("traceFilePath").toString();
+    result._successful = obj.value("successful").toBool();
+    if (obj.contains("errorMessage"))
+        result._errorMessage = obj.value("errorMessage").toString();
+    return result;
+}
+
+inline QJsonObject toJson(const TraceFileLoadingFinishedNotification::Params &data) {
+    QJsonObject obj{
+        {"traceFilePath", data._traceFilePath},
+        {"successful", data._successful}
+    };
+    if (data._errorMessage.has_value())
+        obj.insert("errorMessage", *data._errorMessage);
+    return obj;
+}
+
+template<>
+inline Utils::Result<TraceFileLoadingFinishedNotification> fromJson<TraceFileLoadingFinishedNotification>(const QJsonValue &val) {
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for TraceFileLoadingFinishedNotification");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("jsonrpc"))
+        co_return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj.contains("method"))
+        co_return Utils::ResultError("Missing required field: method");
+    if (!obj.contains("params"))
+        co_return Utils::ResultError("Missing required field: params");
+    TraceFileLoadingFinishedNotification result;
+    if (obj.value("jsonrpc").toString() != "2.0")
+        co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+    if (obj.value("method").toString() != "traceFileLoadingFinished")
+        co_return Utils::ResultError("Field 'method' must be 'traceFileLoadingFinished', got: " + obj.value("method").toString());
+    if (obj.contains("params") && obj["params"].isObject())
+        result._params = co_await fromJson<TraceFileLoadingFinishedNotification::Params>(obj["params"]);
+    co_return result;
+}
+
+inline QJsonObject toJson(const TraceFileLoadingFinishedNotification &data) {
+    QJsonObject obj{
+        {"jsonrpc", QString("2.0")},
+        {"method", QString("traceFileLoadingFinished")},
+        {"params", toJson(data._params)}
+    };
+    return obj;
+}
+
+struct TraceFileLoadingStartedNotification {
+    struct Params {
+        QString _traceFilePath;  //!< The file path of the trace file.
+
+        Params& traceFilePath(const QString & v) { _traceFilePath = v; return *this; }
+
+        const QString& traceFilePath() const { return _traceFilePath; }
+    };
+
+    Params _params;
+
+    TraceFileLoadingStartedNotification& params(const Params & v) { _params = v; return *this; }
+
+    const Params& params() const { return _params; }
+};
+
+template<>
+inline Utils::Result<TraceFileLoadingStartedNotification::Params> fromJson<TraceFileLoadingStartedNotification::Params>(const QJsonValue &val) {
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for Params");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("traceFilePath"))
+        return Utils::ResultError("Missing required field: traceFilePath");
+    TraceFileLoadingStartedNotification::Params result;
+    result._traceFilePath = obj.value("traceFilePath").toString();
+    return result;
+}
+
+inline QJsonObject toJson(const TraceFileLoadingStartedNotification::Params &data) {
+    QJsonObject obj{{"traceFilePath", data._traceFilePath}};
+    return obj;
+}
+
+template<>
+inline Utils::Result<TraceFileLoadingStartedNotification> fromJson<TraceFileLoadingStartedNotification>(const QJsonValue &val) {
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for TraceFileLoadingStartedNotification");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("jsonrpc"))
+        co_return Utils::ResultError("Missing required field: jsonrpc");
+    if (!obj.contains("method"))
+        co_return Utils::ResultError("Missing required field: method");
+    if (!obj.contains("params"))
+        co_return Utils::ResultError("Missing required field: params");
+    TraceFileLoadingStartedNotification result;
+    if (obj.value("jsonrpc").toString() != "2.0")
+        co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+    if (obj.value("method").toString() != "traceFileLoadingStarted")
+        co_return Utils::ResultError("Field 'method' must be 'traceFileLoadingStarted', got: " + obj.value("method").toString());
+    if (obj.contains("params") && obj["params"].isObject())
+        result._params = co_await fromJson<TraceFileLoadingStartedNotification::Params>(obj["params"]);
+    co_return result;
+}
+
+inline QJsonObject toJson(const TraceFileLoadingStartedNotification &data) {
+    QJsonObject obj{
+        {"jsonrpc", QString("2.0")},
+        {"method", QString("traceFileLoadingStarted")},
+        {"params", toJson(data._params)}
+    };
     return obj;
 }
 
 /** A JSON-RPC notification sent from the application to the client. */
-using ApplicationNotification = std::variant<RequestShowSource>;
+using ApplicationNotification = std::variant<TraceFileLoadingStartedNotification, TraceFileLoadingFinishedNotification, TraceEventSelectedNotification, TraceDiscardedNotification>;
 
 template<>
 inline Utils::Result<ApplicationNotification> fromJson<ApplicationNotification>(const QJsonValue &val) {
     if (!val.isObject())
         co_return Utils::ResultError("Invalid ApplicationNotification: expected object");
-    const QString dispatchValue = val.toObject().value("jsonrpc").toString();
-    if (dispatchValue == "2.0")
-        co_return ApplicationNotification(co_await fromJson<RequestShowSource>(val));
-    co_return Utils::ResultError("Invalid ApplicationNotification: unknown jsonrpc \"" + dispatchValue + "\"");
+    const QString dispatchValue = val.toObject().value("method").toString();
+    if (dispatchValue == "traceFileLoadingStarted")
+        co_return ApplicationNotification(co_await fromJson<TraceFileLoadingStartedNotification>(val));
+    else if (dispatchValue == "traceFileLoadingFinished")
+        co_return ApplicationNotification(co_await fromJson<TraceFileLoadingFinishedNotification>(val));
+    else if (dispatchValue == "traceEventSelected")
+        co_return ApplicationNotification(co_await fromJson<TraceEventSelectedNotification>(val));
+    else if (dispatchValue == "traceDiscarded")
+        co_return ApplicationNotification(co_await fromJson<TraceDiscardedNotification>(val));
+    co_return Utils::ResultError("Invalid ApplicationNotification: unknown method \"" + dispatchValue + "\"");
 }
 
 inline QJsonObject toJson(const ApplicationNotification &val) {
@@ -323,11 +503,14 @@ inline QJsonValue toJsonValue(const ApplicationNotification &val) {
     return toJson(val);
 }
 
-/** Returns the 'jsonrpc' dispatch field value for the active variant. */
+/** Returns the 'method' dispatch field value for the active variant. */
 inline QString dispatchValue(const ApplicationNotification &val) {
     return std::visit([](const auto &v) -> QString {
         using T = std::decay_t<decltype(v)>;
-        if constexpr (std::is_same_v<T, RequestShowSource>) return "2.0";
+        if constexpr (std::is_same_v<T, TraceFileLoadingStartedNotification>) return "traceFileLoadingStarted";
+        else if constexpr (std::is_same_v<T, TraceFileLoadingFinishedNotification>) return "traceFileLoadingFinished";
+        else if constexpr (std::is_same_v<T, TraceEventSelectedNotification>) return "traceEventSelected";
+        else if constexpr (std::is_same_v<T, TraceDiscardedNotification>) return "traceDiscarded";
         return {};
     }, val);
 }

@@ -3,6 +3,7 @@
 
 #include "qmltraceviewerwindow.h"
 
+#include "qmltraceviewerrpc.h"
 #include "qmltraceviewersettings.h"
 
 #include <qmlprofiler/qmlprofilerconstants.h>
@@ -18,6 +19,7 @@
 #include <QDockWidget>
 #include <QMessageBox>
 #include <QTime>
+#include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
 
@@ -51,6 +53,7 @@ public:
 
     Window *q = nullptr;
     QmlProfilerPlainViewManager *viewManager;
+    QString lastLoadError;
     QLabel *traceDurationLabel;
     ProgressIndicator *progressIndicator;
     QList<QDockWidget*> dockWidgets; // List with original dock widgets order
@@ -79,38 +82,36 @@ QFuture<void> WindowPrivate::showOpenFileDialog()
         settings().lastTraceFile(),
         QmlProfilerPlainViewManager::fileDialogTraceFilesFilter());
 
-    if (!filePath.isEmpty()) {
-        settings().lastTraceFile.setValue(filePath);
+    if (!filePath.isEmpty())
         return q->loadTraceFile(filePath);
-    }
 
     return {};
 }
 
 void WindowPrivate::onError(const QString &error)
 {
+    lastLoadError = error;
     progressIndicator->hide();
+
     if (settings().exitOnError()) {
-        std::cerr << error.toStdString() << std::endl;
-        QApplication::exit(1);
-    } else {
-        QMessageBox::critical(nullptr, Tr::tr("Error"), error);
+        std::cerr << lastLoadError.toStdString() << std::endl;
+        // Give time for further error notifications.
+        QTimer::singleShot(0, []{ QApplication::exit(1); });
     }
+
+    QMessageBox::critical(nullptr, Tr::tr("Error"), error);
 }
 
 void WindowPrivate::onLoadFinished()
 {
     setTraceDuration(viewManager->traceDuration());
     progressIndicator->hide();
+    RPC::notifyTraceFileLoadingFinished(settings().lastTraceFile(), lastLoadError);
 }
 
-void WindowPrivate::onGotoSourceLocation(const QString &fileUrl, int lineNumber,
-                                         [[maybe_unused]] int columnNumber)
+void WindowPrivate::onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber)
 {
-    if (!settings().printSourceLocations())
-        return;
-    const QString location = "%1:%2"_L1.arg(fileUrl).arg(lineNumber);
-    std::cout << location.toStdString() << std::endl;
+    RPC::notifyTraceEventSelected(fileUrl, lineNumber, columnNumber);
 }
 
 void WindowPrivate::addDocksForViews()
@@ -142,6 +143,7 @@ void WindowPrivate::clearTrace()
 {
     setTraceDuration(milliseconds{0});
     viewManager->clear();
+    RPC::notifyTraceDiscarded();
 }
 
 void WindowPrivate::setTraceDuration(milliseconds ms)
@@ -194,11 +196,14 @@ Window::Window(QWidget *parent)
     restoreGeometry(settings().windowGeometry());
 }
 
-QFuture<void> Window::loadTraceFile(const FilePath &file)
+QFuture<void> Window::loadTraceFile(const FilePath &filePath)
 {
+    settings().lastTraceFile.setValue(filePath);
     d->setTraceDuration(milliseconds{0});
     d->progressIndicator->show();
-    return d->viewManager->loadTraceFile(file);
+    d->lastLoadError.clear();
+    RPC::notifyTraceFileLoadingStarted(filePath);
+    return d->viewManager->loadTraceFile(filePath);
 }
 
 void Window::closeEvent(QCloseEvent *event)
