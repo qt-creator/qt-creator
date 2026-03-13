@@ -1495,7 +1495,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                    .arg(descriptor),
                                [bcGetter]() -> QString {
                                    if (const BuildConfiguration *const bc = bcGetter())
-                                       return bc->displayName();
+                                       return FileUtils::fileSystemFriendlyName(bc->displayName());
                                    return {};
                                });
     expander->registerVariable(fullPrefix + "BuildConfig:Type",
