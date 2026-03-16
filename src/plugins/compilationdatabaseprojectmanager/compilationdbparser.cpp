@@ -155,7 +155,6 @@ void CompilationDbParser::start()
             task.setConcurrentCallData(&TreeScanner::scanForFiles, m_rootPath, filter,
                                        QDir::AllEntries | QDir::NoDotAndDotDot,
                                        &TreeScanner::genericFileType);
-            task.setFutureSynchronizer(nullptr); // Because of m_mimeBinaryCache usage.
             QObject::connect(&task, &AsyncBase::started, this, [this, taskPtr = &task] {
                 Core::ProgressManager::addTask(taskPtr->future(),
                                        Tr::tr("Scan \"%1\" project tree").arg(m_projectName),
