@@ -14,7 +14,6 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
@@ -1044,9 +1043,6 @@ public:
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
 
-        m_sortModel.setSourceModel(debuggerModel().groupedDisplayModel());
-        m_sortModel.setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
-                                         ProjectExplorer::Constants::msgManual()});
         m_deviceModel.showAllEntry();
 
         m_deviceComboBox = new QComboBox(this);
@@ -1054,13 +1050,15 @@ public:
         m_deviceComboBox->setModel(&m_deviceModel);
 
         m_debuggerView = new QTreeView(this);
-        m_debuggerView->setModel(&m_sortModel);
+        m_debuggerView->setModel(debuggerModel().groupedDisplayModel());
         m_debuggerView->setUniformRowHeights(true);
         m_debuggerView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_debuggerView->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_debuggerView->expandAll();
         m_debuggerView->setSortingEnabled(true);
         m_debuggerView->sortByColumn(0, Qt::AscendingOrder);
+        connect(debuggerModel().groupedDisplayModel(), &QAbstractItemModel::modelReset,
+                m_debuggerView, &QTreeView::expandAll);
 
         auto header = m_debuggerView->header();
         header->setStretchLastSection(false);
@@ -1151,8 +1149,6 @@ public:
     }
 
     IDeviceConstPtr currentDevice() const;
-    QModelIndex mapFromSource(const QModelIndex &idx) const;
-    QModelIndex mapToSource(const QModelIndex &idx) const;
 
     void cloneDebugger();
     void addDebugger();
@@ -1161,7 +1157,6 @@ public:
     void updateButtons();
 
     DeviceManagerModel m_deviceModel;
-    KitSettingsSortModel m_sortModel;
     QComboBox *m_deviceComboBox;
     QTreeView *m_debuggerView;
     QPushButton *m_addButton;
@@ -1177,16 +1172,6 @@ IDeviceConstPtr DebuggerSettingsPageWidget::currentDevice() const
     return m_deviceModel.device(m_deviceComboBox->currentIndex());
 }
 
-QModelIndex DebuggerSettingsPageWidget::mapFromSource(const QModelIndex &idx) const
-{
-    return m_sortModel.mapFromSource(idx);
-}
-
-QModelIndex DebuggerSettingsPageWidget::mapToSource(const QModelIndex &idx) const
-{
-    return m_sortModel.mapToSource(idx);
-}
-
 void DebuggerSettingsPageWidget::cloneDebugger()
 {
     const DebuggerItem item = debuggerModel().currentItem();
@@ -1200,7 +1185,7 @@ void DebuggerSettingsPageWidget::cloneDebugger()
     newItem.reinitializeFromFile();
     newItem.setDetectionSource({DetectionSource::Manual, item.detectionSource().id});
     newItem.setEngineType(item.engineType());
-    m_debuggerView->setCurrentIndex(mapFromSource(debuggerModel().appendVolatileItem(newItem)));
+    m_debuggerView->setCurrentIndex(debuggerModel().appendVolatileItem(newItem));
     markSettingsDirty();
 }
 
@@ -1210,7 +1195,7 @@ void DebuggerSettingsPageWidget::addDebugger()
     item.createId();
     item.setEngineType(NoEngineType);
     item.setUnexpandedDisplayName(debuggerModel().uniqueDisplayName(Tr::tr("New Debugger")));
-    m_debuggerView->setCurrentIndex(mapFromSource(debuggerModel().appendVolatileItem(item)));
+    m_debuggerView->setCurrentIndex(debuggerModel().appendVolatileItem(item));
     markSettingsDirty();
 }
 
@@ -1225,7 +1210,7 @@ void DebuggerSettingsPageWidget::removeDebugger()
 
 void DebuggerSettingsPageWidget::currentDebuggerChanged(const QModelIndex &newCurrent)
 {
-    debuggerModel().setCurrentIndex(mapToSource(newCurrent));
+    debuggerModel().setCurrentIndex(newCurrent);
     updateButtons();
 }
 
