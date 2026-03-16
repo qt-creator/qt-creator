@@ -69,6 +69,53 @@
                                             "generator": {
                                                 "type": "string",
                                                 "description": "The type of generator to use"
+                                            },
+                                            "variables": {
+                                                "type": "object",
+                                                "description": "A set of CMake variables to pass to CMake when configuring the project. Requires Qt Creator 20.0 or newer.",
+                                                "additionalProperties": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "type": {
+                                                                    "description": "Specifies the variable type. This is appended to the command line when invoking CMake as TYPE in -DVAR_NAME:TYPE=value.",
+                                                                    "enum": [
+                                                                        "BOOL",
+                                                                        "STRING",
+                                                                        "FILEPATH",
+                                                                        "PATH",
+                                                                        "STATIC",
+                                                                        "INTERNAL"
+                                                                    ]
+                                                                },
+                                                                "value": {
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "type": "string"
+                                                                        },
+                                                                        {
+                                                                            "description": "An array of strings. The values are joined with ';' and passed to CMake as a single value.",
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    ]
+                                                }
                                             }
                                         }
                                     },

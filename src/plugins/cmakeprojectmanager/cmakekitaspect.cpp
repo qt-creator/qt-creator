@@ -47,6 +47,7 @@
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QGuiApplication>
+#include <QJsonArray>
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QPointer>
@@ -515,6 +516,50 @@ Utils::Result<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::createAspectFro
 
         if (obj.contains("generator"))
             CMakeGeneratorKitAspect::setGenerator(kit, obj.value("generator").toString());
+
+        const QJsonValue variables = obj.value("variables");
+        if (!variables.isObject())
+            return;
+
+        const QJsonObject variablesObj = variables.toObject();
+        CMakeConfig config = CMakeConfigurationKitAspect::defaultConfiguration(kit);
+
+        for (auto it = variablesObj.begin(); it != variablesObj.end(); ++it) {
+            const QString key = it.key();
+            QJsonValue value = it.value();
+            auto valueType = CMakeConfigItem::STRING;
+            QString valueStr;
+
+            if (value.isObject()) {
+                QJsonObject valueObj = value.toObject();
+                if (valueObj.contains("type")) {
+                    valueType = CMakeConfigItem::typeStringToType(
+                        valueObj.value("type").toString().toUpper().toUtf8());
+                }
+                value = valueObj.value("value");
+            }
+
+            if (value.isArray()) {
+                QStringList valueList;
+                for (const QJsonValue &v : value.toArray()) {
+                    if (v.isString())
+                        valueList.append(v.toString());
+                }
+                CMakeConfigItem item(
+                    key.toUtf8(), valueType, QByteArray(), valueList.join(';').toUtf8(), valueList);
+                config.insert(key.toUtf8(), item);
+                continue;
+            }
+
+            if (!value.isString())
+                continue;
+
+            config.insert(
+                key.toUtf8(),
+                CMakeConfigItem(key.toUtf8(), valueType, QByteArray(), value.toString().toUtf8()));
+        }
+
+        CMakeConfigurationKitAspect::setConfiguration(kit, config);
     };
 
     return AsyncTask<ResultType>(setup, onDone);
