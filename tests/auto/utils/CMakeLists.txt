@@ -1,6 +1,7 @@
 add_subdirectory(ansiescapecodehandler)
 add_subdirectory(async)
 add_subdirectory(commandline)
+add_subdirectory(covariantcallback)
 add_subdirectory(expander)
 add_subdirectory(expected)
 add_subdirectory(filepath)

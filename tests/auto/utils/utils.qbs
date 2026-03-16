@@ -6,6 +6,7 @@ Project {
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
         "async/async.qbs",
         "commandline/commandline.qbs",
+        "covariantcallback/covariantcallback.qbs",
         "expander/expander.qbs",
         "expected/expected.qbs",
         "filepath/filepath.qbs",
