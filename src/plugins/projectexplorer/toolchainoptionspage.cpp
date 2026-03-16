@@ -244,23 +244,12 @@ public:
         m_deviceComboBox->setModel(&m_deviceManagerModel);
 
         m_model.setHeader({Tr::tr("Name"), Tr::tr("Type"), Tr::tr("Language")});
-        auto autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
+        m_autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
-        auto manualRoot = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
+        m_manualRoot = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
 
-        for (const LanguageCategory &category : ToolchainManager::languageCategories()) {
-            const QString dn = ToolchainManager::displayNameOfLanguageCategory(category);
-            auto autoNode = new StaticTreeItem(dn);
-            auto manualNode = new StaticTreeItem(dn);
-
-            autoRoot->appendChild(autoNode);
-            manualRoot->appendChild(manualNode);
-
-            m_languageMap.insert(category, {autoNode, manualNode});
-        }
-
-        m_model.rootItem()->appendChild(autoRoot);
-        m_model.rootItem()->appendChild(manualRoot);
+        m_model.rootItem()->appendChild(m_autoRoot);
+        m_model.rootItem()->appendChild(m_manualRoot);
 
         m_toolChainView = new QTreeView(this);
         m_toolChainView->setUniformRowHeights(true);
@@ -417,7 +406,7 @@ public:
     void handleToolchainsRegistered(const Toolchains &toolchains);
     void handleToolchainsDeregistered(const Toolchains &toolchains);
 
-    StaticTreeItem *rootItem(const LanguageCategory &languageCategory, bool autoDetected);
+    StaticTreeItem *rootItem(bool autoDetected);
     StaticTreeItem *parentForBundle(const ToolchainBundle &bundle);
     StaticTreeItem *parentForToolchain(const Toolchain &tc);
     QAction *createAction(const QString &name, ToolchainFactory *factory, const QList<Id> &languages)
@@ -435,6 +424,8 @@ public:
  private:
     DeviceManagerModel m_deviceManagerModel;
     TreeModel<TreeItem, ToolchainTreeItem> m_model;
+    StaticTreeItem *m_autoRoot = nullptr;
+    StaticTreeItem *m_manualRoot = nullptr;
     DeviceFilterModel m_filterModel;
     KitSettingsSortModel m_sortModel;
     QList<ToolchainFactory *> m_factories;
@@ -448,8 +439,6 @@ public:
     QPushButton *m_removeAllButton;
     QPushButton *m_redetectButton;
     QPushButton *m_detectionSettingsButton;
-
-    QHash<LanguageCategory, QPair<StaticTreeItem *, StaticTreeItem *>> m_languageMap;
 
     using AddRemoveList = QList<ToolchainTreeItem *>;
     AddRemoveList m_toAddList;
@@ -549,21 +538,19 @@ void ToolChainOptionsWidget::handleToolchainsDeregistered(const Toolchains &tool
     updateState();
 }
 
-StaticTreeItem *ToolChainOptionsWidget::rootItem(
-    const LanguageCategory &languageCategory, bool autoDetected)
+StaticTreeItem *ToolChainOptionsWidget::rootItem(bool autoDetected)
 {
-    QPair<StaticTreeItem *, StaticTreeItem *> nodes = m_languageMap.value(languageCategory);
-    return autoDetected ? nodes.first : nodes.second;
+    return autoDetected ? m_autoRoot : m_manualRoot;
 }
 
 StaticTreeItem *ToolChainOptionsWidget::parentForBundle(const ToolchainBundle &bundle)
 {
-    return rootItem(bundle.factory()->languageCategory(), bundle.detectionSource().isAutoDetected());
+    return rootItem(bundle.detectionSource().isAutoDetected());
 }
 
 StaticTreeItem *ToolChainOptionsWidget::parentForToolchain(const Toolchain &tc)
 {
-    return rootItem(tc.factory()->languageCategory(), tc.detectionSource().isAutoDetected());
+    return rootItem(tc.detectionSource().isAutoDetected());
 }
 
 void ToolChainOptionsWidget::redetectToolchains()
@@ -689,16 +676,13 @@ void ToolChainOptionsWidget::apply()
     Q_ASSERT(m_toRemoveList.isEmpty());
 
     // Update tool chains:
-    for (const QPair<StaticTreeItem *, StaticTreeItem *> &autoAndManual :
-         std::as_const(m_languageMap)) {
-        for (StaticTreeItem *parent : {autoAndManual.first, autoAndManual.second}) {
-            for (TreeItem *item : *parent) {
-                auto tcItem = static_cast<ToolchainTreeItem *>(item);
-                if (!tcItem->bundle->detectionSource().isAutoDetected() && tcItem->widget() && tcItem->changed)
-                    tcItem->widget()->apply();
-                tcItem->changed = false;
-                tcItem->update();
-            }
+    for (StaticTreeItem *parent : {m_autoRoot, m_manualRoot}) {
+        for (TreeItem *item : *parent) {
+            auto tcItem = static_cast<ToolchainTreeItem *>(item);
+            if (!tcItem->bundle->detectionSource().isAutoDetected() && tcItem->widget() && tcItem->changed)
+                tcItem->widget()->apply();
+            tcItem->changed = false;
+            tcItem->update();
         }
     }
 
@@ -791,7 +775,7 @@ void ToolChainOptionsWidget::updateState()
 ToolchainTreeItem *ToolChainOptionsWidget::currentTreeItem()
 {
     TreeItem *item = m_model.itemForIndex(mapToSource(m_toolChainView->currentIndex()));
-    return (item && item->level() == 3) ? static_cast<ToolchainTreeItem *>(item) : nullptr;
+    return (item && item->level() == 2) ? static_cast<ToolchainTreeItem *>(item) : nullptr;
 }
 
 // --------------------------------------------------------------------------
