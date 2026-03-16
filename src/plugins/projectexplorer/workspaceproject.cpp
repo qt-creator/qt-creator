@@ -161,11 +161,6 @@ void WorkspaceProject::setupScanner()
         scanNext();
     });
     m_scanner.setDirFilter(workspaceDirFilter);
-    m_scanner.setFilter([this](const MimeType &, const FilePath &filePath) {
-        return anyOf(m_filters, [filePath](const QRegularExpression &filter) {
-            return filter.match(filePath.path()).hasMatch();
-        });
-    });
 }
 
 WorkspaceBuildSystem::~WorkspaceBuildSystem()
@@ -350,6 +345,11 @@ void WorkspaceProject::scanNext()
         if (m_scanner.isFinished()) {
             const FilePath next = m_scanQueue.first();
             qCDebug(wsbs) << "Start scanning" << next;
+            m_scanner.setFilter([filters = m_filters](const MimeType &, const FilePath &filePath) {
+                return anyOf(filters, [filePath](const QRegularExpression &filter) {
+                    return filter.match(filePath.path()).hasMatch();
+                });
+            });
             m_scanner.asyncScanForFiles(next);
         }
     }
