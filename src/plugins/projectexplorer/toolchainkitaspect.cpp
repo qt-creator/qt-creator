@@ -19,6 +19,7 @@
 #include <utils/macroexpander.h>
 #include <utils/stringutils.h>
 
+#include <QAbstractListModel>
 #include <QComboBox>
 #include <QGridLayout>
 #include <QJsonValue>
@@ -29,11 +30,11 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
-class ToolchainListModel : public TreeModel<ToolchainTreeItem>
+class ToolchainListModel final : public QAbstractListModel
 {
 public:
     ToolchainListModel(const Kit &kit, const LanguageCategory &category, QObject *parent)
-        : TreeModel(parent)
+        : QAbstractListModel(parent)
         , m_kit(kit)
         , m_category(category)
     {
@@ -42,8 +43,8 @@ public:
 
     void reset()
     {
-        clear();
-
+        beginResetModel();
+        m_bundles.clear();
         if (const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
             const Toolchains ltcList = ToolchainManager::toolchains(
                 [this](const Toolchain *tc) { return m_category.contains(tc->language()); });
@@ -54,14 +55,28 @@ public:
             const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
                 toolchainsForBuildDevice, ToolchainBundle::HandleMissing::CreateAndRegister);
             for (const ToolchainBundle &b : bundlesForBuildDevice)
-                rootItem()->appendChild(new ToolchainTreeItem(b));
+                m_bundles.append(b);
         }
-        rootItem()->appendChild(new ToolchainTreeItem);
+        m_bundles.append(std::nullopt);
+        endResetModel();
+    }
+
+    int rowCount(const QModelIndex &parent = {}) const final
+    {
+        return parent.isValid() ? 0 : m_bundles.size();
+    }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final
+    {
+        if (!index.isValid() || index.row() >= m_bundles.size())
+            return {};
+        return toolchainBundleData(m_bundles.at(index.row()), 0, role);
     }
 
 private:
     const Kit &m_kit;
     const LanguageCategory m_category;
+    QList<std::optional<ToolchainBundle>> m_bundles;
 };
 
 class ToolchainKitAspectImpl final : public KitAspect

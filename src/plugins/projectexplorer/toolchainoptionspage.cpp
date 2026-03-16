@@ -48,7 +48,7 @@ using namespace Utils;
 
 namespace ProjectExplorer::Internal {
 
-QVariant ToolchainTreeItem::data(int column, int role) const
+QVariant toolchainBundleData(const std::optional<ToolchainBundle> &bundle, int column, int role)
 {
     switch (role) {
     case Qt::DisplayRole:
@@ -97,6 +97,11 @@ QVariant ToolchainTreeItem::data(int column, int role) const
             : QVariant();
     }
     return {};
+}
+
+QVariant ToolchainTreeItem::data(int column, int role) const
+{
+    return toolchainBundleData(bundle, column, role);
 }
 
 class ExtendedToolchainTreeItem : public ToolchainTreeItem

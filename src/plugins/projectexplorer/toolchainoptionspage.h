@@ -9,6 +9,7 @@
 #include <utils/treemodel.h>
 
 #include <QCoreApplication>
+#include <QVariant>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -29,6 +30,8 @@ public:
 
     std::optional<ToolchainBundle> bundle;
 };
+
+QVariant toolchainBundleData(const std::optional<ToolchainBundle> &bundle, int column, int role);
 
 } // namespace Internal
 } // namespace ProjectExplorer

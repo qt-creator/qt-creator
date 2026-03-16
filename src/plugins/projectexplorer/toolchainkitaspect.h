@@ -8,6 +8,7 @@
 #include <utils/id.h>
 
 namespace ProjectExplorer {
+
 class Abi;
 class Kit;
 class Toolchain;
