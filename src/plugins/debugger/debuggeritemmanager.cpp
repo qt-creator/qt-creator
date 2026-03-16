@@ -1044,9 +1044,7 @@ public:
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
 
-        m_filterModel.setSourceModel(debuggerModel().groupedDisplayModel());
-
-        m_sortModel.setSourceModel(&m_filterModel);
+        m_sortModel.setSourceModel(debuggerModel().groupedDisplayModel());
         m_sortModel.setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
                                          ProjectExplorer::Constants::msgManual()});
         m_deviceModel.showAllEntry();
@@ -1120,7 +1118,14 @@ public:
 
         m_deviceComboBox->setCurrentIndex(0);
         const auto updateDevice = [this](int idx) {
-            m_filterModel.setDevice(m_deviceModel.device(idx));
+            const IDeviceConstPtr device = m_deviceModel.device(idx);
+            const FilePath deviceRoot = device ? device->rootPath() : FilePath{};
+            debuggerModel().setExtraFilter(deviceRoot.isEmpty()
+                ? GroupedModel::Filter{}
+                : GroupedModel::Filter{[deviceRoot](int row) {
+                      const FilePath path = debuggerModel().item(row).command();
+                      return path.isEmpty() || path.isSameDevice(deviceRoot);
+                  }});
         };
         connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
         updateDevice(m_deviceComboBox->currentIndex());
@@ -1156,7 +1161,6 @@ public:
     void updateButtons();
 
     DeviceManagerModel m_deviceModel;
-    DeviceFilterModel m_filterModel;
     KitSettingsSortModel m_sortModel;
     QComboBox *m_deviceComboBox;
     QTreeView *m_debuggerView;
@@ -1175,14 +1179,12 @@ IDeviceConstPtr DebuggerSettingsPageWidget::currentDevice() const
 
 QModelIndex DebuggerSettingsPageWidget::mapFromSource(const QModelIndex &idx) const
 {
-    QTC_ASSERT(m_sortModel.sourceModel() == &m_filterModel, return {});
-    return m_sortModel.mapFromSource(m_filterModel.mapFromSource(idx));
+    return m_sortModel.mapFromSource(idx);
 }
 
 QModelIndex DebuggerSettingsPageWidget::mapToSource(const QModelIndex &idx) const
 {
-    QTC_ASSERT(m_sortModel.sourceModel() == &m_filterModel, return {});
-    return m_filterModel.mapToSource(m_sortModel.mapToSource(idx));
+    return m_sortModel.mapToSource(idx);
 }
 
 void DebuggerSettingsPageWidget::cloneDebugger()
