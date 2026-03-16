@@ -178,14 +178,19 @@ void AgenticRequestManager::onNetworkReplyFinished()
     QNetworkReply *reply = m_currentNetworkReply;
     m_currentNetworkReply = nullptr;
 
+    const QByteArray responseData = reply->readAll();
+    reply->deleteLater();
+
     if (reply->error() != QNetworkReply::NoError) {
-        QString error = reply->errorString();
+        // Extract error message from the response body if exists
+        QString error;
+        QJsonDocument doc = QJsonDocument::fromJson(responseData);
+        if (!doc.isNull() && doc.isObject())
+            error = doc.object().value("error").toObject().value("message").toString();
 
-        // Log the response body even on error - often contains useful details
-        emit logMessage(QString("Error: %1").arg(error));
-        emit logMessage(QString("Response Body: %1").arg(QString::fromUtf8(reply->readAll())));
-
-        reply->deleteLater();
+        // Fall back to Qt's generic reply->errorString()
+        if (error.isEmpty())
+            error = reply->errorString();
 
         // Retry
         if (m_retryCount < m_maxRetries) {
@@ -199,16 +204,12 @@ void AgenticRequestManager::onNetworkReplyFinished()
             return;
         }
 
-        finishWithError(QString("Network error after %1 retries: %2")
-                       .arg(m_maxRetries).arg(error));
+        finishWithError(error);
         return;
     }
 
     // Success - reset retry counter
     m_retryCount = 0;
-
-    const QByteArray responseData = reply->readAll();
-    reply->deleteLater();
 
     emit logMessage(QString("Received LLM response (%1 bytes)").arg(responseData.size()));
 
