@@ -15,12 +15,14 @@
 
 #include <memory>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 TreeScanner::TreeScanner(QObject *parent) : QObject(parent)
 {
     m_factory = TreeScanner::genericFileType;
-    m_filter = [](const Utils::MimeType &mimeType, const Utils::FilePath &fn) {
+    m_filter = [](const MimeType &mimeType, const FilePath &fn) {
         return isWellKnownBinary(fn) && isMimeBinary(mimeType);
     };
 
@@ -37,7 +39,7 @@ TreeScanner::~TreeScanner()
     }
 }
 
-bool TreeScanner::asyncScanForFiles(const Utils::FilePath &directory)
+bool TreeScanner::asyncScanForFiles(const FilePath &directory)
 {
     if (!m_futureWatcher.isFinished())
         return false;
@@ -91,7 +93,7 @@ TreeScanner::Result TreeScanner::release()
     return {};
 }
 
-bool TreeScanner::isWellKnownBinary(const Utils::FilePath &fn)
+bool TreeScanner::isWellKnownBinary(const FilePath &fn)
 {
     return fn.endsWith(QLatin1String(".a")) ||
             fn.endsWith(QLatin1String(".o")) ||
@@ -102,7 +104,7 @@ bool TreeScanner::isWellKnownBinary(const Utils::FilePath &fn)
             fn.endsWith(QLatin1String(".elf"));
 }
 
-bool TreeScanner::isMimeBinary(const Utils::MimeType &mimeType)
+bool TreeScanner::isMimeBinary(const MimeType &mimeType)
 {
     bool isBinary = false;
     if (mimeType.isValid()) {
@@ -113,7 +115,7 @@ bool TreeScanner::isMimeBinary(const Utils::MimeType &mimeType)
     return isBinary;
 }
 
-FileType TreeScanner::genericFileType(const Utils::MimeType &mimeType)
+FileType TreeScanner::genericFileType(const MimeType &mimeType)
 {
     return Node::fileTypeForMimeType(mimeType);
 }
@@ -127,17 +129,17 @@ struct DirectoryScanResult
 
 static DirectoryScanResult scanForFilesImpl(
     const QFuture<void> &future,
-    const Utils::FilePath &directory,
+    const FilePath &directory,
     FolderNode *parent,
     QDir::Filters filter,
-    const std::function<FileNode *(const Utils::FilePath &)> &factory,
+    const std::function<FileNode *(const FilePath &)> &factory,
     const QList<Core::IVersionControl *> &versionControls)
 {
     DirectoryScanResult result;
     result.parentNode = parent;
 
-    const Utils::FilePaths entries = directory.dirEntries(filter);
-    for (const Utils::FilePath &entry : entries) {
+    const FilePaths entries = directory.dirEntries(filter);
+    for (const FilePath &entry : entries) {
         if (future.isCanceled())
             return result;
 
@@ -155,18 +157,18 @@ static DirectoryScanResult scanForFilesImpl(
     return result;
 }
 
-static const Utils::MimeType &directoryMimeType()
+static const MimeType &directoryMimeType()
 {
-    static const Utils::MimeType mimeType = Utils::mimeTypeForName("inode/directory");
+    static const MimeType mimeType = Utils::mimeTypeForName("inode/directory");
     return mimeType;
 }
 
 static TreeScanner::Result scanForFilesHelper(
     TreeScanner::Promise &promise,
-    const Utils::FilePath &directory,
+    const FilePath &directory,
     QDir::Filters dirfilter,
     const TreeScanner::Filter &filter,
-    const std::function<FileNode *(const Utils::FilePath &)> &factory)
+    const std::function<FileNode *(const FilePath &)> &factory)
 {
     const QFuture<void> future(promise.future());
 
@@ -174,7 +176,7 @@ static TreeScanner::Result scanForFilesHelper(
     const QList<Core::IVersionControl *> &versionControls = Core::VcsManager::versionControls();
     promise.setProgressRange(0, progressRange);
 
-    QSet<Utils::FilePath> visited;
+    QSet<FilePath> visited;
     const DirectoryScanResult result
         = scanForFilesImpl(future, directory, nullptr, dirfilter, factory, versionControls);
     QList<FileNode *> fileNodes = result.nodes;
@@ -208,7 +210,7 @@ static TreeScanner::Result scanForFilesHelper(
         const ListIterator iterator(subDirectories);
         subDirectories.clear();
 
-        auto onSetup = [&, iterator](Utils::Async<DirectoryScanResult> &task) {
+        auto onSetup = [&, iterator](Async<DirectoryScanResult> &task) {
             task.setConcurrentCallData(
                 scanForFilesImpl,
                 future,
@@ -219,7 +221,7 @@ static TreeScanner::Result scanForFilesHelper(
                 versionControls);
         };
 
-        auto onDone = [&, iterator](const Utils::Async<DirectoryScanResult> &task) {
+        auto onDone = [&, iterator](const Async<DirectoryScanResult> &task) {
             const int progressRange = iterator->second;
             const DirectoryScanResult result = task.result();
             fileNodes.append(result.nodes);
@@ -240,8 +242,8 @@ static TreeScanner::Result scanForFilesHelper(
         };
 
         const Group recipe = For (iterator) >> Do {
-            Utils::HostOsInfo::isLinuxHost() ? ParallelLimit(2) : parallelIdealThreadCountLimit,
-            Utils::AsyncTask<DirectoryScanResult>(onSetup, onDone)
+            HostOsInfo::isLinuxHost() ? ParallelLimit(2) : parallelIdealThreadCountLimit,
+            AsyncTask<DirectoryScanResult>(onSetup, onDone)
         };
         QTaskTree::runBlocking(recipe);
     }
@@ -253,7 +255,7 @@ static TreeScanner::Result scanForFilesHelper(
 
 void TreeScanner::scanForFiles(
     Promise &promise,
-    const Utils::FilePath &directory,
+    const FilePath &directory,
     const Filter &filter,
     QDir::Filters dirFilter,
     const FileTypeFactory &factory)
@@ -263,8 +265,8 @@ void TreeScanner::scanForFiles(
         directory,
         dirFilter,
         filter,
-        [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
-            const Utils::MimeType mimeType = Utils::mimeTypesForFileName(fn.path()).value(0);
+        [&filter, &factory](const FilePath &fn) -> FileNode * {
+            const MimeType mimeType = Utils::mimeTypesForFileName(fn.path()).value(0);
 
             // Skip some files during scan.
             if (filter && filter(mimeType, fn))
