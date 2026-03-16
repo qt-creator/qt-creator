@@ -113,7 +113,7 @@ bool TreeScanner::isMimeBinary(const Utils::MimeType &mimeType, const Utils::Fil
     return isBinary;
 }
 
-FileType TreeScanner::genericFileType(const Utils::MimeType &mimeType, const Utils::FilePath &/*fn*/)
+FileType TreeScanner::genericFileType(const Utils::MimeType &mimeType)
 {
     return Node::fileTypeForMimeType(mimeType);
 }
@@ -273,7 +273,7 @@ void TreeScanner::scanForFiles(
             // Type detection
             FileType type = FileType::Unknown;
             if (factory)
-                type = factory(mimeType, fn);
+                type = factory(mimeType);
 
             return new FileNode(fn, type);
         });

@@ -114,8 +114,8 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
         return isIgnored;
     });
 
-    m_treeScanner.setTypeFactory([](const MimeType &mimeType, const FilePath &fn) {
-        auto type = TreeScanner::genericFileType(mimeType, fn);
+    m_treeScanner.setTypeFactory([](const MimeType &mimeType) {
+        auto type = TreeScanner::genericFileType(mimeType);
         if (type == FileType::Unknown) {
             if (mimeType.isValid()) {
                 const QString mt = mimeType.name();

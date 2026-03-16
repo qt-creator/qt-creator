@@ -40,7 +40,7 @@ public:
     using Promise = QPromise<Result>;
 
     using Filter = std::function<bool(const Utils::MimeType &, const Utils::FilePath &)>;
-    using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &, const Utils::FilePath &)>;
+    using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &)>;
 
     explicit TreeScanner(QObject *parent = nullptr);
     ~TreeScanner() override;
@@ -68,7 +68,7 @@ public:
     static bool isMimeBinary(const Utils::MimeType &mimeType, const Utils::FilePath &fn);
 
     // Standard file factory
-    static ProjectExplorer::FileType genericFileType(const Utils::MimeType &mdb, const Utils::FilePath& fn);
+    static ProjectExplorer::FileType genericFileType(const Utils::MimeType &mdb);
 
     static void scanForFiles(Promise &fi,
                              const Utils::FilePath &directory,
