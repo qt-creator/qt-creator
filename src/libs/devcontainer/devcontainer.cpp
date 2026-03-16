@@ -739,6 +739,15 @@ while sleep 1 & wait $!; do :; done
         Tr::tr("Creating container: %1").arg(process.commandLine().toUserOutput()));
 }
 
+static QString anyOf(QJsonObject obj, QStringList keyNames)
+{
+    for (const QString &key : keyNames) {
+        if (obj.contains(key))
+            return obj.value(key).toString();
+    }
+    return QString();
+}
+
 static ProcessTask eventMonitor(const QString &eventType, const InstanceConfig &instanceConfig)
 {
     const auto monitorSetup = [instanceConfig, eventType](Process &process) {
@@ -769,9 +778,8 @@ static ProcessTask eventMonitor(const QString &eventType, const InstanceConfig &
                     return;
                 }
                 QJsonObject event = doc.object();
-                if (event.contains("status") && event["status"].toString() == eventType
-                    && event.contains("id")) {
-                    qCDebug(devcontainerlog) << "Container started:" << event["id"].toString();
+                if (anyOf(event, {"status", "Status", "Action"}) == eventType) {
+                    qCDebug(devcontainerlog) << "Container started!";
                     process.stop();
                 } else {
                     qCWarning(devcontainerlog) << "Unexpected Docker event:" << event;
