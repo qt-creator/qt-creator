@@ -100,6 +100,7 @@ public:
     QString getCurrentProject();
     QString getCurrentBuildConfig();
     QStringList listOpenFiles();
+    QStringList listVisibleFiles();
     Utils::Result<QStringList> projectDependencies(const QString &projectName);
     // TODO: add a new File to the project
     QMap<QString, QSet<QString> > knownRepositoriesInProject(const QString &projectName);

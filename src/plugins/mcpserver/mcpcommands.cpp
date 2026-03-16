@@ -981,6 +981,25 @@ QStringList McpCommands::listOpenFiles()
     return files;
 }
 
+QStringList McpCommands::listVisibleFiles()
+{
+    QStringList files;
+
+    const QList<Core::IEditor *> editors = Core::EditorManager::visibleEditors();
+    for (Core::IEditor *editor : editors) {
+        if (auto doc = editor->document()) {
+            if (editor == Core::EditorManager::currentEditor())
+                files.prepend(doc->filePath().toUserOutput());
+            else
+                files.append(doc->filePath().toUserOutput());
+        }
+    }
+
+    qCDebug(mcpCommands) << "Visible files:" << files;
+
+    return files;
+}
+
 QStringList McpCommands::listSessions()
 {
     QStringList sessions = Core::SessionManager::sessions();
@@ -1813,6 +1832,26 @@ void McpCommands::registerCommands(Mcp::Server &server)
             for (const QString &f : files)
                 arr.append(f);
             return QJsonObject{{"openFiles", arr}};
+        }));
+
+    server.addTool(
+        Tool{}
+            .name("list_visible_files")
+            .title("List currently visible files")
+            .description("List all files that are currently visible to the user in an editor.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "visibleFiles",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addRequired("visibleFiles")),
+        wrap([](const QJsonObject &) {
+            const QStringList files = commands.listVisibleFiles();
+            QJsonArray arr;
+            for (const QString &f : files)
+                arr.append(f);
+            return QJsonObject{{"visibleFiles", arr}};
         }));
 
     server.addTool(
