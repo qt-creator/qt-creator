@@ -106,7 +106,7 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
                     })) {
                 isIgnored = *it;
             } else {
-                isIgnored = TreeScanner::isMimeBinary(mimeType, fn);
+                isIgnored = TreeScanner::isMimeBinary(mimeType);
                 m_mimeBinaryCache.writeLocked()->insert(mimeType.name(), isIgnored);
             }
         }

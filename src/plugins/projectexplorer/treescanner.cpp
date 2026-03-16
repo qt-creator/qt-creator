@@ -21,7 +21,7 @@ TreeScanner::TreeScanner(QObject *parent) : QObject(parent)
 {
     m_factory = TreeScanner::genericFileType;
     m_filter = [](const Utils::MimeType &mimeType, const Utils::FilePath &fn) {
-        return isWellKnownBinary(fn) && isMimeBinary(mimeType, fn);
+        return isWellKnownBinary(fn) && isMimeBinary(mimeType);
     };
 
     connect(&m_futureWatcher, &FutureWatcher::finished, this, &TreeScanner::finished);
@@ -102,7 +102,7 @@ bool TreeScanner::isWellKnownBinary(const Utils::FilePath &fn)
             fn.endsWith(QLatin1String(".elf"));
 }
 
-bool TreeScanner::isMimeBinary(const Utils::MimeType &mimeType, const Utils::FilePath &/*fn*/)
+bool TreeScanner::isMimeBinary(const Utils::MimeType &mimeType)
 {
     bool isBinary = false;
     if (mimeType.isValid()) {
