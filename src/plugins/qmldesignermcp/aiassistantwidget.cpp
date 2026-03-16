@@ -482,6 +482,12 @@ void AiAssistantWidget::clearChat()
     m_requestManager->clearAdapters();
 }
 
+void AiAssistantWidget::cancelRequest()
+{
+    m_chatHistory->addSystemMessage(tr("Generation stopped."));
+    m_requestManager->cancel();
+}
+
 void AiAssistantWidget::handleAiResponse(const AiResponse &response)
 {
     using namespace Qt::StringLiterals;

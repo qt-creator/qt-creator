@@ -90,9 +90,10 @@ void AgenticRequestManager::cancel()
         return;
 
     if (m_currentNetworkReply) {
-        m_currentNetworkReply->abort();
-        m_currentNetworkReply->deleteLater();
-        m_currentNetworkReply = nullptr;
+        QNetworkReply *reply = m_currentNetworkReply;
+        m_currentNetworkReply = nullptr;  // clear first, before abort() fires finished()
+        reply->abort();
+        reply->deleteLater();
     }
 
     m_pendingToolCalls.clear();

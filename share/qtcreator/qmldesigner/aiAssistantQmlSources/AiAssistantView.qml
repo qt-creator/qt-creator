@@ -97,7 +97,7 @@ Item {
 
         // Bottom bar
         RowLayout {
-            Layout.fillWidth: true
+            anchors.right: parent.right
 
             AiIconButton {
                 id: clearButton

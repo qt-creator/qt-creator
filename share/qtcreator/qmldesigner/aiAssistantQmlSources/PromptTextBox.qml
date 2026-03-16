@@ -18,6 +18,8 @@ Rectangle {
     property alias text: textEdit.text
     property alias enableAttachImage: attachImageButton.visible
 
+    readonly property bool isGenerating: root.rootView.generationState !== GenerationState.Idle
+
     property StudioTheme.ControlStyle style: StudioTheme.ControlStyle {
         radius: StudioTheme.Values.smallRadius
     }
@@ -58,8 +60,7 @@ Rectangle {
                 font.pixelSize: root.style.baseFontSize
                 color: root.style.text.idle
                 wrapMode: TextEdit.WordWrap
-                enabled: root.rootView.generationState == GenerationState.Idle
-                         && root.rootView.hasValidModel && root.rootView.termsAccepted
+                enabled: !root.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
 
                 placeholderText: enabled ? qsTr("Describe what you want to generate...") : ""
                 placeholderTextColor: root.style.text.placeholder
@@ -107,8 +108,7 @@ Rectangle {
 
                 buttonIcon: StudioTheme.Constants.link_medium
                 tooltip: qsTr("Attach an image.\nThe attached image will be included in the prompt for the AI to analyze and use its content in the response generation.")
-                enabled: root.rootView.generationState == GenerationState.Idle
-                         && root.rootView.hasValidModel && root.rootView.termsAccepted
+                enabled: !root.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
 
                 onClicked: assetImagesView.showWindow()
             }
@@ -117,11 +117,17 @@ Rectangle {
                 id: sendButton
                 objectName: "SendButton"
 
-                buttonIcon: StudioTheme.Constants.send_medium
-                tooltip: qsTr("Send")
-                enabled: textEdit.text !== "" && root.rootView.generationState == GenerationState.Idle
+                buttonIcon: root.isGenerating ? StudioTheme.Constants.stop_medium
+                                              : StudioTheme.Constants.send_medium
+                tooltip: root.isGenerating ? qsTr("Stop generation") : qsTr("Send")
+                enabled: root.isGenerating || textEdit.text !== ""
 
-                onClicked: root.send()
+                onClicked: {
+                    if (root.isGenerating)
+                        root.rootView.cancelRequest()
+                    else
+                        root.send()
+                }
             }
         }
     }

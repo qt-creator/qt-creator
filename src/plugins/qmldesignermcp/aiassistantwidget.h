@@ -71,6 +71,7 @@ public:
     Q_INVOKABLE void openModelSettings();
     Q_INVOKABLE void openTermsDialog();
     Q_INVOKABLE void clearChat();
+    Q_INVOKABLE void cancelRequest();
 
 signals:
     void termsAcceptedChanged();
