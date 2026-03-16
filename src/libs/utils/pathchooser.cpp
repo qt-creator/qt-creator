@@ -204,7 +204,7 @@ public:
     QString m_dialogTitleOverride;
     QString m_dialogFilter;
     FilePath m_initialBrowsePathOverride;
-    QString m_defaultValue;
+    FilePath m_defaultValue;
     Lazy<FilePath> m_baseDirectory;
     Environment m_environment;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
@@ -335,7 +335,10 @@ void PathChooser::setEnvironment(const Environment &env)
 
 FilePath PathChooser::unexpandedFilePath() const
 {
-    return FilePath::fromUserInput(d->m_lineEdit->text().trimmed());
+    const QString text = d->m_lineEdit->text().trimmed();
+    if (text.isEmpty() && !d->m_defaultValue.isEmpty())
+        return d->m_defaultValue;
+    return FilePath::fromUserInput(text);
 }
 
 FilePath PathChooser::expandPath(
@@ -573,10 +576,10 @@ std::function<void()> PathChooser::openTerminalHandler() const
     return d->m_openTerminal;
 }
 
-void PathChooser::setDefaultValue(const QString &defaultValue)
+void PathChooser::setDefaultValue(const FilePath &defaultValue)
 {
     d->m_defaultValue = defaultValue;
-    d->m_lineEdit->setPlaceholderText(defaultValue);
+    d->m_lineEdit->setPlaceholderText(defaultValue.toUserOutput());
     d->m_lineEdit->validate();
 }
 
@@ -669,7 +672,7 @@ FancyLineEdit::AsyncValidationFunction PathChooser::defaultValidationFunction() 
         }
 
         const FilePath expanded = d->expandedPath(
-            FilePath::fromUserInput(text.isEmpty() ? d->m_defaultValue : text));
+            text.isEmpty() ? d->m_defaultValue : FilePath::fromUserInput(text));
 
         if (expanded.isEmpty()) {
             return QtFuture::makeReadyFuture((Utils::Result<QString>(

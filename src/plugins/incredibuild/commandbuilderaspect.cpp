@@ -193,7 +193,7 @@ void CommandBuilderAspect::updateGui()
 
     const FilePath defaultCommand = d->m_activeCommandBuilder->defaultCommand();
     d->makePathChooser->setFilePath(d->m_activeCommandBuilder->command());
-    d->makePathChooser->setDefaultValue(defaultCommand.toUserOutput());
+    d->makePathChooser->setDefaultValue(defaultCommand);
 
     const QString defaultArgs = d->m_activeCommandBuilder->defaultArguments();
     d->makeArgumentsLineEdit->setPlaceholderText(defaultArgs);

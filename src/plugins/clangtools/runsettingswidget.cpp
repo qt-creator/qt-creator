@@ -59,9 +59,9 @@ SettingsWidget::SettingsWidget()
 
     auto createPathChooser = [this](ClangToolType tool)
     {
-        const QString placeHolderText = toolShippedExecutable(tool).toUserOutput();
+        const FilePath defaultValue = toolShippedExecutable(tool);
         FilePath path = m_settings->executable(tool);
-        if (path.isEmpty() && placeHolderText.isEmpty()) {
+        if (path.isEmpty() && defaultValue.isEmpty()) {
             path = tool == ClangToolType::Tidy ? FilePath(Constants::CLANG_TIDY_EXECUTABLE_NAME)
                                                : FilePath(Constants::CLAZY_STANDALONE_EXECUTABLE_NAME);
         }
@@ -69,7 +69,7 @@ SettingsWidget::SettingsWidget()
         pathChooser->setExpectedKind(PathChooser::ExistingCommand);
         pathChooser->setPromptDialogTitle(tool == ClangToolType::Tidy ? Tr::tr("Clang-Tidy Executable")
                                                                       : Tr::tr("Clazy Executable"));
-        pathChooser->setDefaultValue(placeHolderText);
+        pathChooser->setDefaultValue(defaultValue);
         pathChooser->setFilePath(path);
         pathChooser->setHistoryCompleter(tool == ClangToolType::Tidy
                                         ? Key("ClangTools.ClangTidyExecutable.History")

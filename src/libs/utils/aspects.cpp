@@ -1734,7 +1734,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
     d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(d->m_validatePlaceHolder);
     d->m_pathChooserDisplay->setValueAlternatives(d->m_valueAlternatives);
     if (defaultValue() == value())
-        d->m_pathChooserDisplay->setDefaultValue(defaultValue());
+        d->m_pathChooserDisplay->setDefaultValue(FilePath::fromUserInput(defaultValue()));
     else
         d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
     // do not override default value with placeholder, but use placeholder if default is empty

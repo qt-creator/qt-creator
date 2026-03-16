@@ -135,7 +135,7 @@ public:
     // this sets the placeHolderText to defaultValue and enables to use this as
     // input value during validation if the real value is empty
     // setting an empty QString will disable this and clear the placeHolderText
-    void setDefaultValue(const QString &defaultValue);
+    void setDefaultValue(const FilePath &defaultValue);
     void setPlaceholderText(const QString &placeholderText);
     void setToolTip(const QString &toolTip);
 
