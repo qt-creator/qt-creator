@@ -54,7 +54,13 @@ QVariant toolchainBundleData(const std::optional<ToolchainBundle> &bundle, int c
     case Qt::DisplayRole:
         if (column == 0)
             return bundle ? bundle->displayName() : Tr::tr("None", "Toolchain bundle display name");
-        return bundle->typeDisplayName();
+        if (!bundle)
+            return {};
+        if (column == 1)
+            return bundle->typeDisplayName();
+        if (column == 2 && bundle->factory())
+            return ToolchainManager::displayNameOfLanguageCategory(bundle->factory()->languageCategory());
+        return {};
     case Qt::ToolTipRole: {
         if (!bundle)
             return {};
@@ -237,7 +243,7 @@ public:
         setIgnoreForDirtyHook(m_deviceComboBox);
         m_deviceComboBox->setModel(&m_deviceManagerModel);
 
-        m_model.setHeader({Tr::tr("Name"), Tr::tr("Type")});
+        m_model.setHeader({Tr::tr("Name"), Tr::tr("Type"), Tr::tr("Language")});
         auto autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
         auto manualRoot = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
