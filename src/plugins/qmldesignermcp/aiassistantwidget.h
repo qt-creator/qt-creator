@@ -78,12 +78,6 @@ signals:
     void hasValidModelChanged();
     void attachedImageSourceChanged();
 
-    // from C++ to Qml
-    void notifyAIResponseSuccess();
-    void notifyAIResponseInvalidQml();
-    void notifyAIResponseError(const QString &errMessage = {});
-    void removeFeedbackPopup();
-
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 

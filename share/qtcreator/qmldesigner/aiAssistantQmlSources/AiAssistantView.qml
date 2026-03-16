@@ -99,17 +99,6 @@ Item {
         RowLayout {
             Layout.fillWidth: true
 
-            ResponseStatePopup {
-                id: responseStatePopup
-
-                Layout.fillWidth: true
-            }
-
-            Item { // Spacer
-                Layout.fillWidth: true
-                visible: !responseStatePopup.visible
-            }
-
             AiIconButton {
                 id: clearButton
 

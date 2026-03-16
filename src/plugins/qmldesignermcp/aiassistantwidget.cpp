@@ -137,7 +137,6 @@ void AiAssistantWidget::clear()
     setAttachedImageSource("");
     m_lastTransaction = AiTransaction();
     m_conversation->clear();
-    emit removeFeedbackPopup();
 }
 
 void AiAssistantWidget::loadInstructions()
@@ -223,7 +222,6 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     const AiModelInfo modelInfo = m_modelsModel->selectedInfo();
     if (!modelInfo.isValid()) {
         m_chatHistory->addSystemMessage(tr("Error: No model configured"));
-        emit notifyAIResponseError("No model configured");
         return;
     }
 
@@ -375,7 +373,6 @@ void AiAssistantWidget::connectRequestManager()
     connect(reqManager, &AgenticRequestManager::errorOccurred,
             this, [this](const QString &error) {
                 m_chatHistory->addSystemMessage(tr("Error: %1").arg(error));
-                emit notifyAIResponseError(error);
             });
 
     // Success - handle response
@@ -492,7 +489,6 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
 
     if (response.error() != AiResponse::Error::NoError) {
         m_chatHistory->addSystemMessage(tr("Error: %1").arg(response.errorMessage()));
-        emit notifyAIResponseError(response.errorMessage());
         return;
     }
 
@@ -500,13 +496,10 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
 
     m_lastTransaction = AiTransaction(response);
 
-    if (m_lastTransaction.producesQmlError()) {
+    if (m_lastTransaction.producesQmlError())
         m_chatHistory->addSystemMessage(tr("Warning: Generated QML has syntax errors"));
-        emit notifyAIResponseInvalidQml();
-    } else {
+    else
         m_lastTransaction.commit();
-        emit notifyAIResponseSuccess();
-    }
 }
 
 } // namespace QmlDesigner
