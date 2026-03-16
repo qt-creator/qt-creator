@@ -16,7 +16,6 @@
 #include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -27,6 +26,7 @@
 #include <utils/fileutils.h>
 #include <utils/groupedmodel.h>
 #include <utils/hostosinfo.h>
+#include <utils/treemodel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -346,9 +346,6 @@ private:
     QtVersionItem *currentItem() const;
     std::pair<bool, QString> checkAlreadyExists(const FilePath &qtVersion);
 
-    QModelIndex mapFromSource(const QModelIndex &idx) const;
-    QModelIndex mapToSource(const QModelIndex &idx) const;
-
     void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
     void versionChanged(const QModelIndex &current, const QModelIndex &previous);
     void addQtDir();
@@ -377,8 +374,6 @@ private:
     void updateVersionItem(QtVersionItem *item);
 
     QtVersionModel m_model;
-    DeviceFilterModel m_filterModel;
-    KitSettingsSortModel m_sortModel;
 
     const QString m_specifyNameString;
 
@@ -489,14 +484,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_versionInfoWidget->setWidget(versionInfoWidget);
     m_versionInfoWidget->setState(DetailsWidget::NoSummary);
 
-    m_filterModel.setSourceModel(m_model.groupedDisplayModel());
-
-    m_sortModel.setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
-                                     ProjectExplorer::Constants::msgManual()});
-    m_sortModel.setSourceModel(&m_filterModel);
-
-    m_qtdirList->setModel(&m_sortModel);
     m_qtdirList->setSortingEnabled(true);
+    m_qtdirList->setModel(m_model.groupedDisplayModel());
 
     m_qtdirList->setFirstColumnSpanned(0, QModelIndex(), true);
     m_qtdirList->setFirstColumnSpanned(1, QModelIndex(), true);
@@ -523,6 +512,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     updateQtVersions(additions, QList<int>(), QList<int>());
 
     m_qtdirList->expandAll();
+    connect(m_model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
+            m_qtdirList, &QTreeView::expandAll);
 
     connect(m_nameEdit, &QLineEdit::textEdited,
             this, &QtSettingsPageWidget::updateCurrentQtName);
@@ -557,7 +548,16 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     }});
 
     const auto updateDevice = [this](int index) {
-        m_filterModel.setDevice(m_deviceManagerModel.device(index));
+        const IDeviceConstPtr device = m_deviceManagerModel.device(index);
+        const FilePath deviceRoot = device ? device->rootPath() : FilePath{};
+        m_model.setExtraFilter(deviceRoot.isEmpty()
+            ? GroupedModel::Filter{}
+            : GroupedModel::Filter{[this, deviceRoot](int row) {
+                  const QtVersionItem *item = m_model.item(row);
+                  const FilePath path = item->version() ? item->version()->qmakeFilePath()
+                                                        : FilePath{};
+                  return path.isEmpty() || path.isSameDevice(deviceRoot);
+              }});
         updateLinkWithQtButton();
     };
     connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
@@ -577,24 +577,13 @@ QtVersion *QtSettingsPageWidget::currentVersion() const
 
 QtVersionItem *QtSettingsPageWidget::currentItem() const
 {
-    const QModelIndex displayIdx = mapToSource(m_qtdirList->selectionModel()->currentIndex());
+    const QModelIndex displayIdx = m_qtdirList->selectionModel()->currentIndex();
     const QModelIndex flatIdx = m_model.mapToSource(displayIdx);
     if (!flatIdx.isValid())
         return nullptr;
     return m_model.item(flatIdx.row());
 }
 
-QModelIndex QtSettingsPageWidget::mapFromSource(const QModelIndex &idx) const
-{
-    QTC_ASSERT(&m_filterModel == m_sortModel.sourceModel(), return {});
-    return m_sortModel.mapFromSource(m_filterModel.mapFromSource(idx));
-}
-
-QModelIndex QtSettingsPageWidget::mapToSource(const QModelIndex &idx) const
-{
-    QTC_ASSERT(&m_filterModel == m_sortModel.sourceModel(), return {});
-    return m_filterModel.mapToSource(m_sortModel.mapToSource(idx));
-}
 
 std::pair<bool, QString> QtSettingsPageWidget::checkAlreadyExists(const FilePath &qtVersion)
 {
@@ -832,7 +821,7 @@ void QtSettingsPageWidget::addQtDir()
         auto item = new QtVersionItem(version);
         item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
         m_model.appendItem(item);
-        m_qtdirList->setCurrentIndex(mapFromSource(m_model.indexForItem(item))); // should update the rest of the ui
+        m_qtdirList->setCurrentIndex(m_model.indexForItem(item)); // should update the rest of the ui
         m_nameEdit->setFocus();
         m_nameEdit->selectAll();
         markSettingsDirty();
@@ -1135,7 +1124,7 @@ void QtSettingsPageWidget::apply()
     if (toDelete.contains(selection)) {
         userChangedCurrentVersion();
     } else {
-        if (const QModelIndex idx = mapFromSource(m_model.indexForItem(selection)); idx.isValid())
+        if (const QModelIndex idx = m_model.indexForItem(selection); idx.isValid())
             m_qtdirList->setCurrentIndex(idx);
     }
 }
@@ -1147,7 +1136,7 @@ void QtSettingsPageWidget::cancel()
     m_model.cancel();
     m_qtdirList->expandAll();
 
-    if (const QModelIndex idx = mapFromSource(m_model.indexForItem(selection)); idx.isValid())
+    if (const QModelIndex idx = m_model.indexForItem(selection); idx.isValid())
         m_qtdirList->setCurrentIndex(idx);
 }
 
