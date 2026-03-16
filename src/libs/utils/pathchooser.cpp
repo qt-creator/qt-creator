@@ -590,17 +590,10 @@ void PathChooser::setToolTip(const QString &toolTip)
     d->m_lineEdit->setToolTip(toolTip);
 }
 
-static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath,
-                                                         const QString &defaultValue,
-                                                         PathChooser::Kind kind)
+static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, PathChooser::Kind kind)
 {
-    if (filePath.isEmpty()) {
-        if (!defaultValue.isEmpty()) {
-            filePath = FilePath::fromUserInput(defaultValue);
-        } else {
-            return ResultError(Tr::tr("The path must not be empty."));
-        }
-    }
+    if (filePath.isEmpty())
+        return ResultError(Tr::tr("The path must not be empty."));
 
     // Check if existing
     switch (kind) {
@@ -675,7 +668,8 @@ FancyLineEdit::AsyncValidationFunction PathChooser::defaultValidationFunction() 
                 ResultError(Tr::tr("The path must not be empty.")))));
         }
 
-        const FilePath expanded = d->expandedPath(FilePath::fromUserInput(text));
+        const FilePath expanded = d->expandedPath(
+            FilePath::fromUserInput(text.isEmpty() ? d->m_defaultValue : text));
 
         if (expanded.isEmpty()) {
             return QtFuture::makeReadyFuture((Utils::Result<QString>(
@@ -684,10 +678,8 @@ FancyLineEdit::AsyncValidationFunction PathChooser::defaultValidationFunction() 
         }
 
         return Utils::asyncRun(
-            [expanded,
-             defVal = d->m_defaultValue,
-             kind = d->m_acceptingKind]() -> FancyLineEdit::AsyncValidationResult {
-                return validatePath(expanded, defVal, kind);
+            [expanded, kind = d->m_acceptingKind]() -> FancyLineEdit::AsyncValidationResult {
+                return validatePath(expanded, kind);
             });
     };
 }
