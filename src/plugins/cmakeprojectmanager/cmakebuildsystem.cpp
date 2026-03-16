@@ -91,27 +91,9 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
     connect(&m_treeScanner, &TreeScanner::finished,
             this, &CMakeBuildSystem::handleTreeScanningFinished);
 
-    m_treeScanner.setFilter([this](const MimeType &mimeType, const FilePath &fn) {
+    m_treeScanner.setFilter([](const MimeType &mimeType, const FilePath &fn) {
         // Mime checks requires more resources, so keep it last in check list
-        auto isIgnored = TreeScanner::isWellKnownBinary(fn);
-
-        // Cache mime check result for speed up
-        if (!isIgnored) {
-            if (auto it = m_mimeBinaryCache.get(
-                    [mimeType](const QHash<QString, bool> &cache) -> std::optional<bool> {
-                        auto cache_it = cache.find(mimeType.name());
-                        if (cache_it != cache.end())
-                            return *cache_it;
-                        return std::nullopt;
-                    })) {
-                isIgnored = *it;
-            } else {
-                isIgnored = TreeScanner::isMimeBinary(mimeType);
-                m_mimeBinaryCache.writeLocked()->insert(mimeType.name(), isIgnored);
-            }
-        }
-
-        return isIgnored;
+        return TreeScanner::isWellKnownBinary(fn) || TreeScanner::isMimeTypeIgnored(mimeType);
     });
 
     m_treeScanner.setTypeFactory([](const MimeType &mimeType) {

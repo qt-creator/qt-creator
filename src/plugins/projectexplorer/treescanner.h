@@ -66,6 +66,7 @@ public:
     // Standard filters helpers
     static bool isWellKnownBinary(const Utils::FilePath &fn);
     static bool isMimeBinary(const Utils::MimeType &mimeType);
+    static bool isMimeTypeIgnored(const Utils::MimeType &mimeType); // employs internal cache
 
     // Standard file factory
     static ProjectExplorer::FileType genericFileType(const Utils::MimeType &mdb);

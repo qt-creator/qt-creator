@@ -12,6 +12,9 @@
 #include <utils/async.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronizedvalue.h>
+
+#include <qapplicationstatic.h>
 
 #include <memory>
 
@@ -113,6 +116,26 @@ bool TreeScanner::isMimeBinary(const MimeType &mimeType)
         isBinary = !mimes.contains(QLatin1String("text/plain"));
     }
     return isBinary;
+}
+
+using MimeBinaryCache = SynchronizedValue<QHash<QString, bool>>;
+Q_APPLICATION_STATIC(MimeBinaryCache, s_mimeBinaryCache);
+
+bool TreeScanner::isMimeTypeIgnored(const MimeType &mimeType)
+{
+    if (auto it = s_mimeBinaryCache->get(
+            [mimeType](const QHash<QString, bool> &cache) -> std::optional<bool> {
+                auto cache_it = cache.find(mimeType.name());
+                if (cache_it != cache.end())
+                    return *cache_it;
+                return std::nullopt;
+            })) {
+        return *it;
+    }
+
+    const bool isIgnored = TreeScanner::isMimeBinary(mimeType);
+    s_mimeBinaryCache->writeLocked()->insert(mimeType.name(), isIgnored);
+    return isIgnored;
 }
 
 FileType TreeScanner::genericFileType(const MimeType &mimeType)

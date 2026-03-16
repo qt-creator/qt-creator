@@ -317,7 +317,6 @@ public:
     void buildTreeAndProjectParts();
 
     std::unique_ptr<ProjectUpdater> m_cppCodeModelUpdater;
-    MimeBinaryCache m_mimeBinaryCache;
     QByteArray m_projectFileHash;
     CompilationDbParser *m_parser = nullptr;
     FileSystemWatcher *const m_deployFileWatcher;
@@ -452,7 +451,6 @@ void CompilationDatabaseBuildSystem::reparseProject()
         project()->displayName(),
         projectFilePath(),
         rootPath,
-        m_mimeBinaryCache,
         guardParsingRun(),
         this);
     connect(m_parser, &CompilationDbParser::finished, this, [this](ParseResult result) {

@@ -6,9 +6,6 @@
 #include <cppeditor/cppprojectfile.h>
 
 #include <utils/filepath.h>
-#include <utils/synchronizedvalue.h>
-
-#include <QHash>
 
 namespace ProjectExplorer {
 class HeaderPath;
@@ -32,8 +29,6 @@ public:
     Utils::FilePath extraFileName;
     QStringList extras;
 };
-
-using MimeBinaryCache = Utils::SynchronizedValue<QHash<QString, bool>>;
 
 QStringList filterFromFileName(const QStringList &flags, const QString &fileName);
 

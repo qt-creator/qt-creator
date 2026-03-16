@@ -112,14 +112,12 @@ static DbContents parseProject(const QByteArray &projectFileContents,
 CompilationDbParser::CompilationDbParser(const QString &projectName,
                                          const FilePath &projectPath,
                                          const FilePath &rootPath,
-                                         MimeBinaryCache &mimeBinaryCache,
                                          BuildSystem::ParseGuard &&guard,
                                          QObject *parent)
     : QObject(parent)
     , m_projectName(projectName)
     , m_projectFilePath(projectPath)
     , m_rootPath(rootPath)
-    , m_mimeBinaryCache(mimeBinaryCache)
     , m_guard(std::move(guard))
 {}
 
@@ -146,29 +144,13 @@ void CompilationDbParser::start()
     if (!m_rootPath.isEmpty()) {
         using ResultType = TreeScanner::Result;
         const auto onSetup = [this](Async<ResultType> &task) {
-            const auto filter = [this](const MimeType &mimeType, const FilePath &fn) {
+            const auto filter = [path = m_projectFilePath.path()](const MimeType &mimeType,
+                                                                  const FilePath &fn) {
                 if (fn.isDir())
                     return false;
                 // Mime checks requires more resources, so keep it last in check list
-                bool isIgnored = fn.startsWith(m_projectFilePath.path() + ".user")
-                                 || TreeScanner::isWellKnownBinary(fn);
-
-                // Cache mime check result for speed up
-                if (!isIgnored) {
-                    if (auto it = m_mimeBinaryCache.get(
-                            [mimeType](const QHash<QString, bool> &cache) -> std::optional<bool> {
-                                const auto cache_it = cache.find(mimeType.name());
-                                if (cache_it != cache.end())
-                                    return *cache_it;
-                                return std::nullopt;
-                            })) {
-                        isIgnored = *it;
-                    } else {
-                        isIgnored = TreeScanner::isMimeBinary(mimeType);
-                        m_mimeBinaryCache.writeLocked()->insert(mimeType.name(), isIgnored);
-                    }
-                }
-                return isIgnored;
+                return fn.startsWith(path + ".user") || TreeScanner::isWellKnownBinary(fn)
+                       || TreeScanner::isMimeTypeIgnored(mimeType);
             };
             task.setConcurrentCallData(&TreeScanner::scanForFiles, m_rootPath, filter,
                                        QDir::AllEntries | QDir::NoDotAndDotDot,

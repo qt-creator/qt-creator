@@ -25,7 +25,6 @@ public:
     explicit CompilationDbParser(const QString &projectName,
                                  const Utils::FilePath &projectPath,
                                  const Utils::FilePath &rootPath,
-                                 MimeBinaryCache &mimeBinaryCache,
                                  ProjectExplorer::BuildSystem::ParseGuard &&guard,
                                  QObject *parent = nullptr);
 
@@ -47,7 +46,6 @@ private:
     const QString m_projectName;
     const Utils::FilePath m_projectFilePath;
     const Utils::FilePath m_rootPath;
-    MimeBinaryCache &m_mimeBinaryCache;
     QList<ProjectExplorer::FileNode *> m_scannedFiles;
     DbContents m_dbContents;
     QByteArray m_projectFileContents;
