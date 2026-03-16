@@ -135,8 +135,8 @@ AiAssistantWidget::~AiAssistantWidget() = default;
 void AiAssistantWidget::clear()
 {
     setAttachedImageSource("");
-    m_lastTransaction = AiTransaction();
     m_conversation->clear();
+    m_currentTransaction.reset();
 }
 
 void AiAssistantWidget::loadInstructions()
@@ -225,6 +225,8 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
         return;
     }
 
+    m_currentTransaction.begin(currentDesignDocument()->projectFolder());
+
     RequestData reqData {
         .instructions = instructions,
         .userPrompt = prompt,
@@ -250,16 +252,6 @@ void AiAssistantWidget::retryLastPrompt()
     QTC_ASSERT(!m_chatHistory->isEmpty(), return);
 
     handleMessage(m_chatHistory->lastUserPrompt());
-}
-
-void AiAssistantWidget::applyLastGeneratedQml()
-{
-    m_lastTransaction.commit();
-}
-
-void AiAssistantWidget::undoLastChange()
-{
-    m_lastTransaction.rollback();
 }
 
 void AiAssistantWidget::sendThumbFeedback(bool up)
@@ -399,12 +391,10 @@ void AiAssistantWidget::connectRequestManager()
                 m_chatHistory->addToolCallStarted(server, tool, args);
                 setGenerationState(GenerationState::CallingTool);
 
-                static const QSet<QString> structureMutatingTools = {
-                    "create_qml",
-                    "delete_qml",
-                    "move_qml",
-                };
-                m_pendingStructureRefresh = structureMutatingTools.contains(tool);
+                if (server == Constants::qmlServerName)
+                    m_currentTransaction.snapshotForTool(tool, args);
+
+                m_pendingStructureRefresh = Constants::qmlStructureMutatingTools.contains(tool);
             });
 
     connect(reqManager, &AgenticRequestManager::toolCallFinished,
@@ -480,12 +470,18 @@ void AiAssistantWidget::clearChat()
     m_chatHistory->clear();
     m_conversation->clear();
     m_requestManager->clearAdapters();
+
+    m_currentTransaction.reset();
+    emit canUndoTransactionChanged();
 }
 
 void AiAssistantWidget::cancelRequest()
 {
     m_chatHistory->addSystemMessage(tr("Generation stopped."));
     m_requestManager->cancel();
+
+    m_currentTransaction.rollback();
+    emit canUndoTransactionChanged();
 }
 
 void AiAssistantWidget::handleAiResponse(const AiResponse &response)
@@ -495,17 +491,24 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
 
     if (response.error() != AiResponse::Error::NoError) {
         m_chatHistory->addSystemMessage(tr("Error: %1").arg(response.errorMessage()));
+        m_currentTransaction.rollback();
+        emit canUndoTransactionChanged();
         return;
     }
 
     m_chatHistory->addAssistantMessage(response.text().trimmed());
+    m_currentTransaction.commit();
+    emit canUndoTransactionChanged();
+}
 
-    m_lastTransaction = AiTransaction(response);
+void AiAssistantWidget::undoTransaction()
+{
+    if (!m_currentTransaction.hasChanges())
+        return;
 
-    if (m_lastTransaction.producesQmlError())
-        m_chatHistory->addSystemMessage(tr("Warning: Generated QML has syntax errors"));
-    else
-        m_lastTransaction.commit();
+    m_chatHistory->addSystemMessage(tr("Last changes undone."));
+    m_currentTransaction.rollback();
+    emit canUndoTransactionChanged();
 }
 
 } // namespace QmlDesigner

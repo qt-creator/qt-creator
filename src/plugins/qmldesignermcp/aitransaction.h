@@ -3,38 +3,58 @@
 
 #pragma once
 
-#include <QStringList>
+#include <utils/filepath.h>
+
+#include <QHash>
+#include <QJsonObject>
+#include <QString>
 
 namespace QmlDesigner {
 
-class AiResponse;
-
+/**
+ * @brief Tracks all file mutations made by one agentic request loop against the qml_server MCP tools.
+ *
+ * Files are snapshotted (before-state captured) the first time a tool
+ * touches them. Rollback restores every snapshotted file; commit is a no-op
+ * since the MCP tools write directly to disk.
+ */
 class AiTransaction
 {
 public:
-    explicit AiTransaction();
-    explicit AiTransaction(const AiResponse &response);
+    AiTransaction();
 
-    void commit();
+    // Opens the transaction. Must be called before the agentic loop starts.
+    void begin(const Utils::FilePath &projectRoot);
+
+    // Call from the toolCallStarted handler.
+    // snapshots the affected file(s) before the tool runs.
+    void snapshotForTool(const QString &toolName, const QJsonObject &args);
+
+    // Restores all snapshotted files to their before-state.
     void rollback();
 
-    bool applied() const { return m_applied; }
-    bool isValid() const { return m_isValid; }
-    bool producesQmlError() const { return m_producesQmlError; };
+    // No-op: files are already on disk. Marks the transaction closed.
+    void commit();
+
+    // Discard snapshot state without any file I/O — used on session reset.
+    void reset();
+
+    bool isActive() const { return m_active; }
+    bool hasChanges() const { return !m_snapshots.isEmpty(); }
 
 private:
-    struct Context
-    {
-        QString qml;
+    struct Snapshot {
+        bool existed = false;
+        QByteArray content; // empty when existed == false
     };
 
-private: // variables
-    Context m_before;
-    Context m_after;
-    bool m_applied = false;
-    bool m_isValid = false;
-    bool m_producesQmlError = false;
-    bool m_affectsQml = false;
+    void snapshotFile(const Utils::FilePath &absPath);
+    Utils::FilePath resolve(const QString &relativePath) const;
+
+
+    Utils::FilePath m_projectRoot;
+    QHash<QString, Snapshot> m_snapshots; // key: absolute path string
+    bool m_active = false;
 };
 
 } // namespace QmlDesigner

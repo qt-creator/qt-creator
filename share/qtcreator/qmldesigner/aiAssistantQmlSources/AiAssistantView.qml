@@ -96,8 +96,19 @@ Item {
         }
 
         // Bottom bar
-        RowLayout {
-            anchors.right: parent.right
+        Row {
+            Layout.alignment: Qt.AlignRight
+
+            AiIconButton {
+                id: undoButton
+
+                buttonIcon: StudioTheme.Constants.undo
+                tooltip: qsTr("Undo last AI changes")
+                enabled: root.rootView.canUndoTransaction
+                         && root.rootView.generationState == GenerationState.Idle
+
+                onClicked: root.rootView.undoTransaction()
+            }
 
             AiIconButton {
                 id: clearButton

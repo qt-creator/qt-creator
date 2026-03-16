@@ -39,6 +39,7 @@ class AiAssistantWidget : public QFrame
                    NOTIFY attachedImageSourceChanged FINAL)
     Q_PROPERTY(QAbstractItemModel *modelsModel READ modelsModel CONSTANT)
     Q_PROPERTY(QAbstractListModel *chatHistory READ chatHistory CONSTANT)
+    Q_PROPERTY(bool canUndoTransaction READ canUndoTransaction NOTIFY canUndoTransactionChanged)
 
 public:
     enum class GenerationState { Idle, Generating, CallingTool, ProcessingTool };
@@ -65,19 +66,19 @@ public:
     Q_INVOKABLE void handleMessage(const QString &prompt);
     Q_INVOKABLE QUrl fullImageUrl(const QString &path) const;
     Q_INVOKABLE void retryLastPrompt();
-    Q_INVOKABLE void applyLastGeneratedQml();
-    Q_INVOKABLE void undoLastChange();
     Q_INVOKABLE void sendThumbFeedback(bool up);
     Q_INVOKABLE void openModelSettings();
     Q_INVOKABLE void openTermsDialog();
     Q_INVOKABLE void clearChat();
     Q_INVOKABLE void cancelRequest();
+    Q_INVOKABLE void undoTransaction();
 
 signals:
     void termsAcceptedChanged();
     void generationStateChanged();
     void hasValidModelChanged();
     void attachedImageSourceChanged();
+    void canUndoTransactionChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -92,6 +93,8 @@ private: // functions
     void connectMcpResourceSignals();
     void fetchProjectStructure();
 
+    bool canUndoTransaction() const { return m_currentTransaction.hasChanges(); }
+
 private: // variables
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
 
@@ -105,7 +108,7 @@ private: // variables
     Utils::UniqueObjectPtr<AgenticRequestManager> m_requestManager;
 
     QPointer<AiAssistantView> m_view;
-    AiTransaction m_lastTransaction; // TODO: update to work with MCP
+    AiTransaction m_currentTransaction;
     QString m_attachedImageSource;
     QString m_projectPath;
     QString m_projectStructure;

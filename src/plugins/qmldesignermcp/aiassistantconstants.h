@@ -5,6 +5,8 @@
 
 #include <qstringfwd.h>
 
+#include <QSet>
+
 namespace QmlDesigner::Constants {
 
 using namespace Qt::StringLiterals;
@@ -16,4 +18,13 @@ inline constexpr char aiAssistantSettingsPageCategory[] = "ZW.AiAssistant";
 inline constexpr char aiAssistantSettingsPageId[] = "AiAssistant.A.ProviderSettings";
 inline constexpr char structureResourceUri[] = "qmlproject://structure";
 inline constexpr char qmlServerName[] = "qml_server"; // qml MCP server name
+
+// Tools provided by qml_server that change files.
+inline const QSet<QString> qmlStructureMutatingTools = {
+    "create_qml",
+    "modify_qml",
+    "delete_qml",
+    "move_qml",
+};
+
 } // namespace QmlDesigner::Constants
