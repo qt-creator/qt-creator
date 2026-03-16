@@ -6,13 +6,8 @@
 #include "toolchain.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/treemodel.h>
 
-#include <QCoreApplication>
-#include <QVariant>
-
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class ToolChainOptionsPage final : public Core::IOptionsPage
 {
@@ -20,18 +15,6 @@ public:
     ToolChainOptionsPage();
 };
 
-class ToolchainTreeItem : public Utils::TreeItem
-{
-public:
-    ToolchainTreeItem(const ToolchainBundle &bundle) : bundle(bundle) {}
-    ToolchainTreeItem() = default;
-
-    QVariant data(int column, int role) const override;
-
-    std::optional<ToolchainBundle> bundle;
-};
-
 QVariant toolchainBundleData(const std::optional<ToolchainBundle> &bundle, int column, int role);
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
