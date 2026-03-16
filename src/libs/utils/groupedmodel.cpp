@@ -117,6 +117,31 @@ void GroupedModel::DisplayModel::addFilter(const QString &title, const Filter &f
     });
     connect(model, &QAbstractItemModel::rowsRemoved,
             this, [this](const QModelIndex &, int, int) { endRemoveRows(); });
+
+    connect(model, &QAbstractItemModel::layoutAboutToBeChanged,
+            this, [this, model](const QList<QPersistentModelIndex> &,
+                                QAbstractItemModel::LayoutChangeHint hint) {
+        emit layoutAboutToBeChanged({}, hint);
+        // Capture after emit: the view may create persistent indices while processing
+        // layoutAboutToBeChanged, and those need to be included in the remapping.
+        QModelIndexList sourceIndices;
+        const int fi = m_filters.indexOf(model);
+        for (const QModelIndex &idx : persistentIndexList()) {
+            if (idx.isValid() && int(idx.internalId()) == fi)
+                sourceIndices.append(model->mapToSource(model->index(idx.row(), 0)));
+        }
+        connect(model, &QAbstractItemModel::layoutChanged, this, [this, model, fi, sourceIndices] {
+            int i = 0;
+            for (const QModelIndex &idx : persistentIndexList()) {
+                if (!idx.isValid() || int(idx.internalId()) != fi)
+                    continue;
+                const QModelIndex newProxy = model->mapFromSource(sourceIndices.at(i++));
+                changePersistentIndex(idx, newProxy.isValid()
+                    ? createIndex(newProxy.row(), idx.column(), quintptr(fi)) : QModelIndex{});
+            }
+            emit layoutChanged();
+        }, Qt::SingleShotConnection);
+    });
 }
 
 QModelIndex GroupedModel::DisplayModel::mapToSource(const QModelIndex &index) const
