@@ -93,7 +93,7 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
 
     m_treeScanner.setFilter([this](const MimeType &mimeType, const FilePath &fn) {
         // Mime checks requires more resources, so keep it last in check list
-        auto isIgnored = TreeScanner::isWellKnownBinary(mimeType, fn);
+        auto isIgnored = TreeScanner::isWellKnownBinary(fn);
 
         // Cache mime check result for speed up
         if (!isIgnored) {

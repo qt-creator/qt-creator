@@ -64,7 +64,7 @@ public:
     Result release();
 
     // Standard filters helpers
-    static bool isWellKnownBinary(const Utils::MimeType &mimeType, const Utils::FilePath &fn);
+    static bool isWellKnownBinary(const Utils::FilePath &fn);
     static bool isMimeBinary(const Utils::MimeType &mimeType, const Utils::FilePath &fn);
 
     // Standard file factory

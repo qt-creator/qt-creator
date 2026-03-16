@@ -151,7 +151,7 @@ void CompilationDbParser::start()
                     return false;
                 // Mime checks requires more resources, so keep it last in check list
                 bool isIgnored = fn.startsWith(m_projectFilePath.path() + ".user")
-                                 || TreeScanner::isWellKnownBinary(mimeType, fn);
+                                 || TreeScanner::isWellKnownBinary(fn);
 
                 // Cache mime check result for speed up
                 if (!isIgnored) {
