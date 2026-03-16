@@ -33,6 +33,9 @@ public:
 
     void setUnfilteredSectionTitle(const QString &defaultGroupName);
     void addFilter(const QString &title, const Filter &filter);
+    void setExtraFilter(const Filter &filter);
+
+    const Filter &extraFilter() const { return m_extraFilter; }
 
     QModelIndex mapToSource(const QModelIndex &index) const;
     QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
@@ -50,22 +53,29 @@ private:
     class FilterModel : public QSortFilterProxyModel
     {
     public:
-        explicit FilterModel(const Filter &filter) : m_filter(filter) {}
+        explicit FilterModel(const Filter &filter, const DisplayModel *dm)
+            : m_filter(filter), m_displayModel(dm) {}
 
         Filter filter() const { return m_filter; }
+        void invalidate() { invalidateFilter(); }
 
     protected:
         bool filterAcceptsRow(int sourceRow, const QModelIndex &) const final
         {
+            const Filter &extra = m_displayModel->extraFilter();
+            if (extra && !extra(sourceRow))
+                return false;
             return m_filter(sourceRow);
         }
 
     private:
         Filter m_filter;
+        const DisplayModel *m_displayModel;
     };
 
     QAbstractItemModel * const m_base;
     QList<FilterModel *> m_filters;
+    Filter m_extraFilter;
 };
 
 void GroupedModel::DisplayModel::setUnfilteredSectionTitle(const QString &defaultGroupName)
@@ -74,9 +84,16 @@ void GroupedModel::DisplayModel::setUnfilteredSectionTitle(const QString &defaul
     m_filters.at(0)->setObjectName(defaultGroupName);
 }
 
+void GroupedModel::DisplayModel::setExtraFilter(const Filter &filter)
+{
+    m_extraFilter = filter;
+    for (FilterModel *fm : m_filters)
+        fm->invalidate();
+}
+
 void GroupedModel::DisplayModel::addFilter(const QString &title, const Filter &filter)
 {
-    auto model = new FilterModel(filter);
+    auto model = new FilterModel(filter, this);
     model->setObjectName(title);
     model->setSourceModel(m_base);
     //model->sort(0);  //  FIXME: Double-check. This sorts alphabetically, which is not wanted for Kits
@@ -400,6 +417,11 @@ void GroupedModel::setUnfilteredSectionTitle(const QString &title)
 void GroupedModel::addFilter(const QString &title, const Filter &filter)
 {
     m_displayModel->addFilter(title, filter);
+}
+
+void GroupedModel::setExtraFilter(const Filter &filter)
+{
+    m_displayModel->setExtraFilter(filter);
 }
 
 const QVariantList &GroupedModel::variants() const

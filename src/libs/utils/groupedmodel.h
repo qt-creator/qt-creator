@@ -52,6 +52,7 @@ public:
     using Filter = std::function<bool(int)>;
     void setUnfilteredSectionTitle(const QString &title);
     void addFilter(const QString &title, const Filter &filter = {});
+    void setExtraFilter(const Filter &filter);
     void setHeader(const QStringList &header);
 
 private:
