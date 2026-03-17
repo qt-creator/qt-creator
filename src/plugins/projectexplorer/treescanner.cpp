@@ -147,19 +147,16 @@ struct DirectoryScanResult
 {
     QList<FileNode *> nodes;
     QList<FolderNode *> subDirectories;
-    FolderNode *parentNode;
 };
 
 static DirectoryScanResult scanForFilesImpl(
     const QFuture<void> &future,
     const FilePath &directory,
-    FolderNode *parent,
     QDir::Filters filter,
     const std::function<FileNode *(const FilePath &)> &factory,
     const QList<Core::IVersionControl *> &versionControls)
 {
     DirectoryScanResult result;
-    result.parentNode = parent;
 
     const FilePaths entries = directory.dirEntries(filter);
     for (const FilePath &entry : entries) {
@@ -201,7 +198,7 @@ static TreeScanner::Result scanForFilesHelper(
 
     QSet<FilePath> visited;
     const DirectoryScanResult result
-        = scanForFilesImpl(future, directory, nullptr, dirfilter, factory, versionControls);
+        = scanForFilesImpl(future, directory, dirfilter, factory, versionControls);
     QList<FileNode *> fileNodes = result.nodes;
     QList<Node *> firstLevelNodes;
     for (auto fileNode : fileNodes)
@@ -238,7 +235,6 @@ static TreeScanner::Result scanForFilesHelper(
                 scanForFilesImpl,
                 future,
                 iterator->first->filePath(),
-                iterator->first,
                 dirfilter,
                 factory,
                 versionControls);
@@ -260,7 +256,7 @@ static TreeScanner::Result scanForFilesHelper(
                 const int increment = int(
                     progressRange / static_cast<double>(fileCount + subDirCount));
                 promise.setProgressValue(future.progressValue() + increment * fileCount);
-                addSubDirectories(result.subDirectories, result.parentNode, increment);
+                addSubDirectories(result.subDirectories, iterator->first, increment);
             }
         };
 
