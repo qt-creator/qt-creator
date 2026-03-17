@@ -6,7 +6,6 @@
 #include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakesettingspage.h"
 #include "cmakespecificsettings.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
@@ -33,6 +32,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/utilsicons.h>
 #include <utils/commandline.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
@@ -42,6 +42,7 @@
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
 
+#include <QAbstractListModel>
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -84,34 +85,68 @@ const QList<CMakeTool *> toolsForBuildDevice(const Kit *k)
     return {};
 }
 
-class CMakeToolListModel : public TreeModel<TreeItem, Internal::CMakeToolTreeItem>
+class CMakeToolListModel final : public QAbstractListModel
 {
 public:
     CMakeToolListModel(const Kit &kit, QObject *parent)
-        : TreeModel(parent)
+        : QAbstractListModel(parent)
         , m_kit(kit)
     {}
 
     void reset()
     {
-        clear();
+        beginResetModel();
+        m_tools = toolsForBuildDevice(&m_kit);
+        m_tools.append(nullptr); // "None"
+        endResetModel();
+    }
 
-        for (CMakeTool *tool : toolsForBuildDevice(&m_kit))
-            rootItem()->appendChild(new CMakeToolTreeItem(tool, false));
+    int rowCount(const QModelIndex &parent = {}) const override
+    {
+        return parent.isValid() ? 0 : m_tools.size();
+    }
 
-        // "None"
-        rootItem()->appendChild(new CMakeToolTreeItem());
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    {
+        if (!index.isValid() || index.row() >= m_tools.size())
+            return {};
+        const CMakeTool *tool = m_tools.at(index.row());
+        if (!tool) {
+            if (role == Qt::DisplayRole)
+                return Tr::tr("None", "No CMake tool");
+            if (role == KitAspect::IsNoneRole)
+                return true;
+            return {};
+        }
+        const bool isDefault = (tool == CMakeToolManager::defaultCMakeTool());
+        switch (role) {
+        case Qt::DisplayRole: {
+            QString name = tool->displayName();
+            if (isDefault)
+                name += Tr::tr(" (Default)");
+            return name;
+        }
+        case Qt::FontRole: {
+            QFont font;
+            font.setItalic(isDefault);
+            return font;
+        }
+        case Qt::DecorationRole:
+            if (!tool->cmakeExecutable().isExecutableFile())
+                return Icons::CRITICAL.icon();
+            return {};
+        case Qt::ToolTipRole:
+            return tool->cmakeExecutable().toUserOutput();
+        case KitAspect::IdRole:
+            return tool->id().toSetting();
+        default:
+            return {};
+        }
     }
 
 private:
-    QVariant data(const QModelIndex &index, int role) const
-    {
-        if (role == CMakeToolTreeItem::DefaultExecutableRole)
-            return defaultCMakeExecutable().toVariant();
-        return TreeModel::data(index, role);
-    }
-
     const Kit &m_kit;
+    QList<CMakeTool *> m_tools;
 };
 
 // Factories
