@@ -268,6 +268,7 @@ public:
 
     void init();
 
+    static void openFileOrProject();
     static void openFile();
     void aboutToShowRecentFiles();
 
@@ -1770,12 +1771,19 @@ void ICorePrivate::registerDefaultActions()
     // Open Action
     ActionBuilder openAction(this, Constants::OPEN);
     openAction.setText(Tr::tr("&Open File or Project..."));
-    openAction.setIcon(Icon::fromTheme("document-open"));
-    openAction.setDefaultKeySequence(QKeySequence::Open);
-    openAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
-    openAction.addOnTriggered(this, [] { openFile(); });
+    openAction.addOnTriggered(this, [] { openFileOrProject(); });
 
-    ActionManager::createCommand(Constants::OPEN_PROJECT);
+    // Open Project (but just a dummy that is hidden if it is not actually registered anywhere)
+    Command *openProjectCmd = ActionManager::createCommand(Constants::OPEN_PROJECT);
+    openProjectCmd->setAttribute(Command::CA_Hide);
+    if (ActionContainer *container = ActionManager::actionContainer(Constants::M_FILE))
+        container->addAction(openProjectCmd, Constants::G_FILE_OPEN);
+
+    // Open File
+    ActionBuilder(this, Constants::OPEN_FILE)
+        .setText(Tr::tr("Open File..."))
+        .addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN)
+        .addOnTriggered(this, [] { openFile(); });
 
     // Open With Action
     ActionBuilder openWithAction(this, Constants::OPEN_WITH);
@@ -2107,9 +2115,22 @@ void ICorePrivate::registerDefaultActions()
     }
 }
 
-void ICorePrivate::openFile()
+void ICorePrivate::openFileOrProject()
 {
     ICore::openFiles(EditorManager::getOpenFilePaths(), ICore::SwitchMode);
+}
+
+void ICorePrivate::openFile()
+{
+    const FilePaths paths = EditorManager::getOpenFilePaths();
+    const bool isShowingTabs = generalSettings().useTabsInEditorViews();
+    IEditor *opened = nullptr;
+    for (const FilePath &path : paths) {
+        if (!opened || isShowingTabs)
+            opened = EditorManager::openEditor(path);
+        else
+            DocumentModelPrivate::addSuspendedDocument(path);
+    }
 }
 
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
@@ -2155,9 +2176,7 @@ IDocument *ICore::openFiles(const FilePaths &filePaths,
             workingDirectory.isEmpty() ? FilePath::currentWorkingPath() : workingDirectory;
     for (const FilePath &filePath : filePaths) {
         const FilePath absoluteFilePath = workingDirBase.resolvePath(filePath);
-
-        const EditorView *ev = EditorManagerPrivate::currentEditorView();
-        const bool isShowingTabs = ev && ev->isShowingTabs();
+        const bool isShowingTabs = generalSettings().useTabsInEditorViews();
 
         if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath)) {
             IDocument *document = documentFactory->open(absoluteFilePath);
@@ -2189,9 +2208,7 @@ IDocument *ICore::openFiles(const FilePaths &filePaths,
                 res = editor->document();
             }
         } else {
-            auto factory = IEditorFactory::preferredEditorFactories(absoluteFilePath).value(0);
-            DocumentModelPrivate::addSuspendedDocument(absoluteFilePath, {},
-                                                       factory ? factory->id() : Id());
+            DocumentModelPrivate::addSuspendedDocument(absoluteFilePath);
         }
     }
     return res;

@@ -1213,10 +1213,12 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // open action
-    dd->m_loadAction = new QAction(Tr::tr("Load Project..."), this);
+    dd->m_loadAction = new QAction(Tr::tr("Open Project..."), this);
     cmd = ActionManager::registerAction(dd->m_loadAction, Core::Constants::OPEN_PROJECT);
+    auto keys = QList<QKeySequence>{QKeySequence(QKeySequence::Open)};
     if (!HostOsInfo::isMacHost())
-        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+O")));
+        keys.append(QKeySequence(Tr::tr("Ctrl+Shift+O")));
+    cmd->setDefaultKeySequences(keys);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // load workspace action
