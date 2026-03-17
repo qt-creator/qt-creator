@@ -37,11 +37,6 @@ TestProjectSettings::TestProjectSettings(ProjectExplorer::Project *project)
             this, &TestProjectSettings::save);
 }
 
-TestProjectSettings::~TestProjectSettings()
-{
-    save();
-}
-
 void TestProjectSettings::setUseGlobalSettings(bool useGlobal)
 {
     if (m_useGlobalSettings == useGlobal)
