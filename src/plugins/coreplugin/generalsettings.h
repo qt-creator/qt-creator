@@ -18,6 +18,8 @@ public:
     Utils::BoolAspect useTabsInEditorViews{this};
     Utils::BoolAspect showOkAndCancelInSettingsMode{this};
 
+    Utils::SelectionAspect highDpiScaleFactorRoundingPolicy{this};
+
     static void applyToolbarStyleFromSettings();
 };
 
