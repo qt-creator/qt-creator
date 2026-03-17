@@ -719,7 +719,6 @@ void KitModel::apply()
         if (d.widget && isDirty(row)) {
             d.widget->apply();
             d.widgetDirty = false;
-            d.kit = d.widget->kit();
             setVolatileItem(row, d);
         }
     }
@@ -806,8 +805,12 @@ void KitModel::addKit(Kit *k)
         const KitData d = item(row);
         if (d.kit && d.kit->detectionSource().isAutoDetected())
             continue;
-        if (d.widget && d.widget->isRegistering())
+        if (d.widget && d.widget->isRegistering()) {
+            KitData dd = d;
+            dd.kit = k;
+            setVolatileItem(row, dd);
             return;
+        }
     }
 
     KitData newData;
