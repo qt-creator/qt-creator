@@ -34,7 +34,9 @@ public:
     void start();
     void stop();
 
-    QList<ProjectExplorer::FileNode *> scannedFiles() const { return m_scannedFiles; }
+    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> takeScannedFiles() {
+        return std::exchange(m_scannedFiles, {});
+    }
     DbContents dbContents() const { return m_dbContents; }
 
 signals:
@@ -46,7 +48,7 @@ private:
     const QString m_projectName;
     const Utils::FilePath m_projectFilePath;
     const Utils::FilePath m_rootPath;
-    QList<ProjectExplorer::FileNode *> m_scannedFiles;
+    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_scannedFiles;
     DbContents m_dbContents;
     QByteArray m_projectFileContents;
     QByteArray m_projectFileHash;

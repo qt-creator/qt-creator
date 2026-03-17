@@ -115,8 +115,8 @@ void WorkspaceProject::setupScanner()
             QElapsedTimer timer;
             timer.start();
             const QList<IVersionControl *> versionControls = VcsManager::versionControls();
-            for (auto node : result.takeFirstLevelNodes())
-                parent->addNode(std::unique_ptr<Node>(node));
+            for (auto &node : result.firstLevelNodes)
+                parent->addNode(std::move(node));
             qCDebug(wsbs) << "Added nodes in" << timer.elapsed() << "ms";
             FilePaths toWatch;
             auto collectWatchFolders = [this, &toWatch, &versionControls](FolderNode *fn) {

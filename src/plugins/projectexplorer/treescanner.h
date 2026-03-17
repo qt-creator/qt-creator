@@ -14,6 +14,7 @@
 #include <QFutureWatcher>
 
 #include <functional>
+#include <vector>
 
 namespace Core { class IVersionControl; }
 
@@ -24,16 +25,20 @@ class PROJECTEXPLORER_EXPORT TreeScanner : public QObject
     Q_OBJECT
 
 public:
-    class PROJECTEXPLORER_EXPORT Result
+    class PROJECTEXPLORER_EXPORT Result final
     {
     public:
+        std::vector<std::unique_ptr<FileNode>> allFiles;
+        std::vector<std::unique_ptr<Node>> firstLevelNodes;
+
         Result() = default;
-        Result(QList<FileNode *> files, QList<Node *> nodes);
-        QList<FileNode *> takeAllFiles();
-        QList<Node *> takeFirstLevelNodes();
-    private:
-        QList<FileNode *> allFiles;
-        QList<Node *> firstLevelNodes;
+        ~Result() = default;
+
+        Result(Result &&) = default;
+        Result &operator=(Result &&) = default;
+
+        Result(const Result &) = delete;
+        Result &operator=(const Result &) = delete;
     };
     using Future = QFuture<Result>;
     using FutureWatcher = QFutureWatcher<Result>;

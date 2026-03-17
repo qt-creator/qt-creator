@@ -38,12 +38,10 @@ NimProjectScanner::NimProjectScanner(Project *project)
 
     connect(&m_scanner, &TreeScanner::finished, this, [this] {
         // Collect scanned nodes
-        std::vector<std::unique_ptr<FileNode>> nodes;
-        TreeScanner::Result scanResult = m_scanner.release();
-        for (FileNode *node : scanResult.takeAllFiles()) {
+        std::vector<std::unique_ptr<FileNode>> nodes = m_scanner.release().allFiles;
+        for (auto &node : nodes) {
             if (!node->path().endsWith(".nim") && !node->path().endsWith(".nimble"))
                 node->setEnabled(false); // Disable files that do not end in .nim
-            nodes.emplace_back(node);
         }
 
         // Sync watched dirs

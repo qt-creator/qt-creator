@@ -163,7 +163,7 @@ void CompilationDbParser::start()
         };
         const auto onDone = [this](const Async<ResultType> &task) {
             if (task.isResultAvailable())
-                m_scannedFiles = task.result().takeAllFiles();
+                m_scannedFiles = task.takeResult().allFiles;
         };
         treeScannerTask = AsyncTask<ResultType>(onSetup, onDone);
     }

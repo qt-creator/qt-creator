@@ -88,7 +88,7 @@ bool TreeScanner::isFinished() const
 TreeScanner::Result TreeScanner::release()
 {
     if (isFinished() && m_scanFuture.resultCount() > 0) {
-        auto result = m_scanFuture.result();
+        Result result = m_scanFuture.takeResult();
         m_scanFuture = Future();
         return result;
     }
@@ -269,7 +269,12 @@ static TreeScanner::Result scanForFilesHelper(
 
     Utils::sort(fileNodes, ProjectExplorer::Node::sortByPath);
 
-    return {fileNodes, firstLevelNodes};
+    TreeScanner::Result finalResult;
+    for (FileNode *node : fileNodes)
+        finalResult.allFiles.emplace_back(node);
+    for (Node *node : firstLevelNodes)
+        finalResult.firstLevelNodes.emplace_back(node);
+    return finalResult;
 }
 
 void TreeScanner::scanForFiles(
@@ -300,30 +305,7 @@ void TreeScanner::scanForFiles(
         });
 
     promise.setProgressValue(promise.future().progressMaximum());
-    promise.addResult(result);
-}
-
-TreeScanner::Result::Result(QList<FileNode *> files, QList<Node *> nodes)
-    : allFiles(files)
-    , firstLevelNodes(nodes)
-{}
-
-QList<FileNode *> TreeScanner::Result::takeAllFiles()
-{
-    qDeleteAll(firstLevelNodes);
-    firstLevelNodes.clear();
-    QList<FileNode *> result = allFiles;
-    allFiles.clear();
-    return result;
-}
-
-QList<Node *> TreeScanner::Result::takeFirstLevelNodes()
-{
-    qDeleteAll(allFiles);
-    allFiles.clear();
-    QList<Node *> result = firstLevelNodes;
-    firstLevelNodes.clear();
-    return result;
+    promise.addResult(std::move(result));
 }
 
 } // namespace ProjectExplorer

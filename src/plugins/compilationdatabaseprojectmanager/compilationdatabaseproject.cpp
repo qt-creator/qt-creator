@@ -255,7 +255,7 @@ static void createTree(
     std::unique_ptr<ProjectNode> &root,
     const FilePath &rootPath,
     const RawProjectParts &rpps,
-    const QList<FileNode *> &scannedFiles = QList<FileNode *>())
+    const std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &scannedFiles = {})
 {
     root->setAbsoluteFilePathAndLine(rootPath, -1);
     std::unique_ptr<FolderNode> secondRoot;
@@ -275,7 +275,7 @@ static void createTree(
         }
     }
 
-    for (FileNode *node : scannedFiles) {
+    for (auto &node : scannedFiles) {
         if (node->fileType() != FileType::Header)
             continue;
 
@@ -289,7 +289,6 @@ static void createTree(
             parentNode->addNode(std::move(headerNode));
         }
     }
-    qDeleteAll(scannedFiles);
 
     if (secondRoot) {
         std::unique_ptr<ProjectNode> firstRoot = std::move(root);
@@ -391,7 +390,7 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
     }
 
     auto root = std::make_unique<ProjectNode>(projectDirectory());
-    createTree(root, project()->rootProjectDirectory(), rpps, m_parser->scannedFiles());
+    createTree(root, project()->rootProjectDirectory(), rpps, m_parser->takeScannedFiles());
 
     root->addNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
