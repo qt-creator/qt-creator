@@ -4,6 +4,7 @@
 #include "groupedmodel.h"
 
 #include "qtcassert.h"
+#include "stringutils.h"
 
 #include <QFont>
 #include <QSortFilterProxyModel>
@@ -49,12 +50,14 @@ private:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
-    class FilterModel : public QSortFilterProxyModel
+    class FilterModel final : public QSortFilterProxyModel
     {
     public:
         explicit FilterModel(const Filter &filter, const DisplayModel *dm)
-            : m_filter(filter), m_displayModel(dm) {}
+            : m_filter(filter), m_displayModel(dm)
+        {}
 
         Filter filter() const { return m_filter; }
         void invalidate() { invalidateFilter(); }
@@ -66,6 +69,13 @@ private:
             if (extra && !extra(sourceRow))
                 return false;
             return m_filter(sourceRow);
+        }
+
+        bool lessThan(const QModelIndex &source_left,  const QModelIndex &source_right) const final
+        {
+            const QString l = sourceModel()->data(source_left).toString();
+            const QString r = sourceModel()->data(source_right).toString();
+            return caseFriendlyCompare(l, r) < 0;
         }
 
     private:
@@ -234,6 +244,12 @@ QVariant GroupedModel::DisplayModel::headerData(int section, Qt::Orientation ori
                                                            int role) const
 {
     return m_base->headerData(section, orientation, role);
+}
+
+void GroupedModel::DisplayModel::sort(int column, Qt::SortOrder order)
+{
+    for (FilterModel *fm : m_filters)
+        fm->sort(column, order);
 }
 
 // GroupedModel

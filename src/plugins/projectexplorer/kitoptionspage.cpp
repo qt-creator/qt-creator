@@ -961,6 +961,8 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     m_kitsView.setModel(m_model.groupedDisplayModel());
     m_kitsView.header()->setSectionResizeMode(0, QHeaderView::Stretch);
     m_kitsView.expandAll();
+    m_kitsView.setSortingEnabled(true);
+    m_kitsView.sortByColumn(0, Qt::AscendingOrder);
 
     connect(m_model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
             &m_kitsView, &QTreeView::expandAll);
