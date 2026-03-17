@@ -61,14 +61,12 @@ public:
     KitManagerConfigWidget *widget = nullptr;  // lazy; excluded from operator==
     bool isDefaultKit = false;
     bool hasUniqueName = true;
-    bool widgetDirty = false;
 
     bool operator==(const KitData &other) const
     {
         return kit == other.kit
             && isDefaultKit == other.isDefaultKit
-            && hasUniqueName == other.hasUniqueName
-            && widgetDirty == other.widgetDirty;
+            && hasUniqueName == other.hasUniqueName;
     }
 };
 
@@ -591,6 +589,7 @@ QVariant KitModel::variantData(const QVariant &v, int /*column*/, int role) cons
     }
     case Qt::FontRole: {
         QFont font;
+        font.setBold(d.widget && d.widget->isDirty());
         font.setItalic(d.isDefaultKit);
         return font;
     }
@@ -679,9 +678,6 @@ KitManagerConfigWidget *KitModel::widgetForRow(int row)
         const int r = rowForKit(widget->workingCopy());
         if (r < 0)
             return;
-        KitData dd = item(r);
-        dd.widgetDirty = widget->isDirty();
-        setVolatileItem(r, dd);
         notifyRowChanged(r);
         markSettingsDirty();
     });
@@ -716,9 +712,9 @@ void KitModel::apply()
         if (isRemoved(row))
             continue;
         KitData d = item(row);
-        if (d.widget && isDirty(row)) {
+        if (d.widget && (isAdded(row) || d.widget->isDirty())) {
             d.widget->apply();
-            d.widgetDirty = false;
+            d.kit = d.widget->kit();
             setVolatileItem(row, d);
         }
     }
