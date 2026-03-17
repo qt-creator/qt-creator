@@ -36,6 +36,46 @@
 using namespace Utils;
 using namespace ProjectExplorer;
 
+namespace CMakeProjectManager::Internal {
+
+class CMakeToolTreeItem
+{
+public:
+    CMakeToolTreeItem(const CMakeTool *item, bool changed);
+    CMakeToolTreeItem(
+        const QString &name,
+        const FilePath &executable,
+        const FilePath &qchFile,
+        bool autoRun,
+        const DetectionSource &detectionSource);
+
+    void updateErrorFlags();
+    bool hasError() const;
+
+    Id id() const { return m_id; }
+    FilePath executable() const { return m_executable; }
+    DetectionSource detectionSource() const { return m_detectionSource; }
+
+    QVariant data(int column, int role) const;
+
+    Id m_id;
+    QString m_name;
+    QString m_tooltip;
+    FilePath m_executable;
+    FilePath m_qchFile;
+    QString m_versionDisplay;
+    DetectionSource m_detectionSource;
+    bool m_isAutoRun = true;
+    bool m_pathExists = false;
+    bool m_pathIsFile = false;
+    bool m_pathIsExecutable = false;
+    bool m_isSupported = false;
+    bool m_changed = true;
+    bool m_isDefault = false;
+};
+
+} // namespace CMakeProjectManager::Internal
+
 Q_DECLARE_METATYPE(CMakeProjectManager::Internal::CMakeToolTreeItem *)
 
 namespace CMakeProjectManager::Internal {
