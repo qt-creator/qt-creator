@@ -136,6 +136,7 @@ public:
     QdbDeployStepFactory m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};
     QdbDeployStepFactory m_rsyncDeployStepFactory{RemoteLinux::Constants::GenericDeployStepId};
     QdbDeployStepFactory m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
+    QdbDeployStepFactory m_customRunRemoteStepFactory{RemoteLinux::Constants::CustomCommandDeployStepId};
 
     DeviceDetector m_deviceDetector;
 };
