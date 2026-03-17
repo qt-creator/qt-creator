@@ -793,10 +793,13 @@ void EnvironmentChanges::modifyEnvironment(Environment &baseEnv, MacroExpander *
         return;
     }
     const auto transformer = [&](const EnvironmentItems &list) {
-        return EnvironmentItem::fromStringList(
-            transform(EnvironmentItem::toStringList(list), [&](const QString &v) {
-                return expander->expand(v);
-            }));
+        if (expander) {
+            return EnvironmentItem::fromStringList(
+                transform(EnvironmentItem::toStringList(list), [&](const QString &v) {
+                    return expander->expand(v);
+                }));
+        }
+        return list;
     };
     const EnvironmentItems fileItems = EnvironmentItems::fromList(transformer(itemsFromFile()));
     const EnvironmentItems userItems = EnvironmentItems::fromList(transformer(m_itemsFromUser));
