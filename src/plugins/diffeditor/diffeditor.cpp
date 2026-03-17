@@ -499,15 +499,16 @@ DiffEditor::DiffEditor()
     m_whitespaceButtonAction = m_toolBar->addAction(Tr::tr("Ignore Whitespace"));
     m_whitespaceButtonAction->setCheckable(true);
 
-    m_foldAllAction = m_toolBar->addAction(Utils::Icons::EXPAND_ALL_TOOLBAR.icon(), {});
-    m_foldAllAction->setToolTip("Fold All");
+    m_foldAllAction
+        = m_toolBar->addAction(Utils::Icons::EXPAND_ALL_TOOLBAR.icon(), Tr::tr("Fold All"));
+    m_foldAllAction->setToolTip(m_foldAllAction->text());
     m_foldAllAction->setCheckable(true);
 
     m_toggleDescriptionAction = m_toolBar->addAction(Icons::TOP_BAR.icon(), {});
     m_toggleDescriptionAction->setCheckable(true);
 
     m_reloadAction = m_toolBar->addAction(Utils::Icons::RELOAD_TOOLBAR.icon(), Tr::tr("Reload Diff"));
-    m_reloadAction->setToolTip(Tr::tr("Reload Diff"));
+    m_reloadAction->setToolTip(m_reloadAction->text());
 
     m_toggleSyncAction = m_toolBar->addAction(Utils::Icons::LINK_TOOLBAR.icon(), {});
     m_toggleSyncAction->setCheckable(true);
@@ -700,6 +701,7 @@ void DiffEditor::foldAllHasChanged()
 {
     const bool fold = m_foldAllAction->isChecked();
     const QString actionText = fold ? Tr::tr("Unfold All") : Tr::tr("Fold All");
+    m_foldAllAction->setText(actionText);
     m_foldAllAction->setToolTip(actionText);
 
     auto sideWidget = qobject_cast<SideBySideDiffEditorWidget *>(m_sideBySideView->widget());
