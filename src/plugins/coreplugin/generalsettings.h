@@ -7,6 +7,18 @@
 
 namespace Core::Internal {
 
+class CodecForLocaleAspect : public Utils::StringSelectionAspect
+{
+public:
+    using StringSelectionAspect::StringSelectionAspect;
+
+    void fixupComboBox(QComboBox *comboBox) override
+    {
+        comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+        comboBox->setMinimumContentsLength(20);
+    }
+};
+
 class GeneralSettings : public Utils::AspectContainer
 {
 public:
@@ -19,6 +31,8 @@ public:
     Utils::BoolAspect showOkAndCancelInSettingsMode{this};
 
     Utils::SelectionAspect highDpiScaleFactorRoundingPolicy{this};
+
+    CodecForLocaleAspect codecForLocale{this};
 
     static void applyToolbarStyleFromSettings();
 };

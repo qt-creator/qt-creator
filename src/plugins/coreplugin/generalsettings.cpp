@@ -29,6 +29,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
+#include <QStandardItem>
 #include <QStyleHints>
 
 using namespace Utils;
@@ -85,6 +86,24 @@ GeneralSettings::GeneralSettings()
     showOkAndCancelInSettingsMode.setDefaultValue(false);
     showOkAndCancelInSettingsMode.setLabelText(Tr::tr("Show OK and Cancel buttons in Preferences mode"));
 
+    codecForLocale.setSettingsKey(settingsKeyCodecForLocale);
+    codecForLocale.setLabelText(Tr::tr("Text codec for tools:"));
+    codecForLocale.setComboBoxEditable(false);
+    codecForLocale.setFillCallback([](const StringSelectionAspect::ResultCallback &cb) {
+        const auto codecs = TextEncoding::availableEncodings();
+        QList<QStandardItem *> codecNames;
+        for (const auto &codec : codecs) {
+            auto item = new QStandardItem(codec.displayName());
+            item->setData(QString::fromUtf8(codec.name()));
+            codecNames.append(item);
+        }
+        cb(codecNames);
+    });
+
+    connect(&codecForLocale, &BaseAspect::changed, this, [this] {
+        TextEncoding::setEncodingForLocale(codecForLocale.value().toUtf8());
+    });
+
     static const SelectionAspect::Option options[] = {
         {Tr::tr("Round Up for .5 and Above"), {}, int(Qt::HighDpiScaleFactorRoundingPolicy::Round)},
         {Tr::tr("Always Round Up"), {}, int(Qt::HighDpiScaleFactorRoundingPolicy::Ceil)},
@@ -129,14 +148,10 @@ public:
     static bool canResetWarnings();
     void fillLanguageBox() const;
     static QString language();
-    static void setLanguage(const QString&);
-    void fillCodecBox() const;
-    static QByteArray codecForLocale();
-    static void setCodecForLocale(const QByteArray&);
+    static void setLanguage(const QString &);
     void fillToolbarStyleBox() const;
 
     QComboBox *m_languageBox;
-    QComboBox *m_codecBox;
     QtColorButton *m_colorButton;
     ThemeChooser *m_themeChooser;
     QPushButton *m_resetWarningsButton;
@@ -145,7 +160,6 @@ public:
 
 GeneralSettingsWidget::GeneralSettingsWidget()
     : m_languageBox(new QComboBox)
-    , m_codecBox(new QComboBox)
     , m_colorButton(new QtColorButton)
     , m_themeChooser(new ThemeChooser)
     , m_resetWarningsButton(new QPushButton)
@@ -154,9 +168,6 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     m_languageBox->setObjectName("languageBox");
     m_languageBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_languageBox->setMinimumContentsLength(20);
-
-    m_codecBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
-    m_codecBox->setMinimumContentsLength(20);
 
     m_colorButton->setMinimumSize(QSize(64, 0));
     m_colorButton->setProperty("alphaAllowed", QVariant(false));
@@ -212,7 +223,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     }
 
     form.flush();
-    form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
+    form.addRow({generalSettings().codecForLocale, st});
     form.addRow({empty, generalSettings().showShortcutsInContextMenus});
     form.addRow({empty, generalSettings().provideSplitterCursors});
     form.addRow({empty, generalSettings().preferInfoBarOverPopup});
@@ -228,7 +239,6 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     }.attachTo(this);
 
     fillLanguageBox();
-    fillCodecBox();
     fillToolbarStyleBox();
 
     m_colorButton->setColor(StyleHelper::requestedBaseColor());
@@ -246,7 +256,6 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     setOnCancel([] { generalSettings().cancel(); });
 
     installCheckSettingsDirtyTrigger(m_languageBox);
-    installCheckSettingsDirtyTrigger(m_codecBox);
     installCheckSettingsDirtyTrigger(m_colorButton);
     installCheckSettingsDirtyTrigger(m_themeChooser->themeComboBox());
     installCheckSettingsDirtyTrigger(m_toolbarStyleBox);
@@ -340,9 +349,6 @@ void GeneralSettingsWidget::apply()
     int currentIndex = m_languageBox->currentIndex();
     setLanguage(m_languageBox->itemData(currentIndex, Qt::UserRole).toString());
 
-    currentIndex = m_codecBox->currentIndex();
-    if (currentIndex != -1)
-        setCodecForLocale(m_codecBox->itemText(currentIndex).toLocal8Bit());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_colorButton->color());
     m_themeChooser->apply();
@@ -368,13 +374,6 @@ bool GeneralSettingsWidget::isDirty() const
     QString selecetedLanguange = m_languageBox->itemData(currentIndex, Qt::UserRole).toString();
     if (settings->value("General/OverrideLanguage").toString() != selecetedLanguange)
         return true;
-
-    currentIndex = m_codecBox->currentIndex();
-    if (currentIndex != -1) {
-        QByteArray selectedCodec = m_codecBox->itemText(currentIndex).toLocal8Bit();
-        if (selectedCodec != settings->value(settingsKeyCodecForLocale).toByteArray())
-            return true;
-    }
 
     if (m_colorButton->color() != StyleHelper::requestedBaseColor())
         return true;
@@ -427,33 +426,6 @@ void GeneralSettingsWidget::setLanguage(const QString &locale)
         ICore::askForRestart(Tr::tr("The language change will take effect after restart."));
 
     settings->setValueWithDefault("General/OverrideLanguage", locale, {});
-}
-
-void GeneralSettingsWidget::fillCodecBox() const
-{
-    const QByteArray currentCodec = codecForLocale();
-
-    for (const TextEncoding &encoding : TextEncoding::availableEncodings()) {
-        m_codecBox->addItem(encoding.displayName());
-        if (encoding.name() == currentCodec)
-            m_codecBox->setCurrentIndex(m_codecBox->count() - 1);
-    }
-}
-
-QByteArray GeneralSettingsWidget::codecForLocale()
-{
-    QtcSettings *settings = ICore::settings();
-    QByteArray codec = settings->value(settingsKeyCodecForLocale).toByteArray();
-    if (codec.isEmpty())
-        codec = TextEncoding::encodingForLocale().name();
-    return codec;
-}
-
-void GeneralSettingsWidget::setCodecForLocale(const QByteArray &codec)
-{
-    QtcSettings *settings = ICore::settings();
-    settings->setValueWithDefault(settingsKeyCodecForLocale, codec, {});
-    TextEncoding::setEncodingForLocale(codec);
 }
 
 StyleHelper::ToolbarStyle toolbarStylefromSettings()
