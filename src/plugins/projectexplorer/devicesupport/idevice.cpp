@@ -336,8 +336,8 @@ void IDevice::deregisterToolDetectionTask(quint64 token)
 
 Result<Environment> IDevice::getUnixEnvironment(const FilePath &scriptToSource) const
 {
-    if (deviceState() == IDevice::DeviceDisconnected)
-        return {};
+    if (deviceState() == IDevice::DeviceDisconnected && !isTesting())
+        return ResultError(Tr::tr("Device is not connected."));
     return Utils::getUnixEnvironment(filePath("env"), osType(), scriptToSource);
 }
 
