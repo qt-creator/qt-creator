@@ -782,6 +782,8 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
 
 void CMakeBuildSettingsWidget::kitCMakeConfiguration()
 {
+    QTC_ASSERT(m_buildConfig, return);
+
     using namespace Layouting;
     m_buildConfig->kit()->blockNotification();
 
@@ -853,6 +855,8 @@ void CMakeBuildSettingsWidget::setWarning(const QString &message)
 
 void CMakeBuildSettingsWidget::updateButtonState()
 {
+    m_kitConfiguration->setEnabled(!m_buildConfig.isNull());
+
     QTC_ASSERT(m_buildConfig, return);
     const bool isParsing = m_buildConfig->cmakeBuildSystem()->isParsing();
 
