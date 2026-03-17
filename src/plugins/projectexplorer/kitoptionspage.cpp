@@ -719,6 +719,7 @@ void KitModel::apply()
         if (d.widget && isDirty(row)) {
             d.widget->apply();
             d.widgetDirty = false;
+            d.kit = d.widget->kit();
             setVolatileItem(row, d);
         }
     }
