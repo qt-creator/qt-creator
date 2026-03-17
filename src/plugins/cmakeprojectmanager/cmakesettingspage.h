@@ -5,9 +5,10 @@
 
 #include <utils/filepath.h>
 #include <utils/id.h>
-#include <utils/treemodel.h>
 
 #include <projectexplorer/kitaspect.h>
+
+#include <QVariant>
 
 namespace CMakeProjectManager {
 class CMakeTool;
@@ -16,10 +17,9 @@ namespace Internal {
 
 void setupCMakeSettingsPage();
 
-class CMakeToolTreeItem : public Utils::TreeItem
+class CMakeToolTreeItem
 {
 public:
-    CMakeToolTreeItem(Utils::Id specialId = {});
     CMakeToolTreeItem(const CMakeTool *item, bool changed);
     CMakeToolTreeItem(
         const QString &name,
@@ -35,8 +35,7 @@ public:
     Utils::FilePath executable() const { return m_executable; }
     ProjectExplorer::DetectionSource detectionSource() const { return m_detectionSource; }
 
-    static const int DefaultExecutableRole = Qt::UserRole + 1;
-    QVariant data(int column, int role) const override;
+    QVariant data(int column, int role) const;
 
     Utils::Id m_id;
     QString m_name;
@@ -51,6 +50,7 @@ public:
     bool m_pathIsExecutable = false;
     bool m_isSupported = false;
     bool m_changed = true;
+    bool m_isDefault = false;
 };
 
 } // Internal
