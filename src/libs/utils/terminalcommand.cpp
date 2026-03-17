@@ -56,7 +56,7 @@ TerminalCommand TerminalCommand::defaultTerminalEmulator()
 
     if (defaultTerm.command.isEmpty()) {
         if (HostOsInfo::isMacHost()) {
-            return {"Terminal.app", "", ""};
+            return {"com.apple.Terminal", "", ""};
         } else if (HostOsInfo::isAnyUnixHost()) {
             defaultTerm = {"xterm", "", "-e"};
             const Environment env = Environment::systemEnvironment();
@@ -106,11 +106,6 @@ TerminalCommand TerminalCommand::terminalEmulator()
     QtcSettings &settings = Utils::userSettings();
     if (HostOsInfo::isAnyUnixHost() && settings.contains(kTerminalCommandKey)) {
         FilePath command = FilePath::fromSettings(settings.value(kTerminalCommandKey));
-
-        // TODO Remove some time after Qt Creator 11
-        // Work around Qt Creator <= 10 writing the default terminal to the settings.
-        if (HostOsInfo::isMacHost() && command.endsWith("openTerminal.py"))
-            command = FilePath::fromString("Terminal.app");
 
         const TerminalCommand knownCommand = Utils::findOrDefault(
             *knownTerminals(), [fileName = command.fileName()](const TerminalCommand &known) {

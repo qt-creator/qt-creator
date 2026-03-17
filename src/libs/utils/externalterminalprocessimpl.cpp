@@ -103,7 +103,7 @@ Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setu
             QSysInfo::productVersion());
 
         static const QMap<QString, AppScript> terminalMap = {
-            {"Terminal.app",
+            {"com.apple.Terminal",
              {ExternalTerminalProcessImpl::openTerminalScriptAttached(), TerminalAppScriptDetached}},
         };
 
