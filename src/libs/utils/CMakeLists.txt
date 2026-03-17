@@ -295,6 +295,7 @@ extend_qtc_library(Utils CONDITION APPLE
   SOURCES
     fileutils_mac.mm fileutils_mac.h
     processhandle_mac.mm
+    pathchooser.mm
     theme/theme_mac.mm theme/theme_mac.h
     touchbar/touchbar_appdelegate_mac.mm touchbar/touchbar_appdelegate_mac_p.h
     touchbar/touchbar_mac.mm touchbar/touchbar_mac_p.h

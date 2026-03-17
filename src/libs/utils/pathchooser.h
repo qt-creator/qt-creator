@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include "environment.h"
 #include "fancylineedit.h"
 #include "filepath.h"
 #include "lazy.h"
@@ -72,6 +73,13 @@ public:
     FilePath absoluteFilePath() const; // Relative paths resolved wrt the specified base dir.
 
     FilePath unexpandedFilePath() const; // The raw unexpanded input as FilePath.
+
+    static FilePath expandPath(
+        const FilePath &path,
+        const MacroExpander *macroExpander = nullptr,
+        const FilePath &baseDirectory = FilePath(),
+        const Environment &env = Environment(),
+        Kind expectedKind = Any);
 
     FilePath baseDirectory() const;
     void setBaseDirectory(const Lazy<FilePath> &base);

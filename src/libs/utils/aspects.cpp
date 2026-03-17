@@ -1597,15 +1597,8 @@ FilePath FilePathAspect::effectiveBinary() const
     if (d->m_effectiveBinary)
         return *d->m_effectiveBinary;
 
-    const FilePath current = expandedValue();
-    const PathChooser::Kind kind = d->m_expectedKind;
-    if (kind != PathChooser::ExistingCommand && kind != PathChooser::Command)
-        return current;
-
-    if (!current.isLocal())
-        return current;
-
-    d->m_effectiveBinary.emplace(current.searchInPath());
+    d->m_effectiveBinary.emplace(
+        PathChooser::expandPath(expandedValue(), nullptr, {}, {}, d->m_expectedKind));
     return *d->m_effectiveBinary;
 }
 

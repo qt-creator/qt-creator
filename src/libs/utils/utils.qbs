@@ -436,7 +436,15 @@ QtcLibrary {
         name: "FileUtils_macos"
         condition: qbs.targetOS.contains("macos")
         files: [
-            "fileutils_mac.h", "fileutils_mac.mm",
+            "fileutils_mac.h", "fileutils_mac.mm"
+        ]
+    }
+
+    Group {
+        name: "PathChooser_macos"
+        condition: qbs.targetOS.contains("macos")
+        files: [
+            "pathchooser.mm"
         ]
     }
 
