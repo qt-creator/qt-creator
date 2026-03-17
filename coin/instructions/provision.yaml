@@ -44,6 +44,23 @@ instructions:
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            {{.Env.PYTHON_EXECUTABLE}} -m venv
+                {{.AgentWorkingDir}}/build/creator_venv
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to create Python virtual environment, check logs."
+      - type: ExecuteCommand
+        command: >-
+            {{.AgentWorkingDir}}/build/creator_venv/bin/python -m pip install
+                -r {{.AgentWorkingDir}}/qt-creator/qt-creator/coin/creator_python_requirements.txt
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to install Python dependencies, check logs."
+      - type: EnvironmentVariable
+        variableName: PYTHON_EXECUTABLE
+        variableValue: "{{.AgentWorkingDir}}/build/creator_venv/bin/python"
     enable_if:
       condition: property
       property: host.os
@@ -74,6 +91,23 @@ instructions:
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            {{.Env.PYTHON_EXECUTABLE}} -m venv
+                {{.AgentWorkingDir}}/build/creator_venv
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to create Python virtual environment, check logs."
+      - type: ExecuteCommand
+        command: >-
+            {{.AgentWorkingDir}}/build/creator_venv/bin/python -m pip install
+                -r {{.AgentWorkingDir}}/qt-creator/qt-creator/coin/creator_python_requirements.txt
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to install Python dependencies, check logs."
+      - type: EnvironmentVariable
+        variableName: PYTHON_EXECUTABLE
+        variableValue: "{{.AgentWorkingDir}}/build/creator_venv/bin/python"
     enable_if:
       condition: property
       property: host.os
@@ -187,6 +221,28 @@ instructions:
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
+      - type: ExecuteCommand
+        command: "{{.Env.PYTHON_EXECUTABLE}} -m venv {{.AgentWorkingDir}}\\build\\creator_venv"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to create Python virtual environment, check logs."
+      - type: ExecuteCommand
+        command: >-
+            {{.AgentWorkingDir}}\build\creator_venv\Scripts\python.exe -m pip install
+                --upgrade pip
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to upgrade pip in virtual environment, check logs."
+      - type: ExecuteCommand
+        command: >-
+            {{.AgentWorkingDir}}\build\creator_venv\Scripts\python.exe -m pip install
+                -r {{.AgentWorkingDir}}\qt-creator\qt-creator\coin\creator_python_requirements.txt
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to install Python dependencies, check logs."
+      - type: EnvironmentVariable
+        variableName: PYTHON_EXECUTABLE
+        variableValue: "{{.AgentWorkingDir}}\\build\\creator_venv\\Scripts\\python.exe"
     enable_if:
       condition: and
       conditions:
