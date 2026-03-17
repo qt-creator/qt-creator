@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include "aspects.h"
 #include "filepath.h"
 
 #include <QList>
@@ -32,7 +33,19 @@ public:
     static TerminalCommand defaultTerminalEmulator();
     static QList<TerminalCommand> availableTerminalEmulators();
     static TerminalCommand terminalEmulator();
-    static void setTerminalEmulator(const TerminalCommand &term);
+    //static void setTerminalEmulator(const TerminalCommand &term);
+};
+
+class QTCREATOR_UTILS_EXPORT TerminalCommandAspect : public Utils::AspectContainer
+{
+public:
+    TerminalCommandAspect(AspectContainer *parentContainer);
+
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+
+    Utils::FilePathAspect terminalEmulator{this};
+    Utils::StringAspect terminalOpenArgs{this};
+    Utils::StringAspect terminalExecuteArgs{this};
 };
 
 } // Utils

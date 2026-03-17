@@ -472,11 +472,11 @@ void SystemSettingsWidget::apply()
 
     QtcSettings *settings = ICore::settings();
     if (HostOsInfo::isAnyUnixHost()) {
-        TerminalCommand::setTerminalEmulator({
+        /*TerminalCommand::setTerminalEmulator({
             FilePath::fromUserInput(m_terminalComboBox->lineEdit()->text()),
             m_terminalOpenArgs->text(),
             m_terminalExecuteArgs->text()
-        });
+        });*/
         if (!HostOsInfo::isMacHost()) {
             UnixUtils::setFileBrowser(settings, m_externalFileBrowserEdit->text());
         }
