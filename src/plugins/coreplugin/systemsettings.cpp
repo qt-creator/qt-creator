@@ -12,6 +12,7 @@
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/crashreporting.h>
 #include <utils/elidinglabel.h>
@@ -25,8 +26,8 @@
 #include <utils/pathchooser.h>
 #include <utils/terminalcommand.h>
 #include <utils/treemodel.h>
-#include <utils/unixutils.h>
 
+#include <QApplication>
 #include <QComboBox>
 #include <QDesktopServices>
 #include <QDialog>
@@ -43,28 +44,102 @@ using namespace Layouting;
 
 namespace Core::Internal {
 
+static constexpr bool hasDBusFileManager =
+#ifdef QTC_SUPPORT_DBUSFILEMANAGER
+    true;
+#else
+    false;
+#endif
+
 SystemSettings &systemSettings()
 {
     static SystemSettings theSettings;
     return theSettings;
 }
 
-SystemSettings::SystemSettings()
-    : m_startupSystemEnvironment(Environment::systemEnvironment())
+static NameValueDictionary defaultEnvVarSeparators()
 {
-    const auto changes = EnvironmentChanges::createFromVariant(
-        ICore::settings()->value(kEnvironmentChanges));
-    setEnvironmentChanges(changes);
-    m_envVarSeparators = NameValueDictionary(
-        ICore::settings()
-            ->value(kEnvVarSeparators, defaultEnvVarSeparators().toStringList())
-            .toStringList());
+    return NameValueDictionary(
+        NameValuePairs{
+            std::make_pair<QString, QString>("CFLAGS", " "),
+            std::make_pair<QString, QString>("CXXFLAGS", " ")});
+}
 
+static QString fileBrowserHelpText()
+{
+    return Tr::tr(
+        "<table border=1 cellspacing=0 cellpadding=3>"
+        "<tr><th>Variable</th><th>Expands to</th></tr>"
+        "<tr><td>%d</td><td>directory of current file</td></tr>"
+        "<tr><td>%f</td><td>file name (with full path)</td></tr>"
+        "<tr><td>%n</td><td>file name (without path)</td></tr>"
+        "<tr><td>%%</td><td>%</td></tr>"
+        "</table>");
+}
+
+void EnvChangeAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    auto label = createLabel();
+    if (label)
+        parent.addItem(label);
+
+    auto changesLabel = new ElidingLabel();
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    changesLabel->setSizePolicy(sizePolicy);
+    changesLabel->setElideMode(Qt::ElideRight);
+    auto updateChangesLabel = [this, changesLabel]() {
+        const EnvironmentItems items = volatileValue().itemsFromUser();
+        changesLabel->setText(EnvironmentItem::toShortSummary(items, false));
+    };
+    updateChangesLabel();
+    connect(this, &EnvChangeAspect::volatileValueChanged, this, updateChangesLabel);
+    parent.addItem(changesLabel);
+
+    QPushButton *changeButton = new QPushButton(Tr::tr("Change..."));
+    changeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+    parent.addItem(changeButton);
+    connect(changeButton, &QPushButton::clicked, this, [changeButton, this]() {
+        std::optional<EnvironmentChanges> changes
+            = runEnvironmentItemsDialog(changeButton, volatileValue());
+        if (changes)
+            setVolatileValue(*changes);
+    });
+}
+
+SystemSettings::SystemSettings()
+{
     setAutoApply(false);
+
+    environmentChangesAspect.setLabelText("Environment:");
+    environmentChangesAspect.setSettingsKey(kEnvironmentChanges);
+
+    terminalCommand.setLabelText(Tr::tr("Terminal:"));
+
+    const auto updateSystemEnv = [this, startupEnv = Environment::systemEnvironment()] {
+        Environment systemEnv = startupEnv;
+        environmentChangesAspect.value().modifyEnvironment(systemEnv, nullptr);
+
+        Environment::setSystemEnvironment(systemEnv);
+
+        if (ICore::instance())
+            ICore::instance()->systemEnvironmentChanged();
+    };
+
+    connect(&environmentChangesAspect, &EnvChangeAspect::changed, this, updateSystemEnv);
+
+    Qt::Alignment lfa = Qt::Alignment(qApp->style()->styleHint(QStyle::SH_FormLayoutFormAlignment));
+
+    BoolAspect::LabelPlacement boolAspectLabelPlacement
+        = lfa & Qt::AlignHCenter ? BoolAspect::LabelPlacement::AtCheckBox
+                                 : BoolAspect::LabelPlacement::Compact;
+
+    envVarSeparatorAspect.setLabelText(Tr::tr("Variable separators:"));
+    envVarSeparatorAspect.setSettingsKey(kEnvVarSeparators);
+    envVarSeparatorAspect.setDefaultValue(defaultEnvVarSeparators().toStringList());
 
     useDbusFileManagers.setSettingsKey("General/SupportDbusFileManagers");
     useDbusFileManagers.setDefaultValue(true);
-    useDbusFileManagers.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    useDbusFileManagers.setLabelPlacement(boolAspectLabelPlacement);
     useDbusFileManagers.setLabelText(Tr::tr("Use freedesktop.org file manager D-Bus interface"));
     useDbusFileManagers.setToolTip(
         Tr::tr(
@@ -72,6 +147,16 @@ SystemSettings::SystemSettings()
             "Manager</i>, if available. Otherwise falls back to the \"External file browser\" "
             "above.")
             .arg("https://freedesktop.org/wiki/Specifications/file-manager-interface"));
+
+    externalFileBrowser.setSettingsKey("General/FileBrowser");
+    externalFileBrowser.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+    externalFileBrowser.setDefaultValue("xdg-open %d");
+    externalFileBrowser.setLabelText(Tr::tr("External file browser:"));
+    externalFileBrowser.setToolTip(
+        Tr::tr(
+            "Command used for <i>Open in File Manager</i> if the freedesktop.org D-Bus interface "
+            "is not available. The command can contain the following variables:\n")
+        + fileBrowserHelpText());
 
     patchCommand.setSettingsKey("General/PatchCommand");
     patchCommand.setDefaultValue("patch");
@@ -83,7 +168,7 @@ SystemSettings::SystemSettings()
     autoSaveModifiedFiles.setSettingsKey("EditorManager/AutoSaveEnabled");
     autoSaveModifiedFiles.setDefaultValue(true);
     autoSaveModifiedFiles.setLabelText(Tr::tr("Auto-save modified files"));
-    autoSaveModifiedFiles.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    autoSaveModifiedFiles.setLabelPlacement(boolAspectLabelPlacement);
     autoSaveModifiedFiles.setToolTip(
         Tr::tr("Automatically creates temporary copies of modified files. "
                "If %1 is restarted after a crash or power failure, it asks whether to "
@@ -98,7 +183,7 @@ SystemSettings::SystemSettings()
 
     autoSaveAfterRefactoring.setSettingsKey("EditorManager/AutoSaveAfterRefactoring");
     autoSaveAfterRefactoring.setDefaultValue(true);
-    autoSaveAfterRefactoring.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    autoSaveAfterRefactoring.setLabelPlacement(boolAspectLabelPlacement);
     autoSaveAfterRefactoring.setLabelText(Tr::tr("Auto-save files after refactoring"));
     autoSaveAfterRefactoring.setToolTip(
         Tr::tr("Automatically saves all open files affected by a refactoring operation,\n"
@@ -107,10 +192,23 @@ SystemSettings::SystemSettings()
     autoSuspendEnabled.setSettingsKey("EditorManager/AutoSuspendEnabled");
     autoSuspendEnabled.setDefaultValue(true);
     autoSuspendEnabled.setLabelText(Tr::tr("Auto-suspend unmodified files"));
-    autoSuspendEnabled.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    autoSuspendEnabled.setLabelPlacement(boolAspectLabelPlacement);
     autoSuspendEnabled.setToolTip(
         Tr::tr("Automatically free resources of old documents that are not visible and not "
                "modified. They stay visible in the list of open documents."));
+
+    enableCrashReports.setSettingsKey(Utils::crashReportSettingsKey());
+    enableCrashReports.setLabelPlacement(boolAspectLabelPlacement);
+    enableCrashReports.setLabelText(Tr::tr("Enable crash reporting"));
+    enableCrashReports.setToolTip(
+        "<p>"
+        + Tr::tr(
+            "Allow crashes to be automatically reported. Collected reports are "
+            "used for the sole purpose of fixing bugs.")
+        + "</p><p>"
+        + Tr::tr("Crash reports are saved in \"%1\".").arg(appInfo().crashReports.toUserOutput()));
+    enableCrashReports.setDefaultValue(false);
+    enableCrashReports.setLabelPlacement(boolAspectLabelPlacement);
 
     autoSuspendMinDocumentCount.setSettingsKey("EditorManager/AutoSuspendMinDocuments");
     autoSuspendMinDocumentCount.setRange(1, 500);
@@ -122,7 +220,7 @@ SystemSettings::SystemSettings()
 
     warnBeforeOpeningBigFiles.setSettingsKey("EditorManager/WarnBeforeOpeningBigTextFiles");
     warnBeforeOpeningBigFiles.setDefaultValue(true);
-    warnBeforeOpeningBigFiles.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    warnBeforeOpeningBigFiles.setLabelPlacement(boolAspectLabelPlacement);
     warnBeforeOpeningBigFiles.setLabelText(Tr::tr("Warn before opening text files greater than"));
 
     bigFileSizeLimitInMB.setSettingsKey("EditorManager/BigTextFileSizeLimitInMB");
@@ -133,6 +231,7 @@ SystemSettings::SystemSettings()
     maxRecentFiles.setSettingsKey("EditorManager/MaxRecentFiles");
     maxRecentFiles.setRange(1, 99);
     maxRecentFiles.setDefaultValue(8);
+    maxRecentFiles.setLabelText(Tr::tr("Number of \"Recent Files\":"));
 
     reloadSetting.setSettingsKey("EditorManager/ReloadBehavior");
     reloadSetting.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
@@ -144,11 +243,10 @@ SystemSettings::SystemSettings()
 
     askBeforeExit.setSettingsKey("AskBeforeExit");
     askBeforeExit.setLabelText(Tr::tr("Ask for confirmation before exiting"));
-    askBeforeExit.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
-
-    // addCrashReportSetting(this, [](const QString &title) { ICore::askForRestart(title); });
+    askBeforeExit.setLabelPlacement(boolAspectLabelPlacement);
 
     readSettings();
+    updateSystemEnv();
 
     autoSaveInterval.setEnabler(&autoSaveModifiedFiles);
     autoSuspendMinDocumentCount.setEnabler(&autoSuspendEnabled);
@@ -156,453 +254,42 @@ SystemSettings::SystemSettings()
 
     autoSaveModifiedFiles.addOnChanged(this, &EditorManagerPrivate::updateAutoSave);
     autoSaveInterval.addOnChanged(this, &EditorManagerPrivate::updateAutoSave);
-}
+    enableCrashReports.addOnChanged(this, [] {
+        Utils::setCrashReportingEnabled(systemSettings().enableCrashReports());
+    });
 
-class EnvVarSeparatorItem : public TreeItem
-{
-public:
-    EnvVarSeparatorItem(const QString &var, const QString &sep) : m_var(var), m_sep(sep) {}
-
-    QString var() const { return m_var; }
-    QString sep() const { return m_sep; }
-
-private:
-    QVariant data(int column, int role) const override
-    {
-        if (role != Qt::DisplayRole && role != Qt::EditRole)
-            return {};
-        return column == 0 ? m_var : m_sep;
-    }
-
-    bool setData(int column, const QVariant &data, int) override
-    {
-        if (column == 0) {
-            m_var = data.toString();
-            return true;
-        }
-        if (column == 1) {
-            m_sep = data.toString();
-            return true;
-        }
-        return false;
-    }
-
-    Qt::ItemFlags flags(int column) const override
-    {
-        return TreeItem::flags(column) | Qt::ItemIsEditable;
-    }
-
-    QString m_var;
-    QString m_sep;
-};
-
-class EnvVarSeparatorsDialog : public QDialog
-{
-public:
-    EnvVarSeparatorsDialog(const NameValueDictionary &separators, QWidget *parent) : QDialog(parent)
-    {
-        const QString explanation = Tr::tr(
-            "For environment variables with list semantics that do not use the standard path list\n"
-            "separator, you need to configure the respective separators here if you plan to\n"
-            "aggregate them from several places (for instance from the kit and from the project).");
-
-        m_model.setHeader({Tr::tr("Variable"), Tr::tr("Separator")});
-        for (auto it = separators.begin(); it != separators.end(); ++it)
-            m_model.rootItem()->appendChild(new EnvVarSeparatorItem(it.key(), it.value()));
-
-        const auto view = new TreeView(this);
-        view->setSelectionMode(QAbstractItemView::SingleSelection);
-        view->setSelectionBehavior(QAbstractItemView::SelectRows);
-        view->setModel(&m_model);
-
-        const auto addButton = new QPushButton("&Add");
-        connect(addButton, &QPushButton::clicked, this, [this] {
-            m_model.rootItem()->appendChild(new EnvVarSeparatorItem("CUSTOM_VAR", {}));
-        });
-        const auto removeButton = new QPushButton("&Remove");
-        connect(removeButton, &QPushButton::clicked, this, [this, view] {
-            const QModelIndexList selected = view->selectionModel()->selectedRows();
-            if (selected.size() == 1)
-                m_model.rootItem()->removeChildAt(selected.first().row());
-        });
-        const auto updateRemoveButtonState = [view, removeButton] {
-            removeButton->setEnabled(view->selectionModel()->hasSelection());
-        };
-        connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
-                this, updateRemoveButtonState);
-        updateRemoveButtonState();
-
-        const auto buttonBox
-            = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
-        Column {
-            explanation,
-            Row {
-                Column { view },
-                Column { addButton, removeButton, st }
+    setLayouter([this]() -> Layouting::Layout {
+        using namespace Layouting;
+        // clang-format off
+        return Form {
+            environmentChangesAspect, br,
+            envVarSeparatorAspect, br,
+            If (HostOsInfo::isAnyUnixHost()) >> Then {
+                terminalCommand, br,
             },
-            buttonBox
-        }.attachTo(this);
-    }
-
-    NameValueDictionary separators() const
-    {
-        NameValueDictionary seps;
-        const TreeItem * const root = m_model.rootItem();
-        for (int i = 0; i < root->childCount(); ++i) {
-            const auto item = static_cast<EnvVarSeparatorItem *>(root->childAt(i));
-            seps.set(item->var(), item->sep());
-        }
-        return seps;
-    }
-
-private:
-    TreeModel<TreeItem, EnvVarSeparatorItem> m_model;
-};
-
-class SystemSettingsWidget : public IOptionsPageWidget
-{
-public:
-    SystemSettingsWidget()
-        : m_fileSystemCaseSensitivityChooser(HostOsInfo::isMacHost() ? new QComboBox : nullptr)
-        , m_externalFileBrowserEdit(new QLineEdit)
-        , m_terminalComboBox(new QComboBox)
-        , m_terminalOpenArgs(new QLineEdit)
-        , m_terminalExecuteArgs(new QLineEdit)
-        , m_environmentChangesLabel(new Utils::ElidingLabel)
-        , m_envVarSeparatorsLabel(new QLabel)
-    {
-        SystemSettings &s = systemSettings();
-
-        m_terminalExecuteArgs->setToolTip(
-            Tr::tr("Command line arguments used for \"Run in terminal\"."));
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(5);
-        m_environmentChangesLabel->setSizePolicy(sizePolicy);
-        m_envVarSeparatorsLabel->setSizePolicy(sizePolicy);
-        QSizePolicy termSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-        termSizePolicy.setHorizontalStretch(3);
-        m_terminalComboBox->setSizePolicy(termSizePolicy);
-        m_terminalComboBox->setMinimumSize(QSize(100, 0));
-        m_terminalComboBox->setEditable(true);
-        m_terminalOpenArgs->setToolTip(
-            Tr::tr("Command line arguments used for \"%1\".").arg(FileUtils::msgTerminalHereAction()));
-
-        auto resetFileBrowserButton = new QPushButton(Tr::tr("Reset"));
-        resetFileBrowserButton->setToolTip(Tr::tr("Reset to default."));
-        auto helpExternalFileBrowserButton = new QToolButton;
-        helpExternalFileBrowserButton->setText(Tr::tr("?"));
-        auto resetTerminalButton = new QPushButton(Tr::tr("Reset"));
-        resetTerminalButton->setToolTip(Tr::tr("Reset to default.", "Terminal"));
-        auto environmentButton = new QPushButton(Tr::tr("Change..."));
-        environmentButton->setSizePolicy(QSizePolicy::Fixed,
-                                         environmentButton->sizePolicy().verticalPolicy());
-        const auto envVarSeparatorsButton = new QPushButton(Tr::tr("Change..."));
-        envVarSeparatorsButton->setSizePolicy(environmentButton->sizePolicy());
-
-        Grid grid;
-        grid.addRow({Tr::tr("Environment:"),
-                     Span(3, m_environmentChangesLabel), environmentButton});
-        grid.addRow({Tr::tr("Variable separators:"),
-                     Span(3, m_envVarSeparatorsLabel), envVarSeparatorsButton});
-        if (HostOsInfo::isAnyUnixHost()) {
-            grid.addRow({Tr::tr("Terminal:"),
-                         m_terminalComboBox,
-                         m_terminalOpenArgs,
-                         m_terminalExecuteArgs,
-                         resetTerminalButton});
-        }
-        if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
-            grid.addRow({Tr::tr("External file browser:"),
-                         Span(3, m_externalFileBrowserEdit),
-                         resetFileBrowserButton,
-                         helpExternalFileBrowserButton});
-        }
-#ifdef QTC_SUPPORT_DBUSFILEMANAGER
-        grid.addRow({s.useDbusFileManagers});
-#endif
-        grid.addRow({Span(4, s.patchCommand)});
-        if (HostOsInfo::isMacHost()) {
-            auto fileSystemCaseSensitivityLabel = new QLabel(Tr::tr("File system case sensitivity:"));
-            fileSystemCaseSensitivityLabel->setToolTip(
-                Tr::tr("Influences how file names are matched to decide if they are the same."));
-            grid.addRow({fileSystemCaseSensitivityLabel,
-                         m_fileSystemCaseSensitivityChooser});
-        }
-        grid.addRow({s.reloadSetting});
-        grid.addRow({s.autoSaveModifiedFiles, Row{s.autoSaveInterval, st}});
-        grid.addRow({s.autoSuspendEnabled, Row{s.autoSuspendMinDocumentCount, st}});
-        grid.addRow({s.autoSaveAfterRefactoring});
-        grid.addRow({s.warnBeforeOpeningBigFiles, Row{s.bigFileSizeLimitInMB, st}});
-        grid.addRow({Tr::tr("Maximum number of entries in \"Recent Files\":"),
-                    Row{s.maxRecentFiles, st}});
-        grid.addRow({s.askBeforeExit});
-
-        // Utils::addCrashReportSettingsUi(this, &grid);
-
-        Column {
-            Group {
-                title(Tr::tr("System")),
-                Column { grid, st }
-            }
-        }.attachTo(this);
-
-        if (HostOsInfo::isAnyUnixHost()) {
-            const QVector<TerminalCommand> availableTerminals
-                = TerminalCommand::availableTerminalEmulators();
-            for (const TerminalCommand &term : availableTerminals)
-                m_terminalComboBox->addItem(term.command.toUserOutput(), QVariant::fromValue(term));
-            updateTerminalUi(TerminalCommand::terminalEmulator());
-            connect(m_terminalComboBox, &QComboBox::currentIndexChanged, this, [this](int index) {
-                updateTerminalUi(m_terminalComboBox->itemData(index).value<TerminalCommand>());
-            });
-        }
-
-        if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
-            m_externalFileBrowserEdit->setText(UnixUtils::fileBrowser(ICore::settings()));
-        }
-
-        if (HostOsInfo::isAnyUnixHost()) {
-            connect(resetTerminalButton,
-                    &QAbstractButton::clicked,
-                    this,
-                    &SystemSettingsWidget::resetTerminal);
-            if (!HostOsInfo::isMacHost()) {
-                connect(resetFileBrowserButton,
-                        &QAbstractButton::clicked,
-                        this,
-                        &SystemSettingsWidget::resetFileBrowser);
-                connect(helpExternalFileBrowserButton,
-                        &QAbstractButton::clicked,
-                        this,
-                        &SystemSettingsWidget::showHelpForFileBrowser);
-            }
-        }
-
-        if (HostOsInfo::isMacHost()) {
-            Qt::CaseSensitivity defaultSensitivity
-                    = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
-            if (defaultSensitivity == Qt::CaseSensitive) {
-                m_fileSystemCaseSensitivityChooser->addItem(Tr::tr("Case Sensitive (Default)"),
-                                                            Qt::CaseSensitive);
-            } else {
-                m_fileSystemCaseSensitivityChooser->addItem(Tr::tr("Case Sensitive"), Qt::CaseSensitive);
-            }
-            if (defaultSensitivity == Qt::CaseInsensitive) {
-                m_fileSystemCaseSensitivityChooser->addItem(Tr::tr("Case Insensitive (Default)"),
-                                                            Qt::CaseInsensitive);
-            } else {
-                m_fileSystemCaseSensitivityChooser->addItem(Tr::tr("Case Insensitive"),
-                                                            Qt::CaseInsensitive);
-            }
-            const Qt::CaseSensitivity sensitivity = EditorManagerPrivate::readFileSystemSensitivity(
-                ICore::settings());
-            if (sensitivity == Qt::CaseSensitive)
-                m_fileSystemCaseSensitivityChooser->setCurrentIndex(0);
-            else
-                m_fileSystemCaseSensitivityChooser->setCurrentIndex(1);
-        }
-
-        updatePath();
-
-        m_environmentChangesLabel->setElideMode(Qt::ElideRight);
-        m_environmentChanges = systemSettings().environmentChanges();
-        m_envVarSeparators = systemSettings().envVarSeparators();
-        updateEnvironmentChangesLabel();
-        updateEnvVarSeparatorsLabel();
-        connect(environmentButton, &QPushButton::clicked, this, [this, environmentButton] {
-            std::optional<EnvironmentChanges> changes
-                = runEnvironmentItemsDialog(environmentButton, m_environmentChanges);
-            if (!changes)
-                return;
-            markSettingsDirty();
-            m_environmentChanges = *changes;
-            updateEnvironmentChangesLabel();
-            updatePath();
-        });
-        connect(envVarSeparatorsButton, &QPushButton::clicked, this, [this] {
-            EnvVarSeparatorsDialog dlg(m_envVarSeparators, this);
-            if (dlg.exec() == QDialog::Accepted) {
-                if (m_envVarSeparators == dlg.separators())
-                    return;
-                markSettingsDirty();
-                m_envVarSeparators = dlg.separators();
-                updateEnvVarSeparatorsLabel();
-            }
-        });
-
-        connect(VcsManager::instance(), &VcsManager::configurationChanged,
-                this, &SystemSettingsWidget::updatePath);
-
-        setOnCancel([] { systemSettings().cancel(); });
-
-        installMarkSettingsDirtyTriggerRecursively(this);
-    }
-
-private:
-    void apply() final;
-
-    void showHelpForFileBrowser();
-    void resetFileBrowser();
-    void resetTerminal();
-    void updateTerminalUi(const Utils::TerminalCommand &term);
-    void updatePath();
-    void updateEnvironmentChangesLabel();
-    void updateEnvVarSeparatorsLabel();
-    void showHelpDialog(const QString &title, const QString &helpText);
-
-    QComboBox *m_fileSystemCaseSensitivityChooser;
-    QLineEdit *m_externalFileBrowserEdit;
-    QComboBox *m_terminalComboBox;
-    QLineEdit *m_terminalOpenArgs;
-    QLineEdit *m_terminalExecuteArgs;
-    Utils::ElidingLabel *m_environmentChangesLabel;
-    QLabel * const m_envVarSeparatorsLabel;
-    QPointer<QMessageBox> m_dialog;
-    EnvironmentChanges m_environmentChanges;
-    NameValueDictionary m_envVarSeparators;
-};
-
-void SystemSettingsWidget::apply()
-{
-    systemSettings().apply();
-    systemSettings().writeSettings();
-
-    QtcSettings *settings = ICore::settings();
-    if (HostOsInfo::isAnyUnixHost()) {
-        /*TerminalCommand::setTerminalEmulator({
-            FilePath::fromUserInput(m_terminalComboBox->lineEdit()->text()),
-            m_terminalOpenArgs->text(),
-            m_terminalExecuteArgs->text()
-        });*/
-        if (!HostOsInfo::isMacHost()) {
-            UnixUtils::setFileBrowser(settings, m_externalFileBrowserEdit->text());
-        }
-    }
-
-    if (HostOsInfo::isMacHost()) {
-        const Qt::CaseSensitivity sensitivity = EditorManagerPrivate::readFileSystemSensitivity(
-            settings);
-        const Qt::CaseSensitivity selectedSensitivity = Qt::CaseSensitivity(
-            m_fileSystemCaseSensitivityChooser->currentData().toInt());
-        if (selectedSensitivity != sensitivity) {
-            EditorManagerPrivate::writeFileSystemSensitivity(settings, selectedSensitivity);
-            ICore::askForRestart(
-                Tr::tr("The file system case sensitivity change will take effect after restart."));
-        }
-    }
-
-    systemSettings().setEnvironmentChanges(m_environmentChanges);
-    systemSettings().setEnvVarSeparators(m_envVarSeparators);
-}
-
-void SystemSettingsWidget::resetTerminal()
-{
-    if (HostOsInfo::isAnyUnixHost())
-        m_terminalComboBox->setCurrentIndex(0);
-}
-
-void SystemSettingsWidget::updateTerminalUi(const TerminalCommand &term)
-{
-    m_terminalComboBox->lineEdit()->setText(term.command.toUserOutput());
-    m_terminalOpenArgs->setText(term.openArgs);
-    m_terminalExecuteArgs->setText(term.executeArgs);
-}
-
-void SystemSettingsWidget::resetFileBrowser()
-{
-    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-        m_externalFileBrowserEdit->setText(UnixUtils::defaultFileBrowser());
-}
-
-void SystemSettingsWidget::updatePath()
-{
-    Environment env;
-    env.appendToPath(VcsManager::additionalToolsPath());
-    systemSettings().patchCommand.setEnvironment(env);
-}
-
-void SystemSettingsWidget::updateEnvironmentChangesLabel()
-{
-    m_environmentChangesLabel->setText(
-        m_environmentChanges.toShortSummary(globalMacroExpander(), true));
-}
-
-void SystemSettingsWidget::updateEnvVarSeparatorsLabel()
-{
-    const int count = m_envVarSeparators.size();
-    const QString summary = QCoreApplication::translate(
-        "QtC::Core", "%n custom separators configured", nullptr, count);
-    m_envVarSeparatorsLabel->setText(summary);
-}
-
-void SystemSettingsWidget::showHelpDialog(const QString &title, const QString &helpText)
-{
-    if (m_dialog) {
-        if (m_dialog->windowTitle() != title)
-            m_dialog->setText(helpText);
-
-        if (m_dialog->text() != helpText)
-            m_dialog->setText(helpText);
-
-        m_dialog->show();
-        ICore::raiseWindow(m_dialog);
-        return;
-    }
-    auto mb = new QMessageBox(QMessageBox::Information, title, helpText, QMessageBox::Close, this);
-    mb->setWindowModality(Qt::NonModal);
-    m_dialog = mb;
-    mb->show();
-}
-
-void SystemSettingsWidget::showHelpForFileBrowser()
-{
-    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-        showHelpDialog(Tr::tr("Variables"), UnixUtils::fileBrowserHelpText());
-}
-
-EnvironmentChanges SystemSettings::environmentChanges() const
-{
-    return m_environmentChanges;
-}
-
-void SystemSettings::setEnvironmentChanges(const EnvironmentChanges &changes)
-{
-    if (m_environmentChanges == changes)
-        return;
-    m_environmentChanges = changes;
-    Environment systemEnv = m_startupSystemEnvironment;
-    changes.modifyEnvironment(systemEnv, globalMacroExpander());
-    Environment::setSystemEnvironment(systemEnv);
-    ICore::settings()->setValueWithDefault(kEnvironmentChanges, changes.toVariant());
-    if (ICore::instance())
-        emit ICore::instance()->systemEnvironmentChanged();
-}
-
-void SystemSettings::setEnvVarSeparators(const Utils::NameValueDictionary &separators)
-{
-    if (m_envVarSeparators == separators)
-        return;
-    m_envVarSeparators = separators;
-    ICore::settings()->setValueWithDefault(
-        kEnvVarSeparators,
-        m_envVarSeparators.toStringList(),
-        defaultEnvVarSeparators().toStringList());
-    if (ICore::instance())
-        emit ICore::instance()->systemEnvironmentChanged();
-}
-
-NameValueDictionary SystemSettings::defaultEnvVarSeparators()
-{
-    return NameValueDictionary(
-        NameValuePairs{std::make_pair<QString, QString>("CFLAGS", " "),
-                       std::make_pair<QString, QString>("CXXFLAGS", " ")});
+            If (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) >> Then {
+                externalFileBrowser, br,
+            },
+            If (hasDBusFileManager) >> Then {
+                useDbusFileManagers, br,
+            },
+            patchCommand, br,
+            maxRecentFiles, br,
+            reloadSetting, br,
+            autoSaveModifiedFiles, Row { autoSaveInterval }, st, br,
+            autoSaveAfterRefactoring, br,
+            autoSuspendEnabled, Row { autoSuspendMinDocumentCount}, st, br,
+            warnBeforeOpeningBigFiles, Row { bigFileSizeLimitInMB }, st, br,
+            askBeforeExit, br,
+            If (isCrashReportingAvailable()) >> Then {
+                enableCrashReports, br,
+            },
+        };
+        // clang-format on
+    });
 }
 
 // SystemSettingsPage
-
 class SystemSettingsPage final : public IOptionsPage
 {
 public:
@@ -611,10 +298,33 @@ public:
         setId(Constants::SETTINGS_ID_SYSTEM);
         setDisplayName(Tr::tr("System"));
         setCategory(Constants::SETTINGS_CATEGORY_CORE);
-        setWidgetCreator([] { return new SystemSettingsWidget; });
+        setSettingsProvider([] { return &systemSettings(); });
     }
 };
 
+static void appendVscPathsToPatchCommandPath()
+{
+    Environment env;
+    env.appendToPath(VcsManager::additionalToolsPath());
+    systemSettings().patchCommand.setEnvironment(env);
+}
+
+void SystemSettings::delayedInitialize()
+{
+    // TODO: This is a bit of a hack to get the VSC paths into the patch command's environment,
+    // but it needs to be done after all plugins have been loaded to ensure that the VCS plugin has
+    // had a chance to add its additional tools path. We should look into a cleaner way to handle
+    // this in the future.
+    connect(
+        VcsManager::instance(),
+        &VcsManager::configurationChanged,
+        this,
+        appendVscPathsToPatchCommandPath);
+    connect(
+        ICore::instance(), &ICore::systemEnvironmentChanged, this, appendVscPathsToPatchCommandPath);
+    appendVscPathsToPatchCommandPath();
+}
+
 const SystemSettingsPage settingsPage;
 
-} // Core::Internal
+} // namespace Core::Internal

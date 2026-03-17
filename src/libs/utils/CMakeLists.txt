@@ -208,7 +208,6 @@ add_qtc_library(Utils
     unarchiver.cpp unarchiver.h
     uncommentselection.cpp uncommentselection.h
     uniqueobjectptr.h
-    unixutils.cpp unixutils.h
     url.cpp url.h
     utils.qrc
     utils_global.h

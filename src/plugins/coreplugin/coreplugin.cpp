@@ -97,8 +97,6 @@ public:
                            const QString &workingDirectory,
                            const QStringList &args) final;
 
-    static QString msgCrashpadInformation();
-
 public slots:
     void fileOpenRequest(const QString &);
 
@@ -131,13 +129,6 @@ public:
 CorePlugin::CorePlugin()
 {
     QObject::connect(qApp, SIGNAL(fileOpenRequest(QString)), this, SLOT(fileOpenRequest(QString)));
-
-    Environment::setListSeparatorProvider([](const QString &varName) -> std::optional<QString> {
-        const NameValueDictionary seps = systemSettings().envVarSeparators();
-        if (const auto it = seps.find(varName); it != seps.end())
-            return it.value();
-        return {};
-    });
 
     // Trigger creation as early as possible before anyone else could
     // mess with the systemEnvironment before it is "backed up".
@@ -328,6 +319,59 @@ static void registerStandardLocation(MacroExpander *expander,
         });
 }
 
+static void warnAboutCrashReporting(
+    InfoBar *infoBar,
+    const QString &optionsButtonText,
+    const InfoBarEntry::CallBack &optionsButtonCallback)
+{
+    static const char kCrashReportingInfoBarEntry[] = "WarnCrashReporting";
+
+    if (!isCrashReportingAvailable())
+        return;
+    if (!infoBar->canInfoBeAdded(kCrashReportingInfoBarEntry))
+        return;
+
+    QString warnStr = systemSettings().enableCrashReports()
+                          ? Tr::tr(
+                                "%1 collects crash reports for the sole purpose of fixing bugs. "
+                                "To disable this feature go to %2.")
+                          : Tr::tr(
+                                "%1 can collect crash reports for the sole purpose of fixing bugs. "
+                                "To enable this feature go to %2.");
+
+    if (Utils::HostOsInfo::isMacHost()) {
+        warnStr = warnStr.arg(
+            QGuiApplication::applicationDisplayName(),
+            QGuiApplication::applicationDisplayName()
+                + Tr::tr(" > Preferences > Environment > System"));
+    } else {
+        warnStr = warnStr.arg(
+            QGuiApplication::applicationDisplayName(),
+            Tr::tr("Edit > Preferences > Environment > System"));
+    }
+
+    Utils::InfoBarEntry
+        info(kCrashReportingInfoBarEntry, warnStr, Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    info.setTitle(Tr::tr("Crash Reporting"));
+    info.setInfoType(InfoLabel::Information);
+    info.addCustomButton(
+        optionsButtonText,
+        optionsButtonCallback,
+        {},
+        InfoBarEntry::ButtonAction::SuppressPersistently);
+
+    info.setDetailsWidgetCreator([]() -> QWidget * {
+        auto label = new QLabel;
+        label->setWindowTitle(Tr::tr("Crash Reporting"));
+        label->setWordWrap(true);
+        label->setOpenExternalLinks(true);
+        label->setText(Utils::breakpadInformation());
+        label->setContentsMargins(0, 0, 0, 8);
+        return label;
+    });
+    infoBar->addInfo(info);
+}
+
 Result<> CorePlugin::initialize(const QStringList &arguments)
 {
     initTAndCAcceptDialog();
@@ -496,11 +540,9 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
             &ICore::coreOpened,
             this,
             [] {
-                /*Utils::warnAboutCrashReporting(
-                    ICore::popupInfoBar(), ICore::msgShowSettings(), [] {
-                        ICore::showSettings(Constants::SETTINGS_ID_SYSTEM);
-                    });
-                    */
+                warnAboutCrashReporting(ICore::popupInfoBar(), ICore::msgShowSettings(), [] {
+                    ICore::showSettings(Constants::SETTINGS_ID_SYSTEM);
+                });
             },
             Qt::QueuedConnection);
     }
@@ -570,6 +612,7 @@ void CorePlugin::extensionsInitialized()
 
 bool CorePlugin::delayedInitialize()
 {
+    systemSettings().delayedInitialize();
     m_locator->delayedInitialize();
     IWizardFactory::allWizardFactories(); // scan for all wizard factories
     return true;

@@ -12,6 +12,7 @@
 #include "iversioncontrol.h"
 #include "messagemanager.h"
 #include "navigationwidget.h"
+#include "systemsettings.h"
 #include "vcsmanager.h"
 
 #include <utils/commandline.h>
@@ -22,7 +23,6 @@
 #include <utils/terminalhooks.h>
 #include <utils/textcodec.h>
 #include <utils/textfileformat.h>
-#include <utils/unixutils.h>
 
 #include <QApplication>
 #include <QDir>
@@ -110,6 +110,38 @@ static void showGraphicalShellError(const QString &app, const QString &error)
         ICore::showSettings(Constants::SETTINGS_ID_INTERFACE);
 }
 
+static QString substituteFileBrowserParameters(const QString &pre, const QString &file)
+{
+    QString cmd;
+    for (int i = 0; i < pre.size(); ++i) {
+        QChar c = pre.at(i);
+        if (c == QLatin1Char('%') && i < pre.size() - 1) {
+            c = pre.at(++i);
+            QString s;
+            if (c == QLatin1Char('d')) {
+                // In case a directory was passed in, use that. In case of a file, the parent dir.
+                const QFileInfo fi(file);
+                const QString folder = fi.isDir() ? fi.filePath() : fi.path();
+                s = QLatin1Char('"') + folder + QLatin1Char('"');
+            } else if (c == QLatin1Char('f')) {
+                s = QLatin1Char('"') + file + QLatin1Char('"');
+            } else if (c == QLatin1Char('n')) {
+                s = QLatin1Char('"') + FilePath::fromString(file).fileName() + QLatin1Char('"');
+            } else if (c == QLatin1Char('%')) {
+                s = c;
+            } else {
+                s = QLatin1Char('%');
+                s += c;
+            }
+            cmd += s;
+            continue;
+        }
+        cmd += c;
+    }
+
+    return cmd;
+}
+
 void showInGraphicalShell(const FilePath &pathIn)
 {
     if (openFreedesktopFileManager(pathIn))
@@ -129,10 +161,9 @@ void showInGraphicalShell(const FilePath &pathIn)
     } else {
         // we cannot select a file here, because no file browser really supports it...
         const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
-        const QString app = UnixUtils::fileBrowser(ICore::settings());
+        const QString app = Internal::systemSettings().externalFileBrowser.value();
         QStringList browserArgs = ProcessArgs::splitArgs(
-                    UnixUtils::substituteFileBrowserParameters(app, folder),
-                    HostOsInfo::hostOs());
+            substituteFileBrowserParameters(app, folder), HostOsInfo::hostOs());
         QString error;
         if (browserArgs.isEmpty()) {
             error = Tr::tr("The command for file browser is not set.");

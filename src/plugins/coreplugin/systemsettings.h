@@ -5,13 +5,23 @@
 
 #include "core_global.h"
 
+#include "envvarseparatoraspect.h"
+
 #include <utils/aspects.h>
 #include <utils/environment.h>
+#include <utils/terminalcommand.h>
 
 namespace Core::Internal {
 
 const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
 const char kEnvVarSeparators[] = "Core/EnvVarSeparators";
+
+class EnvChangeAspect : public Utils::EnvironmentChangesAspect
+{
+public:
+    using EnvironmentChangesAspect::EnvironmentChangesAspect;
+    void addToLayoutImpl(Layouting::Layout &parent);
+};
 
 class CORE_TEST_EXPORT SystemSettings final : public Utils::AspectContainer
 {
@@ -19,6 +29,8 @@ public:
     SystemSettings();
 
     Utils::BoolAspect useDbusFileManagers{this};
+    Utils::StringAspect externalFileBrowser{this};
+
     Utils::FilePathAspect patchCommand{this};
 
     Utils::BoolAspect autoSaveModifiedFiles{this};
@@ -38,20 +50,16 @@ public:
 
     Utils::BoolAspect askBeforeExit{this};
 
-    Utils::EnvironmentChanges environmentChanges() const;
-    void setEnvironmentChanges(const Utils::EnvironmentChanges &changes);
+    EnvChangeAspect environmentChangesAspect{this};
+    EnvVarSeparatorAspect envVarSeparatorAspect{this};
 
-    Utils::NameValueDictionary envVarSeparators() const { return m_envVarSeparators; }
-    void setEnvVarSeparators(const Utils::NameValueDictionary &separators);
+    Utils::TerminalCommandAspect terminalCommand{this};
 
-private:
-    static Utils::NameValueDictionary defaultEnvVarSeparators();
+    Utils::BoolAspect enableCrashReports{this};
 
-    Utils::EnvironmentChanges m_environmentChanges;
-    Utils::NameValueDictionary m_envVarSeparators = defaultEnvVarSeparators();
-    const Utils::Environment m_startupSystemEnvironment;
+    void delayedInitialize();
 };
 
 CORE_TEST_EXPORT SystemSettings &systemSettings();
 
-} // Core::Internal
+} // namespace Core::Internal
