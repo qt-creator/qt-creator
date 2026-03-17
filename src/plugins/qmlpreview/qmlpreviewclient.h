@@ -28,6 +28,13 @@ public:
         Zoom,
         Fps,
         AnimationSpeed,
+        Configuration,
+        Confirmation,
+        HotReloadFailure
+    };
+
+    struct Settings {
+        bool enableInPlaceUpdates = false;
     };
 
     struct FpsInfo {
@@ -50,8 +57,10 @@ public:
     void announceFile(const QString &path, const QByteArray &contents);
     void announceDirectory(const QString &path, const QStringList &entries);
     void announceError(const QString &path);
+    void announceConfiguration();
     void clearCache();
     void setAnimationSpeed(float factor);
+    void configureEventReplay(); // Configure the event replay client based on the current settings
 
     void messageReceived(const QByteArray &message) override;
     void stateChanged(State state) override;
@@ -70,6 +79,9 @@ signals:
     void errorReported(const QString &error);
     void fpsReported(const FpsInfo &fpsInfo);
     void debugServiceUnavailable();
+    void configure();
+    void confirmation(const Settings &settings);
+    void hotReloadFailure(const QString &reason);
 
 private:
     int appendEventType(QmlDebug::QmlEventType &&type);
@@ -88,6 +100,7 @@ private:
 
     QTimer m_replayTimer;
     qsizetype m_numExpectedEvents = 0;
+    Settings m_confirmedSettings;
 };
 
 } // namespace QmlPreview
