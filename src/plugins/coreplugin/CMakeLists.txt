@@ -89,6 +89,8 @@ add_qtc_plugin(Core
     editormanager/systemeditor.h
     editortoolbar.cpp
     editortoolbar.h
+    envvarseparatoraspect.cpp
+    envvarseparatoraspect.h
     externaltool.cpp
     externaltool.h
     externaltoolmanager.cpp
