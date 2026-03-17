@@ -146,7 +146,7 @@ SystemSettings::SystemSettings()
     askBeforeExit.setLabelText(Tr::tr("Ask for confirmation before exiting"));
     askBeforeExit.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
-    addCrashReportSetting(this, [](const QString &title) { ICore::askForRestart(title); });
+    // addCrashReportSetting(this, [](const QString &title) { ICore::askForRestart(title); });
 
     readSettings();
 
@@ -340,7 +340,7 @@ public:
                     Row{s.maxRecentFiles, st}});
         grid.addRow({s.askBeforeExit});
 
-        Utils::addCrashReportSettingsUi(this, &grid);
+        // Utils::addCrashReportSettingsUi(this, &grid);
 
         Column {
             Group {

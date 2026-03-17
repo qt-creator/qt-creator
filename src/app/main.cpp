@@ -759,7 +759,8 @@ int main(int argc, char **argv)
         Core::Constants::IDE_DISPLAY_NAME, CrashHandlerSetup::EnableRestart, info.libexec.path());
 
     // depends on AppInfo, userSettings, and QApplication being created
-    Utils::setUpCrashReporting();
+    if (userSettings->value(crashReportSettingsKey()).toBool())
+        setCrashReportingEnabled(true);
 
     PluginManager pluginManager;
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
@@ -928,7 +929,7 @@ int main(int argc, char **argv)
     }
 
     const int exitCode = restarter.restartOrExit(app.exec());
-    Utils::shutdownCrashReporting();
+    Utils::setCrashReportingEnabled(false);
     SettingsSetup::destroySettings();
     return exitCode;
 }

@@ -21,14 +21,8 @@ class AspectContainer;
 class BoolAspect;
 
 QTCREATOR_UTILS_EXPORT bool isCrashReportingAvailable();
-QTCREATOR_UTILS_EXPORT bool setUpCrashReporting();
-QTCREATOR_UTILS_EXPORT void addCrashReportSetting(
-    AspectContainer *container, const std::function<void(QString)> &askForRestart);
-QTCREATOR_UTILS_EXPORT void addCrashReportSettingsUi(QWidget *parent, Layouting::Grid *grid);
-QTCREATOR_UTILS_EXPORT void warnAboutCrashReporting(
-    InfoBar *infoBar,
-    const QString &optionsButtonText,
-    const Utils::InfoBarEntry::CallBack &optionsButtonCallback);
-QTCREATOR_UTILS_EXPORT void shutdownCrashReporting();
+QTCREATOR_UTILS_EXPORT void setCrashReportingEnabled(bool enable);
+QTCREATOR_UTILS_EXPORT QString breakpadInformation();
+QTCREATOR_UTILS_EXPORT Key crashReportSettingsKey();
 
 } // namespace Utils

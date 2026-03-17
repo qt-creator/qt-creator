@@ -496,10 +496,11 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
             &ICore::coreOpened,
             this,
             [] {
-                Utils::warnAboutCrashReporting(
+                /*Utils::warnAboutCrashReporting(
                     ICore::popupInfoBar(), ICore::msgShowSettings(), [] {
                         ICore::showSettings(Constants::SETTINGS_ID_SYSTEM);
                     });
+                    */
             },
             Qt::QueuedConnection);
     }

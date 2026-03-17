@@ -147,14 +147,6 @@ if(SENTRY_DSN AND SENTRY_PROJECT)
       COMPONENT Dependencies
       EXCLUDE_FROM_ALL
     )
-    if (TARGET sentry_crashpad::crashpad_handler)
-      get_target_property(SENTRY_CRASHPAD_PATH sentry_crashpad::crashpad_handler IMPORTED_LOCATION_${__sentry_configs})
-      install(PROGRAMS ${SENTRY_CRASHPAD_PATH}
-        DESTINATION "${IDE_LIBEXEC_PATH}"
-        COMPONENT Dependencies
-        EXCLUDE_FROM_ALL
-      )
-    endif()
   endif()
 endif()
 add_feature_info("Build with Sentry" ${BUILD_WITH_SENTRY} "")

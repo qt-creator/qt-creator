@@ -334,11 +334,6 @@ extend_qtc_library(Utils
     ENABLE_SENTRY
   DEPENDS sentry::sentry
 )
-extend_qtc_library(Utils
-  CONDITION DEFINED SENTRY_CRASHPAD_PATH
-  DEFINES
-    SENTRY_CRASHPAD_PATH="${SENTRY_CRASHPAD_PATH}"
-)
 
 extend_qtc_library(Utils
   CONDITION TARGET Nanotrace
