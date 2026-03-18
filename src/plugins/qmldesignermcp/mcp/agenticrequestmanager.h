@@ -87,27 +87,14 @@ public:
 
     ~AgenticRequestManager();
 
-    /**
-     * @brief Start an agentic request
-     *
-     * Kicks off the multi-turn conversation loop.
-     */
+    // Kicks off the multi-turn agentic request loop.
     void request(const RequestData &data, const AiModelInfo &modelInfo);
 
-    /**
-     * @brief Cancel the current request
-     */
     void cancel();
-
-    /**
-     * @brief Check if a request is currently running
-     */
     bool isRunning() const { return m_isRunning; }
-
-    /**
-     * @brief Clear apdaters states
-     */
+    bool hasPendingConfirmations() const;
     void clearAdapters();
+    void confirmToolsCall(const QList<int> &pendingIndices, bool confirmed);
 
 signals:
     // Lifecycle
@@ -122,6 +109,14 @@ signals:
     void iterationStarted(int iteration, int maxIterations);
     void toolCallStarted(const QString &serverName, const QString &toolName, const QJsonObject &arguments);
     void toolCallFinished(const QString &serverName, const QString &toolName, bool success);
+
+    // Emitted once per LLM turn when one or more destructive tool calls need approval.
+    // pendingIndices lists every PendingToolCall index in the batch.
+    void confirmationRequired(const QStringList &serverNames,
+                              const QStringList &toolNames,
+                              const QList<QJsonObject> &argumentsList,
+                              const QList<int> &pendingIndices);
+    void confirmationsCancelled(const QList<int> &pendingIndices);
 
     // Emitted when the LLM produces a text block alongside tool calls
     // e.g. "I'll read the file first to understand its current state."
@@ -143,6 +138,7 @@ private:
     void sendLlmRequest();
     void handleLlmResponse(const QByteArray &responseData);
     void executeToolCalls(const QList<ToolCall> &calls);
+    void confirmToolCall(int pendingIndex, bool confirmed);
     void onAllToolCallsCompleted();
     void finishWithResponse(const AiResponse &response);
     void finishWithError(const QString &error);
@@ -179,7 +175,8 @@ private:
     // Tool call tracking
     struct PendingToolCall {
         ToolCall call;
-        qint64 requestId;
+        qint64 requestId = -1;
+        bool awaitingConfirmation = false;
         bool completed = false;
         ToolResult result;
     };

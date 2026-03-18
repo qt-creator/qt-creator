@@ -400,7 +400,23 @@ void AiAssistantWidget::connectRequestManager()
     connect(reqManager, &AgenticRequestManager::toolCallFinished,
             this, [this](const QString &server, const QString &tool, bool success) {
                 m_chatHistory->completeToolCall(server, tool, success);
-                setGenerationState(GenerationState::ProcessingTool);
+        setGenerationState(m_requestManager->hasPendingConfirmations()
+                           ? GenerationState::WaitingForConsent
+                           : GenerationState::ProcessingTool);
+            });
+
+    connect(reqManager, &AgenticRequestManager::confirmationRequired,
+            this, [this](const QStringList &serverNames, const QStringList &toolNames,
+                         const QList<QJsonObject> &argumentsList,
+                         const QList<int> &pendingIndices) {
+                Q_UNUSED(serverNames)
+                setGenerationState(GenerationState::WaitingForConsent);
+                m_chatHistory->addToolCallConfirmation(toolNames, argumentsList, pendingIndices);
+            });
+
+    connect(reqManager, &AgenticRequestManager::confirmationsCancelled,
+            this, [this](const QList<int> &pendingIndices) {
+                m_chatHistory->resolveToolCallConfirmation(pendingIndices, false);
             });
 
     connect(reqManager, &AgenticRequestManager::logMessage,
@@ -509,6 +525,13 @@ void AiAssistantWidget::undoTransaction()
     m_chatHistory->addSystemMessage(tr("Last changes undone."));
     m_currentTransaction.rollback();
     emit canUndoTransactionChanged();
+}
+
+void AiAssistantWidget::confirmToolsCall(const QList<int> &pendingIndices, bool confirmed)
+{
+    setGenerationState(confirmed ? GenerationState::CallingTool : GenerationState::Generating);
+    m_requestManager->confirmToolsCall(pendingIndices, confirmed);
+    m_chatHistory->resolveToolCallConfirmation(pendingIndices, confirmed);
 }
 
 } // namespace QmlDesigner

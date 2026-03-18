@@ -17,12 +17,22 @@ Row {
     Text {
         text: {
             const state = AiAssistantBackend.rootView.generationState
-            if (state === GenerationState.CallingTool)
+
+            switch (state) {
+            case GenerationState.CallingTool:
                 return qsTr("Using tool")
-            if (state === GenerationState.ProcessingTool)
+
+            case GenerationState.ProcessingTool:
                 return qsTr("Processing")
-            return qsTr("Generating")
+
+            case GenerationState.WaitingForConsent:
+                return qsTr("Waiting for your response")
+
+            default:
+                return qsTr("Generating")
+            }
         }
+
         color: StudioTheme.Values.themeTextColor
         font.pixelSize: StudioTheme.Values.baseFontSize
         anchors.verticalCenter: parent.verticalCenter

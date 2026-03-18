@@ -145,8 +145,10 @@ QVariant ChatHistoryModel::data(const QModelIndex &index, int role) const
         return message->toolName();
     case ServerNameRole:
         return message->serverName();
-    case SuccessRole:
-        return message->success();
+    case PendingIndicesRole:
+        return QVariant::fromValue(message->pendingIndices());
+    case Resolved:
+        return message->resolved();
     case TimestampRole:
         return message->timestamp();
     default:
@@ -159,10 +161,11 @@ QHash<int, QByteArray> ChatHistoryModel::roleNames() const
     return {
         {TypeRole, "messageType"},
         {ContentRole, "content"},
-        {SegmentsRole,   "segments"},
+        {SegmentsRole, "segments"},
         {ToolNameRole, "toolName"},
         {ServerNameRole, "serverName"},
-        {SuccessRole, "success"},
+        {PendingIndicesRole, "pendingIndices"},
+        {Resolved, "resolved"},
         {TimestampRole, "timestamp"}
     };
 }
@@ -214,7 +217,7 @@ void ChatHistoryModel::completeToolCall(const QString &serverName, const QString
             && msg->toolName() == toolName) {
             msg->complete(success);
             const QModelIndex idx = index(i);
-            emit dataChanged(idx, idx, {TypeRole, ContentRole, SuccessRole});
+            emit dataChanged(idx, idx, {TypeRole, ContentRole});
             return;
         }
     }
@@ -231,7 +234,7 @@ void ChatHistoryModel::addToolCallFailed(const QString &serverName, const QStrin
             && msg->toolName() == toolName) {
             msg->complete(false);
             const QModelIndex idx = index(i);
-            emit dataChanged(idx, idx, {TypeRole, ContentRole, SuccessRole});
+            emit dataChanged(idx, idx, {TypeRole, ContentRole});
             return;
         }
     }
@@ -241,6 +244,54 @@ void ChatHistoryModel::addToolCallFailed(const QString &serverName, const QStrin
     msg->setToolInfo(serverName, toolName);
     m_messages.append(msg);
     endInsertRows();
+}
+
+void ChatHistoryModel::addToolCallConfirmation(const QStringList &toolNames,
+                                               const QList<QJsonObject> &argsList,
+                                               const QList<int> &pendingIndices)
+{
+    // Build a human-readable list: "Button.qml, Card.qml"
+    QStringList displayNames;
+    for (int i = 0; i < toolNames.size(); ++i) {
+        const QString fp = argsList.at(i).value("filepath").toString();
+        displayNames.append(fp.isEmpty() ? toolNames.at(i) : QFileInfo(fp).fileName());
+    }
+
+    const QString summary = displayNames.size() == 1
+                                ? tr("AI wants to delete \"%1\". Proceed?").arg(displayNames.first())
+                                : tr("AI wants to delete %1 files: %2. Proceed?")
+                                      .arg(displayNames.size())
+                                      .arg(displayNames.join(", "));
+     auto *msg = new ChatMessage(ChatMessage::ToolCallConfirmation, summary, this);
+    // Store the full batch on the first toolName slot; QML reads pendingIndices as a list.
+    msg->setToolInfo({}, toolNames.join(','));
+    msg->setPendingIndices(pendingIndices);
+
+    beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
+    m_messages.append(msg);
+    endInsertRows();
+}
+
+void ChatHistoryModel::resolveToolCallConfirmation(const QList<int> &pendingIndices, bool confirmed)
+{
+    // Find the confirmation message that owns this batch (any one of the indices matches).
+    for (int i = m_messages.size() - 1; i >= 0; --i) {
+        ChatMessage *msg = m_messages.at(i);
+        if (msg->type() != ChatMessage::ToolCallConfirmation)
+            continue;
+
+        const QList<int> stored = msg->pendingIndices();
+
+        // Check for overlap — the batch stored on the message contains these indices.
+        for (int idx : pendingIndices) {
+            if (stored.contains(idx)) {
+               msg->resolve(confirmed);
+               const QModelIndex midx = index(i);
+               emit dataChanged(midx, midx, {Resolved, ContentRole});
+               return;
+            }
+        }
+    }
 }
 
 void ChatHistoryModel::addSystemMessage(const QString &content)

@@ -42,7 +42,7 @@ class AiAssistantWidget : public QFrame
     Q_PROPERTY(bool canUndoTransaction READ canUndoTransaction NOTIFY canUndoTransactionChanged)
 
 public:
-    enum class GenerationState { Idle, Generating, CallingTool, ProcessingTool };
+    enum class GenerationState { Idle, Generating, CallingTool, ProcessingTool, WaitingForConsent };
     Q_ENUM(GenerationState)
 
     AiAssistantWidget(AiAssistantView *view);
@@ -72,6 +72,7 @@ public:
     Q_INVOKABLE void clearChat();
     Q_INVOKABLE void cancelRequest();
     Q_INVOKABLE void undoTransaction();
+    Q_INVOKABLE void confirmToolsCall(const QList<int> &pendingIndices, bool confirmed);
 
 signals:
     void termsAcceptedChanged();

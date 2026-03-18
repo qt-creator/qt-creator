@@ -26,7 +26,8 @@ public:
         SegmentsRole,
         ToolNameRole,
         ServerNameRole,
-        SuccessRole,
+        PendingIndicesRole,
+        Resolved,
         TimestampRole
     };
 
@@ -43,6 +44,9 @@ public:
     void addToolCallStarted(const QString &serverName, const QString &toolName, const QJsonObject &args);
     void completeToolCall(const QString &serverName, const QString &toolName, bool success);
     void addToolCallFailed(const QString &serverName, const QString &toolName, const QString &error);
+    void addToolCallConfirmation(const QStringList &toolNames, const QList<QJsonObject> &argsList,
+                                 const QList<int> &pendingIndices);
+    void resolveToolCallConfirmation(const QList<int> &pendingIndices, bool confirmed);
     void addSystemMessage(const QString &content);
     void addIterationMessage(int current, int max);
 

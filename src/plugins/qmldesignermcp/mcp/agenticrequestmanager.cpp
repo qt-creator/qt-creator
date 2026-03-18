@@ -4,6 +4,7 @@
 #include "agenticrequestmanager.h"
 
 #include "aiapiadapter.h"
+#include "aiassistantconstants.h"
 #include "airesponse.h"
 #include "claudeapiadapter.h"
 #include "conversationmanager.h"
@@ -95,6 +96,14 @@ void AgenticRequestManager::cancel()
         reply->abort();
         reply->deleteLater();
     }
+
+    QList<int> existingConfirmations;
+    for (int i = 0; i < m_pendingToolCalls.size(); ++i) {
+        if (m_pendingToolCalls.at(i).awaitingConfirmation)
+            existingConfirmations.append(i);
+    }
+    if (!existingConfirmations.isEmpty())
+        emit confirmationsCancelled(existingConfirmations);
 
     m_pendingToolCalls.clear();
     m_isRunning = false;
@@ -271,6 +280,14 @@ void AgenticRequestManager::executeToolCalls(const QList<ToolCall> &calls)
 {
     m_pendingToolCalls.clear();
 
+    bool allCompleted = true;
+
+    // Collect all destructive calls first so we can emit one batched signal.
+    QStringList confirmServerNames;
+    QStringList confirmToolNames;
+    QList<QJsonObject> confirmArgs;
+    QList<int> confirmIndices;
+
     for (const ToolCall &call : calls) {
         PendingToolCall pending;
         pending.call = call;
@@ -294,6 +311,18 @@ void AgenticRequestManager::executeToolCalls(const QList<ToolCall> &calls)
             }
         }
 
+        // Destructive tools are parked until the user explicitly approves them.
+        if (Constants::toolsRequiringConfirmation.contains(call.toolName)) {
+            pending.awaitingConfirmation = true;
+            m_pendingToolCalls.append(pending);
+            allCompleted = false;
+            confirmServerNames.append(serverName);
+            confirmToolNames.append(call.toolName);
+            confirmArgs.append(call.arguments);
+            confirmIndices.append(m_pendingToolCalls.size() - 1);
+            continue;
+        }
+
         emit toolCallStarted(serverName, call.toolName, call.arguments);
         emit logMessage(QString("Calling tool '%1.%2'").arg(serverName, call.toolName));
 
@@ -310,20 +339,78 @@ void AgenticRequestManager::executeToolCalls(const QList<ToolCall> &calls)
             emit toolCallFinished(serverName, call.toolName, false);
         } else {
             pending.requestId = requestId;
+            allCompleted = false;
         }
 
         m_pendingToolCalls.append(pending);
     }
 
-    // Check if all completed immediately (all errors)
-    bool allCompleted = true;
-    for (const auto &pending : std::as_const(m_pendingToolCalls)) {
-        if (!pending.completed) {
-            allCompleted = false;
-            break;
+    if (!confirmIndices.isEmpty())
+        emit confirmationRequired(confirmServerNames, confirmToolNames, confirmArgs, confirmIndices);
+
+    if (allCompleted)
+        onAllToolCallsCompleted();
+}
+
+void AgenticRequestManager::confirmToolsCall(const QList<int> &pendingIndices, bool confirmed)
+{
+    for (int idx : pendingIndices)
+        confirmToolCall(idx, confirmed);
+}
+
+void AgenticRequestManager::confirmToolCall(int pendingIndex, bool confirmed)
+{
+    if (pendingIndex < 0 || pendingIndex >= m_pendingToolCalls.size()) {
+        emit logMessage(QString("confirmToolCall: invalid index %1").arg(pendingIndex));
+        return;
+    }
+
+    PendingToolCall &pending = m_pendingToolCalls[pendingIndex];
+
+    if (!pending.awaitingConfirmation) {
+        emit logMessage(QString("confirmToolCall: index %1 is not awaiting confirmation")
+                            .arg(pendingIndex));
+        return;
+    }
+
+    pending.awaitingConfirmation = false;
+
+    const QString serverName = pending.call.serverName.isEmpty()
+                                   ? m_toolRegistry->findServerForTool(pending.call.toolName)
+                                   : pending.call.serverName;
+
+    if (!confirmed) {
+        pending.completed = true;
+        pending.result.toolCallId = pending.call.id;
+        pending.result.toolName = pending.call.toolName;
+        pending.result.success = false;
+        pending.result.error = QString("User declined to execute '%1'").arg(pending.call.toolName);
+        emit logMessage(QString("Tool '%1' declined by user").arg(pending.call.toolName));
+    } else {
+        emit toolCallStarted(serverName, pending.call.toolName, pending.call.arguments);
+        emit logMessage(QString("Tool '%1.%2' confirmed, executing")
+                            .arg(serverName, pending.call.toolName));
+
+        const qint64 requestId = m_mcpHost->callTool(serverName, pending.call.toolName,
+                                                     pending.call.arguments);
+        if (requestId < 0) {
+            pending.completed = true;
+            pending.result.toolCallId = pending.call.id;
+            pending.result.toolName = pending.call.toolName;
+            pending.result.success = false;
+            pending.result.error = QString("Failed to initiate tool call");
+            emit toolCallFinished(serverName, pending.call.toolName, false);
+        } else {
+            pending.requestId = requestId;
+            // Tool call ongoing — onToolCallSucceeded/Failed will handle the rest.
+            return;
         }
     }
 
+    // Reach here only if the call resolved synchronously (denied or immediate error).
+    // Check whether all pending calls are now done.
+    const bool allCompleted = std::all_of(m_pendingToolCalls.cbegin(), m_pendingToolCalls.cend(),
+                                          [](const PendingToolCall &p) { return p.completed; });
     if (allCompleted)
         onAllToolCallsCompleted();
 }
@@ -500,6 +587,12 @@ void AgenticRequestManager::clearAdapters()
 {
     for (AiApiAdapter *adapter : std::as_const(m_adapters))
         adapter->clear();
+}
+
+bool AgenticRequestManager::hasPendingConfirmations() const
+{
+    return std::any_of(m_pendingToolCalls.cbegin(), m_pendingToolCalls.cend(),
+                       [](const PendingToolCall &p) { return p.awaitingConfirmation; });
 }
 
 } // namespace QmlDesigner

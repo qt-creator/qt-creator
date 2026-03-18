@@ -3,6 +3,8 @@
 
 #include "chatmessage.h"
 
+#include <QFileInfo>
+
 namespace QmlDesigner {
 
 ChatMessage::ChatMessage(MessageType type, const QString &content, QObject *parent)
@@ -15,17 +17,10 @@ ChatMessage::ChatMessage(MessageType type, const QString &content, QObject *pare
 }
 
 ChatMessage::MessageType ChatMessage::type() const { return m_type; }
-
 QString ChatMessage::content() const { return m_content; }
-
 QString ChatMessage::toolName() const { return m_toolName; }
-
 QString ChatMessage::serverName() const { return m_serverName; }
-
-bool ChatMessage::success() const { return m_success; }
-
 QDateTime ChatMessage::timestamp() const { return m_timestamp; }
-
 QJsonObject ChatMessage::toolArgs() const { return m_toolArgs; }
 
 void ChatMessage::setToolInfo(const QString &serverName, const QString &toolName)
@@ -51,7 +46,7 @@ void ChatMessage::setSegments(const QVariantList &segs)
 
 void ChatMessage::complete(bool success) {
     m_type = success ? ToolCallCompleted : ToolCallFailed;
-    m_success = success;
+
     const qint64 ms = m_timer.elapsed();
     if (success) {
         const QString elapsed = ms < 1000
@@ -62,5 +57,20 @@ void ChatMessage::complete(bool success) {
         m_content += QObject::tr(" failed");
     }
 }
+
+QList<int> ChatMessage::pendingIndices() const { return m_pendingIndices; }
+
+void ChatMessage::setPendingIndices(const QList<int> &indices)
+{
+    m_pendingIndices = indices;
+}
+
+void ChatMessage::resolve(bool confirmed)
+{
+    m_resolved = true;
+    m_content = confirmed ? tr("Deletion approved.") : tr("Deletion cancelled.");
+}
+
+bool ChatMessage::resolved() const { return m_resolved; }
 
 } // namespace QmlDesigner

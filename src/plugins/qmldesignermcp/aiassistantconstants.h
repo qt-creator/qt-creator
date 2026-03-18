@@ -27,4 +27,9 @@ inline const QSet<QString> qmlStructureMutatingTools = {
     "move_qml",
 };
 
+// Tools provided by qml_server that require confirmation.
+inline const QSet<QString> toolsRequiringConfirmation = {
+    "delete_qml"
+};
+
 } // namespace QmlDesigner::Constants

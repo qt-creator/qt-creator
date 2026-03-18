@@ -15,7 +15,8 @@ RowLayout {
     required property var segments
     required property string toolName
     required property string serverName
-    required property bool success
+    required property var pendingIndices
+    required property bool resolved
 
     readonly property bool hasSegments: root.messageType === ChatMessage.AssistantMessage
                                         && root.segments?.length > 0
@@ -135,6 +136,52 @@ RowLayout {
                     selectByKeyboard: true
                     color: StudioTheme.Values.themeTextColor
                     selectionColor: StudioTheme.Values.themeInteraction
+                }
+
+                // Confirmation prompt for destructive tool calls (e.g. delete_qml)
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    visible: root.messageType === ChatMessage.ToolCallConfirmation
+                    spacing: 8
+
+                    TextEdit {
+                        Layout.fillWidth: true
+                        text: root.content
+                        textFormat: TextEdit.PlainText
+                        wrapMode: TextEdit.Wrap
+                        font.pixelSize: StudioTheme.Values.baseFontSize
+                        readOnly: true
+                        selectByKeyboard: true
+                        color: StudioTheme.Values.themeTextColor
+                        selectionColor: StudioTheme.Values.themeInteraction
+                    }
+
+                    Row {
+                        id: confirmRow
+
+                        spacing: 4
+                        visible: !root.resolved
+
+                        PromptButton {
+                            id: yesButton
+
+                            label: qsTr("Yes")
+
+                            onClicked: {
+                                AiAssistantBackend.rootView.confirmToolsCall(root.pendingIndices, true)
+                            }
+                        }
+
+                        PromptButton {
+                            id: noButton
+
+                            label: qsTr("No")
+
+                            onClicked: {
+                                AiAssistantBackend.rootView.confirmToolsCall(root.pendingIndices, false)
+                            }
+                        }
+                    }
                 }
 
                 // Assistant message — flat HTML fallback when no segments
