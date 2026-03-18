@@ -32,6 +32,13 @@ void letTaskDieIn(Schema::Task &task, DurationType dieIn)
     task.ttl(ttl.count());
 }
 
+static std::optional<Schema::ProgressToken> progressToken(const auto &message)
+{
+    if (!message._meta())
+        return std::nullopt;
+    return message._meta()->progressToken();
+}
+
 class ToolInterface;
 
 /*!
@@ -258,14 +265,16 @@ public:
         const UpdateTaskCallback &onUpdateTask,
         const TaskResultCallback &onResultCallback,
         const std::optional<CancelTaskCallback> &onCancelTaskCallback,
-        IsDuration auto ttl) const
+        IsDuration auto ttl,
+        std::optional<Schema::ProgressToken> progressToken) const
     {
         return startTask(
             std::chrono::duration_cast<std::chrono::milliseconds>(pollingInterval).count(),
             onUpdateTask,
             onResultCallback,
             onCancelTaskCallback,
-            std::chrono::duration_cast<std::chrono::milliseconds>(ttl).count());
+            std::chrono::duration_cast<std::chrono::milliseconds>(ttl).count(),
+            progressToken);
     }
 
     /*!
@@ -281,14 +290,16 @@ public:
         IsDuration auto pollingInterval,
         const UpdateTaskCallback &onUpdateTask,
         const TaskResultCallback &onResultCallback,
-        const std::optional<CancelTaskCallback> &onCancelTaskCallback) const
+        const std::optional<CancelTaskCallback> &onCancelTaskCallback,
+        std::optional<Schema::ProgressToken> progressToken) const
     {
         return startTask(
             std::chrono::duration_cast<std::chrono::milliseconds>(pollingInterval).count(),
             onUpdateTask,
             onResultCallback,
             onCancelTaskCallback,
-            std::nullopt);
+            std::nullopt,
+            progressToken);
     }
 
     /*!
@@ -304,10 +315,16 @@ public:
     Utils::Result<TaskProgressNotify> startTask(
         const UpdateTaskCallback &onUpdateTask,
         const TaskResultCallback &onResultCallback,
-        const std::optional<CancelTaskCallback> &onCancelTaskCallback) const
+        const std::optional<CancelTaskCallback> &onCancelTaskCallback,
+        std::optional<Schema::ProgressToken> progressToken) const
     {
         return startTask(
-            std::nullopt, onUpdateTask, onResultCallback, onCancelTaskCallback, std::nullopt);
+            std::nullopt,
+            onUpdateTask,
+            onResultCallback,
+            onCancelTaskCallback,
+            std::nullopt,
+            progressToken);
     }
 
     /*!
@@ -324,14 +341,16 @@ public:
         const UpdateTaskCallback &onUpdateTask,
         const TaskResultCallback &onResultCallback,
         const std::optional<CancelTaskCallback> &onCancelTaskCallback,
-        IsDuration auto ttl) const
+        IsDuration auto ttl,
+        std::optional<Schema::ProgressToken> progressToken) const
     {
         return startTask(
             std::nullopt,
             onUpdateTask,
             onResultCallback,
             onCancelTaskCallback,
-            std::chrono::duration_cast<std::chrono::milliseconds>(ttl).count());
+            std::chrono::duration_cast<std::chrono::milliseconds>(ttl).count(),
+            progressToken);
     }
 
     /*!
@@ -385,7 +404,8 @@ protected:
         const UpdateTaskCallback &onUpdateTask,
         const TaskResultCallback &onResultCallback,
         const std::optional<CancelTaskCallback> &onCancelTaskCallback,
-        std::optional<int> ttlMs) const;
+        std::optional<int> ttlMs,
+        std::optional<Schema::ProgressToken> progressToken) const;
 
     std::shared_ptr<ToolInterfacePrivate> d;
 };

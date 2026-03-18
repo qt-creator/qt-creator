@@ -339,10 +339,11 @@ static Result<> toolTask(
     auto cancel = [taskData]() { taskData->cancelled = true; };
 
     if (usePolling) {
-        toolInterface.startTask(1s, update, result, cancel, 20s);
+        toolInterface.startTask(1s, update, result, cancel, 20s, Mcp::progressToken(params));
     } else {
         QTimer *timer = new QTimer();
-        if (auto notify = toolInterface.startTask(update, result, cancel, 20s)) {
+        if (auto notify
+            = toolInterface.startTask(update, result, cancel, 20s, Mcp::progressToken(params))) {
             timer->setSingleShot(false);
             timer->setInterval(1000);
             timer->start();

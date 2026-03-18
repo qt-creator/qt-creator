@@ -1054,78 +1054,29 @@ void McpCommands::registerCommands(Mcp::Server &server)
 
             BuildManager::buildProjects(projects, ConfigSelection::Active);
 
-            if (params.task().has_value()) {
-                std::shared_ptr<bool> wasCancelled = std::make_shared<bool>(false);
+            using namespace std::chrono_literals;
 
-                using namespace std::chrono_literals;
+            toolInterface.startTask(
+                1s,
+                [](Schema::Task task) -> Schema::Task {
+                    auto progress = BuildManager::currentProgress();
+                    if (!progress) {
+                        task.status(Schema::TaskStatus::completed);
+                        task.statusMessage("Build finished");
 
-                toolInterface.startTask(
-                    1s,
-                    [](Schema::Task task) -> Schema::Task {
-                        auto progress = BuildManager::currentProgress();
-                        if (!progress) {
-                            task.status(Schema::TaskStatus::completed);
-                            task.statusMessage("Build finished");
-
-                            letTaskDieIn(task, 1min);
-                            return task;
-                        }
-                        task.statusMessage(
-                            QString("%1 (%2%)").arg(progress->second).arg(progress->first));
+                        letTaskDieIn(task, 1min);
                         return task;
-                    },
-                    []() -> Utils::Result<Schema::CallToolResult> {
-                        auto issues = commands.listIssues();
-                        return CallToolResult{}.structuredContent(issues).isError(false);
-                    },
-                    []() { BuildManager::cancel(); });
-            }
-
-            std::shared_ptr<QMetaObject::Connection> connection
-                = std::make_shared<QMetaObject::Connection>();
-
-            QTimer *updateTimer = nullptr; //new QTimer();
-            if (params._meta() && params._meta()->progressToken()) {
-                updateTimer = new QTimer();
-                updateTimer->setInterval(1000);
-                QObject::connect(
-                    updateTimer,
-                    &QTimer::timeout,
-                    [toolInterface, progressToken = *params._meta()->progressToken()]() {
-                        auto progress = BuildManager::currentProgress();
-                        if (progress) {
-                            toolInterface.notify(
-                                Schema::ProgressNotification().params(
-                                    Schema::ProgressNotificationParams()
-                                        .progress(progress->first)
-                                        .message(QString("%1 (%2%)")
-                                                     .arg(progress->second)
-                                                     .arg(progress->first))
-                                        .progressToken(progressToken)));
-                        }
-                    });
-                updateTimer->start();
-            }
-
-            *connection = connect(
-                BuildManager::instance(),
-                &BuildManager::buildStateChanged,
-                &commands,
-                [projects, updateTimer, toolInterface, connection](Project *project) mutable {
-                    const bool isBuilding = BuildManager::isBuilding(project);
-                    qCDebug(mcpCommands) << "Build state changed, current status:" << isBuilding;
-
-                    projects.removeOne(project);
-                    if (projects.isEmpty()) {
-                        qCDebug(mcpCommands)
-                            << "All builds finished, emitting buildFinished signal";
-                        auto issues = commands.listIssues();
-                        toolInterface.finish(
-                            CallToolResult().structuredContent(issues).isError(false));
-                        BuildManager::instance()->disconnect(*connection);
-                        delete updateTimer;
                     }
-                });
+                    task.statusMessage(
+                        QString("%1 (%2%)").arg(progress->second).arg(progress->first));
+                    return task;
+                },
+                []() -> Utils::Result<Schema::CallToolResult> {
+                    auto issues = commands.listIssues();
+                    return CallToolResult{}.structuredContent(issues).isError(false);
+                },
+                []() { BuildManager::cancel(); },
+                Mcp::progressToken(params));
 
             return ResultOk;
         });

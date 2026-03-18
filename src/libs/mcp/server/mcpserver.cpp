@@ -32,6 +32,8 @@ using QHttpHeaders = MiniHttp::HttpHeaders;
 Q_LOGGING_CATEGORY(mcpServerLog, "mcp.server", QtWarningMsg)
 Q_LOGGING_CATEGORY(mcpServerIOLog, "mcp.server.io", QtWarningMsg)
 
+using UniqueDeleteLaterTimer = std::unique_ptr<QTimer, QScopedPointerObjectDeleteLater<QTimer>>;
+
 using namespace Utils;
 
 namespace Mcp {
@@ -1053,8 +1055,6 @@ public:
         int pollingIntervalMs{1000};
     };
 
-    using UniqueDeleteLaterTimer = std::unique_ptr<QTimer, QScopedPointerObjectDeleteLater<QTimer>>;
-
     struct TaskAndCallbacks
     {
         TaskAndCallbacks(
@@ -1432,11 +1432,40 @@ struct ToolInterfacePrivate
     Schema::CallToolRequest _initialRequest;
     QString _sessionId;
     Responder _responder;
+    UniqueDeleteLaterTimer _longRunningToolTimer;
+    mutable ToolInterface::CancelTaskCallback _cancelTaskCallback;
 
     bool _isFinished = false;
     bool _isTask = false;
     QString _taskId;
 
+    ~ToolInterfacePrivate()
+    {
+        if (_cancelTaskCallback) {
+            _cancelTaskCallback();
+        }
+    }
+
+    void finish(const Utils::Result<Schema::CallToolResult> &result, bool isLongRunningTask = false)
+    {
+        if (isFinished() || (_isTask && !isLongRunningTask)) {
+            qCWarning(mcpServerLog)
+                << "Attempted to finish a tool that is already finished or started a task";
+            return;
+        }
+
+        _isFinished = true;
+
+        if (!result) {
+            _responder.write(QJsonDocument(makeResponse(
+                _initialRequest.id(),
+                Schema::CallToolResult().isError(true).content(
+                    {Schema::TextContent().text(result.error())}))));
+            return;
+        }
+
+        _responder.write(QJsonDocument(makeResponse(_initialRequest.id(), *result)));
+    }
     bool isFinished() const
     {
         if (_isFinished) {
@@ -1445,6 +1474,9 @@ struct ToolInterfacePrivate
 
         // Check if the task exists / its status == completed.
         if (_isTask) {
+            if (_longRunningToolTimer)
+                return false; // If we have a timer, the task is still running
+
             if (auto serverPrivate = _server.lock()) {
                 auto it = serverPrivate->m_tasks.find(_taskId);
                 if (it == serverPrivate->m_tasks.end()
@@ -1663,23 +1695,7 @@ void ToolInterface::notify(const Schema::ServerNotification &notification) const
 
 void ToolInterface::finish(const Utils::Result<Schema::CallToolResult> &result) const
 {
-    if (d->isFinished() || d->_isTask) {
-        qCWarning(mcpServerLog)
-            << "Attempted to finish a tool that is already finished or started a task";
-        return;
-    }
-
-    d->_isFinished = true;
-
-    if (!result) {
-        d->_responder.write(QJsonDocument(makeResponse(
-            d->_initialRequest.id(),
-            Schema::CallToolResult().isError(true).content(
-                {Schema::TextContent().text(result.error())}))));
-        return;
-    }
-
-    d->_responder.write(QJsonDocument(makeResponse(d->_initialRequest.id(), *result)));
+    d->finish(result);
 }
 
 Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
@@ -1687,7 +1703,8 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
     const UpdateTaskCallback &onUpdateTask,
     const TaskResultCallback &onResultCallback,
     const std::optional<CancelTaskCallback> &onCancelTaskCallback,
-    std::optional<int> ttlMs) const
+    std::optional<int> ttlMs,
+    std::optional<Schema::ProgressToken> progressToken) const
 {
     if (d->isFinished() || d->_isTask) {
         qCWarning(mcpServerLog)
@@ -1698,9 +1715,77 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
     }
 
     if (!d->_initialRequest.params().task()) {
-        qCWarning(mcpServerLog)
-            << "Attempted to start a task, but the tool was not called with task parameters";
-        return Utils::ResultError("Tool was not called with task parameters");
+        if (!pollingIntervalMs) {
+            qCWarning(mcpServerLog)
+                << "Attempted to start a task without providing a polling interval for a client "
+                   "that does not support server-initiated tasks";
+            return Utils::ResultError(
+                "Polling interval must be provided for clients that do not support "
+                "server-initiated tasks");
+        }
+
+        d->_longRunningToolTimer.reset(new QTimer());
+        d->_longRunningToolTimer->setSingleShot(false);
+        d->_longRunningToolTimer->setInterval(pollingIntervalMs.value());
+        QObject::connect(
+            d->_longRunningToolTimer.get(),
+            &QTimer::timeout,
+            [self = *this, pcounter = 0, onUpdateTask, onResultCallback, progressToken]() mutable {
+                if (self.d->_responder.httpResponder) {
+                    if (self.d->_responder.httpResponder->isResponseCanceled()) {
+                        self.d->_longRunningToolTimer->stop();
+                        self.d->_longRunningToolTimer.reset();
+                        return;
+                    }
+                }
+
+                auto task = onUpdateTask(
+                    Schema::Task()
+                        .pollInterval(self.d->_longRunningToolTimer->interval())
+                        .status(Schema::TaskStatus::working));
+
+                if (task.status() == Schema::TaskStatus::input_required)
+                    return;
+
+                if (task.status() == Schema::TaskStatus::working) {
+                    if (progressToken) {
+                        self.notify(
+                            Schema::ProgressNotification().params(
+                                Schema::ProgressNotificationParams()
+                                    .progress(pcounter++)
+                                    .message(task.statusMessage().value_or(
+                                        QString("Task is working...")))
+                                    .progressToken(*progressToken)));
+                    }
+                    return;
+                }
+
+                if (task.status() == Schema::TaskStatus::completed) {
+                    auto result = onResultCallback();
+                    if (!result) {
+                        qCWarning(mcpServerLog) << "Task completed with error:" << result.error();
+                    }
+
+                    self.d->finish(result, true);
+                }
+
+                self.d->_longRunningToolTimer->stop();
+                self.d->_longRunningToolTimer.reset();
+            });
+
+        d->_cancelTaskCallback = [self = d.get(), userCb = onCancelTaskCallback]() {
+            if (userCb)
+                (*userCb)();
+
+            if (self->_longRunningToolTimer) {
+                self->_longRunningToolTimer->stop();
+                self->_longRunningToolTimer.reset();
+            }
+        };
+
+        d->_longRunningToolTimer->start();
+        d->_isTask = true;
+        return nullptr;
     }
 
     d->_isTask = true;
