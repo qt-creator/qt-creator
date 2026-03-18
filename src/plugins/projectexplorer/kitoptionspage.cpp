@@ -438,6 +438,8 @@ void KitManagerConfigWidget::setDisplayName()
 
 void KitManagerConfigWidget::setFileSystemFriendlyName()
 {
+    if (m_fileSystemFriendlyNameLineEdit->text() == m_modifiedKit->customFileSystemFriendlyName())
+        return;
     const int pos = m_fileSystemFriendlyNameLineEdit->cursorPosition();
     m_modifiedKit->setCustomFileSystemFriendlyName(m_fileSystemFriendlyNameLineEdit->text());
     m_fileSystemFriendlyNameLineEdit->setCursorPosition(pos);
