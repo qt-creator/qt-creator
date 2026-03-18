@@ -29,7 +29,9 @@
 #ifdef Q_OS_MACOS
 QString findMacOSAppByBundleId(const QString &appName);
 #else
-QString findMacOSAppByBundleId(const QString &appName) {
+QString findMacOSAppByBundleId(const QString &appName)
+{
+    Q_UNUSED(appName)
     return {};
 }
 #endif
