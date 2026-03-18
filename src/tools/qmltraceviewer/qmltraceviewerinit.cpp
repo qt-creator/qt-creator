@@ -32,8 +32,11 @@ namespace QmlTraceViewer {
 static QString relativePathFromAppDirToShare()
 {
     switch (HostOsInfo::hostOs()) {
-    case OsTypeMac: return "../";
-    case OsTypeWindows: return "../share/qtcreator/";
+    case OsTypeMac:
+        // TODO
+        return "../Resources";
+    case OsTypeWindows:
+        return "../share/qtcreator/";
     case OsTypeLinux:
         default: return "../../share/qtcreator/";
     };

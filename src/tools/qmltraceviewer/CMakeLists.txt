@@ -27,6 +27,7 @@ endif()
 
 create_standalone_install_component(standalone_qmltraceviewer
   TARGET qmltraceviewer
+  BUNDLE_PLIST_TEMPLATE ${CMAKE_CURRENT_LIST_DIR}/Info.plist.in
   PLUGINS
     platforminputcontexts
     platforms

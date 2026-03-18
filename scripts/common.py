@@ -307,7 +307,7 @@ def codesign_call(identity=None, flags=None):
         codesign_call.extend(signing_flags.split())
     return codesign_call
 
-def codesign_executable(path):
+def codesign_executable(path, additional_arguments=None):
     codesign = codesign_call()
     if not codesign:
         return
@@ -315,6 +315,8 @@ def codesign_executable(path):
                                      'installer', 'mac', os.path.basename(path) + '.entitlements')
     if os.path.exists(entitlements_path):
         codesign.extend(['--entitlements', entitlements_path])
+    if additional_arguments:
+        codesign.extend(additional_arguments)
     subprocess.check_call(codesign + [path])
 
 def os_walk(path, filter, function):
@@ -340,9 +342,7 @@ def codesign(app_path, identity=None, flags=None):
                                lambda ff: ff.endswith('.dylib'))
 
     # sign the whole bundle
-    entitlements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'dist',
-                                     'installer', 'mac', 'entitlements.plist')
-    subprocess.check_call(codesign + ['--deep', app_path, '--entitlements', entitlements_path])
+    codesign_executable(app_path, ['--deep'])
 
 def codesign_main(args):
     codesign(args.app_bundle, args.identity, args.flags)
