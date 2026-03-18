@@ -104,6 +104,7 @@ public:
                          const QString &displayName,
                          const FilePath &executable,
                          const FilePath &qchFile);
+    void markCMakeToolRemoved(const Id &id);
     void removeCMakeTool(const Id &id);
     void apply() final;
 
@@ -121,7 +122,6 @@ private:
     int rowForId(Id id) const;
 
     Id m_defaultItemId;
-    QList<Id> m_removedItems;
 };
 
 CMakeToolTreeItem::CMakeToolTreeItem(const CMakeTool *item, bool changed)
@@ -353,28 +353,40 @@ int CMakeToolItemModel::rowForId(Id id) const
     return -1;
 }
 
-void CMakeToolItemModel::removeCMakeTool(const Id &id)
+void CMakeToolItemModel::markCMakeToolRemoved(const Id &id)
 {
-    if (m_removedItems.contains(id))
-        return; // Already removed in the model.
-
     const int row = rowForId(id);
     QTC_ASSERT(row >= 0, return);
+    markRemoved(row);
+}
+
+void CMakeToolItemModel::removeCMakeTool(const Id &id)
+{
+    // Called via the cmakeRemoved signal: the tool is already gone from the manager.
+    const int row = rowForId(id);
+    if (row < 0 || isRemoved(row))
+        return;
 
     CMakeToolTreeItem *treeItem = item(row);
-    m_removedItems.append(id);
     removeItem(row);
     delete treeItem;
 }
 
 void CMakeToolItemModel::apply()
 {
-    for (const Id &id : std::as_const(m_removedItems))
-        CMakeToolManager::deregisterCMakeTool(id);
-    m_removedItems.clear();
+    QList<CMakeToolTreeItem *> toDelete;
+    for (int row = 0; row < itemCount(); ++row) {
+        if (isRemoved(row)) {
+            CMakeToolTreeItem *treeItem = item(row);
+            CMakeToolManager::deregisterCMakeTool(treeItem->m_id);
+            toDelete.append(treeItem);
+        }
+    }
 
     QList<CMakeToolTreeItem *> toRegister;
     for (int row = 0; row < itemCount(); ++row) {
+        if (isRemoved(row))
+            continue;
         CMakeToolTreeItem *treeItem = item(row);
         treeItem->m_changed = false;
         if (CMakeTool *cmake = CMakeToolManager::findById(treeItem->m_id)) {
@@ -397,7 +409,8 @@ void CMakeToolItemModel::apply()
     }
 
     CMakeToolManager::setDefaultCMakeTool(defaultItemId());
-    notifyAllRowsChanged();
+    GroupedModel::apply();
+    qDeleteAll(toDelete);
 }
 
 Id CMakeToolItemModel::defaultItemId() const
@@ -719,18 +732,24 @@ void CMakeToolConfigWidget::addCMakeTool()
 void CMakeToolConfigWidget::removeCMakeTool()
 {
     bool delDef = m_model.defaultItemId() == m_currentItem->m_id;
-    m_model.removeCMakeTool(m_currentItem->m_id);
+    m_model.markCMakeToolRemoved(m_currentItem->m_id);
     m_currentItem = nullptr;
     markSettingsDirty();
 
     if (delDef) {
-        if (m_model.itemCount() > 0)
-            m_model.setDefaultItemId(m_model.item(0)->m_id);
+        for (int row = 0; row < m_model.itemCount(); ++row) {
+            if (!m_model.isRemoved(row)) {
+                m_model.setDefaultItemId(m_model.item(row)->m_id);
+                break;
+            }
+        }
     }
 
-    if (m_model.itemCount() > 0) {
-        const int lastRow = m_model.itemCount() - 1;
-        m_cmakeToolsView.setCurrentIndex(m_model.mapFromSource(m_model.index(lastRow, 0)));
+    for (int row = m_model.itemCount() - 1; row >= 0; --row) {
+        if (!m_model.isRemoved(row)) {
+            m_cmakeToolsView.setCurrentIndex(m_model.mapFromSource(m_model.index(row, 0)));
+            break;
+        }
     }
 }
 
