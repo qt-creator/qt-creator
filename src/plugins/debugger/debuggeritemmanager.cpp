@@ -182,11 +182,10 @@ DebuggerModel::DebuggerModel()
 {
     setHeader({Tr::tr("Name"), Tr::tr("Path"), Tr::tr("Type")});
 
-    setUnfilteredSectionTitle(ProjectExplorer::Constants::msgAutoDetected());
-
-    addFilter(ProjectExplorer::Constants::msgManual(), [this](int row) {
-        return !item(row).detectionSource().isAutoDetected();
-    });
+    setFilters(ProjectExplorer::Constants::msgAutoDetected(),
+               {{ProjectExplorer::Constants::msgManual(), [this](int row) {
+                   return !item(row).detectionSource().isAutoDetected();
+               }}});
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &DebuggerModel::saveDebuggers);

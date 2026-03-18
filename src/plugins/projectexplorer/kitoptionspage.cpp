@@ -549,11 +549,10 @@ KitModel::KitModel(IOptionsPageWidget *pageWidget)
     : m_pageWidget(pageWidget)
 {
     setHeader({Tr::tr("Name")});
-    setUnfilteredSectionTitle(Constants::msgAutoDetected());
-    addFilter(Tr::tr("Manual"), [this](int row) {
+    setFilters(Constants::msgAutoDetected(), {{Tr::tr("Manual"), [this](int row) {
         const KitData d = item(row);
         return !d.kit || !d.kit->detectionSource().isAutoDetected();
-    });
+    }}});
 
     if (KitManager::isLoaded()) {
         for (Kit *k : KitManager::sortedKits())

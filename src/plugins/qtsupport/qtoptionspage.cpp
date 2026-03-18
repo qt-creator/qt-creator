@@ -272,11 +272,11 @@ public:
     QtVersionModel()
     {
         setHeader({Tr::tr("Name"), Tr::tr("qmake Path")});
-        setUnfilteredSectionTitle(ProjectExplorer::Constants::msgAutoDetected());
-        addFilter(ProjectExplorer::Constants::msgManual(), [this](int row) {
-            QtVersionItem *item = this->item(row);
-            return item->version() && !item->version()->detectionSource().isAutoDetected();
-        });
+        setFilters(ProjectExplorer::Constants::msgAutoDetected(),
+                   {{ProjectExplorer::Constants::msgManual(), [this](int row) {
+                       QtVersionItem *item = this->item(row);
+                       return item->version() && !item->version()->detectionSource().isAutoDetected();
+                   }}});
     }
 
     ~QtVersionModel() { qDeleteAll(volatileItems()); }

@@ -16,24 +16,12 @@ class GroupedModel::DisplayModel final : public QAbstractItemModel
 public:
     explicit DisplayModel(QAbstractItemModel *base)
         : m_base(base)
-    {
-        auto filter0 = [this](int sourceRow) {
-            for (int i = 1; i < m_filters.size(); ++i) {
-                if (m_filters.at(i)->filter()(sourceRow))
-                    return false;
-            }
-            return true;
-        };
-        addFilter(tr("Unfiltered"), filter0);
-
-        connect(m_base, &QAbstractItemModel::modelAboutToBeReset, this, [this] { beginResetModel(); });
-        connect(m_base, &QAbstractItemModel::modelReset, this, [this] { endResetModel(); });
-    }
+    {}
 
     ~DisplayModel() { qDeleteAll(m_filters); }
 
-    void setUnfilteredSectionTitle(const QString &defaultGroupName);
-    void addFilter(const QString &title, const Filter &filter);
+    void setFilters(const QString &defaultTitle,
+                    const QList<std::pair<QString, Filter>> &sections);
     void setExtraFilter(const Filter &filter);
 
     const Filter &extraFilter() const { return m_extraFilter; }
@@ -83,15 +71,37 @@ private:
         const DisplayModel *m_displayModel;
     };
 
+    void addSection(const QString &title, const Filter &filter);
+
     QAbstractItemModel * const m_base;
     QList<FilterModel *> m_filters;
     Filter m_extraFilter;
 };
 
-void GroupedModel::DisplayModel::setUnfilteredSectionTitle(const QString &defaultGroupName)
+void GroupedModel::DisplayModel::setFilters(const QString &defaultTitle,
+                                            const QList<std::pair<QString, Filter>> &sections)
 {
-    QTC_ASSERT(!m_filters.isEmpty(), return);
-    m_filters.at(0)->setObjectName(defaultGroupName);
+    QTC_ASSERT(m_filters.isEmpty(), qDebug() << "Settings filters twice is not supported"; return);
+    // Must fire before FilterModels process the source reset.
+    connect(m_base, &QAbstractItemModel::modelAboutToBeReset,
+            this, [this] { beginResetModel(); });
+
+    // Unfiltered section.
+    addSection(defaultTitle, [this](int sourceRow) {
+        for (int i = 1; i < m_filters.size(); ++i) {
+            if (m_filters.at(i)->filter()(sourceRow))
+                return false;
+        }
+        return true;
+    });
+
+    // Filtered sections.
+    for (const auto &[title, filter] : sections)
+        addSection(title, filter);
+
+    // Keep last: all FilterModels are now wired to m_base::modelReset, so they
+    // rebuild their mappings before endResetModel() notifies the views.
+    connect(m_base, &QAbstractItemModel::modelReset, this, [this] { endResetModel(); });
 }
 
 void GroupedModel::DisplayModel::setExtraFilter(const Filter &filter)
@@ -101,7 +111,7 @@ void GroupedModel::DisplayModel::setExtraFilter(const Filter &filter)
         fm->invalidate();
 }
 
-void GroupedModel::DisplayModel::addFilter(const QString &title, const Filter &filter)
+void GroupedModel::DisplayModel::addSection(const QString &title, const Filter &filter)
 {
     auto model = new FilterModel(filter, this);
     model->setObjectName(title);
@@ -450,14 +460,10 @@ QModelIndex GroupedModel::mapFromSource(const QModelIndex &sourceIndex) const
     return m_displayModel->mapFromSource(sourceIndex);
 }
 
-void GroupedModel::setUnfilteredSectionTitle(const QString &title)
+void GroupedModel::setFilters(const QString &defaultTitle,
+                              const QList<std::pair<QString, Filter>> &sections)
 {
-    m_displayModel->setUnfilteredSectionTitle(title);
-}
-
-void GroupedModel::addFilter(const QString &title, const Filter &filter)
-{
-    m_displayModel->addFilter(title, filter);
+    m_displayModel->setFilters(defaultTitle, sections);
 }
 
 void GroupedModel::setExtraFilter(const Filter &filter)

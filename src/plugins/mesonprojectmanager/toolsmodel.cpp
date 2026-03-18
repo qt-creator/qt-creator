@@ -120,10 +120,10 @@ void ToolItem::updateTooltip()
 ToolsModel::ToolsModel()
 {
     setHeader({Tr::tr("Name"), Tr::tr("Location")});
-    setUnfilteredSectionTitle(ProjectExplorer::Constants::msgAutoDetected());
-    addFilter(ProjectExplorer::Constants::msgManual(), [this](int row) {
-        return !item(row).autoDetected;
-    });
+    setFilters(ProjectExplorer::Constants::msgAutoDetected(),
+               {{ProjectExplorer::Constants::msgManual(), [this](int row) {
+                    return !item(row).autoDetected;
+                }}});
     for (const MesonTools::Tool_t &tool : MesonTools::tools())
         appendItem(ToolItem{tool});
 }

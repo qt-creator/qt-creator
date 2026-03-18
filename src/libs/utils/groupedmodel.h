@@ -8,6 +8,8 @@
 
 #include <QAbstractTableModel>
 
+#include <utility>
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT GroupedModel : public QAbstractTableModel
@@ -50,8 +52,8 @@ public:
     const QVariantList &volatileVariants() const;
 
     using Filter = std::function<bool(int)>;
-    void setUnfilteredSectionTitle(const QString &title);
-    void addFilter(const QString &title, const Filter &filter = {});
+    void setFilters(const QString &defaultTitle,
+                    const QList<std::pair<QString, Filter>> &sections = {});
     void setExtraFilter(const Filter &filter);
     void setHeader(const QStringList &header);
 

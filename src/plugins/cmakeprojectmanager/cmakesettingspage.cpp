@@ -244,10 +244,10 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
 CMakeToolItemModel::CMakeToolItemModel()
 {
     setHeader({Tr::tr("Name"), Tr::tr("Path")});
-    setUnfilteredSectionTitle(ProjectExplorer::Constants::msgAutoDetected());
-    addFilter(Tr::tr("Manual"), [this](int row) {
-        return !item(row)->m_detectionSource.isAutoDetected();
-    });
+    setFilters(ProjectExplorer::Constants::msgAutoDetected(),
+               {{Tr::tr("Manual"), [this](int row) {
+                   return !item(row)->m_detectionSource.isAutoDetected();
+               }}});
 
     const QList<CMakeTool *> tools = CMakeToolManager::cmakeTools();
     for (const CMakeTool *tool : tools)
