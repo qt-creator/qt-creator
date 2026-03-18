@@ -16,11 +16,11 @@
 #include <QPushButton>
 #include <QTreeView>
 
+#include <optional>
+
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
-
-class ToolTreeItem;
 
 class ToolItemSettings final : public QWidget
 {
@@ -47,17 +47,15 @@ public:
         connect(m_mesonNameLineEdit, &QLineEdit::textChanged, this, &ToolItemSettings::store);
     }
 
-    void load(ToolTreeItem *item)
+    void load(std::optional<ToolItem> item)
     {
+        m_currentId = std::nullopt;
         if (item) {
-            m_currentId = std::nullopt;
-            m_mesonNameLineEdit->setDisabled(item->isAutoDetected());
-            m_mesonNameLineEdit->setText(item->name());
-            m_mesonPathChooser->setDisabled(item->isAutoDetected());
-            m_mesonPathChooser->setFilePath(item->executable());
-            m_currentId = item->id();
-        } else {
-            m_currentId = std::nullopt;
+            m_mesonNameLineEdit->setDisabled(item->autoDetected);
+            m_mesonNameLineEdit->setText(item->name);
+            m_mesonPathChooser->setDisabled(item->autoDetected);
+            m_mesonPathChooser->setFilePath(item->executable);
+            m_currentId = item->id;
         }
     }
 
@@ -93,7 +91,7 @@ private:
 
     ToolsModel m_model;
     ToolItemSettings *m_itemSettings;
-    ToolTreeItem *m_currentItem = nullptr;
+    int m_currentRow = -1;
 
     QTreeView *m_mesonList;
     DetailsWidget *m_mesonDetails;
@@ -104,10 +102,12 @@ private:
 ToolsSettingsWidget::ToolsSettingsWidget()
 {
     m_mesonList = new QTreeView;
-    m_mesonList->setModel(&m_model);
+    m_mesonList->setModel(m_model.groupedDisplayModel());
     m_mesonList->expandAll();
     m_mesonList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_mesonList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    connect(m_model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
+            m_mesonList, &QTreeView::expandAll);
 
     m_itemSettings = new ToolItemSettings;
 
@@ -150,7 +150,10 @@ ToolsSettingsWidget::ToolsSettingsWidget()
             this, &ToolsSettingsWidget::currentMesonToolChanged);
     connect(m_itemSettings, &ToolItemSettings::applyChanges, &m_model, &ToolsModel::updateItem);
 
-    connect(addButton, &QPushButton::clicked, &m_model, &ToolsModel::addMesonTool);
+    connect(addButton, &QPushButton::clicked, this, [this] {
+        m_mesonList->setCurrentIndex(m_model.addMesonTool());
+        markSettingsDirty();
+    });
     connect(m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
     connect(m_removeButton, &QPushButton::clicked, this, &ToolsSettingsWidget::removeMesonTool);
 
@@ -159,25 +162,30 @@ ToolsSettingsWidget::ToolsSettingsWidget()
 
 void ToolsSettingsWidget::cloneMesonTool()
 {
-    if (m_currentItem) {
-        auto newItem = m_model.cloneMesonTool(m_currentItem);
-        m_mesonList->setCurrentIndex(newItem->index());
+    if (m_currentRow >= 0) {
+        m_mesonList->setCurrentIndex(m_model.cloneMesonTool(m_currentRow));
+        markSettingsDirty();
     }
 }
 
 void ToolsSettingsWidget::removeMesonTool()
 {
-    if (m_currentItem)
-        m_model.removeMesonTool(m_currentItem);
+    if (m_currentRow >= 0) {
+        m_model.removeMesonTool(m_currentRow);
+        markSettingsDirty();
+    }
 }
 
 void ToolsSettingsWidget::currentMesonToolChanged(const QModelIndex &newCurrent)
 {
-    m_currentItem = m_model.mesoneToolTreeItem(newCurrent);
-    m_itemSettings->load(m_currentItem);
-    m_mesonDetails->setVisible(m_currentItem);
-    m_cloneButton->setEnabled(m_currentItem);
-    m_removeButton->setEnabled(m_currentItem && !m_currentItem->isAutoDetected());
+    m_currentRow = m_model.mapToSource(newCurrent).row();
+    const bool hasRow = m_currentRow >= 0;
+    const bool hasItem = hasRow && !m_model.isRemoved(m_currentRow);
+    m_itemSettings->load(hasItem ? std::optional<ToolItem>{m_model.item(m_currentRow)}
+                                 : std::nullopt);
+    m_mesonDetails->setVisible(hasItem);
+    m_cloneButton->setEnabled(hasItem);
+    m_removeButton->setEnabled(hasRow && !m_model.item(m_currentRow).autoDetected);
 }
 
 class ToolsSettingsPage final : public Core::IOptionsPage

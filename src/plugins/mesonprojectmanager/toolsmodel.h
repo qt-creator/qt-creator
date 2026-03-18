@@ -5,61 +5,55 @@
 
 #include "mesontools.h"
 
-#include <utils/treemodel.h>
-
-#include <QQueue>
+#include <utils/groupedmodel.h>
 
 namespace MesonProjectManager::Internal {
 
-class ToolTreeItem final : public Utils::TreeItem
+struct ToolItem
 {
-public:
-    ToolTreeItem(const QString &name);
-    ToolTreeItem(const MesonTools::Tool_t &tool);
-    ToolTreeItem(const ToolTreeItem &other);
+    ToolItem() = default;
+    explicit ToolItem(const QString &name);
+    explicit ToolItem(const MesonTools::Tool_t &tool);
+    ToolItem cloned() const;
 
-    QVariant data(int column, int role) const override;
-    bool isAutoDetected() const noexcept { return m_autoDetected; }
-    QString name() const noexcept { return m_name; }
-    Utils::FilePath executable() const noexcept { return m_executable; }
-    Utils::Id id() const noexcept { return m_id; }
-    bool hasUnsavedChanges() const noexcept { return m_unsavedChanges; }
-    void setSaved() { m_unsavedChanges = false; }
+    QVariant data(int column, int role) const;
     void update(const QString &name, const Utils::FilePath &exe);
 
+    friend bool operator==(const ToolItem &, const ToolItem &) = default;
+
+    QString name;
+    QString tooltip;
+    Utils::FilePath executable;
+    Utils::Id id;
+    bool autoDetected = false;
+    bool pathExists = false;
+    bool pathIsFile = false;
+    bool pathIsExecutable = false;
+    bool unsavedChanges = false;
+
 private:
-    void self_check();
-    void update_tooltip(const QVersionNumber &version);
-    void update_tooltip();
-    QString m_name;
-    QString m_tooltip;
-    Utils::FilePath m_executable;
-    Utils::Id m_id;
-    bool m_autoDetected;
-    bool m_pathExists;
-    bool m_pathIsFile;
-    bool m_pathIsExecutable;
-    bool m_unsavedChanges = false;
+    void selfCheck();
+    void updateTooltip();
+    void updateTooltip(const QVersionNumber &version);
 };
 
-class ToolsModel final : public Utils::TreeModel<Utils::TreeItem, Utils::TreeItem, ToolTreeItem>
+class ToolsModel final : public Utils::TypedGroupedModel<ToolItem>
 {
 public:
     ToolsModel();
 
-    ToolTreeItem *mesoneToolTreeItem(const QModelIndex &index) const;
+    QModelIndex addMesonTool();
+    void removeMesonTool(int row);
+    QModelIndex cloneMesonTool(int row);
     void updateItem(const Utils::Id &itemId, const QString &name, const Utils::FilePath &exe);
-    void addMesonTool();
-    void removeMesonTool(ToolTreeItem *item);
-    ToolTreeItem *cloneMesonTool(ToolTreeItem *item);
-    void apply();
+    int rowForId(const Utils::Id &id) const;
+    void apply() override;
 
 private:
-    void addMesonToolHelper(const MesonTools::Tool_t &);
-    QString uniqueName(const QString &baseName);
-    Utils::TreeItem *autoDetectedGroup() const;
-    Utils::TreeItem *manualGroup() const;
-    QQueue<Utils::Id> m_itemsToRemove;
+    QVariant variantData(const QVariant &v, int column, int role) const override;
+    QString uniqueName(const QString &baseName) const;
 };
 
-} // MesonProjectManager::Internal
+} // namespace MesonProjectManager::Internal
+
+Q_DECLARE_METATYPE(MesonProjectManager::Internal::ToolItem)

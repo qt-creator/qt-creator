@@ -4,118 +4,115 @@
 #include "toolsmodel.h"
 
 #include "mesonprojectmanagertr.h"
-#include "mesontools.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/guiutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
+
+#include <QFont>
 
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
 
-// ToolTreeItem
+// ToolItem
 
-ToolTreeItem::ToolTreeItem(const QString &name)
-    : m_name{name}
-    , m_id(Id::generate())
-    , m_autoDetected{false}
-    , m_unsavedChanges{true}
+ToolItem::ToolItem(const QString &name)
+    : name{name}
+    , id{Id::generate()}
+    , autoDetected{false}
+    , unsavedChanges{true}
 {
-    self_check();
-    update_tooltip();
+    selfCheck();
+    updateTooltip();
 }
 
-ToolTreeItem::ToolTreeItem(const MesonTools::Tool_t &tool)
-    : m_name{tool->name()}
-    , m_executable{tool->exe()}
-    , m_id{tool->id()}
-    , m_autoDetected{tool->autoDetected()}
+ToolItem::ToolItem(const MesonTools::Tool_t &tool)
+    : name{tool->name()}
+    , tooltip{Tr::tr("Version: %1").arg(tool->version().toString())}
+    , executable{tool->exe()}
+    , id{tool->id()}
+    , autoDetected{tool->autoDetected()}
 {
-    m_tooltip = Tr::tr("Version: %1").arg(tool->version().toString());
-    self_check();
+    selfCheck();
 }
 
-ToolTreeItem::ToolTreeItem(const ToolTreeItem &other)
-    : m_name{Tr::tr("Clone of %1").arg(other.m_name)}
-    , m_executable{other.m_executable}
-    , m_id{Id::generate()}
-    , m_autoDetected{false}
-    , m_unsavedChanges{true}
+ToolItem ToolItem::cloned() const
 {
-    self_check();
-    update_tooltip();
+    ToolItem result;
+    result.name = Tr::tr("Clone of %1").arg(name);
+    result.executable = executable;
+    result.id = Id::generate();
+    result.autoDetected = false;
+    result.unsavedChanges = true;
+    result.selfCheck();
+    result.updateTooltip();
+    return result;
 }
 
-QVariant ToolTreeItem::data(int column, int role) const
+QVariant ToolItem::data(int column, int role) const
 {
     switch (role) {
-    case Qt::DisplayRole: {
+    case Qt::DisplayRole:
         switch (column) {
-        case 0: {
-            return m_name;
+        case 0:
+            return name;
+        case 1:
+            return executable.toUserOutput();
         }
-        case 1: {
-            return m_executable.toUserOutput();
-        }
-        } // switch (column)
-        return QVariant();
-    }
+        return {};
     case Qt::FontRole: {
         QFont font;
-        font.setBold(m_unsavedChanges);
+        font.setBold(unsavedChanges);
         return font;
     }
-    case Qt::ToolTipRole: {
-        if (!m_pathExists)
+    case Qt::ToolTipRole:
+        if (!pathExists)
             return Tr::tr("Meson executable path does not exist.");
-        if (!m_pathIsFile)
+        if (!pathIsFile)
             return Tr::tr("Meson executable path is not a file.");
-        if (!m_pathIsExecutable)
+        if (!pathIsExecutable)
             return Tr::tr("Meson executable path is not executable.");
-        return m_tooltip;
-    }
-    case Qt::DecorationRole: {
-        if (column == 0 && (!m_pathExists || !m_pathIsFile || !m_pathIsExecutable))
+        return tooltip;
+    case Qt::DecorationRole:
+        if (column == 0 && (!pathExists || !pathIsFile || !pathIsExecutable))
             return Icons::CRITICAL.icon();
         return {};
-    }
     }
     return {};
 }
 
-void ToolTreeItem::update(const QString &name, const FilePath &exe)
+void ToolItem::update(const QString &newName, const FilePath &newExe)
 {
-    m_unsavedChanges = true;
-    m_name = name;
-    if (exe != m_executable) {
-        m_executable = exe;
-        self_check();
-        update_tooltip();
+    unsavedChanges = true;
+    name = newName;
+    if (newExe != executable) {
+        executable = newExe;
+        selfCheck();
+        updateTooltip();
     }
 }
 
-void ToolTreeItem::self_check()
+void ToolItem::selfCheck()
 {
-    m_pathExists = m_executable.exists();
-    m_pathIsFile = m_executable.toFileInfo().isFile();
-    m_pathIsExecutable = m_executable.toFileInfo().isExecutable();
+    pathExists = executable.exists();
+    pathIsFile = executable.toFileInfo().isFile();
+    pathIsExecutable = executable.toFileInfo().isExecutable();
 }
 
-void ToolTreeItem::update_tooltip(const QVersionNumber &version)
+void ToolItem::updateTooltip(const QVersionNumber &version)
 {
     if (version.isNull())
-        m_tooltip = Tr::tr("Cannot get tool version.");
+        tooltip = Tr::tr("Cannot get tool version.");
     else
-        m_tooltip = Tr::tr("Version: %1").arg(version.toString());
+        tooltip = Tr::tr("Version: %1").arg(version.toString());
 }
 
-void ToolTreeItem::update_tooltip()
+void ToolItem::updateTooltip()
 {
-    update_tooltip(MesonToolWrapper::read_version(m_executable));
+    updateTooltip(MesonToolWrapper::read_version(executable));
 }
 
 // ToolsModel
@@ -123,87 +120,76 @@ void ToolTreeItem::update_tooltip()
 ToolsModel::ToolsModel()
 {
     setHeader({Tr::tr("Name"), Tr::tr("Location")});
-    rootItem()->appendChild(
-        new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
-                           {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
-    rootItem()->appendChild(new StaticTreeItem(ProjectExplorer::Constants::msgManual()));
-    for (const auto &tool : MesonTools::tools())
-        addMesonToolHelper(tool);
+    setFilters(ProjectExplorer::Constants::msgAutoDetected(),
+               {{ProjectExplorer::Constants::msgManual(),
+                 [this](int row) { return !item(row).autoDetected; }}});
+    for (const MesonTools::Tool_t &tool : MesonTools::tools())
+        appendItem(ToolItem{tool});
 }
 
-ToolTreeItem *ToolsModel::mesoneToolTreeItem(const QModelIndex &index) const
+QModelIndex ToolsModel::addMesonTool()
 {
-    return itemForIndexAtLevel<2>(index);
+    return appendVolatileItem(ToolItem{uniqueName(Tr::tr("New Meson"))});
+}
+
+void ToolsModel::removeMesonTool(int row)
+{
+    markRemoved(row);
+}
+
+QModelIndex ToolsModel::cloneMesonTool(int row)
+{
+    return appendVolatileItem(item(row).cloned());
 }
 
 void ToolsModel::updateItem(const Id &itemId, const QString &name, const FilePath &exe)
 {
-    auto treeItem = findItemAtLevel<2>([itemId](ToolTreeItem *n) { return n->id() == itemId; });
-    QTC_ASSERT(treeItem, return );
-    treeItem->update(name, exe);
+    const int row = rowForId(itemId);
+    QTC_ASSERT(row >= 0, return);
+    ToolItem it = item(row);
+    it.update(name, exe);
+    setVolatileItem(row, it);
+    notifyRowChanged(row);
 }
 
-void ToolsModel::addMesonTool()
+int ToolsModel::rowForId(const Id &id) const
 {
-    manualGroup()->appendChild(new ToolTreeItem{uniqueName(Tr::tr("New Meson"))});
-    markSettingsDirty();
-}
-
-void ToolsModel::removeMesonTool(ToolTreeItem *item)
-{
-    QTC_ASSERT(item, return );
-    const Id id = item->id();
-    destroyItem(item);
-    m_itemsToRemove.enqueue(id);
-    markSettingsDirty();
-}
-
-ToolTreeItem *ToolsModel::cloneMesonTool(ToolTreeItem *item)
-{
-    QTC_ASSERT(item, return nullptr);
-    auto newItem = new ToolTreeItem(*item);
-    manualGroup()->appendChild(newItem);
-    markSettingsDirty();
-    return item;
+    for (int row = 0; row < itemCount(); ++row) {
+        if (item(row).id == id)
+            return row;
+    }
+    return -1;
 }
 
 void ToolsModel::apply()
 {
-    forItemsAtLevel<2>([this](ToolTreeItem *item) {
-        if (item->hasUnsavedChanges()) {
-            MesonTools::updateTool(item->id(), item->name(), item->executable());
-            item->setSaved();
-            emit this->dataChanged(item->index(), item->index());
+    for (int row = 0; row < itemCount(); ++row) {
+        if (isRemoved(row)) {
+            MesonTools::removeTool(item(row).id);
+            continue;
         }
-    });
-    while (!m_itemsToRemove.isEmpty()) {
-        MesonTools::removeTool(m_itemsToRemove.dequeue());
+        ToolItem it = item(row);
+        if (it.unsavedChanges) {
+            MesonTools::updateTool(it.id, it.name, it.executable);
+            it.unsavedChanges = false;
+            setVolatileItem(row, it);
+        }
     }
+
+    GroupedModel::apply();
 }
 
-void ToolsModel::addMesonToolHelper(const MesonTools::Tool_t &tool)
+QVariant ToolsModel::variantData(const QVariant &v, int column, int role) const
 {
-    if (tool->autoDetected())
-        autoDetectedGroup()->appendChild(new ToolTreeItem(tool));
-    else
-        manualGroup()->appendChild(new ToolTreeItem(tool));
+    return fromVariant(v).data(column, role);
 }
 
-QString ToolsModel::uniqueName(const QString &baseName)
+QString ToolsModel::uniqueName(const QString &baseName) const
 {
     QStringList names;
-    forItemsAtLevel<2>([&names](ToolTreeItem *item) { names << item->name(); });
+    for (int row = 0; row < itemCount(); ++row)
+        names << item(row).name;
     return Utils::makeUniquelyNumbered(baseName, names);
 }
 
-TreeItem *ToolsModel::autoDetectedGroup() const
-{
-    return rootItem()->childAt(0);
-}
-
-TreeItem *ToolsModel::manualGroup() const
-{
-    return rootItem()->childAt(1);
-}
-
-} // MesonProjectManager::Internal
+} // namespace MesonProjectManager::Internal
