@@ -306,11 +306,6 @@ void Node::setEnabled(bool enabled)
         m_flags = static_cast<NodeFlag>(m_flags & ~FlagIsEnabled);
 }
 
-bool Node::sortByPath(const Node *a, const Node *b)
-{
-    return a->filePath() < b->filePath();
-}
-
 void Node::setParentFolderNode(FolderNode *parentFolder)
 {
     m_parentFolderNode = parentFolder;

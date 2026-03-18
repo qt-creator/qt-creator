@@ -183,6 +183,11 @@ static const MimeType &directoryMimeType()
     return mimeType;
 }
 
+static bool sortByPath(const std::unique_ptr<FileNode> &a, const std::unique_ptr<FileNode> &b)
+{
+    return a->filePath() < b->filePath();
+}
+
 static TreeScanner::Result scanForFilesHelper(
     TreeScanner::Promise &promise,
     const FilePath &directory,
@@ -199,13 +204,15 @@ static TreeScanner::Result scanForFilesHelper(
     QSet<FilePath> visited;
     const DirectoryScanResult result
         = scanForFilesImpl(future, directory, dirfilter, factory, versionControls);
-    QList<FileNode *> fileNodes = result.nodes;
-    QList<Node *> firstLevelNodes;
-    for (auto fileNode : fileNodes)
-        firstLevelNodes.append(fileNode->clone());
+
+    TreeScanner::Result finalResult;
+    for (auto fileNode : result.nodes) {
+        finalResult.allFiles.emplace_back(fileNode);
+        finalResult.firstLevelNodes.emplace_back(fileNode->clone());
+    }
     const int progressIncrement = int(
-        progressRange / static_cast<double>(fileNodes.count() + result.subDirectories.count()));
-    promise.setProgressValue(int(fileNodes.count() * progressIncrement));
+        progressRange / static_cast<double>(result.nodes.count() + result.subDirectories.count()));
+    promise.setProgressValue(int(result.nodes.count() * progressIncrement));
     QList<QPair<FolderNode *, int>> subDirectories;
     auto addSubDirectories = [&](const QList<FolderNode *> &subdirs, FolderNode * parent, int progressIncrement) {
         for (FolderNode *subdir : subdirs) {
@@ -216,7 +223,7 @@ static TreeScanner::Result scanForFilesHelper(
                 if (parent)
                     parent->addNode(std::unique_ptr<FolderNode>(subdir));
                 else
-                    firstLevelNodes << subdir;
+                    finalResult.firstLevelNodes.emplace_back(subdir);
             } else {
                 delete subdir;
                 promise.setProgressValue(future.progressValue() + progressIncrement);
@@ -243,7 +250,8 @@ static TreeScanner::Result scanForFilesHelper(
         auto onDone = [&, iterator](const Async<DirectoryScanResult> &task) {
             const int progressRange = iterator->second;
             const DirectoryScanResult result = task.result();
-            fileNodes.append(result.nodes);
+            for (auto fileNode : result.nodes)
+                finalResult.allFiles.emplace_back(fileNode);
             const qsizetype subDirCount = result.subDirectories.count();
             if (iterator->first) {
                 for (auto fn : result.nodes)
@@ -267,13 +275,7 @@ static TreeScanner::Result scanForFilesHelper(
         QTaskTree::runBlocking(recipe);
     }
 
-    Utils::sort(fileNodes, ProjectExplorer::Node::sortByPath);
-
-    TreeScanner::Result finalResult;
-    for (FileNode *node : fileNodes)
-        finalResult.allFiles.emplace_back(node);
-    for (Node *node : firstLevelNodes)
-        finalResult.firstLevelNodes.emplace_back(node);
+    Utils::sort(finalResult.allFiles, sortByPath);
     return finalResult;
 }
 

@@ -150,7 +150,6 @@ public:
 
     virtual QString buildKey() const { return {}; }
 
-    static bool sortByPath(const Node *a, const Node *b);
     void setParentFolderNode(FolderNode *parentFolder);
 
     void setListInProject(bool l);
