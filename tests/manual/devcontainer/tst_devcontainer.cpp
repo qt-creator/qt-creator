@@ -156,7 +156,6 @@ void tst_DevContainer::instanceConfigToString_data()
     QTest::addColumn<QString>("expectedOutput");
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -250,7 +249,6 @@ void tst_DevContainer::readConfig()
     )json";
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -326,7 +324,6 @@ FROM alpine:latest AS test
     config.common.name = "Test Dockerfile";
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -356,7 +353,6 @@ void tst_DevContainer::upImage()
     config.common.name = "Test Image";
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -400,7 +396,6 @@ void tst_DevContainer::upWithHooks()
     };
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -445,7 +440,6 @@ void tst_DevContainer::processInterface()
            {"REMOTEENV_FROM_CONTAINER", "${containerEnv:CONTAINER_TEST}"}};
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -518,7 +512,6 @@ void tst_DevContainer::containerWorkspaceReplacers()
     )json";
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -583,7 +576,6 @@ volumes:
     QVERIFY_RESULT(composePath.writeFileContents(composeFile));
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = dotDevContainerDir / "devcontainer.json",
         .mounts = {},
