@@ -183,7 +183,7 @@ HistoryCompleter::HistoryCompleter(const Key &historyKey, int maxLines, QObject 
 
     d->maxLines = maxLines;
     d->historyKey = "CompleterHistory/" + historyKey;
-    d->list = theSettings->value(d->historyKey).toStringList();
+    d->list = theSettings->value(d->historyKey).toStringList().mid(0, maxLines);
     d->historyKeyIsLastItemEmpty = "CompleterHistory/" + historyKey + ".IsLastItemEmpty";
     d->isLastItemEmpty = theSettings->value(d->historyKeyIsLastItemEmpty, isLastItemEmptyDefault)
                              .toBool();
