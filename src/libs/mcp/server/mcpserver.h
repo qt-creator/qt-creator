@@ -376,7 +376,7 @@ protected:
     ToolInterface(
         std::weak_ptr<ServerPrivate> serverPrivate,
         const Schema::ClientCapabilities &clientCaps,
-        const Schema::RequestId &id,
+        const Schema::CallToolRequest &request,
         const QString &sessionId,
         const Responder &responder);
 

@@ -507,7 +507,7 @@ public:
                 Schema::JSONRPCErrorResponse()
                     .error(
                         Schema::Error()
-                            .code(InvalidParams)
+                            .code(MethodNotFound)
                             .message("Tool does not support tasks: " + request.params().name()))
                     .id(id))));
             return;
@@ -536,7 +536,7 @@ public:
         Schema::ClientCapabilities clientCapabilities = m_sessions.value(sessionId).capabilities;
 
         ToolInterface toolInterface(
-            shared_from_this(), clientCapabilities, request.id(), sessionId, responder);
+            shared_from_this(), clientCapabilities, request, sessionId, responder);
 
         Result<> r = cb(request.params(), toolInterface);
         if (!r) {
@@ -570,6 +570,31 @@ public:
         }
 
         qCDebug(mcpServerLog) << "Running tool" << toolIt.key();
+
+        const auto toolExecution = toolIt.value().tool.execution().value_or(Schema::ToolExecution());
+        const bool toolNeedsTask = toolExecution.taskSupport()
+                                   == Schema::ToolExecution::TaskSupport::required;
+        const bool toolSupportsTask = toolExecution.taskSupport()
+                                      == Schema::ToolExecution::TaskSupport::optional;
+        const bool clientRequestsTask = request.params().task().has_value();
+
+        if ((toolNeedsTask && !clientRequestsTask) || (!toolSupportsTask && clientRequestsTask)) {
+            qCWarning(mcpServerLog)
+                << QString(
+                       "Received call for tool %1"
+                       "which %2 tasks, but the client %3 a task")
+                       .arg(request.params().name())
+                       .arg(toolNeedsTask ? "requires" : "does not support")
+                       .arg(clientRequestsTask ? "requested" : "did not request");
+            responder.write(QJsonDocument(toJson(
+                Schema::JSONRPCErrorResponse()
+                    .error(
+                        Schema::Error()
+                            .code(MethodNotFound)
+                            .message("Tool requires task parameters: " + request.params().name()))
+                    .id(id))));
+            return;
+        }
 
         std::visit(
             overloaded{
@@ -1404,7 +1429,7 @@ struct ToolInterfacePrivate
 {
     Schema::ClientCapabilities _clientCapabilities;
     std::weak_ptr<ServerPrivate> _server;
-    Schema::RequestId _initialRequestId;
+    Schema::CallToolRequest _initialRequest;
     QString _sessionId;
     Responder _responder;
 
@@ -1438,10 +1463,10 @@ struct ToolInterfacePrivate
 ToolInterface::ToolInterface(
     std::weak_ptr<ServerPrivate> serverPrivate,
     const Schema::ClientCapabilities &clientCaps,
-    const Schema::RequestId &id,
+    const Schema::CallToolRequest &request,
     const QString &sessionId,
     const Responder &responder)
-    : d(std::make_shared<ToolInterfacePrivate>(clientCaps, serverPrivate, id, sessionId, responder))
+    : d(std::make_shared<ToolInterfacePrivate>(clientCaps, serverPrivate, request, sessionId, responder))
 {}
 
 ToolInterface::~ToolInterface() {}
@@ -1648,13 +1673,13 @@ void ToolInterface::finish(const Utils::Result<Schema::CallToolResult> &result) 
 
     if (!result) {
         d->_responder.write(QJsonDocument(makeResponse(
-            d->_initialRequestId,
+            d->_initialRequest.id(),
             Schema::CallToolResult().isError(true).content(
                 {Schema::TextContent().text(result.error())}))));
         return;
     }
 
-    d->_responder.write(QJsonDocument(makeResponse(d->_initialRequestId, *result)));
+    d->_responder.write(QJsonDocument(makeResponse(d->_initialRequest.id(), *result)));
 }
 
 Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
@@ -1670,6 +1695,12 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
         return Utils::ResultError(
             "Attempted to start a task for a tool that is already finished or started a "
             "task");
+    }
+
+    if (!d->_initialRequest.params().task()) {
+        qCWarning(mcpServerLog)
+            << "Attempted to start a task, but the tool was not called with task parameters";
+        return Utils::ResultError("Tool was not called with task parameters");
     }
 
     d->_isTask = true;
@@ -1691,7 +1722,7 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
 
         QJsonObject json = Schema::toJson(
             Schema::JSONRPCResultResponse()
-                .id(d->_initialRequestId)
+                .id(d->_initialRequest.id())
                 .result(
                     Schema::Result().additionalProperties(
                         Schema::toJson(Schema::CreateTaskResult().task(task)))));
