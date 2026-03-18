@@ -203,6 +203,7 @@ void IssuesManager::connectSignals()
         // Connect to task added/removed signals
         connect(&hub, &ProjectExplorer::TaskHub::taskAdded, this, &IssuesManager::onTaskAdded);
         connect(&hub, &ProjectExplorer::TaskHub::taskRemoved, this, &IssuesManager::onTaskRemoved);
+        connect(&hub, &ProjectExplorer::TaskHub::tasksCleared, this, &IssuesManager::onTasksCleared);
 
         qCDebug(mcpIssues) << "IssuesManager: Connected to TaskHub signals";
 
@@ -235,6 +236,12 @@ void IssuesManager::onTaskRemoved(const ProjectExplorer::Task &task)
             break;
         }
     }
+}
+
+void IssuesManager::onTasksCleared(const Utils::Id &category)
+{
+    qCDebug(mcpIssues) << "IssuesManager: Tasks cleared:" << category.toString();
+    m_trackedTasks.removeIf(Utils::equal(&ProjectExplorer::Task::category, category));
 }
 
 void IssuesManager::onTasksChanged()

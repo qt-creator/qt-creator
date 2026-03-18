@@ -69,6 +69,12 @@ private slots:
     void onTaskRemoved(const ProjectExplorer::Task &task);
 
     /**
+     * @brief Handles tasks cleared signals from TaskHub
+     * @param category The category of tasks that were cleared
+     */
+    void onTasksCleared(const Utils::Id &category);
+
+    /**
      * @brief Handles tasks changed signal from TaskWindow
      */
     void onTasksChanged();
