@@ -211,8 +211,8 @@ static TreeScanner::Result scanForFilesHelper(
         finalResult.firstLevelNodes.emplace_back(fileNode->clone());
     }
     const int progressIncrement = int(
-        progressRange / static_cast<double>(result.nodes.count() + result.subDirectories.count()));
-    promise.setProgressValue(int(result.nodes.count() * progressIncrement));
+        progressRange / static_cast<double>(result.nodes.size() + result.subDirectories.size()));
+    promise.setProgressValue(int(result.nodes.size() * progressIncrement));
     QList<QPair<FolderNode *, int>> subDirectories;
     auto addSubDirectories = [&](const QList<FolderNode *> &subdirs, FolderNode * parent, int progressIncrement) {
         for (FolderNode *subdir : subdirs) {
@@ -252,7 +252,7 @@ static TreeScanner::Result scanForFilesHelper(
             const DirectoryScanResult result = task.result();
             for (auto fileNode : result.nodes)
                 finalResult.allFiles.emplace_back(fileNode);
-            const qsizetype subDirCount = result.subDirectories.count();
+            const qsizetype subDirCount = result.subDirectories.size();
             if (iterator->first) {
                 for (auto fn : result.nodes)
                     iterator->first->addNode(std::unique_ptr<FileNode>(fn->clone()));
@@ -260,7 +260,7 @@ static TreeScanner::Result scanForFilesHelper(
             if (subDirCount == 0) {
                 promise.setProgressValue(future.progressValue() + progressRange);
             } else {
-                const qsizetype fileCount = result.nodes.count();
+                const qsizetype fileCount = result.nodes.size();
                 const int increment = int(
                     progressRange / static_cast<double>(fileCount + subDirCount));
                 promise.setProgressValue(future.progressValue() + increment * fileCount);
