@@ -5,12 +5,12 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/treescanner.h>
 
 #include <utils/filesystemwatcher.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 namespace Nim {
-class NimBuildSystem;
 
 class NimBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -55,7 +55,7 @@ private:
     void saveSettings();
 
     ProjectExplorer::Project *m_project = nullptr;
-    ProjectExplorer::TreeScanner m_scanner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     Utils::FileSystemWatcher m_directoryWatcher;
 };
 
