@@ -9,88 +9,46 @@
 #include <utils/filepath.h>
 #include <utils/mimeutils.h>
 
-#include <QObject>
-#include <QFuture>
-#include <QFutureWatcher>
+#include <QPromise>
 
 #include <functional>
 #include <vector>
 
 namespace Core { class IVersionControl; }
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::TreeScanner {
 
-class PROJECTEXPLORER_EXPORT TreeScanner : public QObject
+class PROJECTEXPLORER_EXPORT Result final
 {
-    Q_OBJECT
-
 public:
-    class PROJECTEXPLORER_EXPORT Result final
-    {
-    public:
-        std::vector<std::unique_ptr<FileNode>> allFiles;
-        std::vector<std::unique_ptr<Node>> firstLevelNodes;
+    std::vector<std::unique_ptr<FileNode>> allFiles;
+    std::vector<std::unique_ptr<Node>> firstLevelNodes;
 
-        Result() = default;
-        ~Result() = default;
+    Result() = default;
+    ~Result() = default;
 
-        Result(Result &&) = default;
-        Result &operator=(Result &&) = default;
+    Result(Result &&) = default;
+    Result &operator=(Result &&) = default;
 
-        Result(const Result &) = delete;
-        Result &operator=(const Result &) = delete;
-    };
-    using Future = QFuture<Result>;
-    using FutureWatcher = QFutureWatcher<Result>;
-    using Promise = QPromise<Result>;
-
-    using Filter = std::function<bool(const Utils::MimeType &, const Utils::FilePath &)>;
-    using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &)>;
-
-    explicit TreeScanner(QObject *parent = nullptr);
-    ~TreeScanner() override;
-
-    // Start scanning in given directory
-    bool asyncScanForFiles(const Utils::FilePath& directory);
-
-    // Setup filter for ignored files
-    void setFilter(Filter filter);
-
-    // Setup dir filters for scanned folders
-    void setDirFilter(QDir::Filters dirFilter);
-
-    // Setup factory for file types
-    void setTypeFactory(FileTypeFactory factory);
-
-    bool isFinished() const;
-
-    // Takes owning of result
-    Result release();
-
-    // Standard filters helpers
-    static bool isWellKnownBinary(const Utils::FilePath &fn);
-    static bool isMimeBinary(const Utils::MimeType &mimeType);
-    static bool isMimeTypeIgnored(const Utils::MimeType &mimeType); // employs internal cache
-
-    // Standard file factory
-    static ProjectExplorer::FileType genericFileType(const Utils::MimeType &mdb);
-
-    static void scanForFiles(Promise &fi,
-                             const Utils::FilePath &directory,
-                             const Filter &filter,
-                             QDir::Filters dirFilter,
-                             const FileTypeFactory &factory);
-
-signals:
-    void finished();
-
-private:
-    Filter m_filter;
-    QDir::Filters m_dirFilter = QDir::AllEntries | QDir::NoDotAndDotDot;
-    FileTypeFactory m_factory;
-
-    FutureWatcher m_futureWatcher;
-    Future m_scanFuture;
+    Result(const Result &) = delete;
+    Result &operator=(const Result &) = delete;
 };
 
-} // namespace ProjectExplorer
+using Filter = std::function<bool(const Utils::MimeType &, const Utils::FilePath &)>;
+using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &)>;
+
+// Standard filters helpers
+PROJECTEXPLORER_EXPORT bool isWellKnownBinary(const Utils::FilePath &fn);
+PROJECTEXPLORER_EXPORT bool isMimeBinary(const Utils::MimeType &mimeType);
+PROJECTEXPLORER_EXPORT bool isMimeTypeIgnored(const Utils::MimeType &mimeType); // employs internal cache
+
+// Standard file factory
+PROJECTEXPLORER_EXPORT ProjectExplorer::FileType genericFileType(const Utils::MimeType &mdb);
+
+PROJECTEXPLORER_EXPORT void scanForFiles(QPromise<Result> &promise,
+                                         const Utils::FilePath &directory,
+                                         const Filter &filter,
+                                         QDir::Filters dirFilter,
+                                         const FileTypeFactory &factory);
+
+} // namespace ProjectExplorer::TreeScanner

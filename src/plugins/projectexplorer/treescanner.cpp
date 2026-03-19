@@ -20,89 +20,20 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::TreeScanner {
 
-TreeScanner::TreeScanner(QObject *parent) : QObject(parent)
-{
-    m_factory = TreeScanner::genericFileType;
-    m_filter = [](const MimeType &mimeType, const FilePath &fn) {
-        return isWellKnownBinary(fn) && isMimeBinary(mimeType);
-    };
-
-    connect(&m_futureWatcher, &FutureWatcher::finished, this, &TreeScanner::finished);
-}
-
-TreeScanner::~TreeScanner()
-{
-    disconnect(&m_futureWatcher, nullptr, nullptr, nullptr); // Do not trigger signals anymore!
-
-    if (!m_futureWatcher.isFinished()) {
-        m_futureWatcher.cancel();
-        m_futureWatcher.waitForFinished();
-    }
-}
-
-bool TreeScanner::asyncScanForFiles(const FilePath &directory)
-{
-    if (!m_futureWatcher.isFinished())
-        return false;
-
-    m_scanFuture = Utils::asyncRun(
-        [directory, filter = m_filter, dirFilter = m_dirFilter, factory = m_factory](
-            Promise &promise) {
-            TreeScanner::scanForFiles(promise, directory, filter, dirFilter, factory);
-        });
-    m_futureWatcher.setFuture(m_scanFuture);
-
-    return true;
-}
-
-void TreeScanner::setFilter(TreeScanner::Filter filter)
-{
-    if (isFinished())
-        m_filter = filter;
-}
-
-void TreeScanner::setDirFilter(QDir::Filters dirFilter)
-{
-    if (isFinished())
-        m_dirFilter = dirFilter;
-}
-
-void TreeScanner::setTypeFactory(TreeScanner::FileTypeFactory factory)
-{
-    if (isFinished())
-        m_factory = factory;
-}
-
-bool TreeScanner::isFinished() const
-{
-    return m_futureWatcher.isFinished();
-}
-
-TreeScanner::Result TreeScanner::release()
-{
-    if (isFinished() && m_scanFuture.resultCount() > 0) {
-        Result result = m_scanFuture.takeResult();
-        m_scanFuture = Future();
-        return result;
-    }
-    m_scanFuture = Future();
-    return {};
-}
-
-bool TreeScanner::isWellKnownBinary(const FilePath &fn)
+bool isWellKnownBinary(const FilePath &fn)
 {
     return fn.endsWith(QLatin1String(".a")) ||
-            fn.endsWith(QLatin1String(".o")) ||
-            fn.endsWith(QLatin1String(".d")) ||
-            fn.endsWith(QLatin1String(".exe")) ||
-            fn.endsWith(QLatin1String(".dll")) ||
-            fn.endsWith(QLatin1String(".obj")) ||
-            fn.endsWith(QLatin1String(".elf"));
+           fn.endsWith(QLatin1String(".o")) ||
+           fn.endsWith(QLatin1String(".d")) ||
+           fn.endsWith(QLatin1String(".exe")) ||
+           fn.endsWith(QLatin1String(".dll")) ||
+           fn.endsWith(QLatin1String(".obj")) ||
+           fn.endsWith(QLatin1String(".elf"));
 }
 
-bool TreeScanner::isMimeBinary(const MimeType &mimeType)
+bool isMimeBinary(const MimeType &mimeType)
 {
     bool isBinary = false;
     if (mimeType.isValid()) {
@@ -116,7 +47,7 @@ bool TreeScanner::isMimeBinary(const MimeType &mimeType)
 using MimeBinaryCache = SynchronizedValue<QHash<QString, bool>>;
 Q_APPLICATION_STATIC(MimeBinaryCache, s_mimeBinaryCache);
 
-bool TreeScanner::isMimeTypeIgnored(const MimeType &mimeType)
+bool isMimeTypeIgnored(const MimeType &mimeType)
 {
     if (auto it = s_mimeBinaryCache->get(
             [mimeType](const QHash<QString, bool> &cache) -> std::optional<bool> {
@@ -128,12 +59,12 @@ bool TreeScanner::isMimeTypeIgnored(const MimeType &mimeType)
         return *it;
     }
 
-    const bool isIgnored = TreeScanner::isMimeBinary(mimeType);
+    const bool isIgnored = isMimeBinary(mimeType);
     s_mimeBinaryCache->writeLocked()->insert(mimeType.name(), isIgnored);
     return isIgnored;
 }
 
-FileType TreeScanner::genericFileType(const MimeType &mimeType)
+FileType genericFileType(const MimeType &mimeType)
 {
     return Node::fileTypeForMimeType(mimeType);
 }
@@ -183,11 +114,11 @@ static bool sortByPath(const std::unique_ptr<FileNode> &a, const std::unique_ptr
     return a->filePath() < b->filePath();
 }
 
-static TreeScanner::Result scanForFilesHelper(
-    TreeScanner::Promise &promise,
+static Result scanForFilesHelper(
+    QPromise<Result> &promise,
     const FilePath &directory,
     QDir::Filters dirfilter,
-    const TreeScanner::Filter &filter,
+    const Filter &filter,
     const std::function<FileNode *(const FilePath &)> &factory)
 {
     const QFuture<void> future(promise.future());
@@ -282,12 +213,11 @@ static TreeScanner::Result scanForFilesHelper(
     return finalResult;
 }
 
-void TreeScanner::scanForFiles(
-    Promise &promise,
-    const FilePath &directory,
-    const Filter &filter,
-    QDir::Filters dirFilter,
-    const FileTypeFactory &factory)
+void scanForFiles(QPromise<Result> &promise,
+                  const FilePath &directory,
+                  const Filter &filter,
+                  QDir::Filters dirFilter,
+                  const FileTypeFactory &factory)
 {
     Result result = scanForFilesHelper(
         promise,
@@ -313,4 +243,4 @@ void TreeScanner::scanForFiles(
     promise.addResult(std::move(result));
 }
 
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::TreeScanner
