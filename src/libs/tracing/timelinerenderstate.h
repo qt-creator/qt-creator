@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QList>
 #include <QSGNode>
 #include "timelinerenderpass.h"
 #include "timelinemodel.h"
@@ -39,9 +40,14 @@ public:
     QSGTransformNode *finalize(QSGNode *oldNode, bool expanded, const QMatrix4x4 &transform);
 
 private:
-    class TimelineRenderStatePrivate;
-    TimelineRenderStatePrivate *d_ptr;
-    Q_DECLARE_PRIVATE(TimelineRenderState)
+    QSGNode *m_expandedRowRoot;
+    QSGNode *m_collapsedRowRoot;
+    QSGNode *m_expandedOverlayRoot;
+    QSGNode *m_collapsedOverlayRoot;
+    qint64 m_start;
+    qint64 m_end;
+    float m_scale; // "native" scale, this stays the same through the life time of a state
+    QList<TimelineRenderPass::State *> m_passes;
 };
 
 } // namespace Timeline

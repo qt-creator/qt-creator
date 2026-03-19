@@ -22,7 +22,7 @@ QtcLibrary {
             "timelineoverviewrenderer.cpp", "timelineoverviewrenderer.h",
             "timelinerenderer.cpp", "timelinerenderer.h",
             "timelinerenderpass.cpp", "timelinerenderpass.h",
-            "timelinerenderstate.cpp", "timelinerenderstate.h", "timelinerenderstate_p.h",
+            "timelinerenderstate.cpp", "timelinerenderstate.h",
             "timelineselectionrenderpass.cpp", "timelineselectionrenderpass.h",
             "timelinetheme.cpp", "timelinetheme.h",
             "timelinetracefile.cpp", "timelinetracefile.h",
