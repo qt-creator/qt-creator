@@ -32,20 +32,6 @@ QProcessEnvironment buildEnv(const QJsonObject &obj)
     return env;
 }
 
-QByteArray stripJsonComments(const QByteArray &in)
-{
-    // Remove // line comments
-    QByteArray out = in;
-    static const QRegularExpression reLine(R"(//[^\n\r]*)");
-    out = QString::fromUtf8(out).remove(reLine).toUtf8();
-
-    // Remove /* block comments */
-    static const QRegularExpression
-        reBlock(R"(/\*.*?\*/)", QRegularExpression::DotMatchesEverythingOption);
-    out = QString::fromUtf8(out).remove(reBlock).toUtf8();
-    return out;
-}
-
 QJsonObject deepMerge(const QJsonObject &base, const QJsonObject &over)
 {
     QJsonObject out = base;
@@ -188,14 +174,11 @@ QJsonObject McpConfigLoader::loadJsonObject(const QString &path, QString *errOut
         return {};
     }
 
-    const QByteArray raw = f.readAll();
+    const QByteArray json = f.readAll();
     f.close();
 
-    // Support JSON with comments (jsonc)
-    const QByteArray decommented = stripJsonComments(raw);
-
     QJsonParseError pe{};
-    const QJsonDocument doc = QJsonDocument::fromJson(decommented, &pe);
+    const QJsonDocument doc = QJsonDocument::fromJson(json, &pe);
     if (pe.error != QJsonParseError::NoError || !doc.isObject()) {
         if (errOut)
             *errOut = QStringLiteral("Parse error: %1").arg(pe.errorString());

@@ -8,7 +8,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>
-#include <QPointer>
 #include <QProcess>
 
 namespace QmlDesigner {
@@ -23,7 +22,7 @@ struct McpTool
 {
     QString name;
     QString description;
-    QJsonObject inputSchema; // JSON Schema object if provided
+    QJsonObject inputSchema;
 };
 
 struct McpResource
@@ -35,42 +34,39 @@ struct McpResource
 };
 
 /*!
- * \class McpClient
- * \brief Host-side connector that talks to a single MCP server via STDIO.
- *
- * McpClient spawns the MCP server with QProcess (STDIO transport) and exchanges
- * newline-delimited JSON-RPC 2.0 messages. After a successful `initialize` request,
- * it sends an `initialized` notification and is ready to list and call MCP tools.
- */
+    \brief Abstract base for MCP client transports.
 
+    Owns all JSON-RPC bookkeeping (request IDs, pending response dispatch,
+    initialize handshake, and tool/resource helpers) and declares the full
+    signal surface used by McpHost. Concrete subclasses provide the transport:
+
+      - McpClientStdio — stdio via QProcess
+      - McpClientHttp  — Streamable HTTP via QNetworkAccessManager
+
+    Subclasses must implement isRunning(), stop(), and sendRpcToServer() to
+    write one JSON-RPC object to the server. They must also call
+    handleIncomingLine() for every complete newline-delimited JSON frame
+    received from the server.
+*/
 class McpClient : public QObject
 {
     Q_OBJECT
+
 public:
     explicit McpClient(const QString &clientName, const QString &clientVersion, QObject *parent = nullptr);
     ~McpClient() override;
 
-    bool startProcess(
-        const QString &command,
-        const QStringList &args = {},
-        const QString &workingDir = {},
-        const QProcessEnvironment &env = QProcessEnvironment::systemEnvironment());
-
-    // Send polite termination; kills if it doesn't exit fast.
-    void stop(int killTimeoutMs = 1500);
-
-    bool isRunning() const;
+    virtual bool isRunning() const = 0;
+    virtual void stop(int killTimeoutMs = 1500) = 0;
 
     qint64 initialize();
-
     qint64 listTools();
     qint64 callTool(const QString &toolName, const QJsonObject &arguments);
-
     qint64 listResources();
     qint64 readResource(const QString &uri);
 
-    using ResponseHandler
-        = std::function<void(qint64 requestId, const QJsonObject &result, const QJsonObject &error)>;
+    using ResponseHandler = std::function<void(qint64 requestId, const QJsonObject &result,
+                                               const QJsonObject &error)>;
 
     qint64 sendRequest(
         const QString &method,
@@ -78,16 +74,13 @@ public:
         ResponseHandler callback = nullptr);
 
 signals:
-    // Process & connection state
     void started();
     void exited(int exitCode, QProcess::ExitStatus status);
     void errorOccurred(const QString &message);
     void connected(const QmlDesigner::McpServerInfo &info);
 
-    // Logging (server stderr or client warnings)
     void logMessage(const QString &line);
 
-    // Core results
     void toolsListed(const QList<QmlDesigner::McpTool> &tools, qint64 requestId);
     void toolCallSucceeded(const QJsonObject &result, qint64 requestId);
     void toolCallFailed(const QString &errorMessage, const QJsonObject &errorObj, qint64 requestId);
@@ -97,15 +90,21 @@ signals:
     void resourceReadFailed(
         const QString &errorMessage, const QJsonObject &errorObj, qint64 requestId);
 
-    // Any JSON-RPC notification
     void notificationReceived(const QString &method, const QJsonObject &params);
 
-private slots:
-    void onStdoutReady();
-    void onStderrReady();
-    void onProcessStarted();
-    void onProcessFinished(int exitCode, QProcess::ExitStatus status);
-    void onProcessError(QProcess::ProcessError e);
+protected:
+    // Transport interface
+    virtual void sendRpcToServer(const QJsonObject &obj) = 0;
+
+    // Called by subclasses for each complete JSON line received from the server
+    void handleIncomingLine(const QByteArray &line);
+
+    // Resets all session state; call from subclass stop()
+    void resetSession();
+
+    QString m_clientName;
+    QString m_clientVersion;
+    QString m_negotiatedProtocolVersion;
 
 private:
     struct PendingResponse
@@ -114,21 +113,13 @@ private:
         QString method;
     };
 
-    void sendRpcToServer(const QJsonObject &obj);
-    void handleIncomingLine(const QByteArray &line);
     void handleResponse(const QJsonObject &obj);
     void handleNotification(const QJsonObject &obj);
-
     void confirmClientInitialized();
 
-    QPointer<QProcess> m_process;
-    QByteArray m_stdoutBuffer;
     qint64 m_nextId = 1;
     QHash<qint64, PendingResponse> m_pendingResponses;
     bool m_initializedConfirmed = false;
-    McpServerInfo m_serverInfo;
-    QString m_clientName;
-    QString m_clientVersion;
 };
 
 } // namespace QmlDesigner

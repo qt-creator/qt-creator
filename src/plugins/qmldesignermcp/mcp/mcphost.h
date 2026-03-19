@@ -34,18 +34,15 @@ struct McpServerConfig
 /**
  * @brief Host-level manager for multiple McpClient instances (one per server).
  *
- * Responsibilities:
  *  - Create/start/stop/restart servers as McpClient connections.
  *  - Route tool calls to a specific server.
  *  - Aggregate logs, notifications, and errors with server context.
  *  - Enforce simple allow-list policy and optional consent hook for tool calls.
- *
- * Non-responsibilities:
- *  - UI; AI planning/routing; persistent configuration storage.
  */
 class McpHost : public QObject
 {
     Q_OBJECT
+
 public:
     explicit McpHost(QObject *parent = nullptr);
     ~McpHost();
@@ -74,7 +71,6 @@ public:
     void stopServer(const QString &serverName);
 
     // --- High-level routing ---
-    qint64 listTools(const QString &serverName);
     qint64 callTool(const QString &serverName, const QString &toolName, const QJsonObject &arguments);
 
     qint64 listResources(const QString &serverName);

@@ -1,18 +1,16 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
-#include "mcpclient.h"
 
-#include <coreplugin/icore.h>
+#include "mcpclient.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
-#include <QProcess>
 #include <QTimer>
 
 namespace {
 
-inline constexpr char mcpProtocolVersion[] = "2025-11-25";
+inline constexpr char mcpProtocolVersionFallback[] = "2025-11-25";
 
 QString jsonToCompact(const QJsonObject &o)
 {
@@ -27,130 +25,54 @@ McpClient::McpClient(const QString &clientName, const QString &clientVersion, QO
     : QObject(parent)
     , m_clientName(clientName)
     , m_clientVersion(clientVersion)
+    , m_negotiatedProtocolVersion(QString::fromLatin1(mcpProtocolVersionFallback))
 {}
 
-McpClient::~McpClient()
+McpClient::~McpClient() = default;
+
+void McpClient::resetSession()
 {
-    stop();
-}
-
-/*!
- *  Start an MCP server as a subprocess (stdio transport).
- *  Example: command="python", args={"qmlDesignerMcpServer","/projectPath","PATH_TO_THE_PROJECT"}
- *
- *  \param command
- *     Path or name of the executable to launch. Can be absolute, relative,
- *     or resolved via \p env / system PATH depending on platform.
- *  \param args
- *     List of arguments passed to the process in order.
- *  \param workingDir
- *     Working directory for the new process.
- *  \param env
- *     Environment variables for the new process.
- *  \return
- *     \c true if the process was successfully started; otherwise \c false.
-
- */
-bool McpClient::startProcess(
-    const QString &command,
-    const QStringList &args,
-    const QString &workingDir,
-    const QProcessEnvironment &env)
-{
-    if (m_process)
-        stop();
-
-    m_process = new QProcess(this);
-    m_process->setProcessEnvironment(env);
-    if (!workingDir.isEmpty())
-        m_process->setWorkingDirectory(workingDir);
-
-    connect(m_process, &QProcess::readyReadStandardOutput, this, &McpClient::onStdoutReady);
-    connect(m_process, &QProcess::readyReadStandardError, this, &McpClient::onStderrReady);
-    connect(m_process, &QProcess::started, this, &McpClient::onProcessStarted);
-    connect(
-        m_process,
-        qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
-        this,
-        &McpClient::onProcessFinished);
-    connect(m_process, &QProcess::errorOccurred, this, &McpClient::onProcessError);
-
-    QString commandFullPath = Core::ICore::libexecPath().pathAppended(command).toFSPathString();
-    m_process->start(commandFullPath, args, QIODevice::ReadWrite | QIODevice::Unbuffered);
-    if (!m_process->waitForStarted(8000)) {
-        emit errorOccurred(tr("Failed to start MCP server: %1").arg(m_process->errorString()));
-        return false;
-    }
-    return true;
-}
-
-void McpClient::stop(int killTimeoutMs)
-{
-    if (!m_process)
-        return;
-
-    if (m_process->state() != QProcess::NotRunning) {
-        m_process->closeWriteChannel();
-        m_process->terminate();
-        if (!m_process->waitForFinished(killTimeoutMs)) {
-            m_process->kill();
-            m_process->waitForFinished(500);
-        }
-    }
-
-    m_process->deleteLater();
-    m_process = nullptr;
-    m_stdoutBuffer.clear();
     m_pendingResponses.clear();
     m_nextId = 1;
     m_initializedConfirmed = false;
+    m_negotiatedProtocolVersion = QString::fromLatin1(mcpProtocolVersionFallback);
 }
 
-bool McpClient::isRunning() const
-{
-    return m_process && m_process->state() == QProcess::Running;
-}
-
-/*!
- * \brief Kick off handshake. Emits connected(serverInfo) on success.
- * \return request id
- *  For each MCP server, client sends "initialize" then server responds, then client sends "initialized".
- */
 qint64 McpClient::initialize()
 {
     QJsonObject params{
-        {"protocolVersion", mcpProtocolVersion},
-        {"capabilities",
-         QJsonObject{
-             {"roots", QJsonObject{{"listChanged", true}}},
-             {"sampling", QJsonObject{}}, // TODO
-         }},
-        {"clientInfo",
-         QJsonObject{
-             {"name", m_clientName},
-             {"version", m_clientVersion},
-         }},
-        // TODO: add "capabilities"?
+        {"protocolVersion", mcpProtocolVersionFallback},
+        {"capabilities", QJsonObject{
+            {"roots", QJsonObject{{"listChanged", true}}},
+            {"sampling", QJsonObject{}},
+        }},
+        {"clientInfo", QJsonObject{
+            {"name", m_clientName},
+            {"version", m_clientVersion},
+        }},
     };
 
     return sendRequest(
         QStringLiteral("initialize"),
         params,
-        [this](int, const QJsonObject &result, const QJsonObject &error) {
+        [this](qint64, const QJsonObject &result, const QJsonObject &error) {
             if (!error.isEmpty()) {
                 emit errorOccurred(
                     tr("initialize failed: %1").arg(error.value("message").toString()));
                 return;
             }
 
-            m_serverInfo = {
+            // Adopt whatever version the server agreed to use.
+            const QString negotiated = result.value("protocolVersion").toString();
+            if (!negotiated.isEmpty())
+                m_negotiatedProtocolVersion = negotiated;
+
+            McpServerInfo info{
                 .name = result.value("serverInfo").toObject().value("name").toString(),
                 .version = result.value("serverInfo").toObject().value("version").toString(),
             };
 
-            // TODO: get and save server capabilities
-
-            emit connected(m_serverInfo);
+            emit connected(info);
             QTimer::singleShot(0, this, &McpClient::confirmClientInitialized);
         });
 }
@@ -160,7 +82,7 @@ qint64 McpClient::listTools()
     return sendRequest(
         QStringLiteral("tools/list"),
         QJsonObject(),
-        [this](int requestId, const QJsonObject &result, const QJsonObject &error) {
+        [this](qint64 requestId, const QJsonObject &result, const QJsonObject &error) {
             if (!error.isEmpty()) {
                 emit errorOccurred(
                     tr("tools/list failed: %1").arg(error.value("message").toString()));
@@ -187,7 +109,7 @@ qint64 McpClient::callTool(const QString &toolName, const QJsonObject &arguments
     return sendRequest(
         QStringLiteral("tools/call"),
         params,
-        [this](int requestId, const QJsonObject &result, const QJsonObject &error) {
+        [this](qint64 requestId, const QJsonObject &result, const QJsonObject &error) {
             if (error.isEmpty())
                 emit toolCallSucceeded(result, requestId);
             else
@@ -200,25 +122,25 @@ qint64 McpClient::listResources()
     return sendRequest(
         QStringLiteral("resources/list"),
         QJsonObject(),
-        [this](int requestId, const QJsonObject &result, const QJsonObject &error) {
+        [this](qint64 requestId, const QJsonObject &result, const QJsonObject &error) {
             if (!error.isEmpty()) {
                 emit errorOccurred(
                     tr("resources/list failed: %1").arg(error.value("message").toString()));
                 return;
             }
-            QList<McpResource> mcpResource;
-            const QJsonArray resourcesArray = result.value("resources").toArray();
-            mcpResource.reserve(resourcesArray.size());
-            for (const QJsonValue &v : resourcesArray) {
+            QList<McpResource> resources;
+            const QJsonArray arr = result.value("resources").toArray();
+            resources.reserve(arr.size());
+            for (const QJsonValue &v : arr) {
                 const QJsonObject obj = v.toObject();
-                mcpResource.append({
+                resources.append({
                     .name = obj.value("name").toString(),
                     .description = obj.value("description").toString(),
                     .uri = obj.value("uri").toString(),
                     .mimeType = obj.value("mimeType").toString(),
                 });
             }
-            emit resourcesListed(mcpResource, requestId);
+            emit resourcesListed(resources, requestId);
         });
 }
 
@@ -228,7 +150,7 @@ qint64 McpClient::readResource(const QString &uri)
     return sendRequest(
         QStringLiteral("resources/read"),
         params,
-        [this](int requestId, const QJsonObject &result, const QJsonObject &error) {
+        [this](qint64 requestId, const QJsonObject &result, const QJsonObject &error) {
             if (error.isEmpty())
                 emit resourceReadSucceeded(result, requestId);
             else
@@ -236,69 +158,23 @@ qint64 McpClient::readResource(const QString &uri)
         });
 }
 
-// Returns request id. If callback is empty, you will only get signals.
-qint64 McpClient::sendRequest(
-    const QString &method, const QJsonObject &params, ResponseHandler callback)
+qint64 McpClient::sendRequest(const QString &method, const QJsonObject &params, ResponseHandler callback)
 {
-    if (!m_process || m_process->state() != QProcess::Running) {
-        emit errorOccurred(tr("sendRequest called but process not running"));
+    if (!isRunning()) {
+        emit errorOccurred(tr("sendRequest called but transport is not running"));
         return -1;
     }
+
     const qint64 id = m_nextId++;
     QJsonObject req{{"jsonrpc", "2.0"}, {"id", id}, {"method", method}, {"params", params}};
     sendRpcToServer(req);
 
-    PendingResponse pendingResponse;
-    pendingResponse.method = method;
+    PendingResponse pending;
+    pending.method = method;
     if (callback)
-        pendingResponse.callback = std::move(callback);
-    m_pendingResponses.insert(id, std::move(pendingResponse));
+        pending.callback = std::move(callback);
+    m_pendingResponses.insert(id, std::move(pending));
     return id;
-}
-
-void McpClient::onStdoutReady()
-{
-    // MCP stdio transport: messages are newline-delimited JSON, no embedded newlines.
-    // We'll split by '\n'. If the server ever prints partial lines, we buffer.
-    m_stdoutBuffer.append(m_process->readAllStandardOutput());
-    int idx = -1;
-    while ((idx = m_stdoutBuffer.indexOf('\n')) != -1) {
-        const QByteArray line = m_stdoutBuffer.left(idx);
-        m_stdoutBuffer.remove(0, idx + 1);
-        if (!line.trimmed().isEmpty())
-            handleIncomingLine(line);
-    }
-}
-
-void McpClient::onStderrReady()
-{
-    const QByteArray data = m_process->readAllStandardError();
-    const QStringList lines = QString::fromUtf8(data).split('\n', Qt::SkipEmptyParts);
-    for (const QString &line : lines)
-        emit logMessage(line);
-}
-
-void McpClient::onProcessStarted()
-{
-    emit started();
-}
-
-void McpClient::onProcessFinished(int exitCode, QProcess::ExitStatus status)
-{
-    emit exited(exitCode, status);
-}
-
-void McpClient::onProcessError(QProcess::ProcessError e)
-{
-    emit errorOccurred(tr("Process error: %1").arg(int(e)));
-}
-
-void McpClient::sendRpcToServer(const QJsonObject &obj)
-{
-    const QByteArray line = QJsonDocument(obj).toJson(QJsonDocument::Compact) + '\n';
-    qint64 n = m_process->write(line);
-    if (n != line.size())
-        emit errorOccurred(tr("Failed to write full JSON line to server"));
 }
 
 void McpClient::handleIncomingLine(const QByteArray &line)
@@ -311,9 +187,6 @@ void McpClient::handleIncomingLine(const QByteArray &line)
     }
     const QJsonObject obj = doc.object();
 
-    // Distinguishes between JSON‑RPC responses and notifications based on
-    // the presence of an "id" or "method" field. Messages with an "id"
-    // are treated as responses, those with a "method" as notifications.
     if (obj.contains(QStringLiteral("id")))
         handleResponse(obj);
     else if (obj.contains(QStringLiteral("method")))
@@ -330,7 +203,6 @@ void McpClient::handleResponse(const QJsonObject &obj)
     const QJsonObject error = obj.value("error").toObject();
 
     if (it != m_pendingResponses.end()) {
-        const QString method = it->method;
         auto callback = std::move(it->callback);
         m_pendingResponses.erase(it);
         if (callback)
@@ -352,8 +224,8 @@ void McpClient::confirmClientInitialized()
 {
     if (m_initializedConfirmed)
         return;
-
     m_initializedConfirmed = true;
+
     QJsonObject notif{
         {"jsonrpc", "2.0"},
         {"method", "notifications/initialized"},

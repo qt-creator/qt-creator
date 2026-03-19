@@ -30,17 +30,12 @@ void ToolRegistry::registerServer(const QString &serverName, McpClient *client)
             [this, serverName, client](const McpServerInfo &) {
         onServerConnected(serverName, client);
     });
-
-    // If already connected, trigger discovery immediately
-    if (client->isRunning())
-        onServerConnected(serverName, client);
 }
 
 void ToolRegistry::onServerConnected(const QString &serverName, McpClient *client)
 {
     // Request tool list
     qint64 requestId = client->listTools();
-
     if (requestId < 0) {
         emit discoveryFailed(serverName, "Failed to request tool list");
         return;

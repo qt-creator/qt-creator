@@ -46,6 +46,8 @@ extend_qtc_plugin(QmlDesignerMcp
   SOURCES_PREFIX mcp
   SOURCES
     mcpclient.cpp mcpclient.h
+    mcpclientstdio.cpp mcpclientstdio.h
+    mcpclienthttp.cpp mcpclienthttp.h
     mcpconfigloader.cpp mcpconfigloader.h
     mcphost.cpp mcphost.h
     agenticrequestmanager.cpp agenticrequestmanager.h

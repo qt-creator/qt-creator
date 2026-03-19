@@ -3,6 +3,9 @@
 
 #include "mcphost.h"
 
+#include "mcpclienthttp.h"
+#include "mcpclientstdio.h"
+
 #include <QTimer>
 
 namespace QmlDesigner {
@@ -113,23 +116,35 @@ bool McpHost::startServer(const QString &serverName)
 
     // Start a client and wire it to the server
     auto [clientName, clientVersion] = getClientInfo(serverName);
-    auto client = new McpClient(clientName, clientVersion, this);
-    m_clients.insert(serverName, client);
-    wireClientSignals(serverName, client);
-
+    McpClient *client = nullptr;
     bool ok = false;
+
     switch (cfg.transport) {
     case McpServerConfig::Stdio: {
-        ok = client->startProcess(cfg.command, cfg.args, cfg.workingDir, cfg.env);
+        auto *stdioClient = new McpClientStdio(clientName, clientVersion, this);
+        client = stdioClient;
+        ok = stdioClient->startProcess(cfg.command, cfg.args, cfg.workingDir, cfg.env);
         break;
     }
     case McpServerConfig::Http: {
-        // TODO
-        emit errorOccurred(serverName, tr("HTTP transport not implemented for '%1'").arg(serverName));
-        ok = false;
+        if (cfg.url.isEmpty()) {
+            emit errorOccurred(serverName,
+                               tr("HTTP transport: no URL configured for server '%1'")
+                                   .arg(serverName));
+            return false;
+        }
+        auto *httpClient = new McpClientHttp(clientName, clientVersion, this);
+        client = httpClient;
+        ok = httpClient->connectToServer(cfg.url, cfg.bearerToken);
         break;
     }
+    default: {
+        qWarning() << __FUNCTION__ << "Invalid protocol";
     }
+    }
+
+    m_clients.insert(serverName, client);
+    wireClientSignals(serverName, client);
 
     if (!ok) {
         emit errorOccurred(serverName, tr("Failed to start server '%1'").arg(serverName));
@@ -152,17 +167,6 @@ void McpHost::stopServer(const QString &serverName)
     it.value()->stop();
     it.value()->deleteLater();
     m_clients.erase(it);
-}
-
-qint64 McpHost::listTools(const QString &serverName)
-{
-    McpClient *client = this->client(serverName);
-    if (!client) {
-        emit errorOccurred(
-            serverName, QStringLiteral("listTools: no client for '%1'").arg(serverName));
-        return -1;
-    }
-    return client->listTools();
 }
 
 qint64 McpHost::callTool(
@@ -263,37 +267,27 @@ void McpHost::wireClientSignals(const QString &name, McpClient *client)
         emit toolCallSucceeded(name, res, id);
     });
 
-    connect(
-        client,
-        &McpClient::toolCallFailed, this,
+    connect(client, &McpClient::toolCallFailed, this,
         [this, name](const QString &msg, const QJsonObject &err, qint64 id) {
             emit toolCallFailed(name, msg, err, id);
         });
 
-    connect(
-        client,
-        &McpClient::resourcesListed, this,
+    connect(client, &McpClient::resourcesListed, this,
         [this, name](const QList<McpResource> &resources, qint64 reqId) {
             emit resourcesListed(name, resources, reqId);
         });
 
-    connect(
-        client,
-        &McpClient::resourceReadSucceeded, this,
+    connect(client, &McpClient::resourceReadSucceeded, this,
         [this, name](const QJsonObject &res, qint64 id) {
             emit resourceReadSucceeded(name, res, id);
         });
 
-    connect(
-        client,
-        &McpClient::resourceReadFailed, this,
+    connect(client, &McpClient::resourceReadFailed, this,
         [this, name](const QString &msg, const QJsonObject &err, qint64 id) {
             emit resourceReadFailed(name, msg, err, id);
         });
 
-    connect(
-        client,
-        &McpClient::notificationReceived, this,
+    connect(client, &McpClient::notificationReceived, this,
         [this, name](const QString &method, const QJsonObject &params) {
             emit notificationReceived(name, method, params);
         });
@@ -325,11 +319,10 @@ void McpHost::cancelRestart(const QString &name)
 
 QPair<QString, QString> McpHost::getClientInfo(const QString &serverName) const
 {
-    static const QHash<QString, QPair<QString, QString>> clientInfos {
-        { "qml_server", {"qml_client", "1.0.0" } } // server name -> {client name, client version}
-    };
+    // Simple logic for client info: client name = server name, version = 1.0.0
+    // more advanced logic to be implemented if need arises
 
-    return clientInfos.value(serverName);
+    return {serverName, "1.0.0"};
 }
 
 bool McpHost::isToolAllowed(const QString &serverName, const QString &toolName) const
