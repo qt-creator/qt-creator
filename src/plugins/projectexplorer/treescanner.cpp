@@ -75,11 +75,6 @@ void TreeScanner::setTypeFactory(TreeScanner::FileTypeFactory factory)
         m_factory = factory;
 }
 
-TreeScanner::Future TreeScanner::future() const
-{
-    return m_scanFuture;
-}
-
 bool TreeScanner::isFinished() const
 {
     return m_futureWatcher.isFinished();

@@ -9,7 +9,6 @@
 #include "fileapidataextractor.h"
 
 #include <projectexplorer/rawprojectpart.h>
-#include <projectexplorer/treescanner.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 

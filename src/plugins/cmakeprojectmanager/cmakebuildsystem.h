@@ -14,6 +14,8 @@
 
 #include <utils/temporarydirectory.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 namespace ProjectExplorer {
     class ExtraCompiler;
     class FolderNode;
@@ -204,9 +206,6 @@ private:
     void handleParsingSuccess();
     void handleParsingError();
 
-    // Treescanner states:
-    void handleTreeScanningFinished();
-
     // Combining Treescanner and Parser states:
     void combineScanAndParse(bool restoredFromBackup);
     void checkAndReportError(QString &errorMessage);
@@ -248,7 +247,7 @@ private:
     Utils::Result<ProjectFileArgumentPosition> projectFileArgumentPosition(
         const QString &targetName, const QString &fileName);
 
-    ProjectExplorer::TreeScanner m_treeScanner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     std::shared_ptr<ProjectExplorer::FolderNode> m_allFiles;
 
     bool m_waitingForParse = false;

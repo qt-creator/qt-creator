@@ -62,7 +62,6 @@ public:
     // Setup factory for file types
     void setTypeFactory(FileTypeFactory factory);
 
-    Future future() const;
     bool isFinished() const;
 
     // Takes owning of result

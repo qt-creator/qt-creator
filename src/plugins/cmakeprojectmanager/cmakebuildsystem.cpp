@@ -34,6 +34,7 @@
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/treescanner.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
@@ -44,11 +45,13 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -67,6 +70,7 @@
 #endif
 
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -87,28 +91,6 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
-    // TreeScanner:
-    connect(&m_treeScanner, &TreeScanner::finished,
-            this, &CMakeBuildSystem::handleTreeScanningFinished);
-
-    m_treeScanner.setFilter([](const MimeType &mimeType, const FilePath &fn) {
-        // Mime checks requires more resources, so keep it last in check list
-        return TreeScanner::isWellKnownBinary(fn) || TreeScanner::isMimeTypeIgnored(mimeType);
-    });
-
-    m_treeScanner.setTypeFactory([](const MimeType &mimeType) {
-        auto type = TreeScanner::genericFileType(mimeType);
-        if (type == FileType::Unknown) {
-            if (mimeType.isValid()) {
-                const QString mt = mimeType.name();
-                if (mt == Utils::Constants::CMAKE_PROJECT_MIMETYPE
-                    || mt == Utils::Constants::CMAKE_MIMETYPE)
-                    type = FileType::Project;
-            }
-        }
-        return type;
-    });
-
     connect(&m_reader, &FileApiReader::configurationStarted, this, [this] {
         clearError(ForceEnabledChanged::True);
     });
@@ -132,12 +114,7 @@ CMakeBuildSystem::~CMakeBuildSystem()
     // but tell it to not do anything
     m_isDestructing = true;
     m_currentGuard = {};
-    if (!m_treeScanner.isFinished()) {
-        auto future = m_treeScanner.future();
-        future.cancel();
-        future.waitForFinished();
-    }
-
+    m_taskTreeRunner.reset();
     delete m_cppCodeModelUpdater;
     qDeleteAll(m_extraCompilers);
 }
@@ -1677,7 +1654,7 @@ void CMakeBuildSystem::updateProjectData()
 {
     qCDebug(cmakeBuildSystemLog) << "Updating CMake project data";
 
-    QTC_ASSERT(m_treeScanner.isFinished() && !m_reader.isParsing(), return );
+    QTC_ASSERT(!m_taskTreeRunner.isRunning() && !m_reader.isParsing(), return );
 
     buildConfiguration()->project()->setExtraProjectFiles(projectFilesToWatch(m_cmakeFiles));
 
@@ -1821,16 +1798,6 @@ void CMakeBuildSystem::updateProjectData()
     qCDebug(cmakeBuildSystemLog) << "All CMake project data up to date.";
 }
 
-void CMakeBuildSystem::handleTreeScanningFinished()
-{
-    TreeScanner::Result result = m_treeScanner.release();
-    m_allFiles = std::make_shared<ProjectExplorer::FolderNode>(projectDirectory());
-    for (auto &node : result.firstLevelNodes)
-        m_allFiles->addNode(std::move(node));
-
-    updateFileSystemNodes();
-}
-
 void CMakeBuildSystem::updateFileSystemNodes()
 {
     auto newRoot = std::make_unique<CMakeProjectNode>(m_parameters.sourceDirectory);
@@ -1858,16 +1825,58 @@ void CMakeBuildSystem::updateFileSystemNodes()
     qCDebug(cmakeBuildSystemLog) << "All fallback CMake project data up to date.";
 }
 
+static bool mimeFileFilter(const MimeType &mimeType, const FilePath &fn)
+{
+    // Mime checks requires more resources, so keep it last in check list
+    return TreeScanner::isWellKnownBinary(fn) || TreeScanner::isMimeTypeIgnored(mimeType);
+}
+
+static FileType fileTypeFactory(const MimeType &mimeType)
+{
+    auto type = TreeScanner::genericFileType(mimeType);
+    if (type == FileType::Unknown) {
+        if (mimeType.isValid()) {
+            const QString mt = mimeType.name();
+            if (mt == Utils::Constants::CMAKE_PROJECT_MIMETYPE
+                || mt == Utils::Constants::CMAKE_MIMETYPE) {
+                type = FileType::Project;
+            }
+        }
+    }
+    return type;
+}
+
 void CMakeBuildSystem::updateFallbackProjectData()
 {
     qCDebug(cmakeBuildSystemLog) << "Updating fallback CMake project data";
     qCDebug(cmakeBuildSystemLog) << "Starting TreeScanner";
-    QTC_CHECK(m_treeScanner.isFinished());
-    if (m_treeScanner.asyncScanForFiles(projectDirectory()))
-        Core::ProgressManager::addTask(m_treeScanner.future(),
-                                       Tr::tr("Scan \"%1\" project tree")
-                                           .arg(project()->displayName()),
-                                       "CMake.Scan.Tree");
+    QTC_CHECK(!m_taskTreeRunner.isRunning());
+
+    using ResultType = TreeScanner::Result;
+    const auto onSetup = [this](Async<ResultType> &task) {
+        task.setConcurrentCallData(&TreeScanner::scanForFiles, projectDirectory(), mimeFileFilter,
+                                   QDir::AllEntries | QDir::NoDotAndDotDot,
+                                   &fileTypeFactory);
+        QObject::connect(&task, &AsyncBase::started, this, [this, taskPtr = &task] {
+            Core::ProgressManager::addTask(taskPtr->future(),
+                                           Tr::tr("Scan \"%1\" project tree")
+                                               .arg(project()->displayName()),
+                                           "CMake.Scan.Tree");
+        });
+    };
+    const auto onDone = [this](const Async<ResultType> &task) {
+        if (!task.isResultAvailable())
+            return;
+
+        TreeScanner::Result result = task.takeResult();
+        m_allFiles = std::make_shared<ProjectExplorer::FolderNode>(projectDirectory());
+        for (auto &node : result.firstLevelNodes)
+            m_allFiles->addNode(std::move(node));
+
+        updateFileSystemNodes();
+    };
+
+    m_taskTreeRunner.start({AsyncTask<ResultType>(onSetup, onDone)});
 
     // A failed configuration could be the result of an compiler update
     // which then would cause CMake to fail. Make sure to offer an upgrade path
