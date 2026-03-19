@@ -45,7 +45,7 @@ def openCmakeProject(projectPath, buildDir):
         lineEdit = getChildByClass(pChooser, "Utils::FancyLineEdit")
         replaceEditorContent(lineEdit, buildDir)
         # disable all build configurations except "Debug"
-        configs = ['Release', 'Release with Debug Information', 'Minimum Size Release']
+        configs = ['Release', 'RelWithDebInfo', 'MinSizeRelease']
         for checkbox in configs:
             ensureChecked(waitForObject("{text='%s' type='QCheckBox' unnamed='1' visible='1' "
                                         "window=':Qt Creator_Core::Internal::MainWindow'}"
@@ -175,8 +175,8 @@ def __selectQtVersionDesktop__(buildSystem, checks, available=None, targets=[]):
                 __verifyAndExplicitlyCheck__("Release", detailsWidget, False)
                 __verifyAndExplicitlyCheck__("Profile", detailsWidget, False)
                 if buildSystem == "CMake":
-                    __verifyAndExplicitlyCheck__("Release with Debug Information", detailsWidget, False)
-                    __verifyAndExplicitlyCheck__("Minimum Size Release", detailsWidget, False)
+                    __verifyAndExplicitlyCheck__("RelWithDebInfo", detailsWidget, False)
+                    __verifyAndExplicitlyCheck__("MinSizeRel", detailsWidget, False)
                 clickButton(detailsButton)
     clickButton(waitForObject(":Next_QPushButton"))
     return checkedTargets

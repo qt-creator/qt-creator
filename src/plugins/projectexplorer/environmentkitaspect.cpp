@@ -99,6 +99,12 @@ private:
         m_buildEnvButton->setToolTip(m_buildEnvChanges.toShortSummary(kit()->macroExpander(), true));
         m_runEnvButton->setToolTip(m_runEnvChanges.toShortSummary(kit()->macroExpander(), true));
 
+        if (m_vslangCheckbox) {
+            const bool check = enforcesMSVCEnglish(m_buildEnvChanges);
+            if (check != (m_vslangCheckbox->checkState() != Qt::Unchecked))
+                m_vslangCheckbox->setChecked(check);
+        }
+
         // TODO: Set an icon on the button representing whether there are changes or not.
     }
 
@@ -202,6 +208,9 @@ private:
                 m_buildEnvChanges.appendUserItem(forceMSVCEnglishItem());
             else if (!checked && hasVsLangEntry)
                 m_buildEnvChanges.removeUserItem(forceMSVCEnglishItem());
+            if (checked != hasVsLangEntry)
+                markSettingsDirty();
+            refresh();
         });
     }
 

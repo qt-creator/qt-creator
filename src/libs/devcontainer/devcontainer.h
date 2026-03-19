@@ -20,7 +20,7 @@ struct InstancePrivate;
 
 struct DEVCONTAINER_EXPORT InstanceConfig
 {
-    Utils::FilePath dockerCli;
+    Utils::FilePath dockerCli = Utils::FilePath("docker").searchInPath();
     Utils::FilePath workspaceFolder;
     Utils::FilePath configFilePath;
 

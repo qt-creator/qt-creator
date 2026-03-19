@@ -48,6 +48,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace TextEditor;
 
 namespace ClangFormat {
 
@@ -157,6 +158,22 @@ void ClangFormatConfigWidget::initEditor()
 
     m_editorScrollArea->setWidget(m_editor->widget());
     m_editorScrollArea->setWidgetResizable(true);
+
+    if (TextEditorWidget *editor = editorWidget()) {
+        auto updateDisplaySettings = [editor] {
+            DisplaySettingsData ds = TextEditor::displaySettings().data();
+            ds.m_displayMinimap = false;
+            editor->setDisplaySettings(ds);
+        };
+
+        connect(
+            &TextEditor::displaySettings().displayMinimap,
+            &Utils::BaseAspect::changed,
+            this,
+            updateDisplaySettings);
+
+        updateDisplaySettings();
+    }
 
     m_clangFileIsCorrectText = new InfoLabel("", Utils::InfoLabel::Ok);
     m_clangFileIsCorrectText->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);

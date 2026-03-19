@@ -74,9 +74,8 @@ void MinimapOverlay::paintMinimap(QPainter *painter) const
     const qreal &scrollFraction = tg.scrollFraction;
     const QRect &thumbRect = tg.rect;
 
-    QColor overlay = creatorColor(Theme::Token_Foreground_Default);
-    overlay.setAlphaF(m_minimapAlpha);
-    painter->fillRect(thumbRect, overlay);
+    const QColor thumbColor = creatorColor(Theme::Token_Foreground_Muted);
+    painter->fillRect(thumbRect, thumbColor);
 
     if (m_minimap.height() > geo.height()) {
         int srcY = qRound(scrollFraction * (m_minimap.height() - geo.height()));

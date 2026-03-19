@@ -782,6 +782,8 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
 
 void CMakeBuildSettingsWidget::kitCMakeConfiguration()
 {
+    QTC_ASSERT(m_buildConfig, return);
+
     using namespace Layouting;
     m_buildConfig->kit()->blockNotification();
 
@@ -853,6 +855,8 @@ void CMakeBuildSettingsWidget::setWarning(const QString &message)
 
 void CMakeBuildSettingsWidget::updateButtonState()
 {
+    m_kitConfiguration->setEnabled(!m_buildConfig.isNull());
+
     QTC_ASSERT(m_buildConfig, return);
     const bool isParsing = m_buildConfig->cmakeBuildSystem()->isParsing();
 
@@ -2246,12 +2250,12 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
     switch (buildType) {
     case BuildTypeNone:
         info.typeName = "Build";
-        info.displayName = msgBuildConfigurationBuild();
+        info.displayName = info.typeName;
         info.buildType = BuildConfiguration::Unknown;
         break;
     case BuildTypeDebug: {
         info.typeName = "Debug";
-        info.displayName = msgBuildConfigurationDebug();
+        info.displayName = info.typeName;
         info.buildType = BuildConfiguration::Debug;
         Store extraInfo;
         // enable QML debugging by default
@@ -2261,22 +2265,22 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
     }
     case BuildTypeRelease:
         info.typeName = "Release";
-        info.displayName = msgBuildConfigurationRelease();
+        info.displayName = info.typeName;
         info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeMinSizeRel:
         info.typeName = "MinSizeRel";
-        info.displayName = Tr::tr("Minimum Size Release");
+        info.displayName = info.typeName;
         info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeRelWithDebInfo:
         info.typeName = "RelWithDebInfo";
-        info.displayName = Tr::tr("Release with Debug Information");
+        info.displayName = info.typeName;
         info.buildType = BuildConfiguration::Profile;
         break;
     case BuildTypeProfile: {
         info.typeName = "Profile";
-        info.displayName = msgBuildConfigurationProfile();
+        info.displayName = info.typeName;
         info.buildType = BuildConfiguration::Profile;
         Store extraInfo;
         // override CMake build type, which defaults to info.typeName

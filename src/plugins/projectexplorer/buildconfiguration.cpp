@@ -222,7 +222,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
         return project()->projectFilePath();
     });
     expander->registerVariable("BuildConfig:Name", Tr::tr("Name of the build configuration"),
-            [this] { return displayName(); });
+            [this] { return FileUtils::fileSystemFriendlyName(displayName()); });
     expander->registerPrefix(
         "BuildConfig:Env",
         "USER",
@@ -1225,9 +1225,12 @@ void BuildConfiguration::setupBuildDirMacroExpander(
     exp.registerVariable("Project:Name",
                          Tr::tr("Name of the project"),
                          [projectName] { return projectName; }, true, !documentationOnly);
-    exp.registerVariable("BuildConfig:Name",
-                         Tr::tr("Name of the project's active build configuration"),
-                         [bcName] { return bcName; }, true, !documentationOnly);
+    exp.registerVariable(
+        "BuildConfig:Name",
+        Tr::tr("Name of the project's active build configuration"),
+        [bcName] { return FileUtils::fileSystemFriendlyName(bcName); },
+        true,
+        !documentationOnly);
     exp.registerVariable("BuildSystem:Name",
                          Tr::tr("Name of the project's active build system"),
                          [buildSystem] { return buildSystem; }, true, !documentationOnly);

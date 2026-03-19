@@ -156,7 +156,6 @@ void tst_DevContainer::instanceConfigToString_data()
     QTest::addColumn<QString>("expectedOutput");
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -250,7 +249,6 @@ void tst_DevContainer::readConfig()
     )json";
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -326,7 +324,6 @@ FROM alpine:latest AS test
     config.common.name = "Test Dockerfile";
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -356,7 +353,6 @@ void tst_DevContainer::upImage()
     config.common.name = "Test Image";
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -400,7 +396,6 @@ void tst_DevContainer::upWithHooks()
     };
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -445,7 +440,6 @@ void tst_DevContainer::processInterface()
            {"REMOTEENV_FROM_CONTAINER", "${containerEnv:CONTAINER_TEST}"}};
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -518,7 +512,6 @@ void tst_DevContainer::containerWorkspaceReplacers()
     )json";
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -544,7 +537,6 @@ void tst_DevContainer::dockerCompose()
         QSKIP("docker-compose has been having spurious failures. Skipping on Linux for now.");
 
     static const QByteArray composeFile = R"yaml(
-version: '3.8'
 services:
   devcontainer:
     image: alpine:latest
@@ -556,8 +548,6 @@ services:
   db:
     image: postgres:latest
     restart: unless-stopped
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
@@ -583,7 +573,6 @@ volumes:
     QVERIFY_RESULT(composePath.writeFileContents(composeFile));
 
     DevContainer::InstanceConfig instanceConfig{
-        .dockerCli = "docker",
         .workspaceFolder = tempDir,
         .configFilePath = dotDevContainerDir / "devcontainer.json",
         .mounts = {},

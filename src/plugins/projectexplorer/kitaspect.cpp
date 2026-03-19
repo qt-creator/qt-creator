@@ -208,7 +208,7 @@ void KitAspect::refresh()
 
     for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
         // Prevent dirtying by the QComboBox::model()::reset and setCurrentIndex below.
-        const bool prev = setIgnoreForDirtyHook(la.comboBox, true);
+        DirtySettingsGuard guard;
 
         la.spec.resetModel();
         la.comboBox->model()->sort(0);
@@ -224,8 +224,6 @@ void KitAspect::refresh()
         }
         la.comboBox->setCurrentIndex(idx);
         la.comboBox->setEnabled(!d->readOnly && la.comboBox->count() > 1);
-
-        setIgnoreForDirtyHook(la.comboBox, prev);
     }
 }
 

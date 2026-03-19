@@ -4,6 +4,7 @@
 #include "snippeteditor.h"
 
 #include <texteditor/textdocument.h>
+#include <texteditor/displaysettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
@@ -28,6 +29,20 @@ SnippetEditorWidget::SnippetEditorWidget(QWidget *parent)
     setHighlightCurrentLine(false);
     setLineNumbersVisible(false);
     setParenthesesMatchingEnabled(true);
+
+    auto updateDisplaySettings = [this] {
+        DisplaySettingsData ds = TextEditor::displaySettings().data();
+        ds.m_displayMinimap = false;
+        setDisplaySettings(ds);
+    };
+
+    connect(
+        &TextEditor::displaySettings().displayMinimap,
+        &Utils::BaseAspect::changed,
+        this,
+        updateDisplaySettings);
+
+    updateDisplaySettings();
 }
 
 void SnippetEditorWidget::focusOutEvent(QFocusEvent *event)

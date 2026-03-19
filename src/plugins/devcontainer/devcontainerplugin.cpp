@@ -203,7 +203,6 @@ void DevContainerPlugin::onProjectAdded(Project *project)
         const QList<DevContainer::InstanceConfig> instanceConfigs
             = transform(devContainerFiles, [project](const FilePath &path) {
                   return DevContainer::InstanceConfig{
-                      .dockerCli = "docker",
                       .workspaceFolder = project->projectDirectory(),
                       .configFilePath = path,
                       .mounts = {},
@@ -447,7 +446,6 @@ void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const FilePath &
         }
 
         DevContainer::InstanceConfig instanceConfig{
-            .dockerCli = "docker",
             .workspaceFolder = workspaceFolder,
             .configFilePath = filePath,
             .mounts = {},
