@@ -198,7 +198,9 @@ GeneralSettingsWidget::GeneralSettingsWidget()
                                   .arg(QGuiApplication::applicationDisplayName())
                               + "\n\n"
                               + Utils::transform<QStringList>(setVars, [](const char *var) {
-                                    return QString("%1=%2").arg(var, qEnvironmentVariable(var));
+                                    return QString("%1=%2")
+                                        .arg(QString::fromUtf8(var))
+                                        .arg(qEnvironmentVariable(var));
                                 }).join("\n");
 
             auto envVarInfo = new InfoLabel(Tr::tr("Environment influences UI scaling behavior."));
