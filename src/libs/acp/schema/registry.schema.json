@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://cdn.agentclientprotocol.com/registry/v1/latest/registry.schema.json",
+    "title": "ACP Agent Registry",
+    "description": "Schema for the aggregated ACP agent registry index",
+    "type": "object",
+    "required": [
+        "version",
+        "agents"
+    ],
+    "properties": {
+        "version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+",
+            "description": "Registry schema version"
+        },
+        "agents": {
+            "type": "array",
+            "description": "List of registered agents",
+            "items": {
+                "$ref": "agent.schema.json"
+            }
+        }
+    },
+    "additionalProperties": false
+}

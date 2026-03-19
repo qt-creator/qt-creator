@@ -4,22 +4,174 @@
 #include "acpsettings.h"
 #include "acpclienttr.h"
 
+#include <acp/acpregistry.h>
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/environmentdialog.h>
+#include <utils/filestreamer.h>
 #include <utils/layoutbuilder.h>
+#include <utils/networkaccessmanager.h>
+#include <utils/stylehelper.h>
+#include <utils/temporarydirectory.h>
+#include <utils/temporaryfile.h>
+#include <utils/theme/theme.h>
 
 #include <QMetaEnum>
 #include <QPushButton>
 #include <QStandardItemModel>
 #include <QUuid>
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 using namespace Utils;
 
 namespace AcpClient::Internal {
+
+using namespace QtTaskTree;
+
+using SharedTempFile = std::shared_ptr<TemporaryFilePath>;
+
+class AcpRegistryBrowser : public StringSelectionAspect
+{
+public:
+    AcpRegistryBrowser(AspectContainer *parent = nullptr)
+        : StringSelectionAspect(parent)
+    {
+        setComboBoxEditable(false);
+
+        auto findIconOrFetch = [this](const FilePath &url) -> QIcon {
+            if (url.isEmpty())
+                return QIcon();
+
+            if (const auto it = s_iconCache.find(url); it != s_iconCache.end()) {
+                return QIcon((*it)->filePath().toFSPathString());
+            }
+
+            Storage<SharedTempFile> tmpFile;
+
+            const auto setupFetch = [tmpFile, url](FileStreamer &task) {
+                auto tmpResult = TemporaryFilePath::create(
+                    TemporaryDirectory::masterDirectoryFilePath() / "acpclient_icon_XXXXXX.svg");
+                QTC_ASSERT_RESULT(tmpResult, return);
+                *tmpFile = SharedTempFile(tmpResult->release());
+
+                task.setSource(url);
+                task.setDestination((*tmpFile)->filePath());
+            };
+
+            const auto fetchDone = [this, tmpFile, url](DoneWith doneWith) {
+                if (doneWith != DoneWith::Success)
+                    return;
+
+                auto data = (*tmpFile)->filePath().fileContents();
+                QTC_ASSERT_RESULT(data, return);
+
+                data->replace(
+                    "currentColor", creatorColor(Theme::IconsBaseColor).toRgb().name().toUtf8());
+                QTC_ASSERT_RESULT((*tmpFile)->filePath().writeFileContents(*data), return);
+
+                s_iconCache.insert(url, *tmpFile);
+                refill();
+            };
+
+            m_runner.start(Group{tmpFile, FileStreamerTask(setupFetch, fetchDone)});
+
+            return QIcon();
+        };
+
+        auto fillCallback = [this, findIconOrFetch](ResultCallback resultCb) {
+            // Cached ?
+            if (s_registry) {
+                QList<QStandardItem *> items;
+                auto customItem = new QStandardItem(Tr::tr("<Custom>"));
+                customItem->setData(QString());
+                customItem->setToolTip(
+                    Tr::tr("Manually specify an agent not listed in the registry"));
+                items.append(customItem);
+
+                for (const auto &agent : s_registry->agents()) {
+                    auto item = new QStandardItem(agent.name() + " (" + agent.version() + ")");
+                    item->setToolTip(agent.description());
+                    item->setData(agent.id());
+                    item->setData(
+                        findIconOrFetch(FilePath::fromUserInput(agent.icon().value_or(QString()))),
+                        Qt::DecorationRole);
+
+                    items.append(item);
+                }
+                resultCb(items);
+                return;
+            }
+
+            const auto setupFetch = [](QNetworkReplyWrapper &wrapper) {
+                wrapper.setNetworkAccessManager(Utils::NetworkAccessManager::instance());
+                wrapper.setOperation(QNetworkAccessManager::Operation::GetOperation);
+                QNetworkRequest request(
+                    QUrl("https://cdn.agentclientprotocol.com/registry/v1/latest/registry.json"));
+                wrapper.setRequest(request);
+            };
+            const auto fetchDone =
+                [resultCb, findIconOrFetch](const QNetworkReplyWrapper &wrapper, DoneWith doneWith) {
+                    if (doneWith != DoneWith::Success)
+                        return;
+
+                    const QByteArray data = wrapper.reply()->readAll();
+                    QJsonParseError error;
+                    const QJsonDocument doc = QJsonDocument::fromJson(data, &error);
+                    if (error.error != QJsonParseError::NoError) {
+                        qWarning() << "Failed to parse registry JSON:" << error.errorString();
+                        return;
+                    }
+
+                    auto registry = Acp::Registry::fromJson<Acp::Registry::ACPAgentRegistry>(
+                        doc.object());
+
+                    if (!registry) {
+                        s_registry.reset();
+                        qWarning() << "Failed to parse registry:" << registry.error();
+                        return;
+                    }
+                    s_registry = std::move(*registry);
+
+                    QList<QStandardItem *> items;
+                    auto customItem = new QStandardItem(Tr::tr("<Custom>"));
+                    customItem->setData(QString());
+                    customItem->setToolTip(
+                        Tr::tr("Manually specify an agent not listed in the registry"));
+                    items.append(customItem);
+
+                    for (const auto &agent : s_registry->agents()) {
+                        auto item = new QStandardItem(agent.name() + " (" + agent.version() + ")");
+                        item->setToolTip(agent.description());
+                        item->setData(agent.id());
+                        item->setData(
+                            findIconOrFetch(
+                                FilePath::fromUserInput(agent.icon().value_or(QString()))),
+                            Qt::DecorationRole);
+                        items.append(item);
+                    }
+
+                    resultCb(items);
+                };
+            m_runner.start(Group{QNetworkReplyWrapperTask(setupFetch, fetchDone)});
+        };
+        setFillCallback(fillCallback);
+    }
+
+    std::optional<Acp::Registry::ACPAgentRegistry> registry() const { return s_registry; }
+
+private:
+    QParallelTaskTreeRunner m_runner;
+    static QMap<FilePath, SharedTempFile> s_iconCache;
+    static std::optional<Acp::Registry::ACPAgentRegistry> s_registry;
+};
+
+QMap<FilePath, SharedTempFile> AcpRegistryBrowser::s_iconCache;
+std::optional<Acp::Registry::ACPAgentRegistry> AcpRegistryBrowser::s_registry;
 
 class AcpServerAspect : public AspectContainer
 {
@@ -36,6 +188,11 @@ public:
 
         id.setSettingsKey("id");
         id.setValue(QUuid::createUuid().toString());
+
+        registryBrowser.setLabelText(Tr::tr("Template:"));
+        registryBrowser.setSettingsKey("registryTemplate");
+        registryBrowser.setToolTip(
+            Tr::tr("Select a template from the registry to pre-fill the settings."));
 
         name.setLabelText(Tr::tr("Name:"));
         name.setSettingsKey("name");
@@ -83,6 +240,47 @@ public:
 
         environment.setSettingsKey("environment");
         environment.setLabelText("Environment Changes");
+        connect(&registryBrowser, &AcpRegistryBrowser::volatileValueChanged, this, [this]() {
+            const QString selectedId = registryBrowser.volatileValue();
+            if (selectedId.isEmpty())
+                return;
+
+            const auto &registry = registryBrowser.registry();
+            if (!registry) {
+                qWarning() << "No registry data available";
+                return;
+            }
+
+            const auto agent = std::find_if(
+                registry->agents().begin(),
+                registry->agents().end(),
+                [&selectedId](const Acp::Registry::ACPAgent &agent) {
+                    return agent.id() == selectedId;
+                });
+            if (agent == registry->agents().end()) {
+                qWarning() << "Selected agent not found in registry:" << selectedId;
+                return;
+            }
+            const Acp::Registry::ACPAgent &selectedAgent = *agent;
+            name.setValue(selectedAgent.name());
+            if (selectedAgent.distribution().binary()) {
+                qWarning()
+                    << "Registry entry has distribution with binary, but launching from binary is "
+                       "not yet supported. Ignoring binary and falling back to command line.";
+                return;
+            }
+            if (selectedAgent.distribution().npx()) {
+                launchCommand.setValue(FilePath("npx"));
+                launchArguments.setValue(
+                    selectedAgent.distribution().npx()->package() + " "
+                    + selectedAgent.distribution().npx()->args().value_or(QStringList{}).join(" "));
+            } else if (selectedAgent.distribution().uvx()) {
+                launchCommand.setValue(FilePath("uvx"));
+                launchArguments.setValue(
+                    selectedAgent.distribution().uvx()->package() + " "
+                    + selectedAgent.distribution().uvx()->args().value_or(QStringList{}).join(" "));
+            }
+        });
 
         setLayouter([this]() -> Layouting::Layout {
             using namespace Layouting;
@@ -98,13 +296,13 @@ public:
             };
             updateVisible();
 
-            connect(&connectionType,
-                    &StringSelectionAspect::volatileValueChanged,
-                    this,
-                    updateVisible);
+            connect(
+                &connectionType, &StringSelectionAspect::volatileValueChanged, this, updateVisible);
 
+            // clang-format off
             return Form{
                 noMargin,
+                registryBrowser, br,
                 name, br,
                 connectionType, br,
                 launchCommand, br,
@@ -113,6 +311,7 @@ public:
                 host, br,
                 port, br,
             };
+            // clang-format on
         });
     }
 
@@ -131,11 +330,13 @@ public:
                 CommandLine::Raw);
             info.envChanges = environment.value();
         } else {
-            info.launchInfo = QPair<QString, quint16>(host.value(),
-                                                      static_cast<quint16>(port.value()));
+            info.launchInfo
+                = QPair<QString, quint16>(host.value(), static_cast<quint16>(port.value()));
         }
         return info;
     }
+
+    AcpRegistryBrowser registryBrowser{this};
 
     StringAspect id{this};
     StringAspect name{this};
@@ -162,9 +363,7 @@ public:
         setAutoApply(false);
         acpServers.setSettingsKey("AcpServers");
         acpServers.setDisplayStyle(AspectList::DisplayStyle::ListViewWithDetails);
-        acpServers.setCreateItemFunction([] {
-            return std::make_shared<AcpServerAspect>();
-        });
+        acpServers.setCreateItemFunction([] { return std::make_shared<AcpServerAspect>(); });
 
         acpServers.listViewDisplayCallback = displayFunc;
 
@@ -212,10 +411,11 @@ static AcpSettingsPage &settingsPage()
 
 AcpSettings::AcpSettings()
 {
-    QObject::connect(&AcpManagerSettings::instance().acpServers,
-                     &BaseAspect::changed,
-                     this,
-                     &AcpSettings::serversChanged);
+    QObject::connect(
+        &AcpManagerSettings::instance().acpServers,
+        &BaseAspect::changed,
+        this,
+        &AcpSettings::serversChanged);
 }
 
 AcpSettings::~AcpSettings() = default;

@@ -9,6 +9,8 @@ QtcLibrary {
         "acp.cpp",
         "acp.h",
         "acp_global.h",
+        "acpregistry.cpp",
+        "acpregistry.h",
     ]
 
     Properties {

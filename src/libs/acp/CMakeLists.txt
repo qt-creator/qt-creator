@@ -3,6 +3,8 @@ add_qtc_library(AcpLib
   SOURCES
     acp.cpp
     acp.h
+    acpregistry.cpp
+    acpregistry.h
     acp_global.h
 )
 

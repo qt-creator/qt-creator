@@ -1,0 +1,152 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://cdn.agentclientprotocol.com/registry/v1/latest/agent.schema.json",
+    "title": "ACP Agent",
+    "description": "Schema for ACP agent registry entries",
+    "type": "object",
+    "required": [
+        "id",
+        "name",
+        "version",
+        "description",
+        "distribution"
+    ],
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "description": "Unique agent identifier (lowercase, hyphens allowed)"
+        },
+        "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Display name"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+",
+            "description": "Semantic version"
+        },
+        "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Brief description of the agent"
+        },
+        "repository": {
+            "type": "string",
+            "format": "uri",
+            "description": "Source code repository URL"
+        },
+        "authors": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "List of authors"
+        },
+        "license": {
+            "type": "string",
+            "description": "SPDX license identifier or 'proprietary'"
+        },
+        "icon": {
+            "type": "string",
+            "description": "Icon URL (set automatically by the build from the required icon.svg file)"
+        },
+        "distribution": {
+            "type": "object",
+            "minProperties": 1,
+            "properties": {
+                "binary": {
+                    "$ref": "#/definitions/binaryDistribution"
+                },
+                "npx": {
+                    "$ref": "#/definitions/packageDistribution"
+                },
+                "uvx": {
+                    "$ref": "#/definitions/packageDistribution"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "definitions": {
+        "binaryDistribution": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+                "$ref": "#/definitions/binaryTarget"
+            },
+            "propertyNames": {
+                "enum": [
+                    "darwin-aarch64",
+                    "darwin-x86_64",
+                    "linux-aarch64",
+                    "linux-x86_64",
+                    "windows-aarch64",
+                    "windows-x86_64"
+                ]
+            }
+        },
+        "binaryTarget": {
+            "type": "object",
+            "required": [
+                "archive",
+                "cmd"
+            ],
+            "properties": {
+                "archive": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to download archive (.zip, .tar.gz, .tgz, .tar.bz2, .tbz2, or raw binary). Installer formats (.dmg, .pkg, .deb, .rpm) are not supported."
+                },
+                "cmd": {
+                    "type": "string",
+                    "description": "Command to execute after extraction"
+                },
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Command line arguments"
+                },
+                "env": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Environment variables"
+                }
+            },
+            "additionalProperties": false
+        },
+        "packageDistribution": {
+            "type": "object",
+            "required": [
+                "package"
+            ],
+            "properties": {
+                "package": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Package name (with optional version)"
+                },
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Command line arguments"
+                },
+                "env": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Environment variables"
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}

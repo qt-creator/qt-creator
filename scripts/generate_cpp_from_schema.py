@@ -1047,12 +1047,42 @@ def _param_type(cpp_type_str: str) -> str:
     """Return the setter parameter type: 'T' for scalars, 'const T&' otherwise."""
     return cpp_type_str if _is_scalar(cpp_type_str) else f"const {cpp_type_str} &"
 
+def enum_keyed_map_info(spec):
+    """Detect an object with propertyNames.enum and additionalProperties (typed).
+
+    Returns (enum_values_list, cpp_value_type) on match, or None.
+    The enum_values_list items are the allowed key strings from propertyNames.enum.
+    """
+    if spec.get("type") != "object":
+        return None
+    prop_names = spec.get("propertyNames")
+    if not isinstance(prop_names, dict):
+        return None
+    enum_vals = prop_names.get("enum")
+    if not isinstance(enum_vals, list) or not enum_vals:
+        return None
+    add_props = spec.get("additionalProperties")
+    if not isinstance(add_props, dict):
+        return None
+    if spec.get("properties"):
+        return None
+    if "$ref" in add_props:
+        val_type = add_props["$ref"].split("/")[-1]
+    elif add_props.get("type"):
+        val_type = cpp_type(add_props["type"])
+    else:
+        return None
+    return enum_vals, val_type
+
 def is_typed_map(spec):
     """Return the C++ value type if spec is a typed string-keyed map
     (type: object, additionalProperties with a specific type, no named properties).
-    Returns None otherwise.
+    Returns None otherwise.  Excludes enum-keyed maps (propertyNames.enum).
     """
     if spec.get("type") != "object":
+        return None
+    # Enum-keyed maps are handled separately
+    if enum_keyed_map_info(spec) is not None:
         return None
     add_props = spec.get("additionalProperties")
     if not isinstance(add_props, dict):
@@ -2623,14 +2653,99 @@ def main():
     namespace = args.namespace
     with open(schema_path) as f:
         schema = json.load(f)
+
+    def _get_types(s):
+        if "definitions" in s:
+            return dict(s["definitions"])
+        if "components" in s and "schemas" in s["components"]:
+            return dict(s["components"]["schemas"])
+        if "$defs" in s:
+            return dict(s["$defs"])
+        return None
+
+    def _collect_external_refs(obj):
+        """Yield relative file paths from $ref values that point to external files."""
+        if isinstance(obj, dict):
+            ref = obj.get("$ref")
+            if isinstance(ref, str) and not ref.startswith("#") and not ref.startswith("http"):
+                # Strip any internal pointer (e.g. "file.json#/definitions/Foo")
+                yield ref.split("#")[0]
+            for v in obj.values():
+                yield from _collect_external_refs(v)
+        elif isinstance(obj, list):
+            for item in obj:
+                yield from _collect_external_refs(item)
+
+    def _title_to_type_name(title):
+        """Convert a schema title to a C++ type name, e.g. 'ACP Agent' -> 'ACPAgent'."""
+        words = re.sub(r'[^A-Za-z0-9 ]', '', title).split()
+        return ''.join(w[0].upper() + w[1:] for w in words if w)
+
+    def _rewrite_external_refs(obj, ref_map):
+        """Recursively rewrite external $ref values using ref_map."""
+        if isinstance(obj, dict):
+            if "$ref" in obj and obj["$ref"] in ref_map:
+                obj["$ref"] = ref_map[obj["$ref"]]
+            for v in obj.values():
+                _rewrite_external_refs(v, ref_map)
+        elif isinstance(obj, list):
+            for item in obj:
+                _rewrite_external_refs(item, ref_map)
+
+    def _root_object_spec(s):
+        """Extract a type spec dict from a schema's root object, or None."""
+        if s.get("type") != "object" or not s.get("properties"):
+            return None
+        spec = {
+            "type": "object",
+            "properties": s["properties"],
+            "required": s.get("required", []),
+            "description": s.get("description", ""),
+        }
+        if "additionalProperties" in s:
+            spec["additionalProperties"] = s["additionalProperties"]
+        return spec
+
     # Support 'definitions', 'components.schemas', or '$defs'
-    if "definitions" in schema:
-        types = schema["definitions"]
-    elif "components" in schema and "schemas" in schema["components"]:
-        types = schema["components"]["schemas"]
-    elif "$defs" in schema:
-        types = schema["$defs"]
-    else:
+    types = _get_types(schema)
+    if types is None:
+        # Resolve external $ref files and merge their definitions
+        types = {}
+        seen_files = set()
+        ref_map = {}
+        for rel_path in _collect_external_refs(schema):
+            if rel_path in seen_files:
+                continue
+            seen_files.add(rel_path)
+            ext_path = schema_path.parent / rel_path
+            if ext_path.is_file():
+                with open(ext_path) as ef:
+                    ext_schema = json.load(ef)
+                ext_types = _get_types(ext_schema)
+                if ext_types:
+                    types.update(ext_types)
+                # Add external root object as a type if it defines properties
+                ext_root = _root_object_spec(ext_schema)
+                if ext_root:
+                    ext_name = _title_to_type_name(
+                        ext_schema.get("title", ext_path.stem.split('.')[0].capitalize()))
+                    ref_map[rel_path] = f"#/external/{ext_name}"
+                    types[ext_name] = ext_root
+        # Rewrite bare external-file $refs to internal type references
+        if ref_map:
+            _rewrite_external_refs(schema, ref_map)
+
+    # Add root schema object as a type if it defines properties
+    root_spec = _root_object_spec(schema)
+    if root_spec:
+        root_name = _title_to_type_name(
+            schema.get("title", schema_path.stem.split('.')[0].capitalize()))
+        if root_name not in types:
+            if types is None:
+                types = {}
+            types[root_name] = root_spec
+
+    if not types:
         print("Schema format not recognized. Needs 'definitions', 'components.schemas', or '$defs'.")
         sys.exit(1)
     # --- BEGIN FULL REFACTOR: Robust dependency-graph-based emission ---
@@ -2794,6 +2909,125 @@ def _emit_type_alias(name, spec, code, emitted, variant_signatures, alias_fromjs
             result, _ = parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=types)
             code.append(result)
             variant_signatures[signature] = name
+    elif enum_keyed_map_info(spec) is not None:
+        enum_vals, val_type = enum_keyed_map_info(spec)
+        prefix = doc_comment(spec.get('description', ''))
+        lines = []
+        if prefix:
+            lines.append(prefix.rstrip('\n'))
+
+        # Build (sanitized_field, original_json_key) pairs
+        pairs = [(sanitize_identifier(v), v) for v in enum_vals]
+
+        lines.append(f"struct {name} {{")
+        for field, orig in pairs:
+            lines.append(f"    std::optional<{val_type}> _{field};")
+        lines.append(f"")
+        # Builder-style setters
+        for field, orig in pairs:
+            lines.append(f"    {name}& {field}(const std::optional<{val_type}> & v) {{ _{field} = v; return *this; }}")
+        lines.append(f"")
+        # Const reference getters
+        for field, orig in pairs:
+            lines.append(f"    const std::optional<{val_type}>& {field}() const {{ return _{field}; }}")
+        lines.append(f"}};")
+        lines.append(f"")
+
+        # fromJson
+        fj = []
+        fj.append(f"template<>")
+        fj.append(f"inline Utils::Result<{name}> fromJson<{name}>(const QJsonValue &val) {{")
+        fj.append(f"    if (!val.isObject())")
+        fj.append(f'        co_return Utils::ResultError("Expected JSON object for {name}");')
+        fj.append(f"    const QJsonObject obj = val.toObject();")
+        fj.append(f"    {name} result;")
+        for field, orig in pairs:
+            if val_type in ("QString", "QJsonObject", "int", "double", "bool"):
+                extract = _json_extract_expr(val_type, f'obj.value("{orig}")') or f'obj.value("{orig}").toString()'
+                fj.append(f'    if (obj.contains("{orig}"))')
+                fj.append(f"        result._{field} = {extract};")
+            else:
+                fj.append(f'    if (obj.contains("{orig}"))')
+                fj.append(f'        result._{field} = co_await fromJson<{val_type}>(obj.value("{orig}"));')
+        fj.append(f"    co_return result;")
+        fj.append(f"}}")
+        lines.extend(use_return_if_no_co_await(fj))
+        lines.append(f"")
+
+        # toJson
+        lines.append(f"inline QJsonObject toJson(const {name} &data) {{")
+        lines.append(f"    QJsonObject obj;")
+        for field, orig in pairs:
+            if val_type in ("QString", "QJsonObject", "int", "double", "bool"):
+                lines.append(f'    if (data._{field}.has_value())')
+                lines.append(f'        obj.insert("{orig}", QJsonValue(*data._{field}));')
+            else:
+                lines.append(f'    if (data._{field}.has_value())')
+                lines.append(f'        obj.insert("{orig}", toJson(*data._{field}));')
+        lines.append(f"    return obj;")
+        lines.append(f"}}")
+
+        code.append("\n".join(lines) + "\n")
+    elif is_typed_map(spec) is not None:
+        val_type = is_typed_map(spec)
+        map_type = f"QMap<QString, {val_type}>"
+        alias_lines = [f"using {name} = {map_type};"]
+        # fromJson
+        fj = []
+        fj.append(f"template<>")
+        fj.append(f"inline Utils::Result<{name}> fromJson<{name}>(const QJsonValue &val) {{")
+        fj.append(f"    if (!val.isObject())")
+        fj.append(f'        co_return Utils::ResultError("Expected JSON object for {name}");')
+        fj.append(f"    const QJsonObject obj = val.toObject();")
+        fj.append(f"    {name} result;")
+        if val_type in ("QString", "QJsonObject", "int", "double", "bool"):
+            extract = _json_extract_expr(val_type, "it.value()") or "it.value().toString()"
+            fj.append(f"    for (auto it = obj.constBegin(); it != obj.constEnd(); ++it)")
+            fj.append(f"        result.insert(it.key(), {extract});")
+        else:
+            fj.append(f"    for (auto it = obj.constBegin(); it != obj.constEnd(); ++it)")
+            fj.append(f"        result.insert(it.key(), co_await fromJson<{val_type}>(it.value()));")
+        fj.append(f"    co_return result;")
+        fj.append(f"}}")
+        alias_lines.extend(use_return_if_no_co_await(fj))
+        # toJson
+        alias_lines.append(f"")
+        alias_lines.append(f"inline QJsonObject toJson(const {name} &data) {{")
+        alias_lines.append(f"    QJsonObject obj;")
+        if val_type in ("QString", "QJsonObject", "int", "double", "bool"):
+            alias_lines.append(f"    for (auto it = data.constBegin(); it != data.constEnd(); ++it)")
+            alias_lines.append(f"        obj.insert(it.key(), QJsonValue(it.value()));")
+        else:
+            alias_lines.append(f"    for (auto it = data.constBegin(); it != data.constEnd(); ++it)")
+            alias_lines.append(f"        obj.insert(it.key(), toJson(it.value()));")
+        alias_lines.append(f"    return obj;")
+        alias_lines.append(f"}}")
+        code.append("\n".join(alias_lines) + "\n")
+    elif is_open_map(spec):
+        map_type = "QMap<QString, QJsonValue>"
+        alias_lines = [f"using {name} = {map_type};"]
+        # fromJson
+        fj = []
+        fj.append(f"template<>")
+        fj.append(f"inline Utils::Result<{name}> fromJson<{name}>(const QJsonValue &val) {{")
+        fj.append(f"    if (!val.isObject())")
+        fj.append(f'        return Utils::ResultError("Expected JSON object for {name}");')
+        fj.append(f"    const QJsonObject obj = val.toObject();")
+        fj.append(f"    {name} result;")
+        fj.append(f"    for (auto it = obj.constBegin(); it != obj.constEnd(); ++it)")
+        fj.append(f"        result.insert(it.key(), it.value());")
+        fj.append(f"    return result;")
+        fj.append(f"}}")
+        alias_lines.extend(fj)
+        # toJson
+        alias_lines.append(f"")
+        alias_lines.append(f"inline QJsonObject toJson(const {name} &data) {{")
+        alias_lines.append(f"    QJsonObject obj;")
+        alias_lines.append(f"    for (auto it = data.constBegin(); it != data.constEnd(); ++it)")
+        alias_lines.append(f"        obj.insert(it.key(), it.value());")
+        alias_lines.append(f"    return obj;")
+        alias_lines.append(f"}}")
+        code.append("\n".join(alias_lines) + "\n")
     else:
         # Handle $ref-only type aliases (e.g. "EmptyResult": {"$ref": "#/$defs/Result"})
         if '$ref' in spec:
