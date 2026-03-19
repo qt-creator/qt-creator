@@ -10,7 +10,7 @@
 #include <QVariant>
 
 #include <functional>
-#include <variant>
+#include <memory>
 
 namespace QtSupport {
 class QtVersion;
@@ -26,28 +26,35 @@ namespace Internal {
 
 class QtVersionItem
 {
-    Q_DISABLE_COPY(QtVersionItem)
-
 public:
-    explicit QtVersionItem(QtVersion *version) : m_version(version) {}
-    explicit QtVersionItem(int versionId) : m_version(versionId) {}
-    ~QtVersionItem();
+    QtVersionItem() = default;
+    explicit QtVersionItem(QtVersion *version);
 
-    void setVersion(QtVersion *version);
+    void setIsNameUnique(const std::function<bool(QtVersion *)> &isNameUnique)
+    {
+        m_isNameUnique = isNameUnique;
+    }
+
     int uniqueId() const;
-    QtVersion *version() const;
-    void setChanged(bool changed);
-    void setIsNameUnique(const std::function<bool(QtVersion *)> &isNameUnique);
+    QtVersion *version() const { return m_version.get(); }
 
     QVariant data(int column, int role) const;
 
-private:
-    bool hasNonUniqueDisplayName() const { return m_isNameUnique && !m_isNameUnique(version()); }
+    friend bool operator==(const QtVersionItem &a, const QtVersionItem &b)
+    {
+        return a.m_version.get() == b.m_version.get()
+            && a.m_changed == b.m_changed;
+    }
 
-    std::variant<QtVersion *, int> m_version;
-
+    std::shared_ptr<QtVersion> m_version;
     std::function<bool(QtVersion *)> m_isNameUnique;
     bool m_changed = false;
+
+private:
+    bool hasNonUniqueDisplayName() const
+    {
+        return m_isNameUnique && !m_isNameUnique(version());
+    }
 };
 
 QVariant qtVersionData(const QtVersion *version, int column, int role,

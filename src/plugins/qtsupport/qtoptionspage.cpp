@@ -46,6 +46,7 @@
 #include <QTextBrowser>
 #include <QTreeView>
 
+#include <memory>
 #include <utility>
 
 using namespace Core;
@@ -129,17 +130,6 @@ UnsupportedAbisInfo checkForUnsupportedAbis(const QtVersion *version)
     return info;
 }
 
-void QtVersionItem::setIsNameUnique(const std::function<bool(QtVersion *)> &isNameUnique)
-{
-    m_isNameUnique = isNameUnique;
-}
-
-void QtVersionItem::setChanged(bool changed)
-{
-    if (changed == m_changed)
-        return;
-    m_changed = changed;
-}
 
 QVariant qtVersionData(const QtVersion *version, int column, int role,
                        bool isChanged, bool hasNonUniqueName)
@@ -234,6 +224,8 @@ QVariant qtVersionData(const QtVersion *version, int column, int role,
     return {};
 }
 
+QtVersionItem::QtVersionItem(QtVersion *version) : m_version(version) {}
+
 QVariant QtVersionItem::data(int column, int role) const
 {
     return qtVersionData(version(), column, role, m_changed, hasNonUniqueDisplayName());
@@ -241,32 +233,20 @@ QVariant QtVersionItem::data(int column, int role) const
 
 int QtVersionItem::uniqueId() const
 {
-    if (const auto v = std::get_if<QtVersion *>(&m_version))
-        return *v ? (*v)->uniqueId() : -1;
-    return *std::get_if<int>(&m_version);
+    return m_version ? m_version->uniqueId() : -1;
 }
 
-QtVersion *QtVersionItem::version() const
-{
-    if (const auto v = std::get_if<QtVersion *>(&m_version))
-        return *v;
-    return QtVersionManager::version(*std::get_if<int>(&m_version));
-}
+} // namespace Internal
+} // namespace QtSupport
 
-void QtVersionItem::setVersion(QtVersion *version)
-{
-    m_version = version;
-}
+Q_DECLARE_METATYPE(QtSupport::Internal::QtVersionItem)
 
-QtVersionItem::~QtVersionItem()
-{
-    if (const auto v = std::get_if<QtVersion *>(&m_version))
-        delete *v;
-}
+namespace QtSupport {
+namespace Internal {
 
 // QtVersionModel
 
-class QtVersionModel : public TypedGroupedModel<QtVersionItem *>
+class QtVersionModel : public TypedGroupedModel<QtVersionItem>
 {
 public:
     QtVersionModel()
@@ -274,52 +254,30 @@ public:
         setHeader({Tr::tr("Name"), Tr::tr("qmake Path")});
         setFilters(ProjectExplorer::Constants::msgAutoDetected(),
                    {{ProjectExplorer::Constants::msgManual(), [this](int row) {
-                       QtVersionItem *item = this->item(row);
-                       return item->version() && !item->version()->detectionSource().isAutoDetected();
+                       const QtVersionItem it = this->item(row);
+                       return it.version() && !it.version()->detectionSource().isAutoDetected();
                    }}});
     }
 
-    ~QtVersionModel() { qDeleteAll(volatileItems()); }
-
-    void destroyItem(QtVersionItem *item)
+    void destroyRow(int row)
     {
-        const int row = volatileItems().indexOf(item);
         if (row < 0 || isRemoved(row))
             return;
-        const bool wasAdded = isAdded(row);
         markRemoved(row);
-        if (wasAdded)
-            delete item;
     }
 
-    QList<QtVersionItem *> activeItems() const
+    QModelIndex indexForUniqueId(int id) const
     {
-        QList<QtVersionItem *> result;
         for (int row = 0; row < itemCount(); ++row) {
-            if (!isRemoved(row))
-                result.append(item(row));
+            if (!isRemoved(row) && item(row).uniqueId() == id)
+                return mapFromSource(index(row, 0));
         }
-        return result;
+        return {};
     }
 
-    QModelIndex indexForItem(QtVersionItem *item) const
+    QVariant variantData(const QVariant &v, int column, int role) const final
     {
-        const int row = volatileItems().indexOf(item);
-        if (row < 0)
-            return {};
-        return mapFromSource(index(row, 0));
-    }
-
-    void notifyItemChanged(QtVersionItem *item)
-    {
-        const int row = volatileItems().indexOf(item);
-        if (row >= 0)
-            notifyRowChanged(row);
-    }
-
-    QVariant variantData(const QVariant &item, int column, int role) const final
-    {
-        return fromVariant(item)->data(column, role);
+        return fromVariant(v).data(column, role);
     }
 };
 
@@ -343,7 +301,7 @@ private:
     void updateLinkWithQtButton();
     IDeviceConstPtr currentDevice() const;
     QtVersion *currentVersion() const;
-    QtVersionItem *currentItem() const;
+    int currentRow() const;
     std::pair<bool, QString> checkAlreadyExists(const FilePath &qtVersion);
 
     void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
@@ -371,7 +329,6 @@ private:
     QByteArray defaultToolchainId(const QtVersion *version);
 
     bool isNameUnique(const QtVersion *version);
-    void updateVersionItem(QtVersionItem *item);
 
     QtVersionModel m_model;
 
@@ -553,9 +510,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         m_model.setExtraFilter(deviceRoot.isEmpty()
             ? GroupedModel::Filter{}
             : GroupedModel::Filter{[this, deviceRoot](int row) {
-                  const QtVersionItem *item = m_model.item(row);
-                  const FilePath path = item->version() ? item->version()->qmakeFilePath()
-                                                        : FilePath{};
+                  const QtVersionItem it = m_model.item(row);
+                  const FilePath path = it.version() ? it.version()->qmakeFilePath() : FilePath{};
                   return path.isEmpty() || path.isSameDevice(deviceRoot);
               }});
         updateLinkWithQtButton();
@@ -567,32 +523,33 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     installMarkSettingsDirtyTriggerRecursively(this);
 }
 
-QtVersion *QtSettingsPageWidget::currentVersion() const
-{
-    QtVersionItem *item = currentItem();
-    if (!item)
-        return nullptr;
-    return item->version();
-}
-
-QtVersionItem *QtSettingsPageWidget::currentItem() const
+int QtSettingsPageWidget::currentRow() const
 {
     const QModelIndex displayIdx = m_qtdirList->selectionModel()->currentIndex();
     const QModelIndex flatIdx = m_model.mapToSource(displayIdx);
-    if (!flatIdx.isValid())
+    return flatIdx.isValid() ? flatIdx.row() : -1;
+}
+
+QtVersion *QtSettingsPageWidget::currentVersion() const
+{
+    const int row = currentRow();
+    if (row < 0)
         return nullptr;
-    return m_model.item(flatIdx.row());
+    return m_model.item(row).version();
 }
 
 
 std::pair<bool, QString> QtSettingsPageWidget::checkAlreadyExists(const FilePath &qtVersion)
 {
-    for (QtVersionItem *item : m_model.volatileItems()) {
-        const FilePath &itemPath = item->version()->qmakeFilePath();
+    for (int row = 0; row < m_model.itemCount(); ++row) {
+        const QtVersionItem it = m_model.item(row);
+        if (!it.version())
+            continue;
+        const FilePath &itemPath = it.version()->qmakeFilePath();
         if (itemPath.isSameExecutable(qtVersion)
             || (itemPath.parentDir() == qtVersion.parentDir()
                 && itemPath.fileSize() == qtVersion.fileSize())) {
-            return {true, item->version()->displayName()};
+            return {true, it.version()->displayName()};
         }
     }
     return {false, {}};
@@ -600,15 +557,17 @@ std::pair<bool, QString> QtSettingsPageWidget::checkAlreadyExists(const FilePath
 
 void QtSettingsPageWidget::cleanUpQtVersions()
 {
-    QVector<QtVersionItem *> toRemove;
+    QList<int> rowsToRemove;
     QString text;
 
-    for (QtVersionItem *item : m_model.activeItems()) {
-        if (QtVersion *version = item->version()) {
+    for (int row = 0; row < m_model.itemCount(); ++row) {
+        if (m_model.isRemoved(row))
+            continue;
+        if (QtVersion *version = m_model.item(row).version()) {
             if (version->detectionSource().isAutoDetected())
                 continue;
             if (!version->isValid()) {
-                toRemove.append(item);
+                rowsToRemove.prepend(row);
                 if (!text.isEmpty())
                     text.append(QLatin1String("</li><li>"));
                 text.append(version->displayName());
@@ -616,7 +575,7 @@ void QtSettingsPageWidget::cleanUpQtVersions()
         }
     }
 
-    if (toRemove.isEmpty())
+    if (rowsToRemove.isEmpty())
         return;
 
     if (QMessageBox::warning(nullptr, Tr::tr("Remove Invalid Qt Versions"),
@@ -626,8 +585,8 @@ void QtSettingsPageWidget::cleanUpQtVersions()
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
-    for (QtVersionItem *item : std::as_const(toRemove))
-        m_model.destroyItem(item);
+    for (int row : std::as_const(rowsToRemove))
+        m_model.destroyRow(row);
 
     markSettingsDirty();
     updateCleanUpButton();
@@ -635,11 +594,12 @@ void QtSettingsPageWidget::cleanUpQtVersions()
 
 void QtSettingsPageWidget::toolChainsUpdated()
 {
-    for (QtVersionItem *item : m_model.volatileItems()) {
-        if (item == currentItem())
+    const int curRow = currentRow();
+    for (int row = 0; row < m_model.itemCount(); ++row) {
+        if (row == curRow)
             updateDescriptionLabel();
         else
-            updateVersionItem(item);
+            m_model.notifyRowChanged(row);
     }
 }
 
@@ -647,8 +607,7 @@ void QtSettingsPageWidget::setInfoWidgetVisibility()
 {
     bool isExpanded = m_infoWidget->state() == DetailsWidget::Expanded;
     if (isExpanded && m_infoBrowser->toPlainText().isEmpty()) {
-        QtVersionItem *item = currentItem();
-        const QtVersion *version = item ? item->version() : nullptr;
+        const QtVersion *version = currentVersion();
         if (version)
             m_infoBrowser->setHtml(version->toHtml(true));
     }
@@ -730,51 +689,45 @@ bool QtSettingsPageWidget::isNameUnique(const QtVersion *version)
 {
     const QString name = version->displayName().trimmed();
 
-    for (QtVersionItem *item : m_model.activeItems()) {
-        QtVersion *v = item->version();
+    for (int row = 0; row < m_model.itemCount(); ++row) {
+        if (m_model.isRemoved(row))
+            continue;
+        QtVersion *v = m_model.item(row).version();
         if (v != version && v->displayName().trimmed() == name)
             return false;
     }
     return true;
 }
 
-void QtSettingsPageWidget::updateVersionItem(QtVersionItem *item)
-{
-    if (item)
-        m_model.notifyItemChanged(item);
-}
-
 void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const QList<int> &removals,
-                                           const QList<int> &changes)
+                                            const QList<int> &changes)
 {
-    QList<QtVersionItem *> toRemove;
     QList<int> toAdd = additions;
 
-    // Find existing items to remove/change:
-    for (QtVersionItem *item : m_model.volatileItems()) {
-        int id = item->uniqueId();
+    // Find existing rows to remove/change (descending to keep indices stable):
+    QList<int> rowsToRemove;
+    for (int row = m_model.itemCount() - 1; row >= 0; --row) {
+        const int id = m_model.item(row).uniqueId();
         if (removals.contains(id)) {
-            toRemove.append(item);
+            rowsToRemove.append(row);
         } else if (changes.contains(id)) {
             toAdd.append(id);
-            toRemove.append(item);
+            rowsToRemove.append(row);
         }
     }
 
     // Remove changed/removed items:
-    for (QtVersionItem *item : std::as_const(toRemove))
-        m_model.destroyItem(item);
+    for (int row : std::as_const(rowsToRemove))
+        m_model.destroyRow(row);
 
     // Add changed/added items:
     for (int a : std::as_const(toAdd)) {
-        QtVersion *version = QtVersionManager::version(a)->clone();
-        auto *item = new QtVersionItem(version);
-        item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
+        QtVersionItem item(QtVersionManager::version(a)->clone());
+        item.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
         m_model.appendItem(item);
     }
 
-    for (QtVersionItem *item : m_model.volatileItems())
-        updateVersionItem(item);
+    m_model.notifyAllRowsChanged();
 }
 
 QtSettingsPageWidget::~QtSettingsPageWidget()
@@ -818,10 +771,9 @@ void QtSettingsPageWidget::addQtDir()
     QString error;
     QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, DetectionSource::Manual, &error);
     if (version) {
-        auto item = new QtVersionItem(version);
-        item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
-        m_model.appendItem(item);
-        m_qtdirList->setCurrentIndex(m_model.indexForItem(item)); // should update the rest of the ui
+        QtVersionItem item(version);
+        item.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
+        m_qtdirList->setCurrentIndex(m_model.appendVolatileItem(item));
         m_nameEdit->setFocus();
         m_nameEdit->selectAll();
         markSettingsDirty();
@@ -835,11 +787,11 @@ void QtSettingsPageWidget::addQtDir()
 
 void QtSettingsPageWidget::removeQtDir()
 {
-    QtVersionItem *item = currentItem();
-    if (!item)
+    const int row = currentRow();
+    if (row < 0)
         return;
 
-    m_model.destroyItem(item);
+    m_model.destroyRow(row);
     markSettingsDirty();
     updateCleanUpButton();
 }
@@ -863,9 +815,9 @@ void QtSettingsPageWidget::redetect()
 
             if (QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(
                     qmakePath, {DetectionSource::Manual, "PATH"})) {
-                auto item = new QtVersionItem(version);
-                item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
-                m_model.appendItem(item);
+                QtVersionItem item(version);
+                item.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
+                m_model.appendVolatileItem(item);
                 markSettingsDirty();
             }
         }
@@ -876,7 +828,9 @@ void QtSettingsPageWidget::redetect()
 
 void QtSettingsPageWidget::editPath()
 {
-    QtVersion *current = currentVersion();
+    const int row = currentRow();
+    QTC_ASSERT(row >= 0, return);
+    QtVersion *current = m_model.item(row).version();
     QTC_ASSERT(current, return);
     FilePath qtVersion =
             FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
@@ -903,22 +857,24 @@ void QtSettingsPageWidget::editPath()
     if (current->unexpandedDisplayName() != current->defaultUnexpandedDisplayName())
         version->setUnexpandedDisplayName(current->displayName());
 
-    // Update ui
-    if (QtVersionItem *item = currentItem())
-        item->setVersion(version);
+    // Replace the item's version in the model
+    QtVersionItem it = m_model.item(row);
+    it.m_version = std::shared_ptr<QtVersion>(version);
+    it.m_changed = true;
+    m_model.setVolatileItem(row, it);
 
     markSettingsDirty();
     userChangedCurrentVersion();
-
-    delete current;
 }
 
 // To be called if a Qt version was removed or added
 void QtSettingsPageWidget::updateCleanUpButton()
 {
     bool hasInvalidVersion = false;
-    for (QtVersionItem *item : m_model.activeItems()) {
-        if (QtVersion *version = item->version()) {
+    for (int row = 0; row < m_model.itemCount(); ++row) {
+        if (m_model.isRemoved(row))
+            continue;
+        if (QtVersion *version = m_model.item(row).version()) {
             if (version->detectionSource().isAutoDetected())
                 continue;
             if (!version->isValid()) {
@@ -939,8 +895,8 @@ void QtSettingsPageWidget::userChangedCurrentVersion()
 
 void QtSettingsPageWidget::updateDescriptionLabel()
 {
-    QtVersionItem *item = currentItem();
-    const QtVersion *version = item ? item->version() : nullptr;
+    const int row = currentRow();
+    const QtVersion *version = row >= 0 ? m_model.item(row).version() : nullptr;
     const ValidityInfo info = validInformation(version);
     if (info.message.isEmpty()) {
         m_errorLabel->setVisible(false);
@@ -950,8 +906,8 @@ void QtSettingsPageWidget::updateDescriptionLabel()
         m_errorLabel->setToolTip(info.toolTip);
     }
     m_infoWidget->setSummaryText(info.description);
-    if (item)
-        m_model.notifyItemChanged(item);
+    if (row >= 0)
+        m_model.notifyRowChanged(row);
 
     m_infoBrowser->clear();
     if (version) {
@@ -1075,16 +1031,17 @@ IDeviceConstPtr QtSettingsPageWidget::currentDevice() const
 
 void QtSettingsPageWidget::updateCurrentQtName()
 {
-    QtVersionItem *item = currentItem();
-    if (!item || !item->version())
+    const int row = currentRow();
+    if (row < 0 || !m_model.item(row).version())
         return;
 
-    item->setChanged(true);
-    item->version()->setUnexpandedDisplayName(m_nameEdit->text());
+    QtVersionItem it = m_model.item(row);
+    it.m_changed = true;
+    it.version()->setUnexpandedDisplayName(m_nameEdit->text());
+    m_model.setVolatileItem(row, it);
 
     updateDescriptionLabel();
-    for (QtVersionItem *item : m_model.volatileItems())
-        updateVersionItem(item);
+    m_model.notifyAllRowsChanged();
 }
 
 void QtSettingsPageWidget::apply()
@@ -1097,23 +1054,22 @@ void QtSettingsPageWidget::apply()
     QtVersionManager::setDocumentationSetting(
         QtVersionManager::DocumentationSetting(m_documentationSetting->currentData().toInt()));
 
-    QList<QtVersionItem *> toDelete;
-    for (int row = 0; row < m_model.itemCount(); ++row) {
-        if (m_model.isRemoved(row))
-            toDelete.append(m_model.item(row));
-    }
+    const int selectedId = currentRow() >= 0 ? m_model.item(currentRow()).uniqueId() : -1;
 
     QtVersions versions;
-    for (QtVersionItem *item : m_model.activeItems()) {
-        item->setChanged(false);
-        versions.append(item->version()->clone());
+    for (int row = 0; row < m_model.itemCount(); ++row) {
+        if (m_model.isRemoved(row))
+            continue;
+        QtVersionItem it = m_model.item(row);
+        if (it.m_changed) {
+            it.m_changed = false;
+            m_model.setVolatileItem(row, it);
+        }
+        versions.append(it.version()->clone());
     }
     QtVersionManager::setNewQtVersions(versions);
 
-    QtVersionItem *selection = currentItem();
-
     m_model.apply();
-    qDeleteAll(toDelete);
     m_qtdirList->expandAll();
 
     connect(QtVersionManager::instance(),
@@ -1121,22 +1077,20 @@ void QtSettingsPageWidget::apply()
             this,
             &QtSettingsPageWidget::updateQtVersions);
 
-    if (toDelete.contains(selection)) {
+    if (const QModelIndex idx = m_model.indexForUniqueId(selectedId); idx.isValid())
+        m_qtdirList->setCurrentIndex(idx);
+    else
         userChangedCurrentVersion();
-    } else {
-        if (const QModelIndex idx = m_model.indexForItem(selection); idx.isValid())
-            m_qtdirList->setCurrentIndex(idx);
-    }
 }
 
 void QtSettingsPageWidget::cancel()
 {
-    QtVersionItem *selection = currentItem();
+    const int selectedId = currentRow() >= 0 ? m_model.item(currentRow()).uniqueId() : -1;
 
     m_model.cancel();
     m_qtdirList->expandAll();
 
-    if (const QModelIndex idx = m_model.indexForItem(selection); idx.isValid())
+    if (const QModelIndex idx = m_model.indexForUniqueId(selectedId); idx.isValid())
         m_qtdirList->setCurrentIndex(idx);
 }
 
