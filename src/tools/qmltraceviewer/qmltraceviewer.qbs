@@ -20,4 +20,13 @@ QtcTool {
         "qmltraceviewerwindow.h",
         "schema/api.h",
     ]
+
+    Group {
+        name: "schema"
+        Qt.core.resourcePrefix: "/qmltraceviewer/schema"
+        files: [
+            "schema/qmltraceviewerapi.json.schema",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
 }

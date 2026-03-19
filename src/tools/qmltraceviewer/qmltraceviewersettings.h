@@ -17,7 +17,7 @@ public:
 
     // Not persisted:
     Utils::BoolAspect exitOnError{this};
-    Utils::BoolAspect withNotifications{this};
+    Utils::BoolAspect withRpc{this};
 };
 
 QmlTraceViewerSettings &settings();

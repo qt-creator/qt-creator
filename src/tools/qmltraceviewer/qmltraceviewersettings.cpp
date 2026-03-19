@@ -17,7 +17,7 @@ QmlTraceViewerSettings::QmlTraceViewerSettings()
 
     exitOnError.setDefaultValue(false);
 
-    withNotifications.setDefaultValue(false);
+    withRpc.setDefaultValue(false);
 }
 
 QmlTraceViewerSettings &settings()

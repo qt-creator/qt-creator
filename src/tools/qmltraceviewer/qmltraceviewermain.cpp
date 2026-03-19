@@ -13,10 +13,13 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/filepath.h>
 #include <utils/qtcsettings.h>
 #include <utils/qtcsettings_p.h>
 
 #include <app/app_version.h>
+
+#include <iostream>
 
 using namespace Utils;
 
@@ -36,8 +39,6 @@ int main(int argc, char *argv[])
     Internal::SettingsSetup::setupSettings(userSettings, new QtcSettings);
     QmlTraceViewer::init();
 
-    QmlTraceViewer::Window window;
-
     QCommandLineParser parser;
     parser.setApplicationDescription("A tool for analyzing QML profiler traces.");
     parser.addHelpOption();
@@ -48,14 +49,30 @@ int main(int argc, char *argv[])
     QCommandLineOption exitOnError(QStringList({"e", "exit-on-error"}),
                                    "Exit on error, with error message on stderr.");
     parser.addOption(exitOnError);
-    QCommandLineOption withNotifications(QStringList({"r", "rpc"}),
-                                         "Activate JSON-RPC 2.0 through stdio.");
-    parser.addOption(withNotifications);
+    QCommandLineOption withRpc(QStringList({"r", "rpc"}),
+                               "Activate JSON-RPC 2.0 through stdio.");
+    parser.addOption(withRpc);
+    QCommandLineOption printRpcSchema(QStringList({"rpc-schema"}),
+                                      "Print JSON-RPC 2.0 schema to stdout and exit.");
+    parser.addOption(printRpcSchema);
     parser.process(app);
 
-    QmlTraceViewer::settings().exitOnError.setValue(parser.isSet(exitOnError));
-    QmlTraceViewer::settings().withNotifications.setValue(parser.isSet(withNotifications));
+    if (parser.isSet(printRpcSchema)) {
+        const FilePath schemaFile(":/qmltraceviewer/schema/qmltraceviewerapi.json.schema");
+        Result<QByteArray> schema = schemaFile.fileContents();
+        if (schema) {
+            std::cout << schema->data() << std::endl;
+            return 0;
+        } else {
+            std::cerr << schemaFile.toUserOutput().toStdString() << " not found" << std::endl;
+            return -1;
+        }
+    }
 
+    QmlTraceViewer::settings().exitOnError.setValue(parser.isSet(exitOnError));
+    QmlTraceViewer::settings().withRpc.setValue(parser.isSet(withRpc));
+
+    QmlTraceViewer::Window window;
     if (!parser.positionalArguments().isEmpty()) {
         const QString tracefile = parser.positionalArguments().constFirst();
         const FilePath file = FilePath::fromUserInput(tracefile);

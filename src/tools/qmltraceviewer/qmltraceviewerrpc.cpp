@@ -16,7 +16,7 @@ namespace QmlTraceViewer::RPC {
 
 static void writeQJsonObject(const QJsonObject &object)
 {
-    if (!settings().withNotifications())
+    if (!settings().withRpc())
         return;
 
     const QJsonDocument document(object);

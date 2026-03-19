@@ -14,6 +14,13 @@ add_qtc_executable(qmltraceviewer
     schema/api.h
 )
 
+qtc_add_resources(qmltraceviewer "schema"
+  PREFIX "/qmltraceviewer"
+  BASE "."
+  FILES
+    schema/qmltraceviewerapi.json.schema
+)
+
 if (NOT TARGET qmltraceviewer OR NOT BUILD_EXECUTABLE_QMLTRACEVIEWER_STANDALONE)
   return()
 endif()
