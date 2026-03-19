@@ -537,7 +537,6 @@ void tst_DevContainer::dockerCompose()
         QSKIP("docker-compose has been having spurious failures. Skipping on Linux for now.");
 
     static const QByteArray composeFile = R"yaml(
-version: '3.8'
 services:
   devcontainer:
     image: alpine:latest
@@ -549,8 +548,6 @@ services:
   db:
     image: postgres:latest
     restart: unless-stopped
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
