@@ -22,9 +22,28 @@ auto guardedCallback(QObject *guard, const F &method)
 {
     struct Guardian
     {
-        Guardian(QObject *guard, const F &f) : func(f)
+        Guardian(QObject *guard, const F &f)
+            : guarded(guard)
+            , func(f)
         {
-            conn = QObject::connect(guard, &QObject::destroyed, [this] { func.reset(); });
+            conn = QObject::connect(guard, &QObject::destroyed, [this] {
+                func.reset();
+                guarded = nullptr;
+            });
+        }
+
+        Guardian(const Guardian &other)
+            : guarded(other.guarded)
+            , func(other.func)
+        {
+            if (guarded) {
+                conn = QObject::connect(other.guarded, &QObject::destroyed, [this] {
+                    func.reset();
+                    guarded = nullptr;
+                });
+            } else {
+                func.reset();
+            }
         }
 
         ~Guardian()
@@ -32,6 +51,7 @@ auto guardedCallback(QObject *guard, const F &method)
             QObject::disconnect(conn);
         }
 
+        QObject *guarded;
         std::optional<F> func;
         QMetaObject::Connection conn;
     };
