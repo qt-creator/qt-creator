@@ -24,6 +24,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
@@ -102,65 +103,6 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
 {
     connect(project(), &Project::projectFileIsDirty, this, &BuildSystem::requestDelayedParse);
     requestDelayedParse();
-}
-
-void WorkspaceProject::setupScanner()
-{
-    connect(&m_scanner, &TreeScanner::finished, this, [this] {
-        QTC_ASSERT(!m_scanQueue.isEmpty(), return);
-        const FilePath scannedDir = m_scanQueue.takeFirst();
-
-        TreeScanner::Result result = m_scanner.release();
-        auto addNodes = [this, &result](FolderNode *parent) {
-            QElapsedTimer timer;
-            timer.start();
-            const QList<IVersionControl *> versionControls = VcsManager::versionControls();
-            for (auto &node : result.firstLevelNodes)
-                parent->addNode(std::move(node));
-            qCDebug(wsbs) << "Added nodes in" << timer.elapsed() << "ms";
-            FilePaths toWatch;
-            auto collectWatchFolders = [this, &toWatch, &versionControls](FolderNode *fn) {
-                if (!isFiltered(fn->path(), versionControls))
-                    toWatch << fn->path();
-            };
-            collectWatchFolders(parent);
-            parent->forEachNode({}, collectWatchFolders);
-            qCDebug(wsbs) << "Added and collected nodes in" << timer.elapsed() << "ms"
-                          << toWatch.size() << "dirs";
-            m_watcher->addDirectories(toWatch, FileSystemWatcher::WatchAllChanges);
-            qCDebug(wsbs) << "Added and and collected and watched nodes in" << timer.elapsed()
-                          << "ms";
-        };
-
-        if (scannedDir == projectDirectory()) {
-            qCDebug(wsbs) << "Finished scanning new root" << scannedDir;
-            auto root = std::make_unique<ProjectNode>(scannedDir);
-            root->setDisplayName(displayName());
-            m_watcher.reset(new FileSystemWatcher);
-            connect(
-                m_watcher.get(),
-                &FileSystemWatcher::directoryChanged,
-                this,
-                [this, w = m_watcher.get()](const FilePath &path) { handleDirectoryChanged(path); });
-
-            addNodes(root.get());
-            setRootProjectNode(std::move(root));
-        } else {
-            qCDebug(wsbs) << "Finished scanning subdir" << scannedDir;
-            FolderNode *parent = findAvailableParent(rootProjectNode(), scannedDir);
-            const FilePath relativePath = scannedDir.relativeChildPath(parent->filePath());
-            const QString firstRelativeFolder = relativePath.path().left(
-                relativePath.path().indexOf('/'));
-            const FilePath nodePath = parent->filePath() / firstRelativeFolder;
-            auto newNode = std::make_unique<FolderNode>(nodePath);
-            newNode->setDisplayName(firstRelativeFolder);
-            addNodes(newNode.get());
-            parent->replaceSubtree(nullptr, std::move(newNode));
-        }
-
-        scanNext();
-    });
-    m_scanner.setDirFilter(workspaceDirFilter);
 }
 
 WorkspaceBuildSystem::~WorkspaceBuildSystem()
@@ -331,28 +273,75 @@ void WorkspaceBuildSystem::scan(const FilePath &path)
 
 void WorkspaceProject::scan(const FilePath &path)
 {
-    if (!m_scanQueue.contains(path)) {
-        m_scanQueue.append(path);
-        scanNext();
-    }
-}
+    if (!Utils::insert(m_scanSet, path))
+        return;
 
-void WorkspaceProject::scanNext()
-{
-    if (m_scanQueue.isEmpty()) {
-        qCDebug(wsbs) << "Scan done.";
-    } else {
-        if (m_scanner.isFinished()) {
-            const FilePath next = m_scanQueue.first();
-            qCDebug(wsbs) << "Start scanning" << next;
-            m_scanner.setFilter([filters = m_filters](const MimeType &, const FilePath &filePath) {
-                return anyOf(filters, [filePath](const QRegularExpression &filter) {
-                    return filter.match(filePath.path()).hasMatch();
-                });
+    using ResultType = TreeScanner::Result;
+    const auto onSetup = [this, path](Async<ResultType> &task) {
+        const auto filter = [filters = m_filters](const MimeType &, const FilePath &filePath) {
+            return anyOf(filters, [filePath](const QRegularExpression &filter) {
+                return filter.match(filePath.path()).hasMatch();
             });
-            m_scanner.asyncScanForFiles(next);
+        };
+        task.setConcurrentCallData(&TreeScanner::scanForFiles, path, filter, workspaceDirFilter,
+                                   &TreeScanner::genericFileType);
+    };
+    const auto onDone = [this, path](const Async<ResultType> &task) {
+        if (!task.isResultAvailable())
+            return;
+
+        TreeScanner::Result result = task.takeResult();
+        auto addNodes = [this, &result](FolderNode *parent) {
+            QElapsedTimer timer;
+            timer.start();
+            const QList<IVersionControl *> versionControls = VcsManager::versionControls();
+            for (auto &node : result.firstLevelNodes)
+                parent->addNode(std::move(node));
+            qCDebug(wsbs) << "Added nodes in" << timer.elapsed() << "ms";
+            FilePaths toWatch;
+            auto collectWatchFolders = [this, &toWatch, &versionControls](FolderNode *fn) {
+                if (!isFiltered(fn->path(), versionControls))
+                    toWatch << fn->path();
+            };
+            collectWatchFolders(parent);
+            parent->forEachNode({}, collectWatchFolders);
+            qCDebug(wsbs) << "Added and collected nodes in" << timer.elapsed() << "ms"
+                          << toWatch.size() << "dirs";
+            m_watcher->addDirectories(toWatch, FileSystemWatcher::WatchAllChanges);
+            qCDebug(wsbs) << "Added and and collected and watched nodes in" << timer.elapsed()
+                          << "ms";
+        };
+
+        if (path == projectDirectory()) {
+            qCDebug(wsbs) << "Finished scanning new root" << path;
+            auto root = std::make_unique<ProjectNode>(path);
+            root->setDisplayName(displayName());
+            m_watcher.reset(new FileSystemWatcher);
+            connect(
+                m_watcher.get(),
+                &FileSystemWatcher::directoryChanged,
+                this,
+                [this, w = m_watcher.get()](const FilePath &path) { handleDirectoryChanged(path); });
+
+            addNodes(root.get());
+            setRootProjectNode(std::move(root));
+        } else {
+            qCDebug(wsbs) << "Finished scanning subdir" << path;
+            FolderNode *parent = findAvailableParent(rootProjectNode(), path);
+            const FilePath relativePath = path.relativeChildPath(parent->filePath());
+            const QString firstRelativeFolder = relativePath.path().left(
+                relativePath.path().indexOf('/'));
+            const FilePath nodePath = parent->filePath() / firstRelativeFolder;
+            auto newNode = std::make_unique<FolderNode>(nodePath);
+            newNode->setDisplayName(firstRelativeFolder);
+            addNodes(newNode.get());
+            parent->replaceSubtree(nullptr, std::move(newNode));
         }
-    }
+    };
+
+    const auto onTreeSetup = [this, path] { m_scanSet.remove(path); };
+
+    m_taskTreeRunner.enqueue({AsyncTask<ResultType>(onSetup, onDone)}, onTreeSetup);
 }
 
 bool WorkspaceProject::isFiltered(const FilePath &path, QList<IVersionControl *> versionControls) const
@@ -660,8 +649,6 @@ WorkspaceProject::WorkspaceProject(const FilePath &file, const QJsonObject &defa
     setBuildSystemCreator<WorkspaceBuildSystem>();
 
     connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
-
-    setupScanner();
 }
 
 FilePath WorkspaceProject::projectDirectory() const

@@ -5,14 +5,15 @@
 
 #include "project.h"
 
-#include "treescanner.h"
-
 #include <utils/filepath.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/store.h>
 
+#include <QtTaskTree/QSequentialTaskTreeRunner>
+
 #include <QJsonObject>
-#include <qglobal.h>
+#include <QSet>
+#include <QtGlobal>
 
 namespace Core {
 class IVersionControl;
@@ -42,12 +43,10 @@ private:
     bool isFiltered(
         const Utils::FilePath &path, QList<Core::IVersionControl *> versionControls) const;
     void handleDirectoryChanged(const Utils::FilePath &directory);
-    void setupScanner();
-    void scanNext();
 
 private:
-    Utils::FilePaths m_scanQueue;
-    TreeScanner m_scanner;
+    QSet<Utils::FilePath> m_scanSet;
+    QtTaskTree::QSequentialTaskTreeRunner m_taskTreeRunner;
     QList<QRegularExpression> m_filters;
     std::unique_ptr<Utils::FileSystemWatcher> m_watcher;
 };
