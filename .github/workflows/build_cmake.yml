@@ -135,37 +135,37 @@ jobs:
           )
         endif()
 
-    - name: Install Python SBOM dependencies
+    - name: Install Python dependencies
+      id: python
       shell: cmake -P {0}
       run: |
         find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-        set(python_pip "${Python3_EXECUTABLE}" "-m" "pip")
-
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/creator_venv" venv_dir)
         execute_process(
-          COMMAND ${python_pip} install --user --break-system-packages
-              "spdx-tools==0.8.5 ; python_version >= '3.10'"
+          COMMAND "${Python3_EXECUTABLE}" -m venv "${venv_dir}"
           RESULT_VARIABLE result
         )
         if (NOT result EQUAL 0)
-          message(FATAL_ERROR "Failed to install Python SPDX SBOM dependency 'spdx-tools'")
+          message(FATAL_ERROR "Failed to create Python virtual environment")
         endif()
-        execute_process(
-          COMMAND ${python_pip} show spdx-tools
-        )
+
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(venv_python "${venv_dir}/Scripts/python.exe")
+        else()
+          set(venv_python "${venv_dir}/bin/python")
+        endif()
 
         execute_process(
-          COMMAND ${python_pip} install --user --break-system-packages
-              "cyclonedx-python-lib[json-validation]==11.7.0 ; python_version >= '3.9'"
+          COMMAND "${venv_python}" -m pip install
+              -r "$ENV{GITHUB_WORKSPACE}/coin/creator_python_requirements.txt"
           RESULT_VARIABLE result
         )
         if (NOT result EQUAL 0)
-          message(FATAL_ERROR
-          "Failed to install Python CycloneDX SBOM dependency 'cyclonedx-python-lib'")
+          message(FATAL_ERROR "Failed to install Python dependencies")
         endif()
-        execute_process(
-          COMMAND ${python_pip} show cyclonedx-python-lib
-        )
+
+        file(APPEND "$ENV{GITHUB_OUTPUT}" "python=${venv_python}\n")
 
     - name: Install system libs
       shell: cmake -P {0}
@@ -651,8 +651,7 @@ jobs:
           set(ELFUTILS_OPTION)
         endif()
 
-        find_package(Python3 REQUIRED COMPONENTS Interpreter)
-        string(REPLACE "x86" "x64" Python3_EXECUTABLE "${Python3_EXECUTABLE}")
+        set(venv_python "${{ steps.python.outputs.python }}")
 
         set(WITH_TESTS "--with-tests")
         set(NO_DMG "--no-dmg")
@@ -687,7 +686,7 @@ jobs:
         endif()
 
         execute_process(
-          COMMAND python
+          COMMAND "${venv_python}"
             -u
             scripts/build.py
             --build-type Release
@@ -695,7 +694,7 @@ jobs:
             --build build
             --qt-path "${{ steps.qt.outputs.qt_dir }}"
             --llvm-path "${{ steps.libclang.outputs.libclang_dir }}"
-            --python3 "${Python3_EXECUTABLE}"
+            --python3 "${venv_python}"
             ${WITH_TESTS}
             ${CDB_OPTION}
             ${ELFUTILS_OPTION}
