@@ -7,7 +7,7 @@ set(TRACING_CPP_SOURCES
   timelineitemsrenderpass.cpp timelineitemsrenderpass.h
   timelinemodel.cpp timelinemodel.h timelinemodel_p.h
   timelinemodelaggregator.cpp timelinemodelaggregator.h
-  timelinenotesmodel.cpp timelinenotesmodel.h timelinenotesmodel_p.h
+  timelinenotesmodel.cpp timelinenotesmodel.h
   timelinenotesrenderpass.cpp timelinenotesrenderpass.h
   timelineoverviewrenderer.cpp timelineoverviewrenderer.h timelineoverviewrenderer_p.h
   timelinerenderer.cpp timelinerenderer.h timelinerenderer_p.h

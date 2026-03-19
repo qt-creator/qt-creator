@@ -4,7 +4,11 @@
 #pragma once
 
 #include "tracing_global.h"
+
+#include <QHash>
+#include <QList>
 #include <QObject>
+#include <QString>
 #include <QtQml/qqml.h>
 
 namespace Timeline {
@@ -18,7 +22,6 @@ class TRACING_EXPORT TimelineNotesModel : public QObject
 
 public:
     TimelineNotesModel(QObject *parent = nullptr);
-    ~TimelineNotesModel() override;
 
     int count() const;
     void addTimelineModel(const TimelineModel *timelineModel);
@@ -55,10 +58,15 @@ signals:
     void changed(int typeId, int modelId, int timelineIndex);
 
 private:
-    class TimelineNotesModelPrivate;
-    TimelineNotesModelPrivate *d_ptr;
+    struct Note {
+        QString text;
+        int timelineModel;
+        int timelineIndex;
+    };
 
-    Q_DECLARE_PRIVATE(TimelineNotesModel)
+    QList<Note> m_data;
+    QHash<int, const TimelineModel *> m_timelineModels;
+    bool m_modified = false;
 };
 
 } // namespace Timeline
