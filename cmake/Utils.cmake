@@ -257,6 +257,7 @@ Qml2Imports=qml
         DESTINATION ${qt_plugin_dest}
         COMPONENT ${component_name}
         EXCLUDE_FROM_ALL
+        PATTERN "*.cpp.o" EXCLUDE
       )
     endif()
   endforeach()
@@ -269,6 +270,7 @@ Qml2Imports=qml
         DESTINATION ${qt_import_dest}
         COMPONENT ${component_name}
         EXCLUDE_FROM_ALL
+        PATTERN "*.cpp.o" EXCLUDE
       )
     endif()
   endforeach()
