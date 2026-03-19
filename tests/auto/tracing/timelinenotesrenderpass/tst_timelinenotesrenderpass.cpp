@@ -4,7 +4,7 @@
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinenotesrenderpass.h>
 #include <tracing/timelinerenderstate.h>
-#include <tracing/timelineabstractrenderer_p.h>
+#include <tracing/timelineabstractrenderer.h>
 
 #include <QSGMaterialShader>
 #include <QTest>

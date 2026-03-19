@@ -2,15 +2,15 @@ set(TRACING_CPP_SOURCES
   flamegraph.cpp flamegraph.h
   flamegraphattached.h
   safecastable.h
-  timelineabstractrenderer.cpp timelineabstractrenderer.h timelineabstractrenderer_p.h
+  timelineabstractrenderer.cpp timelineabstractrenderer.h
   timelineformattime.cpp timelineformattime.h
   timelineitemsrenderpass.cpp timelineitemsrenderpass.h
   timelinemodel.cpp timelinemodel.h timelinemodel_p.h
   timelinemodelaggregator.cpp timelinemodelaggregator.h
   timelinenotesmodel.cpp timelinenotesmodel.h
   timelinenotesrenderpass.cpp timelinenotesrenderpass.h
-  timelineoverviewrenderer.cpp timelineoverviewrenderer.h timelineoverviewrenderer_p.h
-  timelinerenderer.cpp timelinerenderer.h timelinerenderer_p.h
+  timelineoverviewrenderer.cpp timelineoverviewrenderer.h
+  timelinerenderer.cpp timelinerenderer.h
   timelinerenderpass.cpp timelinerenderpass.h
   timelinerenderstate.cpp timelinerenderstate.h timelinerenderstate_p.h
   timelineselectionrenderpass.cpp timelineselectionrenderpass.h

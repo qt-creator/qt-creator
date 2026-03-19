@@ -8,6 +8,7 @@
 #include "timelinenotesmodel.h"
 #include "timelinerenderpass.h"
 
+#include <QPointer>
 #include <QSGTransformNode>
 #include <QQuickItem>
 
@@ -23,8 +24,7 @@ class TRACING_EXPORT TimelineAbstractRenderer : public QQuickItem
     Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
 
 public:
-    TimelineAbstractRenderer(QQuickItem *parent = nullptr);
-    ~TimelineAbstractRenderer() override;
+    explicit TimelineAbstractRenderer(QQuickItem *parent = nullptr);
 
     bool selectionLocked() const;
     int selectedItem() const;
@@ -42,14 +42,6 @@ public:
     bool notesDirty() const;
     bool rowHeightsDirty() const;
 
-signals:
-    void modelChanged(TimelineModel *model);
-    void notesChanged(TimelineNotesModel *notes);
-    void zoomerChanged(TimelineZoomControl *zoomer);
-    void selectionLockedChanged(bool locked);
-    void selectedItemChanged(int itemIndex);
-
-public:
     void setSelectedItem(int itemIndex);
     void setSelectionLocked(bool locked);
 
@@ -57,13 +49,25 @@ public:
     void setNotesDirty();
     void setRowHeightsDirty();
 
+signals:
+    void modelChanged(TimelineModel *model);
+    void notesChanged(TimelineNotesModel *notes);
+    void zoomerChanged(TimelineZoomControl *zoomer);
+    void selectionLockedChanged(bool locked);
+    void selectedItemChanged(int itemIndex);
+
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData) override;
 
-    class TimelineAbstractRendererPrivate;
-    TimelineAbstractRenderer(TimelineAbstractRendererPrivate &dd, QQuickItem *parent = nullptr);
-    TimelineAbstractRendererPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(TimelineAbstractRenderer)
+    int m_selectedItem = -1;
+    bool m_selectionLocked = true;
+    QPointer<TimelineModel> m_model;
+    QPointer<TimelineNotesModel> m_notes;
+    QPointer<TimelineZoomControl> m_zoomer;
+    bool m_modelDirty = false;
+    bool m_rowHeightsDirty = false;
+    bool m_notesDirty = false;
+    QList<const TimelineRenderPass *> m_renderPasses;
 };
 
 } // namespace Timeline

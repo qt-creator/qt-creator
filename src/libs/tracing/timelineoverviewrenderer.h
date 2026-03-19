@@ -13,13 +13,14 @@ class TRACING_EXPORT TimelineOverviewRenderer : public TimelineAbstractRenderer
     QML_ELEMENT
 
 public:
-    TimelineOverviewRenderer(QQuickItem *parent = nullptr);
+    explicit TimelineOverviewRenderer(QQuickItem *parent = nullptr);
+    ~TimelineOverviewRenderer() override;
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData) override;
 
-    class TimelineOverviewRendererPrivate;
-    Q_DECLARE_PRIVATE(TimelineOverviewRenderer)
+private:
+    TimelineRenderState *m_renderState = nullptr;
 };
 
 } // namespace Timeline

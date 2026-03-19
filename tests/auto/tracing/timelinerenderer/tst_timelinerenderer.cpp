@@ -3,7 +3,7 @@
 
 #include <QTest>
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/timelinerenderer_p.h>
+#include <tracing/timelinerenderer.h>
 
 using namespace Timeline;
 

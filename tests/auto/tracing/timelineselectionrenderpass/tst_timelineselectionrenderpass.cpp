@@ -3,7 +3,7 @@
 
 #include <tracing/timelineselectionrenderpass.h>
 #include <tracing/timelinerenderstate.h>
-#include <tracing/timelineabstractrenderer_p.h>
+#include <tracing/timelineabstractrenderer.h>
 #include <tracing/timelineitemsrenderpass.h>
 #include <tracing/timelinemodelaggregator.h>
 

@@ -1,7 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "timelinerenderer_p.h"
+#include "timelinerenderer.h"
 #include "timelinerenderpass.h"
 #include "timelinenotesmodel.h"
 #include "timelineitemsrenderpass.h"
@@ -21,46 +21,42 @@
 
 namespace Timeline {
 
-TimelineRenderer::TimelineRendererPrivate::TimelineRendererPrivate() : lastState(nullptr)
+TimelineRenderer::TimelineRenderer(QQuickItem *parent)
+    : TimelineAbstractRenderer(parent)
 {
+    setAcceptedMouseButtons(Qt::LeftButton);
+    setAcceptHoverEvents(true);
     resetCurrentSelection();
 }
 
-TimelineRenderer::TimelineRendererPrivate::~TimelineRendererPrivate()
+TimelineRenderer::~TimelineRenderer()
 {
     clear();
 }
 
-void TimelineRenderer::TimelineRendererPrivate::clear()
+void TimelineRenderer::clear()
 {
-    for (auto i = renderStates.begin(); i != renderStates.end(); ++i)
+    for (auto i = m_renderStates.begin(); i != m_renderStates.end(); ++i)
         qDeleteAll(*i);
-    renderStates.clear();
-    lastState = nullptr;
+    m_renderStates.clear();
+    m_lastState = nullptr;
 }
 
-TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
-    TimelineAbstractRenderer(*(new TimelineRendererPrivate), parent)
+void TimelineRenderer::resetCurrentSelection()
 {
-    setAcceptedMouseButtons(Qt::LeftButton);
-    setAcceptHoverEvents(true);
+    m_currentEventIndex = -1;
+    m_currentRow = -1;
 }
 
-void TimelineRenderer::TimelineRendererPrivate::resetCurrentSelection()
-{
-    currentEventIndex = -1;
-    currentRow = -1;
-}
-
-TimelineRenderState *TimelineRenderer::TimelineRendererPrivate::findRenderState()
+TimelineRenderState *TimelineRenderer::findRenderState()
 {
     int newLevel = 0;
     qint64 newOffset = 0;
     int level;
     qint64 offset;
 
-    qint64 newStart = zoomer->traceStart();
-    qint64 newEnd = zoomer->traceEnd();
+    qint64 newStart = m_zoomer->traceStart();
+    qint64 newEnd = m_zoomer->traceEnd();
     qint64 start;
     qint64 end;
     do {
@@ -70,68 +66,65 @@ TimelineRenderState *TimelineRenderer::TimelineRendererPrivate::findRenderState(
         end = newEnd;
 
         newLevel = level + 1;
-        qint64 range = zoomer->traceDuration() >> newLevel;
-        newOffset = (zoomer->windowStart() - zoomer->traceStart() + range / 2) / range;
-        newStart = zoomer->traceStart() + newOffset * range - range / 2;
+        qint64 range = m_zoomer->traceDuration() >> newLevel;
+        newOffset = (m_zoomer->windowStart() - m_zoomer->traceStart() + range / 2) / range;
+        newStart = m_zoomer->traceStart() + newOffset * range - range / 2;
         newEnd = newStart + range;
-    } while (newStart < zoomer->windowStart() && newEnd > zoomer->windowEnd());
+    } while (newStart < m_zoomer->windowStart() && newEnd > m_zoomer->windowEnd());
 
-
-    if (renderStates.length() <= level)
-        renderStates.resize(level + 1);
-    TimelineRenderState *state = renderStates[level][offset];
+    if (m_renderStates.length() <= level)
+        m_renderStates.resize(level + 1);
+    TimelineRenderState *state = m_renderStates[level][offset];
     if (state == nullptr) {
         state = new TimelineRenderState(start, end, 1.0 / static_cast<qreal>(SafeFloatMax),
-                                        renderPasses.size());
-        renderStates[level][offset] = state;
+                                        m_renderPasses.size());
+        m_renderStates[level][offset] = state;
     }
     return state;
 }
 
 QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *updatePaintNodeData)
 {
-    Q_D(TimelineRenderer);
-
-    if (!d->model || d->model->hidden() || d->model->isEmpty() || !d->zoomer ||
-            d->zoomer->windowDuration() <= 0) {
+    if (!m_model || m_model->hidden() || m_model->isEmpty() || !m_zoomer ||
+            m_zoomer->windowDuration() <= 0) {
         delete node;
         return nullptr;
     }
 
-    float spacing = static_cast<float>(width() / d->zoomer->windowDuration());
+    float spacing = static_cast<float>(width() / m_zoomer->windowDuration());
 
-    if (d->modelDirty) {
+    if (m_modelDirty) {
         if (node)
             node->removeAllChildNodes();
-        d->clear();
+        clear();
     }
 
-    TimelineRenderState *state = d->findRenderState();
+    TimelineRenderState *state = findRenderState();
 
-    int lastIndex = d->model->lastIndex(d->zoomer->windowEnd());
-    int firstIndex = d->model->firstIndex(d->zoomer->windowStart());
+    int lastIndex = m_model->lastIndex(m_zoomer->windowEnd());
+    int firstIndex = m_model->firstIndex(m_zoomer->windowStart());
 
-    for (int i = 0; i < d->renderPasses.length(); ++i)
-        state->setPassState(i, d->renderPasses[i]->update(this, state, state->passState(i),
+    for (int i = 0; i < m_renderPasses.length(); ++i)
+        state->setPassState(i, m_renderPasses[i]->update(this, state, state->passState(i),
                                                          firstIndex, lastIndex + 1,
-                                                         state != d->lastState, spacing));
+                                                         state != m_lastState, spacing));
 
     if (state->isEmpty()) { // new state
-        state->assembleNodeTree(d->model, TimelineModel::defaultRowHeight(),
+        state->assembleNodeTree(m_model, TimelineModel::defaultRowHeight(),
                                 TimelineModel::defaultRowHeight());
-    } else if (d->rowHeightsDirty || state != d->lastState) {
-        state->updateExpandedRowHeights(d->model, TimelineModel::defaultRowHeight(),
+    } else if (m_rowHeightsDirty || state != m_lastState) {
+        state->updateExpandedRowHeights(m_model, TimelineModel::defaultRowHeight(),
                                         TimelineModel::defaultRowHeight());
     }
 
     TimelineAbstractRenderer::updatePaintNode(nullptr, updatePaintNodeData);
-    d->lastState = state;
+    m_lastState = state;
 
     QMatrix4x4 matrix;
-    matrix.translate((state->start() - d->zoomer->windowStart()) * spacing, 0, 0);
+    matrix.translate((state->start() - m_zoomer->windowStart()) * spacing, 0, 0);
     matrix.scale(spacing / state->scale(), 1, 1);
 
-    return state->finalize(node, d->model->expanded(), matrix);
+    return state->finalize(node, m_model->expanded(), matrix);
 }
 
 void TimelineRenderer::mousePressEvent(QMouseEvent *event)
@@ -139,14 +132,14 @@ void TimelineRenderer::mousePressEvent(QMouseEvent *event)
     Q_UNUSED(event)
 }
 
-int TimelineRenderer::TimelineRendererPrivate::rowFromPosition(int y) const
+int TimelineRenderer::rowFromPosition(int y) const
 {
-    if (!model->expanded())
+    if (!m_model->expanded())
         return y / TimelineModel::defaultRowHeight();
 
     int ret = 0;
-    for (int row = 0; row < model->expandedRowCount(); ++row) {
-        y -= model->expandedRowHeight(row);
+    for (int row = 0; row < m_model->expandedRowCount(); ++row) {
+        y -= m_model->expandedRowHeight(row);
         if (y <= 0) return ret;
         ++ret;
     }
@@ -156,9 +149,8 @@ int TimelineRenderer::TimelineRendererPrivate::rowFromPosition(int y) const
 
 void TimelineRenderer::mouseReleaseEvent(QMouseEvent *event)
 {
-    Q_D(TimelineRenderer);
-    d->findCurrentSelection(event->pos().x(), event->pos().y(), width());
-    setSelectedItem(d->currentEventIndex);
+    findCurrentSelection(event->pos().x(), event->pos().y(), width());
+    setSelectedItem(m_currentEventIndex);
 }
 
 void TimelineRenderer::mouseMoveEvent(QMouseEvent *event)
@@ -168,14 +160,13 @@ void TimelineRenderer::mouseMoveEvent(QMouseEvent *event)
 
 void TimelineRenderer::hoverMoveEvent(QHoverEvent *event)
 {
-    Q_D(TimelineRenderer);
-    if (!d->selectionLocked) {
+    if (!m_selectionLocked) {
         const QPoint pos = event->position().toPoint();
-        d->findCurrentSelection(pos.x(), pos.y(), width());
-        if (d->currentEventIndex != -1)
-            setSelectedItem(d->currentEventIndex);
+        findCurrentSelection(pos.x(), pos.y(), width());
+        if (m_currentEventIndex != -1)
+            setSelectedItem(m_currentEventIndex);
     }
-    if (d->currentEventIndex == -1)
+    if (m_currentEventIndex == -1)
         event->setAccepted(false);
 }
 
@@ -211,42 +202,36 @@ void TimelineRenderer::wheelEvent(QWheelEvent *event)
     }
 }
 
-TimelineRenderer::TimelineRendererPrivate::MatchResult
-TimelineRenderer::TimelineRendererPrivate::checkMatch(MatchParameters *params, int index,
-                                                      qint64 itemStart, qint64 itemEnd)
+TimelineRenderer::MatchResult TimelineRenderer::checkMatch(MatchParameters *params, int index,
+                                                           qint64 itemStart, qint64 itemEnd)
 {
     const qint64 offset = qAbs(itemEnd - params->exactTime) + qAbs(itemStart - params->exactTime);
     if (offset >= params->bestOffset)
         return NoMatch;
 
-    // match
     params->bestOffset = offset;
-    currentEventIndex = index;
+    m_currentEventIndex = index;
 
-    // Exact match. If we can get better than this, then we have multiple overlapping
-    // events in one row. There is no point in sorting those out as you cannot properly
-    // discern them anyway.
     return (itemEnd >= params->exactTime && itemStart <= params->exactTime)
             ? ExactMatch : ApproximateMatch;
 }
 
-TimelineRenderer::TimelineRendererPrivate::MatchResult
-TimelineRenderer::TimelineRendererPrivate::matchForward(MatchParameters *params, int index)
+TimelineRenderer::MatchResult TimelineRenderer::matchForward(MatchParameters *params, int index)
 {
     if (index < 0)
         return NoMatch;
 
-    if (index >= model->count())
+    if (index >= m_model->count())
         return Cutoff;
 
-    if (model->row(index) != currentRow)
+    if (m_model->row(index) != m_currentRow)
         return NoMatch;
 
-    const qint64 itemEnd = model->endTime(index);
+    const qint64 itemEnd = m_model->endTime(index);
     if (itemEnd < params->startTime)
         return NoMatch;
 
-    const qint64 itemStart = model->startTime(index);
+    const qint64 itemStart = m_model->startTime(index);
     if (itemStart > params->endTime)
         return Cutoff;
 
@@ -257,29 +242,28 @@ TimelineRenderer::TimelineRendererPrivate::matchForward(MatchParameters *params,
     return checkMatch(params, index, itemStart, itemEnd);
 }
 
-TimelineRenderer::TimelineRendererPrivate::MatchResult
-TimelineRenderer::TimelineRendererPrivate::matchBackward(MatchParameters *params, int index)
+TimelineRenderer::MatchResult TimelineRenderer::matchBackward(MatchParameters *params, int index)
 {
     if (index < 0)
         return Cutoff;
 
-    if (index >= model->count())
+    if (index >= m_model->count())
         return NoMatch;
 
-    if (model->row(index) != currentRow)
+    if (m_model->row(index) != m_currentRow)
         return NoMatch;
 
-    const qint64 itemStart = model->startTime(index);
+    const qint64 itemStart = m_model->startTime(index);
     if (itemStart > params->endTime)
         return NoMatch;
 
     // There can be small events that don't reach the cursor position after large events
     // that do but are in a different row. In that case, the parent index will be valid and will
     // point to the large event. If that is also outside the range, we are really done.
-    const qint64 itemEnd = model->endTime(index);
+    const qint64 itemEnd = m_model->endTime(index);
     if (itemEnd < params->startTime) {
-        const int parentIndex = model->parentIndex(index);
-        const qint64 parentEnd = parentIndex == -1 ? itemEnd : model->endTime(parentIndex);
+        const int parentIndex = m_model->parentIndex(index);
+        const qint64 parentEnd = parentIndex == -1 ? itemEnd : m_model->endTime(parentIndex);
         return (parentEnd < params->startTime) ? Cutoff : NoMatch;
     }
 
@@ -293,43 +277,42 @@ TimelineRenderer::TimelineRendererPrivate::matchBackward(MatchParameters *params
     return checkMatch(params, index, itemStart, itemEnd);
 }
 
-void TimelineRenderer::TimelineRendererPrivate::findCurrentSelection(int mouseX, int mouseY,
-                                                                     int width)
+void TimelineRenderer::findCurrentSelection(int mouseX, int mouseY, int width)
 {
-    if (!zoomer || !model || width < 1)
+    if (!m_zoomer || !m_model || width < 1)
         return;
 
-    qint64 duration = zoomer->windowDuration();
+    qint64 duration = m_zoomer->windowDuration();
     if (duration <= 0)
         return;
 
     MatchParameters params;
 
     // Make the "selected" area 3 pixels wide by adding/subtracting 1 to catch very narrow events.
-    params.startTime = (mouseX - 1) * duration / width + zoomer->windowStart();
-    params.endTime = (mouseX + 1) * duration / width + zoomer->windowStart();
+    params.startTime = (mouseX - 1) * duration / width + m_zoomer->windowStart();
+    params.endTime = (mouseX + 1) * duration / width + m_zoomer->windowStart();
     params.exactTime = (params.startTime + params.endTime) / 2;
     const int row = rowFromPosition(mouseY);
 
-    // already covered? Only make sure d->selectedItem is correct.
-    if (currentEventIndex != -1 &&
-            params.exactTime >= model->startTime(currentEventIndex) &&
-            params.exactTime < model->endTime(currentEventIndex) &&
-            row == currentRow) {
+    // already covered? Only make sure m_selectedItem is correct.
+    if (m_currentEventIndex != -1 &&
+            params.exactTime >= m_model->startTime(m_currentEventIndex) &&
+            params.exactTime < m_model->endTime(m_currentEventIndex) &&
+            row == m_currentRow) {
         return;
     }
 
-    currentRow = row;
-    currentEventIndex = -1;
+    m_currentRow = row;
+    m_currentEventIndex = -1;
 
-    const int middle = model->bestIndex(params.exactTime);
+    const int middle = m_model->bestIndex(params.exactTime);
     if (middle == -1)
         return;
 
     params.bestOffset = std::numeric_limits<qint64>::max();
-    const qint64 itemStart = model->startTime(middle);
-    const qint64 itemEnd = model->endTime(middle);
-    if (model->row(middle) == row && itemEnd >= params.startTime && itemStart <= params.endTime) {
+    const qint64 itemStart = m_model->startTime(middle);
+    const qint64 itemEnd = m_model->endTime(middle);
+    if (m_model->row(middle) == row && itemEnd >= params.startTime && itemStart <= params.endTime) {
         if (checkMatch(&params, middle, itemStart, itemEnd) == ExactMatch)
             return;
     }
@@ -350,24 +333,21 @@ void TimelineRenderer::TimelineRendererPrivate::findCurrentSelection(int mouseX,
 
 void TimelineRenderer::clearData()
 {
-    Q_D(TimelineRenderer);
-    d->resetCurrentSelection();
+    resetCurrentSelection();
     setSelectedItem(-1);
     setSelectionLocked(true);
 }
 
 void TimelineRenderer::selectNextFromSelectionId(int selectionId)
 {
-    Q_D(TimelineRenderer);
-    setSelectedItem(d->model->nextItemBySelectionId(selectionId, d->zoomer->rangeStart(),
-                                                   d->selectedItem));
+    setSelectedItem(m_model->nextItemBySelectionId(selectionId, m_zoomer->rangeStart(),
+                                                   m_selectedItem));
 }
 
 void TimelineRenderer::selectPrevFromSelectionId(int selectionId)
 {
-    Q_D(TimelineRenderer);
-    setSelectedItem(d->model->prevItemBySelectionId(selectionId, d->zoomer->rangeStart(),
-                                                   d->selectedItem));
+    setSelectedItem(m_model->prevItemBySelectionId(selectionId, m_zoomer->rangeStart(),
+                                                   m_selectedItem));
 }
 
 } // namespace Timeline

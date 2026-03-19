@@ -1,67 +1,39 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "timelineabstractrenderer_p.h"
+#include "timelineabstractrenderer.h"
 
 namespace Timeline {
 
-TimelineAbstractRenderer::TimelineAbstractRendererPrivate::TimelineAbstractRendererPrivate() :
-    selectedItem(-1), selectionLocked(true), model(nullptr), notes(nullptr), zoomer(nullptr), modelDirty(false),
-    rowHeightsDirty(false), notesDirty(false)
-{
-}
-
-TimelineAbstractRenderer::TimelineAbstractRendererPrivate::~TimelineAbstractRendererPrivate()
-{
-    // Nothing to delete here as all the pointer members are owned by other classes.
-}
-
-TimelineAbstractRenderer::TimelineAbstractRenderer(TimelineAbstractRendererPrivate &dd,
-                                                   QQuickItem *parent) :
-    QQuickItem(parent), d_ptr(&dd)
+TimelineAbstractRenderer::TimelineAbstractRenderer(QQuickItem *parent)
+    : QQuickItem(parent)
 {
     setFlag(ItemHasContents);
 }
 
 int TimelineAbstractRenderer::selectedItem() const
 {
-    Q_D(const TimelineAbstractRenderer);
-    return d->selectedItem;
+    return m_selectedItem;
 }
 
 void TimelineAbstractRenderer::setSelectedItem(int itemIndex)
 {
-    Q_D(TimelineAbstractRenderer);
-    if (d->selectedItem != itemIndex) {
-        d->selectedItem = itemIndex;
+    if (m_selectedItem != itemIndex) {
+        m_selectedItem = itemIndex;
         update();
         emit selectedItemChanged(itemIndex);
     }
 }
 
-TimelineAbstractRenderer::TimelineAbstractRenderer(QQuickItem *parent) : QQuickItem(parent),
-    d_ptr(new TimelineAbstractRendererPrivate)
-{
-    setFlag(ItemHasContents);
-}
-
-TimelineAbstractRenderer::~TimelineAbstractRenderer()
-{
-    Q_D(TimelineAbstractRenderer);
-    delete d;
-}
-
 bool TimelineAbstractRenderer::selectionLocked() const
 {
-    Q_D(const TimelineAbstractRenderer);
-    return d->selectionLocked;
+    return m_selectionLocked;
 }
 
 void TimelineAbstractRenderer::setSelectionLocked(bool locked)
 {
-    Q_D(TimelineAbstractRenderer);
-    if (d->selectionLocked != locked) {
-        d->selectionLocked = locked;
+    if (m_selectionLocked != locked) {
+        m_selectionLocked = locked;
         update();
         emit selectionLockedChanged(locked);
     }
@@ -69,105 +41,99 @@ void TimelineAbstractRenderer::setSelectionLocked(bool locked)
 
 TimelineModel *TimelineAbstractRenderer::model() const
 {
-    Q_D(const TimelineAbstractRenderer);
-    return d->model;
+    return m_model;
 }
 
 void TimelineAbstractRenderer::setModel(TimelineModel *model)
 {
-    Q_D(TimelineAbstractRenderer);
-    if (d->model == model)
+    if (m_model == model)
         return;
 
-    if (d->model) {
-        disconnect(d->model, &TimelineModel::expandedChanged, this, &QQuickItem::update);
-        disconnect(d->model, &TimelineModel::hiddenChanged, this, &QQuickItem::update);
-        disconnect(d->model, &TimelineModel::expandedRowHeightChanged,
+    if (m_model) {
+        disconnect(m_model, &TimelineModel::expandedChanged, this, &QQuickItem::update);
+        disconnect(m_model, &TimelineModel::hiddenChanged, this, &QQuickItem::update);
+        disconnect(m_model, &TimelineModel::expandedRowHeightChanged,
                    this, &TimelineAbstractRenderer::setRowHeightsDirty);
-        disconnect(d->model, &TimelineModel::contentChanged,
+        disconnect(m_model, &TimelineModel::contentChanged,
                    this, &TimelineAbstractRenderer::setModelDirty);
-        disconnect(d->model, &QObject::destroyed, this, nullptr);
-        d->renderPasses.clear();
+        disconnect(m_model, &QObject::destroyed, this, nullptr);
+        m_renderPasses.clear();
     }
 
-    d->model = model;
+    m_model = model;
 
-    if (d->model) {
-        connect(d->model, &TimelineModel::expandedChanged, this, &QQuickItem::update);
-        connect(d->model, &TimelineModel::hiddenChanged, this, &QQuickItem::update);
-        connect(d->model, &TimelineModel::expandedRowHeightChanged,
+    if (m_model) {
+        connect(m_model, &TimelineModel::expandedChanged, this, &QQuickItem::update);
+        connect(m_model, &TimelineModel::hiddenChanged, this, &QQuickItem::update);
+        connect(m_model, &TimelineModel::expandedRowHeightChanged,
                 this, &TimelineAbstractRenderer::setRowHeightsDirty);
-        connect(d->model, &TimelineModel::contentChanged,
+        connect(m_model, &TimelineModel::contentChanged,
                 this, &TimelineAbstractRenderer::setModelDirty);
-        connect(d->model, &QObject::destroyed, this, [this, d] {
+        connect(m_model, &QObject::destroyed, this, [this] {
             // Weak pointers are supposed to be notified before the destroyed() signal is sent.
-            Q_ASSERT(d->model.isNull());
-            d->renderPasses.clear();
+            Q_ASSERT(m_model.isNull());
+            m_renderPasses.clear();
             setModelDirty();
-            emit modelChanged(d->model);
+            emit modelChanged(m_model);
         });
-        d->renderPasses = d->model->supportedRenderPasses();
+        m_renderPasses = m_model->supportedRenderPasses();
     }
 
     setModelDirty();
-    emit modelChanged(d->model);
+    emit modelChanged(m_model);
 }
 
 TimelineNotesModel *TimelineAbstractRenderer::notes() const
 {
-    Q_D(const TimelineAbstractRenderer);
-    return d->notes;
+    return m_notes;
 }
 
 void TimelineAbstractRenderer::setNotes(TimelineNotesModel *notes)
 {
-    Q_D(TimelineAbstractRenderer);
-    if (d->notes == notes)
+    if (m_notes == notes)
         return;
 
-    if (d->notes) {
-        disconnect(d->notes, &TimelineNotesModel::changed,
+    if (m_notes) {
+        disconnect(m_notes, &TimelineNotesModel::changed,
                    this, &TimelineAbstractRenderer::setNotesDirty);
-        disconnect(d->notes, &QObject::destroyed, this, nullptr);
+        disconnect(m_notes, &QObject::destroyed, this, nullptr);
     }
 
-    d->notes = notes;
-    if (d->notes) {
-        connect(d->notes, &TimelineNotesModel::changed,
+    m_notes = notes;
+    if (m_notes) {
+        connect(m_notes, &TimelineNotesModel::changed,
                 this, &TimelineAbstractRenderer::setNotesDirty);
-        connect(d->notes, &QObject::destroyed, this, [this, d] {
+        connect(m_notes, &QObject::destroyed, this, [this] {
             // Weak pointers are supposed to be notified before the destroyed() signal is sent.
-            Q_ASSERT(d->notes.isNull());
+            Q_ASSERT(m_notes.isNull());
             setNotesDirty();
-            emit notesChanged(d->notes);
+            emit notesChanged(m_notes);
         });
     }
 
     setNotesDirty();
-    emit notesChanged(d->notes);
+    emit notesChanged(m_notes);
 }
 
 TimelineZoomControl *TimelineAbstractRenderer::zoomer() const
 {
-    Q_D(const TimelineAbstractRenderer);
-    return d->zoomer;
+    return m_zoomer;
 }
 
 void TimelineAbstractRenderer::setZoomer(TimelineZoomControl *zoomer)
 {
-    Q_D(TimelineAbstractRenderer);
-    if (zoomer != d->zoomer) {
-        if (d->zoomer) {
-            disconnect(d->zoomer, &TimelineZoomControl::windowChanged, this, &QQuickItem::update);
-            disconnect(d->zoomer, &QObject::destroyed, this, nullptr);
+    if (zoomer != m_zoomer) {
+        if (m_zoomer) {
+            disconnect(m_zoomer, &TimelineZoomControl::windowChanged, this, &QQuickItem::update);
+            disconnect(m_zoomer, &QObject::destroyed, this, nullptr);
         }
-        d->zoomer = zoomer;
-        if (d->zoomer) {
-            connect(d->zoomer, &TimelineZoomControl::windowChanged, this, &QQuickItem::update);
-            connect(d->zoomer, &QObject::destroyed, this, [this, d] {
+        m_zoomer = zoomer;
+        if (m_zoomer) {
+            connect(m_zoomer, &TimelineZoomControl::windowChanged, this, &QQuickItem::update);
+            connect(m_zoomer, &QObject::destroyed, this, [this] {
                 // Weak pointers are supposed to be notified before the destroyed() signal is sent.
-                Q_ASSERT(d->zoomer.isNull());
-                emit zoomerChanged(d->zoomer);
+                Q_ASSERT(m_zoomer.isNull());
+                emit zoomerChanged(m_zoomer);
                 update();
             });
         }
@@ -176,59 +142,41 @@ void TimelineAbstractRenderer::setZoomer(TimelineZoomControl *zoomer)
     }
 }
 
-bool TimelineAbstractRenderer::modelDirty() const
-{
-    Q_D(const TimelineAbstractRenderer);
-    return d->modelDirty;
-}
-
-bool TimelineAbstractRenderer::notesDirty() const
-{
-    Q_D(const TimelineAbstractRenderer);
-    return d->notesDirty;
-}
-
-bool TimelineAbstractRenderer::rowHeightsDirty() const
-{
-    Q_D(const TimelineAbstractRenderer);
-    return d->rowHeightsDirty;
-}
+bool TimelineAbstractRenderer::modelDirty() const { return m_modelDirty; }
+bool TimelineAbstractRenderer::notesDirty() const { return m_notesDirty; }
+bool TimelineAbstractRenderer::rowHeightsDirty() const { return m_rowHeightsDirty; }
 
 void TimelineAbstractRenderer::setModelDirty()
 {
-    Q_D(TimelineAbstractRenderer);
-    if (!d->modelDirty) {
-        d->modelDirty = true;
+    if (!m_modelDirty) {
+        m_modelDirty = true;
         update();
     }
 }
 
 void TimelineAbstractRenderer::setRowHeightsDirty()
 {
-    Q_D(TimelineAbstractRenderer);
-    if (!d->rowHeightsDirty) {
-        d->rowHeightsDirty = true;
+    if (!m_rowHeightsDirty) {
+        m_rowHeightsDirty = true;
         update();
     }
 }
 
 void TimelineAbstractRenderer::setNotesDirty()
 {
-    Q_D(TimelineAbstractRenderer);
-    if (!d->notesDirty) {
-        d->notesDirty = true;
+    if (!m_notesDirty) {
+        m_notesDirty = true;
         update();
     }
 }
 
-// Reset the dirty flags, delete the old node (if given), and return 0
+// Reset the dirty flags and return 0
 QSGNode *TimelineAbstractRenderer::updatePaintNode(QSGNode *oldNode,
                                                    UpdatePaintNodeData *updatePaintNodeData)
 {
-    Q_D(TimelineAbstractRenderer);
-    d->modelDirty = false;
-    d->rowHeightsDirty = false;
-    d->notesDirty = false;
+    m_modelDirty = false;
+    m_rowHeightsDirty = false;
+    m_notesDirty = false;
     return QQuickItem::updatePaintNode(oldNode, updatePaintNodeData);
 }
 

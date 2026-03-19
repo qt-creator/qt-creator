@@ -1,66 +1,58 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "timelineoverviewrenderer_p.h"
+#include "timelineoverviewrenderer.h"
 #include "timelinerenderstate.h"
 
 namespace Timeline {
 
-TimelineOverviewRenderer::TimelineOverviewRenderer(QQuickItem *parent) :
-    TimelineAbstractRenderer(*(new TimelineOverviewRendererPrivate), parent)
+TimelineOverviewRenderer::TimelineOverviewRenderer(QQuickItem *parent)
+    : TimelineAbstractRenderer(parent)
 {
 }
 
-TimelineOverviewRenderer::TimelineOverviewRendererPrivate::TimelineOverviewRendererPrivate() :
-    renderState(nullptr)
+TimelineOverviewRenderer::~TimelineOverviewRenderer()
 {
-}
-
-TimelineOverviewRenderer::TimelineOverviewRendererPrivate::~TimelineOverviewRendererPrivate()
-{
-    delete renderState;
+    delete m_renderState;
 }
 
 QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
-                                                  UpdatePaintNodeData *updatePaintNodeData)
+                                                   UpdatePaintNodeData *updatePaintNodeData)
 {
-    Q_D(TimelineOverviewRenderer);
-
-    if (!d->model || d->model->isEmpty() || !d->zoomer || d->zoomer->traceDuration() <= 0) {
+    if (!m_model || m_model->isEmpty() || !m_zoomer || m_zoomer->traceDuration() <= 0) {
         delete oldNode;
         return nullptr;
     }
 
-    if (d->modelDirty) {
-        delete d->renderState;
-        d->renderState = nullptr;
+    if (m_modelDirty) {
+        delete m_renderState;
+        m_renderState = nullptr;
     }
 
-    if (d->renderState == nullptr) {
-        d->renderState = new TimelineRenderState(d->zoomer->traceStart(), d->zoomer->traceEnd(),
-                                                 1.0, d->renderPasses.size());
+    if (m_renderState == nullptr) {
+        m_renderState = new TimelineRenderState(m_zoomer->traceStart(), m_zoomer->traceEnd(),
+                                                1.0, m_renderPasses.size());
     }
 
-    float xSpacing = static_cast<float>(width() / d->zoomer->traceDuration());
+    float xSpacing = static_cast<float>(width() / m_zoomer->traceDuration());
     float ySpacing = static_cast<float>(
-                height() / (d->model->collapsedRowCount() * TimelineModel::defaultRowHeight()));
+                height() / (m_model->collapsedRowCount() * TimelineModel::defaultRowHeight()));
 
-    for (int i = 0; i < d->renderPasses.length(); ++i) {
-        d->renderState->setPassState(i, d->renderPasses[i]->update(this, d->renderState,
-                                                                   d->renderState->passState(i),
-                                                                   0, d->model->count(), true,
-                                                                   xSpacing));
+    for (int i = 0; i < m_renderPasses.length(); ++i) {
+        m_renderState->setPassState(i, m_renderPasses[i]->update(this, m_renderState,
+                                                                  m_renderState->passState(i),
+                                                                  0, m_model->count(), true,
+                                                                  xSpacing));
     }
 
-    if (d->renderState->isEmpty())
-        d->renderState->assembleNodeTree(d->model, d->model->height(), 0);
+    if (m_renderState->isEmpty())
+        m_renderState->assembleNodeTree(m_model, m_model->height(), 0);
 
     TimelineAbstractRenderer::updatePaintNode(nullptr, updatePaintNodeData);
 
     QMatrix4x4 matrix;
     matrix.scale(xSpacing, ySpacing, 1);
-    return d->renderState->finalize(oldNode, false, matrix);
+    return m_renderState->finalize(oldNode, false, matrix);
 }
 
-}
-
+} // namespace Timeline
