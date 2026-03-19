@@ -4359,24 +4359,39 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
     QTC_ASSERT(m_fillCallback, return);
 
     QComboBox *comboBox = createSubWidget<QComboBox>();
-    auto cb = [this, comboBox](const QList<QStandardItem *> &items) {
-        comboBox->blockSignals(true);
-        QString oldValue = m_volatileValue;
-        m_model->clear();
-        for (QStandardItem *item : items)
-            m_model->appendRow(item);
 
-        volatileValueToGui();
-        comboBox->blockSignals(false);
-        if (oldValue != m_volatileValue) {
-            emit comboBox->currentIndexChanged(comboBox->currentIndex());
-            emit comboBox->currentTextChanged(comboBox->currentText());
-        }
-    };
+    connect(
+        this,
+        &StringSelectionAspect::modelChange,
+        comboBox,
+        [this, comboBox, lastValue = QVariant()](bool changing) mutable {
+            if (changing) {
+                comboBox->blockSignals(true);
+                lastValue = m_volatileValue;
+            } else {
+                comboBox->blockSignals(false);
+                if (lastValue != m_volatileValue) {
+                    emit comboBox->currentIndexChanged(comboBox->currentIndex());
+                    emit comboBox->currentTextChanged(comboBox->currentText());
+                }
+            }
+        });
 
     if (!m_model) {
         m_model = new QStandardItemModel(this);
         m_selectionModel = new QItemSelectionModel(m_model);
+
+        auto cb = [this](const QList<QStandardItem *> &items) {
+            emit modelChange(true);
+
+            QString oldValue = m_volatileValue;
+            m_model->clear();
+            for (QStandardItem *item : items)
+                m_model->appendRow(item);
+
+            volatileValueToGui();
+            emit modelChange(false);
+        };
 
         connect(this, &StringSelectionAspect::refillRequested, this, [this, cb] {
             m_fillCallback(cb);

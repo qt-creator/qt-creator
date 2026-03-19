@@ -1309,6 +1309,7 @@ public:
 
 signals:
     void refillRequested();
+    void modelChange(bool isChanging);
 
 private:
     QStandardItem *itemById(const QString &id);
