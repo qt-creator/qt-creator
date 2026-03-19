@@ -42,13 +42,11 @@ public:
 
     friend bool operator==(const QtVersionItem &a, const QtVersionItem &b)
     {
-        return a.m_version.get() == b.m_version.get()
-            && a.m_changed == b.m_changed;
+        return a.m_version.get() == b.m_version.get();
     }
 
     std::shared_ptr<QtVersion> m_version;
     std::function<bool(QtVersion *)> m_isNameUnique;
-    bool m_changed = false;
 
 private:
     bool hasNonUniqueDisplayName() const
@@ -57,8 +55,7 @@ private:
     }
 };
 
-QVariant qtVersionData(const QtVersion *version, int column, int role,
-                       bool isChanged = false, bool hasNonUniqueName = false);
+QVariant qtVersionData(const QtVersion *version, int column, int role, bool hasNonUniqueName);
 
 void setupQtSettingsPage();
 

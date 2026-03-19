@@ -74,7 +74,7 @@ public:
     {
         if (!index.isValid() || index.row() < 0 || index.row() >= m_versions.size())
             return {};
-        return qtVersionData(m_versions[index.row()], 0, role);
+        return qtVersionData(m_versions[index.row()], 0, role, false);
     }
 
 private:

@@ -677,6 +677,7 @@ KitManagerConfigWidget *KitModel::widgetForRow(int row)
         const int r = rowForKit(widget->workingCopy());
         if (r < 0)
             return;
+        setChanged(r, true);
         notifyRowChanged(r);
         markSettingsDirty();
     });

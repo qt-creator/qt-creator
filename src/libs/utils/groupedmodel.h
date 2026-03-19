@@ -33,9 +33,11 @@ public:
     int itemCount() const;
     bool isAdded(int row) const;
     bool isRemoved(int row) const;
+    bool isChanged(int row) const;
     bool isDirty(int row) const;
     void markRemoved(int row);
     void removeItem(int row);
+    void setChanged(int row, bool changed);
     void notifyRowChanged(int row);
     void notifyAllRowsChanged();
 
@@ -69,6 +71,7 @@ private:
     QVariantList m_volatileVariants;
     QList<bool> m_added;
     QList<bool> m_removed;
+    QList<bool> m_changed;
 
     class DisplayModel;
     DisplayModel *m_displayModel = nullptr;

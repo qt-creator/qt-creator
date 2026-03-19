@@ -29,7 +29,6 @@ struct ToolItem
     bool pathExists = false;
     bool pathIsFile = false;
     bool pathIsExecutable = false;
-    bool unsavedChanges = false;
 
 private:
     void selfCheck();
@@ -43,7 +42,6 @@ public:
     ToolsModel();
 
     QModelIndex addMesonTool();
-    void removeMesonTool(int row);
     QModelIndex cloneMesonTool(int row);
     void updateItem(const Utils::Id &itemId, const QString &name, const Utils::FilePath &exe);
     int rowForId(const Utils::Id &id) const;

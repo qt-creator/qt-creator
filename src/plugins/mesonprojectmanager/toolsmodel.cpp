@@ -11,8 +11,6 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QFont>
-
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
@@ -23,7 +21,6 @@ ToolItem::ToolItem(const QString &name)
     : name{name}
     , id{Id::generate()}
     , autoDetected{false}
-    , unsavedChanges{true}
 {
     selfCheck();
     updateTooltip();
@@ -46,7 +43,6 @@ ToolItem ToolItem::cloned() const
     result.executable = executable;
     result.id = Id::generate();
     result.autoDetected = false;
-    result.unsavedChanges = true;
     result.selfCheck();
     result.updateTooltip();
     return result;
@@ -63,11 +59,6 @@ QVariant ToolItem::data(int column, int role) const
             return executable.toUserOutput();
         }
         return {};
-    case Qt::FontRole: {
-        QFont font;
-        font.setBold(unsavedChanges);
-        return font;
-    }
     case Qt::ToolTipRole:
         if (!pathExists)
             return Tr::tr("Meson executable path does not exist.");
@@ -86,7 +77,6 @@ QVariant ToolItem::data(int column, int role) const
 
 void ToolItem::update(const QString &newName, const FilePath &newExe)
 {
-    unsavedChanges = true;
     name = newName;
     if (newExe != executable) {
         executable = newExe;
@@ -133,11 +123,6 @@ QModelIndex ToolsModel::addMesonTool()
     return appendVolatileItem(ToolItem{uniqueName(Tr::tr("New Meson"))});
 }
 
-void ToolsModel::removeMesonTool(int row)
-{
-    markRemoved(row);
-}
-
 QModelIndex ToolsModel::cloneMesonTool(int row)
 {
     return appendVolatileItem(item(row).cloned());
@@ -150,6 +135,7 @@ void ToolsModel::updateItem(const Id &itemId, const QString &name, const FilePat
     ToolItem it = item(row);
     it.update(name, exe);
     setVolatileItem(row, it);
+    setChanged(row, true);
     notifyRowChanged(row);
 }
 
@@ -169,11 +155,9 @@ void ToolsModel::apply()
             MesonTools::removeTool(item(row).id);
             continue;
         }
-        ToolItem it = item(row);
-        if (it.unsavedChanges) {
+        if (isDirty(row)) {
+            const ToolItem it = item(row);
             MesonTools::updateTool(it.id, it.name, it.executable);
-            it.unsavedChanges = false;
-            setVolatileItem(row, it);
         }
     }
 

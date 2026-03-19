@@ -42,7 +42,7 @@ class CMakeToolTreeItem
 {
 public:
     CMakeToolTreeItem() = default;
-    CMakeToolTreeItem(const CMakeTool *item, bool changed);
+    explicit CMakeToolTreeItem(const CMakeTool *item);
     CMakeToolTreeItem(
         const QString &name,
         const FilePath &executable,
@@ -66,8 +66,7 @@ public:
             && a.m_executable == b.m_executable
             && a.m_qchFile == b.m_qchFile
             && a.m_detectionSource == b.m_detectionSource
-            && a.m_isAutoRun == b.m_isAutoRun
-            && a.m_changed == b.m_changed;
+            && a.m_isAutoRun == b.m_isAutoRun;
     }
 
     Id m_id;
@@ -82,7 +81,6 @@ public:
     bool m_pathIsFile = false;
     bool m_pathIsExecutable = false;
     bool m_isSupported = false;
-    bool m_changed = true;
     bool m_isDefault = false;
 };
 
@@ -107,7 +105,7 @@ public:
         const FilePath &qchFile,
         bool autoRun,
         const DetectionSource &detectionSource);
-    void addCMakeTool(const CMakeTool *item, bool changed);
+    void addCMakeTool(const CMakeTool *item);
     void reevaluateChangedFlag(int row);
     void updateCMakeTool(const Id &id,
                          const QString &displayName,
@@ -131,7 +129,7 @@ private:
     Id m_defaultItemId;
 };
 
-CMakeToolTreeItem::CMakeToolTreeItem(const CMakeTool *item, bool changed)
+CMakeToolTreeItem::CMakeToolTreeItem(const CMakeTool *item)
     : m_id(item->id())
     , m_name(item->displayName())
     , m_executable(item->filePath())
@@ -139,7 +137,6 @@ CMakeToolTreeItem::CMakeToolTreeItem(const CMakeTool *item, bool changed)
     , m_versionDisplay(item->versionDisplay())
     , m_detectionSource(item->detectionSource())
     , m_isSupported(item->hasFileApi())
-    , m_changed(changed)
 {
     updateErrorFlags();
 }
@@ -214,7 +211,6 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
     }
     case Qt::FontRole: {
         QFont font;
-        font.setBold(m_changed);
         font.setItalic(m_isDefault);
         return font;
     }
@@ -258,7 +254,7 @@ CMakeToolItemModel::CMakeToolItemModel()
 
     const QList<CMakeTool *> tools = CMakeToolManager::cmakeTools();
     for (const CMakeTool *tool : tools)
-        addCMakeTool(tool, false);
+        addCMakeTool(tool);
 
     CMakeTool *defTool = CMakeToolManager::defaultCMakeTool();
     m_defaultItemId = defTool ? defTool->id() : Id();
@@ -271,7 +267,7 @@ CMakeToolItemModel::CMakeToolItemModel()
     connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeRemoved,
             this, &CMakeToolItemModel::removeCMakeTool);
     connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeAdded,
-            this, [this](const Id &id) { addCMakeTool(CMakeToolManager::findById(id), false); });
+            this, [this](const Id &id) { addCMakeTool(CMakeToolManager::findById(id)); });
 }
 
 QModelIndex CMakeToolItemModel::addCMakeTool(
@@ -286,35 +282,35 @@ QModelIndex CMakeToolItemModel::addCMakeTool(
     return mapFromSource(appendItem(treeItem));
 }
 
-void CMakeToolItemModel::addCMakeTool(const CMakeTool *item, bool changed)
+void CMakeToolItemModel::addCMakeTool(const CMakeTool *item)
 {
     QTC_ASSERT(item, return);
 
     if (rowForId(item->id()) >= 0)
         return;
 
-    CMakeToolTreeItem treeItem(item, changed);
+    CMakeToolTreeItem treeItem(item);
     treeItem.m_isDefault = (m_defaultItemId == treeItem.m_id);
     appendItem(treeItem);
 }
 
 void CMakeToolItemModel::reevaluateChangedFlag(int row)
 {
-    CMakeToolTreeItem it = item(row);
+    const CMakeToolTreeItem it = item(row);
     CMakeTool *orig = CMakeToolManager::findById(it.m_id);
-    it.m_changed = !orig || orig->displayName() != it.m_name
-                   || orig->filePath() != it.m_executable
-                   || orig->qchFilePath() != it.m_qchFile;
+    bool hasChanged = !orig || orig->displayName() != it.m_name
+                      || orig->filePath() != it.m_executable
+                      || orig->qchFilePath() != it.m_qchFile;
 
     // Make sure the item is marked as changed when the default cmake was changed.
     CMakeTool *origDefTool = CMakeToolManager::defaultCMakeTool();
     Id origDefault = origDefTool ? origDefTool->id() : Id();
     if (origDefault != m_defaultItemId) {
         if (it.m_id == origDefault || it.m_id == m_defaultItemId)
-            it.m_changed = true;
+            hasChanged = true;
     }
 
-    setVolatileItem(row, it);
+    setChanged(row, hasChanged);
     notifyRowChanged(row);
 }
 
@@ -365,8 +361,7 @@ void CMakeToolItemModel::apply()
     for (int row = 0; row < itemCount(); ++row) {
         if (isRemoved(row))
             continue;
-        CMakeToolTreeItem it = item(row);
-        it.m_changed = false;
+        const CMakeToolTreeItem it = item(row);
         if (CMakeTool *cmake = CMakeToolManager::findById(it.m_id)) {
             cmake->setDisplayName(it.m_name);
             cmake->setFilePath(it.m_executable);
@@ -375,24 +370,26 @@ void CMakeToolItemModel::apply()
         } else {
             toRegister.append(row);
         }
-        setVolatileItem(row, it);
     }
 
+    QList<Id> failedIds;
     for (int row : std::as_const(toRegister)) {
         const CMakeToolTreeItem it = item(row);
         auto cmake = std::make_unique<CMakeTool>(it.m_detectionSource, it.m_id);
         cmake->setDisplayName(it.m_name);
         cmake->setFilePath(it.m_executable);
         cmake->setQchFilePath(it.m_qchFile);
-        if (!CMakeToolManager::registerCMakeTool(std::move(cmake))) {
-            CMakeToolTreeItem updated = item(row);
-            updated.m_changed = true;
-            setVolatileItem(row, updated);
-        }
+        if (!CMakeToolManager::registerCMakeTool(std::move(cmake)))
+            failedIds.append(it.m_id);
     }
 
     CMakeToolManager::setDefaultCMakeTool(defaultItemId());
     GroupedModel::apply();
+
+    for (int row = 0; row < itemCount(); ++row) {
+        if (failedIds.contains(item(row).m_id))
+            setChanged(row, true);
+    }
 }
 
 Id CMakeToolItemModel::defaultItemId() const
@@ -791,8 +788,11 @@ void CMakeToolConfigWidget::redetect()
         m_model.removeCMakeTool(id);
 
     // Step 4: Add newly detected that haven't been present so far.
-    for (const auto &tool : toAdd)
-        m_model.addCMakeTool(tool.get(), true);
+    for (const auto &tool : toAdd) {
+        m_model.addCMakeTool(tool.get());
+        if (const int row = m_model.rowForId(tool->id()); row >= 0)
+            m_model.setChanged(row, true);
+    }
 
     if (!toRemove.isEmpty() || !toAdd.empty())
         markSettingsDirty();

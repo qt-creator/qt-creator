@@ -55,8 +55,7 @@ using namespace Utils;
 
 const char kInstallSettingsKey[] = "Settings/InstallSettings";
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 static const QIcon &invalidVersionIcon()
 {
@@ -130,9 +129,7 @@ UnsupportedAbisInfo checkForUnsupportedAbis(const QtVersion *version)
     return info;
 }
 
-
-QVariant qtVersionData(const QtVersion *version, int column, int role,
-                       bool isChanged, bool hasNonUniqueName)
+QVariant qtVersionData(const QtVersion *version, int column, int role, bool hasNonUniqueName)
 {
     if (!version) {
         if (role == KitAspect::IsNoneRole && column == 0)
@@ -152,12 +149,6 @@ QVariant qtVersionData(const QtVersion *version, int column, int role,
             return version->displayName();
         if (column == 1)
             return version->qmakeFilePath().toUserOutput();
-    }
-
-    if (role == Qt::FontRole && isChanged) {
-        QFont font;
-        font.setBold(true);
-        return font;
     }
 
     // Bad < Limited < Good, keep sorted ascending.
@@ -228,7 +219,7 @@ QtVersionItem::QtVersionItem(QtVersion *version) : m_version(version) {}
 
 QVariant QtVersionItem::data(int column, int role) const
 {
-    return qtVersionData(version(), column, role, m_changed, hasNonUniqueDisplayName());
+    return qtVersionData(version(), column, role, hasNonUniqueDisplayName());
 }
 
 int QtVersionItem::uniqueId() const
@@ -236,8 +227,7 @@ int QtVersionItem::uniqueId() const
     return m_version ? m_version->uniqueId() : -1;
 }
 
-} // namespace Internal
-} // namespace QtSupport
+} // namespace QtSupport::Internal
 
 Q_DECLARE_METATYPE(QtSupport::Internal::QtVersionItem)
 
@@ -860,8 +850,8 @@ void QtSettingsPageWidget::editPath()
     // Replace the item's version in the model
     QtVersionItem it = m_model.item(row);
     it.m_version = std::shared_ptr<QtVersion>(version);
-    it.m_changed = true;
     m_model.setVolatileItem(row, it);
+    m_model.setChanged(row, true);
 
     markSettingsDirty();
     userChangedCurrentVersion();
@@ -1035,10 +1025,8 @@ void QtSettingsPageWidget::updateCurrentQtName()
     if (row < 0 || !m_model.item(row).version())
         return;
 
-    QtVersionItem it = m_model.item(row);
-    it.m_changed = true;
-    it.version()->setUnexpandedDisplayName(m_nameEdit->text());
-    m_model.setVolatileItem(row, it);
+    m_model.item(row).version()->setUnexpandedDisplayName(m_nameEdit->text());
+    m_model.setChanged(row, true);
 
     updateDescriptionLabel();
     m_model.notifyAllRowsChanged();
@@ -1060,12 +1048,7 @@ void QtSettingsPageWidget::apply()
     for (int row = 0; row < m_model.itemCount(); ++row) {
         if (m_model.isRemoved(row))
             continue;
-        QtVersionItem it = m_model.item(row);
-        if (it.m_changed) {
-            it.m_changed = false;
-            m_model.setVolatileItem(row, it);
-        }
-        versions.append(it.version()->clone());
+        versions.append(m_model.item(row).version()->clone());
     }
     QtVersionManager::setNewQtVersions(versions);
 

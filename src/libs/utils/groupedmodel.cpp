@@ -332,12 +332,23 @@ bool GroupedModel::isRemoved(int row) const
     return m_removed.at(row);
 }
 
+bool GroupedModel::isChanged(int row) const
+{
+    QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return false);
+    return m_changed.at(row);
+}
+
 bool GroupedModel::isDirty(int row) const
 {
     QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return false);
-    if (m_added.at(row))
-        return true;
-    return m_volatileVariants.at(row) != variants().at(row);
+    return m_added.at(row) || m_changed.at(row)
+        || m_volatileVariants.at(row) != m_variants.at(row);
+}
+
+void GroupedModel::setChanged(int row, bool changed)
+{
+    QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return);
+    m_changed[row] = changed;
 }
 
 void GroupedModel::notifyRowChanged(int row)
@@ -361,6 +372,7 @@ void GroupedModel::markRemoved(int row)
         m_volatileVariants.removeAt(row);
         m_added.removeAt(row);
         m_removed.removeAt(row);
+        m_changed.removeAt(row);
         endRemoveRows();
     } else {
         m_removed[row] = !m_removed[row];
@@ -378,6 +390,7 @@ void GroupedModel::removeItem(int row)
     m_volatileVariants.removeAt(row);
     m_added.removeAt(row);
     m_removed.removeAt(row);
+    m_changed.removeAt(row);
     endRemoveRows();
 }
 
@@ -420,6 +433,7 @@ QModelIndex GroupedModel::appendVolatileVariant(const QVariant &item)
     m_volatileVariants.append(item);
     m_added.append(true);
     m_removed.append(false);
+    m_changed.append(false);
     endInsertRows();
     return mapFromSource(index(row, 0));
 }
@@ -432,6 +446,7 @@ QModelIndex GroupedModel::appendVariant(const QVariant &item)
     m_volatileVariants.insert(insertPos, item);
     m_added.insert(insertPos, false);
     m_removed.insert(insertPos, false);
+    m_changed.insert(insertPos, false);
     endInsertRows();
     return index(insertPos, 0);
 }
@@ -443,6 +458,7 @@ void GroupedModel::setVariants(const QVariantList &items)
     m_volatileVariants = items;
     m_added = QList<bool>(items.size(), false);
     m_removed = QList<bool>(items.size(), false);
+    m_changed = QList<bool>(items.size(), false);
     endResetModel();
 }
 

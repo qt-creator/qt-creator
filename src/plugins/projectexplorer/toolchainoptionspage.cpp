@@ -110,16 +110,15 @@ QVariant toolchainBundleData(const std::optional<ToolchainBundle> &bundle, int c
 struct ToolchainTreeItem
 {
     ToolchainTreeItem() = default;
-    explicit ToolchainTreeItem(const ToolchainBundle &b, bool c = false)
-        : bundle(b), changed(c) {}
+    explicit ToolchainTreeItem(const ToolchainBundle &b)
+        : bundle(b) {}
 
     friend bool operator==(const ToolchainTreeItem &a, const ToolchainTreeItem &b)
     {
-        return a.bundle == b.bundle && a.changed == b.changed;
+        return a.bundle == b.bundle;
     }
 
     std::optional<ToolchainBundle> bundle;
-    bool changed = false;
 };
 
 class DetectionSettingsDialog : public QDialog
@@ -255,12 +254,15 @@ ToolchainModel::~ToolchainModel()
 
 QModelIndex ToolchainModel::insertBundle(const ToolchainBundle &bundle, bool changed)
 {
-    return appendItem(ToolchainTreeItem{bundle, changed});
+    const QModelIndex idx = appendItem(ToolchainTreeItem{bundle});
+    if (changed)
+        setChanged(idx.row(), true);
+    return idx;
 }
 
 QModelIndex ToolchainModel::addBundle(const ToolchainBundle &bundle)
 {
-    return appendVolatileItem(ToolchainTreeItem{bundle, true});
+    return appendVolatileItem(ToolchainTreeItem{bundle});
 }
 
 ToolchainConfigWidget *ToolchainModel::widget(int row)
@@ -280,9 +282,7 @@ ToolchainConfigWidget *ToolchainModel::widget(int row)
                 const int r = rowForBundleId(bundleId);
                 if (r < 0)
                     return;
-                ToolchainTreeItem updated = item(r);
-                updated.changed = true;
-                setVolatileItem(r, updated);
+                setChanged(r, true);
                 notifyRowChanged(r);
             });
         }
@@ -322,13 +322,9 @@ void ToolchainModel::destroyBundle(int row)
 
 QVariant ToolchainModel::variantData(const QVariant &v, int column, int role) const
 {
-    const ToolchainTreeItem it = fromVariant(v);
-    if (role == Qt::FontRole) {
-        QFont font;
-        font.setBold(it.changed);
-        return font;
-    }
-    return toolchainBundleData(it.bundle, column, role);
+    if (role == Qt::FontRole)
+        return {};
+    return toolchainBundleData(fromVariant(v).bundle, column, role);
 }
 
 void ToolchainModel::apply()
@@ -338,7 +334,7 @@ void ToolchainModel::apply()
         if (isRemoved(row))
             continue;
         const ToolchainTreeItem it = item(row);
-        if (!it.bundle || it.bundle->detectionSource().isAutoDetected() || !it.changed)
+        if (!it.bundle || it.bundle->detectionSource().isAutoDetected() || !isDirty(row))
             continue;
         if (ToolchainConfigWidget *w = m_widgets.value(it.bundle->bundleId()))
             w->apply();
@@ -395,17 +391,6 @@ void ToolchainModel::apply()
     // now-registered added rows), so no explicit removal of added rows is needed.
 
     qDeleteAll(widgetsToDelete);
-
-    // Reset changed flag for items that will survive apply.
-    for (int row = 0; row < itemCount(); ++row) {
-        if (!isRemoved(row)) {
-            ToolchainTreeItem it = item(row);
-            if (it.changed) {
-                it.changed = false;
-                setVolatileItem(row, it);
-            }
-        }
-    }
 
     GroupedModel::apply();
 

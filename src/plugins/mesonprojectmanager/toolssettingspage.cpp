@@ -171,7 +171,7 @@ void ToolsSettingsWidget::cloneMesonTool()
 void ToolsSettingsWidget::removeMesonTool()
 {
     if (m_currentRow >= 0) {
-        m_model.removeMesonTool(m_currentRow);
+        m_model.markRemoved(m_currentRow);
         markSettingsDirty();
     }
 }
