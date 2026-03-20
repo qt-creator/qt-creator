@@ -76,8 +76,8 @@ QmlProfilerBindingLoopsRenderPass::QmlProfilerBindingLoopsRenderPass() = default
 static inline bool eventOutsideRange(const QmlProfilerRangeModel *model,
                                   const Timeline::TimelineRenderState *parentState, int i)
 {
-    const qint64 start = qMax(parentState->start(), model->startTime(i));
-    const qint64 end = qMin(parentState->end(), model->endTime(i));
+    const qint64 start = qMax(parentState->start, model->startTime(i));
+    const qint64 end = qMin(parentState->end, model->endTime(i));
     return start > end;
 }
 
@@ -116,18 +116,18 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
         if (bindingLoopDest == -1 || eventOutsideRange(model, parentState, i))
             continue;
 
-        qint64 center = qMax(parentState->start(), qMin(parentState->end(),
+        qint64 center = qMax(parentState->start, qMin(parentState->end,
                                                         (model->startTime(i) + model->endTime(i)) /
                                                         (qint64)2));
 
-        float itemCenter = (center - parentState->start()) * parentState->scale();
+        float itemCenter = (center - parentState->start) * parentState->scale;
         expandedPerRow[model->expandedRow(i)].addExpandedEvent(itemCenter);
 
-        center = qMax(parentState->start(), qMin(parentState->end(),
+        center = qMax(parentState->start, qMin(parentState->end,
                                                  (model->startTime(bindingLoopDest) +
                                                   model->endTime(bindingLoopDest)) / (qint64)2));
 
-        float itemCenterTarget = (center - parentState->start()) * parentState->scale();
+        float itemCenterTarget = (center - parentState->start) * parentState->scale;
         collapsed.addCollapsedEvent(itemCenter, itemCenterTarget,
                                     (model->collapsedRow(i) + 0.5) * rowHeight,
                                     (model->collapsedRow(bindingLoopDest) + 0.5) * rowHeight);

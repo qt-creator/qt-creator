@@ -84,8 +84,8 @@ static void insertNode(ResourcesGeometry *geometry, const PerfTimelineModel *mod
         if (!model->isResourceTracePoint(i))
             continue;
 
-        qint64 center = qMax(parentState->start(), qMin(parentState->end(), model->startTime(i)));
-        float itemCenter = (center - parentState->start()) * parentState->scale();
+        qint64 center = qMax(parentState->start, qMin(parentState->end, model->startTime(i)));
+        float itemCenter = (center - parentState->start) * parentState->scale;
 
         geometry->addEvent(itemCenter, (1.0f - model->resourceUsage(i)) * rowHeight);
     }

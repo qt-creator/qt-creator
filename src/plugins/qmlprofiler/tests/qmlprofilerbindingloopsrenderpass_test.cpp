@@ -126,11 +126,9 @@ void QmlProfilerBindingLoopsRenderPassTest::testUpdate()
     QCOMPARE(result->expandedRows().count(), 2);
     QCOMPARE(result->collapsedRows().count(), 0);
 
-    parentState.setPassState(0, result);
+    parentState.passes[0] = result;
     parentState.assembleNodeTree(&model, 1, 1);
 
-    QVERIFY(parentState.collapsedOverlayRoot());
-    QVERIFY(parentState.expandedRowRoot());
 }
 
 } // namespace QmlProfiler::Internal

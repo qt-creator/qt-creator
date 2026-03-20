@@ -7,90 +7,27 @@
 namespace Timeline {
 
 TimelineRenderState::TimelineRenderState(qint64 start, qint64 end, float scale, int numPasses) :
-    m_expandedRowRoot(new QSGNode),
-    m_collapsedRowRoot(new QSGNode),
-    m_expandedOverlayRoot(new QSGNode),
-    m_collapsedOverlayRoot(new QSGNode),
-    m_start(start),
-    m_end(end),
-    m_scale(scale)
+    start(start),
+    end(end),
+    scale(scale)
 {
-    m_passes.resize(numPasses);
+    passes.resize(numPasses);
 
-    m_expandedRowRoot->setFlag(QSGNode::OwnedByParent, false);
-    m_collapsedRowRoot->setFlag(QSGNode::OwnedByParent, false);
-    m_expandedOverlayRoot->setFlag(QSGNode::OwnedByParent, false);
-    m_collapsedOverlayRoot->setFlag(QSGNode::OwnedByParent, false);
+    expandedRowRoot.setFlag(QSGNode::OwnedByParent, false);
+    collapsedRowRoot.setFlag(QSGNode::OwnedByParent, false);
+    expandedOverlayRoot.setFlag(QSGNode::OwnedByParent, false);
+    collapsedOverlayRoot.setFlag(QSGNode::OwnedByParent, false);
 }
 
 TimelineRenderState::~TimelineRenderState()
 {
-    delete m_expandedRowRoot;
-    delete m_collapsedRowRoot;
-    delete m_expandedOverlayRoot;
-    delete m_collapsedOverlayRoot;
-    qDeleteAll(m_passes);
-}
-
-qint64 TimelineRenderState::start() const
-{
-    return m_start;
-}
-
-qint64 TimelineRenderState::end() const
-{
-    return m_end;
-}
-
-float TimelineRenderState::scale() const
-{
-    return m_scale;
-}
-
-const QSGNode *TimelineRenderState::expandedRowRoot() const
-{
-    return m_expandedRowRoot;
-}
-
-const QSGNode *TimelineRenderState::collapsedRowRoot() const
-{
-    return m_collapsedRowRoot;
-}
-
-const QSGNode *TimelineRenderState::expandedOverlayRoot() const
-{
-    return m_expandedOverlayRoot;
-}
-
-const QSGNode *TimelineRenderState::collapsedOverlayRoot() const
-{
-    return m_collapsedOverlayRoot;
-}
-
-QSGNode *TimelineRenderState::expandedRowRoot()
-{
-    return m_expandedRowRoot;
-}
-
-QSGNode *TimelineRenderState::collapsedRowRoot()
-{
-    return m_collapsedRowRoot;
-}
-
-QSGNode *TimelineRenderState::expandedOverlayRoot()
-{
-    return m_expandedOverlayRoot;
-}
-
-QSGNode *TimelineRenderState::collapsedOverlayRoot()
-{
-    return m_collapsedOverlayRoot;
+    qDeleteAll(passes);
 }
 
 bool TimelineRenderState::isEmpty() const
 {
-    return m_collapsedRowRoot->childCount() == 0 && m_expandedRowRoot->childCount() == 0 &&
-            m_collapsedOverlayRoot->childCount() == 0 && m_expandedOverlayRoot->childCount() == 0;
+    return collapsedRowRoot.childCount() == 0 && expandedRowRoot.childCount() == 0 &&
+            collapsedOverlayRoot.childCount() == 0 && expandedOverlayRoot.childCount() == 0;
 }
 
 void TimelineRenderState::assembleNodeTree(const TimelineModel *model, int defaultRowHeight,
@@ -98,21 +35,21 @@ void TimelineRenderState::assembleNodeTree(const TimelineModel *model, int defau
 {
     QTC_ASSERT(isEmpty(), return);
 
-    for (int pass = 0; pass < m_passes.length(); ++pass) {
-        const TimelineRenderPass::State *passState = m_passes[pass];
+    for (int pass = 0; pass < passes.length(); ++pass) {
+        const TimelineRenderPass::State *passState = passes[pass];
         if (!passState)
             continue;
         if (passState->expandedOverlay())
-            m_expandedOverlayRoot->appendChildNode(passState->expandedOverlay());
+            expandedOverlayRoot.appendChildNode(passState->expandedOverlay());
         if (passState->collapsedOverlay())
-            m_collapsedOverlayRoot->appendChildNode(passState->collapsedOverlay());
+            collapsedOverlayRoot.appendChildNode(passState->collapsedOverlay());
     }
 
     int row = 0;
     for (int i = 0; i < model->expandedRowCount(); ++i) {
         QSGTransformNode *rowNode = new QSGTransformNode;
-        for (int pass = 0; pass < m_passes.length(); ++pass) {
-            const TimelineRenderPass::State *passState = m_passes[pass];
+        for (int pass = 0; pass < passes.length(); ++pass) {
+            const TimelineRenderPass::State *passState = passes[pass];
             if (!passState)
                 continue;
             const QList<QSGNode *> &rows = passState->expandedRows();
@@ -122,7 +59,7 @@ void TimelineRenderState::assembleNodeTree(const TimelineModel *model, int defau
                     rowNode->appendChildNode(rowChildNode);
             }
         }
-        m_expandedRowRoot->appendChildNode(rowNode);
+        expandedRowRoot.appendChildNode(rowNode);
         ++row;
     }
 
@@ -133,8 +70,8 @@ void TimelineRenderState::assembleNodeTree(const TimelineModel *model, int defau
         matrix.scale(1.0, static_cast<float>(defaultRowHeight) /
                      static_cast<float>(TimelineModel::defaultRowHeight()), 1.0);
         rowNode->setMatrix(matrix);
-        for (int pass = 0; pass < m_passes.length(); ++pass) {
-            const TimelineRenderPass::State *passState = m_passes[pass];
+        for (int pass = 0; pass < passes.length(); ++pass) {
+            const TimelineRenderPass::State *passState = passes[pass];
             if (!passState)
                 continue;
             const QList<QSGNode *> &rows = passState->collapsedRows();
@@ -144,7 +81,7 @@ void TimelineRenderState::assembleNodeTree(const TimelineModel *model, int defau
                     rowNode->appendChildNode(rowChildNode);
             }
         }
-        m_collapsedRowRoot->appendChildNode(rowNode);
+        collapsedRowRoot.appendChildNode(rowNode);
     }
 
     updateExpandedRowHeights(model, defaultRowHeight, defaultRowOffset);
@@ -155,7 +92,7 @@ void TimelineRenderState::updateExpandedRowHeights(const TimelineModel *model, i
 {
     int row = 0;
     qreal offset = 0;
-    for (QSGNode *rowNode = m_expandedRowRoot->firstChild(); rowNode != nullptr;
+    for (QSGNode *rowNode = expandedRowRoot.firstChild(); rowNode != nullptr;
          rowNode = rowNode->nextSibling()) {
         qreal rowHeight = model->expandedRowHeight(row++);
         QMatrix4x4 matrix;
@@ -169,8 +106,8 @@ void TimelineRenderState::updateExpandedRowHeights(const TimelineModel *model, i
 QSGTransformNode *TimelineRenderState::finalize(QSGNode *oldNode, bool expanded,
                                                 const QMatrix4x4 &transform)
 {
-    QSGNode *rowNode = expanded ? m_expandedRowRoot : m_collapsedRowRoot;
-    QSGNode *overlayNode = expanded ? m_expandedOverlayRoot : m_collapsedOverlayRoot;
+    QSGNode *rowNode = expanded ? &expandedRowRoot : &collapsedRowRoot;
+    QSGNode *overlayNode = expanded ? &expandedOverlayRoot : &collapsedOverlayRoot;
 
     QSGTransformNode *node = oldNode ? static_cast<QSGTransformNode *>(oldNode) :
                                             new QSGTransformNode;
@@ -182,21 +119,6 @@ QSGTransformNode *TimelineRenderState::finalize(QSGNode *oldNode, bool expanded,
         node->appendChildNode(overlayNode);
     }
     return node;
-}
-
-TimelineRenderPass::State *TimelineRenderState::passState(int i)
-{
-    return m_passes[i];
-}
-
-const TimelineRenderPass::State *TimelineRenderState::passState(int i) const
-{
-    return m_passes[i];
-}
-
-void TimelineRenderState::setPassState(int i, TimelineRenderPass::State *state)
-{
-    m_passes[i] = state;
 }
 
 } // namespace Timeline

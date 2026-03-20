@@ -105,9 +105,9 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
     int firstIndex = m_model->firstIndex(m_zoomer->windowStart());
 
     for (int i = 0; i < m_renderPasses.length(); ++i)
-        state->setPassState(i, m_renderPasses[i]->update(this, state, state->passState(i),
+        state->passes[i] = m_renderPasses[i]->update(this, state, state->passes[i],
                                                          firstIndex, lastIndex + 1,
-                                                         state != m_lastState, spacing));
+                                                         state != m_lastState, spacing);
 
     if (state->isEmpty()) { // new state
         state->assembleNodeTree(m_model, TimelineModel::defaultRowHeight(),
@@ -121,8 +121,8 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
     m_lastState = state;
 
     QMatrix4x4 matrix;
-    matrix.translate((state->start() - m_zoomer->windowStart()) * spacing, 0, 0);
-    matrix.scale(spacing / state->scale(), 1, 1);
+    matrix.translate((state->start - m_zoomer->windowStart()) * spacing, 0, 0);
+    matrix.scale(spacing / state->scale, 1, 1);
 
     return state->finalize(node, m_model->expanded(), matrix);
 }

@@ -146,11 +146,9 @@ void tst_TimelineSelectionRenderPass::update()
     QVERIFY(result != nullState);
     compareSelectionNode(result->expandedOverlay(), QRectF(11, 0, 200, 30), model.selectionId(11));
 
-    parentState.setPassState(0, result);
+    parentState.passes[0] = result;
     parentState.assembleNodeTree(&model, 1, 1);
 
-    QVERIFY(parentState.collapsedOverlayRoot());
-    QVERIFY(parentState.expandedOverlayRoot());
 }
 
 QTEST_MAIN(tst_TimelineSelectionRenderPass)

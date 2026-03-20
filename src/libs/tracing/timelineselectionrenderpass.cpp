@@ -76,18 +76,18 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
             top = TimelineModel::defaultRowHeight() * (row + 1) - height;
         }
 
-        qint64 startTime = qBound(parentState->start(), model->startTime(selectedItem),
-                                  parentState->end());
-        qint64 endTime = qBound(parentState->start(), model->endTime(selectedItem),
-                                parentState->end());
-        qint64 left = startTime - parentState->start();
+        qint64 startTime = qBound(parentState->start, model->startTime(selectedItem),
+                                  parentState->end);
+        qint64 endTime = qBound(parentState->start, model->endTime(selectedItem),
+                                parentState->end);
+        qint64 left = startTime - parentState->start;
         qint64 width = endTime - startTime;
 
         // Construct from upper left and lower right for better precision. When constructing from
         // left and width the error on the left border is inherited by the right border. Like this
         // they're independent.
 
-        QRectF position(left * parentState->scale(), top, width * parentState->scale(),  height);
+        QRectF position(left * parentState->scale, top, width * parentState->scale, height);
 
         QColor itemColor = model->color(selectedItem);
         uchar red = itemColor.red();
@@ -108,7 +108,7 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
         state->material()->setSelectionColor(renderer->selectionLocked() ? QColor(96,0,255) :
                                                                            Qt::blue);
         state->material()->setSelectedItem(selectionId);
-        state->material()->setScale(QVector2D(spacing / parentState->scale(), 1));
+        state->material()->setScale(QVector2D(spacing / parentState->scale, 1));
         node->markDirty(QSGNode::DirtyMaterial | QSGNode::DirtyGeometry);
     } else {
         OpaqueColoredPoint2DWithSize *v = OpaqueColoredPoint2DWithSize::fromVertexData(

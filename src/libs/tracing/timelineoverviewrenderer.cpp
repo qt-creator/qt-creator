@@ -39,10 +39,10 @@ QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
                 height() / (m_model->collapsedRowCount() * TimelineModel::defaultRowHeight()));
 
     for (int i = 0; i < m_renderPasses.length(); ++i) {
-        m_renderState->setPassState(i, m_renderPasses[i]->update(this, m_renderState,
-                                                                  m_renderState->passState(i),
-                                                                  0, m_model->count(), true,
-                                                                  xSpacing));
+        m_renderState->passes[i] = m_renderPasses[i]->update(this, m_renderState,
+                                                              m_renderState->passes[i],
+                                                              0, m_model->count(), true,
+                                                              xSpacing);
     }
 
     if (m_renderState->isEmpty())

@@ -115,8 +115,8 @@ TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineAbstrac
         if (notes->timelineModel(i) != model->modelId())
             continue;
         int timelineIndex = notes->timelineIndex(i);
-        if (model->startTime(timelineIndex) > parentState->end() ||
-                model->endTime(timelineIndex) < parentState->start())
+        if (model->startTime(timelineIndex) > parentState->end ||
+                model->endTime(timelineIndex) < parentState->start)
             continue;
         expanded[model->expandedRow(timelineIndex)] << timelineIndex;
         collapsed << timelineIndex;
@@ -189,7 +189,7 @@ QSGGeometry *NotesGeometry::createGeometry(QList<int> &ids, const TimelineModel 
         int timelineIndex = ids[i];
         float horizontalCenter = ((model->startTime(timelineIndex) +
                                    model->endTime(timelineIndex)) / (qint64)2 -
-                                  parentState->start()) * parentState->scale();
+                                  parentState->start) * parentState->scale;
         float verticalStart = (collapsed ? (model->collapsedRow(timelineIndex) + 0.1) : 0.1) *
                 rowHeight;
         float verticalEnd = verticalStart + 0.8 * rowHeight;

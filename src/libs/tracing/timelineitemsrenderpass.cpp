@@ -325,12 +325,12 @@ public:
 
 static qint64 startTime(const TimelineModel *model, const TimelineRenderState *parentState, int i)
 {
-    return qMax(parentState->start(), model->startTime(i));
+    return qMax(parentState->start, model->startTime(i));
 }
 
 static qint64 endTime(const TimelineModel *model, const TimelineRenderState *parentState, int i)
 {
-    return qMin(parentState->end(), model->startTime(i) + model->duration(i));
+    return qMin(parentState->end, model->startTime(i) + model->duration(i));
 }
 
 const QSGGeometry::AttributeSet &OpaqueColoredPoint2DWithSize::attributes()
@@ -387,7 +387,7 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
     int selectedItem = renderer->selectedItem() == -1 ? -1 :
             model->selectionId(renderer->selectedItem());
 
-    state->updateCollapsedRowMaterial(spacing / parentState->scale(), selectedItem, selectionColor);
+    state->updateCollapsedRowMaterial(spacing / parentState->scale, selectedItem, selectionColor);
 
     if (state->indexFrom() < state->indexTo()) {
         if (indexFrom < state->indexFrom() || indexTo > state->indexTo())
@@ -401,7 +401,7 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
             TimelineExpandedRowNode *rowNode = static_cast<TimelineExpandedRowNode *>(
                         state->expandedRow(row));
             rowNode->material.setScale(
-                        QVector2D(spacing / parentState->scale(),
+                        QVector2D(spacing / parentState->scale,
                                   static_cast<float>(model->expandedRowHeight(row))) /
                                   static_cast<float>(TimelineModel::defaultRowHeight()));
             rowNode->material.setSelectedItem(selectedItem);
@@ -689,10 +689,10 @@ int NodeUpdater::updateNodes(const int from, const int to) const
         item.green = qGreen(color);
         item.blue = qBlue(color);
 
-        item.width = end > start ? (end - start) * m_parentState->scale() :
+        item.width = end > start ? (end - start) * m_parentState->scale :
                                    std::numeric_limits<float>::min();
-        item.left = (start - m_parentState->start()) * m_parentState->scale();
-        item.right = (end - m_parentState->start()) * m_parentState->scale();
+        item.left = (start - m_parentState->start) * m_parentState->scale;
+        item.right = (end - m_parentState->start) * m_parentState->scale;
 
         // This has to be the exact same expression as above, to guarantee determinism.
         item.top = (1.0 - m_model->relativeHeight(i)) * defaultRowHeight;
