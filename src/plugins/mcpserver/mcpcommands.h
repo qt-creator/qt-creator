@@ -63,8 +63,6 @@ public:
     bool isDebuggingActive();
     QString abortDebug();
     bool killDebuggedProcesses();
-    void performDebuggingCleanup();
-    bool performDebuggingCleanupSync();
 
     // TODO: execute command in terminal
 
