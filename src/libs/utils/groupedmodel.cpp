@@ -7,7 +7,9 @@
 #include "stringutils.h"
 
 #include <QFont>
+#include <QItemSelectionModel>
 #include <QSortFilterProxyModel>
+#include <QTreeView>
 
 namespace Utils {
 
@@ -474,6 +476,49 @@ void GroupedModel::setExtraFilter(const Filter &filter)
 const QVariantList &GroupedModel::variants() const
 {
     return m_variants;
+}
+
+// GroupedView
+
+GroupedView::GroupedView(GroupedModel &model)
+    : m_model(model)
+{
+    m_view.setModel(model.groupedDisplayModel());
+    m_view.setUniformRowHeights(true);
+    m_view.setSelectionMode(QAbstractItemView::SingleSelection);
+    m_view.setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_view.expandAll();
+    connect(model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
+            &m_view, &QTreeView::expandAll);
+    connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
+            this, [this](const QModelIndex &current, const QModelIndex &previous) {
+        emit currentRowChanged(m_model.mapToSource(previous).row(),
+                               m_model.mapToSource(current).row());
+    });
+}
+
+QTreeView &GroupedView::view()
+{
+    return m_view;
+}
+
+int GroupedView::currentRow() const
+{
+    return m_model.mapToSource(m_view.selectionModel()->currentIndex()).row();
+}
+
+void GroupedView::selectRow(int row)
+{
+    const QModelIndex idx = row >= 0 ? m_model.mapFromSource(m_model.index(row, 0)) : QModelIndex{};
+    m_view.selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect
+                                      | QItemSelectionModel::Rows);
+    m_view.selectionModel()->setCurrentIndex(idx, QItemSelectionModel::NoUpdate);
+}
+
+void GroupedView::scrollToRow(int row)
+{
+    if (row >= 0)
+        m_view.scrollTo(m_model.mapFromSource(m_model.index(row, 0)));
 }
 
 } // namespace Utils

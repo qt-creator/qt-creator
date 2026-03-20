@@ -7,6 +7,8 @@
 #include "utils_global.h"
 
 #include <QAbstractTableModel>
+#include <QObject>
+#include <QTreeView>
 
 #include <utility>
 
@@ -123,6 +125,27 @@ protected:
     {
         return QVariant::fromValue<ItemType>(item);
     }
+};
+
+class QTCREATOR_UTILS_EXPORT GroupedView : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit GroupedView(GroupedModel &model);
+
+    QTreeView &view();
+
+    int currentRow() const;
+    void selectRow(int row);
+    void scrollToRow(int row);
+
+signals:
+    void currentRowChanged(int oldRow, int newRow);
+
+private:
+    GroupedModel &m_model;
+    QTreeView m_view;
 };
 
 } // namespace Utils
