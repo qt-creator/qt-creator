@@ -110,14 +110,12 @@ QObject *FlameGraph::appendChild(QObject *parentObject, QQuickItem *parentItem,
     return childObject;
 }
 
-int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth,
-                          int maximumDepth)
+int FlameGraph::buildLayout(const QModelIndex &parentIndex, int parentNodeIndex, int depth,
+                            int maximumDepth)
 {
     qreal position = 0;
     qreal skipped = 0;
     qreal parentSize = m_model->data(parentIndex, m_sizeRole).toReal();
-    QQuickItem *parentItem = qobject_cast<QQuickItem *>(parentObject);
-    QQmlContext *context = qmlContext(this);
     int rowCount = m_model->rowCount(parentIndex);
     int childrenDepth = depth;
     if (depth == maximumDepth - 1) {
@@ -131,11 +129,12 @@ int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject,
                 continue;
             }
 
-            QObject *childObject = appendChild(parentObject, parentItem, context, childIndex,
-                                               position / parentSize, size / parentSize);
+            int nodeIndex = m_nodes.size();
+            m_nodes.append({childIndex, position / parentSize, size / parentSize,
+                            depth, parentNodeIndex});
             position += size;
-            childrenDepth = qMax(childrenDepth, buildNode(childIndex, childObject, depth + 1,
-                                                          maximumDepth));
+            childrenDepth = qMax(childrenDepth,
+                                 buildLayout(childIndex, nodeIndex, depth + 1, maximumDepth));
         }
     }
 
@@ -144,17 +143,33 @@ int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject,
         skipped = parentSize - position;
 
     if (skipped > 0) {
-        appendChild(parentObject, parentItem, context, QModelIndex(), position / parentSize,
-                    skipped / parentSize);
+        m_nodes.append({QModelIndex(), position / parentSize, skipped / parentSize,
+                        depth, parentNodeIndex});
         childrenDepth = qMax(childrenDepth, depth + 1);
     }
 
     return childrenDepth;
 }
 
+void FlameGraph::buildItems()
+{
+    QQmlContext *context = qmlContext(this);
+    QVector<QObject *> objects(m_nodes.size());
+    for (int i = 0; i < m_nodes.size(); ++i) {
+        const Node &node = m_nodes[i];
+        QObject *parentObject = node.parentNodeIndex < 0
+                ? static_cast<QObject *>(this)
+                : objects[node.parentNodeIndex];
+        QQuickItem *parentItem = qobject_cast<QQuickItem *>(parentObject);
+        objects[i] = appendChild(parentObject, parentItem, context,
+                                 node.modelIndex, node.relativePosition, node.relativeSize);
+    }
+}
+
 void FlameGraph::rebuild()
 {
     qDeleteAll(childItems());
+    m_nodes.clear();
     m_depth = 0;
 
     if (!m_model) {
@@ -164,11 +179,13 @@ void FlameGraph::rebuild()
 
     if (m_model->data(m_root, m_sizeRole).toReal() > 0) {
         if (m_root.isValid()) {
-            QObject *parentObject = appendChild(this, this, qmlContext(this), m_root, 0, 1);
-            m_depth = buildNode(m_root, parentObject, 1, m_maximumDepth);
+            int rootNodeIndex = m_nodes.size();
+            m_nodes.append({m_root, 0, 1, 0, -1});
+            m_depth = buildLayout(m_root, rootNodeIndex, 1, m_maximumDepth);
         } else {
-            m_depth = buildNode(m_root, this, 0, m_maximumDepth);
+            m_depth = buildLayout(QModelIndex(), -1, 0, m_maximumDepth);
         }
+        buildItems();
     }
 
     emit depthChanged(m_depth);

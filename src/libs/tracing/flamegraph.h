@@ -8,6 +8,7 @@
 
 #include <QAbstractItemModel>
 #include <QQuickItem>
+#include <QVector>
 #include <QtQml/qqml.h>
 
 namespace FlameGraph {
@@ -30,6 +31,14 @@ class TRACING_EXPORT FlameGraph : public QQuickItem
     QML_ELEMENT
 
 public:
+    struct Node {
+        QModelIndex modelIndex;  // invalid = "others" aggregate
+        qreal relativePosition;  // relative to parent
+        qreal relativeSize;      // relative to parent
+        int depth;
+        int parentNodeIndex;     // index in m_nodes, -1 = parented to FlameGraph item
+    };
+
     FlameGraph(QQuickItem *parent = nullptr);
 
     QQmlComponent *delegate() const;
@@ -125,10 +134,13 @@ private:
     int m_maximumDepth = std::numeric_limits<int>::max();
     int m_selectedTypeId = -1;
 
-    int buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth,
-                  int maximumDepth);
+    int buildLayout(const QModelIndex &parentIndex, int parentNodeIndex, int depth,
+                    int maximumDepth);
+    void buildItems();
     QObject *appendChild(QObject *parentObject, QQuickItem *parentItem, QQmlContext *context,
                          const QModelIndex &childIndex, qreal position, qreal size);
+
+    QList<Node> m_nodes;
 
     void mousePressEvent(QMouseEvent *event) final;
     void mouseReleaseEvent(QMouseEvent *event) final;
