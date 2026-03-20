@@ -59,13 +59,11 @@ class KitData final
 public:
     Kit *kit = nullptr;
     KitManagerConfigWidget *widget = nullptr;  // lazy; excluded from operator==
-    bool isDefaultKit = false;
     bool hasUniqueName = true;
 
     bool operator==(const KitData &other) const
     {
         return kit == other.kit
-            && isDefaultKit == other.isDefaultKit
             && hasUniqueName == other.hasUniqueName;
     }
 };
@@ -516,7 +514,6 @@ public:
     Kit *kit(int row) const;
     int rowForKit(Kit *k) const;
     int rowForId(Id kitId) const;
-    void setDefaultRow(int row);
     bool isDefaultKit(Kit *k) const;
     KitManagerConfigWidget *widgetForRow(int row);
 
@@ -536,6 +533,7 @@ signals:
     void kitStateChanged();
 
 private:
+    void onDefaultRowChanged(int oldRow, int newRow) override;
     QVariant variantData(const QVariant &v, int column, int role) const final;
     void addKit(Kit *k);
     void updateKit(Kit *k);
@@ -550,6 +548,7 @@ private:
 KitModel::KitModel(IOptionsPageWidget *pageWidget)
     : m_pageWidget(pageWidget)
 {
+    setShowDefault(true);
     setHeader({Tr::tr("Name")});
     setFilters(Constants::msgAutoDetected(), {{Tr::tr("Manual"), [this](int row) {
         const KitData d = item(row);
@@ -561,6 +560,7 @@ KitModel::KitModel(IOptionsPageWidget *pageWidget)
             addKit(k);
         changeDefaultKit();
     }
+    setDefaultRow(defaultRow());
 
     connect(KitManager::instance(), &KitManager::kitAdded,
             this, &KitModel::addKit);
@@ -579,20 +579,11 @@ QVariant KitModel::variantData(const QVariant &v, int /*column*/, int role) cons
     const KitData d = fromVariant(v);
     switch (role) {
     case Qt::DisplayRole: {
-        QString name;
         if (d.widget)
-            name = d.widget->displayName();
-        else if (d.kit)
-            name = d.kit->displayName();
-        if (d.isDefaultKit)
-            name += Tr::tr(" (default)");
-        return name;
-    }
-    case Qt::FontRole: {
-        QFont font;
-        font.setBold(d.widget && d.widget->isDirty());
-        font.setItalic(d.isDefaultKit);
-        return font;
+            return d.widget->displayName();
+        if (d.kit)
+            return d.kit->displayName();
+        return {};
     }
     case Qt::DecorationRole:
         if (d.widget)
@@ -637,32 +628,22 @@ int KitModel::rowForId(Id kitId) const
     return -1;
 }
 
-void KitModel::setDefaultRow(int row)
+void KitModel::onDefaultRowChanged(int oldRow, int newRow)
 {
-    for (int r = 0; r < itemCount(); ++r) {
-        KitData d = item(r);
-        if (!d.isDefaultKit)
-            continue;
-        d.isDefaultKit = false;
-        if (d.widget)
+    if (oldRow >= 0 && oldRow < itemCount()) {
+        if (const KitData d = item(oldRow); d.widget)
             d.widget->setIsDefaultKit(false);
-        setVolatileItem(r, d);
-        notifyRowChanged(r);
     }
-    if (row >= 0 && row < itemCount()) {
-        KitData d = item(row);
-        d.isDefaultKit = true;
-        if (d.widget)
+    if (newRow >= 0 && newRow < itemCount()) {
+        if (const KitData d = item(newRow); d.widget)
             d.widget->setIsDefaultKit(true);
-        setVolatileItem(row, d);
-        notifyRowChanged(row);
     }
 }
 
 bool KitModel::isDefaultKit(Kit *k) const
 {
     const int row = rowForKit(k);
-    return row >= 0 && item(row).isDefaultKit;
+    return row >= 0 && isDefault(row);
 }
 
 KitManagerConfigWidget *KitModel::widgetForRow(int row)
@@ -673,7 +654,7 @@ KitManagerConfigWidget *KitModel::widgetForRow(int row)
 
     handleWidgetConstructionStart();
 
-    auto widget = new KitManagerConfigWidget(d.kit, d.isDefaultKit, d.hasUniqueName);
+    auto widget = new KitManagerConfigWidget(d.kit, isDefault(row), d.hasUniqueName);
 
     QObject::connect(widget, &KitManagerConfigWidget::dirty, this, [this, widget] {
         const int r = rowForKit(widget->workingCopy());
@@ -733,10 +714,10 @@ void KitModel::markForRemoval(Kit *k)
     if (row < 0)
         return;
 
-    if (item(row).isDefaultKit) {
+    if (isDefault(row)) {
         for (int r = 0; r < itemCount(); ++r) {
             if (r != row && !isRemoved(r)) {
-                setDefaultRow(r);
+                setVolatileDefaultRow(r);
                 break;
             }
         }
@@ -768,13 +749,13 @@ Kit *KitModel::markForAddition(Kit *baseKit)
 
     bool hasDefault = false;
     for (int r = 0; r < newRow; ++r) {
-        if (item(r).isDefaultKit && !isRemoved(r)) {
+        if (isDefault(r) && !isRemoved(r)) {
             hasDefault = true;
             break;
         }
     }
     if (!hasDefault)
-        setDefaultRow(newRow);
+        setVolatileDefaultRow(newRow);
 
     return k;
 }
@@ -813,8 +794,9 @@ void KitModel::addKit(Kit *k)
 
     KitData newData;
     newData.kit = k;
-    newData.isDefaultKit = (k == KitManager::defaultKit());
     appendVariant(toVariant(newData));
+    if (k == KitManager::defaultKit())
+        setDefaultRow(rowForId(k->id()));
 
     validateKitNames();
     emit kitStateChanged();
@@ -837,10 +819,10 @@ void KitModel::removeKit(Kit *k)
             continue;
         if (isRemoved(row))
             return;  // already pending deregistration via apply()
-        if (d.isDefaultKit) {
+        if (isDefault(row)) {
             for (int r = 0; r < itemCount(); ++r) {
                 if (r != row && !isRemoved(r)) {
-                    setDefaultRow(r);
+                    setVolatileDefaultRow(r);
                     break;
                 }
             }
@@ -857,11 +839,11 @@ void KitModel::changeDefaultKit()
     Kit *defaultKit = KitManager::defaultKit();
     for (int row = 0; row < itemCount(); ++row) {
         if (item(row).kit == defaultKit) {
-            setDefaultRow(row);
+            setVolatileDefaultRow(row);
             return;
         }
     }
-    setDefaultRow(-1);
+    setVolatileDefaultRow(-1);
 }
 
 void KitModel::validateKitNames()
@@ -1108,7 +1090,7 @@ void KitOptionsPageWidget::removeKit()
 
 void KitOptionsPageWidget::makeDefaultKit()
 {
-    m_model.setDefaultRow(mapToRow(currentIndex()));
+    m_model.setVolatileDefaultRow(mapToRow(currentIndex()));
     updateState();
 
     markSettingsDirty();

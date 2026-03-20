@@ -35,6 +35,9 @@ public:
     bool isRemoved(int row) const;
     bool isChanged(int row) const;
     bool isDirty(int row) const;
+    int defaultRow() const;
+    bool isDefault(int row) const;
+    void setVolatileDefaultRow(int row);
     void markRemoved(int row);
     void removeItem(int row);
     void setChanged(int row, bool changed);
@@ -61,6 +64,12 @@ public:
     void setExtraFilter(const Filter &filter);
     void setHeader(const QStringList &header);
 
+protected:
+    void setDefaultRow(int row);
+    void setShowDefault(bool on);
+    void setDefaultAffectsDirty(bool on);
+    virtual void onDefaultRowChanged(int oldRow, int newRow);
+
 private:
     virtual QVariant variantData(const QVariant &item, int column, int role) const = 0;
 
@@ -72,6 +81,11 @@ private:
     QList<bool> m_added;
     QList<bool> m_removed;
     QList<bool> m_changed;
+
+    QList<bool> m_volatileDefaultFlag;
+    QList<bool> m_defaultFlag;
+    bool m_showDefault = false;
+    bool m_defaultAffectsDirty = false;
 
     class DisplayModel;
     DisplayModel *m_displayModel = nullptr;
