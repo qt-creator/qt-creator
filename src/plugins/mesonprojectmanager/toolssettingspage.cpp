@@ -87,13 +87,12 @@ private:
 
     void cloneMesonTool();
     void removeMesonTool();
-    void currentMesonToolChanged(const QModelIndex &newCurrent);
+    void currentMesonToolChanged(int oldRow, int newRow);
 
     ToolsModel m_model;
+    GroupedView m_groupedView{m_model};
     ToolItemSettings *m_itemSettings;
-    int m_currentRow = -1;
 
-    QTreeView *m_mesonList;
     DetailsWidget *m_mesonDetails;
     QPushButton *m_cloneButton;
     QPushButton *m_removeButton;
@@ -101,13 +100,8 @@ private:
 
 ToolsSettingsWidget::ToolsSettingsWidget()
 {
-    m_mesonList = new QTreeView;
-    m_mesonList->setModel(m_model.groupedDisplayModel());
-    m_mesonList->expandAll();
-    m_mesonList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_mesonList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    connect(m_model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
-            m_mesonList, &QTreeView::expandAll);
+    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
 
     m_itemSettings = new ToolItemSettings;
 
@@ -134,7 +128,7 @@ ToolsSettingsWidget::ToolsSettingsWidget()
 
     Row {
         Column {
-            m_mesonList,
+            m_groupedView.view(),
             m_mesonDetails
         },
         Column {
@@ -146,12 +140,12 @@ ToolsSettingsWidget::ToolsSettingsWidget()
         }
     }.attachTo(this);
 
-    connect(m_mesonList->selectionModel(), &QItemSelectionModel::currentChanged,
+    connect(&m_groupedView, &GroupedView::currentRowChanged,
             this, &ToolsSettingsWidget::currentMesonToolChanged);
     connect(m_itemSettings, &ToolItemSettings::applyChanges, &m_model, &ToolsModel::updateItem);
 
     connect(addButton, &QPushButton::clicked, this, [this] {
-        m_mesonList->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.addMesonTool(), 0)));
+        m_groupedView.selectRow(m_model.addMesonTool());
         markSettingsDirty();
     });
     connect(m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
@@ -162,30 +156,31 @@ ToolsSettingsWidget::ToolsSettingsWidget()
 
 void ToolsSettingsWidget::cloneMesonTool()
 {
-    if (m_currentRow >= 0) {
-        m_mesonList->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.cloneMesonTool(m_currentRow), 0)));
+    const int row = m_groupedView.currentRow();
+    if (row >= 0) {
+        m_groupedView.selectRow(m_model.cloneMesonTool(row));
         markSettingsDirty();
     }
 }
 
 void ToolsSettingsWidget::removeMesonTool()
 {
-    if (m_currentRow >= 0) {
-        m_model.markRemoved(m_currentRow);
+    const int row = m_groupedView.currentRow();
+    if (row >= 0) {
+        m_model.markRemoved(row);
         markSettingsDirty();
     }
 }
 
-void ToolsSettingsWidget::currentMesonToolChanged(const QModelIndex &newCurrent)
+void ToolsSettingsWidget::currentMesonToolChanged(int, int newRow)
 {
-    m_currentRow = m_model.mapToSource(newCurrent).row();
-    const bool hasRow = m_currentRow >= 0;
-    const bool hasItem = hasRow && !m_model.isRemoved(m_currentRow);
-    m_itemSettings->load(hasItem ? std::optional<ToolItem>{m_model.item(m_currentRow)}
+    const bool hasRow = newRow >= 0;
+    const bool hasItem = hasRow && !m_model.isRemoved(newRow);
+    m_itemSettings->load(hasItem ? std::optional<ToolItem>{m_model.item(newRow)}
                                  : std::nullopt);
     m_mesonDetails->setVisible(hasItem);
     m_cloneButton->setEnabled(hasItem);
-    m_removeButton->setEnabled(hasRow && !m_model.item(m_currentRow).autoDetected);
+    m_removeButton->setEnabled(hasRow && !m_model.item(newRow).autoDetected);
 }
 
 class ToolsSettingsPage final : public Core::IOptionsPage
