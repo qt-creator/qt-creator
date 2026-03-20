@@ -291,11 +291,9 @@ private:
     void updateLinkWithQtButton();
     IDeviceConstPtr currentDevice() const;
     QtVersion *currentVersion() const;
-    int currentRow() const;
     std::pair<bool, QString> checkAlreadyExists(const FilePath &qtVersion);
 
     void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
-    void versionChanged(const QModelIndex &current, const QModelIndex &previous);
     void addQtDir();
     void removeQtDir();
     void redetect();
@@ -321,12 +319,12 @@ private:
     bool isNameUnique(const QtVersion *version);
 
     QtVersionModel m_model;
+    GroupedView m_groupedView{m_model};
 
     const QString m_specifyNameString;
 
     DeviceManagerModel m_deviceManagerModel;
     QComboBox *m_deviceComboBox;
-    QTreeView *m_qtdirList;
     DetailsWidget *m_versionInfoWidget;
     DetailsWidget *m_infoWidget;
     QComboBox *m_documentationSetting;
@@ -354,9 +352,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_deviceManagerModel.showAllEntry();
     m_deviceComboBox->setModel(&m_deviceManagerModel);
 
-    m_qtdirList = new QTreeView(this);
-    m_qtdirList->setObjectName("qtDirList");
-    m_qtdirList->setUniformRowHeights(true);
+    m_groupedView.view().setObjectName("qtDirList");
 
     m_versionInfoWidget = new DetailsWidget(this);
 
@@ -401,7 +397,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         Row { Tr::tr("Device:"), m_deviceComboBox, st },
         Row {
             Column {
-                m_qtdirList,
+                m_groupedView.view(),
                 m_versionInfoWidget,
                 m_infoWidget,
                 Row { Tr::tr("Register documentation:"), m_documentationSetting, st }
@@ -431,17 +427,14 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_versionInfoWidget->setWidget(versionInfoWidget);
     m_versionInfoWidget->setState(DetailsWidget::NoSummary);
 
-    m_qtdirList->setSortingEnabled(true);
-    m_qtdirList->setModel(m_model.groupedDisplayModel());
-
-    m_qtdirList->setFirstColumnSpanned(0, QModelIndex(), true);
-    m_qtdirList->setFirstColumnSpanned(1, QModelIndex(), true);
-
-    m_qtdirList->header()->setStretchLastSection(false);
-    m_qtdirList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_qtdirList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    m_qtdirList->setTextElideMode(Qt::ElideMiddle);
-    m_qtdirList->sortByColumn(0, Qt::AscendingOrder);
+    m_groupedView.view().setSortingEnabled(true);
+    m_groupedView.view().setFirstColumnSpanned(0, QModelIndex(), true);
+    m_groupedView.view().setFirstColumnSpanned(1, QModelIndex(), true);
+    m_groupedView.view().header()->setStretchLastSection(false);
+    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    m_groupedView.view().setTextElideMode(Qt::ElideMiddle);
+    m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
 
     m_documentationSetting->addItem(Tr::tr("Highest Version Only"),
                                         int(QtVersionManager::DocumentationSetting::HighestOnly));
@@ -458,10 +451,6 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     updateQtVersions(additions, QList<int>(), QList<int>());
 
-    m_qtdirList->expandAll();
-    connect(m_model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
-            m_qtdirList, &QTreeView::expandAll);
-
     connect(m_nameEdit, &QLineEdit::textEdited,
             this, &QtSettingsPageWidget::updateCurrentQtName);
 
@@ -473,11 +462,11 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     connect(m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
     connect(redetectButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::redetect);
 
-    connect(m_qtdirList->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &QtSettingsPageWidget::versionChanged);
-
+    connect(&m_groupedView, &GroupedView::currentRowChanged,
+            this, &QtSettingsPageWidget::userChangedCurrentVersion);
     connect(m_cleanUpButton, &QAbstractButton::clicked,
             this, &QtSettingsPageWidget::cleanUpQtVersions);
+
     userChangedCurrentVersion();
     updateCleanUpButton();
 
@@ -513,16 +502,9 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     installMarkSettingsDirtyTriggerRecursively(this);
 }
 
-int QtSettingsPageWidget::currentRow() const
-{
-    const QModelIndex displayIdx = m_qtdirList->selectionModel()->currentIndex();
-    const QModelIndex flatIdx = m_model.mapToSource(displayIdx);
-    return flatIdx.isValid() ? flatIdx.row() : -1;
-}
-
 QtVersion *QtSettingsPageWidget::currentVersion() const
 {
-    const int row = currentRow();
+    const int row = m_groupedView.currentRow();
     if (row < 0)
         return nullptr;
     return m_model.item(row).version();
@@ -584,7 +566,7 @@ void QtSettingsPageWidget::cleanUpQtVersions()
 
 void QtSettingsPageWidget::toolChainsUpdated()
 {
-    const int curRow = currentRow();
+    const int curRow = m_groupedView.currentRow();
     for (int row = 0; row < m_model.itemCount(); ++row) {
         if (row == curRow)
             updateDescriptionLabel();
@@ -763,7 +745,7 @@ void QtSettingsPageWidget::addQtDir()
     if (version) {
         QtVersionItem item(version);
         item.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
-        m_qtdirList->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.appendVolatileItem(item), 0)));
+        m_groupedView.selectRow(m_model.appendVolatileItem(item));
         m_nameEdit->setFocus();
         m_nameEdit->selectAll();
         markSettingsDirty();
@@ -777,7 +759,7 @@ void QtSettingsPageWidget::addQtDir()
 
 void QtSettingsPageWidget::removeQtDir()
 {
-    const int row = currentRow();
+    const int row = m_groupedView.currentRow();
     if (row < 0)
         return;
 
@@ -818,7 +800,7 @@ void QtSettingsPageWidget::redetect()
 
 void QtSettingsPageWidget::editPath()
 {
-    const int row = currentRow();
+    const int row = m_groupedView.currentRow();
     QTC_ASSERT(row >= 0, return);
     QtVersion *current = m_model.item(row).version();
     QTC_ASSERT(current, return);
@@ -885,7 +867,7 @@ void QtSettingsPageWidget::userChangedCurrentVersion()
 
 void QtSettingsPageWidget::updateDescriptionLabel()
 {
-    const int row = currentRow();
+    const int row = m_groupedView.currentRow();
     const QtVersion *version = row >= 0 ? m_model.item(row).version() : nullptr;
     const ValidityInfo info = validInformation(version);
     if (info.message.isEmpty()) {
@@ -906,13 +888,6 @@ void QtSettingsPageWidget::updateDescriptionLabel()
         m_versionInfoWidget->setVisible(false);
         m_infoWidget->setVisible(false);
     }
-}
-
-void QtSettingsPageWidget::versionChanged(const QModelIndex &current, const QModelIndex &previous)
-{
-    Q_UNUSED(current)
-    Q_UNUSED(previous)
-    userChangedCurrentVersion();
 }
 
 void QtSettingsPageWidget::updateWidgets()
@@ -1021,7 +996,7 @@ IDeviceConstPtr QtSettingsPageWidget::currentDevice() const
 
 void QtSettingsPageWidget::updateCurrentQtName()
 {
-    const int row = currentRow();
+    const int row = m_groupedView.currentRow();
     if (row < 0 || !m_model.item(row).version())
         return;
 
@@ -1042,7 +1017,7 @@ void QtSettingsPageWidget::apply()
     QtVersionManager::setDocumentationSetting(
         QtVersionManager::DocumentationSetting(m_documentationSetting->currentData().toInt()));
 
-    const int selectedId = currentRow() >= 0 ? m_model.item(currentRow()).uniqueId() : -1;
+    const int selectedId = m_groupedView.currentRow() >= 0 ? m_model.item(m_groupedView.currentRow()).uniqueId() : -1;
 
     QtVersions versions;
     for (int row = 0; row < m_model.itemCount(); ++row) {
@@ -1053,7 +1028,7 @@ void QtSettingsPageWidget::apply()
     QtVersionManager::setNewQtVersions(versions);
 
     m_model.apply();
-    m_qtdirList->expandAll();
+    m_groupedView.view().expandAll();
 
     connect(QtVersionManager::instance(),
             &QtVersionManager::qtVersionsChanged,
@@ -1061,20 +1036,20 @@ void QtSettingsPageWidget::apply()
             &QtSettingsPageWidget::updateQtVersions);
 
     if (const QModelIndex idx = m_model.indexForUniqueId(selectedId); idx.isValid())
-        m_qtdirList->setCurrentIndex(idx);
+        m_groupedView.view().setCurrentIndex(idx);
     else
         userChangedCurrentVersion();
 }
 
 void QtSettingsPageWidget::cancel()
 {
-    const int selectedId = currentRow() >= 0 ? m_model.item(currentRow()).uniqueId() : -1;
+    const int selectedId = m_groupedView.currentRow() >= 0 ? m_model.item(m_groupedView.currentRow()).uniqueId() : -1;
 
     m_model.cancel();
-    m_qtdirList->expandAll();
+    m_groupedView.view().expandAll();
 
     if (const QModelIndex idx = m_model.indexForUniqueId(selectedId); idx.isValid())
-        m_qtdirList->setCurrentIndex(idx);
+        m_groupedView.view().setCurrentIndex(idx);
 }
 
 const QStringList kSubdirsToCheck = {"",
