@@ -33,7 +33,6 @@
 #include <QFont>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QItemSelectionModel>
 #include <QMap>
 #include <QMenu>
 #include <QMessageBox>
@@ -417,7 +416,6 @@ class ToolChainOptionsWidget final : public Core::IOptionsPageWidget
 public:
     ToolChainOptionsWidget();
 
-    int currentRow() const;
     IDeviceConstPtr currentDevice() const;
 
     void toolChainSelectionChanged();
@@ -444,9 +442,9 @@ private:
     DeviceManagerModel m_deviceManagerModel;
     StackedWidget * const m_widgetStack = new StackedWidget;
     ToolchainModel m_model{m_widgetStack};
+    GroupedView m_groupedView{m_model};
     QList<ToolchainFactory *> m_factories;
     QComboBox *m_deviceComboBox;
-    QTreeView *m_toolChainView;
     DetailsWidget *m_container;
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
@@ -469,18 +467,11 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
     setIgnoreForDirtyHook(m_deviceComboBox);
     m_deviceComboBox->setModel(&m_deviceManagerModel);
 
-    m_toolChainView = new QTreeView(this);
-    m_toolChainView->setUniformRowHeights(true);
-    m_toolChainView->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_toolChainView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_toolChainView->setModel(m_model.groupedDisplayModel());
-    m_toolChainView->setSortingEnabled(true);
-    m_toolChainView->sortByColumn(0, Qt::AscendingOrder);
-    m_toolChainView->header()->setStretchLastSection(false);
-    m_toolChainView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_toolChainView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    connect(m_model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
-            m_toolChainView, &QTreeView::expandAll);
+    m_groupedView.view().setSortingEnabled(true);
+    m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
+    m_groupedView.view().header()->setStretchLastSection(false);
+    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
 
     m_addButton = new QPushButton(Tr::tr("Add"), this);
     auto addMenu = new QMenu(this);
@@ -521,8 +512,7 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
             this, &ToolChainOptionsWidget::redetectToolchains);
 
     m_detectionSettingsButton = new QPushButton(Tr::tr("Auto-detection Settings..."), this);
-    connect(m_detectionSettingsButton, &QAbstractButton::clicked, this,
-            [this] {
+    connect(m_detectionSettingsButton, &QAbstractButton::clicked, this, [this] {
         DetectionSettingsDialog dlg(m_detectionSettings, this);
         if (dlg.exec() == QDialog::Accepted) {
             bool old = m_detectionSettings.detectX64AsX32;
@@ -546,8 +536,6 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
     for (const ToolchainBundle &b : bundles)
         m_model.insertBundle(b);
 
-    m_toolChainView->expandAll();
-
     auto buttonLayout = new QVBoxLayout;
     buttonLayout->setSpacing(6);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
@@ -565,7 +553,7 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
     deviceLayout->addStretch(1);
 
     auto toolchainsLayout = new QVBoxLayout;
-    toolchainsLayout->addWidget(m_toolChainView);
+    toolchainsLayout->addWidget(&m_groupedView.view());
     toolchainsLayout->addWidget(m_container);
 
     auto horizontalLayout = new QHBoxLayout;
@@ -581,13 +569,13 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
     connect(ToolchainManager::instance(), &ToolchainManager::toolchainsDeregistered,
             this, &ToolChainOptionsWidget::handleToolchainsDeregistered);
 
-    connect(m_toolChainView->selectionModel(), &QItemSelectionModel::currentChanged,
+    connect(&m_groupedView, &GroupedView::currentRowChanged,
             this, &ToolChainOptionsWidget::toolChainSelectionChanged);
     connect(ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
             this, &ToolChainOptionsWidget::toolChainSelectionChanged);
 
     connect(m_delButton, &QAbstractButton::clicked, this, [this] {
-        const int row = currentRow();
+        const int row = m_groupedView.currentRow();
         if (row >= 0) {
             m_model.markForRemoval(row);
             markSettingsDirty();
@@ -754,7 +742,7 @@ IDeviceConstPtr ToolChainOptionsWidget::currentDevice() const
 
 void ToolChainOptionsWidget::toolChainSelectionChanged()
 {
-    const int row = currentRow();
+    const int row = m_groupedView.currentRow();
     ToolchainConfigWidget *configWidget = nullptr;
     if (row >= 0 && !m_model.isRemoved(row))
         configWidget = m_model.widget(row);
@@ -770,7 +758,7 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
 void ToolChainOptionsWidget::apply()
 {
     // Save current selection to restore after model reset.
-    const int savedRow = currentRow();
+    const int savedRow = m_groupedView.currentRow();
     const Id savedBundleId = savedRow >= 0 && m_model.item(savedRow).bundle
         ? m_model.item(savedRow).bundle->bundleId()
         : Id{};
@@ -781,7 +769,7 @@ void ToolChainOptionsWidget::apply()
     if (savedBundleId.isValid()) {
         const int newRow = m_model.rowForBundleId(savedBundleId);
         if (newRow >= 0)
-            m_toolChainView->setCurrentIndex(m_model.mapFromSource(m_model.index(newRow, 0)));
+            m_groupedView.selectRow(newRow);
     }
 
     ToolchainManager::setDetectionSettings(m_detectionSettings);
@@ -805,13 +793,13 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
     }
 
     const ToolchainBundle bundle(toolchains, ToolchainBundle::HandleMissing::CreateOnly);
-    m_toolChainView->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.addBundle(bundle), 0)));
+    m_groupedView.selectRow(m_model.addBundle(bundle));
     markSettingsDirty();
 }
 
 void ToolChainOptionsWidget::cloneToolchains()
 {
-    const int row = currentRow();
+    const int row = m_groupedView.currentRow();
     if (row < 0)
         return;
     const ToolchainTreeItem it = m_model.item(row);
@@ -822,7 +810,7 @@ void ToolChainOptionsWidget::cloneToolchains()
     bundle.setDetectionSource(DetectionSource::Manual);
     bundle.setDisplayName(Tr::tr("Clone of %1").arg(it.bundle->displayName()));
 
-    m_toolChainView->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.addBundle(bundle), 0)));
+    m_groupedView.selectRow(m_model.addBundle(bundle));
     markSettingsDirty();
 }
 
@@ -830,7 +818,7 @@ void ToolChainOptionsWidget::updateState()
 {
     bool canCopy = false;
     bool canDelete = false;
-    const int row = currentRow();
+    const int row = m_groupedView.currentRow();
     if (row >= 0 && !m_model.isRemoved(row)) {
         const ToolchainTreeItem it = m_model.item(row);
         canCopy = it.bundle && it.bundle->validity() != ToolchainBundle::Valid::None;
@@ -839,11 +827,6 @@ void ToolChainOptionsWidget::updateState()
 
     m_cloneButton->setEnabled(canCopy);
     m_delButton->setEnabled(canDelete);
-}
-
-int ToolChainOptionsWidget::currentRow() const
-{
-    return m_model.mapToSource(m_toolChainView->currentIndex()).row();
 }
 
 // --------------------------------------------------------------------------
