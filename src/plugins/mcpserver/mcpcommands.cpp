@@ -499,37 +499,7 @@ QString McpCommands::getCurrentSession()
 
 bool McpCommands::loadSession(const QString &sessionName)
 {
-    if (sessionName.isEmpty()) {
-        qCDebug(mcpCommands) << "Empty session name provided";
-        return false;
-    }
-
-    // Check if the session exists before trying to load it
-    QStringList availableSessions = Core::SessionManager::sessions();
-    if (!availableSessions.contains(sessionName)) {
-        qCDebug(mcpCommands) << "Session does not exist:" << sessionName;
-        qCDebug(mcpCommands) << "Available sessions:" << availableSessions;
-        return false;
-    }
-
-    qCDebug(mcpCommands) << "Loading session:" << sessionName;
-
-    // Use a safer approach - check if we're already in the target session
-    QString currentSession = Core::SessionManager::activeSession();
-    if (currentSession == sessionName) {
-        qCDebug(mcpCommands) << "Already in session:" << sessionName;
-        return true;
-    }
-
-    // Try to load the session using QTimer to avoid blocking
-    QTimer::singleShot(0, [sessionName]() {
-        qCDebug(mcpCommands) << "Attempting to load session:" << sessionName;
-        bool success = Core::SessionManager::loadSession(sessionName);
-        qCDebug(mcpCommands) << "Session load result:" << success;
-    });
-
-    qCDebug(mcpCommands) << "Session loading initiated asynchronously";
-    return true; // Return true to indicate the request was accepted
+    return Core::SessionManager::loadSession(sessionName);
 }
 
 bool McpCommands::saveSession()
