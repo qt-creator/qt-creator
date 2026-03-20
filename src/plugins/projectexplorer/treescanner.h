@@ -39,7 +39,6 @@ using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::Mim
 
 // Standard filters helpers
 PROJECTEXPLORER_EXPORT bool isWellKnownBinary(const Utils::FilePath &fn);
-PROJECTEXPLORER_EXPORT bool isMimeBinary(const Utils::MimeType &mimeType);
 PROJECTEXPLORER_EXPORT bool isMimeTypeIgnored(const Utils::MimeType &mimeType); // employs internal cache
 
 // Standard file factory

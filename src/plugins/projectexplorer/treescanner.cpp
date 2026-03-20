@@ -33,17 +33,6 @@ bool isWellKnownBinary(const FilePath &fn)
            fn.endsWith(QLatin1String(".elf"));
 }
 
-bool isMimeBinary(const MimeType &mimeType)
-{
-    bool isBinary = false;
-    if (mimeType.isValid()) {
-        QStringList mimes;
-        mimes << mimeType.name() << mimeType.allAncestors();
-        isBinary = !mimes.contains(QLatin1String("text/plain"));
-    }
-    return isBinary;
-}
-
 using MimeBinaryCache = SynchronizedValue<QHash<QString, bool>>;
 Q_APPLICATION_STATIC(MimeBinaryCache, s_mimeBinaryCache);
 
@@ -59,7 +48,13 @@ bool isMimeTypeIgnored(const MimeType &mimeType)
         return *it;
     }
 
-    const bool isIgnored = isMimeBinary(mimeType);
+    bool isIgnored = false;
+    if (mimeType.isValid()) {
+        QStringList mimes;
+        mimes << mimeType.name() << mimeType.allAncestors();
+        isIgnored = !mimes.contains(QLatin1String("text/plain"));
+    }
+
     s_mimeBinaryCache->writeLocked()->insert(mimeType.name(), isIgnored);
     return isIgnored;
 }
