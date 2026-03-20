@@ -135,7 +135,6 @@ void ToolsModel::updateItem(const Id &itemId, const QString &name, const FilePat
     ToolItem it = item(row);
     it.update(name, exe);
     setVolatileItem(row, it);
-    setChanged(row, true);
     notifyRowChanged(row);
 }
 
