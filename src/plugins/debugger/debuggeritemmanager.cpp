@@ -141,10 +141,7 @@ class DebuggerModel final : public Utils::TypedGroupedModel<DebuggerItem>
 public:
     DebuggerModel();
 
-    void setCurrentIndex(const QModelIndex &index);
     void updateDebugger(const DebuggerItem &item);
-    DebuggerItem currentItem();
-    int currentRow() const;
 
     void detectDebuggers(const IDeviceConstPtr &device, const FilePaths &searchPaths);
     void restoreDebuggers();
@@ -168,7 +165,6 @@ public:
 
 private:
     PersistentSettingsWriter m_writer;
-    QPersistentModelIndex m_currentIndex;
 };
 
 static DebuggerModel &debuggerModel()
@@ -210,23 +206,6 @@ void DebuggerModel::updateDebugger(const DebuggerItem &ditem)
     }
 }
 
-void DebuggerModel::setCurrentIndex(const QModelIndex &index)
-{
-    m_currentIndex = mapToSource(index);
-}
-
-DebuggerItem DebuggerModel::currentItem()
-{
-    const int row = currentRow();
-    if (row < 0)
-        return {};
-    return item(row);
-}
-
-int DebuggerModel::currentRow() const
-{
-    return m_currentIndex.isValid() ? m_currentIndex.row() : -1;
-}
 
 DebuggerItemConfigWidget::DebuggerItemConfigWidget()
 {
@@ -1048,18 +1027,10 @@ public:
         setIgnoreForDirtyHook(m_deviceComboBox);
         m_deviceComboBox->setModel(&m_deviceModel);
 
-        m_debuggerView = new QTreeView(this);
-        m_debuggerView->setModel(debuggerModel().groupedDisplayModel());
-        m_debuggerView->setUniformRowHeights(true);
-        m_debuggerView->setSelectionMode(QAbstractItemView::SingleSelection);
-        m_debuggerView->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_debuggerView->expandAll();
-        m_debuggerView->setSortingEnabled(true);
-        m_debuggerView->sortByColumn(0, Qt::AscendingOrder);
-        connect(debuggerModel().groupedDisplayModel(), &QAbstractItemModel::modelReset,
-                m_debuggerView, &QTreeView::expandAll);
+        m_groupedView.view().setSortingEnabled(true);
+        m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
 
-        auto header = m_debuggerView->header();
+        auto header = m_groupedView.view().header();
         header->setStretchLastSection(false);
         header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
         header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -1080,7 +1051,7 @@ public:
         deviceLayout->addStretch(1);
 
         auto debuggersLayout = new QVBoxLayout();
-        debuggersLayout->addWidget(m_debuggerView);
+        debuggersLayout->addWidget(&m_groupedView.view());
         debuggersLayout->addWidget(m_container);
 
         auto horizontalLayout = new QHBoxLayout;
@@ -1091,8 +1062,8 @@ public:
         mainLayout->addLayout(deviceLayout);
         mainLayout->addLayout(horizontalLayout);
 
-        connect(m_debuggerView->selectionModel(), &QItemSelectionModel::currentChanged,
-                this, &DebuggerSettingsPageWidget::currentDebuggerChanged, Qt::QueuedConnection);
+        connect(&m_groupedView, &GroupedView::currentRowChanged,
+                this, [this](int, int) { updateButtons(); }, Qt::QueuedConnection);
 
         connect(m_addButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::addDebugger, Qt::QueuedConnection);
@@ -1138,13 +1109,13 @@ public:
     {
         m_itemConfigWidget->store();
         debuggerModel().apply();
-        m_debuggerView->expandAll();
+        m_groupedView.view().expandAll();
     }
 
     void cancel() final
     {
         debuggerModel().cancel();
-        m_debuggerView->expandAll();
+        m_groupedView.view().expandAll();
     }
 
     IDeviceConstPtr currentDevice() const;
@@ -1152,12 +1123,11 @@ public:
     void cloneDebugger();
     void addDebugger();
     void removeDebugger();
-    void currentDebuggerChanged(const QModelIndex &newCurrent);
     void updateButtons();
 
     DeviceManagerModel m_deviceModel;
     QComboBox *m_deviceComboBox;
-    QTreeView *m_debuggerView;
+    GroupedView m_groupedView{debuggerModel()};
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;
@@ -1173,7 +1143,10 @@ IDeviceConstPtr DebuggerSettingsPageWidget::currentDevice() const
 
 void DebuggerSettingsPageWidget::cloneDebugger()
 {
-    const DebuggerItem item = debuggerModel().currentItem();
+    const int row = m_groupedView.currentRow();
+    if (row < 0)
+        return;
+    const DebuggerItem item = debuggerModel().item(row);
     if (!item)
         return;
 
@@ -1184,7 +1157,7 @@ void DebuggerSettingsPageWidget::cloneDebugger()
     newItem.reinitializeFromFile();
     newItem.setDetectionSource({DetectionSource::Manual, item.detectionSource().id});
     newItem.setEngineType(item.engineType());
-    m_debuggerView->setCurrentIndex(debuggerModel().mapFromSource(debuggerModel().index(debuggerModel().appendVolatileItem(newItem), 0)));
+    m_groupedView.selectRow(debuggerModel().appendVolatileItem(newItem));
     markSettingsDirty();
 }
 
@@ -1194,29 +1167,23 @@ void DebuggerSettingsPageWidget::addDebugger()
     item.createId();
     item.setEngineType(NoEngineType);
     item.setUnexpandedDisplayName(debuggerModel().uniqueDisplayName(Tr::tr("New Debugger")));
-    m_debuggerView->setCurrentIndex(debuggerModel().mapFromSource(debuggerModel().index(debuggerModel().appendVolatileItem(item), 0)));
+    m_groupedView.selectRow(debuggerModel().appendVolatileItem(item));
     markSettingsDirty();
 }
 
 void DebuggerSettingsPageWidget::removeDebugger()
 {
-    const int row = debuggerModel().currentRow();
+    const int row = m_groupedView.currentRow();
     QTC_ASSERT(row >= 0, return);
     debuggerModel().markRemoved(row);
     updateButtons();
     markSettingsDirty(); // TODO restore should maybe undo dirtying
 }
 
-void DebuggerSettingsPageWidget::currentDebuggerChanged(const QModelIndex &newCurrent)
-{
-    debuggerModel().setCurrentIndex(newCurrent);
-    updateButtons();
-}
-
 void DebuggerSettingsPageWidget::updateButtons()
 {
-    const DebuggerItem item = debuggerModel().currentItem();
-    const int row = debuggerModel().currentRow();
+    const int row = m_groupedView.currentRow();
+    const DebuggerItem item = row >= 0 ? debuggerModel().item(row) : DebuggerItem{};
 
     m_itemConfigWidget->load(item);
     const IDeviceConstPtr dev = currentDevice();
