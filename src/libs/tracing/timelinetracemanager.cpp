@@ -218,6 +218,9 @@ QFuture<void> TimelineTraceManager::save(const QString &filename)
     writer->setTraceManager(this);
     writer->setNotes(d->notesModel);
 
+    if (d->notesModel)
+        d->notesModel->stash();
+
     connect(writer, &QObject::destroyed, this, &TimelineTraceManager::saveFinished);
     connect(writer, &TimelineTraceFile::error, this, &TimelineTraceManager::error);
 
@@ -278,6 +281,9 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
             if (reader->traceEnd() >= 0)
                 increaseTraceEnd(reader->traceEnd());
             finalize();
+
+            if (d->notesModel)
+                d->notesModel->restore();
         }
     });
     watcher->setFuture(fi.future());

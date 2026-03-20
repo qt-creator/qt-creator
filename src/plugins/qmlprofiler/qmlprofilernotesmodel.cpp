@@ -21,39 +21,39 @@ int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start
     int timelineIndex = -1;
     const QList<const Timeline::TimelineModel *> models = timelineModels();
     for (const Timeline::TimelineModel *model : models) {
-        if (model->handlesTypeId(typeId)) {
-            for (int i = model->firstIndex(start); i <= model->lastIndex(start + duration); ++i) {
-                if (i < 0)
-                    continue;
-                if (collapsedRow != -1 && collapsedRow != model->collapsedRow(i))
-                    continue;
+        if (model->count() == 0)
+            continue;
+        for (int i = model->firstIndex(start); i <= model->lastIndex(start + duration); ++i) {
+            if (i < 0)
+                continue;
+            if (collapsedRow != -1 && collapsedRow != model->collapsedRow(i))
+                continue;
 
-                qint64 modelStart = model->startTime(i);
-                qint64 modelDuration = model->duration(i);
+            qint64 modelStart = model->startTime(i);
+            qint64 modelDuration = model->duration(i);
 
-                if (modelStart + modelDuration < start || start + duration < modelStart)
-                    continue;
+            if (modelStart + modelDuration < start || start + duration < modelStart)
+                continue;
 
-                // Accept different type IDs if row and time stamps match.
-                // Some models base their type IDs on data from secondary events which may get
-                // stripped by range restrictions.
-                int modelTypeId = model->typeId(i);
-                if (foundTypeId == typeId && modelTypeId != typeId)
-                    continue;
+            // Accept different type IDs if row and time stamps match.
+            // Some models base their type IDs on data from secondary events which may get
+            // stripped by range restrictions.
+            int modelTypeId = model->typeId(i);
+            if (foundTypeId == typeId && modelTypeId != typeId)
+                continue;
 
-                qint64 newDifference = qAbs(modelStart - start) + qAbs(modelDuration - duration);
-                if (newDifference < difference) {
-                    timelineModel = model->modelId();
-                    timelineIndex = i;
-                    difference = newDifference;
-                    foundTypeId = modelTypeId;
-                    if (difference == 0 && modelTypeId == typeId)
-                        break;
-                }
+            qint64 newDifference = qAbs(modelStart - start) + qAbs(modelDuration - duration);
+            if (newDifference < difference) {
+                timelineModel = model->modelId();
+                timelineIndex = i;
+                difference = newDifference;
+                foundTypeId = modelTypeId;
+                if (difference == 0 && modelTypeId == typeId)
+                    break;
             }
-            if (difference == 0 && foundTypeId == typeId)
-                break;
         }
+        if (difference == 0 && foundTypeId == typeId)
+            break;
     }
 
     if (timelineModel == -1 || timelineIndex == -1)
