@@ -10,6 +10,7 @@
 namespace QmlDesigner {
 
 class AiProviderSettings;
+class McpSettings;
 
 class QmlDesignerMcpPlugin final : public ExtensionSystem::IPlugin
 {
@@ -25,7 +26,8 @@ private:
     bool delayedInitialize() override;
 
 private: // variables
-    std::unique_ptr<AiProviderSettings> m_settings;
+    std::unique_ptr<AiProviderSettings> m_providerSettings;
+    std::unique_ptr<McpSettings> m_mcpSettings;
 };
 
 } // namespace QmlDesigner

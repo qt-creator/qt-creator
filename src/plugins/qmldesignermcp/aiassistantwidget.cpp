@@ -9,11 +9,11 @@
 #include "aiassistantview.h"
 #include "aimodelsmodel.h"
 #include "airesponse.h"
-#include "mcpconfigloader.h"
 #include "mcp/agenticrequestmanager.h"
 #include "mcp/conversationmanager.h"
 #include "mcp/mcphost.h"
 #include "mcp/toolregistry.h"
+#include "settings/mcpsettings.h"
 
 #include <asset.h>
 #include <designersettings.h>
@@ -125,6 +125,7 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     qmlRegisterUncreatableType<AiAssistantWidget>("AiGenerationState", 1, 0, "GenerationState",
                                                   "GenerationState is not creatable from QML");
 
+    connectHost();
     connectRequestManager();
     reloadQmlSource();
     updateModelConfig();
@@ -152,6 +153,11 @@ void AiAssistantWidget::updateModelConfig()
 {
     m_modelsModel->update();
     setHasValidModel(m_modelsModel->rowCount() > 0);
+}
+
+void AiAssistantWidget::updateMcpConfig()
+{
+    initializeMcp();
 }
 
 void AiAssistantWidget::removeMissingAttachedImage()
@@ -282,30 +288,29 @@ void AiAssistantWidget::initializeMcp()
 {
     m_projectStructure.clear();
 
-    // Load server configs
-    McpConfigLoader loader;
-    loader.setResolveMap({{"${PROJECT_PATH}", m_projectPath}});
-    bool success = loader.loadFile(":/AiAssistant/mcpconfig.json");
-    QTC_ASSERT(success, return);
+    const QList<McpServerConfig> enabledConfigs = McpSettings::allEnabledConfigs(m_projectPath);
+    const QStringList enabledNames = Utils::transform(enabledConfigs, &McpServerConfig::name);
 
-    m_mcpHost->addServers(loader.getConfigs());
+    // Stop and remove any servers that are no longer enabled or have been deleted
+    const QStringList runningServers = m_mcpHost->servers();
+    for (const QString &serverName : runningServers) {
+        if (!enabledNames.contains(serverName)) {
+            m_toolRegistry->unregisterServer(serverName, m_mcpHost->client(serverName));
+            m_mcpHost->removeServer(serverName); // stops + removes
+        }
+    }
 
-    // Wire resource signals before starting so we don't miss the first fetch
-    connectMcpResourceSignals();
-
-    m_mcpHost->restart();
-
-    // Register tools
-    const QStringList serverConfigs = m_mcpHost->servers();
-    for (const QString &serverName : serverConfigs)
-        m_toolRegistry->registerServer(serverName, m_mcpHost->client(serverName));
+    m_mcpHost->addServers(enabledConfigs);
+    m_mcpHost->startAll(); // start newly added servers
 }
 
-void AiAssistantWidget::connectMcpResourceSignals()
+void AiAssistantWidget::connectHost()
 {
-    // Fetch the project structure as soon as the QML server is ready
     connect(m_mcpHost.get(), &McpHost::serverStarted, this,
             [this](const QString &serverName, const McpServerInfo &) {
+                m_toolRegistry->registerServer(serverName, m_mcpHost->client(serverName));
+
+                // Fetch the project structure as soon as the QML server is ready
                 if (serverName == QLatin1String(Constants::qmlServerName))
                     fetchProjectStructure();
             });

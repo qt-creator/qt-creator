@@ -5,7 +5,7 @@
 
 #include "aiassistantconstants.h"
 #include "aiassistantview.h"
-#include "aiproviderdata.h"
+#include "aidefaultsettings.h"
 #include "aiprovidersettingswidget.h"
 
 #include <qmldesignerplugin.h>
@@ -18,7 +18,7 @@ namespace QmlDesigner {
 
 static QList<AiProviderConfig> allProviderConfigs()
 {
-    const QStringList providerNames = AiProviderData::defaultProvidersNames();
+    const QStringList providerNames = AiDefaultSettings::providerNames();
 
     QList<AiProviderConfig> result;
     for (const QString &providerName : providerNames)
@@ -65,7 +65,7 @@ AiProviderSettingsTab::AiProviderSettingsTab(AiAssistantView *view)
 
     using namespace Layouting;
     Column providersCol;
-    const QStringList providers = AiProviderData::defaultProvidersNames();
+    const QStringList providers = AiDefaultSettings::providerNames();
     for (const QString &providerName : providers)
         providersCol.addItem(createProviderWidget(providerName));
 

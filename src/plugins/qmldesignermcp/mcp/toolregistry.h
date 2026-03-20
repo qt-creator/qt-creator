@@ -43,6 +43,14 @@ public:
     void registerServer(const QString &serverName, McpClient *client);
 
     /**
+     * @brief Unregister a server and remove all its associated tools
+     *
+     * Disconnects any signals connected to the client and clears all tools
+     * that were discovered for this server.
+     */
+    void unregisterServer(const QString &serverName, McpClient *client);
+
+    /**
      * @brief Manually add tools to the registry
      */
     void addTools(const QString &serverName, const QList<McpTool> &tools);
@@ -120,10 +128,6 @@ signals:
     void discoveryFailed(const QString &serverName, const QString &error);
 
 private:
-    void onServerConnected(const QString &serverName, McpClient *client);
-    void onToolsListed(const QString &serverName, const QList<McpTool> &tools);
-    QString makeToolKey(const QString &serverName, const QString &toolName) const;
-
     // tool name -> info (unique tool names across all servers)
     QHash<QString, ToolInfo> m_tools;
 

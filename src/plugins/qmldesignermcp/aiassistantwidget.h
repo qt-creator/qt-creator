@@ -57,6 +57,7 @@ public:
     void clear();
     void loadInstructions();
     void updateModelConfig();
+    void updateMcpConfig();
     void removeMissingAttachedImage();
     void setProjectPath(const QString &projectPath);
 
@@ -91,7 +92,7 @@ private: // functions
     void handleAiResponse(const AiResponse &response);
     void initializeMcp();
     void connectRequestManager();
-    void connectMcpResourceSignals();
+    void connectHost();
     void fetchProjectStructure();
 
     bool canUndoTransaction() const { return m_currentTransaction.hasChanges(); }

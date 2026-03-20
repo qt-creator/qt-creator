@@ -23,17 +23,13 @@ void ToolRegistry::registerServer(const QString &serverName, McpClient *client)
         return;
     }
 
+    if (!client->isRunning()) {
+        qWarning() << "Client " << client->clientName() << " not running";
+        return;
+    }
+
     m_registeredServers.insert(serverName);
 
-    // Auto-discover tools when server connects
-    connect(client, &McpClient::connected, this,
-            [this, serverName, client](const McpServerInfo &) {
-        onServerConnected(serverName, client);
-    });
-}
-
-void ToolRegistry::onServerConnected(const QString &serverName, McpClient *client)
-{
     // Request tool list
     qint64 requestId = client->listTools();
     if (requestId < 0) {
@@ -44,14 +40,17 @@ void ToolRegistry::onServerConnected(const QString &serverName, McpClient *clien
     // Connect to response (one-shot)
     connect(client, &McpClient::toolsListed, this,
             [this, serverName](const QList<McpTool> &tools, qint64) {
-        onToolsListed(serverName, tools);
-    }, Qt::SingleShotConnection);
+                addTools(serverName, tools);
+                emit toolsDiscovered(serverName, tools.size());
+            }, Qt::SingleShotConnection);
 }
 
-void ToolRegistry::onToolsListed(const QString &serverName, const QList<McpTool> &tools)
+void ToolRegistry::unregisterServer(const QString &serverName, McpClient *client)
 {
-    addTools(serverName, tools);
-    emit toolsDiscovered(serverName, tools.size());
+    QTC_ASSERT(client, return);
+
+    client->disconnect(this);
+    removeServer(serverName);
 }
 
 void ToolRegistry::addTools(const QString &serverName, const QList<McpTool> &tools)
@@ -188,20 +187,14 @@ void ToolRegistry::removeServer(const QString &serverName)
     const QSet<QString> toolNames = m_serverTools.value(serverName);
 
     // Remove each tool
-    for (const QString &toolName : toolNames) {
+    for (const QString &toolName : toolNames)
         m_tools.remove(toolName);
-    }
 
     // Remove server entry
     m_serverTools.remove(serverName);
     m_registeredServers.remove(serverName);
 
     emit registryUpdated();
-}
-
-QString ToolRegistry::makeToolKey(const QString &serverName, const QString &toolName) const
-{
-    return QString("%1__%2").arg(serverName, toolName);
 }
 
 } // namespace QmlDesigner

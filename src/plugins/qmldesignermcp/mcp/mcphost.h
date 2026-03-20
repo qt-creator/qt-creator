@@ -85,6 +85,9 @@ public:
 
     McpClient *client(const QString &serverName) const;
 
+    void startAll();
+    void stopAll();
+
 signals:
     // Lifecycle / status
     void serverStarting(const QString &serverName);
@@ -126,8 +129,7 @@ private:
     void wireClientSignals(const QString &name, McpClient *client);
     void scheduleRestart(const QString &name);
     void cancelRestart(const QString &name);
-    void startAll();
-    void stopAll();
+
     QPair<QString, QString> getClientInfo(const QString &serverName) const;
 
     // Policy checks

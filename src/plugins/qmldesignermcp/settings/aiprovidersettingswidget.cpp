@@ -3,7 +3,7 @@
 
 #include "aiprovidersettingswidget.h"
 
-#include "aiproviderdata.h"
+#include "aidefaultsettings.h"
 #include "stringlistwidget.h"
 
 #include <componentcore/theme.h>
@@ -46,7 +46,7 @@ void AiProviderSettingsWidget::load()
     setChecked(m_config.isChecked());
     m_apiKeyLineEdit->setText(m_config.apiKey());
 
-    const AiProviderData providerData = AiProviderData::defaultProviderData(m_config.providerName());
+    const AiProviderData providerData = AiDefaultSettings::providerData(m_config.providerName());
 
     QUrl url = m_config.url();
     if (url.isEmpty())
@@ -128,7 +128,7 @@ void AiProviderSettingsWidget::setupUi()
     resetUrlButton->setToolTip(tr("Reset Url"));
     resetUrlButton->setFixedSize(iconSize);
     connect(resetUrlButton, &QAbstractButton::clicked, this, [this] {
-        const AiProviderData providerData = AiProviderData::defaultProviderData(m_config.providerName());
+        const AiProviderData providerData = AiDefaultSettings::providerData(m_config.providerName());
         m_urlLineEdit->setText(providerData.url.toString());
     });
 

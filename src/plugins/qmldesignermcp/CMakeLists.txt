@@ -26,9 +26,12 @@ extend_qtc_plugin(QmlDesignerMcp
   SOURCES_PREFIX settings
   SOURCES
     aiproviderconfig.cpp aiproviderconfig.h
-    aiproviderdata.cpp aiproviderdata.h
+    aidefaultsettings.cpp aidefaultsettings.h
     aiprovidersettings.cpp aiprovidersettings.h
     aiprovidersettingswidget.cpp aiprovidersettingswidget.h
+    mcpserverconfigstore.cpp mcpserverconfigstore.h
+    mcpsettings.cpp mcpsettings.h
+    mcpserversettingswidget.cpp mcpserversettingswidget.h
     stringlistwidget.cpp stringlistwidget.h
 )
 
@@ -48,7 +51,6 @@ extend_qtc_plugin(QmlDesignerMcp
     mcpclient.cpp mcpclient.h
     mcpclientstdio.cpp mcpclientstdio.h
     mcpclienthttp.cpp mcpclienthttp.h
-    mcpconfigloader.cpp mcpconfigloader.h
     mcphost.cpp mcphost.h
     agenticrequestmanager.cpp agenticrequestmanager.h
     conversationmanager.cpp conversationmanager.h

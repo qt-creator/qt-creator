@@ -23,6 +23,11 @@ void AiAssistantView::updateAiModelConfig()
     m_widget->updateModelConfig();
 }
 
+void AiAssistantView::updateMcpConfig()
+{
+    m_widget->updateMcpConfig();
+}
+
 bool AiAssistantView::hasWidget() const
 {
     return true;

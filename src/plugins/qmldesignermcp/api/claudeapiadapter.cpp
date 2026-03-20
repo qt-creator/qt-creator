@@ -5,7 +5,6 @@
 
 #include "agenticrequestmanager.h"
 #include "aiassistantutils.h"
-#include "aiproviderconfig.h"
 #include "airesponse.h"
 
 #include <QFileInfo>

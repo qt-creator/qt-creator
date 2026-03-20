@@ -38,6 +38,11 @@ void McpClient::resetSession()
     m_negotiatedProtocolVersion = QString::fromLatin1(mcpProtocolVersionFallback);
 }
 
+QString McpClient::clientName() const
+{
+    return m_clientName;
+}
+
 qint64 McpClient::initialize()
 {
     QJsonObject params{

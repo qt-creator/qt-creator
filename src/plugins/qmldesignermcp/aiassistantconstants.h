@@ -10,12 +10,16 @@
 namespace QmlDesigner::Constants {
 
 using namespace Qt::StringLiterals;
+
 inline constexpr QByteArrayView aiAssistantProviderKey = "AiAssistant/Provider"_L1;
 inline constexpr QByteArrayView aiAssistantTermsAcceptedKey = "AiAssistant/TermsAccepted"_L1;
 inline constexpr QByteArrayView aiAssistantSelectedModelKey = "AiAssistant/SelectedModel"_L1;
+inline constexpr QByteArrayView aiAssistantMcpServerKey = "AiAssistant/McpServers"_L1;
 
 inline constexpr char aiAssistantSettingsPageCategory[] = "ZW.AiAssistant";
 inline constexpr char aiAssistantSettingsPageId[] = "AiAssistant.A.ProviderSettings";
+inline constexpr char mcpSettingsPageId[] = "AiAssistant.A.McpServerSettings";
+
 inline constexpr char structureResourceUri[] = "qmlproject://structure";
 inline constexpr char qmlServerName[] = "qml_server"; // qml MCP server name
 

@@ -140,6 +140,7 @@ bool McpHost::startServer(const QString &serverName)
     }
     default: {
         qWarning() << __FUNCTION__ << "Invalid protocol";
+        return false;
     }
     }
 
@@ -301,6 +302,9 @@ void McpHost::scheduleRestart(const QString &name)
         t->setSingleShot(true);
         m_restartTimers.insert(name, t);
         connect(t, &QTimer::timeout, this, [this, name] {
+            if (!m_serverConfigs.contains(name))  // server was removed, bail silently
+                return;
+
             // Ensure client isn't already running
             if (auto client = this->client(name); client && client->isRunning())
                 return;

@@ -20,6 +20,7 @@ public:
     ~AiAssistantView() override;
 
     void updateAiModelConfig();
+    void updateMcpConfig();
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;

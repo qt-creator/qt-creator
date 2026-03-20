@@ -4,6 +4,5 @@
         <file>instructions/ai.instructions.md</file>
         <file>images/aiKitIcon.png</file>
         <file>termsandconditions.html</file>
-        <file>mcpconfig.json</file>
     </qresource>
 </RCC>

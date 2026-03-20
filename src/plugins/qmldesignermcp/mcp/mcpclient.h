@@ -73,6 +73,8 @@ public:
         const QJsonObject &params = QJsonObject(),
         ResponseHandler callback = nullptr);
 
+    QString clientName() const;
+
 signals:
     void started();
     void exited(int exitCode, QProcess::ExitStatus status);

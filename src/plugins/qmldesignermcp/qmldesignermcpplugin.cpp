@@ -6,6 +6,7 @@
 #include "aiassistantconstants.h"
 #include "aiassistantview.h"
 #include "aiprovidersettings.h"
+#include "mcpsettings.h"
 
 #include <qmldesignerplugin.h>
 
@@ -26,7 +27,10 @@ Utils::Result<> QmlDesignerMcpPlugin::initialize(const QStringList &arguments)
         Constants::aiAssistantSettingsPageCategory,
         tr("AI Assistant/Mcp"),
         ":/AiAssistant/images/aiKitIcon.png");
-    m_settings = std::make_unique<AiProviderSettings>();
+
+    m_providerSettings = std::make_unique<AiProviderSettings>();
+    m_mcpSettings = std::make_unique<McpSettings>();
+
     return ExtensionSystem::IPlugin::initialize(arguments);
 }
 
@@ -36,7 +40,8 @@ bool QmlDesignerMcpPlugin::delayedInitialize()
         std::make_unique<AiAssistantView>(
             QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
 
-    m_settings->setView(view);
+    m_providerSettings->setView(view);
+    m_mcpSettings->setView(view);
     return true;
 }
 
