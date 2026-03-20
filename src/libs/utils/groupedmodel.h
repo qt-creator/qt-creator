@@ -50,12 +50,12 @@ public:
     const QVariantList &variants() const;
     void setVariants(const QVariantList &items);
 
-    QModelIndex appendVariant(const QVariant &item);
+    int appendVariant(const QVariant &item);
 
     QVariant volatileVariant(int row) const;
     void setVolatileVariant(int row, const QVariant &item);
 
-    QModelIndex appendVolatileVariant(const QVariant &item);
+    int appendVolatileVariant(const QVariant &item);
     const QVariantList &volatileVariants() const;
 
     using Filter = std::function<bool(int)>;
@@ -101,7 +101,7 @@ public:
         return fromVariant(volatileVariant(row));
     }
 
-    QModelIndex appendItem(const ItemType &item)
+    int appendItem(const ItemType &item)
     {
         return appendVariant(toVariant(item));
     }
@@ -126,7 +126,7 @@ public:
         setVolatileVariant(row, toVariant(item));
     }
 
-    QModelIndex appendVolatileItem(const ItemType &item)
+    int appendVolatileItem(const ItemType &item)
     {
         return appendVolatileVariant(toVariant(item));
     }

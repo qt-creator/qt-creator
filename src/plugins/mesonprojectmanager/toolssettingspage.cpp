@@ -151,7 +151,7 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     connect(m_itemSettings, &ToolItemSettings::applyChanges, &m_model, &ToolsModel::updateItem);
 
     connect(addButton, &QPushButton::clicked, this, [this] {
-        m_mesonList->setCurrentIndex(m_model.addMesonTool());
+        m_mesonList->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.addMesonTool(), 0)));
         markSettingsDirty();
     });
     connect(m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
@@ -163,7 +163,7 @@ ToolsSettingsWidget::ToolsSettingsWidget()
 void ToolsSettingsWidget::cloneMesonTool()
 {
     if (m_currentRow >= 0) {
-        m_mesonList->setCurrentIndex(m_model.cloneMesonTool(m_currentRow));
+        m_mesonList->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.cloneMesonTool(m_currentRow), 0)));
         markSettingsDirty();
     }
 }

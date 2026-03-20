@@ -98,7 +98,7 @@ class CMakeToolItemModel final : public TypedGroupedModel<CMakeToolTreeItem>
 public:
     CMakeToolItemModel();
 
-    QModelIndex addCMakeTool(
+    int addCMakeTool(
         const QString &name,
         const FilePath &executable,
         const FilePath &qchFile,
@@ -253,15 +253,14 @@ CMakeToolItemModel::CMakeToolItemModel()
             this, [this](const Id &id) { addCMakeTool(CMakeToolManager::findById(id)); });
 }
 
-QModelIndex CMakeToolItemModel::addCMakeTool(
+int CMakeToolItemModel::addCMakeTool(
     const QString &name,
     const FilePath &executable,
     const FilePath &qchFile,
     const bool autoRun,
     const DetectionSource &detectionSource)
 {
-    return mapFromSource(appendItem(CMakeToolTreeItem(name, executable, qchFile, autoRun,
-                                                     detectionSource)));
+    return appendItem(CMakeToolTreeItem(name, executable, qchFile, autoRun, detectionSource));
 }
 
 void CMakeToolItemModel::addCMakeTool(const CMakeTool *item)
@@ -626,27 +625,23 @@ void CMakeToolConfigWidget::cloneCMakeTool()
         return;
 
     const CMakeToolTreeItem it = m_model.item(row);
-    QModelIndex newItem = m_model.addCMakeTool(
+    m_cmakeToolsView.setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.addCMakeTool(
         Tr::tr("Clone of %1").arg(it.m_name),
         it.m_executable,
         it.m_qchFile,
         it.m_isAutoRun,
-        DetectionSource{DetectionSource::Manual, it.m_detectionSource.id});
-
-    m_cmakeToolsView.setCurrentIndex(newItem);
+        DetectionSource{DetectionSource::Manual, it.m_detectionSource.id}), 0)));
     markSettingsDirty();
 }
 
 void CMakeToolConfigWidget::addCMakeTool()
 {
-    QModelIndex newItem = m_model.addCMakeTool(
+    m_cmakeToolsView.setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.addCMakeTool(
         m_model.uniqueDisplayName(Tr::tr("New CMake")),
         FilePath(),
         FilePath(),
         true,
-        DetectionSource::Manual);
-
-    m_cmakeToolsView.setCurrentIndex(newItem);
+        DetectionSource::Manual), 0)));
     markSettingsDirty();
 }
 

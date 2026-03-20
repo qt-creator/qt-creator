@@ -41,8 +41,8 @@ class ToolsModel final : public Utils::TypedGroupedModel<ToolItem>
 public:
     ToolsModel();
 
-    QModelIndex addMesonTool();
-    QModelIndex cloneMesonTool(int row);
+    int addMesonTool();
+    int cloneMesonTool(int row);
     void updateItem(const Utils::Id &itemId, const QString &name, const Utils::FilePath &exe);
     int rowForId(const Utils::Id &id) const;
     void apply() override;

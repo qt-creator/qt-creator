@@ -491,7 +491,7 @@ void GroupedModel::setVolatileVariant(int row, const QVariant &item)
     m_volatileVariants[row] = item;
 }
 
-QModelIndex GroupedModel::appendVolatileVariant(const QVariant &item)
+int GroupedModel::appendVolatileVariant(const QVariant &item)
 {
     const int row = m_volatileVariants.size();
     beginInsertRows({}, row, row);
@@ -501,10 +501,10 @@ QModelIndex GroupedModel::appendVolatileVariant(const QVariant &item)
     m_changed.append(false);
     m_volatileDefaultFlag.append(false);
     endInsertRows();
-    return mapFromSource(index(row, 0));
+    return row;
 }
 
-QModelIndex GroupedModel::appendVariant(const QVariant &item)
+int GroupedModel::appendVariant(const QVariant &item)
 {
     const int insertPos = m_volatileVariants.size() - m_added.count(true);
     beginInsertRows({}, insertPos, insertPos);
@@ -516,7 +516,7 @@ QModelIndex GroupedModel::appendVariant(const QVariant &item)
     m_volatileDefaultFlag.insert(insertPos, false);
     m_defaultFlag.append(false);
     endInsertRows();
-    return index(insertPos, 0);
+    return insertPos;
 }
 
 void GroupedModel::setVariants(const QVariantList &items)

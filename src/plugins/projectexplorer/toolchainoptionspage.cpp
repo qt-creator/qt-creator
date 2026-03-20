@@ -212,8 +212,8 @@ public:
     explicit ToolchainModel(StackedWidget *widgetStack);
     ~ToolchainModel();
 
-    QModelIndex insertBundle(const ToolchainBundle &bundle, bool changed = false);
-    QModelIndex addBundle(const ToolchainBundle &bundle);
+    int insertBundle(const ToolchainBundle &bundle, bool changed = false);
+    int addBundle(const ToolchainBundle &bundle);
     ToolchainConfigWidget *widget(int row);
     int rowForBundleId(const Id &id) const;
     void markForRemoval(int row);
@@ -252,15 +252,15 @@ ToolchainModel::~ToolchainModel()
     qDeleteAll(m_widgets);
 }
 
-QModelIndex ToolchainModel::insertBundle(const ToolchainBundle &bundle, bool changed)
+int ToolchainModel::insertBundle(const ToolchainBundle &bundle, bool changed)
 {
-    const QModelIndex idx = appendItem(ToolchainTreeItem{bundle});
+    const int row = appendItem(ToolchainTreeItem{bundle});
     if (changed)
-        setChanged(idx.row(), true);
-    return idx;
+        setChanged(row, true);
+    return row;
 }
 
-QModelIndex ToolchainModel::addBundle(const ToolchainBundle &bundle)
+int ToolchainModel::addBundle(const ToolchainBundle &bundle)
 {
     return appendVolatileItem(ToolchainTreeItem{bundle});
 }
@@ -805,8 +805,7 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
     }
 
     const ToolchainBundle bundle(toolchains, ToolchainBundle::HandleMissing::CreateOnly);
-    const QModelIndex displayIdx = m_model.addBundle(bundle);
-    m_toolChainView->setCurrentIndex(displayIdx);
+    m_toolChainView->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.addBundle(bundle), 0)));
     markSettingsDirty();
 }
 
@@ -823,8 +822,7 @@ void ToolChainOptionsWidget::cloneToolchains()
     bundle.setDetectionSource(DetectionSource::Manual);
     bundle.setDisplayName(Tr::tr("Clone of %1").arg(it.bundle->displayName()));
 
-    const QModelIndex displayIdx = m_model.addBundle(bundle);
-    m_toolChainView->setCurrentIndex(displayIdx);
+    m_toolChainView->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.addBundle(bundle), 0)));
     markSettingsDirty();
 }
 

@@ -118,12 +118,12 @@ ToolsModel::ToolsModel()
         appendItem(ToolItem{tool});
 }
 
-QModelIndex ToolsModel::addMesonTool()
+int ToolsModel::addMesonTool()
 {
     return appendVolatileItem(ToolItem{uniqueName(Tr::tr("New Meson"))});
 }
 
-QModelIndex ToolsModel::cloneMesonTool(int row)
+int ToolsModel::cloneMesonTool(int row)
 {
     return appendVolatileItem(item(row).cloned());
 }

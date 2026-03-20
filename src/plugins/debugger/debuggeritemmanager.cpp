@@ -1184,7 +1184,7 @@ void DebuggerSettingsPageWidget::cloneDebugger()
     newItem.reinitializeFromFile();
     newItem.setDetectionSource({DetectionSource::Manual, item.detectionSource().id});
     newItem.setEngineType(item.engineType());
-    m_debuggerView->setCurrentIndex(debuggerModel().appendVolatileItem(newItem));
+    m_debuggerView->setCurrentIndex(debuggerModel().mapFromSource(debuggerModel().index(debuggerModel().appendVolatileItem(newItem), 0)));
     markSettingsDirty();
 }
 
@@ -1194,7 +1194,7 @@ void DebuggerSettingsPageWidget::addDebugger()
     item.createId();
     item.setEngineType(NoEngineType);
     item.setUnexpandedDisplayName(debuggerModel().uniqueDisplayName(Tr::tr("New Debugger")));
-    m_debuggerView->setCurrentIndex(debuggerModel().appendVolatileItem(item));
+    m_debuggerView->setCurrentIndex(debuggerModel().mapFromSource(debuggerModel().index(debuggerModel().appendVolatileItem(item), 0)));
     markSettingsDirty();
 }
 

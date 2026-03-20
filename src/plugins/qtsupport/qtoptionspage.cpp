@@ -763,7 +763,7 @@ void QtSettingsPageWidget::addQtDir()
     if (version) {
         QtVersionItem item(version);
         item.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
-        m_qtdirList->setCurrentIndex(m_model.appendVolatileItem(item));
+        m_qtdirList->setCurrentIndex(m_model.mapFromSource(m_model.index(m_model.appendVolatileItem(item), 0)));
         m_nameEdit->setFocus();
         m_nameEdit->selectAll();
         markSettingsDirty();
