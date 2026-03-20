@@ -72,27 +72,7 @@ public:
 
 Q_DECLARE_METATYPE(ProjectExplorer::Internal::KitData)
 
-namespace ProjectExplorer {
-
-bool KitSettingsSortModel::lessThan(const QModelIndex &source_left,
-                                    const QModelIndex &source_right) const
-{
-    const auto defaultCmp = [&] { return SortModel::lessThan(source_left, source_right); };
-
-    if (m_sortedCategories.isEmpty() || source_left.parent().isValid())
-        return defaultCmp();
-
-    QTC_ASSERT(!source_right.parent().isValid(), return defaultCmp());
-    const int leftIndex = m_sortedCategories.indexOf(sourceModel()->data(source_left));
-    QTC_ASSERT(leftIndex != -1, return defaultCmp());
-    if (leftIndex == 0)
-        return true;
-    const int rightIndex = m_sortedCategories.indexOf(sourceModel()->data(source_right));
-    QTC_ASSERT(rightIndex != -1, return defaultCmp());
-    return leftIndex < rightIndex;
-}
-
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class KitManagerConfigWidget : public QWidget
 {
@@ -1123,7 +1103,7 @@ QModelIndex KitOptionsPageWidget::currentIndex() const
     return idxs.at(0);
 }
 
-// KitOptionsPage
+// KitsSettingsPage
 
 class KitsSettingsPage : public Core::IOptionsPage
 {
@@ -1137,9 +1117,11 @@ public:
     }
 };
 
-const KitsSettingsPage theKitsSettingsPage;
+void setupKitsSettingsPage()
+{
+    static KitsSettingsPage theKitsSettingsPage;
+}
 
-} // Internal
-} // ProjectExplorer
+} // ProjectExplorer::Internal
 
 #include "kitoptionspage.moc"

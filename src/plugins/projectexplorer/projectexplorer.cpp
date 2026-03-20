@@ -19,6 +19,7 @@
 #include "environmentwidget.h"
 #include "extraabi.h"
 #include "gcctoolchain.h"
+#include "kitoptionspage.h"
 #ifdef WITH_JOURNALD
 #include "journaldwatcher.h"
 #endif
@@ -921,6 +922,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     setupProjectTreeWidgetFactory();
 
     setupProjectExplorerSettings();
+    setupKitsSettingsPage();
 
     dd = new ProjectExplorerPluginPrivate;
 

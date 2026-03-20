@@ -3,25 +3,8 @@
 
 #pragma once
 
-#include "projectexplorer_export.h"
+namespace ProjectExplorer::Internal {
 
-#include <utils/treemodel.h>
+void setupKitsSettingsPage();
 
-namespace Utils { class Id; }
-
-namespace ProjectExplorer {
-
-class PROJECTEXPLORER_EXPORT KitSettingsSortModel : public Utils::SortModel
-{
-public:
-    KitSettingsSortModel() = default;
-
-    void setSortedCategories(const QStringList &categories) { m_sortedCategories = categories; }
-
-private:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
-
-    QStringList m_sortedCategories;
-};
-
-} // ProjectExplorer
+} // ProjectExplorer::Internal
