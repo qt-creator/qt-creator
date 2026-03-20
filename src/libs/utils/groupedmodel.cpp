@@ -119,7 +119,6 @@ void GroupedModel::DisplayModel::addSection(const QString &title, const Filter &
     auto model = new FilterModel(filter, this);
     model->setObjectName(title);
     model->setSourceModel(m_base);
-    //model->sort(0);  //  FIXME: Double-check. This sorts alphabetically, which is not wanted for Kits
     m_filters.append(model);
 
     connect(model, &QAbstractItemModel::dataChanged, this, [this, model]
@@ -375,7 +374,6 @@ void GroupedModel::setVolatileDefaultRow(int row)
     m_volatileDefaultFlag.fill(false);
     if (row >= 0)
         m_volatileDefaultFlag[row] = true;
-    onDefaultRowChanged(old, row);
     if (old >= 0 && old < m_volatileVariants.size())
         notifyRowChanged(old);
     if (row >= 0)
@@ -403,12 +401,6 @@ void GroupedModel::setShowDefault(bool on)
 void GroupedModel::setDefaultAffectsDirty(bool on)
 {
     m_defaultAffectsDirty = on;
-}
-
-void GroupedModel::onDefaultRowChanged(int oldRow, int newRow)
-{
-    Q_UNUSED(oldRow)
-    Q_UNUSED(newRow)
 }
 
 void GroupedModel::setChanged(int row, bool changed)

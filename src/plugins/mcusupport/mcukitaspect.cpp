@@ -27,7 +27,7 @@ public:
         : KitAspect(workingCopy, factory)
     {}
 
-    void makeReadOnly() override {}
+    void makeReadOnly(bool) override {}
     void refresh() override {}
     void addToInnerLayout(Layouting::Layout &) override {}
 };

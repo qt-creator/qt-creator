@@ -86,12 +86,12 @@ private:
         layout.addItem(m_mainWidget);
     }
 
-    void makeReadOnly() override
+    void makeReadOnly(bool readOnly) override
     {
         if (m_vslangCheckbox)
-            m_vslangCheckbox->setEnabled(false);
-        m_buildEnvButton->setEnabled(false);
-        m_runEnvButton->setEnabled(false);
+            m_vslangCheckbox->setEnabled(!readOnly);
+        m_buildEnvButton->setEnabled(!readOnly);
+        m_runEnvButton->setEnabled(!readOnly);
     }
 
     void refresh() override

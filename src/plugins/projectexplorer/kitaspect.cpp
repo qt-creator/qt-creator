@@ -239,13 +239,29 @@ void KitAspect::makeStickySubWidgetsReadOnly()
         d->manageButton->setEnabled(false);
 
     d->readOnly = true;
-    makeReadOnly();
+    makeReadOnly(true);
 }
 
-void KitAspect::makeReadOnly()
+void KitAspect::reload()
+{
+    if (d->readOnly) {
+        d->readOnly = false;
+        if (d->manageButton)
+            d->manageButton->setEnabled(true);
+        makeReadOnly(false);
+    }
+    const Id id = factory()->id();
+    if (Kit *k = kit()) {
+        d->mutableAction->setChecked(k->isMutable(id));
+        d->mutableAction->setEnabled(!k->isSticky(id));
+    }
+    refresh();
+}
+
+void KitAspect::makeReadOnly(bool readOnly)
 {
     for (const Private::ListAspect &la : std::as_const(d->listAspects))
-        la.comboBox->setEnabled(false);
+        la.comboBox->setEnabled(!readOnly);
 }
 
 void KitAspect::addToInnerLayout(Layouting::Layout &layout)

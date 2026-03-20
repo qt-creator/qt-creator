@@ -673,7 +673,10 @@ public:
 
 private:
     // KitAspectWidget interface
-    void makeReadOnly() override { m_changeButton->setEnabled(false); }
+    void makeReadOnly(bool readOnly) override
+    {
+        m_changeButton->setEnabled(!readOnly);
+    }
 
     void addToInnerLayout(Layouting::Layout &layout) override
     {
@@ -1194,10 +1197,10 @@ private:
         layout.addItem(m_manageButton);
     }
 
-    void makeReadOnly() override
+    void makeReadOnly(bool readOnly) override
     {
-        m_manageButton->setEnabled(false);
-        if (m_dialog)
+        m_manageButton->setEnabled(!readOnly);
+        if (readOnly && m_dialog)
             m_dialog->reject();
     }
 

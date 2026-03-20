@@ -36,7 +36,10 @@ private:
     void loadTools();
     void setToDefault();
 
-    void makeReadOnly() final { m_toolsComboBox->setEnabled(false); }
+    void makeReadOnly(bool readOnly) final
+    {
+        m_toolsComboBox->setEnabled(!readOnly && m_toolsComboBox->count() > 0);
+    }
 
     void addToInnerLayout(Layouting::Layout &layout) final
     {

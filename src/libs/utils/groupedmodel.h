@@ -68,7 +68,6 @@ protected:
     void setDefaultRow(int row);
     void setShowDefault(bool on);
     void setDefaultAffectsDirty(bool on);
-    virtual void onDefaultRowChanged(int oldRow, int newRow);
 
 private:
     virtual QVariant variantData(const QVariant &item, int column, int role) const = 0;

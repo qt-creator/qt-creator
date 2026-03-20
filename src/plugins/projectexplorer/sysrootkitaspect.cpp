@@ -35,7 +35,7 @@ public:
     ~SysRootKitAspectImpl() override { delete m_chooser; }
 
 private:
-    void makeReadOnly() override { m_chooser->setReadOnly(true); }
+    void makeReadOnly(bool readOnly) override { m_chooser->setReadOnly(readOnly); }
 
     void addToInnerLayout(Layouting::Layout &layout) override
     {

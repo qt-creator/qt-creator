@@ -50,7 +50,7 @@ private:
         layout.addItem(m_lineEdit);
     }
 
-    void makeReadOnly() override { m_lineEdit->setEnabled(false); }
+    void makeReadOnly(bool readOnly) override { m_lineEdit->setEnabled(!readOnly); }
 
     void refresh() override
     {

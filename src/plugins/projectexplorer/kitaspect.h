@@ -224,6 +224,7 @@ public:
     QList<KitAspect *> aspectsToEmbed() const;
 
     void makeStickySubWidgetsReadOnly();
+    void reload();
 
     // For layouting purposes only.
     QList<QComboBox *> comboBoxes() const;
@@ -231,7 +232,7 @@ public:
     virtual void addToInnerLayout(Layouting::Layout &layout);
 
 protected:
-    virtual void makeReadOnly();
+    virtual void makeReadOnly(bool readOnly);
     virtual Utils::Id settingsPageItemToPreselect() const { return {}; }
 
     void addLabelToLayout(Layouting::Layout &layout);

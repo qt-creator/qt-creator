@@ -32,7 +32,7 @@ public:
     }
 
 private:
-    void makeReadOnly() override { m_changeButton->setEnabled(false); }
+    void makeReadOnly(bool readOnly) override { m_changeButton->setEnabled(!readOnly); }
     void refresh() override { m_contentLabel->setText(QbsKitAspect::representation(kit())); }
 
     void addToInnerLayout(Layouting::Layout &layout) override
