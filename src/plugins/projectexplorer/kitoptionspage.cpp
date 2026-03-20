@@ -32,7 +32,6 @@
 #include <QApplication>
 #include <QHash>
 #include <QHeaderView>
-#include <QItemSelectionModel>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -742,10 +741,9 @@ class KitOptionsPageWidget : public Core::IOptionsPageWidget
 public:
     KitOptionsPageWidget();
 
-    QModelIndex currentIndex() const;
     Kit *currentKit() const;
 
-    void kitSelectionChanged();
+    void kitSelectionChanged(int oldRow, int newRow);
     void addNewKit();
     void cloneKit();
     void removeKit();
@@ -756,20 +754,7 @@ public:
 
     void apply() final;
 
-    int mapToRow(const QModelIndex &viewIdx) const
-    {
-        return m_model.mapToSource(viewIdx).row();
-    }
-
-    QModelIndex mapFromRow(int row) const
-    {
-        if (row < 0)
-            return {};
-        return m_model.mapFromSource(m_model.index(row, 0));
-    }
-
 public:
-    QTreeView m_kitsView;
     QPushButton m_addButton;
     QPushButton m_cloneButton;
     QPushButton m_delButton;
@@ -778,17 +763,18 @@ public:
     QPushButton m_defaultFilterButton;
 
     KitModel m_model;
-
-    int m_currentRow = -1;
+    GroupedView m_groupedView{m_model};
     KitManagerConfigWidget m_configWidget;
 };
 
 KitOptionsPageWidget::KitOptionsPageWidget()
 {
-    m_kitsView.setUniformRowHeights(true);
-    m_kitsView.header()->setStretchLastSection(true);
-    m_kitsView.setSizePolicy(m_kitsView.sizePolicy().horizontalPolicy(),
-                              QSizePolicy::Ignored);
+    m_groupedView.view().header()->setStretchLastSection(true);
+    m_groupedView.view().setSizePolicy(m_groupedView.view().sizePolicy().horizontalPolicy(),
+                                       QSizePolicy::Ignored);
+    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_groupedView.view().setSortingEnabled(true);
+    m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
 
     m_addButton.setText(Tr::tr("Add"));
     m_cloneButton.setText(Tr::tr("Clone"));
@@ -802,19 +788,10 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     connect(&m_model, &Internal::KitModel::kitStateChanged,
             this, &KitOptionsPageWidget::updateState);
 
-    m_kitsView.setModel(m_model.groupedDisplayModel());
-    m_kitsView.header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    m_kitsView.expandAll();
-    m_kitsView.setSortingEnabled(true);
-    m_kitsView.sortByColumn(0, Qt::AscendingOrder);
-
-    connect(m_model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
-            &m_kitsView, &QTreeView::expandAll);
-
     using namespace Layouting;
     Column {
         Row {
-            m_kitsView,
+            m_groupedView.view(),
             Column {
                 noMargin,
                 m_addButton,
@@ -831,7 +808,7 @@ KitOptionsPageWidget::KitOptionsPageWidget()
 
     layout()->addWidget(&m_configWidget);
 
-    connect(m_kitsView.selectionModel(), &QItemSelectionModel::selectionChanged,
+    connect(&m_groupedView, &GroupedView::currentRowChanged,
             this, &KitOptionsPageWidget::kitSelectionChanged);
     connect(KitManager::instance(), &KitManager::kitAdded,
             this, &KitOptionsPageWidget::updateState);
@@ -839,8 +816,9 @@ KitOptionsPageWidget::KitOptionsPageWidget()
             this, &KitOptionsPageWidget::updateState);
     connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
         const int row = m_model.rowForOriginalKit(k);
-        if (row == m_currentRow && m_currentRow >= 0) {
-            const KitData d = m_model.item(m_currentRow);
+        const int currentRow = m_groupedView.currentRow();
+        if (row == currentRow && currentRow >= 0) {
+            const KitData d = m_model.item(currentRow);
             m_configWidget.load(d.kit, d.workingCopy, d.hasUniqueName);
             emit m_configWidget.isAutoDetectedChanged();
         }
@@ -849,18 +827,20 @@ KitOptionsPageWidget::KitOptionsPageWidget()
 
     // Connect the dirty signal: sync working copy and update model display
     connect(&m_configWidget, &KitManagerConfigWidget::dirty, this, [this] {
-        if (m_currentRow < 0)
+        const int currentRow = m_groupedView.currentRow();
+        if (currentRow < 0)
             return;
-        Kit *wc = m_model.workingCopyForRow(m_currentRow);
+        Kit *wc = m_model.workingCopyForRow(currentRow);
         if (wc)
             wc->copyFrom(m_configWidget.workingCopy());
-        m_model.setChanged(m_currentRow, true);
-        m_model.notifyRowChanged(m_currentRow);
+        m_model.setChanged(currentRow, true);
+        m_model.notifyRowChanged(currentRow);
         markSettingsDirty();
     });
     connect(&m_configWidget, &KitManagerConfigWidget::isAutoDetectedChanged, this, [this] {
-        if (m_currentRow >= 0)
-            m_model.notifyRowChanged(m_currentRow);
+        const int currentRow = m_groupedView.currentRow();
+        if (currentRow >= 0)
+            m_model.notifyRowChanged(currentRow);
     });
 
     connect(&m_addButton, &QAbstractButton::clicked,
@@ -872,7 +852,7 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     connect(&m_makeDefaultButton, &QAbstractButton::clicked,
             this, &KitOptionsPageWidget::makeDefaultKit);
     connect(&m_filterButton, &QAbstractButton::clicked, this, [this] {
-        QTC_ASSERT(m_currentRow >= 0, return);
+        QTC_ASSERT(m_groupedView.currentRow() >= 0, return);
         FilterKitAspectsDialog dlg(m_configWidget.workingCopy(), this);
         if (dlg.exec() == QDialog::Accepted) {
             m_configWidget.workingCopy()->setIrrelevantAspects(dlg.irrelevantAspects());
@@ -896,63 +876,50 @@ void KitOptionsPageWidget::scrollToSelectedKit()
 {
     const int row = m_model.rowForId(
         Core::preselectedOptionsPageItem(Constants::KITS_SETTINGS_PAGE_ID));
-    QModelIndex index = mapFromRow(row);
-    m_kitsView.selectionModel()->select(index, QItemSelectionModel::Clear
-                                             | QItemSelectionModel::SelectCurrent
-                                             | QItemSelectionModel::Rows);
-    m_kitsView.scrollTo(index);
+    m_groupedView.selectRow(row);
+    m_groupedView.scrollToRow(row);
 }
 
 void KitOptionsPageWidget::apply()
 {
-    if (m_currentRow >= 0) {
-        Kit *wc = m_model.workingCopyForRow(m_currentRow);
+    const int currentRow = m_groupedView.currentRow();
+    if (currentRow >= 0) {
+        Kit *wc = m_model.workingCopyForRow(currentRow);
         if (wc)
             m_configWidget.save(wc);
     }
 
     // Remember the working copy before apply; nullptr if the kit is marked for removal
     // Its unique_ptr will be destroyed during apply, making the pointer dangling.
-    Kit *const prevWc = (m_currentRow >= 0 && !m_model.isRemoved(m_currentRow))
-                        ? m_model.workingCopyForRow(m_currentRow) : nullptr;
+    Kit *const prevWc = (currentRow >= 0 && !m_model.isRemoved(currentRow))
+                        ? m_model.workingCopyForRow(currentRow) : nullptr;
 
     m_model.apply();
 
-    // QItemSelectionModel::reset() suppresses selectionChanged; re-sync explicitly.
-    m_currentRow = -1;
+    // GroupedView::selectRow triggers currentRowChanged which loads the kit.
     const int newRow = prevWc ? m_model.rowForKit(prevWc) : -1;
     if (newRow >= 0) {
-        const QModelIndex idx = mapFromRow(newRow);
-        m_kitsView.selectionModel()->select(idx, QItemSelectionModel::Clear
-                                                | QItemSelectionModel::SelectCurrent
-                                                | QItemSelectionModel::Rows);
-        // kitSelectionChanged() is triggered from select() and loads the kit.
+        m_groupedView.selectRow(newRow);
     } else {
         m_configWidget.setVisible(false);
         updateState();
     }
 }
 
-void KitOptionsPageWidget::kitSelectionChanged()
+void KitOptionsPageWidget::kitSelectionChanged(int oldRow, int newRow)
 {
-    const int newRow = mapToRow(currentIndex());
-    if (newRow == m_currentRow)
-        return;
-
     // Save current widget state to working copy before switching
-    if (m_currentRow >= 0) {
-        Kit *wc = m_model.workingCopyForRow(m_currentRow);
+    if (oldRow >= 0) {
+        Kit *wc = m_model.workingCopyForRow(oldRow);
         if (wc)
             m_configWidget.save(wc);
     }
 
-    m_currentRow = newRow;
-
-    if (m_currentRow >= 0) {
-        const KitData d = m_model.item(m_currentRow);
+    if (newRow >= 0) {
+        const KitData d = m_model.item(newRow);
         m_configWidget.load(d.kit, d.workingCopy, d.hasUniqueName);
         m_configWidget.setVisible(true);
-        m_kitsView.scrollTo(currentIndex());
+        m_groupedView.scrollToRow(newRow);
     } else {
         m_configWidget.setVisible(false);
     }
@@ -965,12 +932,9 @@ void KitOptionsPageWidget::addNewKit()
     Kit *k = m_model.markForAddition(nullptr);
 
     const int row = m_model.rowForKit(k);
-    QModelIndex newIdx = mapFromRow(row);
-    m_kitsView.selectionModel()->select(newIdx, QItemSelectionModel::Clear
-                                              | QItemSelectionModel::SelectCurrent
-                                              | QItemSelectionModel::Rows);
+    m_groupedView.selectRow(row);
 
-    if (m_currentRow >= 0)
+    if (m_groupedView.currentRow() >= 0)
         m_configWidget.setFocusToName();
 
     markSettingsDirty();
@@ -978,7 +942,7 @@ void KitOptionsPageWidget::addNewKit()
 
 Kit *KitOptionsPageWidget::currentKit() const
 {
-    const int row = mapToRow(currentIndex());
+    const int row = m_groupedView.currentRow();
     return row >= 0 ? m_model.workingCopyForRow(row) : nullptr;
 }
 
@@ -990,13 +954,10 @@ void KitOptionsPageWidget::cloneKit()
 
     Kit *k = m_model.markForAddition(current);
     const int row = m_model.rowForKit(k);
-    QModelIndex newIdx = mapFromRow(row);
-    m_kitsView.scrollTo(newIdx);
-    m_kitsView.selectionModel()->select(newIdx, QItemSelectionModel::Clear
-                                              | QItemSelectionModel::SelectCurrent
-                                              | QItemSelectionModel::Rows);
+    m_groupedView.scrollToRow(row);
+    m_groupedView.selectRow(row);
 
-    if (m_currentRow >= 0)
+    if (m_groupedView.currentRow() >= 0)
         m_configWidget.setFocusToName();
 
     markSettingsDirty();
@@ -1012,7 +973,7 @@ void KitOptionsPageWidget::removeKit()
 
 void KitOptionsPageWidget::makeDefaultKit()
 {
-    m_model.setVolatileDefaultRow(mapToRow(currentIndex()));
+    m_model.setVolatileDefaultRow(m_groupedView.currentRow());
     updateState();
 
     markSettingsDirty();
@@ -1035,14 +996,6 @@ void KitOptionsPageWidget::updateState()
     m_delButton.setEnabled(canDelete);
     m_makeDefaultButton.setEnabled(canMakeDefault);
     m_filterButton.setEnabled(canCopy);
-}
-
-QModelIndex KitOptionsPageWidget::currentIndex() const
-{
-    QModelIndexList idxs = m_kitsView.selectionModel()->selectedRows();
-    if (idxs.count() != 1)
-        return {};
-    return idxs.at(0);
 }
 
 // KitsSettingsPage
