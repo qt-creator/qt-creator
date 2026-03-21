@@ -2035,11 +2035,11 @@ QString FilePath::relativeNativePathFromDir(const FilePath &anchorDir) const
 FilePath FilePath::withNewMappedPath(const FilePath &newPath) const
 {
     Result<DeviceFileAccessPtr> access = fileAccess();
-    if (!access)
-        return {};
+    const QString path = access ? (*access)->mapToDevicePath(newPath.path())
+                                : newPath.path();
 
     FilePath res;
-    res.setParts(scheme(), host(), (*access)->mapToDevicePath(newPath.path()));
+    res.setParts(scheme(), host(), path);
     return res;
 }
 
