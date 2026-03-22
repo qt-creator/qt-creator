@@ -68,7 +68,12 @@ void FileDownloader::start()
     QString tempFileName = QDir::tempPath() + "/.qds_" + uniqueText + "_download_" + url().fileName();
 
     m_outputFile.setFileName(tempFileName);
-    m_outputFile.open(QIODevice::WriteOnly);
+    if (!m_outputFile.open(QIODevice::WriteOnly)) {
+        qWarning() << Q_FUNC_INFO << "Failed to open temporary download file"
+                   << m_outputFile.fileName() << m_outputFile.errorString();
+        emit downloadFailed();
+        return;
+    }
 
     QNetworkRequest request = makeRequest();
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);

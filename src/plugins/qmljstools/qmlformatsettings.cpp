@@ -168,7 +168,8 @@ QmlFormatProcess::QmlFormatProcess()
     : m_logFile("qmlformat.qtc.log")
 {
     m_logFile.setAutoRemove(false);
-    m_logFile.open();
+    if (!m_logFile.open())
+        qCWarning(qmlformatlog) << "Failed to open qmlformat log file:" << m_logFile.fileName();
     m_process = new Process;
     m_process->setProcessMode(ProcessMode::Writer);
     connect (m_process, &Process::done, [this] {

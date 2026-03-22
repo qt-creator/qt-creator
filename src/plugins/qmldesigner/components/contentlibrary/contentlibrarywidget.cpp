@@ -425,7 +425,11 @@ QStringList ContentLibraryWidget::saveNewTextures(const QDir &bundleDir, const Q
 
     QFile jsonFile(newFilesPath);
     if (jsonFile.exists()) {
-        jsonFile.open(QFile::ReadOnly | QFile::Text);
+        if (!jsonFile.open(QFile::ReadOnly | QFile::Text)) {
+            qWarning() << "Failed to open texture metadata file for reading:"
+                       << jsonFile.fileName() << jsonFile.errorString();
+            return newFiles;
+        }
 
         qint64 now = QDateTime::currentSecsSinceEpoch();
         QByteArray existingData = jsonFile.readAll();
@@ -485,7 +489,11 @@ QStringList ContentLibraryWidget::saveNewTextures(const QDir &bundleDir, const Q
         doc.setObject(mainObj);
         QByteArray data = doc.toJson();
 
-        jsonFile.open(QFile::WriteOnly | QFile::Text);
+        if (!jsonFile.open(QFile::WriteOnly | QFile::Text)) {
+            qWarning() << "Failed to open texture metadata file for writing:"
+                       << jsonFile.fileName() << jsonFile.errorString();
+            return newFilesNow + pruned;
+        }
         jsonFile.write(data);
         jsonFile.close();
 
@@ -508,7 +516,11 @@ QStringList ContentLibraryWidget::saveNewTextures(const QDir &bundleDir, const Q
         QJsonDocument doc(mainObj);
         QByteArray data = doc.toJson();
 
-        jsonFile.open(QFile::WriteOnly | QFile::Text);
+        if (!jsonFile.open(QFile::WriteOnly | QFile::Text)) {
+            qWarning() << "Failed to create texture metadata file:"
+                       << jsonFile.fileName() << jsonFile.errorString();
+            return newFiles;
+        }
         jsonFile.write(data);
         jsonFile.close();
 
