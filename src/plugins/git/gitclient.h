@@ -394,6 +394,19 @@ public:
     void readConfigAsync(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                          const VcsBase::CommandHandler &handler);
 
+    QtTaskTree::ExecutableItem commandTask(const VcsBase::VcsCommandData &data) const;
+    void enqueueCommand(const VcsBase::VcsCommandData &data);
+    VcsBase::CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
+                                              const QStringList &args,
+                                              VcsBase::RunFlags flags = VcsBase::RunFlag::None,
+                                              int timeoutS = -1,
+                                              const Utils::TextEncoding &encoding = {}) const;
+    VcsBase::CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
+                                              const Utils::CommandLine &cmdLine,
+                                              VcsBase::RunFlags flags = VcsBase::RunFlag::None,
+                                              int timeoutS = -1,
+                                              const Utils::TextEncoding &encoding = {}) const;
+
     static QString styleColorName(TextEditor::TextStyle style);
     static ColorNames colorNames();
 

@@ -87,6 +87,11 @@ using namespace VcsBase;
 
 namespace Git::Internal {
 
+static QStringList defaultArguments()
+{
+    return {"-c", "core.quotepath=false"};
+}
+
 static QString branchesDisplay(const QString &prefix, QStringList *branches, bool *first)
 {
     const int limit = 12;
@@ -312,7 +317,7 @@ QStringList GitBaseDiffEditorController::addConfigurationArguments(const QString
 {
     QTC_ASSERT(!args.isEmpty(), return args);
 
-    QStringList realArgs = {
+    QStringList realArgs = defaultArguments() + QStringList{
         "-c",
         "diff.color=false",
         args.at(0),
@@ -3787,6 +3792,40 @@ void GitClient::readConfigAsync(const FilePath &workingDirectory, const QStringL
 {
     enqueueCommand({workingDirectory, arguments, RunFlag::NoOutput, {}, configFileEncoding(),
                     handler});
+}
+
+ExecutableItem GitClient::commandTask(const VcsBase::VcsCommandData &data) const
+{
+    VcsCommandData newData = data;
+    newData.arguments = defaultArguments() + data.arguments;
+    return VcsBaseClientImpl::commandTask(newData);
+}
+
+void GitClient::enqueueCommand(const VcsCommandData &data)
+{
+    VcsCommandData newData = data;
+    newData.arguments = defaultArguments() + data.arguments;
+    VcsBaseClientImpl::enqueueCommand(newData);
+}
+
+CommandResult GitClient::vcsSynchronousExec(const FilePath &workingDir,
+                                            const QStringList &args,
+                                            RunFlags flags,
+                                            int timeoutS,
+                                            const TextEncoding &encoding) const
+{
+    const QStringList newArgs = defaultArguments() + args;
+    return VcsBaseClientImpl::vcsSynchronousExec(workingDir, newArgs, flags, timeoutS, encoding);
+}
+
+CommandResult GitClient::vcsSynchronousExec(const FilePath &workingDir,
+                                            const CommandLine &cmdLine,
+                                            VcsBase::RunFlags flags,
+                                            int timeoutS,
+                                            const TextEncoding &encoding) const
+{
+    // Pass-through implementation
+    return VcsBaseClientImpl::vcsSynchronousExec(workingDir, cmdLine, flags, timeoutS, encoding);
 }
 
 QString GitClient::styleColorName(TextEditor::TextStyle style)
