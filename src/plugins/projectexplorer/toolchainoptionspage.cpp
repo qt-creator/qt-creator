@@ -289,7 +289,7 @@ public:
                 [this] {
             QList<ToolchainTreeItem *> itemsToRemove;
             m_model.forAllItems([&itemsToRemove, this](TreeItem *item) {
-                if (item->level() != 3)
+                if (item->level() != 2)
                     return;
                 if (!mapFromSource(m_model.indexForItem(item)).isValid())
                     return;
@@ -563,7 +563,7 @@ void ToolChainOptionsWidget::redetectToolchains()
 
     // Step 1: All previously auto-detected items are candidates for removal.
     m_model.forAllItems([&](TreeItem *item) {
-        if (item->level() != 3)
+        if (item->level() != 2)
             return;
         if (!mapFromSource(m_model.indexForItem(item)).isValid())
             return;
