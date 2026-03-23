@@ -9,6 +9,7 @@
 #include "coreplugintr.h"
 #include "documentmanager.h"
 #include "editormanager/editormanager.h"
+#include "editormanager/editormanager_p.h"
 #include "editormanager/ieditor.h"
 #include "fileutils.h"
 #include "icontext.h"
@@ -728,20 +729,12 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     // Open current item
     const QModelIndex current = m_sortProxyModel->mapToSource(m_listView->currentIndex());
     const bool hasCurrentItem = current.isValid();
-    QAction *actionOpenFile = nullptr;
     QAction *newFolder = nullptr;
     QAction *removeFolder = nullptr;
     const bool isDir = m_fileSystemModel->isDir(current);
     const FilePath filePath = hasCurrentItem ? FilePath::fromString(
                                                           m_fileSystemModel->filePath(current))
                                              : FilePath();
-    if (hasCurrentItem) {
-        if (!isDir)
-            actionOpenFile = menu.addAction(Tr::tr("Open \"%1\"").arg(filePath.toUserOutput()));
-        emit m_instance->aboutToShowContextMenu(&menu, filePath, isDir);
-    }
-
-    menu.addSeparator();
     EditorManager::addContextMenuActions(&menu, filePath);
     menu.addSeparator();
 
@@ -765,9 +758,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         return;
 
     ev->accept();
-    if (action == actionOpenFile) {
-        openItem(current);
-    } else if (action == newFolder) {
+    if (action == newFolder) {
         if (isDir)
             createNewFolder(current);
         else

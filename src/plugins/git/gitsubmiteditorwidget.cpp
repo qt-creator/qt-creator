@@ -301,9 +301,8 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
                 emit fileActionRequested(filePath, action);
             });
         };
-    addAction(Tr::tr("Open \"%1\""), IVersionControl::FileOpenEditor);
-    menu->addSeparator();
     addAction(Tr::tr("Copy \"%1\""), IVersionControl::FileCopyClipboard);
+    menu->addSeparator();
     EditorManager::addContextMenuActions(menu, fullFilePath, EditorManager::HideVersionControl);
     menu->addSeparator();
     addAction(Tr::tr("Diff \"%1\""), IVersionControl::FileDiff);

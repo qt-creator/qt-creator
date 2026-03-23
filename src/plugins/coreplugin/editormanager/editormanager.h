@@ -139,19 +139,17 @@ public:
     static void setSessionTitleHandler(WindowTitleHandler handler);
     static void setWindowTitleVcsTopicHandler(WindowTitleHandler handler);
 
-    static void addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry,
-                                             IEditor *editor = nullptr);
-    static void addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
-    static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
-    static void addContextMenuActions(
-        QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor = nullptr);
-    enum ContextMenuFlag {
-        DefaultContextMenu = 0,
-        HideVersionControl = 1
-    };
+    enum ContextMenuFlag { DefaultContextMenu = 0, HideVersionControl = 1, ShowEditorActions = 2 };
     Q_DECLARE_FLAGS(ContextMenuFlags, ContextMenuFlag);
-    static void addContextMenuActions(QMenu *contextMenu, const Utils::FilePath &filePath,
-                                      ContextMenuFlags flags = DefaultContextMenu);
+    static void addContextMenuActions(
+        QMenu *contextMenu,
+        DocumentModel::Entry *entry,
+        IEditor *editor = nullptr,
+        ContextMenuFlags flags = DefaultContextMenu);
+    static void addContextMenuActions(
+        QMenu *contextMenu,
+        const Utils::FilePath &filePath,
+        ContextMenuFlags flags = DefaultContextMenu);
     static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
 
     static void runWithTemporaryEditor(const Utils::FilePath &filePath,
@@ -179,6 +177,11 @@ signals:
     void saved(Core::IDocument *document, Core::IDocument::SaveOption option);
     void autoSaved();
     void currentEditorAboutToChange(Core::IEditor *editor);
+
+    void aboutToShowContextMenu(
+        QMenu *contextMenu,
+        const Utils::FilePath &filePath,
+        const QHash<Utils::Id, QAction *> &insertionPoints);
 
 #ifdef WITH_TESTS
     void linkOpened();

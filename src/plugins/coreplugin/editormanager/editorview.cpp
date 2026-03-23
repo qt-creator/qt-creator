@@ -284,7 +284,8 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
                 return;
             const auto data = m_tabBar->tabData(index).value<TabData>();
             QMenu menu;
-            EditorManagerPrivate::addContextMenuActions(&menu, data.entry, data.editor, this);
+            EditorManagerPrivate::addContextMenuActions(
+                &menu, data.entry, data.editor, this, EditorManager::ShowEditorActions);
             menu.exec(m_tabBar->mapToGlobal(pos));
         },
         Qt::QueuedConnection);
@@ -769,7 +770,8 @@ void EditorView::fillListContextMenu(QMenu *menu)
     IEditor *editor = currentEditor();
     DocumentModel::Entry *entry = editor ? DocumentModel::entryForDocument(editor->document())
                                          : nullptr;
-    EditorManagerPrivate::addContextMenuActions(menu, entry, editor, this);
+    EditorManagerPrivate::addContextMenuActions(
+        menu, entry, editor, this, EditorManager::ShowEditorActions);
 }
 
 void EditorView::splitHorizontally()

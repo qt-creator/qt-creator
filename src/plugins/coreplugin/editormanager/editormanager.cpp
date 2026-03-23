@@ -3022,16 +3022,6 @@ static void assignAction(QAction *self, QAction *other)
     self->setIconVisibleInMenu(other->isIconVisibleInMenu());
 }
 
-/*!
-    Adds save, close and other editor context menu items for the document
-    \a entry and editor \a editor to the context menu \a contextMenu.
-*/
-void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry,
-                                                 IEditor *editor)
-{
-    EditorManagerPrivate::addSaveAndCloseEditorActions(contextMenu, entry, editor);
-}
-
 void EditorManagerPrivate::addCopyFilePathActions(
     QMenu *contextMenu, const Utils::FilePath &filePath, Core::IEditor *editor)
 {
@@ -3066,7 +3056,11 @@ void EditorManagerPrivate::addCopyFilePathActions(
 }
 
 void EditorManagerPrivate::addSaveAndCloseEditorActions(
-    QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor, EditorView *view)
+    QMenu *contextMenu,
+    const FilePath &filePath,
+    DocumentModel::Entry *entry,
+    IEditor *editor,
+    EditorView *view)
 {
     QTC_ASSERT(contextMenu, return);
 
@@ -3074,11 +3068,7 @@ void EditorManagerPrivate::addSaveAndCloseEditorActions(
     QPointer<IEditor> contextEditor = editor;
     QPointer<EditorView> contextView = view;
 
-    const FilePath filePath = filePathFor(entry, editor);
-
-    addCopyFilePathActions(contextMenu, filePath, editor);
-
-    contextMenu->addSeparator();
+    QTC_CHECK(!contextDocument || contextDocument->filePath() == filePath);
 
     // Save
     QAction *save = addMenuAction(contextMenu, "" /* set below */, true, d, [contextDocument] {
@@ -3183,7 +3173,7 @@ void EditorManagerPrivate::addSaveAndCloseEditorActions(
     Adds the pin editor menu items for the document \a entry to the context menu
     \a contextMenu.
 */
-void EditorManager::addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry)
+void EditorManagerPrivate::addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry)
 {
     const QString quotedDisplayName = entry ? Utils::quoteAmpersands(entry->displayName()) : QString();
     QString text;
@@ -3196,15 +3186,6 @@ void EditorManager::addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry
     addMenuAction(contextMenu, text, entry != nullptr, DocumentModel::model(), [entry] {
         DocumentModelPrivate::setPinned(entry, !entry->pinned);
     });
-}
-
-/*!
-    Adds the native directory handling and open with menu items for the document
-    \a entry to the context menu \a contextMenu.
-*/
-void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry)
-{
-    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePathFor(entry));
 }
 
 QAction *EditorManager::createDiffAgainstCurrentFileAction(
@@ -3274,35 +3255,68 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
 
     // Open With
     QMenu *openWith = contextMenu->addMenu(::Core::Tr::tr("Open With"));
-    openWith->setEnabled(enabled);
-    if (enabled)
+    const bool openWithEnabled = enabled && !filePath.isDir();
+    openWith->setEnabled(openWithEnabled);
+    if (openWithEnabled)
         populateOpenWithMenu(openWith, filePath, view);
 }
 
 void EditorManager::addContextMenuActions(
-    QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor)
+    QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor, ContextMenuFlags flags)
 {
-    EditorManagerPrivate::addContextMenuActions(contextMenu, entry, editor);
+    EditorManagerPrivate::addContextMenuActions(contextMenu, entry, editor, {}, flags);
 }
 
 void EditorManager::addContextMenuActions(QMenu *contextMenu,
                                           const Utils::FilePath &filePath,
                                           ContextMenuFlags flags)
 {
-    EditorManagerPrivate::addCopyFilePathActions(contextMenu, filePath);
-    contextMenu->addSeparator();
-    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePath, nullptr, flags);
+    DocumentModel::Entry *entry = DocumentModel::entryForFilePath(filePath);
+    EditorManagerPrivate::addContextMenuActions(contextMenu, filePath, entry, {}, {}, flags);
 }
 
 void EditorManagerPrivate::addContextMenuActions(
-    QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor, EditorView *view)
+    QMenu *contextMenu,
+    DocumentModel::Entry *entry,
+    IEditor *editor,
+    EditorView *view,
+    Core::EditorManager::ContextMenuFlags flags)
 {
-    EditorManagerPrivate::addSaveAndCloseEditorActions(contextMenu, entry, editor, view);
+    addContextMenuActions(contextMenu, filePathFor(entry, editor), entry, editor, view, flags);
+}
+
+void EditorManagerPrivate::addContextMenuActions(
+    QMenu *contextMenu,
+    const Utils::FilePath &filePath,
+    DocumentModel::Entry *entry,
+    IEditor *editor,
+    EditorView *view,
+    Core::EditorManager::ContextMenuFlags flags)
+{
+    QHash<Id, QAction *> insertionPoints;
+    if (!flags.testFlag(EditorManager::ShowEditorActions) && !filePath.isEmpty()
+        && !filePath.isDir()) {
+        addMenuAction(
+            contextMenu,
+            Tr::tr("Open \"%1\"").arg(filePath.fileName()),
+            true,
+            m_instance,
+            [filePath] {
+                EditorManager::openEditor(filePath, {}, EditorManager::AllowExternalEditor);
+            });
+    }
+    QAction *sep = contextMenu->addSeparator();
+    insertionPoints.insert("OpenProject", sep);
+    addCopyFilePathActions(contextMenu, filePath, editor);
     contextMenu->addSeparator();
-    EditorManager::addPinEditorActions(contextMenu, entry);
-    contextMenu->addSeparator();
-    EditorManagerPrivate::addNativeDirAndOpenWithActions(
-        contextMenu, filePathFor(entry, editor), view);
+    if (flags.testFlag(EditorManager::ShowEditorActions)) {
+        EditorManagerPrivate::addSaveAndCloseEditorActions(contextMenu, filePath, entry, editor, view);
+        contextMenu->addSeparator();
+        EditorManagerPrivate::addPinEditorActions(contextMenu, entry);
+        contextMenu->addSeparator();
+    }
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePath, view, flags);
+    emit m_instance->aboutToShowContextMenu(contextMenu, filePath, insertionPoints);
 }
 
 /*!

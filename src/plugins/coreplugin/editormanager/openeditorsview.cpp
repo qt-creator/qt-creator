@@ -164,7 +164,7 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
     QModelIndex editorIndex = indexAt(pos);
     const int row = m_model->mapToSource(editorIndex).row();
     DocumentModel::Entry *entry = DocumentModel::entryAtRow(row);
-    EditorManager::addContextMenuActions(&contextMenu, entry);
+    EditorManager::addContextMenuActions(&contextMenu, entry, {}, EditorManager::ShowEditorActions);
     contextMenu.exec(mapToGlobal(pos));
 }
 

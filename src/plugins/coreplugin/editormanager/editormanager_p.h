@@ -147,7 +147,15 @@ public:
         QMenu *contextMenu,
         DocumentModel::Entry *entry,
         IEditor *editor,
-        EditorView *view = nullptr);
+        EditorView *view = nullptr,
+        EditorManager::ContextMenuFlags flags = EditorManager::DefaultContextMenu);
+    static void addContextMenuActions(
+        QMenu *contextMenu,
+        const Utils::FilePath &filePath,
+        DocumentModel::Entry *entry,
+        IEditor *editor = nullptr,
+        EditorView *view = nullptr,
+        EditorManager::ContextMenuFlags flags = EditorManager::DefaultContextMenu);
 
 public slots:
     static bool saveDocument(
@@ -219,12 +227,16 @@ private:
         QMenu *contextMenu, const Utils::FilePath &filePath, IEditor *editor = nullptr);
     static void addSaveAndCloseEditorActions(
         QMenu *contextMenu,
+        const Utils::FilePath &filePath,
         DocumentModel::Entry *entry,
         IEditor *editor,
         EditorView *view = nullptr);
     static void addNativeDirAndOpenWithActions(
-        QMenu *contextMenu, const Utils::FilePath &filePath, EditorView *view = nullptr,
-            EditorManager::ContextMenuFlags flags = EditorManager::HideVersionControl);
+        QMenu *contextMenu,
+        const Utils::FilePath &filePath,
+        EditorView *view = nullptr,
+        EditorManager::ContextMenuFlags flags = EditorManager::DefaultContextMenu);
+    static void addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void populateOpenWithMenu(
         QMenu *menu, const Utils::FilePath &filePath, EditorView *view = nullptr);
 

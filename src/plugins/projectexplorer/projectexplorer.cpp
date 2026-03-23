@@ -586,6 +586,7 @@ public:
 
     RecentProjectsEntries recentProjects() const;
 
+    void extendEditorManagerContextMenu();
     void extendFolderNavigationWidgetFactory();
 
     QString projectFilterString();
@@ -947,6 +948,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
         dd->updateDocumentOpenerMimeTypes();
     });
 
+    dd->extendEditorManagerContextMenu();
     dd->extendFolderNavigationWidgetFactory();
 
     qRegisterMetaType<ProjectExplorer::BuildSystem *>();
@@ -3021,30 +3023,43 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
     return true;
 }
 
+void ProjectExplorerPluginPrivate::extendEditorManagerContextMenu()
+{
+    connect(
+        EditorManager::instance(),
+        &EditorManager::aboutToShowContextMenu,
+        this,
+        [this](QMenu *menu, const FilePath &filePath, const QHash<Id, QAction *> &insertionPoints) {
+            QAction *insertBefore = insertionPoints.value("OpenProject");
+            if (filePath.isDir()) {
+                QAction *actionOpenProjects
+                    = new QAction(Tr::tr("Open Project in \"%1\"").arg(filePath.fileName()), menu);
+                menu->insertAction(insertBefore, actionOpenProjects);
+                connect(actionOpenProjects, &QAction::triggered, this, [filePath] {
+                    openProjectsInDirectory(filePath);
+                });
+                actionOpenProjects->setEnabled(
+                    Utils::anyOf(projectsInDirectory(filePath), [](const FilePath &fp) {
+                        return !ProjectManager::projectWithProjectFilePath(fp);
+                    }));
+            } else if (ProjectExplorerPlugin::isProjectFile(filePath)) {
+                QAction *actionOpenAsProject
+                    = new QAction(Tr::tr("Open Project \"%1\"").arg(filePath.fileName()), menu);
+                if (ProjectManager::projectWithProjectFilePath(filePath)) {
+                    actionOpenAsProject->setEnabled(false);
+                    actionOpenAsProject->setToolTip(Tr::tr("The project is already open."));
+                }
+                menu->insertAction(insertBefore, actionOpenAsProject);
+                connect(actionOpenAsProject, &QAction::triggered, this, [filePath] {
+                    ProjectExplorerPlugin::openProject(filePath);
+                });
+            }
+        });
+}
+
 void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
 {
     auto folderNavigationWidgetFactory = FolderNavigationWidgetFactory::instance();
-    connect(folderNavigationWidgetFactory,
-            &FolderNavigationWidgetFactory::aboutToShowContextMenu,
-            this,
-            [this](QMenu *menu, const FilePath &filePath, bool isDir) {
-                if (isDir) {
-                    QAction *actionOpenProjects = menu->addAction(
-                        Tr::tr("Open Project in \"%1\"")
-                            .arg(filePath.toUserOutput()));
-                    connect(actionOpenProjects, &QAction::triggered, this, [filePath] {
-                        openProjectsInDirectory(filePath);
-                    });
-                    if (projectsInDirectory(filePath).isEmpty())
-                        actionOpenProjects->setEnabled(false);
-                } else if (ProjectExplorerPlugin::isProjectFile(filePath)) {
-                    QAction *actionOpenAsProject = menu->addAction(
-                        Tr::tr("Open Project \"%1\"").arg(filePath.toUserOutput()));
-                    connect(actionOpenAsProject, &QAction::triggered, this, [filePath] {
-                        ProjectExplorerPlugin::openProject(filePath);
-                    });
-                }
-            });
     connect(folderNavigationWidgetFactory,
             &FolderNavigationWidgetFactory::fileRenamed,
             this,

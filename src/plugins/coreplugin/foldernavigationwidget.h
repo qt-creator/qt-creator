@@ -70,7 +70,6 @@ signals:
     void rootDirectoryAdded(const RootDirectory &directory, bool isProjectDirectory);
     void rootDirectoryRemoved(const QString &id);
 
-    void aboutToShowContextMenu(QMenu *menu, const Utils::FilePath &filePath, bool isDir);
     void fileRenamed(const Utils::FilePath &before, const Utils::FilePath &after);
     void aboutToRemoveFile(const Utils::FilePath &filePath);
 
