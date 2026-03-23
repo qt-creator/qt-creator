@@ -247,19 +247,20 @@ static TreeScanner::Result scanForFilesHelper(
         };
 
         auto onDone = [&, iterator](const Async<DirectoryScanResult> &task) {
+            if (!task.isResultAvailable())
+                return;
             const int progressRange = iterator->second;
             DirectoryScanResult result = task.takeResult();
-            for (auto &fileNode : result.nodes)
+            const qsizetype fileCount = result.nodes.size();
+            for (auto &fileNode : result.nodes) {
+                if (iterator->first)
+                    iterator->first->addNode(std::unique_ptr<FileNode>(fileNode->clone()));
                 finalResult.allFiles.emplace_back(std::move(fileNode));
-            const qsizetype subDirCount = result.subDirectories.size();
-            if (iterator->first) {
-                for (auto &fn : result.nodes)
-                    iterator->first->addNode(std::unique_ptr<FileNode>(fn->clone()));
             }
+            const qsizetype subDirCount = result.subDirectories.size();
             if (subDirCount == 0) {
                 promise.setProgressValue(future.progressValue() + progressRange);
             } else {
-                const qsizetype fileCount = result.nodes.size();
                 const int increment = int(
                     progressRange / static_cast<double>(fileCount + subDirCount));
                 promise.setProgressValue(future.progressValue() + increment * fileCount);
