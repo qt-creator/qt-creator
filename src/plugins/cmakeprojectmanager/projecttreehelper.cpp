@@ -190,41 +190,4 @@ void createProjectNode(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNo
     pn->setDisplayName(displayName);
 }
 
-template<typename Result>
-static std::unique_ptr<Result> cloneFolderNode(FolderNode *node)
-{
-    auto folderNode = std::make_unique<Result>(node->filePath());
-    folderNode->setDisplayName(node->displayName());
-    for (Node *node : node->nodes()) {
-        if (FileNode *fn = node->asFileNode()) {
-            folderNode->addNode(std::unique_ptr<FileNode>(fn->clone()));
-        } else if (FolderNode *fn = node->asFolderNode()) {
-            folderNode->addNode(cloneFolderNode<FolderNode>(fn));
-        } else {
-            QTC_CHECK(false);
-        }
-    }
-    return folderNode;
-}
-
-void addFileSystemNodes(ProjectNode *root, const std::shared_ptr<FolderNode> &folderNode)
-{
-    QTC_ASSERT(root, return );
-
-    auto fileSystemNode = cloneFolderNode<VirtualFolderNode>(folderNode.get());
-    // just before special nodes like "CMake Modules"
-    fileSystemNode->setPriority(Node::DefaultPriority - 6);
-    fileSystemNode->setDisplayName(Tr::tr("<File System>"));
-    fileSystemNode->setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN));
-
-    if (!fileSystemNode->isEmpty()) {
-        // make file system nodes less probable to be selected when syncing with the current document
-        fileSystemNode->forEachGenericNode([](Node *n) {
-            n->setPriority(n->priority() + Node::DefaultProjectFilePriority + 1);
-            n->setEnabled(false);
-        });
-        root->addNode(std::move(fileSystemNode));
-    }
-}
-
 } // CMakeProjectManager::Internal

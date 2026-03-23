@@ -217,7 +217,7 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers();
     void updateInitialCMakeExpandableVars();
 
-    void updateFileSystemNodes();
+    void updateFileSystemNodes(std::unique_ptr<ProjectExplorer::FolderNode> &&folderNode);
 
     void handleParsingSucceeded(bool restoredFromBackup);
     void handleParsingFailed(const QString &msg);
@@ -248,7 +248,6 @@ private:
         const QString &targetName, const QString &fileName);
 
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
-    std::shared_ptr<ProjectExplorer::FolderNode> m_allFiles;
 
     bool m_waitingForParse = false;
     bool m_combinedScanAndParseResult = false;

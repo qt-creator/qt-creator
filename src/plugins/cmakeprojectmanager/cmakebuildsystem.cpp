@@ -1798,7 +1798,7 @@ void CMakeBuildSystem::updateProjectData()
     qCDebug(cmakeBuildSystemLog) << "All CMake project data up to date.";
 }
 
-void CMakeBuildSystem::updateFileSystemNodes()
+void CMakeBuildSystem::updateFileSystemNodes(std::unique_ptr<FolderNode> &&folderNode)
 {
     auto newRoot = std::make_unique<CMakeProjectNode>(m_parameters.sourceDirectory);
     newRoot->setDisplayName(m_parameters.sourceDirectory.fileName());
@@ -1813,8 +1813,21 @@ void CMakeBuildSystem::updateFileSystemNodes()
         addCMakeLists(newRoot.get(), std::move(fileNodes));
     }
 
-    if (m_allFiles)
-        addFileSystemNodes(newRoot.get(), m_allFiles);
+    if (QTC_GUARD(folderNode)) {
+        folderNode->setPriority(Node::DefaultPriority - 6);
+        folderNode->setDisplayName(Tr::tr("<File System>"));
+        folderNode->setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN));
+
+        if (!folderNode->isEmpty()) {
+            // make file system nodes less probable to be selected when syncing with the current document
+            folderNode->forEachGenericNode([](Node *n) {
+                n->setPriority(n->priority() + Node::DefaultProjectFilePriority + 1);
+                n->setEnabled(false);
+            });
+            newRoot->addNode(std::move(folderNode));
+        }
+    }
+
     setRootProjectNode(std::move(newRoot));
 
     m_reader.resetData();
@@ -1869,11 +1882,11 @@ void CMakeBuildSystem::updateFallbackProjectData()
             return;
 
         TreeScanner::Result result = task.takeResult();
-        m_allFiles = std::make_shared<ProjectExplorer::FolderNode>(projectDirectory());
+        auto allFiles = std::make_unique<FolderNode>(projectDirectory());
         for (auto &node : result.firstLevelNodes)
-            m_allFiles->addNode(std::move(node));
+            allFiles->addNode(std::move(node));
 
-        updateFileSystemNodes();
+        updateFileSystemNodes(std::move(allFiles));
     };
 
     m_taskTreeRunner.start({AsyncTask<ResultType>(onSetup, onDone)});

@@ -44,7 +44,4 @@ void createProjectNode(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode
                        const Utils::FilePath &dir,
                        const QString &displayName);
 
-void addFileSystemNodes(ProjectExplorer::ProjectNode *root,
-                        const std::shared_ptr<ProjectExplorer::FolderNode> &folderNode);
-
 } // CMakeProjectManager::Internal
