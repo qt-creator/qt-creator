@@ -5,6 +5,8 @@
 
 #include "mcpclient.h"
 
+#include <aiapiadapter.h>
+
 #include <QDateTime>
 #include <QHash>
 #include <QJsonArray>
@@ -72,9 +74,10 @@ public:
     QList<ToolInfo> toolsForServer(const QString &serverName) const;
 
     /**
-     * @brief Get all registered tools
+     * @brief Returns a provider-agnostic snapshot of all enabled tools,
+     * suitable for passing to AiApiAdapter::formatTools().
      */
-    QList<ToolInfo> allTools() const;
+    QList<AiApiAdapter::ToolEntry> enabledToolEntries() const;
 
     /**
      * @brief Get tool count
@@ -85,21 +88,6 @@ public:
      * @brief Check if a tool exists
      */
     bool hasTool(const QString &toolName) const;
-
-    /**
-     * @brief Get tools in Claude format (for Claude API)
-     *
-     * Returns array of objects with: name, description, input_schema
-     * Optionally prefixes tool names with server name (server_tool)
-     */
-    QJsonArray getToolsForClaude(bool prefixWithServer = true) const;
-
-    /**
-     * @brief Get tools in OpenAI format
-     *
-     * Returns array of objects with: type, function.name, function.description, etc.
-     */
-    QJsonArray getToolsForOpenAI(bool prefixWithServer = true) const;
 
     /**
      * @brief Clear all tools (useful for reload)

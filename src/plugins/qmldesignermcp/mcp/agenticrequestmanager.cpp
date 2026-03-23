@@ -141,11 +141,8 @@ void AgenticRequestManager::sendLlmRequest()
         return;
     }
 
-    // TODO: use the adapters
-    QJsonArray tools = m_currentModelInfo.provider == "Claude" ? m_toolRegistry->getToolsForClaude(false)
-                                                               : m_toolRegistry->getToolsForOpenAI(false);
-
     const QJsonArray history = adapter->formatHistory(m_conversation->turns());
+    const QJsonArray tools = adapter->formatTools(m_toolRegistry->enabledToolEntries(), false);
 
     // Create request
     QNetworkRequest networkRequest(m_currentModelInfo.url);

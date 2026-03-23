@@ -205,6 +205,21 @@ QJsonArray ClaudeApiAdapter::formatHistory(const QList<ConversationTurn> &turns)
     return history;
 }
 
+QJsonArray ClaudeApiAdapter::formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const
+{
+    QJsonArray result;
+    for (const ToolEntry &entry : tools) {
+        const QString toolName = prefixWithServer
+                        ? QString("%1__%2").arg(entry.serverName, entry.name) : entry.name;
+        result.append(QJsonObject{
+            {"name",         toolName},
+            {"description",  entry.description},
+            {"input_schema", entry.inputSchema}
+        });
+    }
+    return result;
+}
+
 QString ClaudeApiAdapter::extractText(const QByteArray &response) const
 {
     return extractTextFromContent(extractContentArray(response));

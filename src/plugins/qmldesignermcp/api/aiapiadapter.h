@@ -30,6 +30,13 @@ struct ToolResult;
 class AiApiAdapter
 {
 public:
+    struct ToolEntry {
+        QString serverName;
+        QString name;
+        QString description;
+        QJsonObject inputSchema;
+    };
+
     virtual ~AiApiAdapter() = default;
 
     /**
@@ -89,6 +96,16 @@ public:
      * @return JSON array representing the formatted message history
      */
     virtual QJsonArray formatHistory(const QList<ConversationTurn> &turns) const = 0;
+
+    /**
+     * @brief Format a list of tool entries into the provider-specific JSON schema.
+     *
+     * @param tools Flat list of tool descriptors from ToolRegistry.
+     * @param prefixWithServer When true, prepend "serverName__" to each tool name.
+     * @return JSON array ready to be embedded in the API request.
+     */
+    virtual QJsonArray formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const = 0;
+
     /**
      * @brief Build conversation turn from user message
      *

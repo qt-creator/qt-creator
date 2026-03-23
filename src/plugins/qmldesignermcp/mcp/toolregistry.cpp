@@ -5,9 +5,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QJsonArray>
-#include <QJsonObject>
-
 namespace QmlDesigner {
 
 ToolRegistry::ToolRegistry(QObject *parent)
@@ -112,66 +109,28 @@ QList<ToolRegistry::ToolInfo> ToolRegistry::toolsForServer(const QString &server
     return result;
 }
 
-QList<ToolRegistry::ToolInfo> ToolRegistry::allTools() const
+QList<AiApiAdapter::ToolEntry> ToolRegistry::enabledToolEntries() const
 {
-    return m_tools.values();
+   QList<AiApiAdapter::ToolEntry> entries;
+   entries.reserve(m_tools.size());
+   for (auto it = m_tools.constBegin(); it != m_tools.constEnd(); ++it) {
+        const ToolInfo &info = it.value();
+        if (!info.enabled)
+            continue;
+
+        entries.append(AiApiAdapter::ToolEntry{
+            .serverName  = info.serverName,
+            .name        = info.tool.name,
+            .description = info.tool.description,
+            .inputSchema = info.tool.inputSchema,
+        });
+    }
+    return entries;
 }
 
 bool ToolRegistry::hasTool(const QString &toolName) const
 {
     return m_tools.contains(toolName);
-}
-
-QJsonArray ToolRegistry::getToolsForClaude(bool prefixWithServer) const
-{
-    QJsonArray tools;
-
-    for (auto it = m_tools.constBegin(); it != m_tools.constEnd(); ++it) {
-        const ToolInfo &info = it.value();
-
-        if (!info.enabled)
-            continue;
-
-        QString toolName = prefixWithServer ? QString("%1__%2").arg(info.serverName, info.tool.name)
-                                            : info.tool.name;
-
-        QJsonObject tool{
-            {"name", toolName},
-            {"description", info.tool.description},
-            {"input_schema", info.tool.inputSchema}
-        };
-
-        tools.append(tool);
-    }
-
-    return tools;
-}
-
-QJsonArray ToolRegistry::getToolsForOpenAI(bool prefixWithServer) const
-{
-    QJsonArray tools;
-
-    for (auto it = m_tools.constBegin(); it != m_tools.constEnd(); ++it) {
-        const ToolInfo &info = it.value();
-
-        if (!info.enabled)
-            continue;
-
-        QString toolName = prefixWithServer
-            ? QString("%1__%2").arg(info.serverName, info.tool.name)
-            : info.tool.name;
-
-        QJsonObject tool{
-            {"type", "function"},
-            {"name", toolName},
-            {"description", info.tool.description},
-            {"parameters", info.tool.inputSchema},
-        };
-
-        tools.append(tool);
-    }
-
-    return tools;
 }
 
 void ToolRegistry::clear()

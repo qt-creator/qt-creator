@@ -228,6 +228,23 @@ QJsonArray OpenAiResponseApiAdapter::formatHistory(const QList<ConversationTurn>
     }};
 }
 
+QJsonArray OpenAiResponseApiAdapter::formatTools(const QList<ToolEntry> &tools,
+                                                 bool prefixWithServer) const
+{
+    QJsonArray result;
+    for (const ToolEntry &entry : tools) {
+        const QString toolName = prefixWithServer
+                            ? QString("%1__%2").arg(entry.serverName, entry.name) : entry.name;
+        result.append(QJsonObject{
+            {"type",        "function"},
+            {"name",        toolName},
+            {"description", entry.description},
+            {"parameters",  entry.inputSchema}
+        });
+    }
+    return result;
+}
+
 QString OpenAiResponseApiAdapter::extractText(const QByteArray &response) const
 {
     return extractTextFromOutput(extractOutputArray(response));

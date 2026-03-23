@@ -39,6 +39,7 @@ public:
     QJsonArray buildAssistantTurn(const QByteArray &response) override;
     QJsonArray buildToolResultsTurn(const QList<ToolResult> &results) override;
     QJsonArray formatHistory(const QList<ConversationTurn> &turns) const override;
+    QJsonArray formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const override;
     QString extractText(const QByteArray &response) const override;
     bool accepts(const QUrl &url) const override;
     void clear() override;
