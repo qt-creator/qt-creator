@@ -37,7 +37,9 @@
 
 using namespace std::chrono_literals;
 
+using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QmlJSTools {
 
@@ -422,6 +424,7 @@ public:
 
 private:
     void slotSettingsChanged();
+    void initVersion();
     void initOptions();
     void resetOptions();
     void generateFallbackJson();
@@ -430,6 +433,7 @@ private:
     QmlFormatOptionsDelegate *m_optionsDelegate;
     QPushButton *m_deployIniButton;
     QPushButton *m_tableResetButton;
+    QLabel *m_versionLabel;
     FormatterSelectionWidget *m_formatterSelectionWidget = nullptr;
     QmlJSCodeStylePreferences *m_preferences = nullptr;
     QJsonDocument m_fallbackJson;
@@ -442,6 +446,7 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(QWidget *parent, FormatterSelec
     , m_optionsDelegate(new QmlFormatOptionsDelegate(m_optionsModel, this))
     , m_deployIniButton(new QPushButton(Tr::tr("Deploy INI File to Current Project")))
     , m_tableResetButton(new QPushButton(Tr::tr("Reset to Defaults")))
+    , m_versionLabel(new QLabel())
     , m_formatterSelectionWidget(selection)
 {
     generateFallbackJson();
@@ -458,6 +463,8 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(QWidget *parent, FormatterSelec
     sp.setHorizontalStretch(1);
     m_optionsTableView->setSizePolicy(sp);
 
+    m_versionLabel->setOpenExternalLinks(true);
+
     using namespace Layouting;
 
     // clang-format off
@@ -465,6 +472,14 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(QWidget *parent, FormatterSelec
         Group {
             title(Tr::tr("Global qmlformat Configuration")),
             Column {
+                Row {
+                    m_versionLabel,
+                    Label {
+                        openExternalLinks(true),
+                        text("<a href='https://doc.qt.io/qt/qtqml-tooling-qmlformat.html'>" + Tr::tr("qmlformat latest documentation") + "</a>"),
+                    },
+                    st,
+                },
                 m_optionsTableView,
                 Row {
                     st,
@@ -482,6 +497,7 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(QWidget *parent, FormatterSelec
     // clang-format on
 
     initOptions();
+    initVersion();
 
     connect(
         m_optionsModel,
@@ -562,19 +578,54 @@ void QmlFormatSettingsWidget::slotSettingsChanged()
     emit settingsChanged(settings);
 }
 
+void QmlFormatSettingsWidget::initVersion()
+{
+    const FilePath &qmlFormatPath = QmlFormatSettings::instance().latestQmlFormatPath();
+    if (qmlFormatPath.isEmpty()) {
+        MessageManager::writeSilently(Tr::tr("QmlFormat not found. No version."));
+        m_versionLabel->setText("Unknown qmlformat version");
+        return;
+    }
+    const CommandLine commandLine(qmlFormatPath);
+    const FilePath executable = commandLine.executable();
+
+    Process process;
+    process.setCommand({executable, {"--version"}});
+    process.setUtf8StdOutCodec();
+    process.start();
+    if (!process.waitForFinished(5s)) {
+        MessageManager::writeFlashing(
+            Tr::tr("Cannot run \"%1\" or some other error occurred. No version.")
+                .arg(executable.toUserOutput()));
+        m_versionLabel->setText("Unknown qmlformat version");
+        return;
+    }
+    const QString errorText = process.readAllStandardError();
+    if (!errorText.isEmpty()) {
+        //: %1=exceutable, %2=error
+        MessageManager::writeFlashing(
+            Tr::tr("\"%1\": %2. No version.")
+                .arg(executable.toUserOutput(), errorText));
+        m_versionLabel->setText("Unknown qmlformat version");
+        return;
+    }
+
+    m_versionLabel->setText(process.readAllStandardOutput().trimmed());
+}
+
 void QmlFormatSettingsWidget::initOptions()
 {
     using namespace Core;
-    const Utils::FilePath &qmlFormatPath = QmlFormatSettings::instance().latestQmlFormatPath();
+    const FilePath &qmlFormatPath = QmlFormatSettings::instance().latestQmlFormatPath();
     if (qmlFormatPath.isEmpty()) {
         MessageManager::writeSilently(Tr::tr("QmlFormat not found. Using fallback output options."));
         m_optionsModel->setOptionsFromJson(m_fallbackJson);
         return;
     }
-    const Utils::CommandLine commandLine(qmlFormatPath);
-    const Utils::FilePath executable = commandLine.executable();
+    const CommandLine commandLine(qmlFormatPath);
+    const FilePath executable = commandLine.executable();
 
-    Utils::Process process;
+    Process process;
     process.setCommand({executable, {"--output-options"}});
     process.setUtf8StdOutCodec();
     process.start();

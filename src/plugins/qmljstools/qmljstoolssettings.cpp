@@ -95,6 +95,9 @@ Rectangle {
             Qt.quit();
         }
     }
+    QtObject {
+
+    }
     Component.onCompleted: {
         console.log("Completed !");
     }

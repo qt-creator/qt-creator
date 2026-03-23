@@ -42,6 +42,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QPushButton>
 #include <QVBoxLayout>
 #include <QStandardPaths>
 #include <QStackedWidget>
@@ -187,7 +188,23 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
                                     "are applied to custom code snippets. Changes in the preview "
                                     "do not affect the current settings.")),
                     },
-                    m_previewTextEdit
+                    m_previewTextEdit,
+                    Row {
+                        st,
+                        PushButton {
+                            text(Tr::tr("Reset to original preview text")),
+                            onClicked(this, [this, previewText]() {
+                                m_previewTextEdit->setPlainText(previewText);
+
+                            }),
+                        },
+                        PushButton {
+                            text(Tr::tr("Format current preview text")),
+                            onClicked(this, [this]() {
+                                this->updatePreview();
+                            }),
+                        },
+                    },
                 },
             },
         },
