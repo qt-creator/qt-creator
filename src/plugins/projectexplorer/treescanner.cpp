@@ -48,13 +48,7 @@ bool isMimeTypeIgnored(const MimeType &mimeType)
         return *it;
     }
 
-    bool isIgnored = false;
-    if (mimeType.isValid()) {
-        QStringList mimes;
-        mimes << mimeType.name() << mimeType.allAncestors();
-        isIgnored = !mimes.contains(QLatin1String("text/plain"));
-    }
-
+    const bool isIgnored = !mimeType.inherits(QLatin1String("text/plain"));
     s_mimeBinaryCache->writeLocked()->insert(mimeType.name(), isIgnored);
     return isIgnored;
 }
