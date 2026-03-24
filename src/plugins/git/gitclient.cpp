@@ -1116,8 +1116,6 @@ void GitClient::requestReload(const QString &documentId, const FilePath &source,
     controller->setProcessEnvironment(processEnvironment(workingDirectory));
     controller->setWorkingDirectory(workingDirectory);
 
-    using namespace std::placeholders;
-
     VcsBase::setSource(document, sourceCopy);
     EditorManager::activateEditorForDocument(document);
     controller->requestReload();
