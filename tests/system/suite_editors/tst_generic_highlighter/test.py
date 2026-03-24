@@ -101,9 +101,12 @@ def addHighlighterDefinition(*languages):
 
     test.log("Trying to download definitions...")
     clickButton("{text='Download Definitions' type='QPushButton' unnamed='1' visible='1'}")
-    # Download Definitions automatically switches to Edit and opens General Messages
-    generalMessages = waitForObject(":Qt Creator_Core::OutputWindow")
-    if waitFor(lambda: 'Highlighter updates: done' in str(generalMessages.plainText), 20000):
+    # Download Definitions and wait for status label to update
+    groupBox = ("{container=':qt_tabwidget_stackedwidget_QScrollArea' "
+                "name='Syntax Highlight Definition Files' type='QGroupBox'}")
+    statusLabel = waitForObject("{name='updateStatus' type='QLabel' visible='1' container=%s}"
+                                 % groupBox)
+    if waitFor(lambda: str(statusLabel.text) == 'Highlighter updates: done', 20000):
         test.log("Received definitions")
         test.verify(os.path.exists(syntaxDirectory),
                     "Directory for syntax highlighter files exists.")
