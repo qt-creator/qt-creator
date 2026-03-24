@@ -45,7 +45,7 @@ def openCmakeProject(projectPath, buildDir):
         lineEdit = getChildByClass(pChooser, "Utils::FancyLineEdit")
         replaceEditorContent(lineEdit, buildDir)
         # disable all build configurations except "Debug"
-        configs = ['Release', 'RelWithDebInfo', 'MinSizeRelease']
+        configs = ['Release', 'RelWithDebInfo', 'MinSizeRel']
         for checkbox in configs:
             ensureChecked(waitForObject("{text='%s' type='QCheckBox' unnamed='1' visible='1' "
                                         "window=':Qt Creator_Core::Internal::MainWindow'}"
