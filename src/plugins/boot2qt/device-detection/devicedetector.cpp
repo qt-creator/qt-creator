@@ -112,8 +112,11 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
                  }});
         }
     } else if (eventType == QdbDeviceTracker::DisconnectedDevice) {
-        DeviceManager::setDeviceState(deviceId, IDevice::DeviceDisconnected);
-        showMessage(messagePrefix.arg("disconnected"), false);
+        if (QdbDevice::Ptr device = std::static_pointer_cast<QdbDevice>(
+                DeviceManager::find(deviceId))) {
+            device->closeConnection(true);
+            showMessage(messagePrefix.arg("disconnected"), false);
+        }
     }
 }
 
