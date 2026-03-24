@@ -36,7 +36,6 @@ CppCodeModelSettings::CppCodeModelSettings()
     setSettingsGroup(Constants::CPPEDITOR_SETTINGSGROUP);
 
     ignorePch.setSettingsKey(Constants::CPPEDITOR_MODEL_MANAGER_PCH_USAGE);
-    ignorePch.setDefaultValue(true);
     ignorePch.setLabelText(Tr::tr("Ignore precompiled headers"));
     ignorePch.setToolTip(Tr::tr(
         "<html><head/><body><p>When precompiled headers are not ignored, the parsing for code "
