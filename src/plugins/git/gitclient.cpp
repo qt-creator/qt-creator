@@ -4157,8 +4157,7 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
                                    const FilePath &path, ShowEditor showSetting, int line)
 {
     const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
-    const QString topLevelString = topLevel.toUrlishString();
-    const QString relativePath = QDir(topLevelString).relativeFilePath(path.toUrlishString());
+    const QString relativePath = path.relativeChildPath(topLevel).path();
     const QByteArray content = synchronousShow(topLevel, ref + ":" + relativePath);
     if (showSetting == ShowEditor::OnlyIfDifferent) {
         if (content.isEmpty())
@@ -4170,13 +4169,12 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
         }
     }
 
-    const QString documentId = gitDocumentId(".GitShow.") + topLevelString + "." + relativePath;
+    const QString documentId = gitDocumentId(".GitShow.") + topLevel.toUrlishString() + "." + relativePath;
     QString title = Tr::tr("Git Show %1:%2").arg(ref, relativePath);
     IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
                                                             EditorManager::DoNotSwitchToDesignMode);
     editor->document()->setTemporary(true);
     editor->gotoLine(line);
-    // FIXME: Check should that be relative
     VcsBase::setSource(editor->document(), path);
     return editor;
 }
