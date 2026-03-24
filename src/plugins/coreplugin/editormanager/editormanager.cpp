@@ -57,10 +57,10 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QDateTime>
-#include <QDebug>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHash>
+#include <QLoggingCategory>
 #include <QMainWindow>
 #include <QMap>
 #include <QMenu>
@@ -81,7 +81,7 @@
 
 #include <memory>
 
-enum { debugEditorManager=0 };
+static Q_LOGGING_CATEGORY(emLog, "qtc.core.editormanager", QtWarningMsg);
 
 static const char kCurrentDocumentPrefix[] = "CurrentDocument";
 static const char kCurrentDocumentXPos[] = "CurrentDocument:XPos";
@@ -845,8 +845,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
 IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &filePath, Id editorId,
                                           EditorManager::OpenEditorFlags flags, bool *newEditor)
 {
-    if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << filePath << editorId.name();
+    qCDebug(emLog) << Q_FUNC_INFO << filePath << editorId.name();
 
     if (filePath.isEmpty())
         return nullptr;
@@ -1343,8 +1342,7 @@ void EditorManagerPrivate::writeFileSystemSensitivity(Utils::QtcSettings *settin
 
 EditorFactories EditorManagerPrivate::findFactories(Id editorId, const FilePath &filePath)
 {
-    if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << editorId.name() << filePath;
+    qCDebug(emLog) << Q_FUNC_INFO << editorId.name() << filePath;
 
     EditorFactories factories;
     if (!editorId.isValid()) {
@@ -2617,8 +2615,8 @@ void EditorManagerPrivate::autoSave()
 
 void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)
 {
-    if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO;
+    qCDebug(emLog) << Q_FUNC_INFO;
+
     d->m_scheduledCurrentEditor = nullptr;
     IEditor *editor = nullptr;
     for (IContext *c : context)
@@ -3765,8 +3763,7 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
     QTC_CHECK(!(flags & EditorManager::AllowExternalEditor));
     checkEditorFlags(flags);
 
-    if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << editorId.name() << titlePattern << uniqueId << contents;
+    qCDebug(emLog) << Q_FUNC_INFO << editorId.name() << titlePattern << uniqueId << contents;
 
     if (flags & EditorManager::OpenInOtherSplit)
             EditorManager::gotoOtherSplit();
