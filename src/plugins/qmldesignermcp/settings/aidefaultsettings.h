@@ -5,14 +5,13 @@
 
 #include "mcp/mcphost.h"
 
-#include <QStringList>
-#include <QUrl>
+#include <QString>
 
 namespace QmlDesigner {
 
 struct AiProviderData
 {
-    QUrl url;
+    QString url;
     QStringList models;
 };
 

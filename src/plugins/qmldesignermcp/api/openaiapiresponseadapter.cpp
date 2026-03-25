@@ -250,11 +250,10 @@ QString OpenAiResponseApiAdapter::extractText(const QByteArray &response) const
     return extractTextFromOutput(extractOutputArray(response));
 }
 
-bool OpenAiResponseApiAdapter::accepts(const QUrl &url) const
+bool OpenAiResponseApiAdapter::accepts(const QString &url) const
 {
-    QString strUrl = url.toString();
-    return strUrl.contains("openai.com", Qt::CaseInsensitive)
-        || strUrl.contains("responses", Qt::CaseInsensitive);
+    return url.contains("openai.com", Qt::CaseInsensitive)
+        || url.contains("responses", Qt::CaseInsensitive);
 }
 
 void OpenAiResponseApiAdapter::clear()

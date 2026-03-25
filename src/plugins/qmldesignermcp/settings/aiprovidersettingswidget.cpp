@@ -48,10 +48,7 @@ void AiProviderSettingsWidget::load()
 
     const AiProviderData providerData = AiDefaultSettings::providerData(m_config.providerName());
 
-    QUrl url = m_config.url();
-    if (url.isEmpty())
-        url = providerData.url;
-    m_urlLineEdit->setText(url.toString());
+    m_urlLineEdit->setText(m_config.url().isEmpty() ? providerData.url : m_config.url());
 
     m_modelsListWidget->setItems(m_config.modelIds(), providerData.models);
 }
@@ -129,7 +126,7 @@ void AiProviderSettingsWidget::setupUi()
     resetUrlButton->setFixedSize(iconSize);
     connect(resetUrlButton, &QAbstractButton::clicked, this, [this] {
         const AiProviderData providerData = AiDefaultSettings::providerData(m_config.providerName());
-        m_urlLineEdit->setText(providerData.url.toString());
+        m_urlLineEdit->setText(providerData.url);
     });
 
     using namespace Layouting;

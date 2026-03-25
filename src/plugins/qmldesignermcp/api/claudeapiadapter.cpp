@@ -200,8 +200,16 @@ QJsonArray ClaudeApiAdapter::buildToolResultsTurn(const QList<ToolResult> &resul
 QJsonArray ClaudeApiAdapter::formatHistory(const QList<ConversationTurn> &turns) const
 {
     QJsonArray history;
-    for (const ConversationTurn &turn : turns)
-        history.append(QJsonObject{{"role", turn.role}, {"content", turn.content}});
+    for (const ConversationTurn &turn : turns) {
+        if (turn.type == ConversationTurn::ToolResults) {
+            // tool results turn: content is a flat array of tool_result items,
+            // needs to be wrapped in a user message
+            history.append(QJsonObject{{"role", "user"}, {"content", turn.content}});
+        } else {
+            // user and assistant turns: content is [{role, content:[...]}], take first
+            history.append(turn.content.first());
+        }
+    }
     return history;
 }
 
@@ -225,11 +233,10 @@ QString ClaudeApiAdapter::extractText(const QByteArray &response) const
     return extractTextFromContent(extractContentArray(response));
 }
 
-bool ClaudeApiAdapter::accepts(const QUrl &url) const
+bool ClaudeApiAdapter::accepts(const QString &url) const
 {
-    QString strUrl = url.toString();
-    return strUrl.compare("claude", Qt::CaseInsensitive) == 0
-        || strUrl.contains("anthropic", Qt::CaseInsensitive);
+    return url.compare("claude", Qt::CaseInsensitive) == 0
+        || url.contains("anthropic", Qt::CaseInsensitive);
 }
 
 QJsonArray ClaudeApiAdapter::extractContentArray(const QByteArray &response) const

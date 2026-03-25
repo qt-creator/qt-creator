@@ -9,26 +9,26 @@ namespace QmlDesigner {
 
 QStringList AiDefaultSettings::providerNames()
 {
-    static const QStringList names{"Claude", "OpenAI", /*"Gemini"*/};
+    static const QStringList names{"Claude", "OpenAI", "Gemini"};
     return names;
 }
 
 AiProviderData AiDefaultSettings::providerData(const QString &name)
 {
     static const QHash<QString, AiProviderData> providers{
-        // TODO: support Gemini
-        // {"Gemini", AiProviderData{
-        //     .url = QUrl{"https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"},
-        //     .models = {
-        //         "gemini-2.5-pro",
-        //         "gemini-2.5-flash",
-        //         "gemini-2.5-flash-lite",
-        //         "gemini-2.0-flash",
-        //         "gemini-2.0-flash-lite",
-        //     }
-        // }},
+        {"Gemini", AiProviderData{
+            .url = "https://generativelanguage.googleapis.com/v1beta/models/{modelId}:generateContent",
+            .models = {
+                "gemini-3.1-pro-preview",
+                "gemini-3-flash-preview",
+                "gemini-3.1-flash-lite-preview",
+                "gemini-2.5-pro",
+                "gemini-2.5-flash",
+                "gemini-2.5-flash-lite",
+            }
+        }},
         {"Claude", AiProviderData{
-                       .url = QUrl{"https://api.anthropic.com/v1/messages"},
+                       .url = "https://api.anthropic.com/v1/messages",
                        .models = {
                            "claude-opus-4-6",
                            "claude-sonnet-4-6",
@@ -36,7 +36,7 @@ AiProviderData AiDefaultSettings::providerData(const QString &name)
                        },
                    }},
         {"OpenAI", AiProviderData{
-                       .url = QUrl{"https://api.openai.com/v1/chat/completions"},
+                       .url = "https://api.openai.com/v1/chat/completions",
                        .models = {
                            "gpt-5.2",
                            "gpt-5.2-pro",

@@ -41,6 +41,7 @@ extend_qtc_plugin(QmlDesignerMcp
   SOURCES
     aiapiadapter.h
     claudeapiadapter.cpp claudeapiadapter.h
+    geminiapiadapter.cpp geminiapiadapter.h
     openaiapiresponseadapter.cpp openaiapiresponseadapter.h
 )
 

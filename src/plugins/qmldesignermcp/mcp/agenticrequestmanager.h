@@ -147,7 +147,7 @@ private:
     void retryLastRequest();
 
     // Helper to get appropriate API adapter for provider
-    AiApiAdapter *adapterForProvider(const QUrl &url) const;
+    AiApiAdapter *adapterForProvider(const QString &url) const;
 
     McpHost *m_mcpHost = nullptr;
     ToolRegistry *m_toolRegistry = nullptr;

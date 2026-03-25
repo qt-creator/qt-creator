@@ -49,11 +49,8 @@ public:
 
     /**
      * @brief Get conversation history
-     *
-     * @param maxTurns Maximum number of turns to include (0 = all)
-     * @return messages
      */
-    QList<ConversationTurn> turns(int maxTurns = 0) const;
+    QList<ConversationTurn> turns() const;
 
     /**
      * @brief Clear all conversation history
@@ -79,8 +76,9 @@ private:
     void pruneIfNeeded();
     int estimateTurnTokens(const ConversationTurn &turn) const;
 
+    QList<int> m_userMessageIndices; // Indices into m_turns that are "Safe Starts"
     QList<ConversationTurn> m_turns;
-    int m_maxTurns = 20; // Keep last 20 turns by default
+    int m_maxTurns = 30; // Keep last 30 turns by default
 };
 
 } // namespace QmlDesigner

@@ -41,7 +41,7 @@ public:
     QJsonArray formatHistory(const QList<ConversationTurn> &turns) const override;
     QJsonArray formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const override;
     QString extractText(const QByteArray &response) const override;
-    bool accepts(const QUrl &url) const override;
+    bool accepts(const QString &url) const override;
     void clear() override;
 
 private:

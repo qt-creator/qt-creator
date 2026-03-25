@@ -8,6 +8,7 @@
 #include "airesponse.h"
 #include "claudeapiadapter.h"
 #include "conversationmanager.h"
+#include "geminiapiadapter.h"
 #include "mcphost.h"
 #include "openaiapiresponseadapter.h"
 #include "toolregistry.h"
@@ -32,6 +33,7 @@ AgenticRequestManager::AgenticRequestManager(
 {
     // Create API adapters for different providers
     m_adapters << new ClaudeApiAdapter();
+    m_adapters << new GeminiApiAdapter();
     m_adapters << new OpenAiResponseApiAdapter();
 
     // Connect to MCP host signals for tool execution results
@@ -61,9 +63,6 @@ void AgenticRequestManager::request(const RequestData &data, const AiModelInfo &
     m_currentIteration = 0;
     m_retryCount = 0;
     m_isRunning = true;
-
-    // Clear conversation history for new request
-    m_conversation->clear();
 
     AiApiAdapter *adapter = adapterForProvider(modelInfo.url);
     if (!adapter) {
@@ -145,7 +144,8 @@ void AgenticRequestManager::sendLlmRequest()
     const QJsonArray tools = adapter->formatTools(m_toolRegistry->enabledToolEntries(), false);
 
     // Create request
-    QNetworkRequest networkRequest(m_currentModelInfo.url);
+    const QUrl resolvedUrl = adapter->resolveUrl(m_currentModelInfo.url, m_currentModelInfo);
+    QNetworkRequest networkRequest(resolvedUrl);
     adapter->setRequestHeader(&networkRequest, m_currentModelInfo);
 
     m_lastRequestContent = adapter->createRequest(
@@ -158,7 +158,7 @@ void AgenticRequestManager::sendLlmRequest()
     QJsonDocument doc = QJsonDocument::fromJson(m_lastRequestContent);
     QJsonObject obj = doc.object();
     obj.remove("tools");
-    obj.remove("instructions");
+    obj.remove("system_instruction");
     doc.setObject(obj);
     qDebug().noquote()
         << "\x1b[42m \x1b[1m" << __FUNCTION__
@@ -228,7 +228,7 @@ void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
     QJsonDocument doc = QJsonDocument::fromJson(responseData);
     QJsonObject obj = doc.object();
     obj.remove("tools");
-    obj.remove("instructions");
+    obj.remove("system_instruction");
     doc.setObject(obj);
     qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
              << ", responseData=" << doc.toJson(QJsonDocument::Indented)
@@ -267,7 +267,7 @@ void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
     // Add assistant message to history
     const QJsonArray assistantItems = adapter->buildAssistantTurn(responseData);
     if (!assistantItems.isEmpty())
-        m_conversation->addAssistantMessage(assistantItems.first().toObject().value("content").toArray());
+        m_conversation->addAssistantMessage(assistantItems);
 
     // Execute tool calls
     executeToolCalls(toolCalls);
@@ -560,7 +560,8 @@ void AgenticRequestManager::retryLastRequest()
         return;
     }
 
-    QNetworkRequest networkRequest(m_currentModelInfo.url);
+    const QUrl resolvedUrl = adapter->resolveUrl(m_currentModelInfo.url, m_currentModelInfo);
+    QNetworkRequest networkRequest(resolvedUrl);
     adapter->setRequestHeader(&networkRequest, m_currentModelInfo);
 
     emit logMessage("Retrying last request...");
@@ -570,9 +571,9 @@ void AgenticRequestManager::retryLastRequest()
             this, &AgenticRequestManager::onNetworkReplyFinished);
 }
 
-AiApiAdapter *AgenticRequestManager::adapterForProvider(const QUrl &url) const
+AiApiAdapter *AgenticRequestManager::adapterForProvider(const QString &url) const
 {
-    for (AiApiAdapter *adapter : m_adapters) {
+    for (AiApiAdapter *adapter : std::as_const(m_adapters)) {
         if (adapter->accepts(url))
             return adapter;
     }

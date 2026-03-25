@@ -135,8 +135,10 @@ AiAssistantWidget::~AiAssistantWidget() = default;
 
 void AiAssistantWidget::clear()
 {
+    // TODO: combine with clearChat()
     setAttachedImageSource("");
     m_conversation->clear();
+    m_chatHistory->clear();
     m_currentTransaction.reset();
 }
 
@@ -517,7 +519,10 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
         return;
     }
 
-    m_chatHistory->addAssistantMessage(response.text().trimmed());
+    QString responseText = response.text().trimmed();
+    if (!responseText.isEmpty())
+        m_chatHistory->addAssistantMessage(responseText);
+
     m_currentTransaction.commit();
     emit canUndoTransactionChanged();
 }

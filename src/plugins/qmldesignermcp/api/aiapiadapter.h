@@ -139,12 +139,23 @@ public:
     /**
      * @brief Check if this adapter can handle the given provider's url
      */
-    virtual bool accepts(const QUrl &url) const = 0;
+    virtual bool accepts(const QString &url) const = 0;
 
     /**
      * @brief Clear any current state stored in the adapter
      */
     virtual void clear() {};
+
+    /**
+     * @brief Resolve the final request URL for this provider.
+     *
+     * Most providers use the configured URL as-is. Providers like Gemini
+     * that embed the model ID in the URL path can override this.
+     */
+    virtual QUrl resolveUrl(const QString &baseUrl, const AiModelInfo &modelInfo) const
+    {
+        return baseUrl;
+    }
 
 };
 

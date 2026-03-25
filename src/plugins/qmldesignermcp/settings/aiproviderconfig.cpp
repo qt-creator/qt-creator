@@ -31,14 +31,14 @@ AiProviderConfig::AiProviderConfig(const QString &providerName)
 
     m_isChecked = Core::ICore::settings()->contains("checked")
                       ? Core::ICore::settings()->value("checked").toBool() : true;
-    m_url = Core::ICore::settings()->value("url").toUrl();
+    m_url = Core::ICore::settings()->value("url").toString();
     m_apiKey = Core::ICore::settings()->value("apiKey").toString();
     m_modelIds = Core::ICore::settings()->value("modelIds").toStringList();
 }
 
 bool AiProviderConfig::isValid() const
 {
-    return !m_modelIds.isEmpty() && m_url.isValid() && !m_apiKey.isEmpty();
+    return !m_modelIds.isEmpty() && !m_url.isEmpty() && !m_apiKey.isEmpty();
 }
 
 QList<AiModelInfo> AiProviderConfig::allValidModels() const
@@ -77,7 +77,7 @@ void AiProviderConfig::save(bool checked, const QString &url, const QString &api
 
     GroupScope group(m_providerName);
     Core::ICore::settings()->setValue("checked", m_isChecked);
-    Core::ICore::settings()->setValue("url", m_url.toString());
+    Core::ICore::settings()->setValue("url", m_url);
     Core::ICore::settings()->setValue("apiKey", m_apiKey);
     Core::ICore::settings()->setValue("modelIds", m_modelIds);
 }

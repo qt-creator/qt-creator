@@ -12,17 +12,18 @@ namespace QmlDesigner {
 struct AiModelInfo;
 
 /**
- * @brief Claude API adapter for Anthropic's Messages API
+ * @brief Gemini API adapter for Google's Generative Language API
  *
- * Implements Claude-specific request/response formatting including:
- * - tool_use blocks for tool calling
- * - tool_result blocks for tool responses
- * - Claude's specific JSON structure
+ * Implements Gemini-specific request/response formatting including:
+ * - functionCall parts for tool calling
+ * - functionResponse parts for tool results
+ * - Gemini's specific "contents" and "parts" JSON structure
+ * - System instructions via the system_instruction field
  */
-class ClaudeApiAdapter : public AiApiAdapter
+class GeminiApiAdapter : public AiApiAdapter
 {
 public:
-    explicit ClaudeApiAdapter();
+    explicit GeminiApiAdapter() = default;
 
     // AiApiAdapter interface
     void setRequestHeader(QNetworkRequest *request, const AiModelInfo &modelInfo) override;
@@ -33,21 +34,26 @@ public:
         const QJsonArray &tools,
         const QJsonArray &conversationHistory) override;
 
-    QString id() const override;
+    QString id() const override { return "gemini"; }
+
     QList<ToolCall> parseToolCalls(const QByteArray &response) override;
+
     bool isResponseComplete(const QByteArray &response) const override;
+
     AiResponse interpretResponse(const QByteArray &response) override;
+
     QJsonArray buildUserMessage(const QString &text, const QUrl &imageUrl = {}) override;
     QJsonArray buildAssistantTurn(const QByteArray &response) override;
     QJsonArray buildToolResultsTurn(const QList<ToolResult> &results) override;
+
     QJsonArray formatHistory(const QList<ConversationTurn> &turns) const override;
     QJsonArray formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const override;
     QString extractText(const QByteArray &response) const override;
     bool accepts(const QString &url) const override;
+    QUrl resolveUrl(const QString &baseUrl, const AiModelInfo &modelInfo) const override;
 
 private:
-    QJsonArray extractContentArray(const QByteArray &response) const;
-    QString extractTextFromContent(const QJsonArray &content) const;
+    QJsonArray extractPartsArray(const QByteArray &response) const;
 };
 
 } // namespace QmlDesigner

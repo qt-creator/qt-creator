@@ -12,6 +12,8 @@ ConversationManager::ConversationManager() = default;
 
 void ConversationManager::addUserMessage(const QJsonArray &content)
 {
+    m_userMessageIndices.append(m_turns.size());
+
     m_turns.append(ConversationTurn{
         .role = "user",
         .content = content,
@@ -41,14 +43,14 @@ void ConversationManager::addToolResultsMessage(const QJsonArray &content)
     pruneIfNeeded();
 }
 
-QList<ConversationTurn> ConversationManager::turns(int maxTurns) const
+QList<ConversationTurn> ConversationManager::turns() const
 {
-    const int count = maxTurns > 0 ? qMin(maxTurns, m_turns.size()) : m_turns.size();
-    return m_turns.sliced(m_turns.size() - count);
+    return m_turns;
 }
 
 void ConversationManager::clear()
 {
+    m_userMessageIndices.clear();
     m_turns.clear();
 }
 
@@ -63,10 +65,21 @@ int ConversationManager::estimateTokenCount() const
 
 void ConversationManager::pruneIfNeeded()
 {
-    if (m_maxTurns > 0 && m_turns.size() > m_maxTurns) {
-        // Remove oldest turns
-        int toRemove = m_turns.size() - m_maxTurns;
-        m_turns.erase(m_turns.begin(), m_turns.begin() + toRemove);
+    if (m_maxTurns <= 0 || m_turns.size() <= m_maxTurns)
+        return;
+
+    int cutAt = 0;
+
+    // Keep jumping to the next user index until the remaining size is safe
+    while (m_userMessageIndices.size() > 1 && (m_turns.size() - m_userMessageIndices.at(1)) >= m_maxTurns) {
+        m_userMessageIndices.removeFirst();
+        cutAt = m_userMessageIndices.first();
+    }
+
+    if (cutAt > 0) {
+        m_turns.erase(m_turns.begin(), m_turns.begin() + cutAt);
+        for (int &idx : m_userMessageIndices)
+            idx -= cutAt;
     }
 }
 

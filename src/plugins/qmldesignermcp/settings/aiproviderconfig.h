@@ -10,7 +10,7 @@ namespace QmlDesigner {
 struct AiModelInfo
 {
     QString provider;
-    QUrl url;
+    QString url;
     QString apiKey;
     QString modelId;
 
@@ -24,7 +24,7 @@ public:
 
     QString providerName() const { return m_providerName; }
     bool isChecked() const { return m_isChecked; }
-    QUrl url() const { return m_url; };
+    QString url() const { return m_url; };
     QString apiKey() const { return m_apiKey; };
     QStringList modelIds() const { return m_modelIds; };
     bool isValid() const;
@@ -35,7 +35,7 @@ public:
 private:
     QString m_providerName;
     bool m_isChecked = true;
-    QUrl m_url;
+    QString m_url;
     QStringList m_modelIds;
     QString m_apiKey;
 };
