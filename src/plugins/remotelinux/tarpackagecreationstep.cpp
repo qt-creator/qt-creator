@@ -21,7 +21,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QFutureWatcher>
 
 #include <cstring>
 
