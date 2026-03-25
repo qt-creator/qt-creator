@@ -347,52 +347,57 @@ ProjectTreeWidget *ProjectTree::currentWidget() const
 
 void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &globalPos, Node *node)
 {
-    QMenu *contextMenu = nullptr;
-    emit s_instance->aboutToShowContextMenu(node);
-
-    if (node) {
-        QMenu *menu = ProjectExplorerPlugin::vcsFileContextMenu();
-        menu->clear();
-        menu->menuAction()->setVisible(false);
-
-        if (!node->isVirtualFolderType()) {
-            const FilePath filePath = node->filePath();
-            FilePath topLevel;
-            Core::IVersionControl *vc =
-                    Core::VcsManager::findVersionControlForDirectory(filePath, &topLevel);
-            if (vc) {
-                const FilePath relativePath = filePath.relativeChildPath(topLevel);
-                menu->setTitle(vc->displayName());
-                menu->menuAction()->setVisible(true);
-                vc->fillDefaultFileActionMenu(menu, vc, topLevel, relativePath);
-                if (const FileNode *fileNode = node->asFileNode(); fileNode) {
-                    const Core::VcsFileState state = fileNode->modificationState();
-                    vc->vcsFillFileActionMenu(menu, topLevel, relativePath, state);
-                }
-            }
-        }
-    }
-
+    Id menuId;
     if (!node) {
-        contextMenu = Core::ActionManager::actionContainer(Constants::M_SESSIONCONTEXT)->menu();
+        menuId = Constants::M_SESSIONCONTEXT;
     } else  if (node->isProjectNodeType()) {
         if ((node->parentFolderNode() && node->parentFolderNode()->asContainerNode())
                 || node->asContainerNode())
-            contextMenu = Core::ActionManager::actionContainer(Constants::M_PROJECTCONTEXT)->menu();
+            menuId = Constants::M_PROJECTCONTEXT;
         else
-            contextMenu = Core::ActionManager::actionContainer(Constants::M_SUBPROJECTCONTEXT)->menu();
+            menuId = Constants::M_SUBPROJECTCONTEXT;
     } else if (node->isVirtualFolderType() || node->isFolderNodeType()) {
-        contextMenu = Core::ActionManager::actionContainer(Constants::M_FOLDERCONTEXT)->menu();
+        menuId = Constants::M_FOLDERCONTEXT;
     } else if (node->asFileNode()) {
-        contextMenu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT)->menu();
+        menuId = Constants::M_FILECONTEXT;
+    }
+    QTC_ASSERT(menuId.isValid(), return);
+    Core::ActionContainer *contextMenu = Core::ActionManager::actionContainer(menuId);
+    QTC_ASSERT(contextMenu, return);
+    emit s_instance->aboutToShowContextMenu(node);
+    FilePath nodePath = node ? node->filePath() : FilePath();
+
+    // Insert editor actions before the Expand and Collapse etc tree actions, if we have a path
+    QAction *editorManagerInsertLocation = nodePath.isEmpty() ? nullptr
+                                                              : contextMenu->insertLocation(
+                                                                    Constants::G_EDITOR_MENU);
+
+    Core::EditorManager::ContextMenuFlags editorMenuFlags = Core::EditorManager::HideOpenProject;
+    if (node && node->supportsAction(HidePathActions, node))
+        editorMenuFlags |= Core::EditorManager::HidePathActions;
+
+    auto menu = new QMenu;
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    for (QAction *action : contextMenu->menu()->actions()) {
+        if (action == editorManagerInsertLocation) {
+            menu->addSeparator();
+            Core::EditorManager::addContextMenuActions(menu, nodePath, editorMenuFlags);
+            menu->addSeparator();
+        }
+        menu->addAction(action);
     }
 
-    if (contextMenu && !contextMenu->actions().isEmpty()) {
+    if (menu->actions().isEmpty()) {
+        delete menu;
+    } else {
         s_instance->m_focusForContextMenu = focus;
-        contextMenu->popup(globalPos);
-        connect(contextMenu, &QMenu::aboutToHide,
-                s_instance, &ProjectTree::hideContextMenu,
-                Qt::ConnectionType(Qt::UniqueConnection | Qt::QueuedConnection));
+        menu->popup(globalPos);
+        connect(
+            menu,
+            &QMenu::aboutToHide,
+            s_instance,
+            &ProjectTree::hideContextMenu,
+            Qt::ConnectionType(Qt::UniqueConnection | Qt::QueuedConnection));
     }
 }
 

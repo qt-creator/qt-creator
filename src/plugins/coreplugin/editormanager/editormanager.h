@@ -142,7 +142,13 @@ public:
     static void setSessionTitleHandler(WindowTitleHandler handler);
     static void setWindowTitleVcsTopicHandler(WindowTitleHandler handler);
 
-    enum ContextMenuFlag { DefaultContextMenu = 0, HideVersionControl = 1, ShowEditorActions = 2 };
+    enum ContextMenuFlag {
+        DefaultContextMenu = 0,
+        HideVersionControl = 1,
+        ShowEditorActions = 2,
+        HideOpenProject = 4,
+        HidePathActions = 8
+    };
     Q_DECLARE_FLAGS(ContextMenuFlags, ContextMenuFlag);
     static void addContextMenuActions(
         QMenu *contextMenu,

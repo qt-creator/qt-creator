@@ -162,7 +162,6 @@ public:
     static void removeFromRecentProjects(const Utils::FilePath &filePath);
 
     static void updateRunActions();
-    static QMenu *vcsFileContextMenu();
 
     static QWidget *createRecentProjectsView();
 

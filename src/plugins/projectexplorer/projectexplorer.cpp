@@ -89,7 +89,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/diffservice.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -245,14 +244,10 @@ const char ADDEXISTINGFILES[]     = "ProjectExplorer.AddExistingFiles";
 const char ADDEXISTINGDIRECTORY[] = "ProjectExplorer.AddExistingDirectory";
 const char ADDNEWSUBPROJECT[]     = "ProjectExplorer.AddNewSubproject";
 const char REMOVEPROJECT[]        = "ProjectExplorer.RemoveProject";
-const char OPENFILE[]             = "ProjectExplorer.OpenFile";
-const char SEARCHONFILESYSTEM[]   = "ProjectExplorer.SearchOnFileSystem";
-const char OPENTERMINALHERE[]     = "ProjectExplorer.OpenTerminalHere";
-const char SHOWINFILESYSTEMVIEW[] = "ProjectExplorer.OpenFileSystemView";
-const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
+const char OPENTERMINALHERE[] = "ProjectExplorer.OpenTerminalHere";
+const char DUPLICATEFILE[] = "ProjectExplorer.DuplicateFile";
 const char DELETEFILE[]           = "ProjectExplorer.DeleteFile";
-const char DIFFFILE[]             = "ProjectExplorer.DiffFile";
-const char SETSTARTUP[]           = "ProjectExplorer.SetStartup";
+const char SETSTARTUP[] = "ProjectExplorer.SetStartup";
 const char PROJECTTREE_COLLAPSE_ALL[] = "ProjectExplorer.CollapseAll";
 const char PROJECTTREE_EXPAND_ALL[] = "ProjectExplorer.ExpandAll";
 
@@ -370,12 +365,6 @@ static bool hideDebugMenu()
 static bool hideAnalyzeMenu()
 {
     return ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_ANALYZE, false).toBool();
-}
-
-static bool isTextFile(const FilePath &filePath)
-{
-    return Utils::mimeTypeForFile(filePath).inherits(
-                TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT);
 }
 
 class ProjectsMode : public IMode
@@ -564,10 +553,6 @@ public:
     void addNewSubproject();
     void addExistingProjects();
     void removeProject();
-    void openFile();
-    void searchOnFileSystem();
-    void showInGraphicalShell();
-    void showInFileSystemPane();
     void removeFile();
     void duplicateFile();
     void deleteFile();
@@ -619,9 +604,7 @@ public:
     void buildSubProjectForCurrentDocument(BuildAction action);
 
 public:
-    QMenu *m_openWithMenu;
     QMenu *m_openTerminalMenu;
-    QMenu *m_vcsFileMenu;
 
     QAction *m_newAction;
     QAction *m_loadAction;
@@ -679,19 +662,13 @@ public:
     QAction *m_removeProjectAction;
     QAction *m_deleteFileAction;
     QAction *m_renameFileAction;
-    QAction *m_filePropertiesAction = nullptr;
-    QAction *m_diffFileAction;
     QAction *m_createHeaderAction = nullptr;
     QAction *m_createSourceAction = nullptr;
-    QAction *m_openFileAction;
     QAction *m_projectTreeCollapseAllAction;
     QAction *m_projectTreeExpandAllAction;
     QAction *m_projectTreeExpandNodeAction = nullptr;
     Action *m_closeProjectFilesActionFileMenu;
     Action *m_closeProjectFilesActionContextMenu;
-    QAction *m_searchOnFileSystem;
-    QAction *m_showInGraphicalShell;
-    QAction *m_showFileSystemPane;
     QAction *m_openTerminalHereSysEnv;
     QAction *m_openTerminalHereBuildEnv;
     QAction *m_openTerminalHereRunEnv;
@@ -1106,11 +1083,15 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
             ActionManager::createMenu(Constants::FOLDER_OPEN_LOCATIONS_CONTEXT_MENU);
     folderOpenLocationCtxMenu->menu()->setTitle(Tr::tr("Open..."));
     folderOpenLocationCtxMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
-
     ActionContainer *projectOpenLocationCtxMenu =
             ActionManager::createMenu(Constants::PROJECT_OPEN_LOCATIONS_CONTEXT_MENU);
     projectOpenLocationCtxMenu->menu()->setTitle(Tr::tr("Open..."));
     projectOpenLocationCtxMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
+    connect(
+        ProjectTree::instance(),
+        &ProjectTree::aboutToShowContextMenu,
+        dd,
+        &ProjectExplorerPluginPrivate::updateLocationSubMenus);
 
     // build menu
     ActionContainer *mbuild =
@@ -1166,6 +1147,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     msessionContextMenu->appendGroup(Constants::G_SESSION_REBUILD);
     msessionContextMenu->appendGroup(Constants::G_SESSION_FILES);
     msessionContextMenu->appendGroup(Constants::G_SESSION_OTHER);
+    msessionContextMenu->appendGroup(Constants::G_EDITOR_MENU);
     msessionContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_FIRST);
@@ -1176,11 +1158,10 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_FILES);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_CLOSE);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
+    mprojectContextMenu->appendGroup(Constants::G_EDITOR_MENU);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
     mprojectContextMenu->addMenu(projectOpenLocationCtxMenu, Constants::G_FOLDER_LOCATIONS);
-    connect(mprojectContextMenu->menu(), &QMenu::aboutToShow,
-            dd, &ProjectExplorerPluginPrivate::updateLocationSubMenus);
 
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FIRST);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_BUILD);
@@ -1188,11 +1169,10 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     msubProjectContextMenu->appendGroup(Constants::G_FOLDER_LOCATIONS);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FILES);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
+    msubProjectContextMenu->appendGroup(Constants::G_EDITOR_MENU);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
     msubProjectContextMenu->addMenu(projectOpenLocationCtxMenu, Constants::G_FOLDER_LOCATIONS);
-    connect(msubProjectContextMenu->menu(), &QMenu::aboutToShow,
-            dd, &ProjectExplorerPluginPrivate::updateLocationSubMenus);
 
     ActionContainer *runMenu = ActionManager::createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
@@ -1204,11 +1184,13 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     msubProjectContextMenu->addMenu(runMenu, ProjectExplorer::Constants::G_PROJECT_RUN);
 
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_LOCATIONS);
+    mfolderContextMenu->appendGroup(Constants::G_EDITOR_MENU);
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_FILES);
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_OTHER);
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_CONFIG);
     mfolderContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
+    mfileContextMenu->appendGroup(Constants::G_EDITOR_MENU);
     mfileContextMenu->appendGroup(Constants::G_FILE_OPEN);
     mfileContextMenu->appendGroup(Constants::G_FILE_OTHER);
     mfileContextMenu->appendGroup(Constants::G_FILE_CONFIG);
@@ -1221,16 +1203,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     dd->m_openTerminalMenu = openTerminal->menu();
     dd->m_openTerminalMenu->setTitle(Core::FileUtils::msgTerminalWithAction());
 
-    // "open with" submenu
-    ActionContainer * const openWith =
-            ActionManager::createMenu(ProjectExplorer::Constants::M_OPENFILEWITHCONTEXT);
-    openWith->setOnAllDisabledBehavior(ActionContainer::Show);
-    dd->m_openWithMenu = openWith->menu();
-    dd->m_openWithMenu->setTitle(Tr::tr("Open With"));
-
     mfolderContextMenu->addMenu(folderOpenLocationCtxMenu, Constants::G_FOLDER_LOCATIONS);
-    connect(mfolderContextMenu->menu(), &QMenu::aboutToShow,
-            dd, &ProjectExplorerPluginPrivate::updateLocationSubMenus);
 
     //
     // Separators
@@ -1280,42 +1253,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     mfile->addAction(cmd, Core::Constants::G_FILE_OPEN);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
-    // Default open action
-    dd->m_openFileAction = new QAction(Tr::tr("Open File"), this);
-    cmd = ActionManager::registerAction(dd->m_openFileAction, Constants::OPENFILE,
-                       projectTreeContext);
-    mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
-
-    dd->m_searchOnFileSystem = new QAction(Core::FileUtils::msgFindInDirectory(), this);
-    cmd = ActionManager::registerAction(dd->m_searchOnFileSystem, Constants::SEARCHONFILESYSTEM, projectTreeContext);
-
-    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
-    mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_CONFIG);
-    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
-    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
-
-    dd->m_showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), this);
-    cmd = ActionManager::registerAction(dd->m_showInGraphicalShell,
-                                        Core::Constants::SHOWINGRAPHICALSHELL,
-                                        projectTreeContext);
-    mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
-    mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
-
-    // Show in File System View
-    dd->m_showFileSystemPane = new QAction(Core::FileUtils::msgFileSystemAction(), this);
-    cmd = ActionManager::registerAction(dd->m_showFileSystemPane,
-                                        Constants::SHOWINFILESYSTEMVIEW,
-                                        projectTreeContext);
-    mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
-    mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
-    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
-    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
-
-    mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
-    mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
-    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
-    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
-
     mfileContextMenu->addMenu(openTerminal, Constants::G_FILE_OPEN);
     mfolderContextMenu->addMenu(openTerminal, Constants::G_FOLDER_FILES);
     msubProjectContextMenu->addMenu(openTerminal, Constants::G_PROJECT_LAST);
@@ -1336,21 +1273,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
                                   "ProjectExplorer.OpenTerminalHereRunEnv",
                                   projectTreeContext);
     dd->m_openTerminalMenu->addAction(dd->m_openTerminalHereRunEnv);
-
-    // Version control file submenu
-    ActionContainer * const vcsFile =
-            ActionManager::createMenu(ProjectExplorer::Constants::M_VCSFILECONTEXT);
-    vcsFile->setOnAllDisabledBehavior(ActionContainer::Show);
-    dd->m_vcsFileMenu = vcsFile->menu();
-    dd->m_vcsFileMenu->setTitle("Version Control File");
-    dd->m_vcsFileMenu->menuAction()->setVisible(false);
-    mfileContextMenu->addMenu(vcsFile, Constants::G_FILE_OTHER);
-    mfolderContextMenu->addMenu(vcsFile, Constants::G_FOLDER_FILES);
-    msubProjectContextMenu->addMenu(vcsFile, Constants::G_PROJECT_LAST);
-    mprojectContextMenu->addMenu(vcsFile, Constants::G_PROJECT_LAST);
-
-    // Open With menu
-    mfileContextMenu->addMenu(openWith, Constants::G_FILE_OPEN);
 
     // recent projects menu
     ActionContainer *mrecent =
@@ -1785,12 +1707,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     cmd->setDescription(dd->m_unloadOthersActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_CLOSE);
 
-    // file properties action
-    dd->m_filePropertiesAction = new QAction(Tr::tr("Properties..."), this);
-    cmd = ActionManager::registerAction(dd->m_filePropertiesAction, Constants::FILEPROPERTIES,
-                       projectTreeContext);
-    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
-
     // remove file action
     dd->m_removeFileAction = new QAction(Tr::tr("Remove..."), this);
     cmd = ActionManager::registerAction(dd->m_removeFileAction, Constants::REMOVEFILE,
@@ -1821,12 +1737,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     dd->m_renameFileAction = new QAction(Tr::tr("Rename..."), this);
     cmd = ActionManager::registerAction(dd->m_renameFileAction, Constants::RENAMEFILE,
                        projectTreeContext);
-    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
-
-    // diff file action
-    dd->m_diffFileAction
-        = EditorManager::createDiffAgainstCurrentEditorAction(this, &ProjectTree::currentFilePath);
-    cmd = ActionManager::registerAction(dd->m_diffFileAction, Constants::DIFFFILE, projectTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     dd->m_createHeaderAction = new QAction(Tr::tr("Create Header File"), this);
@@ -2084,19 +1994,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
             dd, &ProjectExplorerPluginPrivate::addExistingProjects);
     connect(dd->m_removeProjectAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::removeProject);
-    connect(dd->m_openFileAction, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::openFile);
-    connect(dd->m_searchOnFileSystem, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::searchOnFileSystem);
-    connect(dd->m_showInGraphicalShell, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::showInGraphicalShell);
-    // the following can delete the projects view that triggered the action, so make sure we
-    // are out of the context menu before actually doing it by queuing the action
-    connect(dd->m_showFileSystemPane,
-            &QAction::triggered,
-            dd,
-            &ProjectExplorerPluginPrivate::showInFileSystemPane,
-            Qt::QueuedConnection);
 
     connect(dd->m_openTerminalHereSysEnv, &QAction::triggered, dd, [] {
         dd->openTerminalHere(genericTerminalParameters);
@@ -2108,12 +2005,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
         dd->openTerminalHere(runConfigTerminalParameters);
     });
 
-    connect(dd->m_filePropertiesAction, &QAction::triggered, this, [] {
-                const Node *currentNode = ProjectTree::currentNode();
-                QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
-                ProjectTree::CurrentNodeKeeper nodeKeeper;
-                DocumentManager::showFilePropertiesDialog(currentNode->filePath());
-            });
     connect(dd->m_removeFileAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::removeFile);
     connect(dd->m_duplicateFileAction, &QAction::triggered,
@@ -3223,6 +3114,8 @@ void ProjectExplorerPluginPrivate::extendEditorManagerContextMenu()
         this,
         [this](QMenu *menu, const FilePath &filePath, const QHash<Id, QAction *> &insertionPoints) {
             QAction *insertBefore = insertionPoints.value("OpenProject");
+            if (!insertBefore)
+                return;
             if (filePath.isDir()) {
                 QAction *actionOpenProjects
                     = new QAction(Tr::tr("Open Project in \"%1\"").arg(filePath.fileName()), menu);
@@ -3889,7 +3782,6 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_duplicateFileAction->setEnabled(false);
     m_deleteFileAction->setEnabled(false);
     m_renameFileAction->setEnabled(false);
-    m_diffFileAction->setEnabled(false);
     m_buildFileActionCtx->setEnabled(false);
     m_buildSubProjectActionCtx->setVisible(false);
     m_buildSubProjectActionCtx->setEnabled(false);
@@ -3911,17 +3803,12 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_deleteFileAction->setVisible(true);
     m_runActionContextMenu->setEnabled(false);
     m_defaultRunConfiguration.clear();
-    m_diffFileAction->setVisible(DiffService::instance());
     m_createHeaderAction->setVisible(false);
     m_createSourceAction->setVisible(false);
 
     m_openTerminalHereSysEnv->setVisible(true);
     m_openTerminalHereBuildEnv->setVisible(false);
     m_openTerminalHereRunEnv->setVisible(false);
-
-    m_showInGraphicalShell->setVisible(true);
-    m_showFileSystemPane->setVisible(true);
-    m_searchOnFileSystem->setVisible(true);
 
     ActionContainer *runMenu = ActionManager::actionContainer(Constants::RUNMENUCONTEXTMENU);
     runMenu->menu()->clear();
@@ -4023,9 +3910,6 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
 
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
             m_renameFileAction->setEnabled(canEditProject && !isTypeProject && supports(Rename));
-            const bool currentNodeIsTextFile = isTextFile(currentNode->filePath());
-            m_diffFileAction->setEnabled(DiffService::instance()
-                        && currentNodeIsTextFile && TextEditor::TextDocument::currentTextDocument());
 
             const bool canAdd = canEditProject && supports(AddNewFile) && !isTypeProject;
             m_duplicateFileAction->setVisible(canAdd);
@@ -4057,16 +3941,10 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
                         project && project->canBuildFiles() && productNode
                         && bs && !bs->isParsing() && bs->canBuildFile(fileNode)
                         && !BuildManager::isBuilding(project));
-
-            EditorManager::populateOpenWithMenu(m_openWithMenu, currentNode->filePath());
         }
 
         if (supports(HidePathActions)) {
             m_openTerminalHereSysEnv->setVisible(false);
-            m_showInGraphicalShell->setVisible(false);
-            m_showFileSystemPane->setVisible(false);
-            m_searchOnFileSystem->setVisible(false);
-            m_vcsFileMenu->menuAction()->setVisible(false);
         }
 
         if (supports(HideFileActions)) {
@@ -4339,34 +4217,6 @@ void ProjectExplorerPluginPrivate::removeProject()
     }
 }
 
-void ProjectExplorerPluginPrivate::openFile()
-{
-    const Node *currentNode = ProjectTree::currentNode();
-    QTC_ASSERT(currentNode, return);
-    EditorManager::openEditor(currentNode->filePath());
-}
-
-void ProjectExplorerPluginPrivate::searchOnFileSystem()
-{
-    const Node *currentNode = ProjectTree::currentNode();
-    QTC_ASSERT(currentNode, return);
-    TextEditor::FindInFiles::findOnFileSystem(currentNode->path());
-}
-
-void ProjectExplorerPluginPrivate::showInGraphicalShell()
-{
-    Node *currentNode = ProjectTree::currentNode();
-    QTC_ASSERT(currentNode, return);
-    Core::FileUtils::showInGraphicalShell(currentNode->path());
-}
-
-void ProjectExplorerPluginPrivate::showInFileSystemPane()
-{
-    Node *currentNode = ProjectTree::currentNode();
-    QTC_ASSERT(currentNode, return );
-    Core::FileUtils::showInFileSystemView(currentNode->filePath());
-}
-
 void ProjectExplorerPluginPrivate::openTerminalHere(const OpenTerminalParametersGetter &getParams)
 {
     TaskHub::clearAndRemoveTask(m_openTerminalError);
@@ -4634,11 +4484,6 @@ void ProjectExplorerPlugin::removeFromRecentProjects(const FilePath &filePath)
 void ProjectExplorerPlugin::updateRunActions()
 {
     dd->doUpdateRunActions();
-}
-
-QMenu *ProjectExplorerPlugin::vcsFileContextMenu()
-{
-    return dd->m_vcsFileMenu;
 }
 
 QWidget *ProjectExplorerPlugin::createRecentProjectsView()

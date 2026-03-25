@@ -417,11 +417,12 @@ static QAction *addMenuAction(
     const QString &title,
     bool enabled,
     QObject *guard,
-    const std::function<void()> &slot)
+    const std::function<void()> &slot,
+    Qt::ConnectionType connectionType = Qt::AutoConnection)
 {
     QAction *action = contextMenu->addAction(title);
     action->setEnabled(enabled);
-    QObject::connect(action, &QAction::triggered, guard, slot);
+    QObject::connect(action, &QAction::triggered, guard, slot, connectionType);
     return action;
 }
 
@@ -3344,42 +3345,48 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
                                           : entry && !entry->isSuspended ? entry->document
                                                                          : nullptr;
 
-    // Open in Finder/Explorer
-    addMenuAction(contextMenu, FileUtils::msgGraphicalShellAction(), enabled, d, [filePath] {
-        FileUtils::showInGraphicalShell(filePath);
-    });
+    if (!flags.testFlag(EditorManager::HidePathActions)) {
+        // Open in Finder/Explorer
+        addMenuAction(contextMenu, FileUtils::msgGraphicalShellAction(), enabled, d, [filePath] {
+            FileUtils::showInGraphicalShell(filePath);
+        });
 
-    // Show in File System View
-    addMenuAction(contextMenu, FileUtils::msgFileSystemAction(), enabled, d, [filePath] {
-        FileUtils::showInFileSystemView(filePath);
-    });
+        // Show in File System View
+        // Might hide&destroy the view that has triggered this, so better use QueuedConnection
+        addMenuAction(contextMenu, FileUtils::msgFileSystemAction(), enabled, d, [filePath] {
+            FileUtils::showInFileSystemView(filePath);
+        }, Qt::QueuedConnection);
 
-    // Open Terminal Here
-    addMenuAction(contextMenu, FileUtils::msgTerminalHereAction(), enabled, d, [filePath] {
-        FileUtils::openTerminal(filePath.parentDir(), {});
-    });
+        // Open Terminal Here
+        addMenuAction(contextMenu, FileUtils::msgTerminalHereAction(), enabled, d, [filePath] {
+            FileUtils::openTerminal(filePath.parentDir(), {});
+        });
 
-    // Find in This Directory
-    addMenuAction(contextMenu, FileUtils::msgFindInDirectory(), enabled, m_instance, [filePath] {
-        emit m_instance->findOnFileSystemRequest(filePath);
-    });
+        // Find in This Directory
+        addMenuAction(contextMenu, FileUtils::msgFindInDirectory(), enabled, m_instance, [filePath] {
+            emit m_instance->findOnFileSystemRequest(filePath);
+        });
+    }
 
     if (!flags.testFlag(EditorManager::HideVersionControl)) {
-        // Diff Against Current Editor
-        contextMenu->addAction(
-            EditorManager::createDiffAgainstCurrentEditorAction(
-                d,
-                [filePath] { return filePath; },
-                [contextDocument]() -> IDocument * { return contextDocument; }));
-
+        if (filePath.isFile() && DiffService::instance()) {
+            // Diff Against Current Editor
+            contextMenu->addAction(
+                EditorManager::createDiffAgainstCurrentEditorAction(
+                    d,
+                    [filePath] { return filePath; },
+                    [contextDocument]() -> IDocument * { return contextDocument; }));
+        }
         // Version Control
-        FilePath topLevel;
-        if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
-            QMenu *subMenu = contextMenu->addMenu(vc->displayName());
-            const FilePath relativePath = filePath.relativeChildPath(topLevel);
-            const VcsFileState vcsFileState = VcsManager::fileState(filePath);
-            vc->fillDefaultFileActionMenu(subMenu, vc, topLevel, relativePath);
-            vc->vcsFillFileActionMenu(subMenu, topLevel, relativePath, vcsFileState);
+        if (!flags.testFlag(EditorManager::HidePathActions)) {
+            FilePath topLevel;
+            if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
+                QMenu *subMenu = contextMenu->addMenu(vc->displayName());
+                const FilePath relativePath = filePath.relativeChildPath(topLevel);
+                const VcsFileState vcsFileState = VcsManager::fileState(filePath);
+                vc->fillDefaultFileActionMenu(subMenu, vc, topLevel, relativePath);
+                vc->vcsFillFileActionMenu(subMenu, topLevel, relativePath, vcsFileState);
+            }
         }
     }
 
@@ -3441,7 +3448,8 @@ void EditorManagerPrivate::addContextMenuActions(
             });
     }
     QAction *sep = contextMenu->addSeparator();
-    insertionPoints.insert("OpenProject", sep);
+    if (!flags.testFlag(EditorManager::HideOpenProject))
+        insertionPoints.insert("OpenProject", sep);
     addCopyFilePathActions(contextMenu, filePath, editor);
     contextMenu->addSeparator();
     if (flags.testFlag(EditorManager::ShowEditorActions)) {

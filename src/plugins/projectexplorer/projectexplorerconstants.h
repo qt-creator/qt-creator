@@ -54,9 +54,7 @@ inline constexpr char M_PROJECTCONTEXT[]     = "Project.Menu.Project";
 inline constexpr char M_SUBPROJECTCONTEXT[]  = "Project.Menu.SubProject";
 inline constexpr char M_FOLDERCONTEXT[]      = "Project.Menu.Folder";
 inline constexpr char M_FILECONTEXT[]        = "Project.Menu.File";
-inline constexpr char M_OPENFILEWITHCONTEXT[] = "Project.Menu.File.OpenWith";
 inline constexpr char M_OPENTERMINALCONTEXT[] = "Project.Menu.File.OpenTerminal";
-inline constexpr char M_VCSFILECONTEXT[]      = "Project.Menu.File.Vcs";
 
 // Context menu groups
 inline constexpr char G_SESSION_BUILD[]      = "Session.Group.Build";
@@ -81,6 +79,8 @@ inline constexpr char G_FOLDER_CONFIG[]      = "ProjectFolder.Group.Config";
 inline constexpr char G_FILE_OPEN[]          = "ProjectFile.Group.Open";
 inline constexpr char G_FILE_OTHER[]         = "ProjectFile.Group.Other";
 inline constexpr char G_FILE_CONFIG[]        = "ProjectFile.Group.Config";
+
+inline constexpr char G_EDITOR_MENU[]        = "ProjectTree.Group.EditorMenu";
 
 // Kits settings category
 inline constexpr char KITS_SETTINGS_CATEGORY[]  = "A.Kits";
