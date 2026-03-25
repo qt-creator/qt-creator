@@ -317,11 +317,8 @@ void WorkspaceProject::scan(const FilePath &path)
             auto root = std::make_unique<ProjectNode>(path);
             root->setDisplayName(displayName());
             m_watcher.reset(new FileSystemWatcher);
-            connect(
-                m_watcher.get(),
-                &FileSystemWatcher::directoryChanged,
-                this,
-                [this, w = m_watcher.get()](const FilePath &path) { handleDirectoryChanged(path); });
+            connect(m_watcher.get(), &FileSystemWatcher::directoryChanged, this,
+                    [this](const FilePath &path) { handleDirectoryChanged(path); });
 
             addNodes(root.get());
             setRootProjectNode(std::move(root));
