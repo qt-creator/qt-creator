@@ -308,6 +308,16 @@ void TestTreeModel::onTestRunRequested(const TestCaseInfo &testInfo,
         config->runnable().command.addArgs(additionalOptions);
     config->setEnvironment(
                 testEnvironment.environment.appliedToEnvironment(config->runnable().environment));
+
+    connect(
+        TestRunner::instance(), &TestRunner::testRunFinished,
+        this, [testEnvironment] {
+            if (testEnvironment.onTestsRunFinished)
+                testEnvironment.onTestsRunFinished();
+        },
+        Qt::SingleShotConnection
+    );
+
     TestRunner::instance()->runTests(TestRunMode::Run, {config});
 }
 

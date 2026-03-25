@@ -501,7 +501,7 @@ public:
         m_currentlySwitching = false;
     };
 
-    bool askToLeave(); // returns true if ok to leave.
+    bool askToLeave(bool aboutToShutdown = false); // returns true if ok to leave
 
 private:
     const QList<IOptionsPage *> m_pages;
@@ -857,9 +857,9 @@ void SettingsWidget::switchBackIfNeeded()
     dialog.exec();
 }
 
-bool SettingsWidget::askToLeave()
+bool SettingsWidget::askToLeave(bool aboutToShutdown)
 {
-    QTC_ASSERT(!m_currentlySwitching, return false);
+    QTC_ASSERT(!m_currentlySwitching || aboutToShutdown, return false);
 
     QMessageBox dialog(dialogParent());
     dialog.setWindowTitle(Tr::tr("Unapplied Changes"));
@@ -883,7 +883,10 @@ bool SettingsWidget::askToLeave()
         okToSwitch = true;
     });
 
-    dialog.addButton(Tr::tr("Stay in Settings Mode"), QMessageBox::AcceptRole);
+    if (aboutToShutdown)
+        dialog.addButton(Tr::tr("Cancel"), QMessageBox::RejectRole);
+    else
+        dialog.addButton(Tr::tr("Stay in Settings Mode"), QMessageBox::AcceptRole);
     dialog.exec();
 
     return okToSwitch;
@@ -1025,6 +1028,12 @@ SettingsMode::SettingsMode()
     ActionBuilder(this, Core::Constants::S_RETURNTOEDITOR)
         .setContext(Constants::C_SETTINGS_MODE)
         .addOnTriggered([] { ModeManager::activatePreviousMode(); });
+
+    ICore::addPreCloseListener([this]{
+        if (ModeManager::instance()->currentMode() == this)
+            return aboutToShutdown();
+        return true;
+    });
 }
 
 SettingsMode::~SettingsMode()
@@ -1045,6 +1054,15 @@ void SettingsMode::open(Id initialPage)
 
     m_settingsModeWidget->open(initialPage);
     ModeManager::activateMode(Constants::MODE_SETTINGS);
+}
+
+bool SettingsMode::aboutToShutdown()
+{
+    if (m_settingsModeWidget && m_settingsModeWidget->inner
+            && m_settingsModeWidget->inner->isDirty()) {
+        return m_settingsModeWidget->inner->askToLeave(true);
+    }
+    return true;
 }
 
 } // namespace Core::Internal

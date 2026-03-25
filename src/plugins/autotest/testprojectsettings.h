@@ -20,7 +20,7 @@ class TestProjectSettings : public QObject
     Q_OBJECT
 public:
     explicit TestProjectSettings(ProjectExplorer::Project *project);
-    ~TestProjectSettings();
+    ~TestProjectSettings() = default;
 
     void setUseGlobalSettings(bool useGlobal);
     bool useGlobalSettings() const { return m_useGlobalSettings; }

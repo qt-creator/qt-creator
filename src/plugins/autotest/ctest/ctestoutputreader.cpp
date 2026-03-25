@@ -66,7 +66,7 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
                                                "Test\\s+#(?<current>\\d+): (.*) (\\.+)\\s*"
                                                "(Passed|\\*\\*\\*Failed|\\*\\*\\*Not Run|"
                                                "\\*\\*\\*Skipped|.*\\*\\*\\*Exception:.*)"
-                                               "\\s+(.*)(\\d+\\.\\d+) sec$");
+                                               "\\s+(.*?)(\\d+\\.\\d+) sec$");
     static const QRegularExpression testCrash("^\\s*\\d+/\\d+ Test\\s+#\\d+: (.*) (\\.+)\\s*"
                                               "Exit code .*$");
     static const QRegularExpression summary("^\\d+% tests passed, (\\d+) tests failed "

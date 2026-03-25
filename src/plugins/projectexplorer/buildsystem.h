@@ -36,6 +36,7 @@ struct TestCaseEnvironment
 {
     Utils::FilePath workingDirectory;
     Utils::Environment environment;
+    std::function<void()> onTestsRunFinished;
 };
 
 // Extra infomation needed by QmlJS tools and editor.

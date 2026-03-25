@@ -120,8 +120,6 @@ public:
     bool isDebuggingActive();
     QString abortDebug();
     bool killDebuggedProcesses();
-    void performDebuggingCleanup();
-    bool performDebuggingCleanupSync();
 
     void executeCommand(
         const QString &command,

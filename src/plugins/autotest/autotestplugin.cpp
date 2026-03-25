@@ -128,7 +128,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     connect(projectManager, &ProjectManager::startupProjectChanged,
             this, [this] { m_runconfigCache.clear(); });
 
-    connect(projectManager, &ProjectManager::aboutToRemoveProject, this, [](Project *project) {
+    connect(projectManager, &ProjectManager::projectRemoved, this, [](Project *project) {
         const auto it = s_projectSettings.constFind(project);
         if (it != s_projectSettings.constEnd()) {
             delete it.value();

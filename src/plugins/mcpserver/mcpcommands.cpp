@@ -679,146 +679,8 @@ bool McpCommands::switchToBuildConfig(const QString &name)
 
 bool McpCommands::quit()
 {
-    qCDebug(mcpCommands) << "Starting graceful quit process...";
-
-    // Check if debugging is currently active
-    bool debuggingActive = isDebuggingActive();
-    qCDebug(mcpCommands) << "Debug session check result:" << debuggingActive;
-
-    if (debuggingActive) {
-        qCDebug(mcpCommands) << "Debug session detected, attempting to stop debugging gracefully...";
-
-        // Perform debugging cleanup synchronously (but using non-blocking timers)
-        return performDebuggingCleanupSync();
-
-    } else {
-        qCDebug(mcpCommands) << "No active debug session detected, quitting immediately...";
-        QApplication::quit();
-        return true;
-    }
-}
-
-bool McpCommands::performDebuggingCleanupSync()
-{
-    qCDebug(mcpCommands) << "Starting synchronous debugging cleanup process...";
-
-    // Step 1: Try to stop debugging gracefully
-    QString stopResult = stopDebug();
-    qCDebug(mcpCommands) << "Stop debug result:" << stopResult;
-
-    // Step 2: Wait up to 10 seconds for debugging to stop (using event loop)
-    QEventLoop stopLoop;
-    QTimer stopTimer;
-    stopTimer.setSingleShot(true);
-    QObject::connect(&stopTimer, &QTimer::timeout, &stopLoop, &QEventLoop::quit);
-
-    // Check every second if debugging has stopped
-    QTimer checkTimer;
-    QObject::connect(&checkTimer, &QTimer::timeout, [this, &stopLoop, &checkTimer]() {
-        if (!isDebuggingActive()) {
-            qCDebug(mcpCommands) << "Debug session stopped successfully";
-            checkTimer.stop();
-            stopLoop.quit();
-        }
-    });
-
-    checkTimer.start(1000); // Check every second
-    stopTimer.start(10000); // Maximum 10 seconds
-    stopLoop.exec();        // Wait for either success or timeout
-    checkTimer.stop();
-
-    // Step 3: If still debugging, try abort debugging
-    if (isDebuggingActive()) {
-        qCDebug(mcpCommands) << "Still debugging after stop, attempting abort debugging...";
-        QString abortResult = abortDebug();
-        qCDebug(mcpCommands) << "Abort debug result:" << abortResult;
-
-        // Wait up to 5 seconds for abort to take effect
-        QEventLoop abortLoop;
-        QTimer abortTimer;
-        abortTimer.setSingleShot(true);
-        QObject::connect(&abortTimer, &QTimer::timeout, &abortLoop, &QEventLoop::quit);
-
-        QTimer abortCheckTimer;
-        QObject::connect(&abortCheckTimer, &QTimer::timeout, [this, &abortLoop, &abortCheckTimer]() {
-            if (!isDebuggingActive()) {
-                qCDebug(mcpCommands) << "Debug session aborted successfully";
-                abortCheckTimer.stop();
-                abortLoop.quit();
-            }
-        });
-
-        abortCheckTimer.start(1000); // Check every second
-        abortTimer.start(5000);      // Maximum 5 seconds
-        abortLoop.exec();            // Wait for either success or timeout
-        abortCheckTimer.stop();
-    }
-
-    // Step 4: If still debugging, try to kill debugged processes
-    if (isDebuggingActive()) {
-        qCDebug(mcpCommands) << "Still debugging after abort, attempting to kill debugged processes...";
-        bool killResult = killDebuggedProcesses();
-        qCDebug(mcpCommands) << "Kill debugged processes result:" << killResult;
-
-        // Wait up to 5 seconds for kill to take effect
-        QEventLoop killLoop;
-        QTimer killTimer;
-        killTimer.setSingleShot(true);
-        QObject::connect(&killTimer, &QTimer::timeout, &killLoop, &QEventLoop::quit);
-
-        QTimer killCheckTimer;
-        QObject::connect(&killCheckTimer, &QTimer::timeout, [this, &killLoop, &killCheckTimer]() {
-            if (!isDebuggingActive()) {
-                qCDebug(mcpCommands) << "Debugged processes killed successfully";
-                killCheckTimer.stop();
-                killLoop.quit();
-            }
-        });
-
-        killCheckTimer.start(1000); // Check every second
-        killTimer.start(5000);      // Maximum 5 seconds
-        killLoop.exec();            // Wait for either success or timeout
-        killCheckTimer.stop();
-    }
-
-    // Step 5: Final timeout - wait up to configured timeout
-    if (isDebuggingActive()) {
-        const int timeoutSeconds = 30;
-
-        qCDebug(mcpCommands) << "Still debugging, waiting up to" << timeoutSeconds
-                 << "seconds for final timeout...";
-
-        QEventLoop finalLoop;
-        QTimer finalTimer;
-        finalTimer.setSingleShot(true);
-        QObject::connect(&finalTimer, &QTimer::timeout, &finalLoop, &QEventLoop::quit);
-
-        QTimer finalCheckTimer;
-        QObject::connect(&finalCheckTimer, &QTimer::timeout, [this, &finalLoop, &finalCheckTimer]() {
-            if (!isDebuggingActive()) {
-                qCDebug(mcpCommands) << "Debug session finally stopped";
-                finalCheckTimer.stop();
-                finalLoop.quit();
-            }
-        });
-
-        finalCheckTimer.start(1000);             // Check every second
-        finalTimer.start(timeoutSeconds * 1000); // Maximum configured timeout
-        finalLoop.exec();                        // Wait for either success or timeout
-        finalCheckTimer.stop();
-    }
-
-    // Step 6: Final check - determine success or failure
-    bool success = !isDebuggingActive();
-    if (success) {
-        qCDebug(mcpCommands) << "Debug session cleanup completed successfully, quitting Qt Creator...";
-        QApplication::quit();
-        return true;
-    } else {
-        qCDebug(mcpCommands) << "ERROR: Failed to stop debugged application after all attempts - NOT quitting "
-                    "Qt Creator";
-        return false; // Don't quit Qt Creator
-    }
+    Core::ICore::exit();
+    return true;
 }
 
 void McpCommands::executeCommand(
@@ -842,12 +704,6 @@ void McpCommands::executeCommand(
     if (!workingDirectory.isEmpty())
         process->setWorkingDirectory(FilePath::fromUserInput(workingDirectory));
     process->start();
-}
-
-void McpCommands::performDebuggingCleanup()
-{
-    // This method is kept for backward compatibility but should not be used
-    qCDebug(mcpCommands) << "performDebuggingCleanup called - this method is deprecated";
 }
 
 bool McpCommands::isDebuggingActive()
@@ -1016,37 +872,7 @@ QString McpCommands::getCurrentSession()
 
 bool McpCommands::loadSession(const QString &sessionName)
 {
-    if (sessionName.isEmpty()) {
-        qCDebug(mcpCommands) << "Empty session name provided";
-        return false;
-    }
-
-    // Check if the session exists before trying to load it
-    QStringList availableSessions = Core::SessionManager::sessions();
-    if (!availableSessions.contains(sessionName)) {
-        qCDebug(mcpCommands) << "Session does not exist:" << sessionName;
-        qCDebug(mcpCommands) << "Available sessions:" << availableSessions;
-        return false;
-    }
-
-    qCDebug(mcpCommands) << "Loading session:" << sessionName;
-
-    // Use a safer approach - check if we're already in the target session
-    QString currentSession = Core::SessionManager::activeSession();
-    if (currentSession == sessionName) {
-        qCDebug(mcpCommands) << "Already in session:" << sessionName;
-        return true;
-    }
-
-    // Try to load the session using QTimer to avoid blocking
-    QTimer::singleShot(0, [sessionName]() {
-        qCDebug(mcpCommands) << "Attempting to load session:" << sessionName;
-        bool success = Core::SessionManager::loadSession(sessionName);
-        qCDebug(mcpCommands) << "Session load result:" << success;
-    });
-
-    qCDebug(mcpCommands) << "Session loading initiated asynchronously";
-    return true; // Return true to indicate the request was accepted
+    return Core::SessionManager::loadSession(sessionName);
 }
 
 bool McpCommands::saveSession()

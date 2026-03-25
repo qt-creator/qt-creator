@@ -3,6 +3,7 @@
 
 #include "cmakelocatorfilter.h"
 
+#include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakeproject.h"
 #include "cmakeprojectmanagertr.h"
@@ -194,6 +195,24 @@ private:
                 testEnv.environment = *preset.environment;
         } else {
             additionalOptions << "--output-on-failure";
+
+            // Set the current test target as build target, just like the "cm" locator does
+            auto getBuildStep = [buildSystem]() {
+                const auto buildStepList = buildSystem->buildConfiguration()->buildSteps();
+                const auto buildStep = buildStepList->firstOfType<Internal::CMakeBuildStep>();
+                return buildStep;
+            };
+            const auto buildStep = getBuildStep();
+            if (buildStep) {
+                const QStringList oldTargets = buildStep->buildTargets();
+                buildStep->setBuildTargets({testInfo.name});
+
+                testEnv.onTestsRunFinished = [getBuildStep, oldTargets] {
+                    const auto buildStep = getBuildStep();
+                    if (buildStep)
+                        buildStep->setBuildTargets(oldTargets);
+                };
+            }
         }
 
         emit buildSystem->testRunRequested(testInfo, additionalOptions, testEnv);
