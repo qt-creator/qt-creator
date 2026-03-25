@@ -11,7 +11,9 @@ import Qt.labs.qmlmodels
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
+import DeviceManagerBackend
 import DeviceManagerControls as DMC
+import ToolBar
 
 Rectangle {
     id: root

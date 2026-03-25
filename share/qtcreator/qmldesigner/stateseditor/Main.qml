@@ -317,7 +317,7 @@ Rectangle {
         x: editButton.x - Math.max(0, editButton.x + editDialog.width - root.width)
         y: toolBar.height
         width: Math.min(300, root.width)
-        closePolicy: Popup.NoAutoClose
+        closePolicy: Basic.Popup.NoAutoClose
 
         onApplied: editDialog.accept()
 
