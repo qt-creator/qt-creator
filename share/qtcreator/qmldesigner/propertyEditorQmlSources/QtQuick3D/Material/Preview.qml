@@ -13,7 +13,7 @@ Rectangle {
     property alias pinned: pinButton.checked
     property alias showPinButton: pinButton.visible
 
-    property StudioTheme.ControlStyle buttonStyle: StudioTheme.ViewBarButtonStyle {
+    property var buttonStyle: StudioTheme.ViewBarButtonStyle {
         // This is how you can override stuff from the control styles
         baseIconFontSize: StudioTheme.Values.bigIconFontSize
     }

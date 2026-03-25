@@ -20,7 +20,7 @@ Rectangle {
 
     readonly property bool isGenerating: root.rootView.generationState !== GenerationState.Idle
 
-    property StudioTheme.ControlStyle style: StudioTheme.ControlStyle {
+    property var style: StudioTheme.ControlStyle {
         radius: StudioTheme.Values.smallRadius
     }
 

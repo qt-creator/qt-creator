@@ -8,7 +8,7 @@ import StudioTheme 1.0 as StudioTheme
 T.Switch {
     id: control
 
-    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+    property var style: StudioTheme.Values.controlStyle
 
     property alias actionIndicator: actionIndicator
 

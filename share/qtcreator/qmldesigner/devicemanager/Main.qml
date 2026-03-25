@@ -438,7 +438,7 @@ Rectangle {
 
                     tooltip: qsTr("Add Run Target")
 
-                    style: StudioTheme.SearchControlStyle {}
+                    style: StudioTheme.Values.searchControlStyle
 
                     onButtonClicked: row.addRunTarget(ipInput.text)
                     onAccepted: row.addRunTarget(ipInput.text)
