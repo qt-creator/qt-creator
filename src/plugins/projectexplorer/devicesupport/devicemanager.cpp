@@ -391,8 +391,10 @@ DeviceManager::DeviceManager()
     deviceHooks.isSameDevice = [](const FilePath &left, const FilePath &right) {
         auto leftDevice = DeviceManager::deviceForPath(left);
         auto rightDevice = DeviceManager::deviceForPath(right);
-
-        return leftDevice == rightDevice;
+        if (leftDevice || rightDevice)
+            return leftDevice == rightDevice;
+        // Fallback if e.g. no devices are registered yet.
+        return left.scheme() == right.scheme() && left.host() == right.host();
     };
 
     deviceHooks.localSource = [](const FilePath &file) -> Result<FilePath> {
