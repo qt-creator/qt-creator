@@ -350,7 +350,7 @@ bool GroupedModel::isDirty(int row) const
     QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return false);
     if (m_added.at(row) || m_changed.at(row))
         return true;
-    if (m_defaultAffectsDirty && m_volatileDefaultFlag.at(row) != m_defaultFlag.at(row))
+    if (m_showDefault && m_volatileDefaultFlag.at(row) != m_defaultFlag.at(row))
         return true;
     return m_volatileVariants.at(row) != m_variants.at(row);
 }
@@ -392,15 +392,7 @@ void GroupedModel::setDefaultRow(int row)
 
 void GroupedModel::setShowDefault(bool on)
 {
-    // FIXME: Combine
     m_showDefault = on;
-    m_defaultAffectsDirty = on;
-}
-
-// FIXME: Remove
-void GroupedModel::setDefaultAffectsDirty(bool on)
-{
-    m_defaultAffectsDirty = on;
 }
 
 void GroupedModel::setChanged(int row, bool changed)

@@ -84,7 +84,6 @@ private:
     QList<bool> m_volatileDefaultFlag;
     QList<bool> m_defaultFlag;
     bool m_showDefault = false;
-    bool m_defaultAffectsDirty = false;
 
     class DisplayModel;
     DisplayModel *m_displayModel = nullptr;
