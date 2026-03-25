@@ -35,7 +35,18 @@ def qdump__cv__Mat(d, value):
     d.putValue('(%s x %s)' % (rows, cols))
     if d.isExpanded():
         with Children(d):
-            innerType = d.createType(TypeCode.Integral, innerSize)
+            depth = flag & 7
+            #  0 (CV_8U)   unsigned char
+            #  1 (CV_8S)   signed char
+            #  2 (CV_16U)  unsigned short
+            #  3 (CV_16S)  short
+            #  4 (CV_32S)  int
+            #  5 (CV_32F)  float
+            #  6 (CV_64F)  double
+            #  7 (CV_16F)  unsigned short (approximation for half-float)
+            depthTypes = ['unsigned char', 'signed char', 'unsigned short', 'short',
+                          'int', 'float', 'double', 'unsigned short']
+            innerType = d.createType(depthTypes[depth])
             for i in range(rows):
                 for j in range(cols):
                     with SubItem(d, None):
