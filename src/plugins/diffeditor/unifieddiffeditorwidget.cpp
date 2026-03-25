@@ -547,6 +547,12 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
     if (fileIndex < 0)
         return;
 
+    auto jumpToOriginalFile = [this](const QString &file, int line, int column) {
+        m_controller.resolveCurrentLine(file, line, [this, file, column](int line) {
+            m_controller.jumpToOriginalFile(file, line, column);
+        });
+    };
+
     const FileData fileData = m_controller.m_contextFileData.at(fileIndex);
     const QString leftFileName = fileData.fileInfo[LeftSide].fileName;
     const QString rightFileName = fileData.fileInfo[RightSide].fileName;
@@ -555,7 +561,7 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 
     const int rightLineNumber = m_data.m_lineNumbers[RightSide].value(blockNumber, {-1, 0}).first;
     if (rightLineNumber >= 0) {
-        m_controller.jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
+        jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
         return;
     }
 
@@ -563,7 +569,7 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
     if (leftLineNumber < 0)
         return;
     if (leftFileName != rightFileName) {
-        m_controller.jumpToOriginalFile(leftFileName, leftLineNumber, columnNumber);
+        jumpToOriginalFile(leftFileName, leftLineNumber, columnNumber);
         return;
     }
 
@@ -576,7 +582,7 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
             if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
                 newRightLineNumber++;
             if (newLeftLineNumber == leftLineNumber) {
-                m_controller.jumpToOriginalFile(leftFileName, newRightLineNumber, 0);
+                jumpToOriginalFile(leftFileName, newRightLineNumber, 0);
                 return;
             }
         }
