@@ -36,10 +36,10 @@ Item {
     property bool userAdded: false
     property bool uniNameEdited: false
 
-    property real minFloat: root.backendModel.valueLimit("float", false)
-    property real maxFloat: root.backendModel.valueLimit("float", true)
-    property int minInt: root.backendModel.valueLimit("int", false)
-    property int maxInt: root.backendModel.valueLimit("int", true)
+    property real minFloat: root.backendModel ? root.backendModel.valueLimit("float", false) : 0
+    property real maxFloat: root.backendModel ? root.backendModel.valueLimit("float", true) : 0
+    property int minInt: root.backendModel ? root.backendModel.valueLimit("int", false) : 0
+    property int maxInt: root.backendModel ? root.backendModel.valueLimit("int", true) : 0
 
     property var reservedDispNames: []
     property var reservedUniNames: []

@@ -13,7 +13,7 @@ HelperWidgets.Section {
 
     readonly property var backendModel: EffectComposerBackend.effectComposerModel
     readonly property var rootView: EffectComposerBackend.rootView
-    readonly property bool codeEditorOpen: root.backendModel.codeEditorIndex === root.modelIndex
+    readonly property bool codeEditorOpen: root.backendModel ? root.backendModel.codeEditorIndex === root.modelIndex : false
 
     property int modelIndex: 0
     property int editedUniformIndex: -1
@@ -353,7 +353,7 @@ HelperWidgets.Section {
 
             Row {
                 height: 40
-                visible: (root.backendModel.advancedMode || isCustom) && !isDependency && !addPropertyForm.visible
+                visible: (root.backendModel && (root.backendModel.advancedMode || isCustom)) && !isDependency && !addPropertyForm.visible
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 5
 
