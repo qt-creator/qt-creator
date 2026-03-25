@@ -180,34 +180,49 @@ static void parseCharOrEscape(DebuggerOutputParser &parser, DebuggerOutputParser
     }
 }
 
-void DebuggerOutputParser::readCStringData(Buffer &buffer)
-{
-    if (isAtEnd())
-        return;
-
-    if (*from != '"') {
-        qDebug() << "MI Parse Error, double quote expected";
-        ++from; // So we don't hang
-        return;
-    }
-
-    ++from; // Skip initial quote.
-    while (from < to) {
-        if (*from == '"') {
-            ++from;
-            return;
-        }
-        parseCharOrEscape(*this, buffer);
-    }
-
-    qDebug() << "MI Parse Error, unfinished string";
-}
 
 QString DebuggerOutputParser::readCString()
 {
+    if (isAtEnd())
+        return {};
+
+    if (*from != '"') {
+        qDebug() << "MI Parse Error, double quote expected";
+        ++from;
+        return {};
+    }
+
+    ++from; // Skip initial quote.
+
+    QString result;
     Buffer buffer;
-    readCStringData(buffer);
-    return decoder.decode(buffer);
+
+    auto flushBuffer = [&] {
+        if (!buffer.isEmpty()) {
+            result += decoder.decode(buffer);
+            buffer.clear();
+        }
+    };
+
+    while (from < to) {
+        if (*from == '"') {
+            ++from;
+            break;
+        }
+        if (from->unicode() > 0x7f) {
+            // GDB may emit non-ASCII chars (e.g. in file names) as raw bytes
+            // rather than octal-escaping them. The process output decoder has
+            // already turned those bytes into QChars, so append them directly
+            // instead of routing through the locale-decoding byte buffer.
+            flushBuffer();
+            result += *from++;
+        } else {
+            parseCharOrEscape(*this, buffer);
+        }
+    }
+
+    flushBuffer();
+    return result;
 }
 
 void GdbMi::parseValue(DebuggerOutputParser &parser)

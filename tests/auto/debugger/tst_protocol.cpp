@@ -17,6 +17,8 @@ public:
 private slots:
     void parseCString();
     void parseCString_data();
+    void parseCStringLatin1();
+    void parseCStringLatin1_data();
     void gdbmiFromString();
     void gdbmiFromString_data();
 };
@@ -64,6 +66,41 @@ void tst_protocol::parseCString_data()
     QTest::newRow("hex")
         << R"("abc\xc3\xa4\xc3\xa9def\xc3\xb1")"
         << R"(abcäédefñ)";
+
+    // GDB may emit non-ASCII chars literally; the process output decoder turns
+    // them into QChars before the MI parser sees them.
+    QTest::newRow("literal-unicode")
+        << (QString("\"przyk") + QChar(0x0142) + "ad\"")
+        << (QString("przyk") + QChar(0x0142) + "ad");
+}
+
+void tst_protocol::parseCStringLatin1()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, expected);
+
+    QStringDecoder decoder(QStringEncoder::Latin1);
+    Debugger::Internal::DebuggerOutputParser parser(input, decoder);
+    QString parsed = parser.readCString();
+
+    QCOMPARE(parsed, expected);
+}
+
+void tst_protocol::parseCStringLatin1_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expected");
+
+    // Octal-escaped Latin-1 bytes for German umlauts: ä=\344, ö=\366, ü=\374.
+    QTest::newRow("octal-latin1")
+        << R"("B\344r \374ber \366")"
+        << (QString("B") + QChar(0x00e4) + "r " + QChar(0x00fc) + "ber " + QChar(0x00f6));
+
+    // GDB may emit non-ASCII chars literally; the process output decoder (here
+    // Latin-1) turns them into QChars before the MI parser sees them.
+    QTest::newRow("literal-latin1")
+        << (QString("\"B") + QChar(0x00e4) + "r " + QChar(0x00fc) + "ber " + QChar(0x00f6) + "\"")
+        << (QString("B") + QChar(0x00e4) + "r " + QChar(0x00fc) + "ber " + QChar(0x00f6));
 }
 
 void tst_protocol::gdbmiFromString()

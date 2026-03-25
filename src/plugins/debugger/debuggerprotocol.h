@@ -143,7 +143,6 @@ public:
     int readInt();
     QChar readChar();
     QString readCString();
-    void readCStringData(Buffer &buffer);
 
     QStringView readString(const std::function<bool(char)> &isValidChar);
 
