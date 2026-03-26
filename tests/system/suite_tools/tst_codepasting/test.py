@@ -46,7 +46,7 @@ def pasteFile(sourceFile, protocol):
         snooze(1) # "Close All" might be disabled
         invokeMenuItem("File", "Close All")
     aut = currentApplicationContext()
-    invokeMenuItem("File", "Open File or Project...")
+    invokeMenuItem("File", "Open File...")
     selectFromFileDialog(sourceFile)
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     jumpToFirstLine(editor)
@@ -235,7 +235,7 @@ def main():
                 checkForMovedUrl()
 
             invokeMenuItem("File", "Close All")
-    invokeMenuItem("File", "Open File or Project...")
+    invokeMenuItem("File", "Open File...")
     selectFromFileDialog(sourceFile)
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     jumpToFirstLine(editor)

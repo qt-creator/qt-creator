@@ -73,7 +73,7 @@ def main():
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
     model = waitForObject(":Qt Creator.Issues_QListView").model()
     test.verify(model.rowCount() == 0, 'Got an empty issue list to start from.')
-    invokeMenuItem("File", "Open File or Project...")
+    invokeMenuItem("File", "Open File...")
     selectFromFileDialog(tasksFile, False, True)
     starttime = datetime.utcnow()
     waitFor("model.rowCount() == expectedNo", 10000)

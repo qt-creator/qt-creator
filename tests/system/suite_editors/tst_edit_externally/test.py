@@ -34,7 +34,7 @@ def main():
 
     for i, currentFile in enumerate(files):
         test.log("Opening file %s" % currentFile)
-        invokeMenuItem("File", "Open File or Project...")
+        invokeMenuItem("File", "Open File...")
         selectFromFileDialog(currentFile)
         editor = getEditorForFileSuffix(currentFile)
         if editor == None:

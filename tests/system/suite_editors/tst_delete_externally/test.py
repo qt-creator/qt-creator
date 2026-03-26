@@ -15,7 +15,7 @@ def main():
 
     for currentFile in files:
         test.log("Opening file %s" % currentFile)
-        invokeMenuItem("File", "Open File or Project...")
+        invokeMenuItem("File", "Open File...")
         selectFromFileDialog(currentFile)
         editor = getEditorForFileSuffix(currentFile)
         if editor == None:

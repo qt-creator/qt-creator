@@ -7,7 +7,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    invokeMenuItem("File", "Open File or Project...")
+    invokeMenuItem("File", "Open File...")
     unsortedFile = os.path.join(os.getcwd(), "testdata", "unsorted.txt")
     sorted = readFile(os.path.join(os.getcwd(), "testdata", "sorted.txt"))
     selectFromFileDialog(unsortedFile)

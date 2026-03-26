@@ -12,7 +12,7 @@ def main():
     if not startedWithoutPluginError():
         return
 
-    invokeMenuItem("File", "Open File or Project...")
+    invokeMenuItem("File", "Open File...")
     selectFromFileDialog(pathReadme)
     invokeMenuItem("Tools", "Git", "Actions on Commits...")
     pathEdit = waitForObject(":Select a Git Commit.workingDirectoryEdit_QLineEdit")

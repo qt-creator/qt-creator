@@ -21,7 +21,7 @@ def main():
         fileContent = stringify(readFile(currentFile))
         fileContent = fileContent.replace('\r\n', '\n')
         size = len(fileContent)
-        invokeMenuItem("File", "Open File or Project...")
+        invokeMenuItem("File", "Open File...")
         selectFromFileDialog(currentFile, True)
         editor = getEditorForFileSuffix(currentFile)
         if editor == None:

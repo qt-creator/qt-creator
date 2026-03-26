@@ -34,7 +34,7 @@ def main():
         test.verify(preparedContent.find('\t') != -1, "Added at least one tab.")
         test.log("Expecting file to be cleaned (trailing whitespace): %s" % str(not isIgnored))
 
-        invokeMenuItem("File", "Open File or Project...")
+        invokeMenuItem("File", "Open File...")
         selectFromFileDialog(fileName, True)
         editor = getEditorForFileSuffix(fileName)
         if editor == None:

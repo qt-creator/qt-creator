@@ -15,7 +15,7 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
             return []
         mouseClick(wsButton)
     else:
-        invokeMenuItem("File", "Open File or Project...")
+        invokeMenuItem("File", "Open Project...")
     selectFromFileDialog(projectPath)
     try:
         # handle update generated files dialog
@@ -53,7 +53,7 @@ def openCmakeProject(projectPath, buildDir):
         ensureChecked(waitForObject("{text='Debug' type='QCheckBox' unnamed='1' visible='1' "
                       "window=':Qt Creator_Core::Internal::MainWindow'}"), True)
 
-    invokeMenuItem("File", "Open File or Project...")
+    invokeMenuItem("File", "Open Project...")
     selectFromFileDialog(projectPath)
     __chooseTargets__([]) # uncheck all
     # FIXME make the intended target a parameter
