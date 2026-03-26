@@ -17,6 +17,8 @@
 #include "breakhandler.h"
 #include "enginemanager.h"
 #include "logwindow.h"
+#include "remotedebuggerconfiguration.h"
+#include "remotedebuggerdebugsupport.h"
 #include "stackframe.h"
 #include "unstartedappwatcherdialog.h"
 #include "loadcoredialog.h"
@@ -2289,6 +2291,9 @@ Result<> DebuggerPlugin::initialize(const QStringList &arguments)
     ExtensionSystem::PluginManager::addObject(this);
 
     dd = new DebuggerPluginPrivate(arguments);
+
+    RemoteDebugger::Internal::setupRemoteDebuggerConfiguration();
+    RemoteDebugger::Internal::setupRemoteDebuggerDebugSupport();
 
 #ifdef WITH_TESTS
     addTestCreator(createDebuggerTest);

@@ -64,6 +64,9 @@ add_qtc_plugin(Debugger
     pdb/pdbengine.cpp pdb/pdbengine.h
     peripheralregisterhandler.cpp peripheralregisterhandler.h
     procinterrupt.cpp procinterrupt.h
+    remotedebuggerconstants.h
+    remotedebuggerconfiguration.cpp remotedebuggerconfiguration.h
+    remotedebuggerdebugsupport.cpp remotedebuggerdebugsupport.h
     qml/interactiveinterpreter.cpp qml/interactiveinterpreter.h
     #qml/qmlcppengine.cpp qml/qmlcppengine.h
     qml/qmlengine.cpp qml/qmlengine.h
