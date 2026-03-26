@@ -138,6 +138,9 @@
     \image {qtcreator-preferences-devices-remote-linux.webp} {Remote Linux device in the Devices tab in Devices preferences}
     \caption Remote Linux Device preferences
 
+    To access files on a connected remote Linux device, go to \uicontrol File
+    > \uicontrol {Open From Device}.
+
     \include qtcreator-add-linux-device.qdocinc {add linux device} {Remote Linux Device}
 
     \sa {Remote Linux}{How to: Develop for remote Linux},
@@ -154,6 +157,11 @@
 
     In addition to building applications \e {for} a generic Linux device, you can
     use the toolchain on the device to build the applications \e {on} the device.
+
+    To build applications on a connected remote Linux device, the source code
+    must be accessible on the device. You can copy or mount the source code on
+    the device if it does not already reside there. To open the files on the
+    connected device, go to \uicontrol File > \uicontrol {Open From Device}.
 
     \include creator-how-to-build-on-remote-devices.qdocinc {build on remote devices} {remote Linux device}
 
