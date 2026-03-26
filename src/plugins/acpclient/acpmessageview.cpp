@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "acpmessageview.h"
+#include "acpsettings.h"
 #include "collapsibleframe.h"
 #include "toolcalldetailwidget.h"
 
+#include <utils/async.h>
 #include <utils/markdownbrowser.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -44,6 +46,8 @@ public:
         setFixedSize(28, 28);
     }
 
+    void setIcon(const QIcon &icon) { m_icon = icon; update(); }
+
 protected:
     void paintEvent(QPaintEvent *) override
     {
@@ -52,13 +56,17 @@ protected:
         const QRectF r = QRectF(rect()).adjusted(2, 2, -2, -2);
 
         if (m_type == Agent) {
-            QRadialGradient gradient(r.center(), r.width() / 2.0);
-            gradient.setColorAt(0, QColor(0x5e, 0xea, 0x8d));
-            gradient.setColorAt(0.6, QColor(0x22, 0xc5, 0x5e));
-            gradient.setColorAt(1.0, QColor(0x16, 0xa3, 0x4a));
-            p.setBrush(gradient);
-            p.setPen(Qt::NoPen);
-            p.drawEllipse(r);
+            if (!m_icon.isNull()) {
+                m_icon.paint(&p, r.toAlignedRect());
+            } else {
+                QRadialGradient gradient(r.center(), r.width() / 2.0);
+                gradient.setColorAt(0, QColor(0x5e, 0xea, 0x8d));
+                gradient.setColorAt(0.6, QColor(0x22, 0xc5, 0x5e));
+                gradient.setColorAt(1.0, QColor(0x16, 0xa3, 0x4a));
+                p.setBrush(gradient);
+                p.setPen(Qt::NoPen);
+                p.drawEllipse(r);
+            }
         } else {
             p.setBrush(QColor(0x52, 0x52, 0x5e));
             p.setPen(Qt::NoPen);
@@ -74,6 +82,7 @@ protected:
 
 private:
     AvatarType m_type;
+    QIcon m_icon;
 };
 
 // ---------------------------------------------------------------------------
@@ -785,6 +794,11 @@ void AcpMessageView::setDetailedMode(bool detailed)
     m_detailedMode = detailed;
 }
 
+void AcpMessageView::setAgentIconUrl(const QString &iconUrl)
+{
+    m_agentIconUrl = iconUrl;
+}
+
 void AcpMessageView::clear()
 {
     // Remove all widgets except the bottom stretch
@@ -1067,6 +1081,9 @@ QWidget *AcpMessageView::wrapWithSpacer(QWidget *widget, Qt::Alignment side)
         hbox->addWidget(avatar, 0, Qt::AlignTop);
     } else {
         auto *avatar = new AvatarWidget(AvatarWidget::Agent, row);
+        Utils::onResultReady(AcpSettings::iconForUrl(m_agentIconUrl), this, [avatar](const QIcon &icon){
+            avatar->setIcon(icon);
+        });
         hbox->addWidget(avatar, 0, Qt::AlignTop);
         hbox->addWidget(widget);
         hbox->addSpacerItem(new QSpacerItem(60, 0, QSizePolicy::MinimumExpanding));

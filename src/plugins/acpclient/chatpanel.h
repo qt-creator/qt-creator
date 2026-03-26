@@ -37,7 +37,8 @@ public:
     AcpMessageView *messageView() const { return m_messageView; }
     ChatInputEdit *inputEdit() const { return m_inputEdit; }
 
-    void setAgentInfo(const QString &name, const QString &version);
+    void setAgentInfo(const QString &name, const QString &version,
+                      const QString &iconUrl = {});
     void setPrompting(bool prompting);
     void setSendEnabled(bool enabled);
     bool isPrompting() const { return m_prompting; }

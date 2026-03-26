@@ -1312,9 +1312,10 @@ signals:
     void refillRequested();
     void modelChange(bool isChanging);
 
-private:
+protected:
     QStandardItem *itemById(const QString &id);
 
+private:
     FillCallback m_fillCallback;
     QStandardItemModel *m_model{nullptr};
     QItemSelectionModel *m_selectionModel{nullptr};

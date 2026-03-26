@@ -48,7 +48,7 @@ public:
 
 signals:
     void connectionStateChanged(bool connected);
-    void agentInfoReceived(const QString &name, const QString &version);
+    void agentInfoReceived(const QString &name, const QString &version, const QString &iconUrl);
     void sessionCreated(const QString &sessionId);
     void configOptionsReceived(const QList<Acp::SessionConfigOption> &configOptions);
     void sessionUpdate(const QString &sessionId, const Acp::SessionUpdate &update);
@@ -75,6 +75,7 @@ private:
     QString m_agentName;
     QString m_agentVersion;
     QString m_serverName;
+    QString m_iconUrl;
     QList<Acp::AuthMethod> m_authMethods;
     bool m_connected = false;
     bool m_initialized = false;

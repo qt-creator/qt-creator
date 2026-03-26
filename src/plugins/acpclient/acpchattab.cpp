@@ -14,6 +14,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/async.h>
+
 #include <QComboBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -231,8 +233,9 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             updateTitle();
         }
     });
-    connect(m_controller, &AcpChatController::agentInfoReceived, this, [this](const QString &name, const QString &version) {
-        m_chatPanel->setAgentInfo(name, version);
+    connect(m_controller, &AcpChatController::agentInfoReceived, this,
+            [this](const QString &name, const QString &version, const QString &iconUrl) {
+        m_chatPanel->setAgentInfo(name, version, iconUrl);
         updateTitle();
     });
     connect(m_controller, &AcpChatController::authenticationRequired,
@@ -352,8 +355,14 @@ void AcpChatTab::populateServerCombo()
     m_serverCombo->clear();
 
     const QList<AcpSettings::ServerInfo> servers = AcpSettings::servers();
-    for (const AcpSettings::ServerInfo &info : servers)
-        m_serverCombo->addItem(info.name, info.id);
+    for (const AcpSettings::ServerInfo &info : servers) {
+        m_serverCombo->addItem(QIcon(), info.name, info.id);
+        const int idx = m_serverCombo->count() - 1;
+        Utils::onResultReady(
+            AcpSettings::iconForUrl(info.iconUrl), m_serverCombo, [this, idx](const QIcon &icon) {
+                m_serverCombo->setItemIcon(idx, icon);
+            });
+    }
 
     if (!currentId.isEmpty()) {
         const int idx = m_serverCombo->findData(currentId);

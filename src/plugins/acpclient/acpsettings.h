@@ -6,6 +6,8 @@
 #include <utils/commandline.h>
 #include <utils/environment.h>
 
+#include <QFuture>
+#include <QIcon>
 #include <QObject>
 #include <QString>
 
@@ -22,11 +24,14 @@ public:
     {
         QString id;
         QString name;
+        QString iconUrl;
         ConnectionType connectionType = Stdio;
         // Stdio: CommandLine, Tcp: QPair<host, port>
         std::variant<Utils::CommandLine, QPair<QString, quint16>> launchInfo;
         Utils::EnvironmentChanges envChanges; // Stdio only
     };
+
+    static QFuture<QIcon> iconForUrl(const QString &url);
 
     ~AcpSettings();
 

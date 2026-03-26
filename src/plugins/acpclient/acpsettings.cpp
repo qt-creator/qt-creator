@@ -8,9 +8,12 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
+#include <utils/async.h>
+#include <utils/co_result.h>
 #include <utils/environmentdialog.h>
 #include <utils/filestreamer.h>
 #include <utils/layoutbuilder.h>
@@ -20,7 +23,10 @@
 #include <utils/temporaryfile.h>
 #include <utils/theme/theme.h>
 
+#include <QCryptographicHash>
+#include <QDir>
 #include <QMetaEnum>
+#include <QPromise>
 #include <QPushButton>
 #include <QStandardItemModel>
 #include <QUuid>
@@ -35,6 +41,60 @@ using namespace QtTaskTree;
 
 using SharedTempFile = std::shared_ptr<TemporaryFilePath>;
 
+// Persistent icon cache: stores themed SVGs under userResourcePath("acpclient/icons")
+// keyed by a hash of the URL. Survives restarts.
+
+static QParallelTaskTreeRunner s_iconFetchRunner;
+
+static Result<> createSvgFile(
+    QByteArray data,
+    const FilePath &destPath,
+    const QString themeColor,
+    const std::shared_ptr<QPromise<QIcon>> &promise)
+{
+    data.replace("currentColor", themeColor.toUtf8());
+    co_await destPath.parentDir().ensureWritableDir();
+    co_await destPath.writeFileContents(data);
+
+    promise->addResult(QIcon(destPath.toFSPathString()));
+    co_return ResultOk;
+};
+
+static void fetchIconToPersistentCache(const QString &url, const std::shared_ptr<QPromise<QIcon>> &promise)
+{
+    if (url.isEmpty()) {
+        promise->finish();
+        return;
+    }
+
+    static QString themeColor = creatorColor(Theme::TextColorNormal).toRgb().name();
+
+    const QByteArray hash = QCryptographicHash::hash((url + themeColor).toUtf8(), QCryptographicHash::Sha1);
+    const FilePath destPath = Core::ICore::userResourcePath("acpclient/icons")
+        / QString::fromLatin1(hash.toHex() + ".svg");
+
+    if (destPath.isFile()) {
+        promise->addResult(QIcon(destPath.toFSPathString()));
+        promise->finish();
+        return;
+    }
+
+    const auto setupFetch = [url](FileStreamer &task) {
+        task.setSource(FilePath::fromUserInput(url));
+        task.setStreamMode(StreamMode::Reader);
+    };
+
+    const auto fetchDone = [url, promise, destPath](const FileStreamer &task, DoneWith doneWith) {
+        if (doneWith == DoneWith::Success) {
+            Result<> res = createSvgFile(task.readData(), destPath, themeColor, promise);
+            QTC_CHECK_RESULT(res);
+        }
+        promise->finish();
+    };
+
+    s_iconFetchRunner.start({FileStreamerTask(setupFetch, fetchDone)});
+}
+
 class AcpRegistryBrowser : public StringSelectionAspect
 {
 public:
@@ -43,47 +103,7 @@ public:
     {
         setComboBoxEditable(false);
 
-        auto findIconOrFetch = [this](const FilePath &url) -> QIcon {
-            if (url.isEmpty())
-                return QIcon();
-
-            if (const auto it = s_iconCache.find(url); it != s_iconCache.end()) {
-                return QIcon((*it)->filePath().toFSPathString());
-            }
-
-            Storage<SharedTempFile> tmpFile;
-
-            const auto setupFetch = [tmpFile, url](FileStreamer &task) {
-                auto tmpResult = TemporaryFilePath::create(
-                    TemporaryDirectory::masterDirectoryFilePath() / "acpclient_icon_XXXXXX.svg");
-                QTC_ASSERT_RESULT(tmpResult, return);
-                *tmpFile = SharedTempFile(tmpResult->release());
-
-                task.setSource(url);
-                task.setDestination((*tmpFile)->filePath());
-            };
-
-            const auto fetchDone = [this, tmpFile, url](DoneWith doneWith) {
-                if (doneWith != DoneWith::Success)
-                    return;
-
-                auto data = (*tmpFile)->filePath().fileContents();
-                QTC_ASSERT_RESULT(data, return);
-
-                data->replace(
-                    "currentColor", creatorColor(Theme::IconsBaseColor).toRgb().name().toUtf8());
-                QTC_ASSERT_RESULT((*tmpFile)->filePath().writeFileContents(*data), return);
-
-                s_iconCache.insert(url, *tmpFile);
-                refill();
-            };
-
-            m_runner.start(Group{tmpFile, FileStreamerTask(setupFetch, fetchDone)});
-
-            return QIcon();
-        };
-
-        auto fillCallback = [this, findIconOrFetch](ResultCallback resultCb) {
+        auto fillCallback = [this](ResultCallback resultCb) {
             // Cached ?
             if (s_registry) {
                 QList<QStandardItem *> items;
@@ -97,9 +117,13 @@ public:
                     auto item = new QStandardItem(agent.name() + " (" + agent.version() + ")");
                     item->setToolTip(agent.description());
                     item->setData(agent.id());
-                    item->setData(
-                        findIconOrFetch(FilePath::fromUserInput(agent.icon().value_or(QString()))),
-                        Qt::DecorationRole);
+                    Utils::onResultReady(
+                        AcpSettings::iconForUrl(agent.icon().value_or(QString())),
+                        this,
+                        [id = agent.id(), this](const QIcon &icon) {
+                            if (auto item = itemById(id))
+                                item->setData(icon, Qt::DecorationRole);
+                        });
 
                     items.append(item);
                 }
@@ -115,7 +139,7 @@ public:
                 wrapper.setRequest(request);
             };
             const auto fetchDone =
-                [resultCb, findIconOrFetch](const QNetworkReplyWrapper &wrapper, DoneWith doneWith) {
+                [resultCb, this](const QNetworkReplyWrapper &wrapper, DoneWith doneWith) {
                     if (doneWith != DoneWith::Success)
                         return;
 
@@ -148,10 +172,13 @@ public:
                         auto item = new QStandardItem(agent.name() + " (" + agent.version() + ")");
                         item->setToolTip(agent.description());
                         item->setData(agent.id());
-                        item->setData(
-                            findIconOrFetch(
-                                FilePath::fromUserInput(agent.icon().value_or(QString()))),
-                            Qt::DecorationRole);
+                        Utils::onResultReady(
+                            AcpSettings::iconForUrl(agent.icon().value_or(QString())),
+                            this,
+                            [id = agent.id(), this](const QIcon &icon) {
+                                if (auto item = itemById(id))
+                                    item->setData(icon, Qt::DecorationRole);
+                            });
                         items.append(item);
                     }
 
@@ -162,15 +189,18 @@ public:
         setFillCallback(fillCallback);
     }
 
+    void fixupComboBox(QComboBox *comboBox) override
+    {
+        comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    }
+
     std::optional<Acp::Registry::ACPAgentRegistry> registry() const { return s_registry; }
 
 private:
     QParallelTaskTreeRunner m_runner;
-    static QMap<FilePath, SharedTempFile> s_iconCache;
     static std::optional<Acp::Registry::ACPAgentRegistry> s_registry;
 };
 
-QMap<FilePath, SharedTempFile> AcpRegistryBrowser::s_iconCache;
 std::optional<Acp::Registry::ACPAgentRegistry> AcpRegistryBrowser::s_registry;
 
 class AcpServerAspect : public AspectContainer
@@ -188,6 +218,9 @@ public:
 
         id.setSettingsKey("id");
         id.setValue(QUuid::createUuid().toString());
+
+        iconUrl.setSettingsKey("iconUrl");
+        iconUrl.setVisible(false);
 
         registryBrowser.setLabelText(Tr::tr("Template:"));
         registryBrowser.setSettingsKey("registryTemplate");
@@ -263,6 +296,8 @@ public:
             }
             const Acp::Registry::ACPAgent &selectedAgent = *agent;
             name.setValue(selectedAgent.name());
+            iconUrl.setValue(selectedAgent.icon().value_or(QString()));
+
             if (selectedAgent.distribution().binary()) {
                 qWarning()
                     << "Registry entry has distribution with binary, but launching from binary is "
@@ -320,6 +355,7 @@ public:
         AcpSettings::ServerInfo info;
         info.id = id.value();
         info.name = name.value();
+        info.iconUrl = iconUrl.value();
         info.connectionType = AcpSettings::ConnectionType(
             conTypeEnum().keyToValue(connectionType.value().toUtf8()));
 
@@ -340,6 +376,7 @@ public:
 
     StringAspect id{this};
     StringAspect name{this};
+    StringAspect iconUrl{this};
     StringSelectionAspect connectionType{this};
 
     FilePathAspect launchCommand{this};
@@ -434,6 +471,14 @@ QList<AcpSettings::ServerInfo> AcpSettings::servers()
             result.push_back(server->toServerInfo());
         });
     return result;
+}
+
+QFuture<QIcon> AcpSettings::iconForUrl(const QString &url)
+{
+    auto promise = std::make_shared<QPromise<QIcon>>();
+    promise->start();
+    fetchIconToPersistentCache(url, promise);
+    return promise->future();
 }
 
 void setupAcpSettings()

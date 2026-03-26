@@ -31,6 +31,7 @@ public:
     explicit AcpMessageView(QWidget *parent = nullptr);
 
     void setDetailedMode(bool detailed);
+    void setAgentIconUrl(const QString &iconUrl);
 
     void clear();
     void addUserMessage(const QString &text);
@@ -75,6 +76,7 @@ private:
     QHash<QString, ToolCallDetailWidget *> m_toolCallDetailWidgets;
     QHash<QString, ToolCallGroupWidget *> m_toolCallGroups; // toolCallId -> owning group
     AuthenticationWidget *m_currentAuthWidget = nullptr;
+    QString m_agentIconUrl;
     bool m_autoScroll = true;
     bool m_detailedMode = false;
 };

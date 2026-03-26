@@ -4,6 +4,7 @@
 #include "chatpanel.h"
 #include "acpclienttr.h"
 #include "acpmessageview.h"
+#include "acpsettings.h"
 #include "chatinputedit.h"
 
 #include <utils/elidinglabel.h>
@@ -202,8 +203,11 @@ ChatPanel::ChatPanel(QWidget *parent)
     // Config option combo connections are made dynamically in updateConfigOptions()
 }
 
-void ChatPanel::setAgentInfo(const QString &name, const QString &version)
+void ChatPanel::setAgentInfo(const QString &name, const QString &version,
+                             const QString &iconUrl)
 {
+    m_messageView->setAgentIconUrl(iconUrl);
+
     QString html;
     if (!name.isEmpty()) {
         html = QStringLiteral("<b>%1</b>").arg(name.toHtmlEscaped());

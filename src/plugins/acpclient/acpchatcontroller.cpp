@@ -60,6 +60,7 @@ void AcpChatController::connectToServer(const QString &serverId, const FilePath 
 
     const AcpSettings::ServerInfo &serverInfo = *it;
     m_serverName = serverInfo.name;
+    m_iconUrl = serverInfo.iconUrl;
 
     if (serverInfo.connectionType == AcpSettings::Stdio) {
         QTC_ASSERT(std::holds_alternative<CommandLine>(serverInfo.launchInfo), return);
@@ -326,7 +327,7 @@ void AcpChatController::onInitializeResult(const InitializeResponse &response)
         m_agentVersion = info->version();
     }
 
-    emit agentInfoReceived(m_agentName, m_agentVersion);
+    emit agentInfoReceived(m_agentName, m_agentVersion, m_iconUrl);
 
     m_initialized = true;
 
