@@ -151,8 +151,15 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
         const QJsonObject data = json.object();
         updated.localUrl = QUrl::fromUserInput(data.value("url").toString());
         updated.localProject = data.value("project").toString();
-        updated.localUser = data.value("user").toString();
-        updated.pass = data.value("password").toString().toUtf8();
+        if (data.contains("password")) {
+            updated.localUser = data.value("user").toString();
+            updated.pass = data.value("password").toString().toUtf8();
+        } else {
+            qCDebug(localDashLog) << "Assuming anonymous authentication "
+                                     "- dashboard already started externally?";
+            const QJsonValue user = data.value("user");
+            updated.localUser = user.isUndefined() ? "anon_auth" : user.toString();
+        }
 
         m_startedDashboards.insert(updated.id, updated);
         if (onSuccess)
