@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include "json/json.hpp"
-
 #include <QHash>
 #include <QList>
 #include <QMap>
 #include <QObject>
+#include <utils/nlohmannjson.h>
 
 namespace Timeline { class TimelineModelAggregator; }
 

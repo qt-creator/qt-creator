@@ -6,6 +6,7 @@ add_qtc_library(Utils
     $<$<BOOL:${QTC_STATIC_BUILD}>:Tasking>
     $<$<BOOL:${QTC_STATIC_BUILD}>:Spinner>
   SOURCES
+    ../3rdparty/json/json.hpp
     ../3rdparty/span/span.hpp
     ../3rdparty/tl_expected/include/tl/expected.hpp
     action.cpp action.h
@@ -109,6 +110,7 @@ add_qtc_library(Utils
     namevaluevalidator.cpp namevaluevalidator.h
     navigationtreeview.cpp navigationtreeview.h
     networkaccessmanager.cpp networkaccessmanager.h
+    nlohmannjson.h
     optionpushbutton.h
     optionpushbutton.cpp
     osspecificaspects.h

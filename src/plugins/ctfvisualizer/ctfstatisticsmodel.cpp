@@ -3,9 +3,9 @@
 #include "ctfstatisticsmodel.h"
 
 #include "ctfvisualizertr.h"
-#include "json/json.hpp"
 
 #include <tracing/timelineformattime.h>
+#include <utils/nlohmannjson.h>
 
 namespace CtfVisualizer::Internal {
 

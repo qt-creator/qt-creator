@@ -9,7 +9,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include <3rdparty/json/json.hpp>
+#include <utils/nlohmannjson.h>
 
 namespace QmlDesigner {
 

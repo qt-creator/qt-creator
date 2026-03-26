@@ -18,7 +18,8 @@ IosTool::IosTool(QObject *parent):
     QObject(parent),
     m_xmlWriter(&m_outputFile)
 {
-    m_outputFile.open(stdout, QIODevice::WriteOnly, QFileDevice::DontCloseHandle);
+    if (!m_outputFile.open(stdout, QIODevice::WriteOnly, QFileDevice::DontCloseHandle))
+        qFatal("Failed to open stdout for writing.");
     m_xmlWriter.setAutoFormatting(true);
 }
 

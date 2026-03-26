@@ -11,8 +11,7 @@
 #include <QPoint>
 
 #include <utils/filesystemwatcher.h>
-
-#include <3rdparty/json/json.hpp>
+#include <utils/nlohmannjson.h>
 
 namespace QmlDesigner {
 

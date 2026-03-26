@@ -9,8 +9,8 @@
 
 #include <modelfwd.h>
 
-#include <3rdparty/json/json.hpp>
 #include <qmljs/qmljssimplereader.h>
+#include <utils/nlohmannjson.h>
 #include <utils/smallstring.h>
 
 #include <QCoreApplication>
