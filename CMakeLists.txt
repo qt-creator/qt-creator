@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-option(BUILD_DESIGNSTUDIO "Build and install design studio plugins, examples and settings." OFF)
+option(BUILD_DESIGNSTUDIO "Build and install design studio plugins, examples and settings." ON)
 if (BUILD_DESIGNSTUDIO)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/dist/branding/qtdesignstudio")
 endif()
