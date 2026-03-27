@@ -822,10 +822,15 @@ void DesignModeWidget::showDockWidget(const QString &objectName, bool focus)
 {
     auto dockWidget = m_dockManager->findDockWidget(objectName);
     if (dockWidget) {
-        dockWidget->toggleView(true);
+        QMetaObject::invokeMethod(
+            dockWidget,
+            [dockWidget, focus]() {
+                dockWidget->toggleView(true);
 
-        if (focus)
-            dockWidget->setFocus();
+                if (focus)
+                    dockWidget->setFocus();
+            },
+            Qt::QueuedConnection);
     }
 }
 
