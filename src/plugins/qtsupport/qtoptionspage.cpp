@@ -39,7 +39,6 @@
 #include <QDir>
 #include <QFormLayout>
 #include <QGuiApplication>
-#include <QHeaderView>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
@@ -430,9 +429,6 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_groupedView.view().setSortingEnabled(true);
     m_groupedView.view().setFirstColumnSpanned(0, QModelIndex(), true);
     m_groupedView.view().setFirstColumnSpanned(1, QModelIndex(), true);
-    m_groupedView.view().header()->setStretchLastSection(false);
-    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
     m_groupedView.view().setTextElideMode(Qt::ElideMiddle);
     m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
 

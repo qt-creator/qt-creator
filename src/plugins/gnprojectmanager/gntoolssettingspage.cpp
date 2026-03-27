@@ -20,7 +20,6 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QHeaderView>
 #include <QPushButton>
 
 using namespace Utils;
@@ -276,9 +275,6 @@ private:
 
 GNToolsSettingsWidget::GNToolsSettingsWidget()
 {
-    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
-
     auto inner = new QWidget;
     using namespace Layouting;
     Form {

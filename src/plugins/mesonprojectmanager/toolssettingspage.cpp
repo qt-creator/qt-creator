@@ -13,7 +13,6 @@
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
 
-#include <QHeaderView>
 #include <QPushButton>
 
 using namespace Utils;
@@ -62,9 +61,6 @@ private:
 
 ToolsSettingsWidget::ToolsSettingsWidget()
 {
-    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
-
     auto inner = new QWidget;
     using namespace Layouting;
     Form {

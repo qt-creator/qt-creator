@@ -8,6 +8,7 @@
 #include "utilstr.h"
 
 #include <QFont>
+#include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QSortFilterProxyModel>
 #include <QTreeView>
@@ -565,6 +566,13 @@ GroupedView::GroupedView(GroupedModel &model)
     m_view.setSelectionMode(QAbstractItemView::SingleSelection);
     m_view.setSelectionBehavior(QAbstractItemView::SelectRows);
     m_view.expandAll();
+    QHeaderView *header = m_view.header();
+    header->setStretchLastSection(false);
+    const int columns = model.columnCount();
+    for (int i = 0; i < columns - 1; ++i)
+        header->setSectionResizeMode(i, QHeaderView::ResizeToContents);
+    if (columns > 0)
+        header->setSectionResizeMode(columns - 1, QHeaderView::Stretch);
     connect(model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
             &m_view, &QTreeView::expandAll);
     connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,

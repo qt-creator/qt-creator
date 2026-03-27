@@ -31,7 +31,6 @@
 #include <QAction>
 #include <QApplication>
 #include <QHash>
-#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -769,10 +768,8 @@ public:
 
 KitOptionsPageWidget::KitOptionsPageWidget()
 {
-    m_groupedView.view().header()->setStretchLastSection(true);
     m_groupedView.view().setSizePolicy(m_groupedView.view().sizePolicy().horizontalPolicy(),
                                        QSizePolicy::Ignored);
-    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::Stretch);
     m_groupedView.view().setSortingEnabled(true);
     m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
 

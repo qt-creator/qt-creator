@@ -32,7 +32,6 @@
 #include <QDialogButtonBox>
 #include <QFont>
 #include <QHBoxLayout>
-#include <QHeaderView>
 #include <QMap>
 #include <QMenu>
 #include <QMessageBox>
@@ -469,10 +468,6 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
 
     m_groupedView.view().setSortingEnabled(true);
     m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
-    m_groupedView.view().header()->setStretchLastSection(false);
-    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
-
     m_addButton = new QPushButton(Tr::tr("Add"), this);
     auto addMenu = new QMenu(this);
     for (ToolchainFactory *factory : std::as_const(m_factories)) {

@@ -34,7 +34,6 @@
 #include <QFont>
 #include <QFileInfo>
 #include <QFormLayout>
-#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QObject>
@@ -1029,12 +1028,6 @@ public:
 
         m_groupedView.view().setSortingEnabled(true);
         m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
-
-        auto header = m_groupedView.view().header();
-        header->setStretchLastSection(false);
-        header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-        header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-        header->setSectionResizeMode(2, QHeaderView::Stretch);
 
         auto buttonLayout = new QVBoxLayout();
         buttonLayout->setSpacing(6);

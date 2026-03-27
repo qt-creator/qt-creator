@@ -29,7 +29,6 @@
 #include <utils/utilsicons.h>
 
 #include <QComboBox>
-#include <QHeaderView>
 #include <QPushButton>
 #include <QTreeView>
 
@@ -521,11 +520,7 @@ public:
         m_deviceModel.showAllEntry();
         m_deviceComboBox.setModel(&m_deviceModel);
 
-        QHeaderView *header = m_groupedView.view().header();
-        header->setStretchLastSection(false);
-        header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-        header->setSectionResizeMode(1, QHeaderView::Stretch);
-        (void) new HeaderViewStretcher(header, 0);
+        (void) new HeaderViewStretcher(m_groupedView.view().header(), 0);
 
         using namespace Layouting;
         Column {
