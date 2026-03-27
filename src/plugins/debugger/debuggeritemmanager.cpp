@@ -1006,59 +1006,38 @@ class DebuggerSettingsPageWidget : public IOptionsPageWidget
 public:
     DebuggerSettingsPageWidget()
     {
-        m_addButton = new QPushButton(Tr::tr("Add"), this);
+        m_addButton.setText(Tr::tr("Add"));
+        m_cloneButton.setText(Tr::tr("Clone"));
+        m_cloneButton.setEnabled(false);
+        m_removeButton.setEnabled(false);
+        m_detectButton.setText(Tr::tr("Re-detect"));
 
-        m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
-        m_cloneButton->setEnabled(false);
-
-        m_delButton = new QPushButton(this);
-        m_delButton->setEnabled(false);
-
-        m_detectButton = new QPushButton(Tr::tr("Re-detect"), this);
-
-        m_container = new DetailsWidget(this);
-        m_container->setState(DetailsWidget::NoSummary);
-        m_container->setVisible(false);
+        m_container.setState(DetailsWidget::NoSummary);
+        m_container.setVisible(false);
+        m_container.setWidget(&m_itemConfigWidget);
 
         m_groupedView.view().setSortingEnabled(true);
         m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
 
-        auto buttonLayout = new QVBoxLayout();
-        buttonLayout->setSpacing(6);
-        buttonLayout->setContentsMargins(0, 0, 0, 0);
-        buttonLayout->addWidget(m_addButton);
-        buttonLayout->addWidget(m_cloneButton);
-        buttonLayout->addWidget(m_delButton);
-        buttonLayout->addWidget(m_detectButton);
-        buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-        const auto deviceLayout = new QHBoxLayout;
-        deviceLayout->addWidget(new QLabel(Tr::tr("Device:")));
-        deviceLayout->addWidget(&m_deviceComboBox);
-        deviceLayout->addStretch(1);
-
-        auto debuggersLayout = new QVBoxLayout();
-        debuggersLayout->addWidget(&m_groupedView.view());
-        debuggersLayout->addWidget(m_container);
-
-        auto horizontalLayout = new QHBoxLayout;
-        horizontalLayout->addLayout(debuggersLayout);
-        horizontalLayout->addLayout(buttonLayout);
-
-        const auto mainLayout = new QVBoxLayout(this);
-        mainLayout->addLayout(deviceLayout);
-        mainLayout->addLayout(horizontalLayout);
+        using namespace Layouting;
+        Column {
+            Row { Tr::tr("Device:"), m_deviceComboBox, st },
+            Row {
+                Column { m_groupedView.view(), m_container },
+                Column { m_addButton, m_cloneButton, m_removeButton, m_detectButton, st },
+            },
+        }.attachTo(this);
 
         connect(&m_groupedView, &GroupedView::currentRowChanged,
                 this, [this](int, int) { updateButtons(); }, Qt::QueuedConnection);
 
-        connect(m_addButton, &QAbstractButton::clicked,
+        connect(&m_addButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::addDebugger, Qt::QueuedConnection);
-        connect(m_cloneButton, &QAbstractButton::clicked,
+        connect(&m_cloneButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::cloneDebugger, Qt::QueuedConnection);
-        connect(m_delButton, &QAbstractButton::clicked,
+        connect(&m_removeButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::removeDebugger, Qt::QueuedConnection);
-        connect(m_detectButton , &QAbstractButton::clicked,
+        connect(&m_detectButton, &QAbstractButton::clicked,
                 this, [this] {
             QList<IDeviceConstPtr> devices;
             if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice()) {
@@ -1071,26 +1050,22 @@ public:
                 debuggerModel().detectDebuggers(dev, dev->toolSearchPaths());
         });
 
-        const auto updateDevice = [](const FilePath &deviceRoot) {
+        m_deviceComboBox.setOnDeviceChanged([](const FilePath &deviceRoot) {
             debuggerModel().setExtraFilter(deviceRoot.isEmpty()
                 ? GroupedModel::Filter{}
                 : GroupedModel::Filter{[deviceRoot](int row) {
                       const FilePath path = debuggerModel().item(row).command();
                       return path.isEmpty() || path.isSameDevice(deviceRoot);
                   }});
-        };
-        m_deviceComboBox.setOnDeviceChanged(updateDevice);
+        });
 
-        m_itemConfigWidget = new DebuggerItemConfigWidget;
-        m_container->setWidget(m_itemConfigWidget);
         updateButtons();
-
         installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final
     {
-        m_itemConfigWidget->store();
+        m_itemConfigWidget.store();
         debuggerModel().apply();
         m_groupedView.view().expandAll();
     }
@@ -1108,12 +1083,12 @@ public:
 
     DeviceComboBox m_deviceComboBox;
     GroupedView m_groupedView{debuggerModel()};
-    QPushButton *m_addButton;
-    QPushButton *m_cloneButton;
-    QPushButton *m_delButton;
-    QPushButton *m_detectButton;
-    DetailsWidget *m_container;
-    DebuggerItemConfigWidget *m_itemConfigWidget;
+    QPushButton m_addButton;
+    QPushButton m_cloneButton;
+    QPushButton m_removeButton;
+    QPushButton m_detectButton;
+    DetailsWidget m_container;
+    DebuggerItemConfigWidget m_itemConfigWidget;
 };
 
 void DebuggerSettingsPageWidget::cloneDebugger()
@@ -1160,14 +1135,14 @@ void DebuggerSettingsPageWidget::updateButtons()
     const int row = m_groupedView.currentRow();
     const DebuggerItem item = row >= 0 ? debuggerModel().item(row) : DebuggerItem{};
 
-    m_itemConfigWidget->load(item);
+    m_itemConfigWidget.load(item);
     const IDeviceConstPtr dev = m_deviceComboBox.currentDevice();
     if (dev)
-        m_itemConfigWidget->setDeviceRootPath(dev->rootPath());
-    m_container->setVisible(bool(item));
-    m_cloneButton->setEnabled(item && item.canClone());
-    m_delButton->setEnabled(item && !item.detectionSource().isAutoDetected());
-    m_delButton->setText(item && debuggerModel().isRemoved(row) ? Tr::tr("Restore") : Tr::tr("Remove"));
+        m_itemConfigWidget.setDeviceRootPath(dev->rootPath());
+    m_container.setVisible(bool(item));
+    m_cloneButton.setEnabled(item && item.canClone());
+    m_removeButton.setEnabled(item && !item.detectionSource().isAutoDetected());
+    m_removeButton.setText(item && debuggerModel().isRemoved(row) ? Tr::tr("Restore") : Tr::tr("Remove"));
 }
 
 
