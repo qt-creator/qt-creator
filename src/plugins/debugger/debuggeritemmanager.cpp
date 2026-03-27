@@ -1016,9 +1016,6 @@ public:
         m_container.setVisible(false);
         m_container.setWidget(&m_itemConfigWidget);
 
-        m_groupedView.view().setSortingEnabled(true);
-        m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
-
         using namespace Layouting;
         Column {
             Row { Tr::tr("Device:"), m_deviceComboBox, st },

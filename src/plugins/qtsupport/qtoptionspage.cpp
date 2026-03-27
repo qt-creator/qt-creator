@@ -403,11 +403,9 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_versionInfoWidget.setWidget(versionInfoWidget);
     m_versionInfoWidget.setState(DetailsWidget::NoSummary);
 
-    m_groupedView.view().setSortingEnabled(true);
     m_groupedView.view().setFirstColumnSpanned(0, QModelIndex(), true);
     m_groupedView.view().setFirstColumnSpanned(1, QModelIndex(), true);
     m_groupedView.view().setTextElideMode(Qt::ElideMiddle);
-    m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
 
     m_documentationSetting.addItem(Tr::tr("Highest Version Only"),
                                    int(QtVersionManager::DocumentationSetting::HighestOnly));

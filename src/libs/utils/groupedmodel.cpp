@@ -564,6 +564,8 @@ GroupedView::GroupedView(GroupedModel &model)
     m_view.setUniformRowHeights(true);
     m_view.setSelectionMode(QAbstractItemView::SingleSelection);
     m_view.setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_view.setSortingEnabled(true);
+    m_view.sortByColumn(0, Qt::AscendingOrder);
     m_view.expandAll();
     QHeaderView *header = m_view.header();
     header->setStretchLastSection(false);

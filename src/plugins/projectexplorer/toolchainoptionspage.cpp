@@ -441,9 +441,6 @@ private:
 ToolChainOptionsWidget::ToolChainOptionsWidget()
 {
     m_detectionSettings = ToolchainManager::detectionSettings();
-    m_groupedView.view().setSortingEnabled(true);
-    m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
-
     auto addMenu = new QMenu(this);
     for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
         if (!factory->canCreate())

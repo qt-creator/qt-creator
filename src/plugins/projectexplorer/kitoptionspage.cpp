@@ -770,9 +770,6 @@ KitOptionsPageWidget::KitOptionsPageWidget()
 {
     m_groupedView.view().setSizePolicy(m_groupedView.view().sizePolicy().horizontalPolicy(),
                                        QSizePolicy::Ignored);
-    m_groupedView.view().setSortingEnabled(true);
-    m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
-
     m_addButton.setText(Tr::tr("Add"));
     m_cloneButton.setText(Tr::tr("Clone"));
     m_delButton.setText(Tr::tr("Remove"));
