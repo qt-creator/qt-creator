@@ -768,8 +768,6 @@ public:
 
 KitOptionsPageWidget::KitOptionsPageWidget()
 {
-    m_groupedView.view().setSizePolicy(m_groupedView.view().sizePolicy().horizontalPolicy(),
-                                       QSizePolicy::Ignored);
     m_addButton.setText(Tr::tr("Add"));
     m_cloneButton.setText(Tr::tr("Clone"));
     m_delButton.setText(Tr::tr("Remove"));
