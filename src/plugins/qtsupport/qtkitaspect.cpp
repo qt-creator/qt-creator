@@ -101,6 +101,8 @@ public:
             if (k == kit())
                 refresh();
         });
+        connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+                this, &QtKitAspectImpl::refresh);
     }
 
 private:
@@ -449,13 +451,13 @@ void QtKitAspectFactory::qtVersionsChanged(const QList<int> &addedIds,
                                            const QList<int> &removedIds,
                                            const QList<int> &changedIds)
 {
-    Q_UNUSED(addedIds)
-    Q_UNUSED(removedIds)
+    const bool listChanged = !addedIds.isEmpty() || !removedIds.isEmpty();
     for (Kit *k : KitManager::kits()) {
-        if (changedIds.contains(QtKitAspect::qtVersionId(k))) {
+        const int id = QtKitAspect::qtVersionId(k);
+        if (removedIds.contains(id) || changedIds.contains(id))
             k->validate(); // Qt version may have become (in)valid
+        if (listChanged || changedIds.contains(id))
             notifyAboutUpdate(k);
-        }
     }
 }
 
