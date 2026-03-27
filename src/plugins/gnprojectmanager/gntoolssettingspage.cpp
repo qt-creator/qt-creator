@@ -269,8 +269,9 @@ private:
     bool m_loading = false;
 
     DetailsWidget m_gnDetails;
-    QPushButton *m_cloneButton = nullptr;
-    QPushButton *m_removeButton = nullptr;
+    QPushButton m_addButton;
+    QPushButton m_cloneButton;
+    QPushButton m_removeButton;
 };
 
 GNToolsSettingsWidget::GNToolsSettingsWidget()
@@ -286,17 +287,15 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
     m_gnDetails.setVisible(false);
     m_gnDetails.setWidget(inner);
 
-    auto addButton = new QPushButton(Tr::tr("Add"));
-
-    m_cloneButton = new QPushButton(Tr::tr("Clone"));
-    m_cloneButton->setEnabled(false);
-
-    m_removeButton = new QPushButton(Tr::tr("Remove"));
-    m_removeButton->setEnabled(false);
+    m_addButton.setText(Tr::tr("Add"));
+    m_cloneButton.setText(Tr::tr("Clone"));
+    m_cloneButton.setEnabled(false);
+    m_removeButton.setText(Tr::tr("Remove"));
+    m_removeButton.setEnabled(false);
 
     Row {
         Column { m_groupedView.view(), m_gnDetails },
-        Column { addButton, m_cloneButton, m_removeButton, st }
+        Column { m_addButton, m_cloneButton, m_removeButton, st }
     }.attachTo(this);
 
     connect(&m_groupedView, &GroupedView::currentRowChanged,
@@ -305,12 +304,12 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
     m_data.name.addOnVolatileValueChanged(this, [this] { store(); });
     m_data.executable.addOnVolatileValueChanged(this, [this] { store(); });
 
-    connect(addButton, &QPushButton::clicked, this, [this] {
+    connect(&m_addButton, &QPushButton::clicked, this, [this] {
         m_groupedView.selectRow(m_model.addGNTool());
         markSettingsDirty();
     });
-    connect(m_cloneButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::cloneGNTool);
-    connect(m_removeButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::removeGNTool);
+    connect(&m_cloneButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::cloneGNTool);
+    connect(&m_removeButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::removeGNTool);
 
     installMarkSettingsDirtyTriggerRecursively(this);
 }
@@ -359,8 +358,8 @@ void GNToolsSettingsWidget::currentToolChanged(int, int newRow)
     }
     m_loading = false;
     m_gnDetails.setVisible(hasItem);
-    m_cloneButton->setEnabled(hasItem);
-    m_removeButton->setEnabled(hasRow && !m_model.item(newRow).autoDetected);
+    m_cloneButton.setEnabled(hasItem);
+    m_removeButton.setEnabled(hasRow && !m_model.item(newRow).autoDetected);
 }
 
 // Setup
