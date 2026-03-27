@@ -568,12 +568,9 @@ GroupedView::GroupedView(GroupedModel &model)
     m_view.sortByColumn(0, Qt::AscendingOrder);
     m_view.expandAll();
     QHeaderView *header = m_view.header();
-    header->setStretchLastSection(false);
-    const int columns = model.columnCount();
-    for (int i = 0; i < columns - 1; ++i)
+    header->setStretchLastSection(true);
+    for (int i = 0; i < model.columnCount() - 1; ++i)
         header->setSectionResizeMode(i, QHeaderView::ResizeToContents);
-    if (columns > 0)
-        header->setSectionResizeMode(columns - 1, QHeaderView::Stretch);
     connect(model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
             &m_view, &QTreeView::expandAll);
     connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,

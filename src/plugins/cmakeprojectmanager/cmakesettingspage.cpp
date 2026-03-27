@@ -20,7 +20,6 @@
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/groupedmodel.h>
-#include <utils/headerviewstretcher.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -420,8 +419,6 @@ public:
         m_container.setState(DetailsWidget::NoSummary);
         m_container.setVisible(false);
         m_container.setWidget(&m_itemConfigWidget);
-
-        (void) new HeaderViewStretcher(m_groupedView.view().header(), 0);
 
         using namespace Layouting;
         Column {
