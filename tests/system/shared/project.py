@@ -3,7 +3,7 @@
 
 def openQbsProject(projectPath):
     cleanUpUserFiles(projectPath)
-    invokeMenuItem("File", "Open File or Project...")
+    invokeMenuItem("File", "Open Project...")
     selectFromFileDialog(projectPath)
 
 def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWelcome=False):
