@@ -112,8 +112,7 @@ public:
     static MesonTools *instance();
 
 signals:
-    void toolAdded(const Tool_t &tool);
-    void toolRemoved(const Tool_t &tool);
+    void toolsChanged();
 };
 
 } // MesonProjectManager::Internal

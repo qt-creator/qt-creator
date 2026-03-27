@@ -19,5 +19,4 @@ public:
     static std::shared_ptr<MesonToolWrapper> mesonTool(const ProjectExplorer::Kit *kit);
 };
 
-
 } // MesonProjectManager::Internal

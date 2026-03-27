@@ -289,7 +289,7 @@ void MesonTools::updateTool(const Id &itemId, const QString &name, const FilePat
         (*item)->setName(name);
     } else {
         s_tools.emplace_back(std::make_shared<MesonToolWrapper>( name, exe, itemId));
-        emit instance()->toolAdded(s_tools.back());
+        emit instance()->toolsChanged();
     }
 }
 
@@ -297,7 +297,7 @@ void MesonTools::removeTool(const Id &id)
 {
     auto item = Utils::take(s_tools, [&id](const auto &item) { return item->id() == id; });
     QTC_ASSERT(item, return );
-    emit instance()->toolRemoved(*item);
+    emit instance()->toolsChanged();
 }
 
 std::shared_ptr<MesonToolWrapper> MesonTools::toolById(const Id &id)

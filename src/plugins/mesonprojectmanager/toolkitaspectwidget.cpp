@@ -9,128 +9,70 @@
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
-#include <utils/layoutbuilder.h>
+
 #include <utils/qtcassert.h>
 
-#include <QComboBox>
-#include <QCoreApplication>
+#include <QAbstractListModel>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
 
-// Meson KitAspect base
+class MesonListModel final : public QAbstractListModel
+{
+public:
+    using QAbstractListModel::QAbstractListModel;
+
+    void reset()
+    {
+        beginResetModel();
+        endResetModel();
+    }
+
+    int rowCount(const QModelIndex &parent = {}) const final
+    {
+        return parent.isValid() ? 0 : int(MesonTools::tools().size());
+    }
+
+    QVariant data(const QModelIndex &index, int role) const final
+    {
+        const std::vector<MesonTools::Tool_t> &tools = MesonTools::tools();
+        if (!index.isValid() || index.row() < 0 || index.row() >= int(tools.size()))
+            return {};
+        const MesonTools::Tool_t &tool = tools[index.row()];
+        switch (role) {
+        case Qt::DisplayRole:
+            return tool->name();
+        case KitAspect::IdRole:
+            return tool->id().toSetting();
+        }
+        return {};
+    }
+};
+
+// MesonToolKitAspectImpl
 
 class MesonToolKitAspectImpl final : public KitAspect
 {
 public:
-    MesonToolKitAspectImpl(Kit *kit, const KitAspectFactory *factory);
-    ~MesonToolKitAspectImpl() { delete m_toolsComboBox; }
-
-private:
-    void addTool(const MesonTools::Tool_t &tool);
-    void removeTool(const MesonTools::Tool_t &tool);
-    void setCurrentToolIndex(int index);
-    int indexOf(const Id &id);
-    void loadTools();
-    void setToDefault();
-
-    void makeReadOnly(bool readOnly) final
+    MesonToolKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
+        : KitAspect(kit, factory)
     {
-        m_toolsComboBox->setEnabled(!readOnly && m_toolsComboBox->count() > 0);
+        setManagingPage(Constants::SettingsPage::TOOLS_ID);
+
+        auto getter = [](const Kit &k) { return MesonToolKitAspect::mesonToolId(&k).toSetting(); };
+        auto setter = [](Kit &k, const QVariant &v) {
+            MesonToolKitAspect::setMesonTool(&k, Id::fromSetting(v));
+        };
+        auto reset = [this] { model.reset(); };
+        addListAspectSpec({&model, getter, setter, reset});
+
+        connect(MesonTools::instance(), &MesonTools::toolsChanged, this, &KitAspect::refresh);
     }
 
-    void addToInnerLayout(Layouting::Layout &layout) final
-    {
-        addMutableAction(m_toolsComboBox);
-        layout.addItem(m_toolsComboBox);
-    }
-
-    void refresh() final
-    {
-        const auto id = MesonToolKitAspect::mesonToolId(kit());
-        m_toolsComboBox->setCurrentIndex(indexOf(id));
-    }
-
-    QComboBox *m_toolsComboBox;
+    MesonListModel model;
 };
-
-MesonToolKitAspectImpl::MesonToolKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
-    : KitAspect(kit, factory)
-    , m_toolsComboBox(createSubWidget<QComboBox>())
-{
-    setManagingPage(Constants::SettingsPage::TOOLS_ID);
-
-    m_toolsComboBox->setSizePolicy(QSizePolicy::Ignored,
-                                   m_toolsComboBox->sizePolicy().verticalPolicy());
-    m_toolsComboBox->setEnabled(false);
-    m_toolsComboBox->setToolTip(factory->description());
-    loadTools();
-
-    connect(MesonTools::instance(), &MesonTools::toolAdded,
-            this, &MesonToolKitAspectImpl::addTool);
-    connect(MesonTools::instance(), &MesonTools::toolRemoved,
-            this, &MesonToolKitAspectImpl::removeTool);
-    connect(m_toolsComboBox, &QComboBox::currentIndexChanged,
-            this, &MesonToolKitAspectImpl::setCurrentToolIndex);
-}
-
-void MesonToolKitAspectImpl::addTool(const MesonTools::Tool_t &tool)
-{
-    QTC_ASSERT(tool, return );
-        m_toolsComboBox->addItem(tool->name(), tool->id().toSetting());
-}
-
-void MesonToolKitAspectImpl::removeTool(const MesonTools::Tool_t &tool)
-{
-    QTC_ASSERT(tool, return );
-    const int index = indexOf(tool->id());
-    QTC_ASSERT(index >= 0, return );
-    if (index == m_toolsComboBox->currentIndex())
-        setToDefault();
-    m_toolsComboBox->removeItem(index);
-}
-
-void MesonToolKitAspectImpl::setCurrentToolIndex(int index)
-{
-    if (m_toolsComboBox->count() == 0)
-        return;
-    const Id id = Id::fromSetting(m_toolsComboBox->itemData(index));
-    MesonToolKitAspect::setMesonTool(kit(), id);
-}
-
-int MesonToolKitAspectImpl::indexOf(const Id &id)
-{
-    for (int i = 0; i < m_toolsComboBox->count(); ++i) {
-        if (id == Id::fromSetting(m_toolsComboBox->itemData(i)))
-            return i;
-    }
-    return -1;
-}
-
-void MesonToolKitAspectImpl::loadTools()
-{
-    for (const MesonTools::Tool_t &tool : MesonTools::tools()) {
-        addTool(tool);
-    }
-    refresh();
-    m_toolsComboBox->setEnabled(m_toolsComboBox->count());
-}
-
-void MesonToolKitAspectImpl::setToDefault()
-{
-    const MesonTools::Tool_t autoDetected = MesonTools::autoDetectedTool();
-
-    if (autoDetected) {
-        const auto index = indexOf(autoDetected->id());
-        m_toolsComboBox->setCurrentIndex(index);
-        setCurrentToolIndex(index);
-    } else {
-        m_toolsComboBox->setCurrentIndex(0);
-        setCurrentToolIndex(0);
-    }
-}
 
 // MesonToolKitAspect
 
@@ -191,6 +133,7 @@ public:
                 MesonToolKitAspect::setMesonTool(k, autoDetected->id());
         }
     }
+
     void fix(Kit *k) final
     {
         setup(k);
@@ -211,6 +154,5 @@ public:
 };
 
 const MesonToolKitAspectFactory theMesonKitAspectFactory;
-
 
 } // MesonProjectManager::Internal
