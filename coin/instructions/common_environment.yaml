@@ -7,7 +7,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_BASE_URL
-            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.10.2/release_content/"
+            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.11.0/release_content/"
           - type: EnvironmentVariable
             variableName: MACOSX_DEPLOYMENT_TARGET
             variableValue: 13.0
@@ -91,7 +91,7 @@ instructions:
             instructions:
               - type: EnvironmentVariable
                 variableName: QTC_QT_POSTFIX
-                variableValue: "-Linux-RHEL_8_10-GCC-Linux-RHEL_8_10-X86_64.7z"
+                variableValue: "-Linux-RHEL_9_6-GCC-Linux-RHEL_9_6-X86_64.7z"
               - type: EnvironmentVariable
                 variableName: QTC_ICU_URL
                 variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/73.2/icu-linux-g++-Rhel8.6-x64.7z"

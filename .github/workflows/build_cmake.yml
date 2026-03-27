@@ -7,7 +7,7 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.10.2
+  QT_VERSION: 6.11.0
   MACOS_DEPLOYMENT_TARGET: 11.0
   CLANG_VERSION: 22.1.2
   ELFUTILS_VERSION: 0.175
@@ -248,16 +248,19 @@ jobs:
         string(REPLACE "." "" qt_version_dotless "${qt_version}")
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(url_os "windows_x86")
+          set(url_postfix "_msvc2022_64")
           set(compiler_id "win64_msvc2022_64")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
+          set(url_postfix "")
           set(compiler_id "linux_gcc_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
+          set(url_postfix "")
           set(compiler_id "clang_64")
         endif()
 
-        set(qt_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}")
+        set(qt_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}${url_postfix}")
         foreach(qt_mirror $ENV{QT_MIRRORS})
           foreach(retry RANGE 10)
             cmake_language(EVAL CODE "
