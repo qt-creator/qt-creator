@@ -355,7 +355,7 @@ void GNToolsSettingsWidget::currentToolChanged(int, int newRow)
         m_data.name.setEnabled(!it.autoDetected);
         m_data.name.setValue(it.name);
         m_data.executable.setEnabled(!it.autoDetected);
-        m_data.executable.setValue(it.executable.toUserOutput());
+        m_data.executable.setValue(it.executable);
     }
     m_loading = false;
     m_gnDetails.setVisible(hasItem);
