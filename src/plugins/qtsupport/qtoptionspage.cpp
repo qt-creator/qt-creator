@@ -319,56 +319,41 @@ private:
     QtVersionModel m_model;
     GroupedView m_groupedView{m_model};
 
-    const QString m_specifyNameString;
-
     DeviceComboBox m_deviceComboBox;
-    DetailsWidget *m_versionInfoWidget;
-    DetailsWidget *m_infoWidget;
-    QComboBox *m_documentationSetting;
-    QPushButton *m_delButton;
-    QPushButton *m_linkWithQtButton;
-    QPushButton *m_cleanUpButton;
+    DetailsWidget m_versionInfoWidget;
+    DetailsWidget m_infoWidget;
+    QComboBox m_documentationSetting;
+    QPushButton m_addButton;
+    QPushButton m_removeButton;
+    QPushButton m_redetectButton;
+    QPushButton m_linkWithQtButton;
+    QPushButton m_cleanUpButton;
 
-    QTextBrowser *m_infoBrowser;
-    QtConfigWidget *m_configurationWidget;
+    QTextBrowser m_infoBrowser;
+    QtConfigWidget *m_configurationWidget = nullptr;
 
-    QLineEdit *m_nameEdit;
-    QLabel *m_qmakePath;
-    QPushButton *m_editPathPushButton;
-    QLabel *m_errorLabel;
-    QFormLayout *m_formLayout;
+    QLineEdit m_nameEdit;
+    QLabel m_qmakePath;
+    QPushButton m_editPathPushButton;
+    QLabel m_errorLabel;
+    QFormLayout *m_formLayout = nullptr;
 };
 
 QtSettingsPageWidget::QtSettingsPageWidget()
-    : m_specifyNameString(Tr::tr("<specify a name>"))
-    , m_infoBrowser(new QTextBrowser)
-    , m_configurationWidget(nullptr)
 {
     m_groupedView.view().setObjectName("qtDirList");
 
-    m_versionInfoWidget = new DetailsWidget(this);
+    m_addButton.setText(Tr::tr("Add..."));
+    m_removeButton.setText(Tr::tr("Remove"));
+    m_redetectButton.setText(Tr::tr("Re-detect"));
+    m_linkWithQtButton.setText(Tr::tr("Link with Qt..."));
+    m_cleanUpButton.setText(Tr::tr("Clean Up"));
 
-    m_infoWidget = new DetailsWidget(this);
+    m_qmakePath.setObjectName("qmakePath"); // for Squish
+    m_qmakePath.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_qmakePath.setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
 
-    m_documentationSetting = new QComboBox(this);
-
-    auto addButton = new QPushButton(Tr::tr("Add..."));
-    m_delButton = new QPushButton(Tr::tr("Remove"));
-    const auto redetectButton = new QPushButton(Tr::tr("Re-detect"));
-    m_linkWithQtButton = new QPushButton(Tr::tr("Link with Qt..."));
-    m_cleanUpButton = new QPushButton(Tr::tr("Clean Up"));
-
-    m_nameEdit = new QLineEdit;
-
-    m_qmakePath = new QLabel;
-    m_qmakePath->setObjectName("qmakePath"); // for Squish
-    m_qmakePath->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    m_qmakePath->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
-
-    m_editPathPushButton = new QPushButton(Tr::tr("Edit"));
-    m_editPathPushButton->setText(PathChooser::browseButtonLabel());
-
-    m_errorLabel = new QLabel;
+    m_editPathPushButton.setText(PathChooser::browseButtonLabel());
 
     using namespace Layouting;
 
@@ -386,7 +371,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     // clang-format off
     Column {
-        Row { Tr::tr("Device:"), &m_deviceComboBox, st },
+        Row { Tr::tr("Device:"), m_deviceComboBox, st },
         Row {
             Column {
                 m_groupedView.view(),
@@ -394,11 +379,10 @@ QtSettingsPageWidget::QtSettingsPageWidget()
                 m_infoWidget,
                 Row { Tr::tr("Register documentation:"), m_documentationSetting, st }
             },
-
             Column {
-                addButton,
-                m_delButton,
-                redetectButton,
+                m_addButton,
+                m_removeButton,
+                m_redetectButton,
                 Space(20),
                 m_linkWithQtButton,
                 m_cleanUpButton,
@@ -408,16 +392,16 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     }.attachTo(this);
     // clang-format on
 
-    m_infoBrowser->setOpenLinks(false);
-    m_infoBrowser->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    connect(m_infoBrowser, &QTextBrowser::anchorClicked,
+    m_infoBrowser.setOpenLinks(false);
+    m_infoBrowser.setTextInteractionFlags(Qt::TextBrowserInteraction);
+    connect(&m_infoBrowser, &QTextBrowser::anchorClicked,
             this, &QtSettingsPageWidget::infoAnchorClicked);
-    m_infoWidget->setWidget(m_infoBrowser);
-    connect(m_infoWidget, &DetailsWidget::expanded,
+    m_infoWidget.setWidget(&m_infoBrowser);
+    connect(&m_infoWidget, &DetailsWidget::expanded,
             this, &QtSettingsPageWidget::setInfoWidgetVisibility);
 
-    m_versionInfoWidget->setWidget(versionInfoWidget);
-    m_versionInfoWidget->setState(DetailsWidget::NoSummary);
+    m_versionInfoWidget.setWidget(versionInfoWidget);
+    m_versionInfoWidget.setState(DetailsWidget::NoSummary);
 
     m_groupedView.view().setSortingEnabled(true);
     m_groupedView.view().setFirstColumnSpanned(0, QModelIndex(), true);
@@ -425,35 +409,31 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_groupedView.view().setTextElideMode(Qt::ElideMiddle);
     m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
 
-    m_documentationSetting->addItem(Tr::tr("Highest Version Only"),
-                                        int(QtVersionManager::DocumentationSetting::HighestOnly));
-    m_documentationSetting->addItem(
+    m_documentationSetting.addItem(Tr::tr("Highest Version Only"),
+                                   int(QtVersionManager::DocumentationSetting::HighestOnly));
+    m_documentationSetting.addItem(
         Tr::tr("All", "All documentation"), int(QtVersionManager::DocumentationSetting::All));
-    m_documentationSetting->addItem(
+    m_documentationSetting.addItem(
         Tr::tr("None", "No documentation"), int(QtVersionManager::DocumentationSetting::None));
-    const int selectedIndex = m_documentationSetting->findData(
+    const int selectedIndex = m_documentationSetting.findData(
         int(QtVersionManager::documentationSetting()));
     if (selectedIndex >= 0)
-        m_documentationSetting->setCurrentIndex(selectedIndex);
+        m_documentationSetting.setCurrentIndex(selectedIndex);
 
     QList<int> additions = transform(QtVersionManager::versions(), &QtVersion::uniqueId);
-
     updateQtVersions(additions, QList<int>(), QList<int>());
 
-    connect(m_nameEdit, &QLineEdit::textEdited,
+    connect(&m_nameEdit, &QLineEdit::textEdited,
             this, &QtSettingsPageWidget::updateCurrentQtName);
-
-    connect(m_editPathPushButton, &QAbstractButton::clicked,
+    connect(&m_editPathPushButton, &QAbstractButton::clicked,
             this, &QtSettingsPageWidget::editPath);
-
-    connect(addButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::addQtDir);
-    connect(m_delButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::removeQtDir);
-    connect(m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
-    connect(redetectButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::redetect);
-
+    connect(&m_addButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::addQtDir);
+    connect(&m_removeButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::removeQtDir);
+    connect(&m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
+    connect(&m_redetectButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::redetect);
     connect(&m_groupedView, &GroupedView::currentRowChanged,
             this, &QtSettingsPageWidget::userChangedCurrentVersion);
-    connect(m_cleanUpButton, &QAbstractButton::clicked,
+    connect(&m_cleanUpButton, &QAbstractButton::clicked,
             this, &QtSettingsPageWidget::cleanUpQtVersions);
 
     userChangedCurrentVersion();
@@ -461,18 +441,17 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtSettingsPageWidget::updateQtVersions);
-
     connect(ProjectExplorer::ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
             this, &QtSettingsPageWidget::toolChainsUpdated);
 
     auto chooser = new VariableChooser(this);
-    chooser->addSupportedWidget(m_nameEdit, "Qt:Name");
+    chooser->addSupportedWidget(&m_nameEdit, "Qt:Name");
     chooser->addMacroExpanderProvider({this, [this] {
         QtVersion *version = currentVersion();
         return version ? version->macroExpander() : nullptr;
     }});
 
-    const auto updateDevice = [this](const FilePath &deviceRoot) {
+    m_deviceComboBox.setOnDeviceChanged([this](const FilePath &deviceRoot) {
         m_model.setExtraFilter(deviceRoot.isEmpty()
             ? GroupedModel::Filter{}
             : GroupedModel::Filter{[this, deviceRoot](int row) {
@@ -481,8 +460,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
                   return path.isEmpty() || path.isSameDevice(deviceRoot);
               }});
         updateLinkWithQtButton();
-    };
-    m_deviceComboBox.setOnDeviceChanged(updateDevice);
+    });
 
     installMarkSettingsDirtyTriggerRecursively(this);
 }
@@ -562,15 +540,15 @@ void QtSettingsPageWidget::toolChainsUpdated()
 
 void QtSettingsPageWidget::setInfoWidgetVisibility()
 {
-    bool isExpanded = m_infoWidget->state() == DetailsWidget::Expanded;
-    if (isExpanded && m_infoBrowser->toPlainText().isEmpty()) {
+    bool isExpanded = m_infoWidget.state() == DetailsWidget::Expanded;
+    if (isExpanded && m_infoBrowser.toPlainText().isEmpty()) {
         const QtVersion *version = currentVersion();
         if (version)
-            m_infoBrowser->setHtml(version->toHtml(true));
+            m_infoBrowser.setHtml(version->toHtml(true));
     }
 
-    m_versionInfoWidget->setVisible(!isExpanded);
-    m_infoWidget->setVisible(true);
+    m_versionInfoWidget.setVisible(!isExpanded);
+    m_infoWidget.setVisible(true);
 }
 
 void QtSettingsPageWidget::infoAnchorClicked(const QUrl &url)
@@ -731,8 +709,8 @@ void QtSettingsPageWidget::addQtDir()
         QtVersionItem item(version);
         item.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
         m_groupedView.selectRow(m_model.appendVolatileItem(item));
-        m_nameEdit->setFocus();
-        m_nameEdit->selectAll();
+        m_nameEdit.setFocus();
+        m_nameEdit.selectAll();
         markSettingsDirty();
     } else {
         QMessageBox::warning(this, Tr::tr("Qmake Not Executable"),
@@ -841,7 +819,7 @@ void QtSettingsPageWidget::updateCleanUpButton()
         }
     }
 
-    m_cleanUpButton->setEnabled(hasInvalidVersion);
+    m_cleanUpButton.setEnabled(hasInvalidVersion);
 }
 
 void QtSettingsPageWidget::userChangedCurrentVersion()
@@ -856,22 +834,22 @@ void QtSettingsPageWidget::updateDescriptionLabel()
     const QtVersion *version = row >= 0 ? m_model.item(row).version() : nullptr;
     const ValidityInfo info = validInformation(version);
     if (info.message.isEmpty()) {
-        m_errorLabel->setVisible(false);
+        m_errorLabel.setVisible(false);
     } else {
-        m_errorLabel->setVisible(true);
-        m_errorLabel->setText(info.message);
-        m_errorLabel->setToolTip(info.toolTip);
+        m_errorLabel.setVisible(true);
+        m_errorLabel.setText(info.message);
+        m_errorLabel.setToolTip(info.toolTip);
     }
-    m_infoWidget->setSummaryText(info.description);
+    m_infoWidget.setSummaryText(info.description);
     if (row >= 0)
         m_model.notifyRowChanged(row);
 
-    m_infoBrowser->clear();
+    m_infoBrowser.clear();
     if (version) {
         setInfoWidgetVisibility();
     } else {
-        m_versionInfoWidget->setVisible(false);
-        m_infoWidget->setVisible(false);
+        m_versionInfoWidget.setVisible(false);
+        m_infoWidget.setVisible(false);
     }
 }
 
@@ -881,8 +859,8 @@ void QtSettingsPageWidget::updateWidgets()
     m_configurationWidget = nullptr;
     QtVersion *version = currentVersion();
     if (version) {
-        m_nameEdit->setText(version->unexpandedDisplayName());
-        m_qmakePath->setText(version->qmakeFilePath().toUserOutput());
+        m_nameEdit.setText(version->unexpandedDisplayName());
+        m_qmakePath.setText(version->qmakeFilePath().toUserOutput());
         m_configurationWidget = version->createConfigurationWidget();
         if (m_configurationWidget) {
             m_formLayout->addRow(m_configurationWidget);
@@ -891,15 +869,15 @@ void QtSettingsPageWidget::updateWidgets()
                     this, &QtSettingsPageWidget::updateDescriptionLabel);
         }
     } else {
-        m_nameEdit->clear();
-        m_qmakePath->clear();
+        m_nameEdit.clear();
+        m_qmakePath.clear();
     }
 
     const bool enabled = version != nullptr;
     const bool isAutodetected = enabled && version->detectionSource().isAutoDetected();
-    m_delButton->setEnabled(enabled && !isAutodetected);
-    m_nameEdit->setEnabled(enabled);
-    m_editPathPushButton->setEnabled(enabled && !isAutodetected);
+    m_removeButton.setEnabled(enabled && !isAutodetected);
+    m_nameEdit.setEnabled(enabled);
+    m_editPathPushButton.setEnabled(enabled && !isAutodetected);
 }
 
 static FilePath settingsFile(const QString &baseDir)
@@ -970,8 +948,8 @@ void QtSettingsPageWidget::updateLinkWithQtButton()
 {
     QString tip;
     const bool canLink = canLinkWithQt(&tip, m_deviceComboBox.currentDevice());
-    m_linkWithQtButton->setEnabled(canLink);
-    m_linkWithQtButton->setToolTip(tip);
+    m_linkWithQtButton.setEnabled(canLink);
+    m_linkWithQtButton.setToolTip(tip);
 }
 
 void QtSettingsPageWidget::updateCurrentQtName()
@@ -980,7 +958,7 @@ void QtSettingsPageWidget::updateCurrentQtName()
     if (row < 0 || !m_model.item(row).version())
         return;
 
-    m_model.item(row).version()->setUnexpandedDisplayName(m_nameEdit->text());
+    m_model.item(row).version()->setUnexpandedDisplayName(m_nameEdit.text());
     m_model.setChanged(row, true);
 
     updateDescriptionLabel();
@@ -995,7 +973,7 @@ void QtSettingsPageWidget::apply()
                &QtSettingsPageWidget::updateQtVersions);
 
     QtVersionManager::setDocumentationSetting(
-        QtVersionManager::DocumentationSetting(m_documentationSetting->currentData().toInt()));
+        QtVersionManager::DocumentationSetting(m_documentationSetting.currentData().toInt()));
 
     const int selectedId = m_groupedView.currentRow() >= 0 ? m_model.item(m_groupedView.currentRow()).uniqueId() : -1;
 
