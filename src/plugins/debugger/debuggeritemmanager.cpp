@@ -1037,16 +1037,8 @@ public:
                 this, &DebuggerSettingsPageWidget::cloneDebugger, Qt::QueuedConnection);
         connect(&m_removeButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::removeDebugger, Qt::QueuedConnection);
-        connect(&m_detectButton, &QAbstractButton::clicked,
-                this, [this] {
-            QList<IDeviceConstPtr> devices;
-            if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice()) {
-                devices << dev;
-            } else {
-                for (int i = 0; i < DeviceManager::deviceCount(); ++i)
-                    devices << DeviceManager::deviceAt(i);
-            }
-            for (const IDeviceConstPtr &dev : std::as_const(devices))
+        connect(&m_detectButton, &QAbstractButton::clicked, this, [this] {
+            for (const IDeviceConstPtr &dev : m_deviceComboBox.selectedDevices())
                 debuggerModel().detectDebuggers(dev, dev->toolSearchPaths());
         });
 

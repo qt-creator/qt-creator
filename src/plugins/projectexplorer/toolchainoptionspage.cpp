@@ -664,14 +664,7 @@ void ToolChainOptionsWidget::redetectToolchains()
     ToolchainManager::resetBadToolchains();
 
     // Step 2: Re-detect toolchains.
-    QList<IDeviceConstPtr> devices;
-    if (const IDeviceConstPtr device = m_deviceComboBox.currentDevice()) {
-        devices << device;
-    } else {
-        for (int i = 0; i < DeviceManager::deviceCount(); ++i)
-            devices << DeviceManager::deviceAt(i);
-    }
-    for (const IDeviceConstPtr &device : std::as_const(devices)) {
+    for (const IDeviceConstPtr &device : m_deviceComboBox.selectedDevices()) {
         for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
             const ToolchainDetector detector(knownTcs, device, device->toolSearchPaths());
             for (Toolchain * const tc : f->autoDetect(detector)) {

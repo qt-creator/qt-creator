@@ -243,6 +243,16 @@ IDeviceConstPtr DeviceComboBox::currentDevice() const
     return m_model.device(currentIndex());
 }
 
+QList<IDeviceConstPtr> DeviceComboBox::selectedDevices() const
+{
+    if (const IDeviceConstPtr dev = currentDevice())
+        return {dev};
+    QList<IDeviceConstPtr> devices;
+    for (int i = 0; i < DeviceManager::deviceCount(); ++i)
+        devices << DeviceManager::deviceAt(i);
+    return devices;
+}
+
 int DeviceComboBox::indexForId(Id id) const
 {
     return m_model.indexForId(id);

@@ -733,14 +733,7 @@ void QtSettingsPageWidget::removeQtDir()
 
 void QtSettingsPageWidget::redetect()
 {
-    QList<IDeviceConstPtr> devices;
-    if (const IDeviceConstPtr device = m_deviceComboBox.currentDevice()) {
-        devices << device;
-    } else {
-        for (int i = 0; i < DeviceManager::deviceCount(); ++i)
-            devices << DeviceManager::deviceAt(i);
-    }
-    for (const IDeviceConstPtr &dev : std::as_const(devices)) {
+    for (const IDeviceConstPtr &dev : m_deviceComboBox.selectedDevices()) {
         const FilePaths qMakes = BuildableHelperLibrary::findQtsInPaths(dev->toolSearchPaths());
         for (const FilePath &qmakePath : qMakes) {
             if (BuildableHelperLibrary::isQtChooser(qmakePath))

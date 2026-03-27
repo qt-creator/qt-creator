@@ -654,15 +654,8 @@ void CMakeToolConfigWidget::setDefaultCMakeTool()
 void CMakeToolConfigWidget::redetect()
 {
     // Step 1: Detect
-    QList<IDeviceConstPtr> devices;
-    if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice()) {
-        devices << dev;
-    } else {
-        for (int i = 0; i < DeviceManager::deviceCount(); ++i)
-            devices << DeviceManager::deviceAt(i);
-    }
     std::vector<std::unique_ptr<CMakeTool>> toAdd;
-    for (const IDeviceConstPtr &dev : std::as_const(devices)) {
+    for (const IDeviceConstPtr &dev : m_deviceComboBox.selectedDevices()) {
         auto detected
             = CMakeToolManager::autoDetectCMakeTools(dev->toolSearchPaths(), dev->rootPath());
         for (auto &&tool : detected)

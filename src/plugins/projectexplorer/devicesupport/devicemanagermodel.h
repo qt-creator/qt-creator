@@ -73,6 +73,7 @@ public:
     void setOnDeviceChanged(const std::function<void(const Utils::FilePath &deviceRoot)> &callback);
 
     IDeviceConstPtr currentDevice() const;
+    QList<IDeviceConstPtr> selectedDevices() const;
     int indexForId(Utils::Id id) const;
 
 private:
