@@ -17,7 +17,7 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT GroupedModel : public QAbstractTableModel
 {
 public:
-    explicit GroupedModel(QObject *parent = nullptr);
+    GroupedModel();
     ~GroupedModel() override;
 
     QAbstractItemModel *groupedDisplayModel() const;

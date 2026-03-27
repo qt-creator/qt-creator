@@ -267,9 +267,8 @@ void GroupedModel::DisplayModel::sort(int column, Qt::SortOrder order)
 
 // GroupedModel
 
-GroupedModel::GroupedModel(QObject *parent)
-    : QAbstractTableModel(parent)
-    , m_displayModel(new DisplayModel(this))
+GroupedModel::GroupedModel()
+    : m_displayModel(new DisplayModel(this))
 {}
 
 GroupedModel::~GroupedModel()
