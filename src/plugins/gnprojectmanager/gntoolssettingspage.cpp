@@ -267,7 +267,6 @@ private:
     GNToolsModel m_model;
     GroupedView m_groupedView{m_model};
     GNToolItemData m_data;
-    std::optional<Id> m_currentId;
     bool m_loading = false;
 
     DetailsWidget m_gnDetails;
@@ -340,8 +339,11 @@ void GNToolsSettingsWidget::removeGNTool()
 
 void GNToolsSettingsWidget::store()
 {
-    if (!m_loading && m_currentId) {
-        m_model.updateItem(*m_currentId,
+    if (m_loading)
+        return;
+    const int row = m_groupedView.currentRow();
+    if (row >= 0 && !m_model.isRemoved(row)) {
+        m_model.updateItem(m_model.item(row).id,
                            m_data.name.volatileValue(),
                            FilePath::fromUserInput(m_data.executable.volatileValue()));
     }
@@ -352,14 +354,12 @@ void GNToolsSettingsWidget::currentToolChanged(int, int newRow)
     const bool hasRow = newRow >= 0;
     const bool hasItem = hasRow && !m_model.isRemoved(newRow);
     m_loading = true;
-    m_currentId = std::nullopt;
     if (hasItem) {
         const GNToolItem &it = m_model.item(newRow);
         m_data.name.setEnabled(!it.autoDetected);
         m_data.name.setValue(it.name);
         m_data.executable.setEnabled(!it.autoDetected);
         m_data.executable.setValue(it.executable.toUserOutput());
-        m_currentId = it.id;
     }
     m_loading = false;
     m_gnDetails.setVisible(hasItem);
