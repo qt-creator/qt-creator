@@ -20,6 +20,7 @@
 #include <utils/detailswidget.h>
 #include <utils/groupedmodel.h>
 #include <utils/guard.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
@@ -30,18 +31,12 @@
 #include <QCoreApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QFont>
-#include <QHBoxLayout>
 #include <QMap>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSet>
-#include <QSpacerItem>
 #include <QStackedWidget>
-#include <QTextStream>
 #include <QTimer>
-#include <QTreeView>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -423,32 +418,22 @@ public:
     void handleToolchainsRegistered(const Toolchains &toolchains);
     void handleToolchainsDeregistered(const Toolchains &toolchains);
 
-    QAction *createAction(const QString &name, ToolchainFactory *factory, const QList<Id> &languages)
-    {
-        auto action = new QAction(name, this);
-        connect(action, &QAction::triggered, this,
-                [this, factory, languages] { createToolchains(factory, languages); });
-        return action;
-    }
-
     void redetectToolchains();
 
     void apply() final;
 
 private:
-
-    StackedWidget * const m_widgetStack = new StackedWidget;
-    ToolchainModel m_model{m_widgetStack};
+    DetailsWidget m_container;
+    StackedWidget m_widgetStack;
+    ToolchainModel m_model{&m_widgetStack};
     GroupedView m_groupedView{m_model};
-    QList<ToolchainFactory *> m_factories;
     DeviceComboBox m_deviceComboBox;
-    DetailsWidget *m_container;
-    QPushButton *m_addButton;
-    QPushButton *m_cloneButton;
-    QPushButton *m_delButton;
-    QPushButton *m_removeAllButton;
-    QPushButton *m_redetectButton;
-    QPushButton *m_detectionSettingsButton;
+    QPushButton m_addButton;
+    QPushButton m_cloneButton;
+    QPushButton m_removeButton;
+    QPushButton m_removeAllButton;
+    QPushButton m_redetectButton;
+    QPushButton m_detectionSettingsButton;
 
     ToolchainDetectionSettings m_detectionSettings;
 };
@@ -456,31 +441,82 @@ private:
 ToolChainOptionsWidget::ToolChainOptionsWidget()
 {
     m_detectionSettings = ToolchainManager::detectionSettings();
-    m_factories = Utils::filtered(ToolchainFactory::allToolchainFactories(),
-                [](ToolchainFactory *factory) { return factory->canCreate();});
-
     m_groupedView.view().setSortingEnabled(true);
     m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
-    m_addButton = new QPushButton(Tr::tr("Add"), this);
+
     auto addMenu = new QMenu(this);
-    for (ToolchainFactory *factory : std::as_const(m_factories)) {
-        QList<Utils::Id> languages = factory->supportedLanguages();
+    for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
+        if (!factory->canCreate())
+            continue;
+        const QList<Id> languages = factory->supportedLanguages();
         if (languages.isEmpty())
             continue;
-
-        addMenu->addAction(createAction(factory->displayName(), factory, languages));
+        auto action = new QAction(factory->displayName(), this);
+        connect(action, &QAction::triggered, this, [this, factory, languages] {
+            createToolchains(factory, languages);
+        });
+        addMenu->addAction(action);
     }
-    m_addButton->setMenu(addMenu);
+
+    m_addButton.setText(Tr::tr("Add"));
+    m_addButton.setMenu(addMenu);
     if (HostOsInfo::isMacHost())
-        m_addButton->setStyleSheet("text-align:center;");
+        m_addButton.setStyleSheet("text-align:center;");
 
-    m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
-    connect(m_cloneButton, &QAbstractButton::clicked, this, [this] { cloneToolchains(); });
+    m_cloneButton.setText(Tr::tr("Clone"));
+    m_removeButton.setText(Tr::tr("Remove"));
+    m_removeAllButton.setText(Tr::tr("Remove All"));
+    m_redetectButton.setText(Tr::tr("Re-detect"));
+    m_detectionSettingsButton.setText(Tr::tr("Auto-detection Settings..."));
 
-    m_delButton = new QPushButton(Tr::tr("Remove"), this);
+    m_container.setState(DetailsWidget::NoSummary);
+    m_container.setVisible(false);
+    m_container.setWidget(&m_widgetStack);
+    connect(&m_widgetStack, &StackedWidget::widgetAdded, this, [this](int index) {
+        installMarkSettingsDirtyTriggerRecursively(m_widgetStack.widget(index));
+    });
 
-    m_removeAllButton = new QPushButton(Tr::tr("Remove All"), this);
-    connect(m_removeAllButton, &QAbstractButton::clicked, this, [this] {
+    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+        ToolchainBundle::HandleMissing::CreateAndRegister);
+    for (const ToolchainBundle &b : bundles)
+        m_model.insertBundle(b);
+
+    using namespace Layouting;
+    Column {
+        Row { Tr::tr("Device:"), m_deviceComboBox, st },
+        Row {
+            Column { m_groupedView.view(), m_container },
+            Column {
+                m_addButton,
+                m_cloneButton,
+                m_removeButton,
+                m_removeAllButton,
+                m_redetectButton,
+                m_detectionSettingsButton,
+                st,
+            },
+        },
+    }.attachTo(this);
+
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainsRegistered,
+            this, &ToolChainOptionsWidget::handleToolchainsRegistered);
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainsDeregistered,
+            this, &ToolChainOptionsWidget::handleToolchainsDeregistered);
+
+    connect(&m_groupedView, &GroupedView::currentRowChanged,
+            this, &ToolChainOptionsWidget::toolChainSelectionChanged);
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
+            this, &ToolChainOptionsWidget::toolChainSelectionChanged);
+
+    connect(&m_cloneButton, &QAbstractButton::clicked, this, [this] { cloneToolchains(); });
+    connect(&m_removeButton, &QAbstractButton::clicked, this, [this] {
+        const int row = m_groupedView.currentRow();
+        if (row >= 0) {
+            m_model.markForRemoval(row);
+            markSettingsDirty();
+        }
+    });
+    connect(&m_removeAllButton, &QAbstractButton::clicked, this, [this] {
         bool anyRemoved = false;
         for (int row = m_model.itemCount() - 1; row >= 0; --row) {
             if (!m_model.mapFromSource(m_model.index(row, 0)).isValid())
@@ -494,13 +530,9 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
         if (anyRemoved)
             markSettingsDirty();
     });
-
-    m_redetectButton = new QPushButton(Tr::tr("Re-detect"), this);
-    connect(m_redetectButton, &QAbstractButton::clicked,
+    connect(&m_redetectButton, &QAbstractButton::clicked,
             this, &ToolChainOptionsWidget::redetectToolchains);
-
-    m_detectionSettingsButton = new QPushButton(Tr::tr("Auto-detection Settings..."), this);
-    connect(m_detectionSettingsButton, &QAbstractButton::clicked, this, [this] {
+    connect(&m_detectionSettingsButton, &QAbstractButton::clicked, this, [this] {
         DetectionSettingsDialog dlg(m_detectionSettings, this);
         if (dlg.exec() == QDialog::Accepted) {
             bool old = m_detectionSettings.detectX64AsX32;
@@ -510,67 +542,8 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
         }
     });
 
-    m_container = new DetailsWidget(this);
-    m_container->setState(DetailsWidget::NoSummary);
-    m_container->setVisible(false);
-
-    m_container->setWidget(m_widgetStack);
-    connect(m_widgetStack, &StackedWidget::widgetAdded, this, [this](int index) {
-        installMarkSettingsDirtyTriggerRecursively(m_widgetStack->widget(index));
-    });
-
-    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-        ToolchainBundle::HandleMissing::CreateAndRegister);
-    for (const ToolchainBundle &b : bundles)
-        m_model.insertBundle(b);
-
-    auto buttonLayout = new QVBoxLayout;
-    buttonLayout->setSpacing(6);
-    buttonLayout->setContentsMargins(0, 0, 0, 0);
-    buttonLayout->addWidget(m_addButton);
-    buttonLayout->addWidget(m_cloneButton);
-    buttonLayout->addWidget(m_delButton);
-    buttonLayout->addWidget(m_removeAllButton);
-    buttonLayout->addWidget(m_redetectButton);
-    buttonLayout->addWidget(m_detectionSettingsButton);
-    buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-    const auto deviceLayout = new QHBoxLayout;
-    deviceLayout->addWidget(new QLabel("Device:"));
-    deviceLayout->addWidget(&m_deviceComboBox);
-    deviceLayout->addStretch(1);
-
-    auto toolchainsLayout = new QVBoxLayout;
-    toolchainsLayout->addWidget(&m_groupedView.view());
-    toolchainsLayout->addWidget(m_container);
-
-    auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->addLayout(toolchainsLayout);
-    horizontalLayout->addLayout(buttonLayout);
-
-    const auto mainLayout = new QVBoxLayout(this);
-    mainLayout->addLayout(deviceLayout);
-    mainLayout->addLayout(horizontalLayout);
-
-    connect(ToolchainManager::instance(), &ToolchainManager::toolchainsRegistered,
-            this, &ToolChainOptionsWidget::handleToolchainsRegistered);
-    connect(ToolchainManager::instance(), &ToolchainManager::toolchainsDeregistered,
-            this, &ToolChainOptionsWidget::handleToolchainsDeregistered);
-
-    connect(&m_groupedView, &GroupedView::currentRowChanged,
-            this, &ToolChainOptionsWidget::toolChainSelectionChanged);
-    connect(ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
-            this, &ToolChainOptionsWidget::toolChainSelectionChanged);
-
-    connect(m_delButton, &QAbstractButton::clicked, this, [this] {
-        const int row = m_groupedView.currentRow();
-        if (row >= 0) {
-            m_model.markForRemoval(row);
-            markSettingsDirty();
-        }
-    });
-
-    const auto updateDevice = [this](const FilePath &deviceRoot) {
+    m_deviceComboBox.setCurrentIndex(m_deviceComboBox.indexForId({}));
+    m_deviceComboBox.setOnDeviceChanged([this](const FilePath &deviceRoot) {
         m_model.setExtraFilter(deviceRoot.isEmpty()
             ? GroupedModel::Filter{}
             : GroupedModel::Filter{[this, deviceRoot](int row) {
@@ -580,12 +553,9 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
                   const FilePath path = it.bundle->get(&Toolchain::compilerCommand);
                   return path.isEmpty() || path.isSameDevice(deviceRoot);
               }});
-    };
-    m_deviceComboBox.setCurrentIndex(m_deviceComboBox.indexForId({}));
-    m_deviceComboBox.setOnDeviceChanged(updateDevice);
+    });
 
     updateState();
-
     installMarkSettingsDirtyTriggerRecursively(this);
 }
 
@@ -720,11 +690,11 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
     if (row >= 0 && !m_model.isRemoved(row))
         configWidget = m_model.widget(row);
     if (configWidget) {
-        m_widgetStack->setCurrentWidget(configWidget);
+        m_widgetStack.setCurrentWidget(configWidget);
         if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice())
             configWidget->setFallbackBrowsePath(dev->rootPath());
     }
-    m_container->setVisible(configWidget != nullptr);
+    m_container.setVisible(configWidget != nullptr);
     updateState();
 }
 
@@ -798,13 +768,11 @@ void ToolChainOptionsWidget::updateState()
         canDelete = it.bundle && !it.bundle->detectionSource().isSdkProvided();
     }
 
-    m_cloneButton->setEnabled(canCopy);
-    m_delButton->setEnabled(canDelete);
+    m_cloneButton.setEnabled(canCopy);
+    m_removeButton.setEnabled(canDelete);
 }
 
-// --------------------------------------------------------------------------
 // ToolChainOptionsPage
-// --------------------------------------------------------------------------
 
 ToolChainOptionsPage::ToolChainOptionsPage()
 {
