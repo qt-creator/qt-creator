@@ -12,16 +12,15 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/aspects.h>
 #include <utils/detailswidget.h>
 #include <utils/groupedmodel.h>
 #include <utils/layoutbuilder.h>
-#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QHeaderView>
-#include <QLineEdit>
 #include <QPushButton>
 
 using namespace Utils;
@@ -233,63 +232,27 @@ QString GNToolsModel::uniqueName(const QString &baseName) const
     return Utils::makeUniquelyNumbered(baseName, names);
 }
 
-// GNToolItemSettings widget
-
-class GNToolItemSettings final : public QWidget
-{
-    Q_OBJECT
-
-public:
-    GNToolItemSettings()
-    {
-        m_nameLineEdit = new QLineEdit;
-
-        m_pathChooser = new PathChooser;
-        m_pathChooser->setExpectedKind(PathChooser::ExistingCommand);
-        m_pathChooser->setHistoryCompleter("GN.Command.History");
-
-        using namespace Layouting;
-
-        Form{Tr::tr("Name:"), m_nameLineEdit, br, Tr::tr("Path:"), m_pathChooser, br, noMargin}.attachTo(
-            this);
-
-        connect(m_pathChooser, &PathChooser::rawPathChanged, this, &GNToolItemSettings::store);
-        connect(m_nameLineEdit, &QLineEdit::textChanged, this, &GNToolItemSettings::store);
-    }
-
-    void load(std::optional<GNToolItem> item)
-    {
-        m_currentId = std::nullopt;
-        if (item) {
-            m_nameLineEdit->setDisabled(item->autoDetected);
-            m_nameLineEdit->setText(item->name);
-            m_pathChooser->setDisabled(item->autoDetected);
-            m_pathChooser->setFilePath(item->executable);
-            m_currentId = item->id;
-        }
-    }
-
-    void store()
-    {
-        if (m_currentId)
-            emit applyChanges(*m_currentId, m_nameLineEdit->text(), m_pathChooser->filePath());
-    }
-
-signals:
-    void applyChanges(Id itemId, const QString &name, const FilePath &exe);
-
-private:
-    std::optional<Id> m_currentId;
-    QLineEdit *m_nameLineEdit;
-    PathChooser *m_pathChooser;
-};
-
 // GNToolsSettingsWidget
+
+class GNToolItemData final : public AspectContainer
+{
+public:
+    GNToolItemData()
+    {
+        name.setDisplayStyle(StringAspect::LineEditDisplay);
+        name.setLabelText(Tr::tr("Name:"));
+
+        executable.setExpectedKind(PathChooser::ExistingCommand);
+        executable.setHistoryCompleter("GN.Command.History");
+        executable.setLabelText(Tr::tr("Path:"));
+    }
+
+    StringAspect name{this};
+    FilePathAspect executable{this};
+};
 
 class GNToolsSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_OBJECT
-
 public:
     GNToolsSettingsWidget();
 
@@ -299,10 +262,13 @@ private:
     void cloneGNTool();
     void removeGNTool();
     void currentToolChanged(int oldRow, int newRow);
+    void store();
 
     GNToolsModel m_model;
     GroupedView m_groupedView{m_model};
-    GNToolItemSettings *m_itemSettings = nullptr;
+    GNToolItemData m_data;
+    std::optional<Id> m_currentId;
+    bool m_loading = false;
 
     DetailsWidget m_gnDetails;
     QPushButton *m_cloneButton = nullptr;
@@ -314,11 +280,16 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
     m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
 
-    m_itemSettings = new GNToolItemSettings;
+    auto inner = new QWidget;
+    using namespace Layouting;
+    Form {
+        m_data.name, br,
+        m_data.executable, br, noMargin
+    }.attachTo(inner);
 
     m_gnDetails.setState(DetailsWidget::NoSummary);
     m_gnDetails.setVisible(false);
-    m_gnDetails.setWidget(m_itemSettings);
+    m_gnDetails.setWidget(inner);
 
     auto addButton = new QPushButton(Tr::tr("Add"));
 
@@ -328,24 +299,16 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
     m_removeButton = new QPushButton(Tr::tr("Remove"));
     m_removeButton->setEnabled(false);
 
-    using namespace Layouting;
-
     Row {
-        Column {
-            m_groupedView.view(), m_gnDetails
-        },
-        Column {
-            addButton,
-            m_cloneButton,
-            m_removeButton,
-            st
-        }
+        Column { m_groupedView.view(), m_gnDetails },
+        Column { addButton, m_cloneButton, m_removeButton, st }
     }.attachTo(this);
 
     connect(&m_groupedView, &GroupedView::currentRowChanged,
             this, &GNToolsSettingsWidget::currentToolChanged);
-    connect(m_itemSettings, &GNToolItemSettings::applyChanges,
-            &m_model, &GNToolsModel::updateItem);
+
+    m_data.name.addOnVolatileValueChanged(this, [this] { store(); });
+    m_data.executable.addOnVolatileValueChanged(this, [this] { store(); });
 
     connect(addButton, &QPushButton::clicked, this, [this] {
         m_groupedView.selectRow(m_model.addGNTool());
@@ -375,12 +338,30 @@ void GNToolsSettingsWidget::removeGNTool()
     }
 }
 
+void GNToolsSettingsWidget::store()
+{
+    if (!m_loading && m_currentId) {
+        m_model.updateItem(*m_currentId,
+                           m_data.name.volatileValue(),
+                           FilePath::fromUserInput(m_data.executable.volatileValue()));
+    }
+}
+
 void GNToolsSettingsWidget::currentToolChanged(int, int newRow)
 {
     const bool hasRow = newRow >= 0;
     const bool hasItem = hasRow && !m_model.isRemoved(newRow);
-    m_itemSettings->load(hasItem ? std::optional<GNToolItem>{m_model.item(newRow)}
-                                 : std::nullopt);
+    m_loading = true;
+    m_currentId = std::nullopt;
+    if (hasItem) {
+        const GNToolItem &it = m_model.item(newRow);
+        m_data.name.setEnabled(!it.autoDetected);
+        m_data.name.setValue(it.name);
+        m_data.executable.setEnabled(!it.autoDetected);
+        m_data.executable.setValue(it.executable.toUserOutput());
+        m_currentId = it.id;
+    }
+    m_loading = false;
     m_gnDetails.setVisible(hasItem);
     m_cloneButton->setEnabled(hasItem);
     m_removeButton->setEnabled(hasRow && !m_model.item(newRow).autoDetected);
@@ -404,6 +385,5 @@ void setupGNToolsSettingsPage()
 {
     static GNToolsSettingsPage theGNToolsSettingsPage;
 }
-} // namespace GNProjectManager::Internal
 
-#include "gntoolssettingspage.moc"
+} // namespace GNProjectManager::Internal
