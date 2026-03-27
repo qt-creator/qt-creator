@@ -7,6 +7,7 @@
 #include "../kitaspect.h"
 #include "../projectexplorertr.h"
 
+#include <utils/guiutils.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
@@ -214,6 +215,37 @@ bool DeviceFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sour
     if (path.isEmpty())
         return true;
     return path.isSameDevice(m_deviceRoot);
+}
+
+// DeviceComboBox
+
+DeviceComboBox::DeviceComboBox()
+{
+    setIgnoreForDirtyHook(this);
+    m_model.showAllEntry();
+    setModel(&m_model);
+    connect(this, &QComboBox::currentIndexChanged, this, [this](int idx) {
+        if (m_onDeviceChanged)
+            m_onDeviceChanged(m_model.device(idx));
+    });
+}
+
+void DeviceComboBox::setOnDeviceChanged(const std::function<void(const FilePath &)> &callback)
+{
+    m_onDeviceChanged = [callback](const IDeviceConstPtr &device) {
+        callback(device ? device->rootPath() : FilePath{});
+    };
+    m_onDeviceChanged(currentDevice());
+}
+
+IDeviceConstPtr DeviceComboBox::currentDevice() const
+{
+    return m_model.device(currentIndex());
+}
+
+int DeviceComboBox::indexForId(Id id) const
+{
+    return m_model.indexForId(id);
 }
 
 } // namespace ProjectExplorer

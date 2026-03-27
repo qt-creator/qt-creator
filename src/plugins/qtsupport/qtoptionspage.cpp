@@ -288,7 +288,6 @@ private:
     void userChangedCurrentVersion();
     void updateWidgets();
     void updateLinkWithQtButton();
-    IDeviceConstPtr currentDevice() const;
     QtVersion *currentVersion() const;
     std::pair<bool, QString> checkAlreadyExists(const FilePath &qtVersion);
 
@@ -322,8 +321,7 @@ private:
 
     const QString m_specifyNameString;
 
-    DeviceManagerModel m_deviceManagerModel;
-    QComboBox *m_deviceComboBox;
+    DeviceComboBox m_deviceComboBox;
     DetailsWidget *m_versionInfoWidget;
     DetailsWidget *m_infoWidget;
     QComboBox *m_documentationSetting;
@@ -346,11 +344,6 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     , m_infoBrowser(new QTextBrowser)
     , m_configurationWidget(nullptr)
 {
-    m_deviceComboBox = new QComboBox;
-    setIgnoreForDirtyHook(m_deviceComboBox);
-    m_deviceManagerModel.showAllEntry();
-    m_deviceComboBox->setModel(&m_deviceManagerModel);
-
     m_groupedView.view().setObjectName("qtDirList");
 
     m_versionInfoWidget = new DetailsWidget(this);
@@ -393,7 +386,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     // clang-format off
     Column {
-        Row { Tr::tr("Device:"), m_deviceComboBox, st },
+        Row { Tr::tr("Device:"), &m_deviceComboBox, st },
         Row {
             Column {
                 m_groupedView.view(),
@@ -479,9 +472,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         return version ? version->macroExpander() : nullptr;
     }});
 
-    const auto updateDevice = [this](int index) {
-        const IDeviceConstPtr device = m_deviceManagerModel.device(index);
-        const FilePath deviceRoot = device ? device->rootPath() : FilePath{};
+    const auto updateDevice = [this](const FilePath &deviceRoot) {
         m_model.setExtraFilter(deviceRoot.isEmpty()
             ? GroupedModel::Filter{}
             : GroupedModel::Filter{[this, deviceRoot](int row) {
@@ -491,9 +482,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
               }});
         updateLinkWithQtButton();
     };
-    connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
-    m_deviceComboBox->setCurrentIndex(0);
-    updateDevice(m_deviceComboBox->currentIndex());
+    m_deviceComboBox.setOnDeviceChanged(updateDevice);
 
     installMarkSettingsDirtyTriggerRecursively(this);
 }
@@ -706,7 +695,7 @@ QtSettingsPageWidget::~QtSettingsPageWidget()
 void QtSettingsPageWidget::addQtDir()
 {
     FilePath initialDir;
-    const IDeviceConstPtr dev = currentDevice();
+    const IDeviceConstPtr dev = m_deviceComboBox.currentDevice();
     if (dev && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
         initialDir = dev->rootPath();
     FilePath qtVersion
@@ -767,7 +756,7 @@ void QtSettingsPageWidget::removeQtDir()
 void QtSettingsPageWidget::redetect()
 {
     QList<IDeviceConstPtr> devices;
-    if (const IDeviceConstPtr device = currentDevice()) {
+    if (const IDeviceConstPtr device = m_deviceComboBox.currentDevice()) {
         devices << device;
     } else {
         for (int i = 0; i < DeviceManager::deviceCount(); ++i)
@@ -980,14 +969,9 @@ static bool canLinkWithQt(QString *toolTip, const IDeviceConstPtr &device)
 void QtSettingsPageWidget::updateLinkWithQtButton()
 {
     QString tip;
-    const bool canLink = canLinkWithQt(&tip, currentDevice());
+    const bool canLink = canLinkWithQt(&tip, m_deviceComboBox.currentDevice());
     m_linkWithQtButton->setEnabled(canLink);
     m_linkWithQtButton->setToolTip(tip);
-}
-
-IDeviceConstPtr QtSettingsPageWidget::currentDevice() const
-{
-    return m_deviceManagerModel.device(m_deviceComboBox->currentIndex());
 }
 
 void QtSettingsPageWidget::updateCurrentQtName()

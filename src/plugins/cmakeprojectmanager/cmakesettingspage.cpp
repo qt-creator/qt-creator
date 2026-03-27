@@ -517,9 +517,6 @@ public:
         m_container.setVisible(false);
         m_container.setWidget(&m_itemConfigWidget);
 
-        m_deviceModel.showAllEntry();
-        m_deviceComboBox.setModel(&m_deviceModel);
-
         (void) new HeaderViewStretcher(m_groupedView.view().header(), 0);
 
         using namespace Layouting;
@@ -554,9 +551,7 @@ public:
         connect(&m_detectButton, &QAbstractButton::clicked,
                 this, &CMakeToolConfigWidget::redetect);
 
-        const auto updateDevice = [this](int idx) {
-            const IDeviceConstPtr device = m_deviceModel.device(idx);
-            const FilePath deviceRoot = device ? device->rootPath() : FilePath{};
+        const auto updateDevice = [this](const FilePath &deviceRoot) {
             m_model.setExtraFilter(deviceRoot.isEmpty()
                 ? GroupedModel::Filter{}
                 : GroupedModel::Filter{[this, deviceRoot](int row) {
@@ -564,11 +559,8 @@ public:
                       return path.isEmpty() || path.isSameDevice(deviceRoot);
                   }});
         };
-        connect(&m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
-        m_deviceComboBox.setCurrentIndex(0);
-        updateDevice(m_deviceComboBox.currentIndex());
+        m_deviceComboBox.setOnDeviceChanged(updateDevice);
 
-        setIgnoreForDirtyHook(&m_deviceComboBox);
         installMarkSettingsDirtyTriggerRecursively(this);
     }
 
@@ -582,12 +574,9 @@ private:
     void redetect();
     void currentCMakeToolChanged(int oldRow, int newRow);
 
-    IDeviceConstPtr currentDevice() const;
-
     CMakeToolItemModel m_model;
     GroupedView m_groupedView{m_model};
-    DeviceManagerModel m_deviceModel;
-    QComboBox m_deviceComboBox;
+    DeviceComboBox m_deviceComboBox;
     QPushButton m_addButton;
     QPushButton m_cloneButton;
     QPushButton m_delButton;
@@ -666,7 +655,7 @@ void CMakeToolConfigWidget::redetect()
 {
     // Step 1: Detect
     QList<IDeviceConstPtr> devices;
-    if (const IDeviceConstPtr dev = currentDevice()) {
+    if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice()) {
         devices << dev;
     } else {
         for (int i = 0; i < DeviceManager::deviceCount(); ++i)
@@ -716,7 +705,7 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(int, int newRow)
     if (newRow >= 0 && newRow < m_model.itemCount()) {
         const CMakeToolTreeItem it = m_model.item(newRow);
         m_itemConfigWidget.load(&it, true);
-        if (const IDeviceConstPtr dev = currentDevice())
+        if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice())
             m_itemConfigWidget.setDeviceRoot(dev->rootPath());
         m_delButton.setEnabled(!it.m_detectionSource.isAutoDetected());
         m_makeDefButton.setEnabled(!m_model.isDefault(newRow));
@@ -727,11 +716,6 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(int, int newRow)
     }
     m_container.setVisible(newRow >= 0 && newRow < m_model.itemCount());
     m_cloneButton.setEnabled(newRow >= 0 && newRow < m_model.itemCount());
-}
-
-IDeviceConstPtr CMakeToolConfigWidget::currentDevice() const
-{
-    return m_deviceModel.device(m_deviceComboBox.currentIndex());
 }
 
 // CMakeSettingsPage

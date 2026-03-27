@@ -415,8 +415,6 @@ class ToolChainOptionsWidget final : public Core::IOptionsPageWidget
 public:
     ToolChainOptionsWidget();
 
-    IDeviceConstPtr currentDevice() const;
-
     void toolChainSelectionChanged();
     void updateState();
     void createToolchains(ToolchainFactory *factory, const QList<Id> &languages);
@@ -438,12 +436,12 @@ public:
     void apply() final;
 
 private:
-    DeviceManagerModel m_deviceManagerModel;
+
     StackedWidget * const m_widgetStack = new StackedWidget;
     ToolchainModel m_model{m_widgetStack};
     GroupedView m_groupedView{m_model};
     QList<ToolchainFactory *> m_factories;
-    QComboBox *m_deviceComboBox;
+    DeviceComboBox m_deviceComboBox;
     DetailsWidget *m_container;
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
@@ -460,11 +458,6 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
     m_detectionSettings = ToolchainManager::detectionSettings();
     m_factories = Utils::filtered(ToolchainFactory::allToolchainFactories(),
                 [](ToolchainFactory *factory) { return factory->canCreate();});
-
-    m_deviceManagerModel.showAllEntry();
-    m_deviceComboBox = new QComboBox;
-    setIgnoreForDirtyHook(m_deviceComboBox);
-    m_deviceComboBox->setModel(&m_deviceManagerModel);
 
     m_groupedView.view().setSortingEnabled(true);
     m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
@@ -544,7 +537,7 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
 
     const auto deviceLayout = new QHBoxLayout;
     deviceLayout->addWidget(new QLabel("Device:"));
-    deviceLayout->addWidget(m_deviceComboBox);
+    deviceLayout->addWidget(&m_deviceComboBox);
     deviceLayout->addStretch(1);
 
     auto toolchainsLayout = new QVBoxLayout;
@@ -577,9 +570,7 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
         }
     });
 
-    const auto updateDevice = [this](int index) {
-        const IDeviceConstPtr device = m_deviceManagerModel.device(index);
-        const FilePath deviceRoot = device ? device->rootPath() : FilePath{};
+    const auto updateDevice = [this](const FilePath &deviceRoot) {
         m_model.setExtraFilter(deviceRoot.isEmpty()
             ? GroupedModel::Filter{}
             : GroupedModel::Filter{[this, deviceRoot](int row) {
@@ -590,9 +581,8 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
                   return path.isEmpty() || path.isSameDevice(deviceRoot);
               }});
     };
-    connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
-    m_deviceComboBox->setCurrentIndex(m_deviceManagerModel.indexForId({}));
-    updateDevice(m_deviceComboBox->currentIndex());
+    m_deviceComboBox.setCurrentIndex(m_deviceComboBox.indexForId({}));
+    m_deviceComboBox.setOnDeviceChanged(updateDevice);
 
     updateState();
 
@@ -675,7 +665,7 @@ void ToolChainOptionsWidget::redetectToolchains()
 
     // Step 2: Re-detect toolchains.
     QList<IDeviceConstPtr> devices;
-    if (const IDeviceConstPtr device = currentDevice()) {
+    if (const IDeviceConstPtr device = m_deviceComboBox.currentDevice()) {
         devices << device;
     } else {
         for (int i = 0; i < DeviceManager::deviceCount(); ++i)
@@ -730,11 +720,6 @@ void ToolChainOptionsWidget::redetectToolchains()
         markSettingsDirty();
 }
 
-IDeviceConstPtr ToolChainOptionsWidget::currentDevice() const
-{
-    return m_deviceManagerModel.device(m_deviceComboBox->currentIndex());
-}
-
 void ToolChainOptionsWidget::toolChainSelectionChanged()
 {
     const int row = m_groupedView.currentRow();
@@ -743,7 +728,7 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
         configWidget = m_model.widget(row);
     if (configWidget) {
         m_widgetStack->setCurrentWidget(configWidget);
-        if (const IDeviceConstPtr dev = currentDevice())
+        if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice())
             configWidget->setFallbackBrowsePath(dev->rootPath());
     }
     m_container->setVisible(configWidget != nullptr);

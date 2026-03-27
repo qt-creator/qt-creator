@@ -8,8 +8,10 @@
 
 #include <utils/filepath.h>
 
+#include <QComboBox>
 #include <QSortFilterProxyModel>
 
+#include <functional>
 #include <memory>
 
 namespace Utils { class Id; }
@@ -60,6 +62,22 @@ private:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
     Utils::FilePath m_deviceRoot;
+};
+
+// A QComboBox that owns a DeviceManagerModel showing all devices.
+class PROJECTEXPLORER_EXPORT DeviceComboBox : public QComboBox
+{
+public:
+    DeviceComboBox();
+
+    void setOnDeviceChanged(const std::function<void(const Utils::FilePath &deviceRoot)> &callback);
+
+    IDeviceConstPtr currentDevice() const;
+    int indexForId(Utils::Id id) const;
+
+private:
+    DeviceManagerModel m_model;
+    std::function<void(const IDeviceConstPtr &)> m_onDeviceChanged;
 };
 
 } // namespace ProjectExplorer

@@ -1020,12 +1020,6 @@ public:
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
 
-        m_deviceModel.showAllEntry();
-
-        m_deviceComboBox = new QComboBox(this);
-        setIgnoreForDirtyHook(m_deviceComboBox);
-        m_deviceComboBox->setModel(&m_deviceModel);
-
         m_groupedView.view().setSortingEnabled(true);
         m_groupedView.view().sortByColumn(0, Qt::AscendingOrder);
 
@@ -1040,7 +1034,7 @@ public:
 
         const auto deviceLayout = new QHBoxLayout;
         deviceLayout->addWidget(new QLabel(Tr::tr("Device:")));
-        deviceLayout->addWidget(m_deviceComboBox);
+        deviceLayout->addWidget(&m_deviceComboBox);
         deviceLayout->addStretch(1);
 
         auto debuggersLayout = new QVBoxLayout();
@@ -1067,7 +1061,7 @@ public:
         connect(m_detectButton , &QAbstractButton::clicked,
                 this, [this] {
             QList<IDeviceConstPtr> devices;
-            if (const IDeviceConstPtr dev = currentDevice()) {
+            if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice()) {
                 devices << dev;
             } else {
                 for (int i = 0; i < DeviceManager::deviceCount(); ++i)
@@ -1077,10 +1071,7 @@ public:
                 debuggerModel().detectDebuggers(dev, dev->toolSearchPaths());
         });
 
-        m_deviceComboBox->setCurrentIndex(0);
-        const auto updateDevice = [this](int idx) {
-            const IDeviceConstPtr device = m_deviceModel.device(idx);
-            const FilePath deviceRoot = device ? device->rootPath() : FilePath{};
+        const auto updateDevice = [](const FilePath &deviceRoot) {
             debuggerModel().setExtraFilter(deviceRoot.isEmpty()
                 ? GroupedModel::Filter{}
                 : GroupedModel::Filter{[deviceRoot](int row) {
@@ -1088,8 +1079,7 @@ public:
                       return path.isEmpty() || path.isSameDevice(deviceRoot);
                   }});
         };
-        connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
-        updateDevice(m_deviceComboBox->currentIndex());
+        m_deviceComboBox.setOnDeviceChanged(updateDevice);
 
         m_itemConfigWidget = new DebuggerItemConfigWidget;
         m_container->setWidget(m_itemConfigWidget);
@@ -1111,15 +1101,12 @@ public:
         m_groupedView.view().expandAll();
     }
 
-    IDeviceConstPtr currentDevice() const;
-
     void cloneDebugger();
     void addDebugger();
     void removeDebugger();
     void updateButtons();
 
-    DeviceManagerModel m_deviceModel;
-    QComboBox *m_deviceComboBox;
+    DeviceComboBox m_deviceComboBox;
     GroupedView m_groupedView{debuggerModel()};
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
@@ -1128,11 +1115,6 @@ public:
     DetailsWidget *m_container;
     DebuggerItemConfigWidget *m_itemConfigWidget;
 };
-
-IDeviceConstPtr DebuggerSettingsPageWidget::currentDevice() const
-{
-    return m_deviceModel.device(m_deviceComboBox->currentIndex());
-}
 
 void DebuggerSettingsPageWidget::cloneDebugger()
 {
@@ -1179,7 +1161,7 @@ void DebuggerSettingsPageWidget::updateButtons()
     const DebuggerItem item = row >= 0 ? debuggerModel().item(row) : DebuggerItem{};
 
     m_itemConfigWidget->load(item);
-    const IDeviceConstPtr dev = currentDevice();
+    const IDeviceConstPtr dev = m_deviceComboBox.currentDevice();
     if (dev)
         m_itemConfigWidget->setDeviceRootPath(dev->rootPath());
     m_container->setVisible(bool(item));
