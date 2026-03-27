@@ -35,6 +35,7 @@ public:
     bool isRemoved(int row) const;
     bool isChanged(int row) const;
     bool isDirty(int row) const;
+    bool isDirty() const;
     int defaultRow() const;
     bool isDefault(int row) const;
     void setVolatileDefaultRow(int row);

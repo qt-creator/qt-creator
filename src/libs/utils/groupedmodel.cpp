@@ -355,6 +355,15 @@ bool GroupedModel::isDirty(int row) const
     return m_volatileVariants.at(row) != m_variants.at(row);
 }
 
+bool GroupedModel::isDirty() const
+{
+    for (int row = 0; row < m_volatileVariants.size(); ++row) {
+        if (isDirty(row))
+            return true;
+    }
+    return false;
+}
+
 int GroupedModel::defaultRow() const
 {
     return m_volatileDefaultFlag.indexOf(true);

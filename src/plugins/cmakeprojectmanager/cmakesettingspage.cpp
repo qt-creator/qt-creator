@@ -20,6 +20,7 @@
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/groupedmodel.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -96,12 +97,6 @@ class CMakeToolItemModel final : public TypedGroupedModel<CMakeToolTreeItem>
 public:
     CMakeToolItemModel();
 
-    int addCMakeTool(
-        const QString &name,
-        const FilePath &executable,
-        const FilePath &qchFile,
-        bool autoRun,
-        const DetectionSource &detectionSource);
     void addCMakeTool(const CMakeTool *item);
     void updateCMakeTool(const Id &id,
                          const QString &displayName,
@@ -251,16 +246,6 @@ CMakeToolItemModel::CMakeToolItemModel()
             this, [this](const Id &id) { addCMakeTool(CMakeToolManager::findById(id)); });
 }
 
-int CMakeToolItemModel::addCMakeTool(
-    const QString &name,
-    const FilePath &executable,
-    const FilePath &qchFile,
-    const bool autoRun,
-    const DetectionSource &detectionSource)
-{
-    return appendItem(CMakeToolTreeItem(name, executable, qchFile, autoRun, detectionSource));
-}
-
 void CMakeToolItemModel::addCMakeTool(const CMakeTool *item)
 {
     QTC_ASSERT(item, return);
@@ -367,6 +352,8 @@ class CMakeToolItemConfigData final : public AspectContainer
 public:
     CMakeToolItemConfigData()
     {
+        setAutoApply(true);
+
         displayName.setDisplayStyle(StringAspect::LineEditDisplay);
         displayName.setLabelText(Tr::tr("Name:"));
 
@@ -474,11 +461,17 @@ public:
         m_data.qchFile.addOnVolatileValueChanged(this, [this] { store(); });
         m_data.displayName.addOnVolatileValueChanged(this, [this] { store(); });
 
-        installMarkSettingsDirtyTriggerRecursively(this);
+        connect(&m_data, &AspectContainer::changed, &checkSettingsDirty);
+        const auto *dm = m_model.groupedDisplayModel();
+        connect(dm, &QAbstractItemModel::dataChanged, &checkSettingsDirty);
+        connect(dm, &QAbstractItemModel::rowsInserted, &checkSettingsDirty);
+        connect(dm, &QAbstractItemModel::rowsRemoved, &checkSettingsDirty);
     }
 
 private:
-    void apply() final;
+    void apply() final { m_model.apply(); }
+
+    bool isDirty() const final { return m_model.isDirty(); }
 
     void cloneCMakeTool();
     void addCMakeTool();
@@ -510,11 +503,7 @@ private:
     bool m_loadingItem = false;
 };
 
-void CMakeToolConfigWidget::apply()
-{
-    store();
-    m_model.apply();
-}
+
 
 void CMakeToolConfigWidget::store()
 {
@@ -584,24 +573,26 @@ void CMakeToolConfigWidget::cloneCMakeTool()
         return;
 
     const CMakeToolTreeItem it = m_model.item(row);
-    m_groupedView.selectRow(m_model.addCMakeTool(
+    const CMakeToolTreeItem clone = {
         Tr::tr("Clone of %1").arg(it.m_name),
         it.m_executable,
         it.m_qchFile,
         it.m_isAutoRun,
-        DetectionSource{DetectionSource::Manual, it.m_detectionSource.id}));
-    markSettingsDirty();
+        DetectionSource{DetectionSource::Manual, it.m_detectionSource.id}
+    };
+    m_groupedView.selectRow(m_model.appendVolatileItem(clone));
 }
 
 void CMakeToolConfigWidget::addCMakeTool()
 {
-    m_groupedView.selectRow(m_model.addCMakeTool(
+    const CMakeToolTreeItem added = {
         m_model.uniqueDisplayName(Tr::tr("New CMake")),
         FilePath(),
         FilePath(),
         true,
-        DetectionSource::Manual));
-    markSettingsDirty();
+        DetectionSource::Manual
+    };
+    m_groupedView.selectRow(m_model.appendVolatileItem(added));
 }
 
 void CMakeToolConfigWidget::removeCMakeTool()
@@ -621,8 +612,6 @@ void CMakeToolConfigWidget::removeCMakeTool()
             }
         }
     }
-
-    markSettingsDirty();
 }
 
 void CMakeToolConfigWidget::setDefaultCMakeTool()
@@ -633,7 +622,6 @@ void CMakeToolConfigWidget::setDefaultCMakeTool()
 
     m_model.setVolatileDefaultRow(row);
     m_makeDefButton.setEnabled(false);
-    markSettingsDirty();
 }
 
 void CMakeToolConfigWidget::redetect()
@@ -673,9 +661,6 @@ void CMakeToolConfigWidget::redetect()
         if (const int row = m_model.rowForId(tool->id()); row >= 0)
             m_model.setChanged(row, true);
     }
-
-    if (!toRemove.isEmpty() || !toAdd.empty())
-        markSettingsDirty();
 }
 
 void CMakeToolConfigWidget::currentCMakeToolChanged(int, int newRow)
