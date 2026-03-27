@@ -13,226 +13,227 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>
+#include <utils/groupedmodel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QQueue>
-#include <QTreeView>
 
 using namespace Utils;
 using namespace ProjectExplorer;
 
 namespace GNProjectManager::Internal {
-// ToolTreeItem
 
-class GNToolTreeItem final : public TreeItem
+class GNToolItem final
 {
 public:
-    GNToolTreeItem(const QString &name)
-        : m_name{name}
-        , m_id(Id::generate())
-    {
-        selfCheck();
-        updateTooltip();
-    }
+    GNToolItem() = default;
+    explicit GNToolItem(const QString &name);
+    explicit GNToolItem(const GNTools::Tool_t &tool);
+    GNToolItem cloned() const;
 
-    GNToolTreeItem(const GNTools::Tool_t &tool)
-        : m_name{tool->name()}
-        , m_executable{tool->exe()}
-        , m_id{tool->id()}
-        , m_autoDetected{tool->autoDetected()}
-    {
-        m_tooltip = Tr::tr("Version: %1").arg(tool->version().toString());
-        selfCheck();
-    }
+    QVariant data(int column, int role) const;
+    void update(const QString &name, const FilePath &exe);
 
-    GNToolTreeItem(const GNToolTreeItem &other)
-        : m_name{Tr::tr("Clone of %1").arg(other.m_name)}
-        , m_executable{other.m_executable}
-        , m_id{Id::generate()}
-        , m_autoDetected{false}
-        , m_unsavedChanges{true}
-    {
-        selfCheck();
-        updateTooltip();
-    }
+    friend bool operator==(const GNToolItem &, const GNToolItem &) = default;
 
-    QVariant data(int column, int role) const override
-    {
-        switch (role) {
-        case Qt::DisplayRole:
-            switch (column) {
-            case 0:
-                return m_name;
-            case 1:
-                return m_executable.toUserOutput();
-            }
-            return {};
-        case Qt::FontRole: {
-            QFont font;
-            font.setBold(m_unsavedChanges);
-            return font;
-        }
-        case Qt::ToolTipRole:
-            if (!m_pathExists)
-                return Tr::tr("GN executable path does not exist.");
-            if (!m_pathIsFile)
-                return Tr::tr("GN executable path is not a file.");
-            if (!m_pathIsExecutable)
-                return Tr::tr("GN executable path is not executable.");
-            return m_tooltip;
-        case Qt::DecorationRole:
-            if (column == 0 && (!m_pathExists || !m_pathIsFile || !m_pathIsExecutable))
-                return Icons::CRITICAL.icon();
-            return {};
-        }
-        return {};
-    }
-
-    bool isAutoDetected() const noexcept { return m_autoDetected; }
-    QString name() const noexcept { return m_name; }
-    FilePath executable() const noexcept { return m_executable; }
-    Id id() const noexcept { return m_id; }
-    bool hasUnsavedChanges() const noexcept { return m_unsavedChanges; }
-    void setSaved() { m_unsavedChanges = false; }
-
-    void update(const QString &name, const FilePath &exe)
-    {
-        m_unsavedChanges = true;
-        m_name = name;
-        if (exe != m_executable) {
-            m_executable = exe;
-            selfCheck();
-            updateTooltip();
-        }
-    }
+    QString name;
+    QString tooltip;
+    FilePath executable;
+    Id id;
+    bool autoDetected = false;
+    bool pathExists = false;
+    bool pathIsFile = false;
+    bool pathIsExecutable = false;
 
 private:
-    void selfCheck()
-    {
-        m_pathExists = m_executable.exists();
-        m_pathIsFile = m_executable.toFileInfo().isFile();
-        m_pathIsExecutable = m_executable.toFileInfo().isExecutable();
-    }
-
-    void updateTooltip()
-    {
-        QVersionNumber ver = GNTool::readVersion(m_executable);
-        if (ver.isNull())
-            m_tooltip = Tr::tr("Cannot get tool version.");
-        else
-            m_tooltip = Tr::tr("Version: %1").arg(ver.toString());
-    }
-
-    QString m_name;
-    QString m_tooltip;
-    FilePath m_executable;
-    Id m_id;
-    bool m_autoDetected = false;
-    bool m_pathExists = false;
-    bool m_pathIsFile = false;
-    bool m_pathIsExecutable = false;
-    bool m_unsavedChanges = false;
+    void selfCheck();
+    void updateTooltip();
 };
+
+} // namespace GNProjectManager::Internal
+
+Q_DECLARE_METATYPE(GNProjectManager::Internal::GNToolItem)
+
+namespace GNProjectManager::Internal {
+
+GNToolItem::GNToolItem(const QString &name)
+    : name{name}
+    , id{Id::generate()}
+    , autoDetected{false}
+{
+    selfCheck();
+    updateTooltip();
+}
+
+GNToolItem::GNToolItem(const GNTools::Tool_t &tool)
+    : name{tool->name()}
+    , tooltip{Tr::tr("Version: %1").arg(tool->version().toString())}
+    , executable{tool->exe()}
+    , id{tool->id()}
+    , autoDetected{tool->autoDetected()}
+{
+    selfCheck();
+}
+
+GNToolItem GNToolItem::cloned() const
+{
+    GNToolItem result;
+    result.name = Tr::tr("Clone of %1").arg(name);
+    result.executable = executable;
+    result.id = Id::generate();
+    result.autoDetected = false;
+    result.selfCheck();
+    result.updateTooltip();
+    return result;
+}
+
+QVariant GNToolItem::data(int column, int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (column) {
+        case 0:
+            return name;
+        case 1:
+            return executable.toUserOutput();
+        }
+        return {};
+    case Qt::ToolTipRole:
+        if (!pathExists)
+            return Tr::tr("GN executable path does not exist.");
+        if (!pathIsFile)
+            return Tr::tr("GN executable path is not a file.");
+        if (!pathIsExecutable)
+            return Tr::tr("GN executable path is not executable.");
+        return tooltip;
+    case Qt::DecorationRole:
+        if (column == 0 && (!pathExists || !pathIsFile || !pathIsExecutable))
+            return Icons::CRITICAL.icon();
+        return {};
+    }
+    return {};
+}
+
+void GNToolItem::update(const QString &newName, const FilePath &newExe)
+{
+    name = newName;
+    if (newExe != executable) {
+        executable = newExe;
+        selfCheck();
+        updateTooltip();
+    }
+}
+
+void GNToolItem::selfCheck()
+{
+    pathExists = executable.exists();
+    pathIsFile = executable.isFile();
+    pathIsExecutable = executable.isExecutableFile();
+}
+
+void GNToolItem::updateTooltip()
+{
+    const QVersionNumber ver = GNTool::readVersion(executable);
+    if (ver.isNull())
+        tooltip = Tr::tr("Cannot get tool version.");
+    else
+        tooltip = Tr::tr("Version: %1").arg(ver.toString());
+}
 
 // GNToolsModel
 
-class GNToolsModel final : public TreeModel<TreeItem, TreeItem, GNToolTreeItem>
+class GNToolsModel final : public TypedGroupedModel<GNToolItem>
 {
-    Q_OBJECT
-
 public:
-    GNToolsModel()
-    {
-        setHeader({Tr::tr("Name"), Tr::tr("Location")});
-        rootItem()->appendChild(
-            new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
-                               {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
-        rootItem()->appendChild(new StaticTreeItem(ProjectExplorer::Constants::msgManual()));
-        for (const auto &tool : GNTools::tools())
-            addToolHelper(tool);
-    }
+    GNToolsModel();
 
-    GNToolTreeItem *gnToolTreeItem(const QModelIndex &index) const
-    {
-        return itemForIndexAtLevel<2>(index);
-    }
-
-    void updateItem(const Id &itemId, const QString &name, const FilePath &exe)
-    {
-        auto treeItem = findItemAtLevel<2>(
-            [itemId](GNToolTreeItem *n) { return n->id() == itemId; });
-        QTC_ASSERT(treeItem, return);
-        treeItem->update(name, exe);
-    }
-
-    void addGNTool()
-    {
-        manualGroup()->appendChild(new GNToolTreeItem{uniqueName(Tr::tr("New GN"))});
-        markSettingsDirty();
-    }
-
-    void removeGNTool(GNToolTreeItem *item)
-    {
-        QTC_ASSERT(item, return);
-        const Id id = item->id();
-        destroyItem(item);
-        m_itemsToRemove.enqueue(id);
-        markSettingsDirty();
-    }
-
-    GNToolTreeItem *cloneGNTool(GNToolTreeItem *item)
-    {
-        QTC_ASSERT(item, return nullptr);
-        auto newItem = new GNToolTreeItem(*item);
-        manualGroup()->appendChild(newItem);
-        markSettingsDirty();
-        return newItem;
-    }
-
-    void apply()
-    {
-        forItemsAtLevel<2>([this](GNToolTreeItem *item) {
-            if (item->hasUnsavedChanges()) {
-                GNTools::updateTool(item->id(), item->name(), item->executable());
-                item->setSaved();
-                emit this->dataChanged(item->index(), item->index());
-            }
-        });
-        while (!m_itemsToRemove.isEmpty())
-            GNTools::removeTool(m_itemsToRemove.dequeue());
-    }
+    int addGNTool();
+    int cloneGNTool(int row);
+    void updateItem(const Id &itemId, const QString &name, const FilePath &exe);
+    int rowForId(const Id &id) const;
+    void apply() override;
 
 private:
-    void addToolHelper(const GNTools::Tool_t &tool)
-    {
-        if (tool->autoDetected())
-            autoDetectedGroup()->appendChild(new GNToolTreeItem(tool));
-        else
-            manualGroup()->appendChild(new GNToolTreeItem(tool));
-    }
-
-    QString uniqueName(const QString &baseName)
-    {
-        QStringList names;
-        forItemsAtLevel<2>([&names](GNToolTreeItem *item) { names << item->name(); });
-        return Utils::makeUniquelyNumbered(baseName, names);
-    }
-
-    TreeItem *autoDetectedGroup() const { return rootItem()->childAt(0); }
-    TreeItem *manualGroup() const { return rootItem()->childAt(1); }
-
-    QQueue<Id> m_itemsToRemove;
+    QVariant variantData(const QVariant &v, int column, int role) const override;
+    QString uniqueName(const QString &baseName) const;
 };
 
-// ToolItemSettings widget
+GNToolsModel::GNToolsModel()
+{
+    setHeader({Tr::tr("Name"), Tr::tr("Location")});
+    setFilters(ProjectExplorer::Constants::msgAutoDetected(),
+               {{ProjectExplorer::Constants::msgManual(), [this](int row) {
+                    return !item(row).autoDetected;
+                }}});
+    for (const GNTools::Tool_t &tool : GNTools::tools())
+        appendItem(GNToolItem{tool});
+}
+
+int GNToolsModel::addGNTool()
+{
+    return appendVolatileItem(GNToolItem{uniqueName(Tr::tr("New GN"))});
+}
+
+int GNToolsModel::cloneGNTool(int row)
+{
+    return appendVolatileItem(item(row).cloned());
+}
+
+void GNToolsModel::updateItem(const Id &itemId, const QString &name, const FilePath &exe)
+{
+    const int row = rowForId(itemId);
+    QTC_ASSERT(row >= 0, return);
+    GNToolItem it = item(row);
+    it.update(name, exe);
+    setVolatileItem(row, it);
+    notifyRowChanged(row);
+}
+
+int GNToolsModel::rowForId(const Id &id) const
+{
+    for (int row = 0; row < itemCount(); ++row) {
+        if (item(row).id == id)
+            return row;
+    }
+    return -1;
+}
+
+void GNToolsModel::apply()
+{
+    for (int row = 0; row < itemCount(); ++row) {
+        if (isRemoved(row)) {
+            GNTools::removeTool(item(row).id);
+            continue;
+        }
+        if (isDirty(row)) {
+            const GNToolItem it = item(row);
+            GNTools::updateTool(it.id, it.name, it.executable);
+        }
+    }
+
+    GroupedModel::apply();
+}
+
+QVariant GNToolsModel::variantData(const QVariant &v, int column, int role) const
+{
+    return fromVariant(v).data(column, role);
+}
+
+QString GNToolsModel::uniqueName(const QString &baseName) const
+{
+    QStringList names;
+    for (int row = 0; row < itemCount(); ++row)
+        names << item(row).name;
+    return Utils::makeUniquelyNumbered(baseName, names);
+}
+
+// GNToolItemSettings widget
 
 class GNToolItemSettings final : public QWidget
 {
@@ -256,17 +257,15 @@ public:
         connect(m_nameLineEdit, &QLineEdit::textChanged, this, &GNToolItemSettings::store);
     }
 
-    void load(GNToolTreeItem *item)
+    void load(std::optional<GNToolItem> item)
     {
+        m_currentId = std::nullopt;
         if (item) {
-            m_currentId = std::nullopt;
-            m_nameLineEdit->setDisabled(item->isAutoDetected());
-            m_nameLineEdit->setText(item->name());
-            m_pathChooser->setDisabled(item->isAutoDetected());
-            m_pathChooser->setFilePath(item->executable());
-            m_currentId = item->id();
-        } else {
-            m_currentId = std::nullopt;
+            m_nameLineEdit->setDisabled(item->autoDetected);
+            m_nameLineEdit->setText(item->name);
+            m_pathChooser->setDisabled(item->autoDetected);
+            m_pathChooser->setFilePath(item->executable);
+            m_currentId = item->id;
         }
     }
 
@@ -292,86 +291,100 @@ class GNToolsSettingsWidget final : public Core::IOptionsPageWidget
     Q_OBJECT
 
 public:
-    GNToolsSettingsWidget()
-    {
-        m_gnList = new QTreeView;
-        m_gnList->setModel(&m_model);
-        m_gnList->expandAll();
-        m_gnList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-        m_gnList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-
-        m_itemSettings = new GNToolItemSettings;
-
-        m_gnDetails = new DetailsWidget;
-        m_gnDetails->setState(DetailsWidget::NoSummary);
-        m_gnDetails->setVisible(false);
-        m_gnDetails->setWidget(m_itemSettings);
-
-        auto addButton = new QPushButton(Tr::tr("Add"));
-
-        m_cloneButton = new QPushButton(Tr::tr("Clone"));
-        m_cloneButton->setEnabled(false);
-
-        m_removeButton = new QPushButton(Tr::tr("Remove"));
-        m_removeButton->setEnabled(false);
-
-        using namespace Layouting;
-
-        Row{Column{m_gnList, m_gnDetails}, Column{addButton, m_cloneButton, m_removeButton, st}}.attachTo(
-            this);
-
-        connect(m_gnList->selectionModel(),
-                &QItemSelectionModel::currentChanged,
-                this,
-                &GNToolsSettingsWidget::currentToolChanged);
-        connect(m_itemSettings,
-                &GNToolItemSettings::applyChanges,
-                &m_model,
-                &GNToolsModel::updateItem);
-
-        connect(addButton, &QPushButton::clicked, &m_model, &GNToolsModel::addGNTool);
-        connect(m_cloneButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::cloneGNTool);
-        connect(m_removeButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::removeGNTool);
-
-        installMarkSettingsDirtyTriggerRecursively(this);
-    }
+    GNToolsSettingsWidget();
 
 private:
     void apply() final { m_model.apply(); }
 
-    void cloneGNTool()
-    {
-        if (m_currentItem) {
-            auto newItem = m_model.cloneGNTool(m_currentItem);
-            m_gnList->setCurrentIndex(newItem->index());
-        }
-    }
-
-    void removeGNTool()
-    {
-        if (m_currentItem)
-            m_model.removeGNTool(m_currentItem);
-    }
-
-    void currentToolChanged(
-        const QModelIndex &newCurrent)
-    {
-        m_currentItem = m_model.gnToolTreeItem(newCurrent);
-        m_itemSettings->load(m_currentItem);
-        m_gnDetails->setVisible(m_currentItem);
-        m_cloneButton->setEnabled(m_currentItem);
-        m_removeButton->setEnabled(m_currentItem && !m_currentItem->isAutoDetected());
-    }
+    void cloneGNTool();
+    void removeGNTool();
+    void currentToolChanged(int oldRow, int newRow);
 
     GNToolsModel m_model;
+    GroupedView m_groupedView{m_model};
     GNToolItemSettings *m_itemSettings = nullptr;
-    GNToolTreeItem *m_currentItem = nullptr;
 
-    QTreeView *m_gnList = nullptr;
-    DetailsWidget *m_gnDetails = nullptr;
+    DetailsWidget m_gnDetails;
     QPushButton *m_cloneButton = nullptr;
     QPushButton *m_removeButton = nullptr;
 };
+
+GNToolsSettingsWidget::GNToolsSettingsWidget()
+{
+    m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
+
+    m_itemSettings = new GNToolItemSettings;
+
+    m_gnDetails.setState(DetailsWidget::NoSummary);
+    m_gnDetails.setVisible(false);
+    m_gnDetails.setWidget(m_itemSettings);
+
+    auto addButton = new QPushButton(Tr::tr("Add"));
+
+    m_cloneButton = new QPushButton(Tr::tr("Clone"));
+    m_cloneButton->setEnabled(false);
+
+    m_removeButton = new QPushButton(Tr::tr("Remove"));
+    m_removeButton->setEnabled(false);
+
+    using namespace Layouting;
+
+    Row {
+        Column {
+            m_groupedView.view(), m_gnDetails
+        },
+        Column {
+            addButton,
+            m_cloneButton,
+            m_removeButton,
+            st
+        }
+    }.attachTo(this);
+
+    connect(&m_groupedView, &GroupedView::currentRowChanged,
+            this, &GNToolsSettingsWidget::currentToolChanged);
+    connect(m_itemSettings, &GNToolItemSettings::applyChanges,
+            &m_model, &GNToolsModel::updateItem);
+
+    connect(addButton, &QPushButton::clicked, this, [this] {
+        m_groupedView.selectRow(m_model.addGNTool());
+        markSettingsDirty();
+    });
+    connect(m_cloneButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::cloneGNTool);
+    connect(m_removeButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::removeGNTool);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
+}
+
+void GNToolsSettingsWidget::cloneGNTool()
+{
+    const int row = m_groupedView.currentRow();
+    if (row >= 0) {
+        m_groupedView.selectRow(m_model.cloneGNTool(row));
+        markSettingsDirty();
+    }
+}
+
+void GNToolsSettingsWidget::removeGNTool()
+{
+    const int row = m_groupedView.currentRow();
+    if (row >= 0) {
+        m_model.markRemoved(row);
+        markSettingsDirty();
+    }
+}
+
+void GNToolsSettingsWidget::currentToolChanged(int, int newRow)
+{
+    const bool hasRow = newRow >= 0;
+    const bool hasItem = hasRow && !m_model.isRemoved(newRow);
+    m_itemSettings->load(hasItem ? std::optional<GNToolItem>{m_model.item(newRow)}
+                                 : std::nullopt);
+    m_gnDetails.setVisible(hasItem);
+    m_cloneButton->setEnabled(hasItem);
+    m_removeButton->setEnabled(hasRow && !m_model.item(newRow).autoDetected);
+}
 
 // Setup
 
