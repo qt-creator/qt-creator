@@ -6,6 +6,7 @@
 #include "../gitclient.h"
 #include "../gittr.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/processprogress.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -312,14 +313,11 @@ void QueryContext::timeout()
     if (m_process.state() != QProcess::Running)
         return;
 
-    QWidget *parent = QApplication::activeModalWidget();
-    if (!parent)
-        parent = QApplication::activeWindow();
     QMessageBox box(QMessageBox::Question, Git::Tr::tr("Timeout"),
                     Git::Tr::tr("The gerrit process has not responded within %1 s.\n"
                        "Most likely this is caused by problems with SSH authentication.\n"
                        "Would you like to terminate it?").
-                    arg(timeOutMS / 1000), QMessageBox::NoButton, parent);
+                    arg(timeOutMS / 1000), QMessageBox::NoButton, Core::ICore::dialogParent());
     QPushButton *terminateButton = box.addButton(Git::Tr::tr("Terminate"), QMessageBox::YesRole);
     box.addButton(Git::Tr::tr("Keep Running"), QMessageBox::NoRole);
     connect(&m_process, &Process::done, &box, &QDialog::reject);
