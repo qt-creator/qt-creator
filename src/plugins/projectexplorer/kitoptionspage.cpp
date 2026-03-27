@@ -205,11 +205,11 @@ void KitManagerConfigWidget::load(Kit *originalKit, Kit *workingCopySrc, bool ha
 
     m_loading = true;
 
+    m_modifiedKit.copyFrom(workingCopySrc);
+
     // Reset any read-only state from the previous kit
     for (KitAspect *aspect : std::as_const(m_kitAspects))
         aspect->reload();
-
-    m_modifiedKit.copyFrom(workingCopySrc);
 
     m_iconButton->setIcon(m_modifiedKit.icon());
     m_nameEdit->setText(m_modifiedKit.unexpandedDisplayName());
