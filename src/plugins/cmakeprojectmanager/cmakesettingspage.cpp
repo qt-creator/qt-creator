@@ -393,63 +393,154 @@ public:
     FilePathAspect qchFile{this};
 };
 
-class CMakeToolItemConfigWidget : public QWidget
+//
+// CMakeToolConfigWidget
+//
+
+class CMakeToolConfigWidget : public Core::IOptionsPageWidget
 {
 public:
-    explicit CMakeToolItemConfigWidget(CMakeToolItemModel *model);
-    void load(const CMakeToolTreeItem *item, bool updateCMakePath);
-    void setDeviceRoot(const FilePath &devRoot);
-    void store() const;
+    CMakeToolConfigWidget()
+    {
+        m_addButton.setText(Tr::tr("Add"));
+
+        m_cloneButton.setText(Tr::tr("Clone"));
+        m_cloneButton.setEnabled(false);
+
+        m_removeButton.setText(Tr::tr("Remove"));
+        m_removeButton.setEnabled(false);
+
+        m_makeDefButton.setText(Tr::tr("Make Default"));
+        m_makeDefButton.setEnabled(false);
+        m_makeDefButton.setToolTip(Tr::tr("Set as the default CMake Tool to use when "
+                                          "creating a new kit or when no value is set."));
+
+        m_detectButton.setText(Tr::tr("Re-detect"));
+
+        m_container.setState(DetailsWidget::NoSummary);
+        m_container.setVisible(false);
+        m_container.setWidget(&m_itemConfigWidget);
+
+        (void) new HeaderViewStretcher(m_groupedView.view().header(), 0);
+
+        using namespace Layouting;
+        Column {
+            Row { Tr::tr("Device:"), m_deviceComboBox, st },
+            Row {
+                Column {
+                    m_groupedView.view(),
+                    m_container,
+                },
+                Column {
+                    m_addButton,
+                    m_cloneButton,
+                    m_removeButton,
+                    m_makeDefButton,
+                    m_detectButton,
+                    st,
+                },
+            }}.attachTo(this);
+
+        connect(&m_groupedView, &GroupedView::currentRowChanged,
+                this, &CMakeToolConfigWidget::currentCMakeToolChanged, Qt::QueuedConnection);
+
+        connect(&m_addButton, &QAbstractButton::clicked,
+                this, &CMakeToolConfigWidget::addCMakeTool);
+        connect(&m_cloneButton, &QAbstractButton::clicked,
+                this, &CMakeToolConfigWidget::cloneCMakeTool);
+        connect(&m_removeButton, &QAbstractButton::clicked,
+                this, &CMakeToolConfigWidget::removeCMakeTool);
+        connect(&m_makeDefButton, &QAbstractButton::clicked,
+                this, &CMakeToolConfigWidget::setDefaultCMakeTool);
+        connect(&m_detectButton, &QAbstractButton::clicked,
+                this, &CMakeToolConfigWidget::redetect);
+
+        const auto updateDevice = [this](const FilePath &deviceRoot) {
+            m_model.setExtraFilter(deviceRoot.isEmpty()
+                ? GroupedModel::Filter{}
+                : GroupedModel::Filter{[this, deviceRoot](int row) {
+                      const FilePath path = m_model.item(row).m_executable;
+                      return path.isEmpty() || path.isSameDevice(deviceRoot);
+                  }});
+        };
+        m_deviceComboBox.setOnDeviceChanged(updateDevice);
+
+        Form {
+            m_data.displayName, br,
+            m_data.binary, br,
+            m_data.version, br,
+            m_data.qchFile, br,
+            noMargin,
+        }.attachTo(&m_itemConfigWidget);
+
+        m_data.binary.addOnVolatileValueChanged(this, [this] { onBinaryPathEditingFinished(); });
+        m_data.qchFile.addOnVolatileValueChanged(this, [this] { store(); });
+        m_data.displayName.addOnVolatileValueChanged(this, [this] { store(); });
+
+        installMarkSettingsDirtyTriggerRecursively(this);
+    }
 
 private:
+    void apply() final;
+
+    void cloneCMakeTool();
+    void addCMakeTool();
+    void removeCMakeTool();
+    void setDefaultCMakeTool();
+    void redetect();
+    void currentCMakeToolChanged(int oldRow, int newRow);
+
+    void load(const CMakeToolTreeItem *item, bool updateCMakePath);
+    void setDeviceRoot(const FilePath &devRoot);
+    void store();
+
     void onBinaryPathEditingFinished();
     void updateQchFilePath();
 
-    CMakeToolItemModel *m_model;
+    CMakeToolItemModel m_model;
+    GroupedView m_groupedView{m_model};
+    DeviceComboBox m_deviceComboBox;
+    QPushButton m_addButton;
+    QPushButton m_cloneButton;
+    QPushButton m_removeButton;
+    QPushButton m_makeDefButton;
+    QPushButton m_detectButton;
+    DetailsWidget m_container;
+
+    QWidget m_itemConfigWidget;
     CMakeToolItemConfigData m_data;
     Id m_id;
     bool m_loadingItem = false;
 };
 
-CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
-    : m_model(model)
+void CMakeToolConfigWidget::apply()
 {
-    using namespace Layouting;
-    Form {
-        m_data.displayName, br,
-        m_data.binary, br,
-        m_data.version, br,
-        m_data.qchFile, br,
-        noMargin,
-    }.attachTo(this);
-
-    m_data.binary.addOnVolatileValueChanged(this, [this] { onBinaryPathEditingFinished(); });
-    m_data.qchFile.addOnVolatileValueChanged(this, [this] { store(); });
-    m_data.displayName.addOnVolatileValueChanged(this, [this] { store(); });
+    store();
+    m_model.apply();
 }
 
-void CMakeToolItemConfigWidget::store() const
+void CMakeToolConfigWidget::store()
 {
     if (!m_loadingItem && m_id.isValid()) {
-        m_model->updateCMakeTool(m_id,
-                                 m_data.displayName.volatileValue(),
-                                 FilePath::fromUserInput(m_data.binary.volatileValue()),
-                                 FilePath::fromUserInput(m_data.qchFile.volatileValue()));
+        m_model.updateCMakeTool(m_id,
+                                m_data.displayName.volatileValue(),
+                                FilePath::fromUserInput(m_data.binary.volatileValue()),
+                                FilePath::fromUserInput(m_data.qchFile.volatileValue()));
     }
 }
 
-void CMakeToolItemConfigWidget::onBinaryPathEditingFinished()
+void CMakeToolConfigWidget::onBinaryPathEditingFinished()
 {
     updateQchFilePath();
     store();
-    const int row = m_model->rowForId(m_id);
+    const int row = m_model.rowForId(m_id);
     if (row >= 0) {
-        const CMakeToolTreeItem it = m_model->item(row);
+        const CMakeToolTreeItem it = m_model.item(row);
         load(&it, false);
     }
 }
 
-void CMakeToolItemConfigWidget::updateQchFilePath()
+void CMakeToolConfigWidget::updateQchFilePath()
 {
     if (m_data.qchFile().isEmpty()) {
         m_data.qchFile.setValue(
@@ -457,7 +548,7 @@ void CMakeToolItemConfigWidget::updateQchFilePath()
     }
 }
 
-void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item, bool updateCMakePath)
+void CMakeToolConfigWidget::load(const CMakeToolTreeItem *item, bool updateCMakePath)
 {
     m_loadingItem = true; // avoid intermediate signal handling
     m_id = Id();
@@ -484,112 +575,9 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item, bool updateC
     m_loadingItem = false;
 }
 
-void CMakeToolItemConfigWidget::setDeviceRoot(const FilePath &devRoot)
+void CMakeToolConfigWidget::setDeviceRoot(const FilePath &devRoot)
 {
     m_data.binary.setInitialBrowsePathBackup(devRoot);
-}
-
-//
-// CMakeToolConfigWidget
-//
-
-class CMakeToolConfigWidget : public Core::IOptionsPageWidget
-{
-public:
-    CMakeToolConfigWidget()
-    {
-        m_addButton.setText(Tr::tr("Add"));
-
-        m_cloneButton.setText(Tr::tr("Clone"));
-        m_cloneButton.setEnabled(false);
-
-        m_delButton.setText(Tr::tr("Remove"));
-        m_delButton.setEnabled(false);
-
-        m_makeDefButton.setText(Tr::tr("Make Default"));
-        m_makeDefButton.setEnabled(false);
-        m_makeDefButton.setToolTip(Tr::tr("Set as the default CMake Tool to use when "
-                                          "creating a new kit or when no value is set."));
-
-        m_detectButton.setText(Tr::tr("Re-detect"));
-
-        m_container.setState(DetailsWidget::NoSummary);
-        m_container.setVisible(false);
-        m_container.setWidget(&m_itemConfigWidget);
-
-        (void) new HeaderViewStretcher(m_groupedView.view().header(), 0);
-
-        using namespace Layouting;
-        Column {
-            Row { Tr::tr("Device:"), m_deviceComboBox, st },
-            Row {
-                Column {
-                    m_groupedView.view(),
-                    m_container,
-                },
-                Column {
-                    m_addButton,
-                    m_cloneButton,
-                    m_delButton,
-                    m_makeDefButton,
-                    m_detectButton,
-                    st,
-                },
-            }}.attachTo(this);
-
-        connect(&m_groupedView, &GroupedView::currentRowChanged,
-                this, &CMakeToolConfigWidget::currentCMakeToolChanged, Qt::QueuedConnection);
-
-        connect(&m_addButton, &QAbstractButton::clicked,
-                this, &CMakeToolConfigWidget::addCMakeTool);
-        connect(&m_cloneButton, &QAbstractButton::clicked,
-                this, &CMakeToolConfigWidget::cloneCMakeTool);
-        connect(&m_delButton, &QAbstractButton::clicked,
-                this, &CMakeToolConfigWidget::removeCMakeTool);
-        connect(&m_makeDefButton, &QAbstractButton::clicked,
-                this, &CMakeToolConfigWidget::setDefaultCMakeTool);
-        connect(&m_detectButton, &QAbstractButton::clicked,
-                this, &CMakeToolConfigWidget::redetect);
-
-        const auto updateDevice = [this](const FilePath &deviceRoot) {
-            m_model.setExtraFilter(deviceRoot.isEmpty()
-                ? GroupedModel::Filter{}
-                : GroupedModel::Filter{[this, deviceRoot](int row) {
-                      const FilePath path = m_model.item(row).m_executable;
-                      return path.isEmpty() || path.isSameDevice(deviceRoot);
-                  }});
-        };
-        m_deviceComboBox.setOnDeviceChanged(updateDevice);
-
-        installMarkSettingsDirtyTriggerRecursively(this);
-    }
-
-private:
-    void apply() final;
-
-    void cloneCMakeTool();
-    void addCMakeTool();
-    void removeCMakeTool();
-    void setDefaultCMakeTool();
-    void redetect();
-    void currentCMakeToolChanged(int oldRow, int newRow);
-
-    CMakeToolItemModel m_model;
-    GroupedView m_groupedView{m_model};
-    DeviceComboBox m_deviceComboBox;
-    QPushButton m_addButton;
-    QPushButton m_cloneButton;
-    QPushButton m_delButton;
-    QPushButton m_makeDefButton;
-    QPushButton m_detectButton;
-    DetailsWidget m_container;
-    CMakeToolItemConfigWidget m_itemConfigWidget{&m_model};
-};
-
-void CMakeToolConfigWidget::apply()
-{
-    m_itemConfigWidget.store();
-    m_model.apply();
 }
 
 void CMakeToolConfigWidget::cloneCMakeTool()
@@ -697,14 +685,14 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(int, int newRow)
 {
     if (newRow >= 0 && newRow < m_model.itemCount()) {
         const CMakeToolTreeItem it = m_model.item(newRow);
-        m_itemConfigWidget.load(&it, true);
+        load(&it, true);
         if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice())
-            m_itemConfigWidget.setDeviceRoot(dev->rootPath());
-        m_delButton.setEnabled(!it.m_detectionSource.isAutoDetected());
+            setDeviceRoot(dev->rootPath());
+        m_removeButton.setEnabled(!it.m_detectionSource.isAutoDetected());
         m_makeDefButton.setEnabled(!m_model.isDefault(newRow));
     } else {
-        m_itemConfigWidget.load(nullptr, true);
-        m_delButton.setEnabled(false);
+        load(nullptr, true);
+        m_removeButton.setEnabled(false);
         m_makeDefButton.setEnabled(false);
     }
     m_container.setVisible(newRow >= 0 && newRow < m_model.itemCount());
