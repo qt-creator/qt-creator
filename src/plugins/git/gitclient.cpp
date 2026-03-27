@@ -868,6 +868,7 @@ GitClient &gitClient()
 GitClient::GitClient()
     : VcsBase::VcsBaseClientImpl(&Internal::settings())
 {
+    setExtraArguments(defaultArguments());
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
@@ -3823,40 +3824,6 @@ void GitClient::readConfigAsync(const FilePath &workingDirectory, const QStringL
 {
     enqueueCommand({workingDirectory, arguments, RunFlag::NoOutput, {}, configFileEncoding(),
                     handler});
-}
-
-ExecutableItem GitClient::commandTask(const VcsBase::VcsCommandData &data) const
-{
-    VcsCommandData newData = data;
-    newData.arguments = defaultArguments() + data.arguments;
-    return VcsBaseClientImpl::commandTask(newData);
-}
-
-void GitClient::enqueueCommand(const VcsCommandData &data)
-{
-    VcsCommandData newData = data;
-    newData.arguments = defaultArguments() + data.arguments;
-    VcsBaseClientImpl::enqueueCommand(newData);
-}
-
-CommandResult GitClient::vcsSynchronousExec(const FilePath &workingDir,
-                                            const QStringList &args,
-                                            RunFlags flags,
-                                            int timeoutS,
-                                            const TextEncoding &encoding) const
-{
-    const QStringList newArgs = defaultArguments() + args;
-    return VcsBaseClientImpl::vcsSynchronousExec(workingDir, newArgs, flags, timeoutS, encoding);
-}
-
-CommandResult GitClient::vcsSynchronousExec(const FilePath &workingDir,
-                                            const CommandLine &cmdLine,
-                                            VcsBase::RunFlags flags,
-                                            int timeoutS,
-                                            const TextEncoding &encoding) const
-{
-    // Pass-through implementation
-    return VcsBaseClientImpl::vcsSynchronousExec(workingDir, cmdLine, flags, timeoutS, encoding);
 }
 
 QString GitClient::styleColorName(TextEditor::TextStyle style)

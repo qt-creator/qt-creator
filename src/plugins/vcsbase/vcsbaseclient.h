@@ -96,10 +96,12 @@ protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);
     virtual void annotateRevisionRequested(const Utils::FilePath &workingDirectory, const QString &file,
                                            const QString &change, int line);
+    void setExtraArguments(const QStringList &arguments) { m_extraArguments = arguments; };
 
 private:
     void saveSettings();
 
+    QStringList m_extraArguments;
     VcsBaseSettings *m_baseSettings = nullptr; // Aspect based.
     QtTaskTree::QSequentialTaskTreeRunner m_taskTreeRunner;
 };

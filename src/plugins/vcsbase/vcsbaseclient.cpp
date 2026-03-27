@@ -103,7 +103,8 @@ CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
                                                     const QStringList &args, RunFlags flags,
                                                     int timeoutS, const TextEncoding &encoding) const
 {
-    return vcsSynchronousExec(workingDir, {vcsBinary(workingDir), args}, flags, timeoutS, encoding);
+    return vcsSynchronousExec(workingDir, {vcsBinary(workingDir), m_extraArguments + args},
+                              flags, timeoutS, encoding);
 }
 
 CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
@@ -167,7 +168,7 @@ ExecutableItem VcsBaseClientImpl::commandTask(const VcsCommandData &data) const
 
     const VcsProcessData processData{
         .runData = {
-            {vcsBinary(data.workingDirectory), data.arguments},
+            {vcsBinary(data.workingDirectory), m_extraArguments + data.arguments},
             data.workingDirectory,
             processEnvironment(data.workingDirectory)},
         .flags = data.flags,
