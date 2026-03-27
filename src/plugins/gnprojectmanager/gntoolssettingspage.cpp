@@ -36,22 +36,12 @@ public:
     GNToolItem cloned() const;
 
     QVariant data(int column, int role) const;
-    void update(const QString &name, const FilePath &exe);
-
     friend bool operator==(const GNToolItem &, const GNToolItem &) = default;
 
     QString name;
-    QString tooltip;
     FilePath executable;
     Id id;
     bool autoDetected = false;
-    bool pathExists = false;
-    bool pathIsFile = false;
-    bool pathIsExecutable = false;
-
-private:
-    void selfCheck();
-    void updateTooltip();
 };
 
 } // namespace GNProjectManager::Internal
@@ -64,20 +54,14 @@ GNToolItem::GNToolItem(const QString &name)
     : name{name}
     , id{Id::generate()}
     , autoDetected{false}
-{
-    selfCheck();
-    updateTooltip();
-}
+{}
 
 GNToolItem::GNToolItem(const GNTools::Tool_t &tool)
     : name{tool->name()}
-    , tooltip{Tr::tr("Version: %1").arg(tool->version().toString())}
     , executable{tool->exe()}
     , id{tool->id()}
     , autoDetected{tool->autoDetected()}
-{
-    selfCheck();
-}
+{}
 
 GNToolItem GNToolItem::cloned() const
 {
@@ -86,8 +70,6 @@ GNToolItem GNToolItem::cloned() const
     result.executable = executable;
     result.id = Id::generate();
     result.autoDetected = false;
-    result.selfCheck();
-    result.updateTooltip();
     return result;
 }
 
@@ -102,47 +84,25 @@ QVariant GNToolItem::data(int column, int role) const
             return executable.toUserOutput();
         }
         return {};
-    case Qt::ToolTipRole:
-        if (!pathExists)
+    case Qt::ToolTipRole: {
+        if (!executable.exists())
             return Tr::tr("GN executable path does not exist.");
-        if (!pathIsFile)
+        if (!executable.isFile())
             return Tr::tr("GN executable path is not a file.");
-        if (!pathIsExecutable)
+        if (!executable.isExecutableFile())
             return Tr::tr("GN executable path is not executable.");
-        return tooltip;
+        const QVersionNumber ver = GNTool::readVersion(executable);
+        return ver.isNull() ? Tr::tr("Cannot get tool version.")
+                            : Tr::tr("Version: %1").arg(ver.toString());
+    }
     case Qt::DecorationRole:
-        if (column == 0 && (!pathExists || !pathIsFile || !pathIsExecutable))
+        if (column == 0 && !executable.isExecutableFile())
             return Icons::CRITICAL.icon();
         return {};
     }
     return {};
 }
 
-void GNToolItem::update(const QString &newName, const FilePath &newExe)
-{
-    name = newName;
-    if (newExe != executable) {
-        executable = newExe;
-        selfCheck();
-        updateTooltip();
-    }
-}
-
-void GNToolItem::selfCheck()
-{
-    pathExists = executable.exists();
-    pathIsFile = executable.isFile();
-    pathIsExecutable = executable.isExecutableFile();
-}
-
-void GNToolItem::updateTooltip()
-{
-    const QVersionNumber ver = GNTool::readVersion(executable);
-    if (ver.isNull())
-        tooltip = Tr::tr("Cannot get tool version.");
-    else
-        tooltip = Tr::tr("Version: %1").arg(ver.toString());
-}
 
 // GNToolsModel
 
@@ -188,7 +148,8 @@ void GNToolsModel::updateItem(const Id &itemId, const QString &name, const FileP
     const int row = rowForId(itemId);
     QTC_ASSERT(row >= 0, return);
     GNToolItem it = item(row);
-    it.update(name, exe);
+    it.name = name;
+    it.executable = exe;
     setVolatileItem(row, it);
     notifyRowChanged(row);
 }
