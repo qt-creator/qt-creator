@@ -230,8 +230,10 @@ private:
     bool m_loading = false;
 
     DetailsWidget m_mesonDetails;
-    QPushButton *m_cloneButton = nullptr;
-    QPushButton *m_removeButton = nullptr;
+    QPushButton m_addButton;
+    QPushButton m_cloneButton;
+    QPushButton m_removeButton;
+    QPushButton m_makeDefaultButton;
 };
 
 ToolsSettingsWidget::ToolsSettingsWidget()
@@ -247,32 +249,20 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     m_mesonDetails.setVisible(false);
     m_mesonDetails.setWidget(inner);
 
-    auto addButton = new QPushButton(Tr::tr("Add"));
-
-    m_cloneButton = new QPushButton(Tr::tr("Clone"));
-    m_cloneButton->setEnabled(false);
-
-    m_removeButton = new QPushButton(Tr::tr("Remove"));
-    m_removeButton->setEnabled(false);
-
-    auto makeDefaultButton = new QPushButton(Tr::tr("Make Default"));
-    makeDefaultButton->setEnabled(false);
-    makeDefaultButton->setVisible(false);
-    makeDefaultButton->setToolTip(Tr::tr("Set as the default Meson executable to use "
-                                         "when creating a new kit or when no value is set."));
+    m_addButton.setText(Tr::tr("Add"));
+    m_cloneButton.setText(Tr::tr("Clone"));
+    m_cloneButton.setEnabled(false);
+    m_removeButton.setText(Tr::tr("Remove"));
+    m_removeButton.setEnabled(false);
+    m_makeDefaultButton.setText(Tr::tr("Make Default"));
+    m_makeDefaultButton.setEnabled(false);
+    m_makeDefaultButton.setVisible(false);
+    m_makeDefaultButton.setToolTip(Tr::tr("Set as the default Meson executable to use "
+                                          "when creating a new kit or when no value is set."));
 
     Row {
-        Column {
-            m_groupedView.view(),
-            m_mesonDetails
-        },
-        Column {
-            addButton,
-            m_cloneButton,
-            m_removeButton,
-            makeDefaultButton,
-            st
-        }
+        Column { m_groupedView.view(), m_mesonDetails },
+        Column { m_addButton, m_cloneButton, m_removeButton, m_makeDefaultButton, st }
     }.attachTo(this);
 
     connect(&m_groupedView, &GroupedView::currentRowChanged,
@@ -281,12 +271,12 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     m_data.name.addOnVolatileValueChanged(this, [this] { store(); });
     m_data.executable.addOnVolatileValueChanged(this, [this] { store(); });
 
-    connect(addButton, &QPushButton::clicked, this, [this] {
+    connect(&m_addButton, &QPushButton::clicked, this, [this] {
         m_groupedView.selectRow(m_model.addMesonTool());
         markSettingsDirty();
     });
-    connect(m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
-    connect(m_removeButton, &QPushButton::clicked, this, &ToolsSettingsWidget::removeMesonTool);
+    connect(&m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
+    connect(&m_removeButton, &QPushButton::clicked, this, &ToolsSettingsWidget::removeMesonTool);
 
     installMarkSettingsDirtyTriggerRecursively(this);
 }
@@ -335,8 +325,8 @@ void ToolsSettingsWidget::currentMesonToolChanged(int, int newRow)
     }
     m_loading = false;
     m_mesonDetails.setVisible(hasItem);
-    m_cloneButton->setEnabled(hasItem);
-    m_removeButton->setEnabled(hasRow && !m_model.item(newRow).autoDetected);
+    m_cloneButton.setEnabled(hasItem);
+    m_removeButton.setEnabled(hasRow && !m_model.item(newRow).autoDetected);
 }
 
 class ToolsSettingsPage final : public Core::IOptionsPage
