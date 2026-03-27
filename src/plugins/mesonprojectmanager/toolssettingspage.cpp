@@ -9,72 +9,32 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <utils/aspects.h>
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
 
 #include <QHeaderView>
 #include <QPushButton>
-#include <QTreeView>
-
-#include <optional>
 
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
 
-class ToolItemSettings final : public QWidget
+class ToolItemData final : public AspectContainer
 {
-    Q_OBJECT
-
 public:
-    ToolItemSettings()
+    ToolItemData()
     {
-        m_mesonNameLineEdit = new QLineEdit;
+        name.setDisplayStyle(StringAspect::LineEditDisplay);
+        name.setLabelText(Tr::tr("Name:"));
 
-        m_mesonPathChooser = new PathChooser;
-        m_mesonPathChooser->setExpectedKind(PathChooser::ExistingCommand);
-        m_mesonPathChooser->setHistoryCompleter("Meson.Command.History");
-
-        using namespace Layouting;
-
-        Form {
-            Tr::tr("Name:"), m_mesonNameLineEdit, br,
-            Tr::tr("Path:"), m_mesonPathChooser, br,
-            noMargin
-        }.attachTo(this);
-
-        connect(m_mesonPathChooser, &PathChooser::rawPathChanged, this, &ToolItemSettings::store);
-        connect(m_mesonNameLineEdit, &QLineEdit::textChanged, this, &ToolItemSettings::store);
+        executable.setExpectedKind(PathChooser::ExistingCommand);
+        executable.setHistoryCompleter("Meson.Command.History");
+        executable.setLabelText(Tr::tr("Path:"));
     }
 
-    void load(std::optional<ToolItem> item)
-    {
-        m_currentId = std::nullopt;
-        if (item) {
-            m_mesonNameLineEdit->setDisabled(item->autoDetected);
-            m_mesonNameLineEdit->setText(item->name);
-            m_mesonPathChooser->setDisabled(item->autoDetected);
-            m_mesonPathChooser->setFilePath(item->executable);
-            m_currentId = item->id;
-        }
-    }
-
-    void store()
-    {
-        if (m_currentId) {
-            emit applyChanges(*m_currentId,
-                              m_mesonNameLineEdit->text(),
-                              m_mesonPathChooser->filePath());
-        }
-    }
-
-signals:
-    void applyChanges(Id itemId, const QString &name, const FilePath &exe);
-
-private:
-    std::optional<Id> m_currentId{std::nullopt};
-    QLineEdit *m_mesonNameLineEdit;
-    PathChooser *m_mesonPathChooser;
+    StringAspect name{this};
+    FilePathAspect executable{this};
 };
 
 class ToolsSettingsWidget final : public Core::IOptionsPageWidget
@@ -88,14 +48,16 @@ private:
     void cloneMesonTool();
     void removeMesonTool();
     void currentMesonToolChanged(int oldRow, int newRow);
+    void store();
 
     ToolsModel m_model;
     GroupedView m_groupedView{m_model};
-    ToolItemSettings *m_itemSettings;
+    ToolItemData m_data;
+    bool m_loading = false;
 
-    DetailsWidget *m_mesonDetails;
-    QPushButton *m_cloneButton;
-    QPushButton *m_removeButton;
+    DetailsWidget m_mesonDetails;
+    QPushButton *m_cloneButton = nullptr;
+    QPushButton *m_removeButton = nullptr;
 };
 
 ToolsSettingsWidget::ToolsSettingsWidget()
@@ -103,12 +65,16 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     m_groupedView.view().header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_groupedView.view().header()->setSectionResizeMode(1, QHeaderView::Stretch);
 
-    m_itemSettings = new ToolItemSettings;
+    auto inner = new QWidget;
+    using namespace Layouting;
+    Form {
+        m_data.name, br,
+        m_data.executable, br, noMargin
+    }.attachTo(inner);
 
-    m_mesonDetails = new DetailsWidget;
-    m_mesonDetails->setState(DetailsWidget::NoSummary);
-    m_mesonDetails->setVisible(false);
-    m_mesonDetails->setWidget(m_itemSettings);
+    m_mesonDetails.setState(DetailsWidget::NoSummary);
+    m_mesonDetails.setVisible(false);
+    m_mesonDetails.setWidget(inner);
 
     auto addButton = new QPushButton(Tr::tr("Add"));
 
@@ -123,8 +89,6 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     makeDefaultButton->setVisible(false);
     makeDefaultButton->setToolTip(Tr::tr("Set as the default Meson executable to use "
                                          "when creating a new kit or when no value is set."));
-
-    using namespace Layouting;
 
     Row {
         Column {
@@ -142,7 +106,9 @@ ToolsSettingsWidget::ToolsSettingsWidget()
 
     connect(&m_groupedView, &GroupedView::currentRowChanged,
             this, &ToolsSettingsWidget::currentMesonToolChanged);
-    connect(m_itemSettings, &ToolItemSettings::applyChanges, &m_model, &ToolsModel::updateItem);
+
+    m_data.name.addOnVolatileValueChanged(this, [this] { store(); });
+    m_data.executable.addOnVolatileValueChanged(this, [this] { store(); });
 
     connect(addButton, &QPushButton::clicked, this, [this] {
         m_groupedView.selectRow(m_model.addMesonTool());
@@ -172,13 +138,32 @@ void ToolsSettingsWidget::removeMesonTool()
     }
 }
 
+void ToolsSettingsWidget::store()
+{
+    if (m_loading)
+        return;
+    const int row = m_groupedView.currentRow();
+    if (row >= 0 && !m_model.isRemoved(row)) {
+        m_model.updateItem(m_model.item(row).id,
+                           m_data.name.volatileValue(),
+                           FilePath::fromUserInput(m_data.executable.volatileValue()));
+    }
+}
+
 void ToolsSettingsWidget::currentMesonToolChanged(int, int newRow)
 {
     const bool hasRow = newRow >= 0;
     const bool hasItem = hasRow && !m_model.isRemoved(newRow);
-    m_itemSettings->load(hasItem ? std::optional<ToolItem>{m_model.item(newRow)}
-                                 : std::nullopt);
-    m_mesonDetails->setVisible(hasItem);
+    m_loading = true;
+    if (hasItem) {
+        const ToolItem &it = m_model.item(newRow);
+        m_data.name.setEnabled(!it.autoDetected);
+        m_data.name.setValue(it.name);
+        m_data.executable.setEnabled(!it.autoDetected);
+        m_data.executable.setValue(it.executable);
+    }
+    m_loading = false;
+    m_mesonDetails.setVisible(hasItem);
     m_cloneButton->setEnabled(hasItem);
     m_removeButton->setEnabled(hasRow && !m_model.item(newRow).autoDetected);
 }
@@ -201,5 +186,3 @@ void setupToolsSettingsPage()
 }
 
 } // namespace MesonProjectManager
-
-#include "toolssettingspage.moc"
