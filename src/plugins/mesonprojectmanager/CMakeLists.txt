@@ -42,8 +42,6 @@ add_qtc_plugin(MesonProjectManager
   target.h
   toolkitaspectwidget.cpp
   toolkitaspectwidget.h
-  toolsmodel.cpp
-  toolsmodel.h
   toolssettingsaccessor.cpp
   toolssettingsaccessor.h
   toolssettingspage.cpp

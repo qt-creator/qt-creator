@@ -5,19 +5,192 @@
 
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
-#include "toolsmodel.h"
+#include "mesontools.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/aspects.h>
 #include <utils/detailswidget.h>
+#include <utils/groupedmodel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 
 #include <QPushButton>
 
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
+
+class ToolItem
+{
+public:
+    ToolItem() = default;
+    explicit ToolItem(const QString &name);
+    explicit ToolItem(const MesonTools::Tool_t &tool);
+    ToolItem cloned() const;
+
+    QVariant data(int column, int role) const;
+
+    friend bool operator==(const ToolItem &, const ToolItem &) = default;
+
+    QString name;
+    FilePath executable;
+    Id id;
+    bool autoDetected = false;
+};
+
+} // namespace MesonProjectManager::Internal
+
+Q_DECLARE_METATYPE(MesonProjectManager::Internal::ToolItem)
+
+namespace MesonProjectManager::Internal {
+
+ToolItem::ToolItem(const QString &name)
+    : name{name}
+    , id{Id::generate()}
+    , autoDetected{false}
+{}
+
+ToolItem::ToolItem(const MesonTools::Tool_t &tool)
+    : name{tool->name()}
+    , executable{tool->exe()}
+    , id{tool->id()}
+    , autoDetected{tool->autoDetected()}
+{}
+
+ToolItem ToolItem::cloned() const
+{
+    ToolItem result;
+    result.name = Tr::tr("Clone of %1").arg(name);
+    result.executable = executable;
+    result.id = Id::generate();
+    result.autoDetected = false;
+    return result;
+}
+
+QVariant ToolItem::data(int column, int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (column) {
+        case 0:
+            return name;
+        case 1:
+            return executable.toUserOutput();
+        }
+        return {};
+    case Qt::ToolTipRole: {
+        if (!executable.exists())
+            return Tr::tr("Meson executable path does not exist.");
+        if (!executable.isFile())
+            return Tr::tr("Meson executable path is not a file.");
+        if (!executable.isExecutableFile())
+            return Tr::tr("Meson executable path is not executable.");
+        const QVersionNumber ver = MesonToolWrapper::read_version(executable);
+        return ver.isNull() ? Tr::tr("Cannot get tool version.")
+                            : Tr::tr("Version: %1").arg(ver.toString());
+    }
+    case Qt::DecorationRole:
+        if (column == 0 && !executable.isExecutableFile())
+            return Icons::CRITICAL.icon();
+        return {};
+    }
+    return {};
+}
+
+// ToolsModel
+
+class ToolsModel final : public TypedGroupedModel<ToolItem>
+{
+public:
+    ToolsModel();
+
+    int addMesonTool();
+    int cloneMesonTool(int row);
+    void updateItem(const Id &itemId, const QString &name, const FilePath &exe);
+    void apply() override;
+
+private:
+    QVariant variantData(const QVariant &v, int column, int role) const override;
+    QString uniqueName(const QString &baseName) const;
+    int rowForId(const Id &id) const;
+};
+
+ToolsModel::ToolsModel()
+{
+    setHeader({Tr::tr("Name"), Tr::tr("Location")});
+    setFilters(ProjectExplorer::Constants::msgAutoDetected(),
+               {{ProjectExplorer::Constants::msgManual(), [this](int row) {
+                    return !item(row).autoDetected;
+                }}});
+    for (const MesonTools::Tool_t &tool : MesonTools::tools())
+        appendItem(ToolItem{tool});
+}
+
+int ToolsModel::addMesonTool()
+{
+    return appendVolatileItem(ToolItem{uniqueName(Tr::tr("New Meson"))});
+}
+
+int ToolsModel::cloneMesonTool(int row)
+{
+    return appendVolatileItem(item(row).cloned());
+}
+
+void ToolsModel::updateItem(const Id &itemId, const QString &name, const FilePath &exe)
+{
+    const int row = rowForId(itemId);
+    QTC_ASSERT(row >= 0, return);
+    ToolItem it = item(row);
+    it.name = name;
+    it.executable = exe;
+    setVolatileItem(row, it);
+    notifyRowChanged(row);
+}
+
+int ToolsModel::rowForId(const Id &id) const
+{
+    for (int row = 0; row < itemCount(); ++row) {
+        if (item(row).id == id)
+            return row;
+    }
+    return -1;
+}
+
+void ToolsModel::apply()
+{
+    for (int row = 0; row < itemCount(); ++row) {
+        if (isRemoved(row)) {
+            MesonTools::removeTool(item(row).id);
+            continue;
+        }
+        if (isDirty(row)) {
+            const ToolItem it = item(row);
+            MesonTools::updateTool(it.id, it.name, it.executable);
+        }
+    }
+
+    GroupedModel::apply();
+}
+
+QVariant ToolsModel::variantData(const QVariant &v, int column, int role) const
+{
+    return fromVariant(v).data(column, role);
+}
+
+QString ToolsModel::uniqueName(const QString &baseName) const
+{
+    QStringList names;
+    for (int row = 0; row < itemCount(); ++row)
+        names << item(row).name;
+    return Utils::makeUniquelyNumbered(baseName, names);
+}
+
+// ToolItemData
 
 class ToolItemData final : public AspectContainer
 {
@@ -35,6 +208,8 @@ public:
     StringAspect name{this};
     FilePathAspect executable{this};
 };
+
+// ToolsSettingsWidget
 
 class ToolsSettingsWidget final : public Core::IOptionsPageWidget
 {
