@@ -494,6 +494,11 @@ void BuildManager::extensionsInitialized()
                           Tr::tr("Issues found when running tests."),
                           true,
                           100});
+    TaskHub::addCategory({Constants::TASK_CATEGORY_RUN,
+                          Tr::tr("Run", "Category for run issues listed under 'Issues'"),
+                          Tr::tr("Issues found when running applications."),
+                          true,
+                          100});
 }
 
 void BuildManager::buildProjectWithoutDependencies(Project *project)
