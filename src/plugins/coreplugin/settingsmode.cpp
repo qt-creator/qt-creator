@@ -989,6 +989,19 @@ public:
                 ICore::saveSettings(ICore::SettingsDialogDone);
             }
         });
+
+        connect(
+            ExtensionSystem::PluginManager::instance(),
+            &ExtensionSystem::PluginManager::pluginsChanged,
+            this,
+            [this] {
+                delete inner;
+                inner = nullptr;
+                delete layout();
+
+                if (ModeManager::currentModeId() == Constants::MODE_SETTINGS)
+                    open({});
+            });
     }
 
     ~SettingsModeWidget() = default;
