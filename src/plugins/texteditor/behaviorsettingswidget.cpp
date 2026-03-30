@@ -23,11 +23,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(TypingSettings *typingSettings,
                                                BehaviorSettings *behaviorSettings,
                                                ExtraEncodingSettings *encodingSettings,
                                                QWidget *parent)
-    : QWidget(parent),
-      typingSettings(typingSettings),
-      storageSettings(storageSettings),
-      behaviorSettings(behaviorSettings),
-      encodingSettings(encodingSettings)
+    : QWidget(parent)
 {
     tabPreferencesWidget = new SimpleCodeStylePreferencesWidget(this);
 

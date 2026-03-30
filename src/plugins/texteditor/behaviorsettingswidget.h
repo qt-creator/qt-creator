@@ -32,11 +32,6 @@ public:
 
 private:
     SimpleCodeStylePreferencesWidget *tabPreferencesWidget;
-
-    TypingSettings *typingSettings;
-    StorageSettings *storageSettings;
-    BehaviorSettings *behaviorSettings;
-    ExtraEncodingSettings *encodingSettings;
 };
 
 } // TextEditor
