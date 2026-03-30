@@ -59,7 +59,75 @@ extend_qtc_plugin(QmlDesignerMcp
     conversationturn.h
 )
 
-qtc_copy_to_builddir(copy_mcpserver_py_file_to_builddir
-  FILES mcp/qml_mcp_server.py
-  DESTINATION ${IDE_DATA_PATH}
+# ---------------------------------------------------------------------------
+# MCP server executable name — single source of truth for CMake and C++
+# ---------------------------------------------------------------------------
+if(WIN32)
+  set(_mcp_server_name "qml_mcp_server.exe")
+else()
+  set(_mcp_server_name "qml_mcp_server")
+endif()
+
+target_compile_definitions(QmlDesignerMcp PRIVATE
+  QML_MCP_SERVER_EXECUTABLE="${_mcp_server_name}"
 )
+
+# ---------------------------------------------------------------------------
+# Convert qml_mcp_server.py to executable and install it
+# ---------------------------------------------------------------------------
+env_with_default(QTC_BUILD_QML_MCP_SERVER ENV_QTC_BUILD_QML_MCP_SERVER OFF)
+option(BUILD_QML_MCP_SERVER
+       "Package qml_mcp_server.py into a standalone binary via PyInstaller"
+       ${ENV_QTC_BUILD_QML_MCP_SERVER})
+
+if(BUILD_QML_MCP_SERVER)
+  set(_mcp_server_src "${CMAKE_CURRENT_SOURCE_DIR}/mcp/qml_mcp_server.py")
+
+  if(NOT EXISTS "${_mcp_server_src}")
+    message(FATAL_ERROR
+      "'${_mcp_server_src}' was not found."
+    )
+  endif()
+
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  message(STATUS "Using Python3_EXECUTABLE='${Python3_EXECUTABLE}' to generate the QML MCP server.")
+
+  execute_process(
+    COMMAND "${Python3_EXECUTABLE}" -m PyInstaller --version
+    RESULT_VARIABLE _pyinstaller_check
+    OUTPUT_QUIET
+    ERROR_QUIET
+  )
+  if(NOT _pyinstaller_check EQUAL 0)
+    message(FATAL_ERROR
+      "PyInstaller was not found in the Python environment '${Python3_EXECUTABLE}'."
+      " Install it with:\n  ${Python3_EXECUTABLE} -m pip install pyinstaller"
+    )
+  endif()
+
+  execute_process(
+    COMMAND "${Python3_EXECUTABLE}" -c "import mcp"
+    RESULT_VARIABLE _mcp_package_check
+    OUTPUT_QUIET
+    ERROR_QUIET
+  )
+  if(NOT _mcp_package_check EQUAL 0)
+    message(FATAL_ERROR
+      "The 'mcp' Python package was not found in the Python environment '${Python3_EXECUTABLE}'."
+      " Install it with:\n  ${Python3_EXECUTABLE} -m pip install mcp"
+    )
+  endif()
+
+  add_custom_target(QmlDesignerMcpServer ALL
+    COMMAND "${Python3_EXECUTABLE}" -m PyInstaller
+            --onefile
+            --distpath "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}"
+            "${_mcp_server_src}"
+    BYPRODUCTS "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}/${_mcp_server_name}"
+    VERBATIM
+  )
+
+  install(PROGRAMS "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}/${_mcp_server_name}"
+          DESTINATION "${IDE_LIBEXEC_PATH}"
+          COMPONENT Dependencies)
+endif()

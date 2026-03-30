@@ -58,9 +58,9 @@ McpServerData AiDefaultSettings::mcpServerData(const QString &name)
     static const QHash<QString, McpServerData> servers{
         {"qml_server", McpServerData{
                            .transport  = McpServerConfig::Stdio,
-                           .command    = "qml_mcp_server.exe",
+                           .command    = QML_MCP_SERVER_EXECUTABLE,
                            .args       = {"${PROJECT_PATH}"},
-                           .workingDir = "../share/qtcreator/mcp",
+                           .workingDir = {},
                        }}
     };
     return servers.value(name);
