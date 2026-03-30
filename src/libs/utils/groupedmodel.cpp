@@ -569,6 +569,8 @@ const QVariantList &GroupedModel::variants() const
 GroupedView::GroupedView(GroupedModel &model)
     : m_model(model)
 {
+    m_view.setRootIsDecorated(false);
+    m_view.setExpandsOnDoubleClick(false);
     m_view.setModel(model.groupedDisplayModel());
     m_view.setUniformRowHeights(true);
     m_view.setSelectionMode(QAbstractItemView::SingleSelection);
