@@ -586,8 +586,8 @@ public:
                        "Received call for tool %1"
                        "which %2 tasks, but the client %3 a task")
                        .arg(request.params().name())
-                       .arg(toolNeedsTask ? "requires" : "does not support")
-                       .arg(clientRequestsTask ? "requested" : "did not request");
+                       .arg(toolNeedsTask ? QLatin1String("requires") : QLatin1String("does not support"))
+                       .arg(clientRequestsTask ? QLatin1String("requested") : QLatin1String("did not request"));
             responder.write(QJsonDocument(toJson(
                 Schema::JSONRPCErrorResponse()
                     .error(
