@@ -607,8 +607,12 @@ GroupedView::GroupedView(GroupedModel &model)
         emit currentRowChanged(-1, -1);
     });
 
-    connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
-            this, [this](const QModelIndex &current, const QModelIndex &previous) {
+    connect(m_view.selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this](QItemSelection selected, QItemSelection deselected) {
+        const QModelIndex previous = deselected.isEmpty() ? QModelIndex{}
+                                                          : deselected.indexes().first();
+        const QModelIndex current = selected.isEmpty() ? QModelIndex{}
+                                                       : selected.indexes().first();
         emit currentRowChanged(m_model.mapToSource(previous).row(),
                                m_model.mapToSource(current).row());
     });
