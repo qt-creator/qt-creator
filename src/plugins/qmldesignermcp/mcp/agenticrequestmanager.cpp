@@ -140,8 +140,16 @@ void AgenticRequestManager::sendLlmRequest()
         return;
     }
 
-    const QJsonArray history = adapter->formatHistory(m_conversation->turns());
-    const QJsonArray tools = adapter->formatTools(m_toolRegistry->enabledToolEntries(), false);
+    // Prepare instructions with project context before passing to adapter
+    RequestData reqData = m_currentRequestData;
+    if (!reqData.projectStructure.isEmpty()) {
+        reqData.instructions += QString("\n\n<project_structure>\n%1\n</project_structure>")
+                                    .arg(reqData.projectStructure);
+    }
+    if (!reqData.currentFilePath.isEmpty()) {
+        reqData.instructions += QString("\n\n<current_file>\n%1\n</current_file>")
+                                    .arg(reqData.currentFilePath);
+    }
 
     // Create request
     const QUrl resolvedUrl = adapter->resolveUrl(m_currentModelInfo.url, m_currentModelInfo);
@@ -149,10 +157,10 @@ void AgenticRequestManager::sendLlmRequest()
     adapter->setRequestHeader(&networkRequest, m_currentModelInfo);
 
     m_lastRequestContent = adapter->createRequest(
-        m_currentRequestData,
+        reqData,
         m_currentModelInfo,
-        tools,
-        history);
+        m_toolRegistry->enabledToolEntries(),
+        m_conversation->turns());
 
     // TODO: remove. Needed for now for debugging
     QJsonDocument doc = QJsonDocument::fromJson(m_lastRequestContent);
@@ -166,10 +174,7 @@ void AgenticRequestManager::sendLlmRequest()
         << doc.toJson(QJsonDocument::Indented)
         << "\x1b[m";
 
-    emit logMessage(QString("Sending LLM request (%1 tools, %2 history turns, %3 bytes)")
-                   .arg(tools.size())
-                   .arg(history.size())
-                   .arg(m_lastRequestContent.size()));
+    emit logMessage(QString("Sending LLM request (%1 bytes)").arg(m_lastRequestContent.size()));
 
     m_currentNetworkReply = m_network->post(networkRequest, m_lastRequestContent);
     connect(m_currentNetworkReply, &QNetworkReply::finished,

@@ -9,6 +9,7 @@
 #include <airesponse.h>
 
 #include <QFileInfo>
+#include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -25,32 +26,21 @@ void GeminiApiAdapter::setRequestHeader(QNetworkRequest *request, const AiModelI
 QByteArray GeminiApiAdapter::createRequest(
     const RequestData &data,
     const AiModelInfo &modelInfo,
-    const QJsonArray &tools,
-    const QJsonArray &conversationHistory)
+    const QList<ToolEntry> &tools,
+    const QList<ConversationTurn> &history)
 {
-    QString systemPrompt = data.instructions;
-
-    if (!data.projectStructure.isEmpty()) {
-        systemPrompt += "\n\n<project_structure>\n"
-                        + data.projectStructure
-                        + "\n</project_structure>";
-    }
-
-    if (!data.currentFilePath.isEmpty()) {
-        systemPrompt += "\n\n<current_file>\n"
-                        + data.currentFilePath
-                        + "\n</current_file>";
-    }
+    Q_UNUSED(modelInfo)
 
     QJsonObject root;
-    root["contents"] = conversationHistory;
+    root["contents"] = formatHistory(history);
 
     root["system_instruction"] = QJsonObject{
-        {"parts", QJsonArray{ QJsonObject{{"text", systemPrompt}} }}
+        {"parts", QJsonArray{ QJsonObject{{"text", data.instructions}} }}
     };
 
-    if (!tools.isEmpty())
-        root["tools"] = tools;
+    QJsonArray formattedTools = formatTools(tools, true);
+    if (!formattedTools.isEmpty())
+        root["tools"] = formattedTools;
 
     // Add optional generation config
     QJsonObject generationConfig;
@@ -69,10 +59,20 @@ QList<ToolCall> GeminiApiAdapter::parseToolCalls(const QByteArray &response)
         QJsonObject partObj = partValue.toObject();
         if (partObj.contains("functionCall")) {
             QJsonObject callObj = partObj.value("functionCall").toObject();
+
             ToolCall call;
-            call.id = callObj.value("name").toString(); // Gemini uses name instead of id
-            call.toolName = callObj.value("name").toString();
+            QString name = callObj.value("name").toString();
+
+            if (name.contains("__")) {
+                const QStringList parts = name.split("__");
+                call.serverName = parts.first();
+                name = parts.last();
+            }
+
+            call.toolName = name;
+            call.id = name; // Gemini uses name instead of id
             call.arguments = callObj.value("args").toObject();
+
             toolCalls.append(call);
         }
     }

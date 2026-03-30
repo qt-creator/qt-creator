@@ -30,35 +30,22 @@ void OpenAiResponseApiAdapter::setRequestHeader(QNetworkRequest *request,
 QByteArray OpenAiResponseApiAdapter::createRequest(
     const RequestData &data,
     const AiModelInfo &modelInfo,
-    const QJsonArray &tools,
-    const QJsonArray &conversationHistory)
+    const QList<ToolEntry> &tools,
+    const QList<ConversationTurn> &history)
 {
-    QString systemText = data.instructions;
-
-    if (!data.projectStructure.isEmpty()) {
-        systemText += "\n\n<project_structure>\n"
-                      + data.projectStructure
-                      + "\n</project_structure>";
-    }
-
-    if (!data.currentFilePath.isEmpty()) {
-        systemText += "\n\n<current_file>\n"
-                      + data.currentFilePath
-                      + "\n</current_file>";
-    }
-
     QJsonObject requestObj{
         {"model", modelInfo.modelId},
-        {"instructions", systemText},
+        {"instructions", data.instructions},
         {"max_output_tokens", data.maxTokens},
-        {"input", conversationHistory}
+        {"input", formatHistory(history)}
     };
 
     if (!m_previousResponseId.isEmpty())
         requestObj["previous_response_id"] = m_previousResponseId;
 
-    if (!tools.isEmpty())
-        requestObj["tools"] = tools;
+    QJsonArray formattedTools = formatTools(tools, true);
+    if (!formattedTools.isEmpty())
+        requestObj["tools"] = formattedTools;
 
     return QJsonDocument(requestObj).toJson();
 }

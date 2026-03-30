@@ -29,32 +29,19 @@ void ClaudeApiAdapter::setRequestHeader(QNetworkRequest *request, const AiModelI
 QByteArray ClaudeApiAdapter::createRequest(
     const RequestData &data,
     const AiModelInfo &modelInfo,
-    const QJsonArray &tools,
-    const QJsonArray &conversationHistory)
+    const QList<ToolEntry> &tools,
+    const QList<ConversationTurn> &history)
 {
-    QString systemPrompt = data.instructions;
-
-    if (!data.projectStructure.isEmpty()) {
-        systemPrompt += "\n\n<project_structure>\n"
-                        + data.projectStructure
-                        + "\n</project_structure>";
-    }
-
-    if (!data.currentFilePath.isEmpty()) {
-        systemPrompt += "\n\n<current_file>\n"
-                        + data.currentFilePath
-                        + "\n</current_file>";
-    }
-
     QJsonObject request{
         {"model", modelInfo.modelId},
-        {"system", systemPrompt},
+        {"system", data.instructions},
         {"max_tokens", data.maxTokens},
-        {"messages", conversationHistory}
+        {"messages", formatHistory(history)}
     };
 
-    if (!tools.isEmpty())
-        request["tools"] = tools;
+    QJsonArray formattedTools = formatTools(tools, true);
+    if (!formattedTools.isEmpty())
+        request["tools"] = formattedTools;
 
     return QJsonDocument(request).toJson();
 }

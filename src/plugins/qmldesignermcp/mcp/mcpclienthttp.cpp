@@ -81,7 +81,7 @@ void McpClientHttp::sendRpcToServer(const QJsonObject &obj)
     req.setRawHeader("Accept", "application/json, text/event-stream");
 
     QNetworkReply *reply = m_nam.post(req, body);
-    m_pending.append(PendingRequest{reply});
+    m_pending.append(PendingRequest{reply, {}});
     connect(reply, &QNetworkReply::finished, this, &McpClientHttp::onFinished);
 }
 

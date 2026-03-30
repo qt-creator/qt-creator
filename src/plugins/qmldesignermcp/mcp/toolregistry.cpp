@@ -73,18 +73,16 @@ QString ToolRegistry::findServerForTool(const QString &toolName) const
     if (m_tools.contains(toolName))
         return m_tools.value(toolName).serverName;
 
-    // If tool name has server prefix (server_tool), extract it
-    if (toolName.contains('_')) {
-        QStringList parts = toolName.split('_');
-        if (parts.size() == 2) {
-            QString serverName = parts.first();
-            QString actualToolName = parts.last();
+    // If tool name has server prefix (server__tool), extract it
+    if (toolName.contains("__")) {
+        QStringList parts = toolName.split("__");
+        QString serverName = parts.first();
+        QString actualToolName = parts.last();
 
-            // Verify this server actually has this tool
-            if (m_serverTools.contains(serverName) &&
-                m_serverTools[serverName].contains(actualToolName)) {
-                return serverName;
-            }
+        // Verify this server actually has this tool
+        if (m_serverTools.contains(serverName) &&
+            m_serverTools[serverName].contains(actualToolName)) {
+            return serverName;
         }
     }
 

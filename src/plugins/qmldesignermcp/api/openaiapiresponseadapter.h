@@ -28,8 +28,8 @@ public:
     QByteArray createRequest(
         const RequestData &data,
         const AiModelInfo &modelInfo,
-        const QJsonArray &tools,
-        const QJsonArray &conversationHistory) override;
+        const QList<ToolEntry> &tools,
+        const QList<ConversationTurn> &history) override;
 
     QString id() const override;
     QList<ToolCall> parseToolCalls(const QByteArray &response) override;

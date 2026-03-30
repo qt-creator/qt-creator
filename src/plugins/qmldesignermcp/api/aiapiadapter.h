@@ -49,15 +49,15 @@ public:
      *
      * @param data User's request data
      * @param modelInfo Model configuration
-     * @param tools Available MCP tools (already formatted for this provider)
-     * @param conversationHistory Message history
+     * @param tools Available MCP tool entries
+     * @param history Raw conversation history turns
      * @return JSON request body
      */
     virtual QByteArray createRequest(
         const RequestData &data,
         const AiModelInfo &modelInfo,
-        const QJsonArray &tools,
-        const QJsonArray &conversationHistory) = 0;
+        const QList<ToolEntry> &tools,
+        const QList<ConversationTurn> &history) = 0;
 
     /**
      * @brief id for this adapter
@@ -152,7 +152,7 @@ public:
      * Most providers use the configured URL as-is. Providers like Gemini
      * that embed the model ID in the URL path can override this.
      */
-    virtual QUrl resolveUrl(const QString &baseUrl, const AiModelInfo &modelInfo) const
+    virtual QUrl resolveUrl(const QString &baseUrl, const AiModelInfo & /*modelInfo*/) const
     {
         return baseUrl;
     }
