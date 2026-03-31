@@ -228,7 +228,7 @@ QString EffectComposerWidget::uniformDefaultImage(const QString &nodeName, const
 
 QString EffectComposerWidget::imagesPath() const
 {
-    return Core::ICore::resourcePath("qmldesigner/effectComposerNodes/images").toUrlishString();
+    return EffectUtils::nodesSourcesPath() + "/images";
 }
 
 bool EffectComposerWidget::isEffectAsset(const QUrl &url) const

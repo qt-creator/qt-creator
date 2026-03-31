@@ -5,7 +5,11 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/filepath.h>
+#include <utils/qtcsettings.h>
+
 #include <QJsonArray>
+#include <QSettings>
 #include <QRegularExpression>
 #include <QStandardPaths>
 
@@ -30,6 +34,14 @@ QString EffectUtils::nodesSourcesPath()
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/effectComposerNodes";
 #endif
+    const Utils::QtcSettings *installSettings = Core::ICore::settings(QSettings::SystemScope);
+    const Utils::FilePath installNodesPath = installSettings && !installSettings->fileName().isEmpty()
+        ? Utils::FilePath::fromString(installSettings->fileName()).parentDir().parentDir()
+              / "qmldesigner/effectComposerNodes"
+        : Utils::FilePath{};
+    if (installNodesPath.exists())
+        return installNodesPath.toUrlishString();
+
     return Core::ICore::resourcePath("qmldesigner/effectComposerNodes").toUrlishString();
 }
 
