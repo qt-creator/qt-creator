@@ -169,9 +169,11 @@ public:
     static void aboutToShutdown();
     static void saveSettings();
 
-    static IDocument *openFiles(const Utils::FilePaths &filePaths,
-                                OpenFilesFlags flags = None,
-                                const Utils::FilePath &workingDirectory = {});
+    static IDocument *openFiles(
+        const Utils::FilePaths &filePaths,
+        OpenFilesFlags flags = None,
+        const Utils::FilePath &workingDirectory = {},
+        bool openProjects = true);
 };
 
 } // namespace Core

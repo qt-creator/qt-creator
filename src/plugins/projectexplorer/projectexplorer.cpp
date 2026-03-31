@@ -2203,6 +2203,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
             showOpenProjectError(result);
         return nullptr;
     });
+    dd->m_documentFactory.setIsProjectFactory(true);
     dd->updateDocumentOpenerMimeTypes();
 
     dd->m_taskFileFactory.addMimeType("text/x-tasklist");

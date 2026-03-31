@@ -2122,15 +2122,7 @@ void ICorePrivate::openFileOrProject()
 
 void ICorePrivate::openFile()
 {
-    const FilePaths paths = EditorManager::getOpenFilePaths();
-    const bool isShowingTabs = generalSettings().useTabsInEditorViews();
-    IEditor *opened = nullptr;
-    for (const FilePath &path : paths) {
-        if (!opened || isShowingTabs)
-            opened = EditorManager::openEditor(path);
-        else
-            DocumentModelPrivate::addSuspendedDocument(path);
-    }
+    ICore::openFiles(EditorManager::getOpenFilePaths(), ICore::SwitchMode, {}, /*openProjects=*/false);
 }
 
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
@@ -2165,9 +2157,11 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
     \sa IPlugin::remoteArguments()
  */
 
-IDocument *ICore::openFiles(const FilePaths &filePaths,
-                            ICore::OpenFilesFlags flags,
-                            const FilePath &workingDirectory)
+IDocument *ICore::openFiles(
+    const FilePaths &filePaths,
+    ICore::OpenFilesFlags flags,
+    const FilePath &workingDirectory,
+    bool openProjects)
 {
     const QList<IDocumentFactory*> documentFactories = IDocumentFactory::allDocumentFactories();
     IDocument *res = nullptr;
@@ -2178,7 +2172,8 @@ IDocument *ICore::openFiles(const FilePaths &filePaths,
         const FilePath absoluteFilePath = workingDirBase.resolvePath(filePath);
         const bool isShowingTabs = generalSettings().useTabsInEditorViews();
 
-        if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath)) {
+        IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath);
+        if (documentFactory && (openProjects || !documentFactory->isProjectFactory())) {
             IDocument *document = documentFactory->open(absoluteFilePath);
             if (!document) {
                 if (flags & ICore::StopOnLoadFail)
@@ -2189,8 +2184,9 @@ IDocument *ICore::openFiles(const FilePaths &filePaths,
                 if (flags & ICore::SwitchMode)
                     ModeManager::activateMode(Id(Constants::MODE_EDIT));
             }
-        } else if (flags & (ICore::SwitchSplitIfAlreadyVisible | ICore::CanContainLineAndColumnNumbers)
-                   || (!res || isShowingTabs)) {
+        } else if (
+            flags & (ICore::SwitchSplitIfAlreadyVisible | ICore::CanContainLineAndColumnNumbers)
+            || (!res || isShowingTabs)) {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
             if (flags & ICore::SwitchSplitIfAlreadyVisible)
                 emFlags |= EditorManager::SwitchSplitIfAlreadyVisible;

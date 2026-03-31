@@ -34,11 +34,14 @@ public:
     void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
     void addMimeType(const char *mimeType) { m_mimeTypes.append(QLatin1String(mimeType)); }
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
+    void setIsProjectFactory(bool isProjectFactory) { m_isProjectFactory = isProjectFactory; }
+    bool isProjectFactory() const { return m_isProjectFactory; }
 
 private:
     Opener m_opener;
     QStringList m_mimeTypes;
     QString m_displayName;
+    bool m_isProjectFactory = false;
 };
 
 } // namespace Core
