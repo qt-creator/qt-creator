@@ -40,6 +40,15 @@ function(auto_install_quick_designer_components)
   get_filename_component(_qtLibDir   "${_qtCMakeDir}/../.." ABSOLUTE)
   get_filename_component(qtInstallPrefix "${_qtLibDir}/.." ABSOLUTE)
 
+  if(EXISTS "${qtInstallPrefix}/../CMakeCache.txt")
+    set(_qqdc_skip_install_step ON)
+    set(_qqdc_sha_dependee build)
+    message(STATUS "auto_install_qtquickdesigner_components: Qt build tree detected -> skipping install step")
+  else()
+    set(_qqdc_skip_install_step OFF)
+    set(_qqdc_sha_dependee install)
+  endif()
+
   set(_qqdc_cfg "${CMAKE_BUILD_TYPE}")
   if(NOT _qqdc_cfg)
     set(_qqdc_cfg "Release")
@@ -49,7 +58,7 @@ function(auto_install_quick_designer_components)
   if (EXISTS "${_qqdc_sha_file}")
     file(READ "${_qqdc_sha_file}" _qqdc_installed_sha)
     string(STRIP "${_qqdc_installed_sha}" _qqdc_installed_sha)
-    message(STATUS "auto_install_qtquickdesigner_components: found existing install (SHA=${_qqdc_installed_sha}) → skip")
+    message(STATUS "auto_install_qtquickdesigner_components: found existing install (SHA=${_qqdc_installed_sha}) -> skip")
     if (NOT TARGET a_i_q_c)
       # Dummy-Target
       add_custom_target(a_i_q_c)
@@ -65,23 +74,33 @@ function(auto_install_quick_designer_components)
     if(APPLE AND CMAKE_OSX_ARCHITECTURES)
       set(_extra_macos_argument "-DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}")
     endif()
-    ExternalProject_Add(a_i_q_c
-      GIT_REPOSITORY https://codereview.qt-project.org/qt-labs/qtquickdesigner-components
-      GIT_TAG        HEAD
-      GIT_SHALLOW    TRUE
-      SOURCE_DIR     "${SHORT_BUILD_DIRECTORY}/src"
-      BINARY_DIR     "${SHORT_BUILD_DIRECTORY}"
-      CMAKE_ARGS
-        -DCMAKE_PREFIX_PATH=${qtInstallPrefix}
-        -DCMAKE_INSTALL_PREFIX=${qtInstallPrefix}
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        ${_extra_macos_argument}
-      USES_TERMINAL_DOWNLOAD TRUE
-      USES_TERMINAL_CONFIGURE TRUE
-      USES_TERMINAL_BUILD TRUE
-      USES_TERMINAL_INSTALL TRUE
-      UPDATE_DISCONNECTED TRUE
-    )
+    if(_qqdc_skip_install_step)
+      set(_qqdc_install_command "INSTALL_COMMAND \"\"")
+    else()
+      set(_qqdc_install_command "")
+    endif()
+
+    cmake_language(EVAL CODE "
+      ExternalProject_Add(a_i_q_c
+        GIT_REPOSITORY https://codereview.qt-project.org/qt-labs/qtquickdesigner-components
+        GIT_TAG        HEAD
+        GIT_SHALLOW    TRUE
+        SOURCE_DIR     \"${SHORT_BUILD_DIRECTORY}/src\"
+        BINARY_DIR     \"${SHORT_BUILD_DIRECTORY}\"
+        CMAKE_ARGS
+          -DCMAKE_PREFIX_PATH=${qtInstallPrefix}
+          -DCMAKE_INSTALL_PREFIX=${qtInstallPrefix}
+          -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+          ${_extra_macos_argument}
+        ${_qqdc_install_command}
+        EXCLUDE_FROM_ALL TRUE
+        USES_TERMINAL_DOWNLOAD TRUE
+        USES_TERMINAL_CONFIGURE TRUE
+        USES_TERMINAL_BUILD TRUE
+        USES_TERMINAL_INSTALL TRUE
+        UPDATE_DISCONNECTED TRUE
+      )
+    ")
 
     set(qdsWriteShaScript "${CMAKE_CURRENT_BINARY_DIR}/qds_write_sha.cmake")
     file(WRITE "${qdsWriteShaScript}" [=[
@@ -104,13 +123,17 @@ message(STATUS "qtquickdesigner-components: wrote SHA '${sha}' to '${output_file
 ]=])
 
     ExternalProject_Add_Step(a_i_q_c write_sha
-      DEPENDEES install
+      DEPENDEES ${_qqdc_sha_dependee}
       COMMAND ${CMAKE_COMMAND}
               -Dsource_dir=<SOURCE_DIR>
               -Doutput_file=${_qqdc_sha_file}
               -P ${qdsWriteShaScript}
       USES_TERMINAL TRUE
     )
+    ExternalProject_Add_StepTargets(a_i_q_c write_sha)
+    if(NOT TARGET a_i_q_c_autobuild)
+      add_custom_target(a_i_q_c_autobuild ALL DEPENDS a_i_q_c-write_sha)
+    endif()
   endif() #if (NOT TARGET a_i_q_c)
 endfunction()
 
