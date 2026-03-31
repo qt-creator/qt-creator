@@ -188,6 +188,7 @@ Qml2Imports=qml
       QuickControls2Basic
       QuickControls2BasicStyleImpl
       QuickLayouts
+      QuickShapes
       QuickShapesPrivate
       QuickEffects
       QmlMeta
