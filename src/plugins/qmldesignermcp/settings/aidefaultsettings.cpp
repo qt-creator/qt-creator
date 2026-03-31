@@ -38,11 +38,9 @@ AiProviderData AiDefaultSettings::providerData(const QString &name)
         {"OpenAI", AiProviderData{
                        .url = "https://api.openai.com/v1/chat/completions",
                        .models = {
-                           "gpt-5.2",
-                           "gpt-5.2-pro",
-                           "gpt-5.2-codex",
-                           "gpt-5-mini",
-                           "gpt-5-nano",
+                           "gpt-5.4",
+                           "gpt-5.4-mini",
+                           "gpt-5.4-nano",
                        },
                    }},
     };
