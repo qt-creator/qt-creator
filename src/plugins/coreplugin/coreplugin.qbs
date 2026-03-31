@@ -62,6 +62,8 @@ QtcPlugin {
             "editmode.h",
             "editortoolbar.cpp",
             "editortoolbar.h",
+            "envvarseparatoraspect.cpp",
+            "envvarseparatoraspect.h",
             "externaltool.cpp",
             "externaltool.h",
             "externaltoolmanager.cpp",

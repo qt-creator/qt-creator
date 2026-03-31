@@ -373,8 +373,6 @@ QtcLibrary {
         "uncommentselection.cpp",
         "uncommentselection.h",
         "uniqueobjectptr.h",
-        "unixutils.cpp",
-        "unixutils.h",
         "url.cpp",
         "url.h",
         "utils.qrc",
