@@ -171,6 +171,9 @@ private slots:
 
     void caseSensitivity();
 
+    void toUrl();
+    void toUrl_data();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -2584,6 +2587,27 @@ void tst_filepath::caseSensitivity()
         FilePath p2 = FilePath::fromUserInput("nocase://host/TEST/");
         QVERIFY(p.isChildOf(p2));
     }
+}
+
+void tst_filepath::toUrl_data()
+{
+    QTest::addColumn<FilePath>("path");
+    QTest::addColumn<QUrl>("expected");
+
+    QTest::newRow("local") << FilePath::fromString("/a/b/c") << QUrl("file:///a/b/c");
+    QTest::newRow("remote") << FilePath::fromString("device://host/a/b/c")
+                            << QUrl("device://host/a/b/c");
+
+    QTest::newRow("with-port") << FilePath::fromString("ssh://host:1234/a/b/c")
+                               << QUrl("ssh://host:1234/a/b/c");
+}
+
+void tst_filepath::toUrl()
+{
+    QFETCH(FilePath, path);
+    QFETCH(QUrl, expected);
+
+    QCOMPARE(path.toUrl(), expected);
 }
 
 } // Utils

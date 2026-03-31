@@ -515,7 +515,13 @@ QUrl FilePath::toUrl() const
         return QUrl::fromLocalFile(toFSPathString());
     QUrl url;
     url.setScheme(scheme().toString());
-    url.setHost(host().toString());
+
+    QStringView h = host();
+    const auto portSeparatorIdx = h.lastIndexOf(u':');
+    url.setHost(h.left(portSeparatorIdx).toString());
+    if (portSeparatorIdx >= 0)
+        url.setPort(h.mid(portSeparatorIdx + 1).toInt());
+
     url.setPath(path());
     return url;
 }
