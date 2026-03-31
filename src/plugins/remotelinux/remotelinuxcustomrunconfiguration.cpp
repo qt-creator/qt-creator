@@ -34,6 +34,7 @@ private:
     WorkingDirectoryAspect workingDir{this};
     TerminalAspect terminal{this};
     X11ForwardingAspect x11Forwarding{this};
+    UseVncDisplayAspect useVncDisplay{this};
 };
 
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(BuildConfiguration *bc, Id id)
@@ -57,6 +58,13 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(BuildConfig
 
     setDefaultDisplayName(runConfigDefaultDisplayName());
     setUsesEmptyBuildKeys();
+
+    connect(&useVncDisplay, &BaseAspect::changed,
+            &environment, &EnvironmentAspect::environmentChanged);
+    environment.addModifier([this](Environment &env) {
+        if (useVncDisplay())
+            env.set("QT_QPA_PLATFORM", "vnc");
+    });
 }
 
 QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()

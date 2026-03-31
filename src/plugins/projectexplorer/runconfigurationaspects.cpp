@@ -723,7 +723,6 @@ void ExecutableAspect::toMap(Store &map) const
         m_alternativeExecutable->toMap(map);
 }
 
-
 /*!
     \class ProjectExplorer::UseLibraryPathsAspect
     \inmodule QtCreator
@@ -735,7 +734,6 @@ void ExecutableAspect::toMap(Store &map) const
     This modifies DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH on Mac, PATH
     on Windows and LD_LIBRARY_PATH everywhere else.
 */
-
 UseLibraryPathsAspect::UseLibraryPathsAspect(AspectContainer *container)
     : BoolAspect(container)
 {
@@ -753,6 +751,29 @@ UseLibraryPathsAspect::UseLibraryPathsAspect(AspectContainer *container)
     setValue(ProjectExplorerSettings::get(container).addLibraryPathsToRunEnv());
 }
 
+/*!
+    \class ProjectExplorer::UseVncDisplayAspect
+    \inmodule QtCreator
+
+    \brief The UseVncDisplayAspect class lets a user run the application
+    with the Qt VNC platform plugin.
+
+    Sets the \c QT_QPA_PLATFORM environment variable to \c vnc.
+    It is mostly useful when running Qt applications on remote devices as an
+    alternative to X11 forwarding.
+*/
+UseVncDisplayAspect::UseVncDisplayAspect(AspectContainer *container)
+    : BoolAspect(container)
+{
+    setId("UseVncDisplay");
+    setSettingsKey("RunConfiguration.UseVncDisplay");
+    setLabel(Tr::tr("Use the Qt VNC platform for display"), LabelPlacement::AtCheckBox);
+    setToolTip(
+        Tr::tr(
+            "Sets QT_QPA_PLATFORM=vnc which forwards the Qt application's UI to a built-in "
+            "VNC server. Connect to the application UI with a VNC client. See the application "
+            "output for details."));
+}
 
 /*!
     \class ProjectExplorer::UseDyldSuffixAspect

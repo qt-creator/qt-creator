@@ -36,6 +36,7 @@ public:
     RunAsAspect runAs{this};
     TerminalAspect terminal{this};
     X11ForwardingAspect x11Forwarding{this};
+    UseVncDisplayAspect useVncDisplay{this};
     UseLibraryPathsAspect useLibraryPath{this};
 };
 
@@ -58,6 +59,8 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(BuildConfiguration *bc,
     terminal.setVisible(HostOsInfo::isAnyUnixHost());
 
     connect(&useLibraryPath, &BaseAspect::changed,
+            &environment, &EnvironmentAspect::environmentChanged);
+    connect(&useVncDisplay, &BaseAspect::changed,
             &environment, &EnvironmentAspect::environmentChanged);
 
     setUpdater([this] {
@@ -84,6 +87,8 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(BuildConfiguration *bc,
         BuildTargetInfo bti = buildTargetInfo();
         if (bti.runEnvModifier)
             bti.runEnvModifier(env, useLibraryPath());
+        if (useVncDisplay())
+            env.set("QT_QPA_PLATFORM", "vnc");
     });
 }
 

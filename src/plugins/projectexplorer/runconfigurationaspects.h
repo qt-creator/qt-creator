@@ -134,6 +134,16 @@ public:
     bool operator()() const { return isEnabled() && Utils::BoolAspect::operator()(); }
 };
 
+class PROJECTEXPLORER_EXPORT UseVncDisplayAspect : public Utils::BoolAspect
+{
+    Q_OBJECT
+
+public:
+    UseVncDisplayAspect(Utils::AspectContainer *container = nullptr);
+
+    bool operator()() const { return isEnabled() && Utils::BoolAspect::operator()(); }
+};
+
 class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public Utils::BoolAspect
 {
     Q_OBJECT
