@@ -196,6 +196,35 @@ QJsonArray GeminiApiAdapter::formatHistory(const QList<ConversationTurn> &turns)
     return history;
 }
 
+namespace {
+
+QJsonObject sanitizeSchema(const QJsonObject &schema)
+{
+    // Gemini's function declarations don't support $schema or additionalProperties
+    static const QStringList blockedKeys = {"$schema", "additionalProperties"};
+
+    QJsonObject result;
+    for (auto it = schema.constBegin(); it != schema.constEnd(); ++it) {
+        if (blockedKeys.contains(it.key()))
+            continue;
+
+        // Recurse into nested objects
+        if (it.value().isObject()) {
+            result[it.key()] = sanitizeSchema(it.value().toObject());
+        } else if (it.value().isArray()) {
+            QJsonArray arr;
+            for (const QJsonValue &v : it.value().toArray())
+                arr.append(v.isObject() ? sanitizeSchema(v.toObject()) : v);
+            result[it.key()] = arr;
+        } else {
+            result[it.key()] = it.value();
+        }
+    }
+    return result;
+}
+
+} // namespace
+
 QJsonArray GeminiApiAdapter::formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const
 {
     QJsonArray declarations;
@@ -205,7 +234,7 @@ QJsonArray GeminiApiAdapter::formatTools(const QList<ToolEntry> &tools, bool pre
         declarations.append(QJsonObject{
             {"name", toolName},
             {"description", entry.description},
-            {"parameters", entry.inputSchema}
+            {"parameters", sanitizeSchema(entry.inputSchema)}
         });
     }
 
