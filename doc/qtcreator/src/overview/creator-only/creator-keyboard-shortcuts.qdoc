@@ -282,10 +282,6 @@
             \li Windows and Linux
             \li \macos
         \row
-            \li Open file or project
-            \li Ctrl+O
-            \li Cmd+O
-        \row
             \li Open in a new window
             \li Ctrl+E, 4
             \li Ctrl+E, 4
@@ -1025,8 +1021,8 @@
             \li Cmd+Shift+N
         \row
             \li Open project
-            \li Ctrl+Shift+O
-            \li \e {None}
+            \li Ctrl+O, Ctrl+Shift+O
+            \li Cmd+O
     \endtable
 
     \section1 Qt Quick shortcuts

@@ -19,7 +19,7 @@
     when you open a file for editing.
 
     To open a compilation database as a \l {Managing Projects}{project}, go to
-    \uicontrol File > \uicontrol {Open File or Project} and select a compilation
+    \uicontrol File > \uicontrol {Open Project} and select a compilation
     database JSON file.
 
     To generate a compilation database from the information that the code model

@@ -53,7 +53,7 @@
     You can open a project in the following ways:
 
     \list
-        \li Select \uicontrol File > \uicontrol {Open File or Project}.
+        \li Select \uicontrol File > \uicontrol {Open Project}.
         \li In the \uicontrol Welcome mode, \uicontrol Projects tab, select
             \uicontrol {Open Project} (1).
             \image {qtcreator-welcome-open-projects.webp} {Ways to open projects in the Welcome mode Projects tab}

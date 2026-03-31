@@ -23,7 +23,7 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {Open File or Project}.
+        \li Select \uicontrol File > \uicontrol {Open Project}.
         \li Select the \c Makefile.am file from your project. This is the only way
             you can use the autotools plugin.
         \li Select the build directory. Only in-source building is currently
