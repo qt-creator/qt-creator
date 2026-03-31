@@ -348,7 +348,7 @@ bool GroupedModel::isChanged(int row) const
 bool GroupedModel::isDirty(int row) const
 {
     QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return false);
-    if (m_added.at(row) || m_changed.at(row))
+    if (m_added.at(row) || m_changed.at(row) || m_removed.at(row))
         return true;
     if (m_showDefault && m_volatileDefaultFlag.at(row) != m_defaultFlag.at(row))
         return true;
