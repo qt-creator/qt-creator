@@ -344,42 +344,6 @@ QString CMakeToolItemModel::uniqueDisplayName(const QString &base) const
 }
 
 //
-// CMakeToolItemConfigWidget
-//
-
-class CMakeToolItemConfigData final : public AspectContainer
-{
-public:
-    CMakeToolItemConfigData()
-    {
-        setAutoApply(true);
-
-        displayName.setDisplayStyle(StringAspect::LineEditDisplay);
-        displayName.setLabelText(Tr::tr("Name:"));
-
-        binary.setExpectedKind(PathChooser::ExistingCommand);
-        binary.setHistoryCompleter("Cmake.Command.History");
-        binary.setCommandVersionArguments({"--version"});
-        binary.setAllowPathFromDevice(true);
-        binary.setLabelText(Tr::tr("Path:"));
-
-        version.setDisplayStyle(StringAspect::LabelDisplay);
-        version.setLabelText(Tr::tr("Version:"));
-
-        qchFile.setExpectedKind(PathChooser::File);
-        qchFile.setHistoryCompleter("Cmake.qchFile.History");
-        qchFile.setPromptDialogFilter("*.qch");
-        qchFile.setPromptDialogTitle(Tr::tr("CMake .qch File"));
-        qchFile.setLabelText(Tr::tr("Help file:"));
-    }
-
-    StringAspect displayName{this};
-    FilePathAspect binary{this};
-    StringAspect version{this};
-    FilePathAspect qchFile{this};
-};
-
-//
 // CMakeToolConfigWidget
 //
 
@@ -402,6 +366,24 @@ public:
                                           "creating a new kit or when no value is set."));
 
         m_detectButton.setText(Tr::tr("Re-detect"));
+
+        m_displayName.setDisplayStyle(StringAspect::LineEditDisplay);
+        m_displayName.setLabelText(Tr::tr("Name:"));
+
+        m_binary.setExpectedKind(PathChooser::ExistingCommand);
+        m_binary.setHistoryCompleter("Cmake.Command.History");
+        m_binary.setCommandVersionArguments({"--version"});
+        m_binary.setAllowPathFromDevice(true);
+        m_binary.setLabelText(Tr::tr("Path:"));
+
+        m_version.setDisplayStyle(StringAspect::LabelDisplay);
+        m_version.setLabelText(Tr::tr("Version:"));
+
+        m_qchFile.setExpectedKind(PathChooser::File);
+        m_qchFile.setHistoryCompleter("Cmake.qchFile.History");
+        m_qchFile.setPromptDialogFilter("*.qch");
+        m_qchFile.setPromptDialogTitle(Tr::tr("CMake .qch File"));
+        m_qchFile.setLabelText(Tr::tr("Help file:"));
 
         m_container.setState(DetailsWidget::NoSummary);
         m_container.setVisible(false);
@@ -450,16 +432,16 @@ public:
         m_deviceComboBox.setOnDeviceChanged(updateDevice);
 
         Form {
-            m_data.displayName, br,
-            m_data.binary, br,
-            m_data.version, br,
-            m_data.qchFile, br,
+            m_displayName, br,
+            m_binary, br,
+            m_version, br,
+            m_qchFile, br,
             noMargin,
         }.attachTo(&m_itemConfigWidget);
 
-        m_data.binary.addOnVolatileValueChanged(this, [this] { onBinaryPathEditingFinished(); });
-        m_data.qchFile.addOnVolatileValueChanged(this, [this] { store(); });
-        m_data.displayName.addOnVolatileValueChanged(this, [this] { store(); });
+        m_binary.addOnVolatileValueChanged(this, [this] { onBinaryPathEditingFinished(); });
+        m_qchFile.addOnVolatileValueChanged(this, [this] { store(); });
+        m_displayName.addOnVolatileValueChanged(this, [this] { store(); });
 
         connect(&m_data, &AspectContainer::changed, &checkSettingsDirty);
         const auto *dm = m_model.groupedDisplayModel();
@@ -481,7 +463,6 @@ private:
     void currentCMakeToolChanged(int oldRow, int newRow);
 
     void load(const CMakeToolTreeItem *item, bool updateCMakePath);
-    void setDeviceRoot(const FilePath &devRoot);
     void store();
 
     void onBinaryPathEditingFinished();
@@ -498,7 +479,11 @@ private:
     DetailsWidget m_container;
 
     QWidget m_itemConfigWidget;
-    CMakeToolItemConfigData m_data;
+    AspectContainer m_data;
+    StringAspect m_displayName{&m_data};
+    FilePathAspect m_binary{&m_data};
+    StringAspect m_version{&m_data};
+    FilePathAspect m_qchFile{&m_data};
     Id m_id;
     bool m_loadingItem = false;
 };
@@ -507,9 +492,9 @@ void CMakeToolConfigWidget::store()
 {
     if (!m_loadingItem && m_id.isValid()) {
         m_model.updateCMakeTool(m_id,
-                                m_data.displayName.volatileValue(),
-                                FilePath::fromUserInput(m_data.binary.volatileValue()),
-                                FilePath::fromUserInput(m_data.qchFile.volatileValue()));
+                                m_displayName.volatileValue(),
+                                FilePath::fromUserInput(m_binary.volatileValue()),
+                                FilePath::fromUserInput(m_qchFile.volatileValue()));
     }
 }
 
@@ -526,9 +511,9 @@ void CMakeToolConfigWidget::onBinaryPathEditingFinished()
 
 void CMakeToolConfigWidget::updateQchFilePath()
 {
-    if (m_data.qchFile().isEmpty()) {
-        m_data.qchFile.setValue(
-            CMakeTool::searchQchFile(FilePath::fromUserInput(m_data.binary.volatileValue())));
+    if (m_qchFile().isEmpty()) {
+        m_qchFile.setValue(
+            CMakeTool::searchQchFile(FilePath::fromUserInput(m_binary.volatileValue())));
     }
 }
 
@@ -542,26 +527,21 @@ void CMakeToolConfigWidget::load(const CMakeToolTreeItem *item, bool updateCMake
     }
 
     // Set values:
-    m_data.displayName.setEnabled(!item->m_detectionSource.isAutoDetected());
-    m_data.displayName.setValue(item->m_name);
+    m_displayName.setEnabled(!item->m_detectionSource.isAutoDetected());
+    m_displayName.setValue(item->m_name);
 
-    m_data.binary.setReadOnly(item->m_detectionSource.isAutoDetected());
+    m_binary.setReadOnly(item->m_detectionSource.isAutoDetected());
     if (updateCMakePath)
-        m_data.binary.setValue(item->m_executable);
+        m_binary.setValue(item->m_executable);
 
-    m_data.qchFile.setReadOnly(item->m_detectionSource.isAutoDetected());
-    m_data.qchFile.setBaseDirectory(item->m_executable.parentDir());
-    m_data.qchFile.setValue(item->m_qchFile);
+    m_qchFile.setReadOnly(item->m_detectionSource.isAutoDetected());
+    m_qchFile.setBaseDirectory(item->m_executable.parentDir());
+    m_qchFile.setValue(item->m_qchFile);
 
-    m_data.version.setValue(item->m_versionDisplay);
+    m_version.setValue(item->m_versionDisplay);
 
     m_id = item->m_id;
     m_loadingItem = false;
-}
-
-void CMakeToolConfigWidget::setDeviceRoot(const FilePath &devRoot)
-{
-    m_data.binary.setInitialBrowsePathBackup(devRoot);
 }
 
 void CMakeToolConfigWidget::cloneCMakeTool()
@@ -667,7 +647,8 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(int, int newRow)
         const CMakeToolTreeItem it = m_model.item(newRow);
         load(&it, true);
         if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice())
-            setDeviceRoot(dev->rootPath());
+            m_binary.setInitialBrowsePathBackup(dev->rootPath());
+
         m_removeButton.setEnabled(!it.m_detectionSource.isAutoDetected());
         m_makeDefButton.setEnabled(!m_model.isDefault(newRow));
     } else {
