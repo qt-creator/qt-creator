@@ -18,6 +18,7 @@
 #include <QRegularExpression>
 
 using namespace LanguageUtils;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace QmlJS {
@@ -57,7 +58,7 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     if (info.qmlDumpPath.isEmpty() || info.qtQmlPath.isEmpty())
         return;
 
-    if (m_runningQmldumps.contains(info.qmlDumpPath))
+    if (m_dumperRunner.isKeyRunning(info.qmlDumpPath))
         return;
 
     LibraryInfo builtinInfo;
@@ -86,7 +87,7 @@ void PluginDumper::onLoadPluginTypes(const FilePath &libraryPath,
                                      const QString &importVersion)
 {
     const FilePath canonicalLibraryPath = libraryPath.cleanPath();
-    if (m_runningQmldumps.contains(canonicalLibraryPath))
+    if (m_dumperRunner.isKeyRunning(canonicalLibraryPath))
         return;
     const Snapshot snapshot = m_modelManager->snapshot();
     const LibraryInfo libraryInfo = snapshot.libraryInfo(canonicalLibraryPath);
@@ -224,82 +225,6 @@ static QString qmlPluginDumpErrorMessage(Process *process)
         }
     }
     return errorMessage;
-}
-
-void PluginDumper::qmlPluginTypeDumpDone(Process *process, const FilePath &libraryPath)
-{
-    process->deleteLater();
-
-    m_runningQmldumps.remove(libraryPath);
-    if (libraryPath.isEmpty())
-        return;
-    const Snapshot snapshot = m_modelManager->snapshot();
-    LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-    const bool privatePlugin = libraryPath.endsWith(QLatin1String("private"));
-
-    if (process->exitCode() || process->error() != QProcess::UnknownError) {
-        const QString errorMessages = qmlPluginDumpErrorMessage(process);
-        if (!privatePlugin)
-            ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
-        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
-                                            qmldumpFailedMessage(libraryPath, errorMessages));
-
-        if (process->error() != QProcess::UnknownError) {
-            libraryInfo.updateFingerprint();
-            m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
-            return;
-        }
-
-        const QByteArray output = process->readAllRawStandardOutput();
-
-        class CppQmlTypesInfo {
-        public:
-            QString error;
-            QString warning;
-            CppQmlTypesLoader::BuiltinObjects objectsList;
-            QList<ModuleApiInfo> moduleApis;
-            QStringList dependencies;
-        };
-
-        auto future = Utils::asyncRun(m_modelManager->threadPool(),
-                                      [output, libraryPath](QPromise<CppQmlTypesInfo> &promise) {
-            CppQmlTypesInfo infos;
-            CppQmlTypesLoader::parseQmlTypeDescriptions(output, &infos.objectsList,
-                               &infos.moduleApis, &infos.dependencies, &infos.error, &infos.warning,
-                               "<dump of " + libraryPath.toUserOutput() + '>');
-            promise.addResult(infos);
-        });
-        m_modelManager->addFuture(future);
-
-        Utils::onFinished(future, this, [this, libraryInfo, privatePlugin, libraryPath]
-                          (const QFuture<CppQmlTypesInfo>& future) {
-            CppQmlTypesInfo infos = future.result();
-
-            LibraryInfo libInfo = libraryInfo;
-
-            if (!infos.error.isEmpty()) {
-                libInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
-                                                        qmldumpErrorMessage(libraryPath, infos.error));
-                if (!privatePlugin)
-                    printParseWarnings(libraryPath, libInfo.pluginTypeInfoError());
-            } else {
-                libInfo.setMetaObjects(infos.objectsList.values());
-                libInfo.setModuleApis(infos.moduleApis);
-                libInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
-            }
-
-            if (!infos.warning.isEmpty())
-                printParseWarnings(libraryPath, infos.warning);
-
-            libInfo.updateFingerprint();
-
-            m_modelManager->updateLibraryInfo(libraryPath, libInfo);
-        });
-    } else {
-        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
-        libraryInfo.updateFingerprint();
-        m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
-    }
 }
 
 void PluginDumper::pluginChanged(const FilePath &pluginLibrary)
@@ -641,18 +566,110 @@ void PluginDumper::unwatchFilePath(const FilePath &path)
     m_pluginWatcher.erase(foundPath);
 }
 
+struct CppQmlTypesInfo
+{
+    QString error;
+    QString warning;
+    CppQmlTypesLoader::BuiltinObjects objectsList;
+    QList<ModuleApiInfo> moduleApis;
+    QStringList dependencies;
+};
+
+static void parse(QPromise<CppQmlTypesInfo> &promise, const QByteArray &output,
+                  const FilePath &importPath)
+{
+    CppQmlTypesInfo infos;
+    CppQmlTypesLoader::parseQmlTypeDescriptions(output, &infos.objectsList, &infos.moduleApis,
+                                                &infos.dependencies, &infos.error, &infos.warning,
+                                                "<dump of " + importPath.toUserOutput() + '>');
+    promise.addResult(infos);
+}
+
 void PluginDumper::runQmlDump(const ModelManagerInterface::ProjectInfo &info,
     const QStringList &arguments, const FilePath &importPath)
 {
-    auto process = new Process(this);
-    process->setEnvironment(info.qmlDumpEnvironment);
-    process->setWorkingDirectory(importPath);
-    process->setCommand({info.qmlDumpPath, arguments});
-    connect(process, &Process::done, this, [this, process, importPath] {
-        qmlPluginTypeDumpDone(process, importPath);
-    });
-    process->start();
-    m_runningQmldumps.insert(importPath);
+    struct StorageData
+    {
+        LibraryInfo libraryInfo;
+        QByteArray output;
+        bool privatePlugin = true;
+    };
+
+    const Storage<StorageData> storage;
+
+    const auto onProcessSetup = [info, arguments, importPath](Process &process) {
+        process.setEnvironment(info.qmlDumpEnvironment);
+        process.setWorkingDirectory(importPath);
+        process.setCommand({info.qmlDumpPath, arguments});
+    };
+    const auto onProcessDone = [this, importPath, storage](const Process &process, DoneWith result) {
+        const Snapshot snapshot = m_modelManager->snapshot();
+        LibraryInfo libraryInfo = snapshot.libraryInfo(importPath);
+        if (result == DoneWith::Success) {
+            libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
+            libraryInfo.updateFingerprint();
+            m_modelManager->updateLibraryInfo(importPath, libraryInfo);
+            return DoneResult::Success;
+        }
+
+        Process *processPtr = const_cast<Process *>(&process);
+        const QString errorMessages = qmlPluginDumpErrorMessage(processPtr);
+        const bool privatePlugin = importPath.endsWith(QLatin1String("private"));
+        if (!privatePlugin)
+            ModelManagerInterface::writeWarning(qmldumpErrorMessage(importPath, errorMessages));
+
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
+                                            qmldumpFailedMessage(importPath, errorMessages));
+        if (process.error() != QProcess::UnknownError) {
+            libraryInfo.updateFingerprint();
+            m_modelManager->updateLibraryInfo(importPath, libraryInfo);
+            return DoneResult::Success;
+        }
+
+        *storage = {libraryInfo, processPtr->readAllRawStandardOutput(), privatePlugin};
+
+        return DoneResult::Error;
+    };
+
+    const auto onParseSetup = [this, importPath, storage](Async<CppQmlTypesInfo> &task) {
+        task.setThreadPool(m_modelManager->threadPool());
+        task.setConcurrentCallData(parse, storage->output, importPath);
+    };
+    const auto onParseDone = [this, importPath, storage](const Async<CppQmlTypesInfo> &task) {
+        if (!task.isResultAvailable())
+            return;
+
+        CppQmlTypesInfo infos = task.result();
+
+        LibraryInfo libInfo = storage->libraryInfo;
+
+        if (!infos.error.isEmpty()) {
+            libInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
+                                            qmldumpErrorMessage(importPath, infos.error));
+            if (!storage->privatePlugin)
+                printParseWarnings(importPath, libInfo.pluginTypeInfoError());
+        } else {
+            libInfo.setMetaObjects(infos.objectsList.values());
+            libInfo.setModuleApis(infos.moduleApis);
+            libInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
+        }
+
+        if (!infos.warning.isEmpty())
+            printParseWarnings(importPath, infos.warning);
+
+        libInfo.updateFingerprint();
+
+        m_modelManager->updateLibraryInfo(importPath, libInfo);
+    };
+
+    const Group recipe {
+        stopOnSuccess,
+        storage,
+        ProcessTask(onProcessSetup, onProcessDone, CallDoneFlag::OnSuccess | CallDoneFlag::OnError),
+        AsyncTask<CppQmlTypesInfo>(onParseSetup, onParseDone)
+    };
+
+    m_dumperRunner.start(importPath, recipe);
 }
 
 void PluginDumper::dump(const Plugin &plugin)

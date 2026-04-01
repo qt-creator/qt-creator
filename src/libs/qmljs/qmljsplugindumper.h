@@ -7,9 +7,8 @@
 
 #include <QHash>
 #include <QObject>
-#include <QSet>
 
-namespace Utils { class Process; }
+#include <QtTaskTree/QMappedTaskTreeRunner>
 
 namespace QmlJS {
 
@@ -35,7 +34,6 @@ private:
                                        const QString &importUri,
                                        const QString &importVersion);
     Q_INVOKABLE void dumpAllPlugins();
-    void qmlPluginTypeDumpDone(Utils::Process *process, const Utils::FilePath &libraryPath);
     void pluginChanged(const Utils::FilePath &pluginLibrary);
 
 private:
@@ -84,7 +82,6 @@ private:
                                   const QString &baseName, const QStringList &suffixes,
                                   const QString &prefix = {});
 
-private:
     void watchFilePaths(const Utils::FilePaths &paths);
     void unwatchFilePath(const Utils::FilePath &path);
     void prepareLibraryInfo(
@@ -98,9 +95,9 @@ private:
 
     ModelManagerInterface *m_modelManager;
     QMap<Utils::FilePath, std::shared_ptr<Utils::FilePathWatcher>> m_pluginWatcher;
-    QSet<Utils::FilePath> m_runningQmldumps;
     QList<Plugin> m_plugins;
     QHash<Utils::FilePath, int> m_libraryToPluginIndex;
+    QtTaskTree::QMappedTaskTreeRunner<Utils::FilePath> m_dumperRunner;
 };
 
 } // namespace QmlJS
