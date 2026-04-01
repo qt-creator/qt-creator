@@ -397,6 +397,7 @@ public:
 
         if (m_page->recreateOnCancel()) {
             delete m_inner;
+            m_inner = nullptr;
             createInner();
         }
     }
