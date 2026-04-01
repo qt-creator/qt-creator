@@ -5,8 +5,9 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QObject>
 #include <QHash>
+#include <QObject>
+#include <QSet>
 
 namespace Utils { class Process; }
 
@@ -34,7 +35,7 @@ private:
                                        const QString &importUri,
                                        const QString &importVersion);
     Q_INVOKABLE void dumpAllPlugins();
-    void qmlPluginTypeDumpDone(Utils::Process *process);
+    void qmlPluginTypeDumpDone(Utils::Process *process, const Utils::FilePath &libraryPath);
     void pluginChanged(const Utils::FilePath &pluginLibrary);
 
 private:
@@ -97,7 +98,7 @@ private:
 
     ModelManagerInterface *m_modelManager;
     QMap<Utils::FilePath, std::shared_ptr<Utils::FilePathWatcher>> m_pluginWatcher;
-    QHash<Utils::Process *, Utils::FilePath> m_runningQmldumps;
+    QSet<Utils::FilePath> m_runningQmldumps;
     QList<Plugin> m_plugins;
     QHash<Utils::FilePath, int> m_libraryToPluginIndex;
 };

@@ -57,7 +57,7 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     if (info.qmlDumpPath.isEmpty() || info.qtQmlPath.isEmpty())
         return;
 
-    if (m_runningQmldumps.values().contains(info.qmlDumpPath))
+    if (m_runningQmldumps.contains(info.qmlDumpPath))
         return;
 
     LibraryInfo builtinInfo;
@@ -86,7 +86,7 @@ void PluginDumper::onLoadPluginTypes(const FilePath &libraryPath,
                                      const QString &importVersion)
 {
     const FilePath canonicalLibraryPath = libraryPath.cleanPath();
-    if (m_runningQmldumps.values().contains(canonicalLibraryPath))
+    if (m_runningQmldumps.contains(canonicalLibraryPath))
         return;
     const Snapshot snapshot = m_modelManager->snapshot();
     const LibraryInfo libraryInfo = snapshot.libraryInfo(canonicalLibraryPath);
@@ -226,11 +226,11 @@ static QString qmlPluginDumpErrorMessage(Process *process)
     return errorMessage;
 }
 
-void PluginDumper::qmlPluginTypeDumpDone(Process *process)
+void PluginDumper::qmlPluginTypeDumpDone(Process *process, const FilePath &libraryPath)
 {
     process->deleteLater();
 
-    const FilePath libraryPath = m_runningQmldumps.take(process);
+    m_runningQmldumps.remove(libraryPath);
     if (libraryPath.isEmpty())
         return;
     const Snapshot snapshot = m_modelManager->snapshot();
@@ -648,9 +648,11 @@ void PluginDumper::runQmlDump(const ModelManagerInterface::ProjectInfo &info,
     process->setEnvironment(info.qmlDumpEnvironment);
     process->setWorkingDirectory(importPath);
     process->setCommand({info.qmlDumpPath, arguments});
-    connect(process, &Process::done, this, [this, process] { qmlPluginTypeDumpDone(process); });
+    connect(process, &Process::done, this, [this, process, importPath] {
+        qmlPluginTypeDumpDone(process, importPath);
+    });
     process->start();
-    m_runningQmldumps.insert(process, importPath);
+    m_runningQmldumps.insert(importPath);
 }
 
 void PluginDumper::dump(const Plugin &plugin)
