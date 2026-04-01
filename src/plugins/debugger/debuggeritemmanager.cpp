@@ -888,13 +888,11 @@ public:
     {
         store();
         debuggerModel().apply();
-        m_groupedView.view().expandAll();
     }
 
     void cancel() final
     {
         debuggerModel().cancel();
-        m_groupedView.view().expandAll();
     }
 
     bool isDirty() const final { return debuggerModel().isDirty(); }

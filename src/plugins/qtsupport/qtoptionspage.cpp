@@ -987,8 +987,6 @@ void QtSettingsPageWidget::apply()
     m_applyingVersions = false;
 
     m_model.apply();
-    m_groupedView.view().expandAll();
-
     userChangedCurrentVersion();
 }
 
@@ -997,7 +995,6 @@ void QtSettingsPageWidget::cancel()
     const int selectedId = m_groupedView.currentRow() >= 0 ? m_model.item(m_groupedView.currentRow()).uniqueId() : -1;
 
     m_model.cancel();
-    m_groupedView.view().expandAll();
 
     if (const QModelIndex idx = m_model.indexForUniqueId(selectedId); idx.isValid())
         m_groupedView.view().setCurrentIndex(idx);
