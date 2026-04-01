@@ -144,12 +144,12 @@ void CompilationDbParser::start()
     if (!m_rootPath.isEmpty()) {
         using ResultType = TreeScanner::Result;
         const auto onSetup = [this](Async<ResultType> &task) {
-            const auto filter = [path = m_projectFilePath.path()](const MimeType &mimeType,
+            const auto filter = [this](const MimeType &mimeType,
                                                                   const FilePath &fn) {
                 if (fn.isDir())
                     return false;
                 // Mime checks requires more resources, so keep it last in check list
-                return fn.startsWith(path + ".user") || TreeScanner::isWellKnownBinary(fn)
+                return fn == m_projectFilePath.withSuffix(".user") || TreeScanner::isWellKnownBinary(fn)
                        || TreeScanner::isMimeTypeIgnored(mimeType);
             };
             task.setConcurrentCallData(&TreeScanner::scanForFiles, m_rootPath, filter,

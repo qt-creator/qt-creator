@@ -109,7 +109,7 @@ QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part
     if (settings().addIncludePaths()) {
         for (const ProjectExplorer::HeaderPath &path : part.headerPaths) {
             if (path.type == ProjectExplorer::HeaderPathType::User
-                && path.path.startsWith(m_project->projectDirectory().path()))
+                && path.path.isChildOf(m_project->projectDirectory()))
                 result.push_back("-I " + path.path.path());
         }
     }

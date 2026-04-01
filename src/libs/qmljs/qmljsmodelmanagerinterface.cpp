@@ -1291,24 +1291,19 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
 
 static FilePaths minimalPrefixPaths(const FilePaths &paths)
 {
-    FilePaths sortedPaths;
-    // find minimal prefix, ensure '/' at end
-    for (FilePath path : std::as_const(paths)) {
-        if (!path.endsWith("/"))
-            path = path.withNewPath(path.path() + "/");
-        if (path.path().size() > 1)
-            sortedPaths.append(path);
-    }
-    std::sort(sortedPaths.begin(), sortedPaths.end());
-    FilePaths res;
-    QString lastPrefix;
-    for (auto it = sortedPaths.begin(); it != sortedPaths.end(); ++it) {
-        if (lastPrefix.isEmpty() || !it->startsWith(lastPrefix)) {
-            lastPrefix = it->path();
-            res.append(*it);
-        }
-    }
-    return res;
+    if (paths.isEmpty())
+        return {};
+
+    FilePaths sortedPaths = Utils::sorted(
+        Utils::filtered(paths, [](const FilePath &p) { return !p.isRootPath(); }));
+
+    auto it = std::unique(
+        sortedPaths.begin(), sortedPaths.end(), [](const FilePath &a, const FilePath &b) {
+            return a == b || b.isChildOf(a);
+        });
+    sortedPaths.erase(it, sortedPaths.end());
+
+    return sortedPaths;
 }
 
 void ModelManagerInterface::updateImportPaths()
@@ -1796,7 +1791,7 @@ FilePath ModelManagerInterface::fileToSource(const FilePath &path)
     const FilePaths applicationPaths = m_syncedData.readLocked()->m_applicationPaths;
 
     for (const FilePath &p : applicationPaths) {
-        if (!p.isEmpty() && path.startsWith(p.path())) {
+        if (!p.isEmpty() && path.isChildOf(p)) {
             // if it is an applicationPath (i.e. in the build directory)
             // try to use the path from the build dir as resource path
             // and recover the path of the corresponding source file

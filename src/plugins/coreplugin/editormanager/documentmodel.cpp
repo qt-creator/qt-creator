@@ -96,15 +96,8 @@ void DocumentModelPrivate::handleUpdateFileState(const FilePath &repository, con
 
 void DocumentModelPrivate::handleClearFileState(const FilePath &repository)
 {
-    const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
-    for (int entryIndex = 0; entryIndex < entries.size(); ++entryIndex) {
-        const DocumentModel::Entry *entry = entries.at(entryIndex);
-
-        if (entry->filePath().startsWith(repository.path())) {
-            const QModelIndex idx = index(entryIndex + 1 /*<no document>*/, 0);
-            emit dataChanged(idx, idx, {Qt::ForegroundRole});
-        }
-    }
+    Q_UNUSED(repository);
+    emit dataChanged(index(0, 0), index(m_entries.count(), 0), {Qt::ForegroundRole});
 }
 
 DocumentModelPrivate::~DocumentModelPrivate()

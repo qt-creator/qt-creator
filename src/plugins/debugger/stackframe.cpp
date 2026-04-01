@@ -153,7 +153,7 @@ void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
         usable = file.isFile();
         return;
     }
-    if (!file.startsWith("qrc:/"))
+    if (!file.path().startsWith("qrc:/"))
         return;
 
     FilePath relativeFile = file;

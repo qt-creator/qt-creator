@@ -367,7 +367,7 @@ Utils::FilePath DocumentManager::currentProjectDirPath()
 
     const QList projects = ProjectExplorer::ProjectManager::projects();
     for (auto p : projects) {
-        if (qmlFileName.startsWith(p->projectDirectory().toUrlishString()))
+        if (qmlFileName.isChildOf(p->projectDirectory()))
             return p->projectDirectory();
     }
 

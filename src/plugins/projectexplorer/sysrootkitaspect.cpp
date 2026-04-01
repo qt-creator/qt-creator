@@ -86,7 +86,7 @@ Tasks SysRootKitAspectFactory::validate(const Kit *k) const
     if (dir.isEmpty())
         return result;
 
-    if (dir.startsWith("target:") || dir.startsWith("remote:"))
+    if (dir.path().startsWith("target:") || dir.path().startsWith("remote:"))
         return result;
 
     if (!dir.exists()) {

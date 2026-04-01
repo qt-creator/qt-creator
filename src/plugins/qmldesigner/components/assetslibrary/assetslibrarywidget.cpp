@@ -466,7 +466,7 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
 
     Utils::FilePath destDir = Utils::FilePath::fromUserInput(targetDir);
 
-    QString resourceFolder = DocumentManager::currentResourcePath().toUrlishString();
+    const Utils::FilePath resourceFolder = DocumentManager::currentResourcePath();
 
     if (destDir.isFile())
         destDir = destDir.parentDir();
@@ -481,7 +481,7 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
         Utils::FilePath src = Utils::FilePath::fromUrl(url);
         Utils::FilePath dest = destDir.pathAppended(src.fileName());
 
-        if (destDir == src.parentDir() || !src.startsWith(resourceFolder))
+        if (destDir == src.parentDir() || !src.isChildOf(resourceFolder))
             continue;
 
         if (dest.exists()) {

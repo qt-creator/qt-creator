@@ -299,7 +299,7 @@ PuppetType PuppetEnvironmentBuilder::determinePuppetType() const
 
     auto inHostBin = [&]() -> bool {
         auto *qt = QtSupport::QtKitAspect::qtVersion(m_buildSystem->kit());
-        return qt && m_qmlPuppetPath.startsWith(qt->hostBinPath().path());
+        return qt && m_qmlPuppetPath.isChildOf(qt->hostBinPath());
     };
 
     return (hasValidKit() && isExecutable() && inHostBin()) ? PuppetType::Kit : PuppetType::Fallback;

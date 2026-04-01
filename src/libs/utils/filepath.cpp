@@ -2152,14 +2152,6 @@ bool FilePath::isChildOf(const FilePath &s) const
 }
 
 /*!
-    Returns whether \c path() starts with \a s.
-*/
-bool FilePath::startsWith(const QString &s, Qt::CaseSensitivity cs) const
-{
-    return pathView().startsWith(s, cs);
-}
-
-/*!
    Returns whether \c path() ends with \a s.
 */
 bool FilePath::endsWith(const QString &s, Qt::CaseSensitivity cs) const

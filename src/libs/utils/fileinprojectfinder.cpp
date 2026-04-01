@@ -249,7 +249,7 @@ bool FileInProjectFinder::checkProjectDirectory(const FilePath &originalPath,
     const QChar separator = QLatin1Char('/');
 
     int prefixToIgnore = -1;
-    if (originalPath.startsWith(m_projectDir.toFSPathString() + separator)) {
+    if (originalPath.isChildOf(m_projectDir)) {
         if (originalPath.osType() == OsTypeMac) {
             // starting with the project path is not sufficient if the file was
             // copied in an insource build, e.g. into MyApp.app/Contents/Resources
@@ -271,7 +271,7 @@ bool FileInProjectFinder::checkProjectDirectory(const FilePath &originalPath,
     // Strip directories one by one from the beginning of the path,
     // and see if the new relative path exists in the build directory.
     if (prefixToIgnore < 0) {
-        if (!originalPath.isAbsolutePath() && !originalPath.startsWith(separator)) {
+        if (!originalPath.isAbsolutePath() && !originalPath.path().startsWith(separator)) {
             prefixToIgnore = 0;
         } else {
             prefixToIgnore = origFsPath.indexOf(separator);

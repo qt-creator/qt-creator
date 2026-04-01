@@ -874,7 +874,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                         Utils::FilePath assetPathBase;
                         QString assetPathRelative;
 
-                        if (!pValuePath.toUrl().isLocalFile() || pValuePath.startsWith("www.")) {
+                        if (!pValuePath.toUrl().isLocalFile() || pValuePath.path().startsWith("www.")) {
                             qWarning() << "BundleHelper::getComponentDependencies(): Web urls are not"
                                           " supported. Skipping " << pValuePath;
                             continue;

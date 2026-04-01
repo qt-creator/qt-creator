@@ -365,7 +365,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     FilePath tmpDir = directory.absoluteFilePath();
 #if defined WITH_TESTS
     // Force caching of test directories (even though they do not exist):
-    if (directory.startsWith(TEST_PREFIX))
+    if (directory.path().startsWith(TEST_PREFIX))
         tmpDir = directory;
 #endif
     // directory might refer to a historical directory which doesn't exist.

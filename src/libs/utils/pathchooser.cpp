@@ -646,7 +646,7 @@ static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, Path
                 Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput()));
         }
         if (filePath.osType() == OsTypeWindows && !filePath.startsWithDriveLetter()
-            && !filePath.startsWith("\\\\") && !filePath.startsWith("//")) {
+            && !filePath.path().startsWith("\\\\") && !filePath.path().startsWith("//")) {
             return ResultError(Tr::tr("Invalid path \"%1\".").arg(filePath.toUserOutput()));
         }
         break;

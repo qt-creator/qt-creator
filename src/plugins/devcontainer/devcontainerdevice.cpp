@@ -679,7 +679,7 @@ Result<FilePath> Device::localSource(const FilePath &other) const
     const FilePath workspaceFolderMountPoint = fileAccess->workspaceFolderMountPoint();
     const FilePath workspaceFolder = fileAccess->workspaceFolder();
 
-    if (other.startsWith(workspaceFolderMountPoint.path()))
+    if (other.isChildOf(workspaceFolderMountPoint))
         return workspaceFolder / other.path().mid(workspaceFolderMountPoint.path().size());
 
     return ResultError(
