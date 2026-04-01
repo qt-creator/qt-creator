@@ -21,6 +21,7 @@
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/guiutils.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>
@@ -284,6 +285,12 @@ private:
     void apply() final;
     void cancel() final;
 
+    bool isDirty() const final
+    {
+        return m_model.isDirty()
+               || m_documentationSetting.currentIndex() != m_initialDocumentationIndex;
+    }
+
     void updateDescriptionLabel();
     void userChangedCurrentVersion();
     void updateWidgets();
@@ -315,6 +322,10 @@ private:
     QByteArray defaultToolchainId(const QtVersion *version);
 
     bool isNameUnique(const QtVersion *version);
+
+    int m_initialDocumentationIndex = 0;
+    QString m_loadedVersionName;
+    bool m_preEditChanged = false;
 
     QtVersionModel m_model;
     GroupedView m_groupedView{m_model};
@@ -417,6 +428,10 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         int(QtVersionManager::documentationSetting()));
     if (selectedIndex >= 0)
         m_documentationSetting.setCurrentIndex(selectedIndex);
+    m_initialDocumentationIndex = m_documentationSetting.currentIndex();
+
+    connect(&m_documentationSetting, &QComboBox::currentIndexChanged,
+            this, [] { checkSettingsDirty(); });
 
     QList<int> additions = transform(QtVersionManager::versions(), &QtVersion::uniqueId);
     updateQtVersions(additions, QList<int>(), QList<int>());
@@ -460,7 +475,6 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         updateLinkWithQtButton();
     });
 
-    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 QtVersion *QtSettingsPageWidget::currentVersion() const
@@ -521,7 +535,6 @@ void QtSettingsPageWidget::cleanUpQtVersions()
     for (int row : std::as_const(rowsToRemove))
         m_model.destroyRow(row);
 
-    markSettingsDirty();
     updateCleanUpButton();
 }
 
@@ -709,7 +722,6 @@ void QtSettingsPageWidget::addQtDir()
         m_groupedView.selectRow(m_model.appendVolatileItem(item));
         m_nameEdit.setFocus();
         m_nameEdit.selectAll();
-        markSettingsDirty();
     } else {
         QMessageBox::warning(this, Tr::tr("Qmake Not Executable"),
                              Tr::tr("The qmake executable %1 could not be added: %2").arg(qtVersion.toUserOutput()).arg(error));
@@ -725,7 +737,6 @@ void QtSettingsPageWidget::removeQtDir()
         return;
 
     m_model.destroyRow(row);
-    markSettingsDirty();
     updateCleanUpButton();
 }
 
@@ -744,7 +755,6 @@ void QtSettingsPageWidget::redetect()
                 QtVersionItem item(version);
                 item.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
                 m_model.appendVolatileItem(item);
-                markSettingsDirty();
             }
         }
     }
@@ -788,8 +798,6 @@ void QtSettingsPageWidget::editPath()
     it.m_version = std::shared_ptr<QtVersion>(version);
     m_model.setVolatileItem(row, it);
     m_model.setChanged(row, true);
-
-    markSettingsDirty();
     userChangedCurrentVersion();
 }
 
@@ -848,7 +856,10 @@ void QtSettingsPageWidget::updateWidgets()
 {
     delete m_configurationWidget;
     m_configurationWidget = nullptr;
+    const int row = m_groupedView.currentRow();
     QtVersion *version = currentVersion();
+    m_loadedVersionName = version ? version->unexpandedDisplayName() : QString{};
+    m_preEditChanged = row >= 0 && m_model.isChanged(row);
     if (version) {
         m_nameEdit.setText(version->unexpandedDisplayName());
         m_qmakePath.setText(version->qmakeFilePath().toUserOutput());
@@ -950,7 +961,8 @@ void QtSettingsPageWidget::updateCurrentQtName()
         return;
 
     m_model.item(row).version()->setUnexpandedDisplayName(m_nameEdit.text());
-    m_model.setChanged(row, true);
+    const bool nameChanged = m_nameEdit.text() != m_loadedVersionName;
+    m_model.setChanged(row, nameChanged || m_preEditChanged);
 
     updateDescriptionLabel();
     m_model.notifyAllRowsChanged();
@@ -963,6 +975,7 @@ void QtSettingsPageWidget::apply()
                this,
                &QtSettingsPageWidget::updateQtVersions);
 
+    m_initialDocumentationIndex = m_documentationSetting.currentIndex();
     QtVersionManager::setDocumentationSetting(
         QtVersionManager::DocumentationSetting(m_documentationSetting.currentData().toInt()));
 
