@@ -112,13 +112,12 @@ public:
 
     int addMesonTool();
     int cloneMesonTool(int row);
-    void updateItem(const Id &itemId, const QString &name, const FilePath &exe);
+    void updateItem(int row, const QString &name, const FilePath &exe);
     void apply() override;
 
 private:
     QVariant variantData(const QVariant &v, int column, int role) const override;
     QString uniqueName(const QString &baseName) const;
-    int rowForId(const Id &id) const;
 };
 
 ToolsModel::ToolsModel()
@@ -142,24 +141,14 @@ int ToolsModel::cloneMesonTool(int row)
     return appendVolatileItem(item(row).cloned());
 }
 
-void ToolsModel::updateItem(const Id &itemId, const QString &name, const FilePath &exe)
+void ToolsModel::updateItem(int row, const QString &name, const FilePath &exe)
 {
-    const int row = rowForId(itemId);
     QTC_ASSERT(row >= 0, return);
     ToolItem it = item(row);
     it.name = name;
     it.executable = exe;
     setVolatileItem(row, it);
     notifyRowChanged(row);
-}
-
-int ToolsModel::rowForId(const Id &id) const
-{
-    for (int row = 0; row < itemCount(); ++row) {
-        if (item(row).id == id)
-            return row;
-    }
-    return -1;
 }
 
 void ToolsModel::apply()
@@ -294,9 +283,7 @@ void ToolsSettingsWidget::store()
         return;
     const int row = m_groupedView.currentRow();
     if (row >= 0 && !m_model.isRemoved(row)) {
-        m_model.updateItem(m_model.item(row).id,
-                           m_name.volatileValue(),
-                           m_executable.expandedVolatileValue());
+        m_model.updateItem(row, m_name.volatileValue(), m_executable.expandedVolatileValue());
     }
 }
 
