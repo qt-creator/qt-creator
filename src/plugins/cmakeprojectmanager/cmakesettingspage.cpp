@@ -444,10 +444,6 @@ public:
         m_displayName.addOnVolatileValueChanged(this, [this] { store(); });
 
         connect(&m_data, &AspectContainer::changed, &checkSettingsDirty);
-        const auto *dm = m_model.groupedDisplayModel();
-        connect(dm, &QAbstractItemModel::dataChanged, &checkSettingsDirty);
-        connect(dm, &QAbstractItemModel::rowsInserted, &checkSettingsDirty);
-        connect(dm, &QAbstractItemModel::rowsRemoved, &checkSettingsDirty);
     }
 
 private:

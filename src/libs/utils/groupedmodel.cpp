@@ -3,6 +3,7 @@
 
 #include "groupedmodel.h"
 
+#include "guiutils.h"
 #include "qtcassert.h"
 #include "stringutils.h"
 #include "utilstr.h"
@@ -414,6 +415,7 @@ void GroupedModel::notifyRowChanged(int row)
 {
     QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return);
     emit dataChanged(index(row, 0), index(row, columnCount() - 1));
+    checkSettingsDirty();
 }
 
 void GroupedModel::notifyAllRowsChanged()
@@ -421,6 +423,7 @@ void GroupedModel::notifyAllRowsChanged()
     if (m_volatileVariants.isEmpty())
         return;
     emit dataChanged(index(0, 0), index(m_volatileVariants.size() - 1, columnCount() - 1));
+    checkSettingsDirty();
 }
 
 void GroupedModel::markRemoved(int row)
@@ -438,6 +441,7 @@ void GroupedModel::markRemoved(int row)
         m_removed[row] = !m_removed[row];
         notifyRowChanged(row);
     }
+    checkSettingsDirty();
 }
 
 void GroupedModel::removeItem(int row)
@@ -502,6 +506,7 @@ int GroupedModel::appendVolatileVariant(const QVariant &item)
     m_changed.append(false);
     m_volatileDefaultFlag.append(false);
     endInsertRows();
+    checkSettingsDirty();
     return row;
 }
 
