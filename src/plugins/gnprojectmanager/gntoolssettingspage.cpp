@@ -15,6 +15,7 @@
 #include <utils/aspects.h>
 #include <utils/detailswidget.h>
 #include <utils/groupedmodel.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -201,6 +202,7 @@ public:
 
 private:
     void apply() final { m_model.apply(); }
+    bool isDirty() const final { return m_model.isDirty(); }
 
     void cloneGNTool();
     void removeGNTool();
@@ -260,30 +262,25 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
 
     connect(&m_addButton, &QPushButton::clicked, this, [this] {
         m_groupedView.selectRow(m_model.addGNTool());
-        markSettingsDirty();
     });
     connect(&m_cloneButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::cloneGNTool);
     connect(&m_removeButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::removeGNTool);
 
-    installMarkSettingsDirtyTriggerRecursively(this);
+    connect(&m_data, &AspectContainer::changed, &checkSettingsDirty);
 }
 
 void GNToolsSettingsWidget::cloneGNTool()
 {
     const int row = m_groupedView.currentRow();
-    if (row >= 0) {
+    if (row >= 0)
         m_groupedView.selectRow(m_model.cloneGNTool(row));
-        markSettingsDirty();
-    }
 }
 
 void GNToolsSettingsWidget::removeGNTool()
 {
     const int row = m_groupedView.currentRow();
-    if (row >= 0) {
+    if (row >= 0)
         m_model.markRemoved(row);
-        markSettingsDirty();
-    }
 }
 
 void GNToolsSettingsWidget::store()
