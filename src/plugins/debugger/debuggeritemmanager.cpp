@@ -884,17 +884,8 @@ public:
         updateButtons();
     }
 
-    void apply() final
-    {
-        store();
-        debuggerModel().apply();
-    }
-
-    void cancel() final
-    {
-        debuggerModel().cancel();
-    }
-
+    void apply() final { debuggerModel().apply(); }
+    void cancel() final { debuggerModel().cancel(); }
     bool isDirty() const final { return debuggerModel().isDirty(); }
 
     void cloneDebugger();
@@ -1035,6 +1026,7 @@ void DebuggerSettingsPageWidget::binaryPathHasChanged()
             m_version.setText(tmp.version());
             m_engineType = tmp.engineType();
             m_type.setText(tmp.engineTypeName());
+            store();
         };
         m_taskTreeRunner.start({AsyncTask<DebuggerItem>(onSetup, onDone)});
     } else {
