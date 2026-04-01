@@ -17,11 +17,7 @@
 
 namespace Debugger {
 
-namespace Internal { class DebuggerItemConfigWidget; }
-
-// -----------------------------------------------------------------------
-// DebuggerItem
-// -----------------------------------------------------------------------
+class DebuggerSettingsPageWidget;
 
 bool nativeDapDebuggersEnabled();
 
@@ -120,7 +116,7 @@ private:
     ProjectExplorer::DetectionSource m_detectionSource;
     QDateTime m_lastModified;
 
-    friend class Internal::DebuggerItemConfigWidget;
+    friend class DebuggerSettingsPageWidget;
 };
 
 } // namespace Debugger

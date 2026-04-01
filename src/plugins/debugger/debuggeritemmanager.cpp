@@ -37,7 +37,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QObject>
-#include <QPointer>
 #include <QPushButton>
 #include <QTimer>
 #include <QTreeView>
@@ -97,39 +96,6 @@ static FilePath userSettingsFileName()
 {
     return ICore::userResourcePath(DEBUGGER_FILENAME);
 }
-
-// -----------------------------------------------------------------------
-// DebuggerItemConfigWidget
-// -----------------------------------------------------------------------
-
-class DebuggerItemConfigWidget : public QWidget
-{
-public:
-    DebuggerItemConfigWidget();
-
-    void load(const DebuggerItem &item);
-    void store() const;
-    void setDeviceRootPath(const FilePath &rootPath);
-
-private:
-    void binaryPathHasChanged();
-    DebuggerItem item() const;
-    void setAbis(const QStringList &abiNames);
-
-    QLineEdit *m_displayNameLineEdit;
-    QLabel *m_cdbLabel;
-    PathChooser *m_binaryChooser;
-    DetectionSource m_detectionSource;
-    DebuggerEngineType m_engineType = NoEngineType;
-    QVariant m_id;
-
-    QLabel *m_abis;
-    QLabel *m_version;
-    QLabel *m_type;
-
-    PathChooser *m_workingDirectoryChooser;
-    QSingleTaskTreeRunner m_taskTreeRunner;
-};
 
 // --------------------------------------------------------------------------
 // DebuggerItemModel
@@ -205,196 +171,6 @@ void DebuggerModel::updateDebugger(const DebuggerItem &ditem)
     }
 }
 
-
-DebuggerItemConfigWidget::DebuggerItemConfigWidget()
-{
-    m_displayNameLineEdit = new QLineEdit(this);
-
-    m_binaryChooser = new PathChooser(this);
-    m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
-    m_binaryChooser->setMinimumWidth(400);
-    m_binaryChooser->setHistoryCompleter("DebuggerPaths");
-    m_binaryChooser->setValidationFunction(
-        [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
-            return m_binaryChooser->defaultValidationFunction()(text).then(
-                [](const FancyLineEdit::AsyncValidationResult &result)
-                    -> FancyLineEdit::AsyncValidationResult {
-                    if (!result)
-                        return result;
-
-                    DebuggerItem item;
-                    item.setCommand(FilePath::fromUserInput(result.value()));
-                    QString errorMessage;
-                    item.reinitializeFromFile(&errorMessage);
-
-                    if (!errorMessage.isEmpty())
-                        return make_unexpected(errorMessage);
-
-                    return result.value();
-                });
-        });
-    m_binaryChooser->setAllowPathFromDevice(true);
-
-    m_workingDirectoryChooser = new PathChooser(this);
-    m_workingDirectoryChooser->setExpectedKind(PathChooser::Directory);
-    m_workingDirectoryChooser->setMinimumWidth(400);
-    m_workingDirectoryChooser->setHistoryCompleter("DebuggerPaths");
-
-    auto makeInteractiveLabel = []() {
-        auto label = new QLabel;
-        label->setTextInteractionFlags(Qt::TextEditorInteraction | Qt::TextBrowserInteraction);
-        label->setOpenExternalLinks(true);
-        return label;
-    };
-
-    m_cdbLabel = makeInteractiveLabel();
-    m_version = makeInteractiveLabel();
-    m_abis = makeInteractiveLabel();
-    m_type = makeInteractiveLabel();
-
-    connect(m_binaryChooser, &PathChooser::textChanged,
-            this, &DebuggerItemConfigWidget::binaryPathHasChanged);
-    connect(m_workingDirectoryChooser, &PathChooser::textChanged,
-            this, &DebuggerItemConfigWidget::store);
-    connect(m_displayNameLineEdit, &QLineEdit::textChanged,
-            this, &DebuggerItemConfigWidget::store);
-
-    // clang-format off
-    using namespace Layouting;
-    Form {
-        fieldGrowthPolicy(int(QFormLayout::AllNonFixedFieldsGrow)),
-        Tr::tr("Name:"), m_displayNameLineEdit, br,
-        Tr::tr("Path:"), m_binaryChooser, br,
-        m_cdbLabel, br,
-        Tr::tr("Type:"), m_type, br,
-        Tr::tr("ABIs:"), m_abis, br,
-        Tr::tr("Version:"), m_version, br,
-        Tr::tr("Working directory:"), m_workingDirectoryChooser, br,
-    }.attachTo(this);
-    // clang-format on
-}
-
-DebuggerItem DebuggerItemConfigWidget::item() const
-{
-    static const QRegularExpression noAbi("[^A-Za-z0-9-_]+");
-
-    DebuggerItem item(m_id);
-    item.setUnexpandedDisplayName(m_displayNameLineEdit->text());
-    item.setCommand(m_binaryChooser->filePath());
-    item.setWorkingDirectory(m_workingDirectoryChooser->filePath());
-    item.setDetectionSource(m_detectionSource);
-    Abis abiList;
-    const QStringList abis = m_abis->text().split(noAbi);
-    for (const QString &a : abis) {
-        if (a.isNull())
-            continue;
-        abiList << Abi::fromString(a);
-    }
-    item.setAbis(abiList);
-    item.setVersion(m_version->text());
-    item.setEngineType(m_engineType);
-    return item;
-}
-
-void DebuggerItemConfigWidget::store() const
-{
-    if (!m_id.isNull())
-        debuggerModel().updateDebugger(item());
-}
-
-void DebuggerItemConfigWidget::setDeviceRootPath(const FilePath &rootPath)
-{
-    m_binaryChooser->setInitialBrowsePathBackup(rootPath);
-}
-
-void DebuggerItemConfigWidget::setAbis(const QStringList &abiNames)
-{
-    m_abis->setText(abiNames.join(", "));
-}
-
-void DebuggerItemConfigWidget::load(const DebuggerItem &item)
-{
-    m_id = QVariant(); // reset Id to avoid intermediate signal handling
-    if (!item)
-        return;
-
-    // Set values:
-    m_detectionSource = item.detectionSource();
-
-    m_displayNameLineEdit->setEnabled(!item.detectionSource().isAutoDetected());
-    m_displayNameLineEdit->setText(item.unexpandedDisplayName());
-
-    m_type->setText(item.engineTypeName());
-
-    m_binaryChooser->setReadOnly(item.detectionSource().isAutoDetected());
-    m_binaryChooser->setFilePath(item.command());
-    m_binaryChooser->setExpectedKind(
-        item.isGeneric() ? PathChooser::Any : PathChooser::ExistingCommand);
-
-    m_workingDirectoryChooser->setReadOnly(item.detectionSource().isAutoDetected());
-    m_workingDirectoryChooser->setFilePath(item.workingDirectory());
-
-    QString text;
-    QString versionCommand;
-    if (item.engineType() == CdbEngineType) {
-        const bool is64bit = is64BitWindowsSystem();
-        const QString versionString = is64bit ? Tr::tr("64-bit version") : Tr::tr("32-bit version");
-        //: Label text for path configuration. %2 is "x-bit version".
-        text = "<html><body><p>"
-                + Tr::tr("Specify the path to the "
-                     "<a href=\"%1\">Windows Console Debugger executable</a>"
-                     " (%2) here.").arg(QLatin1String(debuggingToolsWikiLinkC), versionString)
-                + "</p></body></html>";
-        versionCommand = "-version";
-    } else {
-        versionCommand = "--version";
-    }
-
-    m_cdbLabel->setText(text);
-    m_cdbLabel->setVisible(!text.isEmpty());
-    m_binaryChooser->setCommandVersionArguments(QStringList(versionCommand));
-    m_version->setText(item.version());
-    setAbis(item.abiNames());
-    m_engineType = item.engineType();
-    m_id = item.id();
-}
-
-void DebuggerItemConfigWidget::binaryPathHasChanged()
-{
-    // Ignore change if this is no valid DebuggerItem
-    if (!m_id.isValid())
-        return;
-
-    m_taskTreeRunner.reset();
-
-    if (m_binaryChooser->filePath().isExecutableFile()) {
-        const auto onSetup = [this](Async<DebuggerItem> &task) {
-            task.setConcurrentCallData([tmp = item()]() mutable {
-                tmp.reinitializeFromFile();
-                return tmp;
-            });
-        };
-        const auto onDone = [this](const Async<DebuggerItem> &task) {
-            if (!task.isResultAvailable())
-                return;
-
-            const DebuggerItem tmp = task.result();
-            setAbis(tmp.abiNames());
-            m_version->setText(tmp.version());
-            m_engineType = tmp.engineType();
-            m_type->setText(tmp.engineTypeName());
-        };
-        m_taskTreeRunner.start({AsyncTask<DebuggerItem>(onSetup, onDone)});
-    } else {
-        const DebuggerItem tmp;
-        setAbis(tmp.abiNames());
-        m_version->setText(tmp.version());
-        m_engineType = tmp.engineType();
-        m_type->setText(tmp.engineTypeName());
-    }
-
-    store();
-}
 
 void DebuggerModel::autoDetectCdbDebuggers()
 {
@@ -1006,6 +782,64 @@ class DebuggerSettingsPageWidget : public IOptionsPageWidget
 public:
     DebuggerSettingsPageWidget()
     {
+        m_binaryChooser.setExpectedKind(PathChooser::ExistingCommand);
+        m_binaryChooser.setMinimumWidth(400);
+        m_binaryChooser.setHistoryCompleter("DebuggerPaths");
+        m_binaryChooser.setValidationFunction(
+            [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
+                return m_binaryChooser.defaultValidationFunction()(text).then(
+                    [](const FancyLineEdit::AsyncValidationResult &result)
+                        -> FancyLineEdit::AsyncValidationResult {
+                        if (!result)
+                            return result;
+
+                        DebuggerItem item;
+                        item.setCommand(FilePath::fromUserInput(result.value()));
+                        QString errorMessage;
+                        item.reinitializeFromFile(&errorMessage);
+
+                        if (!errorMessage.isEmpty())
+                            return make_unexpected(errorMessage);
+
+                        return result.value();
+                    });
+            });
+        m_binaryChooser.setAllowPathFromDevice(true);
+
+        m_workingDirectoryChooser.setExpectedKind(PathChooser::Directory);
+        m_workingDirectoryChooser.setMinimumWidth(400);
+        m_workingDirectoryChooser.setHistoryCompleter("DebuggerPaths");
+
+        const auto setupInteractiveLabel = [](QLabel &label) {
+            label.setTextInteractionFlags(Qt::TextEditorInteraction | Qt::TextBrowserInteraction);
+            label.setOpenExternalLinks(true);
+        };
+        setupInteractiveLabel(m_cdbLabel);
+        setupInteractiveLabel(m_version);
+        setupInteractiveLabel(m_abis);
+        setupInteractiveLabel(m_type);
+
+        connect(&m_binaryChooser, &PathChooser::textChanged,
+                this, &DebuggerSettingsPageWidget::binaryPathHasChanged);
+        connect(&m_workingDirectoryChooser, &PathChooser::textChanged,
+                this, &DebuggerSettingsPageWidget::store);
+        connect(&m_displayNameLineEdit, &QLineEdit::textChanged,
+                this, &DebuggerSettingsPageWidget::store);
+
+        // clang-format off
+        using namespace Layouting;
+        Form {
+            fieldGrowthPolicy(int(QFormLayout::AllNonFixedFieldsGrow)),
+            Tr::tr("Name:"), &m_displayNameLineEdit, br,
+            Tr::tr("Path:"), &m_binaryChooser, br,
+            &m_cdbLabel, br,
+            Tr::tr("Type:"), &m_type, br,
+            Tr::tr("ABIs:"), &m_abis, br,
+            Tr::tr("Version:"), &m_version, br,
+            Tr::tr("Working directory:"), &m_workingDirectoryChooser, br,
+        }.attachTo(&m_itemConfigWidget);
+        // clang-format on
+
         m_addButton.setText(Tr::tr("Add"));
         m_cloneButton.setText(Tr::tr("Clone"));
         m_cloneButton.setEnabled(false);
@@ -1016,7 +850,6 @@ public:
         m_container.setVisible(false);
         m_container.setWidget(&m_itemConfigWidget);
 
-        using namespace Layouting;
         Column {
             Row { Tr::tr("Device:"), m_deviceComboBox, st },
             Row {
@@ -1054,7 +887,7 @@ public:
 
     void apply() final
     {
-        m_itemConfigWidget.store();
+        store();
         debuggerModel().apply();
         m_groupedView.view().expandAll();
     }
@@ -1070,6 +903,13 @@ public:
     void removeDebugger();
     void updateButtons();
 
+private:
+    void binaryPathHasChanged();
+    DebuggerItem currentItem() const;
+    void setAbis(const QStringList &abiNames);
+    void load(const DebuggerItem &item);
+    void store();
+
     DeviceComboBox m_deviceComboBox;
     GroupedView m_groupedView{debuggerModel()};
     QPushButton m_addButton;
@@ -1077,36 +917,165 @@ public:
     QPushButton m_removeButton;
     QPushButton m_detectButton;
     DetailsWidget m_container;
-    DebuggerItemConfigWidget m_itemConfigWidget;
+
+    QWidget m_itemConfigWidget;
+    QLineEdit m_displayNameLineEdit;
+    QLabel m_cdbLabel;
+    PathChooser m_binaryChooser;
+    QLabel m_abis;
+    QLabel m_version;
+    QLabel m_type;
+    PathChooser m_workingDirectoryChooser;
+    DetectionSource m_detectionSource;
+    DebuggerEngineType m_engineType = NoEngineType;
+    QVariant m_id;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
+
+DebuggerItem DebuggerSettingsPageWidget::currentItem() const
+{
+    static const QRegularExpression noAbi("[^A-Za-z0-9-_]+");
+
+    DebuggerItem item(m_id);
+    item.setUnexpandedDisplayName(m_displayNameLineEdit.text());
+    item.setCommand(m_binaryChooser.filePath());
+    item.setWorkingDirectory(m_workingDirectoryChooser.filePath());
+    item.setDetectionSource(m_detectionSource);
+    Abis abiList;
+    const QStringList abis = m_abis.text().split(noAbi);
+    for (const QString &a : abis) {
+        if (a.isNull())
+            continue;
+        abiList << Abi::fromString(a);
+    }
+    item.setAbis(abiList);
+    item.setVersion(m_version.text());
+    item.setEngineType(m_engineType);
+    return item;
+}
+
+void DebuggerSettingsPageWidget::store()
+{
+    if (!m_id.isNull())
+        debuggerModel().updateDebugger(currentItem());
+}
+
+void DebuggerSettingsPageWidget::setAbis(const QStringList &abiNames)
+{
+    m_abis.setText(abiNames.join(", "));
+}
+
+void DebuggerSettingsPageWidget::load(const DebuggerItem &item)
+{
+    m_id = QVariant(); // Avoid intermediate signal handling.
+    if (!item)
+        return;
+
+    // Set values:
+    m_detectionSource = item.detectionSource();
+
+    m_displayNameLineEdit.setEnabled(!item.detectionSource().isAutoDetected());
+    m_displayNameLineEdit.setText(item.unexpandedDisplayName());
+
+    m_type.setText(item.engineTypeName());
+
+    m_binaryChooser.setReadOnly(item.detectionSource().isAutoDetected());
+    m_binaryChooser.setFilePath(item.command());
+    m_binaryChooser.setExpectedKind(
+        item.isGeneric() ? PathChooser::Any : PathChooser::ExistingCommand);
+
+    m_workingDirectoryChooser.setReadOnly(item.detectionSource().isAutoDetected());
+    m_workingDirectoryChooser.setFilePath(item.workingDirectory());
+
+    QString text;
+    QString versionCommand;
+    if (item.engineType() == CdbEngineType) {
+        const bool is64bit = is64BitWindowsSystem();
+        const QString versionString = is64bit ? Tr::tr("64-bit version") : Tr::tr("32-bit version");
+        //: Label text for path configuration. %2 is "x-bit version".
+        text = "<html><body><p>"
+                + Tr::tr("Specify the path to the "
+                     "<a href=\"%1\">Windows Console Debugger executable</a>"
+                     " (%2) here.").arg(QLatin1String(debuggingToolsWikiLinkC), versionString)
+                + "</p></body></html>";
+        versionCommand = "-version";
+    } else {
+        versionCommand = "--version";
+    }
+
+    m_cdbLabel.setText(text);
+    m_cdbLabel.setVisible(!text.isEmpty());
+    m_binaryChooser.setCommandVersionArguments(QStringList(versionCommand));
+    m_version.setText(item.version());
+    setAbis(item.abiNames());
+    m_engineType = item.engineType();
+    m_id = item.id();
+}
+
+void DebuggerSettingsPageWidget::binaryPathHasChanged()
+{
+    // Ignore change if this is no valid DebuggerItem
+    if (!m_id.isValid())
+        return;
+
+    m_taskTreeRunner.reset();
+
+    if (m_binaryChooser.filePath().isExecutableFile()) {
+        const auto onSetup = [this](Async<DebuggerItem> &task) {
+            task.setConcurrentCallData([tmp = currentItem()]() mutable {
+                tmp.reinitializeFromFile();
+                return tmp;
+            });
+        };
+        const auto onDone = [this](const Async<DebuggerItem> &task) {
+            if (!task.isResultAvailable())
+                return;
+
+            const DebuggerItem tmp = task.result();
+            setAbis(tmp.abiNames());
+            m_version.setText(tmp.version());
+            m_engineType = tmp.engineType();
+            m_type.setText(tmp.engineTypeName());
+        };
+        m_taskTreeRunner.start({AsyncTask<DebuggerItem>(onSetup, onDone)});
+    } else {
+        const DebuggerItem tmp;
+        setAbis(tmp.abiNames());
+        m_version.setText(tmp.version());
+        m_engineType = tmp.engineType();
+        m_type.setText(tmp.engineTypeName());
+    }
+
+    store();
+}
 
 void DebuggerSettingsPageWidget::cloneDebugger()
 {
     const int row = m_groupedView.currentRow();
     if (row < 0)
         return;
-    const DebuggerItem item = debuggerModel().item(row);
-    if (!item)
+    const DebuggerItem itm = debuggerModel().item(row);
+    if (!itm)
         return;
 
     DebuggerItem newItem;
     newItem.createId();
-    newItem.setCommand(item.command());
-    newItem.setUnexpandedDisplayName(debuggerModel().uniqueDisplayName(Tr::tr("Clone of %1").arg(item.displayName())));
+    newItem.setCommand(itm.command());
+    newItem.setUnexpandedDisplayName(debuggerModel().uniqueDisplayName(Tr::tr("Clone of %1").arg(itm.displayName())));
     newItem.reinitializeFromFile();
-    newItem.setDetectionSource({DetectionSource::Manual, item.detectionSource().id});
-    newItem.setEngineType(item.engineType());
+    newItem.setDetectionSource({DetectionSource::Manual, itm.detectionSource().id});
+    newItem.setEngineType(itm.engineType());
     m_groupedView.selectRow(debuggerModel().appendVolatileItem(newItem));
     markSettingsDirty();
 }
 
 void DebuggerSettingsPageWidget::addDebugger()
 {
-    DebuggerItem item;
-    item.createId();
-    item.setEngineType(NoEngineType);
-    item.setUnexpandedDisplayName(debuggerModel().uniqueDisplayName(Tr::tr("New Debugger")));
-    m_groupedView.selectRow(debuggerModel().appendVolatileItem(item));
+    DebuggerItem itm;
+    itm.createId();
+    itm.setEngineType(NoEngineType);
+    itm.setUnexpandedDisplayName(debuggerModel().uniqueDisplayName(Tr::tr("New Debugger")));
+    m_groupedView.selectRow(debuggerModel().appendVolatileItem(itm));
     markSettingsDirty();
 }
 
@@ -1122,16 +1091,16 @@ void DebuggerSettingsPageWidget::removeDebugger()
 void DebuggerSettingsPageWidget::updateButtons()
 {
     const int row = m_groupedView.currentRow();
-    const DebuggerItem item = row >= 0 ? debuggerModel().item(row) : DebuggerItem{};
+    const DebuggerItem itm = row >= 0 ? debuggerModel().item(row) : DebuggerItem{};
 
-    m_itemConfigWidget.load(item);
+    load(itm);
     const IDeviceConstPtr dev = m_deviceComboBox.currentDevice();
     if (dev)
-        m_itemConfigWidget.setDeviceRootPath(dev->rootPath());
-    m_container.setVisible(bool(item));
-    m_cloneButton.setEnabled(item && item.canClone());
-    m_removeButton.setEnabled(item && !item.detectionSource().isAutoDetected());
-    m_removeButton.setText(item && debuggerModel().isRemoved(row) ? Tr::tr("Restore") : Tr::tr("Remove"));
+        m_binaryChooser.setInitialBrowsePathBackup(dev->rootPath());
+    m_container.setVisible(bool(itm));
+    m_cloneButton.setEnabled(itm && itm.canClone());
+    m_removeButton.setEnabled(itm && !itm.detectionSource().isAutoDetected());
+    m_removeButton.setText(itm && debuggerModel().isRemoved(row) ? Tr::tr("Restore") : Tr::tr("Remove"));
 }
 
 
