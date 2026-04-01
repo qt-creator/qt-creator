@@ -613,6 +613,13 @@ void tst_filepath::relativePathFromDir_data()
     QTest::newRow("different drive letter case") << "win://x/C:/myproject/main.cpp"
                                                  << "win://x/c:/myproject"
                                                  << "main.cpp";
+
+    QTest::newRow("different case but nocase") << "nocase://x/a/B/c.txt"
+                                               << "nocase://x/a/b"
+                                               << "c.txt";
+    QTest::newRow("different case") << "case://x/a/B/c.txt"
+                                    << "case://x/a/b"
+                                    << "../B/c.txt";
 }
 
 void tst_filepath::relativePathFromDir()
