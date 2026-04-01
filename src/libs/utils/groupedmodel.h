@@ -162,6 +162,7 @@ signals:
 private:
     GroupedModel &m_model;
     QTreeView m_view;
+    QVariant m_savedVariant;
 };
 
 } // namespace Utils

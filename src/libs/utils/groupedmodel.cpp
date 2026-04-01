@@ -578,12 +578,30 @@ GroupedView::GroupedView(GroupedModel &model)
     m_view.setSortingEnabled(true);
     m_view.sortByColumn(0, Qt::AscendingOrder);
     m_view.expandAll();
+
     QHeaderView *header = m_view.header();
     header->setStretchLastSection(true);
     for (int i = 0; i < model.columnCount() - 1; ++i)
         header->setSectionResizeMode(i, QHeaderView::ResizeToContents);
-    connect(model.groupedDisplayModel(), &QAbstractItemModel::modelReset,
-            &m_view, &QTreeView::expandAll);
+
+    connect(model.groupedDisplayModel(), &QAbstractItemModel::modelAboutToBeReset, this, [this] {
+        const int row = currentRow();
+        m_savedVariant = row >= 0 ? m_model.volatileVariant(row) : QVariant{};
+    });
+
+    connect(model.groupedDisplayModel(), &QAbstractItemModel::modelReset, this, [this] {
+        m_view.expandAll();
+        if (m_savedVariant.isValid()) {
+            for (int row = 0; row < m_model.itemCount(); ++row) {
+                if (m_model.volatileVariant(row) == m_savedVariant) {
+                    selectRow(row);
+                    return;
+                }
+            }
+        }
+        emit currentRowChanged(-1, -1);
+    });
+
     connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
             this, [this](const QModelIndex &current, const QModelIndex &previous) {
         emit currentRowChanged(m_model.mapToSource(previous).row(),
