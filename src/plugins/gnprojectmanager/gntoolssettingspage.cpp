@@ -114,8 +114,7 @@ public:
 
     int addGNTool();
     int cloneGNTool(int row);
-    void updateItem(const Id &itemId, const QString &name, const FilePath &exe);
-    int rowForId(const Id &id) const;
+    void updateItem(int row, const QString &name, const FilePath &exe);
     void apply() override;
 
 private:
@@ -144,24 +143,14 @@ int GNToolsModel::cloneGNTool(int row)
     return appendVolatileItem(item(row).cloned());
 }
 
-void GNToolsModel::updateItem(const Id &itemId, const QString &name, const FilePath &exe)
+void GNToolsModel::updateItem(int row, const QString &name, const FilePath &exe)
 {
-    const int row = rowForId(itemId);
     QTC_ASSERT(row >= 0, return);
     GNToolItem it = item(row);
     it.name = name;
     it.executable = exe;
     setVolatileItem(row, it);
     notifyRowChanged(row);
-}
-
-int GNToolsModel::rowForId(const Id &id) const
-{
-    for (int row = 0; row < itemCount(); ++row) {
-        if (item(row).id == id)
-            return row;
-    }
-    return -1;
 }
 
 void GNToolsModel::apply()
@@ -288,11 +277,8 @@ void GNToolsSettingsWidget::store()
     if (m_loading)
         return;
     const int row = m_groupedView.currentRow();
-    if (row >= 0 && !m_model.isRemoved(row)) {
-        m_model.updateItem(m_model.item(row).id,
-                           m_name.volatileValue(),
-                           m_executable.expandedVolatileValue());
-    }
+    if (row >= 0 && !m_model.isRemoved(row))
+        m_model.updateItem(row, m_name.volatileValue(), m_executable.expandedVolatileValue());
 }
 
 void GNToolsSettingsWidget::currentToolChanged(int, int newRow)
