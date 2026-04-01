@@ -326,7 +326,7 @@ private:
     int m_initialDocumentationIndex = 0;
     QString m_loadedVersionName;
     bool m_preEditChanged = false;
-
+    bool m_applyingVersions = false;
     QtVersionModel m_model;
     GroupedView m_groupedView{m_model};
 
@@ -648,6 +648,8 @@ bool QtSettingsPageWidget::isNameUnique(const QtVersion *version)
 void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const QList<int> &removals,
                                             const QList<int> &changes)
 {
+    if (m_applyingVersions)
+        return;
     QList<int> toAdd = additions;
 
     // Find existing rows to remove/change (descending to keep indices stable):
@@ -970,11 +972,6 @@ void QtSettingsPageWidget::updateCurrentQtName()
 
 void QtSettingsPageWidget::apply()
 {
-    disconnect(QtVersionManager::instance(),
-               &QtVersionManager::qtVersionsChanged,
-               this,
-               &QtSettingsPageWidget::updateQtVersions);
-
     m_initialDocumentationIndex = m_documentationSetting.currentIndex();
     QtVersionManager::setDocumentationSetting(
         QtVersionManager::DocumentationSetting(m_documentationSetting.currentData().toInt()));
@@ -985,15 +982,12 @@ void QtSettingsPageWidget::apply()
             continue;
         versions.append(m_model.item(row).version()->clone());
     }
+    m_applyingVersions = true;
     QtVersionManager::setNewQtVersions(versions);
+    m_applyingVersions = false;
 
     m_model.apply();
     m_groupedView.view().expandAll();
-
-    connect(QtVersionManager::instance(),
-            &QtVersionManager::qtVersionsChanged,
-            this,
-            &QtSettingsPageWidget::updateQtVersions);
 
     userChangedCurrentVersion();
 }
