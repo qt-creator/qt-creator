@@ -50,7 +50,7 @@ Item {
 
             ChatView {
                 SplitView.fillWidth: true
-                SplitView.preferredHeight: 300
+                SplitView.fillHeight: true
                 SplitView.minimumHeight: 60
 
                 chatModel: root.rootView.chatHistory
@@ -58,7 +58,7 @@ Item {
 
             ColumnLayout {
                 SplitView.fillWidth: true
-                SplitView.fillHeight: true
+                SplitView.preferredHeight: 120
                 SplitView.minimumHeight: 70 + (attachedImage.visible ? attachedImage.height : 0)
 
                 AssetImage {
