@@ -26,6 +26,7 @@ QAction *FileGenerator::createMenuAction(QObject *parent, const QString &name, c
 
     exportMenu->menu()->setTitle(Tr::tr("Export Project"));
     exportMenu->appendGroup(QmlProjectManager::Constants::G_EXPORT_GENERATE);
+    exportMenu->appendGroup(QmlProjectManager::Constants::G_EXPORT_CONVERT);
     fileMenu->addMenu(exportMenu, Core::Constants::G_FILE_EXPORT);
 
     auto action = new QAction(name, parent);
