@@ -194,23 +194,6 @@ QString GNToolsModel::uniqueName(const QString &baseName) const
 
 // GNToolsSettingsWidget
 
-class GNToolItemData final : public AspectContainer
-{
-public:
-    GNToolItemData()
-    {
-        name.setDisplayStyle(StringAspect::LineEditDisplay);
-        name.setLabelText(Tr::tr("Name:"));
-
-        executable.setExpectedKind(PathChooser::ExistingCommand);
-        executable.setHistoryCompleter("GN.Command.History");
-        executable.setLabelText(Tr::tr("Path:"));
-    }
-
-    StringAspect name{this};
-    FilePathAspect executable{this};
-};
-
 class GNToolsSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -226,27 +209,37 @@ private:
 
     GNToolsModel m_model;
     GroupedView m_groupedView{m_model};
-    GNToolItemData m_data;
     bool m_loading = false;
 
     DetailsWidget m_gnDetails;
     QPushButton m_addButton;
     QPushButton m_cloneButton;
     QPushButton m_removeButton;
+
+    QWidget m_itemConfigWidget;
+    AspectContainer m_data;
+    StringAspect m_name{&m_data};
+    FilePathAspect m_executable{&m_data};
 };
 
 GNToolsSettingsWidget::GNToolsSettingsWidget()
 {
-    auto inner = new QWidget;
+    m_name.setDisplayStyle(StringAspect::LineEditDisplay);
+    m_name.setLabelText(Tr::tr("Name:"));
+
+    m_executable.setExpectedKind(PathChooser::ExistingCommand);
+    m_executable.setHistoryCompleter("GN.Command.History");
+    m_executable.setLabelText(Tr::tr("Path:"));
+
     using namespace Layouting;
     Form {
-        m_data.name, br,
-        m_data.executable, br, noMargin
-    }.attachTo(inner);
+        m_name, br,
+        m_executable, br, noMargin
+    }.attachTo(&m_itemConfigWidget);
 
     m_gnDetails.setState(DetailsWidget::NoSummary);
     m_gnDetails.setVisible(false);
-    m_gnDetails.setWidget(inner);
+    m_gnDetails.setWidget(&m_itemConfigWidget);
 
     m_addButton.setText(Tr::tr("Add"));
     m_cloneButton.setText(Tr::tr("Clone"));
@@ -262,8 +255,8 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
     connect(&m_groupedView, &GroupedView::currentRowChanged,
             this, &GNToolsSettingsWidget::currentToolChanged);
 
-    m_data.name.addOnVolatileValueChanged(this, [this] { store(); });
-    m_data.executable.addOnVolatileValueChanged(this, [this] { store(); });
+    m_name.addOnVolatileValueChanged(this, [this] { store(); });
+    m_executable.addOnVolatileValueChanged(this, [this] { store(); });
 
     connect(&m_addButton, &QPushButton::clicked, this, [this] {
         m_groupedView.selectRow(m_model.addGNTool());
@@ -300,8 +293,8 @@ void GNToolsSettingsWidget::store()
     const int row = m_groupedView.currentRow();
     if (row >= 0 && !m_model.isRemoved(row)) {
         m_model.updateItem(m_model.item(row).id,
-                           m_data.name.volatileValue(),
-                           m_data.executable.expandedVolatileValue());
+                           m_name.volatileValue(),
+                           m_executable.expandedVolatileValue());
     }
 }
 
@@ -312,10 +305,10 @@ void GNToolsSettingsWidget::currentToolChanged(int, int newRow)
     m_loading = true;
     if (hasItem) {
         const GNToolItem &it = m_model.item(newRow);
-        m_data.name.setEnabled(!it.autoDetected);
-        m_data.name.setValue(it.name);
-        m_data.executable.setEnabled(!it.autoDetected);
-        m_data.executable.setValue(it.executable);
+        m_name.setEnabled(!it.autoDetected);
+        m_name.setValue(it.name);
+        m_executable.setEnabled(!it.autoDetected);
+        m_executable.setValue(it.executable);
     }
     m_loading = false;
     m_gnDetails.setVisible(hasItem);
