@@ -2190,6 +2190,16 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             else:
                 init_entries.append((prop, f"data._{sanitize_identifier(prop)}"))
 
+    # Emit Q_UNUSED(data) when the parameter is never referenced
+    # (e.g. structs whose only fields are const-string fields like jsonrpc/method).
+    data_is_used = (
+        post_lines
+        or has_additional_props
+        or any("data." in v for _, v in init_entries)
+    )
+    if not data_is_used:
+        lines.append(f"    Q_UNUSED(data)")
+
     # Emit QJsonObject declaration
     if init_entries:
         if len(init_entries) == 1:

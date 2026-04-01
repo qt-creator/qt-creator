@@ -241,6 +241,7 @@ inline Utils::Result<TraceDiscardedNotification> fromJson<TraceDiscardedNotifica
 }
 
 inline QJsonObject toJson(const TraceDiscardedNotification &data) {
+    Q_UNUSED(data)
     QJsonObject obj{
         {"jsonrpc", QString("2.0")},
         {"method", QString("traceDiscarded")}
