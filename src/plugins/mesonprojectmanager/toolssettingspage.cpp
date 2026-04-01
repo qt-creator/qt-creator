@@ -307,7 +307,7 @@ void ToolsSettingsWidget::store()
     if (row >= 0 && !m_model.isRemoved(row)) {
         m_model.updateItem(m_model.item(row).id,
                            m_data.name.volatileValue(),
-                           FilePath::fromUserInput(m_data.executable.volatileValue()));
+                           m_data.executable.expandedVolatileValue());
     }
 }
 

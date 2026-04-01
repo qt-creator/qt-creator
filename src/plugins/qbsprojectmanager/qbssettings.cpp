@@ -166,7 +166,7 @@ QbsSettings::QbsSettings()
     readSettings();
 
     auto updateVersionString = [this] {
-        const QString version = getQbsVersion(FilePath::fromUserInput(qbsExecutableFilePath.volatileValue()));
+        const QString version = getQbsVersion(qbsExecutableFilePath.expandedVolatileValue());
         m_versionLabel.setText(version.isEmpty() ? Tr::tr("Failed to retrieve version.") : version);
     };
     updateVersionString();

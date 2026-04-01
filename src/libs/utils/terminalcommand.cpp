@@ -176,7 +176,7 @@ void TerminalCommandAspect::addToLayoutImpl(Layouting::Layout &parent)
 
     auto detailLabel = new ElidingLabel;
     auto updateDetails = [this, detailLabel]() {
-        const FilePath exe = FilePath::fromUserInput(terminalEmulator.volatileValue());
+        const FilePath exe = terminalEmulator.expandedVolatileValue();
         detailLabel->setText(
             QString("%1: %2, %3: %4")
                 .arg(msgTerminalHereAction())

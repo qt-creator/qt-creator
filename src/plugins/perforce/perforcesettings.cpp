@@ -109,7 +109,7 @@ PerforceSettings::PerforceSettings()
             errorLabel->setType(InfoLabel::Information);
             errorLabel->setText(Tr::tr("Testing..."));
 
-            const FilePath p4Bin = FilePath::fromUserInput(p4BinaryPath.volatileValue());
+            const FilePath p4Bin = p4BinaryPath.expandedVolatileValue();
             checker->start(p4Bin, {}, commonP4Arguments_volatile(), 10000);
         });
 

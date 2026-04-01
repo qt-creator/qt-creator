@@ -252,7 +252,7 @@ void CppFileSettings::apply()
 
 void CppFileSettings::slotEdit()
 {
-    FilePath path = FilePath::fromUserInput(licenseTemplatePath.volatileValue());
+    FilePath path = licenseTemplatePath.expandedVolatileValue();
     if (path.isEmpty()) {
         // Pick a file name and write new template, edit with C++
         path = FileUtils::getSaveFilePath(Tr::tr("Choose Location for New License Template File"));

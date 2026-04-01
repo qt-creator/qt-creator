@@ -36,7 +36,7 @@ CocoSettings::CocoSettings()
     cocoPath.setExpectedKind(Utils::PathChooser::ExistingDirectory);
     cocoPath.setPromptDialogTitle(Tr::tr("Coco Installation Directory"));
     cocoPath.addOnVolatileValueChanged(this, [this] {
-        updateLabel(FilePath::fromUserInput(cocoPath.volatileValue()));
+        updateLabel(cocoPath.expandedVolatileValue());
     });
 
     setLayouter([this] {

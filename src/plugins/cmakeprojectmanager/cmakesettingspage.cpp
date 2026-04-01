@@ -493,8 +493,8 @@ void CMakeToolConfigWidget::store()
     if (!m_loadingItem && m_id.isValid()) {
         m_model.updateCMakeTool(m_id,
                                 m_displayName.volatileValue(),
-                                FilePath::fromUserInput(m_binary.volatileValue()),
-                                FilePath::fromUserInput(m_qchFile.volatileValue()));
+                                m_binary.expandedVolatileValue(),
+                                m_qchFile.expandedVolatileValue());
     }
 }
 
@@ -511,10 +511,8 @@ void CMakeToolConfigWidget::onBinaryPathEditingFinished()
 
 void CMakeToolConfigWidget::updateQchFilePath()
 {
-    if (m_qchFile().isEmpty()) {
-        m_qchFile.setValue(
-            CMakeTool::searchQchFile(FilePath::fromUserInput(m_binary.volatileValue())));
-    }
+    if (m_qchFile().isEmpty())
+        m_qchFile.setValue(CMakeTool::searchQchFile(m_binary.expandedVolatileValue()));
 }
 
 void CMakeToolConfigWidget::load(const CMakeToolTreeItem *item, bool updateCMakePath)

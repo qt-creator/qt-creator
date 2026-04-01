@@ -1578,7 +1578,17 @@ FilePath FilePathAspect::operator()() const
 
 FilePath FilePathAspect::expandedValue() const
 {
-    const auto value = TypedAspect::value();
+    const QString value = TypedAspect::value();
+    if (!value.isEmpty()) {
+        if (auto expander = macroExpander())
+            return FilePath::fromUserInput(expander->expand(value));
+    }
+    return FilePath::fromUserInput(value);
+}
+
+FilePath FilePathAspect::expandedVolatileValue() const
+{
+    const QString value = TypedAspect::volatileValue();
     if (!value.isEmpty()) {
         if (auto expander = macroExpander())
             return FilePath::fromUserInput(expander->expand(value));

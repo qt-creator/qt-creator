@@ -786,6 +786,7 @@ public:
     FilePath operator()() const;
     FilePath effectiveBinary() const;
     FilePath expandedValue() const;
+    FilePath expandedVolatileValue() const;
     QString value() const;
     void setValue(const FilePath &filePath, Announcement howToAnnounce = DoEmit);
     void setValue(const QString &filePath, Announcement howToAnnounce = DoEmit);

@@ -46,8 +46,8 @@ AuthWidget::AuthWidget(QWidget *parent)
     // clang-format on
 
     auto update = [this] {
-        updateClient(FilePath::fromUserInput(settings().nodeJsPath.volatileValue()),
-                     FilePath::fromUserInput(settings().distPath.volatileValue()));
+        updateClient(settings().nodeJsPath.expandedVolatileValue(),
+                     settings().distPath.expandedVolatileValue());
     };
 
     connect(m_button, &QPushButton::clicked, this, [this, update]() {
