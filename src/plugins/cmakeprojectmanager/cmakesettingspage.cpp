@@ -503,8 +503,6 @@ private:
     bool m_loadingItem = false;
 };
 
-
-
 void CMakeToolConfigWidget::store()
 {
     if (!m_loadingItem && m_id.isValid()) {
