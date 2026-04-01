@@ -882,7 +882,6 @@ public:
         });
 
         updateButtons();
-        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final
@@ -897,6 +896,8 @@ public:
         debuggerModel().cancel();
         m_groupedView.view().expandAll();
     }
+
+    bool isDirty() const final { return debuggerModel().isDirty(); }
 
     void cloneDebugger();
     void addDebugger();
@@ -1066,7 +1067,6 @@ void DebuggerSettingsPageWidget::cloneDebugger()
     newItem.setDetectionSource({DetectionSource::Manual, itm.detectionSource().id});
     newItem.setEngineType(itm.engineType());
     m_groupedView.selectRow(debuggerModel().appendVolatileItem(newItem));
-    markSettingsDirty();
 }
 
 void DebuggerSettingsPageWidget::addDebugger()
@@ -1076,7 +1076,6 @@ void DebuggerSettingsPageWidget::addDebugger()
     itm.setEngineType(NoEngineType);
     itm.setUnexpandedDisplayName(debuggerModel().uniqueDisplayName(Tr::tr("New Debugger")));
     m_groupedView.selectRow(debuggerModel().appendVolatileItem(itm));
-    markSettingsDirty();
 }
 
 void DebuggerSettingsPageWidget::removeDebugger()
@@ -1085,7 +1084,6 @@ void DebuggerSettingsPageWidget::removeDebugger()
     QTC_ASSERT(row >= 0, return);
     debuggerModel().markRemoved(row);
     updateButtons();
-    markSettingsDirty(); // TODO restore should maybe undo dirtying
 }
 
 void DebuggerSettingsPageWidget::updateButtons()
