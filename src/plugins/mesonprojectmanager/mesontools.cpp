@@ -149,7 +149,7 @@ ProcessRunData MesonToolWrapper::compile(const FilePath &buildDirectory, const Q
             buildDirectory};
 }
 
-Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::compile(const Utils::FilePath &buildDirectory, bool verbose) const
+ProcessRunData MesonToolWrapper::compile(const FilePath &buildDirectory, bool verbose) const
 {
     // implicit target is "all" and "all" doesn't exist as target with meson compile
     return {{m_exe,
@@ -157,7 +157,7 @@ Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::compile(c
             buildDirectory};
 }
 
-Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::test(const Utils::FilePath &buildDirectory, const QString &testSuite, bool verbose) const
+ProcessRunData MesonToolWrapper::test(const FilePath &buildDirectory, const QString &testSuite, bool verbose) const
 {
     if (testSuite.isEmpty())
         return {{m_exe,
@@ -169,7 +169,7 @@ Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::test(cons
                 buildDirectory};
 }
 
-Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::benchmark(const Utils::FilePath &buildDirectory, const QString &benchmark, bool verbose) const
+ProcessRunData MesonToolWrapper::benchmark(const FilePath &buildDirectory, const QString &benchmark, bool verbose) const
 {
     if (benchmark.isEmpty())
         return {{m_exe,
@@ -181,14 +181,14 @@ Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::benchmark
                 buildDirectory};
 }
 
-ProcessRunData MesonToolWrapper::clean(const Utils::FilePath &buildDirectory, bool verbose) const
+ProcessRunData MesonToolWrapper::clean(const FilePath &buildDirectory, bool verbose) const
 {
     return {{m_exe,
             make_verbose({"compile", "--clean"}, verbose)},
             buildDirectory};
 }
 
-Utils::ProcessRunData MesonProjectManager::Internal::MesonToolWrapper::install(const Utils::FilePath &buildDirectory, bool verbose) const
+ProcessRunData MesonToolWrapper::install(const FilePath &buildDirectory, bool verbose) const
 {
     return {{m_exe,
             make_quiet({"install"},  !verbose)},
