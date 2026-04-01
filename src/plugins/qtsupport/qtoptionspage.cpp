@@ -966,8 +966,6 @@ void QtSettingsPageWidget::apply()
     QtVersionManager::setDocumentationSetting(
         QtVersionManager::DocumentationSetting(m_documentationSetting.currentData().toInt()));
 
-    const int selectedId = m_groupedView.currentRow() >= 0 ? m_model.item(m_groupedView.currentRow()).uniqueId() : -1;
-
     QtVersions versions;
     for (int row = 0; row < m_model.itemCount(); ++row) {
         if (m_model.isRemoved(row))
@@ -984,10 +982,7 @@ void QtSettingsPageWidget::apply()
             this,
             &QtSettingsPageWidget::updateQtVersions);
 
-    if (const QModelIndex idx = m_model.indexForUniqueId(selectedId); idx.isValid())
-        m_groupedView.view().setCurrentIndex(idx);
-    else
-        userChangedCurrentVersion();
+    userChangedCurrentVersion();
 }
 
 void QtSettingsPageWidget::cancel()

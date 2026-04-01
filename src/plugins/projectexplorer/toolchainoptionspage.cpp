@@ -697,21 +697,7 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
 
 void ToolChainOptionsWidget::apply()
 {
-    // Save current selection to restore after model reset.
-    const int savedRow = m_groupedView.currentRow();
-    const Id savedBundleId = savedRow >= 0 && m_model.item(savedRow).bundle
-        ? m_model.item(savedRow).bundle->bundleId()
-        : Id{};
-
     m_model.apply();
-
-    // Restore selection.
-    if (savedBundleId.isValid()) {
-        const int newRow = m_model.rowForBundleId(savedBundleId);
-        if (newRow >= 0)
-            m_groupedView.selectRow(newRow);
-    }
-
     ToolchainManager::setDetectionSettings(m_detectionSettings);
 }
 

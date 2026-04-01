@@ -881,21 +881,8 @@ void KitOptionsPageWidget::apply()
             m_configWidget.save(wc);
     }
 
-    // Remember the working copy before apply; nullptr if the kit is marked for removal
-    // Its unique_ptr will be destroyed during apply, making the pointer dangling.
-    Kit *const prevWc = (currentRow >= 0 && !m_model.isRemoved(currentRow))
-                        ? m_model.workingCopyForRow(currentRow) : nullptr;
-
     m_model.apply();
-
-    // GroupedView::selectRow triggers currentRowChanged which loads the kit.
-    const int newRow = prevWc ? m_model.rowForKit(prevWc) : -1;
-    if (newRow >= 0) {
-        m_groupedView.selectRow(newRow);
-    } else {
-        m_configWidget.setVisible(false);
-        updateState();
-    }
+    updateState();
 }
 
 void KitOptionsPageWidget::kitSelectionChanged(int oldRow, int newRow)
