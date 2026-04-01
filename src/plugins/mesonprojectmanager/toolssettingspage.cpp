@@ -190,25 +190,6 @@ QString ToolsModel::uniqueName(const QString &baseName) const
     return Utils::makeUniquelyNumbered(baseName, names);
 }
 
-// ToolItemData
-
-class ToolItemData final : public AspectContainer
-{
-public:
-    ToolItemData()
-    {
-        name.setDisplayStyle(StringAspect::LineEditDisplay);
-        name.setLabelText(Tr::tr("Name:"));
-
-        executable.setExpectedKind(PathChooser::ExistingCommand);
-        executable.setHistoryCompleter("Meson.Command.History");
-        executable.setLabelText(Tr::tr("Path:"));
-    }
-
-    StringAspect name{this};
-    FilePathAspect executable{this};
-};
-
 // ToolsSettingsWidget
 
 class ToolsSettingsWidget final : public Core::IOptionsPageWidget
@@ -226,28 +207,38 @@ private:
 
     ToolsModel m_model;
     GroupedView m_groupedView{m_model};
-    ToolItemData m_data;
     bool m_loading = false;
 
-    DetailsWidget m_mesonDetails;
     QPushButton m_addButton;
     QPushButton m_cloneButton;
     QPushButton m_removeButton;
     QPushButton m_makeDefaultButton;
+
+    DetailsWidget m_mesonDetails;
+    QWidget m_itemConfigWidget;
+    AspectContainer m_data;
+    StringAspect m_name{&m_data};
+    FilePathAspect m_executable{&m_data};
 };
 
 ToolsSettingsWidget::ToolsSettingsWidget()
 {
-    auto inner = new QWidget;
+    m_name.setDisplayStyle(StringAspect::LineEditDisplay);
+    m_name.setLabelText(Tr::tr("Name:"));
+
+    m_executable.setExpectedKind(PathChooser::ExistingCommand);
+    m_executable.setHistoryCompleter("Meson.Command.History");
+    m_executable.setLabelText(Tr::tr("Path:"));
+
     using namespace Layouting;
     Form {
-        m_data.name, br,
-        m_data.executable, br, noMargin
-    }.attachTo(inner);
+        m_name, br,
+        m_executable, br, noMargin
+    }.attachTo(&m_itemConfigWidget);
 
     m_mesonDetails.setState(DetailsWidget::NoSummary);
     m_mesonDetails.setVisible(false);
-    m_mesonDetails.setWidget(inner);
+    m_mesonDetails.setWidget(&m_itemConfigWidget);
 
     m_addButton.setText(Tr::tr("Add"));
     m_cloneButton.setText(Tr::tr("Clone"));
@@ -268,8 +259,8 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     connect(&m_groupedView, &GroupedView::currentRowChanged,
             this, &ToolsSettingsWidget::currentMesonToolChanged);
 
-    m_data.name.addOnVolatileValueChanged(this, [this] { store(); });
-    m_data.executable.addOnVolatileValueChanged(this, [this] { store(); });
+    m_name.addOnVolatileValueChanged(this, [this] { store(); });
+    m_executable.addOnVolatileValueChanged(this, [this] { store(); });
 
     connect(&m_addButton, &QPushButton::clicked, this, [this] {
         m_groupedView.selectRow(m_model.addMesonTool());
@@ -306,8 +297,8 @@ void ToolsSettingsWidget::store()
     const int row = m_groupedView.currentRow();
     if (row >= 0 && !m_model.isRemoved(row)) {
         m_model.updateItem(m_model.item(row).id,
-                           m_data.name.volatileValue(),
-                           m_data.executable.expandedVolatileValue());
+                           m_name.volatileValue(),
+                           m_executable.expandedVolatileValue());
     }
 }
 
@@ -318,10 +309,10 @@ void ToolsSettingsWidget::currentMesonToolChanged(int, int newRow)
     m_loading = true;
     if (hasItem) {
         const ToolItem &it = m_model.item(newRow);
-        m_data.name.setEnabled(!it.autoDetected);
-        m_data.name.setValue(it.name);
-        m_data.executable.setEnabled(!it.autoDetected);
-        m_data.executable.setValue(it.executable);
+        m_name.setEnabled(!it.autoDetected);
+        m_name.setValue(it.name);
+        m_executable.setEnabled(!it.autoDetected);
+        m_executable.setValue(it.executable);
     }
     m_loading = false;
     m_mesonDetails.setVisible(hasItem);
