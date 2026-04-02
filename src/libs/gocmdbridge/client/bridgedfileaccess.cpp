@@ -29,7 +29,7 @@ FileAccess::~FileAccess()
         // we do not care about issues while shutting down
         m_client->disconnect();
         // and we don't want to block the main thread while it does either.
-        if (QThread::isMainThread()) {
+        if (Utils::isMainThread()) {
             Utils::futureSynchronizer()->addFuture(
                 Utils::asyncRun([client = std::move(m_client)]() mutable { client.reset(); }));
         }
