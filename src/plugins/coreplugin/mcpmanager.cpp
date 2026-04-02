@@ -35,7 +35,7 @@ public:
         id.setSettingsKey("id");
         id.setValue(QUuid::createUuid().toString());
 
-        name.setLabelText("Name:");
+        name.setLabelText(Tr::tr("Name:"));
         name.setSettingsKey("name");
         name.setToolTip(Tr::tr("The display name"));
         name.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
@@ -43,7 +43,7 @@ public:
 
         // name.setValidationFunction([](){});
 
-        launchCommand.setLabelText("Launch command:");
+        launchCommand.setLabelText(Tr::tr("Launch command:"));
         launchCommand.setSettingsKey("launchCommand");
         launchCommand.setToolTip(
             Tr::tr(
@@ -51,7 +51,7 @@ public:
                 "connection type."));
         launchCommand.setExpectedKind(PathChooser::ExistingCommand);
 
-        launchArguments.setLabelText("Launch arguments:");
+        launchArguments.setLabelText(Tr::tr("Launch arguments:"));
         launchArguments.setSettingsKey("launchArguments");
         launchArguments.setToolTip(
             Tr::tr(
@@ -66,7 +66,7 @@ public:
                 "The URL to connect to the MCP server. Not used for standard IO connection type."));
         url.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
 
-        connectionType.setLabelText("Connection type:");
+        connectionType.setLabelText(Tr::tr("Connection type:"));
         connectionType.setSettingsKey("connectionType");
         connectionType.setToolTip(Tr::tr("The type of connection to use for the MCP server."));
         connectionType.setComboBoxEditable(false);
@@ -83,7 +83,7 @@ public:
             cb({stdItem, sseItem, httpItem});
         });
 
-        httpHeaders.setLabelText("HTTP headers:");
+        httpHeaders.setLabelText(Tr::tr("HTTP headers:"));
         httpHeaders.setSettingsKey("httpHeaders");
         httpHeaders.setToolTip(
             Tr::tr(
