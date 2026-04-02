@@ -59,6 +59,21 @@ if (NOT QT_CREATOR_API_DEFINED)
     set(extra_install_commands "")
     if(QT_GENERATE_SBOM)
       list(APPEND extra_cmake_args -DQT_GENERATE_SBOM=${QT_GENERATE_SBOM})
+      if(DEFINED QT_SBOM_GENERATE_SPDX_V2_JSON)
+        list(APPEND extra_cmake_args
+          -DQT_SBOM_GENERATE_SPDX_V2_JSON=${QT_SBOM_GENERATE_SPDX_V2_JSON})
+      endif()
+      if(DEFINED QT_SBOM_REQUIRE_GENERATE_SPDX_V2_JSON)
+        list(APPEND extra_cmake_args
+          -DQT_SBOM_REQUIRE_GENERATE_SPDX_V2_JSON=${QT_SBOM_REQUIRE_GENERATE_SPDX_V2_JSON})
+      endif()
+      if(DEFINED QT_SBOM_GENERATE_CYDX_V1_6)
+        list(APPEND extra_cmake_args -DQT_SBOM_GENERATE_CYDX_V1_6=${QT_SBOM_GENERATE_CYDX_V1_6})
+      endif()
+      if(DEFINED QT_SBOM_REQUIRE_GENERATE_CYDX_V1_6)
+        list(APPEND extra_cmake_args
+          -DQT_SBOM_REQUIRE_GENERATE_CYDX_V1_6=${QT_SBOM_REQUIRE_GENERATE_CYDX_V1_6})
+      endif()
       list(APPEND extra_install_commands
         && ${CMAKE_COMMAND} --install . --config ${CMAKE_BUILD_TYPE}
                             --prefix "${CMAKE_BINARY_DIR}" --component sbom

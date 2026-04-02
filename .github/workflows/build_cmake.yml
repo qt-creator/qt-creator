@@ -79,17 +79,6 @@ jobs:
         brew update
         brew install upx
 
-    - name: Install Python SBOM dependencies
-      shell: cmake -P {0}
-      run: |
-        execute_process(
-          COMMAND pip install "spdx-tools>=0.8.0 ; python_version >= '3.9'"
-          RESULT_VARIABLE result
-        )
-        if (NOT result EQUAL 0)
-          message(FATAL_ERROR "Failed to install Python SBOM dependencies")
-        endif()
-
     - name: Download Ninja and CMake
       shell: cmake -P {0}
       run: |
@@ -145,6 +134,38 @@ jobs:
             COMMAND chmod +x ${cmake_dir}/cmake
           )
         endif()
+
+    - name: Install Python dependencies
+      id: python
+      shell: cmake -P {0}
+      run: |
+        find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/creator_venv" venv_dir)
+        execute_process(
+          COMMAND "${Python3_EXECUTABLE}" -m venv "${venv_dir}"
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "Failed to create Python virtual environment")
+        endif()
+
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(venv_python "${venv_dir}/Scripts/python.exe")
+        else()
+          set(venv_python "${venv_dir}/bin/python")
+        endif()
+
+        execute_process(
+          COMMAND "${venv_python}" -m pip install
+              -r "$ENV{GITHUB_WORKSPACE}/coin/creator_python_requirements.txt"
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "Failed to install Python dependencies")
+        endif()
+
+        file(APPEND "$ENV{GITHUB_OUTPUT}" "python=${venv_python}\n")
 
     - name: Install system libs
       shell: cmake -P {0}
@@ -240,7 +261,7 @@ jobs:
         foreach(qt_mirror $ENV{QT_MIRRORS})
           foreach(retry RANGE 10)
             cmake_language(EVAL CODE "
-              message(\"Downloading ${qt_base_url}/Updates.xml}\")
+              message(\"Downloading ${qt_base_url}/Updates.xml\")
               file(DOWNLOAD \"${qt_base_url}/Updates.xml\" ./Updates.xml)
             ")
             file(SIZE ./Updates.xml fileSize)
@@ -290,13 +311,23 @@ jobs:
             file(MAKE_DIRECTORY "${qt_dir}/${subdir}")
             set(archive "${module}.7z")
             get_sub_url(sub_url ${module})
+            if("${sub_url}" STREQUAL "<notfound>")
+              if("${module}" STREQUAL "qtbase")
+                message(FATAL_ERROR "qtbase module not found in Updates.xml, cannot continue")
+              else()
+                message("Skipping ${module}, not found in Updates.xml")
+                return()
+              endif()
+            endif()
             set(url "${qt_base_url}/${sub_url}")
+            # Transform to cmake path, to avoid backslash warnings on Windows
+            file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${archive}" archive_path)
             foreach(retry RANGE 10)
               cmake_language(EVAL CODE "
                 message(\"Downloading ${module} from ${url}\")
-                file(DOWNLOAD \"${url}\" \"$ENV{GITHUB_WORKSPACE}/${archive}\" SHOW_PROGRESS)
+                file(DOWNLOAD \"${url}\" \"${archive_path}\" SHOW_PROGRESS)
               ")
-              file(SIZE "$ENV{GITHUB_WORKSPACE}/${archive}" fileSize)
+              file(SIZE "${archive_path}" fileSize)
               if (fileSize GREATER 0)
                 break()
               endif()
@@ -620,8 +651,7 @@ jobs:
           set(ELFUTILS_OPTION)
         endif()
 
-        find_package(Python3 REQUIRED COMPONENTS Interpreter)
-        string(REPLACE "x86" "x64" Python3_EXECUTABLE "${Python3_EXECUTABLE}")
+        set(venv_python "${{ steps.python.outputs.python }}")
 
         set(WITH_TESTS "--with-tests")
         set(NO_DMG "--no-dmg")
@@ -656,7 +686,7 @@ jobs:
         endif()
 
         execute_process(
-          COMMAND python
+          COMMAND "${venv_python}"
             -u
             scripts/build.py
             --build-type Release
@@ -664,7 +694,7 @@ jobs:
             --build build
             --qt-path "${{ steps.qt.outputs.qt_dir }}"
             --llvm-path "${{ steps.libclang.outputs.libclang_dir }}"
-            --python3 "${Python3_EXECUTABLE}"
+            --python3 "${venv_python}"
             ${WITH_TESTS}
             ${CDB_OPTION}
             ${ELFUTILS_OPTION}

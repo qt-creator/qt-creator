@@ -33,6 +33,9 @@ def to_posix_path(path):
         return path.replace('\\', '/')
     return path
 
+def cmake_option(option):
+    return 'ON' if option else 'OFF'
+
 def check_print_call(command, cwd=None, env=None):
     print('------------------------------------------')
     print('COMMAND:')

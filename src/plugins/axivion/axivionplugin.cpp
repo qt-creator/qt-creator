@@ -463,11 +463,13 @@ static bool isServerAccessEstablished(DashboardMode dashboardMode)
     return dd->m_localDashboard.has_value();
 }
 
-static QByteArray basicAuth(const LocalDashboardAccess &localAccess)
+static std::optional<QByteArray> basicAuth(const LocalDashboardAccess &localAccess)
 {
+    if (localAccess.password.isEmpty())
+        return std::nullopt;
     const QByteArray credentials = QString{localAccess.user + ':' + localAccess.password}
                                        .toUtf8().toBase64();
-    return "Basic " + credentials;
+    return std::make_optional("Basic " + credentials);
 }
 
 QUrl resolveDashboardInfoUrl(DashboardMode dashboardMode, const QUrl &resource)
@@ -493,7 +495,8 @@ Group downloadDataRecipe(DashboardMode dashboardMode, const Storage<DownloadData
             if (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken)
                 request.setRawHeader("Authorization", "AxToken " + *dd->m_apiToken);
         } else {
-            request.setRawHeader("Authorization", basicAuth(*dd->m_localDashboard));
+            if (auto credentials = basicAuth(*dd->m_localDashboard))
+                request.setRawHeader("Authorization", *credentials);
         }
         request.setRawHeader("X-Axivion-User-Agent", axivionUserAgent());
         query.setRequest(request);

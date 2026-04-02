@@ -1885,7 +1885,8 @@ void ClangdTestCompletion::testCompletePrivateFunctionDefinition()
     getProposal("privateFuncDefCompletion.cpp", proposal);
 
     QVERIFY(proposal);
-    QEXPECT_FAIL("", "https://github.com/clangd/clangd/issues/880", Abort);
+    if (client()->versionNumber().majorVersion() < 23)
+        QEXPECT_FAIL("", "https://github.com/clangd/clangd/issues/880", Abort);
     QCOMPARE(proposal->size(), 1);
     QVERIFY(hasItem(proposal, " theFunc()"));
 }

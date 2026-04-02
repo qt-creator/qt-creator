@@ -6,6 +6,9 @@
 #include "cmdbridgeclient.h"
 #include "cmdbridgetr.h"
 
+#include <utils/async.h>
+#include <utils/futuresynchronizer.h>
+
 #include <QElapsedTimer>
 #include <QLoggingCategory>
 
@@ -20,7 +23,18 @@ FileAccess::FileAccess(const std::function<void()> &errorExitHandler)
 {
 }
 
-FileAccess::~FileAccess() = default;
+FileAccess::~FileAccess()
+{
+    if (m_client) {
+        // we do not care about issues while shutting down
+        m_client->disconnect();
+        // and we don't want to block the main thread while it does either.
+        if (QThread::isMainThread()) {
+            Utils::futureSynchronizer()->addFuture(
+                Utils::asyncRun([client = std::move(m_client)]() mutable { client.reset(); }));
+        }
+    }
+}
 
 static QString str(const std::exception &e)
 {

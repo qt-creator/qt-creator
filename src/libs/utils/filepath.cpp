@@ -798,15 +798,14 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
     //   m_data = path.toString() + scheme.toString() + host.toString();
     // but with less copying.
     // Note: The QStringBuilder optimization does not currently work in this case.
+    m_schemeLen = scheme.size();
+    m_hostLen = host.size();
+    m_pathLen = path.size();
     m_data.resize(0);
     m_data.reserve(m_schemeLen + m_hostLen + m_pathLen);
     m_data.append(path);
     m_data.append(scheme);
     m_data.append(host);
-
-    m_schemeLen = scheme.size();
-    m_hostLen = host.size();
-    m_pathLen = path.size();
 }
 
 /*!
@@ -2327,11 +2326,11 @@ QString FilePath::relativeNativePathFromDir(const FilePath &anchorDir) const
 FilePath FilePath::withNewMappedPath(const FilePath &newPath) const
 {
     Result<DeviceFileAccessPtr> access = fileAccess();
-    if (!access)
-        return {};
+    const QString path = access ? (*access)->mapToDevicePath(newPath.path())
+                                : newPath.path();
 
     FilePath res;
-    res.setParts(scheme(), host(), (*access)->mapToDevicePath(newPath.path()));
+    res.setParts(scheme(), host(), path);
     return res;
 }
 

@@ -888,6 +888,12 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 
     if (!debug && other.debug)
         debug = other.debug;
+
+    if (!graphviz && other.graphviz)
+        graphviz = other.graphviz;
+
+    if (!trace && other.trace)
+        trace = other.trace;
 }
 
 void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)

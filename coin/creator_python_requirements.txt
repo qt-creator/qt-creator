@@ -1,0 +1,2 @@
+# Python packages needed for Qt Creator CI builds
+-r sbom_requirements.txt

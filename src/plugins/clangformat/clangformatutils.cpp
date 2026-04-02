@@ -66,7 +66,11 @@ clang::format::FormatStyle calculateQtcStyle()
     style.AllowAllParametersOfDeclarationOnNextLine = true;
     style.AllowShortBlocksOnASingleLine = FormatStyle::SBS_Never;
     style.AllowShortCaseLabelsOnASingleLine = false;
+#if LLVM_VERSION_MAJOR >= 23
+    style.AllowShortFunctionsOnASingleLine = {false, true, false};
+#else
     style.AllowShortFunctionsOnASingleLine = FormatStyle::SFS_Inline;
+#endif
     style.AllowShortIfStatementsOnASingleLine = FormatStyle::SIS_Never;
     style.AllowShortLoopsOnASingleLine = false;
     style.AlwaysBreakBeforeMultilineStrings = false;
