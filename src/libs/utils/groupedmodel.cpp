@@ -631,9 +631,9 @@ int GroupedView::currentRow() const
 void GroupedView::selectRow(int row)
 {
     const QModelIndex idx = row >= 0 ? m_model.mapFromSource(m_model.index(row, 0)) : QModelIndex{};
+    m_view.selectionModel()->setCurrentIndex(idx, QItemSelectionModel::NoUpdate);
     m_view.selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect
                                       | QItemSelectionModel::Rows);
-    m_view.selectionModel()->setCurrentIndex(idx, QItemSelectionModel::NoUpdate);
 }
 
 void GroupedView::scrollToRow(int row)
