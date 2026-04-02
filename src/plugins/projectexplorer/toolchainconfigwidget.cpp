@@ -54,6 +54,17 @@ ToolchainConfigWidget::ToolchainConfigWidget(const ToolchainBundle &bundle)
     connect(m_nameLineEdit, &QLineEdit::textChanged, this, &ToolchainConfigWidget::dirty);
 }
 
+bool ToolchainConfigWidget::isDirty() const
+{
+    if (m_nameLineEdit->text() != m_bundle.displayName())
+        return true;
+    for (const auto &[tc, pathChooser] : std::as_const(m_commands)) {
+        if (pathChooser->filePath() != m_bundle.compilerCommand(tc->language()))
+            return true;
+    }
+    return false;
+}
+
 void ToolchainConfigWidget::apply()
 {
     m_bundle.setDisplayName(m_nameLineEdit->text());

@@ -20,6 +20,7 @@
 #include <utils/detailswidget.h>
 #include <utils/groupedmodel.h>
 #include <utils/guard.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
@@ -275,6 +276,8 @@ ToolchainConfigWidget *ToolchainModel::widget(int row)
                 const int r = rowForBundleId(bundleId);
                 if (r < 0)
                     return;
+                // FIXME: This should use w->isDirty() instead of true once
+                // all ToolchainConfigWidget subclasses implement isDirty().
                 setChanged(r, true);
                 notifyRowChanged(r);
             });
@@ -421,6 +424,11 @@ public:
     void redetectToolchains();
 
     void apply() final;
+    bool isDirty() const final
+    {
+        return m_model.isDirty()
+               || m_detectionSettings != ToolchainManager::detectionSettings();
+    }
 
 private:
     DetailsWidget m_container;
@@ -469,9 +477,6 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
     m_container.setState(DetailsWidget::NoSummary);
     m_container.setVisible(false);
     m_container.setWidget(&m_widgetStack);
-    connect(&m_widgetStack, &StackedWidget::widgetAdded, this, [this](int index) {
-        installMarkSettingsDirtyTriggerRecursively(m_widgetStack.widget(index));
-    });
 
     const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
         ToolchainBundle::HandleMissing::CreateAndRegister);
@@ -510,7 +515,8 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
         const int row = m_groupedView.currentRow();
         if (row >= 0) {
             m_model.markForRemoval(row);
-            markSettingsDirty();
+            checkSettingsDirty();
+            updateState();
         }
     });
     connect(&m_removeAllButton, &QAbstractButton::clicked, this, [this] {
@@ -524,8 +530,10 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
                 anyRemoved = true;
             }
         }
-        if (anyRemoved)
-            markSettingsDirty();
+        if (anyRemoved) {
+            checkSettingsDirty();
+            updateState();
+        }
     });
     connect(&m_redetectButton, &QAbstractButton::clicked,
             this, &ToolChainOptionsWidget::redetectToolchains);
@@ -535,7 +543,7 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
             bool old = m_detectionSettings.detectX64AsX32;
             m_detectionSettings = dlg.settings();
             if (m_detectionSettings.detectX64AsX32 != old)
-                markSettingsDirty();
+                checkSettingsDirty();
         }
     });
 
@@ -553,7 +561,6 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
     });
 
     updateState();
-    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void ToolChainOptionsWidget::handleToolchainsRegistered(const Toolchains &toolchains)
@@ -677,7 +684,7 @@ void ToolChainOptionsWidget::redetectToolchains()
         m_model.addBundle(bundle);
 
     if (!itemsToRemove.isEmpty() || !toAdd.isEmpty())
-        markSettingsDirty();
+        checkSettingsDirty();
 }
 
 void ToolChainOptionsWidget::toolChainSelectionChanged()
@@ -720,7 +727,6 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
 
     const ToolchainBundle bundle(toolchains, ToolchainBundle::HandleMissing::CreateOnly);
     m_groupedView.selectRow(m_model.addBundle(bundle));
-    markSettingsDirty();
 }
 
 void ToolChainOptionsWidget::cloneToolchains()
@@ -737,7 +743,6 @@ void ToolChainOptionsWidget::cloneToolchains()
     bundle.setDisplayName(Tr::tr("Clone of %1").arg(it.bundle->displayName()));
 
     m_groupedView.selectRow(m_model.addBundle(bundle));
-    markSettingsDirty();
 }
 
 void ToolChainOptionsWidget::updateState()

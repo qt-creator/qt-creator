@@ -35,6 +35,9 @@ public:
     void makeReadOnly();
     void setFallbackBrowsePath(const Utils::FilePath &path);
 
+    // FIXME: This should be re-implemented in all derived classes.
+    virtual bool isDirty() const;
+
 signals:
     void compilerCommandChanged(Utils::Id language);
     void dirty();

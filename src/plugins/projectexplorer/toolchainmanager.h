@@ -23,6 +23,9 @@ class ToolchainDetectionSettings
 {
 public:
     bool detectX64AsX32 = false;
+
+    friend bool operator==(const ToolchainDetectionSettings &,
+                           const ToolchainDetectionSettings &) = default;
 };
 
 // --------------------------------------------------------------------------
