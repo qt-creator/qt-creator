@@ -39,7 +39,7 @@ public:
     int defaultRow() const;
     bool isDefault(int row) const;
     void setVolatileDefaultRow(int row);
-    void markRemoved(int row);
+    virtual void markRemoved(int row);
     void removeItem(int row);
     void setChanged(int row, bool changed);
     void notifyRowChanged(int row);

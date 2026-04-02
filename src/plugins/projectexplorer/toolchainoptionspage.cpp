@@ -210,7 +210,7 @@ public:
     int addBundle(const ToolchainBundle &bundle);
     ToolchainConfigWidget *widget(int row);
     int rowForBundleId(const Id &id) const;
-    void markForRemoval(int row);
+    void markRemoved(int row) override;
     void destroyBundle(int row);
     void apply() override;
 
@@ -296,7 +296,7 @@ int ToolchainModel::rowForBundleId(const Id &id) const
     return -1;
 }
 
-void ToolchainModel::markForRemoval(int row)
+void ToolchainModel::markRemoved(int row)
 {
     if (isAdded(row)) {
         ToolchainTreeItem it = item(row);
@@ -305,7 +305,7 @@ void ToolchainModel::markForRemoval(int row)
             it.bundle->deleteToolchains();
         }
     }
-    markRemoved(row);
+    GroupedModel::markRemoved(row);
 }
 
 void ToolchainModel::destroyBundle(int row)
@@ -511,14 +511,8 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
             this, &ToolChainOptionsWidget::toolChainSelectionChanged);
 
     connect(&m_cloneButton, &QAbstractButton::clicked, this, [this] { cloneToolchains(); });
-    connect(&m_removeButton, &QAbstractButton::clicked, this, [this] {
-        const int row = m_groupedView.currentRow();
-        if (row >= 0) {
-            m_model.markForRemoval(row);
-            checkSettingsDirty();
-            updateState();
-        }
-    });
+    connect(&m_removeButton, &QAbstractButton::clicked,
+            &m_groupedView, &GroupedView::removeCurrent);
     connect(&m_removeAllButton, &QAbstractButton::clicked, this, [this] {
         bool anyRemoved = false;
         for (int row = m_model.itemCount() - 1; row >= 0; --row) {
@@ -526,7 +520,7 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
                 continue;
             const ToolchainTreeItem it = m_model.item(row);
             if (it.bundle && !it.bundle->detectionSource().isSdkProvided()) {
-                m_model.markForRemoval(row);
+                m_model.markRemoved(row);
                 anyRemoved = true;
             }
         }
@@ -673,7 +667,7 @@ void ToolChainOptionsWidget::redetectToolchains()
             qDeleteAll(newToolchains);
         } else {
             toAdd << newToolchains;
-            m_model.markForRemoval(row);
+            m_model.markRemoved(row);
         }
     }
 
