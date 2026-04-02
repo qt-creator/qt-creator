@@ -198,8 +198,9 @@ void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
     m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
 
     if (m_envAspect) {
-        connect(m_envAspect, &EnvironmentAspect::environmentChanged, m_chooser.data(), [this] {
-            m_chooser->setEnvironment(m_envAspect->environment());
+        connect(m_envAspect, &EnvironmentAspect::environmentChanged, this, [this] {
+            if (m_chooser)
+                m_chooser->setEnvironment(m_envAspect->environment());
         });
         m_chooser->setEnvironment(m_envAspect->environment());
     }
