@@ -67,7 +67,7 @@ static void fetchIconToPersistentCache(const QString &url, const std::shared_ptr
         return;
     }
 
-    static QString themeColor = creatorColor(Theme::TextColorNormal).toRgb().name();
+    static QString themeColor = creatorColor(Theme::PanelTextColorDark).toRgb().name();
 
     const QByteArray hash = QCryptographicHash::hash((url + themeColor).toUtf8(), QCryptographicHash::Sha1);
     const FilePath destPath = Core::ICore::userResourcePath("acpclient/icons")
