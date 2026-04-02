@@ -674,15 +674,14 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
     //   m_data = path.toString() + scheme.toString() + host.toString();
     // but with less copying.
     // Note: The QStringBuilder optimization does not currently work in this case.
+    m_schemeLen = scheme.size();
+    m_hostLen = host.size();
+    m_pathLen = path.size();
     m_data.resize(0);
     m_data.reserve(m_schemeLen + m_hostLen + m_pathLen);
     m_data.append(path);
     m_data.append(scheme);
     m_data.append(host);
-
-    m_schemeLen = scheme.size();
-    m_hostLen = host.size();
-    m_pathLen = path.size();
 }
 
 /*!
