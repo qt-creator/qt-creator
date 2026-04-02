@@ -252,9 +252,13 @@ void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState newState, b
 
     {
         const auto lockedStates = d->deviceStates.writeLocked();
-        if (lockedStates->value(deviceId, IDevice::DeviceStateUnknown) == newState)
+        const auto it = lockedStates->find(deviceId);
+        if (it == lockedStates->end())
+            lockedStates->insert(deviceId, newState);
+        else if (*it != newState)
+            *it = newState;
+        else
             return;
-        lockedStates->insert(deviceId, newState);
     }
 
     if (announce && !ExtensionSystem::PluginManager::isShuttingDown()) {

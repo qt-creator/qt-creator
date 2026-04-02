@@ -108,6 +108,9 @@ void BareMetalDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
 
+    // Override wrong state from Creator 19.0.0, see QTCREATORBUG-34221
+    setDeviceState(DeviceStateUnknown);
+
     if (debugServerProviderId().isEmpty()) {
         const QString name = displayName();
         if (IDebugServerProvider *provider =
@@ -189,6 +192,7 @@ public:
         dev->setType(Constants::BareMetalOsType);
         dev->setMachineType(IDevice::Hardware);
         dev->setDebugServerProviderId(m_setupPage->debugServerProviderId());
+        dev->setDeviceState(IDevice::DeviceStateUnknown);
         return dev;
     }
 
