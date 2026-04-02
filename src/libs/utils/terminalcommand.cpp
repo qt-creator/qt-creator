@@ -208,7 +208,7 @@ void TerminalCommandAspect::addToLayoutImpl(Layouting::Layout &parent)
         });
     }
 
-    connect(changeButton, &QPushButton::clicked, this, [this, changeButton] {
+    connect(changeButton, &QPushButton::clicked, this, [this] {
         auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok);
 
         // clang-format off
