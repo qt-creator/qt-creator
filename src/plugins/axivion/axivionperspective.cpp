@@ -165,33 +165,14 @@ static QList<PathMapping> findPathMappingMatches(const QString &projectName, con
 {
     QList<PathMapping> result;
     QTC_ASSERT(!projectName.isEmpty(), return result);
-    const bool pathIsAbsolute = link.targetFilePath.isAbsolutePath();
     for (const PathMapping &mapping : settings().validPathMappings()) {
         if (mapping.projectName != projectName)
             continue;
 
-        QString analysis = mapping.analysisPath.path();
-        // ensure we use complete paths
-        if (!analysis.isEmpty() && !analysis.endsWith('/'))
-            analysis.append('/');
-
-        if (pathIsAbsolute) {
-            if (mapping.analysisPath.isEmpty())
-                continue;
-
-            if (!link.targetFilePath.startsWith(analysis))
-                continue;
-        } else {
-            if (mapping.analysisPath.isAbsolutePath())
-                continue;
-
-            if (!analysis.isEmpty() && !link.targetFilePath.startsWith(analysis))
-                continue;
-
-        }
-
-        result << mapping;
+        if (mapping.analysisPath.isEmpty() || link.targetFilePath.isChildOf(mapping.analysisPath))
+            result << mapping;
     }
+
     return result;
 }
 
