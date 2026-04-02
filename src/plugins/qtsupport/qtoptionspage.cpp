@@ -256,15 +256,6 @@ public:
         markRemoved(row);
     }
 
-    QModelIndex indexForUniqueId(int id) const
-    {
-        for (int row = 0; row < itemCount(); ++row) {
-            if (!isRemoved(row) && item(row).uniqueId() == id)
-                return mapFromSource(index(row, 0));
-        }
-        return {};
-    }
-
     QVariant variantData(const QVariant &v, int column, int role) const final
     {
         return fromVariant(v).data(column, role);
@@ -982,12 +973,7 @@ void QtSettingsPageWidget::apply()
 
 void QtSettingsPageWidget::cancel()
 {
-    const int selectedId = m_groupedView.currentRow() >= 0 ? m_model.item(m_groupedView.currentRow()).uniqueId() : -1;
-
     m_model.cancel();
-
-    if (const QModelIndex idx = m_model.indexForUniqueId(selectedId); idx.isValid())
-        m_groupedView.view().setCurrentIndex(idx);
 }
 
 const QStringList kSubdirsToCheck = {"",
