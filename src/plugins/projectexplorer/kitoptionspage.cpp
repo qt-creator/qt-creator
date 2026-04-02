@@ -331,7 +331,6 @@ void KitManagerConfigWidget::resetIcon()
 {
     m_modifiedKit.setIconPath({});
     emit dirty();
-    markSettingsDirty();
 }
 
 void KitManagerConfigWidget::setDisplayName()
@@ -341,7 +340,7 @@ void KitManagerConfigWidget::setDisplayName()
     m_modifiedKit.setUnexpandedDisplayName(m_nameEdit->text());
     m_nameEdit->setCursorPosition(pos);
     if (!m_loading)
-        markSettingsDirty();
+        emit dirty();
 }
 
 void KitManagerConfigWidget::setFileSystemFriendlyName()
@@ -352,7 +351,7 @@ void KitManagerConfigWidget::setFileSystemFriendlyName()
     m_modifiedKit.setCustomFileSystemFriendlyName(m_fileSystemFriendlyNameLineEdit->text());
     m_fileSystemFriendlyNameLineEdit->setCursorPosition(pos);
     if (!m_loading)
-        markSettingsDirty();
+        emit dirty();
 }
 
 void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
@@ -752,6 +751,7 @@ public:
     void scrollToSelectedKit();
 
     void apply() final;
+    bool isDirty() const final { return m_model.isDirty(); }
 
 public:
     QPushButton m_addButton;
@@ -827,7 +827,6 @@ KitOptionsPageWidget::KitOptionsPageWidget()
             wc->copyFrom(m_configWidget.workingCopy());
         m_model.setChanged(currentRow, true);
         m_model.notifyRowChanged(currentRow);
-        markSettingsDirty();
     });
     connect(&m_configWidget, &KitManagerConfigWidget::isAutoDetectedChanged, this, [this] {
         const int currentRow = m_groupedView.currentRow();
@@ -915,8 +914,6 @@ void KitOptionsPageWidget::addNewKit()
 
     if (m_groupedView.currentRow() >= 0)
         m_configWidget.setFocusToName();
-
-    markSettingsDirty();
 }
 
 Kit *KitOptionsPageWidget::currentKit() const
@@ -938,24 +935,18 @@ void KitOptionsPageWidget::cloneKit()
 
     if (m_groupedView.currentRow() >= 0)
         m_configWidget.setFocusToName();
-
-    markSettingsDirty();
 }
 
 void KitOptionsPageWidget::removeKit()
 {
     if (Kit *k = currentKit())
         m_model.markForRemoval(k);
-
-    markSettingsDirty();
 }
 
 void KitOptionsPageWidget::makeDefaultKit()
 {
     m_model.setVolatileDefaultRow(m_groupedView.currentRow());
     updateState();
-
-    markSettingsDirty();
 }
 
 void KitOptionsPageWidget::updateState()
