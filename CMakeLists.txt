@@ -114,6 +114,8 @@ endif()
 
 qtc_setup_sbom()
 qtc_sbom_begin_project()
+# Do this after qtc_sbom_begin_project(), so we can show the path to the used python interpreter.
+qtc_add_sbom_feature_info()
 
 # depending on Qt version and compiler version enable or disable Qml Designer
 # can be overwritten by variable WITH_QMLDESIGNER / QTC_WITH_QMLDESIGNER (env)

@@ -71,6 +71,8 @@ void ToolchainConfigWidget::makeReadOnly()
     m_nameLineEdit->setEnabled(false);
     for (const auto &commands : std::as_const(m_commands))
         commands.second->setReadOnly(true);
+    if (m_manualCxxCompilerCheckBox)
+        m_manualCxxCompilerCheckBox->setEnabled(false);
     makeReadOnlyImpl();
 }
 

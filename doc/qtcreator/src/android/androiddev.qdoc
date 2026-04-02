@@ -345,6 +345,15 @@
     For more advanced options for creating a new AVD, use the command-line tool
     \l{avdmanager} or the Android Studio's native AVD Manager UI.
 
+    Access files on the created and connected AVD in one of the following ways:
+
+    \list
+        \li Go to \uicontrol File > \uicontrol {Open From Device}.
+        \li Go to the \uicontrol {File System} view and select the AVD in the
+            menu.
+        \li Use the \l {Navigate with locator}{locator}.
+    \endlist
+
     \sa {Android}{How to: Develop for Android}, {Developing for Android}
 */
 
