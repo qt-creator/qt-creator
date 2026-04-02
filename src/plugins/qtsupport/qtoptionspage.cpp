@@ -300,7 +300,6 @@ private:
 
     void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
     void addQtDir();
-    void removeQtDir();
     void redetect();
     void editPath();
     void updateCleanUpButton();
@@ -441,7 +440,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     connect(&m_editPathPushButton, &QAbstractButton::clicked,
             this, &QtSettingsPageWidget::editPath);
     connect(&m_addButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::addQtDir);
-    connect(&m_removeButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::removeQtDir);
+    connect(&m_removeButton, &QAbstractButton::clicked, &m_groupedView, &GroupedView::removeCurrent);
     connect(&m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
     connect(&m_redetectButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::redetect);
     connect(&m_groupedView, &GroupedView::currentRowChanged,
@@ -450,7 +449,6 @@ QtSettingsPageWidget::QtSettingsPageWidget()
             this, &QtSettingsPageWidget::cleanUpQtVersions);
 
     userChangedCurrentVersion();
-    updateCleanUpButton();
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtSettingsPageWidget::updateQtVersions);
@@ -732,16 +730,6 @@ void QtSettingsPageWidget::addQtDir()
     updateCleanUpButton();
 }
 
-void QtSettingsPageWidget::removeQtDir()
-{
-    const int row = m_groupedView.currentRow();
-    if (row < 0)
-        return;
-
-    m_model.destroyRow(row);
-    updateCleanUpButton();
-}
-
 void QtSettingsPageWidget::redetect()
 {
     for (const IDeviceConstPtr &dev : m_deviceComboBox.selectedDevices()) {
@@ -827,6 +815,7 @@ void QtSettingsPageWidget::userChangedCurrentVersion()
 {
     updateWidgets();
     updateDescriptionLabel();
+    updateCleanUpButton();
 }
 
 void QtSettingsPageWidget::updateDescriptionLabel()
@@ -879,7 +868,8 @@ void QtSettingsPageWidget::updateWidgets()
 
     const bool enabled = version != nullptr;
     const bool isAutodetected = enabled && version->detectionSource().isAutoDetected();
-    m_removeButton.setEnabled(enabled && !isAutodetected);
+    const bool isRemoved = row >= 0 && m_model.isRemoved(row);
+    m_removeButton.setEnabled(enabled && !isAutodetected && !isRemoved);
     m_nameEdit.setEnabled(enabled);
     m_editPathPushButton.setEnabled(enabled && !isAutodetected);
 }
