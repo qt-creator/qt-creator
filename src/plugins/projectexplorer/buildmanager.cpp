@@ -42,7 +42,7 @@
 #include <QBoxLayout>
 #include <QElapsedTimer>
 #include <QFont>
-#include <QFutureWatcher>
+#include <QFutureInterface>
 #include <QHash>
 #include <QLabel>
 #include <QList>
@@ -405,7 +405,6 @@ public:
 
     // Progress reporting to the progress manager
     QFutureInterface<void> *m_progressFutureInterface = nullptr;
-    QFutureWatcher<void> m_progressWatcher;
     QPointer<FutureProgress> m_futureProgress;
 
     QSingleTaskTreeRunner m_taskTreeRunner;
@@ -436,11 +435,6 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
 
     connect(d->m_taskWindow, &Internal::TaskWindow::tasksChanged,
             this, &BuildManager::updateTaskCount);
-
-    connect(&d->m_progressWatcher, &QFutureWatcherBase::canceled,
-            this, &BuildManager::cancel);
-    connect(&d->m_progressWatcher, &QFutureWatcherBase::finished,
-            this, &BuildManager::finish);
 }
 
 BuildManager *BuildManager::instance()
@@ -646,7 +640,6 @@ void BuildManager::cleanupBuild()
     }
     if (d->m_progressFutureInterface) {
         d->m_progressFutureInterface->reportFinished();
-        d->m_progressWatcher.setFuture(QFuture<void>());
         delete d->m_progressFutureInterface;
         d->m_progressFutureInterface = nullptr;
     }
@@ -820,13 +813,17 @@ void BuildManager::startBuildQueue()
 
     // Progress Reporting
     d->m_progressFutureInterface = new QFutureInterface<void>;
-    d->m_progressWatcher.setFuture(d->m_progressFutureInterface->future());
     ProgressManager::setApplicationLabel({});
     d->m_futureProgress = ProgressManager::addTask(d->m_progressFutureInterface->future(),
         {}, "ProjectExplorer.Task.Build",
         ProgressManager::KeepOnFinish | ProgressManager::ShowInApplicationIcon);
     connect(d->m_futureProgress.data(), &FutureProgress::clicked,
             m_instance, &BuildManager::showBuildResults);
+    connect(d->m_futureProgress.data(), &FutureProgress::canceled,
+            m_instance, &BuildManager::cancel);
+    connect(d->m_futureProgress.data(), &FutureProgress::finished,
+            m_instance, &BuildManager::finish);
+
     d->m_futureProgress.data()->setWidget(new BuildProgress(d->m_taskWindow));
     d->m_futureProgress.data()->setStatusBarWidget(new BuildProgress(d->m_taskWindow,
                                                                      Qt::Horizontal));
