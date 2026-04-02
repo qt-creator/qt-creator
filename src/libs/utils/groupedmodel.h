@@ -156,6 +156,8 @@ public:
     void selectRow(int row);
     void scrollToRow(int row);
 
+    void removeCurrent();
+
 signals:
     void currentRowChanged(int oldRow, int newRow);
 

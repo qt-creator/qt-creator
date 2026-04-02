@@ -193,7 +193,6 @@ private:
     bool isDirty() const final { return m_model.isDirty(); }
 
     void cloneMesonTool();
-    void removeMesonTool();
     void currentMesonToolChanged(int oldRow, int newRow);
     void store();
 
@@ -258,7 +257,7 @@ ToolsSettingsWidget::ToolsSettingsWidget()
         m_groupedView.selectRow(m_model.addMesonTool());
     });
     connect(&m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
-    connect(&m_removeButton, &QPushButton::clicked, this, &ToolsSettingsWidget::removeMesonTool);
+    connect(&m_removeButton, &QPushButton::clicked, &m_groupedView, &GroupedView::removeCurrent);
 
     connect(&m_data, &AspectContainer::changed, &checkSettingsDirty);
 }
@@ -268,13 +267,6 @@ void ToolsSettingsWidget::cloneMesonTool()
     const int row = m_groupedView.currentRow();
     if (row >= 0)
         m_groupedView.selectRow(m_model.cloneMesonTool(row));
-}
-
-void ToolsSettingsWidget::removeMesonTool()
-{
-    const int row = m_groupedView.currentRow();
-    if (row >= 0)
-        m_model.markRemoved(row);
 }
 
 void ToolsSettingsWidget::store()

@@ -642,4 +642,11 @@ void GroupedView::scrollToRow(int row)
         m_view.scrollTo(m_model.mapFromSource(m_model.index(row, 0)));
 }
 
+void GroupedView::removeCurrent()
+{
+    const int row = currentRow();
+    QTC_ASSERT(row >= 0, return);
+    m_model.markRemoved(row);
+}
+
 } // namespace Utils

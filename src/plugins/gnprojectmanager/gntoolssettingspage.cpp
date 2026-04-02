@@ -194,7 +194,6 @@ private:
     bool isDirty() const final { return m_model.isDirty(); }
 
     void cloneGNTool();
-    void removeGNTool();
     void currentToolChanged(int oldRow, int newRow);
     void store();
 
@@ -253,7 +252,7 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
         m_groupedView.selectRow(m_model.addGNTool());
     });
     connect(&m_cloneButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::cloneGNTool);
-    connect(&m_removeButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::removeGNTool);
+    connect(&m_removeButton, &QPushButton::clicked, &m_groupedView, &GroupedView::removeCurrent);
 
     connect(&m_data, &AspectContainer::changed, &checkSettingsDirty);
 }
@@ -263,13 +262,6 @@ void GNToolsSettingsWidget::cloneGNTool()
     const int row = m_groupedView.currentRow();
     if (row >= 0)
         m_groupedView.selectRow(m_model.cloneGNTool(row));
-}
-
-void GNToolsSettingsWidget::removeGNTool()
-{
-    const int row = m_groupedView.currentRow();
-    if (row >= 0)
-        m_model.markRemoved(row);
 }
 
 void GNToolsSettingsWidget::store()
