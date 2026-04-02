@@ -866,7 +866,7 @@ public:
         connect(&m_cloneButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::cloneDebugger, Qt::QueuedConnection);
         connect(&m_removeButton, &QAbstractButton::clicked,
-                this, &DebuggerSettingsPageWidget::removeDebugger, Qt::QueuedConnection);
+                &m_groupedView, &GroupedView::removeCurrent, Qt::QueuedConnection);
         connect(&m_detectButton, &QAbstractButton::clicked, this, [this] {
             for (const IDeviceConstPtr &dev : m_deviceComboBox.selectedDevices())
                 debuggerModel().detectDebuggers(dev, dev->toolSearchPaths());
@@ -890,7 +890,6 @@ public:
 
     void cloneDebugger();
     void addDebugger();
-    void removeDebugger();
     void updateButtons();
 
 private:
@@ -1066,14 +1065,6 @@ void DebuggerSettingsPageWidget::addDebugger()
     itm.setEngineType(NoEngineType);
     itm.setUnexpandedDisplayName(debuggerModel().uniqueDisplayName(Tr::tr("New Debugger")));
     m_groupedView.selectRow(debuggerModel().appendVolatileItem(itm));
-}
-
-void DebuggerSettingsPageWidget::removeDebugger()
-{
-    const int row = m_groupedView.currentRow();
-    QTC_ASSERT(row >= 0, return);
-    debuggerModel().markRemoved(row);
-    updateButtons();
 }
 
 void DebuggerSettingsPageWidget::updateButtons()
