@@ -17,24 +17,29 @@ class SCShapeProvider final : public ShapeProvider
 {
     Q_OBJECT
 public:
-    SCShapeProvider(QObject *parent = nullptr);
-    ~SCShapeProvider() override;
+    explicit SCShapeProvider(QObject *parent = nullptr);
+    ~SCShapeProvider() final;
 
-    int groupCount() const override;
-    QString groupTitle(int groupIndex) const override;
+    int groupCount() const final;
+    QString groupTitle(int groupIndex) const final;
 
-    int shapeCount(int groupIndex) const override;
-    QString shapeTitle(int groupIndex, int shapeIndex) const override;
-    QIcon shapeIcon(int groupIndex, int shapeIndex) const override;
+    int shapeCount(int groupIndex) const final;
+    QString shapeTitle(int groupIndex, int shapeIndex) const final;
+    QIcon shapeIcon(int groupIndex, int shapeIndex) const final;
 
-    bool canDrop(int groupIndex, int shapeIndex, ScxmlTag *parent) const override;
-    QByteArray scxmlCode(int groupIndex, int shapeIndex, ScxmlTag *parent) const override;
+    bool canDrop(int groupIndex, int shapeIndex, ScxmlTag *parent) const final;
+    QByteArray scxmlCode(int groupIndex, int shapeIndex, ScxmlTag *parent) const final;
 
 protected:
-    virtual void clear();
-    virtual void initGroups();
-    virtual ShapeGroup *addGroup(const QString &title);
-    virtual Shape *createShape(const QString &title, const QIcon &icon, const QStringList &filters, const QByteArray &scxmlData, const QVariant &userData = QVariant());
+    void clear();
+    void initGroups();
+    ShapeGroup *addGroup(const QString &title);
+    Shape *createShape(
+        const QString &title,
+        const QIcon &icon,
+        const QStringList &filters,
+        const QByteArray &scxmlData,
+        const QVariant &userData = QVariant());
     Shape *shape(int groupIndex, int shapeIndex);
     ShapeGroup *group(int groupIndex);
 
