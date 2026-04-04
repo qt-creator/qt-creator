@@ -1767,11 +1767,7 @@ FilePath GitClient::findGitignoreFor(const FilePath &workingDirectory) const
 
 bool GitClient::synchronousAddGitignore(const FilePath &workingDirectory, CreateGitIgnore create)
 {
-    const FilePath gitIgnoreDestination = [workingDirectory]() {
-        if (workingDirectory.endsWith(gitIgnoreFile))
-            return workingDirectory;
-        return workingDirectory.pathAppended(gitIgnoreFile);
-    }();
+    const FilePath gitIgnoreDestination = workingDirectory.pathAppended(gitIgnoreFile);
 
     auto intentToAddGitignore = [this, workingDirectory, gitIgnoreDestination] {
         return synchronousAdd(workingDirectory, {gitIgnoreDestination.fileName()}, {"--intent-to-add"});
