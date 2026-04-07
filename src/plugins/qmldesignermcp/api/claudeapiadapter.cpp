@@ -158,10 +158,7 @@ QJsonArray ClaudeApiAdapter::buildUserMessage(const QString &text, const QUrl &i
 
 QJsonArray ClaudeApiAdapter::buildAssistantTurn(const QByteArray &response)
 {
-    return QJsonArray{QJsonObject{
-        {"role", "assistant"},
-        {"content", extractContentArray(response)},
-    }};
+    return extractContentArray(response);
 }
 
 QJsonArray ClaudeApiAdapter::buildToolResultsTurn(const QList<ToolResult> &results)
@@ -193,8 +190,7 @@ QJsonArray ClaudeApiAdapter::formatHistory(const QList<ConversationTurn> &turns)
             // needs to be wrapped in a user message
             history.append(QJsonObject{{"role", "user"}, {"content", turn.content}});
         } else {
-            // user and assistant turns: content is [{role, content:[...]}], take first
-            history.append(turn.content.first());
+            history.append(QJsonObject{{"role", turn.role}, {"content", turn.content}});
         }
     }
     return history;
