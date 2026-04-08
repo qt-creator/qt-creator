@@ -58,11 +58,13 @@ void AiAssistantView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    // TODO: only do this if project changed (not files in same project)
-    m_widget->loadInstructions();
-    m_widget->clear();
-    m_widget->setProjectPath(
+    bool changed = m_widget->setProjectPath(
         QmlDesignerPlugin::instance()->currentDesignDocument()->projectFolder().toFSPathString());
+
+    if (changed) {
+        m_widget->loadInstructions();
+        m_widget->clear();
+    }
 }
 
 void AiAssistantView::handleProjectTreeChanges()

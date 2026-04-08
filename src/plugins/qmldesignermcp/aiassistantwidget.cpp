@@ -172,13 +172,15 @@ void AiAssistantWidget::removeMissingAttachedImage()
         setAttachedImageSource({});
 }
 
-void AiAssistantWidget::setProjectPath(const QString &projectPath)
+bool AiAssistantWidget::setProjectPath(const QString &projectPath)
 {
     if (m_projectPath == projectPath)
-        return;
+        return false;
+
     m_projectPath = projectPath;
 
     initializeMcp();
+    return true;
 }
 
 QSize AiAssistantWidget::sizeHint() const

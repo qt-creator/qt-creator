@@ -59,7 +59,7 @@ public:
     void updateModelConfig();
     void updateMcpConfig();
     void removeMissingAttachedImage();
-    void setProjectPath(const QString &projectPath);
+    bool setProjectPath(const QString &projectPath);
 
     QSize sizeHint() const override;
 
