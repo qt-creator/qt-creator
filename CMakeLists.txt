@@ -29,6 +29,16 @@ mark_as_advanced(IDE_REVISION IDE_REVISION_STR IDE_REVISION_URL)
 
 project(QtCreator VERSION ${IDE_VERSION})
 
+if(APPLE)
+  set(qtc_entitlements_output_dir "${CMAKE_BINARY_DIR}/dist/installer/mac")
+  file(MAKE_DIRECTORY "${qtc_entitlements_output_dir}")
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/dist/installer/mac/Qt Creator.entitlements"
+    "${qtc_entitlements_output_dir}/${IDE_APP_TARGET}.entitlements"
+    COPYONLY
+  )
+endif()
+
 # Force C++ standard, do not fall back, do not use compiler extensions
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

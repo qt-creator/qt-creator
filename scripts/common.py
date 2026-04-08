@@ -8,6 +8,7 @@ from itertools import islice
 import os
 import locale
 from pathlib import Path
+import plistlib
 import shutil
 import subprocess
 import sys
@@ -307,14 +308,68 @@ def codesign_call(identity=None, flags=None):
         codesign_call.extend(signing_flags.split())
     return codesign_call
 
-def codesign_executable(path):
+
+def _bundle_executable_name(app_bundle: Path) -> str | None:
+    info_plist = app_bundle / 'Contents' / 'Info.plist'
+    if not info_plist.is_file():
+        return None
+    try:
+        with info_plist.open('rb') as handle:
+            info = plistlib.load(handle)
+    except (OSError, plistlib.InvalidFileException, ValueError):
+        return None
+    executable = info.get('CFBundleExecutable')
+    return executable if isinstance(executable, str) and executable else None
+
+
+def _entitlements_dir() -> Path:
+    return Path(__file__).resolve().parent.parent / 'dist' / 'installer' / 'mac'
+
+
+def _app_entitlements_fallback(path: Path, app_names: list[str]) -> Path | None:
+    entitlements_dir = _entitlements_dir()
+    nested_item_names = {
+        item.name for item in path.rglob('*') if item.name and item.name not in app_names
+    }
+    fallback_candidates = sorted(
+        candidate
+        for candidate in entitlements_dir.glob('*.entitlements')
+        if candidate.stem not in nested_item_names
+    )
+    if len(fallback_candidates) == 1:
+        return fallback_candidates[0]
+    return None
+
+
+def _entitlements_path_for_item(path: Path) -> Path | None:
+    entitlements_dir = _entitlements_dir()
+    if not entitlements_dir.is_dir():
+        return None
+
+    if path.suffix == '.app':
+        app_names = [path.stem]
+        executable_name = _bundle_executable_name(path)
+        if executable_name and executable_name not in app_names:
+            app_names.append(executable_name)
+        for app_name in app_names:
+            entitlements_path = entitlements_dir / f'{app_name}.entitlements'
+            if entitlements_path.is_file():
+                return entitlements_path
+        return _app_entitlements_fallback(path, app_names)
+
+    entitlements_path = entitlements_dir / f'{path.name}.entitlements'
+    return entitlements_path if entitlements_path.is_file() else None
+
+
+def codesign_executable(path, additional_arguments=None):
     codesign = codesign_call()
     if not codesign:
         return
-    entitlements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'dist',
-                                     'installer', 'mac', os.path.basename(path) + '.entitlements')
-    if os.path.exists(entitlements_path):
-        codesign.extend(['--entitlements', entitlements_path])
+    entitlements_path = _entitlements_path_for_item(Path(path))
+    if entitlements_path is not None and entitlements_path.exists():
+        codesign.extend(['--entitlements', str(entitlements_path)])
+    if additional_arguments:
+        codesign.extend(additional_arguments)
     subprocess.check_call(codesign + [path])
 
 def os_walk(path, filter, function):
@@ -340,9 +395,8 @@ def codesign(app_path, identity=None, flags=None):
                                lambda ff: ff.endswith('.dylib'))
 
     # sign the whole bundle
-    entitlements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'dist',
-                                     'installer', 'mac', 'entitlements.plist')
-    subprocess.check_call(codesign + ['--deep', app_path, '--entitlements', entitlements_path])
+    codesign_executable(app_path, ['--deep'])
+
 
 def codesign_main(args):
     codesign(args.app_bundle, args.identity, args.flags)
