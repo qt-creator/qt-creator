@@ -325,6 +325,7 @@ def package_qtcreator(args, paths):
                                         paths.qtcreatorcdbext_install)
 
     if common.is_mac_platform() and not args.no_qtcreator:
+        entitlements_dir = os.path.join(paths.build, 'dist', 'installer', 'mac')
         if args.keychain_unlock_script:
             common.check_print_call([args.keychain_unlock_script], paths.install)
         if os.environ.get('SIGNING_IDENTITY'):
@@ -333,7 +334,9 @@ def package_qtcreator(args, paths):
             apps = [d for d in os.listdir(signed_install_path) if d.endswith('.app')]
             if apps:
                 app = apps[0]
-                common.codesign(os.path.join(signed_install_path, app))
+                common.codesign(
+                    os.path.join(signed_install_path, app), entitlements_dir=entitlements_dir
+                )
                 if not args.no_zip:
                     common.check_print_call(zip
                                             + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-signed.7z'),
@@ -345,7 +348,9 @@ def package_qtcreator(args, paths):
                                      'qt-creator' + args.zip_infix + '.dmg',
                                      'Qt Creator',
                                      paths.src,
-                                     paths.install],
+                                     paths.install,
+                                     '--entitlements-dir',
+                                     entitlements_dir],
                                     paths.result)
     if args.with_cpack and args.cpack_generators:
         common.check_print_call(['cpack', '-G', ';'.join(args.cpack_generators)], paths.build)

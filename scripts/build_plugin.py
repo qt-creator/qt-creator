@@ -163,6 +163,7 @@ def package(args, paths):
                                 + [os.path.join(paths.result, args.name + '-debug.7z'), '*'],
                                 paths.debug_install)
     if common.is_mac_platform() and common.codesign_call():
+        entitlements_dir = os.path.join(paths.build, 'dist', 'installer', 'mac')
         if args.keychain_unlock_script:
             common.check_print_call([args.keychain_unlock_script], paths.install)
         if os.environ.get('SIGNING_IDENTITY'):
@@ -176,8 +177,7 @@ def package(args, paths):
             if not zippattern:
                 os.makedirs(signed_install_path)  # if nothing was installed
                 zippattern = '*'
-            common.conditional_sign_recursive(signed_install_path,
-                                              lambda ff: ff.endswith('.dylib'))
+            common.codesign(signed_install_path, entitlements_dir=entitlements_dir)
             common.check_print_call(zip
                                     + [os.path.join(paths.result, args.name + '-signed.7z'),
                                        zippattern],

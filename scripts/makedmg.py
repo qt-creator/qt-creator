@@ -18,9 +18,11 @@ def parse_arguments():
     parser.add_argument('dmg_volumename', help='volume name to use for the disk image')
     parser.add_argument('source_directory', help='directory with the Qt Creator sources')
     parser.add_argument('binary_directory', help='directory that contains the Qt Creator.app')
-    parser.add_argument('--dmg-size', default='1500m', required=False)
+    parser.add_argument('--dmg-size', default='5000m', required=False)
     parser.add_argument('--license-replacement', default=None,
         help='Absolute path to a license file which replaces the default LICENSE.GPL3-EXCEPT from Qt Creator source directory.')
+    parser.add_argument('--entitlements-dir', default=None,
+        help='Directory containing entitlements files for codesigning.')
     parser.add_argument('--keep-signed-content-at', default=None,
         help='For online installer we want to keep the signed .app without the dmg. This is used to create a 7z.')
     return parser.parse_args()
@@ -33,7 +35,9 @@ def main():
         common.copytree(arguments.binary_directory, tempdir, symlinks=True, ignore=common.is_debug)
         if common.is_mac_platform():
             app_path = [app for app in os.listdir(tempdir) if app.endswith('.app')][0]
-            common.codesign(os.path.join(tempdir, app_path))
+            common.codesign(
+                os.path.join(tempdir, app_path), entitlements_dir=arguments.entitlements_dir
+            )
         os.symlink('/Applications', os.path.join(tempdir, 'Applications'))
         license_file = os.path.join(arguments.source_directory, "LICENSES", 'LICENSE.GPL3-EXCEPT')
         if (arguments.license_replacement):

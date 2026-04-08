@@ -9,7 +9,9 @@ import os
 import locale
 from pathlib import Path
 import plistlib
+import re
 import shutil
+import struct
 import subprocess
 import sys
 from urllib.parse import urlparse
@@ -305,101 +307,178 @@ def codesign_call(identity=None, flags=None):
                      '-v']
     signing_flags = flags or os.environ.get('SIGNING_FLAGS')
     if signing_flags:
-        codesign_call.extend(signing_flags.split())
+        codesign_call.extend(['-r', signing_flags])
     return codesign_call
 
 
 def _bundle_executable_name(app_bundle: Path) -> str | None:
-    info_plist = app_bundle / 'Contents' / 'Info.plist'
+    """Read CFBundleExecutable from the bundle Info.plist if available."""
+    info_plist = app_bundle / "Contents" / "Info.plist"
     if not info_plist.is_file():
         return None
     try:
-        with info_plist.open('rb') as handle:
+        with info_plist.open("rb") as handle:
             info = plistlib.load(handle)
     except (OSError, plistlib.InvalidFileException, ValueError):
         return None
-    executable = info.get('CFBundleExecutable')
+    executable = info.get("CFBundleExecutable")
     return executable if isinstance(executable, str) and executable else None
 
 
-def _entitlements_dir() -> Path:
-    return Path(__file__).resolve().parent.parent / 'dist' / 'installer' / 'mac'
+def _source_entitlements_dir() -> Path:
+    return Path(__file__).resolve().parent.parent / "dist" / "installer" / "mac"
 
 
-def _app_entitlements_fallback(path: Path, app_names: list[str]) -> Path | None:
-    entitlements_dir = _entitlements_dir()
-    nested_item_names = {
-        item.name for item in path.rglob('*') if item.name and item.name not in app_names
-    }
-    fallback_candidates = sorted(
-        candidate
-        for candidate in entitlements_dir.glob('*.entitlements')
-        if candidate.stem not in nested_item_names
-    )
-    if len(fallback_candidates) == 1:
-        return fallback_candidates[0]
-    return None
+def _entitlements_dirs(extra_entitlements_dir: str | Path | None = None) -> list[Path]:
+    entitlements_dirs: list[Path] = []
+    for candidate in (extra_entitlements_dir, _source_entitlements_dir()):
+        if candidate is None:
+            continue
+        directory = Path(candidate)
+        if directory.is_dir() and directory not in entitlements_dirs:
+            entitlements_dirs.append(directory)
+    return entitlements_dirs
 
 
-def _entitlements_path_for_item(path: Path) -> Path | None:
-    entitlements_dir = _entitlements_dir()
-    if not entitlements_dir.is_dir():
-        return None
-
-    if path.suffix == '.app':
+def _entitlements_path_for_item(
+    path: Path, extra_entitlements_dir: str | Path | None = None
+) -> Path | None:
+    if path.suffix == ".app":
         app_names = [path.stem]
         executable_name = _bundle_executable_name(path)
         if executable_name and executable_name not in app_names:
             app_names.append(executable_name)
-        for app_name in app_names:
-            entitlements_path = entitlements_dir / f'{app_name}.entitlements'
-            if entitlements_path.is_file():
-                return entitlements_path
-        return _app_entitlements_fallback(path, app_names)
+        for entitlements_dir in _entitlements_dirs(extra_entitlements_dir):
+            for app_name in app_names:
+                entitlements_path = entitlements_dir / f"{app_name}.entitlements"
+                if entitlements_path.is_file():
+                    return entitlements_path
+        return None
 
-    entitlements_path = entitlements_dir / f'{path.name}.entitlements'
-    return entitlements_path if entitlements_path.is_file() else None
+    for entitlements_dir in _entitlements_dirs(extra_entitlements_dir):
+        entitlements_path = entitlements_dir / f"{path.name}.entitlements"
+        if entitlements_path.is_file():
+            return entitlements_path
+    return None
 
+def _is_mach_o_file(path: Path) -> bool:
+    """Determine whether a file is a Mach-O image containing native code."""
+    try:
+        with path.open("rb") as f:
+            header = f.read(8)
+    except OSError:
+        return False
+    if len(header) < 4:
+        return False
+    magic = header[:4]
+    if magic in {
+        b"\xfe\xed\xfa\xce",  # MH_MAGIC
+        b"\xce\xfa\xed\xfe",  # MH_CIGAM
+        b"\xfe\xed\xfa\xcf",  # MH_MAGIC_64
+        b"\xcf\xfa\xed\xfe",  # MH_CIGAM_64
+    }:
+        return True
+    # Universal (fat) binary shares 0xCAFEBABE with Java class files.
+    # Disambiguate by nfat_arch at offset 4 (< 20 means Mach-O).
+    if len(header) >= 8 and magic in {b"\xca\xfe\xba\xbe", b"\xbe\xba\xfe\xca"}:
+        byte_order = ">" if magic == b"\xca\xfe\xba\xbe" else "<"
+        nfat_arch = struct.unpack(f"{byte_order}I", header[4:8])[0]
+        return 0 < nfat_arch < 20
+    return False
 
-def codesign_executable(path, additional_arguments=None):
-    codesign = codesign_call()
-    if not codesign:
+def _is_framework_version(path: Path) -> bool:
+    """Determine whether a path is a versioned macOS framework directory."""
+    return path.parent.name == "Versions" and path.parent.parent.suffix == ".framework"
+
+def _collect_signable_items(app_path: Path) -> list[Path]:
+    """Collect all Mach-O files and bundles under app_path, sorted deepest-first."""
+    items: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(app_path):
+        dp = Path(dirpath)
+        for dirname in dirnames:
+            full = dp / dirname
+            if full.suffix == ".app":
+                items.append(full)
+            elif full.suffix == ".framework":
+                # Sign individual versions, not the framework bundle itself
+                versions_dir = full / "Versions"
+                if versions_dir.is_dir():
+                    for entry in versions_dir.iterdir():
+                        if entry.is_dir() and not entry.is_symlink():
+                            items.append(entry)
+        for filename in filenames:
+            filepath = dp / filename
+            if filepath.is_symlink():
+                continue
+            if filepath.suffix == ".dylib" or _is_mach_o_file(filepath):
+                items.append(filepath)
+    items.sort(key=lambda p: len(p.parts), reverse=True)
+    return items
+
+def _sign_item_with_deps(
+    path: Path,
+    codesign_cmd: list[str],
+    app_path: Path,
+    signed: set[Path],
+    extra_entitlements_dir: str | Path | None = None,
+):
+    """Sign a single item, recursively signing unsigned dependencies first."""
+    if path in signed:
         return
-    entitlements_path = _entitlements_path_for_item(Path(path))
+    cmd = list(codesign_cmd)
+    entitlements_path = _entitlements_path_for_item(path, extra_entitlements_dir)
     if entitlements_path is not None and entitlements_path.exists():
-        codesign.extend(['--entitlements', str(entitlements_path)])
-    if additional_arguments:
-        codesign.extend(additional_arguments)
-    subprocess.check_call(codesign + [path])
+        cmd.extend(["--entitlements", str(entitlements_path)])
+    if path.suffix == ".app" or _is_framework_version(path):
+        cmd.append("--preserve-metadata=entitlements")
+    while True:
+        result = subprocess.run([*cmd, str(path)], capture_output=True)
+        if result.returncode == 0:
+            signed.add(path)
+            return
+        output = result.stdout.decode(errors="ignore") + result.stderr.decode(errors="ignore")
+        match = re.search(
+            re.escape(str(path))
+            + r": code object is not signed at all\nIn subcomponent: (.+)",
+            output,
+        )
+        if match:
+            dep_path = Path(match.group(1).strip())
+            if not dep_path.is_relative_to(app_path):
+                msg = f"Dependency {dep_path} is outside of app bundle {app_path}"
+                raise RuntimeError(msg)
+            if dep_path in signed:
+                msg = f"Already signed {dep_path} but still failing for {path}"
+                raise RuntimeError(msg)
+            _sign_item_with_deps(dep_path, codesign_cmd, app_path, signed, extra_entitlements_dir)
+            continue
+        print(f"codesign failed (exit {result.returncode}) for: {path}", flush=True)
+        print(f"  command: {' '.join(str(c) for c in cmd)} {path}", flush=True)
+        if output.strip():
+            print(f"  output:  {output.strip()}", flush=True)
+        raise subprocess.CalledProcessError(
+            result.returncode, [*cmd, str(path)], result.stdout, result.stderr,
+        )
 
-def os_walk(path, filter, function):
-    for r, _, fs in os.walk(path):
-        for f in fs:
-            ff = os.path.join(r, f)
-            if filter(ff):
-                function(ff)
 
-def conditional_sign_recursive(path, filter):
-    if is_mac_platform():
-        os_walk(path, filter, lambda fp: codesign_executable(fp))
-
-def codesign(app_path, identity=None, flags=None):
-    codesign = codesign_call(identity, flags)
-    if not codesign or not is_mac_platform():
+def codesign(app_path, identity=None, flags=None, entitlements_dir=None):
+    codesign_cmd = codesign_call(identity, flags)
+    if not codesign_cmd or not is_mac_platform():
         return
-    # sign all executables in Resources
-    conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Resources'),
-                               lambda ff: os.access(ff, os.X_OK))
-    # sign all libraries in Imports
-    conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Imports'),
-                               lambda ff: ff.endswith('.dylib'))
+    root = Path(app_path).resolve()
+    # Collect all signable items and sign bottom-up (deepest first)
+    items = _collect_signable_items(root)
+    signed: set[Path] = set()
+    for item in items:
+        _sign_item_with_deps(item, codesign_cmd, root, signed, entitlements_dir)
+    # Sign the top-level bundle
+    if root not in signed and root.suffix in (".app", ".framework"):
+        _sign_item_with_deps(root, codesign_cmd, root, signed, entitlements_dir)
 
-    # sign the whole bundle
-    codesign_executable(app_path, ['--deep'])
 
 
 def codesign_main(args):
-    codesign(args.app_bundle, args.identity, args.flags)
+    codesign(args.app_bundle, args.identity, args.flags, args.entitlements_dir)
 
 def main():
     parser = argparse.ArgumentParser(description='Qt Creator build tools')
@@ -408,6 +487,7 @@ def main():
     parser_codesign.add_argument('app_bundle')
     parser_codesign.add_argument('-s', '--identity', help='Codesign identity')
     parser_codesign.add_argument('--flags', help='Additional flags')
+    parser_codesign.add_argument('--entitlements-dir', help='Directory containing entitlements files')
     parser_codesign.set_defaults(func=codesign_main)
     args = parser.parse_args()
     args.func(args)
