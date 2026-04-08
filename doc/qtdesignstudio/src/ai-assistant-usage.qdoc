@@ -1,0 +1,45 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage studio-terms.html
+    \page ai-assistant-usage.html
+    \nextpage best-practices-glow.html
+    \sa {AI assistant},{AI models},{MCP servers},{Setting up the AI assistant}
+    \title Using the AI assistant
+
+    Note the following when using the AI assistant:
+
+    \list
+      \li The AI assistant is aware of images (by their names only) in the project assets and is
+          instructed to use them whenever it seems to fit. For example, if you have an image named
+          \c {banana.jpg} in your project assets, the AI assistant likely uses this image if you
+          ask it to add a banana to the UI.
+      \li The AI assistant is aware of \c {.ui.qml} files and instructed to not generate code in them.
+    \endlist
+
+    \section1 Using a prompt to generate content
+
+    To generate content with the AI assistant:
+
+    \list 1
+      \li In the \uicontrol {AI Assistant} view, select the model that you want to use from the
+      drop-down menu.
+      \li Enter your prompt in the prompt field. You can also use \imageattach to
+      attach an image to your prompt. These models can interpret the content of
+      the image such as layout and visual hierarchy and use that understanding during
+      generation. For example, you can attach an image of a UI layout and ask the AI assistant to
+      \e {build a UI based on the attached image}.
+      \note If you attach an image to the AI assistant, it remains in use and
+            affects results of your next generations until you remove it.
+      \li Select \imagesend to run the prompt.
+      \image ai-assistant-view.webp
+             {AI assistant view with a prompt in the prompt field}
+    \endlist
+
+    After a successful generation, rate the output with thumbs up or thumbs down. This helps
+    improve the \QDS AI assistant.
+
+    \image rate-generation.webp {Thumbs up and thumbs down rating buttons below a generation result}
+
+    */

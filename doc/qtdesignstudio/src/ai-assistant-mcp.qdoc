@@ -1,0 +1,131 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page ai-assistant-mcp.html
+    \sa {AI assistant},{AI models},{Setting up the AI assistant},{Using the AI assistant}
+    \title MCP servers
+
+    The AI assistant supports \l{https://modelcontextprotocol.io/}{Model Context Protocol} (MCP) servers. MCP servers expose tools that
+    the AI assistant can use when generating or modifying content in your project.
+
+    The AI assistant has one built-in QML MCP server. You can also connect
+    external MCP servers, see \l {Connecting an external MCP server}.
+
+    \section1 Built-in QML MCP server
+
+    \QDS includes a built-in QML MCP server that is enabled by default. It gives the AI
+    assistant direct access to the QML files in your project through the following tools:
+
+    \table
+      \header
+        \li Tool
+        \li Description
+      \row
+        \li \c read_qml
+        \li Reads the contents of a QML file.
+      \row
+        \li \c create_qml
+        \li Creates a new QML file in the project.
+      \row
+        \li \c modify_qml
+        \li Modifies an existing QML file.
+      \row
+        \li \c delete_qml
+        \li Deletes a QML file from the project.
+      \row
+        \li \c move_qml
+        \li Moves a QML file to a different location in the project.
+    \endtable
+
+    \section2 Configuration
+
+    The built-in QML MCP server is pre-configured with the following settings:
+
+    \table
+  \header
+    \li Setting
+    \li Value
+    \li Description
+  \row
+    \li Transport
+    \li Std I/O
+    \li The communication method used by the server.
+  \row
+    \li Command
+    \li \c qml_mcp_server/qml_mcp_server.exe (Windows) or \c qml_mcp_server/qml_mcp_server (Linux and macOS)
+    \li The executable that starts the QML MCP server.
+  \row
+    \li Arguments
+    \li \c ${PROJECT_PATH}
+    \li The path to your current project. Scopes all file operations to the
+        project directory.
+    \endtable
+
+    \section2 Security
+
+    The built-in QML MCP server is designed with strict boundaries:
+
+    \list
+      \li It only reads and writes files inside your current project directory.
+          It never accesses files outside of it.
+      \li It exposes only the defined tools listed above. No script execution or
+          arbitrary system access is possible.
+      \li All tool calls made by the AI assistant are visible in the
+          \uicontrol {AI Assistant} chat history, so you always know what
+          actions were taken.
+    \endlist
+
+    \warning Only use the AI assistant on projects you own or fully trust.
+    QML files can contain embedded text that may attempt to influence the AI
+    assistant's behavior, a technique known as \e {prompt injection}. For
+    example, a malicious comment in a shared QML file could instruct the AI
+    assistant to delete or overwrite files in your project. While the built-in
+    tools require your confirmation for destructive actions such as
+    \c delete_qml, you should still be cautious when opening projects from
+    untrusted sources.
+
+    \section1 Connecting an external MCP server
+
+    You can connect external MCP servers to extend what the AI assistant can do beyond the
+    built-in QML tools.
+
+    To add an external MCP server:
+
+    \list 1
+      \li In the \uicontrol {AI Assistant} view, select \imagesettings.
+      \li On the \uicontrol {MCP Server Settings} tab, select \uicontrol {Add MCP server}.
+      \li In \uicontrol {Server name}, enter a name for the server.
+      \li In \uicontrol {Transport}, select the communication method:
+        \list
+          \li \uicontrol {Std I/O}: \QDS launches the server as a local process
+              and communicates with it over standard input/output.
+          \li \uicontrol {HTTP}: \QDS connects to a server running at a given URL.
+        \endlist
+      \li Depending on the selected transport, fill in the remaining fields:
+        \list
+          \li For \uicontrol {Std I/O}:
+            \list
+              \li In \uicontrol {Command}, enter the command used to start the server.
+              \li In \uicontrol {Working dir}, enter the working directory for
+                  the server process.
+              \li To pass arguments to the server command, select \imageplus
+              next to \uicontrol {Arguments} and enter each argument as a
+              separate string.
+            \endlist
+          \li For \uicontrol {HTTP}:
+            \list
+              \li In \uicontrol {URL}, enter the address of the server.
+              \li If the server requires authentication, enter the credentials
+                  in \uicontrol {Bearer token}.
+            \endlist
+        \endlist
+      \li Select \uicontrol {OK}.
+    \endlist
+
+    \image ai-assistant-mcp-server.webp {Setting up a new connection to Figma MCP Server via HTTP}
+
+    To enable or disable a server, select or clear the checkbox next to its name in the
+    MCP server list.
+
+    */

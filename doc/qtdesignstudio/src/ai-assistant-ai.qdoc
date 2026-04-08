@@ -1,0 +1,116 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+
+    \page ai-assistant-ai.html
+    \sa {AI assistant},{MCP servers},{Setting up the AI assistant},{Using the AI assistant}
+    \title AI models
+
+    The tables below list the models that are available in \QDS by default. To add more models than
+    the default ones, see the link to the provider's full list of models below each table.
+
+    The AI assistant supports models from Gemini, OpenAI, and Claude.
+
+    \note The AI assistant in \QDS does not support text-to-speech (TTS).
+
+    \section1 Choosing a model
+
+    When choosing which AI model to use, consider the following:
+
+    \list
+      \li You can add more models from the supported providers,
+          see \l {Adding, removing, and reorganizing models}.
+      \li Access considerations:
+        \list
+          \li \e Gemini provides
+              \l {https://ai.google.dev/gemini-api/docs/pricing}{free tier rate limits}, though
+              they are limited.
+          \li \e OpenAI and \e Claude do not offer any free plans. The pricing depends on the
+              model. See \l{https://openai.com/api/pricing/}{OpenAI pricing} and
+              \l{https://www.claude.com/pricing#api}{Claude pricing}.
+        \endlist
+    \endlist
+
+    \section1 Gemini
+
+    \table
+      \header
+        \li Model
+        \li Model ID
+        \li Image input
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview}{Gemini 3.1 Pro Preview}
+        \li \c gemini-3.1-pro-preview
+        \li Yes
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-preview}{Gemini 3.1 Flash-Lite Preview}
+        \li \c gemini-3.1-flash-lite-preview
+        \li Yes
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models/gemini-3-flash-preview}{Gemini 3 Flash Preview}
+        \li \c gemini-3-flash-preview
+        \li Yes
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro}{Gemini 2.5 Pro}
+        \li \c gemini-2.5-pro
+        \li Yes
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash}{Gemini 2.5 Flash}
+        \li \c gemini-2.5-flash
+        \li Yes
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite}{Gemini 2.5 Flash-Lite}
+        \li \c gemini-2.5-flash-lite
+        \li Yes
+    \endtable
+
+    For a full list of models, see \l {https://ai.google.dev/gemini-api/docs/models}.
+
+    \section1 OpenAI
+
+    \table
+      \header
+        \li Model
+        \li Model ID
+        \li Image input
+      \row
+        \li \l{https://developers.openai.com/docs/models/gpt-5.4}{GPT-5.4}
+        \li \c gpt-5.4
+        \li Yes
+      \row
+        \li \l{https://developers.openai.com/api/docs/models/gpt-5.4-mini}{GPT-5.4 mini}
+        \li \c gpt-5.4-mini
+        \li Yes
+      \row
+        \li \l{https://developers.openai.com/api/docs/models/gpt-5.4-nano}{GPT-5.4 nano}
+        \li \c gpt-5.4-nano
+        \li Yes
+    \endtable
+
+    For a full list of models, see \l{https://platform.openai.com/docs/models}.
+
+    \section1 Claude
+
+    \table
+      \header
+        \li Model
+        \li Model ID
+        \li Image input
+      \row
+        \li \l{https://docs.claude.com/en/docs/about-claude/models/overview#latest-models-comparison}{Claude Opus 4.6}
+        \li \c claude-opus-4-6
+        \li Yes
+      \row
+        \li \l{https://docs.claude.com/en/docs/about-claude/models/overview#latest-models-comparison}{Claude Sonnet 4.6}
+        \li \c claude-sonnet-4-6
+        \li Yes
+      \row
+        \li \l{https://docs.claude.com/en/docs/about-claude/models/overview#latest-models-comparison}{Claude Haiku 4.5}
+        \li \c claude-haiku-4-5-20251001
+        \li Yes
+    \endtable
+
+    For a full list of models, see \l{https://docs.claude.com/en/docs/about-claude/models/overview}.
+
+    */
