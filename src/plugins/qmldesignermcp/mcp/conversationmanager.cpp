@@ -3,92 +3,92 @@
 
 #include "conversationmanager.h"
 
-#include <QJsonDocument>
-#include <QJsonObject>
-
 namespace QmlDesigner {
 
 ConversationManager::ConversationManager() = default;
 
-void ConversationManager::addUserMessage(const QJsonArray &content)
+void ConversationManager::addUserMessage(const QList<MessageBlock> &blocks)
 {
-    m_userMessageIndices.append(m_turns.size());
+    m_userMessageIndices.append(m_messages.size());
 
-    m_turns.append(ConversationTurn{
-        .role = "user",
-        .content = content,
+    m_messages.append(ConversationMessage{
+        .role = ConversationMessage::Role::User,
+        .blocks = blocks,
         .timestamp = QDateTime::currentDateTime(),
     });
     pruneIfNeeded();
 }
 
-void ConversationManager::addAssistantMessage(const QJsonArray &content)
+void ConversationManager::addAssistantMessage(const QList<MessageBlock> &blocks)
 {
-    m_turns.append(ConversationTurn{
-        .role = "assistant",
-        .content = content,
+    m_messages.append(ConversationMessage{
+        .role = ConversationMessage::Role::Assistant,
+        .blocks = blocks,
         .timestamp = QDateTime::currentDateTime(),
     });
     pruneIfNeeded();
 }
 
-void ConversationManager::addToolResultsMessage(const QJsonArray &content)
+void ConversationManager::addToolResultsMessage(const QList<MessageBlock> &blocks)
 {
-    m_turns.append(ConversationTurn{
-        .type = ConversationTurn::ToolResults,
-        .role = "user",
-        .content = content,
+    m_messages.append(ConversationMessage{
+        .role = ConversationMessage::Role::ToolResults,
+        .blocks = blocks,
         .timestamp = QDateTime::currentDateTime(),
     });
     pruneIfNeeded();
 }
 
-QList<ConversationTurn> ConversationManager::turns() const
+QList<ConversationMessage> ConversationManager::messages() const
 {
-    return m_turns;
+    return m_messages;
 }
 
 void ConversationManager::clear()
 {
     m_userMessageIndices.clear();
-    m_turns.clear();
+    m_messages.clear();
 }
 
 int ConversationManager::estimateTokenCount() const
 {
     int total = 0;
-    for (const ConversationTurn &turn : std::as_const(m_turns))
-        total += estimateTurnTokens(turn);
-
+    for (const ConversationMessage &message : std::as_const(m_messages))
+        total += estimateMessageTokens(message);
     return total;
 }
 
 void ConversationManager::pruneIfNeeded()
 {
-    if (m_maxTurns <= 0 || m_turns.size() <= m_maxTurns)
+    if (m_maxTurns <= 0 || m_messages.size() <= m_maxTurns)
         return;
 
     int cutAt = 0;
 
     // Keep jumping to the next user index until the remaining size is safe
-    while (m_userMessageIndices.size() > 1 && (m_turns.size() - m_userMessageIndices.at(1)) >= m_maxTurns) {
+    while (m_userMessageIndices.size() > 1 && (m_messages.size() - m_userMessageIndices.at(1)) >= m_maxTurns) {
         m_userMessageIndices.removeFirst();
         cutAt = m_userMessageIndices.first();
     }
 
     if (cutAt > 0) {
-        m_turns.erase(m_turns.begin(), m_turns.begin() + cutAt);
+        m_messages.erase(m_messages.begin(), m_messages.begin() + cutAt);
         for (int &idx : m_userMessageIndices)
             idx -= cutAt;
     }
 }
 
-int ConversationManager::estimateTurnTokens(const ConversationTurn &turn) const
+int ConversationManager::estimateMessageTokens(const ConversationMessage &message) const
 {
-    // Rough estimation: ~4 characters per token
-    QString jsonStr = QString::fromUtf8(
-        QJsonDocument(turn.content).toJson(QJsonDocument::Compact));
-    return jsonStr.length() / 4;
+    // Rough estimate: count text characters across all text blocks, ~4 chars per token
+    int chars = 0;
+    for (const MessageBlock &block : message.blocks) {
+        if (block.type == MessageBlock::Type::Text)
+            chars += block.text.size();
+        else if (block.type == MessageBlock::Type::ToolResult)
+            chars += block.content.size() + block.error.size();
+    }
+    return chars / 4;
 }
 
 } // namespace QmlDesigner

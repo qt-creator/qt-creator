@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <conversationturn.h>
+#include <conversationmessage.h>
 
 #include <QByteArray>
 #include <QJsonArray>
@@ -16,10 +16,8 @@ QT_FORWARD_DECLARE_CLASS(QNetworkRequest)
 namespace QmlDesigner {
 
 struct AiModelInfo;
-class AiResponse;
 struct RequestData;
 struct ToolCall;
-struct ToolResult;
 
 /**
  * @brief Base interface for AI provider adapters
@@ -57,7 +55,7 @@ public:
         const RequestData &data,
         const AiModelInfo &modelInfo,
         const QList<ToolEntry> &tools,
-        const QList<ConversationTurn> &history) = 0;
+        const QList<ConversationMessage> &history) = 0;
 
     /**
      * @brief id for this adapter
@@ -77,25 +75,15 @@ public:
     virtual bool isResponseComplete(const QByteArray &response) const = 0;
 
     /**
-    * @brief Convert response to AiResponse object
-    *
-    * Parses and extracts the text content and reports parsing errors.
-    */
-    virtual AiResponse interpretResponse(const QByteArray &response) = 0;
-
-    /**
      * @brief Format conversation history for the provider
      *
-     * Converts the internal list of ConversationTurn objects into the
-     * provider-specific JSON format expected by the API. This typically
-     * expands each turn into one or more message entries (user, assistant,
-     * tool results, etc.) depending on how the provider structures
-     * conversations.
+     * Converts the internal list of ConversationMessage objects into the
+     * provider-specific JSON format expected by the API.
      *
-     * @param turns Conversation history stored by the client
+     * @param messages Conversation history
      * @return JSON array representing the formatted message history
      */
-    virtual QJsonArray formatHistory(const QList<ConversationTurn> &turns) const = 0;
+    virtual QJsonArray formatHistory(const QList<ConversationMessage> &messages) const = 0;
 
     /**
      * @brief Format a list of tool entries into the provider-specific JSON schema.
@@ -107,25 +95,12 @@ public:
     virtual QJsonArray formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const = 0;
 
     /**
-     * @brief Build conversation turn from user message
+     * @brief Convert a raw provider response into provider-agnostic MessageBlocks.
      *
-     * @return JSON object representing user's message
+     * The returned blocks will typically contain one or more Type::Text blocks
+     * (the model's reasoning) and one Type::ToolUse block per tool call.
      */
-    virtual QJsonArray buildUserMessage(const QString &text, const QUrl &imageUrl = {}) = 0;
-
-    /**
-     * @brief Build conversation turn from assistant response
-     *
-     * @return JSON object representing assistant's message
-     */
-    virtual QJsonArray buildAssistantTurn(const QByteArray &response) = 0;
-
-    /**
-     * @brief Build conversation turn from tool results
-     *
-     * @return JSON object representing tool results as user message
-     */
-    virtual QJsonArray buildToolResultsTurn(const QList<ToolResult> &results) = 0;
+    virtual QList<MessageBlock> parseResponse(const QByteArray &response) = 0;
 
     /**
      * @brief Extract plain text from a raw LLM response body.

@@ -3,81 +3,42 @@
 
 #pragma once
 
-#include <conversationturn.h>
+#include "conversationmessage.h"
 
-#include <QJsonArray>
-#include <QDateTime>
 #include <QList>
-#include <QUrl>
 
 namespace QmlDesigner {
 
 struct ToolResult;
 
 /**
- * @brief Manages conversation history for agentic loops
+ * @brief Manages the provider-agnostic conversation history.
  *
- * Stores turns as opaque role/content pairs. All API-specific formatting
- * (tool_result vs function_call_output, etc.) is the responsibility of the
- * adapter layer.
+ * Stores ConversationMessage objects. Adapters are responsible for converting to/from
+ * provider-specific JSON
  */
 class ConversationManager
 {
 public:
     ConversationManager();
 
-    /**
-     * @brief Add a user message to history
-     */
-    void addUserMessage(const QJsonArray &content);
+    void addUserMessage(const QList<MessageBlock> &blocks);
+    void addAssistantMessage(const QList<MessageBlock> &blocks);
+    void addToolResultsMessage(const QList<MessageBlock> &blocks);
 
-    /**
-     * @brief Add an assistant message to history
-     *
-     * content array taken verbatim from the response
-     */
-    void addAssistantMessage(const QJsonArray &content);
+    QList<ConversationMessage> messages() const;
 
-    /**
-     * @brief Add a pre-formatted user turn carrying tool results.
-     *
-     * The caller (AgenticRequestManager) is responsible for building the
-     * content array in the correct format for the active provider via
-     * AiApiAdapter::buildToolResultsTurn().
-     */
-    void addToolResultsMessage(const QJsonArray &content);
-
-    /**
-     * @brief Get conversation history
-     */
-    QList<ConversationTurn> turns() const;
-
-    /**
-     * @brief Clear all conversation history
-     */
     void clear();
-
-    /**
-     * @brief Get number of turns
-     */
-    int turnCount() const { return m_turns.size(); }
-
-    /**
-     * @brief Get estimated token count (rough approximation)
-     */
     int estimateTokenCount() const;
 
-    /**
-     * @brief Set maximum turns to keep (auto-prunes on add)
-     */
     void setMaxTurns(int max) { m_maxTurns = max; }
 
 private:
     void pruneIfNeeded();
-    int estimateTurnTokens(const ConversationTurn &turn) const;
+    int estimateMessageTokens(const ConversationMessage &message) const;
 
-    QList<int> m_userMessageIndices; // Indices into m_turns that are "Safe Starts"
-    QList<ConversationTurn> m_turns;
+    QList<ConversationMessage> m_messages;
+    QList<int> m_userMessageIndices; // Indices into m_messages that are "Safe Starts"
     int m_maxTurns = 30; // Keep last 30 turns by default
 };
 

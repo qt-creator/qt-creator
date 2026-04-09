@@ -8,7 +8,6 @@
 #include "aiassistantutils.h"
 #include "aiassistantview.h"
 #include "aimodelsmodel.h"
-#include "airesponse.h"
 #include "mcp/agenticrequestmanager.h"
 #include "mcp/conversationmanager.h"
 #include "mcp/mcphost.h"
@@ -377,9 +376,10 @@ void AiAssistantWidget::connectRequestManager()
             });
 
     // Success - handle response
-    connect(reqManager, &AgenticRequestManager::responseReady,
-            this, [this](const AiResponse &response) {
-                handleAiResponse(response);
+    connect(reqManager, &AgenticRequestManager::responseSucceeded,
+            this, [this]() {
+                m_currentTransaction.commit();
+                emit canUndoTransactionChanged();
             });
 
     // Progress signals
@@ -506,26 +506,6 @@ void AiAssistantWidget::cancelRequest()
     m_requestManager->cancel();
 
     m_currentTransaction.rollback();
-    emit canUndoTransactionChanged();
-}
-
-void AiAssistantWidget::handleAiResponse(const AiResponse &response)
-{
-    using namespace Qt::StringLiterals;
-    using Utils::FilePath;
-
-    if (response.error() != AiResponse::Error::NoError) {
-        m_chatHistory->addSystemMessage(tr("Error: %1").arg(response.errorMessage()));
-        m_currentTransaction.rollback();
-        emit canUndoTransactionChanged();
-        return;
-    }
-
-    QString responseText = response.text().trimmed();
-    if (!responseText.isEmpty())
-        m_chatHistory->addAssistantMessage(responseText);
-
-    m_currentTransaction.commit();
     emit canUndoTransactionChanged();
 }
 

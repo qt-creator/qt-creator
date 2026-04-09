@@ -23,7 +23,6 @@ namespace QmlDesigner {
 class AgenticRequestManager;
 class AiAssistantView;
 class AiModelsModel;
-class AiResponse;
 class ConversationManager;
 class McpHost;
 class ToolRegistry;
@@ -89,7 +88,6 @@ private: // functions
     void reloadQmlSource();
     void setGenerationState(GenerationState state);
     void setHasValidModel(bool val);
-    void handleAiResponse(const AiResponse &response);
     void initializeMcp();
     void connectRequestManager();
     void connectHost();

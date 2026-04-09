@@ -5,7 +5,6 @@
 
 #include "aiapiadapter.h"
 #include "aiassistantconstants.h"
-#include "airesponse.h"
 #include "claudeapiadapter.h"
 #include "conversationmanager.h"
 #include "geminiapiadapter.h"
@@ -19,6 +18,40 @@
 #include <QTimer>
 
 namespace QmlDesigner {
+
+namespace {
+
+QList<MessageBlock> buildUserBlocks(const RequestData &reqData)
+{
+   QString text = QString("Current QML:\n```qml\n%1\n```\n\nRequest: %2")
+                       .arg(reqData.currentQml, reqData.userPrompt);
+
+    QList<MessageBlock> blocks;
+    blocks.append({.type = MessageBlock::Type::Text, .text = text});
+    if (!reqData.attachedImageUrl.isEmpty())
+        blocks.append({.type = MessageBlock::Type::Image, .url = reqData.attachedImageUrl});
+
+    return blocks;
+}
+
+QList<MessageBlock> buildToolResultsBlocks(const QList<ToolResult> &results)
+{
+    QList<MessageBlock> blocks;
+    for (const ToolResult &r : results) {
+        blocks.append({
+            .type = MessageBlock::Type::ToolResult,
+            .toolName = r.toolName,
+            .toolCallId = r.toolCallId,
+            .content = r.content,
+            .error = r.error,
+            .success = r.success
+        });
+    }
+
+    return blocks;
+}
+
+} // namespace
 
 AgenticRequestManager::AgenticRequestManager(
     McpHost *mcpHost,
@@ -71,10 +104,8 @@ void AgenticRequestManager::request(const RequestData &data, const AiModelInfo &
     }
 
     // Add initial user message
-    m_conversation->addUserMessage(
-        adapter->buildUserMessage(QString("Current QML:\n```qml\n%1\n```\n\nRequest: %2")
-                                      .arg(data.currentQml, data.userPrompt),
-                                  data.attachedImageUrl));
+    const QList<MessageBlock> userBlocks = buildUserBlocks(data);
+    m_conversation->addUserMessage(userBlocks);
 
     m_requestTimer.start();
     emit started();
@@ -160,7 +191,7 @@ void AgenticRequestManager::sendLlmRequest()
         reqData,
         m_currentModelInfo,
         m_toolRegistry->enabledToolEntries(),
-        m_conversation->turns());
+        m_conversation->messages());
 
     // TODO: remove. Needed for now for debugging
     QJsonDocument doc = QJsonDocument::fromJson(m_lastRequestContent);
@@ -247,32 +278,35 @@ void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
         return;
     }
 
-    // Parse for tool calls
-    QList<ToolCall> toolCalls = adapter->parseToolCalls(responseData);
+    const QList<MessageBlock> blocks = adapter->parseResponse(responseData);
+    QList<ToolCall> toolCalls;
 
-    if (toolCalls.isEmpty()) {
-        // No tool calls - check if response is complete
-        if (adapter->isResponseComplete(responseData)) {
-            // We're done! Parse the final response
-            AiResponse finalResponse = adapter->interpretResponse(responseData);
-            finishWithResponse(finalResponse);
-        } else {
-            // Not complete but no tool calls - error state
-            finishWithError("LLM response incomplete but no tool calls requested");
+    for (const MessageBlock &block : blocks) {
+        if (block.type == MessageBlock::Type::Text && !block.text.trimmed().isEmpty()) {
+            // Emit any reasoning text that accompanied the tool calls
+            emit toolCallTextReady(block.text.trimmed());
+        } else if (block.type == MessageBlock::Type::ToolUse) {
+            toolCalls.append({
+                .id = block.id,
+                .toolName = block.toolName,
+                .serverName = block.serverName,
+                .arguments = block.arguments
+            });
         }
+    }
+
+    if (adapter->isResponseComplete(responseData)) {
+        finishWithSuccess();
         return;
     }
 
+    if (toolCalls.isEmpty())
+        emit logMessage("Warning: LLM response incomplete but no tool calls requested");
+
     emit logMessage(QString("LLM requested %1 tool call(s)").arg(toolCalls.size()));
 
-    const QString thinkingText = adapter->extractText(responseData).trimmed();
-    if (!thinkingText.isEmpty())
-        emit toolCallTextReady(thinkingText);
-
-    // Add assistant message to history
-    const QJsonArray assistantItems = adapter->buildAssistantTurn(responseData);
-    if (!assistantItems.isEmpty())
-        m_conversation->addAssistantMessage(assistantItems);
+    if (!blocks.isEmpty())
+        m_conversation->addAssistantMessage(blocks);
 
     // Execute tool calls
     executeToolCalls(toolCalls);
@@ -523,15 +557,15 @@ void AgenticRequestManager::onAllToolCallsCompleted()
         results.append(pending.result);
 
     // Add tool results to conversation history
-    const QJsonArray toolItems = adapter->buildToolResultsTurn(results);
-    if (!toolItems.isEmpty())
-        m_conversation->addToolResultsMessage(toolItems);
+    const QList<MessageBlock> resultBlocks = buildToolResultsBlocks(results);
+    if (!resultBlocks.isEmpty())
+        m_conversation->addToolResultsMessage(resultBlocks);
 
     // Continue to next iteration
     executeNextIteration();
 }
 
-void AgenticRequestManager::finishWithResponse(const AiResponse &response)
+void AgenticRequestManager::finishWithSuccess()
 {
     qint64 totalMs = m_requestTimer.elapsed();
 
@@ -539,7 +573,7 @@ void AgenticRequestManager::finishWithResponse(const AiResponse &response)
                    .arg(m_currentIteration).arg(totalMs));
 
     m_isRunning = false;
-    emit responseReady(response);
+    emit responseSucceeded();
     emit finished();
 }
 

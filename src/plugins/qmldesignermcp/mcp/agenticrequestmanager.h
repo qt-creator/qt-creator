@@ -102,7 +102,7 @@ signals:
     void finished();
 
     // Results
-    void responseReady(const QmlDesigner::AiResponse &response);
+    void responseSucceeded();
     void errorOccurred(const QString &error);
 
     // Progress
@@ -140,7 +140,7 @@ private:
     void executeToolCalls(const QList<ToolCall> &calls);
     void confirmToolCall(int pendingIndex, bool confirmed);
     void onAllToolCallsCompleted();
-    void finishWithResponse(const AiResponse &response);
+    void finishWithSuccess();
     void finishWithError(const QString &error);
 
     // Retry logic

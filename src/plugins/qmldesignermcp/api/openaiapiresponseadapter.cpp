@@ -6,7 +6,6 @@
 #include "agenticrequestmanager.h"
 #include "aiassistantutils.h"
 #include "aiproviderconfig.h"
-#include "airesponse.h"
 
 #include <QFileInfo>
 #include <QImage>
@@ -31,7 +30,7 @@ QByteArray OpenAiResponseApiAdapter::createRequest(
     const RequestData &data,
     const AiModelInfo &modelInfo,
     const QList<ToolEntry> &tools,
-    const QList<ConversationTurn> &history)
+    const QList<ConversationMessage> &history)
 {
     QJsonObject requestObj{
         {"model", modelInfo.modelId},
@@ -68,8 +67,6 @@ QList<ToolCall> OpenAiResponseApiAdapter::parseToolCalls(const QByteArray &respo
     if (root.value("error").isObject())
         return {};
 
-    // The Responses API returns an "output" array. Each item has a "type".
-    // Tool invocations appear as items of type "function_call".
     const QJsonArray output = root.value("output").toArray();
     for (const QJsonValue &value : output) {
         QJsonObject item = value.toObject();
@@ -81,13 +78,11 @@ QList<ToolCall> OpenAiResponseApiAdapter::parseToolCalls(const QByteArray &respo
             .toolName = item.value("name").toString()
         };
 
-        // Arguments arrive as a JSON-encoded string; parse it back to an object.
         QString argsStr = item.value("arguments").toString();
         QJsonDocument argsDoc = QJsonDocument::fromJson(argsStr.toUtf8());
         if (argsDoc.isObject())
             call.arguments = argsDoc.object();
 
-        // Extract server name from prefixed tool name (server__tool).
         if (call.toolName.contains("__")) {
             QStringList parts = call.toolName.split("__");
             if (parts.size() == 2) {
@@ -111,108 +106,115 @@ bool OpenAiResponseApiAdapter::isResponseComplete(const QByteArray &response) co
 
     QJsonObject root = doc.object();
 
-    // Top-level "status" field: "completed" | "requires_action" | "failed" | ...
-    // "requires_action" signals that tool calls are pending.
-    QString status = root.value("status").toString();
-    return status != "requires_action";
-}
-
-AiResponse OpenAiResponseApiAdapter::interpretResponse(const QByteArray &response)
-{
-    using Error = AiResponse::Error;
-
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
-    if (parseError.error != QJsonParseError::NoError)
-        return AiResponse(Error::JsonParseError);
-
-    QJsonObject root = doc.object();
-
-    if (root.contains("error") && !root.value("error").isNull()) {
-        QString errorMsg = root.value("error").toObject().value("message").toString();
-        return AiResponse::requestError(errorMsg);
+    const QJsonArray output = doc.object().value("output").toArray();
+    for (const QJsonValue &value : output) {
+        if (value.toObject().value("type").toString() == "function_call")
+            return false;
     }
-
-    m_previousResponseId = doc.object().value("id").toString();
-
-    QString contentStr = extractTextFromOutput(root.value("output").toArray());
-
-    return AiResponse(contentStr);
+    return true;
 }
 
-QJsonArray OpenAiResponseApiAdapter::buildUserMessage(const QString &text, const QUrl &imageUrl)
+QList<MessageBlock> OpenAiResponseApiAdapter::parseResponse(const QByteArray &response)
 {
-    QJsonArray content;
-    content.append(QJsonObject{{"type", "input_text"}, {"text", text}});
+    QList<MessageBlock> blocks;
 
-    if (!imageUrl.isEmpty()) {
-        const QString filePath = imageUrl.toLocalFile();
-        const QByteArray fmt = QFileInfo(filePath).suffix().toLatin1();
-        const QString b64 = AiAssistantUtils::toBase64Image(QImage(filePath), fmt);
-        content.append(QJsonObject{
-            {"type", "input_image"},
-            {"image_url", QString("data:image/%1;base64,%2").arg(QString::fromLatin1(fmt), b64)},
-        });
-    }
-
-    return content;
-}
-
-QJsonArray OpenAiResponseApiAdapter::buildAssistantTurn(const QByteArray &response)
-{
-    // Capture the response ID for the next iteration
     QJsonDocument doc = QJsonDocument::fromJson(response);
     m_previousResponseId = doc.object().value("id").toString();
 
-    // No history items to return — state is managed server-side
-    return {};
-}
+    const QJsonArray output = doc.object().value("output").toArray();
+    for (const QJsonValue &value : output) {
+        QJsonObject item = value.toObject();
+        const QString type = item.value("type").toString();
 
-QJsonArray OpenAiResponseApiAdapter::buildToolResultsTurn(const QList<ToolResult> &results)
-{
-    // Tool results are sent as the input for the next iteration
-    QJsonArray items;
-    for (const ToolResult &result : results) {
-        items.append(QJsonObject{
-            {"type", "function_call_output"},
-            {"call_id", result.toolCallId},
-            {"output", result.success
-                           ? result.content
-                           : QString(R"({"error": "%1"})").arg(result.error)},
-        });
+        if (type == "message") {
+            for (const QJsonValue &cv : item.value("content").toArray()) {
+                QJsonObject c = cv.toObject();
+                if (c.value("type").toString() == "output_text") {
+                    MessageBlock block;
+                    block.type = MessageBlock::Type::Text;
+                    block.text = c.value("text").toString();
+                    blocks.append(block);
+                }
+            }
+        } else if (type == "function_call") {
+            MessageBlock block;
+            block.type = MessageBlock::Type::ToolUse;
+            block.id = item.value("call_id").toString();
+            block.toolName = item.value("name").toString();
+
+            QJsonDocument argsDoc = QJsonDocument::fromJson(item.value("arguments").toString().toUtf8());
+            if (argsDoc.isObject())
+                block.arguments = argsDoc.object();
+
+            if (block.toolName.contains("__")) {
+                QStringList parts = block.toolName.split("__");
+                if (parts.size() == 2) {
+                    block.serverName = parts.first();
+                    block.toolName = parts.last();
+                }
+            }
+
+            blocks.append(block);
+        }
     }
-    return items;
+
+    return blocks;
 }
 
-QJsonArray OpenAiResponseApiAdapter::formatHistory(const QList<ConversationTurn> &turns) const
+QJsonArray OpenAiResponseApiAdapter::formatHistory(const QList<ConversationMessage> &messages) const
 {
-    if (turns.isEmpty())
+    if (messages.isEmpty())
         return {};
 
-    const ConversationTurn &last = turns.last();
+    const ConversationMessage &last = messages.last();
 
-    // Collect ALL consecutive tool results from the end
-    if (last.type == ConversationTurn::ToolResults) {
-        // Find the first ToolResults turn in the trailing block
-        int start = turns.size() - 1;
-        while (start > 0 && turns[start - 1].type == ConversationTurn::ToolResults)
+    // With previous_response_id, the Responses API only needs the latest user
+    // input or tool results — the rest is managed server-side.
+    if (last.role == ConversationMessage::Role::ToolResults) {
+        // Collect all consecutive trailing ToolResults turns
+        int start = messages.size() - 1;
+        while (start > 0 && messages[start - 1].role == ConversationMessage::Role::ToolResults)
             --start;
 
         QJsonArray input;
-        for (int i = start; i < turns.size(); ++i) {
-            for (const QJsonValue &item : std::as_const(turns[i]).content)
-                input.append(item);
-        }
+        for (int i = start; i < messages.size(); ++i) {
+            for (const MessageBlock &block : messages[i].blocks) {
+                if (block.type != MessageBlock::Type::ToolResult)
+                    continue;
 
+                input.append(QJsonObject{
+                                 {"type", "function_call_output"},
+                                 {"call_id", block.toolCallId},
+                                 {"output", block.success
+                                                ? block.content
+                                                : QString(R"({"error": "%1"})").arg(block.error)},
+                             });
+            }
+        }
         return input;
     }
 
-    // With previous_response_id, only the latest turn needs to be sent
+    // Latest user message
+    QJsonArray content;
+    for (const MessageBlock &block : last.blocks) {
+        if (block.type == MessageBlock::Type::Text) {
+            content.append(QJsonObject{{"type", "input_text"}, {"text", block.text}});
+        } else if (block.type == MessageBlock::Type::Image) {
+            const QString filePath = block.url.toLocalFile();
+            const QString fmt = QFileInfo(filePath).suffix();
+            const QString b64 = AiAssistantUtils::toBase64Image(QImage(filePath), fmt.toLatin1());
+            content.append(QJsonObject{
+                               {"type", "input_image"},
+                               {"image_url", QString("data:image/%1;base64,%2").arg(fmt, b64)},
+                           });
+        }
+    }
+
     return QJsonArray{QJsonObject{
-        {"type", "message"},
-        {"role", last.role},
-        {"content", last.content},
-    }};
+                         {"type", "message"},
+                         {"role", "user"},
+                         {"content", content},
+                     }};
 }
 
 QJsonArray OpenAiResponseApiAdapter::formatTools(const QList<ToolEntry> &tools,

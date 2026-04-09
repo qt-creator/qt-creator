@@ -14,7 +14,6 @@ add_qtc_plugin(QmlDesignerMcp
     aiassistantutils.cpp aiassistantutils.h
     aiassistant.qrc
     aimodelsmodel.cpp aimodelsmodel.h
-    airesponse.cpp airesponse.h
     aitransaction.cpp aitransaction.h
     chathistorymodel.cpp chathistorymodel.h
     chatmessage.cpp chatmessage.h
@@ -56,7 +55,7 @@ extend_qtc_plugin(QmlDesignerMcp
     agenticrequestmanager.cpp agenticrequestmanager.h
     conversationmanager.cpp conversationmanager.h
     toolregistry.cpp toolregistry.h
-    conversationturn.h
+    conversationmessage.h
 )
 
 # ---------------------------------------------------------------------------

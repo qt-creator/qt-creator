@@ -5,8 +5,6 @@
 
 #include "aiapiadapter.h"
 
-#include <QUrl>
-
 namespace QmlDesigner {
 
 struct AiModelInfo;
@@ -29,16 +27,13 @@ public:
         const RequestData &data,
         const AiModelInfo &modelInfo,
         const QList<ToolEntry> &tools,
-        const QList<ConversationTurn> &history) override;
+        const QList<ConversationMessage> &history) override;
 
     QString id() const override;
     QList<ToolCall> parseToolCalls(const QByteArray &response) override;
     bool isResponseComplete(const QByteArray &response) const override;
-    AiResponse interpretResponse(const QByteArray &response) override;
-    QJsonArray buildUserMessage(const QString &text, const QUrl &imageUrl = {}) override;
-    QJsonArray buildAssistantTurn(const QByteArray &response) override;
-    QJsonArray buildToolResultsTurn(const QList<ToolResult> &results) override;
-    QJsonArray formatHistory(const QList<ConversationTurn> &turns) const override;
+    QList<MessageBlock> parseResponse(const QByteArray &response) override;
+    QJsonArray formatHistory(const QList<ConversationMessage> &messages) const override;
     QJsonArray formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const override;
     QString extractText(const QByteArray &response) const override;
     bool accepts(const QString &url) const override;

@@ -5,7 +5,6 @@
 
 #include "agenticrequestmanager.h"
 #include "aiassistantutils.h"
-#include "airesponse.h"
 
 #include <QFileInfo>
 #include <QImage>
@@ -30,7 +29,7 @@ QByteArray ClaudeApiAdapter::createRequest(
     const RequestData &data,
     const AiModelInfo &modelInfo,
     const QList<ToolEntry> &tools,
-    const QList<ConversationTurn> &history)
+    const QList<ConversationMessage> &history)
 {
     QJsonObject request{
         {"model", modelInfo.modelId},
@@ -102,97 +101,128 @@ bool ClaudeApiAdapter::isResponseComplete(const QByteArray &response) const
     if (parseError.error != QJsonParseError::NoError)
         return true; // Assume complete on parse error
 
-    QJsonObject root = doc.object();
-
     // Check stop_reason
-    QString stopReason = root.value("stop_reason").toString();
+    QString stopReason = doc.object().value("stop_reason").toString();
 
-    // "end_turn" means Claude is done
-    // "tool_use" means Claude wants to use tools
     return stopReason == "end_turn";
 }
 
-AiResponse ClaudeApiAdapter::interpretResponse(const QByteArray &response)
+QList<MessageBlock> ClaudeApiAdapter::parseResponse(const QByteArray &response)
 {
-    using Error = AiResponse::Error;
+    QList<MessageBlock> blocks;
 
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
-
     if (parseError.error != QJsonParseError::NoError)
-        return AiResponse(Error::JsonParseError);
+        return blocks;
 
-    QJsonObject root = doc.object();
+    const QJsonArray content = doc.object().value("content").toArray();
+    for (const QJsonValue &value : content) {
+        QJsonObject obj = value.toObject();
+        const QString type = obj.value("type").toString();
 
-    if (root.contains("error")) {
-        QString errorMsg = root.value("error").toObject().value("message").toString();
-        return AiResponse::requestError(errorMsg);
-    }
+        if (type == "text") {
+            MessageBlock block;
+            block.type = MessageBlock::Type::Text;
+            block.text = obj.value("text").toString();
+            blocks.append(block);
 
-    // Extract text content
-    QString contentStr = extractTextFromContent(root.value("content").toArray());
+        } else if (type == "tool_use") {
+            MessageBlock block;
+            block.type = MessageBlock::Type::ToolUse;
+            block.id = obj.value("id").toString();
+            block.toolName = obj.value("name").toString();
+            block.arguments = obj.value("input").toObject();
 
-    return AiResponse(contentStr);
-}
+            if (block.toolName.contains("__")) {
+                QStringList parts = block.toolName.split("__");
+                if (parts.size() == 2) {
+                    block.serverName = parts.first();
+                    block.toolName = parts.last();
+                }
+            }
 
-QJsonArray ClaudeApiAdapter::buildUserMessage(const QString &text, const QUrl &imageUrl)
-{
-    QJsonArray content;
-    content.append(QJsonObject{{"type", "text"}, {"text", text}});
-
-    if (!imageUrl.isEmpty()) {
-        const QString filePath = imageUrl.toLocalFile();
-        const QByteArray fmt = QFileInfo(filePath).suffix().toLatin1();
-        content.append(QJsonObject{
-            {"type", "image"},
-            {"source", QJsonObject{
-                {"type", "base64"},
-                {"media_type", QString("image/%1").arg(QString::fromLatin1(fmt))},
-                {"data", AiAssistantUtils::toBase64Image(QImage(filePath), fmt)},
-            }},
-        });
-    }
-
-    return content;
-}
-
-QJsonArray ClaudeApiAdapter::buildAssistantTurn(const QByteArray &response)
-{
-    return extractContentArray(response);
-}
-
-QJsonArray ClaudeApiAdapter::buildToolResultsTurn(const QList<ToolResult> &results)
-{
-    QJsonArray content;
-
-    for (const ToolResult &result : results) {
-        QJsonObject toolResult{
-            {"type", "tool_result"},
-            {"tool_use_id", result.toolCallId},
-            {"content", result.success ? result.content : result.error}
-        };
-
-        if (!result.success)
-            toolResult["is_error"] = true;
-
-        content.append(toolResult);
-    }
-
-    return content;
-}
-
-QJsonArray ClaudeApiAdapter::formatHistory(const QList<ConversationTurn> &turns) const
-{
-    QJsonArray history;
-    for (const ConversationTurn &turn : turns) {
-        if (turn.type == ConversationTurn::ToolResults) {
-            // tool results turn: content is a flat array of tool_result items,
-            // needs to be wrapped in a user message
-            history.append(QJsonObject{{"role", "user"}, {"content", turn.content}});
-        } else {
-            history.append(QJsonObject{{"role", turn.role}, {"content", turn.content}});
+            blocks.append(block);
         }
     }
+
+    return blocks;
+}
+
+QJsonArray ClaudeApiAdapter::formatHistory(const QList<ConversationMessage> &messages) const
+{
+    QJsonArray history;
+
+    for (const ConversationMessage &message : messages) {
+        switch (message.role) {
+        case ConversationMessage::Role::User: {
+            QJsonArray content;
+            for (const MessageBlock &block : message.blocks) {
+                if (block.type == MessageBlock::Type::Text) {
+                    content.append(QJsonObject{{"type", "text"}, {"text", block.text}});
+                } else if (block.type == MessageBlock::Type::Image) {
+                    const QString filePath = block.url.toLocalFile();
+                    const QByteArray fmt = QFileInfo(filePath).suffix().toLatin1();
+                    content.append(QJsonObject{
+                                   {"type", "image"},
+                                   {"source", QJsonObject{
+                                                  {"type", "base64"},
+                                                  {"media_type", QString("image/%1").arg(QString::fromLatin1(fmt))},
+                                                  {"data", AiAssistantUtils::toBase64Image(QImage(filePath), fmt)},
+                                              }},
+                                   });
+                }
+            }
+            history.append(QJsonObject{{"role", "user"}, {"content", content}});
+            break;
+        }
+
+        case ConversationMessage::Role::Assistant: {
+            QJsonArray content;
+            for (const MessageBlock &block : message.blocks) {
+                if (block.type == MessageBlock::Type::Text) {
+                    content.append(QJsonObject{{"type", "text"}, {"text", block.text}});
+                } else if (block.type == MessageBlock::Type::ToolUse) {
+                    // Reconstruct prefixed name for the wire format
+                    const QString wireName = block.serverName.isEmpty()
+                                                 ? block.toolName
+                                                 : QString("%1__%2").arg(block.serverName,
+                                                                         block.toolName);
+                    content.append(QJsonObject{
+                                       {"type", "tool_use"},
+                                       {"id", block.id},
+                                       {"name", wireName},
+                                       {"input", block.arguments},
+                                   });
+                }
+            }
+            history.append(QJsonObject{{"role", "assistant"}, {"content", content}});
+            break;
+        }
+
+        case ConversationMessage::Role::ToolResults: {
+            // Claude expects tool results as a user-role message
+            QJsonArray content;
+            for (const MessageBlock &block : message.blocks) {
+                if (block.type != MessageBlock::Type::ToolResult)
+                    continue;
+
+                QJsonObject toolResult{
+                    {"type", "tool_result"},
+                    {"tool_use_id", block.toolCallId},
+                    {"content", block.success ? block.content : block.error},
+                };
+                if (!block.success)
+                    toolResult["is_error"] = true;
+
+                content.append(toolResult);
+            }
+            history.append(QJsonObject{{"role", "user"}, {"content", content}});
+            break;
+        }
+        }
+    }
+
     return history;
 }
 

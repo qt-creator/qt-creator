@@ -6,7 +6,6 @@
 #include <agenticrequestmanager.h>
 #include <aiassistantutils.h>
 #include <aiproviderconfig.h>
-#include <airesponse.h>
 
 #include <QFileInfo>
 #include <QImage>
@@ -27,7 +26,7 @@ QByteArray GeminiApiAdapter::createRequest(
     const RequestData &data,
     const AiModelInfo &modelInfo,
     const QList<ToolEntry> &tools,
-    const QList<ConversationTurn> &history)
+    const QList<ConversationMessage> &history)
 {
     Q_UNUSED(modelInfo)
 
@@ -82,117 +81,122 @@ QList<ToolCall> GeminiApiAdapter::parseToolCalls(const QByteArray &response)
 
 bool GeminiApiAdapter::isResponseComplete(const QByteArray &response) const
 {
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
-
-    if (parseError.error != QJsonParseError::NoError)
-        return true; // complete on parse error
-
-    QJsonObject root = doc.object();
-    QJsonArray candidates = root.value("candidates").toArray();
-
-    if (candidates.isEmpty())
-        return true;
-
-    QJsonObject firstCandidate = candidates.first().toObject();
-
-    QString finishReason = firstCandidate.value("finishReason").toString();
-
-    return finishReason != "FUNCTION_CALL";
+    const QJsonArray parts = extractPartsArray(response);
+    for (const QJsonValue &part : parts) {
+        if (part.toObject().contains("functionCall"))
+            return false;
+    }
+    return true;
 }
 
-AiResponse GeminiApiAdapter::interpretResponse(const QByteArray &response)
+QList<MessageBlock> GeminiApiAdapter::parseResponse(const QByteArray &response)
 {
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
+    QList<MessageBlock> blocks;
 
-    if (parseError.error != QJsonParseError::NoError)
-        return AiResponse(AiResponse::Error::JsonParseError, parseError.errorString());
+    const QJsonArray parts = extractPartsArray(response);
+    for (const QJsonValue &partValue : parts) {
+        QJsonObject partObj = partValue.toObject();
 
-    QJsonObject root = doc.object();
+        if (partObj.contains("text")) {
+            MessageBlock block;
+            block.type = MessageBlock::Type::Text;
+            block.text = partObj.value("text").toString();
+            blocks.append(block);
 
-    if (root.contains("error")) {
-        QString errorMsg = root.value("error").toObject().value("message").toString();
-        return AiResponse::requestError(errorMsg);
+        } else if (partObj.contains("functionCall")) {
+            QJsonObject callObj = partObj.value("functionCall").toObject();
+            QString name = callObj.value("name").toString();
+
+            MessageBlock block;
+            block.type = MessageBlock::Type::ToolUse;
+            block.arguments = callObj.value("args").toObject();
+            block.auxiliaryData = partObj.value("thoughtSignature").toString();
+
+            if (name.contains("__")) {
+                const QStringList parts = name.split("__");
+                block.serverName = parts.first();
+                block.toolName = parts.last();
+            } else {
+                block.toolName = name;
+            }
+
+            block.id = block.toolName; // Gemini uses name as id
+            blocks.append(block);
+        }
     }
 
-    // Check for model-level blocks (safety, etc)
-    QJsonArray candidates = root.value("candidates").toArray();
-    if (candidates.isEmpty())
-        return AiResponse(AiResponse::Error::EmptyResponse);
-
-    QJsonObject firstCandidate = candidates.first().toObject();
-    QString finishReason = firstCandidate.value("finishReason").toString();
-
-    if (finishReason == "SAFETY" || finishReason == "RECITATION")
-        return AiResponse(AiResponse::Error::RequestError);
-
-    QString text = extractText(response).trimmed();
-    if (text.isEmpty() && finishReason == "STOP")
-        text = "Done.";
-
-    return AiResponse(text);
+    return blocks;
 }
 
-QJsonArray GeminiApiAdapter::buildUserMessage(const QString &text, const QUrl &imageUrl)
-{
-    QJsonArray parts;
-    parts.append(QJsonObject{{"text", text}});
-
-    if (!imageUrl.isEmpty()) {
-        const QString filePath = imageUrl.toLocalFile();
-        const QByteArray fmt = QFileInfo(filePath).suffix().toLatin1();
-        parts.append(QJsonObject{
-            {"inline_data", QJsonObject{
-                {"mime_type", QString("image/%1").arg(QString::fromLatin1(fmt))},
-                {"data", AiAssistantUtils::toBase64Image(QImage(filePath), fmt)},
-            }}
-        });
-    }
-
-    return QJsonArray{ QJsonObject{
-        {"role", "user"},
-        {"parts", parts}
-    }};
-}
-
-QJsonArray GeminiApiAdapter::buildAssistantTurn(const QByteArray &response)
-{
-    QJsonDocument doc = QJsonDocument::fromJson(response);
-    const QJsonObject content = doc.object()
-                                    .value("candidates").toArray()
-                                    .first().toObject()
-                                    .value("content").toObject();
-
-    return QJsonArray{ QJsonObject{
-        {"role", content.value("role").toString("model")},
-        {"parts", content.value("parts").toArray()},
-    }};
-}
-
-QJsonArray GeminiApiAdapter::buildToolResultsTurn(const QList<ToolResult> &results)
-{
-    QJsonArray parts;
-    for (const auto &result : results) {
-        parts.append(QJsonObject{
-            {"functionResponse", QJsonObject{
-                {"name", result.toolName},
-                {"response", QJsonObject{{"output", result.success ? result.content : result.error}}}
-            }}
-        });
-    }
-
-    return QJsonArray{ QJsonObject{
-        {"role", "user"},
-        {"parts", parts}
-    }};
-}
-
-QJsonArray GeminiApiAdapter::formatHistory(const QList<ConversationTurn> &turns) const
+QJsonArray GeminiApiAdapter::formatHistory(const QList<ConversationMessage> &messages) const
 {
     QJsonArray history;
-    for (const ConversationTurn &turn : turns)
-        history.append(turn.content.first()); // turn.content is [{role, parts: [{text:...}]}]
+
+    for (const ConversationMessage &message : messages) {
+        switch (message.role) {
+        case ConversationMessage::Role::User: {
+            QJsonArray parts;
+            for (const MessageBlock &block : message.blocks) {
+                if (block.type == MessageBlock::Type::Text) {
+                    parts.append(QJsonObject{{"text", block.text}});
+                } else if (block.type == MessageBlock::Type::Image) {
+                    const QString filePath = block.url.toLocalFile();
+                    const QByteArray fmt = QFileInfo(filePath).suffix().toLatin1();
+                    parts.append(QJsonObject{
+                        {"inline_data", QJsonObject{
+                                            {"mime_type", QString("image/%1").arg(QString::fromLatin1(fmt))},
+                                            {"data", AiAssistantUtils::toBase64Image(QImage(filePath), fmt)},
+                                        }}
+                    });
+                }
+            }
+            history.append(QJsonObject{{"role", "user"}, {"parts", parts}});
+            break;
+        }
+
+        case ConversationMessage::Role::Assistant: {
+            QJsonArray parts;
+            for (const MessageBlock &block : message.blocks) {
+                if (block.type == MessageBlock::Type::Text) {
+                    parts.append(QJsonObject{{"text", block.text}});
+                } else if (block.type == MessageBlock::Type::ToolUse) {
+                    const QString wireName = block.serverName.isEmpty()
+                    ? block.toolName
+                    : QString("%1__%2").arg(block.serverName,
+                                            block.toolName);
+                    parts.append(QJsonObject{
+                        {"functionCall", QJsonObject{{"name", wireName}, {"args", block.arguments}}},
+                        {"thoughtSignature", block.auxiliaryData }
+                    });
+                }
+            }
+            history.append(QJsonObject{{"role", "model"}, {"parts", parts}});
+            break;
+        }
+
+        case ConversationMessage::Role::ToolResults: {
+            // Gemini expects function responses as a user-role turn
+            QJsonArray parts;
+            for (const MessageBlock &block : message.blocks) {
+                if (block.type != MessageBlock::Type::ToolResult)
+                    continue;
+
+                parts.append(QJsonObject{
+                    {"functionResponse", QJsonObject{
+                                             {"name", block.toolName},
+                                             {"response", QJsonObject{
+                                                              {"output", block.success ? block.content
+                                                                                       : block.error}
+                                                          }}
+                                         }}
+                });
+            }
+            history.append(QJsonObject{{"role", "user"}, {"parts", parts}});
+            break;
+        }
+        }
+    }
+
     return history;
 }
 
