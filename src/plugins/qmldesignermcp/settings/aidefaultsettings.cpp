@@ -28,21 +28,21 @@ AiProviderData AiDefaultSettings::providerData(const QString &name)
             }
         }},
         {"Claude", AiProviderData{
-                       .url = "https://api.anthropic.com/v1/messages",
-                       .models = {
-                           "claude-opus-4-6",
-                           "claude-sonnet-4-6",
-                           "claude-haiku-4-5-20251001",
-                       },
-                   }},
+            .url = "https://api.anthropic.com/v1/messages",
+            .models = {
+                "claude-opus-4-6",
+                "claude-sonnet-4-6",
+                "claude-haiku-4-5-20251001",
+            },
+        }},
         {"OpenAI", AiProviderData{
-                       .url = "https://api.openai.com/v1/chat/completions",
-                       .models = {
-                           "gpt-5.4",
-                           "gpt-5.4-mini",
-                           "gpt-5.4-nano",
-                       },
-                   }},
+            .url = "https://api.openai.com/v1/responses",
+            .models = {
+                "gpt-5.4",
+                "gpt-5.4-mini",
+                "gpt-5.4-nano",
+            },
+        }},
     };
     return providers.value(name);
 }
