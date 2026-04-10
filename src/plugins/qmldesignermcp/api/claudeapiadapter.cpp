@@ -99,12 +99,68 @@ bool ClaudeApiAdapter::isResponseComplete(const QByteArray &response) const
     QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
 
     if (parseError.error != QJsonParseError::NoError)
-        return true; // Assume complete on parse error
+        return true; // Stop at malformed response
 
-    // Check stop_reason
-    QString stopReason = doc.object().value("stop_reason").toString();
+    const QJsonObject root = doc.object();
 
-    return stopReason == "end_turn";
+    // API-level error block, caller reads extractApiError()
+    if (root.contains("error"))
+        return true;
+
+    const QString stopReason = root.value("stop_reason").toString();
+
+    // model wants to call a tool
+    if (stopReason == "tool_use")
+        return false;
+
+    // normal completion signal
+    if (stopReason == "end_turn")
+        return true;
+
+    // Terminate on other stop reasons (like max_tokens, stop_sequence, content_filtered, etc)
+    if (!stopReason.isEmpty())
+        return true;
+
+    // No stop_reason yet, treat as incomplete
+    return false;
+}
+
+QString ClaudeApiAdapter::extractApiError(const QByteArray &response) const
+{
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
+
+    if (parseError.error != QJsonParseError::NoError)
+        return QString("Malformed JSON response: %1").arg(parseError.errorString());
+
+    const QJsonObject root = doc.object();
+
+    // Explicit error object returned by the API
+    if (root.contains("error")) {
+        const QJsonObject err = root.value("error").toObject();
+        const QString type    = err.value("type").toString();
+        const QString message = err.value("message").toString();
+        return type.isEmpty() ? message : QString("%1: %2").arg(type, message);
+    }
+
+    // Non-successful stop reasons that are not tool_use / end_turn
+    const QString stopReason = root.value("stop_reason").toString();
+    if (stopReason == "max_tokens")
+        return "Claude stopped because it reached the max tokens limit.";
+
+    if (stopReason == "stop_sequence")
+        return "Claude encountered one of your custom stop sequences.";
+
+    if (stopReason == "refusal")
+        return "Claude refused to generate a response due to safety concerns.";
+
+    if (stopReason == "model_context_window_exceeded")
+        return "Claude stopped because it reached the model's context window limit.";
+
+    if (!stopReason.isEmpty() && stopReason != "end_turn" && stopReason != "tool_use")
+        return QString("Unexpected stop reason: %1").arg(stopReason);
+
+    return {};
 }
 
 QList<MessageBlock> ClaudeApiAdapter::parseResponse(const QByteArray &response)
@@ -241,43 +297,10 @@ QJsonArray ClaudeApiAdapter::formatTools(const QList<ToolEntry> &tools, bool pre
     return result;
 }
 
-QString ClaudeApiAdapter::extractText(const QByteArray &response) const
-{
-    return extractTextFromContent(extractContentArray(response));
-}
-
 bool ClaudeApiAdapter::accepts(const QString &url) const
 {
     return url.compare("claude", Qt::CaseInsensitive) == 0
         || url.contains("anthropic", Qt::CaseInsensitive);
-}
-
-QJsonArray ClaudeApiAdapter::extractContentArray(const QByteArray &response) const
-{
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
-
-    if (parseError.error != QJsonParseError::NoError)
-        return QJsonArray();
-
-    return doc.object().value("content").toArray();
-}
-
-QString ClaudeApiAdapter::extractTextFromContent(const QJsonArray &content) const
-{
-    QString text;
-
-    for (const QJsonValue &value : content) {
-        QJsonObject contentObj = value.toObject();
-        QString contentType = contentObj.value("type").toString();
-
-        if (contentType == "text")
-            text += contentObj.value("text").toString();
-
-        // Ignore tool_use blocks - they're handled by parseToolCalls
-    }
-
-    return text;
 }
 
 } // namespace QmlDesigner

@@ -278,6 +278,21 @@ void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
         return;
     }
 
+    // Check for API-level errors embedded in an HTTP-200 response
+    const QString apiError = adapter->extractApiError(responseData);
+    if (!apiError.isEmpty()) {
+        if (m_retryCount < m_maxRetries) {
+            ++m_retryCount;
+            emit logMessage(QString("API error, retrying %1/%2: %3")
+                                .arg(m_retryCount).arg(m_maxRetries).arg(apiError));
+            const int delay = m_retryDelayMs * (1 << (m_retryCount - 1));
+            QTimer::singleShot(delay, this, &AgenticRequestManager::retryLastRequest);
+        } else {
+            finishWithError(QString("API error: %1").arg(apiError));
+        }
+        return;
+    }
+
     const QList<MessageBlock> blocks = adapter->parseResponse(responseData);
     QList<ToolCall> toolCalls;
 

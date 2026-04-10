@@ -34,15 +34,11 @@ public:
     QString id() const override;
     QList<ToolCall> parseToolCalls(const QByteArray &response) override;
     bool isResponseComplete(const QByteArray &response) const override;
+    QString extractApiError(const QByteArray &response) const override;
     QList<MessageBlock> parseResponse(const QByteArray &response) override;
     QJsonArray formatHistory(const QList<ConversationMessage> &messages) const override;
     QJsonArray formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const override;
-    QString extractText(const QByteArray &response) const override;
     bool accepts(const QString &url) const override;
-
-private:
-    QJsonArray extractContentArray(const QByteArray &response) const;
-    QString extractTextFromContent(const QJsonArray &content) const;
 };
 
 } // namespace QmlDesigner

@@ -58,7 +58,7 @@ struct ConversationMessage
         Assistant,
         ToolResults, // Tool results are logically a user-role turn but kept distinct so adapters
                      // can format them differently (e.g. Claude wraps them in a user message,
-                     //  Gemini uses functionResponse parts).
+                     // Gemini uses functionResponse parts).
     };
 
     Role role = Role::User;

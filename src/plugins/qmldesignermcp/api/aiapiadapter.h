@@ -75,6 +75,11 @@ public:
     virtual bool isResponseComplete(const QByteArray &response) const = 0;
 
     /**
+     * @brief Extracts and returns a human-readable API error message from the raw response payload.
+     */
+    virtual QString extractApiError(const QByteArray &response) const = 0;
+
+    /**
      * @brief Format conversation history for the provider
      *
      * Converts the internal list of ConversationMessage objects into the
@@ -101,15 +106,6 @@ public:
      * (the model's reasoning) and one Type::ToolUse block per tool call.
      */
     virtual QList<MessageBlock> parseResponse(const QByteArray &response) = 0;
-
-    /**
-     * @brief Extract plain text from a raw LLM response body.
-     *
-     * Extract text blocks in the response, ignoring tool_use and
-     * other non-text content types. Used to surface the model's reasoning
-     * text that may accompany tool calls.
-     */
-    virtual QString extractText(const QByteArray &response) const = 0;
 
     /**
      * @brief Check if this adapter can handle the given provider's url

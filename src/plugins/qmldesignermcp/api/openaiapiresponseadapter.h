@@ -32,20 +32,14 @@ public:
     QString id() const override;
     QList<ToolCall> parseToolCalls(const QByteArray &response) override;
     bool isResponseComplete(const QByteArray &response) const override;
+    QString extractApiError(const QByteArray &response) const override;
     QList<MessageBlock> parseResponse(const QByteArray &response) override;
     QJsonArray formatHistory(const QList<ConversationMessage> &messages) const override;
     QJsonArray formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const override;
-    QString extractText(const QByteArray &response) const override;
     bool accepts(const QString &url) const override;
     void clear() override;
 
 private:
-    /// Returns the top-level "output" array from a parsed response.
-    QJsonArray extractOutputArray(const QByteArray &response) const;
-
-    /// Concatenates all text content from output message items.
-    QString extractTextFromOutput(const QJsonArray &output) const;
-
     QString m_previousResponseId;
 };
 

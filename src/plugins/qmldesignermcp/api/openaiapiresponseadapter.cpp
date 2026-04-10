@@ -102,16 +102,73 @@ bool OpenAiResponseApiAdapter::isResponseComplete(const QByteArray &response) co
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
     if (parseError.error != QJsonParseError::NoError)
-        return true; // Treat unparseable responses as complete.
+        return true;
 
-    QJsonObject root = doc.object();
+    const QJsonObject root = doc.object();
 
-    const QJsonArray output = doc.object().value("output").toArray();
+    if (root.value("error").isObject())
+        return true;
+
+    const QString status = root.value("status").toString();
+
+    if (status == "in_progress") // still generating
+        return false;
+
+    if (status == "incomplete") // not successful
+        return true;
+
+    // check for pending function calls
+    const QJsonArray output = root.value("output").toArray();
     for (const QJsonValue &value : output) {
         if (value.toObject().value("type").toString() == "function_call")
             return false;
     }
+
     return true;
+}
+
+QString OpenAiResponseApiAdapter::extractApiError(const QByteArray &response) const
+{
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
+
+    if (parseError.error != QJsonParseError::NoError)
+        return QString("Malformed JSON response: %1").arg(parseError.errorString());
+
+    const QJsonObject root = doc.object();
+
+    // Explicit error object
+    if (root.value("error").isObject()) {
+        const QJsonObject err = root.value("error").toObject();
+
+        const QString type = err.value("type").toString();
+        const QString message = err.value("message").toString();
+        const QString code = err.value("code").toString();
+
+        if (!message.isEmpty()) {
+            if (!code.isEmpty())
+                return QString("%1: %2").arg(code, message);
+            if (!type.isEmpty())
+                return QString("%1: %2").arg(type, message);
+            return message;
+        }
+
+        return !code.isEmpty() ? code : type;
+    }
+
+    // "incomplete" status
+    if (root.value("status").toString() == "incomplete") {
+        const QString reason = root.value("incomplete_details").toObject().value("reason").toString();
+        if (reason == "max_output_tokens")
+            return "Response truncated: max_output_tokens limit reached";
+
+        if (!reason.isEmpty())
+            return QString("Response incomplete: %1").arg(reason);
+
+        return "Response incomplete: unknown reason";
+    }
+
+    return {};
 }
 
 QList<MessageBlock> OpenAiResponseApiAdapter::parseResponse(const QByteArray &response)
@@ -234,11 +291,6 @@ QJsonArray OpenAiResponseApiAdapter::formatTools(const QList<ToolEntry> &tools,
     return result;
 }
 
-QString OpenAiResponseApiAdapter::extractText(const QByteArray &response) const
-{
-    return extractTextFromOutput(extractOutputArray(response));
-}
-
 bool OpenAiResponseApiAdapter::accepts(const QString &url) const
 {
     return url.contains("openai.com", Qt::CaseInsensitive)
@@ -248,38 +300,6 @@ bool OpenAiResponseApiAdapter::accepts(const QString &url) const
 void OpenAiResponseApiAdapter::clear()
 {
     m_previousResponseId.clear();
-}
-
-QJsonArray OpenAiResponseApiAdapter::extractOutputArray(const QByteArray &response) const
-{
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
-    if (parseError.error != QJsonParseError::NoError)
-        return QJsonArray();
-
-    return doc.object().value("output").toArray();
-}
-
-QString OpenAiResponseApiAdapter::extractTextFromOutput(const QJsonArray &output) const
-{
-    QString text;
-
-    for (const QJsonValue &value : output) {
-        QJsonObject item = value.toObject();
-
-        // Only message-type items carry readable text.
-        if (item.value("type").toString() != "message")
-            continue;
-
-        const QJsonArray content = item.value("content").toArray();
-        for (const QJsonValue &cv : content) {
-            QJsonObject contentObj = cv.toObject();
-            if (contentObj.value("type").toString() == "output_text")
-                text += contentObj.value("text").toString();
-        }
-    }
-
-    return text;
 }
 
 } // namespace QmlDesigner

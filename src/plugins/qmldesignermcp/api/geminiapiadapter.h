@@ -35,15 +35,12 @@ public:
         const QList<ConversationMessage> &history) override;
 
     QString id() const override { return "gemini"; }
-
     QList<ToolCall> parseToolCalls(const QByteArray &response) override;
-
     bool isResponseComplete(const QByteArray &response) const override;
-
+    QString extractApiError(const QByteArray &response) const override;
     QList<MessageBlock> parseResponse(const QByteArray &response) override;
     QJsonArray formatHistory(const QList<ConversationMessage> &messages) const override;
     QJsonArray formatTools(const QList<ToolEntry> &tools, bool prefixWithServer) const override;
-    QString extractText(const QByteArray &response) const override;
     bool accepts(const QString &url) const override;
     QUrl resolveUrl(const QString &baseUrl, const AiModelInfo &modelInfo) const override;
 
