@@ -11,7 +11,8 @@
 
     \title AI Assistant view
 
-    The AI Assistant view lets you use a LLM to protoype user interfaces.
+    The AI Assistant view lets you use an agentic, MCP-based AI assistant to
+    design and build user interfaces.
 
     \image ai-assistant-view.webp
 
