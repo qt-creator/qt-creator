@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Layouts
+import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import AiAssistant
 import AiAssistantBackend
@@ -44,6 +45,39 @@ RowLayout {
         interval: 1500
     }
 
+    StudioControls.Menu {
+        id: copyContextMenu
+
+        StudioControls.MenuItem {
+            text: qsTr("Copy")
+
+            onTriggered: {
+                for (let i = 0; i < segRepeater.count; ++i) {
+                    const loader = segRepeater.itemAt(i)
+                    const item = loader?.item
+                    if (!item)
+                        continue
+
+                    if (item.selectedText) {
+                        item.copy()
+                        return
+                    }
+                }
+
+                if (userMessage.visible)
+                    userMessage.copy()
+                else if (systemMessage.visible)
+                    systemMessage.copy()
+                else if (toolMessage.visible)
+                    toolMessage.copy()
+                else if (confirmationMessageColumn.visible)
+                    confirmationMessage.copy()
+                else if (assistantMessage.visible)
+                    assistantMessage.copy()
+            }
+        }
+    }
+
     ColumnLayout {
         Layout.fillWidth: true
         Layout.rightMargin: 5
@@ -66,6 +100,12 @@ RowLayout {
                    : StudioTheme.Values.themeControlBackground_toolbarIdle
 
             border.width: 0
+
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.RightButton
+                onClicked: copyContextMenu.popup()
+            }
 
             // Inline copy button for user messages — overlaid top-right of bubble
             AiIconButton {
@@ -98,6 +138,8 @@ RowLayout {
 
                 // User message — plain prose
                 ChatProseSegment {
+                    id: userMessage
+
                     Layout.fillWidth: true
                     visible: root.isUser
                     html: root.content
@@ -106,6 +148,8 @@ RowLayout {
 
                 // System / iteration message — plain text, dimmed and italic
                 TextEdit {
+                    id: systemMessage
+
                     Layout.fillWidth: true
                     visible: root.messageType === ChatMessage.SystemMessage
                           || root.messageType === ChatMessage.IterationMessage
@@ -123,6 +167,8 @@ RowLayout {
 
                 // Tool call message — plain text
                 TextEdit {
+                    id: toolMessage
+
                     Layout.fillWidth: true
                     visible: root.messageType === ChatMessage.ToolCallStarted
                           || root.messageType === ChatMessage.ToolCallCompleted
@@ -140,11 +186,15 @@ RowLayout {
 
                 // Confirmation prompt for destructive tool calls (e.g. delete_qml)
                 ColumnLayout {
+                    id: confirmationMessageColumn
+
                     Layout.fillWidth: true
                     visible: root.messageType === ChatMessage.ToolCallConfirmation
                     spacing: 8
 
                     TextEdit {
+                        id: confirmationMessage
+
                         Layout.fillWidth: true
                         text: root.content
                         textFormat: TextEdit.PlainText
@@ -186,6 +236,8 @@ RowLayout {
 
                 // Assistant message — flat HTML fallback when no segments
                 ChatProseSegment {
+                    id: assistantMessage
+
                     Layout.fillWidth: true
                     visible: root.isAssistant && !root.hasSegments
                     html: root.content
@@ -193,6 +245,8 @@ RowLayout {
 
                 // Assistant message — segmented (prose + code blocks)
                 Repeater {
+                    id: segRepeater
+
                     model: root.hasSegments ? root.segments : []
 
                     delegate: Loader {

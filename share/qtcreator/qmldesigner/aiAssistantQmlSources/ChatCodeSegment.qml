@@ -16,6 +16,12 @@ Item {
     property bool adsFocus: false
     property bool collapsed: false
 
+    property alias selectedText: codeText.selectedText
+
+    function copy() {
+        codeText.copy()
+    }
+
     implicitHeight: blockCol.implicitHeight
 
     ColumnLayout {
