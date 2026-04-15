@@ -19,6 +19,8 @@ class ChatHistoryModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool isEmpty READ isEmpty NOTIFY isEmptyChanged)
+
 public:
     enum Roles {
         TypeRole = Qt::UserRole + 1,
@@ -52,6 +54,9 @@ public:
 
     QString lastUserPrompt() const;
     bool isEmpty() const { return m_messages.isEmpty(); }
+
+signals:
+    void isEmptyChanged();
 
 private:
     QList<ChatMessage*> m_messages;

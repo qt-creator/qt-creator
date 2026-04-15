@@ -18,6 +18,21 @@ Rectangle {
     property alias text: textEdit.text
     property alias enableAttachImage: attachImageButton.visible
 
+    property var startPlaceholderOptions: [
+        qsTr("What would you like to create today?"),
+        qsTr("What would you like to design today?"),
+        qsTr("What should we build today?"),
+        qsTr("What are we creating today?"),
+        qsTr("What should we work on?"),
+        qsTr("Got an idea? Let’s build it."),
+        qsTr("Have an idea? Let’s create it."),
+        qsTr("Tell me what you’d like to create."),
+        qsTr("What would you like to start with?"),
+        qsTr("Let’s create something. What’s your idea?"),
+        qsTr("What should we design together?")
+    ]
+    property string startPlaceholder: startPlaceholderOptions[Math.floor(Math.random() * startPlaceholderOptions.length)]
+
     readonly property bool isGenerating: root.rootView.generationState !== GenerationState.Idle
 
     property var style: StudioTheme.ControlStyle {
@@ -62,7 +77,9 @@ Rectangle {
                 wrapMode: TextEdit.WordWrap
                 enabled: !root.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
 
-                placeholderText: enabled ? qsTr("Describe what you want to generate...") : ""
+                placeholderText: enabled ? root.rootView.chatHistory.isEmpty ? root.startPlaceholder
+                                                                             : qsTr("Enter a message...")
+                                         : ""
                 placeholderTextColor: root.style.text.placeholder
 
                 Keys.onPressed: function(event) {

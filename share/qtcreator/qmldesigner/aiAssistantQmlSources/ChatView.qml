@@ -58,7 +58,7 @@ Rectangle {
         Text {
             anchors.centerIn: parent
             visible: listView.count === 0
-            text: qsTr("No conversation yet.\nStart by asking a question...")
+            text: qsTr("No conversation yet.")
             color: StudioTheme.Values.themeTextColorDisabled
             horizontalAlignment: Text.AlignHCenter
             font.pixelSize: StudioTheme.Values.baseFontSize

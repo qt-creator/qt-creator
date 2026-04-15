@@ -176,6 +176,7 @@ void ChatHistoryModel::clear()
     qDeleteAll(m_messages);
     m_messages.clear();
     endResetModel();
+    emit isEmptyChanged();
 }
 
 void ChatHistoryModel::addUserMessage(const QString &content)
@@ -183,6 +184,7 @@ void ChatHistoryModel::addUserMessage(const QString &content)
     beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
     m_messages.append(new ChatMessage(ChatMessage::UserMessage, content, this));
     endInsertRows();
+    emit isEmptyChanged();
 }
 
 void ChatHistoryModel::addAssistantMessage(const QString &content)
