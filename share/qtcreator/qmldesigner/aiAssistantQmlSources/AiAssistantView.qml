@@ -109,12 +109,13 @@ Item {
             }
 
             AiIconButton {
-                id: clearButton
+                id: newButton
 
-                buttonIcon: StudioTheme.Constants.close_small
+                buttonIcon: StudioTheme.Constants.add_medium
 
-                tooltip: qsTr("Clear conversation")
+                tooltip: qsTr("Start a new conversation")
                 enabled: root.rootView.termsAccepted && root.rootView.generationState == GenerationState.Idle
+                     && !root.rootView.chatHistory.isEmpty
 
                 onClicked: root.rootView.clearChat()
             }

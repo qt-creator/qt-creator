@@ -29,7 +29,7 @@ Rectangle {
         spacing: 5
         clip: true
 
-        model: root.rootView.chatModel
+        model: root.rootView.chatHistory
         delegate: ChatMessage {}
         footer: GenerationStateRow {}
 
