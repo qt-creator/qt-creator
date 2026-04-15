@@ -15,7 +15,7 @@ namespace QmlDesigner {
 class StringListWidget : public QListWidget
 {
 public:
-    explicit StringListWidget(QWidget *parent = nullptr);
+    explicit StringListWidget(bool hideResetButton = false, QWidget *parent = nullptr);
     ~StringListWidget();
 
     QStringList items() const;

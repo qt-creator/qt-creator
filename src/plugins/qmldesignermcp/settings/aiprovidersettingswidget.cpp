@@ -9,30 +9,29 @@
 #include <componentcore/theme.h>
 #include <utils/layoutbuilder.h>
 
+#include <QCheckBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMouseEvent>
 #include <QPushButton>
 #include <QToolBar>
+#include <QToolButton>
 
 namespace QmlDesigner {
 
-static constexpr QSize iconSize = {24, 24};
-
 static QIcon toolButtonIcon(Theme::Icon type)
 {
-    const QIcon normalIcon = Theme::iconFromName(type);
-    const QIcon disabledIcon
-        = Theme::iconFromName(type, Theme::getColor(Theme::Color::DStextSelectedTextColor));
+    const QIcon normalIcon = Theme::iconFromName(type, Theme::getColor(Theme::Color::DS_text_default));
+    const QIcon disabledIcon = Theme::iconFromName(type, Theme::getColor(Theme::Color::DS_text_muted));
     QIcon icon;
-    icon.addPixmap(normalIcon.pixmap(iconSize), QIcon::Normal, QIcon::On);
-    icon.addPixmap(disabledIcon.pixmap(iconSize), QIcon::Disabled, QIcon::On);
+    icon.addPixmap(normalIcon.pixmap(14), QIcon::Normal, QIcon::On);
+    icon.addPixmap(disabledIcon.pixmap(14), QIcon::Disabled, QIcon::On);
     return icon;
 }
 
 AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, QWidget *parent)
     : QGroupBox(parent)
     , m_config(providerName)
+    , m_enabledCheckBox(Utils::makeUniqueObjectPtr<QCheckBox>(tr("Enabled")))
     , m_urlLineEdit(Utils::makeUniqueObjectPtr<QLineEdit>())
     , m_apiKeyLineEdit(Utils::makeUniqueObjectPtr<QLineEdit>())
     , m_modelsListWidget(Utils::makeUniqueObjectPtr<StringListWidget>())
@@ -43,7 +42,7 @@ AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, 
 
 void AiProviderSettingsWidget::load()
 {
-    setChecked(m_config.isChecked());
+    m_enabledCheckBox->setChecked(m_config.isChecked());
     m_apiKeyLineEdit->setText(m_config.apiKey());
 
     const AiProviderData providerData = AiDefaultSettings::providerData(m_config.providerName());
@@ -55,14 +54,15 @@ void AiProviderSettingsWidget::load()
 
 bool AiProviderSettingsWidget::save()
 {
-    bool changed = m_config.isChecked() != isChecked()
+    bool changed = m_config.isChecked() != m_enabledCheckBox->isChecked()
                 || m_config.apiKey() != m_apiKeyLineEdit->text()
                 || m_config.url() != m_urlLineEdit->text()
                 || m_config.modelIds() != m_modelsListWidget->items();
     if (!changed)
         return false;
 
-    m_config.save(isChecked(), m_urlLineEdit->text(), m_apiKeyLineEdit->text(), m_modelsListWidget->items());
+    m_config.save(m_enabledCheckBox->isChecked(), m_urlLineEdit->text(), m_apiKeyLineEdit->text(),
+                  m_modelsListWidget->items());
     return true;
 }
 
@@ -71,88 +71,39 @@ const AiProviderConfig AiProviderSettingsWidget::config() const
     return m_config;
 }
 
-bool AiProviderSettingsWidget::event(QEvent *event)
-{
-    switch (event->type()) {
-    case QEvent::ToolTip: {
-        if (!m_mouseOverCheckBox)
-            event->ignore();
-        else
-            return QGroupBox::event(event);
-    } break;
-    default:
-        return QGroupBox::event(event);
-    }
-    return true;
-}
-
-void AiProviderSettingsWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    QStyleOptionGroupBox box;
-    initStyleOption(&box);
-    QStyle::SubControl mouseOverTest
-        = style()
-              ->hitTestComplexControl(QStyle::CC_GroupBox, &box, event->position().toPoint(), this);
-
-    m_mouseOverCheckBox
-        = (mouseOverTest == QStyle::SC_GroupBoxCheckBox
-           || mouseOverTest == QStyle::SC_GroupBoxLabel);
-
-    return QGroupBox::mouseMoveEvent(event);
-}
-
 void AiProviderSettingsWidget::setupUi()
 {
     setTitle(m_config.providerName());
-    setCheckable(true);
-    setMouseTracking(true);
-    setToolTip(tr("Show or hide %1 models in the AI Assistant model selector drop down")
+
+    m_enabledCheckBox->setToolTip(tr("Show or hide %1 models in the AI Assistant model selector drop down")
                    .arg(m_config.providerName()));
 
     using namespace Qt::StringLiterals;
-    auto createLabel = [this](const QString &txt) -> QLabel * {
-        QLabel *label = new QLabel(txt, this);
-        label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        label->setTextFormat(Qt::RichText);
-        label->setAlignment(Qt::AlignLeading | Qt::AlignLeft | Qt::AlignVCenter);
-        return label;
-    };
+
+    m_urlLineEdit->setMaxLength(2048);
 
     m_apiKeyLineEdit->setPlaceholderText(tr("Enter %1 API key to use its models").arg(m_config.providerName()));
+    m_apiKeyLineEdit->setEchoMode(QLineEdit::Password);
+    m_apiKeyLineEdit->setMaxLength(1024);
 
-    QPushButton *resetUrlButton = new QPushButton(this);
-    resetUrlButton->setIcon(toolButtonIcon(Theme::resetView_small));
-    resetUrlButton->setToolTip(tr("Reset Url"));
-    resetUrlButton->setFixedSize(iconSize);
-    connect(resetUrlButton, &QAbstractButton::clicked, this, [this] {
+    QAction *resetUrlAction = m_urlLineEdit->addAction(toolButtonIcon(Theme::resetView_small),
+                                                       QLineEdit::TrailingPosition);
+    resetUrlAction->setToolTip(tr("Reset Url"));
+    connect(resetUrlAction, &QAction::triggered, this, [this] {
         const AiProviderData providerData = AiDefaultSettings::providerData(m_config.providerName());
         m_urlLineEdit->setText(providerData.url);
     });
 
     using namespace Layouting;
-    Column{
-        Column{
-            createLabel(tr("Url:")),
-            Row{
-                m_urlLineEdit.get(),
-                resetUrlButton,
-            },
-            spacing(3),
-        },
-        Column{
-            createLabel(tr("API key:")),
-            m_apiKeyLineEdit.get(),
-            spacing(3),
-        },
-        Column{
-            Row{
-                createLabel(tr("Models:")),
-                m_modelsListWidget->toolBar(),
-            },
-            m_modelsListWidget.get(),
-            spacing(3),
-        },
-        spacing(10),
+    Form{
+        m_enabledCheckBox.get(),                       br,
+        tr("Url:"),     m_urlLineEdit.get(),           br,
+        tr("API key:"), m_apiKeyLineEdit.get(),        br,
+        tr("Models:"),  m_modelsListWidget->toolBar(), br,
+        Span(2, m_modelsListWidget.get()),
+
+        spacing(4),
+        customMargins(8, 8, 8, 8),
     }.attachTo(this);
 }
 

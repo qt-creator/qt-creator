@@ -15,17 +15,15 @@ namespace QmlDesigner {
 
 static QIcon toolButtonIcon(Theme::Icon type)
 {
-    const QSize iconSize{24, 24};
-    const QIcon normalIcon = Theme::iconFromName(type);
-    const QIcon disabledIcon
-        = Theme::iconFromName(type, Theme::getColor(Theme::Color::DStextSelectedTextColor));
+    const QIcon normalIcon = Theme::iconFromName(type, Theme::getColor(Theme::Color::DS_text_default));
+    const QIcon disabledIcon = Theme::iconFromName(type, Theme::getColor(Theme::Color::DS_text_muted));
     QIcon icon;
-    icon.addPixmap(normalIcon.pixmap(iconSize), QIcon::Normal, QIcon::On);
-    icon.addPixmap(disabledIcon.pixmap(iconSize), QIcon::Disabled, QIcon::On);
+    icon.addPixmap(normalIcon.pixmap(20), QIcon::Normal, QIcon::On);
+    icon.addPixmap(disabledIcon.pixmap(20), QIcon::Disabled, QIcon::On);
     return icon;
 }
 
-StringListWidget::StringListWidget(QWidget *parent)
+StringListWidget::StringListWidget(bool hideResetButton, QWidget *parent)
     : QListWidget(parent)
     , m_addButton(Utils::makeUniqueObjectPtr<QToolButton>())
     , m_removeButton(Utils::makeUniqueObjectPtr<QToolButton>())
@@ -54,7 +52,9 @@ StringListWidget::StringListWidget(QWidget *parent)
     m_moveDownButton->setToolTip(tr("Move item down"));
     m_resetButton->setToolTip(tr("Reset to defaults"));
 
-    m_toolBar->addWidget(m_resetButton.get());
+    if (!hideResetButton)
+        m_toolBar->addWidget(m_resetButton.get());
+
     m_toolBar->addWidget(m_moveDownButton.get());
     m_toolBar->addWidget(m_moveUpButton.get());
     m_toolBar->addWidget(m_removeButton.get());

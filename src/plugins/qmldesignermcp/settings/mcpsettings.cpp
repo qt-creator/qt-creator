@@ -15,7 +15,6 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QScrollArea>
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
@@ -53,30 +52,31 @@ McpSettingsTab::McpSettingsTab(AiAssistantView *view)
     : Core::IOptionsPageWidget()
     , m_view(view)
 {
-    auto *scroll = new QScrollArea(this);
-    scroll->setWidgetResizable(true);
-    scroll->setFrameShape(QFrame::NoFrame);
+    using namespace Layouting;
 
-    m_serversContainer = new QWidget;
-    scroll->setWidget(m_serversContainer);
+    Column mainCol;
+    mainCol.setSpacing(8);
 
-    auto *containerLayout = new QVBoxLayout(m_serversContainer);
-    containerLayout->setContentsMargins(0, 0, 0, 0);
-    containerLayout->setSpacing(8);
-    containerLayout->addStretch(1);   // pushes server widgets upward
+    // Container for server widgets
+    auto *serverContainer = new QWidget(this);
+    m_serverLayout = new QVBoxLayout(serverContainer);
+    m_serverLayout->setContentsMargins(0, 0, 0, 0);
+    m_serverLayout->setSpacing(8);
 
     // Add existing servers
     const QStringList names = McpServerConfigStore::savedServerNames();
     for (const QString &name : names)
         addServer(name);
 
-    // "Add server" button at the bottom of the outer layout
+    mainCol.addItem(serverContainer);
+
+    // "Add server" button
     auto *addButton = new QPushButton(tr("Add MCP server…"), this);
     connect(addButton, &QPushButton::clicked, this, &McpSettingsTab::promptAddServer);
 
-    auto *outerLayout = new QVBoxLayout(this);
-    outerLayout->addWidget(scroll);
-    outerLayout->addWidget(addButton);
+    mainCol.addItem(addButton);
+    mainCol.addItem(Stretch(1));
+    mainCol.attachTo(this);
 }
 
 McpSettingsTab::~McpSettingsTab() = default;
@@ -99,14 +99,10 @@ void McpSettingsTab::cancel()
 
 void McpSettingsTab::addServer(const QString &serverName)
 {
-    auto *widget = new McpServerSettingsWidget(serverName, m_serversContainer);
-    connect(widget, &McpServerSettingsWidget::removeRequested,
-            this, &McpSettingsTab::removeServer);
+    auto *widget = new McpServerSettingsWidget(serverName, this);
+    connect(widget, &McpServerSettingsWidget::removeRequested, this, &McpSettingsTab::removeServer);
 
-    // Insert before the stretch item (last item in container layout)
-    auto *layout = qobject_cast<QVBoxLayout *>(m_serversContainer->layout());
-    const int insertPos = layout->count() - 1; // before the trailing stretch
-    layout->insertWidget(insertPos, widget);
+    m_serverLayout->addWidget(widget);
     m_serverWidgets.append(widget);
 }
 
@@ -136,16 +132,18 @@ void McpSettingsTab::removeServer(const QString &serverName)
 
 void McpSettingsTab::promptAddServer()
 {
-    bool ok = false;
-    const QString name = QInputDialog::getText(
-        this,
-        tr("Add MCP server"),
-        tr("Server name (must be unique):"),
-        QLineEdit::Normal,
-        {},
-        &ok);
+    QInputDialog dialog(this);
+    dialog.setWindowTitle(tr("Add MCP server"));
+    dialog.setLabelText(tr("Server name (must be unique):"));
+    dialog.setInputMode(QInputDialog::TextInput);
+    if (auto *le = dialog.findChild<QLineEdit *>())
+        le->setMaxLength(64);
 
-    if (!ok || name.trimmed().isEmpty())
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    const QString name = dialog.textValue();
+    if (name.trimmed().isEmpty())
         return;
 
     if (McpServerConfigStore::savedServerNames().contains(name)) {

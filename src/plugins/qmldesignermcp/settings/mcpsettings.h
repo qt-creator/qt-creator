@@ -9,6 +9,8 @@
 
 #include <QList>
 
+QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
+
 namespace QmlDesigner {
 
 class AiAssistantView;
@@ -63,6 +65,7 @@ private:
     AiAssistantView *m_view = nullptr;
     QList<McpServerSettingsWidget *> m_serverWidgets;
     QWidget *m_serversContainer = nullptr;
+    QVBoxLayout *m_serverLayout = nullptr;
 };
 
 } // namespace QmlDesigner

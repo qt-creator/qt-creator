@@ -10,6 +10,7 @@
 #include <QGroupBox>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QComboBox;
 class QLabel;
 class QLineEdit;
@@ -52,6 +53,8 @@ private:
     void updateTransportPanelVisibility();
 
     McpServerConfigStore m_store;
+
+    Utils::UniqueObjectPtr<QCheckBox> m_enabledCheckBox;
 
     // Transport selector
     Utils::UniqueObjectPtr<QComboBox> m_transportCombo;

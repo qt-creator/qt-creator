@@ -10,8 +10,8 @@
 #include <QGroupBox>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QLineEdit;
-class QPushButton;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -29,14 +29,11 @@ public:
 
     const AiProviderConfig config() const;
 
-protected:
-    bool event(QEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-
 private:
     void setupUi();
 
     AiProviderConfig m_config;
+    Utils::UniqueObjectPtr<QCheckBox> m_enabledCheckBox;
     Utils::UniqueObjectPtr<QLineEdit> m_urlLineEdit;
     Utils::UniqueObjectPtr<QLineEdit> m_apiKeyLineEdit;
     Utils::UniqueObjectPtr<StringListWidget> m_modelsListWidget;
