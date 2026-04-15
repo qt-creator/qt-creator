@@ -13,7 +13,7 @@ Rectangle {
 
     property bool adsFocus: false
 
-    required property var chatModel
+    property var rootView: AiAssistantBackend.rootView
 
     color: StudioTheme.Values.themeControlBackground
     border.color: StudioTheme.Values.themeControlOutline
@@ -29,7 +29,7 @@ Rectangle {
         spacing: 5
         clip: true
 
-        model: root.chatModel
+        model: root.rootView.chatModel
         delegate: ChatMessage {}
         footer: GenerationStateRow {}
 
@@ -54,10 +54,28 @@ Rectangle {
                   && verticalScrollBar.isNeeded
         }
 
-        // Empty state
+        // Placeholders
+        WarningMessage {
+            id: termsWarning
+
+            visible: !root.rootView.termsAccepted
+            message: qsTr("Before using the AI Assistant you must read and accept the terms and conditions.")
+            buttonLabel: qsTr("Read and accept")
+            onAction: root.rootView.openTermsDialog()
+        }
+
+        WarningMessage {
+            id: noValidModelWarning
+
+            visible: !root.rootView.hasValidModel && root.rootView.termsAccepted
+            message: qsTr("No model configured. To use the AI assistant, add an API key in the AI Provider settings.")
+            buttonLabel: qsTr("Configure now")
+            onAction: root.rootView.openModelSettings()
+        }
+
         Text {
             anchors.centerIn: parent
-            visible: listView.count === 0
+            visible: listView.count === 0 && !termsWarning.visible && !noValidModelWarning.visible
             text: qsTr("No conversation yet.")
             color: StudioTheme.Values.themeTextColorDisabled
             horizontalAlignment: Text.AlignHCenter

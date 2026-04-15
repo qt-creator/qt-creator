@@ -149,24 +149,6 @@ Rectangle {
         }
     }
 
-    WarningMessage {
-        id: termsWarning
-
-        visible: !root.rootView.termsAccepted
-        message: qsTr("Before using the AI Assistant you must read and accept the terms and conditions.")
-        buttonLabel: qsTr("Read and accept")
-        onAction: root.rootView.openTermsDialog()
-    }
-
-    WarningMessage {
-        id: noValidModelWarning
-
-        visible: !root.rootView.hasValidModel && root.rootView.termsAccepted
-        message: qsTr("No model configured. To use the AI assistant, add an API key in the AI Provider settings.")
-        buttonLabel: qsTr("Configure now")
-        onAction: root.rootView.openModelSettings()
-    }
-
     AssetImagesPopup {
         id: assetImagesView
 

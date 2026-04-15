@@ -52,8 +52,6 @@ Item {
                 SplitView.fillWidth: true
                 SplitView.fillHeight: true
                 SplitView.minimumHeight: 60
-
-                chatModel: root.rootView.chatHistory
             }
 
             ColumnLayout {
