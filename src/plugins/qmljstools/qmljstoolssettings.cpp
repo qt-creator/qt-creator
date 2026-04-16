@@ -37,22 +37,11 @@ const char idKey[] = "QmlJSGlobal";
 class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    static QmlJsCodeStyleEditor *create(
-        const ICodeStylePreferencesFactory *factory,
-        const FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent)
-    {
-        auto editor = new QmlJsCodeStyleEditor{parent};
-        editor->init(factory, projectFile, codeStyle);
-        return editor;
-    }
-
-private:
     QmlJsCodeStyleEditor(QWidget *parent)
         : CodeStyleEditor{parent}
     {}
 
+private:
     CodeStyleEditorWidget *createEditorWidget(
         const FilePath &/*project*/,
         ICodeStylePreferences *codeStyle,
@@ -228,7 +217,9 @@ private:
             ICodeStylePreferences *codeStyle,
             QWidget *parent) const final
     {
-        return QmlJsCodeStyleEditor::create(this, projectFile, codeStyle, parent);
+        auto editor = new QmlJsCodeStyleEditor{parent};
+        editor->init(this, projectFile, codeStyle);
+        return editor;
     }
 
     Utils::Id languageId() final
