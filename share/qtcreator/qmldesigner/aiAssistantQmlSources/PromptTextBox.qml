@@ -16,7 +16,6 @@ Rectangle {
     required property var rootView
 
     property alias text: textEdit.text
-    property alias enableAttachImage: attachImageButton.visible
 
     property var startPlaceholderOptions: [
         qsTr("What would you like to create today?"),
@@ -127,7 +126,19 @@ Rectangle {
                 tooltip: qsTr("Attach an image.\nThe attached image will be included in the prompt for the AI to analyze and use its content in the response generation.")
                 enabled: !root.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
 
-                onClicked: assetImagesView.showWindow()
+                onClicked: {
+                    if (assetImagesView.isTransitioning) return;
+
+                    if (assetImagesView.visible)
+                        assetImagesView.hideWindow();
+                    else
+                        assetImagesView.showWindow();
+
+                    // Lock the button briefly so the "Window Close" event and the "Button Click"
+                    // event don't fight.
+                    assetImagesView.isTransitioning = true;
+                    debounceTimer.start();
+                }
             }
 
             AiIconButton {
@@ -153,6 +164,22 @@ Rectangle {
         id: assetImagesView
 
         snapItem: attachImageButton
+
+        property bool isTransitioning: false
+
+        Timer {
+            id: debounceTimer
+
+            interval: 100
+            onTriggered: assetImagesView.isTransitioning = false
+        }
+
+        onVisibleChanged: {
+            if (!assetImagesView.visible) {
+                assetImagesView.isTransitioning = true;
+                debounceTimer.restart();
+            }
+        }
 
         onWindowShown: {
             if (!assetImagesView.model.includes(root.rootView.attachedImageSource))

@@ -79,16 +79,6 @@ Item {
 
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-
-                    onModelChanged: (modelName) => {
-                        var supportsImageInput = /llama-4-(maverick|scout)/.test(modelName)
-                                                 || modelName.startsWith("gemini")
-                                                 || modelName.startsWith("gpt-")
-
-                        promptTextBox.enableAttachImage = supportsImageInput
-                        if (!supportsImageInput)
-                            root.rootView.attachedImageSource = ""
-                    }
                 }
             }
         }
