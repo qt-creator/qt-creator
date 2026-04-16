@@ -22,7 +22,7 @@ namespace QmlDesigner {
 McpSettings::McpSettings()
 {
     setId(Constants::mcpSettingsPageId);
-    setDisplayName(Tr::tr("MCP Server Settings"));
+    setDisplayName(Tr::tr("MCP Servers"));
     setCategory(Constants::aiAssistantSettingsPageCategory);
     setWidgetCreator([this] { return new McpSettingsTab(m_view); });
 

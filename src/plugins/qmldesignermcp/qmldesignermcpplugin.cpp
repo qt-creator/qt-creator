@@ -25,7 +25,7 @@ Utils::Result<> QmlDesignerMcpPlugin::initialize(const QStringList &arguments)
     using namespace Core;
     IOptionsPage::registerCategory(
         Constants::aiAssistantSettingsPageCategory,
-        tr("AI Assistant/Mcp"),
+        tr("AI Assistant"),
         ":/AiAssistant/images/aiKitIcon.png");
 
     m_providerSettings = std::make_unique<AiProviderSettings>();

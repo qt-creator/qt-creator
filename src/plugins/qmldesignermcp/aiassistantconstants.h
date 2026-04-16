@@ -17,8 +17,8 @@ inline constexpr QByteArrayView aiAssistantSelectedModelKey = "AiAssistant/Selec
 inline constexpr QByteArrayView aiAssistantMcpServerKey = "AiAssistant/McpServers"_L1;
 
 inline constexpr char aiAssistantSettingsPageCategory[] = "ZW.AiAssistant";
-inline constexpr char aiAssistantSettingsPageId[] = "AiAssistant.A.ProviderSettings";
-inline constexpr char mcpSettingsPageId[] = "AiAssistant.A.McpServerSettings";
+inline constexpr char aiAssistantSettingsPageId[] = "AiAssistant.1.ProviderSettings";
+inline constexpr char mcpSettingsPageId[] = "AiAssistant.2.McpServerSettings";
 
 inline constexpr char structureResourceUri[] = "qmlproject://structure";
 inline constexpr char qmlServerName[] = "qml_server"; // qml MCP server name

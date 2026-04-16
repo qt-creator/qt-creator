@@ -116,7 +116,7 @@ Item {
 
                 buttonIcon: StudioTheme.Constants.settings_medium
 
-                tooltip: qsTr("Open AI Assistant settings.")
+                tooltip: qsTr("AI Assistant settings.")
                 enabled: root.rootView.termsAccepted && root.rootView.generationState == GenerationState.Idle
 
                 onClicked: root.rootView.openModelSettings()
