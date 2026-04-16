@@ -9,18 +9,23 @@
 
 namespace QmlDesigner {
 
+static Utils::QtcSettings *settings()
+{
+    return Core::ICore::settings();
+}
+
 struct GroupScope
 {
     GroupScope(const QString &providerName)
     {
-        Core::ICore::settings()->beginGroup(Constants::aiAssistantProviderKey);
-        Core::ICore::settings()->beginGroup(providerName.toUtf8());
+        settings()->beginGroup(Constants::aiAssistantProviderKey);
+        settings()->beginGroup(providerName.toUtf8());
     }
 
     ~GroupScope()
     {
-        Core::ICore::settings()->endGroup();
-        Core::ICore::settings()->endGroup();
+        settings()->endGroup();
+        settings()->endGroup();
     }
 };
 
@@ -29,16 +34,24 @@ AiProviderConfig::AiProviderConfig(const QString &providerName)
 {
     GroupScope group(m_providerName);
 
-    m_isChecked = Core::ICore::settings()->contains("checked")
-                      ? Core::ICore::settings()->value("checked").toBool() : true;
-    m_url = Core::ICore::settings()->value("url").toString();
-    m_apiKey = Core::ICore::settings()->value("apiKey").toString();
-    m_modelIds = Core::ICore::settings()->value("modelIds").toStringList();
+    m_isChecked = settings()->contains("checked") ? settings()->value("checked").toBool() : true;
+    m_url = settings()->value("url").toString();
+    m_apiKey = settings()->value("apiKey").toString();
+
+    int size = settings()->beginReadArray("models");
+    m_models.reserve(size);
+
+    for (int i = 0; i < size; ++i) {
+        settings()->setArrayIndex(i);
+        m_models << AiModelData{settings()->value("id").toString(),
+                                settings()->value("name").toString()};
+    }
+    settings()->endArray();
 }
 
 bool AiProviderConfig::isValid() const
 {
-    return !m_modelIds.isEmpty() && !m_url.isEmpty() && !m_apiKey.isEmpty();
+    return !m_models.isEmpty() && !m_url.isEmpty() && !m_apiKey.isEmpty();
 }
 
 QList<AiModelInfo> AiProviderConfig::allValidModels() const
@@ -46,40 +59,49 @@ QList<AiModelInfo> AiProviderConfig::allValidModels() const
     if (!isValid())
         return {};
 
-    const QStringList models = modelIds();
     QList<AiModelInfo> infos;
-    infos.reserve(models.size());
+    infos.reserve(m_models.size());
 
-    AiModelInfo info{
-        .provider = providerName(),
-        .url = url(),
-        .apiKey = apiKey(),
-    };
-
-    for (const QString &modelId : models) {
-        if (modelId.isEmpty())
+    for (const AiModelData &model : std::as_const(m_models)) {
+        if (model.id.isEmpty())
             continue;
 
-        info.modelId = modelId;
-        infos.append(info);
+        infos.append({
+            .provider = providerName(),
+            .url = url(),
+            .apiKey = apiKey(),
+            .modelId = model.id,
+            .modelName = model.name
+        });
     }
 
     return infos;
 }
 
 void AiProviderConfig::save(bool checked, const QString &url, const QString &apiKey,
-                            const QStringList &modelIds)
+                            const QList<AiModelData> &models)
 {
     m_isChecked = checked;
     m_url = url;
     m_apiKey = apiKey;
-    m_modelIds = modelIds;
+    m_models = models;
 
     GroupScope group(m_providerName);
-    Core::ICore::settings()->setValue("checked", m_isChecked);
-    Core::ICore::settings()->setValue("url", m_url);
-    Core::ICore::settings()->setValue("apiKey", m_apiKey);
-    Core::ICore::settings()->setValue("modelIds", m_modelIds);
+
+    settings()->setValue("checked", m_isChecked);
+    settings()->setValue("url", m_url);
+    settings()->setValue("apiKey", m_apiKey);
+
+    settings()->remove("models");
+    settings()->beginWriteArray("models");
+
+    for (int i = 0; i < m_models.size(); ++i) {
+        settings()->setArrayIndex(i);
+        settings()->setValue("id", m_models.at(i).id);
+        settings()->setValue("name", m_models.at(i).name);
+    }
+
+    settings()->endArray();
 }
 
 bool AiModelInfo::isValid() const

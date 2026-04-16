@@ -31,6 +31,7 @@ extend_qtc_plugin(QmlDesignerMcp
     mcpserverconfigstore.cpp mcpserverconfigstore.h
     mcpsettings.cpp mcpsettings.h
     mcpserversettingswidget.cpp mcpserversettingswidget.h
+    modellistwidget.cpp modellistwidget.h
     stringlistwidget.cpp stringlistwidget.h
 )
 

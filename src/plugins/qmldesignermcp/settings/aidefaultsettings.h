@@ -9,10 +9,18 @@
 
 namespace QmlDesigner {
 
+struct AiModelData
+{
+    QString id;
+    QString name;
+
+    bool operator==(const AiModelData &other) const { return id == other.id; }
+};
+
 struct AiProviderData
 {
     QString url;
-    QStringList models;
+    QList<AiModelData> models;
 };
 
 struct McpServerData

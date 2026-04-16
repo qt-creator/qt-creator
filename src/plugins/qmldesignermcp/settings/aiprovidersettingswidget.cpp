@@ -4,7 +4,7 @@
 #include "aiprovidersettingswidget.h"
 
 #include "aidefaultsettings.h"
-#include "stringlistwidget.h"
+#include "modellistwidget.h"
 
 #include <componentcore/theme.h>
 #include <utils/layoutbuilder.h>
@@ -34,7 +34,7 @@ AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, 
     , m_enabledCheckBox(Utils::makeUniqueObjectPtr<QCheckBox>(tr("Enabled")))
     , m_urlLineEdit(Utils::makeUniqueObjectPtr<QLineEdit>())
     , m_apiKeyLineEdit(Utils::makeUniqueObjectPtr<QLineEdit>())
-    , m_modelsListWidget(Utils::makeUniqueObjectPtr<StringListWidget>())
+    , m_modelsListWidget(Utils::makeUniqueObjectPtr<ModelListWidget>())
 {
     setupUi();
     load();
@@ -49,7 +49,7 @@ void AiProviderSettingsWidget::load()
 
     m_urlLineEdit->setText(m_config.url().isEmpty() ? providerData.url : m_config.url());
 
-    m_modelsListWidget->setItems(m_config.modelIds(), providerData.models);
+    m_modelsListWidget->setItems(m_config.models(), providerData.models);
 }
 
 bool AiProviderSettingsWidget::save()
@@ -57,7 +57,7 @@ bool AiProviderSettingsWidget::save()
     bool changed = m_config.isChecked() != m_enabledCheckBox->isChecked()
                 || m_config.apiKey() != m_apiKeyLineEdit->text()
                 || m_config.url() != m_urlLineEdit->text()
-                || m_config.modelIds() != m_modelsListWidget->items();
+                || m_config.models() != m_modelsListWidget->items();
     if (!changed)
         return false;
 

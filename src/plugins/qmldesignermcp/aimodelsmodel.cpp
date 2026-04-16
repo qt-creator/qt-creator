@@ -34,7 +34,13 @@ QVariant AiModelsModel::data(const QModelIndex &index, int role) const
     case Roles::Provider:
         return info.provider;
     case Roles::ModelId:
+        return info.modelId;
+    case Roles::ModelName: {
+        QString trimmedName = info.modelName.trimmed();
+        return trimmedName.isEmpty() ? info.modelId : info.modelName;
+    }
     default:
+        qWarning() << __FUNCTION__ << "Invalid role";
         return info.modelId;
     };
 }
@@ -44,6 +50,7 @@ QHash<int, QByteArray> AiModelsModel::roleNames() const
     static const QHash<int, QByteArray> result = {
         {int(Roles::Provider), "provider"},
         {int(Roles::ModelId), "modelId"},
+        {int(Roles::ModelName), "modelName"},
         {int(Roles::SourceIndex), "sourceIndex"},
     };
     return result;

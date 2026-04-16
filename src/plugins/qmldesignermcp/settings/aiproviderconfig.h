@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QUrl>
+#include "aidefaultsettings.h"
 
 namespace QmlDesigner {
 
@@ -13,6 +13,7 @@ struct AiModelInfo
     QString url;
     QString apiKey;
     QString modelId;
+    QString modelName;
 
     bool isValid() const;
 };
@@ -26,17 +27,17 @@ public:
     bool isChecked() const { return m_isChecked; }
     QString url() const { return m_url; };
     QString apiKey() const { return m_apiKey; };
-    QStringList modelIds() const { return m_modelIds; };
+    QList<AiModelData> models() const { return m_models; };
     bool isValid() const;
     QList<AiModelInfo> allValidModels() const;
 
-    void save(bool checked, const QString &url, const QString &apiKey, const QStringList &modelIds);
+    void save(bool checked, const QString &url, const QString &apiKey, const QList<AiModelData> &models);
 
 private:
     QString m_providerName;
     bool m_isChecked = true;
     QString m_url;
-    QStringList m_modelIds;
+    QList<AiModelData> m_models;
     QString m_apiKey;
 };
 

@@ -103,7 +103,7 @@ Rectangle {
                 width: 190
 
                 model: AiAssistantBackend.rootView.modelsModel
-                textRole: "modelId"
+                textRole: "modelName"
                 actionIndicatorVisible: false
                 enabled: modelComboBox.count > 0
 

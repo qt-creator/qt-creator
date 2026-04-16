@@ -16,7 +16,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class StringListWidget;
+class ModelListWidget;
 
 // Settings group box for a single AI provider
 class AiProviderSettingsWidget : public QGroupBox
@@ -36,7 +36,7 @@ private:
     Utils::UniqueObjectPtr<QCheckBox> m_enabledCheckBox;
     Utils::UniqueObjectPtr<QLineEdit> m_urlLineEdit;
     Utils::UniqueObjectPtr<QLineEdit> m_apiKeyLineEdit;
-    Utils::UniqueObjectPtr<StringListWidget> m_modelsListWidget;
+    Utils::UniqueObjectPtr<ModelListWidget> m_modelsListWidget;
     bool m_mouseOverCheckBox = false;
 };
 

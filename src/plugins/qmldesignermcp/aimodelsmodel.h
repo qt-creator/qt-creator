@@ -23,6 +23,7 @@ public:
     enum class Roles {
         Provider = Qt::UserRole + 1,
         ModelId,
+        ModelName,
         SourceIndex,
     };
 
