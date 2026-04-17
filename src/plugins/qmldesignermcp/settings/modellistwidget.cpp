@@ -53,12 +53,12 @@ ModelListWidget::ModelListWidget(QWidget *parent)
     m_moveUpButton->setIcon(toolButtonIcon(Theme::moveUp_medium));
     m_moveDownButton->setIcon(toolButtonIcon(Theme::moveDown_medium));
     m_resetButton->setIcon(toolButtonIcon(Theme::resetView_small));
-    m_toolBar->addWidget(m_resetButton.get());
 
-    m_toolBar->addWidget(m_moveDownButton.get());
-    m_toolBar->addWidget(m_moveUpButton.get());
-    m_toolBar->addWidget(m_removeButton.get());
     m_toolBar->addWidget(m_addButton.get());
+    m_toolBar->addWidget(m_removeButton.get());
+    m_toolBar->addWidget(m_moveUpButton.get());
+    m_toolBar->addWidget(m_moveDownButton.get());
+    m_toolBar->addWidget(m_resetButton.get());
 
     // Connections
     connect(m_addButton.get(), &QToolButton::clicked, this, [this] { addRow(); });

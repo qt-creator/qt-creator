@@ -86,6 +86,14 @@ void AiProviderSettingsWidget::setupUi()
     m_apiKeyLineEdit->setEchoMode(QLineEdit::Password);
     m_apiKeyLineEdit->setMaxLength(1024);
 
+    QAction *toggleApiKeyAction = m_apiKeyLineEdit->addAction(toolButtonIcon(Theme::visible_medium),
+                                                              QLineEdit::TrailingPosition);
+    toggleApiKeyAction->setToolTip(tr("Show/Hide API Key"));
+    toggleApiKeyAction->setCheckable(true);
+    connect(toggleApiKeyAction, &QAction::toggled, this, [&](bool checked) {
+        m_apiKeyLineEdit->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
+    });
+
     QAction *resetUrlAction = m_urlLineEdit->addAction(toolButtonIcon(Theme::resetView_small),
                                                        QLineEdit::TrailingPosition);
     resetUrlAction->setToolTip(tr("Reset Url"));

@@ -52,13 +52,13 @@ StringListWidget::StringListWidget(bool hideResetButton, QWidget *parent)
     m_moveDownButton->setToolTip(tr("Move item down"));
     m_resetButton->setToolTip(tr("Reset to defaults"));
 
+    m_toolBar->addWidget(m_addButton.get());
+    m_toolBar->addWidget(m_removeButton.get());
+    m_toolBar->addWidget(m_moveUpButton.get());
+    m_toolBar->addWidget(m_moveDownButton.get());
+
     if (!hideResetButton)
         m_toolBar->addWidget(m_resetButton.get());
-
-    m_toolBar->addWidget(m_moveDownButton.get());
-    m_toolBar->addWidget(m_moveUpButton.get());
-    m_toolBar->addWidget(m_removeButton.get());
-    m_toolBar->addWidget(m_addButton.get());
 
     connect(this, &QListWidget::currentRowChanged, this, &StringListWidget::onRowChanged);
     onRowChanged(currentRow());

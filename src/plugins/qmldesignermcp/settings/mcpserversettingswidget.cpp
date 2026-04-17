@@ -169,6 +169,14 @@ void McpServerSettingsWidget::setupUi()
     m_bearerTokenLineEdit->setMaxLength(1024);
     m_bearerTokenLineEdit->setEchoMode(QLineEdit::Password);
 
+    QAction *toggleBearerAction = m_bearerTokenLineEdit->addAction(toolButtonIcon(Theme::visible_medium),
+                                                                   QLineEdit::TrailingPosition);
+    toggleBearerAction->setToolTip(tr("Show/Hide API Key"));
+    toggleBearerAction->setCheckable(true);
+    connect(toggleBearerAction, &QAction::toggled, this, [&](bool checked) {
+        m_bearerTokenLineEdit->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
+    });
+
     auto *httpPanel = new QWidget(this);
     Form{
         tr("URL:"),          m_urlLineEdit.get(),          br,
