@@ -381,10 +381,9 @@ void AiAssistantWidget::connectRequestManager()
                     m_chatHistory->addIterationMessage(iteration, max);
             });
 
-    // Show the model's reasoning text when it accompanies tool calls
-    connect(reqManager, &AgenticRequestManager::toolCallTextReady,
-            this, [this](const QString &text) {
-                m_chatHistory->addAssistantMessage(text);
+    connect(reqManager, &AgenticRequestManager::assistantTextReady,
+            this, [this](const QString &text, const QString &modelName) {
+                m_chatHistory->addAssistantMessage(text, modelName);
             });
 
     connect(reqManager, &AgenticRequestManager::toolCallStarted,

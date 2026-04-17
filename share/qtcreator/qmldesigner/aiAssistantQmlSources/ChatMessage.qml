@@ -16,6 +16,7 @@ RowLayout {
     required property var segments
     required property string toolName
     required property string serverName
+    required property string modelName
     required property var pendingIndices
     required property bool resolved
 
@@ -279,12 +280,13 @@ RowLayout {
         }
 
         // Hover action bar — assistant messages only
-        Row {
+        RowLayout {
             id: actionBar
 
             visible: root.isAssistant
             opacity: bubbleHover.hovered ? 1.0 : 0.0
             spacing: 2
+            Layout.fillWidth: true
             Layout.topMargin: 2
 
             AiIconButton {
@@ -321,6 +323,18 @@ RowLayout {
                 buttonIcon: StudioTheme.Constants.copy_small
                 tooltip: qsTr("Copy")
                 onClicked: root.copyContent()
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Text {
+                id: modelLabel
+
+                Layout.alignment: Qt.AlignTop
+                visible: root.isAssistant && root.modelName !== ""
+                text: root.modelName
+                font.pixelSize: StudioTheme.Values.baseFontSize
+                color: StudioTheme.Values.themeTextColorDisabled
             }
         }
     }

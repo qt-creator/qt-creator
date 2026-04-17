@@ -28,6 +28,7 @@ public:
         SegmentsRole,
         ToolNameRole,
         ServerNameRole,
+        ModelNameRole,
         PendingIndicesRole,
         Resolved,
         TimestampRole
@@ -42,7 +43,7 @@ public:
     Q_INVOKABLE void clear();
 
     void addUserMessage(const QString &content);
-    void addAssistantMessage(const QString &content);
+    void addAssistantMessage(const QString &content, const QString &modelName = {});
     void addToolCallStarted(const QString &serverName, const QString &toolName, const QJsonObject &args);
     void completeToolCall(const QString &serverName, const QString &toolName, bool success);
     void addToolCallFailed(const QString &serverName, const QString &toolName, const QString &error);

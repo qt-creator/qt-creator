@@ -145,6 +145,8 @@ QVariant ChatHistoryModel::data(const QModelIndex &index, int role) const
         return message->toolName();
     case ServerNameRole:
         return message->serverName();
+    case ModelNameRole:
+        return message->modelName();
     case PendingIndicesRole:
         return QVariant::fromValue(message->pendingIndices());
     case Resolved:
@@ -164,6 +166,7 @@ QHash<int, QByteArray> ChatHistoryModel::roleNames() const
         {SegmentsRole, "segments"},
         {ToolNameRole, "toolName"},
         {ServerNameRole, "serverName"},
+        {ModelNameRole, "modelName"},
         {PendingIndicesRole, "pendingIndices"},
         {Resolved, "resolved"},
         {TimestampRole, "timestamp"}
@@ -187,11 +190,12 @@ void ChatHistoryModel::addUserMessage(const QString &content)
     emit isEmptyChanged();
 }
 
-void ChatHistoryModel::addAssistantMessage(const QString &content)
+void ChatHistoryModel::addAssistantMessage(const QString &content, const QString &modelName)
 {
     auto *msg = new ChatMessage(ChatMessage::AssistantMessage,
                                 AiAssistantUtils::markdownToHtml(content), this);
     msg->setSegments(parseContentSegments(content));
+    msg->setModelName(modelName);
 
     beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
     m_messages.append(msg);

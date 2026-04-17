@@ -302,8 +302,7 @@ void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
 
     for (const MessageBlock &block : blocks) {
         if (block.type == MessageBlock::Type::Text && !block.text.trimmed().isEmpty()) {
-            // Emit any reasoning text that accompanied the tool calls
-            emit toolCallTextReady(block.text.trimmed());
+            emit assistantTextReady(block.text.trimmed(), m_currentModelInfo.modelName);
         } else if (block.type == MessageBlock::Type::ToolUse) {
             toolCalls.append({
                 .id = block.id,

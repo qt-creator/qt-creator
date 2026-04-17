@@ -110,18 +110,14 @@ signals:
     void toolCallStarted(const QString &serverName, const QString &toolName, const QJsonObject &arguments);
     void toolCallFinished(const QString &serverName, const QString &toolName, bool success);
 
-    // Emitted once per LLM turn when one or more destructive tool calls need approval.
-    // pendingIndices lists every PendingToolCall index in the batch.
+    // Emitted when one or more tool calls need approval.
     void confirmationRequired(const QStringList &serverNames,
                               const QStringList &toolNames,
                               const QList<QJsonObject> &argumentsList,
                               const QList<int> &pendingIndices);
     void confirmationsCancelled(const QList<int> &pendingIndices);
 
-    // Emitted when the LLM produces a text block alongside tool calls
-    // e.g. "I'll read the file first to understand its current state."
-    // Not emitted for the final response (responseReady covers that case).
-    void toolCallTextReady(const QString &text);
+    void assistantTextReady(const QString &text, const QString &modelName);
 
     // Logging/debugging
     void logMessage(const QString &message);

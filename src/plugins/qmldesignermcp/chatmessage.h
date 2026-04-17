@@ -25,6 +25,7 @@ class ChatMessage : public QObject
     Q_PROPERTY(QString content READ content)
     Q_PROPERTY(QString toolName READ toolName CONSTANT)
     Q_PROPERTY(QString serverName READ serverName CONSTANT)
+    Q_PROPERTY(QString modelName READ modelName CONSTANT)
     Q_PROPERTY(QDateTime timestamp READ timestamp CONSTANT)
     Q_PROPERTY(QList<int> pendingIndices READ pendingIndices CONSTANT)
     Q_PROPERTY(bool resolved READ resolved)
@@ -48,6 +49,7 @@ public:
     QString content() const;
     QString toolName() const;
     QString serverName() const;
+    QString modelName() const;
     bool success() const;
     QDateTime timestamp() const;
     QJsonObject toolArgs() const;
@@ -56,6 +58,7 @@ public:
     void setPendingIndices(const QList<int> &indices);
 
     void setToolInfo(const QString &serverName, const QString &toolName);
+    void setModelName(const QString &modelName);
     void setToolArgs(const QJsonObject &args);
 
     QVariantList segments() const;
@@ -77,6 +80,7 @@ private:
     QString m_content;
     QString m_toolName;
     QString m_serverName;
+    QString m_modelName;
     QVariantList m_segments;
     QDateTime m_timestamp;
     QJsonObject m_toolArgs;

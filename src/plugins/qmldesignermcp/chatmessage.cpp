@@ -20,6 +20,7 @@ ChatMessage::MessageType ChatMessage::type() const { return m_type; }
 QString ChatMessage::content() const { return m_content; }
 QString ChatMessage::toolName() const { return m_toolName; }
 QString ChatMessage::serverName() const { return m_serverName; }
+QString ChatMessage::modelName() const { return m_modelName; }
 QDateTime ChatMessage::timestamp() const { return m_timestamp; }
 QJsonObject ChatMessage::toolArgs() const { return m_toolArgs; }
 
@@ -27,6 +28,11 @@ void ChatMessage::setToolInfo(const QString &serverName, const QString &toolName
 {
     m_serverName = serverName;
     m_toolName = toolName;
+}
+
+void ChatMessage::setModelName(const QString &modelName)
+{
+    m_modelName = modelName;
 }
 
 void ChatMessage::setToolArgs(const QJsonObject &args)
