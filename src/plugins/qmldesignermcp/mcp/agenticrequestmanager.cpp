@@ -12,6 +12,8 @@
 #include "openaiapiresponseadapter.h"
 #include "toolregistry.h"
 
+#include <utils/environment.h>
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -193,17 +195,18 @@ void AgenticRequestManager::sendLlmRequest()
         m_toolRegistry->enabledToolEntries(),
         m_conversation->messages());
 
-    // TODO: remove. Needed for now for debugging
-    QJsonDocument doc = QJsonDocument::fromJson(m_lastRequestContent);
-    QJsonObject obj = doc.object();
-    obj.remove("tools");
-    obj.remove("system_instruction");
-    doc.setObject(obj);
-    qDebug().noquote()
-        << "\x1b[42m \x1b[1m" << __FUNCTION__
-        << ", m_lastRequestContent="
-        << doc.toJson(QJsonDocument::Indented)
-        << "\x1b[m";
+    if (Utils::qtcEnvironmentVariableIsSet("SHOW_AI_REQ_RESP_LOGS")) {
+        QJsonDocument doc = QJsonDocument::fromJson(m_lastRequestContent);
+        QJsonObject obj = doc.object();
+        obj.remove("tools");
+        obj.remove("system_instruction");
+        doc.setObject(obj);
+        qDebug().noquote()
+            << "\x1b[42m \x1b[1m" << __FUNCTION__
+            << ", m_lastRequestContent="
+            << doc.toJson(QJsonDocument::Indented)
+            << "\x1b[m";
+    }
 
     emit logMessage(QString("Sending LLM request (%1 bytes)").arg(m_lastRequestContent.size()));
 
@@ -260,15 +263,16 @@ void AgenticRequestManager::onNetworkReplyFinished()
 
 void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
 {
-    // TODO: remove. Needed for now for debugging
-    QJsonDocument doc = QJsonDocument::fromJson(responseData);
-    QJsonObject obj = doc.object();
-    obj.remove("tools");
-    obj.remove("system_instruction");
-    doc.setObject(obj);
-    qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
-             << ", responseData=" << doc.toJson(QJsonDocument::Indented)
-             << "\x1b[m";
+    if (Utils::qtcEnvironmentVariableIsSet("SHOW_AI_REQ_RESP_LOGS")) {
+        QJsonDocument doc = QJsonDocument::fromJson(responseData);
+        QJsonObject obj = doc.object();
+        obj.remove("tools");
+        obj.remove("system_instruction");
+        doc.setObject(obj);
+        qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
+                 << ", responseData=" << doc.toJson(QJsonDocument::Indented)
+                 << "\x1b[m";
+    }
 
     m_lastLlmResponse = responseData;
 
