@@ -18,7 +18,6 @@ def parse_arguments():
     parser.add_argument('dmg_volumename', help='volume name to use for the disk image')
     parser.add_argument('source_directory', help='directory with the Qt Creator sources')
     parser.add_argument('binary_directory', help='directory that contains the Qt Creator.app')
-    parser.add_argument('--dmg-size', default='5000m', required=False)
     parser.add_argument('--license-replacement', default=None,
         help='Absolute path to a license file which replaces the default LICENSE.GPL3-EXCEPT from Qt Creator source directory.')
     parser.add_argument('--entitlements-dir', default=None,
@@ -44,8 +43,8 @@ def main():
             license_file = arguments.license_replacement
         shutil.copy(license_file, tempdir)
         dmg_cmd = ['hdiutil', 'create', '-srcfolder', tempdir, '-volname', arguments.dmg_volumename,
-                   '-format', 'ULMO', arguments.target_diskimage, '-ov', '-scrub', '-size', arguments.dmg_size, '-verbose']
-        subprocess.check_call(dmg_cmd)
+                   '-format', 'UDRO', arguments.target_diskimage, '-ov', '-scrub', '-verbose']
+        subprocess.check_call(dmg_cmd, timeout=1800)
         # sleep a few seconds to make sure disk image is fully unmounted etc
         time.sleep(5)
     finally:
