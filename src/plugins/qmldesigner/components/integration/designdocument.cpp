@@ -873,7 +873,11 @@ void DesignDocument::updateActiveTarget()
 {
     NanotraceHR::Tracer tracer{"design document update active target", category()};
 
+    auto previousTarget = m_currentTarget;
     m_currentTarget = getActiveTarget(this);
+
+    if (!previousTarget && m_currentTarget)
+        emit activeTargetAvailable(m_currentTarget);
 }
 
 void DesignDocument::contextHelp(const Core::IContext::HelpCallback &callback) const

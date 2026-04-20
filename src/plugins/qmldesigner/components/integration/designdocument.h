@@ -94,6 +94,7 @@ signals:
     void redoAvailable(bool isAvailable);
     void designDocumentClosed();
     void qmlErrorsChanged(const QList<DocumentMessage> &errors);
+    void activeTargetAvailable(ProjectExplorer::Target *target);
 
 public:
     void deleteSelected();

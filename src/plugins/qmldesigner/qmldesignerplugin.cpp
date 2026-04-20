@@ -193,6 +193,8 @@ public:
     QHash<QString, TraceIdentifierData> m_traceIdentifierDataHash;
     QHash<QString, TraceIdentifierData> m_activeTraceIdentifierDataHash;
     QElapsedTimer timer;
+    QMetaObject::Connection pendingAutoSynchronizationConnection;
+    bool autoSynchronizationPending = false;
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
@@ -623,6 +625,29 @@ void QmlDesignerPlugin::activateAutoSynchronization()
         currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());
 
     currentDesignDocument()->updateActiveTarget();
+    if (!currentDesignDocument()->currentTarget()) {
+        d->mainWidget.disableWidgets();
+        d->autoSynchronizationPending = true;
+        QObject::disconnect(d->pendingAutoSynchronizationConnection);
+        d->pendingAutoSynchronizationConnection = QObject::connect(
+            currentDesignDocument(),
+            &DesignDocument::activeTargetAvailable,
+            this,
+            [this] { continuePendingAutoSynchronization(); });
+        return;
+    }
+
+    finishAutoSynchronization();
+}
+
+void QmlDesignerPlugin::finishAutoSynchronization()
+{
+    NanotraceHR::Tracer tracer{"qml designer plugin finish auto synchronization", category()};
+
+    d->autoSynchronizationPending = false;
+    QObject::disconnect(d->pendingAutoSynchronizationConnection);
+    d->pendingAutoSynchronizationConnection = {};
+
     d->mainWidget.enableWidgets();
     currentDesignDocument()->attachRewriterToModel();
 
@@ -636,9 +661,22 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     d->mainWidget.setupNavigatorHistory(currentDesignDocument()->textEditor());
 }
 
+void QmlDesignerPlugin::continuePendingAutoSynchronization()
+{
+    NanotraceHR::Tracer tracer{"qml designer plugin continue pending auto synchronization", category()};
+
+    if (d->autoSynchronizationPending && currentDesignDocument()
+        && currentDesignDocument()->currentTarget())
+        finishAutoSynchronization();
+}
+
 void QmlDesignerPlugin::deactivateAutoSynchronization()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin deactivate auto synchronization", category()};
+
+    d->autoSynchronizationPending = false;
+    QObject::disconnect(d->pendingAutoSynchronizationConnection);
+    d->pendingAutoSynchronizationConnection = {};
 
     viewManager().detachViewsExceptRewriterAndComponetView();
     viewManager().detachComponentView();

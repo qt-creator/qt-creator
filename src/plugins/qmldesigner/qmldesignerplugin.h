@@ -122,6 +122,8 @@ private: // functions
     void selectModelNodeUnderTextCursor();
     void activateAutoSynchronization();
     void deactivateAutoSynchronization();
+    void finishAutoSynchronization();
+    void continuePendingAutoSynchronization();
     void resetModelSelection();
     void initializeShutdownSettings();
     QString identifierToDisplayString(const QString &identifier);
