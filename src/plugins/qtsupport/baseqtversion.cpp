@@ -14,6 +14,7 @@
 
 #include <android/androidconstants.h>
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <proparser/qmakevfs.h>
@@ -1308,7 +1309,7 @@ Result<QtVersionData> dataForQMake(const FilePath m_qmakeCommand, const Environm
         {&data.examplesPath, &data.hasExamples},
         {&data.demosPath, &data.hasDemos},
     };
-    if (data.binPath.osType() != OsTypeMac)
+    if (data.binPath.osType() != OsTypeMac && !Core::ICore::isQtDesignStudio())
         checkDirs.push_back({&data.headerPath, &data.installed});
 
     QtConcurrent::map(checkDirs, [](CheckDir &checkDir) {
