@@ -14,7 +14,7 @@ struct AiModelData
     QString id;
     QString name;
 
-    bool operator==(const AiModelData &other) const { return id == other.id; }
+    bool operator==(const AiModelData &other) const { return id == other.id && name == other.name; }
 };
 
 struct AiProviderData

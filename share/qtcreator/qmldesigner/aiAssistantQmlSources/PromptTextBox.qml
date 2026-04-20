@@ -92,15 +92,34 @@ Rectangle {
         }
 
         RowLayout {
-            Layout.fillWidth: true
             Layout.margins: StudioTheme.Values.marginTopBottom
-
-            Item { Layout.fillWidth: true } // left spacer
+            Layout.alignment: Qt.AlignRight
 
             StudioControls.ComboBox {
                 id: modelComboBox
 
-                width: 190
+                readonly property real minWidth: 20
+                property real fitWidth: 100
+
+                function updateWidth() {
+                    let maxWidth = 0
+                    for (let i = 0; i < count; ++i) {
+                        metrics.text = textAt(i)
+                        maxWidth = Math.max(maxWidth, metrics.width)
+                    }
+                    if (maxWidth > 0)
+                        modelComboBox.fitWidth = maxWidth + 40 // 40: arrow area
+                }
+
+                TextMetrics {
+                    id: metrics
+                    font: modelComboBox.font
+                }
+
+                Layout.preferredWidth: modelComboBox.fitWidth
+                Layout.minimumWidth: modelComboBox.minWidth
+                Layout.maximumWidth: modelComboBox.fitWidth
+                Layout.fillWidth: true
 
                 model: AiAssistantBackend.rootView.modelsModel
                 textRole: "modelName"
@@ -115,6 +134,13 @@ Rectangle {
                 onCurrentIndexChanged: {
                     modelComboBox.model.selectedIndex = modelComboBox.currentIndex
                     root.modelChanged(currentText)
+                }
+
+                onCountChanged: modelComboBox.updateWidth()
+
+                Connections {
+                    target: modelComboBox.model
+                    function onModelReset() { modelComboBox.updateWidth() }
                 }
             }
 
