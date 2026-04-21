@@ -8,6 +8,8 @@
 
     \title Using \QBF
 
+    \include qtbridge-new-tool-info.qdocinc qtbridgeforfigma message
+
     \section1 Organizing designs
 
     To get the best results during export and import, follow these guidelines

@@ -21,6 +21,8 @@
 
     \section1 2D assets
 
+    \include qtbridge-new-tool-info.qdocinc qtbridgeforfigma message
+
     You can use \QOI to install \QB if you have a
     \QDS enterprise license.
 

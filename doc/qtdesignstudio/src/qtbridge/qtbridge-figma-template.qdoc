@@ -8,6 +8,8 @@
 
     \title Using the Figma Quick Control Template components in \QDS
 
+    \include qtbridge-new-tool-info.qdocinc qtbridgeforfigma message
+
     You can design with the template components created by \QDS in Figma
     and import them to \QDS with \QBF. These template components are structured
     specifically for Figma. When you design in Figma using them, and import the design with

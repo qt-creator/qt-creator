@@ -1,0 +1,15 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+//! [qtbridgeforfigma message]
+
+    \note \QBF is no longer actively developed.
+        For new projects, use
+        \l {https://www.qt.io/development/gui-design-figma} {Figma to Qt},
+        a plug-in that converts Figma designs into high-quality, ready-to-use
+        QML. Existing projects using \QBF will continue to receive support via
+        \l {mailto:qt-design-tools.support@qt.io}{email} or the
+        \l {https://www.qt.io/qt-support/} {Qt Account Support Center}
+        until October 2030.
+
+//! [qtbridgeforfigma message]

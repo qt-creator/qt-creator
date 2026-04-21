@@ -7,6 +7,8 @@
     \nextpage qtbridge-figma-using.html
 
     \title Setting up \QBF
+
+    \include qtbridge-new-tool-info.qdocinc qtbridgeforfigma message
     \note \QBF is included in the
     \l{https://www.qt.io/pricing}{\QDS Enterprise license}.
 
