@@ -10,11 +10,10 @@
 
 #include <qmldesignertr.h>
 
-#include <utils/layoutbuilder.h>
-
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
@@ -52,31 +51,36 @@ McpSettingsTab::McpSettingsTab(AiAssistantView *view)
     : Core::IOptionsPageWidget()
     , m_view(view)
 {
-    using namespace Layouting;
+    auto *mainLayout = new QVBoxLayout(this);
+    mainLayout->setSpacing(8);
 
-    Column mainCol;
-    mainCol.setSpacing(8);
+    m_scrollArea = new QScrollArea(this);
+    m_scrollArea->setWidgetResizable(true);
+    m_scrollArea->setFrameShape(QFrame::NoFrame);
 
-    // Container for server widgets
+    // remove the default QScrollArea background color
+    auto palette = m_scrollArea->palette();
+    palette.setColor(QPalette::Window, Qt::transparent);
+    m_scrollArea->setPalette(palette);
+
     auto *serverContainer = new QWidget(this);
+
     m_serverLayout = new QVBoxLayout(serverContainer);
     m_serverLayout->setContentsMargins(0, 0, 0, 0);
     m_serverLayout->setSpacing(8);
 
-    // Add existing servers
     const QStringList names = McpServerConfigStore::savedServerNames();
     for (const QString &name : names)
         addServer(name);
 
-    mainCol.addItem(serverContainer);
+    m_serverLayout->addStretch(1);
+    m_scrollArea->setWidget(serverContainer);
+    mainLayout->addWidget(m_scrollArea);
 
-    // "Add server" button
     auto *addButton = new QPushButton(tr("Add MCP server…"), this);
     connect(addButton, &QPushButton::clicked, this, &McpSettingsTab::promptAddServer);
 
-    mainCol.addItem(addButton);
-    mainCol.addItem(Stretch(1));
-    mainCol.attachTo(this);
+    mainLayout->addWidget(addButton);
 }
 
 McpSettingsTab::~McpSettingsTab() = default;
@@ -104,6 +108,10 @@ void McpSettingsTab::addServer(const QString &serverName)
 
     m_serverLayout->addWidget(widget);
     m_serverWidgets.append(widget);
+
+    QTimer::singleShot(100, this, [this, widget]{
+        m_scrollArea->ensureWidgetVisible(widget);
+    });
 }
 
 void McpSettingsTab::removeServer(const QString &serverName)

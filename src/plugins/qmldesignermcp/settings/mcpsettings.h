@@ -9,6 +9,7 @@
 
 #include <QList>
 
+QT_FORWARD_DECLARE_CLASS(QScrollArea)
 QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
 
 namespace QmlDesigner {
@@ -66,6 +67,7 @@ private:
     QList<McpServerSettingsWidget *> m_serverWidgets;
     QWidget *m_serversContainer = nullptr;
     QVBoxLayout *m_serverLayout = nullptr;
+    QScrollArea *m_scrollArea = nullptr;
 };
 
 } // namespace QmlDesigner

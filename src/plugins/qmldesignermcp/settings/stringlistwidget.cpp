@@ -148,8 +148,11 @@ QToolBar *StringListWidget::toolBar() const
 
 void StringListWidget::wheelEvent(QWheelEvent *event)
 {
-    QListWidget::wheelEvent(event);
-    event->accept(); // Accept the event to prevent handling it by the parent at bounds
+    // Consume the event if the list is scrollable (> 3 items)
+    if (count() > 3)
+        QListWidget::wheelEvent(event);
+    else
+        event->ignore();
 }
 
 void StringListWidget::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
