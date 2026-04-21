@@ -53,7 +53,6 @@ signals:
 private:
     TextEditor::TextEditorWidget *textEditor() const;
     Utils::FilePath manifestDirectory() const;
-    static Utils::FilePath iconFile(const Utils::FilePath &path);
     bool hasIcons() const;
     void loadIcons();
     Utils::Result<void> saveIcons();
@@ -68,6 +67,7 @@ private:
     QGridLayout * m_iconLayout = nullptr;
     QPointer<TextEditor::TextEditorWidget> m_textEditor = nullptr;
     QString m_iconFileName = QLatin1String("icon");
+    QString m_iconFolder = QLatin1String("mipmap");
     bool m_hasIcons = false;
 };
 

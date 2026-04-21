@@ -20,6 +20,7 @@
 #include "androidtr.h"
 
 #ifdef WITH_TESTS
+#  include "androidmanifestutils.h"
 #  include "androidsdkmanager_test.h"
 #  include "sdkmanageroutputparser_test.h"
 #endif
@@ -113,6 +114,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createAndroidDeviceTest);
         addTestCreator(createAndroidLogcatCrashParserTest);
         addTestCreator(createAndroidMcpSupportTest);
+        addTestCreator(createAndroidManifestUtilsTest);
 #endif
     }
 

@@ -7,6 +7,7 @@
 #include <utils/result.h>
 
 #include <QMap>
+#include <QObject>
 #include <QString>
 #include <QStringList>
 
@@ -16,8 +17,7 @@ class AndroidManifestParser
 {
 public:
     struct ManifestData {
-        QString iconName;
-        bool hasIcon = false;
+        QString iconValue; // android:icon as written, e.g. "@mipmap/icon"
         QMap<QString, QMap<QString, QString>> permissions; // name -> {attrName: value}
         bool hasDefaultPermissionsComment = false;
         bool hasDefaultFeaturesComment = false;
@@ -62,4 +62,7 @@ Utils::Result<void> updateManifestPermissionAttributes(const Utils::FilePath &ma
                                                        const QString &permission,
                                                        const QMap<QString, QString> &attributes);
 
+#ifdef WITH_TESTS
+QObject *createAndroidManifestUtilsTest();
+#endif // WITH_TESTS
 } // namespace Android::Internal
