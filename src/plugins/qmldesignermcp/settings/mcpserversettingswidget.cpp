@@ -177,6 +177,12 @@ void McpServerSettingsWidget::setupUi()
         m_bearerTokenLineEdit->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
     });
 
+    toggleBearerAction->setVisible(false);
+    connect(m_bearerTokenLineEdit.get(), &QLineEdit::textChanged, this,
+            [toggleBearerAction](const QString &text) {
+        toggleBearerAction->setVisible(!text.isEmpty());
+    });
+
     auto *httpPanel = new QWidget(this);
     Form{
         tr("URL:"),          m_urlLineEdit.get(),          br,

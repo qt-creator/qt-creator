@@ -94,6 +94,12 @@ void AiProviderSettingsWidget::setupUi()
         m_apiKeyLineEdit->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
     });
 
+    toggleApiKeyAction->setVisible(false);
+    connect(m_apiKeyLineEdit.get(), &QLineEdit::textChanged, this,
+            [toggleApiKeyAction](const QString &text) {
+        toggleApiKeyAction->setVisible(!text.isEmpty());
+    });
+
     QAction *resetUrlAction = m_urlLineEdit->addAction(toolButtonIcon(Theme::resetView_small),
                                                        QLineEdit::TrailingPosition);
     resetUrlAction->setToolTip(tr("Reset Url"));
