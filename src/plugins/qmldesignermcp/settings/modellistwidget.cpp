@@ -54,6 +54,12 @@ ModelListWidget::ModelListWidget(QWidget *parent)
     m_moveDownButton->setIcon(toolButtonIcon(Theme::moveDown_medium));
     m_resetButton->setIcon(toolButtonIcon(Theme::resetView_small));
 
+    m_addButton->setToolTip(tr("Add a new model"));
+    m_removeButton->setToolTip(tr("Remove selected model"));
+    m_moveUpButton->setToolTip(tr("Move model up"));
+    m_moveDownButton->setToolTip(tr("Move model down"));
+    m_resetButton->setToolTip(tr("Reset to defaults"));
+
     m_toolBar->addWidget(m_addButton.get());
     m_toolBar->addWidget(m_removeButton.get());
     m_toolBar->addWidget(m_moveUpButton.get());
@@ -174,8 +180,10 @@ void ModelListWidget::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEdi
             break;
         }
     }
-    if (empty)
+    if (empty) {
         removeRow(row);
+        setCurrentIndex(QModelIndex());
+    }
 }
 
 } // namespace QmlDesigner
