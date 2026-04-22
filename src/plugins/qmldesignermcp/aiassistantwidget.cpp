@@ -134,11 +134,7 @@ AiAssistantWidget::~AiAssistantWidget() = default;
 
 void AiAssistantWidget::clear()
 {
-    // TODO: combine with clearChat()
-    setAttachedImageSource("");
-    m_conversation->clear();
-    m_chatHistory->clear();
-    m_currentTransaction.reset();
+    clearChat();
 }
 
 void AiAssistantWidget::loadInstructions()
@@ -177,8 +173,6 @@ bool AiAssistantWidget::setProjectPath(const QString &projectPath)
         return false;
 
     m_projectPath = projectPath;
-
-    initializeMcp();
     return true;
 }
 
@@ -339,6 +333,12 @@ void AiAssistantWidget::connectHost()
                 if (m_pendingStructureRefresh && serverName == Constants::qmlServerName)
                     fetchProjectStructure();
             });
+
+    connect(m_mcpHost.get(), &McpHost::errorOccurred,
+            [this](const QString &serverName, const QString &message) {
+                Q_UNUSED(serverName)
+                m_chatHistory->addSystemMessage(message);
+            });
 }
 
 void AiAssistantWidget::fetchProjectStructure()
@@ -483,6 +483,7 @@ QAbstractListModel *AiAssistantWidget::chatHistory() const
 
 void AiAssistantWidget::clearChat()
 {
+    setAttachedImageSource("");
     m_chatHistory->clear();
     m_conversation->clear();
     m_requestManager->clearAdapters();

@@ -59,6 +59,7 @@ public:
     void updateMcpConfig();
     void removeMissingAttachedImage();
     bool setProjectPath(const QString &projectPath);
+    void initializeMcp();
 
     QSize sizeHint() const override;
 
@@ -88,7 +89,6 @@ private: // functions
     void reloadQmlSource();
     void setGenerationState(GenerationState state);
     void setHasValidModel(bool val);
-    void initializeMcp();
     void connectRequestManager();
     void connectHost();
     void fetchProjectStructure();

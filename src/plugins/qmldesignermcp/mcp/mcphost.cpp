@@ -128,9 +128,8 @@ bool McpHost::startServer(const QString &serverName)
     }
     case McpServerConfig::Http: {
         if (cfg.url.isEmpty()) {
-            emit errorOccurred(serverName,
-                               tr("HTTP transport: no URL configured for server '%1'")
-                                   .arg(serverName));
+            emit errorOccurred(serverName, tr("HTTP transport: no URL configured for server '%1'")
+                                               .arg(serverName));
             return false;
         }
         auto *httpClient = new McpClientHttp(clientName, clientVersion, this);
@@ -149,6 +148,7 @@ bool McpHost::startServer(const QString &serverName)
 
     if (!ok) {
         emit errorOccurred(serverName, tr("Failed to start server '%1'").arg(serverName));
+        stopServer(serverName);
         return false;
     }
 
@@ -247,13 +247,17 @@ void McpHost::wireClientSignals(const QString &name, McpClient *client)
 
     connect(client, &McpClient::exited, this, [this, name](int ec, QProcess::ExitStatus st) {
         emit serverExited(name, ec, st);
+        if (st == QProcess::CrashExit || ec != 0) {
+            emit errorOccurred(
+                name, tr("Server '%1' exited with code %2").arg(name).arg(ec));
+        }
         // schedule restart if it crashed
         if (st == QProcess::CrashExit)
             scheduleRestart(name);
     });
 
     connect(client, &McpClient::errorOccurred, this, [this, name](const QString &msg) {
-        emit errorOccurred(name, msg);
+        emit errorOccurred(name, QString("%1 on %2").arg(msg, name));
     });
 
     connect(client, &McpClient::logMessage, this, [this, name](const QString &line) {

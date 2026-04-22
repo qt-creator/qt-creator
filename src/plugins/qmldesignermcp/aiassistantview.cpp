@@ -64,6 +64,7 @@ void AiAssistantView::modelAttached(Model *model)
     if (changed) {
         m_widget->loadInstructions();
         m_widget->clear();
+        m_widget->initializeMcp();
     }
 }
 
