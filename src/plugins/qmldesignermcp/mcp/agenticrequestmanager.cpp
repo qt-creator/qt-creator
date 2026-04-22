@@ -53,6 +53,32 @@ QList<MessageBlock> buildToolResultsBlocks(const QList<ToolResult> &results)
     return blocks;
 }
 
+void logAiJson(const QString &label, const QByteArray &json)
+{
+    if (!Utils::qtcEnvironmentVariableIsSet("AI_LOG"))
+        return;
+
+    QJsonDocument doc = QJsonDocument::fromJson(json);
+    QJsonObject obj = doc.object();
+
+    if (Utils::qtcEnvironmentVariableIsSet("AI_LOG_NO_TOOLS"))
+        obj.remove("tools");
+
+    if (Utils::qtcEnvironmentVariableIsSet("AI_LOG_NO_INSTRUCTION")) {
+        obj.remove("system_instruction");
+        obj.remove("instruction");
+        obj.remove("system");
+    }
+
+    doc.setObject(obj);
+
+    qDebug().noquote()
+        << "\x1b[42m \x1b[1m"
+        << label
+        << doc.toJson(QJsonDocument::Indented)
+        << "\x1b[m";
+}
+
 } // namespace
 
 AgenticRequestManager::AgenticRequestManager(
@@ -195,18 +221,7 @@ void AgenticRequestManager::sendLlmRequest()
         m_toolRegistry->enabledToolEntries(),
         m_conversation->messages());
 
-    if (Utils::qtcEnvironmentVariableIsSet("SHOW_AI_REQ_RESP_LOGS")) {
-        QJsonDocument doc = QJsonDocument::fromJson(m_lastRequestContent);
-        QJsonObject obj = doc.object();
-        obj.remove("tools");
-        obj.remove("system_instruction");
-        doc.setObject(obj);
-        qDebug().noquote()
-            << "\x1b[42m \x1b[1m" << __FUNCTION__
-            << ", m_lastRequestContent="
-            << doc.toJson(QJsonDocument::Indented)
-            << "\x1b[m";
-    }
+    logAiJson("REQUEST", m_lastRequestContent);
 
     emit logMessage(QString("Sending LLM request (%1 bytes)").arg(m_lastRequestContent.size()));
 
@@ -263,16 +278,7 @@ void AgenticRequestManager::onNetworkReplyFinished()
 
 void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
 {
-    if (Utils::qtcEnvironmentVariableIsSet("SHOW_AI_REQ_RESP_LOGS")) {
-        QJsonDocument doc = QJsonDocument::fromJson(responseData);
-        QJsonObject obj = doc.object();
-        obj.remove("tools");
-        obj.remove("system_instruction");
-        doc.setObject(obj);
-        qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
-                 << ", responseData=" << doc.toJson(QJsonDocument::Indented)
-                 << "\x1b[m";
-    }
+    logAiJson("RESPONSE", responseData);
 
     m_lastLlmResponse = responseData;
 
