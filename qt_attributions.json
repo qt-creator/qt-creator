@@ -763,5 +763,41 @@
         "License": "MIT License",
         "LicenseFile": "../_deps/efsw-src/LICENSE",
         "Copyright": "Copyright (c) 2020 Martín Lucas Golini"
+    },
+    {
+        "Id": "qml-mcp-server-python",
+        "Name": "CPython",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Bundled by PyInstaller into the QML MCP server executable.",
+        "Description": "CPython reference interpreter and standard library.",
+        "Homepage": "https://www.python.org/",
+        "PURL": "pkg:generic/python@$<VERSION>",
+        "License": "Python Software Foundation License 2.0",
+        "Copyright": "Copyright (c) 2001-2024 Python Software Foundation"
+    },
+    {
+        "Id": "qml-mcp-server-mcp",
+        "Name": "Model Context Protocol Python SDK",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Python SDK used by the QML MCP server to implement the MCP protocol.",
+        "Description": "Official Python SDK for the Model Context Protocol.",
+        "Homepage": "https://github.com/modelcontextprotocol/python-sdk",
+        "PURL": "pkg:pypi/mcp@$<VERSION>",
+        "License": "MIT License",
+        "Copyright": "Copyright (c) 2024 Anthropic, PBC."
+    },
+    {
+        "Id": "qml-mcp-server-openssl",
+        "Name": "OpenSSL",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Bundled with the QML MCP server on macOS to back Python's ssl and hashlib modules.",
+        "Description": "Cryptography and SSL/TLS toolkit.",
+        "Homepage": "https://www.openssl.org/",
+        "PURL": "pkg:generic/openssl@$<VERSION>",
+        "License": "Apache License 2.0",
+        "Copyright": "Copyright (c) 1998-2024 The OpenSSL Project Authors"
     }
 ]

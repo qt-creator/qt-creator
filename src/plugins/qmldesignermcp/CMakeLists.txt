@@ -107,9 +107,11 @@ if(BUILD_QML_MCP_SERVER)
   endif()
 
   execute_process(
-    COMMAND "${Python3_EXECUTABLE}" -c "import mcp"
+    COMMAND "${Python3_EXECUTABLE}" -c
+            "from importlib.metadata import version; print(version('mcp'))"
     RESULT_VARIABLE _mcp_package_check
-    OUTPUT_QUIET
+    OUTPUT_VARIABLE _mcp_version
+    OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
   if(NOT _mcp_package_check EQUAL 0)
@@ -117,6 +119,21 @@ if(BUILD_QML_MCP_SERVER)
       "The 'mcp' Python package was not found in the Python environment '${Python3_EXECUTABLE}'."
       " Install it with:\n  ${Python3_EXECUTABLE} -m pip install mcp"
     )
+  endif()
+
+  if(APPLE)
+    execute_process(
+      COMMAND "${Python3_EXECUTABLE}" -c "import ssl; print(ssl.OPENSSL_VERSION.split()[1])"
+      RESULT_VARIABLE _openssl_version_check
+      OUTPUT_VARIABLE _openssl_version
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    if(NOT _openssl_version_check EQUAL 0)
+      message(FATAL_ERROR
+        "Could not determine the OpenSSL version used by '${Python3_EXECUTABLE}'."
+      )
+    endif()
   endif()
 
   add_custom_target(QmlDesignerMcpServer ALL
@@ -138,4 +155,30 @@ if(BUILD_QML_MCP_SERVER)
           DESTINATION "${IDE_LIBEXEC_PATH}/${_mcp_server_dir}"
           COMPONENT Dependencies
           USE_SOURCE_PERMISSIONS)
+
+  qtc_add_sbom(QmlDesignerMcpServerPython
+    SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY
+    USE_ATTRIBUTION_FILES
+    ATTRIBUTION_FILE_PATHS "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS qml-mcp-server-python
+    PACKAGE_VERSION "${Python3_VERSION}"
+  )
+
+  qtc_add_sbom(QmlDesignerMcpServerMcp
+    SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY
+    USE_ATTRIBUTION_FILES
+    ATTRIBUTION_FILE_PATHS "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS qml-mcp-server-mcp
+    PACKAGE_VERSION "${_mcp_version}"
+  )
+
+  if(APPLE)
+    qtc_add_sbom(QmlDesignerMcpServerOpenSSL
+      SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY
+      USE_ATTRIBUTION_FILES
+      ATTRIBUTION_FILE_PATHS "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+      ATTRIBUTION_IDS qml-mcp-server-openssl
+      PACKAGE_VERSION "${_openssl_version}"
+    )
+  endif()
 endif()
