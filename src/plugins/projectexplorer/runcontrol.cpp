@@ -551,6 +551,14 @@ bool RunControl::canRun(Id runMode, Id deviceType, Utils::Id runConfigId)
 
 void RunControl::postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine)
 {
+    if (format == Utils::StdErrFormat && Core::ICore::isQtDesignStudio()) {
+        if (msg.contains("QML debugging is enabled. Only use this in a safe environment."))
+            return;
+        if (msg.contains("Info: Starting QML Runtime"))
+            return;
+        if (msg.contains("QML Debugger: Connecting to socket"))
+            return;
+    }
     emit appendMessage((appendNewLine && !msg.endsWith('\n')) ? msg + '\n': msg, format);
 }
 
