@@ -154,7 +154,7 @@ void McpSettingsTab::promptAddServer()
     if (name.trimmed().isEmpty())
         return;
 
-    if (McpServerConfigStore::savedServerNames().contains(name)) {
+    if (McpServerConfigStore::savedServerNames().contains(name, Qt::CaseInsensitive)) {
         QMessageBox::warning(this, tr("Add MCP server"),
                              tr("A server named '%1' already exists.").arg(name));
         return;
