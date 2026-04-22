@@ -82,14 +82,6 @@ option(BUILD_QML_MCP_SERVER
        ${ENV_QTC_BUILD_QML_MCP_SERVER})
 
 if(BUILD_QML_MCP_SERVER)
-  set(_mcp_server_src "${CMAKE_CURRENT_SOURCE_DIR}/mcp/qml_mcp_server.py")
-
-  if(NOT EXISTS "${_mcp_server_src}")
-    message(FATAL_ERROR
-      "'${_mcp_server_src}' was not found."
-    )
-  endif()
-
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
   message(STATUS "Using Python3_EXECUTABLE='${Python3_EXECUTABLE}' to generate the QML MCP server.")
 
@@ -138,13 +130,10 @@ if(BUILD_QML_MCP_SERVER)
 
   add_custom_target(QmlDesignerMcpServer ALL
     COMMAND "${Python3_EXECUTABLE}" -m PyInstaller
-            --onedir
-            --name "${_mcp_server_dir}"
             --distpath "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}"
             --workpath "${CMAKE_CURRENT_BINARY_DIR}/pyinstaller-build"
-            --specpath "${CMAKE_CURRENT_BINARY_DIR}"
             --noconfirm
-            "${_mcp_server_src}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/mcp/qml_mcp_server.spec"
     BYPRODUCTS
       "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}/${_mcp_server_dir}/${_mcp_server_exe}"
     VERBATIM
