@@ -56,8 +56,7 @@ void DataModelDownloader::usageStatisticsDownloadExample(const QString &name)
 
 bool DataModelDownloader::downloadEnabled() const
 {
-    const Key lastQDSVersionEntry = "QML/Designer/EnableWelcomePageDownload";
-    return Core::ICore::settings()->value(lastQDSVersionEntry, false).toBool();
+    return false;
 }
 
 QString DataModelDownloader::targetPath() const
