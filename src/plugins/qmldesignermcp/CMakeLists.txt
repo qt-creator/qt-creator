@@ -62,14 +62,15 @@ extend_qtc_plugin(QmlDesignerMcp
 # ---------------------------------------------------------------------------
 # MCP server executable name — single source of truth for CMake and C++
 # ---------------------------------------------------------------------------
+set(_mcp_server_dir "qml_mcp_server")
+set(_mcp_server_exe "qml_mcp_server")
+
 if(WIN32)
-  set(_mcp_server_name "qml_mcp_server.exe")
-else()
-  set(_mcp_server_name "qml_mcp_server")
+  string(APPEND _mcp_server_exe ".exe")
 endif()
 
 target_compile_definitions(QmlDesignerMcp PRIVATE
-  QML_MCP_SERVER_EXECUTABLE="${_mcp_server_name}"
+  QML_MCP_SERVER_EXECUTABLE="${_mcp_server_dir}/${_mcp_server_exe}"
 )
 
 # ---------------------------------------------------------------------------
@@ -120,14 +121,21 @@ if(BUILD_QML_MCP_SERVER)
 
   add_custom_target(QmlDesignerMcpServer ALL
     COMMAND "${Python3_EXECUTABLE}" -m PyInstaller
-            --onefile
+            --onedir
+            --name "${_mcp_server_dir}"
             --distpath "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}"
+            --workpath "${CMAKE_CURRENT_BINARY_DIR}/pyinstaller-build"
+            --specpath "${CMAKE_CURRENT_BINARY_DIR}"
+            --noconfirm
             "${_mcp_server_src}"
-    BYPRODUCTS "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}/${_mcp_server_name}"
+    BYPRODUCTS
+      "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}/${_mcp_server_dir}/${_mcp_server_exe}"
     VERBATIM
   )
 
-  install(PROGRAMS "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}/${_mcp_server_name}"
-          DESTINATION "${IDE_LIBEXEC_PATH}"
-          COMPONENT Dependencies)
+  install(DIRECTORY
+          "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}/${_mcp_server_dir}/"
+          DESTINATION "${IDE_LIBEXEC_PATH}/${_mcp_server_dir}"
+          COMPONENT Dependencies
+          USE_SOURCE_PERMISSIONS)
 endif()
