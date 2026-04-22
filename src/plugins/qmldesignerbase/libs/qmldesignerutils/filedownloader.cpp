@@ -41,19 +41,19 @@ bool FileDownloader::deleteFileAtTheEnd() const
 
 QNetworkRequest FileDownloader::makeRequest() const
 {
-    QUrl url = m_url;
+    const QUrl url = m_url;
 
-    if (url.scheme() == "https") {
-#ifndef QT_NO_SSL
-        if (!QSslSocket::supportsSsl())
+    if (url.scheme() == "https" &&
+#if defined(QT_NO_SSL)
+        true
+#else
+        !QSslSocket::supportsSsl()
 #endif
-        {
-            qWarning() << "SSL is not available. HTTP will be used instead of HTTPS.";
-            url.setScheme("http");
-        }
+    ) {
+        qWarning() << "SSL is not available. Cannot download" << url;
     }
 
-    auto request = QNetworkRequest(url);
+    QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                          QNetworkRequest::UserVerifiedRedirectPolicy);
 
