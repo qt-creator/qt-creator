@@ -125,6 +125,7 @@ void ModelListWidget::addRow(const AiModelData &rowData)
 
     setCurrentCell(row, 0);
     editItem(item(row, 0));
+    scrollToBottom();
 }
 
 QList<AiModelData> ModelListWidget::items() const
