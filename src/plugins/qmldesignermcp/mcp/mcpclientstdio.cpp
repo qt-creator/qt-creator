@@ -5,6 +5,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QProcess>
 
@@ -43,8 +44,13 @@ bool McpClientStdio::startProcess(
         &McpClientStdio::onProcessFinished);
     connect(m_process, &QProcess::errorOccurred, this, &McpClientStdio::onProcessError);
 
-    const QString commandFullPath
-        = Core::ICore::libexecPath().pathAppended(command).toFSPathString();
+    const QString commandFullPath = Core::ICore::libexecPath().pathAppended(command).toFSPathString();
+
+    if (!QFileInfo::exists(commandFullPath)) {
+        emit errorOccurred(tr("MCP server executable not found at path: %1").arg(commandFullPath));
+        return false;
+    }
+
     m_process->start(commandFullPath, args, QIODevice::ReadWrite | QIODevice::Unbuffered);
     if (!m_process->waitForStarted(8000)) {
         emit errorOccurred(tr("Failed to start MCP server: %1").arg(m_process->errorString()));

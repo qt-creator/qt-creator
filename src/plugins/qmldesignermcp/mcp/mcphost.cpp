@@ -123,6 +123,7 @@ bool McpHost::startServer(const QString &serverName)
     case McpServerConfig::Stdio: {
         auto *stdioClient = new McpClientStdio(clientName, clientVersion, this);
         client = stdioClient;
+        wireClientSignals(serverName, client);
         ok = stdioClient->startProcess(cfg.command, cfg.args, cfg.workingDir, cfg.env);
         break;
     }
@@ -134,6 +135,7 @@ bool McpHost::startServer(const QString &serverName)
         }
         auto *httpClient = new McpClientHttp(clientName, clientVersion, this);
         client = httpClient;
+        wireClientSignals(serverName, client);
         ok = httpClient->connectToServer(cfg.url, cfg.bearerToken);
         break;
     }
@@ -144,7 +146,6 @@ bool McpHost::startServer(const QString &serverName)
     }
 
     m_clients.insert(serverName, client);
-    wireClientSignals(serverName, client);
 
     if (!ok) {
         emit errorOccurred(serverName, tr("Failed to start server '%1'").arg(serverName));
