@@ -245,7 +245,7 @@ Item {
 
                     FileDownloader {
                         id: downloader
-                        downloadEnabled: $dataModel.downloadEnabled()
+                        downloadEnabled: true
                         probeUrl: true
 
                         onFinishedChanged: {
