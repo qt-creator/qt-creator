@@ -66,7 +66,7 @@ void logAiJson(const QString &label, const QByteArray &json)
 
     if (Utils::qtcEnvironmentVariableIsSet("AI_LOG_NO_INSTRUCTION")) {
         obj.remove("system_instruction");
-        obj.remove("instruction");
+        obj.remove("instructions");
         obj.remove("system");
     }
 
