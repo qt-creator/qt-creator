@@ -115,6 +115,12 @@
     definitions. It comes with most of the commonly used Kate definitions,
     and you can download more definitions in the text editor preferences.
 
+    //! Remove for version 23
+        \note You might need to \l{Configure \QMLLS}
+        {enable the \QMLLS and its semantic highlighting} to make Qt
+        Creator highlight custom QML types correctly.
+
+
     \section2 Finding
 
     Use the incremental and advanced search to search in currently open projects

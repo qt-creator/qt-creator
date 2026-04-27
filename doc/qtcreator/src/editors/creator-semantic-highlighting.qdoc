@@ -64,6 +64,12 @@
     To apply the changes you make to the definition files, select
     \uicontrol {Reload Definitions}.
 
+    //! Remove for version 23
+        \note You might need to \l{Configure \QMLLS}
+        {enable the \QMLLS and its semantic highlighting} to make Qt
+        Creator highlight custom QML types correctly.
+
+
     \sa {Edit code}{How to: Edit code}, {Editing code}
 */
 
