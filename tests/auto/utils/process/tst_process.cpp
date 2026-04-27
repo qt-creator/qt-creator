@@ -230,7 +230,6 @@ void tst_Process::multiRead()
     SubProcessConfig subConfig(ProcessTestApp::ChannelEchoer::envVar(),
                                QString::number(int(processChannel)));
 
-    QByteArray buffer;
     Process process;
     subConfig.setupSubProcess(&process);
 
@@ -239,15 +238,26 @@ void tst_Process::multiRead()
 
     QVERIFY(process.waitForStarted());
 
+    static const QByteArray qmlDebuggingMessage =
+        "QML debugging is enabled. Only use this in a safe environment.\n";
+
+    const auto readExpected = [&](const QByteArray &expected) -> bool {
+        QByteArray buffer;
+        while (true) {
+            if (!process.waitForReadyRead(1s))
+                return false;
+            buffer += readData(&process, processChannel);
+            buffer.replace(qmlDebuggingMessage, {});
+            if (buffer == expected)
+                return true;
+        }
+    };
+
     process.writeRaw("hi\n");
-    QVERIFY(process.waitForReadyRead(1s));
-    buffer = readData(&process, processChannel);
-    QCOMPARE(buffer, QByteArray("hi"));
+    QVERIFY(readExpected(QByteArray("hi")));
 
     process.writeRaw("you\n");
-    QVERIFY(process.waitForReadyRead(1s));
-    buffer = readData(&process, processChannel);
-    QCOMPARE(buffer, QByteArray("you"));
+    QVERIFY(readExpected(QByteArray("you")));
 
     process.writeRaw("exit\n");
     QVERIFY(process.waitForFinished(1s));
