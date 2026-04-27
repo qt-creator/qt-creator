@@ -47,10 +47,10 @@ WidgetInfo AiAssistantView::widgetInfo()
     }
 
     return createWidgetInfo(m_widget.get(),
-                            "AiAssistant",
-                            WidgetInfo::LeftPane,
+                            "AiAssistantMcp",
+                            WidgetInfo::RightPane,
                             tr("AI Assistant"),
-                            tr("AI Assistant view"),
+                            tr("AI Assistant MCP"),
                             DesignerWidgetFlags::IgnoreErrors);
 }
 
