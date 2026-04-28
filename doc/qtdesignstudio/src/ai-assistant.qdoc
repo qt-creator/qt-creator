@@ -38,6 +38,9 @@
       \li \l{Setting up the AI assistant} — connecting to an LLM provider.
       \li \l{Using the AI assistant} — writing prompts and working with
           generated content.
+      \li \l{Using the Figma Desktop MCP Server with Qt Design Studio} — a hands-on
+          tutorial that shows how to connect \QDS to the Figma MCP server and
+          use the AI assistant to generate a UI from a Figma design.
     \endlist
 
 */

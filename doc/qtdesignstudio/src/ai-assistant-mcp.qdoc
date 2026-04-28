@@ -128,4 +128,7 @@
     To enable or disable a server, select or clear the checkbox next to its name in the
     MCP server list.
 
+    For more information about connecting an external MCP Server to \QDS,
+    see \l{Using the Figma Desktop MCP Server with Qt Design Studio}.
+
     */

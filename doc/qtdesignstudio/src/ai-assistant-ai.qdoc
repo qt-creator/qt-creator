@@ -4,7 +4,8 @@
 /*!
 
     \page ai-assistant-ai.html
-    \sa {AI assistant},{MCP servers},{Setting up the AI assistant},{Using the AI assistant}
+    \sa {AI assistant},{MCP servers},{Setting up the AI assistant},{Using the AI assistant},
+    {Using the Figma Desktop MCP Server with Qt Design Studio}
     \title AI models
 
     The tables below list the models that are available in \QDS by default. To add more models than
@@ -20,7 +21,7 @@
 
     \list
       \li You can add more models from the supported providers,
-          see \l {Adding, removing, and reorganizing models}.
+          see \l {Adding, removing, and reordering models}.
       \li Access considerations:
         \list
           \li \e Gemini provides

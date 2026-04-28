@@ -1,0 +1,191 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page figma-mcp-tutorial.html
+    \ingroup gstutorials
+    \sa {AI assistant}, {MCP servers}, {Setting up the AI assistant},
+        {Using the AI assistant}
+    \title Using the Figma Desktop MCP Server with Qt Design Studio
+    \brief Illustrates how to connect \QDS to the Figma Desktop MCP server and
+    use the AI assistant to generate a UI from a Figma design.
+
+    This tutorial shows how to connect \QDS to the Figma Desktop MCP server and
+    use the AI assistant to generate a UI from a Figma design.
+
+    The \l{https://modelcontextprotocol.io/}{Model Context Protocol} (MCP)
+    is an open standard that lets AI assistants call tools provided by
+    external services. When you connect the Figma MCP server to \QDS, the
+    AI assistant can read your selected Figma nodes and translate them
+    into QML.
+
+    \note This is not a direct import. The AI assistant reads the design data
+    from Figma and interprets it to produce QML; it does not copy the
+    design pixel by pixel. The result is the AI's best attempt at
+    recreating the design in QML, and it will not always match the original
+    exactly. Spacing, fonts, colors, and layout may differ, and results
+    vary between runs and AI models. If your Figma design contains images, the
+    AI assistant cannot recreate them, those elements need to be replaced
+    manually in the generated QML. Treat the output as a starting point
+    that you refine, not a finished UI.
+
+    \section1 What the tutorial achieves
+
+    By the end of this tutorial you will have:
+
+    \list
+        \li Enabled the MCP server in the Figma desktop app.
+        \li Added the Figma MCP server to the \QDS AI assistant.
+        \li Used the AI assistant to generate a QML UI from nodes
+            selected in Figma.
+    \endlist
+
+    \section1 Prerequisites
+
+    Before you start, make sure you have the following:
+
+    \list
+        \li \QDS installed and the AI assistant configured with a valid
+            API key. If you have not done this yet, see
+            \l{Setting up the AI assistant}.
+        \li The Figma desktop app installed on your computer.
+        \li A Figma \l{https://help.figma.com/hc/en-us/articles/27468498501527-Updates-to-Figma-s-pricing-seats-and-billing-experience#h_01JCPBM8X2MBEXTABDM92HWZG4}{Dev or Full seat}.
+            For rate limits, see \l{https://developers.figma.com/docs/figma-mcp-server/plans-access-and-permissions/#who-can-access-the-mcp-server}{Who can access the Figma MCP server?}.
+        \li A Figma design file you want to use as the basis for your UI.
+        \li A \QDS project open and ready to receive the generated QML.
+    \endlist
+
+    \section1 Setting up the Figma MCP server
+
+    The Figma MCP server runs locally on your computer as part of the
+    Figma desktop app. You start it from within Figma's Dev mode and
+    then copy the URL it provides into \QDS.
+
+    \section2 Enabling Dev mode
+
+    Dev mode gives you access to developer tools in Figma, including the
+    MCP server.
+
+    To enable Dev mode:
+
+    \list 1
+        \li Open your design file in the Figma desktop app.
+        \li In the bottom toolbar, toggle the \uicontrol{Dev mode} switch to on
+            (or press }key Shift + \key D).
+            \image figma-mcp-dev-mode-switch.webp
+                   {Figma bottom toolbar showing the Dev mode toggle
+                   switch in the off and on states}
+    \endlist
+
+    The canvas and the right panel update to show developer-focused
+    information.
+
+    \section2 Enabling the MCP server and copying the URL
+
+    With Dev mode active, you can start the MCP server from the right
+    panel.
+
+    To enable the MCP server:
+
+    \list 1
+        \li In the right panel, locate the MCP server setting.
+            \image figma-mcp-dev-panel.webp
+                   {Figma right panel in Dev mode showing the MCP server
+                   toggle and the server URL field below it}
+        \li Enable the MCP server toggle.
+        \li Copy the server URL that appears below the toggle. You need
+            this URL in the next section.
+            \image figma-mcp-server-url.webp
+                   {Figma right panel showing the MCP server URL ready
+                   to copy after the toggle is turned on}
+    \endlist
+
+    \section1 Connecting to the Figma MCP server in Qt Design Studio
+
+    With the Figma MCP server running, add it to the \QDS AI assistant
+    using the URL you copied.
+
+    To add the Figma MCP server:
+
+    \list 1
+        \li In the \uicontrol{AI Assistant} view, select \imagesettings to
+            open the AI assistant settings.
+        \li On the \uicontrol{MCP Server} tab select \uicontrol{Add MCP server}.
+        \li In \uicontrol{Server name}, enter a name, for example, \c{MyFigmaMCP}.
+        \li In \uicontrol{Transport}, select \uicontrol{HTTP}.
+        \li In \uicontrol{URL}, paste the server URL you copied from
+            Figma.
+            \image figma-mcp-server-config.webp
+                   {MCP Server Settings dialog showing the Figma server
+                   configured with HTTP transport and the Figma MCP
+                   server URL}
+        \li Select \uicontrol{OK}.
+    \endlist
+
+    The Figma server now appears in the MCP server list. Make sure the
+    checkbox next to its name is selected to enable it.
+
+    \note If \QDS cannot reach the Figma MCP server, an error message appears
+    in the AI assistant chat window.
+
+    \section1 Importing a Figma design
+
+    With the server connected, select the nodes you want to import in
+    Figma and then prompt the AI assistant in \QDS.
+
+    \section2 Selecting nodes in Figma
+
+    The AI assistant reads whichever nodes you have selected in Figma at
+    the time you send your prompt. Select only the frames or layers you
+    want to include in the generated UI.
+
+    To select the nodes:
+
+    \list 1
+        \li In the Figma desktop app, navigate to the frame or component
+            you want to import.
+        \li Select the nodes you want the AI assistant to use. You can
+            select a single top-level frame or multiple layers.
+            \image figma-mcp-select-nodes.webp
+                   {Figma canvas with a top-level frame selected,
+                   highlighted by a blue selection border}
+    \endlist
+
+    Keep Figma open with the nodes selected while you work in \QDS.
+
+    \section2 Prompting the AI assistant to generate the UI
+
+    With the nodes selected in Figma, switch to \QDS and send a prompt
+    that refers to the selection.
+
+    To generate the UI:
+
+    \list 1
+        \li In the \uicontrol{AI Assistant} view, select a model that
+            supports tool calls. For guidance on choosing a model, see
+            \l{AI models}.
+        \li Enter a prompt that refers to your Figma selection. For
+            example:
+
+            \code
+            Create a UI based on the selected nodes in Figma.
+            \endcode
+
+        \li Select \imagesend to run the prompt.
+    \endlist
+
+    The AI assistant calls the Figma MCP server to read the selected nodes,
+    then uses the tools in the built-in QML MCP server to edit the open file.
+    The generated UI appears immediately in the \uicontrol{2D} view.
+
+    \image figma-mcp-result.webp
+           {Qt Design Studio 2D view showing the generated QML UI based
+           on the imported Figma design}
+
+    \note The AI assistant produces different results for the same prompt
+    because large language models are non-deterministic. If the result
+    does not match your design closely enough, refine your prompt with
+    more specific instructions or ask the assistant to adjust particular
+    elements in a follow-up message.
+
+*/

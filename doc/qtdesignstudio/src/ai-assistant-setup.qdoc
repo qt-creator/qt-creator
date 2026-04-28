@@ -3,7 +3,8 @@
 
 /*!
     \page ai-assistant-setup.html
-    \sa {AI assistant},{AI models},{MCP servers},{Using the AI assistant}
+    \sa {AI assistant},{AI models},{MCP servers},{Using the AI assistant},
+    {Using the Figma Desktop MCP Server with Qt Design Studio}
     \title Setting up the AI assistant
 
     \section1 Before you start
@@ -39,7 +40,7 @@
     tab to configure, enable, and disable MCP servers. For details on how to
     do it, see \l{Connecting an external MCP server}.
 
-    \section2 Adding, removing, and reorder models
+    \section2 Adding, removing, and reordering models
 
     In the AI assistant settings dialog:
 
