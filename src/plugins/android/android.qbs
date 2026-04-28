@@ -30,6 +30,8 @@ QtcPlugin {
         "androiddevice.h",
         "androiddeviceinfo.cpp",
         "androiddeviceinfo.h",
+        "androidlogcat.cpp",
+        "androidlogcat.h",
         "androidmanifesteditor.cpp",
         "androidmanifesteditor.h",
         "androidmanifestutils.cpp",

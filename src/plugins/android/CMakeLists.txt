@@ -12,6 +12,7 @@ add_qtc_plugin(Android
     androiddeployqtstep.cpp androiddeployqtstep.h
     androiddevice.cpp androiddevice.h
     androiddeviceinfo.cpp androiddeviceinfo.h
+    androidlogcat.cpp androidlogcat.h
     androidmanifesteditor.cpp androidmanifesteditor.h
     androidmanifestutils.cpp androidmanifestutils.h
     androidpackageinstallationstep.cpp androidpackageinstallationstep.h

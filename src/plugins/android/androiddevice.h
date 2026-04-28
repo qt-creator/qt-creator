@@ -21,6 +21,11 @@ class AndroidDevice final : public ProjectExplorer::IDevice
 
 public:
     using Ptr = std::shared_ptr<AndroidDevice>;
+    using ConstPtr = std::shared_ptr<const AndroidDevice>;
+
+    // Returns the device as a ready-to-use Android device, or null if it is not
+    // an Android device or not currently ready.
+    static ConstPtr asReady(const ProjectExplorer::IDeviceConstPtr &device);
 
     AndroidDevice();
     ~AndroidDevice() override;
@@ -39,6 +44,9 @@ public:
     QString serialNumber() const;
     QString avdName() const;
     int sdkLevel() const;
+
+    // "<display name> (<serial>)", or just the display name when no serial is cached
+    QString displayNameWithSerial() const;
 
     Utils::FilePath avdPath() const;
     void setAvdPath(const Utils::FilePath &path);

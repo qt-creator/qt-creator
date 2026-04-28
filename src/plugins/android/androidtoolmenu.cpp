@@ -4,6 +4,7 @@
 
 #include "androidconstants.h"
 #include "androiddevice.h"
+#include "androidlogcat.h"
 #include "androidmanifesteditor.h"
 #include "androidtr.h"
 #include "androidutils.h"
@@ -12,12 +13,14 @@
 #include "permissionscontainerwidget.h"
 #include "splashscreencontainerwidget.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -348,6 +351,31 @@ static void installApkFile()
     GlobalTaskTree::start(recipe);
 }
 
+static void addLogcatMenu(Core::ActionContainer *parent)
+{
+    Core::ActionContainer *logcatMenu = Core::ActionManager::createMenu("Android.Tools.Logcat");
+    QMenu *menu = logcatMenu->menu();
+    menu->setTitle(Android::Tr::tr("Logcat"));
+    logcatMenu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
+    parent->addMenu(logcatMenu);
+
+    QObject::connect(menu, &QMenu::aboutToShow, menu, [menu] {
+        qDeleteAll(menu->actions());
+        DeviceManager::forEachDevice([menu](const IDeviceConstPtr &device) {
+            const auto androidDev = AndroidDevice::asReady(device);
+            if (!androidDev)
+                return;
+            menu->addAction(androidDev->displayNameWithSerial(), menu, [androidDev] {
+                showLogcatTab(androidDev);
+            });
+        });
+        if (menu->isEmpty()) {
+            QAction *placeholder = menu->addAction(Android::Tr::tr("No connected Android devices"));
+            placeholder->setEnabled(false);
+        }
+    });
+}
+
 void setupAndroidToolsMenu()
 {
     Core::MenuBuilder devMenu(ANDROID_TOOLS_MENU_ID);
@@ -427,6 +455,8 @@ void setupAndroidToolsMenu()
             action->setEnabled(project != nullptr);
         });
     }
+
+    addLogcatMenu(Core::ActionManager::actionContainer(ANDROID_TOOLS_MENU_ID));
 }
 
 } // namespace Android::Internal
