@@ -772,7 +772,7 @@
         "QtUsage": "Bundled by PyInstaller into the QML MCP server executable.",
         "Description": "CPython reference interpreter and standard library.",
         "Homepage": "https://www.python.org/",
-        "PURL": "pkg:generic/python@$<VERSION>",
+        "PURL": "pkg:generic/python",
         "License": "Python Software Foundation License 2.0",
         "Copyright": "Copyright (c) 2001-2024 Python Software Foundation"
     },
@@ -784,7 +784,7 @@
         "QtUsage": "Python SDK used by the QML MCP server to implement the MCP protocol.",
         "Description": "Official Python SDK for the Model Context Protocol.",
         "Homepage": "https://github.com/modelcontextprotocol/python-sdk",
-        "PURL": "pkg:pypi/mcp@$<VERSION>",
+        "PURL": "pkg:pypi/mcp",
         "License": "MIT License",
         "Copyright": "Copyright (c) 2024 Anthropic, PBC."
     },
@@ -796,7 +796,7 @@
         "QtUsage": "Bundled with the QML MCP server on macOS to back Python's ssl and hashlib modules.",
         "Description": "Cryptography and SSL/TLS toolkit.",
         "Homepage": "https://www.openssl.org/",
-        "PURL": "pkg:generic/openssl@$<VERSION>",
+        "PURL": "pkg:generic/openssl",
         "License": "Apache License 2.0",
         "Copyright": "Copyright (c) 1998-2024 The OpenSSL Project Authors"
     }
