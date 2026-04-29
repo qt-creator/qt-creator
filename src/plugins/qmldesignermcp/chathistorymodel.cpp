@@ -200,6 +200,7 @@ void ChatHistoryModel::addAssistantMessage(const QString &content, const QString
     beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
     m_messages.append(msg);
     endInsertRows();
+    emit isEmptyChanged();
 }
 
 void ChatHistoryModel::addToolCallStarted(const QString &serverName, const QString &toolName,
@@ -212,6 +213,7 @@ void ChatHistoryModel::addToolCallStarted(const QString &serverName, const QStri
     msg->setToolArgs(args);
     m_messages.append(msg);
     endInsertRows();
+    emit isEmptyChanged();
 }
 
 void ChatHistoryModel::completeToolCall(const QString &serverName, const QString &toolName, bool success)
@@ -250,6 +252,7 @@ void ChatHistoryModel::addToolCallFailed(const QString &serverName, const QStrin
     msg->setToolInfo(serverName, toolName);
     m_messages.append(msg);
     endInsertRows();
+    emit isEmptyChanged();
 }
 
 void ChatHistoryModel::addToolCallConfirmation(const QStringList &toolNames,
@@ -276,6 +279,7 @@ void ChatHistoryModel::addToolCallConfirmation(const QStringList &toolNames,
     beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
     m_messages.append(msg);
     endInsertRows();
+    emit isEmptyChanged();
 }
 
 void ChatHistoryModel::resolveToolCallConfirmation(const QList<int> &pendingIndices, bool confirmed)
@@ -305,6 +309,7 @@ void ChatHistoryModel::addSystemMessage(const QString &content)
     beginInsertRows(QModelIndex(), m_messages.size(), m_messages.size());
     m_messages.append(new ChatMessage(ChatMessage::SystemMessage, content, this));
     endInsertRows();
+    emit isEmptyChanged();
 }
 
 void ChatHistoryModel::addIterationMessage(int current, int max)
@@ -313,6 +318,7 @@ void ChatHistoryModel::addIterationMessage(int current, int max)
     m_messages.append(new ChatMessage(ChatMessage::IterationMessage,
                                      QString("Iteration %1/%2").arg(current).arg(max), this));
     endInsertRows();
+    emit isEmptyChanged();
 }
 
 QString ChatHistoryModel::lastUserPrompt() const

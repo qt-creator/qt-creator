@@ -60,7 +60,7 @@ signals:
     void isEmptyChanged();
 
 private:
-    QList<ChatMessage*> m_messages;
+    QList<ChatMessage *> m_messages;
 };
 
 } // namespace QmlDesigner

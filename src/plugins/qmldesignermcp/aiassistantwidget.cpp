@@ -22,6 +22,8 @@
 #include <qmldesignerplugin.h>
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <utils/filepath.h>
 #include <utils/fileutils.h>
 #include <utils/environment.h>
@@ -123,6 +125,13 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     // for GenerationState enum usage in QML
     qmlRegisterUncreatableType<AiAssistantWidget>("AiGenerationState", 1, 0, "GenerationState",
                                                   "GenerationState is not creatable from QML");
+
+    auto projectManager = ProjectExplorer::ProjectManager::instance();
+    connect(projectManager, &ProjectExplorer::ProjectManager::aboutToRemoveProject,
+            this, [&](auto *project) {
+                disconnect(project, &ProjectExplorer::Project::fileListChanged,
+                           this, &AiAssistantWidget::fetchProjectStructure);
+            });
 
     connectHost();
     connectRequestManager();
@@ -275,8 +284,6 @@ void AiAssistantWidget::openTermsDialog()
 
 void AiAssistantWidget::initializeMcp()
 {
-    m_projectStructure.clear();
-
     const QList<McpServerConfig> enabledConfigs = McpSettings::allEnabledConfigs(m_projectPath);
     const QStringList enabledNames = Utils::transform(enabledConfigs, &McpServerConfig::name);
 
@@ -289,8 +296,18 @@ void AiAssistantWidget::initializeMcp()
         }
     }
 
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
+        QmlDesigner::DocumentManager::currentFilePath());
+
+    if (project) {
+        connect(project, &ProjectExplorer::Project::fileListChanged,
+                this, &AiAssistantWidget::fetchProjectStructure, Qt::UniqueConnection);
+    }
+
     m_mcpHost->addServers(enabledConfigs);
-    m_mcpHost->startAll(); // start newly added servers
+
+    m_projectStructure.clear();
+    m_mcpHost->restart();
 }
 
 void AiAssistantWidget::connectHost()

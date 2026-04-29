@@ -15,10 +15,8 @@ void ToolRegistry::registerServer(const QString &serverName, McpClient *client)
 {
     QTC_ASSERT(client, return);
 
-    if (m_registeredServers.contains(serverName)) {
-        qWarning() << "ToolRegistry: Server" << serverName << "already registered";
+    if (m_registeredServers.contains(serverName))
         return;
-    }
 
     if (!client->isRunning()) {
         qWarning() << "Client " << client->clientName() << " not running";
