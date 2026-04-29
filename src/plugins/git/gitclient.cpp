@@ -1895,9 +1895,9 @@ QString GitClient::synchronousCurrentLocalBranch(const FilePath &workingDirector
     } else {
         const FilePath gitDir = findGitDirForRepository(workingDirectory);
         const FilePath rebaseHead = gitDir / "rebase-merge/head-name";
-        QFile head(rebaseHead.toFSPathString());
-        if (head.open(QFile::ReadOnly))
-            branch = QString::fromUtf8(head.readLine()).trimmed();
+        const Result<QByteArray> head = rebaseHead.fileContents();
+        if (head.has_value())
+            branch = QString::fromUtf8(head.value()).trimmed();
     }
     if (!branch.isEmpty()) {
         const QString refsHeadsPrefix = "refs/heads/";
