@@ -5,7 +5,6 @@
 #include "clangformatutils.h"
 #include "llvmfilesystem.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/editorconfiguration.h>
@@ -17,7 +16,6 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
 
@@ -26,6 +24,8 @@
 
 #include <clang/Format/Format.h>
 #include <clang/Tooling/Core/Replacement.h>
+
+#include <optional>
 
 using namespace TextEditor;
 using namespace Utils;
@@ -568,7 +568,7 @@ public:
     FilePath *m_fileName;
 
     struct CachedStyle {
-        clang::format::FormatStyle style = clang::format::getNoStyle();
+        std::optional<clang::format::FormatStyle> style;
         QDateTime expirationTime;
         void setCache(clang::format::FormatStyle newStyle, milliseconds timeout)
         {
@@ -581,7 +581,7 @@ public:
 
     clang::format::FormatStyle customSettingsStyle(const FilePath &fileName) const;
     ICodeStylePreferences *m_overriddenPreferences = nullptr;
-    clang::format::FormatStyle m_overriddenStyle = clang::format::getNoStyle();
+    std::optional<clang::format::FormatStyle> m_overriddenStyle;
 };
 
 ClangFormatBaseIndenter::ClangFormatBaseIndenter(QTextDocument *doc)
@@ -989,31 +989,34 @@ const llvm::Expected<clang::format::FormatStyle> getStyleFromProjectFolder(
 
 const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile() const
 {
-    QTC_ASSERT(!m_fileName->isEmpty(), return m_cachedStyle.style);
+    if (QTC_UNEXPECTED(m_fileName->isEmpty())) {
+        static const clang::format::FormatStyle noStyle = clang::format::getNoStyle();
+        return noStyle;
+    }
 
     static const milliseconds cacheTimeout = getCacheTimeout();
 
-    if (!(m_overriddenStyle == clang::format::getNoStyle()))
-        return m_overriddenStyle;
+    if (m_overriddenStyle)
+        return *m_overriddenStyle;
 
     QDateTime time = QDateTime::currentDateTime();
-    if (m_cachedStyle.expirationTime > time && !(m_cachedStyle.style == clang::format::getNoStyle()))
-        return m_cachedStyle.style;
+    if (m_cachedStyle.expirationTime > time && m_cachedStyle.style)
+        return *m_cachedStyle.style;
 
     if (getCurrentCustomSettings(*m_fileName)) {
         clang::format::FormatStyle style = customSettingsStyle(*m_fileName);
         addQtcStatementMacros(style);
         m_cachedStyle.setCache(style, cacheTimeout);
-        return m_cachedStyle.style;
+        return *m_cachedStyle.style;
     }
 
     llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = getStyleFromProjectFolder(
         m_fileName);
 
-    if (styleFromProjectFolder && !(*styleFromProjectFolder == clang::format::getNoStyle())) {
+    if (styleFromProjectFolder && !styleFromProjectFolder->DisableFormat) {
         addQtcStatementMacros(*styleFromProjectFolder);
         m_cachedStyle.setCache(*styleFromProjectFolder, cacheTimeout);
-        return m_cachedStyle.style;
+        return *m_cachedStyle.style;
     }
 
     handleAllErrors(styleFromProjectFolder.takeError(), [](const llvm::ErrorInfoBase &) {
@@ -1022,7 +1025,7 @@ const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile()
 
 
     m_cachedStyle.setCache(qtcStyle(), 0ms);
-    return m_cachedStyle.style;
+    return *m_cachedStyle.style;
 }
 
 void ClangFormatBaseIndenter::setOverriddenPreferences(ICodeStylePreferences *preferences)
