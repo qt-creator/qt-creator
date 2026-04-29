@@ -117,7 +117,7 @@ function(configure_qml_designer Qt6_VERSION)
     add_feature_info("WITH_QMLDESIGNER" ${WITH_QMLDESIGNER} "${QMLDESIGNER_FEATURE_DESC}")
 
     if(NOT IS_SUPPORTED_PROJECTSTORAGE_QT)
-        if(BUILD_DESIGNSTUDIO)
+        if(BUILD_DESIGNSTUDIO AND NOT WITH_DOCS)
             set(_level FATAL_ERROR)
         else()
             set(_level WARNING)
