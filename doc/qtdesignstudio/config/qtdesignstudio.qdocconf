@@ -71,12 +71,11 @@ depends +=    qtwidgets \
               qtquick \
               qmake \
               qtdoc \
-              qtgraphicaleffects \
+              qtgraphicaleffects5compat \
               qtgui \
               qthelp \
               qtquick3d \
               qtquickcontrols \
-              qtquickextras \
               qtquicktimeline \
               qtlinguist \
               qtscxml \
