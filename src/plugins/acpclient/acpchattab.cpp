@@ -328,9 +328,11 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
         m_chatPanel->setSendEnabled(true);
-        m_chatPanel->appendAgentText("Cute Greetings,\n\n your AI Agent is ready and you can start chatting.");
-        m_chatPanel->finishAgentMessage();
-        if (!m_pendingPrompt.isEmpty()) {
+        if (m_pendingPrompt.isEmpty()) {
+            m_chatPanel->appendAgentText(
+                "Cute Greetings,\n\n your AI Agent is ready and you can start chatting.");
+            m_chatPanel->finishAgentMessage();
+        } else  {
             const QString text = m_pendingPrompt;
             m_pendingPrompt.clear();
             m_chatPanel->addUserMessage(text);
