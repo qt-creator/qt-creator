@@ -16,6 +16,9 @@ private slots:
     void multipleResults();
     void caseSensitive();
     void caseInSensitive();
+    void wholeWords();
+    void wholeWords_data();
+    void emptyTerm();
     void matchCaseReplacement();
 
 private:
@@ -49,6 +52,26 @@ void test_helper(const FilePath &filePath, const SearchResultItems &expectedResu
     QCOMPARE(results.count(), expectedResults.count());
     for (int i = 0; i < expectedResults.size(); ++i)
         QCOMPARE(results.at(i), expectedResults.at(i));
+}
+
+// One entry per hit, as "line:column:length".
+static QStringList searchHits(const QString &term, FindFlags flags, const QString &contents)
+{
+    QPromise<SearchResultItems> promise;
+    const QFuture<SearchResultItems> future = promise.future();
+    promise.start();
+    Utils::searchInContents(promise, term, flags, FilePath::fromString("test.txt"), contents);
+    promise.finish();
+
+    QStringList hits;
+    for (const SearchResultItems &items : future.results()) {
+        for (const SearchResultItem &item : items) {
+            const Text::Range range = item.mainRange();
+            hits << QString("%1:%2:%3").arg(range.begin.line).arg(range.begin.column)
+                        .arg(range.length(contents));
+        }
+    }
+    return hits;
 }
 
 void tst_FileSearch::multipleResults()
@@ -92,6 +115,60 @@ void tst_FileSearch::caseInSensitive()
     expectedResults << searchResult(m_filePath, "search CaseSensitively for casesensitive", 3, 7, 13);
     expectedResults << searchResult(m_filePath, "search CaseSensitively for casesensitive", 3, 27, 13);
     test_helper(m_filePath, expectedResults, "CaseSensitive");
+}
+
+void tst_FileSearch::wholeWords()
+{
+    QFETCH(QString, contents);
+    QFETCH(QString, term);
+    QFETCH(QString, regExpTerm);
+    QFETCH(QStringList, expected);
+
+    const FindFlags flags = FindWholeWords | FindCaseSensitively;
+    QCOMPARE(searchHits(term, flags, contents), expected);
+    // Both search implementations must answer the same query alike.
+    QCOMPARE(searchHits(regExpTerm, flags | FindRegularExpression, contents), expected);
+}
+
+void tst_FileSearch::wholeWords_data()
+{
+    QTest::addColumn<QString>("contents");
+    QTest::addColumn<QString>("term");
+    QTest::addColumn<QString>("regExpTerm");
+    QTest::addColumn<QStringList>("expected");
+
+    // A term made of word characters keeps requiring a separator on both sides.
+    QTest::newRow("word alone") << "foo bar" << "foo" << "foo" << QStringList{"1:0:3"};
+    QTest::newRow("word glued after") << "foobar" << "foo" << "foo" << QStringList();
+    QTest::newRow("word glued before") << "xfoo" << "foo" << "foo" << QStringList();
+    QTest::newRow("word between punctuation") << "x-foo-y" << "foo" << "foo"
+                                              << QStringList{"1:2:3"};
+    QTest::newRow("two lines") << "foo\nfoo" << "foo" << "foo" << QStringList{"1:0:3", "2:0:3"};
+
+    // A term starting with a non-word character is its own separator at the front.
+    QTest::newRow("hash at line start") << "#include <a>" << "#include" << "\\#include"
+                                        << QStringList{"1:0:8"};
+    QTest::newRow("hash after word char") << "x#include <a>" << "#include" << "\\#include"
+                                          << QStringList{"1:1:8"};
+    QTest::newRow("underscore is a word char") << "x_foo" << "_foo" << "_foo" << QStringList();
+
+    // A term ending with a non-word character is its own separator at the back.
+    QTest::newRow("paren at term end") << "foo(1)" << "foo(" << "foo\\(" << QStringList{"1:0:4"};
+    QTest::newRow("paren before non-word char") << "foo()" << "foo(" << "foo\\("
+                                                << QStringList{"1:0:4"};
+    QTest::newRow("paren after word char") << "xfoo(1)" << "foo(" << "foo\\(" << QStringList();
+    QTest::newRow("plus at term end") << "c++" << "c++" << "c\\+\\+" << QStringList{"1:0:3"};
+    QTest::newRow("plus before word char") << "c++x" << "c++" << "c\\+\\+"
+                                           << QStringList{"1:0:3"};
+    QTest::newRow("plus after word char") << "ac++" << "c++" << "c\\+\\+" << QStringList();
+    QTest::newRow("non-word term only") << "a::b" << "::" << "::" << QStringList{"1:1:2"};
+}
+
+void tst_FileSearch::emptyTerm()
+{
+    QCOMPARE(searchHits({}, FindWholeWords, "foo bar"), QStringList());
+    QCOMPARE(searchHits({}, FindWholeWords, {}), QStringList());
+    QCOMPARE(searchHits({}, FindWholeWords, "\n\n"), QStringList());
 }
 
 void tst_FileSearch::matchCaseReplacement()
