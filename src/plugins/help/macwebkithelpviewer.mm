@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH
+// Qt-GPL-exception-1.0
 
 #include "macwebkithelpviewer.h"
 
@@ -13,45 +14,25 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QFont>
 #include <QHelpEngine>
 #include <QStyle>
 #include <QTimer>
 #include <QToolTip>
 #include <QUrl>
 #include <QVBoxLayout>
-#include <QWindow>
 
 #include <QDebug>
 
 #import <AppKit/NSMenuItem.h>
-#import <Foundation/NSURLProtocol.h>
-#import <Foundation/NSURLResponse.h>
-#import <WebKit/DOMDocument.h>
-#import <WebKit/DOMElement.h>
-#import <WebKit/DOMHTMLElement.h>
-#import <WebKit/DOMNodeFilter.h>
-#import <WebKit/DOMNodeIterator.h>
-#import <WebKit/DOMRange.h>
-#import <WebKit/WebBackForwardList.h>
-#import <WebKit/WebDataSource.h>
-#import <WebKit/WebDocument.h>
-#import <WebKit/WebFrame.h>
-#import <WebKit/WebFrameLoadDelegate.h>
-#import <WebKit/WebFrameView.h>
-#import <WebKit/WebHistoryItem.h>
-#import <WebKit/WebPreferences.h>
-#import <WebKit/WebUIDelegate.h>
-#import <WebKit/WebView.h>
+#import <WebKit/WebKit.h>
 
 using namespace Utils;
 
-// #pragma mark -- mac helpers
+// -- Helpers --
 
-// copy from qcocoahelpers.mm
 static int mainScreenHeight()
 {
-    // The first screen in the screens array is documented
-    // to have the (0,0) origin.
     NSRect screenFrame = [[[NSScreen screens] firstObject] frame];
     return screenFrame.size.height;
 }
@@ -61,317 +42,258 @@ static QPoint flipPoint(const NSPoint &p)
     return QPoint(p.x, mainScreenHeight() - p.y);
 }
 
-// #pragma mark -- DOMNodeIterator (PrivateExtensions)
-
-@interface DOMNodeIterator (PrivateExtensions)
-
-- (BOOL)findNode:(DOMNode *)node;
-- (DOMNode *)nextTextNode;
-- (DOMNode *)previousTextNode;
-- (DOMNode *)gotoEnd;
-
-@end
-
-@implementation DOMNodeIterator (PrivateExtensions)
-
-- (BOOL)findNode:(DOMNode *)node
+// Synchronous JS evaluation via run-loop pumping. Only call from the main
+// thread.
+static id evaluateJSSynchronously(WKWebView *webView, NSString *js)
 {
-    while (DOMNode *next = [self nextNode]) {
-        if (next == node)
-            return YES;
+    __block id result = nil;
+    __block BOOL done = NO;
+    [webView evaluateJavaScript:js
+              completionHandler:^(id value, NSError *) {
+                  result = [value retain];
+                  done = YES;
+              }];
+    while (!done)
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+    return [result autorelease];
+}
+
+static BOOL findStringSynchronously(WKWebView *webView, NSString *string, WKFindConfiguration *config)
+{
+    __block BOOL found = NO;
+    __block BOOL done = NO;
+    [webView findString:string
+        withConfiguration:config
+        completionHandler:^(WKFindResult *result) {
+            found = result.matchFound;
+            done = YES;
+        }];
+    while (!done) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
     }
-    return NO;
+    return found;
 }
 
-- (DOMNode *)nextTextNode
-{
-    DOMNode *node = nil;
-    do {
-        node = [self nextNode];
-    } while (node && node.nodeType != DOM_TEXT_NODE);
-    return node;
-}
+// -- QtHelpSchemeHandler --
 
-- (DOMNode *)previousTextNode
-{
-    DOMNode *node = nil;
-    do {
-        node = [self previousNode];
-    } while (node && node.nodeType != DOM_TEXT_NODE);
-    return node;
-}
-
-- (DOMNode *)gotoEnd
-{
-    DOMNode *previous = nil;
-    DOMNode *node = nil;
-    do {
-        previous = node;
-        node = [self nextNode];
-    } while (node);
-    return previous;
-}
-
+@interface QtHelpSchemeHandler : NSObject <WKURLSchemeHandler>
 @end
 
-// #pragma mark -- QtHelpURLProtocol
+@implementation QtHelpSchemeHandler
 
-@interface QtHelpURLProtocol : NSURLProtocol
+- (void)webView:(WKWebView *)webView startURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask
 {
-}
-
-+ (BOOL)canInitWithRequest:(NSURLRequest *)request;
-
-@end
-
-@implementation QtHelpURLProtocol
-
-+ (BOOL)canInitWithRequest:(NSURLRequest *)request
-{
-    return [[[request URL] scheme] isEqualToString:@"qthelp"];
-}
-
-+ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
-{
-    return request;
-}
-
-- (void)startLoading
-{
-    const QUrl &url = QUrl::fromNSURL(self.request.URL);
+    Q_UNUSED(webView)
+    const QUrl url = QUrl::fromNSURL(urlSchemeTask.request.URL);
     Help::Internal::LocalHelpManager::HelpData data;
     Help::Internal::LocalHelpManager *helpManager = Help::Internal::LocalHelpManager::instance();
 
-    QMetaObject::invokeMethod(helpManager, "helpData", Qt::BlockingQueuedConnection,
-                              Q_RETURN_ARG(Help::Internal::LocalHelpManager::HelpData, data),
-                              Q_ARG(QUrl, url));
+    // WKURLSchemeHandler is called on the main thread; use DirectConnection if
+    // already there.
+    const Qt::ConnectionType connectionType = (QThread::currentThread() == helpManager->thread())
+                                                  ? Qt::DirectConnection
+                                                  : Qt::BlockingQueuedConnection;
+    QMetaObject::invokeMethod(
+        helpManager,
+        "helpData",
+        connectionType,
+        Q_RETURN_ARG(Help::Internal::LocalHelpManager::HelpData, data),
+        Q_ARG(QUrl, url));
 
     NSURL *resolvedURL = data.resolvedUrl.toNSURL();
-    NSString *mimeType = data.mimeType.toNSString();
     NSData *nsdata = data.data.toNSData();
+    NSString *mimeType = data.mimeType.toNSString();
     NSURLResponse *response = [[NSURLResponse alloc] initWithURL:resolvedURL
                                                         MIMEType:mimeType
-                                           expectedContentLength:data.data.length()
+                                           expectedContentLength:(NSInteger) nsdata.length
                                                 textEncodingName:@"UTF8"];
-    [self.client URLProtocol:self didReceiveResponse:response
-                                  cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-    [self.client URLProtocol:self didLoadData:nsdata];
-    [self.client URLProtocolDidFinishLoading:self];
+    [urlSchemeTask didReceiveResponse:response];
+    [urlSchemeTask didReceiveData:nsdata];
+    [urlSchemeTask didFinish];
     [response release];
 }
 
-- (void)stopLoading
+- (void)webView:(WKWebView *)webView stopURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask
 {
+    Q_UNUSED(webView)
+    Q_UNUSED(urlSchemeTask)
 }
 
 @end
 
-static void ensureProtocolHandler()
-{
-    static bool registered = false;
-    if (!registered) {
-        [NSURLProtocol registerClass:[QtHelpURLProtocol class]];
-        registered = true;
-    }
+// -- NavigationDelegate --
+
+@interface NavigationDelegate : NSObject <WKNavigationDelegate> {
+    Help::Internal::MacWebKitHelpViewer *m_viewer;
+    bool m_finished;
 }
-
-// #pragma mark -- FrameLoadDelegate
-
-@interface FrameLoadDelegate : NSObject
-{
-    WebFrame *mainFrame;
-    Help::Internal::MacWebKitHelpViewer *viewer;
-    bool finished;
-}
-
-- (id)initWithMainFrame:(WebFrame *)frame viewer:(Help::Internal::MacWebKitHelpViewer *)viewer;
-- (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame;
-- (void)webView:(WebView *)sender didReceiveTitle:(NSString *)title forFrame:(WebFrame *)frame;
-- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame;
-- (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame;
-- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame;
-
+- (id)initWithViewer:(Help::Internal::MacWebKitHelpViewer *)viewer;
 @end
 
-@implementation FrameLoadDelegate
+@implementation NavigationDelegate
 
-- (id)initWithMainFrame:(WebFrame *)frame viewer:(Help::Internal::MacWebKitHelpViewer *)helpViewer
+- (id)initWithViewer:(Help::Internal::MacWebKitHelpViewer *)viewer
 {
     self = [super init];
     if (self) {
-        mainFrame = frame;
-        viewer = helpViewer;
-        finished = false;
+        m_viewer = viewer;
+        m_finished = false;
     }
     return self;
 }
 
-- (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
 {
-    Q_UNUSED(sender)
-    if (frame == mainFrame) {
-        finished = false;
-        viewer->slotLoadStarted();
+    Q_UNUSED(webView)
+    Q_UNUSED(navigation)
+    m_finished = false;
+    m_viewer->slotLoadStarted();
+}
+
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
+{
+    Q_UNUSED(webView)
+    Q_UNUSED(navigation)
+    if (!m_finished) {
+        m_finished = true;
+        m_viewer->titleChanged();
+        m_viewer->slotLoadFinished();
     }
 }
 
-- (void)webView:(WebView *)sender didReceiveTitle:(NSString *)title forFrame:(WebFrame *)frame
+- (void)webView:(WKWebView *)webView
+    didFailNavigation:(WKNavigation *)navigation
+            withError:(NSError *)error
 {
-    Q_UNUSED(sender)
-    Q_UNUSED(title)
-    if (frame == mainFrame)
-        viewer->titleChanged();
-}
-
-- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame
-{
-    Q_UNUSED(sender)
-    if (frame == mainFrame && !finished) {
-        finished = true;
-        viewer->slotLoadFinished();
-    }
-}
-
-- (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
-{
-    Q_UNUSED(sender)
+    Q_UNUSED(webView)
+    Q_UNUSED(navigation)
     Q_UNUSED(error)
-    if (frame == mainFrame && !finished) {
-        finished = true;
-        viewer->slotLoadFinished();
+    if (!m_finished) {
+        m_finished = true;
+        m_viewer->slotLoadFinished();
     }
 }
 
-- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
+- (void)webView:(WKWebView *)webView
+    didFailProvisionalNavigation:(WKNavigation *)navigation
+                       withError:(NSError *)error
 {
-    Q_UNUSED(sender)
+    Q_UNUSED(webView)
+    Q_UNUSED(navigation)
     Q_UNUSED(error)
-    if (frame == mainFrame && !finished) {
-        finished = true;
-        viewer->slotLoadFinished();
+    if (!m_finished) {
+        m_finished = true;
+        m_viewer->slotLoadFinished();
     }
 }
+
 @end
 
-// #pragma mark -- UIDelegate
+// -- HelpWebView --
+// WKWebView subclass that intercepts the context menu to inject custom link
+// actions.
 
-@interface UIDelegate : NSObject
+@interface HelpWebView : WKWebView
+@property(nonatomic, copy) NSString *hoveredLinkURL;
+@property(nonatomic, assign) Help::Internal::MacWebKitHelpWidget *helpWidget;
+@end
+
+@implementation HelpWebView
+
+- (void)dealloc
 {
-    Help::Internal::MacWebKitHelpWidget *widget;
+    [_hoveredLinkURL release];
+    [super dealloc];
 }
 
-- (id)initWithWidget:(Help::Internal::MacWebKitHelpWidget *)theWidget;
-- (void)webView:(WebView *)sender makeFirstResponder:(NSResponder *)responder;
-- (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element
-    defaultMenuItems:(NSArray *)defaultMenuItems;
-- (void)webView:(WebView *)sender mouseDidMoveOverElement:(NSDictionary *)elementInformation
-    modifierFlags:(NSUInteger)modifierFlags;
+- (void)willOpenMenu:(NSMenu *)menu withEvent:(NSEvent *)event
+{
+    [super willOpenMenu:menu withEvent:event];
 
-- (void)openAsNewPage:(id)sender;
-- (void)openInWindow:(id)sender;
+    NSString *urlString = self.hoveredLinkURL;
+    if (!urlString || urlString.length == 0)
+        return;
+    NSURL *url = [NSURL URLWithString:urlString];
+    if (!url)
+        return;
+
+    Help::Internal::MacWebKitHelpWidget *widget = self.helpWidget;
+    if (!widget)
+        return;
+
+    if (widget->viewer()->isActionVisible(Help::Internal::HelpViewer::Action::NewPage)) {
+        NSMenuItem *item = [[NSMenuItem alloc]
+            initWithTitle:Help::Tr::tr(Help::Constants::TR_OPEN_LINK_AS_NEW_PAGE).toNSString()
+                   action:@selector(openAsNewPage:)
+            keyEquivalent:@""];
+        item.representedObject = url;
+        item.target = self;
+        [menu insertItem:[item autorelease] atIndex:0];
+    }
+}
+
+- (void)openAsNewPage:(NSMenuItem *)item
+{
+    if (self.helpWidget)
+        self.helpWidget->viewer()->newPageRequested(QUrl::fromNSURL(item.representedObject));
+}
+
+@end
+
+// -- UIDelegate (WKUIDelegate + WKScriptMessageHandler) --
+
+@interface UIDelegate : NSObject <WKUIDelegate, WKScriptMessageHandler> {
+    Help::Internal::MacWebKitHelpWidget *m_widget;
+}
+- (id)initWithWidget:(Help::Internal::MacWebKitHelpWidget *)widget;
 @end
 
 @implementation UIDelegate
 
-- (id)initWithWidget:(Help::Internal::MacWebKitHelpWidget *)theWidget
+- (id)initWithWidget:(Help::Internal::MacWebKitHelpWidget *)widget
 {
     self = [super init];
-    if (self) {
-        widget = theWidget;
-    }
+    if (self)
+        m_widget = widget;
     return self;
 }
 
-- (void)webView:(WebView *)sender makeFirstResponder:(NSResponder *)responder
+// Intercept target="_blank" and similar new-window navigations.
+- (WKWebView *)webView:(WKWebView *)webView
+    createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
+               forNavigationAction:(WKNavigationAction *)navigationAction
+                    windowFeatures:(WKWindowFeatures *)windowFeatures
 {
-    // make the widget get focus
-    if (responder) {
-        widget->setFocus();
-        [sender.window makeFirstResponder:responder];
-    }
+    Q_UNUSED(webView)
+    Q_UNUSED(configuration)
+    Q_UNUSED(windowFeatures)
+    m_widget->viewer()->externalPageRequested(QUrl::fromNSURL(navigationAction.request.URL));
+    return nil;
 }
 
-static NSMenuItem *menuItem(NSURL *url, id target, SEL action, const QString &title)
+// Hover messages from the injected JS mousemove script.
+- (void)userContentController:(WKUserContentController *)userContentController
+      didReceiveScriptMessage:(WKScriptMessage *)message
 {
-    NSMenuItem *openItem = [[NSMenuItem alloc] initWithTitle:title.toNSString()
-                                                      action:action
-                                               keyEquivalent:@""];
-    openItem.representedObject = url;
-    openItem.target = target;
-    return [openItem autorelease];
-}
+    Q_UNUSED(userContentController)
+    if (![message.name isEqualToString:@"linkHover"])
+        return;
 
-- (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element
-    defaultMenuItems:(NSArray *)defaultMenuItems
-{
-    Q_UNUSED(sender)
-    Q_UNUSED(element)
-    NSMutableArray *ret = [[NSMutableArray alloc] init];
-    for (NSMenuItem *item in defaultMenuItems) {
-        switch (item.tag) {
-        case WebMenuItemTagCopyLinkToClipboard:
-        case WebMenuItemTagCopyImageToClipboard:
-        case WebMenuItemTagCopy:
-        case WebMenuItemTagGoBack:
-        case WebMenuItemTagGoForward:
-        case WebMenuItemTagStop:
-        case WebMenuItemTagOther:
-        case WebMenuItemTagSearchInSpotlight:
-        case WebMenuItemTagSearchWeb:
-        case WebMenuItemTagLookUpInDictionary:
-        case WebMenuItemTagOpenWithDefaultApplication:
-            [ret addObject:item];
-            break;
-        case WebMenuItemTagOpenLinkInNewWindow:
-        case WebMenuItemTagOpenImageInNewWindow: {
-            NSURL *url = [element objectForKey:WebElementLinkURLKey];
-            if (QTC_GUARD(url)) {
-                if (widget->viewer()->isActionVisible(Help::Internal::HelpViewer::Action::NewPage))
-                    [ret
-                        addObject:menuItem(url,
-                                           self,
-                                           @selector(openAsNewPage:),
-                                           Help::Tr::tr(Help::Constants::TR_OPEN_LINK_AS_NEW_PAGE))];
-                if (widget->viewer()->isActionVisible(Help::Internal::HelpViewer::Action::ExternalWindow))
-                    [ret addObject:menuItem(url,
-                                            self,
-                                            @selector(openInWindow:),
-                                            Help::Tr::tr(Help::Constants::TR_OPEN_LINK_IN_WINDOW))];
-            }
-            break;
-        }
-        default:
-            break;
-        }
-    }
-    return [ret autorelease];
-}
+    NSString *urlString = [message.body isKindOfClass:[NSString class]] ? message.body : @"";
+    HelpWebView *helpWebView = (HelpWebView *) m_widget->webView();
+    helpWebView.hoveredLinkURL = urlString;
 
-- (void)webView:(WebView *)sender mouseDidMoveOverElement:(NSDictionary *)elementInformation
-    modifierFlags:(NSUInteger)modifierFlags
-{
-    Q_UNUSED(sender)
-    if (!elementInformation || (modifierFlags & NSDeviceIndependentModifierFlagsMask) != 0) {
-        widget->hideToolTip();
+    if (urlString.length == 0) {
+        m_widget->hideToolTip();
         return;
     }
-    NSURL *url = [elementInformation objectForKey:WebElementLinkURLKey];
-    if (!url) {
-        widget->hideToolTip();
+    if ((NSEvent.modifierFlags & NSEventModifierFlagDeviceIndependentFlagsMask) != 0) {
+        m_widget->hideToolTip();
         return;
     }
-    widget->startToolTipTimer(flipPoint(NSEvent.mouseLocation),
-                       QString::fromNSString(url.absoluteString));
-}
-
-- (void)openAsNewPage:(id)item
-{
-    widget->viewer()->newPageRequested(QUrl::fromNSURL([item representedObject]));
-}
-
-- (void)openInWindow:(id)item
-{
-    widget->viewer()->externalPageRequested(QUrl::fromNSURL([item representedObject]));
+    m_widget->startToolTipTimer(flipPoint(NSEvent.mouseLocation), QString::fromNSString(urlString));
 }
 
 @end
@@ -379,59 +301,97 @@ static NSMenuItem *menuItem(NSURL *url, id target, SEL action, const QString &ti
 namespace Help {
 namespace Internal {
 
-// #pragma mark -- MacWebKitHelpWidget
+// -- MacWebKitHelpWidgetPrivate --
 
 class MacWebKitHelpWidgetPrivate
 {
 public:
-    MacWebKitHelpWidgetPrivate(MacWebKitHelpViewer *parent)
-        : m_viewer(parent),
-          m_savedResponder(nil)
-    {
-    }
+    explicit MacWebKitHelpWidgetPrivate(MacWebKitHelpViewer *parent)
+        : m_viewer(parent)
+    {}
 
     ~MacWebKitHelpWidgetPrivate()
     {
+        [m_webView removeFromSuperview];
+        [m_webView.configuration.userContentController
+            removeScriptMessageHandlerForName:@"linkHover"];
+        m_webView.navigationDelegate = nil;
+        m_webView.UIDelegate = nil;
         [m_webView release];
-        [m_frameLoadDelegate release];
+        [m_navigationDelegate release];
         [m_uiDelegate release];
     }
 
     MacWebKitHelpViewer *m_viewer;
-    WebView *m_webView;
-    FrameLoadDelegate *m_frameLoadDelegate;
-    UIDelegate *m_uiDelegate;
-    NSResponder *m_savedResponder;
+    HelpWebView *m_webView = nil;
+    NavigationDelegate *m_navigationDelegate = nil;
+    UIDelegate *m_uiDelegate = nil;
     QTimer m_toolTipTimer;
     QPoint m_toolTipPos;
     QString m_toolTipText;
 };
 
-// #pragma mark -- MacWebKitHelpWidget
+// -- MacWebKitHelpWidget --
 
 MacWebKitHelpWidget::MacWebKitHelpWidget(MacWebKitHelpViewer *parent)
     : QWidget(parent)
     , d(new MacWebKitHelpWidgetPrivate(parent))
 {
+    // WA_NativeWindow gives this widget its own QNSView so the WKWebView can
+    // be embedded as a direct subview rather than a child NSWindow (which would
+    // always float above all other widgets regardless of Z-order).
+    setAttribute(Qt::WA_NativeWindow);
     d->m_toolTipTimer.setSingleShot(true);
     connect(&d->m_toolTipTimer, &QTimer::timeout, this, &MacWebKitHelpWidget::showToolTip);
-    @autoreleasepool {
-        d->m_webView = [[WebView alloc] init];
-        // Turn layered rendering on.
-        // Otherwise the WebView will render empty after any QQuickWidget was shown.
-        d->m_webView.wantsLayer = YES;
-        d->m_frameLoadDelegate = [[FrameLoadDelegate alloc] initWithMainFrame:d->m_webView.mainFrame
-                                                                       viewer:parent];
-        [d->m_webView setFrameLoadDelegate:d->m_frameLoadDelegate];
-        d->m_uiDelegate = [[UIDelegate alloc] initWithWidget:this];
-        [d->m_webView setUIDelegate:d->m_uiDelegate];
 
-        auto window = QWindow::fromWinId(WId(d->m_webView));
-        auto container = QWidget::createWindowContainer(window);
-        auto layout = new QVBoxLayout;
-        layout->setContentsMargins(0, 0, 0, 0);
-        setLayout(layout);
-        layout->addWidget(container, 1);
+    @autoreleasepool {
+        WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+
+        QtHelpSchemeHandler *schemeHandler = [[QtHelpSchemeHandler alloc] init];
+        [config setURLSchemeHandler:schemeHandler forURLScheme:@"qthelp"];
+        [schemeHandler release];
+
+        // Inject a script that tracks mouse-hovered link URLs and reports them
+        // via the "linkHover" message handler. Only posts when the hovered URL
+        // changes.
+        NSString *hoverScriptSource
+            = @"(function(){"
+               "var last='';"
+               "document.addEventListener('mousemove',function(e){"
+               "  var el=e.target,href='';"
+               "  while (el&&el!==document.documentElement){"
+               "    "
+               "if (el.tagName&&el.tagName.toUpperCase()==='A'&&el.href){href=el."
+               "href;break;}"
+               "    el=el.parentElement;"
+               "  }"
+               "  if (href!==last){last=href;"
+               "    window.webkit.messageHandlers.linkHover.postMessage(href);}"
+               "},false);"
+               "})();";
+        WKUserScript *hoverScript = [[WKUserScript alloc]
+              initWithSource:hoverScriptSource
+               injectionTime:WKUserScriptInjectionTimeAtDocumentEnd
+            forMainFrameOnly:YES];
+        [config.userContentController addUserScript:hoverScript];
+        [hoverScript release];
+
+        // UIDelegate must be created before the webview so we can add the script
+        // message handler to the configuration prior to initialisation.
+        d->m_uiDelegate = [[UIDelegate alloc] initWithWidget:this];
+        [config.userContentController addScriptMessageHandler:d->m_uiDelegate name:@"linkHover"];
+
+        d->m_webView = [[HelpWebView alloc] initWithFrame:CGRectZero configuration:config];
+        [config release];
+
+        d->m_webView.wantsLayer = YES;
+        d->m_webView.helpWidget = this;
+
+        d->m_navigationDelegate = [[NavigationDelegate alloc] initWithViewer:parent];
+        d->m_webView.navigationDelegate = d->m_navigationDelegate;
+        d->m_webView.UIDelegate = d->m_uiDelegate;
+        // WKWebView is added as the bottommost subview of this widget's QNSView
+        // in updateWebViewFrame(), called once the native handle is available.
     }
 }
 
@@ -440,12 +400,45 @@ MacWebKitHelpWidget::~MacWebKitHelpWidget()
     delete d;
 }
 
+void MacWebKitHelpWidget::updateWebViewFrame()
+{
+    if (!d->m_webView)
+        return;
+    WId handle = internalWinId();
+    if (!handle)
+        return;
+    @autoreleasepool {
+        NSView *parentView = reinterpret_cast<NSView *>(handle);
+        if (d->m_webView.superview != parentView) {
+            // Add behind all existing subviews so Qt-native sibling widgets
+            // rendered into this view's layer can appear on top.
+            [parentView addSubview:d->m_webView positioned:NSWindowBelow relativeTo:nil];
+        }
+        // Qt's QNSView has isFlipped=YES (top-left origin), so (0,0,w,h) fills
+        // the widget area correctly without coordinate-space conversion.
+        d->m_webView.frame = CGRectMake(0, 0, width(), height());
+    }
+}
+
+void MacWebKitHelpWidget::resizeEvent(QResizeEvent *e)
+{
+    QWidget::resizeEvent(e);
+    updateWebViewFrame();
+}
+
+bool MacWebKitHelpWidget::event(QEvent *e)
+{
+    if (e->type() == QEvent::WinIdChange)
+        updateWebViewFrame();
+    return QWidget::event(e);
+}
+
 MacWebKitHelpViewer *MacWebKitHelpWidget::viewer() const
 {
     return d->m_viewer;
 }
 
-WebView *MacWebKitHelpWidget::webView() const
+WKWebView *MacWebKitHelpWidget::webView() const
 {
     return d->m_webView;
 }
@@ -472,6 +465,7 @@ void MacWebKitHelpWidget::hideEvent(QHideEvent *)
 void MacWebKitHelpWidget::showEvent(QShowEvent *)
 {
     [d->m_webView setHidden:NO];
+    updateWebViewFrame();
 }
 
 void MacWebKitHelpWidget::showToolTip()
@@ -479,14 +473,13 @@ void MacWebKitHelpWidget::showToolTip()
     QToolTip::showText(d->m_toolTipPos, d->m_toolTipText, this);
 }
 
-// #pragma mark -- MacWebKitHelpViewer
+// -- MacWebKitHelpViewer --
 
 static void responderHack(QWidget *old, QWidget *now)
 {
-    // On focus change, Qt does not make the corresponding QNSView firstResponder.
-    // That breaks when embedding native NSView into a Qt hierarchy. When the focus is changed
-    // by clicking with the mouse into a widget, everything is fine, because Cocoa automatically
-    // adapts firstResponder in that case, but it breaks when setting the Qt focus from code.
+    // On focus change Qt does not make the QNSView firstResponder. When the
+    // native NSView is embedded into a Qt hierarchy and focus is set from code
+    // (not mouse click), Cocoa needs a nudge.
     Q_UNUSED(old)
     if (!now)
         return;
@@ -501,8 +494,8 @@ static void responderHack(QWidget *old, QWidget *now)
 }
 
 MacWebKitHelpViewer::MacWebKitHelpViewer(QWidget *parent)
-    : HelpViewer(parent),
-      m_widget(new MacWebKitHelpWidget(this))
+    : HelpViewer(parent)
+    , m_widget(new MacWebKitHelpWidget(this))
 {
     static bool responderHackInstalled = false;
     if (!responderHackInstalled) {
@@ -518,47 +511,42 @@ MacWebKitHelpViewer::MacWebKitHelpViewer(QWidget *parent)
     }
 }
 
-MacWebKitHelpViewer::~MacWebKitHelpViewer()
-{
-
-}
+MacWebKitHelpViewer::~MacWebKitHelpViewer() {}
 
 void MacWebKitHelpViewer::setViewerFont(const QFont &font)
 {
-    @autoreleasepool {
-        WebPreferences *preferences = m_widget->webView().preferences;
-        [preferences setStandardFontFamily:font.family().toNSString()];
-        [preferences setDefaultFontSize:font.pointSize()];
-    }
+    m_viewerFont = font;
+    m_fontSet = true;
+    qWarning() << "MacWebKitHelpViewer: setViewerFont() is not supported on macOS";
 }
 
 void MacWebKitHelpViewer::setScale(qreal scale)
 {
-    m_widget->webView().textSizeMultiplier = (scale <= 0.0 ? 1.0 : scale);
+    m_widget->webView().pageZoom = (scale <= 0.0 ? 1.0 : scale);
 }
 
 QString MacWebKitHelpViewer::title() const
 {
     @autoreleasepool {
-        return QString::fromNSString(m_widget->webView().mainFrameTitle);
+        return QString::fromNSString(m_widget->webView().title);
     }
 }
 
 QUrl MacWebKitHelpViewer::source() const
 {
     @autoreleasepool {
-        WebDataSource *dataSource = m_widget->webView().mainFrame.dataSource;
-        if (!dataSource)
-            dataSource = m_widget->webView().mainFrame.provisionalDataSource;
-        return QUrl::fromNSURL(dataSource.request.URL);
+        NSURL *url = m_widget->webView().URL;
+        if (url)
+            return QUrl::fromNSURL(url);
+        return m_pendingUrl;
     }
 }
 
 void MacWebKitHelpViewer::setSource(const QUrl &url)
 {
     @autoreleasepool {
-        ensureProtocolHandler();
-        [m_widget->webView().mainFrame loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
+        m_pendingUrl = url;
+        [m_widget->webView() loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
     }
 }
 
@@ -572,16 +560,17 @@ void MacWebKitHelpViewer::scrollToAnchor(const QString &anchor)
 void MacWebKitHelpViewer::setHtml(const QString &html)
 {
     @autoreleasepool {
-      [m_widget->webView().mainFrame
-          loadHTMLString:html.toNSString()
-                 baseURL:[NSURL URLWithString:@"about:blank"]];
+        [m_widget->webView() loadHTMLString:html.toNSString()
+                                    baseURL:[NSURL URLWithString:@"about:blank"]];
     }
 }
 
 QString MacWebKitHelpViewer::selectedText() const
 {
     @autoreleasepool {
-        return QString::fromNSString(m_widget->webView().selectedDOMRange.text);
+        id result
+            = evaluateJSSynchronously(m_widget->webView(), @"window.getSelection().toString()");
+        return QString::fromNSString([result isKindOfClass:[NSString class]] ? result : @"");
     }
 }
 
@@ -602,12 +591,13 @@ bool MacWebKitHelpViewer::isBackwardAvailable() const
 void MacWebKitHelpViewer::addBackHistoryItems(QMenu *backMenu)
 {
     @autoreleasepool {
-        WebBackForwardList *list = m_widget->webView().backForwardList;
-        int backListCount = list.backListCount;
-        for (int i = 0; i < backListCount; ++i) {
-            int historyIndex = -(i+1);
+        WKBackForwardList *list = m_widget->webView().backForwardList;
+        int count = (int) list.backList.count;
+        for (int i = 0; i < count; ++i) {
+            int historyIndex = -(i + 1);
+            WKBackForwardListItem *item = [list itemAtIndex:historyIndex];
             QAction *action = new QAction(backMenu);
-            action->setText(QString::fromNSString([list itemAtIndex:historyIndex].title));
+            action->setText(QString::fromNSString(item.title));
             action->setData(historyIndex);
             connect(action, &QAction::triggered, this, &MacWebKitHelpViewer::goToHistoryItem);
             backMenu->addAction(action);
@@ -618,12 +608,13 @@ void MacWebKitHelpViewer::addBackHistoryItems(QMenu *backMenu)
 void MacWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
 {
     @autoreleasepool {
-        WebBackForwardList *list = m_widget->webView().backForwardList;
-        int forwardListCount = list.forwardListCount;
-        for (int i = 0; i < forwardListCount; ++i) {
+        WKBackForwardList *list = m_widget->webView().backForwardList;
+        int count = (int) list.forwardList.count;
+        for (int i = 0; i < count; ++i) {
             int historyIndex = i + 1;
+            WKBackForwardListItem *item = [list itemAtIndex:historyIndex];
             QAction *action = new QAction(forwardMenu);
-            action->setText(QString::fromNSString([list itemAtIndex:historyIndex].title));
+            action->setText(QString::fromNSString(item.title));
             action->setData(historyIndex);
             connect(action, &QAction::triggered, this, &MacWebKitHelpViewer::goToHistoryItem);
             forwardMenu->addAction(action);
@@ -631,131 +622,41 @@ void MacWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
     }
 }
 
-DOMRange *MacWebKitHelpViewer::findText(NSString *text, bool forward, bool caseSensitive, DOMNode *startNode, int startOffset)
-{
-    QTC_ASSERT(text, return nil);
-    if (text.length == 0)
-        return nil;
-    DOMDocument *document = m_widget->webView().mainFrame.DOMDocument;
-    // search only the body
-    DOMNodeIterator *iterator = [document createNodeIterator:document.body whatToShow:DOM_SHOW_ALL
-            filter:nil expandEntityReferences:NO];
-
-    DOMNode *selectionStart = nil;
-    int selectionStartOffset = 0;
-    DOMNode *currentNode = startNode;
-    int currentOffset = startOffset;
-    NSString *searchTerm = caseSensitive ? text : [text lowercaseString];
-    int searchTermLength = searchTerm.length;
-    int indexInSearchTerm = forward ? 0 : searchTerm.length - 1;
-    if (!currentNode) { // search whole body from end
-        if (forward)
-            currentNode = document.body;
-        else
-            currentNode = [iterator gotoEnd];
-    } else { // otherwise find the start node
-        QTC_ASSERT([iterator findNode:currentNode], return nil);
-    }
-    if (!forward) { // findNode leaves iterator behind currentNode, we need to go back
-        QTC_ASSERT([iterator previousNode] == currentNode, return nil);
-    }
-    if (currentNode.nodeType != DOM_TEXT_NODE) { // we only want text nodes
-        currentNode = forward ? [iterator nextTextNode] : [iterator previousTextNode];
-        currentOffset = -1; // search whole node
-    }
-    while (currentNode) {
-        NSString *currentText = caseSensitive ? currentNode.nodeValue : [currentNode.nodeValue lowercaseString];
-        int currentTextLength = currentText.length;
-        if (currentOffset < 0) // search whole node
-            currentOffset = forward ? 0 : currentTextLength - 1;
-        while (currentOffset < currentTextLength/*forward*/ && currentOffset >= 0/*backward*/) {
-            if ([currentText characterAtIndex:currentOffset] == [searchTerm characterAtIndex:indexInSearchTerm]) {
-                indexInSearchTerm += forward ? 1 : -1;
-                if (!selectionStart) {
-                    selectionStart = currentNode;
-                    selectionStartOffset = currentOffset;
-                }
-            } else {
-                indexInSearchTerm = forward ? 0 : searchTerm.length - 1;
-                selectionStart = nil;
-            }
-            currentOffset += forward ? 1 : -1;
-            if (indexInSearchTerm >= searchTermLength/*forward*/ || indexInSearchTerm < 0/*backward*/) {
-                // we have found a match!
-                DOMRange *range = [document createRange];
-                if (forward) {
-                    [range setStart:selectionStart offset:selectionStartOffset];
-                    [range setEnd:currentNode offset:currentOffset];
-                } else {
-                    [range setStart:currentNode offset:(currentOffset + 1)]; // was already decreased
-                    [range setEnd:selectionStart offset:(selectionStartOffset + 1)];
-                }
-                return range;
-            }
-        }
-        currentNode = forward ? [iterator nextTextNode] : [iterator previousTextNode];
-        currentOffset = -1; // search whole node
-    }
-    return nil;
-}
-
-bool MacWebKitHelpViewer::findText(const QString &text, FindFlags flags, bool incremental,
-                                   bool fromSearch, bool *wrapped)
+bool MacWebKitHelpViewer::findText(
+    const QString &text, FindFlags flags, bool incremental, bool fromSearch, bool *wrapped)
 {
     Q_UNUSED(incremental)
     Q_UNUSED(fromSearch)
     @autoreleasepool {
         if (wrapped)
             *wrapped = false;
-        bool forward = !(flags & FindBackward);
-        bool caseSensitive = (flags & FindCaseSensitively);
-        WebView *webView = m_widget->webView();
+        if (text.isEmpty())
+            return false;
 
-        // WebView searchFor:.... grabs first responder, and when losing first responder afterwards,
-        // it removes the selection and forgets the search state, making it pretty useless for us
+        WKFindConfiguration *config = [[WKFindConfiguration alloc] init];
+        config.backwards = (flags & FindBackward) ? YES : NO;
+        config.caseSensitive = (flags & FindCaseSensitively) ? YES : NO;
+        config.wraps = NO;
 
-        // define the start node and offset for the search
-        DOMNode *start = nil; // default is search whole body
-        int startOffset = -1;
-        DOMRange *selection = webView.selectedDOMRange;
-        if (selection) {
-            if (QString::fromNSString(selection.text).compare(
-                        text, caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive) != 0) {
-                // for incremental search we want to search from the beginning of the selection
-                start = selection.startContainer;
-                startOffset = selection.startOffset;
-            } else {
-                // search for next occurrence
-                if (forward) {
-                    start = selection.endContainer;
-                    startOffset = selection.endOffset;
-                } else {
-                    start = selection.startContainer;
-                    startOffset = selection.startOffset;
-                }
-            }
-        }
-        DOMRange *newSelection = findText(text.toNSString(), forward, caseSensitive,
-                                          start, startOffset);
-        if (!newSelection && start != nil) { // wrap
-            start = nil;
-            startOffset = -1;
-            newSelection = findText(text.toNSString(), forward, caseSensitive,
-                                                  start, startOffset);
-            if (newSelection && wrapped)
+        BOOL found = findStringSynchronously(m_widget->webView(), text.toNSString(), config);
+        [config release];
+        if (found)
+            return true;
+
+        config = [[WKFindConfiguration alloc] init];
+        config.backwards = (flags & FindBackward) ? YES : NO;
+        config.caseSensitive = (flags & FindCaseSensitively) ? YES : NO;
+        config.wraps = YES;
+
+        found = findStringSynchronously(m_widget->webView(), text.toNSString(), config);
+        [config release];
+        if (found) {
+            if (wrapped)
                 *wrapped = true;
-        }
-        if (newSelection) {
-            // found, select and scroll there
-            [webView setSelectedDOMRange:newSelection affinity:NSSelectionAffinityDownstream];
-            if (forward)
-                [newSelection.endContainer.parentElement scrollIntoViewIfNeeded:YES];
-            else
-                [newSelection.startContainer.parentElement scrollIntoViewIfNeeded:YES];
             return true;
         }
+        return false;
     }
-    return false;
 }
 
 void MacWebKitHelpViewer::copy()
@@ -765,7 +666,7 @@ void MacWebKitHelpViewer::copy()
 
 void MacWebKitHelpViewer::stop()
 {
-    [m_widget->webView() stopLoading:nil];
+    [m_widget->webView() stopLoading];
 }
 
 void MacWebKitHelpViewer::forward()
@@ -811,14 +712,14 @@ void MacWebKitHelpViewer::goToHistoryItem()
         bool ok = false;
         int index = action->data().toInt(&ok);
         QTC_ASSERT(ok, return);
-        WebBackForwardList *list = m_widget->webView().backForwardList;
-        WebHistoryItem *item = [list itemAtIndex:index];
+        WKBackForwardList *list = m_widget->webView().backForwardList;
+        WKBackForwardListItem *item = [list itemAtIndex:index];
         QTC_ASSERT(item, return);
-        [m_widget->webView() goToBackForwardItem:item];
+        [m_widget->webView() goToBackForwardListItem:item];
         emit forwardAvailable(isForwardAvailable());
         emit backwardAvailable(isBackwardAvailable());
     }
 }
 
-} // Internal
-} // Help
+} // namespace Internal
+} // namespace Help

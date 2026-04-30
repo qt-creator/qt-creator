@@ -5,10 +5,7 @@
 
 #include "helpviewer.h"
 
-Q_FORWARD_DECLARE_OBJC_CLASS(DOMNode);
-Q_FORWARD_DECLARE_OBJC_CLASS(DOMRange);
-Q_FORWARD_DECLARE_OBJC_CLASS(NSString);
-Q_FORWARD_DECLARE_OBJC_CLASS(WebView);
+Q_FORWARD_DECLARE_OBJC_CLASS(WKWebView);
 
 namespace Help {
 namespace Internal {
@@ -24,7 +21,7 @@ public:
     MacWebKitHelpWidget(MacWebKitHelpViewer *parent);
     ~MacWebKitHelpWidget() override;
 
-    WebView *webView() const;
+    WKWebView *webView() const;
     void startToolTipTimer(const QPoint &pos, const QString &text);
     void hideToolTip();
     MacWebKitHelpViewer *viewer() const;
@@ -32,9 +29,12 @@ public:
 protected:
     void hideEvent(QHideEvent *) override;
     void showEvent(QShowEvent *) override;
+    void resizeEvent(QResizeEvent *) override;
+    bool event(QEvent *) override;
 
 private:
     void showToolTip();
+    void updateWebViewFrame();
     MacWebKitHelpWidgetPrivate *d;
 };
 
@@ -82,10 +82,12 @@ public:
 
 private:
     void goToHistoryItem();
+    void applyFont();
 
-    DOMRange *findText(NSString *text, bool forward, bool caseSensitive, DOMNode *startNode,
-                       int startOffset);
     MacWebKitHelpWidget *m_widget;
+    QFont m_viewerFont;
+    bool m_fontSet = false;
+    QUrl m_pendingUrl;
 };
 
 }   // namespace Internal
