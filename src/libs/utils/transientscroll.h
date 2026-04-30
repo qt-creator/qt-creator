@@ -43,15 +43,8 @@ namespace TransientScrollArea {
 QTCREATOR_UTILS_EXPORT void support(QAbstractScrollArea *scrollArea);
 } // namespace TransientScrollArea
 
-class QTCREATOR_UTILS_EXPORT GlobalTransientSupport : public QObject
-{
-    Q_OBJECT
-public:
-    static void support(QWidget *widget);
+namespace GlobalTransient {
+QTCREATOR_UTILS_EXPORT void support(QWidget *widget);
+} // namespace GlobalTransient
 
-private:
-    GlobalTransientSupport();
-    static GlobalTransientSupport *instance();
-    bool eventFilter(QObject *watched, QEvent *event) override;
-};
 }

@@ -3,6 +3,8 @@
 
 #include "transientscroll.h"
 
+#include "shutdownguard.h"
+
 #include <QAbstractScrollArea>
 #include <QMouseEvent>
 #include <QPointer>
@@ -494,31 +496,28 @@ void support(QAbstractScrollArea *scrollArea)
 
 } // namespace TransientScrollArea
 
-void GlobalTransientSupport::support(QWidget *widget)
+namespace GlobalTransient {
+
+class GlobalTransientSupport : public QObject
+{
+public:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+};
+
+static GuardedObject<GlobalTransientSupport> s_globalTransient;
+
+void support(QWidget *widget)
 {
     if (!widget)
         return;
 
-    widget->installEventFilter(instance());
+    widget->installEventFilter(s_globalTransient.get());
     QAbstractScrollArea *area = dynamic_cast<QAbstractScrollArea *>(widget);
     if (area)
         TransientScrollArea::support(area);
 
     for (QWidget *childWidget : widget->findChildren<QWidget *>(QString(), Qt::FindChildOption::FindDirectChildrenOnly))
         support(childWidget);
-}
-
-GlobalTransientSupport::GlobalTransientSupport()
-    : QObject(nullptr)
-{}
-
-GlobalTransientSupport *GlobalTransientSupport::instance()
-{
-    static GlobalTransientSupport *gVal = nullptr;
-    if (!gVal)
-        gVal = new GlobalTransientSupport;
-
-    return gVal;
 }
 
 bool GlobalTransientSupport::eventFilter(QObject *watched, QEvent *event)
@@ -539,5 +538,7 @@ bool GlobalTransientSupport::eventFilter(QObject *watched, QEvent *event)
     }
     return QObject::eventFilter(watched, event);
 }
+
+} // namespace GlobalTransient
 
 } // namespace Utils

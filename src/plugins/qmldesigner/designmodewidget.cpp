@@ -455,7 +455,7 @@ void DesignModeWidget::setup()
 
     m_dockManager->initialize();
     if (style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, this))
-        Utils::GlobalTransientSupport::support(m_dockManager);
+        Utils::GlobalTransient::support(m_dockManager);
 
     // Hide all floating widgets if the initial mode isn't design mode
     if (Core::ModeManager::instance()->currentModeId() != Core::Constants::MODE_DESIGN) {
