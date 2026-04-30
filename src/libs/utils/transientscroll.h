@@ -20,7 +20,6 @@ class QTCREATOR_UTILS_EXPORT TransientScrollAreaSupport : public QObject
 {
 public:
     static void support(QAbstractScrollArea *scrollArea);
-    static void supportWidget(QWidget *widget);
     virtual ~TransientScrollAreaSupport();
 
 protected:

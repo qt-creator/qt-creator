@@ -257,13 +257,6 @@ void TransientScrollAreaSupport::support(QAbstractScrollArea *scrollArea)
                                 );
 }
 
-void TransientScrollAreaSupport::supportWidget(QWidget *widget)
-{
-    for (QAbstractScrollArea *area : widget->findChildren<QAbstractScrollArea *>()) {
-        support(area);
-    }
-}
-
 TransientScrollAreaSupport::~TransientScrollAreaSupport()
 {
     delete d;
