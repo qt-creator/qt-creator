@@ -21,7 +21,8 @@ class TransientScrollAreaSupport : public QObject
 {
 public:
     TransientScrollAreaSupport(QAbstractScrollArea *area)
-        : area(area)
+        : QObject(area)
+        , area(area)
     {
         area->installEventFilter(this);
         verticalScrollBar = dynamic_cast<ScrollBar *>(area->verticalScrollBar());
