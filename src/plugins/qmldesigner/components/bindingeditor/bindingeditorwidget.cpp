@@ -34,7 +34,7 @@ BindingEditorWidget::BindingEditorWidget()
 
     Core::IContext::attach(this, context);
 
-    Utils::TransientScrollAreaSupport::support(this);
+    Utils::TransientScrollArea::support(this);
 
     /*
      * We have to register our own active auto completion shortcut, because the original short cut will

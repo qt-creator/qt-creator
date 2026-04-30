@@ -9,18 +9,19 @@
 #include <QStyle>
 #include <QStyleOption>
 
-using namespace Utils;
+namespace Utils {
 
 static constexpr char transientScrollAreaSupportName[] = "transientScrollAreSupport";
 static constexpr char focusedPropertyName[] = "focused";
 static constexpr char skipChildPropertyName[] = "qds_transient_skipChildArea";
 
-class Utils::ScrollAreaPrivate
+class TransientScrollAreaSupport : public QObject
 {
 public:
-    ScrollAreaPrivate(QAbstractScrollArea *area)
+    TransientScrollAreaSupport(QAbstractScrollArea *area)
         : area(area)
     {
+        area->installEventFilter(this);
         verticalScrollBar = dynamic_cast<ScrollBar *>(area->verticalScrollBar());
         if (!verticalScrollBar) {
             verticalScrollBar = new ScrollBar(area);
@@ -233,51 +234,30 @@ public:
         }
     }
 
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
     QAbstractScrollArea *area = nullptr;
     QPointer<QWidget> viewPort = nullptr;
     QPointer<ScrollBar> verticalScrollBar;
     QPointer<ScrollBar> horizontalScrollBar;
 };
 
-TransientScrollAreaSupport::TransientScrollAreaSupport(QAbstractScrollArea *scrollArea)
-    : QObject(scrollArea)
-    , d(new ScrollAreaPrivate(scrollArea))
-{
-    scrollArea->installEventFilter(this);
-}
-
-void TransientScrollAreaSupport::support(QAbstractScrollArea *scrollArea)
-{
-    QObject *prevSupport = scrollArea->property(transientScrollAreaSupportName)
-                               .value<QObject *>();
-    if (!prevSupport)
-        scrollArea->setProperty(transientScrollAreaSupportName,
-                                QVariant::fromValue(
-                                    new TransientScrollAreaSupport(scrollArea))
-                                );
-}
-
-TransientScrollAreaSupport::~TransientScrollAreaSupport()
-{
-    delete d;
-}
-
 bool TransientScrollAreaSupport::eventFilter(QObject *watched, QEvent *event)
 {
     switch (event->type()) {
     case QEvent::Enter: {
-        if (watched == d->area)
-            d->installViewPort(this);
+        if (watched == area)
+            installViewPort(this);
     } break;
     case QEvent::Leave: {
-        if (watched == d->area)
-            d->uninstallViewPort(this);
+        if (watched == area)
+            uninstallViewPort(this);
     } break;
     case QEvent::MouseMove: {
-        if (watched == d->viewPort) {
+        if (watched == viewPort) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent) {
-                if (d->checkToFlashScroll(mouseEvent->pos()))
+                if (checkToFlashScroll(mouseEvent->pos()))
                     return true;
             }
         }
@@ -285,30 +265,30 @@ bool TransientScrollAreaSupport::eventFilter(QObject *watched, QEvent *event)
     case QEvent::HoverEnter:
     case QEvent::HoverMove: {
         QHoverEvent *hoverEvent = static_cast<QHoverEvent *>(event);
-        if (watched == d->horizontalScrollBar || watched == d->verticalScrollBar) {
+        if (watched == horizontalScrollBar || watched == verticalScrollBar) {
             if (hoverEvent)
-                d->setAdjacentHovered(watched, true);
+                setAdjacentHovered(watched, true);
         }
     } break;
     case QEvent::HoverLeave: {
         QHoverEvent *hoverEvent = static_cast<QHoverEvent *>(event);
-        if (watched == d->horizontalScrollBar || watched == d->verticalScrollBar) {
+        if (watched == horizontalScrollBar || watched == verticalScrollBar) {
             if (hoverEvent)
-                d->setAdjacentHovered(watched, false);
+                setAdjacentHovered(watched, false);
         }
     } break;
     case QEvent::DynamicPropertyChange: {
-        if (watched == d->area) {
+        if (watched == area) {
             auto *pEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
             if (!pEvent || pEvent->propertyName() != focusedPropertyName)
                 break;
 
-            bool focused = d->area->property(focusedPropertyName).toBool();
-            d->setFocus(focused);
+            const bool focused = area->property(focusedPropertyName).toBool();
+            setFocus(focused);
 
-            if (!d->area->property(skipChildPropertyName).toBool() && d->area->viewport()) {
+            if (!area->property(skipChildPropertyName).toBool() && area->viewport()) {
                 const QList<QAbstractScrollArea *> scrollChildren
-                    = d->area->viewport()->findChildren<QAbstractScrollArea *>();
+                    = area->viewport()->findChildren<QAbstractScrollArea *>();
                 for (QAbstractScrollArea *area : scrollChildren) {
                     area->setProperty(skipChildPropertyName, true);
                     area->setProperty(focusedPropertyName, focused);
@@ -318,14 +298,14 @@ bool TransientScrollAreaSupport::eventFilter(QObject *watched, QEvent *event)
         }
     } break;
     case QEvent::Hide:
-        d->setAdjacentVisible(watched, false);
+        setAdjacentVisible(watched, false);
         break;
     case QEvent::Show:
-        d->setAdjacentVisible(watched, true);
+        setAdjacentVisible(watched, true);
         break;
     case QEvent::Resize: {
-        if (watched == d->area)
-            d->setAdjacentVisible(watched, true);
+        if (watched == area)
+            setAdjacentVisible(watched, true);
     } break;
     default:
         break;
@@ -333,7 +313,8 @@ bool TransientScrollAreaSupport::eventFilter(QObject *watched, QEvent *event)
     return QObject::eventFilter(watched, event);
 }
 
-class Utils::ScrollBarPrivate {
+class ScrollBarPrivate
+{
 public:
     bool flashed = false;
     int flashTimer = 0;
@@ -348,8 +329,7 @@ public:
 ScrollBar::ScrollBar(QWidget *parent)
     : QScrollBar(parent)
     , d(new ScrollBarPrivate)
-{
-}
+{}
 
 ScrollBar::~ScrollBar()
 {
@@ -500,6 +480,20 @@ bool ScrollBar::setViewPortInteraction(const bool &hovered)
     return true;
 }
 
+namespace TransientScrollArea {
+
+void support(QAbstractScrollArea *scrollArea)
+{
+    QObject *prevSupport = scrollArea->property(transientScrollAreaSupportName).value<QObject *>();
+    if (prevSupport)
+        return;
+
+    scrollArea->setProperty(transientScrollAreaSupportName,
+                            QVariant::fromValue(new TransientScrollAreaSupport(scrollArea)));
+}
+
+} // namespace TransientScrollArea
+
 void GlobalTransientSupport::support(QWidget *widget)
 {
     if (!widget)
@@ -508,7 +502,7 @@ void GlobalTransientSupport::support(QWidget *widget)
     widget->installEventFilter(instance());
     QAbstractScrollArea *area = dynamic_cast<QAbstractScrollArea *>(widget);
     if (area)
-        TransientScrollAreaSupport::support(area);
+        TransientScrollArea::support(area);
 
     for (QWidget *childWidget : widget->findChildren<QWidget *>(QString(), Qt::FindChildOption::FindDirectChildrenOnly))
         support(childWidget);
@@ -545,3 +539,5 @@ bool GlobalTransientSupport::eventFilter(QObject *watched, QEvent *event)
     }
     return QObject::eventFilter(watched, event);
 }
+
+} // namespace Utils

@@ -13,29 +13,10 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class ScrollAreaPrivate;
 class ScrollBarPrivate;
-
-class QTCREATOR_UTILS_EXPORT TransientScrollAreaSupport : public QObject
-{
-public:
-    static void support(QAbstractScrollArea *scrollArea);
-    virtual ~TransientScrollAreaSupport();
-
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
-
-private:
-    explicit TransientScrollAreaSupport(QAbstractScrollArea *scrollArea);
-
-    ScrollAreaPrivate *d = nullptr;
-};
 
 class QTCREATOR_UTILS_EXPORT ScrollBar : public QScrollBar
 {
-
-    friend class ScrollAreaPrivate;
-
 public:
     explicit ScrollBar(QWidget *parent = nullptr);
     virtual ~ScrollBar();
@@ -54,7 +35,13 @@ private:
     bool setViewPortInteraction(const bool &hovered);
 
     ScrollBarPrivate *d = nullptr;
+
+    friend class TransientScrollAreaSupport;
 };
+
+namespace TransientScrollArea {
+QTCREATOR_UTILS_EXPORT void support(QAbstractScrollArea *scrollArea);
+} // namespace TransientScrollArea
 
 class QTCREATOR_UTILS_EXPORT GlobalTransientSupport : public QObject
 {
