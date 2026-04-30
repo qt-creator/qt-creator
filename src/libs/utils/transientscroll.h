@@ -23,16 +23,16 @@ public:
 
     virtual void flash();
 
-    bool setFocused(const bool &focused);
+    bool setFocused(bool focused);
 
 protected:
     void initStyleOption(QStyleOptionSlider *option) const override;
     bool event(QEvent *event) override;
 
 private:
-    bool setAdjacentVisible(const bool &visible);
-    bool setAdjacentHovered(const bool &hovered);
-    bool setViewPortInteraction(const bool &hovered);
+    bool setAdjacentVisible(bool visible);
+    bool setAdjacentHovered(bool hovered);
+    bool setViewPortInteraction(bool hovered);
 
     ScrollBarPrivate *d = nullptr;
 

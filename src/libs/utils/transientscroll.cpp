@@ -54,7 +54,7 @@ public:
             return rect.adjusted(0, mDiff, 0, mDiff);
         }
     }
-    inline QPointer<ScrollBar> adjacentScrollBar(QPointer<ScrollBar> scrollBar)
+    inline QPointer<ScrollBar> adjacentScrollBar(const QPointer<ScrollBar> &scrollBar)
     {
         if (scrollBar == verticalScrollBar)
             return horizontalScrollBar;
@@ -65,7 +65,7 @@ public:
         return {};
     }
 
-    inline bool checkToFlashScroll(QPointer<ScrollBar> scrollBar, const QPoint &pos)
+    inline bool checkToFlashScroll(const QPointer<ScrollBar> &scrollBar, const QPoint &pos)
     {
         if (scrollBar.isNull())
             return false;
@@ -148,7 +148,7 @@ public:
         return coversScroll;
     }
 
-    inline bool canSetTransientProperty(QPointer<ScrollBar> scrollBar) const
+    inline bool canSetTransientProperty(const QPointer<ScrollBar> &scrollBar) const
     {
         if (scrollBar.isNull())
             return false;
@@ -166,7 +166,7 @@ public:
         return true;
     }
 
-    inline bool setFocus(QPointer<ScrollBar> scrollBar, const bool &focus)
+    inline bool setFocus(const QPointer<ScrollBar> &scrollBar, bool focus)
     {
         if (!canSetTransientProperty(scrollBar))
             return false;
@@ -174,7 +174,7 @@ public:
         return scrollBar->setFocused(focus);
     }
 
-    inline bool setFocus(const bool &focus)
+    inline bool setFocus(bool focus)
     {
         bool flashChanged = false;
         flashChanged |= setFocus(verticalScrollBar, focus);
@@ -183,7 +183,7 @@ public:
         return flashChanged;
     }
 
-    inline bool setViewPortIntraction(QPointer<ScrollBar> scrollBar, const bool &hovered)
+    inline bool setViewPortIntraction(const QPointer<ScrollBar> &scrollBar, bool hovered)
     {
         if (!canSetTransientProperty(scrollBar))
             return false;
@@ -191,7 +191,7 @@ public:
         return scrollBar->setViewPortInteraction(hovered);
     }
 
-    inline bool setViewPortIntraction(const bool &hovered)
+    inline bool setViewPortIntraction(bool hovered)
     {
         bool interactionChanged = false;
         interactionChanged |= setViewPortIntraction(verticalScrollBar, hovered);
@@ -432,7 +432,7 @@ bool ScrollBar::event(QEvent *event)
     return QScrollBar::event(event);
 }
 
-bool ScrollBar::setFocused(const bool &focused)
+bool ScrollBar::setFocused(bool focused)
 {
     if (d->focused == focused)
         return false;
@@ -447,7 +447,7 @@ bool ScrollBar::setFocused(const bool &focused)
     return true;
 }
 
-bool ScrollBar::setAdjacentVisible(const bool &visible)
+bool ScrollBar::setAdjacentVisible(bool visible)
 {
     if (d->adjacentVisible == visible)
         return false;
@@ -457,7 +457,7 @@ bool ScrollBar::setAdjacentVisible(const bool &visible)
     return true;
 }
 
-bool ScrollBar::setAdjacentHovered(const bool &hovered)
+bool ScrollBar::setAdjacentHovered(bool hovered)
 {
     if (d->adjacentHovered == hovered)
         return false;
@@ -467,7 +467,7 @@ bool ScrollBar::setAdjacentHovered(const bool &hovered)
     return true;
 }
 
-bool ScrollBar::setViewPortInteraction(const bool &hovered)
+bool ScrollBar::setViewPortInteraction(bool hovered)
 {
     if (d->viewPortIntraction == hovered)
         return false;
