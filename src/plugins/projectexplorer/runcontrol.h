@@ -163,6 +163,11 @@ public:
     bool isRunning() const;
     bool isStopped() const;
 
+    // Set by AppOutputPane: true while this run's output is the one the user
+    // is actually looking at (its tab is current and the pane is visible).
+    void setOutputVisible(bool visible);
+    bool isOutputVisible() const;
+
     void setIcon(const Utils::Icon &icon);
     Utils::Icon icon() const;
 
@@ -274,6 +279,7 @@ signals:
     void stopped();
     void applicationProcessHandleChanged(QPrivateSignal);
     void stdOutData(const QByteArray &data);
+    void outputVisibilityChanged(bool visible);
 
 private:
     void setDevice(const IDeviceConstPtr &device);

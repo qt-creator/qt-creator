@@ -101,6 +101,7 @@ private:
     void stopRunControl();
     void attachToRunControl();
     void tabChanged(int);
+    void updateOutputVisibility();
     void contextMenuRequested(const QPoint &pos);
     void runControlFinished(RunControl *runControl);
 
@@ -153,6 +154,7 @@ private:
     void updateFilter() final;
     const QList<Core::OutputWindow *> outputWindows() const final;
     void ensureWindowVisible(Core::OutputWindow *ow) final;
+    void visibilityChanged(bool visible) final;
 
     TabWidget *m_tabWidget;
     QList<RunControlTab> m_runControlTabs;
@@ -167,6 +169,7 @@ private:
     QToolButton * const m_settingsButton;
     QWidget *m_formatterWidget;
     ShowOutputTaskHandler * const m_handler;
+    bool m_paneVisible = false;
 };
 
 AppOutputPane &appOutputPane();

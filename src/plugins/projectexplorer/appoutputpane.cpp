@@ -957,6 +957,8 @@ void AppOutputPane::prepareRunControlStart(RunControl *runControl)
     createNewOutputWindow(runControl);
     flash(); // one flash for starting
     showTabFor(runControl);
+    // Tab reuse swaps the run control in without a currentChanged: reseed.
+    updateOutputVisibility();
     Id runMode = runControl->runMode();
     const auto popupMode = runMode == Constants::NORMAL_RUN_MODE
             ? settings().runOutputMode.itemValue().value<AppOutputPaneMode>()
@@ -1176,6 +1178,23 @@ void AppOutputPane::tabChanged(int i)
         enableButtons(controlTab->runControl);
     } else {
         enableDefaultButtons();
+    }
+
+    updateOutputVisibility();
+}
+
+void AppOutputPane::visibilityChanged(bool visible)
+{
+    m_paneVisible = visible;
+    updateOutputVisibility();
+}
+
+void AppOutputPane::updateOutputVisibility()
+{
+    const RunControlTab * const current = currentTab();
+    for (const RunControlTab &tab : std::as_const(m_runControlTabs)) {
+        if (tab.runControl)
+            tab.runControl->setOutputVisible(m_paneVisible && &tab == current);
     }
 }
 

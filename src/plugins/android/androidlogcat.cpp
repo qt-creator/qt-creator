@@ -28,6 +28,7 @@
 #include <QHash>
 #include <QObject>
 #include <QPointer>
+#include <QTimer>
 
 using namespace Utils;
 using namespace Core;
@@ -45,16 +46,18 @@ public:
     {}
     ~LogcatStream() override;
 
-    void start();
-    void stop();
-
     RunControl *tab() const { return m_tabContext.tab; }
     void attachTab(RunControl *tab);
 
 private:
+    void start();
+    void stop();
+    void setStreaming(bool streaming);
+
     struct TabContext
     {
         QPointer<RunControl> tab;
+        bool streaming = false;
     };
 
     void onTabDestroyed();
@@ -78,7 +81,6 @@ static QHash<Id, LogcatStream *> &streamRegistry()
 
 LogcatStream::~LogcatStream()
 {
-    stop();
     auto &reg = streamRegistry();
     if (reg.value(m_device->id()) == this)
         reg.remove(m_device->id());
@@ -90,19 +92,33 @@ void LogcatStream::attachTab(RunControl *tab)
     m_tabContext = {};
     m_tabContext.tab = tab;
     tab->setDisplayName(m_device->displayNameWithSerial());
+    QObject::connect(tab, &RunControl::outputVisibilityChanged,
+                     this, &LogcatStream::setStreaming);
     QObject::connect(tab, &QObject::destroyed, this, [this] { onTabDestroyed(); });
+    setStreaming(tab->isOutputVisible());
 }
 
 void LogcatStream::onTabDestroyed()
 {
     m_tabContext = {};
-    stop();
     streamRegistry().remove(m_device->id());
     deleteLater();
 }
 
+void LogcatStream::setStreaming(bool streaming)
+{
+    if (!m_tabContext.tab)
+        return;
+    if (streaming == m_tabContext.streaming)
+        return;
+    m_tabContext.streaming = streaming;
+    streaming ? start() : stop();
+}
+
 void LogcatStream::start()
 {
+    if (m_task)
+        return;
     m_serial = m_device->serialNumber();
     if (m_serial.isEmpty())
         return;
@@ -127,12 +143,19 @@ void LogcatStream::start()
 
 void LogcatStream::stop()
 {
-    m_task.reset();
+    // Deleting the tree kills the tail. Defer that past this event loop
+    // pass: a synchronous kill can race the tail's in-flight output.
+    // The tab's visibility flickers while the pane rearranges: only tear
+    // down if streaming stayed off.
+    QTimer::singleShot(0, this, [this] {
+        if (!m_tabContext.streaming)
+            m_task.reset();
+    });
 }
 
 static LogcatStream *ensureStream(const AndroidDevice::ConstPtr &device)
 {
-    if (!device || device->serialNumber().isEmpty())
+    if (!device)
         return nullptr;
     const auto id = device->id();
     auto &reg = streamRegistry();
@@ -152,7 +175,6 @@ static RunControl *openLogcatTabForStream(LogcatStream *logcatStream)
     auto *runControl = new RunControl(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     runControl->setPromptToStop([](bool *) { return true; });
     logcatStream->attachTab(runControl);
-    logcatStream->start();
 
     runControl->setRunRecipe(QBarrierTask([](QBarrier &) {}).withCancel([runControl] {
         return makeObjectSignal(runControl, &RunControl::canceled);
@@ -176,11 +198,11 @@ void showLogcatTab(const AndroidDevice::ConstPtr &device)
     if (!stream)
         return;
     RunControl *tab = openLogcatTabForStream(stream);
-    if (tab) {
-        if (!OutputPanePlaceHolder::getCurrent())
-            ModeManager::activateMode(Core::Constants::MODE_EDIT);
-        tab->showOutputPane();
-    }
+    if (!tab || tab->isOutputVisible())
+        return;
+    if (!OutputPanePlaceHolder::getCurrent())
+        ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    tab->showOutputPane();
 }
 
 } // namespace Android::Internal
