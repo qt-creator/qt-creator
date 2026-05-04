@@ -1553,8 +1553,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    ICore::saveSettings(ICore::MainWindowClosing);
-
     // Save opened files
     if (!DocumentManager::saveAllModifiedDocuments()) {
         cancelClose();
@@ -1571,6 +1569,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     emit m_core->coreAboutToClose();
 
+    ICore::saveSettings(ICore::MainWindowClosing);
     d->saveWindowSettings();
 
     d->m_leftNavigationWidget->closeSubWidgets();

@@ -29,7 +29,6 @@ public:
 
     void initialize() final;
     void extensionsInitialized() final;
-    ShutdownFlag aboutToShutdown() final;
     bool delayedInitialize() override;
 
 public:
@@ -61,8 +60,6 @@ private:
     ModeStyle activeModeSidebar();
     void updateStateIcons();
     void updateContentEditorWidth();
-    void readUserSettings();
-    void restoreUserSettings();
 
 private:
     bool m_distractionFreeModeActive = false;
@@ -76,6 +73,7 @@ private:
     QPointer<QAction> m_toggleRightSidebarAction;
     bool m_prevLeftSidebarState = false;
     bool m_prevRightSidebarState = false;
+    unsigned int m_prevEditorContentWidth = 100;
 
     std::vector<QPointer<QAction>> m_toggleModesStatesActions;
     ModeStyle m_prevModesSidebarState = Hidden;
@@ -85,20 +83,10 @@ private:
     QPointer<QMainWindow> m_window;
     QPointer<QMenuBar> m_menuBar;
 
-
     QLabel m_zenModeStatusBarIcon;
     QLabel m_distractionModeStatusBarIcon;
     QString m_activeModeStyleSheet;
     QString m_inactiveModeStyleSheet;
-
-    struct UserSettings {
-        bool fullScreenState = false;
-        bool leftSidebarState = false;
-        bool rightSidebarState = false;
-        bool menuBarState = false;
-        unsigned int modesSidebarState = 0;
-        unsigned int editorContentWidth = 100;
-    } m_userSettings;
 };
 
 } // namespace ZenMode::Internal

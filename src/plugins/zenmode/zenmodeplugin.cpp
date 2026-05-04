@@ -52,47 +52,17 @@ void ZenModePlugin::initialize()
         .setDefaultKeySequence(Tr::tr("Shift+Alt+Z"))
         .addOnTriggered(this, &ZenModePlugin::toggleZenMode)
         .contextAction();
+
+    connect(ICore::instance(), &ICore::coreAboutToClose, [this] {
+        if (m_zenModeActive)
+            toggleZenMode();
+        else if (m_distractionFreeModeActive)
+            toggleDistractionFreeMode();
+    });
 }
 
 void ZenModePlugin::settingsChanged()
 { }
-
-void ZenModePlugin::readUserSettings()
-{
-    m_userSettings.menuBarState = m_menuBar ? m_menuBar->isVisible() : true;
-    m_userSettings.fullScreenState = m_window->isFullScreen();
-    m_userSettings.leftSidebarState =
-            (m_toggleLeftSidebarAction && m_toggleLeftSidebarAction->isChecked());
-    m_userSettings.rightSidebarState =
-            (m_toggleRightSidebarAction && m_toggleRightSidebarAction->isChecked());
-
-    m_userSettings.modesSidebarState = activeModeSidebar();
-
-    m_userSettings.editorContentWidth = TextEditor::marginSettings().centerEditorContentWidthPercent();
-}
-
-void ZenModePlugin::restoreUserSettings()
-{
-    if (m_menuBar)
-        m_menuBar->setVisible(m_userSettings.menuBarState);
-    if (m_userSettings.fullScreenState)
-        m_window->showFullScreen();
-    if (m_toggleLeftSidebarAction
-            && m_toggleLeftSidebarAction->isChecked() !=  m_userSettings.leftSidebarState)
-        m_toggleLeftSidebarAction->trigger();
-    if (m_toggleRightSidebarAction
-            && m_toggleRightSidebarAction->isChecked() !=  m_userSettings.rightSidebarState)
-        m_toggleRightSidebarAction->trigger();
-
-    if (m_userSettings.modesSidebarState >= ModeStyle::Hidden
-        && m_userSettings.modesSidebarState <= ModeStyle::IconsAndText) {
-        auto action = m_toggleModesStatesActions[m_userSettings.modesSidebarState];
-        if (action && !action->isChecked())
-            action->trigger();
-    }
-
-    TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(m_userSettings.editorContentWidth);
-}
 
 void ZenModePlugin::extensionsInitialized()
 {
@@ -100,18 +70,6 @@ void ZenModePlugin::extensionsInitialized()
         "ZY.ZenMode", Tr::tr("Zen Mode"), ":/zenmode/images/settingscategory_zenmode.png");
     QObject::connect(&settings(), &Utils::AspectContainer::applied,
                      this, &ZenModePlugin::settingsChanged);
-
-    auto userEditorContentWidth = [this] {
-        if (!(m_zenModeActive || m_distractionFreeModeActive))
-            m_userSettings.editorContentWidth =
-                TextEditor::marginSettings().centerEditorContentWidthPercent();
-    };
-
-    QObject::connect(
-        &TextEditor::marginSettings(),
-        &TextEditor::MarginSettings::changed,
-        this,
-        userEditorContentWidth);
 
     m_activeModeStyleSheet = "QLabel { color: #2ecc71; "
             "font-weight: bold; font-size: 14px;}";
@@ -145,18 +103,10 @@ bool ZenModePlugin::delayedInitialize()
     QMenuBar *menuBar = ActionManager::actionContainer(Core::Constants::MENU_BAR)->menuBar();
     m_menuBar = !menuBar->isNativeMenuBar() ? menuBar : nullptr;
 
-    readUserSettings();
-
     if (m_menuBar)
         m_menuBar->setVisible(true);
     setFullScreenMode(false);
     return true;
-}
-
-ZenModePlugin::ShutdownFlag ZenModePlugin::aboutToShutdown()
-{
-    restoreUserSettings();
-    return SynchronousShutdown;
 }
 
 void ZenModePlugin::getActions()
@@ -207,13 +157,11 @@ void ZenModePlugin::restoreSidebars()
     if (m_toggleLeftSidebarAction &&
         !m_toggleLeftSidebarAction->isChecked() &&
         m_prevLeftSidebarState) {
-        m_prevLeftSidebarState = false;
         m_toggleLeftSidebarAction->trigger();
     }
     if (m_toggleRightSidebarAction &&
         !m_toggleRightSidebarAction->isChecked() &&
         m_prevRightSidebarState) {
-        m_prevRightSidebarState = false;
         m_toggleRightSidebarAction->trigger();
     }
 }
@@ -276,9 +224,12 @@ void ZenModePlugin::updateStateIcons()
 void ZenModePlugin::updateContentEditorWidth()
 {
     if (m_zenModeActive || m_distractionFreeModeActive) {
-        TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(settings().contentWidth.value());
+        m_prevEditorContentWidth = TextEditor::marginSettings().centerEditorContentWidthPercent();
+        TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(
+            settings().contentWidth.value());
     } else {
-        TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(m_userSettings.editorContentWidth);
+        TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(
+            m_prevEditorContentWidth);
     }
 }
 
