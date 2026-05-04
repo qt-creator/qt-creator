@@ -28,6 +28,7 @@ public:
         QStringList backendFlags;
 
         bool operator==(const ToolchainTarget &other) const;
+        friend size_t qHash(const ToolchainTarget &target, size_t seed);
     };
     Utils::FilePath developerPath;
     Utils::FilePath cxxCompilerPath;
@@ -37,10 +38,8 @@ public:
 
     // ignores anything besides name
     bool operator==(const XcodePlatform &other) const;
+    friend size_t qHash(const XcodePlatform &platform, size_t seed);
 };
-
-size_t qHash(const XcodePlatform &platform);
-size_t qHash(const XcodePlatform::ToolchainTarget &target);
 
 class XcodeProbe
 {

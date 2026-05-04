@@ -552,9 +552,9 @@ QDebug operator <<(QDebug debug, const ServerNodeInstance &instance)
     return debug.space();
 }
 
-ServerNodeInstance::QHashValueType qHash(const ServerNodeInstance &instance)
+size_t qHash(const ServerNodeInstance &instance, size_t seed)
 {
-    return ::qHash(instance.instanceId());
+    return ::qHash(instance.instanceId(), seed);
 }
 
 bool operator ==(const ServerNodeInstance &first, const ServerNodeInstance &second)

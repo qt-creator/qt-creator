@@ -62,13 +62,14 @@ ProjectExplorer::Task Diagnostic::asTask() const
     return t;
 }
 
-size_t qHash(const Diagnostic &diagnostic)
+size_t qHash(const Diagnostic &diagnostic, size_t seed)
 {
-    return qHash(diagnostic.name)
-         ^ qHash(diagnostic.description)
-         ^ qHash(diagnostic.location.targetFilePath)
-         ^ diagnostic.location.target.line
-         ^ diagnostic.location.target.column;
+    return qHashMulti(seed,
+                      diagnostic.name,
+                      diagnostic.description,
+                      diagnostic.location.targetFilePath,
+                      diagnostic.location.target.line,
+                      diagnostic.location.target.column);
 }
 
 bool operator==(const Diagnostic &lhs, const Diagnostic &rhs)

@@ -27,7 +27,8 @@ namespace qmt {
 
 namespace {
 
-struct IconKey {
+struct IconKey
+{
     IconKey(StereotypeIcon::Element element, const QStringList &stereotypes, const FilePath &defaultIconPath,
             const Uid &styleUid, const QSize &size, const QMarginsF &margins, qreal lineWidth)
         : m_element(element),
@@ -50,9 +51,9 @@ struct IconKey {
                 && lhs.m_lineWidth == rhs.m_lineWidth;
     }
 
-    friend size_t qHash(const IconKey &key) {
-        return ::qHash(key.m_element) + qHash(key.m_stereotypes) + qHash(key.m_defaultIconPath)
-                + qHash(key.m_styleUid) + ::qHash(key.m_size.width()) + ::qHash(key.m_size.height());
+    friend size_t qHash(const IconKey &key, size_t seed) {
+        return qHashMulti(seed, key.m_element, key.m_stereotypes, key.m_defaultIconPath,
+                          key.m_styleUid, key.m_size.width(), key.m_size.height());
     }
 
     const StereotypeIcon::Element m_element;

@@ -36,7 +36,7 @@ public:
     {}
 
 private:
-    friend size_t qHash(const ImportCacheKey &);
+    friend size_t qHash(const ImportCacheKey &, size_t seed);
     friend bool operator==(const ImportCacheKey &, const ImportCacheKey &);
 
     int m_type;
@@ -45,10 +45,9 @@ private:
     int m_minorVersion;
 };
 
-size_t qHash(const ImportCacheKey &info)
+size_t qHash(const ImportCacheKey &info, size_t seed)
 {
-    return ::qHash(info.m_type) ^ ::qHash(info.m_path) ^
-            ::qHash(info.m_majorVersion) ^ ::qHash(info.m_minorVersion);
+    return qHashMulti(seed, info.m_type, info.m_path, info.m_majorVersion, info.m_minorVersion);
 }
 
 bool operator==(const ImportCacheKey &i1, const ImportCacheKey &i2)

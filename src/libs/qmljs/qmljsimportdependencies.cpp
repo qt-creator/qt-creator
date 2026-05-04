@@ -480,10 +480,9 @@ QString ImportKey::toString() const
     return res;
 }
 
-size_t qHash(const ImportKey &info)
+size_t qHash(const ImportKey &info, size_t seed)
 {
-    size_t res = ::qHash(info.type) ^
-            ::qHash(info.majorVersion) ^ ::qHash(info.minorVersion);
+    size_t res = qHashMulti(seed, info.type, info.majorVersion, info.minorVersion);
     for (const QString &s : std::as_const(info.splitPath))
         res = res ^ ::qHash(s);
     return res;

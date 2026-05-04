@@ -41,13 +41,13 @@ public:
     bool operator == (const LookupItem &other) const;
     bool operator != (const LookupItem &other) const;
 
+    friend size_t qHash(const CPlusPlus::LookupItem &result, size_t seed);
+
 private:
     FullySpecifiedType _type;
     Scope *_scope;
     Symbol *_declaration;
     ClassOrNamespace *_binding;
 };
-
-size_t qHash(const CPlusPlus::LookupItem &result);
 
 } // namespace CPlusPlus

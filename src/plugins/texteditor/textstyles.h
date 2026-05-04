@@ -12,7 +12,8 @@
 namespace TextEditor {
 using MixinTextStyles = Utils::SizedArray<TextStyle, 6>;
 
-struct TextStyles {
+struct TextStyles
+{
     TextStyle mainStyle = C_TEXT;
     MixinTextStyles mixinStyles;
 

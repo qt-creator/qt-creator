@@ -188,6 +188,11 @@ public:
 
     explicit operator QString() const noexcept { return toQString(); }
 
+    friend size_t qHash(const BasicSmallString &string, size_t seed)
+    {
+        return qHashBits(string.data(), string.size(), seed);
+    }
+
     explicit
     operator std::string() const
     {

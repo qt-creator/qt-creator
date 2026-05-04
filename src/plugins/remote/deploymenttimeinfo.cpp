@@ -29,11 +29,14 @@ const char LastDeployedRemoteTimesKey[] = "RemoteLinux.LastDeployedRemoteTimes";
 class DeployParameters
 {
 public:
-    bool operator==(const DeployParameters &other) const {
+    bool operator==(const DeployParameters &other) const
+    {
         return file == other.file &&  host == other.host &&  sysroot == other.sysroot;
     }
-    friend size_t qHash(const DeployParameters &p) {
-        return qHash(qMakePair(qMakePair(p.file, p.host), p.sysroot));
+
+    friend size_t qHash(const DeployParameters &p, size_t seed)
+    {
+        return qHashMulti(seed, p.file, p.host, p.sysroot);
     }
 
     DeployableFile file;

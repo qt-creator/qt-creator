@@ -47,12 +47,12 @@ bool operator==(const RelationVisuals &lhs, const RelationVisuals &rhs)
            && lhs.isEmphasized() == rhs.isEmphasized();
 }
 
-size_t qHash(const RelationVisuals &relationVisuals)
+size_t qHash(const RelationVisuals &relationVisuals, size_t seed)
 {
-    return ::qHash(static_cast<int>(relationVisuals.visualObjectPrimaryRole()))
-           ^ ::qHash(static_cast<int>(relationVisuals.visualPrimaryRole()))
-           ^ ::qHash(static_cast<int>(relationVisuals.visualSecondaryRole()))
-           ^ ::qHash(relationVisuals.isEmphasized());
+    return qHashMulti(seed, static_cast<int>(relationVisuals.visualObjectPrimaryRole()),
+                      static_cast<int>(relationVisuals.visualPrimaryRole()),
+                      static_cast<int>(relationVisuals.visualSecondaryRole()),
+                      relationVisuals.isEmphasized());
 }
 
 } // namespace qmt

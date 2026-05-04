@@ -24,6 +24,7 @@ struct SubArray
     inline SubArray(const QByteArray &a, int from, int len):array(a), from(from), len(len){}
     QByteArray array;
     int from, len;
+
     inline bool operator==(const SubArray &other) const {
         if (len != other.len)
             return false;
@@ -32,13 +33,12 @@ struct SubArray
                 return false;
         return true;
     }
+
+    inline friend size_t qHash(const SubArray &key, size_t seed)
+    {
+        return qHash(QLatin1String(key.array.constData() + key.from, key.len), seed);
+    }
 };
-
-inline size_t qHash(const SubArray &key)
-{
-    return qHash(QLatin1String(key.array.constData() + key.from, key.len));
-}
-
 
 struct Symbol
 {

@@ -11,9 +11,9 @@ bool Diagnostic::operator==(const Diagnostic &r) const
            == std::tie(r.severity, r.message, r.fileName, r.lineNumber);
 }
 
-size_t qHash(const Diagnostic &diagnostic)
+size_t qHash(const Diagnostic &diagnostic, size_t seed)
 {
-    return qHash(diagnostic.message) ^ qHash(diagnostic.fileName) ^ diagnostic.lineNumber;
+    return qHashMulti(seed, diagnostic.message, diagnostic.fileName, diagnostic.lineNumber);
 }
 
 } // namespace Cppcheck

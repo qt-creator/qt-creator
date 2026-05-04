@@ -30,10 +30,9 @@ void SearchResultItem::setMainRange(int line, int column, int length)
     m_mainRange = {{line, column}, {line, column + length}};
 }
 
-QTCREATOR_UTILS_EXPORT size_t qHash(SearchResultColor::Style style, uint seed)
+QTCREATOR_UTILS_EXPORT size_t qHash(SearchResultColor::Style style, size_t seed)
 {
-    int a = int(style);
-    return ::qHash(a, seed);
+    return qHashMulti(seed, int(style));
 }
 
 bool SearchResultItem::operator==(const SearchResultItem &other) const

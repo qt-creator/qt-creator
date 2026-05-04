@@ -25,7 +25,7 @@ class CMakeFileInfo
 {
 public:
     bool operator==(const CMakeFileInfo& other) const { return path == other.path; }
-    friend size_t qHash(const CMakeFileInfo &info, uint seed = 0) { return qHash(info.path, seed); }
+    friend size_t qHash(const CMakeFileInfo &info, size_t seed = 0) { return qHash(info.path, seed); }
 
     bool operator<(const CMakeFileInfo &other) const { return path < other.path; }
 

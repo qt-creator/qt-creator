@@ -45,9 +45,9 @@ public:
         return !(location1 == location2);
     }
 
-    friend size_t qHash(const QmlEventLocation &location)
+    friend size_t qHash(const QmlEventLocation &location, size_t seed)
     {
-        return qHash(location.filename())
+        return qHash(location.filename(), seed)
                 ^ ((location.line() & 0xfff)                   // 12 bits of line number
                    | ((location.column() << 16) & 0xff0000));  // 8 bits of column
 

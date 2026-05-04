@@ -105,9 +105,9 @@ public:
     Model *model() const;
     AbstractView *view() const;
 
-    friend size_t qHash(const AbstractProperty &property)
+    friend size_t qHash(const AbstractProperty &property, size_t seed = 0)
     {
-        return ::qHash(property.m_internalNode.get()) ^ ::qHash(property.m_propertyName);
+        return qHashMulti(seed, property.m_internalNode.get(), property.m_propertyName);
     }
 
     friend bool operator==(const AbstractProperty &first, const AbstractProperty &second)

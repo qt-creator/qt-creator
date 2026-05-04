@@ -30,17 +30,17 @@ public:
     }
 
 private:
+    //! qHash overload for QHash/QSet
+    friend inline size_t qHash(const ClassView::Internal::SymbolLocation &location, size_t seed)
+    {
+        return qHash(location.hash(), seed);
+    }
+
     const Utils::FilePath m_fileName;
     const int m_line;
     const int m_column;
     const size_t m_hash; // precalculated hash value - to speed up qHash
 };
-
-//! qHash overload for QHash/QSet
-inline size_t qHash(const ClassView::Internal::SymbolLocation &location)
-{
-    return location.hash();
-}
 
 } // ClassView::Internal
 

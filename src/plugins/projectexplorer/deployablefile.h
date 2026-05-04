@@ -37,7 +37,10 @@ public:
         return d1.localFilePath() == d2.localFilePath() && d1.remoteDirectory() == d2.remoteDirectory();
     }
 
-    friend PROJECTEXPLORER_EXPORT size_t qHash(const DeployableFile &d);
+    friend size_t qHash(const DeployableFile &d, size_t seed = 0)
+    {
+        return qHashMulti(seed, d.localFilePath(), d.remoteDirectory());
+    }
 
 private:
     Utils::FilePath m_localFilePath;

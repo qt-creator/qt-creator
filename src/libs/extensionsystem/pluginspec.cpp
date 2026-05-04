@@ -135,12 +135,12 @@ namespace ExtensionSystem {
 */
 
 /*!
-    \fn uint ExtensionSystem::qHash(const ExtensionSystem::PluginDependency &value)
+    \fn size_t ExtensionSystem::qHash(const ExtensionSystem::PluginDependency &value, size_t seed)
     \internal
 */
-size_t qHash(const PluginDependency &value)
+size_t qHash(const PluginDependency &value, size_t seed)
 {
-    return qHash(value.id);
+    return qHash(value.id, seed);
 }
 
 /*!

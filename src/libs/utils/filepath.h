@@ -393,7 +393,7 @@ private:
     QTCREATOR_UTILS_EXPORT friend bool operator>(const FilePath &first, const FilePath &second);
     QTCREATOR_UTILS_EXPORT friend bool operator>=(const FilePath &first, const FilePath &second);
 
-    QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a, uint seed);
+    QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a, size_t seed);
     QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a);
 
     QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const FilePath &c);
@@ -453,6 +453,11 @@ public:
     void setSchemeAndHost(const FilePath &deviceRoot);
 
     std::vector<Utils::Result<std::unique_ptr<FilePathWatcher>>> watch() const;
+
+    friend size_t qHash(const FilePaths &filePaths, size_t seed)
+    {
+        return qHashRange(filePaths.cbegin(), filePaths.cend(), seed);
+    }
 };
 
 //! A Range that iterates over the specified path and its parent directories. Optionally only up to "last".

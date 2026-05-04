@@ -34,9 +34,6 @@ static Q_LOGGING_CATEGORY(log, "qtc.modeleditor.modelindexer", QtWarningMsg)
 
 class QueuedFile
 {
-    friend size_t qHash(const QueuedFile &queuedFile);
-    friend bool operator==(const QueuedFile &lhs, const QueuedFile &rhs);
-
 public:
     QueuedFile() = default;
 
@@ -57,20 +54,20 @@ public:
     QDateTime lastModified() const { return m_lastModified; }
 
 private:
+    friend size_t qHash(const QueuedFile &queuedFile, size_t seed)
+    {
+        return qHashMulti(seed, queuedFile.m_file, queuedFile.m_project);
+    }
+
+    friend bool operator==(const QueuedFile &lhs, const QueuedFile &rhs)
+    {
+        return lhs.m_file == rhs.m_file && lhs.m_project == rhs.m_project;
+    }
+
     QString m_file;
     Project *m_project = nullptr;
     QDateTime m_lastModified;
 };
-
-bool operator==(const QueuedFile &lhs, const QueuedFile &rhs)
-{
-    return lhs.m_file == rhs.m_file && lhs.m_project == rhs.m_project;
-}
-
-size_t qHash(const QueuedFile &queuedFile)
-{
-    return qHash(queuedFile.m_project) + qHash(queuedFile.m_project);
-}
 
 class IndexedModel
 {

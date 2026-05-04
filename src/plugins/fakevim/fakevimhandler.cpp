@@ -2057,9 +2057,9 @@ public:
             << quoteUnprintable(m_text);
     }
 
-    friend size_t qHash(const Input &i)
+    friend size_t qHash(const Input &i, size_t seed)
     {
-        return ::qHash(i.m_key);
+        return qHashMulti(seed, i.m_key);
     }
 
 private:

@@ -37,7 +37,7 @@ public:
     QColor containingFunctionForeground;
 
 private:
-    QTCREATOR_UTILS_EXPORT friend size_t qHash(Style style, uint seed);
+    QTCREATOR_UTILS_EXPORT friend size_t qHash(Style style, size_t seed);
 };
 
 using SearchResultColors = QHash<SearchResultColor::Style, SearchResultColor>;
@@ -88,6 +88,11 @@ public:
     bool operator==(const SearchResultItem &other) const;
 
 private:
+    friend inline size_t qHash(const SearchResultItem &item, size_t seed = 0)
+    {
+        return qHashMulti(seed, item.mainRange().begin.line, item.mainRange().begin.column);
+    }
+
     std::optional<FilePath> m_filePath;
     QStringList m_path; // hierarchy to the parent item of this item
     QString m_lineText; // text to show for the item itself
@@ -101,11 +106,6 @@ private:
 };
 
 using SearchResultItems = QList<SearchResultItem>;
-
-inline size_t qHash(const SearchResultItem &item)
-{
-    return item.mainRange().begin.line << 16 | item.mainRange().begin.column;
-}
 
 } // namespace Utils
 

@@ -14,7 +14,8 @@
 
 namespace QmlDebug {
 
-class QMLDEBUG_EXPORT QmlEventType : public Timeline::TraceEventType {
+class QMLDEBUG_EXPORT QmlEventType : public Timeline::TraceEventType
+{
 public:
     static const qint32 staticClassId = 0x716d6c74; // 'qmlt';
 
@@ -35,9 +36,9 @@ private:
     friend QMLDEBUG_EXPORT QDataStream &operator>>(QDataStream &stream, QmlEventType &type);
     friend QMLDEBUG_EXPORT QDataStream &operator<<(QDataStream &stream, const QmlEventType &type);
 
-    friend size_t qHash(const QmlEventType &type)
+    friend size_t qHash(const QmlEventType &type, size_t seed)
     {
-        return qHash(type.location()) ^ qHash(type.data())
+        return qHash(type.location(), seed) ^ qHash(type.data())
             ^ (((type.message() << 12) & 0xf000)             // 4 bits of message
                | ((type.rangeType() << 24) & 0xf000000)      // 4 bits of rangeType
                | ((type.detailType() << 28) & 0xf0000000));  // 4 bits of detailType

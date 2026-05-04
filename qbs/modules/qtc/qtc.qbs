@@ -116,6 +116,7 @@ Module {
         "QT_WARN_DEPRECATED_BEFORE=0x060400",
         "QT_WARN_DEPRECATED_UP_TO=0x060400",
         "QT_USE_QSTRINGBUILDER",
+        "QT_NO_SINGLE_ARGUMENT_QHASH_OVERLOAD",
         "QT_NO_QSNPRINTF",
     ].concat(withPluginTests ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])

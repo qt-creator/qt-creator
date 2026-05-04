@@ -125,9 +125,9 @@ namespace Internal {
     return compareFullyQualifiedName(left.fqn, right.fqn);
 }
 
-[[maybe_unused]] static size_t qHash(const FullyQualifiedName &fullyQualifiedName)
+[[maybe_unused]] static size_t qHash(const FullyQualifiedName &fullyQualifiedName, size_t seed)
 {
-    size_t h = 0;
+    size_t h = seed;
     for (int i = 0; i < fullyQualifiedName.fqn.size(); ++i) {
         if (const Name *n = fullyQualifiedName.fqn.at(i)) {
             if (const Identifier *id = n->identifier()) {

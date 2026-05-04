@@ -59,7 +59,7 @@ public:
     [[nodiscard]] static QSet<Id> fromStringList(const QStringList &list);
     [[nodiscard]] static QStringList toStringList(const QSet<Id> &ids);
 
-    friend size_t qHash(Id id) { return static_cast<size_t>(id.m_id); }
+    friend size_t qHash(Id id, size_t seed = 0) { return qHashMulti(seed, id.m_id); }
     friend QTCREATOR_UTILS_EXPORT QDataStream &operator<<(QDataStream &ds, Id id);
     friend QTCREATOR_UTILS_EXPORT QDataStream &operator>>(QDataStream &ds, Id &id);
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Id &id);

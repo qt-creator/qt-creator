@@ -16,6 +16,7 @@
 namespace QmlDesigner {
 
 class Version;
+
 class QMLDESIGNERCORE_EXPORT Import
 {
     using Imports = QList<Import>;
@@ -91,7 +92,8 @@ private:
            const QStringList &importPaths,
            Type type);
 
-private:
+    QMLDESIGNERCORE_EXPORT friend size_t qHash(const Import &import, size_t seed);
+
     inline static const QString emptyString;
     QString m_url;
     QString m_version;
@@ -99,8 +101,6 @@ private:
     QStringList m_importPathList;
     Type m_type = Type::Empty;
 };
-
-QMLDESIGNERCORE_EXPORT size_t qHash(const Import &import);
 
 using Imports = QList<Import>;
 

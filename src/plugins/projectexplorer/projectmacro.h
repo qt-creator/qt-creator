@@ -46,10 +46,9 @@ public:
     static Macro fromKeyValue(const QByteArray &text);
     QByteArray toKeyValue(const QByteArray &prefix) const;
 
-    friend size_t qHash(const Macro &macro)
+    friend size_t qHash(const Macro &macro, size_t seed)
     {
-        using QT_PREPEND_NAMESPACE(qHash);
-        return qHash(macro.key) ^ qHash(macro.value) ^ qHash(int(macro.type));
+        return qHashMulti(seed, macro.key, macro.value, int(macro.type));
     }
 
     friend bool operator==(const Macro &first, const Macro &second)

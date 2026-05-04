@@ -170,14 +170,14 @@ public:
     static Abi hostAbi();
     static Abis abisOfBinary(const Utils::FilePath &path);
 
-    friend size_t qHash(const ProjectExplorer::Abi &abi)
+    friend size_t qHash(const Abi &abi, size_t seed)
     {
         int h = abi.architecture()
                 + (abi.os() << 3)
                 + (abi.osFlavor() << 6)
                 + (abi.binaryFormat() << 10)
                 + (abi.wordWidth() << 13);
-        return QT_PREPEND_NAMESPACE(qHash)(h);
+        return qHashMulti(seed, h);
     }
 
 private:

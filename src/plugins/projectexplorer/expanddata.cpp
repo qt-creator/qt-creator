@@ -5,8 +5,7 @@
 
 #include <QVariant>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer::Internal {
 
 ExpandData::ExpandData(const QString &path, const QString &rawDisplayName, int priority)
     : path(path)
@@ -36,7 +35,9 @@ QVariant ExpandData::toSettings() const
     return QVariantList{path, priority, rawDisplayName};
 }
 
-size_t ProjectExplorer::Internal::qHash(const ExpandData &data)
+size_t qHash(const ExpandData &data, size_t seed)
 {
-    return qHash(data.path) ^ qHash(data.rawDisplayName) ^ data.priority;
+    return qHashMulti(seed, data.path, data.rawDisplayName, data.priority);
 }
+
+} // namespace ProjectExplorer::Internal

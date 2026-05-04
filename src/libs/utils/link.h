@@ -36,7 +36,7 @@ private:
 
     QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const Link &link);
 
-    friend size_t qHash(const Link &l, uint seed = 0)
+    friend size_t qHash(const Link &l, size_t seed = 0)
     { return qHashMulti(seed, l.targetFilePath, l.target.line, l.target.column); }
 };
 

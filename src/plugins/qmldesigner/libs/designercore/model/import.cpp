@@ -167,9 +167,9 @@ int Import::minorFromVersion(const QString &version)
     return -1;
 }
 
-size_t qHash(const Import &import)
+size_t qHash(const Import &import, size_t seed)
 {
-    return ::qHash(import.url()) ^ ::qHash(import.file()) ^ ::qHash(import.version()) ^ ::qHash(import.alias());
+    return qHashMulti(seed, import.url(), import.file(), import.version(), import.alias());
 }
 
 Imports set_difference(const Imports &first, const Imports &second)

@@ -748,7 +748,7 @@ public:
     bool operator ==(const FakeMetaObjectWithOrigin &o) const;
 };
 
-QMLJS_EXPORT size_t qHash(const FakeMetaObjectWithOrigin &fmoo);
+QMLJS_EXPORT size_t qHash(const FakeMetaObjectWithOrigin &fmoo, size_t seed);
 
 class QMLJS_EXPORT CppQmlTypes
 {

@@ -93,12 +93,13 @@ public:
     bool isDirectoryLike() const;
     DirCompareInfo compareDir(const ImportKey &other) const;
     QString toString() const;
-};
 
-size_t qHash(const ImportKey &info);
-bool operator ==(const ImportKey &i1, const ImportKey &i2);
-bool operator !=(const ImportKey &i1, const ImportKey &i2);
-bool operator <(const ImportKey &i1, const ImportKey &i2);
+private:
+    friend size_t qHash(const ImportKey &info, size_t seed);
+    friend bool operator ==(const ImportKey &i1, const ImportKey &i2);
+    friend bool operator !=(const ImportKey &i1, const ImportKey &i2);
+    friend bool operator <(const ImportKey &i1, const ImportKey &i2);
+};
 
 class QMLJS_EXPORT Export
 {

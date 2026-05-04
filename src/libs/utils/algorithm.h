@@ -1696,12 +1696,12 @@ void addToHash(QHash<Key, T> *result, const QHash<Key, T> &additionalContents)
 }
 
 template <typename Tuple, std::size_t... I>
-static std::size_t tupleHashHelper(uint seed, const Tuple &tuple, std::index_sequence<I...>)
+static std::size_t tupleHashHelper(std::size_t seed, const Tuple &tuple, std::index_sequence<I...>)
 {
     return qHashMulti(seed, std::get<I>(tuple)...);
 }
 
-template<typename... T> std::size_t qHash(const std::tuple<T...> &tuple, uint seed = 0)
+template<typename... T> std::size_t qHash(const std::tuple<T...> &tuple, size_t seed = 0)
 {
     return tupleHashHelper(seed, tuple, std::make_index_sequence<sizeof...(T)>());
 }

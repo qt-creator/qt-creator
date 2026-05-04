@@ -65,7 +65,7 @@ private:
 
 inline size_t qHash(const DiagnosticMessage::Location &location, size_t seed)
 {
-    return ::qHashMulti(seed, location.line, location.position, location.length);
+    return qHashMulti(seed, location.line, location.position, location.length);
 }
 
 template <typename Type>

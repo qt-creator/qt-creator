@@ -18,6 +18,8 @@ public:
     }
     bool operator==(const Diagnostic& diagnostic) const;
 
+    friend size_t qHash(const Diagnostic &diagnostic, size_t seed);
+
     Severity severity = Severity::Information;
     QString severityText;
     QString checkId;
@@ -25,7 +27,5 @@ public:
     Utils::FilePath fileName;
     int lineNumber = 0;
 };
-
-size_t qHash(const Diagnostic &diagnostic);
 
 } // Cppcheck::Internal

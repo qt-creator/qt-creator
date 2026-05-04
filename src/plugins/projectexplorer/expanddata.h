@@ -19,11 +19,11 @@ public:
     static ExpandData fromSettings(const QVariant &v);
     QVariant toSettings() const;
 
+    friend size_t qHash(const ExpandData &data, size_t seed);
+
     QString path;
     QString rawDisplayName;
     int priority = 0;
 };
-
-size_t qHash(const ExpandData &data);
 
 } // namespace ProjectExplorer::Internal

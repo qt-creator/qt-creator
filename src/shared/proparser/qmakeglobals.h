@@ -31,7 +31,7 @@ class QMakeBaseKey
 public:
     QMakeBaseKey(const QString &_root, const QString &_stash, bool _hostBuild);
 
-    friend size_t qHash(const QMakeBaseKey &key);
+    friend size_t qHash(const QMakeBaseKey &key, size_t seed);
     friend bool operator==(const QMakeBaseKey &one, const QMakeBaseKey &two);
 
     QString root;

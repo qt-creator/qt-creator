@@ -36,7 +36,7 @@ private:
     std::variant<int, QString> m_value = QString();
 };
 
-LANGUAGESERVERPROTOCOL_EXPORT size_t qHash(const MessageId &id);
+LANGUAGESERVERPROTOCOL_EXPORT size_t qHash(const MessageId &id, size_t seed);
 
 struct LANGUAGESERVERPROTOCOL_EXPORT ResponseError
 {

@@ -13190,13 +13190,4 @@ BaseTextEditor *BaseTextEditor::duplicate()
 
 } // namespace TextEditor
 
-QT_BEGIN_NAMESPACE
-
-size_t qHash(const QColor &color)
-{
-    return color.rgba();
-}
-
-QT_END_NAMESPACE
-
 #include "texteditor.moc"

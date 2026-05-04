@@ -3911,7 +3911,7 @@ QTCREATOR_UTILS_EXPORT bool operator>=(const FilePath &first, const FilePath &se
     return !(first < second);
 }
 
-QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath, uint seed)
+QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath, size_t seed)
 {
     Q_UNUSED(seed)
 

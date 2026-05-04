@@ -30,13 +30,14 @@ public:
     void setEmphasized(bool emphasized);
 
 private:
+    friend bool operator==(const RelationVisuals &lhs, const RelationVisuals &rhs);
+
     DObject::VisualPrimaryRole m_visualObjectPrimaryRole = DObject::PrimaryRoleNormal;
     DRelation::VisualPrimaryRole m_visualPrimaryRole = DRelation::PrimaryRoleNormal;
     DRelation::VisualSecondaryRole m_visualSecondaryRole = DRelation::SecondaryRoleNone;
     bool m_isEmphasized = false;
 };
 
-bool operator==(const RelationVisuals &lhs, const RelationVisuals &rhs);
-size_t qHash(const RelationVisuals &relationVisuals);
+size_t qHash(const RelationVisuals &relationVisuals, size_t seed = 0);
 
 } // namespace qmt

@@ -158,9 +158,9 @@ bool FakeMetaObjectWithOrigin::operator ==(const FakeMetaObjectWithOrigin &o) co
     return fakeMetaObject == o.fakeMetaObject;
 }
 
-size_t qHash(const FakeMetaObjectWithOrigin &fmoo)
+size_t qHash(const FakeMetaObjectWithOrigin &fmoo, size_t seed)
 {
-    return qHash(fmoo.fakeMetaObject);
+    return qHashMulti(seed, fmoo.fakeMetaObject);
 }
 
 PropertyInfo::PropertyInfo(uint flags)

@@ -12,7 +12,8 @@
 
 namespace QmlJS {
 
-class QMLJS_EXPORT Dialect {
+class QMLJS_EXPORT Dialect
+{
 public:
     enum Enum
     {
@@ -47,11 +48,11 @@ public:
         return m_dialect;
     }
     void mergeLanguage(const Dialect &l2);
+
 private:
+    QMLJS_EXPORT friend size_t qHash(const Dialect &o, size_t seed);
     Enum m_dialect;
 };
-
-QMLJS_EXPORT size_t qHash(const Dialect &o);
 
 QMLJS_EXPORT QDebug operator << (QDebug &dbg, const Dialect &dialect);
 

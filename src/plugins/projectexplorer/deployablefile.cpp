@@ -29,9 +29,4 @@ bool DeployableFile::isExecutable() const
     return m_type == TypeExecutable;
 }
 
-size_t qHash(const DeployableFile &d)
-{
-    return qHash(qMakePair(d.localFilePath().toUrlishString(), d.remoteDirectory()));
-}
-
 } // namespace ProjectExplorer

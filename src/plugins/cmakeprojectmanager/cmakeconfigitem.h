@@ -49,7 +49,7 @@ public:
     QString toCMakeSetLine(const Utils::MacroExpander *expander = nullptr) const;
 
     bool operator==(const CMakeConfigItem &o) const;
-    friend size_t qHash(const CMakeConfigItem &it);  // needed for MSVC
+    friend size_t qHash(const CMakeConfigItem &it, size_t seed);  // needed for MSVC
 
     QByteArray key;
     Type type = STRING;

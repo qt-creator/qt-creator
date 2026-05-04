@@ -60,13 +60,14 @@ bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs)
             && lhs.depth() == rhs.depth();
 }
 
-size_t qHash(const ObjectVisuals &objectVisuals)
+size_t qHash(const ObjectVisuals &objectVisuals, size_t seed)
 {
-    return ::qHash(static_cast<int>(objectVisuals.visualPrimaryRole()))
-            ^ ::qHash(static_cast<int>(objectVisuals.visualSecondaryRole()))
-            ^ ::qHash(objectVisuals.isEmphasized())
-            ^ ::qHash(objectVisuals.baseColor().rgb())
-            ^ ::qHash(objectVisuals.depth());
+    return qHashMulti(seed,
+                      static_cast<int>(objectVisuals.visualPrimaryRole()),
+                      static_cast<int>(objectVisuals.visualSecondaryRole()),
+                      objectVisuals.isEmphasized(),
+                      objectVisuals.baseColor().rgb(),
+                      objectVisuals.depth());
 }
 
 } // namespace qmt

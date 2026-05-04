@@ -94,7 +94,7 @@ enum class Variable {
     QmakeCc,
     QmakeCxx
 };
-size_t qHash(Variable key, uint seed = 0);
+size_t qHash(Variable key, size_t seed = 0);
 
 namespace Internal {
 Q_DECLARE_LOGGING_CATEGORY(qmakeNodesLog)

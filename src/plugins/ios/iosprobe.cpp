@@ -132,14 +132,14 @@ bool XcodePlatform::operator==(const XcodePlatform &other) const
     return developerPath == other.developerPath;
 }
 
-size_t qHash(const XcodePlatform &platform)
+size_t qHash(const XcodePlatform &platform, size_t seed)
 {
-    return qHash(platform.developerPath);
+    return qHashMulti(seed, platform.developerPath);
 }
 
-size_t qHash(const XcodePlatform::ToolchainTarget &target)
+size_t qHash(const XcodePlatform::ToolchainTarget &target, size_t seed)
 {
-    return qHash(target.name);
+    return qHashMulti(seed, target.name);
 }
 
 bool XcodePlatform::ToolchainTarget::operator==(const XcodePlatform::ToolchainTarget &other) const
@@ -147,4 +147,4 @@ bool XcodePlatform::ToolchainTarget::operator==(const XcodePlatform::ToolchainTa
     return architecture == other.architecture;
 }
 
-}
+} // namespace Ios

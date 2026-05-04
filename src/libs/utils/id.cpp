@@ -51,9 +51,9 @@ public:
         }
     }
 
-    friend size_t qHash(const StringHolder &sh)
+    friend size_t qHash(const StringHolder &sh, size_t seed)
     {
-        return QT_PREPEND_NAMESPACE(qHash)(sh.h, 0);
+        return QT_PREPEND_NAMESPACE(qHash)(sh.h, seed);
     }
 
     friend bool operator==(const StringHolder &sh1, const StringHolder &sh2)

@@ -56,6 +56,11 @@ public:
     {
         return QUtf8StringView(data(), Utils::ssize(*this));
     }
+
+    friend size_t qHash(const SmallStringView &string, size_t seed)
+    {
+        return qHashBits(string.data(), string.size(), seed);
+    }
 };
 
 inline constexpr bool operator==(const SmallStringView &first, const SmallStringView &second)

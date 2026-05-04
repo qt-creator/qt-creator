@@ -30,9 +30,12 @@ public:
 
     int iconTypeSortOrder() const;
 
-    friend size_t qHash(const SymbolInformation &information) { return information.hash(); }
-
 private:
+    friend size_t qHash(const SymbolInformation &information, size_t seed)
+    {
+        return qHash(information.hash(), seed);
+    }
+
     const int m_iconType;
     const size_t m_hash;    // precalculated hash value - to speed up qHash
     const QString m_name;   // symbol name (e.g. SymbolInformation)

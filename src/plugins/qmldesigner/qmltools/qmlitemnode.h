@@ -148,7 +148,7 @@ public:
 
     bool isEffectItem(SL sl = {}) const;
 
-    friend size_t qHash(const QmlItemNode &node) { return qHash(node.modelNode()); }
+    friend size_t qHash(const QmlItemNode &node, size_t seed);
 };
 
 QMLDESIGNER_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &fxItemNodeList);

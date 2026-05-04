@@ -34,7 +34,7 @@ public:
     ProjectExplorer::Task asTask() const;
 
     friend bool operator==(const Diagnostic &lhs, const Diagnostic &rhs);
-    friend size_t qHash(const Diagnostic &diagnostic);
+    friend size_t qHash(const Diagnostic &diagnostic, size_t seed);
 
     QString name;
     QString description;

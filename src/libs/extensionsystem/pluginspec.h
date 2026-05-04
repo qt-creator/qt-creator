@@ -56,7 +56,7 @@ struct EXTENSIONSYSTEM_EXPORT PluginDependency
     QString toString() const;
 };
 
-size_t EXTENSIONSYSTEM_EXPORT qHash(const PluginDependency &value);
+size_t EXTENSIONSYSTEM_EXPORT qHash(const PluginDependency &value, size_t seed);
 
 struct EXTENSIONSYSTEM_EXPORT PluginArgumentDescription
 {

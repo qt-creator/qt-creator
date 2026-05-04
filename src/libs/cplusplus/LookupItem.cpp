@@ -9,13 +9,11 @@
 
 #include <QDebug>
 
-using namespace CPlusPlus;
+namespace CPlusPlus {
 
-size_t CPlusPlus::qHash(const LookupItem &key)
+size_t qHash(const LookupItem &key, size_t seed)
 {
-    const size_t h1 = QT_PREPEND_NAMESPACE(qHash)(key.type().type());
-    const size_t h2 = QT_PREPEND_NAMESPACE(qHash)(key.scope());
-    return ((h1 << 16) | (h1 >> 16)) ^ h2;
+    return qHashMulti(seed, key.type().type(), key.scope());
 }
 
 LookupItem::LookupItem()
@@ -67,3 +65,5 @@ bool LookupItem::operator == (const LookupItem &other) const
 
 bool LookupItem::operator != (const LookupItem &result) const
 { return ! operator == (result); }
+
+} // CPlusPlus

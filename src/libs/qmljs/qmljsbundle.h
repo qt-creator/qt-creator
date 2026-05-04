@@ -56,6 +56,7 @@ public:
     bool readFrom(QString path, bool stripVersions, QStringList *errors);
     bool operator==(const QmlBundle &o) const;
     bool operator!=(const QmlBundle &o) const;
+
 private:
     static void printEscaped(QTextStream &s, const QString &str);
     static void writeTrie(QTextStream &stream, const Trie &t, const QString &indent);
@@ -77,8 +78,9 @@ public:
     void mergeBundleForLanguage(Dialect l, const QmlBundle &bundle);
     const QList<Dialect> languages() const;
     void mergeLanguageBundles(const QmlLanguageBundles &);
+
 private:
-    QHash<Dialect,QmlBundle> m_bundles;
+    QHash<Dialect, QmlBundle> m_bundles;
 };
 
 } // namespace QmlJS

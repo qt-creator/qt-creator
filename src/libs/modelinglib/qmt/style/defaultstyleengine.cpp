@@ -58,19 +58,19 @@ public:
     {
     }
 
+    friend size_t qHash(const ObjectStyleKey &styleKey, size_t seed)
+    {
+        return qHashMulti(seed, styleKey.m_elementType, styleKey.m_objectVisuals);
+    }
+
+    friend bool operator==(const ObjectStyleKey &lhs, const ObjectStyleKey &rhs)
+    {
+        return lhs.m_elementType == rhs.m_elementType && lhs.m_objectVisuals == rhs.m_objectVisuals;
+    }
+
     StyleEngine::ElementType m_elementType = StyleEngine::TypeOther;
     ObjectVisuals m_objectVisuals;
 };
-
-[[maybe_unused]] static size_t qHash(const ObjectStyleKey &styleKey)
-{
-    return ::qHash(styleKey.m_elementType) ^ qHash(styleKey.m_objectVisuals);
-}
-
-[[maybe_unused]] static bool operator==(const ObjectStyleKey &lhs, const ObjectStyleKey &rhs)
-{
-    return lhs.m_elementType == rhs.m_elementType && lhs.m_objectVisuals == rhs.m_objectVisuals;
-}
 
 class RelationStyleKey
 {
@@ -83,22 +83,22 @@ public:
     {
     }
 
+    friend size_t qHash(const RelationStyleKey &styleKey, size_t seed)
+    {
+        return qHashMulti(seed, styleKey.m_elementType, styleKey.m_relationVisuals);
+    }
+
+    friend bool operator==(const RelationStyleKey &lhs, const RelationStyleKey &rhs)
+    {
+        return lhs.m_elementType == rhs.m_elementType
+               && lhs.m_relationVisuals == rhs.m_relationVisuals
+               && lhs.m_withObject == rhs.m_withObject;
+    }
+
     StyleEngine::ElementType m_elementType = StyleEngine::TypeOther;
     RelationVisuals m_relationVisuals;
     bool m_withObject = false;
 };
-
-[[maybe_unused]] static size_t qHash(const RelationStyleKey &styleKey)
-{
-    return ::qHash(styleKey.m_elementType) ^ qHash(styleKey.m_relationVisuals);
-}
-
-[[maybe_unused]] static bool operator==(const RelationStyleKey &lhs, const RelationStyleKey &rhs)
-{
-    return lhs.m_elementType == rhs.m_elementType
-           && lhs.m_relationVisuals == rhs.m_relationVisuals
-           && lhs.m_withObject == rhs.m_withObject;
-}
 
 class AnnotationStyleKey
 {
@@ -108,58 +108,58 @@ public:
     {
     }
 
+    friend size_t qHash(const AnnotationStyleKey &styleKey, size_t seed)
+    {
+        return qHashMulti(seed, styleKey.m_visualRole);
+    }
+
+    friend bool operator==(const AnnotationStyleKey &lhs, const AnnotationStyleKey &rhs)
+    {
+        return lhs.m_visualRole == rhs.m_visualRole;
+    }
+
     DAnnotation::VisualRole m_visualRole = DAnnotation::RoleNormal;
 };
-
-[[maybe_unused]] static size_t qHash(const AnnotationStyleKey &styleKey)
-{
-    return ::qHash(styleKey.m_visualRole);
-}
-
-[[maybe_unused]] static bool operator==(const AnnotationStyleKey &lhs, const AnnotationStyleKey &rhs)
-{
-    return lhs.m_visualRole == rhs.m_visualRole;
-}
 
 // TODO remove class if no attributes needed even with future extensions
 class BoundaryStyleKey
 {
+    friend size_t qHash(const BoundaryStyleKey &styleKey, size_t seed)
+    {
+        Q_UNUSED(styleKey)
+        Q_UNUSED(seed)
+
+        return ::qHash(1);
+    }
+
+    friend bool operator==(const BoundaryStyleKey &lhs, const BoundaryStyleKey &rhs)
+    {
+        Q_UNUSED(lhs)
+        Q_UNUSED(rhs)
+
+        return true;
+    }
 };
-
-[[maybe_unused]] static size_t qHash(const BoundaryStyleKey &styleKey)
-{
-    Q_UNUSED(styleKey)
-
-    return ::qHash(1);
-}
-
-[[maybe_unused]] static bool operator==(const BoundaryStyleKey &lhs, const BoundaryStyleKey &rhs)
-{
-    Q_UNUSED(lhs)
-    Q_UNUSED(rhs)
-
-    return true;
-}
 
 // TODO remove class if no attributes needed even with future extensions
 class SwimlaneStyleKey
 {
+    friend size_t qHash(const SwimlaneStyleKey &styleKey, size_t seed)
+    {
+        Q_UNUSED(styleKey)
+        Q_UNUSED(seed)
+
+        return ::qHash(1);
+    }
+
+    friend bool operator==(const SwimlaneStyleKey &lhs, const SwimlaneStyleKey &rhs)
+    {
+        Q_UNUSED(lhs)
+        Q_UNUSED(rhs)
+
+        return true;
+    }
 };
-
-[[maybe_unused]] static size_t qHash(const SwimlaneStyleKey &styleKey)
-{
-    Q_UNUSED(styleKey)
-
-    return ::qHash(1);
-}
-
-[[maybe_unused]] static bool operator==(const SwimlaneStyleKey &lhs, const SwimlaneStyleKey &rhs)
-{
-    Q_UNUSED(lhs)
-    Q_UNUSED(rhs)
-
-    return true;
-}
 
 DefaultStyleEngine::DefaultStyleEngine()
 {

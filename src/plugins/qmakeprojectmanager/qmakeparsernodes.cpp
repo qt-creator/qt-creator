@@ -51,7 +51,7 @@ namespace QmakeProjectManager {
 
 static Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing", QtWarningMsg);
 
-size_t qHash(Variable key, uint seed)
+size_t qHash(Variable key, size_t seed)
 {
     return QT_PREPEND_NAMESPACE(qHash)(static_cast<int>(key), seed);
 }

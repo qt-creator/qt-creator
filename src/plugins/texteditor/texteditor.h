@@ -833,9 +833,3 @@ private:
 };
 
 } // namespace TextEditor
-
-QT_BEGIN_NAMESPACE
-
-size_t qHash(const QColor &color);
-
-QT_END_NAMESPACE

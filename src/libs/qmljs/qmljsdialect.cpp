@@ -199,9 +199,9 @@ QList<Dialect> Dialect::companionLanguages() const
     return langs;
 }
 
-size_t qHash(const Dialect &o)
+size_t qHash(const Dialect &o, size_t seed)
 {
-    return size_t(o.dialect());
+    return qHashMulti(seed, o.dialect());
 }
 
 QDebug operator << (QDebug &dbg, const Dialect &dialect)

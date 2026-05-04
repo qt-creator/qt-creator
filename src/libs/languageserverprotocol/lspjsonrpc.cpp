@@ -38,9 +38,9 @@ bool MessageId::isValid() const
     return !id || !id->isEmpty();
 }
 
-size_t qHash(const MessageId &id)
+size_t qHash(const MessageId &id, size_t seed)
 {
-    return qHash(id.toString());
+    return qHash(id.toString(), seed);
 }
 
 ResponseError ResponseError::fromJsonObject(const QJsonObject &error)

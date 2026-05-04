@@ -133,9 +133,9 @@ bool FontSettingsData::equals(const FontSettingsData &f) const
             && m_scheme == f.m_scheme;
 }
 
-[[maybe_unused]] static size_t qHash(const TextStyle &textStyle)
+[[maybe_unused]] static size_t qHash(const TextStyle &textStyle, size_t seed)
 {
-    return ::qHash(quint8(textStyle));
+    return ::qHash(quint8(textStyle), seed);
 }
 
 static bool isOverlayCategory(TextStyle category)
@@ -189,9 +189,9 @@ QTextCharFormat FontSettingsData::toTextCharFormat(TextStyle category) const
     return tf;
 }
 
-[[maybe_unused]] static size_t qHash(TextStyles textStyles)
+[[maybe_unused]] static size_t qHash(TextStyles textStyles, size_t seed)
 {
-    return ::qHash(reinterpret_cast<quint64&>(textStyles));
+    return ::qHash(reinterpret_cast<quint64&>(textStyles), seed);
 }
 
 [[maybe_unused]] static bool operator==(const TextStyles &first, const TextStyles &second)

@@ -119,19 +119,19 @@ public:
     bool emphasized() const { return m_emphasized; }
     void setEmphasized(bool emphasized);
 
-    friend size_t qHash(CustomRelation::Relationship relationship) {
-        return ::qHash(static_cast<int>(relationship));
-    }
-
-    friend size_t qHash(CustomRelation::ShaftPattern pattern) {
-        return ::qHash(static_cast<int>(pattern));
-    }
-
-    friend size_t qHash(CustomRelation::Head head) {
-        return ::qHash(static_cast<int>(head));
-    }
-
 private:
+    friend size_t qHash(CustomRelation::Relationship relationship, size_t seed) {
+        return qHashMulti(seed, static_cast<int>(relationship));
+    }
+
+    friend size_t qHash(CustomRelation::ShaftPattern pattern, size_t seed) {
+        return qHashMulti(seed, static_cast<int>(pattern));
+    }
+
+    friend size_t qHash(CustomRelation::Head head, size_t seed) {
+        return qHashMulti(seed, static_cast<int>(head));
+    }
+
     Element m_element = Element::Relation;
     QString m_id;
     QString m_title;
