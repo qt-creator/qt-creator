@@ -4,26 +4,25 @@
 #include "externaltool.h"
 
 #include "coreplugintr.h"
+#include "documentmanager.h"
+#include "editormanager/editormanager.h"
 #include "externaltoolmanager.h"
 #include "icore.h"
 #include "idocument.h"
 #include "messagemanager.h"
-#include "documentmanager.h"
-#include "editormanager/editormanager.h"
 
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/globaltasktree.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QDateTime>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+using namespace QtTaskTree;
 using namespace Utils;
-using namespace Core::Internal;
 
 namespace Core {
 
@@ -543,138 +542,59 @@ bool ExternalTool::operator==(const ExternalTool &other) const
             && m_filePath == other.m_filePath;
 }
 
-// #pragma mark -- ExternalToolRunner
-
-ExternalToolRunner::ExternalToolRunner(const ExternalTool *tool)
-    : m_tool(new ExternalTool(tool)),
-      m_process(nullptr),
-      m_hasError(false)
+struct ExecuteData
 {
-    run();
-}
+    ExecuteData(const ExternalTool *tool) : m_tool(tool) {}
+    Result<> resolve();
+    void readStandardOutput(const QString &output);
+    void readStandardError(const QString &error);
 
-ExternalToolRunner::~ExternalToolRunner()
-{
-    if (m_tool)
-        delete m_tool;
-}
+    const ExternalTool m_tool;
+    FilePath m_resolvedExecutable;
+    QString m_resolvedArguments;
+    QString m_resolvedInput;
+    FilePath m_resolvedWorkingDirectory;
+    Environment m_resolvedEnvironment;
+    QString m_processOutput;
+    FilePath m_expectedFilePath;
+};
 
-bool ExternalToolRunner::hasError() const
+Result<> ExecuteData::resolve()
 {
-    return m_hasError;
-}
-
-QString ExternalToolRunner::errorString() const
-{
-    return m_errorString;
-}
-
-bool ExternalToolRunner::resolve()
-{
-    if (!m_tool)
-        return false;
-    m_resolvedExecutable.clear();
-    m_resolvedArguments.clear();
-    m_resolvedWorkingDirectory.clear();
-    m_resolvedEnvironment = m_tool->baseEnvironment();
+    m_resolvedEnvironment = m_tool.baseEnvironment();
 
     MacroExpander *expander = globalMacroExpander();
-    m_tool->environmentUserChanges().modifyEnvironment(m_resolvedEnvironment, expander);
+    m_tool.environmentUserChanges().modifyEnvironment(m_resolvedEnvironment, expander);
 
-    {
-        // executable
-        FilePaths expandedExecutables; /* for error message */
-        const FilePaths executables = m_tool->executables();
-        for (const FilePath &executable : executables) {
-            FilePath expanded = expander->expand(executable);
-            expandedExecutables.append(expanded);
-            m_resolvedExecutable = m_resolvedEnvironment.searchInPath(expanded.path());
-            if (!m_resolvedExecutable.isEmpty())
-                break;
+    FilePaths expandedExecutables; /* for error message */
+    const FilePaths executables = m_tool.executables();
+    for (const FilePath &executable : executables) {
+        FilePath expanded = expander->expand(executable);
+        expandedExecutables.append(expanded);
+        m_resolvedExecutable = m_resolvedEnvironment.searchInPath(expanded.path());
+        if (!m_resolvedExecutable.isEmpty())
+            break;
+    }
+    if (m_resolvedExecutable.isEmpty()) {
+        QString error;
+        for (int i = 0; i < expandedExecutables.size(); ++i) {
+            error += Tr::tr("Could not find executable for \"%1\" (expanded \"%2\")")
+            .arg(m_tool.executables().at(i).toUserOutput(),
+                 expandedExecutables.at(i).toUserOutput());
+            error += QLatin1Char('\n');
         }
-        if (m_resolvedExecutable.isEmpty()) {
-            m_hasError = true;
-            for (int i = 0; i < expandedExecutables.size(); ++i) {
-                m_errorString += Tr::tr("Could not find executable for \"%1\" (expanded \"%2\")")
-                        .arg(m_tool->executables().at(i).toUserOutput(),
-                             expandedExecutables.at(i).toUserOutput());
-                m_errorString += QLatin1Char('\n');
-            }
-            if (!m_errorString.isEmpty())
-                m_errorString.chop(1);
-            return false;
-        }
+        if (!error.isEmpty())
+            error.chop(1);
+        return ResultError(error);
     }
 
-    const Result<QString> args = expander->expandProcessArgs(m_tool->arguments());
-    QTC_ASSERT_RESULT(args, return false);
+    const Result<QString> args = expander->expandProcessArgs(m_tool.arguments());
+    QTC_ASSERT_RESULT(args, return ResultError(args.error()));
 
     m_resolvedArguments = *args;
-    m_resolvedInput = expander->expand(m_tool->input());
-    m_resolvedWorkingDirectory = expander->expand(m_tool->workingDirectory());
-
-    return true;
-}
-
-void ExternalToolRunner::run()
-{
-    if (!resolve()) {
-        deleteLater();
-        return;
-    }
-    if (m_tool->modifiesCurrentDocument()) {
-        if (IDocument *document = EditorManager::currentDocument()) {
-            m_expectedFilePath = document->filePath();
-            if (!DocumentManager::saveModifiedDocument(document)) {
-                deleteLater();
-                return;
-            }
-            DocumentManager::expectFileChange(m_expectedFilePath);
-        }
-    }
-    m_process = new Process(this);
-    connect(m_process, &Process::done, this, &ExternalToolRunner::done);
-    m_process->setStdOutLineCallback([this](const QString &s) { readStandardOutput(s); });
-    m_process->setStdErrLineCallback([this](const QString &s) { readStandardError(s); });
-    if (!m_resolvedWorkingDirectory.isEmpty())
-        m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
-    const CommandLine cmd{m_resolvedExecutable, m_resolvedArguments, CommandLine::Raw};
-    m_process->setCommand(cmd);
-    Environment env = m_resolvedEnvironment;
-    // force Qt to log to std streams, if it's not explicitly been set differently
-    if (!env.hasKey("QT_LOGGING_TO_CONSOLE"))
-        env.set("QT_LOGGING_TO_CONSOLE", "1");
-    if (!env.hasKey("QT_FORCE_STDERR_LOGGING"))
-        env.set("QT_FORCE_STDERR_LOGGING", "1");
-
-    m_process->setEnvironment(env);
-    const auto write = m_tool->outputHandling() == ExternalTool::ShowInPane
-                           ? QOverload<const QString &>::of(MessageManager::writeDisrupting)
-                           : QOverload<const QString &>::of(MessageManager::writeSilently);
-    write(Tr::tr("Starting external tool \"%1\"").arg(cmd.toUserOutput()));
-    if (!m_resolvedInput.isEmpty())
-        m_process->setWriteData(m_resolvedInput.toLocal8Bit());
-    m_process->start();
-}
-
-void ExternalToolRunner::done()
-{
-    if (m_process->result() == ProcessResult::FinishedWithSuccess
-            && (m_tool->outputHandling() == ExternalTool::ReplaceSelection
-                || m_tool->errorHandling() == ExternalTool::ReplaceSelection)) {
-        ExternalToolManager::emitReplaceSelectionRequested(m_processOutput);
-    }
-    const QString message = (m_process->result() == ProcessResult::FinishedWithSuccess)
-            ? Tr::tr("\"%1\" finished").arg(m_resolvedExecutable.toUserOutput())
-            : Tr::tr("\"%1\" finished with error").arg(m_resolvedExecutable.toUserOutput());
-
-    if (m_tool->modifiesCurrentDocument())
-        DocumentManager::unexpectFileChange(m_expectedFilePath);
-    const auto write = m_tool->outputHandling() == ExternalTool::ShowInPane
-                           ? QOverload<const QString &>::of(MessageManager::writeFlashing)
-                           : QOverload<const QString &>::of(MessageManager::writeSilently);
-    write(message);
-    deleteLater();
+    m_resolvedInput = expander->expand(m_tool.input());
+    m_resolvedWorkingDirectory = expander->expand(m_tool.workingDirectory());
+    return ResultOk;
 }
 
 static QString stripNewline(const QString &output)
@@ -684,24 +604,98 @@ static QString stripNewline(const QString &output)
     return output;
 }
 
-void ExternalToolRunner::readStandardOutput(const QString &output)
+void ExecuteData::readStandardOutput(const QString &output)
 {
-    if (m_tool->outputHandling() == ExternalTool::Ignore)
+    if (m_tool.outputHandling() == ExternalTool::Ignore)
         return;
-    if (m_tool->outputHandling() == ExternalTool::ShowInPane)
+    if (m_tool.outputHandling() == ExternalTool::ShowInPane)
         MessageManager::writeSilently(stripNewline(output));
-    else if (m_tool->outputHandling() == ExternalTool::ReplaceSelection)
+    else if (m_tool.outputHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
 }
 
-void ExternalToolRunner::readStandardError(const QString &output)
+void ExecuteData::readStandardError(const QString &error)
 {
-    if (m_tool->errorHandling() == ExternalTool::Ignore)
+    if (m_tool.errorHandling() == ExternalTool::Ignore)
         return;
-    if (m_tool->errorHandling() == ExternalTool::ShowInPane)
-        MessageManager::writeSilently(stripNewline(output));
-    else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection)
-        m_processOutput.append(output);
+    if (m_tool.errorHandling() == ExternalTool::ShowInPane)
+        MessageManager::writeSilently(stripNewline(error));
+    else if (m_tool.errorHandling() == ExternalTool::ReplaceSelection)
+        m_processOutput.append(error);
+}
+
+void ExternalTool::execute() const
+{
+    const Storage<ExecuteData> storage(this);
+
+    const auto onSetup = [storage] {
+        ExecuteData *data = storage.activeStorage();
+        if (const Result<> res = data->resolve(); !res) {
+            MessageManager::writeFlashing(res.error());
+            return SetupResult::StopWithError;
+        }
+
+        if (data->m_tool.modifiesCurrentDocument()) {
+            if (IDocument *document = EditorManager::currentDocument()) {
+                data->m_expectedFilePath = document->filePath();
+                if (!DocumentManager::saveModifiedDocument(document))
+                    return SetupResult::StopWithSuccess;
+
+                DocumentManager::expectFileChange(data->m_expectedFilePath);
+            }
+        }
+        return SetupResult::Continue;
+    };
+
+    const auto onProcessSetup = [storage](Process &process) {
+        ExecuteData *data = storage.activeStorage();
+        process.setStdOutLineCallback([data](const QString &s) { data->readStandardOutput(s); });
+        process.setStdErrLineCallback([data](const QString &s) { data->readStandardError(s); });
+        if (!data->m_resolvedWorkingDirectory.isEmpty())
+            process.setWorkingDirectory(data->m_resolvedWorkingDirectory);
+        const CommandLine cmd{data->m_resolvedExecutable, data->m_resolvedArguments, CommandLine::Raw};
+        process.setCommand(cmd);
+        Environment env = data->m_resolvedEnvironment;
+        // force Qt to log to std streams, if it's not explicitly been set differently
+        if (!env.hasKey("QT_LOGGING_TO_CONSOLE"))
+            env.set("QT_LOGGING_TO_CONSOLE", "1");
+        if (!env.hasKey("QT_FORCE_STDERR_LOGGING"))
+            env.set("QT_FORCE_STDERR_LOGGING", "1");
+
+        process.setEnvironment(env);
+        const auto write = data->m_tool.outputHandling() == ExternalTool::ShowInPane
+                               ? QOverload<const QString &>::of(MessageManager::writeDisrupting)
+                               : QOverload<const QString &>::of(MessageManager::writeSilently);
+        write(Tr::tr("Starting external tool \"%1\"").arg(cmd.toUserOutput()));
+        if (!data->m_resolvedInput.isEmpty())
+            process.setWriteData(data->m_resolvedInput.toLocal8Bit());
+    };
+    const auto onProcessDone = [storage](const Process &process) {
+        ExecuteData *data = storage.activeStorage();
+        if (process.result() == ProcessResult::FinishedWithSuccess
+            && (data->m_tool.outputHandling() == ExternalTool::ReplaceSelection
+                || data->m_tool.errorHandling() == ExternalTool::ReplaceSelection)) {
+            ExternalToolManager::emitReplaceSelectionRequested(data->m_processOutput);
+        }
+        const QString message = (process.result() == ProcessResult::FinishedWithSuccess)
+                                    ? Tr::tr("\"%1\" finished").arg(data->m_resolvedExecutable.toUserOutput())
+                                    : Tr::tr("\"%1\" finished with error").arg(data->m_resolvedExecutable.toUserOutput());
+
+        if (data->m_tool.modifiesCurrentDocument())
+            DocumentManager::unexpectFileChange(data->m_expectedFilePath);
+        const auto write = data->m_tool.outputHandling() == ExternalTool::ShowInPane
+                               ? QOverload<const QString &>::of(MessageManager::writeFlashing)
+                               : QOverload<const QString &>::of(MessageManager::writeSilently);
+        write(message);
+    };
+
+    const Group recipe {
+        storage,
+        onGroupSetup(onSetup),
+        ProcessTask(onProcessSetup, onProcessDone)
+    };
+
+    GlobalTaskTree::start(recipe);
 }
 
 } // namespace Core

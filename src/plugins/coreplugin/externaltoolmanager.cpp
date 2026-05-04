@@ -211,11 +211,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
             } else {
                 ActionBuilder external(m_instance, externalToolsPrefix.withSuffix(toolId));
                 external.setCommandAttribute(Command::CA_UpdateText);
-                external.addOnTriggered(tool, [tool] {
-                    auto runner = new ExternalToolRunner(tool);
-                    if (runner->hasError())
-                        MessageManager::writeFlashing(runner->errorString());
-                });
+                external.addOnTriggered(tool, [tool] { tool->execute(); });
                 action = external.contextAction();
                 d->m_actions.insert(toolId, action);
                 command = external.command();

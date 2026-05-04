@@ -10,9 +10,6 @@
 #include <utils/id.h>
 
 #include <QObject>
-#include <QMetaType>
-
-namespace Utils { class Process; }
 
 namespace Core {
 
@@ -79,6 +76,8 @@ public:
     void setBaseEnvironmentProviderId(Utils::Id id);
     void setEnvironmentUserChanges(const Utils::EnvironmentChanges &items);
 
+    void execute() const;
+
 private:
     QString m_id;
     QString m_description;
@@ -98,38 +97,6 @@ private:
     Utils::FilePath m_filePath;
     Utils::FilePath m_presetFileName;
     std::shared_ptr<ExternalTool> m_presetTool;
-};
-
-class CORE_EXPORT ExternalToolRunner : public QObject
-{
-    Q_OBJECT
-
-public:
-    ExternalToolRunner(const ExternalTool *tool);
-    ~ExternalToolRunner() override;
-
-    bool hasError() const;
-    QString errorString() const;
-
-private:
-    void done();
-    void readStandardOutput(const QString &output);
-    void readStandardError(const QString &output);
-
-    void run();
-    bool resolve();
-
-    const ExternalTool *m_tool; // is a copy of the tool that was passed in
-    Utils::FilePath m_resolvedExecutable;
-    QString m_resolvedArguments;
-    QString m_resolvedInput;
-    Utils::FilePath m_resolvedWorkingDirectory;
-    Utils::Environment m_resolvedEnvironment;
-    Utils::Process *m_process;
-    QString m_processOutput;
-    Utils::FilePath m_expectedFilePath;
-    bool m_hasError;
-    QString m_errorString;
 };
 
 } // Core

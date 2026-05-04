@@ -4,12 +4,10 @@
 #include "externaltoolsfilter.h"
 
 #include "../coreconstants.h"
-#include "../coreplugin.h"
 #include "../coreplugintr.h"
 #include "../externaltool.h"
 #include "../externaltoolmanager.h"
 #include "../icore.h"
-#include "../messagemanager.h"
 
 #include <utils/qtcassert.h>
 
@@ -50,9 +48,7 @@ LocatorMatcherTasks ExternalToolsFilter::matchers()
                 LocatorFilterEntry filterEntry;
                 filterEntry.displayName = tool->displayName();
                 filterEntry.acceptor = [tool] {
-                    auto runner = new ExternalToolRunner(tool);
-                    if (runner->hasError())
-                        MessageManager::writeFlashing(runner->errorString());
+                    tool->execute();
                     return AcceptResult();
                 };
                 filterEntry.extraInfo = tool->description();
