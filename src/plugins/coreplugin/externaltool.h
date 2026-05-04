@@ -95,7 +95,6 @@ private:
     bool m_modifiesCurrentDocument = false;
 
     Utils::FilePath m_filePath;
-    Utils::FilePath m_presetFileName;
     std::shared_ptr<ExternalTool> m_presetTool;
 };
 

@@ -96,7 +96,6 @@ ExternalTool &ExternalTool::operator=(const ExternalTool &other)
     m_errorHandling = other.m_errorHandling;
     m_modifiesCurrentDocument = other.m_modifiesCurrentDocument;
     m_filePath = other.m_filePath;
-    m_presetFileName = other.m_presetFileName;
     m_presetTool = other.m_presetTool;
     return *this;
 }
