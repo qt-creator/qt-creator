@@ -293,6 +293,7 @@ void ZenModePlugin::toggleZenMode()
     setFullScreenMode(m_zenModeActive);
     if (m_menuBar)
         m_menuBar->setVisible(!m_zenModeActive);
+    m_toggleDistractionAction->setEnabled(!m_zenModeActive);
 }
 
 void ZenModePlugin::toggleDistractionFreeMode()
@@ -303,5 +304,6 @@ void ZenModePlugin::toggleDistractionFreeMode()
     updateContentEditorWidth();
 
     setSidebarsAndModesVisible(!m_distractionFreeModeActive);
+    m_toggleZenModeAction->setEnabled(!m_distractionFreeModeActive);
 }
 } // namespace ZenMode::Internal
