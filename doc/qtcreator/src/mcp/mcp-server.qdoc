@@ -6,9 +6,6 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-ai
-    \ingroup creator-how-to-build
-    \ingroup creator-how-to-debug
-    \ingroup creator-how-to-run
 
     \title Set up \QC MCP server
 
@@ -60,7 +57,7 @@
     To use the MCP server for other products, such as Claude Code, you must
     configure it. For more information, see the documentation of the product.
 
-    \sa {Activate extensions}, {Use the ACP Client}
+    \sa {Activate extensions}, {Use AI}{How to: Use AI}
 */
 
 /*!

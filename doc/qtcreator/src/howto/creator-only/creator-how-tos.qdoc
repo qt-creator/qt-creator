@@ -515,6 +515,19 @@
     \generatelist creator-how-to-test
     \enddetails
 
+    \section1 Use AI
+
+    \quotation
+    \l {Using AI}
+    \endquotation
+
+    Chat with AI agents that understand your codebase and perform actions on your
+    behalf, such as editing files, running commands, or triggering builds.
+
+    \details {How to use AI}
+    \generatelist creator-how-to-ai
+    \enddetails
+
     \section1 Use Git
 
     \quotation

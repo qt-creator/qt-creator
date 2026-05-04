@@ -5,7 +5,7 @@
     \page creator-how-to-use-acp-client.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-use
+    \ingroup creator-how-to-ai
 
     \title Use the ACP Client
 
@@ -189,5 +189,5 @@
             and applies fixes. Watch the progress in the chat history.
     \endlist
 
-    \sa {Activate extensions}, {Set up \QC MCP server}
+    \sa {Activate extensions}, {Use AI}{How to: Use AI}
 */
