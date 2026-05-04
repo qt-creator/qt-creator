@@ -79,23 +79,28 @@ public:
     void execute() const;
 
 private:
-    QString m_id;
-    QString m_description;
-    QString m_displayName;
-    QString m_displayCategory;
-    int m_order = -1;
-    Utils::FilePaths m_executables;
-    QString m_arguments;
-    QString m_input;
-    Utils::FilePath m_workingDirectory;
-    Utils::Id m_baseEnvironmentProviderId;
-    Utils::EnvironmentChanges m_environment;
-    OutputHandling m_outputHandling = ShowInPane;
-    OutputHandling m_errorHandling = ShowInPane;
-    bool m_modifiesCurrentDocument = false;
 
-    Utils::FilePath m_filePath;
-    std::shared_ptr<ExternalTool> m_presetTool;
+    struct Data {
+        QString id;
+        QString description;
+        QString displayName;
+        QString displayCategory = ""; // difference between isNull and isEmpty
+        int order = -1;
+        Utils::FilePaths executables;
+        QString arguments;
+        QString input;
+        Utils::FilePath workingDirectory;
+        Utils::Id baseEnvironmentProviderId;
+        Utils::EnvironmentChanges environment;
+        OutputHandling outputHandling = ShowInPane;
+        OutputHandling errorHandling = ShowInPane;
+        bool modifiesCurrentDocument = false;
+
+        Utils::FilePath filePath;
+        std::shared_ptr<ExternalTool> presetTool;
+    };
+
+    Data m_data;
 };
 
 } // Core

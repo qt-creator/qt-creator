@@ -54,49 +54,15 @@ const char kFalse[] = "false";
 
 // #pragma mark -- ExternalTool
 
-ExternalTool::ExternalTool() :
-    m_displayCategory("") // difference between isNull and isEmpty
-{
-}
+ExternalTool::ExternalTool() = default;
 
 ExternalTool::ExternalTool(const ExternalTool *other)
-    : m_id(other->m_id),
-      m_description(other->m_description),
-      m_displayName(other->m_displayName),
-      m_displayCategory(other->m_displayCategory),
-      m_order(other->m_order),
-      m_executables(other->m_executables),
-      m_arguments(other->m_arguments),
-      m_input(other->m_input),
-      m_workingDirectory(other->m_workingDirectory),
-      m_baseEnvironmentProviderId(other->m_baseEnvironmentProviderId),
-      m_environment(other->m_environment),
-      m_outputHandling(other->m_outputHandling),
-      m_errorHandling(other->m_errorHandling),
-      m_modifiesCurrentDocument(other->m_modifiesCurrentDocument),
-      m_filePath(other->m_filePath),
-      m_presetTool(other->m_presetTool)
-{
-}
+    : m_data(other->m_data)
+{}
 
 ExternalTool &ExternalTool::operator=(const ExternalTool &other)
 {
-    m_id = other.m_id;
-    m_description = other.m_description;
-    m_displayName = other.m_displayName;
-    m_displayCategory = other.m_displayCategory;
-    m_order = other.m_order;
-    m_executables = other.m_executables;
-    m_arguments = other.m_arguments;
-    m_input = other.m_input;
-    m_workingDirectory = other.m_workingDirectory;
-    m_baseEnvironmentProviderId = other.m_baseEnvironmentProviderId;
-    m_environment = other.m_environment;
-    m_outputHandling = other.m_outputHandling;
-    m_errorHandling = other.m_errorHandling;
-    m_modifiesCurrentDocument = other.m_modifiesCurrentDocument;
-    m_filePath = other.m_filePath;
-    m_presetTool = other.m_presetTool;
+    m_data = other.m_data;
     return *this;
 }
 
@@ -104,59 +70,59 @@ ExternalTool::~ExternalTool() = default;
 
 QString ExternalTool::id() const
 {
-    return m_id;
+    return m_data.id;
 }
 
 QString ExternalTool::description() const
 {
-    return m_description;
+    return m_data.description;
 }
 
 QString ExternalTool::displayName() const
 {
-    return m_displayName;
+    return m_data.displayName;
 }
 
 QString ExternalTool::displayCategory() const
 {
-    return m_displayCategory;
+    return m_data.displayCategory;
 }
 
 int ExternalTool::order() const
 {
-    return m_order;
+    return m_data.order;
 }
 
 FilePaths ExternalTool::executables() const
 {
-    return m_executables;
+    return m_data.executables;
 }
 
 QString ExternalTool::arguments() const
 {
-    return m_arguments;
+    return m_data.arguments;
 }
 
 QString ExternalTool::input() const
 {
-    return m_input;
+    return m_data.input;
 }
 
 FilePath ExternalTool::workingDirectory() const
 {
-    return m_workingDirectory;
+    return m_data.workingDirectory;
 }
 
 Id ExternalTool::baseEnvironmentProviderId() const
 {
-    return m_baseEnvironmentProviderId;
+    return m_data.baseEnvironmentProviderId;
 }
 
 Environment ExternalTool::baseEnvironment() const
 {
-    if (m_baseEnvironmentProviderId.isValid()) {
+    if (m_data.baseEnvironmentProviderId.isValid()) {
         const std::optional<EnvironmentProvider> provider = EnvironmentProvider::provider(
-            m_baseEnvironmentProviderId.toByteArray());
+            m_data.baseEnvironmentProviderId.toByteArray());
         if (provider && provider->environment)
             return provider->environment();
     }
@@ -165,107 +131,107 @@ Environment ExternalTool::baseEnvironment() const
 
 EnvironmentChanges ExternalTool::environmentUserChanges() const
 {
-    return m_environment;
+    return m_data.environment;
 }
 
 ExternalTool::OutputHandling ExternalTool::outputHandling() const
 {
-    return m_outputHandling;
+    return m_data.outputHandling;
 }
 
 ExternalTool::OutputHandling ExternalTool::errorHandling() const
 {
-    return m_errorHandling;
+    return m_data.errorHandling;
 }
 
 bool ExternalTool::modifiesCurrentDocument() const
 {
-    return m_modifiesCurrentDocument;
+    return m_data.modifiesCurrentDocument;
 }
 
 void ExternalTool::setFilePath(const FilePath &filePath)
 {
-    m_filePath = filePath;
+    m_data.filePath = filePath;
 }
 
 void ExternalTool::setPreset(std::shared_ptr<ExternalTool> preset)
 {
-    m_presetTool = preset;
+    m_data.presetTool = preset;
 }
 
 FilePath ExternalTool::filePath() const
 {
-    return m_filePath;
+    return m_data.filePath;
 }
 
 std::shared_ptr<ExternalTool> ExternalTool::preset() const
 {
-    return m_presetTool;
+    return m_data.presetTool;
 }
 
 void ExternalTool::setId(const QString &id)
 {
-    m_id = id;
+    m_data.id = id;
 }
 
 void ExternalTool::setDisplayCategory(const QString &category)
 {
-    m_displayCategory = category;
+    m_data.displayCategory = category;
 }
 
 void ExternalTool::setDisplayName(const QString &name)
 {
-    m_displayName = name;
+    m_data.displayName = name;
 }
 
 void ExternalTool::setDescription(const QString &description)
 {
-    m_description = description;
+    m_data.description = description;
 }
 
 void ExternalTool::setOutputHandling(OutputHandling handling)
 {
-    m_outputHandling = handling;
+    m_data.outputHandling = handling;
 }
 
 void ExternalTool::setErrorHandling(OutputHandling handling)
 {
-    m_errorHandling = handling;
+    m_data.errorHandling = handling;
 }
 
 void ExternalTool::setModifiesCurrentDocument(bool modifies)
 {
-    m_modifiesCurrentDocument = modifies;
+    m_data.modifiesCurrentDocument = modifies;
 }
 
 void ExternalTool::setExecutables(const FilePaths &executables)
 {
-    m_executables = executables;
+    m_data.executables = executables;
 }
 
 void ExternalTool::setArguments(const QString &arguments)
 {
-    m_arguments = arguments;
+    m_data.arguments = arguments;
 }
 
 void ExternalTool::setInput(const QString &input)
 {
-    m_input = input;
+    m_data.input = input;
 }
 
 void ExternalTool::setWorkingDirectory(const FilePath &workingDirectory)
 {
-    m_workingDirectory = workingDirectory;
+    m_data.workingDirectory = workingDirectory;
 }
 
 void ExternalTool::setBaseEnvironmentProviderId(Id id)
 {
-    m_baseEnvironmentProviderId = id;
+    m_data.baseEnvironmentProviderId = id;
 }
 
 void ExternalTool::setEnvironmentUserChanges(const EnvironmentChanges &env)
 {
-    m_environment = env;
+    m_data.environment = env;
 }
 
 static QStringList splitLocale(const QString &locale)
@@ -340,40 +306,40 @@ Result<ExternalTool *> ExternalTool::createFromXml(const QByteArray &xml, const 
 
     if (!reader.readNextStartElement() || reader.name() != QLatin1String(kExternalTool))
         reader.raiseError("Missing start element <externaltool>");
-    tool->m_id = reader.attributes().value(kId).toString();
-    if (tool->m_id.isEmpty())
+    tool->m_data.id = reader.attributes().value(kId).toString();
+    if (tool->m_data.id.isEmpty())
         reader.raiseError("Missing or empty id attribute for <externaltool>");
     while (reader.readNextStartElement()) {
         if (reader.name() == QLatin1String(kDescription)) {
-            localizedText(locales, &reader, &descriptionLocale, &tool->m_description);
+            localizedText(locales, &reader, &descriptionLocale, &tool->m_data.description);
         } else if (reader.name() == QLatin1String(kDisplayName)) {
-            localizedText(locales, &reader, &nameLocale, &tool->m_displayName);
+            localizedText(locales, &reader, &nameLocale, &tool->m_data.displayName);
         } else if (reader.name() == QLatin1String(kCategory)) {
-            localizedText(locales, &reader, &categoryLocale, &tool->m_displayCategory);
+            localizedText(locales, &reader, &categoryLocale, &tool->m_data.displayCategory);
         } else if (reader.name() == QLatin1String(kOrder)) {
-            if (tool->m_order >= 0) {
+            if (tool->m_data.order >= 0) {
                 reader.raiseError("only one <order> element allowed");
                 break;
             }
             bool ok;
-            tool->m_order = reader.readElementText().toInt(&ok);
-            if (!ok || tool->m_order < 0)
+            tool->m_data.order = reader.readElementText().toInt(&ok);
+            if (!ok || tool->m_data.order < 0)
                 reader.raiseError("<order> element requires non-negative integer value");
         } else if (reader.name() == QLatin1String(kExecutable)) {
             if (reader.attributes().hasAttribute(kOutput)) {
-                if (!parseOutputAttribute(kOutput, &reader, &tool->m_outputHandling))
+                if (!parseOutputAttribute(kOutput, &reader, &tool->m_data.outputHandling))
                     break;
             }
             if (reader.attributes().hasAttribute(kError)) {
-                if (!parseOutputAttribute(kError, &reader, &tool->m_errorHandling))
+                if (!parseOutputAttribute(kError, &reader, &tool->m_data.errorHandling))
                     break;
             }
             if (reader.attributes().hasAttribute(kModifiesDocument)) {
                 const auto value = reader.attributes().value(kModifiesDocument);
                 if (value == QLatin1String(kYes) || value == QLatin1String(kTrue)) {
-                    tool->m_modifiesCurrentDocument = true;
+                    tool->m_data.modifiesCurrentDocument = true;
                 } else if (value == QLatin1String(kNo) || value == QLatin1String(kFalse)) {
-                    tool->m_modifiesCurrentDocument = false;
+                    tool->m_data.modifiesCurrentDocument = false;
                 } else {
                     reader.raiseError("Allowed values for modifiesdocument attribute are 'yes','true','no','false'");
                     break;
@@ -381,33 +347,33 @@ Result<ExternalTool *> ExternalTool::createFromXml(const QByteArray &xml, const 
             }
             while (reader.readNextStartElement()) {
                 if (reader.name() == QLatin1String(kPath)) {
-                    tool->m_executables.append(FilePath::fromString(reader.readElementText()));
+                    tool->m_data.executables.append(FilePath::fromString(reader.readElementText()));
                 } else if (reader.name() == QLatin1String(kArguments)) {
-                    if (!tool->m_arguments.isEmpty()) {
+                    if (!tool->m_data.arguments.isEmpty()) {
                         reader.raiseError("only one <arguments> element allowed");
                         break;
                     }
-                    tool->m_arguments = reader.readElementText();
+                    tool->setArguments(reader.readElementText());
                 } else if (reader.name() == QLatin1String(kInput)) {
-                    if (!tool->m_input.isEmpty()) {
+                    if (!tool->m_data.input.isEmpty()) {
                         reader.raiseError("only one <input> element allowed");
                         break;
                     }
-                    tool->m_input = reader.readElementText();
+                    tool->setInput(reader.readElementText());
                 } else if (reader.name() == QLatin1String(kWorkingDirectory)) {
-                    if (!tool->m_workingDirectory.isEmpty()) {
+                    if (!tool->workingDirectory().isEmpty()) {
                         reader.raiseError("only one <workingdirectory> element allowed");
                         break;
                     }
-                    tool->m_workingDirectory = FilePath::fromString(reader.readElementText());
+                    tool->m_data.workingDirectory = FilePath::fromString(reader.readElementText());
                 } else if (reader.name() == QLatin1String(kBaseEnvironmentId)) {
-                    if (tool->m_baseEnvironmentProviderId.isValid()) {
+                    if (tool->m_data.baseEnvironmentProviderId.isValid()) {
                         reader.raiseError("only one <baseEnvironmentId> element allowed");
                         break;
                     }
-                    tool->m_baseEnvironmentProviderId = Id::fromString(reader.readElementText());
+                    tool->m_data.baseEnvironmentProviderId = Id::fromString(reader.readElementText());
                 } else if (reader.name() == QLatin1String(kEnvironment)) {
-                    if (tool->m_environment.hasData()) {
+                    if (tool->m_data.environment.hasData()) {
                         reader.raiseError("only one <environment> element allowed");
                         break;
                     }
@@ -421,9 +387,9 @@ Result<ExternalTool *> ExternalTool::createFromXml(const QByteArray &xml, const 
                     QStringList items = itemsString.split(QLatin1Char(';'));
                     for (auto iter = items.begin(); iter != items.end(); ++iter)
                         *iter = QString::fromUtf8(QByteArray::fromPercentEncoding(iter->toUtf8()));
-                    tool->m_environment.setItemsFromUser(EnvironmentItem::fromStringList(items));
+                    tool->m_data.environment.setItemsFromUser(EnvironmentItem::fromStringList(items));
                     if (elems.size() == 2) {
-                        tool->m_environment.setFile(
+                        tool->m_data.environment.setFile(
                             FilePath::fromString(
                                 QString::fromUtf8(
                                     QByteArray::fromPercentEncoding(elems.last().toUtf8()))));
@@ -454,7 +420,7 @@ Result<ExternalTool *> ExternalTool::createFromFile(const FilePath &filePath, co
     if (!res)
         return ResultError(res.error());
     ExternalTool *tool = *res;
-    tool->m_filePath = filePath.absoluteFilePath();
+    tool->m_data.filePath = filePath.absoluteFilePath();
     return tool;
 }
 
@@ -473,9 +439,9 @@ static QString stringForOutputHandling(ExternalTool::OutputHandling handling)
 
 Result<> ExternalTool::save() const
 {
-    if (m_filePath.isEmpty())
+    if (filePath().isEmpty())
         return ResultError(ResultAssert); // FIXME: Find something better
-    FileSaver saver(m_filePath);
+    FileSaver saver(filePath());
     if (!saver.hasError()) {
         QXmlStreamWriter out(saver.file());
         out.setAutoFormatting(true);
@@ -483,34 +449,34 @@ Result<> ExternalTool::save() const
         out.writeComment(QString::fromLatin1("Written on %1 by %2")
                          .arg(QDateTime::currentDateTime().toString(), ICore::versionString()));
         out.writeStartElement(kExternalTool);
-        out.writeAttribute(kId, m_id);
-        out.writeTextElement(kDescription, m_description);
-        out.writeTextElement(kDisplayName, m_displayName);
-        out.writeTextElement(kCategory, m_displayCategory);
-        if (m_order != -1)
-            out.writeTextElement(kOrder, QString::number(m_order));
+        out.writeAttribute(kId, id());
+        out.writeTextElement(kDescription, description());
+        out.writeTextElement(kDisplayName, displayName());
+        out.writeTextElement(kCategory, displayCategory());
+        if (order() != -1)
+            out.writeTextElement(kOrder, QString::number(order()));
 
         out.writeStartElement(kExecutable);
-        out.writeAttribute(kOutput, stringForOutputHandling(m_outputHandling));
-        out.writeAttribute(kError, stringForOutputHandling(m_errorHandling));
-        out.writeAttribute(kModifiesDocument, QLatin1String(m_modifiesCurrentDocument ? kYes : kNo));
-        for (const FilePath &executable : m_executables)
+        out.writeAttribute(kOutput, stringForOutputHandling(outputHandling()));
+        out.writeAttribute(kError, stringForOutputHandling(errorHandling()));
+        out.writeAttribute(kModifiesDocument, QLatin1String(modifiesCurrentDocument() ? kYes : kNo));
+        for (const FilePath &executable : executables())
             out.writeTextElement(kPath, executable.toUrlishString());
-        if (!m_arguments.isEmpty())
-            out.writeTextElement(kArguments, m_arguments);
-        if (!m_input.isEmpty())
-            out.writeTextElement(kInput, m_input);
-        if (!m_workingDirectory.isEmpty())
-            out.writeTextElement(kWorkingDirectory, m_workingDirectory.toUrlishString());
-        if (m_baseEnvironmentProviderId.isValid())
-            out.writeTextElement(kBaseEnvironmentId, m_baseEnvironmentProviderId.toString());
-        if (m_environment.hasData()) {
-            QStringList envLines = EnvironmentItem::toStringList(m_environment.itemsFromUser());
+        if (!arguments().isEmpty())
+            out.writeTextElement(kArguments, arguments());
+        if (!input().isEmpty())
+            out.writeTextElement(kInput, input());
+        if (!workingDirectory().isEmpty())
+            out.writeTextElement(kWorkingDirectory, workingDirectory().toUrlishString());
+        if (baseEnvironmentProviderId().isValid())
+            out.writeTextElement(kBaseEnvironmentId, baseEnvironmentProviderId().toString());
+        if (environmentUserChanges().hasData()) {
+            QStringList envLines = EnvironmentItem::toStringList(environmentUserChanges().itemsFromUser());
             for (auto iter = envLines.begin(); iter != envLines.end(); ++iter)
                 *iter = QString::fromUtf8(iter->toUtf8().toPercentEncoding());
             const QString envString = envLines.join(QLatin1Char(';'));
             const QString fileString = QString::fromUtf8(
-                m_environment.file().toFSPathString().toUtf8().toPercentEncoding());
+                environmentUserChanges().file().toFSPathString().toUtf8().toPercentEncoding());
             out.writeTextElement(kEnvironment, envString + "__qtc_sep__" + fileString);
         }
         out.writeEndElement();
@@ -524,21 +490,21 @@ Result<> ExternalTool::save() const
 
 bool ExternalTool::operator==(const ExternalTool &other) const
 {
-    return m_id == other.m_id
-            && m_description == other.m_description
-            && m_displayName == other.m_displayName
-            && m_displayCategory == other.m_displayCategory
-            && m_order == other.m_order
-            && m_executables == other.m_executables
-            && m_arguments == other.m_arguments
-            && m_input == other.m_input
-            && m_workingDirectory == other.m_workingDirectory
-            && m_baseEnvironmentProviderId == other.m_baseEnvironmentProviderId
-            && m_environment == other.m_environment
-            && m_outputHandling == other.m_outputHandling
-            && m_modifiesCurrentDocument == other.m_modifiesCurrentDocument
-            && m_errorHandling == other.m_errorHandling
-            && m_filePath == other.m_filePath;
+    return m_data.id == other.m_data.id
+           && m_data.description == other.m_data.description
+           && m_data.displayName == other.m_data.displayName
+           && m_data.displayCategory == other.m_data.displayCategory
+           && m_data.order == other.m_data.order
+           && m_data.executables == other.m_data.executables
+           && m_data.arguments == other.m_data.arguments
+           && m_data.input == other.m_data.input
+           && m_data.workingDirectory == other.m_data.workingDirectory
+           && m_data.baseEnvironmentProviderId == other.m_data.baseEnvironmentProviderId
+           && m_data.environment == other.m_data.environment
+           && m_data.outputHandling == other.m_data.outputHandling
+           && m_data.modifiesCurrentDocument == other.m_data.modifiesCurrentDocument
+           && m_data.errorHandling == other.m_data.errorHandling
+           && m_data.filePath == other.m_data.filePath;
 }
 
 struct ExecuteData
