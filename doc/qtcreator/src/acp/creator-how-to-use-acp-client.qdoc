@@ -1,0 +1,193 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-use-acp-client.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Use the ACP Client
+
+    With the \uicontrol {ACP Client} extension, you can chat with AI agents
+    that understand your codebase and perform actions on your behalf, such
+    as editing files, running commands, or triggering builds.
+
+    This topic walks you through setting up and using the ACP Client extension
+    from activating the extension to having a productive chat session with
+    an agent.
+
+    \section1 Prerequisites
+
+    \list
+        \li Activate the \uicontrol {ACP Client} extension in the
+            \uicontrol {Extensions} mode. For more information about
+            extensions, see \l {Activate extensions}.
+        \li Recommended: Activate and set up the \uicontrol {MCP Server}
+            extension if you want the agent to trigger \QC actions such as
+            building or running your project. For more information, see
+            \l {Using the MCP server}.
+    \endlist
+
+    \section1 Configure an agent
+
+    Before opening a chat, configure in \preferences which agent you want to
+    talk to. You can either pick one of the preconfigured agents or define
+    a custom one.
+
+    \section2 Preconfigured agents
+
+    To set up a preconfigured agent:
+
+    \list 1
+        \li Go to \preferences > \uicontrol AI > \uicontrol {ACP Servers}.
+        \li Select \uicontrol {Add}.
+        \li In \uicontrol {Template}, select a preconfigured agent to use
+            it with its default settings.
+        \li Select \uicontrol Apply to save.
+    \endlist
+
+    \section2 Custom agents
+
+    \image {qtcreator-acp-preferences-custom.webp} {ACP Servers settings for a custom agent}
+
+    To set up a custom agent:
+
+    \list 1
+        \li Ensure the agent process you intend to use is installed and
+            reachable on your machine or network.
+        \li Go to \preferences > \uicontrol AI > \uicontrol {ACP Servers}.
+        \li Select \uicontrol {Add}.
+        \li In \uicontrol {Template}, select \uicontrol {Custom}.
+        \li In \uicontrol {Name}, specify a name for your agent configuration.
+        \li In \uicontrol {Launch command}, specify the command to launch
+            the ACP server process.
+        \li In \uicontrol {Launch arguments}, specify command-line arguments
+            to pass when launching the ACP server process.
+        \li In \uicontrol {Environment Changes}, select \uicontrol {Change} to
+            add any environment variable changes needed for the agent process.
+        \li Select \uicontrol Apply to save.
+    \endlist
+
+    \section1 Open the ACP chat window
+
+    In \uicontrol Edit mode, you can open the ACP chat window in the
+    following ways:
+
+    \list
+        \li Go to \uicontrol Tools > \uicontrol {ACP Client} >
+            \uicontrol {Show Agentic AI Chat in Side Panel}.
+        \li Select \inlineimage {icons/message.png} {Show Agentic AI Chat in Side Panel}
+            in the editor toolbar when you have a file open.
+    \endlist
+
+    \section1 Connect to an ACP server
+
+    After you open the chat window for a project, connect to an ACP server.
+
+    \image {qtcreator-acp-connect.webp} {Connecting to the ACP server}
+
+    To connect to the ACP server:
+
+    \list 1
+        \li In the \uicontrol Server drop-down, select the agent you configured.
+        \li In \uicontrol {Working directory}, verify or change the directory
+            that the agent should treat as the project root. This is set to
+            the active project's root directory by default.
+        \li Select \uicontrol Connect.
+    \endlist
+
+    \QC starts the agent process and establishes the ACP connection.
+
+    To start a new session, select \inlineimage {icons/plus.png} {New Chat Tab}
+    in the top right corner of the chat window and connect to a server.
+
+    \section1 Chat window toolbar
+
+    Once connected, the toolbar at the bottom of the chat window shows
+    controls that you can adjust at any time during a session.
+
+    \image {qtcreator-acp-toolbar.webp} {ACP Chat toolbar}
+
+    The different configuration options in the toolbar depend on the selected
+    agent. To view more information about an option, hover over it to see its
+    tooltip.
+
+    \section1 Chat with the agent
+
+    Type your message in the input field at the bottom of the chat window and
+    select \uicontrol Send or \key Enter.
+
+    \image {qtcreator-acp-chat.webp} {Chatting with the agent}
+
+    To insert a command to your message, select \uicontrol {/} and select a
+    command from the list.
+
+    \section2 Context in messages
+
+    \QC automatically attaches the current editor context to every message,
+    so you can use natural references such as:
+
+    \list
+        \li \e {Explain the current code.}
+        \li \e {Refactor the selected block to use a range-based for loop.}
+        \li \e {Why does the build fail? Fix it.}
+            \note This requires the MCP server extension so the agent can
+            invoke the build system and read compiler output.
+        \li \e {Add unit tests for the function at the cursor.}
+        \li \e {Review the visible code and suggest improvements.}
+    \endlist
+
+    To add more context to your message manually, select
+    \inlineimage {icons/plus.png}{Add content} > \uicontrol {Add file} or
+    \uicontrol {Add remote file} in \uicontrol Context.
+
+    \section2 Agent's responses
+
+    The agent's reply appears in the chat window.
+
+    \image {qtcreator-acp-file-edits.webp} {Agent-proposed file edits}
+
+    If the agent proposes file edits, you can review them in the chat window.
+    Depending on the selected \uicontrol Mode, you might need to allow
+    the agent to apply them.
+
+    \section1 Typical workflows
+
+    You can use the ACP Client for a wide range of tasks. Here are some
+    example workflows to get you started.
+
+    \section2 Explain and explore
+
+    \list 1
+        \li Open any source file.
+        \li Set \uicontrol Mode to \uicontrol {Plan Mode} to prevent
+            accidental edits.
+        \li Ask: \e {Walk me through what this class does and identify any
+            potential issues.}
+        \li Read the agent's analysis in the chat history.
+    \endlist
+
+    \section2 Refactor with review
+
+    \list 1
+        \li Select the code you want to change.
+        \li Set \uicontrol Mode to \uicontrol Default.
+        \li Ask: \e {Extract the selected code into a separate function called
+            \c processInput.}
+        \li Review the proposed changes.
+    \endlist
+
+    \section2 Build and fix
+
+    \list 1
+        \li Make sure both the \uicontrol {ACP Client} and the
+            \uicontrol {MCP Server} extensions are active.
+        \li Set \uicontrol Mode to \uicontrol {Accept Edits}.
+        \li Ask: \e {Build the project and fix any compiler errors.}
+        \li The agent triggers a build through the MCP server, reads the output,
+            and applies fixes. Watch the progress in the chat history.
+    \endlist
+
+    \sa {Activate extensions}, {Using the MCP server}
+*/
