@@ -136,6 +136,7 @@ const char SHOWINFILESYSTEMVIEW[]  = "QtCreator.ShowInFileSystemView";
 const char CYCLE_NEXT_EDITOR[]     = "QtCreator.CycleToNextEditor";
 
 const char OUTPUTPANE_CLEAR[] = "Coreplugin.OutputPane.clear";
+const char OUTPUTPANE_CLOSE[] = "Coreplugin.OutputPane.close";
 
 // Default groups
 const char G_DEFAULT_ONE[]         = "QtCreator.Group.Default.One";

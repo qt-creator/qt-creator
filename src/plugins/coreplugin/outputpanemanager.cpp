@@ -764,7 +764,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
         .bindContextAction(&m_minMaxAction);
     minMaxButton->setDefaultAction(minMaxAction.commandAction());
 
-    ActionBuilder closeAction(this, "Coreplugin.OutputPane.close");
+    ActionBuilder closeAction(this, Constants::OUTPUTPANE_CLOSE);
     closeAction
         .setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon())
         .setText(Tr::tr("Close"))

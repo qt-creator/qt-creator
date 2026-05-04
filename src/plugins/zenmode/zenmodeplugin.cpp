@@ -23,7 +23,6 @@ using namespace Core;
 
 namespace ZenMode::Internal {
 
-const char OUTPUT_PANE_COMMAND_ID[] = "QtCreator.Pane.GeneralMessages";
 const char MODE_HIDDEN_CMD_ID[] = "QtCreator.Modes.Hidden";
 const char MODE_ICONS_CMD_ID[] = "QtCreator.Modes.IconsOnly";
 const char MODE_ICONSTEXT_CMD_ID[] = "QtCreator.Modes.IconsAndText";
@@ -170,7 +169,7 @@ void ZenModePlugin::getActions()
         return nullptr;
     };
 
-    m_outputPaneAction = getCommandFun(OUTPUT_PANE_COMMAND_ID);
+    m_outputPaneAction = getCommandFun(Core::Constants::OUTPUTPANE_CLOSE);
     m_toggleLeftSidebarAction = getCommandFun(Core::Constants::TOGGLE_LEFT_SIDEBAR);
     m_toggleRightSidebarAction = getCommandFun(Core::Constants::TOGGLE_RIGHT_SIDEBAR);
     m_toggleFullscreenAction = getCommandFun(Core::Constants::TOGGLE_FULLSCREEN);
@@ -184,10 +183,8 @@ void ZenModePlugin::getActions()
 
 void ZenModePlugin::hideOutputPanes()
 {
-    if (m_outputPaneAction) {
+    if (m_outputPaneAction)
         m_outputPaneAction->trigger();
-        m_outputPaneAction->trigger();
-    }
 }
 
 void ZenModePlugin::hideSidebars()
