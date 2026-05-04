@@ -442,6 +442,14 @@ SessionPickerWidget *ChatPanel::addSessionPicker()
 
 void ChatPanel::updateAvailableCommands(const QList<AvailableCommand> &commands)
 {
+    QList<CommandInfo> commandInfos;
+    commandInfos.reserve(commands.size());
+    for (const AvailableCommand &cmd : commands) {
+        const QString hint = cmd.input() ? Acp::hint(*cmd.input()) : QString();
+        commandInfos.append({cmd.name(), cmd.description(), hint});
+    }
+    m_inputEdit->setAvailableCommands(commandInfos);
+
     delete m_commandsMenu;
     m_commandsMenu = nullptr;
     m_commandsButton->setVisible(!commands.isEmpty());
