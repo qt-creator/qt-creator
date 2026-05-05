@@ -48,6 +48,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
+#include <QSet>
 #include <QToolBar>
 
 using namespace Core;
@@ -79,9 +80,8 @@ public:
 
     TextEditor::TextDocument *documentForFilePath(const FilePath &filePath) const
     {
-        for (auto it = documentRunners.cbegin(); it != documentRunners.cend(); ++it) {
-            IDocument *doc = it.key();
-            if (doc->filePath() == filePath)
+        for (IDocument *doc : documentsWithRunners) {
+           if (doc->filePath() == filePath)
                 return qobject_cast<TextEditor::TextDocument *>(doc);
         }
         return nullptr;
@@ -89,7 +89,7 @@ public:
 
     ClangTidyTool clangTidyTool;
     ClazyTool clazyTool;
-    QHash<IDocument *, DocumentClangToolRunner *> documentRunners;
+    QSet<IDocument *> documentsWithRunners;
     DocumentQuickFixFactory quickFixFactory;
 };
 
@@ -219,13 +219,13 @@ void ClangToolsPlugin::onCurrentEditorChanged()
 {
     for (Core::IEditor *editor : Core::EditorManager::visibleEditors()) {
         IDocument *document = editor->document();
-        if (d->documentRunners.contains(document))
+        if (d->documentsWithRunners.contains(document))
             continue;
         auto runner = new DocumentClangToolRunner(document);
         connect(runner, &DocumentClangToolRunner::destroyed, this, [this, document] {
-            d->documentRunners.remove(document);
+            d->documentsWithRunners.remove(document);
         });
-        d->documentRunners[document] = runner;
+        d->documentsWithRunners.insert(document);
     }
 }
 
