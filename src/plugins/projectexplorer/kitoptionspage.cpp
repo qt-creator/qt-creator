@@ -609,14 +609,16 @@ void KitOptionsPageWidget::updateState()
     bool canMakeDefault = false;
 
     const int row = m_groupedView.currentRow();
+    const bool isRemoved = row >= 0 && m_model.isRemoved(row);
     if (row >= 0) {
         canCopy = true;
         canDelete = !m_model.item(row).m_detectionSource.isSdkProvided();
-        canMakeDefault = !m_model.isDefault(row) && !m_model.isRemoved(row);
+        canMakeDefault = !m_model.isDefault(row) && !isRemoved;
     }
 
     m_cloneButton.setEnabled(canCopy);
     m_removeButton.setEnabled(canDelete);
+    m_removeButton.setText(isRemoved ? Tr::tr("Restore") : Tr::tr("Remove"));
     m_makeDefaultButton.setEnabled(canMakeDefault);
     m_filterButton.setEnabled(canCopy);
 }

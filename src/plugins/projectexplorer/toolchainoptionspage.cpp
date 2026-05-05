@@ -208,6 +208,7 @@ public:
 
     int insertBundle(const ToolchainBundle &bundle, bool changed = false);
     int addBundle(const ToolchainBundle &bundle);
+    int cloneRow(int row) override;
     ToolchainConfigWidget *widget(int row);
     int rowForBundleId(const Id &id) const;
     void markRemoved(int row) override;
@@ -257,6 +258,17 @@ int ToolchainModel::insertBundle(const ToolchainBundle &bundle, bool changed)
 int ToolchainModel::addBundle(const ToolchainBundle &bundle)
 {
     return appendVolatileItem(ToolchainTreeItem{bundle});
+}
+
+int ToolchainModel::cloneRow(int row)
+{
+    const ToolchainTreeItem it = item(row);
+    if (!it.bundle || it.bundle->validity() == ToolchainBundle::Valid::None)
+        return -1;
+    ToolchainBundle bundle = it.bundle->clone();
+    bundle.setDetectionSource(DetectionSource::Manual);
+    bundle.setDisplayName(Tr::tr("Clone of %1").arg(it.bundle->displayName()));
+    return addBundle(bundle);
 }
 
 ToolchainConfigWidget *ToolchainModel::widget(int row)
@@ -423,7 +435,6 @@ public:
     void toolChainSelectionChanged();
     void updateState();
     void createToolchains(ToolchainFactory *factory, const QList<Id> &languages);
-    void cloneToolchains();
 
     void handleToolchainsRegistered(const Toolchains &toolchains);
     void handleToolchainsDeregistered(const Toolchains &toolchains);
@@ -445,8 +456,6 @@ private:
     GroupedView m_groupedView{m_model};
     DeviceComboBox m_deviceComboBox;
     QPushButton m_addButton;
-    QPushButton m_cloneButton;
-    QPushButton m_removeButton;
     QPushButton m_removeAllButton;
     QPushButton m_redetectButton;
     QPushButton m_detectionSettingsButton;
@@ -476,8 +485,6 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
     if (HostOsInfo::isMacHost())
         m_addButton.setStyleSheet("text-align:center;");
 
-    m_cloneButton.setText(Tr::tr("Clone"));
-    m_removeButton.setText(Tr::tr("Remove"));
     m_removeAllButton.setText(Tr::tr("Remove All"));
     m_redetectButton.setText(Tr::tr("Re-detect"));
     m_detectionSettingsButton.setText(Tr::tr("Auto-detection Settings..."));
@@ -498,8 +505,8 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
             Column { m_groupedView.view(), m_container },
             Column {
                 m_addButton,
-                m_cloneButton,
-                m_removeButton,
+                m_groupedView.cloneButton(),
+                m_groupedView.removeButton(),
                 m_removeAllButton,
                 m_redetectButton,
                 m_detectionSettingsButton,
@@ -518,9 +525,13 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
     connect(ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
             this, &ToolChainOptionsWidget::toolChainSelectionChanged);
 
-    connect(&m_cloneButton, &QAbstractButton::clicked, this, [this] { cloneToolchains(); });
-    connect(&m_removeButton, &QAbstractButton::clicked,
-            &m_groupedView, &GroupedView::removeCurrent);
+    m_groupedView.setCanRemoveRow([this](int row) {
+        const ToolchainTreeItem it = m_model.item(row);
+        return it.bundle && !it.bundle->detectionSource().isSdkProvided();
+    });
+
+    connect(&m_groupedView, &GroupedView::currentRemoved,
+            this, &ToolChainOptionsWidget::updateState);
     connect(&m_removeAllButton, &QAbstractButton::clicked, this, [this] {
         bool anyRemoved = false;
         for (int row = m_model.itemCount() - 1; row >= 0; --row) {
@@ -741,35 +752,16 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
     m_groupedView.selectRow(m_model.addBundle(bundle));
 }
 
-void ToolChainOptionsWidget::cloneToolchains()
-{
-    const int row = m_groupedView.currentRow();
-    if (row < 0)
-        return;
-    const ToolchainTreeItem it = m_model.item(row);
-    if (!it.bundle)
-        return;
-
-    ToolchainBundle bundle = it.bundle->clone();
-    bundle.setDetectionSource(DetectionSource::Manual);
-    bundle.setDisplayName(Tr::tr("Clone of %1").arg(it.bundle->displayName()));
-
-    m_groupedView.selectRow(m_model.addBundle(bundle));
-}
-
 void ToolChainOptionsWidget::updateState()
 {
     bool canCopy = false;
-    bool canDelete = false;
     const int row = m_groupedView.currentRow();
     if (row >= 0 && !m_model.isRemoved(row)) {
         const ToolchainTreeItem it = m_model.item(row);
         canCopy = it.bundle && it.bundle->validity() != ToolchainBundle::Valid::None;
-        canDelete = it.bundle && !it.bundle->detectionSource().isSdkProvided();
     }
 
-    m_cloneButton.setEnabled(canCopy);
-    m_removeButton.setEnabled(canDelete);
+    m_groupedView.cloneButton().setEnabled(canCopy);
 }
 
 // ToolChainOptionsPage

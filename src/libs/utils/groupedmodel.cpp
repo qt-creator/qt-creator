@@ -623,12 +623,45 @@ GroupedView::GroupedView(GroupedModel &model)
                                                        : selected.indexes().first();
         emit currentRowChanged(m_model.mapToSource(previous).row(),
                                m_model.mapToSource(current).row());
+        updateRemoveButton();
     });
+
+    m_cloneButton.setText(Tr::tr("Clone"));
+    m_cloneButton.setEnabled(false);
+    connect(&m_cloneButton, &QPushButton::clicked, this, &GroupedView::cloneCurrent);
+
+    m_removeButton.setText(Tr::tr("Remove"));
+    m_removeButton.setEnabled(false);
+    connect(&m_removeButton, &QPushButton::clicked, this, &GroupedView::removeCurrent);
 }
 
 QTreeView &GroupedView::view()
 {
     return m_view;
+}
+
+QPushButton &GroupedView::cloneButton()
+{
+    return m_cloneButton;
+}
+
+QPushButton &GroupedView::removeButton()
+{
+    return m_removeButton;
+}
+
+void GroupedView::setCanRemoveRow(std::function<bool(int)> predicate)
+{
+    m_canRemove = std::move(predicate);
+}
+
+void GroupedView::updateRemoveButton()
+{
+    const int row = currentRow();
+    const bool isRemoved = row >= 0 && m_model.isRemoved(row);
+    m_removeButton.setText(isRemoved ? Tr::tr("Restore") : Tr::tr("Remove"));
+    const bool enabled = row >= 0 && (isRemoved || !m_canRemove || m_canRemove(row));
+    m_removeButton.setEnabled(enabled);
 }
 
 int GroupedView::currentRow() const
@@ -650,11 +683,24 @@ void GroupedView::scrollToRow(int row)
         m_view.scrollTo(m_model.mapFromSource(m_model.index(row, 0)));
 }
 
+void GroupedView::cloneCurrent()
+{
+    const int row = currentRow();
+    QTC_ASSERT(row >= 0, return);
+    const int newRow = m_model.cloneRow(row);
+    if (newRow >= 0) {
+        selectRow(newRow);
+        emit currentCloned();
+    }
+}
+
 void GroupedView::removeCurrent()
 {
     const int row = currentRow();
     QTC_ASSERT(row >= 0, return);
     m_model.markRemoved(row);
+    updateRemoveButton();
+    emit currentRemoved();
 }
 
 } // namespace Utils

@@ -251,6 +251,19 @@ public:
         markRemoved(row);
     }
 
+    int cloneRow(int row) override
+    {
+        const QtVersionItem &it = item(row);
+        if (!it.version())
+            return -1;
+        QtVersion *clone = QtVersionFactory::createQtVersionFromQMakePath(
+            it.version()->qmakeFilePath(), DetectionSource::Manual);
+        if (!clone)
+            return -1;
+        clone->setUnexpandedDisplayName(Tr::tr("Clone of %1").arg(it.version()->displayName()));
+        return appendVolatileItem(QtVersionItem(clone));
+    }
+
     QVariant variantData(int row, int column, int role) const final
     {
         return item(row).data(column, role);
@@ -280,6 +293,7 @@ private:
     void updateDescriptionLabel();
     void userChangedCurrentVersion();
     void updateWidgets();
+    void updateButtons();
     void updateLinkWithQtButton();
     QtVersion *currentVersion() const;
     std::pair<bool, QString> checkAlreadyExists(const FilePath &qtVersion);
@@ -320,7 +334,6 @@ private:
     DetailsWidget m_infoWidget;
     QComboBox m_documentationSetting;
     QPushButton m_addButton;
-    QPushButton m_removeButton;
     QPushButton m_redetectButton;
     QPushButton m_linkWithQtButton;
     QPushButton m_cleanUpButton;
@@ -340,7 +353,6 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_groupedView.view().setObjectName("qtDirList");
 
     m_addButton.setText(Tr::tr("Add..."));
-    m_removeButton.setText(Tr::tr("Remove"));
     m_redetectButton.setText(Tr::tr("Re-detect"));
     m_linkWithQtButton.setText(Tr::tr("Link with Qt..."));
     m_cleanUpButton.setText(Tr::tr("Clean Up"));
@@ -379,7 +391,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
             },
             Column {
                 m_addButton,
-                m_removeButton,
+                m_groupedView.cloneButton(),
+                m_groupedView.removeButton(),
                 m_redetectButton,
                 Space(20),
                 m_linkWithQtButton,
@@ -428,7 +441,13 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     connect(&m_editPathPushButton, &QAbstractButton::clicked,
             this, &QtSettingsPageWidget::editPath);
     connect(&m_addButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::addQtDir);
-    connect(&m_removeButton, &QAbstractButton::clicked, &m_groupedView, &GroupedView::removeCurrent);
+    m_groupedView.setCanRemoveRow([this](int row) {
+        const QtVersion *version = m_model.item(row).version();
+        return version && !version->detectionSource().isAutoDetected();
+    });
+
+    connect(&m_groupedView, &GroupedView::currentRemoved,
+            this, &QtSettingsPageWidget::updateButtons);
     connect(&m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
     connect(&m_redetectButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::redetect);
     connect(&m_groupedView, &GroupedView::currentRowChanged,
@@ -854,12 +873,17 @@ void QtSettingsPageWidget::updateWidgets()
         m_qmakePath.clear();
     }
 
-    const bool enabled = version != nullptr;
-    const bool isAutodetected = enabled && version->detectionSource().isAutoDetected();
-    const bool isRemoved = row >= 0 && m_model.isRemoved(row);
-    m_removeButton.setEnabled(enabled && !isAutodetected && !isRemoved);
-    m_nameEdit.setEnabled(enabled);
-    m_editPathPushButton.setEnabled(enabled && !isAutodetected);
+    updateButtons();
+}
+
+void QtSettingsPageWidget::updateButtons()
+{
+    const int row = m_groupedView.currentRow();
+    const QtVersion *version = currentVersion();
+    const bool isAutodetected = version && version->detectionSource().isAutoDetected();
+    m_groupedView.cloneButton().setEnabled(version && !m_model.isRemoved(row));
+    m_nameEdit.setEnabled(version != nullptr);
+    m_editPathPushButton.setEnabled(version && !isAutodetected);
 }
 
 static FilePath settingsFile(const QString &baseDir)
