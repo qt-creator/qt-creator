@@ -58,8 +58,6 @@ QtcPlugin {
         "diagnosticmark.h",
         "documentclangtoolrunner.cpp",
         "documentclangtoolrunner.h",
-        "documentquickfixfactory.cpp",
-        "documentquickfixfactory.h",
         "executableinfo.cpp",
         "executableinfo.h",
         "filterdialog.cpp",

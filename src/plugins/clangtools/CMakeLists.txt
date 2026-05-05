@@ -35,7 +35,6 @@ add_qtc_plugin(ClangTools
     diagnosticconfigswidget.cpp diagnosticconfigswidget.h
     diagnosticmark.cpp diagnosticmark.h
     documentclangtoolrunner.cpp documentclangtoolrunner.h
-    documentquickfixfactory.cpp documentquickfixfactory.h
     executableinfo.cpp executableinfo.h
     filterdialog.cpp filterdialog.h
     inlinesuppresseddiagnostics.cpp inlinesuppresseddiagnostics.h

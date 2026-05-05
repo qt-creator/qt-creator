@@ -6,7 +6,6 @@
 #include "clangtoolsprojectsettingswidget.h"
 #include "clangtoolstr.h"
 #include "documentclangtoolrunner.h"
-#include "documentquickfixfactory.h"
 #include "runsettingswidget.h"
 
 #ifdef WITH_TESTS
@@ -28,11 +27,13 @@
 
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/quickfixes/cppquickfix.h>
 
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
+#include <texteditor/refactoringchanges.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/icon.h>
@@ -53,15 +54,28 @@ using namespace Utils;
 
 namespace ClangTools::Internal {
 
+class ClangToolsPluginPrivate;
+
+class DocumentQuickFixFactory : public CppEditor::CppQuickFixFactory
+{
+public:
+    DocumentQuickFixFactory(ClangToolsPluginPrivate *pluginPrivate)
+        : m_pluginPrivate(pluginPrivate)
+    {}
+
+    void doMatch(const CppEditor::Internal::CppQuickFixInterface &interface,
+                 QuickFixOperations &result) override;
+
+private:
+    ClangToolsPluginPrivate *m_pluginPrivate;
+};
+
 class ClangToolsPluginPrivate
 {
 public:
-    ClangToolsPluginPrivate()
-        : quickFixFactory(
-            [this](const Utils::FilePath &filePath) { return runnerForFilePath(filePath); })
-    {}
+    ClangToolsPluginPrivate() : quickFixFactory(this) {}
 
-    DocumentClangToolRunner *runnerForFilePath(const Utils::FilePath &filePath)
+    DocumentClangToolRunner *runnerForFilePath(const FilePath &filePath)
     {
         for (DocumentClangToolRunner *runner : std::as_const(documentRunners)) {
             if (runner->filePath() == filePath)
@@ -72,9 +86,73 @@ public:
 
     ClangTidyTool clangTidyTool;
     ClazyTool clazyTool;
-    QHash<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
+    QHash<IDocument *, DocumentClangToolRunner *> documentRunners;
     DocumentQuickFixFactory quickFixFactory;
 };
+
+class ClangToolQuickFixOperation : public TextEditor::QuickFixOperation
+{
+public:
+    explicit ClangToolQuickFixOperation(const Diagnostic &diagnostic)
+        : m_diagnostic(diagnostic)
+    {}
+
+    QString description() const override { return m_diagnostic.description; }
+    void perform() override;
+
+private:
+    const Diagnostic m_diagnostic;
+};
+
+using Range = TextEditor::RefactoringFile::Range;
+using DiagnosticRange = QPair<Link, Link>;
+
+static Range toRange(const QTextDocument *doc, DiagnosticRange locations)
+{
+    Range range;
+    range.start = locations.first.target.toPositionInDocument(doc);
+    range.end = locations.second.target.toPositionInDocument(doc);
+    return range;
+}
+
+void ClangToolQuickFixOperation::perform()
+{
+    TextEditor::PlainRefactoringFileFactory changes;
+    QMap<FilePath, TextEditor::RefactoringFilePtr> refactoringFiles;
+
+    for (const ExplainingStep &step : m_diagnostic.explainingSteps) {
+        if (!step.isFixIt)
+            continue;
+        TextEditor::RefactoringFilePtr &refactoringFile =
+            refactoringFiles[step.location.targetFilePath];
+        if (refactoringFile.isNull())
+            refactoringFile = changes.file(step.location.targetFilePath);
+        ChangeSet changeSet = refactoringFile->changeSet();
+        Range range = toRange(refactoringFile->document(), {step.ranges.first(), step.ranges.last()});
+        changeSet.replace(range, step.message);
+        refactoringFile->setChangeSet(changeSet);
+    }
+
+    for (const TextEditor::RefactoringFilePtr &refactoringFile : std::as_const(refactoringFiles))
+        refactoringFile->apply();
+}
+
+void DocumentQuickFixFactory::doMatch(const CppEditor::Internal::CppQuickFixInterface &interface,
+                                      QuickFixOperations &result)
+{
+    if (DocumentClangToolRunner *runner = m_pluginPrivate->runnerForFilePath(interface.filePath())) {
+        const QTextBlock &block = interface.textDocument()->findBlock(interface.position());
+        if (!block.isValid())
+            return;
+
+        const int lineNumber = block.blockNumber() + 1;
+
+        for (const Diagnostic &diagnostic : runner->diagnosticsAtLine(lineNumber)) {
+            if (diagnostic.hasFixits)
+                result << new ClangToolQuickFixOperation(diagnostic);
+        }
+    }
+}
 
 class ClangToolsPlugin final : public ExtensionSystem::IPlugin
 {
