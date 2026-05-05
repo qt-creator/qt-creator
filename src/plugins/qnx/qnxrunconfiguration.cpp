@@ -9,6 +9,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
@@ -53,6 +54,10 @@ public:
             const DeployableFile depFile = buildSystem()->deploymentData()
                                                .deployableForLocalFile(localExecutable);
             executable.setExecutable(FilePath::fromString(depFile.remoteFilePath()));
+            const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit());
+            const IDeviceConstPtr runDevice = RunDeviceKitAspect::device(kit());
+            if (executable().isEmpty() && runDevice && buildDevice == runDevice)
+                executable.setExecutable(localExecutable);
             symbolFile.setValue(localExecutable);
         });
 

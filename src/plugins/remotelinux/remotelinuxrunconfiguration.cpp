@@ -74,11 +74,9 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(BuildConfiguration *bc,
         const DeployableFile depFile = deploymentData.deployableForLocalFile(localExecutable);
 
         executable.setExecutable(runDevice->filePath(depFile.remoteFilePath()));
-        symbolFile.setValue(localExecutable);
-
-        // Hack for remote build == run: deploymentData is empty when the deploy step is disabled.
         if (executable().isEmpty() && buildDevice == runDevice)
             executable.setExecutable(localExecutable);
+        symbolFile.setValue(localExecutable);
 
         useLibraryPath.setEnabled(buildDevice == runDevice);
     });
