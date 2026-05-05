@@ -6,7 +6,6 @@ add_qtc_plugin(Debugger
   DEFINES
     CLANG_BINDIR="${LLVM_TOOLS_BINARY_DIR}"
   SOURCES
-    analyzer/detailederrorview.cpp analyzer/detailederrorview.h
     breakhandler.cpp breakhandler.h
     breakpoint.cpp breakpoint.h
     cdb/cdbengine.cpp cdb/cdbengine.h

@@ -367,6 +367,11 @@ static bool hideDebugMenu()
     return ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_DEBUG, false).toBool();
 }
 
+static bool hideAnalyzeMenu()
+{
+    return ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_ANALYZE, false).toBool();
+}
+
 static bool isTextFile(const FilePath &filePath)
 {
     return Utils::mimeTypeForFile(filePath).inherits(
@@ -1096,6 +1101,22 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
         ActionManager::createMenu(Constants::M_DEBUG_STARTDEBUGGING);
     mstartdebugging->menu()->setTitle(Tr::tr("&Start Debugging"));
     mdebug->addMenu(mstartdebugging, Core::Constants::G_DEFAULT_ONE);
+
+    // analyze menu
+    ActionContainer *manalyze =
+        ActionManager::createMenu(Core::Constants::M_DEBUG_ANALYZER);
+    manalyze->menu()->setTitle(Tr::tr("&Analyze"));
+    manalyze->menu()->setEnabled(true);
+    if (!hideAnalyzeMenu())
+        menubar->addMenu(manalyze, Core::Constants::G_VIEW);
+
+    manalyze->appendGroup(Core::Constants::G_ANALYZER_CONTROL);
+    manalyze->appendGroup(Core::Constants::G_ANALYZER_TOOLS);
+    manalyze->appendGroup(Core::Constants::G_ANALYZER_REMOTE_TOOLS);
+    manalyze->appendGroup(Core::Constants::G_ANALYZER_OPTIONS);
+    manalyze->addSeparator(Core::Constants::G_ANALYZER_TOOLS);
+    manalyze->addSeparator(Core::Constants::G_ANALYZER_REMOTE_TOOLS);
+    manalyze->addSeparator(Core::Constants::G_ANALYZER_OPTIONS);
 
     //
     // Groups

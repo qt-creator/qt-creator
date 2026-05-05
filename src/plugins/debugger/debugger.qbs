@@ -209,15 +209,6 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "Analyzer"
-        prefix: "analyzer/"
-        files: [
-            "detailederrorview.cpp",
-            "detailederrorview.h",
-        ]
-    }
-
     QtcTestResources {
         prefix: "unit-tests/"
         files: ["**/*"]

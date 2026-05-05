@@ -6,7 +6,6 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "CppEditor" }
-    Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport"; condition: qtc.withPluginTests }
     Depends { name: "TextEditor" }

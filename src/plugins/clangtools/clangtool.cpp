@@ -62,7 +62,6 @@
 
 using namespace Core;
 using namespace CppEditor;
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;

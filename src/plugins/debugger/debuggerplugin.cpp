@@ -375,13 +375,6 @@ static QIcon interruptIcon(bool toolBarStyle)
     return toolBarStyle ? iconToolBar : icon;
 }
 
-static bool hideAnalyzeMenu()
-{
-    return Core::ICore::settings()
-        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_ANALYZE, false)
-        .toBool();
-}
-
 static bool hideDebugMenu()
 {
     return Core::ICore::settings()
@@ -682,7 +675,6 @@ public:
 public:
     QPointer<DebugMode> m_mode;
 
-    ActionContainer *m_menu = nullptr;
 
     QList<RunControl *> m_scheduledStarts;
 
@@ -836,29 +828,10 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
                 this, &DebuggerPluginPrivate::parseCommandLineArguments);
     }
 
-    // Menus
-    m_menu = ActionManager::createMenu(M_DEBUG_ANALYZER);
-    m_menu->menu()->setTitle(Tr::tr("&Analyze"));
-    m_menu->menu()->setEnabled(true);
-
-    m_menu->appendGroup(G_ANALYZER_CONTROL);
-    m_menu->appendGroup(G_ANALYZER_TOOLS);
-    m_menu->appendGroup(G_ANALYZER_REMOTE_TOOLS);
-    m_menu->appendGroup(G_ANALYZER_OPTIONS);
-
     ActionContainer *touchBar = ActionManager::createTouchBar("Debugger.TouchBar",
                                                               Icons::MACOS_TOUCHBAR_DEBUG.icon());
     ActionManager::actionContainer(Core::Constants::TOUCH_BAR)
         ->addMenu(touchBar, Core::Constants::G_TOUCHBAR_OTHER);
-
-    ActionContainer *menubar = ActionManager::actionContainer(MENU_BAR);
-    ActionContainer *mtools = ActionManager::actionContainer(M_TOOLS);
-    if (!hideAnalyzeMenu())
-        menubar->addMenu(mtools, m_menu);
-
-    m_menu->addSeparator(G_ANALYZER_TOOLS);
-    m_menu->addSeparator(G_ANALYZER_REMOTE_TOOLS);
-    m_menu->addSeparator(G_ANALYZER_OPTIONS);
 
     QAction *act;
 

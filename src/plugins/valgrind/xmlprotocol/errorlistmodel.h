@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <debugger/analyzer/detailederrorview.h>
+#include <projectexplorer/detailederrorview.h>
 #include <utils/treemodel.h>
 
 #include <functional>
@@ -17,7 +17,7 @@ class ErrorListModel : public Utils::TreeModel<>
 {
 public:
     enum Role {
-        ErrorRole = Debugger::DetailedErrorView::FullTextRole + 1,
+        ErrorRole = ProjectExplorer::DetailedErrorView::FullTextRole + 1,
     };
 
     explicit ErrorListModel(QObject *parent = nullptr);

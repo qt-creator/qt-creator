@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <debugger/analyzer/detailederrorview.h>
+#include <projectexplorer/detailederrorview.h>
 
 #include <utils/filepath.h>
 
@@ -13,7 +13,7 @@ namespace Valgrind::Internal {
 
 class ValgrindSettings;
 
-class MemcheckErrorView : public Debugger::DetailedErrorView
+class MemcheckErrorView : public ProjectExplorer::DetailedErrorView
 {
 public:
     MemcheckErrorView(QWidget *parent = nullptr);

@@ -111,7 +111,7 @@ private:
 };
 
 DiagnosticView::DiagnosticView(QWidget *parent)
-    : Debugger::DetailedErrorView(parent)
+    : ProjectExplorer::DetailedErrorView(parent)
     , m_style(new DiagnosticViewStyle)
     , m_delegate(new DiagnosticViewDelegate(m_style, this))
 {
@@ -478,12 +478,12 @@ bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)
 void DiagnosticView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     openEditorForCurrentIndex();
-    Debugger::DetailedErrorView::mouseDoubleClickEvent(event);
+    ProjectExplorer::DetailedErrorView::mouseDoubleClickEvent(event);
 }
 
 void DiagnosticView::openEditorForCurrentIndex()
 {
-    const QVariant v = model()->data(currentIndex(), Debugger::DetailedErrorView::LocationRole);
+    const QVariant v = model()->data(currentIndex(), ProjectExplorer::DetailedErrorView::LocationRole);
     Link loc = v.value<Link>();
     if (loc.hasValidTarget())
         Core::EditorManager::openEditorAt(loc);

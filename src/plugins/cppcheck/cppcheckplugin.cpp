@@ -76,7 +76,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
         action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
         action->setToolTip(Tr::tr("Go to previous diagnostic."));
         connect(action, &QAction::triggered,
-                manualRunView, &Debugger::DetailedErrorView::goBack);
+                manualRunView, &ProjectExplorer::DetailedErrorView::goBack);
         connect (&manualRunModel, &DiagnosticsModel::hasDataChanged,
                 action, &QAction::setEnabled);
         perspective.addToolBarAction(action);
@@ -89,7 +89,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
         action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
         action->setToolTip(Tr::tr("Go to next diagnostic."));
         connect(action, &QAction::triggered,
-                manualRunView, &Debugger::DetailedErrorView::goNext);
+                manualRunView, &ProjectExplorer::DetailedErrorView::goNext);
         connect (&manualRunModel, &DiagnosticsModel::hasDataChanged,
                 action, &QAction::setEnabled);
         perspective.addToolBarAction(action);

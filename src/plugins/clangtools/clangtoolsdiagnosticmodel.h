@@ -7,7 +7,7 @@
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 
-#include <debugger/analyzer/detailederrorview.h>
+#include <projectexplorer/detailederrorview.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/treemodel.h>
 
@@ -83,7 +83,7 @@ public:
     QSet<Diagnostic> diagnostics() const;
 
     enum ItemRole {
-        DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1,
+        DiagnosticRole = ProjectExplorer::DetailedErrorView::FullTextRole + 1,
         TextRole,
         CheckBoxEnabledRole,
         DocumentationUrlRole,

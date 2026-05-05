@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <debugger/analyzer/detailederrorview.h>
+#include <projectexplorer/detailederrorview.h>
 
 namespace ClangTools {
 namespace Internal {
@@ -11,7 +11,7 @@ namespace Internal {
 class DiagnosticViewStyle;
 class DiagnosticViewDelegate;
 
-class DiagnosticView : public Debugger::DetailedErrorView
+class DiagnosticView : public ProjectExplorer::DetailedErrorView
 {
     Q_OBJECT
 

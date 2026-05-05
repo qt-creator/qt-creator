@@ -26,7 +26,7 @@ QVariant FilePathItem::data(int column, int role) const
             return m_filePath.toUrlishString();
         case Qt::DecorationRole:
             return FileIconProvider::icon(m_filePath);
-        case Debugger::DetailedErrorView::FullTextRole:
+        case ProjectExplorer::DetailedErrorView::FullTextRole:
             return m_filePath.toUrlishString();
         default:
             return QVariant();
@@ -56,7 +56,7 @@ QVariant DiagnosticItem::data(int column, int role) const
 {
     if (column == DiagnosticsModel::DiagnosticColumn) {
         switch (role) {
-        case Debugger::DetailedErrorView::LocationRole:
+        case ProjectExplorer::DetailedErrorView::LocationRole:
             return QVariant::fromValue(Link(m_diagnostic.fileName, m_diagnostic.lineNumber, 0));
         case Qt::DisplayRole:
             return QString("%1: %2").arg(m_diagnostic.lineNumber).arg(m_diagnostic.message);
@@ -64,7 +64,7 @@ QVariant DiagnosticItem::data(int column, int role) const
             return QString("%1: %2").arg(m_diagnostic.severityText, m_diagnostic.checkId);
         case Qt::DecorationRole:
             return getIcon(m_diagnostic.severity);
-        case Debugger::DetailedErrorView::FullTextRole:
+        case ProjectExplorer::DetailedErrorView::FullTextRole:
             return QString("%1:%2: %3")
                 .arg(m_diagnostic.fileName.toUserOutput())
                 .arg(m_diagnostic.lineNumber)

@@ -55,6 +55,7 @@ QtcPlugin {
             "deploymentdataview.cpp",
             "deploymentdataview.h",
             "desktoprunconfiguration.cpp", "desktoprunconfiguration.h",
+            "detailederrorview.cpp", "detailederrorview.h",
             "editorconfiguration.cpp", "editorconfiguration.h",
             "editorsettingspropertiespage.cpp", "editorsettingspropertiespage.h",
             "environmentaspect.cpp", "environmentaspect.h",

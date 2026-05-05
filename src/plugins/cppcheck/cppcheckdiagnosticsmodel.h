@@ -6,7 +6,7 @@
 #include <cppcheck/cppcheckdiagnostic.h>
 #include <cppcheck/cppcheckdiagnosticmanager.h>
 
-#include <debugger/analyzer/detailederrorview.h>
+#include <projectexplorer/detailederrorview.h>
 
 #include <utils/treemodel.h>
 

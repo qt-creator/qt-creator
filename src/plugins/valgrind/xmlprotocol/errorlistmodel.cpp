@@ -152,17 +152,17 @@ ErrorItem::ErrorItem(const ErrorListModel *model, const Error &error)
 static QVariant locationData(int role, const Frame &frame)
 {
     const Link location(FilePath::fromString(frame.filePath()), frame.line(), 0);
-    return Debugger::DetailedErrorView::locationData(role, location);
+    return ProjectExplorer::DetailedErrorView::locationData(role, location);
 }
 
 QVariant ErrorItem::data(int column, int role) const
 {
-    if (column == Debugger::DetailedErrorView::LocationColumn)
+    if (column == ProjectExplorer::DetailedErrorView::LocationColumn)
         return locationData(role, m_model->findRelevantFrame(m_error));
 
     // DiagnosticColumn
     switch (role) {
-    case Debugger::DetailedErrorView::FullTextRole: {
+    case ProjectExplorer::DetailedErrorView::FullTextRole: {
         QString content;
         QTextStream stream(&content);
 
@@ -213,7 +213,7 @@ StackItem::StackItem(const Stack &stack) : m_stack(stack)
 QVariant StackItem::data(int column, int role) const
 {
     const ErrorItem * const errorItem = getErrorItem();
-    if (column == Debugger::DetailedErrorView::LocationColumn)
+    if (column == ProjectExplorer::DetailedErrorView::LocationColumn)
         return locationData(role, errorItem->modelPrivate()->findRelevantFrame(errorItem->error()));
 
     // DiagnosticColumn
@@ -241,7 +241,7 @@ FrameItem::FrameItem(const Frame &frame) : m_frame(frame)
 
 QVariant FrameItem::data(int column, int role) const
 {
-    if (column == Debugger::DetailedErrorView::LocationColumn)
+    if (column == ProjectExplorer::DetailedErrorView::LocationColumn)
         return locationData(role, m_frame);
 
     // DiagnosticColumn
