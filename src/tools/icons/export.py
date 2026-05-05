@@ -15,7 +15,7 @@ import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
-from distutils import spawn
+import shutil
 
 
 def qtcRoot():
@@ -146,11 +146,11 @@ def main():
                         help='a RegExp filter for svg element Ids, e.g.: .*device.*')
     args = parser.parse_args()
 
-    inkscape = spawn.find_executable("inkscape")
+    inkscape = shutil.which("inkscape")
     if inkscape is None:
         sys.exit("Inkscape was not found in Path.")
 
-    optipng = spawn.find_executable("optipng")
+    optipng = shutil.which("optipng")
     if optipng is None:
         sys.exit("Optipng was not found in Path.")
 
