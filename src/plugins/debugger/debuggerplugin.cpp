@@ -2023,7 +2023,7 @@ QWidget *DebuggerPluginPrivate::addSearch(BaseTreeView *treeView)
 {
     BoolAspect &act = settings().useAlternatingRowColors;
     treeView->setAlternatingRowColors(act());
-    treeView->setProperty(PerspectiveState::savesHeaderKey(), true);
+    treeView->setProperty(Perspective::savesHeaderKey(), true);
     connect(&act, &BaseAspect::changed, treeView, [treeView] {
         treeView->setAlternatingRowColors(settings().useAlternatingRowColors());
     });
@@ -2096,7 +2096,6 @@ DebuggerPlugin::DebuggerPlugin()
     setObjectName("DebuggerPlugin");
     m_instance = this;
 
-    qRegisterMetaType<PerspectiveState>("Utils::PerspectiveState");
 }
 
 DebuggerPlugin::~DebuggerPlugin()

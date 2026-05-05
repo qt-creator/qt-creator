@@ -19,12 +19,14 @@
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 #include <utils/proxyaction.h>
+#include <utils/storekey.h>
 #include <utils/utilsicons.h>
 #include <utils/stylehelper.h>
 
 #include <QAction>
 #include <QComboBox>
 #include <QContextMenuEvent>
+#include <QDataStream>
 #include <QDockWidget>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -49,8 +51,57 @@ const char MAINWINDOW_KEY[]         = "Debugger.MainWindow";
 const char SHOW_CENTRALWIDGET_KEY[] = "ShowCentralWidget";
 const char STATE_KEY2[]             = "State2";
 const char CHANGED_DOCK_KEY[]       = "ChangedDocks";
+const char SAVES_HEADER_KEY[]       = "SavesHeader";
+
+const char MAINWINDOW_STATE_KEY[]   = "MainWindow";
+const char HEADERVIEW_STATES_KEY[]  = "HeaderViewStates";
 
 static DebuggerMainWindow *theMainWindow = nullptr;
+
+class PerspectiveState
+{
+public:
+    bool hasWindowState() const { return !mainWindowState.isEmpty(); }
+
+    bool restoreWindowState(FancyMainWindow *mainWindow)
+    {
+        if (!mainWindowState.isEmpty())
+            return mainWindow->restoreSettings(mainWindowState);
+        return false;
+    }
+
+    Store toSettings() const
+    {
+        Store result;
+        result.insert(MAINWINDOW_STATE_KEY, QVariant::fromValue(mainWindowState));
+        result.insert(HEADERVIEW_STATES_KEY, QVariant::fromValue(headerViewStates));
+        return result;
+    }
+
+    static PerspectiveState fromSettings(const Store &settings)
+    {
+        PerspectiveState state;
+        state.mainWindowState = settings.value(MAINWINDOW_STATE_KEY).value<Store>();
+        state.headerViewStates = settings.value(HEADERVIEW_STATES_KEY).value<QVariantHash>();
+        return state;
+    }
+
+    friend QDataStream &operator>>(QDataStream &ds, PerspectiveState &state)
+    {
+        QByteArray mainWindowStateLegacy;
+        ds >> mainWindowStateLegacy >> state.headerViewStates;
+        state.mainWindowState.clear();
+        state.mainWindowState.insert("State", mainWindowStateLegacy);
+        return ds;
+    }
+    friend QDataStream &operator<<(QDataStream &ds, const PerspectiveState &state)
+    {
+        return ds << state.mainWindowState.value("State") << state.headerViewStates;
+    }
+
+    Store mainWindowState;
+    QVariantHash headerViewStates;
+};
 
 class DockOperation
 {
@@ -166,6 +217,7 @@ public:
 DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     : q(parent)
 {
+    qRegisterMetaType<PerspectiveState>();
     m_centralWidgetStack = new QStackedWidget;
     m_statusLabel = new Utils::StatusLabel;
     m_statusLabel->setObjectName("DebuggerStatusLabel"); // used by Squish
@@ -801,6 +853,11 @@ QString Perspective::id() const
     return d->m_id;
 }
 
+const char *Perspective::savesHeaderKey()
+{
+    return SAVES_HEADER_KEY;
+}
+
 QString Perspective::parentPerspectiveId() const
 {
     return d->m_parentPerspectiveId;
@@ -1036,7 +1093,7 @@ void PerspectivePrivate::restoreLayout()
         if (op.operationType != Perspective::Raise) {
             QTC_ASSERT(op.dock, continue);
             for (QTreeView *tv : op.dock->findChildren<QTreeView *>()) {
-                if (tv->property(PerspectiveState::savesHeaderKey()).toBool()) {
+                if (tv->property(SAVES_HEADER_KEY).toBool()) {
                     const QByteArray s = state.headerViewStates.value(op.name()).toByteArray();
                     if (!s.isEmpty())
                         tv->header()->restoreState(s);
@@ -1055,7 +1112,7 @@ void PerspectivePrivate::saveLayout()
         if (op.operationType != Perspective::Raise) {
             QTC_ASSERT(op.dock, continue);
             for (QTreeView *tv : op.dock->findChildren<QTreeView *>()) {
-                if (tv->property(PerspectiveState::savesHeaderKey()).toBool()) {
+                if (tv->property(SAVES_HEADER_KEY).toBool()) {
                     if (QHeaderView *hv = tv->header())
                         state.headerViewStates.insert(op.name(), hv->saveState());
                 }
@@ -1069,41 +1126,6 @@ void PerspectivePrivate::saveLayout()
 QString PerspectivePrivate::settingsId() const
 {
     return m_settingsId.isEmpty() ? m_id : m_settingsId;
-}
-
-const char *PerspectiveState::savesHeaderKey()
-{
-    return "SavesHeader";
-}
-
-bool PerspectiveState::hasWindowState() const
-{
-    return !mainWindowState.isEmpty();
-}
-
-bool PerspectiveState::restoreWindowState(FancyMainWindow * mainWindow)
-{
-    if (!mainWindowState.isEmpty())
-        return mainWindow->restoreSettings(mainWindowState);
-    return false;
-}
-
-const char kMainWindowStateKey[] = "MainWindow";
-const char kHeaderViewStatesKey[] = "HeaderViewStates";
-
-Store PerspectiveState::toSettings() const
-{
-    Store result;
-    result.insert(kMainWindowStateKey, QVariant::fromValue(mainWindowState));
-    result.insert(kHeaderViewStatesKey, QVariant::fromValue(headerViewStates));
-    return result;
-}
-PerspectiveState PerspectiveState::fromSettings(const Store &settings)
-{
-    PerspectiveState state;
-    state.mainWindowState = settings.value(kMainWindowStateKey).value<Store>();
-    state.headerViewStates = settings.value(kHeaderViewStatesKey).value<QVariantHash>();
-    return state;
 }
 
 } // Utils
