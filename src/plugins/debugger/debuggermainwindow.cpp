@@ -167,11 +167,24 @@ public:
     QString m_lastActiveSubPerspectiveId;
 };
 
+// ensures that all items of the popup are readable
+class TweakedCombo final : public QComboBox
+{
+public:
+    TweakedCombo() = default;
+
+    void showPopup() final
+    {
+        QTC_ASSERT(view(), return);
+        view()->setMinimumWidth(view()->sizeHintForColumn(0));
+        QComboBox::showPopup();
+    }
+};
+
 class PerspectivesViewPrivate : public QObject
 {
 public:
     PerspectivesViewPrivate();
-    ~PerspectivesViewPrivate();
 
     void depopulateCurrentPerspective();
     void populateCurrentPerspective();
@@ -197,15 +210,16 @@ public:
     }
 
     InnerMainWindow m_mainWindow;
+    QStackedWidget m_centralWidgetStack;
+    QDockWidget m_toolBarDock;
+    TweakedCombo m_perspectiveChooser;
+    StatusLabel m_statusLabel;
+    EditorManagerPlaceHolder m_editorPlaceHolder;
+    QMenu m_perspectiveMenu;
+
     QPointer<Perspective> m_currentPerspective = nullptr;
-    QComboBox *m_perspectiveChooser = nullptr;
-    QMenu *m_perspectiveMenu;
-    QStackedWidget *m_centralWidgetStack = nullptr;
     QHBoxLayout *m_subPerspectiveSwitcherLayout = nullptr;
     QHBoxLayout *m_innerToolsLayout = nullptr;
-    QPointer<QWidget> m_editorPlaceHolder;
-    StatusLabel *m_statusLabel = nullptr;
-    QDockWidget *m_toolBarDock = nullptr;
     bool needRestoreOnModeEnter = false;
 
     QList<QPointer<Perspective>> m_perspectives;
@@ -215,34 +229,19 @@ public:
     QHash<QString, PerspectiveState> m_lastTypePerspectiveStates;  // Perspective::settingsId() -> MainWindow::state()
 };
 
-class TweakedCombo : public QComboBox // ensures that all items of the popup are readable
-{
-public:
-    explicit TweakedCombo(QWidget *parent = nullptr) : QComboBox(parent) {}
-    void showPopup() override
-    {
-        QTC_ASSERT(view(), return);
-        view()->setMinimumWidth(view()->sizeHintForColumn(0));
-        QComboBox::showPopup();
-    }
-};
-
 PerspectivesViewPrivate::PerspectivesViewPrivate()
 {
     qRegisterMetaType<PerspectiveState>();
-    m_centralWidgetStack = new QStackedWidget;
-    m_statusLabel = new Utils::StatusLabel;
-    m_statusLabel->setObjectName("DebuggerStatusLabel"); // used by Squish
-    StyleHelper::setPanelWidget(m_statusLabel);
-    m_statusLabel->setIndent(2 * QFontMetrics(m_mainWindow.font()).horizontalAdvance(QChar('x')));
-    m_editorPlaceHolder = new EditorManagerPlaceHolder;
 
-    m_perspectiveChooser = new TweakedCombo;
-    m_perspectiveChooser->setObjectName("PerspectiveChooser");
-    StyleHelper::setPanelWidget(m_perspectiveChooser);
-    m_perspectiveChooser->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    connect(m_perspectiveChooser, &QComboBox::activated, this, [this](int item) {
-        Perspective *perspective = Perspective::findPerspective(m_perspectiveChooser->itemData(item).toString());
+    m_statusLabel.setObjectName("DebuggerStatusLabel"); // used by Squish
+    StyleHelper::setPanelWidget(&m_statusLabel);
+    m_statusLabel.setIndent(2 * QFontMetrics(m_mainWindow.font()).horizontalAdvance(QChar('x')));
+
+    m_perspectiveChooser.setObjectName("PerspectiveChooser");
+    StyleHelper::setPanelWidget(&m_perspectiveChooser);
+    m_perspectiveChooser.setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    connect(&m_perspectiveChooser, &QComboBox::activated, this, [this](int item) {
+        Perspective *perspective = Perspective::findPerspective(m_perspectiveChooser.itemData(item).toString());
         QTC_ASSERT(perspective, return);
         if (auto subPerspective = Perspective::findPerspective(perspective->d->m_lastActiveSubPerspectiveId))
             subPerspective->select();
@@ -250,10 +249,9 @@ PerspectivesViewPrivate::PerspectivesViewPrivate()
             perspective->select();
     });
 
-    m_perspectiveMenu = new QMenu;
-    connect(m_perspectiveMenu, &QMenu::aboutToShow, this, [this] {
-        m_perspectiveMenu->clear();
-        PerspectivesView::addPerspectiveMenu(m_perspectiveMenu);
+    connect(&m_perspectiveMenu, &QMenu::aboutToShow, this, [this] {
+        m_perspectiveMenu.clear();
+        PerspectivesView::addPerspectiveMenu(&m_perspectiveMenu);
     });
 
     auto viewButton = new QToolButton;
@@ -282,10 +280,10 @@ PerspectivesViewPrivate::PerspectivesViewPrivate()
     auto hbox = new QHBoxLayout(toolbar);
     hbox->setContentsMargins(0, 0, 0, 0);
     hbox->setSpacing(0);
-    hbox->addWidget(m_perspectiveChooser);
+    hbox->addWidget(&m_perspectiveChooser);
     hbox->addWidget(subPerspectiveSwitcher);
     hbox->addWidget(innerTools);
-    hbox->addWidget(m_statusLabel);
+    hbox->addWidget(&m_statusLabel);
     hbox->addStretch(1);
     hbox->addWidget(new Utils::StyledSeparator);
     hbox->addWidget(viewButton);
@@ -299,16 +297,18 @@ PerspectivesViewPrivate::PerspectivesViewPrivate()
     scrolledToolbar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     StyleHelper::setPanelWidgetSingleRow(scrolledToolbar);
 
-    auto dock = new QDockWidget(Tr::tr("Toolbar"), &m_mainWindow);
-    dock->setObjectName("Toolbar");
-    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
-    dock->setTitleBarWidget(new QWidget(dock)); // hide title bar
-    dock->setProperty("managed_dockwidget", "true");
-    dock->setWidget(scrolledToolbar);
+    m_toolBarDock.setWindowTitle(Tr::tr("Toolbar"));
+    m_toolBarDock.setObjectName("Toolbar");
+    m_toolBarDock.setFeatures(QDockWidget::NoDockWidgetFeatures);
+    m_toolBarDock.setAllowedAreas(Qt::BottomDockWidgetArea);
+    m_toolBarDock.setTitleBarWidget(new QWidget(&m_toolBarDock)); // hide title bar
+    m_toolBarDock.setProperty("managed_dockwidget", "true");
+    m_toolBarDock.setWidget(scrolledToolbar);
 
-    m_toolBarDock = dock;
-    m_mainWindow.addDockWidget(Qt::BottomDockWidgetArea, m_toolBarDock);
+    m_mainWindow.setDockNestingEnabled(true);
+    m_mainWindow.setDockActionsVisible(false);
+    m_mainWindow.setDocumentMode(true);
+    m_mainWindow.addDockWidget(Qt::BottomDockWidgetArea, &m_toolBarDock);
 
     connect(viewButton, &QAbstractButton::clicked, this, [viewButton] {
         ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
@@ -318,38 +318,26 @@ PerspectivesViewPrivate::PerspectivesViewPrivate()
     connect(closeButton, &QAbstractButton::clicked, [] {
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
-}
 
-PerspectivesViewPrivate::~PerspectivesViewPrivate()
-{
-    delete m_editorPlaceHolder;
-    delete m_perspectiveMenu;
+    connect(&m_mainWindow, &FancyMainWindow::resetLayout,
+            this, &PerspectivesViewPrivate::resetCurrentPerspective);
 }
 
 PerspectivesView::PerspectivesView()
     : d(new PerspectivesViewPrivate)
 {
-    FancyMainWindow *mw = &d->m_mainWindow;
-    mw->setDockNestingEnabled(true);
-    mw->setDockActionsVisible(false);
-    mw->setDocumentMode(true);
-
-    connect(mw, &FancyMainWindow::resetLayout,
-            d, &PerspectivesViewPrivate::resetCurrentPerspective);
-
     Context debugcontext(Debugger::Constants::C_DEBUGMODE);
-
     ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
-    Command *cmd = ActionManager::registerAction(mw->showCentralWidgetAction(),
+    Command *cmd = ActionManager::registerAction(d->m_mainWindow.showCentralWidgetAction(),
         "Debugger.Views.ShowCentralWidget", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = ActionManager::registerAction(mw->menuSeparator1(),
+    cmd = ActionManager::registerAction(d->m_mainWindow.menuSeparator1(),
         "Debugger.Views.Separator1", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = ActionManager::registerAction(mw->resetLayoutAction(),
+    cmd = ActionManager::registerAction(d->m_mainWindow.resetLayoutAction(),
         "Debugger.Views.ResetSimple", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
@@ -357,7 +345,7 @@ PerspectivesView::PerspectivesView()
     // HACK: See QTCREATORBUG-23755. This ensures the showCentralWidget()
     // call in restorePersistentSettings() below has something to operate on,
     // and a plain QWidget is what we'll use anyway as central widget.
-    mw->setCentralWidget(new QWidget);
+    d->m_mainWindow.setCentralWidget(new QWidget);
 
     restorePersistentSettings();
 }
@@ -393,7 +381,7 @@ void PerspectivesViewPrivate::registerPerspective(Perspective *perspective)
     QString parentPerspective = perspective->d->m_parentPerspectiveId;
     // Add only "main" perspectives to the chooser.
     if (parentPerspective.isEmpty())
-        m_perspectiveChooser->addItem(perspective->d->m_name, perspective->d->m_id);
+        m_perspectiveChooser.addItem(perspective->d->m_name, perspective->d->m_id);
     m_perspectives.append(perspective);
 }
 
@@ -413,7 +401,7 @@ void PerspectivesViewPrivate::destroyPerspective(Perspective *perspective)
     // This might change in the future, make sure we notice.
     const int idx = indexInChooser(perspective);
     if (idx != -1)
-        m_perspectiveChooser->removeItem(idx);
+        m_perspectiveChooser.removeItem(idx);
 
     for (DockOperation &op : perspective->d->m_dockOperations) {
         if (op.commandId.isValid())
@@ -444,7 +432,7 @@ void PerspectivesViewPrivate::destroyPerspective(Perspective *perspective)
 void PerspectivesView::showStatusMessage(const QString &message, int timeoutMS)
 {
     if (theMainWindow)
-        theMainWindow->d->m_statusLabel->showStatusMessage(message, timeoutMS);
+        theMainWindow->d->m_statusLabel.showStatusMessage(message, timeoutMS);
 }
 
 void PerspectivesView::enableMainWindow(bool on)
@@ -565,7 +553,7 @@ void PerspectivesView::savePersistentSettings() const
 
 QWidget *PerspectivesView::centralWidgetStack()
 {
-    return theMainWindow ? theMainWindow->d->m_centralWidgetStack : nullptr;
+    return theMainWindow ? &theMainWindow->d->m_centralWidgetStack : nullptr;
 }
 
 void PerspectivesView::addSubPerspectiveSwitcher(QWidget *widget)
@@ -634,10 +622,10 @@ void PerspectivesViewPrivate::resetCurrentPerspective()
 void PerspectivesViewPrivate::setCentralWidget(QWidget *widget)
 {
     if (widget) {
-        m_centralWidgetStack->addWidget(widget);
+        m_centralWidgetStack.addWidget(widget);
         m_mainWindow.showCentralWidgetAction()->setText(widget->windowTitle());
     } else {
-        m_centralWidgetStack->addWidget(m_editorPlaceHolder);
+        m_centralWidgetStack.addWidget(&m_editorPlaceHolder);
         m_mainWindow.showCentralWidgetAction()->setText(Tr::tr("Editor"));
     }
 }
@@ -672,7 +660,7 @@ void DockOperation::setupLayout()
     if (anchorWidget)
         anchor = theMainWindow->d->dockForWidget(anchorWidget);
     else if (area == Qt::BottomDockWidgetArea)
-        anchor = theMainWindow->d->m_toolBarDock;
+        anchor = &theMainWindow->d->m_toolBarDock;
 
     if (anchor) {
         switch (operationType) {
@@ -733,7 +721,7 @@ void DockOperation::recordVisibility()
 
 int PerspectivesViewPrivate::indexInChooser(Perspective *perspective) const
 {
-    return perspective ? m_perspectiveChooser->findData(perspective->d->m_id) : -1;
+    return perspective ? m_perspectiveChooser.findData(perspective->d->m_id) : -1;
 }
 
 void PerspectivesViewPrivate::updatePerspectiveChooserWidth()
@@ -747,26 +735,26 @@ void PerspectivesViewPrivate::updatePerspectiveChooserWidth()
     }
 
     if (index != -1) {
-        m_perspectiveChooser->setCurrentIndex(index);
+        m_perspectiveChooser.setCurrentIndex(index);
 
         const int contentWidth =
-            m_perspectiveChooser->fontMetrics().horizontalAdvance(perspective->d->m_name);
+            m_perspectiveChooser.fontMetrics().horizontalAdvance(perspective->d->m_name);
         QStyleOptionComboBox option;
-        option.initFrom(m_perspectiveChooser);
+        option.initFrom(&m_perspectiveChooser);
         const QSize sz(contentWidth, 1);
-        const int width = m_perspectiveChooser->style()->sizeFromContents(
+        const int width = m_perspectiveChooser.style()->sizeFromContents(
                     QStyle::CT_ComboBox, &option, sz).width();
-        m_perspectiveChooser->setFixedWidth(width);
+        m_perspectiveChooser.setFixedWidth(width);
     }
 }
 
 void PerspectivesViewPrivate::cleanDocks()
 {
-    m_statusLabel->clear();
+    m_statusLabel.clear();
 
     for (QDockWidget *dock : m_mainWindow.dockWidgets()) {
         dock->setFloating(false);
-        if (dock != m_toolBarDock)
+        if (dock != &m_toolBarDock)
             dock->setVisible(false);
     }
 }
@@ -775,13 +763,13 @@ void PerspectivePrivate::depopulatePerspective()
 {
     ICore::removeAdditionalContext(context());
     theMainWindow->d->m_centralWidgetStack
-            ->removeWidget(m_centralWidget ? m_centralWidget : theMainWindow->d->m_editorPlaceHolder);
+            .removeWidget(m_centralWidget ? m_centralWidget : &theMainWindow->d->m_editorPlaceHolder);
 
-    theMainWindow->d->m_statusLabel->clear();
+    theMainWindow->d->m_statusLabel.clear();
 
     qCDebug(perspectivesLog) << "DEPOPULATE PERSPECTIVE" << m_id;
     for (QDockWidget *dock : theMainWindow->d->m_mainWindow.dockWidgets()) {
-        if (dock != theMainWindow->d->m_toolBarDock)
+        if (dock != &theMainWindow->d->m_toolBarDock)
             dock->setVisible(false);
     }
 
@@ -805,10 +793,10 @@ void PerspectivePrivate::populatePerspective()
     showInnerToolBar();
 
     if (m_centralWidget) {
-        theMainWindow->d->m_centralWidgetStack->addWidget(m_centralWidget);
+        theMainWindow->d->m_centralWidgetStack.addWidget(m_centralWidget);
         theMainWindow->d->m_mainWindow.showCentralWidgetAction()->setText(m_centralWidget->windowTitle());
     } else {
-        theMainWindow->d->m_centralWidgetStack->addWidget(theMainWindow->d->m_editorPlaceHolder);
+        theMainWindow->d->m_centralWidgetStack.addWidget(&theMainWindow->d->m_editorPlaceHolder);
         theMainWindow->d->m_mainWindow.showCentralWidgetAction()->setText(Tr::tr("Editor"));
     }
 
@@ -891,7 +879,7 @@ void Perspective::setEnabled(bool enabled)
     QTC_ASSERT(theMainWindow, return);
     const int index = theMainWindow->d->indexInChooser(this);
     QTC_ASSERT(index != -1, return);
-    auto model = qobject_cast<QStandardItemModel*>(theMainWindow->d->m_perspectiveChooser->model());
+    auto model = qobject_cast<QStandardItemModel*>(theMainWindow->d->m_perspectiveChooser.model());
     QTC_ASSERT(model, return);
     QStandardItem *item = model->item(index, 0);
     item->setFlags(enabled ? item->flags() | Qt::ItemIsEnabled : item->flags() & ~Qt::ItemIsEnabled );
