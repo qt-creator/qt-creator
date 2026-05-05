@@ -276,6 +276,12 @@ public:
     void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point) final;
 };
 
+static BaseHoverHandler &androidManifestHoverHandler()
+{
+    static AndroidManifestHoverHandler theAndroidManifestHoverHandler;
+    return theAndroidManifestHoverHandler;
+}
+
 // Expands the word under the cursor (at 'pos') to include common XML/code separators
 // like '-' and '.', treating only specific punctuation and whitespace as breaks.
 QString expandKeyword(QTextCursor cursor, TextEditorWidget &editorWidget, int pos)
@@ -384,7 +390,7 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
     });
 
     Core::ICore::addContextObject(m_context);
-    m_textEditorWidget->addHoverHandler(new AndroidManifestHoverHandler());
+    m_textEditorWidget->addHoverHandler(&androidManifestHoverHandler());
     m_textEditorWidget->setOptionalActions(OptionalActions::UnCommentSelection);
 
     auto layout = new QVBoxLayout(this);
