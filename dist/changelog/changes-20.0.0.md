@@ -33,7 +33,7 @@ your work.
 
 Adds support for opening GN projects and working with them.
 
-([Documentation](<URL>))
+([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-build-with-gn.html))
 
 General
 -------

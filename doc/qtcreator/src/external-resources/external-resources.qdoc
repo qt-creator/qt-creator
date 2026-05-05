@@ -588,6 +588,10 @@
     \externalpage https://ninja-build.org/
     \title Ninja
 */
+/*!
+    \externalpage https://gn.googlesource.com/gn
+    \title GN
+*/
 
 // Compiler tooling, static analysis, and LLVM resources
 /*!
