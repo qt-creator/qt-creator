@@ -283,7 +283,9 @@ void QtcButton::paintEvent(QPaintEvent *event)
 
     if (!m_pixmap.isNull()) {
         const QSizeF pixmapS = m_pixmap.deviceIndependentSize();
-        const int pixmapX = margins.left() - iconLabelGap(m_role) - pixmapS.width();
+        const int pixmapX = text().isEmpty()
+                                ? (bgR.width() - pixmapS.width()) / 2
+                                : margins.left() - iconLabelGap(m_role) - pixmapS.width();
         const int pixmapY = (bgR.height() - pixmapS.height()) / 2;
         p.drawPixmap(pixmapX, pixmapY, m_pixmap);
     }
