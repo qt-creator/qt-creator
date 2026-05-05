@@ -65,18 +65,18 @@ private:
     Perspective(const Perspective &) = delete;
     void operator=(const Perspective &) = delete;
 
-    friend class DebuggerMainWindow;
-    friend class DebuggerMainWindowPrivate;
+    friend class PerspectivesView;
+    friend class PerspectivesViewPrivate;
     friend class PerspectivePrivate;
     class PerspectivePrivate *d = nullptr;
 };
 
-class DEBUGGER_EXPORT DebuggerMainWindow : public FancyMainWindow
+class DEBUGGER_EXPORT PerspectivesView : public FancyMainWindow
 {
     Q_OBJECT
 
 public:
-    static DebuggerMainWindow *instance();
+    static PerspectivesView *instance();
 
     static void ensureMainWindowExists();
     static void doShutdown();
@@ -98,8 +98,8 @@ signals:
     void debugModeRequested();
 
 private:
-    DebuggerMainWindow();
-    ~DebuggerMainWindow() override;
+    PerspectivesView();
+    ~PerspectivesView() override;
 
     void savePersistentSettings() const;
     void restorePersistentSettings();
@@ -109,7 +109,7 @@ private:
     friend class Perspective;
     friend class PerspectivePrivate;
     friend class DockOperation;
-    class DebuggerMainWindowPrivate *d = nullptr;
+    class PerspectivesViewPrivate *d = nullptr;
 };
 
 } // Utils

@@ -534,7 +534,7 @@ void EngineManagerPrivate::updatePerspectives()
 {
     d->updateEngineChooserVisibility();
 
-    Perspective *current = DebuggerMainWindow::currentPerspective();
+    Perspective *current = PerspectivesView::currentPerspective();
     if (!current) {
         return;
     }

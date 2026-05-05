@@ -843,7 +843,7 @@ void DebuggerEnginePrivate::setupViews()
 
     QTC_CHECK(!m_perspective);
 
-    Perspective *currentPerspective = DebuggerMainWindow::instance()->currentPerspective();
+    Perspective *currentPerspective = PerspectivesView::instance()->currentPerspective();
 
     const QString perspectiveId = "Debugger.Perspective." + m_runId + '.' + m_debuggerName;
     const QString settingsId = "Debugger.Perspective." + m_debuggerName;
@@ -1673,7 +1673,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
     showMessage(Tr::tr("Stopped."), StatusBar);
     setState(InferiorStopOk);
     if (settings().raiseOnInterrupt())
-        ICore::raiseWindow(DebuggerMainWindow::instance());
+        ICore::raiseWindow(PerspectivesView::instance());
 }
 
 void DebuggerEngine::notifyInferiorStopFailed()
@@ -2063,7 +2063,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
         case StatusBar:
             d->m_logWindow->showInput(LogMisc, msg);
             d->m_logWindow->showOutput(LogMisc, msg);
-            DebuggerMainWindow::showStatusMessage(msg, timeout);
+            PerspectivesView::showStatusMessage(msg, timeout);
             break;
         case LogMiscInput:
             d->m_logWindow->showInput(LogMisc, msg);
@@ -2648,7 +2648,7 @@ void DebuggerEngine::openDisassemblerView(const Location &location)
 void DebuggerEngine::raiseWatchersWindow()
 {
     if (d->m_watchersView && d->m_watchersWindow) {
-        auto currentPerspective = DebuggerMainWindow::currentPerspective();
+        auto currentPerspective = PerspectivesView::currentPerspective();
         QTC_ASSERT(currentPerspective, return);
         // if a companion engine has taken over - do not raise the watchers
         if (currentPerspective->name() != d->m_engine->displayName())

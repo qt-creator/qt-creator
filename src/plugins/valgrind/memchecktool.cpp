@@ -843,10 +843,10 @@ void MemcheckTool::setupRunControl(RunControl *runControl)
         setBusyCursor(true);
         clearErrorView();
         m_loadExternalLogFile->setDisabled(true);
-        DebuggerMainWindow::showPermanentStatusMessage(Tr::tr("Starting Memory Analyzer..."));
+        PerspectivesView::showPermanentStatusMessage(Tr::tr("Starting Memory Analyzer..."));
     });
     connect(runControl, &RunControl::started, this, [] {
-        DebuggerMainWindow::showPermanentStatusMessage(Tr::tr("Memory Analyzer running..."));
+        PerspectivesView::showPermanentStatusMessage(Tr::tr("Memory Analyzer running..."));
     });
 
     m_stopAction->disconnect();
@@ -902,7 +902,7 @@ void MemcheckTool::loadXmlLogFile(const QString &filePath)
         QString msg = Tr::tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
         TaskHub::addTask(Task::DisruptingError, msg, Core::Constants::ANALYZERTASK_ID);
         if (!m_exitMsg.isEmpty())
-            DebuggerMainWindow::showPermanentStatusMessage(m_exitMsg);
+            PerspectivesView::showPermanentStatusMessage(m_exitMsg);
         return;
     }
 
@@ -992,7 +992,7 @@ void MemcheckTool::engineFinished()
     updateRunActions();
 
     const int issuesFound = updateUiAfterFinishedHelper();
-    DebuggerMainWindow::showPermanentStatusMessage(
+    PerspectivesView::showPermanentStatusMessage(
         Tr::tr("Memory Analyzer Tool finished. %n issues were found.", nullptr, issuesFound));
 }
 
@@ -1002,7 +1002,7 @@ void MemcheckTool::loadingExternalXmlLogFileFinished()
     QString statusMessage = Tr::tr("Log file processed. %n issues were found.", nullptr, issuesFound);
     if (!m_exitMsg.isEmpty())
         statusMessage += ' ' + m_exitMsg;
-    DebuggerMainWindow::showPermanentStatusMessage(statusMessage);
+    PerspectivesView::showPermanentStatusMessage(statusMessage);
 }
 
 void MemcheckTool::setBusyCursor(bool busy)

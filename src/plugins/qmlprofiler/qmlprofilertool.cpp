@@ -620,7 +620,7 @@ void QmlProfilerTool::showSaveDialog()
         if (!filePath.endsWith(zFile) && !filePath.endsWith(tFile))
             filePath = filePath.stringAppended(zFile);
         saveLastTraceFile(filePath);
-        DebuggerMainWindow::enableMainWindow(false);
+        PerspectivesView::enableMainWindow(false);
         Core::ProgressManager::addTask(d->m_profilerModelManager->save(filePath.toUrlishString()),
                                        Tr::tr("Saving Trace Data"), TASK_SAVE,
                                        Core::ProgressManager::ShowInApplicationIcon);
@@ -641,7 +641,7 @@ void QmlProfilerTool::showLoadDialog()
 
     if (!filePath.isEmpty()) {
         saveLastTraceFile(filePath);
-        DebuggerMainWindow::enableMainWindow(false);
+        PerspectivesView::enableMainWindow(false);
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);
         d->m_profilerModelManager->populateFileFinder();
@@ -672,7 +672,7 @@ void QmlProfilerTool::onLoadSaveFinished()
 {
     disconnect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                this, &QmlProfilerTool::setRecordedFeatures);
-    DebuggerMainWindow::enableMainWindow(true);
+    PerspectivesView::enableMainWindow(true);
 }
 
 /*!
