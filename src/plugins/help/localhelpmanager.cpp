@@ -274,7 +274,7 @@ HelpSettings::HelpSettings()
                 }
             },
             Group {
-                title(Tr::tr("Behaviour")),
+                title(Tr::tr("Behavior")),
                 Column {
                     scrollWheelZooming,
                     returnOnClose,
