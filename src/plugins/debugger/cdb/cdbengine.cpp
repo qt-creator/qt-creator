@@ -181,6 +181,8 @@ CdbEngine::CdbEngine() :
     imageFormats.append(EnhancedFormat);
     wh->addTypeFormats("QImage", imageFormats);
     wh->addTypeFormats("QImage *", imageFormats);
+    wh->addTypeFormats("QPixmap", imageFormats);
+    wh->addTypeFormats("QPixmap *", imageFormats);
 
     DebuggerSettings &s = settings();
     connect(s.createFullBacktrace.action(), &QAction::triggered,
