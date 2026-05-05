@@ -5,6 +5,7 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettingswidget.h"
 #include "clangtoolstr.h"
+#include "diagnosticmark.h"
 #include "documentclangtoolrunner.h"
 #include "runsettingswidget.h"
 
@@ -34,6 +35,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <texteditor/refactoringchanges.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/icon.h>
@@ -75,11 +77,12 @@ class ClangToolsPluginPrivate
 public:
     ClangToolsPluginPrivate() : quickFixFactory(this) {}
 
-    DocumentClangToolRunner *runnerForFilePath(const FilePath &filePath)
+    TextEditor::TextDocument *documentForFilePath(const FilePath &filePath) const
     {
-        for (DocumentClangToolRunner *runner : std::as_const(documentRunners)) {
-            if (runner->filePath() == filePath)
-                return runner;
+        for (auto it = documentRunners.cbegin(); it != documentRunners.cend(); ++it) {
+            IDocument *doc = it.key();
+            if (doc->filePath() == filePath)
+                return qobject_cast<TextEditor::TextDocument *>(doc);
         }
         return nullptr;
     }
@@ -137,17 +140,26 @@ void ClangToolQuickFixOperation::perform()
         refactoringFile->apply();
 }
 
+static Diagnostics diagnosticsAtLine(TextEditor::TextDocument *textDocument, int lineNumber)
+{
+    Diagnostics diagnostics;
+    for (auto mark : textDocument->marksAt(lineNumber)) {
+        if (mark->category().id == Constants::DIAGNOSTIC_MARK_ID)
+            diagnostics << static_cast<DiagnosticMark *>(mark)->diagnostic();
+    }
+    return diagnostics;
+}
+
 void DocumentQuickFixFactory::doMatch(const CppEditor::Internal::CppQuickFixInterface &interface,
                                       QuickFixOperations &result)
 {
-    if (DocumentClangToolRunner *runner = m_pluginPrivate->runnerForFilePath(interface.filePath())) {
+    if (TextEditor::TextDocument *textDocument = m_pluginPrivate->documentForFilePath(interface.filePath())) {
         const QTextBlock &block = interface.textDocument()->findBlock(interface.position());
         if (!block.isValid())
             return;
 
         const int lineNumber = block.blockNumber() + 1;
-
-        for (const Diagnostic &diagnostic : runner->diagnosticsAtLine(lineNumber)) {
+        for (const Diagnostic &diagnostic : diagnosticsAtLine(textDocument, lineNumber)) {
             if (diagnostic.hasFixits)
                 result << new ClangToolQuickFixOperation(diagnostic);
         }

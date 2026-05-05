@@ -31,9 +31,6 @@ public:
     DocumentClangToolRunner(Core::IDocument *doc);
     ~DocumentClangToolRunner();
 
-    Utils::FilePath filePath() const;
-    Diagnostics diagnosticsAtLine(int lineNumber) const;
-
 private:
     void showDiagnostics();
     void hideDiagnostics();

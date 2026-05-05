@@ -59,12 +59,12 @@ DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
             this, &DocumentClangToolRunner::scheduleRun);
     connect(EditorManager::instance(), &EditorManager::currentEditorAboutToChange,
             this, [this](IEditor *editor) {
-        if (editor && editor->document()->filePath() == filePath())
+        if (editor && editor->document()->filePath() == m_document->filePath())
             hideDiagnostics();
     });
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, [this](IEditor *editor) {
-        if (editor && editor->document()->filePath() == filePath())
+        if (editor && editor->document()->filePath() == m_document->filePath())
             showDiagnostics();
     });
 
@@ -75,23 +75,6 @@ DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
 DocumentClangToolRunner::~DocumentClangToolRunner()
 {
     qDeleteAll(m_marks);
-}
-
-FilePath DocumentClangToolRunner::filePath() const
-{
-    return m_document->filePath();
-}
-
-Diagnostics DocumentClangToolRunner::diagnosticsAtLine(int lineNumber) const
-{
-    Diagnostics diagnostics;
-    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(m_document)) {
-        for (auto mark : textDocument->marksAt(lineNumber)) {
-            if (mark->category().id == Constants::DIAGNOSTIC_MARK_ID)
-                diagnostics << static_cast<DiagnosticMark *>(mark)->diagnostic();
-        }
-    }
-    return diagnostics;
 }
 
 void DocumentClangToolRunner::showDiagnostics()
