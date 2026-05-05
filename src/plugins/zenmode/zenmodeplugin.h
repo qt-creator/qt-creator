@@ -85,8 +85,6 @@ private:
 
     QLabel m_zenModeStatusBarIcon;
     QLabel m_distractionModeStatusBarIcon;
-    QString m_activeModeStyleSheet;
-    QString m_inactiveModeStyleSheet;
 };
 
 } // namespace ZenMode::Internal
