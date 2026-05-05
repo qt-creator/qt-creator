@@ -27,7 +27,7 @@ Adds `Tools > Zen Mode > Toggle Distraction Free Mode` and `Zen Mode` and
 corresponding actions and tool buttons that put the editor into the focus of
 your work.
 
-([Documentation](<URL>))
+([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-use-zen-mode.html))
 
 ### GN (Generate Ninja) Project Manager
 
