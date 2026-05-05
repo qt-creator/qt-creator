@@ -1334,6 +1334,7 @@ SessionPickerWidget *AcpMessageView::addSessionPicker()
     finishAgentMessage();
     finishToolCallGroup();
 
+    m_autoScroll = false;
     auto *picker = new SessionPickerWidget(m_container);
     addWidget(picker);
     return picker;
