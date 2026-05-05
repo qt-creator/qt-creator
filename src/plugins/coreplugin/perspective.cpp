@@ -227,8 +227,6 @@ public:
 
 PerspectivesViewPrivate::PerspectivesViewPrivate()
 {
-    qRegisterMetaType<PerspectiveState>();
-
     m_statusLabel.setObjectName("DebuggerStatusLabel"); // used by Squish
     StyleHelper::setPanelWidget(&m_statusLabel);
     m_statusLabel.setIndent(2 * QFontMetrics(m_mainWindow.font()).horizontalAdvance(QChar('x')));
@@ -496,13 +494,7 @@ void PerspectivesView::restorePersistentSettings()
     const QHash<QString, QVariant> states2 = settings->value(STATE_KEY2).toHash();
     d->m_lastTypePerspectiveStates.clear();
     for (auto it = states2.begin(); it != states2.end(); ++it) {
-        PerspectiveState state;
-        if (it->canConvert<QVariantMap>()) {
-            state = PerspectiveState::fromSettings(storeFromMap(it->toMap()));
-        } else {
-            // legacy for up to QtC 12
-            state = it->value<PerspectiveState>();
-        }
+        const PerspectiveState state = PerspectiveState::fromSettings(storeFromMap(it->toMap()));
         QTC_ASSERT(state.hasWindowState(), continue);
         d->m_lastTypePerspectiveStates.insert(it.key(), state);
     }
