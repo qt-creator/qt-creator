@@ -41,14 +41,14 @@ void ZenModePlugin::initialize()
 
     m_toggleDistractionAction = ActionBuilder(this, Constants::DISTRACTION_FREE_ACTION_ID)
         .addToContainer(Constants::MENU_ID)
-        .setText(Tr::tr("Toogle Distraction Free Mode"))
+        .setText(Tr::tr("Toggle Distraction Free Mode"))
         .setDefaultKeySequence(Tr::tr("Shift+Escape"))
         .addOnTriggered(this, &ZenModePlugin::toggleDistractionFreeMode)
         .contextAction();
 
     m_toggleZenModeAction = ActionBuilder(this, Constants::ZEN_MODE_ACTION_ID)
         .addToContainer(Constants::MENU_ID)
-        .setText(Tr::tr("Toogle Zen Mode"))
+        .setText(Tr::tr("Toggle Zen Mode"))
         .setDefaultKeySequence(Tr::tr("Shift+Alt+Z"))
         .addOnTriggered(this, &ZenModePlugin::toggleZenMode)
         .contextAction();
