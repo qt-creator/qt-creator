@@ -5,13 +5,14 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QAction>
+#include <coreplugin/modemanager.h>
+
 #include <QLabel>
-#include <QMenu>
-#include <QMenuBar>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QMainWindow;
+class QMenuBar;
 QT_END_NAMESPACE
 
 namespace ZenMode::Internal {
@@ -31,17 +32,6 @@ public:
     void extensionsInitialized() final;
     bool delayedInitialize() override;
 
-public:
-    enum ModeStyle {
-        Hidden = 0,
-        IconsOnly = 1,
-        IconsAndText = 2
-    };
-    Q_ENUM(ModeStyle);
-
-protected slots:
-    void settingsChanged();
-
 private:
     void getActions();
 
@@ -57,7 +47,6 @@ private:
     void setFullScreenMode(bool fullScreen);
 
     void setSidebarsAndModesVisible(bool visible);
-    ModeStyle activeModeSidebar();
     void updateStateIcons();
     void updateContentEditorWidth();
 
@@ -75,9 +64,8 @@ private:
     bool m_prevRightSidebarState = false;
     unsigned int m_prevEditorContentWidth = 100;
 
-    std::vector<QPointer<QAction>> m_toggleModesStatesActions;
-    ModeStyle m_prevModesSidebarState = Hidden;
-    ModeStyle m_modesStateWhenZenActive = Hidden;
+    Core::ModeManager::Style m_prevModesSidebarState = Core::ModeManager::Style::Hidden;
+    Core::ModeManager::Style m_modesStateWhenZenActive = Core::ModeManager::Style::Hidden;
 
     QPointer<QAction> m_toggleFullscreenAction;
     QPointer<QMainWindow> m_window;
