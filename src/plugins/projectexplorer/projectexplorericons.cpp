@@ -62,6 +62,18 @@ const Icon ANALYZER_START_SMALL({
 const Icon ANALYZER_START_SMALL_TOOLBAR({
         {":/utils/images/run_small.png", Theme::IconsRunToolBarColor},
         {":/projectexplorer/images/analyzer_overlay_small.png", Theme::IconsBaseColor}});
+const Icon RECORD_ON({
+        {":/projectexplorer/images/recordfill.png", Theme::IconsStopColor},
+        {":/projectexplorer/images/recordoutline.png", Theme::IconsBaseColor}}, Icon::Tint | Icon::DropShadow);
+const Icon RECORD_OFF({
+        {":/projectexplorer/images/recordfill.png", Theme::IconsDisabledColor},
+        {":/projectexplorer/images/recordoutline.png", Theme::IconsBaseColor}}, Icon::Tint | Icon::DropShadow);
+const Icon TRACEPOINT({
+        {":/utils/images/eye_open.png", Theme::TextColorNormal},
+        {":/projectexplorer/images/tracepointoverlay.png", Theme::TextColorNormal}}, Icon::Tint | Icon::PunchEdges);
+const Icon TRACEPOINT_TOOLBAR({
+        {":/utils/images/eye_open.png", Theme::IconsBaseColor},
+        {":/projectexplorer/images/tracepointoverlay.png", Theme::IconsBaseColor}});
 
 const Icon BUILDSTEP_MOVEUP({
         {":/projectexplorer/images/buildstepmoveup.png", Theme::PanelTextColorDark}}, Icon::Tint);

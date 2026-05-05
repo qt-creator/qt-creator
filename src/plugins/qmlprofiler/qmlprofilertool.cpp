@@ -30,8 +30,6 @@
 #include <coreplugin/perspective.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <debugger/debuggericons.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -71,7 +69,6 @@
 
 using namespace Core;
 using namespace Core::Constants;
-using namespace Debugger;
 using namespace QmlDebug;
 using namespace QmlProfiler::Constants;
 using namespace ProjectExplorer;
@@ -252,8 +249,8 @@ QmlProfilerTool::QmlProfilerTool()
                 d->m_profilerState->currentState() != QmlProfilerStateManager::AppRunning
                 ? d->m_profilerState->clientRecording() : d->m_profilerState->serverRecording();
 
-        const static QIcon recordOn = Debugger::Icons::RECORD_ON.icon();
-        const static QIcon recordOff = Debugger::Icons::RECORD_OFF.icon();
+        const static QIcon recordOn = ProjectExplorer::Icons::RECORD_ON.icon();
+        const static QIcon recordOff = ProjectExplorer::Icons::RECORD_OFF.icon();
 
         // update display
         d->m_recordButton->setToolTip(recording ? Tr::tr("Disable Profiling") : Tr::tr("Enable Profiling"));

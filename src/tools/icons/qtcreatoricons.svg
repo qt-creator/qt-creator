@@ -4963,7 +4963,7 @@
     <g
        style="display:inline"
        transform="translate(176)"
-       id="src/plugins/debugger/images/tracepointoverlay">
+       id="src/plugins/projectexplorer/images/tracepointoverlay">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="265"
@@ -5744,7 +5744,7 @@
     <g
        transform="translate(16)"
        style="display:inline"
-       id="src/plugins/debugger/images/recordoutline">
+       id="src/plugins/projectexplorer/images/recordoutline">
       <rect
          id="rect6782-96-9"
          height="16"
@@ -5762,7 +5762,7 @@
     <g
        transform="translate(32)"
        style="display:inline"
-       id="src/plugins/debugger/images/recordfill">
+       id="src/plugins/projectexplorer/images/recordfill">
       <rect
          id="rect6782-96-9-4"
          height="16"

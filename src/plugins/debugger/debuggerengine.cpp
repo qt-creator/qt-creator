@@ -48,6 +48,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -1693,7 +1694,7 @@ void DebuggerEnginePrivate::setInitialActionStates()
 
     m_recordForReverseOperationAction.setCheckable(true);
     m_recordForReverseOperationAction.setChecked(false);
-    m_recordForReverseOperationAction.setIcon(Icons::RECORD_OFF.icon());
+    m_recordForReverseOperationAction.setIcon(ProjectExplorer::Icons::RECORD_OFF.icon());
     m_recordForReverseOperationAction.setToolTip(QString("<html><head/><body><p>%1</p><p>"
                                                          "<b>%2</b>%3</p></body></html>").arg(
                          Tr::tr("Record information to enable stepping backwards."),
@@ -1898,8 +1899,8 @@ void DebuggerEnginePrivate::updateReverseActions()
     m_recordForReverseOperationAction.setVisible(canReverse);
     m_recordForReverseOperationAction.setEnabled(canReverse && stopped);
     m_recordForReverseOperationAction.setIcon(doesRecord
-                                              ? Icons::RECORD_ON.icon()
-                                              : Icons::RECORD_OFF.icon());
+                                              ? ProjectExplorer::Icons::RECORD_ON.icon()
+                                              : ProjectExplorer::Icons::RECORD_OFF.icon());
 
     m_operateInReverseDirectionAction.setVisible(canReverse);
     m_operateInReverseDirectionAction.setEnabled(canReverse && stopped && doesRecord);

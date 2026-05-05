@@ -110,7 +110,7 @@ PerfProfilerTool::PerfProfilerTool()
     ActionBuilder(options, Constants::PerfProfilerTaskTracePoints)
         .setText(Tr::tr("Create Memory Trace Points"))
         .bindContextAction(&tracePointsAction)
-        .setIcon(Debugger::Icons::TRACEPOINT_TOOLBAR.icon())
+        .setIcon(ProjectExplorer::Icons::TRACEPOINT_TOOLBAR.icon())
         .setIconVisibleInMenu(false)
         .setToolTip(Tr::tr("Create trace points for memory profiling on the target device."))
         .addToContainer(subMenu)
@@ -616,8 +616,8 @@ void PerfProfilerTool::setAggregated(bool aggregated)
 
 void PerfProfilerTool::setRecording(bool recording)
 {
-    const static QIcon recordOn = Debugger::Icons::RECORD_ON.icon();
-    const static QIcon recordOff = Debugger::Icons::RECORD_OFF.icon();
+    const static QIcon recordOn = ProjectExplorer::Icons::RECORD_ON.icon();
+    const static QIcon recordOff = ProjectExplorer::Icons::RECORD_OFF.icon();
 
     m_recordButton.setIcon(recording ? recordOn : recordOff);
     m_recordButton.setChecked(recording);
