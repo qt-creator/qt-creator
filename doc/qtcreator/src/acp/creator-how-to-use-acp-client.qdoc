@@ -26,7 +26,7 @@
         \li Recommended: Activate and set up the \uicontrol {MCP Server}
             extension if you want the agent to trigger \QC actions such as
             building or running your project. For more information, see
-            \l {Using the MCP server}.
+            \l {Set up \QC MCP server}.
     \endlist
 
     \section1 Configure an agent
@@ -189,5 +189,5 @@
             and applies fixes. Watch the progress in the chat history.
     \endlist
 
-    \sa {Activate extensions}, {Using the MCP server}
+    \sa {Activate extensions}, {Set up \QC MCP server}
 */

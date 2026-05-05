@@ -894,6 +894,10 @@
     \externalpage https://github.com/github/copilot.vim/blob/release/README.md
     \title GitHub Copilot for Vim and Neovim
 */
+/*!
+    \externalpage https://modelcontextprotocol.io/specification/draft/basic/utilities/tasks
+    \title MCP: Tasks
+*/
 
 // Testing resources
 /*!
