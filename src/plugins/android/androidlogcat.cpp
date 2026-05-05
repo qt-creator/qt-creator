@@ -41,9 +41,7 @@ namespace Android::Internal {
 class LogcatStream : public QObject
 {
 public:
-    LogcatStream(AndroidDevice::ConstPtr device)
-        : m_device(std::move(device))
-    {}
+    LogcatStream(AndroidDevice::ConstPtr device);
     ~LogcatStream() override;
 
     RunControl *tab() const { return m_tabContext.tab; }
@@ -62,7 +60,19 @@ private:
 
     void onTabDestroyed();
 
-    const AndroidDevice::ConstPtr m_device;
+    void postMessage(const QString &msg, Utils::OutputFormat fmt)
+    {
+        if (m_tabContext.tab)
+            m_tabContext.tab->postMessage(msg, fmt, false);
+    }
+
+    void onDeviceUpdated(Id id);
+    void onDeviceRemoved(Id id);
+    void onDisconnected();
+    void onConnected();
+
+    AndroidDevice::ConstPtr m_device; // may be re-registered under its id
+    bool m_disconnected = false;
     QString m_serial;
     std::unique_ptr<QTaskTree> m_task;
     TabContext m_tabContext;
@@ -79,6 +89,15 @@ static QHash<Id, LogcatStream *> &streamRegistry()
     return map;
 }
 
+LogcatStream::LogcatStream(AndroidDevice::ConstPtr device)
+    : m_device(std::move(device))
+{
+    DeviceManager *dm = DeviceManager::instance();
+    QObject::connect(dm, &DeviceManager::deviceRemoved, this, &LogcatStream::onDeviceRemoved);
+    QObject::connect(dm, &DeviceManager::deviceUpdated, this, &LogcatStream::onDeviceUpdated);
+    QObject::connect(dm, &DeviceManager::deviceAdded, this, &LogcatStream::onDeviceUpdated);
+}
+
 LogcatStream::~LogcatStream()
 {
     auto &reg = streamRegistry();
@@ -91,7 +110,7 @@ void LogcatStream::attachTab(RunControl *tab)
     QTC_ASSERT(tab, return);
     m_tabContext = {};
     m_tabContext.tab = tab;
-    tab->setDisplayName(m_device->displayNameWithSerial());
+    tab->setDisplayName(m_device->displayName());
     QObject::connect(tab, &RunControl::outputVisibilityChanged,
                      this, &LogcatStream::setStreaming);
     QObject::connect(tab, &QObject::destroyed, this, [this] { onTabDestroyed(); });
@@ -119,6 +138,12 @@ void LogcatStream::start()
 {
     if (m_task)
         return;
+    // deviceRemoved clears the state map only after handlers ran; the
+    // latch blocks resurrection via the banner's own pane popup.
+    if (m_disconnected)
+        return;
+    if (m_device->deviceState() != IDevice::DeviceReadyToUse)
+        return;
     m_serial = m_device->serialNumber();
     if (m_serial.isEmpty())
         return;
@@ -129,8 +154,13 @@ void LogcatStream::start()
         };
         process.setStdOutLineCallback(
             [post](const QString &line) { post(line, Utils::StdOutFormat); });
-        process.setStdErrLineCallback(
-            [post](const QString &line) { post(line, Utils::StdErrFormat); });
+        process.setStdErrLineCallback([post](const QString &line) {
+            // adb noise while it waits to re-attach the serial; the
+            // disconnect banner already tells the story.
+            if (line.contains(QLatin1String("- waiting for device -")))
+                return;
+            post(line, Utils::StdErrFormat);
+        });
         // -T 1 starts the tail at the current head, skipping the device's existing ring buffer (live tail only).
         process.setCommand(adbCommand({"logcat", "-T", "1", "-v", "color", "-v", "brief"}));
     };
@@ -151,6 +181,58 @@ void LogcatStream::stop()
         if (!m_tabContext.streaming)
             m_task.reset();
     });
+}
+
+static AndroidDevice::ConstPtr findDevice(Id id)
+{
+    return std::dynamic_pointer_cast<const AndroidDevice>(DeviceManager::find(id));
+}
+
+static QString banner(const QString &label, const QString &state)
+{
+    return QString("**** %1 - %2 ****\n").arg(label, state);
+}
+
+void LogcatStream::onDeviceUpdated(Id id)
+{
+    if (id != m_device->id())
+        return;
+    if (const auto current = findDevice(id))
+        m_device = current;
+    if (m_device->deviceState() == IDevice::DeviceReadyToUse)
+        onConnected();
+    else
+        onDisconnected();
+}
+
+void LogcatStream::onDeviceRemoved(Id id)
+{
+    if (id == m_device->id())
+        onDisconnected();
+}
+
+void LogcatStream::onDisconnected()
+{
+    if (m_task) {
+        // Cancel first: destruction alone would skip the done handlers.
+        m_task->cancel();
+        m_task.reset();
+    }
+    if (m_disconnected)
+        return;
+    m_disconnected = true;
+    postMessage(banner(m_device->displayNameWithSerial(), QLatin1String("disconnected")),
+                Utils::NormalMessageFormat);
+}
+
+void LogcatStream::onConnected()
+{
+    if (m_disconnected)
+        postMessage(banner(m_device->displayNameWithSerial(), QLatin1String("connected")),
+                    Utils::NormalMessageFormat);
+    m_disconnected = false;
+    if (m_tabContext.tab && m_tabContext.streaming)
+        start();
 }
 
 static LogcatStream *ensureStream(const AndroidDevice::ConstPtr &device)
