@@ -44,6 +44,7 @@ const char C_GLOBAL[]              = "Global Context";
 const char C_WELCOME_MODE[]        = "Core.WelcomeMode";
 const char C_EDIT_MODE[]           = "Core.EditMode";
 const char C_DESIGN_MODE[]         = "Core.DesignMode";
+const char C_DEBUG_MODE[]          = "Debugger.DebugMode";
 const char C_EDITORMANAGER[]       = "Core.EditorManager";
 const char C_NAVIGATION_PANE[]     = "Core.NavigationPane";
 const char C_SETTINGS_MODE[]       = "Core.SettingsMode";

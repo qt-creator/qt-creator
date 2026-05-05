@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debuggermainwindow.h"
-#include "debuggerconstants.h"
 #include "debuggertr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -325,7 +324,7 @@ PerspectivesViewPrivate::PerspectivesViewPrivate()
 PerspectivesView::PerspectivesView()
     : d(new PerspectivesViewPrivate)
 {
-    Context debugcontext(Debugger::Constants::C_DEBUGMODE);
+    Context debugcontext(Core::Constants::C_DEBUG_MODE);
     ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
     Command *cmd = ActionManager::registerAction(d->m_mainWindow.showCentralWidgetAction(),
         "Debugger.Views.ShowCentralWidget", debugcontext);
