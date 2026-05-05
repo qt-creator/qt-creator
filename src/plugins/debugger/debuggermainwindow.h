@@ -5,14 +5,19 @@
 
 #include "debugger_global.h"
 
-#include <utils/fancymainwindow.h>
-#include <utils/statuslabel.h>
-
-#include <QAction>
+#include <QObject>
 
 #include <functional>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
+class QWidget;
+QT_END_NAMESPACE
+
 namespace Utils {
+
+class FancyMainWindow;
 
 class DEBUGGER_EXPORT Perspective : public QObject
 {
@@ -71,7 +76,7 @@ private:
     class PerspectivePrivate *d = nullptr;
 };
 
-class DEBUGGER_EXPORT PerspectivesView : public FancyMainWindow
+class DEBUGGER_EXPORT PerspectivesView : public QObject
 {
     Q_OBJECT
 
@@ -87,11 +92,13 @@ public:
     static void enterDebugMode();
     static void leaveDebugMode();
 
-    static QWidget *centralWidgetStack();
-    void addSubPerspectiveSwitcher(QWidget *widget);
+    static void addSubPerspectiveSwitcher(QWidget *widget);
     static void addPerspectiveMenu(QMenu *menu);
 
     static Perspective *currentPerspective();
+
+    static FancyMainWindow *mainWindow();
+    static QWidget *centralWidgetStack();
 
 signals:
     void perspectivesChanged();
@@ -103,8 +110,6 @@ private:
 
     void savePersistentSettings() const;
     void restorePersistentSettings();
-
-    void contextMenuEvent(QContextMenuEvent *ev) override;
 
     friend class Perspective;
     friend class PerspectivePrivate;

@@ -16,7 +16,9 @@
 #include <coreplugin/rightpane.h>
 
 #include <utils/algorithm.h>
+#include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
+#include <utils/statuslabel.h>
 #include <utils/qtcassert.h>
 #include <utils/proxyaction.h>
 #include <utils/storekey.h>
@@ -103,6 +105,17 @@ public:
     QVariantHash headerViewStates;
 };
 
+class InnerMainWindow final : public FancyMainWindow
+{
+protected:
+    void contextMenuEvent(QContextMenuEvent *ev) final
+    {
+        ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
+        QTC_ASSERT(viewsMenu, return);
+        viewsMenu->menu()->exec(ev->globalPos());
+    }
+};
+
 class DockOperation
 {
 public:
@@ -157,7 +170,7 @@ public:
 class PerspectivesViewPrivate : public QObject
 {
 public:
-    PerspectivesViewPrivate(PerspectivesView *parent);
+    PerspectivesViewPrivate();
     ~PerspectivesViewPrivate();
 
     void depopulateCurrentPerspective();
@@ -183,7 +196,7 @@ public:
         ICore::updateAdditionalContexts(oldContext, newContext);
     }
 
-    PerspectivesView *q = nullptr;
+    InnerMainWindow m_mainWindow;
     QPointer<Perspective> m_currentPerspective = nullptr;
     QComboBox *m_perspectiveChooser = nullptr;
     QMenu *m_perspectiveMenu;
@@ -191,7 +204,7 @@ public:
     QHBoxLayout *m_subPerspectiveSwitcherLayout = nullptr;
     QHBoxLayout *m_innerToolsLayout = nullptr;
     QPointer<QWidget> m_editorPlaceHolder;
-    Utils::StatusLabel *m_statusLabel = nullptr;
+    StatusLabel *m_statusLabel = nullptr;
     QDockWidget *m_toolBarDock = nullptr;
     bool needRestoreOnModeEnter = false;
 
@@ -214,15 +227,14 @@ public:
     }
 };
 
-PerspectivesViewPrivate::PerspectivesViewPrivate(PerspectivesView *parent)
-    : q(parent)
+PerspectivesViewPrivate::PerspectivesViewPrivate()
 {
     qRegisterMetaType<PerspectiveState>();
     m_centralWidgetStack = new QStackedWidget;
     m_statusLabel = new Utils::StatusLabel;
     m_statusLabel->setObjectName("DebuggerStatusLabel"); // used by Squish
     StyleHelper::setPanelWidget(m_statusLabel);
-    m_statusLabel->setIndent(2 * QFontMetrics(q->font()).horizontalAdvance(QChar('x')));
+    m_statusLabel->setIndent(2 * QFontMetrics(m_mainWindow.font()).horizontalAdvance(QChar('x')));
     m_editorPlaceHolder = new EditorManagerPlaceHolder;
 
     m_perspectiveChooser = new TweakedCombo;
@@ -287,7 +299,7 @@ PerspectivesViewPrivate::PerspectivesViewPrivate(PerspectivesView *parent)
     scrolledToolbar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     StyleHelper::setPanelWidgetSingleRow(scrolledToolbar);
 
-    auto dock = new QDockWidget(Tr::tr("Toolbar"), q);
+    auto dock = new QDockWidget(Tr::tr("Toolbar"), &m_mainWindow);
     dock->setObjectName("Toolbar");
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     dock->setAllowedAreas(Qt::BottomDockWidgetArea);
@@ -296,7 +308,7 @@ PerspectivesViewPrivate::PerspectivesViewPrivate(PerspectivesView *parent)
     dock->setWidget(scrolledToolbar);
 
     m_toolBarDock = dock;
-    q->addDockWidget(Qt::BottomDockWidgetArea, m_toolBarDock);
+    m_mainWindow.addDockWidget(Qt::BottomDockWidgetArea, m_toolBarDock);
 
     connect(viewButton, &QAbstractButton::clicked, this, [viewButton] {
         ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
@@ -315,28 +327,29 @@ PerspectivesViewPrivate::~PerspectivesViewPrivate()
 }
 
 PerspectivesView::PerspectivesView()
-    : d(new PerspectivesViewPrivate(this))
+    : d(new PerspectivesViewPrivate)
 {
-    setDockNestingEnabled(true);
-    setDockActionsVisible(false);
-    setDocumentMode(true);
+    FancyMainWindow *mw = &d->m_mainWindow;
+    mw->setDockNestingEnabled(true);
+    mw->setDockActionsVisible(false);
+    mw->setDocumentMode(true);
 
-    connect(this, &FancyMainWindow::resetLayout,
+    connect(mw, &FancyMainWindow::resetLayout,
             d, &PerspectivesViewPrivate::resetCurrentPerspective);
 
     Context debugcontext(Debugger::Constants::C_DEBUGMODE);
 
     ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
-    Command *cmd = ActionManager::registerAction(showCentralWidgetAction(),
+    Command *cmd = ActionManager::registerAction(mw->showCentralWidgetAction(),
         "Debugger.Views.ShowCentralWidget", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = ActionManager::registerAction(menuSeparator1(),
+    cmd = ActionManager::registerAction(mw->menuSeparator1(),
         "Debugger.Views.Separator1", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = ActionManager::registerAction(resetLayoutAction(),
+    cmd = ActionManager::registerAction(mw->resetLayoutAction(),
         "Debugger.Views.ResetSimple", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
@@ -344,7 +357,7 @@ PerspectivesView::PerspectivesView()
     // HACK: See QTCREATORBUG-23755. This ensures the showCentralWidget()
     // call in restorePersistentSettings() below has something to operate on,
     // and a plain QWidget is what we'll use anyway as central widget.
-    setCentralWidget(new QWidget);
+    mw->setCentralWidget(new QWidget);
 
     restorePersistentSettings();
 }
@@ -354,10 +367,9 @@ PerspectivesView::~PerspectivesView()
     delete d;
 }
 
-void PerspectivesView::contextMenuEvent(QContextMenuEvent *ev)
+FancyMainWindow *PerspectivesView::mainWindow()
 {
-    ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
-    viewsMenu->menu()->exec(ev->globalPos());
+    return theMainWindow ? &theMainWindow->d->m_mainWindow : nullptr;
 }
 
 void PerspectivesView::ensureMainWindowExists()
@@ -407,7 +419,7 @@ void PerspectivesViewPrivate::destroyPerspective(Perspective *perspective)
         if (op.commandId.isValid())
             ActionManager::unregisterAction(op.toggleViewAction, op.commandId);
         if (op.dock) {
-            theMainWindow->removeDockWidget(op.dock);
+            m_mainWindow.removeDockWidget(op.dock);
             op.widget->setParent(nullptr); // Prevent deletion
             op.dock->setParent(nullptr);
             delete op.dock;
@@ -438,7 +450,7 @@ void PerspectivesView::showStatusMessage(const QString &message, int timeoutMS)
 void PerspectivesView::enableMainWindow(bool on)
 {
     if (theMainWindow)
-        theMainWindow->setEnabled(on);
+        theMainWindow->d->m_mainWindow.setEnabled(on);
 }
 
 void PerspectivesView::showPermanentStatusMessage(const QString &message)
@@ -448,7 +460,7 @@ void PerspectivesView::showPermanentStatusMessage(const QString &message)
 
 void PerspectivesView::enterDebugMode()
 {
-    theMainWindow->setDockActionsVisible(true);
+    theMainWindow->d->m_mainWindow.setDockActionsVisible(true);
     QTC_CHECK(theMainWindow->d->m_currentPerspective == nullptr);
     if (theMainWindow->d->needRestoreOnModeEnter)
         theMainWindow->restorePersistentSettings();
@@ -482,10 +494,10 @@ void PerspectivesView::leaveDebugMode()
         theMainWindow->d->m_currentPerspective->rampDownAsCurrent();
     QTC_CHECK(theMainWindow->d->m_currentPerspective == nullptr);
 
-    theMainWindow->setDockActionsVisible(false);
+    theMainWindow->d->m_mainWindow.setDockActionsVisible(false);
 
     // Hide dock widgets manually in case they are floating.
-    for (QDockWidget *dockWidget : theMainWindow->dockWidgets()) {
+    for (QDockWidget *dockWidget : theMainWindow->d->m_mainWindow.dockWidgets()) {
         if (dockWidget->isFloating())
             dockWidget->setVisible(false);
     }
@@ -511,7 +523,7 @@ void PerspectivesView::restorePersistentSettings()
         d->m_lastTypePerspectiveStates.insert(it.key(), state);
     }
 
-    showCentralWidget(settings->value(SHOW_CENTRALWIDGET_KEY, true).toBool());
+    d->m_mainWindow.showCentralWidget(settings->value(SHOW_CENTRALWIDGET_KEY, true).toBool());
     d->m_persistentChangedDocks = Utils::toSet(settings->value(CHANGED_DOCK_KEY).toStringList());
     settings->endGroup();
 
@@ -545,7 +557,7 @@ void PerspectivesView::savePersistentSettings() const
     settings->beginGroup(MAINWINDOW_KEY);
     settings->setValue(CHANGED_DOCK_KEY, QStringList(Utils::toList(d->m_persistentChangedDocks)));
     settings->setValue(STATE_KEY2, states);
-    settings->setValue(SHOW_CENTRALWIDGET_KEY, isCentralWidgetShown());
+    settings->setValue(SHOW_CENTRALWIDGET_KEY, d->m_mainWindow.isCentralWidgetShown());
     settings->endGroup();
 
     qCDebug(perspectivesLog) << "SAVED CHANGED DOCKS:" << d->m_persistentChangedDocks;
@@ -558,9 +570,10 @@ QWidget *PerspectivesView::centralWidgetStack()
 
 void PerspectivesView::addSubPerspectiveSwitcher(QWidget *widget)
 {
+    QTC_ASSERT(theMainWindow, return);
     widget->setVisible(false);
     StyleHelper::setPanelWidget(widget);
-    d->m_subPerspectiveSwitcherLayout->addWidget(widget);
+    theMainWindow->d->m_subPerspectiveSwitcherLayout->addWidget(widget);
 }
 
 void PerspectivesView::addPerspectiveMenu(QMenu *menu)
@@ -601,7 +614,7 @@ QDockWidget *PerspectivesViewPrivate::dockForWidget(QWidget *widget) const
 {
     QTC_ASSERT(widget, return nullptr);
 
-    for (QDockWidget *dock : q->dockWidgets()) {
+    for (QDockWidget *dock : m_mainWindow.dockWidgets()) {
         if (dock->widget() == widget)
             return dock;
     }
@@ -614,7 +627,7 @@ void PerspectivesViewPrivate::resetCurrentPerspective()
     QTC_ASSERT(m_currentPerspective, return);
     cleanDocks();
     setCentralWidget(m_currentPerspective->d->m_centralWidget);
-    q->showCentralWidget(true);
+    m_mainWindow.showCentralWidget(true);
     m_currentPerspective->d->resetPerspective();
 }
 
@@ -622,10 +635,10 @@ void PerspectivesViewPrivate::setCentralWidget(QWidget *widget)
 {
     if (widget) {
         m_centralWidgetStack->addWidget(widget);
-        q->showCentralWidgetAction()->setText(widget->windowTitle());
+        m_mainWindow.showCentralWidgetAction()->setText(widget->windowTitle());
     } else {
         m_centralWidgetStack->addWidget(m_editorPlaceHolder);
-        q->showCentralWidgetAction()->setText(Tr::tr("Editor"));
+        m_mainWindow.showCentralWidgetAction()->setText(Tr::tr("Editor"));
     }
 }
 
@@ -664,19 +677,19 @@ void DockOperation::setupLayout()
     if (anchor) {
         switch (operationType) {
         case Perspective::AddToTab:
-            theMainWindow->tabifyDockWidget(anchor, dock);
+            theMainWindow->d->m_mainWindow.tabifyDockWidget(anchor, dock);
             break;
         case Perspective::SplitHorizontal:
-            theMainWindow->splitDockWidget(anchor, dock, Qt::Horizontal);
+            theMainWindow->d->m_mainWindow.splitDockWidget(anchor, dock, Qt::Horizontal);
             break;
         case Perspective::SplitVertical:
-            theMainWindow->splitDockWidget(anchor, dock, Qt::Vertical);
+            theMainWindow->d->m_mainWindow.splitDockWidget(anchor, dock, Qt::Vertical);
             break;
         default:
             break;
         }
     } else {
-        theMainWindow->addDockWidget(area, dock);
+        theMainWindow->d->m_mainWindow.addDockWidget(area, dock);
     }
 }
 
@@ -685,9 +698,9 @@ void DockOperation::ensureDockExists()
     if (dock)
         return;
 
-    dock = theMainWindow->addDockForWidget(widget);
+    dock = theMainWindow->d->m_mainWindow.addDockForWidget(widget);
 
-    if (theMainWindow->restoreDockWidget(dock)) {
+    if (theMainWindow->d->m_mainWindow.restoreDockWidget(dock)) {
         qCDebug(perspectivesLog) << "RESTORED SUCCESSFULLY" << commandId;
     } else {
         qCDebug(perspectivesLog) << "COULD NOT RESTORE" << commandId;
@@ -751,7 +764,7 @@ void PerspectivesViewPrivate::cleanDocks()
 {
     m_statusLabel->clear();
 
-    for (QDockWidget *dock : q->dockWidgets()) {
+    for (QDockWidget *dock : m_mainWindow.dockWidgets()) {
         dock->setFloating(false);
         if (dock != m_toolBarDock)
             dock->setVisible(false);
@@ -767,7 +780,7 @@ void PerspectivePrivate::depopulatePerspective()
     theMainWindow->d->m_statusLabel->clear();
 
     qCDebug(perspectivesLog) << "DEPOPULATE PERSPECTIVE" << m_id;
-    for (QDockWidget *dock : theMainWindow->dockWidgets()) {
+    for (QDockWidget *dock : theMainWindow->d->m_mainWindow.dockWidgets()) {
         if (dock != theMainWindow->d->m_toolBarDock)
             dock->setVisible(false);
     }
@@ -793,10 +806,10 @@ void PerspectivePrivate::populatePerspective()
 
     if (m_centralWidget) {
         theMainWindow->d->m_centralWidgetStack->addWidget(m_centralWidget);
-        theMainWindow->showCentralWidgetAction()->setText(m_centralWidget->windowTitle());
+        theMainWindow->d->m_mainWindow.showCentralWidgetAction()->setText(m_centralWidget->windowTitle());
     } else {
         theMainWindow->d->m_centralWidgetStack->addWidget(theMainWindow->d->m_editorPlaceHolder);
-        theMainWindow->showCentralWidgetAction()->setText(Tr::tr("Editor"));
+        theMainWindow->d->m_mainWindow.showCentralWidgetAction()->setText(Tr::tr("Editor"));
     }
 
     ICore::addAdditionalContext(context());
@@ -1024,7 +1037,7 @@ void Perspective::rampUpAsCurrent()
     theMainWindow->d->setCurrentPerspective(this);
     QTC_ASSERT(theMainWindow->d->m_currentPerspective == this, return);
 
-    theMainWindow->showCentralWidget(true);
+    theMainWindow->d->m_mainWindow.showCentralWidget(true);
 
     d->populatePerspective();
 
@@ -1085,7 +1098,7 @@ void PerspectivePrivate::restoreLayout()
     if (!state.hasWindowState()) {
         qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORE NOT POSSIBLE, NO STORED STATE";
     } else {
-        const bool result = state.restoreWindowState(theMainWindow);
+        const bool result = state.restoreWindowState(&theMainWindow->d->m_mainWindow);
         qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORED, SUCCESS: " << result;
     }
 
@@ -1107,7 +1120,7 @@ void PerspectivePrivate::saveLayout()
 {
     qCDebug(perspectivesLog) << "PERSPECTIVE" << m_id << "SAVE LAYOUT TO " << settingsId();
     PerspectiveState state;
-    state.mainWindowState = theMainWindow->saveSettings();
+    state.mainWindowState = theMainWindow->d->m_mainWindow.saveSettings();
     for (DockOperation &op : m_dockOperations) {
         if (op.operationType != Perspective::Raise) {
             QTC_ASSERT(op.dock, continue);

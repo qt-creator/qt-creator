@@ -9,6 +9,8 @@
 
 #include <utils/treemodel.h>
 
+#include <QLabel>
+
 namespace Utils { class TreeView; }
 
 namespace Squish {

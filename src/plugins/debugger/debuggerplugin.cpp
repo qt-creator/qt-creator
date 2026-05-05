@@ -458,8 +458,6 @@ class DebugModeWidget final : public MiniSplitter
 public:
     DebugModeWidget()
     {
-        PerspectivesView *mainWindow = PerspectivesView::instance();
-
         auto editorHolderLayout = new QVBoxLayout;
         editorHolderLayout->setContentsMargins(0, 0, 0, 0);
         editorHolderLayout->setSpacing(0);
@@ -475,7 +473,7 @@ public:
         documentAndRightPane->setStretchFactor(0, 1);
         documentAndRightPane->setStretchFactor(1, 0);
 
-        auto centralEditorWidget = mainWindow->centralWidget();
+        auto centralEditorWidget = PerspectivesView::mainWindow()->centralWidget();
         auto centralLayout = new QVBoxLayout(centralEditorWidget);
         centralEditorWidget->setLayout(centralLayout);
         centralLayout->setContentsMargins(0, 0, 0, 0);
@@ -486,7 +484,7 @@ public:
 
         // Right-side window with editor, output etc.
         auto mainWindowSplitter = new MiniSplitter;
-        mainWindowSplitter->addWidget(mainWindow);
+        mainWindowSplitter->addWidget(PerspectivesView::mainWindow());
         mainWindowSplitter->addWidget(new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter));
         auto outputPane = new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter);
         outputPane->setObjectName("DebuggerOutputPanePlaceHolder");
@@ -503,8 +501,8 @@ public:
         setStretchFactor(1, 1);
         setObjectName("DebugModeWidget");
 
-        mainWindow->addSubPerspectiveSwitcher(EngineManager::engineChooser());
-        mainWindow->addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
+        PerspectivesView::addSubPerspectiveSwitcher(EngineManager::engineChooser());
+        PerspectivesView::addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
 
         IContext::attach(this, Context(CC::C_EDITORMANAGER));
     }
@@ -523,7 +521,7 @@ public:
         setId(MODE_DEBUG);
 
         setWidgetCreator([] { return new DebugModeWidget; });
-        setMainWindow(PerspectivesView::instance());
+        setMainWindow(PerspectivesView::mainWindow());
 
         setMenu(&PerspectivesView::addPerspectiveMenu);
     }

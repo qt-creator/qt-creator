@@ -64,6 +64,7 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/processhandle.h>
@@ -1673,7 +1674,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
     showMessage(Tr::tr("Stopped."), StatusBar);
     setState(InferiorStopOk);
     if (settings().raiseOnInterrupt())
-        ICore::raiseWindow(PerspectivesView::instance());
+        ICore::raiseWindow(PerspectivesView::mainWindow());
 }
 
 void DebuggerEngine::notifyInferiorStopFailed()
