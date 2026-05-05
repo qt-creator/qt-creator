@@ -186,7 +186,7 @@ ClangFormatCodeStyleEditorWidget::ClangFormatCodeStyleEditorWidget(
     const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent)
     : CodeStyleEditorWidget{parent}
     , m_clangFormatSettings{new ClangFormatConfigWidget(
-          ProjectManager::projectWithProjectFile(projectFile, true), codeStyle, this)}
+          ProjectManager::projectWithProjectFile(projectFile, !projectFile.isEmpty()), codeStyle, this)}
 {
     auto layout = new QVBoxLayout{this};
     layout->setContentsMargins(0, 0, 0, 0);
@@ -249,7 +249,7 @@ void ClangFormatCodeStyleEditor::init(
         const ICodeStylePreferencesFactory *factory, const FilePath &projectFile, ICodeStylePreferences *codeStyle)
 {
     m_globalSettings = new ClangFormatGlobalConfigWidget(
-        ProjectManager::projectWithProjectFile(projectFile, true), codeStyle, this);
+        ProjectManager::projectWithProjectFile(projectFile, !projectFile.isEmpty()), codeStyle, this);
     m_layout->addWidget(m_globalSettings);
     CodeStyleEditor::init(factory, projectFile, codeStyle);
 
