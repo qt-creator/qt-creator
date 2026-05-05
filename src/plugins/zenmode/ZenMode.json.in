@@ -1,6 +1,7 @@
 {
-    "Id" : "zenmodeplugin",
-    "Name" : "Zen Mode",
+    "Id" : "zenmode",
+    "Name" : "ZenMode",
+    "DisplayName" : "ZenMode",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,

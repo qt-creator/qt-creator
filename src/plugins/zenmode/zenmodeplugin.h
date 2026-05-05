@@ -22,7 +22,7 @@ class ZenModeSettings;
 class ZenModePlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ZenModePlugin.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ZenMode.json")
 
 public:
     ZenModePlugin() = default;
