@@ -40,7 +40,7 @@ set(PERFPROFILER_CPP_SOURCES
 add_qtc_plugin(PerfProfiler
   CONDITION TARGET Tracing
   DEPENDS Tracing Qt::QuickWidgets
-  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
+  PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES
     ${TEST_SOURCES}
 )

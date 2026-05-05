@@ -18,8 +18,6 @@
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 
-#include <debugger/debuggericons.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectexplorer.h>
@@ -43,7 +41,6 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Debugger;
 using namespace PerfProfiler::Constants;
 using namespace Utils;
 using namespace std::placeholders;
