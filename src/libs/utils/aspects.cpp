@@ -2482,9 +2482,9 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         break;
     }
     case DisplayStyle::ComboBox:
-        if (QTC_GUARD(!labelText().isEmpty())) {
+        if (!labelText().isEmpty()) {
             setLabelText(labelText());
-        } else { // this is a fallback for compatibility (< 20.0), but warn
+        } else if (!displayName().isEmpty()) { // this is a fallback for compatibility (< 20.0), but warn
             qWarning() << "Aspect" << displayName()
                        << "uses ComboBox display but does not set labelText()";
             setLabelText(displayName());
