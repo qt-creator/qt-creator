@@ -253,7 +253,7 @@ void SquishControlBar::updateProgressText(const QString &label)
 }
 
 SquishPerspective::SquishPerspective()
-    : Utils::Perspective("Squish.Perspective", Tr::tr("Squish"))
+    : Core::Perspective("Squish.Perspective", Tr::tr("Squish"))
 {
     Core::ICore::addPreCloseListener([this]{
         destroyControlBar();

@@ -8,7 +8,6 @@
 #include "debuggerengine.h"
 #include "debuggericons.h"
 #include "debuggeritemmanager.h"
-#include "debuggermainwindow.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
 #include "debuggerkitaspect.h"
@@ -40,9 +39,9 @@
 #include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/rightpane.h>
 #include <coreplugin/session.h>
 

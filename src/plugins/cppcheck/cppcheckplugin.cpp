@@ -14,8 +14,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-
-#include <debugger/debuggermainwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -68,7 +67,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
 
     auto manualRunView = new DiagnosticView;
     manualRunView->setModel(&manualRunModel);
-    perspective.addWindow(manualRunView, Utils::Perspective::SplitVertical, nullptr);
+    perspective.addWindow(manualRunView, Perspective::SplitVertical, nullptr);
 
     {
         // Go to previous diagnostic

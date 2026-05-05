@@ -9,7 +9,6 @@
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
-#include "debuggermainwindow.h"
 #include "debuggerprotocol.h"
 #include "debuggertooltipmanager.h"
 #include "debuggertr.h"
@@ -24,6 +23,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/session.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>

@@ -6,7 +6,6 @@
 #include "debuggeractions.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
-#include "debuggermainwindow.h"
 #include "debuggerprotocol.h"
 #include "debuggertr.h"
 #include "sourceutils.h"
@@ -18,6 +17,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/session.h>
 
 #include <cppeditor/cppprojectfile.h>

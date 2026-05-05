@@ -27,10 +27,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/perspective.h>
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerkitaspect.h>
-#include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>

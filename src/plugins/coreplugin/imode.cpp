@@ -62,7 +62,7 @@ public:
 
     Adding a mode should be done sparingly, only as a last reserve. Consider if
     your feature can instead be implemented as a INavigationWidgetFactory,
-    IOutputPane, \c{Debugger::Utils::Perspective}, separate dialog, or
+    IOutputPane, Perspective, separate dialog, or
     specialized IEditor first.
 
     If you add a mode, consider adding a NavigationWidgetPlaceHolder

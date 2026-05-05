@@ -7,8 +7,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-
-#include <debugger/debuggermainwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -30,6 +29,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 

@@ -5,7 +5,7 @@
 
 #include "ctfvisualizerconstants.h"
 
-#include <debugger/debuggermainwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinezoomcontrol.h>
@@ -45,7 +45,7 @@ private:
     void setAvailableThreads(const QList<CtfTimelineModel *> &threads);
     void toggleThreadRestriction(QAction *action);
 
-    Utils::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
+    Core::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
                                      QCoreApplication::translate("QtC::CtfVisualizer",
                                                                  "Chrome Trace Format Visualizer")};
 

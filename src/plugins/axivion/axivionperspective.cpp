@@ -18,17 +18,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/outputwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <cppeditor/cppeditorconstants.h>
-
-#include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-
-#include <QtTaskTree/QConditional>
-#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
 
@@ -65,6 +61,8 @@
 #include <QStyledItemDelegate>
 #include <QTextBrowser>
 #include <QToolButton>
+#include <QtTaskTree/QConditional>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 #include <QUrlQuery>
 
 #include <map>

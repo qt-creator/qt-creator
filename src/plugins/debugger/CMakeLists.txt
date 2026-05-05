@@ -38,7 +38,6 @@ add_qtc_plugin(Debugger
     debuggeritem.cpp debuggeritem.h
     debuggeritemmanager.cpp debuggeritemmanager.h
     debuggerkitaspect.cpp debuggerkitaspect.h
-    debuggermainwindow.cpp debuggermainwindow.h
     debuggerplugin.cpp
     debuggerprotocol.cpp debuggerprotocol.h
     debuggerrunconfigurationaspect.cpp debuggerrunconfigurationaspect.h

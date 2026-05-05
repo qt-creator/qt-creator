@@ -5,7 +5,7 @@
 
 #include "squishconstants.h"
 
-#include <debugger/debuggermainwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <utils/treemodel.h>
 
@@ -56,7 +56,7 @@ private:
     void parseAndUpdateChildren();
 };
 
-class SquishPerspective : public Utils::Perspective
+class SquishPerspective : public Core::Perspective
 {
     Q_OBJECT
 public:

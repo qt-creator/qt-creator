@@ -14,7 +14,6 @@
 #include "debuggertr.h"
 
 #include "breakhandler.h"
-#include "debuggermainwindow.h"
 #include "disassembleragent.h"
 #include "enginemanager.h"
 #include "localsandexpressionswindow.h"
@@ -40,6 +39,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 

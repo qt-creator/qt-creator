@@ -28,6 +28,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/perspective.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/LookupContext.h>
@@ -39,7 +40,6 @@
 #include <cppeditor/cppmodelmanager.h>
 
 #include <debugger/debuggerconstants.h>
-#include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>

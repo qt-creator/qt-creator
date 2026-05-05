@@ -6,12 +6,13 @@
 #include "qmlprofilertr.h"
 #include "qmlprofilerviewmanager.h"
 
-#include <debugger/debuggermainwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
 
+using namespace Core;
 using namespace Utils;
 
 namespace QmlProfiler::Internal {

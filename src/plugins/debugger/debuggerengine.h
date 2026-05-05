@@ -29,13 +29,15 @@ class QDebug;
 class QPoint;
 QT_END_NAMESPACE
 
-namespace Core { class IOptionsPage; }
+namespace Core {
+class IOptionsPage;
+class Perspective;
+} // Core
 
 namespace ProjectExplorer { class RunControl; }
 
 namespace Utils {
 class MacroExpander;
-class Perspective;
 class ProcessResultData;
 } // Utils
 
@@ -573,7 +575,7 @@ public:
 
     QString expand(const QString &string) const;
     QString nativeStartupCommands() const;
-    Utils::Perspective *perspective() const;
+    Core::Perspective *perspective() const;
     void updateMarkers();
 
     void updateToolTips();

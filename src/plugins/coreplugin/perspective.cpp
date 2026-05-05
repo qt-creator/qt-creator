@@ -1,28 +1,27 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "debuggermainwindow.h"
-#include "debuggertr.h"
+#include "perspective.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/outputpane.h>
-#include <coreplugin/rightpane.h>
+#include "actionmanager/actioncontainer.h"
+#include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
+#include "coreconstants.h"
+#include "coreplugintr.h"
+#include "editormanager/editormanager.h"
+#include "icore.h"
+#include "modemanager.h"
+#include "rightpane.h"
 
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
-#include <utils/styledbar.h>
-#include <utils/statuslabel.h>
-#include <utils/qtcassert.h>
 #include <utils/proxyaction.h>
+#include <utils/qtcassert.h>
+#include <utils/statuslabel.h>
 #include <utils/storekey.h>
-#include <utils/utilsicons.h>
+#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QComboBox>
@@ -40,12 +39,11 @@
 #include <QToolButton>
 #include <QTreeView>
 
-using namespace Debugger;
-using namespace Core;
-
 static Q_LOGGING_CATEGORY(perspectivesLog, "qtc.utils.perspectives", QtWarningMsg)
 
-namespace Utils {
+namespace Core {
+
+using namespace Utils;
 
 const char LAST_PERSPECTIVE_KEY[]   = "LastPerspective";
 const char MAINWINDOW_KEY[]         = "Debugger.MainWindow";
@@ -327,16 +325,16 @@ PerspectivesView::PerspectivesView()
     Context debugcontext(Core::Constants::C_DEBUG_MODE);
     ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
     Command *cmd = ActionManager::registerAction(d->m_mainWindow.showCentralWidgetAction(),
-        "Debugger.Views.ShowCentralWidget", debugcontext);
+        "Core.Views.ShowCentralWidget", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = ActionManager::registerAction(d->m_mainWindow.menuSeparator1(),
-        "Debugger.Views.Separator1", debugcontext);
+        "Core.Views.Separator1", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = ActionManager::registerAction(d->m_mainWindow.resetLayoutAction(),
-        "Debugger.Views.ResetSimple", debugcontext);
+        "Core.Views.ResetSimple", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
@@ -1103,4 +1101,4 @@ QString PerspectivePrivate::settingsId() const
     return m_settingsId.isEmpty() ? m_id : m_settingsId;
 }
 
-} // Utils
+} // namespace Core

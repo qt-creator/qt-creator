@@ -8,9 +8,10 @@
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerkitaspect.h"
-#include "debuggermainwindow.h"
 #include "debuggertr.h"
 #include "enginemanager.h"
+
+#include <coreplugin/perspective.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
@@ -33,6 +34,7 @@
 #include <utils/temporaryfile.h>
 #include <utils/winutils.h>
 
+using namespace Core;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace QtTaskTree;

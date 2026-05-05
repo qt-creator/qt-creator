@@ -27,10 +27,10 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <debugger/debuggericons.h>
-#include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -226,7 +226,7 @@ QmlProfilerTool::QmlProfilerTool()
 
     QObject::connect(d->m_startAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
 
-    Utils::Perspective *perspective = d->m_viewContainer->perspective();
+    Perspective *perspective = d->m_viewContainer->perspective();
     perspective->addToolBarAction(d->m_startAction);
     perspective->addToolBarAction(d->m_stopAction);
     perspective->addToolBarWidget(d->m_recordButton);

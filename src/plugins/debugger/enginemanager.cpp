@@ -6,12 +6,12 @@
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggericons.h"
-#include "debuggermainwindow.h"
 #include "debuggertr.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/perspective.h>
 
 #include <utils/basetreeview.h>
 #include <utils/stylehelper.h>

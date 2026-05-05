@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "debugger_global.h"
+#include "core_global.h"
 
 #include <QObject>
 
@@ -15,11 +15,11 @@ class QMenu;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Utils {
+namespace Utils { class FancyMainWindow; }
 
-class FancyMainWindow;
+namespace Core {
 
-class DEBUGGER_EXPORT Perspective : public QObject
+class CORE_EXPORT Perspective : public QObject
 {
 public:
     Perspective(const QString &id, const QString &name,
@@ -74,7 +74,7 @@ private:
     class PerspectivePrivate *d = nullptr;
 };
 
-class DEBUGGER_EXPORT PerspectivesView : public QObject
+class CORE_EXPORT PerspectivesView : public QObject
 {
     Q_OBJECT
 
@@ -95,7 +95,7 @@ public:
 
     static Perspective *currentPerspective();
 
-    static FancyMainWindow *mainWindow();
+    static Utils::FancyMainWindow *mainWindow();
     static QWidget *centralWidgetStack();
 
 signals:
@@ -115,4 +115,4 @@ private:
     class PerspectivesViewPrivate *d = nullptr;
 };
 
-} // Utils
+} // Core

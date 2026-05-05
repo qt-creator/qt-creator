@@ -8,7 +8,7 @@
 #include "quick3dframeview.h"
 #include "flamegraphview.h"
 
-namespace Utils { class Perspective; }
+namespace Core { class Perspective; }
 
 namespace QmlProfiler::Internal {
 
@@ -26,7 +26,7 @@ public:
     QmlProfilerStatisticsView *statisticsView() const { return m_statisticsView; }
     FlameGraphView *flameGraphView() const { return m_flameGraphView; }
     Quick3DFrameView *quick3dView() const { return m_quick3dView; }
-    Utils::Perspective *perspective() const { return m_perspective; }
+    Core::Perspective *perspective() const { return m_perspective; }
 
     void clear();
 
@@ -44,7 +44,7 @@ private:
     Quick3DFrameView *m_quick3dView = nullptr;
     QmlProfilerStateManager *m_profilerState = nullptr;
     QmlProfilerModelManager *m_profilerModelManager = nullptr;
-    Utils::Perspective *m_perspective = nullptr;
+    Core::Perspective *m_perspective = nullptr;
 };
 
 } // namespace QmlProfiler::Internal

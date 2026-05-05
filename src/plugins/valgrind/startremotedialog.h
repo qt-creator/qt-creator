@@ -9,10 +9,10 @@ QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
 
-namespace Utils { class Perspective; }
+namespace Core { class Perspective; }
 
 namespace Valgrind::Internal {
 
-void setupExternalAnalyzer(QAction *action, Utils::Perspective *perspective, Utils::Id runMode);
+void setupExternalAnalyzer(QAction *action, Core::Perspective *perspective, Utils::Id runMode);
 
 } // Valgrind::Internal

@@ -5,10 +5,10 @@
 
 #include "dapclient.h"
 
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
+#include <coreplugin/perspective.h>
 
-#include <debugger/debuggermainwindow.h>
 #include <debugger/debuggertr.h>
 
 #include <utils/infobar.h>

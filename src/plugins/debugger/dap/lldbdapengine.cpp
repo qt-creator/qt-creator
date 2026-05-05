@@ -6,9 +6,9 @@
 #include "dapclient.h"
 
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/perspective.h>
 
 #include <debugger/debuggeractions.h>
-#include <debugger/debuggermainwindow.h>
 #include <debugger/debuggersourcepathmappingwidget.h>
 
 #include <utils/mimeconstants.h>
