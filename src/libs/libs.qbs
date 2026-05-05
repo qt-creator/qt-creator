@@ -30,6 +30,7 @@ Project {
         "utils/utils.qbs",
         "QtTaskTree/QtTaskTree/QtTaskTree.qbs",
         "3rdparty/bzip2/bzip2.qbs",
+        "3rdparty/json/json.qbs",
         "3rdparty/libarchive/libarchive.qbs",
         "3rdparty/libptyqt/ptyqt.qbs",
         "3rdparty/libvterm/vterm.qbs",
