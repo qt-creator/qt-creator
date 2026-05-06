@@ -256,6 +256,7 @@ static RunControl *openLogcatTabForStream(LogcatStream *logcatStream)
         return existing;
     auto *runControl = new RunControl(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     runControl->setPromptToStop([](bool *) { return true; });
+    runControl->setOutputPaneActionsEnabled(false);
     logcatStream->attachTab(runControl);
 
     runControl->setRunRecipe(QBarrierTask([](QBarrier &) {}).withCancel([runControl] {

@@ -218,6 +218,7 @@ public:
     bool printEnvironment = false;
     bool suppressApplicationOutput = false;
     bool outputVisible = false;
+    bool outputPaneActionsEnabled = true;
     bool useDebugChannel = false;
     bool useQmlChannel = false;
     bool usePerfChannel = false;
@@ -720,6 +721,16 @@ void RunControl::setIcon(const Icon &icon)
 Icon RunControl::icon() const
 {
     return d->data.icon;
+}
+
+void RunControl::setOutputPaneActionsEnabled(bool enabled)
+{
+    d->data.outputPaneActionsEnabled = enabled;
+}
+
+bool RunControl::outputPaneActionsEnabled() const
+{
+    return d->data.outputPaneActionsEnabled;
 }
 
 IDevice::ConstPtr RunControl::device() const

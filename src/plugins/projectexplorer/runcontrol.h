@@ -171,6 +171,11 @@ public:
     void setIcon(const Utils::Icon &icon);
     Utils::Icon icon() const;
 
+    // Enables/disables the Application Output Re-run/Stop/Attach buttons
+    // while this run control's output is shown.
+    void setOutputPaneActionsEnabled(bool enabled);
+    bool outputPaneActionsEnabled() const;
+
     Utils::ProcessHandle applicationProcessHandle() const;
     void setApplicationProcessHandle(const Utils::ProcessHandle &handle);
     IDeviceConstPtr device() const;
