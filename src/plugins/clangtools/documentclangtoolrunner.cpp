@@ -43,7 +43,7 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
+DocumentClangToolRunner::DocumentClangToolRunner(TextEditor::TextDocument *document)
     : QObject(document)
     , m_document(document)
     , m_temporaryDir("clangtools-single-XXXXXX")
@@ -286,21 +286,19 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
     m_marks = newMarks;
     qDeleteAll(toDelete);
 
-    auto doc = qobject_cast<TextEditor::TextDocument *>(m_document);
-
     TextEditor::RefactorMarkers markers;
 
     for (const Diagnostic &diagnostic : std::as_const(diagnostics)) {
         if (isSuppressed(diagnostic))
             continue;
 
-        auto mark = new DiagnosticMark(diagnostic, doc);
+        auto mark = new DiagnosticMark(diagnostic, m_document);
         mark->toolType = toolType;
 
-        if (doc && Utils::anyOf(diagnostic.explainingSteps, &ExplainingStep::isFixIt)) {
+        if (Utils::anyOf(diagnostic.explainingSteps, &ExplainingStep::isFixIt)) {
             TextEditor::RefactorMarker marker;
             marker.tooltip = diagnostic.description;
-            QTextCursor cursor = diagnostic.location.target.toTextCursor(doc->document());
+            QTextCursor cursor = diagnostic.location.target.toTextCursor(m_document->document());
             cursor.movePosition(QTextCursor::EndOfLine);
             marker.cursor = cursor;
             marker.type = Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID;
@@ -314,7 +312,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
         m_marks << mark;
     }
 
-    for (auto editor : TextEditor::BaseTextEditor::textEditorsForDocument(doc)) {
+    for (auto editor : TextEditor::BaseTextEditor::textEditorsForDocument(m_document)) {
         if (TextEditor::TextEditorWidget *widget = editor->editorWidget()) {
             widget->setRefactorMarkers(markers, Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID);
             if (!m_editorsWithMarkers.contains(widget))

@@ -21,9 +21,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
 #include <cppeditor/cppeditorconstants.h>
@@ -38,9 +36,9 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
 #include <QAction>
@@ -89,7 +87,7 @@ public:
 
     ClangTidyTool clangTidyTool;
     ClazyTool clazyTool;
-    QSet<IDocument *> documentsWithRunners;
+    QSet<TextEditor::TextDocument *> documentsWithRunners;
     DocumentQuickFixFactory quickFixFactory;
 };
 
@@ -218,14 +216,13 @@ private:
 void ClangToolsPlugin::onCurrentEditorChanged()
 {
     for (Core::IEditor *editor : Core::EditorManager::visibleEditors()) {
-        IDocument *document = editor->document();
-        if (d->documentsWithRunners.contains(document))
+        const auto document = qobject_cast<TextEditor::TextDocument *>(editor->document());
+        if (!document || !Utils::insert(d->documentsWithRunners, document))
             continue;
         auto runner = new DocumentClangToolRunner(document);
         connect(runner, &DocumentClangToolRunner::destroyed, this, [this, document] {
             d->documentsWithRunners.remove(document);
         });
-        d->documentsWithRunners.insert(document);
     }
 }
 
