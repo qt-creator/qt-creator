@@ -124,6 +124,12 @@ public:
         MainWindowClosing,
     };
 
+    // If there are dirty settings, ask the user if they want to apply them.
+    // The callback is called if the user decides to apply the changed settings.
+    // If the user cancels the dialog, the callback is never called.
+    // If no settings are dirty, the callback is called immediately.
+    static void askToApplySettings(const std::function<void()> &callback);
+
 public slots:
     static void openFileWith();
     static void exit();
@@ -133,6 +139,7 @@ signals:
     void coreOpened();
     void newItemDialogStateChanged();
     void wizardFinished(const Utils::Id &id, bool accepted);
+    void askToApplySettingsRequested(const std::function<void()> &callback);
     void saveSettingsRequested(SaveSettingsReason reason);
     void coreAboutToClose();
     void contextAboutToChange(const QList<Core::IContext *> &context);

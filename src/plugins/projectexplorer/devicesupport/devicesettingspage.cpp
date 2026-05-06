@@ -528,8 +528,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         connect(button, &QAbstractButton::clicked, this, [this, deviceAction] {
             const IDevice::Ptr device = DeviceManager::mutableDevice(currentDevice()->id());
             QTC_ASSERT(device, return);
-            updateDeviceFromUi();
-            deviceAction.execute(device);
+            ICore::askToApplySettings([deviceAction, device]() { deviceAction.execute(device); });
         });
 
         m_buttonsLayout->addWidget(button);
