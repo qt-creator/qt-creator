@@ -6208,7 +6208,7 @@
       <use
          x="0"
          y="0"
-         xlink:href="#src/plugins/welcome/images/project"
+         xlink:href="#src/plugins/projectexplorer/images/recentproject"
          id="use62"
          transform="translate(1211,84)" />
       <path
