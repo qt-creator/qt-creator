@@ -5,6 +5,7 @@
 
 #include "buildconfiguration.h"
 #include "buildsteplist.h"
+#include "buildsystem.h"
 #include "deploymentdataview.h"
 #include "devicesupport/devicekitaspects.h"
 #include "project.h"
@@ -110,6 +111,17 @@ void DeployConfiguration::fromMap(const Store &map)
 bool DeployConfiguration::isActive() const
 {
     return project()->activeDeployConfiguration() == this;
+}
+void DeployConfiguration::setUseCustomDeploymentData(bool enabled)
+{
+    m_usesCustomDeploymentData = enabled;
+    emit buildSystem()->deploymentDataChanged();
+}
+
+void DeployConfiguration::setCustomDeploymentData(const DeploymentData &data)
+{
+    m_customDeploymentData = data;
+    emit buildSystem()->deploymentDataChanged();
 }
 
 BuildSystem *DeployConfiguration::buildSystem() const

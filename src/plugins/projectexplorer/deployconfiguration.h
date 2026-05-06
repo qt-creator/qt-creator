@@ -39,10 +39,10 @@ public:
     bool isActive() const;
 
     bool usesCustomDeploymentData() const { return m_usesCustomDeploymentData; }
-    void setUseCustomDeploymentData(bool enabled) { m_usesCustomDeploymentData = enabled; }
+    void setUseCustomDeploymentData(bool enabled);
 
     DeploymentData customDeploymentData() const { return m_customDeploymentData; }
-    void setCustomDeploymentData(const DeploymentData &data) { m_customDeploymentData = data; }
+    void setCustomDeploymentData(const DeploymentData &data);
 
     BuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
     BuildSystem *buildSystem() const;
