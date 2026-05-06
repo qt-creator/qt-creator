@@ -19,7 +19,7 @@ New plugins
 Adds a chat panel that allows connecting to and chatting with an ACP server
 in Qt Creator.
 
-([Documentation](<URL>))
+([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-use-acp-client.html))
 
 ### Zen Mode
 
