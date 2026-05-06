@@ -280,6 +280,11 @@
         \li Re-parse all source files that include a header file when editing
             it. Clear this option to only re-parse when saving the header file.
     \row
+        \li \uicontrol {Use externally provided compilation database}
+        \li Use an external compilation database instead of the one created by
+            \QC. Place a \c {compile-commands.json} file at the specified index
+            location and keep it synchronized with your project state.
+    \row
         \li \uicontrol {Completion results}
         \li Maximum number of completion results. Set to 0 to remove the limit.
     \row
