@@ -213,28 +213,28 @@
 
     \ingroup creator-how-to-projects-files
 
-    \title Create OpenGL fragment and vertex shaders
+    \title Create OpenGL and Vulkan shaders
 
-    Qt supports integration with OpenGL implementations on all platforms, so you
-    can display hardware accelerated 3D graphics alongside a more conventional
-    user interface. For more information, see \l{Qt GUI}.
+    Qt supports integration with OpenGL and Vulkan implementations on all
+    platforms, so you can display hardware accelerated 3D graphics alongside a
+    more conventional user interface. For more information, see \l{Qt GUI}.
 
     You can use the QOpenGLShader class to compile OpenGL shaders written in the
     OpenGL Shading Language (GLSL) and in the OpenGL/ES Shading Language
     (GLSL/ES). QOpenGLShader and QOpenGLShaderProgram shelter you from the
     details of compiling and linking vertex and fragment shaders.
 
-    To create OpenGL shaders:
+    To create OpenGL or Vulkan shaders:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File} > \uicontrol {GLSL}.
-            \image {qtcreator-new-opengl-file.png} {New OpenGL file wizard}
+            \image {qtcreator-new-opengl-file.webp} {New GLSL file wizard}
         \li Select the type of the shader to create, and then select
             \uicontrol Choose.
         \li Follow the instructions of the wizard to create the shader file.
         \li Open the shader file in the code editor, and write the shader code
-            in GLSL or GLSL/ES. The code editor offers syntax highlighting and
-            code completion for the files.
+            in GLSL, GLSL/ES, or Vulkan-compatible GLSL. The code editor offers
+            syntax highlighting and code completion for the files.
     \endlist
 
     \sa {Adding files}, {Use project wizards}
