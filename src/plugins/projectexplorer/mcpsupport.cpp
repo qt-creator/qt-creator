@@ -110,10 +110,16 @@ static bool switchToBuildConfig(const QString &name)
     return false;
 }
 
-static QString getCurrentProject()
+static QJsonObject getCurrentProject()
 {
     Project *project = ProjectManager::startupProject();
-    return project ? project->displayName() : QString{};
+    if (!project)
+        return {};
+    return {
+        {"projectName", project->displayName()},
+        {"projectFile", project->projectFilePath().toUserOutput()},
+        {"projectDirectory", project->projectDirectory().toUserOutput()},
+    };
 }
 
 static QString getCurrentBuildConfig()
@@ -1147,9 +1153,28 @@ void registerMcpTools()
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
-                    .addProperty("project", QJsonObject{{"type", "string"}})
-                    .addRequired("project")),
-        wrap([](const QJsonObject &) { return QJsonObject{{"project", getCurrentProject()}}; }));
+                    .addProperty(
+                        "projectName",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Display name of the currently active project"},
+                            })
+                    .addProperty(
+                        "projectFile",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Path to the project's main file (e.g., .pro, .vcxproj, "
+                             "CMakeLists.txt)"},
+                            })
+                    .addProperty(
+                        "projectDirectory",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Path to the project's directory"},
+                            })
+                    .addRequired("projectDirectory")),
+        wrap([](const QJsonObject &) { return getCurrentProject(); }));
 
     ToolRegistry::registerTool(
         Tool{}
