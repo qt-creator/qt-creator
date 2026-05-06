@@ -4512,7 +4512,6 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         auto cb = [this](const QList<QStandardItem *> &items) {
             emit modelChange(true);
 
-            QString oldValue = m_volatileValue;
             m_model->clear();
             for (QStandardItem *item : items)
                 m_model->appendRow(item);
