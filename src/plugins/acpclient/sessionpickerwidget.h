@@ -21,9 +21,17 @@ class SessionPickerWidget : public CollapsibleFrame
     Q_OBJECT
 
 public:
+    struct NewSessionTarget
+    {
+        QString label;
+        Utils::FilePath cwd;
+        QString tooltip;
+    };
+
     explicit SessionPickerWidget(QWidget *parent = nullptr);
 
     void setCurrentProjectDir(const Utils::FilePath &dir);
+    void setNewSessionTargets(const QList<NewSessionTarget> &targets);
 
     void setInitialSessions(const QList<Acp::SessionInfo> &sessions,
                             const std::optional<QString> &nextCursor);
@@ -33,9 +41,9 @@ public:
     void setResolved(const QString &title);
 
 signals:
-    void sessionSelected(const QString &sessionId);
+    void sessionSelected(const QString &sessionId, const Utils::FilePath &cwd);
     void loadMoreRequested(const QString &cursor);
-    void newSessionRequested();
+    void newSessionRequested(const Utils::FilePath &cwd);
 
 private:
     struct Group
@@ -45,12 +53,15 @@ private:
     };
 
     void addSessionItem(const Acp::SessionInfo &session);
+    void requestNewSession(const Utils::FilePath &cwd);
+    void requestCustomDirectorySession();
     void updateLoadMoreButton();
     void updateEmptyState();
     void clearGroups();
     void updateCollapseState();
     Group &ensureGroup(const QString &cwd);
 
+    QVBoxLayout *m_newSessionContainer = nullptr;
     QVBoxLayout *m_currentGroupContainer = nullptr;
     QVBoxLayout *m_otherGroupsContainer = nullptr;
     QHash<QString, Group> m_groups;

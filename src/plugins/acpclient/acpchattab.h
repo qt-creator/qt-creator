@@ -7,13 +7,12 @@
 
 class QComboBox;
 class QLabel;
-class QLineEdit;
-class QPushButton;
 class QStackedWidget;
+class QVBoxLayout;
 
 namespace Utils {
+class FilePath;
 class InfoLabel;
-class PathChooser;
 }
 
 namespace AcpClient::Internal {
@@ -42,19 +41,17 @@ signals:
     void titleChanged();
 
 private:
-    void connectToAgent();
-    void populateServerCombo();
+    void populateServerButtons();
     void updateTitle();
-    void showSessionPicker(bool autoCreateIfEmpty = false);
+    void showSessionPicker();
 
     // Config page
     QStackedWidget *m_stack;
     QStackedWidget *m_configStack;
-    QComboBox *m_serverCombo;
-    Utils::PathChooser *m_cwdEdit;
+    QVBoxLayout *m_serverButtonsLayout = nullptr;
     Utils::InfoLabel *m_noServerLabel;
     QLabel *m_connectionErrorLabel = nullptr;
-    QPushButton *m_connectButton;
+    QString m_currentServerName;
 
     // Auth page
     QComboBox *m_authMethodCombo = nullptr;

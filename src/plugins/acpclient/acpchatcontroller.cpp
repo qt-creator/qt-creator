@@ -42,14 +42,12 @@ void AcpChatController::setInspector(AcpInspector *inspector)
     m_inspector = inspector;
 }
 
-void AcpChatController::connectToServer(const QString &serverId, const FilePath &workingDirectory)
+void AcpChatController::connectToServer(const QString &serverId)
 {
     disconnectFromServer();
 
     if (serverId.isEmpty())
         return;
-
-    m_workingDirectory = workingDirectory;
 
     const QList<AcpSettings::ServerInfo> servers = AcpSettings::servers();
     const auto it = std::find_if(servers.begin(), servers.end(),
@@ -67,8 +65,6 @@ void AcpChatController::connectToServer(const QString &serverId, const FilePath 
     auto *transport = new AcpStdioTransport(this);
     const FilePath command = cmdLine.executable();
     transport->setCommandLine(CommandLine(command, cmdLine.arguments(), CommandLine::Raw));
-    if (!workingDirectory.isEmpty())
-        transport->setWorkingDirectory(workingDirectory);
     if (serverInfo.envChanges.hasItems()) {
         Environment env = command.deviceEnvironment();
         serverInfo.envChanges.modifyEnvironment(env, nullptr);
@@ -156,11 +152,12 @@ void AcpChatController::disconnectFromServer()
     emit connectionStateChanged(AcpClientObject::State::Disconnected);
 }
 
-void AcpChatController::createNewSession()
+void AcpChatController::createNewSession(const FilePath &workingDirectory)
 {
     if (!m_client || !m_initialized)
         return;
 
+    m_workingDirectory = workingDirectory;
 
     m_client->newSession(buildNewSessionRequest(),
                          [this](const QJsonObject &result, const std::optional<Error> &error) {
@@ -367,10 +364,7 @@ void AcpChatController::onInitializeResult(const InitializeResponse &response)
 
     emit agentInfoReceived(m_agentName, m_agentVersion, m_iconUrl);
 
-    if (supportsSessionList())
-        emit sessionSelectionRequired();
-    else
-        createNewSession();
+    emit sessionSelectionRequired();
 }
 
 static QList<McpServer> buildMcpServers()
@@ -464,10 +458,12 @@ void AcpChatController::listSessions(const std::optional<QString> &cursor)
     });
 }
 
-void AcpChatController::loadSession(const QString &sessionId)
+void AcpChatController::loadSession(const QString &sessionId, const FilePath &workingDirectory)
 {
     if (!m_client || !m_initialized)
         return;
+
+    m_workingDirectory = workingDirectory;
 
     LoadSessionRequest req;
     req.sessionId(sessionId);
