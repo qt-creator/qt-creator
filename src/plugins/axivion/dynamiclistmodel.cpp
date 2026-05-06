@@ -56,7 +56,7 @@ int DynamicListModel::columnCount(const QModelIndex &/*parent*/) const
 QVariant DynamicListModel::data(const QModelIndex &index, int role) const
 {
     const int row = index.row();
-    if (!index.isValid() || row < 0 || row > m_expectedRowCount.value_or(m_children.size()))
+    if (!index.isValid() || row < 0 || row >= m_expectedRowCount.value_or(m_children.size()))
         return {};
 
     auto item = m_children.constFind(row);
