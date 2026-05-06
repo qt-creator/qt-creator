@@ -104,5 +104,6 @@ Project {
         "webassembly/webassembly.qbs",
         "welcome/welcome.qbs",
         "zenmode/zenmode.qbs",
+        "zephyr/zephyr.qbs",
     ].concat(project.additionalPlugins)
 }

@@ -103,6 +103,7 @@ add_subdirectory(valgrind)
 add_subdirectory(qbsprojectmanager)
 add_subdirectory(squish)
 add_subdirectory(appstatisticsmonitor)
+add_subdirectory(zephyr)
 
 # Level 8:
 add_subdirectory(qmlpreview)
