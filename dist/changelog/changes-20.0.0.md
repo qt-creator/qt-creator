@@ -62,6 +62,7 @@ Fixed
 Added
 
 * A preferences page `AI > MCP Servers` for managing MCP servers
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-add-mcp-servers.html))
 * Support for [Tasks](https://modelcontextprotocol.io/specification/draft/basic/utilities/tasks)
 * Support for Cross-Origin Resource Sharing (CORS) for connecting from a web
   application
