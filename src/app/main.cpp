@@ -915,9 +915,6 @@ int main(int argc, char **argv)
     }
     restarter.setArguments(options.preAppArguments + PluginManager::argumentsForRestart()
                            + lastSessionArgument());
-    // if settingspath is not provided we need to pass on the settings in use
-    const QString settingspath = options.preAppArguments.contains(QLatin1String(SETTINGS_OPTION))
-            ? QString() : options.settingsPath;
 
     PluginSpec *coreplugin = PluginManager::specById(QLatin1String(corePluginIdC));
     if (!coreplugin) {
