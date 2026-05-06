@@ -257,7 +257,7 @@ public:
         setFilters(ProjectExplorer::Constants::msgAutoDetected(),
                    {{ProjectExplorer::Constants::msgManual(), [this](int row) {
                        const QtVersionItem it = this->item(row);
-                       return it.version() && !it.version()->detectionSource().isAutoDetected();
+                       return !it.version() || !it.version()->detectionSource().isAutoDetected();
                    }}});
     }
 
@@ -287,7 +287,13 @@ public:
 
     QVariant variantData(int row, int column, int role) const final
     {
-        return item(row).data(column, role);
+        const QtVersionItem &it = item(row);
+        if (!it.version()) {
+            if (role == Qt::DisplayRole && column == 0)
+                return Tr::tr("<new>");
+            return {};
+        }
+        return it.data(column, role);
     }
 };
 
@@ -380,7 +386,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 {
     m_groupedView.view().setObjectName("qtDirList");
 
-    m_addButton.setText(Tr::tr("Add..."));
+    m_addButton.setText(Tr::tr("Add"));
     m_redetectButton.setText(Tr::tr("Re-detect"));
     m_linkWithQtButton.setText(Tr::tr("Link with Qt..."));
     m_cleanUpButton.setText(Tr::tr("Clean Up"));
@@ -471,7 +477,10 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     connect(&m_addButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::addQtDir);
     m_groupedView.setCanRemoveRow([this](int row) {
         const QtVersion *version = m_model.item(row).version();
-        return version && !version->detectionSource().isAutoDetected();
+        return !version || !version->detectionSource().isAutoDetected();
+    });
+    m_groupedView.setCanCloneRow([this](int row) {
+        return m_model.item(row).version() != nullptr;
     });
 
     connect(&m_groupedView, &GroupedView::currentRemoved,
@@ -676,7 +685,7 @@ bool QtSettingsPageWidget::isNameUnique(const QtVersion *version)
         if (m_model.isRemoved(row))
             continue;
         QtVersion *v = m_model.item(row).version();
-        if (v != version && v->displayName().trimmed() == name)
+        if (v && v != version && v->displayName().trimmed() == name)
             return false;
     }
     return true;
@@ -763,56 +772,9 @@ QtSettingsPageWidget::~QtSettingsPageWidget()
 
 void QtSettingsPageWidget::addQtDir()
 {
-    FilePath initialDir;
-    const IDeviceConstPtr dev = m_deviceComboBox.currentDevice();
-    if (dev && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
-        initialDir = dev->rootPath();
-    FilePath qtVersion = FileUtils::getOpenFilePath(
-        Tr::tr("Select a qtpaths or qmake Executable"),
-        initialDir,
-        filterForQmakeFileDialog(initialDir.osType()),
-        nullptr,
-        QFileDialog::DontResolveSymlinks,
-        true);
-
-    if (qtVersion.isEmpty())
-        return;
-
-    // should add all qt versions here ?
-    if (isQtChooser(qtVersion))
-        qtVersion = qtChooserToQmakePath(qtVersion.symLinkTarget());
-
-    bool alreadyExists;
-    QString otherName;
-    std::tie(alreadyExists, otherName) = checkAlreadyExists(qtVersion);
-
-    if (alreadyExists) {
-        // Already exist
-        QMessageBox::warning(this, Tr::tr("Qt Version Already Known"),
-                             Tr::tr("This Qt version was already registered as \"%1\".")
-                             .arg(otherName));
-        return;
-    }
-
-    QString error;
-    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, DetectionSource::Manual, &error);
-    if (version) {
-        QtVersionItem item(version);
-        item.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
-        m_groupedView.selectRow(m_model.appendVolatileItem(item));
-        m_nameEdit.setFocus();
-        m_nameEdit.selectAll();
-    } else {
-        const QString qtFileName = qtVersion.fileName();
-        QMessageBox::warning(
-            this,
-            Tr::tr("%1 Not Executable").arg(qtFileName),
-            Tr::tr("The %1 executable \"%2\" could not be added: %3")
-                .arg(qtFileName)
-                .arg(qtVersion.toUserOutput())
-                .arg(error));
-        return;
-    }
+    QtVersionItem newItem(nullptr);
+    newItem.setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
+    m_groupedView.selectRow(m_model.appendVolatileItem(newItem));
     updateCleanUpButton();
 }
 
@@ -843,40 +805,72 @@ void QtSettingsPageWidget::editPath()
     const int row = m_groupedView.currentRow();
     QTC_ASSERT(row >= 0, return);
     QtVersion *current = m_model.item(row).version();
-    QTC_ASSERT(current, return);
-    const bool fromFiles = current->hasDataFromFiles();
+    const bool fromFiles = current && current->hasDataFromFiles();
+    FilePath initialDir;
+    if (current) {
+        initialDir = fromFiles ? current->qtFilePath() : current->qtFilePath().absolutePath();
+    } else {
+        const IDeviceConstPtr dev = m_deviceComboBox.currentDevice();
+        if (dev && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
+            initialDir = dev->rootPath();
+    }
     FilePath qtVersion = fromFiles
         ? FileUtils::getExistingDirectory(Tr::tr("Select the Prefix of a Qt Installation"),
-                                          current->qtFilePath())
+                                          initialDir)
         : FileUtils::getOpenFilePath(
             Tr::tr("Select a qtpaths or qmake Executable"),
-            current->qtFilePath().absolutePath(),
-            filterForQmakeFileDialog(current->qtFilePath().osType()),
+            initialDir,
+            filterForQmakeFileDialog(initialDir.osType()),
             nullptr,
-            QFileDialog::DontResolveSymlinks);
+            QFileDialog::DontResolveSymlinks,
+            !current);
     if (qtVersion.isEmpty())
         return;
+
+    if (!current) {
+        if (isQtChooser(qtVersion))
+            qtVersion = qtChooserToQmakePath(qtVersion.symLinkTarget());
+        bool alreadyExists;
+        QString otherName;
+        std::tie(alreadyExists, otherName) = checkAlreadyExists(qtVersion);
+        if (alreadyExists) {
+            QMessageBox::warning(this, Tr::tr("Qt Version Already Known"),
+                                 Tr::tr("This Qt version was already registered as \"%1\".")
+                                 .arg(otherName));
+            return;
+        }
+    }
+
+    QString error;
     QtVersion *version = fromFiles
         ? QtVersionFactory::createQtVersionFromPrefix(qtVersion, DetectionSource::Manual)
         : QtVersionFactory::createQtVersionFromQMakePath(qtVersion, DetectionSource::Manual,
-                                                         nullptr);
+                                                         &error);
+    if (!version && !current) {
+        const QString qtFileName = qtVersion.fileName();
+        QMessageBox::warning(
+            this,
+            Tr::tr("%1 Not Executable").arg(qtFileName),
+            Tr::tr("The %1 executable \"%2\" could not be added: %3")
+                .arg(qtFileName)
+                .arg(qtVersion.toUserOutput())
+                .arg(error));
+    }
     if (!version)
         return;
-    // Same type? then replace!
-    if (current->type() != version->type()) {
-        // not the same type, error out
-        QMessageBox::critical(this, Tr::tr("Incompatible Qt Versions"),
-                              Tr::tr("The Qt version selected must match the device type."),
-                              QMessageBox::Ok);
-        delete version;
-        return;
+    if (current) {
+        if (current->type() != version->type()) {
+            QMessageBox::critical(this, Tr::tr("Incompatible Qt Versions"),
+                                  Tr::tr("The Qt version selected must match the device type."),
+                                  QMessageBox::Ok);
+            delete version;
+            return;
+        }
+        version->setId(current->uniqueId());
+        if (current->unexpandedDisplayName() != current->defaultUnexpandedDisplayName())
+            version->setUnexpandedDisplayName(current->displayName());
     }
-    // same type, replace
-    version->setId(current->uniqueId());
-    if (current->unexpandedDisplayName() != current->defaultUnexpandedDisplayName())
-        version->setUnexpandedDisplayName(current->displayName());
 
-    // Replace the item's version in the model
     QtVersionItem it = m_model.item(row);
     it.m_version = std::shared_ptr<QtVersion>(version);
     m_model.setVolatileItem(row, it);
@@ -942,6 +936,9 @@ void QtSettingsPageWidget::updateDescriptionLabel()
     m_infoBrowser.clear();
     if (version) {
         setInfoWidgetVisibility();
+    } else if (row >= 0) {
+        m_versionInfoWidget.setVisible(true);
+        m_infoWidget.setVisible(false);
     } else {
         m_versionInfoWidget.setVisible(false);
         m_infoWidget.setVisible(false);
@@ -976,10 +973,12 @@ void QtSettingsPageWidget::updateWidgets()
 
 void QtSettingsPageWidget::updateButtons()
 {
+    const int row = m_groupedView.currentRow();
     const QtVersion *version = currentVersion();
     const bool isAutodetected = version && version->detectionSource().isAutoDetected();
+    const bool hasRow = row >= 0 && !m_model.isRemoved(row);
     m_nameEdit.setEnabled(version != nullptr);
-    m_editPathPushButton.setEnabled(version && !isAutodetected);
+    m_editPathPushButton.setEnabled(hasRow && !isAutodetected);
 }
 
 static FilePath settingsFile(const QString &baseDir)
@@ -1078,12 +1077,17 @@ void QtSettingsPageWidget::apply()
     for (int row = 0; row < m_model.itemCount(); ++row) {
         if (m_model.isRemoved(row))
             continue;
-        versions.append(m_model.item(row).version()->clone());
+        if (QtVersion *v = m_model.item(row).version())
+            versions.append(v->clone());
     }
     m_applyingVersions = true;
     QtVersionManager::setNewQtVersions(versions);
     m_applyingVersions = false;
 
+    for (int row = m_model.itemCount() - 1; row >= 0; --row) {
+        if (m_model.isAdded(row) && !m_model.item(row).version())
+            m_model.destroyRow(row);
+    }
     m_model.apply();
     userChangedCurrentVersion();
 }
@@ -1249,7 +1253,7 @@ public:
         setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
         setWidgetCreator([] { return new QtSettingsPageWidget; });
         setFixedKeywords({
-            Tr::tr("Add..."),
+            Tr::tr("Add"),
             Tr::tr("Remove"),
             Tr::tr("Clone"),
             Tr::tr("Clean Up"),
