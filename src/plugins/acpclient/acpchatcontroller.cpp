@@ -223,26 +223,39 @@ void AcpChatController::sendPrompt(const QString &text,
     QList<ContentBlock> content = {textContent};
     BaseTextEditor *currentTextEditor = BaseTextEditor::currentTextEditor();
     if (includeCurrentEditor && currentTextEditor) {
-        const QString uri = currentTextEditor->document()->filePath().toUrl().toString();
-        content << ResourceLink()
-                       .name(currentTextEditor->document()->filePath().fileName())
-                       .description("Qt Creators current main Text Editor file.")
-                       .uri(uri);
+        const FilePath filePath = currentTextEditor->document()->filePath();
+        if (!filePath.isEmpty()) {
+            const QString uri = filePath.toUrl().toString();
+            content << ResourceLink()
+                           .name(filePath.fileName())
+                           .description("Qt Creators current main Text Editor file.")
+                           .uri(uri);
 
-        if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
-            TextEditorWidget *widget = currentTextEditor->editorWidget();
-            TextResourceContents editorState;
-            editorState.uri(uri);
-            QString stateString = "This is the state of the current Text Editor in Qt Creator\n";
-            QTextCursor tc = currentTextEditor->textCursor();
-            const QString cursorString = "Cursor %1: %2, Line(0-based): %3, Column(0-based): %4\n";
-            stateString += cursorString.arg("Position").arg(tc.position()).arg(tc.blockNumber()).arg(tc.positionInBlock());
-            tc.setPosition(tc.anchor());
-            stateString += cursorString.arg("Anchor").arg(tc.position()).arg(tc.blockNumber()).arg(tc.positionInBlock());
-            stateString += "First Visible Line: " + QString::number(widget->firstVisibleBlockNumber()) + "\n";
-            stateString += "Last Visible Line: " + QString::number(widget->lastVisibleBlockNumber()) + "\n";
-            content << EmbeddedResource().resource(
-                TextResourceContents().text(stateString).uri(uri));
+            if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
+                TextEditorWidget *widget = currentTextEditor->editorWidget();
+                TextResourceContents editorState;
+                editorState.uri(uri);
+                QString stateString
+                    = "This is the state of the current Text Editor in Qt Creator\n";
+                QTextCursor tc = currentTextEditor->textCursor();
+                const QString cursorString
+                    = "Cursor %1: %2, Line(0-based): %3, Column(0-based): %4\n";
+                stateString += cursorString.arg("Position")
+                                   .arg(tc.position())
+                                   .arg(tc.blockNumber())
+                                   .arg(tc.positionInBlock());
+                tc.setPosition(tc.anchor());
+                stateString += cursorString.arg("Anchor")
+                                   .arg(tc.position())
+                                   .arg(tc.blockNumber())
+                                   .arg(tc.positionInBlock());
+                stateString += "First Visible Line: "
+                               + QString::number(widget->firstVisibleBlockNumber()) + "\n";
+                stateString += "Last Visible Line: "
+                               + QString::number(widget->lastVisibleBlockNumber()) + "\n";
+                content << EmbeddedResource().resource(
+                    TextResourceContents().text(stateString).uri(uri));
+            }
         }
     }
 
