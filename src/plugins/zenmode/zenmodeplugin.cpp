@@ -16,8 +16,6 @@
 #include <texteditor/marginsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/theme/theme.h>
-
 #include <QAction>
 #include <QFont>
 #include <QMenuBar>
@@ -69,13 +67,21 @@ void ZenModePlugin::extensionsInitialized()
 
     m_zenModeStatusBarIcon.setObjectName("zenModeState");
     m_zenModeStatusBarIcon.setText("Z");
-    m_zenModeStatusBarIcon.setToolTip(Tr::tr("Zen Mode state"));
+    m_zenModeStatusBarIcon.setToolTip(Tr::tr("Toggle Zen Mode"));
     m_zenModeStatusBarIcon.setFont(statusFont);
+    m_zenModeStatusBarIcon.setAutoRaise(true);
+    m_zenModeStatusBarIcon.setCheckable(true);
+    connect(&m_zenModeStatusBarIcon, &QToolButton::clicked,
+            m_toggleZenModeAction, &QAction::trigger);
 
     m_distractionModeStatusBarIcon.setObjectName("distractionModeState");
     m_distractionModeStatusBarIcon.setText("D");
-    m_distractionModeStatusBarIcon.setToolTip(Tr::tr("Distraction Free Mode state"));
+    m_distractionModeStatusBarIcon.setToolTip(Tr::tr("Toggle Distraction Free Mode"));
     m_distractionModeStatusBarIcon.setFont(statusFont);
+    m_distractionModeStatusBarIcon.setAutoRaise(true);
+    m_distractionModeStatusBarIcon.setCheckable(true);
+    connect(&m_distractionModeStatusBarIcon, &QToolButton::clicked,
+            m_toggleDistractionAction, &QAction::trigger);
     updateStateIcons();
 
     Core::StatusBarManager::addStatusBarWidget(&m_zenModeStatusBarIcon,
@@ -186,17 +192,8 @@ void ZenModePlugin::setSidebarsAndModesVisible(bool visible)
 
 void ZenModePlugin::updateStateIcons()
 {
-    const auto setIconColor = [](QLabel *label, bool active) {
-        QPalette pal = label->palette();
-        pal.setColor(
-            QPalette::WindowText,
-            active ? Utils::creatorColor(Utils::Theme::Token_Notification_Success_Default)
-                   : Utils::creatorColor(Utils::Theme::TextColorDisabled));
-        label->setPalette(pal);
-        label->setEnabled(active);
-    };
-    setIconColor(&m_zenModeStatusBarIcon, m_zenModeActive);
-    setIconColor(&m_distractionModeStatusBarIcon, m_distractionFreeModeActive);
+    m_zenModeStatusBarIcon.setChecked(m_zenModeActive);
+    m_distractionModeStatusBarIcon.setChecked(m_distractionFreeModeActive);
 }
 
 void ZenModePlugin::updateContentEditorWidth()

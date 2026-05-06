@@ -7,7 +7,7 @@
 
 #include <coreplugin/modemanager.h>
 
-#include <QLabel>
+#include <QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -71,8 +71,8 @@ private:
     QPointer<QMainWindow> m_window;
     QPointer<QMenuBar> m_menuBar;
 
-    QLabel m_zenModeStatusBarIcon;
-    QLabel m_distractionModeStatusBarIcon;
+    QToolButton m_zenModeStatusBarIcon;
+    QToolButton m_distractionModeStatusBarIcon;
 };
 
 } // namespace ZenMode::Internal
