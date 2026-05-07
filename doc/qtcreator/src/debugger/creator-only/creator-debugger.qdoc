@@ -657,6 +657,37 @@
         \li Select \uicontrol Apply.
     \endlist
 
+    \section1 GDB server started by a command
+
+    If you want to automate and persist the GDB server setup as part of your
+    project (for example, you have a script that starts \c {gdbserver} on a
+    remote device), add a \uicontrol {Remote Debugger} run configuration. The
+    launcher command runs automatically each time you start debugging, so you
+    do not need to set up the connection manually.
+
+    To add a Remote Debugger run configuration:
+
+    \list 1
+        \li Go to \uicontrol Projects > \uicontrol {Run Settings}.
+        \li Select \uicontrol Add > \uicontrol {Remote Debugger} >
+            \uicontrol {Create}.
+        \li In \uicontrol {Launcher command}, specify a script or command
+            that sets up the GDB server connection.
+        \li In \uicontrol {Command line arguments}, specify any arguments
+            to pass to the launcher command.
+        \li In \uicontrol {Symbol file (local executable)}, specify the
+            path to the application executable on the local machine.
+        \li In \uicontrol {Server channel}, specify the communication
+            channel to use. The default is \c {tcp://127.0.0.1:1234}.
+        \li Select \uicontrol {Break at "main"} to stop the debugger
+            at the main function.
+        \li Select \uicontrol {Run in terminal} for console applications.
+        \li Select \uicontrol {Use "target extended-remote" to connect}
+            to connect in extended-remote mode.
+        \li Select the run configuration in the kit selector and press
+            \key {F5} to start debugging.
+    \endlist
+
     \sa {Debug}{How to: Debug}, {Remote Linux}{How to: Develop for remote Linux},
     {GDB}, {Debugging}, {Debuggers}, {Managing kits}
 */
