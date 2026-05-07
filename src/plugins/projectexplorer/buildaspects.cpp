@@ -48,20 +48,18 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
     setLabelText(Tr::tr("Build directory:"));
     setExpectedKind(Utils::PathChooser::Directory);
 
-    setValidationFunction([this, bc](QString text) -> FancyLineEdit::AsyncValidationFuture {
+    setValidationFunction([this](QString text) -> FancyLineEdit::AsyncValidationFuture {
         const FilePath fixedDir = fixupDir(FilePath::fromUserInput(text));
         if (!fixedDir.isEmpty())
             text = fixedDir.toUserOutput();
 
-        const QString problem = updateProblemLabelsHelper(text);
-        if (!problem.isEmpty())
-            return QtFuture::makeReadyFuture(Result<QString>(ResultError(problem)));
-
         const FilePath newPath = FilePath::fromUserInput(text);
         const auto buildDevice = BuildDeviceKitAspect::device(buildConfiguration()->kit());
 
-        const FilePath expandedPath = BuildConfiguration::expandedBuildDirectory(
-            bc->kit(), newPath, bc->project()->projectDirectory(), *bc->macroExpander());
+        const FilePath expandedPath = absoluteBuildDir(newPath);
+        const QString problem = updateProblemLabelsHelper(expandedPath.toFSPathString());
+        if (!problem.isEmpty())
+            return QtFuture::makeReadyFuture(Result<QString>(ResultError(problem)));
 
         if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !buildDevice->rootPath().ensureReachable(expandedPath)) {
@@ -120,6 +118,13 @@ void BuildDirectoryAspect::fromMap(const Store &map)
             setValue(d->sourceDir);
         setChecked(d->sourceDir != expandedValue()); // FIXME: Check.
     }
+}
+
+FilePath BuildDirectoryAspect::absoluteBuildDir(const FilePath &rawPath) const
+{
+    const BuildConfiguration * const bc = buildConfiguration();
+    return BuildConfiguration::expandedBuildDirectory(
+        bc->kit(), rawPath, bc->project()->projectDirectory(), *bc->macroExpander());
 }
 
 void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
@@ -185,7 +190,7 @@ FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
 
 void BuildDirectoryAspect::updateProblemLabels()
 {
-    updateProblemLabelsHelper(value());
+    updateProblemLabelsHelper(absoluteBuildDir(FilePath::fromUserInput(value())).toFSPathString());
 }
 
 QString BuildDirectoryAspect::updateProblemLabelsHelper(const QString &value)
