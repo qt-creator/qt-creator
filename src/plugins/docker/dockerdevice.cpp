@@ -7,7 +7,6 @@
 #include "dockerconstants.h"
 #include "dockercontainerthread.h"
 #include "dockerdevicewidget.h"
-#include "dockersettings.h"
 #include "dockertr.h"
 
 #include <coreplugin/icore.h>
@@ -137,8 +136,9 @@ public:
 class DockerDevicePrivate final : public QObject
 {
 public:
-    explicit DockerDevicePrivate(DockerDevice *parent)
+    explicit DockerDevicePrivate(DockerDevice *parent, ContainerToolSettings *settings)
         : q(parent)
+        , m_containerSettings(settings)
     {
         QObject::connect(q, &DockerDevice::applied, this, [this] { stopCurrentContainer(); });
     }
@@ -205,7 +205,7 @@ public:
 
         Result<> initResult = ResultOk;
         if (q->mountCmdBridge()
-            && cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
+            && cmdBridgePath->isSameDevice(m_containerSettings->binaryPath())) {
             initResult = fAccess->init(
                 q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"), q->environment(), false);
         } else {
@@ -234,7 +234,7 @@ public:
         if (DeviceFileAccessPtr fileAccess = *m_fileAccess.readLocked())
             return fileAccess;
 
-        if (!DockerApi::instance()->imageExists(q->repoAndTag()))
+        if (!DockerApi::instance(q->type())->imageExists(q->repoAndTag()))
             return nullptr;
 
         SynchronizedValue<DeviceFileAccessPtr>::unique_lock fileAccess = m_fileAccess.writeLocked();
@@ -264,6 +264,7 @@ public:
     }
 
     DockerDevice *const q;
+    ContainerToolSettings *m_containerSettings = nullptr;
 
     struct MountPair
     {
@@ -368,7 +369,7 @@ Result<Environment> DockerDevicePrivate::fetchEnvironment() const
 {
     Process envCaptureProcess;
 
-    CommandLine cmdLine{settings().dockerBinaryPath(), {"run", "--rm", "-i"}};
+    CommandLine cmdLine{m_containerSettings->binaryPath(), {"run", "--rm", "-i"}};
     cmdLine.addArgs(q->extraArgs(), CommandLine::Raw);
     cmdLine.addArg(q->repoAndTag());
 
@@ -428,7 +429,7 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     else
         containerId = *result;
 
-    CommandLine dockerCmd{settings().dockerBinaryPath(), {"exec"}};
+    CommandLine dockerCmd{m_containerSettings->binaryPath(), {"exec"}};
 
     if (interactive)
         dockerCmd.addArg("-i");
@@ -628,7 +629,7 @@ QStringList DockerDevicePrivate::createMountArgs(const CreateCommandLineParams &
         const Result<FilePath> cmdBridgePath = getCmdBridgePath();
         QTC_CHECK_RESULT(cmdBridgePath);
 
-        if (cmdBridgePath && cmdBridgePath->isSameDevice(settings().dockerBinaryPath()))
+        if (cmdBridgePath && cmdBridgePath->isSameDevice(m_containerSettings->binaryPath()))
             mounts.append({*cmdBridgePath, FilePath("/tmp/_qtc_cmdbridge")});
     }
 
@@ -644,7 +645,7 @@ bool DockerDevicePrivate::isImageAvailable() const
 {
     Process proc;
     proc.setCommand(
-        {settings().dockerBinaryPath(),
+        {m_containerSettings->binaryPath(),
          {"image", "list", q->repoAndTag(), "--format", "{{.Repository}}:{{.Tag}}"}});
     proc.runBlocking();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
@@ -658,7 +659,7 @@ bool DockerDevicePrivate::isImageAvailable() const
 
 CommandLine DockerDevicePrivate::createCommandLine(const CreateCommandLineParams &p)
 {
-    CommandLine dockerCreate{settings().dockerBinaryPath(), {"create", "-i", "--rm"}};
+    CommandLine dockerCreate{m_containerSettings->binaryPath(), {"create", "-i", "--rm"}};
 
     if (p.x11Forwarding) {
         const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
@@ -724,10 +725,13 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
 {
     if (m_isShutdown)
         return make_unexpected(Tr::tr("Device is shut down."));
-    if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
-        return make_unexpected(Tr::tr("Docker system is not reachable."));
-    if (!DockerApi::instance()->imageExists(q->repoAndTag()))
-        return make_unexpected(Tr::tr("Docker image \"%1\" not found.").arg(q->repoAndTag()));
+    if (DockerApi::isDockerDaemonAvailable(q->type(), false).value_or(false) == false)
+        return make_unexpected(Tr::tr("%1 system is not reachable.")
+                                   .arg(m_containerSettings->displayType()));
+    if (!DockerApi::instance(q->type())->imageExists(q->repoAndTag()))
+        return make_unexpected(
+            Tr::tr("%1 image \"%2\" not found.")
+                .arg(m_containerSettings->displayType(), q->repoAndTag()));
 
     auto lockedThread = m_deviceThread.writeLocked();
     if (*lockedThread)
@@ -738,7 +742,7 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
     q->setFreePorts(freePortRange);
 
     DockerContainerThread::Init init;
-    init.dockerBinaryPath = settings().dockerBinaryPath();
+    init.dockerBinaryPath = m_containerSettings->binaryPath();
     init.createContainerCmd = createCommandLine(appliedParams());
 
     auto result = DockerContainerThread::create(init);
@@ -792,10 +796,11 @@ public:
 class DockerDeviceSetupWizard final : public QDialog
 {
 public:
-    DockerDeviceSetupWizard()
+    explicit DockerDeviceSetupWizard(ContainerToolSettings *settings)
         : QDialog(ICore::dialogParent())
+        , m_settings(settings)
     {
-        setWindowTitle(Tr::tr("Docker Image Selection"));
+        setWindowTitle(Tr::tr("%1 Image Selection").arg(settings->displayType()));
         resize(800, 600);
 
         m_model.setHeader({"Repository", "Tag", "Image", "Size"});
@@ -838,7 +843,8 @@ public:
         m_log = new QTextBrowser;
         m_log->setVisible(dockerDeviceLog().isDebugEnabled());
 
-        const QString fail = QString{"Docker: "} + Tr::tr("The process failed to start.");
+        const QString fail
+            = settings->displayType() + QString{": "} + Tr::tr("The process failed to start.");
         auto errorLabel = new InfoLabel(fail, InfoLabel::Error, this);
         errorLabel->setVisible(false);
 
@@ -861,7 +867,7 @@ public:
         connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         m_buttons->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-        CommandLine cmd{settings().dockerBinaryPath(),
+        CommandLine cmd{settings->binaryPath(),
                         {"images", "--format", "{{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.Size}}"}};
         m_log->append(Tr::tr("Running \"%1\"").arg(cmd.toUserOutput()) + "\n");
 
@@ -918,13 +924,13 @@ public:
             m_proxyModel->mapToSource(selectedRows.front()));
         QTC_ASSERT(item, return {});
 
-        DockerDevicePtr device = DockerDevice::create();
+        DockerDevicePtr device = DockerDevice::create(m_settings);
         device->repo.setValue(item->repo);
         device->tag.setValue(item->tag);
         device->imageId.setValue(item->imageId);
-        device->setDefaultDisplayName(Tr::tr("Docker Image \"%1\" (%2)")
-                                          .arg(device->repoAndTag())
-                                          .arg(device->imageId.value()));
+        device->setDefaultDisplayName(
+            Tr::tr("%1 Image \"%2\" (%3)")
+                .arg(m_settings->displayType(), device->repoAndTag(), device->imageId.value()));
 
         if (const auto env = device->d->fetchEnvironment(); !env)
             qCWarning(dockerDeviceLog) << "Failed to fetch environment:" << env.error();
@@ -935,6 +941,7 @@ public:
     }
 
 public:
+    ContainerToolSettings *m_settings = nullptr;
     TreeModel<DockerImageItem> m_model;
     TreeView *m_view = nullptr;
     SortFilterModel *m_proxyModel = nullptr;
@@ -946,14 +953,15 @@ public:
 
 // Factory
 
-DockerDeviceFactory::DockerDeviceFactory()
-    : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
+DockerDeviceFactory::DockerDeviceFactory(ContainerToolSettings *settings)
+    : IDeviceFactory(settings->typeId())
+    , m_settings(settings)
 {
-    setDisplayName(Tr::tr("Docker Device"));
+    setDisplayName(Tr::tr("%1 Device").arg(settings->displayType()));
     setCombinedIcon(":/docker/images/dockerdevicesmall.png",
                     ":/docker/images/dockerdevice.png");
     setCreator([this] {
-        DockerDeviceSetupWizard wizard;
+        DockerDeviceSetupWizard wizard(m_settings);
         if (wizard.exec() != QDialog::Accepted)
             return IDevice::Ptr();
         DockerDevice::Ptr device = wizard.createDevice();
@@ -961,7 +969,7 @@ DockerDeviceFactory::DockerDeviceFactory()
         return std::static_pointer_cast<IDevice>(device);
     });
     setConstructionFunction([this] {
-        auto device = DockerDevice::create();
+        auto device = DockerDevice::create(m_settings);
         m_existingDevices.writeLocked()->push_back(device);
         return device;
     });
@@ -982,7 +990,7 @@ Result<QPair<OsType, OsArch>> DockerDevicePrivate::osTypeAndArch() const
 {
     Process proc;
     proc.setCommand(
-        {settings().dockerBinaryPath(),
+        {m_containerSettings->binaryPath(),
          {"image", "inspect", q->repoAndTag(), "--format", "{{.Os}}\t{{.Architecture}}"}});
     proc.runBlocking();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
@@ -1180,7 +1188,7 @@ QString DockerDevice::repoAndTagEncoded() const
 
 FilePath DockerDevice::rootPath() const
 {
-    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, repoAndTagEncoded(), u"/");
+    return FilePath::fromParts(d->m_containerSettings->scheme(), repoAndTagEncoded(), u"/");
 }
 
 CommandLine DockerDevice::createCommandLine() const
@@ -1203,8 +1211,8 @@ Tasks DockerDevice::validate() const
     return d->validateMounts();
 }
 
-DockerDevice::DockerDevice()
-    : d(new DockerDevicePrivate(this))
+DockerDevice::DockerDevice(ContainerToolSettings *settings)
+    : d(new DockerDevicePrivate(this, settings))
 {
     imageId.setSettingsKey(DockerDeviceDataImageIdKey);
     imageId.setLabelText(Tr::tr("Image ID:"));
@@ -1266,8 +1274,11 @@ DockerDevice::DockerDevice()
     network.setLabelText(Tr::tr("Network:"));
     network.setDefaultValue("bridge");
     network.setComboBoxEditable(false);
-    network.setFillCallback([](const StringSelectionAspect::ResultCallback &cb) {
-        auto networks = DockerApi::instance()->networks();
+    network.setFillCallback([settings](const StringSelectionAspect::ResultCallback &cb) {
+        DockerApi *api = DockerApi::instance(settings->typeId());
+        if (!api)
+            return;
+        auto networks = api->networks();
 
         if (networks) {
             auto items = transform(*networks, [](const Network &network) {
@@ -1285,11 +1296,14 @@ DockerDevice::DockerDevice()
         }
     });
 
-    connect(DockerApi::instance(), &DockerApi::dockerDaemonAvailableChanged,
-            &network, &StringSelectionAspect::refill);
+    DockerApi *api = DockerApi::instance(settings->typeId());
+    if (api) {
+        connect(api, &DockerApi::dockerDaemonAvailableChanged,
+                &network, &StringSelectionAspect::refill);
 
-    connect(DockerApi::instance(), &DockerApi::networksChanged,
-            &network, &StringSelectionAspect::refill);
+        connect(api, &DockerApi::networksChanged,
+                &network, &StringSelectionAspect::refill);
+    }
 
     allowEmptyCommand.setValue(true);
 
@@ -1314,10 +1328,10 @@ DockerDevice::DockerDevice()
                "graphical applications can display on the host. Disable to reduce "
                "noise on the command line when X11 is not needed."));
 
-    setDisplayType(Tr::tr("Docker"));
+    setDisplayType(settings->displayType());
     setOsType(OsTypeLinux);
     setupId(IDevice::ManuallyAdded);
-    setType(Constants::DOCKER_DEVICE_TYPE);
+    setType(settings->typeId());
     setMachineType(IDevice::Hardware);
 
     setFileAccessFactory([this]() -> DeviceFileAccessPtr {
@@ -1409,7 +1423,8 @@ void DockerDevice::fromMap(const Store &map)
     // where or how we were created.
     if (displayName() == defaultDisplayName()) {
         setDefaultDisplayName(
-            Tr::tr("Docker Image \"%1\" (%2)").arg(repoAndTag()).arg(imageId.value()));
+            Tr::tr("%1 Image \"%2\" (%3)")
+                .arg(d->m_containerSettings->displayType(), repoAndTag(), imageId.value()));
     }
 
     d->updateHandlesFileCache();
@@ -1432,17 +1447,17 @@ DeviceTester *DockerDevice::createDeviceTester()
 
 Result<> DockerDevice::handlesFile(const FilePath &filePath) const
 {
-    const bool isDockerScheme = filePath.scheme() == Constants::DOCKER_DEVICE_SCHEME;
+    const bool isOurScheme = filePath.scheme() == d->m_containerSettings->scheme();
 
     auto handlesFileDataCache = d->m_handlesFileCache.readLocked();
 
-    if (isDockerScheme && filePath.host() == handlesFileDataCache->imageId)
+    if (isOurScheme && filePath.host() == handlesFileDataCache->imageId)
         return ResultOk;
 
-    if (isDockerScheme && filePath.host() == handlesFileDataCache->repoAndTagEncoded)
+    if (isOurScheme && filePath.host() == handlesFileDataCache->repoAndTagEncoded)
         return ResultOk;
 
-    if (isDockerScheme && filePath.host() == handlesFileDataCache->repoAndTag)
+    if (isOurScheme && filePath.host() == handlesFileDataCache->repoAndTag)
         return ResultOk;
 
     return IDevice::handlesFile(filePath);
@@ -1507,10 +1522,13 @@ Result<> DockerDevice::supportsBuildingProject(const FilePath &projectDir) const
 QString DockerDevice::deviceStateToString() const
 {
     switch (deviceState()) {
-    case IDevice::DeviceDisconnected:
-        if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
-            return Tr::tr("Docker system is not reachable.");
+    case IDevice::DeviceDisconnected: {
+        DockerApi *api = DockerApi::instance(type());
+        if (api && api->dockerDaemonAvailable(false).value_or(false) == false)
+            return Tr::tr("%1 system is not reachable.")
+                .arg(d->m_containerSettings->displayType());
         return Tr::tr("Ready (waiting for access to container...)");
+    }
     default:
         return IDevice::deviceStateToString();
     }
@@ -1519,10 +1537,12 @@ QString DockerDevice::deviceStateToString() const
 QPixmap DockerDevice::deviceStateIcon() const
 {
     switch (deviceState()) {
-    case IDevice::DeviceDisconnected:
-        if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
+    case IDevice::DeviceDisconnected: {
+        DockerApi *api = DockerApi::instance(type());
+        if (api && api->dockerDaemonAvailable(false).value_or(false) == false)
             return ProjectExplorer::Icons::DEVICE_DISCONNECTED_INDICATOR.pixmap();
         return ProjectExplorer::Icons::DEVICE_CONNECTED_INDICATOR.pixmap();
+    }
     default:
         return IDevice::deviceStateIcon();
     }

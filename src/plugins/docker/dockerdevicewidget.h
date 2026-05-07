@@ -22,6 +22,8 @@ QT_END_NAMESPACE
 
 namespace Docker::Internal {
 
+class DockerApi;
+
 class DockerDeviceWidget final : public ProjectExplorer::IDeviceWidget
 {
 public:
@@ -31,9 +33,10 @@ public:
     void updateDaemonStateTexts();
 
 private:
+    DockerApi *m_api = nullptr;
     QLabel *m_daemonState;
     QToolButton *m_daemonReset;
     QtTaskTree::QSingleTaskTreeRunner m_detectionRunner;
 };
 
-} // Docker::Internal
+} // namespace Docker::Internal

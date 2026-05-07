@@ -16,6 +16,7 @@
 namespace Docker {
 namespace Internal {
 
+class ContainerToolSettings;
 class DockerDevicePrivate;
 class DockerDeviceSetupWizard;
 class DockerDeviceWidget;
@@ -37,12 +38,15 @@ public:
     using Ptr = std::shared_ptr<DockerDevice>;
     using ConstPtr = std::shared_ptr<const DockerDevice>;
 
-    DockerDevice();
+    explicit DockerDevice(Internal::ContainerToolSettings *settings);
     ~DockerDevice();
 
     void shutdown();
 
-    static Ptr create() { return Ptr(new DockerDevice); }
+    static Ptr create(Internal::ContainerToolSettings *settings)
+    {
+        return Ptr(new DockerDevice(settings));
+    }
 
     Utils::CommandLine createCommandLine() const;
     Utils::CommandLine createCommandLineForDisplay() const;
@@ -121,11 +125,12 @@ namespace Internal {
 class DockerDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
-    DockerDeviceFactory();
+    explicit DockerDeviceFactory(ContainerToolSettings *settings);
 
     void shutdownExistingDevices();
 
 private:
+    ContainerToolSettings *m_settings = nullptr;
     Utils::SynchronizedValue<std::vector<std::weak_ptr<DockerDevice>>> m_existingDevices;
 };
 

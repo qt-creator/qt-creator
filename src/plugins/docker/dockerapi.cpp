@@ -3,7 +3,7 @@
 
 #include "dockerapi.h"
 
-#include "dockersettings.h"
+#include "dockerconstants.h"
 #include "dockertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -12,6 +12,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QHash>
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QJsonValue>
@@ -25,26 +26,37 @@ using namespace Utils;
 
 namespace Docker::Internal {
 
-DockerApi *s_instance{nullptr};
+static QHash<Utils::Id, DockerApi *> s_instances;
 
-DockerApi::DockerApi()
+DockerApi::DockerApi(ContainerToolSettings *settings)
+    : m_settings(settings)
 {
     Q_ASSERT(QThread::isMainThread());
-    *m_dockerClientBinary.writeLocked() = settings().dockerBinaryPath.effectiveBinary();
+    *m_dockerClientBinary.writeLocked() = m_settings->binaryPath.effectiveBinary();
 
-    connect(&settings().dockerBinaryPath, &FilePathAspect::changed, this, [this]() {
-        *m_dockerClientBinary.writeLocked() = settings().dockerBinaryPath.effectiveBinary();
+    connect(&m_settings->binaryPath, &FilePathAspect::changed, this, [this]() {
+        *m_dockerClientBinary.writeLocked() = m_settings->binaryPath.effectiveBinary();
         refreshNetworks();
     });
 
-    s_instance = this;
+    s_instances.insert(m_settings->typeId(), this);
 
     refreshNetworks();
 }
 
+DockerApi::~DockerApi()
+{
+    s_instances.remove(m_settings->typeId());
+}
+
 DockerApi *DockerApi::instance()
 {
-    return s_instance;
+    return s_instances.value(Docker::Constants::DOCKER_DEVICE_TYPE);
+}
+
+DockerApi *DockerApi::instance(Utils::Id typeId)
+{
+    return s_instances.value(typeId);
 }
 
 bool DockerApi::canConnect()
@@ -59,10 +71,11 @@ bool DockerApi::canConnect()
 
     const bool success = process.result() == ProcessResult::FinishedWithSuccess;
     if (!success) {
-        qCWarning(dockerApiLog) << "Failed to connect to docker daemon:"
+        qCWarning(dockerApiLog) << "Failed to connect to daemon:"
                                 << process.verboseExitMessage();
     } else {
-        qCInfo(dockerApiLog) << "'docker info' result:\n" << qPrintable(process.allOutput());
+        qCInfo(dockerApiLog) << "'" + m_settings->displayType() + " info' result:\n"
+                             << qPrintable(process.allOutput());
     }
 
     return process.result() == ProcessResult::FinishedWithSuccess;
@@ -123,7 +136,10 @@ void DockerApi::checkCanConnect(bool async)
             emit dockerDaemonAvailableChanged();
         });
 
-        Core::ProgressManager::addTask(future, Tr::tr("Checking docker daemon"), "DockerPlugin");
+        Core::ProgressManager::addTask(
+            future,
+            Tr::tr("Checking %1 daemon").arg(m_settings->displayType()),
+            "DockerPlugin");
         return;
     }
 
@@ -137,8 +153,16 @@ void DockerApi::checkCanConnect(bool async)
 
 void DockerApi::recheckDockerDaemon()
 {
-    QTC_ASSERT(s_instance, return );
-    s_instance->checkCanConnect();
+    DockerApi *inst = instance();
+    QTC_ASSERT(inst, return);
+    inst->checkCanConnect();
+}
+
+void DockerApi::recheckDaemon(Utils::Id typeId)
+{
+    DockerApi *inst = instance(typeId);
+    QTC_ASSERT(inst, return);
+    inst->checkCanConnect();
 }
 
 std::optional<bool> DockerApi::dockerDaemonAvailable(bool async)
@@ -150,13 +174,24 @@ std::optional<bool> DockerApi::dockerDaemonAvailable(bool async)
 
 std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 {
-    QTC_ASSERT(s_instance, return std::nullopt);
-    return s_instance->dockerDaemonAvailable(async);
+    return isDockerDaemonAvailable(Docker::Constants::DOCKER_DEVICE_TYPE, async);
+}
+
+std::optional<bool> DockerApi::isDockerDaemonAvailable(Utils::Id typeId, bool async)
+{
+    DockerApi *inst = instance(typeId);
+    QTC_ASSERT(inst, return std::nullopt);
+    return inst->dockerDaemonAvailable(async);
 }
 
 FilePath DockerApi::dockerClient()
 {
     return m_dockerClientBinary.get();
+}
+
+QString DockerApi::displayType() const
+{
+    return m_settings->displayType();
 }
 
 QString Network::toString() const
@@ -182,9 +217,10 @@ Labels: "%8"
 
 void DockerApi::refreshNetworks()
 {
-    FilePath dockerExe = DockerApi::instance()->dockerClient();
+    FilePath dockerExe = dockerClient();
     if (dockerExe.isEmpty() || !dockerExe.isExecutableFile()) {
-        qCWarning(dockerApiLog) << Tr::tr("Docker executable not found");
+        qCWarning(dockerApiLog)
+            << Tr::tr("%1 executable not found").arg(m_settings->displayType());
         return;
     }
 
@@ -195,7 +231,7 @@ void DockerApi::refreshNetworks()
     const auto onDone = [this](const Process &process) {
         if (process.exitCode() != 0) {
             m_networks = Utils::ResultError(
-                Tr::tr("Failed to list docker networks: %1").arg(process.verboseExitMessage()));
+                Tr::tr("Failed to list networks: %1").arg(process.verboseExitMessage()));
             emit networksChanged();
             return;
         }
@@ -210,7 +246,7 @@ void DockerApi::refreshNetworks()
 
             if (error.error != QJsonParseError::NoError) {
                 m_networks = Utils::ResultError(
-                    Tr::tr("Failed to parse docker network info: %1").arg(error.errorString()));
+                    Tr::tr("Failed to parse network info: %1").arg(error.errorString()));
                 emit networksChanged();
                 return;
             }
@@ -235,4 +271,4 @@ void DockerApi::refreshNetworks()
     m_taskTreeRunner.start({ProcessTask(setupNetworkFetch, onDone)});
 }
 
-} // Docker::Internal
+} // namespace Docker::Internal

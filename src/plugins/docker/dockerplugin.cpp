@@ -4,6 +4,7 @@
 #include "dockerapi.h"
 #include "dockerconstants.h"
 #include "dockerdevice.h"
+#include "dockersettings.h"
 #ifdef WITH_TESTS
 #include "dockerdebuggertest.h"
 #endif
@@ -57,6 +58,7 @@ public:
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         addSupportedDeviceType(Constants::DOCKER_DEVICE_TYPE);
+        addSupportedDeviceType(Podman::Constants::PODMAN_DEVICE_TYPE);
     }
 };
 
@@ -74,19 +76,24 @@ public:
     DockerPlugin()
     {
         FSEngine::registerDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
+        FSEngine::registerDeviceScheme(Podman::Constants::PODMAN_DEVICE_SCHEME);
     }
 
 private:
     ~DockerPlugin() final
     {
         FSEngine::unregisterDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
-        m_deviceFactory->shutdownExistingDevices();
+        FSEngine::unregisterDeviceScheme(Podman::Constants::PODMAN_DEVICE_SCHEME);
+        m_dockerDeviceFactory->shutdownExistingDevices();
+        m_podmanDeviceFactory->shutdownExistingDevices();
     }
 
     void initialize() final
     {
-        m_deviceFactory = std::make_unique<DockerDeviceFactory>();
-        m_dockerApi = std::make_unique<DockerApi>();
+        m_dockerDeviceFactory = std::make_unique<DockerDeviceFactory>(&dockerSettings());
+        m_podmanDeviceFactory = std::make_unique<DockerDeviceFactory>(&podmanSettings());
+        m_dockerApi = std::make_unique<DockerApi>(&dockerSettings());
+        m_podmanApi = std::make_unique<DockerApi>(&podmanSettings());
         setupDockerRunAndDebugSupport();
 #ifdef WITH_TESTS
         addTestCreator(createDockerQmlChannelTest);
@@ -94,8 +101,10 @@ private:
 #endif
     }
 
-    std::unique_ptr<DockerDeviceFactory> m_deviceFactory;
+    std::unique_ptr<DockerDeviceFactory> m_dockerDeviceFactory;
+    std::unique_ptr<DockerDeviceFactory> m_podmanDeviceFactory;
     std::unique_ptr<DockerApi> m_dockerApi;
+    std::unique_ptr<DockerApi> m_podmanApi;
 };
 
 } // Docker::Internal

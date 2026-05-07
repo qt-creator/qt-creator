@@ -7,14 +7,27 @@
 
 namespace Docker::Internal {
 
-class DockerSettings final : public Utils::AspectContainer
+class ContainerToolSettings : public Utils::AspectContainer
 {
 public:
-    DockerSettings();
+    ContainerToolSettings(Utils::Id typeId,
+                          const QString &scheme,
+                          const QString &displayType,
+                          const Utils::FilePaths &additionalBinaryPaths);
 
-    Utils::FilePathAspect dockerBinaryPath{this};
+    Utils::FilePathAspect binaryPath{this};
+
+    Utils::Id typeId() const { return m_typeId; }
+    QString scheme() const { return m_scheme; }
+    QString displayType() const { return m_displayType; }
+
+private:
+    Utils::Id m_typeId;
+    QString m_scheme;
+    QString m_displayType;
 };
 
-DockerSettings &settings();
+ContainerToolSettings &dockerSettings();
+ContainerToolSettings &podmanSettings();
 
-} // Docker::Internal
+} // namespace Docker::Internal

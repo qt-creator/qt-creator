@@ -38,6 +38,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto dockerDevice = std::dynamic_pointer_cast<DockerDevice>(device);
     QTC_ASSERT(dockerDevice, return);
 
+    m_api = DockerApi::instance(dockerDevice->type());
+    QTC_ASSERT(m_api, return);
+
     using namespace Layouting;
 
     auto daemonStateLabel = new QLabel(Tr::tr("Daemon state:"));
@@ -47,14 +50,14 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     m_daemonState = new QLabel;
 
-    connect(DockerApi::instance(), &DockerApi::dockerDaemonAvailableChanged, this, [this]{
+    connect(m_api, &DockerApi::dockerDaemonAvailableChanged, this, [this]{
         updateDaemonStateTexts();
     });
 
     updateDaemonStateTexts();
 
-    connect(m_daemonReset, &QToolButton::clicked, this, [] {
-        DockerApi::recheckDockerDaemon();
+    connect(m_daemonReset, &QToolButton::clicked, this, [dockerDevice] {
+        DockerApi::recheckDaemon(dockerDevice->type());
     });
 
     auto pathListLabel = new InfoLabel(Tr::tr("Paths to mount:"));
@@ -112,10 +115,12 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
                 m_detectionRunner.start(recipe, onTaskTreeSetup, onTaskTreeDone);
 
-                if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
-                    logView->append(Tr::tr("Docker daemon appears to be stopped."));
+                if (m_api->dockerDaemonAvailable().value_or(false) == false)
+                    logView->append(
+                        Tr::tr("%1 daemon appears to be stopped.").arg(m_api->displayType()));
                 else
-                    logView->append(Tr::tr("Docker daemon appears to be running."));
+                    logView->append(
+                        Tr::tr("%1 daemon appears to be running.").arg(m_api->displayType()));
                 updateDaemonStateTexts();
             });
 
@@ -140,9 +145,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto refreshNetworksButton = new QToolButton();
     setIgnoreForDirtyHook(refreshNetworksButton);
     refreshNetworksButton->setIcon(Icons::RELOAD_TOOLBAR.icon());
-    refreshNetworksButton->setToolTip(Tr::tr("Refresh Docker networks"));
-    connect(refreshNetworksButton, &QPushButton::clicked, this, [dockerDevice] {
-        DockerApi::instance()->refreshNetworks();
+    refreshNetworksButton->setToolTip(Tr::tr("Refresh %1 networks").arg(m_api->displayType()));
+    connect(refreshNetworksButton, &QPushButton::clicked, this, [this] {
+        m_api->refreshNetworks();
     });
 
     using namespace Layouting;
@@ -191,16 +196,16 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
 void DockerDeviceWidget::updateDaemonStateTexts()
 {
-    std::optional<bool> daemonState = DockerApi::instance()->dockerDaemonAvailable();
+    std::optional<bool> daemonState = m_api->dockerDaemonAvailable();
     if (!daemonState.has_value()) {
         m_daemonReset->setIcon(Icons::INFO.icon());
         m_daemonState->setText(Tr::tr("Daemon state not evaluated."));
     } else if (*daemonState) {
         m_daemonReset->setIcon(Icons::OK.icon());
-        m_daemonState->setText(Tr::tr("Docker daemon running."));
+        m_daemonState->setText(Tr::tr("%1 daemon running.").arg(m_api->displayType()));
     } else {
         m_daemonReset->setIcon(Icons::CRITICAL.icon());
-        m_daemonState->setText(Tr::tr("Docker daemon not running."));
+        m_daemonState->setText(Tr::tr("%1 daemon not running.").arg(m_api->displayType()));
     }
 }
 

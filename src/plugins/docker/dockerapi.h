@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include "dockersettings.h"
+
 #include <utils/filepath.h>
 #include <utils/guard.h>
+#include <utils/id.h>
 #include <utils/result.h>
 #include <utils/synchronizedvalue.h>
 
@@ -37,13 +40,16 @@ class DockerApi : public QObject
     Q_OBJECT
 
 public:
-    DockerApi();
+    explicit DockerApi(ContainerToolSettings *settings);
+    ~DockerApi() override;
 
     static DockerApi *instance();
+    static DockerApi *instance(Utils::Id typeId);
 
     bool canConnect();
     void checkCanConnect(bool async = true);
     static void recheckDockerDaemon();
+    static void recheckDaemon(Utils::Id typeId);
 
     Utils::Result<QList<Network>> networks() const { return m_networks; }
     void refreshNetworks();
@@ -58,10 +64,14 @@ signals:
 public:
     std::optional<bool> dockerDaemonAvailable(bool async = true);
     static std::optional<bool> isDockerDaemonAvailable(bool async = true);
+    static std::optional<bool> isDockerDaemonAvailable(Utils::Id typeId, bool async = true);
+
+    QString displayType() const;
 
 private:
     Utils::FilePath dockerClient();
 
+    ContainerToolSettings *m_settings = nullptr;
     std::optional<bool> m_dockerDaemonAvailable;
     QMutex m_daemonCheckGuard;
 
@@ -70,4 +80,4 @@ private:
     QtTaskTree::QParallelTaskTreeRunner m_taskTreeRunner;
 };
 
-} // Docker::Internal
+} // namespace Docker::Internal

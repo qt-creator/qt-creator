@@ -67,7 +67,7 @@ private slots:
     // Test 1: Docker device + QML debugging -> requestQmlChannel() must be called.
     void testDockerQmlDebuggingRequestsQmlChannel()
     {
-        auto device = DockerDevice::create();
+        auto device = DockerDevice::create(&dockerSettings());
 
         Kit *kit = KitManager::registerKit([](Kit *k) {
             k->setUnexpandedDisplayName("Docker_DockerDebuggerTest");
@@ -99,7 +99,7 @@ private slots:
     // fixupParameters() looks at m_qmlServer.
     void testDockerCombinedDebuggingRequestsQmlChannel()
     {
-        auto device = DockerDevice::create();
+        auto device = DockerDevice::create(&dockerSettings());
 
         Kit *kit = KitManager::registerKit([](Kit *k) {
             k->setUnexpandedDisplayName("Docker_CombinedDebuggerTest");
@@ -171,7 +171,7 @@ private slots:
         if (!DockerApi::instance()->canConnect())
             QSKIP("Docker daemon is not reachable");
 
-        const FilePath dockerBin = settings().dockerBinaryPath.effectiveBinary();
+        const FilePath dockerBin = dockerSettings().binaryPath.effectiveBinary();
         Process imageCheck;
         imageCheck.setCommand({dockerBin, {"image", "inspect", "alpine:latest",
                                            "--format", "{{.Id}}"}});
@@ -179,7 +179,7 @@ private slots:
         if (imageCheck.result() != ProcessResult::FinishedWithSuccess)
             QSKIP("alpine:latest not available; run: docker pull alpine:latest");
 
-        m_device = DockerDevice::create();
+        m_device = DockerDevice::create(&dockerSettings());
         m_device->repo.setValue("alpine");
         m_device->tag.setValue("latest");
         m_device->imageId.setValue(imageCheck.stdOut().trimmed());
