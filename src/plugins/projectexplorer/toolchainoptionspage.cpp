@@ -433,7 +433,6 @@ public:
     ToolChainOptionsWidget();
 
     void toolChainSelectionChanged();
-    void updateState();
     void createToolchains(ToolchainFactory *factory, const QList<Id> &languages);
 
     void handleToolchainsRegistered(const Toolchains &toolchains);
@@ -529,9 +528,11 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
         const ToolchainTreeItem it = m_model.item(row);
         return it.bundle && !it.bundle->detectionSource().isSdkProvided();
     });
+    m_groupedView.setCanCloneRow([this](int row) {
+        const ToolchainTreeItem it = m_model.item(row);
+        return it.bundle && it.bundle->validity() != ToolchainBundle::Valid::None;
+    });
 
-    connect(&m_groupedView, &GroupedView::currentRemoved,
-            this, &ToolChainOptionsWidget::updateState);
     connect(&m_removeAllButton, &QAbstractButton::clicked, this, [this] {
         bool anyRemoved = false;
         for (int row = m_model.itemCount() - 1; row >= 0; --row) {
@@ -543,10 +544,8 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
                 anyRemoved = true;
             }
         }
-        if (anyRemoved) {
+        if (anyRemoved)
             checkSettingsDirty();
-            updateState();
-        }
     });
     connect(&m_redetectButton, &QAbstractButton::clicked,
             this, &ToolChainOptionsWidget::redetectToolchains);
@@ -572,8 +571,6 @@ ToolChainOptionsWidget::ToolChainOptionsWidget()
                   return path.isEmpty() || path.isSameDevice(deviceRoot);
               }});
     });
-
-    updateState();
 }
 
 void ToolChainOptionsWidget::handleToolchainsRegistered(const Toolchains &toolchains)
@@ -591,7 +588,6 @@ void ToolChainOptionsWidget::handleToolchainsRegistered(const Toolchains &toolch
         toolchains, ToolchainBundle::HandleMissing::CreateAndRegister);
     for (const ToolchainBundle &bundle : bundles)
         m_model.insertBundle(bundle);
-    updateState();
 }
 
 void ToolChainOptionsWidget::handleToolchainsDeregistered(const Toolchains &toolchains)
@@ -623,7 +619,6 @@ void ToolChainOptionsWidget::handleToolchainsDeregistered(const Toolchains &tool
         m_model.destroyBundle(row);
     }
 
-    updateState();
 }
 
 void ToolChainOptionsWidget::redetectToolchains()
@@ -716,7 +711,6 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
             configWidget->setFallbackBrowsePath(dev->rootPath());
     }
     m_container.setVisible(configWidget != nullptr);
-    updateState();
 }
 
 void ToolChainOptionsWidget::apply()
@@ -750,18 +744,6 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
 
     const ToolchainBundle bundle(toolchains, ToolchainBundle::HandleMissing::CreateOnly);
     m_groupedView.selectRow(m_model.addBundle(bundle));
-}
-
-void ToolChainOptionsWidget::updateState()
-{
-    bool canCopy = false;
-    const int row = m_groupedView.currentRow();
-    if (row >= 0 && !m_model.isRemoved(row)) {
-        const ToolchainTreeItem it = m_model.item(row);
-        canCopy = it.bundle && it.bundle->validity() != ToolchainBundle::Valid::None;
-    }
-
-    m_groupedView.cloneButton().setEnabled(canCopy);
 }
 
 // ToolChainOptionsPage

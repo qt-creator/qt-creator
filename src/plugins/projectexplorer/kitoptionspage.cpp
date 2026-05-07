@@ -616,11 +616,11 @@ void KitOptionsPageWidget::updateState()
         canMakeDefault = !m_model.isDefault(row) && !isRemoved;
     }
 
-    m_cloneButton.setEnabled(canCopy);
+    m_cloneButton.setEnabled(canCopy && !isRemoved);
     m_removeButton.setEnabled(canDelete);
     m_removeButton.setText(isRemoved ? Tr::tr("Restore") : Tr::tr("Remove"));
     m_makeDefaultButton.setEnabled(canMakeDefault);
-    m_filterButton.setEnabled(canCopy);
+    m_filterButton.setEnabled(canCopy && !isRemoved);
 }
 
 void KitOptionsPageWidget::onDirty()

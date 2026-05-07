@@ -195,7 +195,6 @@ private:
     bool isDirty() const final { return m_model.isDirty(); }
 
     void currentToolChanged(int oldRow, int newRow);
-    void updateButtons();
     void store();
 
     GNToolsModel m_model;
@@ -250,8 +249,6 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
         return !m_model.item(row).autoDetected;
     });
 
-    connect(&m_groupedView, &GroupedView::currentRemoved,
-            this, &GNToolsSettingsWidget::updateButtons);
 
     connect(&m_data, &AspectContainer::changed, &checkSettingsDirty);
 }
@@ -279,14 +276,6 @@ void GNToolsSettingsWidget::currentToolChanged(int, int newRow)
     }
     m_loading = false;
     m_gnDetails.setVisible(hasItem);
-    updateButtons();
-}
-
-void GNToolsSettingsWidget::updateButtons()
-{
-    const int row = m_groupedView.currentRow();
-    const bool hasItem = row >= 0 && !m_model.isRemoved(row);
-    m_groupedView.cloneButton().setEnabled(hasItem);
 }
 
 // Setup

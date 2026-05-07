@@ -878,10 +878,8 @@ void QtSettingsPageWidget::updateWidgets()
 
 void QtSettingsPageWidget::updateButtons()
 {
-    const int row = m_groupedView.currentRow();
     const QtVersion *version = currentVersion();
     const bool isAutodetected = version && version->detectionSource().isAutoDetected();
-    m_groupedView.cloneButton().setEnabled(version && !m_model.isRemoved(row));
     m_nameEdit.setEnabled(version != nullptr);
     m_editPathPushButton.setEnabled(version && !isAutodetected);
 }

@@ -163,6 +163,7 @@ public:
     QPushButton &cloneButton();
 
     void setCanRemoveRow(std::function<bool(int)> predicate);
+    void setCanCloneRow(std::function<bool(int)> predicate);
 
     int currentRow() const;
     void selectRow(int row);
@@ -177,7 +178,7 @@ signals:
     void currentCloned();
 
 private:
-    void updateRemoveButton();
+    void updateButtons();
 
     GroupedModel &m_model;
     QTreeView m_view;
@@ -185,6 +186,7 @@ private:
     QPushButton m_cloneButton;
     QVariant m_savedVariant;
     std::function<bool(int)> m_canRemove;
+    std::function<bool(int)> m_canClone;
 };
 
 } // namespace Utils

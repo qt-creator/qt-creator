@@ -876,13 +876,14 @@ public:
         m_groupedView.setCanRemoveRow([](int row) {
             return !debuggerModel().item(row).detectionSource().isAutoDetected();
         });
+        m_groupedView.setCanCloneRow([](int row) {
+            return debuggerModel().item(row).canClone();
+        });
 
         connect(&m_groupedView, &GroupedView::currentRowChanged,
                 this, [this](int, int) { currentItemChanged(); }, Qt::QueuedConnection);
         connect(&m_addButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::addDebugger, Qt::QueuedConnection);
-        connect(&m_groupedView, &GroupedView::currentRemoved,
-                this, &DebuggerSettingsPageWidget::updateButtons, Qt::QueuedConnection);
         connect(&m_detectButton, &QAbstractButton::clicked, this, [this] {
             for (const IDeviceConstPtr &dev : m_deviceComboBox.selectedDevices())
                 debuggerModel().detectDebuggers(dev, dev->toolSearchPaths());
@@ -906,7 +907,6 @@ public:
 
     void addDebugger();
     void currentItemChanged();
-    void updateButtons();
 
 private:
     void binaryPathHasChanged();
@@ -1072,15 +1072,6 @@ void DebuggerSettingsPageWidget::currentItemChanged()
     if (dev)
         m_binaryChooser.setInitialBrowsePathBackup(dev->rootPath());
     m_container.setVisible(bool(itm));
-    updateButtons();
-}
-
-void DebuggerSettingsPageWidget::updateButtons()
-{
-    const int row = m_groupedView.currentRow();
-    const bool hasItem = row >= 0 && !debuggerModel().isRemoved(row);
-    const DebuggerItem itm = hasItem ? debuggerModel().item(row) : DebuggerItem{};
-    m_groupedView.cloneButton().setEnabled(itm && itm.canClone());
 }
 
 
