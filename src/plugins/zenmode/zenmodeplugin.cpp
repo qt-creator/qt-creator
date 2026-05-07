@@ -48,7 +48,9 @@ void ZenModePlugin::initialize()
         .addOnTriggered(this, &ZenModePlugin::toggleZenMode)
         .contextAction();
 
-    connect(ICore::instance(), &ICore::coreAboutToClose, [this] {
+    connect(ICore::instance(), &ICore::saveSettingsRequested, [this](ICore::SaveSettingsReason reason) {
+        if (reason != ICore::MainWindowClosing)
+            return;
         if (m_zenModeActive)
             toggleZenMode();
         else if (m_distractionFreeModeActive)
