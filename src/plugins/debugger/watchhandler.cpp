@@ -37,6 +37,7 @@
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
+#include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
@@ -310,7 +311,7 @@ class SeparatedView : public QTabWidget
 {
     Q_OBJECT
 public:
-    SeparatedView() : QTabWidget(ICore::mainWindow())
+    SeparatedView() : QTabWidget(PerspectivesView::mainWindow())
     {
         setTabsClosable(true);
         connect(this, &QTabWidget::tabCloseRequested, this, &SeparatedView::closeTab);
