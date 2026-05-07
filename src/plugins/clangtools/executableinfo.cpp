@@ -123,7 +123,7 @@ static ClazyChecks querySupportedClazyChecks(const FilePath &executablePath)
 }
 
 ClangTidyInfo::ClangTidyInfo(const FilePath &executablePath)
-    : defaultChecks(queryClangTidyChecks(executablePath, {}))
+    : defaultChecks(queryClangTidyChecks(executablePath, "-checks=clang-analyzer-*"))
     , supportedChecks(queryClangTidyChecks(executablePath, "-checks=*"))
 {}
 
