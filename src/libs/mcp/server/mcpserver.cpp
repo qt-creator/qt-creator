@@ -51,6 +51,7 @@ enum ErrorCodes {
     serverErrorEnd = -32000,
     ServerNotInitialized = -32002,
     UnknownErrorCode = -32001,
+    RequestCancelled = -32800,
 };
 
 class SseStream : public QObject
@@ -126,6 +127,8 @@ struct Responder
     std::function<void(const QByteArray &)> writeSSE;
     std::function<bool()> isCanceled;
 };
+
+struct ToolInterfacePrivate;
 
 class ServerPrivate : public std::enable_shared_from_this<ServerPrivate>
 {
@@ -379,13 +382,7 @@ public:
         return sessionId;
     }
 
-    void deleteSession(const QString &sessionId)
-    {
-        qCDebug(mcpServerLog) << "Deleting session ID" << sessionId;
-        m_sessions.remove(sessionId);
-        if (m_inspector)
-            m_inspector->onSessionEnded(sessionId);
-    }
+    void deleteSession(const QString &sessionId);
 
     void onPing(Schema::RequestId id, const Schema::PingRequest &request, const Responder &responder)
     {
@@ -619,6 +616,8 @@ public:
 
         ToolInterface toolInterface(
             shared_from_this(), clientCapabilities, request, sessionId, responder);
+
+        m_pendingToolInterfaces.insert(SessionAndRequestId{sessionId, id}, toolInterface.d);
 
         Result<> r = cb(request.params(), toolInterface);
         if (!r) {
@@ -917,6 +916,20 @@ public:
                 onTaskStatusNotification(notification, sessionId);
             }
 
+            if (std::holds_alternative<Schema::CancelledNotification>(*clientNotification)) {
+                const auto &notification = std::get<Schema::CancelledNotification>(
+                    *clientNotification);
+
+                if (!notification.params().requestId()) {
+                    qCWarning(mcpServerLog)
+                        << "Received CancelledNotification without request ID, ignoring";
+                    responder.writeStatus(QHttpServerResponse::StatusCode::BadRequest);
+                    return;
+                }
+
+                cancelPendingToolInterface(*notification.params().requestId(), sessionId);
+            }
+
             responder.writeStatus(QHttpServerResponse::StatusCode::Accepted);
             return;
         }
@@ -976,6 +989,24 @@ public:
         bool operator<(const SessionIdAndTaskId &other) const
         {
             return std::tie(sessionId, taskId) < std::tie(other.sessionId, other.taskId);
+        }
+    };
+
+    struct SessionAndRequestId
+    {
+        QString sessionId;
+        Schema::RequestId requestId;
+        bool operator<(const SessionAndRequestId &other) const
+        {
+            if (sessionId != other.sessionId)
+                return sessionId < other.sessionId;
+            if (requestId.index() != other.requestId.index())
+                return requestId.index() < other.requestId.index();
+            return std::visit(
+                [&](const auto &a) {
+                    return a < std::get<std::decay_t<decltype(a)>>(other.requestId);
+                },
+                requestId);
         }
     };
 
@@ -1239,6 +1270,9 @@ public:
     QMap<QString, std::optional<Client>> m_sessions;
 
     QMap<int, std::function<void(Schema::JSONRPCResponse)>> m_serverRequests;
+    QMap<SessionAndRequestId, std::weak_ptr<ToolInterfacePrivate>> m_pendingToolInterfaces;
+
+    void cancelPendingToolInterface(Schema::RequestId id, const QString &sessionId);
 
     bool enableCors = false;
 
@@ -1650,9 +1684,53 @@ struct ToolInterfacePrivate
 
     ~ToolInterfacePrivate()
     {
-        if (_cancelTaskCallback) {
+        if (!_isFinished && _cancelTaskCallback)
             _cancelTaskCallback();
+    }
+
+    void removeFromPending()
+    {
+        if (auto server = _server.lock())
+            server->m_pendingToolInterfaces.remove(
+                ServerPrivate::SessionAndRequestId{_sessionId, _initialRequest.id()});
+    }
+
+    void cancel()
+    {
+        if (_isFinished)
+            return;
+        _isFinished = true;
+        removeFromPending();
+
+        if (_cancelTaskCallback) {
+            // Timer/polling path: stop timer and invoke user's cancel callback.
+            // The HTTP connection is SSE; the client initiated cancellation so no
+            // final event is needed.
+            _cancelTaskCallback();
+            return;
         }
+
+        if (_isTask && !_taskId.isEmpty()) {
+            // Push-based task path: cancel in m_tasks. The CreateTaskResult
+            // response was already sent when startTask() was called.
+            if (auto server = _server.lock()) {
+                auto it = server->m_tasks.find(_taskId);
+                if (it != server->m_tasks.end()) {
+                    if (it->second.callbacks.cancelTask)
+                        (*it->second.callbacks.cancelTask)();
+                    it->second.task.status(Schema::TaskStatus::cancelled);
+                }
+            }
+            return;
+        }
+
+        // Non-task async: the HTTP connection is still open waiting for the
+        // response, so send a JSON-RPC error.
+        _responder.write(QJsonDocument(
+            Schema::toJson(
+                Schema::JSONRPCErrorResponse()
+                    .error(Schema::Error().code(RequestCancelled).message("Request cancelled"))
+                    .id(_initialRequest.id()))));
     }
 
     void finish(const Utils::Result<Schema::CallToolResult> &result, bool isLongRunningTask = false)
@@ -1664,6 +1742,7 @@ struct ToolInterfacePrivate
         }
 
         _isFinished = true;
+        removeFromPending();
 
         if (!result) {
             _responder.write(QJsonDocument(makeResponse(
@@ -1700,6 +1779,38 @@ struct ToolInterfacePrivate
         return false;
     }
 };
+
+void ServerPrivate::cancelPendingToolInterface(Schema::RequestId id, const QString &sessionId)
+{
+    auto it = m_pendingToolInterfaces.find(SessionAndRequestId{sessionId, id});
+    if (it == m_pendingToolInterfaces.end())
+        return;
+    auto tiPrivate = it.value().lock();
+    m_pendingToolInterfaces.erase(it);
+    if (tiPrivate)
+        tiPrivate->cancel();
+}
+
+void ServerPrivate::deleteSession(const QString &sessionId)
+{
+    qCDebug(mcpServerLog) << "Deleting session ID" << sessionId;
+    m_sessions.remove(sessionId);
+
+    // Cancel and remove any pending tool interfaces for this session.
+    for (auto it = m_pendingToolInterfaces.begin(); it != m_pendingToolInterfaces.end();) {
+        if (it.key().sessionId == sessionId) {
+            auto tiPrivate = it.value().lock();
+            it = m_pendingToolInterfaces.erase(it);
+            if (tiPrivate)
+                tiPrivate->cancel();
+        } else {
+            ++it;
+        }
+    }
+
+    if (m_inspector)
+        m_inspector->onSessionEnded(sessionId);
+}
 
 ToolInterface::ToolInterface(
     std::weak_ptr<ServerPrivate> serverPrivate,
@@ -2039,6 +2150,7 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
             = ServerPrivate::TaskCallbacks{onUpdateTask, onResultCallback, onCancelTaskCallback};
         serverPrivate->m_tasks.insert(
             std::make_pair(taskId, ServerPrivate::TaskAndCallbacks(task, callbacks, d->_server)));
+        d->_taskId = taskId;
 
         QJsonObject json = Schema::toJson(
             Schema::JSONRPCResultResponse()
