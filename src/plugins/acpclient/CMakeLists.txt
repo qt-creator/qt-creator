@@ -10,6 +10,7 @@ add_qtc_plugin(AcpClient
     QtCreator::Utils
   PUBLIC_DEPENDS
     AcpLib
+  LONG_DESCRIPTION_MD AcpClientDescription.md
   SOURCES
     acpchatcontroller.cpp acpchatcontroller.h
     acpchattab.cpp acpchattab.h
