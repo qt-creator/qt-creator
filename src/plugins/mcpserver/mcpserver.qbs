@@ -17,6 +17,8 @@ QtcPlugin {
         "mcpcommands.h",
         "mcpserverplugin.cpp",
         "mcpserverconstants.h",
+        "mcpserverinspector.cpp",
+        "mcpserverinspector.h",
         "mcpservertr.h",
     ]
 

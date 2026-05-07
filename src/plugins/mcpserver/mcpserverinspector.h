@@ -5,8 +5,7 @@
 
 #include <mcp/server/mcpserver.h>
 
-#include "mcpservertr.h"
-
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QMap>
@@ -57,10 +56,7 @@ public:
 
     void onSessionEnded(const QString &) override {}
 
-    static QString sessionIdToDisplayName(const QString &sessionId)
-    {
-        return sessionId.isEmpty() ? Tr::tr("Global") : sessionId;
-    }
+    static QString sessionIdToDisplayName(const QString &sessionId);
 
     std::function<void(QByteArray)> onRequest(
         const QJsonDocument &request, const QString &sessionId) override

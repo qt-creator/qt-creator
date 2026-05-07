@@ -381,6 +381,11 @@ QStringList McpInspector::sessions() const
     return m_logs.keys();
 }
 
+QString McpInspector::sessionIdToDisplayName(const QString &sessionId)
+{
+    return sessionId.isEmpty() ? Tr::tr("Global") : sessionId;
+}
+
 void McpInspector::onInspectorClosed()
 {
     m_currentWidget->deleteLater();
