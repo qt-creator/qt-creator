@@ -11,6 +11,7 @@ add_qtc_plugin(mcpserver
    McpServerLib
   SOURCES
     mcpcommands.cpp mcpcommands.h
+    mcpserverinspector.cpp mcpserverinspector.h
     mcpserverplugin.cpp
     mcpserverconstants.h
     mcpservertr.h
