@@ -16,6 +16,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/messagebox.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 
 #include <projectexplorer/project.h>
@@ -377,13 +378,12 @@ void PerfProfilerTool::onReaderFinished()
 {
     m_readerRunning = false;
     if (traceManager().traceDuration() <= 0) {
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             Tr::tr("No Data Loaded"),
-                             Tr::tr("The profiler did not produce any samples. "
-                                    "Make sure that you are running a recent Linux kernel and that "
-                                    "the \"perf\" utility is available and generates useful call "
-                                    "graphs.\nYou might find further explanations in the "
-                                    "Application Output view."));
+        Core::MessageManager::writeDisrupting(
+            Tr::tr("The profiler did not produce any samples. "
+                   "Make sure that you are running a recent Linux kernel and that "
+                   "the \"perf\" utility is available and generates useful call "
+                   "graphs.\nYou might find further explanations in the "
+                   "Application Output view."));
         clear();
     } else {
         traceManager().finalize();
