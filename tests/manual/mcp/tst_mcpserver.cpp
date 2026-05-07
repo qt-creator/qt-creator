@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QHttpServer>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QSocketNotifier>
 #include <QTcpServer>
 #include <QTimer>
