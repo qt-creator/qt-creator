@@ -222,6 +222,7 @@ void ZenModePlugin::toggleZenMode()
     if (m_menuBar)
         m_menuBar->setVisible(!m_zenModeActive);
     m_toggleDistractionAction->setEnabled(!m_zenModeActive);
+    m_distractionModeStatusBarIcon.setEnabled(!m_zenModeActive);
 }
 
 void ZenModePlugin::toggleDistractionFreeMode()
@@ -233,5 +234,6 @@ void ZenModePlugin::toggleDistractionFreeMode()
 
     setSidebarsAndModesVisible(!m_distractionFreeModeActive);
     m_toggleZenModeAction->setEnabled(!m_distractionFreeModeActive);
+    m_zenModeStatusBarIcon.setEnabled(!m_distractionFreeModeActive);
 }
 } // namespace ZenMode::Internal
