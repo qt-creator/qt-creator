@@ -3,7 +3,6 @@ import qbs
 QtcPlugin {
     name: "PerfProfiler"
 
-    Depends { name: "Debugger" }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }

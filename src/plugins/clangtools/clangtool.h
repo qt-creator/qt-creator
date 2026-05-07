@@ -7,7 +7,7 @@
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsdiagnosticmodel.h"
 
-#include <debugger/debuggermainwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <variant>
 
@@ -137,7 +137,7 @@ private:
     QAction *m_clear = nullptr;
     QAction *m_expandCollapse = nullptr;
 
-    Utils::Perspective m_perspective;
+    Core::Perspective m_perspective;
     const CppEditor::ClangToolType m_type;
 };
 

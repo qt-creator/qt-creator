@@ -42,7 +42,7 @@ QVariant FilePathItem::data(int column, int role) const
             return m_filePath.toUserOutput();
         case Qt::DecorationRole:
             return Utils::FileIconProvider::icon(m_filePath);
-        case Debugger::DetailedErrorView::FullTextRole:
+        case ProjectExplorer::DetailedErrorView::FullTextRole:
             return m_filePath.toUserOutput();
         default:
             return QVariant();
@@ -326,9 +326,9 @@ QVariant DiagnosticItem::data(int column, int role) const
 {
     if (column == DiagnosticView::DiagnosticColumn) {
         switch (role) {
-        case Debugger::DetailedErrorView::LocationRole:
+        case ProjectExplorer::DetailedErrorView::LocationRole:
             return QVariant::fromValue(m_diagnostic.location);
-        case Debugger::DetailedErrorView::FullTextRole:
+        case ProjectExplorer::DetailedErrorView::FullTextRole:
             return fullText(m_diagnostic);
         case ClangToolsDiagnosticModel::DiagnosticRole:
             return QVariant::fromValue(m_diagnostic);
@@ -458,9 +458,9 @@ QVariant ExplainingStepItem::data(int column, int role) const
     if (column == DiagnosticView::DiagnosticColumn) {
         // DiagnosticColumn
         switch (role) {
-        case Debugger::DetailedErrorView::LocationRole:
+        case ProjectExplorer::DetailedErrorView::LocationRole:
             return QVariant::fromValue(m_step.location);
-        case Debugger::DetailedErrorView::FullTextRole: {
+        case ProjectExplorer::DetailedErrorView::FullTextRole: {
             return QString("%1:%2: %3")
                 .arg(m_step.location.targetFilePath.toUserOutput(),
                      lineColumnString(m_step.location),
@@ -666,10 +666,10 @@ bool DiagnosticFilterModel::lessThan(const QModelIndex &l, const QModelIndex &r)
     QTC_ASSERT(itemLeft, return QSortFilterProxyModel::lessThan(l, r));
     const bool isComparingDiagnostics = itemLeft->level() > 1;
 
-    if (sortColumn() == Debugger::DetailedErrorView::DiagnosticColumn && isComparingDiagnostics) {
+    if (sortColumn() == ProjectExplorer::DetailedErrorView::DiagnosticColumn && isComparingDiagnostics) {
         bool result = false;
         if (itemLeft->level() == 2) {
-            const int role = Debugger::DetailedErrorView::LocationRole;
+            const int role = ProjectExplorer::DetailedErrorView::LocationRole;
 
             const auto leftLoc = sourceModel()->data(l, role).value<Link>();
             const auto leftText

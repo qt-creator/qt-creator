@@ -15,8 +15,10 @@
 #include <QObject>
 #include <QTimer>
 
-namespace Core { class IDocument; }
-namespace TextEditor { class TextEditorWidget; }
+namespace TextEditor {
+class TextDocument;
+class TextEditorWidget;
+}
 
 namespace ClangTools {
 namespace Internal {
@@ -28,11 +30,8 @@ class DocumentClangToolRunner : public QObject
 {
     Q_OBJECT
 public:
-    DocumentClangToolRunner(Core::IDocument *doc);
+    DocumentClangToolRunner(TextEditor::TextDocument *doc);
     ~DocumentClangToolRunner();
-
-    Utils::FilePath filePath() const;
-    Diagnostics diagnosticsAtLine(int lineNumber) const;
 
 private:
     void showDiagnostics();
@@ -46,7 +45,7 @@ private:
     bool isSuppressed(const Diagnostic &diagnostic) const;
 
     QTimer m_runTimer;
-    Core::IDocument *m_document = nullptr;
+    TextEditor::TextDocument * const m_document;
     Utils::TemporaryDirectory m_temporaryDir;
     QList<DiagnosticMark *> m_marks;
     QList<ProjectExplorer::Task> m_tasks;

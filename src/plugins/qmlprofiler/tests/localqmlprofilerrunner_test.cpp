@@ -3,8 +3,6 @@
 
 #include "localqmlprofilerrunner_test.h"
 
-#include <debugger/analyzer/analyzerutils.h>
-
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>

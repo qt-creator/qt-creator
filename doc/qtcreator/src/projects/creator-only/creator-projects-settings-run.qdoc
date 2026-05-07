@@ -87,7 +87,7 @@
     \c qtc_runnable as the value of the \c FOLDER property
     in the \c {CMakeLists.txt} file for the project. For example:
 
-    \badcode
+    \code [cmake]
     set_target_properties(main_executable PROPERTIES FOLDER "qtc_runnable")
     \endcode
 
@@ -101,7 +101,7 @@
     variable in the \c .pro files of the application projects (\c TEMPLATE=app)
     that you want to run. For example
 
-    \badcode
+    \code [text]
     CONFIG += qtc_runnable
     \endcode
 

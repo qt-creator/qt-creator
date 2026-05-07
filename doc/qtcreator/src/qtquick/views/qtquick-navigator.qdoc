@@ -187,14 +187,14 @@
     {property type}, and the right-hand-side of the property declaration must
     be a valid alias reference:
 
-    \badcode
+    \code [text]
     property alias <name>: <alias reference>
     \endcode
 
     For example, the following alias refers to a button component instance
     within an item component instance:
 
-    \badcode
+    \code [text]
     property alias button: item.button
     \endcode
 

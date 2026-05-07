@@ -63,6 +63,7 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QTextBlock>
+
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QThread>
@@ -183,7 +184,10 @@ public:
         // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
         for (TextDocument *document : m_resetAssistProvider.keys())
             resetAssistProviders(document);
-        for (auto activeEditor : m_activeEditors)
+
+        // deactivateEditor modifies m_activeEditors, so copy it beforehand
+        const QSet<TextEditor::BaseTextEditor *> activeEditors = m_activeEditors;
+        for (auto activeEditor : activeEditors)
             q->deactivateEditor(activeEditor);
 
         for (IAssistProcessor *processor : std::as_const(m_runningAssistProcessors))

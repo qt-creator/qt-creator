@@ -17,6 +17,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -24,8 +25,6 @@
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <cppeditor/cppmodelmanager.h>
-
-#include <debugger/debuggerconstants.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
@@ -37,8 +36,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchainkitaspect.h>
-
-#include <QtTaskTree/QTaskTree>
 
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
@@ -60,11 +57,11 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLoggingCategory>
+#include <QtTaskTree/QTaskTree>
 #include <QToolButton>
 
 using namespace Core;
 using namespace CppEditor;
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
@@ -521,7 +518,7 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
     });
     m_openProjectSettings = action;
 
-    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+    ActionContainer *menu = ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER);
     const QString toolTip = Tr::tr("Clang-Tidy and Clazy use a customized Clang executable from the "
                                    "Clang project to search for diagnostics.");
 
@@ -539,8 +536,8 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
 
     action = new QAction(name, this);
     action->setToolTip(toolTip);
-    menu->addAction(ActionManager::registerAction(action, id),
-                    Debugger::Constants::G_ANALYZER_TOOLS);
+    menu->addAction(ActionManager::registerAction(action, id), Core::Constants::G_ANALYZER_TOOLS);
+
     QObject::connect(action, &QAction::triggered, this, [this] {
         startTool(FileSelectionType::AskUser);
     });

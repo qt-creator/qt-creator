@@ -21,12 +21,6 @@ const Icon BREAKPOINTS(
         ":/debugger/images/debugger_breakpoints.png");
 const Icon WATCHPOINT({
         {":/utils/images/eye_open.png", Theme::TextColorNormal}}, Icon::Tint);
-const Icon TRACEPOINT({
-        {":/utils/images/eye_open.png", Theme::TextColorNormal},
-        {":/debugger/images/tracepointoverlay.png", Theme::TextColorNormal}}, Icon::Tint | Icon::PunchEdges);
-const Icon TRACEPOINT_TOOLBAR({
-        {":/utils/images/eye_open.png", Theme::IconsBaseColor},
-        {":/debugger/images/tracepointoverlay.png", Theme::IconsBaseColor}});
 const Icon CONTINUE(
         ":/debugger/images/debugger_continue.png");
 const Icon CONTINUE_FLAT({
@@ -88,12 +82,6 @@ const Icon SELECT_TOOLBAR({
         {":/utils/images/select.png", Theme::IconsBaseColor}});
 const Icon EMPTY(
         ":/debugger/images/debugger_empty_14.png");
-const Icon RECORD_ON({
-        {":/debugger/images/recordfill.png", Theme::IconsStopColor},
-        {":/debugger/images/recordoutline.png", Theme::IconsBaseColor}}, Icon::Tint | Icon::DropShadow);
-const Icon RECORD_OFF({
-        {":/debugger/images/recordfill.png", Theme::IconsDisabledColor},
-        {":/debugger/images/recordoutline.png", Theme::IconsBaseColor}}, Icon::Tint | Icon::DropShadow);
 
 const Icon STEP_OVER({
         {":/debugger/images/debugger_stepover_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);

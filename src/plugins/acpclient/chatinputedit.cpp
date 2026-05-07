@@ -38,7 +38,7 @@ ChatInputEdit::ChatInputEdit(QWidget *parent)
     setLineNumbersVisible(false);
     setMarksVisible(false);
     setMinimapVisible(false);
-    setCompletionTriggerOverride(ManualCompletion);
+    setCompletionTriggerOverride(TriggeredCompletion);
 
     auto applyWidgetColors = [this] {
         FontSettings fontSettings = textDocument()->fontSettings();
@@ -56,13 +56,19 @@ ChatInputEdit::ChatInputEdit(QWidget *parent)
     applyWidgetColors();
     connect(textDocument(), &TextEditor::TextDocument::fontSettingsChanged, this, applyWidgetColors);
 
-    textDocument()->setCompletionAssistProvider(new ChatInputCompletionProvider(this));
+    m_completionProvider = new ChatInputCompletionProvider(this);
+    textDocument()->setCompletionAssistProvider(m_completionProvider);
 
     m_history = new Utils::HistoryCompleter("AcpChatInput", 100, this);
 
     updateHeight();
     connect(this, &TextEditor::TextEditorWidget::textChanged, this, &ChatInputEdit::updateHeight);
     connect(this, &TextEditor::TextEditorWidget::textChanged, this, &ChatInputEdit::updateSuggestion);
+}
+
+void ChatInputEdit::setAvailableCommands(const QList<CommandInfo> &commands)
+{
+    m_completionProvider->setAvailableCommands(commands);
 }
 
 void ChatInputEdit::setDisplaySettings(const DisplaySettingsData &settings)
@@ -142,7 +148,7 @@ void ChatInputEdit::updateSuggestion()
     const QString currentText = toPlainText();
 
     // Only suggest for non-empty, single-line input with cursor at the end
-    if (currentText.isEmpty() || currentText.contains('\n')
+    if (currentText.isEmpty() || currentText == "/" || currentText.contains('\n')
         || textCursor().position() != document()->characterCount() - 1) {
         clearSuggestion();
         return;

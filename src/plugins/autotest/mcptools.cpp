@@ -224,6 +224,16 @@ void registerMcpTools()
                        "qFatal/qSystemMsg in their function. Useful for projects that "
                        "forbid warnings on passing tests."}})
               .addProperty("summary_text", QJsonObject{{"type", "string"}})
+              .addProperty(
+                  "build_issues",
+                  QJsonObject{
+                      {"type", "array"},
+                      {"description",
+                       "Build errors/warnings from the pre-test build. Present only when "
+                       "summary.build_failed is true — folded in by run_tests so the AI "
+                       "can diagnose the build failure without a separate list_issues "
+                       "call. Same shape as list_issues' issues array (objects with type, "
+                       "description, file, line, id). Absent when the build succeeded."}})
               .addRequired("summary")
               .addRequired("failures")
               .addRequired("tests_with_warnings")
@@ -240,7 +250,10 @@ void registerMcpTools()
                 "test names that emitted warnings. Equivalent to clicking Run (or Debug, "
                 "with mode='debug') in the Tests pane. Returns once the run finishes. "
                 "To see per-test details (messages, file/line, etc.), follow up with "
-                "get_test_details using the names from `failures` or `tests_with_warnings`. "
+                "get_test_details using ANY test name from the run — failures, "
+                "warnings, or just a passing test you want to inspect. get_test_details "
+                "returns the full message log for every named test regardless of its "
+                "outcome; an empty messages[] means the test simply didn't emit anything. "
                 "NOTE: each call replaces the current snapshot — if the user has just "
                 "run something interesting in the UI, call get_last_test_results first "
                 "instead of clobbering it.")
@@ -422,6 +435,65 @@ void registerMcpTools()
                     .addRequired("has_snapshot")),
         wrap([](const QJsonObject &) { return testRunStatus(); }));
 
+    // Per-test item schema. Declared explicitly so consumers know exactly
+    // what fields each `tests[]` entry carries — and, critically, so the
+    // `messages` field can carry its own absence-vs-filtering note (the
+    // most common AI misconception is "empty messages means the tool
+    // filtered them" — it doesn't).
+    const QJsonObject perTestMessageItemSchema{
+        {"type", "object"},
+        {"properties",
+         QJsonObject{
+             {"level",
+              QJsonObject{{"type", "string"},
+                          {"description",
+                           "Qt log level: message_debug, message_info, message_warn, "
+                           "message_error, message_fatal, message_system, or "
+                           "message_location."}}},
+             {"text", QJsonObject{{"type", "string"}}},
+             {"file", QJsonObject{{"type", "string"}}},
+             {"line", QJsonObject{{"type", "integer"}, {"minimum", 1}}}}}};
+
+    const QJsonObject perTestOutcomeSchema{
+        {"type", "object"},
+        {"properties",
+         QJsonObject{
+             {"name",
+              QJsonObject{{"type", "string"},
+                          {"description",
+                           "Canonical name in Class::function form."}}},
+             {"status",
+              QJsonObject{{"type", "string"},
+                          {"description",
+                           "Outcome string: pass, fail, expected_fail, "
+                           "unexpected_pass, skip, blacklisted_*, message_fatal."}}},
+             {"message",
+              QJsonObject{{"type", "string"},
+                          {"description",
+                           "Failure description for non-pass outcomes; empty for "
+                           "passing tests."}}},
+             {"file", QJsonObject{{"type", "string"}}},
+             {"line", QJsonObject{{"type", "integer"}, {"minimum", 1}}},
+             {"duration_ms",
+              QJsonObject{
+                  {"type", "number"},
+                  {"description",
+                   "Per-function duration if Qt Test reported one; null otherwise."}}},
+             {"messages",
+              QJsonObject{
+                  {"type", "array"},
+                  {"items", perTestMessageItemSchema},
+                  {"description",
+                   "Full log of qDebug/qInfo/qWarning/qCritical/qFatal messages "
+                   "emitted DURING the test function, in arrival order. NOT "
+                   "filtered by pass/fail — an empty array means the test (and "
+                   "the production code paths it exercised) emitted nothing, "
+                   "which is normal, not a bug. For passing tests this is the "
+                   "place to look for qInfo() preconditions or sanity-check "
+                   "output. Note that Qt Test attributes line numbers to the "
+                   "test slot's declaration, not the emit site, so all messages "
+                   "in one outcome share a line number."}}}}}};
+
     // ---- get_test_details (sync read-only) ----
     ToolRegistry::registerTool(
         Tool{}
@@ -434,7 +506,13 @@ void registerMcpTools()
                 "test function. Names typically come from the `failures` or "
                 "`tests_with_warnings` arrays returned by run_tests / "
                 "get_last_test_results, but any test name from the most recent run is "
-                "valid. Names that don't match any outcome appear in `not_found`.")
+                "valid. Names that don't match any outcome appear in `not_found`."
+                "\n\n"
+                "The `messages` array is NEVER filtered by pass/fail status — every "
+                "outcome gets its full breadcrumb trail. An empty `messages[]` means "
+                "the test (and the production code it exercised) didn't emit anything, "
+                "which is normal. This tool is useful even for passing tests when you "
+                "want to verify qInfo preconditions or read sanity-check output.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -449,7 +527,7 @@ void registerMcpTools()
                 Tool::OutputSchema{}
                     .addProperty(
                         "tests",
-                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "object"}}}})
+                        QJsonObject{{"type", "array"}, {"items", perTestOutcomeSchema}})
                     .addProperty(
                         "not_found",
                         QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})

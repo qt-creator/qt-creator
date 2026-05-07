@@ -252,8 +252,6 @@ void CopilotClient::cancelRunningRequest(TextEditor::TextEditorWidget *editor)
     m_runningRequests.erase(it);
 }
 
-static QString currentProxyPassword;
-
 void CopilotClient::requestCheckStatus(
     bool localChecksOnly, std::function<void(const CheckStatusRequest::Response &response)> callback)
 {

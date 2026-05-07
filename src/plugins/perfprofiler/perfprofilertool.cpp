@@ -11,14 +11,12 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
-
-#include <debugger/debuggerconstants.h>
-#include <debugger/debuggericons.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -43,7 +41,6 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Debugger;
 using namespace PerfProfiler::Constants;
 using namespace Utils;
 using namespace std::placeholders;
@@ -67,8 +64,8 @@ PerfProfilerTool::PerfProfilerTool()
     options->menu()->setTitle(Tr::tr("Performance Analyzer Options"));
     options->menu()->setEnabled(true);
 
-    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
-    menu->addMenu(options, Debugger::Constants::G_ANALYZER_OPTIONS);
+    ActionContainer *menu = ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER);
+    menu->addMenu(options, Core::Constants::G_ANALYZER_OPTIONS);
 
     ActionBuilder(options, Constants::PerfProfilerTaskLoadPerf)
         .setText(Tr::tr("Load perf.data File"))
@@ -110,7 +107,7 @@ PerfProfilerTool::PerfProfilerTool()
     ActionBuilder(options, Constants::PerfProfilerTaskTracePoints)
         .setText(Tr::tr("Create Memory Trace Points"))
         .bindContextAction(&tracePointsAction)
-        .setIcon(Debugger::Icons::TRACEPOINT_TOOLBAR.icon())
+        .setIcon(ProjectExplorer::Icons::TRACEPOINT_TOOLBAR.icon())
         .setIconVisibleInMenu(false)
         .setToolTip(Tr::tr("Create trace points for memory profiling on the target device."))
         .addToContainer(subMenu)
@@ -124,7 +121,7 @@ PerfProfilerTool::PerfProfilerTool()
         .setText(Tr::tr("Performance Analyzer"))
         .bindContextAction(&action)
         .setToolTip(Tr::tr("Finds performance bottlenecks."))
-        .addToContainer(Debugger::Constants::M_DEBUG_ANALYZER, Debugger::Constants::G_ANALYZER_TOOLS)
+        .addToContainer(Core::Constants::M_DEBUG_ANALYZER, Core::Constants::G_ANALYZER_TOOLS)
         .addOnTriggered(this, [this] {
             m_perspective.select();
             ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
@@ -616,8 +613,8 @@ void PerfProfilerTool::setAggregated(bool aggregated)
 
 void PerfProfilerTool::setRecording(bool recording)
 {
-    const static QIcon recordOn = Debugger::Icons::RECORD_ON.icon();
-    const static QIcon recordOff = Debugger::Icons::RECORD_OFF.icon();
+    const static QIcon recordOn = ProjectExplorer::Icons::RECORD_ON.icon();
+    const static QIcon recordOff = ProjectExplorer::Icons::RECORD_OFF.icon();
 
     m_recordButton.setIcon(recording ? recordOn : recordOff);
     m_recordButton.setChecked(recording);

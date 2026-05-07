@@ -588,6 +588,10 @@
     \externalpage https://ninja-build.org/
     \title Ninja
 */
+/*!
+    \externalpage https://gn.googlesource.com/gn
+    \title GN
+*/
 
 // Compiler tooling, static analysis, and LLVM resources
 /*!
@@ -893,6 +897,10 @@
 /*!
     \externalpage https://github.com/github/copilot.vim/blob/release/README.md
     \title GitHub Copilot for Vim and Neovim
+*/
+/*!
+    \externalpage https://modelcontextprotocol.io/specification/draft/basic/utilities/tasks
+    \title MCP: Tasks
 */
 
 // Testing resources

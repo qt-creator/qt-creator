@@ -5,7 +5,7 @@
     \page creator-qtaiassistant.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-edit
+    \ingroup creator-how-to-ai
 
     \title Use Qt AI Assistant
 
@@ -338,5 +338,5 @@
 
     Qt AI Assistant adds inline comments that you can apply to your code.
 
-    \sa {Install extensions}, {Activate extensions}
+    \sa {Install extensions}, {Activate extensions}, {Use AI}{How to: Use AI}
 */

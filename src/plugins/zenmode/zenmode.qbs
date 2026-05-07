@@ -1,5 +1,5 @@
 QtcPlugin {
-    name: "ZenModePlugin"
+    name: "ZenMode"
 
     Depends { name: "Core" }
     Depends { name: "TextEditor" }

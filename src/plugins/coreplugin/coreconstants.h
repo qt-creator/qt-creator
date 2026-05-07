@@ -44,6 +44,7 @@ const char C_GLOBAL[]              = "Global Context";
 const char C_WELCOME_MODE[]        = "Core.WelcomeMode";
 const char C_EDIT_MODE[]           = "Core.EditMode";
 const char C_DESIGN_MODE[]         = "Core.DesignMode";
+const char C_DEBUG_MODE[]          = "Debugger.DebugMode";
 const char C_EDITORMANAGER[]       = "Core.EditorManager";
 const char C_NAVIGATION_PANE[]     = "Core.NavigationPane";
 const char C_SETTINGS_MODE[]       = "Core.SettingsMode";
@@ -136,6 +137,7 @@ const char SHOWINFILESYSTEMVIEW[]  = "QtCreator.ShowInFileSystemView";
 const char CYCLE_NEXT_EDITOR[]     = "QtCreator.CycleToNextEditor";
 
 const char OUTPUTPANE_CLEAR[] = "Coreplugin.OutputPane.clear";
+const char OUTPUTPANE_CLOSE[] = "Coreplugin.OutputPane.close";
 
 // Default groups
 const char G_DEFAULT_ONE[]         = "QtCreator.Group.Default.One";
@@ -235,6 +237,14 @@ const char SETTINGS_MENU_HIDE_TOOLS[] = "Menu/HideTools";
 const char HELP_CATEGORY[] = "H.Help";
 
 const char QT_JIRA_URL[] = "https://qt-project.atlassian.net";
+
+// Analyzer menu and groups
+const char M_DEBUG_ANALYZER[]        = "Analyzer.Menu.StartAnalyzer";
+const char G_ANALYZER_CONTROL[]      = "Menu.Group.Analyzer.Control";
+const char G_ANALYZER_TOOLS[]        = "Menu.Group.Analyzer.Tools";
+const char G_ANALYZER_REMOTE_TOOLS[] = "Menu.Group.Analyzer.RemoteTools";
+const char G_ANALYZER_OPTIONS[]      = "Menu.Group.Analyzer.Options";
+const char ANALYZERTASK_ID[]         = "Analyzer.TaskId";
 
 } // namespace Constants
 } // namespace Core

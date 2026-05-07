@@ -361,6 +361,52 @@ static Result<> toolTask(
     return ResultOk;
 }
 
+class McpInspector : public Mcp::Inspector
+{
+public:
+    std::function<void(QByteArray)> onRequest(
+        const QJsonDocument &request, const QString &sessionId) final
+    {
+        static int requestId = 0;
+        requestId++;
+        qDebug() << "Received request in session" << sessionId << ":"
+                 << request.toJson(QJsonDocument::Compact) << "[" << requestId
+                 << "]";
+
+        return [r = requestId, sessionId](const QByteArray &data) {
+            qDebug() << "[" << r << "]" << "    Sending response in session" << sessionId << ":"
+                     << data;
+        };
+    }
+
+    void onServerNotification(const QJsonDocument &notification, const QString &sessionId) final
+    {
+        if (sessionId.isEmpty()) {
+            qDebug() << "Server notification broadcast:"
+                     << notification.toJson(QJsonDocument::Compact);
+        } else {
+            qDebug() << "Server notification for session" << sessionId << ":"
+                     << notification.toJson(QJsonDocument::Compact);
+        }
+    }
+
+    void onClientNotification(const QJsonDocument &notification, const QString &sessionId) final
+    {
+        qDebug() << "Received client notification in session" << sessionId << ":"
+                 << notification.toJson(QJsonDocument::Compact);
+    }
+
+    void onSessionStarted(const QString &sessionId) final
+    {
+        qDebug() << "Session started with ID:" << sessionId;
+    }
+
+    void onSessionEnded(const QString &sessionId) final
+    {
+        qDebug() << "Session ended with ID:" << sessionId;
+    }
+};
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -420,17 +466,23 @@ int main(int argc, char *argv[])
 
     s_server = &server;
 
-    QTimer *timer = new QTimer();
-    QObject::connect(timer, &QTimer::timeout, []() {
-        static int count = 0;
-        count++;
-        s_server->sendNotification(
-            Mcp::Schema::LoggingMessageNotification().params(
-                Mcp::Schema::LoggingMessageNotificationParams()
-                    .level(Mcp::Schema::LoggingLevel::info)
-                    .data(QString("Just a ping %1").arg(count))));
-    });
-    timer->start(5000);
+    if (!app.arguments().contains("--no-inspector")) {
+        server.setInspector(new McpInspector);
+    }
+
+    if (!app.arguments().contains("--no-broadcast")) {
+        QTimer *timer = new QTimer(&app);
+        QObject::connect(timer, &QTimer::timeout, []() {
+            static int count = 0;
+            count++;
+            s_server->sendNotification(
+                Mcp::Schema::LoggingMessageNotification().params(
+                    Mcp::Schema::LoggingMessageNotificationParams()
+                        .level(Mcp::Schema::LoggingLevel::info)
+                        .data(QString("Just a ping %1").arg(count))));
+        });
+        timer->start(5000);
+    }
 
     QTcpServer tcpServer;
 

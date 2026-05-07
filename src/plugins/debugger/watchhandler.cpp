@@ -9,7 +9,6 @@
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
-#include "debuggermainwindow.h"
 #include "debuggerprotocol.h"
 #include "debuggertooltipmanager.h"
 #include "debuggertr.h"
@@ -24,6 +23,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/session.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -37,6 +37,7 @@
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
+#include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
@@ -310,7 +311,7 @@ class SeparatedView : public QTabWidget
 {
     Q_OBJECT
 public:
-    SeparatedView() : QTabWidget(DebuggerMainWindow::instance())
+    SeparatedView() : QTabWidget(PerspectivesView::mainWindow())
     {
         setTabsClosable(true);
         connect(this, &QTabWidget::tabCloseRequested, this, &SeparatedView::closeTab);

@@ -79,6 +79,7 @@ private:
     OutputPaneManageButton *m_manageButton = nullptr;
 
     QAction *m_clearAction = nullptr;
+    QAction *m_closeAction = nullptr;
     QAction *m_minMaxAction = nullptr;
     QAction *m_nextAction = nullptr;
     QAction *m_prevAction = nullptr;

@@ -2482,7 +2482,13 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         break;
     }
     case DisplayStyle::ComboBox:
-        setLabelText(displayName());
+        if (!labelText().isEmpty()) {
+            setLabelText(labelText());
+        } else if (!displayName().isEmpty()) { // this is a fallback for compatibility (< 20.0), but warn
+            qWarning() << "Aspect" << displayName()
+                       << "uses ComboBox display but does not set labelText()";
+            setLabelText(displayName());
+        }
         auto comboBox = createSubWidget<QComboBox>();
         comboBox->setObjectName(objectName());
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
@@ -4506,7 +4512,6 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         auto cb = [this](const QList<QStandardItem *> &items) {
             emit modelChange(true);
 
-            QString oldValue = m_volatileValue;
             m_model->clear();
             for (QStandardItem *item : items)
                 m_model->appendRow(item);

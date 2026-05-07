@@ -1,9 +1,11 @@
 {
-    "Id" : "zenmodeplugin",
-    "Name" : "Zen Mode",
+    "Id" : "zenmode",
+    "Name" : "ZenMode",
+    "DisplayName" : "ZenMode",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,
+    "SoftLoadable" : true,
     "Vendor" : "Sebastian Mosiej",
     "VendorId" : "sebastianmosiej",
     "Copyright" : "(C) 2025 Sebastian Mosiej",

@@ -11,7 +11,6 @@
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
-#include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggersourcepathmappingwidget.h>
 #include <debugger/debuggertooltipmanager.h>
@@ -33,10 +32,14 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <coreplugin/perspective.h>
+
 #include <projectexplorer/abi.h>
 #include <projectexplorer/taskhub.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
+
 #include <texteditor/texteditor.h>
 
 #include <utils/checkablemessagebox.h>

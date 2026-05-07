@@ -349,6 +349,26 @@ func processCopyFile(cmd command, out chan<- []byte) {
 		return
 	}
 
+        // Copy over the execute permissions from the source.
+        // This emulates the behavior of CopyFS.
+        sourceStat, err := os.Stat(cmd.CopyFile.Source)
+        if err != nil {
+                sendError(out, cmd, err)
+                return
+        }
+        targetStat, err := os.Stat(cmd.CopyFile.Target)
+        if err != nil {
+                sendError(out, cmd, err)
+                return
+        }
+        const executeBits = os.FileMode(0111)
+        newMode := (targetStat.Mode() &^ executeBits) | (sourceStat.Mode() & executeBits)
+        err = os.Chmod(cmd.CopyFile.Target, newMode)
+        if err != nil {
+                sendError(out, cmd, err)
+                return
+        }
+
 	result, _ := cbor.Marshal(voidresult{
 		Type: "copyfileresult",
 		Id:   cmd.Id,

@@ -6,7 +6,6 @@
 #include "debuggeractions.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
-#include "debuggermainwindow.h"
 #include "debuggerprotocol.h"
 #include "debuggertr.h"
 #include "sourceutils.h"
@@ -18,6 +17,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/session.h>
 
 #include <cppeditor/cppprojectfile.h>
@@ -26,6 +26,7 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/stringutils.h>
@@ -650,7 +651,7 @@ void DebuggerToolTip::updateTooltip()
 
     if (state == PendingUnshown) {
         setState(PendingShown);
-        ToolTip::show(context.mousePosition, this, DebuggerMainWindow::instance());
+        ToolTip::show(context.mousePosition, this, PerspectivesView::mainWindow());
     }
 
     if (item && sameFrame) {

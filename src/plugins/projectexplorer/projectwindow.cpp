@@ -1085,7 +1085,12 @@ public:
 TargetGroupItem::TargetGroupItem(Project *project)
     : m_project(project)
 {
-    QObject::connect(project, &Project::addedTarget, &m_guard, [this] { update(); });
+    QObject::connect(project, &Project::addedTarget, &m_guard, [this] {
+        scheduleRebuildContents();
+    });
+    QObject::connect(project, &Project::removedTarget, &m_guard, [this] {
+        scheduleRebuildContents();
+    });
 
     QObject::connect(KitManager::instance(), &KitManager::kitAdded, &m_guard, [this] {
         scheduleRebuildContents();
@@ -1365,21 +1370,19 @@ private:
 class ShowAllKitsComboBox final : public QComboBox
 {
 public:
-    ShowAllKitsComboBox(ProjectsModel *projectsModel, QWidget *parent)
+    ShowAllKitsComboBox(QWidget *parent)
         : QComboBox(parent)
     {
         TypedSelectionAspect<KitFilter> &kitFilter = globalProjectExplorerSettings().kitFilter;
         for (int i = 0; i < 3; ++i)
-            addItem(kitFilter.displayForIndex(i), i);
-
+            addItem(kitFilter.displayForIndex(i));
         setCurrentIndex(int(kitFilter()));
-
-        connect(this, &QComboBox::currentIndexChanged, projectsModel, [projectsModel](int index) {
+        kitFilter.addOnChanged(this, [this] {
+            setCurrentIndex(int(globalProjectExplorerSettings().kitFilter()));
+        });
+        connect(this, &QComboBox::currentIndexChanged, this, [](int index) {
             globalProjectExplorerSettings().kitFilter.setValue(KitFilter(index));
             globalProjectExplorerSettings().writeSettings();
-            projectsModel->rootItem()->forFirstLevelChildren([](ProjectItem *item) {
-                item->targetsItem()->scheduleRebuildContents();
-            });
         });
     }
 };
@@ -1442,8 +1445,7 @@ public:
         auto scrolledWidget = new QWidget;
         auto scrolledLayout = new QVBoxLayout(scrolledWidget);
         auto kitsFilterLayout = new QHBoxLayout;
-        auto kitsFilter = new ShowAllKitsComboBox(&m_projectsModel, scrolledWidget);
-
+        auto kitsFilter = new ShowAllKitsComboBox(scrolledWidget);
         kitsFilterLayout->addWidget(kitsFilter);
         kitsFilterLayout->addStretch();
         scrolledLayout->setSizeConstraint(QLayout::SetFixedSize);

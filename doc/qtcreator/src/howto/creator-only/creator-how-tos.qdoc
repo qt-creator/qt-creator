@@ -515,6 +515,19 @@
     \generatelist creator-how-to-test
     \enddetails
 
+    \section1 Use AI
+
+    \quotation
+    \l {Using AI}
+    \endquotation
+
+    Chat with AI agents that understand your codebase and perform actions on your
+    behalf, such as editing files, running commands, or triggering builds.
+
+    \details {How to use AI}
+    \generatelist creator-how-to-ai
+    \enddetails
+
     \section1 Use Git
 
     \quotation
@@ -1025,13 +1038,13 @@
     \li In \uicontrol Scope, select whatever is appropriate for your search.
     \li Select \uicontrol {Use regular expressions}.
     \li Enter the following text in \uicontrol {Search for}:
-        \badcode
+        \code [text]
         if \((.*) == (.*)\)
         \endcode
     \li Select \uicontrol {Search & Replace} to see a list of search results.
         \image {qtcreator-search-results-reg-exp.webp} {Search results for the regular expression}
     \li In \uicontrol {Replace with}, enter the following text:
-        \badcode
+        \code [text]
         if (\1.strictlyEquals(\2))
         \endcode
     \li Select \uicontrol Replace to replace all instances of the text.

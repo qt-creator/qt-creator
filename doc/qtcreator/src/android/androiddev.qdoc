@@ -136,7 +136,7 @@
     For example, the SDK configuration file sets the NDK version to 22.1.7171670
     for use with Qt 6.3, Qt 6.2, and Qt 5.15.9 to 5.15.20:
 
-    \badcode
+    \code [json]
     "specific_qt_versions": [
     {       "versions": ["6.3", "6.2", "5.15.[9-20]"],
             "sdk_essential_packages": ["build-tools;31.0.0", "ndk;22.1.7171670"]
@@ -376,7 +376,7 @@
     \preferences > \uicontrol Debugger > \uicontrol GDB, and add the following
     in \uicontrol {Additional Attach Commands}.
 
-    \badcode
+    \code [text]
     settings set plugin.jit-loader.gdb.enable off
     \endcode
 
@@ -402,7 +402,7 @@
     running. If the following message appears in \l {Application Output},
     close Android Studio and try again:
 
-    \badcode
+    \code [text]
     Ignoring second debugger -accepting and dropping.
     \endcode
 

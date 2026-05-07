@@ -567,29 +567,28 @@ void OutputWindow::handleOutputChunk(
     const QString &output, OutputFormat format, ChunkCompleteness completeness)
 {
     QString out = output;
-    if (out.size() > d->maxCharCount) {
-        // Current chunk alone exceeds limit, we need to cut it.
-        const qsizetype elided = out.size() - d->maxCharCount;
-        out = out.left(d->maxCharCount / 2)
-                + "[[[... "
-                + Tr::tr("Elided %n characters due to Application Output settings", nullptr, elided)
-                + " ...]]]"
-                + out.right(d->maxCharCount / 2);
-        setMaximumBlockCount(out.count('\n') + 1);
-    } else {
-        qsizetype plannedChars = document()->characterCount() + out.size();
-        if (plannedChars > d->maxCharCount) {
-            int plannedBlockCount = document()->blockCount();
-            QTextBlock tb = document()->firstBlock();
-            while (tb.isValid() && plannedChars > d->maxCharCount && plannedBlockCount > 1) {
-                plannedChars -= tb.length();
-                plannedBlockCount -= 1;
-                tb = tb.next();
-            }
-            setMaximumBlockCount(plannedBlockCount);
-        } else {
-            setMaximumBlockCount(-1);
+    const qsizetype plannedChars = document()->characterCount() + out.size();
+    if (plannedChars > d->maxCharCount) {
+        const bool privilegedOutput = format == ErrorMessageFormat || format == NormalMessageFormat;
+        if (!privilegedOutput) {
+            const qsizetype overhead = plannedChars - d->maxCharCount;
+            const qsizetype kept = std::max(qsizetype(0), out.size() - overhead);
+            const qsizetype elided = out.size() - kept;
+            qCDebug(chunkLog) << "max character count exceeded; current size:"
+                              << document()->characterCount() << "incoming size:" << out.size()
+                              << "limit:" << d->maxCharCount << "overhead:" << overhead
+                              << "elided:" << elided << "kept:" << kept;
+            out = out.left(kept / 2) + "[[[... "
+                  + Tr::tr("Elided %n characters due to settings limit", nullptr, elided)
+                  + " ...]]]" + out.right(kept / 2);
+            if (kept == 0)
+                out.append('\n');
         }
+        const int plannedBlockCount = document()->blockCount() + out.count('\n');
+        setMaximumBlockCount(plannedBlockCount);
+        qCDebug(chunkLog) << "new max block count:" << plannedBlockCount;
+    } else {
+        setMaximumBlockCount(-1);
     }
 
     QElapsedTimer formatterTimer;

@@ -5,7 +5,7 @@
     \page creator-copilot.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-edit
+    \ingroup creator-how-to-ai
 
     \title Use GitHub Copilot
 
@@ -104,5 +104,5 @@
         \li Select or clear \uicontrol {Enable Copilot}.
     \endlist
 
-    \sa {Enable and disable plugins}, {Editing code}
+    \sa {Enable and disable plugins}, {Use AI}{How to: Use AI}, {Editing code}
 */

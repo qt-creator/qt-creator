@@ -177,7 +177,6 @@ public:
     explicit Notification(const QString &methodName, const std::nullptr_t &/*params*/ = nullptr)
     {
         setMethod(methodName);
-        setParams(nullptr);
     }
     using JsonRpcMessage::JsonRpcMessage;
 
@@ -186,21 +185,10 @@ public:
     void setMethod(const QString &method)
     { m_jsonObject.insert(methodKey, method); }
 
-    std::optional<std::nullptr_t> params() const
-    { return nullptr; }
-    void setParams(const std::nullptr_t &/*params*/)
-    { m_jsonObject.insert(paramsKey, QJsonValue::Null); }
-    void clearParams() { m_jsonObject.remove(paramsKey); }
-
     bool isValid(QString *errorMessage) const override
     {
-        return JsonRpcMessage::isValid(errorMessage)
-               && m_jsonObject.value(methodKey).isString()
-               && parametersAreValid(errorMessage);
+        return JsonRpcMessage::isValid(errorMessage) && m_jsonObject.value(methodKey).isString();
     }
-
-    virtual bool parametersAreValid(QString * /*errorMessage*/) const
-    { return true; }
 };
 
 template <typename Error>

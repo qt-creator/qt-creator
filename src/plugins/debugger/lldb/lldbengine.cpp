@@ -9,7 +9,6 @@
 #include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggeritem.h>
-#include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggersourcepathmappingwidget.h>
 #include <debugger/debuggertooltipmanager.h>
@@ -24,9 +23,10 @@
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
 
-#include <coreplugin/messagebox.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/messagebox.h>
+#include <coreplugin/perspective.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/runcontrol.h>

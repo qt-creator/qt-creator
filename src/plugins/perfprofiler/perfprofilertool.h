@@ -8,7 +8,7 @@
 #include "perfprofilerstatisticsview.h"
 #include "perfprofilertraceview.h"
 
-#include <debugger/debuggermainwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <utils/fileinprojectfinder.h>
 
@@ -80,9 +80,10 @@ private:
     void initialize();
     void finalize();
 
-    Utils::Perspective m_perspective{Constants::PerfProfilerPerspectiveId,
-                                     QCoreApplication::translate("QtC::PerfProfiler",
-                                                                 "Performance Analyzer")};
+    Core::Perspective m_perspective {
+        Constants::PerfProfilerPerspectiveId,
+        QCoreApplication::translate("QtC::PerfProfiler", "Performance Analyzer")
+    };
 
     QAction m_startAction;
     QAction m_stopAction;

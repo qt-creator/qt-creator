@@ -10,9 +10,8 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-
-#include <debugger/debuggerconstants.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -50,7 +49,7 @@ public:
     {
         ActionBuilder(this, "Coco.startCoco")
             .setText("Squish Coco ...")
-            .addToContainer(Debugger::Constants::M_DEBUG_ANALYZER,  Debugger::Constants::G_ANALYZER_TOOLS)
+            .addToContainer(Core::Constants::M_DEBUG_ANALYZER,  Core::Constants::G_ANALYZER_TOOLS)
             .addOnTriggered(this, &CocoPlugin::startCocoDialog);
     }
 

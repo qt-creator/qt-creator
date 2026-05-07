@@ -71,8 +71,10 @@ public:
     void markForRemoval(int row);
     int markForAddition(Kit *baseKit);
 
-
     bool isNameUnique(int row) const;
+
+    Kit *modifiedKit() { return &m_modifiedKit; }
+    void commitModifiedKit(int row);
 
 signals:
     void kitStateChanged();
@@ -85,6 +87,7 @@ private:
     void changeDefaultKit();
 
     bool m_isRegistering = false;
+    Kit m_modifiedKit{Id(WORKING_COPY_KIT_ID)};
 };
 
 KitModel::KitModel()
@@ -171,6 +174,14 @@ int KitModel::rowForId(Id kitId) const
             return row;
     }
     return -1;
+}
+
+void KitModel::commitModifiedKit(int row)
+{
+    QTC_ASSERT(row >= 0 && row < itemCount(), return);
+    KitData d = m_modifiedKit.kitData();
+    d.m_id = item(row).m_id;
+    setVolatileItem(row, d);
 }
 
 void KitModel::apply()
@@ -344,9 +355,7 @@ public:
     KitOptionsPageWidget();
     ~KitOptionsPageWidget();
 
-    Kit *currentKit();
-
-    void kitSelectionChanged(int oldRow, int newRow);
+    void kitSelectionChanged(int newRow);
     void addNewKit();
     void cloneKit();
     void removeKit();
@@ -360,11 +369,9 @@ public:
 private:
     void onDirty();
     void setFocusToName();
-    void flushWorkingCopy(int row);
-    void load(Kit *originalKit, const KitData &workingCopySrc, int row = -1);
+    void load(const KitData &workingCopySrc, int row = -1);
 
     void updateVisibility();
-    QString validityMessage() const;
     void addAspectsToWorkingCopy(Layouting::Layout &parent);
     void setIcon();
     void resetIcon();
@@ -388,11 +395,8 @@ private:
     QLineEdit m_nameEdit;
     QLineEdit m_fileSystemFriendlyNameLineEdit;
     QList<KitAspect *> m_kitAspects;
-    Kit *m_kit = nullptr;
-    Kit m_modifiedKit{Id(WORKING_COPY_KIT_ID)};
     bool m_fixingKit = false;
     bool m_loading = false;
-    QString m_cachedDisplayName;
 };
 
 KitOptionsPageWidget::KitOptionsPageWidget()
@@ -452,7 +456,7 @@ KitOptionsPageWidget::KitOptionsPageWidget()
 
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(&m_nameEdit);
-    chooser->addMacroExpanderProvider({this, [this] { return m_modifiedKit.macroExpander(); }});
+    chooser->addMacroExpanderProvider({this, [this] { return m_model.modifiedKit()->macroExpander(); }});
 
     using namespace Layouting;
     Grid detailPage {
@@ -486,7 +490,7 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     m_detailWidget.setVisible(false);
 
     connect(&m_groupedView, &GroupedView::currentRowChanged,
-            this, &KitOptionsPageWidget::kitSelectionChanged);
+            this, [this](int, int newRow) { kitSelectionChanged(newRow); });
     connect(KitManager::instance(), &KitManager::kitAdded,
             this, &KitOptionsPageWidget::updateState);
     connect(KitManager::instance(), &KitManager::kitRemoved,
@@ -495,7 +499,7 @@ KitOptionsPageWidget::KitOptionsPageWidget()
         const int row = m_model.rowForOriginalKit(k);
         const int currentRow = m_groupedView.currentRow();
         if (row == currentRow && currentRow >= 0)
-            load(k, m_model.item(currentRow), currentRow);
+            load(m_model.item(currentRow), currentRow);
         updateState();
     });
 
@@ -509,9 +513,9 @@ KitOptionsPageWidget::KitOptionsPageWidget()
             this, &KitOptionsPageWidget::makeDefaultKit);
     connect(&m_filterButton, &QAbstractButton::clicked, this, [this] {
         QTC_ASSERT(m_groupedView.currentRow() >= 0, return);
-        FilterKitAspectsDialog dlg(&m_modifiedKit, this);
+        FilterKitAspectsDialog dlg(m_model.modifiedKit(), this);
         if (dlg.exec() == QDialog::Accepted) {
-            m_modifiedKit.setIrrelevantAspects(dlg.irrelevantAspects());
+            m_model.modifiedKit()->setIrrelevantAspects(dlg.irrelevantAspects());
             updateVisibility();
         }
     });
@@ -550,14 +554,10 @@ void KitOptionsPageWidget::apply()
     updateState();
 }
 
-void KitOptionsPageWidget::kitSelectionChanged(int oldRow, int newRow)
+void KitOptionsPageWidget::kitSelectionChanged(int newRow)
 {
-    // Save current widget state back to the model before switching rows.
-    if (oldRow >= 0)
-        flushWorkingCopy(oldRow);
-
     if (newRow >= 0) {
-        load(m_model.kitForRow(newRow), m_model.item(newRow), newRow);
+        load(m_model.item(newRow), newRow);
         m_detailWidget.setVisible(true);
         m_groupedView.scrollToRow(newRow);
     } else {
@@ -576,17 +576,12 @@ void KitOptionsPageWidget::addNewKit()
         setFocusToName();
 }
 
-Kit *KitOptionsPageWidget::currentKit()
-{
-    return m_groupedView.currentRow() >= 0 ? &m_modifiedKit : nullptr;
-}
-
 void KitOptionsPageWidget::cloneKit()
 {
     if (m_groupedView.currentRow() < 0)
         return;
 
-    const int row = m_model.markForAddition(&m_modifiedKit);
+    const int row = m_model.markForAddition(m_model.modifiedKit());
     m_groupedView.scrollToRow(row);
     m_groupedView.selectRow(row);
 
@@ -614,36 +609,30 @@ void KitOptionsPageWidget::updateState()
     bool canMakeDefault = false;
 
     const int row = m_groupedView.currentRow();
+    const bool isRemoved = row >= 0 && m_model.isRemoved(row);
     if (row >= 0) {
         canCopy = true;
-        canDelete = !m_kit || !m_kit->detectionSource().isSdkProvided();
-        canMakeDefault = !m_model.isDefault(row) && !m_model.isRemoved(row);
+        canDelete = !m_model.item(row).m_detectionSource.isSdkProvided();
+        canMakeDefault = !m_model.isDefault(row) && !isRemoved;
     }
 
     m_cloneButton.setEnabled(canCopy);
     m_removeButton.setEnabled(canDelete);
+    m_removeButton.setText(isRemoved ? Tr::tr("Restore") : Tr::tr("Remove"));
     m_makeDefaultButton.setEnabled(canMakeDefault);
     m_filterButton.setEnabled(canCopy);
 }
 
-void KitOptionsPageWidget::flushWorkingCopy(int row)
+void KitOptionsPageWidget::onDirty()
 {
+    const int row = m_groupedView.currentRow();
+    if (row < 0)
+        return;
     m_loading = true;
     for (KitAspect *aspect : std::as_const(m_kitAspects))
         aspect->apply();
     m_loading = false;
-    KitData d = m_modifiedKit.kitData();
-    d.m_id = m_model.item(row).m_id;
-    m_model.setVolatileItem(row, d);
-    m_model.notifyRowChanged(row);
-}
-
-void KitOptionsPageWidget::onDirty()
-{
-    const int currentRow = m_groupedView.currentRow();
-    if (currentRow < 0)
-        return;
-    flushWorkingCopy(currentRow);
+    m_model.commitModifiedKit(row);
     m_model.notifyAllRowsChanged();
 }
 
@@ -653,22 +642,17 @@ void KitOptionsPageWidget::setFocusToName()
     m_nameEdit.setFocus();
 }
 
-void KitOptionsPageWidget::load(Kit *originalKit, const KitData &workingCopySrc, int row)
+void KitOptionsPageWidget::load(const KitData &workingCopySrc, int row)
 {
-    m_kit = originalKit;
-
     m_loading = true;
 
-    m_modifiedKit.copyFrom(workingCopySrc);
-
-    // Reset any read-only state from the previous kit
+    m_model.modifiedKit()->copyFrom(workingCopySrc);
     for (KitAspect *aspect : std::as_const(m_kitAspects))
         aspect->reload();
 
-    m_iconButton.setIcon(m_modifiedKit.icon());
-    m_nameEdit.setText(m_modifiedKit.unexpandedDisplayName());
-    m_cachedDisplayName.clear();
-    m_fileSystemFriendlyNameLineEdit.setText(m_modifiedKit.customFileSystemFriendlyName());
+    m_iconButton.setIcon(m_model.modifiedKit()->icon());
+    m_nameEdit.setText(m_model.modifiedKit()->unexpandedDisplayName());
+    m_fileSystemFriendlyNameLineEdit.setText(m_model.modifiedKit()->customFileSystemFriendlyName());
 
     m_loading = false;
 
@@ -676,28 +660,20 @@ void KitOptionsPageWidget::load(Kit *originalKit, const KitData &workingCopySrc,
     // If the row had no prior user changes, update the committed baseline so the
     // normalization doesn't register as a user edit.
     if (row >= 0 && !m_model.isDirty(row)) {
-        const KitData normalizedData = m_modifiedKit.kitData();
+        KitData normalizedData = m_model.modifiedKit()->kitData();
+        normalizedData.m_id = workingCopySrc.m_id;
         if (normalizedData != workingCopySrc)
             m_model.resetItem(row, normalizedData);
     }
 
     updateVisibility();
 
-    if (originalKit && originalKit->detectionSource().isAutoDetected()) {
+    if (m_model.modifiedKit()->detectionSource().isAutoDetected()) {
         for (KitAspect *aspect : std::as_const(m_kitAspects))
             aspect->makeStickySubWidgetsReadOnly();
     }
 }
 
-QString KitOptionsPageWidget::validityMessage() const
-{
-    Tasks tmp;
-    const int row = m_groupedView.currentRow();
-    if (row >= 0 && !m_model.isNameUnique(row))
-        tmp.append(CompileTask(Task::Warning, Tr::tr("Display name is not unique.")));
-
-    return m_modifiedKit.toHtml(tmp);
-}
 
 void KitOptionsPageWidget::addAspectsToWorkingCopy(Layouting::Layout &parent)
 {
@@ -705,7 +681,7 @@ void KitOptionsPageWidget::addAspectsToWorkingCopy(Layouting::Layout &parent)
     for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
         QTC_ASSERT(factory, continue);
 
-        KitAspect *aspect = factory->createKitAspect(&m_modifiedKit);
+        KitAspect *aspect = factory->createKitAspect(m_model.modifiedKit());
         QTC_ASSERT(aspect, continue);
         QTC_ASSERT(!m_kitAspects.contains(aspect), continue);
 
@@ -740,12 +716,12 @@ void KitOptionsPageWidget::addAspectsToWorkingCopy(Layouting::Layout &parent)
 void KitOptionsPageWidget::updateVisibility()
 {
     for (KitAspect *aspect : std::as_const(m_kitAspects))
-        aspect->setVisible(m_modifiedKit.isAspectRelevant(aspect->factory()->id()));
+        aspect->setVisible(m_model.modifiedKit()->isAspectRelevant(aspect->factory()->id()));
 }
 
 void KitOptionsPageWidget::setIcon()
 {
-    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(&m_modifiedKit);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(m_model.modifiedKit());
     QList<IDeviceFactory *> allDeviceFactories = IDeviceFactory::allDeviceFactories();
     if (deviceType.isValid()) {
         const auto less = [deviceType](const IDeviceFactory *f1, const IDeviceFactory *f2) {
@@ -765,7 +741,7 @@ void KitOptionsPageWidget::setIcon()
                                              Tr::tr("Default for %1").arg(factory->displayName()),
                                              [this, factory] {
                                                  m_iconButton.setIcon(factory->icon());
-                                                 m_modifiedKit.setDeviceTypeForIcon(
+                                                 m_model.modifiedKit()->setDeviceTypeForIcon(
                                                      factory->deviceType());
                                                  onDirty();
                                              });
@@ -774,7 +750,7 @@ void KitOptionsPageWidget::setIcon()
     iconMenu.addSeparator();
     iconMenu.addAction(PathChooser::browseButtonLabel(), [this] {
         const FilePath path = FileUtils::getOpenFilePath(Tr::tr("Select Icon"),
-                                                         m_modifiedKit.iconPath(),
+                                                         m_model.modifiedKit()->iconPath(),
                                                          Tr::tr("Images (*.png *.xpm *.jpg)"));
         if (path.isEmpty())
             return;
@@ -782,7 +758,7 @@ void KitOptionsPageWidget::setIcon()
         if (icon.isNull())
             return;
         m_iconButton.setIcon(icon);
-        m_modifiedKit.setIconPath(path);
+        m_model.modifiedKit()->setIconPath(path);
         onDirty();
     });
     iconMenu.exec(m_iconButton.mapToGlobal(QPoint(0, 0)));
@@ -790,15 +766,14 @@ void KitOptionsPageWidget::setIcon()
 
 void KitOptionsPageWidget::resetIcon()
 {
-    m_modifiedKit.setIconPath({});
+    m_model.modifiedKit()->setIconPath({});
     onDirty();
 }
 
 void KitOptionsPageWidget::setDisplayName()
 {
     int pos = m_nameEdit.cursorPosition();
-    m_cachedDisplayName.clear();
-    m_modifiedKit.setUnexpandedDisplayName(m_nameEdit.text());
+    m_model.modifiedKit()->setUnexpandedDisplayName(m_nameEdit.text());
     m_nameEdit.setCursorPosition(pos);
     if (!m_loading)
         onDirty();
@@ -806,10 +781,10 @@ void KitOptionsPageWidget::setDisplayName()
 
 void KitOptionsPageWidget::setFileSystemFriendlyName()
 {
-    if (m_fileSystemFriendlyNameLineEdit.text() == m_modifiedKit.customFileSystemFriendlyName())
+    if (m_fileSystemFriendlyNameLineEdit.text() == m_model.modifiedKit()->customFileSystemFriendlyName())
         return;
     const int pos = m_fileSystemFriendlyNameLineEdit.cursorPosition();
-    m_modifiedKit.setCustomFileSystemFriendlyName(m_fileSystemFriendlyNameLineEdit.text());
+    m_model.modifiedKit()->setCustomFileSystemFriendlyName(m_fileSystemFriendlyNameLineEdit.text());
     m_fileSystemFriendlyNameLineEdit.setCursorPosition(pos);
     if (!m_loading)
         onDirty();
@@ -817,7 +792,7 @@ void KitOptionsPageWidget::setFileSystemFriendlyName()
 
 void KitOptionsPageWidget::workingCopyWasUpdated(Kit *k)
 {
-    if (k != &m_modifiedKit || m_fixingKit || m_loading)
+    if (k != m_model.modifiedKit() || m_fixingKit || m_loading)
         return;
 
     m_fixingKit = true;
@@ -826,8 +801,6 @@ void KitOptionsPageWidget::workingCopyWasUpdated(Kit *k)
 
     for (KitAspect *w : std::as_const(m_kitAspects))
         w->refresh();
-
-    m_cachedDisplayName.clear();
 
     if (k->unexpandedDisplayName() != m_nameEdit.text())
         m_nameEdit.setText(k->unexpandedDisplayName());

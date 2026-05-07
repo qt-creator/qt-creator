@@ -3,16 +3,16 @@
 
 #pragma once
 
-#include <debugger/debugger_global.h>
+#include "projectexplorer_export.h"
 
-#include <utils/itemviews.h>
 #include <utils/basetreeview.h>
+#include <utils/itemviews.h>
 
 namespace Utils { class Link; }
 
-namespace Debugger {
+namespace ProjectExplorer {
 
-class DEBUGGER_EXPORT DetailedErrorView : public Utils::BaseTreeView
+class PROJECTEXPLORER_EXPORT DetailedErrorView : public Utils::BaseTreeView
 {
 public:
     DetailedErrorView(QWidget *parent = nullptr);
@@ -49,4 +49,4 @@ private:
     QAction * const m_copyAction;
 };
 
-} // namespace Debugger
+} // namespace ProjectExplorer

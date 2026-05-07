@@ -1,0 +1,50 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-build-with-gn.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build
+
+    \title Build with GN
+
+    \l{GN} (Generate Ninja) is a meta-build system that generates build files
+    for \l{Ninja}.
+
+    \note Activate the \uicontrol {GN} extension to use it.
+
+    \section1 Open GN projects
+
+    To open GN projects, go to \uicontrol File > \uicontrol {Open Project}, and
+    then select the \c {BUILD.gn} file from your project.
+
+    \section1 Add GN tools
+
+    To specify paths to GN executables:
+
+    \list 1
+        \li Select \preferences > \uicontrol GN > \uicontrol Tools >
+        \uicontrol Add.
+        \image {qtcreator-preferences-gn-tools.webp} {Tools tab in the GN preferences}
+        \li In \uicontrol Name, specify a name for the tool.
+        \li In \uicontrol Path, specify the path to the GN executable.
+        \li Select \uicontrol Apply to save your changes.
+    \endlist
+
+    \section1 Add GN tools to kits
+
+    To use GN to build projects:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Kits > \uicontrol Kits.
+        \li Select a kit to edit.
+        \li In \uicontrol {GN Tool}, select a GN tool.
+            \image {qtcreator-kits-gn.webp} {Setting the GN executable in the Kits tab in Kits preferences}
+        \li Activate the kit for the project.
+    \endlist
+
+    For more information, see \l {Managing kits}.
+
+    \sa {Activate extensions}, {Activate kits for a project}
+*/

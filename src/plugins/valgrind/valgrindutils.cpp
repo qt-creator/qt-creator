@@ -9,11 +9,16 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
+
+#include <utils/checkablemessagebox.h>
+
+#include <QMessageBox>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -103,4 +108,89 @@ CommandLine defaultValgrindCommand(RunControl *runControl, const ValgrindSetting
     return valgrindCommand;
 }
 
-} // Valgrid::Internal
+static bool buildTypeAccepted(QFlags<ToolMode> toolMode, BuildConfiguration::BuildType buildType)
+{
+    if (buildType == BuildConfiguration::Unknown)
+        return true;
+    if (buildType == BuildConfiguration::Debug && (toolMode & DebugMode))
+        return true;
+    if (buildType == BuildConfiguration::Release && (toolMode & ReleaseMode))
+        return true;
+    if (buildType == BuildConfiguration::Profile && (toolMode & ProfileMode))
+        return true;
+    return false;
+}
+
+static BuildConfiguration::BuildType startupBuildType()
+{
+    BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
+    if (RunConfiguration *runConfig = activeRunConfigForActiveProject()) {
+        if (const BuildConfiguration *buildConfig = runConfig->buildConfiguration())
+            buildType = buildConfig->buildType();
+    }
+    return buildType;
+}
+
+bool wantRunTool(ToolMode toolMode, const QString &toolName)
+{
+    BuildConfiguration::BuildType buildType = startupBuildType();
+    if (!buildTypeAccepted(toolMode, buildType)) {
+        QString currentMode;
+        switch (buildType) {
+            case BuildConfiguration::Debug:
+                currentMode = msgBuildConfigurationDebug();
+                break;
+            case BuildConfiguration::Profile:
+                currentMode = msgBuildConfigurationProfile();
+                break;
+            case BuildConfiguration::Release:
+                currentMode = msgBuildConfigurationRelease();
+                break;
+            default:
+                QTC_CHECK(false);
+        }
+
+        QString toolModeString;
+        switch (toolMode) {
+            case DebugMode:
+                toolModeString = Tr::tr("in Debug mode");
+                break;
+            case ProfileMode:
+                toolModeString = Tr::tr("in Profile mode");
+                break;
+            case ReleaseMode:
+                toolModeString = Tr::tr("in Release mode");
+                break;
+            case SymbolsMode:
+                toolModeString = Tr::tr("with debug symbols (Debug or Profile mode)");
+                break;
+            case OptimizedMode:
+                toolModeString = Tr::tr("on optimized code (Profile or Release mode)");
+                break;
+            default:
+                QTC_CHECK(false);
+        }
+        const QString title = Tr::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
+        const QString message = Tr::tr("<html><head/><body><p>You are trying "
+            "to run the tool \"%1\" on an application in %2 mode. "
+            "The tool is designed to be used %3.</p><p>"
+            "Run-time characteristics differ significantly between "
+            "optimized and non-optimized binaries. Analytical "
+            "findings for one mode may or may not be relevant for "
+            "the other.</p><p>"
+            "Running tools that need debug symbols on binaries that "
+            "don't provide any may lead to missing function names "
+            "or otherwise insufficient output.</p><p>"
+            "Do you want to continue and run the tool in %2 mode?</p></body></html>")
+                .arg(toolName).arg(currentMode).arg(toolModeString);
+        if (Utils::CheckableMessageBox::question(title,
+                                                 message,
+                                                 Key("AnalyzerCorrectModeWarning"))
+            != QMessageBox::Yes)
+                return false;
+    }
+
+    return true;
+}
+
+} // Valgrind::Internal

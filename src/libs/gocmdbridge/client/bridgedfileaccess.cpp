@@ -9,6 +9,7 @@
 #include <utils/async.h>
 #include <utils/futuresynchronizer.h>
 
+#include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QFutureWatcher>
 #include <QLocalServer>
@@ -904,6 +905,16 @@ public:
                         deleteLater();
                     }
                 });
+
+        // createBridgeFileAccess() may run on a background thread that has no
+        // Qt event loop.  QFutureWatcher::resultReadyAt is delivered via
+        // QCoreApplication::postEvent(this), so both the watcher and this
+        // object must live on a thread whose event loop is always running.
+        // Move both before setFuture() so any events postEvent() enqueues
+        // go directly to the main thread's queue.
+        QThread *mainThread = QCoreApplication::instance()->thread();
+        m_watcher.moveToThread(mainThread);
+        QObject::moveToThread(mainThread);
 
         m_watcher.setFuture(eventFuture);
     }

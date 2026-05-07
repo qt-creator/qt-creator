@@ -17,22 +17,16 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QAction>
-#include <QMenu>
+#include <QFont>
+#include <QMenuBar>
 
 using namespace Core;
 
 namespace ZenMode::Internal {
 
-const char OUTPUT_PANE_COMMAND_ID[] = "QtCreator.Pane.GeneralMessages";
-const char MODE_HIDDEN_CMD_ID[] = "QtCreator.Modes.Hidden";
-const char MODE_ICONS_CMD_ID[] = "QtCreator.Modes.IconsOnly";
-const char MODE_ICONSTEXT_CMD_ID[] = "QtCreator.Modes.IconsAndText";
-
 static Q_LOGGING_CATEGORY(zenModeLog, "qtc.plugin.zenmode", QtWarningMsg);
 
-ZenModePlugin::~ZenModePlugin()
-{
-}
+ZenModePlugin::~ZenModePlugin() = default;
 
 void ZenModePlugin::initialize()
 {
@@ -42,99 +36,60 @@ void ZenModePlugin::initialize()
 
     m_toggleDistractionAction = ActionBuilder(this, Constants::DISTRACTION_FREE_ACTION_ID)
         .addToContainer(Constants::MENU_ID)
-        .setText(Tr::tr("Toogle Distraction Free Mode"))
+        .setText(Tr::tr("Toggle Distraction Free Mode"))
         .setDefaultKeySequence(Tr::tr("Shift+Escape"))
         .addOnTriggered(this, &ZenModePlugin::toggleDistractionFreeMode)
         .contextAction();
 
     m_toggleZenModeAction = ActionBuilder(this, Constants::ZEN_MODE_ACTION_ID)
         .addToContainer(Constants::MENU_ID)
-        .setText(Tr::tr("Toogle Zen Mode"))
+        .setText(Tr::tr("Toggle Zen Mode"))
         .setDefaultKeySequence(Tr::tr("Shift+Alt+Z"))
         .addOnTriggered(this, &ZenModePlugin::toggleZenMode)
         .contextAction();
-}
 
-void ZenModePlugin::settingsChanged()
-{ }
-
-void ZenModePlugin::readUserSettings()
-{
-    m_userSettings.menuBarState = m_menuBar ? m_menuBar->isVisible() : true;
-    m_userSettings.fullScreenState = m_window->isFullScreen();
-    m_userSettings.leftSidebarState =
-            (m_toggleLeftSidebarAction && m_toggleLeftSidebarAction->isChecked());
-    m_userSettings.rightSidebarState =
-            (m_toggleRightSidebarAction && m_toggleRightSidebarAction->isChecked());
-
-    m_userSettings.modesSidebarState = activeModeSidebar();
-
-    m_userSettings.editorContentWidth = TextEditor::marginSettings().centerEditorContentWidthPercent();
-}
-
-void ZenModePlugin::restoreUserSettings()
-{
-    if (m_menuBar)
-        m_menuBar->setVisible(m_userSettings.menuBarState);
-    if (m_userSettings.fullScreenState)
-        m_window->showFullScreen();
-    if (m_toggleLeftSidebarAction
-            && m_toggleLeftSidebarAction->isChecked() !=  m_userSettings.leftSidebarState)
-        m_toggleLeftSidebarAction->trigger();
-    if (m_toggleRightSidebarAction
-            && m_toggleRightSidebarAction->isChecked() !=  m_userSettings.rightSidebarState)
-        m_toggleRightSidebarAction->trigger();
-
-    if (m_userSettings.modesSidebarState >= ModeStyle::Hidden
-        && m_userSettings.modesSidebarState <= ModeStyle::IconsAndText) {
-        auto action = m_toggleModesStatesActions[m_userSettings.modesSidebarState];
-        if (action && !action->isChecked())
-            action->trigger();
-    }
-
-    TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(m_userSettings.editorContentWidth);
+    connect(ICore::instance(), &ICore::saveSettingsRequested, [this](ICore::SaveSettingsReason reason) {
+        if (reason != ICore::MainWindowClosing)
+            return;
+        if (m_zenModeActive)
+            toggleZenMode();
+        else if (m_distractionFreeModeActive)
+            toggleDistractionFreeMode();
+    });
 }
 
 void ZenModePlugin::extensionsInitialized()
 {
     Core::IOptionsPage::registerCategory(
         "ZY.ZenMode", Tr::tr("Zen Mode"), ":/zenmode/images/settingscategory_zenmode.png");
-    QObject::connect(&settings(), &Utils::AspectContainer::applied,
-                     this, &ZenModePlugin::settingsChanged);
 
-    auto userEditorContentWidth = [this] {
-        if (!(m_zenModeActive || m_distractionFreeModeActive))
-            m_userSettings.editorContentWidth =
-                TextEditor::marginSettings().centerEditorContentWidthPercent();
-    };
-
-    QObject::connect(
-        &TextEditor::marginSettings(),
-        &TextEditor::MarginSettings::changed,
-        this,
-        userEditorContentWidth);
-
-    m_activeModeStyleSheet = "QLabel { color: #2ecc71; "
-            "font-weight: bold; font-size: 14px;}";
-    m_inactiveModeStyleSheet = "QLabel { color: #95a5a6; "
-            "font-weight: normal; font-size: 14px; }";
+    QFont statusFont = m_zenModeStatusBarIcon.font();
+    statusFont.setPixelSize(14);
+    statusFont.setBold(true);
 
     m_zenModeStatusBarIcon.setObjectName("zenModeState");
     m_zenModeStatusBarIcon.setText("Z");
-    m_zenModeStatusBarIcon.setToolTip(Tr::tr("Zen Mode state"));
-    m_zenModeStatusBarIcon.setTextFormat(Qt::RichText);
+    m_zenModeStatusBarIcon.setToolTip(Tr::tr("Toggle Zen Mode"));
+    m_zenModeStatusBarIcon.setFont(statusFont);
+    m_zenModeStatusBarIcon.setAutoRaise(true);
+    m_zenModeStatusBarIcon.setCheckable(true);
+    connect(&m_zenModeStatusBarIcon, &QToolButton::clicked,
+            m_toggleZenModeAction, &QAction::trigger);
 
     m_distractionModeStatusBarIcon.setObjectName("distractionModeState");
     m_distractionModeStatusBarIcon.setText("D");
-    m_distractionModeStatusBarIcon.setToolTip(Tr::tr("Distraction Free Mode state"));
-    m_distractionModeStatusBarIcon.setTextFormat(Qt::RichText);
+    m_distractionModeStatusBarIcon.setToolTip(Tr::tr("Toggle Distraction Free Mode"));
+    m_distractionModeStatusBarIcon.setFont(statusFont);
+    m_distractionModeStatusBarIcon.setAutoRaise(true);
+    m_distractionModeStatusBarIcon.setCheckable(true);
+    connect(&m_distractionModeStatusBarIcon, &QToolButton::clicked,
+            m_toggleDistractionAction, &QAction::trigger);
     updateStateIcons();
 
     Core::StatusBarManager::addStatusBarWidget(&m_zenModeStatusBarIcon,
                                                Core::StatusBarManager::RightCorner);
     Core::StatusBarManager::addStatusBarWidget(&m_distractionModeStatusBarIcon,
                                                Core::StatusBarManager::RightCorner);
-    settingsChanged();
 }
 
 bool ZenModePlugin::delayedInitialize()
@@ -146,18 +101,10 @@ bool ZenModePlugin::delayedInitialize()
     QMenuBar *menuBar = ActionManager::actionContainer(Core::Constants::MENU_BAR)->menuBar();
     m_menuBar = !menuBar->isNativeMenuBar() ? menuBar : nullptr;
 
-    readUserSettings();
-
     if (m_menuBar)
         m_menuBar->setVisible(true);
     setFullScreenMode(false);
     return true;
-}
-
-ZenModePlugin::ShutdownFlag ZenModePlugin::aboutToShutdown()
-{
-    restoreUserSettings();
-    return SynchronousShutdown;
 }
 
 void ZenModePlugin::getActions()
@@ -170,24 +117,16 @@ void ZenModePlugin::getActions()
         return nullptr;
     };
 
-    m_outputPaneAction = getCommandFun(OUTPUT_PANE_COMMAND_ID);
+    m_outputPaneAction = getCommandFun(Core::Constants::OUTPUTPANE_CLOSE);
     m_toggleLeftSidebarAction = getCommandFun(Core::Constants::TOGGLE_LEFT_SIDEBAR);
     m_toggleRightSidebarAction = getCommandFun(Core::Constants::TOGGLE_RIGHT_SIDEBAR);
     m_toggleFullscreenAction = getCommandFun(Core::Constants::TOGGLE_FULLSCREEN);
-
-    m_toggleModesStatesActions.resize(3);
-    m_toggleModesStatesActions[0] = getCommandFun(MODE_HIDDEN_CMD_ID);
-    m_toggleModesStatesActions[1] = getCommandFun(MODE_ICONS_CMD_ID);
-    m_toggleModesStatesActions[2] = getCommandFun(MODE_ICONSTEXT_CMD_ID);
-    m_prevModesSidebarState = activeModeSidebar();
 }
 
 void ZenModePlugin::hideOutputPanes()
 {
-    if (m_outputPaneAction) {
+    if (m_outputPaneAction)
         m_outputPaneAction->trigger();
-        m_outputPaneAction->trigger();
-    }
 }
 
 void ZenModePlugin::hideSidebars()
@@ -210,43 +149,29 @@ void ZenModePlugin::restoreSidebars()
     if (m_toggleLeftSidebarAction &&
         !m_toggleLeftSidebarAction->isChecked() &&
         m_prevLeftSidebarState) {
-        m_prevLeftSidebarState = false;
         m_toggleLeftSidebarAction->trigger();
     }
     if (m_toggleRightSidebarAction &&
         !m_toggleRightSidebarAction->isChecked() &&
         m_prevRightSidebarState) {
-        m_prevRightSidebarState = false;
         m_toggleRightSidebarAction->trigger();
     }
 }
 
-ZenModePlugin::ModeStyle ZenModePlugin::activeModeSidebar()
-{
-    for (size_t i = 0; i < m_toggleModesStatesActions.size(); ++i) {
-        auto action = m_toggleModesStatesActions[i];
-        if (action && action->isChecked())
-            return static_cast<ModeStyle>(i);
-    }
-    return ModeStyle::Hidden;
-}
-
 void ZenModePlugin::hideModeSidebar()
 {
-    m_prevModesSidebarState = activeModeSidebar();
-    auto action = m_toggleModesStatesActions[static_cast<ModeStyle>(settings().modes.value())];
-    if (action && !action->isChecked())
-        action->trigger();
+    m_prevModesSidebarState = ModeManager::modeStyle();
+    const int styleSetting = settings().modes.itemValue().toInt();
+    QTC_ASSERT(
+        styleSetting >= int(ModeManager::Style::IconsAndText)
+            && int(m_prevModesSidebarState <= ModeManager::Style::Hidden),
+        return);
+    ModeManager::setModeStyle(static_cast<ModeManager::Style>(styleSetting));
 }
 
 void ZenModePlugin::restoreModeSidebar()
 {
-    if (m_prevModesSidebarState >= ModeStyle::Hidden
-        && m_prevModesSidebarState <= ModeStyle::IconsAndText) {
-        auto action = m_toggleModesStatesActions[m_prevModesSidebarState];
-        if (action && !action->isChecked())
-            action->trigger();
-    }
+    ModeManager::setModeStyle(m_prevModesSidebarState);
 }
 
 void ZenModePlugin::setFullScreenMode(bool fullScreen)
@@ -269,19 +194,19 @@ void ZenModePlugin::setSidebarsAndModesVisible(bool visible)
 
 void ZenModePlugin::updateStateIcons()
 {
-    m_zenModeStatusBarIcon.setStyleSheet(
-        m_zenModeActive ? m_activeModeStyleSheet : m_inactiveModeStyleSheet);
-
-    m_distractionModeStatusBarIcon.setStyleSheet(
-        m_distractionFreeModeActive ? m_activeModeStyleSheet : m_inactiveModeStyleSheet);
+    m_zenModeStatusBarIcon.setChecked(m_zenModeActive);
+    m_distractionModeStatusBarIcon.setChecked(m_distractionFreeModeActive);
 }
 
 void ZenModePlugin::updateContentEditorWidth()
 {
     if (m_zenModeActive || m_distractionFreeModeActive) {
-        TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(settings().contentWidth.value());
+        m_prevEditorContentWidth = TextEditor::marginSettings().centerEditorContentWidthPercent();
+        TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(
+            settings().contentWidth.value());
     } else {
-        TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(m_userSettings.editorContentWidth);
+        TextEditor::marginSettings().centerEditorContentWidthPercent.setValue(
+            m_prevEditorContentWidth);
     }
 }
 
@@ -296,6 +221,7 @@ void ZenModePlugin::toggleZenMode()
     setFullScreenMode(m_zenModeActive);
     if (m_menuBar)
         m_menuBar->setVisible(!m_zenModeActive);
+    m_toggleDistractionAction->setEnabled(!m_zenModeActive);
 }
 
 void ZenModePlugin::toggleDistractionFreeMode()
@@ -306,5 +232,6 @@ void ZenModePlugin::toggleDistractionFreeMode()
     updateContentEditorWidth();
 
     setSidebarsAndModesVisible(!m_distractionFreeModeActive);
+    m_toggleZenModeAction->setEnabled(!m_distractionFreeModeActive);
 }
 } // namespace ZenMode::Internal

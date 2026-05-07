@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QByteArray>
+#include <QLoggingCategory>
 #include <QPair>
 #include <QSerialPort>
 #include <QString>
@@ -13,6 +14,8 @@ namespace Utils { class QtcSettings; }
 
 namespace SerialTerminal {
 namespace Internal {
+
+Q_DECLARE_LOGGING_CATEGORY(serialTerminalLog)
 
 class Settings {
 public:

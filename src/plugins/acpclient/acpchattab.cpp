@@ -19,13 +19,14 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/async.h>
+#include <utils/fileutils.h>
 #include <utils/infolabel.h>
+#include <utils/qtcwidgets.h>
 
 #include <QComboBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QVBoxLayout>
@@ -69,9 +70,10 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_noServerLabel->setWordWrap(true);
             noServerLayout->addWidget(m_noServerLabel);
 
-            auto *manageButton = new QPushButton(Tr::tr("Manage Servers..."));
+            auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
+                                               QtcButton::MediumSecondary);
             manageButton->setToolTip(Tr::tr("Open ACP server settings"));
-            connect(manageButton, &QPushButton::clicked, this, [] {
+            connect(manageButton, &QAbstractButton::clicked, this, [] {
                 Core::ICore::showSettings("AI.ACPSERVERS");
             });
             auto *manageRow = new QHBoxLayout;
@@ -84,52 +86,24 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_configStack->addWidget(noServerPage); // index 0
         }
 
-        // Config stack page 1: connection form
+        // Config stack page 1: list of agent buttons
         {
             auto *connectPage = new QWidget;
             auto *connectLayout = new QVBoxLayout(connectPage);
             connectLayout->setSpacing(12);
             connectLayout->addStretch();
 
-            auto *titleLabel = new QLabel(Tr::tr("Connect to ACP Server"));
+            auto *titleLabel = new QLabel(Tr::tr("Choose AI Agent"));
             QFont titleFont = titleLabel->font();
             titleFont.setPointSizeF(titleFont.pointSizeF() * 1.3);
             titleFont.setBold(true);
             titleLabel->setFont(titleFont);
+            titleLabel->setAlignment(Qt::AlignHCenter);
             connectLayout->addWidget(titleLabel);
 
-            auto *formLayout = new QFormLayout;
-            formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
-            m_serverCombo = new QComboBox;
-            m_serverCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-            auto *serverRow = new QHBoxLayout;
-            serverRow->addWidget(m_serverCombo, 1);
-            auto *manageButton = new QPushButton(Tr::tr("Manage"));
-            manageButton->setToolTip(Tr::tr("Open ACP server settings"));
-            connect(manageButton, &QPushButton::clicked, this, [] {
-                Core::ICore::showSettings("AI.ACPSERVERS");
-            });
-            serverRow->addWidget(manageButton);
-            formLayout->addRow(Tr::tr("Server:"), serverRow);
-
-            m_cwdEdit = new Utils::PathChooser;
-            m_cwdEdit->setHistoryCompleter("AcpChat.WorkingDirectories");
-
-            const auto updateCwdPlaceholder = [this] {
-                const Project *project = ProjectManager::startupProject();
-                m_cwdEdit->setDefaultValue(
-                    project ? project->projectDirectory() : FilePath{});
-            };
-            updateCwdPlaceholder();
-            connect(ProjectManager::instance(),
-                    &ProjectManager::startupProjectChanged,
-                    this,
-                    updateCwdPlaceholder);
-            formLayout->addRow(Tr::tr("Working directory:"), m_cwdEdit);
-
-            connectLayout->addLayout(formLayout);
+            m_serverButtonsLayout = new QVBoxLayout;
+            m_serverButtonsLayout->setSpacing(6);
+            connectLayout->addLayout(m_serverButtonsLayout);
 
             m_connectionErrorLabel = new QLabel;
             m_connectionErrorLabel->setWordWrap(true);
@@ -141,9 +115,13 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_connectionErrorLabel->setPalette(errorPal);
             connectLayout->addWidget(m_connectionErrorLabel);
 
-            m_connectButton = new QPushButton(Tr::tr("Connect"));
-            m_connectButton->setDefault(true);
-            connectLayout->addWidget(m_connectButton);
+            auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
+                                               QtcButton::MediumSecondary);
+            manageButton->setToolTip(Tr::tr("Open ACP server settings"));
+            connect(manageButton, &QAbstractButton::clicked, this, [] {
+                Core::ICore::showSettings("AI.ACPSERVERS");
+            });
+            connectLayout->addWidget(manageButton);
 
             connectLayout->addStretch();
 
@@ -240,16 +218,11 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     // Controller
     m_controller = new AcpChatController(this);
 
-    populateServerCombo();
+    populateServerButtons();
 
     // --- Connections: Settings ---
     connect(&AcpSettings::instance(), &AcpSettings::serversChanged,
-            this, &AcpChatTab::populateServerCombo);
-
-    // --- Connections: Editor context ---
-
-    // --- Connections: Config page ---
-    connect(m_connectButton, &QPushButton::clicked, this, &AcpChatTab::connectToAgent);
+            this, &AcpChatTab::populateServerButtons);
 
     // --- Connections: ChatPanel -> Controller ---
     connect(m_chatPanel, &ChatPanel::sendRequested, this, [this](const QString &text) {
@@ -258,7 +231,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
                                 m_activePicker, nullptr);
             m_activePicker->deleteLater();
             m_pendingPrompt = text;
-            m_controller->createNewSession();
+            const Project *project = ProjectManager::startupProject();
+            m_controller->createNewSession(project ? project->projectDirectory() : FilePath{});
             return;
         }
         m_chatPanel->addUserMessage(text);
@@ -273,15 +247,13 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     // --- Connections: Controller -> UI ---
     connect(m_controller, &AcpChatController::connectionStateChanged, this, [this](AcpClientObject::State state) {
         const bool disconnected = state == AcpClientObject::State::Disconnected;
-        m_serverCombo->setEnabled(disconnected);
-        m_cwdEdit->setEnabled(disconnected);
-        m_connectButton->setEnabled(disconnected);
         if (disconnected) {
             m_stack->setCurrentIndex(0);
             m_chatPanel->clear();
             m_chatPanel->setSendEnabled(false);
             m_chatPanel->setPrompting(false);
             m_chatPanel->clearConfigOptions();
+            m_currentServerName.clear();
             updateTitle();
         }
     });
@@ -367,7 +339,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     connect(m_controller, &AcpChatController::sessionSelectionRequired, this, [this] {
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
-        showSessionPicker(/*autoCreateIfEmpty=*/true);
+        showSessionPicker();
     });
     connect(m_controller, &AcpChatController::sessionLoaded, this, [this]() {
         m_stack->setCurrentIndex(2);
@@ -418,37 +390,48 @@ QString AcpChatTab::title() const
     return m_title;
 }
 
-void AcpChatTab::showSessionPicker(bool autoCreateIfEmpty)
+void AcpChatTab::showSessionPicker()
 {
     auto *picker = m_chatPanel->addSessionPicker();
     m_activePicker = picker;
     m_chatPanel->setSendEnabled(true);
     connect(picker, &QObject::destroyed, this, [this] { m_activePicker = nullptr; });
 
-    if (const Project *project = ProjectManager::startupProject())
-        picker->setCurrentProjectDir(project->projectDirectory());
+    if (const Project *startup = ProjectManager::startupProject())
+        picker->setCurrentProjectDir(startup->projectDirectory());
+
+    QList<SessionPickerWidget::NewSessionTarget> targets;
+    for (const Project *p : ProjectManager::projects()) {
+        SessionPickerWidget::NewSessionTarget t;
+        t.label = p->displayName();
+        t.cwd = p->projectDirectory();
+        t.tooltip = p->projectDirectory().toUserOutput();
+        targets.append(t);
+    }
+    picker->setNewSessionTargets(targets);
+
     connect(picker, &SessionPickerWidget::sessionSelected, this,
-            [this, picker](const QString &sessionId) {
+            [this, picker](const QString &sessionId, const FilePath &cwd) {
         picker->setResolved(sessionId);
-        m_controller->loadSession(sessionId);
+        m_controller->loadSession(sessionId, cwd);
     });
     connect(picker, &SessionPickerWidget::newSessionRequested,
-            m_controller, &AcpChatController::createNewSession);
+            this, [this](const FilePath &cwd) {
+        m_controller->createNewSession(cwd);
+    });
     connect(picker, &SessionPickerWidget::loadMoreRequested,
             m_controller, &AcpChatController::listSessions);
 
+    if (!m_controller->supportsSessionList())
+        return;
+
     auto isFirstPage = QSharedPointer<bool>::create(true);
     connect(m_controller, &AcpChatController::sessionsListed, picker,
-            [this, picker, isFirstPage, autoCreateIfEmpty](
+            [picker, isFirstPage](
                 const QList<Acp::SessionInfo> &sessions,
                 const std::optional<QString> &nextCursor) {
         if (*isFirstPage) {
             *isFirstPage = false;
-            if (autoCreateIfEmpty && sessions.isEmpty() && !nextCursor.has_value()) {
-                picker->deleteLater();
-                m_controller->createNewSession();
-                return;
-            }
             picker->setInitialSessions(sessions, nextCursor);
         } else {
             picker->appendSessions(sessions, nextCursor);
@@ -458,49 +441,39 @@ void AcpChatTab::showSessionPicker(bool autoCreateIfEmpty)
     m_controller->listSessions();
 }
 
-void AcpChatTab::populateServerCombo()
+void AcpChatTab::populateServerButtons()
 {
-    const QString currentId = m_serverCombo->currentData().toString();
-    m_serverCombo->clear();
+    while (QLayoutItem *item = m_serverButtonsLayout->takeAt(0)) {
+        delete item->widget();
+        delete item;
+    }
 
     const QList<AcpSettings::ServerInfo> servers = AcpSettings::servers();
     for (const AcpSettings::ServerInfo &info : servers) {
-        m_serverCombo->addItem(QIcon(), info.name, info.id);
-        const int idx = m_serverCombo->count() - 1;
+        auto *button = new QtcButton(info.name, QtcButton::MediumPrimary);
+        button->setToolTip(info.name);
+        const QString serverId = info.id;
+        const QString serverName = info.name;
+        connect(button, &QAbstractButton::clicked, this, [this, serverId, serverName] {
+            m_connectionErrorLabel->hide();
+            m_currentServerName = serverName;
+            updateTitle();
+            m_controller->connectToServer(serverId);
+        });
         Utils::onResultReady(
-            AcpSettings::iconForUrl(info.iconUrl), m_serverCombo, [this, idx](const QIcon &icon) {
-                m_serverCombo->setItemIcon(idx, icon);
+            AcpSettings::iconForUrl(info.iconUrl), button, [button](const QIcon &icon) {
+                const int size = button->fontMetrics().height();
+                button->setPixmap(icon.pixmap(size, size));
             });
+        m_serverButtonsLayout->addWidget(button);
     }
 
-    if (!currentId.isEmpty()) {
-        const int idx = m_serverCombo->findData(currentId);
-        if (idx >= 0)
-            m_serverCombo->setCurrentIndex(idx);
-    }
-
-    const bool hasServers = m_serverCombo->count() > 0;
-    m_configStack->setCurrentIndex(hasServers ? 1 : 0);
-}
-
-void AcpChatTab::connectToAgent()
-{
-    m_connectionErrorLabel->hide();
-    const QString serverId = m_serverCombo->currentData().toString();
-    const FilePath workingDirectory = m_cwdEdit->filePath();
-    m_controller->connectToServer(serverId, workingDirectory);
+    m_configStack->setCurrentIndex(servers.isEmpty() ? 0 : 1);
 }
 
 void AcpChatTab::updateTitle()
 {
-    const QString serverName = m_serverCombo->currentText();
-    const FilePath workingDir = m_cwdEdit->filePath();
-    if (serverName.isEmpty())
-        m_title = Tr::tr("New Chat");
-    else if (workingDir.isEmpty())
-        m_title = serverName;
-    else
-        m_title = serverName + " - " + workingDir.baseName();
+    m_title = m_currentServerName.isEmpty() ? Tr::tr("New Chat") : m_currentServerName;
     emit titleChanged();
 }
 

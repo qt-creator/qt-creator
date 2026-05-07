@@ -228,7 +228,7 @@
     {set_property} command and the \l{CMake: HEADER_FILE_ONLY}
     {HEADER_FILE_ONLY} property to specify such files. For example:
 
-    \badcode
+    \code [cmake]
     set_property(SOURCE "${files}" PROPERTY HEADER_FILE_ONLY ON)
     \endcode
 
@@ -249,7 +249,7 @@
 
     For example, the following value includes text files in the source package:
 
-    \badcode
+    \code [text]
 
     DISTFILES += *.txt
 

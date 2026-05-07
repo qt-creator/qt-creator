@@ -67,7 +67,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     setLowPriority();
 
     buildType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    buildType.setDisplayName(Tr::tr("qmake build configuration:"));
+    buildType.setLabelText(Tr::tr("qmake build configuration:"));
     buildType.addOption(msgBuildConfigurationDebug());
     buildType.addOption(msgBuildConfigurationRelease());
 

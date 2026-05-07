@@ -1,4 +1,4 @@
-add_qtc_plugin(ZenModePlugin
+add_qtc_plugin(ZenMode
   PLUGIN_DEPENDS
     Core
     TextEditor

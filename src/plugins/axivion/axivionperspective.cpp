@@ -18,18 +18,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/outputwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <cppeditor/cppeditorconstants.h>
-
-#include <debugger/debuggerconstants.h>
-#include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-
-#include <QtTaskTree/QConditional>
-#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
 
@@ -66,6 +61,8 @@
 #include <QStyledItemDelegate>
 #include <QTextBrowser>
 #include <QToolButton>
+#include <QtTaskTree/QConditional>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 #include <QUrlQuery>
 
 #include <map>
@@ -1864,12 +1861,12 @@ AxivionPerspective::AxivionPerspective()
         setAboutToActivateCallback({}); // reset, as this should only happen on first show
     });
 
-    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+    ActionContainer *menu = ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER);
     QAction *action = new QAction(Tr::tr("Axivion"), this);
     action->setIcon(Icon({{":/axivion/images/axivion.png", Theme::MenuBarItemTextColorNormal}},
                          Icon::MenuTintedStyle).icon());
     menu->addAction(ActionManager::registerAction(action, "Axivion.Perspective"),
-                    Debugger::Constants::G_ANALYZER_TOOLS);
+                    Core::Constants::G_ANALYZER_TOOLS);
     connect(action, &QAction::triggered,
             this, &Perspective::select);
 
@@ -1878,7 +1875,7 @@ AxivionPerspective::AxivionPerspective()
                          Icon::MenuTintedStyle).icon());
     action->setEnabled(false);
     Command *cmd = ActionManager::registerAction(action, "Axivion.SingleFile");
-    menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
+    menu->addAction(cmd, Core::Constants::G_ANALYZER_TOOLS);
     connect(action, &QAction::triggered, this, &AxivionPerspective::onSingleFileAnalysisTriggered);
     menu->addSeparator();
 

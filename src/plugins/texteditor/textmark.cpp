@@ -55,7 +55,7 @@ public:
                                                  const QColor &backgroundColor);
 
 public:
-    using SourceColors = QPair<QColor, QColor>;
+    using SourceColors = QPair<QRgb, QRgb>;
     QColor rectColor;
     QColor textColor;
 
@@ -559,7 +559,7 @@ AnnotationColors &AnnotationColors::getAnnotationColors(const QColor &markColor,
     auto lowClipHsl = [](qreal value) {
         return std::max(0.1, std::min(0.3, value));
     };
-    AnnotationColors &colors = m_colorCache[{markColor, backgroundColor}];
+    AnnotationColors &colors = m_colorCache[{markColor.rgba(), backgroundColor.rgba()}];
     if (!colors.rectColor.isValid() || !colors.textColor.isValid()) {
         const double backgroundLightness = backgroundColor.lightnessF();
         const double foregroundLightness = backgroundLightness > 0.5

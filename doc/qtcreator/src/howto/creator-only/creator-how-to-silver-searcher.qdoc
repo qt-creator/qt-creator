@@ -41,7 +41,7 @@
         \li In \uicontrol Environment, select \uicontrol Change.
         \li In \uicontrol {Edit Environment}, add the path to the Silver Searcher
             executable:
-            \badcode
+            \code [shell]
             PATH=</path/to/bin>:${PATH}
             \endcode
             \image {qtcreator-edit-environment.webp} {Edit Environment dialog}

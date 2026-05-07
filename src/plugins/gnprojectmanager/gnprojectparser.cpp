@@ -23,6 +23,7 @@
 #include <utils/environment.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
@@ -378,33 +379,31 @@ static void addMissingTargets(QStringList &targetList)
 
 void GNProjectParser::startParser()
 {
-    m_parserFutureResult = Utils::
-        asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
-                 [buildDir = m_buildDir, srcDir = m_srcDir] {
-                     const FilePath projectJson = buildDir.pathAppended(Constants::PROJECT_JSON);
-                     return extractParserResults(srcDir, GNInfoParser::parse(projectJson));
-                 });
-    Utils::onFinished(m_parserFutureResult,
-                      this,
-                      [this](const QFuture<GNProjectParser::ParserData *> &data) {
-                          auto parserData = data.result();
-                          m_parserResult = std::move(parserData->data);
-                          m_rootNode = std::move(parserData->rootNode);
-                          m_targetsNames.clear();
-                          for (const GNTarget &target : m_parserResult.targets)
-                              m_targetsNames.push_back(target.displayName);
-                          addMissingTargets(m_targetsNames);
-                          m_targetsNames.sort();
-                          delete parserData;
-                          emit completed(true);
-                      });
+    auto future = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
+                                  [buildDir = m_buildDir, srcDir = m_srcDir] {
+        const FilePath projectJson = buildDir.pathAppended(Constants::PROJECT_JSON);
+        return extractParserResults(srcDir, GNInfoParser::parse(projectJson));
+    });
+    Utils::futureSynchronizer()->addFuture(future);
+    Utils::onFinished(future, this, [this](const QFuture<GNProjectParser::ParserData> &data) {
+        QFuture<GNProjectParser::ParserData> copy = data; // drop const
+        auto parserData = copy.takeResult();
+        m_parserResult = std::move(parserData.data);
+        m_rootNode = std::move(parserData.rootNode);
+        m_targetsNames.clear();
+        for (const GNTarget &target : m_parserResult.targets)
+            m_targetsNames.push_back(target.displayName);
+        addMissingTargets(m_targetsNames);
+        m_targetsNames.sort();
+        emit completed(true);
+    });
 }
 
-GNProjectParser::ParserData *GNProjectParser::
-    extractParserResults(const FilePath &srcDir, GNInfoParser::Result &&parserResult)
+GNProjectParser::ParserData GNProjectParser::extractParserResults(
+    const FilePath &srcDir, GNInfoParser::Result &&parserResult)
 {
     auto rootNode = buildTree(srcDir, parserResult.targets, parserResult.buildSystemFiles);
-    return new ParserData{std::move(parserResult), std::move(rootNode)};
+    return ParserData{std::move(parserResult), std::move(rootNode)};
 }
 
 RawProjectParts GNProjectParser::

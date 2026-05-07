@@ -21,6 +21,7 @@
 #include <utils/environment.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/stringutils.h>
 
 #include <memory>
@@ -371,7 +372,7 @@ static void addMissingTargets(QStringList &targetList)
 
 void MesonProjectParser::startParser()
 {
-    m_parserFutureResult = Utils::asyncRun(
+    auto future = Utils::asyncRun(
         ProjectExplorerPlugin::sharedThreadPool(),
         [processOutput = m_stdo, introType = m_introType, buildDir = m_buildDir, srcDir = m_srcDir] {
             if (introType == IntroDataType::file)
@@ -379,26 +380,26 @@ void MesonProjectParser::startParser()
             else
                 return extractParserResults(srcDir, MesonInfoParser::parse(processOutput));
         });
-    Utils::onFinished(m_parserFutureResult, this,
-                      [this](const QFuture<MesonProjectParser::ParserData *> &data) {
-        auto parserData = data.result();
-        m_parserResult = std::move(parserData->data);
-        m_rootNode = std::move(parserData->rootNode);
+    Utils::futureSynchronizer()->addFuture(future);
+    Utils::onFinished(future, this, [this](const QFuture<MesonProjectParser::ParserData> &data) {
+        QFuture<MesonProjectParser::ParserData> copy = data; // drop const
+        auto parserData = copy.takeResult();
+        m_parserResult = std::move(parserData.data);
+        m_rootNode = std::move(parserData.rootNode);
         m_targetsNames.clear();
         for (const Target &target : m_parserResult.targets)
             m_targetsNames.push_back(Target::unique_name(target, m_srcDir));
         addMissingTargets(m_targetsNames);
         m_targetsNames.sort();
-        delete parserData;
         emit parsingCompleted(true);
     });
 }
 
-MesonProjectParser::ParserData *MesonProjectParser::extractParserResults(
+MesonProjectParser::ParserData MesonProjectParser::extractParserResults(
     const FilePath &srcDir, MesonInfoParser::Result &&parserResult)
 {
     auto rootNode = buildTree(srcDir, parserResult.targets, parserResult.buildSystemFiles);
-    return new ParserData{std::move(parserResult), std::move(rootNode)};
+    return ParserData{std::move(parserResult), std::move(rootNode)};
 }
 
 RawProjectPart MesonProjectParser::buildRawPart(

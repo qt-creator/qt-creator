@@ -22,6 +22,12 @@
         <file>images/run_mask@2x.png</file>
         <file>images/analyzer_overlay_small.png</file>
         <file>images/analyzer_overlay_small@2x.png</file>
+        <file>images/recordfill.png</file>
+        <file>images/recordfill@2x.png</file>
+        <file>images/recordoutline.png</file>
+        <file>images/recordoutline@2x.png</file>
+        <file>images/tracepointoverlay.png</file>
+        <file>images/tracepointoverlay@2x.png</file>
         <file>images/devicestatusindicator.png</file>
         <file>images/devicestatusindicator@2x.png</file>
         <file>images/build.png</file>

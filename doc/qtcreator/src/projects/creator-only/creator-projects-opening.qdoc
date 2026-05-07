@@ -25,6 +25,7 @@
         \li \c {.qbs} (Qbs)
         \li \c {meson.build} (Meson)
         \li \c {pyproject.toml} (Python)
+        \li \c {BUILD.gn} (Generate Ninja (GN))
         \li \c {Makefile.am} (Autotools, experimental)
     \endlist
 
@@ -178,6 +179,6 @@
     later. Select \imagepin (\uicontrol Pin) to pin the progress bar back to the
     toggle button.
 
-    \sa {Activate extensions}, {Configure projects for building}, {Configure projects for running},
+    \sa {Activate extensions}, {Build and run}{How to: Build and run},
     {Manage kits}{How to: Manage kits}, {Managing kits}
 */

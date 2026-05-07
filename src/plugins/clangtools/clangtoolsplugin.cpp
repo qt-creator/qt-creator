@@ -5,8 +5,8 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettingswidget.h"
 #include "clangtoolstr.h"
+#include "diagnosticmark.h"
 #include "documentclangtoolrunner.h"
-#include "documentquickfixfactory.h"
 #include "runsettingswidget.h"
 
 #ifdef WITH_TESTS
@@ -21,23 +21,24 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/quickfixes/cppquickfix.h>
 
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
+#include <texteditor/refactoringchanges.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
 #include <QAction>
@@ -45,6 +46,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
+#include <QSet>
 #include <QToolBar>
 
 using namespace Core;
@@ -53,28 +55,114 @@ using namespace Utils;
 
 namespace ClangTools::Internal {
 
+class ClangToolsPluginPrivate;
+
+class DocumentQuickFixFactory : public CppEditor::CppQuickFixFactory
+{
+public:
+    DocumentQuickFixFactory(ClangToolsPluginPrivate *pluginPrivate)
+        : m_pluginPrivate(pluginPrivate)
+    {}
+
+    void doMatch(const CppEditor::Internal::CppQuickFixInterface &interface,
+                 QuickFixOperations &result) override;
+
+private:
+    ClangToolsPluginPrivate *m_pluginPrivate;
+};
+
 class ClangToolsPluginPrivate
 {
 public:
-    ClangToolsPluginPrivate()
-        : quickFixFactory(
-            [this](const Utils::FilePath &filePath) { return runnerForFilePath(filePath); })
-    {}
+    ClangToolsPluginPrivate() : quickFixFactory(this) {}
 
-    DocumentClangToolRunner *runnerForFilePath(const Utils::FilePath &filePath)
+    TextEditor::TextDocument *documentForFilePath(const FilePath &filePath) const
     {
-        for (DocumentClangToolRunner *runner : std::as_const(documentRunners)) {
-            if (runner->filePath() == filePath)
-                return runner;
+        for (IDocument *doc : documentsWithRunners) {
+           if (doc->filePath() == filePath)
+                return qobject_cast<TextEditor::TextDocument *>(doc);
         }
         return nullptr;
     }
 
     ClangTidyTool clangTidyTool;
     ClazyTool clazyTool;
-    QHash<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
+    QSet<TextEditor::TextDocument *> documentsWithRunners;
     DocumentQuickFixFactory quickFixFactory;
 };
+
+class ClangToolQuickFixOperation : public TextEditor::QuickFixOperation
+{
+public:
+    explicit ClangToolQuickFixOperation(const Diagnostic &diagnostic)
+        : m_diagnostic(diagnostic)
+    {}
+
+    QString description() const override { return m_diagnostic.description; }
+    void perform() override;
+
+private:
+    const Diagnostic m_diagnostic;
+};
+
+using Range = TextEditor::RefactoringFile::Range;
+using DiagnosticRange = QPair<Link, Link>;
+
+static Range toRange(const QTextDocument *doc, DiagnosticRange locations)
+{
+    Range range;
+    range.start = locations.first.target.toPositionInDocument(doc);
+    range.end = locations.second.target.toPositionInDocument(doc);
+    return range;
+}
+
+void ClangToolQuickFixOperation::perform()
+{
+    TextEditor::PlainRefactoringFileFactory changes;
+    QMap<FilePath, TextEditor::RefactoringFilePtr> refactoringFiles;
+
+    for (const ExplainingStep &step : m_diagnostic.explainingSteps) {
+        if (!step.isFixIt)
+            continue;
+        TextEditor::RefactoringFilePtr &refactoringFile =
+            refactoringFiles[step.location.targetFilePath];
+        if (refactoringFile.isNull())
+            refactoringFile = changes.file(step.location.targetFilePath);
+        ChangeSet changeSet = refactoringFile->changeSet();
+        Range range = toRange(refactoringFile->document(), {step.ranges.first(), step.ranges.last()});
+        changeSet.replace(range, step.message);
+        refactoringFile->setChangeSet(changeSet);
+    }
+
+    for (const TextEditor::RefactoringFilePtr &refactoringFile : std::as_const(refactoringFiles))
+        refactoringFile->apply();
+}
+
+static Diagnostics diagnosticsAtLine(TextEditor::TextDocument *textDocument, int lineNumber)
+{
+    Diagnostics diagnostics;
+    for (auto mark : textDocument->marksAt(lineNumber)) {
+        if (mark->category().id == Constants::DIAGNOSTIC_MARK_ID)
+            diagnostics << static_cast<DiagnosticMark *>(mark)->diagnostic();
+    }
+    return diagnostics;
+}
+
+void DocumentQuickFixFactory::doMatch(const CppEditor::Internal::CppQuickFixInterface &interface,
+                                      QuickFixOperations &result)
+{
+    if (TextEditor::TextDocument *textDocument = m_pluginPrivate->documentForFilePath(interface.filePath())) {
+        const QTextBlock &block = interface.textDocument()->findBlock(interface.position());
+        if (!block.isValid())
+            return;
+
+        const int lineNumber = block.blockNumber() + 1;
+        for (const Diagnostic &diagnostic : diagnosticsAtLine(textDocument, lineNumber)) {
+            if (diagnostic.hasFixits)
+                result << new ClangToolQuickFixOperation(diagnostic);
+        }
+    }
+}
 
 class ClangToolsPlugin final : public ExtensionSystem::IPlugin
 {
@@ -128,14 +216,13 @@ private:
 void ClangToolsPlugin::onCurrentEditorChanged()
 {
     for (Core::IEditor *editor : Core::EditorManager::visibleEditors()) {
-        IDocument *document = editor->document();
-        if (d->documentRunners.contains(document))
+        const auto document = qobject_cast<TextEditor::TextDocument *>(editor->document());
+        if (!document || !Utils::insert(d->documentsWithRunners, document))
             continue;
         auto runner = new DocumentClangToolRunner(document);
         connect(runner, &DocumentClangToolRunner::destroyed, this, [this, document] {
-            d->documentRunners.remove(document);
+            d->documentsWithRunners.remove(document);
         });
-        d->documentRunners[document] = runner;
     }
 }
 

@@ -10,6 +10,8 @@
 #include <debugger/debuggericons.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/projectexplorericons.h>
+
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
@@ -35,7 +37,7 @@ static QIcon iconForType(IconType type)
 
     switch (type) {
     case IconType::StopRecord:
-        return Debugger::Icons::RECORD_ON.icon();
+        return ProjectExplorer::Icons::RECORD_ON.icon();
     case IconType::Play:
         return Debugger::Icons::DEBUG_CONTINUE_SMALL_TOOLBAR.icon();
     case IconType::Pause:
@@ -253,7 +255,7 @@ void SquishControlBar::updateProgressText(const QString &label)
 }
 
 SquishPerspective::SquishPerspective()
-    : Utils::Perspective("Squish.Perspective", Tr::tr("Squish"))
+    : Core::Perspective("Squish.Perspective", Tr::tr("Squish"))
 {
     Core::ICore::addPreCloseListener([this]{
         destroyControlBar();

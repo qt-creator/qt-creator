@@ -14,7 +14,6 @@
 #include "debuggertr.h"
 
 #include "breakhandler.h"
-#include "debuggermainwindow.h"
 #include "disassembleragent.h"
 #include "enginemanager.h"
 #include "localsandexpressionswindow.h"
@@ -40,6 +39,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
@@ -48,6 +48,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -64,6 +65,7 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/processhandle.h>
@@ -806,9 +808,9 @@ public:
     bool m_isDying = false;
 
     QAction m_detachAction;
-    OptionalAction m_continueAction{Tr::tr("Continue")};
+    QAction m_continueAction{Tr::tr("Continue")};
     QAction m_exitAction{Tr::tr("Stop Debugger")}; // On application output button if "Stop" is possible
-    OptionalAction m_interruptAction{Tr::tr("Interrupt")}; // On the fat debug button if "Pause" is possible
+    QAction m_interruptAction{Tr::tr("Interrupt")}; // On the fat debug button if "Pause" is possible
     QAction m_abortAction{Tr::tr("Abort Debugging")};
     QAction m_stepIntoAction{Tr::tr("Step Into")};
     QAction m_stepOutAction{Tr::tr("Step Out")};
@@ -826,10 +828,10 @@ public:
     QAction m_setOrRemoveBreakpointAction{Tr::tr("Set or Remove Breakpoint")};
     QAction m_enableOrDisableBreakpointAction{Tr::tr("Enable or Disable Breakpoint")};
     QAction m_resetAction{Tr::tr("Restart Debugging")};
-    OptionalAction m_operateByInstructionAction{Tr::tr("Operate by Instruction")};
+    QAction m_operateByInstructionAction{Tr::tr("Operate by Instruction")};
     QAction m_recordForReverseOperationAction{Tr::tr("Record Information to Allow Reversal of Direction")};
-    OptionalAction m_operateInReverseDirectionAction{Tr::tr("Reverse Direction")};
-    OptionalAction m_snapshotAction{Tr::tr("Take Snapshot of Process State")};
+    QAction m_operateInReverseDirectionAction{Tr::tr("Reverse Direction")};
+    QAction m_snapshotAction{Tr::tr("Take Snapshot of Process State")};
 
     DebuggerToolTipManager m_toolTipManager;
     Context m_context;
@@ -843,7 +845,7 @@ void DebuggerEnginePrivate::setupViews()
 
     QTC_CHECK(!m_perspective);
 
-    Perspective *currentPerspective = DebuggerMainWindow::instance()->currentPerspective();
+    Perspective *currentPerspective = PerspectivesView::instance()->currentPerspective();
 
     const QString perspectiveId = "Debugger.Perspective." + m_runId + '.' + m_debuggerName;
     const QString settingsId = "Debugger.Perspective." + m_debuggerName;
@@ -1673,7 +1675,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
     showMessage(Tr::tr("Stopped."), StatusBar);
     setState(InferiorStopOk);
     if (settings().raiseOnInterrupt())
-        ICore::raiseWindow(DebuggerMainWindow::instance());
+        ICore::raiseWindow(PerspectivesView::mainWindow());
 }
 
 void DebuggerEngine::notifyInferiorStopFailed()
@@ -1692,7 +1694,7 @@ void DebuggerEnginePrivate::setInitialActionStates()
 
     m_recordForReverseOperationAction.setCheckable(true);
     m_recordForReverseOperationAction.setChecked(false);
-    m_recordForReverseOperationAction.setIcon(Icons::RECORD_OFF.icon());
+    m_recordForReverseOperationAction.setIcon(ProjectExplorer::Icons::RECORD_OFF.icon());
     m_recordForReverseOperationAction.setToolTip(QString("<html><head/><body><p>%1</p><p>"
                                                          "<b>%2</b>%3</p></body></html>").arg(
                          Tr::tr("Record information to enable stepping backwards."),
@@ -1897,8 +1899,8 @@ void DebuggerEnginePrivate::updateReverseActions()
     m_recordForReverseOperationAction.setVisible(canReverse);
     m_recordForReverseOperationAction.setEnabled(canReverse && stopped);
     m_recordForReverseOperationAction.setIcon(doesRecord
-                                              ? Icons::RECORD_ON.icon()
-                                              : Icons::RECORD_OFF.icon());
+                                              ? ProjectExplorer::Icons::RECORD_ON.icon()
+                                              : ProjectExplorer::Icons::RECORD_OFF.icon());
 
     m_operateInReverseDirectionAction.setVisible(canReverse);
     m_operateInReverseDirectionAction.setEnabled(canReverse && stopped && doesRecord);
@@ -2063,7 +2065,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
         case StatusBar:
             d->m_logWindow->showInput(LogMisc, msg);
             d->m_logWindow->showOutput(LogMisc, msg);
-            DebuggerMainWindow::showStatusMessage(msg, timeout);
+            PerspectivesView::showStatusMessage(msg, timeout);
             break;
         case LogMiscInput:
             d->m_logWindow->showInput(LogMisc, msg);
@@ -2648,7 +2650,7 @@ void DebuggerEngine::openDisassemblerView(const Location &location)
 void DebuggerEngine::raiseWatchersWindow()
 {
     if (d->m_watchersView && d->m_watchersWindow) {
-        auto currentPerspective = DebuggerMainWindow::currentPerspective();
+        auto currentPerspective = PerspectivesView::currentPerspective();
         QTC_ASSERT(currentPerspective, return);
         // if a companion engine has taken over - do not raise the watchers
         if (currentPerspective->name() != d->m_engine->displayName())

@@ -10,8 +10,6 @@ namespace Constants {
 
 const char OUTPUT_PANE_TITLE[] = QT_TRANSLATE_NOOP("QtC::SerialTerminal", "Serial Terminal");
 
-const char LOGGING_CATEGORY[] = "qtc.serialterminal.outputpane";
-
 // Settings entries
 const char SETTINGS_GROUP[] = "SerialTerminalPlugin";
 const char SETTINGS_BAUDRATE[] = "BaudRate";

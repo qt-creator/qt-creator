@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <debugger/analyzer/detailederrorview.h>
+#include <projectexplorer/detailederrorview.h>
 
 namespace Cppcheck::Internal {
 
-class DiagnosticView : public Debugger::DetailedErrorView
+class DiagnosticView : public ProjectExplorer::DetailedErrorView
 {
 public:
     explicit DiagnosticView(QWidget *parent = nullptr);

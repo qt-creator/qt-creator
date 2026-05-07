@@ -166,7 +166,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
 
     runSystemFunctions.setSettingsKey("RunSystemFunction");
     runSystemFunctions.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    runSystemFunctions.setDisplayName(Tr::tr("qmake system() behavior when parsing:"));
+    runSystemFunctions.setLabelText(Tr::tr("qmake system() behavior when parsing:"));
     runSystemFunctions.addOption(Tr::tr("Run"));
     runSystemFunctions.addOption(Tr::tr("Ignore"));
     runSystemFunctions.addOption(Tr::tr("Use global setting"));

@@ -138,6 +138,8 @@ QtcPlugin {
             "outputwindow.h",
             "patchtool.cpp",
             "patchtool.h",
+            "perspective.cpp",
+            "perspective.h",
             "plugindialog.cpp",
             "plugindialog.h",
             "plugininstallwizard.cpp",

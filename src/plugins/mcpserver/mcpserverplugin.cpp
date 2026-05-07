@@ -1,13 +1,15 @@
 // Copyright (C) 2025 David M. Cotter
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "coreplugin/dialogs/ioptionspage.h"
-#include "coreplugin/editormanager/editormanager.h"
 #include "mcpcommands.h"
 #include "mcpserverconstants.h"
+#include "mcpserverinspector.h"
 #include "mcpservertr.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mcp/mcpmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -147,6 +149,12 @@ public:
 
     void initialize() final
     {
+        ActionBuilder inspectAction(this, "McpServer.Inspector");
+        inspectAction.setText(Tr::tr("Inspect MCP Server..."));
+        inspectAction.addToContainer(Core::Constants::M_TOOLS_DEBUG);
+        inspectAction.addOnTriggered([this] { inspector.show(); });
+
+        m_server.setInspector(&inspector);
         settings.readSettings();
         restartServer();
     }
@@ -236,6 +244,8 @@ private:
 
     McpServerPluginSettings settings{this};
     McpServerSettingsPage settingsPage{&settings};
+
+    McpInspector inspector;
 };
 
 McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)

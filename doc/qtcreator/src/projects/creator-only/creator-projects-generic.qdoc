@@ -89,7 +89,7 @@
     a file path in the \c .files file, separated by the pipe character (|).
     For example:
 
-    \badcode
+    \code [text]
     src/pch.h|pch
     \endcode
 

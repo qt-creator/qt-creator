@@ -31,12 +31,12 @@ public:
 
     void setInspector(AcpInspector *inspector);
 
-    void connectToServer(const QString &serverId, const Utils::FilePath &workingDirectory);
+    void connectToServer(const QString &serverId);
     void disconnectFromServer();
 
-    void createNewSession();
+    void createNewSession(const Utils::FilePath &workingDirectory = {});
     void listSessions(const std::optional<QString> &cursor = {});
-    void loadSession(const QString &sessionId);
+    void loadSession(const QString &sessionId, const Utils::FilePath &workingDirectory);
     void sendPrompt(const QString &text, const QList<Utils::FilePath> &additionalFiles = {},
                     bool includeCurrentEditor = true);
     void cancelPrompt();

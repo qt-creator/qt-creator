@@ -29,7 +29,8 @@ void StatusLabel::stopTimer()
 
 void StatusLabel::showStatusMessage(const QString &message, int timeoutMS)
 {
-    setText(message);
+    setText(message.split('\n').constFirst());
+    setToolTip(message);
     if (timeoutMS > 0) {
         if (!m_timer) {
             m_timer = new QTimer(this);
@@ -45,7 +46,8 @@ void StatusLabel::showStatusMessage(const QString &message, int timeoutMS)
 
 void StatusLabel::slotTimeout()
 {
-    setText(m_lastPermanentStatusMessage);
+    setText(m_lastPermanentStatusMessage.split('\n').constFirst());
+    setToolTip(m_lastPermanentStatusMessage);
 }
 
 void StatusLabel::clearStatusMessage()
@@ -53,6 +55,7 @@ void StatusLabel::clearStatusMessage()
     stopTimer();
     m_lastPermanentStatusMessage.clear();
     clear();
+    setToolTip({});
 }
 
 } // namespace Utils

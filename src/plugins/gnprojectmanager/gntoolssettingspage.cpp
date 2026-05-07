@@ -113,7 +113,7 @@ public:
     GNToolsModel();
 
     int addGNTool();
-    int cloneGNTool(int row);
+    int cloneRow(int row) override;
     void updateItem(int row, const QString &name, const FilePath &exe);
     void apply() override;
 
@@ -138,7 +138,7 @@ int GNToolsModel::addGNTool()
     return appendVolatileItem(GNToolItem{uniqueName(Tr::tr("New GN"))});
 }
 
-int GNToolsModel::cloneGNTool(int row)
+int GNToolsModel::cloneRow(int row)
 {
     return appendVolatileItem(item(row).cloned());
 }
@@ -194,8 +194,8 @@ private:
     void cancel() final { m_model.cancel(); }
     bool isDirty() const final { return m_model.isDirty(); }
 
-    void cloneGNTool();
     void currentToolChanged(int oldRow, int newRow);
+    void updateButtons();
     void store();
 
     GNToolsModel m_model;
@@ -204,8 +204,6 @@ private:
 
     DetailsWidget m_gnDetails;
     QPushButton m_addButton;
-    QPushButton m_cloneButton;
-    QPushButton m_removeButton;
 
     QWidget m_itemConfigWidget;
     AspectContainer m_data;
@@ -233,14 +231,10 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
     m_gnDetails.setWidget(&m_itemConfigWidget);
 
     m_addButton.setText(Tr::tr("Add"));
-    m_cloneButton.setText(Tr::tr("Clone"));
-    m_cloneButton.setEnabled(false);
-    m_removeButton.setText(Tr::tr("Remove"));
-    m_removeButton.setEnabled(false);
 
     Row {
         Column { m_groupedView.view(), m_gnDetails },
-        Column { m_addButton, m_cloneButton, m_removeButton, st }
+        Column { m_addButton, m_groupedView.cloneButton(), m_groupedView.removeButton(), st }
     }.attachTo(this);
 
     connect(&m_groupedView, &GroupedView::currentRowChanged,
@@ -252,17 +246,14 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
     connect(&m_addButton, &QPushButton::clicked, this, [this] {
         m_groupedView.selectRow(m_model.addGNTool());
     });
-    connect(&m_cloneButton, &QPushButton::clicked, this, &GNToolsSettingsWidget::cloneGNTool);
-    connect(&m_removeButton, &QPushButton::clicked, &m_groupedView, &GroupedView::removeCurrent);
+    m_groupedView.setCanRemoveRow([this](int row) {
+        return !m_model.item(row).autoDetected;
+    });
+
+    connect(&m_groupedView, &GroupedView::currentRemoved,
+            this, &GNToolsSettingsWidget::updateButtons);
 
     connect(&m_data, &AspectContainer::changed, &checkSettingsDirty);
-}
-
-void GNToolsSettingsWidget::cloneGNTool()
-{
-    const int row = m_groupedView.currentRow();
-    if (row >= 0)
-        m_groupedView.selectRow(m_model.cloneGNTool(row));
 }
 
 void GNToolsSettingsWidget::store()
@@ -288,8 +279,14 @@ void GNToolsSettingsWidget::currentToolChanged(int, int newRow)
     }
     m_loading = false;
     m_gnDetails.setVisible(hasItem);
-    m_cloneButton.setEnabled(hasItem);
-    m_removeButton.setEnabled(hasRow && !m_model.item(newRow).autoDetected);
+    updateButtons();
+}
+
+void GNToolsSettingsWidget::updateButtons()
+{
+    const int row = m_groupedView.currentRow();
+    const bool hasItem = row >= 0 && !m_model.isRemoved(row);
+    m_groupedView.cloneButton().setEnabled(hasItem);
 }
 
 // Setup

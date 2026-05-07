@@ -5,6 +5,7 @@
 #include "acpclienttr.h"
 
 #include <utils/elidinglabel.h>
+#include <utils/fileutils.h>
 #include <utils/utilsicons.h>
 
 #include <QDateTime>
@@ -49,6 +50,7 @@ public:
     explicit SessionItemWidget(const SessionInfo &session, QWidget *parent = nullptr)
         : QWidget(parent)
         , m_sessionId(session.sessionId())
+        , m_cwd(Utils::FilePath::fromUserInput(session.cwd()))
     {
         setCursor(Qt::PointingHandCursor);
         setAttribute(Qt::WA_Hover);
@@ -72,13 +74,13 @@ public:
     }
 
 signals:
-    void clicked(const QString &sessionId);
+    void clicked(const QString &sessionId, const Utils::FilePath &cwd);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override
     {
         if (event->button() == Qt::LeftButton)
-            emit clicked(m_sessionId);
+            emit clicked(m_sessionId, m_cwd);
         QWidget::mousePressEvent(event);
     }
 
@@ -99,6 +101,7 @@ protected:
 
 private:
     QString m_sessionId;
+    Utils::FilePath m_cwd;
 };
 
 // ---------------------------------------------------------------------------
@@ -110,7 +113,10 @@ class NewSessionItemWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit NewSessionItemWidget(QWidget *parent = nullptr)
+    explicit NewSessionItemWidget(const QString &label,
+                                  const QIcon &icon,
+                                  const QString &subtitle,
+                                  QWidget *parent = nullptr)
         : QWidget(parent)
     {
         setCursor(Qt::PointingHandCursor);
@@ -122,11 +128,22 @@ public:
 
         auto *iconLabel = new QLabel(this);
         const int size = fontMetrics().height();
-        iconLabel->setPixmap(Utils::Icons::PLUS_TOOLBAR.icon().pixmap(size, size));
+        iconLabel->setPixmap(icon.pixmap(size, size));
         layout->addWidget(iconLabel);
 
-        auto *textLabel = new QLabel(Tr::tr("New Session"), this);
-        layout->addWidget(textLabel, 1);
+        auto *textLabel = new QLabel(label, this);
+        layout->addWidget(textLabel);
+
+        if (!subtitle.isEmpty()) {
+            auto *subtitleLabel = new Utils::ElidingLabel(subtitle, this);
+            subtitleLabel->setElideMode(Qt::ElideMiddle);
+            QPalette pal = subtitleLabel->palette();
+            pal.setColor(QPalette::WindowText, pal.color(QPalette::PlaceholderText));
+            subtitleLabel->setPalette(pal);
+            layout->addWidget(subtitleLabel, 1);
+        } else {
+            layout->addStretch(1);
+        }
     }
 
 signals:
@@ -189,16 +206,10 @@ SessionPickerWidget::SessionPickerWidget(QWidget *parent)
     setCollapsible(false);
     setHeaderVisible(false);
 
-    auto *newSessionItem = new NewSessionItemWidget(this);
-    connect(newSessionItem, &NewSessionItemWidget::clicked, this, [this] {
-        if (m_resolved)
-            return;
-        m_resolved = true;
-        setEnabled(false);
-        emit newSessionRequested();
-        deleteLater();
-    });
-    m_bodyLayout->addWidget(newSessionItem);
+    m_newSessionContainer = new QVBoxLayout;
+    m_newSessionContainer->setContentsMargins(0, 0, 0, 0);
+    m_newSessionContainer->setSpacing(0);
+    m_bodyLayout->addLayout(m_newSessionContainer);
 
     m_topSeparator = createSeparator(this);
     m_bodyLayout->addWidget(m_topSeparator);
@@ -238,6 +249,60 @@ void SessionPickerWidget::setCurrentProjectDir(const Utils::FilePath &dir)
 {
     m_currentProjectDir = dir;
     m_currentGroupKey = dir.isEmpty() ? QString() : dir.toUserOutput();
+}
+
+void SessionPickerWidget::setNewSessionTargets(const QList<NewSessionTarget> &targets)
+{
+    while (QLayoutItem *item = m_newSessionContainer->takeAt(0)) {
+        delete item->widget();
+        delete item;
+    }
+
+    const QIcon plusIcon = Utils::Icons::PLUS_TOOLBAR.icon();
+    for (const NewSessionTarget &t : targets) {
+        const QString label = Tr::tr("New Session for %1").arg(t.label);
+        auto *item = new NewSessionItemWidget(
+            label, plusIcon, t.tooltip.isEmpty() ? t.cwd.toUserOutput() : t.tooltip, this);
+        if (!t.tooltip.isEmpty())
+            item->setToolTip(t.tooltip);
+        const Utils::FilePath cwd = t.cwd;
+        connect(item, &NewSessionItemWidget::clicked, this, [this, cwd] {
+            requestNewSession(cwd);
+        });
+        m_newSessionContainer->addWidget(item);
+    }
+
+    auto *customItem = new NewSessionItemWidget(
+        Tr::tr("New Session in Directory..."),
+        Utils::Icons::OPENFILE_TOOLBAR.icon(),
+        QString(),
+        this);
+    connect(customItem, &NewSessionItemWidget::clicked,
+            this, &SessionPickerWidget::requestCustomDirectorySession);
+    m_newSessionContainer->addWidget(customItem);
+}
+
+void SessionPickerWidget::requestNewSession(const Utils::FilePath &cwd)
+{
+    if (m_resolved)
+        return;
+    m_resolved = true;
+    setEnabled(false);
+    emit newSessionRequested(cwd);
+    deleteLater();
+}
+
+void SessionPickerWidget::requestCustomDirectorySession()
+{
+    if (m_resolved)
+        return;
+
+    const Utils::FilePath dir = Utils::FileUtils::getExistingDirectory(
+        Tr::tr("Choose Working Directory"), m_currentProjectDir);
+    if (dir.isEmpty())
+        return;
+
+    requestNewSession(dir);
 }
 
 void SessionPickerWidget::setInitialSessions(const QList<SessionInfo> &sessions,
@@ -355,10 +420,11 @@ void SessionPickerWidget::setResolved(const QString &)
 void SessionPickerWidget::addSessionItem(const SessionInfo &session)
 {
     auto *item = new SessionItemWidget(session, this);
-    connect(item, &SessionItemWidget::clicked, this, [this](const QString &sessionId) {
+    connect(item, &SessionItemWidget::clicked, this,
+            [this](const QString &sessionId, const Utils::FilePath &cwd) {
         if (m_resolved)
             return;
-        emit sessionSelected(sessionId);
+        emit sessionSelected(sessionId, cwd);
     });
 
     QString key = session.cwd();

@@ -1,0 +1,118 @@
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#pragma once
+
+#include "core_global.h"
+
+#include <QObject>
+
+#include <functional>
+
+QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
+class QWidget;
+QT_END_NAMESPACE
+
+namespace Utils { class FancyMainWindow; }
+
+namespace Core {
+
+class CORE_EXPORT Perspective : public QObject
+{
+public:
+    Perspective(const QString &id, const QString &name,
+                const QString &parentPerspectiveId = QString(),
+                const QString &settingId = QString());
+    ~Perspective();
+
+    enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
+
+    void addWindow(QWidget *widget, // Perspective takes ownership.
+                   OperationType op,
+                   QWidget *anchorWidget,
+                   bool visibleByDefault = true,
+                   Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
+
+    void addToolBarAction(QAction *action, Qt::ToolButtonStyle style = Qt::ToolButtonIconOnly);
+    void addToolBarWidget(QWidget *widget); // Perspecive takes ownership.
+    void addToolbarSeparator();
+
+    void registerNextPrevShortcuts(QAction *next, QAction *prev);
+
+    void useSubPerspectiveSwitcher(QWidget *widget); // No ownership passed.
+
+    QString id() const; // Currently used by GammaRay plugin.
+    QString parentPerspectiveId() const;
+    QString name() const;
+
+    using Callback = std::function<void()>;
+    void setAboutToActivateCallback(const Callback &cb);
+
+    void setEnabled(bool enabled);
+
+    void select();
+    void destroy();
+
+    static Perspective *findPerspective(const QString &perspectiveId);
+
+    bool isCurrent() const;
+
+    static const char *savesHeaderKey();
+
+private:
+    void rampDownAsCurrent();
+    void rampUpAsCurrent();
+
+    Perspective(const Perspective &) = delete;
+    void operator=(const Perspective &) = delete;
+
+    friend class PerspectivesView;
+    friend class PerspectivesViewPrivate;
+    friend class PerspectivePrivate;
+    class PerspectivePrivate *d = nullptr;
+};
+
+class CORE_EXPORT PerspectivesView : public QObject
+{
+    Q_OBJECT
+
+public:
+    static PerspectivesView *instance();
+
+    static void ensureMainWindowExists();
+    static void doShutdown();
+
+    static void showStatusMessage(const QString &message, int timeoutMS);
+    static void enableMainWindow(bool on);
+    static void showPermanentStatusMessage(const QString &message);
+    static void enterDebugMode();
+    static void leaveDebugMode();
+
+    static void addSubPerspectiveSwitcher(QWidget *widget);
+    static void addPerspectiveMenu(QMenu *menu);
+
+    static Perspective *currentPerspective();
+
+    static Utils::FancyMainWindow *mainWindow();
+    static QWidget *centralWidgetStack();
+
+signals:
+    void perspectivesChanged();
+    void debugModeRequested();
+
+private:
+    PerspectivesView();
+    ~PerspectivesView() override;
+
+    void savePersistentSettings() const;
+    void restorePersistentSettings();
+
+    friend class Perspective;
+    friend class PerspectivePrivate;
+    friend class DockOperation;
+    class PerspectivesViewPrivate *d = nullptr;
+};
+
+} // Core

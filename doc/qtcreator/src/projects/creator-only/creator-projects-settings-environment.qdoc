@@ -112,6 +112,21 @@
     fetches information about the \uicontrol {Device Environment} from the device.
     Usually, it does not make sense to edit the device environment.
 
+    \section1 Use environment variables from a file
+
+    In addition to manually entering environment variable values in \QC, you can
+    specify a file as the source for the environment variables. The file can
+    be a simple text file containing the key and value pairs, or a script to
+    be evaluated by the system shell.
+
+    To use a file as the source for the environment variables:
+
+    \list 1
+        \li Go to any of the environment settings described above.
+        \li Select \uicontrol {Get variables from text file or shell script}.
+        \li Enter the path to the file.
+    \endlist
+
     \sa {Edit environment settings}, {Configure projects for building},
     {Configure projects for running}, {Use \QC variables}
 */
@@ -170,6 +185,11 @@
 
     To add a comment or disable any of the above actions, prefix it with two hash
     characters (##).
+
+    To use a file as the source for the environment variables, select
+    \uicontrol {Get variables from text file or shell script} and enter
+    the path to the file. For more information, see
+    \l {Use environment variables from a file}.
 
     \section1 Set variable separators
 

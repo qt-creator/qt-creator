@@ -1571,7 +1571,7 @@
     To stop GDB from handling the \c SIGSTOP signal, add the following commands
     to the \uicontrol {Debugging Helper Customization} field:
 
-    \badcode
+    \code [text]
     handle SIGSTOP nopass
     handle SIGSTOP nostop
     \endcode
@@ -2232,14 +2232,14 @@
     When using CMake as the build system, add the following line to the project
     \c CMakeLists.txt file:
 
-    \badcode
+    \code [cmake]
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /INCREMENTAL:NO" )
     \endcode
 
     When using qmake as the build system, add the following line to the project
     \c .pro file:
 
-    \badcode
+    \code [text]
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
     \endcode
 

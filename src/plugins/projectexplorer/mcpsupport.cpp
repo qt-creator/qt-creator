@@ -30,6 +30,7 @@
 #include <utils/filesearch.h>
 #include <utils/result.h>
 
+#include <QElapsedTimer>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QMap>
@@ -109,10 +110,16 @@ static bool switchToBuildConfig(const QString &name)
     return false;
 }
 
-static QString getCurrentProject()
+static QJsonObject getCurrentProject()
 {
     Project *project = ProjectManager::startupProject();
-    return project ? project->displayName() : QString{};
+    if (!project)
+        return {};
+    return {
+        {"projectName", project->displayName()},
+        {"projectFile", project->projectFilePath().toUserOutput()},
+        {"projectDirectory", project->projectDirectory().toUserOutput()},
+    };
 }
 
 static QString getCurrentBuildConfig()
@@ -390,18 +397,84 @@ void registerMcpTools()
     // Persistent issues manager for all PE mcp tools
     static ProjectExplorer::IssuesManager issuesManager;
 
+    // Output schema for `build`. Designed so the AI doesn't have to inspect
+    // `issues` to guess the build verdict — `succeeded` is the single source
+    // of truth, mirrored by the tool's TaskStatus (completed vs failed).
+    const auto buildOutputSchema =
+        Tool::OutputSchema{}
+            .addProperty(
+                "succeeded",
+                QJsonObject{
+                    {"type", "boolean"},
+                    {"description",
+                     "Whether the build finished without errors. Single source of truth — "
+                     "use this rather than inspecting `issues` to decide success/failure."}})
+            .addProperty(
+                "error_count",
+                QJsonObject{
+                    {"type", "integer"},
+                    {"minimum", 0},
+                    {"description", "Number of error-level issues from this build."}})
+            .addProperty(
+                "warning_count",
+                QJsonObject{
+                    {"type", "integer"},
+                    {"minimum", 0},
+                    {"description", "Number of warning-level issues from this build."}})
+            .addProperty(
+                "duration_ms",
+                QJsonObject{
+                    {"type", "integer"},
+                    {"minimum", 0},
+                    {"description",
+                     "Wall-clock duration in milliseconds, from buildProjects() to "
+                     "buildQueueFinished."}})
+            .addProperty(
+                "issues",
+                QJsonObject{
+                    {"type", "array"},
+                    {"description",
+                     "Same shape as list_issues' issues array. Empty on successful "
+                     "builds with no warnings."}})
+            .addProperty(
+                "summary_text",
+                QJsonObject{
+                    {"type", "string"},
+                    {"description",
+                     "Human-readable one-liner like 'Build succeeded in 4523 ms' or "
+                     "'Build failed with 2 error(s), 3 warning(s) in 1820 ms'."}})
+            .addRequired("succeeded")
+            .addRequired("error_count")
+            .addRequired("warning_count")
+            .addRequired("duration_ms")
+            .addRequired("issues")
+            .addRequired("summary_text");
+
     ToolRegistry::registerTool(
         Schema::Tool()
             .name("build")
             .title("Build project")
             .description(
-                "Builds the chosen project, or the currently active project if no name is provided")
+                "Builds the chosen project (or the active startup project if no name is "
+                "given) and blocks until the build finishes. Returns an explicit verdict: "
+                "{succeeded, error_count, warning_count, duration_ms, issues, "
+                "summary_text}. The TaskStatus mirrors the verdict — `completed` on "
+                "success, `failed` on build failure. The `issues` array carries any "
+                "warnings/errors recorded by the build (same shape as list_issues)."
+                "\n\n"
+                "Use `succeeded` to decide success/failure — don't try to infer it from "
+                "the issues array, and don't call get_build_status afterwards (that tool "
+                "reports current activity, not the verdict of a finished build).")
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .inputSchema(
                 Tool::InputSchema().addProperty(
                     "projectName",
-                    QJsonObject{{"description", "Name of the project to build"}, {"type", "string"}}))
-            .outputSchema(ProjectExplorer::IssuesManager::issuesSchema())
+                    QJsonObject{
+                        {"description",
+                         "Name of the project to build. Defaults to the active startup "
+                         "project."},
+                        {"type", "string"}}))
+            .outputSchema(buildOutputSchema)
             .annotations(
                 Schema::ToolAnnotations()
                     .destructiveHint(false)
@@ -421,27 +494,91 @@ void registerMcpTools()
             if (projects.isEmpty())
                 return ResultError("No project named '" + projectName + "' found");
 
+            // Shared state between the buildQueueFinished signal handler and
+            // the heartbeat. Both are needed: the signal carries the
+            // success/failure boolean (BuildManager::currentProgress can only
+            // tell us "still running" vs "not running", never "the most
+            // recent build failed"); the heartbeat is what transitions the
+            // task to `completed` or `failed`. The `timer` is used so the
+            // duration we report is wall-clock from the buildProjects() call
+            // — including dependency resolution and pre-build steps — rather
+            // than just the compile phase.
+            struct State {
+                bool finished = false;
+                bool succeeded = true;
+                QElapsedTimer timer;
+            };
+            auto state = std::make_shared<State>();
+            state->timer.start();
+
+            // Connect BEFORE buildProjects() to avoid losing a synchronously
+            // emitted buildQueueFinished — e.g. when everything is already
+            // up-to-date and the queue drains in one tick. SingleShotConnection
+            // ensures we capture exactly one verdict per tool invocation.
+            QObject::connect(
+                BuildManager::instance(),
+                &BuildManager::buildQueueFinished,
+                BuildManager::instance(),
+                [state](bool success) {
+                    state->succeeded = success;
+                    state->finished = true;
+                },
+                Qt::SingleShotConnection);
+
             BuildManager::buildProjects(projects, ConfigSelection::Active);
 
             using namespace std::chrono_literals;
 
             toolInterface.startTask(
                 1s,
-                [](Schema::Task task) -> Schema::Task {
-                    auto progress = BuildManager::currentProgress();
-                    if (!progress) {
-                        task.status(Schema::TaskStatus::completed);
-                        task.statusMessage("Build finished");
+                [state](Schema::Task task) -> Schema::Task {
+                    if (state->finished) {
+                        task.status(state->succeeded ? Schema::TaskStatus::completed
+                                                     : Schema::TaskStatus::failed);
+                        task.statusMessage(QString::fromLatin1(
+                            state->succeeded ? "Build succeeded" : "Build failed"));
                         Mcp::letTaskDieIn(task, 1min);
                         return task;
                     }
-                    task.statusMessage(
-                        QString("%1 (%2%)").arg(progress->second).arg(progress->first));
-                    return task;
+                    if (auto progress = BuildManager::currentProgress()) {
+                        task.statusMessage(
+                            QString("%1 (%2%)").arg(progress->second).arg(progress->first));
+                    }
+                    return task.status(Schema::TaskStatus::working);
                 },
-                []() -> Utils::Result<Schema::CallToolResult> {
-                    auto issues = issuesManager.getCurrentIssues();
-                    return CallToolResult{}.structuredContent(issues).isError(false);
+                [state]() -> Utils::Result<Schema::CallToolResult> {
+                    const QJsonObject issuesData = issuesManager.getCurrentIssues();
+                    const QJsonObject issuesSummary = issuesData.value("summary").toObject();
+                    const int errorCount = issuesSummary.value("errorCount").toInt();
+                    const int warningCount = issuesSummary.value("warningCount").toInt();
+                    const qint64 durationMs = state->timer.elapsed();
+
+                    QString summaryText;
+                    if (state->succeeded) {
+                        summaryText
+                            = warningCount == 0
+                                  ? QString("Build succeeded in %1 ms").arg(durationMs)
+                                  : QString("Build succeeded with %1 warning(s) in %2 ms")
+                                        .arg(warningCount)
+                                        .arg(durationMs);
+                    } else {
+                        summaryText
+                            = QString("Build failed with %1 error(s), %2 warning(s) in %3 ms")
+                                  .arg(errorCount)
+                                  .arg(warningCount)
+                                  .arg(durationMs);
+                    }
+
+                    return CallToolResult{}
+                        .structuredContent(QJsonObject{
+                            {"succeeded", state->succeeded},
+                            {"error_count", errorCount},
+                            {"warning_count", warningCount},
+                            {"duration_ms", durationMs},
+                            {"issues", issuesData.value("issues")},
+                            {"summary_text", summaryText},
+                        })
+                        .isError(!state->succeeded);
                 },
                 []() { BuildManager::cancel(); },
                 Mcp::progressToken(params));
@@ -1016,9 +1153,28 @@ void registerMcpTools()
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
-                    .addProperty("project", QJsonObject{{"type", "string"}})
-                    .addRequired("project")),
-        wrap([](const QJsonObject &) { return QJsonObject{{"project", getCurrentProject()}}; }));
+                    .addProperty(
+                        "projectName",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Display name of the currently active project"},
+                            })
+                    .addProperty(
+                        "projectFile",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Path to the project's main file (e.g., .pro, .vcxproj, "
+                             "CMakeLists.txt)"},
+                            })
+                    .addProperty(
+                        "projectDirectory",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Path to the project's directory"},
+                            })
+                    .addRequired("projectDirectory")),
+        wrap([](const QJsonObject &) { return getCurrentProject(); }));
 
     ToolRegistry::registerTool(
         Tool{}

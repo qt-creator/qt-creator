@@ -504,23 +504,25 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     setDeviceInfoWidgetsEnabled(true);
     updateButtons();
 
-    if (device->hasDeviceTester()) {
-        QPushButton * const button = new QPushButton(Tr::tr("Test"));
-        m_additionalActionButtons << button;
-        connect(button, &QAbstractButton::clicked, this, &DeviceSettingsWidget::testDevice);
-        m_buttonsLayout->insertWidget(m_buttonsLayout->count() - 1, button);
-    }
+    QList<IDevice::DeviceAction> deviceActions;
 
     if (device->canCreateProcessModel()) {
-        QPushButton * const button = new QPushButton(Tr::tr("Show Running Processes..."));
-        setIgnoreForDirtyHook(button);
-        m_additionalActionButtons << button;
-        connect(button, &QAbstractButton::clicked,
-                this, &DeviceSettingsWidget::handleProcessListRequested);
-        m_buttonsLayout->insertWidget(m_buttonsLayout->count() - 1, button);
+        deviceActions << IDevice::DeviceAction{
+            Tr::tr("Show Running Processes..."),
+            [this](const IDevice::ConstPtr &) { this->handleProcessListRequested(); },
+            [](const IDevice::ConstPtr &) { return true; }};
     }
 
-    for (const IDevice::DeviceAction &deviceAction : device->deviceActions()) {
+    deviceActions << device->deviceActions();
+
+    if (device->hasDeviceTester()) {
+        deviceActions << IDevice::DeviceAction{
+            Tr::tr("Test"),
+            [this](const IDevice::ConstPtr &) { this->testDevice(); },
+            [](const IDevice::ConstPtr &) { return true; }};
+    }
+
+    for (const IDevice::DeviceAction &deviceAction : deviceActions) {
         QPushButton * const button = new DeviceActionButton(deviceAction);
         m_additionalActionButtons << button;
         connect(button, &QAbstractButton::clicked, this, [this, deviceAction] {
@@ -530,7 +532,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
             deviceAction.execute(device);
         });
 
-        m_buttonsLayout->insertWidget(m_buttonsLayout->count() - 1, button);
+        m_buttonsLayout->addWidget(button);
     }
 
     if (!m_osSpecificGroupBox->layout())
@@ -553,7 +555,6 @@ void DeviceSettingsWidget::clearDetails()
 void DeviceSettingsWidget::handleProcessListRequested()
 {
     QTC_ASSERT(currentDevice()->canCreateProcessModel(), return);
-    updateDeviceFromUi();
     DeviceProcessesDialog dlg;
     dlg.addCloseButton();
     dlg.setDevice(currentDevice());

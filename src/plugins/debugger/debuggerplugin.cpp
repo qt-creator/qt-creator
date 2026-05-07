@@ -8,7 +8,6 @@
 #include "debuggerengine.h"
 #include "debuggericons.h"
 #include "debuggeritemmanager.h"
-#include "debuggermainwindow.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
 #include "debuggerkitaspect.h"
@@ -27,8 +26,6 @@
 #include "shared/hostutils.h"
 #include "console/console.h"
 
-#include "analyzer/analyzerutils.h"
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -42,9 +39,9 @@
 #include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/rightpane.h>
 #include <coreplugin/session.h>
 
@@ -116,7 +113,6 @@
 #include <QScopeGuard>
 #include <QStackedWidget>
 #include <QTextBlock>
-#include <QToolButton>
 #include <QVBoxLayout>
 #include <QVariant>
 
@@ -337,8 +333,7 @@ namespace PE = ProjectExplorer::Constants;
 
 Q_DECLARE_METATYPE(QString *)
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Menu Groups
 const char MENU_GROUP_GENERAL[]              = "Debugger.Group.General";
@@ -378,13 +373,6 @@ static QIcon interruptIcon(bool toolBarStyle)
     const static QIcon iconToolBar =
             Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL_TOOLBAR.icon(), sidebarIcon});
     return toolBarStyle ? iconToolBar : icon;
-}
-
-static bool hideAnalyzeMenu()
-{
-    return Core::ICore::settings()
-        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_ANALYZE, false)
-        .toBool();
 }
 
 static bool hideDebugMenu()
@@ -462,15 +450,13 @@ class DebugModeWidget final : public MiniSplitter
 public:
     DebugModeWidget()
     {
-        DebuggerMainWindow *mainWindow = DebuggerMainWindow::instance();
-
         auto editorHolderLayout = new QVBoxLayout;
         editorHolderLayout->setContentsMargins(0, 0, 0, 0);
         editorHolderLayout->setSpacing(0);
 
         auto editorAndFindWidget = new QWidget;
         editorAndFindWidget->setLayout(editorHolderLayout);
-        editorHolderLayout->addWidget(DebuggerMainWindow::centralWidgetStack());
+        editorHolderLayout->addWidget(PerspectivesView::centralWidgetStack());
         editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
 
         auto documentAndRightPane = new MiniSplitter;
@@ -479,7 +465,7 @@ public:
         documentAndRightPane->setStretchFactor(0, 1);
         documentAndRightPane->setStretchFactor(1, 0);
 
-        auto centralEditorWidget = mainWindow->centralWidget();
+        auto centralEditorWidget = PerspectivesView::mainWindow()->centralWidget();
         auto centralLayout = new QVBoxLayout(centralEditorWidget);
         centralEditorWidget->setLayout(centralLayout);
         centralLayout->setContentsMargins(0, 0, 0, 0);
@@ -490,7 +476,7 @@ public:
 
         // Right-side window with editor, output etc.
         auto mainWindowSplitter = new MiniSplitter;
-        mainWindowSplitter->addWidget(mainWindow);
+        mainWindowSplitter->addWidget(PerspectivesView::mainWindow());
         mainWindowSplitter->addWidget(new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter));
         auto outputPane = new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter);
         outputPane->setObjectName("DebuggerOutputPanePlaceHolder");
@@ -500,15 +486,15 @@ public:
         mainWindowSplitter->setOrientation(Qt::Vertical);
 
         // Navigation and right-side window.
-        setFocusProxy(DebuggerMainWindow::centralWidgetStack());
+        setFocusProxy(PerspectivesView::centralWidgetStack());
         addWidget(new NavigationWidgetPlaceHolder(MODE_DEBUG, Side::Left));
         addWidget(mainWindowSplitter);
         setStretchFactor(0, 0);
         setStretchFactor(1, 1);
         setObjectName("DebugModeWidget");
 
-        mainWindow->addSubPerspectiveSwitcher(EngineManager::engineChooser());
-        mainWindow->addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
+        PerspectivesView::addSubPerspectiveSwitcher(EngineManager::engineChooser());
+        PerspectivesView::addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
 
         IContext::attach(this, Context(CC::C_EDITORMANAGER));
     }
@@ -527,9 +513,9 @@ public:
         setId(MODE_DEBUG);
 
         setWidgetCreator([] { return new DebugModeWidget; });
-        setMainWindow(DebuggerMainWindow::instance());
+        setMainWindow(PerspectivesView::mainWindow());
 
-        setMenu(&DebuggerMainWindow::addPerspectiveMenu);
+        setMenu(&PerspectivesView::addPerspectiveMenu);
     }
 };
 
@@ -689,15 +675,14 @@ public:
 public:
     QPointer<DebugMode> m_mode;
 
-    ActionContainer *m_menu = nullptr;
 
     QList<RunControl *> m_scheduledStarts;
 
     ProxyAction m_visibleStartAction; // The fat debug button
     ProxyAction m_hiddenStopAction;
     QAction m_undisturbableAction;
-    OptionalAction m_startAction;
-    OptionalAction m_startDapAction;
+    QAction m_startAction;
+    QAction m_startDapAction;
     QAction m_debugWithoutDeployAction{Tr::tr("Start Debugging Without Deployment")};
     QAction m_startAndDebugApplicationAction{Tr::tr("Start and Debug External Application...")};
     QAction m_attachToRunningApplication{Tr::tr("Attach to Running Application...")};
@@ -843,29 +828,10 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
                 this, &DebuggerPluginPrivate::parseCommandLineArguments);
     }
 
-    // Menus
-    m_menu = ActionManager::createMenu(M_DEBUG_ANALYZER);
-    m_menu->menu()->setTitle(Tr::tr("&Analyze"));
-    m_menu->menu()->setEnabled(true);
-
-    m_menu->appendGroup(G_ANALYZER_CONTROL);
-    m_menu->appendGroup(G_ANALYZER_TOOLS);
-    m_menu->appendGroup(G_ANALYZER_REMOTE_TOOLS);
-    m_menu->appendGroup(G_ANALYZER_OPTIONS);
-
     ActionContainer *touchBar = ActionManager::createTouchBar("Debugger.TouchBar",
                                                               Icons::MACOS_TOUCHBAR_DEBUG.icon());
     ActionManager::actionContainer(Core::Constants::TOUCH_BAR)
         ->addMenu(touchBar, Core::Constants::G_TOUCHBAR_OTHER);
-
-    ActionContainer *menubar = ActionManager::actionContainer(MENU_BAR);
-    ActionContainer *mtools = ActionManager::actionContainer(M_TOOLS);
-    if (!hideAnalyzeMenu())
-        menubar->addMenu(mtools, m_menu);
-
-    m_menu->addSeparator(G_ANALYZER_TOOLS);
-    m_menu->addSeparator(G_ANALYZER_REMOTE_TOOLS);
-    m_menu->addSeparator(G_ANALYZER_OPTIONS);
 
     QAction *act;
 
@@ -1205,20 +1171,20 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     connect(
         ModeManager::instance(),
         &ModeManager::currentModeAboutToChange,
-        DebuggerMainWindow::instance(),
+        PerspectivesView::instance(),
         [] {
             if (ModeManager::currentModeId() == MODE_DEBUG)
-                DebuggerMainWindow::leaveDebugMode();
+                PerspectivesView::leaveDebugMode();
         });
 
     connect(
         ModeManager::instance(),
         &ModeManager::currentModeChanged,
-        DebuggerMainWindow::instance(),
+        PerspectivesView::instance(),
         [](Id mode, Id oldMode) {
             QTC_ASSERT(mode != oldMode, return);
             if (mode == MODE_DEBUG) {
-                DebuggerMainWindow::enterDebugMode();
+                PerspectivesView::enterDebugMode();
                 if (IEditor *editor = EditorManager::currentEditor())
                     editor->widget()->setFocus();
             }
@@ -1255,7 +1221,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
                                               Constants::PRESET_PERSPECTIVE_ID);
 
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
-    m_perspective.addToolBarAction(&m_startAction);
+    m_perspective.addToolBarAction(&m_startAction, Qt::ToolButtonTextBesideIcon);
 
     m_perspective.addWindow(engineManagerWindow, Perspective::SplitVertical, nullptr);
     m_perspective.addWindow(breakpointManagerWindow, Perspective::SplitHorizontal, engineManagerWindow);
@@ -1315,12 +1281,11 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
                                                          Tr::tr("DAP Debugger Perspectives"),
                                                          "DAPDebugger.Docks.Snapshots");
 
-    m_perspectiveDap.addToolBarAction(&m_startDapAction);
+    m_perspectiveDap.addToolBarAction(&m_startDapAction, Qt::ToolButtonTextBesideIcon);
     m_startDapAction.setToolTip(Tr::tr("Start DAP Debugging"));
     m_startDapAction.setText(Tr::tr("Start DAP Debugging"));
     m_startDapAction.setEnabled(true);
     m_startDapAction.setIcon(startIcon(true));
-    m_startDapAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     m_startDapAction.setVisible(true);
 
     m_perspectiveDap.useSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
@@ -1549,7 +1514,6 @@ void DebuggerPluginPrivate::updatePresetState()
         // correspond to the current start up project.
         m_startAction.setEnabled(canRun.has_value());
         m_startAction.setIcon(startIcon(true));
-        m_startAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         m_startAction.setVisible(true);
         m_debugWithoutDeployAction.setEnabled(canRun.has_value());
         m_visibleStartAction.setAction(&m_startAction);
@@ -1675,7 +1639,7 @@ void DebuggerPluginPrivate::reloadDebuggingHelpers()
     if (DebuggerEngine *engine = EngineManager::currentEngine())
         engine->reloadDebuggingHelpers();
     else
-        DebuggerMainWindow::showStatusMessage(
+        PerspectivesView::showStatusMessage(
             Tr::tr("Reload debugging helpers skipped as no engine is running."), 5000);
 }
 
@@ -2017,14 +1981,19 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     registerMcpTools();
 
-    DebuggerMainWindow::ensureMainWindowExists();
+    PerspectivesView::ensureMainWindowExists();
+
+    connect(PerspectivesView::instance(), &PerspectivesView::perspectivesChanged,
+            &m_engineManager, &EngineManager::updatePerspectives);
+    connect(PerspectivesView::instance(), &PerspectivesView::debugModeRequested,
+            &m_engineManager, &EngineManager::activateDebugMode);
 }
 
 QWidget *DebuggerPluginPrivate::addSearch(BaseTreeView *treeView)
 {
     BoolAspect &act = settings().useAlternatingRowColors;
     treeView->setAlternatingRowColors(act());
-    treeView->setProperty(PerspectiveState::savesHeaderKey(), true);
+    treeView->setProperty(Perspective::savesHeaderKey(), true);
     connect(&act, &BaseAspect::changed, treeView, [treeView] {
         treeView->setAlternatingRowColors(settings().useAlternatingRowColors());
     });
@@ -2097,7 +2066,6 @@ DebuggerPlugin::DebuggerPlugin()
     setObjectName("DebuggerPlugin");
     m_instance = this;
 
-    qRegisterMetaType<PerspectiveState>("Utils::PerspectiveState");
 }
 
 DebuggerPlugin::~DebuggerPlugin()
@@ -2117,7 +2085,7 @@ IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
     dd->m_shutdownTimer.setSingleShot(true);
 
     const auto doShutdown = [this] {
-        DebuggerMainWindow::doShutdown();
+        PerspectivesView::doShutdown();
 
         dd->m_shutdownTimer.stop();
         disconnect(EngineManager::instance(), &EngineManager::shutDownCompleted, this, nullptr);
@@ -2154,108 +2122,6 @@ void DebuggerPlugin::extensionsInitialized()
 {
     dd->extensionsInitialized();
 }
-
-} // namespace Internal
-
-static bool buildTypeAccepted(QFlags<ToolMode> toolMode, BuildConfiguration::BuildType buildType)
-{
-    if (buildType == BuildConfiguration::Unknown)
-        return true;
-    if (buildType == BuildConfiguration::Debug && (toolMode & DebugMode))
-        return true;
-    if (buildType == BuildConfiguration::Release && (toolMode & ReleaseMode))
-        return true;
-    if (buildType == BuildConfiguration::Profile && (toolMode & ProfileMode))
-        return true;
-    return false;
-}
-
-static BuildConfiguration::BuildType startupBuildType()
-{
-    BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
-    if (RunConfiguration *runConfig = activeRunConfigForActiveProject()) {
-        if (const BuildConfiguration *buildConfig = runConfig->buildConfiguration())
-            buildType = buildConfig->buildType();
-    }
-    return buildType;
-}
-
-
-bool wantRunTool(ToolMode toolMode, const QString &toolName)
-{
-    // Check the project for whether the build config is in the correct mode
-    // if not, notify the user and urge him to use the correct mode.
-    BuildConfiguration::BuildType buildType = startupBuildType();
-    if (!buildTypeAccepted(toolMode, buildType)) {
-        QString currentMode;
-        switch (buildType) {
-            case BuildConfiguration::Debug:
-                currentMode = msgBuildConfigurationDebug();
-                break;
-            case BuildConfiguration::Profile:
-                currentMode = msgBuildConfigurationProfile();
-                break;
-            case BuildConfiguration::Release:
-                currentMode = msgBuildConfigurationRelease();
-                break;
-            default:
-                QTC_CHECK(false);
-        }
-
-        QString toolModeString;
-        switch (toolMode) {
-            case DebugMode:
-                toolModeString = Tr::tr("in Debug mode");
-                break;
-            case ProfileMode:
-                toolModeString = Tr::tr("in Profile mode");
-                break;
-            case ReleaseMode:
-                toolModeString = Tr::tr("in Release mode");
-                break;
-            case SymbolsMode:
-                toolModeString = Tr::tr("with debug symbols (Debug or Profile mode)");
-                break;
-            case OptimizedMode:
-                toolModeString = Tr::tr("on optimized code (Profile or Release mode)");
-                break;
-            default:
-                QTC_CHECK(false);
-        }
-        const QString title = Tr::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
-        const QString message = Tr::tr("<html><head/><body><p>You are trying "
-            "to run the tool \"%1\" on an application in %2 mode. "
-            "The tool is designed to be used %3.</p><p>"
-            "Run-time characteristics differ significantly between "
-            "optimized and non-optimized binaries. Analytical "
-            "findings for one mode may or may not be relevant for "
-            "the other.</p><p>"
-            "Running tools that need debug symbols on binaries that "
-            "don't provide any may lead to missing function names "
-            "or otherwise insufficient output.</p><p>"
-            "Do you want to continue and run the tool in %2 mode?</p></body></html>")
-                .arg(toolName).arg(currentMode).arg(toolModeString);
-        if (Utils::CheckableMessageBox::question(title,
-                                                 message,
-                                                 Key("AnalyzerCorrectModeWarning"))
-            != QMessageBox::Yes)
-                return false;
-    }
-
-    return true;
-}
-
-void enableMainWindow(bool on)
-{
-    DebuggerMainWindow::instance()->setEnabled(on);
-}
-
-void showPermanentStatusMessage(const QString &message)
-{
-    DebuggerMainWindow::showStatusMessage(message, -1);
-}
-
-namespace Internal {
 
 Result<> DebuggerPlugin::initialize(const QStringList &arguments)
 {
@@ -2341,7 +2207,6 @@ void DebuggerPlugin::getEnginesState(QByteArray *json) const
     *json = QJsonDocument(QJsonObject::fromVariantMap(result)).toJson();
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal
 
 #include "debuggerplugin.moc"

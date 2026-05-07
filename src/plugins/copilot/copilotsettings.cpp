@@ -94,7 +94,7 @@ CopilotSettings::CopilotSettings()
     distPath.setLabelText(Tr::tr("Path to %1:").arg(entryPointFileName));
     distPath.setHistoryCompleter("Copilot.DistPath.History");
     //: %1 is the filename of the copilot language server
-    distPath.setDisplayName(Tr::tr("%1 path").arg(entryPointFileName));
+    distPath.setDisplayName(Tr::tr("Path to %1").arg(entryPointFileName));
     //: %1 is the URL to copilot.vim getting started, %2 is the filename of the copilot language server
     distPath.setToolTip(Tr::tr("Select path to %2 in Copilot Neovim plugin. See "
                                "%1 for installation instructions.")

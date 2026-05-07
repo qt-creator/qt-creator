@@ -8,6 +8,7 @@
 
 #include <QAbstractTableModel>
 #include <QObject>
+#include <QPushButton>
 #include <QTreeView>
 
 #include <utility>
@@ -40,6 +41,7 @@ public:
     bool isDefault(int row) const;
     void setVolatileDefaultRow(int row);
     virtual void markRemoved(int row);
+    virtual int cloneRow(int row) { Q_UNUSED(row); return -1; }
     void removeItem(int row);
     void setChanged(int row, bool changed);
     void notifyRowChanged(int row);
@@ -157,20 +159,32 @@ public:
     explicit GroupedView(GroupedModel &model);
 
     QTreeView &view();
+    QPushButton &removeButton();
+    QPushButton &cloneButton();
+
+    void setCanRemoveRow(std::function<bool(int)> predicate);
 
     int currentRow() const;
     void selectRow(int row);
     void scrollToRow(int row);
 
     void removeCurrent();
+    void cloneCurrent();
 
 signals:
     void currentRowChanged(int oldRow, int newRow);
+    void currentRemoved();
+    void currentCloned();
 
 private:
+    void updateRemoveButton();
+
     GroupedModel &m_model;
     QTreeView m_view;
+    QPushButton m_removeButton;
+    QPushButton m_cloneButton;
     QVariant m_savedVariant;
+    std::function<bool(int)> m_canRemove;
 };
 
 } // namespace Utils

@@ -99,7 +99,7 @@
 
     For a command-line build, run \c {qmake} with the additional options:
 
-    \badcode
+    \code [text]
     CONFIG+=cocoplugin COCOPATH=<Coco directory>
     \endcode
 

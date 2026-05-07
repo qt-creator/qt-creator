@@ -118,6 +118,7 @@ add_qtc_plugin(ProjectExplorer
     projectcommentssettings.cpp projectcommentssettings.h
     projectconfiguration.cpp projectconfiguration.h
     projectconfigurationmodel.cpp projectconfigurationmodel.h
+    detailederrorview.cpp detailederrorview.h
     projectexplorer.cpp projectexplorer.h
     projectexplorer.qrc
     projectexplorer_export.h

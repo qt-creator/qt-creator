@@ -1260,19 +1260,31 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     finishToolCallGroup();
 
     const ToolCallUpdate &toolCall = request.toolCall();
+    const QString toolCallId = toolCall.toolCallId();
     const QString title = toolCall.title().value_or(QString());
     const QString kindText = toolCall.kind() ? toString(*toolCall.kind()) : QString();
 
     auto *widget = new PermissionRequestWidget(title, kindText, m_container);
 
+    auto markToolCallFailed = [this, toolCallId] {
+        if (auto *detail = m_toolCallDetailWidgets.value(toolCallId))
+            detail->applyStatus(ToolCallStatus::failed);
+        else if (auto *w = m_toolCallWidgets.value(toolCallId))
+            w->applyStatus(ToolCallStatus::failed);
+        if (auto *group = m_toolCallGroups.value(toolCallId))
+            group->trackStatus(toolCallId, ToolCallStatus::failed);
+    };
+
     const QList<PermissionOption> options = request.options();
     for (const PermissionOption &option : options) {
         auto *button = widget->addOptionButton(option.name(), option.kind());
         connect(button, &QPushButton::clicked, this,
-                [this, id, option, widget] {
+                [this, id, option, widget, markToolCallFailed] {
             const bool accepted = option.kind() == PermissionOptionKind::allow_once
                                   || option.kind() == PermissionOptionKind::allow_always;
             widget->setResolved(option.name(), accepted);
+            if (!accepted)
+                markToolCallFailed();
             emit permissionOptionSelected(id, option.optionId());
         });
     }
@@ -1282,8 +1294,9 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     if (!hasRejectOption) {
         // Add a deny/cancel button if not already present, to allow user to reject the request without selecting an option
         auto *cancelButton = widget->addOptionButton(tr("Deny"), PermissionOptionKind::reject_once);
-        connect(cancelButton, &QPushButton::clicked, this, [this, id, widget] {
+        connect(cancelButton, &QPushButton::clicked, this, [this, id, widget, markToolCallFailed] {
             widget->setResolved(tr("Denied"), false);
+            markToolCallFailed();
             emit permissionCancelled(id);
         });
     }
@@ -1321,6 +1334,7 @@ SessionPickerWidget *AcpMessageView::addSessionPicker()
     finishAgentMessage();
     finishToolCallGroup();
 
+    m_autoScroll = false;
     auto *picker = new SessionPickerWidget(m_container);
     addWidget(picker);
     return picker;

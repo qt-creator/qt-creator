@@ -41,7 +41,6 @@ QtcPlugin {
             "debuggeritem.cpp", "debuggeritem.h",
             "debuggeritemmanager.cpp", "debuggeritemmanager.h",
             "debuggerkitaspect.cpp", "debuggerkitaspect.h",
-            "debuggermainwindow.cpp", "debuggermainwindow.h",
             "debuggerplugin.cpp",
             "debuggerprotocol.cpp", "debuggerprotocol.h",
             "debuggerrunconfigurationaspect.cpp", "debuggerrunconfigurationaspect.h",
@@ -207,16 +206,6 @@ QtcPlugin {
             "advapi32",
             "ole32",
             "shell32"
-        ]
-    }
-
-    Group {
-        name: "Analyzer"
-        prefix: "analyzer/"
-        files: [
-            "analyzerutils.h",
-            "detailederrorview.cpp",
-            "detailederrorview.h",
         ]
     }
 

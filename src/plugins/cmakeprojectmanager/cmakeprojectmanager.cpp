@@ -17,6 +17,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/helpmanager.h>
@@ -25,9 +26,6 @@
 
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
-
-#include <debugger/analyzer/analyzerutils.h>
-#include <debugger/debuggerconstants.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -260,9 +258,7 @@ CMakeManager::CMakeManager()
         .setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon())
         .setText(Tr::tr("CMake Profiler"))
         .bindContextAction(&m_cmakeProfilerAction)
-        .addToContainer(Debugger::Constants::M_DEBUG_ANALYZER,
-                        Debugger::Constants::G_ANALYZER_TOOLS,
-                        false)
+        .addToContainer(Core::Constants::M_DEBUG_ANALYZER, Core::Constants::G_ANALYZER_TOOLS, false)
         .addOnTriggered(this, [this] {
             runCMakeWithProfiling(activeBuildSystemForActiveProject());
         });

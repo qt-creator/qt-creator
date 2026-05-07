@@ -19,8 +19,9 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/session.h>
 
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projecttree.h>
 
 #include <texteditor/textmark.h>
 #include <texteditor/texteditor.h>
@@ -1981,7 +1982,7 @@ QIcon BreakpointItem::icon(bool withLocationMarker) const
     // FIXME: This seems to be called on each cursor blink as soon as the
     // cursor is near a line with a breakpoint marker (+/- 2 lines or so).
     if (m_parameters.isTracepoint())
-        return Icons::TRACEPOINT.icon();
+        return ProjectExplorer::Icons::TRACEPOINT.icon();
     if (m_parameters.type == WatchpointAtAddress)
         return Icons::WATCHPOINT.icon();
     if (m_parameters.type == WatchpointAtExpression)
@@ -2173,7 +2174,7 @@ QVariant SubBreakpointItem::data(int column, int role) const
 {
     if (role == Qt::DecorationRole && column == 0) {
         if (params.tracepoint)
-            return Icons::TRACEPOINT.icon();
+            return ProjectExplorer::Icons::TRACEPOINT.icon();
         return params.enabled ? Icons::BREAKPOINT.icon()
                               : Icons::BREAKPOINT_DISABLED.icon();
     }
@@ -2306,7 +2307,7 @@ QIcon GlobalBreakpointItem::icon() const
     // FIXME: This seems to be called on each cursor blink as soon as the
     // cursor is near a line with a breakpoint marker (+/- 2 lines or so).
     if (m_params.isTracepoint())
-        return Icons::TRACEPOINT.icon();
+        return ProjectExplorer::Icons::TRACEPOINT.icon();
     if (m_params.type == WatchpointAtAddress)
         return Icons::WATCHPOINT.icon();
     if (m_params.type == WatchpointAtExpression)

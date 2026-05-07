@@ -23,8 +23,6 @@ public:
     WorkSpaceFolderRequest();
     using Request::Request;
     constexpr static const char methodName[] = "workspace/workspaceFolders";
-
-    bool parametersAreValid(QString * /*errorMessage*/) const override { return true; }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceFoldersChangeEvent : public JsonObject

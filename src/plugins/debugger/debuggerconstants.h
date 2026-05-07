@@ -16,16 +16,6 @@ const char C_DEBUGMODE[]            = "Debugger.DebugMode";
 
 const char DEBUGGER_RUN_FACTORY[]   = "DebuggerRunWorkerFactory";
 
-// Analyze menu
-const char M_DEBUG_ANALYZER[]        = "Analyzer.Menu.StartAnalyzer";
-
-const char G_ANALYZER_CONTROL[]      = "Menu.Group.Analyzer.Control";
-const char G_ANALYZER_TOOLS[]        = "Menu.Group.Analyzer.Tools";
-const char G_ANALYZER_REMOTE_TOOLS[] = "Menu.Group.Analyzer.RemoteTools";
-const char G_ANALYZER_OPTIONS[]      = "Menu.Group.Analyzer.Options";
-
-const char ANALYZERTASK_ID[]         = "Analyzer.TaskId";
-
 // Debugger commands
 const char DEBUGGER_START[]          = "Debugger.Start";
 

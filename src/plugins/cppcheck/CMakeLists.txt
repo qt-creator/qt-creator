@@ -1,6 +1,6 @@
 add_qtc_plugin(Cppcheck
   DEPENDS Qt::Widgets
-  PLUGIN_DEPENDS Core Debugger CppEditor ProjectExplorer TextEditor
+  PLUGIN_DEPENDS Core CppEditor ProjectExplorer TextEditor
   SOURCES
     cppcheckconstants.h
     cppcheckdiagnostic.cpp cppcheckdiagnostic.h

@@ -42,14 +42,12 @@ void AcpChatController::setInspector(AcpInspector *inspector)
     m_inspector = inspector;
 }
 
-void AcpChatController::connectToServer(const QString &serverId, const FilePath &workingDirectory)
+void AcpChatController::connectToServer(const QString &serverId)
 {
     disconnectFromServer();
 
     if (serverId.isEmpty())
         return;
-
-    m_workingDirectory = workingDirectory;
 
     const QList<AcpSettings::ServerInfo> servers = AcpSettings::servers();
     const auto it = std::find_if(servers.begin(), servers.end(),
@@ -67,8 +65,6 @@ void AcpChatController::connectToServer(const QString &serverId, const FilePath 
     auto *transport = new AcpStdioTransport(this);
     const FilePath command = cmdLine.executable();
     transport->setCommandLine(CommandLine(command, cmdLine.arguments(), CommandLine::Raw));
-    if (!workingDirectory.isEmpty())
-        transport->setWorkingDirectory(workingDirectory);
     if (serverInfo.envChanges.hasItems()) {
         Environment env = command.deviceEnvironment();
         serverInfo.envChanges.modifyEnvironment(env, nullptr);
@@ -156,11 +152,12 @@ void AcpChatController::disconnectFromServer()
     emit connectionStateChanged(AcpClientObject::State::Disconnected);
 }
 
-void AcpChatController::createNewSession()
+void AcpChatController::createNewSession(const FilePath &workingDirectory)
 {
     if (!m_client || !m_initialized)
         return;
 
+    m_workingDirectory = workingDirectory;
 
     m_client->newSession(buildNewSessionRequest(),
                          [this](const QJsonObject &result, const std::optional<Error> &error) {
@@ -223,26 +220,39 @@ void AcpChatController::sendPrompt(const QString &text,
     QList<ContentBlock> content = {textContent};
     BaseTextEditor *currentTextEditor = BaseTextEditor::currentTextEditor();
     if (includeCurrentEditor && currentTextEditor) {
-        const QString uri = currentTextEditor->document()->filePath().toUrl().toString();
-        content << ResourceLink()
-                       .name(currentTextEditor->document()->filePath().fileName())
-                       .description("Qt Creators current main Text Editor file.")
-                       .uri(uri);
+        const FilePath filePath = currentTextEditor->document()->filePath();
+        if (!filePath.isEmpty()) {
+            const QString uri = filePath.toUrl().toString();
+            content << ResourceLink()
+                           .name(filePath.fileName())
+                           .description("Qt Creators current main Text Editor file.")
+                           .uri(uri);
 
-        if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
-            TextEditorWidget *widget = currentTextEditor->editorWidget();
-            TextResourceContents editorState;
-            editorState.uri(uri);
-            QString stateString = "This is the state of the current Text Editor in Qt Creator\n";
-            QTextCursor tc = currentTextEditor->textCursor();
-            const QString cursorString = "Cursor %1: %2, Line(0-based): %3, Column(0-based): %4\n";
-            stateString += cursorString.arg("Position").arg(tc.position()).arg(tc.blockNumber()).arg(tc.positionInBlock());
-            tc.setPosition(tc.anchor());
-            stateString += cursorString.arg("Anchor").arg(tc.position()).arg(tc.blockNumber()).arg(tc.positionInBlock());
-            stateString += "First Visible Line: " + QString::number(widget->firstVisibleBlockNumber()) + "\n";
-            stateString += "Last Visible Line: " + QString::number(widget->lastVisibleBlockNumber()) + "\n";
-            content << EmbeddedResource().resource(
-                TextResourceContents().text(stateString).uri(uri));
+            if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
+                TextEditorWidget *widget = currentTextEditor->editorWidget();
+                TextResourceContents editorState;
+                editorState.uri(uri);
+                QString stateString
+                    = "This is the state of the current Text Editor in Qt Creator\n";
+                QTextCursor tc = currentTextEditor->textCursor();
+                const QString cursorString
+                    = "Cursor %1: %2, Line(0-based): %3, Column(0-based): %4\n";
+                stateString += cursorString.arg("Position")
+                                   .arg(tc.position())
+                                   .arg(tc.blockNumber())
+                                   .arg(tc.positionInBlock());
+                tc.setPosition(tc.anchor());
+                stateString += cursorString.arg("Anchor")
+                                   .arg(tc.position())
+                                   .arg(tc.blockNumber())
+                                   .arg(tc.positionInBlock());
+                stateString += "First Visible Line: "
+                               + QString::number(widget->firstVisibleBlockNumber()) + "\n";
+                stateString += "Last Visible Line: "
+                               + QString::number(widget->lastVisibleBlockNumber()) + "\n";
+                content << EmbeddedResource().resource(
+                    TextResourceContents().text(stateString).uri(uri));
+            }
         }
     }
 
@@ -354,10 +364,7 @@ void AcpChatController::onInitializeResult(const InitializeResponse &response)
 
     emit agentInfoReceived(m_agentName, m_agentVersion, m_iconUrl);
 
-    if (supportsSessionList())
-        emit sessionSelectionRequired();
-    else
-        createNewSession();
+    emit sessionSelectionRequired();
 }
 
 static QList<McpServer> buildMcpServers()
@@ -451,10 +458,12 @@ void AcpChatController::listSessions(const std::optional<QString> &cursor)
     });
 }
 
-void AcpChatController::loadSession(const QString &sessionId)
+void AcpChatController::loadSession(const QString &sessionId, const FilePath &workingDirectory)
 {
     if (!m_client || !m_initialized)
         return;
+
+    m_workingDirectory = workingDirectory;
 
     LoadSessionRequest req;
     req.sessionId(sessionId);

@@ -151,18 +151,22 @@ WrappedProcessInterface::WrappedProcessInterface(
 
         if (d->m_remotePID == 0 && !d->m_hasReceivedFirstOutput) {
             resultData.m_error = QProcess::FailedToStart;
-            resultData.m_errorString = d->m_unexpectedStartupOutput;
+
+            const QByteArray stdOut = d->m_process.readAllRawStandardOutput();
+            const QByteArray stdErr = d->m_process.readAllRawStandardError();
+
+            QStringList details;
+            if (!d->m_unexpectedStartupOutput.isEmpty())
+                details.append(d->m_unexpectedStartupOutput);
+            if (!stdOut.isEmpty())
+                details.append(QString::fromUtf8(stdOut).trimmed());
+            if (!stdErr.isEmpty())
+                details.append(QString::fromUtf8(stdErr).trimmed());
+            resultData.m_errorString = details.join('\n');
 
             qCWarning(wrappedProcessInterface)
                 << "Process failed to start:" << d->m_process.commandLine() << ":"
-                << d->m_unexpectedStartupOutput;
-            QByteArray stdOut = d->m_process.readAllRawStandardOutput();
-            QByteArray stdErr = d->m_process.readAllRawStandardError();
-
-            if (!stdOut.isEmpty())
-                qCWarning(wrappedProcessInterface) << "stdout:" << stdOut;
-            if (!stdErr.isEmpty())
-                qCWarning(wrappedProcessInterface) << "stderr:" << stdErr;
+                << resultData.m_errorString;
         }
 
         emit done(resultData);

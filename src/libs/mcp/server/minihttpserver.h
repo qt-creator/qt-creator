@@ -307,12 +307,12 @@ public:
         writeToSocket(chunk);
     }
 
-    void writeEndChunked(const QList<QByteArray> & = {})
+    void writeEndChunked(const QByteArray &data)
     {
         if (!m_socket)
             return;
         if (m_chunked)
-            writeToSocket("0\r\n\r\n");
+            writeChunk(data);
         closeSocket();
     }
 

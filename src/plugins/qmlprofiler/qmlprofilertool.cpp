@@ -27,12 +27,8 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-
-#include <debugger/analyzer/analyzerutils.h>
-#include <debugger/debuggerconstants.h>
-#include <debugger/debuggericons.h>
-#include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -73,8 +69,6 @@
 
 using namespace Core;
 using namespace Core::Constants;
-using namespace Debugger;
-using namespace Debugger::Constants;
 using namespace QmlDebug;
 using namespace QmlProfiler::Constants;
 using namespace ProjectExplorer;
@@ -229,7 +223,7 @@ QmlProfilerTool::QmlProfilerTool()
 
     QObject::connect(d->m_startAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
 
-    Utils::Perspective *perspective = d->m_viewContainer->perspective();
+    Perspective *perspective = d->m_viewContainer->perspective();
     perspective->addToolBarAction(d->m_startAction);
     perspective->addToolBarAction(d->m_stopAction);
     perspective->addToolBarWidget(d->m_recordButton);
@@ -255,8 +249,8 @@ QmlProfilerTool::QmlProfilerTool()
                 d->m_profilerState->currentState() != QmlProfilerStateManager::AppRunning
                 ? d->m_profilerState->clientRecording() : d->m_profilerState->serverRecording();
 
-        const static QIcon recordOn = Debugger::Icons::RECORD_ON.icon();
-        const static QIcon recordOff = Debugger::Icons::RECORD_OFF.icon();
+        const static QIcon recordOn = ProjectExplorer::Icons::RECORD_ON.icon();
+        const static QIcon recordOff = ProjectExplorer::Icons::RECORD_OFF.icon();
 
         // update display
         d->m_recordButton->setToolTip(recording ? Tr::tr("Disable Profiling") : Tr::tr("Enable Profiling"));
@@ -318,10 +312,10 @@ QmlProfilerTool::QmlProfilerTool()
 
     menu->addAction(ActionManager::registerAction(d->m_runAction.get(),
                                                   "QmlProfiler.Internal"),
-                    Debugger::Constants::G_ANALYZER_TOOLS);
+                    Core::Constants::G_ANALYZER_TOOLS);
     menu->addAction(ActionManager::registerAction(d->m_attachAction.get(),
                                                   "QmlProfiler.AttachToWaitingApplication"),
-                    Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
+                    Core::Constants::G_ANALYZER_REMOTE_TOOLS);
 
     menu->addMenu(d->m_options.get(), G_ANALYZER_OPTIONS);
     d->m_options->addAction(ActionManager::registerAction(d->m_loadQmlTrace.get(),
@@ -623,7 +617,7 @@ void QmlProfilerTool::showSaveDialog()
         if (!filePath.endsWith(zFile) && !filePath.endsWith(tFile))
             filePath = filePath.stringAppended(zFile);
         saveLastTraceFile(filePath);
-        Debugger::enableMainWindow(false);
+        PerspectivesView::enableMainWindow(false);
         Core::ProgressManager::addTask(d->m_profilerModelManager->save(filePath.toUrlishString()),
                                        Tr::tr("Saving Trace Data"), TASK_SAVE,
                                        Core::ProgressManager::ShowInApplicationIcon);
@@ -644,7 +638,7 @@ void QmlProfilerTool::showLoadDialog()
 
     if (!filePath.isEmpty()) {
         saveLastTraceFile(filePath);
-        Debugger::enableMainWindow(false);
+        PerspectivesView::enableMainWindow(false);
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);
         d->m_profilerModelManager->populateFileFinder();
@@ -675,7 +669,7 @@ void QmlProfilerTool::onLoadSaveFinished()
 {
     disconnect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                this, &QmlProfilerTool::setRecordedFeatures);
-    Debugger::enableMainWindow(true);
+    PerspectivesView::enableMainWindow(true);
 }
 
 /*!

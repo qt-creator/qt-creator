@@ -48,7 +48,7 @@ public:
 
         method.setSettingsKey("RemoteLinux.RsyncDeployStep.TransferMethod");
         method.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-        method.setDisplayName(Tr::tr("Transfer method:"));
+        method.setLabelText(Tr::tr("Transfer method:"));
         method.addOption(Tr::tr("Use rsync or sftp if available, but prefer rsync. "
                                 "Otherwise use default transfer."));
         method.addOption(Tr::tr("Use sftp if available. Otherwise use default transfer."));

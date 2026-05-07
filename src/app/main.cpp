@@ -37,8 +37,10 @@
 #include <QHBoxLayout>
 #include <QLibraryInfo>
 #include <QMessageBox>
+#include <QCryptographicHash>
 #include <QNetworkProxyFactory>
 #include <QPixmapCache>
+#include <QSslConfiguration>
 #include <QProcess>
 #include <QPushButton>
 #include <QScopeGuard>
@@ -829,12 +831,17 @@ int main(int argc, char **argv)
     QTranslator translator;
     QTranslator qtTranslator;
     QStringList uiLanguages = QLocale::system().uiLanguages();
+    QString userOverrideLang = userSettings->value("General/OverrideLanguage").toString();
+    // "C" is synonymous to "en" for old settings - handle it silently
+    if (userOverrideLang == "C") {
+        userSettings->setValue("General/OverrideLanguage", QString("en"));
+        userOverrideLang = "en";
+    }
     const QString overrideLanguage
         = options.hasTestOption ? QString("en") // force built-in when running tests
-                                : userSettings->value("General/OverrideLanguage").toString();
-    // "C" is synonymous to "en" for old settings
+                                : userOverrideLang;
     if (!overrideLanguage.isEmpty())
-        uiLanguages.prepend(overrideLanguage == "C" ? "en" : overrideLanguage);
+        uiLanguages.prepend(overrideLanguage);
     if (!options.uiLanguage.isEmpty())
         uiLanguages.prepend(options.uiLanguage);
     const QString &creatorTrPath = resourcePath() + "/translations";
@@ -866,6 +873,13 @@ int main(int argc, char **argv)
         TextEncoding::setEncodingForLocale(overrideCodecForLocale);
 
     app.setDesktopFileName(IDE_APP_ID);
+
+    // Hack/Workaround for QTBUG-136223:
+    // Hold QCryptographicHash to pin OpenSSL provider during TLS init
+    {
+        const QCryptographicHash h(QCryptographicHash::Sha256);
+        QSslConfiguration::defaultConfiguration();
+    }
 
     // Make sure we honor the system's proxy settings
     QNetworkProxyFactory::setUseSystemConfiguration(true);
@@ -901,9 +915,6 @@ int main(int argc, char **argv)
     }
     restarter.setArguments(options.preAppArguments + PluginManager::argumentsForRestart()
                            + lastSessionArgument());
-    // if settingspath is not provided we need to pass on the settings in use
-    const QString settingspath = options.preAppArguments.contains(QLatin1String(SETTINGS_OPTION))
-            ? QString() : options.settingsPath;
 
     PluginSpec *coreplugin = PluginManager::specById(QLatin1String(corePluginIdC));
     if (!coreplugin) {

@@ -178,7 +178,7 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
     connect(this, &QbsBuildStep::qbsConfigurationChanged,
             qbsBuildConfig, &QbsBuildConfiguration::qbsConfigurationChanged);
 
-    buildVariantHolder.setDisplayName(QbsProjectManager::Tr::tr("Build variant:"));
+    buildVariantHolder.setLabelText(QbsProjectManager::Tr::tr("Build variant:"));
     buildVariantHolder.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     buildVariantHolder.addOption({msgBuildConfigurationDebug(), {}, Constants::QBS_VARIANT_DEBUG});
     buildVariantHolder.addOption(

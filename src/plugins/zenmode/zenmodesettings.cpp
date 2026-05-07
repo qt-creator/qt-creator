@@ -5,12 +5,14 @@
 
 #include "zenmodeplugintr.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/shutdownguard.h>
 
+using namespace Core;
 using namespace Utils;
 
 namespace ZenMode {
@@ -34,12 +36,16 @@ ZenModeSettings::ZenModeSettings()
 
     modes.setLabelText(Tr::tr("Modes bar state when active"));
     modes.setSettingsKey("ModesBarState");
-    SelectionAspect::Option optHidden(Tr::tr("Hidden"),
-        Tr::tr("Hide Modes bar (default)."), {0});
-    SelectionAspect::Option optIconsOnly(Tr::tr("Icons only"),
-        Tr::tr("Show Modes bar icons only"), {1});
-    SelectionAspect::Option optIconsText(Tr::tr("Icons and Text"),
-        Tr::tr("Show Modes bar icons and text"), {2});
+    SelectionAspect::Option optHidden(
+        Tr::tr("Hidden"), Tr::tr("Hide Modes bar (default)."), int(ModeManager::Style::Hidden));
+    SelectionAspect::Option optIconsOnly(
+        Tr::tr("Icons only"),
+        Tr::tr("Show Modes bar icons only"),
+        int(ModeManager::Style::IconsOnly));
+    SelectionAspect::Option optIconsText(
+        Tr::tr("Icons and Text"),
+        Tr::tr("Show Modes bar icons and text"),
+        int(ModeManager::Style::IconsAndText));
     modes.addOption(optHidden);
     modes.addOption(optIconsOnly);
     modes.addOption(optIconsText);
@@ -66,7 +72,7 @@ ZenModeSettings::ZenModeSettings()
     readSettings();
 }
 
-class ZenModeSettingsPage final : public Core::IOptionsPage
+class ZenModeSettingsPage final : public IOptionsPage
 {
 public:
     ZenModeSettingsPage()

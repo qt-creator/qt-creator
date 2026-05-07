@@ -99,7 +99,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&emulateSurround, false, "surround", {}, "vim-surround");
 
     // Some polish
-    useFakeVim.setDisplayName(Tr::tr("Use Vim-style Editing"));
+    useFakeVim.setDisplayName(Tr::tr("Use Vim-Style Editing"));
 
     relativeNumber.setToolTip(Tr::tr("Displays line numbers relative to the line containing "
         "text cursor."));

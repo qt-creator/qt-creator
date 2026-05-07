@@ -10,6 +10,16 @@ namespace Utils { class CommandLine; }
 
 namespace Valgrind::Internal {
 
+enum ToolMode {
+    DebugMode     = 0x1,
+    ProfileMode   = 0x2,
+    ReleaseMode   = 0x4,
+    SymbolsMode   = DebugMode   | ProfileMode,
+    OptimizedMode = ProfileMode | ReleaseMode,
+};
+
+bool wantRunTool(ToolMode toolMode, const QString &toolName);
+
 class ValgrindProcess;
 class ValgrindSettings;
 

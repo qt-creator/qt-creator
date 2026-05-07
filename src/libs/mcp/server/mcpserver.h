@@ -41,6 +41,20 @@ static std::optional<Schema::ProgressToken> progressToken(const auto &message)
 
 class ToolInterface;
 
+class MCPSERVER_EXPORT Inspector
+{
+public:
+    virtual void onSessionStarted(const QString &sessionId) = 0;
+    virtual void onSessionEnded(const QString &sessionId) = 0;
+
+    virtual std::function<void(QByteArray)> onRequest(
+        const QJsonDocument &request, const QString &sessionId) = 0;
+    virtual void onServerNotification(const QJsonDocument &notification, const QString &sessionId)
+        = 0;
+    virtual void onClientNotification(const QJsonDocument &notification, const QString &sessionId)
+        = 0;
+};
+
 /*!
     \class Server
     \inmodule McpServer
@@ -67,6 +81,11 @@ public:
 
     /*! \brief Destroys the server and releases all resources. */
     ~Server();
+
+    /*! \brief Sets the inspector for monitoring server communication.
+        \param inspector The inspector instance to use.
+    */
+    void setInspector(Inspector *inspector);
 
     /*! \brief Binds the server to the given QTcpServer for incoming connections.
         \param server The QTcpServer to bind to.

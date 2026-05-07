@@ -234,7 +234,7 @@ BuildConfiguration *BuildDirectoryAspect::buildConfiguration() const
 SeparateDebugInfoAspect::SeparateDebugInfoAspect(AspectContainer *container)
     : TriStateAspect(container)
 {
-    setDisplayName(Tr::tr("Separate debug info:"));
+    setLabelText(Tr::tr("Separate debug info:"));
     setSettingsKey("SeparateDebugInfo");
     setValue(buildPropertiesSettings().separateDebugInfo());
 }

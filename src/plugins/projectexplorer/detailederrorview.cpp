@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "detailederrorview.h"
-
-#include "../debuggertr.h"
+#include "projectexplorertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -12,9 +11,9 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QApplication>
 #include <QAbstractTextDocumentLayout>
 #include <QAction>
+#include <QApplication>
 #include <QContextMenuEvent>
 #include <QHeaderView>
 #include <QMenu>
@@ -22,7 +21,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
+namespace ProjectExplorer {
 
 DetailedErrorView::DetailedErrorView(QWidget *parent) :
     BaseTreeView(parent),
@@ -98,7 +97,7 @@ void DetailedErrorView::selectIndex(const QModelIndex &index)
 QVariant DetailedErrorView::locationData(int role, const Link &location)
 {
     switch (role) {
-    case Debugger::DetailedErrorView::LocationRole:
+    case ProjectExplorer::DetailedErrorView::LocationRole:
         return QVariant::fromValue(location);
     case Qt::DisplayRole:
         return location.hasValidTarget() ? QString::fromLatin1("%1:%2:%3")
@@ -149,4 +148,4 @@ void DetailedErrorView::setCurrentRow(int row)
     selectIndex(model()->index(row, 0));
 }
 
-} // Debugger
+} // namespace ProjectExplorer

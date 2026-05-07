@@ -9,13 +9,6 @@
 
 namespace Debugger::Icons {
 
-// Used in QmlProfiler.
-DEBUGGER_EXPORT extern const Utils::Icon RECORD_ON;
-DEBUGGER_EXPORT extern const Utils::Icon RECORD_OFF;
-
-DEBUGGER_EXPORT extern const Utils::Icon TRACEPOINT;
-DEBUGGER_EXPORT extern const Utils::Icon TRACEPOINT_TOOLBAR;
-
 // Used in Squish.
 DEBUGGER_EXPORT extern const Utils::Icon LOCATION;
 DEBUGGER_EXPORT extern const Utils::Icon DEBUG_CONTINUE_SMALL_TOOLBAR;

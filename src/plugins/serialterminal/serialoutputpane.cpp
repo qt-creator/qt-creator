@@ -28,7 +28,6 @@
 
 #include <QAction>
 #include <QComboBox>
-#include <QLoggingCategory>
 #include <QMenu>
 #include <QTabBar>
 #include <QToolButton>
@@ -38,8 +37,6 @@ using namespace Utils;
 
 namespace SerialTerminal {
 namespace Internal {
-
-static Q_LOGGING_CATEGORY(log, Constants::LOGGING_CATEGORY, QtWarningMsg)
 
 // Tab Widget helper for middle click tab close
 class TabWidget : public QTabWidget
@@ -270,7 +267,7 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     m_tabWidget->addTab(ow, rc->displayName());
     m_tabWidget->setCurrentIndex(m_tabWidget->count()-1); // Focus new tab
 
-    qCDebug(log) << "Adding tab for " << rc;
+    qCDebug(serialTerminalLog) << "Adding tab for " << rc;
 
     updateCloseActions();
 }
@@ -283,7 +280,7 @@ bool SerialOutputPane::closeTabs(CloseTabMode mode)
             allClosed = false;
     }
 
-    qCDebug(log) << "all tabs closed: " << allClosed;
+    qCDebug(serialTerminalLog) << "all tabs closed: " << allClosed;
 
     return allClosed;
 }
@@ -436,7 +433,7 @@ bool SerialOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     int index = indexOf(m_tabWidget->widget(tabIndex));
     QTC_ASSERT(index != -1, return true);
 
-    qCDebug(log) << "close tab " << tabIndex << m_serialControlTabs[index].serialControl
+    qCDebug(serialTerminalLog) << "close tab " << tabIndex << m_serialControlTabs[index].serialControl
                  << m_serialControlTabs[index].window;
 
     // TODO: Prompt user to stop
@@ -530,7 +527,7 @@ void SerialOutputPane::tabChanged(int i)
         m_inputLine->setText(tab.inputText);
         m_inputLine->setCursorPosition(tab.inputCursorPosition);
 
-        qCDebug(log) << "Changed tab, is running:" << rc->isRunning();
+        qCDebug(serialTerminalLog) << "Changed tab, is running:" << rc->isRunning();
 
         // Update buttons
         enableButtons(rc, rc->isRunning());
@@ -564,7 +561,7 @@ void SerialOutputPane::activePortNameChanged(int index)
 
         m_currentPortName = current->portName();
 
-        qCDebug(log) << "Set port to" << pn << "(" << index << ")";
+        qCDebug(serialTerminalLog) << "Set port to" << pn << "(" << index << ")";
         current->setPortName(pn);
 
         // Update tab text
@@ -587,7 +584,7 @@ void SerialOutputPane::activeBaudRateChanged(int index)
     SerialControl *current = currentSerialControl();
     const qint32 br = m_devicesModel->baudRate(index);
 
-    qCDebug(log) << "Set baudrate to" << br << "(" << index << ")";
+    qCDebug(serialTerminalLog) << "Set baudrate to" << br << "(" << index << ")";
 
     if (current)
         current->setBaudRate(br);
@@ -608,7 +605,7 @@ void SerialOutputPane::defaultLineEndingChanged(int index)
                 m_lineEndingsSelection->currentData().toByteArray();
     }
 
-    qCDebug(log) << "Set default line ending to "
+    qCDebug(serialTerminalLog) << "Set default line ending to "
                  << m_settings.defaultLineEndingText()
                  << "(" << index << ")";
 
@@ -629,7 +626,7 @@ void SerialOutputPane::connectControl()
     const int i = findRunningTabWithPort(currentPortName);
     if (i >= 0) {
         m_tabWidget->setCurrentIndex(i);
-        qCDebug(log) << "Port running in tab #" << i;
+        qCDebug(serialTerminalLog) << "Port running in tab #" << i;
         return;
     }
 
@@ -642,14 +639,14 @@ void SerialOutputPane::connectControl()
             handleOldOutput(tab.window);
             tab.window->scrollToBottom();
         }
-        qCDebug(log) << "Connect to" << current->portName();
+        qCDebug(serialTerminalLog) << "Connect to" << current->portName();
     } else {
         // Create a new window
         auto rc = new SerialControl(m_settings);
         rc->setPortName(currentPortName);
         createNewOutputWindow(rc);
 
-        qCDebug(log) << "Create and connect to" << rc->portName();
+        qCDebug(serialTerminalLog) << "Create and connect to" << rc->portName();
 
         current = rc;
     }
@@ -666,7 +663,7 @@ void SerialOutputPane::disconnectControl()
     SerialControl *current = currentSerialControl();
     if (current) {
         current->stop(true);
-        qCDebug(log) << "Disconnected.";
+        qCDebug(serialTerminalLog) << "Disconnected.";
     }
 }
 
@@ -687,7 +684,7 @@ void SerialOutputPane::openNewTerminalControl()
     rc->setPortName(currentPortName);
     createNewOutputWindow(rc);
 
-    qCDebug(log) << "Created new terminal on" << rc->portName();
+    qCDebug(serialTerminalLog) << "Created new terminal on" << rc->portName();
 }
 
 // Send lineedit input to serial port
@@ -696,7 +693,7 @@ void SerialOutputPane::sendInput()
     SerialControl *current = currentSerialControl();
     const int index = currentIndex();
     if (current && current->isRunning() && index >= 0) {
-        qCDebug(log) << "Sending:" << m_inputLine->text().toUtf8();
+        qCDebug(serialTerminalLog) << "Sending:" << m_inputLine->text().toUtf8();
 
         current->writeData(m_inputLine->text().toUtf8() + m_serialControlTabs.at(index).lineEnd);
     }

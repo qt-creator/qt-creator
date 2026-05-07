@@ -1,0 +1,54 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage creator-quick-tour.html
+    \page creator-using-ai.html
+    \nextpage creator-build-example-application.html
+
+    \title Using AI
+
+    \quotation
+    \l {Use AI}{How to: Use AI}
+    \endquotation
+
+    Install and activate extensions to chat with AI agents that perform actions
+    on your behalf, such as editing files, running commands, or triggering builds.
+
+    The following table describes the AI-related extensions that you can use in
+    \QC.
+
+    \table
+    \header
+        \li Extension
+        \li Description
+        \li Read More
+    \row
+        \li ACP Client
+        \li Uses the agent client protocol (ACP) to let you chat with AI
+            agents that understand your codebase and perform actions on your
+            behalf, such as editing files, running commands, or triggering builds.
+            To trigger actions, you also need to activate the MCP Server
+            extension.
+        \li \l {Use the ACP Client}
+    \row
+        \li GitHub Copilot
+        \li Integrates \l{GitHub Copilot} into \QC. You can view suggestions from
+            Copilot in the \uicontrol Edit mode.
+        \li \l {Use GitHub Copilot}
+    \row
+        \li MCP Server
+        \li Lets AI assistants control \QC over the model context protocol (MCP)
+            to debug, build, and manage projects.
+        \li \l {Set up \QC MCP server}
+    \row
+        \li Qt AI Assistant
+        \li Acts as a coding assistant when connected to a Large Language
+            Model (LLM). It auto-completes your code, gives expert coding advice,
+            suggests code fixes, as well as writes test cases and code
+            documentation.
+        \li \l {Use Qt AI Assistant}
+    \endtable
+
+    \sa {Use AI}{How to: Use AI}
+*/

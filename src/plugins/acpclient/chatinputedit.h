@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "chatinputcompletion.h"
+
 #include <texteditor/texteditor.h>
 
 namespace Utils { class HistoryCompleter; }
@@ -15,6 +17,8 @@ class ChatInputEdit : public TextEditor::TextEditorWidget
 
 public:
     explicit ChatInputEdit(QWidget *parent = nullptr);
+
+    void setAvailableCommands(const QList<CommandInfo> &commands);
 
 signals:
     void sendRequested();
@@ -31,6 +35,7 @@ private:
     void historyUp();
     void historyDown();
 
+    ChatInputCompletionProvider *m_completionProvider = nullptr;
     Utils::HistoryCompleter *m_history = nullptr;
     int m_historyIndex = -1;
     QString m_editBuffer;

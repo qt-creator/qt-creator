@@ -31,14 +31,14 @@
     \QC uses pattern substitution when expanding variable names. To replace the
     first match of \e pattern within \e variable with \e replacement, use:
 
-    \badcode
+    \code [text]
     %{variable/pattern/replacement}
     \endcode
 
     To replace all matches of \e pattern within \e variable with \e replacement,
     use:
 
-    \badcode
+    \code [text]
     %{variable//pattern/replacement}
     \endcode
 
@@ -55,7 +55,7 @@
 
     To use the default value if the variable is not set, use:
 
-    \badcode
+    \code [text]
     %{variable:-default}
     \endcode
 
@@ -91,7 +91,7 @@
     in \preferences > \uicontrol {Build & Run} >
     \uicontrol {Default Build Properties}:
 
-    \badcode
+    \code [text]
     ../build-%{Project:DirName}-%{Kit:FileSystemName}-%{BuildConfig:Name}
     \endcode
 

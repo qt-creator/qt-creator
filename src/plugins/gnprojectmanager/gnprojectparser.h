@@ -16,7 +16,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QElapsedTimer>
-#include <QFuture>
 
 namespace GNProjectManager::Internal {
 
@@ -60,13 +59,12 @@ private:
     void startParser();
     void handleProcessDone();
     bool parse(const Utils::FilePath &sourcePath, const Utils::FilePath &buildPath);
-    static ParserData *extractParserResults(const Utils::FilePath &srcDir,
-                                            GNInfoParser::Result &&parserResult);
+    static ParserData extractParserResults(const Utils::FilePath &srcDir,
+                                           GNInfoParser::Result &&parserResult);
     QStringList processGnOutput(const QStringList &list);
 
     Utils::FilePath m_buildDir;
     Utils::FilePath m_srcDir;
-    QFuture<ParserData *> m_parserFutureResult;
     GNInfoParser::Result m_parserResult;
     QStringList m_targetsNames;
     std::unique_ptr<GNProjectNode> m_rootNode;

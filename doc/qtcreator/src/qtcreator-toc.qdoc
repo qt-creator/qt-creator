@@ -106,6 +106,8 @@
                 \generatelist creator-how-to-get-help
             \li \l{Testing}
                 \generatelist creator-how-to-test
+            \li \l{Using AI}
+                \generatelist creator-how-to-ai
             \li \l{Using Git}
                 \generatelist creator-how-to-git
             \endlist

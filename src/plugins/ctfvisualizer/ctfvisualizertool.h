@@ -5,15 +5,15 @@
 
 #include "ctfvisualizerconstants.h"
 
-#include <debugger/debuggermainwindow.h>
-
-#include <QtTaskTree/QSingleTaskTreeRunner>
+#include <coreplugin/perspective.h>
 
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinezoomcontrol.h>
 
 #include <QCoreApplication>
 #include <QScopedPointer>
+#include <QtTaskTree/QSingleTaskTreeRunner>
+#include <QToolButton>
 
 namespace CtfVisualizer::Internal {
 
@@ -45,7 +45,7 @@ private:
     void setAvailableThreads(const QList<CtfTimelineModel *> &threads);
     void toggleThreadRestriction(QAction *action);
 
-    Utils::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
+    Core::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
                                      QCoreApplication::translate("QtC::CtfVisualizer",
                                                                  "Chrome Trace Format Visualizer")};
 

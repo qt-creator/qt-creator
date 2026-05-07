@@ -1773,6 +1773,7 @@ void ICorePrivate::registerDefaultActions()
     // Open Action
     ActionBuilder openAction(this, Constants::OPEN);
     openAction.setText(Tr::tr("&Open File or Project..."));
+    openAction.setDefaultKeySequence(QKeySequence::Open);
     openAction.addOnTriggered(this, [] { openFileOrProject(); });
 
     // Open Project (but just a dummy that is hidden if it is not actually registered anywhere)

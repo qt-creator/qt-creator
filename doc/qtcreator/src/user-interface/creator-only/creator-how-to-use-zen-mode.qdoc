@@ -1,0 +1,46 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-use-zen-mode.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-ui
+
+    \title Use Zen Mode
+
+    The Zen Mode extension provides modes that hide UI elements so you
+    can focus on editing code.
+
+    Activate the \uicontrol {Zen Mode} extension in the \uicontrol {Extensions}
+    mode. For more information about extensions, see \l {Activate extensions}.
+
+    \section1 Toggle distraction free mode
+
+    The distraction free mode closes the sidebars and other views.
+
+    To toggle the distraction free mode, go to \uicontrol Tools >
+    \uicontrol {Zen Mode} > \uicontrol {Toggle Distraction Free Mode},
+    or press \key {Shift+Esc}.
+
+    \section1 Toggle zen mode
+
+    The zen mode closes the sidebars and other views, and also switches
+    \QC to full screen and hides the main menu bar.
+
+    To toggle the zen mode, go to \uicontrol Tools > \uicontrol {Zen Mode} >
+    \uicontrol {Toggle Zen Mode}, or press \key {Alt+Shift+Z}.
+
+    \note After you enable the zen mode, the main menu bar is hidden. To
+    leave the zen mode, use the keyboard shortcut (\key {Alt+Shift+Z}).
+
+    \section1 Set Zen Mode preferences
+
+    To set preferences for the Zen Mode extension, go to \preferences >
+    \uicontrol {Zen Mode}.
+
+    You can set the width of the editor content area and configure
+    the appearance of the mode selector while the modes are active.
+
+    \sa {Adapt the UI}{How to: Adapt the UI}
+*/

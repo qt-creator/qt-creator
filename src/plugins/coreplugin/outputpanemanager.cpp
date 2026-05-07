@@ -677,27 +677,6 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     m_titleLabel->setContentsMargins(5, 0, 5, 0);
 
-    m_clearAction = new QAction(this);
-    m_clearAction->setIcon(Utils::Icons::CLEAN.icon());
-    m_clearAction->setText(Tr::tr("Clear"));
-    connect(m_clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
-
-    m_nextAction = new QAction(this);
-    m_nextAction->setIcon(Utils::Icons::ARROW_DOWN_TOOLBAR.icon());
-    m_nextAction->setText(Tr::tr("Next Item"));
-    connect(m_nextAction, &QAction::triggered, this, &OutputPaneManager::slotNext);
-
-    m_prevAction = new QAction(this);
-    m_prevAction->setIcon(Utils::Icons::ARROW_UP_TOOLBAR.icon());
-    m_prevAction->setText(Tr::tr("Previous Item"));
-    connect(m_prevAction, &QAction::triggered, this, &OutputPaneManager::slotPrev);
-
-    m_minMaxAction = new QAction(this);
-
-    auto closeButton = new QToolButton;
-    closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
-    connect(closeButton, &QAbstractButton::clicked, this, &OutputPaneManager::slotHide);
-
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &OutputPaneManager::saveSettings);
 
     auto toolBar = new StyledBar;
@@ -705,6 +684,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     auto prevToolButton = new QToolButton;
     auto nextToolButton = new QToolButton;
     auto minMaxButton = new QToolButton;
+    auto closeButton = new QToolButton;
 
     m_buttonsWidget = new QWidget;
     m_buttonsWidget->setObjectName("OutputPaneButtons"); // used for UI introduction
@@ -744,32 +724,54 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     mpanes->appendGroup("Coreplugin.OutputPane.ActionsGroup");
     mpanes->appendGroup("Coreplugin.OutputPane.PanesGroup");
 
-    Command *cmd;
-
-    cmd = ActionManager::registerAction(m_clearAction, Constants::OUTPUTPANE_CLEAR);
+    ActionBuilder clearAction(this, Constants::OUTPUTPANE_CLEAR);
+    clearAction.setIcon(Utils::Icons::CLEAN.icon())
+        .setText(Tr::tr("Clear"))
+        .addOnTriggered(this, &OutputPaneManager::clearPage)
+        .addToContainer(Constants::M_VIEW_PANES, "Coreplugin.OutputPane.ActionsGroup")
+        .bindContextAction(&m_clearAction);
     clearButton->setDefaultAction(
-        ProxyAction::proxyActionWithIcon(m_clearAction, Utils::Icons::CLEAN_TOOLBAR.icon()));
-    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
+        ProxyAction::proxyActionWithIcon(
+            clearAction.contextAction(), Utils::Icons::CLEAN_TOOLBAR.icon()));
 
-    cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem");
-    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Shift+F6")));
-    prevToolButton->setDefaultAction(
-        ProxyAction::proxyActionWithIcon(m_prevAction, Utils::Icons::ARROW_UP_TOOLBAR.icon()));
-    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
+    ActionBuilder prevAction(this, "Coreplugin.OutputPane.previtem");
+    prevAction
+        .setIcon(Utils::Icons::ARROW_UP_TOOLBAR.icon())
+        .setText(Tr::tr("Previous Item"))
+        .addOnTriggered(this, &OutputPaneManager::slotPrev)
+        .setDefaultKeySequence(QKeySequence(Tr::tr("Shift+F6")))
+        .addToContainer(Constants::M_VIEW_PANES, "Coreplugin.OutputPane.ActionsGroup")
+        .bindContextAction(&m_prevAction);
+    prevToolButton->setDefaultAction(prevAction.contextAction());
 
-    cmd = ActionManager::registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem");
-    nextToolButton->setDefaultAction(
-        ProxyAction::proxyActionWithIcon(m_nextAction, Utils::Icons::ARROW_DOWN_TOOLBAR.icon()));
-    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("F6")));
-    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
+    ActionBuilder nextAction(this, "Coreplugin.OutputPane.nextitem");
+    nextAction
+        .setIcon(Utils::Icons::ARROW_DOWN_TOOLBAR.icon())
+        .setText(Tr::tr("Next Item"))
+        .addOnTriggered(this, &OutputPaneManager::slotNext)
+        .setDefaultKeySequence(QKeySequence(Tr::tr("F6")))
+        .addToContainer(Constants::M_VIEW_PANES, "Coreplugin.OutputPane.ActionsGroup")
+        .bindContextAction(&m_nextAction);
+    nextToolButton->setDefaultAction(nextAction.contextAction());
 
-    cmd = ActionManager::registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax");
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Shift+9") : Tr::tr("Alt+Shift+9")));
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setAttribute(Command::CA_UpdateIcon);
-    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
-    connect(m_minMaxAction, &QAction::triggered, this, &OutputPaneManager::toggleMaximized);
-    minMaxButton->setDefaultAction(cmd->action());
+    ActionBuilder minMaxAction(this, "Coreplugin.OutputPane.minmax");
+    minMaxAction
+        .setDefaultKeySequence(Tr::tr("Ctrl+Shift+9"), Tr::tr("Alt+Shift+9"))
+        .setCommandAttribute(Command::CA_UpdateText)
+        .setCommandAttribute(Command::CA_UpdateIcon)
+        .addToContainer(Constants::M_VIEW_PANES, "Coreplugin.OutputPane.ActionsGroup")
+        .addOnTriggered(this, &OutputPaneManager::toggleMaximized)
+        .bindContextAction(&m_minMaxAction);
+    minMaxButton->setDefaultAction(minMaxAction.commandAction());
+
+    ActionBuilder closeAction(this, Constants::OUTPUTPANE_CLOSE);
+    closeAction
+        .setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon())
+        .setText(Tr::tr("Close"))
+        .addOnTriggered(this, &OutputPaneManager::slotHide)
+        .addToContainer(Constants::M_VIEW_PANES, "Coreplugin.OutputPane.ActionsGroup")
+        .bindContextAction(&m_closeAction);
+    closeButton->setDefaultAction(closeAction.commandAction());
 
     mpanes->addSeparator("Coreplugin.OutputPane.ActionsGroup");
 }
@@ -804,7 +806,6 @@ void OutputPaneManager::setupButtons()
     for (auto &pane : g_outputPanes)
         delete pane.button;
 
-    ActionContainer *mpanes = ActionManager::actionContainer(Constants::M_VIEW_PANES);
     QFontMetrics titleFm = m_instance->m_titleLabel->fontMetrics();
     int minTitleWidth = 0;
 
@@ -861,17 +862,16 @@ void OutputPaneManager::setupButtons()
             delete data.action;
         }
 
-        data.action = new QAction(outPane->displayName(), m_instance);
-        connect(data.action, &QAction::triggered, m_instance, [i] {
-            m_instance->shortcutTriggered(i);
-        });
-
-        auto cmd = ActionManager::registerAction(data.action, data.id);
-        mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
-        cmd->setDefaultKeySequence(paneShortCut(shortcutNumber));
+        ActionBuilder paneAction(m_instance, data.id);
+        paneAction
+            .setText(outPane->displayName())
+            .addOnTriggered(m_instance, [i] { m_instance->shortcutTriggered(i); })
+            .setDefaultKeySequence(paneShortCut(shortcutNumber))
+            .addToContainer(Constants::M_VIEW_PANES, "Coreplugin.OutputPane.PanesGroup")
+            .bindContextAction(&data.action);
         auto button = new OutputPaneToggleButton(shortcutNumber,
                                                  outPane->displayName(),
-                                                 cmd->action());
+                                                 paneAction.commandAction());
         data.button = button;
         connect(button, &OutputPaneToggleButton::contextMenuRequested, m_instance, [] {
             m_instance->popupMenu();
@@ -987,10 +987,8 @@ void OutputPaneManager::updateActions(IOutputPane *pane)
                                     ModeManager::currentModeId());
     m_clearAction->setEnabled(enabledForMode);
     m_minMaxAction->setEnabled(enabledForMode);
-    m_instance->m_prevAction->setEnabled(enabledForMode && pane && pane->canNavigate()
-                                         && pane->canPrevious());
-    m_instance->m_nextAction->setEnabled(enabledForMode && pane && pane->canNavigate()
-                                         && pane->canNext());
+    m_prevAction->setEnabled(enabledForMode && pane && pane->canNavigate() && pane->canPrevious());
+    m_nextAction->setEnabled(enabledForMode && pane && pane->canNavigate() && pane->canNext());
     for (const OutputPaneData &d : std::as_const(g_outputPanes))
         d.action->setEnabled(enabledForMode);
 }

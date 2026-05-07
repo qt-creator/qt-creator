@@ -13,9 +13,8 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-
-#include <debugger/debuggerconstants.h>
-#include <debugger/debuggermainwindow.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/perspective.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -68,7 +67,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
 
     auto manualRunView = new DiagnosticView;
     manualRunView->setModel(&manualRunModel);
-    perspective.addWindow(manualRunView, Utils::Perspective::SplitVertical, nullptr);
+    perspective.addWindow(manualRunView, Perspective::SplitVertical, nullptr);
 
     {
         // Go to previous diagnostic
@@ -77,7 +76,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
         action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
         action->setToolTip(Tr::tr("Go to previous diagnostic."));
         connect(action, &QAction::triggered,
-                manualRunView, &Debugger::DetailedErrorView::goBack);
+                manualRunView, &ProjectExplorer::DetailedErrorView::goBack);
         connect (&manualRunModel, &DiagnosticsModel::hasDataChanged,
                 action, &QAction::setEnabled);
         perspective.addToolBarAction(action);
@@ -90,7 +89,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
         action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
         action->setToolTip(Tr::tr("Go to next diagnostic."));
         connect(action, &QAction::triggered,
-                manualRunView, &Debugger::DetailedErrorView::goNext);
+                manualRunView, &ProjectExplorer::DetailedErrorView::goNext);
         connect (&manualRunModel, &DiagnosticsModel::hasDataChanged,
                 action, &QAction::setEnabled);
         perspective.addToolBarAction(action);
@@ -203,8 +202,7 @@ class CppcheckPlugin final : public ExtensionSystem::IPlugin
         ActionBuilder(this, Constants::MANUAL_RUN_ACTION)
             .setText(Tr::tr("Cppcheck..."))
             .bindContextAction(&d->manualRunAction)
-            .addToContainer(Debugger::Constants::M_DEBUG_ANALYZER,
-                            Debugger::Constants::G_ANALYZER_TOOLS)
+            .addToContainer(Core::Constants::M_DEBUG_ANALYZER, Core::Constants::G_ANALYZER_TOOLS)
             .addOnTriggered(d.get(), &CppcheckPluginPrivate::startManualRun);
 
         connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,

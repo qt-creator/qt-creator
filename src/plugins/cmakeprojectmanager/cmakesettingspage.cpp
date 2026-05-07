@@ -105,6 +105,7 @@ public:
     void removeCMakeTool(const Id &id);
     void apply() final;
 
+    int cloneRow(int row) override;
     QString uniqueDisplayName(const QString &base) const;
     int rowForId(Id id) const;
 
@@ -273,6 +274,19 @@ void CMakeToolItemModel::updateCMakeTool(const Id &id,
     notifyRowChanged(row);
 }
 
+int CMakeToolItemModel::cloneRow(int row)
+{
+    const CMakeToolTreeItem it = item(row);
+    const CMakeToolTreeItem clone = {
+        Tr::tr("Clone of %1").arg(it.m_name),
+        it.m_executable,
+        it.m_qchFile,
+        it.m_isAutoRun,
+        DetectionSource{DetectionSource::Manual, it.m_detectionSource.id}
+    };
+    return appendVolatileItem(clone);
+}
+
 int CMakeToolItemModel::rowForId(Id id) const
 {
     for (int row = 0; row < itemCount(); ++row) {
@@ -354,12 +368,6 @@ public:
     {
         m_addButton.setText(Tr::tr("Add"));
 
-        m_cloneButton.setText(Tr::tr("Clone"));
-        m_cloneButton.setEnabled(false);
-
-        m_removeButton.setText(Tr::tr("Remove"));
-        m_removeButton.setEnabled(false);
-
         m_makeDefButton.setText(Tr::tr("Make Default"));
         m_makeDefButton.setEnabled(false);
         m_makeDefButton.setToolTip(Tr::tr("Set as the default CMake Tool to use when "
@@ -399,22 +407,24 @@ public:
                 },
                 Column {
                     m_addButton,
-                    m_cloneButton,
-                    m_removeButton,
+                    m_groupedView.cloneButton(),
+                    m_groupedView.removeButton(),
                     m_makeDefButton,
                     m_detectButton,
                     st,
                 },
             }}.attachTo(this);
 
+        m_groupedView.setCanRemoveRow([this](int row) {
+            return !m_model.item(row).m_detectionSource.isAutoDetected();
+        });
+
         connect(&m_groupedView, &GroupedView::currentRowChanged,
                 this, &CMakeToolConfigWidget::currentCMakeToolChanged, Qt::QueuedConnection);
 
         connect(&m_addButton, &QAbstractButton::clicked,
                 this, &CMakeToolConfigWidget::addCMakeTool);
-        connect(&m_cloneButton, &QAbstractButton::clicked,
-                this, &CMakeToolConfigWidget::cloneCMakeTool);
-        connect(&m_removeButton, &QAbstractButton::clicked,
+        connect(&m_groupedView, &GroupedView::currentRemoved,
                 this, &CMakeToolConfigWidget::removeCMakeTool);
         connect(&m_makeDefButton, &QAbstractButton::clicked,
                 this, &CMakeToolConfigWidget::setDefaultCMakeTool);
@@ -451,12 +461,13 @@ private:
     void cancel() final { m_model.cancel(); }
     bool isDirty() const final { return m_model.isDirty(); }
 
-    void cloneCMakeTool();
+
     void addCMakeTool();
     void removeCMakeTool();
     void setDefaultCMakeTool();
     void redetect();
     void currentCMakeToolChanged(int oldRow, int newRow);
+    void updateButtons();
 
     void load(const CMakeToolTreeItem *item, bool updateCMakePath);
     void store();
@@ -468,8 +479,6 @@ private:
     GroupedView m_groupedView{m_model};
     DeviceComboBox m_deviceComboBox;
     QPushButton m_addButton;
-    QPushButton m_cloneButton;
-    QPushButton m_removeButton;
     QPushButton m_makeDefButton;
     QPushButton m_detectButton;
     DetailsWidget m_container;
@@ -538,23 +547,6 @@ void CMakeToolConfigWidget::load(const CMakeToolTreeItem *item, bool updateCMake
     m_loadingItem = false;
 }
 
-void CMakeToolConfigWidget::cloneCMakeTool()
-{
-    const int row = m_groupedView.currentRow();
-    if (row < 0)
-        return;
-
-    const CMakeToolTreeItem it = m_model.item(row);
-    const CMakeToolTreeItem clone = {
-        Tr::tr("Clone of %1").arg(it.m_name),
-        it.m_executable,
-        it.m_qchFile,
-        it.m_isAutoRun,
-        DetectionSource{DetectionSource::Manual, it.m_detectionSource.id}
-    };
-    m_groupedView.selectRow(m_model.appendVolatileItem(clone));
-}
-
 void CMakeToolConfigWidget::addCMakeTool()
 {
     const CMakeToolTreeItem added = {
@@ -573,10 +565,7 @@ void CMakeToolConfigWidget::removeCMakeTool()
     if (row < 0)
         return;
 
-    const bool wasDefault = m_model.isDefault(row);
-    m_model.markRemoved(row);
-
-    if (wasDefault) {
+    if (m_model.isDefault(row)) {
         for (int r = 0; r < m_model.itemCount(); ++r) {
             if (!m_model.isRemoved(r)) {
                 m_model.setVolatileDefaultRow(r);
@@ -584,6 +573,7 @@ void CMakeToolConfigWidget::removeCMakeTool()
             }
         }
     }
+    updateButtons();
 }
 
 void CMakeToolConfigWidget::setDefaultCMakeTool()
@@ -642,16 +632,19 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(int, int newRow)
         load(&it, true);
         if (const IDeviceConstPtr dev = m_deviceComboBox.currentDevice())
             m_binary.setInitialBrowsePathBackup(dev->rootPath());
-
-        m_removeButton.setEnabled(!it.m_detectionSource.isAutoDetected());
-        m_makeDefButton.setEnabled(!m_model.isDefault(newRow));
     } else {
         load(nullptr, true);
-        m_removeButton.setEnabled(false);
-        m_makeDefButton.setEnabled(false);
     }
     m_container.setVisible(newRow >= 0 && newRow < m_model.itemCount());
-    m_cloneButton.setEnabled(newRow >= 0 && newRow < m_model.itemCount());
+    updateButtons();
+}
+
+void CMakeToolConfigWidget::updateButtons()
+{
+    const int row = m_groupedView.currentRow();
+    const bool hasRow = row >= 0 && row < m_model.itemCount() && !m_model.isRemoved(row);
+    m_makeDefButton.setEnabled(hasRow && !m_model.isDefault(row));
+    m_groupedView.cloneButton().setEnabled(hasRow);
 }
 
 // CMakeSettingsPage

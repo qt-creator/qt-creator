@@ -27,7 +27,7 @@ QmlDebuggingAspect::QmlDebuggingAspect(BuildConfiguration *buildConfig)
     : TriStateAspect(buildConfig)
 {
     setSettingsKey("EnableQmlDebugging");
-    setDisplayName(Tr::tr("QML debugging and profiling:"));
+    setLabelText(Tr::tr("QML debugging and profiling:"));
     setValue(buildPropertiesSettings().qmlDebugging());
 }
 
@@ -69,7 +69,7 @@ QtQuickCompilerAspect::QtQuickCompilerAspect(BuildConfiguration *buildConfig)
     : TriStateAspect(buildConfig)
 {
     setSettingsKey("QtQuickCompiler");
-    setDisplayName(Tr::tr("Qt Quick Compiler:"));
+    setLabelText(Tr::tr("Qt Quick Compiler:"));
     setValue(buildPropertiesSettings().qtQuickCompiler());
 }
 

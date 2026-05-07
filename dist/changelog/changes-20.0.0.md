@@ -19,7 +19,7 @@ New plugins
 Adds a chat panel that allows connecting to and chatting with an ACP server
 in Qt Creator.
 
-([Documentation](<URL>))
+([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-use-acp-client.html))
 
 ### Zen Mode
 
@@ -27,13 +27,13 @@ Adds `Tools > Zen Mode > Toggle Distraction Free Mode` and `Zen Mode` and
 corresponding actions and tool buttons that put the editor into the focus of
 your work.
 
-([Documentation](<URL>))
+([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-use-zen-mode.html))
 
 ### GN (Generate Ninja) Project Manager
 
 Adds support for opening GN projects and working with them.
 
-([Documentation](<URL>))
+([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-build-with-gn.html))
 
 General
 -------
@@ -54,12 +54,15 @@ Fixed
 * Issues with mixed file path case-sensitivity
 * That the `Files in File System` advanced search expanded macros while editing
   ([QTCREATORBUG-31294](https://bugreports.qt.io/browse/QTCREATORBUG-31294))
+* A crash in the `Tools > Debug Qt Creator > Show Logs` dialog
+  ([QTCREATORBUG-34387](https://bugreports.qt.io/browse/QTCREATORBUG-34387))
 
 ### Model Context Protocol
 
 Added
 
 * A preferences page `AI > MCP Servers` for managing MCP servers
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-add-mcp-servers.html))
 * Support for [Tasks](https://modelcontextprotocol.io/specification/draft/basic/utilities/tasks)
 * Support for Cross-Origin Resource Sharing (CORS) for connecting from a web
   application
@@ -96,6 +99,8 @@ Added
 * Built-in
     * Support for `std::size_t` literals
       ([QTCREATORBUG-34208](https://bugreports.qt.io/browse/QTCREATORBUG-34208))
+    * Support for C++23 preprocessor directives
+      ([QTCREATORBUG-34461](https://bugreports.qt.io/browse/QTCREATORBUG-34461))
 * Clangd
     * The option `Use externally provided compilation database` instead of the
       automatically created one
@@ -111,6 +116,8 @@ Fixed
 * Built-in
     * The parsing of compound literals
       ([QTCREATORBUG-34089](https://bugreports.qt.io/browse/QTCREATORBUG-34089))
+    * That refactoring could add `struct` keywords at wrong places
+      ([QTCREATORBUG-34478](https://bugreports.qt.io/browse/QTCREATORBUG-34478))
 
 ### QML
 
@@ -171,7 +178,11 @@ Fixed
 Added
 
 * Presets
+    * `qt` and `compiler` to the Qt Creator vendor presets
     * That included preset files are watched for changes
+* Conan
+    * Support for `CONAN_HOST_PROFILE` and `CONAN_BUILD_PROFILE`
+      ([QTCREATORBUG-34388](https://bugreports.qt.io/browse/QTCREATORBUG-34388))
 
 Changed
 
@@ -300,11 +311,16 @@ Added
 * The option to `Use the Qt VNC platform for display` when running
 * The `Accessible host paths` options that specifies directories on the host
   that can be accessed by the remote device
+* OpenHarmony as a Linux variant
 
 Fixed
 
 * Potential hangs for devices that do not support the command bridge
   ([QTCREATORBUG-33699](https://bugreports.qt.io/browse/QTCREATORBUG-33699))
+* Quoting issues for environment variables
+  ([QTCREATORBUG-34387](https://bugreports.qt.io/browse/QTCREATORBUG-34387))
+* That the execute permission could be removed when copying remote files
+  ([QTCREATORBUG-34481](https://bugreports.qt.io/browse/QTCREATORBUG-34481))
 
 ### Development Container
 
@@ -334,6 +350,7 @@ David Schulz
 Eike Ziller  
 Jaroslaw Kobus  
 Jeff Heller  
+Jörg Bornemann  
 Leena Miettinen  
 Marcus Tillmanns  
 Mike Jyu  

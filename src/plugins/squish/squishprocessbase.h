@@ -17,7 +17,6 @@ class SquishProcessBase : public QObject
 public:
     explicit SquishProcessBase(QObject *parent = nullptr);
     ~SquishProcessBase() = default;
-    SquishProcessState processState() const { return m_state; }
 
     bool isRunning() const { return m_process.isRunning(); }
     Utils::ProcessResult result() const { return m_process.result(); }

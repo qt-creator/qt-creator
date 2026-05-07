@@ -5,55 +5,164 @@
     \page creator-how-to-mcp-server.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-build
-    \ingroup creator-how-to-debug
-    \ingroup creator-how-to-run
+    \ingroup creator-how-to-ai
 
-    \title Using the MCP server
+    \title Set up \QC MCP server
 
     \QC supports the model context protocol (MCP) to let AI assistants control it
     for debugging, building, and managing projects.
 
-    To use an MCP client, install one and activate the \QC MCP server extension
-    to start the MCP server.
+    To start the MCP server and use an MCP client, install a client and activate
+    the MCP server extension.
 
     \section1 View MCP server status
 
     \QC starts the MCP server when you activate the \QC MCP server extension. The
-    server runs at \c 127.0.0.1 and accepts connections on port \c 8249. You can
-    choose a different IP address and port via the Settings.
+    server runs on the computer and accepts connections on an automatically set
+    port.
 
-    To view the MCP server status, go to \uicontrol Settings >
-    \uicontrol {AI} > \uicontrol {MCP Server}.
+    To view the MCP server status and to change the IP address and port
+    number, go to \preferences > \uicontrol {AI} > \uicontrol {\QC MCP Server}.
 
-    \image {qtcreator-mcp-server-status.webp} {MCP Server Settings page}
+    \image {qtcreator-mcp-server-status.webp} {Qt Creator MCP Server in the AI Preferences}
 
-    If the server does not start, see whether \uicontrol {General Messages} shows
-    a warning about the port being in use.
+    The following table summarizes the preferences.
 
-    Make sure that no other process is bound to the port. For example, on Linux,
-    enter \c {lsof -i :8249} in \uicontrol Terminal or try a different port.
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li \uicontrol {Enable MCP Server}
+        \li Turns the MCP server on and off.
+    \row
+        \li \uicontrol {Listen on}
+        \li Sets the server address for the MCP server to listen on.
+    \row
+        \li \uicontrol {Port}
+        \li Sets the port for the MCP server to listen on. \uicontrol {Automatic}
+            automatically selects a free port, but you can also set a fixed port
+            number.
+    \row
+        \li \uicontrol {Enable cross-origin access}
+        \li Turns on cross-origin resource sharing (CORS), which you need to
+            connect to the server from a web application.
+    \endtable
 
-    \section1 Set up a simple MCP client
+    \section1 Use MCP clients
 
-    You can use any MCP client that support MCP Protocol Version 2025-11-18.
-    This section describes how to use \c https://github.com/modelcontextprotocol/inspector
-    to install a simple MCP client and how to configure it.
+    When you enable the ACP Client extension and use an ACP client in \QC, it
+    uses the MCP server automatically.
 
-    To install and configure a simple MCP client:
+    To use the MCP server for other products, such as Claude Code, you must
+    configure it. For more information, see the documentation of the product.
 
-    \list 1
-        \li Go to \uicontrol Terminal, and enter:
-            \code [shell]
-            npx @modelcontextprotocol/inspector
-            \endcode
-        \li Open the URL indicated in the terminal output
-        \li Change the settings to:
-            \li Transport Type: Streamable HTTP
-            \li URL: \c http://127.0.0.1:8249
-            \li Connection Type: Via Proxy
-        \li Click \uicontrol Connect
+    \sa {Activate extensions}, {Use AI}{How to: Use AI}
+*/
+
+/*!
+    \page creator-how-to-add-mcp-servers.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-ai
+
+    \title Add MCP servers
+
+    You can configure connections to MCP servers to:
+
+    \list
+        \li Complete \l{MCP: Tasks}{Tasks}
+        \li Connect to the server from a web application using
+            cross-origin resource sharing (CORS)
     \endlist
 
-    \sa {Activate extensions}
+    You can use tools for:
+
+    \list
+        \li Running command-line tools and other executables
+        \li Version control repositories
+        \li Listing visible files
+        \li Managing breakpoints
+        \li Getting debugger stack traces
+        \li Finding and triggering actions
+    \endlist
+
+    You can execute commands for:
+
+    \list
+        \li Retrieving project dependencies
+        \li Listing issues for a file
+        \li Finding files in projects
+        \li Searching and replacing text in project files and other files
+    \endlist
+
+    \section1 Connect to MCP servers
+
+    To add connections to MCP servers:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {AI} > \uicontrol {MCP Servers}.
+            \image {qtcreator-preferences-ai-mcp-servers.webp} {MCP Servers tab in the AI Preferences}
+        \li Select \uicontrol Add.
+        \li Set preferences for the server.
+        \li Select \uicontrol Apply.
+    \endlist
+
+    The following table summarizes the preferences.
+
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li \uicontrol {Connection type}
+        \li The type of the connection to use for the MCP server.
+    \row
+        \li \uicontrol {Launch command}
+        \li The command to launch the MCP server process. Only used for standard
+            IO connections.
+    \row
+        \li \uicontrol {Launch arguments}
+        \li Arguments for the launch command.
+    \row
+        \li \uicontrol {Environment}
+        \li Environment changes applied when launching the MCP server process
+            over a standard IO connection.
+    \endtable
+
+    \section1 Add MCP servers from the registry
+
+    To install MCP servers from the registry and create connections to them:
+
+        \list 1
+        \li Go to \preferences > \uicontrol {AI} > \uicontrol {MCP Servers}.
+        \li Select \uicontrol {Add from Registry}.
+        \li Select an MPC server from the list.
+            \image {qtcreator-preferences-ai-mcp-server-registry.webp} {Add MCP Server from Registry dialog}
+        \li Select \uicontrol OK.
+    \endlist
+
+    \sa {Activate extensions}, {Use AI}{How to: Use AI}
+*/
+
+/*!
+    \page creator-how-to-qt-documentation-mcp-server.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-ai
+
+    \title Connect to Qt Documentation MCP Server
+
+    Qt Documentation MCP Server reduces the time and resources an AI agent
+    spends researching context for a Qt development task or user query and offers
+    high-quality results. \QC connects to the server when you activate the
+    MCP Server extension.
+
+    To turn off Qt Documentation MCP Server, go to \preferences >
+    \uicontrol {AI} > \uicontrol {MCP Servers} and then clear
+    \uicontrol {Enable Qt Documentation MCP Server}.
+
+    \image {qtcreator-preferences-ai-mcp-servers.webp} {MCP Servers tab in the AI Preferences}
+
+    \sa {Activate extensions}, {Use AI}{How to: Use AI}
 */

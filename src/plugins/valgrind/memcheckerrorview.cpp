@@ -56,7 +56,7 @@ private:
 };
 
 MemcheckErrorView::MemcheckErrorView(QWidget *parent)
-    : Debugger::DetailedErrorView(parent)
+    : ProjectExplorer::DetailedErrorView(parent)
 {
     m_suppressAction = new QAction(this);
     m_suppressAction->setText(Tr::tr("Suppress Error"));

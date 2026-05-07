@@ -93,14 +93,14 @@
     To debug Qt applications, add the following line to your VxWorks source build
     (VSB) configuration:
 
-    \badcode
+    \code [shell]
     vxprj vsb config -s -add "_WRS_CONFIG_TCF_GDB_RSP=y"
     \endcode
 
     To automatically start the GDB server on the device, add the following lines
     to your VxWorks image project (VIP) configuration:
 
-    \badcode
+    \code [text]
     "INCLUDE_DEBUG_AGENT"
     "INCLUDE_DEBUG_AGENT_START"
     "INCLUDE_STANDALONE_SYM_TBL"
@@ -146,7 +146,7 @@
 
     Set the following keys in the VxWorks Source Build (VSB):
 
-    \badcode
+    \code [text]
     "USER_MANAGEMENT"
     "USER_MANAGEMENT_USER_PRIVILEGES"
     \endcode
@@ -155,7 +155,7 @@
 
     Add the following includes to the VxWorks Kernel configuration (VIP):
 
-    \badcode
+    \code [text]
     "INCLUDE_IPSSH_CLIENT_CMD"
     "INCLUDE_SHELL_SECURITY"
     "INCLUDE_USER_DATABASE"
@@ -174,7 +174,7 @@
 
     An example startup script:
 
-    \badcode
+    \code [text]
     cp "/romfs/ssh/keys/WindRiver.pk2","/ram"
     cmd keyStore import default_rsa /romfs/ssh/keys/default_rsa.pem
     cmd keyStore import default_dsa /romfs/ssh/keys/default_dsa.pem
@@ -188,7 +188,7 @@
     To test the connection from the terminal, specify the key algorithms for it
     (because VxWorks uses old keys):
 
-    \badcode
+    \code [shell]
     ssh -oHostKeyAlgorithms=+ssh-rsa -lWindRiver 192.168.0.3
     \endcode
 

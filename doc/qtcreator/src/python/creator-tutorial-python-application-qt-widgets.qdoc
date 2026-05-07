@@ -85,7 +85,7 @@
     selecting the language of the displayed text and QtWidgets for adding UI
     elements:
 
-    \badcode
+    \code [python]
     import sys
     import random
     from PySide6.QtWidgets import QApplication, QWidget
@@ -97,7 +97,7 @@
     The wizard adds a main class with the specified name that inherits from the
     specified base class:
 
-    \badcode
+    \code [python]
     class MyWidget(QWidget):
         def __init__(self, parent=None):
             super().__init__(parent)
@@ -106,7 +106,7 @@
 
     Add button, label, and layout widgets to create UI elements:
 
-    \badcode
+    \code [python]
         ...
         self.hello = ["Hallo Welt", "Hei maailma", "Hola Mundo", "Привет мир"]
 
@@ -124,7 +124,7 @@
 
     Then, add a signal and a slot to implement the random function:
 
-    \badcode
+    \code [python]
         ...
         self.button.clicked.connect(self.magic)
 
@@ -140,7 +140,7 @@
     the QApplication object. Usually, you do not need to pass any arguments, and
     you can use the following approach:
 
-    \badcode
+    \code [python]
     if __name__ == "__main__":
         app = QApplication(sys.argv)
         ...
@@ -150,7 +150,7 @@
 
     The wizard instantiates the \c MainWindow class and shows it:
 
-    \badcode
+    \code [python]
         ...
         widget = MyWidget()
         widget.show()
@@ -162,7 +162,7 @@
     Finally, the wizard calls the \c app.exec() method to enter the Qt
     main loop and start executing the Qt code:
 
-    \badcode
+    \code [python]
         ...
         sys.exit(app.exec())
     \endcode

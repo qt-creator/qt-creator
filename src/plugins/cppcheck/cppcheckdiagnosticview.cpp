@@ -79,7 +79,7 @@ DiagnosticView::~DiagnosticView() = default;
 
 void DiagnosticView::openEditorForCurrentIndex()
 {
-    const QVariant v = model()->data(currentIndex(), Debugger::DetailedErrorView::LocationRole);
+    const QVariant v = model()->data(currentIndex(), ProjectExplorer::DetailedErrorView::LocationRole);
     Link loc = v.value<Link>();
     if (loc.hasValidTarget())
         Core::EditorManager::openEditorAt(loc);

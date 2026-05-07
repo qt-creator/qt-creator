@@ -7,14 +7,12 @@
 
 #include <utils/qtcsettings.h>
 
-#include <QLoggingCategory>
-
 using namespace Utils;
 
 namespace SerialTerminal {
 namespace Internal {
 
-static Q_LOGGING_CATEGORY(log, Constants::LOGGING_CATEGORY, QtWarningMsg)
+Q_LOGGING_CATEGORY(serialTerminalLog, "qtc.serialterminal.outputpane", QtWarningMsg)
 
 // Set 'value' only if the key exists in the settings
 template <typename T>
@@ -60,7 +58,7 @@ void Settings::save(QtcSettings *settings)
 
     edited = false;
 
-    qCDebug(log) << "Settings saved.";
+    qCDebug(serialTerminalLog) << "Settings saved.";
 }
 
 // Load available settings from a QSettings
@@ -90,7 +88,7 @@ void Settings::load(QtcSettings *settings)
 
     edited = false;
 
-    qCDebug(log) << "Settings loaded.";
+    qCDebug(serialTerminalLog) << "Settings loaded.";
 }
 
 void Settings::setBaudRate(qint32 br)

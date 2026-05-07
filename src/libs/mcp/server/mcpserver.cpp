@@ -56,44 +56,59 @@ enum ErrorCodes {
 class SseStream : public QObject
 {
 public:
-    QHttpServerResponder responder;
-    const QString sessionId;
-
-    SseStream(QHttpHeaders headers, QHttpServerResponder &&_responder)
-        : responder(std::move(_responder))
+    SseStream(const QHttpHeaders &headers, QHttpServerResponder &&_responder)
+        : responder(std::make_shared<QHttpServerResponder>(std::move(_responder)))
         , sessionId(QString::fromUtf8(headers.value("mcp-session-id")))
     {
-        headers.append("Content-type", "text/event-stream");
-
-        qCDebug(mcpServerLog) << "Starting SSE stream for session"
-                              << headers.value("mcp-session-id");
-        responder.writeBeginChunked(headers, QHttpServerResponder::StatusCode::Ok);
+        initStream(headers);
     }
 
-    ~SseStream() { responder.writeEndChunked({"\n\n"}); }
+    SseStream(const QHttpHeaders &headers, const std::shared_ptr<QHttpServerResponder> &_responder)
+        : responder(_responder)
+        , sessionId(QString::fromUtf8(headers.value("mcp-session-id")))
+    {
+        initStream(headers);
+    }
+
+    ~SseStream() { responder->writeEndChunked({"\n\n"}); }
+
+    void initStream(QHttpHeaders headers)
+    {
+        qCDebug(mcpServerLog) << "Starting SSE stream for session"
+                              << headers.value("mcp-session-id");
+        headers.append("Content-type", "text/event-stream");
+
+        responder->writeBeginChunked(headers, QHttpServerResponder::StatusCode::Ok);
+    }
 
     bool sendData(const QByteArray &data, const QString &sId)
     {
-        if (responder.isResponseCanceled())
+        if (responder->isResponseCanceled())
             return false;
 
         if (!sId.isEmpty() && sessionId != sId)
             return true; // Not for this stream
 
         QByteArray event = "data: " + data + "\n\n";
-        responder.writeChunk(event);
+        responder->writeChunk(event);
         return true;
     }
 
     bool sendEndpoint(const QByteArray &endpoint)
     {
-        if (responder.isResponseCanceled())
+        if (responder->isResponseCanceled())
             return false;
 
         QByteArray event = "event: endpoint\n" + QByteArray("data: ") + endpoint + "\n\n";
-        responder.writeChunk(event);
+        responder->writeChunk(event);
         return true;
     }
+
+    bool isCanceled() const { return responder->isResponseCanceled(); }
+
+private:
+    std::shared_ptr<QHttpServerResponder> responder;
+    const QString sessionId;
 };
 
 static QJsonObject makeResponse(Schema::RequestId id, const Schema::ServerResult &result)
@@ -108,8 +123,8 @@ struct Responder
     std::function<void(QJsonDocument)> write;
     std::function<void(QHttpServerResponder::StatusCode)> writeStatus;
     std::function<void(const QByteArray &, const char *, QHttpServerResponse::StatusCode)> writeData;
-
-    std::shared_ptr<QHttpServerResponder> httpResponder;
+    std::function<void(const QByteArray &)> writeSSE;
+    std::function<bool()> isCanceled;
 };
 
 class ServerPrivate : public std::enable_shared_from_this<ServerPrivate>
@@ -119,7 +134,19 @@ class ServerPrivate : public std::enable_shared_from_this<ServerPrivate>
 public:
     ServerPrivate(Schema::Implementation serverInfo)
         : serverInfo(serverInfo)
-    {}
+    {
+        m_sseStreamCleanupTimer.setInterval(std::chrono::minutes(1));
+        m_sseStreamCleanupTimer.setSingleShot(false);
+        QObject::connect(&m_sseStreamCleanupTimer, &QTimer::timeout, [this]() {
+            m_sseStreams.erase(
+                std::remove_if(
+                    m_sseStreams.begin(),
+                    m_sseStreams.end(),
+                    [](const std::unique_ptr<SseStream> &stream) { return stream->isCanceled(); }),
+                m_sseStreams.end());
+        });
+        m_sseStreamCleanupTimer.start();
+    }
 
     bool bind(QTcpServer *server) { return m_server.bind(server); }
 
@@ -338,6 +365,23 @@ public:
             sessionId, Client{request.params().capabilities(), request.params().clientInfo()});
 
         responder.write(QJsonDocument(makeResponse(id, initResult)));
+    }
+
+    QString createNewSessionId()
+    {
+        QString sessionId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        qCDebug(mcpServerLog()) << "Generated new session ID" << sessionId;
+        if (m_inspector)
+            m_inspector->onSessionStarted(sessionId);
+        return sessionId;
+    }
+
+    void deleteSession(const QString &sessionId)
+    {
+        qCDebug(mcpServerLog) << "Deleting session ID" << sessionId;
+        m_sessions.remove(sessionId);
+        if (m_inspector)
+            m_inspector->onSessionEnded(sessionId);
     }
 
     void onPing(Schema::RequestId id, const Schema::PingRequest &request, const Responder &responder)
@@ -819,6 +863,38 @@ public:
         const auto request = Schema::fromJson<Schema::JSONRPCRequest>(jsonDoc.object());
         const auto clientRequest = Schema::fromJson<Schema::ClientRequest>(jsonDoc.object());
         if (request && clientRequest) {
+            if (m_inspector) {
+                auto dataFunc = m_inspector->onRequest(jsonDoc, sessionId);
+
+                Responder responderForInspector;
+                responderForInspector.write = [responder, dataFunc](QJsonDocument doc) {
+                    dataFunc(doc.toJson(QJsonDocument::Compact));
+                    responder.write(doc);
+                };
+                responderForInspector.writeStatus = [responder, dataFunc](
+                                                        QHttpServerResponse::StatusCode code) {
+                    if (code == QHttpServerResponse::StatusCode::Ok)
+                        dataFunc(QByteArray("OK"));
+                    else
+                        dataFunc(QString("Error Code: %1").arg(static_cast<int>(code)).toUtf8());
+                    responder.writeStatus(code);
+                };
+                responderForInspector.writeData = [responder, dataFunc](
+                                                      const QByteArray &data,
+                                                      const char *contentType,
+                                                      QHttpServerResponse::StatusCode code) {
+                    dataFunc(data);
+                    responder.writeData(data, contentType, code);
+                };
+                responderForInspector.writeSSE = [responder, dataFunc](const QByteArray &data) {
+                    dataFunc(data);
+                    responder.writeSSE(data);
+                };
+                responderForInspector.isCanceled = [responder]() { return responder.isCanceled(); };
+                onRequest(request->_id, *clientRequest, responderForInspector, sessionId);
+                return;
+            }
+
             onRequest(request->_id, *clientRequest, responder, sessionId);
             return;
         }
@@ -828,6 +904,9 @@ public:
         if (clientNotification) {
             qCDebug(mcpServerLog) << "Received JSONRPCNotification:"
                                   << Schema::dispatchValue(clientNotification.value());
+
+            if (m_inspector)
+                m_inspector->onClientNotification(jsonDoc, sessionId);
 
             if (std::holds_alternative<Schema::TaskStatusNotification>(*clientNotification)) {
                 const auto &notification = std::get<Schema::TaskStatusNotification>(
@@ -1076,6 +1155,8 @@ public:
     std::vector<std::unique_ptr<SseStream>> m_sseStreams;
     std::function<void(QByteArray)> m_ioOutputHandler;
 
+    QTimer m_sseStreamCleanupTimer;
+
     Server::CompletionCallback m_completionCallback;
 
     using UpdateTaskCallback = std::function<Schema::Task(Schema::Task)>;
@@ -1157,6 +1238,8 @@ public:
     QMap<int, std::function<void(Schema::JSONRPCResponse)>> m_serverRequests;
 
     bool enableCors = false;
+
+    Inspector *m_inspector = nullptr;
 };
 
 Server::Server(Schema::Implementation serverInfo)
@@ -1174,15 +1257,19 @@ Server::Server(Schema::Implementation serverInfo)
         QHttpServerRequest::Method::Get,
         [this](const QHttpServerRequest &request, QHttpServerResponder &responder) {
             Q_UNUSED(request);
-            const QString sessionId = QUuid::createUuid().toString();
+            const QString sessionId = d->createNewSessionId();
             qCDebug(mcpServerLog) << "Starting new sse session with Id " << sessionId;
             d->m_sessions.insert(sessionId, std::nullopt);
 
             auto stream
                 = std::make_unique<SseStream>(d->corsHeaders(sessionId), std::move(responder));
 
-            stream->sendEndpoint(QString("/message?session=%1").arg(sessionId).toLatin1());
+            QObject::connect(stream.get(), &SseStream::destroyed, [this, sessionId]() {
+                qCDebug(mcpServerLog) << "SSE session with Id" << sessionId << "ended";
+                d->deleteSession(sessionId);
+            });
 
+            stream->sendEndpoint(QString("/message?session=%1").arg(sessionId).toLatin1());
             d->m_sseStreams.emplace_back(std::move(stream));
             return;
         });
@@ -1215,6 +1302,8 @@ Server::Server(Schema::Implementation serverInfo)
                 qCDebug(mcpServerIOLog).noquote() << "Writing data:" << data;
                 d->sendDataTo(data, sessionId);
             };
+            r.isCanceled = [] { return false; };
+            r.writeSSE = [](QByteArray) { Q_ASSERT(false); };
 
             d->onData(req.body(), r, sessionId);
 
@@ -1266,7 +1355,7 @@ Server::Server(Schema::Implementation serverInfo)
             }
 
             qCDebug(mcpServerLog) << "Deleting session" << sessionId;
-            d->m_sessions.remove(sessionId);
+            d->deleteSession(sessionId);
             responder.write(d->corsHeaders(sessionId), QHttpServerResponse::StatusCode::Ok);
         });
 
@@ -1340,7 +1429,7 @@ Server::Server(Schema::Implementation serverInfo)
 
             const QString sessionId = req.headers().contains("mcp-session-id")
                                           ? QString::fromUtf8(req.headers().value("mcp-session-id"))
-                                          : QUuid::createUuid().toString();
+                                          : d->createNewSessionId();
 
             if (req.headers().contains("mcp-session-id")) {
                 bool validSessionId = !sessionId.isNull();
@@ -1378,8 +1467,9 @@ Server::Server(Schema::Implementation serverInfo)
 
             auto corsHeaders = d->corsHeaders(sessionId);
             Responder r;
-            r.httpResponder = std::make_shared<QHttpServerResponder>(std::move(responder));
-            r.write = [corsHeaders, http = r.httpResponder](QJsonDocument json) {
+            auto http = std::make_shared<QHttpServerResponder>(std::move(responder));
+
+            r.write = [corsHeaders, http](QJsonDocument json) {
                 const QByteArray jsonData = json.toJson(QJsonDocument::Compact);
                 qCDebug(mcpServerIOLog).noquote() << "Writing response:" << jsonData;
 
@@ -1387,18 +1477,25 @@ Server::Server(Schema::Implementation serverInfo)
                 headers.append("content-type", "application/json");
                 http->write(jsonData, headers, QHttpServerResponse::StatusCode::Ok);
             };
-            r.writeStatus = [corsHeaders,
-                             http = r.httpResponder](QHttpServerResponder::StatusCode status) {
+            r.writeStatus = [corsHeaders, http](QHttpServerResponder::StatusCode status) {
                 auto headers = corsHeaders;
                 http->write(headers, status);
             };
-            r.writeData = [corsHeaders, http = r.httpResponder](
+            r.writeData = [corsHeaders, http](
                               const QByteArray &data,
                               const char *contentType,
                               QHttpServerResponse::StatusCode status) {
                 auto headers = corsHeaders;
                 headers.append("content-type", contentType);
                 http->write(data, headers, status);
+            };
+            r.isCanceled = [http]() { return http->isResponseCanceled(); };
+
+            r.writeSSE = [sessionId, corsHeaders, http, sseStream = std::shared_ptr<SseStream>()](
+                             QByteArray data) mutable {
+                if (!sseStream)
+                    sseStream = std::make_shared<SseStream>(corsHeaders, http);
+                sseStream->sendData(data, sessionId);
             };
 
             d->onData(req.body(), r, sessionId);
@@ -1432,6 +1529,9 @@ void Server::addTool(const Schema::Tool &tool, const ToolCallback &callback)
 void Server::sendNotification(
     const Schema::ServerNotification &notification, const QString &sessionId)
 {
+    if (d->m_inspector)
+        d->m_inspector->onServerNotification(QJsonDocument(Schema::toJson(notification)), sessionId);
+
     d->sendNotification(notification, sessionId);
 }
 
@@ -1464,6 +1564,8 @@ Result<std::function<void(QByteArray)>> Server::bindIO(std::function<void(QByteA
         if (d->m_ioOutputHandler)
             d->m_ioOutputHandler(data);
     };
+    r.writeSSE = [this](QByteArray data) { d->m_ioOutputHandler(data); };
+    r.isCanceled = [] { return false; };
 
     return [this, r = std::move(r)](QByteArray data) mutable {
         d->onData(data, r, {});
@@ -1844,21 +1946,10 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
                 "server-initiated tasks");
         }
 
-        if (d->_responder.httpResponder) {
-            auto headers = [&]() -> QHttpHeaders {
-                if (auto sp = d->_server.lock())
-                    return sp->corsHeaders(d->_sessionId);
-                return {};
-            }();
-            headers.append("Content-type", "text/event-stream");
-            d->_responder.httpResponder->writeBeginChunked(
-                headers, QHttpServerResponder::StatusCode::Ok);
-            d->_responder.write = [http = d->_responder.httpResponder](QJsonDocument json) {
-                const QByteArray data = json.toJson(QJsonDocument::Compact);
-                http->writeChunk("data: " + data + "\n\n");
-                http->writeEndChunked({});
-            };
-        }
+        d->_responder.write = [&writeSSE = d->_responder.writeSSE](QJsonDocument json) {
+            const QByteArray data = json.toJson(QJsonDocument::Compact);
+            writeSSE(data);
+        };
 
         d->_longRunningToolTimer.reset(new QTimer());
         d->_longRunningToolTimer->setSingleShot(false);
@@ -1867,12 +1958,10 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
             d->_longRunningToolTimer.get(),
             &QTimer::timeout,
             [self = *this, pcounter = 0, onUpdateTask, onResultCallback, progressToken]() mutable {
-                if (self.d->_responder.httpResponder) {
-                    if (self.d->_responder.httpResponder->isResponseCanceled()) {
-                        self.d->_longRunningToolTimer->stop();
-                        self.d->_longRunningToolTimer.reset();
-                        return;
-                    }
+                if (self.d->_responder.isCanceled()) {
+                    self.d->_longRunningToolTimer->stop();
+                    self.d->_longRunningToolTimer.reset();
+                    return;
                 }
 
                 auto task = onUpdateTask(
@@ -1892,19 +1981,16 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
                                     .message(task.statusMessage().value_or(
                                         QString("Task is working...")))
                                     .progressToken(*progressToken));
-                        if (self.d->_responder.httpResponder) {
-                            const QByteArray data =
-                                QJsonDocument(Schema::toJson(notification))
-                                    .toJson(QJsonDocument::Compact);
-                            self.d->_responder.httpResponder->writeChunk("data: " + data + "\n\n");
-                        } else {
-                            self.notify(notification);
-                        }
+
+                        self.d->_responder.writeSSE(QJsonDocument(Schema::toJson(notification))
+                                                        .toJson(QJsonDocument::Compact));
                     }
                     return;
                 }
 
-                if (task.status() == Schema::TaskStatus::completed) {
+                if (task.status() == Schema::TaskStatus::completed
+                    || task.status() == Schema::TaskStatus::failed
+                    || task.status() == Schema::TaskStatus::cancelled) {
                     auto result = onResultCallback();
                     if (!result) {
                         qCWarning(mcpServerLog) << "Task completed with error:" << result.error();
@@ -1991,6 +2077,11 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
     }
 
     return Utils::ResultError("Failed to start task: Server instance no longer exists");
+}
+
+void Server::setInspector(Inspector *inspector)
+{
+    d->m_inspector = inspector;
 }
 
 } // namespace Mcp

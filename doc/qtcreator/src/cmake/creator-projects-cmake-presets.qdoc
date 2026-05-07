@@ -306,7 +306,7 @@
     print output from the test program upon failure, as well as display an
     error if the test cannot be found.
 
-    \badcode
+    \code [json]
     {
       "version": 3,
       "testPresets": [
@@ -387,7 +387,7 @@
 
     An example of CMake configuration presets:
 
-    \badcode
+    \code [json]
     "vendor": {
       "qt.io/QtCreator/1.0": {
         "AskBeforePresetsReload": false,
@@ -441,7 +441,7 @@
 
     An example of \QC debugger presets:
 
-    \badcode
+    \code [json]
     "vendor": {
       "qt.io/QtCreator/1.0": {
         "debugger": {

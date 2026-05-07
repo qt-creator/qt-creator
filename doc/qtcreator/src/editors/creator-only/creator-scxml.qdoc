@@ -202,7 +202,7 @@
     added to the names of the child states, separated by two colons (::).
     For example:
 
-    \badcode
+    \code [xml]
     <state id="broken">
     ...
         <state id="broken::blinking">

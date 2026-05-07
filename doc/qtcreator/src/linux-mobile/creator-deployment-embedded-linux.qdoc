@@ -50,7 +50,7 @@
     For example, add the following lines to the \c CMakeLists.txt file to install
     the binary of your project to the \c /opt directory on the remote device:
 
-    \badcode
+    \code [cmake]
     set(INSTALL_DESTDIR "/opt")
 
     install(TARGETS <target>

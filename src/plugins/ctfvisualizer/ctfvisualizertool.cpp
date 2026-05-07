@@ -1,21 +1,20 @@
 // Copyright (C) 2019 Klarälvdalens Datakonsult AB, a KDAB Group company,
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
-#include "ctfvisualizertool.h"
 
-#include "ctftracemanager.h"
+#include "ctfvisualizertool.h"
 
 #include "ctfstatisticsmodel.h"
 #include "ctfstatisticsview.h"
 #include "ctftimelinemodel.h"
+#include "ctftracemanager.h"
 #include "ctfvisualizertr.h"
 #include "ctfvisualizertraceview.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/taskprogress.h>
-
-#include <debugger/debuggerconstants.h>
 
 #include <utils/async.h>
 #include <utils/stylehelper.h>
@@ -46,10 +45,10 @@ CtfVisualizerTool::CtfVisualizerTool(QObject *parent)
     , m_restrictToThreadsButton(new QToolButton)
     , m_restrictToThreadsMenu(new QMenu(m_restrictToThreadsButton))
 {
-    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+    ActionContainer *menu = ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER);
     ActionContainer *options = ActionManager::createMenu(Constants::CtfVisualizerMenuId);
     options->menu()->setTitle(Tr::tr("Chrome Trace Format Viewer"));
-    menu->addMenu(options, Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
+    menu->addMenu(options, Core::Constants::G_ANALYZER_REMOTE_TOOLS);
     options->menu()->setEnabled(true);
 
     const Core::Context globalContext(Core::Constants::C_GLOBAL);

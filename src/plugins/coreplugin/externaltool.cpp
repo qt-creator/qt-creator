@@ -91,6 +91,7 @@ ExternalTool &ExternalTool::operator=(const ExternalTool &other)
     m_arguments = other.m_arguments;
     m_input = other.m_input;
     m_workingDirectory = other.m_workingDirectory;
+    m_baseEnvironmentProviderId = other.m_baseEnvironmentProviderId;
     m_environment = other.m_environment;
     m_outputHandling = other.m_outputHandling;
     m_errorHandling = other.m_errorHandling;

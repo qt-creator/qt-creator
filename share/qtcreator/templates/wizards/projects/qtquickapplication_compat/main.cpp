@@ -54,5 +54,5 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
-    return QCoreApplication::exec();
+    return QGuiApplication::exec();
 }

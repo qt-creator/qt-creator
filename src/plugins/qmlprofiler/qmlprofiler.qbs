@@ -11,7 +11,6 @@ QtcPlugin {
     Depends { name: "Tracing" }
 
     Depends { name: "Core" }
-    Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }

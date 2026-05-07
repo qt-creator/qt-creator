@@ -24,9 +24,11 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/perspective.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/LookupContext.h>
@@ -38,8 +40,6 @@
 #include <cppeditor/cppmodelmanager.h>
 
 #include <debugger/debuggerconstants.h>
-#include <debugger/debuggermainwindow.h>
-#include <debugger/analyzer/analyzerutils.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -78,7 +78,6 @@
 #include <QToolButton>
 
 using namespace Core;
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace TextEditor;
@@ -330,7 +329,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     m_stopAction = new QAction(Tr::tr("Stop"), this);
     m_stopAction->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
 
-    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+    ActionContainer *menu = ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER);
     QString toolTip = Tr::tr("Valgrind Function Profiler uses the "
         "Callgrind tool to record function calls when a program runs.");
 
@@ -339,9 +338,9 @@ CallgrindTool::CallgrindTool(QObject *parent)
         m_startAction->setParent(this);
         m_startAction->setToolTip(toolTip);
         menu->addAction(ActionManager::registerAction(m_startAction, CallgrindLocalActionId),
-                        Debugger::Constants::G_ANALYZER_TOOLS);
+                        Core::Constants::G_ANALYZER_TOOLS);
         QObject::connect(m_startAction, &QAction::triggered, this, [this] {
-            if (!Debugger::wantRunTool(OptimizedMode, m_startAction->text()))
+            if (!wantRunTool(OptimizedMode, m_startAction->text()))
                 return;
             m_perspective.select();
             ProjectExplorerPlugin::runStartupProject(CALLGRIND_RUN_MODE);
@@ -351,7 +350,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     auto action = new QAction(Tr::tr("Valgrind Function Profiler (External Application)"), this);
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),
-                    Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
+                    Core::Constants::G_ANALYZER_REMOTE_TOOLS);
     setupExternalAnalyzer(action, &m_perspective, CALLGRIND_RUN_MODE);
 
     // If there is a CppEditor context menu add our own context menu actions.
@@ -816,10 +815,10 @@ void CallgrindTool::setupRunControl(RunControl *runControl)
         m_loadExternalLogFile->setEnabled(false);
         clearTextMarks();
         doClear();
-        Debugger::showPermanentStatusMessage(Tr::tr("Starting Function Profiler..."));
+        PerspectivesView::showPermanentStatusMessage(Tr::tr("Starting Function Profiler..."));
     });
     connect(m_runControl, &RunControl::started, this, [] {
-        Debugger::showPermanentStatusMessage(Tr::tr("Function Profiler running..."));
+        PerspectivesView::showPermanentStatusMessage(Tr::tr("Function Profiler running..."));
     });
 
     connect(m_stopAction, &QAction::triggered, this, [this] { m_runControl->initiateStop(); });
@@ -882,7 +881,7 @@ static QString toOptionString(Option option)
 ExecutableItem CallgrindTool::optionRecipe(Option option) const
 {
     const auto onSetup = [this, option](Process &process) {
-        Debugger::showPermanentStatusMessage(statusMessage(option));
+        PerspectivesView::showPermanentStatusMessage(statusMessage(option));
         const ProcessRunData runnable = m_runControl->runnable();
         const FilePath control = runnable.command.executable().withNewPath(CALLGRIND_CONTROL_BINARY);
         process.setCommand({control, {toOptionString(option), QString::number(m_pid)}});
@@ -894,20 +893,20 @@ ExecutableItem CallgrindTool::optionRecipe(Option option) const
     };
     const auto onDone = [option](const Process &process, DoneWith result) {
         if (result != DoneWith::Success) {
-            Debugger::showPermanentStatusMessage(Tr::tr("An error occurred while trying to run %1: %2")
+            PerspectivesView::showPermanentStatusMessage(Tr::tr("An error occurred while trying to run %1: %2")
                                                      .arg(CALLGRIND_CONTROL_BINARY)
                                                      .arg(process.errorString()));
             return;
         }
         switch (option) {
         case Option::Pause:
-            Debugger::showPermanentStatusMessage(Tr::tr("Callgrind paused."));
+            PerspectivesView::showPermanentStatusMessage(Tr::tr("Callgrind paused."));
             break;
         case Option::UnPause:
-            Debugger::showPermanentStatusMessage(Tr::tr("Callgrind unpaused."));
+            PerspectivesView::showPermanentStatusMessage(Tr::tr("Callgrind unpaused."));
             break;
         case Option::Dump:
-            Debugger::showPermanentStatusMessage(Tr::tr("Callgrind dumped profiling info."));
+            PerspectivesView::showPermanentStatusMessage(Tr::tr("Callgrind dumped profiling info."));
             break;
         default:
             break;
@@ -925,7 +924,7 @@ ExecutableItem CallgrindTool::parseRecipe()
         if (hostOutputFile.isEmpty()) {
             TemporaryFile dataFile("callgrind.out");
             if (!dataFile.open()) {
-                Debugger::showPermanentStatusMessage(Tr::tr("Failed opening temp file..."));
+                PerspectivesView::showPermanentStatusMessage(Tr::tr("Failed opening temp file..."));
                 return;
             }
             hostOutputFile = dataFile.filePath();
@@ -938,7 +937,7 @@ ExecutableItem CallgrindTool::parseRecipe()
 
     const auto onParserSetup = [storage](Async<ParseDataPtr> &async) {
         async.setConcurrentCallData(parseDataFile, *storage);
-        Debugger::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
+        PerspectivesView::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
     };
     const auto onParserDone = [this](const Async<ParseDataPtr> &async) {
         setParserData(async.result());
@@ -980,7 +979,7 @@ void CallgrindTool::unpause()
 void CallgrindTool::executeController(const Group &recipe)
 {
     if (m_controllerRunner.isRunning())
-        Debugger::showPermanentStatusMessage(Tr::tr("Previous command has not yet finished."));
+        PerspectivesView::showPermanentStatusMessage(Tr::tr("Previous command has not yet finished."));
     else
         m_controllerRunner.start(recipe);
 }
@@ -1039,7 +1038,7 @@ void CallgrindTool::engineFinished()
     if (data)
         showParserResults(data);
     else
-        Debugger::showPermanentStatusMessage(Tr::tr("Profiling aborted."));
+        PerspectivesView::showPermanentStatusMessage(Tr::tr("Profiling aborted."));
 
     setBusyCursor(false);
 }
@@ -1059,7 +1058,7 @@ void CallgrindTool::showParserResults(const ParseDataPtr &data)
     } else {
         msg = Tr::tr("Parsing failed.");
     }
-    Debugger::showPermanentStatusMessage(msg);
+    PerspectivesView::showPermanentStatusMessage(msg);
 }
 
 void CallgrindTool::editorOpened(IEditor *editor)
@@ -1168,11 +1167,11 @@ void CallgrindTool::loadExternalLogFile()
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QString msg = Tr::tr("Callgrind: Failed to open file for reading: %1")
                 .arg(filePath.toUserOutput());
-        TaskHub::addTask(Task::DisruptingError, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::addTask(Task::DisruptingError, msg, Core::Constants::ANALYZERTASK_ID);
         return;
     }
 
-    Debugger::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
+    PerspectivesView::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
     QCoreApplication::processEvents();
 
     setParserData(parseDataFile(filePath));

@@ -7,7 +7,8 @@
 #include "squishtr.h"
 #include "suiteconf.h"
 
-#include <debugger/debuggericons.h>
+#include <projectexplorer/projectexplorericons.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -213,7 +214,7 @@ static QPixmap treeIcon(SquishTestTreeItem::Type type, int column)
                               QIcon(":/squish/images/data.png").pixmap(16, 16)
                              };
     static const QPixmap playIcon = scaledPixmap(Utils::Icons::RUN_SMALL);
-    static const QPixmap recordIcon = scaledPixmap(Debugger::Icons::RECORD_ON);
+    static const QPixmap recordIcon = scaledPixmap(ProjectExplorer::Icons::RECORD_ON);
 
     if (column == 0)
         return icons[type];

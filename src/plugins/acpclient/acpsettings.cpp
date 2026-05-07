@@ -248,13 +248,44 @@ public:
             templateCmdInfo->setToolTip(Tr::tr("The command that will spawn the ACP server"));
             templateCmdInfo->setType(InfoLabel::Information);
             templateCmdInfo->setTextInteractionFlags(Qt::TextSelectableByMouse);
-            const auto updateCmdInfo = [templateCmdInfo, this]() {
+
+            InfoLabel *cmdNotFoundLabel = new InfoLabel();
+            cmdNotFoundLabel->setWordWrap(true);
+            cmdNotFoundLabel->setElideMode(Qt::ElideNone);
+            cmdNotFoundLabel->setType(InfoLabel::Error);
+            cmdNotFoundLabel->setTextFormat(Qt::RichText);
+            cmdNotFoundLabel->setOpenExternalLinks(true);
+            cmdNotFoundLabel->setTextInteractionFlags(
+                Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+
+            const auto updateCmdInfo = [templateCmdInfo, cmdNotFoundLabel, this]() {
                 const bool isCustom = registryBrowser.volatileValue().isEmpty();
+                const FilePath executable = launchCommand.expandedValue();
                 const QString info = QString("%1 %2")
-                                         .arg(launchCommand.expandedValue().toUserOutput())
+                                         .arg(executable.toUserOutput())
                                          .arg(launchArguments());
                 templateCmdInfo->setText(info);
                 templateCmdInfo->setVisible(!isCustom);
+                const bool executableCanBeFound = executable.searchInPath().exists();
+                cmdNotFoundLabel->setVisible(!isCustom && !executableCanBeFound);
+                QString warningText = Tr::tr("\"%1\" is needed for this Agent, but was not found.")
+                                          .arg(executable.toUserOutput().toHtmlEscaped());
+                if (executable == "npx") {
+                    const QString npmDocsUrl
+                        = "https://docs.npmjs.com/downloading-and-installing-node-js-and-npm";
+                    warningText += " "
+                        + Tr::tr("Make sure Node.js is installed and npx is available in PATH. "
+                                 "See <a href=\"%1\">%1</a> for installation instructions.")
+                              .arg(npmDocsUrl);
+                } else if (executable == "uvx") {
+                    const QString uvDocsUrl
+                        = "https://docs.astral.sh/uv/getting-started/installation/";
+                    warningText += " "
+                        + Tr::tr("Make sure UV is installed and uvx is available in PATH. "
+                                 "See <a href=\"%1\">%1</a> for installation instructions.")
+                              .arg(uvDocsUrl);
+                }
+                cmdNotFoundLabel->setText(warningText);
             };
 
             const auto updateVisible = [this]() {
@@ -277,6 +308,12 @@ public:
                 templateCmdInfo,
                 updateCmdInfo);
 
+            connect(
+                &environment,
+                &EnvironmentChangesAspect::volatileValueChanged,
+                templateCmdInfo,
+                updateCmdInfo);
+
             // clang-format off
             return Form{
                 noMargin,
@@ -286,6 +323,7 @@ public:
                 launchArguments, br,
                 environment, br,
                 templateCmdInfo, br,
+                cmdNotFoundLabel, br,
             };
             // clang-format on
         });

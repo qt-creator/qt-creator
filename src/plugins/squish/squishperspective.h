@@ -5,9 +5,11 @@
 
 #include "squishconstants.h"
 
-#include <debugger/debuggermainwindow.h>
+#include <coreplugin/perspective.h>
 
 #include <utils/treemodel.h>
+
+#include <QLabel>
 
 namespace Utils { class TreeView; }
 
@@ -54,7 +56,7 @@ private:
     void parseAndUpdateChildren();
 };
 
-class SquishPerspective : public Utils::Perspective
+class SquishPerspective : public Core::Perspective
 {
     Q_OBJECT
 public:

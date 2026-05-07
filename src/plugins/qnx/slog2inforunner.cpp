@@ -9,10 +9,8 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <QtTaskTree/QSingleTaskTreeRunner>
-
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDateTime>
 #include <QRegularExpression>

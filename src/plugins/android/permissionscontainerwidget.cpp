@@ -358,6 +358,8 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
             this, &PermissionsContainerWidget::updateAddRemovePermissionButtons);
     connect(m_permissionsModel, &QAbstractItemModel::modelReset,
             this, &PermissionsContainerWidget::updateAddRemovePermissionButtons);
+    connect(m_permissionsListView, &QTreeView::doubleClicked,
+            this, &PermissionsContainerWidget::editAttributes);
 
     return true;
 }

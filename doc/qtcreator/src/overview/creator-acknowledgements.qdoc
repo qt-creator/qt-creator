@@ -57,7 +57,7 @@ The sources with integrated patches can be found at \l{Clazy sources}.
 
 \l{Clazy project homepage}{Project Homepage}
 
-\badcode *
+\code [text]
 Copyright (C) 2015-2019 Clazy Team.
 \endcode
 
@@ -84,7 +84,7 @@ The sources with backported/additional patches can be found at
 
 \l{llvm-project on GitHub}{Project Homepage}
 
-\badcode *
+\code [text]
 Copyright (C) 2003-2019 LLVM Team
 \endcode
 
@@ -109,13 +109,13 @@ applications without any hardware or driver support.
 Mesa is shipped as part of the binary packages for Windows
 (opengl32sw.dll).
 
-\badcode *
+\code [text]
 Copyright (C) 2003-2019 LLVM Team
 \endcode
 
 MIT License
 
-\badcode *
+\code [text]
 Copyright (C) 1999-2007  Brian Paul   All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a
@@ -156,7 +156,7 @@ The sources can be found at \l{Qbs sources}.
 
 \l{Qbs Overview}{Project Homepage}
 
-\badcode *
+\code [text]
 Copyright (C) 2012-2023 The Qt Company Ltd.
 \endcode
 

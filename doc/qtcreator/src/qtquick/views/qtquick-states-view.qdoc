@@ -49,7 +49,7 @@
 
     To apply a state to a button when the button is pressed, write:
 
-    \badcode
+    \code [text]
     when: control.pressed
     \endcode
 
@@ -60,14 +60,14 @@
     To apply a state when the button is not pressed, selected, nor hovered on,
     combine conditions, as follows:
 
-    \badcode
+    \code [text]
     when: !control.pressed && !control.checked && !control.hovered
     \endcode
 
     To apply a state when the button is pressed or selected, but not hovered on,
     write:
 
-    \badcode
+    \code [text]
     when: control.pressed || control.checked && !control.hovered
     \endcode
 

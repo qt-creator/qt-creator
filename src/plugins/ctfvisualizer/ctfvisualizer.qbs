@@ -4,7 +4,7 @@ QtcPlugin {
     name: "CtfVisualizer"
 
     Depends { name: "Core" }
-    Depends { name: "Debugger" }
+    Depends { name: "Json" }
     Depends { name: "Tracing" }
     Depends { name: "Utils" }
 
@@ -29,6 +29,5 @@ QtcPlugin {
         "ctfvisualizertool.cpp", "ctfvisualizertool.h",
         "ctfvisualizertraceview.cpp", "ctfvisualizertraceview.h",
         "ctfvisualizertr.h",
-        "../../libs/3rdparty/json/json.hpp",
     ]
 }

@@ -22,8 +22,6 @@ public:
     ExitNotification();
     using Notification::Notification;
     constexpr static const char methodName[] = "exit";
-
-    bool parametersAreValid(QString * /*errorMessage*/) const final { return true; }
 };
 
 } // namespace LanguageClient

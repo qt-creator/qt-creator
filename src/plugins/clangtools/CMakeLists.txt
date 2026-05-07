@@ -5,7 +5,7 @@ set(CLANG_VERSION ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}.${LLVM_VERSION_PAT
 add_qtc_plugin(ClangTools
   CONDITION TARGET yaml-cpp::yaml-cpp
   DEPENDS yaml-cpp::yaml-cpp
-  PLUGIN_DEPENDS Core Debugger CppEditor
+  PLUGIN_DEPENDS Core CppEditor ProjectExplorer
   PLUGIN_RECOMMENDS CppEditor
   PLUGIN_TEST_DEPENDS QmakeProjectManager QbsProjectManager
   SKIP_PCH
@@ -35,7 +35,6 @@ add_qtc_plugin(ClangTools
     diagnosticconfigswidget.cpp diagnosticconfigswidget.h
     diagnosticmark.cpp diagnosticmark.h
     documentclangtoolrunner.cpp documentclangtoolrunner.h
-    documentquickfixfactory.cpp documentquickfixfactory.h
     executableinfo.cpp executableinfo.h
     filterdialog.cpp filterdialog.h
     inlinesuppresseddiagnostics.cpp inlinesuppresseddiagnostics.h
@@ -45,6 +44,7 @@ add_qtc_plugin(ClangTools
 
 extend_qtc_plugin(ClangTools
   CONDITION WITH_TESTS
+  DEPENDS QtCreator::QtSupport
   SOURCES
     clangtoolspreconfiguredsessiontests.cpp clangtoolspreconfiguredsessiontests.h
     clangtoolsunittests.cpp clangtoolsunittests.h
