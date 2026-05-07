@@ -72,6 +72,7 @@ protected:
     void setDefaultRow(int row);
     void setShowDefault(bool on);
     void setDefaultAffectsDirty(bool on);
+    bool isOriginalDefault(int row) const;
 
 private:
     virtual QVariant variantData(int row, int column, int role) const = 0;

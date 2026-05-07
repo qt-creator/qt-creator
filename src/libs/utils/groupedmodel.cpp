@@ -374,6 +374,11 @@ bool GroupedModel::isDefault(int row) const
     return row >= 0 && row < m_volatileDefaultFlag.size() && m_volatileDefaultFlag.at(row);
 }
 
+bool GroupedModel::isOriginalDefault(int row) const
+{
+    return row >= 0 && row < m_defaultFlag.size() && m_defaultFlag.at(row);
+}
+
 void GroupedModel::setVolatileDefaultRow(int row)
 {
     QTC_ASSERT(row >= -1 && (row < 0 || row < m_volatileVariants.size()), return);
