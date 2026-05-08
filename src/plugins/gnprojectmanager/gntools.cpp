@@ -100,6 +100,17 @@ std::optional<FilePath> findGN()
 // GNTools
 
 static GNTools::Tools s_tools;
+static Id s_defaultGNId;
+
+Id GNTools::defaultToolId()
+{
+    return s_defaultGNId;
+}
+
+void GNTools::setDefaultToolId(const Id &id)
+{
+    s_defaultGNId = id;
+}
 
 GNTools::Tool GNTools::autoDetectedTool()
 {
@@ -223,6 +234,8 @@ public:
             ++entryCount;
         }
         data.insert(Constants::ToolsSettings::ENTRY_COUNT, entryCount);
+        data.insert(Constants::ToolsSettings::DEFAULT_TOOL_KEY,
+                    GNTools::defaultToolId().toSetting());
         saveSettings(data);
     }
 
@@ -237,6 +250,8 @@ public:
                 result.emplace_back(new GNTool(store));
         }
         GNTools::setTools(std::move(result));
+        GNTools::setDefaultToolId(Id::fromSetting(
+            data.value(Constants::ToolsSettings::DEFAULT_TOOL_KEY)));
     }
 };
 

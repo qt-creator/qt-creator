@@ -635,6 +635,13 @@ GroupedView::GroupedView(GroupedModel &model)
     m_cloneButton.setEnabled(false);
     connect(&m_cloneButton, &QPushButton::clicked, this, &GroupedView::cloneCurrent);
 
+    m_makeDefaultButton.setText(Tr::tr("Make Default"));
+    m_makeDefaultButton.setEnabled(false);
+    connect(&m_makeDefaultButton, &QPushButton::clicked, this, [this] {
+        m_model.setVolatileDefaultRow(currentRow());
+        updateButtons();
+    });
+
     m_removeButton.setText(Tr::tr("Remove"));
     m_removeButton.setEnabled(false);
     connect(&m_removeButton, &QPushButton::clicked, this, &GroupedView::removeCurrent);
@@ -653,6 +660,11 @@ QPushButton &GroupedView::cloneButton()
 QPushButton &GroupedView::removeButton()
 {
     return m_removeButton;
+}
+
+QPushButton &GroupedView::makeDefaultButton()
+{
+    return m_makeDefaultButton;
 }
 
 void GroupedView::setCanRemoveRow(std::function<bool(int)> predicate)
@@ -674,6 +686,8 @@ void GroupedView::updateButtons()
     m_removeButton.setEnabled(canRemove);
     const bool canClone = row >= 0 && !isRemoved && (!m_canClone || m_canClone(row));
     m_cloneButton.setEnabled(canClone);
+    const bool canMakeDefault = row >= 0 && !isRemoved && !m_model.isDefault(row);
+    m_makeDefaultButton.setEnabled(canMakeDefault);
 }
 
 int GroupedView::currentRow() const
@@ -710,6 +724,14 @@ void GroupedView::removeCurrent()
 {
     const int row = currentRow();
     QTC_ASSERT(row >= 0, return);
+    if (m_model.isDefault(row)) {
+        for (int r = 0; r < m_model.itemCount(); ++r) {
+            if (r != row && !m_model.isRemoved(r)) {
+                m_model.setVolatileDefaultRow(r);
+                break;
+            }
+        }
+    }
     m_model.markRemoved(row);
     updateButtons();
     emit currentRemoved();

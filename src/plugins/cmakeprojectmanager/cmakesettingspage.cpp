@@ -368,11 +368,6 @@ public:
     {
         m_addButton.setText(Tr::tr("Add"));
 
-        m_makeDefButton.setText(Tr::tr("Make Default"));
-        m_makeDefButton.setEnabled(false);
-        m_makeDefButton.setToolTip(Tr::tr("Set as the default CMake Tool to use when "
-                                          "creating a new kit or when no value is set."));
-
         m_detectButton.setText(Tr::tr("Re-detect"));
 
         m_displayName.setDisplayStyle(StringAspect::LineEditDisplay);
@@ -409,11 +404,15 @@ public:
                     m_addButton,
                     m_groupedView.cloneButton(),
                     m_groupedView.removeButton(),
-                    m_makeDefButton,
+                    m_groupedView.makeDefaultButton(),
                     m_detectButton,
                     st,
                 },
             }}.attachTo(this);
+
+        m_groupedView.makeDefaultButton().setToolTip(
+            Tr::tr("Set as the default CMake Tool to use when "
+                   "creating a new kit or when no value is set."));
 
         m_groupedView.setCanRemoveRow([this](int row) {
             return !m_model.item(row).m_detectionSource.isAutoDetected();
@@ -424,10 +423,6 @@ public:
 
         connect(&m_addButton, &QAbstractButton::clicked,
                 this, &CMakeToolConfigWidget::addCMakeTool);
-        connect(&m_groupedView, &GroupedView::currentRemoved,
-                this, &CMakeToolConfigWidget::removeCMakeTool);
-        connect(&m_makeDefButton, &QAbstractButton::clicked,
-                this, &CMakeToolConfigWidget::setDefaultCMakeTool);
         connect(&m_detectButton, &QAbstractButton::clicked,
                 this, &CMakeToolConfigWidget::redetect);
 
@@ -463,11 +458,8 @@ private:
 
 
     void addCMakeTool();
-    void removeCMakeTool();
-    void setDefaultCMakeTool();
     void redetect();
     void currentCMakeToolChanged(int oldRow, int newRow);
-    void updateButtons();
 
     void load(const CMakeToolTreeItem *item, bool updateCMakePath);
     void store();
@@ -479,7 +471,6 @@ private:
     GroupedView m_groupedView{m_model};
     DeviceComboBox m_deviceComboBox;
     QPushButton m_addButton;
-    QPushButton m_makeDefButton;
     QPushButton m_detectButton;
     DetailsWidget m_container;
 
@@ -559,33 +550,6 @@ void CMakeToolConfigWidget::addCMakeTool()
     m_groupedView.selectRow(m_model.appendVolatileItem(added));
 }
 
-void CMakeToolConfigWidget::removeCMakeTool()
-{
-    const int row = m_groupedView.currentRow();
-    if (row < 0)
-        return;
-
-    if (m_model.isDefault(row)) {
-        for (int r = 0; r < m_model.itemCount(); ++r) {
-            if (!m_model.isRemoved(r)) {
-                m_model.setVolatileDefaultRow(r);
-                break;
-            }
-        }
-    }
-    updateButtons();
-}
-
-void CMakeToolConfigWidget::setDefaultCMakeTool()
-{
-    const int row = m_groupedView.currentRow();
-    if (row < 0)
-        return;
-
-    m_model.setVolatileDefaultRow(row);
-    m_makeDefButton.setEnabled(false);
-}
-
 void CMakeToolConfigWidget::redetect()
 {
     // Step 1: Detect
@@ -636,14 +600,6 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(int, int newRow)
         load(nullptr, true);
     }
     m_container.setVisible(newRow >= 0 && newRow < m_model.itemCount());
-    updateButtons();
-}
-
-void CMakeToolConfigWidget::updateButtons()
-{
-    const int row = m_groupedView.currentRow();
-    const bool hasRow = row >= 0 && row < m_model.itemCount() && !m_model.isRemoved(row);
-    m_makeDefButton.setEnabled(hasRow && !m_model.isDefault(row));
 }
 
 // CMakeSettingsPage

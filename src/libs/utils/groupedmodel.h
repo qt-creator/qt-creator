@@ -160,8 +160,10 @@ public:
     explicit GroupedView(GroupedModel &model);
 
     QTreeView &view();
+
     QPushButton &removeButton();
     QPushButton &cloneButton();
+    QPushButton &makeDefaultButton();
 
     void setCanRemoveRow(std::function<bool(int)> predicate);
     void setCanCloneRow(std::function<bool(int)> predicate);
@@ -185,6 +187,7 @@ private:
     QTreeView m_view;
     QPushButton m_removeButton;
     QPushButton m_cloneButton;
+    QPushButton m_makeDefaultButton;
     QVariant m_savedVariant;
     std::function<bool(int)> m_canRemove;
     std::function<bool(int)> m_canClone;
