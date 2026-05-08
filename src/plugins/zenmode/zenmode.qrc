@@ -2,5 +2,9 @@
     <qresource prefix="/zenmode">
         <file>images/settingscategory_zenmode.png</file>
         <file>images/settingscategory_zenmode_2.png</file>
+        <file>images/zenmode.png</file>
+        <file>images/zenmode@2x.png</file>
+        <file>images/distractionfree.png</file>
+        <file>images/distractionfree@2x.png</file>
     </qresource>
 </RCC>

@@ -16,11 +16,14 @@
 #include <texteditor/marginsettings.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/icon.h>
+#include <utils/theme/theme.h>
+
 #include <QAction>
-#include <QFont>
 #include <QMenuBar>
 
 using namespace Core;
+using namespace Utils;
 
 namespace ZenMode::Internal {
 
@@ -63,23 +66,20 @@ void ZenModePlugin::extensionsInitialized()
     Core::IOptionsPage::registerCategory(
         "ZY.ZenMode", Tr::tr("Zen Mode"), ":/zenmode/images/settingscategory_zenmode.png");
 
-    QFont statusFont = m_zenModeStatusBarIcon.font();
-    statusFont.setPixelSize(14);
-    statusFont.setBold(true);
+    const Icon zenIcon({{":/zenmode/images/zenmode.png", Theme::IconsBaseColor}});
+    const Icon dfIcon({{":/zenmode/images/distractionfree.png", Theme::IconsBaseColor}});
 
     m_zenModeStatusBarIcon.setObjectName("zenModeState");
-    m_zenModeStatusBarIcon.setText("Z");
+    m_zenModeStatusBarIcon.setIcon(zenIcon.icon());
     m_zenModeStatusBarIcon.setToolTip(Tr::tr("Toggle Zen Mode"));
-    m_zenModeStatusBarIcon.setFont(statusFont);
     m_zenModeStatusBarIcon.setAutoRaise(true);
     m_zenModeStatusBarIcon.setCheckable(true);
     connect(&m_zenModeStatusBarIcon, &QToolButton::clicked,
             m_toggleZenModeAction, &QAction::trigger);
 
     m_distractionModeStatusBarIcon.setObjectName("distractionModeState");
-    m_distractionModeStatusBarIcon.setText("D");
+    m_distractionModeStatusBarIcon.setIcon(dfIcon.icon());
     m_distractionModeStatusBarIcon.setToolTip(Tr::tr("Toggle Distraction Free Mode"));
-    m_distractionModeStatusBarIcon.setFont(statusFont);
     m_distractionModeStatusBarIcon.setAutoRaise(true);
     m_distractionModeStatusBarIcon.setCheckable(true);
     connect(&m_distractionModeStatusBarIcon, &QToolButton::clicked,
