@@ -104,7 +104,11 @@ static Utils::Result<ResolvedTestRun> resolveTestRun(
                 itemsPerName.append(items);
         }
         if (!notFound.isEmpty())
-            return ResultError(QString("Test name(s) not found: %1").arg(notFound.join(", ")));
+            return ResultError(
+                QString("Test name(s) not found in the current Autotest model: %1. "
+                        "If you recently added or renamed these tests, call reconfigure "
+                        "first to trigger a re-parse, then retry.")
+                    .arg(notFound.join(", ")));
         for (const QList<ITestTreeItem *> &items : itemsPerName) {
             for (ITestTreeItem *item : items) {
                 if (ITestConfiguration *cfg = item->asConfiguration(runMode))
@@ -279,7 +283,10 @@ void registerMcpTools()
                             {"description",
                              "Test names to run when scope='named'. Names typically come "
                              "from `failures` or `tests_with_warnings` in a previous "
-                             "summary. Ignored for other scopes."}})
+                             "summary, or from list_tests. Names must already be present "
+                             "in Autotest's current model — if a name is not found, "
+                             "call reconfigure first to trigger a re-parse (needed after "
+                             "adding or renaming test functions). Ignored for other scopes."}})
                     .addProperty(
                         "mode",
                         QJsonObject{
@@ -420,7 +427,7 @@ void registerMcpTools()
             .name("get_test_status")
             .title("Check test-run state without clobbering")
             .description(
-                "Read-only: reports whether a test run is currently in progress and "
+                "Reports whether a test run is currently in progress and "
                 "whether the snapshot holds results worth looking at. Call this before "
                 "run_tests if there's any chance the user has just produced an "
                 "interesting result (e.g. a debug-mode failure) in the Tests pane that "
@@ -500,7 +507,7 @@ void registerMcpTools()
             .name("get_test_details")
             .title("Get per-test details from the most recent run")
             .description(
-                "Read-only: full details for the named tests from the most recent run "
+                "Full details for the named tests from the most recent run "
                 "— status, failure message, file/line, duration, and the full log of "
                 "qDebug/qInfo/qWarning/qCritical/qFatal messages emitted during that "
                 "test function. Names typically come from the `failures` or "
@@ -540,6 +547,115 @@ void registerMcpTools()
             for (const QJsonValue &v : namesArr)
                 names.append(v.toString());
             return resultsManager().testDetails(names);
+        }));
+
+    // ---- list_tests (sync read-only) ----
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_tests")
+            .title("Discover the available tests in the active project")
+            .description(
+                "Enumerates every test class Autotest currently knows "
+                "about, with its functions. Useful as a discovery step before "
+                "calling run_tests — gives exact class and function names to pass "
+                "as run_tests({scope: \"named\", names: [\"Class::function\"]}) "
+                "without guessing from build artifacts. Each entry carries the "
+                "framework label (e.g. \"Qt Test\", \"Google Test\"). "
+                "Returns empty if Autotest hasn't finished parsing yet or the "
+                "project has no recognized tests.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "tests",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items",
+                             QJsonObject{
+                                 {"type", "object"},
+                                 {"properties",
+                                  QJsonObject{
+                                      {"framework", QJsonObject{{"type", "string"}}},
+                                      {"class", QJsonObject{{"type", "string"}}},
+                                      {"functions",
+                                       QJsonObject{
+                                           {"type", "array"},
+                                           {"items", QJsonObject{{"type", "string"}}}}},
+                                      {"file", QJsonObject{{"type", "string"}}},
+                                      {"line",
+                                       QJsonObject{
+                                           {"type", "integer"},
+                                           {"minimum", 1}}}}}}}})
+                    .addProperty("count", QJsonObject{{"type", "integer"}, {"minimum", 0}})
+                    .addRequired("tests")
+                    .addRequired("count")),
+        wrap([](const QJsonObject &) -> QJsonObject {
+            TestTreeModel *model = TestTreeModel::instance();
+            if (!model)
+                return QJsonObject{
+                    {"tests", QJsonArray()},
+                    {"count", 0},
+                    {"error", "Autotest plugin not available"}};
+
+            QJsonArray tests;
+            using TT = ITestTreeItem;
+            std::function<void(TT *, const QString &)> walk;
+            walk = [&](TT *item, const QString &frameworkName) {
+                if (!item)
+                    return;
+                const TT::Type t = item->type();
+                if (t == TT::TestCase || t == TT::TestSuite) {
+                    QJsonArray functions;
+                    bool hasNestedSuites = false;
+                    for (int i = 0, n = item->childCount(); i < n; ++i) {
+                        TT *child = item->childAt(i);
+                        if (!child)
+                            continue;
+                        const TT::Type ct = child->type();
+                        // Only include directly-runnable test items.
+                        // TestDataFunction (_data providers) and TestSpecialFunction
+                        // (initTestCase / cleanupTestCase) are not independently
+                        // addressable — they run implicitly alongside the test.
+                        // TestCase children handle frameworks like GTest and Boost
+                        // where individual tests are TestCase items under a TestSuite.
+                        if (ct == TT::TestFunction || ct == TT::TestCase)
+                            functions.append(child->name());
+                        else if (ct == TT::TestSuite)
+                            hasNestedSuites = true;
+                    }
+                    // If this item is purely a suite container with no directly-runnable
+                    // children (e.g. a Boost nested suite), recurse rather than emitting
+                    // an empty entry.
+                    if (functions.isEmpty() && hasNestedSuites) {
+                        for (int i = 0, n = item->childCount(); i < n; ++i)
+                            walk(item->childAt(i), frameworkName);
+                        return;
+                    }
+                    QJsonObject entry;
+                    entry.insert("framework", frameworkName);
+                    entry.insert("class", item->name());
+                    entry.insert("functions", functions);
+                    const FilePath fp = item->filePath();
+                    if (!fp.isEmpty())
+                        entry.insert("file", fp.toUserOutput());
+                    if (item->line() > 0)
+                        entry.insert("line", item->line());
+                    tests.append(entry);
+                    return;
+                }
+                for (int i = 0, n = item->childCount(); i < n; ++i)
+                    walk(item->childAt(i), frameworkName);
+            };
+
+            auto *root = model->rootItem();
+            if (!root)
+                return QJsonObject{{"tests", tests}, {"count", 0}};
+            for (int i = 0, n = root->childCount(); i < n; ++i) {
+                auto *frameworkNode = static_cast<TT *>(root->childAt(i));
+                if (frameworkNode)
+                    walk(frameworkNode, frameworkNode->name());
+            }
+            return QJsonObject{{"tests", tests}, {"count", tests.size()}};
         }));
 }
 
