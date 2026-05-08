@@ -325,16 +325,19 @@ public:
         const Responder &responder,
         const QString &sessionId)
     {
-        if (request.params().protocolVersion() != "2025-11-25") {
-            auto errorResponse = Schema::JSONRPCErrorResponse().id(id).error(
-                Schema::Error()
-                    .code(InvalidRequest)
-                    .message(QString("Unsupported protocol version: %1")
-                                 .arg(request.params().protocolVersion())));
+        // ** Version Negotiation
+        // * In the initialize request, the client MUST send a protocol version it supports.
+        //   This SHOULD be the latest version supported by the client.
+        // * If the server supports the requested protocol version, it MUST respond with the same
+        //   version. Otherwise, the server MUST respond with another protocol version it supports.
+        //   This SHOULD be the latest version supported by the server.
+        // * If the client does not support the version in the server's response,
+        //   it SHOULD disconnect.
+        QStringList supportedVersions = {"2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"};
 
-            responder.write(QJsonDocument(Schema::toJson(errorResponse)));
-            return;
-        }
+        QString negotiatedVersion = "2025-11-25"; // Latest supported version by the server
+        if (supportedVersions.contains(request.params().protocolVersion()))
+            negotiatedVersion = request.params().protocolVersion();
 
         qCDebug(mcpServerLog).noquote()
             << "Client initialized with protocol version" << Schema::toJson(request.params());
@@ -356,7 +359,7 @@ public:
             caps = caps.completions(QJsonObject());
 
         auto initResult = Schema::InitializeResult()
-                              .protocolVersion(request.params().protocolVersion())
+                              .protocolVersion(negotiatedVersion)
                               .serverInfo(serverInfo)
                               .capabilities(caps);
 
