@@ -77,6 +77,8 @@ protected:
 private:
     virtual QVariant variantData(int row, int column, int role) const = 0;
 
+    void reassignDefaultIfNeeded(int row);
+
     QVariantList m_variants;
     QStringList m_header;
     int m_columnCount = 0;

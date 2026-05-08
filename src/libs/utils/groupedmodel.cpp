@@ -430,9 +430,22 @@ void GroupedModel::notifyAllRowsChanged()
     checkSettingsDirty();
 }
 
+void GroupedModel::reassignDefaultIfNeeded(int row)
+{
+    if (!isDefault(row))
+        return;
+    for (int r = 0; r < m_volatileVariants.size(); ++r) {
+        if (r != row && !m_removed.at(r)) {
+            setVolatileDefaultRow(r);
+            break;
+        }
+    }
+}
+
 void GroupedModel::markRemoved(int row)
 {
     QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return);
+    reassignDefaultIfNeeded(row);
     if (m_added.at(row)) {
         beginRemoveRows({}, row, row);
         m_volatileVariants.removeAt(row);
@@ -453,6 +466,7 @@ void GroupedModel::removeItem(int row)
     QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return);
     if (m_added.at(row))
         return;
+    reassignDefaultIfNeeded(row);
     beginRemoveRows({}, row, row);
     m_variants.removeAt(row);
     m_volatileVariants.removeAt(row);
@@ -726,15 +740,8 @@ void GroupedView::removeCurrent()
     const int row = currentRow();
     QTC_ASSERT(row >= 0, return);
     const bool isRestoring = m_model.isRemoved(row);
-    if (!isRestoring && m_model.isDefault(row)) {
+    if (!isRestoring && m_model.isDefault(row))
         m_removedDefaultRow = row;
-        for (int r = 0; r < m_model.itemCount(); ++r) {
-            if (r != row && !m_model.isRemoved(r)) {
-                m_model.setVolatileDefaultRow(r);
-                break;
-            }
-        }
-    }
     m_model.markRemoved(row);
     if (isRestoring && m_removedDefaultRow == row) {
         m_model.setVolatileDefaultRow(row);

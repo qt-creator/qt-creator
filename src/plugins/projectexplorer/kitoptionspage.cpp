@@ -68,7 +68,6 @@ public:
     int cloneRow(int row) final;
     void markRemoved(int row) final;
 
-    void markForRemoval(int row);
     int markForAddition(Kit *baseKit);
 
     bool isNameUnique(int row) const;
@@ -240,20 +239,6 @@ void KitModel::markRemoved(int row)
     emit kitStateChanged();
 }
 
-void KitModel::markForRemoval(int row)
-{
-    QTC_ASSERT(row >= 0 && row < itemCount(), return);
-    if (!isRemoved(row) && isDefault(row)) {
-        for (int r = 0; r < itemCount(); ++r) {
-            if (r != row && !isRemoved(r)) {
-                setVolatileDefaultRow(r);
-                break;
-            }
-        }
-    }
-    markRemoved(row);
-}
-
 int KitModel::markForAddition(Kit *baseKit)
 {
     QStringList allNames;
@@ -330,14 +315,6 @@ void KitModel::removeKit(Kit *k)
         return;
     if (isRemoved(row))
         return;  // already pending deregistration via apply()
-    if (isDefault(row)) {
-        for (int r = 0; r < itemCount(); ++r) {
-            if (r != row && !isRemoved(r)) {
-                setVolatileDefaultRow(r);
-                break;
-            }
-        }
-    }
     removeItem(row);
     notifyAllRowsChanged();
     emit kitStateChanged();
@@ -883,7 +860,7 @@ void KitModelTest::testRemoveDefaultAutoSwitches()
     QVERIFY(row1 >= 0);
     QVERIFY(model.isDefault(row1));
 
-    model.markForRemoval(row1);
+    model.markRemoved(row1);
 
     QVERIFY(model.isRemoved(row1));
     const int newDefault = model.defaultRow();
@@ -931,7 +908,7 @@ void KitModelTest::testApplyWithRemovedKit()
     KitModel model;
     const int row1 = model.rowForOriginalKit(kit1);
     QVERIFY(row1 >= 0);
-    model.markForRemoval(row1);
+    model.markRemoved(row1);
     QVERIFY(model.isRemoved(row1));
 
     bool checkedDuringReset = false;
