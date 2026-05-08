@@ -3,27 +3,28 @@
 
 #include "qmlformatsettingswidget.h"
 
-#include "coreplugin/messagemanager.h"
 #include "qmlformatsettings.h"
 #include "qmljscodestylesettings.h"
 #include "qmljsformatterselectionwidget.h"
 #include "qmljstoolstr.h"
 
+#include <coreplugin/messagemanager.h>
+
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
+
 #include <utils/commandline.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
-
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projecttree.h>
-#include <projectexplorer/project.h>
 
 #include <QAbstractItemView>
 #include <QAbstractTableModel>
 #include <QColor>
 #include <QCheckBox>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QPushButton>
@@ -32,8 +33,6 @@
 #include <QStackedWidget>
 #include <QStyledItemDelegate>
 #include <QTableView>
-
-#include <chrono>
 
 using namespace std::chrono_literals;
 
@@ -94,9 +93,6 @@ public:
     void loadGlobalQmlFormatIniFile();
 
     const QList<Option> &options() const { return m_options; }
-
-signals:
-    void dataChanged();
 
 private:
     QList<Option> m_options;
@@ -195,15 +191,13 @@ bool QmlFormatOptionsModel::setData(const QModelIndex &index, const QVariant &va
     if (index.column() == Column::Value) {
         if (role == Qt::EditRole) {
             m_options[index.row()].value = value;
-            emit QAbstractTableModel::dataChanged(index, index);
-            emit dataChanged();
+            emit dataChanged(index, index);
             return true;
         } else if (role == Qt::CheckStateRole && m_options[index.row()].isBool()) {
             // Handle checkbox state changes for boolean values
             bool boolValue = (value.toInt() == Qt::Checked);
             m_options[index.row()].value = boolValue;
-            emit QAbstractTableModel::dataChanged(index, index);
-            emit dataChanged();
+            emit dataChanged(index, index);
             return true;
         }
     }
