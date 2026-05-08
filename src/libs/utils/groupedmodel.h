@@ -175,14 +175,14 @@ public:
     void removeCurrent();
     void cloneCurrent();
 
+    void updateButtons();
+
 signals:
     void currentRowChanged(int oldRow, int newRow);
     void currentRemoved();
     void currentCloned();
 
 private:
-    void updateButtons();
-
     GroupedModel &m_model;
     QTreeView m_view;
     QPushButton m_removeButton;
