@@ -773,6 +773,10 @@
     \uicontrol {Open in Editor} and \uicontrol {Show in File System} are provided for all
     files. The availability of other actions depends on the state of the selected file.
 
+    \note You can apply these actions also from the context menu in
+    \uicontrol {Projects}, \uicontrol {File System}, and
+    \uicontrol {Open Documents}.
+
     \table
     \header
         \li Menu Item
