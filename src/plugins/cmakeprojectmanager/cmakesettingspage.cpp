@@ -28,9 +28,7 @@
 #include <utils/treemodel.h> // for FilePathRole
 #include <utils/utilsicons.h>
 
-#include <QComboBox>
 #include <QPushButton>
-#include <QTreeView>
 
 using namespace Utils;
 using namespace ProjectExplorer;

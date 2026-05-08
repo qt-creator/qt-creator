@@ -236,10 +236,6 @@ CMakeToolManager::CMakeToolManager()
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &CMakeToolManager::saveCMakeTools);
 
-    connect(this, &CMakeToolManager::cmakeAdded, this, &CMakeToolManager::cmakeToolsChanged);
-    connect(this, &CMakeToolManager::cmakeRemoved, this, &CMakeToolManager::cmakeToolsChanged);
-    connect(this, &CMakeToolManager::cmakeUpdated, this, &CMakeToolManager::cmakeToolsChanged);
-
     connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
             this, &CMakeToolManager::handleDeviceToolDetectionRequest);
 
