@@ -8,8 +8,6 @@
 #include <predicate.h>
 #include <sqlitedatabase.h>
 
-#include <concepts>
-
 namespace QmlDesigner {
 
 using NanotraceHR::keyValue;
@@ -4485,8 +4483,6 @@ bool ProjectStorage::updatePrototypes(TypeId typeId, TypeId prototypeId)
                                category(),
                                keyValue("type id", typeId),
                                keyValue("prototype id", prototypeId)};
-
-    QVarLengthArray<TypeId, 2> baseIds;
 
     if (not prototypeId.isNull())
         s->upsertPrototypesStatement.write(typeId, prototypeId);
