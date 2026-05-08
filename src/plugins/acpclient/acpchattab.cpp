@@ -21,6 +21,7 @@
 #include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
+#include <utils/progressindicator.h>
 #include <utils/qtcwidgets.h>
 
 #include <QComboBox>
@@ -213,6 +214,50 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     m_chatPanel = new ChatPanel;
     m_stack->addWidget(m_chatPanel); // index 2
 
+    // --- Page 3: Initializing (shown after agent button click, before session/chat) ---
+    {
+        auto *initPage = new QWidget;
+        auto *initOuter = new QVBoxLayout(initPage);
+        initOuter->addStretch();
+
+        auto *initForm = new QWidget;
+        initForm->setMaximumWidth(480);
+        initForm->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        auto *initLayout = new QVBoxLayout(initForm);
+        initLayout->setSpacing(12);
+
+        auto *spinner = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
+        auto *spinnerRow = new QHBoxLayout;
+        spinnerRow->addStretch();
+        spinnerRow->addWidget(spinner);
+        spinnerRow->addStretch();
+        initLayout->addLayout(spinnerRow);
+
+        m_initializingLabel = new QLabel;
+        m_initializingLabel->setAlignment(Qt::AlignHCenter);
+        initLayout->addWidget(m_initializingLabel);
+
+        auto *cancelButton = new QtcButton(Tr::tr("Cancel"), QtcButton::MediumSecondary);
+        auto *cancelRow = new QHBoxLayout;
+        cancelRow->addStretch();
+        cancelRow->addWidget(cancelButton);
+        cancelRow->addStretch();
+        initLayout->addLayout(cancelRow);
+        connect(cancelButton, &QAbstractButton::clicked, this, [this] {
+            m_controller->disconnectFromServer();
+            m_stack->setCurrentIndex(0);
+        });
+
+        auto *initCenter = new QHBoxLayout;
+        initCenter->addStretch();
+        initCenter->addWidget(initForm);
+        initCenter->addStretch();
+        initOuter->addLayout(initCenter);
+        initOuter->addStretch();
+
+        m_stack->addWidget(initPage); // index 3
+    }
+
     layout->addWidget(m_stack);
 
     // Controller
@@ -351,7 +396,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->finishAgentMessage();
     });
     connect(m_controller, &AcpChatController::errorOccurred, this, [this](const QString &msg) {
-        m_stack->currentIndex();
+        if (m_stack->currentIndex() == 3)
+            m_stack->setCurrentIndex(0);
         m_chatPanel->addErrorMessage(msg);
         // Also show on the connection page so errors are visible if we switch back
         m_connectionErrorLabel->setText(
@@ -458,6 +504,8 @@ void AcpChatTab::populateServerButtons()
             m_connectionErrorLabel->hide();
             m_currentServerName = serverName;
             updateTitle();
+            m_initializingLabel->setText(Tr::tr("Connecting to %1").arg(serverName));
+            m_stack->setCurrentIndex(3);
             m_controller->connectToServer(serverId);
         });
         Utils::onResultReady(
