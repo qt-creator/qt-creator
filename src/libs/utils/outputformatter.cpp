@@ -218,7 +218,8 @@ public:
     QTextCharFormat formats[NumberOfFormats];
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
-    QPair<QString, OutputFormat> incompleteLine;
+    QList<FormattedText> incompleteLine;
+    OutputFormat lastFormat = NumberOfFormats;
     std::optional<QTextCharFormat> formatOverride;
     QList<OutputLineParser *> lineParsers;
     OutputLineParser *nextParser = nullptr;
@@ -310,13 +311,18 @@ static void checkAndFineTuneColors(QTextCharFormat *format, const QColor &backgr
 
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format, LineStatus lineStatus)
 {
-    QTextCharFormat charFmt = charFormat(format);
+    QTextCharFormat charFmt = lineStatus == LineStatus::Incomplete ? d->incompleteLine.last().format
+                                                                   : charFormat(format);
     const auto addNewlineIfApplicable = [&] {
         if (lineStatus == LineStatus::Complete)
             append("\n", charFmt);
     };
 
-    QList<FormattedText> formattedText = parseAnsi(text, charFmt);
+    if (!d->incompleteLine.isEmpty())
+        clearLastLine();
+    QList<FormattedText> formattedText = d->incompleteLine + parseAnsi(text, charFmt);
+    d->incompleteLine.clear();
+
     const QString cleanLine = std::accumulate(formattedText.begin(), formattedText.end(), QString(),
             [](const FormattedText &t1, const FormattedText &t2) -> QString
             { return t1.text + t2.text; });
@@ -339,6 +345,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format, 
     if (res.newContent) {
         append(*res.newContent, charFmt);
         addNewlineIfApplicable();
+        d->escapeCodeHandler = {};
         return;
     }
 
@@ -532,18 +539,21 @@ void OutputFormatter::initFormats()
 
 void OutputFormatter::flushIncompleteLine()
 {
-    clearLastLine();
-    doAppendMessage(d->incompleteLine.first, d->incompleteLine.second, LineStatus::Incomplete);
-    d->incompleteLine.first.clear();
+    doAppendMessage({}, d->lastFormat, LineStatus::Incomplete);
 }
 
 void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat format)
 {
     if (line.isEmpty())
         return;
-    append(line, charFormat(format));
-    d->incompleteLine.first.append(line);
-    d->incompleteLine.second = format;
+
+    const QList<FormattedText> formattedText = parseAnsi(line, charFormat(format));
+    for (FormattedText output : formattedText) {
+        checkAndFineTuneColors(&output.format, d->explicitBackground);
+        append(output.text, output.format);
+    }
+    d->incompleteLine << formattedText;
+    d->lastFormat = format;
 }
 
 bool OutputFormatter::handleFileLink(const QString &href)
@@ -579,7 +589,7 @@ void OutputFormatter::clear()
 void OutputFormatter::reset()
 {
     d->prependCarriageReturn = false;
-    d->incompleteLine.first.clear();
+    d->incompleteLine.clear();
     d->nextParser = nullptr;
     qDeleteAll(d->lineParsers);
     d->lineParsers.clear();
@@ -608,9 +618,9 @@ void Utils::OutputFormatter::setExplicitBackgroundColor(const QColor &color)
 
 void OutputFormatter::flush()
 {
-    if (!d->incompleteLine.first.isEmpty())
+    if (!d->incompleteLine.isEmpty())
         flushIncompleteLine();
-    d->escapeCodeHandler.endFormatScope();
+    d->escapeCodeHandler = {};
     for (OutputLineParser * const p : std::as_const(d->lineParsers))
         p->flush();
     if (d->nextParser)
@@ -650,9 +660,9 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         return;
 
     // If we have an existing incomplete line and its format is different from this one,
-    // then we consider the two messages unrelated. We re-insert the previous incomplete line,
-    // possibly formatted now, and start from scratch with the new input.
-    if (!d->incompleteLine.first.isEmpty() && d->incompleteLine.second != format)
+    // then we consider the two messages unrelated. We re-insert the previous incomplete line
+    // and start from scratch with the new input.
+    if (!d->incompleteLine.isEmpty() && d->lastFormat != format)
         flushIncompleteLine();
 
     QString out = text;
@@ -667,20 +677,12 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
     }
 
     // If the input is a single incomplete line, we do not forward it to the specialized
-    // formatting code, but simply dump it as-is. Once it becomes complete or it needs to
-    // be flushed for other reasons, we remove the unformatted part and re-insert it, this
-    // time with proper formatting.
+    // formatting code, but simply dump it as-is (including escape code handling).
+    // Once it becomes complete or it needs to be flushed for other reasons, we remove the
+    // current content and re-insert it, this time with full formatting.
     if (!out.contains('\n')) {
         dumpIncompleteLine(out, format);
         return;
-    }
-
-    // We have at least one complete line, so let's remove the previously dumped
-    // incomplete line and prepend it to the first line of our new input.
-    if (!d->incompleteLine.first.isEmpty()) {
-        clearLastLine();
-        out.prepend(d->incompleteLine.first);
-        d->incompleteLine.first.clear();
     }
 
     // Forward all complete lines to the specialized formatting code, and handle a
@@ -791,6 +793,70 @@ private slots:
             formatter.flush();
             QCOMPARE(textEdit.toPlainText(), output);
         }
+    }
+
+    static QString input() { return "A line with some \x1b[31mred\x1b[0m output\n"; };
+    void testEscapeCodeHandling_data()
+    {
+        QTest::addColumn<int>("offset");
+        QTest::addColumn<int>("expectedCharCount");
+
+        QTest::addRow("plain prefix") << 17 << 17;
+        QTest::addRow("incomplete escape code") << 18 << 17;
+        QTest::addRow("incomplete escape code 2") << 19 << 17;
+        QTest::addRow("incomplete escape code 3") << 20 << 17;
+        QTest::addRow("incomplete escape code 4") << 21 << 17;
+        QTest::addRow("complete escape code with no text following") << 22 << 17;
+        QTest::addRow("complete escape code with text following") << 23 << 18;
+        QTest::addRow("complete line") << input().size() << 27;
+    }
+
+    void testEscapeCodeHandling()
+    {
+        QFETCH(int, offset);
+        QFETCH(int, expectedCharCount);
+
+        OutputFormatter formatter;
+        QPlainTextEdit textEdit;
+        QTextDocument * const doc = textEdit.document();
+        formatter.setPlainTextEdit(&textEdit);
+
+        const auto compareFormats = [&](int run) {
+            QTextCursor cursor(doc);
+            const QTextCharFormat defaultFormat = cursor.charFormat();
+            const std::pair<int, int> redRegion(17, 20);
+            for (int i = 0; i < doc->characterCount(); ++i) {
+                cursor.setPosition(i);
+                const bool hasExpectedColor = (cursor.charFormat() != defaultFormat) ==
+                                              (i > redRegion.first && i <= redRegion.second);
+                if (!hasExpectedColor)
+                    qDebug() << run << i;
+                QVERIFY(hasExpectedColor);
+            }
+        };
+        const auto getActualCharCount = [&] {
+            // Strips trailing character separators. There's always at least one.
+            int count = doc->characterCount();
+            for (int i = count - 1; i >= 0; --i) {
+                if (doc->characterAt(i) != QChar::ParagraphSeparator)
+                    break;
+                --count;
+            }
+            return count;
+        };
+
+        // Write out the first chunk (until the position specified by the test data).
+        // Make sure that the escape codes are either not there (if they are incomplete)
+        // or they have been properly handled, resulting in the respective color change.
+        formatter.appendMessage(input().left(offset), StdOutFormat);
+        QCOMPARE(getActualCharCount(), expectedCharCount);
+        compareFormats(1);
+
+        // Now write out the rest of the text and check that the line is complete
+        // and properly formatted.
+        formatter.appendMessage(input().mid(offset), StdOutFormat);
+        QCOMPARE(getActualCharCount(), 27);
+        compareFormats(2);
     }
 };
 
