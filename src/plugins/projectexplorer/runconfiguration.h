@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "buildtargetinfo.h"
 #include "projectconfiguration.h"
 #include "task.h"
 

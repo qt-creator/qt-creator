@@ -5,6 +5,7 @@
 
 #include "buildconfiguration.h"
 #include "buildsystem.h"
+#include "buildtargetinfo.h"
 #include "devicesupport/devicekitaspects.h"
 #include "environmentaspect.h"
 #include "project.h"
