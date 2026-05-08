@@ -28,6 +28,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filesearch.h>
+#include <utils/mimeconstants.h>
 #include <utils/result.h>
 
 #include <QElapsedTimer>
@@ -47,6 +48,83 @@ namespace ProjectExplorer::Internal {
 static QList<Project *> projectsForName(const QString &name)
 {
     return Utils::filtered(ProjectManager::projects(), Utils::equal(&Project::displayName, name));
+}
+
+// Returns the VCS branch/topic for the given project directory, or an empty
+// string when the project is not under a recognised version control system.
+static QString currentBranchForProject(const Project *p)
+{
+    if (!p)
+        return {};
+    const FilePath dir = p->projectDirectory();
+    if (dir.isEmpty())
+        return {};
+    if (Core::IVersionControl *vcs = Core::VcsManager::findVersionControlForDirectory(dir, nullptr))
+        return vcs->vcsTopic(dir);
+    return {};
+}
+
+static QString projectTypeFromMimeType(const QString &mimeType)
+{
+    if (mimeType == Utils::Constants::CMAKE_PROJECT_MIMETYPE)
+        return "cmake";
+    if (mimeType == Utils::Constants::PROFILE_MIMETYPE)
+        return "qmake";
+    if (mimeType == Utils::Constants::QBS_MIMETYPE)
+        return "qbs";
+    if (mimeType == Utils::Constants::QMLPROJECT_MIMETYPE)
+        return "qmlproject";
+    return mimeType; // fall back to raw mime type for unknown project kinds
+}
+
+// Returns a {name, path, branch, type} JSON object for a single project.  Used by
+// list_projects (which also injects is_active) and by resolveProjects (which
+// populates the candidates array for ambiguous-name errors).
+static QJsonObject projectInfoObject(const Project *p)
+{
+    if (!p)
+        return {};
+    return {
+        {"name", p->displayName()},
+        {"path", p->projectFilePath().toUserOutput()},
+        {"branch", currentBranchForProject(p)},
+        {"type", projectTypeFromMimeType(p->mimeType())},
+    };
+}
+
+struct ResolvedProjects
+{
+    QList<Project *> projects;
+    QJsonArray candidates; // [{name, path, branch}] for every project that name-matched
+};
+
+// Dual-key (projectName, projectPath) lookup.  When projectPath is supplied it
+// is authoritative — paths are always unique so projects.size() ≤ 1.  When
+// only projectName is supplied, multiple loaded projects may share it (e.g.
+// the same project open in two Git worktrees); callers detect this via
+// projects.size() > 1 and should return an "ambiguous_name" error with the
+// candidates list so the AI can pass projectPath to disambiguate.
+static ResolvedProjects resolveProjects(const QString &projectName,
+                                        const QString &projectPath)
+{
+    ResolvedProjects result;
+    for (Project *p : ProjectManager::projects()) {
+        if (!p)
+            continue;
+        const bool nameMatches = !projectName.isEmpty() && p->displayName() == projectName;
+        const bool pathMatches = !projectPath.isEmpty()
+                                 && p->projectFilePath().toUserOutput() == projectPath;
+        if (!projectPath.isEmpty()) {
+            // Path is authoritative when supplied — never name-match alongside it.
+            if (pathMatches)
+                result.projects.append(p);
+        } else if (nameMatches) {
+            result.projects.append(p);
+        }
+        if (nameMatches)
+            result.candidates.append(projectInfoObject(p));
+    }
+    return result;
 }
 
 static QString getBuildStatus()
@@ -69,12 +147,16 @@ static QStringList findFiles(const QList<Project *> &projects, const QRegularExp
     return result;
 }
 
-static QStringList listProjects()
+static QJsonArray listProjects()
 {
-    QStringList projects;
-    for (Project *project : ProjectManager::projects())
-        projects.append(project->displayName());
-    return projects;
+    QJsonArray result;
+    const Project *startup = ProjectManager::startupProject();
+    for (Project *project : ProjectManager::projects()) {
+        QJsonObject obj = projectInfoObject(project);
+        obj["is_active"] = (project == startup);
+        result.append(obj);
+    }
+    return result;
 }
 
 static QStringList listBuildConfigs()
@@ -1086,20 +1168,32 @@ void registerMcpTools()
         Tool{}
             .name("list_projects")
             .title("List all available projects")
-            .description("List all available projects")
+            .description(
+                "List all loaded projects. Each entry includes the project name, its file "
+                "path, the active VCS branch, and whether it is the current startup "
+                "project (is_active). Use path or branch to disambiguate when multiple "
+                "projects share the same display name (common in multi-worktree setups).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
                         "projects",
-                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items",
+                             QJsonObject{
+                                 {"type", "object"},
+                                 {"properties",
+                                  QJsonObject{
+                                      {"name", QJsonObject{{"type", "string"}}},
+                                      {"path", QJsonObject{{"type", "string"}}},
+                                      {"branch", QJsonObject{{"type", "string"}}},
+                                      {"type", QJsonObject{{"type", "string"}}},
+                                      {"is_active", QJsonObject{{"type", "boolean"}}},
+                                  }}}}})
                     .addRequired("projects")),
         wrap([](const QJsonObject &) {
-            const QStringList projects = listProjects();
-            QJsonArray arr;
-            for (const QString &pr : projects)
-                arr.append(pr);
-            return QJsonObject{{"projects", arr}};
+            return QJsonObject{{"projects", listProjects()}};
         }));
 
     ToolRegistry::registerTool(
@@ -1175,6 +1269,110 @@ void registerMcpTools()
                             })
                     .addRequired("projectDirectory")),
         wrap([](const QJsonObject &) { return getCurrentProject(); }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("set_active_project")
+            .title("Set the active startup project")
+            .description(
+                "Changes the active startup project (the one Qt Creator builds, runs, and "
+                "debugs by default). Accepts projectName, projectPath, or both. When "
+                "multiple loaded projects share the same display name (e.g. the same "
+                "project open in two Git worktrees), you must also supply projectPath to "
+                "disambiguate; the tool returns reason:\"ambiguous_name\" with a "
+                "candidates array if projectPath is omitted and the name matches more "
+                "than one project.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "projectName",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Display name of the project to activate. Required unless "
+                             "projectPath alone is sufficient to identify it."}})
+                    .addProperty(
+                        "projectPath",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to the project file. Unambiguously identifies "
+                             "the project and takes precedence over projectName when "
+                             "multiple projects share the same display name."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("active_project", QJsonObject{{"type", "object"}})
+                    .addProperty("previous_active_project", QJsonObject{{"type", "object"}})
+                    .addProperty("candidates", QJsonObject{{"type", "array"}})
+                    .addRequired("success")
+                    .addRequired("reason")
+                    .addRequired("message")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const QString projectName = p.value("projectName").toString();
+            const QString projectPath = p.value("projectPath").toString();
+
+            if (projectName.isEmpty() && projectPath.isEmpty()) {
+                return {
+                    {"success", false},
+                    {"reason", "no_target"},
+                    {"message",
+                     "Pass projectName or projectPath to identify the target project."}};
+            }
+
+            const ResolvedProjects resolved = resolveProjects(projectName, projectPath);
+
+            if (resolved.projects.isEmpty()) {
+                return {
+                    {"success", false},
+                    {"reason", projectPath.isEmpty() ? "project_not_loaded" : "path_not_loaded"},
+                    {"message",
+                     projectPath.isEmpty()
+                         ? QString("No project named '%1' is currently loaded.").arg(projectName)
+                         : QString("No project at path '%1' is currently loaded.")
+                               .arg(projectPath)},
+                    {"candidates", resolved.candidates}};
+            }
+
+            if (resolved.projects.size() > 1) {
+                return {
+                    {"success", false},
+                    {"reason", "ambiguous_name"},
+                    {"message",
+                     QString("Multiple projects named '%1' are loaded. Pass projectPath "
+                             "(one of the listed candidates) to disambiguate.")
+                         .arg(projectName)},
+                    {"candidates", resolved.candidates}};
+            }
+
+            Project *previous = ProjectManager::startupProject();
+            Project *target = resolved.projects.first();
+
+            if (previous == target) {
+                return {
+                    {"success", true},
+                    {"reason", "ok_already_active"},
+                    {"message",
+                     QString("Project '%1' is already the active startup project.")
+                         .arg(target->displayName())},
+                    {"active_project", projectInfoObject(target)},
+                    {"previous_active_project", projectInfoObject(previous)}};
+            }
+
+            ProjectManager::setStartupProject(target);
+
+            return {
+                {"success", true},
+                {"reason", "ok"},
+                {"message",
+                 QString("Active startup project set to '%1'.").arg(target->displayName())},
+                {"active_project", projectInfoObject(target)},
+                {"previous_active_project",
+                 previous ? QJsonValue(projectInfoObject(previous)) : QJsonValue()}};
+        }));
 
     ToolRegistry::registerTool(
         Tool{}
