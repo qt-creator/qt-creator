@@ -504,110 +504,6 @@ QTextCharFormat OutputFormatter::linkFormat(const QTextCharFormat &inputFormat, 
     return result;
 }
 
-#ifdef WITH_TESTS
-void OutputFormatter::overrideTextCharFormat(const QTextCharFormat &fmt)
-{
-    d->formatOverride = fmt;
-}
-
-QList<OutputLineParser *> OutputFormatter::lineParsers() const
-{
-    return d->lineParsers;
-}
-
-// Handles all lines starting with "A" and the following ones up to and including the next
-// one starting with "A".
-class TestFormatterA : public OutputLineParser
-{
-private:
-    Result handleLine(const QString &text, OutputFormat) override
-    {
-        static const QString replacement = "handled by A";
-        if (m_handling) {
-            if (text.startsWith("A")) {
-                m_handling = false;
-                return {Status::Done, {}, replacement};
-            }
-            return {Status::InProgress, {}, replacement};
-        }
-        if (text.startsWith("A")) {
-            m_handling = true;
-            return {Status::InProgress, {}, replacement};
-        }
-        return Status::NotHandled;
-    }
-
-    bool m_handling = false;
-};
-
-// Handles all lines starting with "B". No continuation logic.
-class TestFormatterB : public OutputLineParser
-{
-private:
-    Result handleLine(const QString &text, OutputFormat) override
-    {
-        if (text.startsWith("B"))
-            return {Status::Done, {}, QString("handled by B")};
-        return Status::NotHandled;
-    }
-};
-
-class OutputFormatterTest final : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void testOutputFormatter();
-};
-
-void OutputFormatterTest::testOutputFormatter()
-{
-    const QString input =
-            "B to be handled by B\r\r\n"
-            "not to be handled\n\n\n\n"
-            "A to be handled by A\n"
-            "continuation for A\r\n"
-            "B looks like B, but still continuation for A\r\n"
-            "A end of A\n"
-            "A next A\n"
-            "A end of next A\n"
-            " A trick\r\n"
-            "line with \r embedded carriage return\n"
-            "B to be handled by B\n";
-    const QString output =
-            "handled by B\n"
-            "not to be handled\n\n\n\n"
-            "handled by A\n"
-            "handled by A\n"
-            "handled by A\n"
-            "handled by A\n"
-            "handled by A\n"
-            "handled by A\n"
-            " A trick\n"
-            " embedded carriage return\n"
-            "handled by B\n";
-
-    // Stress-test the implementation by providing the input in chunks, splitting at all possible
-    // offsets.
-    for (int i = 0; i < input.size(); ++i) {
-        OutputFormatter formatter;
-        QPlainTextEdit textEdit;
-        formatter.setPlainTextEdit(&textEdit);
-        formatter.setLineParsers({new TestFormatterB, new TestFormatterA});
-        formatter.appendMessage(input.left(i), StdOutFormat);
-        formatter.appendMessage(input.mid(i), StdOutFormat);
-        formatter.flush();
-        QCOMPARE(textEdit.toPlainText(), output);
-    }
-}
-
-QObject *createOutputFormatterTest()
-{
-    return new OutputFormatterTest;
-}
-
-#endif // WITH_TESTS
-
 void OutputFormatter::clearLastLine()
 {
     // Note that this approach will fail if the text edit is not read-only and users
@@ -801,6 +697,109 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
     }
     d->cursor.endEditBlock();
 }
+
+#ifdef WITH_TESTS
+
+void OutputFormatter::overrideTextCharFormat(const QTextCharFormat &fmt)
+{
+    d->formatOverride = fmt;
+}
+
+QList<OutputLineParser *> OutputFormatter::lineParsers() const
+{
+    return d->lineParsers;
+}
+
+// Handles all lines starting with "A" and the following ones up to and including the next
+// one starting with "A".
+class TestFormatterA : public OutputLineParser
+{
+private:
+    Result handleLine(const QString &text, OutputFormat) override
+    {
+        static const QString replacement = "handled by A";
+        if (m_handling) {
+            if (text.startsWith("A")) {
+                m_handling = false;
+                return {Status::Done, {}, replacement};
+            }
+            return {Status::InProgress, {}, replacement};
+        }
+        if (text.startsWith("A")) {
+            m_handling = true;
+            return {Status::InProgress, {}, replacement};
+        }
+        return Status::NotHandled;
+    }
+
+    bool m_handling = false;
+};
+
+// Handles all lines starting with "B". No continuation logic.
+class TestFormatterB : public OutputLineParser
+{
+private:
+    Result handleLine(const QString &text, OutputFormat) override
+    {
+        if (text.startsWith("B"))
+            return {Status::Done, {}, QString("handled by B")};
+        return Status::NotHandled;
+    }
+};
+
+class OutputFormatterTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testOutputFormatter()
+    {
+        const QString input =
+            "B to be handled by B\r\r\n"
+            "not to be handled\n\n\n\n"
+            "A to be handled by A\n"
+            "continuation for A\r\n"
+            "B looks like B, but still continuation for A\r\n"
+            "A end of A\n"
+            "A next A\n"
+            "A end of next A\n"
+            " A trick\r\n"
+            "line with \r embedded carriage return\n"
+            "B to be handled by B\n";
+        const QString output =
+            "handled by B\n"
+            "not to be handled\n\n\n\n"
+            "handled by A\n"
+            "handled by A\n"
+            "handled by A\n"
+            "handled by A\n"
+            "handled by A\n"
+            "handled by A\n"
+            " A trick\n"
+            " embedded carriage return\n"
+            "handled by B\n";
+
+        // Stress-test the implementation by providing the input in chunks, splitting at all possible
+        // offsets.
+        for (int i = 0; i < input.size(); ++i) {
+            OutputFormatter formatter;
+            QPlainTextEdit textEdit;
+            formatter.setPlainTextEdit(&textEdit);
+            formatter.setLineParsers({new TestFormatterB, new TestFormatterA});
+            formatter.appendMessage(input.left(i), StdOutFormat);
+            formatter.appendMessage(input.mid(i), StdOutFormat);
+            formatter.flush();
+            QCOMPARE(textEdit.toPlainText(), output);
+        }
+    }
+};
+
+QObject *createOutputFormatterTest()
+{
+    return new OutputFormatterTest;
+}
+
+#endif // WITH_TESTS
 
 } // namespace Utils
 
