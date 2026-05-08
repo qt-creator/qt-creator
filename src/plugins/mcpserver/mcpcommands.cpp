@@ -138,26 +138,50 @@ QString McpCommands::getFilePlainText(const QString &path)
     return QString();
 }
 
-bool McpCommands::setFilePlainText(const QString &path, const QString &contents)
+QJsonObject McpCommands::setFilePlainText(const QString &path, const QString &contents)
 {
-    if (path.isEmpty()) {
-        qCDebug(mcpCommands) << "Empty file path provided";
-        return false;
-    }
+    // Structured-result helper. AI consumers branch on `reason` to decide
+    // what to do next (e.g. on "file_open_with_unsaved_changes", ask the
+    // user to save and retry; on "not_text_file", give up). Including a
+    // human-readable `message` keeps the failure self-describing without
+    // forcing every caller to maintain a reason → message map.
+    auto result = [](bool success, const QString &reason, const QString &message) {
+        return QJsonObject{{"success", success}, {"reason", reason}, {"message", message}};
+    };
+
+    if (path.isEmpty())
+        return result(false, "empty_path", "File path is empty.");
 
     FilePath filePath = FilePath::fromUserInput(path);
 
-    if (!filePath.exists()) {
-        qCDebug(mcpCommands) << "File does not exist:" << path;
-        return false;
-    }
+    if (!filePath.exists())
+        return result(false, "file_not_found",
+                      QStringLiteral("File does not exist: %1").arg(path));
 
-    // If the file is already open in a text editor, update its in-memory
-    // buffer. The caller is responsible for calling save_file afterwards.
+    // If the file is open in an editor, route through the editor's
+    // document so the user's view updates in-place. CRITICAL: refuse if
+    // the buffer is dirty — overwriting unsaved edits is silent data loss.
     if (auto *doc = Core::DocumentModel::documentForFilePath(filePath)) {
         if (auto *textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
-            textDoc->document()->setPlainText(contents);
-            return true;
+            if (textDoc->isModified()) {
+                return result(
+                    false, "file_open_with_unsaved_changes",
+                    QStringLiteral(
+                        "The file is currently open in a Qt Creator editor with "
+                        "unsaved changes. Refusing to overwrite to avoid losing "
+                        "the user's edits. Ask the user to save the file (or "
+                        "call save_file) and retry."));
+            }
+            if (const auto r = textDoc->setPlainText(contents); !r) {
+                return result(false, "write_failed",
+                              QStringLiteral("Content too large for editor: %1").arg(r.error()));
+            }
+            textDoc->document()->setModified(true);
+            return result(true, "ok_buffer_updated",
+                          QStringLiteral(
+                              "Updated the editor buffer in-place. The change "
+                              "is visible to the user but not yet on disk — "
+                              "call save_file to persist."));
         }
     }
 
@@ -167,18 +191,24 @@ bool McpCommands::setFilePlainText(const QString &path, const QString &contents)
     if (!mime.inherits("text/plain")) {
         qCDebug(mcpCommands) << "File is not a plain text document:" << path
                              << "MIME type:" << mime.name();
-        return false;
+        return result(false, "not_text_file",
+                      QStringLiteral("File is not plain text (MIME: %1). Refusing to "
+                                     "overwrite binary content.").arg(mime.name()));
     }
 
     qCDebug(mcpCommands) << "Setting plain text for file:" << path;
 
-    Result<qint64> result = filePath.writeFileContents(
+    Result<qint64> writeResult = filePath.writeFileContents(
         Core::EditorManager::defaultTextEncoding().encode(contents));
 
-    if (!result)
+    if (!writeResult) {
         qCDebug(mcpCommands) << "Failed to write file contents:" << path
-                             << "Error:" << result.error();
-    return result.has_value();
+                             << "Error:" << writeResult.error();
+        return result(false, "write_failed",
+                      QStringLiteral("Failed to write to disk: %1").arg(writeResult.error()));
+    }
+    return result(true, "ok_disk_write",
+                  QStringLiteral("File written to disk successfully."));
 }
 
 bool McpCommands::saveFile(const QString &path)
@@ -684,11 +714,21 @@ void McpCommands::registerCommands()
     ToolRegistry::registerTool(
         Tool{}
             .name("set_file_plain_text")
-            .title("set file plain text")
+            .title("Overwrite the contents of a text file")
             .description(
-                "overrided the content of the file with the provided plain text. If the "
-                "file is currently open it is not saved! This also supports files on remote "
-                "devices with uris like docker://... or ssh:// and others.")
+                "Overwrite the file's text content with the provided string. "
+                "Behavior depends on whether the file is currently open in a Qt "
+                "Creator editor:\n"
+                "  - Not open: writes directly to disk.\n"
+                "  - Open with an unchanged buffer: updates the editor's in-memory "
+                "    buffer (visible to the user immediately). The change is NOT "
+                "    persisted to disk until save_file is called.\n"
+                "  - Open with unsaved changes: REFUSED with reason "
+                "    'file_open_with_unsaved_changes' to avoid silently "
+                "    overwriting the user's edits. Caller should ask the user to "
+                "    save (or call save_file) and retry.\n"
+                "Also supports files on remote devices with URIs like "
+                "docker://... or ssh:// and others.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -701,17 +741,40 @@ void McpCommands::registerCommands()
                     .addProperty(
                         "plainText",
                         QJsonObject{
-                            {"type", "string"}, {"description", "text to write into the file"}})
-                    .addRequired("path"))
+                            {"type", "string"},
+                            {"description", "Text to write into the file."}})
+                    .addRequired("path")
+                    .addRequired("plainText"))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("success", QJsonObject{{"type", "boolean"}})
-                    .addRequired("success")),
+                    .addProperty(
+                        "reason",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum",
+                             QJsonArray{"ok_buffer_updated", "ok_disk_write",
+                                        "empty_path", "file_not_found",
+                                        "file_open_with_unsaved_changes",
+                                        "not_text_file", "write_failed"}},
+                            {"description",
+                             "Outcome category. Success values: "
+                             "'ok_buffer_updated' (file open, buffer overwritten "
+                             "— call save_file to persist) or 'ok_disk_write' "
+                             "(file not open, written to disk). Failure values "
+                             "explain why the write was refused or failed."}})
+                    .addProperty(
+                        "message",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Human-readable detail for the reason."}})
+                    .addRequired("success")
+                    .addRequired("reason")
+                    .addRequired("message")),
         wrap([](const QJsonObject &p) {
             const QString path = p.value("path").toString();
             const QString text = p.value("plainText").toString();
-            bool ok = commands.setFilePlainText(path, text);
-            return QJsonObject{{"success", ok}};
+            return commands.setFilePlainText(path, text);
         }));
 
     ToolRegistry::registerTool(

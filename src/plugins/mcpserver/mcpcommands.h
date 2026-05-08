@@ -29,7 +29,7 @@ public:
     // document management commands
     bool openFile(const QString &path);
     QString getFilePlainText(const QString &path);
-    bool setFilePlainText(const QString &path, const QString &contents);
+    QJsonObject setFilePlainText(const QString &path, const QString &contents);
     bool saveFile(const QString &path);
     bool closeFile(const QString &path);
     bool reformatFile(const QString &path);
