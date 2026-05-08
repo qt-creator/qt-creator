@@ -50,6 +50,22 @@
         \li Select the icon of an issue type.
     \endlist
 
+    \section1 Sort issues
+
+    To sort the list of issues:
+    \list
+        \li For ascending order, select the up arrow in the column heading.
+        \li For descending order, select the down arrow in the column heading.
+        \li To remove sorting, toggle the arrow.
+        \li To cycle through the sort options, select the column heading.
+        \li To sort several columns, hold \key Shift while setting the
+        sort order.
+        The most recently sorted column is appended to the list of
+        columns to sort.
+        \li To clear sort options, toggle the sort order of a column
+        without holding \key Shift.
+    \endlist
+
     To refresh the list, select \imagereload (\uicontrol {Reload}).
 
     To get help, select \inlineimage {icons/info.png} {Show Online Filter Help}.
