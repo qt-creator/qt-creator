@@ -206,8 +206,7 @@ public:
 
     bool m_mkspecUpToDate = false;
     bool m_mkspecReadUpToDate = false;
-    bool m_defaultConfigIsDebug = true;
-    bool m_defaultConfigIsDebugAndRelease = true;
+    QtVersion::QmakeBuildConfigs m_defaultBuildConfig{QtVersion::DebugBuild | QtVersion::BuildAll};
     bool m_qmakeIsExecutable = true;
 
     QSet<Utils::Id> m_overrideFeatures;
@@ -893,10 +892,10 @@ QString QtVersion::toHtml(bool verbose) const
             << "</b></td><td>" << d->m_qmakeCommand.toUserOutput() << "</td></tr>";
         ensureMkSpecParsed();
         if (!mkspecPath().isEmpty()) {
-            if (d->m_defaultConfigIsDebug || d->m_defaultConfigIsDebugAndRelease) {
+            if (d->m_defaultBuildConfig & (QtVersion::DebugBuild | QtVersion::BuildAll)) {
                 str << "<tr><td><b>" << Tr::tr("Default:") << "</b></td><td>"
-                    << (d->m_defaultConfigIsDebug ? "debug" : "release");
-                if (d->m_defaultConfigIsDebugAndRelease)
+                    << ((d->m_defaultBuildConfig & QtVersion::DebugBuild) ? "debug" : "release");
+                if (d->m_defaultBuildConfig & QtVersion::BuildAll)
                     str << " debug_and_release";
                 str << "</td></tr>";
             } // default config.
@@ -1162,14 +1161,14 @@ void QtVersion::ensureMkSpecParsed() const
 void QtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
     const QStringList configValues = evaluator->values("CONFIG");
-    d->m_defaultConfigIsDebugAndRelease = false;
+    d->m_defaultBuildConfig = QtVersion::DebugBuild;
     for (const QString &value : configValues) {
         if (value == "debug")
-            d->m_defaultConfigIsDebug = true;
+            d->m_defaultBuildConfig |= QtVersion::DebugBuild;
         else if (value == "release")
-            d->m_defaultConfigIsDebug = false;
+            d->m_defaultBuildConfig &= ~QtVersion::DebugBuild;
         else if (value == "build_all")
-            d->m_defaultConfigIsDebugAndRelease = true;
+            d->m_defaultBuildConfig |= QtVersion::BuildAll;
     }
     const QString libinfix = MKSPEC_VALUE_LIBINFIX;
     const QString ns = MKSPEC_VALUE_NAMESPACE;
@@ -1229,13 +1228,7 @@ bool QtVersion::hasMkspec(const QString &spec) const
 QtVersion::QmakeBuildConfigs QtVersion::defaultBuildConfig() const
 {
     ensureMkSpecParsed();
-    QtVersion::QmakeBuildConfigs result = QtVersion::QmakeBuildConfig(0);
-
-    if (d->m_defaultConfigIsDebugAndRelease)
-        result = QtVersion::BuildAll;
-    if (d->m_defaultConfigIsDebug)
-        result = result | QtVersion::DebugBuild;
-    return result;
+    return d->m_defaultBuildConfig;
 }
 
 QString QtVersion::qtVersionString() const
