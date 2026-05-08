@@ -397,7 +397,7 @@
     The \uicontrol Tests view shows all the tests found for the currently active
     test frameworks in the current project. Select the test cases to run.
 
-    \image {qtcreator-tests-view.png} {Tests view}
+    \image {qtcreator-tests-view.webp} {Tests view}
 
     If a Qt Quick test case does not have a name, it is marked
     \uicontrol Unnamed in the list. \uicontrol {Run All Tests} executes
@@ -417,6 +417,10 @@
     order. To list them in the order in which they appear in the source code,
     select \inlineimage {icons/leafsort.png} {Sort Naturally}
     (\uicontrol {Sort Naturally}).
+
+    To filter the test list, write a search term in the filter field. To hide
+    the test filter, select \inlineimage {icons/filtericon.png} {Filter Test Tree}
+    (\uicontrol {Filter Test Tree}), and then clear \uicontrol {Show Text Filter}.
 
     \section1 Run and debug tests from code editor
 
@@ -898,6 +902,9 @@
     To show all messages, select \uicontrol {Check All Filters}.
 
     To clear all message types, select \uicontrol {Uncheck All Filters}.
+
+    To filter the test result messages by text, write a search term in the
+    filter field.
 
     \section1 Blacklist tests
 
