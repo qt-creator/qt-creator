@@ -163,6 +163,8 @@ LspCapabilitiesWidget::LspCapabilitiesWidget()
 
 void LspCapabilitiesWidget::setCapabilities(const Capabilities &serverCapabilities)
 {
+    if (m_capabilitiesView->model())
+        m_capabilitiesView->model()->deleteLater();
     m_capabilitiesView->setModel(
         createJsonModel(Tr::tr("Server Capabilities"), QJsonObject(serverCapabilities.capabilities)));
 
