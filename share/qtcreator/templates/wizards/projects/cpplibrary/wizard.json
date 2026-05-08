@@ -34,7 +34,8 @@
         { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
         { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
-        { "key": "GLOBAL_GUARD", "value": "%{JS: Cpp.headerGuard(value('GlobalHdrFileName'))}" }
+        { "key": "GLOBAL_GUARD", "value": "%{JS: Cpp.headerGuard(value('GlobalHdrFileName'))}" },
+        { "key": "FeatureQt", "value": "%{JS: value('QtModule') !== 'none' && value('BuildSystem') === 'meson'  ? 'QtSupport.Wizards.FeatureQt.6.5' : ''}" }
     ],
 
     "pages":
@@ -290,7 +291,10 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "data": { "projectFilePath": "%{ProjectFile}" }
+            "data": {
+                "projectFilePath": "%{ProjectFile}",
+                "requiredFeatures": [ "%{FeatureQt}" ]
+            }
         },
         {
             "trDisplayName": "Project Management",
