@@ -579,11 +579,15 @@ MessageDetailWidget::MessageDetailWidget()
 
 void MessageDetailWidget::setMessage(const LspLogMessage &message)
 {
+    if (m_jsonTree->model())
+        m_jsonTree->model()->deleteLater();
     m_jsonTree->setModel(createJsonModel("content", message.message.toJsonObject()));
 }
 
 void MessageDetailWidget::clear()
 {
+    if (m_jsonTree->model())
+        m_jsonTree->model()->deleteLater();
     m_jsonTree->setModel(createJsonModel("", QJsonObject()));
 }
 

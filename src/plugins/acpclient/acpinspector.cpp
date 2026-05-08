@@ -92,11 +92,15 @@ public:
 
     void setMessage(const AcpLogMessage &message)
     {
+        if (m_jsonTree->model())
+            m_jsonTree->model()->deleteLater();
         m_jsonTree->setModel(createJsonModel("content", message.message));
     }
 
     void clear()
     {
+        if (m_jsonTree->model())
+            m_jsonTree->model()->deleteLater();
         m_jsonTree->setModel(createJsonModel("", QJsonObject()));
     }
 
