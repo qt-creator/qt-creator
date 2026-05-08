@@ -114,7 +114,7 @@ ToolCallDetailWidget::ToolCallDetailWidget(const ToolCall &toolCall, QWidget *pa
 void ToolCallDetailWidget::applyStatus(ToolCallStatus status)
 {
     auto *newWidget = toolCallStatusWidget(status, this);
-    m_headerLayout->replaceWidget(m_statusWidget, newWidget);
+    delete m_headerLayout->replaceWidget(m_statusWidget, newWidget);
     delete m_statusWidget;
     m_statusWidget = newWidget;
     m_status = status;
