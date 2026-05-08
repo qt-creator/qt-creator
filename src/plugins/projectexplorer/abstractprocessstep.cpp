@@ -156,7 +156,7 @@ GroupItem AbstractProcessStep::defaultProcessTask()
     const auto onSetup = [this](Process &process) {
         return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
     };
-    const auto onDone = [this](const Process &process) { handleProcessDone(process); };
+    const auto onDone = [this](const Process &process) { return handleProcessDone(process); };
     return ProcessTask(onSetup, onDone);
 }
 
@@ -224,12 +224,14 @@ bool AbstractProcessStep::setupProcess(Process &process)
     return true;
 }
 
-void AbstractProcessStep::handleProcessDone(const Process &process)
+bool AbstractProcessStep::handleProcessDone(const Process &process)
 {
     const OutputFormat format = process.result() == ProcessResult::FinishedWithSuccess
-        ? OutputFormat::NormalMessage
-        : OutputFormat::ErrorMessage;
+                                    ? OutputFormat::NormalMessage : OutputFormat::ErrorMessage;
     emit addOutput(process.exitMessage(), format);
+    if (d->outputFormatter && d->outputFormatter->hasFatalErrors())
+        return false;
+    return process.result() == ProcessResult::FinishedWithSuccess;
 }
 
 void AbstractProcessStep::setLowPriority()
