@@ -341,6 +341,8 @@ void startLocalDashboard(const QString &projectName,
     if (!settings().javaHome().isEmpty())
         envItems.append(EnvironmentItem("JAVA_HOME", settings().javaHome().path()));
     envItems.append(EnvironmentItem("AXIVION_USER_AGENT", QString::fromUtf8(axivionUserAgent())));
+    envItems.append(EnvironmentItem("PYTHON_IO_ENCODING", "utf-8:replace"));
+    envItems.append(EnvironmentItem("PYTHONUNBUFFERED", "1"));
     while (query.next()) {
         const QString name = query.value("Name").toString();
         const QString value = query.value("Value").toString();
@@ -559,6 +561,8 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
         env.set("JAVA_HOME", settings().javaHome().toUserOutput());
     if (!settings().bauhausPython().isEmpty())
         env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
+    env.set("PYTHON_IO_ENCODING", "utf-8:replace");
+    env.set("PYTHONUNBUFFERED", "1");
 
     const auto onSetup = [this, projectName, cmdLine, env](Process &process) {
         CommandLine cmd = HostOsInfo::isWindowsHost() ? CommandLine{"cmd", {"/c"}}
