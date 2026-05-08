@@ -48,7 +48,7 @@ protected:
 private:
     void onToggleSort(int index, Qt::SortOrder order, bool multi);
     bool m_dragging = false;
-    enum ToggleMode {Sort, Filter};
+    enum ToggleMode {Sort, Filter, SortCycle};
     std::optional<ToggleMode> m_maybeToggle = std::nullopt;
     bool m_withShift = false;
     int m_lastToggleLogicalPos = -1;

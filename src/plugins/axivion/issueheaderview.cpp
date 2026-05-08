@@ -270,7 +270,9 @@ void IssueHeaderView::mousePressEvent(QMouseEvent *event)
             const int firstIconStart = lastIconStart - InnerMargin - IconSize;
 
             const ColumnInfo info = m_columnInfoList.at(logical);
-            if (info.sortable && info.filterable) {
+            if (info.sortable && pos < firstIconStart) {
+                m_maybeToggle.emplace(SortCycle);
+            } else if (info.sortable && info.filterable) {
                 if (firstIconStart < pos && firstIconStart + IconSize > pos)
                     m_maybeToggle.emplace(Sort);
                 else if (lastIconStart < pos && lastIconEnd > pos)
@@ -302,12 +304,18 @@ void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
         const int logical = logicalIndexAt(position.x());
         if (logical == m_lastToggleLogicalPos
                 && logical > -1 && logical < m_columnInfoList.size()) {
-            if (toggleMode == Sort && m_columnInfoList.at(logical).sortable) { // ignore non-sortable
+            const ColumnInfo columnInfo = m_columnInfoList.at(logical);
+            if (toggleMode == Sort && columnInfo.sortable) { // ignore non-sortable
                 if (y < height() / 2) // TODO improve
                     onToggleSort(logical, Qt::AscendingOrder, withShift);
                 else
                     onToggleSort(logical, Qt::DescendingOrder, withShift);
-            } else if (toggleMode == Filter && m_columnInfoList.at(logical).filterable) {
+            } else if (toggleMode == SortCycle && columnInfo.sortable) {
+                if (!columnInfo.sortOrder)
+                    onToggleSort(logical, Qt::AscendingOrder, withShift);
+                else // if asc we switch to desc, if desc we clear the desc (== no sorting)
+                    onToggleSort(logical, Qt::DescendingOrder, withShift);
+            } else if (toggleMode == Filter && columnInfo.filterable) {
                 // TODO we need some popup for text input (entering filter expression)
                 // apply them to the columninfo, and use them for the search..
                 const auto onApply = [this, logical](const QString &txt) {
