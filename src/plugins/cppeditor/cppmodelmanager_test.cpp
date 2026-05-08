@@ -1307,7 +1307,7 @@ void ModelManagerTest::testSettingsChanges()
 
     // Initial check: Have all files been indexed?
     while (refreshCount < 2)
-        QVERIFY(waitForRefresh());
+        QVERIFY2(waitForRefresh(), qPrintable(QString::number(refreshCount)));
     const QSet<FilePath> allSources = p1Sources + p2Sources;
     QCOMPARE(refreshedFiles, allSources);
 
