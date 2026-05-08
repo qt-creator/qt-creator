@@ -189,6 +189,7 @@ private:
     QPushButton m_cloneButton;
     QPushButton m_makeDefaultButton;
     QVariant m_savedVariant;
+    int m_removedDefaultRow = -1;
     std::function<bool(int)> m_canRemove;
     std::function<bool(int)> m_canClone;
 };

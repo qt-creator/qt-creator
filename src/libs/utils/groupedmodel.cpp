@@ -638,6 +638,7 @@ GroupedView::GroupedView(GroupedModel &model)
     m_makeDefaultButton.setText(Tr::tr("Make Default"));
     m_makeDefaultButton.setEnabled(false);
     connect(&m_makeDefaultButton, &QPushButton::clicked, this, [this] {
+        m_removedDefaultRow = -1;
         m_model.setVolatileDefaultRow(currentRow());
         updateButtons();
     });
@@ -724,7 +725,9 @@ void GroupedView::removeCurrent()
 {
     const int row = currentRow();
     QTC_ASSERT(row >= 0, return);
-    if (m_model.isDefault(row)) {
+    const bool isRestoring = m_model.isRemoved(row);
+    if (!isRestoring && m_model.isDefault(row)) {
+        m_removedDefaultRow = row;
         for (int r = 0; r < m_model.itemCount(); ++r) {
             if (r != row && !m_model.isRemoved(r)) {
                 m_model.setVolatileDefaultRow(r);
@@ -733,6 +736,10 @@ void GroupedView::removeCurrent()
         }
     }
     m_model.markRemoved(row);
+    if (isRestoring && m_removedDefaultRow == row) {
+        m_model.setVolatileDefaultRow(row);
+        m_removedDefaultRow = -1;
+    }
     updateButtons();
     emit currentRemoved();
 }
