@@ -50,6 +50,7 @@
 #include <utils/shutdownguard.h>
 #include <utils/stringutils.h>
 
+#include <QDateTime>
 #include <QElapsedTimer>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -210,13 +211,148 @@ static ProjectResolution resolveTargetProject(
     return r;
 }
 
-static QString getBuildStatus()
+// Tracks the outcome of every build observed since plugin load. Subscribes
+// globally to BuildManager signals (not per-tool) so the verdict is always
+// current even if get_build_status is called long after the build finished.
+struct BuildStateTracker
 {
-    const auto buildProgress = BuildManager::currentProgress();
-    if (buildProgress)
-        return QString("Building: %1% - %2").arg(buildProgress->first).arg(buildProgress->second);
-    return "Not building";
-}
+    enum class LastResult { NeverBuilt, Success, Failure, Canceled };
+
+    LastResult lastResult = LastResult::NeverBuilt;
+    qint64 currentBuildStartedMs = -1;
+    qint64 lastFinishedAt = -1;
+    qint64 lastDurationMs = -1;
+    int baselineErrorCount = 0;
+    int baselineWarningCount = 0;
+    bool canceled = false;
+    int lastErrorCount = 0;
+    int lastWarningCount = 0;
+
+    // Task counts are cumulative unless "Clear issues list on new build" is
+    // set, so a build's verdict reports what it added, not what the pane holds.
+    void armBuild(qint64 nowMs)
+    {
+        currentBuildStartedMs = nowMs;
+        baselineErrorCount = BuildManager::getErrorTaskCount();
+        baselineWarningCount = BuildManager::getWarningTaskCount();
+    }
+
+    // Fewer tasks than at build start means the list was cleared while the
+    // build ran, which leaves the baseline meaningless; what remains is then
+    // this build's own.
+    static int addedSinceStart(int current, int baseline)
+    {
+        return current >= baseline ? current - baseline : current;
+    }
+
+    void connectSignals()
+    {
+        auto *bm = BuildManager::instance();
+        if (!bm)
+            return;
+        // buildStateChanged fires on every per-project transition. Use it to
+        // detect build-start since BuildManager has no buildStarted signal.
+        QObject::connect(bm, &BuildManager::buildStateChanged, bm, [this]() {
+            if (currentBuildStartedMs >= 0 || !BuildManager::isBuilding())
+                return;
+            armBuild(QDateTime::currentMSecsSinceEpoch());
+        });
+        QObject::connect(bm, &BuildManager::buildQueueCanceled, bm, [this] { canceled = true; });
+        QObject::connect(bm, &BuildManager::buildQueueFinished, bm, [this](bool success) {
+            // Consumed before the guard below, so an unpaired cancel cannot
+            // reach the next build.
+            const bool wasCanceled = canceled;
+            canceled = false;
+            // An empty queue finishes without ever starting. Nothing was built,
+            // so leave the previous verdict rather than overwrite it with a
+            // synthetic one. cancel() can only follow a build that started.
+            if (currentBuildStartedMs < 0)
+                return;
+            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+            lastResult = wasCanceled ? LastResult::Canceled
+                         : success   ? LastResult::Success
+                                     : LastResult::Failure;
+            lastFinishedAt = nowMs;
+            lastDurationMs = nowMs - currentBuildStartedMs;
+            // Counted against the totals at build start, so unrelated
+            // code-model or app-output tasks stay out of the verdict and a
+            // deploy step's own failures stay in it.
+            lastErrorCount = addedSinceStart(BuildManager::getErrorTaskCount(), baselineErrorCount);
+            lastWarningCount
+                = addedSinceStart(BuildManager::getWarningTaskCount(), baselineWarningCount);
+            // A queued build starts right here, without a buildStateChanged
+            // of its own to arm it.
+            if (BuildManager::isBuilding())
+                armBuild(nowMs);
+            else
+                currentBuildStartedMs = -1;
+        });
+    }
+
+    QJsonObject statusSnapshot() const
+    {
+        const bool running = (currentBuildStartedMs >= 0) || BuildManager::isBuilding();
+
+        std::optional<std::pair<int, QString>> progress;
+        if (running)
+            progress = BuildManager::currentProgressPercent();
+
+        QString resultStr;
+        switch (lastResult) {
+        case LastResult::NeverBuilt: resultStr = QStringLiteral("never_built"); break;
+        case LastResult::Success:    resultStr = QStringLiteral("success");     break;
+        case LastResult::Failure:    resultStr = QStringLiteral("failure");     break;
+        case LastResult::Canceled:   resultStr = QStringLiteral("canceled");    break;
+        }
+
+        QString summaryText;
+        if (running) {
+            if (progress)
+                summaryText = QString("Building: %1% (%2)")
+                                  .arg(progress->first).arg(progress->second);
+            else
+                summaryText = QStringLiteral("Building");
+        } else if (lastResult == LastResult::NeverBuilt) {
+            summaryText = QStringLiteral("Idle (no build observed since plugin loaded)");
+        } else if (lastResult == LastResult::Canceled) {
+            summaryText = QString("Idle. Last build: canceled after %1 ms").arg(lastDurationMs);
+        } else if (lastResult == LastResult::Success) {
+            const qint64 dur = lastDurationMs;
+            summaryText = lastWarningCount == 0
+                              ? QString("Idle. Last build: succeeded in %1 ms").arg(dur)
+                              : QString("Idle. Last build: succeeded with %1 warning(s) in %2 ms")
+                                    .arg(lastWarningCount)
+                                    .arg(dur);
+        } else {
+            const qint64 dur = lastDurationMs;
+            summaryText
+                = QString("Idle. Last build: FAILED with %1 error(s), %2 warning(s) in %3 ms")
+                      .arg(lastErrorCount)
+                      .arg(lastWarningCount)
+                      .arg(dur);
+        }
+
+        QJsonObject out;
+        out.insert("running", running);
+        // progress_percent and current_step are only emitted when a live value exists;
+        // omitting them is correct since neither is in addRequired.
+        if (progress) {
+            out.insert("progress_percent", progress->first);
+            out.insert("current_step", progress->second);
+        }
+        out.insert("last_result", resultStr);
+        // Like progress_percent above, these are omitted rather than sent as 0:
+        // 0 is a legitimate epoch and a legitimate duration. Neither is required.
+        if (lastFinishedAt >= 0)
+            out.insert("last_finished_at", lastFinishedAt);
+        out.insert("last_error_count", lastErrorCount);
+        out.insert("last_warning_count", lastWarningCount);
+        if (lastDurationMs >= 0)
+            out.insert("last_duration_ms", lastDurationMs);
+        out.insert("summary_text", summaryText);
+        return out;
+    }
+};
 
 // Accumulates the Compile Output pane text (build AND deploy step output) so it
 // can be inspected via get_compile_output - deploy errors in particular are not
@@ -1080,6 +1216,16 @@ void registerMcpTools()
     };
     static BuildSlot buildSlot;
 
+    // Tracks the verdict of every build since plugin load. Wired up once via
+    // the immediately-invoked lambda so connectSignals() runs exactly once even
+    // if registerMcpTools() were ever called again.
+    static BuildStateTracker buildStateTracker;
+    static bool buildTrackerSetup = []() {
+        buildStateTracker.connectSignals();
+        return true;
+    }();
+    Q_UNUSED(buildTrackerSetup)
+
     // Output schema for `build`. Designed so the AI doesn't have to inspect
     // `issues` to guess the build verdict — `succeeded` is the single source
     // of truth, mirrored by the tool's TaskStatus (completed vs failed).
@@ -1413,7 +1559,7 @@ void registerMcpTools()
                         Mcp::letTaskDieIn(task, 1min);
                         return task;
                     }
-                    if (auto progress = BuildManager::currentProgress()) {
+                    if (auto progress = BuildManager::currentProgressPercent()) {
                         task.statusMessage(
                             QString("%1 (%2%)").arg(progress->second).arg(progress->first));
                     }
@@ -1885,14 +2031,48 @@ void registerMcpTools()
     ToolRegistry::registerTool(
         Tool{}
             .name("get_build_status")
-            .title("Get current build status")
-            .description("Get current build progress and status")
+            .title("Get current build status and last-build verdict")
+            .description(
+                "Returns the current build state plus the verdict of the most recent "
+                "build. Use last_result to distinguish 'success', 'failure', "
+                "'canceled', and 'never_built' (no build has run since Qt Creator "
+                "started). "
+                "last_finished_at, last_error_count, last_warning_count, and "
+                "last_duration_ms give timing and quality data without a separate "
+                "list_issues call. summary_text is a human-readable one-liner.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
-                    .addProperty("status", QJsonObject{{"type", "string"}})
-                    .addRequired("status")),
-        wrap([](const QJsonObject &) { return QJsonObject{{"status", getBuildStatus()}}; }));
+                    .addProperty("running", QJsonObject{{"type", "boolean"}})
+                    .addProperty(
+                        "progress_percent",
+                        QJsonObject{{"type", "integer"}, {"minimum", 0}, {"maximum", 100}})
+                    .addProperty("current_step", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "last_result",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum",
+                             QJsonArray{"never_built", "success", "failure", "canceled"}}})
+                    .addProperty(
+                        "last_finished_at",
+                        QJsonObject{{"type", "integer"}, {"description", "Epoch milliseconds"}})
+                    .addProperty(
+                        "last_error_count",
+                        QJsonObject{{"type", "integer"}, {"minimum", 0}})
+                    .addProperty(
+                        "last_warning_count",
+                        QJsonObject{{"type", "integer"}, {"minimum", 0}})
+                    .addProperty(
+                        "last_duration_ms",
+                        QJsonObject{{"type", "integer"}, {"minimum", 0}})
+                    .addProperty("summary_text", QJsonObject{{"type", "string"}})
+                    .addRequired("running")
+                    .addRequired("last_result")
+                    .addRequired("last_error_count")
+                    .addRequired("last_warning_count")
+                    .addRequired("summary_text")),
+        wrap([](const QJsonObject &) { return buildStateTracker.statusSnapshot(); }));
 
     compileOutputBuffer(); // start capturing build/deploy output from now on
     ToolRegistry::registerTool(

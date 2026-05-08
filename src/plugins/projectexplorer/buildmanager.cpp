@@ -615,6 +615,13 @@ int BuildManager::getErrorTaskCount()
     return errors;
 }
 
+int BuildManager::getWarningTaskCount()
+{
+    return d->m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
+           + d->m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_COMPILE)
+           + d->m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_DEPLOYMENT);
+}
+
 QString BuildManager::displayNameForStepId(Id stepId)
 {
     if (stepId == Constants::BUILDSTEPS_CLEAN) {
@@ -672,6 +679,9 @@ void BuildManager::cancel()
     cleanupBuild();
 
     addToOutputWindow(Tr::tr("Canceled build/deployment."), BuildStep::OutputFormat::ErrorMessage);
+    // Precedes buildQueueFinished() so a listener can tell a canceled build
+    // from one that failed on its own.
+    emit m_instance->buildQueueCanceled();
     emit m_instance->buildQueueFinished(false);
 }
 
@@ -1062,13 +1072,17 @@ void BuildManager::decrementActiveBuildSteps(BuildStep *bs)
         emit m_instance->buildStateChanged(bs->project());
 }
 
-std::optional<QPair<int, QString>> BuildManager::currentProgress()
+std::optional<QPair<int, QString>> BuildManager::currentProgressPercent()
 {
-    if (d->m_futureProgress)
-        return qMakePair(
-            d->m_progressFutureInterface->progressValue(),
-            d->m_progressFutureInterface->progressText());
-    return std::nullopt;
+    if (!d->m_futureProgress || !d->m_progressFutureInterface)
+        return std::nullopt;
+    // The future's range is the step count times 100, not a percentage.
+    const int maximum = d->m_progressFutureInterface->progressMaximum();
+    if (maximum <= 0)
+        return std::nullopt;
+    const int value = d->m_progressFutureInterface->progressValue();
+    return qMakePair(qBound(0, value * 100 / maximum, 100),
+                     d->m_progressFutureInterface->progressText());
 }
 
 } // namespace ProjectExplorer

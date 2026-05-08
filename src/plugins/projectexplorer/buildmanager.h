@@ -65,10 +65,12 @@ public:
     static void appendStep(BuildStep *step, const QString &name);
 
     static int getErrorTaskCount();
+    static int getWarningTaskCount();
 
     static QString displayNameForStepId(Utils::Id stepId);
 
-    static std::optional<QPair<int, QString>> currentProgress();
+    // Progress of the running build as a percentage, with the step's text.
+    static std::optional<QPair<int, QString>> currentProgressPercent();
 
 public slots:
     static void cancel();
@@ -81,6 +83,7 @@ public slots:
 signals:
     void buildStateChanged(ProjectExplorer::Project *pro);
     void buildQueueFinished(bool success);
+    void buildQueueCanceled();
     void outputText(const QString &text, BuildStep::OutputFormat format);
 
 private:
