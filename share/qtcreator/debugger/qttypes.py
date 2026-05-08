@@ -1555,6 +1555,10 @@ def qdump__QProcEnvKey(d, value):
     d.putPlainChildren(value)
 
 
+def qform__QPixmap():
+    return [DisplayFormat.Simple, DisplayFormat.Separate]
+
+
 def qdump__QPixmap(d, value):
     if d.qtVersionAtLeast(0x060000):
         vtbl, painters, data = value.split('ppp')
@@ -1573,6 +1577,31 @@ def qdump__QPixmap(d, value):
         else:
             _, width, height = d.split('pii', data)
         d.putValue('(%dx%d)' % (width, height))
+
+        displayFormat = d.currentItemFormat()
+        if displayFormat == DisplayFormat.Separate:
+            # QRasterPlatformPixmap stores QImage as its first member right after
+            # QPlatformPixmap. sizeof(QPlatformPixmap) is 48 on 64-bit for all Qt
+            # versions; on 32-bit it varies: 40 for Qt 6.0-6.10, 44 otherwise.
+            p = d.ptrSize()
+            if p == 8:
+                image_offset = 48
+            elif d.qtVersionAtLeast(0x060000) and not d.qtVersionAtLeast(0x060b00):
+                image_offset = 40
+            else:
+                image_offset = 44
+            # QImage layout: vtable, painters, image_data (3 pointers).
+            image_data = d.extractPointer(data + image_offset + 2 * p)
+            if image_data != 0:
+                if d.qtVersionAtLeast(0x060000):
+                    (ref, width, height, depth, nbytes, pad, devicePixelRatio,
+                        _, _, _, bits, iformat) = d.split('iiiii@dppppi', image_data)
+                else:
+                    (ref, width, height, depth, nbytes, pad, devicePixelRatio,
+                        colorTable, bits, iformat) = d.split('iiiii@dppi', image_data)
+                d.putDisplay('imagedata:separate',
+                             '%08x%08x%08x%08x' % (width, height, nbytes, iformat)
+                             + d.readMemory(bits, nbytes))
 
     d.putPlainChildren(value)
 

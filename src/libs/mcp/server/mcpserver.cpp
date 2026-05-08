@@ -1246,7 +1246,7 @@ Server::Server(Schema::Implementation serverInfo)
     : d(std::make_shared<ServerPrivate>(serverInfo))
 {
     d->m_server.setMissingHandler(
-        new QObject(), [](const QHttpServerRequest &request, QHttpServerResponder &responder) {
+        &d->m_server, [](const QHttpServerRequest &request, QHttpServerResponder &responder) {
             qCDebug(mcpServerIOLog) << request.url() << request.method() << "not found";
             qCDebug(mcpServerIOLog) << request.headers();
             responder.write(QHttpServerResponse::StatusCode::NotFound);

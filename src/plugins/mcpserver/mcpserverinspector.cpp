@@ -98,10 +98,18 @@ public:
 
     void setMessage(const McpLogMessage &message)
     {
+        if (m_jsonTree->model())
+            m_jsonTree->model()->deleteLater();
+
         m_jsonTree->setModel(createJsonModel("content", message.message));
     }
 
-    void clear() { m_jsonTree->setModel(createJsonModel("", QJsonObject())); }
+    void clear() {
+        if (m_jsonTree->model())
+            m_jsonTree->model()->deleteLater();
+
+        m_jsonTree->setModel(createJsonModel("", QJsonObject()));
+    }
 
 private:
     QTreeView *m_jsonTree = nullptr;

@@ -32,6 +32,7 @@ private:
     void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;
 
+    Utils::FilePath absoluteBuildDir(const Utils::FilePath &rawPath) const;
     void updateProblemLabels();
     QString updateProblemLabelsHelper(const QString &value);
     BuildConfiguration *buildConfiguration() const;

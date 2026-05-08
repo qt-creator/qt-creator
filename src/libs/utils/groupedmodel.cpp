@@ -374,6 +374,11 @@ bool GroupedModel::isDefault(int row) const
     return row >= 0 && row < m_volatileDefaultFlag.size() && m_volatileDefaultFlag.at(row);
 }
 
+bool GroupedModel::isOriginalDefault(int row) const
+{
+    return row >= 0 && row < m_defaultFlag.size() && m_defaultFlag.at(row);
+}
+
 void GroupedModel::setVolatileDefaultRow(int row)
 {
     QTC_ASSERT(row >= -1 && (row < 0 || row < m_volatileVariants.size()), return);
@@ -623,7 +628,7 @@ GroupedView::GroupedView(GroupedModel &model)
                                                        : selected.indexes().first();
         emit currentRowChanged(m_model.mapToSource(previous).row(),
                                m_model.mapToSource(current).row());
-        updateRemoveButton();
+        updateButtons();
     });
 
     m_cloneButton.setText(Tr::tr("Clone"));
@@ -655,13 +660,20 @@ void GroupedView::setCanRemoveRow(std::function<bool(int)> predicate)
     m_canRemove = std::move(predicate);
 }
 
-void GroupedView::updateRemoveButton()
+void GroupedView::setCanCloneRow(std::function<bool(int)> predicate)
+{
+    m_canClone = std::move(predicate);
+}
+
+void GroupedView::updateButtons()
 {
     const int row = currentRow();
     const bool isRemoved = row >= 0 && m_model.isRemoved(row);
     m_removeButton.setText(isRemoved ? Tr::tr("Restore") : Tr::tr("Remove"));
-    const bool enabled = row >= 0 && (isRemoved || !m_canRemove || m_canRemove(row));
-    m_removeButton.setEnabled(enabled);
+    const bool canRemove = row >= 0 && (isRemoved || !m_canRemove || m_canRemove(row));
+    m_removeButton.setEnabled(canRemove);
+    const bool canClone = row >= 0 && !isRemoved && (!m_canClone || m_canClone(row));
+    m_cloneButton.setEnabled(canClone);
 }
 
 int GroupedView::currentRow() const
@@ -699,7 +711,7 @@ void GroupedView::removeCurrent()
     const int row = currentRow();
     QTC_ASSERT(row >= 0, return);
     m_model.markRemoved(row);
-    updateRemoveButton();
+    updateButtons();
     emit currentRemoved();
 }
 

@@ -228,6 +228,15 @@ void KitModel::markForRemoval(int row)
 {
     QTC_ASSERT(row >= 0 && row < itemCount(), return);
 
+    if (isRemoved(row)) {
+        markRemoved(row);
+        if (isOriginalDefault(row))
+            setVolatileDefaultRow(row);
+        notifyAllRowsChanged();
+        emit kitStateChanged();
+        return;
+    }
+
     if (isDefault(row)) {
         for (int r = 0; r < itemCount(); ++r) {
             if (r != row && !isRemoved(r)) {
@@ -616,11 +625,11 @@ void KitOptionsPageWidget::updateState()
         canMakeDefault = !m_model.isDefault(row) && !isRemoved;
     }
 
-    m_cloneButton.setEnabled(canCopy);
+    m_cloneButton.setEnabled(canCopy && !isRemoved);
     m_removeButton.setEnabled(canDelete);
     m_removeButton.setText(isRemoved ? Tr::tr("Restore") : Tr::tr("Remove"));
     m_makeDefaultButton.setEnabled(canMakeDefault);
-    m_filterButton.setEnabled(canCopy);
+    m_filterButton.setEnabled(canCopy && !isRemoved);
 }
 
 void KitOptionsPageWidget::onDirty()

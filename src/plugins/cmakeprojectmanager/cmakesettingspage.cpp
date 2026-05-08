@@ -644,7 +644,6 @@ void CMakeToolConfigWidget::updateButtons()
     const int row = m_groupedView.currentRow();
     const bool hasRow = row >= 0 && row < m_model.itemCount() && !m_model.isRemoved(row);
     m_makeDefButton.setEnabled(hasRow && !m_model.isDefault(row));
-    m_groupedView.cloneButton().setEnabled(hasRow);
 }
 
 // CMakeSettingsPage

@@ -72,6 +72,7 @@ protected:
     void setDefaultRow(int row);
     void setShowDefault(bool on);
     void setDefaultAffectsDirty(bool on);
+    bool isOriginalDefault(int row) const;
 
 private:
     virtual QVariant variantData(int row, int column, int role) const = 0;
@@ -163,6 +164,7 @@ public:
     QPushButton &cloneButton();
 
     void setCanRemoveRow(std::function<bool(int)> predicate);
+    void setCanCloneRow(std::function<bool(int)> predicate);
 
     int currentRow() const;
     void selectRow(int row);
@@ -177,7 +179,7 @@ signals:
     void currentCloned();
 
 private:
-    void updateRemoveButton();
+    void updateButtons();
 
     GroupedModel &m_model;
     QTreeView m_view;
@@ -185,6 +187,7 @@ private:
     QPushButton m_cloneButton;
     QVariant m_savedVariant;
     std::function<bool(int)> m_canRemove;
+    std::function<bool(int)> m_canClone;
 };
 
 } // namespace Utils

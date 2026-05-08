@@ -98,21 +98,21 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
         defaultArgumentsComboBox->setCurrentIndex(m_defaultOptions);
     };
 
-    connect(project(), &Project::fileListChanged, this, updateUi);
+    connect(project(), &Project::fileListChanged, widget, updateUi);
 
-    connect(targetComboBox, &QComboBox::activated, this, [this, targetComboBox, updateUi] {
+    connect(targetComboBox, &QComboBox::activated, widget, [this, targetComboBox, updateUi] {
         const QVariant data = targetComboBox->currentData();
         m_targetNimFile = FilePath::fromString(data.toString());
         updateUi();
     });
 
     connect(additionalArgumentsLineEdit, &QLineEdit::textEdited,
-            this, [this, updateUi](const QString &text) {
+            widget, [this, updateUi](const QString &text) {
         m_userCompilerOptions = text.split(QChar::Space);
         updateUi();
     });
 
-    connect(defaultArgumentsComboBox, &QComboBox::activated, this, [this, updateUi](int index) {
+    connect(defaultArgumentsComboBox, &QComboBox::activated, widget, [this, updateUi](int index) {
         m_defaultOptions = static_cast<DefaultBuildOptions>(index);
         updateUi();
     });

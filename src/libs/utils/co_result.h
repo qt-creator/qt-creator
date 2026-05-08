@@ -96,6 +96,7 @@ struct result_awaiter
 #endif
     {
         h.promise().value->emplace(Utils::ResultError{value.error()});
+        h.destroy();
     }
 
     template<typename R_ = R>

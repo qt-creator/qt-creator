@@ -194,7 +194,6 @@ private:
     bool isDirty() const final { return m_model.isDirty(); }
 
     void currentMesonToolChanged(int oldRow, int newRow);
-    void updateButtons();
     void store();
 
     ToolsModel m_model;
@@ -255,8 +254,6 @@ ToolsSettingsWidget::ToolsSettingsWidget()
         return !m_model.item(row).autoDetected;
     });
 
-    connect(&m_groupedView, &GroupedView::currentRemoved,
-            this, &ToolsSettingsWidget::updateButtons);
 
     connect(&m_data, &AspectContainer::changed, &checkSettingsDirty);
 }
@@ -285,14 +282,6 @@ void ToolsSettingsWidget::currentMesonToolChanged(int, int newRow)
     }
     m_loading = false;
     m_mesonDetails.setVisible(hasItem);
-    updateButtons();
-}
-
-void ToolsSettingsWidget::updateButtons()
-{
-    const int row = m_groupedView.currentRow();
-    const bool hasItem = row >= 0 && !m_model.isRemoved(row);
-    m_groupedView.cloneButton().setEnabled(hasItem);
 }
 
 class ToolsSettingsPage final : public Core::IOptionsPage
