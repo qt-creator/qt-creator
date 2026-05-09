@@ -124,7 +124,7 @@ qtc_add_resources(Debugger "testcases"
 )
 
 add_qtc_library(ptracepreload SHARED
-    CONDITION UNIX AND NOT APPLE
+    CONDITION LINUX
     SKIP_PCH
     SOURCES ptracepreload.c
 )
