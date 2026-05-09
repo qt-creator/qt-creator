@@ -378,7 +378,7 @@ Result<> Client::start(bool deleteOnExit)
             });
 
             auto stateMachine =
-                [markerOffset = 0, state = int(0), packetSize = quint32(0), packetData = QByteArray(), this](
+                [markerOffset = 0, state = int(0), packetSize = qint32(0), packetData = QByteArray(), this](
                     QByteArray &buffer) mutable -> bool {
                     static const QByteArray MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
 
@@ -414,7 +414,7 @@ Result<> Client::start(bool deleteOnExit)
                         // CBOR map overhead; file-read results can be larger still.
                         // 64 MiB is a safe upper bound that allows all legitimate
                         // traffic while still catching obviously corrupted size fields.
-                        static constexpr quint32 maxPacketSize = 64u * 1024 * 1024;
+                        static constexpr qint32 maxPacketSize = 64 * 1024 * 1024;
                         if (packetSize > 0 && packetSize <= maxPacketSize) {
                             state = 2;
                             buffer.remove(0, sizeof(packetSize));
