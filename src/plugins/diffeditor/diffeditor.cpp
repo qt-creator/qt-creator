@@ -11,6 +11,7 @@
 #include "sidebysidediffeditorwidget.h"
 #include "unifieddiffeditorwidget.h"
 
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -29,6 +30,7 @@
 #include <utils/ansiescapecodehandler.h>
 #include <utils/fileutils.h>
 #include <utils/guard.h>
+#include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -332,6 +334,11 @@ private:
     bool m_showDescription = true;
 };
 
+static QString textWithShortcut(const QString &text, const QKeySequence &shortcut)
+{
+    return Utils::ProxyAction::stringWithAppendedShortcut(text, shortcut);
+}
+
 DiffEditor::DiffEditor()
 {
     // Editor:
@@ -398,30 +405,41 @@ DiffEditor::DiffEditor()
     contextLabel->setContentsMargins(6, 0, 6, 0);
     m_contextLabelAction = m_toolBar->addWidget(contextLabel);
 
+    auto addAction = [this](const QIcon &icon, const QString &text,
+                            const QString &macShortcut, const QString &nonMacShortcut) {
+        const QKeySequence shortcut = useMacShortcuts ? macShortcut : nonMacShortcut;
+        QAction *action = m_toolBar->addAction(icon, text);
+        action->setShortcut(shortcut);
+        action->setToolTip(textWithShortcut(text, shortcut));
+        return action;
+    };
+
     m_contextSpinBox = new QSpinBox(m_toolBar);
     m_contextSpinBox->setRange(1, 100);
     m_contextSpinBox->setFrame(false);
     m_contextSpinBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding); // Mac Qt5
     m_contextSpinBoxAction = m_toolBar->addWidget(m_contextSpinBox);
 
-    m_whitespaceButtonAction = m_toolBar->addAction(Tr::tr("Ignore Whitespace"));
+    m_whitespaceButtonAction = addAction({}, Tr::tr("Ignore Whitespace"),
+                                         Tr::tr("Ctrl+Meta+I"), Tr::tr("Ctrl+Alt+I"));
     m_whitespaceButtonAction->setCheckable(true);
 
-    m_foldAllAction
-        = m_toolBar->addAction(Utils::Icons::EXPAND_ALL_TOOLBAR.icon(), Tr::tr("Fold All"));
-    m_foldAllAction->setToolTip(m_foldAllAction->text());
+    m_foldAllAction = addAction(Utils::Icons::EXPAND_ALL_TOOLBAR.icon(), Tr::tr("Fold All"),
+                                Tr::tr("Ctrl+Meta+U"), Tr::tr("Ctrl+Alt+U"));
     m_foldAllAction->setCheckable(true);
 
-    m_toggleDescriptionAction = m_toolBar->addAction(Icons::TOP_BAR.icon(), {});
+    m_toggleDescriptionAction = addAction(Icons::TOP_BAR.icon(), {},
+                                          Tr::tr("Ctrl+Meta+D"), Tr::tr("Ctrl+Alt+D"));
     m_toggleDescriptionAction->setCheckable(true);
 
-    m_reloadAction = m_toolBar->addAction(Utils::Icons::RELOAD_TOOLBAR.icon(), Tr::tr("Reload Diff"));
-    m_reloadAction->setToolTip(m_reloadAction->text());
+    m_reloadAction = addAction(Utils::Icons::RELOAD_TOOLBAR.icon(), Tr::tr("Reload Diff"),
+                               Tr::tr("Ctrl+Meta+R"), Tr::tr("Ctrl+Alt+R"));
 
-    m_toggleSyncAction = m_toolBar->addAction(Utils::Icons::LINK_TOOLBAR.icon(), {});
+    m_toggleSyncAction = addAction(Utils::Icons::LINK_TOOLBAR.icon(), {},
+                                   Tr::tr("Ctrl+Meta+S"), Tr::tr("Ctrl+Alt+S"));
     m_toggleSyncAction->setCheckable(true);
 
-    m_viewSwitcherAction = m_toolBar->addAction(QIcon(), {});
+    m_viewSwitcherAction = addAction({}, {}, Tr::tr("Ctrl+Meta+V"), Tr::tr("Ctrl+Alt+V"));
 
     connect(m_foldAllAction, &QAction::toggled,
             this, &DiffEditor::foldAllHasChanged);
@@ -603,6 +621,7 @@ void DiffEditor::updateDescription()
     m_toggleDescriptionAction->setToolTip(actionText);
     m_toggleDescriptionAction->setText(actionText);
     m_toggleDescriptionAction->setVisible(!description.isEmpty());
+    m_toggleDescriptionAction->setEnabled(!description.isEmpty());
 }
 
 void DiffEditor::foldAllHasChanged()
@@ -610,7 +629,7 @@ void DiffEditor::foldAllHasChanged()
     const bool fold = m_foldAllAction->isChecked();
     const QString actionText = fold ? Tr::tr("Unfold All") : Tr::tr("Fold All");
     m_foldAllAction->setText(actionText);
-    m_foldAllAction->setToolTip(actionText);
+    m_foldAllAction->setToolTip(textWithShortcut(actionText, m_foldAllAction->shortcut()));
 
     auto sideWidget = m_sideBySideView->widget();
     if (sideWidget)
@@ -721,8 +740,9 @@ void DiffEditor::updateDiffEditorSwitcher()
         return;
     IDiffView *next = nextView();
     m_viewSwitcherAction->setIcon(next->icon());
-    m_viewSwitcherAction->setToolTip(next->toolTip());
-    m_viewSwitcherAction->setText(next->toolTip());
+    const QString text = next->toolTip();
+    m_viewSwitcherAction->setToolTip(textWithShortcut(text, m_viewSwitcherAction->shortcut()));
+    m_viewSwitcherAction->setText(text);
 }
 
 void DiffEditor::toggleSync()
