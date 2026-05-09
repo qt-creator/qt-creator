@@ -3194,13 +3194,13 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
         emit m_instance->findOnFileSystemRequest(filePath);
     });
 
-    // Diff Against Current File
-    contextMenu->addAction(EditorManager::createDiffAgainstCurrentFileAction(d, [filePath] {
-        return filePath;
-    }));
-
-    // Version Control
     if (!flags.testFlag(EditorManager::HideVersionControl)) {
+        // Diff Against Current File
+        contextMenu->addAction(EditorManager::createDiffAgainstCurrentFileAction(d, [filePath] {
+            return filePath;
+        }));
+
+        // Version Control
         FilePath topLevel;
         if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
             QMenu *subMenu = contextMenu->addMenu(vc->displayName());
