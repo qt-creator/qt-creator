@@ -22,6 +22,7 @@
 #include <utils/fileutils.h>
 #include <utils/globalfilechangeblocker.h>
 #include <utils/hostosinfo.h>
+#include <utils/infobar.h>
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -38,6 +39,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScopeGuard>
 #include <QStringList>
 #include <QThread>
 #include <QTimer>
@@ -116,109 +118,6 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
                                     bool *cancelled, bool silently,
                                     const QString &alwaysSaveMessage,
                                     bool *alwaysSave, QList<IDocument *> *failedToSave);
-
-enum ReloadPromptAnswer {
-    ReloadCurrent,
-    ReloadAll,
-    ReloadSkipCurrent,
-    ReloadNone,
-    ReloadNoneAndDiff,
-    CloseCurrent
-};
-
-enum FileDeletedPromptAnswer {
-    FileDeletedClose,
-    FileDeletedCloseAll,
-    FileDeletedSaveAs,
-    FileDeletedSave
-};
-
-static ReloadPromptAnswer reloadPrompt(
-    const QString &title, const QString &prompt, const QString &details, bool enableDiffOption)
-{
-    QMessageBox msg(dialogParent());
-    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Close
-                           | QMessageBox::No | QMessageBox::NoToAll);
-    msg.setDefaultButton(QMessageBox::YesToAll);
-    msg.setWindowTitle(title);
-    msg.setText(prompt);
-    msg.setDetailedText(details);
-
-    msg.button(QMessageBox::Close)->setText(Tr::tr("&Close"));
-
-    QPushButton *diffButton = nullptr;
-    if (enableDiffOption)
-        diffButton = msg.addButton(Tr::tr("No to All && &Diff"), QMessageBox::NoRole);
-
-    const int result = msg.exec();
-
-    if (msg.clickedButton() == diffButton)
-        return ReloadNoneAndDiff;
-
-    switch (result) {
-    case QMessageBox::Yes:
-        return  ReloadCurrent;
-    case QMessageBox::YesToAll:
-        return ReloadAll;
-    case QMessageBox::No:
-        return ReloadSkipCurrent;
-    case QMessageBox::Close:
-        return CloseCurrent;
-    default:
-        break;
-    }
-    return ReloadNone;
-}
-
-static ReloadPromptAnswer reloadPrompt(const FilePath &fileName, bool modified, bool enableDiffOption)
-{
-    const QString title = Tr::tr("File Changed");
-    QString msg;
-
-    if (modified) {
-        msg = Tr::tr("The unsaved file \"%1\" has been changed on disk. "
-                     "Do you want to reload it and discard your changes?");
-    } else {
-        msg = Tr::tr("The file \"%1\" has been changed on disk. Do you want to reload it?");
-    }
-    msg = "<p>" + msg.arg(fileName.fileName()) + "</p><p>";
-    if (HostOsInfo::isMacHost()) {
-        msg += Tr::tr("The default behavior can be set in %1 > Preferences > Environment > System.",
-                      "macOS")
-                   .arg(QGuiApplication::applicationDisplayName());
-    } else {
-        msg += Tr::tr("The default behavior can be set in Edit > Preferences > Environment > System.");
-    }
-    msg += "</p>";
-    return reloadPrompt(title, msg, fileName.toUserOutput(), enableDiffOption);
-}
-
-static FileDeletedPromptAnswer fileDeletedPrompt(const FilePath &filePath)
-{
-    const QString title = Tr::tr("File Has Been Removed");
-    const QString msg = Tr::tr("The file %1 has been removed from disk. "
-                               "Do you want to save it under a different name, or close "
-                               "the editor?").arg(filePath.toUserOutput());
-    QMessageBox box(QMessageBox::Question, title, msg, QMessageBox::NoButton, dialogParent());
-    QPushButton *saveas = box.addButton(Tr::tr("Save &as..."), QMessageBox::ActionRole);
-    QPushButton *close = box.addButton(Tr::tr("&Close"), QMessageBox::RejectRole);
-    QPushButton *closeAll =
-        box.addButton(Tr::tr("C&lose All"), QMessageBox::RejectRole);
-    QPushButton *save =
-        box.addButton(Tr::tr("&Save"), QMessageBox::AcceptRole);
-    box.setDefaultButton(saveas);
-    box.exec();
-    QAbstractButton *clickedbutton = box.clickedButton();
-    if (clickedbutton == close)
-        return FileDeletedClose;
-    if (clickedbutton == closeAll)
-        return FileDeletedCloseAll;
-    if (clickedbutton == saveas)
-        return FileDeletedSaveAs;
-    if (clickedbutton == save)
-        return FileDeletedSave;
-    return FileDeletedClose;
-}
 
 namespace Internal {
 
@@ -651,25 +550,70 @@ FilePath DocumentManager::filePathKey(const Utils::FilePath &filePath, ResolveMo
     return result;
 }
 
+static QList<IDocument *> documentsWith(std::function<bool(const IDocument *)> predicate)
+{
+    QList<IDocument *> result;
+
+    for (auto it = d->m_documentsWithWatch.cbegin(); it != d->m_documentsWithWatch.cend(); ++it) {
+        IDocument *document = it.key();
+        if (predicate(document))
+            result << document;
+    }
+
+    for (IDocument *document : std::as_const(d->m_documentsWithoutWatch)) {
+        if (predicate(document))
+            result << document;
+    }
+
+    return result;
+}
+
 /*!
     Returns the list of IDocuments that have been modified.
 */
 QList<IDocument *> DocumentManager::modifiedDocuments()
 {
-    QList<IDocument *> modified;
+    return documentsWith([](const IDocument *document) { return document->isModified(); });
+}
 
-    for (auto it = d->m_documentsWithWatch.cbegin(); it != d->m_documentsWithWatch.cend(); ++it) {
-        IDocument *document = it.key();
-        if (document->isModified())
-            modified << document;
+/*!
+    Returns the list of IDocuments that have conflicts regarding external modifications.
+*/
+QList<IDocument *> DocumentManager::conflictedDocuments()
+{
+    return documentsWith([](const IDocument *document) { return document->isConflicted(); });
+}
+
+/*!
+    Reloads the contents of \a doc with the \a reloadFlag \a type.
+
+    Prints all errors to General Messages.
+*/
+static void reloadDocument(IDocument *doc,
+                           IDocument::ReloadFlag reloadFlag,
+                           IDocument::ChangeType type = IDocument::TypeContents)
+{
+    const Result<> res = doc->reload(reloadFlag, type);
+    if (!res) {
+        QString error = res.error();
+        if (error.isEmpty())
+            error = Tr::tr("Cannot reload %1").arg(doc->filePath().toUserOutput());
+
+        Core::MessageManager::writeDisrupting(error);
+    } else {
+        doc->infoBar()->removeInfo(Constants::RELOAD_INFOBAR);
+        doc->setConflicted(false);
     }
+}
 
-    for (IDocument *document : std::as_const(d->m_documentsWithoutWatch)) {
-        if (document->isModified())
-            modified << document;
-    }
-
-    return modified;
+/*!
+    Reloads all IDocuments that have conflicts regarding external modifications.
+*/
+static void reloadConflictedDocuments(IDocument::ReloadFlag reloadFlag)
+{
+    const QList<IDocument *> list = DocumentManager::conflictedDocuments();
+    for (IDocument *doc : list)
+        reloadDocument(doc, reloadFlag);
 }
 
 /*!
@@ -831,6 +775,7 @@ bool DocumentManager::saveDocument(
             MessageManager::writeDisrupting(Tr::tr("Error while saving file: %1").arg(res.error()));
     }
 
+    document->setConflicted(false);
     addDocument(document, addWatcher);
     unexpectFileChange(savePath);
     m_instance->updateSaveAll();
@@ -1181,11 +1126,6 @@ void DocumentManager::checkForReload()
     d->m_blockActivated = true;
 
     IDocument::ReloadSetting defaultBehavior = EditorManager::reloadSetting();
-    ReloadPromptAnswer previousReloadAnswer = ReloadCurrent;
-    FileDeletedPromptAnswer previousDeletedAnswer = FileDeletedSave;
-
-    QList<IDocument *> documentsToClose;
-    QHash<IDocument*, FilePath> documentsToSave;
 
     // collect file information
     QMap<FilePath, FileStateItem> currentStates;
@@ -1230,9 +1170,9 @@ void DocumentManager::checkForReload()
             expectedFileKeys.insert(filePathKey(filePath, ResolveLinks));
     }
 
+    QList<IDocument *> documentsToClose;
+
     // handle the IDocuments
-    QStringList errorStrings;
-    FilePaths filesToDiff;
     for (IDocument *document : std::as_const(changedIDocuments)) {
         IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
         std::optional<IDocument::ChangeType> type;
@@ -1278,6 +1218,7 @@ void DocumentManager::checkForReload()
 
         // handle it!
         d->m_blockedIDocument = document;
+        QScopeGuard unblock([] { d->m_blockedIDocument = nullptr; });
 
         // Update file info, also handling if e.g. link target has changed.
         // We need to do that before the file is reloaded, because removing the watcher will
@@ -1287,7 +1228,6 @@ void DocumentManager::checkForReload()
         removeFileInfo(document);
         addFileInfos({document});
 
-        Result<> success = ResultOk;
         // we've got some modification
         document->checkPermissions();
         // check if it's contents or permissions:
@@ -1297,115 +1237,123 @@ void DocumentManager::checkForReload()
         } else if (defaultBehavior == IDocument::ReloadUnmodified && type == IDocument::TypeContents
                    && !document->isModified()) {
             // content change, but unmodified (and settings say to reload in this case)
-            success = document->reload(IDocument::FlagReload, *type);
+            reloadDocument(document, IDocument::FlagReload);
             // file was removed or it's a content change and the default behavior for
             // unmodified files didn't kick in
         } else if (defaultBehavior == IDocument::ReloadUnmodified && type == IDocument::TypeRemoved
                    && !document->isModified()) {
             // file removed, but unmodified files should be reloaded
             // so we close the file
-            documentsToClose << document;
+            documentsToClose += document;
         } else if (defaultBehavior == IDocument::IgnoreAll) {
             // content change or removed, but settings say ignore
-            success = document->reload(IDocument::FlagIgnore, *type);
+            reloadDocument(document, IDocument::FlagIgnore, *type);
             // either the default behavior is to always ask,
             // or the ReloadUnmodified default behavior didn't kick in,
             // so do whatever the IDocument wants us to do
         } else {
+            const Id reloadId(Constants::RELOAD_INFOBAR);
+
+            auto saveDocumentAs = [document] {
+                const FilePath path = getSaveAsFileName(document);
+                if (path.isEmpty())
+                    return;
+
+                saveDocument(document, path);
+                document->setConflicted(false);
+                document->checkPermissions();
+            };
+
             // check if IDocument wants us to ask
             if (document->reloadBehavior(trigger, *type) == IDocument::BehaviorSilent) {
                 // content change or removed, IDocument wants silent handling
                 if (type == IDocument::TypeRemoved)
-                    documentsToClose << document;
+                    documentsToClose += document;
                 else
-                    success = document->reload(IDocument::FlagReload, *type);
+                    reloadDocument(document, IDocument::FlagReload);
             // IDocument wants us to ask
             } else if (type == IDocument::TypeContents) {
-                // content change, IDocument wants to ask user
-                if (previousReloadAnswer == ReloadNone || previousReloadAnswer == ReloadNoneAndDiff) {
-                    // answer already given, ignore
-                    success = document->reload(IDocument::FlagIgnore, IDocument::TypeContents);
-                } else if (previousReloadAnswer == ReloadAll) {
-                    // answer already given, reload
-                    success = document->reload(IDocument::FlagReload, IDocument::TypeContents);
+                InfoBar *infoBar = document->infoBar();
+                if (!infoBar->canInfoBeAdded(reloadId))
+                    continue;
+
+                document->setConflicted(true);
+                QString msg;
+                if (document->isModified()) {
+                    msg = Tr::tr(
+                        "The unsaved file \"%1\" has been changed on disk. "
+                        "Do you want to reload it and discard your changes?");
                 } else {
-                    // Ask about content change
-                    previousReloadAnswer = reloadPrompt(document->filePath(), document->isModified(),
-                                                        DiffService::instance());
-                    switch (previousReloadAnswer) {
-                    case ReloadAll:
-                    case ReloadCurrent:
-                        success = document->reload(IDocument::FlagReload, IDocument::TypeContents);
-                        break;
-                    case ReloadSkipCurrent:
-                    case ReloadNone:
-                    case ReloadNoneAndDiff:
-                        success = document->reload(IDocument::FlagIgnore, IDocument::TypeContents);
-                        break;
-                    case CloseCurrent:
-                        documentsToClose << document;
-                        break;
-                    }
+                    msg = Tr::tr(
+                        "The file \"%1\" has been changed on disk. Do you want to reload it?");
                 }
-                if (previousReloadAnswer == ReloadNoneAndDiff)
-                    filesToDiff.append(document->filePath());
+
+                InfoBarEntry info(reloadId, msg.arg(document->displayName()));
+                info.addCustomButton(
+                    Tr::tr("Ignore"),
+                    [document] { reloadDocument(document, IDocument::FlagIgnore); },
+                    Tr::tr("Discard external changes"));
+                info.addCustomButton(
+                    Tr::tr("Reload"),
+                    [document] { reloadDocument(document, IDocument::FlagReload); },
+                    Tr::tr("Discard local changes"));
+                info.addCustomButton(
+                    Tr::tr("Close"),
+                    [document] { EditorManager::closeDocuments({document}, false); },
+                    Tr::tr("Close this file and discard the contents"));
+                if (DiffService::instance()) {
+                    info.addCustomButton(
+                        Tr::tr("Diff"),
+                        [] {
+                            if (auto diffService = DiffService::instance()) {
+                                const QList<IDocument *> docs
+                                    = DocumentManager::conflictedDocuments();
+                                const FilePaths paths = Utils::transform(docs, [](IDocument *doc) {
+                                    return doc->filePath();
+                                });
+                                reloadConflictedDocuments(IDocument::FlagIgnore);
+                                diffService->diffModifiedFiles(paths);
+                            }
+                        },
+                        Tr::tr("Ignore external changes and diff all modified files"));
+                }
+                info.addCustomButton(
+                    Tr::tr("Ignore All"),
+                    [] { reloadConflictedDocuments(IDocument::FlagIgnore); },
+                    Tr::tr("Discard all external changes"));
+                info.addCustomButton(
+                    Tr::tr("Reload All"),
+                    [] { reloadConflictedDocuments(IDocument::FlagReload); },
+                    Tr::tr("Discard all local changes"));
+                info.addCustomButton(Tr::tr("Save As..."), saveDocumentAs,
+                                     Tr::tr("Save the local file changes with another name"));
+                info.removeCancelButton();
+                infoBar->addInfo(info);
 
             // IDocument wants us to ask, and it's the TypeRemoved case
             } else {
-                // Ask about removed file
-                bool unhandled = true;
-                while (unhandled) {
-                    if (previousDeletedAnswer != FileDeletedCloseAll)
-                        previousDeletedAnswer = fileDeletedPrompt(document->filePath());
+                InfoBar *infoBar = document->infoBar();
+                if (!infoBar->canInfoBeAdded(reloadId))
+                    continue;
 
-                    switch (previousDeletedAnswer) {
-                    case FileDeletedSave:
-                        documentsToSave.insert(document, document->filePath());
-                        unhandled = false;
-                        break;
-                    case FileDeletedSaveAs:
-                    {
-                        const FilePath saveFileName = getSaveAsFileName(document);
-                        if (!saveFileName.isEmpty()) {
-                            documentsToSave.insert(document, saveFileName);
-                            unhandled = false;
-                        }
-                        break;
-                    }
-                    case FileDeletedClose:
-                    case FileDeletedCloseAll:
-                        documentsToClose << document;
-                        unhandled = false;
-                        break;
-                    }
-                }
+                document->setConflicted(true);
+                const QString msg = Tr::tr("The file <i>%1</i> has been removed from disk. "
+                                           "Do you want to save it under a different name, "
+                                           "or close the editor?").arg(document->displayName());
+
+                InfoBarEntry info(reloadId, msg);
+                info.addCustomButton(Tr::tr("Save As..."), saveDocumentAs,
+                                     Tr::tr("Save the file contents with another name"));
+                info.addCustomButton(Tr::tr("Close"), [document] {
+                    EditorManager::closeDocuments({document}, false);
+                }, Tr::tr("Close this file and discard the contents"));
+                info.removeCancelButton();
+                infoBar->addInfo(info);
             }
         }
-        if (!success) {
-            QString errorString = success.error();
-            if (errorString.isEmpty())
-                errorString = Tr::tr("Cannot reload %1").arg(document->filePath().toUserOutput());
-            errorStrings << errorString;
-        }
-
-        d->m_blockedIDocument = nullptr;
     }
 
-    if (!filesToDiff.isEmpty()) {
-        if (auto diffService = DiffService::instance())
-            diffService->diffModifiedFiles(filesToDiff);
-    }
-
-    if (!errorStrings.isEmpty())
-        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"),
-                              errorStrings.join(QLatin1Char('\n')));
-
-    // handle deleted files
     EditorManager::closeDocuments(documentsToClose, false);
-    for (auto it = documentsToSave.cbegin(), end = documentsToSave.cend(); it != end; ++it) {
-        saveDocument(it.key(), it.value());
-        it.key()->checkPermissions();
-    }
 
     d->m_blockActivated = false;
     // re-check in case files where modified while the dialog was open

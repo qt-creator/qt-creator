@@ -2622,6 +2622,19 @@ bool EditorManagerPrivate::saveDocument(IDocument *document, IDocument::SaveOpti
     if (document->filePath().isEmpty())
         return saveDocumentAs(document);
 
+    if (document->isConflicted()) {
+        const QMessageBox::StandardButton result = QMessageBox::warning(
+            ICore::dialogParent(),
+            Tr::tr("Save Externally Modified File"),
+            Tr::tr("The file \"%1\" is modified externally. "
+                   "Saving it will discard all external changes.\n\n"
+                   "Save anyhow?")
+                .arg(document->displayName()),
+            QMessageBox::Yes | QMessageBox::No);
+        if (result == QMessageBox::No)
+            return false;
+    }
+
     bool success = false;
     bool isReadOnly;
 
@@ -2718,7 +2731,7 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
     const FilePath filePath =  document->filePath();
     if (filePath.isEmpty())
         return;
-    if (document->isModified()) {
+    if (document->isModified() || document->isConflicted()) {
         QMessageBox msgBox(QMessageBox::Question,
                            ::Core::Tr::tr("Revert to Saved"),
                            ::Core::Tr::tr("You will lose your current changes if you proceed reverting %1.")
@@ -2746,6 +2759,8 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
 
     if (Result<> res = document->reload(IDocument::FlagReload, IDocument::TypeContents); !res)
         MessageManager::writeDisrupting(Tr::tr("Error reloading file: %1").arg(res.error()));
+
+    document->setConflicted(false);
 }
 
 void EditorManagerPrivate::autoSuspendDocuments()

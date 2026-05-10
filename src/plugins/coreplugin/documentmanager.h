@@ -41,6 +41,7 @@ public:
     static void addDocument(IDocument *document, bool addWatcher = true);
     static bool removeDocument(IDocument *document);
     static QList<IDocument *> modifiedDocuments();
+    static QList<IDocument *> conflictedDocuments();
 
     static void renamedFile(const Utils::FilePath &from, const Utils::FilePath &to);
 

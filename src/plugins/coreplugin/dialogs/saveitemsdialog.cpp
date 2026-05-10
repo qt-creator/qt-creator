@@ -10,12 +10,16 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/theme/theme.h>
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QLabel>
+#include <QPalette>
 #include <QPushButton>
 #include <QTreeWidget>
+
+#include <algorithm>
 
 using namespace Utils;
 
@@ -23,6 +27,7 @@ namespace Core::Internal {
 
 SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &items)
     : QDialog(parent)
+    , m_warningLabel(new QLabel)
     , m_msgLabel(new QLabel(Tr::tr("The following files have unsaved changes:")))
     , m_treeWidget(new QTreeWidget)
     , m_saveBeforeBuildCheckBox(new QCheckBox(Tr::tr("Automatically save all files before building")))
@@ -30,6 +35,22 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
 {
     resize(457, 200);
     setWindowTitle(Tr::tr("Save Changes"));
+
+    QPalette palette = m_warningLabel->palette();
+    palette.setColor(
+        QPalette::WindowText, Utils::creatorColor(Utils::Theme::OutputPanes_ErrorMessageTextColor));
+    m_warningLabel->setPalette(palette);
+    const bool anyConflicted = std::any_of(items.cbegin(), items.cend(), [](const IDocument *doc) {
+        return doc->isConflicted();
+    });
+    if (anyConflicted) {
+        m_warningLabel->setText(
+            Tr::tr(
+                "Some files are externally modified, saving "
+                "them will discard the external changes!"));
+    } else {
+        m_warningLabel->setVisible(false);
+    }
 
     m_treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_treeWidget->setTextElideMode(Qt::ElideLeft);
@@ -56,6 +77,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
     using namespace Layouting;
     // clang-format off
     Column {
+        m_warningLabel,
         m_msgLabel,
         m_treeWidget,
         m_saveBeforeBuildCheckBox,

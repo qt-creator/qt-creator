@@ -237,6 +237,8 @@ const char HELP_CATEGORY[] = "H.Help";
 
 const char QT_JIRA_URL[] = "https://qt-project.atlassian.net";
 
+const char RELOAD_INFOBAR[]          = "QtCreator.ReloadInfoBar";
+
 // Analyzer menu and groups
 const char M_DEBUG_ANALYZER[]        = "Analyzer.Menu.StartAnalyzer";
 const char G_ANALYZER_CONTROL[]      = "Menu.Group.Analyzer.Control";

@@ -41,6 +41,7 @@ private:
     void updateButtons();
     void adjustButtonWidths();
 
+    QLabel *m_warningLabel = nullptr;
     QLabel *m_msgLabel;
     QTreeWidget *m_treeWidget;
     QCheckBox *m_saveBeforeBuildCheckBox;

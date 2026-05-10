@@ -3,6 +3,7 @@
 
 #include "idocument.h"
 
+#include "coreconstants.h"
 #include "coreplugintr.h"
 
 #include <utils/filepath.h>
@@ -218,6 +219,7 @@ public:
     bool hasWriteWarning = false;
     bool restored = false;
     bool isSuspendAllowed = false;
+    bool isConflicted = false;
 };
 
 } // namespace Internal
@@ -679,6 +681,23 @@ bool IDocument::hasWriteWarning() const
 void IDocument::setWriteWarning(bool has)
 {
     d->hasWriteWarning = has;
+}
+
+bool IDocument::isConflicted() const
+{
+    return d->isConflicted;
+}
+
+void IDocument::setConflicted(bool conflicted)
+{
+    if (d->isConflicted == conflicted)
+        return;
+    d->isConflicted = conflicted;
+
+    emit conflictedChanged(conflicted);
+
+    if (!conflicted)
+        infoBar()->removeInfo(Constants::RELOAD_INFOBAR);
 }
 
 /*!

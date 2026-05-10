@@ -109,6 +109,9 @@ public:
     bool hasWriteWarning() const;
     void setWriteWarning(bool has);
 
+    bool isConflicted() const;
+    void setConflicted(bool conflicted);
+
     Utils::InfoBar *infoBar();
     Utils::MinimizableInfoBars *minimizableInfoBars();
 
@@ -123,6 +126,7 @@ signals:
 
     void aboutToReload();
     void reloadFinished(bool success);
+    void conflictedChanged(bool conflicted);
     void aboutToSave(const Utils::FilePath &filePath, SaveOption option);
     void saved(const Utils::FilePath &filePath, SaveOption option);
 

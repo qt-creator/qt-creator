@@ -852,6 +852,7 @@ public:
     void editorContentsChange(int position, int charsRemoved, int charsAdded);
     void documentAboutToBeReloaded();
     void documentReloadFinished(bool success);
+    void updateReadOnlyState();
     void highlightSearchResultsSlot(const QString &txt, FindFlags findFlags);
     void setupScrollBar();
     void highlightSearchResultsInScrollBar();
@@ -1631,6 +1632,12 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      this,
                                      &TextEditorWidgetPrivate::documentReloadFinished);
 
+    m_documentConnections << connect(
+        m_document.data(),
+        &TextDocument::conflictedChanged,
+        this,
+        &TextEditorWidgetPrivate::updateReadOnlyState);
+
     m_documentConnections << connect(m_document.data(),
                                      &TextDocument::tabSettingsChanged,
                                      this,
@@ -2167,7 +2174,7 @@ void TextEditorWidget::updateUndoRedoActions()
 
 void TextEditorWidgetPrivate::updateCannotDecodeInfo()
 {
-    q->setReadOnly(m_document->hasDecodingError());
+    updateReadOnlyState();
     InfoBar *infoBar = m_document->infoBar();
     Id selectEncodingId(Constants::SELECT_ENCODING);
     if (m_document->hasDecodingError()) {
@@ -3796,6 +3803,11 @@ void TextEditorWidgetPrivate::documentReloadFinished(bool success)
     // restore cursor position
     q->restoreState(m_tempState);
     updateCannotDecodeInfo();
+}
+
+void TextEditorWidgetPrivate::updateReadOnlyState()
+{
+    q->setReadOnly(m_document->isConflicted() || m_document->hasDecodingError());
 }
 
 QByteArray TextEditorWidget::saveState() const
