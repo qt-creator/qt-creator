@@ -4042,6 +4042,9 @@ public:
 
     AspectList::DisplayStyle displayStyle = AspectList::DisplayStyle::InlineList;
 
+    struct ExtraButton { QString text; std::function<void()> callback; };
+    QList<ExtraButton> extraButtons;
+
     AspectListModel model;
 
     AspectListPrivate(std::function<QVariant(BaseAspect *, int)> dataFunction)
@@ -4127,6 +4130,25 @@ public:
         };
         QLayout *layout = nullptr;
 
+        Column buttonColumn {
+            PushButton {
+                text(Tr::tr("Add")),
+                onClicked(aspect, add),
+            },
+            PushButton {
+                bindTo(&removeButton),
+                text(Tr::tr("Remove")),
+                onClicked(aspect, removeCurrent),
+            },
+        };
+        for (const ExtraButton &eb : extraButtons) {
+            buttonColumn.addItem(PushButton {
+                text(eb.text),
+                onClicked(aspect, eb.callback),
+            });
+        }
+        buttonColumn.addItem(st);
+
         // clang-format off
         parent.addItem(
             Row {
@@ -4134,18 +4156,7 @@ public:
                     bindTo(&layout),
                     listView,
                 },
-                Column {
-                    PushButton {
-                        text(Tr::tr("Add")),
-                        onClicked(aspect, add),
-                    },
-                    PushButton {
-                        bindTo(&removeButton),
-                        text(Tr::tr("Remove")),
-                        onClicked(aspect, removeCurrent),
-                    },
-                    st,
-                }
+                buttonColumn,
             }
         );
         // clang-format on
@@ -4421,6 +4432,11 @@ private:
 void AspectList::setDisplayStyle(DisplayStyle displayStyle)
 {
     d->displayStyle = displayStyle;
+}
+
+void AspectList::addExtraButton(const QString &text, std::function<void()> callback)
+{
+    d->extraButtons.append({text, std::move(callback)});
 }
 
 void AspectList::addToLayoutImpl(Layouting::Layout &parent)
