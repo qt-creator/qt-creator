@@ -119,6 +119,15 @@ ChatPanel::ChatPanel(QWidget *parent)
     // --- Message view ---
     m_messageView = new AcpMessageView;
     m_messageView->setDetailedMode(true);
+    m_messageView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_messageView, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
+        QMenu menu(m_messageView);
+        QAction *action = menu.addAction(Tr::tr("Show Thoughts"));
+        action->setCheckable(true);
+        action->setChecked(m_messageView->thoughtsVisible());
+        connect(action, &QAction::toggled, m_messageView, &AcpMessageView::setThoughtsVisible);
+        menu.exec(m_messageView->mapToGlobal(pos));
+    });
     layout->addWidget(m_messageView, 1);
     layout->addWidget(new Core::FindToolBarPlaceHolder(m_messageView));
     layout->addWidget(toolbar);

@@ -13,6 +13,7 @@
 #include <aggregation/aggregate.h>
 
 #include <coreplugin/find/ifindsupport.h>
+#include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -1014,6 +1015,8 @@ private:
 // AcpMessageView
 // ---------------------------------------------------------------------------
 
+static const char SETTINGS_THOUGHTS_VISIBLE[] = "acpclient/thoughtsVisible";
+
 AcpMessageView::AcpMessageView(QWidget *parent)
     : QScrollArea(parent)
 {
@@ -1063,11 +1066,23 @@ AcpMessageView::AcpMessageView(QWidget *parent)
         m_autoScroll = (value >= verticalScrollBar()->maximum() - 10);
     });
     connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, &AcpMessageView::scrollToBottom);
+
+    m_thoughtsVisible = Core::ICore::settings()->value(SETTINGS_THOUGHTS_VISIBLE, true).toBool();
 }
 
 void AcpMessageView::setDetailedMode(bool detailed)
 {
     m_detailedMode = detailed;
+}
+
+void AcpMessageView::setThoughtsVisible(bool visible)
+{
+    if (m_thoughtsVisible == visible)
+        return;
+    m_thoughtsVisible = visible;
+    Core::ICore::settings()->setValue(SETTINGS_THOUGHTS_VISIBLE, visible);
+    for (ThoughtWidget *w : std::as_const(m_thoughtWidgets))
+        w->setVisible(visible);
 }
 
 void AcpMessageView::setAgentIconUrl(const QString &iconUrl)
@@ -1102,6 +1117,7 @@ void AcpMessageView::clear()
     m_currentThoughtWidget = nullptr;
     m_currentToolCallGroup = nullptr;
     m_currentAuthWidget = nullptr;
+    m_thoughtWidgets.clear();
     m_toolCallWidgets.clear();
     m_toolCallDetailWidgets.clear();
     m_toolCallGroups.clear();
@@ -1142,6 +1158,8 @@ void AcpMessageView::appendAgentThought(const QString &text)
         finishAgentMessage();
         finishToolCallGroup();
         m_currentThoughtWidget = new ThoughtWidget(text, m_container);
+        m_currentThoughtWidget->setVisible(m_thoughtsVisible);
+        m_thoughtWidgets.append(m_currentThoughtWidget);
         addWidget(m_currentThoughtWidget);
     } else {
         m_currentThoughtWidget->appendText(text);

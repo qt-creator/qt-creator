@@ -37,6 +37,8 @@ public:
 
     void setDetailedMode(bool detailed);
     void setAgentIconUrl(const QString &iconUrl);
+    void setThoughtsVisible(bool visible);
+    bool thoughtsVisible() const { return m_thoughtsVisible; }
 
     void setPrompting(bool prompting);
 
@@ -85,6 +87,8 @@ private:
     QTimer *m_progressUpdateTimer = nullptr;
     MessageWidget *m_currentAgentWidget = nullptr;
     ThoughtWidget *m_currentThoughtWidget = nullptr;
+    QList<ThoughtWidget *> m_thoughtWidgets;
+    bool m_thoughtsVisible = true;
     ToolCallGroupWidget *m_currentToolCallGroup = nullptr;
     QHash<QString, ToolCallWidget *> m_toolCallWidgets;
     QHash<QString, ToolCallDetailWidget *> m_toolCallDetailWidgets;
