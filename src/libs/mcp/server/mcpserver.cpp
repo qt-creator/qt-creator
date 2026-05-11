@@ -1303,7 +1303,9 @@ Server::Server(Schema::Implementation serverInfo)
                 d->sendDataTo(data, sessionId);
             };
             r.isCanceled = [] { return false; };
-            r.writeSSE = [](QByteArray) { Q_ASSERT(false); };
+            r.writeSSE = [sessionId, this](QByteArray data) {
+                d->sendDataTo(data, sessionId);
+            };
 
             d->onData(req.body(), r, sessionId);
 
