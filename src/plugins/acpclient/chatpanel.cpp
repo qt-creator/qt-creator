@@ -118,7 +118,6 @@ ChatPanel::ChatPanel(QWidget *parent)
 
     // --- Message view ---
     m_messageView = new AcpMessageView;
-    m_messageView->setDetailedMode(true);
     m_messageView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_messageView, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
         QMenu menu(m_messageView);

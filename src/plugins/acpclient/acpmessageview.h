@@ -26,7 +26,6 @@ class SessionPickerWidget;
 class ThoughtWidget;
 class ToolCallDetailWidget;
 class ToolCallGroupWidget;
-class ToolCallWidget;
 
 class AcpMessageView : public QScrollArea
 {
@@ -35,7 +34,6 @@ class AcpMessageView : public QScrollArea
 public:
     explicit AcpMessageView(QWidget *parent = nullptr);
 
-    void setDetailedMode(bool detailed);
     void setAgentIconUrl(const QString &iconUrl);
     void setThoughtsVisible(bool visible);
     bool thoughtsVisible() const { return m_thoughtsVisible; }
@@ -90,13 +88,11 @@ private:
     QList<ThoughtWidget *> m_thoughtWidgets;
     bool m_thoughtsVisible = true;
     ToolCallGroupWidget *m_currentToolCallGroup = nullptr;
-    QHash<QString, ToolCallWidget *> m_toolCallWidgets;
     QHash<QString, ToolCallDetailWidget *> m_toolCallDetailWidgets;
     QHash<QString, ToolCallGroupWidget *> m_toolCallGroups; // toolCallId -> owning group
     AuthenticationWidget *m_currentAuthWidget = nullptr;
     QString m_agentIconUrl;
     bool m_autoScroll = true;
-    bool m_detailedMode = false;
 };
 
 } // namespace AcpClient::Internal

@@ -297,73 +297,6 @@ private:
 };
 
 // ---------------------------------------------------------------------------
-// ToolCallWidget
-// ---------------------------------------------------------------------------
-
-class ToolCallWidget : public CollapsibleFrame
-{
-public:
-    explicit ToolCallWidget(ToolCallStatus status, const QString &title,
-                            std::optional<ToolKind> kind = {}, QWidget *parent = nullptr)
-        : CollapsibleFrame(parent)
-    {
-        setFrameShape(QFrame::NoFrame);
-
-        m_statusWidget = toolCallStatusWidget(status, this);
-        m_headerLayout->addWidget(m_statusWidget);
-
-        if (const auto icon = iconForToolKind(kind)) {
-            auto *kindIcon = new Utils::QtcIconDisplay(this);
-            kindIcon->setIcon(*icon);
-            m_headerLayout->addWidget(kindIcon);
-        }
-
-        m_titleLabel = new Utils::ElidingLabel(title, this);
-        m_headerLayout->addWidget(m_titleLabel, 1);
-
-        m_status = status;
-    }
-
-    void applyStatus(ToolCallStatus status)
-    {
-        auto *newWidget = toolCallStatusWidget(status, this);
-        m_headerLayout->replaceWidget(m_statusWidget, newWidget);
-        delete m_statusWidget;
-        m_statusWidget = newWidget;
-        m_status = status;
-        update();
-    }
-
-    ToolCallStatus status() const { return m_status; }
-
-    void updateTitle(const QString &title)
-    {
-        m_titleLabel->setText(QStringLiteral("<b>%1</b>").arg(title.toHtmlEscaped()));
-    }
-
-protected:
-    void paintEvent(QPaintEvent *) override
-    {
-        QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
-        Utils::StyleHelper::drawCardBg(&p, rect(),
-            Utils::creatorColor(Utils::Theme::ChatToolCallBackground),
-            QPen(Qt::NoPen), RadiusS);
-        QPainterPath clip;
-        clip.addRoundedRect(rect(), RadiusS, RadiusS);
-        p.setClipPath(clip);
-        p.setRenderHint(QPainter::Antialiasing, false);
-        p.fillRect(QRect(0, 0, 3, height()), toolCallBorderColor(m_status));
-        p.setClipping(false);
-    }
-
-private:
-    QWidget *m_statusWidget = nullptr;
-    Utils::ElidingLabel *m_titleLabel = nullptr;
-    ToolCallStatus m_status = ToolCallStatus::pending;
-};
-
-// ---------------------------------------------------------------------------
 // ToolCallGroupWidget — groups consecutive tool calls into one collapsible
 // ---------------------------------------------------------------------------
 
@@ -1070,11 +1003,6 @@ AcpMessageView::AcpMessageView(QWidget *parent)
     m_thoughtsVisible = Core::ICore::settings()->value(SETTINGS_THOUGHTS_VISIBLE, true).toBool();
 }
 
-void AcpMessageView::setDetailedMode(bool detailed)
-{
-    m_detailedMode = detailed;
-}
-
 void AcpMessageView::setThoughtsVisible(bool visible)
 {
     if (m_thoughtsVisible == visible)
@@ -1118,7 +1046,6 @@ void AcpMessageView::clear()
     m_currentToolCallGroup = nullptr;
     m_currentAuthWidget = nullptr;
     m_thoughtWidgets.clear();
-    m_toolCallWidgets.clear();
     m_toolCallDetailWidgets.clear();
     m_toolCallGroups.clear();
     m_autoScroll = true;
@@ -1193,17 +1120,10 @@ void AcpMessageView::addToolCall(const ToolCall &toolCall)
     group->trackTitle(toolCall.toolCallId(), toolCall.title());
     m_toolCallGroups[toolCall.toolCallId()] = group;
 
-    if (m_detailedMode) {
-        auto *detail = new ToolCallDetailWidget(toolCall, group);
-        detail->setContentMaxWidth(contentMaxWidth());
-        group->addChildWidget(detail);
-        m_toolCallDetailWidgets[toolCall.toolCallId()] = detail;
-    } else {
-        auto *widget = new ToolCallWidget(status, toolCall.title(), toolCall.kind(), group);
-        widget->setCollapsible(false);
-        group->addChildWidget(widget);
-        m_toolCallWidgets[toolCall.toolCallId()] = widget;
-    }
+    auto *detail = new ToolCallDetailWidget(toolCall, group);
+    detail->setContentMaxWidth(contentMaxWidth());
+    group->addChildWidget(detail);
+    m_toolCallDetailWidgets[toolCall.toolCallId()] = detail;
 }
 
 void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
@@ -1218,49 +1138,25 @@ void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
         }
     };
 
-    if (m_detailedMode) {
-        ToolCallDetailWidget *detail = m_toolCallDetailWidgets.value(update.toolCallId());
-        if (!detail) {
-            const QString title = update.title().value_or(QStringLiteral("Tool Call"));
-            ToolCall tc;
-            tc.toolCallId(update.toolCallId());
-            tc.title(title);
-            tc.status(update.status().value_or(ToolCallStatus::in_progress));
-            tc.kind(update.kind());
-            auto *group = ensureToolCallGroup();
-            group->trackStatus(update.toolCallId(),
-                               update.status().value_or(ToolCallStatus::in_progress));
-            group->trackTitle(update.toolCallId(), title);
-            m_toolCallGroups[update.toolCallId()] = group;
-            detail = new ToolCallDetailWidget(tc, group);
-            detail->setContentMaxWidth(contentMaxWidth());
-            group->addChildWidget(detail);
-            m_toolCallDetailWidgets[update.toolCallId()] = detail;
-        }
-        detail->updateContent(update);
-        updateGroup(update.toolCallId(), update.status(), update.title());
-        return;
-    }
-
-    ToolCallWidget *widget = m_toolCallWidgets.value(update.toolCallId());
-    if (!widget) {
-        const ToolCallStatus status = update.status().value_or(ToolCallStatus::in_progress);
+    ToolCallDetailWidget *detail = m_toolCallDetailWidgets.value(update.toolCallId());
+    if (!detail) {
         const QString title = update.title().value_or(QStringLiteral("Tool Call"));
+        ToolCall tc;
+        tc.toolCallId(update.toolCallId());
+        tc.title(title);
+        tc.status(update.status().value_or(ToolCallStatus::in_progress));
+        tc.kind(update.kind());
         auto *group = ensureToolCallGroup();
-        group->trackStatus(update.toolCallId(), status);
+        group->trackStatus(update.toolCallId(),
+                           update.status().value_or(ToolCallStatus::in_progress));
         group->trackTitle(update.toolCallId(), title);
         m_toolCallGroups[update.toolCallId()] = group;
-        widget = new ToolCallWidget(status, title, update.kind(), group);
-        widget->setCollapsible(false);
-        group->addChildWidget(widget);
-        m_toolCallWidgets[update.toolCallId()] = widget;
-        return;
+        detail = new ToolCallDetailWidget(tc, group);
+        detail->setContentMaxWidth(contentMaxWidth());
+        group->addChildWidget(detail);
+        m_toolCallDetailWidgets[update.toolCallId()] = detail;
     }
-
-    if (const auto status = update.status())
-        widget->applyStatus(*status);
-    if (const auto title = update.title())
-        widget->updateTitle(*title);
+    detail->updateContent(update);
     updateGroup(update.toolCallId(), update.status(), update.title());
 }
 
@@ -1287,8 +1183,6 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     auto markToolCallFailed = [this, toolCallId] {
         if (auto *detail = m_toolCallDetailWidgets.value(toolCallId))
             detail->applyStatus(ToolCallStatus::failed);
-        else if (auto *w = m_toolCallWidgets.value(toolCallId))
-            w->applyStatus(ToolCallStatus::failed);
         if (auto *group = m_toolCallGroups.value(toolCallId))
             group->trackStatus(toolCallId, ToolCallStatus::failed);
     };
