@@ -401,6 +401,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             qmlDebugAspect
         },
         m_warningMessageLabel,
+        m_configureDetailsWidget,
+        noMargin
+    }.attachTo(this);
+
+    Column {
         m_kitConfiguration,
         Column {
             m_configurationStates,
@@ -418,11 +423,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         },
         noMargin
     }.attachTo(details);
-
-    Column {
-        m_configureDetailsWidget,
-        noMargin
-    }.attachTo(this);
 
     updateAdvancedCheckBox();
 
