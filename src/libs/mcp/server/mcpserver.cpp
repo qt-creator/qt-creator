@@ -1301,10 +1301,15 @@ Server::Server(Schema::Implementation serverInfo)
             auto stream
                 = std::make_unique<SseStream>(d->corsHeaders(sessionId), std::move(responder));
 
-            QObject::connect(stream.get(), &SseStream::destroyed, [this, sessionId]() {
-                qCDebug(mcpServerLog) << "SSE session with Id" << sessionId << "ended";
-                d->deleteSession(sessionId);
-            });
+            QObject::connect(
+                stream.get(),
+                &SseStream::destroyed,
+                [d = std::weak_ptr<ServerPrivate>(d), sessionId]() {
+                    if (auto dptr = d.lock()) {
+                        qCDebug(mcpServerLog) << "SSE session with Id" << sessionId << "ended";
+                        dptr->deleteSession(sessionId);
+                    }
+                });
 
             stream->sendEndpoint(QString("/message?session=%1").arg(sessionId).toLatin1());
             d->m_sseStreams.emplace_back(std::move(stream));
