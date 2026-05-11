@@ -27,6 +27,7 @@
 #include <utils/async.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
+#include <utils/stringutils.h>
 #include <utils/mimeutils.h>
 #include <utils/stylehelper.h>
 
@@ -35,6 +36,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QTcpServer>
+#include <QToolTip>
 
 #include <QtTaskTree/QParallelTaskTreeRunner>
 
@@ -222,13 +224,17 @@ public:
     bool isServerRunning() const { return !m_server.boundTcpServers().isEmpty(); }
     QString listenAddresses() const
     {
-        return Utils::transform<QStringList>(
-                   m_server.boundTcpServers(),
-                   [](QTcpServer *s) {
-                       return s->serverAddress().toString() + ":"
-                              + QString::number(s->serverPort());
-                   })
-            .join(", ");
+        return (Utils::transform<QStringList>(
+                    m_server.boundTcpServers(),
+                    [](QTcpServer *s) {
+                        if (s->serverAddress() == QHostAddress::Any)
+                            return QString("[*:%1](%1)").arg(s->serverPort());
+                        else if (s->serverAddress() == QHostAddress::LocalHost)
+                            return QString("[127.0.0.1:%1](127.0.0.1:%1)").arg(s->serverPort());
+                        return QString("[%1:%2](%1:%2)")
+                            .arg(s->serverAddress().toString())
+                            .arg(s->serverPort());
+                    }).join(", "));
     }
 
 private:
@@ -289,6 +295,14 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
 
         statusIcon->setFixedSize(24, 24);
         statusIcon->setAlignment(Qt::AlignCenter);
+
+        statusLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        statusLabel->setTextFormat(Qt::MarkdownText);
+        statusLabel->setOpenExternalLinks(false);
+        connect(statusLabel, &QLabel::linkActivated, [](const QString &link) {
+            Utils::setClipboardAndSelection(link);
+            QToolTip::showText(QCursor::pos(), Tr::tr("Address copied to clipboard"), nullptr);
+        });
 
         const auto updateStatus = [plugin, statusIcon, statusLabel]() {
             const bool isRunning = plugin->isServerRunning();
