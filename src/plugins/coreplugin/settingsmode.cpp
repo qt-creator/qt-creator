@@ -56,8 +56,10 @@
 #include <QStyledItemDelegate>
 #include <QTimer>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 12, 0)
 #include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qplatformtheme.h>
+#endif
 
 using namespace Utils;
 
@@ -468,7 +470,11 @@ public:
 
 static QString buttonText(QDialogButtonBox::StandardButton button)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 12, 0)
     return QGuiApplicationPrivate::platformTheme()->standardButtonText(button);
+#else
+    return QDialogButtonBox::standardButtonText(button);
+#endif
 }
 
 class SettingsWidget : public QWidget
