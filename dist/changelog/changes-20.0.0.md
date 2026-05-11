@@ -295,6 +295,8 @@ Added
     * `Splashscreen Editor`
     * `Permissions Editor`
 
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-android-manifest.html))
+
 ### iOS
 
 Added
