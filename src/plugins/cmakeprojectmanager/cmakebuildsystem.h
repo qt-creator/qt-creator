@@ -89,6 +89,19 @@ public:
 
     bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
 
+    // Re-run CMake with explicit flags. Used by the MCP reconfigure tool and
+    // other callers that need direct control over the reparse parameters.
+    enum ReparseParameters {
+        REPARSE_DEFAULT = 0,
+        REPARSE_FORCE_CMAKE_RUN = (1 << 0),
+        REPARSE_FORCE_INITIAL_CONFIGURATION = (1 << 1),
+        REPARSE_FORCE_EXTRA_CONFIGURATION = (1 << 2),
+        REPARSE_URGENT = (1 << 3),
+        REPARSE_DEBUG = (1 << 4),
+        REPARSE_PROFILING = (1 << 5),
+    };
+    void reparse(int reparseParameters);
+
     // Actions:
     void runCMake();
     void runCMakeAndScanProjectTree();
@@ -183,18 +196,6 @@ private:
                     const Utils::FilePath &newFilePath, bool &shouldRunCMake);
 
     // Actually ask for parsing:
-    enum ReparseParameters {
-        REPARSE_DEFAULT = 0, // Nothing special:-)
-        REPARSE_FORCE_CMAKE_RUN
-        = (1 << 0), // Force cmake to run, apply extraCMakeArguments if non-empty
-        REPARSE_FORCE_INITIAL_CONFIGURATION
-        = (1 << 1), // Force initial configuration arguments to cmake
-        REPARSE_FORCE_EXTRA_CONFIGURATION = (1 << 2), // Force extra configuration arguments to cmake
-        REPARSE_URGENT = (1 << 3),                    // Do not delay the parser run by 1s
-        REPARSE_DEBUG = (1 << 4),                     // Start with debugging
-        REPARSE_PROFILING = (1 << 5),                 // Start profiling
-    };
-    void reparse(int reparseParameters);
     QString reparseParametersString(int reparseFlags);
     void setParametersAndRequestParse(const BuildDirParameters &parameters,
                                       const int reparseParameters);

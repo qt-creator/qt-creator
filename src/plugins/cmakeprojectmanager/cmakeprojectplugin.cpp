@@ -48,6 +48,8 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
+void registerMcpTools();
+
 class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -73,6 +75,8 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         setupCMakeFormatter();
 
         setupCMakeManager();
+
+        registerMcpTools();
 
 #ifdef WITH_TESTS
         addTestCreator(createCMakeConfigTest);

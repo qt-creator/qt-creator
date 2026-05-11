@@ -1,6 +1,7 @@
 add_qtc_plugin(CMakeProjectManager
   PLUGIN_CLASS CMakeProjectPlugin
   PLUGIN_DEPENDS Core CppEditor Debugger ProjectExplorer TextEditor QtSupport
+  DEPENDS McpServerLib
   SYSTEM_INCLUDES 3dparty/cmake
   SOURCES
     builddirparameters.cpp builddirparameters.h
@@ -30,6 +31,7 @@ add_qtc_plugin(CMakeProjectManager
     cmakeprojectmanagertr.h
     cmakeprojectnodes.cpp cmakeprojectnodes.h
     cmakeprojectplugin.cpp
+    mcptools.cpp
     cmakesettingspage.cpp cmakesettingspage.h
     cmakespecificsettings.cpp cmakespecificsettings.h
     cmaketool.cpp cmaketool.h
