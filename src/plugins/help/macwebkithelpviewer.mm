@@ -212,6 +212,11 @@ static BOOL findStringSynchronously(WKWebView *webView, NSString *string, WKFind
 {
     [super willOpenMenu:menu withEvent:event];
 
+    if (self.helpWidget) {
+        self.helpWidget->hideToolTip();
+        self.helpWidget->setContextMenuOpen(true);
+    }
+
     NSString *urlString = self.hoveredLinkURL;
     if (!urlString || urlString.length == 0)
         return;
@@ -232,6 +237,13 @@ static BOOL findStringSynchronously(WKWebView *webView, NSString *string, WKFind
         item.target = self;
         [menu insertItem:[item autorelease] atIndex:0];
     }
+}
+
+- (void)didCloseMenu:(NSMenu *)menu withEvent:(NSEvent *)event
+{
+    [super didCloseMenu:menu withEvent:event];
+    if (self.helpWidget)
+        self.helpWidget->setContextMenuOpen(false);
 }
 
 - (void)openAsNewPage:(NSMenuItem *)item
@@ -329,6 +341,7 @@ public:
     QTimer m_toolTipTimer;
     QPoint m_toolTipPos;
     QString m_toolTipText;
+    bool m_contextMenuOpen = false;
 };
 
 // -- MacWebKitHelpWidget --
@@ -445,10 +458,17 @@ WKWebView *MacWebKitHelpWidget::webView() const
 
 void MacWebKitHelpWidget::startToolTipTimer(const QPoint &pos, const QString &text)
 {
+    if (d->m_contextMenuOpen)
+        return;
     int delay = style()->styleHint(QStyle::SH_ToolTip_WakeUpDelay, nullptr, this, nullptr);
     d->m_toolTipPos = pos;
     d->m_toolTipText = text;
     d->m_toolTipTimer.start(delay);
+}
+
+void MacWebKitHelpWidget::setContextMenuOpen(bool open)
+{
+    d->m_contextMenuOpen = open;
 }
 
 void MacWebKitHelpWidget::hideToolTip()

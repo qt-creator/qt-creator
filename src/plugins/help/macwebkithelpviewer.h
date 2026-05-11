@@ -24,6 +24,7 @@ public:
     WKWebView *webView() const;
     void startToolTipTimer(const QPoint &pos, const QString &text);
     void hideToolTip();
+    void setContextMenuOpen(bool open);
     MacWebKitHelpViewer *viewer() const;
 
 protected:
