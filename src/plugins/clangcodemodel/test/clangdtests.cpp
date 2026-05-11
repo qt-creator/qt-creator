@@ -186,10 +186,13 @@ void ClangdTest::initTestCase()
     const QString clangdFromEnv = Utils::qtcEnvironmentVariable("QTC_CLANGD");
     if (!clangdFromEnv.isEmpty())
         CppEditor::ClangdSettings::setClangdFilePath(FilePath::fromString(clangdFromEnv));
-    const auto clangd = CppEditor::ClangdSettings::instance().data().clangdFilePath(nullptr);
+    CppEditor::ClangdSettings::Data settingsData = CppEditor::ClangdSettings::instance().data();
+    const auto clangd = settingsData.clangdFilePath(nullptr);
     if (clangd.isEmpty() || !clangd.exists())
         QSKIP("clangd binary not found");
     CppEditor::ClangdSettings::setUseClangd(true);
+    settingsData.completionStyle = CppEditor::ClangdSettings::CompletionStyle::Bundled;
+    CppEditor::ClangdSettings::instance().setData(settingsData, false);
 
     // Find suitable kit.
     m_kit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
@@ -1868,6 +1871,9 @@ void ClangdTestCompletion::testCompleteClassAndConstructor()
 
     QVERIFY(proposal);
     QVERIFY(hasItem(proposal, " Foo"));
+
+    for (int i = 0; i < proposal->size(); ++i)
+        qDebug() << "  " << proposal->text(i);
 
     const AssistProposalItemInterface * const item
             = getItem(proposal, QString::fromUtf8(" Foo(…)"), "[2 overloads]");

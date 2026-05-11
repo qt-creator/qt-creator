@@ -70,6 +70,7 @@ static Key clangdSessionIndexPathKey() { return "ClangdSessionIndexPath"; }
 static Key clangdIndexingPriorityKey() { return "ClangdIndexingPriority"; }
 static Key clangdHeaderSourceSwitchModeKey() { return "ClangdHeaderSourceSwitchMode"; }
 static Key clangdCompletionRankingModelKey() { return "ClangdCompletionRankingModel"; }
+static Key clangdCompletionStyleKey() { return "ClangdCompletionStyle"; }
 static Key clangdHeaderInsertionKey() { return "ClangdHeaderInsertion"; }
 static Key clangdThreadLimitKey() { return "ClangdThreadLimit"; }
 static Key clangdDocumentThresholdKey() { return "ClangdDocumentThreshold"; }
@@ -133,6 +134,26 @@ QString ClangdSettings::rankingModelToDisplayString(CompletionRankingModel model
     case CompletionRankingModel::Default: return Tr::tr("Default");
     case CompletionRankingModel::DecisionForest: return Tr::tr("Decision Forest");
     case CompletionRankingModel::Heuristics: return Tr::tr("Heuristics");
+    }
+    QTC_ASSERT(false, return {});
+}
+
+QString ClangdSettings::completionStyleToCmdLineString(CompletionStyle style)
+{
+    switch (style) {
+    case CompletionStyle::Default: break;
+    case CompletionStyle::Detailed: return "detailed";
+    case CompletionStyle::Bundled: return "bundled";
+    }
+    QTC_ASSERT(false, return {});
+}
+
+QString ClangdSettings::completionStyleToDisplayString(CompletionStyle style)
+{
+    switch (style) {
+    case CompletionStyle::Default: return Tr::tr("Default");
+    case CompletionStyle::Detailed: return Tr::tr("Detailed");
+    case CompletionStyle::Bundled: return Tr::tr("Bundled");
     }
     QTC_ASSERT(false, return {});
 }
@@ -408,6 +429,7 @@ Store ClangdSettings::Data::toMap() const
     map.insert(clangdSessionIndexPathKey(), sessionIndexPathTemplate);
     map.insert(clangdHeaderSourceSwitchModeKey(), int(headerSourceSwitchMode));
     map.insert(clangdCompletionRankingModelKey(), int(completionRankingModel));
+    map.insert(clangdCompletionStyleKey(), int(completionStyle));
     map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
     map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
@@ -439,6 +461,8 @@ void ClangdSettings::Data::fromMap(const Store &map)
                                                               int(headerSourceSwitchMode)).toInt());
     completionRankingModel = CompletionRankingModel(map.value(clangdCompletionRankingModelKey(),
                                                               int(completionRankingModel)).toInt());
+    completionStyle = CompletionStyle(
+        map.value(clangdCompletionStyleKey(), int(completionStyle)).toInt());
     autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
     useExternalCompilationDb = map.value(useExternalCompilationDbKey(), false).toBool();
     workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
@@ -551,6 +575,7 @@ private:
     Utils::FancyLineEdit m_sessionIndexPathTemplateLineEdit;
     QComboBox m_headerSourceSwitchComboBox;
     QComboBox m_completionRankingModelComboBox;
+    QComboBox m_completionStyleComboBox;
     QCheckBox m_autoIncludeHeadersCheckBox;
     QCheckBox m_useExternalCompilationDbCheckBox;
     QCheckBox m_updateDependentSourcesCheckBox;
@@ -600,6 +625,10 @@ void ClangdSettingsWidget::setup(const ClangdSettings::Data &settingsData, bool 
                                                       "code base, you can try switching to the hand-crafted \"%2\" model.</p>").arg(
                                                           ClangdSettings::rankingModelToDisplayString(RankingModel::DecisionForest),
                                                           ClangdSettings::rankingModelToDisplayString(RankingModel::Heuristics));
+    const QString completionStyleToolTip = Tr::tr(
+        "<p>Which granularity to use for completion items.</p>"
+        "<p>Determines whether to use one item per overload or bundle them "
+        "together.</p>");
     const QString workerThreadsToolTip = Tr::tr(
         "Number of worker threads used by clangd. Background indexing also uses this many "
         "worker threads.");
@@ -664,6 +693,16 @@ void ClangdSettingsWidget::setup(const ClangdSettings::Data &settingsData, bool 
                 m_completionRankingModelComboBox.count() - 1);
     }
     m_completionRankingModelComboBox.setToolTip(completionRankingModelToolTip);
+    using CompletionStyle = ClangdSettings::CompletionStyle;
+    for (CompletionStyle style : {CompletionStyle::Default, CompletionStyle::Detailed,
+                               CompletionStyle::Bundled}) {
+        m_completionStyleComboBox.addItem(
+            ClangdSettings::completionStyleToDisplayString(style), int(style));
+        if (style == settingsData.completionStyle)
+            m_completionStyleComboBox.setCurrentIndex(
+                m_completionStyleComboBox.count() - 1);
+    }
+    m_completionStyleComboBox.setToolTip(completionStyleToolTip);
 
     m_autoIncludeHeadersCheckBox.setText(Tr::tr("Insert header files on completion"));
     m_autoIncludeHeadersCheckBox.setChecked(settingsData.autoIncludeHeaders);
@@ -772,6 +811,13 @@ void ClangdSettingsWidget::setup(const ClangdSettings::Data &settingsData, bool 
     const auto completionRankingModelLabel = new QLabel(Tr::tr("Completion ranking model:"));
     completionRankingModelLabel->setToolTip(completionRankingModelToolTip);
     formLayout->addRow(completionRankingModelLabel, completionRankingModelLayout);
+
+    const auto completionStyleLayout = new QHBoxLayout;
+    completionStyleLayout->addWidget(&m_completionStyleComboBox);
+    completionStyleLayout->addStretch(1);
+    const auto completionStyleLabel = new QLabel(Tr::tr("Completion style:"));
+    completionStyleLabel->setToolTip(completionStyleToolTip);
+    formLayout->addRow(completionStyleLabel, completionStyleLayout);
 
     const auto documentUpdateThresholdLayout = new QHBoxLayout;
     documentUpdateThresholdLayout->addWidget(&m_documentUpdateThreshold);
@@ -945,6 +991,10 @@ void ClangdSettingsWidget::setup(const ClangdSettings::Data &settingsData, bool 
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&m_completionResults, &QSpinBox::valueChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&m_completionRankingModelComboBox, &QComboBox::currentIndexChanged,
+            this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&m_completionStyleComboBox, &QComboBox::currentIndexChanged,
+            this, &ClangdSettingsWidget::settingsDataChanged);
 }
 
 ClangdSettings::Data ClangdSettingsWidget::settingsData() const
@@ -960,6 +1010,8 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
         m_headerSourceSwitchComboBox.currentData().toInt());
     data.completionRankingModel = ClangdSettings::CompletionRankingModel(
         m_completionRankingModelComboBox.currentData().toInt());
+    data.completionStyle = ClangdSettings::CompletionStyle(
+        m_completionStyleComboBox.currentData().toInt());
     data.autoIncludeHeaders = m_autoIncludeHeadersCheckBox.isChecked();
     data.useExternalCompilationDb = m_useExternalCompilationDbCheckBox.isChecked();
     data.updateDependentSources = m_updateDependentSourcesCheckBox.isChecked();

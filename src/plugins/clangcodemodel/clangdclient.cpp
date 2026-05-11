@@ -209,6 +209,10 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
         cmd.addArg("--ranking-model=" + ClangdSettings::rankingModelToCmdLineString(
                        settings.completionRankingModel));
     }
+    if (settings.completionStyle != ClangdSettings::CompletionStyle::Default) {
+        cmd.addArg("--completion-style=" + ClangdSettings::completionStyleToCmdLineString(
+                       settings.completionStyle));
+    }
     const auto interface = new StdIOClientInterface;
     interface->setCommandLine(cmd);
     interface->setAllowCoreDumps(qtcEnvironmentVariableIsSet("QTC_CLANGD_CORE_DUMPS"));
