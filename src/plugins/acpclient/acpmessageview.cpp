@@ -1026,6 +1026,17 @@ void AcpMessageView::setPrompting(bool prompting)
         m_progressUpdateTimer->start();
     } else {
         m_progressUpdateTimer->stop();
+        for (auto it = m_toolCallDetailWidgets.constBegin();
+             it != m_toolCallDetailWidgets.constEnd(); ++it) {
+            qDebug() << "Checking tool call" << it.key() << "status"
+                     << toString(it.value()->status());
+            if (it.value()->status() == ToolCallStatus::in_progress
+                || it.value()->status() == ToolCallStatus::pending) {
+                it.value()->applyStatus(ToolCallStatus::failed);
+                if (auto *group = m_toolCallGroups.value(it.key()))
+                    group->trackStatus(it.key(), ToolCallStatus::failed);
+            }
+        }
     }
     m_progressIndicator->setVisible(prompting);
     m_elapsedLabel->setVisible(prompting);

@@ -31,6 +31,7 @@ class ToolCallDetailWidget : public CollapsibleFrame
 public:
     explicit ToolCallDetailWidget(const Acp::ToolCall &toolCall, QWidget *parent = nullptr);
 
+    Acp::ToolCallStatus status() const { return m_status; }
     void applyStatus(Acp::ToolCallStatus status);
     void updateContent(const Acp::ToolCallUpdate &update);
     void setContentMaxWidth(int width);
