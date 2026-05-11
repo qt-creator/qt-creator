@@ -208,7 +208,7 @@ MesonBuildSystem::MesonBuildSystem(BuildConfiguration *bc)
     });
     connect(bc, &MesonBuildConfiguration::buildDirectoryChanged, this,
             &MesonBuildSystem::buildDirectoryChanged);
-    connect(qobject_cast<MesonBuildConfiguration *>(bc),
+    connect(static_cast<MesonBuildConfiguration *>(bc),
             &MesonBuildConfiguration::parametersChanged, this, [this] {
         updateKit(kit());
         wipe();
