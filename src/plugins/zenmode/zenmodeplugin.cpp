@@ -1,7 +1,6 @@
 // Copyright (C) 2026 Sebastian Mosiej (sebastian.mosiej@wp.pl)
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "zenmodeplugin.h"
 #include "zenmodepluginconstants.h"
 #include "zenmodeplugintr.h"
 #include "zenmodesettings.h"
@@ -12,8 +11,10 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
 #include <coreplugin/statusbarmanager.h>
 
+#include <extensionsystem/iplugin.h>
 #include <texteditor/marginsettings.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -22,6 +23,7 @@
 
 #include <QAction>
 #include <QMenuBar>
+#include <QToolButton>
 
 using namespace Core;
 using namespace Utils;
@@ -30,7 +32,60 @@ namespace ZenMode::Internal {
 
 static Q_LOGGING_CATEGORY(zenModeLog, "qtc.plugin.zenmode", QtWarningMsg);
 
-ZenModePlugin::~ZenModePlugin() = default;
+class ZenModePlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ZenMode.json")
+
+public:
+    ZenModePlugin() = default;
+
+    void initialize() final;
+    void extensionsInitialized() final;
+    bool delayedInitialize() final;
+
+private:
+    void getActions();
+
+    void toggleDistractionFreeMode();
+    void toggleZenMode();
+
+    void hideOutputPanes();
+    void hideSidebars();
+    void restoreSidebars();
+    void hideModeSidebar();
+    void restoreModeSidebar();
+
+    void setFullScreenMode(bool fullScreen);
+
+    void setSidebarsAndModesVisible(bool visible);
+    void updateStateIcons();
+    void updateContentEditorWidth();
+
+private:
+    bool m_distractionFreeModeActive = false;
+    bool m_zenModeActive = false;
+
+    QAction *m_toggleDistractionAction = nullptr;
+    QAction *m_toggleZenModeAction = nullptr;
+
+    QPointer<QAction> m_outputPaneAction;
+    QPointer<QAction> m_toggleLeftSidebarAction;
+    QPointer<QAction> m_toggleRightSidebarAction;
+    bool m_prevLeftSidebarState = false;
+    bool m_prevRightSidebarState = false;
+    unsigned int m_prevEditorContentWidth = 100;
+
+    Core::ModeManager::Style m_prevModesSidebarState = Core::ModeManager::Style::Hidden;
+    Core::ModeManager::Style m_modesStateWhenZenActive = Core::ModeManager::Style::Hidden;
+
+    QPointer<QAction> m_toggleFullscreenAction;
+    QPointer<QMainWindow> m_window;
+    QPointer<QMenuBar> m_menuBar;
+
+    QToolButton m_zenModeStatusBarIcon;
+    QToolButton m_distractionModeStatusBarIcon;
+};
 
 void ZenModePlugin::initialize()
 {
@@ -253,4 +308,7 @@ void ZenModePlugin::toggleDistractionFreeMode()
     m_toggleZenModeAction->setEnabled(!m_distractionFreeModeActive);
     m_zenModeStatusBarIcon.setEnabled(!m_distractionFreeModeActive);
 }
+
 } // namespace ZenMode::Internal
+
+#include "zenmodeplugin.moc"

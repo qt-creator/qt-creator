@@ -8,7 +8,6 @@ QtcPlugin {
 
     files: [
         "zenmodeplugin.cpp",
-        "zenmodeplugin.h",
         "zenmodepluginconstants.h",
         "zenmodeplugintr.h",
         "zenmode.qrc",

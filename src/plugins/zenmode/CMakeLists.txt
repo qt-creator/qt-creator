@@ -8,7 +8,6 @@ add_qtc_plugin(ZenMode
     QtCreator::Utils
   SOURCES
     zenmodeplugin.cpp
-    zenmodeplugin.h
     zenmodepluginconstants.h
     zenmodeplugintr.h
     zenmode.qrc
