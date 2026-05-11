@@ -16,7 +16,7 @@ General
 Fixed
 
 * Setting English as the UI language on systems with non-English locale
-  (QTCREATORBUG-34457)
+  ([QTCREATORBUG-34457](https://bugreports.qt.io/browse/QTCREATORBUG-34457))
 
 Editing
 -------
@@ -24,7 +24,7 @@ Editing
 Fixed
 
 * A freeze when unindenting widely indented lines
-  (QTCREATORBUG-33260)
+  ([QTCREATORBUG-33260](https://bugreports.qt.io/browse/QTCREATORBUG-33260))
 
 ### Language Server Protocol
 
