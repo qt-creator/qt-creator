@@ -592,6 +592,7 @@ FancyMainWindow::FancyMainWindow(QWidget *parent) :
 FancyMainWindow::~FancyMainWindow()
 {
     delete d;
+    d = nullptr;
 }
 
 QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget, bool immutable)
@@ -628,6 +629,18 @@ QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget, bool immutable)
         connect(dockWidget, &QDockWidget::dockLocationChanged, this, handleDockWidgetChanged);
         connect(dockWidget, &QDockWidget::topLevelChanged, this, handleDockWidgetChanged);
         connect(dockWidget, &QDockWidget::visibilityChanged, this, handleDockWidgetChanged);
+        connect(dockWidget, &QDockWidget::destroyed, this, [this](QObject *dock) {
+            if (!d)
+                return;
+            for (DocksAndSizes &hiddenDocks : d->m_hiddenAreas) {
+                const int i = hiddenDocks.docks.indexOf(static_cast<QDockWidget *>(dock));
+                if (i >= 0) {
+                    hiddenDocks.docks.removeAt(i);
+                    if (i < hiddenDocks.sizes.size())
+                        hiddenDocks.sizes.removeAt(i);
+                }
+            }
+        });
     }
 
     return dockWidget;
