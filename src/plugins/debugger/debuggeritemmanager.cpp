@@ -600,7 +600,8 @@ void DebuggerModel::saveDebuggers()
             continue;
         if (item.isGeneric()) // do not store generic debuggers, these get added automatically
             continue;
-        if (item.isValid() && item.engineType() != NoEngineType) {
+        const bool skipNoEngine = item.detectionSource().isAutoDetected();
+        if (item.isValid() && (!skipNoEngine || item.engineType() != NoEngineType)) {
             Store tmp = item.toMap();
             if (!tmp.isEmpty()) {
                 data.insert(numberedKey(DEBUGGER_DATA_KEY, count), variantFromStore(tmp));
