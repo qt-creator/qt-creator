@@ -63,8 +63,6 @@ private:
     void updateCMakeActions(Node *node);
     void updateCMakeBuildTarget(Node *node);
     void clearCMakeCache(BuildSystem *buildSystem);
-    void runCMake(BuildSystem *buildSystem);
-    void runCMakeWithProfiling(BuildSystem *buildSystem);
     void rescanProject(BuildSystem *buildSystem);
     void reloadCMakePresets();
     void enableBuildSubprojectContextMenu(Node *node);
@@ -125,7 +123,7 @@ CMakeManager::CMakeManager()
         .bindContextAction(&m_runCMakeAction)
         .setCommandAttribute(Command::CA_Hide)
         .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
-        .addOnTriggered(this, [this] { runCMake(activeBuildSystemForActiveProject()); });
+        .addOnTriggered(this, [] { runCMake(activeBuildSystemForActiveProject()); });
 
     ActionBuilder(this, Constants::CLEAR_CMAKE_CACHE)
         .setText(Tr::tr("Clear CMake Configuration"))
@@ -141,7 +139,7 @@ CMakeManager::CMakeManager()
         .bindContextAction(&m_runCMakeActionContextMenu)
         .setCommandAttribute(Command::CA_Hide)
         .addToContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_BUILD)
-        .addOnTriggered(this, [this] { runCMake(activeBuildSystemForCurrentProject()); });
+        .addOnTriggered(this, [] { runCMake(activeBuildSystemForCurrentProject()); });
 
     ActionBuilder(this, Constants::CLEAR_CMAKE_CACHE_CONTEXT_MENU)
         .setText(Tr::tr("Clear CMake Configuration"))
@@ -232,9 +230,7 @@ CMakeManager::CMakeManager()
         .setText(Tr::tr("CMake Profiler"))
         .bindContextAction(&m_cmakeProfilerAction)
         .addToContainer(Core::Constants::M_DEBUG_ANALYZER, Core::Constants::G_ANALYZER_TOOLS, false)
-        .addOnTriggered(this, [this] {
-            runCMakeWithProfiling(activeBuildSystemForActiveProject());
-        });
+        .addOnTriggered(this, [] { runCMakeWithProfiling(activeBuildSystemForActiveProject()); });
 
     // CMake Debugger
     ActionContainer *mdebugger = ActionManager::actionContainer(PEC::M_DEBUG_STARTDEBUGGING);
@@ -325,7 +321,7 @@ void CMakeManager::clearCMakeCache(BuildSystem *buildSystem)
     cmakeBuildSystem->disableCMakeBuildMenuActions();
 }
 
-void CMakeManager::runCMake(BuildSystem *buildSystem)
+void runCMake(BuildSystem *buildSystem)
 {
     auto cmakeBuildSystem = dynamic_cast<CMakeBuildSystem *>(buildSystem);
     QTC_ASSERT(cmakeBuildSystem, return );
@@ -334,7 +330,7 @@ void CMakeManager::runCMake(BuildSystem *buildSystem)
         cmakeBuildSystem->runCMake();
 }
 
-void CMakeManager::runCMakeWithProfiling(BuildSystem *buildSystem)
+void runCMakeWithProfiling(BuildSystem *buildSystem)
 {
     auto cmakeBuildSystem = dynamic_cast<CMakeBuildSystem *>(buildSystem);
     QTC_ASSERT(cmakeBuildSystem, return );
@@ -342,7 +338,7 @@ void CMakeManager::runCMakeWithProfiling(BuildSystem *buildSystem)
     if (ProjectExplorerPlugin::saveModifiedFiles()) {
         // cmakeBuildSystem->runCMakeWithProfiling() below will trigger Target::buildSystemUpdated
         // which will ensure that the "cmake-profile.json" has been created and we can load the viewer
-        QObject::connect(cmakeBuildSystem, &BuildSystem::updated, this, [] {
+        QObject::connect(cmakeBuildSystem, &BuildSystem::updated, cmakeBuildSystem, [] {
             Core::Command *ctfVisualiserLoadTrace = Core::ActionManager::command(
                 "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadTrace");
 

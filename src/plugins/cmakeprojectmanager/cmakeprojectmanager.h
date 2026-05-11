@@ -3,9 +3,14 @@
 
 #pragma once
 
+namespace ProjectExplorer { class BuildSystem; }
+
 namespace CMakeProjectManager::Internal {
 
 void setupCMakeManager();
 void setupOnlineHelpManager();
+
+void runCMake(ProjectExplorer::BuildSystem *buildSystem);
+void runCMakeWithProfiling(ProjectExplorer::BuildSystem *buildSystem);
 
 } // CMakeProjectManager::Internal

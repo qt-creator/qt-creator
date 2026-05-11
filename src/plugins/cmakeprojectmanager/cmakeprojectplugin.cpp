@@ -10,6 +10,7 @@
 #include "cmakeinstallstep.h"
 #include "cmakelocatorfilter.h"
 #include "cmakekitaspect.h"
+#include "cmakemcpsupport.h"
 #include "cmakeoutputparser.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
@@ -75,6 +76,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         setupCMakeFormatter();
 
         setupCMakeManager();
+        setupCMakeMcpSupport();
 
         registerMcpTools();
 
