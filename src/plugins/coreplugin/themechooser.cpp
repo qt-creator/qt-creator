@@ -128,7 +128,7 @@ QComboBox *ThemeChooser::themeComboBox() const
     return d->m_themeComboBox;
 }
 
-static QString defaultThemeId()
+Id ThemeEntry::defaultThemeId()
 {
     switch (Theme::systemColorScheme()) {
     case Qt::ColorScheme::Light:
@@ -150,7 +150,8 @@ void ThemeChooser::apply()
     const QString currentThemeId = ThemeEntry::themeSetting().toString();
     if (currentThemeId != themeId) {
         // save filename of selected theme in global config
-        settings->setValueWithDefault(Constants::SETTINGS_THEME, themeId, defaultThemeId());
+        settings->setValueWithDefault(
+            Constants::SETTINGS_THEME, themeId, ThemeEntry::defaultThemeId().toString());
         ICore::askForRestart(Tr::tr("The theme change will take effect after restart."));
     }
 }
@@ -189,8 +190,7 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
         qWarning() << "Warning: No themes found in installation: "
                    << installThemeDir.toUserOutput();
     // move default theme to front
-    const int defaultIndex = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id,
-                                                                 Id::fromString(defaultThemeId())));
+    const int defaultIndex = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, defaultThemeId()));
     if (defaultIndex > 0) { // == exists and not at front
         ThemeEntry defaultEntry = themes.takeAt(defaultIndex);
         themes.prepend(defaultEntry);
@@ -202,7 +202,7 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
 Id ThemeEntry::themeSetting()
 {
     const Id setting = Id::fromSetting(
-        ICore::settings()->value(Constants::SETTINGS_THEME, defaultThemeId()));
+        ICore::settings()->value(Constants::SETTINGS_THEME, defaultThemeId().toString()));
 
     const QList<ThemeEntry> themes = availableThemes();
     if (themes.empty())
