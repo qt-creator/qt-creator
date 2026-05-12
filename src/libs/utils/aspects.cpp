@@ -4129,22 +4129,22 @@ public:
 
         // clang-format off
         parent.addItem(
-            Column {
-                bindTo(&layout),
-                Row {
+            Row {
+                Column {
+                    bindTo(&layout),
                     listView,
-                    Column {
-                        PushButton {
-                            text(Tr::tr("Add")),
-                            onClicked(aspect, add),
-                        },
-                        PushButton {
-                            bindTo(&removeButton),
-                            text(Tr::tr("Remove")),
-                            onClicked(aspect, removeCurrent),
-                        },
-                        st,
-                    }
+                },
+                Column {
+                    PushButton {
+                        text(Tr::tr("Add")),
+                        onClicked(aspect, add),
+                    },
+                    PushButton {
+                        bindTo(&removeButton),
+                        text(Tr::tr("Remove")),
+                        onClicked(aspect, removeCurrent),
+                    },
+                    st,
                 }
             }
         );
