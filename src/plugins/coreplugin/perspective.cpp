@@ -402,7 +402,8 @@ void PerspectivesViewPrivate::destroyPerspective(Perspective *perspective)
             ActionManager::unregisterAction(op.toggleViewAction, op.commandId);
         if (op.dock) {
             m_mainWindow.removeDockWidget(op.dock);
-            op.widget->setParent(nullptr); // Prevent deletion
+            if (op.widget)
+                op.widget->setParent(nullptr); // Prevent deletion
             op.dock->setParent(nullptr);
             delete op.dock;
             op.dock = nullptr;
@@ -1022,9 +1023,9 @@ void PerspectivePrivate::restoreLayout()
         qCDebug(perspectivesLog) << "PERSPECTIVE STATE NOT AVAILABLE BY FULL ID.";
         state = theMainWindow->d->m_lastTypePerspectiveStates.value(settingsId());
         if (state.hasWindowState()) {
-            qCDebug(perspectivesLog) << "PERSPECTIVE STATE NOT AVAILABLE BY PERSPECTIVE TYPE";
-        } else {
             qCDebug(perspectivesLog) << "PERSPECTIVE STATE AVAILABLE BY PERSPECTIVE TYPE.";
+        } else {
+            qCDebug(perspectivesLog) << "PERSPECTIVE STATE NOT AVAILABLE BY PERSPECTIVE TYPE";
         }
     } else {
         qCDebug(perspectivesLog) << "PERSPECTIVE STATE AVAILABLE BY FULL ID.";
