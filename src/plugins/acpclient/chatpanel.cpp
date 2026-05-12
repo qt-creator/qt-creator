@@ -103,7 +103,7 @@ ChatPanel::ChatPanel(QWidget *parent)
     // --- Session toolbar (StyledBar) ---
     auto *toolbar = new StyledBar;
     auto *toolbarLayout = new QHBoxLayout(toolbar);
-    toolbarLayout->setContentsMargins(PaddingHM, PaddingVXs, PaddingHM, PaddingVXs);
+    toolbarLayout->setContentsMargins(PaddingHM, 0, PaddingHM, 0);
     toolbarLayout->setSpacing(GapHM);
 
     m_agentLabel = new QLabel;
