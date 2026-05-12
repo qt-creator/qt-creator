@@ -52,4 +52,14 @@ QtcPlugin {
         "toolcalldetailwidget.cpp",
         "toolcalldetailwidget.h",
     ]
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "sparklebubble.png",
+            "sparklebubble@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
 }

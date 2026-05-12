@@ -34,3 +34,11 @@ add_qtc_plugin(AcpClient
     collapsibleframe.cpp collapsibleframe.h
     toolcalldetailwidget.cpp toolcalldetailwidget.h
 )
+
+qtc_add_resources(AcpClient "images"
+  PREFIX "/acpclient"
+  BASE "."
+  FILES
+    images/sparklebubble.png
+    images/sparklebubble@2x.png
+)
