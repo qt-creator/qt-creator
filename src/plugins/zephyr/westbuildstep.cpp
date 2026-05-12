@@ -106,7 +106,7 @@ static QString boardFromWestConfig(const FilePath &workspaceDir)
     if (!configFile.isReadableFile())
         return {};
 
-    QSettings cfg(configFile.toUserOutput(), QSettings::IniFormat);
+    QSettings cfg(configFile.toFSPathString(), QSettings::IniFormat);
     QVariant board = cfg.value("build/board");
     return board.toString();
 }
