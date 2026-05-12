@@ -38,7 +38,7 @@ def main():
     howToQModelIndex = getQModelIndexStr("text='How to'", manualQModelIndex)
     doubleClick(howToQModelIndex)
     pageTitle = "Configuring Qt Creator"
-    mouseClick(waitForObject(getQModelIndexStr("text='%s'" % pageTitle, howToQModelIndex)))
+    doubleClick(waitForObject(getQModelIndexStr("text='%s'" % pageTitle, howToQModelIndex)))
     helpSelector = waitForObject(":Qt Creator_HelpSelector_QComboBox")
     pageOpened = "str(helpSelector.currentText).startswith('%s')" % pageTitle
     if not waitFor(pageOpened, 10000):
@@ -62,7 +62,7 @@ def main():
     renameBookmarkFolder(bookmarkView, "Sample.Folder 1.New Folder*", "Folder 2")
     clickButton(waitForObject(":Add Bookmark.OK_QPushButton"))
     mouseClick(manualQModelIndex)
-    type(waitForObject(":Qt Creator_QHelpContentWidget"), "<Down>")
+    type(waitForObject(":Qt Creator_QHelpContentWidget"), "<Return>")
     clickButton(waitForObject(":Qt Creator.Add Bookmark_QToolButton"))
     clickButton(waitForObject(":Add Bookmark.ExpandBookmarksList_QToolButton"))
     # click on "Sample" and create new directory under it
@@ -108,6 +108,10 @@ def main():
                               "type='QPushButton' unnamed='1' visible='1'}"))
     # close bookmarks
     clickButton(waitForObject(":Add Bookmark.OK_QPushButton"))
+    # the last OK adds the QtC Documentation again
+    secondManualQModelIndex = getQModelIndexStr(
+        "occurrence='2' text='%s'" % textForQtVersion("Qt Creator Documentation"),
+        newFolderQModelIndex)
     # choose bookmarks from command combobox
     mouseClick(waitForObject(":Qt Creator_Core::Internal::CommandComboBox"))
     mouseClick(waitForObjectItem(":Qt Creator_Core::Internal::CommandComboBox", "Bookmarks"))
@@ -116,7 +120,8 @@ def main():
                 checkIfObjectExists(folder1QModelIndex, shouldExist = False, verboseOnFail = True) and
                 checkIfObjectExists(folder2QModelIndex, shouldExist = False, verboseOnFail = True) and
                 checkIfObjectExists(configQModelIndex, shouldExist = False, verboseOnFail = True) and
-                checkIfObjectExists(manualQModelIndex, verboseOnFail = True),
+                checkIfObjectExists(manualQModelIndex, verboseOnFail = True) and
+                checkIfObjectExists(secondManualQModelIndex, verboseOnFail = True),
                 "Verifying if folder 1 and folder 2 deleted including their bookmark")
     # exit
     invokeMenuItem("File", "Exit")
