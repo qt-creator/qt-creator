@@ -508,6 +508,21 @@ protected:
     }
 };
 
+static QString optionKindToUiString(Acp::PermissionOptionKind kind)
+{
+    switch (kind) {
+    case Acp::PermissionOptionKind::allow_once:
+        return Tr::tr("Allow");
+    case Acp::PermissionOptionKind::allow_always:
+        return Tr::tr("Allow Always");
+    case Acp::PermissionOptionKind::reject_once:
+        return Tr::tr("Reject");
+    case Acp::PermissionOptionKind::reject_always:
+        return Tr::tr("Reject Always");
+    }
+    return {};
+}
+
 // ---------------------------------------------------------------------------
 // PermissionRequestWidget — inline widget for permission requests
 // ---------------------------------------------------------------------------
@@ -559,7 +574,8 @@ public:
 
     QPushButton *addOptionButton(const QString &text, Acp::PermissionOptionKind kind)
     {
-        auto *button = new QPushButton(text, this);
+        auto *button = new QPushButton(optionKindToUiString(kind), this);
+        button->setToolTip(text);
         // Style reject options with a muted appearance
         if (kind == Acp::PermissionOptionKind::reject_once
             || kind == Acp::PermissionOptionKind::reject_always) {
