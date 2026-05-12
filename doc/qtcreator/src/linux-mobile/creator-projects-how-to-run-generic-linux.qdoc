@@ -20,6 +20,9 @@
 
         \endlist
 
+    \note \QC automatically connects to the remote device before deployment
+    and running. You do not need to connect manually each time.
+
     \QC uses the compiler from the kit (toolchain) to build the application.
 
     \QC copies the application files to the connected device and runs the
