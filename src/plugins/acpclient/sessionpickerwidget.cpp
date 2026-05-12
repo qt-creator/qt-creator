@@ -4,8 +4,11 @@
 #include "sessionpickerwidget.h"
 #include "acpclienttr.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/elidinglabel.h>
 #include <utils/fileutils.h>
+#include <utils/qtcsettings.h>
 #include <utils/utilsicons.h>
 
 #include <QDateTime>
@@ -19,6 +22,8 @@
 using namespace Acp;
 
 namespace AcpClient::Internal {
+
+const char kCurrentGroupCollapsedKey[] = "AcpClient/SessionPicker/CurrentGroupCollapsed";
 
 static QString relativeTime(const QString &isoTimestamp)
 {
@@ -389,8 +394,16 @@ SessionPickerWidget::Group &SessionPickerWidget::ensureGroup(const QString &cwd)
     group.layout->setContentsMargins(0, 0, 0, 0);
     group.layout->setSpacing(0);
 
-    if (!isCurrent)
+    if (isCurrent) {
+        const bool collapsed
+            = Core::ICore::settings()->value(kCurrentGroupCollapsedKey, false).toBool();
+        group.frame->setCollapsed(collapsed);
+        connect(group.frame, &CollapsibleFrame::collapsedChanged, this, [](bool c) {
+            Core::ICore::settings()->setValue(kCurrentGroupCollapsedKey, c);
+        });
+    } else {
         group.frame->setCollapsed(true);
+    }
 
     QVBoxLayout *container = isCurrent ? m_currentGroupContainer : m_otherGroupsContainer;
     container->addWidget(group.frame);
