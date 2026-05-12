@@ -839,7 +839,7 @@ public:
         setupInteractiveLabel(m_type);
 
         connect(&m_binaryChooser, &PathChooser::textChanged,
-                this, &DebuggerSettingsPageWidget::binaryPathHasChanged);
+                this, &DebuggerSettingsPageWidget::redetect);
         connect(&m_workingDirectoryChooser, &PathChooser::textChanged,
                 this, &DebuggerSettingsPageWidget::store);
         connect(&m_displayNameLineEdit, &QLineEdit::textChanged,
@@ -910,7 +910,7 @@ public:
     void currentItemChanged();
 
 private:
-    void binaryPathHasChanged();
+    void redetect();
     DebuggerItem currentItem() const;
     void setAbis(const QStringList &abiNames);
     void load(const DebuggerItem &item);
@@ -1014,9 +1014,13 @@ void DebuggerSettingsPageWidget::load(const DebuggerItem &item)
     setAbis(item.abiNames());
     m_engineType = item.engineType();
     m_id = item.id();
+
+    // trigger a re-detection
+    if (m_engineType == NoEngineType && m_binaryChooser.filePath().isExecutableFile())
+        redetect();
 }
 
-void DebuggerSettingsPageWidget::binaryPathHasChanged()
+void DebuggerSettingsPageWidget::redetect()
 {
     // Ignore change if this is no valid DebuggerItem
     if (!m_id.isValid())
@@ -1031,16 +1035,28 @@ void DebuggerSettingsPageWidget::binaryPathHasChanged()
                 return tmp;
             });
         };
-        const auto onDone = [this](const Async<DebuggerItem> &task) {
+        const auto onDone = [this, id = m_id](const Async<DebuggerItem> &task) {
             if (!task.isResultAvailable())
                 return;
 
             const DebuggerItem tmp = task.result();
-            setAbis(tmp.abiNames());
-            m_version.setText(tmp.version());
-            m_engineType = tmp.engineType();
-            m_type.setText(tmp.engineTypeName());
-            store();
+            if (m_id == id) {
+                setAbis(tmp.abiNames());
+                m_version.setText(tmp.version());
+                m_engineType = tmp.engineType();
+                m_type.setText(tmp.engineTypeName());
+                store();
+                return;
+            }
+            // Switched to a different item. update only the data so that
+            // name/path/workdir edits made in the meantime are kept.
+            DebuggerItem item = DebuggerItemManager::findById(id);
+            if (!item)
+                return;
+            item.setEngineType(tmp.engineType());
+            item.setAbis(tmp.abis());
+            item.setVersion(tmp.version());
+            debuggerModel().updateDebugger(item);
         };
         m_taskTreeRunner.start({AsyncTask<DebuggerItem>(onSetup, onDone)});
     } else {
