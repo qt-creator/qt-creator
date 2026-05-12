@@ -290,7 +290,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
         p.drawPixmap(pixmapX, pixmapY, m_pixmap);
     }
 
-    const int availableLabelWidth = event->rect().width() - margins.left() - margins.right();
+    const int availableLabelWidth = bgR.width() - margins.left() - margins.right();
     const QFont font = tf.font();
     const QFontMetrics fm(font);
     const QString elidedLabelText = fm.elidedText(text(), Qt::ElideRight, availableLabelWidth);
