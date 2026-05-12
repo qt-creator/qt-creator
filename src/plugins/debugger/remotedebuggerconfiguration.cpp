@@ -47,11 +47,11 @@ RemoteDebuggerConfiguration::RemoteDebuggerConfiguration(BuildConfiguration *bc,
     arguments.setSettingsKey("RemoteDebugger.Arguments");
 
     symbolFile.setSettingsKey("RemoteDebugger.SymbolFile");
-    symbolFile.setLabelText(tr("Symbol file (local executable):"));
+    symbolFile.setLabelText(Tr::tr("Symbol file (local executable):"));
 
     gdbServerChannel.setId(Constants::GdbServerAddressAspectId);
     gdbServerChannel.setSettingsKey("RemoteDebugger.GdbServerAddress");
-    gdbServerChannel.setLabelText(tr("Server channel:"));
+    gdbServerChannel.setLabelText(Tr::tr("Server channel:"));
     gdbServerChannel.setDisplayStyle(StringAspect::LineEditDisplay);
     gdbServerChannel.setDefaultValue("tcp://127.0.0.1:1234");
     gdbServerChannel.setPlaceHolderText(Tr::tr("For example, %1").arg(":1234, /dev/ttyS0, COM1"));

@@ -33,13 +33,13 @@ static QString relativeTime(const QString &isoTimestamp)
 
     const qint64 secs = dt.secsTo(QDateTime::currentDateTime());
     if (secs < 60)
-        return QObject::tr("just now");
+        return Tr::tr("just now");
     if (secs < 3600)
-        return QObject::tr("%n minute(s) ago", nullptr, static_cast<int>(secs / 60));
+        return Tr::tr("%n minute(s) ago", nullptr, static_cast<int>(secs / 60));
     if (secs < 86400)
-        return QObject::tr("%n hour(s) ago", nullptr, static_cast<int>(secs / 3600));
+        return Tr::tr("%n hour(s) ago", nullptr, static_cast<int>(secs / 3600));
     if (secs < 7 * 86400)
-        return QObject::tr("%n day(s) ago", nullptr, static_cast<int>(secs / 86400));
+        return Tr::tr("%n day(s) ago", nullptr, static_cast<int>(secs / 86400));
     return dt.toString(QStringLiteral("MMM d, yyyy"));
 }
 

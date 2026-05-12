@@ -3,6 +3,8 @@
 
 #include "acptransport.h"
 
+#include "acpclienttr.h"
+
 #include <QJsonDocument>
 #include <QLoggingCategory>
 
@@ -41,12 +43,12 @@ void AcpTransport::parseData(const QByteArray &data)
         QJsonParseError parseError;
         const QJsonDocument doc = QJsonDocument::fromJson(line, &parseError);
         if (parseError.error != QJsonParseError::NoError) {
-            emit errorOccurred(tr("JSON parse error: %1").arg(parseError.errorString()));
+            emit errorOccurred(Tr::tr("JSON parse error: %1").arg(parseError.errorString()));
             continue;
         }
 
         if (!doc.isObject()) {
-            emit errorOccurred(tr("Expected JSON object"));
+            emit errorOccurred(Tr::tr("Expected JSON object"));
             continue;
         }
 

@@ -3,6 +3,8 @@
 
 #include "acpstdiotransport.h"
 
+#include "acpclienttr.h"
+
 #include <utils/qtcprocess.h>
 
 #include <QLoggingCategory>
@@ -53,7 +55,7 @@ void AcpStdioTransport::start()
 
     FilePath executable = m_cmd.executable();
     if (executable.isEmpty()) {
-        emit errorOccurred(tr("No command configured for ACP server."));
+        emit errorOccurred(Tr::tr("No command configured for ACP server."));
         emit finished();
         return;
     }
@@ -65,9 +67,10 @@ void AcpStdioTransport::start()
             executable = m_cmd.executable();
             const QString errorMessage
                 = executable.isAbsolutePath()
-                ? tr("Command not found: \"%1\". Check that it exists and is executable.")
-                      : tr("Command not found: \"%1\". Check that it is executable and on your "
-                           "PATH.");
+                      ? Tr::tr("Command not found: \"%1\". Check that it exists and is executable.")
+                      : Tr::tr(
+                            "Command not found: \"%1\". Check that it is executable and on your "
+                            "PATH.");
             emit errorOccurred(errorMessage.arg(executable.toUserOutput()));
             emit finished();
             return;
@@ -120,12 +123,12 @@ void AcpStdioTransport::stop()
 void AcpStdioTransport::sendData(const QByteArray &data)
 {
     if (!m_process) {
-        emit errorOccurred(tr("Cannot send data: process has not been started (%1).")
-                               .arg(m_cmd.toUserOutput()));
+        emit errorOccurred(
+            Tr::tr("Cannot send data: process has not been started (%1).").arg(m_cmd.toUserOutput()));
         return;
     }
     if (m_process->state() != QProcess::Running) {
-        QString msg = tr("Cannot send data: process \"%1\" is not running (exit code %2).")
+        QString msg = Tr::tr("Cannot send data: process \"%1\" is not running (exit code %2).")
                           .arg(m_cmd.toUserOutput())
                           .arg(m_process->exitCode());
         const QString stderrText = m_stderrBuffer.trimmed();

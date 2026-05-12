@@ -541,7 +541,7 @@ public:
         m_iconDisplay->setIcon(Utils::Icons::WARNING);
         m_headerLayout->addWidget(m_iconDisplay);
 
-        auto *headerLabel = new QLabel(tr("Permission Request"), this);
+        auto *headerLabel = new QLabel(Tr::tr("Permission Request"), this);
         QFont boldFont = headerLabel->font();
         boldFont.setBold(true);
         headerLabel->setFont(boldFont);
@@ -676,8 +676,7 @@ public:
         auto *buttonLayout = new QHBoxLayout;
         buttonLayout->setSpacing(6);
 
-        m_authButton = new QPushButton(
-            AcpMessageView::tr("Authenticate"), this);
+        m_authButton = new QPushButton(Tr::tr("Authenticate"), this);
         buttonLayout->addWidget(m_authButton);
         buttonLayout->addStretch();
         m_bodyLayout->addLayout(buttonLayout);
@@ -727,8 +726,8 @@ public:
         m_authButton->setEnabled(false);
         m_methodCombo->setEnabled(false);
         m_errorLabel->hide();
-        m_statusLabel->setText(QStringLiteral("<i>%1</i>")
-            .arg(AcpMessageView::tr("Authenticated").toHtmlEscaped()));
+        m_statusLabel->setText(
+            QStringLiteral("<i>%1</i>").arg(Tr::tr("Authenticated").toHtmlEscaped()));
         m_statusLabel->show();
     }
 
@@ -1231,9 +1230,10 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
         options, Utils::equal(&PermissionOption::kind, PermissionOptionKind::reject_once));
     if (!hasRejectOption) {
         // Add a deny/cancel button if not already present, to allow user to reject the request without selecting an option
-        auto *cancelButton = widget->addOptionButton(tr("Deny"), PermissionOptionKind::reject_once);
+        auto *cancelButton
+            = widget->addOptionButton(Tr::tr("Deny"), PermissionOptionKind::reject_once);
         connect(cancelButton, &QAbstractButton::clicked, this, [this, id, widget, markToolCallFailed] {
-            widget->setResolved(tr("Denied"), false);
+            widget->setResolved(Tr::tr("Denied"), false);
             markToolCallFailed();
             emit permissionCancelled(id);
         });

@@ -109,7 +109,7 @@ EffectShadersCodeEditor::EffectShadersCodeEditor(const QString &title, QWidget *
 {
     setWindowFlag(Qt::Tool, true);
     setWindowModality(Qt::WindowModality::NonModal);
-    setWindowTitle(title);
+    setWindowTitle(title.isEmpty() ? Tr::tr("Untitled Editor") : title);
 
     setupUIComponents();
     setUniformsModel(nullptr);
