@@ -67,6 +67,8 @@ endif()
 # with other compilers
 if(MSVC)
   add_compile_options(/wd4573)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
+  add_compile_options(-Wno-missing-field-initializers)
 endif()
 
 if (MSVC)
