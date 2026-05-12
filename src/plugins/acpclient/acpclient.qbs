@@ -45,6 +45,7 @@ QtcPlugin {
         "chatinputedit.h",
         "chatpanel.cpp",
         "chatpanel.h",
+        "collapsibleframe.cpp",
         "collapsibleframe.h",
         "sessionpickerwidget.cpp",
         "sessionpickerwidget.h",
