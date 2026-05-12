@@ -344,7 +344,6 @@ void SessionPickerWidget::clearGroups()
     clearContainer(m_currentGroupContainer);
     clearContainer(m_otherGroupsContainer);
     m_groups.clear();
-    m_autoCollapseOthers = false;
     m_emptyLabel->hide();
     m_topSeparator->hide();
     m_middleSeparator->hide();
@@ -361,16 +360,8 @@ void SessionPickerWidget::updateEmptyState()
 
 void SessionPickerWidget::updateCollapseState()
 {
-    auto currentIt = m_groups.find(m_currentGroupKey);
-    const bool currentHasItems = !m_currentGroupKey.isEmpty()
-                                 && currentIt != m_groups.end()
-                                 && currentIt.value().layout->count() > 0;
-    if (!currentHasItems)
-        return;
-
-    m_autoCollapseOthers = true;
     for (auto it = m_groups.begin(); it != m_groups.end(); ++it) {
-        if (it.key() != m_currentGroupKey)
+        if (it.key() != m_currentGroupKey || m_currentGroupKey.isEmpty())
             it.value().frame->setCollapsed(true);
     }
 }
@@ -398,7 +389,7 @@ SessionPickerWidget::Group &SessionPickerWidget::ensureGroup(const QString &cwd)
     group.layout->setContentsMargins(0, 0, 0, 0);
     group.layout->setSpacing(0);
 
-    if (!isCurrent && m_autoCollapseOthers)
+    if (!isCurrent)
         group.frame->setCollapsed(true);
 
     QVBoxLayout *container = isCurrent ? m_currentGroupContainer : m_otherGroupsContainer;
