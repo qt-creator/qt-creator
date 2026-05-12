@@ -15,6 +15,8 @@ namespace AcpClient::Internal {
 
 class CollapsibleFrame : public QFrame
 {
+    Q_OBJECT
+
 public:
     static constexpr int BodyMarginLeft = 8;
     static constexpr int BodyMarginRight = 8;
@@ -33,6 +35,9 @@ public:
 
     QHBoxLayout *headerLayout() const { return m_headerLayout; }
     QVBoxLayout *bodyLayout() const { return m_bodyLayout; }
+
+signals:
+    void collapsedChanged(bool collapsed);
 
 protected:
     // Subclasses add header widgets to m_headerLayout, body widgets to m_bodyLayout

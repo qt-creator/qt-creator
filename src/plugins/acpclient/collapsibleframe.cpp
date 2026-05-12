@@ -52,6 +52,7 @@ void CollapsibleFrame::setCollapsed(bool collapsed)
     m_collapsed = collapsed;
     m_body->setVisible(!collapsed);
     m_indicator->setText(collapsed ? collapsedIndicator() : expandedIndicator());
+    emit collapsedChanged(collapsed);
 }
 
 void CollapsibleFrame::setCollapsible(bool collapsible)
