@@ -315,7 +315,7 @@ public:
                 updateCmdInfo);
 
             // clang-format off
-            return Form{
+            return Form {
                 noMargin,
                 registryBrowser, br,
                 name, br,
