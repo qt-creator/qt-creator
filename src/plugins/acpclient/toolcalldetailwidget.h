@@ -51,7 +51,7 @@ private:
     QWidget *m_statusWidget = nullptr;
     Utils::ElidingLabel *m_titleLabel = nullptr;
     Acp::ToolCallStatus m_status = Acp::ToolCallStatus::in_progress;
-    QList<Utils::MarkdownBrowser *> m_browsers;
+    int m_contentMaxWidth = -1;
 };
 
 } // namespace AcpClient::Internal
