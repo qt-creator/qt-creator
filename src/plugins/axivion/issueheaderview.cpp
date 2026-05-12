@@ -343,7 +343,7 @@ void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
 
 void IssueHeaderView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton)
+    if (event->buttons() & Qt::LeftButton)
         m_dragging = true;
     QHeaderView::mouseMoveEvent(event);
 }
