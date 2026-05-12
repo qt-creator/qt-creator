@@ -1626,6 +1626,7 @@ private slots:
     void testDontCompleteWithDotToArrowCorrectionForFloats();
 
     void testCompleteCodeInGeneratedUiFile();
+    void testMacroCompletion();
 
     void testSignalCompletion_data();
     void testSignalCompletion();
@@ -1654,7 +1655,7 @@ ClangdTestCompletion::ClangdTestCompletion()
                         "functionAddress.cpp",
                         "functionCompletion.cpp", "functionCompletionFiltered2.cpp",
                         "functionCompletionFiltered.cpp", "globalCompletion.cpp",
-                        "includeDirectiveCompletion.cpp", "mainwindow.cpp",
+                        "includeDirectiveCompletion.cpp", "macrocompletion.cpp", "mainwindow.cpp",
                         "memberCompletion.cpp", "membercompletion-friend.cpp",
                         "membercompletion-inside.cpp", "membercompletion-outside.cpp",
                         "noDotToArrowCorrectionForFloats.cpp",
@@ -1941,6 +1942,25 @@ void ClangdTestCompletion::testCompleteCodeInGeneratedUiFile()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(33), "    ui->setupUi( /* COMPLETE HERE */");
     QCOMPARE(editor->lineColumn(), Text::Position({34, 16}));
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
+}
+
+void ClangdTestCompletion::testMacroCompletion()
+{
+    ProposalModelPtr proposal;
+    int cursorPos = -1;
+    getProposal("macrocompletion.cpp", proposal, {}, &cursorPos);
+
+    QVERIFY(proposal);
+    QVERIFY(hasItem(proposal, " VAL(x)"));
+
+    const AssistProposalItemInterface * const item = getItem(
+                proposal, " VAL(x)", "");
+    QVERIFY(item);
+    auto editor = TextEditorWidget::currentTextEditorWidget();
+    item->apply(editor, cursorPos);
+    QCOMPARE(editor->textDocument()->blockText(4), "    return VAL( /* COMPLETE HERE */");
+    QCOMPARE(editor->lineColumn(), Text::Position({5, 15}));
     QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 

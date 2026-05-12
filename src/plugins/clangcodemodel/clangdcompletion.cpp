@@ -394,8 +394,10 @@ void ClangdCompletionItem::apply(TextEditorWidget *editorWidget,
         }
         if (!abandonParen)
             abandonParen = isAtUsingDeclaration(editorWidget, rangeStart);
-        if (!abandonParen && !isMacroCall && matchPreviousWord(editorWidget, cursor, detail))
+        if (!abandonParen && !isMacroCall && !detail.isEmpty()
+            && matchPreviousWord(editorWidget, cursor, detail)) {
             abandonParen = true; // function definition
+        }
         if (!abandonParen) {
             if (completionSettings().spaceAfterFunctionName())
                 extraCharacters += ' ';

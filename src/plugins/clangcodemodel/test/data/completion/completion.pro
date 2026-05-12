@@ -14,6 +14,7 @@ SOURCES = \
     functionCompletionFiltered.cpp \
     globalCompletion.cpp \
     includeDirectiveCompletion.cpp \
+    macrocompletion.cpp \
     main.cpp \
     mainwindow.cpp \
     memberCompletion.cpp \
