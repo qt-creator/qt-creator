@@ -60,6 +60,7 @@ QtcPlugin {
         "codegensettings.h",
         "externaleditors.cpp",
         "externaleditors.h",
+        "mcpsupport.cpp",
         "qtabiextractor.cpp",
         "qtabiextractor.h",
         "qtbuildaspects.cpp",
