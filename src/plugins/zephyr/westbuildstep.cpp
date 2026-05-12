@@ -60,8 +60,7 @@ public slots:
         const FilePath west = settings().westFilePath();
         CommandLine cmd;
         if (ws.osType() == OsTypeWindows) {
-            cmd = {ws.withNewPath("C:/Windows/System32/cmd.exe"),
-                   {"/k", west.nativePath() + " sdk install"}};
+            cmd = {ws.findCmdExe(), {"/k", west.nativePath() + " sdk install"}};
         } else {
             cmd = {ws.withNewPath("/bin/bash"),
                    {"-c", west.nativePath() + " sdk install; exec $SHELL"}};

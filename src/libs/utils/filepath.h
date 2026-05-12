@@ -196,6 +196,8 @@ public:
     [[nodiscard]] Result<Environment> deviceEnvironmentWithError() const;
     [[nodiscard]] Result<Environment> sourcedDeviceEnvironment() const;
     [[nodiscard]] FilePaths devicePathEnvironmentVariable() const;
+    [[nodiscard]] FilePath findCmdExe() const;
+    [[nodiscard]] FilePath findCmdExe(const Environment &env) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
     [[nodiscard]] FilePath withNewFileName(const QString &newFileName) const;

@@ -2620,6 +2620,19 @@ Environment FilePath::deviceEnvironment() const
     return *env;
 }
 
+FilePath FilePath::findCmdExe() const
+{
+    return findCmdExe(deviceEnvironment());
+}
+
+FilePath FilePath::findCmdExe(const Environment &env) const
+{
+    const FilePath fromComspec = withNewPath(env.value("COMSPEC"));
+    if (fromComspec.isExecutableFile())
+        return fromComspec;
+    return withNewPath("cmd.exe").searchInPath();
+}
+
 /*!
     Returns the environment of the device this path belongs to, or an error result on failure.
 
