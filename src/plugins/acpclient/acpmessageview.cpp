@@ -572,15 +572,14 @@ public:
         m_headerLayout->addWidget(m_statusLabel);
     }
 
-    QPushButton *addOptionButton(const QString &text, Acp::PermissionOptionKind kind)
+    Utils::QtcButton *addOptionButton(const QString &text, Acp::PermissionOptionKind kind)
     {
-        auto *button = new QPushButton(optionKindToUiString(kind), this);
+        const bool reject = kind == Acp::PermissionOptionKind::reject_once
+                            || kind == Acp::PermissionOptionKind::reject_always;
+        const auto role = reject ? Utils::QtcButton::MediumTertiary
+                                 : Utils::QtcButton::MediumPrimary;
+        auto *button = new Utils::QtcButton(optionKindToUiString(kind), role, this);
         button->setToolTip(text);
-        // Style reject options with a muted appearance
-        if (kind == Acp::PermissionOptionKind::reject_once
-            || kind == Acp::PermissionOptionKind::reject_always) {
-            button->setFlat(true);
-        }
         m_buttonLayout->addWidget(button);
         m_buttons.append(button);
         return button;
@@ -588,7 +587,7 @@ public:
 
     void setResolved(const QString &text, bool accepted)
     {
-        for (QPushButton *button : m_buttons)
+        for (Utils::QtcButton *button : m_buttons)
             button->hide();
         m_iconDisplay->setIcon(accepted ? Utils::Icons::OK : Utils::Icons::CRITICAL);
         m_statusLabel->setText(QStringLiteral("<i>%1</i>").arg(text.toHtmlEscaped()));
@@ -619,7 +618,7 @@ private:
     Utils::QtcIconDisplay *m_iconDisplay = nullptr;
     QLayout *m_buttonLayout = nullptr;
     Utils::ElidingLabel *m_statusLabel = nullptr;
-    QList<QPushButton *> m_buttons;
+    QList<Utils::QtcButton *> m_buttons;
 };
 
 // ---------------------------------------------------------------------------
@@ -1217,7 +1216,7 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     const QList<PermissionOption> options = request.options();
     for (const PermissionOption &option : options) {
         auto *button = widget->addOptionButton(option.name(), option.kind());
-        connect(button, &QPushButton::clicked, this,
+        connect(button, &QAbstractButton::clicked, this,
                 [this, id, option, widget, markToolCallFailed] {
             const bool accepted = option.kind() == PermissionOptionKind::allow_once
                                   || option.kind() == PermissionOptionKind::allow_always;
@@ -1233,7 +1232,7 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     if (!hasRejectOption) {
         // Add a deny/cancel button if not already present, to allow user to reject the request without selecting an option
         auto *cancelButton = widget->addOptionButton(tr("Deny"), PermissionOptionKind::reject_once);
-        connect(cancelButton, &QPushButton::clicked, this, [this, id, widget, markToolCallFailed] {
+        connect(cancelButton, &QAbstractButton::clicked, this, [this, id, widget, markToolCallFailed] {
             widget->setResolved(tr("Denied"), false);
             markToolCallFailed();
             emit permissionCancelled(id);
