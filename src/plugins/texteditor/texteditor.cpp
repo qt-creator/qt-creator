@@ -5277,11 +5277,23 @@ void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block, const 
 {
     if (!m_displaySettings.m_highlightSelection || m_cursors.isNull())
         return;
-    const QString selection = m_cursors.mainCursor().selectedText();
-    if (selection.trimmed().isEmpty())
+
+    QString selection;
+    auto checkCursor = [this, &selection](const QTextCursor &cursor) {
+        if (cursor.block() != q->document()->findBlock(cursor.anchor()))
+            return false;
+        if (!selection.isEmpty())
+            return selection == cursor.selectedText();
+        selection = cursor.selectedText().trimmed();
+        return true;
+    };
+
+    checkCursor(m_cursors.mainCursor());
+    if (selection.isEmpty())
         return;
+
     for (auto cursor : m_cursors) {
-        if (cursor.selectedText() != selection)
+        if (!checkCursor(cursor))
             return;
     }
 
