@@ -1021,6 +1021,7 @@ public:
     bool m_cursorVisible = false;
     bool m_moveLineUndoHack = false;
     void updateCursorSelections();
+    QString identicalSingleLineSelection() const;
     void moveCursor(QTextCursor::MoveOperation operation,
                     QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
     QRect cursorUpdateRect(const MultiTextCursor &cursor);
@@ -5278,24 +5279,9 @@ void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block, const 
     if (!m_displaySettings.m_highlightSelection || m_cursors.isNull())
         return;
 
-    QString selection;
-    auto checkCursor = [this, &selection](const QTextCursor &cursor) {
-        if (cursor.block() != q->document()->findBlock(cursor.anchor()))
-            return false;
-        if (!selection.isEmpty())
-            return selection == cursor.selectedText();
-        selection = cursor.selectedText().trimmed();
-        return true;
-    };
-
-    checkCursor(m_cursors.mainCursor());
+    const QString selection = identicalSingleLineSelection();
     if (selection.isEmpty())
         return;
-
-    for (auto cursor : m_cursors) {
-        if (!checkCursor(cursor))
-            return;
-    }
 
     const int blockPosition = block.position();
 
@@ -5400,14 +5386,9 @@ void TextEditorWidgetPrivate::updateCursorSelections()
     if (!m_displaySettings.m_highlightSelection || m_cursors.isNull())
         return;
 
-    const QString txt = m_cursors.mainCursor().selectedText();
-    if (txt.trimmed().isEmpty())
+    const QString txt = identicalSingleLineSelection();
+    if (txt.isEmpty())
         return;
-
-    for (auto cursor : m_cursors) {
-        if (cursor.selectedText() != txt)
-            return;
-    }
 
     const auto onSetup = [this, txt](Async<SearchResultItems> &task) {
         task.setConcurrentCallData(Utils::searchInContents, txt, FindFlags{},
@@ -5426,6 +5407,25 @@ void TextEditorWidgetPrivate::updateCursorSelections()
         addSelectionHighlightToScrollBar(m_selectionResults);
     };
     m_selectionHighlightRunner.start({AsyncTask<SearchResultItems>(onSetup, onDone)});
+}
+
+QString TextEditorWidgetPrivate::identicalSingleLineSelection() const
+{
+    QString txt;
+    auto checkCursor = [this, &txt](const QTextCursor &cursor) {
+        if (cursor.block() != q->document()->findBlock(cursor.anchor()))
+            return false;
+        if (!txt.isEmpty())
+            return txt == cursor.selectedText();
+        txt = cursor.selectedText().trimmed();
+        return true;
+    };
+
+    for (const QTextCursor &cursor : m_cursors) {
+        if (!checkCursor(cursor))
+            return {};
+    }
+    return txt;
 }
 
 void TextEditorWidgetPrivate::moveCursor(QTextCursor::MoveOperation operation,
