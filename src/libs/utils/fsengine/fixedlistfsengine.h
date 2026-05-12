@@ -64,7 +64,6 @@ public:
         return QAbstractFileEngine::fileName(file);
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     QAbstractFileEngine::IteratorUniquePtr beginEntryList(
         const QString &path,
         QDirListing::IteratorFlags itFlags,
@@ -77,12 +76,6 @@ public:
 
         return std::make_unique<DirIterator>(m_children, path, filters, filterNames);
     }
-#else
-    Iterator *beginEntryList(QDir::Filters /*filters*/, const QStringList & /*filterNames*/) override
-    {
-        return new DirIterator(m_children);
-    }
-#endif
 };
 
 } // namespace Utils::Internal

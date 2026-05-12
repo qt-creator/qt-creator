@@ -625,16 +625,10 @@ Result<QFuture<Client::FindData>> Client::find(
                 return JobResult::Done;
             }
 
-            if (cache.size() > 0) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 6, 0)
-                for (const auto &entry : cache)
-                    promise.addResult(entry);
-#else
+            if (cache.size() > 0)
                 promise.addResults(cache);
-#endif
-            } else if (!hasEntries) {
+            else if (!hasEntries)
                 promise.addResult(make_unexpected(std::nullopt));
-            }
 
             return JobResult::Done;
         },
