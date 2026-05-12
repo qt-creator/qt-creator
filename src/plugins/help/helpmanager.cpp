@@ -106,6 +106,18 @@ static void onDone(const Async<bool> &task)
     }
 }
 
+static QHash<QString, QStringList> namespacesByFile(QHelpEngineCore &helpEngine)
+{
+    QHash<QString, QStringList> result;
+    const QStringList registeredDocs = helpEngine.registeredDocumentations();
+    for (const QString &nameSpace : registeredDocs) {
+        const QString filePath
+            = QFileInfo(helpEngine.documentationFileName(nameSpace)).canonicalFilePath();
+        result[filePath].append(nameSpace);
+    }
+    return result;
+}
+
 static void registerDocumentationNow(QPromise<bool> &promise, const QString &collectionFilePath,
                                      const QStringList &files)
 {
@@ -116,23 +128,39 @@ static void registerDocumentationNow(QPromise<bool> &promise, const QString &col
     helpEngine.setReadOnly(false);
     helpEngine.setupData();
     bool docsChanged = false;
-    QStringList nameSpaces = helpEngine.registeredDocumentations();
+    QSet<QString> registeredNamespaces = toSet(helpEngine.registeredDocumentations());
+    QHash<QString, QStringList> nsByFile = namespacesByFile(helpEngine);
     for (const QString &file : files) {
         if (promise.isCanceled())
             break;
         promise.setProgressValue(promise.future().progressValue() + 1);
-        const QString &nameSpace = QHelpEngineCore::namespaceName(file);
+        const QString filePath = QFileInfo(file).canonicalFilePath();
+        const QString &nameSpace = QHelpEngineCore::namespaceName(filePath);
         if (nameSpace.isEmpty())
             continue;
-        if (!nameSpaces.contains(nameSpace)) {
-            if (helpEngine.registerDocumentation(file)) {
-                nameSpaces.append(nameSpace);
-                docsChanged = true;
-            } else {
-                qWarning() << "Error registering namespace '" << nameSpace
-                           << "' from file '" << file << "':" << helpEngine.error();
+        const QStringList existingNamespacesForFile = nsByFile.value(filePath);
+        for (const QString &ns : existingNamespacesForFile) {
+            if (ns != nameSpace) {
+                // unregister out of date namespace
+                if (helpEngine.unregisterDocumentation(ns)) {
+                    docsChanged = true;
+                } else {
+                    qWarning() << "Error unregistering outdated namespace" << ns << "from file"
+                               << file << ":" << helpEngine.error();
+                }
             }
         }
+        if (!registeredNamespaces.contains(nameSpace)) {
+            if (helpEngine.registerDocumentation(file)) {
+                docsChanged = true;
+                registeredNamespaces.insert(nameSpace);
+            } else {
+                qWarning() << "Error registering namespace" << nameSpace << "from file" << file
+                           << ":" << helpEngine.error();
+            }
+        }
+        // set as handled if there are duplicates
+        nsByFile.insert(filePath, {nameSpace});
     }
     promise.addResult(docsChanged);
 }
@@ -176,21 +204,22 @@ static void unregisterDocumentationNow(QPromise<bool> &promise,
     QHelpEngineCore helpEngine(collectionFilePath);
     helpEngine.setReadOnly(false);
     helpEngine.setupData();
+    QHash<QString, QStringList> nsByFile = namespacesByFile(helpEngine);
     for (const QString &file : files) {
         if (promise.isCanceled())
             break;
         promise.setProgressValue(promise.future().progressValue() + 1);
-        const QString nameSpace = QHelpEngineCore::namespaceName(file);
-        const QString filePath = helpEngine.documentationFileName(nameSpace);
-        if (filePath.isEmpty()) // wasn't registered anyhow, ignore
-            continue;
-        if (helpEngine.unregisterDocumentation(nameSpace)) {
-            docsChanged = true;
-
-        } else {
-            qWarning() << "Error unregistering namespace '" << nameSpace
-                       << "' from file '" << filePath
-                       << "': " << helpEngine.error();
+        const QString filePath = QFileInfo(file).canonicalFilePath();
+        // remove all namespaces that might refer to this file (e.g. if the file changed in between)
+        const QStringList namespaces = nsByFile.value(filePath);
+        nsByFile.remove(filePath); // a file may be listed more than once
+        for (const QString &nameSpace : namespaces) {
+            if (helpEngine.unregisterDocumentation(nameSpace)) {
+                docsChanged = true;
+            } else {
+                qWarning() << "Error unregistering namespace" << nameSpace << "from file" << file
+                           << ":" << helpEngine.error();
+            }
         }
     }
     promise.addResult(docsChanged);
