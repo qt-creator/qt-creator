@@ -8,15 +8,16 @@ def main():
     if not startedWithoutPluginError():
         return
     # using a temporary directory won't mess up a potentially existing
-    createNewQtQuickApplication(tempDir(), "untitled")
+    createNewQtQuickApplication(tempDir(), "untitled", minimumQtVersion="6.2",
+                                template="Qt Quick Application (compat)")
     originalText = prepareQmlFile()
     if originalText:
         testReIndent(originalText)
     invokeMenuItem("File", "Exit")
 
 def prepareQmlFile():
-    if not openDocument("untitled.appuntitled.Source Files.Main\\.qml"):
-        test.fatal("Could not open Main.qml")
+    if not openDocument("untitled.appuntitled.Source Files.main\\.qml"):
+        test.fatal("Could not open main.qml")
         return None
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     isDarwin = platform.system() == 'Darwin'
