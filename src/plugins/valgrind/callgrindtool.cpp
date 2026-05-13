@@ -137,11 +137,6 @@ static Group callgrindRecipe(RunControl *runControl)
     const auto onValgrindSetup = [storage, runControl](ValgrindProcess &process) {
         QObject::connect(&process, &ValgrindProcess::valgrindStarted,
                          &process, [](qint64 pid) { setupPid(pid); });
-        QObject::connect(runControl, &RunControl::aboutToStart, runControl, [runControl] {
-            const FilePath executable = runControl->commandLine().executable();
-            runControl->postMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()),
-                                    NormalMessageFormat);
-        });
         setupValgrindProcess(&process, runControl, callgrindCommand(runControl, *storage));
     };
 
@@ -815,6 +810,9 @@ void CallgrindTool::setupRunControl(RunControl *runControl)
         m_loadExternalLogFile->setEnabled(false);
         clearTextMarks();
         doClear();
+        const FilePath executable = m_runControl->commandLine().executable();
+        m_runControl->postMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()),
+                                NormalMessageFormat);
         PerspectivesView::showPermanentStatusMessage(Tr::tr("Starting Function Profiler..."));
     });
     connect(m_runControl, &RunControl::started, this, [] {
