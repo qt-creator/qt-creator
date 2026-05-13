@@ -9,8 +9,7 @@
 
 #include <QTest>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 PerfProfilerTraceFileTest::PerfProfilerTraceFileTest(QObject *parent) : QObject(parent)
 {
@@ -117,5 +116,4 @@ void PerfProfilerTraceFileTest::testSaveLoadTraceData()
 
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

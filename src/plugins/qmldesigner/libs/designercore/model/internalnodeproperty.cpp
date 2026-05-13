@@ -4,8 +4,7 @@
 #include "internalnodeproperty.h"
 #include "internalnode_p.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 InternalNodeProperty::InternalNodeProperty(PropertyNameView name,
                                            const InternalNode::Pointer &propertyOwner)
@@ -76,5 +75,4 @@ void InternalNodeProperty::addSubNodes(ManyNodes &container) const
     m_node->addSubNodes(container);
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

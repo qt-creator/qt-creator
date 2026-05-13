@@ -7,8 +7,7 @@
 
 namespace Utils { class Process; }
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class CTestOutputReader final : public Autotest::TestOutputReader
 {
@@ -29,5 +28,4 @@ private:
     bool m_expectExceptionFromCrash = false;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

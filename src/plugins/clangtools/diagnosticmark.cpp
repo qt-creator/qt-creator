@@ -18,8 +18,7 @@
 using namespace TextEditor;
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 static TextMarkCategory clangToolsCategory()
 {
@@ -99,6 +98,5 @@ void DiagnosticMark::initialize()
     });
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal
 

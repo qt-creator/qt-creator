@@ -12,8 +12,7 @@ class QLineEdit;
 class QTimer;
 QT_END_NAMESPACE
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 class GerritServer;
 
@@ -39,5 +38,4 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-} // Internal
-} // Gerrit
+} // Gerrit::Internal

@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static QRegularExpression userFileLocation()
 {
@@ -545,5 +544,4 @@ void QtTestOutputReader::handleAndSendConfigMessage(const QRegularExpressionMatc
     reportResult(result);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

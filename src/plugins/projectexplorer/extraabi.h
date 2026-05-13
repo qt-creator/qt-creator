@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class ExtraAbi
 {
@@ -12,5 +11,4 @@ public:
     static void load();
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

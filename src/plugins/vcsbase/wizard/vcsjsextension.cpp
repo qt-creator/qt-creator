@@ -9,8 +9,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace VcsBase {
-namespace Internal {
+namespace VcsBase::Internal {
 
 bool VcsJsExtension::isConfigured(const QString &vcsId) const
 {
@@ -30,5 +29,4 @@ bool VcsJsExtension::isValidRepoUrl(const QString &vcsId, const QString &locatio
     return vc && vc->getRepoUrl(location).isValid;
 }
 
-} // namespace Internal
-} // namespace VcsBase
+} // namespace VcsBase::Internal

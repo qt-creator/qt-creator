@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace ClangTools {
-namespace Constants {
+namespace ClangTools::Constants {
 
 const char PROJECT_PANEL_ID[] = "ClangTools";
 
@@ -26,5 +25,4 @@ const char DIAGNOSTIC_MARK_ID[] = "ClangTool.DiagnosticMark";
 
 const char DIAG_CONFIG_TIDY_AND_CLAZY[] = "Builtin.DefaultTidyAndClazy";
 
-} // Constants
-} // ClangTools
+} // ClangTools::Constants

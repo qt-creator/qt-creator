@@ -10,8 +10,7 @@
 
 #include <utils/touchbar/touchbar.h>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 struct Group
 {
@@ -159,5 +158,4 @@ private:
     std::unique_ptr<Utils::TouchBar> m_touchBar;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

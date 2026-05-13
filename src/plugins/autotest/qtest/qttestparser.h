@@ -10,8 +10,7 @@
 
 #include <optional>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class QtTestParseResult : public TestParseResult
 {
@@ -62,5 +61,4 @@ private:
     QSet<Utils::FilePath> m_prefilteredFiles;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

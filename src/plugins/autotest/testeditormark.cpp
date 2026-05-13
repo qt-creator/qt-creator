@@ -6,8 +6,7 @@
 #include "autotesttr.h"
 #include "testresultspane.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestEditorMark::TestEditorMark(QPersistentModelIndex item, const Utils::FilePath &file, int line)
     : TextEditor::TextMark(file, line, {Tr::tr("Auto Test"), Utils::Id(Constants::TASK_MARK_ID)}),
@@ -21,5 +20,4 @@ void TestEditorMark::clicked()
     instance->showTestResult(m_item);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

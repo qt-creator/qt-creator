@@ -15,8 +15,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 namespace BoostTestUtils {
 static const QStringList relevant = {
@@ -154,5 +153,4 @@ bool BoostTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     return true;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

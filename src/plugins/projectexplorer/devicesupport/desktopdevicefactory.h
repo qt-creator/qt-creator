@@ -5,8 +5,7 @@
 
 #include "idevicefactory.h"
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class DesktopDeviceFactory final : public IDeviceFactory
 {
@@ -14,5 +13,4 @@ public:
     DesktopDeviceFactory();
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

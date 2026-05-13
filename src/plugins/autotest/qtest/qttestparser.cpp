@@ -15,8 +15,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestTreeItem *QtTestParseResult::createTestTreeItem() const
 {
@@ -438,5 +437,4 @@ void QtTestParser::release()
     CppParser::release();
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

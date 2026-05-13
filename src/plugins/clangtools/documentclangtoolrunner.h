@@ -20,8 +20,7 @@ class TextDocument;
 class TextEditorWidget;
 }
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 struct AnalyzeOutputData;
 class DiagnosticMark;
@@ -57,5 +56,4 @@ private:
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

@@ -3,8 +3,7 @@
 
 #include "assetimportupdatetreeitem.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 AssetImportUpdateTreeItem::AssetImportUpdateTreeItem(const QFileInfo &info,
                                                      AssetImportUpdateTreeItem *parent)
@@ -61,5 +60,4 @@ void AssetImportUpdateTreeItem::appendChild(AssetImportUpdateTreeItem *item)
     m_children.append(item);
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

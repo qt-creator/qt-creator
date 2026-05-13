@@ -5,8 +5,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestTreeItemDelegate : public QStyledItemDelegate
 {
@@ -18,5 +17,4 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

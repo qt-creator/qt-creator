@@ -9,11 +9,9 @@
 #include <functional>
 #include <vector>
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 class TouchBarPrivate;
-} // Internal
-} // Utils
+} // Utils::Internal
 
 #import <AppKit/NSTouchBar.h>
 
@@ -25,8 +23,7 @@ class TouchBarPrivate;
 - (NSTouchBar *)makeTouchBar;
 @end
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 
 struct TouchBarItem
 {
@@ -47,5 +44,4 @@ public:
     bool m_isSubBar = false;
 };
 
-} // Internal
-} // Utils
+} // Utils::Internal

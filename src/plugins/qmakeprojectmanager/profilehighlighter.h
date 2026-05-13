@@ -6,8 +6,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class ProFileHighlighter : public TextEditor::SyntaxHighlighter
 {
@@ -27,5 +26,4 @@ private:
     const TextEditor::Keywords m_keywords;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

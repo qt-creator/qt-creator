@@ -5,8 +5,7 @@
 
 #include "qtwizard.h"
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 struct QtProjectParameters;
 
@@ -21,5 +20,4 @@ public:
     QtProjectParameters parameters() const;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

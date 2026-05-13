@@ -7,8 +7,7 @@
 #include <QMetaType>
 #include <QString>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 namespace Result {
 enum Type { Log, Pass, Fail, ExpectedFail, UnexpectedPass, Warn, Error, Fatal, Detail, Start, End };
@@ -42,8 +41,7 @@ private:
     int m_line;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal
 
 Q_DECLARE_METATYPE(Squish::Internal::TestResult)
 Q_DECLARE_METATYPE(Squish::Internal::Result::Type)

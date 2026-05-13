@@ -55,8 +55,7 @@ using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.p4.submit";
 
@@ -1576,7 +1575,6 @@ void PerforcePlugin::testLogResolving()
 }
 #endif
 
-} // namespace Internal
-} // namespace Perforce
+} // namespace Perforce::Internal
 
 #include "perforceplugin.moc"

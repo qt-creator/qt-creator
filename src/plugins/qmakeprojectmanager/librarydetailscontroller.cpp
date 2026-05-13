@@ -28,8 +28,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 static void fillLibraryPlatformTypes(QComboBox *comboBox)
 {
@@ -1139,5 +1138,4 @@ QString InternalLibraryDetailsController::snippet() const
     return snippetMessage;
 }
 
-} // Internal
-} // QmakeProjectManager
+} // QmakeProjectManager::Internal

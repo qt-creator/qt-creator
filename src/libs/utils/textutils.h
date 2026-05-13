@@ -14,8 +14,7 @@ class QTextCursor;
 class QTextDocument;
 QT_END_NAMESPACE
 
-namespace Utils {
-namespace Text {
+namespace Utils::Text {
 
 class QTCREATOR_UTILS_EXPORT Position
 {
@@ -93,8 +92,7 @@ QTCREATOR_UTILS_EXPORT QFuture<QTextDocument *> highlightCode(
 QTCREATOR_UTILS_EXPORT void setCodeHighlighter(const HighlightCallback &highlighter);
 QTCREATOR_UTILS_EXPORT HighlightCallback &codeHighlighter();
 
-} // Text
-} // Utils
+} // Utils::Text
 
 Q_DECLARE_METATYPE(Utils::Text::Position)
 Q_DECLARE_METATYPE(Utils::Text::Range)

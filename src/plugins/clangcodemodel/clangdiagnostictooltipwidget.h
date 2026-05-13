@@ -12,8 +12,7 @@ class QLayout;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 class ClangDiagnostic;
 
 class ClangDiagnosticWidget {
@@ -30,5 +29,4 @@ public:
                                  const QString &source);
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

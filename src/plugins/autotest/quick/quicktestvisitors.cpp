@@ -13,8 +13,7 @@
 
 #include <QDebug>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static QStringList specialFunctions({"initTestCase", "cleanupTestCase", "init", "cleanup"});
 
@@ -207,5 +206,4 @@ bool QuickTestAstVisitor::visit(CPlusPlus::CallAST *ast)
     return false;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

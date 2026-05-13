@@ -77,8 +77,7 @@ private:
     FilePaths m_projectsToWaitFor;
 };
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 void PreconfiguredSessionTests::initTestCase()
 {
@@ -214,5 +213,4 @@ bool PreconfiguredSessionTests::switchToProjectAndTarget(Project *project,
     return true;
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

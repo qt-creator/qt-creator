@@ -5,8 +5,7 @@
 
 #include <projectexplorer/detailederrorview.h>
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class DiagnosticViewStyle;
 class DiagnosticViewDelegate;
@@ -65,5 +64,4 @@ private:
     DiagnosticViewDelegate *m_delegate = nullptr;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

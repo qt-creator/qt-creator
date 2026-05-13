@@ -9,8 +9,7 @@
 #include <QtCore/private/qabstractfileengine_p.h>
 #include <QtGlobal>
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
 // Based on http://bloglitb.blogspot.com/2011/12/access-to-private-members-safer.htm
@@ -146,5 +145,4 @@ private:
     mutable State m_status{State::NotIteratingRoot};
 };
 
-} // namespace Internal
-} // namespace Utils
+} // namespace Utils::Internal

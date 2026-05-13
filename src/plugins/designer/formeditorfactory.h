@@ -5,8 +5,7 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 class FormEditorFactory final : public Core::IEditorFactory
 {
@@ -14,5 +13,4 @@ public:
     FormEditorFactory();
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

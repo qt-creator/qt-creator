@@ -5,8 +5,7 @@
 
 #include <QListView>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 class ClassModel;
 
 // Class list for new Custom widget classes. Provides
@@ -41,5 +40,4 @@ private:
     ClassModel *m_model;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

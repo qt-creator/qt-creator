@@ -11,8 +11,7 @@
 #include <QFileInfo>
 #include <QModelIndex>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 AssetImportUpdateDialog::AssetImportUpdateDialog(
         const QString &importPath, const QSet<QString> &preSelectedFiles,
@@ -68,5 +67,4 @@ void AssetImportUpdateDialog::expandAll()
     ui->treeView->expandAll();
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

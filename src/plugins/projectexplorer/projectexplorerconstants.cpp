@@ -7,8 +7,7 @@
 
 #include <QGuiApplication>
 
-namespace ProjectExplorer {
-namespace Constants {
+namespace ProjectExplorer::Constants {
 
 QString msgAutoDetected()
 {
@@ -26,5 +25,4 @@ QString msgManual()
     return Tr::tr("Manual");
 }
 
-} // namespace Constants
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Constants

@@ -29,8 +29,7 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 // -------------------- QtWizard
 QtWizard::QtWizard()
@@ -193,5 +192,4 @@ void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name,
     m_targetSetupPage->setProjectAndPath(nullptr, proFile);
 }
 
-} // Internal
-} // QmakeProjectManager
+} // QmakeProjectManager::Internal

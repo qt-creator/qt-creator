@@ -13,8 +13,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class FilePath; }
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 // Present the user with a file name and a list of available
 // editor kinds to choose from.
@@ -38,5 +37,4 @@ private:
     QDialogButtonBox *buttonBox;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

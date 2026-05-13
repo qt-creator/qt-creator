@@ -6,8 +6,7 @@
 
 #include <QSize>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 AssetImportUpdateTreeModel::AssetImportUpdateTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -236,5 +235,4 @@ void AssetImportUpdateTreeModel::clear()
     endResetModel();
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

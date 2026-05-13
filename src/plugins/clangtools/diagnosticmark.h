@@ -8,8 +8,7 @@
 #include <cppeditor/clangdiagnosticconfig.h>
 #include <texteditor/textmark.h>
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class DiagnosticMark : public TextEditor::TextMark
 {
@@ -30,5 +29,4 @@ private:
     bool m_enabled = true;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

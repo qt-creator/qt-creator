@@ -17,8 +17,7 @@
 #include <QLineEdit>
 #include <QListWidget>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alreadyUsedKeywordNames,
                              QWidget *parent) :
@@ -185,5 +184,4 @@ QString KeywordDialog::keywordName()
     return m_keywordNameEdit->text().trimmed();
 }
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

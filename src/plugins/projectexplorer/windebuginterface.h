@@ -10,8 +10,7 @@
 #include <mutex>
 #include <vector>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class WinDebugInterface : public QThread
 {
@@ -51,5 +50,4 @@ private:
     std::map<qint64, std::vector<QString>> m_debugOutput;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

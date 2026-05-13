@@ -27,8 +27,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.model", QtWarningMsg)
 
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 FilePathItem::FilePathItem(const Utils::FilePath &filePath)
     : m_filePath(filePath)
@@ -740,5 +739,4 @@ void DiagnosticFilterModel::setFilterOptions(const OptionalFilterOptions &filter
     invalidateFilter();
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

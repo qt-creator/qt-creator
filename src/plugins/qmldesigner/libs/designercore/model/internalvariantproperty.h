@@ -5,8 +5,7 @@
 
 #include "internalproperty.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class InternalVariantProperty : public InternalProperty
 {
@@ -27,5 +26,4 @@ private:
     QVariant m_value;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

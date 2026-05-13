@@ -10,8 +10,7 @@ class MObject;
 class MPackage;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ModelUtilities : public QObject
 {
@@ -25,5 +24,4 @@ public:
     bool haveDependency(const qmt::MObject *source, const QList<qmt::MPackage *> &targets);
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

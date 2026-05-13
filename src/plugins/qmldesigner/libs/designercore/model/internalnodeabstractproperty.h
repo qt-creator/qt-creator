@@ -6,8 +6,7 @@
 #include "internalproperty.h"
 
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class InternalNodeAbstractProperty : public InternalProperty
 {
@@ -31,5 +30,4 @@ protected:
     virtual void add(const InternalNodePointer &node) = 0;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

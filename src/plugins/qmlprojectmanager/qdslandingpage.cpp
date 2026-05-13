@@ -19,8 +19,7 @@
 #include <QQuickItem>
 #include <QtQml/QQmlEngine>
 
-namespace QmlProjectManager {
-namespace Internal {
+namespace QmlProjectManager::Internal {
 
 const char INSTALL_QDS_URL[] = "https://www.qt.io/product/ui-design-tools";
 const char OBJECT_NAME_LANDING_PAGE[] = "QQuickWidgetQDSLandingPage";
@@ -210,5 +209,4 @@ void QdsLandingPage::setCmakeResources(const QStringList &resources)
     m_cmakeResources = resources;
 }
 
-} // namespace Internal
-} // namespace QmlProjectManager
+} // namespace QmlProjectManager::Internal

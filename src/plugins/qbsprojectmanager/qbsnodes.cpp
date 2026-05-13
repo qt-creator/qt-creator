@@ -33,8 +33,7 @@ using namespace Utils;
 // Helpers:
 // ----------------------------------------------------------------------
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 const QbsProductNode *parentQbsProductNode(const ProjectExplorer::Node *node)
 {
@@ -261,5 +260,4 @@ QbsProjectNode::QbsProjectNode(const QJsonObject &projectData)
     setDisplayName(projectData.value("name").toString());
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

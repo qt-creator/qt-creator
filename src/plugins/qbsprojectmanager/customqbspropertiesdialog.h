@@ -10,8 +10,7 @@ QT_BEGIN_NAMESPACE
 class QTableWidget;
 QT_END_NAMESPACE
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class CustomQbsPropertiesDialog : public QDialog
 {
@@ -32,5 +31,4 @@ private:
     QPushButton *m_removeButton;
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

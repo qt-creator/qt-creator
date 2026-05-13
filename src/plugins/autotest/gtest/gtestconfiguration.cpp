@@ -12,8 +12,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestOutputReader *GTestConfiguration::createOutputReader(Process *app) const
 {
@@ -99,5 +98,4 @@ Environment GTestConfiguration::filteredEnvironment(const Environment &original)
     return result;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

@@ -25,8 +25,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static QString matchingString()
 {
@@ -580,5 +579,4 @@ bool GTestTreeItem::shouldBeAddedAfterFiltering() const
     return type() == TestTreeItem::TestCase || childCount();
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

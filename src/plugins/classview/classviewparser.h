@@ -7,8 +7,7 @@
 
 #include "classviewparsertreeitem.h"
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 class ParserPrivate;
 
@@ -49,5 +48,4 @@ private:
     ParserPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal

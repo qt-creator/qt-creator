@@ -88,8 +88,7 @@ using PlainTextEdit = QPlainTextEdit;
 #   define UNDO_DEBUG(s)
 #endif
 
-namespace FakeVim {
-namespace Internal {
+namespace FakeVim::Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -9574,7 +9573,6 @@ bool FakeVimHandler::inFakeVimMode()
     return d->m_inFakeVim;
 }
 
-} // namespace Internal
-} // namespace FakeVim
+} // namespace FakeVim::Internal
 
 Q_DECLARE_METATYPE(FakeVim::Internal::FakeVimHandler::Private::BufferDataPtr)

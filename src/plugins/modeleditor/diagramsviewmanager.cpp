@@ -10,8 +10,7 @@
 
 #include <QDebug>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 DiagramsViewManager::DiagramsViewManager(QObject *parent)
     : QObject(parent)
@@ -38,7 +37,6 @@ void DiagramsViewManager::onDiagramRenamed(const qmt::MDiagram *diagram)
     emit diagramRenamed(diagram);
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal
 
 

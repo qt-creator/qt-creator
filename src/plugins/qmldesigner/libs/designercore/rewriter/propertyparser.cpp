@@ -190,9 +190,7 @@ QmlDesigner::Enumeration enumerationFromString(const QString &string, bool *ok)
 
 } //namespace
 
-namespace QmlDesigner {
-namespace Internal {
-namespace PropertyParser {
+namespace QmlDesigner::Internal::PropertyParser {
 
 QVariant read(const QString &typeStr, const QString &str, const MetaInfo &)
 {
@@ -305,7 +303,5 @@ QVariant variantFromString(const QString &s)
     return QVariant(s);
 }
 
-} // namespace PropertyParser
-} // namespace Internal
-} // namespace Designer
+} // namespace QmlDesigner::Internal::PropertyParser
 

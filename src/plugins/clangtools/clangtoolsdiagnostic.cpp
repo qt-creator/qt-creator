@@ -10,8 +10,7 @@
 
 using namespace ProjectExplorer;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 bool ExplainingStep::isValid() const
 {
@@ -85,5 +84,4 @@ bool operator==(const Diagnostic &lhs, const Diagnostic &rhs)
         ;
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

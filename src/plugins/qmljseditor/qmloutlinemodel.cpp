@@ -30,8 +30,7 @@ enum {
     debug = false
 };
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 QmlOutlineItem::QmlOutlineItem(QmlOutlineModel *model) :
     m_outlineModel(model)
@@ -1004,5 +1003,4 @@ QHash<QString,QString> QmlOutlineModel::getScriptBindings(AST::UiObjectInitializ
     return scriptBindings;
 }
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal

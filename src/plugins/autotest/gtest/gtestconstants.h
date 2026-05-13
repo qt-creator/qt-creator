@@ -5,9 +5,7 @@
 
 #include <QtGlobal>
 
-namespace Autotest {
-namespace GTest {
-namespace Constants {
+namespace Autotest::GTest::Constants {
 
 const char FRAMEWORK_ID[]                = "AutoTest.Framework.GTest";
 const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Google Test");
@@ -21,6 +19,4 @@ enum GroupMode
     GTestFilter
 };
 
-} // namespace Constants
-} // namespace GTest
-} // namespace AutoTest
+} // namespace Autotest::GTest::Constants

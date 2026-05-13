@@ -36,8 +36,7 @@
 using namespace CppEditor;
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 static QString getBaseStyleName()
 {
@@ -489,7 +488,6 @@ void DiagnosticView::openEditorForCurrentIndex()
         Core::EditorManager::openEditorAt(loc);
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal
 
 #include "clangtoolsdiagnosticview.moc"

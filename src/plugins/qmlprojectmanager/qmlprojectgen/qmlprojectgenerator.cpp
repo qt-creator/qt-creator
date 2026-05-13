@@ -12,8 +12,7 @@
 
 using namespace Utils;
 
-namespace QmlProjectManager {
-namespace GenerateQmlProject {
+namespace QmlProjectManager::GenerateQmlProject {
 
 bool QmlProjectFileGenerator::prepareForUiQmlFile(const FilePath &uiQmlFilePath)
 {
@@ -239,5 +238,4 @@ const QStringList QmlProjectFileGenerator::findContentDirs(const QStringList &su
     return relativePaths;
 }
 
-} // GenerateQmlProject
-} // QmlProjectManager
+} // QmlProjectManager::GenerateQmlProject

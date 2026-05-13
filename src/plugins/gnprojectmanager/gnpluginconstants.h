@@ -4,8 +4,7 @@
 
 #pragma once
 
-namespace GNProjectManager {
-namespace Constants {
+namespace GNProjectManager::Constants {
 
 namespace Project {
 
@@ -55,5 +54,4 @@ const char clean[] = "clean";
 
 } // namespace Targets
 
-} // namespace Constants
-} // namespace GNProjectManager
+} // namespace GNProjectManager::Constants

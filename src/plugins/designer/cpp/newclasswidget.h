@@ -7,8 +7,7 @@
 
 #include <QWidget>
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 struct NewClassWidgetPrivate;
 
@@ -58,5 +57,4 @@ private:
     NewClassWidgetPrivate *d;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

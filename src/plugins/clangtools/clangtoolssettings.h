@@ -14,8 +14,7 @@
 #include <QString>
 #include <QVersionNumber>
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 const char diagnosticConfigIdKey[] = "DiagnosticConfig";
 
@@ -87,5 +86,4 @@ private:
     QVersionNumber m_clazyVersion;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

@@ -7,8 +7,7 @@
 
 #include <QTextCursor>
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
 bool GlslCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
                                               const QString &textToInsert) const
@@ -51,5 +50,4 @@ QString GlslCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
     return CPlusPlus::MatchingText::insertParagraphSeparator(cursor);
 }
 
-} // namespace Internal
-} // namespace GlslEditor
+} // namespace GlslEditor::Internal

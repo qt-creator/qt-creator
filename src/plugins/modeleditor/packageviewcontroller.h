@@ -10,8 +10,7 @@ class MObject;
 class ModelController;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ModelUtilities;
 
@@ -35,5 +34,4 @@ private:
     PackageViewControllerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

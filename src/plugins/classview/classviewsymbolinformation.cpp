@@ -7,8 +7,7 @@
 
 #include <QHash>
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 /*!
     \class SymbolInformation
@@ -108,5 +107,4 @@ bool SymbolInformation::operator<(const SymbolInformation &other) const
     return type().compare(other.type()) < 0;
 }
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal

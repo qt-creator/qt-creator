@@ -10,8 +10,7 @@
 
 #include <functional>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class SearchResultTreeItem;
 class SearchResultTreeModel;
@@ -49,5 +48,4 @@ private:
     SearchResultFilter *m_filter = nullptr;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

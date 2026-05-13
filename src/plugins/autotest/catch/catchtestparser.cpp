@@ -17,8 +17,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static bool isCatchTestCaseMacro(const QString &macroName)
 {
@@ -170,5 +169,4 @@ TestTreeItem *CatchParseResult::createTestTreeItem() const
     return item;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

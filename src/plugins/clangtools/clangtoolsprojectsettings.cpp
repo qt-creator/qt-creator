@@ -12,8 +12,7 @@
 
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 static const char SETTINGS_KEY_MAIN[] = "ClangTools";
 static const char SETTINGS_PREFIX[] = "ClangTools.";
@@ -208,5 +207,4 @@ SuppressedDiagnostic::SuppressedDiagnostic(const Diagnostic &diag)
 {
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

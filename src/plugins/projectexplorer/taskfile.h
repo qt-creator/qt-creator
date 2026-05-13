@@ -7,8 +7,7 @@
 
 #include <coreplugin/idocument.h>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class StopMonitoringHandler : public ITaskHandler
 {
@@ -38,5 +37,4 @@ private:
     static QList<TaskFile *> openFiles;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

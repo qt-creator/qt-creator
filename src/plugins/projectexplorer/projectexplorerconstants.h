@@ -5,8 +5,7 @@
 
 #include "projectexplorer_export.h"
 
-namespace ProjectExplorer {
-namespace Constants {
+namespace ProjectExplorer::Constants {
 
 // Modes and their priorities
 const char MODE_SESSION[]         = "Project";
@@ -262,5 +261,4 @@ PROJECTEXPLORER_EXPORT QString msgAutoDetected();
 PROJECTEXPLORER_EXPORT QString msgAutoDetectedToolTip();
 PROJECTEXPLORER_EXPORT QString msgManual();
 
-} // namespace Constants
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Constants

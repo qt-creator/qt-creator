@@ -26,8 +26,7 @@
 
 #include <memory>
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 
 TipLabel::TipLabel(QWidget *parent) :
     QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget)
@@ -290,5 +289,4 @@ bool WidgetTip::equals(int typeId, const QVariant &other, const QVariant &otherC
             && other.value<QWidget *>() == m_widget;
 }
 
-} // namespace Internal
-} // namespace Utils
+} // namespace Utils::Internal

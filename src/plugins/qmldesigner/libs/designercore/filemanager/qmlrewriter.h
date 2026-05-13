@@ -11,8 +11,7 @@
 #include <QStack>
 #include <QString>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class QMLRewriter: protected QmlJS::AST::Visitor
 {
@@ -74,5 +73,4 @@ private:
     bool m_didRewriting;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

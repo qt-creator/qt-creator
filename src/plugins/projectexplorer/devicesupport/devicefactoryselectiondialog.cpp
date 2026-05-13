@@ -13,8 +13,7 @@
 #include <QListWidget>
 #include <QPushButton>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
     QDialog(parent)
@@ -67,5 +66,4 @@ Utils::Id DeviceFactorySelectionDialog::selectedId() const
     return selected.at(0)->data(Qt::UserRole).value<Utils::Id>();
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

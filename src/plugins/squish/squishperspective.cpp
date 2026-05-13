@@ -25,8 +25,7 @@
 #include <QToolBar>
 #include <QVBoxLayout>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 enum class IconType { StopRecord, Play, Pause, StepIn, StepOver, StepReturn, Stop, Inspect };
 
@@ -640,5 +639,4 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
     }
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

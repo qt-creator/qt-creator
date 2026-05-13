@@ -10,8 +10,7 @@ class PathChooser;
 class FilePath;
 } // namespace Utils
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class ImportWidget : public QWidget
 {
@@ -34,5 +33,4 @@ private:
     bool m_ownsReturnKey = false;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

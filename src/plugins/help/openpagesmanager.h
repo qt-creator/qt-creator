@@ -15,8 +15,7 @@ class QUrl;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class HelpWidget;
 class HelpViewer;
@@ -53,5 +52,4 @@ private:
     OpenPagesSwitcher *m_openPagesSwitcher = nullptr;
 };
 
-} // namespace Internal
-} // namespace Help
+} // namespace Help::Internal

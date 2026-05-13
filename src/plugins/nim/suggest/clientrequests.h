@@ -5,8 +5,7 @@
 
 #include <QObject>
 
-namespace Nim {
-namespace Suggest {
+namespace Nim::Suggest {
 
 class Line
 {
@@ -106,5 +105,4 @@ private:
     std::vector<Line> m_lines;
 };
 
-} // namespace Suggest
-} // namespace Nim
+} // namespace Nim::Suggest

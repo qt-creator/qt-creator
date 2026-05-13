@@ -17,8 +17,7 @@
 #include <QListWidgetItem>
 #include <QPushButton>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
     : QDialog(parent)
@@ -141,5 +140,4 @@ void OpenSquishSuitesDialog::setChosenSuites()
     }
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

@@ -18,8 +18,7 @@ using namespace Core;
 using namespace Designer::Constants;
 using namespace Utils;
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 FormEditorFactory::FormEditorFactory()
 {
@@ -31,5 +30,4 @@ FormEditorFactory::FormEditorFactory()
     FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_UI, "ui");
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

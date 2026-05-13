@@ -35,8 +35,7 @@
 
 using namespace Utils;
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 // Tab Widget helper for middle click tab close
 class TabWidget : public QTabWidget
@@ -701,7 +700,6 @@ void SerialOutputPane::sendInput()
     // TODO: add a blink or something to visually see if the data was sent or not
 }
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal
 
 #include "serialoutputpane.moc"

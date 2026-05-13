@@ -8,8 +8,7 @@
 
 #include <QTextCursor>
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 class QmlExpressionUnderCursor
 {
@@ -42,5 +41,4 @@ private:
     QString _text;
 };
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal

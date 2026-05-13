@@ -16,8 +16,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class DetailsWidget; }
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class ToolWidget : public Utils::FadingPanel
 {
@@ -92,5 +91,4 @@ private:
     QPushButton *m_addButton = nullptr;
 };
 
-} // Internal
-} // ProjectExplorer
+} // ProjectExplorer::Internal

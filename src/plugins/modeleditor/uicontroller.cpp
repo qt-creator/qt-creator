@@ -9,8 +9,7 @@
 
 using namespace Utils;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 // Settings entries
 const char SETTINGS_RIGHT_SPLITTER[] = "ModelEditorPlugin/RightSplitter";
@@ -66,5 +65,4 @@ void UiController::loadSettings()
         m_rightHorizSplitterState = settings->value(SETTINGS_RIGHT_HORIZ_SPLITTER).toByteArray();
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

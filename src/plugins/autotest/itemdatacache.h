@@ -11,8 +11,7 @@
 
 #include <optional>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 template<class T>
 class ItemDataCache
@@ -82,5 +81,4 @@ private:
     QHash<QString, Entry> m_cache;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

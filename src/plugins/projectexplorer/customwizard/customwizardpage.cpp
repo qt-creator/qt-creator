@@ -30,8 +30,7 @@ enum { debug = 0 };
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 /*!
     \class ProjectExplorer::Internal::CustomWizardFieldPage
@@ -428,5 +427,4 @@ bool CustomWizardPage::isComplete() const
     return m_pathChooser->isValid() && CustomWizardFieldPage::isComplete();
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

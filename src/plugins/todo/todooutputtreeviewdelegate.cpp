@@ -4,8 +4,7 @@
 #include "todooutputtreeviewdelegate.h"
 #include "constants.h"
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 TodoOutputTreeViewDelegate::TodoOutputTreeViewDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
@@ -19,6 +18,5 @@ void TodoOutputTreeViewDelegate::paint(QPainter *painter, const QStyleOptionView
     QStyledItemDelegate::paint(painter, newOption, index);
 }
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal
 

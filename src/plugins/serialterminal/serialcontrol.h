@@ -13,8 +13,7 @@
 
 namespace Utils { class OutputFormatter; }
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 // Handle serial port connect/disconnect/auto-reconnect, data read/write and info/error messages.
 class SerialControl : public QObject
@@ -77,5 +76,4 @@ private:
     bool m_running = false;
 };
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal

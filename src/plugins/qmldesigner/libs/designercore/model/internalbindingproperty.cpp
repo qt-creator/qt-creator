@@ -3,8 +3,7 @@
 
 #include "internalbindingproperty.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 InternalBindingProperty::InternalBindingProperty(PropertyNameView name,
                                                  const InternalNodePointer &propertyOwner)
@@ -35,5 +34,4 @@ void InternalBindingProperty::setDynamicExpression(const TypeName &type, const Q
     setDynamicTypeName(type);
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

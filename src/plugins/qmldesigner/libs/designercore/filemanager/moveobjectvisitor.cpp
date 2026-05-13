@@ -10,8 +10,7 @@
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class Inserter: public QMLRewriter
 {
@@ -267,5 +266,4 @@ void MoveObjectVisitor::doMove(const TextModifier::MoveInfo &moveInfo)
     }
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

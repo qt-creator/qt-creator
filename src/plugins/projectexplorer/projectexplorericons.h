@@ -7,8 +7,7 @@
 
 #include <utils/icon.h>
 
-namespace ProjectExplorer {
-namespace Icons {
+namespace ProjectExplorer::Icons {
 
 PROJECTEXPLORER_EXPORT extern const Utils::Icon BUILD;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon BUILD_FLAT;
@@ -51,5 +50,4 @@ PROJECTEXPLORER_EXPORT extern const Utils::Icon MODE_PROJECT_CLASSIC;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon MODE_PROJECT_FLAT;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon MODE_PROJECT_FLAT_ACTIVE;
 
-} // namespace Icons
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Icons

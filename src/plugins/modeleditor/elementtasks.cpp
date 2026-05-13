@@ -43,8 +43,7 @@ using namespace Core;
 using namespace CppEditor;
 using Utils::FilePath;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ElementTasks::ElementTasksPrivate {
 public:
@@ -497,5 +496,4 @@ bool ElementTasks::handleContextMenuAction(qmt::DElement *element, qmt::MDiagram
     return false;
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

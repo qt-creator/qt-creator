@@ -14,8 +14,7 @@
 
 using namespace Utils;
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 enum ViewColumn { Name, Operator, Value };
 
@@ -158,5 +157,4 @@ ValidatingPropertyContainerLineEdit::ValidatingPropertyContainerLineEdit(const Q
     });
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

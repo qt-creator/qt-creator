@@ -14,8 +14,7 @@ class Value;
 class Context;
 }
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 class QmlOutlineModel;
 
@@ -140,5 +139,4 @@ private:
     friend class QmlOutlineItem;
 };
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal

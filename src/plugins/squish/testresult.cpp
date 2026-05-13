@@ -5,8 +5,7 @@
 
 #include <utils/theme/theme.h>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 TestResult::TestResult(Result::Type type, const QString &text, const QString &timeStamp)
     : m_type(type)
@@ -69,5 +68,4 @@ QColor TestResult::colorForType(Result::Type type)
     return creatorColor(Utils::Theme::OutputPanes_StdOutTextColor);
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

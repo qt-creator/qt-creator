@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace Coco {
-namespace Constants {
+namespace Coco::Constants {
 
 const char ACTION_ID[] = "coco.Action";
 const char MENU_ID[] = "coco.Menu";
@@ -21,5 +20,4 @@ const char SELECTION_DIR_KEY[] = "SelectionDir";
 const char COCO_DIR_KEY[] = "CocoDirectory";
 const char CSMES_PATH_KEY[] = "CsmesPath";
 
-} // namespace Constants
-} // namespace Coco
+} // namespace Coco::Constants

@@ -11,8 +11,7 @@
 
 #include <QSet>
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class FileInfo
 {
@@ -61,5 +60,4 @@ public:
 };
 using FileInfoProviders = std::vector<FileInfoProvider>;
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

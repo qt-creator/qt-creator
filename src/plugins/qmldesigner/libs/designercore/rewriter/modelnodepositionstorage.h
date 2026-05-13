@@ -5,8 +5,7 @@
 
 #include "modelnode.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class ModelNodePositionStorage
 {
@@ -49,5 +48,4 @@ private:
     QHash<ModelNode, RewriterData> m_rewriterData;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

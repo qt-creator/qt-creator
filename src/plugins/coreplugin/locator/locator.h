@@ -14,8 +14,7 @@
 #include <QObject>
 #include <QTimer>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class LocatorData;
 class LocatorWidget;
@@ -79,5 +78,4 @@ private:
     QList<ILocatorFilter *> m_refreshingFilters;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

@@ -22,8 +22,7 @@ class DElement;
 class DContainer;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class UiController;
 class ActionHandler;
@@ -145,5 +144,4 @@ private:
     ModelEditorPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

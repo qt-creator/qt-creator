@@ -13,8 +13,7 @@
 
 #include "clientrequests.h"
 
-namespace Nim {
-namespace Suggest {
+namespace Nim::Suggest {
 
 class NimSuggestClient : public QObject
 {
@@ -57,5 +56,4 @@ private:
     quint64 m_lastMessageId = 0;
 };
 
-} // namespace Suggest
-} // namespace Nim
+} // namespace Nim::Suggest

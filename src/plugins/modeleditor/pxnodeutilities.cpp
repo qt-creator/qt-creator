@@ -21,8 +21,7 @@
 
 using Utils::FilePath;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class PxNodeUtilities::PxNodeUtilitiesPrivate {
 public:
@@ -219,5 +218,4 @@ bool PxNodeUtilities::isProxyHeader(const Utils::FilePath &filePath) const
     return false;
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

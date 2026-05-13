@@ -9,8 +9,7 @@
 
 #include <QSortFilterProxyModel>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class ObjectsMapModel;
 
@@ -87,5 +86,4 @@ protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

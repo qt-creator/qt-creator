@@ -11,8 +11,7 @@
 
 using Utils::FilePath;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ExtDocumentController::ExtDocumentControllerPrivate {
 public:
@@ -56,5 +55,4 @@ void ExtDocumentController::onProjectFileNameChanged(const FilePath &fileName)
     d->pxNodeController->setAnchorFolder(fileName);
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

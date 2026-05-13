@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace GenericProjectManager {
-namespace Constants {
+namespace GenericProjectManager::Constants {
 
 const char GENERICMIMETYPE[]    = "text/x-generic-project"; // ### FIXME
 
@@ -20,5 +19,4 @@ const char GENERICPROJECT_ID[]  = "GenericProjectManager.GenericProject";
 const char GENERICPROJECT_CXXFLAGS_FILE_TEMPLATE[] = "-std=c++17";
 const char GENERICPROJECT_CFLAGS_FILE_TEMPLATE[] = "-std=c17";
 
-} // namespace Constants
-} // namespace GenericProjectManager
+} // namespace GenericProjectManager::Constants

@@ -8,8 +8,7 @@
 #include <utils/delegates.h>
 #include <QMenu>
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 QmlJSOutlineTreeView::QmlJSOutlineTreeView(QWidget *parent) :
     Utils::NavigationTreeView(parent)
@@ -57,5 +56,4 @@ void QmlJSOutlineTreeView::collapseAllExceptRoot()
     }
 }
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal

@@ -3,8 +3,7 @@
 
 #include "annotationhighlighter.h"
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 GitAnnotationHighlighter::GitAnnotationHighlighter(const VcsBase::Annotation &annotation)
     : VcsBase::BaseAnnotationHighlighter(annotation)
@@ -16,5 +15,4 @@ QString GitAnnotationHighlighter::changeNumber(const QString &block) const
     return pos > 1 ? block.left(pos) : QString();
 }
 
-} // namespace Internal
-} // namespace Git
+} // namespace Git::Internal

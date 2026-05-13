@@ -9,8 +9,7 @@
 
 using namespace Utils;
 
-namespace EmacsKeys {
-namespace Internal {
+namespace EmacsKeys::Internal {
 
 //---------------------------------------------------------------------------
 // EmacsKeysState
@@ -63,5 +62,4 @@ void EmacsKeysState::selectionChanged()
         setLastAction(KeysAction3rdParty);
 }
 
-} // namespace Internal
-} // namespace EmacsKeys
+} // namespace EmacsKeys::Internal

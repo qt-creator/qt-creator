@@ -10,8 +10,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
     : DebuggableTestConfiguration(framework)
@@ -65,5 +64,4 @@ Environment QuickTestConfiguration::filteredEnvironment(const Environment &origi
     return QTestUtils::prepareBasicEnvironment(original);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

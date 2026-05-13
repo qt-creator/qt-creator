@@ -16,8 +16,7 @@ class QStackedLayout;
 class QStatusBar;
 QT_END_NAMESPACE
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class FancyTab : public QObject
 {
@@ -191,5 +190,4 @@ private:
     Utils::InfoBarDisplay m_infoBarDisplay;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

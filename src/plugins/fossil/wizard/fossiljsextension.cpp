@@ -13,8 +13,7 @@
 
 using namespace Core;
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 QMap<QString, QString> FossilJsExtension::parseArgOptions(const QStringList &args)
 {
@@ -67,6 +66,5 @@ bool FossilJsExtension::defaultDisableAutosync() const
     return settings().disableAutosync();
 }
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal
 

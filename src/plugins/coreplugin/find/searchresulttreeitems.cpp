@@ -5,8 +5,7 @@
 
 #include <utils/searchresultitem.h>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 SearchResultTreeItem::SearchResultTreeItem(const Utils::SearchResultItem &item,
                                            SearchResultTreeItem *parent)
@@ -120,5 +119,4 @@ void SearchResultTreeItem::appendChild(const Utils::SearchResultItem &item)
     insertChild(m_children.count(), item);
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

@@ -5,8 +5,7 @@
 
 #include <QGraphicsItem>
 
-namespace QmlDesigner {
-namespace TimelineConstants {
+namespace QmlDesigner::TimelineConstants {
 const int sectionHeight = 18;
 const int rulerHeight = sectionHeight + 4;
 const int sectionWidth = 200;
@@ -51,5 +50,4 @@ const char C_ZOOM_OUT[] = "QmlDesigner.ZoomOut";
 
 const int keyFrameSize = 17;
 const int keyFrameMargin = 2;
-} // namespace TimelineConstants
-} // namespace QmlDesigner
+} // namespace QmlDesigner::TimelineConstants

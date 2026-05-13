@@ -14,8 +14,7 @@ namespace BareMetal {
 class ProductData;
 class Project;
 
-namespace Gen {
-namespace Xml {
+namespace Gen::Xml {
 
 class PropertyGroup : public Property
 {
@@ -26,6 +25,5 @@ public:
     void accept(INodeVisitor *visitor) const final;
 };
 
-} // namespace Xml
-} // namespace Gen
+} // namespace Gen::Xml
 } // namespace BareMetal

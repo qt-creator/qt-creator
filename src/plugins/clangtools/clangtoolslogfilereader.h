@@ -11,8 +11,7 @@
 
 namespace Utils { class FilePath; }
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 using AcceptDiagsFromFilePath = std::function<bool(const Utils::FilePath &)>;
 
@@ -36,5 +35,4 @@ OptionalLineColumnInfo byteOffsetInUtf8TextToLineColumn(const char *text,
                                                         int offset,
                                                         int startLine = 1);
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

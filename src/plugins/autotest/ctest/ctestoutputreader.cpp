@@ -15,8 +15,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static ResultHooks::FindTestItemHook findTestItemHook(const QString &testCaseName)
 {
@@ -188,5 +187,4 @@ void CTestOutputReader::sendCompleteInformation()
     m_result = ResultType::Invalid;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

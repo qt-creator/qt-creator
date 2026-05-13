@@ -5,8 +5,7 @@
 
 #include "../testconfiguration.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class CTestConfiguration final : public Autotest::TestToolConfiguration
 {
@@ -16,5 +15,4 @@ public:
     TestOutputReader *createOutputReader(Utils::Process *app) const final;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

@@ -15,8 +15,7 @@
 
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class FilterWidget : public QWidget
 {
@@ -154,5 +153,4 @@ SearchResultFilterModel *SearchResultTreeView::model() const
     return m_model;
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

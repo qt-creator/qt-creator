@@ -20,8 +20,7 @@
 #include <QShortcut>
 #include <QMenu>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ActionHandler::ActionHandlerPrivate {
 public:
@@ -251,5 +250,4 @@ Core::Command *ActionHandler::registerCommand(
     return command;
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

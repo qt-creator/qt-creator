@@ -54,8 +54,7 @@ using namespace Utils;
 
 enum { debugExtension = 0 };
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 // --------- ProjectWizardContext
 
@@ -250,5 +249,4 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     file->setContents(doc.toPlainText());
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

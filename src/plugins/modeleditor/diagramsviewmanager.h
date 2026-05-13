@@ -12,8 +12,7 @@ namespace qmt {
 class MDiagram;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class DiagramsViewManager :
         public QObject,
@@ -38,5 +37,4 @@ public:
     void onDiagramRenamed(const qmt::MDiagram *diagram) override;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

@@ -7,8 +7,7 @@
 
 namespace Utils { class PlainTextEdit; }
 
-namespace EmacsKeys {
-namespace Internal {
+namespace EmacsKeys::Internal {
 
 enum EmacsKeysAction {
     KeysAction3rdParty,
@@ -44,5 +43,4 @@ private:
     Utils::PlainTextEdit *m_editorWidget;
 };
 
-} // namespace Internal
-} // namespace EmacsKeys
+} // namespace EmacsKeys::Internal

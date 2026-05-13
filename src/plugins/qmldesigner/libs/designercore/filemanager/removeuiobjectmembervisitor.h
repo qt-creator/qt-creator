@@ -7,8 +7,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class RemoveUIObjectMemberVisitor: public QMLRewriter
 {
@@ -42,5 +41,4 @@ private:
     QStack<QmlJS::AST::Node*> parents;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

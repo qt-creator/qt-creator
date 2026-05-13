@@ -26,8 +26,7 @@ enum { debugNewClassWidget = 0 };
     names for header, source and form files. Has some smart logic to derive
     the file names from the class name. */
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 struct NewClassWidgetPrivate {
     NewClassWidgetPrivate();
@@ -284,5 +283,4 @@ Utils::FilePaths NewClassWidget::files() const
     };
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

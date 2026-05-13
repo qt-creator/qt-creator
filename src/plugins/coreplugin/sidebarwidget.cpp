@@ -15,8 +15,7 @@
 #include <QAction>
 #include <QVBoxLayout>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class SideBarComboBox : public CommandComboBox
 {
@@ -186,5 +185,4 @@ void SideBarWidget::setCloseIcon(const QIcon &icon)
     m_closeAction->setIcon(icon);
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

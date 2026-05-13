@@ -7,8 +7,7 @@
 
 #include <projectexplorer/makestep.h>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class QmakeMakeStepFactory : public ProjectExplorer::BuildStepFactory
 {
@@ -16,5 +15,4 @@ public:
     QmakeMakeStepFactory();
 };
 
-} // Internal
-} // QmakeProjectManager
+} // QmakeProjectManager::Internal

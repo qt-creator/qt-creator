@@ -24,8 +24,7 @@
 
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 FancyToolButton::FancyToolButton(QAction *action, QWidget *parent)
     : QToolButton(parent)
@@ -394,5 +393,4 @@ void FancyActionBar::setIconsOnly(bool iconsOnly)
     setContentsMargins(0, iconsOnly ? 7 : 2, 0, iconsOnly ? 2 : 8);
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

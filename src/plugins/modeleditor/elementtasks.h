@@ -13,8 +13,7 @@ class DocumentController;
 class MObject;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ComponentViewController;
 
@@ -85,5 +84,4 @@ private:
     ElementTasksPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

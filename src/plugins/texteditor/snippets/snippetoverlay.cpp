@@ -6,8 +6,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-namespace TextEditor {
-namespace Internal {
+namespace TextEditor::Internal {
 
 void SnippetOverlay::clear()
 {
@@ -162,5 +161,4 @@ SnippetOverlay::SnippetSelection SnippetOverlay::selectionForCursor(const QTextC
     return m_selections.value(indexForCursor(cursor));
 }
 
-} // namespace Internal
-} // namespace TextEditor
+} // namespace TextEditor::Internal

@@ -5,8 +5,7 @@
 
 #include <utils/icon.h>
 
-namespace QmlDesigner {
-namespace Icons {
+namespace QmlDesigner::Icons {
 
 const Utils::Icon ARROW_UP({
         {":/navigator/icon/arrowup.png", Utils::Theme::IconsBaseColor}});
@@ -72,5 +71,4 @@ const Utils::Icon EDIT3D_ALIGN_VIEW_ON({
 const Utils::Icon COLOR_PALETTE({
         {":/edit3d/images/color_palette.png", Utils::Theme::IconsBaseColor}});
 
-} // Icons
-} // QmlDesigner
+} // QmlDesigner::Icons

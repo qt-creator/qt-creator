@@ -13,8 +13,7 @@
 #  define LANGUAGECLIENT_EXPORT Q_DECL_IMPORT
 #endif
 
-namespace LanguageClient {
-namespace Constants {
+namespace LanguageClient::Constants {
 
 const char LANGUAGECLIENT_SETTINGS_CATEGORY[] = "ZY.LanguageClient";
 const char LANGUAGECLIENT_SETTINGS_PAGE[] = "LanguageClient.General";
@@ -44,5 +43,4 @@ const char LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DESCRIPTION[]
 const char CALL_HIERARCHY_FACTORY_ID[] = "LanguageClient.CallHierarchy";
 const char TASK_CATEGORY_DIAGNOSTICS[] = "LanguageClient.DiagnosticTask";
 
-} // namespace Constants
-} // namespace LanguageClient
+} // namespace LanguageClient::Constants

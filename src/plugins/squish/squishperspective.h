@@ -13,8 +13,7 @@
 
 namespace Utils { class TreeView; }
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class SquishXmlOutputHandler;
 
@@ -108,6 +107,5 @@ private:
     friend class SquishControlBar;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal
 

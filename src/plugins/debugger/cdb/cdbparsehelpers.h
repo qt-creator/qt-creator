@@ -12,8 +12,7 @@ class QVariant;
 class QDebug;
 QT_END_NAMESPACE
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 class BreakpointParameters;
 struct ThreadData;
 class Register;
@@ -66,5 +65,4 @@ struct WinException
     QString function;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

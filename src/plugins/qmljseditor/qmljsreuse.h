@@ -10,8 +10,7 @@ QT_BEGIN_NAMESPACE
 class QChar;
 QT_END_NAMESPACE
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 bool isIdentifierChar(const QChar &c, bool atStart = false, bool acceptDollar = true);
 bool isValidFirstIdentifierChar(const QChar &c);
@@ -21,5 +20,4 @@ bool isActivationChar(const QChar &c);
 
 QIcon iconForColor(const QColor &color);
 
-} // Internal
-} // QmlJSEditor
+} // QmlJSEditor::Internal

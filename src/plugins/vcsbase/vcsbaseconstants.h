@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace VcsBase {
-namespace Constants {
+namespace VcsBase::Constants {
 
 const char VCS_SETTINGS_CATEGORY[] = "V.Version Control";
 const char VCS_COMMON_SETTINGS_ID[] = "A.VCS.General";
@@ -23,5 +22,4 @@ const char VAR_VCS_NAME[] = "CurrentDocument:Project:VcsName";
 const char VAR_VCS_TOPIC[] = "CurrentDocument:Project:VcsTopic";
 const char VAR_VCS_TOPLEVELPATH[] = "CurrentDocument:Project:VcsTopLevelPath";
 
-} // namespace Constants
-} // namespace VcsBase
+} // namespace VcsBase::Constants

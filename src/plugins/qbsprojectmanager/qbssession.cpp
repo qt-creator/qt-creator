@@ -29,8 +29,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 QStringList arrayToStringList(const QJsonValue &array)
 {
@@ -763,7 +762,6 @@ Location locationFromObject(const QJsonObject &o, const FilePath &projectDir)
                     loc.value("line").toInt());
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal
 
 #include <qbssession.moc>

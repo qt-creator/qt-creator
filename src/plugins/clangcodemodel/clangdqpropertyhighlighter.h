@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class QPropertyHighlighter
 {
@@ -25,6 +24,5 @@ private:
     Private * const d;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal
 

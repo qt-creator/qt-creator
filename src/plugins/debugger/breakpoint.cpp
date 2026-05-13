@@ -20,8 +20,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 /*!
     \class Debugger::Internal::BreakpointParameters
@@ -381,5 +380,4 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Debugger
         updateLocation(rp, originalLocation);
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

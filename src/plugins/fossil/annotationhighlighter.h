@@ -5,8 +5,7 @@
 
 #include <vcsbase/baseannotationhighlighter.h>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class FossilAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
@@ -18,5 +17,4 @@ private:
     QRegularExpression m_changesetIdPattern;
 };
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

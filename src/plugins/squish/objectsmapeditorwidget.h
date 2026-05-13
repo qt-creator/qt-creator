@@ -19,8 +19,7 @@ namespace Utils {
 class FancyLineEdit;
 }
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class ObjectsMapDocument;
 class ObjectsMapSortFilterModel;
@@ -80,5 +79,4 @@ private:
     QStackedLayout *m_stackedLayout;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

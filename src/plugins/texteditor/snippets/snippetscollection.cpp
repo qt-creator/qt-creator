@@ -24,8 +24,7 @@
 
 using namespace Utils;
 
-namespace TextEditor {
-namespace Internal {
+namespace TextEditor::Internal {
 
 /*  TRANSLATOR TextEditor::Internal::Snippets
 
@@ -421,5 +420,4 @@ bool SnippetsCollection::isGroupKnown(const QString &groupId) const
     return m_groupIndexById.value(groupId, -1) != -1;
 }
 
-} // Internal
-} // TextEditor
+} // TextEditor::Internal

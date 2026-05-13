@@ -9,8 +9,7 @@
 #include <QSet>
 #include <QStringList>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class AssetImportUpdateTreeItem;
 
@@ -47,5 +46,4 @@ private:
     QList<AssetImportUpdateTreeItem *> m_fileItems;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

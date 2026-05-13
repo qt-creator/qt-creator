@@ -6,8 +6,7 @@
 
 #include <QDebug>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 StatesEditorImageProvider::StatesEditorImageProvider()
     : QQuickImageProvider(QQuickImageProvider::Image)
@@ -52,5 +51,4 @@ void StatesEditorImageProvider::setNodeInstanceView(const AbstractView *nodeInst
     m_nodeInstanceView = static_cast<const NodeInstanceView *>(nodeInstanceView);
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

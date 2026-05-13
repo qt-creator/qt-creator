@@ -13,8 +13,7 @@
 
 #include <QWheelEvent>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class EditorDiagramView::EditorDiagramViewPrivate {
 public:
@@ -92,5 +91,4 @@ void EditorDiagramView::dropFiles(const QList<Utils::DropSupport::FileSpec> &fil
     }
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

@@ -6,8 +6,7 @@
 #include <QStringList>
 #include <QSet>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 namespace Ui {
 class AssetImportUpdateDialog;
@@ -33,5 +32,4 @@ private:
     Ui::AssetImportUpdateDialog *ui = nullptr;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

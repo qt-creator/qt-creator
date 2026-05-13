@@ -5,8 +5,7 @@
 
 #include <QWidget>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class EditorArea;
 
@@ -27,5 +26,4 @@ private:
     EditorArea *m_area;
 };
 
-} // Internal
-} // Core
+} // Core::Internal

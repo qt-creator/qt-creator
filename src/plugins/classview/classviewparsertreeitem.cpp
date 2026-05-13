@@ -17,8 +17,7 @@
 #include <QHash>
 #include <QStandardItem>
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 static CPlusPlus::Overview g_overview;
 
@@ -317,6 +316,5 @@ void ParserTreeItem::debugDump(int indent) const
     }
 }
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal
 

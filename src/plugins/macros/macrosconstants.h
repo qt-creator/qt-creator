@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace Macros {
-namespace Constants {
+namespace Macros::Constants {
 
 const char M_TOOLS_MACRO[] = "Macros.Tools.Menu";
 
@@ -22,5 +21,4 @@ const char M_STATUS_BUFFER[] = "Macros.Status";
 
 const char M_EXTENSION[] = "mac";
 
-} // namespace Constants
-} // namespace Macros
+} // namespace Macros::Constants

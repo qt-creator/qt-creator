@@ -31,8 +31,7 @@ using namespace DiffEditor;
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Subversion {
-namespace Internal {
+namespace Subversion::Internal {
 
 static Q_LOGGING_CATEGORY(Log, "qtc.vcs.svn", QtWarningMsg);
 
@@ -294,7 +293,6 @@ SubversionClient &subversionClient()
     return theSubversionClient;
 }
 
-} // namespace Internal
-} // namespace Subversion
+} // namespace Subversion::Internal
 
 #include "subversionclient.moc"

@@ -14,8 +14,7 @@
 #include <QDebug>
 #include <QRegularExpression>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 // ClassModel: Validates the class name in setData() and
 // refuses placeholders and invalid characters.
@@ -144,5 +143,4 @@ void ClassList::slotCurrentRowChanged(const QModelIndex &current, const QModelIn
     emit currentRowChanged(current.row());
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

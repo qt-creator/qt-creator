@@ -11,8 +11,7 @@
 #include <QObject>
 #include <QString>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class SquishFileHandler : public QObject
 {
@@ -60,5 +59,4 @@ private:
     Utils::FilePaths m_sharedFolders;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

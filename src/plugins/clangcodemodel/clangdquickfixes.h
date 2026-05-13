@@ -6,8 +6,7 @@
 #include <cppeditor/quickfixes/cppquickfix.h>
 #include <languageclient/languageclientquickfix.h>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 class ClangdClient;
 
 class ClangdQuickFixFactory : public CppEditor::CppQuickFixFactory
@@ -29,5 +28,4 @@ private:
             const TextEditor::AssistInterface *) const override;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

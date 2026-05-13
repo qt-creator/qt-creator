@@ -31,8 +31,7 @@ using namespace Utils;
 
 enum { NameColumn, BranchColumn, MessageColumn, ColumnCount };
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 static QList<QStandardItem*> stashModelRowItems(const Stash &s)
 {
@@ -407,5 +406,4 @@ bool StashDialog::ask(const QString &title, const QString &what, bool defaultBut
                 defaultButton ? QMessageBox::Yes : QMessageBox::No) == QMessageBox::Yes;
 }
 
-} // namespace Internal
-} // namespace Git
+} // namespace Git::Internal

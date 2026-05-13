@@ -14,11 +14,9 @@ QT_BEGIN_NAMESPACE
 class QStandardItem;
 QT_END_NAMESPACE
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 QSet<SymbolLocation> roleToLocations(const QList<QVariant> &locations);
 SymbolInformation symbolInformationFromItem(const QStandardItem *item);
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal

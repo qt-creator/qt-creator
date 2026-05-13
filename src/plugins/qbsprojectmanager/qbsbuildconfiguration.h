@@ -11,8 +11,7 @@
 
 namespace ProjectExplorer { class BuildStep; }
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class QbsBuildStep;
 
@@ -80,5 +79,4 @@ public:
     QbsBuildConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

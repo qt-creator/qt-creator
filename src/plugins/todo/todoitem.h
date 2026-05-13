@@ -13,8 +13,7 @@
 #include <QString>
 #include <QColor>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class TodoItem
 {
@@ -65,7 +64,6 @@ private:
     Qt::SortOrder m_order;
 };
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal
 
 Q_DECLARE_METATYPE(Todo::Internal::TodoItem)

@@ -21,8 +21,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace AppManager {
-namespace Internal {
+namespace AppManager::Internal {
 
 QList<TargetInformation> TargetInformation::readFromProject(
     const BuildConfiguration *bc, const QString &buildKey)
@@ -134,5 +133,4 @@ bool TargetInformation::isValid() const
     return !manifest.filePath.isEmpty() && manifest.filePath.isFile();
 }
 
-} // namespace Internal
-} // namespace AppManager
+} // namespace AppManager::Internal

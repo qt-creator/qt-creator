@@ -5,8 +5,7 @@
 
 #include <qmldesignercoreconstants.h>
 
-namespace QmlDesigner {
-namespace Constants {
+namespace QmlDesigner::Constants {
 
 // Context
 inline constexpr char qmlDesignerContextId[] = "QmlDesigner::QmlDesignerMain";
@@ -204,5 +203,4 @@ namespace Internal {
     enum { debug = 0 };
 }
 
-} // Constants
-} // QmlDesigner
+} // QmlDesigner::Constants

@@ -6,8 +6,7 @@
 
 #include <QMap>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 LineParser::LineParser(const KeywordList &keywordList)
 {
@@ -147,5 +146,4 @@ QList<TodoItem> LineParser::todoItemsFromKeywordEntries(const QList<KeywordEntry
     return todoItems;
 }
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

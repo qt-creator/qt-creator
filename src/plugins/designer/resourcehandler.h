@@ -10,8 +10,7 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 /* ResourceHandler: Constructed on a form window and activated on open/save as
  * (see README.txt). The form can have 2 states:
@@ -43,5 +42,4 @@ private:
     bool m_handlingResources = false;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

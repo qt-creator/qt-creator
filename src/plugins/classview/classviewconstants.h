@@ -5,8 +5,7 @@
 
 #include <Qt>
 
-namespace ClassView {
-namespace Constants {
+namespace ClassView::Constants {
 
 //! QStandardItem roles
 enum ItemRole
@@ -17,5 +16,4 @@ enum ItemRole
     SymbolTypeRole                          //!< Symbol type
 };
 
-} // namespace Constants
-} // namespace ClassView
+} // namespace ClassView::Constants

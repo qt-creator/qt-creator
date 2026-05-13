@@ -5,8 +5,7 @@
 
 #include <QObject>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class UiController : public QObject
 {
@@ -36,5 +35,4 @@ private:
     QByteArray m_rightHorizSplitterState;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

@@ -20,8 +20,7 @@
 
 enum { debug = false };
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 ///////////////////////////////// NavigationWidget //////////////////////////////////
 
@@ -278,5 +277,4 @@ void NavigationWidget::fetchExpandedItems(QStandardItem *item, const QStandardIt
     }
 }
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal

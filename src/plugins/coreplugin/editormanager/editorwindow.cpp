@@ -20,8 +20,7 @@
 const char geometryKey[] = "geometry";
 const char splitStateKey[] = "splitstate";
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 EditorWindow::EditorWindow(QWidget *parent) :
     QWidget(parent)
@@ -98,5 +97,4 @@ void EditorWindow::updateWindowTitle()
     EditorManagerPrivate::updateWindowTitleForDocument(m_area->currentDocument(), this);
 }
 
-} // Internal
-} // Core
+} // Core::Internal

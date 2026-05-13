@@ -3,12 +3,10 @@
 
 #pragma once
 
-namespace QmlDesigner {
-namespace CurveEditorConstants {
+namespace QmlDesigner::CurveEditorConstants {
 
 constexpr char C_QMLCURVEEDITOR[] = "QmlDesigner::CurveEditor";
 
 constexpr char C_ZOOM_IN[] = "QmlDesigner.ZoomIn";
 constexpr char C_ZOOM_OUT[] = "QmlDesigner.ZoomOut";
-} // CurveEditorConstants
-} // QmlDesigner
+} // QmlDesigner::CurveEditorConstants

@@ -5,8 +5,7 @@
 
 #include <QStandardItemModel>
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 class TreeItemModelPrivate;
 
@@ -34,5 +33,4 @@ private:
     TreeItemModelPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal

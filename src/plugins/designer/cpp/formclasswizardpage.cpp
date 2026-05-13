@@ -20,8 +20,7 @@
 #include <QVBoxLayout>
 #include <QVariant>
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 FormClassWizardPage::FormClassWizardPage()
 {
@@ -106,5 +105,4 @@ bool FormClassWizardPage::validatePage()
     return rc;
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

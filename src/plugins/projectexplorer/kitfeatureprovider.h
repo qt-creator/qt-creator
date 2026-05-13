@@ -5,8 +5,7 @@
 
 #include <coreplugin/featureprovider.h>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class KitFeatureProvider : public Core::IFeatureProvider
 {
@@ -16,5 +15,4 @@ public:
     QString displayNameForPlatform(Utils::Id id) const override;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

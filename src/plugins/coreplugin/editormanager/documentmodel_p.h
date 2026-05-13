@@ -12,8 +12,7 @@
 #include <QList>
 #include <QMap>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class DocumentModelPrivate : public QAbstractItemModel
 {
@@ -69,5 +68,4 @@ public:
     QHash<Utils::FilePath, DocumentModel::Entry *> m_entryByFixedPath;
 };
 
-} // Internal
-} // Core
+} // Core::Internal

@@ -10,8 +10,7 @@
 #include "modelnodepositionstorage.h"
 #include "textmodifier.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class ModelNodePositionRecalculator: public QObject
 {
@@ -36,5 +35,4 @@ private:
     QMap<int, int> m_dirtyAreas;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

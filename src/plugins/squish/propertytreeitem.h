@@ -7,8 +7,7 @@
 
 #include <QSortFilterProxyModel>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class ObjectsMapTreeItem;
 
@@ -91,5 +90,4 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

@@ -24,8 +24,7 @@
 
 using namespace Utils;
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 // Retrieve the comment char format from the text editor.
 static QTextCharFormat commentFormat()
@@ -191,5 +190,4 @@ bool FossilCommitWidget::isValidBranch() const
     return m_branchValidator->validate(text, pos) == QValidator::Acceptable;
 }
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

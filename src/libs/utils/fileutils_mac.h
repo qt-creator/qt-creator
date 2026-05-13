@@ -5,10 +5,8 @@
 
 #include <QUrl>
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 
 QString normalizePathName(const QString &filePath);
 
-} // Internal
-} // Utils
+} // Utils::Internal

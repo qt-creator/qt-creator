@@ -13,8 +13,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static ResultHooks::OutputStringHook outputStringHook(const QString &testCaseName)
 {
@@ -136,7 +135,6 @@ BoostTestResult::BoostTestResult(const QString &id, const QString &name,
                             directParentHook(testCaseName, testSuiteName)})
 {}
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal
 
 Q_DECLARE_METATYPE(Autotest::Internal::BoostTestData);

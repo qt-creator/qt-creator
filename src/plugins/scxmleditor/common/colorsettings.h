@@ -10,8 +10,7 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
 
-namespace ScxmlEditor {
-namespace Common {
+namespace ScxmlEditor::Common {
 
 class ColorThemeView;
 
@@ -35,5 +34,4 @@ private:
     QComboBox *m_comboColorThemes;
 };
 
-} // namespace Common
-} // namespace ScxmlEditor
+} // namespace ScxmlEditor::Common

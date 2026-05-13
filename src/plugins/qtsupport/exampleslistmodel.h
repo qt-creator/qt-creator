@@ -13,8 +13,7 @@
 #include <QStringList>
 #include <QXmlStreamReader>
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class ExamplesViewController;
 
@@ -109,5 +108,4 @@ private:
     bool m_needsUpdateExamples = false;
 };
 
-} // namespace Internal
-} // namespace QtSupport
+} // namespace QtSupport::Internal

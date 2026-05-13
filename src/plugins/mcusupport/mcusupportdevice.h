@@ -6,8 +6,7 @@
 #include <projectexplorer/devicesupport/desktopdevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 class McuSupportDevice final : public ProjectExplorer::DesktopDevice
 {
@@ -26,5 +25,4 @@ public:
     McuSupportDeviceFactory();
 };
 
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal

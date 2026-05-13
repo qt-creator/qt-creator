@@ -9,8 +9,7 @@
 #include <cplusplus/LookupContext.h>
 
 using namespace Utils;
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 ClassViewController::ClassViewController(QObject *parent)
     : QObject(parent)
@@ -75,5 +74,4 @@ void ClassViewController::appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *s
     }
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

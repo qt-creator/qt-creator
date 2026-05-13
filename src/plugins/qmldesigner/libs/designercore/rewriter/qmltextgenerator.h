@@ -10,8 +10,7 @@
 #include "abstractproperty.h"
 #include "modelnode.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class QmlTextGenerator
 {
@@ -38,5 +37,4 @@ private:
     const int m_startIndentDepth;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

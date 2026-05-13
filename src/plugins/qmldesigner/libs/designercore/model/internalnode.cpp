@@ -19,8 +19,7 @@
 #include <ranges>
 #include <utility>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 void InternalNode::setParentProperty(const InternalNodeAbstractProperty::Pointer &parent)
 {
@@ -198,5 +197,4 @@ InternalNode::ManyNodes InternalNode::allDirectSubNodes() const
     return nodes;
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

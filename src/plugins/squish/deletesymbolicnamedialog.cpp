@@ -20,8 +20,7 @@
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 DeleteSymbolicNameDialog::DeleteSymbolicNameDialog(const QString &symbolicName,
                                                    const QStringList &names,
@@ -137,5 +136,4 @@ void DeleteSymbolicNameDialog::onSelectionChanged(const QItemSelection &selectio
         m_selected = selection.indexes().first().data().toString();
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

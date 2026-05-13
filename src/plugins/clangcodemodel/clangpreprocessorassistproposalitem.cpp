@@ -7,8 +7,7 @@
 
 #include <cplusplus/Token.h>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 bool ClangPreprocessorAssistProposalItem::prematurelyApplies(const QChar &typedCharacter) const
 {
@@ -142,5 +141,4 @@ bool ClangPreprocessorAssistProposalItem::isInclude() const
         || m_completionOperator == CPlusPlus::T_ANGLE_STRING_LITERAL;
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

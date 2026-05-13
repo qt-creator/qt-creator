@@ -21,8 +21,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 // ------------ ResourceHandler
 ResourceHandler::ResourceHandler(QDesignerFormWindowInterface *fw) :
@@ -146,5 +145,4 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
     }
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

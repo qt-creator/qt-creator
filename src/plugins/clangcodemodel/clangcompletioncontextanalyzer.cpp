@@ -41,8 +41,7 @@ bool isTokenForPassThrough(unsigned tokenKind)
 
 } // anonymous namespace
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 ClangCompletionContextAnalyzer::ClangCompletionContextAnalyzer(
         QTextDocument *document, int position, bool isFunctionHint,
@@ -205,5 +204,4 @@ bool ClangCompletionContextAnalyzer::handleNonFunctionCall(int position)
     return false;
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

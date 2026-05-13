@@ -7,8 +7,7 @@
 
 #include <utils/icon.h>
 
-namespace Core {
-namespace Icons {
+namespace Core::Icons {
 
 CORE_EXPORT extern const Utils::Icon QTCREATORLOGO_BIG;
 CORE_EXPORT extern const Utils::Icon QTLOGO;
@@ -25,5 +24,4 @@ CORE_EXPORT extern const Utils::Icon MODE_DESIGN_FLAT_ACTIVE;
 CORE_EXPORT extern const Utils::Icon MODE_SETTINGS;
 CORE_EXPORT extern const Utils::Icon DESKTOP_DEVICE_SMALL;
 
-} // namespace Icons
-} // namespace Core
+} // namespace Core::Icons

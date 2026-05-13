@@ -24,8 +24,7 @@
 
 namespace ProjectExplorer { class ProjectUpdater; }
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class ErrorInfo;
 class QbsBuildConfiguration;
@@ -156,5 +155,4 @@ private:
     ProjectExplorer::Task m_fileUpdateError;
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

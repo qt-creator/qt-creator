@@ -17,8 +17,7 @@ QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 class FormEditorStack : public QStackedWidget
 {
@@ -50,5 +49,4 @@ private:
     QDesignerFormEditorInterface *m_designerCore = nullptr;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

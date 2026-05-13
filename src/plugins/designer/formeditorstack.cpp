@@ -37,8 +37,7 @@
     window changes.
 */
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 FormEditorStack::FormEditorStack(QWidget *parent) :
     QStackedWidget(parent)
@@ -187,5 +186,4 @@ void FormEditorStack::modeAboutToChange(Utils::Id mode)
             data.formWindowEditor->formWindowFile()->syncXmlFromFormWindow();
 }
 
-} // Internal
-} // Designer
+} // Designer::Internal

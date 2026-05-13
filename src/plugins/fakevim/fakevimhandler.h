@@ -9,8 +9,7 @@
 #include <functional>
 #include <vector>
 
-namespace FakeVim {
-namespace Internal {
+namespace FakeVim::Internal {
 
 enum RangeMode
 {
@@ -176,7 +175,6 @@ private:
     Private *d;
 };
 
-} // namespace Internal
-} // namespace FakeVim
+} // namespace FakeVim::Internal
 
 Q_DECLARE_METATYPE(FakeVim::Internal::ExCommand)

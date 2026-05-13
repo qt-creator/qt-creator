@@ -5,8 +5,7 @@
 
 #include "../testresult.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class CatchResult : public TestResult
 {
@@ -14,5 +13,4 @@ public:
     CatchResult(const QString &id, const QString &name, int depth);
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

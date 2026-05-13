@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace ClangFormat {
-namespace Constants {
+namespace ClangFormat::Constants {
 static const char SETTINGS_FILE_NAME[] = ".clang-format";
 static const char SETTINGS_FILE_ALT_NAME[] = "_clang-format";
 static const char SAMPLE_FILE_NAME[] = "test.cpp";
@@ -16,5 +15,4 @@ static const char MODE_ID[] = "ClangFormat.Mode";
 static const char FILE_SIZE_THREDSHOLD[] = "ClangFormat.FileSizeThreshold";
 static const char USE_GLOBAL_SETTINGS[] = "ClangFormat.UseGlobalSettings";
 static const char OPEN_CURRENT_CONFIG_ID[] = "ClangFormat.OpenCurrentConfig";
-} // namespace Constants
-} // namespace ClangFormat
+} // namespace ClangFormat::Constants

@@ -32,8 +32,7 @@ static const char SIZE_WARNING_ID[] = "sizeWarningLabel";
 
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class WideEnoughLineEdit : public Utils::FancyLineEdit
 {
@@ -526,7 +525,6 @@ void SearchResultWidget::updateMatchesFoundLabel()
     }
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal
 
 #include "searchresultwidget.moc"

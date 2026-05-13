@@ -9,8 +9,7 @@
 
 #include <QXmlStreamReader>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class QtTestResult;
 
@@ -71,5 +70,4 @@ private:
     bool m_expectTag = true;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

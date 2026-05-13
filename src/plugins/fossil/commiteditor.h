@@ -8,8 +8,7 @@
 
 namespace VcsBase { class SubmitFileModel; }
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class BranchInfo;
 class FossilCommitWidget;
@@ -31,5 +30,4 @@ private:
     VcsBase::SubmitFileModel *m_fileModel = nullptr;
 };
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

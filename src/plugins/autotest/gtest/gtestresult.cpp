@@ -13,8 +13,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static ResultHooks::OutputStringHook outputStringHook(const QString &testCaseName)
 {
@@ -130,8 +129,7 @@ GTestResult::GTestResult(const QString &id, const QString &name, const FilePath 
                             directParentHook(testCaseName, iteration)})
 {}
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal
 
 Q_DECLARE_METATYPE(Autotest::Internal::GTestData);
 

@@ -5,8 +5,7 @@
 
 #include "internalproperty.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class InternalBindingProperty : public InternalProperty
 {
@@ -29,5 +28,4 @@ private:
     QString m_expression;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

@@ -7,11 +7,9 @@
 
 /* Helper functions to extract information from PE Win32 executable
  * files (cf dumpbin utility). */
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Return a list of Program-Database (*.pdb) files a PE executable refers to. */
 bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage);
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

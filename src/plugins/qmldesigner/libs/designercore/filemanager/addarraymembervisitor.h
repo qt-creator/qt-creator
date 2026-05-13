@@ -5,8 +5,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class AddArrayMemberVisitor: public QMLRewriter
 {
@@ -39,5 +38,4 @@ private:
     bool m_convertObjectBindingIntoArrayBinding;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

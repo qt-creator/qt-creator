@@ -9,8 +9,7 @@
 
 #include <QXmlStreamReader>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 static QByteArray startApplication(Language language,
                                    const QString &application,
@@ -149,5 +148,4 @@ bool ScriptHelper::writeScriptFile(const Utils::FilePath &outScriptFile,
     return true;
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

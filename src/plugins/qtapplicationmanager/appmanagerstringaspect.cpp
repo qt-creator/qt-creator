@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace AppManager {
-namespace Internal {
+namespace AppManager::Internal {
 
 AppManagerIdAspect::AppManagerIdAspect(Utils::AspectContainer *container)
     : StringAspect(container)
@@ -89,5 +88,4 @@ AppManagerPackagerAspect::AppManagerPackagerAspect(Utils::AspectContainer *conta
 }
 
 
-} // namespace Internal
-} // namespace AppManager
+} // namespace AppManager::Internal

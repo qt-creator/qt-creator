@@ -10,8 +10,7 @@
 
 using namespace Utils;
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 const QChar ObjectsMapTreeItem::COLON = ':';
 
@@ -474,5 +473,4 @@ bool ObjectsMapSortFilterModel::filterAcceptsRow(int sourceRow,
     return checkRecursivelyForPattern(index, srcModel, pattern);
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

@@ -5,8 +5,7 @@
 
 #include "../wizards/qtwizard.h"
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class CustomWidgetWizard : public QtWizard
 {
@@ -19,5 +18,4 @@ protected:
     Utils::Result<Core::GeneratedFiles> generateFiles(const QWizard *w) const override;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

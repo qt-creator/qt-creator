@@ -10,8 +10,7 @@
 
 #include <QTextDocument>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 using FileToFixits = QMap<Utils::FilePath, QList<ClangFixIt>>;
 using RefactoringFilePtr = QSharedPointer<TextEditor::RefactoringFile>;
@@ -91,5 +90,4 @@ Utils::ChangeSet ClangFixItOperation::toChangeSet(
     return changeSet;
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

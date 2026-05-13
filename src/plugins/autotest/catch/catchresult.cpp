@@ -11,8 +11,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static ResultHooks::FindTestItemHook findTestItemHook()
 {
@@ -72,7 +71,6 @@ CatchResult::CatchResult(const QString &id, const QString &name, int depth)
                             {}, findTestItemHook(), directParentHook(depth)})
 {}
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal
 
 Q_DECLARE_METATYPE(Autotest::Internal::CatchData);

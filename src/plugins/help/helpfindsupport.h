@@ -5,8 +5,7 @@
 
 #include <coreplugin/find/ifindsupport.h>
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class HelpViewer;
 
@@ -31,5 +30,4 @@ private:
     HelpViewer *m_viewer;
 };
 
-} // namespace Internal
-} // namespace Help
+} // namespace Help::Internal

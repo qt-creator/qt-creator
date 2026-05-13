@@ -27,8 +27,7 @@
 
 #include "qmt/model_controller/modelcontroller.h"
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 void OpenDiagramElementVisitor::setModelController(qmt::ModelController *modelController)
 {
@@ -203,5 +202,4 @@ void OpenModelElementVisitor::visitMConnection(const qmt::MConnection *connectio
     Q_UNUSED(connection)
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

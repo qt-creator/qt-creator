@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace AppManager {
-namespace Constants {
+namespace AppManager::Constants {
 
 const char APPMAN[] = "appman";
 const char APPMAN_CONTROLLER[] = "appman-controller";
@@ -33,5 +32,4 @@ const char QMAKE_AM_PACKAGE_DIR_VARIABLE[] = "AM_PACKAGE_DIR";
 const char REMOTE_DEFAULT_BIN_PATH[] = "/usr/bin";
 const char REMOTE_DEFAULT_TMP_PATH[] = "/tmp";
 
-} // namespace Constants
-} // namespace AppManager
+} // namespace AppManager::Constants

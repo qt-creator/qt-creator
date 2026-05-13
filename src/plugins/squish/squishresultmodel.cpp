@@ -5,8 +5,7 @@
 
 #include "squishtr.h"
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 enum Role { Type = Qt::UserRole };
 
@@ -170,5 +169,4 @@ bool SquishResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex 
     return m_enabled.contains(Result::Type(idx.data(Type).toInt()));
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

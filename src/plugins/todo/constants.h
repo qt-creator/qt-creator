@@ -6,8 +6,7 @@
 
 #include <QtGlobal>
 
-namespace Todo {
-namespace Constants {
+namespace Todo::Constants {
 
 const char TODO_SETTINGS[] = "TodoSettings";
 
@@ -35,5 +34,4 @@ const int OUTPUT_PANE_UPDATE_INTERVAL = 2000;
 
 const char FILTER_KEYWORD_NAME[] = "filterKeywordName";
 
-} // namespace Constants
-} // namespace Todo
+} // namespace Todo::Constants

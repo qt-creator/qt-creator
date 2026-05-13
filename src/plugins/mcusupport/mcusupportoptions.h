@@ -24,8 +24,7 @@ class Kit;
 class Toolchain;
 } // namespace ProjectExplorer
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 class McuAbstractPackage;
 
@@ -85,5 +84,4 @@ signals:
     void packagesChanged();
 };
 
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal

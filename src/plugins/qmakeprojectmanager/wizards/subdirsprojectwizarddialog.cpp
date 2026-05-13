@@ -10,8 +10,7 @@
 
 #include <utils/filepath.h>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                                        const QString &templateName,
@@ -39,5 +38,4 @@ QtProjectParameters SubdirsProjectWizardDialog::parameters() const
     return rc;
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

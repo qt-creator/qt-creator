@@ -6,8 +6,7 @@
 #include <QString>
 #include <QLatin1String>
 
-namespace TextEditor {
-namespace Internal {
+namespace TextEditor::Internal {
 
 const QLatin1String kTrue("true");
 const QLatin1String kFalse("false");
@@ -26,5 +25,4 @@ inline QString fromBool(bool b)
     return kFalse;
 }
 
-} // Internal
-} // TextEditor
+} // TextEditor::Internal

@@ -23,8 +23,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 ToolWidget::ToolWidget(QWidget *parent) : FadingPanel(parent)
 {
@@ -348,5 +347,4 @@ void BuildStepListWidget::updateBuildStepButtonsState()
     }
 }
 
-} // Internal
-} // ProjectExplorer
+} // ProjectExplorer::Internal

@@ -12,8 +12,7 @@
 
 using namespace Utils;
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 QString matchRegExp(const QString &text, const QString &regExp)
 {
@@ -118,5 +117,4 @@ QString McuPackagePathVersionDetector::parseVersion(const FilePath &packagePath)
     return matchRegExp(packagePath.toUrlishString(), m_versionRegExp);
 }
 
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal

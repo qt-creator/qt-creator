@@ -18,8 +18,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class CustomWizardField;
 class CustomWizardParameters;
@@ -112,5 +111,4 @@ private:
     Utils::PathChooser *m_pathChooser;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

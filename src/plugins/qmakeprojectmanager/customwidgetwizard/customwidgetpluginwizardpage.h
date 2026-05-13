@@ -12,8 +12,7 @@ class QLineEdit;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 struct PluginOptions;
 class CustomWidgetWidgetsWizardPage;
@@ -55,5 +54,4 @@ private:
     QLineEdit *m_resourceFileEdit;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

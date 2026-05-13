@@ -5,8 +5,7 @@
 
 #include "../testoutputreader.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 enum class LogLevel;
 enum class ReportLevel;
@@ -40,5 +39,4 @@ private:
     ReportLevel m_reportLevel;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

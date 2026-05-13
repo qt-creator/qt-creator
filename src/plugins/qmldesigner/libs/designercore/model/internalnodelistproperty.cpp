@@ -5,8 +5,7 @@
 #include "internalnode_p.h"
 #include <QList>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 InternalNodeListProperty::InternalNodeListProperty(PropertyNameView name,
                                                    const InternalNodePointer &propertyOwner)
@@ -89,5 +88,4 @@ InternalNodeListProperty::ManyNodes InternalNodeListProperty::allSubNodes() cons
     return nodes;
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

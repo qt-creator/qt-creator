@@ -5,8 +5,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class ChangeObjectTypeVisitor: public QMLRewriter
 {
@@ -27,5 +26,4 @@ private:
     QString m_newType;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

@@ -35,8 +35,7 @@ using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 namespace {
 
@@ -270,5 +269,4 @@ bool ClangdTextMark::addToolTipContent(QLayout *target) const
     return true;
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

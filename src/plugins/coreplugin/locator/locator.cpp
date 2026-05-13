@@ -40,8 +40,7 @@ using namespace Utils;
 
 using namespace std::chrono;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 static Locator *m_instance = nullptr;
 
@@ -450,5 +449,4 @@ void Locator::showFilter(ILocatorFilter *filter, LocatorWidget *widget)
                      searchText->size());
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

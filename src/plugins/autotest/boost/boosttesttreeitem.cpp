@@ -20,8 +20,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestTreeItem *BoostTestTreeItem::copyWithoutChildren()
 {
@@ -371,5 +370,4 @@ bool BoostTestTreeItem::modifyTestContent(const BoostTestParseResult *result)
     return hasBeenModified;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

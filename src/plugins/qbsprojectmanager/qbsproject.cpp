@@ -68,8 +68,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 // --------------------------------------------------------------------
 // Constants:
@@ -1246,5 +1245,4 @@ void QbsBuildSystem::updateBuildTargetData()
     emitBuildSystemUpdated();
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

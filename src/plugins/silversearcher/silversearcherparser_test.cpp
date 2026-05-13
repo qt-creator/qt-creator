@@ -8,8 +8,7 @@
 
 using namespace Utils;
 
-namespace SilverSearcher {
-namespace Internal {
+namespace SilverSearcher::Internal {
 
 SearchResultItem searchResult(const FilePath &fileName, const QString &matchingLine,
                               int lineNumber, int matchStart, int matchLength)
@@ -65,5 +64,4 @@ void OutputParserTest::test()
     QCOMPARE(items, results);
 }
 
-} // namespace Internal
-} // namespace SilverSearcher
+} // namespace SilverSearcher::Internal

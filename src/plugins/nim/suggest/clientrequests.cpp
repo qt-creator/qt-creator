@@ -6,8 +6,7 @@
 #include <QDebug>
 #include <QMetaEnum>
 
-namespace Nim {
-namespace Suggest {
+namespace Nim::Suggest {
 
 bool Line::fromString(Line::LineType &type, const std::string &str)
 {
@@ -37,5 +36,4 @@ QDebug operator<<(QDebug debug, const Line &c)
     return debug;
 }
 
-} // namespace Suggest
-} // namespace Nim
+} // namespace Nim::Suggest

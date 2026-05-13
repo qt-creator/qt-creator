@@ -7,8 +7,7 @@
 
 namespace Core { class IOutputPane; }
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class ShowOutputTaskHandler : public ITaskHandler
 {
@@ -28,5 +27,4 @@ private:
     const QString m_shortcut;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

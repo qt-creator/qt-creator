@@ -7,8 +7,7 @@
 #include <QSerialPortInfo>
 #include <QSet>
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 class SerialDeviceModel : public QAbstractListModel
 {
@@ -38,5 +37,4 @@ private:
     QList<qint32> m_baudRates;
 };
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal

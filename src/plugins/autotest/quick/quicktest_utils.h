@@ -11,13 +11,11 @@ namespace Autotest {
 
 class ITestFramework;
 
-namespace Internal {
-namespace QuickTestUtils {
+namespace Internal::QuickTestUtils {
 
 bool isQuickTestMacro(const QByteArray &macro);
 QHash<Utils::FilePath, Utils::FilePath> proFilesForQmlFiles(ITestFramework *framework,
                                                             const QSet<Utils::FilePath> &files);
 
-} // namespace QuickTestUtils
-} // namespace Internal
+} // namespace Internal::QuickTestUtils
 } // namespace Autotest

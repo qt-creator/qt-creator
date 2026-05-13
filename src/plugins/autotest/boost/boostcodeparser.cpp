@@ -8,8 +8,7 @@
 #include <cplusplus/Token.h>
 #include <utils/qtcassert.h>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 using namespace CPlusPlus;
 
@@ -401,5 +400,4 @@ bool BoostCodeParser::evalCurrentDecorator(const QByteArray &decorator, QString 
     return true;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

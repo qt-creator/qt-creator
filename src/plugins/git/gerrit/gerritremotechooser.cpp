@@ -15,8 +15,7 @@
 
 using namespace Utils;
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 GerritRemoteChooser::GerritRemoteChooser(QWidget *parent) :
     QWidget(parent)
@@ -133,5 +132,4 @@ void GerritRemoteChooser::handleRemoteChanged()
     emit remoteChanged();
 }
 
-} // namespace Internal
-} // namespace Gerrit
+} // namespace Gerrit::Internal

@@ -12,8 +12,7 @@
 
 #include <QTextDocument>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 ActivationSequenceContextProcessor::ActivationSequenceContextProcessor(
         QTextDocument *document, int position, CPlusPlus::LanguageFeatures languageFeatures)
@@ -289,6 +288,5 @@ void ActivationSequenceContextProcessor::goBackToStartOfName()
         m_textCursor.setPosition(m_startOfNamePosition);
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal
 

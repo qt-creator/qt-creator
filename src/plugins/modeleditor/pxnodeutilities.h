@@ -14,8 +14,7 @@ class MPackage;
 class DiagramSceneController;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class PxNodeUtilities :
         public QObject
@@ -43,5 +42,4 @@ private:
     PxNodeUtilitiesPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

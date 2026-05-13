@@ -8,8 +8,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 McuSupportDevice::McuSupportDevice()
 {
@@ -44,5 +43,4 @@ McuSupportDeviceFactory::McuSupportDeviceFactory()
     setCreator(&McuSupportDevice::create);
 }
 
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal

@@ -23,8 +23,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class DeploymentDataItem : public TreeItem
 {
@@ -161,5 +160,4 @@ DeploymentDataView::DeploymentDataView(DeployConfiguration *dc)
     updateButtons();
 }
 
-} // Internal
-} // ProjectExplorer
+} // ProjectExplorer::Internal

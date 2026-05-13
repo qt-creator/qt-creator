@@ -5,8 +5,7 @@
 
 #include <QDialog>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 struct RepositorySettings;
 class ConfigureDialogPrivate;
@@ -26,5 +25,4 @@ private:
     ConfigureDialogPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

@@ -7,8 +7,7 @@
 
 #include <QPointer>
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 class MacroTextFind : public Core::IFindSupport
 {
@@ -46,5 +45,4 @@ private:
     QPointer<Core::IFindSupport> m_currentFind;
 };
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal

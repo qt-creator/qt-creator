@@ -5,8 +5,7 @@
 
 #include <utils/algorithm.h>
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 SerialDeviceModel::SerialDeviceModel(QObject *parent) :
     QAbstractListModel(parent),
@@ -111,5 +110,4 @@ QVariant SerialDeviceModel::data(const QModelIndex &index, int role) const
     return m_ports.at(index.row()).portName();
 }
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal

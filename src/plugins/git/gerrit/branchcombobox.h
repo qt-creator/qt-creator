@@ -11,8 +11,7 @@ namespace Git {
 namespace Internal { class GitClient; }
 }
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 class BranchComboBox : public QComboBox
 {
@@ -25,5 +24,4 @@ private:
     bool m_detached = false;
 };
 
-} // namespace Internal
-} // namespace Gerrit
+} // namespace Gerrit::Internal

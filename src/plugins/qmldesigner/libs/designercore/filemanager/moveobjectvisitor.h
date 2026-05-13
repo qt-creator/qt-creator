@@ -5,8 +5,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class MoveObjectVisitor: public QMLRewriter
 {
@@ -39,5 +38,4 @@ private:
     QmlJS::AST::UiProgram *program;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

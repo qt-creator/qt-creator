@@ -6,8 +6,7 @@
 #include <QList>
 #include <QMimeData>
 
-namespace TextEditor {
-namespace Internal {
+namespace TextEditor::Internal {
 
 class CircularClipboard
 {
@@ -29,5 +28,4 @@ private:
     QList<std::shared_ptr<const QMimeData>> m_items;
 };
 
-} // namespace Internal
-} // namespace TextEditor
+} // namespace TextEditor::Internal

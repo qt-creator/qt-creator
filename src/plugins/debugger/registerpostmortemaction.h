@@ -5,8 +5,7 @@
 
 #include <utils/aspects.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class RegisterPostMortemAction : public Utils::BoolAspect
 {
@@ -19,5 +18,4 @@ private:
     void registerNow(bool value);
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

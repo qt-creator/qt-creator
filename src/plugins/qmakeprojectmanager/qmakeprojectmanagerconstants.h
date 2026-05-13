@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace QmakeProjectManager {
-namespace Constants {
+namespace QmakeProjectManager::Constants {
 
 // Menus
 const char M_CONTEXT[] = "ProFileEditor.ContextMenu";
@@ -39,5 +38,4 @@ const char QMAKE_BS_ID[] = "QtProjectManager.QMakeBuildStep";
 // Kit
 const char KIT_INFORMATION_ID[] = "QtPM4.mkSpecInformation";
 
-} // namespace Constants
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Constants

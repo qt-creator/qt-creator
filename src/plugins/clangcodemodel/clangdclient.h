@@ -29,8 +29,7 @@ class BaseTextEditor;
 class IAssistProposal;
 }
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 class ClangdAstNode;
 
 Q_DECLARE_LOGGING_CATEGORY(clangdLog);
@@ -167,5 +166,4 @@ public:
     QString category() const;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

@@ -194,8 +194,7 @@ static void collectPDBfiles(void *fileMemory, IMAGE_DEBUG_DIRECTORY *directoryBa
        }
 }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage)
 {
@@ -259,8 +258,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
 
 #else // Q_OS_WIN
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage)
 {
@@ -272,5 +270,4 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
 
 #endif // Q_OS_WIN
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

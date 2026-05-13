@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static const char SK_ACTIVE_FRAMEWORKS[]        = "AutoTest.ActiveFrameworks";
 static const char SK_RUN_AFTER_BUILD[]          = "AutoTest.RunAfterBuild";
@@ -118,5 +117,4 @@ void TestProjectSettings::save()
     m_project->setNamedSettings(SK_PATH_FILTERS, m_pathFilters);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

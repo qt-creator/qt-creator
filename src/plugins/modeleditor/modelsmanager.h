@@ -20,8 +20,7 @@ class DContainer;
 class DReferences;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ExtDocumentController;
 class DiagramsViewManager;
@@ -69,5 +68,4 @@ private:
     ModelsManagerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

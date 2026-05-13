@@ -24,8 +24,7 @@
 
 using namespace Utils;
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 FormPageFactory::FormPageFactory()
 {
@@ -109,5 +108,4 @@ QString FormTemplateWizardPage::stripNamespaces(const QString &className)
     return rc;
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

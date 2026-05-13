@@ -133,8 +133,7 @@ constexpr bool debugBreakpoints = false;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 static const char localsPrefixC[] = "local.";
 
@@ -3064,7 +3063,6 @@ void CdbEngine::watchPoint(const QPoint &p)
     runCommand(cmd);
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal
 
 Q_DECLARE_METATYPE(Debugger::Internal::GdbMi)

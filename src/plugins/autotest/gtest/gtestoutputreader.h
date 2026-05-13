@@ -5,8 +5,7 @@
 
 #include "../testoutputreader.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class GTestOutputReader : public TestOutputReader
 {
@@ -33,5 +32,4 @@ private:
     bool m_inSummary = false;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

@@ -15,8 +15,7 @@
 #include <QDir>
 #include <QUrl>
 
-namespace Core {
-namespace HelpManager {
+namespace Core::HelpManager {
 
 // makes sure that plugins can connect to HelpManager signals even if the Help plugin is not loaded
 Q_APPLICATION_STATIC(Signals, m_signals)
@@ -110,5 +109,4 @@ void addOnlineHelpHandler(const OnlineHelpHandler &handler)
         m_instance->addOnlineHelpHandler(handler);
 }
 
-} // HelpManager
-} // Core
+} // Core::HelpManager

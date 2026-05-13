@@ -7,8 +7,7 @@
 #include <QFlags>
 #include <QTextDocument>
 
-namespace Core {
-namespace Constants {
+namespace Core::Constants {
 
 const char C_FINDTOOLBAR[]     = "Find.ToolBar";
 
@@ -36,6 +35,4 @@ const char REGULAR_EXPRESSIONS[] = "Find.RegularExpressions";
 const char PRESERVE_CASE[]     = "Find.PreserveCase";
 const char TASK_SEARCH[]       = "Find.Task.Search";
 
-} // namespace Constants
-
-} // namespace Core
+} // namespace Core::Constants

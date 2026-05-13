@@ -40,8 +40,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 DocumentClangToolRunner::DocumentClangToolRunner(TextEditor::TextDocument *document)
     : QObject(document)
@@ -347,5 +346,4 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
     return Utils::anyOf(m_suppressed, equalsSuppressed);
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

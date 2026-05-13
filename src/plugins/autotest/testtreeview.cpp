@@ -8,8 +8,7 @@
 
 #include <coreplugin/icontext.h>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestTreeView::TestTreeView(QWidget *parent)
     : NavigationTreeView(parent)
@@ -34,5 +33,4 @@ void TestTreeView::deselectAll()
     changeCheckStateAll(Qt::Unchecked);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

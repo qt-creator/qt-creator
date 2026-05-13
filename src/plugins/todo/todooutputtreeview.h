@@ -5,8 +5,7 @@
 
 #include <utils/itemviews.h>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class TodoOutputTreeView : public Utils::TreeView
 {
@@ -26,5 +25,4 @@ private:
     qreal m_fileColumnDefaultWidth = 0.0;
 };
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

@@ -29,8 +29,7 @@ using namespace Core;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser", QtWarningMsg)
 
@@ -553,5 +552,4 @@ void TestCodeParser::releaseParserInternals()
         parser->release();
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

@@ -15,8 +15,7 @@
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.vfso", QtWarningMsg)
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 VirtualFileSystemOverlay::VirtualFileSystemOverlay(const QString &rootPattern)
     : m_root(rootPattern)
@@ -105,5 +104,4 @@ Utils::FilePath VirtualFileSystemOverlay::originalFilePath(const Utils::FilePath
     return m_mapping.value(file, file);
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

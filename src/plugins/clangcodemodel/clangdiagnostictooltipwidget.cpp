@@ -22,8 +22,7 @@
 #include <QTextDocument>
 #include <QUrl>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 namespace {
 
@@ -388,5 +387,4 @@ QWidget *ClangDiagnosticWidget::createWidget(
             .createWidget(diagnostics, canApplyFixIt, source);
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

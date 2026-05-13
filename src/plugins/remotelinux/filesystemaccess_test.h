@@ -6,8 +6,7 @@
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <utils/filepath.h>
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class TestLinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
@@ -53,5 +52,4 @@ private:
     Utils::FilePath m_remoteRemoteDestDir;
 };
 
-} // Internal
-} // RemoteLinux
+} // RemoteLinux::Internal

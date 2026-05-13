@@ -19,8 +19,7 @@
 
 @end
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 
 class ApplicationDelegate
 {
@@ -36,5 +35,4 @@ public:
     ApplicationDelegateImpl *applicationDelegate;
 };
 
-} // Internal
-} // Utils
+} // Utils::Internal

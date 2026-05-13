@@ -11,8 +11,7 @@
 #include <QMouseEvent>
 #include <QMimeData>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class DragTool::DragToolPrivate {
 public:
@@ -150,5 +149,4 @@ void DragTool::mouseMoveEvent(QMouseEvent *event)
         update();
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

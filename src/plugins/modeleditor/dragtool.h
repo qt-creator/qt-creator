@@ -6,8 +6,7 @@
 #include <QWidget>
 #include <QIcon>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class DragTool :
         public QWidget
@@ -33,5 +32,4 @@ private:
     DragToolPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

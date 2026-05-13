@@ -7,8 +7,7 @@
 
 #include <QPersistentModelIndex>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestEditorMark : public TextEditor::TextMark
 {
@@ -22,5 +21,4 @@ private:
     QPersistentModelIndex m_item;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

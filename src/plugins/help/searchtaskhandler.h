@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QUrl;
 QT_END_NAMESPACE
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class SearchTaskHandler : public ProjectExplorer::ITaskHandler
 {
@@ -28,5 +27,4 @@ private:
     QAction *createAction() const;
 };
 
-} // namespace Internal
-} // namespace Help
+} // namespace Help::Internal

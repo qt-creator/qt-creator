@@ -10,8 +10,7 @@
 
 using namespace Utils;
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 QIcon icon(IconType type)
 {
@@ -66,5 +65,4 @@ QIcon toolBarIcon(IconType type)
     }
 }
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

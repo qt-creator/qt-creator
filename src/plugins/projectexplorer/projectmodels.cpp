@@ -53,8 +53,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 static Q_LOGGING_CATEGORY(projectModelLog, "qtc.pm.projectModel", QtWarningMsg)
 static Q_LOGGING_CATEGORY(projectModelTimingLog, "qtc.pm.projectModelTiming", QtWarningMsg)
@@ -1085,5 +1084,4 @@ const QLoggingCategory &FlatModel::logger()
     return logger;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

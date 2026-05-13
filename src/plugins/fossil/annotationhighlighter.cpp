@@ -6,8 +6,7 @@
 
 #include <utils/qtcassert.h>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 FossilAnnotationHighlighter::FossilAnnotationHighlighter(const VcsBase::Annotation &annotation)
     : VcsBase::BaseAnnotationHighlighter(annotation)
@@ -24,5 +23,4 @@ QString FossilAnnotationHighlighter::changeNumber(const QString &block) const
     return {};
 }
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

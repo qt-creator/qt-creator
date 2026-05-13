@@ -114,5 +114,4 @@ private:
 };
 
 } // namespace Internal
-
 } // namespace RemoteLinux

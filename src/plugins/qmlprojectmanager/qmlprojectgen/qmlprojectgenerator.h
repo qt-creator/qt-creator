@@ -5,8 +5,7 @@
 
 #include <utils/filepath.h>
 
-namespace QmlProjectManager {
-namespace GenerateQmlProject {
+namespace QmlProjectManager::GenerateQmlProject {
 
 class QmlProjectFileGenerator {
 public:
@@ -35,5 +34,4 @@ private:
     Utils::FilePath m_targetFile;
 };
 
-} // GenerateQmlProject
-} // QmlProjectManager
+} // QmlProjectManager::GenerateQmlProject

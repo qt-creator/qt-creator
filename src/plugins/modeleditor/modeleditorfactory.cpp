@@ -10,8 +10,7 @@
 
 #include <QCoreApplication>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 ModelEditorFactory::ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler)
 {
@@ -21,5 +20,4 @@ ModelEditorFactory::ModelEditorFactory(UiController *uiController, ActionHandler
     setEditorCreator([uiController, actionHandler] { return new ModelEditor(uiController, actionHandler); });
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

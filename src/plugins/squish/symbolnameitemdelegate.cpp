@@ -8,8 +8,7 @@
 
 using namespace Utils;
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 /********************************** SymbolNameItemDelegate ************************************/
 
@@ -65,5 +64,4 @@ ValidatingContainerNameLineEdit::ValidatingContainerNameLineEdit(const QStringLi
     });
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

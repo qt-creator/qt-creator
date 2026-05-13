@@ -18,8 +18,7 @@
 
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 static void handleProcessError(const Process &p)
 {
@@ -251,5 +250,4 @@ bool operator!=(const ClazyCheck &c1, const ClazyCheck &c2)
     return !(c1 == c2);
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

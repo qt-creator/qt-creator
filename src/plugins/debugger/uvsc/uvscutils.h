@@ -7,9 +7,7 @@
 
 #include <debugger/debuggerprotocol.h>
 
-namespace Debugger {
-namespace Internal {
-namespace UvscUtils {
+namespace Debugger::Internal::UvscUtils {
 
 enum RegisterType {
     // General purpose registers (R0-R15).
@@ -61,6 +59,4 @@ GdbMi buildEntry(const QString &name, const QString &data, GdbMi::Type type);
 GdbMi buildChildrenEntry(const std::vector<GdbMi> &locals);
 GdbMi buildResultTemplateEntry(bool partial);
 
-} // namespace UvscUtils
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal::UvscUtils

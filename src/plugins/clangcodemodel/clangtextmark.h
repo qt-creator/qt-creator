@@ -15,8 +15,7 @@
 
 namespace LanguageClient { class Client; }
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ClangdClient;
 
@@ -36,5 +35,4 @@ private:
     const QPointer<const LanguageClient::Client> m_client;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

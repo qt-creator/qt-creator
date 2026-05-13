@@ -6,8 +6,7 @@
 
 #include <QKeyEvent>
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 ConsoleLineEdit::ConsoleLineEdit(QWidget *parent) :
     QLineEdit(parent),
@@ -66,5 +65,4 @@ void ConsoleLineEdit::keyPressEvent(QKeyEvent *event)
     }
 }
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal

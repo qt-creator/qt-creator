@@ -5,8 +5,7 @@
 
 #include "rewriteaction.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class RewriteActionCompressor
 {
@@ -36,5 +35,4 @@ private:
     ModelNodePositionStorage *m_positionStore;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

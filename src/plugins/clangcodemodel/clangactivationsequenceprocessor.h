@@ -7,8 +7,7 @@
 
 #include <QString>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ActivationSequenceProcessor
 {
@@ -48,5 +47,4 @@ private:
     bool m_wantFunctionCall;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

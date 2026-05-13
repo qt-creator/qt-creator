@@ -20,8 +20,7 @@
 
 namespace ProjectExplorer { class Project; }
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class ClangToolsDiagnosticModel;
 class InlineSuppressedDiagnostics;
@@ -173,5 +172,4 @@ private:
     int m_fixitsScheduled = 0;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

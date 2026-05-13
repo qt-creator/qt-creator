@@ -16,8 +16,7 @@
 #include <QApplication>
 #include <QVBoxLayout>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 EditorArea::EditorArea()
     : m_splitterOrView(new SplitterOrView)
@@ -172,5 +171,4 @@ void EditorArea::hideEvent(QHideEvent *)
     emit hidden();
 }
 
-} // Internal
-} // Core
+} // Core::Internal

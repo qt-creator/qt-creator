@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace Core {
-namespace Constants {
+namespace Core::Constants {
 
 // Modes
 const char MODE_WELCOME[]          = "Welcome";
@@ -246,5 +245,4 @@ const char G_ANALYZER_REMOTE_TOOLS[] = "Menu.Group.Analyzer.RemoteTools";
 const char G_ANALYZER_OPTIONS[]      = "Menu.Group.Analyzer.Options";
 const char ANALYZERTASK_ID[]         = "Analyzer.TaskId";
 
-} // namespace Constants
-} // namespace Core
+} // namespace Core::Constants

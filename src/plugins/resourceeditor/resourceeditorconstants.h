@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace ResourceEditor {
-namespace Constants {
+namespace ResourceEditor::Constants {
 
 const char C_RESOURCEEDITOR[] = "Qt4.ResourceEditor";
 const char RESOURCEEDITOR_ID[] = "Qt4.ResourceEditor";
@@ -26,5 +25,4 @@ const char C_OPEN_EDITOR[] = "ResourceEditor.OpenEditor";
 const char C_COPY_PATH[] = "ResourceEditor.CopyPath";
 const char C_COPY_URL[] = "ResourceEditor.CopyUrl";
 
-} // namespace Constants
-} // namespace ResourceEditor
+} // namespace ResourceEditor::Constants

@@ -6,8 +6,7 @@
 #include <QString>
 #include <QWidget>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class ProgressBar : public QWidget
 {
@@ -66,5 +65,4 @@ private:
     QRect m_cancelRect;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

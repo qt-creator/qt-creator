@@ -12,8 +12,7 @@
 #include <QStack>
 #include <QAbstractItemModel>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 struct FlameGraphData
 {
@@ -107,5 +106,4 @@ private:
     QSet<int> m_typeIdsWithNotes;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

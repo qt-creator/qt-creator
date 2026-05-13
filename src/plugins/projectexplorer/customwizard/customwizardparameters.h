@@ -18,8 +18,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class TemporaryFile; }
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class CustomWizardField {
 public:
@@ -139,5 +138,4 @@ public:
 extern const char customWizardFileOpenEditorAttributeC[];
 extern const char customWizardFileOpenProjectAttributeC[];
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

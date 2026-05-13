@@ -6,9 +6,7 @@
 #include <QDataStream>
 #include <QVariant>
 
-namespace Debugger {
-namespace Internal {
-namespace UvscUtils {
+namespace Debugger::Internal::UvscUtils {
 
 // Utils
 
@@ -354,6 +352,4 @@ GdbMi buildResultTemplateEntry(bool partial)
     return all;
 }
 
-} // namespace UvscUtils
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal::UvscUtils

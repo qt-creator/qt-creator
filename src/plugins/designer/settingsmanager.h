@@ -5,8 +5,7 @@
 
 #include <QDesignerSettingsInterface>
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 /* Prepends "Designer" to every value stored/retrieved by designer plugins,
    to avoid namespace polution. We cannot use a group because groups cannot be nested,
@@ -23,5 +22,4 @@ public:
     void remove(const QString &key) override;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

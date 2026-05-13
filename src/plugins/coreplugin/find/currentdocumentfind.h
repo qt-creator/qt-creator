@@ -9,8 +9,7 @@
 
 #include <QPointer>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class CurrentDocumentFind : public QObject
 {
@@ -62,5 +61,4 @@ private:
     QPointer<QWidget> m_candidateWidget;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

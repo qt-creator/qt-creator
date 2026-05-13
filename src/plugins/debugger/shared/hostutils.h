@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Resume a suspended thread by id.
 bool winResumeThread(unsigned long dwThreadId, QString *errorMessage);
@@ -43,5 +42,4 @@ bool isFatalWinException(unsigned long code);
 // Check for EXCEPTION_BREAKPOINT, EXCEPTION_SINGLE_STEP
 bool isDebuggerWinException(unsigned long code);
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace MesonProjectManager {
-namespace Constants {
+namespace MesonProjectManager::Constants {
 
 namespace Project {
 const char MIMETYPE[] = "text/x-meson";
@@ -65,5 +64,4 @@ const char benchmark[] = "benchmark";
 } // namespace Targets
 const char MESON_BUILD_CONFIG_ID[] = "MesonProjectManager.BuildConfiguration";
 
-} // namespace Constants
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Constants

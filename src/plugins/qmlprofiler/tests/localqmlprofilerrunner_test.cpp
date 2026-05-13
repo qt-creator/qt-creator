@@ -20,8 +20,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObject(parent)
 {
@@ -148,5 +147,4 @@ void LocalQmlProfilerRunnerTest::testFindFreeSocket()
     file.close();
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

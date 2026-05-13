@@ -54,8 +54,7 @@ using namespace Utils::StyleHelper::SpacingTokens;
 const char PROJECT_BASE_ID[] = "Welcome.OpenRecentProject";
 static const qsizetype kMaxPathsDisplay = 5;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 constexpr TextFormat projectNameTF {Theme::Token_Text_Accent, StyleHelper::UiElementH5};
 constexpr TextFormat projectPathTF {Theme::Token_Text_Muted, StyleHelper::UiElementH6};
@@ -873,7 +872,6 @@ QWidget *ProjectWelcomePage::createRecentProjectsView()
     return view;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
 
 #include "projectwelcomepage.moc"

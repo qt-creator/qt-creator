@@ -25,8 +25,7 @@
 #include <QString>
 #include <QUrl>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
     Utils::TreeView(parent), m_model(model)
@@ -193,5 +192,4 @@ bool ConsoleView::canShowItemInTextEditor(const QModelIndex &index)
     return success;
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

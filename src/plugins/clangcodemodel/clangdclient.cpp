@@ -83,8 +83,7 @@ using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 using Key = LanguageServerProtocol::Key;
 
@@ -1665,5 +1664,4 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
     return requestAst(q, filePath, range, wrapperHandler);
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

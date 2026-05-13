@@ -17,8 +17,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class ProgressIndicator; }
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class SearchSideBarItem : public Core::SideBarItem
 {
@@ -71,5 +70,4 @@ private:
     Utils::ProgressIndicator *m_indexingIndicator = nullptr;
 };
 
-} // namespace Internal
-} // namespace Help
+} // namespace Help::Internal

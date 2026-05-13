@@ -25,8 +25,7 @@
     \c DBWIN_BUFFER which can be accessed via file mapping.
 */
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 WinDebugInterface *WinDebugInterface::m_instance = nullptr;
 
@@ -186,13 +185,11 @@ void WinDebugInterface::startIfNeeded()
         m_instance->start();
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
 
 #else
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 WinDebugInterface *WinDebugInterface::m_instance = nullptr;
 
@@ -214,7 +211,6 @@ bool WinDebugInterface::stop() { return false; }
 
 void WinDebugInterface::startIfNeeded() { }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
 
 #endif

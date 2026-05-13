@@ -5,9 +5,7 @@
 
 #include <QAbstractItemView>
 
-namespace Core {
-namespace Internal {
-namespace ItemDataRoles {
+namespace Core::Internal::ItemDataRoles {
 
 enum Roles {
     ResultItemRole = Qt::UserRole,
@@ -24,6 +22,4 @@ enum Roles {
     IsGeneratedRole
 };
 
-} // namespace Internal
-} // namespace Core
-} // namespace ItemDataRoles
+} // namespace Core::Internal::ItemDataRoles

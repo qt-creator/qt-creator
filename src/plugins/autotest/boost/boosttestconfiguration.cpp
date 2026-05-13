@@ -12,8 +12,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestOutputReader *BoostTestConfiguration::createOutputReader(Process *app) const
 {
@@ -128,5 +127,4 @@ Environment BoostTestConfiguration::filteredEnvironment(const Environment &origi
     return result;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

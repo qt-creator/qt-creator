@@ -21,8 +21,7 @@
 
 namespace ProjectExplorer { class Target; }
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 class QbsBuildSystem;
 
 class ErrorInfoItem
@@ -190,5 +189,4 @@ private:
     Private * const d;
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

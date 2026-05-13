@@ -7,8 +7,7 @@
 #include "keyword.h"
 #include "todoitem.h"
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class LineParser
 {
@@ -46,5 +45,4 @@ private:
     KeywordList m_keywords;
 };
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

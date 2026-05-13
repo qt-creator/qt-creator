@@ -33,8 +33,7 @@
 #include <QStackedLayout>
 #include <QTreeView>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 const char objectsMapObjectMimeType[] = "application/vnd.qtcreator.objectsmapobject";
 const char objectsMapPropertyMimeType[] = "application/vnd.qtcreator.objectsmapproperty";
@@ -681,5 +680,4 @@ PropertyTreeItem *ObjectsMapEditorWidget::selectedPropertyItem() const
     return static_cast<PropertyTreeItem *>(propertiesModel->itemForIndex(idx));
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

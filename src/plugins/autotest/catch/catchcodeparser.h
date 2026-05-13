@@ -9,8 +9,7 @@
 
 #include <QByteArray>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class CatchCodeParser
 {
@@ -36,5 +35,4 @@ private:
     CatchTestCodeLocationList m_testCases;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

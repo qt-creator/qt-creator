@@ -5,8 +5,7 @@
 
 #include <utils/icon.h>
 
-namespace Autotest {
-namespace Icons {
+namespace Autotest::Icons {
 
 const Utils::Icon SORT_NATURALLY({
         {":/autotest/images/leafsort.png", Utils::Theme::IconsBaseColor}});
@@ -75,5 +74,4 @@ const Utils::Icon RESULT_MESSAGEFATAL({
 const Utils::Icon VISUAL_DISPLAY({{":/autotest/images/visual.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon TEXT_DISPLAY({{":/autotest/images/text.png", Utils::Theme::IconsBaseColor}});
 
-} // namespace Icons
-} // namespace Autotest
+} // namespace Autotest::Icons

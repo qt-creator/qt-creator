@@ -6,8 +6,7 @@
 #include "qmlrefactoring.h"
 #include "qmlrewriter.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class AddPropertyVisitor: public QMLRewriter
 {
@@ -37,5 +36,4 @@ private:
     TypeName m_dynamicTypeName;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

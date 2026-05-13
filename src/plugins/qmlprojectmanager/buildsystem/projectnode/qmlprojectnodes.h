@@ -5,8 +5,7 @@
 
 #include <projectexplorer/projectnodes.h>
 
-namespace QmlProjectManager {
-namespace Internal {
+namespace QmlProjectManager::Internal {
 
 class QmlProjectNode : public ProjectExplorer::ProjectNode
 {
@@ -14,5 +13,4 @@ public:
     explicit QmlProjectNode(ProjectExplorer::Project *project);
 };
 
-} // namespace Internal
-} // namespace QmlProjectManager
+} // namespace QmlProjectManager::Internal

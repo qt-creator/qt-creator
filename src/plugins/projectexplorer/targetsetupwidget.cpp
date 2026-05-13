@@ -30,8 +30,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 // -------------------------------------------------------------------------
 // TargetSetupWidget
@@ -456,5 +455,4 @@ FilePath TargetSetupWidget::BuildInfoStore::expandedBuildDir(const Kit *kit) con
         kit, buildInfo.buildDirectory, buildInfo.projectDirectory, *expander);
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

@@ -35,8 +35,7 @@ const int kQtVersionIdRole = Qt::UserRole;
 const int kExtraSetIndexRole = Qt::UserRole + 1;
 const int kVersionRole = Qt::UserRole + 2;
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 static QLoggingCategory log = QLoggingCategory("qtc.examples", QtWarningMsg);
 
@@ -679,5 +678,4 @@ void ExampleSetModel::tryToInitialize()
     updateQtVersionList();
 }
 
-} // namespace Internal
-} // namespace QtSupport
+} // namespace QtSupport::Internal

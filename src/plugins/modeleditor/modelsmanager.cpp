@@ -43,8 +43,7 @@
 
 using Utils::FilePath;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ModelsManager::ManagedModel
 {
@@ -257,5 +256,4 @@ void ModelsManager::openDiagram(ExtDocumentController *documentController,
     }
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

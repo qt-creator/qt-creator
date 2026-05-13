@@ -26,8 +26,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class CustomParsersModel : public QAbstractTableModel
 {
@@ -402,5 +401,4 @@ CustomParsersSettingsPage::CustomParsersSettingsPage()
     setWidgetCreator([] { return new CustomParsersSettingsWidget; });
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

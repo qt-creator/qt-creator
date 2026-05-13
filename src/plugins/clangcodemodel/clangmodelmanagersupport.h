@@ -27,8 +27,7 @@ namespace CppEditor { class RefactoringEngineInterface; }
 namespace LanguageClient { class Client; }
 namespace TextEditor { class TextEditorWidget; }
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ClangdClient;
 
@@ -113,5 +112,4 @@ private:
     QtTaskTree::QParallelTaskTreeRunner m_taskTreeRunner;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

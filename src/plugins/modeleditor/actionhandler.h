@@ -18,8 +18,7 @@ namespace Core {
 class Command;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ModelEditor;
 
@@ -70,5 +69,4 @@ private:
     ActionHandlerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

@@ -6,9 +6,7 @@
 #include <QRegularExpression>
 #include <QStringList>
 
-namespace Autotest {
-namespace Internal {
-namespace GTestUtils {
+namespace Autotest::Internal::GTestUtils {
 
 static const QStringList valid = {
     QStringLiteral("TEST"), QStringLiteral("TEST_F"), QStringLiteral("TEST_P"),
@@ -42,6 +40,4 @@ bool isValidGTestFilter(const QString &filterExpression)
     return regex.match(filterExpression).hasMatch();
 }
 
-} // namespace GTestUtils
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal::GTestUtils

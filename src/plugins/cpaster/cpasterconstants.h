@@ -5,10 +5,8 @@
 
 #include <QtGlobal>
 
-namespace CodePaster {
-namespace Constants {
+namespace CodePaster::Constants {
 
 const char CPASTER_SETTINGS_CATEGORY[] = "XZ.CPaster";
 
-} // namespace Constants
-} // namespace CodePaster
+} // namespace CodePaster::Constants

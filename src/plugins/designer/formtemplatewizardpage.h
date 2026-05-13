@@ -11,8 +11,7 @@ QT_BEGIN_NAMESPACE
 class QDesignerNewFormWidgetInterface;
 QT_END_NAMESPACE
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 class FormPageFactory : public ProjectExplorer::JsonWizardPageFactory
 {
@@ -54,5 +53,4 @@ private:
     bool m_templateSelected = false;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

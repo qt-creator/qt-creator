@@ -5,8 +5,7 @@
 
 #include "../testtreeitem.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class CTestTreeItem final : public Autotest::ITestTreeItem
 {
@@ -24,5 +23,4 @@ private:
     QList<ITestConfiguration *> testConfigurationsFor(const QStringList &selected) const;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

@@ -4,10 +4,8 @@
 #pragma once
 
 namespace TextEditor { class Keywords; }
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 const TextEditor::Keywords &qmakeKeywords();
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

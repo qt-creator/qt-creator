@@ -13,8 +13,7 @@
 
 namespace Utils { class NavigationTreeView; }
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 class NavigationWidgetPrivate;
 
@@ -60,5 +59,4 @@ private:
     QPointer<QToolButton> fullProjectsModeButton;
 };
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal

@@ -9,8 +9,7 @@
 
 using namespace Utils;
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 // Squish IDE uses lower-case for "Is" - shall we too?
 const QString Property::OPERATOR_IS = "Is";
@@ -261,5 +260,4 @@ bool PropertiesSortModel::lessThan(const QModelIndex &left, const QModelIndex &r
     return left.data().toString() > right.data().toString();
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

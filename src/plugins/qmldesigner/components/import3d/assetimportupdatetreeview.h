@@ -7,8 +7,7 @@
 
 #include <utils/itemviews.h>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class AssetImportUpdateTreeModel;
 
@@ -28,5 +27,4 @@ protected:
     AssetImportUpdateTreeModel *m_model;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

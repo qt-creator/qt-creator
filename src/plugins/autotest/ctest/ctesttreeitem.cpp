@@ -20,8 +20,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 CTestTreeItem::CTestTreeItem(ITestBase *testBase, const QString &name,
                              const FilePath &filepath, Type type)
@@ -115,5 +114,4 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
     return {config};
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

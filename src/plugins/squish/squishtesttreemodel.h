@@ -11,8 +11,7 @@ namespace {
 enum ItemRole { LinkRole = Qt::UserRole + 2, TypeRole, DisplayNameRole };
 }
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class SquishFileHandler;
 
@@ -99,5 +98,4 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

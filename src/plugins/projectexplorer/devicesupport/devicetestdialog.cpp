@@ -16,8 +16,7 @@
 #include <QPushButton>
 #include <QTextCharFormat>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class DeviceTestDialog::DeviceTestDialogPrivate
 {
@@ -104,5 +103,4 @@ void DeviceTestDialog::addText(const QString &text, Utils::Theme::Color color, b
     d->textEdit->appendPlainText(text);
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

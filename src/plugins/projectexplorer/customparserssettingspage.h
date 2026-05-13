@@ -5,8 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class CustomParsersSettingsPage final : public Core::IOptionsPage
 {
@@ -14,5 +13,4 @@ public:
     CustomParsersSettingsPage();
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

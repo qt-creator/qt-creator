@@ -8,8 +8,7 @@
 
 #include <filemanager/qmlrefactoring.h>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class AddImportRewriteAction;
 class AddPropertyRewriteAction;
@@ -271,5 +270,4 @@ private:
     Import m_import;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

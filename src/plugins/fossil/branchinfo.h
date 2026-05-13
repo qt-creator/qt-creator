@@ -5,8 +5,7 @@
 
 #include <QString>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class BranchInfo
 {
@@ -26,5 +25,4 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(BranchInfo::BranchFlags)
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

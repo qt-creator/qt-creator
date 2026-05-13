@@ -7,8 +7,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class RemovePropertyVisitor: public QMLRewriter
 {
@@ -33,5 +32,4 @@ private:
     QString propertyName;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

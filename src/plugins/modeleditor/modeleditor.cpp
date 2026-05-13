@@ -89,8 +89,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 static const char PROPERTYNAME_TOOLBARID[] = "ToolbarId";
 static const double ZOOM_FACTOR = 1.05;
@@ -1534,5 +1533,4 @@ void ModelEditor::synchronizeBrowserWithDiagram(const qmt::MDiagram *diagram)
     }
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

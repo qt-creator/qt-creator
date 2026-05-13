@@ -9,8 +9,7 @@
 
 using namespace Utils;
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 Q_LOGGING_CATEGORY(serialTerminalLog, "qtc.serialterminal.outputpane", QtWarningMsg)
 
@@ -158,5 +157,4 @@ void Settings::loadLineEndings(QtcSettings &settings)
     settings.endArray();
 }
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal

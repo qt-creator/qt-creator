@@ -5,8 +5,7 @@
 
 #include "internalproperty.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class InternalSignalHandlerProperty : public InternalProperty
 {
@@ -42,5 +41,4 @@ private:
     QString m_signature;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

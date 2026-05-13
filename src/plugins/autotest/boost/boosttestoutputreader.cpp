@@ -17,8 +17,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static Q_LOGGING_CATEGORY(orLog, "qtc.autotest.boost.outputreader", QtWarningMsg)
 
@@ -422,5 +421,4 @@ void BoostTestOutputReader::reportNoOutputFinish(const QString &description, Res
     reportResult(result);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

@@ -14,8 +14,7 @@
 
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 std::optional<LineColumnInfo> byteOffsetInUtf8TextToLineColumn(const char *text,
                                                                  int offset,
@@ -269,5 +268,4 @@ Utils::Result<Diagnostics> readExportedDiagnostics(
     return promise.future().result();
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

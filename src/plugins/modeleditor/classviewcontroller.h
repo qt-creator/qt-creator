@@ -7,8 +7,7 @@
 
 #include <cplusplus/CppDocument.h>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ClassViewController :
         public QObject
@@ -27,5 +26,4 @@ private:
     void appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *symbol, int line, int column, QSet<QString> *classNames);
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

@@ -14,8 +14,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 GTestOutputReader::GTestOutputReader(Process *testApplication,
                                      const FilePath &buildDirectory,
@@ -242,5 +241,4 @@ void GTestOutputReader::handleDescriptionAndReportResult(const TestResult &testR
     m_description.clear();
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

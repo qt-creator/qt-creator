@@ -22,8 +22,7 @@ QT_END_NAMESPACE
 
 namespace Core { class OutputWindow; }
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 class ComboBox;
 class ConsoleLineEdit;
@@ -149,5 +148,4 @@ private:
     float m_zoom = 1.0;
 };
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal

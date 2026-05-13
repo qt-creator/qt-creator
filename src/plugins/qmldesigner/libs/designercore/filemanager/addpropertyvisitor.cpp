@@ -5,8 +5,7 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 AddPropertyVisitor::AddPropertyVisitor(TextModifier &modifier,
                                        quint32 parentLocation,
@@ -175,5 +174,4 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     setDidRewriting(true);
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

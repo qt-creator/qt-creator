@@ -8,14 +8,12 @@
 namespace QmlDesigner {
 class MetaInfo;
 
-namespace Internal {
-namespace PropertyParser {
+namespace Internal::PropertyParser {
 
 QVariant read(const QString &typeStr, const QString &str, const MetaInfo &metaInfo);
 QVariant read(const QString &typeStr, const QString &str);
 QVariant read(int variantType, const QString &str);
 QVariant variantFromString(const QString &s);
 
-} // namespace PropertyParser
-} // namespace Internal
+} // namespace Internal::PropertyParser
 } // namespace Designer

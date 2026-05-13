@@ -10,8 +10,7 @@
 #include <QSet>
 #include <QSortFilterProxyModel>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class SquishResultItem : public Utils::TreeItem
 {
@@ -67,5 +66,4 @@ private:
     QSet<Result::Type> m_enabled;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

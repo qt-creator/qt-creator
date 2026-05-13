@@ -23,8 +23,7 @@ class MiniSplitter;
 class SideBar;
 }
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class HelpViewer;
 class HelpWidget;
@@ -163,5 +162,4 @@ private:
     QStringList m_searchTerms;
 };
 
-} // Internal
-} // Help
+} // Help::Internal

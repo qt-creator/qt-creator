@@ -7,8 +7,7 @@
 #include <QList>
 #include <QFileInfo>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class AssetImportUpdateTreeItem
 {
@@ -39,5 +38,4 @@ private:
     QFileInfo m_fileInfo;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

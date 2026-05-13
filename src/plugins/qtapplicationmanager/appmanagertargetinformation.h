@@ -10,8 +10,7 @@
 
 namespace ProjectExplorer { class BuildConfiguration; }
 
-namespace AppManager {
-namespace Internal {
+namespace AppManager::Internal {
 
 class Manifest
 {
@@ -50,5 +49,4 @@ public:
         const ProjectExplorer::BuildConfiguration *bc, const QString &buildKey = QString());
 };
 
-} // namespace Internal
-} // namespace AppManager
+} // namespace AppManager::Internal

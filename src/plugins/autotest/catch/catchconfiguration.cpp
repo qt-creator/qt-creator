@@ -10,8 +10,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestOutputReader *CatchConfiguration::createOutputReader(Process *app) const
 {
@@ -116,5 +115,4 @@ Environment CatchConfiguration::filteredEnvironment(const Environment &original)
     return original;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

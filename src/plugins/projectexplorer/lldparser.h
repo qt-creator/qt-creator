@@ -5,13 +5,11 @@
 
 #include "ioutputparser.h"
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class LldParser : public OutputTaskParser
 {
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace ClearCase {
-namespace Constants {
+namespace ClearCase::Constants {
 
 const char VCS_ID_CLEARCASE[] = "E.ClearCase";
 const char CLEARCASE_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.clearcase.submit";
@@ -15,5 +14,4 @@ const char TASK_INDEX[] = "ClearCase.Task.Index";
 const char KEEP_ACTIVITY[] = "__KEEP__";
 enum { debug = 0 };
 
-} // namespace Constants
-} // namespace ClearCase
+} // namespace ClearCase::Constants

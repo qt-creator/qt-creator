@@ -6,8 +6,7 @@
 #include <QItemDelegate>
 #include <QStyleOptionViewItem>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class AssetImportUpdateTreeItemDelegate : public QItemDelegate
 {
@@ -31,5 +30,4 @@ private:
                   const QRect &rect, const QModelIndex &index) const;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

@@ -8,8 +8,7 @@
 #include <QStack>
 #include <QXmlStreamReader>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class CatchOutputReader : public TestOutputReader
 {
@@ -63,5 +62,4 @@ private:
     bool m_reportedSectionResult = false;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

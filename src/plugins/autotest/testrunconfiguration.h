@@ -15,8 +15,7 @@
 
 #include <QCoreApplication>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -53,5 +52,4 @@ private:
     Debugger::DebuggerRunConfigurationAspect debuggerAspect;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

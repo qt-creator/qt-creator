@@ -16,8 +16,7 @@
 #include <QScrollBar>
 #include <QTimer>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 WatchTreeView::WatchTreeView(WatchType type)
   : m_type(type)
@@ -182,5 +181,4 @@ void WatchTreeView::adjustSlider()
     }
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

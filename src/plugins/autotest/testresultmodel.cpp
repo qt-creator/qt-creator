@@ -20,8 +20,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 /********************************* TestResultItem ******************************************/
 
@@ -624,5 +623,4 @@ bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     return text.contains(m_filterText, m_caseSensitivity) != m_inverted;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

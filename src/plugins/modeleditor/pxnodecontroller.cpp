@@ -32,8 +32,7 @@
 
 using Utils::FilePath;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class PxNodeController::MenuAction :
         public QAction
@@ -403,5 +402,4 @@ void PxNodeController::parseFullClassName(qmt::MClass *klass, const QString &ful
     }
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

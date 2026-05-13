@@ -5,8 +5,7 @@
 
 #include <qmljseditor/qmljsfindreferences.h>
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 class FileComponentRenameHandler : public QObject
 {
@@ -30,5 +29,4 @@ private:
                              const QString &newBaseName);
 };
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal

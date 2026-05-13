@@ -16,8 +16,7 @@
 
 #endif // Q_OS_WIN
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 #ifdef Q_OS_WIN
 
@@ -199,5 +198,4 @@ bool isDebuggerWinException(unsigned long) { return false; }
 
 #endif // !Q_OS_WIN
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

@@ -7,8 +7,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class SymbolNameItemDelegate : public QStyledItemDelegate
 {
@@ -35,5 +34,4 @@ private:
     QStringList m_forbidden;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

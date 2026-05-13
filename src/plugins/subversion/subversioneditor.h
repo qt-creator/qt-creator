@@ -7,8 +7,7 @@
 
 #include <QRegularExpression>
 
-namespace Subversion {
-namespace Internal {
+namespace Subversion::Internal {
 
 class SubversionEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
@@ -26,5 +25,4 @@ private:
     QRegularExpression m_revisionNumberPattern;
 };
 
-} // namespace Internal
-} // namespace Subversion
+} // namespace Subversion::Internal

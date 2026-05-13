@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestTreeItem *GTestParseResult::createTestTreeItem() const
 {
@@ -130,5 +129,4 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     return !result.isEmpty();
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

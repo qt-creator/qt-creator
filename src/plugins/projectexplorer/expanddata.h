@@ -7,8 +7,7 @@
 #include <QHash>
 #include <QDebug>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class ExpandData
 {
@@ -27,5 +26,4 @@ public:
 
 size_t qHash(const ExpandData &data);
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

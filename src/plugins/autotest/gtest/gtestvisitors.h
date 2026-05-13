@@ -11,8 +11,7 @@
 
 #include <QMap>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 inline bool operator<(const GTestCaseSpec &spec1, const GTestCaseSpec &spec2)
 {
@@ -48,5 +47,4 @@ private:
     QMap<GTestCaseSpec, GTestCodeLocationList> m_gtestFunctions;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

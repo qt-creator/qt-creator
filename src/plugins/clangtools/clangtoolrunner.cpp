@@ -31,8 +31,7 @@ using namespace CppEditor;
 using namespace Utils;
 using namespace QtTaskTree;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 static QStringList checksArguments(const AnalyzeUnit &unit, const AnalyzeInputData &input)
 {
@@ -223,5 +222,4 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
     };
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

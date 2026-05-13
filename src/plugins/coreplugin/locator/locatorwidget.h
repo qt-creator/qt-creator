@@ -24,8 +24,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class FancyLineEdit; }
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class LocatorModel;
 class CompletionList;
@@ -118,5 +117,4 @@ private:
 LocatorWidget *createStaticLocatorWidget(Locator *locator);
 LocatorPopup *createLocatorPopup(Locator *locator, QWidget *parent);
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

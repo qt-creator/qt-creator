@@ -4,8 +4,7 @@
 #include "internalnodeabstractproperty.h"
 #include "internalnode_p.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 InternalNodeAbstractProperty::InternalNodeAbstractProperty(PropertyNameView name,
                                                            const InternalNode::Pointer &propertyOwner,
@@ -19,5 +18,4 @@ bool InternalNodeAbstractProperty::isValid() const
     return InternalProperty::isValid() && isNodeAbstractProperty();
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

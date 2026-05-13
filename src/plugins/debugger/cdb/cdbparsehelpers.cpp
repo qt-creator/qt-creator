@@ -22,8 +22,7 @@
 
 enum { debugDisAsm = 0 };
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Perform mapping on parts of the source tree as reported by/passed to debugger
 // in case the user has specified such mappings in the global settings.
@@ -453,5 +452,4 @@ DisassemblerLines parseCdbDisassembler(const QString &a)
     return result;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

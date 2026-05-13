@@ -12,8 +12,7 @@ using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace TextEditor;
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 ClangdQuickFixFactory::ClangdQuickFixFactory() = default;
 
@@ -95,5 +94,4 @@ IAssistProcessor *ClangdQuickFixProvider::createProcessor(const AssistInterface 
     return new ClangdQuickFixProcessor(client());
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

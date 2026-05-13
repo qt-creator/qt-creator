@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class SearchResultTreeModel : public QAbstractItemModel
 {
@@ -679,7 +678,6 @@ SearchResultTreeModel *SearchResultFilterModel::sourceModel() const
     return static_cast<SearchResultTreeModel *>(QSortFilterProxyModel::sourceModel());
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal
 
 #include <searchresulttreemodel.moc>

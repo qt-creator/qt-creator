@@ -7,8 +7,7 @@
 
 #include <utils/searchresultitem.h>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class SearchResultTreeItem
 {
@@ -45,5 +44,4 @@ private:
     Qt::CheckState m_checkState;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

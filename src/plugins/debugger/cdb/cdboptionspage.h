@@ -5,8 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class CdbOptionsPage final : public Core::IOptionsPage
 {
@@ -20,5 +19,4 @@ public:
     CdbPathsPage();
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

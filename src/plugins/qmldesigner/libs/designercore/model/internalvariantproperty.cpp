@@ -3,8 +3,7 @@
 
 #include "internalvariantproperty.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 InternalVariantProperty::InternalVariantProperty(PropertyNameView name, const InternalNodePointer &node)
     : InternalProperty(name, node, PropertyType::Variant)
@@ -34,5 +33,4 @@ bool InternalVariantProperty::isValid() const
     return InternalProperty::isValid() && isVariantProperty();
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

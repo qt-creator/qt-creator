@@ -17,8 +17,7 @@ class FilePath;
 class InfoLabel;
 }
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class BranchInfo;
 
@@ -60,5 +59,4 @@ private:
     QLineEdit *m_authorLineEdit;
 };
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

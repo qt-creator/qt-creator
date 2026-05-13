@@ -11,9 +11,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
-namespace QuickTestUtils {
+namespace Autotest::Internal::QuickTestUtils {
 
 bool isQuickTestMacro(const QByteArray &macro)
 {
@@ -51,6 +49,4 @@ QHash<FilePath, FilePath> proFilesForQmlFiles(ITestFramework *framework,
     return result;
 }
 
-} // namespace QuickTestUtils
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal::QuickTestUtils

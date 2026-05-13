@@ -27,8 +27,7 @@ using namespace CppEditor;
 using namespace Utils;
 using namespace ProjectExplorer;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class SelectableFilesModel : public QSortFilterProxyModel
 {
@@ -378,5 +377,4 @@ void SelectableFilesDialog::accept()
     QDialog::accept();
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

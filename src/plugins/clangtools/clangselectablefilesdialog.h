@@ -12,8 +12,7 @@ class QComboBox;
 class QTreeView;
 QT_END_NAMESPACE
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class SelectableFilesModel;
 
@@ -44,5 +43,4 @@ private:
     QComboBox *m_fileFilterComboBox;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

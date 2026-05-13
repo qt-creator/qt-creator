@@ -10,8 +10,7 @@
 
 namespace ProjectExplorer { class Kit; }
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 QString toJSLiteral(const QVariant &val);
 QVariant fromJSLiteral(const QString &str);
@@ -49,5 +48,4 @@ private:
     QList<ProjectExplorer::Kit *> m_kitsToBeSetupForQbs;
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

@@ -9,8 +9,7 @@
 
 #include <QRegularExpression>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 GTestVisitor::GTestVisitor(CPlusPlus::Document::Ptr doc)
     : CPlusPlus::ASTVisitor(doc->translationUnit())
@@ -126,5 +125,4 @@ QString GTestVisitor::enclosingNamespaces(CPlusPlus::Symbol *symbol) const
     return enclosing;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

@@ -13,8 +13,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor { class AssistInterface; }
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ClangCompletionContextAnalyzer
 {
@@ -70,5 +69,4 @@ private:
     bool m_addSnippets = false;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

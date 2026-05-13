@@ -5,8 +5,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class TodoOutputTreeViewDelegate : public QStyledItemDelegate
 {
@@ -16,5 +15,4 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

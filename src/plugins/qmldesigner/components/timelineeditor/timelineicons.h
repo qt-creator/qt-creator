@@ -5,8 +5,7 @@
 
 #include <utils/icon.h>
 
-namespace QmlDesigner {
-namespace TimelineIcons {
+namespace QmlDesigner::TimelineIcons {
 
 // Icons on the timeline ruler
 const Utils::Icon WORK_AREA_HANDLE_LEFT(
@@ -94,5 +93,4 @@ const Utils::Icon ZOOM_SMALL({
 const Utils::Icon ZOOM_BIG({
         {":/timelineplugin/images/zoom_big.png", Utils::Theme::IconsBaseColor}});
 
-} // namespace TimelineIcons
-} // namespace QmlDesigner
+} // namespace QmlDesigner::TimelineIcons

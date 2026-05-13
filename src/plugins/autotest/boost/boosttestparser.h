@@ -6,8 +6,7 @@
 #include "../itestparser.h"
 #include "boosttesttreeitem.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class BoostTestParseResult : public TestParseResult
 {
@@ -26,5 +25,4 @@ public:
                          const Utils::FilePath &fileName) override;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

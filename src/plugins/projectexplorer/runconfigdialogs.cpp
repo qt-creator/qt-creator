@@ -25,8 +25,7 @@
 using namespace Layouting;
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 const Qt::ItemDataRole IsCustomRole = Qt::UserRole;
 
@@ -215,5 +214,4 @@ void RemoveRunConfigsDialog::accept()
     QDialog::accept();
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

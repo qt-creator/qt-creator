@@ -5,8 +5,7 @@
 
 #include "../testtreeitem.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class QuickTestTreeItem : public TestTreeItem
 {
@@ -44,5 +43,4 @@ private:
     TestTreeItem *unnamedQuickTests() const;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

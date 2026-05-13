@@ -19,8 +19,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 struct EventsDescription {
     const char *abbreviation;
@@ -294,5 +293,4 @@ CdbPathsPage::CdbPathsPage()
     setWidgetCreator([] { return new CdbPathsPageWidget; });
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

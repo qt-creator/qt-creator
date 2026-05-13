@@ -9,8 +9,7 @@
 #include <QWebEngineUrlSchemeHandler>
 #include <QWebEngineView>
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class WebEngineHelpViewer;
 
@@ -86,5 +85,4 @@ private:
     QUrl m_previousUrlWithoutFragment;
 };
 
-} // namespace Internal
-} // namespace Help
+} // namespace Help::Internal

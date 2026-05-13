@@ -29,8 +29,7 @@
 
 using namespace TextEditor;
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
 Document::~Document()
 {
@@ -577,5 +576,4 @@ CompletionAssistProvider *createGlslCompletionAssistProvider()
     return new GlslCompletionAssistProvider;
 }
 
-} // namespace Internal
-} // namespace GlslEditor
+} // namespace GlslEditor::Internal

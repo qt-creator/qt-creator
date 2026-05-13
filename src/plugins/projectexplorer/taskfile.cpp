@@ -23,8 +23,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 // --------------------------------------------------------------------------
 // TaskFile
@@ -234,5 +233,4 @@ QAction *StopMonitoringHandler::createAction() const
     return stopMonitoringAction;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

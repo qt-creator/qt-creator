@@ -12,8 +12,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 ImportWidget::ImportWidget(QWidget *parent) :
     QWidget(parent),
@@ -76,5 +75,4 @@ void ImportWidget::handleImportRequest()
     m_pathChooser->setFilePath(m_pathChooser->baseDirectory());
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

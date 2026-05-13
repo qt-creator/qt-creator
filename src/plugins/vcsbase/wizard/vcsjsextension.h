@@ -5,8 +5,7 @@
 
 #include <QObject>
 
-namespace VcsBase {
-namespace Internal {
+namespace VcsBase::Internal {
 
 class VcsJsExtension : public QObject
 {
@@ -18,5 +17,4 @@ public:
     Q_INVOKABLE bool isValidRepoUrl(const QString &vcsId, const QString &location) const;
 };
 
-} // namespace Internal
-} // namespace VcsBase
+} // namespace VcsBase::Internal

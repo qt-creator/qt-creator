@@ -6,15 +6,13 @@
 #include <QtGlobal>
 
 namespace Autotest {
-namespace QtTest {
-namespace Constants {
+namespace QtTest::Constants {
 
 const char FRAMEWORK_ID[]                = "AutoTest.Framework.QtTest";
 const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Qt Test");
 const unsigned FRAMEWORK_PRIORITY        = 1;
 
-} // namespace Constants
-} // namespace QtTest
+} // namespace QtTest::Constants
 
 namespace Internal {
 enum class TestType

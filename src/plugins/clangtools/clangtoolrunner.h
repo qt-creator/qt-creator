@@ -16,8 +16,7 @@ QT_BEGIN_NAMESPACE
 namespace QtTaskTree { class GroupItem; }
 QT_END_NAMESPACE
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 struct AnalyzeUnit
 {
@@ -63,5 +62,4 @@ QtTaskTree::GroupItem clangToolTask(const AnalyzeUnits &units,
                                  const AnalyzeOutputHandler &outputHandler,
                                  const Utils::FilePath &compilationDb);
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

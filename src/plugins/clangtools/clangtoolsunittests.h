@@ -12,8 +12,7 @@ namespace Tests { class TemporaryCopiedDir; }
 
 namespace ProjectExplorer { class Kit; }
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class ClangToolsUnitTests : public QObject
 {
@@ -41,5 +40,4 @@ private:
     int m_timeout = getTimeout();
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

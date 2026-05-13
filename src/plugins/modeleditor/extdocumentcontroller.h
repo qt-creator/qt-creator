@@ -7,8 +7,7 @@
 
 #include <utils/filepath.h>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ElementTasks;
 class PxNodeController;
@@ -33,5 +32,4 @@ private:
     ExtDocumentControllerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

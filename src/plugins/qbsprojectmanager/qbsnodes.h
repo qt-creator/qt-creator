@@ -8,8 +8,7 @@
 
 #include <QJsonObject>
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class QbsProject;
 class QbsBuildSystem;
@@ -67,5 +66,4 @@ private:
 
 const QbsProductNode *parentQbsProductNode(const ProjectExplorer::Node *node);
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

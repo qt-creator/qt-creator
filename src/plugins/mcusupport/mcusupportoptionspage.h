@@ -7,8 +7,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 class McuSupportOptions;
 
@@ -18,5 +17,4 @@ public:
     McuSupportOptionsPage(McuSupportOptions &, const SettingsHandler::Ptr &);
 };
 
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal

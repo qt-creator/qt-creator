@@ -10,8 +10,7 @@
 
 #include <QStringList>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 Utils::OutputLineParser::Result LldParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
@@ -54,5 +53,4 @@ Utils::OutputLineParser::Result LldParser::handleLine(const QString &line, Utils
     return Status::NotHandled;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

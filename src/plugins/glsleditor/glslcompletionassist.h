@@ -19,8 +19,7 @@ class Scope;
 
 namespace TextEditor { class CompletionAssistProvider; }
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
 class Document
 {
@@ -75,5 +74,4 @@ private:
 
 TextEditor::CompletionAssistProvider *createGlslCompletionAssistProvider();
 
-} // namespace Internal
-} // namespace GlslEditor
+} // namespace GlslEditor::Internal

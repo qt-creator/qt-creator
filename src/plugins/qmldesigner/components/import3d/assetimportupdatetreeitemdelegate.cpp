@@ -7,8 +7,7 @@
 #include <QPainter>
 #include <QModelIndex>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 AssetImportUpdateTreeItemDelegate::AssetImportUpdateTreeItemDelegate(QObject *parent)
     : QItemDelegate(parent)
@@ -75,5 +74,4 @@ void AssetImportUpdateTreeItemDelegate::drawText(QPainter *painter,
     drawDisplay(painter, option, rect, text);
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

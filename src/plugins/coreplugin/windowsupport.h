@@ -13,8 +13,7 @@ class QMenu;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class WindowList
 {
@@ -62,5 +61,4 @@ private:
     bool m_shutdown = false;
 };
 
-} // Internal
-} // Core
+} // Core::Internal

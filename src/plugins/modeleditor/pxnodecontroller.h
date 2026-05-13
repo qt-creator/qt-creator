@@ -15,8 +15,7 @@ class DElement;
 class DiagramSceneController;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ComponentViewController;
 
@@ -56,5 +55,4 @@ private:
     PxNodeControllerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

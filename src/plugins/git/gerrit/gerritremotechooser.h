@@ -13,8 +13,7 @@
 
 #include <vector>
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 class GerritRemoteChooser : public QWidget
 {
@@ -49,5 +48,4 @@ private:
     std::vector<NameAndServer> m_remotes;
 };
 
-} // namespace Internal
-} // namespace Gerrit
+} // namespace Gerrit::Internal

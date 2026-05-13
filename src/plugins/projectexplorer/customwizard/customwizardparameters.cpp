@@ -99,8 +99,7 @@ enum ParseState {
     ParseError
 };
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 const char customWizardFileOpenEditorAttributeC[] = "openeditor";
 const char customWizardFileOpenProjectAttributeC[] = "openproject";
@@ -940,5 +939,4 @@ QString CustomWizardContext::processFile(const FieldReplacementMap &fm, QString 
     return *preprocessed;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

@@ -14,8 +14,7 @@
 
 using namespace Utils;
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 TodoOutputTreeView::TodoOutputTreeView(QWidget *parent) :
     Utils::TreeView(parent)
@@ -90,5 +89,4 @@ void TodoOutputTreeView::todoColumnResized(int column, int oldSize, int newSize)
         m_fileColumnDefaultWidth = newSize;
 }
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

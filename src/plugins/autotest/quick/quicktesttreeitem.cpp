@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static QSet<QString> internalTargets(const FilePath &proFile);
 
@@ -432,5 +431,4 @@ TestTreeItem *QuickTestTreeItem::unnamedQuickTests() const
     return findFirstLevelChildItem([](TestTreeItem *child) { return child->name().isEmpty(); });
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

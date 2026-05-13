@@ -5,8 +5,7 @@
 
 #include <QStringList>
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 // Goto slot invoked by the designer context menu. Either navigates
 // to an existing slot function or create a new one.
@@ -16,5 +15,4 @@ bool navigateToSlot(const QString &uiFileName,
                     const QStringList &parameterNames,
                     QString *errorMessage);
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

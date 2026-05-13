@@ -11,8 +11,7 @@ QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 
 class TipLabel : public QLabel
 {
@@ -93,7 +92,6 @@ private:
     QVBoxLayout *m_layout;
 };
 
-} // namespace Internal
-} // namespace Utils
+} // namespace Utils::Internal
 
 Q_DECLARE_METATYPE(Utils::Internal::TextItem)

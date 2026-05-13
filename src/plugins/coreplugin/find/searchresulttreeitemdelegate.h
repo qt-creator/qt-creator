@@ -5,8 +5,7 @@
 
 #include <QItemDelegate>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 struct LayoutInfo
 {
@@ -35,5 +34,4 @@ private:
     QString m_tabString;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

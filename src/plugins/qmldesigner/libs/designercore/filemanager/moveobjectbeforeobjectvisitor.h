@@ -7,8 +7,7 @@
 
 #include <QStack>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class MoveObjectBeforeObjectVisitor: public QMLRewriter
 {
@@ -50,5 +49,4 @@ private:
     ASTPath movingObjectParents;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

@@ -6,8 +6,7 @@
 #include <QString>
 #include <QStringList>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class RevisionInfo
 {
@@ -19,5 +18,4 @@ public:
     const QString committer;
 };
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

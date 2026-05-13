@@ -8,8 +8,7 @@
 
 namespace qmt { class ModelController; }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ElementTasks;
 
@@ -65,5 +64,4 @@ private:
     ElementTasks *m_elementTasks = nullptr;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

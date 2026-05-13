@@ -5,15 +5,11 @@
 
 #include <QString>
 
-namespace Autotest {
-namespace Internal {
-namespace GTestUtils {
+namespace Autotest::Internal::GTestUtils {
 
 bool isGTestMacro(const QString &macro);
 bool isGTestParameterized(const QString &macro);
 bool isGTestTyped(const QString &macro);
 bool isValidGTestFilter(const QString &filterExpression);
 
-} // namespace GTestUtils
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal::GTestUtils

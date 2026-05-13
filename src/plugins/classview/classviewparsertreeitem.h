@@ -14,8 +14,7 @@ class QHash;
 class QStandardItem;
 QT_END_NAMESPACE
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 class ParserTreeItemPrivate;
 
@@ -49,7 +48,6 @@ private:
     ParserTreeItemPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal
 
 Q_DECLARE_METATYPE(ClassView::Internal::ParserTreeItem::ConstPtr)

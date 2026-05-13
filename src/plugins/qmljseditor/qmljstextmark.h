@@ -8,8 +8,7 @@
 
 #include <texteditor/textmark.h>
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 class QmlJSTextMark : public TextEditor::TextMark
 {
@@ -31,5 +30,4 @@ private:
     RemovedFromEditorHandler m_removedFromEditorHandler;
 };
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal

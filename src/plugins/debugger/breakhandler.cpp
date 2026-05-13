@@ -57,8 +57,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 static BreakpointManager *theBreakpointManager = nullptr;
 
@@ -2980,5 +2979,4 @@ void BreakpointManager::loadSessionData()
     }
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

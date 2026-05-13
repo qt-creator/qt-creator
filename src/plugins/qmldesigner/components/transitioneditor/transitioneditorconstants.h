@@ -5,8 +5,7 @@
 
 #include <QGraphicsItem>
 
-namespace QmlDesigner {
-namespace TransitionEditorConstants {
+namespace QmlDesigner::TransitionEditorConstants {
 
 const int sectionWidth = 200;
 
@@ -20,5 +19,4 @@ const char C_CURVE_PICKER[] = "QmlDesigner.Transitions.CurvePicker";
 const char C_ZOOM_IN[] = "QmlDesigner.Transitions.ZoomIn";
 const char C_ZOOM_OUT[] = "QmlDesigner.Transitions.ZoomOut";
 
-} // namespace TransitionEditorConstants
-} // namespace QmlDesigner
+} // namespace QmlDesigner::TransitionEditorConstants

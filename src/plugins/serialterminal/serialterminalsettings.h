@@ -12,8 +12,7 @@
 
 namespace Utils { class QtcSettings; }
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 Q_DECLARE_LOGGING_CATEGORY(serialTerminalLog)
 
@@ -52,5 +51,4 @@ private:
     void loadLineEndings(Utils::QtcSettings &settings);
 };
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal

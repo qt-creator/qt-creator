@@ -9,8 +9,7 @@
 
 #include <QtQuickWidgets/QQuickWidget>
 
-namespace QmlProjectManager {
-namespace Internal {
+namespace QmlProjectManager::Internal {
 
 class QdsLandingPageWidget : public QWidget
 {
@@ -80,5 +79,4 @@ private:
     QStringList m_cmakeResources;
 };
 
-} // namespace Internal
-} // namespace QmlProjectManager
+} // namespace QmlProjectManager::Internal

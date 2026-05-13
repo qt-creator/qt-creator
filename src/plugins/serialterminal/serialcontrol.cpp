@@ -7,8 +7,7 @@
 
 #include <utils/outputformatter.h>
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 SerialControl::SerialControl(const Settings &settings, QObject *parent) :
     QObject(parent)
@@ -219,5 +218,4 @@ void SerialControl::handleError(QSerialPort::SerialPortError error)
     }
 }
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal

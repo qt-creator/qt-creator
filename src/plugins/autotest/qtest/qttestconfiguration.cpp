@@ -13,8 +13,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
 {
@@ -75,5 +74,4 @@ Environment QtTestConfiguration::filteredEnvironment(const Environment &original
     return QTestUtils::prepareBasicEnvironment(original);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

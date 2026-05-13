@@ -8,8 +8,7 @@
 #include <QQuickImageProvider>
 #include <QPointer>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class StatesEditorView;
 
@@ -26,5 +25,4 @@ private:
     QPointer<const AbstractView> m_nodeInstanceView;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

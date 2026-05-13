@@ -11,8 +11,7 @@
 
 using namespace TextEditor;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 static TextStyle styleForFormat(int format)
 {
@@ -80,5 +79,4 @@ void ProFileHighlighter::highlightBlock(const QString &text)
     formatSpaces(text);
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

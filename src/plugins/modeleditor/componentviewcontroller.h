@@ -14,8 +14,7 @@ class MDiagram;
 class DiagramSceneController;
 }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ModelUtilities;
 class PackageViewController;
@@ -47,5 +46,4 @@ private:
     ComponentViewControllerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

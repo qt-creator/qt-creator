@@ -13,8 +13,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 CommitEditor::CommitEditor() :
     VcsBase::VcsBaseSubmitEditor(new FossilCommitWidget)
@@ -67,5 +66,4 @@ void CommitEditor::setFields(const Utils::FilePath &repositoryRoot, const Branch
     setFileModel(m_fileModel);
 }
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

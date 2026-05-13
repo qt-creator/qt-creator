@@ -15,8 +15,7 @@
 #include <QFile>
 #include <QXmlStreamWriter>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 SquishXmlOutputHandler::SquishXmlOutputHandler(QObject *parent)
     : QObject(parent)
@@ -321,5 +320,4 @@ void SquishXmlOutputHandler::outputAvailable(const QByteArray &output)
     }
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

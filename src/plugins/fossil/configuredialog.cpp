@@ -14,8 +14,7 @@
 #include <QDir>
 #include <QLineEdit>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class ConfigureDialogPrivate {
 public:
@@ -102,5 +101,4 @@ void ConfigureDialog::setSettings(const RepositorySettings &settings)
     d->updateUi();
 }
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

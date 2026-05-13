@@ -35,8 +35,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 // ---------------------------------------------------------------------------
 // QbsBuildConfiguration:
@@ -290,5 +289,4 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
     });
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

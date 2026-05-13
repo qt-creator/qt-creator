@@ -7,8 +7,7 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model/mpackage.h"
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 ModelUtilities::ModelUtilities(QObject *parent)
     : QObject(parent)
@@ -59,5 +58,4 @@ bool ModelUtilities::haveDependency(const qmt::MObject *source,
     return false;
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

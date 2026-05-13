@@ -5,8 +5,7 @@
 
 #include <utils/navigationtreeview.h>
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 class QmlJSOutlineTreeView : public Utils::NavigationTreeView
 {
@@ -20,5 +19,4 @@ private:
     void collapseAllExceptRoot();
 };
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal

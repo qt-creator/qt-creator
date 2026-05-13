@@ -9,8 +9,7 @@
 #include <QMap>
 #include <QObject>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class FossilJsExtension : public QObject
 {
@@ -30,5 +29,4 @@ public:
     Q_INVOKABLE bool defaultDisableAutosync() const;
 };
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

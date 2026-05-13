@@ -6,8 +6,7 @@
 #include <qmldesigner_global.h>
 #include <qmljs/parser/qmljsast_p.h>
 
-namespace QmlDesigner {
-namespace ScriptEditorStatements {
+namespace QmlDesigner::ScriptEditorStatements {
 
 inline constexpr char FUNCTION_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
     "QmlDesigner::ScriptEditorStatements", "Function");
@@ -128,6 +127,4 @@ QMLDESIGNER_EXPORT MatchedStatement &koStatement(ScriptEditorStatements::Handler
 QMLDESIGNER_EXPORT MatchedCondition &matchedCondition(ScriptEditorStatements::Handler &handler);
 QMLDESIGNER_EXPORT ConditionalStatement &conditionalStatement(ScriptEditorStatements::Handler &handler);
 
-} // namespace ScriptEditorStatements
-
-} // namespace QmlDesigner
+} // namespace QmlDesigner::ScriptEditorStatements

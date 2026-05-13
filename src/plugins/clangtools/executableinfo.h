@@ -10,8 +10,7 @@
 #include <QVector>
 #include <QVersionNumber>
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 QPair<Utils::FilePath, QString> getClangIncludeDirAndVersion(const Utils::FilePath &clangToolPath);
 
@@ -51,6 +50,5 @@ public:
     friend bool operator!=(const ClazyStandaloneInfo &c1, const ClazyStandaloneInfo &c2);
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal
 

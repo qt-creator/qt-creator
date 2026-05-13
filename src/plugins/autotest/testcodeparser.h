@@ -22,8 +22,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestCodeParser : public QObject
 {
@@ -105,5 +104,4 @@ private:
     QElapsedTimer m_parsingTimer;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

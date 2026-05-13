@@ -41,8 +41,7 @@ using namespace Utils;
 
 const int LocatorEntryRole = int(HighlightingItemRole::User);
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 /* A model to represent the Locator results. */
 class LocatorModel : public QAbstractListModel
@@ -1072,7 +1071,6 @@ QSize CompletionDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     return HighlightingItemDelegate::sizeHint(option, index) + QSize(0, 2);
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal
 
 #include "locatorwidget.moc"

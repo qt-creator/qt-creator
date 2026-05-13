@@ -15,8 +15,7 @@ class QSortFilterProxyModel;
 class QStringListModel;
 QT_END_NAMESPACE
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class DeleteSymbolicNameDialog : public QDialog
 {
@@ -49,5 +48,4 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

@@ -58,8 +58,7 @@ static Q_LOGGING_CATEGORY(appOutputLog, "qtc.projectexplorer.appoutput", QtWarni
 using namespace Core;
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 const char OPTIONS_PAGE_ID[] = "B.ProjectExplorer.AppOutputOptions";
 const char SETTINGS_KEY[] = "ProjectExplorer/AppOutput/Zoom";
@@ -1371,7 +1370,6 @@ public:
 
 static const AppOutputSettingsPage settingsPage;
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
 
 #include "appoutputpane.moc"

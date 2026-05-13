@@ -11,8 +11,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static ResultHooks::OutputStringHook outputStringHook(const QString &function, const QString &dataTag)
 {
@@ -233,7 +232,6 @@ QtTestResult::QtTestResult(const QString &id, const QString &name, const FilePat
                             createResultHook(projectFile, type, functionName, dataTag)})
 {}
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal
 
 Q_DECLARE_METATYPE(Autotest::Internal::QtTestData);

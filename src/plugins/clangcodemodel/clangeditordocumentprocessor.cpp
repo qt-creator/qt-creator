@@ -34,8 +34,7 @@
 #include <QTextBlock>
 #include <QWidget>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocument *document)
     : BuiltinEditorDocumentProcessor(document), m_document(*document)
@@ -93,5 +92,4 @@ void ClangEditorDocumentProcessor::forceUpdate(TextEditor::TextDocument *doc)
     }
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

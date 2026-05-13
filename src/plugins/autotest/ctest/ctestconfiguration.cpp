@@ -4,8 +4,7 @@
 #include "ctestconfiguration.h"
 #include "ctestoutputreader.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 CTestConfiguration::CTestConfiguration(ITestBase *testBase)
     : TestToolConfiguration(testBase)
@@ -18,5 +17,4 @@ TestOutputReader *CTestConfiguration::createOutputReader(Utils::Process *app) co
     return new CTestOutputReader(app, workingDirectory());
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

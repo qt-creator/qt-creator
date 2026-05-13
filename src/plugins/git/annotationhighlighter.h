@@ -5,8 +5,7 @@
 
 #include <vcsbase/baseannotationhighlighter.h>
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 // Annotation highlighter for p4 triggering on 'changenumber:'
 class GitAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
@@ -21,5 +20,4 @@ private:
     const QChar m_blank = ' ';
 };
 
-} // namespace Internal
-} // namespace Git
+} // namespace Git::Internal

@@ -7,8 +7,7 @@
 
 #include <QHeaderView>
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 AssetImportUpdateTreeView::AssetImportUpdateTreeView(QWidget *parent)
     : Utils::TreeView(parent)
@@ -30,5 +29,4 @@ AssetImportUpdateTreeModel *AssetImportUpdateTreeView::model() const
     return m_model;
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

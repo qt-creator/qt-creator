@@ -8,8 +8,7 @@
 #include <QModelIndex>
 #include <QStyledItemDelegate>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class SquishTestTreeView : public Utils::NavigationTreeView
 {
@@ -48,5 +47,4 @@ public:
                       const QModelIndex &index) const override;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

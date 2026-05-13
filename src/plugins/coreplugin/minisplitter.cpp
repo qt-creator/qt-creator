@@ -14,8 +14,7 @@
 #include <QPainter>
 #include <QSplitterHandle>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 static QBitmap scaledBitmap(const QBitmap &other, qreal factor)
 {
@@ -107,8 +106,7 @@ private:
     bool m_lightColored;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal
 
 using namespace Core;
 using namespace Core::Internal;

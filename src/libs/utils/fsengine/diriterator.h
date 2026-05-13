@@ -12,8 +12,7 @@
 
 #include <QtCore/private/qabstractfileengine_p.h>
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 inline std::pair<QDir::Filters, QDirIterator::IteratorFlags> convertQDirListingIteratorFlags(
@@ -107,6 +106,4 @@ private:
     FilePaths::const_iterator it;
 };
 
-} // namespace Internal
-
-} // namespace Utils
+} // namespace Utils::Internal

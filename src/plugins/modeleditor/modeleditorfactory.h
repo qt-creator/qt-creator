@@ -5,8 +5,7 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ActionHandler;
 class ModelEditor;
@@ -18,5 +17,4 @@ public:
     ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler);
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

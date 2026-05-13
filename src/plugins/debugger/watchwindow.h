@@ -7,8 +7,7 @@
 
 #include <QTimer>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 enum WatchType { LocalsType, InspectType, WatchersType, ReturnType, TooltipType };
 
@@ -51,5 +50,4 @@ private:
     QTimer m_progressDelayTimer;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class FancyToolButton : public QToolButton
 {
@@ -63,5 +62,4 @@ private:
     bool m_iconsOnly = false;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

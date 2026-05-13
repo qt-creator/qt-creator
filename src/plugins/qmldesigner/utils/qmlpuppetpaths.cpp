@@ -10,8 +10,7 @@
 
 #include <QCoreApplication>
 
-namespace QmlDesigner {
-namespace QmlPuppetPaths {
+namespace QmlDesigner::QmlPuppetPaths {
 
 namespace {
 
@@ -54,5 +53,4 @@ std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(ProjectExplorer::Kit 
     return {workingDirectoryPath, puppetPath};
 }
 
-} // namespace QmlPuppetPaths
-} // namespace QmlDesigner
+} // namespace QmlDesigner::QmlPuppetPaths

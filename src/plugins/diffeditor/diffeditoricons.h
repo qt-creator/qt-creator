@@ -5,8 +5,7 @@
 
 #include <utils/icon.h>
 
-namespace DiffEditor {
-namespace Icons {
+namespace DiffEditor::Icons {
 
 const Utils::Icon TOP_BAR({
         {":/diffeditor/images/topbar.png", Utils::Theme::IconsBaseColor}});
@@ -15,5 +14,4 @@ const Utils::Icon UNIFIED_DIFF({
 const Utils::Icon SIDEBYSIDE_DIFF({
         {":/diffeditor/images/sidebysidediff.png", Utils::Theme::IconsBaseColor}});
 
-} // namespace Icons
-} // namespace DiffEditor
+} // namespace DiffEditor::Icons

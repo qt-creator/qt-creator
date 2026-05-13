@@ -10,8 +10,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 ShowOutputTaskHandler::ShowOutputTaskHandler(
     Core::IOutputPane *window, const QString &text, const QString &tooltip, const QString &shortcut)
@@ -58,5 +57,4 @@ QAction *ShowOutputTaskHandler::createAction(const QString &text, const QString 
     return outputAction;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

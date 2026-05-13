@@ -10,8 +10,7 @@
 #include <cplusplus/Icons.h>
 #include <utils/dropsupport.h>
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 /*!
    Moves \a item to \a target (sorted).
@@ -184,5 +183,4 @@ void TreeItemModel::moveRootToTarget(const QStandardItem *target)
     emit layoutChanged();
 }
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal

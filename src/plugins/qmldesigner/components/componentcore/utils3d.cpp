@@ -27,8 +27,7 @@
 #include <QRegularExpression>
 #include <QTextDocument>
 
-namespace QmlDesigner {
-namespace Utils3D {
+namespace QmlDesigner::Utils3D {
 
 namespace {
 
@@ -771,5 +770,4 @@ bool hasImported3dType(AbstractView *view,
            || Utils::set_has_common_element(removed, generatedModuleIds, {}, &ExportedTypeName::moduleId);
 }
 
-} // namespace Utils3D
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Utils3D

@@ -18,8 +18,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 QString CatchTreeItem::testCasesString() const
 {
@@ -334,5 +333,4 @@ QList<ITestConfiguration *> CatchTreeItem::getTestConfigurations(bool ignoreChec
     return result;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

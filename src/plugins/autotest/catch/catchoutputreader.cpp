@@ -9,8 +9,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 namespace CatchXml {
     const char GroupElement[]          = "Group";
@@ -327,5 +326,4 @@ QString CatchOutputReader::testOutputNodeToString() const
     return {};
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

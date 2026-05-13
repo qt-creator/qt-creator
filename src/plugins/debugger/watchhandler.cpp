@@ -79,8 +79,7 @@ using namespace TextEditor;
 using namespace Utils;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Creates debug output for accesses to the model.
 enum { debugModel = 0 };
@@ -2939,7 +2938,6 @@ static QVariant createItemDelegate()
     return QVariant::fromValue(static_cast<QAbstractItemDelegate *>(new WatchDelegate));
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal
 
 #include "watchhandler.moc"

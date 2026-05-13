@@ -20,8 +20,7 @@
 using namespace CppEditor;
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 static Id defaultDiagnosticId()
 {
@@ -172,5 +171,4 @@ QVersionNumber ClangToolsSettings::clazyVersion()
     return ClazyStandaloneInfo(Internal::toolExecutable(ClangToolType::Clazy)).version;
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

@@ -5,8 +5,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class AddObjectVisitor: public QMLRewriter
 {
@@ -31,5 +30,4 @@ private:
     Utils::span<const PropertyNameView> m_propertyOrder;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

@@ -11,8 +11,7 @@
 #include <QLabel>
 #include <QLineEdit>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 // Determine name for Q_EXPORT_PLUGIN
 static inline QString createPluginName(const QString &prefix)
@@ -134,5 +133,4 @@ bool CustomWidgetPluginWizardPage::isComplete() const
     return m_complete;
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

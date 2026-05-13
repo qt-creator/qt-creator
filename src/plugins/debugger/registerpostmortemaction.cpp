@@ -18,8 +18,7 @@
 
 using namespace RegistryAccess;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 void RegisterPostMortemAction::registerNow(bool value)
 {
@@ -63,5 +62,4 @@ void RegisterPostMortemAction::readSettings()
     setValue(registered, BaseAspect::BeQuiet);
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

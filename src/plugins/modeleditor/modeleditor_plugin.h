@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ModelsManager;
 
@@ -29,5 +28,4 @@ private:
     class ModelEditorPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

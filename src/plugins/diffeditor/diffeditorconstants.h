@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace DiffEditor {
-namespace Constants {
+namespace DiffEditor::Constants {
 
 const char DIFF_EDITOR_PLUGIN[] = "DiffEditorPlugin";
 
@@ -19,5 +18,4 @@ const char SELECT_ENCODING[] = "DiffEditor.SelectEncoding";
 
 const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Diff";
 
-} // namespace Constants
-} // namespace DiffEditor
+} // namespace DiffEditor::Constants

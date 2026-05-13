@@ -6,8 +6,7 @@
 
 #include <QIcon>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 enum class IconType {
     Info,
@@ -20,5 +19,4 @@ enum class IconType {
 QIcon icon(IconType type);
 QIcon toolBarIcon(IconType type);
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

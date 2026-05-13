@@ -26,8 +26,7 @@
 using namespace CppEditor;
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 static QString lineColumnString(const Link &link)
 {
@@ -365,5 +364,4 @@ bool toolEnabled(CppEditor::ClangToolType type, const ClangDiagnosticConfig &con
     return config.isEnabled(type);
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

@@ -30,8 +30,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace VcsBase {
-namespace Internal {
+namespace VcsBase::Internal {
 
 static char VCSCOMMAND_VCSID[] = "vcsId";
 static char VCSCOMMAND_RUN_MESSAGE[] = "trRunMessage";
@@ -311,5 +310,4 @@ void VcsCommandPage::setRunMessage(const QString &msg)
     m_runMessage = msg;
 }
 
-} // namespace Internal
-} // namespace VcsBase
+} // namespace VcsBase::Internal

@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace QmlJSEditor {
-namespace Constants {
+namespace QmlJSEditor::Constants {
 
 const char M_CONTEXT[] = "QML JS Editor.ContextMenu";
 
@@ -28,5 +27,4 @@ const char QMLLINT_BUILD_TARGET[] = "all_qmllint";
 const char QMLLS_CLIENT_SETTINGS_ID[] = "LanguageClient::QmllsClientSettingsID";
 const char QMLLS_NAME[] = "QML Language Server";
 
-} // namespace Constants
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Constants

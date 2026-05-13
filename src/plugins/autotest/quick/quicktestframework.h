@@ -8,13 +8,11 @@
 #include "../qtest/qttestframework.h"
 
 namespace Autotest {
-namespace QuickTest {
-namespace Constants {
+namespace QuickTest::Constants {
 
 const char FRAMEWORK_ID[]                = "AutoTest.Framework.QtQuickTest";
 
-} // namespace Constants
-} // namespace QuickTest
+} // namespace QuickTest::Constants
 
 namespace Internal {
 

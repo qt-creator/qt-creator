@@ -12,8 +12,7 @@ QT_BEGIN_NAMESPACE
 class QDataStream;
 QT_END_NAMESPACE
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 class MacroEvent
 {
@@ -34,5 +33,4 @@ private:
     QMap<quint8, QVariant> m_values;
 };
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal

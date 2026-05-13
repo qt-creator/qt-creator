@@ -13,8 +13,7 @@
 
 using namespace TextEditor;
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class QPropertyHighlighter::Private
 {
@@ -401,5 +400,4 @@ void QPropertyHighlighter::Private::addResult(TextStyle textStyle, int symbolOff
     }
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

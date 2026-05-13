@@ -23,8 +23,7 @@
 
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 Q_GLOBAL_STATIC(WindowList, m_windowList)
 
@@ -231,5 +230,4 @@ void WindowList::setActiveWindow(QWidget *window)
         m_windowActions.at(i)->setChecked(m_windows.at(i) == window);
 }
 
-} // Internal
-} // Core
+} // Core::Internal

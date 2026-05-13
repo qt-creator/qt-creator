@@ -13,8 +13,7 @@
 
 #include <QSet>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class PackageViewController::PackageViewControllerPrivate {
 public:
@@ -135,5 +134,4 @@ bool PackageViewController::haveMatchingStereotypes(const qmt::MObject *object1,
 }
 
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

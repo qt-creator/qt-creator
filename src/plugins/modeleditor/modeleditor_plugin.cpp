@@ -26,8 +26,7 @@
 #include <QItemSelection>
 #include <QClipboard>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 ModelEditorPlugin *pluginInstance = nullptr;
 
@@ -78,6 +77,5 @@ ModelsManager *ModelEditorPlugin::modelsManager()
     return &pluginInstance->d->modelsManager;
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal
 

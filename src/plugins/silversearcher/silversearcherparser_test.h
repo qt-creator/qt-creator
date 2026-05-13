@@ -5,8 +5,7 @@
 
 #include <QObject>
 
-namespace SilverSearcher {
-namespace Internal {
+namespace SilverSearcher::Internal {
 
 class OutputParserTest : public QObject
 {
@@ -17,5 +16,4 @@ private slots:
     void test();
 };
 
-} // namespace Internal
-} // namespace SilverSearcher
+} // namespace SilverSearcher::Internal

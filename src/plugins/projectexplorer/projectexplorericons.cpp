@@ -5,8 +5,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Icons {
+namespace ProjectExplorer::Icons {
 
 const Icon BUILD(":/projectexplorer/images/build.png");
 const Icon BUILD_FLAT({
@@ -93,5 +92,4 @@ const Icon MODE_PROJECT_CLASSIC(":/projectexplorer/images/mode_project.png");
 const Icon MODE_PROJECT_FLAT({
         {":/projectexplorer/images/mode_project_mask.png", Theme::IconsBaseColor}});
 
-} // namespace Icons
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Icons

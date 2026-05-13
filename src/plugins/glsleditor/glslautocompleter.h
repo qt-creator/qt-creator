@@ -5,8 +5,7 @@
 
 #include <texteditor/autocompleter.h>
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
 class GlslCompleter : public TextEditor::AutoCompleter
 {
@@ -24,5 +23,4 @@ public:
     QString insertParagraphSeparator(const QTextCursor &cursor) const override;
 };
 
-} // namespace Internal
-} // namespace GlslEditor
+} // namespace GlslEditor::Internal

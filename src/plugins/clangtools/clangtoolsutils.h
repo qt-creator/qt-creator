@@ -18,8 +18,7 @@ class FilePath;
 class Link;
 } // Utils
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 class RunSettings;
 
 QString clangTidyDocUrl(const QString &check);
@@ -71,5 +70,4 @@ QStringList extraClangToolsAppendOptions();
 
 inline Utils::Id taskCategory() { return "ClangTools"; }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

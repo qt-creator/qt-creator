@@ -7,8 +7,7 @@
 
 #include <QPainter>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestTreeItemDelegate::TestTreeItemDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
@@ -51,5 +50,4 @@ void TestTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     QStyledItemDelegate::paint(painter, opt, index);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

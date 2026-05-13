@@ -5,8 +5,7 @@
 
 #include <utils/navigationtreeview.h>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestTreeView : public Utils::NavigationTreeView
 {
@@ -19,5 +18,4 @@ public:
     void deselectAll();
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

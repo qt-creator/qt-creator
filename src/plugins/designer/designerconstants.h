@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace Designer {
-namespace Constants {
+namespace Designer::Constants {
 
 const char INFO_READ_ONLY[] = "DesignerXmlEditor.ReadOnly";
 const char K_DESIGNER_XML_EDITOR_ID[] = "FormEditor.DesignerXmlEditor";
@@ -46,5 +45,4 @@ enum EditModes
 namespace Internal {
     enum { debug = 0 };
 }
-} // Constants
-} // Designer
+} // Designer::Constants

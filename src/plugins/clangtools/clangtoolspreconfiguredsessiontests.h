@@ -11,8 +11,7 @@ class Project;
 class Target;
 }
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class PreconfiguredSessionTests: public QObject
 {
@@ -29,5 +28,4 @@ private:
                                   ProjectExplorer::Target *target);
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

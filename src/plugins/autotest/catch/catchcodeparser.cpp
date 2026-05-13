@@ -9,8 +9,7 @@
 
 #include <QRegularExpression>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 using namespace CPlusPlus;
 
@@ -255,5 +254,4 @@ bool CatchCodeParser::skipParameter()
     return skipCommentsUntil(T_COMMA);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

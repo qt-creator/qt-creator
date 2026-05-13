@@ -10,8 +10,7 @@
 namespace Utils { class FilePath; }
 namespace Core { class SessionModel; }
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class ProjectModel;
 class SessionsPage;
@@ -44,5 +43,4 @@ private:
     ProjectModel *m_projectModel = nullptr;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

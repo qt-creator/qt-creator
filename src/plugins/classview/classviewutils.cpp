@@ -7,8 +7,7 @@
 
 #include <QStandardItem>
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 /*!
     Converts QVariant location container to internal.
@@ -47,5 +46,4 @@ SymbolInformation symbolInformationFromItem(const QStandardItem *item)
     return SymbolInformation(name, type, iconType);
 }
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal

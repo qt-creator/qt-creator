@@ -7,8 +7,7 @@
 
 #include <utils/id.h>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ClangEditorDocumentProcessor : public CppEditor::BuiltinEditorDocumentProcessor
 {
@@ -34,5 +33,4 @@ private:
     TextEditor::TextDocument &m_document;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

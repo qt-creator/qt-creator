@@ -18,8 +18,7 @@
 
 #include <functional>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 const int DEFAULT_SORT_COLUMN = MainTimeInPercent;
 
@@ -386,5 +385,4 @@ void QmlProfilerStatisticsRelativesView::jumpToItem(int typeIndex)
     emit typeClicked(typeIndex);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

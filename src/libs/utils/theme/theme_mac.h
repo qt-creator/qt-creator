@@ -9,11 +9,9 @@ QT_BEGIN_NAMESPACE
 class QMenu;
 QT_END_NAMESPACE
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 
 void forceMacAppearance(bool dark);
 void setMacOSHelpMenu(QMenu *menu);
 
-} // Internal
-} // Utils
+} // Utils::Internal

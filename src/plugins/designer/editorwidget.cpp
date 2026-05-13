@@ -17,8 +17,7 @@
 
 using namespace Designer::Constants;
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 // ---------- EditorWidget
 
@@ -118,5 +117,4 @@ SharedTools::WidgetHost *EditorWidget::formWindowEditorForFormWindow(const QDesi
     return m_stack->formWindowEditorForFormWindow(fw);
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

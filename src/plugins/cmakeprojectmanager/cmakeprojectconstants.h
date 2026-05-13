@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace CMakeProjectManager {
-namespace Constants {
+namespace CMakeProjectManager::Constants {
 
 const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
 const char RUN_CMAKE[] = "CMakeProject.RunCMake";
@@ -93,5 +92,4 @@ const char VXWORKS_DEVICE_TYPE[] = "VxWorks.Device.Type";
 const char KIT_BUILDINFO_LIST[] = "CMakeProjectManager.BuildInfoList";
 const char PRESETS_KITS_PROGRESS[] = "CMakeProjectManager.Presets.Kits.Progress";
 
-} // namespace Constants
-} // namespace CMakeProjectManager
+} // namespace CMakeProjectManager::Constants

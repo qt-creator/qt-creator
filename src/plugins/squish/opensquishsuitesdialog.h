@@ -15,8 +15,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class OpenSquishSuitesDialog : public QDialog
 {
@@ -40,5 +39,4 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

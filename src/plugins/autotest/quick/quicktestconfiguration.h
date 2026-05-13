@@ -5,8 +5,7 @@
 
 #include "../testconfiguration.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class QuickTestConfiguration : public DebuggableTestConfiguration
 {
@@ -17,5 +16,4 @@ public:
     Utils::Environment filteredEnvironment(const Utils::Environment &original) const override;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

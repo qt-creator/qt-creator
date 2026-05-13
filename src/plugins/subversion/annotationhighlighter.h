@@ -5,8 +5,7 @@
 
 #include <vcsbase/baseannotationhighlighter.h>
 
-namespace Subversion {
-namespace Internal {
+namespace Subversion::Internal {
 
 // Annotation highlighter for subversion triggering on 'changenumber '
 class SubversionAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
@@ -21,5 +20,4 @@ private:
     const QChar m_blank;
 };
 
-} // namespace Internal
-} // namespace Subversion
+} // namespace Subversion::Internal

@@ -48,8 +48,7 @@
 static const char kWindowSideBarSettingsKey[] = "Help/WindowSideBar";
 static const char kModeSideBarSettingsKey[] = "Help/ModeSideBar";
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class ButtonWithMenu : public QToolButton
 {
@@ -1019,5 +1018,4 @@ void HelpWidget::highlightSearchTerms(HelpViewer *viewer)
     m_searchTerms.clear();
 }
 
-} // Internal
-} // Help
+} // Help::Internal

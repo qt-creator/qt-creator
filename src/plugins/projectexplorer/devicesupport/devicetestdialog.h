@@ -11,8 +11,7 @@
 
 #include <memory>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class DeviceTestDialog : public QDialog
 {
@@ -35,5 +34,4 @@ private:
     const std::unique_ptr<DeviceTestDialogPrivate> d;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

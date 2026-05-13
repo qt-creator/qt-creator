@@ -5,8 +5,7 @@
 
 using namespace Utils;
 
-namespace Core {
-namespace Icons {
+namespace Core::Icons {
 
 const Icon QTCREATORLOGO_BIG(
         ":/core/images/qtcreatorlogo-big.png");
@@ -36,5 +35,4 @@ const Icon DESKTOP_DEVICE_SMALL({{":/utils/images/desktopdevicesmall.png",
                                   Theme::PanelTextColorDark}},
                                 Icon::Tint);
 
-} // namespace Icons
-} // namespace Core
+} // namespace Core::Icons

@@ -18,8 +18,7 @@ class ClassNameValidatingLineEdit;
 class PathChooser;
 }
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 class ComponentNameDialog : public QDialog
 {
@@ -57,5 +56,4 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal

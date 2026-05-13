@@ -5,8 +5,7 @@
 
 #include <QLineEdit>
 
-namespace SerialTerminal {
-namespace Internal {
+namespace SerialTerminal::Internal {
 
 class ConsoleLineEdit : public QLineEdit
 {
@@ -26,5 +25,4 @@ private:
     QString m_editingEntry;
 };
 
-} // namespace Internal
-} // namespace SerialTerminal
+} // namespace SerialTerminal::Internal

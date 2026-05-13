@@ -5,15 +5,11 @@
 
 #include <QtGlobal>
 
-namespace Autotest {
-namespace BoostTest {
-namespace Constants {
+namespace Autotest::BoostTest::Constants {
 
 const char FRAMEWORK_ID[]                = "AutoTest.Framework.Boost";
 const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Boost Test");
 const unsigned FRAMEWORK_PRIORITY        = 11;
 const char BOOST_MASTER_SUITE[]          = "Master Test Suite";
 
-} // namespace Constants
-} // namespace BoostTest
-} // namespace AutoTest
+} // namespace Autotest::BoostTest::Constants

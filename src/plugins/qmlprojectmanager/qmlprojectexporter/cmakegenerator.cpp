@@ -21,8 +21,7 @@
 
 using namespace Utils;
 
-namespace QmlProjectManager {
-namespace QmlProjectExporter {
+namespace QmlProjectManager::QmlProjectExporter {
 
 void CMakeGenerator::createMenuAction(QObject *parent)
 {
@@ -658,5 +657,4 @@ void CMakeGenerator::createWriter()
     m_writer = writer;
 }
 
-} // namespace QmlProjectExporter
-} // namespace QmlProjectManager
+} // namespace QmlProjectManager::QmlProjectExporter

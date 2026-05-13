@@ -62,8 +62,7 @@ static Q_LOGGING_CATEGORY(iosCommonLog, "qtc.ios.common", QtWarningMsg)
 }
 
 using ToolchainPair = std::pair<GccToolchain *, GccToolchain *>;
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 const bool IgnoreAllDevicesDefault = false;
 
@@ -694,5 +693,4 @@ QDebug &operator<<(QDebug &stream, std::shared_ptr<ProvisioningProfile> profile)
     return stream << profile->displayName() << profile->identifier() << profile->details();
 }
 
-} // namespace Internal
-} // namespace Ios
+} // namespace Ios::Internal

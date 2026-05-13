@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace Python {
-namespace Constants {
+namespace Python::Constants {
 
 const char C_PYTHONEDITOR_ID[] = "PythonEditor.PythonEditor";
 const char C_PYTHONRUNCONFIGURATION_ID[] = "PythonEditor.RunConfiguration.";
@@ -34,5 +33,4 @@ const char C_PY_PROJECT_MIME_TYPE[] = "text/x-python-project";
 const char C_PY_PROJECT_MIME_TYPE_LEGACY[] = "text/x-pyqt-project";
 const char C_PY_PROJECT_MIME_TYPE_TOML[] = "text/x-python-pyproject-toml";
 
-} // namespace Constants
-} // namespace Python
+} // namespace Python::Constants

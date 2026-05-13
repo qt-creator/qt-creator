@@ -6,8 +6,7 @@
 #include "import.h"
 #include "qmlrewriter.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class ChangeImportsVisitor: public QMLRewriter
 {
@@ -23,5 +22,4 @@ private:
     QString m_source;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

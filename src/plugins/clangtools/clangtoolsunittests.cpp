@@ -35,8 +35,7 @@ using namespace Utils;
 
 Q_DECLARE_METATYPE(CppEditor::ClangDiagnosticConfig)
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 void ClangToolsUnitTests::initTestCase()
 {
@@ -182,5 +181,4 @@ int ClangToolsUnitTests::getTimeout()
     return t > 0 ? t : 480000;
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

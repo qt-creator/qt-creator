@@ -7,8 +7,7 @@
 
 #include <array>
 
-namespace Nim {
-namespace Suggest {
+namespace Nim::Suggest {
 
 NimSuggestClient::NimSuggestClient(QObject *parent) : QObject(parent)
 {
@@ -151,5 +150,4 @@ void NimSuggestClient::parsePayload(const char *payload, std::size_t size)
     m_requests.erase(it);
 }
 
-} // namespace Suggest
-} // namespace Nim
+} // namespace Nim::Suggest

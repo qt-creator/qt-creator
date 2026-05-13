@@ -31,8 +31,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class QmakeMakeStep : public MakeStep
 {
@@ -253,5 +252,4 @@ QmakeMakeStepFactory::QmakeMakeStepFactory()
     setDisplayName(MakeStep::defaultDisplayName());
 }
 
-} // Internal
-} // QmakeProjectManager
+} // QmakeProjectManager::Internal

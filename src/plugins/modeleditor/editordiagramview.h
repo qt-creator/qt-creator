@@ -6,8 +6,7 @@
 #include "qmt/diagram_widgets_ui/diagramview.h"
 #include <utils/dropsupport.h>
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class PxNodeController;
 
@@ -38,5 +37,4 @@ private:
     EditorDiagramViewPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

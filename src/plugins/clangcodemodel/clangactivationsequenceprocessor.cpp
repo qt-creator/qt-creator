@@ -3,8 +3,7 @@
 
 #include "clangactivationsequenceprocessor.h"
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 namespace {
 
@@ -185,6 +184,5 @@ void ActivationSequenceProcessor::processPound()
     }
 }
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal
 

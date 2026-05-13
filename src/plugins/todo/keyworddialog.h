@@ -16,8 +16,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class QtColorButton; }
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class Keyword;
 enum class IconType;
@@ -53,5 +52,4 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

@@ -8,8 +8,7 @@
 #include <QIcon>
 #include <QString>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ClangPreprocessorAssistProposalItem final : public TextEditor::AssistProposalItemInterface
 {
@@ -48,5 +47,4 @@ private:
     mutable QChar m_typedCharacter;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

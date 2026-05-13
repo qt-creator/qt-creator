@@ -15,8 +15,7 @@ enum { debug = false };
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 // ----------------------------- ParserPrivate ---------------------------------
 
@@ -348,5 +347,4 @@ void Parser::requestCurrentState()
     emit treeRegenerated(parse());
 }
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal

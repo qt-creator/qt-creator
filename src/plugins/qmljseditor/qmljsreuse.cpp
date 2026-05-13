@@ -6,8 +6,7 @@
 #include <QChar>
 #include <QPainter>
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 bool isIdentifierChar(const QChar &c, bool atStart, bool acceptDollar)
 {
@@ -98,5 +97,4 @@ QIcon iconForColor(const QColor &color)
 }
 
 
-} // Internal
-} // QmlJSEditor
+} // QmlJSEditor::Internal

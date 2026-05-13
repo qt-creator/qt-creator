@@ -3,8 +3,7 @@
 
 #include "internalsignalhandlerproperty.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 InternalSignalHandlerProperty::InternalSignalHandlerProperty(PropertyNameView name,
                                                              const InternalNodePointer &propertyOwner)
@@ -52,5 +51,4 @@ InternalSignalDeclarationProperty::InternalSignalDeclarationProperty(
     setDynamicTypeName("signal");
 }
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

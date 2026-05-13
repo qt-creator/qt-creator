@@ -7,8 +7,7 @@
 
 namespace Utils { class FilePath; }
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 enum class Language;
 
@@ -26,5 +25,4 @@ private:
     Language m_language;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

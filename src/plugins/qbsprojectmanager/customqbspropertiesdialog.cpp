@@ -15,8 +15,7 @@
 #include <QPushButton>
 #include <QTableWidgetItem>
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 CustomQbsPropertiesDialog::CustomQbsPropertiesDialog(const QVariantMap &properties, QWidget *parent)
     : QDialog(parent)
@@ -102,5 +101,4 @@ void CustomQbsPropertiesDialog::handleCurrentItemChanged()
     m_removeButton->setEnabled(m_propertiesTable->currentItem());
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal
