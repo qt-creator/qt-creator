@@ -64,29 +64,10 @@ void setupValgrindProcess(ValgrindProcess *process, RunControl *runControl,
         runControl->postMessage(msg, format);
     });
     QObject::connect(process, &ValgrindProcess::processErrorReceived, runControl,
-                     [runControl, valgrindCommand](const QString &errorString, ProcessResult result) {
-        switch (result) {
-        case ProcessResult::StartFailed: {
-            const FilePath valgrind = valgrindCommand.executable();
-            if (!valgrind.isEmpty()) {
-                runControl->postMessage(Tr::tr("Error: \"%1\" could not be started: %2")
-                                            .arg(valgrind.toUserOutput(), errorString), ErrorMessageFormat);
-            } else {
-                runControl->postMessage(Tr::tr("Error: no Valgrind executable set."),
-                                        ErrorMessageFormat);
-            }
-            break;
-        }
-        case ProcessResult::Canceled:
-            runControl->postMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
-            return; // Intentional.
-        case ProcessResult::FinishedWithError:
-            runControl->postMessage(Tr::tr("Process exited with return value %1\n").arg(errorString), NormalMessageFormat);
-            break;
-        default:
-            break;
-        }
-        runControl->showOutputPane();
+                     [runControl](const QString &errorString, ProcessResult result) {
+        runControl->postMessage(errorString, ErrorMessageFormat);
+        if (result != ProcessResult::Canceled)
+            runControl->showOutputPane();
     });
     QObject::connect(runControl, &RunControl::canceled, process, &ValgrindProcess::stop);
     process->setValgrindCommand(valgrindCommand);

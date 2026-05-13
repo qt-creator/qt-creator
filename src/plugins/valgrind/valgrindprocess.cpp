@@ -178,7 +178,7 @@ Group ValgrindProcessPrivate::runRecipe() const
     };
     const auto onProcessDone = [this, storage](const Process &process, DoneWith result) {
         if (result == DoneWith::Error)
-            emit q->processErrorReceived(process.errorString(), process.result());
+            emit q->processErrorReceived(process.exitMessage(), process.result());
     };
 
     const auto isAddressValid = [this] { return !m_localServerAddress.isNull(); };
