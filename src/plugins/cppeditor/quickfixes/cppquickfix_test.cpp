@@ -378,6 +378,9 @@ void CppQuickFixTestObject::test()
     QFETCH(QByteArray, failMessage);
     QFETCH(QVariantMap, properties);
 
+    QuickFixSettings s;
+    modifySettings(s);
+
     class PropertiesMgr
     {
     public:

@@ -102,6 +102,8 @@ private slots:
     void test();
 
 private:
+    virtual void modifySettings(QuickFixSettings &) {}
+
     const std::unique_ptr<CppQuickFixFactory> m_factory;
 
     class TestData
