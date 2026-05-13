@@ -2400,16 +2400,13 @@ public:
     static QObject* createTest();
 #endif
 
-protected:
-    void setTest() { m_test = true; }
-
 private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const auto op = QSharedPointer<GenerateGettersSettersOperation>::create(interface);
         if (!op->isApplicable())
             return;
-        if (m_test) {
+        if (property("testing").toBool()) {
             GetterSetterCandidates candidates = op->candidates();
             for (MemberInfo &mi : candidates) {
                 mi.requestedFlags = mi.possibleFlags;
@@ -2420,8 +2417,6 @@ private:
         }
         result << op;
     }
-
-    bool m_test = false;
 };
 
 //! Adds missing members for a Q_PROPERTY
@@ -4477,7 +4472,7 @@ private slots:
         class TestFactory : public GenerateGettersSettersForClass
         {
         public:
-            TestFactory() { setTest(); }
+            TestFactory() { setProperty("testing", true); }
         };
 
         QFETCH(QByteArray, original);
