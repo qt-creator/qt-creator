@@ -267,6 +267,45 @@ public:
         }
     }
 
+    // Returns true if the session is initialized (or was just auto-initialized) and
+    // processing should continue. Sends an error and returns false for unknown sessions.
+    bool validateSessionInitialized(
+        Schema::RequestId id,
+        const Schema::ClientRequest &request,
+        const Responder &responder,
+        const QString &sessionId)
+    {
+        if (m_sessions.value(sessionId).has_value())
+            return true;
+
+        if (m_sessions.contains(sessionId)) {
+            // Session exists but was never fully initialized (SSE connected,
+            // initialize never completed). Auto-initialize with empty capabilities
+            // so the client can continue working rather than getting stuck in a
+            // reconnect loop. Close-zombie causes a loop: erasing the stream triggers
+            // reconnect, which creates another zombie and retries the same request.
+            qCWarning(mcpServerLog)
+                << "Received" << Schema::dispatchValue(request)
+                << "on uninitialized session" << sessionId
+                << "— auto-initializing to allow client to continue"
+                << "(active sessions:" << m_sessions.keys() << ")";
+            m_sessions.insert(sessionId, Client{});
+            return true;
+        }
+
+        qCWarning(mcpServerLog)
+            << "Received" << Schema::dispatchValue(request)
+            << "with unknown session ID:" << sessionId
+            << "— known sessions:" << m_sessions.keys();
+        responder.write(QJsonDocument(toJson(
+            Schema::JSONRPCErrorResponse()
+                .error(Schema::Error()
+                           .code(InvalidRequest)
+                           .message("Session not initialized. Please reconnect and send initialize."))
+                .id(id))));
+        return false;
+    }
+
     void onRequest(
         Schema::RequestId id,
         const Schema::ClientRequest &request,
@@ -287,6 +326,9 @@ public:
             onInitialize(id, std::get<Schema::InitializeRequest>(request), responder, sessionId);
             return;
         }
+
+        if (!validateSessionInitialized(id, request, responder, sessionId))
+            return;
 
         if (std::holds_alternative<Schema::CallToolRequest>(request)) {
             onToolCall(id, std::get<Schema::CallToolRequest>(request), responder, sessionId);
@@ -621,18 +663,8 @@ public:
         const Server::ToolInterfaceCallback &cb)
     {
         auto sessionInfo = m_sessions.value(sessionId);
-        if (!sessionInfo) {
-            qCWarning(mcpServerLog) << "Received call for tool" << request.params().name()
-                                    << "with invalid session ID:" << sessionId;
-            responder.write(QJsonDocument(toJson(
-                Schema::JSONRPCErrorResponse()
-                    .error(
-                        Schema::Error()
-                            .code(InvalidRequest)
-                            .message("Invalid session ID: " + sessionId))
-                    .id(id))));
-            return;
-        }
+        // Should never happen — validated upstream in onRequest() via validateSessionInitialized().
+        QTC_ASSERT(sessionInfo, return);
         Schema::ClientCapabilities clientCapabilities = sessionInfo->capabilities;
 
         ToolInterface toolInterface(
@@ -1327,7 +1359,7 @@ Server::Server(Schema::Implementation serverInfo)
                 &SseStream::destroyed,
                 [d = std::weak_ptr<ServerPrivate>(d), sessionId]() {
                     if (auto dptr = d.lock()) {
-                        qCDebug(mcpServerLog) << "SSE session with Id" << sessionId << "ended";
+                        qCInfo(mcpServerLog) << "SSE session with Id" << sessionId << "ended";
                         dptr->deleteSession(sessionId);
                     }
                 });
@@ -1344,8 +1376,10 @@ Server::Server(Schema::Implementation serverInfo)
             const QString sessionId = req.query().queryItemValue("session");
 
             if (!d->validateSession(sessionId)) {
-                qCWarning(mcpServerLog) << "Received message for invalid session ID:" << sessionId;
-                responder.write(d->corsHeaders({}), QHttpServerResponse::StatusCode::BadRequest);
+                qCWarning(mcpServerLog) << "Received message for unknown session ID:" << sessionId
+                                        << "— responding 404 to force client re-initialization"
+                                        << "(known sessions:" << d->m_sessions.keys() << ")";
+                responder.write(d->corsHeaders({}), QHttpServerResponse::StatusCode::NotFound);
                 return;
             }
 
