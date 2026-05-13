@@ -72,7 +72,7 @@ private:
 void IconWidget::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu m(this);
-    QAction *remove = m.addAction(Android::Tr::tr("Remove icon"));
+    QAction *remove = m.addAction(Android::Tr::tr("Remove Icon"));
     connect(remove, &QAction::triggered, this, &IconWidget::removeIcon);
     m.exec(ev->globalPos());
 }
@@ -81,8 +81,11 @@ void IconWidget::mousePressEvent(QMouseEvent *ev)
 {
     Q_UNUSED(ev)
 
-    const QString file = QFileDialog::getOpenFileName(this, Android::Tr::tr("Select icon"), QString(),
-                                                      Android::Tr::tr("Images (*.png *.jpg *.jpeg *.svg)"));
+    const QString file = QFileDialog::getOpenFileName(
+        this,
+        Android::Tr::tr("Select Icon"),
+        QString(),
+        Android::Tr::tr("Images (*.png *.jpg *.jpeg *.svg)"));
     if (file.isEmpty())
         return;
 
@@ -208,29 +211,29 @@ Result<void> IconWidget::saveIcon(const FilePath &manifestDir)
         return Utils::ResultError("Icon data not available for saving.");
 
     const Utils::FilePath targetPath = getTargetPath(manifestDir);
-    const QString targetFileName = targetPath.toUrlishString();
-    QFileInfo fi(targetFileName);
 
-    QDir dir = fi.dir();
-    if (!dir.exists()) {
-        if (!dir.mkpath(dir.absolutePath()))
-            return Utils::ResultError(QString("Failed to create directory: " + dir.absolutePath()));
-    }
+    const FilePath dir = targetPath.parentDir();
+    if (Result<> result = dir.ensureWritableDir(); !result)
+        return result;
 
-    QFile file(targetFileName);
+    QFile file(targetPath.toFSPathString());
     if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         bool saved = m_pixmap.save(&file, "PNG");
         file.close();
 
-        if (!saved)
-            return Utils::ResultError(QString("Failed to save pixmap data to file: " + targetFileName));
-        if (QFile::exists(targetPath.toUrlishString())) {
-            return Utils::ResultOk;
-        } else {
-            return Utils::ResultError(QString("Icon file does not exist after writing and closing: " + targetFileName));
+        if (!saved) {
+            return Utils::ResultError(
+                Tr::tr("Failed to save pixmap data to file \"%1\".").arg(targetPath.toUserOutput()));
         }
+        if (QFile::exists(targetPath.toUrlishString()))
+            return Utils::ResultOk;
+        return Utils::ResultError(
+            Tr::tr("Icon file \"%1\" does not exist after writing and closing.")
+                .arg(targetPath.toUserOutput()));
     }
-    return Utils::ResultError(QString("Cannot open file for writing: %1 (Error: %2)").arg(targetPath.toUserOutput(), file.errorString()));
+    return Utils::ResultError(
+        Tr::tr("Cannot open file for writing: \"%1\" (Error: %2).")
+            .arg(targetPath.toUserOutput(), file.errorString()));
 }
 
 
@@ -270,7 +273,7 @@ Android::Internal::IconContainerWidget::IconContainerWidget(QWidget *parent)
 
     m_masterIconButton = new QToolButton(this);
 
-    const QString masterButtonLabel = Tr::tr("Select master icon");
+    const QString masterButtonLabel = Tr::tr("Select Master Icon");
     m_masterIconButton->setText(masterButtonLabel);
     m_masterIconButton->setToolTip(Tr::tr("Select master icon."));
     m_masterIconButton->setIconSize(QSize(24, 24));
@@ -280,7 +283,7 @@ Android::Internal::IconContainerWidget::IconContainerWidget(QWidget *parent)
 
     m_clearIconButton = new QToolButton(this);
 
-    const QString clearIconLabel = Tr::tr("Clear icon");
+    const QString clearIconLabel = Tr::tr("Clear Icon");
     m_clearIconButton->setText(clearIconLabel);
     m_clearIconButton->setToolTip(Tr::tr("Clear set icons."));
     m_clearIconButton->setIconSize(QSize(24, 24));
@@ -297,19 +300,46 @@ Android::Internal::IconContainerWidget::IconContainerWidget(QWidget *parent)
 struct IconConfig {
     QSize displaySize;
     QSize size;
-    const char* title;
-    const char* tooltip;
+    QString title;
+    QString tooltip;
     const QString path;
 };
 
-static const IconConfig iconConfigs[] = {
-    {lowDpiIconDisplaySize, lowDpiIconSize, "LDPI", "Select an icon suitable for low-density (ldpi) screens (~120dpi).", lowDpiIconPath},
-    {mediumDpiIconDisplaySize, mediumDpiIconSize, "MDPI", "Select an icon for medium-density (mdpi) screens (~160dpi).", mediumDpiIconPath},
-    {highDpiIconDisplaySize, highDpiIconSize, "HDPI", "Select an icon for high-density (hdpi) screens (~240dpi).", highDpiIconPath},
-    {extraHighDpiIconDisplaySize, extraHighDpiIconSize, "XHDPI", "Select an icon for extra-high-density (xhdpi) screens (~320dpi).", extraHighDpiIconPath},
-    {extraExtraHighDpiIconDisplaySize, extraExtraHighDpiIconSize, "XXHDPI", "Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi).", extraExtraHighDpiIconPath},
-    {extraExtraExtraHighDpiIconDisplaySize, extraExtraExtraHighDpiIconSize, "XXXHDPI", "Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi).", extraExtraExtraHighDpiIconPath},
+static QList<IconConfig> iconConfigs()
+{
+    return {
+        {lowDpiIconDisplaySize,
+         lowDpiIconSize,
+         "LDPI",
+         Tr::tr("Select an icon suitable for low-density (ldpi) screens (~120dpi)."),
+         lowDpiIconPath},
+        {mediumDpiIconDisplaySize,
+         mediumDpiIconSize,
+         "MDPI",
+         Tr::tr("Select an icon for medium-density (mdpi) screens (~160dpi)."),
+         mediumDpiIconPath},
+        {highDpiIconDisplaySize,
+         highDpiIconSize,
+         "HDPI",
+         Tr::tr("Select an icon for high-density (hdpi) screens (~240dpi)."),
+         highDpiIconPath},
+        {extraHighDpiIconDisplaySize,
+         extraHighDpiIconSize,
+         "XHDPI",
+         Tr::tr("Select an icon for extra-high-density (xhdpi) screens (~320dpi)."),
+         extraHighDpiIconPath},
+        {extraExtraHighDpiIconDisplaySize,
+         extraExtraHighDpiIconSize,
+         "XXHDPI",
+         Tr::tr("Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi)."),
+         extraExtraHighDpiIconPath},
+        {extraExtraExtraHighDpiIconDisplaySize,
+         extraExtraExtraHighDpiIconSize,
+         "XXXHDPI",
+         Tr::tr("Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi)."),
+         extraExtraExtraHighDpiIconPath},
     };
+}
 
 void Android::Internal::IconContainerWidget::clearAll()
 {
@@ -334,14 +364,20 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
     addHSpacer(0, 80);
 
     int column = 1;
-    for (const auto &config : iconConfigs) {
-        auto iconButton = new IconWidget(this, config.displaySize, config.size,
-                                         Tr::tr(config.title), Tr::tr(config.tooltip),
-                                         textEditorWidget, config.path, iconFileName);
+    for (const auto &config : iconConfigs()) {
+        auto iconButton = new IconWidget(
+            this,
+            config.displaySize,
+            config.size,
+            config.title,
+            config.tooltip,
+            textEditorWidget,
+            config.path,
+            iconFileName);
         m_iconLayout->addWidget(iconButton, 0, column, Qt::AlignBottom);
         m_iconButtons.push_back(iconButton);
 
-        auto *label = new QLabel(Tr::tr(config.title), this);
+        auto *label = new QLabel(config.title, this);
         label->setAlignment(Qt::AlignCenter);
         m_iconLayout->addWidget(label, 1, column, Qt::AlignCenter);
 
@@ -486,7 +522,7 @@ FilePath IconContainerWidget::manifestDirectory() const
 Result<void> IconContainerWidget::saveIcons()
 {
     if (!m_textEditor)
-        return Utils::ResultError("No text editor available");
+        return Utils::ResultError("No text editor available.");
 
     const FilePath currentManifestDir = manifestDirectory();
     if (currentManifestDir.isEmpty() || !currentManifestDir.exists())

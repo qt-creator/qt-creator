@@ -412,14 +412,23 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
     m_textEditorWidget = textEditorWidget;
 
     const QList<QStringList> imageShowModeMethodsMap = {
-        {"center", Tr::tr("Place the object in the center of the screen in both the vertical and horizontal axis,\n"
-                          "not changing its size.")},
-        {"fill", Tr::tr("Grow the horizontal and vertical size of the image if needed so it completely fills its screen.")}
-    };
+        {"center",
+         "<qt>"
+             + Tr::tr(
+                 "Place the object in the center of the screen in both the vertical and horizontal "
+                 "axis, not changing its size.")},
+        {"fill",
+         "<qt>"
+             + Tr::tr(
+                 "Grow the horizontal and vertical size of the image if needed so it completely "
+                 "fills its screen.")}};
 
     m_stickyCheck = new QCheckBox(this);
-    m_stickyCheck->setToolTip(Tr::tr("A non-sticky splash screen is hidden automatically when an activity is drawn.\n"
-                                     "To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen()."));
+    m_stickyCheck->setToolTip(
+        "<qt>"
+        + Tr::tr(
+            "A non-sticky splash screen is hidden automatically when an activity is drawn. "
+            "To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen()."));
 
     m_imageShowMode = new QComboBox(this);
     m_imageShowMode->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -429,20 +438,20 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
     }
 
     m_masterImage = new QToolButton(this);
-    m_masterImage->setText(Tr::tr("Select master image"));
+    m_masterImage->setText(Tr::tr("Select Master Image"));
     m_masterImage->setToolTip(Tr::tr("Select master image to use."));
     m_masterImage->setIcon(Utils::Icon::fromTheme("document-open"));
     m_masterImage->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
 
     m_portraitMasterImage = new QToolButton(this);
-    m_portraitMasterImage->setText(Tr::tr("Select portrait image"));
+    m_portraitMasterImage->setText(Tr::tr("Select Portrait Image"));
     m_portraitMasterImage->setToolTip(Tr::tr("Select portrait image to use."));
     m_portraitMasterImage->setIcon(Utils::Icon::fromTheme("document-open"));
     m_portraitMasterImage->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
     m_landscapeMasterImage = new QToolButton(this);
-    m_landscapeMasterImage->setText(Tr::tr("Select landscape image"));
+    m_landscapeMasterImage->setText(Tr::tr("Select Landscape Image"));
     m_landscapeMasterImage->setToolTip(Tr::tr("Select landscape image to use."));
     m_landscapeMasterImage->setIcon(Utils::Icon::fromTheme("document-open"));
     m_landscapeMasterImage->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -539,9 +548,8 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
         }
     });
     connect(m_backgroundColor, &QToolButton::clicked, this, [this] {
-        const QColor color = QColorDialog::getColor(m_splashScreenBackgroundColor,
-                                                    this,
-                                                    Tr::tr("Select background color"));
+        const QColor color = QColorDialog::getColor(
+            m_splashScreenBackgroundColor, this, Tr::tr("Select Background Color"));
         if (color.isValid()) {
             setBackgroundColor(color);
             createSplashscreenThemes();
@@ -549,8 +557,8 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
         }
     });
     connect(m_masterImage, &QToolButton::clicked, this, [this] {
-        const Utils::FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select master image"),
-                                                                FileUtils::homePath(), fileDialogImageFiles);
+        const Utils::FilePath file = FileUtils::getOpenFilePath(
+            Tr::tr("Select Master Image"), FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_imageWidgets)
                 imageWidget->setImageFromPath(file);
@@ -559,8 +567,8 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
         }
     });
     connect(m_portraitMasterImage, &QToolButton::clicked, this, [this] {
-        const Utils::FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select portrait master image"),
-                                                                FileUtils::homePath(), fileDialogImageFiles);
+        const Utils::FilePath file = FileUtils::getOpenFilePath(
+            Tr::tr("Select Portrait Master Image"), FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_portraitImageWidgets)
                 imageWidget->setImageFromPath(file);
@@ -569,8 +577,8 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
         }
     });
     connect(m_landscapeMasterImage, &QToolButton::clicked, this, [this] {
-        const Utils::FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select landscape master image"),
-                                                                FileUtils::homePath(), fileDialogImageFiles);
+        const Utils::FilePath file = FileUtils::getOpenFilePath(
+            Tr::tr("Select Landscape Master Image"), FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_landscapeImageWidgets)
                 imageWidget->setImageFromPath(file);
