@@ -9,8 +9,9 @@
 #include "utilstr.h"
 
 #include <QDebug>
+#include <QLoggingCategory>
 
-enum { debug = 0 };
+Q_LOGGING_CATEGORY(logTextFileFormat, "qtc.utils.textfileformat", QtWarningMsg)
 
 namespace Utils {
 
@@ -213,9 +214,9 @@ Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) 
     }
 
     const Result<> result = saver.finalize();
-    if (debug)
-        qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *this <<  ' ' << plainText.size()
-                           << " bytes, returns " << result.has_value();
+    qCDebug(logTextFileFormat).nospace()
+        << Q_FUNC_INFO << filePath << ' ' << *this << ' ' << plainText.size() << " bytes, returns "
+        << result.has_value();
     return result;
 }
 
