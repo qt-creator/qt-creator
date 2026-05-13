@@ -1,0 +1,1 @@
+Only setter in header file with include guard

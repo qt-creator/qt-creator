@@ -1,0 +1,4 @@
+Generate Setter
+Generate Constant Q_PROPERTY and Missing Members
+Generate Q_PROPERTY and Missing Members with Reset Function
+Generate Q_PROPERTY and Missing Members

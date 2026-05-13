@@ -295,6 +295,13 @@ void CppQuickFixTestObject::initTestCase()
                 testData.failMessage = m->trimmed();
                 continue;
             }
+            if (fi.fileName() == "skip.txt") {
+                const auto m = readFile();
+                if (!m)
+                    QVERIFY2(false, qPrintable(m.error()));
+                testData.skipMessage = m->trimmed();
+                continue;
+            }
             if (fi.fileName() == "properties.txt") {
                 const auto p = readFile();
                 if (!p)
@@ -312,6 +319,20 @@ void CppQuickFixTestObject::initTestCase()
                             QString::fromUtf8(line.left(colonOffset)),
                             QString::fromUtf8(line.mid(colonOffset + 1)));
                     }
+                }
+                continue;
+            }
+            if (fi.fileName() == "expected_ops.txt") {
+                const auto p = readFile();
+                if (!p)
+                    QVERIFY2(false, qPrintable(p.error()));
+                if (p->trimmed().isEmpty()) {
+                    testData.expectedOps.emplace();
+                } else {
+                    testData.expectedOps
+                        = Utils::transform(p->trimmed().split('\n'), [](const QByteArray &s) {
+                              return QString::fromUtf8(s.trimmed());
+                          });
                 }
                 continue;
             }
@@ -356,7 +377,9 @@ void CppQuickFixTestObject::test_data()
     QTest::addColumn<QByteArrayList>("expected");
     QTest::addColumn<int>("opIndex");
     QTest::addColumn<QByteArray>("failMessage");
+    QTest::addColumn<QByteArray>("skipMessage");
     QTest::addColumn<QVariantMap>("properties");
+    QTest::addColumn<std::optional<QStringList>>("expectedOps");
 
     for (const TestData &testData : std::as_const(m_testData)) {
         QByteArrayList fileNames;
@@ -367,9 +390,9 @@ void CppQuickFixTestObject::test_data()
             original << it.value().first;
             expected << it.value().second;
         }
-        QTest::newRow(testData.tag.constData()) << fileNames << original << expected
-                                                << testData.opIndex << testData.failMessage
-                                                << testData.properties;
+        QTest::newRow(testData.tag.constData())
+            << fileNames << original << expected << testData.opIndex << testData.failMessage
+            << testData.skipMessage << testData.properties << testData.expectedOps;
     }
 }
 
@@ -380,10 +403,17 @@ void CppQuickFixTestObject::test()
     QFETCH(QByteArrayList, expected);
     QFETCH(int, opIndex);
     QFETCH(QByteArray, failMessage);
+    QFETCH(QByteArray, skipMessage);
     QFETCH(QVariantMap, properties);
+    QFETCH(std::optional<QStringList>, expectedOps);
+
+    if (!skipMessage.isEmpty()) {
+        QVERIFY(failMessage.isEmpty());
+        QSKIP(skipMessage.constData());
+    }
 
     QuickFixSettings s;
-    modifySettings(s, properties);
+    modifySettings(s, properties, QByteArray(QTest::currentDataTag()));
 
     class PropertiesMgr
     {
@@ -408,7 +438,21 @@ void CppQuickFixTestObject::test()
     QList<TestDocumentPtr> testDocuments;
     for (qsizetype i = 0; i < fileNames.size(); ++i)
         testDocuments << CppTestDocument::create(fileNames.at(i), original.at(i), expected.at(i));
-    QuickFixOperationTest(testDocuments, m_factory.get(), {}, opIndex, failMessage);
+    if (expectedOps) {
+        QVERIFY2(failMessage.isEmpty(), failMessage.constData());
+        QCOMPARE(opIndex, 0);
+        QuickFixOfferedOperationsTest(testDocuments, m_factory.get(), {}, *expectedOps);
+    } else {
+        QuickFixOperationTest(testDocuments, m_factory.get(), {}, opIndex, failMessage);
+    }
+}
+
+void CppQuickFixTestObject::modifySettings(
+    QuickFixSettings &settings, const QVariantMap &properties, const QByteArray &dataTag)
+{
+    Q_UNUSED(settings)
+    Q_UNUSED(properties)
+    Q_UNUSED(dataTag)
 }
 
 } // namespace CppEditor::Internal::Tests

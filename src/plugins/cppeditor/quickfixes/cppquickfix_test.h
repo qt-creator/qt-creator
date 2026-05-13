@@ -18,6 +18,7 @@
 #include <QVariantMap>
 
 #include <memory>
+#include <optional>
 
 namespace TextEditor { class QuickFixOperation; }
 
@@ -102,7 +103,8 @@ private slots:
     void test();
 
 private:
-    virtual void modifySettings(QuickFixSettings &, const QVariantMap &) {}
+    virtual void modifySettings(
+        QuickFixSettings &settings, const QVariantMap &properties, const QByteArray &dataTag);
 
     const std::unique_ptr<CppQuickFixFactory> m_factory;
 
@@ -112,7 +114,9 @@ private:
         QByteArray tag;
         QHash<QString, std::pair<QByteArray, QByteArray>> files;
         QByteArray failMessage;
+        QByteArray skipMessage;
         QVariantMap properties;
+        std::optional<QStringList> expectedOps;
         int opIndex = 0;
     };
     QList<TestData> m_testData;

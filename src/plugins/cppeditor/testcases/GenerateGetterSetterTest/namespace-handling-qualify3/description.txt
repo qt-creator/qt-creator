@@ -1,0 +1,1 @@
+qualify in inner namespace (with decoy)
