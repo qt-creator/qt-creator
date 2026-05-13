@@ -105,6 +105,10 @@
 
 // Qt Framework, Qt Design Studio, and other Qt tooling resources
 /*!
+    \externalpage https://doc.qt.io/figmatoqt/index.html
+    \title \F2Q
+*/
+/*!
     \externalpage https://doc.qt.io/qtdesignstudio/index.html
     \title \QDS documentation
 */

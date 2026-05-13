@@ -1,0 +1,81 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-add-designs-from-figmatoqt.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-design-qtquick
+
+    \title Add designs from \F2Q
+
+    You can use \l{\F2Q} to convert a Figma design into QML and download it as a
+    Qt Quick UI project (\c {.qmlproject}), or ask the designer to download it
+    for you.
+
+    To continue development in \QC, you can:
+
+    \list
+        \li Open the UI project in \QC.
+        \li Convert the UI project into an application.
+        \li Add the UI project contents into an existing Qt Quick application
+            project.
+        \li Create a new Qt Quick Application project and add the UI project
+            contents to it.
+    \endlist
+
+    \section1 Integrate \F2Q content into Qt Quick applications
+
+    If you have an existing Qt Quick application project, you can integrate the
+    downloaded content to it.
+
+    If you use CMake for building your project, set the option to generate
+    \c {CMakeLists.txt} files in \F2Q. The plugin generates a \c {CMakeLists.txt}
+    for each QML module that it creates, such as the \c {DesignTokens} module and
+    the \c {FontManager} module for \QMCU projects.
+
+    \F2Q does not currently generate a top-level project \c {CMakeLists.txt}
+    file. Therefore, you must add all QML files that are not part of a module
+    manually to the project \c {CMakeLists.txt} file.
+
+    To add a \c {.qmlproject} to a Qt Quick application project:
+
+    \list 1
+        \li In Figma, open the \F2Q plugin in your design file.
+        \li Go to \uicontrol {Settings} > \uicontrol {Code}, and then select
+            \uicontrol {Generate CMakeLists.txt}.
+            \image {figmatoqt-settings-code-cmakelists.webp} {Code settings in the Figma to Qt plugin}
+        \li Select \uicontrol {Download} to download the design as a QML project.
+        \li Extract the downloaded ZIP file to the your project folder.
+        \li In \QC, open the Qt Quick application project.
+        \li Edit the project \c {CMakeLists.txt} file to add all files that are
+            not a part of a module as resources.
+    \endlist
+
+    \section1 Create a Qt Quick Application project for \F2Q content
+
+    Qt Quick Application projects that you create with \QC 20.0 or later have some
+    automation for integrating a \c {.qmlproject}. Copy the project contents into
+    the \c {importedcontent} folder, and \QC will automatically use the
+    \c {CMakeLists.txt} file that you add there.
+
+    To create a Qt Quick Application project for \F2Q content:
+
+    \list 1
+        \li In \QC, create a Qt Quick Application project.
+        \li Extract the downloaded ZIP file to the \c {importedcontent} folder
+            in your project folder.
+        \li Create a \c {CMakeLists.txt} file for the \F2Q content and store it
+            in the \c {importedcontent} folder.
+    \endlist
+
+    \section1 Edit converted files in the Design mode
+
+    To edit the QML code in the \uicontrol Design mode, also set the option to
+    generate \c {.ui.qml} files in \F2Q and activate the
+    \uicontrol {Qt Quick Designer} extension in \QC.
+
+    \sa {Create Qt Quick Applications}, {Convert UI projects to applications},
+    {Build with CMake}{How to: Build with CMake}, {Open projects},
+    {Designing Qt Quick UIs}, {UI files}, {\F2Q}
+*/
