@@ -19,12 +19,12 @@ AiProviderData AiDefaultSettings::providerData(const QString &name)
         {"Gemini", AiProviderData{
             .url = "https://generativelanguage.googleapis.com/v1beta/models/{modelId}:generateContent",
             .models = {
-                {"gemini-3.1-pro-preview",        "Gemini 3.1 Pro"},
-                {"gemini-3.1-flash-lite-preview", "Gemini 3.1 Flash Lite"},
-                {"gemini-3-flash-preview",        "Gemini 3 Flash"},
-                {"gemini-2.5-pro",                "Gemini 2.5 Pro"},
-                {"gemini-2.5-flash",              "Gemini 2.5 Flash"},
-                {"gemini-2.5-flash-lite",         "Gemini 2.5 Flash Lite"}
+                {"gemini-3.1-pro-preview", "Gemini 3.1 Pro"},
+                {"gemini-3.1-flash-lite",  "Gemini 3.1 Flash Lite"},
+                {"gemini-3-flash-preview", "Gemini 3 Flash"},
+                {"gemini-2.5-pro",         "Gemini 2.5 Pro"},
+                {"gemini-2.5-flash",       "Gemini 2.5 Flash"},
+                {"gemini-2.5-flash-lite",  "Gemini 2.5 Flash Lite"}
             }
         }},
         {"Claude", AiProviderData{
