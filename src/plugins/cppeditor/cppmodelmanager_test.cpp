@@ -366,7 +366,8 @@ void ModelManagerTest::testRefreshTestForChanges()
 
     // No reindexing since nothing has changed
     QFuture<void> subsequentFuture = CppModelManager::updateProjectInfo(pi);
-    QVERIFY(subsequentFuture.isCanceled() && subsequentFuture.isFinished());
+    QVERIFY(subsequentFuture.isCanceled());
+    QVERIFY(subsequentFuture.isFinished());
 }
 
 /// Check: (1) Added project files are recognized and parsed.
