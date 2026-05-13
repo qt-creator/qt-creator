@@ -54,6 +54,7 @@ public:
 #ifdef WITH_TESTS
         addTestCreator(createValgrindMemcheckParserTest);
         addTestCreator(createValgrindTestRunnerTest);
+        addTestCreator(createCallgrindToolTest);
 #endif
     }
 };
