@@ -107,6 +107,18 @@ public:
 
     bool isCanceled() const { return responder->isResponseCanceled(); }
 
+    // Send an SSE comment to keep the TCP connection alive through idle-timeout
+    // firewalls/NAT. Returns false if the stream has been canceled.
+    bool sendPing()
+    {
+        if (responder->isResponseCanceled())
+            return false;
+        responder->writeChunk(": heartbeat\n\n");
+        return true;
+    }
+
+    QString sessionIdValue() const { return sessionId; }
+
 private:
     std::shared_ptr<QHttpServerResponder> responder;
     const QString sessionId;
@@ -138,17 +150,26 @@ public:
     ServerPrivate(Schema::Implementation serverInfo)
         : serverInfo(serverInfo)
     {
-        m_sseStreamCleanupTimer.setInterval(std::chrono::minutes(1));
-        m_sseStreamCleanupTimer.setSingleShot(false);
-        QObject::connect(&m_sseStreamCleanupTimer, &QTimer::timeout, [this]() {
+        // Send a heartbeat ping every 30 s to keep TCP connections alive through
+        // idle-timeout firewalls/NAT. Prune any dead streams detected during the ping.
+        m_heartbeatTimer.setInterval(std::chrono::seconds(30));
+        m_heartbeatTimer.setSingleShot(false);
+        QObject::connect(&m_heartbeatTimer, &QTimer::timeout, [this]() {
             m_sseStreams.erase(
                 std::remove_if(
                     m_sseStreams.begin(),
                     m_sseStreams.end(),
-                    [](const std::unique_ptr<SseStream> &stream) { return stream->isCanceled(); }),
+                    [](const std::unique_ptr<SseStream> &stream) {
+                        if (stream->sendPing())
+                            return false;
+                        qCDebug(mcpServerLog)
+                            << "Heartbeat pruned dead stream for session"
+                            << stream->sessionIdValue();
+                        return true;
+                    }),
                 m_sseStreams.end());
         });
-        m_sseStreamCleanupTimer.start();
+        m_heartbeatTimer.start();
     }
 
     bool bind(QTcpServer *server) { return m_server.bind(server); }
@@ -1189,7 +1210,7 @@ public:
     std::vector<std::unique_ptr<SseStream>> m_sseStreams;
     std::function<void(QByteArray)> m_ioOutputHandler;
 
-    QTimer m_sseStreamCleanupTimer;
+    QTimer m_heartbeatTimer;
 
     Server::CompletionCallback m_completionCallback;
 
