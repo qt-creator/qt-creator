@@ -2416,12 +2416,6 @@ class GenerateGettersSettersForClass : public CppQuickFixFactory
 //! Adds missing members for a Q_PROPERTY
 class InsertQtPropertyMembers : public CppQuickFixFactory
 {
-public:
-#ifdef WITH_TESTS
-    static QObject* createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         using Flag = GenerateGetterSetterOp::GenerateFlag;
@@ -4350,172 +4344,19 @@ private:
     }
 };
 
-class InsertQtPropertyMembersTest : public QObject
+class InsertQtPropertyMembersTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
 
-private slots:
-    void test_data()
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+private:
+    void modifySettings(QuickFixSettings &s) override
     {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        QTest::newRow("InsertQtPropertyMembers")
-            << QByteArray("struct QObject { void connect(); }\n"
-                 "struct XmarksTheSpot : public QObject {\n"
-                 "    @Q_PROPERTY(int it READ getIt WRITE setIt RESET resetIt NOTIFY itChanged)\n"
-                 "};\n")
-            << QByteArray("struct QObject { void connect(); }\n"
-                 "struct XmarksTheSpot : public QObject {\n"
-                 "    Q_PROPERTY(int it READ getIt WRITE setIt RESET resetIt NOTIFY itChanged)\n"
-                 "\n"
-                 "public:\n"
-                 "    int getIt() const;\n"
-                 "\n"
-                 "public slots:\n"
-                 "    void setIt(int it)\n"
-                 "    {\n"
-                 "        if (m_it == it)\n"
-                 "            return;\n"
-                 "        m_it = it;\n"
-                 "        emit itChanged(m_it);\n"
-                 "    }\n"
-                 "    void resetIt()\n"
-                 "    {\n"
-                 "        setIt({}); // TODO: Adapt to use your actual default value\n"
-                 "    }\n"
-                 "\n"
-                 "signals:\n"
-                 "    void itChanged(int it);\n"
-                 "\n"
-                 "private:\n"
-                 "    int m_it;\n"
-                 "};\n"
-                 "\n"
-                 "int XmarksTheSpot::getIt() const\n"
-                 "{\n"
-                 "    return m_it;\n"
-                 "}\n");
-
-        QTest::newRow("InsertQtPropertyMembersResetWithoutSet")
-            << QByteArray("struct QObject { void connect(); }\n"
-                 "struct XmarksTheSpot : public QObject {\n"
-                 "    @Q_PROPERTY(int it READ getIt RESET resetIt NOTIFY itChanged)\n"
-                 "};\n")
-            << QByteArray("struct QObject { void connect(); }\n"
-                 "struct XmarksTheSpot : public QObject {\n"
-                 "    Q_PROPERTY(int it READ getIt RESET resetIt NOTIFY itChanged)\n"
-                 "\n"
-                 "public:\n"
-                 "    int getIt() const;\n"
-                 "\n"
-                 "public slots:\n"
-                 "    void resetIt()\n"
-                 "    {\n"
-                 "        static int defaultValue{}; // TODO: Adapt to use your actual default "
-                 "value\n"
-                 "        if (m_it == defaultValue)\n"
-                 "            return;\n"
-                 "        m_it = defaultValue;\n"
-                 "        emit itChanged(m_it);\n"
-                 "    }\n"
-                 "\n"
-                 "signals:\n"
-                 "    void itChanged(int it);\n"
-                 "\n"
-                 "private:\n"
-                 "    int m_it;\n"
-                 "};\n"
-                 "\n"
-                 "int XmarksTheSpot::getIt() const\n"
-                 "{\n"
-                 "    return m_it;\n"
-                 "}\n");
-
-        QTest::newRow("InsertQtPropertyMembersResetWithoutSetAndNotify")
-            << QByteArray("struct QObject { void connect(); }\n"
-                 "struct XmarksTheSpot : public QObject {\n"
-                 "    @Q_PROPERTY(int it READ getIt RESET resetIt)\n"
-                 "};\n")
-            << QByteArray("struct QObject { void connect(); }\n"
-                 "struct XmarksTheSpot : public QObject {\n"
-                 "    Q_PROPERTY(int it READ getIt RESET resetIt)\n"
-                 "\n"
-                 "public:\n"
-                 "    int getIt() const;\n"
-                 "\n"
-                 "public slots:\n"
-                 "    void resetIt()\n"
-                 "    {\n"
-                 "        static int defaultValue{}; // TODO: Adapt to use your actual default "
-                 "value\n"
-                 "        m_it = defaultValue;\n"
-                 "    }\n"
-                 "\n"
-                 "private:\n"
-                 "    int m_it;\n"
-                 "};\n"
-                 "\n"
-                 "int XmarksTheSpot::getIt() const\n"
-                 "{\n"
-                 "    return m_it;\n"
-                 "}\n");
-
-        QTest::newRow("InsertQtPropertyMembersPrivateBeforePublic")
-            << QByteArray("struct QObject { void connect(); }\n"
-                 "class XmarksTheSpot : public QObject {\n"
-                 "private:\n"
-                 "    @Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
-                 "public:\n"
-                 "    void find();\n"
-                 "};\n")
-            << QByteArray("struct QObject { void connect(); }\n"
-                 "class XmarksTheSpot : public QObject {\n"
-                 "private:\n"
-                 "    Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
-                 "    int m_it;\n"
-                 "\n"
-                 "public:\n"
-                 "    void find();\n"
-                 "    int getIt() const;\n"
-                 "public slots:\n"
-                 "    void setIt(int it)\n"
-                 "    {\n"
-                 "        if (m_it == it)\n"
-                 "            return;\n"
-                 "        m_it = it;\n"
-                 "        emit itChanged(m_it);\n"
-                 "    }\n"
-                 "signals:\n"
-                 "    void itChanged(int it);\n"
-                 "};\n"
-                 "\n"
-                 "int XmarksTheSpot::getIt() const\n"
-                 "{\n"
-                 "    return m_it;\n"
-                 "}\n");
-    }
-
-    void test()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-
-        QuickFixSettings s;
         s->setterAsSlot = true;
         s->setterInCppFileFrom = 0;
         s->setterParameterNameTemplate = "name";
         s->signalWithNewValue = true;
-
-        InsertQtPropertyMembers factory;
-        QuickFixOperationTest({CppTestDocument::create("file.cpp", original, expected)}, &factory);
-    }
-
-    void testNotTriggeringOnInvalidCode()
-    {
-        const QByteArray input = "class C { @Q_PROPERTY(typeid foo READ foo) };\n";
-        InsertQtPropertyMembers factory;
-        QuickFixOperationTest({CppTestDocument::create("file.h", input, {})}, &factory);
     }
 };
 
@@ -4926,11 +4767,6 @@ QObject *GenerateGetterSetter::createTest()
     return new GenerateGetterSetterTest;
 }
 
-QObject *InsertQtPropertyMembers::createTest()
-{
-    return new InsertQtPropertyMembersTest;
-}
-
 QObject *GenerateConstructor::createTest()
 {
     return new GenerateConstructorTest;
@@ -4945,7 +4781,7 @@ void registerCodeGenerationQuickfixes()
     CppQuickFixFactory::registerFactory<GenerateGetterSetter>();
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(GenerateGettersSettersForClass);
     CppQuickFixFactory::registerFactory<GenerateConstructor>();
-    CppQuickFixFactory::registerFactory<InsertQtPropertyMembers>();
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(InsertQtPropertyMembers);
 }
 
 } // namespace CppEditor::Internal
