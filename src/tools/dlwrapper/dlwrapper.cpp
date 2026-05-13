@@ -114,10 +114,20 @@ int main(int argc, char *argv[])
             qCWarning(dlWrapper).noquote() << process.errorString();
     };
 
+    const auto notAlreadyDownloaded = [&extractedDir, &cmdLine] {
+        const FilePath executablePath = extractedDir.resolvePath(cmdLine.executable());
+        if (executablePath.isExecutableFile()) {
+            qCDebug(dlWrapper) << "Executable already exists at" << executablePath
+                               << ", skipping download and extraction.";
+            return false;
+        }
+        return true;
+    };
+
     // clang-format off
     Group recipe {
         tempArchive,
-        If ([extractedDir] { return !extractedDir.exists(); }) >> Then {
+        If (notAlreadyDownloaded) >> Then {
             FileStreamerTask(setupDownload),
             UnarchiverTask(setupUnarchive),
         },
