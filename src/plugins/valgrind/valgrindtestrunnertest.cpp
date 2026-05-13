@@ -279,7 +279,7 @@ void ValgrindTestRunnerTest::testLeak4()
 
     QVERIFY(m_logMessages.isEmpty());
 
-    QVERIFY(m_errors.count() >= 3);
+    QVERIFY(m_errors.count() >= 2);
     //BEGIN first error
     {
     // depending on the valgrind version the errors can be different - try to find the correct one

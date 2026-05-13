@@ -203,6 +203,18 @@ static qint64 parseInt64(const QString &str, const QString &context)
     return v;
 }
 
+// Valgrind 3.26.0 omits </still_reachable> in <leak_summary> when its counts are zero,
+// producing malformed XML. Insert the missing closing tag before <suppressed>.
+static QByteArray fixValgrindXml(const QByteArray &data)
+{
+    static const QByteArray broken = "</blocks>\n  <suppressed>";
+    static const QByteArray fixed  = "</blocks>\n  </still_reachable>\n  <suppressed>";
+    if (!data.contains(broken))
+        return data;
+    QByteArray result(data);
+    return result.replace(broken, fixed);
+}
+
 QXmlStreamReader::TokenType ParserThread::blockingReadNext()
 {
     QXmlStreamReader::TokenType token = QXmlStreamReader::Invalid;
@@ -211,7 +223,7 @@ QXmlStreamReader::TokenType ParserThread::blockingReadNext()
         if (m_reader.error() == QXmlStreamReader::PrematureEndOfDocumentError) {
             const auto data = waitForData();
             if (data) {
-                m_reader.addData(*data);
+                m_reader.addData(fixValgrindXml(*data));
                 continue;
             } else {
                 throw ParserException{data.error()};
