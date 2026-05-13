@@ -1175,7 +1175,7 @@ ExecutableItem BranchModel::Private::updateUpstreamStatusTask(BranchNode *node)
     if (node->tracking.isEmpty())
         arguments += {fullRef, "--not", "--remotes"};
     else
-        arguments += {"--left-right", fullRef + "..." + node->tracking};
+        arguments += {"--left-right", fullRef + "..." + node->tracking, "--"};
 
     const auto commandHandler = [this, nodePtr = QPointer<BranchNode>(node)](const CommandResult &result) {
         if (!nodePtr)
