@@ -17,7 +17,7 @@ if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/importedcontent/CMakeLists.txt")
 endif()
 
 qt_add_executable(%{TargetName}
-    main.cpp
+    %{MainCppFileName}
 )
 
 qt_add_qml_module(%{TargetName}
