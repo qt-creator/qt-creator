@@ -1151,6 +1151,10 @@ static bool localFileSystemSupportsAtomicSaveFile(const FilePath &path)
 {
     QTC_ASSERT(path.isLocal(), return true);
 #ifdef Q_OS_WIN
+
+    if (path.path().startsWith("//wsl."))
+        return false;
+
     const HANDLE handle = CreateFile(
         (wchar_t *) path.nativePath().utf16(),
         0,
