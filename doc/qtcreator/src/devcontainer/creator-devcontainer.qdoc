@@ -120,6 +120,19 @@
     paths, CMake binary and generator, and debugger to be used by \QC within the
     dev container.
 
+    The configuration file also uses the optional \c {cmake.variables} property
+    to pass arbitrary CMake variables when \QC configures the project. Each key
+    is a CMake variable name, and the value can be:
+
+    \list
+        \li A plain string
+        \li An array of strings (joined with \c {;} into a single CMake list value)
+        \li An object with a \c value field and an optional \c type field
+            (\c BOOL, \c STRING, \c FILEPATH, \c PATH, \c STATIC, or \c INTERNAL).
+            The type is appended to the CMake command line as
+            \c {-DVAR_NAME:TYPE=value}.
+    \endlist
+
     \code
     {
         "customizations": {
@@ -135,7 +148,15 @@
                         },
                         "cmake": {
                             "binary": "/usr/bin/cmake",
-                            "generator": "Unix Makefiles"
+                            "generator": "Unix Makefiles",
+                            "variables": {
+                                "CMAKE_BUILD_TYPE": "Release",
+                                "CMAKE_PREFIX_PATH": ["/opt/qt", "/usr/local"],
+                                "BUILD_TESTING": {
+                                    "type": "BOOL",
+                                    "value": "OFF"
+                                }
+                            }
                         },
                         "debugger": "/usr/bin/lldb"
                     }
