@@ -295,29 +295,11 @@ private:
     FilePath m_commitRepository;
 
     Core::CommandLocator *m_commandLocator = nullptr;
-    Utils::Action *m_addAction = nullptr;
-    Utils::Action *m_deleteAction = nullptr;
-    Utils::Action *m_revertAction = nullptr;
-    Utils::Action *m_editCurrentAction = nullptr;
-    Utils::Action *m_uneditCurrentAction = nullptr;
-    QAction *m_uneditRepositoryAction = nullptr;
-    Utils::Action *m_diffProjectDirectoryAction = nullptr;
-    Utils::Action *m_diffCurrentAction = nullptr;
-    Utils::Action *m_logProjectDirectoryAction = nullptr;
-    QAction *m_logRepositoryAction = nullptr;
-    QAction *m_commitAllAction = nullptr;
-    QAction *m_revertRepositoryAction = nullptr;
-    Utils::Action *m_commitCurrentAction = nullptr;
-    Utils::Action *m_filelogCurrentAction = nullptr;
-    Utils::Action *m_annotateCurrentAction = nullptr;
-    Utils::Action *m_statusProjectDirectoryAction = nullptr;
-    Utils::Action *m_updateProjectDirectoryAction = nullptr;
-    Utils::Action *m_commitProjectDirectoryAction = nullptr;
-    Utils::Action *m_updateDirectoryAction = nullptr;
-    Utils::Action *m_commitDirectoryAction = nullptr;
-    QAction *m_diffRepositoryAction = nullptr;
-    QAction *m_updateRepositoryAction = nullptr;
-    QAction *m_statusRepositoryAction = nullptr;
+
+    enum ActionGroup { FileGroup, ProjectGroup, DirectoryGroup };
+
+    QHash<ActionGroup, QList<Utils::Action *>> m_actions;
+    QList<QAction *> m_topLevelActions;
 
     QAction *m_menuAction = nullptr;
 };
@@ -458,199 +440,91 @@ CvsPluginPrivate::CvsPluginPrivate()
     toolsContainer->addMenu(cvsMenu);
     m_menuAction = cvsMenu->menu()->menuAction();
 
-    Command *command;
+    using Callback = void (CvsPluginPrivate::*)();
+    const auto addAction = [this, context, cvsMenu](ActionGroup actionGroup,
+                                                    const QString &emptyText,
+                                                    const QString &parameterText,
+                                                    Id id, const Callback &callback,
+                                                    const std::optional<QKeySequence> &keySequence = std::nullopt) {
+        Action *action = new Action(emptyText, parameterText, Action::EnabledWithParameter, this);
+        Command *command = ActionManager::registerAction(action, id, context);
+        command->setAttribute(Command::CA_UpdateText);
+        if (keySequence)
+            command->setDefaultKeySequence(*keySequence);
+        connect(action, &QAction::triggered, this, callback);
+        cvsMenu->addAction(command);
+        m_commandLocator->appendCommand(command);
+        m_actions[actionGroup].append(action);
+    };
+    const auto addTopLevelAction = [this, context, cvsMenu](const QString &text, Id id,
+                                                            const Callback &callback) {
+        QAction *action = new QAction(text, this);
+        Command *command = ActionManager::registerAction(action, id, context);
+        connect(action, &QAction::triggered, this, callback);
+        cvsMenu->addAction(command);
+        m_commandLocator->appendCommand(command);
+        m_topLevelActions.append(action);
+    };
 
-    m_diffCurrentAction = new Action(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffCurrentAction,
-        CMD_ID_DIFF_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+D") : Tr::tr("Alt+C,Alt+D")));
-    connect(m_diffCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::diffCurrentFile);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_filelogCurrentAction = new Action(Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_filelogCurrentAction,
-        CMD_ID_FILELOG_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_filelogCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::filelogCurrentFile);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_annotateCurrentAction = new Action(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_annotateCurrentAction,
-        CMD_ID_ANNOTATE_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_annotateCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::annotateCurrentFile);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
+    addAction(FileGroup, Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""),
+              CMD_ID_DIFF_CURRENT, &CvsPluginPrivate::diffCurrentFile,
+              QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+D") : Tr::tr("Alt+C,Alt+D")));
+    addAction(FileGroup, Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""),
+              CMD_ID_FILELOG_CURRENT, &CvsPluginPrivate::filelogCurrentFile);
+    addAction(FileGroup, Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""),
+              CMD_ID_ANNOTATE_CURRENT, &CvsPluginPrivate::annotateCurrentFile);
     cvsMenu->addSeparator(context);
-
-    m_addAction = new Action(Tr::tr("Add"), Tr::tr("Add \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_addAction, CMD_ID_ADD,
-        context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+A") : Tr::tr("Alt+C,Alt+A")));
-    connect(m_addAction, &QAction::triggered, this, &CvsPluginPrivate::addCurrentFile);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_commitCurrentAction = new Action(Tr::tr("Commit Current File"), Tr::tr("Commit \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_commitCurrentAction,
-        CMD_ID_COMMIT_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+C") : Tr::tr("Alt+C,Alt+C")));
-    connect(m_commitCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::startCommitCurrentFile);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_deleteAction = new Action(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
-        context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_deleteAction, &QAction::triggered, this, &CvsPluginPrivate::promptToDeleteCurrentFile);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_revertAction = new Action(Tr::tr("Revert..."), Tr::tr("Revert \"%1\"..."), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_revertAction, CMD_ID_REVERT,
-        context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_revertAction, &QAction::triggered, this, &CvsPluginPrivate::revertCurrentFile);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
+    addAction(FileGroup, Tr::tr("Add"), Tr::tr("Add \"%1\""),
+              CMD_ID_ADD, &CvsPluginPrivate::addCurrentFile,
+              QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+A") : Tr::tr("Alt+C,Alt+A")));
+    addAction(FileGroup, Tr::tr("Commit Current File"), Tr::tr("Commit \"%1\""),
+              CMD_ID_COMMIT_CURRENT, &CvsPluginPrivate::startCommitCurrentFile,
+              QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+C") : Tr::tr("Alt+C,Alt+C")));
+    addAction(FileGroup, Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."),
+              CMD_ID_DELETE_FILE, &CvsPluginPrivate::promptToDeleteCurrentFile);
+    addAction(FileGroup, Tr::tr("Revert..."), Tr::tr("Revert \"%1\"..."),
+              CMD_ID_REVERT, &CvsPluginPrivate::revertCurrentFile);
     cvsMenu->addSeparator(context);
-
-    m_editCurrentAction = new Action(Tr::tr("Edit"), Tr::tr("Edit \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_editCurrentAction, CMD_ID_EDIT_FILE, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_editCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::editCurrentFile);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_uneditCurrentAction = new Action(Tr::tr("Unedit"), Tr::tr("Unedit \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_uneditCurrentAction, CMD_ID_UNEDIT_FILE, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_uneditCurrentAction, &QAction::triggered, this, &CvsPluginPrivate::uneditCurrentFile);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_uneditRepositoryAction = new QAction(Tr::tr("Unedit Repository"), this);
-    command = ActionManager::registerAction(m_uneditRepositoryAction, CMD_ID_UNEDIT_REPOSITORY, context);
-    connect(m_uneditRepositoryAction, &QAction::triggered, this, &CvsPluginPrivate::uneditCurrentRepository);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
+    addAction(FileGroup, Tr::tr("Unedit"), Tr::tr("Unedit \"%1\""),
+              CMD_ID_EDIT_FILE, &CvsPluginPrivate::editCurrentFile);
+    addAction(FileGroup, Tr::tr("Edit"), Tr::tr("Edit \"%1\""),
+              CMD_ID_UNEDIT_FILE, &CvsPluginPrivate::uneditCurrentFile);
+    addTopLevelAction(Tr::tr("Unedit Repository"),
+                      CMD_ID_UNEDIT_REPOSITORY, &CvsPluginPrivate::uneditCurrentRepository);
     cvsMenu->addSeparator(context);
-
-    m_diffProjectDirectoryAction = new Action(Tr::tr("Diff Project Directory"),
-                                              Tr::tr("Diff Directory of Project \"%1\""),
-                                              Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffProjectDirectoryAction, CMD_ID_DIFF_PROJECT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_diffProjectDirectoryAction, &QAction::triggered,
-            this, &CvsPluginPrivate::diffProjectDirectory);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_statusProjectDirectoryAction = new Action(Tr::tr("Project Directory Status"),
-                                                Tr::tr("Status of Directory of Project \"%1\""),
-                                                Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_statusProjectDirectoryAction, CMD_ID_STATUS, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_statusProjectDirectoryAction, &QAction::triggered,
-            this, &CvsPluginPrivate::projectDirectoryStatus);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_logProjectDirectoryAction = new Action(Tr::tr("Log Project Directory"),
-                                             Tr::tr("Log Directory of Project \"%1\""),
-                                             Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_logProjectDirectoryAction, CMD_ID_PROJECTLOG, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_logProjectDirectoryAction, &QAction::triggered,
-            this, &CvsPluginPrivate::logProjectDirectory);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_updateProjectDirectoryAction = new Action(Tr::tr("Update Project Directory"),
-                                                Tr::tr("Update Directory of Project \"%1\""),
-                                                Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_updateProjectDirectoryAction, CMD_ID_UPDATE, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_updateProjectDirectoryAction, &QAction::triggered,
-            this, &CvsPluginPrivate::updateProjectDirectory);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_commitProjectDirectoryAction = new Action(Tr::tr("Commit Project Directory"),
-                                                Tr::tr("Commit Directory of Project \"%1\""),
-                                                Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_commitProjectDirectoryAction, CMD_ID_PROJECTCOMMIT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_commitProjectDirectoryAction, &QAction::triggered,
-            this, &CvsPluginPrivate::commitProjectDirectory);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
+    addAction(ProjectGroup, Tr::tr("Diff Project Directory"),
+              Tr::tr("Diff Directory of Project \"%1\""),
+              CMD_ID_DIFF_PROJECT, &CvsPluginPrivate::diffProjectDirectory);
+    addAction(ProjectGroup, Tr::tr("Project Directory Status"),
+              Tr::tr("Status of Directory of Project \"%1\""),
+              CMD_ID_STATUS, &CvsPluginPrivate::projectDirectoryStatus);
+    addAction(ProjectGroup, Tr::tr("Log Project Directory"),
+              Tr::tr("Log Directory of Project \"%1\""),
+              CMD_ID_PROJECTLOG, &CvsPluginPrivate::logProjectDirectory);
+    addAction(ProjectGroup, Tr::tr("Update Project Directory"),
+              Tr::tr("Update Directory of Project \"%1\""),
+              CMD_ID_UPDATE, &CvsPluginPrivate::updateProjectDirectory);
+    addAction(ProjectGroup, Tr::tr("Commit Project Directory"),
+              Tr::tr("Commit Directory of Project \"%1\""),
+              CMD_ID_PROJECTCOMMIT, &CvsPluginPrivate::commitProjectDirectory);
     cvsMenu->addSeparator(context);
-
-    m_updateDirectoryAction = new Action(Tr::tr("Update Directory"), Tr::tr("Update Directory \"%1\""), Utils::Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_updateDirectoryAction, CMD_ID_UPDATE_DIRECTORY, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_updateDirectoryAction, &QAction::triggered, this, &CvsPluginPrivate::updateDirectory);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_commitDirectoryAction = new Action(Tr::tr("Commit Directory"), Tr::tr("Commit Directory \"%1\""), Utils::Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_commitDirectoryAction,
-        CMD_ID_COMMIT_DIRECTORY, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_commitDirectoryAction, &QAction::triggered, this, &CvsPluginPrivate::startCommitDirectory);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
+    addAction(DirectoryGroup, Tr::tr("Update Directory"), Tr::tr("Update Directory \"%1\""),
+              CMD_ID_UPDATE_DIRECTORY, &CvsPluginPrivate::updateDirectory);
+    addAction(DirectoryGroup, Tr::tr("Commit Directory"), Tr::tr("Commit Directory \"%1\""),
+              CMD_ID_COMMIT_DIRECTORY, &CvsPluginPrivate::startCommitDirectory);
     cvsMenu->addSeparator(context);
-
-    m_diffRepositoryAction = new QAction(Tr::tr("Diff Repository"), this);
-    command = ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, context);
-    connect(m_diffRepositoryAction, &QAction::triggered, this, &CvsPluginPrivate::diffRepository);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_statusRepositoryAction = new QAction(Tr::tr("Repository Status"), this);
-    command = ActionManager::registerAction(m_statusRepositoryAction, CMD_ID_REPOSITORYSTATUS, context);
-    connect(m_statusRepositoryAction, &QAction::triggered, this, &CvsPluginPrivate::statusRepository);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_logRepositoryAction = new QAction(Tr::tr("Repository Log"), this);
-    command = ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, context);
-    connect(m_logRepositoryAction, &QAction::triggered, this, &CvsPluginPrivate::logRepository);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_updateRepositoryAction = new QAction(Tr::tr("Update Repository"), this);
-    command = ActionManager::registerAction(m_updateRepositoryAction, CMD_ID_REPOSITORYUPDATE, context);
-    connect(m_updateRepositoryAction, &QAction::triggered, this, &CvsPluginPrivate::updateRepository);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_commitAllAction = new QAction(Tr::tr("Commit All Files"), this);
-    command = ActionManager::registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
-        context);
-    connect(m_commitAllAction, &QAction::triggered, this, &CvsPluginPrivate::startCommitAll);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_revertRepositoryAction = new QAction(Tr::tr("Revert Repository..."), this);
-    command = ActionManager::registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
-                             context);
-    connect(m_revertRepositoryAction, &QAction::triggered, this, &CvsPluginPrivate::revertAll);
-    cvsMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    addTopLevelAction(Tr::tr("Diff Repository"),
+                      CMD_ID_REPOSITORYDIFF, &CvsPluginPrivate::diffRepository);
+    addTopLevelAction(Tr::tr("Repository Status"),
+                      CMD_ID_REPOSITORYSTATUS, &CvsPluginPrivate::statusRepository);
+    addTopLevelAction(Tr::tr("Repository Log"),
+                      CMD_ID_REPOSITORYLOG, &CvsPluginPrivate::logRepository);
+    addTopLevelAction(Tr::tr("Update Repository"),
+                      CMD_ID_REPOSITORYUPDATE, &CvsPluginPrivate::updateRepository);
+    addTopLevelAction(Tr::tr("Commit All Files"),
+                      CMD_ID_COMMIT_ALL, &CvsPluginPrivate::startCommitAll);
+    addTopLevelAction(Tr::tr("Revert Repository..."),
+                      CMD_ID_REVERT_ALL, &CvsPluginPrivate::revertAll);
 
     connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
@@ -723,38 +597,28 @@ void CvsPluginPrivate::updateActions(VersionControlBase::ActionState as)
 
     const bool hasTopLevel = currentState().hasTopLevel();
     m_commandLocator->setEnabled(hasTopLevel);
+    for (QAction *action : std::as_const(m_topLevelActions))
+        action->setEnabled(hasTopLevel);
 
     const QString currentFileName = currentState().currentFileName();
-    m_addAction->setParameter(currentFileName);
-    m_deleteAction->setParameter(currentFileName);
-    m_revertAction->setParameter(currentFileName);
-    m_diffCurrentAction->setParameter(currentFileName);
-    m_commitCurrentAction->setParameter(currentFileName);
-    m_filelogCurrentAction->setParameter(currentFileName);
-    m_annotateCurrentAction->setParameter(currentFileName);
-    m_editCurrentAction->setParameter(currentFileName);
-    m_uneditCurrentAction->setParameter(currentFileName);
-
     const QString currentProjectName = currentState().currentProjectName();
-    m_diffProjectDirectoryAction->setParameter(currentProjectName);
-    m_statusProjectDirectoryAction->setParameter(currentProjectName);
-    m_updateProjectDirectoryAction->setParameter(currentProjectName);
-    m_logProjectDirectoryAction->setParameter(currentProjectName);
-    m_commitProjectDirectoryAction->setParameter(currentProjectName);
-
     // TODO: Find a more elegant way to shorten the path
     QString currentDirectoryName = currentState().currentFileDirectory().toUserOutput();
     if (currentDirectoryName.size() > 15)
         currentDirectoryName.replace(0, currentDirectoryName.size() - 15, QLatin1String("..."));
-    m_updateDirectoryAction->setParameter(currentDirectoryName);
-    m_commitDirectoryAction->setParameter(currentDirectoryName);
 
-    m_diffRepositoryAction->setEnabled(hasTopLevel);
-    m_statusRepositoryAction->setEnabled(hasTopLevel);
-    m_updateRepositoryAction->setEnabled(hasTopLevel);
-    m_commitAllAction->setEnabled(hasTopLevel);
-    m_logRepositoryAction->setEnabled(hasTopLevel);
-    m_uneditRepositoryAction->setEnabled(hasTopLevel);
+    const QHash<ActionGroup, QString> groupLabels = {
+        {FileGroup, currentFileName},
+        {ProjectGroup, currentProjectName},
+        {DirectoryGroup, currentDirectoryName}
+    };
+
+    for (auto it = m_actions.cbegin(); it != m_actions.cend(); ++it) {
+        const QList<Action *> &actions = it.value();
+        const QString groupLabel = groupLabels.value(it.key());
+        for (Action *action : actions)
+            action->setParameter(groupLabel);
+    };
 }
 
 void CvsPluginPrivate::addCurrentFile()

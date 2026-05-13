@@ -205,8 +205,10 @@ Module {
         name: "Scanner"
         exports: [ "qbs/Scanner 1.0" ]
         prototype: "QQuickItem"
+        Property { name: "cacheIsPerFile"; type: "bool" }
         Property { name: "condition"; type: "bool" }
         Property { name: "inputs"; type: "string"; isList: true }
+        Property { name: "pluginName"; type: "string" }
         Property { name: "recursive"; type: "bool" }
         Property { name: "scan"; type: "QVariant" }
         Property { name: "searchPaths"; type: "string"; isList: true }

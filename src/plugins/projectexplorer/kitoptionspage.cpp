@@ -32,7 +32,6 @@
 #include <utils/variablechooser.h>
 
 #include <QAction>
-#include <QApplication>
 #include <QHash>
 #include <QLabel>
 #include <QLineEdit>
@@ -43,8 +42,6 @@
 #include <QSet>
 #include <QSizePolicy>
 #include <QToolButton>
-#include <QTreeView>
-#include <QVBoxLayout>
 
 const char WORKING_COPY_KIT_ID[] = "modified kit";
 
@@ -68,7 +65,9 @@ public:
 
     void apply() final;
 
-    void markForRemoval(int row);
+    int cloneRow(int row) final;
+    void markRemoved(int row) final;
+
     int markForAddition(Kit *baseKit);
 
     bool isNameUnique(int row) const;
@@ -224,29 +223,18 @@ void KitModel::apply()
         KitManager::deregisterKit(k);
 }
 
-void KitModel::markForRemoval(int row)
+int KitModel::cloneRow(int row)
 {
-    QTC_ASSERT(row >= 0 && row < itemCount(), return);
+    Q_UNUSED(row)
+    return markForAddition(modifiedKit());
+}
 
-    if (isRemoved(row)) {
-        markRemoved(row);
-        if (isOriginalDefault(row))
-            setVolatileDefaultRow(row);
-        notifyAllRowsChanged();
-        emit kitStateChanged();
-        return;
-    }
-
-    if (isDefault(row)) {
-        for (int r = 0; r < itemCount(); ++r) {
-            if (r != row && !isRemoved(r)) {
-                setVolatileDefaultRow(r);
-                break;
-            }
-        }
-    }
-
-    markRemoved(row);
+void KitModel::markRemoved(int row)
+{
+    const bool wasRemoved = isRemoved(row);
+    GroupedModel::markRemoved(row);
+    if (wasRemoved && isOriginalDefault(row))
+        setVolatileDefaultRow(row);
     notifyAllRowsChanged();
     emit kitStateChanged();
 }
@@ -280,7 +268,6 @@ int KitModel::markForAddition(Kit *baseKit)
     notifyAllRowsChanged();
     return newRow;
 }
-
 
 void KitModel::addKit(Kit *k)
 {
@@ -328,14 +315,6 @@ void KitModel::removeKit(Kit *k)
         return;
     if (isRemoved(row))
         return;  // already pending deregistration via apply()
-    if (isDefault(row)) {
-        for (int r = 0; r < itemCount(); ++r) {
-            if (r != row && !isRemoved(r)) {
-                setVolatileDefaultRow(r);
-                break;
-            }
-        }
-    }
     removeItem(row);
     notifyAllRowsChanged();
     emit kitStateChanged();
@@ -366,9 +345,6 @@ public:
 
     void kitSelectionChanged(int newRow);
     void addNewKit();
-    void cloneKit();
-    void removeKit();
-    void makeDefaultKit();
     void updateState();
     void scrollToSelectedKit();
 
@@ -390,9 +366,6 @@ private:
     void showEvent(QShowEvent *event) final;
 
     QPushButton m_addButton;
-    QPushButton m_cloneButton;
-    QPushButton m_removeButton;
-    QPushButton m_makeDefaultButton;
     QPushButton m_filterButton;
     QPushButton m_defaultFilterButton;
 
@@ -411,9 +384,6 @@ private:
 KitOptionsPageWidget::KitOptionsPageWidget()
 {
     m_addButton.setText(Tr::tr("Add"));
-    m_cloneButton.setText(Tr::tr("Clone"));
-    m_removeButton.setText(Tr::tr("Remove"));
-    m_makeDefaultButton.setText(Tr::tr("Make Default"));
     m_filterButton.setText(Tr::tr("Settings Filter..."));
     m_filterButton.setToolTip(Tr::tr("Choose which settings to display for this kit."));
     m_defaultFilterButton.setText(Tr::tr("Default Settings Filter..."));
@@ -479,15 +449,18 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     addAspectsToWorkingCopy(detailPage);
     detailPage.attachTo(&m_detailWidget);
 
+    m_groupedView.makeDefaultButton().setToolTip(
+        Tr::tr("Set as the default kit to use when creating a new project."));
+
     Column {
         Row {
             m_groupedView.view(),
             Column {
                 noMargin,
                 m_addButton,
-                m_cloneButton,
-                m_removeButton,
-                m_makeDefaultButton,
+                m_groupedView.cloneButton(),
+                m_groupedView.removeButton(),
+                m_groupedView.makeDefaultButton(),
                 m_filterButton,
                 m_defaultFilterButton,
                 st,
@@ -512,14 +485,14 @@ KitOptionsPageWidget::KitOptionsPageWidget()
         updateState();
     });
 
+    m_groupedView.setCanRemoveRow([this](int row) {
+        return !m_model.item(row).m_detectionSource.isSdkProvided();
+    });
+    connect(&m_groupedView, &GroupedView::currentCloned,
+            this, &KitOptionsPageWidget::setFocusToName);
+
     connect(&m_addButton, &QAbstractButton::clicked,
             this, &KitOptionsPageWidget::addNewKit);
-    connect(&m_cloneButton, &QAbstractButton::clicked,
-            this, &KitOptionsPageWidget::cloneKit);
-    connect(&m_removeButton, &QAbstractButton::clicked,
-            this, &KitOptionsPageWidget::removeKit);
-    connect(&m_makeDefaultButton, &QAbstractButton::clicked,
-            this, &KitOptionsPageWidget::makeDefaultKit);
     connect(&m_filterButton, &QAbstractButton::clicked, this, [this] {
         QTC_ASSERT(m_groupedView.currentRow() >= 0, return);
         FilterKitAspectsDialog dlg(m_model.modifiedKit(), this);
@@ -585,51 +558,14 @@ void KitOptionsPageWidget::addNewKit()
         setFocusToName();
 }
 
-void KitOptionsPageWidget::cloneKit()
-{
-    if (m_groupedView.currentRow() < 0)
-        return;
-
-    const int row = m_model.markForAddition(m_model.modifiedKit());
-    m_groupedView.scrollToRow(row);
-    m_groupedView.selectRow(row);
-
-    if (m_groupedView.currentRow() >= 0)
-        setFocusToName();
-}
-
-void KitOptionsPageWidget::removeKit()
-{
-    const int row = m_groupedView.currentRow();
-    if (row >= 0)
-        m_model.markForRemoval(row);
-}
-
-void KitOptionsPageWidget::makeDefaultKit()
-{
-    m_model.setVolatileDefaultRow(m_groupedView.currentRow());
-    updateState();
-}
 
 void KitOptionsPageWidget::updateState()
 {
-    bool canCopy = false;
-    bool canDelete = false;
-    bool canMakeDefault = false;
-
     const int row = m_groupedView.currentRow();
-    const bool isRemoved = row >= 0 && m_model.isRemoved(row);
-    if (row >= 0) {
-        canCopy = true;
-        canDelete = !m_model.item(row).m_detectionSource.isSdkProvided();
-        canMakeDefault = !m_model.isDefault(row) && !isRemoved;
-    }
-
-    m_cloneButton.setEnabled(canCopy && !isRemoved);
-    m_removeButton.setEnabled(canDelete);
-    m_removeButton.setText(isRemoved ? Tr::tr("Restore") : Tr::tr("Remove"));
-    m_makeDefaultButton.setEnabled(canMakeDefault);
-    m_filterButton.setEnabled(canCopy && !isRemoved);
+    const bool hasRow = row >= 0;
+    const bool isRemoved = hasRow && m_model.isRemoved(row);
+    m_filterButton.setEnabled(hasRow && !isRemoved);
+    m_groupedView.updateButtons();
 }
 
 void KitOptionsPageWidget::onDirty()
@@ -924,7 +860,7 @@ void KitModelTest::testRemoveDefaultAutoSwitches()
     QVERIFY(row1 >= 0);
     QVERIFY(model.isDefault(row1));
 
-    model.markForRemoval(row1);
+    model.markRemoved(row1);
 
     QVERIFY(model.isRemoved(row1));
     const int newDefault = model.defaultRow();
@@ -972,7 +908,7 @@ void KitModelTest::testApplyWithRemovedKit()
     KitModel model;
     const int row1 = model.rowForOriginalKit(kit1);
     QVERIFY(row1 >= 0);
-    model.markForRemoval(row1);
+    model.markRemoved(row1);
     QVERIFY(model.isRemoved(row1));
 
     bool checkedDuringReset = false;

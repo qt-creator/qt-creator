@@ -4253,6 +4253,28 @@
          id="path163"
          sodipodi:nodetypes="czc" />
     </g>
+    <g
+       id="src/plugins/acpclient/images/sparklebubble">
+      <use
+         transform="translate(2615,132)"
+         height="100%"
+         width="100%"
+         id="use164"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0"
+         style="display:inline" />
+      <path
+         style="fill:none;stroke:#000000"
+         d="m 2612.5,575 v 2.5 c 0,1 -1,2 -2,2 h -2.5 l -4.5,3 1,-3 h -1 c -1,0 -2,-1 -2,-2 v -5 c 0,-1 1,-2 2,-2 h 4.5"
+         sodipodi:nodetypes="csscccssssc"
+         id="sparklebubble_bubble" />
+      <path
+         style="fill:#ffffff;stroke:#000000"
+         d="m 2607,572.5 c 2.5,0 3.5,-1 3.5,-3.5 0,2.5 1,3.5 3.5,3.5 -2.5,0 -3.5,1 -3.5,3.5 0,-2.5 -1,-3.5 -3.5,-3.5 z"
+         sodipodi:nodetypes="ccccc"
+         id="sparklebubble_sparkle" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -6208,7 +6230,7 @@
       <use
          x="0"
          y="0"
-         xlink:href="#src/plugins/welcome/images/project"
+         xlink:href="#src/plugins/projectexplorer/images/recentproject"
          id="use62"
          transform="translate(1211,84)" />
       <path
@@ -10620,5 +10642,43 @@
        id="path85"
        style="fill:none;stroke:#000000"
        d="m 1730,573.5 h -1.5 c -0.5,0 -1,0.5 -1,1 v 5 c 0,0.5 0.5,1 1,1 h 6 c 0.5,0 1,-0.5 1,-1 v -5 c 0,-0.5 -0.5,-1 -1,-1 h -1.5 m -5.5,2 h -1 c -0.5,0 -1,0.5 -1,1 v 4 c 0,1 1,2 2,2 h 8 c 1,0 2,-1 2,-2 v -4 c 0,-0.5 -0.5,-1 -1,-1 h -1 m -4,-6 v 7.5" />
+  </g>
+  <g
+     id="src/plugins/zenmode/images/zenmode">
+    <use
+       x="0"
+       y="0"
+       xlink:href="#backgroundRect"
+       id="use-zenmode"
+       width="100%"
+       height="100%"
+       transform="translate(1852,132)" />
+    <path
+       id="path-zenmode"
+       style="fill:none;stroke:#000000"
+       d="m 1837.5,573 v -3.5 h 3.5 m 9.5,3.5 v -3.5 h -3.5 m -9.5,9.5 v 3.5 h 3.5 m 9.5,-3.5 v 3.5 h -3.5"
+       sodipodi:nodetypes="cccccccccccc" />
+  </g>
+  <g
+     id="src/plugins/zenmode/images/distractionfree">
+    <use
+       x="0"
+       y="0"
+       xlink:href="#backgroundRect"
+       id="use-distractionfree"
+       width="100%"
+       height="100%"
+       transform="translate(1868,132)" />
+    <rect
+       id="rect-distractionfree"
+       style="fill:none;stroke:#000000"
+       x="1853.5"
+       y="569.5"
+       width="13"
+       height="13" />
+    <path
+       id="path-distractionfree"
+       style="fill:none;stroke:#000000"
+       d="m 1856.5,569.5 v 13 m 7,-13 v 13" />
   </g>
 </svg>

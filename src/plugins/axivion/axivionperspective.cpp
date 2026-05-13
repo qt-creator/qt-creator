@@ -2090,6 +2090,7 @@ bool AxivionPerspective::currentIssueHasValidPathMapping() const
 
 void AxivionPerspective::showProgressWidget()
 {
+    select();
     Command *cmd = ActionManager::command("Dock.AxivionLocalBuildProgress");
     QTC_ASSERT(cmd, return);
     if (cmd->action() && !cmd->action()->isChecked())

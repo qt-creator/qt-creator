@@ -126,8 +126,8 @@
     are described in separate topics.
 
     You can also access common version control system functions from the
-    context menu by right-clicking a file or directory in the \l {Projects}
-    and \l {File System} view.
+    context menu by right-clicking a file or directory in the \l {Projects},
+    \l {File System}, and \l {Open Documents} view.
 
     The \uicontrol{Version Control} view displays the commands that are
     executed, a timestamp, and the relevant output. Select \uicontrol View >

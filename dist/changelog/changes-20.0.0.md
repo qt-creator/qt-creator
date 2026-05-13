@@ -179,7 +179,9 @@ Added
 
 * Presets
     * `qt` and `compiler` to the Qt Creator vendor presets
+      ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-build-settings-cmake-presets-qt-vendor.html))
     * That included preset files are watched for changes
+      ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-build-settings-cmake-presets.html))
 * Conan
     * Support for `CONAN_HOST_PROFILE` and `CONAN_BUILD_PROFILE`
       ([QTCREATORBUG-34388](https://bugreports.qt.io/browse/QTCREATORBUG-34388))

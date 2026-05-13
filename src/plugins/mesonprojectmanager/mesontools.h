@@ -109,6 +109,9 @@ public:
     static std::shared_ptr<MesonToolWrapper> toolById(const Utils::Id &id);
     static std::shared_ptr<MesonToolWrapper> autoDetectedTool();
 
+    static Utils::Id defaultToolId();
+    static void setDefaultToolId(const Utils::Id &id);
+
     static MesonTools *instance();
 
 signals:

@@ -43,7 +43,7 @@ EffectCodeEditorWidget::EffectCodeEditorWidget()
     m_context->setContext(context);
     Core::ICore::addContextObject(m_context);
 
-    Utils::TransientScrollAreaSupport::support(this);
+    Utils::TransientScrollArea::support(this);
 
     /*
      * We have to register our own active auto completion shortcut, because the original shortcut will

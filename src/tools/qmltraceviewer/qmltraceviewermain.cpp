@@ -55,6 +55,10 @@ int main(int argc, char *argv[])
     QCommandLineOption printRpcSchema(QStringList({"rpc-schema"}),
                                       "Print JSON-RPC 2.0 schema to stdout and exit.");
     parser.addOption(printRpcSchema);
+    QCommandLineOption windowTitle(QStringList({"t", "title"}),
+                                   "Set a custom window title. Defaults to the trace file name.",
+                                   "title");
+    parser.addOption(windowTitle);
     parser.process(app);
 
     if (parser.isSet(printRpcSchema)) {
@@ -79,6 +83,11 @@ int main(int argc, char *argv[])
         QTimer::singleShot(0, &window, [&window, file] {
             window.loadTraceFile(file);
         });
+        const QString title = parser.isSet(windowTitle) ? parser.value(windowTitle)
+                                                        : file.toUserOutput();
+        window.setWindowTitle(title);
+    } else if (parser.isSet(windowTitle)) {
+        window.setWindowTitle(parser.value(windowTitle));
     }
 
     window.show();

@@ -58,6 +58,7 @@ void ToolsSettingsAccessor::saveMesonTools()
         ++entry_count;
     }
     data.insert(ToolsSettings::ENTRY_COUNT, entry_count);
+    data.insert(ToolsSettings::DEFAULT_TOOL_KEY, MesonTools::defaultToolId().toSetting());
     saveSettings(data);
 }
 
@@ -77,6 +78,7 @@ void ToolsSettingsAccessor::loadMesonTools()
     }
 
     MesonTools::setTools(std::move(result));
+    MesonTools::setDefaultToolId(Id::fromSetting(data.value(ToolsSettings::DEFAULT_TOOL_KEY)));
 }
 
 void setupToolsSettingsAccessor()

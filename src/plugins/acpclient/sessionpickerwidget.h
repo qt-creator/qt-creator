@@ -72,7 +72,6 @@ private:
     QPushButton *m_loadMoreButton = nullptr;
     Utils::FilePath m_currentProjectDir;
     QString m_nextCursor;
-    bool m_autoCollapseOthers = false;
     bool m_resolved = false;
 };
 

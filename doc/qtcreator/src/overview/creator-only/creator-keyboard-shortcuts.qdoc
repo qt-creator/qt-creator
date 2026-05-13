@@ -1020,9 +1020,13 @@
             \li Ctrl+Shift+N
             \li Cmd+Shift+N
         \row
-            \li Open project
-            \li Ctrl+O, Ctrl+Shift+O
+            \li Open file or project
+            \li Ctrl+O
             \li Cmd+O
+        \row
+            \li Open project
+            \li Ctrl+Shift+O
+            \li \e {None}
     \endtable
 
     \section1 Qt Quick shortcuts

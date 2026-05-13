@@ -9,6 +9,7 @@ add_qtc_plugin(mcpserver
    ExtensionSystem
    Utils
    McpServerLib
+  LONG_DESCRIPTION_MD McpServerDescription.md
   SOURCES
     mcpcommands.cpp mcpcommands.h
     mcpserverinspector.cpp mcpserverinspector.h

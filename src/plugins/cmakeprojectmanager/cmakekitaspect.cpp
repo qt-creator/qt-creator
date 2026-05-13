@@ -568,7 +568,6 @@ Utils::Result<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::createAspectFro
             const QString key = it.key();
             QJsonValue value = it.value();
             auto valueType = CMakeConfigItem::STRING;
-            QString valueStr;
 
             if (value.isObject()) {
                 QJsonObject valueObj = value.toObject();

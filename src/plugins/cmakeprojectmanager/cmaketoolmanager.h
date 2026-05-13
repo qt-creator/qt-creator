@@ -63,12 +63,11 @@ public:
         const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
 signals:
-    void cmakeAdded (const Utils::Id &id);
-    void cmakeRemoved (const Utils::Id &id);
-    void cmakeUpdated (const Utils::Id &id);
-    void cmakeToolsChanged ();
-    void cmakeToolsLoaded ();
-    void defaultCMakeChanged ();
+    void cmakeAdded(const Utils::Id &id);
+    void cmakeRemoved(const Utils::Id &id);
+    void cmakeUpdated(const Utils::Id &id);
+    void cmakeToolsLoaded();
+    void defaultCMakeChanged();
 
 private:
     static void saveCMakeTools();

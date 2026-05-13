@@ -75,6 +75,9 @@ public:
     static Tool toolById(const Utils::Id &id);
     static Tool autoDetectedTool();
 
+    static Utils::Id defaultToolId();
+    static void setDefaultToolId(const Utils::Id &id);
+
     static GNTools *instance();
 signals:
     void toolsChanged();

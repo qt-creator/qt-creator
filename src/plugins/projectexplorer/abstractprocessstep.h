@@ -42,7 +42,7 @@ protected:
 
     QtTaskTree::GroupItem defaultProcessTask();
     bool setupProcess(Utils::Process &process);
-    void handleProcessDone(const Utils::Process &process);
+    bool handleProcessDone(const Utils::Process &process);
 
 private:
     QtTaskTree::GroupItem runRecipe() override;

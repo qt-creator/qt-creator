@@ -53,6 +53,9 @@ private:
     QLabel *m_connectionErrorLabel = nullptr;
     QString m_currentServerName;
 
+    // Initializing page
+    QLabel *m_initializingLabel = nullptr;
+
     // Auth page
     QComboBox *m_authMethodCombo = nullptr;
     QLabel *m_authDescriptionLabel = nullptr;

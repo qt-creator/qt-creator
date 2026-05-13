@@ -42,7 +42,7 @@ public:
 
         auto it = m_entries.find(key);
         if (it == m_entries.cend()) {
-            m_entries.insert(it, {std::move(key), std::move(value)});
+            m_entries.insert(it, {key, std::move(value)});
         } else {
             std::pair<const std::string, sol::object> &kvp = *it;
             sol::object &entry = kvp.second;

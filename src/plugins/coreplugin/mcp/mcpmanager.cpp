@@ -1054,6 +1054,7 @@ public:
         });
 
         mcpServers.listViewDataCallback = displayFunc;
+        mcpServers.addExtraButton(Tr::tr("Add from Registry..."), [this] { addFromRegistry(); });
 
         enableDocsMcpServer.setLabelText(Tr::tr("Enable Qt Documentation MCP Server"));
         enableDocsMcpServer.setToolTip(
@@ -1077,13 +1078,6 @@ public:
                 Tr::tr("MCP Servers:"), br,
                 enableDocsMcpServer,
                 &mcpServers,
-                Row {
-                    st,
-                    PushButton {
-                        text(Tr::tr("Add from Registry...")),
-                        onClicked(this, [this] { addFromRegistry(); }),
-                    },
-                },
             };
             // clang-format on
         });

@@ -147,7 +147,8 @@ def invokeContextMenuOnProject(projectName, menuItem):
 
 def addAndActivateKit(kit):
     kitString = Targets.getStringForTarget(kit)
-    clickToActivate = "<html><body><h3>%s</h3><p><h3>Click to activate</h3>" % kitString
+    clickToActivate = ("<html><body><h3>%s</h3><p><h3>Click to enable target, click again to make "
+                       "active</h3>" % kitString)
     switchViewTo(ViewConstants.PROJECTS)
     try:
         waitForObject(":Projects.ProjectNavigationTreeView")
@@ -159,6 +160,7 @@ def addAndActivateKit(kit):
                         "Kit added for this project")
         else:
             test.warning("Kit is already added for this project.")
+        index = waitForObject(wanted, 1000)
         mouseClick(index)
         test.verify(waitFor("index.font.bold == True", 1500),
                     "Verifying whether kit is current active")

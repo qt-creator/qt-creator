@@ -16,9 +16,10 @@
 #include <remotelinux/linuxprocessinterface.h>
 #include <remotelinux/remotelinux_constants.h>
 
+#include <utils/globaltasktree.h>
 #include <utils/portlist.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
 #include <QFormLayout>
@@ -28,6 +29,7 @@
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Qdb::Internal {
@@ -51,42 +53,33 @@ private:
     }
 };
 
-class DeviceApplicationObserver : public QObject
+static void executeDeviceAction(const IDevice::ConstPtr &device, const CommandLine &command)
 {
-public:
-    DeviceApplicationObserver(const IDevice::ConstPtr &device, const CommandLine &command)
-    {
-        connect(&m_appRunner, &Process::done, this, &DeviceApplicationObserver::handleDone);
+    const QString deviceName = device->displayName();
 
-        QTC_ASSERT(device, return);
-        m_deviceName = device->displayName();
-
-        m_appRunner.setCommand(command);
-        m_appRunner.start();
+    const auto onSetup = [deviceName, command](Process &process) {
+        process.setCommand(command);
         showMessage(Tr::tr("Starting command \"%1\" on device \"%2\".")
-                    .arg(command.toUserOutput(), m_deviceName));
-    }
-
-private:
-    void handleDone()
-    {
-        const QString stdOut = m_appRunner.cleanedStdOut();
-        const QString stdErr = m_appRunner.cleanedStdErr();
+                        .arg(command.toUserOutput(), deviceName));
+    };
+    const auto onDone = [deviceName](const Process &process) {
+        const QString stdOut = process.cleanedStdOut();
+        const QString stdErr = process.cleanedStdErr();
 
         // FIXME: Needed in a post-adb world?
         // adb does not forward exit codes and all stderr goes to stdout.
-        const bool failure = m_appRunner.result() != ProcessResult::FinishedWithSuccess
-                || stdOut.contains("fail")
-                || stdOut.contains("error")
-                || stdOut.contains("not found");
+        const bool failure = process.result() != ProcessResult::FinishedWithSuccess
+                             || stdOut.contains("fail")
+                             || stdOut.contains("error")
+                             || stdOut.contains("not found");
 
         if (failure) {
             QString errorString;
-            if (!m_appRunner.errorString().isEmpty()) {
+            if (!process.errorString().isEmpty()) {
                 errorString = Tr::tr("Command failed on device \"%1\": %2")
-                        .arg(m_deviceName, m_appRunner.errorString());
+                                  .arg(deviceName, process.errorString());
             } else {
-                errorString = Tr::tr("Command failed on device \"%1\".").arg(m_deviceName);
+                errorString = Tr::tr("Command failed on device \"%1\".").arg(deviceName);
             }
             showMessage(errorString, true);
             if (!stdOut.isEmpty())
@@ -95,15 +88,11 @@ private:
                 showMessage(Tr::tr("stderr was: \"%1\".").arg(stdErr));
         } else {
             showMessage(Tr::tr("Commands on device \"%1\" finished successfully.")
-                        .arg(m_deviceName));
+                            .arg(deviceName));
         }
-        deleteLater();
-    }
-
-    Process m_appRunner;
-    QString m_deviceName;
-};
-
+    };
+    GlobalTaskTree::start({ProcessTask(onSetup, onDone)});
+}
 
 // QdbDevice
 
@@ -117,19 +106,17 @@ QdbDevice::QdbDevice()
     sourceProfile.setDefaultValue(true);
 
     addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device) {
-        (void) new DeviceApplicationObserver(device, CommandLine{device->filePath("reboot")});
+        executeDeviceAction(device, CommandLine{device->filePath("reboot")});
     }});
 
     addDeviceAction({Tr::tr("Restore Default App"), [](const IDevice::Ptr &device) {
-        (void) new DeviceApplicationObserver(device, {device->filePath("appcontroller"), {"--remove-default"}});
+        executeDeviceAction(device, {device->filePath("appcontroller"), {"--remove-default"}});
     }});
 }
 
 ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
 {
-    ProjectExplorer::IDeviceWidget *w = RemoteLinux::LinuxDevice::createWidget();
-
-    return w;
+    return RemoteLinux::LinuxDevice::createWidget();
 }
 
 ProcessInterface *QdbDevice::createProcessInterface() const

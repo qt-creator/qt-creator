@@ -26,7 +26,7 @@
         { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" },
-        { "key": "FeatureQt", "value": "QtSupport.Wizards.FeatureQt%{JS: value('BuildSystem') === 'cmake-qt6' ? '.6.5' : ''}" }
+        { "key": "FeatureQt", "value": "QtSupport.Wizards.FeatureQt%{JS: value('BuildSystem') === 'cmake-qt6' || value('BuildSystem') === 'meson'  ? '.6.5' : ''}" }
     ],
     "pages":
     [

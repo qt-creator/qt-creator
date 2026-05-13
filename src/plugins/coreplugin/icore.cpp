@@ -1140,6 +1140,11 @@ FilePath ICore::pathRelativeToActiveProject(const FilePath &path)
     return path;
 }
 
+void ICore::askToApplySettings(const std::function<void()> &callback)
+{
+    emit m_core->askToApplySettingsRequested(callback);
+}
+
 /*!
     \internal
 */

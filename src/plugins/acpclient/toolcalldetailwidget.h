@@ -31,6 +31,7 @@ class ToolCallDetailWidget : public CollapsibleFrame
 public:
     explicit ToolCallDetailWidget(const Acp::ToolCall &toolCall, QWidget *parent = nullptr);
 
+    Acp::ToolCallStatus status() const { return m_status; }
     void applyStatus(Acp::ToolCallStatus status);
     void updateContent(const Acp::ToolCallUpdate &update);
     void setContentMaxWidth(int width);
@@ -50,7 +51,7 @@ private:
     QWidget *m_statusWidget = nullptr;
     Utils::ElidingLabel *m_titleLabel = nullptr;
     Acp::ToolCallStatus m_status = Acp::ToolCallStatus::in_progress;
-    QList<Utils::MarkdownBrowser *> m_browsers;
+    int m_contentMaxWidth = -1;
 };
 
 } // namespace AcpClient::Internal

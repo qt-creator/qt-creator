@@ -515,6 +515,7 @@ public:
         showPage(previousPage);
         m_currentlySwitching = false;
     };
+    void askToApplySettings(const std::function<void()> &callback);
 
     bool askToLeave(bool aboutToShutdown = false); // returns true if ok to leave
 
@@ -596,6 +597,12 @@ SettingsWidget::SettingsWidget()
         settings->setValue(pageKeyC, m_currentPage.toSetting());
         settings->setValue(sortKeyC, m_sortCheckBox->isChecked());
     });
+
+    connect(
+        ICore::instance(),
+        &ICore::askToApplySettingsRequested,
+        this,
+        &SettingsWidget::askToApplySettings);
 
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.
@@ -836,6 +843,44 @@ void SettingsWidget::updateEnabledTabs(Category *category, const QString &search
         // QTabWidget is dumb, so this can happen
         category->tabWidget->setCurrentIndex(firstEnabledTab);
     }
+}
+
+void SettingsWidget::askToApplySettings(const std::function<void()> &callback)
+{
+    if (!m_isDirty) {
+        callback();
+        return;
+    }
+
+    QMessageBox *dialog = new QMessageBox(dialogParent());
+    dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+    dialog->setWindowTitle(Tr::tr("Unapplied Changes"));
+    dialog->setIcon(QMessageBox::Warning);
+    dialog->resize(400, 500);
+    dialog->setText(Tr::tr("There are unapplied changes. Do you want to apply them?"));
+
+    QPushButton *applyButton = dialog->addButton(Tr::tr("Apply Changes"), QMessageBox::AcceptRole);
+    connect(applyButton, &QAbstractButton::clicked, this, [this, callback]() {
+        apply();
+        callback();
+    });
+
+    // Cancelling currently does re-create some pages, so it's better to not offer it as an option.
+    // See also: IOptionsPage::setRecreateOnCancel, IOptionsPage::setWidgetCreator.
+    /*
+    QPushButton *discardButton
+        = dialog->addButton(Tr::tr("Discard Changes"), QMessageBox::RejectRole);
+    connect(discardButton, &QAbstractButton::clicked, this, [this, callback]() {
+        cancel();
+        callback();
+    });
+    */
+
+    QPushButton *backButton
+        = dialog->addButton(Tr::tr("Cancel"), QMessageBox::RejectRole);
+    connect(backButton, &QAbstractButton::clicked, dialog, &QMessageBox::close);
+
+    dialog->show();
 }
 
 void SettingsWidget::switchBackIfNeeded()

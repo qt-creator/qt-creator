@@ -10,9 +10,6 @@
 #include <utils/id.h>
 
 #include <QObject>
-#include <QMetaType>
-
-namespace Utils { class Process; }
 
 namespace Core {
 
@@ -79,57 +76,31 @@ public:
     void setBaseEnvironmentProviderId(Utils::Id id);
     void setEnvironmentUserChanges(const Utils::EnvironmentChanges &items);
 
-private:
-    QString m_id;
-    QString m_description;
-    QString m_displayName;
-    QString m_displayCategory;
-    int m_order = -1;
-    Utils::FilePaths m_executables;
-    QString m_arguments;
-    QString m_input;
-    Utils::FilePath m_workingDirectory;
-    Utils::Id m_baseEnvironmentProviderId;
-    Utils::EnvironmentChanges m_environment;
-    OutputHandling m_outputHandling = ShowInPane;
-    OutputHandling m_errorHandling = ShowInPane;
-    bool m_modifiesCurrentDocument = false;
-
-    Utils::FilePath m_filePath;
-    Utils::FilePath m_presetFileName;
-    std::shared_ptr<ExternalTool> m_presetTool;
-};
-
-class CORE_EXPORT ExternalToolRunner : public QObject
-{
-    Q_OBJECT
-
-public:
-    ExternalToolRunner(const ExternalTool *tool);
-    ~ExternalToolRunner() override;
-
-    bool hasError() const;
-    QString errorString() const;
+    void execute() const;
 
 private:
-    void done();
-    void readStandardOutput(const QString &output);
-    void readStandardError(const QString &output);
 
-    void run();
-    bool resolve();
+    struct Data {
+        QString id;
+        QString description;
+        QString displayName;
+        QString displayCategory = ""; // difference between isNull and isEmpty
+        int order = -1;
+        Utils::FilePaths executables;
+        QString arguments;
+        QString input;
+        Utils::FilePath workingDirectory;
+        Utils::Id baseEnvironmentProviderId;
+        Utils::EnvironmentChanges environment;
+        OutputHandling outputHandling = ShowInPane;
+        OutputHandling errorHandling = ShowInPane;
+        bool modifiesCurrentDocument = false;
 
-    const ExternalTool *m_tool; // is a copy of the tool that was passed in
-    Utils::FilePath m_resolvedExecutable;
-    QString m_resolvedArguments;
-    QString m_resolvedInput;
-    Utils::FilePath m_resolvedWorkingDirectory;
-    Utils::Environment m_resolvedEnvironment;
-    Utils::Process *m_process;
-    QString m_processOutput;
-    Utils::FilePath m_expectedFilePath;
-    bool m_hasError;
-    QString m_errorString;
+        Utils::FilePath filePath;
+        std::shared_ptr<ExternalTool> presetTool;
+    };
+
+    Data m_data;
 };
 
 } // Core

@@ -467,6 +467,7 @@ void PathChooser::slotBrowse(bool remote)
 
     remote = remote || !filePath().isLocal();
 
+    QPointer<QWidget> guard = this;
     // Prompt for a file/dir
     FilePath newPath;
     switch (d->m_acceptingKind) {
@@ -520,6 +521,13 @@ void PathChooser::slotBrowse(bool remote)
     default:
         break;
     }
+
+    // TODO The get* methods above run event loops which might lead to side effects,
+    // and these side effects might lead to deletion of the chooser or something in the hierachy
+    // (we got reports on Sentry indicating a crash with window()->raise() here).
+    // It would be even better to not use the blocking dialog functions above and use a guarded
+    // continuation instead, but for now do a sanity check.
+    QTC_ASSERT(guard && window(), return);
 
     // work around QTBUG-61004 / QTCREATORBUG-22906
     window()->raise();

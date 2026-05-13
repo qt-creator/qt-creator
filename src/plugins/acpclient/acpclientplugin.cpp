@@ -60,8 +60,7 @@ public:
         ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
         // Show Chat in right side panel action
-        auto showSidePanelAction = new QAction(
-            Utils::Icons::MESSAGE_TOOLBAR.icon(),
+        auto showSidePanelAction = new QAction(sidePanelIcon(),
             Tr::tr("Show Agentic AI Chat in Side Panel"), this);
         Command *sidePanelCmd = ActionManager::registerAction(
             showSidePanelAction, Constants::SHOW_CHAT_SIDEPANEL_ACTION_ID);
@@ -74,7 +73,7 @@ public:
             if (!textEditor)
                 return;
             auto button = new QToolButton;
-            button->setIcon(Utils::Icons::MESSAGE_TOOLBAR.icon());
+            button->setIcon(sidePanelIcon());
             button->setToolTip(Tr::tr("Show Agentic AI Chat in Side Panel"));
             QObject::connect(button, &QToolButton::clicked,
                              ActionManager::command(Constants::SHOW_CHAT_SIDEPANEL_ACTION_ID)->action(),
@@ -128,6 +127,12 @@ private:
             return;
         m_rightPaneChatWidget = new AcpChatWidget;
         m_rightPaneChatWidget->setInspector(m_inspector);
+    }
+
+    static QIcon sidePanelIcon()
+    {
+        return Utils::Icon({{":/acpclient/images/sparklebubble.png",
+                             Utils::Theme::IconsBaseColor}}).icon();
     }
 
     AcpInspector *m_inspector = nullptr;

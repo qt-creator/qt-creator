@@ -246,6 +246,17 @@ std::optional<FilePath> findMeson()
 
 
 std::vector<MesonTools::Tool_t> s_tools;
+static Id s_defaultMesonId;
+
+Id MesonTools::defaultToolId()
+{
+    return s_defaultMesonId;
+}
+
+void MesonTools::setDefaultToolId(const Id &id)
+{
+    s_defaultMesonId = id;
+}
 
 MesonTools::Tool_t MesonTools::autoDetectedTool()
 {

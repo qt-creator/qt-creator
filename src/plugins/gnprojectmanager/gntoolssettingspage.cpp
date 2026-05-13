@@ -124,6 +124,7 @@ private:
 
 GNToolsModel::GNToolsModel()
 {
+    setShowDefault(true);
     setHeader({Tr::tr("Name"), Tr::tr("Location")});
     setFilters(ProjectExplorer::Constants::msgAutoDetected(),
                {{ProjectExplorer::Constants::msgManual(), [this](int row) {
@@ -131,6 +132,13 @@ GNToolsModel::GNToolsModel()
                 }}});
     for (const GNTools::Tool &tool : GNTools::tools())
         appendItem(GNToolItem{tool});
+    const Id defaultId = GNTools::defaultToolId();
+    for (int row = 0; row < itemCount(); ++row) {
+        if (item(row).id == defaultId) {
+            setDefaultRow(row);
+            break;
+        }
+    }
 }
 
 int GNToolsModel::addGNTool()
@@ -155,6 +163,8 @@ void GNToolsModel::updateItem(int row, const QString &name, const FilePath &exe)
 
 void GNToolsModel::apply()
 {
+    const int defRow = defaultRow();
+    GNTools::setDefaultToolId(defRow >= 0 ? item(defRow).id : Id());
     for (int row = 0; row < itemCount(); ++row) {
         if (isRemoved(row)) {
             GNTools::removeTool(item(row).id);
@@ -230,10 +240,22 @@ GNToolsSettingsWidget::GNToolsSettingsWidget()
     m_gnDetails.setWidget(&m_itemConfigWidget);
 
     m_addButton.setText(Tr::tr("Add"));
+    m_groupedView.makeDefaultButton().setToolTip(
+        Tr::tr("Set as the default GN executable to use "
+               "when creating a new kit or when no value is set."));
 
     Row {
-        Column { m_groupedView.view(), m_gnDetails },
-        Column { m_addButton, m_groupedView.cloneButton(), m_groupedView.removeButton(), st }
+        Column {
+            m_groupedView.view(),
+            m_gnDetails
+        },
+        Column {
+            m_addButton,
+            m_groupedView.cloneButton(),
+            m_groupedView.removeButton(),
+            m_groupedView.makeDefaultButton(),
+            st
+        }
     }.attachTo(this);
 
     connect(&m_groupedView, &GroupedView::currentRowChanged,

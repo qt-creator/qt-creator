@@ -13,6 +13,7 @@
 #include <aggregation/aggregate.h>
 
 #include <coreplugin/find/ifindsupport.h>
+#include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -296,73 +297,6 @@ private:
 };
 
 // ---------------------------------------------------------------------------
-// ToolCallWidget
-// ---------------------------------------------------------------------------
-
-class ToolCallWidget : public CollapsibleFrame
-{
-public:
-    explicit ToolCallWidget(ToolCallStatus status, const QString &title,
-                            std::optional<ToolKind> kind = {}, QWidget *parent = nullptr)
-        : CollapsibleFrame(parent)
-    {
-        setFrameShape(QFrame::NoFrame);
-
-        m_statusWidget = toolCallStatusWidget(status, this);
-        m_headerLayout->addWidget(m_statusWidget);
-
-        if (const auto icon = iconForToolKind(kind)) {
-            auto *kindIcon = new Utils::QtcIconDisplay(this);
-            kindIcon->setIcon(*icon);
-            m_headerLayout->addWidget(kindIcon);
-        }
-
-        m_titleLabel = new Utils::ElidingLabel(title, this);
-        m_headerLayout->addWidget(m_titleLabel, 1);
-
-        m_status = status;
-    }
-
-    void applyStatus(ToolCallStatus status)
-    {
-        auto *newWidget = toolCallStatusWidget(status, this);
-        m_headerLayout->replaceWidget(m_statusWidget, newWidget);
-        delete m_statusWidget;
-        m_statusWidget = newWidget;
-        m_status = status;
-        update();
-    }
-
-    ToolCallStatus status() const { return m_status; }
-
-    void updateTitle(const QString &title)
-    {
-        m_titleLabel->setText(QStringLiteral("<b>%1</b>").arg(title.toHtmlEscaped()));
-    }
-
-protected:
-    void paintEvent(QPaintEvent *) override
-    {
-        QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
-        Utils::StyleHelper::drawCardBg(&p, rect(),
-            Utils::creatorColor(Utils::Theme::ChatToolCallBackground),
-            QPen(Qt::NoPen), RadiusS);
-        QPainterPath clip;
-        clip.addRoundedRect(rect(), RadiusS, RadiusS);
-        p.setClipPath(clip);
-        p.setRenderHint(QPainter::Antialiasing, false);
-        p.fillRect(QRect(0, 0, 3, height()), toolCallBorderColor(m_status));
-        p.setClipping(false);
-    }
-
-private:
-    QWidget *m_statusWidget = nullptr;
-    Utils::ElidingLabel *m_titleLabel = nullptr;
-    ToolCallStatus m_status = ToolCallStatus::pending;
-};
-
-// ---------------------------------------------------------------------------
 // ToolCallGroupWidget — groups consecutive tool calls into one collapsible
 // ---------------------------------------------------------------------------
 
@@ -574,6 +508,21 @@ protected:
     }
 };
 
+static QString optionKindToUiString(Acp::PermissionOptionKind kind)
+{
+    switch (kind) {
+    case Acp::PermissionOptionKind::allow_once:
+        return Tr::tr("Allow");
+    case Acp::PermissionOptionKind::allow_always:
+        return Tr::tr("Allow Always");
+    case Acp::PermissionOptionKind::reject_once:
+        return Tr::tr("Reject");
+    case Acp::PermissionOptionKind::reject_always:
+        return Tr::tr("Reject Always");
+    }
+    return {};
+}
+
 // ---------------------------------------------------------------------------
 // PermissionRequestWidget — inline widget for permission requests
 // ---------------------------------------------------------------------------
@@ -623,14 +572,14 @@ public:
         m_headerLayout->addWidget(m_statusLabel);
     }
 
-    QPushButton *addOptionButton(const QString &text, Acp::PermissionOptionKind kind)
+    Utils::QtcButton *addOptionButton(const QString &text, Acp::PermissionOptionKind kind)
     {
-        auto *button = new QPushButton(text, this);
-        // Style reject options with a muted appearance
-        if (kind == Acp::PermissionOptionKind::reject_once
-            || kind == Acp::PermissionOptionKind::reject_always) {
-            button->setFlat(true);
-        }
+        const bool reject = kind == Acp::PermissionOptionKind::reject_once
+                            || kind == Acp::PermissionOptionKind::reject_always;
+        const auto role = reject ? Utils::QtcButton::MediumTertiary
+                                 : Utils::QtcButton::MediumPrimary;
+        auto *button = new Utils::QtcButton(optionKindToUiString(kind), role, this);
+        button->setToolTip(text);
         m_buttonLayout->addWidget(button);
         m_buttons.append(button);
         return button;
@@ -638,7 +587,7 @@ public:
 
     void setResolved(const QString &text, bool accepted)
     {
-        for (QPushButton *button : m_buttons)
+        for (Utils::QtcButton *button : m_buttons)
             button->hide();
         m_iconDisplay->setIcon(accepted ? Utils::Icons::OK : Utils::Icons::CRITICAL);
         m_statusLabel->setText(QStringLiteral("<i>%1</i>").arg(text.toHtmlEscaped()));
@@ -669,7 +618,7 @@ private:
     Utils::QtcIconDisplay *m_iconDisplay = nullptr;
     QLayout *m_buttonLayout = nullptr;
     Utils::ElidingLabel *m_statusLabel = nullptr;
-    QList<QPushButton *> m_buttons;
+    QList<Utils::QtcButton *> m_buttons;
 };
 
 // ---------------------------------------------------------------------------
@@ -1014,6 +963,8 @@ private:
 // AcpMessageView
 // ---------------------------------------------------------------------------
 
+static const char SETTINGS_THOUGHTS_VISIBLE[] = "acpclient/thoughtsVisible";
+
 AcpMessageView::AcpMessageView(QWidget *parent)
     : QScrollArea(parent)
 {
@@ -1063,11 +1014,18 @@ AcpMessageView::AcpMessageView(QWidget *parent)
         m_autoScroll = (value >= verticalScrollBar()->maximum() - 10);
     });
     connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, &AcpMessageView::scrollToBottom);
+
+    m_thoughtsVisible = Core::ICore::settings()->value(SETTINGS_THOUGHTS_VISIBLE, true).toBool();
 }
 
-void AcpMessageView::setDetailedMode(bool detailed)
+void AcpMessageView::setThoughtsVisible(bool visible)
 {
-    m_detailedMode = detailed;
+    if (m_thoughtsVisible == visible)
+        return;
+    m_thoughtsVisible = visible;
+    Core::ICore::settings()->setValue(SETTINGS_THOUGHTS_VISIBLE, visible);
+    for (ThoughtWidget *w : std::as_const(m_thoughtWidgets))
+        w->setVisible(visible);
 }
 
 void AcpMessageView::setAgentIconUrl(const QString &iconUrl)
@@ -1083,6 +1041,17 @@ void AcpMessageView::setPrompting(bool prompting)
         m_progressUpdateTimer->start();
     } else {
         m_progressUpdateTimer->stop();
+        for (auto it = m_toolCallDetailWidgets.constBegin();
+             it != m_toolCallDetailWidgets.constEnd(); ++it) {
+            qDebug() << "Checking tool call" << it.key() << "status"
+                     << toString(it.value()->status());
+            if (it.value()->status() == ToolCallStatus::in_progress
+                || it.value()->status() == ToolCallStatus::pending) {
+                it.value()->applyStatus(ToolCallStatus::failed);
+                if (auto *group = m_toolCallGroups.value(it.key()))
+                    group->trackStatus(it.key(), ToolCallStatus::failed);
+            }
+        }
     }
     m_progressIndicator->setVisible(prompting);
     m_elapsedLabel->setVisible(prompting);
@@ -1102,7 +1071,7 @@ void AcpMessageView::clear()
     m_currentThoughtWidget = nullptr;
     m_currentToolCallGroup = nullptr;
     m_currentAuthWidget = nullptr;
-    m_toolCallWidgets.clear();
+    m_thoughtWidgets.clear();
     m_toolCallDetailWidgets.clear();
     m_toolCallGroups.clear();
     m_autoScroll = true;
@@ -1142,6 +1111,8 @@ void AcpMessageView::appendAgentThought(const QString &text)
         finishAgentMessage();
         finishToolCallGroup();
         m_currentThoughtWidget = new ThoughtWidget(text, m_container);
+        m_currentThoughtWidget->setVisible(m_thoughtsVisible);
+        m_thoughtWidgets.append(m_currentThoughtWidget);
         addWidget(m_currentThoughtWidget);
     } else {
         m_currentThoughtWidget->appendText(text);
@@ -1175,17 +1146,10 @@ void AcpMessageView::addToolCall(const ToolCall &toolCall)
     group->trackTitle(toolCall.toolCallId(), toolCall.title());
     m_toolCallGroups[toolCall.toolCallId()] = group;
 
-    if (m_detailedMode) {
-        auto *detail = new ToolCallDetailWidget(toolCall, group);
-        detail->setContentMaxWidth(contentMaxWidth());
-        group->addChildWidget(detail);
-        m_toolCallDetailWidgets[toolCall.toolCallId()] = detail;
-    } else {
-        auto *widget = new ToolCallWidget(status, toolCall.title(), toolCall.kind(), group);
-        widget->setCollapsible(false);
-        group->addChildWidget(widget);
-        m_toolCallWidgets[toolCall.toolCallId()] = widget;
-    }
+    auto *detail = new ToolCallDetailWidget(toolCall, group);
+    detail->setContentMaxWidth(contentMaxWidth());
+    group->addChildWidget(detail);
+    m_toolCallDetailWidgets[toolCall.toolCallId()] = detail;
 }
 
 void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
@@ -1200,49 +1164,25 @@ void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
         }
     };
 
-    if (m_detailedMode) {
-        ToolCallDetailWidget *detail = m_toolCallDetailWidgets.value(update.toolCallId());
-        if (!detail) {
-            const QString title = update.title().value_or(QStringLiteral("Tool Call"));
-            ToolCall tc;
-            tc.toolCallId(update.toolCallId());
-            tc.title(title);
-            tc.status(update.status().value_or(ToolCallStatus::in_progress));
-            tc.kind(update.kind());
-            auto *group = ensureToolCallGroup();
-            group->trackStatus(update.toolCallId(),
-                               update.status().value_or(ToolCallStatus::in_progress));
-            group->trackTitle(update.toolCallId(), title);
-            m_toolCallGroups[update.toolCallId()] = group;
-            detail = new ToolCallDetailWidget(tc, group);
-            detail->setContentMaxWidth(contentMaxWidth());
-            group->addChildWidget(detail);
-            m_toolCallDetailWidgets[update.toolCallId()] = detail;
-        }
-        detail->updateContent(update);
-        updateGroup(update.toolCallId(), update.status(), update.title());
-        return;
-    }
-
-    ToolCallWidget *widget = m_toolCallWidgets.value(update.toolCallId());
-    if (!widget) {
-        const ToolCallStatus status = update.status().value_or(ToolCallStatus::in_progress);
+    ToolCallDetailWidget *detail = m_toolCallDetailWidgets.value(update.toolCallId());
+    if (!detail) {
         const QString title = update.title().value_or(QStringLiteral("Tool Call"));
+        ToolCall tc;
+        tc.toolCallId(update.toolCallId());
+        tc.title(title);
+        tc.status(update.status().value_or(ToolCallStatus::in_progress));
+        tc.kind(update.kind());
         auto *group = ensureToolCallGroup();
-        group->trackStatus(update.toolCallId(), status);
+        group->trackStatus(update.toolCallId(),
+                           update.status().value_or(ToolCallStatus::in_progress));
         group->trackTitle(update.toolCallId(), title);
         m_toolCallGroups[update.toolCallId()] = group;
-        widget = new ToolCallWidget(status, title, update.kind(), group);
-        widget->setCollapsible(false);
-        group->addChildWidget(widget);
-        m_toolCallWidgets[update.toolCallId()] = widget;
-        return;
+        detail = new ToolCallDetailWidget(tc, group);
+        detail->setContentMaxWidth(contentMaxWidth());
+        group->addChildWidget(detail);
+        m_toolCallDetailWidgets[update.toolCallId()] = detail;
     }
-
-    if (const auto status = update.status())
-        widget->applyStatus(*status);
-    if (const auto title = update.title())
-        widget->updateTitle(*title);
+    detail->updateContent(update);
     updateGroup(update.toolCallId(), update.status(), update.title());
 }
 
@@ -1269,8 +1209,6 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     auto markToolCallFailed = [this, toolCallId] {
         if (auto *detail = m_toolCallDetailWidgets.value(toolCallId))
             detail->applyStatus(ToolCallStatus::failed);
-        else if (auto *w = m_toolCallWidgets.value(toolCallId))
-            w->applyStatus(ToolCallStatus::failed);
         if (auto *group = m_toolCallGroups.value(toolCallId))
             group->trackStatus(toolCallId, ToolCallStatus::failed);
     };
@@ -1278,7 +1216,7 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     const QList<PermissionOption> options = request.options();
     for (const PermissionOption &option : options) {
         auto *button = widget->addOptionButton(option.name(), option.kind());
-        connect(button, &QPushButton::clicked, this,
+        connect(button, &QAbstractButton::clicked, this,
                 [this, id, option, widget, markToolCallFailed] {
             const bool accepted = option.kind() == PermissionOptionKind::allow_once
                                   || option.kind() == PermissionOptionKind::allow_always;
@@ -1294,7 +1232,7 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     if (!hasRejectOption) {
         // Add a deny/cancel button if not already present, to allow user to reject the request without selecting an option
         auto *cancelButton = widget->addOptionButton(tr("Deny"), PermissionOptionKind::reject_once);
-        connect(cancelButton, &QPushButton::clicked, this, [this, id, widget, markToolCallFailed] {
+        connect(cancelButton, &QAbstractButton::clicked, this, [this, id, widget, markToolCallFailed] {
             widget->setResolved(tr("Denied"), false);
             markToolCallFailed();
             emit permissionCancelled(id);

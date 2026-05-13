@@ -7,6 +7,7 @@
 #include "nimproject.h"
 #include "nimtr.h"
 
+#include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>

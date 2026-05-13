@@ -148,6 +148,20 @@
     If the current device state is \uicontrol Connected, (the traffic light icon is
     orange), you need to configure the device using Xcode.
 
+    \section1 Access files on iOS devices
+
+    You can access files on a connected iOS device, including the crash
+    reports directory and the developer's application directories.
+
+    Access these files in one of the following ways:
+
+    \list
+        \li Go to \uicontrol File > \uicontrol {Open From Device}.
+        \li Go to the \l {File System} view and select the
+            device in the menu.
+        \li Use the \l {Navigate with locator}{locator}.
+    \endlist
+
     \sa {Activate kits for a project}, {iOS}{How to: Develop for iOS},
     {Developing for iOS}
 */

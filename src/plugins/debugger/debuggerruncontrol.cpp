@@ -641,7 +641,7 @@ Result<> EnginesDriver::checkBreakpoints() const
 
 void EnginesDriver::start()
 {
-    const QString runId = QString::number(newRunId());
+    newRunId();
     for (auto engine : std::as_const(m_engines)) {
         connect(engine, &DebuggerEngine::interruptTerminalRequested,
                 this, &EnginesDriver::interruptTerminalRequested);

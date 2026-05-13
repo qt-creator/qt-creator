@@ -25,6 +25,10 @@ AcpStdioTransport::~AcpStdioTransport()
 void AcpStdioTransport::setCommandLine(const CommandLine &cmd)
 {
     m_cmd = cmd;
+    if (HostOsInfo::isWindowsHost() && m_cmd.executable().baseName() == "npx"
+        && !m_cmd.arguments().contains("--yes")) {
+        m_cmd.setArguments("--yes " + m_cmd.arguments());
+    }
 }
 
 void AcpStdioTransport::setWorkingDirectory(const FilePath &workingDirectory)
@@ -79,13 +83,6 @@ void AcpStdioTransport::start()
     connect(m_process, &Process::started, this, &AcpTransport::started);
     connect(m_process, &Process::done, this, [this] {
         if (!m_expectStop && m_process->result() != ProcessResult::FinishedWithSuccess) {
-            if (m_cmd.executable().baseName() == "npx" && m_process->exitCode() == -4058) {
-                // this happens regularly on windows and can be avoided by passing --yes
-                // argument to the executable
-                m_cmd.setArguments("--yes " + m_cmd.arguments());
-                start();
-                return;
-            }
             qCWarning(logStdio) << "Process finished with error:" << m_cmd.toUserOutput();
             QString msg = m_process->exitMessage();
             const QString stderrText = m_stderrBuffer.trimmed();

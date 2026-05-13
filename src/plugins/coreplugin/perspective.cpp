@@ -227,8 +227,6 @@ public:
 
 PerspectivesViewPrivate::PerspectivesViewPrivate()
 {
-    qRegisterMetaType<PerspectiveState>();
-
     m_statusLabel.setObjectName("DebuggerStatusLabel"); // used by Squish
     StyleHelper::setPanelWidget(&m_statusLabel);
     m_statusLabel.setIndent(2 * QFontMetrics(m_mainWindow.font()).horizontalAdvance(QChar('x')));
@@ -404,7 +402,8 @@ void PerspectivesViewPrivate::destroyPerspective(Perspective *perspective)
             ActionManager::unregisterAction(op.toggleViewAction, op.commandId);
         if (op.dock) {
             m_mainWindow.removeDockWidget(op.dock);
-            op.widget->setParent(nullptr); // Prevent deletion
+            if (op.widget)
+                op.widget->setParent(nullptr); // Prevent deletion
             op.dock->setParent(nullptr);
             delete op.dock;
             op.dock = nullptr;
@@ -496,13 +495,7 @@ void PerspectivesView::restorePersistentSettings()
     const QHash<QString, QVariant> states2 = settings->value(STATE_KEY2).toHash();
     d->m_lastTypePerspectiveStates.clear();
     for (auto it = states2.begin(); it != states2.end(); ++it) {
-        PerspectiveState state;
-        if (it->canConvert<QVariantMap>()) {
-            state = PerspectiveState::fromSettings(storeFromMap(it->toMap()));
-        } else {
-            // legacy for up to QtC 12
-            state = it->value<PerspectiveState>();
-        }
+        const PerspectiveState state = PerspectiveState::fromSettings(storeFromMap(it->toMap()));
         QTC_ASSERT(state.hasWindowState(), continue);
         d->m_lastTypePerspectiveStates.insert(it.key(), state);
     }
@@ -1030,9 +1023,9 @@ void PerspectivePrivate::restoreLayout()
         qCDebug(perspectivesLog) << "PERSPECTIVE STATE NOT AVAILABLE BY FULL ID.";
         state = theMainWindow->d->m_lastTypePerspectiveStates.value(settingsId());
         if (state.hasWindowState()) {
-            qCDebug(perspectivesLog) << "PERSPECTIVE STATE NOT AVAILABLE BY PERSPECTIVE TYPE";
-        } else {
             qCDebug(perspectivesLog) << "PERSPECTIVE STATE AVAILABLE BY PERSPECTIVE TYPE.";
+        } else {
+            qCDebug(perspectivesLog) << "PERSPECTIVE STATE NOT AVAILABLE BY PERSPECTIVE TYPE";
         }
     } else {
         qCDebug(perspectivesLog) << "PERSPECTIVE STATE AVAILABLE BY FULL ID.";

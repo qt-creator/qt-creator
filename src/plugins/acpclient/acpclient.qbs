@@ -45,10 +45,21 @@ QtcPlugin {
         "chatinputedit.h",
         "chatpanel.cpp",
         "chatpanel.h",
+        "collapsibleframe.cpp",
         "collapsibleframe.h",
         "sessionpickerwidget.cpp",
         "sessionpickerwidget.h",
         "toolcalldetailwidget.cpp",
         "toolcalldetailwidget.h",
     ]
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "sparklebubble.png",
+            "sparklebubble@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
 }

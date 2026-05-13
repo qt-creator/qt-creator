@@ -7,21 +7,21 @@ project('%{ProjectName}', 'cpp',
         meson_version:'>=0.48')
 
 @if '%{QtModule}' != 'none'
-# Documentation: https://mesonbuild.com/Qt5-module.html
-qt5 = import('qt5')
+# Documentation: https://mesonbuild.com/Qt6-module.html
+qt6 = import('qt6')
 
 @if '%{QtModule}' == 'core'
-qt5dep = dependency('qt5', modules : ['Core'])
+qt6dep = dependency('qt6', modules : ['Core'])
 @endif
 @if '%{QtModule}' == 'gui'
-qt5dep = dependency('qt5', modules : ['Core', 'Gui'])
+qt6dep = dependency('qt6', modules : ['Core', 'Gui'])
 @endif
 @if '%{QtModule}' == 'widgets'
-qt5dep = dependency('qt5', modules : ['Core', 'Gui', 'Widgets'])
+qt6dep = dependency('qt6', modules : ['Core', 'Gui', 'Widgets'])
 @endif
 
 @if %{HasTranslation}
-translations = qt5.compile_translations(ts_files : '%{TsFileName}', build_by_default : true)
+translations = qt6.compile_translations(ts_files : '%{TsFileName}', build_by_default : true)
 @endif
 
 cpp_args = [
@@ -37,20 +37,20 @@ cpp_args = [
 @endif
 ]
 
-moc_files = qt5.preprocess(moc_headers : [
+moc_files = qt6.preprocess(moc_headers : [
                             @if '%{Type}' === 'shared'
                             '%{GlobalHdrFileName}',
                             @endif
                             '%{HdrFileName}'],
                             moc_extra_arguments : cpp_args,
-                            dependencies: [qt5dep])
+                            dependencies: [qt6dep])
 @endif
 
 
 library('%{ProjectName}', '%{SrcFileName}'
 @if '%{QtModule}' != 'none'
         , moc_files
-        , dependencies : [qt5dep]
+        , dependencies : [qt6dep]
         , cpp_args : cpp_args
 @endif
         , install : true)

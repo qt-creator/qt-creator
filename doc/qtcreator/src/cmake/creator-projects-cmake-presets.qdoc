@@ -33,7 +33,8 @@
 
     \image {qtcreator-cmake-presets-environment.webp} {CMake environment configuration}
 
-    To update changes to the \c CMakePresets.json file, go to \uicontrol Build,
+    \QC watches the \c CMakePresets.json presets files for changes.
+    To manually update changes to the files, go to \uicontrol Build,
     select \uicontrol {Reload CMake Presets}, and then select the presets file
     to load.
 
@@ -75,7 +76,7 @@
     \endcode
 
     For more information about the CMake project settings in the \c vendor
-    section, see \l {CMake Qt vendor presets}.
+    section, see \l {CMake \QC vendor presets}.
 
     \section1 MinGW example
 
@@ -127,7 +128,7 @@
     \c CMAKE_CXX_COMPILER in the \c cacheVariables section.
 
     For possible values of some of the \c debugger preferences, see
-    \l {CMake Qt vendor presets}.
+    \l {CMake \QC vendor presets}.
 
     \section1 Ninja generator example
 
@@ -320,7 +321,8 @@
     }
     \endcode
 
-    \sa {Building projects with CMake}, {CMake}, {CMake Qt vendor presets},
+    \sa {Build with CMake}{How to: Build with CMake},
+    {Building projects with CMake}, {CMake}, {CMake \QC vendor presets},
     {SDK Tool}
 */
 
@@ -330,9 +332,9 @@
 
     \ingroup creator-reference-build-systems
 
-    \title CMake Qt vendor presets
+    \title CMake \QC vendor presets
 
-    \brief Summary of CMake Qt vendor presets.
+    \brief Summary of CMake \QC vendor presets.
 
     Specify \QC preferences in the \c vendor section in \c CMakePresets.json and
     \c CMakeUserPresets.json.
@@ -401,6 +403,37 @@
     }
     \endcode
 
+    \section1 Compiler presets
+
+    The following table summarizes the available presets.
+
+    For more information about compiler preferences, see \l{Add compilers}.
+
+    \table
+    \header
+        \li Preset
+        \li Description
+        \row
+            \li \c {c}
+            \li Path to the C compiler installation folder.
+        \row
+            \li \c {cxx}
+            \li Path to the C++ compiler installation folder.
+    \endtable
+
+    An example of \QC compiler presets:
+
+    \code [json]
+    "vendor": {
+      "qt.io/QtCreator/1.0": {
+        "compiler": {
+          "c" : "$env{HOME}/llvm/mac/bin/clang",
+          "cxx" : "$env{HOME}/llvm/mac/bin/clang++"
+        }
+      }
+    }
+    \endcode
+
     \section1 Debugger presets
 
     The following table summarizes the available presets.
@@ -455,5 +488,31 @@
     }
     \endcode
 
-    \sa {Building projects with CMake}, {CMake}, {CMake presets}, {SDK Tool}
+    \section1 Qt version presets
+
+    The following table summarizes the available presets.
+
+    For more information about Qt version preferences, see \l{Add Qt versions}.
+
+    \table
+        \header
+            \li Preset
+            \li Description
+        \row
+            \li \c {qt}
+            \li Path to the Qt installation folder.
+    \endtable
+
+    An example of \QC Qt version presets:
+
+    \code [json]
+    "vendor": {
+      "qt.io/QtCreator/1.0": {
+        "qt": "$env{HOME}/Qt/6.11.0/macos/bin/qmake"
+      }
+    }
+    \endcode
+
+    \sa {Build with CMake}{How to: Build with CMake},
+    {Building projects with CMake}, {CMake}, {CMake presets}, {SDK Tool}
 */

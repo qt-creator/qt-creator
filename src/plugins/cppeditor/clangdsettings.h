@@ -28,12 +28,15 @@ public:
     enum class IndexingPriority { Off, Background, Normal, Low, };
     enum class HeaderSourceSwitchMode { BuiltinOnly, ClangdOnly, Both };
     enum class CompletionRankingModel { Default, DecisionForest, Heuristics };
+    enum class CompletionStyle { Default, Detailed, Bundled };
 
     static QString priorityToString(const IndexingPriority &priority);
     static QString priorityToDisplayString(const IndexingPriority &priority);
     static QString headerSourceSwitchModeToDisplayString(HeaderSourceSwitchMode mode);
     static QString rankingModelToCmdLineString(CompletionRankingModel model);
     static QString rankingModelToDisplayString(CompletionRankingModel model);
+    static QString completionStyleToCmdLineString(CompletionStyle style);
+    static QString completionStyleToDisplayString(CompletionStyle style);
     static QString defaultProjectIndexPathTemplate();
     static QString defaultSessionIndexPathTemplate();
 
@@ -56,6 +59,7 @@ public:
                    && s1.indexingPriority == s2.indexingPriority
                    && s1.headerSourceSwitchMode == s2.headerSourceSwitchMode
                    && s1.completionRankingModel == s2.completionRankingModel
+                   && s1.completionStyle == s2.completionStyle
                    && s1.autoIncludeHeaders == s2.autoIncludeHeaders
                    && s1.useExternalCompilationDb == s2.useExternalCompilationDb
                    && s1.documentUpdateThreshold == s2.documentUpdateThreshold
@@ -95,6 +99,7 @@ public:
         QString sessionIndexPathTemplate = defaultSessionIndexPathTemplate();
         HeaderSourceSwitchMode headerSourceSwitchMode = HeaderSourceSwitchMode::Both;
         CompletionRankingModel completionRankingModel = CompletionRankingModel::Default;
+        CompletionStyle completionStyle = CompletionStyle::Default;
         bool autoIncludeHeaders = false;
         bool sizeThresholdEnabled = false;
         bool haveCheckedHardwareReqirements = false;

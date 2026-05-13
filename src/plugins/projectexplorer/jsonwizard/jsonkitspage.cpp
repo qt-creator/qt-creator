@@ -115,8 +115,11 @@ QSet<Id> JsonKitsPage::evaluate(const QList<JsonKitsPage::ConditionalFeature> &l
 
     QSet<Id> features;
     for (const ConditionalFeature &f : list) {
-        if (JsonWizard::boolFromVariant(f.condition, wiz->expander()))
-            features.insert(Id::fromString(wiz->expander()->expand(f.feature)));
+        if (JsonWizard::boolFromVariant(f.condition, wiz->expander())) {
+            // avoid adding empty features
+            if (const Id id = Id::fromString(wiz->expander()->expand(f.feature)); id.isValid())
+                features.insert(id);
+        }
     }
     return features;
 }

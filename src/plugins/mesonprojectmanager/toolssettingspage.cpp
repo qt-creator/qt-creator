@@ -122,6 +122,7 @@ private:
 
 ToolsModel::ToolsModel()
 {
+    setShowDefault(true);
     setHeader({Tr::tr("Name"), Tr::tr("Location")});
     setFilters(ProjectExplorer::Constants::msgAutoDetected(),
                {{ProjectExplorer::Constants::msgManual(), [this](int row) {
@@ -129,6 +130,13 @@ ToolsModel::ToolsModel()
                 }}});
     for (const MesonTools::Tool_t &tool : MesonTools::tools())
         appendItem(ToolItem{tool});
+    const Id defaultId = MesonTools::defaultToolId();
+    for (int row = 0; row < itemCount(); ++row) {
+        if (item(row).id == defaultId) {
+            setDefaultRow(row);
+            break;
+        }
+    }
 }
 
 int ToolsModel::addMesonTool()
@@ -153,6 +161,8 @@ void ToolsModel::updateItem(int row, const QString &name, const FilePath &exe)
 
 void ToolsModel::apply()
 {
+    const int defRow = defaultRow();
+    MesonTools::setDefaultToolId(defRow >= 0 ? item(defRow).id : Id());
     for (int row = 0; row < itemCount(); ++row) {
         if (isRemoved(row)) {
             MesonTools::removeTool(item(row).id);
@@ -201,7 +211,6 @@ private:
     bool m_loading = false;
 
     QPushButton m_addButton;
-    QPushButton m_makeDefaultButton;
 
     DetailsWidget m_mesonDetails;
     QWidget m_itemConfigWidget;
@@ -230,15 +239,22 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     m_mesonDetails.setWidget(&m_itemConfigWidget);
 
     m_addButton.setText(Tr::tr("Add"));
-    m_makeDefaultButton.setText(Tr::tr("Make Default"));
-    m_makeDefaultButton.setEnabled(false);
-    m_makeDefaultButton.setVisible(false);
-    m_makeDefaultButton.setToolTip(Tr::tr("Set as the default Meson executable to use "
-                                          "when creating a new kit or when no value is set."));
+    m_groupedView.makeDefaultButton().setToolTip(
+        Tr::tr("Set as the default Meson executable to use "
+               "when creating a new kit or when no value is set."));
 
     Row {
-        Column { m_groupedView.view(), m_mesonDetails },
-        Column { m_addButton, m_groupedView.cloneButton(), m_groupedView.removeButton(), m_makeDefaultButton, st }
+        Column {
+            m_groupedView.view(),
+            m_mesonDetails
+        },
+        Column {
+            m_addButton,
+            m_groupedView.cloneButton(),
+            m_groupedView.removeButton(),
+            m_groupedView.makeDefaultButton(),
+            st
+        }
     }.attachTo(this);
 
     connect(&m_groupedView, &GroupedView::currentRowChanged,

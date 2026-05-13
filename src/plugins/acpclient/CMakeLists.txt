@@ -10,6 +10,7 @@ add_qtc_plugin(AcpClient
     QtCreator::Utils
   PUBLIC_DEPENDS
     AcpLib
+  LONG_DESCRIPTION_MD AcpClientDescription.md
   SOURCES
     acpchatcontroller.cpp acpchatcontroller.h
     acpchattab.cpp acpchattab.h
@@ -30,6 +31,14 @@ add_qtc_plugin(AcpClient
     chatinputedit.cpp chatinputedit.h
     chatpanel.cpp chatpanel.h
     sessionpickerwidget.cpp sessionpickerwidget.h
-    collapsibleframe.h
+    collapsibleframe.cpp collapsibleframe.h
     toolcalldetailwidget.cpp toolcalldetailwidget.h
+)
+
+qtc_add_resources(AcpClient "images"
+  PREFIX "/acpclient"
+  BASE "."
+  FILES
+    images/sparklebubble.png
+    images/sparklebubble@2x.png
 )

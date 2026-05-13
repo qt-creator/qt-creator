@@ -140,9 +140,11 @@ void ToolCallDetailWidget::paintEvent(QPaintEvent *)
 
 void ToolCallDetailWidget::setContentMaxWidth(int width)
 {
-    const int browserMax = width - BodyMarginLeft - BodyMarginRight;
-    for (Utils::MarkdownBrowser *browser : m_browsers)
-        browser->setMaximumWidth(browserMax);
+    m_contentMaxWidth = width - BodyMarginLeft - BodyMarginRight;
+    for (int i = 0; i < m_bodyLayout->count(); ++i) {
+        if (QWidget *w = m_bodyLayout->itemAt(i)->widget())
+            w->setMaximumWidth(m_contentMaxWidth);
+    }
 }
 
 void ToolCallDetailWidget::updateContent(const ToolCallUpdate &update)
@@ -260,7 +262,6 @@ void ToolCallDetailWidget::addMarkdownContent(const QString &markdown)
         browser->setFixedHeight(qMax(h, browser->fontMetrics().height()));
     });
 
-    m_browsers.append(browser);
     addBodyWidget(browser);
     browser->setMarkdown(markdown);
 }
@@ -315,6 +316,8 @@ void ToolCallDetailWidget::addBodyWidget(QWidget *widget)
         setCollapsible(true);
         setCollapsed(true);
     }
+    if (m_contentMaxWidth >= 0)
+        widget->setMaximumWidth(m_contentMaxWidth);
     m_bodyLayout->addWidget(widget);
 }
 

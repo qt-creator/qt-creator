@@ -178,8 +178,11 @@ static void askAboutQtInstallation()
     infoBar->addInfo(info);
 }
 
+void registerMcpTools();
+
 void QtSupportPlugin::extensionsInitialized()
 {
+    registerMcpTools();
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
     static const auto currentQtVersion = []() -> const QtVersion * {

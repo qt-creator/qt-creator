@@ -40,6 +40,7 @@ namespace ToolsSettings {
 const char FILENAME[] = "gntools.xml";
 const char ENTRY_KEY[] = "GNTool.";
 const char ENTRY_COUNT[] = "GNTool.Count";
+const char DEFAULT_TOOL_KEY[] = "GNTools.Default";
 const char EXE_KEY[] = "exe";
 const char AUTO_DETECTED_KEY[] = "autodetected";
 const char NAME_KEY[] = "name";

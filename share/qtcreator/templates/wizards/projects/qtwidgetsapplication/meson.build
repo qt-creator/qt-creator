@@ -1,23 +1,23 @@
-project('%{ProjectName}', 'cpp',default_options : ['cpp_std=c++11'])
+project('%{ProjectName}', 'cpp',default_options : ['cpp_std=c++17'])
 
-# Documentation: https://mesonbuild.com/Qt5-module.html
-qt5 = import('qt5')
-qt5dep = dependency('qt5', modules : ['Core', 'Widgets'])
+# Documentation: https://mesonbuild.com/Qt6-module.html
+qt6 = import('qt6')
+qt6dep = dependency('qt6', modules : ['Core', 'Widgets'])
 
 @if %{HasTranslation}
-translations = qt5.compile_translations(ts_files : '%{TsFileName}', build_by_default : true)
+translations = qt6.compile_translations(ts_files : '%{TsFileName}', build_by_default : true)
 @endif
 
-generated_files = qt5.preprocess(
+generated_files = qt6.preprocess(
                             moc_headers : '%{HdrFileName}',
                             @if %{GenerateForm}
                             ui_files : '%{FormFileName}',
                             @endif
-                            dependencies: [qt5dep])
+                            dependencies: [qt6dep])
 
 executable('%{ProjectName}'
         , '%{MainFileName}'
         , '%{SrcFileName}'
         , generated_files
-        , dependencies : [qt5dep]
+        , dependencies : [qt6dep]
         , install : true)

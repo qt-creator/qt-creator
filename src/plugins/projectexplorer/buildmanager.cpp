@@ -783,6 +783,8 @@ void BuildManager::startBuildQueue()
             ++d->m_progress;
             d->m_progressFutureInterface->setProgressValueAndText(
                 100 * d->m_progress, msgProgress(d->m_progress, d->m_maxProgress));
+            if (d->m_futureProgress)
+                d->m_futureProgress->setSubtitle({});
             if (result == DoneWith::Success)
                 return;
             const QString projectName = buildStep->project()->displayName();

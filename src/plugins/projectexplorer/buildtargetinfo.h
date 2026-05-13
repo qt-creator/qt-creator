@@ -13,7 +13,6 @@
 #include <QList>
 
 namespace ProjectExplorer {
-class Launcher;
 
 class PROJECTEXPLORER_EXPORT BuildTargetInfo
 {

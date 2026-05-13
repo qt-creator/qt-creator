@@ -13,59 +13,38 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class ScrollAreaPrivate;
 class ScrollBarPrivate;
-
-class QTCREATOR_UTILS_EXPORT TransientScrollAreaSupport : public QObject
-{
-public:
-    static void support(QAbstractScrollArea *scrollArea);
-    static void supportWidget(QWidget *widget);
-    virtual ~TransientScrollAreaSupport();
-
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
-
-private:
-    explicit TransientScrollAreaSupport(QAbstractScrollArea *scrollArea);
-
-    ScrollAreaPrivate *d = nullptr;
-};
 
 class QTCREATOR_UTILS_EXPORT ScrollBar : public QScrollBar
 {
-
-    friend class ScrollAreaPrivate;
-
 public:
     explicit ScrollBar(QWidget *parent = nullptr);
     virtual ~ScrollBar();
 
     virtual void flash();
 
-    bool setFocused(const bool &focused);
+    bool setFocused(bool focused);
 
 protected:
     void initStyleOption(QStyleOptionSlider *option) const override;
     bool event(QEvent *event) override;
 
 private:
-    bool setAdjacentVisible(const bool &visible);
-    bool setAdjacentHovered(const bool &hovered);
-    bool setViewPortInteraction(const bool &hovered);
+    bool setAdjacentVisible(bool visible);
+    bool setAdjacentHovered(bool hovered);
+    bool setViewPortInteraction(bool hovered);
 
     ScrollBarPrivate *d = nullptr;
+
+    friend class TransientScrollAreaSupport;
 };
 
-class QTCREATOR_UTILS_EXPORT GlobalTransientSupport : public QObject
-{
-    Q_OBJECT
-public:
-    static void support(QWidget *widget);
+namespace TransientScrollArea {
+QTCREATOR_UTILS_EXPORT void support(QAbstractScrollArea *scrollArea);
+} // namespace TransientScrollArea
 
-private:
-    GlobalTransientSupport();
-    static GlobalTransientSupport *instance();
-    bool eventFilter(QObject *watched, QEvent *event) override;
-};
+namespace GlobalTransient {
+QTCREATOR_UTILS_EXPORT void support(QWidget *widget);
+} // namespace GlobalTransient
+
 }

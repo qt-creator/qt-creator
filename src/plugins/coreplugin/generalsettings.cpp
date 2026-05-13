@@ -309,7 +309,7 @@ GeneralSettings::GeneralSettings()
     theme.setLabelText(Tr::tr("Theme:"));
     theme.setComboBoxEditable(false);
     theme.setFillCallback(&fillThemeItems);
-    theme.setDefaultValue(ThemeEntry::themeSetting().toString());
+    theme.setDefaultValue(ThemeEntry::defaultThemeId().toString());
     connect(&theme, &BaseAspect::changed, this, [] {
         ICore::askForRestart(Tr::tr("The theme change will take effect after restart."));
     });

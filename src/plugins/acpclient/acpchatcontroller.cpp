@@ -110,12 +110,14 @@ void AcpChatController::connectToServer(const QString &serverId)
         m_client->initialize(initReq);
     });
 
-    emit connectionStateChanged(m_client->state());
     m_transport->start();
 }
 
 void AcpChatController::disconnectFromServer()
 {
+    const bool wasConnected 
+       = m_client && m_client->state() != AcpClientObject::State::Disconnected;
+
     if (m_transport)
         m_transport->stop();
 
@@ -149,7 +151,8 @@ void AcpChatController::disconnectFromServer()
     m_agentCapabilities.reset();
     m_initialized = false;
 
-    emit connectionStateChanged(AcpClientObject::State::Disconnected);
+    if (wasConnected)
+        emit connectionStateChanged(AcpClientObject::State::Disconnected);
 }
 
 void AcpChatController::createNewSession(const FilePath &workingDirectory)

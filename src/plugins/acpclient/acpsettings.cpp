@@ -234,7 +234,7 @@ public:
         launchArguments.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
 
         environment.setSettingsKey("environment");
-        environment.setLabelText("Environment Changes");
+        environment.setLabelText("Environment Changes:");
         connect(&registryBrowser, &AcpRegistryBrowser::volatileValueChanged, this, [this]() {
             applyRegistryTemplate();
         });
@@ -315,7 +315,7 @@ public:
                 updateCmdInfo);
 
             // clang-format off
-            return Form{
+            return Form {
                 noMargin,
                 registryBrowser, br,
                 name, br,
