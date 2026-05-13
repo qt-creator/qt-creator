@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+
+<valgrindoutput>
+
+<protocolversion>4</protocolversion>
+<protocoltool>memcheck</protocoltool>
+
+<preamble>
+  <line>Memcheck, a memory error detector</line>
+  <line>Copyright (C) 2002-2009, and GNU GPL'd, by Julian Seward et al.</line>
+  <line>Using Valgrind-3.6.0.SVN-Debian and LibVEX; rerun with -h for copyright info</line>
+  <line>Command: ./uitest</line>
+</preamble>
+
+<pid>13948</pid>
+<ppid>10684</ppid>
+<tool>memcheck</tool>
+
+<args>
+  <vargv>
+    <exe>/usr/bin/valgrind.bin</exe>
+    <arg>--suppressions=/usr/lib/valgrind/debian-libc6-dbg.supp</arg>
+    <arg>--xml=yes</arg>
+    <arg>--xml-file=a</arg>
+  </vargv>
+  <argv>
+    <exe>./uitest</exe>
+  </argv>
+</args>
+
+<status>
+  <state>RUNNING</state>
+  <time>00:00:00:00.041 </time>
+</status>
+
+<error>
+  <unique>0x37</unique>
+  <tid>1</tid>
+  <kind>InvalidRead</kind>
+  <what>Invalid read of size 8</what>
+  <stack>
+    <frame>
+      <ip>0x5CA208C</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>operator&lt;&lt;(QDebug, QObject const*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qobject.cpp</file>
+      <line>3673</line>
+    </frame>
+    <frame>
+      <ip>0x4033D6</ip>
+      <obj>/home/milian/projects/qtc/uitest-build-desktop/uitest</obj>
+      <fn>main</fn>
+      <dir>/home/milian/projects/qtc/uitest-build-desktop/../uitest</dir>
+      <file>main.cpp</file>
+      <line>20</line>
+    </frame>
+  </stack>
+  <auxwhat>Address 0x11b66c50 is 0 bytes inside a block of size 16 free'd</auxwhat>
+  <stack>
+    <frame>
+      <ip>0x4C27DCF</ip>
+      <obj>/usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so</obj>
+      <fn>operator delete(void*)</fn>
+      <dir>/build/buildd/valgrind-3.6.0~svn20100212/coregrind/m_replacemalloc</dir>
+      <file>vg_replace_malloc.c</file>
+      <line>387</line>
+    </frame>
+    <frame>
+      <ip>0x5CA59B0</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QObject::~QObject()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qobject.cpp</file>
+      <line>963</line>
+    </frame>
+    <frame>
+      <ip>0x4033B3</ip>
+      <obj>/home/milian/projects/qtc/uitest-build-desktop/uitest</obj>
+      <fn>main</fn>
+      <dir>/home/milian/projects/qtc/uitest-build-desktop/../uitest</dir>
+      <file>main.cpp</file>
+      <line>19</line>
+    </frame>
+  </stack>
+</error>
+
+<status>
+  <state>FINISHED</state>
+  <time>00:00:01:00.041 </time>
+</status>
+
+<errorcounts>
+  <pair>
+    <count>1</count>
+    <unique>0x37</unique>
+  </pair>
+</errorcounts>
+
+<suppcounts>
+  <pair>
+    <count>1</count>
+    <name>X on SUSE11 writev uninit padding</name>
+  </pair>
+  <pair>
+    <count>2</count>
+    <name>dl-hack3-cond-1</name>
+  </pair>
+  <pair>
+    <count>2</count>
+    <name>glibc-2.5.x-on-SUSE-10.2-(PPC)-2a</name>
+  </pair>
+</suppcounts>
+
+</valgrindoutput>

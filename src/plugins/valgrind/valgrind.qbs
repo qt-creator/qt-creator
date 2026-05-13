@@ -75,6 +75,11 @@ QtcPlugin {
 
     QtcTestFiles {
         files: [
+            "unit_testdata/helgrind-output-sample1.xml",
+            "unit_testdata/memcheck-output-charm.xml",
+            "unit_testdata/memcheck-output-sample1.xml",
+            "unit_testdata/memcheck-output-sample2.xml",
+            "unit_testdata/memcheck-output-sample3.xml",
             "valgrindmemcheckparsertest.cpp",
             "valgrindmemcheckparsertest.h",
             "valgrindtestrunnertest.cpp",
