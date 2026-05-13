@@ -2395,18 +2395,12 @@ private:
 //! Adds getter and setter functions for several member variables
 class GenerateGettersSettersForClass : public CppQuickFixFactory
 {
-public:
-#ifdef WITH_TESTS
-    static QObject* createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const auto op = QSharedPointer<GenerateGettersSettersOperation>::create(interface);
         if (!op->isApplicable())
             return;
-        if (property("testing").toBool()) {
+        if (testMode()) {
             GetterSetterCandidates candidates = op->candidates();
             for (MemberInfo &mi : candidates) {
                 mi.requestedFlags = mi.possibleFlags;
@@ -4341,151 +4335,18 @@ void Foo::setBar(Bar newBar)
     }
 };
 
-class GenerateGettersSettersTest : public QObject
+class GenerateGettersSettersForClassTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
-
-private slots:
-    void test_data()
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+private:
+    void modifySettings(QuickFixSettings &s) override
     {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        const QByteArray onlyReset = R"(
-    class Foo {
-    public:
-        int bar() const;
-        void setBar(int bar);
-    private:
-        int m_bar;
-    @};)";
-
-        const QByteArray onlyResetAfter = R"(
-    class @Foo {
-    public:
-        int bar() const;
-        void setBar(int bar);
-        void resetBar();
-
-    private:
-        int m_bar;
-    };
-    inline void Foo::resetBar()
-    {
-        setBar({}); // TODO: Adapt to use your actual default defaultValue
-    }
-)";
-        QTest::addRow("only reset") << onlyReset << onlyResetAfter;
-
-        const QByteArray withCandidates = R"(
-    class @Foo {
-    public:
-        int bar() const;
-        void setBar(int bar) { m_bar = bar; }
-
-        int getBar2() const;
-
-        int m_alreadyPublic;
-
-    private:
-        friend void distraction();
-        class AnotherDistraction {};
-        enum EvenMoreDistraction { val1, val2 };
-
-        int m_bar;
-        int bar2_;
-        QString bar3;
-    };)";
-        const QByteArray after = R"(
-    class Foo {
-    public:
-        int bar() const;
-        void setBar(int bar) { m_bar = bar; }
-
-        int getBar2() const;
-
-        int m_alreadyPublic;
-
-        void resetBar();
-        void setBar2(int value);
-        void resetBar2();
-        const QString &getBar3() const;
-        void setBar3(const QString &value);
-        void resetBar3();
-
-    signals:
-        void bar2Changed();
-        void bar3Changed();
-
-    private:
-        friend void distraction();
-        class AnotherDistraction {};
-        enum EvenMoreDistraction { val1, val2 };
-
-        int m_bar;
-        int bar2_;
-        QString bar3;
-        Q_PROPERTY(int bar2 READ getBar2 WRITE setBar2 RESET resetBar2 NOTIFY bar2Changed FINAL)
-        Q_PROPERTY(QString bar3 READ getBar3 WRITE setBar3 RESET resetBar3 NOTIFY bar3Changed FINAL)
-    };
-    inline void Foo::resetBar()
-    {
-        setBar({}); // TODO: Adapt to use your actual default defaultValue
-    }
-
-    inline void Foo::setBar2(int value)
-    {
-        if (bar2_ == value)
-            return;
-        bar2_ = value;
-        emit bar2Changed();
-    }
-
-    inline void Foo::resetBar2()
-    {
-        setBar2({}); // TODO: Adapt to use your actual default defaultValue
-    }
-
-    inline const QString &Foo::getBar3() const
-    {
-        return bar3;
-    }
-
-    inline void Foo::setBar3(const QString &value)
-    {
-        if (bar3 == value)
-            return;
-        bar3 = value;
-        emit bar3Changed();
-    }
-
-    inline void Foo::resetBar3()
-    {
-        setBar3({}); // TODO: Adapt to use your actual default defaultValue
-    }
-)";
-        QTest::addRow("with candidates") << withCandidates << after;
-    }
-
-    void test()
-    {
-        class TestFactory : public GenerateGettersSettersForClass
-        {
-        public:
-            TestFactory() { setProperty("testing", true); }
-        };
-
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-
-        QuickFixSettings s;
         s->setterParameterNameTemplate = "\"value\"";
         s->setterOutsideClassFrom = 1;
         s->getterOutsideClassFrom = 1;
         s->returnByConstRef = true;
-
-        TestFactory factory;
-        QuickFixOperationTest({CppTestDocument::create("file.h", original, expected)}, &factory);
     }
 };
 
@@ -5065,11 +4926,6 @@ QObject *GenerateGetterSetter::createTest()
     return new GenerateGetterSetterTest;
 }
 
-QObject *GenerateGettersSettersForClass::createTest()
-{
-    return new GenerateGettersSettersTest;
-}
-
 QObject *InsertQtPropertyMembers::createTest()
 {
     return new InsertQtPropertyMembersTest;
@@ -5087,7 +4943,7 @@ QObject *GenerateConstructor::createTest()
 void registerCodeGenerationQuickfixes()
 {
     CppQuickFixFactory::registerFactory<GenerateGetterSetter>();
-    CppQuickFixFactory::registerFactory<GenerateGettersSettersForClass>();
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(GenerateGettersSettersForClass);
     CppQuickFixFactory::registerFactory<GenerateConstructor>();
     CppQuickFixFactory::registerFactory<InsertQtPropertyMembers>();
 }
