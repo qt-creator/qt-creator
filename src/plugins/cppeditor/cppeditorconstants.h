@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace CppEditor {
-namespace Constants {
+namespace CppEditor::Constants {
 
 const char M_CONTEXT[] = "CppEditor.ContextMenu";
 const char G_SYMBOL[] = "CppEditor.GSymbol";
@@ -116,5 +115,4 @@ constexpr const char CLANG_STATIC_ANALYZER_DOCUMENTATION_URL[]
 
 const char CLANGD_TOOL_ID[] = "DockerDeviceClangDExecutable";
 
-} // namespace Constants
-} // namespace CppEditor
+} // namespace CppEditor::Constants

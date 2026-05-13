@@ -41,8 +41,7 @@ using namespace CPlusPlus;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 enum {
     AnnotationRole = Qt::UserRole + 1,
@@ -580,7 +579,6 @@ void setupCppIncludeHierarchy()
     (void) cppIncludeHierarchyFactory(); // Force instantiation
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal
 
 #include "cppincludehierarchy.moc"

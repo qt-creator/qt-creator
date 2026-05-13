@@ -24,8 +24,7 @@
 #include <QList>
 #include <QString>
 
-namespace CppEditor {
-namespace CppCodeModelInspector {
+namespace CppEditor::CppCodeModelInspector {
 
 QString Utils::toString(bool value)
 {
@@ -720,5 +719,4 @@ QByteArray Dumper::indent(int level)
     return indent;
 }
 
-} // namespace CppCodeModelInspector
-} // namespace CppEditor
+} // namespace CppEditor::CppCodeModelInspector

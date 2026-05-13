@@ -48,8 +48,7 @@ using namespace CPlusPlus;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 class InsertVirtualMethodsModel;
 class VirtualMethodsSettings;
@@ -121,8 +120,7 @@ void registerInsertVirtualMethodsQuickfix()
     CppQuickFixFactory::registerFactory<InsertVirtualMethods>();
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal
 
 Q_DECLARE_METATYPE(CppEditor::Internal::InsertVirtualMethodsDialog::ImplementationMode)
 
@@ -275,8 +273,7 @@ QStringList sortedAndTrimmedStringListWithoutEmptyElements(const QStringList &li
 
 } // namespace
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 const bool kInsertVirtualKeywordDefault = false;
 const bool kHideReimplementedFunctionsDefault = false;
@@ -2009,7 +2006,6 @@ QObject *InsertVirtualMethods::createTest()
 
 #endif // WITH_TESTS
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal
 
 #include "cppinsertvirtualmethods.moc"

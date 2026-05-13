@@ -33,8 +33,7 @@ void modifyCursorSelection(QTextCursor &cursor, int position, int anchor)
 
 } // anonymous namespace
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 CppLocalRenaming::CppLocalRenaming(TextEditor::TextEditorWidget *editorWidget)
     : m_editorWidget(editorWidget)
@@ -337,5 +336,4 @@ void CppLocalRenaming::stop()
     emit finished();
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal

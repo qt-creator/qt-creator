@@ -8,8 +8,7 @@
 #include <QAbstractListModel>
 #include <QComboBox>
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 class ParseContextModel : public QAbstractListModel
 {
@@ -59,5 +58,4 @@ private:
     QAction *m_clearPreferredAction = nullptr;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal

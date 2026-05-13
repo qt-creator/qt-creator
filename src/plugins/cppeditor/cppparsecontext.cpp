@@ -13,8 +13,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 void ParseContextModel::update(const ProjectPartInfo &projectPartInfo)
 {
@@ -163,5 +162,4 @@ QSize ParseContextWidget::minimumSizeHint() const
     return size;
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal

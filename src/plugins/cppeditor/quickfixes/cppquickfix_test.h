@@ -24,8 +24,7 @@ namespace TextEditor { class QuickFixOperation; }
 namespace CppEditor {
 class CppQuickFixFactory;
 
-namespace Internal {
-namespace Tests {
+namespace Internal::Tests {
 
 class QuickFixSettings
 {
@@ -120,6 +119,5 @@ private:
 QList<TestDocumentPtr> singleDocument(
     const QByteArray &original, const QByteArray &expected, const QByteArray fileName = "file.cpp");
 
-} // namespace Tests
-} // namespace Internal
+} // namespace Internal::Tests
 } // namespace CppEditor

@@ -39,9 +39,7 @@ template<> char *toString(const Selection &selection)
 }
 QT_END_NAMESPACE
 
-namespace CppEditor {
-namespace Internal {
-namespace Tests {
+namespace CppEditor::Internal::Tests {
 
 // Check: If the user puts the cursor on e.g. a function-local variable,
 // a type name or a macro use, all occurrences of that entity are highlighted.
@@ -310,6 +308,4 @@ void SelectionsTest::testSelectionFiltering()
     }
 }
 
-} // namespace Tests
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal::Tests

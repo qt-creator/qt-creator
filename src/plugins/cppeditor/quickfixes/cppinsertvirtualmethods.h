@@ -5,8 +5,7 @@
 
 #include "cppquickfix.h"
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 class InsertVirtualMethodsDialog;
 
@@ -29,5 +28,4 @@ private:
 
 void registerInsertVirtualMethodsQuickfix();
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal

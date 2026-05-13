@@ -10,8 +10,7 @@
 
 namespace TextEditor { class TextEditorWidget; }
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 class CppLocalRenaming : public QObject
 {
@@ -80,7 +79,6 @@ private:
     bool m_firstRenameChangeExpected;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal
 
 #endif // CPPLOCALRENAMING

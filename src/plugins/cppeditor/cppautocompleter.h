@@ -7,8 +7,7 @@
 
 #include <QObject>
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 class CppAutoCompleter : public TextEditor::AutoCompleter
 {
@@ -52,5 +51,4 @@ private slots:
 } // namespace Tests
 #endif // WITH_TESTS
 
-} // Internal
-} // CppEditor
+} // namespace CppEditor::Internal

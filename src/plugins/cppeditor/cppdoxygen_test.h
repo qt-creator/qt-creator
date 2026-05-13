@@ -8,9 +8,7 @@
 #include <QObject>
 #include <QScopedPointer>
 
-namespace CppEditor {
-namespace Internal {
-namespace Tests {
+namespace CppEditor::Internal::Tests {
 
 /// Tests for inserting doxygen comments.
 class DoxygenTest: public QObject
@@ -37,6 +35,4 @@ private:
                  const TestDocuments &includedHeaderDocuments = TestDocuments());
 };
 
-} // namespace Tests
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal::Tests

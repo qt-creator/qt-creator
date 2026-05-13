@@ -17,8 +17,7 @@
 
 enum { updateUseSelectionsInternalInMs = 500 };
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 CppUseSelectionsUpdater::CppUseSelectionsUpdater(CppEditorWidget *editorWidget)
     : m_editorWidget(editorWidget)
@@ -195,5 +194,4 @@ void CppUseSelectionsUpdater::updateUnusedSelections(const CursorInfo::Ranges &r
                                        selections);
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal

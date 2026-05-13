@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace CppEditor {
-namespace Constants {
+namespace CppEditor::Constants {
 
 static const char *DEFAULT_CODE_STYLE_SNIPPETS[] = {
 R"==(#include <math.h>
@@ -182,5 +181,4 @@ R"==(int *foo(const Bar &b1, Bar &&b2, int*, int *&rpi)
 }
 )=="};
 
-} // namespace Constants
-} // namespace CppEditor
+} // namespace CppEditor::Constants
