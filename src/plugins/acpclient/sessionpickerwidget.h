@@ -11,8 +11,11 @@
 
 #include <QHash>
 
+QT_BEGIN_NAMESPACE
+class QLabel;
 class QPushButton;
 class QVBoxLayout;
+QT_END_NAMESPACE
 
 namespace AcpClient::Internal {
 

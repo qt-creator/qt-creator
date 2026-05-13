@@ -7,9 +7,10 @@
 
 QT_BEGIN_NAMESPACE
 class QHBoxLayout;
-class QLabel;
 class QVBoxLayout;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcIconDisplay; }
 
 namespace AcpClient::Internal {
 
@@ -50,7 +51,7 @@ private:
     QVBoxLayout *m_outerLayout = nullptr;
     QWidget *m_headerWidget = nullptr;
     QWidget *m_body = nullptr;
-    QLabel *m_indicator = nullptr;
+    Utils::QtcIconDisplay *m_indicator = nullptr;
     bool m_collapsed = false;
     bool m_collapsible = true;
 };
