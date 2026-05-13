@@ -2241,25 +2241,15 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
 //! Generate constructor
 class GenerateConstructor : public CppQuickFixFactory
 {
-public:
-#ifdef WITH_TESTS
-    static QObject* createTest();
-#endif
-
-protected:
-    void setTest() { m_test = true; }
-
 private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const auto op = QSharedPointer<GenerateConstructorOperation>::create(interface);
         if (!op->isApplicable())
             return;
-        op->setTest(m_test);
+        op->setTest(testMode());
         result << op;
     }
-
-    bool m_test = false;
 };
 
 //! Adds getter and setter functions for a member variable
@@ -4335,7 +4325,7 @@ class GenerateGettersSettersForClassTest : public Tests::CppQuickFixTestObject
 public:
     using CppQuickFixTestObject::CppQuickFixTestObject;
 private:
-    void modifySettings(QuickFixSettings &s) override
+    void modifySettings(QuickFixSettings &s, const QVariantMap &) override
     {
         s->setterParameterNameTemplate = "\"value\"";
         s->setterOutsideClassFrom = 1;
@@ -4351,7 +4341,7 @@ class InsertQtPropertyMembersTest : public Tests::CppQuickFixTestObject
 public:
     using CppQuickFixTestObject::CppQuickFixTestObject;
 private:
-    void modifySettings(QuickFixSettings &s) override
+    void modifySettings(QuickFixSettings &s, const QVariantMap &) override
     {
         s->setterAsSlot = true;
         s->setterInCppFileFrom = 0;
@@ -4360,416 +4350,53 @@ private:
     }
 };
 
-class GenerateConstructorTest : public QObject
+class GenerateConstructorTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
 
-private slots:
-    void test_data()
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+
+private:
+    void modifySettings(QuickFixSettings &s, const QVariantMap &properties) override
     {
-        QTest::addColumn<QByteArray>("original_header");
-        QTest::addColumn<QByteArray>("expected_header");
-        QTest::addColumn<QByteArray>("original_source");
-        QTest::addColumn<QByteArray>("expected_source");
-        QTest::addColumn<int>("location");
-        const int Inside = ConstructorLocation::Inside;
-        const int Outside = ConstructorLocation::Outside;
-        const int CppGenNamespace = ConstructorLocation::CppGenNamespace;
-        const int CppGenUsingDirective = ConstructorLocation::CppGenUsingDirective;
-        const int CppRewriteType = ConstructorLocation::CppRewriteType;
-
-        QByteArray header = R"--(
-class@ Foo{
-    int test;
-    static int s;
-};
-)--";
-        QByteArray expected = R"--(
-class Foo{
-    int test;
-    static int s;
-public:
-    Foo(int test) : test(test)
-    {}
-};
-)--";
-        QTest::newRow("ignore static") << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-class@ Foo{
-    CustomType test;
-};
-)--";
-        expected = R"--(
-class Foo{
-    CustomType test;
-public:
-    Foo(CustomType test) : test(std::move(test))
-    {}
-};
-)--";
-        QTest::newRow("Move custom value types")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-class@ Foo{
-    int test;
-protected:
-    Foo() = default;
-};
-)--";
-        expected = R"--(
-class Foo{
-    int test;
-public:
-    Foo(int test) : test(test)
-    {}
-
-protected:
-    Foo() = default;
-};
-)--";
-
-        QTest::newRow("new section before existing")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-class@ Foo{
-    int test;
-};
-)--";
-        expected = R"--(
-class Foo{
-    int test;
-public:
-    Foo(int test) : test(test)
-    {}
-};
-)--";
-        QTest::newRow("new section at end")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-class@ Foo{
-    int test;
-public:
-    /**
-     * Random comment
-     */
-    Foo(int i, int i2);
-};
-)--";
-        expected = R"--(
-class Foo{
-    int test;
-public:
-    Foo(int test) : test(test)
-    {}
-    /**
-     * Random comment
-     */
-    Foo(int i, int i2);
-};
-)--";
-        QTest::newRow("in section before")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-class@ Foo{
-    int test;
-public:
-    Foo() = default;
-};
-)--";
-        expected = R"--(
-class Foo{
-    int test;
-public:
-    Foo(int test) : test(test)
-    {}
-    Foo() = default;
-};
-)--";
-        QTest::newRow("in section after")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-class@ Foo{
-    int test1;
-    int test2;
-    int test3;
-public:
-};
-)--";
-        expected = R"--(
-class Foo{
-    int test1;
-    int test2;
-    int test3;
-public:
-    Foo(int test2, int test3, int test1) : test1(test1),
-        test2(test2),
-        test3(test3)
-    {}
-};
-)--";
-        // No worry, that is not the default behavior.
-        // Move first member to the back when testing with 3 or more members
-        QTest::newRow("changed parameter order")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-class@ Foo{
-    int test;
-    int di_test;
-public:
-};
-)--";
-        expected = R"--(
-class Foo{
-    int test;
-    int di_test;
-public:
-    Foo(int test, int di_test = 42) : test(test),
-        di_test(di_test)
-    {}
-};
-)--";
-        QTest::newRow("default parameters")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-struct Bar{
-    Bar(int i);
-};
-class@ Foo : public Bar{
-    int test;
-public:
-};
-)--";
-        expected = R"--(
-struct Bar{
-    Bar(int i);
-};
-class Foo : public Bar{
-    int test;
-public:
-    Foo(int test, int i) : Bar(i),
-        test(test)
-    {}
-};
-)--";
-        QTest::newRow("parent constructor")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-struct Bar{
-    Bar(int use_i = 6);
-};
-class@ Foo : public Bar{
-    int test;
-public:
-};
-)--";
-        expected = R"--(
-struct Bar{
-    Bar(int use_i = 6);
-};
-class Foo : public Bar{
-    int test;
-public:
-    Foo(int test, int use_i = 6) : Bar(use_i),
-        test(test)
-    {}
-};
-)--";
-        QTest::newRow("parent constructor with default")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        header = R"--(
-struct Bar{
-    Bar(int use_i = L'A', int use_i2 = u8"B");
-};
-class@ Foo : public Bar{
-public:
-};
-)--";
-        expected = R"--(
-struct Bar{
-    Bar(int use_i = L'A', int use_i2 = u8"B");
-};
-class Foo : public Bar{
-public:
-    Foo(int use_i = L'A', int use_i2 = u8"B") : Bar(use_i, use_i2)
-    {}
-};
-)--";
-        QTest::newRow("parent constructor with char/string default value")
-            << header << expected << QByteArray() << QByteArray() << Inside;
-
-        const QByteArray common = R"--(
-namespace N{
-    template<typename T>
-    struct vector{
-    };
-}
-)--";
-        header = common + R"--(
-namespace M{
-enum G{g};
-class@ Foo{
-    N::vector<G> g;
-    enum E{e}e;
-public:
-};
-}
-)--";
-
-        expected = common + R"--(
-namespace M{
-enum G{g};
-class@ Foo{
-    N::vector<G> g;
-    enum E{e}e;
-public:
-    Foo(const N::vector<G> &g, E e);
-};
-
-Foo::Foo(const N::vector<G> &g, Foo::E e) : g(g),
-    e(e)
-{}
-
-}
-)--";
-        QTest::newRow("source: right type outside class ")
-            << QByteArray() << QByteArray() << header << expected << Outside;
-        expected = common + R"--(
-namespace M{
-enum G{g};
-class@ Foo{
-    N::vector<G> g;
-    enum E{e}e;
-public:
-    Foo(const N::vector<G> &g, E e);
-};
-}
-
-
-inline M::Foo::Foo(const N::vector<M::G> &g, M::Foo::E e) : g(g),
-    e(e)
-{}
-
-)--";
-        QTest::newRow("header: right type outside class ")
-            << header << expected << QByteArray() << QByteArray() << Outside;
-
-        expected = common + R"--(
-namespace M{
-enum G{g};
-class@ Foo{
-    N::vector<G> g;
-    enum E{e}e;
-public:
-    Foo(const N::vector<G> &g, E e);
-};
-}
-)--";
-        const QByteArray source = R"--(
-#include "file.h"
-)--";
-        QByteArray expected_source = R"--(
-#include "file.h"
-
-
-namespace M {
-Foo::Foo(const N::vector<G> &g, Foo::E e) : g(g),
-    e(e)
-{}
-
-}
-)--";
-        QTest::newRow("source: right type inside namespace")
-            << header << expected << source << expected_source << CppGenNamespace;
-
-        expected_source = R"--(
-#include "file.h"
-
-using namespace M;
-Foo::Foo(const N::vector<G> &g, Foo::E e) : g(g),
-    e(e)
-{}
-)--";
-        QTest::newRow("source: right type with using directive")
-            << header << expected << source << expected_source << CppGenUsingDirective;
-
-        expected_source = R"--(
-#include "file.h"
-
-M::Foo::Foo(const N::vector<M::G> &g, M::Foo::E e) : g(g),
-    e(e)
-{}
-)--";
-        QTest::newRow("source: right type while rewritung types")
-            << header << expected << source << expected_source << CppRewriteType;
-
-    }
-
-    void test()
-    {
-        class TestFactory : public GenerateConstructor
-        {
-        public:
-            TestFactory() { setTest(); }
-        };
-
-        QFETCH(QByteArray, original_header);
-        QFETCH(QByteArray, expected_header);
-        QFETCH(QByteArray, original_source);
-        QFETCH(QByteArray, expected_source);
-        QFETCH(int, location);
-
-        QuickFixSettings s;
         s->valueTypes << "CustomType";
-        using L = ConstructorLocation;
-        if (location == L::Inside) {
+        const auto location = static_cast<ConstructorLocation>(
+                    properties.value("constructor-location").toInt());
+        switch (location) {
+        case ConstructorLocation::Inside:
             s->setterInCppFileFrom = -1;
             s->setterOutsideClassFrom = -1;
-        } else if (location == L::Outside) {
+            break;
+        case ConstructorLocation::Outside:
             s->setterInCppFileFrom = -1;
             s->setterOutsideClassFrom = 1;
-        } else if (location >= L::CppGenNamespace && location <= L::CppRewriteType) {
+            break;
+        default:
             s->setterInCppFileFrom = 1;
             s->setterOutsideClassFrom = -1;
             using Handling = CppQuickFixSettings::MissingNamespaceHandling;
-            if (location == L::CppGenNamespace)
+            if (location == ConstructorLocation::CppGenNamespace)
                 s->cppFileNamespaceHandling = Handling::CreateMissing;
-            else if (location == L::CppGenUsingDirective)
+            else if (location == ConstructorLocation::CppGenUsingDirective)
                 s->cppFileNamespaceHandling = Handling::AddUsingDirective;
-            else if (location == L::CppRewriteType)
+            else if (location == ConstructorLocation::CppRewriteType)
                 s->cppFileNamespaceHandling = Handling::RewriteType;
-        } else {
-            QFAIL("location is none of the values of the ConstructorLocation enum");
         }
-
-        QList<TestDocumentPtr> testDocuments;
-        testDocuments << CppTestDocument::create("file.h", original_header, expected_header);
-        testDocuments << CppTestDocument::create("file.cpp", original_source, expected_source);
-        TestFactory factory;
-        QuickFixOperationTest(testDocuments, &factory);
     }
 
-private:
-    enum ConstructorLocation { Inside, Outside, CppGenNamespace, CppGenUsingDirective, CppRewriteType };
+    enum ConstructorLocation {
+        Inside,
+        Outside,
+        CppGenNamespace,
+        CppGenUsingDirective,
+        CppRewriteType
+    };
 };
 
 QObject *GenerateGetterSetter::createTest()
 {
     return new GenerateGetterSetterTest;
-}
-
-QObject *GenerateConstructor::createTest()
-{
-    return new GenerateConstructorTest;
 }
 
 #endif // WITH_TESTS
@@ -4780,7 +4407,7 @@ void registerCodeGenerationQuickfixes()
 {
     CppQuickFixFactory::registerFactory<GenerateGetterSetter>();
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(GenerateGettersSettersForClass);
-    CppQuickFixFactory::registerFactory<GenerateConstructor>();
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(GenerateConstructor);
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(InsertQtPropertyMembers);
 }
 

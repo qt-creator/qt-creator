@@ -102,7 +102,7 @@ private slots:
     void test();
 
 private:
-    virtual void modifySettings(QuickFixSettings &) {}
+    virtual void modifySettings(QuickFixSettings &, const QVariantMap &) {}
 
     const std::unique_ptr<CppQuickFixFactory> m_factory;
 

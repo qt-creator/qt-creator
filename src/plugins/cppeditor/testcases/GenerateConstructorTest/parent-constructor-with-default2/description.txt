@@ -1,0 +1,1 @@
+parent constructor with char/string default value

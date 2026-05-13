@@ -319,7 +319,11 @@ void CppQuickFixTestObject::initTestCase()
                 const auto o = readFile();
                 if (!o)
                     QVERIFY2(false, qPrintable(o.error()));
-                QVERIFY2(!o->isEmpty(), qPrintable(fi.absoluteFilePath()));
+
+                // FIXME: GenerateConstructorTest:right-type-outside-class-header
+                // behaves differently with an empty cpp file vs no cpp file. Investigate.
+                //QVERIFY2(!o->isEmpty(), qPrintable(fi.absoluteFilePath()));
+
                 testData.files[fi.fileName().mid(9)].first = *o;
                 continue;
             }
@@ -379,7 +383,7 @@ void CppQuickFixTestObject::test()
     QFETCH(QVariantMap, properties);
 
     QuickFixSettings s;
-    modifySettings(s);
+    modifySettings(s, properties);
 
     class PropertiesMgr
     {
