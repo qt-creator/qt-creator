@@ -15,7 +15,7 @@ namespace Utils::Terminal {
 Result<FilePath> defaultShellForDevice(const FilePath &deviceRoot)
 {
     if (deviceRoot.osType() == OsTypeWindows)
-        return deviceRoot.withNewPath("cmd.exe").searchInPath();
+        return deviceRoot.findCmdExe();
 
     const Result<Environment> env = deviceRoot.deviceEnvironmentWithError();
     if (!env)

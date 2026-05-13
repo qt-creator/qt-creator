@@ -889,9 +889,7 @@ Result<Environment> getEnvironmentFromBatFile(const FilePath &batFile)
     Process run;
     const Environment inEnv = Environment::systemEnvironment();
     run.setEnvironment(inEnv);
-    FilePath cmdPath = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
-    if (cmdPath.isEmpty())
-        cmdPath = inEnv.searchInPath(QLatin1String("cmd.exe"));
+    const FilePath cmdPath = FilePath{}.findCmdExe(inEnv);
     CommandLine cmd(cmdPath, {"/c", saver.filePath().nativePath()});
     run.setUtf8Codec();
     run.setCommand(cmd);

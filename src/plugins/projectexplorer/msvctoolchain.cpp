@@ -794,9 +794,7 @@ static Result<> generateEnvironmentSettings(const Environment &env,
     Environment runEnv = env;
     runEnv.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(runEnv);
-    FilePath cmdPath = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
-    if (cmdPath.isEmpty())
-        cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
+    const FilePath cmdPath = FilePath{}.findCmdExe(env);
     // Windows SDK setup scripts require command line switches for environment expansion.
     CommandLine cmd(cmdPath, {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
     qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()

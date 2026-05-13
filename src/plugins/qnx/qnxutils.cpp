@@ -100,7 +100,7 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     // running wrapper script
     Process process;
     if (isWindows)
-        process.setCommand({filePath.withNewPath("cmd.exe"), {"/C", tmpFile->path()}});
+        process.setCommand({filePath.findCmdExe(), {"/C", tmpFile->path()}});
     else
         process.setCommand({filePath.withNewPath("/bin/bash"), {tmpFile->path()}});
     process.start();
