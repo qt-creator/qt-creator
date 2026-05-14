@@ -43,6 +43,9 @@ void ZenModePlugin::initialize()
         .setDefaultKeySequence(Tr::tr("Shift+Escape"))
         .addOnTriggered(this, &ZenModePlugin::toggleDistractionFreeMode)
         .contextAction();
+    connect(ActionManager::command(Constants::DISTRACTION_FREE_ACTION_ID),
+            &Command::keySequenceChanged,
+            this, &ZenModePlugin::updateStateIcons);
 
     m_toggleZenModeAction = ActionBuilder(this, Constants::ZEN_MODE_ACTION_ID)
         .addToContainer(Constants::MENU_ID)
@@ -50,6 +53,9 @@ void ZenModePlugin::initialize()
         .setDefaultKeySequence(Tr::tr("Shift+Alt+Z"))
         .addOnTriggered(this, &ZenModePlugin::toggleZenMode)
         .contextAction();
+    connect(ActionManager::command(Constants::ZEN_MODE_ACTION_ID),
+            &Command::keySequenceChanged,
+            this, &ZenModePlugin::updateStateIcons);
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, [this](ICore::SaveSettingsReason reason) {
         if (reason != ICore::MainWindowClosing)
@@ -71,7 +77,6 @@ void ZenModePlugin::extensionsInitialized()
 
     m_zenModeStatusBarIcon.setObjectName("zenModeState");
     m_zenModeStatusBarIcon.setIcon(zenIcon.icon());
-    m_zenModeStatusBarIcon.setToolTip(Tr::tr("Toggle Zen Mode"));
     m_zenModeStatusBarIcon.setAutoRaise(true);
     m_zenModeStatusBarIcon.setCheckable(true);
     connect(&m_zenModeStatusBarIcon, &QToolButton::clicked,
@@ -79,7 +84,6 @@ void ZenModePlugin::extensionsInitialized()
 
     m_distractionModeStatusBarIcon.setObjectName("distractionModeState");
     m_distractionModeStatusBarIcon.setIcon(dfIcon.icon());
-    m_distractionModeStatusBarIcon.setToolTip(Tr::tr("Toggle Distraction Free Mode"));
     m_distractionModeStatusBarIcon.setAutoRaise(true);
     m_distractionModeStatusBarIcon.setCheckable(true);
     connect(&m_distractionModeStatusBarIcon, &QToolButton::clicked,
@@ -196,6 +200,18 @@ void ZenModePlugin::updateStateIcons()
 {
     m_zenModeStatusBarIcon.setChecked(m_zenModeActive);
     m_distractionModeStatusBarIcon.setChecked(m_distractionFreeModeActive);
+
+    const QString dfmMsg = m_distractionFreeModeActive
+            ? Tr::tr("Distraction free mode is active.")
+            : Tr::tr("Distraction free mode is inactive.");
+    m_distractionModeStatusBarIcon.setToolTip(Core::ActionManager::command(
+        Constants::DISTRACTION_FREE_ACTION_ID)->stringWithAppendedShortcut(dfmMsg));
+
+    const QString zenMsg = m_zenModeActive
+             ? Tr::tr("Zen mode is active.")
+             : Tr::tr("Zen mode is inactive.");
+    m_zenModeStatusBarIcon.setToolTip(Core::ActionManager::command(
+        Constants::ZEN_MODE_ACTION_ID)->stringWithAppendedShortcut(zenMsg));
 }
 
 void ZenModePlugin::updateContentEditorWidth()
