@@ -434,7 +434,7 @@ void ICore::showNewItemDialog(const QString &title,
 }
 
 /*!
-    Opens the perferences mode on the specified \a page.
+    Opens the preferences mode on the specified \a page.
 
     \sa msgShowOptionsDialog()
     \sa msgShowOptionsDialogToolTip()
@@ -462,7 +462,7 @@ void ICore::showSettings(const Id page, Id item)
 }
 
 /*!
-    Returns the text to use on buttons that open the prefences mode.
+    Returns the text to use on buttons that open the preferences mode.
 
     \sa showSettings()
     \sa msgShowOptionsDialogToolTip()
