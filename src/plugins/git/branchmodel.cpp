@@ -412,7 +412,8 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
             if (!node->isLocal() || !node->isLeaf())
                 break;
 
-            res += ' ' + arrowUp + QString::number(node->status.ahead);
+            if (node->status.ahead >= 0)
+                res += ' ' + arrowUp + QString::number(node->status.ahead);
 
             if (!node->tracking.isEmpty()) {
                 if (node->status.behind >= 0)
