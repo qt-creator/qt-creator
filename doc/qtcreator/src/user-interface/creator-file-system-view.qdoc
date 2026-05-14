@@ -73,8 +73,9 @@
         \li Create new folders.
         \li Compare the selected file with the currently open file in the diff
             editor. For more information, see \l{Compare files}.
-        \li View the versioning history of a project directory. For more
-            information, see \l {git log}.
+        \li Apply version control actions to the file or directory, like viewing
+            the versioning history of a project directory or showing the diff of
+            a modified file. For more information, see \l {git commit}.
         \li Display the contents of a particular directory in the view.
         \li Collapse all open folders.
     \endlist

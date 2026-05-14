@@ -37,7 +37,9 @@
     \list
         \li \uicontrol {Show VCS file status with refresh interval} sets the
             interval in seconds at which \QC requests file status updates
-            from Git. For more information, see \l {Show file status}.
+            from the version control. Changed files are shown in the
+            \l {Projects}, \l {File System} or \l {Open Documents} views
+            in a different color.
         \li \uicontrol{Wrap submit messages at} limits the line length of a
             submit message to the specified number of characters.
         \li \uicontrol{Submit message check script} is a script or program that
@@ -78,14 +80,6 @@
             configuration to a state known to \QC after you change it
             from the command line, for example.
     \endlist
-
-    \section1 Show file status in Projects
-
-    Requesting file status updates from files and showing them in \l {Projects}
-    might slow down \QC.
-
-    To show file status, go to \preferences > \uicontrol {Version Control}
-    > \uicontrol General, and then select \uicontrol {Show VCS file status}.
 
     \sa {Use Git}{How to: Use Git}, {Version control systems}
 */
