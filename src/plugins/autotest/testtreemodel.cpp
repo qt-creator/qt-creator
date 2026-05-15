@@ -353,7 +353,7 @@ QList<ITestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
 void TestTreeModel::synchronizeTestFrameworks()
 {
     const TestFrameworks sorted = activeTestFrameworks();
-    qCDebug(LOG) << "Active frameworks sorted by priority" << sorted;
+    qCDebug(LOG) << "Active frameworks sorted by priority" << Utils::transform(sorted, &ITestBase::displayName);
     const auto sortedParsers = Utils::transform(sorted, &ITestFramework::testParser);
     // pre-check to avoid further processing when frameworks are unchanged
     TreeItem *invisibleRoot = rootItem();
@@ -391,7 +391,7 @@ void TestTreeModel::synchronizeTestTools()
     if (!project || Internal::projectSettings(project)->useGlobalSettings()) {
         tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),
                                 &ITestFramework::active);
-        qCDebug(LOG) << "Active test tools" << tools; // FIXME tools aren't sorted
+        qCDebug(LOG) << "Active test tools" << Utils::transform(tools, &ITestBase::displayName); // FIXME tools aren't sorted
     } else { // we've got custom project settings
         const TestProjectSettings *settings = Internal::projectSettings(project);
         const QHash<ITestTool *, bool> active = settings->activeTestTools();
