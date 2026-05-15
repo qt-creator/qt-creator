@@ -7,6 +7,7 @@
 #include "vcsbasesubmiteditor.h"
 #include "vcsbasetr.h"
 #include "vcscommand.h"
+#include "vcsoutputwindow.h"
 #include "vcsplugin.h"
 
 #include <coreplugin/documentmanager.h>
@@ -613,11 +614,12 @@ void VersionControlBase::promptToDeleteCurrentFile()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     const bool rc = VcsManager::promptToDelete(this, state.currentFile());
-    if (!rc)
-        QMessageBox::warning(ICore::dialogParent(), Tr::tr("Version Control"),
-                             Tr::tr("The file \"%1\" could not be deleted.").
-                             arg(state.currentFile().toUserOutput()),
-                             QMessageBox::Ok);
+    if (!rc) {
+        VcsOutputWindow::appendError(
+            state.topLevel(),
+            Tr::tr("The file \"%1\" could not be deleted.")
+                .arg(state.currentFile().toUserOutput()));
+    }
 }
 
 static inline bool ask(QWidget *parent, const QString &title, const QString &question, bool defaultValue = true)
@@ -656,13 +658,13 @@ void VersionControlBase::createRepository(FilePath *repoDirectory)
         *repoDirectory = directory;
     const QString nativeDir = directory.toUserOutput();
     if (rc) {
-        QMessageBox::information(mw, Tr::tr("Repository Created"),
-                                 Tr::tr("A version control repository has been created in %1.").
-                                 arg(nativeDir));
+        VcsOutputWindow::appendMessage(
+            directory,
+            Tr::tr("A version control repository has been created in %1.").arg(nativeDir));
     } else {
-        QMessageBox::warning(mw, Tr::tr("Repository Creation Failed"),
-                                 Tr::tr("A version control repository could not be created in %1.").
-                                 arg(nativeDir));
+        VcsOutputWindow::appendError(
+            directory,
+            Tr::tr("A version control repository could not be created in %1.").arg(nativeDir));
     }
 }
 

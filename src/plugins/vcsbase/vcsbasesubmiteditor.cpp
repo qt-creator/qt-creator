@@ -244,7 +244,9 @@ void VcsBaseSubmitEditor::createUserFields(const FilePath &fieldConfigFile)
 {
     const Result<QByteArray> config = fieldConfigFile.fileContents();
     if (!config) {
-        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), config.error());
+        VcsOutputWindow::appendError(
+            d->m_checkScriptWorkingDirectory,
+            Tr::tr("Cannot open user fields file: %1").arg(config.error()));
         return;
     }
 
@@ -497,10 +499,9 @@ void VcsBaseSubmitEditor::slotCheckSubmitMessage()
 {
     const Result<> res = checkSubmitMessage();
     if (!res) {
-        QMessageBox msgBox(QMessageBox::Warning, Tr::tr("Submit Message Check Failed"),
-                           res.error(), QMessageBox::Ok, d->m_widget);
-        msgBox.setMinimumWidth(500);
-        msgBox.exec();
+        VcsOutputWindow::appendError(
+            d->m_checkScriptWorkingDirectory,
+            Tr::tr("Submit message check failed: %1").arg(res.error()));
     }
 }
 

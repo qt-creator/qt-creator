@@ -60,8 +60,11 @@ public:
         const Result<> res =
                 NickNameDialog::populateModelFromMailCapFile(commonSettings().nickNameMailMap(),
                                                              m_nickNameModel);
-        if (!res)
-            qWarning("%s", qPrintable(res.error()));
+        if (!res) {
+            VcsOutputWindow::appendError(
+                {},
+                Tr::tr("Cannot open user/alias configuration file: %1").arg(res.error()));
+        }
     }
 
     void slotSettingsChanged()
