@@ -587,7 +587,7 @@ public:
 
     void setResolved(const QString &text, bool accepted)
     {
-        for (Utils::QtcButton *button : m_buttons)
+        for (Utils::QtcButton *button : std::as_const(m_buttons))
             button->hide();
         m_iconDisplay->setIcon(accepted ? Utils::Icons::OK : Utils::Icons::CRITICAL);
         m_statusLabel->setText(QStringLiteral("<i>%1</i>").arg(text.toHtmlEscaped()));
@@ -1364,7 +1364,7 @@ void AcpMessageView::resizeEvent(QResizeEvent *event)
 {
     QScrollArea::resizeEvent(event);
     const int maxW = contentMaxWidth();
-    for (ToolCallDetailWidget *detail : m_toolCallDetailWidgets)
+    for (ToolCallDetailWidget *detail : std::as_const(m_toolCallDetailWidgets))
         detail->setContentMaxWidth(maxW);
 }
 
