@@ -511,12 +511,9 @@ Result<> VcsBaseSubmitEditor::checkSubmitMessage() const
     if (checkScript.isEmpty())
         return ResultOk;
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    QString errorMessage;
-    const bool rc = runSubmitMessageCheckScript(checkScript, &errorMessage);
+    const Result<> result = runSubmitMessageCheckScript(checkScript);
     QApplication::restoreOverrideCursor();
-    if (!rc)
-        return ResultError(errorMessage);
-    return ResultOk;
+    return result;
 }
 
 static QString msgCheckScript(const FilePath &workingDir, const FilePath &cmd)
@@ -527,17 +524,16 @@ static QString msgCheckScript(const FilePath &workingDir, const FilePath &cmd)
            Tr::tr("Executing [%1] %2").arg(workingDir.toUserOutput(), nativeCmd);
 }
 
-bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScript, QString *errorMessage) const
+Result<> VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScript) const
 {
-    QTC_ASSERT(checkScript.isLocal(), return false); // Not supported below.
+    QTC_ASSERT(checkScript.isLocal(),
+               return ResultError(Tr::tr("Submit message check cannot run remotely.")));
     // Write out message
     TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
     saver.write(fileContents());
-    if (const Result<> res = saver.finalize(); !res) {
-        if (errorMessage)
-            *errorMessage = res.error();
-        return false;
-    }
+    if (const Result<> res = saver.finalize(); !res)
+        return res;
+
     // Run check process
     VcsOutputWindow::appendShellCommandLine(d->m_checkScriptWorkingDirectory,
         msgCheckScript(d->m_checkScriptWorkingDirectory, checkScript));
@@ -556,9 +552,9 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScrip
         VcsOutputWindow::appendSilently(d->m_checkScriptWorkingDirectory, stdErr);
 
     if (!succeeded)
-        *errorMessage = checkProcess.exitMessage();
+        return ResultError(checkProcess.exitMessage());
 
-    return succeeded;
+    return ResultOk;
 }
 
 QIcon VcsBaseSubmitEditor::diffIcon()
