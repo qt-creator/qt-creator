@@ -82,11 +82,6 @@ TestConfiguration::~TestConfiguration()
     m_testCases.clear();
 }
 
-static bool isLocal(Kit *kit)
-{
-    return RunDeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-}
-
 static FilePath ensureExeEnding(const FilePath &file)
 {
     if (!HostOsInfo::isWindowsHost() || file.isEmpty() || file.suffix().toLower() == "exe")
@@ -161,9 +156,10 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     BuildConfiguration * const buildConfig = startupProject->activeBuildConfiguration();
     if (!buildConfig)
         return;
-    if (const auto kit = startupProject->activeKit()) {
-        qCDebug(LOG) << "ActiveTargetName\n    " << kit->displayName();
-        qCDebug(LOG) << "SupportedPlatforms\n    " << kit->supportedPlatforms();
+    const Kit *activeKit = startupProject->activeKit();
+    if (activeKit) {
+        qCDebug(LOG) << "ActiveTargetName\n    " << activeKit->displayName();
+        qCDebug(LOG) << "SupportedPlatforms\n    " << activeKit->supportedPlatforms();
     }
 
     const QSet<QString> buildSystemTargets = m_buildTargets;
@@ -179,7 +175,8 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     BuildTargetInfo targetInfo = buildTargets.size() ? buildTargets.first()
                                                      : BuildTargetInfo();
 
-    if (RunDeviceTypeKitAspect::deviceTypeId(startupProject->activeKit()) == ANDROID_DEVICE_TYPE) {
+    const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(activeKit);
+    if (deviceTypeId == ANDROID_DEVICE_TYPE) {
         // Android can have test runner scripts named as displayName(.bat)
         const FilePath script = ensureBatEnding(
             targetInfo.targetFilePath.parentDir() / targetInfo.displayName);
@@ -226,10 +223,6 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     runConfigurations.prepend(buildConfig->activeRunConfiguration());
     for (RunConfiguration *runConfig : std::as_const(runConfigurations)) {
         qCDebug(LOG) << "RunConfiguration" << runConfig->id();
-        if (!isLocal(buildConfig->kit())) { // TODO add device support
-            qCDebug(LOG) << " Skipped as not being local";
-            continue;
-        }
 
         const ProcessRunData runnable = runConfig->runnable();
         // not the best approach - but depending on the build system and whether the executables
@@ -262,17 +255,12 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         qCDebug(LOG) << "   Fallback";
         // we failed to find a valid runconfiguration - but we've got the executable already
         if (auto rc = buildConfig->activeRunConfiguration()) {
-            if (isLocal(buildConfig->kit())) { // FIXME for now only Desktop support
-                const ProcessRunData runnable = rc->runnable();
-                m_runnable.environment = runnable.environment;
-                m_deducedConfiguration = true;
-                m_deducedFrom = rc->displayName();
-                if (runMode == TestRunMode::Debug)
-                    m_runConfig = new Internal::TestRunConfiguration(rc->buildConfiguration(), this);
-            } else {
-                qCDebug(LOG) << "not using the fallback as the current active run configuration "
-                                "appears to be non-Desktop";
-            }
+            const ProcessRunData runnable = rc->runnable();
+            m_runnable.environment = runnable.environment;
+            m_deducedConfiguration = true;
+            m_deducedFrom = rc->displayName();
+            if (runMode == TestRunMode::Debug)
+                m_runConfig = new Internal::TestRunConfiguration(rc->buildConfiguration(), this);
         }
     }
 

@@ -22,7 +22,11 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfiguration.h>
@@ -207,7 +211,7 @@ void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &s
     if (globalProjectExplorerSettings().buildBeforeDeploy() == BuildBeforeRunMode::Off
             || mode == TestRunMode::DebugWithoutDeploy
             || mode == TestRunMode::RunWithoutDeploy || mode == TestRunMode::RunAfterBuild) {
-        runOrDebugTests();
+        tryReconnectDevice();
         return;
     }
 
@@ -675,16 +679,78 @@ void TestRunner::buildProject(Project *project)
 
 void TestRunner::buildFinished(bool success)
 {
-    disconnect(m_buildConnect);
     BuildManager *buildManager = BuildManager::instance();
     disconnect(buildManager, &BuildManager::buildQueueFinished, this, &TestRunner::buildFinished);
 
+    if (!success) {
+        disconnect(m_buildConnect);
+        reportResult(ResultType::MessageFatal, Tr::tr("Build failed. Canceling test run."));
+        onFinished();
+        return;
+    }
+    connect(buildManager, &BuildManager::buildQueueFinished, this, &TestRunner::deployFinished);
+    if (globalProjectExplorerSettings().deployBeforeRun()) {
+        Project *project = m_selectedTests.isEmpty() ? nullptr : m_selectedTests.first()->project();
+        if (project) {
+            DeployConfiguration *deployConfig = project->activeDeployConfiguration();
+            if (!deployConfig || !deployConfig->stepList() || deployConfig->stepList()->isEmpty()) {
+                deployFinished(true);
+                return;
+            }
+            BuildManager::deployProjects({project});
+        }
+        if (!BuildManager::isDeploying())
+            deployFinished(false);
+    } else {
+        deployFinished(true);
+    }
+}
+
+void TestRunner::deployFinished(bool success)
+{
+    disconnect(m_buildConnect);
+    BuildManager *buildManager = BuildManager::instance();
+    disconnect(buildManager, &BuildManager::buildQueueFinished, this, &TestRunner::deployFinished);
+
     if (success) {
+        tryReconnectDevice();
+        return;
+    }
+    reportResult(ResultType::MessageFatal, Tr::tr("Deploy failed. Canceling test run."));
+    onFinished();
+}
+
+void TestRunner::tryReconnectDevice()
+{
+    Project *project = m_selectedTests.isEmpty() ? nullptr : m_selectedTests.first()->project();
+    const Kit *kit = project ? project->activeKit() : nullptr;
+    const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(kit);
+    if (!kit || deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         runOrDebugTests();
         return;
     }
-    reportResult(ResultType::MessageFatal, Tr::tr("Build failed. Canceling test run."));
-    onFinished();
+    const IDeviceConstPtr device = RunDeviceKitAspect::device(kit);
+    if (!device) {
+        runOrDebugTests();
+        return;
+    }
+    const auto state = device->deviceState();
+    if (state == IDevice::DeviceReadyToUse || state == IDevice::DeviceConnected) {
+        runOrDebugTests();
+        return;
+    }
+    qCDebug(runnerLog) << "Device not accessible - trying to reconnect"
+                       << device->displayName();
+    device->tryToConnect(Continuation<>(this, [this](const Result<> &result) {
+        if (result == ResultOk) {
+            QMetaObject::invokeMethod(this, &TestRunner::runOrDebugTests, Qt::QueuedConnection);
+        } else {
+            reportResult(ResultType::MessageFatal,
+                         Tr::tr("Device connection failed. Canceling test run.")
+                         .append(' ').append(result.error()));
+            onFinished();
+        }
+    }));
 }
 
 static RunAfterBuildMode runAfterBuild()
