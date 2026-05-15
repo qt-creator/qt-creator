@@ -1674,8 +1674,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
     using namespace Layouting;
     Column {
         Row { m_consoleSelector, st},
-        m_consoleStack,
-        st
+        m_consoleStack
     }.attachTo(this);
 
     connect(&m_consoleSelector, &QComboBox::currentIndexChanged, [this]{
