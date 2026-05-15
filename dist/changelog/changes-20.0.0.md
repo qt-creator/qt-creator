@@ -105,6 +105,7 @@ Added
     * The option `Use externally provided compilation database` instead of the
       automatically created one
       ([QTCREATORBUG-34066](https://bugreports.qt.io/browse/QTCREATORBUG-34066))
+      ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-preferences-cpp-clangd.html))
     * `Fold/Unfold All Inactive Code`
 
 Changed
@@ -152,6 +153,7 @@ Added
 * Vulkan compatible file wizards
   ([QTCREATORBUG-26058](https://bugreports.qt.io/browse/QTCREATORBUG-26058),
    [QTCREATORBUG-32869](https://bugreports.qt.io/browse/QTCREATORBUG-32869))
+   ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-create-opengl-shaders.html))
 
 Projects
 --------
@@ -161,6 +163,7 @@ Added
 * The option to `Get variables from text file or shell script`
   to modify the environment
   ([QTCREATORBUG-27746](https://bugreports.qt.io/browse/QTCREATORBUG-27746))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-set-project-environment.html))
 * Output parsing of `file://` links
   ([QTCREATORBUG-34176](https://bugreports.qt.io/browse/QTCREATORBUG-34176))
 
@@ -198,6 +201,7 @@ Added
 
 * A `Remote Debugger` run configuration type with functionality similar to
   `Debug > Start Debugging > Attach to Running Debug Server`
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-debug-remotely-gdb.html))
 
 Fixed
 
@@ -237,6 +241,7 @@ Added
 * The version control operations to the context menu in `Open Documents` and for
   editors
   ([QTCREATORBUG-29164](https://bugreports.qt.io/browse/QTCREATORBUG-29164))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-use-common-vcs-functions.html))
 * `Mark Untracked` to the version control context menu
 * The version control state to the file properties dialog
 * Improvements to the detection of which line to jump to when double-clicking
@@ -282,6 +287,7 @@ Added
 * The option to filter the `Tests` view
   ([QTCREATORBUG-23377](https://bugreports.qt.io/browse/QTCREATORBUG-23377),
    [QTCREATORBUG-34244](https://bugreports.qt.io/browse/QTCREATORBUG-34244))
+   ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-build-and-run-tests.html))
 
 Platforms
 ---------
@@ -304,6 +310,7 @@ Added
 * Limited file access to iOS devices, the crash reports directory and the
   developer's application directories, to the `File System` view, the Locator,
   and remote file dialogs
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-file-system-view.html))
 * The OS version and supported architectures to the Simulator selection
 
 ### Remote Linux
@@ -312,7 +319,9 @@ Added
 
 * Automatic connection to devices before deployment and running
   ([QTCREATORBUG-34011](https://bugreports.qt.io/browse/QTCREATORBUG-34011))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-run-on-remote-linux.html))
 * The option to `Use the Qt VNC platform for display` when running
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-run-settings-remote-linux.html))
 * The `Accessible host paths` options that specifies directories on the host
   that can be accessed by the remote device
 * OpenHarmony as a Linux variant
@@ -332,6 +341,7 @@ Added
 
 * Support for specifying arbitrary CMake variables
   ([QTCREATORBUG-34220](https://bugreports.qt.io/browse/QTCREATORBUG-34220))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/devcontainer.html))
 
 ### Docker
 
