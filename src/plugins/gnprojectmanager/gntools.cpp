@@ -143,7 +143,7 @@ void GNTools::setTools(Tools &&tools)
 
 int GNTools::toolCount()
 {
-    return s_tools.size();
+    return static_cast<int>(s_tools.size());
 }
 
 QVariant GNTools::data(int row, int role)
