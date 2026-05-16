@@ -678,6 +678,11 @@ GitPluginPrivate::GitPluginPrivate()
                      true, std::bind(&GitPluginPrivate::undoFileChanges, this, true),
                      QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+U") : Tr::tr("Alt+G,Alt+U")));
 
+    currentFileMenu->addSeparator(context);
+
+    createFileAction(currentFileMenu, Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."),
+                     "Git.Delete", context,
+                     true, std::bind(&GitPluginPrivate::promptToDeleteCurrentFile, this));
 
     /*  "Current Project Directory" menu */
     ActionContainer *currentProjectDirectoryMenu = ActionManager::createMenu("Git.CurrentProjectDirectoryMenu");
