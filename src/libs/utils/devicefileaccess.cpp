@@ -1067,7 +1067,7 @@ Result<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePat
         return ResultError(Tr::tr("File \"%1\" does not exist.").arg(path));
 
     if (!f.open(QFile::ReadOnly))
-        return ResultError(Tr::tr("Could not open File \"%1\".").arg(path));
+        return ResultError(Tr::tr("Could not open file \"%1\".").arg(path));
 
     if (offset != 0)
         f.seek(offset);

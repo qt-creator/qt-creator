@@ -67057,7 +67057,7 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
-        <source>Could not open File &quot;%1&quot;.</source>
+        <source>Could not open file &quot;%1&quot;.</source>
         <translation>Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>

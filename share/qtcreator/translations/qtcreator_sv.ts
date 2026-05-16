@@ -57192,7 +57192,7 @@ The trace data is lost.</source>
         <translation>Filen &quot;%1&quot; finns inte.</translation>
     </message>
     <message>
-        <source>Could not open File &quot;%1&quot;.</source>
+        <source>Could not open file &quot;%1&quot;.</source>
         <translation>Kunde inte öppna filen &quot;%1&quot;.</translation>
     </message>
     <message>
