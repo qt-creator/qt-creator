@@ -15,7 +15,9 @@
 #include <utils/benchmarker.h>
 #include <utils/fileutils.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -23,6 +25,7 @@
 #include <utils/shutdownguard.h>
 #include <utils/stringutils.h>
 
+#include <QCheckBox>
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
@@ -1624,31 +1627,69 @@ std::optional<QSet<PluginSpec *>> PluginManager::askForEnablingPlugins(
     return additionalPlugins;
 }
 
+static bool checkTermsAndConditions(ExtensionSystem::PluginSpec *spec)
+{
+    using namespace Layouting;
+
+    QDialog dialog(Utils::dialogParent());
+    dialog.setWindowTitle(Tr::tr("Terms and Conditions"));
+
+    QDialogButtonBox buttonBox;
+    QCheckBox *acceptCheckBox;
+    QPushButton *acceptButton
+        = buttonBox.addButton(Tr::tr("Accept"), QDialogButtonBox::ButtonRole::YesRole);
+    QPushButton *decline
+        = buttonBox.addButton(Tr::tr("Decline"), QDialogButtonBox::ButtonRole::NoRole);
+    acceptButton->setAutoDefault(false);
+    acceptButton->setDefault(false);
+    acceptButton->setEnabled(false);
+    decline->setAutoDefault(true);
+    decline->setDefault(true);
+    QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    const QLatin1String legal = QLatin1String(
+        "I confirm that I have reviewed and accept the terms and conditions\n"
+        "of this extension. I confirm that I have the authority and ability to\n"
+        "accept the terms and conditions of this extension for the customer.\n"
+        "I acknowledge that if the customer and the Qt Company already have a\n"
+        "valid agreement in place, that agreement shall apply, but these terms\n"
+        "shall govern the use of this extension.");
+
+    // clang-format off
+    Column {
+        Tr::tr("The plugin %1 requires you to accept the following terms and conditions:").arg(spec->name()), br,
+        TextEdit {
+            markdown(spec->termsAndConditions()->text),
+            readOnly(true),
+        }, br,
+        Row {
+            acceptCheckBox = new QCheckBox(legal), &buttonBox,
+        }
+    }.attachTo(&dialog);
+    // clang-format on
+
+    QObject::connect(acceptCheckBox, &QCheckBox::toggled, acceptButton, &QPushButton::setEnabled);
+
+    return dialog.exec() == QDialog::Accepted;
+}
+
 bool PluginManagerPrivate::acceptTermsAndConditions(PluginSpec *spec)
 {
+    if (PluginManager::testRunRequested())
+        return true;
+
     if (pluginsWithAcceptedTermsAndConditions.contains(spec->id()))
         return true;
 
-    if (!acceptTermsAndConditionsCallback) {
-        spec->setError(Tr::tr("No callback set to accept terms and conditions"));
-        return false;
-    }
-
-    if (!acceptTermsAndConditionsCallback(spec)) {
+    if (!checkTermsAndConditions(spec)) {
         spec->setError(Tr::tr("You did not accept the terms and conditions"));
         return false;
     }
 
-    pluginsWithAcceptedTermsAndConditions.append(spec->id());
-    userSettings().setValue(C_TANDCACCEPTED_PLUGINS, pluginsWithAcceptedTermsAndConditions);
+    PluginManager::setTermsAndConditionsAccepted(spec);
 
     return true;
-}
-
-void PluginManagerPrivate::setAcceptTermsAndConditionsCallback(
-    const std::function<bool(PluginSpec *)> &callback)
-{
-    acceptTermsAndConditionsCallback = callback;
 }
 
 /*!
@@ -2132,12 +2173,6 @@ void PluginManager::startProfiling()
     d->m_profileTimer.reset(new QElapsedTimer);
     d->m_profileTimer->start();
     d->m_profileElapsedMS = 0;
-}
-
-void PluginManager::setAcceptTermsAndConditionsCallback(
-    const std::function<bool(PluginSpec *)> &callback)
-{
-    d->setAcceptTermsAndConditionsCallback(callback);
 }
 
 void PluginManager::setTermsAndConditionsAccepted(PluginSpec *spec)
