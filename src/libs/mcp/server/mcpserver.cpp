@@ -126,6 +126,21 @@ private:
 
 static QJsonObject makeResponse(Schema::RequestId id, const Schema::ServerResult &result)
 {
+    if (std::holds_alternative<Schema::CallToolResult>(result)) {
+        auto callToolResult = std::get<Schema::CallToolResult>(result);
+        if (callToolResult.structuredContent().has_value()) {
+            // Copy structured content into content for backwards compatibility
+            // with clients that don't support structured content.
+            QJsonDocument doc(callToolResult.structuredContentAsObject());
+            QByteArray json = doc.toJson(QJsonDocument::Compact);
+            callToolResult.addContent(Schema::TextContent().text(QString::fromUtf8(json)));
+
+            return Schema::toJson(
+                Schema::JSONRPCResultResponse().id(id).result(
+                    Schema::Result().additionalProperties(Schema::toJson(callToolResult))));
+        }
+    }
+
     return Schema::toJson(
         Schema::JSONRPCResultResponse().id(id).result(
             Schema::Result().additionalProperties(Schema::toJson(result))));
