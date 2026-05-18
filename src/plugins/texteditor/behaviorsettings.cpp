@@ -132,68 +132,37 @@ class BehaviorSettingsPage : public Core::IOptionsPage
 {
 public:
     BehaviorSettingsPage();
-    ~BehaviorSettingsPage() override;
 
-    ICodeStylePreferences *codeStyle() const;
-    CodeStylePool *codeStylePool() const;
-
-private:
-    class BehaviorSettingsPagePrivate *d;
-};
-
-class BehaviorSettingsPagePrivate : public QObject
-{
-public:
-    BehaviorSettingsPagePrivate();
+    ICodeStylePreferences *codeStyle() { return &m_codeStyle; }
+    CodeStylePool *codeStylePool() { return &m_defaultCodeStylePool; }
 
     const Key m_settingsPrefix{"text"};
-    TextEditor::BehaviorSettingsWidget *m_behaviorWidget = nullptr;
-
-    CodeStylePool *m_defaultCodeStylePool = nullptr;
-    SimpleCodeStylePreferences *m_codeStyle = nullptr;
-    SimpleCodeStylePreferences *m_pageCodeStyle = nullptr;
+    SimpleCodeStylePreferences m_codeStyle;
+    CodeStylePool m_defaultCodeStylePool{nullptr};
 };
-
-BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate()
-{
-    // global tab preferences for all other languages
-    m_codeStyle = new SimpleCodeStylePreferences(this);
-    m_codeStyle->setDisplayName(Tr::tr("Global", "Settings"));
-    m_codeStyle->setId(Constants::GLOBAL_SETTINGS_ID);
-
-    // default pool for all other languages
-    m_defaultCodeStylePool = new CodeStylePool(nullptr, this); // Any language
-    m_defaultCodeStylePool->addCodeStyle(m_codeStyle);
-
-    m_codeStyle->fromSettings(m_settingsPrefix);
-}
 
 class BehaviorSettingsWidgetImpl : public Core::IOptionsPageWidget
 {
 public:
-    BehaviorSettingsWidgetImpl(BehaviorSettingsPagePrivate *d) : d(d)
+    BehaviorSettingsWidgetImpl(BehaviorSettingsPage *page)
+        : m_page(page)
+        , m_behaviorWidget(&globalTypingSettings(), &globalStorageSettings(),
+                           &globalBehaviorSettings(), &globalExtraEncodingSettings(), this)
     {
-        d->m_behaviorWidget = new BehaviorSettingsWidget(&globalTypingSettings(),
-                                                         &globalStorageSettings(),
-                                                         &globalBehaviorSettings(),
-                                                         &globalExtraEncodingSettings(),
-                                                         this);
-
         auto verticalSpacer = new QSpacerItem(20, 13, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         auto gridLayout = new QGridLayout(this);
         if (Utils::HostOsInfo::isMacHost())
             gridLayout->setContentsMargins(-1, 0, -1, 0); // don't ask.
-        gridLayout->addWidget(d->m_behaviorWidget, 0, 0, 1, 1);
+        gridLayout->addWidget(&m_behaviorWidget, 0, 0, 1, 1);
         gridLayout->addItem(verticalSpacer, 1, 0, 1, 1);
 
-        d->m_pageCodeStyle = new SimpleCodeStylePreferences(this);
-        d->m_pageCodeStyle->setDelegatingPool(d->m_codeStyle->delegatingPool());
-        d->m_pageCodeStyle->setTabSettings(d->m_codeStyle->tabSettings());
-        d->m_pageCodeStyle->setCurrentDelegate(d->m_codeStyle->currentDelegate());
-        d->m_behaviorWidget->setCodeStyle(d->m_pageCodeStyle);
+        m_pageCodeStyle.setDelegatingPool(page->m_codeStyle.delegatingPool());
+        m_pageCodeStyle.setTabSettings(page->m_codeStyle.tabSettings());
+        m_pageCodeStyle.setCurrentDelegate(page->m_codeStyle.currentDelegate());
+        m_behaviorWidget.setCodeStyle(&m_pageCodeStyle);
 
-        TabSettingsWidget *tabSettingsWidget = d->m_behaviorWidget->tabSettingsWidget();
+        TabSettingsWidget *tabSettingsWidget = m_behaviorWidget.tabSettingsWidget();
         tabSettingsWidget->setCodingStyleWarningVisible(true);
         connect(tabSettingsWidget, &TabSettingsWidget::codingStyleLinkClicked,
                 this, [] (TabSettingsWidget::CodingStyleLink link) {
@@ -207,7 +176,7 @@ public:
             }
         });
 
-        installMarkSettingsDirtyTriggerRecursively(d->m_pageCodeStyle);
+        installMarkSettingsDirtyTriggerRecursively(&m_pageCodeStyle);
         installCheckSettingsDirtyTrigger(&globalTypingSettings());
         installCheckSettingsDirtyTrigger(&globalStorageSettings());
         installCheckSettingsDirtyTrigger(&globalBehaviorSettings());
@@ -217,21 +186,23 @@ public:
     bool isDirty() const;
     void apply() final;
 
-    BehaviorSettingsPagePrivate *d;
+    BehaviorSettingsPage *m_page;
+    BehaviorSettingsWidget m_behaviorWidget;
+    SimpleCodeStylePreferences m_pageCodeStyle;
 };
 
 BehaviorSettingsPage::BehaviorSettingsPage()
-  : d(new BehaviorSettingsPagePrivate)
 {
     setId(Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
     setDisplayName(Tr::tr("Behavior"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setWidgetCreator([this] { return new BehaviorSettingsWidgetImpl(d); });
-}
+    setWidgetCreator([this] { return new BehaviorSettingsWidgetImpl(this); });
 
-BehaviorSettingsPage::~BehaviorSettingsPage()
-{
-    delete d;
+    m_codeStyle.setDisplayName(Tr::tr("Global", "Settings"));
+    m_codeStyle.setId(Constants::GLOBAL_SETTINGS_ID);
+    m_codeStyle.fromSettings(m_settingsPrefix);
+
+    m_defaultCodeStylePool.addCodeStyle(&m_codeStyle);
 }
 
 bool BehaviorSettingsWidgetImpl::isDirty() const
@@ -245,9 +216,9 @@ bool BehaviorSettingsWidgetImpl::isDirty() const
     if (globalExtraEncodingSettings().isDirty())
         return true;
 
-    if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings())
+    if (m_page->m_codeStyle.tabSettings() != m_pageCodeStyle.tabSettings())
         return true;
-    if (d->m_codeStyle->currentDelegate() != d->m_pageCodeStyle->currentDelegate())
+    if (m_page->m_codeStyle.currentDelegate() != m_pageCodeStyle.currentDelegate())
         return true;
 
     return false;
@@ -255,33 +226,20 @@ bool BehaviorSettingsWidgetImpl::isDirty() const
 
 void BehaviorSettingsWidgetImpl::apply()
 {
-    if (!d->m_behaviorWidget) // page was never shown
-        return;
-
     globalTypingSettings().apply();
     globalBehaviorSettings().apply();
     globalStorageSettings().apply();
     globalExtraEncodingSettings().apply();
 
-    if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings()) {
-        d->m_codeStyle->setTabSettings(d->m_pageCodeStyle->tabSettings());
-        d->m_codeStyle->toSettings(d->m_settingsPrefix);
+    if (m_page->m_codeStyle.tabSettings() != m_pageCodeStyle.tabSettings()) {
+        m_page->m_codeStyle.setTabSettings(m_pageCodeStyle.tabSettings());
+        m_page->m_codeStyle.toSettings(m_page->m_settingsPrefix);
     }
 
-    if (d->m_codeStyle->currentDelegate() != d->m_pageCodeStyle->currentDelegate()) {
-        d->m_codeStyle->setCurrentDelegate(d->m_pageCodeStyle->currentDelegate());
-        d->m_codeStyle->toSettings(d->m_settingsPrefix);
+    if (m_page->m_codeStyle.currentDelegate() != m_pageCodeStyle.currentDelegate()) {
+        m_page->m_codeStyle.setCurrentDelegate(m_pageCodeStyle.currentDelegate());
+        m_page->m_codeStyle.toSettings(m_page->m_settingsPrefix);
     }
-}
-
-ICodeStylePreferences *BehaviorSettingsPage::codeStyle() const
-{
-    return d->m_codeStyle;
-}
-
-CodeStylePool *BehaviorSettingsPage::codeStylePool() const
-{
-    return d->m_defaultCodeStylePool;
 }
 
 static BehaviorSettingsPage &behaviorSettingsPage()
