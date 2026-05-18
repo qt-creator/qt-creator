@@ -319,7 +319,8 @@ public:
     ~PtyProcessImpl() {
         QTC_CHECK(m_setup.m_ptyData);
         m_setup.m_ptyData->setResizeHandler({});
-        m_ptyProcess->kill();
+        if (m_ptyProcess)
+            m_ptyProcess->kill();
     }
 
     qint64 write(const QByteArray &data) final
