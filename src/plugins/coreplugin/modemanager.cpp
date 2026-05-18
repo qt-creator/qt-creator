@@ -103,7 +103,7 @@ static ModeManager *m_instance = nullptr;
 static int indexOf(Id id)
 {
     for (int i = 0; i < d->m_modes.count(); ++i) {
-        if (d->m_modes.at(i)->id() == id)
+        if (d->m_modes.at(i) && d->m_modes.at(i)->id() == id)
             return i;
     }
     qDebug() << "Warning, no such mode:" << id.toString();
@@ -179,6 +179,7 @@ Id ModeManager::currentModeId()
     int currentIndex = d->m_modeStack->currentIndex();
     if (currentIndex < 0)
         return Id();
+    QTC_ASSERT(currentIndex < d->m_modes.size() && d->m_modes.at(currentIndex), return Id());
     return d->m_modes.at(currentIndex)->id();
 }
 
@@ -213,6 +214,8 @@ void ModeManager::activatePreviousMode()
 
 void ModeManagerPrivate::activateModeHelper(Id id)
 {
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return;
     if (m_startingUp) {
         m_pendingFirstActiveMode = id;
     } else {
@@ -302,7 +305,7 @@ void ModeManager::extensionsInitialized()
 
 QList<QPointer<IMode>> ModeManagerPrivate::modesInPriorityOrder()
 {
-    QList<QPointer<IMode>> result = m_modes;
+    QList<QPointer<IMode>> result = filtered(m_modes, [](QPointer<IMode> m) { return !m.isNull(); });
     Utils::sort(result, &IMode::priority);
     std::reverse(result.begin(), result.end());
     return result;
@@ -347,8 +350,10 @@ void ModeManagerPrivate::extensionsInitializedHelper()
 
     const QList<QPointer<IMode>> originalOrder = modesInPriorityOrder();
     m_modes = modesInPreferenceOrder();
-    for (const QPointer<IMode> &mode : std::as_const(m_modes))
+    for (const QPointer<IMode> &mode : std::as_const(m_modes)) {
+        QTC_ASSERT(mode, continue);
         appendMode(mode, originalOrder.indexOf(mode));
+    }
 
     if (m_pendingFirstActiveMode.isValid())
         activateModeHelper(m_pendingFirstActiveMode);
@@ -369,6 +374,7 @@ void ModeManagerPrivate::saveSettings()
 void ModeManager::addMode(IMode *mode)
 {
     QTC_ASSERT(d->m_startingUp, return);
+    QTC_ASSERT(mode, return);
     d->m_modes.append(mode);
 }
 
@@ -443,7 +449,7 @@ void ModeManagerPrivate::ensureVisibleEnabledMode()
         // This assumes that there is always at least one enabled mode.
         for (int i = 0; i < m_modes.count(); ++i) {
             IMode *other = m_modes.at(i);
-            if (other->isEnabled() && other->isVisible()) {
+            if (other && other->isEnabled() && other->isVisible()) {
                 ModeManager::activateMode(other->id());
                 return;
             }
