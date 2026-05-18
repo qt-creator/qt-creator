@@ -11,8 +11,8 @@
 
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/behaviorsettings.h>
-#include <texteditor/behaviorsettingswidget.h>
 #include <texteditor/extraencodingsettings.h>
+#include <texteditor/simplecodestylepreferenceswidget.h>
 #include <texteditor/marginsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/typingsettings.h>
@@ -44,10 +44,14 @@ private:
 
     QPushButton *m_restoreButton;
     QGroupBox *m_displaySettings;
-    TextEditor::BehaviorSettingsWidget *m_behaviorSettings;
+    QWidget m_behaviorSettings;
+    TextEditor::SimpleCodeStylePreferencesWidget m_tabPreferencesWidget;
 };
 
-EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project)
+EditorSettingsWidget::EditorSettingsWidget(Project *project)
+    : m_project(project)
+    , m_behaviorSettings(this)
+    , m_tabPreferencesWidget(&m_behaviorSettings)
 {
     setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
 
@@ -57,13 +61,18 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
     m_displaySettings->setEnabled(false);
 
     EditorConfiguration *config = m_project->editorConfiguration();
-    m_behaviorSettings = new TextEditor::BehaviorSettingsWidget(&config->typingSettings,
-                                                                &config->storageSettings,
-                                                                &config->behaviorSettings,
-                                                                &config->extraEncodingSettings,
-                                                                this);
 
     using namespace Layouting;
+
+    Column {
+        &m_tabPreferencesWidget,
+        &config->typingSettings,
+        &config->storageSettings,
+        &config->extraEncodingSettings,
+        &config->behaviorSettings,
+        st,
+        noMargin,
+    }.attachTo(&m_behaviorSettings);
 
     TextEditor::MarginSettings &m = config->marginSettings;
 
@@ -78,7 +87,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
     Column {
         Row { m_restoreButton, st },
         m_displaySettings,
-        m_behaviorSettings,
+        &m_behaviorSettings,
         st,
         noMargin
     }.attachTo(this);
@@ -101,13 +110,13 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
 
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 {
-    m_behaviorSettings->setCodeStyle(config->codeStyle());
+    m_tabPreferencesWidget.setPreferences(config->codeStyle());
 }
 
 void EditorSettingsWidget::globalSettingsActivated(bool useGlobal)
 {
     m_displaySettings->setEnabled(!useGlobal);
-    m_behaviorSettings->setEnabled(!useGlobal);
+    m_behaviorSettings.setEnabled(!useGlobal);
     m_restoreButton->setEnabled(!useGlobal);
     EditorConfiguration *config = m_project->editorConfiguration();
     config->setUseGlobalSettings(useGlobal);

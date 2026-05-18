@@ -20,7 +20,6 @@ add_qtc_plugin(TextEditor
     basefilefind.cpp basefilefind.h
     basehoverhandler.cpp basehoverhandler.h
     behaviorsettings.cpp behaviorsettings.h
-    behaviorsettingswidget.cpp behaviorsettingswidget.h
     blockrange.h
     bookmark.cpp bookmark.h
     bookmarkfilter.cpp bookmarkfilter.h

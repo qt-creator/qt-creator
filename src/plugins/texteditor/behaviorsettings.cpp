@@ -3,12 +3,12 @@
 
 #include "behaviorsettings.h"
 
-#include "behaviorsettingswidget.h"
 #include "codestylepool.h"
 #include "extraencodingsettings.h"
 #include "simplecodestylepreferences.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
+#include "simplecodestylepreferenceswidget.h"
 #include "tabsettingswidget.h"
 #include "texteditorconstants.h"
 #include "texteditorsettings.h"
@@ -30,8 +30,6 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
-#include <QGridLayout>
-#include <QSpacerItem>
 
 using namespace Utils;
 
@@ -167,23 +165,24 @@ class BehaviorSettingsWidgetImpl : public Core::IOptionsPageWidget
 public:
     BehaviorSettingsWidgetImpl(BehaviorSettingsPage *page)
         : m_page(page)
-        , m_behaviorWidget(&globalTypingSettings(), &globalStorageSettings(),
-                           &globalBehaviorSettings(), &globalExtraEncodingSettings(), this)
+        , m_tabPreferencesWidget(this)
     {
-        auto verticalSpacer = new QSpacerItem(20, 13, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        auto gridLayout = new QGridLayout(this);
-        if (Utils::HostOsInfo::isMacHost())
-            gridLayout->setContentsMargins(-1, 0, -1, 0); // don't ask.
-        gridLayout->addWidget(&m_behaviorWidget, 0, 0, 1, 1);
-        gridLayout->addItem(verticalSpacer, 1, 0, 1, 1);
-
         m_pageCodeStyle.setDelegatingPool(page->m_codeStyle.delegatingPool());
         m_pageCodeStyle.setTabSettings(page->m_codeStyle.tabSettings());
         m_pageCodeStyle.setCurrentDelegate(page->m_codeStyle.currentDelegate());
-        m_behaviorWidget.setCodeStyle(&m_pageCodeStyle);
+        m_tabPreferencesWidget.setPreferences(&m_pageCodeStyle);
 
-        TabSettingsWidget *tabSettingsWidget = m_behaviorWidget.tabSettingsWidget();
+        using namespace Layouting;
+        Column {
+            &m_tabPreferencesWidget,
+            &globalTypingSettings(),
+            &globalStorageSettings(),
+            &globalExtraEncodingSettings(),
+            &globalBehaviorSettings(),
+            st,
+        }.attachTo(this);
+
+        TabSettingsWidget *tabSettingsWidget = m_tabPreferencesWidget.tabSettingsWidget();
         tabSettingsWidget->setCodingStyleWarningVisible(true);
         connect(tabSettingsWidget, &TabSettingsWidget::codingStyleLinkClicked,
                 this, [] (TabSettingsWidget::CodingStyleLink link) {
@@ -208,7 +207,7 @@ public:
     void apply() final;
 
     BehaviorSettingsPage *m_page;
-    BehaviorSettingsWidget m_behaviorWidget;
+    SimpleCodeStylePreferencesWidget m_tabPreferencesWidget;
     SimpleCodeStylePreferences m_pageCodeStyle;
 };
 

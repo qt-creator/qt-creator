@@ -30,8 +30,6 @@ Project {
             "basehoverhandler.h",
             "behaviorsettings.cpp",
             "behaviorsettings.h",
-            "behaviorsettingswidget.cpp",
-            "behaviorsettingswidget.h",
             "blockrange.h",
             "bookmark.cpp",
             "bookmark.h",
