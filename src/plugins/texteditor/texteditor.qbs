@@ -111,8 +111,6 @@ Project {
             "semantichighlighter.h",
             "simplecodestylepreferences.cpp",
             "simplecodestylepreferences.h",
-            "simplecodestylepreferenceswidget.cpp",
-            "simplecodestylepreferenceswidget.h",
             "storagesettings.cpp",
             "storagesettings.h",
             "syntaxhighlighter.cpp",

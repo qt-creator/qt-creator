@@ -3,6 +3,7 @@
 
 #include "tabsettingswidget.h"
 
+#include "icodestylepreferences.h"
 #include "tabsettings.h"
 #include "texteditortr.h"
 
@@ -109,6 +110,50 @@ TabSettingsWidget::TabSettingsWidget()
 }
 
 TabSettingsWidget::~TabSettingsWidget() = default;
+
+void TabSettingsWidget::setPreferences(ICodeStylePreferences *preferences)
+{
+    if (m_preferences == preferences)
+        return;
+
+    slotCurrentPreferencesChanged(preferences);
+
+    if (m_preferences) {
+        disconnect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                   this, &TabSettingsWidget::setTabSettings);
+        disconnect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
+                   this, &TabSettingsWidget::slotCurrentPreferencesChanged);
+        disconnect(this, &TabSettingsWidget::settingsChanged,
+                   this, &TabSettingsWidget::slotTabSettingsChanged);
+    }
+    m_preferences = preferences;
+    if (m_preferences) {
+        setTabSettings(m_preferences->currentTabSettings());
+
+        connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                this, &TabSettingsWidget::setTabSettings);
+        connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
+                this, &TabSettingsWidget::slotCurrentPreferencesChanged);
+        connect(this, &TabSettingsWidget::settingsChanged,
+                this, &TabSettingsWidget::slotTabSettingsChanged);
+    }
+}
+
+void TabSettingsWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences)
+{
+    setEnabled(preferences && preferences->currentPreferences()
+               && !preferences->currentPreferences()->isReadOnly());
+}
+
+void TabSettingsWidget::slotTabSettingsChanged(const TabSettings &settings)
+{
+    if (!m_preferences)
+        return;
+    ICodeStylePreferences *current = m_preferences->currentPreferences();
+    if (!current)
+        return;
+    current->setTabSettings(settings);
+}
 
 void TabSettingsWidget::setTabSettings(const TabSettings &s)
 {

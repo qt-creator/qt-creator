@@ -12,7 +12,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
-#include <texteditor/simplecodestylepreferenceswidget.h>
+#include <texteditor/tabsettingswidget.h>
 #include <texteditor/marginsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/typingsettings.h>
@@ -45,7 +45,7 @@ private:
     QPushButton m_restoreButton;
     QGroupBox m_displaySettings;
     QWidget m_behaviorSettings;
-    TextEditor::SimpleCodeStylePreferencesWidget m_tabPreferencesWidget;
+    TextEditor::TabSettingsWidget m_tabSettingsWidget;
 };
 
 EditorSettingsWidget::EditorSettingsWidget(Project *project)
@@ -53,7 +53,6 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
     , m_restoreButton(Tr::tr("Restore Global"), this)
     , m_displaySettings(Tr::tr("Display Settings"), this)
     , m_behaviorSettings(this)
-    , m_tabPreferencesWidget(&m_behaviorSettings)
 {
     setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
 
@@ -64,7 +63,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
     using namespace Layouting;
 
     Column {
-        &m_tabPreferencesWidget,
+        &m_tabSettingsWidget,
         &config->typingSettings,
         &config->storageSettings,
         &config->extraEncodingSettings,
@@ -109,7 +108,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
 
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 {
-    m_tabPreferencesWidget.setPreferences(config->codeStyle());
+    m_tabSettingsWidget.setPreferences(config->codeStyle());
 }
 
 void EditorSettingsWidget::globalSettingsActivated(bool useGlobal)

@@ -8,7 +8,6 @@
 #include "simplecodestylepreferences.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
-#include "simplecodestylepreferenceswidget.h"
 #include "tabsettingswidget.h"
 #include "texteditorconstants.h"
 #include "texteditorsettings.h"
@@ -165,16 +164,15 @@ class BehaviorSettingsWidgetImpl : public Core::IOptionsPageWidget
 public:
     BehaviorSettingsWidgetImpl(BehaviorSettingsPage *page)
         : m_page(page)
-        , m_tabPreferencesWidget(this)
     {
         m_pageCodeStyle.setDelegatingPool(page->m_codeStyle.delegatingPool());
         m_pageCodeStyle.setTabSettings(page->m_codeStyle.tabSettings());
         m_pageCodeStyle.setCurrentDelegate(page->m_codeStyle.currentDelegate());
-        m_tabPreferencesWidget.setPreferences(&m_pageCodeStyle);
+        m_tabSettingsWidget.setPreferences(&m_pageCodeStyle);
 
         using namespace Layouting;
         Column {
-            &m_tabPreferencesWidget,
+            &m_tabSettingsWidget,
             &globalTypingSettings(),
             &globalStorageSettings(),
             &globalExtraEncodingSettings(),
@@ -182,9 +180,8 @@ public:
             st,
         }.attachTo(this);
 
-        TabSettingsWidget *tabSettingsWidget = m_tabPreferencesWidget.tabSettingsWidget();
-        tabSettingsWidget->setCodingStyleWarningVisible(true);
-        connect(tabSettingsWidget, &TabSettingsWidget::codingStyleLinkClicked,
+        m_tabSettingsWidget.setCodingStyleWarningVisible(true);
+        connect(&m_tabSettingsWidget, &TabSettingsWidget::codingStyleLinkClicked,
                 this, [] (TabSettingsWidget::CodingStyleLink link) {
             switch (link) {
             case TabSettingsWidget::CppLink:
@@ -207,7 +204,7 @@ public:
     void apply() final;
 
     BehaviorSettingsPage *m_page;
-    SimpleCodeStylePreferencesWidget m_tabPreferencesWidget;
+    TabSettingsWidget m_tabSettingsWidget;
     SimpleCodeStylePreferences m_pageCodeStyle;
 };
 

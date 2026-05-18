@@ -31,7 +31,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/formattexteditor.h>
 #include <texteditor/icodestylepreferencesfactory.h>
-#include <texteditor/simplecodestylepreferenceswidget.h>
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>

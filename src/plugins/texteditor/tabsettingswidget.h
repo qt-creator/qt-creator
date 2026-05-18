@@ -9,6 +9,7 @@
 
 namespace TextEditor {
 
+class ICodeStylePreferences;
 class TabSettings;
 
 class TEXTEDITOR_EXPORT TabSettingsWidget : public Utils::AspectContainer
@@ -24,6 +25,8 @@ public:
     TabSettingsWidget();
     ~TabSettingsWidget() override;
 
+    void setPreferences(ICodeStylePreferences *preferences);
+
     TabSettings tabSettings() const;
 
     void setCodingStyleWarningVisible(bool visible);
@@ -35,6 +38,10 @@ signals:
 
 private:
     void codingStyleLinkActivated(const QString &linkString);
+    void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences);
+    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
+
+    ICodeStylePreferences *m_preferences = nullptr;
 
     Utils::BoolAspect autoDetect{this};
     Utils::SelectionAspect tabPolicy{this};

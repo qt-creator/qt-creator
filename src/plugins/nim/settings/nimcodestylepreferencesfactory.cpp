@@ -15,8 +15,8 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
 #include <texteditor/simplecodestylepreferences.h>
-#include <texteditor/simplecodestylepreferenceswidget.h>
 #include <texteditor/snippets/snippeteditor.h>
+#include <texteditor/tabsettingswidget.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
@@ -50,9 +50,8 @@ NimCodeStylePreferencesWidget::NimCodeStylePreferencesWidget(
     : CodeStyleEditorWidget(parent)
     , m_preferences(preferences)
 {
-    auto tabPreferencesWidget = new SimpleCodeStylePreferencesWidget;
-    tabPreferencesWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    tabPreferencesWidget->setPreferences(preferences);
+    auto tabSettingsWidget = new TabSettingsWidget;
+    tabSettingsWidget->setPreferences(preferences);
 
     m_previewTextEdit = new SnippetEditorWidget;
     m_previewTextEdit->setPlainText(Nim::Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
@@ -60,7 +59,7 @@ NimCodeStylePreferencesWidget::NimCodeStylePreferencesWidget(
     using namespace Layouting;
     Row {
         Column {
-            tabPreferencesWidget,
+            tabSettingsWidget,
             st,
         },
         m_previewTextEdit,

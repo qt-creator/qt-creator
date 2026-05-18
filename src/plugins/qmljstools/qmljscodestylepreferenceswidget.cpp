@@ -7,7 +7,6 @@
 #include "qmljsformatterselectionwidget.h"
 #include "qmljstoolstr.h"
 
-#include <texteditor/simplecodestylepreferenceswidget.h>
 #include <texteditor/texteditor.h>
 #include <utils/layoutbuilder.h>
 #include <utils/aspects.h>
