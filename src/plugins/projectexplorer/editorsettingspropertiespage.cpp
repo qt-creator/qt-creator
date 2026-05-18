@@ -42,23 +42,22 @@ private:
 
     Project *m_project;
 
-    QPushButton *m_restoreButton;
-    QGroupBox *m_displaySettings;
+    QPushButton m_restoreButton;
+    QGroupBox m_displaySettings;
     QWidget m_behaviorSettings;
     TextEditor::SimpleCodeStylePreferencesWidget m_tabPreferencesWidget;
 };
 
 EditorSettingsWidget::EditorSettingsWidget(Project *project)
     : m_project(project)
+    , m_restoreButton(Tr::tr("Restore Global"), this)
+    , m_displaySettings(Tr::tr("Display Settings"), this)
     , m_behaviorSettings(this)
     , m_tabPreferencesWidget(&m_behaviorSettings)
 {
     setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
 
-    m_restoreButton = new QPushButton(Tr::tr("Restore Global"));
-
-    m_displaySettings = new QGroupBox(Tr::tr("Display Settings"));
-    m_displaySettings->setEnabled(false);
+    m_displaySettings.setEnabled(false);
 
     EditorConfiguration *config = m_project->editorConfiguration();
 
@@ -82,11 +81,11 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
         m.marginColumn,
         m.useIndenter,
         st
-    }.attachTo(m_displaySettings);
+    }.attachTo(&m_displaySettings);
 
     Column {
-        Row { m_restoreButton, st },
-        m_displaySettings,
+        Row { &m_restoreButton, st },
+        &m_displaySettings,
         &m_behaviorSettings,
         st,
         noMargin
@@ -100,7 +99,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
     connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
             this, &EditorSettingsWidget::globalSettingsActivated);
 
-    connect(m_restoreButton, &QAbstractButton::clicked,
+    connect(&m_restoreButton, &QAbstractButton::clicked,
             this, &EditorSettingsWidget::restoreDefaultValues);
 
     connect(&config->extraEncodingSettings.defaultEncoding, &BaseAspect::changed, config, [config] {
@@ -115,9 +114,9 @@ void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 
 void EditorSettingsWidget::globalSettingsActivated(bool useGlobal)
 {
-    m_displaySettings->setEnabled(!useGlobal);
+    m_displaySettings.setEnabled(!useGlobal);
     m_behaviorSettings.setEnabled(!useGlobal);
-    m_restoreButton->setEnabled(!useGlobal);
+    m_restoreButton.setEnabled(!useGlobal);
     EditorConfiguration *config = m_project->editorConfiguration();
     config->setUseGlobalSettings(useGlobal);
 }
