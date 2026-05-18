@@ -78,6 +78,22 @@ ExtraEncodingSettings::ExtraEncodingSettings()
     lineEndingSetting.addOption(Tr::tr("Windows (CRLF)"));
     lineEndingSetting.setDefaultValue(ExtraEncodingSettingsData::Unix);
     lineEndingSetting.setLabelText(Tr::tr("Default line endings:"));
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title(Tr::tr("File Encodings")),
+                Row {
+                    Form {
+                        defaultEncoding, br,
+                        utf8BomSetting, br,
+                        lineEndingSetting, br,
+                    }, st
+                }
+            }
+        };
+    });
 }
 
 ExtraEncodingSettingsData ExtraEncodingSettings::data() const

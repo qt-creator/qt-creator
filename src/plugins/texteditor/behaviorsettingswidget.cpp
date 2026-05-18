@@ -8,12 +8,8 @@
 #include "simplecodestylepreferenceswidget.h"
 #include "storagesettings.h"
 #include "tabsettingswidget.h"
-#include "texteditortr.h"
 #include "typingsettings.h"
 
-#include <coreplugin/icore.h>
-
-#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
 namespace TextEditor {
@@ -29,65 +25,12 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(TypingSettings *typingSettings,
 
     using namespace Layouting;
 
-    Group typing {
-        title(Tr::tr("Typing")),
-        Row {
-            Form {
-                typingSettings->autoIndent, br,
-                typingSettings->smartBackspaceBehavior, br,
-                typingSettings->tabKeyBehavior, br,
-                typingSettings->preferSingleLineComments, br,
-                typingSettings->commentPosition, br
-            }, st
-        }
-    };
-
-    Group storage {
-        title(Tr::tr("Cleanups Upon Saving")),
-        Layouting::toolTip(Tr::tr("Cleanup actions which are automatically performed "
-                                  "right before the file is saved to disk.")),
-        Column {
-            storageSettings->cleanWhitespace,
-                Row { Space(30), storageSettings->inEntireDocument },
-                Row { Space(30), storageSettings->cleanIndentation },
-                Row { Space(30), storageSettings->skipTrailingWhitespace,
-                                 storageSettings->ignoreFileTypes },
-            storageSettings->addFinalNewLine,
-        }
-    };
-
-    Group encoding {
-        title(Tr::tr("File Encodings")),
-        Row {
-            Form {
-                encodingSettings->defaultEncoding, br,
-                encodingSettings->utf8BomSetting, br,
-                encodingSettings->lineEndingSetting, br,
-            }, st
-        }
-    };
-
-    Group mouse {
-        title(Tr::tr("Mouse and Keyboard")),
-        Row {
-            Form {
-                behaviorSettings->mouseHiding, br,
-                behaviorSettings->mouseNavigation, br,
-                behaviorSettings->scrollWheelZooming, br,
-                behaviorSettings->camelCaseNavigation, br,
-                behaviorSettings->smartSelectionChanging, br,
-                behaviorSettings->keyboardTooltips, br,
-                behaviorSettings->constrainHoverTooltips, br
-            }, st
-        }
-    };
-
     Column {
         tabPreferencesWidget,
-        typing,
-        storage,
-        encoding,
-        mouse,
+        typingSettings,
+        storageSettings,
+        encodingSettings,
+        behaviorSettings,
         st,
         noMargin,
     }.attachTo(this);

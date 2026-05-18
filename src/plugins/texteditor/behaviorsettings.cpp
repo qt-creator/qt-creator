@@ -21,6 +21,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 
@@ -88,6 +89,26 @@ BehaviorSettings::BehaviorSettings(const Key &keyPrefix)
     smartSelectionChanging.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     smartSelectionChanging.setLabelText(Tr::tr("Enable smart selection changing"));
     smartSelectionChanging.setToolTip(Tr::tr("Using Select Block Up / Down actions will now provide smarter selections."));
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title(Tr::tr("Mouse and Keyboard")),
+                Row {
+                    Form {
+                        mouseHiding, br,
+                        mouseNavigation, br,
+                        scrollWheelZooming, br,
+                        camelCaseNavigation, br,
+                        smartSelectionChanging, br,
+                        keyboardTooltips, br,
+                        constrainHoverTooltips, br
+                    }, st
+                }
+            }
+        };
+    });
 }
 
 void BehaviorSettings::setData(const BehaviorSettingsData &data)
