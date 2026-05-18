@@ -10,6 +10,9 @@
 
 namespace TextEditor {
 
+class CodeStylePool;
+class ICodeStylePreferences;
+
 /**
  * Settings that describe how the text editor behaves. This does not include
  * the TabSettings and StorageSettings.
@@ -47,8 +50,11 @@ public:
     Utils::BoolAspect smartSelectionChanging{this};
 };
 
-void setupBehaviorSettings();
-
 TEXTEDITOR_EXPORT BehaviorSettings &globalBehaviorSettings();
+
+ICodeStylePreferences *globalCodeStyle();
+CodeStylePool *globalCodeStylePool();
+
+namespace Internal { void setupBehaviorSettings(); }
 
 } // namespace TextEditor

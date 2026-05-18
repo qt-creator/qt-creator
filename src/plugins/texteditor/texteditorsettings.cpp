@@ -4,7 +4,6 @@
 #include "texteditorsettings.h"
 
 #include "behaviorsettings.h"
-#include "behaviorsettingspage.h"
 #include "commentssettings.h"
 #include "completionsettings.h"
 #include "displaysettings.h"
@@ -40,7 +39,6 @@ class TextEditorSettingsPrivate
 public:
     FontSettings m_fontSettings;
     FontSettingsPage m_fontSettingsPage{&m_fontSettings, initialFormats()};
-    BehaviorSettingsPage m_behaviorSettingsPage;
     SnippetsSettingsPage m_snippetsSettingsPage;
     CommentsSettingsPage m_commentsSettingsPage;
 
@@ -498,7 +496,7 @@ ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Utils::Id lan
 
 ICodeStylePreferences *TextEditorSettings::codeStyle()
 {
-    return d->m_behaviorSettingsPage.codeStyle();
+    return globalCodeStyle();
 }
 
 ICodeStylePreferences *TextEditorSettings::codeStyle(Utils::Id languageId)
@@ -523,7 +521,7 @@ void TextEditorSettings::unregisterCodeStyle(Utils::Id languageId)
 
 CodeStylePool *TextEditorSettings::codeStylePool()
 {
-    return d->m_behaviorSettingsPage.codeStylePool();
+    return globalCodeStylePool();
 }
 
 CodeStylePool *TextEditorSettings::codeStylePool(Utils::Id languageId)
