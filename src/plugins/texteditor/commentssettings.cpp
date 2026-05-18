@@ -112,6 +112,14 @@ void CommentsSettings::Data::fromMap(const Store &data)
             data.value(kCommandPrefix, int(commandPrefix)).toInt());
 }
 
+bool operator==(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
+{
+    return a.enableDoxygen == b.enableDoxygen
+           && a.commandPrefix == b.commandPrefix
+           && a.generateBrief == b.generateBrief
+           && a.leadingAsterisks == b.leadingAsterisks;
+}
+
 void CommentsSettings::Data::toMap(Store &data) const
 {
     data.insert(kEnableDoxygenBlocks, enableDoxygen);

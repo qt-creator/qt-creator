@@ -24,6 +24,9 @@ public:
         bool enableDoxygen = true;
         bool generateBrief = true;
         bool leadingAsterisks = true;
+
+        friend bool operator==(const Data &a, const Data &b);
+        friend bool operator!=(const Data &a, const Data &b) { return !(a == b); }
     };
 
     Data data() const;
@@ -40,18 +43,6 @@ public:
     Utils::BoolAspect generateBrief{this};
     Utils::BoolAspect leadingAsterisks{this};
 };
-
-inline bool operator==(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
-{
-    return a.enableDoxygen == b.enableDoxygen
-           && a.commandPrefix == b.commandPrefix
-           && a.generateBrief == b.generateBrief
-           && a.leadingAsterisks == b.leadingAsterisks;
-}
-inline bool operator!=(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
-{
-    return !(a == b);
-}
 
 namespace Internal {
 
