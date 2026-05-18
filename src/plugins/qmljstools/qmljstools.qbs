@@ -19,8 +19,6 @@ QtcPlugin {
     files: [
         "qmlformatsettings.cpp",
         "qmlformatsettings.h",
-        "qmlformatsettingswidget.cpp",
-        "qmlformatsettingswidget.h",
         "qmljsbundleprovider.cpp",
         "qmljsbundleprovider.h",
         "qmljscodestylesettings.h",
