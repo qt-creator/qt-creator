@@ -118,11 +118,11 @@
         \li \uicontrol {Connection type}
         \li The type of the connection to use for the MCP server.
     \row
-        \li \uicontrol {Launch command}
-        \li The command to launch the MCP server process. Only used for standard
+        \li \uicontrol {Executable}
+        \li The executable to launch the MCP server process. Only used for standard
             IO connections.
     \row
-        \li \uicontrol {Launch arguments}
+        \li \uicontrol {Arguments}
         \li Arguments for the launch command.
     \row
         \li \uicontrol {Environment}

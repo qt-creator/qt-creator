@@ -158,7 +158,7 @@ public:
 
         Form {
             Tr::tr("Name:"), &m_name, br,
-            Tr::tr("Executable"), &m_executable,
+            Tr::tr("Executable:"), &m_executable,
             noMargin
         }.attachTo(this);
     }
@@ -1290,7 +1290,7 @@ public:
         setWidgetCreator([] { return new InterpreterOptionsWidget; });
         setFixedKeywords({
             Tr::tr("Name:"),
-            Tr::tr("Executable"),
+            Tr::tr("Executable:"),
             Tr::tr("&Add"),
             Tr::tr("&Delete"),
             Tr::tr("&Clean Up"),

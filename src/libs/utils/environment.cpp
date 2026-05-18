@@ -863,6 +863,7 @@ Result<Environment> getUnixEnvironment(
     }
     if (getEnvProc.result() != ProcessResult::FinishedWithSuccess) {
         return ResultError(
+            //: %1 = error message
             Tr::tr("Failed to get environment variables from device: %1")
                 .arg(getEnvProc.verboseExitMessage()));
     }
@@ -882,6 +883,7 @@ Result<Environment> getEnvironmentFromBatFile(const FilePath &batFile)
     saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
     if (const Result<> &res = saver.finalize(); !res) {
         return ResultError(
+            //: %1 = batch file path, %2 = error message
             Tr::tr("Failed to get environment variables from \"%1\": %2")
                 .arg(batFile.toUserOutput(), res.error()));
     }
@@ -899,6 +901,7 @@ Result<Environment> getEnvironmentFromBatFile(const FilePath &batFile)
     run.runBlocking(5s);
     if (run.result() != ProcessResult::FinishedWithSuccess) {
         return ResultError(
+            //: %1 = batch file path, %2 = error message
             Tr::tr("Failed to get environment variables from \"%1\": %2")
                 .arg(
                     batFile.toUserOutput(),
@@ -908,6 +911,7 @@ Result<Environment> getEnvironmentFromBatFile(const FilePath &batFile)
     const QString stdOut = run.cleanedStdOut();
     int start = stdOut.indexOf(marker);
     if (start == -1) {
+        //: %1 = batch file path
         return ResultError(
             Tr::tr("Failed to get environment variables from \"%1\": Unexpected output")
                 .arg(batFile.toUserOutput()));
@@ -916,6 +920,7 @@ Result<Environment> getEnvironmentFromBatFile(const FilePath &batFile)
     const int end = stdOut.indexOf(marker, start);
     if (end == -1) {
         return ResultError(
+            //: %1 = batch file path
             Tr::tr("Failed to get environment variables from \"%1\": Unexpected output")
                 .arg(batFile.toUserOutput()));
     }

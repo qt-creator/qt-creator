@@ -45,12 +45,13 @@ MarginSettings::MarginSettings(const Key &keyPrefix)
     centerEditorContentWidthPercent.setRange(50, 100);
     centerEditorContentWidthPercent.setDefaultValue(100);
     centerEditorContentWidthPercent.setSuffix("%");
-    centerEditorContentWidthPercent.setLabelText(Tr::tr("Editor content width"));
+    centerEditorContentWidthPercent.setLabelText(Tr::tr("Editor content width:"));
     centerEditorContentWidthPercent.setToolTip(
-            Tr::tr("100% means that whole width of editor window is used to display text"
+        Tr::tr(
+            "100% means that whole width of editor window is used to display text"
             " content (default).<br>50% means that half of editor width is used to display"
             " text content.<br>Remaining 50% is divided as left and right margins while"
-            " centering content"));
+            " centering the content."));
 
     if (isGlobal)
         readSettings();

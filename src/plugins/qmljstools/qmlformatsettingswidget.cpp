@@ -470,7 +470,7 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(QWidget *parent, FormatterSelec
                     m_versionLabel,
                     Label {
                         openExternalLinks(true),
-                        text("<a href='https://doc.qt.io/qt/qtqml-tooling-qmlformat.html'>" + Tr::tr("qmlformat latest documentation") + "</a>"),
+                        text("<a href='https://doc.qt.io/qt/qtqml-tooling-qmlformat.html'>" + Tr::tr("Open latest documentation") + "</a>"),
                     },
                     st,
                 },
@@ -576,7 +576,7 @@ void QmlFormatSettingsWidget::initVersion()
 {
     const FilePath &qmlFormatPath = QmlFormatSettings::instance().latestQmlFormatPath();
     if (qmlFormatPath.isEmpty()) {
-        MessageManager::writeSilently(Tr::tr("QmlFormat not found. No version."));
+        MessageManager::writeSilently(Tr::tr("qmlformat not found. No version."));
         m_versionLabel->setText("Unknown qmlformat version");
         return;
     }

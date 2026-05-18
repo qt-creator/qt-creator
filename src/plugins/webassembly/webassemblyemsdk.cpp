@@ -101,7 +101,7 @@ Result<QVersionNumber> version(const FilePath &sdkRoot)
     const FilePath tsFile = timeStampFile(sdkRoot); // ts == Timestamp
     if (!tsFile.exists()) {
         return ResultError(
-            Tr::tr("\"%1\" config file does not exist in \"%2\"")
+            Tr::tr("\"%1\" config file does not exist in \"%2\".")
                 .arg(Constants::WEBASSEMBLY_EMSDK_CONFIG_FILE)
                 .arg(sdkRoot.toUserOutput()));
     }
@@ -114,7 +114,7 @@ Result<QVersionNumber> version(const FilePath &sdkRoot)
         && DB::contains(emSdkVersionKey)) {
         QVersionNumber version = QVersionNumber::fromString(DB::value(emSdkVersionKey).toString());
         if (version.isNull())
-            return ResultError(Tr::tr("Cached emsdk version is invalid"));
+            return ResultError(Tr::tr("Cached emsdk version is invalid."));
         return version;
     }
 
@@ -123,7 +123,7 @@ Result<QVersionNumber> version(const FilePath &sdkRoot)
     QLatin1String scriptFile{sdkRoot.osType() == OsType::OsTypeWindows ? "emcc.bat" : "emcc"};
     FilePath script = sdkRoot.withNewPath(scriptFile).searchInDirectories(env.path());
     if (!script.exists())
-        return ResultError(Tr::tr("Failed to locate %1").arg(scriptFile));
+        return ResultError(Tr::tr("Failed to locate \"%1\".").arg(scriptFile));
     const CommandLine command(script, {"-dumpversion"});
     Process emcc;
     emcc.setCommand(command);
@@ -139,7 +139,8 @@ Result<QVersionNumber> version(const FilePath &sdkRoot)
     const QVersionNumber result = QVersionNumber::fromString(versionStr);
 
     if (result.isNull())
-        return ResultError(Tr::tr("Failed to parse emsdk version from output: %1").arg(versionStr));
+        return ResultError(
+            Tr::tr("Failed to parse emsdk version from output: \"%1\".").arg(versionStr));
 
     DB::setValue(emSdkVersionTSFileKey, tsFile.toVariant());
     DB::setValue(emSdkVersionTSKey, ts);

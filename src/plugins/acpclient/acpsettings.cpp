@@ -222,19 +222,19 @@ public:
         name.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
         name.setDefaultValue(Tr::tr("<New Server>"));
 
-        launchCommand.setLabelText(Tr::tr("Launch command:"));
+        launchCommand.setLabelText(Tr::tr("Executable:"));
         launchCommand.setSettingsKey("launchCommand");
-        launchCommand.setToolTip(Tr::tr("The command to launch the ACP server process."));
+        launchCommand.setToolTip(Tr::tr("The executable to launch the ACP server process."));
         launchCommand.setExpectedKind(PathChooser::ExistingCommand);
 
-        launchArguments.setLabelText(Tr::tr("Launch arguments:"));
+        launchArguments.setLabelText(Tr::tr("Arguments:"));
         launchArguments.setSettingsKey("launchArguments");
         launchArguments.setToolTip(
             Tr::tr("The arguments to launch the ACP server process."));
         launchArguments.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
 
         environment.setSettingsKey("environment");
-        environment.setLabelText("Environment Changes:");
+        environment.setLabelText(Tr::tr("Environment changes:"));
         connect(&registryBrowser, &AcpRegistryBrowser::volatileValueChanged, this, [this]() {
             applyRegistryTemplate();
         });
@@ -463,7 +463,6 @@ public:
         setLayouter([this]() {
             using namespace Layouting;
             return Column{
-                Tr::tr("ACP Servers:"), br,
                 &acpServers,
             };
         });

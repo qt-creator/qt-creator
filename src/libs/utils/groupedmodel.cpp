@@ -310,6 +310,7 @@ QVariant GroupedModel::data(const QModelIndex &index, int role) const
     QVariant result = variantData(row, index.column(), role);
     if (role == Qt::DisplayRole && index.column() == 0
             && m_volatileDefaultFlag.at(row) && m_showDefault) {
+        //: %1 = some list item's name
         return Tr::tr("%1 (Default)").arg(result.toString());
     }
     return result;

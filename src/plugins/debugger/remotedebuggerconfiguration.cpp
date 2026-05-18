@@ -36,12 +36,12 @@ private:
 RemoteDebuggerConfiguration::RemoteDebuggerConfiguration(BuildConfiguration *bc, Id id)
     : RunConfiguration(bc, id)
 {
-    executable.setLabelText(Tr::tr("Launcher command:"));
+    executable.setLabelText(Tr::tr("Command:"));
     executable.setReadOnly(false);
     executable.setSettingsKey("RemoteDebugger.Executable");
     executable.setHistoryCompleter("RemoteDebugger.Executable.History");
     executable.setPlaceHolderText(
-        Tr::tr("Script or command that will set up the gdb server connection"));
+        Tr::tr("Script or command that will set up the gdb server connection."));
     executable.setExpectedKind(PathChooser::Command);
 
     arguments.setSettingsKey("RemoteDebugger.Arguments");
@@ -74,14 +74,15 @@ RemoteDebuggerConfiguration::RemoteDebuggerConfiguration(BuildConfiguration *bc,
 QString RemoteDebuggerConfiguration::runConfigDefaultDisplayName()
 {
     const FilePath exe = executable();
-    return exe.isEmpty() ? Tr::tr("RemoteDebugger Runner") : Tr::tr("RemoteDebugger: %1").arg(exe.toUserOutput());
+    return exe.isEmpty() ? Tr::tr("Remote Debugger")
+                         : Tr::tr("Remote Debugger: %1").arg(exe.toUserOutput());
 }
 
 Tasks RemoteDebuggerConfiguration::checkForIssues() const
 {
     Tasks tasks;
     if (executable().isEmpty())
-        tasks << createConfigurationIssue(Tr::tr("The launcher command must be set in order to run."));
+        tasks << createConfigurationIssue(Tr::tr("The command must be set in order to debug."));
     if (symbolFile().isEmpty())
         tasks << createConfigurationIssue(Tr::tr("The symbol file must be set in order to debug."));
     if (gdbServerChannel().isEmpty())

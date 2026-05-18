@@ -1606,7 +1606,7 @@ void DebuggerPluginPrivate::attachToLastCore()
 {
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(KitManager::defaultKit());
-    runControl->setDisplayName(Tr::tr("Searching Last Core file..."));
+    runControl->setDisplayName(Tr::tr("Searching last Core file..."));
 
     DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setStartMode(AttachToCore);

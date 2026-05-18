@@ -165,8 +165,8 @@ QmllsClientSettings::QmllsClientSettings()
 
     auto latestQmllsDisplay = []() {
         return evaluateLatestQmlls().first.isEmpty()
-            ? Tr::tr("Use qmlls from latest Qt")
-                   : Tr::tr("Use qmlls from latest Qt (located at %1)")
+                   ? Tr::tr("Use qmlls from latest Qt")
+                   : Tr::tr("Use qmlls from latest Qt (located at \"%1\")")
                          .arg(evaluateLatestQmlls().first.path());
     };
     executableSelection.setSettingsKey(executableSelectionKey);

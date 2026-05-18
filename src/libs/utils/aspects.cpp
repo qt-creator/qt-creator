@@ -2011,14 +2011,14 @@ void ColorAspect::addToLayoutImpl(Layouting::Layout &parent)
         addLabeledItems(parent, {button, resetButton});
     } else {
         QMenu *menu = new QMenu(button);
-        QAction *resetAction = menu->addAction(Tr::tr("Reset to default"), this, [this] {
+        QAction *resetAction = menu->addAction(Tr::tr("Reset to Default"), this, [this] {
             setVolatileValue(defaultValue());
         });
         resetAction->setIcon(button->generatePixmap());
         resetAction->setIconVisibleInMenu(true);
         button->setMenu(menu);
         button->setToolTip(
-            QStringList{toolTip(), Tr::tr("Press and Hold to reset to default.")}.join('\n'));
+            QStringList{toolTip(), Tr::tr("Press and hold to reset to default.")}.join('\n'));
         addLabeledItem(parent, button);
     }
 }

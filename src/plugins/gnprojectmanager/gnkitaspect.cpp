@@ -104,8 +104,11 @@ public:
     {
         setId(GN_TOOL_ID);
         setDisplayName(Tr::tr("GN Tool"));
-        setDescription(Tr::tr("The GN tool to use when building a project with GN.<br>"
-                              "This setting is ignored when using other build systems."));
+        setDescription(
+            "<qt>"
+            + Tr::tr(
+                "The GN tool to use when building a project with GN. This setting is ignored when "
+                "using other build systems."));
         setPriority(9000);
     }
 

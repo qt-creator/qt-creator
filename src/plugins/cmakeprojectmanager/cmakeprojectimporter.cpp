@@ -527,6 +527,7 @@ static QVariant findOrRegisterDebugger(
         if (debuggerPath.isRelativePath())
             debuggerPath = env.searchInPath(debuggerPath.fileName());
 
+        //: %1=project name, %2=CMake preset name, %3=debugger base name
         const QString mainName = Tr::tr("%1: %2 %3 Debugger");
         DebuggerItem debugger;
         debugger.setCommand(debuggerPath);
@@ -1304,11 +1305,9 @@ void CMakeProjectImporter::createKitsFromPresets()
         if (doneWith == DoneWith::Error) {
             TaskHub::addTask<BuildSystemTask>(
                 Task::TaskType::DisruptingError,
-                Tr::tr("CMake Preset: \"%1\" failure.\n%2\n%3")
-                    .arg(
-                        configurePreset.displayName.value_or(configurePreset.name),
-                        process.cleanedStdOut(),
-                        process.cleanedStdErr()));
+                Tr::tr("Cannot set up compiler for CMake Preset \"%1\".")
+                        .arg(configurePreset.displayName.value_or(configurePreset.name))
+                    + "\n" + process.cleanedStdOut() + "\n" + process.cleanedStdErr());
             return;
         }
 
@@ -1347,11 +1346,9 @@ void CMakeProjectImporter::createKitsFromPresets()
         if (doneWith == DoneWith::Error) {
             TaskHub::addTask<BuildSystemTask>(
                 Task::TaskType::DisruptingError,
-                Tr::tr("CMake Preset: \"%1\" failure.\n%2\n%3")
-                    .arg(
-                        configurePreset.displayName.value_or(configurePreset.name),
-                        process.cleanedStdOut(),
-                        process.cleanedStdErr()));
+                Tr::tr("Cannot set up Qt for CMake Preset \"%1\".")
+                        .arg(configurePreset.displayName.value_or(configurePreset.name))
+                    + "\n" + process.cleanedStdOut() + "\n" + process.cleanedStdErr());
             return;
         }
 
@@ -1479,7 +1476,7 @@ void CMakeProjectImporter::createKitsFromPresets()
     QTaskTree taskTree(recipe);
 
     auto progress = new Core::TaskProgress(&taskTree);
-    progress->setDisplayName(Tr::tr("Creating CMakePresets Kits"));
+    progress->setDisplayName(Tr::tr("Creating Kits for CMake Presets"));
     progress->setId(Constants::PRESETS_KITS_PROGRESS);
 
     taskTree.runBlocking();

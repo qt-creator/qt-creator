@@ -164,7 +164,9 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
                 m_lastTask.addToDetails({});
                 m_lastTask.addLinkDetail(
                     UpdateInfo::SERVICE_URL + packages,
-                    "👉 Click here to install the missing component with the Qt Online Installer");
+                    Tr::tr(
+                        "👉 Click here to install the missing component with the Qt Online "
+                        "Installer"));
                 return {Status::InProgress};
             }
         }

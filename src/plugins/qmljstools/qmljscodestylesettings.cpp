@@ -192,14 +192,14 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
                     Row {
                         st,
                         PushButton {
-                            text(Tr::tr("Reset to original preview text")),
+                            text(Tr::tr("Reset to Original Preview Text")),
                             onClicked(this, [this, previewText]() {
                                 m_previewTextEdit->setPlainText(previewText);
 
                             }),
                         },
                         PushButton {
-                            text(Tr::tr("Format current preview text")),
+                            text(Tr::tr("Format Current Preview Text")),
                             onClicked(this, [this]() {
                                 this->updatePreview();
                             }),

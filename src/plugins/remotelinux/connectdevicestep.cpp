@@ -72,7 +72,7 @@ GroupItem ConnectDeviceStep::deployRecipe()
 
         task.device = device;
         task.step = this;
-        task.step->addProgressMessage(Tr::tr("Connecting target device ..."));
+        task.step->addProgressMessage(Tr::tr("Connecting target device..."));
         return SetupResult::Continue;
     };
 
@@ -80,7 +80,7 @@ GroupItem ConnectDeviceStep::deployRecipe()
         if (result == DoneWith::Success)
             task.step->addProgressMessage(Tr::tr("Device connected."));
         else
-            task.step->addErrorMessage(Tr::tr("failed: %1.").arg(task.result.error()));
+            task.step->addErrorMessage(Tr::tr("Failed: %1.").arg(task.result.error()));
     };
 
     return ConnectDeviceTask(setup, onDone);

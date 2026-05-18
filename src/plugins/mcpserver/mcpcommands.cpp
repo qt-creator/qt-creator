@@ -1179,12 +1179,11 @@ void McpCommands::registerCommands()
             const QString id = p.value("id").toString();
             Core::Command *cmd = Core::ActionManager::command(Id::fromString(id));
             if (!cmd)
-                return ResultError(Tr::tr("No action found with ID '%1'").arg(id));
+                return ResultError(Tr::tr("No action found with ID \"%1\".").arg(id));
             if (!cmd->action())
-                return ResultError(Tr::tr("Command '%1' has no associated action").arg(id));
+                return ResultError(Tr::tr("Command \"%1\" has no associated action.").arg(id));
             if (!cmd->action()->isEnabled())
-                return ResultError(
-                    Tr::tr("Action '%1' is currently disabled").arg(cmd->action()->text()));
+                return ResultError(Tr::tr("Action \"%1\" is disabled.").arg(cmd->action()->text()));
 
             cmd->action()->trigger();
             return CallToolResult{}.isError(false);

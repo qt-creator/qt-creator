@@ -95,7 +95,7 @@ void GNBuildSystem::parsingCompleted(bool success)
         m_parseGuard.markAsSuccess();
         emitBuildSystemUpdated();
     } else {
-        TaskHub::addTask<BuildSystemTask>(Task::Error, Tr::tr("GN build: Parsing failed"));
+        TaskHub::addTask<BuildSystemTask>(Task::Error, Tr::tr("GN build: Parsing failed."));
         emitBuildSystemUpdated();
     }
     emit buildConfiguration()->enabledChanged();

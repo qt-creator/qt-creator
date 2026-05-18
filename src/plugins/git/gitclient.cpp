@@ -3169,9 +3169,11 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
             QString fileList = partialFiles.join('\n');
             if (partialFiles.size() != warningFiles.size())
                 fileList += "\n...";
-            const QString message =
-                Tr::tr("For the following files, the staged content will be overwritten with the "
-                       "unstaged version.\nContinue?\n%1").arg(fileList);
+            const QString message
+                = Tr::tr(
+                      "For the following files, the staged content will be overwritten with the "
+                      "unstaged version.\nContinue?")
+                  + "\n" + fileList;
             QMessageBox box(QMessageBox::Warning, Tr::tr("Possible Data Loss"),
                             message, QMessageBox::Yes | QMessageBox::No, ICore::dialogParent());
             if (box.exec() == QMessageBox::No)

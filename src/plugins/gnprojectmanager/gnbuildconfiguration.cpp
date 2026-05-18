@@ -117,22 +117,22 @@ public:
     {
         auto generateButton = new QPushButton(Tr::tr("Generate Project"));
         generateButton->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        generateButton->setToolTip(Tr::tr("Run 'gn gen --ide=json' to (re)generate the project."));
+        generateButton->setToolTip(Tr::tr("Run \"gn gen --ide=json\" to (re)generate the project."));
 
         auto openArgsButton = new QPushButton(Tr::tr("Open args.gn"));
         openArgsButton->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        openArgsButton->setToolTip(Tr::tr("Opens <build_dir>/args.gn in the editor"));
+        openArgsButton->setToolTip(Tr::tr("Opens args.gn from the build directory in the editor."));
 
         auto parametersLineEdit = new QLineEdit;
         parametersLineEdit->setText(buildCfg->parameters());
         parametersLineEdit->setPlaceholderText(
-            Tr::tr("Additional GN gen arguments (e.g. --args='is_debug=true')"));
+            Tr::tr("Additional GN gen arguments (e.g. --args='is_debug=true')."));
 
         using namespace Layouting;
         Column {
             noMargin,
             Form {
-                Tr::tr("Parameters:"), parametersLineEdit, br,
+                Tr::tr("Arguments:"), parametersLineEdit, br,
                 buildCfg->buildDirectoryAspect(), br,
             },
             Row { generateButton, st, noMargin },

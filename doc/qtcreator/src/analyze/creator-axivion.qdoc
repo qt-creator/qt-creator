@@ -186,7 +186,7 @@
 
     Right-click a local build to cancel a running build from the context menu.
     To inspect the output of the local build, double-click or select
-    \uicontrol {See Build Output} from the context menu. This opens the
+    \uicontrol {Show Build Output} from the context menu. This opens the
     \uicontrol {Local Analyses Output} view, which provides the output for
     running or finished local analyses.
     Select \uicontrol {Remove All Finished} to remove the local builds that
