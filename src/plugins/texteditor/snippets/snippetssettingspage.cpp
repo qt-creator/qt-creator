@@ -544,12 +544,21 @@ void SnippetsSettingsWidget::decorateEditors(const TextEditor::FontSettings &fon
 
 // SnippetsSettingsPage
 
-SnippetsSettingsPage::SnippetsSettingsPage()
+class SnippetsSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS);
-    setDisplayName(Tr::tr("Snippets"));
-    setCategory(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new SnippetsSettingsWidget; });
+public:
+    SnippetsSettingsPage()
+    {
+        setId(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS);
+        setDisplayName(Tr::tr("Snippets"));
+        setCategory(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new SnippetsSettingsWidget; });
+    }
+};
+
+void setupSnippetsSettings()
+{
+    static SnippetsSettingsPage theSnippetsSettingsPage;
 }
 
 } // TextEditor::Internal

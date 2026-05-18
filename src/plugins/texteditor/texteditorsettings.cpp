@@ -14,7 +14,6 @@
 #include "icodestylepreferencesfactory.h"
 #include "marginsettings.h"
 #include "texteditortr.h"
-#include "snippets/snippetssettingspage.h"
 
 #include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
@@ -39,7 +38,6 @@ class TextEditorSettingsPrivate
 public:
     FontSettings m_fontSettings;
     FontSettingsPage m_fontSettingsPage{&m_fontSettings, initialFormats()};
-    SnippetsSettingsPage m_snippetsSettingsPage;
     CommentsSettingsPage m_commentsSettingsPage;
 
     QMap<Utils::Id, ICodeStylePreferencesFactory *> m_languageToFactory;

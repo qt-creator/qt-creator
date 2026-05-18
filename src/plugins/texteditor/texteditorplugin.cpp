@@ -17,6 +17,7 @@
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
+#include "snippets/snippetssettingspage.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
@@ -105,6 +106,7 @@ void TextEditorPlugin::initialize()
         Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setupBehaviorSettings();
     setupExtraEncodingSettings();
+    setupSnippetsSettings();
     setupStorageSettings();
     setupTypingSettings();
     // Currently needed after the previous four lines.

@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 namespace TextEditor::Internal {
 
-class SnippetsSettingsPage final : public Core::IOptionsPage
-{
-public:
-    SnippetsSettingsPage();
-};
+void setupSnippetsSettings();
 
 } // TextEditor::Internal
