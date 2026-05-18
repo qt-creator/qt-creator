@@ -6,7 +6,6 @@
 #include "qmlformatsettings.h"
 #include "qmlformatsettingswidget.h"
 #include "qmljscodestylesettings.h"
-#include "qmljscustomformatterwidget.h"
 #include "qmljsformatterselectionwidget.h"
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljstoolsconstants.h"
@@ -100,10 +99,10 @@ QmlJSCodeStyleSettings QmlJSCodeStyleSettings::currentGlobalCodeStyle()
     return QmlJSCodeStylePreferences->currentCodeStyleSettings();
 }
 
-TextEditor::TabSettings QmlJSCodeStyleSettings::currentGlobalTabSettings()
+TabSettings QmlJSCodeStyleSettings::currentGlobalTabSettings()
 {
     QmlJSCodeStylePreferences *QmlJSCodeStylePreferences = globalQmlJSCodeStyle();
-    QTC_ASSERT(QmlJSCodeStylePreferences, return TextEditor::TabSettings());
+    QTC_ASSERT(QmlJSCodeStylePreferences, return TabSettings());
 
     return QmlJSCodeStylePreferences->currentTabSettings();
 }
@@ -120,7 +119,7 @@ class BuiltinFormatterSettingsWidget final : public QmlCodeStyleWidgetBase
 public:
     BuiltinFormatterSettingsWidget(QWidget *parent, FormatterSelectionWidget *selection)
         : QmlCodeStyleWidgetBase(parent)
-        , m_tabSettingsWidget(new TextEditor::TabSettingsWidget)
+        , m_tabSettingsWidget(new TabSettingsWidget)
         , m_formatterSelectionWidget(selection)
     {
         m_lineLength.setRange(0, 999);
@@ -149,14 +148,14 @@ public:
 
     void setCodeStyleSettings(const QmlJSCodeStyleSettings &settings) override;
     void setPreferences(QmlJSCodeStylePreferences *preferences) override;
-    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences) override;
+    void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences) override;
 
 private:
     void slotSettingsChanged();
-    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
+    void slotTabSettingsChanged(const TabSettings &settings);
 
     IntegerAspect m_lineLength;
-    TextEditor::TabSettingsWidget *m_tabSettingsWidget;
+    TabSettingsWidget *m_tabSettingsWidget;
     QmlJSCodeStylePreferences *m_preferences = nullptr;
     FormatterSelectionWidget *m_formatterSelectionWidget;
 };
@@ -199,8 +198,7 @@ void BuiltinFormatterSettingsWidget::setPreferences(QmlJSCodeStylePreferences *p
     }
 }
 
-void BuiltinFormatterSettingsWidget::slotCurrentPreferencesChanged(
-    TextEditor::ICodeStylePreferences *preferences)
+void BuiltinFormatterSettingsWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences)
 {
     QmlJSCodeStylePreferences *current = dynamic_cast<QmlJSCodeStylePreferences *>(
         preferences ? preferences->currentPreferences() : nullptr);
@@ -219,8 +217,7 @@ void BuiltinFormatterSettingsWidget::slotSettingsChanged()
     emit settingsChanged(settings);
 }
 
-void BuiltinFormatterSettingsWidget::slotTabSettingsChanged(
-    const TextEditor::TabSettings &settings)
+void BuiltinFormatterSettingsWidget::slotTabSettingsChanged(const TabSettings &settings)
 {
     if (!m_preferences)
         return;
@@ -230,6 +227,112 @@ void BuiltinFormatterSettingsWidget::slotTabSettingsChanged(
         return;
 
     current->setTabSettings(settings);
+}
+
+// CustomFormatterWidget
+
+class CustomFormatterWidget : public QmlCodeStyleWidgetBase
+{
+public:
+    CustomFormatterWidget(QWidget *parent, FormatterSelectionWidget *selection)
+        : QmlCodeStyleWidgetBase(parent)
+        , m_formatterSelectionWidget(selection)
+    {
+        m_customFormatterPath.setParent(this);
+        m_customFormatterArguments.setParent(this);
+
+        m_customFormatterPath.setPlaceHolderText(
+                    QmlFormatSettings::instance().latestQmlFormatPath().toUrlishString());
+        m_customFormatterPath.setLabelText(Tr::tr("Command:"));
+
+        m_customFormatterArguments.setLabelText(Tr::tr("Arguments:"));
+        m_customFormatterArguments.setDisplayStyle(StringAspect::LineEditDisplay);
+
+        using namespace Layouting;
+        Column {
+            Group {
+                title(Tr::tr("Custom Formatter Configuration")),
+                Column {
+                    m_customFormatterPath, br,
+                    m_customFormatterArguments, br,
+                    st
+                },
+            },
+            noMargin,
+        }.attachTo(this);
+
+        connect(&m_customFormatterPath, &BaseAspect::changed,
+                this, &CustomFormatterWidget::slotSettingsChanged);
+        connect(&m_customFormatterArguments, &BaseAspect::changed,
+                this, &CustomFormatterWidget::slotSettingsChanged);
+    }
+
+    void setCodeStyleSettings(const QmlJSCodeStyleSettings &settings) override;
+    void setPreferences(QmlJSCodeStylePreferences *preferences) override;
+    void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences) override;
+
+private:
+    void slotSettingsChanged();
+
+    FilePathAspect m_customFormatterPath;
+    StringAspect m_customFormatterArguments;
+    FormatterSelectionWidget *m_formatterSelectionWidget = nullptr;
+    QmlJSCodeStylePreferences *m_preferences = nullptr;
+};
+
+void CustomFormatterWidget::setCodeStyleSettings(const QmlJSCodeStyleSettings &settings)
+{
+    QSignalBlocker blocker(this);
+    if (settings.customFormatterPath != m_customFormatterPath.expandedValue())
+        m_customFormatterPath.setValue(settings.customFormatterPath);
+    if (settings.customFormatterArguments != m_customFormatterArguments.value())
+        m_customFormatterArguments.setValue(settings.customFormatterArguments);
+}
+
+void CustomFormatterWidget::setPreferences(QmlJSCodeStylePreferences *preferences)
+{
+    if (m_preferences == preferences)
+        return;
+
+    slotCurrentPreferencesChanged(preferences);
+
+    if (m_preferences) {
+        disconnect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged, this, nullptr);
+        disconnect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
+                   this, &CustomFormatterWidget::slotCurrentPreferencesChanged);
+    }
+    m_preferences = preferences;
+    if (m_preferences) {
+        setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
+        connect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged, this, [this] {
+            setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
+        });
+        connect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
+                this, &CustomFormatterWidget::slotCurrentPreferencesChanged);
+    }
+}
+
+void CustomFormatterWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences)
+{
+    QmlJSCodeStylePreferences *current = dynamic_cast<QmlJSCodeStylePreferences *>(
+        preferences ? preferences->currentPreferences() : nullptr);
+    const bool enableWidgets = current && !current->isReadOnly() && m_formatterSelectionWidget
+                               && m_formatterSelectionWidget->selection().value()
+                                      == QmlCodeStyleWidgetBase::Custom;
+    setEnabled(enableWidgets);
+}
+
+void CustomFormatterWidget::slotSettingsChanged()
+{
+    QmlJSCodeStyleSettings settings = m_preferences ? m_preferences->currentCodeStyleSettings()
+                                                    : QmlJSCodeStyleSettings::currentGlobalCodeStyle();
+    if (m_customFormatterPath.value().isEmpty()) {
+        m_customFormatterPath.setValue(
+            QmlFormatSettings::instance().latestQmlFormatPath().toUrlishString());
+    }
+    settings.customFormatterPath = m_customFormatterPath.expandedValue();
+    settings.customFormatterArguments = m_customFormatterArguments.value();
+    emit settingsChanged(settings);
 }
 
 // QmlJSCodeStylePreferencesWidget
