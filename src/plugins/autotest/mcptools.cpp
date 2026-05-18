@@ -4,6 +4,7 @@
 #include "testresultsmanager.h"
 
 #include "autotestconstants.h"
+#include "testcodeparser.h"
 #include "testrunner.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
@@ -104,7 +105,11 @@ static Utils::Result<ResolvedTestRun> resolveTestRun(
                 itemsPerName.append(items);
         }
         if (!notFound.isEmpty())
-            return ResultError(QString("Test name(s) not found: %1").arg(notFound.join(", ")));
+            return ResultError(
+                QString("Test name(s) not found in the current Autotest model: %1. "
+                        "If you recently added or renamed these tests, call reconfigure "
+                        "first to trigger a re-parse, then retry.")
+                    .arg(notFound.join(", ")));
         for (const QList<ITestTreeItem *> &items : itemsPerName) {
             for (ITestTreeItem *item : items) {
                 if (ITestConfiguration *cfg = item->asConfiguration(runMode))
@@ -305,21 +310,18 @@ void registerMcpTools()
             for (const QJsonValue &v : namesArr)
                 names.append(v.toString());
 
-            const Utils::Result<ResolvedTestRun> resolved = resolveTestRun(scope, names, mode);
-            if (!resolved) {
-                toolInterface.finish(
-                    CallToolResult{}.isError(true).addContent(
-                        Schema::TextContent{}.text(resolved.error())));
-                return ResultOk;
-            }
-
             struct State
             {
                 bool finished = false;
                 bool cancelRequested = false;
+                bool waitingForParser = false;
+                std::optional<QString> resolveError;
             };
             auto state = std::make_shared<State>();
 
+            // startTask is always called synchronously so the client gets a task
+            // ID immediately.  The actual resolve+run is deferred via startRun
+            // if the parser is still scanning (see below).
             using namespace std::chrono_literals;
             const Utils::Result<ToolInterface::TaskProgressNotify> task = toolInterface.startTask(
                 500ms,
@@ -328,12 +330,16 @@ void registerMcpTools()
                         letTaskDieIn(t, 1min);
                         return t.status(Schema::TaskStatus::completed);
                     }
-                    t.statusMessage(
-                        QString::fromLatin1(
-                            state->cancelRequested ? "Cancelling tests..." : "Running tests..."));
+                    const char *msg = state->cancelRequested  ? "Cancelling tests..."
+                                    : state->waitingForParser ? "Waiting for test discovery..."
+                                                              : "Running tests...";
+                    t.statusMessage(QString::fromLatin1(msg));
                     return t.status(Schema::TaskStatus::working);
                 },
-                []() -> Utils::Result<CallToolResult> {
+                [state]() -> Utils::Result<CallToolResult> {
+                    if (state->resolveError)
+                        return CallToolResult{}.isError(true).addContent(
+                            Schema::TextContent{}.text(*state->resolveError));
                     QJsonObject result = resultsManager().summary();
                     // Fold build issues inline when the build that gates the
                     // test run failed. Saves the AI a separate list_issues
@@ -360,39 +366,128 @@ void registerMcpTools()
 
             const ToolInterface::TaskProgressNotify notify = *task;
 
-            auto conn = std::make_shared<QMetaObject::Connection>();
-            *conn = QObject::connect(
-                &resultsManager(),
-                &TestResultsManager::runFinished,
-                &resultsManager(),
-                [state, notify, conn]() {
-                    QObject::disconnect(*conn);
-                    if (state->finished)
-                        return;
+            // startRun resolves the test tree and kicks off the actual run.
+            // Called directly when the parser is idle, or deferred to
+            // parsingFinished/parsingFailed when a scan is in progress.
+            auto startRun = [scope, names, mode, state, notify]() {
+                state->waitingForParser = false;
+
+                if (state->cancelRequested) {
                     state->finished = true;
                     if (notify)
-                        notify(Schema::TaskStatus::completed, "Tests finished", std::nullopt);
+                        notify(Schema::TaskStatus::cancelled, "Cancelled", std::nullopt);
+                    return;
+                }
+
+                const Utils::Result<ResolvedTestRun> resolved =
+                    resolveTestRun(scope, names, mode);
+                if (!resolved) {
+                    state->resolveError = resolved.error();
+                    state->finished = true;
+                    if (notify)
+                        notify(Schema::TaskStatus::failed, "Error", std::nullopt);
+                    return;
+                }
+
+                auto conn = std::make_shared<QMetaObject::Connection>();
+                *conn = QObject::connect(
+                    &resultsManager(),
+                    &TestResultsManager::runFinished,
+                    &resultsManager(),
+                    [state, notify, conn]() {
+                        QObject::disconnect(*conn);
+                        if (state->finished)
+                            return;
+                        state->finished = true;
+                        if (notify)
+                            notify(Schema::TaskStatus::completed, "Tests finished", std::nullopt);
+                    });
+
+                if (!resultsManager().runTests(resolved->mode, resolved->configs)) {
+                    qDeleteAll(resolved->configs);
+                    QObject::disconnect(*conn);
+                    state->resolveError = "Failed to start test run (already in progress?)";
+                    state->finished = true;
+                    if (notify)
+                        notify(Schema::TaskStatus::failed, "Failed to start", std::nullopt);
+                    return;
+                }
+
+                QTimer::singleShot(5000, &resultsManager(), [state]() {
+                    if (state->finished)
+                        return;
+                    if (!resultsManager().isRunning())
+                        return;
+                    TestRunner *runner = TestRunner::instance();
+                    if (!runner || !runner->isTestRunning())
+                        resultsManager().recoverFromStuckRun();
                 });
+            };
 
-            if (!resultsManager().runTests(resolved->mode, resolved->configs)) {
-                qDeleteAll(resolved->configs);
-                QObject::disconnect(*conn);
-                toolInterface.finish(
-                    CallToolResult{}.isError(true).addContent(
-                        Schema::TextContent{}.text(
-                            "Failed to start test run (already in progress?)")));
-                return ResultOk;
+            // If the test-code parser is mid-scan or has a scan scheduled (e.g.
+            // after reconfigure+build triggered a 1-second delayed rescan), defer
+            // startRun until parsing is fully settled so every test class is
+            // visible in the tree. isParsingOrScheduled() covers both the actively
+            // parsing case and the "single-shot timer pending" case.
+            // Qt::QueuedConnection guarantees our callback is posted to the event
+            // loop after TestTreeModel::sweep() — which is connected to the same
+            // signals with QueuedConnection in the model constructor and was
+            // therefore connected first.
+            //
+            // isParsingOrScheduled() is read here — after startTask() — to
+            // eliminate the window where parsingFinished could fire between an
+            // earlier snapshot and the connection being installed, which would
+            // leave startRun permanently deferred.
+            //
+            // The connections are kept alive across multiple parsingFinished
+            // firings: a build can trigger a rapid succession of scans (initial
+            // file sweep → 1-second delayed rescan), so parsingFinished may fire
+            // while isParsingOrScheduled() is still true.  onParsingDone re-checks
+            // after each firing and only calls startRun() once the parser has
+            // fully converged.
+            TestTreeModel *model = TestTreeModel::instance();
+            if (model && model->parser()->isParsingOrScheduled()) {
+                state->waitingForParser = true;
+                qCDebug(mcpAutotest)
+                    << "run_tests: parser active or scan scheduled, deferring until parsingFinished";
+                TestCodeParser *parser = model->parser();
+                auto connFinished = std::make_shared<QMetaObject::Connection>();
+                auto connFailed = std::make_shared<QMetaObject::Connection>();
+                auto onParsingDone = [connFinished, connFailed, startRun, state, notify]() {
+                    if (state->cancelRequested) {
+                        QObject::disconnect(*connFinished);
+                        QObject::disconnect(*connFailed);
+                        state->waitingForParser = false;
+                        state->finished = true;
+                        if (notify)
+                            notify(Schema::TaskStatus::cancelled, "Cancelled", std::nullopt);
+                        return;
+                    }
+                    // Re-check after each parsingFinished: a build can trigger a
+                    // rapid series of scans.  Stay deferred until isParsingOrScheduled()
+                    // is false so the full model is available before resolving tests.
+                    TestTreeModel *liveModel = TestTreeModel::instance();
+                    if (liveModel && liveModel->parser()->isParsingOrScheduled()) {
+                        qCDebug(mcpAutotest)
+                            << "run_tests: parsingFinished fired but another scan is pending, "
+                               "waiting for full convergence";
+                        return; // connections stay installed
+                    }
+                    // Disconnect both before startRun() to prevent double-dispatch if
+                    // the other signal fires in the same event-loop tick.
+                    QObject::disconnect(*connFinished);
+                    QObject::disconnect(*connFailed);
+                    startRun();
+                };
+                *connFinished = QObject::connect(
+                    parser, &TestCodeParser::parsingFinished,
+                    model, onParsingDone, Qt::QueuedConnection);
+                *connFailed = QObject::connect(
+                    parser, &TestCodeParser::parsingFailed,
+                    model, onParsingDone, Qt::QueuedConnection);
+            } else {
+                startRun();
             }
-
-            QTimer::singleShot(5000, &resultsManager(), [state]() {
-                if (state->finished)
-                    return;
-                if (!resultsManager().isRunning())
-                    return;
-                TestRunner *runner = TestRunner::instance();
-                if (!runner || !runner->isTestRunning())
-                    resultsManager().recoverFromStuckRun();
-            });
 
             return ResultOk;
         });
@@ -541,6 +636,116 @@ void registerMcpTools()
                 names.append(v.toString());
             return resultsManager().testDetails(names);
         }));
+
+    // ---- list_tests ----
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_tests")
+            .title("Discover the available tests in the active project")
+            .description(
+                "Read-only: enumerate every test class Autotest currently knows "
+                "about, with its functions. Useful as a discovery step before "
+                "calling run_tests — gives exact class and function names to pass "
+                "as run_tests({scope: \"named\", names: [\"Class::function\"]}) "
+                "without guessing from build artifacts. Each entry carries the "
+                "framework label (e.g. \"Qt Test\", \"Google Test\"). "
+                "Returns empty if Autotest hasn't finished parsing yet or the "
+                "project has no recognized tests.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "tests",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items",
+                             QJsonObject{
+                                 {"type", "object"},
+                                 {"properties",
+                                  QJsonObject{
+                                      {"framework", QJsonObject{{"type", "string"}}},
+                                      {"class", QJsonObject{{"type", "string"}}},
+                                      {"functions",
+                                       QJsonObject{
+                                           {"type", "array"},
+                                           {"items", QJsonObject{{"type", "string"}}}}},
+                                      {"file", QJsonObject{{"type", "string"}}},
+                                      {"line",
+                                       QJsonObject{{"type", "integer"},
+                                                   {"minimum", 1}}}}}}}})
+                    .addProperty("count",
+                                 QJsonObject{{"type", "integer"}, {"minimum", 0}})
+                    .addRequired("tests")
+                    .addRequired("count")),
+        wrap([](const QJsonObject &) -> QJsonObject {
+            TestTreeModel *model = TestTreeModel::instance();
+            if (!model)
+                return QJsonObject{
+                    {"tests", QJsonArray()},
+                    {"count", 0},
+                    {"error", "Autotest plugin not available"}};
+
+            QJsonArray tests;
+            using TT = ITestTreeItem;
+            std::function<void(TT *, const QString &)> walk;
+            walk = [&](TT *item, const QString &frameworkName) {
+                if (!item)
+                    return;
+                const TT::Type t = item->type();
+                if (t == TT::TestCase || t == TT::TestSuite) {
+                    QJsonArray functions;
+                    bool hasNestedSuites = false;
+                    for (int i = 0, n = item->childCount(); i < n; ++i) {
+                        TT *child = item->childAt(i);
+                        if (!child)
+                            continue;
+                        const TT::Type ct = child->type();
+                        // Only include directly-runnable test items.
+                        // TestDataFunction (_data providers) and TestSpecialFunction
+                        // (initTestCase / cleanupTestCase) are not independently
+                        // addressable — they run implicitly alongside the test.
+                        // TestCase children handle frameworks like GTest and Boost
+                        // where individual tests are TestCase items under a TestSuite.
+                        if (ct == TT::TestFunction || ct == TT::TestCase)
+                            functions.append(child->name());
+                        else if (ct == TT::TestSuite)
+                            hasNestedSuites = true;
+                    }
+                    // If this item is purely a suite container with no directly-runnable
+                    // children (e.g. a Boost nested suite), recurse rather than emitting
+                    // an empty entry.
+                    if (functions.isEmpty() && hasNestedSuites) {
+                        for (int i = 0, n = item->childCount(); i < n; ++i)
+                            walk(item->childAt(i), frameworkName);
+                        return;
+                    }
+                    QJsonObject entry;
+                    entry.insert("framework", frameworkName);
+                    entry.insert("class", item->name());
+                    entry.insert("functions", functions);
+                    const FilePath fp = item->filePath();
+                    if (!fp.isEmpty())
+                        entry.insert("file", fp.toUserOutput());
+                    if (item->line() > 0)
+                        entry.insert("line", item->line());
+                    tests.append(entry);
+                    return;
+                }
+                for (int i = 0, n = item->childCount(); i < n; ++i)
+                    walk(item->childAt(i), frameworkName);
+            };
+
+            auto *root = model->rootItem();
+            if (!root)
+                return QJsonObject{{"tests", tests}, {"count", 0}};
+            for (int i = 0, n = root->childCount(); i < n; ++i) {
+                auto *frameworkNode = static_cast<ITestTreeItem *>(root->childAt(i));
+                if (frameworkNode)
+                    walk(frameworkNode, frameworkNode->name());
+            }
+            return QJsonObject{{"tests", tests}, {"count", tests.size()}};
+        }));
+
 }
 
 } // namespace Autotest::Internal

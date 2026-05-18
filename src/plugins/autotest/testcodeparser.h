@@ -43,6 +43,8 @@ public:
     void setState(State state);
     State state() const { return m_parserState; }
     bool isParsing() const { return m_parserState == PartialParse || m_parserState == FullParse; }
+    bool isParsingOrScheduled() const
+    { return isParsing() || m_singleShotScheduled || m_postponedUpdateType != UpdateType::NoUpdate; }
     void setDirty() { m_dirty = true; }
     void syncTestFrameworks(const QList<ITestParser *> &parsers);
 #ifdef WITH_TESTS
