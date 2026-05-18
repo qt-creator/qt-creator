@@ -5,7 +5,6 @@
 
 #include "qmlformatsettings.h"
 #include "qmlformatsettingswidget.h"
-#include "qmljscodestylepreferenceswidget.h"
 #include "qmljscodestylesettings.h"
 #include "qmljscustomformatterwidget.h"
 #include "qmljsformatterselectionwidget.h"
@@ -34,8 +33,10 @@
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/tabsettingswidget.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/aspects.h>
 #include <utils/commandline.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
@@ -110,6 +111,125 @@ TextEditor::TabSettings QmlJSCodeStyleSettings::currentGlobalTabSettings()
 Id QmlJSCodeStyleSettings::settingsId()
 {
     return Constants::QML_JS_CODE_STYLE_SETTINGS_ID;
+}
+
+// BuiltinFormatterSettingsWidget
+
+class BuiltinFormatterSettingsWidget final : public QmlCodeStyleWidgetBase
+{
+public:
+    BuiltinFormatterSettingsWidget(QWidget *parent, FormatterSelectionWidget *selection)
+        : QmlCodeStyleWidgetBase(parent)
+        , m_tabSettingsWidget(new TextEditor::TabSettingsWidget)
+        , m_formatterSelectionWidget(selection)
+    {
+        m_lineLength.setRange(0, 999);
+        m_tabSettingsWidget->setParent(this);
+
+        using namespace Layouting;
+        Column {
+            Group {
+                title(Tr::tr("Built-in Formatter Settings")),
+                Column {
+                    m_tabSettingsWidget,
+                    Group {
+                        title(Tr::tr("Other Settings")),
+                        Form {
+                            Tr::tr("Line length:"), m_lineLength, br
+                        }
+                    }
+                }
+            },
+            noMargin
+        }.attachTo(this);
+
+        connect(&m_lineLength, &IntegerAspect::changed,
+                this, &BuiltinFormatterSettingsWidget::slotSettingsChanged);
+    }
+
+    void setCodeStyleSettings(const QmlJSCodeStyleSettings &settings) override;
+    void setPreferences(QmlJSCodeStylePreferences *preferences) override;
+    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences) override;
+
+private:
+    void slotSettingsChanged();
+    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
+
+    IntegerAspect m_lineLength;
+    TextEditor::TabSettingsWidget *m_tabSettingsWidget;
+    QmlJSCodeStylePreferences *m_preferences = nullptr;
+    FormatterSelectionWidget *m_formatterSelectionWidget;
+};
+
+void BuiltinFormatterSettingsWidget::setCodeStyleSettings(const QmlJSCodeStyleSettings &settings)
+{
+    QSignalBlocker blocker(this);
+    m_lineLength.setValue(settings.lineLength);
+}
+
+void BuiltinFormatterSettingsWidget::setPreferences(QmlJSCodeStylePreferences *preferences)
+{
+    if (m_preferences == preferences)
+        return;
+
+    slotCurrentPreferencesChanged(preferences);
+
+    if (m_preferences) {
+        disconnect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged, this, nullptr);
+        disconnect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
+                   this, &BuiltinFormatterSettingsWidget::slotCurrentPreferencesChanged);
+        disconnect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                   m_tabSettingsWidget, &TabSettingsWidget::setTabSettings);
+        disconnect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+                   this, &BuiltinFormatterSettingsWidget::slotTabSettingsChanged);
+    }
+    m_preferences = preferences;
+    if (m_preferences) {
+        setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
+        connect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged, this, [this] {
+            setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
+        });
+        connect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
+                this, &BuiltinFormatterSettingsWidget::slotCurrentPreferencesChanged);
+        m_tabSettingsWidget->setTabSettings(m_preferences->currentTabSettings());
+        connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                m_tabSettingsWidget, &TabSettingsWidget::setTabSettings);
+        connect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+                this, &BuiltinFormatterSettingsWidget::slotTabSettingsChanged);
+    }
+}
+
+void BuiltinFormatterSettingsWidget::slotCurrentPreferencesChanged(
+    TextEditor::ICodeStylePreferences *preferences)
+{
+    QmlJSCodeStylePreferences *current = dynamic_cast<QmlJSCodeStylePreferences *>(
+        preferences ? preferences->currentPreferences() : nullptr);
+    const bool enableWidgets = current && !current->isReadOnly() && m_formatterSelectionWidget
+                               && m_formatterSelectionWidget->selection().value()
+                                      == QmlCodeStyleWidgetBase::Builtin;
+    setEnabled(enableWidgets);
+}
+
+void BuiltinFormatterSettingsWidget::slotSettingsChanged()
+{
+    QmlJSCodeStyleSettings settings = m_preferences
+                                          ? m_preferences->currentCodeStyleSettings()
+                                          : QmlJSCodeStyleSettings::currentGlobalCodeStyle();
+    settings.lineLength = m_lineLength.value();
+    emit settingsChanged(settings);
+}
+
+void BuiltinFormatterSettingsWidget::slotTabSettingsChanged(
+    const TextEditor::TabSettings &settings)
+{
+    if (!m_preferences)
+        return;
+
+    ICodeStylePreferences *current = m_preferences->currentPreferences();
+    if (!current)
+        return;
+
+    current->setTabSettings(settings);
 }
 
 // QmlJSCodeStylePreferencesWidget

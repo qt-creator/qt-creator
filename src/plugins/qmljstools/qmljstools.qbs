@@ -23,8 +23,6 @@ QtcPlugin {
         "qmlformatsettingswidget.h",
         "qmljsbundleprovider.cpp",
         "qmljsbundleprovider.h",
-        "qmljscodestylepreferenceswidget.cpp",
-        "qmljscodestylepreferenceswidget.h",
         "qmljscodestylesettings.h",
         "qmljscodestylesettings.cpp",
         "qmljscustomformatterwidget.cpp",
