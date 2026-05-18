@@ -63,33 +63,33 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     , m_scriptChooser(new PathChooser(this))
 {
     const QString fileHelpText = Tr::tr(
-        "The file can be a simple text file containing key/value pairs, or a script\n"
-        "to be evaluated by the system shell.");
+        "The file can be a simple text file containing key/value pairs,\n"
+        "or a script to be evaluated by the system shell.");
 
-    const QString helpText = Tr::tr(
-        "Enter one environment variable per line.\n"
-        "To set or change a variable, use VARIABLE=VALUE.\n"
-        "To disable a variable, prefix this line with \"#\".\n"
-        "To append to a variable, use VARIABLE+=VALUE.\n"
-        "To prepend to a variable, use VARIABLE=+VALUE.\n"
-        "Existing variables can be referenced in a VALUE with ${OTHER}.\n"
-        "To clear a variable, put its name on a line with nothing else on it.\n"
-        "Lines starting with \"##\" will be treated as comments.\n").append(fileHelpText);
+    const QString helpText
+        = Tr::tr(
+              "Enter one environment variable per line.\n"
+              "To set or change a variable, use VARIABLE=VALUE.\n"
+              "To disable a variable, prefix this line with \"#\".\n"
+              "To append to a variable, use VARIABLE+=VALUE.\n"
+              "To prepend to a variable, use VARIABLE=+VALUE.\n"
+              "Existing variables can be referenced in a VALUE with ${OTHER}.\n"
+              "To clear a variable, put its name on a line with nothing else on it.\n"
+              "Lines starting with \"##\" will be treated as comments.\n")
+              .append("\n" + fileHelpText);
 
-    m_scriptCheckBox->setText(Tr::tr("Get variables from text file or shell script"));
+    m_scriptCheckBox->setText(Tr::tr("Get variables from text file or shell script:"));
     m_scriptCheckBox->setToolTip(fileHelpText);
     connect(m_scriptCheckBox, &QCheckBox::toggled, m_scriptChooser, &PathChooser::setEnabled);
 
     m_scriptChooser->setExpectedKind(PathChooser::File);
     m_scriptChooser->setEnabled(false);
 
-    const auto scriptLayout = new QHBoxLayout;
-    scriptLayout->addWidget(m_scriptCheckBox);
-    scriptLayout->addWidget(m_scriptChooser);
     m_editor = new Internal::TextEditHelper(this);
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addLayout(scriptLayout);
+    layout->addWidget(m_scriptCheckBox);
+    layout->addWidget(m_scriptChooser);
     layout->addWidget(m_editor);
     layout->addWidget(new QLabel(helpText, this));
 
