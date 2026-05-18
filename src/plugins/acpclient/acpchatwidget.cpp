@@ -8,6 +8,7 @@
 #include <utils/documenttabbar.h>
 #include <utils/utilsicons.h>
 
+#include <QHBoxLayout>
 #include <QTabWidget>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -39,15 +40,31 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
     m_tabWidget->setMovable(true);
     layout->addWidget(m_tabWidget);
 
-    auto *cornerButton = new QToolButton(m_tabWidget);
-    cornerButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    cornerButton->setToolTip(Tr::tr("New Chat Tab"));
-    cornerButton->setAutoRaise(true);
-    connect(cornerButton, &QToolButton::clicked, this, [this] {
+    auto *cornerWidget = new QWidget(m_tabWidget);
+    auto *cornerLayout = new QHBoxLayout(cornerWidget);
+    cornerLayout->setContentsMargins(0, 0, 0, 0);
+    cornerLayout->setSpacing(0);
+
+    auto *addButton = new QToolButton(cornerWidget);
+    addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+    addButton->setToolTip(Tr::tr("New Chat"));
+    addButton->setAutoRaise(true);
+    connect(addButton, &QToolButton::clicked, this, [this] {
         AcpChatTab *tab = addNewTab();
         tab->setFocus();
     });
-    m_tabWidget->setCornerWidget(cornerButton, Qt::TopRightCorner);
+    cornerLayout->addWidget(addButton);
+
+    auto *closeButton = new QToolButton(cornerWidget);
+    closeButton->setIcon(Utils::Icons::CLOSE_SPLIT_RIGHT.icon());
+    closeButton->setAutoRaise(true);
+    closeButton->setToolTip(Tr::tr("Close"));
+    connect(closeButton, &QToolButton::clicked, this, [] {
+        Core::RightPaneWidget::instance()->setShown(false);
+    });
+    cornerLayout->addWidget(closeButton);
+
+    m_tabWidget->setCornerWidget(cornerWidget, Qt::TopRightCorner);
 
     connect(m_tabWidget, &QTabWidget::tabCloseRequested, this, &AcpChatWidget::closeTab);
 
