@@ -115,7 +115,7 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
         return;
 
     m_runnable = rc->runnable();
-    setDisplayName(rc->displayName());
+    setDisplayName(rc->expandedDisplayName());
 
     BuildTargetInfo targetInfo = rc->buildTargetInfo();
     if (!targetInfo.targetFilePath.isEmpty())
@@ -238,7 +238,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             m_origRunConfig = runConfig;
             m_runnable = runnable;
             m_runnable.command.setExecutable(currentExecutable);
-            setDisplayName(runConfig->displayName());
+            setDisplayName(runConfig->expandedDisplayName());
             if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
                 m_runConfig = new Internal::TestRunConfiguration(runConfig->buildConfiguration(), this);
             break;
@@ -258,7 +258,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             const ProcessRunData runnable = rc->runnable();
             m_runnable.environment = runnable.environment;
             m_deducedConfiguration = true;
-            m_deducedFrom = rc->displayName();
+            m_deducedFrom = rc->expandedDisplayName();
             if (runMode == TestRunMode::Debug)
                 m_runConfig = new Internal::TestRunConfiguration(rc->buildConfiguration(), this);
         }
