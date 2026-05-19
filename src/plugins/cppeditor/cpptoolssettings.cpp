@@ -24,6 +24,7 @@
 
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 
 #include <QLayout>
 
@@ -34,17 +35,13 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace CppEditor {
-namespace Internal {
 
-class CppToolsSettingsPrivate
+static CppCodeStylePreferences *g_globalCodeStyle = nullptr;
+
+CppCodeStylePreferences *cppCodeStyle()
 {
-public:
-    CppCodeStylePreferences *m_globalCodeStyle = nullptr;
-};
-
-} // Internal
-
-Internal::CppToolsSettingsPrivate *d = nullptr;
+    return g_globalCodeStyle;
+}
 
 class CppCodeStyleEditor final : public CodeStyleEditor
 {
@@ -111,10 +108,15 @@ private:
     }
 };
 
+class CppToolsSettings final : public QObject
+{
+public:
+    CppToolsSettings();
+    ~CppToolsSettings() final;
+};
+
 CppToolsSettings::CppToolsSettings()
 {
-    d = new Internal::CppToolsSettingsPrivate;
-
     qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
 
     // code style factory
@@ -126,12 +128,12 @@ CppToolsSettings::CppToolsSettings()
     TextEditorSettings::registerCodeStylePool(Constants::CPP_SETTINGS_ID, pool);
 
     // global code style settings
-    d->m_globalCodeStyle = new CppCodeStylePreferences(this);
-    d->m_globalCodeStyle->setDelegatingPool(pool);
-    d->m_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
-    d->m_globalCodeStyle->setId(idKey);
-    pool->addCodeStyle(d->m_globalCodeStyle);
-    TextEditorSettings::registerCodeStyle(Constants::CPP_SETTINGS_ID, d->m_globalCodeStyle);
+    g_globalCodeStyle = new CppCodeStylePreferences(this);
+    g_globalCodeStyle->setDelegatingPool(pool);
+    g_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
+    g_globalCodeStyle->setId(idKey);
+    pool->addCodeStyle(g_globalCodeStyle);
+    TextEditorSettings::registerCodeStyle(Constants::CPP_SETTINGS_ID, g_globalCodeStyle);
 
     /*
     For every language we have exactly 1 pool. The pool contains:
@@ -194,12 +196,12 @@ CppToolsSettings::CppToolsSettings()
     pool->addCodeStyle(gnuCodeStyle);
 
     // default delegate for global preferences
-    d->m_globalCodeStyle->setCurrentDelegate(qtCodeStyle);
+    g_globalCodeStyle->setCurrentDelegate(qtCodeStyle);
 
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    d->m_globalCodeStyle->fromSettings(Constants::CPP_SETTINGS_ID);
+    g_globalCodeStyle->fromSettings(Constants::CPP_SETTINGS_ID);
 
     // mimetypes to be handled
     using namespace Utils::Constants;
@@ -215,12 +217,13 @@ CppToolsSettings::~CppToolsSettings()
     TextEditorSettings::unregisterCodeStylePool(Constants::CPP_SETTINGS_ID);
     TextEditorSettings::unregisterCodeStyleFactory(Constants::CPP_SETTINGS_ID);
 
-    delete d;
+    delete g_globalCodeStyle;
+    g_globalCodeStyle = nullptr;
 }
 
-CppCodeStylePreferences *CppToolsSettings::cppCodeStyle()
+void Internal::setupCppToolsSettings()
 {
-    return d->m_globalCodeStyle;
+    static GuardedObject<CppToolsSettings> theCppToolsSettings;
 }
 
 } // namespace CppEditor

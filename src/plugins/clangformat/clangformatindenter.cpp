@@ -57,7 +57,7 @@ ClangFormatIndenter::ClangFormatIndenter(QTextDocument *doc)
 bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
 {
 #ifdef WITH_TESTS
-    if (CppEditor::CppToolsSettings::cppCodeStyle()->codeStyleSettings().forceFormatting)
+    if (CppEditor::cppCodeStyle()->codeStyleSettings().forceFormatting)
         return true;
 #endif
     return getCurrentIndentationOrFormattingSettings(m_fileName)

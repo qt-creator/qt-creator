@@ -3062,7 +3062,7 @@ SpaceBeforeParens: Always
                                                     CppTestDocument::create("file.cpp", origSource, expectedSource)});
         InsertDefsFromDecls factory;
         factory.setMode(InsertDefsFromDeclsMode::Impl);
-        CppCodeStylePreferences * const prefs = CppToolsSettings::cppCodeStyle();
+        CppCodeStylePreferences * const prefs = cppCodeStyle();
         const CppCodeStyleSettings settings = prefs->codeStyleSettings();
         CppCodeStyleSettings tempSettings = settings;
         tempSettings.forceFormatting = true;

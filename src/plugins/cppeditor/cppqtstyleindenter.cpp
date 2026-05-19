@@ -25,7 +25,7 @@ public:
     {
         // Just for safety. setCodeStylePreferences should be called when the editor the
         // indenter belongs to gets initialized.
-        m_cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
+        m_cppCodeStylePreferences = cppCodeStyle();
     }
 
     bool isElectricCharacter(const QChar &ch) const final;

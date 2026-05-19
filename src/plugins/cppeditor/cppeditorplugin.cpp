@@ -178,7 +178,6 @@ public:
     CppEditorFactory m_cppEditorFactory;
 
     CppModelManager modelManager;
-    CppToolsSettings settings;
     ClangdToolFactory clangdToolFactory;
 };
 
@@ -245,6 +244,7 @@ void CppEditorPlugin::initialize()
 {
     d = new CppEditorPluginPrivate;
 
+    setupCppToolsSettings();
     setupCppQuickFixSettings();
     setupCppCodeModelSettingsPage();
     provideCppSettingsRetriever([](const Project *p) {
@@ -282,7 +282,7 @@ void CppEditorPlugin::initialize()
 
     const auto loader = [](const Utils::FilePath &codeStyleFile,
                            const Project &project) -> Result<QVariant> {
-        CodeStylePool * const pool = CppToolsSettings::cppCodeStyle()->delegatingPool();
+        CodeStylePool * const pool = cppCodeStyle()->delegatingPool();
         QTC_ASSERT(pool, return ResultError(Tr::tr("Internal error: No code style pool")));
         if (ICodeStylePreferences * const style
                 = pool->loadCodeStyle(codeStyleFile, true, project.projectFilePath()))
@@ -291,7 +291,7 @@ void CppEditorPlugin::initialize()
     };
     const auto unloader = [](const QVariant &data) {
         for (const QVariantList &l = data.toList(); const QVariant &id : l) {
-            CodeStylePool * const pool = CppToolsSettings::cppCodeStyle()->delegatingPool();
+            CodeStylePool * const pool = cppCodeStyle()->delegatingPool();
             QTC_ASSERT(pool, return);
             pool->removeAutoImportedCodeStyle(Id::fromSetting(id));
         }

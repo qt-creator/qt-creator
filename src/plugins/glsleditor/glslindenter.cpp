@@ -52,7 +52,7 @@ void GlslIndenter::indentBlock(const QTextBlock &block,
 {
     // TODO: do something with it
     CppEditor::QtStyleCodeFormatter
-        codeFormatter(tabSettings, CppEditor::CppToolsSettings::cppCodeStyle()->codeStyleSettings());
+        codeFormatter(tabSettings, CppEditor::cppCodeStyle()->codeStyleSettings());
 
     codeFormatter.updateStateUntil(block);
     int indent;
@@ -83,8 +83,7 @@ void GlslIndenter::indent(const QTextCursor &cursor,
 
         // TODO: do something with it
         CppEditor::QtStyleCodeFormatter codeFormatter(tabSettings,
-                                                     CppEditor::CppToolsSettings::cppCodeStyle()
-                                                         ->codeStyleSettings());
+                                                CppEditor::cppCodeStyle()->codeStyleSettings());
         codeFormatter.updateStateUntil(block);
 
         QTextCursor tc = cursor;
@@ -108,7 +107,7 @@ int GlslIndenter::indentFor(const QTextBlock &block,
                             int /*cursorPositionInEditor*/)
 {
     CppEditor::QtStyleCodeFormatter
-        codeFormatter(tabSettings, CppEditor::CppToolsSettings::cppCodeStyle()->codeStyleSettings());
+        codeFormatter(tabSettings, CppEditor::cppCodeStyle()->codeStyleSettings());
 
     codeFormatter.updateStateUntil(block);
     int indent;
@@ -124,7 +123,7 @@ TextEditor::IndentationForBlock GlslIndenter::indentationForBlocks(
     int /*cursorPositionInEditor*/)
 {
     CppEditor::QtStyleCodeFormatter
-        codeFormatter(tabSettings, CppEditor::CppToolsSettings::cppCodeStyle()->codeStyleSettings());
+        codeFormatter(tabSettings, CppEditor::cppCodeStyle()->codeStyleSettings());
 
     codeFormatter.updateStateUntil(blocks.last());
 

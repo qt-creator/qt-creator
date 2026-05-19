@@ -164,7 +164,7 @@ CppCodeStyleSettings CppCodeStyleSettings::currentProjectCodeStyle()
 
 CppCodeStyleSettings CppCodeStyleSettings::currentGlobalCodeStyle()
 {
-    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
+    CppCodeStylePreferences *cppCodeStylePreferences = cppCodeStyle();
     QTC_ASSERT(cppCodeStylePreferences, return CppCodeStyleSettings());
 
     return cppCodeStylePreferences->currentCodeStyleSettings();

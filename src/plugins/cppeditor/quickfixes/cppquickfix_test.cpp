@@ -108,7 +108,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
 
     // Enforce the default cpp code style, so we are independent of config file settings.
     // This is needed by e.g. the GenerateGetterSetter quick fix.
-    m_cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
+    m_cppCodeStylePreferences = cppCodeStyle();
     QVERIFY(m_cppCodeStylePreferences);
     m_cppCodeStylePreferencesOriginalDelegateId = m_cppCodeStylePreferences->currentDelegateId();
     m_cppCodeStylePreferences->setCurrentDelegate("qt");

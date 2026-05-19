@@ -336,7 +336,7 @@ class CppCodeStyleSettingsPageWidget : public Core::IOptionsPageWidget
 public:
     CppCodeStyleSettingsPageWidget()
     {
-        CppCodeStylePreferences *originalCodeStylePreferences = CppToolsSettings::cppCodeStyle();
+        CppCodeStylePreferences *originalCodeStylePreferences = cppCodeStyle();
         m_pageCppCodeStylePreferences.reset(new CppCodeStylePreferences);
         m_pageCppCodeStylePreferences->setDelegatingPool(
             originalCodeStylePreferences->delegatingPool());
@@ -357,7 +357,7 @@ public:
 
     void apply() final
     {
-        CppCodeStylePreferences *originalCppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
+        CppCodeStylePreferences *originalCppCodeStylePreferences = cppCodeStyle();
         if (originalCppCodeStylePreferences->codeStyleSettings()
             != m_pageCppCodeStylePreferences->codeStyleSettings()) {
             originalCppCodeStylePreferences->setCodeStyleSettings(
@@ -383,7 +383,7 @@ public:
     void cancel() final
     {
         m_codeStyleEditor->finish();
-        const auto codeStyle = CppToolsSettings::cppCodeStyle();
+        const auto codeStyle = cppCodeStyle();
         emit codeStyle->currentPreferencesChanged(codeStyle->currentPreferences());
     }
 
@@ -570,9 +570,9 @@ void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &se
 
 void CppCodeStylePreferencesWidget::updatePreview()
 {
-    CppCodeStylePreferences *cppCodeStylePreferences = m_preferences
-            ? m_preferences
-            : CppToolsSettings::cppCodeStyle();
+    CppCodeStylePreferences *cppCodeStylePreferences
+            = m_preferences ? m_preferences : cppCodeStyle();
+
     const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
     const TabSettings ts = cppCodeStylePreferences->currentTabSettings();
     QtStyleCodeFormatter formatter(ts, ccss);

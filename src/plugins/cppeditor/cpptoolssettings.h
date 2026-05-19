@@ -7,19 +7,10 @@
 
 #include "cppcodestylesettings.h"
 
-#include <QObject>
-
 namespace CppEditor {
 
-// This class is meant to go away.
+CPPEDITOR_EXPORT CppCodeStylePreferences *cppCodeStyle();
 
-class CPPEDITOR_EXPORT CppToolsSettings : public QObject
-{
-public:
-    CppToolsSettings();
-    ~CppToolsSettings() override;
-
-    static CppCodeStylePreferences *cppCodeStyle();
-};
+namespace Internal { void setupCppToolsSettings(); }
 
 } // namespace CppEditor
