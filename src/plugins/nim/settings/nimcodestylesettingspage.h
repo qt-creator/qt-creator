@@ -3,15 +3,5 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+namespace Nim::Internal { void setupNimCodeStyle(); }
 
-namespace Nim {
-
-class NimCodeStyleSettingsPage final : public Core::IOptionsPage
-{
-public:
-    NimCodeStyleSettingsPage();
-    ~NimCodeStyleSettingsPage();
-};
-
-} // Nim

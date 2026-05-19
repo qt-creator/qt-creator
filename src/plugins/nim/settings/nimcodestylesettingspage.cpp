@@ -8,6 +8,7 @@
 #include "../nimconstants.h"
 #include "../nimtr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <texteditor/codestyleeditor.h>
@@ -26,6 +27,7 @@
 
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
+#include <utils/shutdownguard.h>
 
 #include <QTextDocument>
 #include <QVBoxLayout>
@@ -288,19 +290,25 @@ private:
 
 // NimCodeStyleSettingsPage
 
-NimCodeStyleSettingsPage::NimCodeStyleSettingsPage()
+class NimCodeStyleSettingsPage final : public Core::IOptionsPage
 {
-    setId(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_ID);
-    setDisplayName(Tr::tr("Code Style"));
-    setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
-    setWidgetCreator([] { return new NimCodeStyleSettingsWidget; });
+public:
+    NimCodeStyleSettingsPage()
+    {
+        setId(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_ID);
+        setDisplayName(Tr::tr("Code Style"));
+        setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
+        setWidgetCreator([] { return new NimCodeStyleSettingsWidget; });
 
-    createGlobalCodeStyle();
-}
+        createGlobalCodeStyle();
+    }
 
-NimCodeStyleSettingsPage::~NimCodeStyleSettingsPage()
+    ~NimCodeStyleSettingsPage() { destroyGlobalCodeStyle(); }
+};
+
+void Internal::setupNimCodeStyle()
 {
-    destroyGlobalCodeStyle();
+    static GuardedObject<NimCodeStyleSettingsPage> theNimCodeStyleSettingsPage;
 }
 
 } // Nim

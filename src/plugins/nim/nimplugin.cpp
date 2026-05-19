@@ -16,6 +16,8 @@
 #include "project/nimtoolchain.h"
 #include "settings/nimcodestylesettingspage.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <extensionsystem/iplugin.h>
 
 #include <debugger/debuggerruncontrol.h>
@@ -35,7 +37,7 @@ using namespace Debugger;
 using namespace Utils;
 using namespace ProjectExplorer;
 
-namespace Nim {
+namespace Nim::Internal {
 
 class NimPluginPrivate
 {
@@ -53,7 +55,6 @@ public:
     NimbleTaskStepFactory nimbleTaskStepFactory;
     NimCompilerBuildStepFactory buildStepFactory;
     NimCompilerCleanStepFactory cleanStepFactory;
-    NimCodeStyleSettingsPage codeStyleSettingsPage;
     NimToolchainFactory toolChainFactory;
 };
 
@@ -69,6 +70,8 @@ class NimPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        setupNimCodeStyle();
+
         d = new NimPluginPrivate;
 
         Core::IOptionsPage::registerCategory(
@@ -113,6 +116,6 @@ private:
     NimPluginPrivate *d = nullptr;
 };
 
-} // namespace Nim
+} // namespace Nim::Internal
 
 #include "nimplugin.moc"
