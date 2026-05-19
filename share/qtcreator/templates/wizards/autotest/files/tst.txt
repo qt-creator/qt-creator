@@ -242,3 +242,10 @@ target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
 
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 @endif
+
+include(GNUInstallDirs)
+install(TARGETS %{TestCaseName}
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
