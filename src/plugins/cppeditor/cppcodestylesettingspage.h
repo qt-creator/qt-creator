@@ -38,7 +38,7 @@ public:
     ~CppCodeStylePreferencesWidget() override;
 
     void setCodeStyle(CppCodeStylePreferences *codeStylePreferences);
-    void addTab(TextEditor::CodeStyleEditorWidget *page, QString tabName);
+
     void apply() override;
     void finish() override;
 

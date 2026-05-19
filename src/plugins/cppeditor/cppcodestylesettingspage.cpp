@@ -613,23 +613,6 @@ void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
     }
 }
 
-void CppCodeStylePreferencesWidget::addTab(TextEditor::CodeStyleEditorWidget *page, QString tabName)
-{
-    if (!page)
-        return;
-
-    d->m_categoryTab->insertTab(0, page, tabName);
-    d->m_categoryTab->setCurrentIndex(0);
-
-    connect(this, &CppCodeStylePreferencesWidget::applyEmitted,
-            page, &TextEditor::CodeStyleEditorWidget::apply);
-
-    connect(this, &CppCodeStylePreferencesWidget::finishEmitted,
-            page, &TextEditor::CodeStyleEditorWidget::finish);
-
-    slotCurrentPreferencesChanged(m_preferences->currentPreferences(), false);
-}
-
 void CppCodeStylePreferencesWidget::apply()
 {
     m_originalTabSettings = tabSettings();
