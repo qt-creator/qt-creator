@@ -89,83 +89,83 @@ class CppCodeStylePreferencesWidgetPrivate
 public:
     CppCodeStylePreferencesWidgetPrivate(CppCodeStylePreferencesWidget *widget)
         : q(widget)
-        , m_indentAccessSpecifiers(createCheckBox(Tr::tr("\"public\", \"protected\" and\n"
-                                                         "\"private\" within class body")))
-        , m_indentDeclarationsRelativeToAccessSpecifiers(
-              createCheckBox(Tr::tr("Declarations relative to \"public\",\n"
-                                "\"protected\" and \"private\"")))
-        , m_indentFunctionBody(createCheckBox(Tr::tr("Statements within function body")))
-        , m_indentBlockBody(createCheckBox(Tr::tr("Statements within blocks")))
-        , m_indentNamespaceBody(createCheckBox(Tr::tr("Declarations within\n"
-                                                  "\"namespace\" definition")))
-        , m_indentClassBraces(createCheckBox(Tr::tr("Class declarations")))
-        , m_indentNamespaceBraces(createCheckBox(Tr::tr("Namespace declarations")))
-        , m_indentEnumBraces(createCheckBox(Tr::tr("Enum declarations")))
-        , m_indentFunctionBraces(createCheckBox(Tr::tr("Function declarations")))
-        , m_indentBlockBraces(createCheckBox(Tr::tr("Blocks")))
-        , m_indentSwitchLabels(createCheckBox(Tr::tr("\"case\" or \"default\"")))
-        , m_indentCaseStatements(createCheckBox(Tr::tr("Statements relative to\n"
-                                                   "\"case\" or \"default\"")))
-        , m_indentCaseBlocks(createCheckBox(Tr::tr("Blocks relative to\n"
-                                               "\"case\" or \"default\"")))
-        , m_indentCaseBreak(createCheckBox(Tr::tr("\"break\" statement relative to\n"
-                                              "\"case\" or \"default\"")))
-        , m_alignAssignments(createCheckBox(
-            Tr::tr("Align after assignments"),
-            Tr::tr("<html><head/><body>\n"
-                   "Enables alignment to tokens after =, += etc. When the option is disabled, "
-                     "regular continuation line indentation will be used.<br>\n"
-                   "<br>\n"
-                   "With alignment:\n"
-                   "<pre>\n"
-                   "a = a +\n"
-                   "    b\n"
-                   "</pre>\n"
-                   "Without alignment:\n"
-                   "<pre>\n"
-                   "a = a +\n"
-                   "        b\n"
-                   "</pre>\n"
-                   "</body></html>")))
-        , m_extraPaddingConditions(createCheckBox(
-            Tr::tr("Add extra padding to conditions\n"
-                   "if they would align to the next line"),
-            Tr::tr("<html><head/><body>\n"
-                   "Adds an extra level of indentation to multiline conditions in the switch, "
-                     "if, while and foreach statements if they would otherwise have the same or "
-                     "less indentation than a nested statement.\n"
-                   "\n"
-                   "For four-spaces indentation only if statement conditions are affected. "
-                     "Without extra padding:\n"
-                   "<pre>\n"
-                   "if (a &&\n"
-                   "    b)\n"
-                   "    c;\n"
-                   "</pre>\n"
-                   "With extra padding:\n"
-                   "<pre>\n"
-                   "if (a &&\n"
-                   "        b)\n"
-                   "    c;\n"
-                   "</pre>\n"
-                   "</body></html>")))
-        , m_bindStarToIdentifier(createCheckBox(
-            Tr::tr("Identifier"),
-            Tr::tr("<html><head/><body>This does not apply to the star and reference symbol "
-                     "in pointer/reference to functions and arrays, e.g.:\n"
-               "<pre>   int (&rf)() = ...;\n"
-               "   int (*pf)() = ...;\n"
-               "\n"
-               "   int (&ra)[2] = ...;\n"
-               "   int (*pa)[2] = ...;\n"
-               "\n"
-               "</pre></body></html>")))
-        , m_bindStarToTypeName(createCheckBox(Tr::tr("Type name")))
-        , m_bindStarToLeftSpecifier(createCheckBox(Tr::tr("Left const/volatile")))
-        , m_bindStarToRightSpecifier(createCheckBox(Tr::tr("Right const/volatile"),
-                                                    Tr::tr("This does not apply to references.")))
-        , m_statementMacros(new QPlainTextEdit)
     {
+        setupCheckBox(m_indentAccessSpecifiers,
+                      Tr::tr("\"public\", \"protected\" and\n\"private\" within class body"));
+        setupCheckBox(m_indentDeclarationsRelativeToAccessSpecifiers,
+                      Tr::tr("Declarations relative to \"public\",\n"
+                             "\"protected\" and \"private\""));
+        setupCheckBox(m_indentFunctionBody, Tr::tr("Statements within function body"));
+        setupCheckBox(m_indentBlockBody, Tr::tr("Statements within blocks"));
+        setupCheckBox(m_indentNamespaceBody,
+                      Tr::tr("Declarations within\n\"namespace\" definition"));
+        setupCheckBox(m_indentClassBraces, Tr::tr("Class declarations"));
+        setupCheckBox(m_indentNamespaceBraces, Tr::tr("Namespace declarations"));
+        setupCheckBox(m_indentEnumBraces, Tr::tr("Enum declarations"));
+        setupCheckBox(m_indentFunctionBraces, Tr::tr("Function declarations"));
+        setupCheckBox(m_indentBlockBraces, Tr::tr("Blocks"));
+        setupCheckBox(m_indentSwitchLabels, Tr::tr("\"case\" or \"default\""));
+        setupCheckBox(m_indentCaseStatements,
+                      Tr::tr("Statements relative to\n\"case\" or \"default\""));
+        setupCheckBox(m_indentCaseBlocks, Tr::tr("Blocks relative to\n\"case\" or \"default\""));
+        setupCheckBox(m_indentCaseBreak,
+                      Tr::tr("\"break\" statement relative to\n\"case\" or \"default\""));
+        setupCheckBox(m_alignAssignments,
+                      Tr::tr("Align after assignments"),
+                      Tr::tr("<html><head/><body>\n"
+                             "Enables alignment to tokens after =, += etc. When the option is "
+                             "disabled, regular continuation line indentation will be used.<br>\n"
+                             "<br>\n"
+                             "With alignment:\n"
+                             "<pre>\n"
+                             "a = a +\n"
+                             "    b\n"
+                             "</pre>\n"
+                             "Without alignment:\n"
+                             "<pre>\n"
+                             "a = a +\n"
+                             "        b\n"
+                             "</pre>\n"
+                             "</body></html>"));
+        setupCheckBox(m_extraPaddingConditions,
+                      Tr::tr("Add extra padding to conditions\n"
+                             "if they would align to the next line"),
+                      Tr::tr("<html><head/><body>\n"
+                             "Adds an extra level of indentation to multiline conditions in the "
+                             "switch, if, while and foreach statements if they would otherwise "
+                             "have the same or less indentation than a nested statement.\n"
+                             "\n"
+                             "For four-spaces indentation only if statement conditions are "
+                             "affected. Without extra padding:\n"
+                             "<pre>\n"
+                             "if (a &&\n"
+                             "    b)\n"
+                             "    c;\n"
+                             "</pre>\n"
+                             "With extra padding:\n"
+                             "<pre>\n"
+                             "if (a &&\n"
+                             "        b)\n"
+                             "    c;\n"
+                             "</pre>\n"
+                             "</body></html>"));
+        setupCheckBox(m_bindStarToIdentifier,
+                      Tr::tr("Identifier"),
+                      Tr::tr("<html><head/><body>This does not apply to the star and reference "
+                             "symbol in pointer/reference to functions and arrays, e.g.:\n"
+                             "<pre>   int (&rf)() = ...;\n"
+                             "   int (*pf)() = ...;\n"
+                             "\n"
+                             "   int (&ra)[2] = ...;\n"
+                             "   int (*pa)[2] = ...;\n"
+                             "\n"
+                             "</pre></body></html>"));
+        setupCheckBox(m_bindStarToTypeName, Tr::tr("Type name"));
+        setupCheckBox(m_bindStarToLeftSpecifier, Tr::tr("Left const/volatile"));
+        setupCheckBox(m_bindStarToRightSpecifier,
+                      Tr::tr("Right const/volatile"),
+                      Tr::tr("This does not apply to references."));
+
         QObject::connect(&m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
                          q, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
 
@@ -181,11 +181,11 @@ public:
             title(Tr::tr("Indent")),
             bindTo(&contentGroupWidget),
             Column {
-                m_indentAccessSpecifiers,
-                m_indentDeclarationsRelativeToAccessSpecifiers,
-                m_indentFunctionBody,
-                m_indentBlockBody,
-                m_indentNamespaceBody,
+                &m_indentAccessSpecifiers,
+                &m_indentDeclarationsRelativeToAccessSpecifiers,
+                &m_indentFunctionBody,
+                &m_indentBlockBody,
+                &m_indentNamespaceBody,
                 st
             }
         };
@@ -194,11 +194,11 @@ public:
             title(Tr::tr("Indent Braces")),
             bindTo(&bracesGroupWidget),
             Column {
-                m_indentClassBraces,
-                m_indentNamespaceBraces,
-                m_indentEnumBraces,
-                m_indentFunctionBraces,
-                m_indentBlockBraces,
+                &m_indentClassBraces,
+                &m_indentNamespaceBraces,
+                &m_indentEnumBraces,
+                &m_indentFunctionBraces,
+                &m_indentBlockBraces,
                 st
             }
         };
@@ -207,10 +207,10 @@ public:
             title(Tr::tr("Indent within \"switch\"")),
             bindTo(&switchGroupWidget),
             Column {
-                m_indentSwitchLabels,
-                m_indentCaseStatements,
-                m_indentCaseBlocks,
-                m_indentCaseBreak,
+                &m_indentSwitchLabels,
+                &m_indentCaseStatements,
+                &m_indentCaseBlocks,
+                &m_indentCaseBreak,
                 st
             }
         };
@@ -219,8 +219,8 @@ public:
             title(Tr::tr("Align")),
             bindTo(&alignmentGroupWidget),
             Column {
-                m_alignAssignments,
-                m_extraPaddingConditions,
+                &m_alignAssignments,
+                &m_extraPaddingConditions,
                 st
             }
         };
@@ -229,26 +229,26 @@ public:
             title(Tr::tr("Bind '*' and '&&' in types/declarations to")),
             bindTo(&typesGroupWidget),
             Column {
-                m_bindStarToIdentifier,
-                m_bindStarToTypeName,
-                m_bindStarToLeftSpecifier,
-                m_bindStarToRightSpecifier,
+                &m_bindStarToIdentifier,
+                &m_bindStarToTypeName,
+                &m_bindStarToLeftSpecifier,
+                &m_bindStarToRightSpecifier,
                 st
             }
         };
 
         QSizePolicy sizePolicy;
         sizePolicy.setVerticalPolicy(QSizePolicy::Preferred);
-        m_statementMacros->setToolTip(
+        m_statementMacros.setToolTip(
             Tr::tr("Macros that can be used as statements without a trailing semicolon."));
-        m_statementMacros->setSizePolicy(sizePolicy);
+        m_statementMacros.setSizePolicy(sizePolicy);
         // clang-format off
         const Group statementMacrosGroup {
             title(Tr::tr("Statement Macros")),
-            Column { m_statementMacros}
+            Column { &m_statementMacros }
         };
         // clang-format on
-        QObject::connect(m_statementMacros, &QPlainTextEdit::textChanged, q, [this] {
+        QObject::connect(&m_statementMacros, &QPlainTextEdit::textChanged, q, [this] {
             m_handlingStatementMacroChange = true;
             q->slotCodeStyleSettingsChanged();
             m_handlingStatementMacroChange = false;
@@ -279,13 +279,12 @@ public:
         m_controllers.append(typesGroupWidget);
     }
 
-    QCheckBox *createCheckBox(const QString &text, const QString &toolTip = {})
+    void setupCheckBox(QCheckBox &checkBox, const QString &text, const QString &toolTip = {})
     {
-        QCheckBox *checkBox = new QCheckBox(text);
-        checkBox->setToolTip(toolTip);
-        QObject::connect(checkBox, &QCheckBox::toggled,
+        checkBox.setText(text);
+        checkBox.setToolTip(toolTip);
+        QObject::connect(&checkBox, &QCheckBox::toggled,
                          q, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-        return checkBox;
     }
 
     SnippetEditorWidget *createPreview(int i)
@@ -298,34 +297,34 @@ public:
 
     CppCodeStylePreferencesWidget *q = nullptr;
 
-    QCheckBox *m_indentAccessSpecifiers = nullptr;
-    QCheckBox *m_indentDeclarationsRelativeToAccessSpecifiers = nullptr;
-    QCheckBox *m_indentFunctionBody = nullptr;
-    QCheckBox *m_indentBlockBody = nullptr;
-    QCheckBox *m_indentNamespaceBody = nullptr;
-    QCheckBox *m_indentClassBraces = nullptr;
-    QCheckBox *m_indentNamespaceBraces = nullptr;
-    QCheckBox *m_indentEnumBraces = nullptr;
-    QCheckBox *m_indentFunctionBraces = nullptr;
-    QCheckBox *m_indentBlockBraces = nullptr;
-    QCheckBox *m_indentSwitchLabels = nullptr;
-    QCheckBox *m_indentCaseStatements = nullptr;
-    QCheckBox *m_indentCaseBlocks = nullptr;
-    QCheckBox *m_indentCaseBreak = nullptr;
-    QCheckBox *m_alignAssignments = nullptr;
-    QCheckBox *m_extraPaddingConditions = nullptr;
-    QCheckBox *m_bindStarToIdentifier = nullptr;
-    QCheckBox *m_bindStarToTypeName = nullptr;
-    QCheckBox *m_bindStarToLeftSpecifier = nullptr;
-    QCheckBox *m_bindStarToRightSpecifier = nullptr;
+    QCheckBox m_indentAccessSpecifiers;
+    QCheckBox m_indentDeclarationsRelativeToAccessSpecifiers;
+    QCheckBox m_indentFunctionBody;
+    QCheckBox m_indentBlockBody;
+    QCheckBox m_indentNamespaceBody;
+    QCheckBox m_indentClassBraces;
+    QCheckBox m_indentNamespaceBraces;
+    QCheckBox m_indentEnumBraces;
+    QCheckBox m_indentFunctionBraces;
+    QCheckBox m_indentBlockBraces;
+    QCheckBox m_indentSwitchLabels;
+    QCheckBox m_indentCaseStatements;
+    QCheckBox m_indentCaseBlocks;
+    QCheckBox m_indentCaseBreak;
+    QCheckBox m_alignAssignments;
+    QCheckBox m_extraPaddingConditions;
+    QCheckBox m_bindStarToIdentifier;
+    QCheckBox m_bindStarToTypeName;
+    QCheckBox m_bindStarToLeftSpecifier;
+    QCheckBox m_bindStarToRightSpecifier;
 
+    QPlainTextEdit m_statementMacros;
     QList<SnippetEditorWidget *> m_previews;
     QList<QWidget *> m_controllers;
 
     QTabWidget *m_categoryTab = nullptr;
     QWidget *m_generalSettingsRow = nullptr;
     TabSettingsWidget m_tabSettingsWidget;
-    QPlainTextEdit * const m_statementMacros;
     bool m_handlingStatementMacroChange = false;
 };
 
@@ -461,29 +460,30 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
     CppCodeStyleSettings set;
 
     set.statementMacros
-        = Utils::transform(d->m_statementMacros->toPlainText().trimmed().split('\n',
-                                                                               Qt::SkipEmptyParts),
+        = Utils::transform(d->m_statementMacros.toPlainText().trimmed().split('\n',
+                                                                              Qt::SkipEmptyParts),
                            [](const QString &line) { return line.trimmed(); });
-    set.indentBlockBraces = d->m_indentBlockBraces->isChecked();
-    set.indentBlockBody = d->m_indentBlockBody->isChecked();
-    set.indentClassBraces = d->m_indentClassBraces->isChecked();
-    set.indentEnumBraces = d->m_indentEnumBraces->isChecked();
-    set.indentNamespaceBraces = d->m_indentNamespaceBraces->isChecked();
-    set.indentNamespaceBody = d->m_indentNamespaceBody->isChecked();
-    set.indentAccessSpecifiers = d->m_indentAccessSpecifiers->isChecked();
-    set.indentDeclarationsRelativeToAccessSpecifiers = d->m_indentDeclarationsRelativeToAccessSpecifiers->isChecked();
-    set.indentFunctionBody = d->m_indentFunctionBody->isChecked();
-    set.indentFunctionBraces = d->m_indentFunctionBraces->isChecked();
-    set.indentSwitchLabels = d->m_indentSwitchLabels->isChecked();
-    set.indentStatementsRelativeToSwitchLabels = d->m_indentCaseStatements->isChecked();
-    set.indentBlocksRelativeToSwitchLabels = d->m_indentCaseBlocks->isChecked();
-    set.indentControlFlowRelativeToSwitchLabels = d->m_indentCaseBreak->isChecked();
-    set.bindStarToIdentifier = d->m_bindStarToIdentifier->isChecked();
-    set.bindStarToTypeName = d->m_bindStarToTypeName->isChecked();
-    set.bindStarToLeftSpecifier = d->m_bindStarToLeftSpecifier->isChecked();
-    set.bindStarToRightSpecifier = d->m_bindStarToRightSpecifier->isChecked();
-    set.extraPaddingForConditionsIfConfusingAlign = d->m_extraPaddingConditions->isChecked();
-    set.alignAssignments = d->m_alignAssignments->isChecked();
+    set.indentBlockBraces = d->m_indentBlockBraces.isChecked();
+    set.indentBlockBody = d->m_indentBlockBody.isChecked();
+    set.indentClassBraces = d->m_indentClassBraces.isChecked();
+    set.indentEnumBraces = d->m_indentEnumBraces.isChecked();
+    set.indentNamespaceBraces = d->m_indentNamespaceBraces.isChecked();
+    set.indentNamespaceBody = d->m_indentNamespaceBody.isChecked();
+    set.indentAccessSpecifiers = d->m_indentAccessSpecifiers.isChecked();
+    set.indentDeclarationsRelativeToAccessSpecifiers
+        = d->m_indentDeclarationsRelativeToAccessSpecifiers.isChecked();
+    set.indentFunctionBody = d->m_indentFunctionBody.isChecked();
+    set.indentFunctionBraces = d->m_indentFunctionBraces.isChecked();
+    set.indentSwitchLabels = d->m_indentSwitchLabels.isChecked();
+    set.indentStatementsRelativeToSwitchLabels = d->m_indentCaseStatements.isChecked();
+    set.indentBlocksRelativeToSwitchLabels = d->m_indentCaseBlocks.isChecked();
+    set.indentControlFlowRelativeToSwitchLabels = d->m_indentCaseBreak.isChecked();
+    set.bindStarToIdentifier = d->m_bindStarToIdentifier.isChecked();
+    set.bindStarToTypeName = d->m_bindStarToTypeName.isChecked();
+    set.bindStarToLeftSpecifier = d->m_bindStarToLeftSpecifier.isChecked();
+    set.bindStarToRightSpecifier = d->m_bindStarToRightSpecifier.isChecked();
+    set.extraPaddingForConditionsIfConfusingAlign = d->m_extraPaddingConditions.isChecked();
+    set.alignAssignments = d->m_alignAssignments.isChecked();
 
     return set;
 }
@@ -503,27 +503,28 @@ void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSetti
     const bool wasBlocked = m_blockUpdates;
     m_blockUpdates = true;
     if (!d->m_handlingStatementMacroChange)
-        d->m_statementMacros->setPlainText(s.statementMacros.join('\n'));
-    d->m_indentBlockBraces->setChecked(s.indentBlockBraces);
-    d->m_indentBlockBody->setChecked(s.indentBlockBody);
-    d->m_indentClassBraces->setChecked(s.indentClassBraces);
-    d->m_indentEnumBraces->setChecked(s.indentEnumBraces);
-    d->m_indentNamespaceBraces->setChecked(s.indentNamespaceBraces);
-    d->m_indentNamespaceBody->setChecked(s.indentNamespaceBody);
-    d->m_indentAccessSpecifiers->setChecked(s.indentAccessSpecifiers);
-    d->m_indentDeclarationsRelativeToAccessSpecifiers->setChecked(s.indentDeclarationsRelativeToAccessSpecifiers);
-    d->m_indentFunctionBody->setChecked(s.indentFunctionBody);
-    d->m_indentFunctionBraces->setChecked(s.indentFunctionBraces);
-    d->m_indentSwitchLabels->setChecked(s.indentSwitchLabels);
-    d->m_indentCaseStatements->setChecked(s.indentStatementsRelativeToSwitchLabels);
-    d->m_indentCaseBlocks->setChecked(s.indentBlocksRelativeToSwitchLabels);
-    d->m_indentCaseBreak->setChecked(s.indentControlFlowRelativeToSwitchLabels);
-    d->m_bindStarToIdentifier->setChecked(s.bindStarToIdentifier);
-    d->m_bindStarToTypeName->setChecked(s.bindStarToTypeName);
-    d->m_bindStarToLeftSpecifier->setChecked(s.bindStarToLeftSpecifier);
-    d->m_bindStarToRightSpecifier->setChecked(s.bindStarToRightSpecifier);
-    d->m_extraPaddingConditions->setChecked(s.extraPaddingForConditionsIfConfusingAlign);
-    d->m_alignAssignments->setChecked(s.alignAssignments);
+        d->m_statementMacros.setPlainText(s.statementMacros.join('\n'));
+    d->m_indentBlockBraces.setChecked(s.indentBlockBraces);
+    d->m_indentBlockBody.setChecked(s.indentBlockBody);
+    d->m_indentClassBraces.setChecked(s.indentClassBraces);
+    d->m_indentEnumBraces.setChecked(s.indentEnumBraces);
+    d->m_indentNamespaceBraces.setChecked(s.indentNamespaceBraces);
+    d->m_indentNamespaceBody.setChecked(s.indentNamespaceBody);
+    d->m_indentAccessSpecifiers.setChecked(s.indentAccessSpecifiers);
+    d->m_indentDeclarationsRelativeToAccessSpecifiers.setChecked(
+        s.indentDeclarationsRelativeToAccessSpecifiers);
+    d->m_indentFunctionBody.setChecked(s.indentFunctionBody);
+    d->m_indentFunctionBraces.setChecked(s.indentFunctionBraces);
+    d->m_indentSwitchLabels.setChecked(s.indentSwitchLabels);
+    d->m_indentCaseStatements.setChecked(s.indentStatementsRelativeToSwitchLabels);
+    d->m_indentCaseBlocks.setChecked(s.indentBlocksRelativeToSwitchLabels);
+    d->m_indentCaseBreak.setChecked(s.indentControlFlowRelativeToSwitchLabels);
+    d->m_bindStarToIdentifier.setChecked(s.bindStarToIdentifier);
+    d->m_bindStarToTypeName.setChecked(s.bindStarToTypeName);
+    d->m_bindStarToLeftSpecifier.setChecked(s.bindStarToLeftSpecifier);
+    d->m_bindStarToRightSpecifier.setChecked(s.bindStarToRightSpecifier);
+    d->m_extraPaddingConditions.setChecked(s.extraPaddingForConditionsIfConfusingAlign);
+    d->m_alignAssignments.setChecked(s.alignAssignments);
     m_blockUpdates = wasBlocked;
     if (preview)
         updatePreview();
