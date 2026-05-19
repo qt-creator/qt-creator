@@ -70,8 +70,6 @@ class NimPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-        setupNimCodeStyle();
-
         d = new NimPluginPrivate;
 
         Core::IOptionsPage::registerCategory(
@@ -85,6 +83,7 @@ class NimPlugin final : public ExtensionSystem::IPlugin
             Tr::tr("Nim"),
             ":/nim/images/settingscategory_nim.png");
 
+        setupNimCodeStyle();
         setupNimProject();
         setupNimbleProject();
 

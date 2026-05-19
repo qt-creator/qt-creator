@@ -40,77 +40,66 @@ namespace Nim {
 class NimCodeStylePreferencesWidget : public CodeStyleEditorWidget
 {
 public:
-    NimCodeStylePreferencesWidget(ICodeStylePreferences *preferences, QWidget *parent = nullptr);
+    NimCodeStylePreferencesWidget(ICodeStylePreferences *preferences, QWidget *parent)
+        : CodeStyleEditorWidget(parent)
+        , m_preferences(preferences)
+    {
+        m_tabSettingsWidget.setPreferences(preferences);
+
+        m_previewTextEdit.setPlainText(Nim::Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
+        DisplaySettingsData displaySettings = m_previewTextEdit.displaySettings();
+        displaySettings.m_visualizeWhitespace = true;
+        m_previewTextEdit.setDisplaySettings(displaySettings);
+
+        using namespace Layouting;
+        Row {
+            Column {
+                &m_tabSettingsWidget,
+                st,
+            },
+            &m_previewTextEdit,
+            noMargin,
+        }.attachTo(this);
+
+        decorateEditor();
+        connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+                this, &NimCodeStylePreferencesWidget::decorateEditor);
+
+        connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                this, &NimCodeStylePreferencesWidget::updatePreview);
+
+        updatePreview();
+    }
 
 private:
-    void decorateEditor(const FontSettings &fontSettings);
-    void setVisualizeWhitespace(bool on);
+    void decorateEditor();
     void updatePreview();
 
     ICodeStylePreferences *m_preferences;
-    SnippetEditorWidget *m_previewTextEdit;
+    TabSettingsWidget m_tabSettingsWidget;
+    SnippetEditorWidget m_previewTextEdit;
 };
 
-NimCodeStylePreferencesWidget::NimCodeStylePreferencesWidget(
-    ICodeStylePreferences *preferences, QWidget *parent)
-    : CodeStyleEditorWidget(parent)
-    , m_preferences(preferences)
+void NimCodeStylePreferencesWidget::decorateEditor()
 {
-    auto tabSettingsWidget = new TabSettingsWidget;
-    tabSettingsWidget->setPreferences(preferences);
-
-    m_previewTextEdit = new SnippetEditorWidget;
-    m_previewTextEdit->setPlainText(Nim::Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
-
-    using namespace Layouting;
-    Row {
-        Column {
-            tabSettingsWidget,
-            st,
-        },
-        m_previewTextEdit,
-        noMargin,
-    }.attachTo(this);
-
-    decorateEditor(TextEditorSettings::fontSettings());
-    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, &NimCodeStylePreferencesWidget::decorateEditor);
-
-    connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
-            this, &NimCodeStylePreferencesWidget::updatePreview);
-
-    setVisualizeWhitespace(true);
-
-    updatePreview();
-}
-
-void NimCodeStylePreferencesWidget::decorateEditor(const FontSettings &fontSettings)
-{
-    m_previewTextEdit->textDocument()->setFontSettings(fontSettings);
-    NimEditorFactory::decorateEditor(m_previewTextEdit);
-}
-
-void NimCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
-{
-    DisplaySettingsData displaySettings = m_previewTextEdit->displaySettings();
-    displaySettings.m_visualizeWhitespace = on;
-    m_previewTextEdit->setDisplaySettings(displaySettings);
+    m_previewTextEdit.textDocument()->setFontSettings(TextEditorSettings::fontSettings());
+    NimEditorFactory::decorateEditor(&m_previewTextEdit);
 }
 
 void NimCodeStylePreferencesWidget::updatePreview()
 {
-    QTextDocument *doc = m_previewTextEdit->document();
+    QTextDocument *doc = m_previewTextEdit.document();
 
     const TabSettings &ts = m_preferences
             ? m_preferences->currentTabSettings()
             : TextEditorSettings::codeStyle()->tabSettings();
-    m_previewTextEdit->textDocument()->setTabSettings(ts);
+    m_previewTextEdit.textDocument()->setTabSettings(ts);
 
     QTextBlock block = doc->firstBlock();
-    QTextCursor tc = m_previewTextEdit->textCursor();
+    QTextCursor tc = m_previewTextEdit.textCursor();
     tc.beginEditBlock();
     while (block.isValid()) {
-        m_previewTextEdit->textDocument()->indenter()->indentBlock(block, QChar::Null, ts);
+        m_previewTextEdit.textDocument()->indenter()->indentBlock(block, QChar::Null, ts);
         block = block.next();
     }
     tc.endEditBlock();
@@ -121,22 +110,11 @@ void NimCodeStylePreferencesWidget::updatePreview()
 class NimCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    static NimCodeStyleEditor *create(
-        const ICodeStylePreferencesFactory *factory,
-        const FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent)
-    {
-        auto editor = new NimCodeStyleEditor{parent};
-        editor->init(factory, projectFile, codeStyle);
-        return editor;
-    }
-
-private:
     NimCodeStyleEditor(QWidget *parent)
         : CodeStyleEditor{parent}
     {}
 
+private:
     CodeStyleEditorWidget *createEditorWidget(
         const FilePath & /*projectFile*/,
         ICodeStylePreferences *codeStyle,
@@ -169,7 +147,9 @@ private:
             ICodeStylePreferences *codeStyle,
             QWidget *parent) const final
     {
-        return NimCodeStyleEditor::create(this, projectFile, codeStyle, parent);
+        auto editor = new NimCodeStyleEditor{parent};
+        editor->init(this, projectFile, codeStyle);
+        return editor;
     }
 
     Id languageId() final
@@ -193,86 +173,20 @@ private:
     }
 };
 
-static SimpleCodeStylePreferences *m_globalCodeStyle = nullptr;
-static CodeStylePool *pool = nullptr;
-
-SimpleCodeStylePreferences *globalCodeStyle()
-{
-    QTC_CHECK(m_globalCodeStyle);
-    return m_globalCodeStyle;
-}
-
-static void createGlobalCodeStyle()
-{
-    auto factory = new NimCodeStylePreferencesFactory;
-    TextEditorSettings::registerCodeStyleFactory(factory);
-
-    // code style pool
-    pool = new CodeStylePool(factory);
-    TextEditorSettings::registerCodeStylePool(Nim::Constants::C_NIMLANGUAGE_ID, pool);
-
-    m_globalCodeStyle = new SimpleCodeStylePreferences();
-    m_globalCodeStyle->setDelegatingPool(pool);
-    m_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
-    m_globalCodeStyle->setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
-    pool->addCodeStyle(m_globalCodeStyle);
-    TextEditorSettings::registerCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID, m_globalCodeStyle);
-
-    auto nimCodeStyle = new SimpleCodeStylePreferences();
-    nimCodeStyle->setId("nim");
-    nimCodeStyle->setDisplayName(Tr::tr("Nim"));
-    nimCodeStyle->setReadOnly(true);
-
-    TabSettings nimTabSettings;
-    nimTabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
-    nimTabSettings.m_tabSize = 2;
-    nimTabSettings.m_indentSize = 2;
-    nimTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
-    nimCodeStyle->setTabSettings(nimTabSettings);
-
-    pool->addCodeStyle(nimCodeStyle);
-
-    m_globalCodeStyle->setCurrentDelegate(nimCodeStyle);
-
-    pool->loadCustomCodeStyles();
-
-    // load global settings (after built-in settings are added to the pool)
-    m_globalCodeStyle->fromSettings(Nim::Constants::C_NIMLANGUAGE_ID);
-
-    TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE,
-                                                      Nim::Constants::C_NIMLANGUAGE_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
-                                                      Nim::Constants::C_NIMLANGUAGE_ID);
-}
-
-static void destroyGlobalCodeStyle()
-{
-    TextEditorSettings::unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
-    TextEditorSettings::unregisterCodeStylePool(Nim::Constants::C_NIMLANGUAGE_ID);
-    TextEditorSettings::unregisterCodeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
-
-    delete m_globalCodeStyle;
-    m_globalCodeStyle = nullptr;
-
-    delete pool;
-    pool = nullptr;
-}
-
-class NimCodeStyleSettingsWidget : public Core::IOptionsPageWidget
+class NimCodeStyleSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
-    NimCodeStyleSettingsWidget()
+    explicit NimCodeStyleSettingsWidget(SimpleCodeStylePreferences *codeStyle)
+        : m_codeStyle(codeStyle)
     {
-        auto originalTabPreferences = globalCodeStyle();
-        m_nimCodeStylePreferences = new SimpleCodeStylePreferences(this);
-        m_nimCodeStylePreferences->setDelegatingPool(originalTabPreferences->delegatingPool());
-        m_nimCodeStylePreferences->setTabSettings(originalTabPreferences->tabSettings());
-        m_nimCodeStylePreferences->setCurrentDelegate(originalTabPreferences->currentDelegate());
-        m_nimCodeStylePreferences->setId(originalTabPreferences->id());
+        m_nimCodeStylePreferences.setDelegatingPool(m_codeStyle->delegatingPool());
+        m_nimCodeStylePreferences.setTabSettings(m_codeStyle->tabSettings());
+        m_nimCodeStylePreferences.setCurrentDelegate(m_codeStyle->currentDelegate());
+        m_nimCodeStylePreferences.setId(m_codeStyle->id());
 
         auto factory = TextEditorSettings::codeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
         CodeStyleEditorWidget *editor
-            = factory->createCodeStyleEditor({}, m_nimCodeStylePreferences);
+            = factory->createCodeStyleEditor({}, &m_nimCodeStylePreferences);
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);
@@ -280,12 +194,12 @@ public:
 
     void apply() final
     {
-        QTC_ASSERT(m_globalCodeStyle, return);
-        m_globalCodeStyle->toSettings(Nim::Constants::C_NIMLANGUAGE_ID);
+        m_codeStyle->toSettings(Nim::Constants::C_NIMLANGUAGE_ID);
     }
 
 private:
-    TextEditor::SimpleCodeStylePreferences *m_nimCodeStylePreferences;
+    SimpleCodeStylePreferences *m_codeStyle;
+    SimpleCodeStylePreferences m_nimCodeStylePreferences;
 };
 
 // NimCodeStyleSettingsPage
@@ -298,12 +212,54 @@ public:
         setId(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_ID);
         setDisplayName(Tr::tr("Code Style"));
         setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
-        setWidgetCreator([] { return new NimCodeStyleSettingsWidget; });
+        setWidgetCreator([this] { return new NimCodeStyleSettingsWidget(&m_globalCodeStyle); });
 
-        createGlobalCodeStyle();
+        TextEditorSettings::registerCodeStyleFactory(&m_factory);
+        TextEditorSettings::registerCodeStylePool(Nim::Constants::C_NIMLANGUAGE_ID, &m_pool);
+
+        m_globalCodeStyle.setDelegatingPool(&m_pool);
+        m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
+        m_globalCodeStyle.setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
+        m_pool.addCodeStyle(&m_globalCodeStyle);
+        TextEditorSettings::registerCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID, &m_globalCodeStyle);
+
+        m_nimCodeStyle.setId("nim");
+        m_nimCodeStyle.setDisplayName(Tr::tr("Nim"));
+        m_nimCodeStyle.setReadOnly(true);
+
+        TabSettings nimTabSettings;
+        nimTabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+        nimTabSettings.m_tabSize = 2;
+        nimTabSettings.m_indentSize = 2;
+        nimTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
+        m_nimCodeStyle.setTabSettings(nimTabSettings);
+
+        m_pool.addCodeStyle(&m_nimCodeStyle);
+        m_globalCodeStyle.setCurrentDelegate(&m_nimCodeStyle);
+        m_pool.loadCustomCodeStyles();
+
+        // load global settings (after built-in settings are added to the pool)
+        m_globalCodeStyle.fromSettings(Nim::Constants::C_NIMLANGUAGE_ID);
+
+        TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE,
+                                                          Nim::Constants::C_NIMLANGUAGE_ID);
+        TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
+                                                          Nim::Constants::C_NIMLANGUAGE_ID);
+
     }
 
-    ~NimCodeStyleSettingsPage() { destroyGlobalCodeStyle(); }
+    ~NimCodeStyleSettingsPage()
+    {
+        TextEditorSettings::unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
+        TextEditorSettings::unregisterCodeStylePool(Nim::Constants::C_NIMLANGUAGE_ID);
+        TextEditorSettings::unregisterCodeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
+    }
+
+private:
+    NimCodeStylePreferencesFactory m_factory;
+    CodeStylePool m_pool{&m_factory};
+    SimpleCodeStylePreferences m_globalCodeStyle;
+    SimpleCodeStylePreferences m_nimCodeStyle;
 };
 
 void Internal::setupNimCodeStyle()
