@@ -573,7 +573,9 @@ void registerMcpTools()
               QJsonObject{
                   {"type", "number"},
                   {"description",
-                   "Per-function duration if Qt Test reported one; null otherwise."}}},
+                   "Per-function duration in milliseconds, if the test framework "
+                   "reported one (GTest, CTest, Catch2). Absent for Qt Test, which "
+                   "reports duration at the class level rather than per-function."}}},
              {"messages",
               QJsonObject{
                   {"type", "array"},
