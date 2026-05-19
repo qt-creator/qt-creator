@@ -13,20 +13,10 @@
 #include "typingsettings.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
 
-#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcsettings.h>
-
-// for opening the respective coding style preferences
-#include <cppeditor/cppeditorconstants.h>
-#include <qmljseditor/qmljseditorconstants.h>
-#include <qmljstools/qmljstoolsconstants.h>
-
 
 using namespace Utils;
 
@@ -149,12 +139,9 @@ class BehaviorSettingsWidget : public Core::IOptionsPageWidget
 public:
     BehaviorSettingsWidget()
     {
-        m_tabSettings.setData(TextEditorSettings::codeStyle()->tabSettings());
-        m_tabSettings.setCodingStyleWarningVisible(true);
-
         using namespace Layouting;
         Column {
-            &m_tabSettings,
+            &globalTabSettings(),
             &globalTypingSettings(),
             &globalStorageSettings(),
             &globalExtraEncodingSettings(),
@@ -162,19 +149,7 @@ public:
             st,
         }.attachTo(this);
 
-        connect(&m_tabSettings, &TabSettings::codingStyleLinkClicked,
-                this, [] (TabSettings::CodingStyleLink link) {
-            switch (link) {
-            case TabSettings::CppLink:
-                Core::ICore::showSettings(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
-                break;
-            case TabSettings::QtQuickLink:
-                Core::ICore::showSettings(QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
-                break;
-            }
-        });
-
-        installCheckSettingsDirtyTrigger(&m_tabSettings);
+        installCheckSettingsDirtyTrigger(&globalTabSettings());
         installCheckSettingsDirtyTrigger(&globalTypingSettings());
         installCheckSettingsDirtyTrigger(&globalStorageSettings());
         installCheckSettingsDirtyTrigger(&globalBehaviorSettings());
@@ -183,37 +158,24 @@ public:
 
     bool isDirty() const final;
     void apply() final;
-
-    TabSettings m_tabSettings;
 };
 
 bool BehaviorSettingsWidget::isDirty() const
 {
-    if (globalTypingSettings().isDirty())
-        return true;
-    if (globalStorageSettings().isDirty())
-        return true;
-    if (globalBehaviorSettings().isDirty())
-        return true;
-    if (globalExtraEncodingSettings().isDirty())
-        return true;
-
-    if (m_tabSettings.isDirty())
-        return true;
-
-    return false;
+    return globalTabSettings().isDirty()
+        || globalTypingSettings().isDirty()
+        || globalStorageSettings().isDirty()
+        || globalBehaviorSettings().isDirty()
+        || globalExtraEncodingSettings().isDirty();
 }
 
 void BehaviorSettingsWidget::apply()
 {
+    globalTabSettings().apply();
     globalTypingSettings().apply();
     globalBehaviorSettings().apply();
     globalStorageSettings().apply();
     globalExtraEncodingSettings().apply();
-
-    m_tabSettings.apply();
-    TextEditorSettings::codeStyle()->setTabSettings(m_tabSettings.data());
-    TextEditorSettings::codeStyle()->toSettings(Constants::CODE_STYLE_SETTINGS_PREFIX);
 }
 
 // BehaviorSettingsPage
@@ -232,8 +194,8 @@ public:
 
 void Internal::setupBehaviorSettings()
 {
-    static BehaviorSettingsPage theBehaviorSettingsPage;
     globalBehaviorSettings().readSettings();
+    static BehaviorSettingsPage theBehaviorSettingsPage;
 }
 
 } // namespace TextEditor

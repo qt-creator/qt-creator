@@ -4,7 +4,14 @@
 #include "tabsettings.h"
 
 #include "icodestylepreferences.h"
+#include "texteditorconstants.h"
+#include "texteditorsettings.h"
 #include "texteditortr.h"
+
+#include <coreplugin/icore.h>
+
+#include <cppeditor/cppeditorconstants.h>
+#include <qmljstools/qmljstoolsconstants.h>
 
 #include <QGuiApplication>
 #include <QLabel>
@@ -185,6 +192,40 @@ void TabSettings::codingStyleLinkActivated(const QString &linkString)
 void TabSettings::setCodingStyleWarningVisible(bool visible)
 {
     m_codingStyleWarning->setVisible(visible);
+}
+
+class GlobalTabSettings : public TabSettings
+{
+public:
+    GlobalTabSettings()
+    {
+        setCodingStyleWarningVisible(true);
+        setData(TextEditorSettings::codeStyle()->tabSettings());
+
+        connect(this, &TabSettings::codingStyleLinkClicked, [] (TabSettings::CodingStyleLink link) {
+            switch (link) {
+            case TabSettings::CppLink:
+                Core::ICore::showSettings(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
+                break;
+            case TabSettings::QtQuickLink:
+                Core::ICore::showSettings(QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
+                break;
+            }
+        });
+    }
+
+    void apply() final
+    {
+        TabSettings::apply();
+        TextEditorSettings::codeStyle()->setTabSettings(data());
+        TextEditorSettings::codeStyle()->toSettings(Constants::CODE_STYLE_SETTINGS_PREFIX);
+    }
+};
+
+TabSettings &globalTabSettings()
+{
+    static GlobalTabSettings theGlobalTabSettings;
+    return theGlobalTabSettings;
 }
 
 } // namespace TextEditor

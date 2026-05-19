@@ -123,6 +123,8 @@ private:
     QLabel *m_codingStyleWarning;
 };
 
+TEXTEDITOR_EXPORT TabSettings &globalTabSettings();
+
 } // namespace TextEditor
 
 Q_DECLARE_METATYPE(TextEditor::TabSettingsData)
