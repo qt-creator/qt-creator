@@ -16,6 +16,8 @@
 
 #include <cppeditor/cppmodelmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsystem.h>
@@ -352,6 +354,10 @@ QList<ITestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
 
 void TestTreeModel::synchronizeTestFrameworks()
 {
+    // we may get triggered by the timer during shutdown - avoid crash in that case
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return;
+
     const TestFrameworks sorted = activeTestFrameworks();
     qCDebug(LOG) << "Active frameworks sorted by priority" << Utils::transform(sorted, &ITestBase::displayName);
     const auto sortedParsers = Utils::transform(sorted, &ITestFramework::testParser);
