@@ -101,17 +101,18 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.9.0)
   )
 endif()
 
-if(NO AND Qt6_VERSION VERSION_GREATER_EQUAL 6.11.0)
-  set(QTC_USES_INTERNAL_TASKTREE OFF)
-  find_package(Qt6
-    COMPONENTS
-    TaskTree
-    REQUIRED
-  )
+find_package(Qt6 OPTIONAL_COMPONENTS TaskTree QUIET)
+if(TARGET Qt6::TaskTree)
+  set(QTC_USE_INTERNAL_TASKTREE_DEFAULT OFF)
+else()
+  set(QTC_USE_INTERNAL_TASKTREE_DEFAULT ON)
+endif()
+option(QTC_USE_INTERNAL_TASKTREE "Use internal copy of QtTaskTree" ${QTC_USE_INTERNAL_TASKTREE_DEFAULT})
+add_feature_info("Use internal copy of QtTaskTree" ${QTC_USE_INTERNAL_TASKTREE} "")
+if(NOT QTC_USE_INTERNAL_TASKTREE)
+  find_package(Qt6 REQUIRED COMPONENTS TaskTree QUIET)
   set_property(TARGET Qt6::TaskTree PROPERTY IMPORTED_GLOBAL TRUE)
   add_library(QtTaskTree ALIAS Qt6::TaskTree)
-else()
-  set(QTC_USES_INTERNAL_TASKTREE ON)
 endif()
 
 qtc_setup_sbom()

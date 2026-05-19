@@ -1,6 +1,6 @@
 add_subdirectory(3rdparty)
 
-if(QTC_USES_INTERNAL_TASKTREE)
+if(QTC_USE_INTERNAL_TASKTREE)
   add_subdirectory(QtTaskTree)
 endif()
 
