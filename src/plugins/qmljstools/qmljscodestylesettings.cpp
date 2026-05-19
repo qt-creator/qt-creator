@@ -5,7 +5,6 @@
 
 #include "qmlformatsettings.h"
 #include "qmljscodestylesettings.h"
-#include "qmljsformatterselectionwidget.h"
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
@@ -69,15 +68,30 @@ using namespace Utils;
 
 namespace QmlJSTools {
 
-constexpr int BuiltinFormatterIndex = QmlCodeStyleWidgetBase::Builtin;
-constexpr int QmlFormatIndex = QmlCodeStyleWidgetBase::QmlFormat;
-constexpr int CustomFormatterIndex = QmlCodeStyleWidgetBase::Custom;
-
 const char lineLengthKey[] = "LineLength";
 const char qmlformatIniContentKey[] = "QmlFormatIniContent";
 const char formatterKey[] = "Formatter";
 const char customFormatterPathKey[] = "CustomFormatterPath";
 const char customFormatterArgumentsKey[] = "CustomFormatterArguments";
+
+// QmlCodeStyleWidgetBase
+
+class QmlCodeStyleWidgetBase : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit QmlCodeStyleWidgetBase(QWidget *parent) : QWidget(parent) {}
+
+    enum Formatter { Builtin, QmlFormat, Custom, Count };
+
+    virtual void setCodeStyleSettings(const QmlJSCodeStyleSettings &settings) = 0;
+    virtual void setPreferences(QmlJSCodeStylePreferences *preferences) = 0;
+    virtual void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences) = 0;
+
+signals:
+    void settingsChanged(const QmlJSCodeStyleSettings &);
+};
 
 // QmlJSCodeStyleSettings
 
@@ -127,6 +141,96 @@ TabSettings QmlJSCodeStyleSettings::currentGlobalTabSettings()
 Id QmlJSCodeStyleSettings::settingsId()
 {
     return Constants::QML_JS_CODE_STYLE_SETTINGS_ID;
+}
+
+// FormatterSelectionWidget
+
+class FormatterSelectionWidget : public QmlCodeStyleWidgetBase
+{
+    Q_OBJECT
+public:
+    explicit FormatterSelectionWidget(QWidget *parent);
+
+    const Utils::SelectionAspect &selection() const { return m_formatterSelection; }
+    Utils::SelectionAspect &selection() { return m_formatterSelection; }
+
+    void setCodeStyleSettings(const QmlJSCodeStyleSettings &settings) override;
+    void setPreferences(QmlJSCodeStylePreferences *preferences) override;
+    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences) override;
+
+private:
+    void slotSettingsChanged();
+
+    Utils::SelectionAspect m_formatterSelection;
+    QmlJSCodeStylePreferences *m_preferences = nullptr;
+};
+
+FormatterSelectionWidget::FormatterSelectionWidget(QWidget *parent)
+    : QmlCodeStyleWidgetBase(parent)
+{
+    m_formatterSelection.setDefaultValue(Builtin);
+    m_formatterSelection.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::RadioButtons);
+    m_formatterSelection.addOption(Tr::tr("Built-In Formatter [Deprecated]"));
+    m_formatterSelection.addOption(Tr::tr("QmlFormat [LSP]"));
+    m_formatterSelection.addOption(Tr::tr("Custom Formatter [Must be qmlformat compatible]"));
+    m_formatterSelection.setLabelText(Tr::tr("Formatter"));
+
+    connect(&m_formatterSelection, &Utils::SelectionAspect::changed,
+            this, &FormatterSelectionWidget::slotSettingsChanged);
+
+    using namespace Layouting;
+    Column {
+        Group {
+            title(Tr::tr("Formatter Selection")),
+            Column { m_formatterSelection, br },
+        },
+        noMargin,
+    }.attachTo(this);
+}
+
+void FormatterSelectionWidget::setCodeStyleSettings(const QmlJSCodeStyleSettings &settings)
+{
+    if (settings.formatter != m_formatterSelection.value())
+        m_formatterSelection.setValue(settings.formatter);
+}
+
+void FormatterSelectionWidget::setPreferences(QmlJSCodeStylePreferences *preferences)
+{
+    if (m_preferences == preferences)
+        return;
+
+    slotCurrentPreferencesChanged(preferences);
+
+    if (m_preferences) {
+        disconnect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged, this, nullptr);
+        disconnect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
+                   this, &FormatterSelectionWidget::slotCurrentPreferencesChanged);
+    }
+    m_preferences = preferences;
+    if (m_preferences) {
+        setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
+        connect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged, this, [this] {
+            setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
+        });
+        connect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
+                this, &FormatterSelectionWidget::slotCurrentPreferencesChanged);
+    }
+}
+
+void FormatterSelectionWidget::slotCurrentPreferencesChanged(
+    TextEditor::ICodeStylePreferences *preferences)
+{
+    QmlJSCodeStylePreferences *current = dynamic_cast<QmlJSCodeStylePreferences *>(
+        preferences ? preferences->currentPreferences() : nullptr);
+    setEnabled(current && !current->isReadOnly());
+}
+
+void FormatterSelectionWidget::slotSettingsChanged()
+{
+    QmlJSCodeStyleSettings settings = m_preferences ? m_preferences->currentCodeStyleSettings()
+                                                    : QmlJSCodeStyleSettings::currentGlobalCodeStyle();
+    settings.formatter = static_cast<QmlJSCodeStyleSettings::Formatter>(m_formatterSelection.value());
+    emit settingsChanged(settings);
 }
 
 // BuiltinFormatterSettingsWidget
@@ -882,9 +986,9 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
     , m_formatterSelectionWidget(new FormatterSelectionWidget(this))
     , m_formatterSettingsStack(new QStackedWidget(this))
 {
-    m_formatterSettingsStack->insertWidget(BuiltinFormatterIndex, new BuiltinFormatterSettingsWidget(this, m_formatterSelectionWidget));
-    m_formatterSettingsStack->insertWidget(QmlFormatIndex, new QmlFormatSettingsWidget(this, m_formatterSelectionWidget));
-    m_formatterSettingsStack->insertWidget(CustomFormatterIndex, new CustomFormatterWidget(this, m_formatterSelectionWidget));
+    m_formatterSettingsStack->insertWidget(QmlCodeStyleWidgetBase::Builtin, new BuiltinFormatterSettingsWidget(this, m_formatterSelectionWidget));
+    m_formatterSettingsStack->insertWidget(QmlCodeStyleWidgetBase::QmlFormat, new QmlFormatSettingsWidget(this, m_formatterSelectionWidget));
+    m_formatterSettingsStack->insertWidget(QmlCodeStyleWidgetBase::Custom, new CustomFormatterWidget(this, m_formatterSelectionWidget));
     m_formatterSettingsStack->setContentsMargins({});
 
     m_formatterSelectionWidget->setContentsMargins({});
