@@ -74,25 +74,6 @@ const char formatterKey[] = "Formatter";
 const char customFormatterPathKey[] = "CustomFormatterPath";
 const char customFormatterArgumentsKey[] = "CustomFormatterArguments";
 
-// QmlCodeStyleWidgetBase
-
-class QmlCodeStyleWidgetBase : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit QmlCodeStyleWidgetBase(QWidget *parent) : QWidget(parent) {}
-
-    enum Formatter { Builtin, QmlFormat, Custom, Count };
-
-    virtual void setCodeStyleSettings(const QmlJSCodeStyleSettings &settings) = 0;
-    virtual void setPreferences(QmlJSCodeStylePreferences *preferences) = 0;
-    virtual void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences) = 0;
-
-signals:
-    void settingsChanged(const QmlJSCodeStyleSettings &);
-};
-
 // QmlJSCodeStyleSettings
 
 QmlJSCodeStyleSettings::QmlJSCodeStyleSettings() = default;
@@ -143,11 +124,27 @@ Id QmlJSCodeStyleSettings::settingsId()
     return Constants::QML_JS_CODE_STYLE_SETTINGS_ID;
 }
 
+// QmlCodeStyleWidgetBase
+
+class QmlCodeStyleWidgetBase : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit QmlCodeStyleWidgetBase(QWidget *parent) : QWidget(parent) {}
+
+    virtual void setCodeStyleSettings(const QmlJSCodeStyleSettings &settings) = 0;
+    virtual void setPreferences(QmlJSCodeStylePreferences *preferences) = 0;
+    virtual void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences) = 0;
+
+signals:
+    void settingsChanged(const QmlJSCodeStyleSettings &);
+};
+
 // FormatterSelectionWidget
 
 class FormatterSelectionWidget : public QmlCodeStyleWidgetBase
 {
-    Q_OBJECT
 public:
     explicit FormatterSelectionWidget(QWidget *parent);
 
@@ -168,7 +165,7 @@ private:
 FormatterSelectionWidget::FormatterSelectionWidget(QWidget *parent)
     : QmlCodeStyleWidgetBase(parent)
 {
-    m_formatterSelection.setDefaultValue(Builtin);
+    m_formatterSelection.setDefaultValue(QmlJSCodeStyleSettings::Builtin);
     m_formatterSelection.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::RadioButtons);
     m_formatterSelection.addOption(Tr::tr("Built-In Formatter [Deprecated]"));
     m_formatterSelection.addOption(Tr::tr("QmlFormat [LSP]"));
@@ -325,7 +322,7 @@ void BuiltinFormatterSettingsWidget::slotCurrentPreferencesChanged(ICodeStylePre
         preferences ? preferences->currentPreferences() : nullptr);
     const bool enableWidgets = current && !current->isReadOnly() && m_formatterSelectionWidget
                                && m_formatterSelectionWidget->selection().value()
-                                      == QmlCodeStyleWidgetBase::Builtin;
+                                      == QmlJSCodeStyleSettings::Builtin;
     setEnabled(enableWidgets);
 }
 
@@ -439,7 +436,7 @@ void CustomFormatterWidget::slotCurrentPreferencesChanged(ICodeStylePreferences 
         preferences ? preferences->currentPreferences() : nullptr);
     const bool enableWidgets = current && !current->isReadOnly() && m_formatterSelectionWidget
                                && m_formatterSelectionWidget->selection().value()
-                                      == QmlCodeStyleWidgetBase::Custom;
+                                      == QmlJSCodeStyleSettings::Custom;
     setEnabled(enableWidgets);
 }
 
@@ -863,7 +860,7 @@ void QmlFormatSettingsWidget::slotCurrentPreferencesChanged(
         preferences ? preferences->currentPreferences() : nullptr);
     const bool enableWidgets = current && !current->isReadOnly() && m_formatterSelectionWidget
                                && m_formatterSelectionWidget->selection().value()
-                                      == QmlCodeStyleWidgetBase::QmlFormat;
+                                      == QmlJSCodeStyleSettings::QmlFormat;
     setEnabled(enableWidgets);
 }
 
@@ -986,9 +983,12 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
     , m_formatterSelectionWidget(new FormatterSelectionWidget(this))
     , m_formatterSettingsStack(new QStackedWidget(this))
 {
-    m_formatterSettingsStack->insertWidget(QmlCodeStyleWidgetBase::Builtin, new BuiltinFormatterSettingsWidget(this, m_formatterSelectionWidget));
-    m_formatterSettingsStack->insertWidget(QmlCodeStyleWidgetBase::QmlFormat, new QmlFormatSettingsWidget(this, m_formatterSelectionWidget));
-    m_formatterSettingsStack->insertWidget(QmlCodeStyleWidgetBase::Custom, new CustomFormatterWidget(this, m_formatterSelectionWidget));
+    m_formatterSettingsStack->insertWidget(QmlJSCodeStyleSettings::Builtin,
+            new BuiltinFormatterSettingsWidget(this, m_formatterSelectionWidget));
+    m_formatterSettingsStack->insertWidget(QmlJSCodeStyleSettings::QmlFormat,
+            new QmlFormatSettingsWidget(this, m_formatterSelectionWidget));
+    m_formatterSettingsStack->insertWidget(QmlJSCodeStyleSettings::Custom,
+            new CustomFormatterWidget(this, m_formatterSelectionWidget));
     m_formatterSettingsStack->setContentsMargins({});
 
     m_formatterSelectionWidget->setContentsMargins({});
@@ -1133,13 +1133,13 @@ void QmlJSCodeStylePreferencesWidget::slotSettingsChanged(const QmlJSCodeStyleSe
 void QmlJSCodeStylePreferencesWidget::updatePreview()
 {
     switch (m_formatterSelectionWidget->selection().value()) {
-    case QmlCodeStyleWidgetBase::Builtin:
+    case QmlJSCodeStyleSettings::Builtin:
         builtInFormatterPreview();
         break;
-    case QmlCodeStyleWidgetBase::QmlFormat:
+    case QmlJSCodeStyleSettings::QmlFormat:
         qmlformatPreview();
         break;
-    case QmlCodeStyleWidgetBase::Custom:
+    case QmlJSCodeStyleSettings::Custom:
         customFormatterPreview();
         break;
     }
