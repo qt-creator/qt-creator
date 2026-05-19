@@ -3,22 +3,29 @@
 
 #include "cpptoolssettings.h"
 
+#include "cppcodestylesettings.h"
+#include "cppcodestylesettingspage.h"
+#include "cppcodestylesnippets.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
-#include "cppcodestylepreferencesfactory.h"
-#include "cppcodestylesettings.h"
+#include "cppqtstyleindenter.h"
 
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <texteditor/completionsettings.h>
+#include <texteditor/codestyleeditor.h>
 #include <texteditor/codestylepool.h>
+#include <texteditor/completionsettings.h>
+#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/indenter.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
+
+#include <QLayout>
 
 static const char idKey[] = "CppGlobal";
 
@@ -39,6 +46,71 @@ public:
 
 Internal::CppToolsSettingsPrivate *d = nullptr;
 
+class CppCodeStyleEditor final : public CodeStyleEditor
+{
+public:
+    CppCodeStyleEditor(QWidget *parent)
+        : CodeStyleEditor{parent}
+    {}
+
+private:
+    CodeStyleEditorWidget *createEditorWidget(
+        const FilePath & /*projectFile*/,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent) const final
+    {
+        auto cppPreferences = dynamic_cast<CppCodeStylePreferences *>(codeStyle);
+        if (cppPreferences == nullptr)
+            return nullptr;
+
+        auto widget = new CppCodeStylePreferencesWidget(parent);
+        widget->layout()->setContentsMargins(0, 0, 0, 0);
+        widget->setCodeStyle(cppPreferences);
+        return widget;
+    }
+
+    QString previewText() const final
+    {
+        return QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]);
+    }
+
+    QString snippetProviderGroupId() const final
+    {
+        return Constants::CPP_SNIPPETS_GROUP_ID;
+    }
+};
+
+class CppCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
+{
+public:
+    CppCodeStylePreferencesFactory() = default;
+
+private:
+    CodeStyleEditorWidget *createCodeStyleEditor(
+            const FilePath &projectFile,
+            ICodeStylePreferences *codeStyle,
+            QWidget *parent) const final
+    {
+        auto editor = new CppCodeStyleEditor{parent};
+        editor->init(this, projectFile, codeStyle);
+        return editor;
+    }
+
+    Utils::Id languageId() final { return Constants::CPP_SETTINGS_ID; }
+
+    QString displayName() final { return Tr::tr(Constants::CPP_SETTINGS_NAME); }
+
+    ICodeStylePreferences *createCodeStyle() const final
+    {
+        return new CppCodeStylePreferences;
+    }
+
+    Indenter *createIndenter(QTextDocument *doc) const final
+    {
+        return createCppQtStyleIndenter(doc);
+    }
+};
+
 CppToolsSettings::CppToolsSettings()
 {
     d = new Internal::CppToolsSettingsPrivate;
@@ -46,7 +118,7 @@ CppToolsSettings::CppToolsSettings()
     qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
 
     // code style factory
-    ICodeStylePreferencesFactory *factory = createCppCodeStylePreferencesFactory();
+    auto factory = new CppCodeStylePreferencesFactory;
     TextEditorSettings::registerCodeStyleFactory(factory);
 
     // code style pool

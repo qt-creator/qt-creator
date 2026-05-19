@@ -9,7 +9,6 @@
 #include "clangformattr.h"
 #include "clangformatutils.h"
 
-#include <cppeditor/cppcodestylepreferencesfactory.h>
 #include <cppeditor/cppcodestylesettingspage.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
