@@ -235,7 +235,7 @@ void IosConfigurations::updateAutomaticKitList()
     const auto targetToolchainHash = findToolchains(platforms);
 
     const auto qtVersions = toSet(QtVersionManager::versions([](const QtVersion *v) {
-        return v->isValid() && v->type() == Constants::IOSQT;
+        return v->type() == Constants::IOSQT && v->isValid();
     }));
 
     const DebuggerItem possibleDebugger = DebuggerItemManager::findByEngineType(LldbEngineType);

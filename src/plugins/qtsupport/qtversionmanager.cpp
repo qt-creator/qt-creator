@@ -600,7 +600,7 @@ static AllDocumentationFiles allDocumentationFiles(const QtVersions &versions)
 {
     QList<QPair<QtVersion *, QString>> versionsWithDocPath;
     for (QtVersion *v : versions) {
-        if (v->hasDocs() && v->docsPath().isLocal())
+        if (v->hasDocs())
             versionsWithDocPath << qMakePair(v, v->docsPath().path());
     }
     QFuture<QPair<QtVersion *, DocumentationFiles>> future = QtConcurrent::mapped(
@@ -640,18 +640,25 @@ static QStringList documentationFiles(const QtVersions &vs)
     return documentationFiles(vs, allDocumentationFiles(vs));
 }
 
-void QtVersionManagerImpl::updateDocumentation(const QtVersions &added,
-                                               const QtVersions &removed,
-                                               const QtVersions &allNew,
-                                               bool updateBlockedDocumentation)
+void QtVersionManagerImpl::updateDocumentation(
+    const QtVersions &allAdded,
+    const QtVersions &allRemoved,
+    const QtVersions &allNew,
+    bool updateBlockedDocumentation)
 {
+    const auto filterLocal = [](const QtVersions &versions) {
+        return Utils::filtered(versions, [](QtVersion *v) { return v->qmakeFilePath().isLocal(); });
+    };
+    const QtVersions added = filterLocal(allAdded);
+    const QtVersions removed = filterLocal(allRemoved);
+    const QtVersions newDoc = filterLocal(allNew);
     using DocumentationSetting = QtVersionManager::DocumentationSetting;
     const DocumentationSetting setting = QtVersionManager::documentationSetting();
-    const AllDocumentationFiles allNewDocFiles = allDocumentationFiles(allNew);
+    const AllDocumentationFiles newDocFiles = allDocumentationFiles(newDoc);
     const QStringList docsOfAll = setting == DocumentationSetting::None
                                       ? QStringList()
-                                      : documentationFiles(allNew,
-                                                           allNewDocFiles,
+                                      : documentationFiles(newDoc,
+                                                           newDocFiles,
                                                            setting
                                                                == DocumentationSetting::HighestOnly);
     const QStringList docsToRemove = Utils::filtered(documentationFiles(removed),
@@ -668,7 +675,7 @@ void QtVersionManagerImpl::updateDocumentation(const QtVersions &added,
         // setting, which defeats that we only register the Qt versions matching the setting.
         // So the Qt support explicitly blocks the files that we do _not_ want to register, so the
         // Help plugin knows about this.
-        const QSet<QString> reallyAllFiles = toSet(documentationFiles(allNew, allNewDocFiles));
+        const QSet<QString> reallyAllFiles = toSet(documentationFiles(newDoc, newDocFiles));
         const QSet<QString> toBlock = reallyAllFiles - toSet(docsOfAll);
         Core::HelpManager::setBlockedDocumentation(toList(toBlock));
     }
