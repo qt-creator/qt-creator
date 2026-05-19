@@ -165,9 +165,7 @@ public:
     BehaviorSettingsWidgetImpl(BehaviorSettingsPage *page)
         : m_page(page)
     {
-        m_pageCodeStyle.setDelegatingPool(page->m_codeStyle.delegatingPool());
         m_pageCodeStyle.setTabSettings(page->m_codeStyle.tabSettings());
-        m_pageCodeStyle.setCurrentDelegate(page->m_codeStyle.currentDelegate());
         m_tabSettingsWidget.setPreferences(&m_pageCodeStyle);
 
         using namespace Layouting;
@@ -235,8 +233,6 @@ bool BehaviorSettingsWidgetImpl::isDirty() const
 
     if (m_page->m_codeStyle.tabSettings() != m_pageCodeStyle.tabSettings())
         return true;
-    if (m_page->m_codeStyle.currentDelegate() != m_pageCodeStyle.currentDelegate())
-        return true;
 
     return false;
 }
@@ -250,11 +246,6 @@ void BehaviorSettingsWidgetImpl::apply()
 
     if (m_page->m_codeStyle.tabSettings() != m_pageCodeStyle.tabSettings()) {
         m_page->m_codeStyle.setTabSettings(m_pageCodeStyle.tabSettings());
-        m_page->m_codeStyle.toSettings(m_page->m_settingsPrefix);
-    }
-
-    if (m_page->m_codeStyle.currentDelegate() != m_pageCodeStyle.currentDelegate()) {
-        m_page->m_codeStyle.setCurrentDelegate(m_pageCodeStyle.currentDelegate());
         m_page->m_codeStyle.toSettings(m_page->m_settingsPrefix);
     }
 }
