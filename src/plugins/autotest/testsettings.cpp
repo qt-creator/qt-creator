@@ -198,12 +198,13 @@ void FrameworksAspect::addToLayoutImpl(Layouting::Layout &parent)
     item->setText(1, Tr::tr("Group"));
     item->setToolTip(1, Tr::tr("Enables grouping of test cases."));
 
+    populateTreeWidget();
+
     m_frameworksWarn = new InfoLabel;
-    m_frameworksWarn->setVisible(false);
     m_frameworksWarn->setElideMode(Qt::ElideNone);
     m_frameworksWarn->setType(InfoLabel::Warning);
-
-    populateTreeWidget();
+    if (!showWarning())
+        m_frameworksWarn->setVisible(false);
 
     connect(m_frameworkTreeWidget, &QTreeWidget::itemChanged,
             this, &FrameworksAspect::onFrameworkItemChanged);
@@ -248,6 +249,11 @@ void FrameworksAspect::populateTreeWidget()
 void FrameworksAspect::onFrameworkItemChanged()
 {
     checkSettingsDirty();
+    m_frameworksWarn->setVisible(showWarning());
+}
+
+bool FrameworksAspect::showWarning()
+{
     bool atLeastOneEnabled = false;
     int mixed = ITestBase::None;
     if (QAbstractItemModel *model = m_frameworkTreeWidget->model()) {
@@ -272,8 +278,7 @@ void FrameworksAspect::onFrameworkItemChanged()
                                                 "\"Run All Tests\", for example."));
         }
     }
-    m_frameworksWarn->setVisible(!atLeastOneEnabled
-                                    || (mixed == (ITestBase::Framework | ITestBase::Tool)));
+    return !atLeastOneEnabled || (mixed == (ITestBase::Framework | ITestBase::Tool));
 }
 
 TestSettings::TestSettings()

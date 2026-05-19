@@ -44,6 +44,8 @@ private:
 
     void populateTreeWidget();
     void onFrameworkItemChanged();
+    void updateWarning(bool init);
+    bool showWarning();
 
     QTreeWidget *m_frameworkTreeWidget = nullptr;
     Utils::InfoLabel *m_frameworksWarn = nullptr;
