@@ -12,6 +12,7 @@
 #include "qbsproject.h"
 #include "qbsprojectimporter.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagerplugin.h"
 #include "qbsprojectmanagertr.h"
 #include "qbsprojectparser.h"
 #include "qbsrequest.h"
@@ -26,7 +27,6 @@
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/generatedcodemodelsupport.h>
-#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -54,7 +54,6 @@
 #include <qmljstools/qmljsmodelmanager.h>
 
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitaspect.h>
 
 #include <QCoreApplication>
 #include <QElapsedTimer>
@@ -104,6 +103,7 @@ QbsProject::QbsProject(const FilePath &fileName)
     setType(Constants::PROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setCanBuildProducts();
+    setCanBuildFiles();
     setDisplayName(fileName.completeBaseName());
     setBuildSystemCreator<QbsBuildSystem>();
     setProjectImporter(new QbsProjectImporter(projectFilePath()));
@@ -326,6 +326,11 @@ QVariant QbsBuildSystem::additionalData(Id id) const
         return paths;
     }
     return BuildSystem::additionalData(id);
+}
+
+void QbsBuildSystem::buildFile(FileNode *file)
+{
+    buildSingleFile(static_cast<QbsProject *>(project()), file->filePath());
 }
 
 ProjectExplorer::DeploymentKnowledge QbsProject::deploymentKnowledge() const

@@ -161,6 +161,7 @@ QmakeProject::QmakeProject(const FilePath &fileName) :
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
     setCanBuildProducts();
+    setCanBuildFiles();
     setHasMakeInstallEquivalent(true);
     setBuildSystemCreator<QmakeBuildSystem>();
     setProjectImporter(new QmakeProjectImporter(projectFilePath()));
@@ -1443,6 +1444,11 @@ QmakeProFile *QmakeBuildSystem::rootProFile() const
 void QmakeBuildSystem::triggerParsing()
 {
     asyncUpdate();
+}
+
+void QmakeBuildSystem::buildFile(ProjectExplorer::FileNode *file)
+{
+    buildHelper(BUILD, true, QmakeProFileNode::buildableFileProFile(file), file);
 }
 
 FilePaths QmakeBuildSystem::filesGeneratedFrom(const FilePath &input) const

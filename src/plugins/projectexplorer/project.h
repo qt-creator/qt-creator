@@ -72,6 +72,7 @@ public:
 
     QString mimeType() const;
     bool canBuildProducts() const;
+    bool canBuildFiles() const;
 
     BuildSystem *createBuildSystem(BuildConfiguration *bc) const;
 
@@ -266,6 +267,7 @@ protected:
     void createTargetFromMap(const Utils::Store &map, int index);
 
     void setCanBuildProducts();
+    void setCanBuildFiles();
     void setIsEditModePreferred(bool preferEditMode);
 
     void setType(Utils::Id id);

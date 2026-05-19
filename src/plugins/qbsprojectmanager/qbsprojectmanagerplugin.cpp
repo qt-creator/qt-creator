@@ -18,10 +18,8 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/featureprovider.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -97,6 +95,8 @@ public:
                                     const QStringList &products,
                                     const QList<Id> &stepTypes);
 
+    static void buildSingleFile(QbsProject *project, const QString &file);
+
 private:
     ~QbsProjectManagerPlugin() final;
 
@@ -105,7 +105,6 @@ private:
     void projectChanged(QbsProject *project);
 
     void buildFileContextMenu();
-    void buildFile();
     void buildProductContextMenu();
     void cleanProductContextMenu();
     void rebuildProductContextMenu();
@@ -127,9 +126,8 @@ private:
     void updateReparseQbsAction();
     void updateBuildActions();
 
-    void buildFiles(QbsProject *project, const QStringList &files,
-                    const QStringList &activeFileTags);
-    void buildSingleFile(QbsProject *project, const QString &file);
+    static void buildFiles(QbsProject *project, const QStringList &files,
+                           const QStringList &activeFileTags);
 
     QbsProjectManagerPluginPrivate *d = nullptr;
     QAction *m_reparseQbs = nullptr;
@@ -141,7 +139,6 @@ private:
     QAction *m_buildSubprojectCtx = nullptr;
     QAction *m_cleanSubprojectCtx = nullptr;
     QAction *m_rebuildSubprojectCtx = nullptr;
-    Action *m_buildFile = nullptr;
     Action *m_buildProduct = nullptr;
     QAction *m_cleanProduct = nullptr;
     QAction *m_rebuildProduct = nullptr;
@@ -205,16 +202,6 @@ void QbsProjectManagerPlugin::initialize()
     connect(m_buildFileCtx, &QAction::triggered,
             this, &QbsProjectManagerPlugin::buildFileContextMenu);
 
-    m_buildFile = new Utils::Action(Tr::tr("Build File"), Tr::tr("Build File \"%1\""),
-                                                   Utils::Action::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_buildFile, Constants::ACTION_BUILD_FILE);
-    command->setAttribute(Core::Command::CA_Hide);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDescription(m_buildFile->text());
-    command->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+B")));
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_FILE);
-    connect(m_buildFile, &QAction::triggered, this, &QbsProjectManagerPlugin::buildFile);
-
     m_buildProductCtx = new QAction(Tr::tr("Build"), this);
     command = Core::ActionManager::registerAction(m_buildProductCtx, Constants::ACTION_BUILD_PRODUCT_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
@@ -227,7 +214,7 @@ void QbsProjectManagerPlugin::initialize()
     command = Core::ActionManager::registerAction(m_buildProduct, Constants::ACTION_BUILD_PRODUCT);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDescription(m_buildFile->text());
+    command->setDescription(m_buildProduct->text());
     command->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+Shift+B")));
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PRODUCT);
     connect(m_buildProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::buildProduct);
@@ -356,7 +343,6 @@ void QbsProjectManagerPlugin::updateReparseQbsAction()
 void QbsProjectManagerPlugin::updateBuildActions()
 {
     bool enabled = false;
-    bool fileVisible = false;
     bool productVisible = false;
 
     QString fileName;
@@ -382,15 +368,8 @@ void QbsProjectManagerPlugin::updateBuildActions()
             enabled = !BuildManager::isBuilding(editorProject)
                     && editorProject->activeBuildSystem()
                     && !editorProject->activeBuildSystem()->isParsing();
-            fileVisible = productNode
-                    || dynamic_cast<QbsProjectNode *>(parentProjectNode)
-                    || dynamic_cast<QbsGroupNode *>(parentProjectNode);
         }
     }
-
-    m_buildFile->setEnabled(enabled);
-    m_buildFile->setVisible(fileVisible);
-    m_buildFile->setParameter(fileName);
 
     m_buildProduct->setEnabled(enabled);
     m_buildProduct->setVisible(productVisible);
@@ -421,16 +400,6 @@ void QbsProjectManagerPlugin::buildFileContextMenu()
     QTC_ASSERT(node, return);
     auto project = qobject_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
-    buildSingleFile(project, node->filePath().toUrlishString());
-}
-
-void QbsProjectManagerPlugin::buildFile()
-{
-    Node *node = currentEditorNode();
-    QbsProject *project = currentEditorProject();
-    if (!project || !node)
-        return;
-
     buildSingleFile(project, node->filePath().toUrlishString());
 }
 
@@ -612,6 +581,11 @@ void buildNamedProduct(QbsProject *project, const QString &product)
 {
     QbsProjectManagerPlugin::runStepsForProducts(
         project, QStringList(product), {Utils::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)});
+}
+
+void buildSingleFile(QbsProject *project, const Utils::FilePath &file)
+{
+    QbsProjectManagerPlugin::buildSingleFile(project, file.toUrlishString());
 }
 
 } // QbsProjectManager::Internal

@@ -175,6 +175,7 @@ public:
     Id m_id;
     bool m_needsInitialExpansion = false;
     bool m_canBuildProducts = false;
+    bool m_canBuildFiles = false;
     bool m_hasMakeInstallEquivalent = false;
     bool m_supportsBuilding = true;
     bool m_isEditModePreferred = true;
@@ -399,6 +400,11 @@ QString Project::mimeType() const
 bool Project::canBuildProducts() const
 {
     return d->m_canBuildProducts;
+}
+
+bool Project::canBuildFiles() const
+{
+    return d->m_canBuildFiles;
 }
 
 BuildSystem *Project::createBuildSystem(BuildConfiguration *bc) const
@@ -1393,6 +1399,11 @@ void Project::setProjectImporter(ProjectImporter *importer)
 void Project::setCanBuildProducts()
 {
     d->m_canBuildProducts = true;
+}
+
+void Project::setCanBuildFiles()
+{
+    d->m_canBuildFiles = true;
 }
 
 void Project::setIsEditModePreferred(bool preferEditMode)

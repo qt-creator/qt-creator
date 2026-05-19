@@ -49,6 +49,8 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 public:
     QmakeProFileNode(QmakeBuildSystem *buildSystem, const Utils::FilePath &filePath, QmakeProFile *pf);
 
+    static QmakeProFileNode *buildableFileProFile(Node *node);
+
     QmakeProFile *proFile() const;
 
     QString makefile() const;

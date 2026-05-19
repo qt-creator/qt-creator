@@ -78,6 +78,7 @@ public:
     bool addDependencies(ProjectExplorer::Node *context,
                          const QStringList &dependencies) override;
     void triggerParsing() final;
+    void buildFile(ProjectExplorer::FileNode *file) override;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &file) const final;
     QVariant additionalData(Utils::Id id) const final;

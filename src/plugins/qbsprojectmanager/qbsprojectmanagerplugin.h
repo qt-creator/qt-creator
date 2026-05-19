@@ -5,10 +5,13 @@
 
 #include <QString>
 
+namespace Utils { class FilePath; }
+
 namespace QbsProjectManager::Internal {
 
 class QbsProject;
 
 void buildNamedProduct(QbsProject *project, const QString &product);
+void buildSingleFile(QbsProject *project, const Utils::FilePath &file);
 
 } // QbsProjectManager::Private

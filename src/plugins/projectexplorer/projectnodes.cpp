@@ -306,6 +306,11 @@ void Node::setEnabled(bool enabled)
         m_flags = static_cast<NodeFlag>(m_flags & ~FlagIsEnabled);
 }
 
+void Node::build()
+{
+    QTC_CHECK(false);
+}
+
 void Node::setParentFolderNode(FolderNode *parentFolder)
 {
     m_parentFolderNode = parentFolder;
@@ -440,6 +445,12 @@ QString FileNode::displayName() const
     if (l < 0)
         return Node::displayName();
     return Node::displayName() + ':' + QString::number(l);
+}
+
+void FileNode::build()
+{
+    if (BuildSystem * const bs = activeBuildSystem(getProject()); QTC_GUARD(bs))
+        bs->buildFile(this);
 }
 
 /*!

@@ -237,6 +237,12 @@ bool BuildSystem::supportsAction(Node *, ProjectAction, const Node *) const
     return false;
 }
 
+void BuildSystem::buildFile(FileNode *file)
+{
+    Q_UNUSED(file)
+    QTC_CHECK(false);
+}
+
 ExtraCompiler *BuildSystem::extraCompilerForSource(const Utils::FilePath &source) const
 {
     return findExtraCompiler([source](const ExtraCompiler *ec) { return ec->source() == source; });

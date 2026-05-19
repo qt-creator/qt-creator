@@ -149,6 +149,7 @@ public:
     virtual const ContainerNode *asContainerNode() const { return nullptr; }
 
     virtual QString buildKey() const { return {}; }
+    virtual void build();
 
     void setParentFolderNode(FolderNode *parentFolder);
 
@@ -204,6 +205,7 @@ public:
 
     bool supportsAction(ProjectAction action, const Node *node) const override;
     QString displayName() const override;
+    void build() override;
 
     bool hasError() const;
     void setHasError(const bool error);
@@ -419,13 +421,6 @@ public:
 
     bool isProduct() const { return m_productType != ProductType::None; }
     ProductType productType() const { return m_productType; }
-
-    // TODO: Currently used only for "Build for current run config" functionality, but we should
-    //       probably use it to centralize the node-specific "Build" functionality that
-    //       currently each project manager plugin adds to the context menu by itself.
-    //       The function should then move up to the Node class, so it can also serve the
-    //       "build single file" case.
-    virtual void build() {}
 
     void setFallbackData(Utils::Id key, const QVariant &value);
 

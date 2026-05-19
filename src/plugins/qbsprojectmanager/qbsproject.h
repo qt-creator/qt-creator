@@ -69,6 +69,7 @@ public:
     bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
+    void buildFile(ProjectExplorer::FileNode *file) final;
 
     bool isProjectEditable() const;
     bool addFilesToProduct(const Utils::FilePaths &filePaths,

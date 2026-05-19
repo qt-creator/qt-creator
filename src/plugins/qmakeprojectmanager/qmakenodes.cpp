@@ -311,6 +311,18 @@ QmakeProFileNode::QmakeProFileNode(QmakeBuildSystem *buildSystem, const FilePath
     }
 }
 
+QmakeProFileNode *QmakeProFileNode::buildableFileProFile(Node *node)
+{
+    if (node) {
+        auto subPriFileNode = dynamic_cast<QmakePriFileNode *>(node);
+        if (!subPriFileNode)
+            subPriFileNode = dynamic_cast<QmakePriFileNode *>(node->parentProjectNode());
+        if (subPriFileNode)
+            return subPriFileNode->proFileNode();
+    }
+    return nullptr;
+}
+
 bool QmakeProFileNode::showInSimpleTree() const
 {
     return showInSimpleTree(projectType()) || m_buildSystem->project()->rootProjectNode() == this;

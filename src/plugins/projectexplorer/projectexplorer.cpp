@@ -533,6 +533,7 @@ public:
     void startRunControl(RunControl *runControl);
 
     void updateActions();
+    void updateFileActions();
     void updateContext();
     void updateDeployActions();
     void updateRunWithoutDeployMenu();
@@ -606,6 +607,8 @@ public:
 
     void editorOpened(IEditor *editor);
 
+    void buildCurrentFile();
+
 public:
     QMenu *m_openWithMenu;
     QMenu *m_openTerminalMenu;
@@ -621,6 +624,7 @@ public:
     QAction *m_buildProjectOnlyAction;
     Action *m_buildProjectForAllConfigsAction;
     Action *m_buildAction;
+    Action *m_buildFileAction;
     Action *m_buildForRunConfigAction;
     ProxyAction *m_modeBarBuildAction;
     QAction *m_buildActionContextMenu;
@@ -1011,6 +1015,8 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
     connect(SessionManager::instance(), &SessionManager::sessionRemoved,
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            dd, &ProjectExplorerPluginPrivate::updateFileActions);
     connect(&dd->m_projectTree, &ProjectTree::currentProjectChanged, sessionManager, [sessionManager] {
         emit sessionManager->currentBuildConfigurationChanged(activeBuildConfigForCurrentProject());
     });
@@ -1454,6 +1460,15 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     cmd->setDescription(dd->m_buildProjectForAllConfigsAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT_ALLCONFIGURATIONS);
 
+    dd->m_buildFileAction = new Utils::Action(
+                Tr::tr("Build File"), Tr::tr("Build File \"%1\""), Utils::Action::AlwaysEnabled, this);
+    cmd = ActionManager::registerAction(dd->m_buildFileAction, Constants::BUILD_FILE);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDescription(dd->m_buildFileAction->text());
+    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+B")));
+    mbuild->addAction(cmd, Constants::G_BUILD_FILE);
+
     // Add to mode bar
     dd->m_modeBarBuildAction = new ProxyAction(this);
     dd->m_modeBarBuildAction->setObjectName("Build"); // used for UI introduction
@@ -1858,6 +1873,8 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     connect(dd->m_buildAction, &QAction::triggered, dd, [] {
         BuildManager::buildProjectWithDependencies(ProjectManager::startupProject());
     });
+    connect(dd->m_buildFileAction, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::buildCurrentFile);
     connect(dd->m_buildProjectForAllConfigsAction, &QAction::triggered, dd, [] {
         BuildManager::buildProjectWithDependencies(ProjectManager::startupProject(),
                                                    ConfigSelection::All);
@@ -3039,6 +3056,26 @@ void ProjectExplorerPluginPrivate::updateActions()
 
     updateDeployActions();
     updateRunWithoutDeployMenu();
+    updateFileActions();
+}
+
+void ProjectExplorerPluginPrivate::updateFileActions()
+{
+    IDocument * const doc = EditorManager::currentDocument();
+    Node * const node = doc ? ProjectTree::nodeForFile(doc->filePath()) : nullptr;
+    FileNode * const fileNode = node ? node->asFileNode() : nullptr;
+    Project * const project = fileNode ? fileNode->getProject() : nullptr;
+    BuildSystem * const bs = project ? activeBuildSystem(project) : nullptr;
+    ProjectNode *productNode = fileNode ? fileNode->parentProjectNode() : nullptr;
+    while (productNode && !productNode->isProduct())
+        productNode = productNode->parentProjectNode();
+    const bool visible = project && project->canBuildFiles() && productNode;
+    const bool enabled = visible && bs && !bs->isParsing() && !BuildManager::isBuilding(project);
+    const QString fileName = visible && fileNode ? fileNode->filePath().fileName() : QString();
+
+    m_buildFileAction->setVisible(visible);
+    m_buildFileAction->setEnabled(enabled);
+    m_buildFileAction->setParameter(fileName);
 }
 
 bool ProjectExplorerPlugin::saveModifiedFiles()
@@ -3248,6 +3285,17 @@ void ProjectExplorerPluginPrivate::editorOpened(IEditor *editor)
     });
 
     infoBar->addInfo(info);
+}
+
+void ProjectExplorerPluginPrivate::buildCurrentFile()
+{
+    IDocument * const doc = EditorManager::currentDocument();
+    QTC_ASSERT(doc, return);
+    Node * const node = ProjectTree::nodeForFile(doc->filePath());
+    QTC_ASSERT(node, return);
+    FileNode * const fileNode = node->asFileNode();
+    QTC_ASSERT(fileNode, return);
+    fileNode->build();
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu(RunConfiguration *rc)
