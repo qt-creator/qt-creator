@@ -20,7 +20,6 @@
 #include <qmljstools/qmlformatsettings.h>
 #include <qmljstools/qmljscodestylesettings.h>
 #include <qmljstools/qmljstoolsconstants.h>
-#include <qmljstools/qmljstoolssettings.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

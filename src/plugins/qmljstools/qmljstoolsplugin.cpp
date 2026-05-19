@@ -6,7 +6,6 @@
 #include "qmljsfunctionfilter.h"
 #include "qmljsmodelmanager.h"
 #include "qmljstoolsconstants.h"
-#include "qmljstoolssettings.h"
 #include "qmljstoolstr.h"
 #include "qmljstools_test.h"
 

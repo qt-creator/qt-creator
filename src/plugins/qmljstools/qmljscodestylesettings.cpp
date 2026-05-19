@@ -6,8 +6,9 @@
 #include "qmlformatsettings.h"
 #include "qmljscodestylesettings.h"
 #include "qmljsqtstylecodeformatter.h"
+#include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
-#include "qmljstoolssettings.h"
+#include "qmljstoolsinternalconstants.h"
 #include "qmljstoolstr.h"
 
 #include <coreplugin/icore.h>
@@ -23,11 +24,13 @@
 #include <projectexplorer/projecttree.h>
 
 #include <texteditor/codestyleeditor.h>
+#include <texteditor/codestylepool.h>
 #include <texteditor/command.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/formattexteditor.h>
 #include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/indenter.h>
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
@@ -38,8 +41,11 @@
 #include <utils/commandline.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
+#include <utils/mimeconstants.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shutdownguard.h>
 
 #include <QAbstractItemView>
 #include <QAbstractTableModel>
@@ -68,6 +74,7 @@ using namespace Utils;
 
 namespace QmlJSTools {
 
+const char idKey[] = "QmlJSGlobal";
 const char lineLengthKey[] = "LineLength";
 const char qmlformatIniContentKey[] = "QmlFormatIniContent";
 const char formatterKey[] = "Formatter";
@@ -1272,6 +1279,170 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
     setDisplayName(Tr::tr(Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     setWidgetCreator([] { return new QmlJSCodeStyleSettingsPageWidget; });
+}
+
+// QmlJsCodeStyleEditor
+
+class QmlJsCodeStyleEditor final : public CodeStyleEditor
+{
+public:
+    QmlJsCodeStyleEditor(QWidget *parent)
+        : CodeStyleEditor{parent}
+    {}
+
+private:
+    CodeStyleEditorWidget *createEditorWidget(
+        const FilePath &/*project*/,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent) const final
+    {
+        auto qmlJSPreferences = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle);
+        if (qmlJSPreferences == nullptr)
+            return nullptr;
+        auto widget = new QmlJSCodeStylePreferencesWidget(previewText(), parent);
+        widget->setPreferences(qmlJSPreferences);
+        return widget;
+    }
+
+    QString previewText() const final
+    {
+        return QString::fromLatin1(Internal::previewText);
+    }
+
+    QString snippetProviderGroupId() const final
+    {
+        return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
+    }
+};
+
+// QmlJSCodeStylePreferencesFactory
+
+class QmlJSCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
+{
+public:
+    QmlJSCodeStylePreferencesFactory() = default;
+
+private:
+    CodeStyleEditorWidget *createCodeStyleEditor(
+            const FilePath &projectFile,
+            ICodeStylePreferences *codeStyle,
+            QWidget *parent) const final
+    {
+        auto editor = new QmlJsCodeStyleEditor{parent};
+        editor->init(this, projectFile, codeStyle);
+        return editor;
+    }
+
+    Utils::Id languageId() final
+    {
+        return Constants::QML_JS_SETTINGS_ID;
+    }
+
+    QString displayName() final
+    {
+        return Tr::tr("Qt Quick");
+    }
+
+    ICodeStylePreferences *createCodeStyle() const final
+    {
+        return new QmlJSCodeStylePreferences;
+    }
+
+    Indenter *createIndenter(QTextDocument *doc) const final
+    {
+        return QmlJSEditor::createQmlJsIndenter(doc);
+    }
+};
+
+// QmlJSToolsSettings
+
+class QmlJSToolsSettings final : public QObject
+{
+public:
+    QmlJSToolsSettings();
+    ~QmlJSToolsSettings() final;
+
+    QmlJSCodeStylePreferences m_globalCodeStyle;
+};
+
+QmlJSToolsSettings::QmlJSToolsSettings()
+{
+    ICodeStylePreferencesFactory *factory = new QmlJSCodeStylePreferencesFactory;
+
+    TextEditorSettings::registerCodeStyleFactory(factory);
+
+    auto pool = new CodeStylePool(factory, this);
+    TextEditorSettings::registerCodeStylePool(Constants::QML_JS_SETTINGS_ID, pool);
+
+    m_globalCodeStyle.setDelegatingPool(pool);
+    m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
+    m_globalCodeStyle.setId(idKey);
+    pool->addCodeStyle(&m_globalCodeStyle);
+    TextEditorSettings::registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, &m_globalCodeStyle);
+
+    auto qtCodeStyle = new QmlJSCodeStylePreferences;
+    qtCodeStyle->setId("qt");
+    qtCodeStyle->setDisplayName(Tr::tr("Qt"));
+    qtCodeStyle->setReadOnly(true);
+    TabSettings qtTabSettings;
+    qtTabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+    qtTabSettings.m_tabSize = 4;
+    qtTabSettings.m_indentSize = 4;
+    qtTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
+    qtCodeStyle->setTabSettings(qtTabSettings);
+
+    connect(&QmlFormatSettings::instance(), &QmlFormatSettings::qmlformatIniCreated,
+            this, [](Utils::FilePath qmlformatIniPath) {
+        QmlJSCodeStyleSettings s;
+        s.lineLength = 80;
+        const Utils::Result<QByteArray> fileContents = qmlformatIniPath.fileContents();
+        if (fileContents)
+            s.qmlformatIniContent = QString::fromUtf8(*fileContents);
+        auto csPool = TextEditorSettings::codeStylePool(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+        QTC_ASSERT(csPool, return);
+        auto builtInCodeStyles = csPool->builtInCodeStyles();
+        for (auto codeStyle : builtInCodeStyles) {
+            if (auto qtCodeStyle = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle))
+                qtCodeStyle->setCodeStyleSettings(s);
+        }
+    });
+
+    pool->addCodeStyle(qtCodeStyle);
+    m_globalCodeStyle.setCurrentDelegate(qtCodeStyle);
+    pool->loadCustomCodeStyles();
+    m_globalCodeStyle.fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+
+    using namespace Utils::Constants;
+    TextEditorSettings::registerMimeTypeForLanguageId(QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(QMLUI_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(QBS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(QMLPROJECT_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(QMLTYPES_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(JS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(JSON_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+}
+
+QmlJSToolsSettings::~QmlJSToolsSettings()
+{
+    TextEditorSettings::unregisterCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::unregisterCodeStylePool(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::unregisterCodeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+}
+
+static QmlJSToolsSettings &toolsSettings()
+{
+    static GuardedObject<QmlJSToolsSettings> theQmlJSToolsSettings;
+    return theQmlJSToolsSettings;
+}
+
+QmlJSCodeStylePreferences *globalQmlJSCodeStyle()
+{
+    return &toolsSettings().m_globalCodeStyle;
+}
+
+void Internal::setupQmlJSToolsSettings()
+{
+    (void) toolsSettings();
 }
 
 } // QmlJSTools::Internal

@@ -57,7 +57,11 @@ public:
 
 using QmlJSCodeStylePreferences = TextEditor::TypedCodeStylePreferences<QmlJSCodeStyleSettings>;
 
+QMLJSTOOLS_EXPORT QmlJSCodeStylePreferences *globalQmlJSCodeStyle();
+
 namespace Internal {
+
+void setupQmlJSToolsSettings();
 
 class QmlJSCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {

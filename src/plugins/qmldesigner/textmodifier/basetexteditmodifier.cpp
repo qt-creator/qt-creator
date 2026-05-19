@@ -6,11 +6,14 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
+
+#include <qmljstools/qmljscodestylesettings.h>
 #include <qmljstools/qmljsindenter.h>
+
 #include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljscomponentfromobjectdef.h>
 #include <qmljseditor/qmljscompletionassist.h>
-#include <qmljstools/qmljstoolssettings.h>
+
 #include <texteditor/tabsettings.h>
 #include <utils/changeset.h>
 

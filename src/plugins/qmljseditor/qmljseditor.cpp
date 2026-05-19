@@ -23,9 +23,9 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsutils.h>
 
+#include <qmljstools/qmljscodestylesettings.h>
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljstoolsconstants.h>
-#include <qmljstools/qmljstoolssettings.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>

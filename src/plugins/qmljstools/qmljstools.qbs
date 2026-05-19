@@ -37,9 +37,8 @@ QtcPlugin {
         "qmljssemanticinfo.h",
         "qmljstools_global.h", "qmljstoolstr.h",
         "qmljstoolsconstants.h",
+        "qmljstoolsinternalconstants.h",
         "qmljstoolsplugin.cpp",
-        "qmljstoolssettings.cpp",
-        "qmljstoolssettings.h",
         "qmljstools.qrc",
     ]
 
