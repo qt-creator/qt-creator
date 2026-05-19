@@ -75,7 +75,7 @@ static QString unicodeEscape(const QString &stringValue)
 }
 
 QmlTextGenerator::QmlTextGenerator(Utils::span<const PropertyNameView> propertyOrder,
-                                   const TextEditor::TabSettings &tabSettings,
+                                   const TextEditor::TabSettingsData &tabSettings,
                                    const int startIndentDepth)
     : m_propertyOrder(propertyOrder)
     , m_tabSettings(tabSettings)

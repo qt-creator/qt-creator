@@ -69,7 +69,7 @@ QString QMLRewriter::addIndentation(const QString &text, unsigned depth)
     if (depth == 0)
         return text;
 
-    TextEditor::TabSettings tabSettings = textModifier()->tabSettings();
+    TextEditor::TabSettingsData tabSettings = textModifier()->tabSettings();
     QString result;
     bool addLineSep = false;
     constexpr char lineSep('\n');
@@ -82,7 +82,7 @@ QString QMLRewriter::addIndentation(const QString &text, unsigned depth)
         if (line.isEmpty())
             continue;
 
-        const int firstNoneSpace = TextEditor::TabSettings::firstNonSpace(line);
+        const int firstNoneSpace = TextEditor::TabSettingsData::firstNonSpace(line);
         const int lineIndentColumn = tabSettings.indentationColumn(line) + int(depth);
         result.append(tabSettings.indentationString(0, lineIndentColumn, 0));
         result.append(line.mid(firstNoneSpace));

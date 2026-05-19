@@ -45,7 +45,7 @@ private:
     QPushButton m_restoreButton;
     QGroupBox m_displaySettings;
     QWidget m_behaviorSettings;
-    TextEditor::TabSettingsWidget m_tabSettingsWidget;
+    TextEditor::TabSettings m_tabSettingsWidget;
 };
 
 EditorSettingsWidget::EditorSettingsWidget(Project *project)

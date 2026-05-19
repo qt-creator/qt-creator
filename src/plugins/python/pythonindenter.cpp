@@ -38,12 +38,12 @@ public:
 private:
     bool isElectricCharacter(const QChar &ch) const override;
     int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
+                  const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) override;
 
     bool isElectricLine(const QString &line) const;
     int getIndentDiff(const QString &previousLine,
-                      const TextEditor::TabSettings &tabSettings) const;
+                      const TextEditor::TabSettingsData &tabSettings) const;
 };
 
 /**
@@ -57,7 +57,7 @@ bool PythonIndenter::isElectricCharacter(const QChar &ch) const
 }
 
 int PythonIndenter::indentFor(const QTextBlock &block,
-                              const TextEditor::TabSettings &tabSettings,
+                              const TextEditor::TabSettingsData &tabSettings,
                               int /*cursorPositionInEditor*/)
 {
     QTextBlock previousBlock = block.previous();
@@ -100,7 +100,7 @@ bool PythonIndenter::isElectricLine(const QString &line) const
 
 /// @return negative indent diff if previous line breaks control flow branch
 int PythonIndenter::getIndentDiff(const QString &previousLine,
-                                  const TextEditor::TabSettings &tabSettings) const
+                                  const TextEditor::TabSettingsData &tabSettings) const
 {
     static const QStringList jumpKeywords = {
         "return", "yield", "break", "continue", "raise", "pass" };

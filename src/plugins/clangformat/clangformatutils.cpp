@@ -261,7 +261,7 @@ void fromCppCodeStyleSettings(clang::format::FormatStyle &style,
         style.PointerAlignment = FormatStyle::PAS_Left;
 }
 
-void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSettings &settings)
+void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSettingsData &settings)
 {
     using namespace clang::format;
 
@@ -269,10 +269,10 @@ void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSet
     style.TabWidth = settings.m_tabSize;
 
     switch (settings.m_tabPolicy) {
-    case TextEditor::TabSettings::SpacesOnlyTabPolicy:
+    case TextEditor::TabSettingsData::SpacesOnlyTabPolicy:
         style.UseTab = FormatStyle::UT_Never;
         break;
-    case TextEditor::TabSettings::TabsOnlyTabPolicy:
+    case TextEditor::TabSettingsData::TabsOnlyTabPolicy:
         style.UseTab = FormatStyle::UT_Always;
         break;
     }

@@ -26,7 +26,7 @@ public:
     virtual ~IFormattingRequest() = default;
     virtual RequestType prepareRequest(
         const QTextCursor &cursor,
-        const TextEditor::TabSettings &settings,
+        const TextEditor::TabSettingsData &settings,
         LanguageClientFormatter *formatter)
         = 0;
 protected:
@@ -40,7 +40,7 @@ public:
     RangeFormattingRequest(Client *client, TextEditor::TextDocument *document);
     RequestType prepareRequest(
         const QTextCursor &cursor,
-        const TextEditor::TabSettings &settings,
+        const TextEditor::TabSettingsData &settings,
         LanguageClientFormatter *formatter) override;
 };
 
@@ -50,7 +50,7 @@ public:
     FullFormattingRequest(Client *client, TextEditor::TextDocument *document);
     RequestType prepareRequest(
         const QTextCursor &cursor,
-        const TextEditor::TabSettings &settings,
+        const TextEditor::TabSettingsData &settings,
         LanguageClientFormatter *formatter) override;
 };
 
@@ -65,7 +65,7 @@ public:
     ~LanguageClientFormatter() override;
 
     void format(const QTextCursor &cursor,
-                const TextEditor::TabSettings &tabSettings,
+                const TextEditor::TabSettingsData &tabSettings,
                 const TextEditor::FormatCallback &callback) override;
 
     void setMode(FormatMode mode) override;

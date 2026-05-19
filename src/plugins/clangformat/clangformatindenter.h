@@ -13,7 +13,7 @@ class ClangFormatIndenter final : public ClangFormatBaseIndenter
 {
 public:
     ClangFormatIndenter(QTextDocument *doc);
-    std::optional<TextEditor::TabSettings> tabSettings() const override;
+    std::optional<TextEditor::TabSettingsData> tabSettings() const override;
     bool formatOnSave() const override;
 
 private:
@@ -33,30 +33,30 @@ public:
     void setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences) override;
     void invalidateCache() override;
     int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
+                  const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) override;
     int visualIndentFor(const QTextBlock &block,
-                        const TextEditor::TabSettings &tabSettings) override;
+                        const TextEditor::TabSettingsData &tabSettings) override;
     void autoIndent(const QTextCursor &cursor,
-                    const TextEditor::TabSettings &tabSettings,
+                    const TextEditor::TabSettingsData &tabSettings,
                     int cursorPositionInEditor = -1) override;
     Utils::EditOperations format(const TextEditor::RangesInLines &rangesInLines,
                                  FormattingMode mode) override;
     bool formatOnSave() const override;
     TextEditor::IndentationForBlock indentationForBlocks(const QList<QTextBlock> &blocks,
-                                                         const TextEditor::TabSettings &tabSettings,
+                                                         const TextEditor::TabSettingsData &tabSettings,
                                                          int cursorPositionInEditor = -1) override;
-    std::optional<TextEditor::TabSettings> tabSettings() const override;
+    std::optional<TextEditor::TabSettingsData> tabSettings() const override;
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings,
+                     const TextEditor::TabSettingsData &tabSettings,
                      int cursorPositionInEditor = -1) override;
     void indent(const QTextCursor &cursor,
                 const QChar &typedChar,
-                const TextEditor::TabSettings &tabSettings,
+                const TextEditor::TabSettingsData &tabSettings,
                 int cursorPositionInEditor = -1) override;
     virtual void reindent(const QTextCursor &cursor,
-                          const TextEditor::TabSettings &tabSettings,
+                          const TextEditor::TabSettingsData &tabSettings,
                           int cursorPositionInEditor = -1) override;
     std::optional<int> margin() const override;
 

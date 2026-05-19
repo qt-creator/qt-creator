@@ -11,7 +11,7 @@ using namespace TextEditor;
 
 CreatorCodeFormatter::CreatorCodeFormatter() = default;
 
-CreatorCodeFormatter::CreatorCodeFormatter(const TabSettings &tabSettings)
+CreatorCodeFormatter::CreatorCodeFormatter(const TabSettingsData &tabSettings)
 {
     setTabSize(tabSettings.m_tabSize);
     setIndentSize(tabSettings.m_indentSize);

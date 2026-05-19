@@ -49,7 +49,7 @@ void BaseTextEditModifier::indent(int offset, int length)
         indentLines(startLine, endLine);
 }
 
-TextEditor::TabSettings BaseTextEditModifier::tabSettings() const
+TextEditor::TabSettingsData BaseTextEditModifier::tabSettings() const
 {
     if (m_textEdit)
         return m_textEdit->textDocument()->tabSettings();

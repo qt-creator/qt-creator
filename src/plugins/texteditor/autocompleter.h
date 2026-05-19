@@ -34,8 +34,8 @@ public:
     void setOverwriteClosingCharsEnabled(bool b) { m_overwriteClosingChars = b; }
     bool isOverwriteClosingCharsEnabled() const { return m_overwriteClosingChars; }
 
-    void setTabSettings(const TabSettings &tabSettings) { m_tabSettings = tabSettings; }
-    const TabSettings &tabSettings() const { return m_tabSettings; }
+    void setTabSettings(const TabSettingsData &tabSettings) { m_tabSettings = tabSettings; }
+    const TabSettingsData &tabSettings() const { return m_tabSettings; }
 
     // Returns the text to complete at the cursor position, or an empty string
     virtual QString autoComplete(QTextCursor &cursor, const QString &text, bool skipChars) const;
@@ -78,7 +78,7 @@ private:
     QString replaceSelection(const QTextCursor &cursor, const QString &textToInsert) const;
 
 private:
-    TabSettings m_tabSettings;
+    TabSettingsData m_tabSettings;
     mutable bool m_allowSkippingOfBlockEnd;
     bool m_autoInsertBrackets;
     bool m_surroundWithBrackets;

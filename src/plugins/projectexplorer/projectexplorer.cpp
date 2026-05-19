@@ -978,7 +978,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
     IWizardFactory::registerFactoryCreator([] { return new SimpleProjectWizard; });
 
-    TextEditor::TabSettings::setRetriever([](const FilePath &filePath) {
+    TextEditor::TabSettingsData::setRetriever([](const FilePath &filePath) {
         return actualTabSettings(filePath, nullptr);
     });
 

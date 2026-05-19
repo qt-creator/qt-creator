@@ -64,7 +64,7 @@ void ComponentTextModifier::indentLines(int startLine, int endLine)
     m_originalModifier->indentLines(startLine, endLine);
 }
 
-TextEditor::TabSettings ComponentTextModifier::tabSettings() const
+TextEditor::TabSettingsData ComponentTextModifier::tabSettings() const
 {
     return m_originalModifier->tabSettings();
 }

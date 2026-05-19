@@ -11,7 +11,7 @@
 
 namespace CPlusPlus { class Overview; }
 namespace ProjectExplorer { class Project; }
-namespace TextEditor { class TabSettings; }
+namespace TextEditor { class TabSettingsData; }
 namespace Utils { class Id; }
 
 namespace CppEditor {

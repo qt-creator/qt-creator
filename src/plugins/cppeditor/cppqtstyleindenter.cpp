@@ -31,22 +31,22 @@ public:
     bool isElectricCharacter(const QChar &ch) const final;
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TabSettings &tabSettings,
+                     const TabSettingsData &tabSettings,
                      int cursorPositionInEditor = -1) final;
 
     void indent(const QTextCursor &cursor,
                 const QChar &typedChar,
-                const TabSettings &tabSettings,
+                const TabSettingsData &tabSettings,
                 int cursorPositionInEditor = -1) final;
 
     void setCodeStylePreferences(ICodeStylePreferences *preferences) final;
     void invalidateCache() final;
     int indentFor(const QTextBlock &block,
-                  const TabSettings &tabSettings,
+                  const TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) final;
-    int visualIndentFor(const QTextBlock &block, const TabSettings &tabSettings) final;
+    int visualIndentFor(const QTextBlock &block, const TabSettingsData &tabSettings) final;
     IndentationForBlock indentationForBlocks(const QList<QTextBlock> &blocks,
-                                             const TabSettings &tabSettings,
+                                             const TabSettingsData &tabSettings,
                                              int cursorPositionInEditor = -1) final;
 
 private:
@@ -101,7 +101,7 @@ static bool isElectricInLine(const QChar ch, const QString &text)
 
 void CppQtStyleIndenter::indentBlock(const QTextBlock &block,
                                      const QChar &typedChar,
-                                     const TabSettings &tabSettings,
+                                     const TabSettingsData &tabSettings,
                                      int /*cursorPositionInEditor*/)
 {
     QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
@@ -132,7 +132,7 @@ void CppQtStyleIndenter::indentBlock(const QTextBlock &block,
 
 void CppQtStyleIndenter::indent(const QTextCursor &cursor,
                                 const QChar &typedChar,
-                                const TabSettings &tabSettings,
+                                const TabSettingsData &tabSettings,
                                 int /*cursorPositionInEditor*/)
 {
     if (cursor.hasSelection()) {
@@ -174,7 +174,7 @@ void CppQtStyleIndenter::invalidateCache()
 }
 
 int CppQtStyleIndenter::indentFor(const QTextBlock &block,
-                                  const TabSettings &tabSettings,
+                                  const TabSettingsData &tabSettings,
                                   int /*cursorPositionInEditor*/)
 {
     QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
@@ -188,7 +188,7 @@ int CppQtStyleIndenter::indentFor(const QTextBlock &block,
 }
 
 int CppQtStyleIndenter::visualIndentFor(const QTextBlock &block,
-                                        const TabSettings &tabSettings)
+                                        const TabSettingsData &tabSettings)
 {
     return indentFor(block, tabSettings);
 }
@@ -202,7 +202,7 @@ CppCodeStyleSettings CppQtStyleIndenter::codeStyleSettings() const
 
 IndentationForBlock CppQtStyleIndenter::indentationForBlocks(
     const QList<QTextBlock> &blocks,
-    const TabSettings &tabSettings,
+    const TabSettingsData &tabSettings,
     int /*cursorPositionInEditor*/)
 {
     QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());

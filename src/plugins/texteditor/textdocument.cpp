@@ -68,7 +68,7 @@ public:
     {
     }
 
-    MultiTextCursor indentOrUnindent(const MultiTextCursor &cursor, bool doIndent, const TabSettings &tabSettings);
+    MultiTextCursor indentOrUnindent(const MultiTextCursor &cursor, bool doIndent, const TabSettingsData &tabSettings);
     void resetRevisions();
     void updateRevisions();
 
@@ -78,7 +78,7 @@ public:
     TypingSettingsData m_typingSettings;
     StorageSettingsData m_storageSettings;
     ICodeStylePreferences *m_codeStylePreferences = nullptr;
-    TabSettings m_tabSettings;
+    TabSettingsData m_tabSettings;
     ExtraEncodingSettingsData m_extraEncodingSettings;
     FontSettings m_fontSettings;
     bool m_fontSettingsNeedsApply = false; // for applying font settings delayed till an editor becomes visible
@@ -108,7 +108,7 @@ public:
 
 MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cursors,
                                                       bool doIndent,
-                                                      const TabSettings &tabSettings)
+                                                      const TabSettingsData &tabSettings)
 {
     MultiTextCursor result;
     bool first = true;
@@ -181,10 +181,10 @@ MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cur
         } else {
             const QString text = startBlock.text();
             int indentPosition = tabSettings.positionAtColumn(text, column, nullptr, true);
-            int spaces = TabSettings::spacesLeftFromPosition(text, indentPosition);
+            int spaces = TabSettingsData::spacesLeftFromPosition(text, indentPosition);
             if (!doIndent && spaces == 0) {
                 indentPosition = tabSettings.firstNonSpace(text);
-                spaces = TabSettings::spacesLeftFromPosition(text, indentPosition);
+                spaces = TabSettingsData::spacesLeftFromPosition(text, indentPosition);
             }
             const int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
             const int targetColumn
@@ -377,16 +377,16 @@ const StorageSettingsData &TextDocument::storageSettings() const
     return d->m_storageSettings;
 }
 
-void TextDocument::setTabSettings(const TabSettings &tabSettings)
+void TextDocument::setTabSettings(const TabSettingsData &tabSettings)
 {
-    if (const TabSettings candidate = tabSettings.autoDetect(document());
+    if (const TabSettingsData candidate = tabSettings.autoDetect(document());
         candidate != d->m_tabSettings) {
         d->m_tabSettings = candidate;
         emit tabSettingsChanged();
     }
 }
 
-TabSettings TextDocument::tabSettings() const
+TabSettingsData TextDocument::tabSettings() const
 {
     return d->m_tabSettings;
 }
@@ -943,7 +943,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
     if (blocks.isEmpty())
         return;
 
-    const TabSettings currentTabSettings = tabSettings();
+    const TabSettingsData currentTabSettings = tabSettings();
     const IndentationForBlock &indentations
         = d->m_indenter->indentationForBlocks(blocks, currentTabSettings);
 
@@ -957,7 +957,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
         const int indent = indentations[block.blockNumber()];
         if (cleanIndentation && !currentTabSettings.isIndentationClean(block, indent)) {
             cursor.setPosition(block.position());
-            const int firstNonSpace = TabSettings::firstNonSpace(blockText);
+            const int firstNonSpace = TabSettingsData::firstNonSpace(blockText);
             if (firstNonSpace == blockText.size()) {
                 cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
                 cursor.removeSelectedText();
@@ -998,7 +998,7 @@ void TextDocument::modificationChanged(bool modified)
 
 void TextDocument::removeTrailingWhitespace(const QTextBlock &block)
 {
-    TabSettings::removeTrailingWhitespace(block);
+    TabSettingsData::removeTrailingWhitespace(block);
 }
 
 void TextDocument::updateLayout() const

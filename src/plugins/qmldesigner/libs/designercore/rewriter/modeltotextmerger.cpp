@@ -68,7 +68,7 @@ void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propert
 
 void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
-    const TextEditor::TabSettings tabSettings = m_rewriterView->textModifier()->tabSettings();
+    const TextEditor::TabSettingsData tabSettings = m_rewriterView->textModifier()->tabSettings();
     for (const AbstractProperty &property : propertyList) {
 
         ModelNode containedModelNode;

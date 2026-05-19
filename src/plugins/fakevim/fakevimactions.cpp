@@ -192,8 +192,8 @@ FakeVimSettings::FakeVimSettings()
                 PushButton {
                     text(Tr::tr("Copy Text Editor Settings")),
                     onClicked(this, [this] {
-                        TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
-                        expandTab.setVolatileValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
+                        TabSettingsData ts = TextEditorSettings::codeStyle()->tabSettings();
+                        expandTab.setVolatileValue(ts.m_tabPolicy != TabSettingsData::TabsOnlyTabPolicy);
                         tabStop.setVolatileValue(ts.m_tabSize);
                         shiftWidth.setVolatileValue(ts.m_indentSize);
                         smartTab.setVolatileValue(globalTypingSettings().smartBackspaceBehavior()

@@ -29,7 +29,7 @@ static bool nodeOrParentInSet(const ModelNode &modelNode, const QSet<ModelNode> 
 }
 
 void RewriteActionCompressor::operator()(QList<RewriteAction *> &actions,
-                                         const TextEditor::TabSettings &tabSettings) const
+                                         const TextEditor::TabSettingsData &tabSettings) const
 {
     compressImports(actions);
     compressRereparentActions(actions);
@@ -261,7 +261,7 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
 }
 
 void RewriteActionCompressor::compressAddEditActions(
-    QList<RewriteAction *> &actions, const TextEditor::TabSettings &tabSettings) const
+    QList<RewriteAction *> &actions, const TextEditor::TabSettingsData &tabSettings) const
 {
     QList<RewriteAction *> actionsToRemove;
     QSet<ModelNode> addedNodes;

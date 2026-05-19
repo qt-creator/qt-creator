@@ -24,17 +24,17 @@ public:
     bool isElectricCharacter(const QChar &ch) const final;
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings,
+                     const TextEditor::TabSettingsData &tabSettings,
                      int cursorPositionInEditor = -1) final;
     void invalidateCache() final;
 
     int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
+                  const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) final;
     int visualIndentFor(const QTextBlock &block,
-                        const TextEditor::TabSettings &tabSettings) final;
+                        const TextEditor::TabSettingsData &tabSettings) final;
     TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
-                                                         const TextEditor::TabSettings &tabSettings,
+                                                         const TextEditor::TabSettingsData &tabSettings,
                                                          int cursorPositionInEditor = -1) final;
 };
 
@@ -48,7 +48,7 @@ bool QmlJsIndenter::isElectricCharacter(const QChar &ch) const
 
 void QmlJsIndenter::indentBlock(const QTextBlock &block,
                            const QChar &typedChar,
-                           const TextEditor::TabSettings &tabSettings,
+                           const TextEditor::TabSettingsData &tabSettings,
                            int /*cursorPositionInEditor*/)
 {
     const int depth = indentFor(block, tabSettings);
@@ -76,7 +76,7 @@ void QmlJsIndenter::invalidateCache()
 }
 
 int QmlJsIndenter::indentFor(const QTextBlock &block,
-                        const TextEditor::TabSettings &tabSettings,
+                        const TextEditor::TabSettingsData &tabSettings,
                         int /*cursorPositionInEditor*/)
 {
     QmlJSTools::CreatorCodeFormatter codeFormatter(tabSettings);
@@ -84,14 +84,14 @@ int QmlJsIndenter::indentFor(const QTextBlock &block,
     return codeFormatter.indentFor(block);
 }
 
-int QmlJsIndenter::visualIndentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+int QmlJsIndenter::visualIndentFor(const QTextBlock &block, const TextEditor::TabSettingsData &tabSettings)
 {
     return indentFor(block, tabSettings);
 }
 
 TextEditor::IndentationForBlock QmlJsIndenter::indentationForBlocks(
     const QVector<QTextBlock> &blocks,
-    const TextEditor::TabSettings &tabSettings,
+    const TextEditor::TabSettingsData &tabSettings,
     int /*cursorPositionInEditor*/)
 {
     QmlJSTools::CreatorCodeFormatter codeFormatter(tabSettings);
@@ -111,7 +111,7 @@ TextEditor::TextIndenter *createQmlJsIndenter(QTextDocument *doc)
     return new Internal::QmlJsIndenter(doc);
 }
 
-void indentQmlJs(QTextDocument *doc, int startLine, int endLine, const TextEditor::TabSettings &tabSettings)
+void indentQmlJs(QTextDocument *doc, int startLine, int endLine, const TextEditor::TabSettingsData &tabSettings)
 {
     if (startLine <= 0)
         return;

@@ -227,7 +227,7 @@ static void overrideTabSettings(QPointer<QmlJSEditorDocument> document)
     if (!document)
         return;
 
-    TextEditor::TabSettings tabSettings = document->tabSettings();
+    TextEditor::TabSettingsData tabSettings = document->tabSettings();
     QSettings settings(
         QmlJSTools::QmlFormatSettings::currentQmlFormatIniFile(document->filePath()).toUrlishString(),
         QSettings::IniFormat);
@@ -236,8 +236,8 @@ static void overrideTabSettings(QPointer<QmlJSEditorDocument> document)
         tabSettings.m_indentSize = settings.value("IndentWidth").toInt();
     if (settings.contains("UseTabs"))
         tabSettings.m_tabPolicy = settings.value("UseTabs").toBool()
-                                      ? TextEditor::TabSettings::TabPolicy::TabsOnlyTabPolicy
-                                      : TextEditor::TabSettings::TabPolicy::SpacesOnlyTabPolicy;
+                                      ? TextEditor::TabSettingsData::TabPolicy::TabsOnlyTabPolicy
+                                      : TextEditor::TabSettingsData::TabPolicy::SpacesOnlyTabPolicy;
     tabSettings.m_autoDetect = false; // setTabSettings ignores changes when this is true
     document->setTabSettings(tabSettings);
 }
@@ -301,7 +301,7 @@ static FormatResult reformatByBuiltInFormatter(QPointer<QmlJSEditorDocument> doc
 
     QmlJSTools::QmlJSCodeStylePreferences *codeStyle
         = QmlJSTools::globalQmlJSCodeStyle();
-    TextEditor::TabSettings tabSettings = codeStyle->currentTabSettings();
+    TextEditor::TabSettingsData tabSettings = codeStyle->currentTabSettings();
     const QString newText = QmlJS::reformat(
         documentPtr,
         tabSettings.m_indentSize,

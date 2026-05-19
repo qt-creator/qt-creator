@@ -80,11 +80,11 @@ public:
     void indentLines(int /*offset*/, int /*length*/) override
     {}
 
-    TextEditor::TabSettings tabSettings() const override
+    TextEditor::TabSettingsData tabSettings() const override
     { return m_tabSettings; }
 
 protected:
-    TextEditor::TabSettings m_tabSettings;
+    TextEditor::TabSettingsData m_tabSettings;
 };
 
 } // namespace QmlDesigner

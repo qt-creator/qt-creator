@@ -14,7 +14,7 @@
 
 namespace TextEditor {
 class ICodeStylePreferences;
-class TabSettings;
+class TabSettingsData;
 }
 namespace ProjectExplorer { class Project; }
 namespace CppEditor { class CppCodeStyleSettings; }
@@ -36,7 +36,7 @@ TextEditor::ICodeStylePreferences *preferencesForFile(const Utils::FilePath &fil
 Utils::FilePath configForFile(const Utils::FilePath &filePath);
 Utils::FilePath findConfig(const Utils::FilePath &filePath);
 
-void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSettings &settings);
+void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSettingsData &settings);
 void fromCppCodeStyleSettings(clang::format::FormatStyle &style,
                               const CppEditor::CppCodeStyleSettings &settings);
 

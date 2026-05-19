@@ -694,7 +694,7 @@ BaseEditorDocumentProcessor *CppEditorDocument::Private::processor()
     return m_processor.data();
 }
 
-TextEditor::TabSettings CppEditorDocument::tabSettings() const
+TextEditor::TabSettingsData CppEditorDocument::tabSettings() const
 {
     return indenter()->tabSettings().value_or(TextEditor::TextDocument::tabSettings());
 }

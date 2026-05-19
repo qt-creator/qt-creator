@@ -377,11 +377,11 @@ void QmakePriFile::watchFolders(const QSet<FilePath> &folders)
 QString QmakePriFile::continuationIndent() const
 {
     const EditorConfiguration *editorConf = project()->editorConfiguration();
-    const TextEditor::TabSettings &tabSettings = editorConf->useGlobalSettings()
+    const TextEditor::TabSettingsData &tabSettings = editorConf->useGlobalSettings()
             ? TextEditor::TextEditorSettings::codeStyle()->tabSettings()
             : editorConf->codeStyle()->tabSettings();
-    if (tabSettings.m_continuationAlignBehavior == TextEditor::TabSettings::ContinuationAlignWithIndent
-            && tabSettings.m_tabPolicy == TextEditor::TabSettings::TabsOnlyTabPolicy) {
+    if (tabSettings.m_continuationAlignBehavior == TextEditor::TabSettingsData::ContinuationAlignWithIndent
+            && tabSettings.m_tabPolicy == TextEditor::TabSettingsData::TabsOnlyTabPolicy) {
         return QString("\t");
     }
     return QString(tabSettings.m_indentSize, ' ');

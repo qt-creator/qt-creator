@@ -16,7 +16,7 @@ public:
         , m_positionStore(positionStore)
     {}
 
-    void operator()(QList<RewriteAction *> &actions, const TextEditor::TabSettings &tabSettings) const;
+    void operator()(QList<RewriteAction *> &actions, const TextEditor::TabSettingsData &tabSettings) const;
 
 private:
     void compressImports(QList<RewriteAction *> &actions) const;
@@ -26,7 +26,7 @@ private:
     void compressReparentIntoNewPropertyActions(QList<RewriteAction *> &actions) const;
     void compressAddEditRemoveNodeActions(QList<RewriteAction *> &actions) const;
     void compressPropertyActions(QList<RewriteAction *> &actions) const;
-    void compressAddEditActions(QList<RewriteAction *> &actions, const TextEditor::TabSettings &tabSettings) const;
+    void compressAddEditActions(QList<RewriteAction *> &actions, const TextEditor::TabSettingsData &tabSettings) const;
     void compressAddReparentActions(QList<RewriteAction *> &actions) const;
     void compressSlidesIntoNewNode(QList<RewriteAction *> &actions) const;
 

@@ -10,9 +10,9 @@
 namespace TextEditor {
 
 class ICodeStylePreferences;
-class TabSettings;
+class TabSettingsData;
 
-class TEXTEDITOR_EXPORT TabSettingsWidget : public Utils::AspectContainer
+class TEXTEDITOR_EXPORT TabSettings : public Utils::AspectContainer
 {
     Q_OBJECT
 
@@ -22,24 +22,24 @@ public:
         QtQuickLink
     };
 
-    TabSettingsWidget();
-    ~TabSettingsWidget() override;
+    TabSettings();
+    ~TabSettings() override;
 
     void setPreferences(ICodeStylePreferences *preferences);
 
-    TabSettings tabSettings() const;
+    TabSettingsData data() const;
 
     void setCodingStyleWarningVisible(bool visible);
-    void setTabSettings(const TextEditor::TabSettings& s);
+    void setData(const TextEditor::TabSettingsData& s);
 
 signals:
-    void settingsChanged(const TextEditor::TabSettings &);
-    void codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink link);
+    void settingsChanged(const TextEditor::TabSettingsData &);
+    void codingStyleLinkClicked(TextEditor::TabSettings::CodingStyleLink link);
 
 private:
     void codingStyleLinkActivated(const QString &linkString);
     void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences);
-    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
+    void slotTabSettingsChanged(const TextEditor::TabSettingsData &settings);
 
     ICodeStylePreferences *m_preferences = nullptr;
 

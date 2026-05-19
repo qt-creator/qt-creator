@@ -57,7 +57,7 @@ public:
     void updateOutline();
 
     QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params);
-    TextEditor::TabSettings tabSettings() const override;
+    TextEditor::TabSettingsData tabSettings() const override;
 
     bool usesClangd() const;
 

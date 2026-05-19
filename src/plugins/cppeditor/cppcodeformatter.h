@@ -242,7 +242,7 @@ class CPPEDITOR_EXPORT QtStyleCodeFormatter : public CodeFormatter
 {
 public:
     QtStyleCodeFormatter();
-    QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings,
+    QtStyleCodeFormatter(const TextEditor::TabSettingsData &tabSettings,
                          const CppCodeStyleSettings &settings);
 
     void setCodeStyleSettings(const CppCodeStyleSettings &settings);
@@ -262,7 +262,7 @@ protected:
 private:
     void addContinuationIndent(int *paddingDepth) const;
 
-    TextEditor::TabSettings m_tabSettings;
+    TextEditor::TabSettingsData m_tabSettings;
     CppCodeStyleSettings m_styleSettings;
 };
 

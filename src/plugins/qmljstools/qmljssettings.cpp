@@ -118,10 +118,10 @@ QmlJSCodeStyleSettings QmlJSCodeStyleSettings::currentGlobalCodeStyle()
     return QmlJSCodeStylePreferences->currentCodeStyleSettings();
 }
 
-TabSettings QmlJSCodeStyleSettings::currentGlobalTabSettings()
+TabSettingsData QmlJSCodeStyleSettings::currentGlobalTabSettings()
 {
     QmlJSCodeStylePreferences *QmlJSCodeStylePreferences = globalQmlJSCodeStyle();
-    QTC_ASSERT(QmlJSCodeStylePreferences, return TabSettings());
+    QTC_ASSERT(QmlJSCodeStylePreferences, return TabSettingsData());
 
     return QmlJSCodeStylePreferences->currentTabSettings();
 }
@@ -244,7 +244,7 @@ class BuiltinFormatterSettingsWidget final : public QmlCodeStyleWidgetBase
 public:
     BuiltinFormatterSettingsWidget(QWidget *parent, FormatterSelectionWidget *selection)
         : QmlCodeStyleWidgetBase(parent)
-        , m_tabSettingsWidget(new TabSettingsWidget)
+        , m_tabSettingsWidget(new TabSettings)
         , m_formatterSelectionWidget(selection)
     {
         m_lineLength.setRange(0, 999);
@@ -277,10 +277,10 @@ public:
 
 private:
     void slotSettingsChanged();
-    void slotTabSettingsChanged(const TabSettings &settings);
+    void slotTabSettingsChanged(const TabSettingsData &settings);
 
     IntegerAspect m_lineLength;
-    TabSettingsWidget *m_tabSettingsWidget;
+    TabSettings *m_tabSettingsWidget;
     QmlJSCodeStylePreferences *m_preferences = nullptr;
     FormatterSelectionWidget *m_formatterSelectionWidget;
 };
@@ -303,8 +303,8 @@ void BuiltinFormatterSettingsWidget::setPreferences(QmlJSCodeStylePreferences *p
         disconnect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
                    this, &BuiltinFormatterSettingsWidget::slotCurrentPreferencesChanged);
         disconnect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                   m_tabSettingsWidget, &TabSettingsWidget::setTabSettings);
-        disconnect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+                   m_tabSettingsWidget, &TabSettings::setData);
+        disconnect(m_tabSettingsWidget, &TabSettings::settingsChanged,
                    this, &BuiltinFormatterSettingsWidget::slotTabSettingsChanged);
     }
     m_preferences = preferences;
@@ -315,10 +315,10 @@ void BuiltinFormatterSettingsWidget::setPreferences(QmlJSCodeStylePreferences *p
         });
         connect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
                 this, &BuiltinFormatterSettingsWidget::slotCurrentPreferencesChanged);
-        m_tabSettingsWidget->setTabSettings(m_preferences->currentTabSettings());
+        m_tabSettingsWidget->setData(m_preferences->currentTabSettings());
         connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                m_tabSettingsWidget, &TabSettingsWidget::setTabSettings);
-        connect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+                m_tabSettingsWidget, &TabSettings::setData);
+        connect(m_tabSettingsWidget, &TabSettings::settingsChanged,
                 this, &BuiltinFormatterSettingsWidget::slotTabSettingsChanged);
     }
 }
@@ -342,7 +342,7 @@ void BuiltinFormatterSettingsWidget::slotSettingsChanged()
     emit settingsChanged(settings);
 }
 
-void BuiltinFormatterSettingsWidget::slotTabSettingsChanged(const TabSettings &settings)
+void BuiltinFormatterSettingsWidget::slotTabSettingsChanged(const TabSettingsData &settings)
 {
     if (!m_preferences)
         return;
@@ -1155,7 +1155,7 @@ void QmlJSCodeStylePreferencesWidget::builtInFormatterPreview()
 {
     QTextDocument *doc = m_previewTextEdit->document();
 
-    const TabSettings &ts = m_preferences
+    const TabSettingsData &ts = m_preferences
             ? m_preferences->currentTabSettings()
             : TextEditorSettings::codeStyle()->tabSettings();
     m_previewTextEdit->textDocument()->setTabSettings(ts);
@@ -1189,7 +1189,7 @@ void QmlJSCodeStylePreferencesWidget::qmlformatPreview()
     command.addOption("%file");
     if (!command.isValid())
         return;
-    TextEditor::TabSettings tabSettings;
+    TextEditor::TabSettingsData tabSettings;
     tabSettings.m_tabSize = 4;
     QSettings settings(
         QmlJSTools::QmlFormatSettings::globalQmlFormatIniFile().toUrlishString(),
@@ -1198,8 +1198,8 @@ void QmlJSCodeStylePreferencesWidget::qmlformatPreview()
         tabSettings.m_indentSize = settings.value("IndentWidth").toInt();
     if (settings.contains("UseTabs"))
         tabSettings.m_tabPolicy = settings.value("UseTabs").toBool()
-                                        ? TextEditor::TabSettings::TabPolicy::TabsOnlyTabPolicy
-                                        : TextEditor::TabSettings::TabPolicy::SpacesOnlyTabPolicy;
+                                        ? TextEditor::TabSettingsData::TabPolicy::TabsOnlyTabPolicy
+                                        : TextEditor::TabSettingsData::TabPolicy::SpacesOnlyTabPolicy;
     QString dummyFilePath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/dummy.qml";
     m_previewTextEdit->textDocument()->setFilePath(Utils::FilePath::fromString(dummyFilePath));
     m_previewTextEdit->textDocument()->setTabSettings(tabSettings);
@@ -1381,11 +1381,11 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     qtCodeStyle->setId("qt");
     qtCodeStyle->setDisplayName(Tr::tr("Qt"));
     qtCodeStyle->setReadOnly(true);
-    TabSettings qtTabSettings;
-    qtTabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+    TabSettingsData qtTabSettings;
+    qtTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
     qtTabSettings.m_tabSize = 4;
     qtTabSettings.m_indentSize = 4;
-    qtTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
+    qtTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
     qtCodeStyle->setTabSettings(qtTabSettings);
 
     connect(&QmlFormatSettings::instance(), &QmlFormatSettings::qmlformatIniCreated,

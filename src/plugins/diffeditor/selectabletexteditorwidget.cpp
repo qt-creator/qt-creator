@@ -23,7 +23,7 @@ SelectableTextEditorWidget::SelectableTextEditorWidget(Utils::Id id, QWidget *pa
     setupFallBackEditor(id);
 
     auto disableTabAutodetection = [this] {
-        TabSettings tabSettings = textDocument()->tabSettings();
+        TabSettingsData tabSettings = textDocument()->tabSettings();
         tabSettings.m_autoDetect = false;
         textDocument()->setTabSettings(tabSettings);
     };

@@ -76,7 +76,7 @@ private:
     void updatePreview();
 
     ICodeStylePreferences *m_preferences;
-    TabSettingsWidget m_tabSettingsWidget;
+    TabSettings m_tabSettingsWidget;
     SnippetEditorWidget m_previewTextEdit;
 };
 
@@ -90,7 +90,7 @@ void NimCodeStylePreferencesWidget::updatePreview()
 {
     QTextDocument *doc = m_previewTextEdit.document();
 
-    const TabSettings &ts = m_preferences
+    const TabSettingsData &ts = m_preferences
             ? m_preferences->currentTabSettings()
             : TextEditorSettings::codeStyle()->tabSettings();
     m_previewTextEdit.textDocument()->setTabSettings(ts);
@@ -234,11 +234,11 @@ public:
         m_nimCodeStyle.setDisplayName(Tr::tr("Nim"));
         m_nimCodeStyle.setReadOnly(true);
 
-        TabSettings nimTabSettings;
-        nimTabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+        TabSettingsData nimTabSettings;
+        nimTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
         nimTabSettings.m_tabSize = 2;
         nimTabSettings.m_indentSize = 2;
-        nimTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
+        nimTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
         m_nimCodeStyle.setTabSettings(nimTabSettings);
 
         m_pool.addCodeStyle(&m_nimCodeStyle);

@@ -181,13 +181,13 @@ public:
         }.attachTo(this);
 
         m_tabSettingsWidget.setCodingStyleWarningVisible(true);
-        connect(&m_tabSettingsWidget, &TabSettingsWidget::codingStyleLinkClicked,
-                this, [] (TabSettingsWidget::CodingStyleLink link) {
+        connect(&m_tabSettingsWidget, &TabSettings::codingStyleLinkClicked,
+                this, [] (TabSettings::CodingStyleLink link) {
             switch (link) {
-            case TabSettingsWidget::CppLink:
+            case TabSettings::CppLink:
                 Core::ICore::showSettings(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
                 break;
-            case TabSettingsWidget::QtQuickLink:
+            case TabSettings::QtQuickLink:
                 Core::ICore::showSettings(QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
                 break;
             }
@@ -204,7 +204,7 @@ public:
     void apply() final;
 
     BehaviorSettingsPage *m_page;
-    TabSettingsWidget m_tabSettingsWidget;
+    TabSettings m_tabSettingsWidget;
     SimpleCodeStylePreferences m_pageCodeStyle;
 };
 

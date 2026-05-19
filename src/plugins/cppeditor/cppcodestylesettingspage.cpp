@@ -166,7 +166,7 @@ public:
                       Tr::tr("Right const/volatile"),
                       Tr::tr("This does not apply to references."));
 
-        QObject::connect(&m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+        QObject::connect(&m_tabSettingsWidget, &TabSettings::settingsChanged,
                          q, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
 
         using namespace Layouting;
@@ -324,7 +324,7 @@ public:
 
     QTabWidget *m_categoryTab = nullptr;
     QWidget *m_generalSettingsRow = nullptr;
-    TabSettingsWidget m_tabSettingsWidget;
+    TabSettings m_tabSettingsWidget;
     bool m_handlingStatementMacroChange = false;
 };
 
@@ -488,14 +488,14 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
     return set;
 }
 
-void CppCodeStylePreferencesWidget::setTabSettings(const TabSettings &settings)
+void CppCodeStylePreferencesWidget::setTabSettings(const TabSettingsData &settings)
 {
-    d->m_tabSettingsWidget.setTabSettings(settings);
+    d->m_tabSettingsWidget.setData(settings);
 }
 
-TextEditor::TabSettings CppCodeStylePreferencesWidget::tabSettings() const
+TextEditor::TabSettingsData CppCodeStylePreferencesWidget::tabSettings() const
 {
-    return d->m_tabSettingsWidget.tabSettings();
+    return d->m_tabSettingsWidget.data();
 }
 
 void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSettings &s, bool preview)
@@ -555,7 +555,7 @@ void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
     updatePreview();
 }
 
-void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &settings)
+void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettingsData &settings)
 {
     if (m_blockUpdates)
         return;
@@ -575,7 +575,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
             = m_preferences ? m_preferences : cppCodeStyle();
 
     const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
-    const TabSettings ts = cppCodeStylePreferences->currentTabSettings();
+    const TabSettingsData ts = cppCodeStylePreferences->currentTabSettings();
     QtStyleCodeFormatter formatter(ts, ccss);
     for (SnippetEditorWidget *preview : std::as_const(d->m_previews)) {
         preview->textDocument()->setTabSettings(ts);

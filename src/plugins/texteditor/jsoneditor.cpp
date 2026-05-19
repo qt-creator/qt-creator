@@ -125,7 +125,7 @@ public:
     }
 
     int indentFor(const QTextBlock &block,
-                  const TabSettings &tabSettings,
+                  const TabSettingsData &tabSettings,
                   int /*cursorPositionInEditor*/) override
     {
         QTextBlock previous = block.previous();
@@ -152,7 +152,7 @@ public:
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TabSettings &tabSettings,
+                     const TabSettingsData &tabSettings,
                      int cursorPositionInEditor) override
     {
         Q_UNUSED(typedChar)

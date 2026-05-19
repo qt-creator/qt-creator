@@ -15,7 +15,7 @@ public:
     bool isElectricCharacter(const QChar &ch) const final;
 
     int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
+                  const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) final;
 };
 
@@ -99,7 +99,7 @@ static int paranthesesLevel(const QString &line)
 }
 
 int CMakeIndenter::indentFor(const QTextBlock &block,
-                             const TextEditor::TabSettings &tabSettings,
+                             const TextEditor::TabSettingsData &tabSettings,
                              int /*cursorPositionInEditor*/)
 {
     QTextBlock previousBlock = block.previous();

@@ -17,7 +17,7 @@ namespace TextEditor {
 class BaseTextEditor;
 class TextEditorWidget;
 class TextDocument;
-class TabSettings;
+class TabSettingsData;
 class ICodeStylePreferences;
 class TypingSettingsData;
 } // namespace TextEditor
@@ -84,7 +84,7 @@ private:
 // Return the editor settings in the case it's not null. Otherwise, try to find the project
 // the file belongs to and return the project settings. If the file doesn't belong to any
 // project return the global settings.
-PROJECTEXPLORER_EXPORT TextEditor::TabSettings actualTabSettings(
+PROJECTEXPLORER_EXPORT TextEditor::TabSettingsData actualTabSettings(
     const Utils::FilePath &file, const TextEditor::TextDocument *baseTextDocument);
 
 } // namespace ProjectExplorer

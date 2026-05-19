@@ -29,7 +29,7 @@ public:
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TextEditor::TabSettings &settings,
+                     const TextEditor::TabSettingsData &settings,
                      int cursorPositionInEditor = -1) final;
 
 private:
@@ -53,7 +53,7 @@ static QString rightTrimmed(const QString &str)
 
 void NimIndenter::indentBlock(const QTextBlock &block,
                               const QChar &typedChar,
-                              const TextEditor::TabSettings &settings,
+                              const TextEditor::TabSettingsData &settings,
                               int cursorPositionInEditor)
 {
     Q_UNUSED(typedChar)

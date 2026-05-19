@@ -16,7 +16,7 @@ class QmlTextGenerator
 {
 public:
     explicit QmlTextGenerator(Utils::span<const PropertyNameView> propertyOrder,
-                              const TextEditor::TabSettings &tabSettings,
+                              const TextEditor::TabSettingsData &tabSettings,
                               const int startIndentDepth = 0);
 
     QString operator()(const AbstractProperty &property) const
@@ -33,7 +33,7 @@ private:
 
 private:
     Utils::span<const PropertyNameView> m_propertyOrder;
-    TextEditor::TabSettings m_tabSettings;
+    TextEditor::TabSettingsData m_tabSettings;
     const int m_startIndentDepth;
 };
 

@@ -1183,7 +1183,7 @@ using namespace Internal;
 
 QtStyleCodeFormatter::QtStyleCodeFormatter() = default;
 
-QtStyleCodeFormatter::QtStyleCodeFormatter(const TabSettings &tabSettings,
+QtStyleCodeFormatter::QtStyleCodeFormatter(const TabSettingsData &tabSettings,
                                            const CppCodeStyleSettings &settings)
     : m_tabSettings(tabSettings)
     , m_styleSettings(settings)

@@ -14,7 +14,7 @@ namespace TextEditor {
 
 class ICodeStylePreferences;
 class ICodeStylePreferencesFactory;
-class TabSettings;
+class TabSettingsData;
 
 namespace Internal { class CodeStylePoolPrivate; }
 
@@ -31,7 +31,7 @@ public:
     QList<ICodeStylePreferences *> customCodeStyles() const;
 
     ICodeStylePreferences *cloneCodeStyle(ICodeStylePreferences *originalCodeStyle);
-    ICodeStylePreferences *createCodeStyle(const QByteArray &id, const TabSettings &tabSettings,
+    ICodeStylePreferences *createCodeStyle(const QByteArray &id, const TabSettingsData &tabSettings,
                       const QVariant &codeStyleData, const QString &displayName);
     ICodeStylePreferences *createCodeStyle(const QString &displayName);
     // ownership is passed to the pool

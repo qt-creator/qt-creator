@@ -64,21 +64,21 @@ bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
            == ClangFormatSettings::Mode::Formatting;
 }
 
-std::optional<TabSettings> ClangFormatIndenter::tabSettings() const
+std::optional<TabSettingsData> ClangFormatIndenter::tabSettings() const
 {
     // FIXME: Why don't we have a valid file path from the beginning?
     if (m_fileName.isEmpty())
         return {};
 
     FormatStyle style = styleForFile();
-    TabSettings tabSettings;
+    TabSettingsData tabSettings;
 
     switch (style.UseTab) {
     case FormatStyle::UT_Never:
-        tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+        tabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
         break;
     default:
-        tabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
+        tabSettings.m_tabPolicy = TabSettingsData::TabsOnlyTabPolicy;
     }
 
     tabSettings.m_tabSize = static_cast<int>(style.TabWidth);
@@ -93,9 +93,9 @@ std::optional<TabSettings> ClangFormatIndenter::tabSettings() const
     };
 
     if (alignAfterOpenBracket(style))
-        tabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
+        tabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
     else
-        tabSettings.m_continuationAlignBehavior = TabSettings::NoContinuationAlign;
+        tabSettings.m_continuationAlignBehavior = TabSettingsData::NoContinuationAlign;
 
     return tabSettings;
 }
@@ -168,20 +168,20 @@ void ClangFormatForwardingIndenter::invalidateCache()
 }
 
 int ClangFormatForwardingIndenter::indentFor(const QTextBlock &block,
-                                          const TextEditor::TabSettings &tabSettings,
+                                          const TextEditor::TabSettingsData &tabSettings,
                                           int cursorPositionInEditor)
 {
     return currentIndenter()->indentFor(block, tabSettings, cursorPositionInEditor);
 }
 
 int ClangFormatForwardingIndenter::visualIndentFor(const QTextBlock &block,
-                                                const TextEditor::TabSettings &tabSettings)
+                                                const TextEditor::TabSettingsData &tabSettings)
 {
     return currentIndenter()->visualIndentFor(block, tabSettings);
 }
 
 void ClangFormatForwardingIndenter::autoIndent(const QTextCursor &cursor,
-                                            const TextEditor::TabSettings &tabSettings,
+                                            const TextEditor::TabSettingsData &tabSettings,
                                             int cursorPositionInEditor)
 {
     currentIndenter()->autoIndent(cursor, tabSettings, cursorPositionInEditor);
@@ -201,20 +201,20 @@ bool ClangFormatForwardingIndenter::formatOnSave() const
 
 TextEditor::IndentationForBlock ClangFormatForwardingIndenter::indentationForBlocks(
     const QList<QTextBlock> &blocks,
-    const TextEditor::TabSettings &tabSettings,
+    const TextEditor::TabSettingsData &tabSettings,
     int cursorPositionInEditor)
 {
     return currentIndenter()->indentationForBlocks(blocks, tabSettings, cursorPositionInEditor);
 }
 
-std::optional<TextEditor::TabSettings> ClangFormatForwardingIndenter::tabSettings() const
+std::optional<TextEditor::TabSettingsData> ClangFormatForwardingIndenter::tabSettings() const
 {
     return currentIndenter()->tabSettings();
 }
 
 void ClangFormatForwardingIndenter::indentBlock(const QTextBlock &block,
                                              const QChar &typedChar,
-                                             const TextEditor::TabSettings &tabSettings,
+                                             const TextEditor::TabSettingsData &tabSettings,
                                              int cursorPositionInEditor)
 {
     currentIndenter()->indentBlock(block, typedChar, tabSettings, cursorPositionInEditor);
@@ -222,14 +222,14 @@ void ClangFormatForwardingIndenter::indentBlock(const QTextBlock &block,
 
 void ClangFormatForwardingIndenter::indent(const QTextCursor &cursor,
                                         const QChar &typedChar,
-                                        const TextEditor::TabSettings &tabSettings,
+                                        const TextEditor::TabSettingsData &tabSettings,
                                         int cursorPositionInEditor)
 {
     currentIndenter()->indent(cursor, typedChar, tabSettings, cursorPositionInEditor);
 }
 
 void ClangFormatForwardingIndenter::reindent(const QTextCursor &cursor,
-                                          const TextEditor::TabSettings &tabSettings,
+                                          const TextEditor::TabSettingsData &tabSettings,
                                           int cursorPositionInEditor)
 {
     currentIndenter()->reindent(cursor, tabSettings, cursorPositionInEditor);

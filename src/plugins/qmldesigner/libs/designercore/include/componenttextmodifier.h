@@ -19,7 +19,7 @@ public:
     void indent(int offset, int length) override;
     void indentLines(int startLine, int endLine) override;
 
-    TextEditor::TabSettings tabSettings() const override;
+    TextEditor::TabSettingsData tabSettings() const override;
 
     void startGroup() override;
     void flushGroup() override;

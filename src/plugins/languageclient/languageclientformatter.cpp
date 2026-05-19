@@ -54,11 +54,11 @@ void LanguageClientFormatter::handleResponse(const ResponseType &response)
         m_formatCallback(changeSet);
 }
 
-static const FormattingOptions formattingOptions(const TextEditor::TabSettings &settings)
+static const FormattingOptions formattingOptions(const TextEditor::TabSettingsData &settings)
 {
     FormattingOptions options;
     options.setTabSize(settings.m_tabSize);
-    options.setInsertSpace(settings.m_tabPolicy == TextEditor::TabSettings::SpacesOnlyTabPolicy);
+    options.setInsertSpace(settings.m_tabPolicy == TextEditor::TabSettingsData::SpacesOnlyTabPolicy);
     return options;
 }
 
@@ -115,7 +115,7 @@ void LanguageClientFormatter::setMode(FormatMode mode)
 }
 
 void LanguageClientFormatter::format(const QTextCursor &cursor,
-        const TextEditor::TabSettings &tabSettings,
+        const TextEditor::TabSettingsData &tabSettings,
         const TextEditor::FormatCallback &callback)
 {
     QTC_ASSERT(m_client, return);
@@ -158,7 +158,7 @@ RangeFormattingRequest::RangeFormattingRequest(Client *client, TextEditor::TextD
 }
 
 IFormattingRequest::RequestType RangeFormattingRequest::prepareRequest(
-    const QTextCursor &cursor, const TextEditor::TabSettings &settings, LanguageClientFormatter *formatter)
+    const QTextCursor &cursor, const TextEditor::TabSettingsData &settings, LanguageClientFormatter *formatter)
 {
     if (!canRequest<DocumentRangeFormattingRequest>(m_client, m_document))
         return std::monostate();
@@ -187,7 +187,7 @@ FullFormattingRequest::FullFormattingRequest(Client *client, TextEditor::TextDoc
 }
 
 IFormattingRequest::RequestType FullFormattingRequest::prepareRequest(
-    const QTextCursor &cursor, const TextEditor::TabSettings &settings, LanguageClientFormatter *formatter)
+    const QTextCursor &cursor, const TextEditor::TabSettingsData &settings, LanguageClientFormatter *formatter)
 {
     Q_UNUSED(cursor)
     if (!canRequest<DocumentFormattingRequest>(m_client, m_document))

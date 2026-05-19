@@ -8,7 +8,7 @@
 #include <texteditor/textdocumentlayout.h>
 #include <qmljs/qmljscodeformatter.h>
 
-namespace TextEditor { class TabSettings; }
+namespace TextEditor { class TabSettingsData; }
 
 namespace QmlJSTools {
 
@@ -16,7 +16,7 @@ class QMLJSTOOLS_EXPORT CreatorCodeFormatter : public QmlJS::QtStyleCodeFormatte
 {
 public:
     CreatorCodeFormatter();
-    explicit CreatorCodeFormatter(const TextEditor::TabSettings &tabSettings);
+    explicit CreatorCodeFormatter(const TextEditor::TabSettingsData &tabSettings);
 
 protected:
     void saveBlockData(QTextBlock *block, const BlockData &data) const override;

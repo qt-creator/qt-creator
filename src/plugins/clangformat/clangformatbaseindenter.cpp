@@ -819,14 +819,14 @@ void ClangFormatBaseIndenterPrivate::indent(const QTextCursor &cursor,
 
 void ClangFormatBaseIndenter::indent(const QTextCursor &cursor,
                                      const QChar &typedChar,
-                                     const TabSettings & /*tabSettings*/,
+                                     const TabSettingsData & /*tabSettings*/,
                                      int cursorPositionInEditor)
 {
     d->indent(cursor, typedChar, cursorPositionInEditor);
 }
 
 void ClangFormatBaseIndenter::reindent(const QTextCursor &cursor,
-                                       const TabSettings & /*tabSettings*/,
+                                       const TabSettingsData & /*tabSettings*/,
                                        int cursorPositionInEditor)
 {
     d->indent(cursor, QChar::Null, cursorPositionInEditor);
@@ -834,14 +834,14 @@ void ClangFormatBaseIndenter::reindent(const QTextCursor &cursor,
 
 void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
                                           const QChar &typedChar,
-                                          const TabSettings & /*tabSettings*/,
+                                          const TabSettingsData & /*tabSettings*/,
                                           int cursorPositionInEditor)
 {
     d->indentBlocks(block, block, typedChar, cursorPositionInEditor);
 }
 
 int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
-                                       const TabSettings & /*tabSettings*/,
+                                       const TabSettingsData & /*tabSettings*/,
                                        int cursorPositionInEditor)
 {
     ChangeSet toReplace = d->indentsFor(block, block, QChar::Null, cursorPositionInEditor, false);
@@ -854,7 +854,7 @@ int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
 
 IndentationForBlock ClangFormatBaseIndenter::indentationForBlocks(
     const QList<QTextBlock> &blocks,
-    const TabSettings & /*tabSettings*/,
+    const TabSettingsData & /*tabSettings*/,
     int cursorPositionInEditor)
 {
     IndentationForBlock ret;
@@ -894,7 +894,7 @@ std::optional<int> ClangFormat::ClangFormatBaseIndenter::margin() const
 }
 
 void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
-                                         const TabSettings & /*tabSettings*/,
+                                         const TabSettingsData & /*tabSettings*/,
                                          int cursorPositionInEditor)
 {
     if (formatCodeInsteadOfIndent()) {

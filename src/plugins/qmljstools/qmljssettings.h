@@ -15,7 +15,7 @@
 
 namespace TextEditor {
 class FontSettings;
-class TabSettings;
+class TabSettingsData;
 }
 
 QT_BEGIN_NAMESPACE
@@ -51,7 +51,7 @@ public:
     bool operator!=(const QmlJSCodeStyleSettings &s) const { return !equals(s); }
 
     static QmlJSCodeStyleSettings currentGlobalCodeStyle();
-    static TextEditor::TabSettings currentGlobalTabSettings();
+    static TextEditor::TabSettingsData currentGlobalTabSettings();
     static Utils::Id settingsId();
 };
 

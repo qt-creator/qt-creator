@@ -17,7 +17,7 @@ namespace TextEditor {
 
 // Tab settings: Data type the GeneralSettingsPage acts on
 // with some convenience functions for formatting.
-class TEXTEDITORSUPPORT_EXPORT TabSettings
+class TEXTEDITORSUPPORT_EXPORT TabSettingsData
 {
 public:
     enum TabPolicy {
@@ -32,14 +32,14 @@ public:
         ContinuationAlignWithIndent = 2
     };
 
-    TabSettings() = default;
-    TabSettings(TabPolicy tabPolicy, int tabSize,
+    TabSettingsData() = default;
+    TabSettingsData(TabPolicy tabPolicy, int tabSize,
                 int indentSize, ContinuationAlignBehavior continuationAlignBehavior);
 
     void toMap(Utils::Store &map) const;
     void fromMap(const Utils::Store &map);
 
-    TabSettings autoDetect(const QTextDocument *document) const;
+    TabSettingsData autoDetect(const QTextDocument *document) const;
 
     int columnAt(const QString &text, int position) const;
     int columnAtCursorPosition(const QTextCursor &cursor) const;
@@ -55,8 +55,8 @@ public:
 
     bool isIndentationClean(const QTextBlock &block, const int indent) const;
 
-    friend bool operator==(const TabSettings &t1, const TabSettings &t2) { return t1.equals(t2); }
-    friend bool operator!=(const TabSettings &t1, const TabSettings &t2) { return !t1.equals(t2); }
+    friend bool operator==(const TabSettingsData &t1, const TabSettingsData &t2) { return t1.equals(t2); }
+    friend bool operator!=(const TabSettingsData &t1, const TabSettingsData &t2) { return !t1.equals(t2); }
 
     static int firstNonSpace(const QString &text);
     static QString indentationString(const QString &text);
@@ -72,15 +72,15 @@ public:
     int m_indentSize = 4;
     ContinuationAlignBehavior m_continuationAlignBehavior = ContinuationAlignWithSpaces;
 
-    bool equals(const TabSettings &ts) const;
+    bool equals(const TabSettingsData &ts) const;
 
-    using Retriever = std::function<TabSettings(const Utils::FilePath &)>;
+    using Retriever = std::function<TabSettingsData(const Utils::FilePath &)>;
     static void setRetriever(const Retriever &retriever);
-    static TabSettings settingsForFile(const Utils::FilePath &filePath);
+    static TabSettingsData settingsForFile(const Utils::FilePath &filePath);
 };
 
 } // namespace TextEditor
 
-Q_DECLARE_METATYPE(TextEditor::TabSettings)
-Q_DECLARE_METATYPE(TextEditor::TabSettings::TabPolicy)
-Q_DECLARE_METATYPE(TextEditor::TabSettings::ContinuationAlignBehavior)
+Q_DECLARE_METATYPE(TextEditor::TabSettingsData)
+Q_DECLARE_METATYPE(TextEditor::TabSettingsData::TabPolicy)
+Q_DECLARE_METATYPE(TextEditor::TabSettingsData::ContinuationAlignBehavior)

@@ -339,7 +339,7 @@ void RefactoringFile::doFormatting()
     QTextDocument *document = nullptr;
     Indenter *indenter = nullptr;
     std::unique_ptr<Indenter> indenterOwner;
-    TabSettings tabSettings;
+    TabSettingsData tabSettings;
     if (m_editor) {
         document = m_editor->document();
         indenter = m_editor->textDocument()->indenter();
@@ -352,7 +352,7 @@ void RefactoringFile::doFormatting()
                                     : new PlainTextIndenter(document));
         indenter = indenterOwner.get();
         indenter->setFileName(filePath());
-        tabSettings = TabSettings::settingsForFile(filePath());
+        tabSettings = TabSettingsData::settingsForFile(filePath());
     }
     QTC_ASSERT(document, return);
     QTC_ASSERT(indenter, return);

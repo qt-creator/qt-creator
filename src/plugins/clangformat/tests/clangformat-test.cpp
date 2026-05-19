@@ -22,7 +22,7 @@ public:
     ClangFormatTestIndenter(QTextDocument *doc) : ClangFormatBaseIndenter(doc) {}
 
 private:
-    std::optional<TextEditor::TabSettings> tabSettings() const override { return {}; }
+    std::optional<TextEditor::TabSettingsData> tabSettings() const override { return {}; }
 };
 
 class ClangFormatExtendedTestIndenter : public ClangFormatTestIndenter
@@ -175,21 +175,21 @@ std::vector<QString> ClangFormatTest::documentLines() const
 void ClangFormatTest::testIndentBasicFile()
 {
     insertLines({"int main()", "{", "int a;", "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"int main()", "{", "    int a;", "}"}));
 }
 
 void ClangFormatTest::testIndentEmptyLine()
 {
     insertLines({"int main()", "{", "", "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"int main()", "{", "    ", "}"}));
 }
 
 void ClangFormatTest::testIndentLambda()
 {
     insertLines({"int b = foo([](){", "", "});"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"int b = foo([](){", "    ", "});"}));
 }
 
@@ -202,7 +202,7 @@ void ClangFormatTest::testIndentNestedIfElse()
                  "bar();",
                  "else",
                  "baz();"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{
                  "if (a)",
                  "    if (b)",
@@ -216,35 +216,35 @@ void ClangFormatTest::testIndentNestedIfElse()
 void ClangFormatTest::testIndentInitializerListInArguments()
 {
     insertLines({"foo(arg1,", "args,", "{1, 2});"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"foo(arg1,", "    args,", "    {1, 2});"}));
 }
 
 void ClangFormatTest::testIndentLambdaWithReturnType()
 {
     insertLines({"{", "auto lambda = []() -> bool {", "", "};", "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    auto lambda = []() -> bool {", "        ", "    };", "}"}));
 }
 
 void ClangFormatTest::testIndentFunctionArgumentLambdaWithNextLineScope()
 {
     insertLines({"foo([]()", "{", "", "});"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"foo([]()", "    {", "        ", "    });"}));
 }
 
 void ClangFormatTest::testIndentScopeAsFunctionArgument()
 {
     insertLines({"foo(", "{", "", "});"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"foo(", "    {", "        ", "    });"}));
 }
 
 void ClangFormatTest::testIndentInsideStructuredBinding()
 {
     insertLines({"auto [a,", "b] = c;"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"auto [a,", "      b] = c;"}));
 }
 
@@ -258,7 +258,7 @@ void ClangFormatTest::testIndentMacrosWithoutSemicolon()
                  "ASSERT(4);",
                  "ASSERT(5)",
                  "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{
                  "void test()",
                  "{",
@@ -273,21 +273,21 @@ void ClangFormatTest::testIndentMacrosWithoutSemicolon()
 void ClangFormatTest::testIndentAfterSquareBracesInsideBraceInitialization()
 {
     insertLines({"int foo() {", "char a = char{b[0]};", "int c;", "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"int foo() {", "    char a = char{b[0]};", "    int c;", "}"}));
 }
 
 void ClangFormatTest::testIndentStringLiteralContinuation()
 {
     insertLines({"foo(bar, \"foo\"", "\"bar\");"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"foo(bar, \"foo\"", "         \"bar\");"}));
 }
 
 void ClangFormatTest::testIndentTemplateparameters()
 {
     insertLines({"using Alias = Template<A,", "B,", "C>"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{
                      "using Alias = Template<A,",
                      "                       B,",
@@ -297,154 +297,154 @@ void ClangFormatTest::testIndentTemplateparameters()
 void ClangFormatTest::testNoExtraIndentAfterStatementInsideSquareBraces()
 {
     insertLines({"{", "    x[y=z];", "    int a;", "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    x[y=z];", "    int a;", "}"}));
 }
 
 void ClangFormatTest::testNoExtraIndentAfterBraceInitialization()
 {
     insertLines({"int j{i?5:10};", "return 0;"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"int j{i?5:10};", "return 0;"}));
 }
 
 void ClangFormatTest::testIndentMultipleEmptyLines()
 {
     insertLines({"{", "", "", "", "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    ", "    ", "    ", "}"}));
 }
 
 void ClangFormatTest::testIndentEmptyLineAndKeepPreviousEmptyLines()
 {
     insertLines({"{", "    ", "    ", "", "}"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(3), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(3), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    ", "    ", "    ", "}"}));
 }
 
 void ClangFormatTest::testIndentOnElectricCharacterButNotRemoveEmptyLinesBefore()
 {
     insertLines({"{", "    ", "    ", "if ()", "}"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(3), '(', TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(3), '(', TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    ", "    ", "    if ()", "}"}));
 }
 
 void ClangFormatTest::testIndentAfterExtraSpaceInpreviousLine()
 {
     insertLines({"if (a ", "&& b)"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a", "    && b)"}));
 }
 
 void ClangFormatTest::testIndentEmptyLineInsideParentheses()
 {
     insertLines({"if (a ", "", "    && b)"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a", "    ", "    && b)"}));
 }
 
 void ClangFormatTest::testIndentInsideIf()
 {
     insertLines({"if (a && b", ")"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a && b", "    )"}));
 }
 
 void ClangFormatTest::testIndentInsideIf2()
 {
     insertLines({"if (a && b &&", ")"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a && b &&", "    )"}));
 }
 
 void ClangFormatTest::testIndentInsideIf3()
 {
     insertLines({"if (a || b", ")"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a || b", "    )"}));
 }
 
 void ClangFormatTest::testEmptyLineInInitializerList()
 {
     insertLines({"Bar foo{a,", "", "};"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"Bar foo{a,", "        ", "};"}));
 }
 
 void ClangFormatTest::testIndentClosingBraceAfterComma()
 {
     insertLines({"Bar foo{a,", "}"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"Bar foo{a,", "        }"}));
 }
 
 void ClangFormatTest::testDoNotIndentClosingBraceAfterSemicolon()
 {
     insertLines({"{", "    a;" "}"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    a;" "}"}));
 }
 
 void ClangFormatTest::testIndentAfterIf()
 {
     insertLines({"if (a)", ""});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a)", "    "}));
 }
 
 void ClangFormatTest::testIndentAfterElse()
 {
     insertLines({"if (a)", "    foo();", "else", ""});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(3), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(3), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a)", "    foo();", "else", "    "}));
 }
 
 void ClangFormatTest::testSameIndentAfterSecondNewLineAfterIf()
 {
     insertLines({"if (a)", "    ", ""});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a)", "    ", "    "}));
 }
 
 void ClangFormatTest::testIndentAfterNewLineInsideIfWithFunctionCall()
 {
     insertLines({"if (foo()", ")"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (foo()", "    )"}));
 }
 
 void ClangFormatTest::testSameIndentAfterSecondNewLineInsideIfWithFunctionCall()
 {
     insertLines({"if (foo()", "    ", ")"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (foo()", "    ", "    )"}));
 }
 
 void ClangFormatTest::testSameIndentAfterSecondNonEmptyNewLineInsideIfWithFunctionCall()
 {
     insertLines({"if (foo()", "    ", "bar)"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (foo()", "    ", "    bar)"}));
 }
 
 void ClangFormatTest::testSameIndentsOnNewLinesAfterComments()
 {
     insertLines({"namespace {} //comment", "", ""});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"namespace {} //comment", "", ""}));
 }
 
 void ClangFormatTest::testIndentAfterEmptyLineAfterAngledIncludeDirective()
 {
     insertLines({"#include <string>", "", "using namespace std;"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"#include <string>", "", "using namespace std;"}));
 }
 
 void ClangFormatTest::testIndentAfterEmptyLineAfterQuotedIncludeDirective()
 {
     insertLines({"#include \"foo.h\"", "", "using namespace std;"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"#include \"foo.h\"", "", "using namespace std;"}));
 }
 
@@ -456,7 +456,7 @@ void ClangFormatTest::testIndentAfterLineComment()
                  "    ",
                  "    if (",
                  "}"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(4), '(', TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(4), '(', TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{
                  "int foo()",
                  "{",
@@ -474,7 +474,7 @@ void ClangFormatTest::testIndentAfterBlockComment()
                  "    ",
                  "    if (",
                  "}"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(4), '(', TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(4), '(', TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{
                  "int foo()",
                  "{",
@@ -493,7 +493,7 @@ void ClangFormatTest::testIndentAfterIfdef()
                  "    ",
                  "    if (",
                  "}"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(5), '(', TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(5), '(', TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{
                  "int foo()",
                  "{",
@@ -507,7 +507,7 @@ void ClangFormatTest::testIndentAfterIfdef()
 void ClangFormatTest::testIndentAfterEmptyLineInTheFileBeginning()
 {
     insertLines({"", "void foo()"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), ')', TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), ')', TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"", "void foo()"}));
 }
 
@@ -518,7 +518,7 @@ void ClangFormatTest::testIndentFunctionBodyButNotFormatBeforeIt()
                  "        ) {",
                  "",
                  "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(3), QChar::Null, TextEditor::TabSettings());
+    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(3), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{
                  "int foo(int a, int b,",
                  "        int c, int d",
@@ -535,7 +535,7 @@ void ClangFormatTest::testIndentAfterFunctionBodyAndNotFormatBefore()
                  "}"});
     m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(3),
                                  QChar::Null,
-                                 TextEditor::TabSettings(),
+                                 TextEditor::TabSettingsData(),
                                  m_doc->characterCount() - 3);
     QCOMPARE(documentLines(), (std::vector<QString>{
                  "int foo(int a, int b, int c, int d)",
@@ -547,7 +547,7 @@ void ClangFormatTest::testIndentAfterFunctionBodyAndNotFormatBefore()
 void ClangFormatTest::testReformatToEmptyFunction()
 {
     insertLines({"int foo(int a, int b, int c, int d)", "{", "    ", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(3), '}', TextEditor::TabSettings());
+    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(3), '}', TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"int foo(int a, int b, int c, int d) {}"}));
 }
 
@@ -555,49 +555,49 @@ void ClangFormatTest::testReformatToNonEmptyFunction()
 {
     insertLines({"int foo(int a, int b) {", "", "}"});
     m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null,
-                                    TextEditor::TabSettings());
+                                    TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"int foo(int a, int b) {", "    ", "}"}));
 }
 
 void ClangFormatTest::testIndentClosingScopeAndFormatBeforeIt()
 {
     insertLines({"if(a && b", "   &&c && d", "   ) {", "", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(4), '}', TextEditor::TabSettings());
+    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(4), '}', TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a && b && c && d) {", "}"}));
 }
 
 void ClangFormatTest::testDoNotFormatAfterTheFirstColon()
 {
     insertLines({"{", "    Qt:", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), ':', TextEditor::TabSettings(), 9);
+    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), ':', TextEditor::TabSettingsData(), 9);
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    Qt:", "}"}));
 }
 
 void ClangFormatTest::testOnlyIndentIncompleteStatementOnElectricalCharacter()
 {
     insertLines({"{bar();", "foo()", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), '(', TextEditor::TabSettings(), 12);
+    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), '(', TextEditor::TabSettingsData(), 12);
     QCOMPARE(documentLines(), (std::vector<QString>{"{bar();", "    foo()", "}"}));
 }
 
 void ClangFormatTest::testIndentAndFormatCompleteStatementOnSemicolon()
 {
     insertLines({"{bar();", "foo();", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), ';', TextEditor::TabSettings(), 14);
+    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), ';', TextEditor::TabSettingsData(), 14);
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    bar();", "    foo();", "}"}));
 }
 
 void ClangFormatTest::testIndentAndFormatCompleteStatementOnClosingScope()
 {
     insertLines({"{bar();", "foo();", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), '}', TextEditor::TabSettings(), 16);
+    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), '}', TextEditor::TabSettingsData(), 16);
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    bar();", "    foo();", "}"}));
 }
 
 void ClangFormatTest::testOnlyIndentClosingParenthesis()
 {
     insertLines({"foo(a,", "    ", ")"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(2), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"foo(a,", "    ", "    )"}));
 }
 
@@ -605,11 +605,11 @@ void ClangFormatTest::testEquallyIndentInsideParenthesis()
 {
     insertLines({"if (a", ")"});
     m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null,
-                                    TextEditor::TabSettings());
+                                    TextEditor::TabSettingsData());
     auto linesAfterFirstLineBreak = documentLines();
     insertLines({"if (a", "    ", ")"});
     m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(2),
-                                    QChar::Null, TextEditor::TabSettings());
+                                    QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(linesAfterFirstLineBreak, (std::vector<QString>{"if (a", "    )"}));
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a", "    ", "    )"}));
 }
@@ -722,7 +722,7 @@ void ClangFormatTest::testSortIncludes()
 void ClangFormatTest::testChainedMemberFunctionCalls()
 {
     insertLines({"S().func().func()", ".func();"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{"S().func().func()", "    .func();"}));
 }
 
@@ -736,7 +736,7 @@ void ClangFormatTest::testCommentBlock()
                  "** This file is part of Qt Creator.",
                  "**",
                  "****************************************************************************/"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(), (std::vector<QString>{
                  "/****************************************************************************",
                  "**",
@@ -752,7 +752,7 @@ void ClangFormatTest::testClassIndentStructure()
 {
     insertLines(
         {"class test {", "    Q_OBJECT", "    QML_ELEMENT", "    QML_SINGLETON", "    public:", "};"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(),
              (std::vector<QString>{"class test {",
                                    "    Q_OBJECT",
@@ -788,7 +788,7 @@ void ClangFormatTest::testIndentInitializeVector()
         "{",
         "}"
     });
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(),
              (std::vector<QString>{
                  "class Test {",
@@ -823,7 +823,7 @@ void ClangFormatTest::testIndentFunctionArgumentOnNewLine()
          "a,",
          ")"
         });
-    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(),
              (std::vector<QString>{
                 "Bar foo(",
@@ -841,7 +841,7 @@ void ClangFormatTest::testIndentCommentOnNewLine()
          "    \\brief The property of Type.",
          "*/"
         });
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(),
              (std::vector<QString>{
                  "/*!",
@@ -859,7 +859,7 @@ void ClangFormatTest::testUtf8SymbolLine()
                  "    cout << \"ä\" << endl;",
                  "    return 0;",
                  "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(),
              (std::vector<QString>{"int main()",
                                    "{",
@@ -884,7 +884,7 @@ void ClangFormatTest::testFunctionCallClosingParenthesis()
          "",
          "QString X::sub() const",
          "{}"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(8), ')', TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(8), ')', TextEditor::TabSettingsData());
     QCOMPARE(
         documentLines(),
         (std::vector<QString>{
@@ -921,7 +921,7 @@ void ClangFormatTest::testFunctionCallClosingParenthesisEmptyLine()
          "",
          "QString X::sub() const",
          "{}"});
-    m_indenter->indentBlock(m_doc->findBlockByNumber(8), QChar::Null, TextEditor::TabSettings());
+    m_indenter->indentBlock(m_doc->findBlockByNumber(8), QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(
         documentLines(),
         (std::vector<QString>{
@@ -950,7 +950,7 @@ void ClangFormatTest::testNoIndentationInMiddleOfLine()
                  "    return 0;",
                  "}"});
     m_cursor->setPosition(30);
-    m_extendedIndenter->indent(*m_cursor, '}', TextEditor::TabSettings(), 30);
+    m_extendedIndenter->indent(*m_cursor, '}', TextEditor::TabSettingsData(), 30);
     QCOMPARE(documentLines(),
              (std::vector<QString>{"int main()",
                                    "{",
@@ -968,7 +968,7 @@ void ClangFormatTest::testIndentationInMiddleOfLine()
                  "    return 0;",
                  "}"});
     m_cursor->setPosition(32);
-    m_extendedIndenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings(), 32);
+    m_extendedIndenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData(), 32);
     QCOMPARE(documentLines(),
              (std::vector<QString>{"int main()",
                                    "{",
@@ -986,7 +986,7 @@ void ClangFormatTest::testIndentationInTheBegginingOfLine()
                  "          } else",
                  "}"});
     m_cursor->setPosition(35);
-    m_extendedIndenter->indent(*m_cursor, '}', TextEditor::TabSettings(), 35);
+    m_extendedIndenter->indent(*m_cursor, '}', TextEditor::TabSettingsData(), 35);
     QCOMPARE(documentLines(),
              (std::vector<QString>{"int main()",
                                    "{",
@@ -1002,7 +1002,7 @@ void ClangFormatTest::testIndentationReturnAfterIf()
                  "    if (true)",
                  "    return 0;",
                  "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(),
              (std::vector<QString>{"int main()",
                                    "{",
@@ -1018,7 +1018,7 @@ void ClangFormatTest::testIndentationReturnAfterIfSomthingFunction()
                  "    if_somthing()",
                  "    return 0;",
                  "}"});
-    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettingsData());
     QCOMPARE(documentLines(),
              (std::vector<QString>{"int main()",
                                    "{",
@@ -1036,7 +1036,7 @@ void ClangFormatTest::testReformatQualifier()
         "};",
         "S &S::operator=(const S &s) {}"
     });
-    m_extendedIndenter->autoIndent(*m_cursor, TextEditor::TabSettings());
+    m_extendedIndenter->autoIndent(*m_cursor, TextEditor::TabSettingsData());
     const std::vector<QString> expected{
         "struct S",
         "{",

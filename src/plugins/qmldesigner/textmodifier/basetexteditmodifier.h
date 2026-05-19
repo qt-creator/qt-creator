@@ -23,7 +23,7 @@ public:
     void indentLines(int startLine, int endLine) override;
     void indent(int offset, int length) override;
 
-    TextEditor::TabSettings tabSettings() const override;
+    TextEditor::TabSettingsData tabSettings() const override;
 
     bool renameId(const QString &oldId, const QString &newId) override;
     QString moveToComponent(int nodeOffset, const QString &importData) override;

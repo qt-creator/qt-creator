@@ -84,7 +84,7 @@ public:
     void extensionsInitialized() final;
 
     void updateSearchResultsFont(const FontSettings &);
-    void updateSearchResultsTabWidth(const TabSettings &tabSettings);
+    void updateSearchResultsTabWidth(const TabSettingsData &tabSettings);
     void updateCurrentSelection(const QString &text);
 
     void createStandardContextMenu();
@@ -113,7 +113,7 @@ void TextEditorPlugin::initialize()
     // FIXME: This kind of dependency should not exist.
     setupTextEditorSettings();
 
-    TabSettings::setRetriever(
+    TabSettingsData::setRetriever(
         [](const FilePath &) { return TextEditorSettings::codeStyle()->tabSettings(); });
 
     setupTextMarkRegistry(this);
@@ -263,7 +263,7 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
     }
 }
 
-void TextEditorPlugin::updateSearchResultsTabWidth(const TabSettings &tabSettings)
+void TextEditorPlugin::updateSearchResultsTabWidth(const TabSettingsData &tabSettings)
 {
     if (auto window = SearchResultWindow::instance())
         window->setTabWidth(tabSettings.m_tabSize);

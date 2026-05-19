@@ -49,11 +49,11 @@ signals:
 private:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
-    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
+    void slotTabSettingsChanged(const TextEditor::TabSettingsData &settings);
     void slotCodeStyleSettingsChanged();
     void updatePreview();
-    void setTabSettings(const TextEditor::TabSettings &settings);
-    TextEditor::TabSettings tabSettings() const;
+    void setTabSettings(const TextEditor::TabSettingsData &settings);
+    TextEditor::TabSettingsData tabSettings() const;
     void setCodeStyleSettings(const CppCodeStyleSettings &settings, bool preview = true);
     void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *, bool preview = true);
 
@@ -62,7 +62,7 @@ private:
     CppCodeStylePreferences *m_preferences = nullptr;
     Internal::CppCodeStylePreferencesWidgetPrivate *d = nullptr;
     CppCodeStyleSettings m_originalCppCodeStyleSettings;
-    TextEditor::TabSettings m_originalTabSettings;
+    TextEditor::TabSettingsData m_originalTabSettings;
     bool m_blockUpdates = false;
 
     friend class Internal::CppCodeStylePreferencesWidgetPrivate;

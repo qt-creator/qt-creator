@@ -49,7 +49,7 @@ QString continuationTooltip()
         "</ul></body></html>");
 }
 
-TabSettingsWidget::TabSettingsWidget()
+TabSettings::TabSettings()
 {
     m_codingStyleWarning = new QLabel(
         Tr::tr("<i>Code indentation is configured in <a href=\"C++\">C++</a> "
@@ -84,9 +84,9 @@ TabSettingsWidget::TabSettingsWidget()
     continuationAlignBehavior.setToolTip(continuationTooltip());
 
     connect(m_codingStyleWarning, &QLabel::linkActivated,
-            this, &TabSettingsWidget::codingStyleLinkActivated);
+            this, &TabSettings::codingStyleLinkActivated);
     connect(this, &Utils::AspectContainer::changed, this, [this] {
-            emit settingsChanged(tabSettings());
+            emit settingsChanged(data());
     });
 
     setLayouter([this] {
@@ -109,9 +109,9 @@ TabSettingsWidget::TabSettingsWidget()
     });
 }
 
-TabSettingsWidget::~TabSettingsWidget() = default;
+TabSettings::~TabSettings() = default;
 
-void TabSettingsWidget::setPreferences(ICodeStylePreferences *preferences)
+void TabSettings::setPreferences(ICodeStylePreferences *preferences)
 {
     if (m_preferences == preferences)
         return;
@@ -120,32 +120,32 @@ void TabSettingsWidget::setPreferences(ICodeStylePreferences *preferences)
 
     if (m_preferences) {
         disconnect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                   this, &TabSettingsWidget::setTabSettings);
+                   this, &TabSettings::setData);
         disconnect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
-                   this, &TabSettingsWidget::slotCurrentPreferencesChanged);
-        disconnect(this, &TabSettingsWidget::settingsChanged,
-                   this, &TabSettingsWidget::slotTabSettingsChanged);
+                   this, &TabSettings::slotCurrentPreferencesChanged);
+        disconnect(this, &TabSettings::settingsChanged,
+                   this, &TabSettings::slotTabSettingsChanged);
     }
     m_preferences = preferences;
     if (m_preferences) {
-        setTabSettings(m_preferences->currentTabSettings());
+        setData(m_preferences->currentTabSettings());
 
         connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                this, &TabSettingsWidget::setTabSettings);
+                this, &TabSettings::setData);
         connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
-                this, &TabSettingsWidget::slotCurrentPreferencesChanged);
-        connect(this, &TabSettingsWidget::settingsChanged,
-                this, &TabSettingsWidget::slotTabSettingsChanged);
+                this, &TabSettings::slotCurrentPreferencesChanged);
+        connect(this, &TabSettings::settingsChanged,
+                this, &TabSettings::slotTabSettingsChanged);
     }
 }
 
-void TabSettingsWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences)
+void TabSettings::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences)
 {
     setEnabled(preferences && preferences->currentPreferences()
                && !preferences->currentPreferences()->isReadOnly());
 }
 
-void TabSettingsWidget::slotTabSettingsChanged(const TabSettings &settings)
+void TabSettings::slotTabSettingsChanged(const TabSettingsData &settings)
 {
     if (!m_preferences)
         return;
@@ -155,7 +155,7 @@ void TabSettingsWidget::slotTabSettingsChanged(const TabSettings &settings)
     current->setTabSettings(settings);
 }
 
-void TabSettingsWidget::setTabSettings(const TabSettings &s)
+void TabSettings::setData(const TabSettingsData &s)
 {
     QSignalBlocker blocker(this);
     autoDetect.setValue(s.m_autoDetect);
@@ -165,21 +165,21 @@ void TabSettingsWidget::setTabSettings(const TabSettings &s)
     continuationAlignBehavior.setValue(s.m_continuationAlignBehavior);
 }
 
-TabSettings TabSettingsWidget::tabSettings() const
+TabSettingsData TabSettings::data() const
 {
-    TabSettings set;
+    TabSettingsData set;
 
     set.m_autoDetect = autoDetect();
-    set.m_tabPolicy = TabSettings::TabPolicy(tabPolicy());
+    set.m_tabPolicy = TabSettingsData::TabPolicy(tabPolicy());
     set.m_tabSize = tabSize();
     set.m_indentSize = indentSize();
     set.m_continuationAlignBehavior =
-        TabSettings::ContinuationAlignBehavior(continuationAlignBehavior());
+        TabSettingsData::ContinuationAlignBehavior(continuationAlignBehavior());
 
     return set;
 }
 
-void TabSettingsWidget::codingStyleLinkActivated(const QString &linkString)
+void TabSettings::codingStyleLinkActivated(const QString &linkString)
 {
     if (linkString == QLatin1String("C++"))
         emit codingStyleLinkClicked(CppLink);
@@ -187,7 +187,7 @@ void TabSettingsWidget::codingStyleLinkActivated(const QString &linkString)
         emit codingStyleLinkClicked(QtQuickLink);
 }
 
-void TabSettingsWidget::setCodingStyleWarningVisible(bool visible)
+void TabSettings::setCodingStyleWarningVisible(bool visible)
 {
     m_codingStyleWarning->setVisible(visible);
 }

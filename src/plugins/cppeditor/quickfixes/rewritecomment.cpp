@@ -299,8 +299,8 @@ private:
                 return editor->textDocument()->tabSettings();
             return ProjectExplorer::actualTabSettings(file->filePath(), nullptr);
         };
-        const TabSettings &sts = tabSettings(sourceFile);
-        const TabSettings &tts = tabSettings(targetFile);
+        const TabSettingsData &sts = tabSettings(sourceFile);
+        const TabSettingsData &tts = tabSettings(targetFile);
         const QTextBlock insertionBlock = targetFile->document()->findBlock(insertionPos);
         const int insertionColumn = tts.columnAt(insertionBlock.text(),
                                                  insertionPos - insertionBlock.position());
@@ -322,7 +322,7 @@ private:
                 } else {
                     int lineIndentColumn = sts.indentationColumn(text) + columnOffset;
                     text.replace(0,
-                                 TabSettings::firstNonSpace(text),
+                                 TabSettingsData::firstNonSpace(text),
                                  tts.indentationString(0, lineIndentColumn, 0));
                 }
                 functionDoc += text;

@@ -14,25 +14,25 @@
 
 namespace TextEditor::Internal {
 
-static QString tabPolicyToString(TabSettings::TabPolicy policy)
+static QString tabPolicyToString(TabSettingsData::TabPolicy policy)
 {
     switch (policy) {
-    case TabSettings::SpacesOnlyTabPolicy:
+    case TabSettingsData::SpacesOnlyTabPolicy:
         return QLatin1String("spacesOnlyPolicy");
-    case TabSettings::TabsOnlyTabPolicy:
+    case TabSettingsData::TabsOnlyTabPolicy:
         return QLatin1String("tabsOnlyPolicy");
     }
     return QString();
 }
 
-static QString continuationAlignBehaviorToString(TabSettings::ContinuationAlignBehavior behavior)
+static QString continuationAlignBehaviorToString(TabSettingsData::ContinuationAlignBehavior behavior)
 {
     switch (behavior) {
-    case TabSettings::NoContinuationAlign:
+    case TabSettingsData::NoContinuationAlign:
         return QLatin1String("noContinuation");
-    case TabSettings::ContinuationAlignWithSpaces:
+    case TabSettingsData::ContinuationAlignWithSpaces:
         return QLatin1String("spacesContinuation");
-    case TabSettings::ContinuationAlignWithIndent:
+    case TabSettingsData::ContinuationAlignWithIndent:
         return QLatin1String("indentContinuation");
     }
     return QString();
@@ -40,22 +40,22 @@ static QString continuationAlignBehaviorToString(TabSettings::ContinuationAlignB
 
 struct TabSettingsFlags
 {
-    TabSettings::TabPolicy policy;
-    TabSettings::ContinuationAlignBehavior behavior;
+    TabSettingsData::TabPolicy policy;
+    TabSettingsData::ContinuationAlignBehavior behavior;
 };
 
 using IsClean = std::function<bool (TabSettingsFlags)>;
 
 static void generateTestRows(const QLatin1String &name, const QString &text, IsClean isClean)
 {
-    const QList<TabSettings::TabPolicy> allPolicies = {
-        TabSettings::SpacesOnlyTabPolicy,
-        TabSettings::TabsOnlyTabPolicy,
+    const QList<TabSettingsData::TabPolicy> allPolicies = {
+        TabSettingsData::SpacesOnlyTabPolicy,
+        TabSettingsData::TabsOnlyTabPolicy,
     };
-    const QList<TabSettings::ContinuationAlignBehavior> allbehaviors = {
-        TabSettings::NoContinuationAlign,
-        TabSettings::ContinuationAlignWithSpaces,
-        TabSettings::ContinuationAlignWithIndent
+    const QList<TabSettingsData::ContinuationAlignBehavior> allbehaviors = {
+        TabSettingsData::NoContinuationAlign,
+        TabSettingsData::ContinuationAlignWithSpaces,
+        TabSettingsData::ContinuationAlignWithIndent
     };
 
     const QLatin1Char splitter('_');
@@ -89,8 +89,8 @@ private slots:
 
 void TextEditorTest::testIndentationClean_data()
 {
-    QTest::addColumn<TabSettings::TabPolicy>("policy");
-    QTest::addColumn<TabSettings::ContinuationAlignBehavior>("behavior");
+    QTest::addColumn<TabSettingsData::TabPolicy>("policy");
+    QTest::addColumn<TabSettingsData::ContinuationAlignBehavior>("behavior");
     QTest::addColumn<QString>("text");
     QTest::addColumn<int>("indentSize");
     QTest::addColumn<bool>("clean");
@@ -102,53 +102,53 @@ void TextEditorTest::testIndentationClean_data()
 
     generateTestRows(QLatin1String("spaceIndentation"), QString::fromLatin1("   f"),
                      [](TabSettingsFlags flags) -> bool {
-        return flags.policy != TabSettings::TabsOnlyTabPolicy;
+        return flags.policy != TabSettingsData::TabsOnlyTabPolicy;
     });
 
     generateTestRows(QLatin1String("spaceIndentationGuessTabs"), QString::fromLatin1("   f\n\tf"),
                      [](TabSettingsFlags flags) -> bool {
-        return flags.policy == TabSettings::SpacesOnlyTabPolicy;
+        return flags.policy == TabSettingsData::SpacesOnlyTabPolicy;
     });
 
     generateTestRows(QLatin1String("tabIndentation"), QString::fromLatin1("\tf"),
                      [](TabSettingsFlags flags) -> bool {
-        return flags.policy == TabSettings::TabsOnlyTabPolicy;
+        return flags.policy == TabSettingsData::TabsOnlyTabPolicy;
     });
 
     generateTestRows(QLatin1String("tabIndentationGuessTabs"), QString::fromLatin1("\tf\n\tf"),
                      [](TabSettingsFlags flags) -> bool {
-        return flags.policy != TabSettings::SpacesOnlyTabPolicy;
+        return flags.policy != TabSettingsData::SpacesOnlyTabPolicy;
     });
 
     generateTestRows(QLatin1String("doubleSpaceIndentation"), QString::fromLatin1("      f"),
                      [](TabSettingsFlags flags) -> bool {
-        return flags.policy != TabSettings::TabsOnlyTabPolicy
-                && flags.behavior != TabSettings::NoContinuationAlign;
+        return flags.policy != TabSettingsData::TabsOnlyTabPolicy
+                && flags.behavior != TabSettingsData::NoContinuationAlign;
     });
 
     generateTestRows(QLatin1String("doubleTabIndentation"), QString::fromLatin1("\t\tf"),
                      [](TabSettingsFlags flags) -> bool {
-        return flags.policy == TabSettings::TabsOnlyTabPolicy
-                && flags.behavior == TabSettings::ContinuationAlignWithIndent;
+        return flags.policy == TabSettingsData::TabsOnlyTabPolicy
+                && flags.behavior == TabSettingsData::ContinuationAlignWithIndent;
     });
 
     generateTestRows(QLatin1String("tabSpaceIndentation"), QString::fromLatin1("\t   f"),
                      [](TabSettingsFlags flags) -> bool {
-        return flags.policy == TabSettings::TabsOnlyTabPolicy
-                && flags.behavior == TabSettings::ContinuationAlignWithSpaces;
+        return flags.policy == TabSettingsData::TabsOnlyTabPolicy
+                && flags.behavior == TabSettingsData::ContinuationAlignWithSpaces;
     });
 }
 
 void TextEditorTest::testIndentationClean()
 {
     // fetch test data
-    QFETCH(TabSettings::TabPolicy, policy);
-    QFETCH(TabSettings::ContinuationAlignBehavior, behavior);
+    QFETCH(TabSettingsData::TabPolicy, policy);
+    QFETCH(TabSettingsData::ContinuationAlignBehavior, behavior);
     QFETCH(QString, text);
     QFETCH(int, indentSize);
     QFETCH(bool, clean);
 
-    const TabSettings settings(policy, indentSize, indentSize, behavior);
+    const TabSettingsData settings(policy, indentSize, indentSize, behavior);
     const QTextDocument doc(text);
     const QTextBlock block = doc.firstBlock();
 
@@ -160,14 +160,14 @@ void TextEditorTest::testIndentUnindent_data()
     QTest::addColumn<QString>("input");
     QTest::addColumn<int>("anchor");
     QTest::addColumn<int>("position");
-    QTest::addColumn<TabSettings::TabPolicy>("policy");
+    QTest::addColumn<TabSettingsData::TabPolicy>("policy");
     QTest::addColumn<int>("tabSize");
     QTest::addColumn<int>("indentSize");
     QTest::addColumn<bool>("doIndent");
     QTest::addColumn<QString>("expected");
 
-    const auto Spaces = TabSettings::SpacesOnlyTabPolicy;
-    const auto Tabs = TabSettings::TabsOnlyTabPolicy;
+    const auto Spaces = TabSettingsData::SpacesOnlyTabPolicy;
+    const auto Tabs = TabSettingsData::TabsOnlyTabPolicy;
 
     // --- indent ---
 
@@ -230,7 +230,7 @@ void TextEditorTest::testIndentUnindent()
     QFETCH(QString, input);
     QFETCH(int, anchor);
     QFETCH(int, position);
-    QFETCH(TabSettings::TabPolicy, policy);
+    QFETCH(TabSettingsData::TabPolicy, policy);
     QFETCH(int, tabSize);
     QFETCH(int, indentSize);
     QFETCH(bool, doIndent);
@@ -239,7 +239,7 @@ void TextEditorTest::testIndentUnindent()
     TextDocument doc;
     doc.setPlainText(input);
 
-    TabSettings settings(policy, tabSize, indentSize, TabSettings::ContinuationAlignWithSpaces);
+    TabSettingsData settings(policy, tabSize, indentSize, TabSettingsData::ContinuationAlignWithSpaces);
     settings.m_autoDetect = false;
     doc.setTabSettings(settings);
 

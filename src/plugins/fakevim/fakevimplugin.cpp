@@ -1608,11 +1608,11 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         if (!tew)
             return;
 
-        TabSettings tabSettings;
+        TabSettingsData tabSettings;
         tabSettings.m_indentSize = settings().shiftWidth();
         tabSettings.m_tabSize = settings().tabStop();
         tabSettings.m_tabPolicy = settings().expandTab()
-                ? TabSettings::SpacesOnlyTabPolicy : TabSettings::TabsOnlyTabPolicy;
+                ? TabSettingsData::SpacesOnlyTabPolicy : TabSettingsData::TabsOnlyTabPolicy;
         tabSettings.m_continuationAlignBehavior =
                 tew->textDocument()->tabSettings().m_continuationAlignBehavior;
 
@@ -1649,7 +1649,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
     handler->requestSetBlockSelection.set([tew](const QTextCursor &cursor) {
         if (tew) {
-            const TabSettings &tabs = tew->textDocument()->tabSettings();
+            const TabSettingsData &tabs = tew->textDocument()->tabSettings();
             MultiTextCursor mtc;
             const bool forwardSelection = cursor.anchor() < cursor.position();
             QTextBlock block = cursor.document()->findBlock(cursor.anchor());

@@ -18,10 +18,10 @@ using namespace Utils;
 
 namespace TextEditor {
 
-TabSettings::TabSettings(TabSettings::TabPolicy tabPolicy,
+TabSettingsData::TabSettingsData(TabSettingsData::TabPolicy tabPolicy,
                          int tabSize,
                          int indentSize,
-                         TabSettings::ContinuationAlignBehavior continuationAlignBehavior)
+                         TabSettingsData::ContinuationAlignBehavior continuationAlignBehavior)
     : m_tabPolicy(tabPolicy)
     , m_tabSize(tabSize)
     , m_indentSize(indentSize)
@@ -29,7 +29,7 @@ TabSettings::TabSettings(TabSettings::TabPolicy tabPolicy,
 {
 }
 
-void TabSettings::toMap(Store &map) const
+void TabSettingsData::toMap(Store &map) const
 {
     map.insert(spacesForTabsKey, m_tabPolicy != TabsOnlyTabPolicy);
     map.insert(autoDetectKey, m_autoDetect);
@@ -38,7 +38,7 @@ void TabSettings::toMap(Store &map) const
     map.insert(paddingModeKey, m_continuationAlignBehavior);
 }
 
-void TabSettings::fromMap(const Store &map)
+void TabSettingsData::fromMap(const Store &map)
 {
     const bool spacesForTabs = map.value(spacesForTabsKey, true).toBool();
     m_autoDetect = map.value(autoDetectKey, true).toBool();
@@ -49,7 +49,7 @@ void TabSettings::fromMap(const Store &map)
         map.value(paddingModeKey, m_continuationAlignBehavior).toInt();
 }
 
-TabSettings TabSettings::autoDetect(const QTextDocument *document) const
+TabSettingsData TabSettingsData::autoDetect(const QTextDocument *document) const
 {
     QTC_ASSERT(document, return *this);
 
@@ -188,11 +188,11 @@ TabSettings TabSettings::autoDetect(const QTextDocument *document) const
 
     // check whether the most common delta is a fraction of the most common indent
     if (mostCommonDeltaCount >= 4 && mostCommonIndent % mostCommonDelta == 0) {
-        TabSettings result = *this;
+        TabSettingsData result = *this;
         result.m_indentSize = mostCommonDelta;
         double relativeTabCount = double(indentationWithTabs) / double(totalIndentations);
-        result.m_tabPolicy = relativeTabCount > 0.5 ? TabSettings::TabsOnlyTabPolicy
-                                                    : TabSettings::SpacesOnlyTabPolicy;
+        result.m_tabPolicy = relativeTabCount > 0.5 ? TabSettingsData::TabsOnlyTabPolicy
+                                                    : TabSettingsData::SpacesOnlyTabPolicy;
         return result;
     }
 
@@ -200,25 +200,25 @@ TabSettings TabSettings::autoDetect(const QTextDocument *document) const
         // check whether the smallest indent is a fraction of the most common indent
         // to filter out some false positives
         if (mostCommonIndent % it.key() == 0) {
-            TabSettings result = *this;
+            TabSettingsData result = *this;
             result.m_indentSize = it.key();
             double relativeTabCount = double(indentationWithTabs) / double(totalIndentations);
-            result.m_tabPolicy = relativeTabCount > 0.5 ? TabSettings::TabsOnlyTabPolicy
-                                                        : TabSettings::SpacesOnlyTabPolicy;
+            result.m_tabPolicy = relativeTabCount > 0.5 ? TabSettingsData::TabsOnlyTabPolicy
+                                                        : TabSettingsData::SpacesOnlyTabPolicy;
             return result;
         }
     }
     return *this;
 }
 
-bool TabSettings::cursorIsAtBeginningOfLine(const QTextCursor &cursor)
+bool TabSettingsData::cursorIsAtBeginningOfLine(const QTextCursor &cursor)
 {
     QString text = cursor.block().text();
     int fns = firstNonSpace(text);
     return (cursor.position() - cursor.block().position() <= fns);
 }
 
-int TabSettings::firstNonSpace(const QString &text)
+int TabSettingsData::firstNonSpace(const QString &text)
 {
     int i = 0;
     while (i < text.size()) {
@@ -229,18 +229,18 @@ int TabSettings::firstNonSpace(const QString &text)
     return i;
 }
 
-QString TabSettings::indentationString(const QString &text)
+QString TabSettingsData::indentationString(const QString &text)
 {
     return text.left(firstNonSpace(text));
 }
 
 
-int TabSettings::indentationColumn(const QString &text) const
+int TabSettingsData::indentationColumn(const QString &text) const
 {
     return columnAt(text, firstNonSpace(text));
 }
 
-int TabSettings::maximumPadding(const QString &text)
+int TabSettingsData::maximumPadding(const QString &text)
 {
     int fns = firstNonSpace(text);
     int i = fns;
@@ -253,7 +253,7 @@ int TabSettings::maximumPadding(const QString &text)
 }
 
 
-int TabSettings::trailingWhitespaces(const QString &text)
+int TabSettingsData::trailingWhitespaces(const QString &text)
 {
     int i = 0;
     while (i < text.size()) {
@@ -264,7 +264,7 @@ int TabSettings::trailingWhitespaces(const QString &text)
     return i;
 }
 
-void TabSettings::removeTrailingWhitespace(const QTextBlock &block)
+void TabSettingsData::removeTrailingWhitespace(const QTextBlock &block)
 {
     if (const int trailing = trailingWhitespaces(block.text())) {
         QTextCursor cursor(block);
@@ -274,7 +274,7 @@ void TabSettings::removeTrailingWhitespace(const QTextBlock &block)
     }
 }
 
-bool TabSettings::isIndentationClean(const QTextBlock &block, const int indent) const
+bool TabSettingsData::isIndentationClean(const QTextBlock &block, const int indent) const
 {
     int i = 0;
     int spaceCount = 0;
@@ -303,7 +303,7 @@ bool TabSettings::isIndentationClean(const QTextBlock &block, const int indent) 
     return true;
 }
 
-int TabSettings::columnAt(const QString &text, int position) const
+int TabSettingsData::columnAt(const QString &text, int position) const
 {
     int column = 0;
     for (int i = 0; i < position; ++i) {
@@ -315,12 +315,12 @@ int TabSettings::columnAt(const QString &text, int position) const
     return column;
 }
 
-int TabSettings::columnAtCursorPosition(const QTextCursor &cursor) const
+int TabSettingsData::columnAtCursorPosition(const QTextCursor &cursor) const
 {
     return columnAt(cursor.block().text(), cursor.positionInBlock());
 }
 
-int TabSettings::positionAtColumn(const QString &text, int column, int *offset, bool allowOverstep) const
+int TabSettingsData::positionAtColumn(const QString &text, int column, int *offset, bool allowOverstep) const
 {
     int col = 0;
     int i = 0;
@@ -337,7 +337,7 @@ int TabSettings::positionAtColumn(const QString &text, int column, int *offset, 
     return i;
 }
 
-int TabSettings::columnCountForText(const QString &text, int startColumn) const
+int TabSettingsData::columnCountForText(const QString &text, int startColumn) const
 {
     int column = startColumn;
     for (auto c : text) {
@@ -349,7 +349,7 @@ int TabSettings::columnCountForText(const QString &text, int startColumn) const
     return column - startColumn;
 }
 
-int TabSettings::spacesLeftFromPosition(const QString &text, int position)
+int TabSettingsData::spacesLeftFromPosition(const QString &text, int position)
 {
     if (position > text.size())
         return 0;
@@ -362,7 +362,7 @@ int TabSettings::spacesLeftFromPosition(const QString &text, int position)
     return position - i;
 }
 
-int TabSettings::indentedColumn(int column, bool doIndent) const
+int TabSettingsData::indentedColumn(int column, bool doIndent) const
 {
     int aligned = (column / m_indentSize) * m_indentSize;
     if (doIndent)
@@ -372,7 +372,7 @@ int TabSettings::indentedColumn(int column, bool doIndent) const
     return qMax(0, aligned - m_indentSize);
 }
 
-QString TabSettings::indentationString(int startColumn, int targetColumn, int padding) const
+QString TabSettingsData::indentationString(int startColumn, int targetColumn, int padding) const
 {
     targetColumn = qMax(startColumn, targetColumn);
     if (m_tabPolicy == SpacesOnlyTabPolicy)
@@ -397,7 +397,7 @@ QString TabSettings::indentationString(int startColumn, int targetColumn, int pa
     return s;
 }
 
-void TabSettings::indentLine(const QTextBlock &block, int newIndent, int padding) const
+void TabSettingsData::indentLine(const QTextBlock &block, int newIndent, int padding) const
 {
     const QString text = block.text();
     const int oldBlockLength = text.size();
@@ -429,7 +429,7 @@ void TabSettings::indentLine(const QTextBlock &block, int newIndent, int padding
     cursor.endEditBlock();
 }
 
-void TabSettings::reindentLine(QTextBlock block, int delta) const
+void TabSettingsData::reindentLine(QTextBlock block, int delta) const
 {
     const QString text = block.text();
     const int oldBlockLength = text.size();
@@ -457,7 +457,7 @@ void TabSettings::reindentLine(QTextBlock block, int delta) const
     cursor.endEditBlock();
 }
 
-bool TabSettings::equals(const TabSettings &ts) const
+bool TabSettingsData::equals(const TabSettingsData &ts) const
 {
     return m_autoDetect == ts.m_autoDetect
         && m_tabPolicy == ts.m_tabPolicy
@@ -466,11 +466,11 @@ bool TabSettings::equals(const TabSettings &ts) const
         && m_continuationAlignBehavior == ts.m_continuationAlignBehavior;
 }
 
-static TabSettings::Retriever g_retriever = [](const FilePath &) { return TabSettings{}; };
+static TabSettingsData::Retriever g_retriever = [](const FilePath &) { return TabSettingsData{}; };
 
-void TabSettings::setRetriever(const Retriever &retriever) { g_retriever = retriever; }
+void TabSettingsData::setRetriever(const Retriever &retriever) { g_retriever = retriever; }
 
-TabSettings TabSettings::settingsForFile(const Utils::FilePath &filePath)
+TabSettingsData TabSettingsData::settingsForFile(const Utils::FilePath &filePath)
 {
     return g_retriever(filePath);
 }

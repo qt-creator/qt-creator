@@ -14,7 +14,7 @@
 
 #include <optional>
 
-namespace TextEditor { class TabSettings; }
+namespace TextEditor { class TabSettingsData; }
 
 namespace QmlDesigner {
 
@@ -49,7 +49,7 @@ public:
     virtual void indent(int offset, int length) = 0;
     virtual void indentLines(int startLine, int endLine) = 0;
 
-    virtual TextEditor::TabSettings tabSettings() const = 0;
+    virtual TextEditor::TabSettingsData tabSettings() const = 0;
 
     virtual void startGroup() = 0;
     virtual void flushGroup() = 0;

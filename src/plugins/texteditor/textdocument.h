@@ -34,7 +34,7 @@ class FontSettings;
 class IAssistProvider;
 class StorageSettingsData;
 class SyntaxHighlighter;
-class TabSettings;
+class TabSettingsData;
 class TextDocumentPrivate;
 class TextMark;
 class TextSuggestion;
@@ -67,7 +67,7 @@ public:
 
     const TypingSettingsData &typingSettings() const;
     const StorageSettingsData &storageSettings() const;
-    virtual TabSettings tabSettings() const;
+    virtual TabSettingsData tabSettings() const;
     const ExtraEncodingSettingsData &extraEncodingSettings() const;
     const FontSettings &fontSettings() const;
 
@@ -143,7 +143,7 @@ public:
 
     void setCodeStyle(ICodeStylePreferences *preferences);
     ICodeStylePreferences *codeStyle() const;
-    void setTabSettings(const TextEditor::TabSettings &tabSettings);
+    void setTabSettings(const TextEditor::TabSettingsData &tabSettings);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
     void setFoldingIndentExternallyProvided(bool ext);

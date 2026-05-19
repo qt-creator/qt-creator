@@ -13,7 +13,7 @@ class TextModifierMock : public QmlDesigner::TextModifier
     MOCK_METHOD(void, move, (const MoveInfo &moveInfo), (override));
     MOCK_METHOD(void, indent, (int offset, int length), (override));
     MOCK_METHOD(void, indentLines, (int startLine, int endLine), (override));
-    MOCK_METHOD(TextEditor::TabSettings, tabSettings, (), (const, override));
+    MOCK_METHOD(TextEditor::TabSettingsData, tabSettings, (), (const, override));
     MOCK_METHOD(void, startGroup, (), (override));
     MOCK_METHOD(void, flushGroup, (), (override));
     MOCK_METHOD(void, commitGroup, (), (override));

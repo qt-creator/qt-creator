@@ -39,9 +39,9 @@ public:
     bool isReadOnly() const;
     void setReadOnly(bool on);
 
-    void setTabSettings(const TabSettings &settings);
-    TabSettings tabSettings() const;
-    TabSettings currentTabSettings() const;
+    void setTabSettings(const TabSettingsData &settings);
+    TabSettingsData tabSettings() const;
+    TabSettingsData currentTabSettings() const;
 
     virtual QVariant value() const = 0;
     virtual void setValue(const QVariant &) = 0;
@@ -74,8 +74,8 @@ public:
     void setGlobalSettingsCategory(const Utils::Id &id);
 
 signals:
-    void tabSettingsChanged(const TextEditor::TabSettings &settings);
-    void currentTabSettingsChanged(const TextEditor::TabSettings &settings);
+    void tabSettingsChanged(const TextEditor::TabSettingsData &settings);
+    void currentTabSettingsChanged(const TextEditor::TabSettingsData &settings);
     void valueChanged(const QVariant &);
     void currentValueChanged(const QVariant &);
     void currentDelegateChanged(TextEditor::ICodeStylePreferences *currentDelegate);

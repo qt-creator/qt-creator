@@ -200,7 +200,7 @@ void LineColumnButton::update()
         const QTextCursor cursor = cursors.mainCursor();
         const QTextBlock block = cursor.block();
         const int line = block.blockNumber() + 1;
-        const TabSettings &tabSettings = m_d->m_editor->textDocument()->tabSettings();
+        const TabSettingsData &tabSettings = m_d->m_editor->textDocument()->tabSettings();
         const int column = tabSettings.columnAt(block.text(), cursor.positionInBlock()) + 1;
         text = Tr::tr("Line: %1, Col: %2").arg(line).arg(column);
         const QString toolTipText = Tr::tr("Cursor position: %1");
@@ -244,7 +244,7 @@ bool LineColumnButton::event(QEvent *event)
 
     addRow(Tr::tr("Line:"), [](const QTextCursor &c) { return c.blockNumber() + 1; });
 
-    const TabSettings &tabSettings = m_d->m_editor->textDocument()->tabSettings();
+    const TabSettingsData &tabSettings = m_d->m_editor->textDocument()->tabSettings();
     addRow(Tr::tr("Column:"), [&](const QTextCursor &c) {
         return tabSettings.columnAt(c.block().text(), c.positionInBlock()) + 1;
     });
@@ -319,13 +319,13 @@ private:
     void update()
     {
         QTC_ASSERT(m_doc, return);
-        const TabSettings ts = m_doc->tabSettings();
+        const TabSettingsData ts = m_doc->tabSettings();
         QString policy;
         switch (ts.m_tabPolicy) {
-        case TabSettings::SpacesOnlyTabPolicy:
+        case TabSettingsData::SpacesOnlyTabPolicy:
             policy = Tr::tr("Spaces");
             break;
-        case TabSettings::TabsOnlyTabPolicy:
+        case TabSettingsData::TabsOnlyTabPolicy:
             policy = Tr::tr("Tabs");
             break;
         }
@@ -344,7 +344,7 @@ private:
             auto documentSettings = menu->addMenu(Tr::tr("Document Settings"));
 
             auto modifyTabSettings =
-                [this](std::function<void(TabSettings & tabSettings)> modifier) {
+                [this](std::function<void(TabSettingsData & tabSettings)> modifier) {
                     return [this, modifier]() {
                         auto ts = m_doc->tabSettings();
                         ts.m_autoDetect = false;
@@ -354,15 +354,15 @@ private:
                 };
             documentSettings->addAction(
                 Tr::tr("Auto detect"),
-                modifyTabSettings([doc = m_doc->document()](TabSettings &tabSettings) {
+                modifyTabSettings([doc = m_doc->document()](TabSettingsData &tabSettings) {
                     tabSettings.m_autoDetect = true;
                 }));
             auto tabSettings = documentSettings->addMenu(Tr::tr("Tab Settings"));
-            tabSettings->addAction(Tr::tr("Spaces"), modifyTabSettings([](TabSettings &tabSettings) {
-                                       tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+            tabSettings->addAction(Tr::tr("Spaces"), modifyTabSettings([](TabSettingsData &tabSettings) {
+                                       tabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
                                    }));
-            tabSettings->addAction(Tr::tr("Tabs"), modifyTabSettings([](TabSettings &tabSettings) {
-                                       tabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
+            tabSettings->addAction(Tr::tr("Tabs"), modifyTabSettings([](TabSettingsData &tabSettings) {
+                                       tabSettings.m_tabPolicy = TabSettingsData::TabsOnlyTabPolicy;
                                    }));
             auto indentSize = documentSettings->addMenu(Tr::tr("Indent Size"));
             auto indentSizeGroup = new QActionGroup(indentSize);
@@ -371,7 +371,7 @@ private:
                 auto action = indentSizeGroup->addAction(QString::number(i));
                 action->setCheckable(true);
                 action->setChecked(i == m_doc->tabSettings().m_indentSize);
-                connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
+                connect(action, &QAction::triggered, modifyTabSettings([i](TabSettingsData &tabSettings) {
                             tabSettings.m_indentSize = i;
                         }));
             }
@@ -383,7 +383,7 @@ private:
                 auto action = tabSizeGroup->addAction(QString::number(i));
                 action->setCheckable(true);
                 action->setChecked(i == m_doc->tabSettings().m_tabSize);
-                connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
+                connect(action, &QAction::triggered, modifyTabSettings([i](TabSettingsData &tabSettings) {
                             tabSettings.m_tabSize = i;
                         }));
                 }
@@ -710,7 +710,7 @@ struct PaintEventData
     QPointF visibleCollapsedBlockOffset;
     QTextBlock block;
     QList<CursorData> cursors;
-    const TabSettings tabSettings;
+    const TabSettingsData tabSettings;
 };
 
 struct PaintEventBlockData
@@ -1674,7 +1674,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     if (!m_isCombinedEditor)
         setBackgroundColor();
 
-    const TabSettings tabSettings = TextEditorSettings::codeStyle()->tabSettings();
+    const TabSettingsData tabSettings = TextEditorSettings::codeStyle()->tabSettings();
     if (m_document->tabSettings() == tabSettings)
         applyTabSettings();
     else
@@ -1950,7 +1950,7 @@ void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
 QList<QTextCursor> TextEditorWidgetPrivate::generateCursorsForBlockSelection(
     const BlockSelection &blockSelection)
 {
-    const TabSettings tabSettings = m_document->tabSettings();
+    const TabSettingsData tabSettings = m_document->tabSettings();
 
     QList<QTextCursor> result;
     QTextBlock block = m_document->document()->findBlockByNumber(blockSelection.anchorBlockNumber);
@@ -1981,7 +1981,7 @@ QList<QTextCursor> TextEditorWidgetPrivate::generateCursorsForBlockSelection(
 
 void TextEditorWidgetPrivate::initBlockSelection()
 {
-    const TabSettings tabSettings = m_document->tabSettings();
+    const TabSettingsData tabSettings = m_document->tabSettings();
     for (const QTextCursor &cursor : m_cursors) {
         const int column = tabSettings.columnAtCursorPosition(cursor);
         QTextCursor anchor = cursor;
@@ -2245,7 +2245,7 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
                 break;
             }
         }
-        if (TabSettings::firstNonSpace(text) < text.size())
+        if (TabSettingsData::firstNonSpace(text) < text.size())
             break;
         block = block.next();
     }
@@ -2745,14 +2745,14 @@ void TextEditorWidget::sortLines()
         QString text = currentBlock.text();
         if (text.simplified().isEmpty())
             return;
-        const TabSettings ts = textDocument()->tabSettings();
-        const int currentIndent = ts.columnAt(text, TabSettings::firstNonSpace(text));
+        const TabSettingsData ts = textDocument()->tabSettings();
+        const int currentIndent = ts.columnAt(text, TabSettingsData::firstNonSpace(text));
 
         int anchor = currentBlock.position();
         for (auto block = currentBlock.previous(); block.isValid(); block = block.previous()) {
             text = block.text();
             if (text.simplified().isEmpty()
-                || ts.columnAt(text, TabSettings::firstNonSpace(text)) != currentIndent) {
+                || ts.columnAt(text, TabSettingsData::firstNonSpace(text)) != currentIndent) {
                 break;
             }
             anchor = block.position();
@@ -2762,7 +2762,7 @@ void TextEditorWidget::sortLines()
         for (auto block = currentBlock.next(); block.isValid(); block = block.next()) {
             text = block.text();
             if (text.simplified().isEmpty()
-                || ts.columnAt(text, TabSettings::firstNonSpace(text)) != currentIndent) {
+                || ts.columnAt(text, TabSettingsData::firstNonSpace(text)) != currentIndent) {
                 break;
             }
             pos = block.position();
@@ -3109,7 +3109,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                                      || completionSettings().highlightAutoComplete();
         cursor.beginEditBlock();
         for (QTextCursor &cursor : cursor) {
-            const TabSettings ts = d->m_document->tabSettings();
+            const TabSettingsData ts = d->m_document->tabSettings();
             const TypingSettingsData &tps = d->m_document->typingSettings();
 
             int extraBlocks = d->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor);
@@ -7318,7 +7318,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
         const QTextCursor anchorCursor = cursor.takeMainCursor();
         const QTextCursor eventCursor = cursorForPosition(e->pos());
 
-        const TabSettings tabSettings = d->m_document->tabSettings();
+        const TabSettingsData tabSettings = d->m_document->tabSettings();
         int eventColumn = tabSettings.columnAt(eventCursor.block().text(),
                                                eventCursor.positionInBlock());
         if (eventCursor.positionInBlock() == eventCursor.block().length() - 1) {
@@ -7396,7 +7396,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
             if (e->modifiers() & Qt::ShiftModifier) {
                 const QTextCursor anchor = multiCursor.takeMainCursor();
 
-                const TabSettings tabSettings = d->m_document->tabSettings();
+                const TabSettingsData tabSettings = d->m_document->tabSettings();
                 int eventColumn
                     = tabSettings.columnAt(cursor.block().text(), cursor.positionInBlock());
                 if (cursor.positionInBlock() == cursor.block().length() - 1) {
@@ -8035,7 +8035,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
     MultiTextCursor cursor = m_cursors;
     cursor.beginEditBlock();
 
-    const TabSettings tabSettings = m_document->tabSettings();
+    const TabSettingsData tabSettings = m_document->tabSettings();
     const TypingSettingsData &typingSettings = m_document->typingSettings();
 
     auto behavior = typingSettings.m_smartBackspaceBehavior;
@@ -8045,7 +8045,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
         } else if (behavior == TypingSettingsData::BackspaceUnindents) {
             for (QTextCursor &c : cursor) {
                 if (c.positionInBlock() == 0
-                    || c.positionInBlock() > TabSettings::firstNonSpace(c.block().text())) {
+                    || c.positionInBlock() > TabSettingsData::firstNonSpace(c.block().text())) {
                     behavior = TypingSettingsData::BackspaceNeverIndents;
                     break;
                 }
@@ -8083,7 +8083,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
             QTextBlock currentBlock = c.block();
             int positionInBlock = pos - currentBlock.position();
             const QString blockText = currentBlock.text();
-            if (c.atBlockStart() || TabSettings::firstNonSpace(blockText) < positionInBlock) {
+            if (c.atBlockStart() || TabSettingsData::firstNonSpace(blockText) < positionInBlock) {
                 if (cursorWithinSnippet)
                     c.beginEditBlock();
                 c.deletePreviousChar();
@@ -8101,7 +8101,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
                     if (previousNonEmptyBlockText.trimmed().isEmpty())
                         continue;
                     previousIndent = tabSettings.columnAt(previousNonEmptyBlockText,
-                                                          TabSettings::firstNonSpace(
+                                                          TabSettingsData::firstNonSpace(
                                                               previousNonEmptyBlockText));
                     if (previousIndent < indent) {
                         c.beginEditBlock();
@@ -8115,7 +8115,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
             }
         } else if (behavior == TypingSettingsData::BackspaceUnindents) {
             if (c.positionInBlock() == 0
-                || c.positionInBlock() > TabSettings::firstNonSpace(c.block().text())) {
+                || c.positionInBlock() > TabSettingsData::firstNonSpace(c.block().text())) {
                 if (cursorWithinSnippet)
                     c.beginEditBlock();
                 c.deletePreviousChar();
@@ -9191,7 +9191,7 @@ void TextEditorWidget::rewrapParagraph()
 {
     const int paragraphWidth = marginSettings().m_marginColumn;
     static const QRegularExpression anyLettersOrNumbers("\\w");
-    const TabSettings ts = d->m_document->tabSettings();
+    const TabSettingsData ts = d->m_document->tabSettings();
 
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
@@ -9765,12 +9765,12 @@ QMimeData *TextEditorWidget::createMimeDataFromSelection(bool withHtml) const
             QTextCursor selend = cursor;
             selend.setPosition(cursor.selectionEnd());
 
-            bool startOk = TabSettings::cursorIsAtBeginningOfLine(selstart);
+            bool startOk = TabSettingsData::cursorIsAtBeginningOfLine(selstart);
             bool multipleBlocks = (selend.block() != selstart.block());
 
             if (startOk && multipleBlocks) {
                 selstart.movePosition(QTextCursor::StartOfBlock);
-                if (TabSettings::cursorIsAtBeginningOfLine(selend))
+                if (TabSettingsData::cursorIsAtBeginningOfLine(selend))
                     selend.movePosition(QTextCursor::StartOfBlock);
                 cursor.setPosition(selstart.position());
                 cursor.setPosition(selend.position(), QTextCursor::KeepAnchor);
@@ -9850,7 +9850,7 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
 
         cursor.removeSelectedText();
 
-        bool insertAtBeginningOfLine = TabSettings::cursorIsAtBeginningOfLine(cursor);
+        bool insertAtBeginningOfLine = TabSettingsData::cursorIsAtBeginningOfLine(cursor);
         int reindentBlockStart = cursor.blockNumber() + (insertAtBeginningOfLine ? 0 : 1);
 
         bool hasFinalNewline = (textForCursor.endsWith(QLatin1Char('\n'))

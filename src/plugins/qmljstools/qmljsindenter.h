@@ -12,6 +12,6 @@ namespace QmlJSEditor {
 QMLJSTOOLS_EXPORT TextEditor::TextIndenter *createQmlJsIndenter(QTextDocument *doc);
 
 QMLJSTOOLS_EXPORT void indentQmlJs(QTextDocument *doc, int startLine, int endLine,
-                                   const TextEditor::TabSettings &tabSettings);
+                                   const TextEditor::TabSettingsData &tabSettings);
 
 } // QmlJSEditor

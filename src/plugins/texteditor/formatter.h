@@ -15,7 +15,7 @@ namespace Utils { class ChangeSet; }
 
 namespace TextEditor {
 
-class TabSettings;
+class TabSettingsData;
 
 using FormatCallback = std::function<void(const Utils::ChangeSet &)>;
 
@@ -30,7 +30,7 @@ public:
     virtual ~Formatter() = default;
 
     virtual void format(const QTextCursor & /*cursor*/,
-                        const TabSettings & /*tabSettings*/,
+                        const TabSettingsData & /*tabSettings*/,
                         const FormatCallback & /*callback*/) {}
     virtual void setMode(FormatMode) {}
 };

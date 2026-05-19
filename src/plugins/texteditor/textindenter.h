@@ -23,26 +23,26 @@ public:
     ~TextIndenter() override;
 
     int indentFor(const QTextBlock &block,
-                  const TabSettings &tabSettings,
+                  const TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) override;
 
     IndentationForBlock indentationForBlocks(const QList<QTextBlock> &blocks,
-                                             const TabSettings &tabSettings,
+                                             const TabSettingsData &tabSettings,
                                              int cursorPositionInEditor = -1) override;
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TabSettings &tabSettings,
+                     const TabSettingsData &tabSettings,
                      int cursorPositionInEditor = -1) override;
 
     void indent(const QTextCursor &cursor,
                 const QChar &typedChar,
-                const TabSettings &tabSettings,
+                const TabSettingsData &tabSettings,
                 int cursorPositionInEditor = -1) override;
 
     void reindent(const QTextCursor &cursor,
-                  const TabSettings &tabSettings,
+                  const TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) override;
-    std::optional<TabSettings> tabSettings() const override;
+    std::optional<TabSettingsData> tabSettings() const override;
 };
 
 class TEXTEDITOR_EXPORT PlainTextIndenter : public TextIndenter
@@ -51,7 +51,7 @@ public:
     using TextIndenter::TextIndenter;
 
     void autoIndent(const QTextCursor &cursor,
-                    const TabSettings &tabSettings,
+                    const TabSettingsData &tabSettings,
                     int cursorPositionInEditor = -1) override;
 };
 

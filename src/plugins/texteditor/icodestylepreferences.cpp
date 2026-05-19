@@ -20,7 +20,7 @@ public:
     CodeStylePool *m_pool = nullptr;
     ICodeStylePreferences *m_currentDelegate = nullptr;
     Utils::Id m_globalSettingsCategory;
-    TabSettings m_tabSettings;
+    TabSettingsData m_tabSettings;
     QByteArray m_id;
     QString m_displayName;
     FilePath m_projectFile;
@@ -72,7 +72,7 @@ void ICodeStylePreferences::setReadOnly(bool on)
     d->m_readOnly = on;
 }
 
-void ICodeStylePreferences::setTabSettings(const TabSettings &settings)
+void ICodeStylePreferences::setTabSettings(const TabSettingsData &settings)
 {
     if (d->m_tabSettings == settings)
         return;
@@ -84,12 +84,12 @@ void ICodeStylePreferences::setTabSettings(const TabSettings &settings)
         emit currentTabSettingsChanged(d->m_tabSettings);
 }
 
-TabSettings ICodeStylePreferences::tabSettings() const
+TabSettingsData ICodeStylePreferences::tabSettings() const
 {
     return d->m_tabSettings;
 }
 
-TabSettings ICodeStylePreferences::currentTabSettings() const
+TabSettingsData ICodeStylePreferences::currentTabSettings() const
 {
     return currentPreferences()->tabSettings();
 }

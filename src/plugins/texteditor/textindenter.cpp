@@ -33,7 +33,7 @@ TextIndenter::~TextIndenter() = default;
 // for additional block being inserted. It might be possible
 // to do in 2 steps (indenting/wrapping)}
 int TextIndenter::indentFor(const QTextBlock &block,
-                            const TabSettings &tabSettings,
+                            const TabSettingsData &tabSettings,
                             int cursorPositionInEditor)
 {
     Q_UNUSED(tabSettings)
@@ -52,7 +52,7 @@ int TextIndenter::indentFor(const QTextBlock &block,
 }
 
 IndentationForBlock TextIndenter::indentationForBlocks(const QList<QTextBlock> &blocks,
-                                                       const TabSettings &tabSettings,
+                                                       const TabSettingsData &tabSettings,
                                                        int /*cursorPositionInEditor*/)
 {
     IndentationForBlock ret;
@@ -63,7 +63,7 @@ IndentationForBlock TextIndenter::indentationForBlocks(const QList<QTextBlock> &
 
 void TextIndenter::indentBlock(const QTextBlock &block,
                                const QChar &typedChar,
-                               const TabSettings &tabSettings,
+                               const TabSettingsData &tabSettings,
                                int /*cursorPositionInEditor*/)
 {
     Q_UNUSED(typedChar)
@@ -75,7 +75,7 @@ void TextIndenter::indentBlock(const QTextBlock &block,
 
 void TextIndenter::indent(const QTextCursor &cursor,
                           const QChar &typedChar,
-                          const TabSettings &tabSettings,
+                          const TabSettingsData &tabSettings,
                           int /*cursorPositionInEditor*/)
 {
     if (cursor.hasSelection()) {
@@ -91,7 +91,7 @@ void TextIndenter::indent(const QTextCursor &cursor,
 }
 
 void TextIndenter::reindent(const QTextCursor &cursor,
-                            const TabSettings &tabSettings,
+                            const TabSettingsData &tabSettings,
                             int /*cursorPositionInEditor*/)
 {
     if (cursor.hasSelection()) {
@@ -101,7 +101,7 @@ void TextIndenter::reindent(const QTextCursor &cursor,
         // skip empty blocks
         while (block.isValid() && block != end) {
             QString bt = block.text();
-            if (TabSettings::firstNonSpace(bt) < bt.size())
+            if (TabSettingsData::firstNonSpace(bt) < bt.size())
                 break;
             indentBlock(block, QChar::Null, tabSettings);
             block = block.next();
@@ -122,13 +122,13 @@ void TextIndenter::reindent(const QTextCursor &cursor,
     }
 }
 
-std::optional<TabSettings> TextIndenter::tabSettings() const
+std::optional<TabSettingsData> TextIndenter::tabSettings() const
 {
-    return std::optional<TabSettings>();
+    return std::optional<TabSettingsData>();
 }
 
 void PlainTextIndenter::autoIndent(const QTextCursor &cursor,
-                              const TabSettings &tabSettings,
+                              const TabSettingsData &tabSettings,
                               int cursorPositionInEditor)
 {
     Q_UNUSED(cursor)

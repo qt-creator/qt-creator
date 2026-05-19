@@ -242,7 +242,7 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     if (globalStorageSettings().cleanWhitespace()) {
         QTextBlock block = doc.firstBlock();
         while (block.isValid()) {
-            TabSettings::removeTrailingWhitespace(block);
+            TabSettingsData::removeTrailingWhitespace(block);
             block = block.next();
         }
     }

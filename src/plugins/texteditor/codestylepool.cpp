@@ -108,7 +108,7 @@ ICodeStylePreferences *CodeStylePool::cloneCodeStyle(ICodeStylePreferences *orig
                         originalCodeStyle->value(), originalCodeStyle->displayName());
 }
 
-ICodeStylePreferences *CodeStylePool::createCodeStyle(const QByteArray &id, const TabSettings &tabSettings,
+ICodeStylePreferences *CodeStylePool::createCodeStyle(const QByteArray &id, const TabSettingsData &tabSettings,
                   const QVariant &codeStyleData, const QString &displayName)
 {
     if (!d->m_factory)

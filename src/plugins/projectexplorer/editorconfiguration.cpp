@@ -308,7 +308,7 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
         deconfigureEditor(editor);
 }
 
-TabSettings actualTabSettings(const Utils::FilePath &file,
+TabSettingsData actualTabSettings(const Utils::FilePath &file,
                               const TextDocument *baseTextdocument)
 {
     if (baseTextdocument)

@@ -30,17 +30,17 @@ public:
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings,
+                     const TextEditor::TabSettingsData &tabSettings,
                      int cursorPositionInEditor = -1) final;
 
     int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
+                  const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) final;
 };
 
 void JavaIndenter::indentBlock(const QTextBlock &block,
                                const QChar &typedChar,
-                               const TextEditor::TabSettings &tabSettings,
+                               const TextEditor::TabSettingsData &tabSettings,
                                int /*cursorPositionInEditor*/)
 {
     int indent = indentFor(block, tabSettings);
@@ -50,7 +50,7 @@ void JavaIndenter::indentBlock(const QTextBlock &block,
 }
 
 int JavaIndenter::indentFor(const QTextBlock &block,
-                            const TextEditor::TabSettings &tabSettings,
+                            const TextEditor::TabSettingsData &tabSettings,
                             int /*cursorPositionInEditor*/)
 {
     QTextBlock previous = block.previous();

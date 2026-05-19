@@ -11,7 +11,7 @@ namespace CppEditor { class CppCodeStyleSettings; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor {
 class ICodeStylePreferences;
-class TabSettings;
+class TabSettingsData;
 }
 
 namespace ClangFormat {

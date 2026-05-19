@@ -233,7 +233,7 @@ bool TestCase::openCppEditor(const FilePath &filePath, TextEditor::BaseTextEdito
             TextEditor::StorageSettingsData s = e->textDocument()->storageSettings();
             s.m_addFinalNewLine = false;
             e->textDocument()->setStorageSettings(s);
-            TextEditor::TabSettings ts = TextEditor::TextEditorSettings::codeStyle()->tabSettings();
+            TextEditor::TabSettingsData ts = TextEditor::TextEditorSettings::codeStyle()->tabSettings();
             ts.m_autoDetect = false;
             e->textDocument()->setTabSettings(ts);
         }

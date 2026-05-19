@@ -90,7 +90,7 @@ Result<> JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile
     if (globalStorageSettings().cleanWhitespace()) {
         QTextBlock block = doc.firstBlock();
         while (block.isValid()) {
-            TabSettings::removeTrailingWhitespace(block);
+            TabSettingsData::removeTrailingWhitespace(block);
             block = block.next();
         }
     }

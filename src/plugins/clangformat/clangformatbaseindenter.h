@@ -20,30 +20,30 @@ public:
     ~ClangFormatBaseIndenter();
 
     TextEditor::IndentationForBlock indentationForBlocks(const QList<QTextBlock> &blocks,
-                                                         const TextEditor::TabSettings &tabSettings,
+                                                         const TextEditor::TabSettingsData &tabSettings,
                                                          int cursorPositionInEditor = -1) override;
     void indent(const QTextCursor &cursor,
                 const QChar &typedChar,
-                const TextEditor::TabSettings &tabSettings,
+                const TextEditor::TabSettingsData &tabSettings,
                 int cursorPositionInEditor = -1) override;
 
     void reindent(const QTextCursor &cursor,
-                  const TextEditor::TabSettings &tabSettings,
+                  const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) override;
 
     void autoIndent(const QTextCursor &cursor,
-                    const TextEditor::TabSettings &tabSettings,
+                    const TextEditor::TabSettingsData &tabSettings,
                     int cursorPositionInEditor = -1) override;
     Utils::EditOperations format(const TextEditor::RangesInLines &rangesInLines,
                                  FormattingMode mode = FormattingMode::Forced) override;
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings,
+                     const TextEditor::TabSettingsData &tabSettings,
                      int cursorPositionInEditor = -1) override;
 
     int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
+                  const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) override;
 
     bool isElectricCharacter(const QChar &ch) const override;
