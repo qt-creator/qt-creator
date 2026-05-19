@@ -13,10 +13,8 @@
 #include "typingsettings.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/coreconstants.h>
 
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
 
 using namespace Utils;
 
@@ -132,53 +130,32 @@ BehaviorSettings &globalBehaviorSettings()
     return theGlobalBehaviorSettings;
 }
 
-// BehaviorSettingsWidget
+// BehaviorSettingsPage
 
-class BehaviorSettingsWidget : public Core::IOptionsPageWidget
+class BehaviorPage final : public AspectContainer
 {
 public:
-    BehaviorSettingsWidget()
+    BehaviorPage()
     {
-        using namespace Layouting;
-        Column {
-            &globalTabSettings(),
-            &globalTypingSettings(),
-            &globalStorageSettings(),
-            &globalExtraEncodingSettings(),
-            &globalBehaviorSettings(),
-            st,
-        }.attachTo(this);
+        registerAspect(&globalTabSettings());
+        registerAspect(&globalTypingSettings());
+        registerAspect(&globalStorageSettings());
+        registerAspect(&globalExtraEncodingSettings());
+        registerAspect(&globalBehaviorSettings());
 
-        installCheckSettingsDirtyTrigger(&globalTabSettings());
-        installCheckSettingsDirtyTrigger(&globalTypingSettings());
-        installCheckSettingsDirtyTrigger(&globalStorageSettings());
-        installCheckSettingsDirtyTrigger(&globalBehaviorSettings());
-        installCheckSettingsDirtyTrigger(&globalExtraEncodingSettings());
+        setLayouter([] {
+            using namespace Layouting;
+            return Column {
+                &globalTabSettings(),
+                &globalTypingSettings(),
+                &globalStorageSettings(),
+                &globalExtraEncodingSettings(),
+                &globalBehaviorSettings(),
+                st,
+            };
+        });
     }
-
-    bool isDirty() const final;
-    void apply() final;
 };
-
-bool BehaviorSettingsWidget::isDirty() const
-{
-    return globalTabSettings().isDirty()
-        || globalTypingSettings().isDirty()
-        || globalStorageSettings().isDirty()
-        || globalBehaviorSettings().isDirty()
-        || globalExtraEncodingSettings().isDirty();
-}
-
-void BehaviorSettingsWidget::apply()
-{
-    globalTabSettings().apply();
-    globalTypingSettings().apply();
-    globalBehaviorSettings().apply();
-    globalStorageSettings().apply();
-    globalExtraEncodingSettings().apply();
-}
-
-// BehaviorSettingsPage
 
 class BehaviorSettingsPage final : public Core::IOptionsPage
 {
@@ -188,7 +165,10 @@ public:
         setId(Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
         setDisplayName(Tr::tr("Behavior"));
         setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-        setWidgetCreator([] { return new BehaviorSettingsWidget; });
+        setSettingsProvider([] {
+            static BehaviorPage thePage;
+            return static_cast<AspectContainer *>(&thePage);
+        });
     }
 };
 
