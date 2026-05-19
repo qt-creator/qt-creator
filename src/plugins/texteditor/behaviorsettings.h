@@ -10,9 +10,6 @@
 
 namespace TextEditor {
 
-class CodeStylePool;
-class ICodeStylePreferences;
-
 /**
  * Settings that describe how the text editor behaves. This does not include
  * the TabSettings and StorageSettings.
@@ -51,9 +48,6 @@ public:
 };
 
 TEXTEDITOR_EXPORT BehaviorSettings &globalBehaviorSettings();
-
-ICodeStylePreferences *globalCodeStyle();
-CodeStylePool *globalCodeStylePool();
 
 namespace Internal { void setupBehaviorSettings(); }
 

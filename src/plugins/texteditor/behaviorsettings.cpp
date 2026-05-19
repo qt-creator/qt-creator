@@ -3,9 +3,8 @@
 
 #include "behaviorsettings.h"
 
-#include "codestylepool.h"
 #include "extraencodingsettings.h"
-#include "simplecodestylepreferences.h"
+#include "icodestylepreferences.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "texteditorconstants.h"
@@ -143,33 +142,19 @@ BehaviorSettings &globalBehaviorSettings()
     return theGlobalBehaviorSettings;
 }
 
-// BehaviorSettingsPage
+// BehaviorSettingsWidget
 
-class BehaviorSettingsPage : public Core::IOptionsPage
+class BehaviorSettingsWidget : public Core::IOptionsPageWidget
 {
 public:
-    BehaviorSettingsPage();
-
-    ICodeStylePreferences *codeStyle() { return &m_codeStyle; }
-    CodeStylePool *codeStylePool() { return &m_defaultCodeStylePool; }
-
-    const Key m_settingsPrefix{"text"};
-    CodeStylePool m_defaultCodeStylePool{nullptr};
-    SimpleCodeStylePreferences m_codeStyle;
-};
-
-class BehaviorSettingsWidgetImpl : public Core::IOptionsPageWidget
-{
-public:
-    BehaviorSettingsWidgetImpl(BehaviorSettingsPage *page)
-        : m_page(page)
+    BehaviorSettingsWidget()
     {
-        m_pageCodeStyle.setTabSettings(page->m_codeStyle.tabSettings());
-        m_tabSettingsWidget.setPreferences(&m_pageCodeStyle);
+        m_tabSettings.setData(TextEditorSettings::codeStyle()->tabSettings());
+        m_tabSettings.setCodingStyleWarningVisible(true);
 
         using namespace Layouting;
         Column {
-            &m_tabSettingsWidget,
+            &m_tabSettings,
             &globalTypingSettings(),
             &globalStorageSettings(),
             &globalExtraEncodingSettings(),
@@ -177,8 +162,7 @@ public:
             st,
         }.attachTo(this);
 
-        m_tabSettingsWidget.setCodingStyleWarningVisible(true);
-        connect(&m_tabSettingsWidget, &TabSettings::codingStyleLinkClicked,
+        connect(&m_tabSettings, &TabSettings::codingStyleLinkClicked,
                 this, [] (TabSettings::CodingStyleLink link) {
             switch (link) {
             case TabSettings::CppLink:
@@ -190,36 +174,20 @@ public:
             }
         });
 
-        installMarkSettingsDirtyTriggerRecursively(&m_pageCodeStyle);
+        installCheckSettingsDirtyTrigger(&m_tabSettings);
         installCheckSettingsDirtyTrigger(&globalTypingSettings());
         installCheckSettingsDirtyTrigger(&globalStorageSettings());
         installCheckSettingsDirtyTrigger(&globalBehaviorSettings());
         installCheckSettingsDirtyTrigger(&globalExtraEncodingSettings());
     }
 
-    bool isDirty() const;
+    bool isDirty() const final;
     void apply() final;
 
-    BehaviorSettingsPage *m_page;
-    TabSettings m_tabSettingsWidget;
-    SimpleCodeStylePreferences m_pageCodeStyle;
+    TabSettings m_tabSettings;
 };
 
-BehaviorSettingsPage::BehaviorSettingsPage()
-{
-    setId(Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
-    setDisplayName(Tr::tr("Behavior"));
-    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setWidgetCreator([this] { return new BehaviorSettingsWidgetImpl(this); });
-
-    m_codeStyle.setDisplayName(Tr::tr("Global", "Settings"));
-    m_codeStyle.setId(Constants::GLOBAL_SETTINGS_ID);
-    m_codeStyle.fromSettings(m_settingsPrefix);
-
-    m_defaultCodeStylePool.addCodeStyle(&m_codeStyle);
-}
-
-bool BehaviorSettingsWidgetImpl::isDirty() const
+bool BehaviorSettingsWidget::isDirty() const
 {
     if (globalTypingSettings().isDirty())
         return true;
@@ -230,45 +198,42 @@ bool BehaviorSettingsWidgetImpl::isDirty() const
     if (globalExtraEncodingSettings().isDirty())
         return true;
 
-    if (m_page->m_codeStyle.tabSettings() != m_pageCodeStyle.tabSettings())
+    if (m_tabSettings.isDirty())
         return true;
 
     return false;
 }
 
-void BehaviorSettingsWidgetImpl::apply()
+void BehaviorSettingsWidget::apply()
 {
     globalTypingSettings().apply();
     globalBehaviorSettings().apply();
     globalStorageSettings().apply();
     globalExtraEncodingSettings().apply();
 
-    if (m_page->m_codeStyle.tabSettings() != m_pageCodeStyle.tabSettings()) {
-        m_page->m_codeStyle.setTabSettings(m_pageCodeStyle.tabSettings());
-        m_page->m_codeStyle.toSettings(m_page->m_settingsPrefix);
+    m_tabSettings.apply();
+    TextEditorSettings::codeStyle()->setTabSettings(m_tabSettings.data());
+    TextEditorSettings::codeStyle()->toSettings(Constants::CODE_STYLE_SETTINGS_PREFIX);
+}
+
+// BehaviorSettingsPage
+
+class BehaviorSettingsPage final : public Core::IOptionsPage
+{
+public:
+    BehaviorSettingsPage()
+    {
+        setId(Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
+        setDisplayName(Tr::tr("Behavior"));
+        setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new BehaviorSettingsWidget; });
     }
-}
-
-static BehaviorSettingsPage &behaviorSettingsPage()
-{
-    static BehaviorSettingsPage theBehaviorSettingsPage;
-    return theBehaviorSettingsPage;
-}
-
-ICodeStylePreferences *globalCodeStyle()
-{
-    return behaviorSettingsPage().codeStyle();
-}
-
-CodeStylePool *globalCodeStylePool()
-{
-    return behaviorSettingsPage().codeStylePool();
-}
+};
 
 void Internal::setupBehaviorSettings()
 {
+    static BehaviorSettingsPage theBehaviorSettingsPage;
     globalBehaviorSettings().readSettings();
-    (void) behaviorSettingsPage();
 }
 
 } // namespace TextEditor

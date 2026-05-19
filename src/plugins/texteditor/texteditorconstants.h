@@ -245,7 +245,8 @@ const char HIGHLIGHTER_SETTINGS_CATEGORY[] = "HighlighterSettings";
 const char SNIPPET_EDITOR_ID[]     = "TextEditor.SnippetEditor";
 const char TEXT_SNIPPET_GROUP_ID[] = "Text";
 
-const char GLOBAL_SETTINGS_ID[]    = "Global";
+const char GLOBAL_SETTINGS_ID[]           = "Global";
+const char CODE_STYLE_SETTINGS_PREFIX[]   = "text";
 const char GENERIC_PROPOSAL_ID[] = "TextEditor.GenericProposalId";
 
 const char BOOKMARKS_PREV_ACTION[]              = "Bookmarks.Previous";

@@ -4,6 +4,7 @@
 #include "texteditorsettings.h"
 
 #include "behaviorsettings.h"
+#include "codestylepool.h"
 #include "commentssettings.h"
 #include "completionsettings.h"
 #include "displaysettings.h"
@@ -13,6 +14,8 @@
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
 #include "marginsettings.h"
+#include "simplecodestylepreferences.h"
+#include "texteditorconstants.h"
 #include "texteditortr.h"
 
 #include <coreplugin/find/searchresultwindow.h>
@@ -36,6 +39,14 @@ namespace Internal {
 class TextEditorSettingsPrivate
 {
 public:
+    TextEditorSettingsPrivate()
+    {
+        m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
+        m_globalCodeStyle.setId(Constants::GLOBAL_SETTINGS_ID);
+        m_globalCodeStyle.fromSettings(Constants::CODE_STYLE_SETTINGS_PREFIX);
+        m_defaultCodeStylePool.addCodeStyle(&m_globalCodeStyle);
+    }
+
     FontSettings m_fontSettings;
     FontSettingsPage m_fontSettingsPage{&m_fontSettings, initialFormats()};
     CommentsSettingsPage m_commentsSettingsPage;
@@ -47,6 +58,9 @@ public:
     QMap<QString, Utils::Id> m_mimeTypeToLanguage;
 
     std::function<CommentsSettings::Data(const Utils::FilePath &)> m_retrieveCommentsSettings;
+
+    SimpleCodeStylePreferences m_globalCodeStyle;
+    CodeStylePool m_defaultCodeStylePool{nullptr};
 
 private:
     static std::vector<FormatDescription> initialFormats();
@@ -494,7 +508,7 @@ ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Utils::Id lan
 
 ICodeStylePreferences *TextEditorSettings::codeStyle()
 {
-    return globalCodeStyle();
+    return &d->m_globalCodeStyle;
 }
 
 ICodeStylePreferences *TextEditorSettings::codeStyle(Utils::Id languageId)
@@ -519,7 +533,7 @@ void TextEditorSettings::unregisterCodeStyle(Utils::Id languageId)
 
 CodeStylePool *TextEditorSettings::codeStylePool()
 {
-    return globalCodeStylePool();
+    return &d->m_defaultCodeStylePool;
 }
 
 CodeStylePool *TextEditorSettings::codeStylePool(Utils::Id languageId)
