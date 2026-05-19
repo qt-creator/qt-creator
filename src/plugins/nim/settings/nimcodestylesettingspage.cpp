@@ -194,7 +194,14 @@ public:
 
     void apply() final
     {
-        m_codeStyle->toSettings(Nim::Constants::C_NIMLANGUAGE_ID);
+        if (m_codeStyle->tabSettings() != m_nimCodeStylePreferences.tabSettings()) {
+            m_codeStyle->setTabSettings(m_nimCodeStylePreferences.tabSettings());
+            m_codeStyle->toSettings(Nim::Constants::C_NIMLANGUAGE_ID);
+        }
+        if (m_codeStyle->currentDelegate() != m_nimCodeStylePreferences.currentDelegate()) {
+            m_codeStyle->setCurrentDelegate(m_nimCodeStylePreferences.currentDelegate());
+            m_codeStyle->toSettings(Nim::Constants::C_NIMLANGUAGE_ID);
+        }
     }
 
 private:
@@ -245,7 +252,6 @@ public:
                                                           Nim::Constants::C_NIMLANGUAGE_ID);
         TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
                                                           Nim::Constants::C_NIMLANGUAGE_ID);
-
     }
 
     ~NimCodeStyleSettingsPage()
