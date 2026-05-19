@@ -113,6 +113,9 @@ class CppToolsSettings final : public QObject
 public:
     CppToolsSettings();
     ~CppToolsSettings() final;
+
+    CppCodeStylePreferencesFactory m_factory;
+    CodeStylePool m_pool{&m_factory};
 };
 
 CppToolsSettings::CppToolsSettings()
@@ -120,19 +123,17 @@ CppToolsSettings::CppToolsSettings()
     qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
 
     // code style factory
-    auto factory = new CppCodeStylePreferencesFactory;
-    TextEditorSettings::registerCodeStyleFactory(factory);
+    TextEditorSettings::registerCodeStyleFactory(&m_factory);
 
     // code style pool
-    auto pool = new CodeStylePool(factory, this);
-    TextEditorSettings::registerCodeStylePool(Constants::CPP_SETTINGS_ID, pool);
+    TextEditorSettings::registerCodeStylePool(Constants::CPP_SETTINGS_ID, &m_pool);
 
     // global code style settings
     g_globalCodeStyle = new CppCodeStylePreferences(this);
-    g_globalCodeStyle->setDelegatingPool(pool);
+    g_globalCodeStyle->setDelegatingPool(&m_pool);
     g_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
     g_globalCodeStyle->setId(idKey);
-    pool->addCodeStyle(g_globalCodeStyle);
+    m_pool.addCodeStyle(g_globalCodeStyle);
     TextEditorSettings::registerCodeStyle(Constants::CPP_SETTINGS_ID, g_globalCodeStyle);
 
     /*
@@ -162,7 +163,7 @@ CppToolsSettings::CppToolsSettings()
 
     // built-in settings
     // Qt style
-    auto qtCodeStyle = new CppCodeStylePreferences;
+    auto qtCodeStyle = new CppCodeStylePreferences(this);
     qtCodeStyle->setId("qt");
     qtCodeStyle->setDisplayName(Tr::tr("Qt"));
     qtCodeStyle->setReadOnly(true);
@@ -173,10 +174,10 @@ CppToolsSettings::CppToolsSettings()
     qtTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
     qtTabSettings.m_autoDetect = false;
     qtCodeStyle->setTabSettings(qtTabSettings);
-    pool->addCodeStyle(qtCodeStyle);
+    m_pool.addCodeStyle(qtCodeStyle);
 
     // GNU style
-    auto gnuCodeStyle = new CppCodeStylePreferences;
+    auto gnuCodeStyle = new CppCodeStylePreferences(this);
     gnuCodeStyle->setId("gnu");
     gnuCodeStyle->setDisplayName(Tr::tr("GNU"));
     gnuCodeStyle->setReadOnly(true);
@@ -193,12 +194,12 @@ CppToolsSettings::CppToolsSettings()
     gnuCodeStyleSettings.indentSwitchLabels = true;
     gnuCodeStyleSettings.indentBlocksRelativeToSwitchLabels = true;
     gnuCodeStyle->setCodeStyleSettings(gnuCodeStyleSettings);
-    pool->addCodeStyle(gnuCodeStyle);
+    m_pool.addCodeStyle(gnuCodeStyle);
 
     // default delegate for global preferences
     g_globalCodeStyle->setCurrentDelegate(qtCodeStyle);
 
-    pool->loadCustomCodeStyles();
+    m_pool.loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
     g_globalCodeStyle->fromSettings(Constants::CPP_SETTINGS_ID);

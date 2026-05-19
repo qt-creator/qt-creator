@@ -26,7 +26,6 @@ class CodeStylePoolPrivate
 {
 public:
     CodeStylePoolPrivate() = default;
-    ~CodeStylePoolPrivate();
 
     QByteArray generateUniqueId(const QByteArray &id) const;
 
@@ -37,11 +36,6 @@ public:
     QMap<QByteArray, ICodeStylePreferences *> m_idToCodeStyle;
     QString m_settingsPath;
 };
-
-CodeStylePoolPrivate::~CodeStylePoolPrivate()
-{
-    delete m_factory;
-}
 
 QByteArray CodeStylePoolPrivate::generateUniqueId(const QByteArray &id) const
 {
@@ -71,9 +65,8 @@ static FilePath customCodeStylesPath()
     return Core::ICore::userResourcePath("codestyles");
 }
 
-CodeStylePool::CodeStylePool(ICodeStylePreferencesFactory *factory, QObject *parent)
-    : QObject(parent),
-      d(new Internal::CodeStylePoolPrivate)
+CodeStylePool::CodeStylePool(ICodeStylePreferencesFactory *factory)
+    : d(new Internal::CodeStylePoolPrivate)
 {
     d->m_factory = factory;
 }
@@ -128,6 +121,7 @@ ICodeStylePreferences *CodeStylePool::createCodeStyle(const QByteArray &id, cons
     codeStyle->setDisplayName(displayName);
 
     addCodeStyle(codeStyle);
+    codeStyle->setParent(this);
 
     saveCodeStyle(codeStyle);
 
@@ -143,6 +137,7 @@ ICodeStylePreferences *CodeStylePool::createCodeStyle(const QString &displayName
     codeStyle->setDisplayName(displayName);
 
     addCodeStyle(codeStyle);
+    codeStyle->setParent(this);
     saveCodeStyle(codeStyle);
 
     return codeStyle;
@@ -159,8 +154,6 @@ void CodeStylePool::addCodeStyle(ICodeStylePreferences *codeStyle)
     else
         d->m_customPool.append(codeStyle);
     d->m_idToCodeStyle.insert(newId, codeStyle);
-    // take ownership
-    codeStyle->setParent(this);
 
     auto doSaveStyle = [this, codeStyle] { saveCodeStyle(codeStyle); };
     connect(codeStyle, &ICodeStylePreferences::valueChanged, this, doSaveStyle);
@@ -246,6 +239,7 @@ ICodeStylePreferences *CodeStylePool::loadCodeStyle(
             codeStyle->setProject(projectFile);
 
             addCodeStyle(codeStyle);
+            codeStyle->setParent(this);
         }
     }
     return codeStyle;

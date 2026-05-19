@@ -21,8 +21,9 @@ namespace Internal { class CodeStylePoolPrivate; }
 class TEXTEDITOR_EXPORT CodeStylePool : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit CodeStylePool(ICodeStylePreferencesFactory *factory, QObject *parent = nullptr);
+    explicit CodeStylePool(ICodeStylePreferencesFactory *factory);
     ~CodeStylePool() override;
 
     QList<ICodeStylePreferences *> codeStyles() const;

@@ -155,8 +155,8 @@ public:
     CodeStylePool *codeStylePool() { return &m_defaultCodeStylePool; }
 
     const Key m_settingsPrefix{"text"};
-    SimpleCodeStylePreferences m_codeStyle;
     CodeStylePool m_defaultCodeStylePool{nullptr};
+    SimpleCodeStylePreferences m_codeStyle;
 };
 
 class BehaviorSettingsWidgetImpl : public Core::IOptionsPageWidget

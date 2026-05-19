@@ -1362,25 +1362,23 @@ public:
     QmlJSToolsSettings();
     ~QmlJSToolsSettings() final;
 
+    QmlJSCodeStylePreferencesFactory m_factory;
+    CodeStylePool m_pool{&m_factory};
     QmlJSCodeStylePreferences m_globalCodeStyle;
 };
 
 QmlJSToolsSettings::QmlJSToolsSettings()
 {
-    ICodeStylePreferencesFactory *factory = new QmlJSCodeStylePreferencesFactory;
+    TextEditorSettings::registerCodeStyleFactory(&m_factory);
+    TextEditorSettings::registerCodeStylePool(Constants::QML_JS_SETTINGS_ID, &m_pool);
 
-    TextEditorSettings::registerCodeStyleFactory(factory);
-
-    auto pool = new CodeStylePool(factory, this);
-    TextEditorSettings::registerCodeStylePool(Constants::QML_JS_SETTINGS_ID, pool);
-
-    m_globalCodeStyle.setDelegatingPool(pool);
+    m_globalCodeStyle.setDelegatingPool(&m_pool);
     m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
     m_globalCodeStyle.setId(idKey);
-    pool->addCodeStyle(&m_globalCodeStyle);
+    m_pool.addCodeStyle(&m_globalCodeStyle);
     TextEditorSettings::registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, &m_globalCodeStyle);
 
-    auto qtCodeStyle = new QmlJSCodeStylePreferences;
+    auto qtCodeStyle = new QmlJSCodeStylePreferences(this);
     qtCodeStyle->setId("qt");
     qtCodeStyle->setDisplayName(Tr::tr("Qt"));
     qtCodeStyle->setReadOnly(true);
@@ -1407,9 +1405,9 @@ QmlJSToolsSettings::QmlJSToolsSettings()
         }
     });
 
-    pool->addCodeStyle(qtCodeStyle);
+    m_pool.addCodeStyle(qtCodeStyle);
     m_globalCodeStyle.setCurrentDelegate(qtCodeStyle);
-    pool->loadCustomCodeStyles();
+    m_pool.loadCustomCodeStyles();
     m_globalCodeStyle.fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 
     using namespace Utils::Constants;
