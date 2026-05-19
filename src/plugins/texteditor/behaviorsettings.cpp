@@ -8,7 +8,6 @@
 #include "simplecodestylepreferences.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
-#include "tabsettingswidget.h"
 #include "texteditorconstants.h"
 #include "texteditorsettings.h"
 #include "texteditortr.h"

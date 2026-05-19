@@ -24,7 +24,6 @@
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/tabsettingswidget.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 

@@ -12,7 +12,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
-#include <texteditor/tabsettingswidget.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/marginsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/typingsettings.h>

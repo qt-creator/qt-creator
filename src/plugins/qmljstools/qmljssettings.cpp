@@ -34,7 +34,6 @@
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/tabsettingswidget.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/aspects.h>

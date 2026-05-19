@@ -1,23 +1,19 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "tabsettingswidget.h"
+#include "tabsettings.h"
 
 #include "icodestylepreferences.h"
 #include "texteditortr.h"
 
-#include <QApplication>
-#include <QCheckBox>
-#include <QComboBox>
+#include <QGuiApplication>
 #include <QLabel>
-#include <QSpinBox>
-#include <QTextStream>
 
 #include <utils/layoutbuilder.h>
 
 namespace TextEditor {
 
-QString continuationTooltip()
+static QString continuationTooltip()
 {
     // FIXME: This is unfair towards translators.
     return Tr::tr(
@@ -191,4 +187,4 @@ void TabSettings::setCodingStyleWarningVisible(bool visible)
     m_codingStyleWarning->setVisible(visible);
 }
 
-} // TextEditor
+} // namespace TextEditor

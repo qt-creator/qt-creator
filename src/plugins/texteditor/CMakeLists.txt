@@ -8,7 +8,7 @@ add_qtc_library(TextEditorSupport STATIC
   DEPENDS Utils
   SOURCES
     texteditorsupport_global.h
-    tabsettings.cpp tabsettings.h
+    tabsettings.cpp
 )
 
 add_qtc_plugin(TextEditor
@@ -94,7 +94,8 @@ add_qtc_plugin(TextEditor
     snippets/snippetssettingspage.cpp snippets/snippetssettingspage.h
     storagesettings.cpp storagesettings.h
     syntaxhighlighter.cpp syntaxhighlighter.h
-    tabsettingswidget.cpp tabsettingswidget.h
+    tabsettings.h
+    tabsettingswidget.cpp
     textdocument.cpp textdocument.h
     textdocumentlayout.cpp textdocumentlayout.h
     texteditor.cpp texteditor.h

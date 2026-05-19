@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include "texteditor_global.h"
 #include "texteditorsupport_global.h"
 
+#include <utils/aspects.h>
 #include <utils/filepath.h>
 #include <utils/qtcsettings.h>
 #include <utils/store.h>
@@ -14,6 +16,8 @@
 #include <functional>
 
 namespace TextEditor {
+
+class ICodeStylePreferences;
 
 // Tab settings: Data type the GeneralSettingsPage acts on
 // with some convenience functions for formatting.
@@ -77,6 +81,46 @@ public:
     using Retriever = std::function<TabSettingsData(const Utils::FilePath &)>;
     static void setRetriever(const Retriever &retriever);
     static TabSettingsData settingsForFile(const Utils::FilePath &filePath);
+};
+
+class TEXTEDITOR_EXPORT TabSettings : public Utils::AspectContainer
+{
+    Q_OBJECT
+
+public:
+    enum CodingStyleLink {
+        CppLink,
+        QtQuickLink
+    };
+
+    TabSettings();
+    ~TabSettings() override;
+
+    void setPreferences(ICodeStylePreferences *preferences);
+
+    TabSettingsData data() const;
+
+    void setCodingStyleWarningVisible(bool visible);
+    void setData(const TabSettingsData &s);
+
+signals:
+    void settingsChanged(const TextEditor::TabSettingsData &);
+    void codingStyleLinkClicked(TextEditor::TabSettings::CodingStyleLink link);
+
+private:
+    void codingStyleLinkActivated(const QString &linkString);
+    void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences);
+    void slotTabSettingsChanged(const TabSettingsData &settings);
+
+    ICodeStylePreferences *m_preferences = nullptr;
+
+    Utils::BoolAspect autoDetect{this};
+    Utils::SelectionAspect tabPolicy{this};
+    Utils::IntegerAspect tabSize{this};
+    Utils::IntegerAspect indentSize{this};
+    Utils::SelectionAspect continuationAlignBehavior{this};
+
+    QLabel *m_codingStyleWarning;
 };
 
 } // namespace TextEditor
