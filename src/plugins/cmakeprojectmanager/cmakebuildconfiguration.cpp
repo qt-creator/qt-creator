@@ -91,7 +91,7 @@ const char CMAKE_OSX_ARCHITECTURES_FLAG[] = "CMAKE_OSX_ARCHITECTURES:DefaultFlag
 const char QT_QML_DEBUG_FLAG[] = "Qt:QML_DEBUG_FLAG";
 const char QT_QML_DEBUG_PARAM[] = "-DQT_QML_DEBUG";
 const char CMAKE_QT6_TOOLCHAIN_FILE_ARG[]
-    = "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
+    = "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=%{Qt:QT_INSTALL_LIBS}/cmake/Qt6/qt.toolchain.cmake";
 const char CMAKE_BUILD_TYPE[] = "CMake.Build.Type";
 const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMake.Configure.ClearSystemEnvironment";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMake.Configure.UserEnvironmentChanges";
