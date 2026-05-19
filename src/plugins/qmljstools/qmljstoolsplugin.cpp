@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsbundleprovider.h"
-#include "qmljscodestylesettings.h"
 #include "qmljsfunctionfilter.h"
 #include "qmljsmodelmanager.h"
+#include "qmljssettings.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolstr.h"
 #include "qmljstools_test.h"

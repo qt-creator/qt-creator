@@ -3,8 +3,8 @@
 
 #include "indentingtexteditormodifier.h"
 
-#include <qmljstools/qmljscodestylesettings.h>
 #include <qmljstools/qmljsindenter.h>
+#include <qmljstools/qmljssettings.h>
 
 namespace QmlDesigner {
 

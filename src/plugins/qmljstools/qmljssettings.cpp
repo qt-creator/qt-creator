@@ -1,10 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmljscodestylesettings.h"
+#include "qmljssettings.h"
 
 #include "qmlformatsettings.h"
-#include "qmljscodestylesettings.h"
+#include "qmljssettings.h"
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
@@ -1447,4 +1447,4 @@ void Internal::setupQmlJSToolsSettings()
 
 } // QmlJSTools::Internal
 
-#include "qmljscodestylesettings.moc"
+#include "qmljssettings.moc"

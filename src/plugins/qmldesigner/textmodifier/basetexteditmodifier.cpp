@@ -7,8 +7,8 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
 
-#include <qmljstools/qmljscodestylesettings.h>
 #include <qmljstools/qmljsindenter.h>
+#include <qmljstools/qmljssettings.h>
 
 #include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljscomponentfromobjectdef.h>

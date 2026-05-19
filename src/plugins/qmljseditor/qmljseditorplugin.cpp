@@ -18,7 +18,7 @@
 #include <qmljs/qmljsreformatter.h>
 
 #include <qmljstools/qmlformatsettings.h>
-#include <qmljstools/qmljscodestylesettings.h>
+#include <qmljstools/qmljssettings.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>

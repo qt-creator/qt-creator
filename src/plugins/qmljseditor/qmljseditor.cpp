@@ -23,8 +23,8 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsutils.h>
 
-#include <qmljstools/qmljscodestylesettings.h>
 #include <qmljstools/qmljsindenter.h>
+#include <qmljstools/qmljssettings.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <projectexplorer/project.h>
