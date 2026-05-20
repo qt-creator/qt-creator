@@ -31,18 +31,20 @@ public:
 
     static void extensionsInitialized();
 
-    static void buildProjectWithoutDependencies(Project *project);
-    static void cleanProjectWithoutDependencies(Project *project);
-    static void rebuildProjectWithoutDependencies(Project *project);
-    static void buildProjectWithDependencies(Project *project,
-        ConfigSelection configSelection = ConfigSelection::Active, RunControl *starter = nullptr);
-    static void cleanProjectWithDependencies(Project *project, ConfigSelection configSelection);
-    static void rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection);
-    static void buildProjects(const QList<Project *> &projects, ConfigSelection configSelection);
-    static void cleanProjects(const QList<Project *> &projects, ConfigSelection configSelection);
-    static void rebuildProjects(const QList<Project *> &projects, ConfigSelection configSelection);
+    static int buildProjectWithoutDependencies(Project *project);
+    static int cleanProjectWithoutDependencies(Project *project);
+    static int rebuildProjectWithoutDependencies(Project *project);
+    static int buildProjectWithDependencies(
+        Project *project,
+        ConfigSelection configSelection = ConfigSelection::Active,
+        RunControl *starter = nullptr);
+    static int cleanProjectWithDependencies(Project *project, ConfigSelection configSelection);
+    static int rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection);
+    static int buildProjects(const QList<Project *> &projects, ConfigSelection configSelection);
+    static int cleanProjects(const QList<Project *> &projects, ConfigSelection configSelection);
+    static int rebuildProjects(const QList<Project *> &projects, ConfigSelection configSelection);
 
-    static void deployProjects(const QList<Project *> &projects);
+    static int deployProjects(const QList<Project *> &projects);
 
     static BuildForRunConfigStatus potentiallyBuildForRunConfig(RunConfiguration *rc);
 

@@ -525,7 +525,11 @@ void registerMcpTools()
                 },
                 Qt::SingleShotConnection);
 
-            BuildManager::buildProjects(projects, ConfigSelection::Active);
+            if (BuildManager::buildProjects(projects, ConfigSelection::Active) <= 0) {
+                return ResultError(
+                    "Build failed to start. Check that the project is properly configured and try "
+                    "again.");
+            }
 
             using namespace std::chrono_literals;
 
