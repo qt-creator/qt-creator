@@ -162,7 +162,7 @@ void TextEditorPlugin::extensionsInitialized()
     connect(&textEditorSettings(), &TextEditorSettings::fontSettingsChanged,
             this, &TextEditorPlugin::updateSearchResultsFont);
 
-    updateSearchResultsFont(TextEditorSettings::fontSettings());
+    updateSearchResultsFont(globalFontSettings().data());
 
     connect(TextEditorSettings::codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
             this, &TextEditorPlugin::updateSearchResultsTabWidth);

@@ -1665,7 +1665,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     // Apply current settings
     // the document might already have the same settings as we set here in which case we do not
     // get an update, so we have to trigger updates manually here
-    const FontSettings fontSettings = TextEditorSettings::fontSettings();
+    const FontSettings fontSettings = globalFontSettings().data();
     if (m_document->fontSettings() == fontSettings)
         applyFontSettingsDelayed();
     else
@@ -4076,7 +4076,7 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
         return highlighter;
     });
 
-    m_document->setFontSettings(TextEditorSettings::fontSettings());
+    m_document->setFontSettings(globalFontSettings().data());
 }
 
 void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Definition &definition)
@@ -9424,7 +9424,7 @@ void TextEditorWidget::applyFontSettings()
 
 void TextEditorWidget::setDisplaySettings(const DisplaySettingsData &ds)
 {
-    const TextEditor::FontSettings &fs = TextEditorSettings::fontSettings();
+    const TextEditor::FontSettings &fs = globalFontSettings().data();
     if (fs.relativeLineSpacing() == 100)
         setLineWrapMode(ds.m_textWrapping ? PlainTextEdit::WidgetWidth : PlainTextEdit::NoWrap);
     else
@@ -9994,7 +9994,7 @@ QColor TextEditorWidget::replacementPenColor(int blockNumber) const
 void TextEditorWidget::setupFallBackEditor(Id id)
 {
     TextDocumentPtr doc(new TextDocument(id));
-    doc->setFontSettings(TextEditorSettings::fontSettings());
+    doc->setFontSettings(globalFontSettings().data());
     setTextDocument(doc);
 }
 

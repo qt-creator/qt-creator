@@ -289,7 +289,7 @@ QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeT
 
     highlighter->setDefinition(definitions.first());
     highlighter->setParent(document);
-    highlighter->setFontSettings(TextEditorSettings::fontSettings());
+    highlighter->setFontSettings(globalFontSettings().data());
     highlighter->setMimeType(mimeType);
     highlighter->setDocument(document);
 

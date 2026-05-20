@@ -897,7 +897,7 @@ void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter 
     d->m_highlighter = creator();
     d->m_highlighter->setParent(this);
     d->m_highlighter->setDocument(this->document());
-    d->m_highlighter->setFontSettings(TextEditorSettings::fontSettings());
+    d->m_highlighter->setFontSettings(globalFontSettings().data());
     d->m_highlighter->setMimeType(mimeType());
     d->m_highlighter->setIgnoreFolding(d->m_externalFoldingIndent);
 }

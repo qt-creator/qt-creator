@@ -3,6 +3,7 @@
 
 #include "semantichighlighter.h"
 
+#include "fontsettings.h"
 #include "syntaxhighlighter.h"
 #include "texteditorsettings.h"
 
@@ -29,7 +30,7 @@ const Ranges rangesForResult(const HighlightingResult &result, const QTextBlock 
                              const QHash<int, QTextCharFormat> &kindToFormat)
 {
     const QTextCharFormat format = result.useTextSyles
-        ? TextEditorSettings::fontSettings().toTextCharFormat(result.textStyles)
+        ? globalFontSettings().data().toTextCharFormat(result.textStyles)
         : kindToFormat.value(result.kind);
     if (!format.isValid())
         return {};
