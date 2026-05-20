@@ -4,7 +4,10 @@
 #include "codestylepool.h"
 #include "icodestylepreferencesfactory.h"
 #include "icodestylepreferences.h"
+#include "simplecodestylepreferences.h"
 #include "tabsettings.h"
+#include "texteditorconstants.h"
+#include "texteditortr.h"
 
 #include <coreplugin/icore.h>
 
@@ -275,5 +278,29 @@ void CodeStylePool::exportCodeStyle(const FilePath &fileName, ICodeStylePreferen
     PersistentSettingsWriter writer(fileName, QLatin1String(codeStyleDocKey));
     writer.save(tmp);
 }
+
+ICodeStylePreferences &globalCodeStyle()
+{
+    static SimpleCodeStylePreferences theGlobalCodeStyle;
+    return theGlobalCodeStyle;
+}
+
+CodeStylePool &globalCodeStylePool()
+{
+    static CodeStylePool theGlobalCodeStylePool{nullptr};
+    return theGlobalCodeStylePool;
+}
+
+namespace Internal {
+
+void setupGlobalCodeStyle()
+{
+    globalCodeStyle().setDisplayName(Tr::tr("Global", "Settings"));
+    globalCodeStyle().setId(Constants::GLOBAL_SETTINGS_ID);
+    globalCodeStyle().fromSettings(Constants::CODE_STYLE_SETTINGS_PREFIX);
+    globalCodeStylePool().addCodeStyle(&globalCodeStyle());
+}
+
+} // namespace Internal
 
 } // TextEditor

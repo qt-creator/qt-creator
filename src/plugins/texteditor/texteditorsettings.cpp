@@ -14,7 +14,6 @@
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
 #include "marginsettings.h"
-#include "simplecodestylepreferences.h"
 #include "texteditorconstants.h"
 #include "texteditortr.h"
 
@@ -37,22 +36,11 @@ namespace Internal {
 class TextEditorSettingsPrivate
 {
 public:
-    TextEditorSettingsPrivate()
-    {
-        m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
-        m_globalCodeStyle.setId(Constants::GLOBAL_SETTINGS_ID);
-        m_globalCodeStyle.fromSettings(Constants::CODE_STYLE_SETTINGS_PREFIX);
-        m_defaultCodeStylePool.addCodeStyle(&m_globalCodeStyle);
-    }
-
     QMap<Utils::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
 
     QMap<Utils::Id, ICodeStylePreferences *> m_languageToCodeStyle;
     QMap<Utils::Id, CodeStylePool *> m_languageToCodeStylePool;
     QMap<QString, Utils::Id> m_mimeTypeToLanguage;
-
-    SimpleCodeStylePreferences m_globalCodeStyle;
-    CodeStylePool m_defaultCodeStylePool{nullptr};
 };
 
 } // namespace Internal
@@ -68,6 +56,7 @@ TextEditorSettings::TextEditorSettings()
     setupCompletionSettings();
     setupDisplaySettings();
     setupCommentsSettings();
+    Internal::setupGlobalCodeStyle();
 
     // Note: default background colors are coming from FormatDescription::background()
 
@@ -118,7 +107,7 @@ ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Utils::Id lan
 
 ICodeStylePreferences *TextEditorSettings::codeStyle()
 {
-    return &d->m_globalCodeStyle;
+    return &globalCodeStyle();
 }
 
 ICodeStylePreferences *TextEditorSettings::codeStyle(Utils::Id languageId)
@@ -143,7 +132,7 @@ void TextEditorSettings::unregisterCodeStyle(Utils::Id languageId)
 
 CodeStylePool *TextEditorSettings::codeStylePool()
 {
-    return &d->m_defaultCodeStylePool;
+    return &globalCodeStylePool();
 }
 
 CodeStylePool *TextEditorSettings::codeStylePool(Utils::Id languageId)

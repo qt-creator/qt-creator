@@ -63,4 +63,9 @@ private:
     Internal::CodeStylePoolPrivate *d;
 };
 
+TEXTEDITOR_EXPORT ICodeStylePreferences &globalCodeStyle();
+TEXTEDITOR_EXPORT CodeStylePool &globalCodeStylePool();
+
+namespace Internal { void setupGlobalCodeStyle(); }
+
 } // namespace TextEditor
