@@ -8,6 +8,7 @@
 #include "colorscheme.h"
 #include "textstyles.h"
 
+#include <utils/aspects.h>
 #include <utils/filepath.h>
 
 #include <QHash>
@@ -101,5 +102,37 @@ private:
     mutable QHash<TextStyle, QTextCharFormat> m_formatCache;
     mutable QHash<TextStyles, QTextCharFormat> m_textCharFormatCache;
 };
+
+class TEXTEDITOR_EXPORT FontSettingsContainer : public Utils::AspectContainer
+{
+    Q_OBJECT
+
+public:
+    FontSettingsContainer();
+
+    void writeSettings() const override;
+    void apply() override;
+
+    const FontSettings &data() const { return m_value; }
+    FontSettings &mutableData() { return m_value; }
+    void setData(const FontSettings &fs);
+
+private:
+    void syncAspectsFromValue();
+
+    Utils::StringAspect  m_family{this};
+    Utils::IntegerAspect m_fontSize{this};
+    Utils::IntegerAspect m_fontZoom{this};
+    Utils::IntegerAspect m_lineSpacing{this};
+    Utils::BoolAspect    m_antialias{this};
+
+    FontSettings m_value;
+
+    friend void setupFontSettings(const FontSettings::FormatDescriptions &fd);
+};
+
+TEXTEDITOR_EXPORT FontSettingsContainer &globalFontSettings();
+
+void setupFontSettings(const FontSettings::FormatDescriptions &fd);
 
 } // namespace TextEditor

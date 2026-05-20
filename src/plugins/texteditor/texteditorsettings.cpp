@@ -47,8 +47,7 @@ public:
         m_defaultCodeStylePool.addCodeStyle(&m_globalCodeStyle);
     }
 
-    FontSettings m_fontSettings;
-    FontSettingsPage m_fontSettingsPage{&m_fontSettings, initialFormats()};
+    FontSettingsPage m_fontSettingsPage{initialFormats()};
     CommentsSettingsPage m_commentsSettingsPage;
 
     QMap<Utils::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
@@ -445,7 +444,7 @@ TextEditorSettings::TextEditorSettings()
     // Note: default background colors are coming from FormatDescription::background()
 
     auto updateGeneralMessagesFontSettings = []() {
-        Core::MessageManager::setFont(d->m_fontSettings.font());
+        Core::MessageManager::setFont(globalFontSettings().data().font());
     };
     connect(this, &TextEditorSettings::fontSettingsChanged,
             this, updateGeneralMessagesFontSettings);
@@ -471,7 +470,7 @@ TextEditorSettings *TextEditorSettings::instance()
 
 const FontSettings &TextEditorSettings::fontSettings()
 {
-    return d->m_fontSettings;
+    return globalFontSettings().data();
 }
 
 void TextEditorSettings::setCommentsSettingsRetriever(
@@ -564,30 +563,31 @@ Utils::Id TextEditorSettings::languageId(const QString &mimeType)
 static int setFontZoom(int zoom)
 {
     zoom = qMax(10, zoom);
-    if (d->m_fontSettings.fontZoom() != zoom) {
-        d->m_fontSettings.setFontZoom(zoom);
-        d->m_fontSettings.toSettings(Core::ICore::settings());
-        emit textEditorSettings().fontSettingsChanged(d->m_fontSettings);
+    FontSettings &fs = globalFontSettings().mutableData();
+    if (fs.fontZoom() != zoom) {
+        fs.setFontZoom(zoom);
+        globalFontSettings().writeSettings();
+        emit textEditorSettings().fontSettingsChanged(fs);
     }
     return zoom;
 }
 
 int TextEditorSettings::increaseFontZoom()
 {
-    const int previousZoom = d->m_fontSettings.fontZoom();
+    const int previousZoom = globalFontSettings().data().fontZoom();
     return setFontZoom(previousZoom + 10 - previousZoom % 10);
 }
 
 int TextEditorSettings::decreaseFontZoom()
 {
-    const int previousZoom = d->m_fontSettings.fontZoom();
+    const int previousZoom = globalFontSettings().data().fontZoom();
     const int delta = previousZoom % 10;
     return setFontZoom(previousZoom - (delta == 0 ? 10 : delta));
 }
 
 int TextEditorSettings::increaseFontZoom(int step)
 {
-    return setFontZoom(d->m_fontSettings.fontZoom() + step);
+    return setFontZoom(globalFontSettings().data().fontZoom() + step);
 }
 
 void TextEditorSettings::resetFontZoom()

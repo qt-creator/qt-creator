@@ -20,8 +20,6 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class Format;
-class FontSettings;
-namespace Internal { class FontSettingsPagePrivate; }
 
 // GUI description of a format consisting of id (settings key)
 // and displayName to be displayed
@@ -100,9 +98,7 @@ using FormatDescriptions = std::vector<FormatDescription>;
 class TEXTEDITOR_EXPORT FontSettingsPage final : public Core::IOptionsPage
 {
 public:
-    FontSettingsPage(FontSettings *fontSettings, const FormatDescriptions &fd);
-
-    void setFontZoom(int zoom);
+    explicit FontSettingsPage(const FormatDescriptions &fd);
 };
 
 } // namespace TextEditor

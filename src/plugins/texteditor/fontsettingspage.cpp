@@ -99,9 +99,9 @@ private:
 class FontSettingsPageWidget : public Core::IOptionsPageWidget
 {
 public:
-    FontSettingsPageWidget(FontSettingsPage *q, const FormatDescriptions &fd, FontSettings *fontSettings)
+    FontSettingsPageWidget(FontSettingsPage *q, const FormatDescriptions &fd)
         : q(q),
-          m_value(*fontSettings),
+          m_value(globalFontSettings().mutableData()),
           m_descriptions(fd)
     {
         m_lastValue = m_value;
@@ -756,33 +756,25 @@ void FontSettingsPageWidget::apply()
 void FontSettingsPageWidget::saveSettings()
 {
     m_lastValue = m_value;
-    m_value.toSettings(Core::ICore::settings());
-    emit TextEditorSettings::instance()->fontSettingsChanged(m_value);
+    globalFontSettings().apply();
 }
 
 void FontSettingsPageWidget::cancel()
 {
-    // If changes were applied, these are equal. Otherwise restores last value.
-    m_value = m_lastValue;
+    globalFontSettings().setData(m_lastValue);
 }
 
 } // namespace Internal
 
 // FontSettingsPage
 
-FontSettingsPage::FontSettingsPage(FontSettings *fontSettings, const FormatDescriptions &fd)
+FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd)
 {
-    QtcSettings *settings = Core::ICore::settings();
-    if (settings)
-       fontSettings->fromSettings(fd, settings);
-
-    if (fontSettings->colorSchemeFileName().isEmpty())
-       fontSettings->loadColorScheme(FontSettings::defaultSchemeFileName(), fd);
-
+    setupFontSettings(fd);
     setId(Constants::TEXT_EDITOR_FONT_SETTINGS);
     setDisplayName(Tr::tr("Font && Colors"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setWidgetCreator([this, fontSettings, fd] { return new FontSettingsPageWidget(this, fd, fontSettings); });
+    setWidgetCreator([this, fd] { return new FontSettingsPageWidget(this, fd); });
 }
 
 } // TextEditor

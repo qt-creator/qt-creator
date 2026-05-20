@@ -4,6 +4,7 @@
 #include "fontsettings.h"
 
 #include "fontsettingspage.h"
+#include "texteditorsettings.h"
 #include "texteditortr.h"
 
 #include <coreplugin/icore.h>
@@ -540,6 +541,50 @@ FilePath FontSettings::defaultSchemeFileName(const QString &fileName)
     }
 
     return defaultScheme;
+}
+
+FontSettingsContainer::FontSettingsContainer() = default;
+
+void FontSettingsContainer::writeSettings() const
+{
+    m_value.toSettings(Core::ICore::settings());
+}
+
+void FontSettingsContainer::apply()
+{
+    writeSettings();
+    emit TextEditorSettings::instance()->fontSettingsChanged(m_value);
+}
+
+void FontSettingsContainer::setData(const FontSettings &fs)
+{
+    m_value = fs;
+    syncAspectsFromValue();
+}
+
+void FontSettingsContainer::syncAspectsFromValue()
+{
+    m_family.setValue(m_value.family());
+    m_fontSize.setValue(m_value.fontSize());
+    m_fontZoom.setValue(m_value.fontZoom());
+    m_lineSpacing.setValue(m_value.relativeLineSpacing());
+    m_antialias.setValue(m_value.antialias());
+}
+
+FontSettingsContainer &globalFontSettings()
+{
+    static FontSettingsContainer theGlobalFontSettingsContainer;
+    return theGlobalFontSettingsContainer;
+}
+
+void setupFontSettings(const FontSettings::FormatDescriptions &fd)
+{
+    FontSettingsContainer &c = globalFontSettings();
+    QtcSettings *s = Core::ICore::settings();
+    c.m_value.fromSettings(fd, s);
+    if (c.m_value.colorSchemeFileName().isEmpty())
+        c.m_value.loadColorScheme(FontSettings::defaultSchemeFileName(), fd);
+    c.syncAspectsFromValue();
 }
 
 } // namespace TextEditor
