@@ -566,23 +566,6 @@
     Stage your changes to commit them, so that you can push them to the remote
     repository or send them to Gerrit for review.
 
-    \section1 Show file status
-
-    By default, \QC displays the file status in the \l {Projects}, \l {File System},
-    and \l {Open Documents} views. The status is refreshed automatically every
-    10 seconds.
-
-    To customize how often the file status is updated:
-
-    \list 1
-        \li Go to \preferences > \uicontrol {Version Control} >
-            \uicontrol General.
-        \li Ensure \uicontrol {Show VCS file status with refresh interval}
-            is selected.
-        \li Set the interval (in seconds) at which \QC requests file status
-            updates from Git.
-    \endlist
-
     \section1 Stage the current file
 
     To mark a new or modified file for committing it to the repository, stage
@@ -742,6 +725,25 @@
     \ingroup creator-how-to-git-local-repository
 
     \title git status
+
+    \section1 Show file status
+
+    By default, \QC displays the file status in the \l {Projects}, \l {File System},
+    and \l {Open Documents} views. Changed files are shown with different colors.
+    The status is refreshed automatically every 10 seconds.
+
+    To customize how often the file status is updated:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {Version Control} >
+            \uicontrol General.
+        \li Ensure \uicontrol {Show VCS file status with refresh interval}
+            is selected.
+        \li Set the interval (in seconds) at which \QC requests file status
+            updates from Git.
+    \endlist
+
+    \section1 Show git status
 
     To view the status of the repository in \uicontrol {Version Control}, go to
     \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} and select
