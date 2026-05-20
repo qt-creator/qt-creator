@@ -312,8 +312,10 @@ void AcpChatController::authenticate(const QString &methodId)
         Q_UNUSED(result)
         if (error) {
             QString errorMsg = error->message();
-            if (const std::optional<QString> data = error->data())
-                errorMsg.append("\n" + *data);
+            if (const std::optional<QJsonValue> data = error->data(); data->isString()) {
+                if (auto dataString = data->toString(); !dataString.isEmpty())
+                    errorMsg.append("\n" + dataString);
+            }
             emit authenticationFailed(errorMsg);
             return;
         }

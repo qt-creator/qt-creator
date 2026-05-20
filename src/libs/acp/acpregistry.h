@@ -2,7 +2,7 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- /Users/mtillmanns/projects/qt/qtc-work/master/src/plugins/mcpserver/.venv/bin/python3 \
+ C:\dev\bin\Python313\python.exe \
   scripts/generate_cpp_from_schema.py \
   src/libs/acp/schema/registry.schema.json src/libs/acp/acpregistry.h --namespace Acp::Registry --cpp-output src/libs/acp/acpregistry.cpp --export-macro ACPLIB_EXPORT --export-header acp_global.h
 */

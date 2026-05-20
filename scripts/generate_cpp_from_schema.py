@@ -1141,8 +1141,20 @@ def _json_extract_expr(cpp_t, val_expr):
         "bool":        f"{val_expr}.toBool()",
         "QJsonObject": f"{val_expr}.toObject()",
         "QJsonArray":  f"{val_expr}.toArray()",
+        "QJsonValue":  f"{val_expr}",
     }
     return _map.get(cpp_t)
+
+def is_untyped_any(spec):
+    """Property with no type/$ref/composition constraints → any JSON value (QJsonValue)."""
+    if not isinstance(spec, dict):
+        return False
+    if spec.get("type") is not None:
+        return False
+    for k in ("$ref", "enum", "const", "anyOf", "oneOf", "allOf", "items", "properties"):
+        if k in spec:
+            return False
+    return True
 
 def _toJsonValue_visit_lines(alias):
     """Return code lines for a toJsonValue(const alias&) using std::visit."""
@@ -1837,6 +1849,10 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
         elif is_const_string(spec):
             pass  # const string fields are not stored in the struct
+        elif is_untyped_any(spec):
+            decl_type = "std::optional<QJsonValue>" if is_optional else "QJsonValue"
+            lines.extend(pre_lines)
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
         else:
             base_t, is_nullable = _nullable_type(spec)
             t = base_t if base_t else spec.get("type", "string")
@@ -1910,6 +1926,8 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         elif is_typed_map(spec) is not None:
             val_type = is_typed_map(spec)
             inner_type = f"QMap<QString, {val_type}>"
+        elif is_untyped_any(spec):
+            inner_type = "QJsonValue"
         else:
             base_t, is_nullable = _nullable_type(spec)
             inner_type = cpp_type(base_t if base_t else spec.get("type", "string"))
@@ -2205,9 +2223,13 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             fj_lines.append(f"    if (obj.value(\"{prop}\").toString() != \"{const_value}\")")
             fj_lines.append(f"        co_return Utils::ResultError(\"Field '{prop}' must be '{const_value}', got: \" + obj.value(\"{prop}\").toString());")
         else:
-            base_t, is_nullable = _nullable_type(spec)
-            t = base_t if base_t else spec.get("type", "string")
-            ct = cpp_type(t)
+            if is_untyped_any(spec):
+                base_t, is_nullable = None, False
+                ct = "QJsonValue"
+            else:
+                base_t, is_nullable = _nullable_type(spec)
+                t = base_t if base_t else spec.get("type", "string")
+                ct = cpp_type(t)
             _scalar_expr = _json_extract_expr(ct, f'obj.value("{prop}")')
             if is_optional:
                 fj_lines.append(f"    if (obj.contains(\"{prop}\"))")

@@ -1437,9 +1437,9 @@ Utils::Result<ToolCall> fromJson<ToolCall>(const QJsonValue &val)
         result._locations = list_locations;
     }
     if (obj.contains("rawInput"))
-        result._rawInput = obj.value("rawInput").toString();
+        result._rawInput = obj.value("rawInput");
     if (obj.contains("rawOutput"))
-        result._rawOutput = obj.value("rawOutput").toString();
+        result._rawOutput = obj.value("rawOutput");
     if (obj.contains("status") && obj["status"].isString())
         result._status = co_await fromJson<ToolCallStatus>(obj["status"]);
     result._title = obj.value("title").toString();
@@ -1501,9 +1501,9 @@ Utils::Result<ToolCallUpdate> fromJson<ToolCallUpdate>(const QJsonValue &val)
             result._locations = obj.value("locations").toArray();
         }
     if (obj.contains("rawInput"))
-        result._rawInput = obj.value("rawInput").toString();
+        result._rawInput = obj.value("rawInput");
     if (obj.contains("rawOutput"))
-        result._rawOutput = obj.value("rawOutput").toString();
+        result._rawOutput = obj.value("rawOutput");
     if (obj.contains("status") && !obj["status"].isNull())
         result._status = co_await fromJson<ToolCallStatus>(obj["status"]);
     if (obj.contains("title"))
@@ -2148,7 +2148,7 @@ Utils::Result<Error> fromJson<Error>(const QJsonValue &val)
     Error result;
     result._code = obj.value("code").toInt();
     if (obj.contains("data"))
-        result._data = obj.value("data").toString();
+        result._data = obj.value("data");
     result._message = obj.value("message").toString();
     return result;
 }
