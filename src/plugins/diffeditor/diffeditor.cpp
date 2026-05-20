@@ -102,191 +102,100 @@ private:
     QString m_syncToolTip;
 };
 
-class UnifiedView final : public IDiffView
+template <typename Widget>
+class DiffView final : public IDiffView
 {
 public:
-    UnifiedView()
+    DiffView()
     {
-        setId(Constants::UNIFIED_VIEW_ID);
-        setIcon(Icons::UNIFIED_DIFF.icon());
-        setToolTip(Tr::tr("Switch to Unified Diff Editor"));
+        if constexpr (std::is_same_v<Widget, UnifiedDiffEditorWidget>) {
+            setId(Constants::UNIFIED_VIEW_ID);
+            setIcon(Icons::UNIFIED_DIFF.icon());
+            setToolTip(Tr::tr("Switch to Unified Diff Editor"));
+        } else if constexpr (std::is_same_v<Widget, SideBySideDiffEditorWidget>) {
+            setId(Constants::SIDE_BY_SIDE_VIEW_ID);
+            setIcon(Icons::SIDEBYSIDE_DIFF.icon());
+            setToolTip(Tr::tr("Switch to Side By Side Diff Editor"));
+            setSupportsSync(true);
+            setSyncToolTip(Tr::tr("Synchronize Horizontal Scroll Bars"));
+        }
     }
 
-    QWidget *widget() final;
+    Widget *widget() final
+    {
+        if (!m_widget) {
+            m_widget = new Widget;
+            connect(m_widget, &Widget::currentDiffFileIndexChanged,
+                    this, &DiffView::currentDiffFileIndexChanged);
+        }
+        return m_widget;
+    }
 
-    void setDocument(DiffEditorDocument *document) final;
+    void setDocument(DiffEditorDocument *document) final
+    {
+        QTC_ASSERT(m_widget, return);
+        m_widget->setDocument(document);
+        if (!document)
+            return;
 
-    void beginOperation() final;
-    void setCurrentDiffFileIndex(int index) final;
-    void setDiff(const QList<FileData> &diffFileList) final;
-    void setMessage(const QString &message) final;
-    void endOperation() final;
+        switch (document->state()) {
+        case DiffEditorDocument::Reloading:
+            m_widget->clear(Tr::tr("Waiting for data..."));
+            break;
+        case DiffEditorDocument::LoadFailed:
+            m_widget->clear(Tr::tr("Retrieving data failed."));
+            break;
+        default:
+            break;
+        }
+    }
 
-    void setSync(bool sync) final;
+    void beginOperation() final
+    {
+        QTC_ASSERT(m_widget, return);
+        DiffEditorDocument *document = m_widget->diffDocument();
+        if (document && document->state() == DiffEditorDocument::LoadOK)
+            m_widget->saveState();
+    }
+
+    void setCurrentDiffFileIndex(int index) final
+    {
+        QTC_ASSERT(m_widget, return);
+        m_widget->setCurrentDiffFileIndex(index);
+    }
+
+    void setDiff(const QList<FileData> &diffFileList) final
+    {
+        QTC_ASSERT(m_widget, return);
+        m_widget->setDiff(diffFileList);
+    }
+
+    void setMessage(const QString &message) final
+    {
+        QTC_ASSERT(m_widget, return);
+        m_widget->clear(message);
+    }
+
+    void endOperation() final
+    {
+        QTC_ASSERT(m_widget, return);
+        m_widget->restoreState();
+    }
+
+    void setSync(bool sync) final
+    {
+        if constexpr (std::is_same_v<Widget, SideBySideDiffEditorWidget>) {
+            QTC_ASSERT(m_widget, return);
+            m_widget->setHorizontalSync(sync);
+        }
+    }
 
 private:
-    UnifiedDiffEditorWidget *m_widget = nullptr;
+    Widget *m_widget = nullptr;
 };
 
-QWidget *UnifiedView::widget()
-{
-    if (!m_widget) {
-        m_widget = new UnifiedDiffEditorWidget;
-        connect(m_widget, &UnifiedDiffEditorWidget::currentDiffFileIndexChanged,
-                this, &UnifiedView::currentDiffFileIndexChanged);
-    }
-    return m_widget;
-}
-
-void UnifiedView::setDocument(DiffEditorDocument *document)
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->setDocument(document);
-    if (!document)
-        return;
-
-    switch (document->state()) {
-    case DiffEditorDocument::Reloading:
-        m_widget->clear(Tr::tr("Waiting for data..."));
-        break;
-    case DiffEditorDocument::LoadFailed:
-        m_widget->clear(Tr::tr("Retrieving data failed."));
-        break;
-    default:
-        break;
-    }
-}
-
-void UnifiedView::beginOperation()
-{
-    QTC_ASSERT(m_widget, return);
-    DiffEditorDocument *document = m_widget->diffDocument();
-    if (document && document->state() == DiffEditorDocument::LoadOK)
-        m_widget->saveState();
-}
-
-void UnifiedView::setDiff(const QList<FileData> &diffFileList)
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->setDiff(diffFileList);
-}
-
-void UnifiedView::setMessage(const QString &message)
-{
-    m_widget->clear(message);
-}
-
-void UnifiedView::endOperation()
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->restoreState();
-}
-
-void UnifiedView::setCurrentDiffFileIndex(int index)
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->setCurrentDiffFileIndex(index);
-}
-
-void UnifiedView::setSync(bool sync)
-{
-    Q_UNUSED(sync)
-}
-
-class SideBySideView final : public IDiffView
-{
-public:
-    SideBySideView()
-    {
-        setId(Constants::SIDE_BY_SIDE_VIEW_ID);
-        setIcon(Icons::SIDEBYSIDE_DIFF.icon());
-        setToolTip(Tr::tr("Switch to Side By Side Diff Editor"));
-        setSupportsSync(true);
-        setSyncToolTip(Tr::tr("Synchronize Horizontal Scroll Bars"));
-    }
-
-    QWidget *widget() final;
-
-    void setDocument(DiffEditorDocument *document) final;
-
-    void beginOperation() final;
-    void setCurrentDiffFileIndex(int index) final;
-    void setDiff(const QList<FileData> &diffFileList) final;
-    void setMessage(const QString &message) final;
-    void endOperation() final;
-
-    void setSync(bool sync) final;
-
-private:
-    SideBySideDiffEditorWidget *m_widget = nullptr;
-};
-
-QWidget *SideBySideView::widget()
-{
-    if (!m_widget) {
-        m_widget = new SideBySideDiffEditorWidget;
-        connect(m_widget, &SideBySideDiffEditorWidget::currentDiffFileIndexChanged,
-                this, &SideBySideView::currentDiffFileIndexChanged);
-    }
-    return m_widget;
-}
-
-void SideBySideView::setDocument(DiffEditorDocument *document)
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->setDocument(document);
-    if (!document)
-        return;
-
-    switch (document->state()) {
-    case DiffEditorDocument::Reloading:
-        m_widget->clear(Tr::tr("Waiting for data..."));
-        break;
-    case DiffEditorDocument::LoadFailed:
-        m_widget->clear(Tr::tr("Retrieving data failed."));
-        break;
-    default:
-        break;
-    }
-}
-
-void SideBySideView::beginOperation()
-{
-    QTC_ASSERT(m_widget, return);
-    DiffEditorDocument *document = m_widget->diffDocument();
-    if (document && document->state() == DiffEditorDocument::LoadOK)
-        m_widget->saveState();
-}
-
-void SideBySideView::setCurrentDiffFileIndex(int index)
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->setCurrentDiffFileIndex(index);
-}
-
-void SideBySideView::setDiff(const QList<FileData> &diffFileList)
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->setDiff(diffFileList);
-}
-
-void SideBySideView::setMessage(const QString &message)
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->clear(message);
-}
-
-void SideBySideView::endOperation()
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->restoreState();
-}
-
-void SideBySideView::setSync(bool sync)
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->setHorizontalSync(sync);
-}
+using UnifiedView = DiffView<UnifiedDiffEditorWidget>;
+using SideBySideView = DiffView<SideBySideDiffEditorWidget>;
 
 class DescriptionEditorWidget final : public TextEditorWidget
 {
@@ -704,11 +613,11 @@ void DiffEditor::foldAllHasChanged()
     m_foldAllAction->setText(actionText);
     m_foldAllAction->setToolTip(actionText);
 
-    auto sideWidget = qobject_cast<SideBySideDiffEditorWidget *>(m_sideBySideView->widget());
+    auto sideWidget = m_sideBySideView->widget();
     if (sideWidget)
         sideWidget->unfoldAll(!fold);
 
-    auto unifiedWidget = qobject_cast<UnifiedDiffEditorWidget *>(m_unifiedView->widget());
+    auto unifiedWidget = m_unifiedView->widget();
     if (unifiedWidget)
         unifiedWidget->unfoldAll(!fold);
 }
