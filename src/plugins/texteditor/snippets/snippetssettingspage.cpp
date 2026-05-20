@@ -17,6 +17,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/aspects.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
@@ -42,11 +43,10 @@ const char kLastUsedSnippetGroup[] = "TextSnippetsSettings/LastUsedSnippetGroup"
 
 // SnippetsTableModel
 
-class SnippetsTableModel : public QAbstractTableModel
+class SnippetsTableModel final : public QAbstractTableModel
 {
 public:
-    SnippetsTableModel();
-    ~SnippetsTableModel() override = default;
+    SnippetsTableModel() = default;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -72,17 +72,12 @@ public:
 private:
     void replaceSnippet(const Snippet &snippet, const QModelIndex &modelIndex);
 
-    SnippetsCollection* m_collection;
     QString m_activeGroupId;
 };
 
-SnippetsTableModel::SnippetsTableModel()
-    : m_collection(SnippetsCollection::instance())
-{}
-
 int SnippetsTableModel::rowCount(const QModelIndex &) const
 {
-    return m_collection->totalActiveSnippets(m_activeGroupId);
+    return SnippetsCollection::instance()->totalActiveSnippets(m_activeGroupId);
 }
 
 int SnippetsTableModel::columnCount(const QModelIndex &) const
@@ -104,7 +99,7 @@ QVariant SnippetsTableModel::data(const QModelIndex &modelIndex, int role) const
         return QVariant();
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        const Snippet &snippet = m_collection->snippet(modelIndex.row(), m_activeGroupId);
+        const Snippet &snippet = SnippetsCollection::instance()->snippet(modelIndex.row(), m_activeGroupId);
         if (modelIndex.column() == 0)
             return snippet.trigger();
         else
@@ -117,7 +112,7 @@ QVariant SnippetsTableModel::data(const QModelIndex &modelIndex, int role) const
 bool SnippetsTableModel::setData(const QModelIndex &modelIndex, const QVariant &value, int role)
 {
     if (modelIndex.isValid() && role == Qt::EditRole) {
-        Snippet snippet(m_collection->snippet(modelIndex.row(), m_activeGroupId));
+        Snippet snippet(SnippetsCollection::instance()->snippet(modelIndex.row(), m_activeGroupId));
         if (modelIndex.column() == 0) {
             const QString &s = value.toString();
             if (!Snippet::isValidTrigger(s)) {
@@ -162,7 +157,7 @@ void SnippetsTableModel::load(const QString &groupId)
 
 QStringList SnippetsTableModel::groupIds() const
 {
-    return m_collection->groupIds();
+    return SnippetsCollection::instance()->groupIds();
 }
 
 QModelIndex SnippetsTableModel::createSnippet()
@@ -173,9 +168,9 @@ QModelIndex SnippetsTableModel::createSnippet()
 
 QModelIndex SnippetsTableModel::insertSnippet(const Snippet &snippet)
 {
-    const SnippetsCollection::Hint &hint = m_collection->computeInsertionHint(snippet);
+    const SnippetsCollection::Hint &hint = SnippetsCollection::instance()->computeInsertionHint(snippet);
     beginInsertRows(QModelIndex(), hint.index(), hint.index());
-    m_collection->insertSnippet(snippet, hint);
+    SnippetsCollection::instance()->insertSnippet(snippet, hint);
     endInsertRows();
 
     return index(hint.index(), 0);
@@ -184,23 +179,23 @@ QModelIndex SnippetsTableModel::insertSnippet(const Snippet &snippet)
 void SnippetsTableModel::removeSnippet(const QModelIndex &modelIndex)
 {
     beginRemoveRows(QModelIndex(), modelIndex.row(), modelIndex.row());
-    m_collection->removeSnippet(modelIndex.row(), m_activeGroupId);
+    SnippetsCollection::instance()->removeSnippet(modelIndex.row(), m_activeGroupId);
     endRemoveRows();
 }
 
 const Snippet &SnippetsTableModel::snippetAt(const QModelIndex &modelIndex) const
 {
-    return m_collection->snippet(modelIndex.row(), m_activeGroupId);
+    return SnippetsCollection::instance()->snippet(modelIndex.row(), m_activeGroupId);
 }
 
 void SnippetsTableModel::setSnippetContent(const QModelIndex &modelIndex, const QString &content)
 {
-    m_collection->setSnippetContent(modelIndex.row(), m_activeGroupId, content);
+    SnippetsCollection::instance()->setSnippetContent(modelIndex.row(), m_activeGroupId, content);
 }
 
 void SnippetsTableModel::revertBuitInSnippet(const QModelIndex &modelIndex)
 {
-    const Snippet &snippet = m_collection->revertedSnippet(modelIndex.row(), m_activeGroupId);
+    const Snippet &snippet = SnippetsCollection::instance()->revertedSnippet(modelIndex.row(), m_activeGroupId);
     if (snippet.id().isEmpty()) {
         QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"),
                               Tr::tr("Error reverting snippet."));
@@ -212,14 +207,14 @@ void SnippetsTableModel::revertBuitInSnippet(const QModelIndex &modelIndex)
 void SnippetsTableModel::restoreRemovedBuiltInSnippets()
 {
     beginResetModel();
-    m_collection->restoreRemovedSnippets(m_activeGroupId);
+    SnippetsCollection::instance()->restoreRemovedSnippets(m_activeGroupId);
     endResetModel();
 }
 
 void SnippetsTableModel::resetSnippets()
 {
     beginResetModel();
-    m_collection->reset(m_activeGroupId);
+    SnippetsCollection::instance()->reset(m_activeGroupId);
     endResetModel();
 }
 
@@ -227,9 +222,9 @@ void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelInde
 {
     const int row = modelIndex.row();
     const SnippetsCollection::Hint &hint =
-        m_collection->computeReplacementHint(row, snippet);
+        SnippetsCollection::instance()->computeReplacementHint(row, snippet);
     if (modelIndex.row() == hint.index()) {
-        m_collection->replaceSnippet(row, snippet, hint);
+        SnippetsCollection::instance()->replaceSnippet(row, snippet, hint);
         if (modelIndex.column() == 0)
             emit dataChanged(modelIndex, modelIndex.sibling(row, 1));
         else
@@ -240,18 +235,20 @@ void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelInde
             beginMoveRows(QModelIndex(), row, row, QModelIndex(), hint.index() + 1);
         else
             beginMoveRows(QModelIndex(), row, row, QModelIndex(), hint.index());
-        m_collection->replaceSnippet(row, snippet, hint);
+        SnippetsCollection::instance()->replaceSnippet(row, snippet, hint);
         endMoveRows();
     }
 }
 
-class SnippetsSettingsWidget : public Core::IOptionsPageWidget
+class SnippetsSettingsAspect final : public BaseAspect
 {
 public:
-    SnippetsSettingsWidget();
+    using BaseAspect::BaseAspect;
 
-    void apply() final;
-    void cancel() final;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+    void apply() override;
+    void cancel() override;
+    bool isDirty() const override { return m_snippetsCollectionChanged || settingsChanged(); }
 
 private:
     void loadSnippetGroup(int index);
@@ -265,45 +262,45 @@ private:
     void selectMovedSnippet(const QModelIndex &, int, int, const QModelIndex &, int row);
     void setSnippetContent();
     void updateCurrentSnippetDependent(const QModelIndex &modelIndex = QModelIndex());
-    void decorateEditors(const TextEditor::FontSettings &fontSettings);
+    void decorateEditors(const FontSettings &fontSettings);
 
     SnippetEditorWidget *currentEditor() const;
     SnippetEditorWidget *editorAt(int i) const;
 
     void loadSettings();
     bool settingsChanged() const;
-    void writeSettings();
+    void saveSettings();
 
     SnippetsTableModel m_model;
     bool m_snippetsCollectionChanged = false;
     QString m_lastUsedSnippetGroup;
 
-    QStackedWidget *m_snippetsEditorStack;
-    QComboBox *m_groupCombo;
-    Utils::TreeView *m_snippetsTable;
-    QPushButton *m_revertButton;
+    QPointer<QStackedWidget> m_snippetsEditorStack;
+    QPointer<QComboBox> m_groupCombo;
+    QPointer<TreeView> m_snippetsTable;
+    QPointer<QPushButton> m_revertButton;
 };
 
-SnippetsSettingsWidget::SnippetsSettingsWidget()
+void SnippetsSettingsAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    m_groupCombo = new QComboBox;
+    m_groupCombo = createSubWidget<QComboBox>();
     setIgnoreForDirtyHook(m_groupCombo);
-    m_snippetsEditorStack = new QStackedWidget;
+    m_snippetsEditorStack = createSubWidget<QStackedWidget>();
     for (const SnippetProvider &provider : SnippetProvider::snippetProviders()) {
         m_groupCombo->addItem(provider.displayName(), provider.groupId());
-        auto snippetEditor = new SnippetEditorWidget(this);
+        auto snippetEditor = new SnippetEditorWidget;
         installMarkSettingsDirtyTrigger(snippetEditor);
         SnippetProvider::decorateEditor(snippetEditor, provider.groupId());
         m_snippetsEditorStack->insertWidget(m_groupCombo->count() - 1, snippetEditor);
         connect(snippetEditor, &SnippetEditorWidget::snippetContentChanged,
-                this, &SnippetsSettingsWidget::setSnippetContent);
+                this, &SnippetsSettingsAspect::setSnippetContent);
     }
 
-    m_snippetsTable = new Utils::TreeView;
+    m_snippetsTable = createSubWidget<TreeView>();
     m_snippetsTable->setRootIsDecorated(false);
     m_snippetsTable->setModel(&m_model);
 
-    m_revertButton = new QPushButton(Tr::tr("Revert Built-in"));
+    m_revertButton = createSubWidget<QPushButton>(Tr::tr("Revert Built-in"));
     m_revertButton->setEnabled(false);
 
     auto snippetSplitter = new QSplitter(Qt::Vertical);
@@ -313,7 +310,7 @@ SnippetsSettingsWidget::SnippetsSettingsWidget()
     snippetSplitter->addWidget(m_snippetsEditorStack);
 
     using namespace Layouting;
-    Column {
+    parent.addItem(Column {
         Row { Tr::tr("Group:"), m_groupCombo, st },
         Row {
             snippetSplitter,
@@ -338,53 +335,53 @@ SnippetsSettingsWidget::SnippetsSettingsWidget()
                 st,
             }
         }
-    }.attachTo(this);
+    });
 
     loadSettings();
     loadSnippetGroup(m_groupCombo->currentIndex());
 
     connect(&m_model, &QAbstractItemModel::rowsInserted,
-            this, &SnippetsSettingsWidget::selectSnippet);
+            this, &SnippetsSettingsAspect::selectSnippet);
     connect(&m_model, &QAbstractItemModel::rowsInserted,
-            this, &SnippetsSettingsWidget::markSnippetsCollection);
+            this, &SnippetsSettingsAspect::markSnippetsCollection);
     connect(&m_model, &QAbstractItemModel::rowsRemoved,
-            this, &SnippetsSettingsWidget::markSnippetsCollection);
+            this, &SnippetsSettingsAspect::markSnippetsCollection);
     connect(&m_model, &QAbstractItemModel::rowsMoved,
-            this, &SnippetsSettingsWidget::selectMovedSnippet);
+            this, &SnippetsSettingsAspect::selectMovedSnippet);
     connect(&m_model, &QAbstractItemModel::rowsMoved,
-            this, &SnippetsSettingsWidget::markSnippetsCollection);
+            this, &SnippetsSettingsAspect::markSnippetsCollection);
     connect(&m_model, &QAbstractItemModel::dataChanged,
-            this, &SnippetsSettingsWidget::markSnippetsCollection);
+            this, &SnippetsSettingsAspect::markSnippetsCollection);
     connect(&m_model, &QAbstractItemModel::modelReset,
-            this, [this] { this->updateCurrentSnippetDependent(); });
+            this, [this] { updateCurrentSnippetDependent(); });
     connect(&m_model, &QAbstractItemModel::modelReset,
-            this, &SnippetsSettingsWidget::markSnippetsCollection);
+            this, &SnippetsSettingsAspect::markSnippetsCollection);
 
     connect(m_groupCombo, &QComboBox::currentIndexChanged,
-            this, &SnippetsSettingsWidget::loadSnippetGroup);
+            this, &SnippetsSettingsAspect::loadSnippetGroup);
     connect(m_revertButton, &QAbstractButton::clicked,
-            this, &SnippetsSettingsWidget::revertBuiltInSnippet);
+            this, &SnippetsSettingsAspect::revertBuiltInSnippet);
     connect(m_snippetsTable->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &SnippetsSettingsWidget::updateCurrentSnippetDependent);
+            this, &SnippetsSettingsAspect::updateCurrentSnippetDependent);
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, &SnippetsSettingsWidget::decorateEditors);
+            this, &SnippetsSettingsAspect::decorateEditors);
 }
 
-SnippetEditorWidget *SnippetsSettingsWidget::currentEditor() const
+SnippetEditorWidget *SnippetsSettingsAspect::currentEditor() const
 {
     return editorAt(m_snippetsEditorStack->currentIndex());
 }
 
-SnippetEditorWidget *SnippetsSettingsWidget::editorAt(int i) const
+SnippetEditorWidget *SnippetsSettingsAspect::editorAt(int i) const
 {
     return static_cast<SnippetEditorWidget *>(m_snippetsEditorStack->widget(i));
 }
 
-void SnippetsSettingsWidget::apply()
+void SnippetsSettingsAspect::apply()
 {
     if (settingsChanged())
-        writeSettings();
+        saveSettings();
 
     if (currentEditor()->document()->isModified())
         setSnippetContent();
@@ -399,7 +396,7 @@ void SnippetsSettingsWidget::apply()
     }
 }
 
-void SnippetsSettingsWidget::cancel()
+void SnippetsSettingsAspect::cancel()
 {
     if (m_snippetsCollectionChanged) {
         SnippetsCollection::instance()->reload();
@@ -407,7 +404,7 @@ void SnippetsSettingsWidget::cancel()
     }
 }
 
-void SnippetsSettingsWidget::loadSettings()
+void SnippetsSettingsAspect::loadSettings()
 {
     if (m_groupCombo->count() == 0)
         return;
@@ -420,7 +417,7 @@ void SnippetsSettingsWidget::loadSettings()
         m_groupCombo->setCurrentIndex(0);
 }
 
-void SnippetsSettingsWidget::writeSettings()
+void SnippetsSettingsAspect::saveSettings()
 {
     if (m_groupCombo->count() == 0)
         return;
@@ -429,12 +426,12 @@ void SnippetsSettingsWidget::writeSettings()
     Core::ICore::settings()->setValue(kLastUsedSnippetGroup, m_lastUsedSnippetGroup);
 }
 
-bool SnippetsSettingsWidget::settingsChanged() const
+bool SnippetsSettingsAspect::settingsChanged() const
 {
-    return m_lastUsedSnippetGroup != m_groupCombo->currentText();
+    return m_groupCombo && m_lastUsedSnippetGroup != m_groupCombo->currentText();
 }
 
-void SnippetsSettingsWidget::loadSnippetGroup(int index)
+void SnippetsSettingsAspect::loadSnippetGroup(int index)
 {
     if (index == -1)
         return;
@@ -446,20 +443,20 @@ void SnippetsSettingsWidget::loadSnippetGroup(int index)
     m_model.load(m_groupCombo->itemData(index).toString());
 }
 
-void SnippetsSettingsWidget::markSnippetsCollection()
+void SnippetsSettingsAspect::markSnippetsCollection()
 {
     m_snippetsCollectionChanged = true;
     markSettingsDirty();
 }
 
-void SnippetsSettingsWidget::addSnippet()
+void SnippetsSettingsAspect::addSnippet()
 {
     const QModelIndex &modelIndex = m_model.createSnippet();
     selectSnippet(QModelIndex(), modelIndex.row());
     m_snippetsTable->edit(modelIndex);
 }
 
-void SnippetsSettingsWidget::removeSnippet()
+void SnippetsSettingsAspect::removeSnippet()
 {
     const QModelIndex &modelIndex = m_snippetsTable->selectionModel()->currentIndex();
     if (!modelIndex.isValid()) {
@@ -469,22 +466,22 @@ void SnippetsSettingsWidget::removeSnippet()
     m_model.removeSnippet(modelIndex);
 }
 
-void SnippetsSettingsWidget::restoreRemovedBuiltInSnippets()
+void SnippetsSettingsAspect::restoreRemovedBuiltInSnippets()
 {
     m_model.restoreRemovedBuiltInSnippets();
 }
 
-void SnippetsSettingsWidget::revertBuiltInSnippet()
+void SnippetsSettingsAspect::revertBuiltInSnippet()
 {
     m_model.revertBuitInSnippet(m_snippetsTable->selectionModel()->currentIndex());
 }
 
-void SnippetsSettingsWidget::resetAllSnippets()
+void SnippetsSettingsAspect::resetAllSnippets()
 {
     m_model.resetSnippets();
 }
 
-void SnippetsSettingsWidget::selectSnippet(const QModelIndex &parent, int row)
+void SnippetsSettingsAspect::selectSnippet(const QModelIndex &parent, int row)
 {
     QModelIndex topLeft = m_model.index(row, 0, parent);
     QModelIndex bottomRight = m_model.index(row, 1, parent);
@@ -494,7 +491,7 @@ void SnippetsSettingsWidget::selectSnippet(const QModelIndex &parent, int row)
     m_snippetsTable->scrollTo(topLeft);
 }
 
-void SnippetsSettingsWidget::selectMovedSnippet(const QModelIndex &,
+void SnippetsSettingsAspect::selectMovedSnippet(const QModelIndex &,
                                                      int sourceRow,
                                                      int,
                                                      const QModelIndex &destinationParent,
@@ -509,7 +506,7 @@ void SnippetsSettingsWidget::selectMovedSnippet(const QModelIndex &,
     currentEditor()->setPlainText(m_model.snippetAt(modelIndex).content());
 }
 
-void SnippetsSettingsWidget::updateCurrentSnippetDependent(const QModelIndex &modelIndex)
+void SnippetsSettingsAspect::updateCurrentSnippetDependent(const QModelIndex &modelIndex)
 {
     DirtySettingsGuard suppressor;
     if (modelIndex.isValid()) {
@@ -522,7 +519,7 @@ void SnippetsSettingsWidget::updateCurrentSnippetDependent(const QModelIndex &mo
     }
 }
 
-void SnippetsSettingsWidget::setSnippetContent()
+void SnippetsSettingsAspect::setSnippetContent()
 {
     const QModelIndex &modelIndex = m_snippetsTable->selectionModel()->currentIndex();
     if (modelIndex.isValid()) {
@@ -531,7 +528,7 @@ void SnippetsSettingsWidget::setSnippetContent()
     }
 }
 
-void SnippetsSettingsWidget::decorateEditors(const TextEditor::FontSettings &fontSettings)
+void SnippetsSettingsAspect::decorateEditors(const FontSettings &fontSettings)
 {
     for (int i = 0; i < m_groupCombo->count(); ++i) {
         SnippetEditorWidget *snippetEditor = editorAt(i);
@@ -544,6 +541,22 @@ void SnippetsSettingsWidget::decorateEditors(const TextEditor::FontSettings &fon
 
 // SnippetsSettingsPage
 
+class SnippetsSettings final : public AspectContainer
+{
+public:
+    SnippetsSettings()
+    {
+        setAutoApply(false);
+        setLayouter([this] {
+            using namespace Layouting;
+            return Column { &m_snippets, noMargin };
+        });
+    }
+
+private:
+    SnippetsSettingsAspect m_snippets{this};
+};
+
 class SnippetsSettingsPage final : public Core::IOptionsPage
 {
 public:
@@ -552,8 +565,11 @@ public:
         setId(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS);
         setDisplayName(Tr::tr("Snippets"));
         setCategory(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-        setWidgetCreator([] { return new SnippetsSettingsWidget; });
+        setSettingsProvider([this] { return &m_snippets; });
     }
+
+private:
+    SnippetsSettings m_snippets;
 };
 
 void setupSnippetsSettings()
