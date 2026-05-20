@@ -54,7 +54,6 @@ public:
     static void registerCodeStyleFactory(ICodeStylePreferencesFactory *codeStyleFactory);
     static void unregisterCodeStyleFactory(Utils::Id languageId);
 
-    static CodeStylePool *codeStylePool();
     static CodeStylePool *codeStylePool(Utils::Id languageId);
     static void registerCodeStylePool(Utils::Id languageId, CodeStylePool *pool);
     static void unregisterCodeStylePool(Utils::Id languageId);

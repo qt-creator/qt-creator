@@ -130,11 +130,6 @@ void TextEditorSettings::unregisterCodeStyle(Utils::Id languageId)
     d->m_languageToCodeStyle.remove(languageId);
 }
 
-CodeStylePool *TextEditorSettings::codeStylePool()
-{
-    return &globalCodeStylePool();
-}
-
 CodeStylePool *TextEditorSettings::codeStylePool(Utils::Id languageId)
 {
     return d->m_languageToCodeStylePool.value(languageId);

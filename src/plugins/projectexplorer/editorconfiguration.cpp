@@ -7,22 +7,23 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 
-#include <utils/algorithm.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <texteditor/texteditor.h>
-#include <texteditor/textdocument.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/simplecodestylepreferences.h>
-#include <texteditor/typingsettings.h>
-#include <texteditor/storagesettings.h>
 #include <texteditor/behaviorsettings.h>
+#include <texteditor/codestylepool.h>
 #include <texteditor/extraencodingsettings.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/marginsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/marginsettings.h>
+#include <texteditor/simplecodestylepreferences.h>
+#include <texteditor/storagesettings.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/typingsettings.h>
+
+#include <utils/algorithm.h>
 
 #include <QDebug>
 
@@ -79,7 +80,7 @@ EditorConfiguration::EditorConfiguration()
 
     // clone of global prefs (not language specific), for project scope
     d->m_defaultCodeStyle = new SimpleCodeStylePreferences(this);
-    d->m_defaultCodeStyle->setDelegatingPool(TextEditorSettings::codeStylePool());
+    d->m_defaultCodeStyle->setDelegatingPool(&globalCodeStylePool());
     d->m_defaultCodeStyle->setDisplayName(Tr::tr("Project", "Settings"));
     d->m_defaultCodeStyle->setId("Project");
     // if setCurrentDelegate is 0 values are read from *this prefs
