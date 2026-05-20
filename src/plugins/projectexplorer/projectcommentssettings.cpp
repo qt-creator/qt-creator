@@ -105,7 +105,7 @@ public:
             return new ProjectCommentsSettingsWidget(project);
         });
 
-        TextEditor::TextEditorSettings::setCommentsSettingsRetriever([](const FilePath &filePath) {
+        TextEditor::setCommentsSettingsRetriever([](const FilePath &filePath) {
             Project * const project = ProjectManager::projectForFile(filePath);
             if (!project)
                 return CommentsSettings::instance().data();

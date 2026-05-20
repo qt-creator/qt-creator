@@ -308,11 +308,12 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
     return false;
 }
 
-static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
-                     const CPlusPlus::Snapshot &snapshot)
+static bool trySplitComment(TextEditorWidget *editorWidget,
+                            const CPlusPlus::Snapshot &snapshot)
 {
-    const TextEditor::CommentsSettings::Data &settings
-        = TextEditorSettings::commentsSettings(editorWidget->textDocument()->filePath());
+    const CommentsSettings::Data settings =
+            commentsSettings(editorWidget->textDocument()->filePath());
+
     if (!settings.enableDoxygen && !settings.leadingAsterisks)
         return false;
 

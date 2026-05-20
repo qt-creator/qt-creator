@@ -49,10 +49,6 @@ public:
 
     static FontSettingsData fontSettings();
 
-    static void setCommentsSettingsRetriever(
-        const std::function<CommentsSettings::Data(const Utils::FilePath &)> &);
-    static CommentsSettings::Data commentsSettings(const Utils::FilePath &filePath);
-
     static ICodeStylePreferencesFactory *codeStyleFactory(Utils::Id languageId);
     static const QMap<Utils::Id, ICodeStylePreferencesFactory *> &codeStyleFactories();
     static void registerCodeStyleFactory(ICodeStylePreferencesFactory *codeStyleFactory);

@@ -51,8 +51,6 @@ public:
     QMap<Utils::Id, CodeStylePool *> m_languageToCodeStylePool;
     QMap<QString, Utils::Id> m_mimeTypeToLanguage;
 
-    std::function<CommentsSettings::Data(const Utils::FilePath &)> m_retrieveCommentsSettings;
-
     SimpleCodeStylePreferences m_globalCodeStyle;
     CodeStylePool m_defaultCodeStylePool{nullptr};
 };
@@ -96,18 +94,6 @@ TextEditorSettings::~TextEditorSettings()
 TextEditorSettings *TextEditorSettings::instance()
 {
     return &textEditorSettings();
-}
-
-void TextEditorSettings::setCommentsSettingsRetriever(
-    const std::function<CommentsSettings::Data(const Utils::FilePath &)> &retrieve)
-{
-    d->m_retrieveCommentsSettings = retrieve;
-}
-
-CommentsSettings::Data TextEditorSettings::commentsSettings(const Utils::FilePath &filePath)
-{
-    QTC_ASSERT(d->m_retrieveCommentsSettings, return CommentsSettings::instance().data());
-    return d->m_retrieveCommentsSettings(filePath);
 }
 
 void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *factory)

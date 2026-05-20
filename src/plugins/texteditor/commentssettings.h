@@ -44,9 +44,14 @@ public:
     Utils::BoolAspect leadingAsterisks{this};
 };
 
-namespace Internal {
+// Hook for ProjectExplorer
 
-void setupCommentsSettings();
+TEXTEDITOR_EXPORT CommentsSettings::Data commentsSettings(const Utils::FilePath &filePath);
 
-} // namespace Internal
+TEXTEDITOR_EXPORT void setCommentsSettingsRetriever(
+        const std::function<CommentsSettings::Data(const Utils::FilePath &)> &);
+
+namespace Internal {  void setupCommentsSettings(); }
+
+
 } // namespace TextEditor
