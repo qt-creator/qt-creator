@@ -81,6 +81,7 @@ public slots:
 signals:
     void buildStateChanged(ProjectExplorer::Project *pro);
     void buildQueueFinished(bool success);
+    void outputText(const QString &text, BuildStep::OutputFormat format);
 
 private:
     static void cleanupBuild();

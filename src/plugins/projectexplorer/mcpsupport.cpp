@@ -400,55 +400,63 @@ void registerMcpTools()
     // Output schema for `build`. Designed so the AI doesn't have to inspect
     // `issues` to guess the build verdict — `succeeded` is the single source
     // of truth, mirrored by the tool's TaskStatus (completed vs failed).
-    const auto buildOutputSchema =
-        Tool::OutputSchema{}
-            .addProperty(
-                "succeeded",
-                QJsonObject{
-                    {"type", "boolean"},
-                    {"description",
-                     "Whether the build finished without errors. Single source of truth — "
-                     "use this rather than inspecting `issues` to decide success/failure."}})
-            .addProperty(
-                "error_count",
-                QJsonObject{
-                    {"type", "integer"},
-                    {"minimum", 0},
-                    {"description", "Number of error-level issues from this build."}})
-            .addProperty(
-                "warning_count",
-                QJsonObject{
-                    {"type", "integer"},
-                    {"minimum", 0},
-                    {"description", "Number of warning-level issues from this build."}})
-            .addProperty(
-                "duration_ms",
-                QJsonObject{
-                    {"type", "integer"},
-                    {"minimum", 0},
-                    {"description",
-                     "Wall-clock duration in milliseconds, from buildProjects() to "
-                     "buildQueueFinished."}})
-            .addProperty(
-                "issues",
-                QJsonObject{
-                    {"type", "array"},
-                    {"description",
-                     "Same shape as list_issues' issues array. Empty on successful "
-                     "builds with no warnings."}})
-            .addProperty(
-                "summary_text",
-                QJsonObject{
-                    {"type", "string"},
-                    {"description",
-                     "Human-readable one-liner like 'Build succeeded in 4523 ms' or "
-                     "'Build failed with 2 error(s), 3 warning(s) in 1820 ms'."}})
-            .addRequired("succeeded")
-            .addRequired("error_count")
-            .addRequired("warning_count")
-            .addRequired("duration_ms")
-            .addRequired("issues")
-            .addRequired("summary_text");
+    const auto buildOutputSchema
+        = Tool::OutputSchema{}
+              .addProperty(
+                  "succeeded",
+                  QJsonObject{
+                      {"type", "boolean"},
+                      {"description",
+                       "Whether the build finished without errors. Single source of truth — "
+                       "use this rather than inspecting `issues` to decide success/failure."}})
+              .addProperty(
+                  "error_count",
+                  QJsonObject{
+                      {"type", "integer"},
+                      {"minimum", 0},
+                      {"description", "Number of error-level issues from this build."}})
+              .addProperty(
+                  "warning_count",
+                  QJsonObject{
+                      {"type", "integer"},
+                      {"minimum", 0},
+                      {"description", "Number of warning-level issues from this build."}})
+              .addProperty(
+                  "duration_ms",
+                  QJsonObject{
+                      {"type", "integer"},
+                      {"minimum", 0},
+                      {"description",
+                       "Wall-clock duration in milliseconds, from buildProjects() to "
+                       "buildQueueFinished."}})
+              .addProperty(
+                  "issues",
+                  QJsonObject{
+                      {"type", "array"},
+                      {"description",
+                       "Same shape as list_issues' issues array. Empty on successful "
+                       "builds with no warnings."}})
+              .addProperty(
+                  "summary_text",
+                  QJsonObject{
+                      {"type", "string"},
+                      {"description",
+                       "Human-readable one-liner like 'Build succeeded in 4523 ms' or "
+                       "'Build failed with 2 error(s), 3 warning(s) in 1820 ms'."}})
+              .addProperty(
+                  "output",
+                  QJsonObject{
+                      {"type", "string"},
+                      {"description",
+                       "Captured stdout+stderr from the build. May be truncated if the build "
+                       "produced an extremely large amount of output."}})
+              .addRequired("succeeded")
+              .addRequired("error_count")
+              .addRequired("warning_count")
+              .addRequired("duration_ms")
+              .addRequired("issues")
+              .addRequired("summary_text")
+              .addRequired("output");
 
     ToolRegistry::registerTool(
         Schema::Tool()
@@ -525,7 +533,36 @@ void registerMcpTools()
                 },
                 Qt::SingleShotConnection);
 
+            struct Output
+            {
+                QMetaObject::Connection connection = QObject::connect(
+                    BuildManager::instance(),
+                    &BuildManager::outputText,
+                    BuildManager::instance(),
+                    [this](const QString &text) {
+                        this->text += text;
+                        // 100 KB cap to not explode the context size.
+                        static constexpr auto maxOutputSize = 1024 * 100;
+                        if (this->text.size() > maxOutputSize)
+                            this->text = this->text.right(maxOutputSize);
+                    });
+                QString text;
+
+                ~Output() { QObject::disconnect(connection); }
+
+                Output() = default;
+                Output(const Output &) = delete;
+                Output(Output &&) = delete;
+                Output &operator=(const Output &) = delete;
+                Output &operator=(Output &&) = delete;
+            };
+
+            auto output = std::make_shared<Output>();
+
             if (BuildManager::buildProjects(projects, ConfigSelection::Active) <= 0) {
+                if (!output->text.isEmpty())
+                    return ResultError(QString("Build failed to start.\n%1").arg(output->text));
+
                 return ResultError(
                     "Build failed to start. Check that the project is properly configured and try "
                     "again.");
@@ -550,7 +587,7 @@ void registerMcpTools()
                     }
                     return task.status(Schema::TaskStatus::working);
                 },
-                [state]() -> Utils::Result<Schema::CallToolResult> {
+                [state, output]() -> Utils::Result<Schema::CallToolResult> {
                     const QJsonObject issuesData = issuesManager.getCurrentIssues();
                     const QJsonObject issuesSummary = issuesData.value("summary").toObject();
                     const int errorCount = issuesSummary.value("errorCount").toInt();
@@ -574,14 +611,16 @@ void registerMcpTools()
                     }
 
                     return CallToolResult{}
-                        .structuredContent(QJsonObject{
-                            {"succeeded", state->succeeded},
-                            {"error_count", errorCount},
-                            {"warning_count", warningCount},
-                            {"duration_ms", durationMs},
-                            {"issues", issuesData.value("issues")},
-                            {"summary_text", summaryText},
-                        })
+                        .structuredContent(
+                            QJsonObject{
+                                {"succeeded", state->succeeded},
+                                {"error_count", errorCount},
+                                {"warning_count", warningCount},
+                                {"duration_ms", durationMs},
+                                {"issues", issuesData.value("issues")},
+                                {"summary_text", summaryText},
+                                {"output", output->text},
+                            })
                         .isError(!state->succeeded);
                 },
                 []() { BuildManager::cancel(); },

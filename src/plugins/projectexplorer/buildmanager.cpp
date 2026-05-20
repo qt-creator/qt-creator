@@ -887,6 +887,7 @@ void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFor
     if (newlineSettings == BuildStep::DoAppendNewline)
         stringToWrite += '\n';
     d->m_outputWindow->appendText(stringToWrite, format);
+    emit instance()->outputText(stringToWrite, format);
 }
 
 void BuildManager::progressChanged(int percent, const QString &text)
