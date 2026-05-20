@@ -13,6 +13,7 @@
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/aspects.h>
+#include <utils/environmentchangesaspect.h>
 #include <utils/async.h>
 #include <utils/co_result.h>
 #include <utils/environmentdialog.h>

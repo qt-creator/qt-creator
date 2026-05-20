@@ -116,6 +116,8 @@ QtcLibrary {
         "elidinglabel.h",
         "environment.cpp",
         "environment.h",
+        "environmentchangesaspect.cpp",
+        "environmentchangesaspect.h",
         "environmentdialog.cpp",
         "environmentdialog.h",
         "environmentfwd.h",
