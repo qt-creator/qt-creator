@@ -156,7 +156,7 @@ public:
                                   "to 100% to enable text wrapping option.</i>"));
             const auto updateWrapping = [label] {
                 const bool normalLineSpacing =
-                    TextEditorSettings::fontSettings().relativeLineSpacing() == 100;
+                    globalFontSettings().lineSpacing() == 100;
                 if (!normalLineSpacing)
                     displaySettings().textWrapping.setVolatileValue(false);
                 displaySettings().textWrapping.setEnabled(normalLineSpacing);

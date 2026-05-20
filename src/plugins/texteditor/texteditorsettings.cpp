@@ -206,20 +206,20 @@ static int setFontZoom(int zoom)
 
 int TextEditorSettings::increaseFontZoom()
 {
-    const int previousZoom = globalFontSettings().data().fontZoom();
+    const int previousZoom = globalFontSettings().fontZoom();
     return setFontZoom(previousZoom + 10 - previousZoom % 10);
 }
 
 int TextEditorSettings::decreaseFontZoom()
 {
-    const int previousZoom = globalFontSettings().data().fontZoom();
+    const int previousZoom = globalFontSettings().fontZoom();
     const int delta = previousZoom % 10;
     return setFontZoom(previousZoom - (delta == 0 ? 10 : delta));
 }
 
 int TextEditorSettings::increaseFontZoom(int step)
 {
-    return setFontZoom(globalFontSettings().data().fontZoom() + step);
+    return setFontZoom(globalFontSettings().fontZoom() + step);
 }
 
 void TextEditorSettings::resetFontZoom()

@@ -116,13 +116,13 @@ public:
     FontSettings data() const;
     void setData(const FontSettings &fs);
 
-private:
-    Utils::StringAspect  m_family{this};
-    Utils::IntegerAspect m_fontSize{this};
-    Utils::IntegerAspect m_fontZoom{this};
-    Utils::IntegerAspect m_lineSpacing{this};
-    Utils::BoolAspect    m_antialias{this};
+    Utils::StringAspect  family{this};
+    Utils::IntegerAspect fontSize{this};
+    Utils::IntegerAspect fontZoom{this};
+    Utils::IntegerAspect lineSpacing{this};
+    Utils::BoolAspect    antialias{this};
 
+private:
     ColorScheme m_scheme;
     Utils::FilePath m_schemeFileName;
 };

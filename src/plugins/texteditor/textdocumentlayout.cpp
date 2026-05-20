@@ -882,14 +882,14 @@ QRectF TextDocumentLayout::replacementBlockBoundingRect(const QTextBlock &block)
 
 int TextDocumentLayout::lineSpacing() const
 {
-    if (TextEditorSettings::fontSettings().relativeLineSpacing() != 100)
-        return TextEditorSettings::fontSettings().lineSpacing();
+    if (globalFontSettings().lineSpacing() != 100)
+        return globalFontSettings().data().lineSpacing();
     return PlainTextDocumentLayout::lineSpacing();
 }
 
 int TextDocumentLayout::relativeLineSpacing() const
 {
-    return TextEditorSettings::fontSettings().relativeLineSpacing();
+    return globalFontSettings().lineSpacing();
 }
 
 void TextDocumentLayout::FoldValidator::setup(TextDocumentLayout *layout)

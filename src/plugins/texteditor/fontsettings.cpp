@@ -550,11 +550,11 @@ FontSettingsContainer::FontSettingsContainer() = default;
 FontSettings FontSettingsContainer::data() const
 {
     FontSettings fs;
-    fs.setFamily(m_family());
-    fs.setFontSize(m_fontSize());
-    fs.setFontZoom(m_fontZoom());
-    fs.setRelativeLineSpacing(m_lineSpacing());
-    fs.setAntialias(m_antialias());
+    fs.setFamily(family());
+    fs.setFontSize(fontSize());
+    fs.setFontZoom(fontZoom());
+    fs.setRelativeLineSpacing(lineSpacing());
+    fs.setAntialias(antialias());
     fs.setColorSchemeFileName(m_schemeFileName);
     fs.setColorScheme(m_scheme);
     return fs;
@@ -573,11 +573,11 @@ void FontSettingsContainer::apply()
 
 void FontSettingsContainer::setData(const FontSettings &fs)
 {
-    m_family.setValue(fs.family());
-    m_fontSize.setValue(fs.fontSize());
-    m_fontZoom.setValue(fs.fontZoom());
-    m_lineSpacing.setValue(fs.relativeLineSpacing());
-    m_antialias.setValue(fs.antialias());
+    family.setValue(fs.family());
+    fontSize.setValue(fs.fontSize());
+    fontZoom.setValue(fs.fontZoom());
+    lineSpacing.setValue(fs.relativeLineSpacing());
+    antialias.setValue(fs.antialias());
     m_schemeFileName = fs.colorSchemeFileName();
     m_scheme = fs.colorScheme();
 }
