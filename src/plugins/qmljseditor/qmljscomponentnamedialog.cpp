@@ -4,9 +4,9 @@
 #include "qmljscomponentnamedialog.h"
 #include "qmljseditortr.h"
 
-#include <algorithm>
 #include <utils/array.h>
 #include <utils/classnamevalidatinglineedit.h>
+#include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
@@ -18,6 +18,8 @@
 #include <QListWidget>
 #include <QPlainTextEdit>
 #include <QPushButton>
+
+#include <algorithm>
 
 using namespace QmlJSEditor::Internal;
 

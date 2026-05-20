@@ -6,6 +6,7 @@
 #include "bazaartr.h"
 
 #include <utils/qtcassert.h>
+#include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>

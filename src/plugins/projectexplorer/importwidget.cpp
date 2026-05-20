@@ -6,6 +6,7 @@
 #include "projectexplorertr.h"
 
 #include <utils/detailswidget.h>
+#include <utils/filepath.h>
 #include <utils/pathchooser.h>
 
 #include <QPushButton>

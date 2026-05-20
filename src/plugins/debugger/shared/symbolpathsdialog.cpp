@@ -5,6 +5,8 @@
 
 #include "../debuggertr.h"
 
+#include <utils/filepath.h>
+
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
 #include <QMessageBox>

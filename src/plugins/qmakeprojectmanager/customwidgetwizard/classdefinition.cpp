@@ -4,6 +4,7 @@
 #include "classdefinition.h"
 #include "../qmakeprojectmanagertr.h"
 
+#include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 

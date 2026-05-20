@@ -432,6 +432,11 @@ void PathChooser::setFilePath(const FilePath &fn)
     d->m_lineEdit->setTextKeepingActiveCursor(fn.toUserOutput());
 }
 
+QString PathChooser::path() const
+{
+    return filePath().toUrlishString();
+}
+
 bool PathChooser::isReadOnly() const
 {
     return d->m_lineEdit->isReadOnly();

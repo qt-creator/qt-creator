@@ -3,8 +3,16 @@
 
 #include "filewizardpage.h"
 
+#include "filenamevalidatinglineedit.h"
+#include "filepath.h"
+#include "layoutbuilder.h"
+#include "pathchooser.h"
 #include "utilstr.h"
 #include "wizard.h" // TODO: only because of SHORT_TITLE_PROPERTY
+
+#include <QApplication>
+#include <QFormLayout>
+#include <QLabel>
 
 /*!
   \class Utils::FileWizardPage
@@ -17,14 +25,6 @@
   The name and path labels can be changed. By default they are simply "Name:"
   and "Path:".
 */
-
-#include <utils/filenamevalidatinglineedit.h>
-#include <utils/layoutbuilder.h>
-#include <utils/pathchooser.h>
-
-#include <QApplication>
-#include <QFormLayout>
-#include <QLabel>
 
 namespace Utils {
 

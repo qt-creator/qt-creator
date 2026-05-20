@@ -4,6 +4,7 @@
 #include "delegates.h"
 
 #include "completinglineedit.h"
+#include "filepath.h"
 
 #include <QPainter>
 #include <QApplication>

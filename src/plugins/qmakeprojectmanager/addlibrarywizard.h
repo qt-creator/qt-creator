@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <utils/wizard.h>
+#include <utils/filepath.h>
 #include <utils/pathchooser.h>
+#include <utils/wizard.h>
 
 #include <QCoreApplication>
 

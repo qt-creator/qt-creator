@@ -6,10 +6,7 @@
 #include "utils_global.h"
 
 #include "fancylineedit.h"
-#include "filepath.h"
 #include "lazy.h"
-
-#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
@@ -19,8 +16,10 @@ QT_END_NAMESPACE
 namespace Utils {
 
 class CommandLine;
-class MacroExpander;
 class Environment;
+class FilePath;
+class FilePaths;
+class MacroExpander;
 class PathChooserPrivate;
 
 class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
@@ -159,7 +158,7 @@ signals:
 private:
     // Deprecated, only used in property getter.
     // Use filePath().toString() or better suitable conversions.
-    QString path() const { return filePath().toUrlishString(); }
+    QString path() const;
 
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
