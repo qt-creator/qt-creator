@@ -23,7 +23,7 @@ class TEXTEDITOR_EXPORT CodeStylePool : public QObject
     Q_OBJECT
 
 public:
-    explicit CodeStylePool(ICodeStylePreferencesFactory *factory);
+    explicit CodeStylePool(ICodeStylePreferencesFactory *factory, Utils::Id languageId = {});
     ~CodeStylePool() override;
 
     QList<ICodeStylePreferences *> codeStyles() const;
@@ -65,6 +65,8 @@ private:
 
 TEXTEDITOR_EXPORT ICodeStylePreferences &globalCodeStyle();
 TEXTEDITOR_EXPORT CodeStylePool &globalCodeStylePool();
+
+TEXTEDITOR_EXPORT CodeStylePool *codeStylePool(Utils::Id languageId);
 
 namespace Internal { void setupGlobalCodeStyle(); }
 

@@ -39,7 +39,6 @@ public:
     QMap<Utils::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
 
     QMap<Utils::Id, ICodeStylePreferences *> m_languageToCodeStyle;
-    QMap<Utils::Id, CodeStylePool *> m_languageToCodeStylePool;
     QMap<QString, Utils::Id> m_mimeTypeToLanguage;
 };
 
@@ -130,20 +129,6 @@ void TextEditorSettings::unregisterCodeStyle(Utils::Id languageId)
     d->m_languageToCodeStyle.remove(languageId);
 }
 
-CodeStylePool *TextEditorSettings::codeStylePool(Utils::Id languageId)
-{
-    return d->m_languageToCodeStylePool.value(languageId);
-}
-
-void TextEditorSettings::registerCodeStylePool(Utils::Id languageId, CodeStylePool *pool)
-{
-    d->m_languageToCodeStylePool.insert(languageId, pool);
-}
-
-void TextEditorSettings::unregisterCodeStylePool(Utils::Id languageId)
-{
-    d->m_languageToCodeStylePool.remove(languageId);
-}
 
 void TextEditorSettings::registerMimeTypeForLanguageId(const char *mimeType, Utils::Id languageId)
 {

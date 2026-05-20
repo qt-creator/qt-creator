@@ -221,8 +221,6 @@ public:
         setWidgetCreator([this] { return new NimCodeStyleSettingsWidget(&m_globalCodeStyle); });
 
         TextEditorSettings::registerCodeStyleFactory(&m_factory);
-        TextEditorSettings::registerCodeStylePool(Nim::Constants::C_NIMLANGUAGE_ID, &m_pool);
-
         m_globalCodeStyle.setDelegatingPool(&m_pool);
         m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
         m_globalCodeStyle.setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
@@ -256,13 +254,12 @@ public:
     ~NimCodeStyleSettingsPage()
     {
         TextEditorSettings::unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
-        TextEditorSettings::unregisterCodeStylePool(Nim::Constants::C_NIMLANGUAGE_ID);
         TextEditorSettings::unregisterCodeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
     }
 
 private:
     NimCodeStylePreferencesFactory m_factory;
-    CodeStylePool m_pool{&m_factory};
+    CodeStylePool m_pool{&m_factory, Nim::Constants::C_NIMLANGUAGE_ID};
     SimpleCodeStylePreferences m_globalCodeStyle;
     SimpleCodeStylePreferences m_nimCodeStyle;
 };

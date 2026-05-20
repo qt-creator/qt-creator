@@ -115,7 +115,7 @@ public:
     ~CppToolsSettings() final;
 
     CppCodeStylePreferencesFactory m_factory;
-    CodeStylePool m_pool{&m_factory};
+    CodeStylePool m_pool{&m_factory, Constants::CPP_SETTINGS_ID};
 };
 
 CppToolsSettings::CppToolsSettings()
@@ -124,9 +124,6 @@ CppToolsSettings::CppToolsSettings()
 
     // code style factory
     TextEditorSettings::registerCodeStyleFactory(&m_factory);
-
-    // code style pool
-    TextEditorSettings::registerCodeStylePool(Constants::CPP_SETTINGS_ID, &m_pool);
 
     // global code style settings
     g_globalCodeStyle = new CppCodeStylePreferences(this);
@@ -215,7 +212,6 @@ CppToolsSettings::CppToolsSettings()
 CppToolsSettings::~CppToolsSettings()
 {
     TextEditorSettings::unregisterCodeStyle(Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::unregisterCodeStylePool(Constants::CPP_SETTINGS_ID);
     TextEditorSettings::unregisterCodeStyleFactory(Constants::CPP_SETTINGS_ID);
 
     delete g_globalCodeStyle;

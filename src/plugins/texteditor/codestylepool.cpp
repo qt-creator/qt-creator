@@ -33,6 +33,7 @@ public:
     QByteArray generateUniqueId(const QByteArray &id) const;
 
     ICodeStylePreferencesFactory *m_factory = nullptr;
+    Id m_languageId;
     QList<ICodeStylePreferences *> m_pool;
     QList<ICodeStylePreferences *> m_builtInPool;
     QList<ICodeStylePreferences *> m_customPool;
@@ -63,19 +64,26 @@ QByteArray CodeStylePoolPrivate::generateUniqueId(const QByteArray &id) const
 
 } // Internal
 
+static QMap<Id, CodeStylePool *> g_languageToCodeStylePool;
+
 static FilePath customCodeStylesPath()
 {
     return Core::ICore::userResourcePath("codestyles");
 }
 
-CodeStylePool::CodeStylePool(ICodeStylePreferencesFactory *factory)
+CodeStylePool::CodeStylePool(ICodeStylePreferencesFactory *factory, Id languageId)
     : d(new Internal::CodeStylePoolPrivate)
 {
     d->m_factory = factory;
+    d->m_languageId = languageId;
+    if (languageId.isValid())
+        g_languageToCodeStylePool.insert(languageId, this);
 }
 
 CodeStylePool::~CodeStylePool()
 {
+    if (d->m_languageId.isValid())
+        g_languageToCodeStylePool.remove(d->m_languageId);
     delete d;
 }
 
@@ -289,6 +297,11 @@ CodeStylePool &globalCodeStylePool()
 {
     static CodeStylePool theGlobalCodeStylePool{nullptr};
     return theGlobalCodeStylePool;
+}
+
+CodeStylePool *codeStylePool(Id languageId)
+{
+    return g_languageToCodeStylePool.value(languageId);
 }
 
 namespace Internal {

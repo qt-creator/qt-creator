@@ -70,7 +70,7 @@ EditorConfiguration::EditorConfiguration()
         // clone of global prefs for language - it will became project prefs for language
         ICodeStylePreferences *preferences = factory->createCodeStyle();
         // project prefs can point to the global language pool, which contains also the global language prefs
-        preferences->setDelegatingPool(TextEditorSettings::codeStylePool(languageId));
+        preferences->setDelegatingPool(codeStylePool(languageId));
         preferences->setId(languageId.name() + "Project");
         preferences->setDisplayName(Tr::tr("Project %1", "Settings, %1 is a language (C++ or QML)").arg(factory->displayName()));
         // project prefs by default point to global prefs (which in turn can delegate to anything else or not)
