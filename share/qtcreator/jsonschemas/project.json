@@ -35,7 +35,7 @@
                         },
                         "executable": {
                             "type": "string",
-                            "description": "The executable to run"
+                            "description": "The executable to run. Can be absolute or relative to the project or build directory."
                         },
                         "name": {
                             "type": "string",
@@ -43,7 +43,7 @@
                         },
                         "workingDirectory": {
                             "type": "string",
-                            "description": "The working directory to run the executable in"
+                            "description": "The working directory to run the executable in. Can be absolute or relative to the project directory."
                         },
                         "useTerminal": {
                             "type": "boolean",
