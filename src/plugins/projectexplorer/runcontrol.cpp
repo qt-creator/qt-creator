@@ -219,8 +219,6 @@ public:
     ProcessHandle applicationProcessHandle;
 
     bool printEnvironment = false;
-    Group m_runRecipe {};
-
     bool useDebugChannel = false;
     bool useQmlChannel = false;
     bool usePerfChannel = false;
@@ -258,6 +256,7 @@ public:
     RunControl *q;
     RunControlPrivateData data;
     Id runMode;
+    Group m_runRecipe {};
     QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
@@ -395,7 +394,7 @@ RunControl::~RunControl()
 
 void RunControl::setRunRecipe(const Group &group)
 {
-    d->data.m_runRecipe = group;
+    d->m_runRecipe = group;
 }
 
 void RunControl::initiateStart()
@@ -832,7 +831,7 @@ void RunControlPrivate::startTaskTree()
         If (needPortsGatherer) >> Then {
             portsGathererRecipe().withCancel(q->canceler())
         },
-        data.m_runRecipe
+        m_runRecipe
     };
 
     m_taskTreeRunner.start(recipe, {}, [this] {
