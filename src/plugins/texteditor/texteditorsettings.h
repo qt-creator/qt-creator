@@ -48,7 +48,7 @@ public:
 
     static TextEditorSettings *instance();
 
-    static const FontSettings &fontSettings();
+    static FontSettings fontSettings();
 
     static void setCommentsSettingsRetriever(
         const std::function<CommentsSettings::Data(const Utils::FilePath &)> &);

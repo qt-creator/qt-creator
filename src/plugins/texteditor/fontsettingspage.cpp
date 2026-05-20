@@ -106,7 +106,7 @@ class FontSettingsAspect final : public BaseAspect
 public:
     explicit FontSettingsAspect(const FormatDescriptions &fd, AspectContainer *container = nullptr)
         : BaseAspect(container)
-        , m_value(globalFontSettings().mutableData())
+        , m_value(globalFontSettings().data())
         , m_descriptions(fd)
     {
         m_lastValue = m_value;
@@ -250,7 +250,7 @@ private:
     void refreshColorSchemeList();
 
     bool m_refreshingSchemeList = false;
-    FontSettings &m_value;
+    FontSettings m_value;
     FontSettings m_lastValue;
     SchemeListModel m_schemeListModel;
     FormatDescriptions m_descriptions;
@@ -775,6 +775,7 @@ void FontSettingsAspect::apply()
 void FontSettingsAspect::saveSettings()
 {
     m_lastValue = m_value;
+    globalFontSettings().setData(m_value);
     globalFontSettings().apply();
 }
 

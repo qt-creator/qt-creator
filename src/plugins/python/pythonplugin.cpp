@@ -26,6 +26,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/taskhub.h>
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/fsengine/fileiconprovider.h>

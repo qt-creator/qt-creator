@@ -113,22 +113,18 @@ public:
     void writeSettings() const override;
     void apply() override;
 
-    const FontSettings &data() const { return m_value; }
-    FontSettings &mutableData() { return m_value; }
+    FontSettings data() const;
     void setData(const FontSettings &fs);
 
 private:
-    void syncAspectsFromValue();
-
     Utils::StringAspect  m_family{this};
     Utils::IntegerAspect m_fontSize{this};
     Utils::IntegerAspect m_fontZoom{this};
     Utils::IntegerAspect m_lineSpacing{this};
     Utils::BoolAspect    m_antialias{this};
 
-    FontSettings m_value;
-
-    friend void setupFontSettings(const FontSettings::FormatDescriptions &fd);
+    ColorScheme m_scheme;
+    Utils::FilePath m_schemeFileName;
 };
 
 TEXTEDITOR_EXPORT FontSettingsContainer &globalFontSettings();

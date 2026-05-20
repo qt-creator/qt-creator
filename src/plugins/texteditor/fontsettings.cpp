@@ -547,30 +547,39 @@ FilePath FontSettings::defaultSchemeFileName(const QString &fileName)
 
 FontSettingsContainer::FontSettingsContainer() = default;
 
+FontSettings FontSettingsContainer::data() const
+{
+    FontSettings fs;
+    fs.setFamily(m_family());
+    fs.setFontSize(m_fontSize());
+    fs.setFontZoom(m_fontZoom());
+    fs.setRelativeLineSpacing(m_lineSpacing());
+    fs.setAntialias(m_antialias());
+    fs.setColorSchemeFileName(m_schemeFileName);
+    fs.setColorScheme(m_scheme);
+    return fs;
+}
+
 void FontSettingsContainer::writeSettings() const
 {
-    m_value.toSettings(Core::ICore::settings());
+    data().toSettings(Core::ICore::settings());
 }
 
 void FontSettingsContainer::apply()
 {
     writeSettings();
-    emit TextEditorSettings::instance()->fontSettingsChanged(m_value);
+    emit TextEditorSettings::instance()->fontSettingsChanged(data());
 }
 
 void FontSettingsContainer::setData(const FontSettings &fs)
 {
-    m_value = fs;
-    syncAspectsFromValue();
-}
-
-void FontSettingsContainer::syncAspectsFromValue()
-{
-    m_family.setValue(m_value.family());
-    m_fontSize.setValue(m_value.fontSize());
-    m_fontZoom.setValue(m_value.fontZoom());
-    m_lineSpacing.setValue(m_value.relativeLineSpacing());
-    m_antialias.setValue(m_value.antialias());
+    m_family.setValue(fs.family());
+    m_fontSize.setValue(fs.fontSize());
+    m_fontZoom.setValue(fs.fontZoom());
+    m_lineSpacing.setValue(fs.relativeLineSpacing());
+    m_antialias.setValue(fs.antialias());
+    m_schemeFileName = fs.colorSchemeFileName();
+    m_scheme = fs.colorScheme();
 }
 
 FontSettingsContainer &globalFontSettings()
@@ -581,12 +590,12 @@ FontSettingsContainer &globalFontSettings()
 
 void setupFontSettings(const FontSettings::FormatDescriptions &fd)
 {
-    FontSettingsContainer &c = globalFontSettings();
+    FontSettings fs;
     QtcSettings *s = Core::ICore::settings();
-    c.m_value.fromSettings(fd, s);
-    if (c.m_value.colorSchemeFileName().isEmpty())
-        c.m_value.loadColorScheme(FontSettings::defaultSchemeFileName(), fd);
-    c.syncAspectsFromValue();
+    fs.fromSettings(fd, s);
+    if (fs.colorSchemeFileName().isEmpty())
+        fs.loadColorScheme(FontSettings::defaultSchemeFileName(), fd);
+    globalFontSettings().setData(fs);
 }
 
 namespace Internal {

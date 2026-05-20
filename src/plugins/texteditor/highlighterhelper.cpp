@@ -3,6 +3,7 @@
 
 #include "highlighterhelper.h"
 
+#include "fontsettings.h"
 #include "highlighter.h"
 #include "highlightersettings.h"
 #include "textdocument.h"

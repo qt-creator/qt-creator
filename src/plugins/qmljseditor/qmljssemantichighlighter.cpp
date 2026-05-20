@@ -573,7 +573,7 @@ private:
 
     QPromise<SemanticHighlighter::Use> &m_promise;
     const QmlJSTools::SemanticInfo &m_semanticInfo;
-    const TextEditor::FontSettings &m_fontSettings;
+    const TextEditor::FontSettings m_fontSettings;
     ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
     QStringList m_stateNames;

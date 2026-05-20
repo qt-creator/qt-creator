@@ -99,7 +99,7 @@ TextEditorSettings *TextEditorSettings::instance()
     return &textEditorSettings();
 }
 
-const FontSettings &TextEditorSettings::fontSettings()
+FontSettings TextEditorSettings::fontSettings()
 {
     return globalFontSettings().data();
 }
@@ -194,9 +194,10 @@ Utils::Id TextEditorSettings::languageId(const QString &mimeType)
 static int setFontZoom(int zoom)
 {
     zoom = qMax(10, zoom);
-    FontSettings &fs = globalFontSettings().mutableData();
+    FontSettings fs = globalFontSettings().data();
     if (fs.fontZoom() != zoom) {
         fs.setFontZoom(zoom);
+        globalFontSettings().setData(fs);
         globalFontSettings().writeSettings();
         emit textEditorSettings().fontSettingsChanged(fs);
     }
