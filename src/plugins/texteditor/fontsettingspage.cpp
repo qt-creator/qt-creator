@@ -8,6 +8,7 @@
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <utils/aspects.h>
@@ -20,6 +21,7 @@
 #include <utils/utilsicons.h>
 
 #include <QAbstractItemModel>
+#include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDebug>
@@ -794,16 +796,12 @@ void FontSettingsAspect::cancel()
         refreshColorSchemeList();
 }
 
-} // namespace Internal
+FormatDescriptions initialFormats(); // defined in fontsettings.cpp
 
-// FontSettingsPage
-
-namespace Internal {
-
-class FontSettingsContainer final : public AspectContainer
+class FontSettingsPageContainer final : public AspectContainer
 {
 public:
-    explicit FontSettingsContainer(const FormatDescriptions &fd)
+    explicit FontSettingsPageContainer(const FormatDescriptions &fd)
         : m_aspect(fd, this)
     {
         setLayouter([this] {
@@ -816,18 +814,27 @@ private:
     FontSettingsAspect m_aspect;
 };
 
-} // namespace Internal
-
-FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd)
+class FontSettingsPage final : public Core::IOptionsPage
 {
-    setupFontSettings(fd);
-    setId(Constants::TEXT_EDITOR_FONT_SETTINGS);
-    setDisplayName(Tr::tr("Font && Colors"));
-    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setSettingsProvider([fd] {
-        static Internal::FontSettingsContainer thePage(fd);
-        return &thePage;
-    });
+public:
+    FontSettingsPage()
+    {
+        const FormatDescriptions fd = initialFormats();
+        setupFontSettings(fd);
+        setId(Constants::TEXT_EDITOR_FONT_SETTINGS);
+        setDisplayName(Tr::tr("Font && Colors"));
+        setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+        setSettingsProvider([fd] {
+            static FontSettingsPageContainer thePage(fd);
+            return &thePage;
+        });
+    }
+};
+
+void setupFontSettingsPage()
+{
+    static FontSettingsPage theFontSettingsPage;
 }
 
-} // TextEditor
+} // namespace Internal
+} // namespace TextEditor

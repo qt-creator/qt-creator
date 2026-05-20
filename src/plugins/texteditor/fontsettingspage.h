@@ -8,9 +8,6 @@
 #include "texteditorconstants.h"
 #include "colorscheme.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QList>
 #include <QString>
 
 QT_BEGIN_NAMESPACE
@@ -95,10 +92,6 @@ private:
 
 using FormatDescriptions = std::vector<FormatDescription>;
 
-class TEXTEDITOR_EXPORT FontSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit FontSettingsPage(const FormatDescriptions &fd);
-};
+namespace Internal { void setupFontSettingsPage(); }
 
 } // namespace TextEditor
