@@ -818,7 +818,9 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
         cxxFlags << arrayToStringList(getCppProp("cxxFlags"));
 
         const auto cxxLanguageVersion = arrayToStringList(getCppProp("cxxLanguageVersion"));
-        if (cxxLanguageVersion.contains("c++23"))
+        if (cxxLanguageVersion.contains("c++26"))
+            cxxFlags << "-std=c++2c";
+        else if (cxxLanguageVersion.contains("c++23"))
             cxxFlags << "-std=c++2b";
         else if (cxxLanguageVersion.contains("c++20"))
             cxxFlags << "-std=c++20";
