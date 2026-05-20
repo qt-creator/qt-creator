@@ -802,6 +802,11 @@
     \externalpage https://nim-lang.org/docs/nimsuggest.html
     \title Nim IDE Integration Guide
 */
+/*!
+    \externalpage https://vale.sh/docs/vale-ini
+    \title Vale: .vale.ini
+*/
+
 
 // Source control, diff, and search tool resources
 /*!
