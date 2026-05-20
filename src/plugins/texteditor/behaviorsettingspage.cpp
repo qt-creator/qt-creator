@@ -101,7 +101,10 @@ public:
             }
         });
 
-        installMarkSettingsDirtyTriggerRecursively(d->m_pageCodeStyle);
+        connect(d->m_pageCodeStyle, &ICodeStylePreferences::tabSettingsChanged,
+                this, [] { checkSettingsDirty(); });
+        connect(d->m_pageCodeStyle, &ICodeStylePreferences::currentDelegateChanged,
+                this, [] { checkSettingsDirty(); });
         installCheckSettingsDirtyTrigger(&globalTypingSettings());
         installCheckSettingsDirtyTrigger(&globalStorageSettings());
         installCheckSettingsDirtyTrigger(&globalBehaviorSettings());
