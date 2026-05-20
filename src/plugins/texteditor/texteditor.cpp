@@ -698,7 +698,7 @@ struct PaintEventData
     const int documentWidth;
     const QTextCursor textCursor;
     const bool isEditable;
-    const FontSettings fontSettings;
+    const FontSettingsData fontSettings;
     const int lineSpacing;
     const QTextCharFormat searchScopeFormat;
     const QTextCharFormat searchResultFormat;
@@ -1665,7 +1665,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     // Apply current settings
     // the document might already have the same settings as we set here in which case we do not
     // get an update, so we have to trigger updates manually here
-    const FontSettings fontSettings = globalFontSettings().data();
+    const FontSettingsData fontSettings = globalFontSettings().data();
     if (m_document->fontSettings() == fontSettings)
         applyFontSettingsDelayed();
     else
@@ -5669,7 +5669,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         scheduleCleanupAnnotationCache();
 }
 
-QColor blendRightMarginColor(const FontSettings &settings, bool areaColor)
+QColor blendRightMarginColor(const FontSettingsData &settings, bool areaColor)
 {
     const QColor baseColor = settings.toTextCharFormat(C_TEXT).background().color();
     const QColor col = (baseColor.value() > 128) ? Qt::black : Qt::white;
@@ -9387,7 +9387,7 @@ void TextEditorWidget::triggerPendingUpdates()
 void TextEditorWidget::applyFontSettings()
 {
     d->m_fontSettingsNeedsApply = false;
-    const FontSettings &fs = textDocument()->fontSettings();
+    const FontSettingsData &fs = textDocument()->fontSettings();
     const QTextCharFormat textFormat = fs.toTextCharFormat(C_TEXT);
     const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(C_LINE_NUMBER);
     QFont font(textFormat.font());
@@ -9424,7 +9424,7 @@ void TextEditorWidget::applyFontSettings()
 
 void TextEditorWidget::setDisplaySettings(const DisplaySettingsData &ds)
 {
-    const TextEditor::FontSettings &fs = globalFontSettings().data();
+    const TextEditor::FontSettingsData &fs = globalFontSettings().data();
     if (fs.relativeLineSpacing() == 100)
         setLineWrapMode(ds.m_textWrapping ? PlainTextEdit::WidgetWidth : PlainTextEdit::NoWrap);
     else

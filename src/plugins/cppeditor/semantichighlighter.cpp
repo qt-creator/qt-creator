@@ -240,7 +240,7 @@ void SemanticHighlighter::updateFormatMapFromFontSettings()
 {
     QTC_ASSERT(m_baseTextDocument, return);
 
-    const FontSettings &fs = m_baseTextDocument->fontSettings();
+    const FontSettingsData &fs = m_baseTextDocument->fontSettings();
 
     m_formatMap[TypeUse] = fs.toTextCharFormat(C_TYPE);
     m_formatMap[NamespaceUse] = fs.toTextCharFormat(C_NAMESPACE);

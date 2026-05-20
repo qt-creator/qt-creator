@@ -270,7 +270,7 @@ private:
     void selectMovedSnippet(const QModelIndex &, int, int, const QModelIndex &, int row);
     void setSnippetContent();
     void updateCurrentSnippetDependent(const QModelIndex &modelIndex = QModelIndex());
-    void decorateEditors(const FontSettings &fontSettings);
+    void decorateEditors(const FontSettingsData &fontSettings);
 
     SnippetEditorWidget *currentEditor() const;
     SnippetEditorWidget *editorAt(int i) const;
@@ -536,7 +536,7 @@ void SnippetsSettingsAspect::setSnippetContent()
     }
 }
 
-void SnippetsSettingsAspect::decorateEditors(const FontSettings &fontSettings)
+void SnippetsSettingsAspect::decorateEditors(const FontSettingsData &fontSettings)
 {
     for (int i = 0; i < m_groupCombo->count(); ++i) {
         SnippetEditorWidget *snippetEditor = editorAt(i);

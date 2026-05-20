@@ -17,7 +17,7 @@ class QMenu;
 QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
-namespace TextEditor { class FontSettings; }
+namespace TextEditor { class FontSettingsData; }
 namespace Utils { class ProgressIndicator; }
 
 namespace DiffEditor {
@@ -39,7 +39,7 @@ public:
 
     void jumpToOriginalFile(const QString &fileName, int lineNumber,
                             int columnNumber);
-    void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    void setFontSettings(const TextEditor::FontSettingsData &fontSettings);
     void addCodePasterAction(QMenu *menu, int fileIndex, int chunkIndex);
     void addPatchAction(QMenu *menu, int fileIndex, int chunkIndex, Core::PatchAction patchAction);
     void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex, const ChunkSelection &selection);

@@ -216,7 +216,7 @@ void DiffAndLogHighlighter::highlightBlock(const QString &text)
     }
 }
 
-void DiffAndLogHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
+void DiffAndLogHighlighter::setFontSettings(const TextEditor::FontSettingsData &fontSettings)
 {
     SyntaxHighlighter::setFontSettings(fontSettings);
     d->updateOtherFormats();

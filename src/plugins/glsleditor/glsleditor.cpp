@@ -254,7 +254,7 @@ public:
                                     Namespace *global)
         : textDocument(textDocument), glslDocument(glslDocument), globalNamespace(global)
     {
-        const TextEditor::FontSettings &fontSettings
+        const TextEditor::FontSettingsData &fontSettings
                 = TextEditor::TextEditorSettings::fontSettings();
         functionCallFormat = fontSettings.toTextCharFormat(TextEditor::C_FUNCTION);
         memberFormat = fontSettings.toTextCharFormat(TextEditor::C_FIELD);
@@ -540,7 +540,7 @@ void GlslEditorWidget::updateDocumentNow()
         GLSL::ASTDump dump(qout);
         dump(ast);
 #endif
-        const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::fontSettings();
+        const TextEditor::FontSettingsData &fontSettings = TextEditor::TextEditorSettings::fontSettings();
 
         QTextCharFormat warningFormat = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
         QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);

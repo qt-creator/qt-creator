@@ -76,7 +76,7 @@ class PlainTextEditorFactory;
 class BehaviorSettingsData;
 class DisplaySettingsData;
 class ExtraEncodingSettingsData;
-class FontSettings;
+class FontSettingsData;
 class MarginSettingsData;
 class StorageSettingsData;
 class TypingSettingsData;

@@ -30,7 +30,7 @@ namespace TextEditor {
 
 class CompletionAssistProvider;
 class ExtraEncodingSettingsData;
-class FontSettings;
+class FontSettingsData;
 class IAssistProvider;
 class StorageSettingsData;
 class SyntaxHighlighter;
@@ -69,7 +69,7 @@ public:
     const StorageSettingsData &storageSettings() const;
     virtual TabSettingsData tabSettings() const;
     const ExtraEncodingSettingsData &extraEncodingSettings() const;
-    const FontSettings &fontSettings() const;
+    const FontSettingsData &fontSettings() const;
 
     void setIndenter(Indenter *indenter);
     Indenter *indenter() const;
@@ -144,7 +144,7 @@ public:
     void setCodeStyle(ICodeStylePreferences *preferences);
     ICodeStylePreferences *codeStyle() const;
     void setTabSettings(const TextEditor::TabSettingsData &tabSettings);
-    void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    void setFontSettings(const TextEditor::FontSettingsData &fontSettings);
 
     void setFoldingIndentExternallyProvided(bool ext);
     bool isFoldingIndentExternallyProvided() const;

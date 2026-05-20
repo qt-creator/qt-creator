@@ -240,7 +240,7 @@ public:
 
     QList<Markup> markup() const { return m_markup; }
 
-    void setFontSettings(const FontSettings &fs);
+    void setFontSettings(const FontSettingsData &fs);
     void highlightSearchResults(const QByteArray &pattern, QTextDocument::FindFlags findFlags = {});
     void copy(bool raw = false);
     void setMarkup(const QList<Markup> &markup);
@@ -541,7 +541,7 @@ QByteArray BinEditorDocument::blockData(qint64 block, bool old) const
             ? it.value() : m_data.value(block, m_emptyBlock);
 }
 
-void BinEditorWidget::setFontSettings(const FontSettings &fs)
+void BinEditorWidget::setFontSettings(const FontSettingsData &fs)
 {
     setFont(fs.toTextCharFormat(TextEditor::C_TEXT).font());
 }

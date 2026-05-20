@@ -32,7 +32,7 @@ public:
 
     void highlightBlock(const QString &text) override;
 
-    void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
+    void setFontSettings(const TextEditor::FontSettingsData &fontSettings) override;
 
 public slots:
     void rehighlight() override;

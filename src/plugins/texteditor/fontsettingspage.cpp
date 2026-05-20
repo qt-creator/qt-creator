@@ -245,13 +245,13 @@ private:
 
     void maybeSaveColorScheme();
     void updatePointSizes();
-    void updateFontZoom(const FontSettings &fontSettings);
+    void updateFontZoom(const FontSettingsData &fontSettings);
     QList<int> pointSizesForSelectedFont() const;
     void refreshColorSchemeList();
 
     bool m_refreshingSchemeList = false;
-    FontSettings m_value;
-    FontSettings m_lastValue;
+    FontSettingsData m_value;
+    FontSettingsData m_lastValue;
     SchemeListModel m_schemeListModel;
     FormatDescriptions m_descriptions;
 
@@ -468,7 +468,7 @@ void FontSettingsAspect::updatePointSizes()
         m_sizeComboBox->setCurrentIndex(idx);
 }
 
-void FontSettingsAspect::updateFontZoom(const FontSettings &fontSettings)
+void FontSettingsAspect::updateFontZoom(const FontSettingsData &fontSettings)
 {
     m_zoomSpinBox->setValue(fontSettings.fontZoom());
 }
@@ -707,7 +707,7 @@ void FontSettingsAspect::refreshColorSchemeList()
     const FilePath styleDir = Core::ICore::resourcePath("styles");
 
     FilePaths schemeList = styleDir.dirEntries(FileFilter({"*.xml"}, QDir::Files));
-    const FilePath defaultScheme = FontSettings::defaultSchemeFileName();
+    const FilePath defaultScheme = FontSettingsData::defaultSchemeFileName();
 
     if (schemeList.removeAll(defaultScheme))
         schemeList.prepend(defaultScheme);

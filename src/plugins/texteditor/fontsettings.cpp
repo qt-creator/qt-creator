@@ -41,7 +41,7 @@ const char g_sourceCodePro[] = "Source Code Pro";
 namespace TextEditor {
 
 // -- FontSettings
-FontSettings::FontSettings() :
+FontSettingsData::FontSettingsData() :
     m_family(defaultFixedFontFamily()),
     m_fontSize(defaultFontSize()),
     m_fontZoom(100),
@@ -50,7 +50,7 @@ FontSettings::FontSettings() :
 {
 }
 
-void FontSettings::clear()
+void FontSettingsData::clear()
 {
     m_family = defaultFixedFontFamily();
     m_fontSize = defaultFontSize();
@@ -66,7 +66,7 @@ static Key settingsGroup()
     return keyFromString(Utils::settingsKey(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY));
 }
 
-void FontSettings::toSettings(QtcSettings *s) const
+void FontSettingsData::toSettings(QtcSettings *s) const
 {
     s->beginGroup(settingsGroup());
     if (m_family != defaultFixedFontFamily() || s->contains(fontFamilyKey))
@@ -93,7 +93,7 @@ void FontSettings::toSettings(QtcSettings *s) const
     s->endGroup();
 }
 
-bool FontSettings::fromSettings(const FormatDescriptions &descriptions, const QtcSettings *s)
+bool FontSettingsData::fromSettings(const FormatDescriptions &descriptions, const QtcSettings *s)
 {
     clear();
 
@@ -122,7 +122,7 @@ bool FontSettings::fromSettings(const FormatDescriptions &descriptions, const Qt
     return true;
 }
 
-bool FontSettings::equals(const FontSettings &f) const
+bool FontSettingsData::equals(const FontSettingsData &f) const
 {
     return m_family == f.m_family
             && m_schemeFileName == f.m_schemeFileName
@@ -151,7 +151,7 @@ static bool isOverlayCategory(TextStyle category)
 /**
  * Returns the QTextCharFormat of the given format category.
  */
-QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
+QTextCharFormat FontSettingsData::toTextCharFormat(TextStyle category) const
 {
     auto textCharFormatIterator = m_formatCache.find(category);
     if (textCharFormatIterator != m_formatCache.end())
@@ -222,7 +222,7 @@ QBrush mixBrush(const QBrush &original, double relativeSaturation, double relati
 }
 }
 
-void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
+void FontSettingsData::addMixinStyle(QTextCharFormat &textCharFormat,
                                  const MixinTextStyles &mixinStyles) const
 {
     const int normalWeight = fontNormalWeight();
@@ -260,13 +260,13 @@ void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
     };
 }
 
-void FontSettings::clearCaches()
+void FontSettingsData::clearCaches()
 {
     m_formatCache.clear();
     m_textCharFormatCache.clear();
 }
 
-QTextCharFormat FontSettings::toTextCharFormat(TextStyles textStyles) const
+QTextCharFormat FontSettingsData::toTextCharFormat(TextStyles textStyles) const
 {
     auto textCharFormatIterator = m_textCharFormatCache.find(textStyles);
     if (textCharFormatIterator != m_textCharFormatCache.end())
@@ -285,7 +285,7 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyles textStyles) const
  * Returns the list of QTextCharFormats that corresponds to the list of
  * requested format categories.
  */
-QList<QTextCharFormat> FontSettings::toTextCharFormats(const QList<TextStyle> &categories) const
+QList<QTextCharFormat> FontSettingsData::toTextCharFormats(const QList<TextStyle> &categories) const
 {
     QList<QTextCharFormat> rc;
     const int size = categories.size();
@@ -298,12 +298,12 @@ QList<QTextCharFormat> FontSettings::toTextCharFormats(const QList<TextStyle> &c
 /**
  * Returns the configured font family.
  */
-QString FontSettings::family() const
+QString FontSettingsData::family() const
 {
     return m_family;
 }
 
-void FontSettings::setFamily(const QString &family)
+void FontSettingsData::setFamily(const QString &family)
 {
     m_family = family;
     clearCaches();
@@ -312,12 +312,12 @@ void FontSettings::setFamily(const QString &family)
 /**
  * Returns the configured font size.
  */
-int FontSettings::fontSize() const
+int FontSettingsData::fontSize() const
 {
     return m_fontSize;
 }
 
-void FontSettings::setFontSize(int size)
+void FontSettingsData::setFontSize(int size)
 {
     m_fontSize = size;
     clearCaches();
@@ -326,18 +326,18 @@ void FontSettings::setFontSize(int size)
 /**
  * Returns the configured font zoom factor in percent.
  */
-int FontSettings::fontZoom() const
+int FontSettingsData::fontZoom() const
 {
     return m_fontZoom;
 }
 
-void FontSettings::setFontZoom(int zoom)
+void FontSettingsData::setFontZoom(int zoom)
 {
     m_fontZoom = zoom;
     clearCaches();
 }
 
-qreal FontSettings::lineSpacing() const
+qreal FontSettingsData::lineSpacing() const
 {
     QFont currentFont = font();
     currentFont.setPointSize(std::max(m_fontSize * m_fontZoom / 100, 1));
@@ -347,17 +347,17 @@ qreal FontSettings::lineSpacing() const
     return spacing;
 }
 
-int FontSettings::relativeLineSpacing() const
+int FontSettingsData::relativeLineSpacing() const
 {
     return m_lineSpacing;
 }
 
-void FontSettings::setRelativeLineSpacing(int relativeLineSpacing)
+void FontSettingsData::setRelativeLineSpacing(int relativeLineSpacing)
 {
     m_lineSpacing = relativeLineSpacing;
 }
 
-QFont FontSettings::font() const
+QFont FontSettingsData::font() const
 {
     QFont f(family(), fontSize());
     f.setStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
@@ -365,7 +365,7 @@ QFont FontSettings::font() const
     return f;
 }
 
-QFont::Weight FontSettings::fontNormalWeight() const
+QFont::Weight FontSettingsData::fontNormalWeight() const
 {
     // TODO: Fix this when we upgrade "Source Code Pro" to a version greater than 2.0.30
     QFont::Weight weight = QFont::Normal;
@@ -377,12 +377,12 @@ QFont::Weight FontSettings::fontNormalWeight() const
 /**
  * Returns the configured antialiasing behavior.
  */
-bool FontSettings::antialias() const
+bool FontSettingsData::antialias() const
 {
     return m_antialias;
 }
 
-void FontSettings::setAntialias(bool antialias)
+void FontSettingsData::setAntialias(bool antialias)
 {
     m_antialias = antialias;
     clearCaches();
@@ -391,13 +391,13 @@ void FontSettings::setAntialias(bool antialias)
 /**
  * Returns the format for the given font category.
  */
-Format &FontSettings::formatFor(TextStyle category)
+Format &FontSettingsData::formatFor(TextStyle category)
 
 {
     return m_scheme.formatFor(category);
 }
 
-Format FontSettings::formatFor(TextStyle category) const
+Format FontSettingsData::formatFor(TextStyle category) const
 {
     return m_scheme.formatFor(category);
 }
@@ -405,7 +405,7 @@ Format FontSettings::formatFor(TextStyle category) const
 /**
  * Returns the file name of the currently selected color scheme.
  */
-Utils::FilePath FontSettings::colorSchemeFileName() const
+Utils::FilePath FontSettingsData::colorSchemeFileName() const
 {
     return m_schemeFileName;
 }
@@ -414,12 +414,12 @@ Utils::FilePath FontSettings::colorSchemeFileName() const
  * Sets the file name of the color scheme. Does not load the scheme from the
  * given file. If you want to load a scheme, use loadColorScheme() instead.
  */
-void FontSettings::setColorSchemeFileName(const Utils::FilePath &filePath)
+void FontSettingsData::setColorSchemeFileName(const Utils::FilePath &filePath)
 {
     m_schemeFileName = filePath;
 }
 
-bool FontSettings::loadColorScheme(const Utils::FilePath &filePath,
+bool FontSettingsData::loadColorScheme(const Utils::FilePath &filePath,
                                    const FormatDescriptions &descriptions)
 {
     clearCaches();
@@ -468,7 +468,7 @@ bool FontSettings::loadColorScheme(const Utils::FilePath &filePath,
     return loaded;
 }
 
-bool FontSettings::saveColorScheme(const FilePath &fileName)
+bool FontSettingsData::saveColorScheme(const FilePath &fileName)
 {
     const bool saved = m_scheme.save(fileName);
     if (saved)
@@ -479,12 +479,12 @@ bool FontSettings::saveColorScheme(const FilePath &fileName)
 /**
  * Returns the currently active color scheme.
  */
-const ColorScheme &FontSettings::colorScheme() const
+const ColorScheme &FontSettingsData::colorScheme() const
 {
     return m_scheme;
 }
 
-void FontSettings::setColorScheme(const ColorScheme &scheme)
+void FontSettingsData::setColorScheme(const ColorScheme &scheme)
 {
     m_scheme = scheme;
     clearCaches();
@@ -504,7 +504,7 @@ static QString defaultFontFamily()
     return QLatin1String("Courier");
 }
 
-QString FontSettings::defaultFixedFontFamily()
+QString FontSettingsData::defaultFixedFontFamily()
 {
     static QString rc;
     if (rc.isEmpty()) {
@@ -515,7 +515,7 @@ QString FontSettings::defaultFixedFontFamily()
     return rc;
 }
 
-int FontSettings::defaultFontSize()
+int FontSettingsData::defaultFontSize()
 {
     if (Utils::HostOsInfo::isMacHost())
         return 12;
@@ -528,7 +528,7 @@ int FontSettings::defaultFontSize()
  * Returns the default scheme file name, or the path to a shipped scheme when
  * one exists with the given \a fileName.
  */
-FilePath FontSettings::defaultSchemeFileName(const QString &fileName)
+FilePath FontSettingsData::defaultSchemeFileName(const QString &fileName)
 {
     FilePath defaultScheme = Core::ICore::resourcePath("styles");
 
@@ -545,11 +545,11 @@ FilePath FontSettings::defaultSchemeFileName(const QString &fileName)
     return defaultScheme;
 }
 
-FontSettingsContainer::FontSettingsContainer() = default;
+FontSettings::FontSettings() = default;
 
-FontSettings FontSettingsContainer::data() const
+FontSettingsData FontSettings::data() const
 {
-    FontSettings fs;
+    FontSettingsData fs;
     fs.setFamily(family());
     fs.setFontSize(fontSize());
     fs.setFontZoom(fontZoom());
@@ -560,18 +560,18 @@ FontSettings FontSettingsContainer::data() const
     return fs;
 }
 
-void FontSettingsContainer::writeSettings() const
+void FontSettings::writeSettings() const
 {
     data().toSettings(Core::ICore::settings());
 }
 
-void FontSettingsContainer::apply()
+void FontSettings::apply()
 {
     writeSettings();
     emit TextEditorSettings::instance()->fontSettingsChanged(data());
 }
 
-void FontSettingsContainer::setData(const FontSettings &fs)
+void FontSettings::setData(const FontSettingsData &fs)
 {
     family.setValue(fs.family());
     fontSize.setValue(fs.fontSize());
@@ -582,19 +582,19 @@ void FontSettingsContainer::setData(const FontSettings &fs)
     m_scheme = fs.colorScheme();
 }
 
-FontSettingsContainer &globalFontSettings()
+FontSettings &globalFontSettings()
 {
-    static FontSettingsContainer theGlobalFontSettingsContainer;
+    static FontSettings theGlobalFontSettingsContainer;
     return theGlobalFontSettingsContainer;
 }
 
-void setupFontSettings(const FontSettings::FormatDescriptions &fd)
+void setupFontSettings(const FontSettingsData::FormatDescriptions &fd)
 {
-    FontSettings fs;
+    FontSettingsData fs;
     QtcSettings *s = Core::ICore::settings();
     fs.fromSettings(fd, s);
     if (fs.colorSchemeFileName().isEmpty())
-        fs.loadColorScheme(FontSettings::defaultSchemeFileName(), fd);
+        fs.loadColorScheme(FontSettingsData::defaultSchemeFileName(), fd);
     globalFontSettings().setData(fs);
 }
 

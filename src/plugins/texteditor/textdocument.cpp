@@ -80,7 +80,7 @@ public:
     ICodeStylePreferences *m_codeStylePreferences = nullptr;
     TabSettingsData m_tabSettings;
     ExtraEncodingSettingsData m_extraEncodingSettings;
-    FontSettings m_fontSettings;
+    FontSettingsData m_fontSettings;
     bool m_fontSettingsNeedsApply = false; // for applying font settings delayed till an editor becomes visible
     QTextDocument m_document;
     CompletionAssistProvider *m_completionAssistProvider = nullptr;
@@ -391,7 +391,7 @@ TabSettingsData TextDocument::tabSettings() const
     return d->m_tabSettings;
 }
 
-void TextDocument::setFontSettings(const FontSettings &fontSettings)
+void TextDocument::setFontSettings(const FontSettingsData &fontSettings)
 {
     if (fontSettings == d->m_fontSettings)
         return;
@@ -504,7 +504,7 @@ void TextDocument::applyFontSettings()
 
 void TextDocument::slotCodeStyleSettingsChanged() { }
 
-const FontSettings &TextDocument::fontSettings() const
+const FontSettingsData &TextDocument::fontSettings() const
 {
     return d->m_fontSettings;
 }

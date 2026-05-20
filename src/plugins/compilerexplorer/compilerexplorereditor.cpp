@@ -538,7 +538,7 @@ void SourceEditorWidget::markSourceLocation(
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::fontSettings();
+    const TextEditor::FontSettingsData fs = TextEditor::TextEditorSettings::fontSettings();
     QTextCharFormat background = fs.toTextCharFormat(TextEditor::C_CURRENT_LINE);
     QTextCharFormat column = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
 
@@ -679,7 +679,7 @@ SearchableTerminal *CompilerWidget::createTerminal()
 
     m_resultTerminal->setColors(colors);
 
-    auto setFontSize = [this](const TextEditor::FontSettings &fontSettings) {
+    auto setFontSize = [this](const TextEditor::FontSettingsData &fontSettings) {
         QFont f;
         f.setFixedPitch(true);
         f.setFamily(TerminalSolution::defaultFontFamily());

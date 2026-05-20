@@ -41,7 +41,7 @@ ChatInputEdit::ChatInputEdit(QWidget *parent)
     setCompletionTriggerOverride(TriggeredCompletion);
 
     auto applyWidgetColors = [this] {
-        FontSettings fontSettings = textDocument()->fontSettings();
+        FontSettingsData fontSettings = textDocument()->fontSettings();
         const QFont appFont = QApplication::font();
         fontSettings.setFamily(appFont.family());
         fontSettings.setFontSize(appFont.pointSize());

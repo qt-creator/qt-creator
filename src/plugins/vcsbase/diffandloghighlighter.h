@@ -26,7 +26,7 @@ public:
     void setEnabled(bool enabled) override;
 
 protected:
-    void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
+    void setFontSettings(const TextEditor::FontSettingsData &fontSettings) override;
 
 private:
     friend class DiffAndLogHighlighterPrivate;

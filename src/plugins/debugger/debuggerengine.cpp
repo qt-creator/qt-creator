@@ -1125,7 +1125,7 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addToolBarWidget(m_threadsHandler.threadSwitcher());
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, [this](const FontSettings &fs) {
+            this, [this](const FontSettingsData &fs) {
         if (!Internal::settings().fontSizeFollowsEditor())
             return;
         const qreal size = fs.fontZoom() * fs.fontSize() / 100.;

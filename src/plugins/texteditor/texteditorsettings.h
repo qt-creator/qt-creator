@@ -20,7 +20,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class FontSettings;
+class FontSettingsData;
 class TypingSettingsData;
 class StorageSettingsData;
 class BehaviorSettingsData;
@@ -48,7 +48,7 @@ public:
 
     static TextEditorSettings *instance();
 
-    static FontSettings fontSettings();
+    static FontSettingsData fontSettings();
 
     static void setCommentsSettingsRetriever(
         const std::function<CommentsSettings::Data(const Utils::FilePath &)> &);
@@ -78,7 +78,7 @@ public:
     static void resetFontZoom();
 
 signals:
-    void fontSettingsChanged(const TextEditor::FontSettings &);
+    void fontSettingsChanged(const TextEditor::FontSettingsData &);
     void typingSettingsChanged(const TextEditor::TypingSettingsData &);
     void storageSettingsChanged(const TextEditor::StorageSettingsData &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettingsData &);

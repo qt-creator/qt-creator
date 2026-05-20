@@ -211,7 +211,7 @@ void DiffEditorWidgetController::jumpToOriginalFile(const QString &fileName,
         Core::MessageManager::writeDisrupting(Tr::tr("File not found: \"%1\".").arg(fileName));
 }
 
-void DiffEditorWidgetController::setFontSettings(const FontSettings &fontSettings)
+void DiffEditorWidgetController::setFontSettings(const FontSettingsData &fontSettings)
 {
     m_fileLineFormat        = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);
     m_chunkLineFormat       = fontSettings.toTextCharFormat(C_DIFF_CONTEXT_LINE);

@@ -596,7 +596,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
     }
 }
 
-void CppCodeStylePreferencesWidget::decorateEditors(const FontSettings &fontSettings)
+void CppCodeStylePreferencesWidget::decorateEditors(const FontSettingsData &fontSettings)
 {
     for (SnippetEditorWidget *editor : std::as_const(d->m_previews)) {
         editor->textDocument()->setFontSettings(fontSettings);

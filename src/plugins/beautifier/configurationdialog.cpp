@@ -73,7 +73,7 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent)
             this, &ConfigurationDialog::updateDocumentation);
 
     // Set palette and font according to settings
-    const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::fontSettings();
+    const TextEditor::FontSettingsData fs = TextEditor::TextEditorSettings::fontSettings();
     const QTextCharFormat tf = fs.toTextCharFormat(TextEditor::C_TEXT);
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(TextEditor::C_SELECTION);
 

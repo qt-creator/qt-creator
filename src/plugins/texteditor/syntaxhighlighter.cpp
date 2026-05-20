@@ -31,7 +31,7 @@ class SyntaxHighlighterPrivate
 public:
     SyntaxHighlighterPrivate() = default;
 
-    SyntaxHighlighterPrivate(const FontSettings &fontSettings)
+    SyntaxHighlighterPrivate(const FontSettingsData &fontSettings)
     {
         updateFormats(fontSettings);
     }
@@ -52,9 +52,9 @@ public:
     }
 
     void applyFormatChanges();
-    void updateFormats(const FontSettings &fontSettings);
+    void updateFormats(const FontSettingsData &fontSettings);
 
-    FontSettings fontSettings;
+    FontSettingsData fontSettings;
     QList<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
     bool rehighlightPending = false;
@@ -100,7 +100,7 @@ void SyntaxHighlighter::continueRehighlight()
 }
 
 #ifdef WITH_TESTS
-SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent, const FontSettings &fontsettings)
+SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent, const FontSettingsData &fontsettings)
     : QObject(parent), d(new SyntaxHighlighterPrivate(fontsettings))
 {
     d->q = this;
@@ -897,12 +897,12 @@ QList<QColor> SyntaxHighlighter::generateColors(int n, const QColor &background)
     return result;
 }
 
-void SyntaxHighlighter::setFontSettings(const FontSettings &fontSettings)
+void SyntaxHighlighter::setFontSettings(const FontSettingsData &fontSettings)
 {
     d->updateFormats(fontSettings);
 }
 
-FontSettings SyntaxHighlighter::fontSettings() const
+FontSettingsData SyntaxHighlighter::fontSettings() const
 {
     return d->fontSettings;
 }
@@ -978,7 +978,7 @@ void SyntaxHighlighter::highlightBlock(const QString &text)
     formatSpaces(text);
 }
 
-void SyntaxHighlighterPrivate::updateFormats(const FontSettings &fontSettings)
+void SyntaxHighlighterPrivate::updateFormats(const FontSettingsData &fontSettings)
 {
     this->fontSettings = fontSettings;
     // C_TEXT is handled by text editor's foreground and background color,

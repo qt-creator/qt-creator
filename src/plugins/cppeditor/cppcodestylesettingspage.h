@@ -13,7 +13,7 @@
 #include <QPointer>
 
 namespace TextEditor {
-    class FontSettings;
+    class FontSettingsData;
     class SnippetEditorWidget;
     class CodeStyleEditor;
     class CodeStyleEditorWidget;
@@ -47,7 +47,7 @@ signals:
     void finishEmitted();
 
 private:
-    void decorateEditors(const TextEditor::FontSettings &fontSettings);
+    void decorateEditors(const TextEditor::FontSettingsData &fontSettings);
     void setVisualizeWhitespace(bool on);
     void slotTabSettingsChanged(const TextEditor::TabSettingsData &settings);
     void slotCodeStyleSettingsChanged();

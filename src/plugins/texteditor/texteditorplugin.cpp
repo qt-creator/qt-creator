@@ -83,7 +83,7 @@ public:
     void initialize() final;
     void extensionsInitialized() final;
 
-    void updateSearchResultsFont(const FontSettings &);
+    void updateSearchResultsFont(const FontSettingsData &);
     void updateSearchResultsTabWidth(const TabSettingsData &tabSettings);
     void updateCurrentSelection(const QString &text);
 
@@ -235,7 +235,7 @@ ExtensionSystem::IPlugin::ShutdownFlag TextEditorPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
+void TextEditorPlugin::updateSearchResultsFont(const FontSettingsData &settings)
 {
     if (auto window = SearchResultWindow::instance()) {
         const Format textFormat = settings.formatFor(C_TEXT);

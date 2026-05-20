@@ -29,12 +29,12 @@ class FormatDescription;
 /**
  * Font settings (default font and enumerated list of formats).
  */
-class TEXTEDITOR_EXPORT FontSettings
+class TEXTEDITOR_EXPORT FontSettingsData
 {
 public:
     using FormatDescriptions = std::vector<FormatDescription>;
 
-    FontSettings();
+    FontSettingsData();
     void clear();
     inline bool isEmpty() const { return m_scheme.isEmpty(); }
 
@@ -77,15 +77,15 @@ public:
     const ColorScheme &colorScheme() const;
     void setColorScheme(const ColorScheme &scheme);
 
-    bool equals(const FontSettings &f) const;
+    bool equals(const FontSettingsData &f) const;
 
     static QString defaultFixedFontFamily();
     static int defaultFontSize();
 
     static Utils::FilePath defaultSchemeFileName(const QString &fileName = {});
 
-    friend bool operator==(const FontSettings &f1, const FontSettings &f2) { return f1.equals(f2); }
-    friend bool operator!=(const FontSettings &f1, const FontSettings &f2) { return !f1.equals(f2); }
+    friend bool operator==(const FontSettingsData &f1, const FontSettingsData &f2) { return f1.equals(f2); }
+    friend bool operator!=(const FontSettingsData &f1, const FontSettingsData &f2) { return !f1.equals(f2); }
 
 private:
     void addMixinStyle(QTextCharFormat &textCharFormat, const MixinTextStyles &mixinStyles) const;
@@ -103,18 +103,18 @@ private:
     mutable QHash<TextStyles, QTextCharFormat> m_textCharFormatCache;
 };
 
-class TEXTEDITOR_EXPORT FontSettingsContainer : public Utils::AspectContainer
+class TEXTEDITOR_EXPORT FontSettings : public Utils::AspectContainer
 {
     Q_OBJECT
 
 public:
-    FontSettingsContainer();
+    FontSettings();
 
     void writeSettings() const override;
     void apply() override;
 
-    FontSettings data() const;
-    void setData(const FontSettings &fs);
+    FontSettingsData data() const;
+    void setData(const FontSettingsData &fs);
 
     Utils::StringAspect  family{this};
     Utils::IntegerAspect fontSize{this};
@@ -127,8 +127,8 @@ private:
     Utils::FilePath m_schemeFileName;
 };
 
-TEXTEDITOR_EXPORT FontSettingsContainer &globalFontSettings();
+TEXTEDITOR_EXPORT FontSettings &globalFontSettings();
 
-void setupFontSettings(const FontSettings::FormatDescriptions &fd);
+void setupFontSettings(const FontSettingsData::FormatDescriptions &fd);
 
 } // namespace TextEditor

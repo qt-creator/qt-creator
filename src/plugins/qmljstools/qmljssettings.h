@@ -14,7 +14,7 @@
 #include <utils/store.h>
 
 namespace TextEditor {
-class FontSettings;
+class FontSettingsData;
 class TabSettingsData;
 }
 
@@ -73,7 +73,7 @@ public:
     void setPreferences(QmlJSCodeStylePreferences* preferences);
 
 private:
-    void decorateEditor(const TextEditor::FontSettings &fontSettings);
+    void decorateEditor(const TextEditor::FontSettingsData &fontSettings);
     void setVisualizeWhitespace(bool on);
     void slotSettingsChanged(const QmlJSCodeStyleSettings &);
     void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences);

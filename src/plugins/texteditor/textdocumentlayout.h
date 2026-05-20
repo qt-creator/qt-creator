@@ -103,7 +103,7 @@ public:
     static void clearSuggestion(const QTextBlock &block);
     static void setAttributeState(const QTextBlock &block, quint8 attrState);
     static quint8 attributeState(const QTextBlock &block);
-    static void updateSuggestionFormats(const QTextBlock &block, const FontSettings &fontSettings);
+    static void updateSuggestionFormats(const QTextBlock &block, const FontSettingsData &fontSettings);
     static KSyntaxHighlighting::State syntaxState(const QTextBlock &block);
     static void setSyntaxState(const QTextBlock &block, KSyntaxHighlighting::State state);
 

@@ -14,7 +14,7 @@ namespace QmlJS {
 class SourceLocation;
 }
 
-namespace TextEditor { class FontSettings; }
+namespace TextEditor { class FontSettingsData; }
 
 namespace QmlJSTools { class SemanticInfo; }
 
@@ -56,7 +56,7 @@ public:
     void setEnableWarnings(bool e);
     void setEnableHighlighting(bool e);
 
-    void updateFontSettings(const TextEditor::FontSettings &fontSettings);
+    void updateFontSettings(const TextEditor::FontSettingsData &fontSettings);
     void reportMessagesInfo(const QVector<QTextLayout::FormatRange> &diagnosticMessages,
                             const QHash<int,QTextCharFormat> &formats);
 
@@ -65,7 +65,7 @@ private:
     void finished();
     void run(QPromise<Use> &promise,
              const QmlJSTools::SemanticInfo &semanticInfo,
-             const TextEditor::FontSettings &fontSettings);
+             const TextEditor::FontSettingsData &fontSettings);
 
     QFutureWatcher<Use>  m_watcher;
     QmlJSEditorDocument *m_document;

@@ -252,7 +252,7 @@ QString Task::formattedDescription(DescriptionTags tags, const QString &extraHea
                                          : QString::fromUtf8("<b>%1</b><br/>").arg(extraHeading);
     return QString::fromUtf8("<html><body>%1<code style=\"white-space:pre;font-family:%2\">"
                              "%3</code></body></html>")
-        .arg(htmlExtraHeading, FontSettings::defaultFixedFontFamily(), text);
+        .arg(htmlExtraHeading, FontSettingsData::defaultFixedFontFamily(), text);
 }
 
 void Task::addLinkDetail(const QString &link, const QString &linkText, int linkPos, int linkLength)

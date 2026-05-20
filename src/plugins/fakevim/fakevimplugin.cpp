@@ -325,7 +325,7 @@ private:
         bool foldMarksVisible = m_editor->codeFoldingVisible();
 
         if (marksVisible && lineNumbersVisible) {
-            const TextEditor::FontSettings &fs = m_editor->textDocument()->fontSettings();
+            const TextEditor::FontSettingsData &fs = m_editor->textDocument()->fontSettings();
             int lineSpacing = (fs.relativeLineSpacing() == 100)
                                 ? m_editor->fontMetrics().lineSpacing()
                                 : fs.lineSpacing();

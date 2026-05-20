@@ -151,7 +151,7 @@ void BaseAnnotationHighlighter::highlightBlock(const QString &text)
         setFormatWithSpaces(text, 0, text.size(), it.value());
 }
 
-void BaseAnnotationHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
+void BaseAnnotationHighlighter::setFontSettings(const TextEditor::FontSettingsData &fontSettings)
 {
     SyntaxHighlighter::setFontSettings(fontSettings);
     d->updateOtherFormats();

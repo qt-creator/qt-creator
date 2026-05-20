@@ -226,7 +226,7 @@ void addModifiers(int key,
                   QHash<int, QTextCharFormat> *formatHash,
                   TextStyles styles,
                   QList<int> tokenModifiers,
-                  const TextEditor::FontSettings &fs)
+                  const TextEditor::FontSettingsData &fs)
 {
     if (tokenModifiers.isEmpty())
         return;

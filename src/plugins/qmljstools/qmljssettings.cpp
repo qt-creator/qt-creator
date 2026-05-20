@@ -1107,7 +1107,7 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *
     updatePreview();
 }
 
-void QmlJSCodeStylePreferencesWidget::decorateEditor(const FontSettings &fontSettings)
+void QmlJSCodeStylePreferencesWidget::decorateEditor(const FontSettingsData &fontSettings)
 {
     m_previewTextEdit->textDocument()->setFontSettings(fontSettings);
     SnippetProvider::decorateEditor(m_previewTextEdit,

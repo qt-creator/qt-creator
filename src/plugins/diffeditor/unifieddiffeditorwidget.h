@@ -8,7 +8,7 @@
 
 namespace Core { class IContext; }
 
-namespace TextEditor { class FontSettings; }
+namespace TextEditor { class FontSettingsData; }
 
 namespace Utils {
 template <typename R>
@@ -97,7 +97,7 @@ protected:
     int lineNumberDigits() const override;
 
 private:
-    void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    void setFontSettings(const TextEditor::FontSettingsData &fontSettings);
     void slotCursorPositionChangedInEditor();
     void showDiff();
     void jumpToOriginalFile(const QTextCursor &cursor);

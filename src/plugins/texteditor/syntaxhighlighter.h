@@ -26,7 +26,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class FontSettings;
+class FontSettingsData;
 class SyntaxHighlighterPrivate;
 
 class TEXTEDITOR_EXPORT SyntaxHighlighter : public QObject
@@ -47,8 +47,8 @@ public:
     static QList<QColor> generateColors(int n, const QColor &background);
 
     // Don't call in constructors of derived classes
-    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
-    TextEditor::FontSettings fontSettings() const;
+    virtual void setFontSettings(const TextEditor::FontSettingsData &fontSettings);
+    TextEditor::FontSettingsData fontSettings() const;
 
     void setExtraFormats(const QTextBlock &block, const QList<QTextLayout::FormatRange> &formats);
     virtual void setLanguageFeaturesFlags(unsigned int /*flags*/) {}; // needed for CppHighlighting
@@ -116,7 +116,7 @@ private:
 
 #ifdef WITH_TESTS
     friend class tst_highlighter;
-    SyntaxHighlighter(QTextDocument *parent, const FontSettings &fontsettings);
+    SyntaxHighlighter(QTextDocument *parent, const FontSettingsData &fontsettings);
 #endif
 };
 

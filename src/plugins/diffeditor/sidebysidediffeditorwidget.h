@@ -12,7 +12,7 @@
 namespace Core { class IContext; }
 
 namespace TextEditor {
-class FontSettings;
+class FontSettingsData;
 }
 
 namespace Utils {
@@ -119,7 +119,7 @@ signals:
     void currentDiffFileIndexChanged(int index);
 
 private:
-    void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    void setFontSettings(const TextEditor::FontSettingsData &fontSettings);
     void jumpToOriginalFileRequested(DiffSide side, int diffFileIndex,
                                      int lineNumber, int columnNumber);
     void contextMenuRequested(DiffSide side, QMenu *menu, int fileIndex, int chunkIndex,

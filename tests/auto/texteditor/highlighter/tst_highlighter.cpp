@@ -32,7 +32,7 @@ private slots:
 private:
     QTextDocument *doc = nullptr;
     SyntaxHighlighter *highlighter = nullptr;
-    FontSettings fontsettings;
+    FontSettingsData fontsettings;
     QHash<int, QTextCharFormat> formatHash;
     QTextCharFormat whitespaceFormat;
 };

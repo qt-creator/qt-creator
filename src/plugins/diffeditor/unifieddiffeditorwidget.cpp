@@ -90,7 +90,7 @@ void UnifiedDiffEditorWidget::restoreState()
     m_state.clear();
 }
 
-void UnifiedDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
+void UnifiedDiffEditorWidget::setFontSettings(const FontSettingsData &fontSettings)
 {
     m_controller.setFontSettings(fontSettings);
 }

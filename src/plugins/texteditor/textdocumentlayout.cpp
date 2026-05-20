@@ -543,7 +543,7 @@ quint8 TextBlockUserData::attributeState(const QTextBlock &block)
 }
 
 void TextBlockUserData::updateSuggestionFormats(const QTextBlock &block,
-                                                 const FontSettings &fontSettings)
+                                                 const FontSettingsData &fontSettings)
 {
     if (TextSuggestion *suggestion = TextBlockUserData::suggestion(block)) {
         QTextDocument *suggestionDoc = suggestion->replacementDocument();
