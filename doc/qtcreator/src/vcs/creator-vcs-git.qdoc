@@ -491,10 +491,6 @@
     \image {qtcreator-git-instant-blame.webp} {Instant blame in the code editor}
     \caption Instant blame in the code editor
 
-    When instant blame is off, you can go to \uicontrol Tools > \uicontrol Git >
-    \uicontrol {Current File} > \uicontrol {Instant Blame} to view blame for the
-    current line.
-
     When you hover over the annotation, a tooltip with additional information is shown.
     From the tooltip, several actions are available. For more information, see
     \l {Show instant blame}.
@@ -504,8 +500,11 @@
     To hide blame in the editor, go to \preferences >
     \uicontrol {Version Control} > \uicontrol Git and
     clear \uicontrol {Instant Blame}.
+    For more information, see \l {Instant blame settings}.
 
-    \image {qtcreator-preferences-vcs-git.webp} {Git tab in Version Control preferences}
+    When instant blame is off, you can go to \uicontrol Tools > \uicontrol Git >
+    \uicontrol {Current File} > \uicontrol {Instant Blame} to view blame for the
+    current line.
 
     \section1 View blame for the whole file
 
@@ -1328,7 +1327,10 @@
     \note Instant blame is not available for unsaved files.
 
     To show the latest real changes to the line, configure instant blame to ignore
-    whitespace changes and line moves.
+    whitespace changes and line moves. For more information, see
+    \l {Instant blame settings}.
+
+    \section1 Instant blame tooltip
 
     When you hover over the annotation, a tooltip with additional information is shown.
     From the tooltip, the following actions are available:
@@ -1339,15 +1341,15 @@
             \li Description
         \row
             \li Blame <hash>
-            \li Opens the full file blame for the revision of \e hash.
+            \li Opens the full file {git blame}{blame} for the revision of \e hash.
         \row
             \li Blame Parent
-            \li Opens the full file blame for the parent revision of \e hash.
+            \li Opens the full file {git blame}{blame} for the parent revision of \e hash.
         \row
             \li File at <hash>
             \li Opens the file contents at the revision of \e hash.
         \row
-            \li Log for line <line>
+            \li {git log}{Log} for line <line>
             \li Shows a log with all the commits that touched the \e line.
         \row
             \li \inlineimage {icons/copy.png} {Copy Hash to Clipboard}
@@ -1359,6 +1361,23 @@
     \endtable
 
     \note Most of these actions have no meaning for uncommitted changes.
+
+    \section1 Instant blame settings
+
+    To change the instant blame settings, go to \preferences
+    > \uicontrol {Version Control} > \uicontrol Git.
+
+    \image {qtcreator-preferences-vcs-git.webp} {Git tab in Version Control preferences}
+    \caption Git tab in Version Control preferences
+
+    \list
+    \li To hide blame in the editor, clear \uicontrol {Instant Blame}.
+    \li To only show text changes, select \uicontrol {Ignore whitespace changes}
+    \li To show the original author and date before a line was moved, select
+        \uicontrol {Ignore line moves}.
+    \li To show the commit subject in the editor next to date and author,
+        select \uicontrol {Show commit subject}.
+    \endlist
 
     \sa {Use Git}{How to: Use Git}, {Using Git}, {git blame}
 */
