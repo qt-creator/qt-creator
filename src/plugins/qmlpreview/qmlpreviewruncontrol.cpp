@@ -74,6 +74,7 @@ static Group qmlPreviewRecipe(RunControl *runControl)
                              ProjectExplorerPlugin::instance(), [runControl] {
                 auto rc = new RunControl(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
                 rc->copyDataFromRunControl(runControl);
+                rc->createMainRecipe();
                 rc->start();
             });
 
