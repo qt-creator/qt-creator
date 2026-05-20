@@ -55,6 +55,8 @@ QtcLibrary {
         "appinfo.h",
         "appmainwindow.cpp",
         "appmainwindow.h",
+        "aspectlist.cpp",
+        "aspectlist.h",
         "aspects.cpp",
         "aspects.h",
         "async.cpp",

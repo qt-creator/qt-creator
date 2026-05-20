@@ -6,6 +6,7 @@
 #include "api/config.h"
 #include "compilerexploreraspects.h"
 
+#include <utils/aspectlist.h>
 #include <utils/aspects.h>
 #include <utils/networkaccessmanager.h>
 

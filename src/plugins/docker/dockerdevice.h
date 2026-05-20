@@ -10,6 +10,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
+#include <utils/aspectlist.h>
 #include <utils/synchronizedvalue.h>
 
 namespace Docker {

@@ -8,6 +8,7 @@
 #include "dialogs/ioptionspage.h"
 
 #include <utils/algorithm.h>
+#include <utils/aspectlist.h>
 #include <utils/aspects.h>
 #include <utils/guiutils.h>
 #include <utils/itemviews.h>

@@ -18,6 +18,7 @@ add_qtc_library(Utils
     appinfo.cpp appinfo.h
     appmainwindow.cpp appmainwindow.h
     array.h
+    aspectlist.cpp aspectlist.h
     aspects.cpp aspects.h
     async.cpp async.h
     basetreeview.cpp basetreeview.h

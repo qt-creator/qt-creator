@@ -4,6 +4,7 @@
 #include "../luaengine.h"
 #include "utils.h"
 
+#include <utils/aspectlist.h>
 #include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
