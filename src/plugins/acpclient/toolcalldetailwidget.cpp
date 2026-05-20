@@ -3,6 +3,8 @@
 
 #include "toolcalldetailwidget.h"
 
+#include "acpclienttr.h"
+
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/link.h>
@@ -15,6 +17,10 @@
 #include <utils/utilsicons.h>
 
 #include <QAbstractTextDocumentLayout>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QLabel>
 #include <QPainter>
 #include <QPainterPath>
@@ -154,6 +160,9 @@ void ToolCallDetailWidget::updateContent(const ToolCallUpdate &update)
     if (const auto title = update.title(); title && !title->isEmpty())
         m_titleLabel->setText(*title);
 
+    if (const auto &rawInput = update.rawInput())
+        addRawInputContent(*rawInput);
+
     // Parse updated content if available
     if (const auto &contentArr = update.content()) {
         for (const QJsonValue &val : *contentArr) {
@@ -184,6 +193,9 @@ void ToolCallDetailWidget::updateContent(const ToolCallUpdate &update)
 
 void ToolCallDetailWidget::populateContent(const ToolCall &toolCall)
 {
+    if (const auto &rawInput = toolCall.rawInput())
+        addRawInputContent(*rawInput);
+
     // Content items
     if (const auto &contentList = toolCall.content()) {
         for (const ToolCallContent &tc : *contentList) {
@@ -308,6 +320,91 @@ void ToolCallDetailWidget::addLocations(const QList<ToolCallLocation> &locations
 
         addBodyWidget(label);
     }
+}
+
+void ToolCallDetailWidget::addRawInputContent(const QJsonValue &rawInput)
+{
+    if (rawInput.isUndefined() || rawInput.isNull())
+        return;
+
+    QString json;
+    QString command;
+    if (rawInput.isObject()) {
+        const QJsonObject inputObject = rawInput.toObject();
+        if (inputObject.isEmpty())
+            return;
+        json = QString::fromUtf8(QJsonDocument(inputObject).toJson(QJsonDocument::Indented));
+        if (inputObject.contains("command") && inputObject["command"].isString())
+            command = inputObject["command"].toString();
+        if (m_titleLabel->text().contains(command))
+            command.clear();
+    } else if (rawInput.isArray()) {
+        const QJsonArray inputArray = rawInput.toArray();
+        if (inputArray.isEmpty())
+            return;
+        json = QString::fromUtf8(QJsonDocument(inputArray).toJson(QJsonDocument::Indented));
+    } else if (rawInput.isString()) {
+        const QString s = rawInput.toString();
+        if (s.isEmpty())
+            return;
+        json = '"' + s + '"';
+    } else {
+        json = rawInput.toVariant().toString();
+    }
+    json = json.trimmed();
+    if (json.isEmpty())
+        return;
+
+    const QString markdown = QStringLiteral("```json\n%1\n```").arg(json);
+
+    if (!command.isEmpty()) {
+        if (!m_commandLabel) {
+            m_commandLabel = new QLabel(this);
+            m_commandLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+            m_commandLabel->setWordWrap(true);
+            QFont mono = m_commandLabel->font();
+            mono.setStyleHint(QFont::Monospace);
+            mono.setFamily(QFont(QStringLiteral("monospace")).defaultFamily());
+            m_commandLabel->setFont(mono);
+            if (m_contentMaxWidth >= 0)
+                m_commandLabel->setMaximumWidth(m_contentMaxWidth);
+            m_bodyLayout->insertWidget(0, m_commandLabel);
+        }
+        m_commandLabel->setText(command);
+    }
+
+    if (!m_rawInputContent) {
+        auto *frame = new CollapsibleFrame(this); frame->setFrameShape(QFrame::NoFrame);
+        frame->setCollapsed(true);
+
+        frame->headerLayout()->addWidget(new QLabel(Tr::tr("Raw Input"), frame), 1);
+
+        auto *browser = new Utils::MarkdownBrowser(frame);
+        browser->setFrameShape(QFrame::NoFrame);
+        browser->setEnableCodeCopyButton(true);
+        browser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        browser->setMargins({0, 0, 0, 0});
+        browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+        connect(browser->document()->documentLayout(),
+                &QAbstractTextDocumentLayout::documentSizeChanged,
+                browser, [browser] {
+            const int h = qCeil(browser->document()->size().height())
+                          + browser->contentsMargins().top()
+                          + browser->contentsMargins().bottom();
+            browser->setFixedHeight(qMax(h, browser->fontMetrics().height()));
+        });
+        frame->bodyLayout()->addWidget(browser);
+
+        if (m_contentMaxWidth >= 0)
+            frame->setMaximumWidth(m_contentMaxWidth);
+        const int insertIndex = m_commandLabel ? 1 : 0;
+        m_bodyLayout->insertWidget(insertIndex, frame);
+        m_rawInputFrame = frame;
+        m_rawInputContent = browser;
+    }
+    m_rawInputContent->setMarkdown(markdown);
 }
 
 void ToolCallDetailWidget::addBodyWidget(QWidget *widget)

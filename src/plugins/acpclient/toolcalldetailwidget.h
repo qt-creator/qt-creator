@@ -46,10 +46,14 @@ private:
     void addTerminalContent(const Acp::Terminal &terminal);
     void addTextContent(const Acp::Content &content);
     void addLocations(const QList<Acp::ToolCallLocation> &locations);
+    void addRawInputContent(const QJsonValue &rawInput);
     void addBodyWidget(QWidget *widget);
 
     QWidget *m_statusWidget = nullptr;
     Utils::ElidingLabel *m_titleLabel = nullptr;
+    QLabel *m_commandLabel = nullptr;
+    CollapsibleFrame *m_rawInputFrame = nullptr;
+    Utils::MarkdownBrowser *m_rawInputContent = nullptr;
     Acp::ToolCallStatus m_status = Acp::ToolCallStatus::in_progress;
     int m_contentMaxWidth = -1;
 };

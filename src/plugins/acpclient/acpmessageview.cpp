@@ -531,7 +531,7 @@ class PermissionRequestWidget : public CollapsibleFrame
 {
 public:
     explicit PermissionRequestWidget(const QString &title, const QString &kindText,
-                                     QWidget *parent = nullptr)
+                                     const QString &command, QWidget *parent = nullptr)
         : CollapsibleFrame(parent)
     {
         setFrameShape(QFrame::NoFrame);
@@ -561,6 +561,16 @@ public:
             auto *titleLabel = new Utils::ElidingLabel(title, this);
             titleLabel->setWordWrap(true);
             m_bodyLayout->addWidget(titleLabel);
+        }
+        if (!command.isEmpty()) {
+            auto *commandLabel = new QLabel(command, this);
+            commandLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+            commandLabel->setWordWrap(true);
+            QFont mono = commandLabel->font();
+            mono.setStyleHint(QFont::Monospace);
+            mono.setFamily(QFont(QStringLiteral("monospace")).defaultFamily());
+            commandLabel->setFont(mono);
+            m_bodyLayout->addWidget(commandLabel);
         }
         auto *buttonWidget = new QWidget(this);
         Layouting::Flow{}.attachTo(buttonWidget);
@@ -1203,7 +1213,16 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     const QString title = toolCall.title().value_or(QString());
     const QString kindText = toolCall.kind() ? toString(*toolCall.kind()) : QString();
 
-    auto *widget = new PermissionRequestWidget(title, kindText, m_container);
+    QString command;
+    if (const auto &rawInput = toolCall.rawInput(); rawInput && rawInput->isObject()) {
+        const QJsonValue cmd = rawInput->toObject().value("command");
+        if (cmd.isString())
+            command = cmd.toString();
+        if (title.contains(command))
+            command.clear();
+    }
+
+    auto *widget = new PermissionRequestWidget(title, kindText, command, m_container);
 
     auto markToolCallFailed = [this, toolCallId] {
         if (auto *detail = m_toolCallDetailWidgets.value(toolCallId))
