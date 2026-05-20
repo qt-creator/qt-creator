@@ -125,7 +125,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     m_textOutput = new Core::OutputWindow(Core::Context("AutoTest.TextOutput"),
                                           "AutoTest.TextOutput.Filter");
 
-    m_textOutput->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+    m_textOutput->setBaseFont(TextEditor::globalFontSettings().data().font());
     m_textOutput->setWordWrapMode(QTextOption::WordWrap);
     m_textOutput->setReadOnly(true);
     m_outputWidget->addWidget(m_textOutput);

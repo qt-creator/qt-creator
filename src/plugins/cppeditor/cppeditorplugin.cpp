@@ -72,6 +72,7 @@
 
 #include <texteditor/codestylepool.h>
 #include <texteditor/colorpreviewhoverhandler.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -233,7 +234,7 @@ QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeT
     watcher->setFuture(promise->future());
 
     highlighter->setParent(document);
-    highlighter->setFontSettings(TextEditorSettings::fontSettings());
+    highlighter->setFontSettings(globalFontSettings().data());
     highlighter->setMimeType(mimeType);
     highlighter->rehighlight();
 

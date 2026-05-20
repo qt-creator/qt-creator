@@ -81,7 +81,7 @@ private:
 
 void NimCodeStylePreferencesWidget::decorateEditor()
 {
-    m_previewTextEdit.textDocument()->setFontSettings(TextEditorSettings::fontSettings());
+    m_previewTextEdit.textDocument()->setFontSettings(globalFontSettings().data());
     NimEditorFactory::decorateEditor(&m_previewTextEdit);
 }
 

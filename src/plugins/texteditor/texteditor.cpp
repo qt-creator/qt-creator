@@ -9424,7 +9424,7 @@ void TextEditorWidget::applyFontSettings()
 
 void TextEditorWidget::setDisplaySettings(const DisplaySettingsData &ds)
 {
-    const TextEditor::FontSettingsData &fs = globalFontSettings().data();
+    const TextEditor::FontSettingsData fs = globalFontSettings().data();
     if (fs.relativeLineSpacing() == 100)
         setLineWrapMode(ds.m_textWrapping ? PlainTextEdit::WidgetWidth : PlainTextEdit::NoWrap);
     else

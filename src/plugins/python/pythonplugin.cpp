@@ -63,7 +63,7 @@ static QFuture<QTextDocument *> highlightCode(const QString &code, const QString
     watcher->setFuture(promise->future());
 
     highlighter->setParent(document);
-    highlighter->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
+    highlighter->setFontSettings(TextEditor::globalFontSettings().data());
     highlighter->setMimeType(mimeType);
     highlighter->setDocument(document);
     highlighter->rehighlight();

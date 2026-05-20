@@ -224,7 +224,7 @@ QStringList highlightExceptionCode(int lineNumber, const FilePath &filePath, con
     QStringList messages;
     const QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
 
-    const  TextEditor::FontSettingsData &fontSettings = TextEditor::TextEditorSettings::fontSettings();
+    const TextEditor::FontSettingsData fontSettings = TextEditor::globalFontSettings().data();
     QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
     for (IEditor *editor : editors) {

@@ -25,6 +25,7 @@
 #include <projectexplorer/project.h>
 
 #include <texteditor/displaysettings.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/textdocument.h>
@@ -208,7 +209,7 @@ void ClangFormatConfigWidget::initPreview(TextEditor::ICodeStylePreferences *cod
     m_indenter = new ClangFormatIndenter(m_preview->document());
     m_indenter->setOverriddenPreferences(codeStyle);
     m_preview->textDocument()->setIndenter(m_indenter);
-    m_preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
+    m_preview->textDocument()->setFontSettings(TextEditor::globalFontSettings().data());
     m_preview->textDocument()->resetSyntaxHighlighter(
         [] { return new CppEditor::CppHighlighter(); });
     m_indenter->setFileName(fileName);

@@ -148,7 +148,7 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
 
     // Message font according to settings
     CompletingTextEdit *descriptionEdit = d->m_widget->descriptionEdit();
-    const TextEditor::FontSettingsData fs = TextEditor::TextEditorSettings::fontSettings();
+    const TextEditor::FontSettingsData fs = TextEditor::globalFontSettings().data();
     const QTextCharFormat tf = fs.toTextCharFormat(TextEditor::C_TEXT);
     descriptionEdit->setFont(tf.font());
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(TextEditor::C_SELECTION);

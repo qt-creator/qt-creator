@@ -1021,7 +1021,7 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
     QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     sp.setHorizontalStretch(1);
     m_previewTextEdit->setSizePolicy(sp);
-    decorateEditor(TextEditorSettings::fontSettings());
+    decorateEditor(globalFontSettings().data());
 
     connect(
         TextEditorSettings::instance(),

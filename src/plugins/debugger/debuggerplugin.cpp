@@ -741,7 +741,7 @@ void DebuggerPluginPrivate::addFontSizeAdaptation(QWidget *widget)
                      this,
                      [widget, adaptFont](const FontSettingsData &fs) { adaptFont(widget, fs); });
 
-    adaptFont(widget, TextEditorSettings::fontSettings());
+    adaptFont(widget, globalFontSettings().data());
 };
 
 BaseTreeView *DebuggerPluginPrivate::createBreakpointManagerView(const QByteArray &settingsKey)

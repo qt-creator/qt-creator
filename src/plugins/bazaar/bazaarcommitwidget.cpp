@@ -29,7 +29,7 @@ namespace Bazaar::Internal {
 // Retrieve the comment char format from the text editor.
 static QTextCharFormat commentFormat()
 {
-    return TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(TextEditor::C_COMMENT);
+    return TextEditor::globalFontSettings().data().toTextCharFormat(TextEditor::C_COMMENT);
 }
 
 class BazaarCommitPanel : public QWidget

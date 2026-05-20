@@ -280,7 +280,7 @@ QTextEdit::ExtraSelection DiagnosticManager::createDiagnosticSelection(
     cursor.setPosition(diagnostic.range().end().toPositionInDocument(textDocument),
                        QTextCursor::KeepAnchor);
 
-    const QTextCharFormat format = TextEditorSettings::fontSettings().toTextCharFormat(style);
+    const QTextCharFormat format = globalFontSettings().data().toTextCharFormat(style);
 
     return QTextEdit::ExtraSelection{cursor, format};
 }

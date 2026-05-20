@@ -99,11 +99,6 @@ TextEditorSettings *TextEditorSettings::instance()
     return &textEditorSettings();
 }
 
-FontSettingsData TextEditorSettings::fontSettings()
-{
-    return globalFontSettings().data();
-}
-
 void TextEditorSettings::setCommentsSettingsRetriever(
     const std::function<CommentsSettings::Data(const Utils::FilePath &)> &retrieve)
 {

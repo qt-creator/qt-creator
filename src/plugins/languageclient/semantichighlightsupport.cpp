@@ -263,7 +263,7 @@ void SemanticTokenSupport::setLegend(const LanguageServerProtocol::SemanticToken
 
 void SemanticTokenSupport::updateFormatHash()
 {
-    auto fontSettings = TextEditorSettings::fontSettings();
+    auto fontSettings = globalFontSettings().data();
     for (int tokenType : std::as_const(m_tokenTypes)) {
         if (tokenType < 0)
             continue;

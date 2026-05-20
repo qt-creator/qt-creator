@@ -4,7 +4,6 @@
 #pragma once
 
 #include "commentssettings.h"
-#include "displaysettings.h"
 #include "texteditor_global.h"
 
 #include <utils/id.h>

@@ -4,16 +4,21 @@
 #include "cocolanguageclient.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <languageclient/diagnosticmanager.h>
 #include <languageclient/languageclienthoverhandler.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientsettings.h>
 #include <languageserverprotocol/diagnostics.h>
 #include <languageserverprotocol/initializemessages.h>
+
 #include <projectexplorer/project.h>
+
+#include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
+
 #include <utils/utilsicons.h>
 
 #include <QGuiApplication>
@@ -152,7 +157,7 @@ public:
         if (m_severity) {
             const TextEditor::TextStyle style = styleForSeverity(*m_severity);
             m_annotationColor =
-                    TextEditor::TextEditorSettings::fontSettings().formatFor(style).foreground();
+                    TextEditor::globalFontSettings().data().formatFor(style).foreground();
         }
     }
 
@@ -203,7 +208,7 @@ private:
                                QTextCursor::KeepAnchor);
 
             const TextEditor::TextStyle style = styleForSeverity(*severity);
-            QTextCharFormat format = TextEditor::TextEditorSettings::fontSettings()
+            QTextCharFormat format = TextEditor::globalFontSettings().data()
                     .toTextCharFormat(style);
             format.clearForeground();
             return QTextEdit::ExtraSelection{cursor, format};

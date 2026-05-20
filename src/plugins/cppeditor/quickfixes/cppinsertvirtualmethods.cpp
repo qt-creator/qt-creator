@@ -349,7 +349,7 @@ class InsertVirtualMethodsModel : public QAbstractItemModel
 public:
     InsertVirtualMethodsModel(QObject *parent = nullptr) : QAbstractItemModel(parent)
     {
-        const FontSettingsData &fs = TextEditorSettings::fontSettings();
+        const FontSettingsData fs = globalFontSettings().data();
         formatReimpFunc = fs.formatFor(C_DISABLED_CODE);
     }
 

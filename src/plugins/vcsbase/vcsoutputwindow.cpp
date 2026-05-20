@@ -249,7 +249,7 @@ VcsOutputWindow::VcsOutputWindow()
     };
 
     auto updateFontSettings = [] {
-        d->widget.setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+        d->widget.setBaseFont(TextEditor::globalFontSettings().data().font());
     };
 
     updateBehaviorSettings();

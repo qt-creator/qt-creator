@@ -161,8 +161,8 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
     connect(TextEditor::TextEditorSettings::instance(),
             &TextEditor::TextEditorSettings::fontSettingsChanged,
             this,
-            [this] { setBaseFont(TextEditor::TextEditorSettings::fontSettings().font()); });
-    setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+            [this] { setBaseFont(TextEditor::globalFontSettings().data().font()); });
+    setBaseFont(TextEditor::globalFontSettings().data().font());
 
     m_zoomIn.setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
     m_zoomIn.setText(ActionManager::command(Core::Constants::ZOOM_IN)->action()->text());

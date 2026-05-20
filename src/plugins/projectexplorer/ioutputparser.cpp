@@ -95,7 +95,7 @@ void OutputTaskParser::addDetailsFormat(Task &task, const LinkSpecs &linkSpecs)
         return;
 
     Utils::FormattedText monospacedText(task.details().join('\n'));
-    monospacedText.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
+    monospacedText.format.setFont(TextEditor::globalFontSettings().data().font());
     monospacedText.format.setFontStyleHint(QFont::Monospace);
     const QList<Utils::FormattedText> linkifiedText
         = Utils::OutputFormatter::linkifiedText({monospacedText}, linkSpecs);

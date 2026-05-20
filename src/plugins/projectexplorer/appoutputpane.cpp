@@ -709,7 +709,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     StyleHelper::modifyPaletteBase(ow, bgColor);
 
     auto updateFontSettings = [ow] {
-        ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+        ow->setBaseFont(TextEditor::globalFontSettings().data().font());
     };
 
     auto updateBehaviorSettings = [ow] {

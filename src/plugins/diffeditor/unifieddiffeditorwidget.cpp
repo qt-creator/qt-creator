@@ -38,7 +38,7 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, &UnifiedDiffEditorWidget::setFontSettings);
-    setFontSettings(TextEditorSettings::fontSettings());
+    setFontSettings(globalFontSettings().data());
 
     clear(Tr::tr("No document"));
 

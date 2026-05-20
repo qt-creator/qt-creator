@@ -19,7 +19,7 @@ namespace Beautifier::Internal {
 ConfigurationSyntaxHighlighter::ConfigurationSyntaxHighlighter(QTextDocument *parent) :
     QSyntaxHighlighter(parent)
 {
-    const TextEditor::FontSettingsData fs = TextEditor::TextEditorSettings::fontSettings();
+    const TextEditor::FontSettingsData fs = TextEditor::globalFontSettings().data();
     m_formatKeyword = fs.toTextCharFormat(TextEditor::C_FIELD);
     m_formatComment = fs.toTextCharFormat(TextEditor::C_COMMENT);
 }

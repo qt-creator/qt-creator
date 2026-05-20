@@ -768,7 +768,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     connect(TextEditorSettings::instance(),
             &TextEditorSettings::fontSettingsChanged,
             this, &SideBySideDiffEditorWidget::setFontSettings);
-    setFontSettings(TextEditorSettings::fontSettings());
+    setFontSettings(globalFontSettings().data());
 
     syncHorizontalScrollBarPolicy();
 

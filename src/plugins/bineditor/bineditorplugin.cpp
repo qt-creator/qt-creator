@@ -384,7 +384,7 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
     });
 
     // Font settings
-    setFontSettings(TextEditorSettings::fontSettings());
+    setFontSettings(globalFontSettings().data());
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, &BinEditorWidget::setFontSettings);
 

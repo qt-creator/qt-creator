@@ -3844,10 +3844,10 @@ QString GitClient::styleColorName(TextEditor::TextStyle style)
 {
     using namespace TextEditor;
 
-    const ColorScheme &scheme = TextEditorSettings::fontSettings().colorScheme();
-    QColor color = scheme.formatFor(style).foreground();
+    const FontSettingsData fs = globalFontSettings().data();
+    QColor color = fs.colorScheme().formatFor(style).foreground();
     if (!color.isValid())
-        color = scheme.formatFor(C_TEXT).foreground();
+        color = fs.colorScheme().formatFor(C_TEXT).foreground();
     return color.name();
 }
 

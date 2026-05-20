@@ -605,7 +605,7 @@ void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)
 
     m_startRevision = m_document->document()->revision();
     auto future = Utils::asyncRun(QThread::LowestPriority, &SemanticHighlighter::run, this,
-                                  semanticInfo, TextEditor::TextEditorSettings::fontSettings());
+                                  semanticInfo, TextEditor::globalFontSettings().data());
     m_watcher.setFuture(future);
     m_futureSynchronizer.addFuture(future);
 }

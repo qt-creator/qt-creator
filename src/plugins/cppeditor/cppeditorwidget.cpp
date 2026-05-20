@@ -802,7 +802,7 @@ QTextCharFormat occurrencesTextCharFormat()
 {
     using TextEditor::TextEditorSettings;
 
-    return TextEditorSettings::fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
+    return globalFontSettings().data().toTextCharFormat(TextEditor::C_OCCURRENCES);
 }
 
 QList<QTextEdit::ExtraSelection> sourceLocationsToExtraSelections(

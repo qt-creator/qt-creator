@@ -73,7 +73,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
 
     auto updateFontSettings = [this] {
-        m_outputWindow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+        m_outputWindow->setBaseFont(TextEditor::globalFontSettings().data().font());
     };
 
     auto updateZoomEnabled = [this] {

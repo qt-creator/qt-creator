@@ -538,7 +538,7 @@ void SourceEditorWidget::markSourceLocation(
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    const TextEditor::FontSettingsData fs = TextEditor::TextEditorSettings::fontSettings();
+    const TextEditor::FontSettingsData fs = TextEditor::globalFontSettings().data();
     QTextCharFormat background = fs.toTextCharFormat(TextEditor::C_CURRENT_LINE);
     QTextCharFormat column = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
 
@@ -688,7 +688,7 @@ SearchableTerminal *CompilerWidget::createTerminal()
         m_resultTerminal->setFont(f);
     };
 
-    setFontSize(TextEditorSettings::instance()->fontSettings());
+    setFontSize(TextEditor::globalFontSettings().data());
 
     connect(TextEditorSettings::instance(),
             &TextEditorSettings::fontSettingsChanged,
@@ -1160,7 +1160,7 @@ QList<QTextEdit::ExtraSelection> AsmDocument::setCompileResult(
 
     QTextCursor cursor(document());
 
-    QTextCharFormat linkFormat = TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(
+    QTextCharFormat linkFormat = TextEditor::globalFontSettings().data().toTextCharFormat(
         TextEditor::C_LINK);
 
     QList<QTextEdit::ExtraSelection> links;

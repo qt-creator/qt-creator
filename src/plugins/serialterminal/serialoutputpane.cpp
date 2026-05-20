@@ -249,7 +249,7 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     auto ow = new Core::OutputWindow(context, Key(), m_tabWidget);
     using TextEditor::TextEditorSettings;
     auto fontSettingsChanged = [ow] {
-        ow->setBaseFont(TextEditorSettings::fontSettings().font());
+        ow->setBaseFont(TextEditor::globalFontSettings().data().font());
     };
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,

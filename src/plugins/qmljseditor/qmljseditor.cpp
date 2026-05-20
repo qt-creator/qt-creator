@@ -200,7 +200,7 @@ static void appendExtraSelectionsForMessages(
             sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, d.loc.length);
         }
 
-        const auto fontSettings = TextEditor::TextEditorSettings::fontSettings();
+        const auto fontSettings = TextEditor::globalFontSettings().data();
 
         if (d.isWarning())
             sel.format = fontSettings.toTextCharFormat(TextEditor::C_WARNING);

@@ -75,7 +75,7 @@ public:
         resize(600, 600);
 
         auto codeBrowser = new QPlainTextEdit;
-        codeBrowser->setFont(TextEditorSettings::fontSettings().font());
+        codeBrowser->setFont(globalFontSettings().data().font());
         codeBrowser->setPlainText(cmakeCodeForPackages(packages));
 
         auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
