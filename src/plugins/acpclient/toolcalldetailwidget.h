@@ -11,6 +11,7 @@
 
 #include <optional>
 
+class QAbstractButton;
 class QLabel;
 
 namespace Utils {
@@ -36,6 +37,14 @@ public:
     void updateContent(const Acp::ToolCallUpdate &update);
     void setContentMaxWidth(int width);
 
+    void addPermissionControls(const QList<Acp::PermissionOption> &options,
+                               bool addDenyFallback);
+    void resolvePermission(const QString &text, bool accepted);
+
+signals:
+    void permissionOptionSelected(const QString &optionId);
+    void permissionCancelled();
+
 protected:
     void paintEvent(QPaintEvent *e) override;
 
@@ -56,6 +65,12 @@ private:
     Utils::MarkdownBrowser *m_rawInputContent = nullptr;
     Acp::ToolCallStatus m_status = Acp::ToolCallStatus::in_progress;
     int m_contentMaxWidth = -1;
+
+    QWidget *m_permissionRow = nullptr;
+    QLabel *m_permissionStatusLabel = nullptr;
+    QList<QAbstractButton *> m_permissionButtons;
+    bool m_collapsibleBeforePermission = false;
+    bool m_collapsedBeforePermission = false;
 };
 
 } // namespace AcpClient::Internal

@@ -504,136 +504,6 @@ protected:
     }
 };
 
-static QString optionKindToUiString(Acp::PermissionOptionKind kind)
-{
-    switch (kind) {
-    case Acp::PermissionOptionKind::allow_once:
-        return Tr::tr("Allow");
-    case Acp::PermissionOptionKind::allow_always:
-        return Tr::tr("Allow Always");
-    case Acp::PermissionOptionKind::reject_once:
-        return Tr::tr("Reject");
-    case Acp::PermissionOptionKind::reject_always:
-        return Tr::tr("Reject Always");
-    }
-    return {};
-}
-
-// ---------------------------------------------------------------------------
-// PermissionRequestWidget — inline widget for permission requests
-// ---------------------------------------------------------------------------
-
-class PermissionRequestWidget : public CollapsibleFrame
-{
-public:
-    explicit PermissionRequestWidget(const QString &title, const QString &kindText,
-                                     const QString &command, QWidget *parent = nullptr)
-        : CollapsibleFrame(parent)
-    {
-        setFrameShape(QFrame::NoFrame);
-        setCollapsible(false);
-
-        m_iconDisplay = new Utils::QtcIconDisplay(this);
-        m_iconDisplay->setIcon(Utils::Icons::WARNING);
-        m_headerLayout->addWidget(m_iconDisplay);
-
-        auto *headerLabel = new QLabel(Tr::tr("Permission Request"), this);
-        QFont boldFont = headerLabel->font();
-        boldFont.setBold(true);
-        headerLabel->setFont(boldFont);
-        headerLabel->setWordWrap(true);
-        m_headerLayout->addWidget(headerLabel, 1);
-
-        if (!kindText.isEmpty()) {
-            auto *kindLabel = new QLabel(QStringLiteral("[%1]").arg(kindText), this);
-            QFont smallFont = kindLabel->font();
-            smallFont.setPointSizeF(smallFont.pointSizeF() * 0.85);
-            kindLabel->setFont(smallFont);
-            kindLabel->setWordWrap(true);
-            m_headerLayout->addWidget(kindLabel);
-        }
-
-        if (!title.isEmpty()) {
-            auto *titleLabel = new Utils::ElidingLabel(title, this);
-            titleLabel->setWordWrap(true);
-            m_bodyLayout->addWidget(titleLabel);
-        }
-        if (!command.isEmpty()) {
-            auto *commandLabel = new QLabel(command, this);
-            commandLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-            commandLabel->setWordWrap(true);
-            QFont mono = commandLabel->font();
-            mono.setStyleHint(QFont::Monospace);
-            mono.setFamily(QFont(QStringLiteral("monospace")).defaultFamily());
-            commandLabel->setFont(mono);
-            m_bodyLayout->addWidget(commandLabel);
-        }
-        auto *buttonWidget = new QWidget(this);
-        Layouting::Flow{}.attachTo(buttonWidget);
-        m_buttonLayout = buttonWidget->layout();
-        m_bodyLayout->addWidget(buttonWidget);
-
-        m_statusLabel = new Utils::ElidingLabel(this);
-        m_statusLabel->hide();
-        m_headerLayout->addWidget(m_statusLabel);
-    }
-
-    Utils::QtcButton *addOptionButton(const QString &text, Acp::PermissionOptionKind kind)
-    {
-        const bool reject = kind == Acp::PermissionOptionKind::reject_once
-                            || kind == Acp::PermissionOptionKind::reject_always;
-        const auto role = reject ? Utils::QtcButton::MediumTertiary
-                                 : Utils::QtcButton::MediumPrimary;
-        QString buttonText;
-        if (text.isEmpty())
-            buttonText = optionKindToUiString(kind);
-        else if (text.size() > 30)
-            buttonText = text.left(27) + QStringLiteral("...");
-        else
-            buttonText = text;
-        auto *button = new Utils::QtcButton(buttonText, role, this);
-        button->setToolTip(text);
-        m_buttonLayout->addWidget(button);
-        m_buttons.append(button);
-        return button;
-    }
-
-    void setResolved(const QString &text, bool accepted)
-    {
-        for (Utils::QtcButton *button : std::as_const(m_buttons))
-            button->hide();
-        m_iconDisplay->setIcon(accepted ? Utils::Icons::OK : Utils::Icons::CRITICAL);
-        m_statusLabel->setText(QStringLiteral("<i>%1</i>").arg(text.toHtmlEscaped()));
-        m_statusLabel->show();
-        setCollapsible(true);
-        setCollapsed(true);
-    }
-
-protected:
-    void paintEvent(QPaintEvent *) override
-    {
-        QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
-        const QColor bg = Utils::creatorColor(Utils::Theme::ChatToolCallBackground);
-        Utils::StyleHelper::drawCardBg(&p, rect(), bg, QPen(Qt::NoPen),
-                                       Utils::StyleHelper::SpacingTokens::RadiusS);
-        // Orange left border to distinguish from regular tool calls
-        QPainterPath clip;
-        clip.addRoundedRect(rect(), Utils::StyleHelper::SpacingTokens::RadiusS,
-                            Utils::StyleHelper::SpacingTokens::RadiusS);
-        p.setClipPath(clip);
-        p.setRenderHint(QPainter::Antialiasing, false);
-        p.fillRect(QRect(0, 0, 3, height()), QColor{0xe6, 0x9c, 0x24}); // amber
-        p.setClipping(false);
-    }
-
-private:
-    Utils::QtcIconDisplay *m_iconDisplay = nullptr;
-    QLayout *m_buttonLayout = nullptr;
-    Utils::ElidingLabel *m_statusLabel = nullptr;
-    QList<Utils::QtcButton *> m_buttons;
-};
-
 // ---------------------------------------------------------------------------
 // AuthenticationWidget — inline widget for authentication flow
 // ---------------------------------------------------------------------------
@@ -1209,59 +1079,58 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
                                            const RequestPermissionRequest &request)
 {
     finishAgentMessage();
-    finishToolCallGroup();
 
     const ToolCallUpdate &toolCall = request.toolCall();
     const QString toolCallId = toolCall.toolCallId();
     const QString title = toolCall.title().value_or(QString());
-    const QString kindText = toolCall.kind() ? toString(*toolCall.kind()) : QString();
 
-    QString command;
-    if (const auto &rawInput = toolCall.rawInput(); rawInput && rawInput->isObject()) {
-        const QJsonValue cmd = rawInput->toObject().value("command");
-        if (cmd.isString())
-            command = cmd.toString();
-        if (title.contains(command))
-            command.clear();
+    // Ensure a detail widget exists for this tool call so we can inline the controls.
+    ToolCallDetailWidget *detail = m_toolCallDetailWidgets.value(toolCallId);
+    ToolCallGroupWidget *group = m_toolCallGroups.value(toolCallId);
+    if (!detail) {
+        ToolCall tc;
+        tc.toolCallId(toolCallId);
+        if (!title.isEmpty())
+            tc.title(title);
+        tc.status(toolCall.status().value_or(ToolCallStatus::pending));
+        tc.kind(toolCall.kind());
+        if (!group)
+            group = ensureToolCallGroup();
+        group->trackStatus(toolCallId, toolCall.status().value_or(ToolCallStatus::pending));
+        if (!title.isEmpty())
+            group->trackTitle(toolCallId, title);
+        m_toolCallGroups[toolCallId] = group;
+        detail = new ToolCallDetailWidget(tc, group);
+        detail->setContentMaxWidth(contentMaxWidth());
+        group->addChildWidget(detail);
+        m_toolCallDetailWidgets[toolCallId] = detail;
     }
-
-    auto *widget = new PermissionRequestWidget(title, kindText, command, m_container);
-
-    auto markToolCallFailed = [this, toolCallId] {
-        if (auto *detail = m_toolCallDetailWidgets.value(toolCallId))
-            detail->applyStatus(ToolCallStatus::failed);
-        if (auto *group = m_toolCallGroups.value(toolCallId))
-            group->trackStatus(toolCallId, ToolCallStatus::failed);
-    };
+    if (group)
+        group->setCollapsed(false);
 
     const QList<PermissionOption> options = request.options();
-    for (const PermissionOption &option : options) {
-        auto *button = widget->addOptionButton(option.name(), option.kind());
-        connect(button, &QAbstractButton::clicked, this,
-                [this, id, option, widget, markToolCallFailed] {
-            const bool accepted = option.kind() == PermissionOptionKind::allow_once
-                                  || option.kind() == PermissionOptionKind::allow_always;
-            widget->setResolved(option.name(), accepted);
-            if (!accepted)
-                markToolCallFailed();
-            emit permissionOptionSelected(id, option.optionId());
-        });
-    }
-
     const bool hasRejectOption = Utils::anyOf(
         options, Utils::equal(&PermissionOption::kind, PermissionOptionKind::reject_once));
-    if (!hasRejectOption) {
-        // Add a deny/cancel button if not already present, to allow user to reject the request without selecting an option
-        auto *cancelButton
-            = widget->addOptionButton(Tr::tr("Deny"), PermissionOptionKind::reject_once);
-        connect(cancelButton, &QAbstractButton::clicked, this, [this, id, widget, markToolCallFailed] {
-            widget->setResolved(Tr::tr("Denied"), false);
-            markToolCallFailed();
-            emit permissionCancelled(id);
-        });
-    }
+    detail->addPermissionControls(options, /*addDenyFallback=*/!hasRejectOption);
 
-    addWidget(widget);
+    connect(detail, &ToolCallDetailWidget::permissionOptionSelected, this,
+            [this, id, detail, options](const QString &optionId) {
+                const auto it = std::find_if(options.begin(), options.end(),
+                                             [&](const PermissionOption &o) {
+                                                 return o.optionId() == optionId;
+                                             });
+                const bool accepted = it != options.end()
+                                      && (it->kind() == PermissionOptionKind::allow_once
+                                          || it->kind() == PermissionOptionKind::allow_always);
+                const QString name = it != options.end() ? it->name() : optionId;
+                detail->resolvePermission(name, accepted);
+                emit permissionOptionSelected(id, optionId);
+            });
+    connect(detail, &ToolCallDetailWidget::permissionCancelled, this,
+            [this, id, detail] {
+                detail->resolvePermission(Tr::tr("Denied"), false);
+                emit permissionCancelled(id);
+            });
 }
 
 void AcpMessageView::addAuthenticationRequest(const QList<Acp::AuthMethod> &methods)

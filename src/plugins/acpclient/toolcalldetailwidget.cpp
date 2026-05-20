@@ -7,6 +7,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/link.h>
 #include <utils/markdownbrowser.h>
 #include <utils/progressindicator.h>
@@ -16,7 +18,9 @@
 #include <utils/elidinglabel.h>
 #include <utils/utilsicons.h>
 
+#include <QAbstractButton>
 #include <QAbstractTextDocumentLayout>
+#include <QHBoxLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -416,6 +420,109 @@ void ToolCallDetailWidget::addBodyWidget(QWidget *widget)
     if (m_contentMaxWidth >= 0)
         widget->setMaximumWidth(m_contentMaxWidth);
     m_bodyLayout->addWidget(widget);
+}
+
+static QString permissionOptionKindLabel(PermissionOptionKind kind)
+{
+    switch (kind) {
+    case PermissionOptionKind::allow_once:    return Tr::tr("Allow Once");
+    case PermissionOptionKind::allow_always:  return Tr::tr("Allow Always");
+    case PermissionOptionKind::reject_once:   return Tr::tr("Reject Once");
+    case PermissionOptionKind::reject_always: return Tr::tr("Reject Always");
+    }
+    return {};
+}
+
+void ToolCallDetailWidget::addPermissionControls(const QList<PermissionOption> &options,
+                                                 bool addDenyFallback)
+{
+    if (m_permissionRow)
+        return;
+
+    // Force the body open while a permission decision is pending.
+    m_collapsibleBeforePermission = isCollapsible();
+    m_collapsedBeforePermission = isCollapsed();
+    setCollapsible(false);
+    setCollapsed(false);
+
+    m_permissionRow = new QWidget(this);
+    auto *rowLayout = new QVBoxLayout(m_permissionRow);
+    rowLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto *promptRow = new QHBoxLayout;
+    promptRow->setContentsMargins(0, 0, 0, 0);
+    auto *warningIcon = new Utils::QtcIconDisplay(m_permissionRow);
+    warningIcon->setIcon(Utils::Icons::WARNING);
+    promptRow->addWidget(warningIcon);
+    auto *promptLabel = new QLabel(Tr::tr("Permission required:"), m_permissionRow);
+    promptRow->addWidget(promptLabel, 1);
+    rowLayout->addLayout(promptRow);
+
+    auto *buttonHost = new QWidget(m_permissionRow);
+    Layouting::Flow{}.attachTo(buttonHost);
+    QLayout *buttonLayout = buttonHost->layout();
+    rowLayout->addWidget(buttonHost);
+
+    for (const PermissionOption &option : options) {
+        const bool reject = option.kind() == PermissionOptionKind::reject_once
+                            || option.kind() == PermissionOptionKind::reject_always;
+        const auto role = reject ? Utils::QtcButton::MediumTertiary
+                                 : Utils::QtcButton::MediumPrimary;
+        const QString name = option.name();
+        QString buttonText;
+        if (name.isEmpty())
+            buttonText = permissionOptionKindLabel(option.kind());
+        else if (name.size() > 30)
+            buttonText = name.left(27) + QStringLiteral("...");
+        else
+            buttonText = name;
+        auto *button = new Utils::QtcButton(buttonText, role, m_permissionRow);
+        button->setToolTip(name);
+        buttonLayout->addWidget(button);
+        m_permissionButtons.append(button);
+        const QString optionId = option.optionId();
+        connect(button, &QAbstractButton::clicked, this, [this, optionId] {
+            emit permissionOptionSelected(optionId);
+        });
+    }
+
+    const bool hasReject = Utils::anyOf(
+        options, Utils::equal(&PermissionOption::kind, PermissionOptionKind::reject_once));
+    if (addDenyFallback && !hasReject) {
+        auto *cancel = new Utils::QtcButton(
+            Tr::tr("Deny"), Utils::QtcButton::MediumTertiary, m_permissionRow);
+        buttonLayout->addWidget(cancel);
+        m_permissionButtons.append(cancel);
+        connect(cancel, &QAbstractButton::clicked, this, [this] {
+            emit permissionCancelled();
+        });
+    }
+
+    m_permissionStatusLabel = new QLabel(m_permissionRow);
+    m_permissionStatusLabel->hide();
+    promptRow->addWidget(m_permissionStatusLabel);
+
+    if (m_contentMaxWidth >= 0)
+        m_permissionRow->setMaximumWidth(m_contentMaxWidth);
+    m_bodyLayout->addWidget(m_permissionRow);
+}
+
+void ToolCallDetailWidget::resolvePermission(const QString &text, bool accepted)
+{
+    for (QAbstractButton *button : std::as_const(m_permissionButtons))
+        button->hide();
+    if (m_permissionStatusLabel) {
+        m_permissionStatusLabel->setText(QStringLiteral("<i>%1</i>").arg(text.toHtmlEscaped()));
+        m_permissionStatusLabel->show();
+    }
+    if (!accepted)
+        applyStatus(ToolCallStatus::failed);
+
+    // Restore the collapsible state that was in effect before the permission row was shown.
+    if (m_collapsibleBeforePermission) {
+        setCollapsible(true);
+        setCollapsed(m_collapsedBeforePermission);
+    }
 }
 
 } // namespace AcpClient::Internal
