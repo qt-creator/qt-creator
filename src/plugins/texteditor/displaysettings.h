@@ -82,6 +82,8 @@ public:
     Utils::IntegerAspect minimalAnnotationContent{this};
     Utils::BoolAspect displayMinimap{this};
 
+    void apply() override;
+
     DisplaySettingsData data() const;
 };
 

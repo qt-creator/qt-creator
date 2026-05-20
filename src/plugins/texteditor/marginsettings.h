@@ -27,6 +27,8 @@ class TEXTEDITOR_EXPORT MarginSettings : public Utils::AspectContainer
 public:
     explicit MarginSettings(const Utils::Key &keyPrefix = {});
 
+    void apply() override;
+
     MarginSettingsData data() const;
     void setData(const MarginSettingsData &data);
 

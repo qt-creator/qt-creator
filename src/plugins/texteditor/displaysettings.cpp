@@ -12,16 +12,9 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcsettings.h>
-#include <utils/tooltip/tooltip.h>
 
-#include <QApplication>
-#include <QCheckBox>
-#include <QGroupBox>
-#include <QRadioButton>
-#include <QSpinBox>
+#include <QLabel>
 
 using namespace Utils;
 
@@ -142,107 +135,95 @@ DisplaySettings::DisplaySettings()
     readSettings();
 }
 
-class DisplaySettingsWidget final : public Core::IOptionsPageWidget
+void DisplaySettings::apply()
+{
+    AspectContainer::apply();
+    AspectContainer::writeSettings();
+}
+
+class DisplaySettingsContainer final : public AspectContainer
 {
 public:
-    DisplaySettingsWidget()
+    DisplaySettingsContainer()
     {
-        DisplaySettings &s = displaySettings();
-        MarginSettings &m = marginSettings();
-
-        auto enableTextWrappingHintLabel =
+        registerAspect(&displaySettings());
+        registerAspect(&marginSettings());
+        setLayouter([] {
+            DisplaySettings &s = displaySettings();
+            MarginSettings &m = marginSettings();
+            auto *label =
                 new QLabel(Tr::tr("<i>Set <a href=\"font zoom\">font line spacing</a> "
                                   "to 100% to enable text wrapping option.</i>"));
-
-        using namespace Layouting;
-        Column {
-            Group {
-                title(Tr::tr("Margin")),
-                Column {
-                    Row { m.showMargin, m.marginColumn, st },
-                    Row { m.useIndenter, m.tintMarginArea, st },
-                    Row { m.centerEditorContentWidthPercent, st }
-                }
-            },
-            Group {
-                title(Tr::tr("Wrapping")),
-                Column {
-                    s.textWrapping,
-                    Row { enableTextWrappingHintLabel, st}
-                }
-            },
-            Group {
-                title(Tr::tr("Display")),
-                Row {
+            const auto updateWrapping = [label] {
+                const bool normalLineSpacing =
+                    TextEditorSettings::fontSettings().relativeLineSpacing() == 100;
+                if (!normalLineSpacing)
+                    displaySettings().textWrapping.setVolatileValue(false);
+                displaySettings().textWrapping.setEnabled(normalLineSpacing);
+                label->setVisible(!normalLineSpacing);
+            };
+            updateWrapping();
+            connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+                    label, updateWrapping);
+            connect(label, &QLabel::linkActivated, [] {
+                Core::ICore::showSettings(Constants::TEXT_EDITOR_FONT_SETTINGS); });
+            using namespace Layouting;
+            return Column {
+                Group {
+                    title(Tr::tr("Margin")),
                     Column {
-                        s.displayLineNumbers,
-                        s.displayFoldingMarkers,
-                        s.markTextChanges,
-                        s.visualizeWhitespace,
-                        s.centerCursorOnScroll,
-                        s.autoFoldFirstComment,
-                        s.scrollBarHighlights,
-                        s.animateNavigationWithinFile,
-                        s.highlightSelection,
-                    },
-                    Column {
-                        s.highlightCurrentLine,
-                        s.highlightBlocks,
-                        s.animateMatchingParentheses,
-                        s.visualizeIndent,
-                        s.highlightMatchingParentheses,
-                        s.openLinksInNextSplit,
-                        s.displayFileEncoding,
-                        s.displayFileLineEnding,
-                        s.displayTabSettings,
-                        s.displayMinimap,
+                        Row { m.showMargin, m.marginColumn, st },
+                        Row { m.useIndenter, m.tintMarginArea, st },
+                        Row { m.centerEditorContentWidthPercent, st }
                     }
-                }
-            },
-            Group {
-                title(Tr::tr("Line Annotations")),
-                groupChecker(s.displayAnnotations.groupChecker()),
-                Column {
-                    s.annotationAlignment
-                }
-            },
-            st
-        }.attachTo(this);
-
-        auto updateWrapping = [enableTextWrappingHintLabel] {
-            const bool normalLineSpacing = TextEditorSettings::fontSettings().relativeLineSpacing() == 100;
-            if (!normalLineSpacing)
-                displaySettings().textWrapping.setVolatileValue(false);
-            displaySettings().textWrapping.setEnabled(normalLineSpacing);
-            enableTextWrappingHintLabel->setVisible(!normalLineSpacing);
-        };
-
-        updateWrapping();
-
-        connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-                this, updateWrapping);
-
-        connect(enableTextWrappingHintLabel, &QLabel::linkActivated, [] {
-            Core::ICore::showSettings(Constants::TEXT_EDITOR_FONT_SETTINGS); } );
-
-        connect(&s, &AspectContainer::volatileValueChanged, this, &checkSettingsDirty);
-        connect(&m, &AspectContainer::volatileValueChanged, this, &checkSettingsDirty);
-    }
-
-    void apply() final
-    {
-        marginSettings().apply();
-        marginSettings().writeSettings();
-        displaySettings().apply();
-        displaySettings().writeSettings();
-    }
-
-    bool isDirty() const
-    {
-        return marginSettings().isDirty() || displaySettings().isDirty();
+                },
+                Group {
+                    title(Tr::tr("Wrapping")),
+                    Column {
+                        s.textWrapping,
+                        Row { label, st }
+                    }
+                },
+                Group {
+                    title(Tr::tr("Display")),
+                    Row {
+                        Column {
+                            s.displayLineNumbers,
+                            s.displayFoldingMarkers,
+                            s.markTextChanges,
+                            s.visualizeWhitespace,
+                            s.centerCursorOnScroll,
+                            s.autoFoldFirstComment,
+                            s.scrollBarHighlights,
+                            s.animateNavigationWithinFile,
+                            s.highlightSelection,
+                        },
+                        Column {
+                            s.highlightCurrentLine,
+                            s.highlightBlocks,
+                            s.animateMatchingParentheses,
+                            s.visualizeIndent,
+                            s.highlightMatchingParentheses,
+                            s.openLinksInNextSplit,
+                            s.displayFileEncoding,
+                            s.displayFileLineEnding,
+                            s.displayTabSettings,
+                            s.displayMinimap,
+                        }
+                    }
+                },
+                Group {
+                    title(Tr::tr("Line Annotations")),
+                    groupChecker(s.displayAnnotations.groupChecker()),
+                    Column {
+                        s.annotationAlignment
+                    }
+                },
+                st
+            };
+        });
     }
 };
-
 
 DisplaySettingsData DisplaySettings::data() const
 {
@@ -284,8 +265,10 @@ public:
         setId(Constants::TEXT_EDITOR_DISPLAY_SETTINGS);
         setDisplayName(Tr::tr("Display"));
         setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-        setWidgetCreator([] { return new DisplaySettingsWidget; });
+        setSettingsProvider([this] { return &thePage; });
     }
+
+    DisplaySettingsContainer thePage;
 };
 
 void Internal::setupDisplaySettings()

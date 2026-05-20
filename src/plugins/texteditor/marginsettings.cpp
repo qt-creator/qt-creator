@@ -60,6 +60,12 @@ MarginSettings::MarginSettings(const Key &keyPrefix)
     tintMarginArea.setEnabler(&showMargin);
 }
 
+void MarginSettings::apply()
+{
+    AspectContainer::apply();
+    AspectContainer::writeSettings();
+}
+
 MarginSettingsData MarginSettings::data() const
 {
     MarginSettingsData d;
