@@ -151,7 +151,7 @@ void ToolCallDetailWidget::updateContent(const ToolCallUpdate &update)
 {
     if (const auto status = update.status())
         applyStatus(*status);
-    if (const auto title = update.title())
+    if (const auto title = update.title(); title && !title->isEmpty())
         m_titleLabel->setText(*title);
 
     // Parse updated content if available
