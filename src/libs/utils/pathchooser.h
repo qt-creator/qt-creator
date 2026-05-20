@@ -5,7 +5,6 @@
 
 #include "utils_global.h"
 
-#include "environment.h"
 #include "fancylineedit.h"
 #include "filepath.h"
 #include "lazy.h"
@@ -76,9 +75,9 @@ public:
 
     static FilePath expandPath(
         const FilePath &path,
-        const MacroExpander *macroExpander = nullptr,
-        const FilePath &baseDirectory = FilePath(),
-        const Environment &env = Environment(),
+        const MacroExpander *macroExpander,
+        const FilePath &baseDirectory,
+        const Environment &env,
         Kind expectedKind = Any);
 
     FilePath baseDirectory() const;
