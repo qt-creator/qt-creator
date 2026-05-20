@@ -46,11 +46,7 @@ public:
 
 namespace Internal {
 
-class CommentsSettingsPage : public Core::IOptionsPage
-{
-public:
-    CommentsSettingsPage();
-};
+void setupCommentsSettings();
 
 } // namespace Internal
 } // namespace TextEditor

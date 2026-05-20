@@ -128,15 +128,23 @@ void CommentsSettings::Data::toMap(Store &data) const
     data.insert(kCommandPrefix, int(commandPrefix));
 }
 
-
 namespace Internal {
 
-CommentsSettingsPage::CommentsSettingsPage()
+class CommentsSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
-    setDisplayName(Tr::tr("Documentation Comments"));
-    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setSettingsProvider([] { return &CommentsSettings::instance(); });
+public:
+    CommentsSettingsPage()
+    {
+        setId(Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
+        setDisplayName(Tr::tr("Documentation Comments"));
+        setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &CommentsSettings::instance(); });
+    }
+};
+
+void setupCommentsSettings()
+{
+    static CommentsSettingsPage theCommentsSettingsPage;
 }
 
 } // namespace Internal

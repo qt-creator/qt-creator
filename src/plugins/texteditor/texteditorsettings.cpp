@@ -45,8 +45,6 @@ public:
         m_defaultCodeStylePool.addCodeStyle(&m_globalCodeStyle);
     }
 
-    CommentsSettingsPage m_commentsSettingsPage;
-
     QMap<Utils::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
 
     QMap<Utils::Id, ICodeStylePreferences *> m_languageToCodeStyle;
@@ -71,6 +69,7 @@ TextEditorSettings::TextEditorSettings()
     Internal::setupFontSettingsPage();
     setupCompletionSettings();
     setupDisplaySettings();
+    setupCommentsSettings();
 
     // Note: default background colors are coming from FormatDescription::background()
 
