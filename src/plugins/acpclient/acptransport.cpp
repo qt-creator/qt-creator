@@ -48,7 +48,7 @@ void AcpTransport::parseData(const QByteArray &data)
         }
 
         if (!doc.isObject()) {
-            emit errorOccurred(Tr::tr("Expected JSON object"));
+            emit errorOccurred(Tr::tr("Expected JSON object."));
             continue;
         }
 

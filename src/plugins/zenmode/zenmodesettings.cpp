@@ -40,7 +40,7 @@ ZenModeSettings::ZenModeSettings()
         Tr::tr("Hide the mode selector (default)."),
         int(ModeManager::Style::Hidden));
     SelectionAspect::Option optIconsOnly(
-        Tr::tr("Icons only"),
+        Tr::tr("Icons Only"),
         Tr::tr("Show only icons in the mode selector."),
         int(ModeManager::Style::IconsOnly));
     SelectionAspect::Option optIconsText(

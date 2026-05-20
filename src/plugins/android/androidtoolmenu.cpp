@@ -59,7 +59,7 @@ static FilePath getManifestDirWithWizardOption(QWidget *parent, const FilePath &
         msgBox.setText(
             Tr::tr(
                 "The Android manifest directory was not found automatically.\n"
-                "Please select it manually or create it using the wizard."));
+                "Select it manually or create it using the wizard."));
         msgBox.setIcon(QMessageBox::Question);
 
         QPushButton *selectBtn
@@ -115,8 +115,7 @@ FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget, bool showWa
                 textEditorWidget,
                 Tr::tr("Operation Failed"),
                 Tr::tr(
-                    "This operation requires a project to be open. Please open your project file "
-                    "first."));
+                    "This operation requires that you open your project file first."));
         }
         return FilePath();
     }
@@ -284,7 +283,7 @@ void setupAndroidToolsMenu()
             QMessageBox::warning(
                 Core::ICore::dialogParent(),
                 Tr::tr("No Project"),
-                Tr::tr("Please open a project first."));
+                Tr::tr("First open a project."));
             return;
         }
 

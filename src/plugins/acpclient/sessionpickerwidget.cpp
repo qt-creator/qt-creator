@@ -240,7 +240,7 @@ SessionPickerWidget::SessionPickerWidget(QWidget *parent)
     m_emptyLabel->hide();
     m_bodyLayout->addWidget(m_emptyLabel);
 
-    m_loadMoreButton = new QPushButton(Tr::tr("Load more..."), this);
+    m_loadMoreButton = new QPushButton(Tr::tr("Load More..."), this);
     m_loadMoreButton->setFlat(true);
     m_loadMoreButton->hide();
     connect(m_loadMoreButton, &QPushButton::clicked, this, [this] {
@@ -382,7 +382,7 @@ SessionPickerWidget::Group &SessionPickerWidget::ensureGroup(const QString &cwd)
     if (isCurrent)
         headerText = Tr::tr("Current Project (%1)").arg(cwd);
     else if (cwd.isEmpty())
-        headerText = Tr::tr("(No working directory)");
+        headerText = Tr::tr("(No Working Directory)");
     else
         headerText = cwd;
 

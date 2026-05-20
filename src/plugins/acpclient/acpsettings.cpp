@@ -108,7 +108,7 @@ public:
                 auto customItem = new QStandardItem(Tr::tr("<Custom>"));
                 customItem->setData(QString());
                 customItem->setToolTip(
-                    Tr::tr("Manually specify an agent not listed in the registry"));
+                    Tr::tr("Manually specify an agent not listed in the registry."));
                 resultCb({customItem});
                 return;
             }
@@ -130,7 +130,7 @@ public:
         auto customItem = new QStandardItem(Tr::tr("<Custom>"));
         customItem->setData(QString());
         customItem->setToolTip(
-            Tr::tr("Manually specify an agent not listed in the registry"));
+            Tr::tr("Manually specify an agent not listed in the registry."));
         items.append(customItem);
 
         if (s_registry) {
@@ -218,7 +218,7 @@ public:
 
         name.setLabelText(Tr::tr("Name:"));
         name.setSettingsKey("name");
-        name.setToolTip(Tr::tr("The display name"));
+        name.setToolTip(Tr::tr("The display name."));
         name.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
         name.setDefaultValue(Tr::tr("<New Server>"));
 
@@ -245,7 +245,7 @@ public:
             InfoLabel *templateCmdInfo = new InfoLabel();
             templateCmdInfo->setWordWrap(true);
             templateCmdInfo->setElideMode(Qt::ElideNone);
-            templateCmdInfo->setToolTip(Tr::tr("The command that will spawn the ACP server"));
+            templateCmdInfo->setToolTip(Tr::tr("The command that will spawn the ACP server."));
             templateCmdInfo->setType(InfoLabel::Information);
             templateCmdInfo->setTextInteractionFlags(Qt::TextSelectableByMouse);
 

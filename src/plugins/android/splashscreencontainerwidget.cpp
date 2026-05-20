@@ -504,7 +504,7 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
     settingsLayout->setLabelAlignment(Qt::AlignLeft);
     m_imageShowMode->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     settingsLayout->addRow(Tr::tr("Image show mode:"), m_imageShowMode);
-    settingsLayout->addRow(Tr::tr("Background Colour:"), m_backgroundColor);
+    settingsLayout->addRow(Tr::tr("Background color:"), m_backgroundColor);
     settingsLayout->addRow(Tr::tr("Sticky splash screen:"), m_stickyCheck);
 
     mainLayout->addWidget(tab);
