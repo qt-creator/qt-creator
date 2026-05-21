@@ -192,8 +192,7 @@ CppEditorDocument::CppEditorDocument()
     connect(syntaxHighlighter(), &SyntaxHighlighter::finished,
             this, [this]{ d->applyIfdefedOutBlocks(); });
 
-    ICodeStylePreferencesFactory *factory
-        = TextEditorSettings::codeStyleFactory(Constants::CPP_SETTINGS_ID);
+    ICodeStylePreferencesFactory *factory = codeStyleFactory(Constants::CPP_SETTINGS_ID);
     setIndenter(factory->createIndenter(document()));
 
     connect(this, &TextEditor::TextDocument::tabSettingsChanged, this, [this] {

@@ -138,7 +138,9 @@ private:
 class NimCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 {
 public:
-    NimCodeStylePreferencesFactory() = default;
+    NimCodeStylePreferencesFactory()
+        : ICodeStylePreferencesFactory(Constants::C_NIMLANGUAGE_ID)
+    {}
 
 private:
     CodeStyleEditorWidget *createCodeStyleEditor(
@@ -149,11 +151,6 @@ private:
         auto editor = new NimCodeStyleEditor{parent};
         editor->init(this, projectFile, codeStyle);
         return editor;
-    }
-
-    Id languageId() final
-    {
-        return Constants::C_NIMLANGUAGE_ID;
     }
 
     QString displayName() final
@@ -183,7 +180,7 @@ public:
         m_nimCodeStylePreferences.setCurrentDelegate(m_codeStyle->currentDelegate());
         m_nimCodeStylePreferences.setId(m_codeStyle->id());
 
-        auto factory = TextEditorSettings::codeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
+        auto factory = codeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
         CodeStyleEditorWidget *editor
             = factory->createCodeStyleEditor({}, &m_nimCodeStylePreferences);
 
@@ -220,7 +217,6 @@ public:
         setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
         setWidgetCreator([this] { return new NimCodeStyleSettingsWidget(&m_globalCodeStyle); });
 
-        TextEditorSettings::registerCodeStyleFactory(&m_factory);
         m_globalCodeStyle.setDelegatingPool(&m_pool);
         m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
         m_globalCodeStyle.setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
@@ -254,7 +250,6 @@ public:
     ~NimCodeStyleSettingsPage()
     {
         TextEditorSettings::unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
-        TextEditorSettings::unregisterCodeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
     }
 
 private:

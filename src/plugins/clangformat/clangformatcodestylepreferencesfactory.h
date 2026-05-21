@@ -3,12 +3,4 @@
 
 #pragma once
 
-#include <qtconfigmacros.h>
-
-QT_BEGIN_NAMESPACE
-class QObject;
-QT_END_NAMESPACE
-
-namespace ClangFormat {
-void setupCodeStyleFactory(QObject *guard);
-} // namespace ClangFormat
+namespace ClangFormat { void setupCodeStyleFactory(); }

@@ -66,7 +66,7 @@ EditorConfiguration::EditorConfiguration()
         Utils::Id languageId = itCodeStyle.key();
         // global prefs for language
         ICodeStylePreferences *originalPreferences = itCodeStyle.value();
-        ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
+        ICodeStylePreferencesFactory *factory = codeStyleFactory(languageId);
         // clone of global prefs for language - it will became project prefs for language
         ICodeStylePreferences *preferences = factory->createCodeStyle();
         // project prefs can point to the global language pool, which contains also the global language prefs

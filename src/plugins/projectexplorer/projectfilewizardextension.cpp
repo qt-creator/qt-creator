@@ -219,7 +219,7 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     FolderNode *folder = m_context->page->currentNode();
     Project *baseProject = ProjectTree::projectForNode(folder);
 
-    ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
+    ICodeStylePreferencesFactory *factory = codeStyleFactory(languageId);
 
     QTextDocument doc(file->contents());
     Indenter *indenter = nullptr;

@@ -33,7 +33,7 @@ class ClangFormatPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         // This overrides the default, see implementation.
-        setupCodeStyleFactory(this);
+        setupCodeStyleFactory();
 
         ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
         if (contextMenu) {

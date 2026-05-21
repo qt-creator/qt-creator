@@ -8,6 +8,8 @@
 #include <utils/id.h>
 
 QT_BEGIN_NAMESPACE
+template <typename Key, typename T>
+class QMap;
 class QTextDocument;
 class QWidget;
 QT_END_NAMESPACE
@@ -27,8 +29,8 @@ class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory
     ICodeStylePreferencesFactory &operator=(const ICodeStylePreferencesFactory &&) = delete;
 
 public:
-    ICodeStylePreferencesFactory() = default;
-    virtual ~ICodeStylePreferencesFactory() = default;
+    explicit ICodeStylePreferencesFactory(Utils::Id languageId = {});
+    virtual ~ICodeStylePreferencesFactory();
 
     virtual CodeStyleEditorWidget *createCodeStyleEditor(
         const Utils::FilePath &projectFile,
@@ -36,9 +38,15 @@ public:
         QWidget *parent = nullptr) const
         = 0;
     virtual TextEditor::Indenter *createIndenter(QTextDocument *doc) const = 0;
-    virtual Utils::Id languageId() = 0;
+    Utils::Id languageId() const;
     virtual QString displayName() = 0;
     virtual ICodeStylePreferences *createCodeStyle() const = 0;
+
+private:
+    Utils::Id m_languageId;
 };
+
+TEXTEDITOR_EXPORT ICodeStylePreferencesFactory *codeStyleFactory(Utils::Id languageId);
+TEXTEDITOR_EXPORT const QMap<Utils::Id, ICodeStylePreferencesFactory *> &codeStyleFactories();
 
 } // namespace TextEditor

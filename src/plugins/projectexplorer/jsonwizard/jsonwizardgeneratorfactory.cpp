@@ -68,7 +68,7 @@ Result<> JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile
         return ResultOk; // don't modify files like *.ui, *.pro
 
     auto baseProject = qobject_cast<Project *>(wizard->property("SelectedProject").value<QObject *>());
-    ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
+    ICodeStylePreferencesFactory *factory = codeStyleFactory(languageId);
 
     QTextDocument doc(file->contents());
     QTextCursor cursor(&doc);

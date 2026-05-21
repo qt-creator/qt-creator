@@ -12,7 +12,6 @@
 #include "fontsettingspage.h"
 #include "highlightersettings.h"
 #include "icodestylepreferences.h"
-#include "icodestylepreferencesfactory.h"
 #include "marginsettings.h"
 #include "texteditorconstants.h"
 #include "texteditortr.h"
@@ -36,8 +35,6 @@ namespace Internal {
 class TextEditorSettingsPrivate
 {
 public:
-    QMap<Utils::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
-
     QMap<Utils::Id, ICodeStylePreferences *> m_languageToCodeStyle;
     QMap<QString, Utils::Id> m_mimeTypeToLanguage;
 };
@@ -82,26 +79,6 @@ TextEditorSettings::~TextEditorSettings()
 TextEditorSettings *TextEditorSettings::instance()
 {
     return &textEditorSettings();
-}
-
-void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *factory)
-{
-    d->m_languageToFactory.insert(factory->languageId(), factory);
-}
-
-void TextEditorSettings::unregisterCodeStyleFactory(Utils::Id languageId)
-{
-    d->m_languageToFactory.remove(languageId);
-}
-
-const QMap<Utils::Id, ICodeStylePreferencesFactory *> &TextEditorSettings::codeStyleFactories()
-{
-    return d->m_languageToFactory;
-}
-
-ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Utils::Id languageId)
-{
-    return d->m_languageToFactory.value(languageId);
 }
 
 ICodeStylePreferences *TextEditorSettings::codeStyle()

@@ -7,7 +7,6 @@
 #include "textdocument.h"
 #include "texteditor.h"
 #include "texteditortr.h"
-#include "texteditorsettings.h"
 #include "textindenter.h"
 
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
@@ -346,8 +345,7 @@ void RefactoringFile::doFormatting()
         tabSettings = m_editor->textDocument()->tabSettings();
     } else {
         document = m_document;
-        ICodeStylePreferencesFactory * const factory
-            = TextEditorSettings::codeStyleFactory(indenterId());
+        ICodeStylePreferencesFactory * const factory = codeStyleFactory(indenterId());
         indenterOwner.reset(factory ? factory->createIndenter(document)
                                     : new PlainTextIndenter(document));
         indenter = indenterOwner.get();

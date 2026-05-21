@@ -21,9 +21,9 @@
 #include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/filepath.h>
 #include <utils/fileutils.h>
+#include <utils/shutdownguard.h>
 
 #include <QInputDialog>
 #include <QMessageBox>
@@ -319,7 +319,9 @@ QString ClangFormatCodeStyleEditor::snippetProviderGroupId() const
 class ClangFormatCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 {
 public:
-    ClangFormatCodeStylePreferencesFactory() = default;
+    ClangFormatCodeStylePreferencesFactory()
+        : ICodeStylePreferencesFactory(CppEditor::Constants::CPP_SETTINGS_ID)
+    {}
 
     CodeStyleEditorWidget *createCodeStyleEditor(
             const FilePath &projectFile,
@@ -327,11 +329,6 @@ public:
             QWidget *parent = nullptr) const override
     {
         return ClangFormatCodeStyleEditor::create(this, projectFile, codeStyle, parent);
-    }
-
-    Id languageId() override
-    {
-        return CppEditor::Constants::CPP_SETTINGS_ID;
     }
 
     QString displayName() override { return Tr::tr("C++"); }
@@ -347,17 +344,10 @@ public:
     }
 };
 
-void setupCodeStyleFactory(QObject *guard)
+void setupCodeStyleFactory()
 {
-    static ClangFormatCodeStylePreferencesFactory theClangFormatStyleFactory;
-
-    // Replace the default one.
-    const Id factoryId = theClangFormatStyleFactory.languageId();
-    TextEditorSettings::unregisterCodeStyleFactory(factoryId);
-    TextEditorSettings::registerCodeStyleFactory(&theClangFormatStyleFactory);
-    QObject::connect(guard, &QObject::destroyed, [=] {
-        TextEditorSettings::unregisterCodeStyleFactory(factoryId);
-    });
+    // Replace the default one by overwriting it with this here which has the same ID.
+    static GuardedObject<ClangFormatCodeStylePreferencesFactory> theClangFormatStyleFactory;
 }
 
 } // namespace ClangFormat

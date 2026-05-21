@@ -346,7 +346,7 @@ public:
         m_pageCppCodeStylePreferences->setId(originalCodeStylePreferences->id());
 
         m_codeStyleEditor
-            = TextEditorSettings::codeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID)
+            = codeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID)
                   ->createCodeStyleEditor({}, m_pageCppCodeStylePreferences.get());
 
         auto hbox = new QVBoxLayout(this);

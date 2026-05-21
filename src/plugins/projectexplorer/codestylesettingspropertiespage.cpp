@@ -11,7 +11,6 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/codestyleeditor.h>
 
@@ -40,7 +39,7 @@ public:
 
         const EditorConfiguration *config = project->editorConfiguration();
 
-        for (ICodeStylePreferencesFactory *factory : TextEditorSettings::codeStyleFactories()) {
+        for (ICodeStylePreferencesFactory *factory : codeStyleFactories()) {
             Utils::Id languageId = factory->languageId();
             ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
             CodeStyleEditorWidget *preview = factory->createCodeStyleEditor(

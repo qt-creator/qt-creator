@@ -80,7 +80,9 @@ private:
 class CppCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 {
 public:
-    CppCodeStylePreferencesFactory() = default;
+    CppCodeStylePreferencesFactory()
+        : ICodeStylePreferencesFactory(Constants::CPP_SETTINGS_ID)
+    {}
 
 private:
     CodeStyleEditorWidget *createCodeStyleEditor(
@@ -92,8 +94,6 @@ private:
         editor->init(this, projectFile, codeStyle);
         return editor;
     }
-
-    Utils::Id languageId() final { return Constants::CPP_SETTINGS_ID; }
 
     QString displayName() final { return Tr::tr(Constants::CPP_SETTINGS_NAME); }
 
@@ -121,9 +121,6 @@ public:
 CppToolsSettings::CppToolsSettings()
 {
     qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
-
-    // code style factory
-    TextEditorSettings::registerCodeStyleFactory(&m_factory);
 
     // global code style settings
     g_globalCodeStyle = new CppCodeStylePreferences(this);
@@ -212,7 +209,6 @@ CppToolsSettings::CppToolsSettings()
 CppToolsSettings::~CppToolsSettings()
 {
     TextEditorSettings::unregisterCodeStyle(Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::unregisterCodeStyleFactory(Constants::CPP_SETTINGS_ID);
 
     delete g_globalCodeStyle;
     g_globalCodeStyle = nullptr;
