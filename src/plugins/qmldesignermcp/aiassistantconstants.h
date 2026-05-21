@@ -11,7 +11,7 @@ namespace QmlDesigner::Constants {
 
 using namespace Qt::StringLiterals;
 
-inline constexpr QByteArrayView aiAssistantProviderKey = "AiAssistant/ProviderV2"_L1;
+inline constexpr QByteArrayView aiAssistantProviderKey = "AiAssistant/ProviderV3"_L1;
 inline constexpr QByteArrayView aiAssistantTermsAcceptedKey = "AiAssistant/TermsAccepted"_L1;
 inline constexpr QByteArrayView aiAssistantSelectedModelKey = "AiAssistant/SelectedModel"_L1;
 inline constexpr QByteArrayView aiAssistantMcpServerKey = "AiAssistant/McpServers"_L1;
