@@ -197,20 +197,6 @@ Qt::ItemFlags CMakeTargetItem::flags(int) const
 
 // CMakeBuildStep
 
-static QString initialStagingDir(Kit *kit)
-{
-    // Avoid actual file accesses.
-    auto rg = QRandomGenerator::global();
-    const qulonglong rand = rg->generate64();
-    char buf[sizeof(rand)];
-    memcpy(&buf, &rand, sizeof(rand));
-    const QByteArray ba = QByteArray(buf, sizeof(buf)).toHex();
-    IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit);
-    if (buildDevice && buildDevice->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        return TemporaryDirectory::masterDirectoryPath() + "/staging-" + ba;
-    return QString::fromUtf8("/tmp/Qt-Creator-staging-" + ba);
-}
-
 static bool supportsStageForInstallation(const Kit *kit)
 {
     IDeviceConstPtr runDevice = RunDeviceKitAspect::device(kit);
@@ -258,7 +244,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
             "configurations."));
 
     stagingDir.setSettingsKey(STAGING_DIR_KEY);
-    stagingDir.setDefaultValue(initialStagingDir(kit()));
+    stagingDir.setDefaultValue("%{BuildConfig:BuildDirectory:FilePath}/.qtcreator/staging");
     stagingDir.setExpectedKind(PathChooser::Kind::Directory);
 
     Kit *kit = this->kit();

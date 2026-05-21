@@ -142,7 +142,13 @@ GroupItem GenericDeployStep::transferTask(const Storage<FilesToTransfer> &storag
 
         FileTransferMethod transferMethod = preferredTransferMethod;
         if (transferMethod != FileTransferMethod::GenericCopy) {
-            for (const FileToTransfer &fileToTransfer : *storage) {
+            for (FileToTransfer &fileToTransfer : *storage) {
+                // See if we can find a local source for the file and use that instead.
+                if (!fileToTransfer.m_source.isLocal()) {
+                    if (auto localSource = fileToTransfer.m_source.localSource())
+                        fileToTransfer.m_source = *localSource;
+                }
+
                 transferMethod = effectiveTransferMethodFor(fileToTransfer, transferMethod);
                 if (transferMethod == FileTransferMethod::GenericCopy)
                     break;
