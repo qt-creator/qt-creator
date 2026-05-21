@@ -29,7 +29,6 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <QtTaskTree/QConditional>
-#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -113,7 +112,6 @@ private:
     void stdError(const QString &line);
 
     void reportWarningOrError(const QString &message, Task::TaskType type);
-    void setInstallApkError(const QString &details);
 
     QString m_serialNumber;
     QString m_avdName;
@@ -126,8 +124,6 @@ private:
     FilePath m_command;
     FilePath m_workingDirectory;
     Environment m_environment;
-    Task m_installApkError;
-    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
@@ -140,13 +136,6 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
     m_uninstallPreviousPackage.setLabel(Tr::tr("Uninstall the existing app before deployment"),
                                          BoolAspect::LabelPlacement::AtCheckBox);
     m_uninstallPreviousPackage.setValue(false);
-}
-
-void AndroidDeployQtStep::setInstallApkError(const QString &details)
-{
-    m_installApkError = OtherTask(
-        Task::DisruptingError, Tr::tr("Could not install custom APK.").append('\n').append(details));
-    TaskHub::addTask(m_installApkError);
 }
 
 bool AndroidDeployQtStep::init()
@@ -465,80 +454,11 @@ Group AndroidDeployQtStep::deployRecipe()
 QWidget *AndroidDeployQtStep::createConfigWidget()
 {
     auto widget = new QWidget;
-    auto installCustomApkButton = new QPushButton(widget);
-    installCustomApkButton->setText(Tr::tr("Install an APK File"));
-
-    connect(installCustomApkButton, &QAbstractButton::clicked, this, [this] {
-        TaskHub::clearAndRemoveTask(m_installApkError);
-        const FilePath packagePath
-                = FileUtils::getOpenFilePath(Tr::tr("Qt Android Installer"),
-                                             FileUtils::homePath(),
-                                             Tr::tr("Android package (*.apk)"));
-        if (packagePath.isEmpty())
-            return;
-
-        // TODO: Write error messages on all the early returns below.
-
-        const QStringList appAbis = applicationAbis(kit());
-        if (appAbis.isEmpty())
-            return;
-
-        const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit());
-        const AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromDevice(device);
-        if (!info.isValid()) // aborted
-            return;
-
-        const Storage<QString> serialNumberStorage;
-
-        const auto onSetup = [serialNumberStorage, info] {
-            if (info.type == IDevice::Emulator)
-                return SetupResult::Continue;
-            if (info.serialNumber.isEmpty())
-                return SetupResult::StopWithError;
-            *serialNumberStorage = info.serialNumber;
-            return SetupResult::StopWithSuccess;
-        };
-        const auto onDone = [serialNumberStorage, info, this](DoneWith result) {
-            if (info.type == IDevice::Emulator && serialNumberStorage->isEmpty()) {
-                setInstallApkError(Tr::tr("Starting Android virtual device failed."));
-                return false;
-            }
-            return result == DoneWith::Success;
-        };
-
-        const auto onAdbSetup = [serialNumberStorage, packagePath](Process &process) {
-            const CommandLine cmd{AndroidConfig::adbToolPath(),
-                                  {adbSelector(*serialNumberStorage),
-                                   "install", "-r", packagePath.path()}};
-            process.setCommand(cmd);
-        };
-        const auto onAdbDone = [this](const Process &process, DoneWith result) {
-            if (result == DoneWith::Success) {
-                Core::MessageManager::writeSilently(
-                    Tr::tr("Android package installation finished with success."));
-            } else {
-                setInstallApkError(process.exitMessage());
-            }
-        };
-
-        const Group recipe {
-            serialNumberStorage,
-            Group {
-                onGroupSetup(onSetup),
-                startAvdRecipe(info.avdName, serialNumberStorage),
-                onGroupDone(onDone)
-            },
-            ProcessTask(onAdbSetup, onAdbDone)
-        };
-
-        m_taskTreeRunner.start(recipe);
-    });
 
     using namespace Layouting;
 
     Form {
         m_uninstallPreviousPackage, br,
-        installCustomApkButton,
         noMargin
     }.attachTo(widget);
 

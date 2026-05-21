@@ -3,8 +3,10 @@
 #include "androidtoolmenu.h"
 
 #include "androidconstants.h"
+#include "androiddevice.h"
 #include "androidmanifesteditor.h"
 #include "androidtr.h"
+#include "androidutils.h"
 #include "iconcontainerwidget.h"
 #include "manifestwizard.h"
 #include "permissionscontainerwidget.h"
@@ -13,12 +15,21 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/messagemanager.h>
 
-#include <projectexplorer/target.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
+
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
+
+#include <utils/globaltasktree.h>
+#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QCoreApplication>
@@ -29,10 +40,8 @@
 #include <QPushButton>
 #include <QScrollArea>
 
-#include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
-
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -263,6 +272,82 @@ public:
     }
 };
 
+static void showInstallError(const QString &details)
+{
+    TaskHub::addTask(OtherTask(
+        Task::DisruptingError, Tr::tr("Could not install custom APK.").append('\n').append(details)));
+}
+
+static void installApkFile()
+{
+    const FilePath packagePath
+        = FileUtils::getOpenFilePath(Tr::tr("Qt Android Installer"),
+                                     FileUtils::homePath(),
+                                     Tr::tr("Android package (*.apk)"));
+    if (packagePath.isEmpty())
+        return;
+
+    // TODO: Write error messages on all the early returns below.
+
+    Kit *kit = activeKitForActiveProject();
+    if (!kit)
+        return;
+
+    const QStringList appAbis = applicationAbis(kit);
+    if (appAbis.isEmpty())
+        return;
+
+    const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
+    const AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromDevice(device);
+    if (!info.isValid()) // aborted
+        return;
+
+    const Storage<QString> serialNumberStorage;
+
+    const auto onSetup = [serialNumberStorage, info] {
+        if (info.type == IDevice::Emulator)
+            return SetupResult::Continue;
+        if (info.serialNumber.isEmpty())
+            return SetupResult::StopWithError;
+        *serialNumberStorage = info.serialNumber;
+        return SetupResult::StopWithSuccess;
+    };
+    const auto onDone = [serialNumberStorage, info](DoneWith result) {
+        if (info.type == IDevice::Emulator && serialNumberStorage->isEmpty()) {
+            showInstallError(Tr::tr("Starting Android virtual device failed."));
+            return false;
+        }
+        return result == DoneWith::Success;
+    };
+
+    const auto onAdbSetup = [serialNumberStorage, packagePath](Process &process) {
+        const CommandLine cmd{AndroidConfig::adbToolPath(),
+                              {adbSelector(*serialNumberStorage),
+                               "install", "-r", packagePath.path()}};
+        process.setCommand(cmd);
+    };
+    const auto onAdbDone = [](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
+            Core::MessageManager::writeFlashing(
+                Tr::tr("Android package installation finished with success."));
+        } else {
+            showInstallError(process.exitMessage());
+        }
+    };
+
+    const Group recipe {
+        serialNumberStorage,
+        Group {
+            onGroupSetup(onSetup),
+            startAvdRecipe(info.avdName, serialNumberStorage),
+            onGroupDone(onDone)
+        },
+        ProcessTask(onAdbSetup, onAdbDone)
+    };
+
+    GlobalTaskTree::start(recipe);
+}
+
 void setupAndroidToolsMenu()
 {
     Core::MenuBuilder devMenu(ANDROID_TOOLS_MENU_ID);
@@ -305,6 +390,10 @@ void setupAndroidToolsMenu()
                 widget->setActiveTab(tabIndex);
         }
     };
+
+    Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.InstallApkFile")
+        .setText(Android::Tr::tr("Install an APK File"))
+        .addOnTriggered(installApkFile).addToContainer(ANDROID_TOOLS_MENU_ID);
 
     Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.XMLSource")
         .setText(Android::Tr::tr("Manifest XML Source"))
