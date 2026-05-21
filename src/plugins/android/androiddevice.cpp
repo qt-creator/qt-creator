@@ -929,8 +929,22 @@ static void handleDevicesListChange(const QString &serialNumber)
         state = IDevice::DeviceConnected;
 
     if (isEmulator) {
-        const QString avdName = emulatorName(serial);
-        const Id avdId = androidDeviceId(avdName);
+        // cache (serial->avdId) on device events so we can still route
+        // an offline/disconnected event after the dead emulator can no longer
+        // answer "emu avd name" command
+        static QHash<QString, Id> serialToAvdId;
+        Id avdId;
+        if (state == IDevice::DeviceDisconnected) {
+            avdId = serialToAvdId.take(serial);
+            if (!avdId.isValid())
+                return;
+        } else {
+            const QString avdName = emulatorName(serial);
+            if (avdName.isEmpty())
+                return;
+            avdId = androidDeviceId(avdName);
+            serialToAvdId.insert(serial, avdId);
+        }
         DeviceManager::setDeviceState(avdId, state);
         if (IDevice::Ptr dev = DeviceManager::find(avdId)) {
             AndroidDevice *androidDev = static_cast<AndroidDevice *>(dev.get());
