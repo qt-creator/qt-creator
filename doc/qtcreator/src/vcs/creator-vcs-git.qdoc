@@ -343,6 +343,7 @@
     commit message.
 
     \image {qtcreator-git-log.webp} {Commit details in Git log}
+    \caption Commit details in Git log
 
     To set the maximum number of log entries to show, go to \preferences >
     \uicontrol {Version Control} > \uicontrol Git > \uicontrol {Log count}.
@@ -477,6 +478,7 @@
     context menu.
 
     \image {qtcreator-vcs-show.png} {Commit description in Git Show}
+    \caption Commit description in Git Show
 
     \sa {Use Git}{How to: Use Git}, {Using Git}
 */
@@ -520,6 +522,7 @@
     the identifier of the commit it originates from.
 
     \image {qtcreator-git-blame.webp} {Git Blame view}
+    \caption Git Blame view
 
     \list
     \li To hide the path information in the view, select \uicontrol {Omit Path}.
@@ -698,6 +701,7 @@
         \li In the \uicontrol {Clean Repository} dialog, select the files to
             delete.
             \image {qtcreator-git-clean-repository.webp} {Clean Repository dialog}
+            \caption Clean Repository dialog
             By default, ignored files are not selected.
         \li Select \uicontrol Delete to remove the selected files.
     \endlist
@@ -775,6 +779,7 @@
         \li Go to \uicontrol Tools > \uicontrol Git >
             \uicontrol {Local Repository} and select \uicontrol Commit.
             \image {qtcreator-git-commit.webp} {Git Commit view}
+            \caption Git Commit view
             \uicontrol {General Information} shows the names of the
             repository and branch for the commit.
         \li In \uicontrol {Commit Information}, check and edit information about
@@ -888,6 +893,7 @@
     \uicontrol {Amend Last Commit}.
 
     \image {qtcreator-git-amend.webp} {Amending a Git commit}
+    \caption Amending a Git commit
 
     To view the log of the current branch, select the branch name in
     \uicontrol Branch.
@@ -958,6 +964,7 @@
     The branch you checked out is shown in bold and underlined.
 
     \image {qtcreator-git-branches.webp} {Git Branches view}
+    \caption Git Branches view
 
     \section1 Filter entries and tags
 
@@ -984,6 +991,7 @@
     \imageplus (\uicontrol {Add Branch}).
 
     \image {qtcreator-git-add-branch.webp} {Add Branch dialog}
+    \caption Add Branch dialog
 
     To check out the branch when creating it, select
     \uicontrol {Checkout new branch}.
@@ -1192,6 +1200,7 @@
     \uicontrol {Actions on Commits}.
 
     \image {creator-git-commit-actions.png} {Select a Git Commit dialog}
+    \caption Select a Git Commit dialog
 
     You can apply the following actions on commits:
 
@@ -1253,6 +1262,7 @@
     \section1 Manage uncommitted changes
 
     \image {qtcreator-git-uncommitted-changes-found.webp} {Uncommitted Changes Found dialog}
+    \caption Uncommitted Changes Found dialog
 
     You can apply the following actions to uncommitted changes:
 
@@ -1433,6 +1443,7 @@
     \uicontrol {Push to Gerrit}.
 
     \image {qtcreator-gerrit-push.png} {Push to Gerrit dialog}
+    \caption Push to Gerrit dialog
 
     \section1 Push drafts to Gerrit
 
@@ -1448,6 +1459,7 @@
     \uicontrol {Remote Repository} > \uicontrol Gerrit.
 
     \image {qtcreator-gerrit.png} {Gerrit view}
+    \caption Gerrit view
 
     \section1 View details of changes
 
@@ -1479,6 +1491,7 @@
     if Gerrit does not add it.
 
     \image {qtcreator-preferences-vcs-gerrit.webp} {Gerrit tab in Version Control preferences}
+    \caption Gerrit tab in Version Control preferences
 
     \sa {Use Git}{How to: Use Git}, {Using Git}
 */
