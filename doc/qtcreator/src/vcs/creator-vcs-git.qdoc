@@ -105,6 +105,53 @@
 */
 
 /*!
+    \page creator-how-to-setup-git.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-git
+    \ingroup creator-how-to-git-general
+
+    \title Set up Git
+
+    To set up Git, go to \preferences > \uicontrol {Version Control} > \uicontrol {General}.
+
+    \image {qtcreator-preferences-vcs-git.webp} {Git tab in Version Control preferences}
+    \caption Git tab in Version Control preferences
+
+    You can set the following preferences:
+
+    \list
+        \li When the Git executable is not in the \c PATH variable, specify the
+            full path to the executable in \uicontrol {Git command}.
+        \li Alternatively, add the folder containing the Git executable to
+            \uicontrol {Prepend to PATH}.
+        \li In Windows, Git needs to know the \c HOME directory for its own settings
+            and for \c SSH to find the keys. If the \c HOME directory is not correctly
+            set, select \uicontrol {Set HOME environment variable} to set it.
+            For more information, see \l {Use Git for Windows}.
+        \li To limit the entries in the \l {git log}, change \uicontrol {Log count}.
+        \li To avoid that Git commands run forever (for example on network problems),
+            set \uicontrol {Timeout}.
+        \li To rebase local commits instead of merging them during \l {git pull},
+            select \uicontrol {Pull with rebase}.
+        \li To allow rebasing merges during \l {Interactive rebase}, select
+            \uicontrol {Allow rebasing merges}. This is an advanced option and
+            requires Git version 2.18 or later.
+        \li To allow updating references during \l {Interactive rebase}, select
+            \uicontrol {Allow updating references}. This is an advanced option
+            and requires Git version 2.38 or later.
+        \li To specify additional arguments when running \uicontrol {Gitk}, add them
+            to \uicontrol {Gitk} > \uicontrol {Arguments}.
+        \li To use another application for viewing Git history, such as GitX or QGit,
+            specify the path to the executable in \uicontrol {Repository Browser}
+            > \uicontrol {Command}. See \l {Other repository browsers} for more information.
+        \li For the Instant Blame settings, see \l {Show instant blame}.
+    \endlist
+
+    \sa {Use Git}{How to: Use Git}, {Using Git}
+*/
+
+/*!
     \page creator-how-to-git-first-commit.html
     \previouspage creator-how-tos.html
 
@@ -118,7 +165,7 @@
     repository (\e origin).
 
     Before you start, set up Git in \preferences > \uicontrol {Version Control}
-    > \uicontrol {General}.
+    > \uicontrol {General}. For more information, see \l {Set up Git}.
 
     \section1 Configure your user credentials
 
