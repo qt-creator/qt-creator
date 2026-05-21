@@ -236,7 +236,9 @@ static void setEmulatorArguments()
 static QString emulatorName(const QString &serialNumber)
 {
     const QStringList args = adbSelector(serialNumber) << "emu" << "avd" << "name";
-    return runAdbCommand(args).stdOut;
+    // Return only the first line, trimmed, so callers can use it directly;
+    // adb's "emu avd name" stdout ends with a trailing newline and an extra "OK" line.
+    return runAdbCommand(args).stdOut.section('\n', 0, 0).trimmed();
 }
 
 static QString getRunningAvdsSerialNumber(const QString &name)
@@ -251,11 +253,11 @@ static QString getRunningAvdsSerialNumber(const QString &name)
         if (!serialNumber.startsWith("emulator"))
             continue;
 
-        const QString stdOut = emulatorName(serialNumber);
-        if (stdOut.isEmpty())
+        const QString avdName = emulatorName(serialNumber);
+        if (avdName.isEmpty())
             continue; // Not an avd
 
-        if (stdOut.left(stdOut.indexOf('\n')) == name)
+        if (avdName == name)
             return serialNumber;
     }
     return {};
