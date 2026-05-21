@@ -181,7 +181,7 @@ static int iconLabelGap(QtcButton::Role role)
     Q_UNREACHABLE_RETURN(-1);
 }
 
-void QtcButton::paintEvent(QPaintEvent *)
+void QtcButton::paintEvent(QPaintEvent *event)
 {
     // Without pixmap
     // +------------------------+-----------+------------------------+
