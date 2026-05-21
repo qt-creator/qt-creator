@@ -11,7 +11,6 @@ StudioControls.Menu {
 
     property var targetItem: null
     property bool showRemoveAction: false // true: adds an option to remove targetItem
-    property bool showImportAction: false // true: adds an option to import a bundle from file
 
     readonly property bool targetAvailable: targetItem && !ContentLibraryBackend.rootView.importerRunning
 
@@ -19,7 +18,6 @@ StudioControls.Menu {
     signal addToProject()
     signal applyToSelected(bool add)
     signal removeFromContentLib()
-    signal importBundle()
 
     function popupMenu(item = null)
     {
@@ -73,10 +71,4 @@ StudioControls.Menu {
         onTriggered: root.removeFromContentLib()
     }
 
-    StudioControls.MenuItem {
-        text: qsTr("Import bundle")
-        visible: root.showImportAction
-        height: visible ? implicitHeight : 0
-        onTriggered: root.importBundle()
-    }
 }

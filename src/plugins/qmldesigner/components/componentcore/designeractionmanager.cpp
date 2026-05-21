@@ -4,7 +4,6 @@
 #include "designeractionmanager.h"
 
 #include "anchoraction.h"
-#include "bundlehelper.h"
 #include "changestyleaction.h"
 #include "designeractionmanagerview.h"
 #include "designericons.h"
@@ -1981,28 +1980,6 @@ void DesignerActionManager::createDefaultDesignerActions()
         &singleSelectionEffectComposer));
 
     addDesignerAction(new ModelNodeContextMenuAction(
-        importComponentCommandId,
-        importComponentDisplayName,
-        contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
-        rootCategory,
-        QKeySequence(),
-        Priorities::ImportComponent,
-        [&](const SelectionContext &) { m_bundleHelper->importBundleToProject(); }));
-
-    addDesignerAction(new ModelNodeContextMenuAction(
-        exportComponentCommandId,
-        exportComponentDisplayName,
-        contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
-        rootCategory,
-        QKeySequence(),
-        Priorities::ExportComponent,
-        [&](const SelectionContext &context) {
-            m_bundleHelper->exportBundle(context.selectedModelNodes());
-        },
-        &are3DNodes,
-        &are3DNodes));
-
-    addDesignerAction(new ModelNodeContextMenuAction(
                           editMaterialCommandId,
                           editMaterialDisplayName,
                           contextIcon(DesignerIcons::EditIcon),
@@ -2179,8 +2156,6 @@ DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designer
     : m_designerActionManagerView(designerActionManagerView)
     , m_externalDependencies(externalDependencies)
     , m_modulesStorage(modulesStorage)
-    , m_bundleHelper(std::make_unique<BundleHelper>(designerActionManagerView,
-                                                    QmlDesignerPlugin::instance()->mainWidget()))
 {
     setupIcons();
 }

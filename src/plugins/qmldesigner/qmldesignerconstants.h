@@ -65,17 +65,11 @@ inline constexpr char EDIT3D_SNAP_TOGGLE[] = "QmlDesigner.Editor3D.SnapToggle";
 inline constexpr char EDIT3D_SNAP_CONFIG[] = "QmlDesigner.Editor3D.SnapConfig";
 inline constexpr char EDIT3D_CAMERA_SPEED_CONFIG[] = "QmlDesigner.Editor3D.CameraSpeedConfig";
 
-inline constexpr char BUNDLE_JSON_FILENAME[] = "bundle.json";
-inline constexpr char CUSTOM_BUNDLES_JSON_FILENAME[] = "custom_bundles.json";
-inline constexpr char BUNDLE_SUFFIX[] = "qdsbundle";
-inline constexpr char COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "Effects";
-inline constexpr char COMPONENT_BUNDLES_ASSET_REF_FILE[] = "_asset_ref.json";
 inline constexpr char QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX[] = "_libicon";
 inline constexpr char QUICK_3D_ASSET_IMPORT_DATA_NAME[] = "_importdata.json";
 inline constexpr char QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY[] = "import_options";
 inline constexpr char QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY[] = "source_scene";
 inline constexpr char OLD_EFFECTS_IMPORT_FOLDER[] = "/asset_imports/Effects";
-inline constexpr char OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "EffectBundle";
 inline constexpr char MATERIAL_LIB_ID[] = "__materialLibrary__";
 
 inline constexpr char MIME_TYPE_ITEM_LIBRARY_INFO[]

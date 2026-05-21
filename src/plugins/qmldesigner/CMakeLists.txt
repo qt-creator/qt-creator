@@ -203,8 +203,6 @@ extend_qtc_plugin(QmlDesigner
     actioninterface.h
     addimagesdialog.cpp addimagesdialog.h
     addsignalhandlerdialog.cpp addsignalhandlerdialog.h addsignalhandlerdialog.ui
-    bundlehelper.cpp bundlehelper.h
-    bundleimporter.cpp bundleimporter.h
     changestyleaction.cpp changestyleaction.h
     componentcore.qrc
     componentcore_constants.h
