@@ -200,6 +200,8 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
 Result<> JsonWizardGenerator::formatFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
+        if (i->file.attributes().testFlag(GeneratedFile::SkipFormat))
+            continue;
         if (const Result<> res = i->generator->formatFile(wizard, &(i->file)); !res)
             return res;
     }

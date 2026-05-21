@@ -47,6 +47,7 @@ private:
         QVariant openInEditor = false;
         QVariant openAsProject = false;
         QVariant isTemporary = false;
+        QVariant skipFormat = false;
 
         QList<JsonWizard::OptionDefinition> options;
     };
@@ -88,6 +89,7 @@ Result<> JsonWizardFileGenerator::setup(const QVariant &data)
         f.openInEditor = tmp.value(QLatin1String("openInEditor"), false);
         f.isTemporary = tmp.value(QLatin1String("temporary"), false);
         f.openAsProject = tmp.value(QLatin1String("openAsProject"), false);
+        f.skipFormat = tmp.value(QLatin1String("skipFormat"), false);
 
         Result<JsonWizard::OptionDefinitions> res =
             JsonWizard::parseOptions(tmp.value(QLatin1String("options")));
@@ -167,6 +169,8 @@ Result<Core::GeneratedFile> JsonWizardFileGenerator::generateFile(const File &fi
         attributes |= Core::GeneratedFile::ForceOverwrite;
     if (JsonWizard::boolFromVariant(file.isTemporary, expander))
         attributes |= Core::GeneratedFile::TemporaryFile;
+    if (JsonWizard::boolFromVariant(file.skipFormat, expander))
+        attributes |= Core::GeneratedFile::SkipFormat;
 
     if (file.keepExisting)
         attributes |= Core::GeneratedFile::KeepExistingFileAttribute;

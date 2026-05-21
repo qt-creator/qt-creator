@@ -32,7 +32,9 @@ public:
         // Force overwriting of a file without asking the user to keep it
         ForceOverwrite = 0x10,
         // Mark the document temporary after opening the file
-        TemporaryFile = 0x20
+        TemporaryFile = 0x20,
+        // Skip formatting of file
+        SkipFormat = 0x40
     };
     Q_DECLARE_FLAGS(Attributes, Attribute)
 

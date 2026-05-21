@@ -461,12 +461,15 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
                 break;
             } else if (file.attributes() & Core::GeneratedFile::TemporaryFile) {
                 editor->document()->setTemporary(true);
-            } else {
+            } else if (!file.attributes().testFlag(Core::GeneratedFile::SkipFormat)) {
                 formatFile(editor);
             }
             openedSomething = true;
         } else if (file.filePath().fileSize() < 100 * 1024 ) {
-            Core::EditorManager::runWithTemporaryEditor(file.filePath(), formatFile);
+            Core::EditorManager::runWithTemporaryEditor(
+                        file.filePath(),
+                        file.attributes().testFlag(Core::GeneratedFile::SkipFormat)
+                        ? std::function<void (Core::IEditor *)>{} : formatFile);
         }
     }
 
