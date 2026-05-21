@@ -617,6 +617,7 @@ void TestResultsPane::onTestRunFinished()
     if (testSettings().popupOnFinish() && (!testSettings().popupOnFail() || hasFailedTests(m_model))) {
         popup(IOutputPane::NoModeSwitch);
     }
+    updateMenuItemsEnabledState();
 }
 
 void TestResultsPane::onScrollBarRangeChanged(int, int max)

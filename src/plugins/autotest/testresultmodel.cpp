@@ -128,10 +128,10 @@ static bool isFailed(ResultType type)
 static void updateParentOf(const TestResultItem *item)
 {
     QTC_ASSERT(item, return);
-    QTC_ASSERT(item->testResult().isValid(), return);
     TestResultItem *parentItem = item->parent();
     if (parentItem == nullptr) // do not update invisible root item
         return;
+    QTC_ASSERT(item->testResult().isValid(), return);
     bool changed = false;
     parentItem->updateResult(changed, item->testResult().result(), item->summaryResult(),
                              item->testResult().duration());

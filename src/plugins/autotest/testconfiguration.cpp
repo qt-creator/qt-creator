@@ -244,8 +244,10 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             m_runnable = runnable;
             m_runnable.command.setExecutable(currentExecutable);
             setDisplayName(runConfig->expandedDisplayName());
-            if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
+            if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy
+                || deviceTypeId != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
                 m_runConfig = new Internal::TestRunConfiguration(runConfig->buildConfiguration(), this);
+            }
             break;
         }
     }

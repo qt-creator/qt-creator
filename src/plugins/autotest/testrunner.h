@@ -10,15 +10,26 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QList>
+#include <QPointer>
 #include <QTimer>
 
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class Project;
+class RunControl;
+} // namespace ProjectExplorer
+
+namespace Utils {
+class CommandLine;
+class Id;
+} // namespace Utils
 
 namespace Autotest {
 
 class ITestConfiguration;
 class ITestTreeItem;
+class TestConfiguration;
 class TestResult;
+class TestToolConfiguration;
 enum class ResultType;
 
 namespace Internal {
@@ -39,7 +50,8 @@ public:
     void runTest(TestRunMode mode, const ITestTreeItem *item);
     bool isTestRunning() const
     {
-        return m_buildConnect || m_stopDebugConnect || m_taskTreeRunner.isRunning();
+        return m_buildConnect || m_stopDebugConnect || m_taskTreeRunner.isRunning()
+               || !m_currentRunControl.isNull();
     }
 
 signals:
@@ -59,10 +71,19 @@ private:
     void tryReconnectDevice();
     void onFinished();
 
+    bool cancelAfterPreRunCheck();
     int precheckTestConfigurations();
     void cancelCurrent(CancelReason reason);
 
+    ProjectExplorer::RunControl *createRunControl(const Utils::Id mode, TestConfiguration *config);
+    ProjectExplorer::RunControl *createRunControl(TestToolConfiguration *config);
+    void finalizeRunControl(ProjectExplorer::RunControl *runControl, ITestConfiguration *config,
+                            const Utils::CommandLine &command);
+    ProjectExplorer::RunControl *runControlFor(ITestConfiguration *itc);
+
     void runTestsHelper();
+    void runTestsHelperViaRunControl();
+    void runNextViaRunControl();
     void debugTests();
     void runOrDebugTests();
     void reportResult(ResultType type, const QString &description);
@@ -82,6 +103,9 @@ private:
     QMetaObject::Connection m_targetConnect;
     QTimer m_cancelTimer;
     bool m_skipTargetsCheck = false;
+
+    int m_runControlIndex = 0;
+    QPointer<ProjectExplorer::RunControl> m_currentRunControl;
 };
 
 } // namespace Internal

@@ -86,6 +86,7 @@ public:
     Utils::FilePath projectFile() const { return m_projectFile; }
     QSet<QString> internalTargets() const { return m_buildTargets; }
     Internal::TestRunConfiguration *runConfiguration() const { return m_runConfig; }
+    ProjectExplorer::RunConfiguration *originalRunConfiguration() const { return m_origRunConfig; }
     bool isDeduced() const { return m_deducedConfiguration; }
     QString runConfigDisplayName() const { return m_deducedConfiguration ? m_deducedFrom
                                                                          : displayName(); }
@@ -100,7 +101,7 @@ private:
     bool m_deducedConfiguration = false;
     Internal::TestRunConfiguration *m_runConfig = nullptr;
     QSet<QString> m_buildTargets;
-    ProjectExplorer::RunConfiguration *m_origRunConfig = nullptr;
+    QPointer<ProjectExplorer::RunConfiguration> m_origRunConfig; // not owned
 };
 
 class DebuggableTestConfiguration : public TestConfiguration
