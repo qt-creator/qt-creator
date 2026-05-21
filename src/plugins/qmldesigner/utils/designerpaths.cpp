@@ -4,7 +4,6 @@
 #include "designerpaths.h"
 
 #include <coreplugin/icore.h>
-#include <utils/hostosinfo.h>
 
 #include <QStandardPaths>
 
@@ -18,23 +17,9 @@ Utils::FilePath defaultExamplesPath()
         .pathAppended("QtDesignStudio/examples");
 }
 
-Utils::FilePath defaultBundlesPath()
-{
-    QStandardPaths::StandardLocation location = QStandardPaths::DocumentsLocation;
-
-    return Utils::FilePath::fromString(QStandardPaths::writableLocation(location))
-        .pathAppended("QtDesignStudio/bundles");
-}
-
 QString examplesPathSetting()
 {
     return Core::ICore::settings()->value(exampleDownloadPath, defaultExamplesPath().toUrlishString())
-        .toString();
-}
-
-QString bundlesPathSetting()
-{
-    return Core::ICore::settings()->value(bundlesDownloadPath, defaultBundlesPath().toUrlishString())
         .toString();
 }
 

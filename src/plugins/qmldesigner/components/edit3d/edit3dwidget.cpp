@@ -82,7 +82,6 @@ static QIcon getEntryIcon(const ItemLibraryEntry &entry)
 
 Edit3DWidget::Edit3DWidget(Edit3DView *view)
     : m_view(view)
-    , m_bundleHelper(std::make_unique<BundleHelper>(view, this))
 {
     setAcceptDrops(true);
 
@@ -378,18 +377,6 @@ void Edit3DWidget::createContextMenu()
         tr("Add to Content Library"), [&] {
             QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
             view()->emitCustomNotification("add_node_to_content_lib", {}); // To ContentLibrary
-        });
-
-    m_importBundleAction = m_contextMenu->addAction(
-        contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
-        tr("Import Bundle"), [&] {
-            m_bundleHelper->importBundleToProject();
-        });
-
-    m_exportBundleAction = m_contextMenu->addAction(
-        contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
-        tr("Export Bundle"), [&] {
-            m_bundleHelper->exportBundle(m_view->selectedModelNodes());
         });
 
     m_contextMenu->addSeparator();
@@ -727,7 +714,6 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_bakeLightsAction->setVisible(view()->bakeLightsAction()->action()->isVisible());
     m_bakeLightsAction->setEnabled(view()->bakeLightsAction()->action()->isEnabled());
     m_addToContentLibAction->setEnabled(isNode && !isInBundle);
-    m_exportBundleAction->setEnabled(isNode);
     m_materialsAction->updateMenu(view()->selectedModelNodes());
 
     if (m_view) {

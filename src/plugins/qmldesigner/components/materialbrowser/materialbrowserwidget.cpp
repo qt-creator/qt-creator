@@ -9,7 +9,6 @@
 
 #include <asset.h>
 #include <assetimageprovider.h>
-#include <bundlehelper.h>
 #include <createtexture.h>
 #include <designmodewidget.h>
 #include <documentmanager.h>
@@ -168,7 +167,6 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     , m_materialBrowserTexturesModel(new MaterialBrowserTexturesModel(view, this))
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_previewImageProvider(new PreviewImageProvider())
-    , m_bundleHelper(std::make_unique<BundleHelper>(view, this))
 {
     QImage defaultImage;
     defaultImage.load(
@@ -386,20 +384,6 @@ void MaterialBrowserWidget::addMaterialToContentLibrary(int idx)
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     m_materialBrowserView->emitCustomNotification("add_material_to_content_lib", {mat},
                                                   {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
-}
-
-void MaterialBrowserWidget::importMaterial()
-{
-    m_bundleHelper->importBundleToProject();
-}
-
-void MaterialBrowserWidget::exportMaterial(int idx)
-{
-    ModelNode mat = m_materialBrowserModel->materialAt(idx);
-    QTC_ASSERT(mat, return);
-
-    m_bundleHelper->exportBundle({mat}, m_previewImageProvider->getPixmap(mat));
-    m_materialBrowserModel->updateMaterialComponent(idx);
 }
 
 void MaterialBrowserWidget::addQtQuick3D()

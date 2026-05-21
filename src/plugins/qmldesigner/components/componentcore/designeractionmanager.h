@@ -24,7 +24,6 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class BundleHelper;
 class DesignerActionManagerView;
 class DesignerIcons;
 
@@ -142,7 +141,6 @@ private:
     ModulesStorage &m_modulesStorage;
     std::unique_ptr<DesignerIcons> m_designerIcons;
     QList<ActionAddedInterface> m_callBacks;
-    std::unique_ptr<BundleHelper> m_bundleHelper;
 };
 
 } // QmlDesigner

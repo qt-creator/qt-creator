@@ -49,14 +49,12 @@ Item {
         id: ctxMenuItem
 
         showRemoveAction: true
-        showImportAction: true
 
         onApplyToSelected: (add) => ContentLibraryBackend.userModel.applyToSelected(ctxMenuItem.targetItem, add)
 
         onUnimport: root.unimport(ctxMenuItem.targetItem)
         onAddToProject: ContentLibraryBackend.userModel.addToProject(ctxMenuItem.targetItem)
         onRemoveFromContentLib: root.removeFromContentLib(ctxMenuItem.targetItem)
-        onImportBundle: ContentLibraryBackend.rootView.importBundle();
     }
 
     ContentLibraryTextureContextMenu {

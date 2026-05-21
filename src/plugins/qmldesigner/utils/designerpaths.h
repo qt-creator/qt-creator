@@ -10,11 +10,8 @@
 namespace QmlDesigner::Paths {
 
 constexpr char exampleDownloadPath[] = "StudioConfig/ExamplesDownloadPath";
-constexpr char bundlesDownloadPath[] = "StudioConfig/BundlesDownloadPath";
 
 QMLDESIGNER_EXPORT Utils::FilePath defaultExamplesPath();
-QMLDESIGNER_EXPORT Utils::FilePath defaultBundlesPath();
 QMLDESIGNER_EXPORT QString examplesPathSetting();
-QMLDESIGNER_EXPORT QString bundlesPathSetting();
 
 } // namespace QmlDesigner::Paths

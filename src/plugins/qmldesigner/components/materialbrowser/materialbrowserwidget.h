@@ -22,7 +22,6 @@ class StudioQuickWidget;
 namespace QmlDesigner {
 
 class AssetImageProvider;
-class BundleHelper;
 class MaterialBrowserView;
 class MaterialBrowserModel;
 class MaterialBrowserTexturesModel;
@@ -64,8 +63,6 @@ public:
     Q_INVOKABLE void acceptTextureDropOnMaterial(int matIndex, const QString &texId);
     Q_INVOKABLE void focusMaterialSection(bool focusMatSec);
     Q_INVOKABLE void addMaterialToContentLibrary(int idx);
-    Q_INVOKABLE void importMaterial();
-    Q_INVOKABLE void exportMaterial(int idx);
     Q_INVOKABLE void addQtQuick3D();
     Q_INVOKABLE void openPropertyEditor();
 
@@ -97,7 +94,6 @@ private:
     PreviewImageProvider *m_previewImageProvider = nullptr;
     AssetImageProvider *m_textureImageProvider = nullptr;
     Core::IContext *m_context = nullptr;
-    std::unique_ptr<BundleHelper> m_bundleHelper;
 
     QString m_filterText;
 

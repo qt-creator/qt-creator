@@ -142,17 +142,4 @@ StudioControls.Menu {
 
         onTriggered: MaterialBrowserBackend.rootView.addMaterialToContentLibrary(root.targetIndex)
     }
-
-    StudioControls.MenuItem {
-        text: qsTr("Import Material")
-
-        onTriggered: MaterialBrowserBackend.rootView.importMaterial()
-    }
-
-    StudioControls.MenuItem {
-        text: qsTr("Export Material")
-        enabled: root.targetMaterial && !root.targetMaterial.materialIsComponent // TODO: support component materials
-
-        onTriggered: MaterialBrowserBackend.rootView.exportMaterial(root.targetIndex)
-    }
 }

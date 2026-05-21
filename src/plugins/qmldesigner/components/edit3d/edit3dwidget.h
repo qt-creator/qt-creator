@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <bundlehelper.h>
 #include <import.h>
 #include <itemlibraryentry.h>
 #include <modelnode.h>
@@ -108,8 +107,6 @@ private:
     QPointer<QAction> m_selectParentAction;
     QPointer<QAction> m_toggleGroupAction;
     QPointer<QAction> m_wireFrameAction;
-    QPointer<QAction> m_importBundleAction;
-    QPointer<QAction> m_exportBundleAction;
     QPointer<QAction> m_addToContentLibAction;
     QPointer<Edit3DMaterialsAction> m_materialsAction;
     QHash<int, QPointer<QAction>> m_matOverrideActions;
@@ -120,7 +117,6 @@ private:
     QHash<QString, ItemLibraryEntry> m_nameToEntry;
     ItemLibraryEntry m_draggedEntry;
     QHash<QAction *, Core::Command *> m_actionToCommandHash;
-    std::unique_ptr<BundleHelper> m_bundleHelper;
 };
 
 } // namespace QmlDesigner

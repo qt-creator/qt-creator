@@ -67,8 +67,6 @@ inline constexpr char mergeTemplateCommandId[] = "MergeTemplate";
 inline constexpr char goToImplementationCommandId[] = "GoToImplementation";
 inline constexpr char makeComponentCommandId[] = "MakeComponent";
 inline constexpr char extractComponentCommandId[] = "ExtractComponent";
-inline constexpr char importComponentCommandId[] = "ImportComponent";
-inline constexpr char exportComponentCommandId[] = "ExportComponent";
 inline constexpr char editMaterialCommandId[] = "EditMaterial";
 inline constexpr char addToContentLibraryCommandId[] = "AddToContentLibrary";
 inline constexpr char addItemToStackedContainerCommandId[] = "AddItemToStackedContainer";
@@ -162,10 +160,6 @@ inline constexpr char editMaterialDisplayName[] = QT_TRANSLATE_NOOP("QmlDesigner
                                                                     "Edit Material");
 inline constexpr char addToContentLibraryDisplayName[] = QT_TRANSLATE_NOOP(
     "QmlDesignerContextMenu", "Add to Content Library");
-inline constexpr char importComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                        "Import Bundle");
-inline constexpr char exportComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                        "Export Bundle");
 inline constexpr char editAnnotationsDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                        "Edit Annotations");
 inline constexpr char addMouseAreaFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
@@ -331,9 +325,7 @@ enum PrioritiesEnum : int {
     Last,
     /******** Section *****************************/
     AddingAssetsSection = 7000,
-    Add3DToContentLib,
-    ImportComponent,
-    ExportComponent,
+    Add3DToContentLib
 };
 };
 
