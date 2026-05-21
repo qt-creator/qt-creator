@@ -133,10 +133,9 @@ CommonSettings::CommonSettings()
     useToolTipsInMainEditor.setLabelText(Tr::tr("Use tooltips in main editor when debugging"));
     useToolTipsInMainEditor.setToolTip(
         "<p>"
-        + Tr::tr("Enables tooltips for variable "
-                 "values during debugging. Since this can slow down debugging and "
-                 "does not provide reliable information as it does not use scope "
-                 "information, it is switched off by default."));
+        + Tr::tr("Enables tooltips for variable values during debugging. "
+                 "This can slow down debugging and does not provide reliable information "
+                 "as it does not use scope information."));
     useToolTipsInMainEditor.setDefaultValue(true);
 
     setLayouter([this] {
