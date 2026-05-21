@@ -4,7 +4,6 @@
 #include "tabsettingswidget.h"
 
 #include "icodestylepreferences.h"
-#include "tabsettings.h"
 #include "texteditortr.h"
 
 #include <QApplication>

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "tabsettings.h"
 #include "texteditor_global.h"
 
 #include <utils/aspects.h>
@@ -10,7 +11,6 @@
 namespace TextEditor {
 
 class ICodeStylePreferences;
-class TabSettingsData;
 
 class TEXTEDITOR_EXPORT TabSettings : public Utils::AspectContainer
 {
