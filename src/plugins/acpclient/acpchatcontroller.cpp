@@ -115,7 +115,7 @@ void AcpChatController::connectToServer(const QString &serverId)
 
 void AcpChatController::disconnectFromServer()
 {
-    const bool wasConnected 
+    const bool wasConnected
        = m_client && m_client->state() != AcpClientObject::State::Disconnected;
 
     if (m_transport)
@@ -446,8 +446,7 @@ void AcpChatController::listSessions(const std::optional<QString> &cursor)
         return;
 
     ListSessionsRequest req;
-    if (cursor)
-        req.cursor(*cursor);
+    req.cursor(cursor);
 
     m_client->listSessions(req, [this](const QJsonObject &result, const std::optional<Error> &error) {
         if (error) {
