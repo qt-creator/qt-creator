@@ -641,7 +641,7 @@
         \li \uicontrol Hard reset discards all changes to tracked
             files in the working tree.
 
-            For more information about how to recover accidently removed commits,
+            For more information about how to recover accidentally removed commits,
             see \l{git reflog}.
         \li \uicontrol Mixed reset undoes the selected commits and unstages all
             changes, but keeps the working tree unchanged.
