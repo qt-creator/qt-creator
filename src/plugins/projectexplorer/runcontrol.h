@@ -195,6 +195,14 @@ public:
     Utils::Id runMode() const;
     bool isPrintEnvironmentEnabled() const;
 
+    // If set, run control does not use the application output pane and gets auto-deleted
+    // on stop. Caller is responsible for the run control's lifetime and,
+    // crucially, for stopping on shutdown: without an output pane tab it is unreachable
+    // by the pane's shutdown stop. For DEBUG_RUN_MODE debugger engine shutdown stops it;
+    // other run modes must arrange their own.
+    void setSuppressApplicationOutput(bool suppress);
+    bool suppressApplicationOutput() const;
+
     const Utils::ProcessRunData &runnable() const;
 
     const Utils::CommandLine &commandLine() const;

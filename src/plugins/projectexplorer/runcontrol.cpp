@@ -215,6 +215,7 @@ public:
     ProcessHandle applicationProcessHandle;
 
     bool printEnvironment = false;
+    bool suppressApplicationOutput = false;
     bool useDebugChannel = false;
     bool useQmlChannel = false;
     bool usePerfChannel = false;
@@ -635,6 +636,16 @@ Id RunControl::runMode() const
 bool RunControl::isPrintEnvironmentEnabled() const
 {
     return d->data.printEnvironment;
+}
+
+void RunControl::setSuppressApplicationOutput(bool suppress)
+{
+    d->data.suppressApplicationOutput = suppress;
+}
+
+bool RunControl::suppressApplicationOutput() const
+{
+    return d->data.suppressApplicationOutput;
 }
 
 const ProcessRunData &RunControl::runnable() const

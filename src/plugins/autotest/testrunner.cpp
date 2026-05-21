@@ -569,6 +569,7 @@ void TestRunner::debugTests()
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->copyDataFromRunConfiguration(config->runConfiguration());
+    runControl->setSuppressApplicationOutput(true);
 
     QStringList omitted;
     ProcessRunData inferior = config->runnable();
