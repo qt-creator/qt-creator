@@ -174,7 +174,7 @@ void AcpChatController::createNewSession(const FilePath &workingDirectory)
         }
         auto response = fromJson<NewSessionResponse>(QJsonValue(result));
         if (!response) {
-            emit errorOccurred(Tr::tr("Session error: invalid response"));
+            emit errorOccurred(Tr::tr("Session error: invalid response."));
             return;
         }
 
@@ -312,8 +312,10 @@ void AcpChatController::authenticate(const QString &methodId)
         Q_UNUSED(result)
         if (error) {
             QString errorMsg = error->message();
-            if (const std::optional<QString> data = error->data())
-                errorMsg.append("\n" + *data);
+            if (const std::optional<QJsonValue> data = error->data(); data->isString()) {
+                if (auto dataString = data->toString(); !dataString.isEmpty())
+                    errorMsg.append("\n" + dataString);
+            }
             emit authenticationFailed(errorMsg);
             return;
         }
@@ -454,7 +456,7 @@ void AcpChatController::listSessions(const std::optional<QString> &cursor)
         }
         auto resp = fromJson<ListSessionsResponse>(QJsonValue(result));
         if (!resp) {
-            emit errorOccurred(Tr::tr("Failed to list sessions: invalid response"));
+            emit errorOccurred(Tr::tr("Failed to list sessions: invalid response."));
             return;
         }
         emit sessionsListed(resp->sessions(), resp->nextCursor());

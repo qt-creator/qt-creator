@@ -5246,7 +5246,7 @@ Utils::Result<Error> fromJson<Error>(const QJsonValue &val)
     Error result;
     result._code = obj.value("code").toInt();
     if (obj.contains("data"))
-        result._data = obj.value("data").toString();
+        result._data = obj.value("data");
     result._message = obj.value("message").toString();
     return result;
 }
@@ -6319,7 +6319,7 @@ Utils::Result<LoggingMessageNotificationParams> fromJson<LoggingMessageNotificat
             map__meta.insert(it.key(), it.value());
         result.__meta = map__meta;
     }
-    result._data = obj.value("data").toString();
+    result._data = obj.value("data");
     if (obj.contains("level") && obj["level"].isString())
         result._level = co_await fromJson<LoggingLevel>(obj["level"]);
     if (obj.contains("logger"))

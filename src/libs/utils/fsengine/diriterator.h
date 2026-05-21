@@ -14,7 +14,6 @@
 
 namespace Utils::Internal {
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 inline std::pair<QDir::Filters, QDirIterator::IteratorFlags> convertQDirListingIteratorFlags(
     QDirListing::IteratorFlags flags)
 {
@@ -44,28 +43,21 @@ inline std::pair<QDir::Filters, QDirIterator::IteratorFlags> convertQDirListingI
 
     return {filters, iteratorFlags};
 }
-#endif
 
 class DirIterator : public QAbstractFileEngineIterator
 {
 public:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     DirIterator(FilePaths paths,
                 const QString &path,
                 QDir::Filters filters,
                 const QStringList &filterNames)
         : QAbstractFileEngineIterator(path, filters, filterNames)
-#else
-    DirIterator(FilePaths paths)
-        : QAbstractFileEngineIterator({}, {})
-#endif
         , m_filePaths(std::move(paths))
         , it(m_filePaths.begin())
     {}
 
     // QAbstractFileEngineIterator interface
 public:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     bool advance() override
     {
         if (!m_filePaths.empty() && m_filePaths.end() != it + 1) {
@@ -74,18 +66,6 @@ public:
         }
         return false;
     }
-#else
-    QString next() override
-    {
-        if (it == m_filePaths.end())
-            return QString();
-        const QString r = chopIfEndsWith(it->toFSPathString(), '/');
-        ++it;
-        return r;
-    }
-
-    bool hasNext() const override { return !m_filePaths.empty() && m_filePaths.end() != it + 1; }
-#endif // QT_VERSION_CHECK(6, 8, 0)
 
     QString currentFileName() const override
     {

@@ -157,18 +157,6 @@ static QString dataFile(const QString &file)
     return QString(PARSERTESTS_DATA_DIR) + '/' + file;
 }
 
-static QString extraDataFile(const QString &file)
-{
-    // Clone test data from: https://git.qt.io/chstenge/creator-test-data
-    static QString prefix = qtcEnvironmentVariable("QTC_TEST_EXTRADATALOCATION");
-    if (prefix.isEmpty())
-        return {};
-
-    const QFileInfo fi(QString(prefix + "/valgrind"), file);
-    if (fi.exists())
-        return fi.canonicalFilePath();
-    return {};
-}
 
 void ValgrindMemcheckParserTest::initTestCase()
 {
@@ -209,11 +197,7 @@ void ValgrindMemcheckParserTest::cleanup()
 
 void ValgrindMemcheckParserTest::testHelgrindSample1()
 {
-    const QString file = extraDataFile("helgrind-output-sample1.xml");
-    if (file.isEmpty())
-        QSKIP("test file does not exist");
-
-    initTest(file);
+    initTest(dataFile("helgrind-output-sample1.xml"));
 
     QList<Error> expectedErrors;
     {
@@ -383,11 +367,7 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
 
 void ValgrindMemcheckParserTest::testMemcheckSample2()
 {
-    const QString file = extraDataFile("memcheck-output-sample2.xml");
-    if (file.isEmpty())
-        QSKIP("test file does not exist");
-
-    initTest(file);
+    initTest(dataFile("memcheck-output-sample2.xml"));
 
     Parser parser;
     Recorder rec(&parser);
@@ -412,11 +392,7 @@ void ValgrindMemcheckParserTest::testMemcheckSample2()
 
 void ValgrindMemcheckParserTest::testMemcheckSample3()
 {
-    const QString file = extraDataFile("memcheck-output-sample3.xml");
-    if (file.isEmpty())
-        QSKIP("test file does not exist");
-
-    initTest(file);
+    initTest(dataFile("memcheck-output-sample3.xml"));
 
     Parser parser;
     Recorder rec(&parser);
@@ -468,11 +444,7 @@ void ValgrindMemcheckParserTest::testMemcheckSample3()
 void ValgrindMemcheckParserTest::testMemcheckCharm()
 {
     // a somewhat larger file, to make sure buffering and partial I/O works ok
-    const QString file = extraDataFile("memcheck-output-charm.xml");
-    if (file.isEmpty())
-        QSKIP("test file does not exist");
-
-    initTest(file);
+    initTest(dataFile("memcheck-output-charm.xml"));
 
     Parser parser;
     Recorder rec(&parser);

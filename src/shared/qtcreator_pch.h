@@ -53,7 +53,6 @@
 #include <QSharedPointer>
 #include <QDebug>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QTextStream>
 using Qt::endl;
 using Qt::forcesign;
@@ -62,9 +61,6 @@ using Qt::dec;
 using Qt::showbase;
 using Qt::hex;
 using Qt::noforcesign;
-#else
-#include <QTextCodec>
-#endif
 
 #include <stdlib.h>
 #endif

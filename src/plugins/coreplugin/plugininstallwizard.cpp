@@ -588,7 +588,7 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
 
     // install() would have failed if the user did not accept the terms and conditions
     // so we can safely set them as accepted here.
-    PluginManager::instance()->setTermsAndConditionsAccepted(data.pluginSpec.get());
+    PluginManager::setTermsAndConditionsAccepted(data.pluginSpec.get());
 
     if (prepareForUpdate)
         return InstallResult::NeedsRestart;

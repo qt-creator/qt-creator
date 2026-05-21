@@ -73,7 +73,7 @@ public:
             if (addr.setAddress(s))
                 return ResultOk;
             else
-                return ResultError(Tr::tr("Invalid IP address"));
+                return ResultError(Tr::tr("Invalid IP address."));
         });
 
         connect(&addressType, &SelectionAspect::volatileValueChanged, this, [this]() {
@@ -266,7 +266,7 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
     listenAddress.setSettingsGroup("Listen");
     listenAddress.setEnabler(&enabled);
     listenAddress.setToolTip(
-        Tr::tr("The address the MCP Server should listen on for incoming connections"));
+        Tr::tr("The address the MCP Server should listen on for incoming connections."));
 
     port.setSettingsKey("Port");
     port.setLabel(Tr::tr("Port:"));
@@ -301,7 +301,7 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
         statusLabel->setOpenExternalLinks(false);
         connect(statusLabel, &QLabel::linkActivated, [](const QString &link) {
             Utils::setClipboardAndSelection(link);
-            QToolTip::showText(QCursor::pos(), Tr::tr("Address copied to clipboard"), nullptr);
+            QToolTip::showText(QCursor::pos(), Tr::tr("Address copied to clipboard."), nullptr);
         });
 
         const auto updateStatus = [plugin, statusIcon, statusLabel]() {
@@ -317,10 +317,10 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
 
             if (isRunning) {
                 statusLabel->setText(
-                    Tr::tr("The MCP Server is running, listening on: %1")
+                    Tr::tr("The MCP Server is running, listening on: %1.")
                         .arg(plugin->listenAddresses()));
             } else {
-                statusLabel->setText(Tr::tr("The MCP Server is not running"));
+                statusLabel->setText(Tr::tr("The MCP Server is not running."));
             }
         };
 

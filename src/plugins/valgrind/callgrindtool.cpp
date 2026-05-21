@@ -137,11 +137,6 @@ static Group callgrindRecipe(RunControl *runControl)
     const auto onValgrindSetup = [storage, runControl](ValgrindProcess &process) {
         QObject::connect(&process, &ValgrindProcess::valgrindStarted,
                          &process, [](qint64 pid) { setupPid(pid); });
-        QObject::connect(runControl, &RunControl::aboutToStart, runControl, [runControl] {
-            const FilePath executable = runControl->commandLine().executable();
-            runControl->postMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()),
-                                    NormalMessageFormat);
-        });
         setupValgrindProcess(&process, runControl, callgrindCommand(runControl, *storage));
     };
 
@@ -815,6 +810,9 @@ void CallgrindTool::setupRunControl(RunControl *runControl)
         m_loadExternalLogFile->setEnabled(false);
         clearTextMarks();
         doClear();
+        const FilePath executable = m_runControl->commandLine().executable();
+        m_runControl->postMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()),
+                                NormalMessageFormat);
         PerspectivesView::showPermanentStatusMessage(Tr::tr("Starting Function Profiler..."));
     });
     connect(m_runControl, &RunControl::started, this, [] {
@@ -1272,3 +1270,42 @@ void setupCallgrindTool(QObject *guard)
 }
 
 } // Valgrind::Internal
+
+#ifdef WITH_TESTS
+
+#include <QSignalSpy>
+#include <QTest>
+
+namespace Valgrind::Internal {
+
+class CallgrindToolTest : public QObject
+{
+    Q_OBJECT
+private slots:
+    void testProfilingMessagePosted()
+    {
+        RunControl rc{Id(CALLGRIND_RUN_MODE)};
+        rc.setCommandLine({FilePath::fromString("/bin/true"), {}});
+
+        QSignalSpy spy(&rc, &RunControl::appendMessage);
+        setupRunControl(&rc);  // must connect aboutToStart->postMessage before signal fires
+
+        // Emit aboutToStart() directly rather than via initiateStart(), which would also
+        // call startTaskTree() and assert on the missing device.
+        QMetaObject::invokeMethod(&rc, "aboutToStart");
+
+        QVERIFY(!spy.isEmpty());
+        QVERIFY(spy.first().at(0).toString().contains("Profiling"));
+    }
+};
+
+QObject *createCallgrindToolTest()
+{
+    return new CallgrindToolTest;
+}
+
+} // namespace Valgrind::Internal
+
+#include "callgrindtool.moc"
+
+#endif // WITH_TESTS

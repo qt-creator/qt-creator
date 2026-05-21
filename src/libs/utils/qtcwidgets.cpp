@@ -210,6 +210,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
     // |        |       |(PaddingVM)|                        |
     // +--------+-------+-----------+------------------------+
 
+    Q_UNUSED(event)
     const bool hovered = underMouse();
     const WidgetState state = isChecked() ? WidgetStateChecked : hovered ? WidgetStateHovered
                                                                          : WidgetStateDefault;

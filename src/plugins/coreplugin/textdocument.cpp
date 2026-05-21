@@ -6,6 +6,9 @@
 #include "editormanager/editormanager.h"
 
 #include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(logBaseTextDocument, "qtc.core.basetextdocument", QtWarningMsg)
 
 /*!
     \class Core::BaseTextDocument
@@ -20,8 +23,6 @@
 
     \sa Utils::TextFileFormat
 */
-
-enum { debug = 0 };
 
 using namespace Utils;
 
@@ -86,8 +87,7 @@ Result<> BaseTextDocument::write(const FilePath &filePath,
                                const TextFileFormat &format,
                                const QString &data) const
 {
-    if (debug)
-        qDebug() << Q_FUNC_INFO << this << filePath;
+    qCDebug(logBaseTextDocument) << Q_FUNC_INFO << this << filePath;
     return format.writeFile(filePath, data);
 }
 
@@ -117,8 +117,7 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
 
 void BaseTextDocument::setEncoding(const TextEncoding &encoding)
 {
-    if (debug)
-        qDebug() << Q_FUNC_INFO << this << encoding.name();
+    qCDebug(logBaseTextDocument) << Q_FUNC_INFO << this << encoding.name();
     if (supportsEncoding(encoding))
         d->m_format.setEncoding(encoding);
 }
@@ -135,8 +134,7 @@ bool BaseTextDocument::supportsEncoding(const TextEncoding &) const
 
 void BaseTextDocument::switchUtf8Bom()
 {
-    if (debug)
-        qDebug() << Q_FUNC_INFO << this << "UTF-8 BOM: " << !d->m_format.hasUtf8Bom;
+    qCDebug(logBaseTextDocument) << Q_FUNC_INFO << this << "UTF-8 BOM: " << !d->m_format.hasUtf8Bom;
     d->m_format.hasUtf8Bom = !d->m_format.hasUtf8Bom;
 }
 

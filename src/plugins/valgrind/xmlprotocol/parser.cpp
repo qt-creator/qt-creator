@@ -153,6 +153,7 @@ private:
     XWhat parseXWhat();
     XauxWhat parseXauxWhat();
     int parseErrorKind(const QString &kind);
+    QByteArray applyXmlFix(const QByteArray &data);
 
     QXmlStreamReader::TokenType blockingReadNext();
     bool notAtEnd() const;
@@ -177,6 +178,7 @@ private:
 
     Tool m_tool = Tool::Unknown; // Accessed only from the other thread.
     QXmlStreamReader m_reader; // Accessed only from the other thread.
+    QByteArray m_xmlFixTail;   // Accessed only from the other thread.
 
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
@@ -203,6 +205,29 @@ static qint64 parseInt64(const QString &str, const QString &context)
     return v;
 }
 
+// Valgrind 3.26.0 omits </still_reachable> in <leak_summary> when its counts
+// are zero, producing malformed XML. Fix by inserting the missing closing tag.
+// Only memcheck emits <leak_summary>, so other tools are not affected.
+// m_xmlFixTail retains the last 12 bytes of the previous chunk so that a
+// pattern split across a TCP chunk boundary is caught too. The tail length
+// of 12 equals the insertion offset within the broken pattern minus one,
+// which guarantees the insertion point always falls within the new data.
+QByteArray ParserThread::applyXmlFix(const QByteArray &data)
+{
+    if (m_tool != Tool::Memcheck)
+        return data;
+    static const QByteArray broken = "</blocks>\n  <suppressed>";
+    static const QByteArray fixed  = "</blocks>\n  </still_reachable>\n  <suppressed>";
+    const int oldTailSize = m_xmlFixTail.size();
+    const QByteArray combined = m_xmlFixTail + data;
+    m_xmlFixTail = data.right(12);
+    if (!combined.contains(broken))
+        return data;
+    QByteArray fixedCombined = combined;
+    fixedCombined.replace(broken, fixed);
+    return fixedCombined.mid(oldTailSize);
+}
+
 QXmlStreamReader::TokenType ParserThread::blockingReadNext()
 {
     QXmlStreamReader::TokenType token = QXmlStreamReader::Invalid;
@@ -211,7 +236,7 @@ QXmlStreamReader::TokenType ParserThread::blockingReadNext()
         if (m_reader.error() == QXmlStreamReader::PrematureEndOfDocumentError) {
             const auto data = waitForData();
             if (data) {
-                m_reader.addData(*data);
+                m_reader.addData(applyXmlFix(*data));
                 continue;
             } else {
                 throw ParserException{data.error()};

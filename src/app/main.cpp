@@ -29,6 +29,7 @@
 #include <utils/textcodec.h>
 
 #include <QAccessible>
+#include <QCryptographicHash>
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -37,13 +38,12 @@
 #include <QHBoxLayout>
 #include <QLibraryInfo>
 #include <QMessageBox>
-#include <QCryptographicHash>
 #include <QNetworkProxyFactory>
 #include <QPixmapCache>
-#include <QSslConfiguration>
 #include <QProcess>
 #include <QPushButton>
 #include <QScopeGuard>
+#include <QSslConfiguration>
 #include <QStandardPaths>
 #include <QStyle>
 #include <QSurfaceFormat>

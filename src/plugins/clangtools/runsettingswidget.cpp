@@ -106,13 +106,13 @@ void SettingsWidget::apply()
     m_settings->setExecutable(ClangToolType::Tidy, clangTidyPath());
     m_settings->setExecutable(ClangToolType::Clazy, clazyStandalonePath());
 
-    // Run options
-    m_runSettingsWidget->toSettings(m_settings->runSettings);
-
     // Custom configs
     const ClangDiagnosticConfigs customConfigs
         = m_runSettingsWidget->diagnosticSelectionWidget()->customConfigs();
     m_settings->setDiagnosticConfigs(customConfigs);
+
+    // Run options
+    m_runSettingsWidget->toSettings(m_settings->runSettings);
 
     m_settings->writeSettings();
 }

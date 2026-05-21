@@ -34,17 +34,18 @@ ZenModeSettings::ZenModeSettings()
     contentWidth.setDefaultValue(100);
     contentWidth.setRange(50, 100);
 
-    modes.setLabelText(Tr::tr("Modes bar state when active"));
     modes.setSettingsKey("ModesBarState");
     SelectionAspect::Option optHidden(
-        Tr::tr("Hidden"), Tr::tr("Hide Modes bar (default)."), int(ModeManager::Style::Hidden));
+        Tr::tr("Hidden"),
+        Tr::tr("Hide the mode selector (default)."),
+        int(ModeManager::Style::Hidden));
     SelectionAspect::Option optIconsOnly(
-        Tr::tr("Icons only"),
-        Tr::tr("Show Modes bar icons only"),
+        Tr::tr("Icons Only"),
+        Tr::tr("Show only icons in the mode selector."),
         int(ModeManager::Style::IconsOnly));
     SelectionAspect::Option optIconsText(
         Tr::tr("Icons and Text"),
-        Tr::tr("Show Modes bar icons and text"),
+        Tr::tr("Show icons and text in the mode selector."),
         int(ModeManager::Style::IconsAndText));
     modes.addOption(optHidden);
     modes.addOption(optIconsOnly);
@@ -55,13 +56,10 @@ ZenModeSettings::ZenModeSettings()
         // clang-format off
         return Column {
             Group {
-                title(Tr::tr("When ZenMode is active")),
+                title(Tr::tr("When Zen Mode is Active")),
                 Column {
                     Row { contentWidth, st, },
-                    Group {
-                        title(Tr::tr("Mode")),
-                        Row { modes, st}
-                    },
+                    Row { Tr::tr("Mode selector:"), modes, st}
                 }
             },
             st

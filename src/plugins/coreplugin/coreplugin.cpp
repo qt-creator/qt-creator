@@ -213,57 +213,6 @@ static void initProxyAuthDialog()
                      });
 }
 
-static void initTAndCAcceptDialog()
-{
-    ExtensionSystem::PluginManager::instance()->setAcceptTermsAndConditionsCallback(
-        [](ExtensionSystem::PluginSpec *spec) {
-            using namespace Layouting;
-
-            QDialog dialog(ICore::dialogParent());
-            dialog.setWindowTitle(Tr::tr("Terms and Conditions"));
-
-            QDialogButtonBox buttonBox;
-            QCheckBox *acceptCheckBox;
-            QPushButton *acceptButton
-                = buttonBox.addButton(Tr::tr("Accept"), QDialogButtonBox::ButtonRole::YesRole);
-            QPushButton *decline
-                = buttonBox.addButton(Tr::tr("Decline"), QDialogButtonBox::ButtonRole::NoRole);
-            acceptButton->setAutoDefault(false);
-            acceptButton->setDefault(false);
-            acceptButton->setEnabled(false);
-            decline->setAutoDefault(true);
-            decline->setDefault(true);
-            QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-            QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-
-            const QLatin1String legal = QLatin1String(
-                "I confirm that I have reviewed and accept the terms and conditions\n"
-                "of this extension. I confirm that I have the authority and ability to\n"
-                "accept the terms and conditions of this extension for the customer.\n"
-                "I acknowledge that if the customer and the Qt Company already have a\n"
-                "valid agreement in place, that agreement shall apply, but these terms\n"
-                "shall govern the use of this extension.");
-
-            // clang-format off
-            Column {
-                Tr::tr("The plugin %1 requires you to accept the following terms and conditions:").arg(spec->name()), br,
-                TextEdit {
-                    markdown(spec->termsAndConditions()->text),
-                    readOnly(true),
-                }, br,
-                Row {
-                    acceptCheckBox = new QCheckBox(legal), &buttonBox,
-                }
-            }.attachTo(&dialog);
-            // clang-format on
-
-            QObject::connect(
-                acceptCheckBox, &QCheckBox::toggled, acceptButton, &QPushButton::setEnabled);
-
-            return dialog.exec() == QDialog::Accepted;
-        });
-}
-
 static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
 {
     QList<QAction *> actions = menu->actions();
@@ -375,7 +324,6 @@ static void warnAboutCrashReporting(
 
 Result<> CorePlugin::initialize(const QStringList &arguments)
 {
-    initTAndCAcceptDialog();
     initProxyAuthDialog();
 
     if (ThemeEntry::availableThemes().isEmpty())

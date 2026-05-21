@@ -333,64 +333,79 @@
 
     \section1 Set manifest file options
 
+    To edit the manifest file:
+
+    \list
+        \li In \uicontrol Projects, select the manifest file.
+        \li Go to \uicontrol Tools > \uicontrol Android >
+        \uicontrol {Manifest XML Source}.
+    \endlist
+
+    \image {qtcreator-android-manifest-source.webp} {Android Manifest XML Source editor}
+
     For more information about setting options in Android manifest files, see
     \l {Qt for Android Manifest File Configuration}.
 
-    \section2 Screen Orientation
+    You can use editors to set application icons, splash screens, and
+    permissions.
 
-    In \c screenOrientation, set options for determining screen orientation,
-    depending on sensor readings or user preferences. The following table lists
-    the options available.
+    \section2 Screen orientation
+
+    In the \c {<activity>} section, set the \c {android:screenOrientation} option
+    to determine screen orientation depending on sensor readings or user
+    preferences. The default value is \c {unspecified}.
+
+    \details {Screen orientation options}
 
     \table
         \header
             \li Orientation
             \li Description
         \row
-            \li Unspecified
+            \li \c {unspecified}
             \li The system chooses the orientation. The policy it uses, and
                 therefore the choices made in specific contexts may differ
                 from device to device.
         \row
-            \li Behind
+            \li \c {behind}
             \li Use the same orientation as the activity that's immediately
                 beneath it in the activity stack.
         \row
-            \li Landscape
+            \li \c {landscape}
             \li Landscape orientation, where the display width is larger than
                 its height.
         \row
-            \li Portrait
+            \li \c {portrait}
             \li Portrait orientation, where the display height is larger than
                 its width.
         \row
-            \li Reverse landscape
+            \li \c {reverseLandscape}
             \li Landscape orientation in the opposite direction of normal
                 landscape.
         \row
-            \li Reverse portrait
+            \li \c {reversePortrait}
             \li Portrait orientation in the opposite direction of normal
                 portrait.
         \row
-            \li Sensor landscape
+            \li \c {sensorLandscape}
             \li Landscape orientation, but it can be either normal or reverse
                 landscape based on the device sensor. The sensor is used even
                 if the user has locked sensor-based rotation.
         \row
-            \li Sensor portrait
+            \li \c {sensorPortrait}
             \li Portrait orientation, but it can be either normal or reverse
                 portrait based on the device sensor. The sensor is used even
                 if the user has locked sensor-based rotation.
         \row
-            \li User landscape
+            \li \c {userLandscape}
             \li Landscape orientation, but it can be either normal or reverse
                 landscape based on the device sensor and the user's preference.
         \row
-            \li User portrait
+            \li \c {userPortrait}
             \li Portrait orientation, but it can be either normal or reverse
                 portrait based on the device sensor and the user's preference.
         \row
-            \li Sensor
+            \li \c {sensor}
             \li The orientation is determined by the device orientation sensor.
                 The orientation of the display depends on how the user is
                 holding the device. It changes when the user rotates the device.
@@ -399,7 +414,7 @@
                 the full sensor option. The sensor is used even if the user
                 locked sensor-based rotation.
         \row
-            \li Full sensor
+            \li \c {fullSensor}
             \li The orientation is determined by the device orientation sensor
                 for any of the four orientations. This is similar to the sensor
                 option, except it allows any of the four possible screen
@@ -407,33 +422,31 @@
                 For example, some devices won't normally use reverse portrait
                 or reverse landscape, but this option enables them.
         \row
-            \li No sensor
+            \li \c {noSensor}
             \li The orientation is determined without reference to a physical
                 orientation sensor. The sensor is ignored, so the display will
                 not rotate based on how the user moves the device.
         \row
-            \li User
+            \li \c {user}
             \li The user's current preferred orientation.
         \row
-            \li Full user
+            \li \c {fullUser}
             \li If the user has locked sensor-based rotation, this option
                 behaves in the same way as the user option. Otherwise, it
                 behaves the same as the full sensor option and allows any
                 of the four possible screen orientations.
         \row
-            \li Locked
+            \li \c {locked}
             \li Locks the orientation to its current rotation, whatever that is.
     \endtable
-
-    \omit
-    Some of this information will be needed in version 20.0, when the visual
-    manifest editor makes a comeback. Everything until \c endomit is hidden in
-    the HTML file for now.
+    \enddetails
 
     \section2 Icons
 
-    In \uicontrol {Icon}, set images to use as application icons depending on screen
-    density.
+    To set images to use as application icons depending on screen density, go to
+    \uicontrol Tools > \uicontrol Android > \uicontrol {Icon}.
+
+    \image {qtcreator-android-manifest-icon.webp} {Icon editor}
 
     You can set different images to be shown as application icons and splash
     screens on low, medium, high, and extra high DPI displays. The following
@@ -448,6 +461,36 @@
         \li Extra-extra-extra-high-density (XXXHDPI): ~640dpi
     \endlist
 
+    To generate a set of icons at the appropriate resolution for each pixel
+    density from an image, select \uicontrol {Select Master Icon}.
+
+    To clear icons, select \uicontrol {Clear Icon}.
+
+    \section2 Splash screens
+
+    To specify settings for splash screens, go to \uicontrol Tools >
+    \uicontrol Android > \uicontrol {Splash Screen}.
+
+    \image {qtcreator-android-manifest-editor-splash-screen.webp} {Splash screen editor}
+
+    Select images to display as splash screens depending on the device
+    orientation and screen resolution.
+
+    Select the images with the highest resolution in
+    \uicontrol {Select Master Image}, \uicontrol {Select Portrait Image},
+    and \uicontrol {Select Landscape Image}.
+
+    In \uicontrol {Image show mode}, select whether to center the splash screen
+    on the device display or scale it to fill the display.
+
+    Set a background color in \uicontrol {Background color}.
+
+    By default, drawing an activity hides the splash screen. To keep it visible until
+    \l{QNativeInterface::QAndroidApplication::hideSplashScreen()} is
+    called, select \uicontrol {Sticky splash screen}.
+
+    Select \uicontrol {Clear All} to reset all settings or remove all images.
+
     \section2 Permissions
 
     Starting from Android 6.0 (API 23), applications have to request permissions
@@ -456,34 +499,27 @@
     The Android OS then grants the application access to the appropriate data and
     features.
 
+    To set permissions:
+
+    \list 1
+        \li Go to \uicontrol Tools > \uicontrol Android >
+            \uicontrol {Permissions}.
+            \image {qtcreator-android-manifest-permissions.webp} {Permissions editor}
+        \li Select a permission in the drop-down list, and then select
+            \uicontrol Add to add it to the \uicontrol {Permission} list.
+        \li Select the permission, and then select \uicontrol {Edit Attributes}
+            to set attributes for the permission.
+            \image {qtcreator-android-permissions-attributes.webp} {Permission attribute editor}
+        \li In \uicontrol {Attribute}, select an attribute.
+        \li In \uicontrol {Value}, enter a value for the attribute.
+        \li Select \uicontrol Add to set the attribute and value.
+        \li Select \uicontrol OK to add the attribute to the permission.
+    \endlist
+
     Select \uicontrol {Include default permissions for Qt modules} and
     \uicontrol {Include default features for Qt modules} to add the
     permissions needed by Qt libraries, such as
     \c {android.permission.ACCESS_BACKGROUND_LOCATION} for \l{Qt Positioning}.
-
-    \section2 Splash Screens
-
-    Specify settings for splash screens in the \uicontrol {Splash screen} tab.
-    Select images to display as splash screens depending on the device
-    orientation and screen resolution.
-
-    \image {qtcreator-android-manifest-editor-splash-screen.webp} {Splash screens in Android Manifest Editor}
-
-    By default, drawing an activity hides the splash screen. To keep it visible until
-    \l{QNativeInterface::QAndroidApplication::hideSplashScreen()} is
-    called, select \uicontrol {Sticky splash screen}.
-
-    In \uicontrol {Image show mode}, select whether to center the splash screen
-    on the device display or scale it to fill the display.
-
-    Set a background color in \uicontrol {Background color}.
-
-    Select the images with the highest resolution as the
-    \uicontrol {Master image}, \uicontrol {Portrait master image},
-    and \uicontrol {Landscape master image}.
-
-    Select \uicontrol {Clear All} to reset all settings or remove all images.
-    \endomit
 
     \sa {Android}{How to: Develop for Android}, {Developing for Android},
     {Qt for Android Manifest File Configuration}

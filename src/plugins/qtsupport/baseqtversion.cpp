@@ -90,8 +90,6 @@ public:
     bool hasDemos = false;
     bool hasDocumentation = false;
 
-    std::optional<Abis> qtAbis;
-
     QString qtVersionString;
 
     FilePath sourcePath;
@@ -201,6 +199,7 @@ public:
     QString m_type;
     DisplayName m_unexpandedDisplayName;
 
+    std::optional<Abis> m_qtAbis;
     std::optional<QtVersionData> m_data;
     QFuture<Result<QtVersionData>> m_dataFuture;
 
@@ -672,7 +671,7 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath)
         const QStringList abiList = itQtAbis.value().toStringList();
         if (!abiList.isEmpty()) {
             const Abis abis = Utils::transform<Abis>(abiList, &Abi::fromString);
-            d->data().qtAbis = Utils::filtered(abis, &Abi::isValid);
+            d->m_qtAbis = Utils::filtered(abis, &Abi::isValid);
         }
     }
 
@@ -756,23 +755,23 @@ FilePath QtVersion::qmakeFilePath() const
 
 bool QtVersion::hasQtAbisSet() const
 {
-    return d->data().qtAbis.has_value();
+    return d->m_qtAbis.has_value();
 }
 
 Abis QtVersion::qtAbis() const
 {
-    if (!d->data().qtAbis
+    if (!d->m_qtAbis
         // QTCREATORBUG-30568 give AndroidQtVersion a "second chance" to detect Qt Abis
-        || (d->m_type == Android::Constants::ANDROID_QT_TYPE && d->data().qtAbis->isEmpty())) {
-        d->data().qtAbis = detectQtAbis();
+        || (d->m_type == Android::Constants::ANDROID_QT_TYPE && d->m_qtAbis->isEmpty())) {
+        d->m_qtAbis = detectQtAbis();
     }
 
-    return *d->data().qtAbis;
+    return *d->m_qtAbis;
 }
 
 void QtVersion::setQtAbis(const Abis &abis)
 {
-    d->data().qtAbis = abis;
+    d->m_qtAbis = abis;
 }
 
 Abis QtVersion::detectQtAbis() const

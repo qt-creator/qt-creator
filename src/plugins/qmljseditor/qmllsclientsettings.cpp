@@ -174,7 +174,7 @@ QmllsClientSettings::QmllsClientSettings()
         const FilePath executable = evaluateLatestQmlls().executable;
         return executable.isEmpty()
                    ? Tr::tr("Use qmlls from latest Qt")
-                   : Tr::tr("Use qmlls from latest Qt (located at %1)").arg(executable.path());
+                   : Tr::tr("Use qmlls from latest Qt (located at \"%1\")").arg(executable.path());
     };
     executableSelection.setSettingsKey(executableSelectionKey);
     executableSelection.addOption(Tr::tr("Use qmlls from project Qt kit"));

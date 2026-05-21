@@ -5,13 +5,25 @@
 
 #include <QEvent>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QVBoxLayout>
+
+#include <utils/icon.h>
+#include <utils/qtcwidgets.h>
+#include <utils/utilsicons.h>
 
 namespace AcpClient::Internal {
 
-static QString expandedIndicator() { return QStringLiteral("▼"); }  // black down-pointing triangle
-static QString collapsedIndicator() { return QStringLiteral("▶"); } // black right-pointing triangle
+static Utils::Icon expandedIndicator()
+{
+    return Utils::Icon({{":/utils/images/arrowdown.png", Utils::Theme::PanelTextColorDark}},
+                       Utils::Icon::Tint);
+}
+
+static Utils::Icon collapsedIndicator()
+{
+    return Utils::Icon({{":/utils/images/next.png", Utils::Theme::PanelTextColorDark}},
+                       Utils::Icon::Tint);
+}
 
 CollapsibleFrame::CollapsibleFrame(QWidget *parent)
     : QFrame(parent)
@@ -27,7 +39,8 @@ CollapsibleFrame::CollapsibleFrame(QWidget *parent)
     headerRow->setContentsMargins(8, 6, 8, 6);
     headerRow->setSpacing(4);
 
-    m_indicator = new QLabel(expandedIndicator(), this);
+    m_indicator = new Utils::QtcIconDisplay(this);
+    m_indicator->setIcon(expandedIndicator());
     headerRow->addWidget(m_indicator, 0, Qt::AlignTop);
 
     m_headerLayout = new QHBoxLayout;
@@ -51,7 +64,7 @@ void CollapsibleFrame::setCollapsed(bool collapsed)
         return;
     m_collapsed = collapsed;
     m_body->setVisible(!collapsed);
-    m_indicator->setText(collapsed ? collapsedIndicator() : expandedIndicator());
+    m_indicator->setIcon(collapsed ? collapsedIndicator() : expandedIndicator());
     emit collapsedChanged(collapsed);
 }
 

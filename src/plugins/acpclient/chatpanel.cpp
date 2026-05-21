@@ -75,7 +75,7 @@ public:
         auto *closeBtn = new QtcIconButton();
         closeBtn->setIcon(Icons::CLOSE_TOOLBAR.icon());
         closeBtn->setContentsMargins(0, 0, 0, 0);
-        closeBtn->setToolTip(Tr::tr("Remove context"));
+        closeBtn->setToolTip(Tr::tr("Remove Context"));
         connect(closeBtn, &QToolButton::clicked, this, &ContextItem::removeRequested);
         layout->addWidget(closeBtn);
     }
@@ -174,7 +174,7 @@ ChatPanel::ChatPanel(QWidget *parent)
 
         menu->clear();
 
-        auto *addFileAction = menu->addAction(Tr::tr("Add file..."));
+        auto *addFileAction = menu->addAction(Tr::tr("Add File..."));
         connect(addFileAction, &QAction::triggered, this, [this] {
             const FilePath fp = Utils::FileUtils::getOpenFilePath(
                 Tr::tr("Add Context File"), {}, {}, nullptr, {}, false, false);
@@ -185,7 +185,7 @@ ChatPanel::ChatPanel(QWidget *parent)
                 updateContextBar();
             }
         });
-        auto *addRemoteFileAction = menu->addAction(Tr::tr("Add remote file..."));
+        auto *addRemoteFileAction = menu->addAction(Tr::tr("Add Remote File..."));
         connect(addRemoteFileAction, &QAction::triggered, this, [this] {
             const FilePath fp = Utils::FileUtils::getOpenFilePath(
                 Tr::tr("Add Context File"), {}, {}, nullptr, {}, false, true);

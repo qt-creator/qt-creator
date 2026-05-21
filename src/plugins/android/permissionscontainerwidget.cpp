@@ -170,11 +170,12 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
     auto layout = new QGridLayout(permissionsGroupBox);
 
     m_defaultPermissonsCheckBox = new QCheckBox(this);
-    m_defaultPermissonsCheckBox->setText(Android::Tr::tr("Include default permissions for Qt modules."));
+    m_defaultPermissonsCheckBox->setText(
+        Android::Tr::tr("Include default permissions for Qt modules"));
     layout->addWidget(m_defaultPermissonsCheckBox, 0, 0);
 
     m_defaultFeaturesCheckBox = new QCheckBox(this);
-    m_defaultFeaturesCheckBox->setText(Android::Tr::tr("Include default features for Qt modules."));
+    m_defaultFeaturesCheckBox->setText(Android::Tr::tr("Include default features for Qt modules"));
     layout->addWidget(m_defaultFeaturesCheckBox, 1, 0);
 
     m_permissionsComboBox = new QComboBox(permissionsGroupBox);
@@ -400,7 +401,7 @@ void PermissionsContainerWidget::editAttributes()
     refreshAttrList();
     dialogLayout->addWidget(attrListWidget);
 
-    QPushButton *removeAttrButton = new QPushButton(Tr::tr("Remove selected"), &dialog);
+    QPushButton *removeAttrButton = new QPushButton(Tr::tr("Remove Selected"), &dialog);
     removeAttrButton->setEnabled(false);
     connect(attrListWidget, &QListWidget::itemSelectionChanged, &dialog, [&]() {
         const bool hasSelection = attrListWidget->currentItem() != nullptr;

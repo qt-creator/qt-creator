@@ -74,7 +74,7 @@ enum ResultSpecialErrorCode {
 class QTCREATOR_UTILS_EXPORT ResultError
 {
 public:
-    ResultError(const QString &errorMessage);
+    explicit ResultError(const QString &errorMessage);
     ResultError(ResultSpecialErrorCode code, const QString &errorMessage = {});
 
     template<typename T> operator Result<T>() const { return tl::make_unexpected(m_error); }

@@ -430,7 +430,7 @@ public:
     McpRegistryDialog(QWidget *parent = nullptr)
         : QDialog(parent)
     {
-        setWindowTitle(Tr::tr("Add MCP Server from Registry"));
+        setWindowTitle(Tr::tr("Add MCP Server From Registry"));
         resize(700, 500);
 
         auto *layout = new QVBoxLayout(this);
@@ -647,13 +647,13 @@ public:
 
         name.setLabelText(Tr::tr("Name:"));
         name.setSettingsKey("name");
-        name.setToolTip(Tr::tr("The display name"));
+        name.setToolTip(Tr::tr("The display name."));
         name.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
         name.setDefaultValue(Tr::tr("<New Server>"));
 
         // name.setValidationFunction([](){});
 
-        launchCommand.setLabelText(Tr::tr("Launch command:"));
+        launchCommand.setLabelText(Tr::tr("Executable:"));
         launchCommand.setSettingsKey("launchCommand");
         launchCommand.setToolTip(
             Tr::tr(
@@ -661,7 +661,7 @@ public:
                 "connection type."));
         launchCommand.setExpectedKind(PathChooser::ExistingCommand);
 
-        launchArguments.setLabelText(Tr::tr("Launch arguments:"));
+        launchArguments.setLabelText(Tr::tr("Arguments:"));
         launchArguments.setSettingsKey("launchArguments");
         launchArguments.setToolTip(
             Tr::tr(
@@ -1054,7 +1054,7 @@ public:
         });
 
         mcpServers.listViewDataCallback = displayFunc;
-        mcpServers.addExtraButton(Tr::tr("Add from Registry..."), [this] { addFromRegistry(); });
+        mcpServers.addExtraButton(Tr::tr("Add From Registry..."), [this] { addFromRegistry(); });
 
         enableDocsMcpServer.setLabelText(Tr::tr("Enable Qt Documentation MCP Server"));
         enableDocsMcpServer.setToolTip(
@@ -1075,7 +1075,6 @@ public:
             using namespace Layouting;
             // clang-format off
             return Column{
-                Tr::tr("MCP Servers:"), br,
                 enableDocsMcpServer,
                 &mcpServers,
             };

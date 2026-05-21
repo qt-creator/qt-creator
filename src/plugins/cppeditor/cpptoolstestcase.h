@@ -141,7 +141,7 @@ public:
     static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(
         CppEditorWidget *editorWidget, int timeoutInMs = defaultTimeOutInMs);
 
-    enum { defaultTimeOutInMs = 30 * 1000 /*= 30 secs*/ };
+    enum { defaultTimeOutInMs = 30 * 1000 /* = 30 secs*/ };
     static bool waitUntilProjectIsFullyOpened(ProjectExplorer::Project *project,
                                               int timeOutInMs = defaultTimeOutInMs);
     static CPlusPlus::Document::Ptr waitForFileInGlobalSnapshot(const Utils::FilePath &filePath,

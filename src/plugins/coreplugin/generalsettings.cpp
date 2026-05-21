@@ -273,7 +273,7 @@ GeneralSettings::GeneralSettings()
     };
 
     highDpiScaleFactorRoundingPolicy.setSettingsKey(settingsKeyDpiPolicy);
-    highDpiScaleFactorRoundingPolicy.setLabelText(Tr::tr("DPI rounding policy"));
+    highDpiScaleFactorRoundingPolicy.setLabelText(Tr::tr("DPI rounding policy:"));
     highDpiScaleFactorRoundingPolicy.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     highDpiScaleFactorRoundingPolicy.setUseDataAsSavedValue();
 

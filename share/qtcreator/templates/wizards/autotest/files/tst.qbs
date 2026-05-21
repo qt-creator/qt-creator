@@ -1,10 +1,13 @@
 @if "%{TestFrameWork}" == "GTest" || "%{TestFrameWork}" == "GTest_dyn"
 import qbs.Environment
+import qbs.FileInfo
+
 import "googlecommon.js" as googleCommon
 @endif
 @if "%{TestFrameWork}" == "BoostTest"
 import qbs.Environment
 import qbs.File
+impoer qbs.FileInfo
 @endif
 @if "%{TestFrameWork}" == "BoostTest_dyn"
 import qbs.Environment
@@ -14,10 +17,12 @@ import qbs.FileInfo
 @if "%{TestFrameWork}" == "Catch2"
 import qbs.Environment
 import qbs.File
+import qbs.FileInfo
 @endif
 @if "%{TestFrameWork}" == "Catch2_dyn"
 import qbs.Environment
 import qbs.File
+import qbs.FileInfo
 
 import "catchCommon.js" as catchCommon
 @endif
@@ -237,5 +242,5 @@ CppApplication {
     ]
 
 @endif
-
+    installDir: qbs.targetOS.contains("qnx") ? FileInfo.joinPaths("/tmp", name, "bin") : base
 }

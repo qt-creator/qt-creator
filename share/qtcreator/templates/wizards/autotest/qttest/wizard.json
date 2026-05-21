@@ -145,7 +145,7 @@
             "typeId": "Kits",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "%{FeatureQt}", "DeviceType.Desktop" ]
+                 "requiredFeatures": [ "%{FeatureQt}" ]
             }
         },
         {

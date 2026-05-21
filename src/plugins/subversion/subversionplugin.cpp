@@ -260,30 +260,16 @@ private:
     FilePath m_commitRepository;
 
     Core::CommandLocator *m_commandLocator = nullptr;
-    Utils::Action *m_addAction = nullptr;
-    Utils::Action *m_deleteAction = nullptr;
-    Utils::Action *m_revertAction = nullptr;
-    Utils::Action *m_diffProjectDirectoryAction = nullptr;
-    Utils::Action *m_diffCurrentAction = nullptr;
-    Utils::Action *m_logProjectDirectoryAction = nullptr;
-    QAction *m_logRepositoryAction = nullptr;
-    QAction *m_commitAllAction = nullptr;
-    QAction *m_revertRepositoryAction = nullptr;
-    QAction *m_diffRepositoryAction = nullptr;
-    QAction *m_statusRepositoryAction = nullptr;
-    QAction *m_updateRepositoryAction = nullptr;
-    Utils::Action *m_commitCurrentAction = nullptr;
-    Utils::Action *m_filelogCurrentAction = nullptr;
-    Utils::Action *m_annotateCurrentAction = nullptr;
-    Utils::Action *m_statusProjectDirectoryAction = nullptr;
-    Utils::Action *m_updateProjectDirectoryAction = nullptr;
-    Utils::Action *m_commitProjectDirectoryAction = nullptr;
-    QAction *m_describeAction = nullptr;
+
+    enum ActionGroup { FileGroup, ProjectGroup };
+
+    QHash<ActionGroup, QList<Action *>> m_actions;
+    QList<QAction *> m_topLevelActions;
 
     QAction *m_menuAction = nullptr;
 
-    QSet<Utils::FilePath> m_monitoredPaths;
-    QQueue<Utils::FilePath> m_statusUpdateQueue;
+    QSet<FilePath> m_monitoredPaths;
+    QQueue<FilePath> m_statusUpdateQueue;
     QTimer m_timer;
     SubversionExternalsMap m_externalsMap;
 };
@@ -340,168 +326,84 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     subversionMenu->menu()->setTitle(Tr::tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
     m_menuAction = subversionMenu->menu()->menuAction();
-    Command *command;
 
-    m_diffCurrentAction = new Action(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffCurrentAction,
-        CMD_ID_DIFF_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+S,Meta+D") : Tr::tr("Alt+S,Alt+D")));
-    connect(m_diffCurrentAction, &QAction::triggered, this, &SubversionPluginPrivate::diffCurrentFile);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    using Callback = void (SubversionPluginPrivate::*)();
+    const auto addAction = [this, context, subversionMenu](ActionGroup actionGroup,
+                                                           const QString &emptyText,
+                                                           const QString &parameterText,
+                                                           Id id, const Callback &callback,
+                                                           const std::optional<QKeySequence> &keySequence = std::nullopt)
+    {
+        Action *action = new Action(emptyText, parameterText, Action::EnabledWithParameter, this);
+        Command *command = ActionManager::registerAction(action, id, context);
+        command->setAttribute(Command::CA_UpdateText);
+        if (keySequence)
+            command->setDefaultKeySequence(*keySequence);
+        connect(action, &QAction::triggered, this, callback);
+        subversionMenu->addAction(command);
+        m_commandLocator->appendCommand(command);
+        m_actions[actionGroup].append(action);
+    };
+    const auto addTopLevelAction = [this, context, subversionMenu](const QString &text, Id id,
+                                                                   const Callback &callback)
+    {
+        QAction *action = new QAction(text, this);
+        Command * command = ActionManager::registerAction(action, id, context);
+        connect(action, &QAction::triggered, this, callback);
+        subversionMenu->addAction(command);
+        m_commandLocator->appendCommand(command);
+        m_topLevelActions.append(action);
+    };
 
-    m_filelogCurrentAction = new Action(Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_filelogCurrentAction,
-        CMD_ID_FILELOG_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_filelogCurrentAction, &QAction::triggered, this, &SubversionPluginPrivate::filelogCurrentFile);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_annotateCurrentAction = new Action(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_annotateCurrentAction,
-        CMD_ID_ANNOTATE_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_annotateCurrentAction, &QAction::triggered, this, &SubversionPluginPrivate::annotateCurrentFile);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
+    addAction(FileGroup, Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""),
+              CMD_ID_DIFF_CURRENT, &SubversionPluginPrivate::diffCurrentFile,
+              QKeySequence(useMacShortcuts ? Tr::tr("Meta+S,Meta+D") : Tr::tr("Alt+S,Alt+D")));
+    addAction(FileGroup, Tr::tr("Filelog Current File"), Tr::tr("Filelog \"%1\""),
+              CMD_ID_FILELOG_CURRENT, &SubversionPluginPrivate::filelogCurrentFile);
+    addAction(FileGroup, Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""),
+              CMD_ID_ANNOTATE_CURRENT, &SubversionPluginPrivate::annotateCurrentFile);
     subversionMenu->addSeparator(context);
-
-    m_addAction = new Action(Tr::tr("Add"), Tr::tr("Add \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_addAction, CMD_ID_ADD,
-        context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+S,Meta+A") : Tr::tr("Alt+S,Alt+A")));
-    connect(m_addAction, &QAction::triggered, this, &SubversionPluginPrivate::addCurrentFile);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_commitCurrentAction = new Action(Tr::tr("Commit Current File"), Tr::tr("Commit \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_commitCurrentAction,
-        CMD_ID_COMMIT_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+S,Meta+C") : Tr::tr("Alt+S,Alt+C")));
-    connect(m_commitCurrentAction, &QAction::triggered, this, &SubversionPluginPrivate::startCommitCurrentFile);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_deleteAction = new Action(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
-        context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_deleteAction, &QAction::triggered, this, &SubversionPluginPrivate::promptToDeleteCurrentFile);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_revertAction = new Action(Tr::tr("Revert..."), Tr::tr("Revert \"%1\"..."), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_revertAction, CMD_ID_REVERT,
-        context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_revertAction, &QAction::triggered, this, &SubversionPluginPrivate::revertCurrentFile);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
+    addAction(FileGroup, Tr::tr("Add"), Tr::tr("Add \"%1\""),
+              CMD_ID_ADD, &SubversionPluginPrivate::addCurrentFile,
+              QKeySequence(useMacShortcuts ? Tr::tr("Meta+S,Meta+A") : Tr::tr("Alt+S,Alt+A")));
+    addAction(FileGroup, Tr::tr("Commit Current File"), Tr::tr("Commit \"%1\""),
+              CMD_ID_COMMIT_CURRENT, &SubversionPluginPrivate::startCommitCurrentFile,
+              QKeySequence(useMacShortcuts ? Tr::tr("Meta+S,Meta+C") : Tr::tr("Alt+S,Alt+C")));
+    addAction(FileGroup, Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."),
+              CMD_ID_DELETE_FILE, &SubversionPluginPrivate::promptToDeleteCurrentFile);
+    addAction(FileGroup, Tr::tr("Revert..."), Tr::tr("Revert \"%1\"..."),
+              CMD_ID_REVERT, &SubversionPluginPrivate::revertCurrentFile);
     subversionMenu->addSeparator(context);
-
-    m_diffProjectDirectoryAction = new Action(Tr::tr("Diff Project Directory"),
-                                              Tr::tr("Diff Directory of Project \"%1\""),
-                                              Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffProjectDirectoryAction, CMD_ID_DIFF_PROJECT,
-                                            context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_diffProjectDirectoryAction, &QAction::triggered,
-            this, &SubversionPluginPrivate::diffProjectDirectory);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_statusProjectDirectoryAction = new Action(Tr::tr("Project Directory Status"),
-                                                Tr::tr("Status of Directory of Project \"%1\""),
-                                                Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_statusProjectDirectoryAction, CMD_ID_STATUS,
-                                            context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_statusProjectDirectoryAction, &QAction::triggered,
-            this, &SubversionPluginPrivate::projectDirectoryStatus);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_logProjectDirectoryAction = new Action(Tr::tr("Log Project Directory"),
-                                             Tr::tr("Log Directory of Project \"%1\""),
-                                             Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_logProjectDirectoryAction, CMD_ID_PROJECTLOG, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_logProjectDirectoryAction, &QAction::triggered,
-            this, &SubversionPluginPrivate::logProjectDirectory);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_updateProjectDirectoryAction = new Action(Tr::tr("Update Project Directory"),
-                                                Tr::tr("Update Directory of Project \"%1\""),
-                                                Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_updateProjectDirectoryAction, CMD_ID_UPDATE, context);
-    connect(m_updateProjectDirectoryAction, &QAction::triggered,
-            this, &SubversionPluginPrivate::updateProjectDirectory);
-    command->setAttribute(Command::CA_UpdateText);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_commitProjectDirectoryAction = new Action(Tr::tr("Commit Project Directory"),
-                                                Tr::tr("Commit Directory of Project \"%1\""),
-                                                Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_commitProjectDirectoryAction, CMD_ID_COMMIT_PROJECT,
-                                            context);
-    connect(m_commitProjectDirectoryAction, &QAction::triggered,
-            this, &SubversionPluginPrivate::startCommitProjectDirectory);
-    command->setAttribute(Command::CA_UpdateText);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
+    addAction(ProjectGroup, Tr::tr("Diff Project Directory"),
+              Tr::tr("Diff Directory of Project \"%1\""),
+              CMD_ID_DIFF_PROJECT, &SubversionPluginPrivate::diffProjectDirectory);
+    addAction(ProjectGroup, Tr::tr("Project Directory Status"),
+              Tr::tr("Status of Directory of Project \"%1\""),
+              CMD_ID_STATUS, &SubversionPluginPrivate::projectDirectoryStatus);
+    addAction(ProjectGroup, Tr::tr("Log Project Directory"),
+              Tr::tr("Log Directory of Project \"%1\""),
+              CMD_ID_PROJECTLOG, &SubversionPluginPrivate::logProjectDirectory);
+    addAction(ProjectGroup, Tr::tr("Update Project Directory"),
+              Tr::tr("Update Directory of Project \"%1\""),
+              CMD_ID_UPDATE, &SubversionPluginPrivate::updateProjectDirectory);
+    addAction(ProjectGroup, Tr::tr("Commit Project Directory"),
+              Tr::tr("Commit Directory of Project \"%1\""),
+              CMD_ID_COMMIT_PROJECT, &SubversionPluginPrivate::startCommitProjectDirectory);
     subversionMenu->addSeparator(context);
-
-    m_diffRepositoryAction = new QAction(Tr::tr("Diff Repository"), this);
-    command = ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, context);
-    connect(m_diffRepositoryAction, &QAction::triggered, this, &SubversionPluginPrivate::diffRepository);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_statusRepositoryAction = new QAction(Tr::tr("Repository Status"), this);
-    command = ActionManager::registerAction(m_statusRepositoryAction, CMD_ID_REPOSITORYSTATUS, context);
-    connect(m_statusRepositoryAction, &QAction::triggered, this, &SubversionPluginPrivate::statusRepository);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_logRepositoryAction = new QAction(Tr::tr("Log Repository"), this);
-    command = ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, context);
-    connect(m_logRepositoryAction, &QAction::triggered, this, &SubversionPluginPrivate::logRepository);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_updateRepositoryAction = new QAction(Tr::tr("Update Repository"), this);
-    command = ActionManager::registerAction(m_updateRepositoryAction, CMD_ID_REPOSITORYUPDATE, context);
-    connect(m_updateRepositoryAction, &QAction::triggered, this, &SubversionPluginPrivate::updateRepository);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_commitAllAction = new QAction(Tr::tr("Commit All Files"), this);
-    command = ActionManager::registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
-        context);
-    connect(m_commitAllAction, &QAction::triggered, this, &SubversionPluginPrivate::startCommitAll);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_describeAction = new QAction(Tr::tr("Describe..."), this);
-    command = ActionManager::registerAction(m_describeAction, CMD_ID_DESCRIBE, context);
-    connect(m_describeAction, &QAction::triggered, this, &SubversionPluginPrivate::slotDescribe);
-    subversionMenu->addAction(command);
-
-    m_revertRepositoryAction = new QAction(Tr::tr("Revert Repository..."), this);
-    command = ActionManager::registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
-        context);
-    connect(m_revertRepositoryAction, &QAction::triggered, this, &SubversionPluginPrivate::revertAll);
-    subversionMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    addTopLevelAction(Tr::tr("Diff Repository"), CMD_ID_REPOSITORYDIFF,
+                      &SubversionPluginPrivate::diffRepository);
+    addTopLevelAction(Tr::tr("Repository Status"), CMD_ID_REPOSITORYSTATUS,
+                      &SubversionPluginPrivate::statusRepository);
+    addTopLevelAction(Tr::tr("Log Repository"), CMD_ID_REPOSITORYLOG,
+                      &SubversionPluginPrivate::logRepository);
+    addTopLevelAction(Tr::tr("Update Repository"), CMD_ID_REPOSITORYUPDATE,
+                      &SubversionPluginPrivate::updateRepository);
+    addTopLevelAction(Tr::tr("Commit All Files"), CMD_ID_COMMIT_ALL,
+                      &SubversionPluginPrivate::startCommitAll);
+    addTopLevelAction(Tr::tr("Describe..."), CMD_ID_DESCRIBE,
+                      &SubversionPluginPrivate::slotDescribe);
+    addTopLevelAction(Tr::tr("Revert Repository..."), CMD_ID_REVERT_ALL,
+                      &SubversionPluginPrivate::revertAll);
 
     connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 
@@ -629,31 +531,20 @@ void SubversionPluginPrivate::updateActions(VersionControlBase::ActionState as)
     }
     const bool hasTopLevel = currentState().hasTopLevel();
     m_commandLocator->setEnabled(hasTopLevel);
-    m_logRepositoryAction->setEnabled(hasTopLevel);
+    for (QAction *action : std::as_const(m_topLevelActions))
+        action->setEnabled(hasTopLevel);
 
-    const QString projectName = currentState().currentProjectName();
-    m_diffProjectDirectoryAction->setParameter(projectName);
-    m_statusProjectDirectoryAction->setParameter(projectName);
-    m_updateProjectDirectoryAction->setParameter(projectName);
-    m_logProjectDirectoryAction->setParameter(projectName);
-    m_commitProjectDirectoryAction->setParameter(projectName);
+    const QHash<ActionGroup, QString> groupLabels = {
+        {FileGroup, currentState().currentFileName()},
+        {ProjectGroup, currentState().currentProjectName()},
+    };
 
-    const bool repoEnabled = currentState().hasTopLevel();
-    m_commitAllAction->setEnabled(repoEnabled);
-    m_describeAction->setEnabled(repoEnabled);
-    m_revertRepositoryAction->setEnabled(repoEnabled);
-    m_diffRepositoryAction->setEnabled(repoEnabled);
-    m_statusRepositoryAction->setEnabled(repoEnabled);
-    m_updateRepositoryAction->setEnabled(repoEnabled);
-
-    const QString fileName = currentState().currentFileName();
-    m_addAction->setParameter(fileName);
-    m_deleteAction->setParameter(fileName);
-    m_revertAction->setParameter(fileName);
-    m_diffCurrentAction->setParameter(fileName);
-    m_commitCurrentAction->setParameter(fileName);
-    m_filelogCurrentAction->setParameter(fileName);
-    m_annotateCurrentAction->setParameter(fileName);
+    for (auto it = m_actions.cbegin(); it != m_actions.cend(); ++it) {
+        const QList<Action *> &actions = it.value();
+        const QString groupLabel = groupLabels.value(it.key());
+        for (Action *action : actions)
+            action->setParameter(groupLabel);
+    };
 }
 
 void SubversionPluginPrivate::addCurrentFile()

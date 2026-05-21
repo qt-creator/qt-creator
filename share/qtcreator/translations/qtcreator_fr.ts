@@ -67297,7 +67297,7 @@ Les données de la trace sont perdues.</translation>
         <translation>Le fichier «&#xa0;%1&#xa0;» n&apos;existe pas.</translation>
     </message>
     <message>
-        <source>Could not open File &quot;%1&quot;.</source>
+        <source>Could not open file &quot;%1&quot;.</source>
         <translation>Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>

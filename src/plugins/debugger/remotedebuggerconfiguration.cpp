@@ -36,22 +36,22 @@ private:
 RemoteDebuggerConfiguration::RemoteDebuggerConfiguration(BuildConfiguration *bc, Id id)
     : RunConfiguration(bc, id)
 {
-    executable.setLabelText(Tr::tr("Launcher command:"));
+    executable.setLabelText(Tr::tr("Command:"));
     executable.setReadOnly(false);
     executable.setSettingsKey("RemoteDebugger.Executable");
     executable.setHistoryCompleter("RemoteDebugger.Executable.History");
     executable.setPlaceHolderText(
-        Tr::tr("Script or command that will set up the gdb server connection"));
+        Tr::tr("Script or command that will set up the gdb server connection."));
     executable.setExpectedKind(PathChooser::Command);
 
     arguments.setSettingsKey("RemoteDebugger.Arguments");
 
     symbolFile.setSettingsKey("RemoteDebugger.SymbolFile");
-    symbolFile.setLabelText(tr("Symbol file (local executable):"));
+    symbolFile.setLabelText(Tr::tr("Symbol file (local executable):"));
 
     gdbServerChannel.setId(Constants::GdbServerAddressAspectId);
     gdbServerChannel.setSettingsKey("RemoteDebugger.GdbServerAddress");
-    gdbServerChannel.setLabelText(tr("Server channel:"));
+    gdbServerChannel.setLabelText(Tr::tr("Server channel:"));
     gdbServerChannel.setDisplayStyle(StringAspect::LineEditDisplay);
     gdbServerChannel.setDefaultValue("tcp://127.0.0.1:1234");
     gdbServerChannel.setPlaceHolderText(Tr::tr("For example, %1").arg(":1234, /dev/ttyS0, COM1"));
@@ -74,14 +74,15 @@ RemoteDebuggerConfiguration::RemoteDebuggerConfiguration(BuildConfiguration *bc,
 QString RemoteDebuggerConfiguration::runConfigDefaultDisplayName()
 {
     const FilePath exe = executable();
-    return exe.isEmpty() ? Tr::tr("RemoteDebugger Runner") : Tr::tr("RemoteDebugger: %1").arg(exe.toUserOutput());
+    return exe.isEmpty() ? Tr::tr("Remote Debugger")
+                         : Tr::tr("Remote Debugger: %1").arg(exe.toUserOutput());
 }
 
 Tasks RemoteDebuggerConfiguration::checkForIssues() const
 {
     Tasks tasks;
     if (executable().isEmpty())
-        tasks << createConfigurationIssue(Tr::tr("The launcher command must be set in order to run."));
+        tasks << createConfigurationIssue(Tr::tr("The command must be set in order to debug."));
     if (symbolFile().isEmpty())
         tasks << createConfigurationIssue(Tr::tr("The symbol file must be set in order to debug."));
     if (gdbServerChannel().isEmpty())

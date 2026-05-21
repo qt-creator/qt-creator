@@ -2,7 +2,7 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- C:\dev\bin\Python\314\python.exe \
+ C:\dev\bin\Python313\python.exe \
   scripts/generate_cpp_from_schema.py \
   src/libs/acp/schema/schema.json src/libs/acp/acp.h --namespace Acp --cpp-output src/libs/acp/acp.cpp --export-macro ACPLIB_EXPORT --export-header acp_global.h
 */
@@ -1210,8 +1210,8 @@ struct ToolCall {
      * Enables "follow-along" features in clients.
      */
     std::optional<QList<ToolCallLocation>> _locations;
-    std::optional<QString> _rawInput;  //!< Raw input parameters sent to the tool.
-    std::optional<QString> _rawOutput;  //!< Raw output returned by the tool.
+    std::optional<QJsonValue> _rawInput;  //!< Raw input parameters sent to the tool.
+    std::optional<QJsonValue> _rawOutput;  //!< Raw output returned by the tool.
     std::optional<ToolCallStatus> _status;  //!< Current execution status of the tool call.
     QString _title;  //!< Human-readable title describing what the tool is doing.
     ToolCallId _toolCallId;  //!< Unique identifier for this tool call within the session.
@@ -1222,8 +1222,8 @@ struct ToolCall {
     ToolCall& kind(const std::optional<ToolKind> & v) { _kind = v; return *this; }
     ToolCall& locations(const std::optional<QList<ToolCallLocation>> & v) { _locations = v; return *this; }
     ToolCall& addLocation(const ToolCallLocation & v) { if (!_locations) _locations = QList<ToolCallLocation>{}; (*_locations).append(v); return *this; }
-    ToolCall& rawInput(const std::optional<QString> & v) { _rawInput = v; return *this; }
-    ToolCall& rawOutput(const std::optional<QString> & v) { _rawOutput = v; return *this; }
+    ToolCall& rawInput(const std::optional<QJsonValue> & v) { _rawInput = v; return *this; }
+    ToolCall& rawOutput(const std::optional<QJsonValue> & v) { _rawOutput = v; return *this; }
     ToolCall& status(const std::optional<ToolCallStatus> & v) { _status = v; return *this; }
     ToolCall& title(const QString & v) { _title = v; return *this; }
     ToolCall& toolCallId(const ToolCallId & v) { _toolCallId = v; return *this; }
@@ -1232,8 +1232,8 @@ struct ToolCall {
     const std::optional<QList<ToolCallContent>>& content() const { return _content; }
     const std::optional<ToolKind>& kind() const { return _kind; }
     const std::optional<QList<ToolCallLocation>>& locations() const { return _locations; }
-    const std::optional<QString>& rawInput() const { return _rawInput; }
-    const std::optional<QString>& rawOutput() const { return _rawOutput; }
+    const std::optional<QJsonValue>& rawInput() const { return _rawInput; }
+    const std::optional<QJsonValue>& rawOutput() const { return _rawOutput; }
     const std::optional<ToolCallStatus>& status() const { return _status; }
     const QString& title() const { return _title; }
     const ToolCallId& toolCallId() const { return _toolCallId; }
@@ -1264,8 +1264,8 @@ struct ToolCallUpdate {
     std::optional<QJsonArray> _content;  //!< Replace the content collection.
     std::optional<ToolKind> _kind;  //!< Update the tool kind.
     std::optional<QJsonArray> _locations;  //!< Replace the locations collection.
-    std::optional<QString> _rawInput;  //!< Update the raw input.
-    std::optional<QString> _rawOutput;  //!< Update the raw output.
+    std::optional<QJsonValue> _rawInput;  //!< Update the raw input.
+    std::optional<QJsonValue> _rawOutput;  //!< Update the raw output.
     std::optional<ToolCallStatus> _status;  //!< Update the execution status.
     std::optional<QString> _title;  //!< Update the human-readable title.
     ToolCallId _toolCallId;  //!< The ID of the tool call being updated.
@@ -1274,8 +1274,8 @@ struct ToolCallUpdate {
     ToolCallUpdate& content(const std::optional<QJsonArray> & v) { _content = v; return *this; }
     ToolCallUpdate& kind(const std::optional<ToolKind> & v) { _kind = v; return *this; }
     ToolCallUpdate& locations(const std::optional<QJsonArray> & v) { _locations = v; return *this; }
-    ToolCallUpdate& rawInput(const std::optional<QString> & v) { _rawInput = v; return *this; }
-    ToolCallUpdate& rawOutput(const std::optional<QString> & v) { _rawOutput = v; return *this; }
+    ToolCallUpdate& rawInput(const std::optional<QJsonValue> & v) { _rawInput = v; return *this; }
+    ToolCallUpdate& rawOutput(const std::optional<QJsonValue> & v) { _rawOutput = v; return *this; }
     ToolCallUpdate& status(const std::optional<ToolCallStatus> & v) { _status = v; return *this; }
     ToolCallUpdate& title(const std::optional<QString> & v) { _title = v; return *this; }
     ToolCallUpdate& toolCallId(const ToolCallId & v) { _toolCallId = v; return *this; }
@@ -1284,8 +1284,8 @@ struct ToolCallUpdate {
     const std::optional<QJsonArray>& content() const { return _content; }
     const std::optional<ToolKind>& kind() const { return _kind; }
     const std::optional<QJsonArray>& locations() const { return _locations; }
-    const std::optional<QString>& rawInput() const { return _rawInput; }
-    const std::optional<QString>& rawOutput() const { return _rawOutput; }
+    const std::optional<QJsonValue>& rawInput() const { return _rawInput; }
+    const std::optional<QJsonValue>& rawOutput() const { return _rawOutput; }
     const std::optional<ToolCallStatus>& status() const { return _status; }
     const std::optional<QString>& title() const { return _title; }
     const ToolCallId& toolCallId() const { return _toolCallId; }
@@ -1806,7 +1806,7 @@ struct Error {
      * Optional primitive or structured value that contains additional information about the error.
      * This may include debugging information or context-specific details.
      */
-    std::optional<QString> _data;
+    std::optional<QJsonValue> _data;
     /**
      * A string providing a short description of the error.
      * The message should be limited to a concise single sentence.
@@ -1814,11 +1814,11 @@ struct Error {
     QString _message;
 
     Error& code(int v) { _code = v; return *this; }
-    Error& data(const std::optional<QString> & v) { _data = v; return *this; }
+    Error& data(const std::optional<QJsonValue> & v) { _data = v; return *this; }
     Error& message(const QString & v) { _message = v; return *this; }
 
     const int& code() const { return _code; }
-    const std::optional<QString>& data() const { return _data; }
+    const std::optional<QJsonValue>& data() const { return _data; }
     const QString& message() const { return _message; }
 };
 

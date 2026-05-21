@@ -268,7 +268,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
             Tr::tr("Qt for Android Not Configured"),
             Tr::tr("Cannot create Android templates because Qt for Android is not "
                    "installed or configured.\n\n"
-                   "Please install Qt for Android (e.g., android_arm64_v8a) and "
+                   "Install Qt for Android (for example, android_arm64_v8a) and "
                    "configure your kit to use it.\n\n"
                    "Expected templates at: %1").arg(templatesPath.toUserOutput()));
         return;

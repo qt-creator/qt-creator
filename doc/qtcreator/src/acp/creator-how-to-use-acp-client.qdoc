@@ -60,9 +60,9 @@
         \li Select \uicontrol {Add}.
         \li In \uicontrol {Template}, select \uicontrol {Custom}.
         \li In \uicontrol {Name}, specify a name for your agent configuration.
-        \li In \uicontrol {Launch command}, specify the command to launch
+        \li In \uicontrol {Executable}, specify the executable to launch
             the ACP server process.
-        \li In \uicontrol {Launch arguments}, specify command-line arguments
+        \li In \uicontrol {Arguments}, specify command-line arguments
             to pass when launching the ACP server process.
         \li In \uicontrol {Environment Changes}, select \uicontrol {Change} to
             add any environment variable changes needed for the agent process.

@@ -778,34 +778,39 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(QWidget *parent, FormatterSelec
     m_versionLabel->setOpenExternalLinks(true);
 
     using namespace Layouting;
-    Column {
-        Group {
+    Column{
+        Group{
             title(Tr::tr("Global qmlformat Configuration")),
-            Column {
-                Row {
+            Column{
+                Row{
                     m_versionLabel,
-                    Label {
+                    Label{
                         openExternalLinks(true),
-                        text("<a href='https://doc.qt.io/qt/qtqml-tooling-qmlformat.html'>"
-                             + Tr::tr("qmlformat latest documentation") + "</a>"),
+                        text(
+                            "<a href='https://doc.qt.io/qt/qtqml-tooling-qmlformat.html'>"
+                            + Tr::tr("Open latest documentation") + "</a>"),
                     },
                     st,
                 },
                 m_optionsTableView,
-                Row {
+                Row{
                     st,
                     m_deployIniButton,
                     m_tableResetButton,
                 },
-                Label {
+                Label{
                     wordWrap(true),
-                    text("<i>" + Tr::tr("Global formatting options are ignored by projects having "
-                                        "their own deployed .qmlformat.ini files.") + "</i>"),
+                    text(
+                        "<i>"
+                        + Tr::tr(
+                            "Global formatting options are ignored by projects having "
+                            "their own deployed .qmlformat.ini files.")
+                        + "</i>"),
                 },
             },
         },
-        noMargin
-    }.attachTo(this);
+        noMargin}
+        .attachTo(this);
 
     initOptions();
     initVersion();
@@ -884,7 +889,7 @@ void QmlFormatSettingsWidget::initVersion()
     using namespace Core;
     const FilePath &qmlFormatPath = QmlFormatSettings::instance().latestQmlFormatPath();
     if (qmlFormatPath.isEmpty()) {
-        MessageManager::writeSilently(Tr::tr("QmlFormat not found. No version."));
+        MessageManager::writeSilently(Tr::tr("qmlformat not found. No version."));
         m_versionLabel->setText("Unknown qmlformat version");
         return;
     }
@@ -916,8 +921,7 @@ void QmlFormatSettingsWidget::initOptions()
     using namespace Core;
     const FilePath &qmlFormatPath = QmlFormatSettings::instance().latestQmlFormatPath();
     if (qmlFormatPath.isEmpty()) {
-        MessageManager::writeSilently(
-            Tr::tr("QmlFormat not found. Using fallback output options."));
+        MessageManager::writeSilently(Tr::tr("qmlformat not found. Using fallback output options."));
         m_optionsModel->setOptionsFromJson(m_fallbackJson);
         return;
     }
@@ -1043,45 +1047,40 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
         });
 
     using namespace Layouting;
-    Row {
-        Column {
-            m_formatterSelectionWidget, br,
-            m_formatterSettingsStack,
-            st,
-            noMargin
-        },
-        Column {
-            Group {
+    Row{Column{m_formatterSelectionWidget, br, m_formatterSettingsStack, st, noMargin},
+        Column{
+            Group{
                 title(Tr::tr("Preview")),
-                Column {
-                    Label {
+                Column{
+                    Label{
                         wordWrap(true),
-                        text(Tr::tr("Edit preview contents to see how the current settings "
-                                    "are applied to custom code snippets. Changes in the preview "
-                                    "do not affect the current settings.")),
+                        text(
+                            Tr::tr(
+                                "Edit preview contents to see how the current settings "
+                                "are applied to custom code snippets. Changes in the preview "
+                                "do not affect the current settings.")),
                     },
                     m_previewTextEdit,
-                    Row {
+                    Row{
                         st,
-                        PushButton {
-                            text(Tr::tr("Reset to original preview text")),
-                            onClicked(this, [this, previewText]() {
-                                m_previewTextEdit->setPlainText(previewText);
-
-                            }),
+                        PushButton{
+                            text(Tr::tr("Reset to Original Preview Text")),
+                            onClicked(
+                                this,
+                                [this, previewText]() {
+                                    m_previewTextEdit->setPlainText(previewText);
+                                }),
                         },
-                        PushButton {
-                            text(Tr::tr("Format current preview text")),
-                            onClicked(this, [this]() {
-                                this->updatePreview();
-                            }),
+                        PushButton{
+                            text(Tr::tr("Format Current Preview Text")),
+                            onClicked(this, [this]() { this->updatePreview(); }),
                         },
                     },
                 },
             },
         },
-        noMargin
-    }.attachTo(this);
+        noMargin}
+        .attachTo(this);
 
     setVisualizeWhitespace(true);
 
@@ -1178,7 +1177,7 @@ void QmlJSCodeStylePreferencesWidget::qmlformatPreview()
     using namespace Core;
     const Utils::FilePath &qmlFormatPath = QmlFormatSettings::instance().latestQmlFormatPath();
     if (qmlFormatPath.isEmpty()) {
-        MessageManager::writeSilently("QmlFormat not found.");
+        MessageManager::writeSilently("qmlformat not found.");
         return;
     }
     const Utils::CommandLine commandLine(qmlFormatPath);

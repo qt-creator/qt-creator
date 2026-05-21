@@ -2,7 +2,7 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- C:\dev\bin\Python\314\python.exe \
+ C:\dev\bin\Python313\python.exe \
   scripts/generate_cpp_from_schema.py \
   src/libs/mcp/schemas/schema-2025-11-25.json src/libs/mcp/schemas/schema_2025_11_25.h --namespace Mcp::Generated::Schema::_2025_11_25 --cpp-output src/libs/mcp/schemas/schema_2025_11_25.cpp --export-macro MCPSERVER_EXPORT --export-header ../server/mcpserver_global.h
 */
@@ -3353,15 +3353,15 @@ MCPSERVER_EXPORT QJsonValue toJsonValue(const EnumSchema &val);
 
 struct Error {
     int _code;  //!< The error type that occurred.
-    std::optional<QString> _data;  //!< Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
+    std::optional<QJsonValue> _data;  //!< Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
     QString _message;  //!< A short description of the error. The message SHOULD be limited to a concise single sentence.
 
     Error& code(int v) { _code = v; return *this; }
-    Error& data(const std::optional<QString> & v) { _data = v; return *this; }
+    Error& data(const std::optional<QJsonValue> & v) { _data = v; return *this; }
     Error& message(const QString & v) { _message = v; return *this; }
 
     const int& code() const { return _code; }
-    const std::optional<QString>& data() const { return _data; }
+    const std::optional<QJsonValue>& data() const { return _data; }
     const QString& message() const { return _message; }
 };
 
@@ -4074,20 +4074,20 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListToolsResult &data);
 /** Parameters for a `notifications/message` notification. */
 struct LoggingMessageNotificationParams {
     std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _data;  //!< The data to be logged, such as a string message or an object. Any JSON serializable type is allowed here.
+    QJsonValue _data;  //!< The data to be logged, such as a string message or an object. Any JSON serializable type is allowed here.
     LoggingLevel _level;  //!< The severity of this log message.
     std::optional<QString> _logger;  //!< An optional name of the logger issuing this message.
 
     LoggingMessageNotificationParams& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     LoggingMessageNotificationParams& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
     LoggingMessageNotificationParams& _meta(const QJsonObject &obj) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) (*__meta)[it.key()] = it.value(); return *this; }
-    LoggingMessageNotificationParams& data(const QString & v) { _data = v; return *this; }
+    LoggingMessageNotificationParams& data(const QJsonValue & v) { _data = v; return *this; }
     LoggingMessageNotificationParams& level(const LoggingLevel & v) { _level = v; return *this; }
     LoggingMessageNotificationParams& logger(const std::optional<QString> & v) { _logger = v; return *this; }
 
     const std::optional<QMap<QString, QJsonValue>>& _meta() const { return __meta; }
     QJsonObject _metaAsObject() const { if (!__meta) return {}; QJsonObject o; for (auto it = __meta->constBegin(); it != __meta->constEnd(); ++it) o.insert(it.key(), it.value()); return o; }
-    const QString& data() const { return _data; }
+    const QJsonValue& data() const { return _data; }
     const LoggingLevel& level() const { return _level; }
     const std::optional<QString>& logger() const { return _logger; }
 };

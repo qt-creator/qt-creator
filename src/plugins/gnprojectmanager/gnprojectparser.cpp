@@ -272,7 +272,7 @@ bool GNProjectParser::generate(const FilePath &gnExe,
 
     m_process->setRunData(runData);
     auto progress = new ProcessProgress(m_process.get());
-    progress->setDisplayName(Tr::tr("Generating \"%1\".").arg(m_projectName));
+    progress->setDisplayName(Tr::tr("Generating \"%1\"").arg(m_projectName));
     m_elapsed.start();
     m_process->start();
     emit started();

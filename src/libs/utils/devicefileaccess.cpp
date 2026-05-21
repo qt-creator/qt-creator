@@ -1067,7 +1067,7 @@ Result<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePat
         return ResultError(Tr::tr("File \"%1\" does not exist.").arg(path));
 
     if (!f.open(QFile::ReadOnly))
-        return ResultError(Tr::tr("Could not open File \"%1\".").arg(path));
+        return ResultError(Tr::tr("Could not open file \"%1\".").arg(path));
 
     if (offset != 0)
         f.seek(offset);
@@ -1151,6 +1151,10 @@ static bool localFileSystemSupportsAtomicSaveFile(const FilePath &path)
 {
     QTC_ASSERT(path.isLocal(), return true);
 #ifdef Q_OS_WIN
+
+    if (path.path().startsWith("//wsl."))
+        return false;
+
     const HANDLE handle = CreateFile(
         (wchar_t *) path.nativePath().utf16(),
         0,

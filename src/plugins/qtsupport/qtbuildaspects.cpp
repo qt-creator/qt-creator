@@ -37,31 +37,32 @@ void QmlDebuggingAspect::addToLayoutImpl(Layouting::Layout &parent)
     Utils::InfoLabel *warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
     parent.addRow({Layouting::empty, warningLabel});
-    const auto changeHandler = [this, warningLabel = QPointer<InfoLabel>(warningLabel)] {
-        QTC_ASSERT(warningLabel, return);
+    const auto changeHandler = [self = QPointer<QmlDebuggingAspect>(this), warningLabel] {
+        if (!self)
+            return;
         QString warningText;
-        BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(container());
+        BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(self->container());
         QTC_ASSERT(buildConfig, return);
         QTC_ASSERT(buildConfig->target(), return);
         Kit *kit = buildConfig->kit();
         QTC_ASSERT(kit, return);
         const bool supported = QtVersion::isQmlDebuggingSupported(kit, &warningText);
         if (!supported) {
-            setValue(TriState::Default);
-        } else if (value() == TriState::Enabled) {
+            self->setValue(TriState::Default);
+        } else if (self->value() == TriState::Enabled) {
             warningText = Tr::tr("Might make your application vulnerable.<br/>"
                                  "Only use in a safe environment.");
         }
         warningLabel->setText(warningText);
-        setEnabled(supported);
+        self->setEnabled(supported);
         const bool warningLabelsVisible = !warningText.isEmpty();
         // avoid explicitly showing the widget when it doesn't have a parent, but always
         // explicitly hide it when necessary
         if (warningLabel->parentWidget() || !warningLabelsVisible)
             warningLabel->setVisible(warningLabelsVisible);
     };
-    connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
-    connect(this, &QmlDebuggingAspect::changed, this, changeHandler);
+    connect(KitManager::instance(), &KitManager::kitsChanged, warningLabel, changeHandler);
+    connect(this, &QmlDebuggingAspect::changed, warningLabel, changeHandler);
     changeHandler();
 }
 
@@ -80,18 +81,20 @@ void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
     warningLabel->setElideMode(Qt::ElideNone);
     warningLabel->setVisible(false);
     parent.addRow({Layouting::empty, warningLabel});
-    const auto changeHandler = [this, warningLabel = QPointer<InfoLabel>(warningLabel)] {
-        QTC_ASSERT(warningLabel, return);
+    const auto changeHandler = [self = QPointer<QtQuickCompilerAspect>(this),
+                                warningLabel = QPointer<InfoLabel>(warningLabel)] {
+        if (!self)
+            return;
         QString warningText;
-        BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(container());
+        BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(self->container());
         QTC_ASSERT(buildConfig, return);
         QTC_ASSERT(buildConfig->target(), return);
         Kit *kit = buildConfig->kit();
         QTC_ASSERT(kit, return);
         const bool supported = QtVersion::isQtQuickCompilerSupported(kit, &warningText);
         if (!supported)
-            setValue(TriState::Default);
-        if (value() == TriState::Enabled) {
+            self->setValue(TriState::Default);
+        if (self->value() == TriState::Enabled) {
             if (auto qmlDebuggingAspect = buildConfig->aspect<QmlDebuggingAspect>()) {
                 if (qmlDebuggingAspect->value() == TriState::Enabled) {
                     if (QtVersion *qtVersion = QtKitAspect::qtVersion(kit)) {
@@ -102,18 +105,17 @@ void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
             }
         }
         warningLabel->setText(warningText);
-        setVisible(supported);
+        self->setVisible(supported);
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
         if (warningLabel->parentWidget())
             warningLabel->setVisible(warningLabelsVisible);
     };
-    connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
-    connect(this, &QmlDebuggingAspect::changed, this, changeHandler);
-    connect(this, &QtQuickCompilerAspect::changed, this, changeHandler);
+    connect(KitManager::instance(), &KitManager::kitsChanged, warningLabel, changeHandler);
+    connect(this, &QtQuickCompilerAspect::changed, warningLabel, changeHandler);
 
     BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(container());
     if (auto qmlDebuggingAspect = buildConfig->aspect<QmlDebuggingAspect>())
-        connect(qmlDebuggingAspect, &QmlDebuggingAspect::changed,  warningLabel, changeHandler);
+        connect(qmlDebuggingAspect, &QmlDebuggingAspect::changed, warningLabel, changeHandler);
     changeHandler();
 }
 

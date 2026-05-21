@@ -138,3 +138,8 @@ CATCH2_MAIN=1
 @endif
 include(catch-common.pri)
 @endif
+
+# deployment rules
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target

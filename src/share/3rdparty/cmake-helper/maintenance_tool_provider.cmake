@@ -231,11 +231,13 @@ macro(qt_maintenance_tool_dependency method package_name)
       # Install missing COMPONENTS.
       set(__qt_dependency_pkgs_to_install "")
       foreach(pkg IN LISTS __qt_dependency_arg_COMPONENTS)
+        set(__qt_find_package_searching_for_Qt6${pkg} ON)
         find_package(Qt${__qt_dependency_qt_major_version}${pkg}
           PATHS ${CMAKE_PREFIX_PATH} ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH BYPASS_PROVIDER QUIET)
         if (NOT Qt${__qt_dependency_qt_major_version}${pkg}_FOUND)
           list(APPEND __qt_dependency_pkgs_to_install ${pkg})
         endif()
+        unset(__qt_find_package_searching_for_Qt6${pkg})
       endforeach()
       if (__qt_dependency_pkgs_to_install)
         qt_maintenance_tool_install("${__qt_dependency_qt_major_version}" "${__qt_dependency_pkgs_to_install}")
@@ -251,9 +253,31 @@ macro(qt_maintenance_tool_dependency method package_name)
 
     find_package(${package_name} ${ARGN}
       PATHS ${CMAKE_PREFIX_PATH} ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH BYPASS_PROVIDER QUIET)
-    if (NOT ${package_name}_FOUND AND __qt_dependency_arg_REQUIRED)
-      qt_maintenance_tool_install("${__qt_dependency_qt_major_version}" "${__qt_dependency_qt_package_name}")
-      find_package(${package_name} ${ARGN} BYPASS_PROVIDER)
+    if (NOT ${package_name}_FOUND)
+      # Check to see if the Qt package was actually a dependency of another Qt package
+      # For example Qt6SerialBus has Qt6SerialPort as dependency. The subcall to find_package is:
+      # Qt6SerialPort 6.11.0;PATHS;[...]/Qt/6.11.0/macos/lib/cmake/Qt6SerialBus/..;
+      #                            [...]/Qt/6.11.0/macos/lib/cmake;NO_DEFAULT_PATH;QUIET
+      list(LENGTH __qt_dependency_arg_PATHS paths_length)
+      if (paths_length GREATER 0)
+        list(GET __qt_dependency_arg_PATHS 0 first_path)
+        if (${first_path} MATCHES "^.*/(.*)/\.\.$")
+          if (__qt_find_package_searching_for_${CMAKE_MATCH_1})
+            # Treat dependent packages as REQUIRED
+            set(__qt_dependency_arg_REQUIRED ON)
+
+            # Inform the user of the missing dependency. The find_package below won't cut it due
+            # to the QUIET parameter
+            message(WARNING "${CMAKE_MATCH_1} could not be found because dependency "
+                            "${package_name} could not be found.")
+          endif()
+        endif()
+      endif()
+
+      if (__qt_dependency_arg_REQUIRED)
+        qt_maintenance_tool_install("${__qt_dependency_qt_major_version}" "${__qt_dependency_qt_package_name}")
+        find_package(${package_name} ${ARGN} BYPASS_PROVIDER)
+      endif()
     endif()
   else()
     find_package(${package_name} ${ARGN} BYPASS_PROVIDER)

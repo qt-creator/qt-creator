@@ -40,7 +40,7 @@ namespace Android::Internal {
 
 static FilePath selectManifestDirectory(QWidget *parent, const FilePath &initialPath)
 {
-    QFileDialog dialog(parent, QObject::tr("Select Android Manifest Directory"));
+    QFileDialog dialog(parent, Tr::tr("Select Android Manifest Directory"));
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOption(QFileDialog::ShowDirsOnly, true);
     dialog.setOption(QFileDialog::DontResolveSymlinks, true);
@@ -55,13 +55,17 @@ static FilePath selectManifestDirectory(QWidget *parent, const FilePath &initial
 static FilePath getManifestDirWithWizardOption(QWidget *parent, const FilePath &initialPath)
 {
         QMessageBox msgBox(parent);
-        msgBox.setWindowTitle(QObject::tr("Select Android Manifest Directory"));
-        msgBox.setText(QObject::tr("The Android manifest directory was not found automatically.\n"
-                                   "Please select it manually or create it using the wizard."));
+        msgBox.setWindowTitle(Tr::tr("Select Android Manifest Directory"));
+        msgBox.setText(
+            Tr::tr(
+                "The Android manifest directory was not found automatically.\n"
+                "Select it manually or create it using the wizard."));
         msgBox.setIcon(QMessageBox::Question);
 
-        QPushButton *selectBtn = msgBox.addButton(QObject::tr("Select Directory..."), QMessageBox::AcceptRole);
-        QPushButton *wizardBtn = msgBox.addButton(QObject::tr("Create Android Templates..."), QMessageBox::ActionRole);
+        QPushButton *selectBtn
+            = msgBox.addButton(Tr::tr("Select Directory..."), QMessageBox::AcceptRole);
+        QPushButton *wizardBtn
+            = msgBox.addButton(Tr::tr("Create Android Templates..."), QMessageBox::ActionRole);
         msgBox.addButton(QMessageBox::Cancel);
 
         msgBox.exec();
@@ -109,9 +113,9 @@ FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget, bool showWa
         if (showWarnings) {
             QMessageBox::warning(
                 textEditorWidget,
-                QObject::tr("Operation Failed"),
-                QObject::tr("This operation requires a project to be open. Please open your project file first.")
-                );
+                Tr::tr("Operation Failed"),
+                Tr::tr(
+                    "This operation requires that you open your project file first."));
         }
         return FilePath();
     }
@@ -279,7 +283,7 @@ void setupAndroidToolsMenu()
             QMessageBox::warning(
                 Core::ICore::dialogParent(),
                 Tr::tr("No Project"),
-                Tr::tr("Please open a project first."));
+                Tr::tr("First open a project."));
             return;
         }
 

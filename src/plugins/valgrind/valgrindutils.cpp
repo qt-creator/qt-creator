@@ -64,29 +64,10 @@ void setupValgrindProcess(ValgrindProcess *process, RunControl *runControl,
         runControl->postMessage(msg, format);
     });
     QObject::connect(process, &ValgrindProcess::processErrorReceived, runControl,
-                     [runControl, valgrindCommand](const QString &errorString, ProcessResult result) {
-        switch (result) {
-        case ProcessResult::StartFailed: {
-            const FilePath valgrind = valgrindCommand.executable();
-            if (!valgrind.isEmpty()) {
-                runControl->postMessage(Tr::tr("Error: \"%1\" could not be started: %2")
-                                            .arg(valgrind.toUserOutput(), errorString), ErrorMessageFormat);
-            } else {
-                runControl->postMessage(Tr::tr("Error: no Valgrind executable set."),
-                                        ErrorMessageFormat);
-            }
-            break;
-        }
-        case ProcessResult::Canceled:
-            runControl->postMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
-            return; // Intentional.
-        case ProcessResult::FinishedWithError:
-            runControl->postMessage(Tr::tr("Process exited with return value %1\n").arg(errorString), NormalMessageFormat);
-            break;
-        default:
-            break;
-        }
-        runControl->showOutputPane();
+                     [runControl](const QString &errorString, ProcessResult result) {
+        runControl->postMessage(errorString, ErrorMessageFormat);
+        if (result != ProcessResult::Canceled)
+            runControl->showOutputPane();
     });
     QObject::connect(runControl, &RunControl::canceled, process, &ValgrindProcess::stop);
     process->setValgrindCommand(valgrindCommand);
@@ -153,36 +134,42 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
         QString toolModeString;
         switch (toolMode) {
             case DebugMode:
-                toolModeString = Tr::tr("in Debug mode");
+                toolModeString = Tr::tr("The tool is designed to be used in Debug mode.");
                 break;
             case ProfileMode:
-                toolModeString = Tr::tr("in Profile mode");
+                toolModeString = Tr::tr("The tool is designed to be used in Profile mode.");
                 break;
             case ReleaseMode:
-                toolModeString = Tr::tr("in Release mode");
+                toolModeString = Tr::tr("The tool is designed to be used in Release mode.");
                 break;
             case SymbolsMode:
-                toolModeString = Tr::tr("with debug symbols (Debug or Profile mode)");
+                toolModeString = Tr::tr(
+                    "The tool is designed to be used with debug symbols (Debug or Profile mode).");
                 break;
             case OptimizedMode:
-                toolModeString = Tr::tr("on optimized code (Profile or Release mode)");
+                toolModeString = Tr::tr(
+                    "The tool is designed to be used on optimized code (Profile or Release mode).");
                 break;
             default:
                 QTC_CHECK(false);
         }
-        const QString title = Tr::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
-        const QString message = Tr::tr("<html><head/><body><p>You are trying "
-            "to run the tool \"%1\" on an application in %2 mode. "
-            "The tool is designed to be used %3.</p><p>"
-            "Run-time characteristics differ significantly between "
-            "optimized and non-optimized binaries. Analytical "
-            "findings for one mode may or may not be relevant for "
-            "the other.</p><p>"
-            "Running tools that need debug symbols on binaries that "
-            "don't provide any may lead to missing function names "
-            "or otherwise insufficient output.</p><p>"
-            "Do you want to continue and run the tool in %2 mode?</p></body></html>")
-                .arg(toolName).arg(currentMode).arg(toolModeString);
+        //: %1 = tool name, %2 = debug/release/profile
+        const QString title = Tr::tr("Run %1 in %2 Mode?").arg(toolName, currentMode);
+        const QString message = "<html><head/><body>"
+                                + Tr::tr(
+                                      "<p>You are trying "
+                                      "to run the tool \"%1\" on an application in %2 mode. "
+                                      "%3</p><p>"
+                                      "Run-time characteristics differ significantly between "
+                                      "optimized and non-optimized binaries. Analytical "
+                                      "findings for one mode may or may not be relevant for "
+                                      "the other.</p><p>"
+                                      "Running tools that need debug symbols on binaries that "
+                                      "don't provide any may lead to missing function names "
+                                      "or otherwise insufficient output.</p><p>"
+                                      "Do you want to continue and run the tool in %2 mode?</p>")
+                                      .arg(toolName, currentMode, toolModeString)
+                                + "</body></html>";
         if (Utils::CheckableMessageBox::question(title,
                                                  message,
                                                  Key("AnalyzerCorrectModeWarning"))

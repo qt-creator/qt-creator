@@ -6,8 +6,10 @@
 #include "acpclienttr.h"
 
 #include <utils/documenttabbar.h>
+#include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
+#include <QHBoxLayout>
 #include <QTabWidget>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -31,23 +33,42 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
 {
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+
+    auto *toolBar = new Utils::StyledBar(this);
+    auto *toolBarLayout = new QHBoxLayout(toolBar);
+    toolBarLayout->setContentsMargins(0, 0, 0, 0);
+    toolBarLayout->setSpacing(0);
+    layout->addWidget(toolBar);
+
+    auto *addButton = new QToolButton(toolBar);
+    addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+    addButton->setText(Tr::tr("Add Chat"));
+    addButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    addButton->setToolTip(addButton->text());
+    connect(addButton, &QToolButton::clicked, this, [this] {
+        AcpChatTab *tab = addNewTab();
+        tab->setFocus();
+    });
+    toolBarLayout->addWidget(addButton);
+
+    toolBarLayout->addStretch();
+
+    auto *closeButton = new QToolButton(toolBar);
+    closeButton->setIcon(Utils::Icons::CLOSE_SPLIT_RIGHT.icon());
+    closeButton->setToolTip(Tr::tr("Close"));
+    connect(closeButton, &QToolButton::clicked, this, [] {
+        Core::RightPaneWidget::instance()->setShown(false);
+    });
+    toolBarLayout->addWidget(closeButton);
 
     m_tabWidget = new TabWidget;
     m_tabWidget->setTabBarAutoHide(false);
     m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
+    m_tabWidget->tabBar()->setShape(QTabBar::RoundedNorth);
     m_tabWidget->setMovable(true);
     layout->addWidget(m_tabWidget);
-
-    auto *cornerButton = new QToolButton(m_tabWidget);
-    cornerButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    cornerButton->setToolTip(Tr::tr("New Chat Tab"));
-    cornerButton->setAutoRaise(true);
-    connect(cornerButton, &QToolButton::clicked, this, [this] {
-        AcpChatTab *tab = addNewTab();
-        tab->setFocus();
-    });
-    m_tabWidget->setCornerWidget(cornerButton, Qt::TopRightCorner);
 
     connect(m_tabWidget, &QTabWidget::tabCloseRequested, this, &AcpChatWidget::closeTab);
 

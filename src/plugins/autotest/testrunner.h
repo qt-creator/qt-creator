@@ -55,6 +55,8 @@ private:
     void buildProject(ProjectExplorer::Project *project);
     void buildFinished(bool success);
     void onBuildQueueFinished(bool success);
+    void deployFinished(bool success);
+    void tryReconnectDevice();
     void onFinished();
 
     int precheckTestConfigurations();

@@ -4,7 +4,7 @@
     "id": "M.McuSupportCmakeApplication",
     "category": "D.ApplicationMCU",
     "trDescription": "Suitable for Qt for MCUs versions up to 2.3.x. Creates a Qt for MCUs application with an empty UI, based on CMake APIs that are deprecated in version 2.4.",
-    "trDisplayName": "Qt for MCUs Application (deprecated since 2.4)",
+    "trDisplayName": "Application (deprecated since 2.4)",
     "trDisplayCategory": "Application (Qt for MCUs) (Versions 2.3.x and lower)",
     "icon": "../icon.png",
     "iconKind": "Themed",

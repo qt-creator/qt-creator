@@ -28,6 +28,6 @@ add_subdirectory(updateinfo)
 add_subdirectory(utils)
 add_subdirectory(valgrind)
 
-if(QTC_USES_INTERNAL_TASKTREE)
+if(QTC_USE_INTERNAL_TASKTREE)
   add_subdirectory(qttasktree)
 endif()

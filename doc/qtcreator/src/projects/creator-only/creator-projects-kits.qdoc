@@ -127,9 +127,6 @@
         \li \uicontrol {Type} is the type of the build device, and
             \uicontrol {Device} is the device to build applications on.
     \row
-        \li \uicontrol {Emulator skin}
-        \li Skin to use for the \l {Emulator}{\B2Q Emulator Device}.
-    \row
         \li \uicontrol {Compiler}
         \li C or C++ compiler that you use to build the project. You can add
             compilers to the list if they are installed on the development PC,

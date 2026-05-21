@@ -1,0 +1,567 @@
+<?xml version="1.0"?>
+
+<valgrindoutput>
+
+<protocolversion>4</protocolversion>
+<protocoltool>memcheck</protocoltool>
+
+<preamble>
+  <line>Memcheck, a memory error detector</line>
+  <line>Copyright (C) 2002-2009, and GNU GPL'd, by Julian Seward et al.</line>
+  <line>Using Valgrind-3.6.0.SVN-Debian and LibVEX; rerun with -h for copyright info</line>
+  <line>Command: ./uitest</line>
+</preamble>
+
+<pid>15509</pid>
+<ppid>15137</ppid>
+<tool>memcheck</tool>
+
+<args>
+  <vargv>
+    <exe>/usr/bin/valgrind.bin</exe>
+    <arg>--suppressions=/usr/lib/valgrind/debian-libc6-dbg.supp</arg>
+    <arg>--xml=yes</arg>
+    <arg>--xml-file=memcheck-output-sample3</arg>
+    <arg>--gen-suppressions=all</arg>
+  </vargv>
+  <argv>
+    <exe>./uitest</exe>
+  </argv>
+</args>
+
+<status>
+  <state>RUNNING</state>
+  <time>00:00:00:00.039 </time>
+</status>
+
+<error>
+  <unique>0x1</unique>
+  <tid>1</tid>
+  <kind>UninitCondition</kind>
+  <what>Conditional jump or move depends on uninitialised value(s)</what>
+  <stack>
+    <frame>
+      <ip>0xEFB20A6</ip>
+      <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj>
+    </frame>
+    <frame>
+      <ip>0xEFB8A02</ip>
+      <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj>
+    </frame>
+    <frame>
+      <ip>0xEFB8E0C</ip>
+      <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj>
+    </frame>
+    <frame>
+      <ip>0xEFF29D9</ip>
+      <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj>
+    </frame>
+    <frame>
+      <ip>0xEFFAFB1</ip>
+      <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj>
+    </frame>
+    <frame>
+      <ip>0x530850D</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QStyleFactory::create(QString const&amp;)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/styles</dir>
+      <file>qstylefactory.cpp</file>
+      <line>193</line>
+    </frame>
+    <frame>
+      <ip>0x4FFA6B6</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplication::style()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>1388</line>
+    </frame>
+    <frame>
+      <ip>0x5078F1B</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>qt_set_x11_resources(char const*, char const*, char const*, char const*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>1264</line>
+    </frame>
+    <frame>
+      <ip>0x5081924</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>qt_init(QApplicationPrivate*, int, _XDisplay*, unsigned long, unsigned long)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>2323</line>
+    </frame>
+    <frame>
+      <ip>0x50033E8</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplicationPrivate::construct(_XDisplay*, unsigned long, unsigned long)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>793</line>
+    </frame>
+    <frame>
+      <ip>0x50043C0</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplication::QApplication(int&amp;, char**, int)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>712</line>
+    </frame>
+    <frame>
+      <ip>0x403282</ip>
+      <obj>/home/milian/projects/qtc/uitest-build-desktop/uitest</obj>
+      <fn>main</fn>
+      <dir>/home/milian/projects/qtc/uitest-build-desktop/../uitest</dir>
+      <file>main.cpp</file>
+      <line>8</line>
+    </frame>
+  </stack>
+  <suppression>
+    <sname>insert_a_suppression_name_here</sname>
+    <skind>Memcheck:Cond</skind>
+    <sframe> <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj> </sframe>
+    <sframe> <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj> </sframe>
+    <sframe> <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj> </sframe>
+    <sframe> <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj> </sframe>
+    <sframe> <obj>/usr/lib/kde4/plugins/styles/qtcurve.so</obj> </sframe>
+    <sframe> <fun>_ZN13QStyleFactory6createERK7QString</fun> </sframe>
+    <sframe> <fun>_ZN12QApplication5styleEv</fun> </sframe>
+    <sframe> <fun>_ZL20qt_set_x11_resourcesPKcS0_S0_S0_</fun> </sframe>
+    <sframe> <fun>_Z7qt_initP19QApplicationPrivateiP9_XDisplaymm</fun> </sframe>
+    <sframe> <fun>_ZN19QApplicationPrivate9constructEP9_XDisplaymm</fun> </sframe>
+    <sframe> <fun>_ZN12QApplicationC1ERiPPci</fun> </sframe>
+    <sframe> <fun>main</fun> </sframe>
+    <rawtext>
+<![CDATA[
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   obj:/usr/lib/kde4/plugins/styles/qtcurve.so
+   obj:/usr/lib/kde4/plugins/styles/qtcurve.so
+   obj:/usr/lib/kde4/plugins/styles/qtcurve.so
+   obj:/usr/lib/kde4/plugins/styles/qtcurve.so
+   obj:/usr/lib/kde4/plugins/styles/qtcurve.so
+   fun:_ZN13QStyleFactory6createERK7QString
+   fun:_ZN12QApplication5styleEv
+   fun:_ZL20qt_set_x11_resourcesPKcS0_S0_S0_
+   fun:_Z7qt_initP19QApplicationPrivateiP9_XDisplaymm
+   fun:_ZN19QApplicationPrivate9constructEP9_XDisplaymm
+   fun:_ZN12QApplicationC1ERiPPci
+   fun:main
+}
+]]>
+    </rawtext>
+  </suppression>
+</error>
+<error>
+  <unique>0x2</unique>
+  <tid>1</tid>
+  <kind>UninitCondition</kind>
+  <what>Conditional jump or move depends on uninitialised value(s)</what>
+  <stack>
+    <frame>
+      <ip>0x403351</ip>
+      <obj>/home/milian/projects/qtc/uitest-build-desktop/uitest</obj>
+      <fn>main</fn>
+      <dir>/home/milian/projects/qtc/uitest-build-desktop/../uitest</dir>
+      <file>main.cpp</file>
+      <line>16</line>
+    </frame>
+  </stack>
+  <suppression>
+    <sname>insert_a_suppression_name_here</sname>
+    <skind>Memcheck:Cond</skind>
+    <sframe> <fun>main</fun> </sframe>
+    <rawtext>
+<![CDATA[
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:main
+}
+]]>
+    </rawtext>
+  </suppression>
+</error>
+
+<error>
+  <unique>0x3</unique>
+  <tid>1</tid>
+  <kind>InvalidRead</kind>
+  <what>Invalid read of size 8</what>
+  <stack>
+    <frame>
+      <ip>0x5CA108C</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>operator&lt;&lt;(QDebug, QObject const*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qobject.cpp</file>
+      <line>3673</line>
+    </frame>
+    <frame>
+      <ip>0x4033D6</ip>
+      <obj>/home/milian/projects/qtc/uitest-build-desktop/uitest</obj>
+      <fn>main</fn>
+      <dir>/home/milian/projects/qtc/uitest-build-desktop/../uitest</dir>
+      <file>main.cpp</file>
+      <line>21</line>
+    </frame>
+  </stack>
+  <auxwhat>Address 0x11b6c320 is 0 bytes inside a block of size 16 free'd</auxwhat>
+  <stack>
+    <frame>
+      <ip>0x4C26DCF</ip>
+      <obj>/usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so</obj>
+      <fn>operator delete(void*)</fn>
+      <dir>/build/buildd/valgrind-3.6.0~svn20100212/coregrind/m_replacemalloc</dir>
+      <file>vg_replace_malloc.c</file>
+      <line>387</line>
+    </frame>
+    <frame>
+      <ip>0x5CA49B0</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QObject::~QObject()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qobject.cpp</file>
+      <line>963</line>
+    </frame>
+    <frame>
+      <ip>0x4033B3</ip>
+      <obj>/home/milian/projects/qtc/uitest-build-desktop/uitest</obj>
+      <fn>main</fn>
+      <dir>/home/milian/projects/qtc/uitest-build-desktop/../uitest</dir>
+      <file>main.cpp</file>
+      <line>20</line>
+    </frame>
+  </stack>
+  <suppression>
+    <sname>insert_a_suppression_name_here</sname>
+    <skind>Memcheck:Addr8</skind>
+    <sframe> <fun>_Zls6QDebugPK7QObject</fun> </sframe>
+    <sframe> <fun>main</fun> </sframe>
+    <rawtext>
+<![CDATA[
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   fun:_Zls6QDebugPK7QObject
+   fun:main
+}
+]]>
+    </rawtext>
+  </suppression>
+</error>
+
+<error>
+  <unique>0x4</unique>
+  <tid>1</tid>
+  <kind>InvalidRead</kind>
+  <what>Invalid read of size 8</what>
+  <stack>
+    <frame>
+      <ip>0x5C9C1E0</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QObject::metaObject() const</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/.moc/release-shared</dir>
+      <file>moc_qobject.cpp</file>
+      <line>90</line>
+    </frame>
+    <frame>
+      <ip>0x5CA1098</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>operator&lt;&lt;(QDebug, QObject const*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qobject.cpp</file>
+      <line>3673</line>
+    </frame>
+    <frame>
+      <ip>0x4033D6</ip>
+      <obj>/home/milian/projects/qtc/uitest-build-desktop/uitest</obj>
+      <fn>main</fn>
+      <dir>/home/milian/projects/qtc/uitest-build-desktop/../uitest</dir>
+      <file>main.cpp</file>
+      <line>21</line>
+    </frame>
+  </stack>
+  <auxwhat>Address 0x11b6c328 is 8 bytes inside a block of size 16 free'd</auxwhat>
+  <stack>
+    <frame>
+      <ip>0x4C26DCF</ip>
+      <obj>/usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so</obj>
+      <fn>operator delete(void*)</fn>
+      <dir>/build/buildd/valgrind-3.6.0~svn20100212/coregrind/m_replacemalloc</dir>
+      <file>vg_replace_malloc.c</file>
+      <line>387</line>
+    </frame>
+    <frame>
+      <ip>0x5CA49B0</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QObject::~QObject()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qobject.cpp</file>
+      <line>963</line>
+    </frame>
+    <frame>
+      <ip>0x4033B3</ip>
+      <obj>/home/milian/projects/qtc/uitest-build-desktop/uitest</obj>
+      <fn>main</fn>
+      <dir>/home/milian/projects/qtc/uitest-build-desktop/../uitest</dir>
+      <file>main.cpp</file>
+      <line>20</line>
+    </frame>
+  </stack>
+  <suppression>
+    <sname>insert_a_suppression_name_here</sname>
+    <skind>Memcheck:Addr8</skind>
+    <sframe> <fun>_ZNK7QObject10metaObjectEv</fun> </sframe>
+    <sframe> <fun>_Zls6QDebugPK7QObject</fun> </sframe>
+    <sframe> <fun>main</fun> </sframe>
+    <rawtext>
+<![CDATA[
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   fun:_ZNK7QObject10metaObjectEv
+   fun:_Zls6QDebugPK7QObject
+   fun:main
+}
+]]>
+    </rawtext>
+  </suppression>
+</error>
+
+<error>
+  <unique>0x5</unique>
+  <tid>1</tid>
+  <kind>InvalidRead</kind>
+  <what>Invalid read of size 8</what>
+  <stack>
+    <frame>
+      <ip>0x5C9C1E4</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QObject::metaObject() const</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/.moc/release-shared</dir>
+      <file>moc_qobject.cpp</file>
+      <line>90</line>
+    </frame>
+    <frame>
+      <ip>0x5CA1098</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>operator&lt;&lt;(QDebug, QObject const*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qobject.cpp</file>
+      <line>3673</line>
+    </frame>
+    <frame>
+      <ip>0x4033D6</ip>
+      <obj>/home/milian/projects/qtc/uitest-build-desktop/uitest</obj>
+      <fn>main</fn>
+      <dir>/home/milian/projects/qtc/uitest-build-desktop/../uitest</dir>
+      <file>main.cpp</file>
+      <line>21</line>
+    </frame>
+  </stack>
+  <auxwhat>Address 0x28 is not stack'd, malloc'd or (recently) free'd</auxwhat>
+  <suppression>
+    <sname>insert_a_suppression_name_here</sname>
+    <skind>Memcheck:Addr8</skind>
+    <sframe> <fun>_ZNK7QObject10metaObjectEv</fun> </sframe>
+    <sframe> <fun>_Zls6QDebugPK7QObject</fun> </sframe>
+    <sframe> <fun>main</fun> </sframe>
+    <rawtext>
+<![CDATA[
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   fun:_ZNK7QObject10metaObjectEv
+   fun:_Zls6QDebugPK7QObject
+   fun:main
+}
+]]>
+    </rawtext>
+  </suppression>
+</error>
+
+
+<status>
+  <state>FINISHED</state>
+  <time>00:00:00:07.987 </time>
+</status>
+
+<error>
+  <unique>0x6</unique>
+  <tid>1</tid>
+  <kind>Leak_PossiblyLost</kind>
+  <xwhat>
+    <text>2 bytes in 1 blocks are possibly lost in loss record 2 of 2,157</text>
+    <leakedbytes>2</leakedbytes>
+    <leakedblocks>1</leakedblocks>
+  </xwhat>
+  <stack>
+    <frame>
+      <ip>0x4C274A8</ip>
+      <obj>/usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so</obj>
+      <fn>malloc</fn>
+      <dir>/build/buildd/valgrind-3.6.0~svn20100212/coregrind/m_replacemalloc</dir>
+      <file>vg_replace_malloc.c</file>
+      <line>236</line>
+    </frame>
+    <frame>
+      <ip>0x741D754</ip>
+      <obj>/lib/libglib-2.0.so.0.2400.1</obj>
+      <fn>g_malloc</fn>
+    </frame>
+    <frame>
+      <ip>0x743511D</ip>
+      <obj>/lib/libglib-2.0.so.0.2400.1</obj>
+      <fn>g_strdup</fn>
+    </frame>
+    <frame>
+      <ip>0x7449DC4</ip>
+      <obj>/lib/libglib-2.0.so.0.2400.1</obj>
+      <fn>g_get_language_names</fn>
+    </frame>
+    <frame>
+      <ip>0x743E9A9</ip>
+      <obj>/lib/libglib-2.0.so.0.2400.1</obj>
+      <fn>g_thread_init_glib</fn>
+    </frame>
+    <frame>
+      <ip>0x5CB9569</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate(_GMainContext*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qeventdispatcher_glib.cpp</file>
+      <line>299</line>
+    </frame>
+    <frame>
+      <ip>0x50A9BEE</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QGuiEventDispatcherGlibPrivate::QGuiEventDispatcherGlibPrivate()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qguieventdispatcher_glib.cpp</file>
+      <line>171</line>
+    </frame>
+    <frame>
+      <ip>0x50A9CDD</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QGuiEventDispatcherGlib::QGuiEventDispatcherGlib(QObject*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qguieventdispatcher_glib.cpp</file>
+      <line>186</line>
+    </frame>
+    <frame>
+      <ip>0x5071152</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplicationPrivate::createEventDispatcher()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>605</line>
+    </frame>
+    <frame>
+      <ip>0x5C90069</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QCoreApplication::init()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qcoreapplication.cpp</file>
+      <line>552</line>
+    </frame>
+    <frame>
+      <ip>0x5C90134</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QCoreApplication::QCoreApplication(QCoreApplicationPrivate&amp;)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qcoreapplication.cpp</file>
+      <line>477</line>
+    </frame>
+    <frame>
+      <ip>0x50043A3</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplication::QApplication(int&amp;, char**, int)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>711</line>
+    </frame>
+  </stack>
+  <suppression>
+    <sname>insert_a_suppression_name_here</sname>
+    <skind>Memcheck:Leak</skind>
+    <sframe> <fun>malloc</fun> </sframe>
+    <sframe> <fun>g_malloc</fun> </sframe>
+    <sframe> <fun>g_strdup</fun> </sframe>
+    <sframe> <fun>g_get_language_names</fun> </sframe>
+    <sframe> <fun>g_thread_init_glib</fun> </sframe>
+    <sframe> <fun>_ZN27QEventDispatcherGlibPrivateC2EP13_GMainContext</fun> </sframe>
+    <sframe> <fun>_ZN30QGuiEventDispatcherGlibPrivateC1Ev</fun> </sframe>
+    <sframe> <fun>_ZN23QGuiEventDispatcherGlibC1EP7QObject</fun> </sframe>
+    <sframe> <fun>_ZN19QApplicationPrivate21createEventDispatcherEv</fun> </sframe>
+    <sframe> <fun>_ZN16QCoreApplication4initEv</fun> </sframe>
+    <sframe> <fun>_ZN16QCoreApplicationC2ER23QCoreApplicationPrivate</fun> </sframe>
+    <sframe> <fun>_ZN12QApplicationC1ERiPPci</fun> </sframe>
+    <rawtext>
+<![CDATA[
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_strdup
+   fun:g_get_language_names
+   fun:g_thread_init_glib
+   fun:_ZN27QEventDispatcherGlibPrivateC2EP13_GMainContext
+   fun:_ZN30QGuiEventDispatcherGlibPrivateC1Ev
+   fun:_ZN23QGuiEventDispatcherGlibC1EP7QObject
+   fun:_ZN19QApplicationPrivate21createEventDispatcherEv
+   fun:_ZN16QCoreApplication4initEv
+   fun:_ZN16QCoreApplicationC2ER23QCoreApplicationPrivate
+   fun:_ZN12QApplicationC1ERiPPci
+}
+]]>
+    </rawtext>
+  </suppression>
+</error>
+
+<errorcounts>
+  <pair>
+    <count>1</count>
+    <unique>0x1</unique>
+  </pair>
+  <pair>
+    <count>1</count>
+    <unique>0x2</unique>
+  </pair>
+  <pair>
+    <count>1</count>
+    <unique>0x3</unique>
+  </pair>
+  <pair>
+    <count>1</count>
+    <unique>0x4</unique>
+  </pair>
+  <pair>
+    <count>1</count>
+    <unique>0x5</unique>
+  </pair>
+  <pair>
+    <count>1</count>
+    <unique>0x6</unique>
+  </pair>
+</errorcounts>
+
+<suppcounts>
+  <pair>
+    <count>1</count>
+    <name>X on SUSE11 writev uninit padding</name>
+  </pair>
+  <pair>
+    <count>2</count>
+    <name>dl-hack3-cond-1</name>
+  </pair>
+  <pair>
+    <count>3</count>
+    <name>glibc-2.5.x-on-SUSE-10.2-(PPC)-2a</name>
+  </pair>
+</suppcounts>
+
+</valgrindoutput>

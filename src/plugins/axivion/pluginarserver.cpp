@@ -205,6 +205,7 @@ void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &on
         if (!settings().bauhausPython().isEmpty())
             env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
         env.set("PYTHON_IO_ENCODING", "utf-8:replace");
+        env.set("PYTHONUNBUFFERED", "1");
         env.set("AXIVION_USER_AGENT", QString::fromUtf8(axivionUserAgent()));
 
         CommandLine cmd = HostOsInfo::isWindowsHost() ? CommandLine{"cmd", {"/c"}}

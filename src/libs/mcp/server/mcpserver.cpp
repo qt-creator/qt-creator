@@ -107,6 +107,18 @@ public:
 
     bool isCanceled() const { return responder->isResponseCanceled(); }
 
+    // Send an SSE comment to keep the TCP connection alive through idle-timeout
+    // firewalls/NAT. Returns false if the stream has been canceled.
+    bool sendPing()
+    {
+        if (responder->isResponseCanceled())
+            return false;
+        responder->writeChunk(": heartbeat\n\n");
+        return true;
+    }
+
+    QString sessionIdValue() const { return sessionId; }
+
 private:
     std::shared_ptr<QHttpServerResponder> responder;
     const QString sessionId;
@@ -114,6 +126,21 @@ private:
 
 static QJsonObject makeResponse(Schema::RequestId id, const Schema::ServerResult &result)
 {
+    if (std::holds_alternative<Schema::CallToolResult>(result)) {
+        auto callToolResult = std::get<Schema::CallToolResult>(result);
+        if (callToolResult.structuredContent().has_value()) {
+            // Copy structured content into content for backwards compatibility
+            // with clients that don't support structured content.
+            QJsonDocument doc(callToolResult.structuredContentAsObject());
+            QByteArray json = doc.toJson(QJsonDocument::Compact);
+            callToolResult.addContent(Schema::TextContent().text(QString::fromUtf8(json)));
+
+            return Schema::toJson(
+                Schema::JSONRPCResultResponse().id(id).result(
+                    Schema::Result().additionalProperties(Schema::toJson(callToolResult))));
+        }
+    }
+
     return Schema::toJson(
         Schema::JSONRPCResultResponse().id(id).result(
             Schema::Result().additionalProperties(Schema::toJson(result))));
@@ -138,17 +165,26 @@ public:
     ServerPrivate(Schema::Implementation serverInfo)
         : serverInfo(serverInfo)
     {
-        m_sseStreamCleanupTimer.setInterval(std::chrono::minutes(1));
-        m_sseStreamCleanupTimer.setSingleShot(false);
-        QObject::connect(&m_sseStreamCleanupTimer, &QTimer::timeout, [this]() {
+        // Send a heartbeat ping every 30 s to keep TCP connections alive through
+        // idle-timeout firewalls/NAT. Prune any dead streams detected during the ping.
+        m_heartbeatTimer.setInterval(std::chrono::seconds(30));
+        m_heartbeatTimer.setSingleShot(false);
+        QObject::connect(&m_heartbeatTimer, &QTimer::timeout, [this]() {
             m_sseStreams.erase(
                 std::remove_if(
                     m_sseStreams.begin(),
                     m_sseStreams.end(),
-                    [](const std::unique_ptr<SseStream> &stream) { return stream->isCanceled(); }),
+                    [](const std::unique_ptr<SseStream> &stream) {
+                        if (stream->sendPing())
+                            return false;
+                        qCDebug(mcpServerLog)
+                            << "Heartbeat pruned dead stream for session"
+                            << stream->sessionIdValue();
+                        return true;
+                    }),
                 m_sseStreams.end());
         });
-        m_sseStreamCleanupTimer.start();
+        m_heartbeatTimer.start();
     }
 
     bool bind(QTcpServer *server) { return m_server.bind(server); }
@@ -246,6 +282,45 @@ public:
         }
     }
 
+    // Returns true if the session is initialized (or was just auto-initialized) and
+    // processing should continue. Sends an error and returns false for unknown sessions.
+    bool validateSessionInitialized(
+        Schema::RequestId id,
+        const Schema::ClientRequest &request,
+        const Responder &responder,
+        const QString &sessionId)
+    {
+        if (m_sessions.value(sessionId).has_value())
+            return true;
+
+        if (m_sessions.contains(sessionId)) {
+            // Session exists but was never fully initialized (SSE connected,
+            // initialize never completed). Auto-initialize with empty capabilities
+            // so the client can continue working rather than getting stuck in a
+            // reconnect loop. Close-zombie causes a loop: erasing the stream triggers
+            // reconnect, which creates another zombie and retries the same request.
+            qCWarning(mcpServerLog)
+                << "Received" << Schema::dispatchValue(request)
+                << "on uninitialized session" << sessionId
+                << "— auto-initializing to allow client to continue"
+                << "(active sessions:" << m_sessions.keys() << ")";
+            m_sessions.insert(sessionId, Client{});
+            return true;
+        }
+
+        qCWarning(mcpServerLog)
+            << "Received" << Schema::dispatchValue(request)
+            << "with unknown session ID:" << sessionId
+            << "— known sessions:" << m_sessions.keys();
+        responder.write(QJsonDocument(toJson(
+            Schema::JSONRPCErrorResponse()
+                .error(Schema::Error()
+                           .code(InvalidRequest)
+                           .message("Session not initialized. Please reconnect and send initialize."))
+                .id(id))));
+        return false;
+    }
+
     void onRequest(
         Schema::RequestId id,
         const Schema::ClientRequest &request,
@@ -266,6 +341,9 @@ public:
             onInitialize(id, std::get<Schema::InitializeRequest>(request), responder, sessionId);
             return;
         }
+
+        if (!validateSessionInitialized(id, request, responder, sessionId))
+            return;
 
         if (std::holds_alternative<Schema::CallToolRequest>(request)) {
             onToolCall(id, std::get<Schema::CallToolRequest>(request), responder, sessionId);
@@ -600,18 +678,8 @@ public:
         const Server::ToolInterfaceCallback &cb)
     {
         auto sessionInfo = m_sessions.value(sessionId);
-        if (!sessionInfo) {
-            qCWarning(mcpServerLog) << "Received call for tool" << request.params().name()
-                                    << "with invalid session ID:" << sessionId;
-            responder.write(QJsonDocument(toJson(
-                Schema::JSONRPCErrorResponse()
-                    .error(
-                        Schema::Error()
-                            .code(InvalidRequest)
-                            .message("Invalid session ID: " + sessionId))
-                    .id(id))));
-            return;
-        }
+        // Should never happen — validated upstream in onRequest() via validateSessionInitialized().
+        QTC_ASSERT(sessionInfo, return);
         Schema::ClientCapabilities clientCapabilities = sessionInfo->capabilities;
 
         ToolInterface toolInterface(
@@ -1189,7 +1257,7 @@ public:
     std::vector<std::unique_ptr<SseStream>> m_sseStreams;
     std::function<void(QByteArray)> m_ioOutputHandler;
 
-    QTimer m_sseStreamCleanupTimer;
+    QTimer m_heartbeatTimer;
 
     Server::CompletionCallback m_completionCallback;
 
@@ -1306,7 +1374,7 @@ Server::Server(Schema::Implementation serverInfo)
                 &SseStream::destroyed,
                 [d = std::weak_ptr<ServerPrivate>(d), sessionId]() {
                     if (auto dptr = d.lock()) {
-                        qCDebug(mcpServerLog) << "SSE session with Id" << sessionId << "ended";
+                        qCInfo(mcpServerLog) << "SSE session with Id" << sessionId << "ended";
                         dptr->deleteSession(sessionId);
                     }
                 });
@@ -1323,8 +1391,10 @@ Server::Server(Schema::Implementation serverInfo)
             const QString sessionId = req.query().queryItemValue("session");
 
             if (!d->validateSession(sessionId)) {
-                qCWarning(mcpServerLog) << "Received message for invalid session ID:" << sessionId;
-                responder.write(d->corsHeaders({}), QHttpServerResponse::StatusCode::BadRequest);
+                qCWarning(mcpServerLog) << "Received message for unknown session ID:" << sessionId
+                                        << "— responding 404 to force client re-initialization"
+                                        << "(known sessions:" << d->m_sessions.keys() << ")";
+                responder.write(d->corsHeaders({}), QHttpServerResponse::StatusCode::NotFound);
                 return;
             }
 

@@ -44,6 +44,8 @@
         <file>completion/exampleIncludeDir/mylib/mylib.h</file>
         <file>completion/dotToArrowCorrection.cpp</file>
         <file>completion/noDotToArrowCorrectionForFloats.cpp</file>
+        <file>completion/lambdacompletion.cpp</file>
+        <file>completion/macrocompletion.cpp</file>
         <file>completion/main.cpp</file>
         <file>completion/mainwindow.cpp</file>
         <file>completion/mainwindow.h</file>

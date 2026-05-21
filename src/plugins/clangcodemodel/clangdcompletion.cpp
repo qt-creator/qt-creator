@@ -348,9 +348,11 @@ void ClangdCompletionItem::apply(TextEditorWidget *editorWidget,
                 item.kind().value_or(CompletionItemKind::Text));
     const bool isMacroCall = kind == CompletionItemKind::Text && labelOpenParenOffset != -1
             && labelClosingParenOffset > labelOpenParenOffset; // Heuristic
+    const bool isLambdaCall = kind == CompletionItemKind::Variable && labelOpenParenOffset != -1
+                             && labelClosingParenOffset > labelOpenParenOffset;
     const bool isFunctionLike = kind == CompletionItemKind::Function
             || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor
-            || isMacroCall;
+            || isMacroCall || isLambdaCall;
 
     QString rawInsertText = edit->newText();
 
@@ -394,8 +396,10 @@ void ClangdCompletionItem::apply(TextEditorWidget *editorWidget,
         }
         if (!abandonParen)
             abandonParen = isAtUsingDeclaration(editorWidget, rangeStart);
-        if (!abandonParen && !isMacroCall && matchPreviousWord(editorWidget, cursor, detail))
+        if (!abandonParen && !isMacroCall && !isLambdaCall && !detail.isEmpty()
+            && matchPreviousWord(editorWidget, cursor, detail)) {
             abandonParen = true; // function definition
+        }
         if (!abandonParen) {
             if (completionSettings().spaceAfterFunctionName())
                 extraCharacters += ' ';

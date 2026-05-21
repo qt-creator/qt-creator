@@ -30,8 +30,20 @@
     You can specify arguments to pass to your application in the
     \uicontrol {Command line arguments} field.
 
-    Select \uicontrol {Forward to local display} to show a remotely
+    To disable library linking for the current project, clear
+    \uicontrol {Add build library search path to PATH}. For more information,
+    see \l {Linker libraries}.
+
+    \section1 View the application UI
+
+    Select \uicontrol {Use X11 forwarding} to show a remotely
     running X11 client on a local display.
+
+    Select \uicontrol {Use the Qt VNC platform for display} to render the
+    application using the Qt VNC platform plugin. \QC sets the
+    \c {QT_QPA_PLATFORM=vnc} environment variable for the application.
+    To connect to the application UI with a VNC client, check the
+    \uicontrol {Application Output} view for the IP address and port.
 
     \include {creator-projects-settings-run-desktop.qdoc} {run-as-user}
 

@@ -1,0 +1,366 @@
+<?xml version="1.0"?>
+
+<valgrindoutput>
+
+<protocolversion>4</protocolversion>
+<protocoltool>helgrind</protocoltool>
+
+<preamble>
+  <line>Helgrind, a thread error detector</line>
+  <line>Copyright (C) 2007-2009, and GNU GPL'd, by OpenWorks LLP et al.</line>
+  <line>Using Valgrind-3.6.0.SVN-Debian and LibVEX; rerun with -h for copyright info</line>
+  <line>Command: Charm/Charm</line>
+</preamble>
+
+<pid>12807</pid>
+<ppid>10106</ppid>
+<tool>helgrind</tool>
+
+<args>
+  <vargv>
+    <exe>/usr/bin/valgrind.bin</exe>
+    <arg>--suppressions=/usr/lib/valgrind/debian-libc6-dbg.supp</arg>
+    <arg>--tool=helgrind</arg>
+    <arg>--xml=yes</arg>
+    <arg>--xml-file=bla</arg>
+  </vargv>
+  <argv>
+    <exe>Charm/Charm</exe>
+  </argv>
+</args>
+
+<status>
+  <state>RUNNING</state>
+  <time>00:00:00:00.137 </time>
+</status>
+
+<announcethread>
+  <hthreadid>1</hthreadid>
+  <isrootthread></isrootthread>
+</announcethread>
+
+<error>
+  <unique>0x0</unique>
+  <tid>1</tid>
+  <kind>LockOrder</kind>
+  <xwhat>
+    <text>Thread #1: lock order "0xA39C270 before 0xA3AC010" violated</text>
+    <hthreadid>1</hthreadid>
+  </xwhat>
+  <stack>
+    <frame>
+      <ip>0x4C2B806</ip>
+      <obj>/usr/lib/valgrind/vgpreload_helgrind-amd64-linux.so</obj>
+      <fn>QMutex::lock()</fn>
+      <dir>/build/buildd/valgrind-3.6.0~svn20100212/helgrind</dir>
+      <file>hg_intercepts.c</file>
+      <line>1988</line>
+    </frame>
+    <frame>
+      <ip>0x72E57EE</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QMutexLocker::relock()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread</dir>
+      <file>qmutex.h</file>
+      <line>120</line>
+    </frame>
+<!--
+    <frame>
+      <ip>0x72E5745</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QMutexLocker::QMutexLocker(QMutex*)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread</dir>
+      <file>qmutex.h</file>
+      <line>102</line>
+    </frame>
+    <frame>
+      <ip>0x7438079</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QCoreApplication::libraryPaths()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/kernel</dir>
+      <file>qcoreapplication.cpp</file>
+      <line>2228</line>
+    </frame>
+    <frame>
+      <ip>0x74172E3</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QFactoryLoader::update()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/plugin</dir>
+      <file>qfactoryloader.cpp</file>
+      <line>109</line>
+    </frame>
+    <frame>
+      <ip>0x741723C</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QFactoryLoader::QFactoryLoader(char const*, QString const&amp;, Qt::CaseSensitivity)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/plugin</dir>
+      <file>qfactoryloader.cpp</file>
+      <line>99</line>
+    </frame>
+    <frame>
+      <ip>0x59DBC57</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>loader()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/inputmethod</dir>
+      <file>qinputcontextfactory.cpp</file>
+      <line>85</line>
+    </frame>
+    <frame>
+      <ip>0x59DBEC9</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>QInputContextFactory::keys()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/inputmethod</dir>
+      <file>qinputcontextfactory.cpp</file>
+      <line>197</line>
+    </frame>
+    <frame>
+      <ip>0x52FDDC4</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>QApplicationPrivate::x11_apply_settings()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>1036</line>
+    </frame>
+    <frame>
+      <ip>0x52FE4F3</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>qt_set_x11_resources(char const*, char const*, char const*, char const*)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>1110</line>
+    </frame>
+    <frame>
+      <ip>0x5306201</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>qt_init(QApplicationPrivate*, int, _XDisplay*, unsigned long, unsigned long)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>2320</line>
+    </frame>
+    <frame>
+      <ip>0x5253B6D</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>QApplicationPrivate::construct(_XDisplay*, unsigned long, unsigned long)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>771</line>
+    </frame>
+    -->
+  </stack>
+  <auxwhat>Required order was established by acquisition of lock at 0xA39C270</auxwhat>
+  <stack>
+    <frame>
+      <ip>0x4C2B806</ip>
+      <obj>/usr/lib/valgrind/vgpreload_helgrind-amd64-linux.so</obj>
+      <fn>QMutex::lock()</fn>
+      <dir>/build/buildd/valgrind-3.6.0~svn20100212/helgrind</dir>
+      <file>hg_intercepts.c</file>
+      <line>1989</line>
+    </frame>
+    <frame>
+      <ip>0x72E57EE</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QMutexLocker::relock()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread</dir>
+      <file>qmutex.h</file>
+      <line>121</line>
+    </frame>
+<!--
+    <frame>
+      <ip>0x72E5745</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QMutexLocker::QMutexLocker(QMutex*)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread</dir>
+      <file>qmutex.h</file>
+      <line>102</line>
+    </frame>
+    <frame>
+      <ip>0x74385FB</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QCoreApplication::addLibraryPath(QString const&amp;)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/kernel</dir>
+      <file>qcoreapplication.cpp</file>
+      <line>2332</line>
+    </frame>
+    <frame>
+      <ip>0x52FC3CB</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>QApplicationPrivate::x11_apply_settings()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>926</line>
+    </frame>
+    <frame>
+      <ip>0x52FE4F3</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>qt_set_x11_resources(char const*, char const*, char const*, char const*)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>1110</line>
+    </frame>
+    <frame>
+      <ip>0x5306201</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>qt_init(QApplicationPrivate*, int, _XDisplay*, unsigned long, unsigned long)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>2320</line>
+    </frame>
+    <frame>
+      <ip>0x5253B6D</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>QApplicationPrivate::construct(_XDisplay*, unsigned long, unsigned long)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>771</line>
+    </frame>
+    <frame>
+      <ip>0x525327E</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>QApplication::QApplication(int&amp;, char**, int)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>693</line>
+    </frame>
+    <frame>
+      <ip>0x4250F1</ip>
+      <obj>/home/frank/workspace/charm/build/Charm/Charm</obj>
+      <fn>Application::Application(int&amp;, char**)</fn>
+      <dir>/home/frank/workspace/charm/Charm</dir>
+      <file>Application.cpp</file>
+      <line>54</line>
+    </frame>
+    <frame>
+      <ip>0x4236EA</ip>
+      <obj>/home/frank/workspace/charm/build/Charm/Charm</obj>
+      <fn>main</fn>
+      <dir>/home/frank/workspace/charm/Charm</dir>
+      <file>Charm.cpp</file>
+      <line>27</line>
+    </frame>
+    -->
+  </stack>
+  <auxwhat>followed by a later acquisition of lock at 0xA3AC010</auxwhat>
+  <stack>
+    <frame>
+      <ip>0x4C2B806</ip>
+      <obj>/usr/lib/valgrind/vgpreload_helgrind-amd64-linux.so</obj>
+      <fn>QMutex::lock()</fn>
+      <dir>/build/buildd/valgrind-3.6.0~svn20100212/helgrind</dir>
+      <file>hg_intercepts.c</file>
+      <line>1990</line>
+    </frame>
+    <frame>
+      <ip>0x72E57EE</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QMutexLocker::relock()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread</dir>
+      <file>qmutex.h</file>
+      <line>122</line>
+    </frame>
+<!--
+    <frame>
+      <ip>0x72E5745</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QMutexLocker::QMutexLocker(QMutex*)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread</dir>
+      <file>qmutex.h</file>
+      <line>102</line>
+    </frame>
+    <frame>
+      <ip>0x7418CC9</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QFactoryLoader::refreshAll()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/plugin</dir>
+      <file>qfactoryloader.cpp</file>
+      <line>249</line>
+    </frame>
+    <frame>
+      <ip>0x74386D4</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3</obj>
+      <fn>QCoreApplication::addLibraryPath(QString const&amp;)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/kernel</dir>
+      <file>qcoreapplication.cpp</file>
+      <line>2341</line>
+    </frame>
+    <frame>
+      <ip>0x52FC3CB</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>QApplicationPrivate::x11_apply_settings()</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>926</line>
+    </frame>
+    <frame>
+      <ip>0x52FE4F3</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>qt_set_x11_resources(char const*, char const*, char const*, char const*)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>1110</line>
+    </frame>
+    <frame>
+      <ip>0x5306201</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>qt_init(QApplicationPrivate*, int, _XDisplay*, unsigned long, unsigned long)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>2320</line>
+    </frame>
+    <frame>
+      <ip>0x5253B6D</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>QApplicationPrivate::construct(_XDisplay*, unsigned long, unsigned long)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>771</line>
+    </frame>
+    <frame>
+      <ip>0x525327E</ip>
+      <obj>/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtGui.so.4.6.3</obj>
+      <fn>QApplication::QApplication(int&amp;, char**, int)</fn>
+      <dir>/home/frank/source/tarballs/qt-4.6.3-build/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>693</line>
+    </frame>
+    <frame>
+      <ip>0x4250F1</ip>
+      <obj>/home/frank/workspace/charm/build/Charm/Charm</obj>
+      <fn>Application::Application(int&amp;, char**)</fn>
+      <dir>/home/frank/workspace/charm/Charm</dir>
+      <file>Application.cpp</file>
+      <line>54</line>
+    </frame>
+    <frame>
+      <ip>0x4236EA</ip>
+      <obj>/home/frank/workspace/charm/build/Charm/Charm</obj>
+      <fn>main</fn>
+      <dir>/home/frank/workspace/charm/Charm</dir>
+      <file>Charm.cpp</file>
+      <line>27</line>
+    </frame>
+-->
+  </stack>
+</error>
+
+
+<status>
+  <state>FINISHED</state>
+  <time>00:00:01:22.613 </time>
+</status>
+
+<errorcounts>
+  <pair>
+    <count>4</count>
+    <unique>0x0</unique>
+  </pair>
+</errorcounts>
+
+<suppcounts>
+  <pair>
+    <count>1</count>
+    <name>helgrind-glibc2X-112</name>
+  </pair>
+</suppcounts>
+
+</valgrindoutput>

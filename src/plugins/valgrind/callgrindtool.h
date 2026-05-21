@@ -9,4 +9,8 @@ namespace Valgrind::Internal {
 
 void setupCallgrindTool(QObject *guard);
 
+#ifdef WITH_TESTS
+QObject *createCallgrindToolTest();
+#endif
+
 } // Valgrind::Internal

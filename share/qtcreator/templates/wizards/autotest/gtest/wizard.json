@@ -150,8 +150,7 @@
             "trShortTitle": "Kits",
             "typeId": "Kits",
             "data": {
-                 "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "%{JS: value('BuildSystem') === 'qmake' ? 'QtSupport.Wizards.FeatureQt' : 'DeviceType.Desktop' }" ]
+                 "projectFilePath": "%{ProjectFilePath}"
             }
         },
         {

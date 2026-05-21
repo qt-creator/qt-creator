@@ -429,9 +429,8 @@ QJsonObject TestResultsManager::testDetails(const QStringList &names) const
             if (dur.has_value()) {
                 bool ok = false;
                 const double ms = dur->toDouble(&ok);
-                obj.insert("duration_ms", ok ? QJsonValue(ms) : QJsonValue(*dur));
-            } else {
-                obj.insert("duration_ms", QJsonValue());
+                if (ok)
+                    obj.insert("duration_ms", ms);
             }
             // No cap here — caller asked for these specific tests by name, so
             // give them the full message log.

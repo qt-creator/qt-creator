@@ -54923,7 +54923,7 @@ Zarejestrowane dane zostały utracone.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not open File &quot;%1&quot;.</source>
+        <source>Could not open file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

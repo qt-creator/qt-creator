@@ -2,9 +2,9 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- /opt/homebrew/opt/python@3.14/bin/python3.14 \
+ C:\dev\bin\Python313\python.exe \
   scripts/generate_cpp_from_schema.py \
-  src/tools/mcp-reg-aggregator/schema.json src/plugins/coreplugin/mcpregistry.h --namespace Core::McpRegistry --cpp-output src/plugins/coreplugin/mcpregistry.cpp --no-comments --read-only
+  src/tools/mcp-reg-aggregator/schema.json src/plugins/coreplugin/mcp/mcpregistry.h --namespace Core::McpRegistry --cpp-output src/plugins/coreplugin/mcp/mcpregistry.cpp --no-comments --read-only
 */
 #pragma once
 

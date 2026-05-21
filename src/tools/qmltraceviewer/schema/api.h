@@ -2,7 +2,7 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- /usr/bin/python3 \
+ C:\dev\bin\Python313\python.exe \
   scripts/generate_cpp_from_schema.py \
   src/tools/qmltraceviewer/schema/qmltraceviewerapi.json.schema src/tools/qmltraceviewer/schema/api.h --namespace QmlTraceViewer::Api::Schema
 */
@@ -63,15 +63,15 @@ namespace ErrorCode {
 } // namespace ErrorCode
 struct Error {
     int _code;  //!< The error type that occurred.
-    std::optional<QString> _data;  //!< Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
+    std::optional<QJsonValue> _data;  //!< Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
     QString _message;  //!< A short description of the error. The message SHOULD be limited to a concise single sentence.
 
     Error& code(int v) { _code = v; return *this; }
-    Error& data(const std::optional<QString> & v) { _data = v; return *this; }
+    Error& data(const std::optional<QJsonValue> & v) { _data = v; return *this; }
     Error& message(const QString & v) { _message = v; return *this; }
 
     const int& code() const { return _code; }
-    const std::optional<QString>& data() const { return _data; }
+    const std::optional<QJsonValue>& data() const { return _data; }
     const QString& message() const { return _message; }
 };
 
@@ -87,7 +87,7 @@ inline Utils::Result<Error> fromJson<Error>(const QJsonValue &val) {
     Error result;
     result._code = obj.value("code").toInt();
     if (obj.contains("data"))
-        result._data = obj.value("data").toString();
+        result._data = obj.value("data");
     result._message = obj.value("message").toString();
     return result;
 }

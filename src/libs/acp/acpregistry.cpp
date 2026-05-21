@@ -4,7 +4,8 @@
 namespace Acp::Registry {
 
 template<>
-Utils::Result<binaryTarget> fromJson<binaryTarget>(const QJsonValue &val) {
+Utils::Result<binaryTarget> fromJson<binaryTarget>(const QJsonValue &val)
+{
     if (!val.isObject())
         return Utils::ResultError("Expected JSON object for binaryTarget");
     const QJsonObject obj = val.toObject();
@@ -33,7 +34,8 @@ Utils::Result<binaryTarget> fromJson<binaryTarget>(const QJsonValue &val) {
     return result;
 }
 
-QJsonObject toJson(const binaryTarget &data) {
+QJsonObject toJson(const binaryTarget &data)
+{
     QJsonObject obj{
         {"archive", data._archive},
         {"cmd", data._cmd}
@@ -53,7 +55,8 @@ QJsonObject toJson(const binaryTarget &data) {
 }
 
 template<>
-Utils::Result<binaryDistribution> fromJson<binaryDistribution>(const QJsonValue &val) {
+Utils::Result<binaryDistribution> fromJson<binaryDistribution>(const QJsonValue &val)
+{
     if (!val.isObject())
         co_return Utils::ResultError("Expected JSON object for binaryDistribution");
     const QJsonObject obj = val.toObject();
@@ -73,7 +76,8 @@ Utils::Result<binaryDistribution> fromJson<binaryDistribution>(const QJsonValue 
     co_return result;
 }
 
-QJsonObject toJson(const binaryDistribution &data) {
+QJsonObject toJson(const binaryDistribution &data)
+{
     QJsonObject obj;
     if (data._darwinminusaarch64.has_value())
         obj.insert("darwin-aarch64", toJson(*data._darwinminusaarch64));
@@ -91,7 +95,8 @@ QJsonObject toJson(const binaryDistribution &data) {
 }
 
 template<>
-Utils::Result<packageDistribution> fromJson<packageDistribution>(const QJsonValue &val) {
+Utils::Result<packageDistribution> fromJson<packageDistribution>(const QJsonValue &val)
+{
     if (!val.isObject())
         return Utils::ResultError("Expected JSON object for packageDistribution");
     const QJsonObject obj = val.toObject();
@@ -117,7 +122,8 @@ Utils::Result<packageDistribution> fromJson<packageDistribution>(const QJsonValu
     return result;
 }
 
-QJsonObject toJson(const packageDistribution &data) {
+QJsonObject toJson(const packageDistribution &data)
+{
     QJsonObject obj{{"package", data._package}};
     if (data._args.has_value()) {
         QJsonArray arr_args;
@@ -134,7 +140,8 @@ QJsonObject toJson(const packageDistribution &data) {
 }
 
 template<>
-Utils::Result<ACPAgent::Distribution> fromJson<ACPAgent::Distribution>(const QJsonValue &val) {
+Utils::Result<ACPAgent::Distribution> fromJson<ACPAgent::Distribution>(const QJsonValue &val)
+{
     if (!val.isObject())
         co_return Utils::ResultError("Expected JSON object for Distribution");
     const QJsonObject obj = val.toObject();
@@ -148,7 +155,8 @@ Utils::Result<ACPAgent::Distribution> fromJson<ACPAgent::Distribution>(const QJs
     co_return result;
 }
 
-QJsonObject toJson(const ACPAgent::Distribution &data) {
+QJsonObject toJson(const ACPAgent::Distribution &data)
+{
     QJsonObject obj;
     if (data._binary.has_value())
         obj.insert("binary", toJson(*data._binary));
@@ -160,7 +168,8 @@ QJsonObject toJson(const ACPAgent::Distribution &data) {
 }
 
 template<>
-Utils::Result<ACPAgent> fromJson<ACPAgent>(const QJsonValue &val) {
+Utils::Result<ACPAgent> fromJson<ACPAgent>(const QJsonValue &val)
+{
     if (!val.isObject())
         co_return Utils::ResultError("Expected JSON object for ACPAgent");
     const QJsonObject obj = val.toObject();
@@ -198,7 +207,8 @@ Utils::Result<ACPAgent> fromJson<ACPAgent>(const QJsonValue &val) {
     co_return result;
 }
 
-QJsonObject toJson(const ACPAgent &data) {
+QJsonObject toJson(const ACPAgent &data)
+{
     QJsonObject obj{
         {"id", data._id},
         {"name", data._name},
@@ -221,7 +231,8 @@ QJsonObject toJson(const ACPAgent &data) {
 }
 
 template<>
-Utils::Result<ACPAgentRegistry> fromJson<ACPAgentRegistry>(const QJsonValue &val) {
+Utils::Result<ACPAgentRegistry> fromJson<ACPAgentRegistry>(const QJsonValue &val)
+{
     if (!val.isObject())
         co_return Utils::ResultError("Expected JSON object for ACPAgentRegistry");
     const QJsonObject obj = val.toObject();
@@ -240,7 +251,8 @@ Utils::Result<ACPAgentRegistry> fromJson<ACPAgentRegistry>(const QJsonValue &val
     co_return result;
 }
 
-QJsonObject toJson(const ACPAgentRegistry &data) {
+QJsonObject toJson(const ACPAgentRegistry &data)
+{
     QJsonObject obj{{"version", data._version}};
     QJsonArray arr_agents;
     for (const auto &v : data._agents) arr_agents.append(toJson(v));

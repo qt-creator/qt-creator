@@ -671,7 +671,7 @@
         \li Go to \uicontrol Projects > \uicontrol {Run Settings}.
         \li Select \uicontrol Add > \uicontrol {Remote Debugger} >
             \uicontrol {Create}.
-        \li In \uicontrol {Launcher command}, specify a script or command
+        \li In \uicontrol {Command}, specify a script or command
             that sets up the GDB server connection.
         \li In \uicontrol {Command line arguments}, specify any arguments
             to pass to the launcher command.

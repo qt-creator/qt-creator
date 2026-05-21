@@ -403,6 +403,20 @@ void tst_filepath::parentDir_data()
                          << "D:/"
                          << "";
 
+    // WSL paths (UNC via wsl.localhost / wsl$)
+    QTest::newRow("//wsl.localhost/Ubuntu-22.04/home/mtillmanns")
+        << "//wsl.localhost/Ubuntu-22.04/home/mtillmanns"
+        << "//wsl.localhost/Ubuntu-22.04/home"
+        << "";
+    QTest::newRow("//wsl.localhost/Ubuntu-22.04")
+        << "//wsl.localhost/Ubuntu-22.04"
+        << "//wsl.localhost/"
+        << "";
+    QTest::newRow("//wsl$/distro/home/mtillmanns/test.txt")
+        << "//wsl$/distro/home/mtillmanns/test.txt"
+        << "//wsl$/distro/home/mtillmanns"
+        << "";
+
     QTest::newRow("macro") << "/Test/%{ActiveProject:FileName}"
                            << "/Test/%{ActiveProject:FileName}/.."
                            << "";
@@ -476,6 +490,20 @@ void tst_filepath::isChildOf_data()
     QTest::newRow("//server/directory") << "//server"
                                         << "//server/directory" << true;
 
+    // WSL paths (UNC via wsl.localhost / wsl$)
+    QTest::newRow("wsl-localhost-distro-child")
+        << "//wsl.localhost/Ubuntu-22.04"
+        << "//wsl.localhost/Ubuntu-22.04/home/mtillmanns" << true;
+    QTest::newRow("wsl-localhost-root-child")
+        << "//wsl.localhost"
+        << "//wsl.localhost/Ubuntu-22.04" << true;
+    QTest::newRow("wsl-dollar-distro-child")
+        << "//wsl$/distro"
+        << "//wsl$/distro/home/mtillmanns/test.txt" << true;
+    QTest::newRow("wsl-different-distros")
+        << "//wsl.localhost/Ubuntu-22.04"
+        << "//wsl.localhost/Debian/home" << false;
+
     QTest::newRow("qrc") << ":/foo/bar"
                          << ":/foo/bar/blah" << true;
     QTest::newRow("parent-trailing-slash") << "/tmp/dir/"
@@ -538,6 +566,12 @@ void tst_filepath::fileName_data()
     QTest::newRow("too many parts") << "/foo/bar/baz" << 5 << "/foo/bar/baz";
     QTest::newRow("windows root") << "C:/foo/bar/baz" << 2 << "C:/foo/bar/baz";
     QTest::newRow("smb share") << "//server/share/file" << 2 << "//server/share/file";
+    // WSL paths (UNC via wsl.localhost / wsl$)
+    QTest::newRow("wsl-localhost filename") << "//wsl.localhost/Ubuntu-22.04/home/mtillmanns" << 0 << "mtillmanns";
+    QTest::newRow("wsl-localhost 2 parts") << "//wsl.localhost/Ubuntu-22.04/home/mtillmanns" << 1 << "home/mtillmanns";
+    QTest::newRow("wsl-localhost distro") << "//wsl.localhost/Ubuntu-22.04/home/mtillmanns" << 3 << "//wsl.localhost/Ubuntu-22.04/home/mtillmanns";
+    QTest::newRow("wsl-dollar filename") << "//wsl$/distro/home/mtillmanns/test.txt" << 0 << "test.txt";
+    QTest::newRow("wsl-dollar 2 parts") << "//wsl$/distro/home/mtillmanns/test.txt" << 1 << "mtillmanns/test.txt";
     QTest::newRow("no slashes") << "foobar" << 0 << "foobar";
     QTest::newRow("no slashes with depth") << "foobar" << 1 << "foobar";
     QTest::newRow("multiple slashes 1") << "/foo/bar////baz" << 0 << "baz";
@@ -706,6 +740,15 @@ void tst_filepath::rootLength_data()
     QTest::newRow("windows-1") << "C:" << 2;
     QTest::newRow("windows-2") << "C:/" << 3;
     QTest::newRow("windows-3") << "C:/foor" << 3;
+
+    // WSL paths (UNC via wsl.localhost / wsl$)
+    QTest::newRow("wsl-localhost-unfinished") << "//wsl.localhost" << 15;
+    QTest::newRow("wsl-localhost-slash") << "//wsl.localhost/" << 16;
+    QTest::newRow("wsl-localhost-distro") << "//wsl.localhost/Ubuntu-22.04" << 16;
+    QTest::newRow("wsl-localhost-full") << "//wsl.localhost/Ubuntu-22.04/home/mtillmanns" << 16;
+    QTest::newRow("wsl-dollar-unfinished") << "//wsl$" << 6;
+    QTest::newRow("wsl-dollar-slash") << "//wsl$/" << 7;
+    QTest::newRow("wsl-dollar-full") << "//wsl$/distro/home/mtillmanns/test.txt" << 7;
 }
 
 void tst_filepath::rootLength()
@@ -1039,6 +1082,14 @@ void tst_filepath::fromString_data()
 
     QTest::newRow("unc-dos-1") << D("//?/c:", "", "", "//?/c:");
     QTest::newRow("unc-dos-com") << D("//./com1", "", "", "//./com1");
+
+    // WSL paths (UNC via wsl.localhost / wsl$)
+    QTest::newRow("wsl-localhost")
+        << D("//wsl.localhost/Ubuntu-22.04/home/mtillmanns",
+             "", "", "//wsl.localhost/Ubuntu-22.04/home/mtillmanns");
+    QTest::newRow("wsl-dollar")
+        << D("//wsl$/distro/home/mtillmanns/test.txt",
+             "", "", "//wsl$/distro/home/mtillmanns/test.txt");
 }
 
 void tst_filepath::fromString()
@@ -1151,6 +1202,21 @@ void tst_filepath::fromUserInput_data()
 
     QTest::newRow("unc-dos-1") << D("//?/c:", "", "", "c:");
     QTest::newRow("unc-dos-com") << D("//./com1", "", "", "//./com1");
+
+    // WSL paths — backslash form as typed on Windows
+    QTest::newRow("wsl-localhost-backslash")
+        << D("\\\\wsl.localhost\\Ubuntu-22.04\\home\\mtillmanns",
+             "", "", "//wsl.localhost/Ubuntu-22.04/home/mtillmanns");
+    QTest::newRow("wsl-dollar-backslash")
+        << D("\\\\wsl$\\distro\\home\\mtillmanns\\test.txt",
+             "", "", "//wsl$/distro/home/mtillmanns/test.txt");
+    // WSL paths — forward-slash form
+    QTest::newRow("wsl-localhost-fwdslash")
+        << D("//wsl.localhost/Ubuntu-22.04/home/mtillmanns",
+             "", "", "//wsl.localhost/Ubuntu-22.04/home/mtillmanns");
+    QTest::newRow("wsl-dollar-fwdslash")
+        << D("//wsl$/distro/home/mtillmanns/test.txt",
+             "", "", "//wsl$/distro/home/mtillmanns/test.txt");
 }
 
 void tst_filepath::fromUserInput()

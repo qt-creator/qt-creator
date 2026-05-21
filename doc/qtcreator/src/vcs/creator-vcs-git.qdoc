@@ -59,7 +59,18 @@
 
     \generatelist creator-how-to-git-remote-repository
 
-    \section2 Managing remote repositories
+    \sa {Use Git}{How to: Use Git}, {Compare files},
+    {Version control systems}
+*/
+
+/*!
+    \page creator-how-to-manage-git-remote-repositories.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-git
+    \ingroup creator-how-to-git-remote-repository
+
+    \title Manage remote repositories
 
     To manage remote repositories available in Git, go to \uicontrol Tools >
     \uicontrol Git > \uicontrol {Remote Repository} >
@@ -90,8 +101,7 @@
             \li Remove a remote repository.
     \endtable
 
-    \sa {Use Git}{How to: Use Git}, {Compare files},
-    {Version control systems}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
 */
 
 /*!
@@ -109,6 +119,14 @@
 
     Before you start, set up Git in \preferences > \uicontrol {Version Control}
     > \uicontrol {General}.
+
+    \section1 Configure your user credentials
+
+    Git needs to know your user name and email, so configure them first:
+    \code [shell]
+        git config --global user.name "Jon Doe"
+        git config --global user.email "Jon.Doe@company.com"
+    \endcode
 
     \section1 Commit to a new repository
 
@@ -176,10 +194,13 @@
     \uicontrol {Create Repository}.
 
     \QC creates a new subdirectory named \c {.git} that has all the necessary
-    repository files.
+    repository files. \QC also creates a file named \c {.gitignore} that
+    contains patterns of files that should not be tracked by Git (such as
+    build directories).
 
-    However, Git does not track anything in the project yet, so you need to
-    create an initial commit to start tracking the project files.
+    Git does not track anything in the project yet, so you need to
+    create an \l{Commit your first change}{initial commit} to start tracking
+    the project files.
 
     \sa {Use Git}{How to: Use Git}, {Using Git}
 */
@@ -231,12 +252,6 @@
     The \uicontrol {Git Diff} view displays the diff side-by-side. To use
     the unified diff view instead, select the
     \uicontrol {Switch to Unified Diff Editor} (1) option from the toolbar.
-
-    \section1 Show Git status in the Projects view
-
-    To show changed files in the \l {Projects} view in a different color, go to
-    \preferences > \uicontrol {Version Control} > \uicontrol {General} and select
-    \uicontrol {Show VCS file status}.
 
     \section1 Stage and unstage changes
 
@@ -347,7 +362,7 @@
             \li
         \row
             \li \uicontrol {Checkout <hash>}
-            \li Check out the commit in a headless state.
+            \li Check out the commit in a detached HEAD state.
             \li
         \row
             \li \uicontrol {Cherry-Pick <hash>}
@@ -480,6 +495,10 @@
     \uicontrol {Current File} > \uicontrol {Instant Blame} to view blame for the
     current line.
 
+    When you hover over the annotation, a tooltip with additional information is shown.
+    From the tooltip, several actions are available. For more information, see
+    \l {Show instant blame}.
+
     \section1 Hide blame in the editor
 
     To hide blame in the editor, go to \preferences >
@@ -497,23 +516,25 @@
 
     \image {qtcreator-git-blame.webp} {Git Blame view}
 
-    To hide the path information in the view, select \uicontrol {Omit Path}.
+    \list
+    \li To hide the path information in the view, select \uicontrol {Omit Path}.
 
-    To hide the author information in the view, select \uicontrol {Omit Author}.
+    \li To hide the author information in the view, select \uicontrol {Omit Author}.
 
-    To hide the date and time information in the view, select
-    \uicontrol {Omit Date}.
+    \li To hide the date and time information in the view, select
+        \uicontrol {Omit Date}.
 
-    To find the commit that introduced the last real code change, select
-    \uicontrol {Ignore Whitespace}.
+    \li To find the commit that introduced the last real code change, select
+        \uicontrol {Ignore Whitespace}.
 
-    To find the commit that introduced a line before it was moved, select
-    \uicontrol {No Move Detection}. To view moved or copied lines within a file
-    or between files, select \uicontrol {Detect Moves Within File},
-    \uicontrol {Detect Moves Between Files},
-    or \uicontrol {Detect Moves and Copies Between Files}.
+    \li To find the commit that introduced a line before it was moved, select
+        \uicontrol {No Move Detection}. To view moved or copied lines within a file
+        or between files, select \uicontrol {Detect Moves Within File},
+        \uicontrol {Detect Moves Between Files},
+        or \uicontrol {Detect Moves and Copies Between Files}.
 
-    To rescan the files, select \imagereload (\uicontrol {Reload}).
+    \li To rescan the files, select \imagereload (\uicontrol {Reload}).
+    \endlist
 
     Select the commit identifier to show a detailed description of the change
     in the \uicontrol {Git Show} view.
@@ -529,7 +550,7 @@
     to navigate through the history of the file and obtain previous versions
     of it.
 
-    \sa {Use Git}{How to: Use Git}, {Using Git}
+    \sa {Use Git}{How to: Use Git}, {Show instant blame}, {Using Git}
 */
 
 /*!
@@ -727,7 +748,7 @@
     \uicontrol Status.
 
     To include untracked files, select
-    \uicontrol {Status (Including All Untracked)}.
+    \uicontrol {Status (Include All Untracked)}.
 
     \sa {Use Git}{How to: Use Git}, {Using Git}
 */
@@ -774,8 +795,7 @@
     files. The availability of other actions depends on the state of the selected file.
 
     \note You can apply these actions also from the context menu in
-    \uicontrol {Projects}, \uicontrol {File System}, and
-    \uicontrol {Open Documents}.
+    \l {Projects}, \l {File System}, and \l {Open Documents}.
 
     \table
     \header
@@ -819,7 +839,9 @@
     \section2 Resolve conflicts
 
     To resolve conflicts, select \uicontrol {Run Merge Tool} in the context
-    menu of a conflicted file and then select one of the following options:
+    menu of a conflicted file to resolve the conflicts with help of the
+    \l {Configure merge tools}{merge tool}.
+    You can also select one of the following options:
 
     \table
     \header
@@ -846,13 +868,13 @@
 */
 
 /*!
-    \page creator-how-to-git-am.html
+    \page creator-how-to-git-amend.html
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
-    \title git am
+    \title git amend
 
     To apply latest changes to the last commit, go to \uicontrol Tools >
     \uicontrol Git > \uicontrol {Local Repository} >
@@ -877,6 +899,10 @@
     \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} >
     \uicontrol {Fixup Previous Commit}. This operation uses interactive
     rebase. In case of conflicts, a merge tool is suggested.
+
+    To modify the commit message of the final commit, select
+    \uicontrol {Edit commit message}. When the rebase is performed,
+    an editor to edit the commit message appears.
 
     \sa {Use Git}{How to: Use Git}, {Using Git}
 */
@@ -1171,7 +1197,7 @@
             \li Package the commit as a ZIP or tarball.
         \row
             \li \uicontrol Checkout
-            \li Check out the change in a headless state.
+            \li Check out the change in a detached HEAD state.
         \row
             \li \uicontrol {Cherry Pick}
             \li Cherry-pick the selected change to the local repository.
@@ -1290,6 +1316,9 @@
     this line was last changed. Optionally, the annotation shows the commit
     subject.
 
+    \image {qtcreator-git-instant-blame.webp} {Instant blame in the code editor}
+    \caption Instant blame in the code editor
+
     To show instant blame for the current file, go to \uicontrol Tools >
     \uicontrol Git > \uicontrol {Current File} and select
     \uicontrol {Instant Blame for <file>}.
@@ -1329,7 +1358,7 @@
 
     \note Most of these actions have no meaning for uncommitted changes.
 
-    \sa {Use Git}{How to: Use Git}, {Using Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}, {git blame}
 */
 
 /*!
@@ -1407,7 +1436,7 @@
 
     \section1 Checkout changes
 
-    To check out the change in a headless state, select \uicontrol Checkout.
+    To check out the change in a detached HEAD state, select \uicontrol Checkout.
 
     \section1 Refresh changes
 

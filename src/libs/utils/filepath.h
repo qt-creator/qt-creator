@@ -17,7 +17,6 @@
 #include <functional>
 #include <memory>
 #include <optional>
-#include <utility>
 #include <variant>
 
 QT_BEGIN_NAMESPACE

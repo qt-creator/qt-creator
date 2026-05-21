@@ -33,13 +33,13 @@ static QString relativeTime(const QString &isoTimestamp)
 
     const qint64 secs = dt.secsTo(QDateTime::currentDateTime());
     if (secs < 60)
-        return QObject::tr("just now");
+        return Tr::tr("just now");
     if (secs < 3600)
-        return QObject::tr("%n minute(s) ago", nullptr, static_cast<int>(secs / 60));
+        return Tr::tr("%n minute(s) ago", nullptr, static_cast<int>(secs / 60));
     if (secs < 86400)
-        return QObject::tr("%n hour(s) ago", nullptr, static_cast<int>(secs / 3600));
+        return Tr::tr("%n hour(s) ago", nullptr, static_cast<int>(secs / 3600));
     if (secs < 7 * 86400)
-        return QObject::tr("%n day(s) ago", nullptr, static_cast<int>(secs / 86400));
+        return Tr::tr("%n day(s) ago", nullptr, static_cast<int>(secs / 86400));
     return dt.toString(QStringLiteral("MMM d, yyyy"));
 }
 
@@ -240,7 +240,7 @@ SessionPickerWidget::SessionPickerWidget(QWidget *parent)
     m_emptyLabel->hide();
     m_bodyLayout->addWidget(m_emptyLabel);
 
-    m_loadMoreButton = new QPushButton(Tr::tr("Load more..."), this);
+    m_loadMoreButton = new QPushButton(Tr::tr("Load More..."), this);
     m_loadMoreButton->setFlat(true);
     m_loadMoreButton->hide();
     connect(m_loadMoreButton, &QPushButton::clicked, this, [this] {
@@ -382,7 +382,7 @@ SessionPickerWidget::Group &SessionPickerWidget::ensureGroup(const QString &cwd)
     if (isCurrent)
         headerText = Tr::tr("Current Project (%1)").arg(cwd);
     else if (cwd.isEmpty())
-        headerText = Tr::tr("(No working directory)");
+        headerText = Tr::tr("(No Working Directory)");
     else
         headerText = cwd;
 

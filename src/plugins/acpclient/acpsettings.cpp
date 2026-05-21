@@ -108,7 +108,7 @@ public:
                 auto customItem = new QStandardItem(Tr::tr("<Custom>"));
                 customItem->setData(QString());
                 customItem->setToolTip(
-                    Tr::tr("Manually specify an agent not listed in the registry"));
+                    Tr::tr("Manually specify an agent not listed in the registry."));
                 resultCb({customItem});
                 return;
             }
@@ -130,7 +130,7 @@ public:
         auto customItem = new QStandardItem(Tr::tr("<Custom>"));
         customItem->setData(QString());
         customItem->setToolTip(
-            Tr::tr("Manually specify an agent not listed in the registry"));
+            Tr::tr("Manually specify an agent not listed in the registry."));
         items.append(customItem);
 
         if (s_registry) {
@@ -218,23 +218,23 @@ public:
 
         name.setLabelText(Tr::tr("Name:"));
         name.setSettingsKey("name");
-        name.setToolTip(Tr::tr("The display name"));
+        name.setToolTip(Tr::tr("The display name."));
         name.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
         name.setDefaultValue(Tr::tr("<New Server>"));
 
-        launchCommand.setLabelText(Tr::tr("Launch command:"));
+        launchCommand.setLabelText(Tr::tr("Executable:"));
         launchCommand.setSettingsKey("launchCommand");
-        launchCommand.setToolTip(Tr::tr("The command to launch the ACP server process."));
+        launchCommand.setToolTip(Tr::tr("The executable to launch the ACP server process."));
         launchCommand.setExpectedKind(PathChooser::ExistingCommand);
 
-        launchArguments.setLabelText(Tr::tr("Launch arguments:"));
+        launchArguments.setLabelText(Tr::tr("Arguments:"));
         launchArguments.setSettingsKey("launchArguments");
         launchArguments.setToolTip(
             Tr::tr("The arguments to launch the ACP server process."));
         launchArguments.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
 
         environment.setSettingsKey("environment");
-        environment.setLabelText("Environment Changes:");
+        environment.setLabelText(Tr::tr("Environment changes:"));
         connect(&registryBrowser, &AcpRegistryBrowser::volatileValueChanged, this, [this]() {
             applyRegistryTemplate();
         });
@@ -245,7 +245,7 @@ public:
             InfoLabel *templateCmdInfo = new InfoLabel();
             templateCmdInfo->setWordWrap(true);
             templateCmdInfo->setElideMode(Qt::ElideNone);
-            templateCmdInfo->setToolTip(Tr::tr("The command that will spawn the ACP server"));
+            templateCmdInfo->setToolTip(Tr::tr("The command that will spawn the ACP server."));
             templateCmdInfo->setType(InfoLabel::Information);
             templateCmdInfo->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
@@ -463,7 +463,6 @@ public:
         setLayouter([this]() {
             using namespace Layouting;
             return Column{
-                Tr::tr("ACP Servers:"), br,
                 &acpServers,
             };
         });

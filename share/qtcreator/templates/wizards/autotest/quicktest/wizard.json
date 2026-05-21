@@ -160,7 +160,7 @@
             "typeId": "Kits",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "%{FeatureQt}", "QtSupport.Wizards.FeatureQtQuick.2", "DeviceType.Desktop" ]
+                 "requiredFeatures": [ "%{FeatureQt}", "QtSupport.Wizards.FeatureQtQuick.2" ]
             }
         },
         {

@@ -412,7 +412,8 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
             if (!node->isLocal() || !node->isLeaf())
                 break;
 
-            res += ' ' + arrowUp + QString::number(node->status.ahead);
+            if (node->status.ahead >= 0)
+                res += ' ' + arrowUp + QString::number(node->status.ahead);
 
             if (!node->tracking.isEmpty()) {
                 if (node->status.behind >= 0)
@@ -1184,7 +1185,7 @@ ExecutableItem BranchModel::Private::updateUpstreamStatusTask(BranchNode *node)
     if (node->tracking.isEmpty())
         arguments += {fullRef, "--not", "--remotes"};
     else
-        arguments += {"--left-right", fullRef + "..." + node->tracking};
+        arguments += {"--left-right", fullRef + "..." + node->tracking, "--"};
 
     const auto commandHandler = [this, nodePtr = QPointer<BranchNode>(node)](const CommandResult &result) {
         if (!nodePtr)

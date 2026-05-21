@@ -59,25 +59,17 @@ public:
     QString owner(FileOwner) const final;
 
     // The FileTime change in QAbstractFileEngine, in qtbase, is in since Qt 6.7.1
-#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 1)
     using FileTime = QFile::FileTime;
-#endif
     bool setFileTime(const QDateTime &newDate, FileTime time) final;
     QDateTime fileTime(FileTime time) const final;
     void setFileName(const QString &file) final;
     int handle() const final;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     IteratorUniquePtr beginEntryList(
         const QString &path,
         QDirListing::IteratorFlags filters,
         const QStringList &filterNames) final;
-
     IteratorUniquePtr endEntryList() final { return {}; }
-#else
-    Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames) final;
-    Iterator *endEntryList() final { return nullptr; }
-#endif
 
     qint64 read(char *data, qint64 maxlen) final;
     qint64 readLine(char *data, qint64 maxlen) final;
@@ -359,8 +351,6 @@ int FSEngineImpl::handle() const
     return 0;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-
 QAbstractFileEngine::IteratorUniquePtr FSEngineImpl::beginEntryList(
     const QString &path, QDirListing::IteratorFlags itFlags, const QStringList &filterNames)
 {
@@ -379,26 +369,6 @@ QAbstractFileEngine::IteratorUniquePtr FSEngineImpl::beginEntryList(
 
     return std::make_unique<DirIterator>(std::move(paths), path, filters, filterNames);
 }
-
-#else
-QAbstractFileEngine::Iterator *FSEngineImpl::beginEntryList(QDir::Filters filters,
-                                                            const QStringList &filterNames)
-{
-    FilePaths paths{m_filePath.pathAppended(".")};
-    m_filePath.iterateDirectory(
-        [&paths](const FilePath &p, const FilePathInfo &fi) {
-            paths.append(p);
-            FilePathInfoCache::CachedData *data
-                = new FilePathInfoCache::CachedData{fi,
-                                                    QDateTime::currentDateTime().addSecs(60)};
-            g_filePathInfoCache.cache(p, data);
-            return IterationPolicy::Continue;
-        },
-        {filterNames, filters});
-
-    return new DirIterator(std::move(paths));
-}
-#endif
 
 qint64 FSEngineImpl::read(char *data, qint64 maxlen)
 {
@@ -448,7 +418,6 @@ public:
     using QFSFileEngine::QFSFileEngine;
 
 public:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     IteratorUniquePtr beginEntryList(
         const QString &path,
         QDirListing::IteratorFlags filters,
@@ -457,14 +426,6 @@ public:
         return std::make_unique<FileIteratorWrapper>(
             QFSFileEngine::beginEntryList(path, filters, filterNames));
     }
-#else
-    Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames) final
-    {
-        std::unique_ptr<QAbstractFileEngineIterator> baseIterator(
-            QFSFileEngine::beginEntryList(filters, filterNames));
-        return new FileIteratorWrapper(std::move(baseIterator));
-    }
-#endif
 };
 
 static FilePath removeDoubleSlash(const QString &fileName)
@@ -499,11 +460,7 @@ static bool isRootPath(const QString &fileName)
      return fileName.size() == 1 && fileName[0] == '/';
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 std::unique_ptr<QAbstractFileEngine>
-#else
-QAbstractFileEngine *
-#endif
 FSEngineHandler::create(const QString &fileName) const
 {
     if (fileName.startsWith(':'))
@@ -520,11 +477,7 @@ FSEngineHandler::create(const QString &fileName) const
                   return rootFilePath.pathAppended(scheme);
               });
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
         return std::make_unique<FixedListFSEngine>(removeDoubleSlash(fileName), paths);
-#else
-        return new FixedListFSEngine(removeDoubleSlash(fileName), paths);
-#endif
     }
 
     if (fixedFileName.startsWith(rootPath)) {
@@ -536,33 +489,19 @@ FSEngineHandler::create(const QString &fileName) const
                                                                     return root.scheme() == scheme;
                                                                 });
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
                 return std::make_unique<FixedListFSEngine>(removeDoubleSlash(fileName),
                                                            filteredRoots);
-#else
-                return new FixedListFSEngine(removeDoubleSlash(fileName), filteredRoots);
-#endif
             }
         }
 
         FilePath fixedPath = FilePath::fromString(fixedFileName);
 
-        if (!fixedPath.isLocal()) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+        if (!fixedPath.isLocal())
             return std::make_unique<FSEngineImpl>(removeDoubleSlash(fileName));
-#else
-            return new FSEngineImpl(removeDoubleSlash(fileName));
-#endif
-        }
     }
 
-    if (isRootPath(fixedFileName)) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    if (isRootPath(fixedFileName))
         return std::make_unique<RootInjectFSEngine>(fileName);
-#else
-        return new RootInjectFSEngine(fileName);
-#endif
-    }
 
     return {};
 }

@@ -531,7 +531,7 @@ class PermissionRequestWidget : public CollapsibleFrame
 {
 public:
     explicit PermissionRequestWidget(const QString &title, const QString &kindText,
-                                     QWidget *parent = nullptr)
+                                     const QString &command, QWidget *parent = nullptr)
         : CollapsibleFrame(parent)
     {
         setFrameShape(QFrame::NoFrame);
@@ -541,7 +541,7 @@ public:
         m_iconDisplay->setIcon(Utils::Icons::WARNING);
         m_headerLayout->addWidget(m_iconDisplay);
 
-        auto *headerLabel = new QLabel(tr("Permission Request"), this);
+        auto *headerLabel = new QLabel(Tr::tr("Permission Request"), this);
         QFont boldFont = headerLabel->font();
         boldFont.setBold(true);
         headerLabel->setFont(boldFont);
@@ -561,6 +561,16 @@ public:
             auto *titleLabel = new Utils::ElidingLabel(title, this);
             titleLabel->setWordWrap(true);
             m_bodyLayout->addWidget(titleLabel);
+        }
+        if (!command.isEmpty()) {
+            auto *commandLabel = new QLabel(command, this);
+            commandLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+            commandLabel->setWordWrap(true);
+            QFont mono = commandLabel->font();
+            mono.setStyleHint(QFont::Monospace);
+            mono.setFamily(QFont(QStringLiteral("monospace")).defaultFamily());
+            commandLabel->setFont(mono);
+            m_bodyLayout->addWidget(commandLabel);
         }
         auto *buttonWidget = new QWidget(this);
         Layouting::Flow{}.attachTo(buttonWidget);
@@ -587,7 +597,7 @@ public:
 
     void setResolved(const QString &text, bool accepted)
     {
-        for (Utils::QtcButton *button : m_buttons)
+        for (Utils::QtcButton *button : std::as_const(m_buttons))
             button->hide();
         m_iconDisplay->setIcon(accepted ? Utils::Icons::OK : Utils::Icons::CRITICAL);
         m_statusLabel->setText(QStringLiteral("<i>%1</i>").arg(text.toHtmlEscaped()));
@@ -676,8 +686,7 @@ public:
         auto *buttonLayout = new QHBoxLayout;
         buttonLayout->setSpacing(6);
 
-        m_authButton = new QPushButton(
-            AcpMessageView::tr("Authenticate"), this);
+        m_authButton = new QPushButton(Tr::tr("Authenticate"), this);
         buttonLayout->addWidget(m_authButton);
         buttonLayout->addStretch();
         m_bodyLayout->addLayout(buttonLayout);
@@ -727,8 +736,8 @@ public:
         m_authButton->setEnabled(false);
         m_methodCombo->setEnabled(false);
         m_errorLabel->hide();
-        m_statusLabel->setText(QStringLiteral("<i>%1</i>")
-            .arg(AcpMessageView::tr("Authenticated").toHtmlEscaped()));
+        m_statusLabel->setText(
+            QStringLiteral("<i>%1</i>").arg(Tr::tr("Authenticated").toHtmlEscaped()));
         m_statusLabel->show();
     }
 
@@ -1204,7 +1213,16 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
     const QString title = toolCall.title().value_or(QString());
     const QString kindText = toolCall.kind() ? toString(*toolCall.kind()) : QString();
 
-    auto *widget = new PermissionRequestWidget(title, kindText, m_container);
+    QString command;
+    if (const auto &rawInput = toolCall.rawInput(); rawInput && rawInput->isObject()) {
+        const QJsonValue cmd = rawInput->toObject().value("command");
+        if (cmd.isString())
+            command = cmd.toString();
+        if (title.contains(command))
+            command.clear();
+    }
+
+    auto *widget = new PermissionRequestWidget(title, kindText, command, m_container);
 
     auto markToolCallFailed = [this, toolCallId] {
         if (auto *detail = m_toolCallDetailWidgets.value(toolCallId))
@@ -1231,9 +1249,10 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
         options, Utils::equal(&PermissionOption::kind, PermissionOptionKind::reject_once));
     if (!hasRejectOption) {
         // Add a deny/cancel button if not already present, to allow user to reject the request without selecting an option
-        auto *cancelButton = widget->addOptionButton(tr("Deny"), PermissionOptionKind::reject_once);
+        auto *cancelButton
+            = widget->addOptionButton(Tr::tr("Deny"), PermissionOptionKind::reject_once);
         connect(cancelButton, &QAbstractButton::clicked, this, [this, id, widget, markToolCallFailed] {
-            widget->setResolved(tr("Denied"), false);
+            widget->setResolved(Tr::tr("Denied"), false);
             markToolCallFailed();
             emit permissionCancelled(id);
         });
@@ -1364,7 +1383,7 @@ void AcpMessageView::resizeEvent(QResizeEvent *event)
 {
     QScrollArea::resizeEvent(event);
     const int maxW = contentMaxWidth();
-    for (ToolCallDetailWidget *detail : m_toolCallDetailWidgets)
+    for (ToolCallDetailWidget *detail : std::as_const(m_toolCallDetailWidgets))
         detail->setContentMaxWidth(maxW);
 }
 

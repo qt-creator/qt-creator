@@ -74,7 +74,7 @@ public:
                 });
 
                 runControl->postMessage(
-                    Tr::tr("Starting %1 ...").arg(process.commandLine().displayName()),
+                    Tr::tr("Starting %1...").arg(process.commandLine().displayName()),
                     NormalMessageFormat);
                 return SetupResult::Continue;
             };

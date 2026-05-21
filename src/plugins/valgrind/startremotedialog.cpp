@@ -148,7 +148,7 @@ void setupExternalAnalyzer(QAction *action, Perspective *perspective, Id runMode
             errorDialog->setAttribute(Qt::WA_DeleteOnClose);
             errorDialog->setIcon(QMessageBox::Warning);
             errorDialog->setWindowTitle(action->text());
-            errorDialog->setText(Tr::tr("Cannot start %1 without a project. Please open the "
+            errorDialog->setText(Tr::tr("Cannot start %1 without a project. Open the "
                                         "project and try again.").arg(action->text()));
             errorDialog->setStandardButtons(QMessageBox::Ok);
             errorDialog->setDefaultButton(QMessageBox::Ok);

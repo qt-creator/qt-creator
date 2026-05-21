@@ -1674,8 +1674,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
     using namespace Layouting;
     Column {
         Row { m_consoleSelector, st},
-        m_consoleStack,
-        st
+        m_consoleStack
     }.attachTo(this);
 
     connect(&m_consoleSelector, &QComboBox::currentIndexChanged, [this]{
@@ -1984,7 +1983,7 @@ bool AxivionPerspective::handleProgressContextMenu(const ItemViewEvent &e)
         menu->addAction(action);
         menu->addSeparator();
     }
-    action = new QAction(Tr::tr("See Build Output..."), menu);
+    action = new QAction(Tr::tr("Show Build Output..."), menu);
     const QString console = ConsoleWidget::consoleName(file, project);
     QObject::connect(action, &QAction::triggered, menu, [this, console] {
         openConsoleWith(console);

@@ -263,8 +263,9 @@ static Result<QString> getPassword(PasswordContext context,
                                    const QString &extraContextStr = {})
 {
     PasswordInputDialog dlg(context, callback, extraContextStr);
-    const bool isAccepted = dlg.exec() == QDialog::Accepted;
-    return isAccepted ? dlg.password() : ResultError(Tr::tr("Invalid password."));
+    if (dlg.exec() == QDialog::Accepted)
+        return dlg.password();
+    return ResultError(Tr::tr("Invalid password."));
 }
 
 static bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystorePasswd)

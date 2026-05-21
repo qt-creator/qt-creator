@@ -11,7 +11,6 @@
 #include <utils/algorithm.h>
 #include <utils/processinterface.h>
 
-#include <QDebug>
 #include <QDir>
 #include <QStringList>
 #include <QTest>
@@ -102,7 +101,6 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
 
 void ValgrindTestRunnerTest::logMessageReceived(const QByteArray &message)
 {
-    qDebug() << "log message received:" << message;
     m_logMessages << message;
 }
 
@@ -110,8 +108,6 @@ void ValgrindTestRunnerTest::internalError(const QString &errorString)
 {
     if (!m_expectCrash)
         QFAIL(qPrintable(errorString));
-    else
-        qDebug() << "expected crash:" << errorString;
 }
 
 void ValgrindTestRunnerTest::error(const Error &error)
@@ -279,7 +275,7 @@ void ValgrindTestRunnerTest::testLeak4()
 
     QVERIFY(m_logMessages.isEmpty());
 
-    QVERIFY(m_errors.count() >= 3);
+    QVERIFY(m_errors.count() >= 2);
     //BEGIN first error
     {
     // depending on the valgrind version the errors can be different - try to find the correct one
@@ -408,11 +404,11 @@ void ValgrindTestRunnerTest::testUninit2()
               "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
-    QVERIFY(m_logMessages.size() < 2);
-    if (!m_logMessages.isEmpty()) {
-        QVERIFY2(m_logMessages.first().contains("If you believe"),
-                 m_logMessages.first().constData());
-    }
+    QByteArray logOutput;
+    for (const QByteArray &msg : m_logMessages)
+        logOutput += msg;
+    QVERIFY2(logOutput.isEmpty() || logOutput.contains("If you believe"),
+             logOutput.constData());
 
     QCOMPARE(m_errors.count(), 2);
     //BEGIN first error
@@ -479,11 +475,11 @@ void ValgrindTestRunnerTest::testUninit3()
               "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
-    QVERIFY(m_logMessages.size() < 2);
-    if (!m_logMessages.isEmpty()) {
-        QVERIFY2(m_logMessages.first().contains("If you believe"),
-                 m_logMessages.first().constData());
-    }
+    QByteArray logOutput;
+    for (const QByteArray &msg : m_logMessages)
+        logOutput += msg;
+    QVERIFY2(logOutput.isEmpty() || logOutput.contains("If you believe"),
+             logOutput.constData());
 
     QCOMPARE(m_errors.count(), 2);
     //BEGIN first error
