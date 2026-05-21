@@ -61,6 +61,9 @@ FilePath ITestConfiguration::executableFilePath() const
     if (!hasExecutable())
         return {};
 
+    if (m_runnable.command.executable().isAbsolutePath())
+        return m_runnable.command.executable();
+
     const Environment env = m_runnable.environment.appliedToEnvironment(
         m_runnable.command.executable().deviceEnvironment());
 
