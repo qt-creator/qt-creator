@@ -251,7 +251,13 @@
 
     The \uicontrol {Git Diff} view displays the diff side-by-side. To use
     the unified diff view instead, select the
-    \uicontrol {Switch to Unified Diff Editor} (1) option from the toolbar.
+    \inlineimage {icons/unifieddiff.png} {Switch to Unified Diff Editor}
+    (\uicontrol {Switch to Unified Diff Editor}) option from the toolbar. To switch
+    back to side-by-side diff view, use
+    \inlineimage {icons/sidebysidediff.png} {Switch to Side-by-Side Diff Editor}
+    (\uicontrol {Switch to Side-by-Side Diff Editor}).
+
+    For more information, see \l {Compare files}.
 
     \section1 Stage and unstage changes
 
