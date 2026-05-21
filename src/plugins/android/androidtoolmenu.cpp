@@ -274,18 +274,8 @@ void setupAndroidToolsMenu()
 
     auto openEditorAtTab = [](AndroidIconSplashEditorWidget::TabIndex tabIndex) {
         Project *project = ProjectManager::startupProject();
-        if (!project) {
-            if (!ProjectManager::projects().isEmpty())
-                project = ProjectManager::projects().first();
-        }
-
-        if (!project) {
-            QMessageBox::warning(
-                Core::ICore::dialogParent(),
-                Tr::tr("No Project"),
-                Tr::tr("First open a project."));
+        if (!project)
             return;
-        }
 
         FilePath androidDir = project->projectDirectory().pathAppended("android");
         FilePath manifestPath = androidDir.pathAppended("AndroidManifest.xml");
@@ -306,30 +296,45 @@ void setupAndroidToolsMenu()
         }
     };
 
+    QAction *xmlSourceAction = nullptr;
+    QAction *iconAction = nullptr;
+    QAction *permissionsAction = nullptr;
+    QAction *splashscreenAction = nullptr;
+
     Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.XMLSource")
         .setText(Android::Tr::tr("Manifest XML Source"))
+        .bindContextAction(&xmlSourceAction)
         .addOnTriggered([openEditorAtTab]() {
             openEditorAtTab(AndroidIconSplashEditorWidget::XMLSourceTab);
         }).addToContainer(ANDROID_TOOLS_MENU_ID);
 
     Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.Icon")
         .setText(Android::Tr::tr("Icon Editor"))
+        .bindContextAction(&iconAction)
         .addOnTriggered([openEditorAtTab]() {
             openEditorAtTab(AndroidIconSplashEditorWidget::IconTab);
         }).addToContainer(ANDROID_TOOLS_MENU_ID);
 
     Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.Permissions")
         .setText(Android::Tr::tr("Permissions Editor"))
+        .bindContextAction(&permissionsAction)
         .addOnTriggered([openEditorAtTab]() {
             openEditorAtTab(AndroidIconSplashEditorWidget::PermissionsTab);
         }).addToContainer(ANDROID_TOOLS_MENU_ID);
 
     Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.Splashscreen")
         .setText(Android::Tr::tr("Splashscreen Editor"))
+        .bindContextAction(&splashscreenAction)
         .addOnTriggered([openEditorAtTab]() {
             openEditorAtTab(AndroidIconSplashEditorWidget::SplashTab);
         }).addToContainer(ANDROID_TOOLS_MENU_ID);
 
+    const bool hasProject = ProjectManager::startupProject() != nullptr;
+    for (QAction *action : {xmlSourceAction, iconAction, permissionsAction, splashscreenAction}) {
+        action->setEnabled(hasProject);
+        QObject::connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
+                         action, &QAction::setEnabled);
+    }
 }
 
 } // namespace Android::Internal
