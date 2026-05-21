@@ -1318,12 +1318,12 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
                                   projectTreeContext);
     dd->m_openTerminalMenu->addAction(dd->m_openTerminalHereRunEnv);
 
-    // VCS file submenu
+    // Version control file submenu
     ActionContainer * const vcsFile =
             ActionManager::createMenu(ProjectExplorer::Constants::M_VCSFILECONTEXT);
     vcsFile->setOnAllDisabledBehavior(ActionContainer::Show);
     dd->m_vcsFileMenu = vcsFile->menu();
-    dd->m_vcsFileMenu->setTitle("VCS File");
+    dd->m_vcsFileMenu->setTitle("Version Control File");
     dd->m_vcsFileMenu->menuAction()->setVisible(false);
     mfileContextMenu->addMenu(vcsFile, Constants::G_FILE_OTHER);
     mfolderContextMenu->addMenu(vcsFile, Constants::G_FOLDER_FILES);

@@ -178,7 +178,7 @@ public:
     void setAnnotatePreviousRevisionTextFormat(const QString &);
 
     // Enable "Annotate" context menu in file log view
-    // (set to true if the source is a single file and the VCS implements it)
+    // (set to true if the source is a single file and the version control system implements it)
     bool isFileLogAnnotateEnabled() const;
     void setFileLogAnnotateEnabled(bool e);
 

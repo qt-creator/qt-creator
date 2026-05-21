@@ -326,9 +326,9 @@ public:
     \class  VcsBase::VcsBasePluginState
 
     \brief The VcsBasePluginState class provides relevant state information
-    about the VCS plugins.
+    about the version control plugins.
 
-    \QC's state relevant to VCS plugins is a tuple of
+    \QC's state relevant to version control plugins is a tuple of
 
     \list
     \li Current file and its version control system top level
@@ -508,7 +508,7 @@ VersionControlBase::VersionControlBase(const Context &context)
         m_listener = new Internal::StateListener(Internal::VcsPlugin::instance());
     connect(m_listener, &Internal::StateListener::stateChanged,
             this, &VersionControlBase::slotStateChanged);
-    // VCSes might have become (un-)available, so clear the VCS directory cache
+    // Version control systems might have become (un-)available, so clear the directory cache
     connect(this, &IVersionControl::configurationChanged,
             VcsManager::instance(), &VcsManager::clearVersionControlCache);
     connect(this, &IVersionControl::configurationChanged,
@@ -531,7 +531,7 @@ void VersionControlBase::slotStateChanged(const Internal::State &newInternalStat
             ICore::addAdditionalContext(m_context);
         }
     } else {
-        // Some other VCS plugin or state changed: Reset us to empty state.
+        // Some other version control plugin or state changed: Reset us to empty state.
         const ActionState newActionState = vc ? OtherVcsEnabled : NoVcsEnabled;
         if (m_actionState != newActionState || !m_state.isEmpty()) {
             m_actionState = newActionState;
@@ -576,8 +576,8 @@ bool VersionControlBase::enableMenuAction(ActionState as, QAction *menuAction) c
 
 QString VersionControlBase::commitDisplayName() const
 {
-    //: Name of the "commit" action of the VCS
-    return Tr::tr("Commit", "name of \"commit\" action of the VCS.");
+    //: Name of the "commit" action of the version control system
+    return Tr::tr("Commit", "name of \"commit\" action of the version control system.");
 }
 
 QString VersionControlBase::commitAbortTitle() const

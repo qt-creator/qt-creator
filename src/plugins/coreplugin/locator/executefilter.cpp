@@ -114,7 +114,7 @@ void ExecuteFilter::done()
 {
     QTC_ASSERT(m_process, return);
     MessageManager::writeFlashing(m_process->exitMessage());
-    EditorManager::updateWindowTitles(); // Refresh VCS topic if needed
+    EditorManager::updateWindowTitles(); // Refresh version control topic if needed
 
     removeProcess();
     runHeadCommand();

@@ -65,7 +65,7 @@ static QList<Project *> projectsForName(const QString &name)
     return Utils::filtered(ProjectManager::projects(), Utils::equal(&Project::displayName, name));
 }
 
-// Returns the VCS branch/topic for the given project directory, or an empty
+// Returns the version control branch/topic for the given project directory, or an empty
 // string when the project is not under a recognised version control system.
 static QString currentBranchForProject(const Project *p)
 {
@@ -1548,7 +1548,7 @@ void registerMcpTools()
             .title("List all available projects")
             .description(
                 "List all loaded projects. Each entry includes the project name, its file "
-                "path, the active VCS branch, and whether it is the current startup "
+                "path, the active version control branch, and whether it is the current startup "
                 "project (is_active). Use path or branch to disambiguate when multiple "
                 "projects share the same display name (common in multi-worktree setups).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))

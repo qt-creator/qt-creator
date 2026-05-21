@@ -64,7 +64,7 @@ public:
 
     virtual Utils::Environment processEnvironment(const Utils::FilePath &appliedTo) const;
 
-    // VCS functionality:
+    // Version control functionality:
     virtual void annotate(const Utils::FilePath &workingDir, const QString &file,
                           int lineNumber = -1, const QString &revision = {},
                           const QStringList &extraOptions = {}, int firstLine = -1) = 0;
@@ -73,7 +73,7 @@ public:
 
     static QString stripLastNewline(const QString &in);
 
-    // Fully synchronous VCS execution (QProcess-based)
+    // Fully synchronous execution:
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                      const QStringList &args, RunFlags flags = RunFlag::None,
                                      int timeoutS = -1, const Utils::TextEncoding &encoding = {}) const;

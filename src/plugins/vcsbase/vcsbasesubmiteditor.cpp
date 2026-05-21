@@ -84,8 +84,8 @@ static bool acceptsWordForCompletion(const QString &word)
     For the given context, there must be only one instance of the editor
     active.
     To start a submit, set the submit template on the editor and the output
-    of the VCS status command listing the modified files as fileList and open
-    it.
+    of the version control status command listing the modified files as fileList
+    and open it.
 
     The submit process is started by listening on the editor close
     signal and then asking the IDocument interface of the editor to save the file
@@ -574,7 +574,7 @@ QIcon VcsBaseSubmitEditor::submitIcon()
     }, Icon::MenuTintedStyle).icon();
 }
 
-// Reduce a list of untracked files reported by a VCS down to the files
+// Reduce a list of untracked files reported by a version control system down to the files
 // that are actually part of the current project(s).
 void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const FilePath &repositoryDirectory,
                                                         QStringList *untrackedFiles)

@@ -72,9 +72,9 @@
                 Enable the plugin to use it.
     \endtable
 
-    \sa {Create VCS repositories for new projects}, {Enable and disable plugins},
+    \sa {Create version control repositories for new projects}, {Enable and disable plugins},
     {Use Git}{How to: Use Git}, {Set up version control systems},
-    {Use common VCS functions}
+    {Use common version control functions}
 */
 
 /*!
@@ -85,7 +85,7 @@
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-general
 
-    \title Create VCS repositories for new projects
+    \title Create version control repositories for new projects
 
     You can create repositories for version control systems that
     support local repository creation, such as Git, Mercurial, or Bazaar in
@@ -117,7 +117,7 @@
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-general
 
-    \title Use common VCS functions
+    \title Use common version control functions
 
     The \uicontrol{Tools} menu has a submenu for each supported version
     control system. This section describes using the functions that are

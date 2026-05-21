@@ -375,9 +375,9 @@ void ProjectWizardPage::initializeVersionControls()
 {
     // Figure out version control situation:
     // 0) Check that any version control is available
-    // 1) Directory is managed and VCS supports "Add" -> List it
-    // 2) Directory is managed and VCS does not support "Add" -> None available
-    // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
+    // 1) Directory is managed and version control system supports "Add" -> List it
+    // 2) Directory is managed and version control system does not support "Add" -> None available
+    // 3) Directory is not managed -> Offer all version control systems that support "CreateRepository"
 
     disconnect(m_addToVersionControlComboBox, &QComboBox::currentIndexChanged,
                this, &ProjectWizardPage::versionControlChanged);
@@ -397,7 +397,7 @@ void ProjectWizardPage::initializeVersionControls()
         IVersionControl *managingControl =
                 VcsManager::findVersionControlForDirectory(m_commonDirectory);
         if (managingControl) {
-            // Under VCS
+            // Under version control
             if (managingControl->supportsOperation(IVersionControl::AddOperation)) {
                 versionControlChoices.append(managingControl->displayName());
                 m_activeVersionControls.push_back(managingControl);

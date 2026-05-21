@@ -320,7 +320,7 @@ void ProjectTree::updateFileWarning(Core::IDocument *document, bool generated)
                 return;
             if (canonicalFilePath.isChildOf(projectDir.canonicalPath()))
                 return;
-            // External file. Test if it under the same VCS
+            // External file. Test if it is under the same version control.
             FilePath topLevel;
             if (Core::VcsManager::findVersionControlForDirectory(projectDir, &topLevel)
                 && filePath.isChildOf(topLevel)) {

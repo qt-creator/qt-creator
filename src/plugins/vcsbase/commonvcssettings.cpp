@@ -82,7 +82,7 @@ CommonVcsSettings::CommonVcsSettings()
 
     vcsShowStatus.setSettingsKey("ShowVcsStatus");
     vcsShowStatus.setDefaultValue(true);
-    vcsShowStatus.setLabelText(Tr::tr("Show VCS file status with refresh interval"));
+    vcsShowStatus.setLabelText(Tr::tr("Show file status with refresh interval"));
     vcsShowStatus.setToolTip(Tr::tr("Request file status updates from files and reflect them "
                                     "on the project tree."));
     vcsShowStatusInterval.setSettingsKey("ShowVcsStatusInterval");
@@ -103,7 +103,7 @@ CommonVcsSettings::CommonVcsSettings()
                 sshPasswordPrompt, br,
                 empty,
                 PushButton {
-                    text(Tr::tr("Reset VCS Cache")),
+                    text(Tr::tr("Reset Version Control Cache")),
                     Layouting::toolTip(Tr::tr("Reset information about which "
                                               "version control system handles which directory.")),
                     onClicked(this, &VcsManager::clearVersionControlCache)

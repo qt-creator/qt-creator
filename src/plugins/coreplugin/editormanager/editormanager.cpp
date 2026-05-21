@@ -2499,7 +2499,7 @@ void EditorManagerPrivate::vcsOpenCurrentEditor()
 
     if (!versionControl->vcsOpen(document->filePath())) {
         QMessageBox::warning(ICore::dialogParent(), ::Core::Tr::tr("Cannot Open File"),
-                             ::Core::Tr::tr("Cannot open the file for editing with VCS."));
+                             ::Core::Tr::tr("Cannot open the file for editing with version control."));
     }
 }
 

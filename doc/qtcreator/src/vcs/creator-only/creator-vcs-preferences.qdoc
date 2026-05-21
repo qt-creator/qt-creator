@@ -27,7 +27,7 @@
     For more information on using Git for Windows, see
     \l {Use Git for Windows}.
 
-    \section1 General VCS preferences
+    \section1 General version control preferences
 
     Go to \preferences > \uicontrol {Version Control}
     > \uicontrol General to specify settings for submit messages:
@@ -35,7 +35,7 @@
     \image {qtcreator-preferences-vcs-general.webp} {General tab in Version Control preferences}
 
     \list
-        \li \uicontrol {Show VCS file status with refresh interval} sets the
+        \li \uicontrol {Show file status with refresh interval} sets the
             interval in seconds at which \QC requests file status updates
             from the version control. Changed files are shown in the
             \l {Projects}, \l {File System} or \l {Open Documents} views
@@ -76,7 +76,7 @@
             can use (on Linux) to prompt the user for a password when using SSH.
             For example, \c ssh-askpass or \c x11-ssh-askpass, depending on the
             ssh-askpass implementation that you use.
-        \li \uicontrol {Reset VCS Cache} resets the version control system
+        \li \uicontrol {Reset Version Control Cache} resets the version control system
             configuration to a state known to \QC after you change it
             from the command line, for example.
     \endlist

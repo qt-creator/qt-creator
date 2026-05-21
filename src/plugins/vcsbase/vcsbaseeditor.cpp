@@ -215,7 +215,7 @@ QTextCursor AbstractTextCursorHandler::currentCursor() const
 }
 
 /*! \class ChangeTextCursorHandler
- *  \brief The ChangeTextCursorHandler class provides a handler for VCS change
+ *  \brief The ChangeTextCursorHandler class provides a handler for version control change
  *  identifiers.
  */
 class ChangeTextCursorHandler : public AbstractTextCursorHandler
@@ -626,7 +626,7 @@ QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
     and id.
 
     The extension is currently only a suggestion when running
-    VCS commands with redirection.
+    version control commands with redirection.
 
     \sa VcsBase::VcsBaseEditorWidget, VcsBase::BaseVcsEditorFactory, VcsBase::EditorContentType
 */
@@ -640,7 +640,7 @@ QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
 
     The source property should contain the file or directory the log
     refers to and will be emitted with describeRequested().
-    This is for VCS that need a current directory.
+    This is for version control systems that need a current directory.
 
     \sa VcsBase::BaseVcsEditorFactory, VcsBase::VcsBaseEditorParameters, VcsBase::EditorContentType
 */
@@ -1026,7 +1026,7 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
             this,
             [this, chunk] { slotApplyDiffChunk(chunk, PatchAction::Apply); },
             Qt::QueuedConnection);
-        // Revert a chunk from a VCS diff, which might be linked to reloading the diff.
+        // Revert a chunk from a version control diff, which might be linked to reloading the diff.
         QAction *revertAction = menu->addAction(Tr::tr("Revert Chunk..."));
         connect(
             revertAction,
@@ -1500,7 +1500,8 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
 
     // 4) remove trailing tab char and try again: At least git appends \t when the
     //    filename contains spaces. Since the diff command does use \t all of a sudden,
-    //    too, when seeing spaces in a filename, I expect the same behavior in other VCS.
+    //    too, when seeing spaces in a filename, I expect the same behavior in other
+    //    version control systems.
     if (f.endsWith('\t'))
         return findDiffFile(f.left(f.size() - 1));
 
@@ -1546,7 +1547,7 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 }
 
 // Default implementation of revert: Apply a chunk by piping it into patch,
-// (passing '-R' for revert), assuming we got absolute paths from the VCS plugins.
+// (passing '-R' for revert), assuming we got absolute paths from the version control plugins.
 bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, PatchAction patchAction) const
 {
     return PatchTool::runPatch(dc.asPatch(d->m_workingDirectory),

@@ -46,7 +46,7 @@ static Q_LOGGING_CATEGORY(log, "qtc.vcs.submiteditor", QtWarningMsg);
 /*!
     \class VcsBase::SubmitEditorWidget
 
-    \brief The SubmitEditorWidget class presents a VCS commit message in a text
+    \brief The SubmitEditorWidget class presents a version control commit message in a text
     editor and a checkable list of modified files in a list window.
 
     The user can delete files from the list by unchecking them or diff the selection

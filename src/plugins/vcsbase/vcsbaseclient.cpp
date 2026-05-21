@@ -542,7 +542,7 @@ void VcsBaseClient::commit(const FilePath &repositoryRoot,
 {
     // Handling of commitMessageFile is a bit tricky :
     //   VcsBaseClient cannot do something with it because it doesn't know which
-    //   option to use (-F ? but sub VCS clients might require a different option
+    //   option to use (-F ? but sub version control clients might require a different option
     //   name like -l for hg ...)
     //
     //   So descendants of VcsBaseClient *must* redefine commit() and extend

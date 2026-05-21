@@ -51,7 +51,7 @@ IVersionControl::~IVersionControl()
 
 QString IVersionControl::vcsOpenText() const
 {
-    return Tr::tr("Open with VCS (%1)").arg(displayName());
+    return Tr::tr("Open with version control (%1)").arg(displayName());
 }
 
 QString IVersionControl::vcsMakeWritableText() const
@@ -124,8 +124,8 @@ FilePath IVersionControl::trackFile(const FilePath &repository)
 /*!
     Returns the topic for repository under \a topLevel.
 
-    A VCS topic is typically the current active branch name, but it can also have other
-    values (for example the latest tag) when there is no active branch.
+    A version control topic is typically the current active branch name, but it can
+    also have other values (for example the latest tag) when there is no active branch.
 
     It is displayed:
     \list

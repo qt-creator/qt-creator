@@ -73,7 +73,7 @@ public:
     static QString msgAddToVcsFailed(const QStringList &files, const IVersionControl *vc);
 
     /*!
-     * Return a list of paths where tools that came with the VCS may be installed.
+     * Return a list of paths where tools that came with the version control system may be installed.
      * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
      */
     static Utils::FilePaths additionalToolsPath();

@@ -295,7 +295,7 @@ static void askForDisabledVcsPlugins(const FilePath &inputDirectory)
         // TODO In case the plugin is actually loaded during runtime (softloadable),
         // we'd need to restructure findVersionControlForDirectory below to take the new plugin
         // into account.
-        // At the moment softloadable VCS plugins are not supported though.
+        // At the moment softloadable version control plugins are not supported though.
         if (ICore::enablePlugins({spec}))
             infoBar->removeInfo(vcsSuggestion);
     });
@@ -514,12 +514,12 @@ QString VcsManager::msgAddToVcsFailed(const QStringList &files, const IVersionCo
     const qsizetype maxSize = 10;
     if (size > maxSize) {
         fileList = files.first(maxSize);
-        //: %1 = name of VCS system, %2 = lines with file paths
+        //: %1 = name of version control system, %2 = lines with file paths
         return Tr::tr("Could not add the following files to version control (%1)\n%2\n"
                       "... and %n more.", "", size - maxSize)
             .arg(vc->displayName(), fileList.join('\n'));
     }
-    //: %1 = name of VCS system, %2 = lines with file paths
+    //: %1 = name of version control system, %2 = lines with file paths
     return Tr::tr("Could not add the following files to version control (%1)\n%2")
         .arg(vc->displayName(), fileList.join('\n'));
 }
@@ -885,7 +885,7 @@ void VcsManagerTest::testVcsManager_data()
 
     QTest::addColumn<QStringList>("dirsVcsA"); // <directory>:<toplevel>
     QTest::addColumn<QStringList>("dirsVcsB"); // <directory>:<toplevel>
-    // <directory>:<toplevel>:<vcsid>:<- from cache, * from VCS>
+    // <directory>:<toplevel>:<vcsid>:<- from cache, * from version control>
     QTest::addColumn<QStringList>("results");
 
     QTest::newRow("A and B next to each other")

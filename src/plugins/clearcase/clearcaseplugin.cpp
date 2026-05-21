@@ -968,7 +968,7 @@ void ClearCasePluginPrivate::updateActions(VersionControlBase::ActionState as)
 
 QString ClearCasePluginPrivate::commitDisplayName() const
 {
-    //: Name of the "commit" action of the VCS
+    //: Name of the "commit" action of the version control system
     return Tr::tr("Check In");
 }
 
@@ -2360,7 +2360,7 @@ IVersionControl::OpenSupportMode ClearCasePluginPrivate::openSupportMode(const F
             // Checkout is the only option for managed files in dynamic views
             return IVersionControl::OpenMandatory;
         } else {
-            // Not managed files can be edited without noticing the VCS
+            // Not managed files can be edited without noticing the version control system
             return IVersionControl::NoOpen;
         }
 

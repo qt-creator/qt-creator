@@ -46,7 +46,7 @@ using namespace Utils;
     \list
     \li Add to a project file (*.pri/ *.pro)
     \li Initialize a version control system repository (unless the path is already
-        managed) and do 'add' if the VCS supports it.
+        managed) and do 'add' if the version control system supports it.
     \endlist
 
     \sa ProjectExplorer::ProjectWizardPage

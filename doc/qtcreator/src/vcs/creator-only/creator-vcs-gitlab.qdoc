@@ -94,7 +94,7 @@
     import the project as a generic project.
 
     \sa {Enable and disable plugins}, {Link projects with GitLab},
-    {Set up version control systems}, {Use common VCS functions},
+    {Set up version control systems}, {Use common version control functions},
     {Use project wizards}, {Version control systems}, {Using Git}
 */
 
@@ -134,6 +134,6 @@
     \uicontrol {Unlink from GitLab}.
 
     \sa {Enable and disable plugins}, {Set up version control systems},
-    {Use common VCS functions}, {Building and running projects}, {Version control systems},
+    {Use common version control functions}, {Building and running projects}, {Version control systems},
     {Using Git}, {GitLab}
 */

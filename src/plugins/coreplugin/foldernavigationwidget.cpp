@@ -104,7 +104,7 @@ private:
     bool m_delaying = false;
 };
 
-// FolderNavigationModel: Shows path as tooltip and VCS state as foreground color.
+// FolderNavigationModel: Shows path as tooltip and version control state as foreground color.
 class FolderNavigationModel : public FileSystemModel
 {
 public:

@@ -221,7 +221,7 @@ def __getProjectFileName__(projectName, buildSystem):
 # param path specifies where to create the project
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
-# param addToVersionControl selects the specified VCS from Creator's wizard
+# param addToVersionControl selects the specified version control system from Creator's wizard
 # param buildSystem selects the specified build system from Creator's wizard
 # param targets specifies targets that should be checked
 # returns the checked targets
@@ -655,7 +655,7 @@ def compareProjectTree(rootObject, dataset):
 # template              "C++ Class", "C++ Header File" or "C++ Source File"
 # projectName           None or name of open project that the files will be added to
 # forceOverwrite        bool: force overwriting existing files?
-# addToVCS              name of VCS to add the file(s) to
+# addToVCS              name of version control system to add the file(s) to
 # newBasePath           path to create the file(s) at
 # expectedSourceName    expected name of created source file
 # expectedHeaderName    expected name of created header file

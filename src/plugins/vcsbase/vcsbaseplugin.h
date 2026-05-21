@@ -58,7 +58,7 @@ public:
     QString relativeCurrentFile() const;
 
     // If the current file looks like a patch and there is a top level,
-    // it will end up here (for VCS that offer patch functionality).
+    // it will end up here (for version control systems that offer patch functionality).
     QString currentPatchFile() const;
     QString currentPatchFileDisplayName() const;
 
@@ -163,7 +163,7 @@ protected:
     virtual void updateActions(ActionState as) = 0;
     virtual void discardCommit();
 
-    // A helper to enable the VCS menu action according to state:
+    // A helper to enable the version control menu action according to state:
     // NoVcsEnabled    -> visible, enabled if repository creation is supported
     // OtherVcsEnabled -> invisible
     // Else:           -> fully enabled.

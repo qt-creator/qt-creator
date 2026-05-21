@@ -882,22 +882,22 @@ FormatDescriptions initialFormats()
                              Format(QColor(), QColor(175, 255, 175)));
 
     formatDescr.emplace_back(C_LOG_CHANGE_LINE, Tr::tr("Log Change Line"),
-                             Tr::tr("Applied to lines describing changes in VCS log."),
+                             Tr::tr("Applied to lines describing changes in version control log."),
                              Format(QColor(192, 0, 0), QColor()));
     formatDescr.emplace_back(C_LOG_AUTHOR_NAME, Tr::tr("Log Author Name"),
-                             Tr::tr("Applied to author names in VCS log."),
+                             Tr::tr("Applied to author names in version control log."),
                              Format(QColor(0x007af4), QColor()));
     formatDescr.emplace_back(C_LOG_COMMIT_DATE, Tr::tr("Log Commit Date"),
-                             Tr::tr("Applied to commit dates in VCS log."),
+                             Tr::tr("Applied to commit dates in version control log."),
                              Format(QColor(0x006600), QColor()));
     formatDescr.emplace_back(C_LOG_COMMIT_HASH, Tr::tr("Log Commit Hash"),
-                             Tr::tr("Applied to commit hashes in VCS log."),
+                             Tr::tr("Applied to commit hashes in version control log."),
                              Format(QColor(0xff0000), QColor()));
     formatDescr.emplace_back(C_LOG_DECORATION, Tr::tr("Log Decoration"),
-                             Tr::tr("Applied to commit decorations in VCS log."),
+                             Tr::tr("Applied to commit decorations in version control log."),
                              Format(QColor(0xff00ff), QColor()));
     formatDescr.emplace_back(C_LOG_COMMIT_SUBJECT, Tr::tr("Log Commit Subject"),
-                             Tr::tr("Applied to commit subjects in VCS log."),
+                             Tr::tr("Applied to commit subjects in version control log."),
                              Format{QColor{}, QColor{}});
 
     // Mixin categories

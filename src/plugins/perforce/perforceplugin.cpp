@@ -1303,7 +1303,7 @@ void PerforceDiffConfig::triggerReRun()
 
 QString PerforcePluginPrivate::commitDisplayName() const
 {
-    //: Name of the "commit" action of the VCS
+    //: Name of the "commit" action of the version control system
     return Tr::tr("Submit");
 }
 

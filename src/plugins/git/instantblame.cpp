@@ -239,8 +239,8 @@ void InstantBlame::setup()
         }
 
         if (qobject_cast<const VcsBaseEditorWidget *>(widget)) {
-            qCDebug(log) << "Deactivating in VCS editors";
-            return; // Skip in VCS editors like log or blame
+            qCDebug(log) << "Deactivating in version control editors";
+            return; // Skip in version control editors like log or blame
         }
 
         const FilePath workingDirectory = currentState().currentFileTopLevel();

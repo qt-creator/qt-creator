@@ -793,7 +793,7 @@
     \list 1
         \li Go to \preferences > \uicontrol {Version Control} >
             \uicontrol General.
-        \li Ensure \uicontrol {Show VCS file status with refresh interval}
+        \li Ensure \uicontrol {Show file status with refresh interval}
             is selected.
         \li Set the interval (in seconds) at which \QC requests file status
             updates from Git.

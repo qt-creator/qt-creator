@@ -132,7 +132,7 @@ void VcsPlugin::initialize()
             return QString();
         });
 
-    // Just touch VCS Output Pane before initialization
+    // Just touch Version Control Output Pane before initialization
     VcsOutputWindow::instance();
 }
 

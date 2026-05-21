@@ -38,9 +38,9 @@ public:
     Q_ENUM(Operation)
 
     enum OpenSupportMode {
-        NoOpen,        /*!< Files can be edited without noticing the VCS */
-        OpenOptional,  /*!< Files can be opened by the VCS, or hijacked */
-        OpenMandatory  /*!< Files must always be opened by the VCS */
+        NoOpen,        /*!< Files can be edited without noticing the version control system */
+        OpenOptional,  /*!< Files can be opened by the version control system, or hijacked */
+        OpenMandatory  /*!< Files must always be opened by the version control system */
     };
 
     IVersionControl();
@@ -50,7 +50,8 @@ public:
     virtual Utils::Id id() const = 0;
 
     /*!
-     * Returns true if \a filePath is a file or directory that is maintained by this VCS.
+     * Returns true if \a filePath is a file or directory that is managed by this version control
+     * system.
      *
      * It will return true only for exact matches of the name, not for e.g. files in a
      * directory owned by the version control system (e.g. .git/control).
@@ -60,17 +61,18 @@ public:
     virtual bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const = 0;
 
     /*!
-     * Returns whether files in directory \a filePath are managed by this VCS.
+     * Returns whether files in directory \a filePath are managed by this version control system.
      *
      * If \a topLevel is non-null, it returns the topmost directory, for which
-     * this VCS should be used. The VcsManager assumes that all files in the
-     * returned directory are managed by the same VCS.
+     * this version control system should be used. The VcsManager assumes that all files in the
+     * returned directory are managed by the same version control system.
      */
     virtual bool managesDirectory(const Utils::FilePath &filePath,
                                   Utils::FilePath *topLevel = nullptr) const = 0;
 
     /*!
-     * Returns true if \a fileName within \a workingDirectory is managed by this VCS.
+     * Returns true if \a fileName within \a workingDirectory is managed by this version control
+     * system.
      *
      * \a workingDirectory is assumed to be part of a valid repository (not necessarily its
      * top level). \a fileName is expected to be relative to workingDirectory.
@@ -79,14 +81,14 @@ public:
                              const QString &fileName) const = 0;
 
     /*!
-     * Returns the subset of \a filePaths that is not managed by this version control.
+     * Returns the subset of \a filePaths that is not managed by this version control system.
      *
      * The \a filePaths are expected to be absolute paths.
      */
     virtual Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
 
     /*!
-     * Returns true if the VCS is configured to run.
+     * Returns true if the version control system is configured to run.
      */
     virtual bool isConfigured() const = 0;
 
@@ -96,9 +98,9 @@ public:
     virtual Utils::FilePaths monitorDirectory(const Utils::FilePath &path, bool monitor);
 
     /*!
-     * Called to query whether a VCS supports the respective \a operation.
+     * Called to query whether a version control system supports the respective \a operation.
      *
-     * Return false if the VCS is not configured yet.
+     * Return false if the version control system is not configured yet.
      */
     virtual bool supportsOperation(Operation operation) const = 0;
 
@@ -110,7 +112,7 @@ public:
     /*!
      * Called prior to save, if the file \a filePath is read only.
      *
-     * Should be implemented if the VCS requires a operation before editing
+     * Should be implemented if the version control system requires a operation before editing
      * the file, e.g. 'p4 edit'.
      *
      * \note The EditorManager calls this for the editors.
@@ -223,7 +225,7 @@ public:
     virtual void vcsDescribe(const Utils::FilePath &workingDirectory, const QString &reference) = 0;
 
     /*!
-     * Return a list of paths where tools that came with the VCS may be installed.
+     * Return a list of paths where tools that came with the version control system may be installed.
      *
      * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
      */

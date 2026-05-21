@@ -349,10 +349,10 @@ static void appendVcsPathsToPatchCommandPath()
 
 void SystemSettings::delayedInitialize()
 {
-    // TODO: This is a bit of a hack to get the VSC paths into the patch command's environment,
-    // but it needs to be done after all plugins have been loaded to ensure that the VCS plugin has
-    // had a chance to add its additional tools path. We should look into a cleaner way to handle
-    // this in the future.
+    // TODO: This is a bit of a hack to get the version control system's paths into the patch
+    // command's environment, but it needs to be done after all plugins have been loaded to
+    // ensure that the version control plugin has had a chance to add its additional tools path.
+    // We should look into a cleaner way to handle this in the future.
     connect(
         VcsManager::instance(),
         &VcsManager::configurationChanged,

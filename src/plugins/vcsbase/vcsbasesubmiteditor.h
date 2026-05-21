@@ -80,7 +80,7 @@ public:
     static QIcon diffIcon();
     static QIcon submitIcon();
 
-    // Reduce a list of untracked files reported by a VCS down to the files
+    // Reduce a list of untracked files reported by a version control system down to the files
     // that are actually part of the current project(s).
     static void filterUntrackedFilesOfProject(const Utils::FilePath &repositoryDirectory,
                                               QStringList *untrackedFiles);

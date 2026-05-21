@@ -228,7 +228,7 @@ bool QMakeVfs::exists(const QString &device, const QString &fn, VfsFlags flags)
 }
 
 #ifndef PROEVALUATOR_FULL
-// This should be called when the sources may have changed (e.g., VCS update).
+// This should be called when the sources may have changed (e.g. version control update).
 void QMakeVfs::invalidateCache()
 {
 # ifdef PROEVALUATOR_THREAD_SAFE

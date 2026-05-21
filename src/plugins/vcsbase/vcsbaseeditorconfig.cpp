@@ -80,11 +80,12 @@ public:
     \class VcsBase::VcsBaseEditorConfig
 
     \brief The VcsBaseEditorConfig is a widget/action aggregator for use
-    with VcsBase::VcsBaseEditor, influencing for example the generation of VCS diff output.
+    with VcsBase::VcsBaseEditor, influencing for example the generation of
+    version control diff output.
 
     The class maintains a list of command line arguments (starting from baseArguments())
     which are set according to the state of the inside widgets. A change signal is provided
-    that should trigger the rerun of the VCS operation.
+    that should trigger the rerun of the version control operation.
 */
 
 VcsBaseEditorConfig::ChoiceItem::ChoiceItem(const QString &text, const QVariant &val) :

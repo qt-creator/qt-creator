@@ -67,7 +67,7 @@ public:
     QList <ButtonGroupForFile> buttonGroups;
 
     QMap <int, int> setAllIndexForOperation;
-    // The version control systems for every file, if the file isn't in VCS the value is 0.
+    // The version control systems for every file, nullptr if the file is not under version control
     QHash<FilePath, IVersionControl*> versionControls;
 
     // Define if some specific operations should be allowed to make the files writable.
@@ -101,7 +101,7 @@ ReadOnlyFilesDialogPrivate::ReadOnlyFilesDialogPrivate(ReadOnlyFilesDialog *pare
     , document(document)
     , mixedText(Tr::tr("Mixed"))
     , makeWritableText(Tr::tr("Make Writable"))
-    , versionControlOpenText(Tr::tr("Open with VCS"))
+    , versionControlOpenText(Tr::tr("Open with Version Control"))
     , saveAsText(Tr::tr("Save As"))
 {}
 
@@ -388,7 +388,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
     m_treeWidget = new QTreeWidget;
     auto headerItem = new QTreeWidgetItem;
     headerItem->setText(0, Tr::tr("Make Writable"));
-    headerItem->setText(1, Tr::tr("Open with VCS"));
+    headerItem->setText(1, Tr::tr("Open with Version Control"));
     headerItem->setText(2, Tr::tr("Save As"));
     headerItem->setText(3, Tr::tr("Filename"));
     headerItem->setText(4, Tr::tr("Path"));

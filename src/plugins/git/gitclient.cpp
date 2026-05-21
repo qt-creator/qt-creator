@@ -3238,7 +3238,7 @@ void GitClient::formatPatch(const Utils::FilePath &workingDirectory, const QStri
 
 /* Revert: This function can be called with a file list (to revert single
  * files)  or a single directory (revert all). Qt Creator currently has only
- * 'revert single' in its VCS menus, but the code is prepared to deal with
+ * 'revert single' in its version control menus, but the code is prepared to deal with
  * reverting a directory pending a sophisticated selection dialog in the
  * VcsBase plugin. */
 GitClient::RevertResult GitClient::revertI(QStringList files,
