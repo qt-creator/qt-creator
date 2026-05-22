@@ -107,15 +107,27 @@ void ChatInputEdit::keyPressEvent(QKeyEvent *event)
         return;
     }
 
+    auto cursorVisualLine =
+        [this]() {
+            const QTextCursor cursor = textCursor();
+            const QTextBlock block = cursor.block();
+            const int blockStart = editorLayout()->firstLineNumberOf(block);
+            return blockStart
+                   + editorLayout()
+                         ->blockLayout(block)
+                         ->lineForTextPosition(cursor.positionInBlock())
+                         .lineNumber();
+        };
+
     if (event->key() == Qt::Key_Up && !(event->modifiers() & Qt::ShiftModifier)) {
-        if (textCursor().block() == document()->firstBlock()) {
+        if (cursorVisualLine() == 0) {
             historyUp();
             return;
         }
     }
 
     if (event->key() == Qt::Key_Down && !(event->modifiers() & Qt::ShiftModifier)) {
-        if (textCursor().block() == document()->lastBlock()) {
+        if (cursorVisualLine() == editorLayout()->lineCount() - 1) {
             historyDown();
             return;
         }
