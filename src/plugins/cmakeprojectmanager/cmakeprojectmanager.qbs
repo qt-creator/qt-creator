@@ -82,6 +82,7 @@ QtcPlugin {
         "fileapiparser.h",
         "fileapireader.cpp",
         "fileapireader.h",
+        "mcptools.cpp",
         "presetsparser.cpp",
         "presetsparser.h",
         "presetsmacros.cpp",
