@@ -26,9 +26,9 @@ protected:
 
     QList<double> m_memoryConsumption;
     QList<double> m_cpuConsumption;
-    qint64 m_pid;
-    double m_lastTotalTime;
-    double m_lastRequestStartTime;
+    const qint64 m_pid;
+    double m_lastTotalTime = 0;
+    double m_lastRequestStartTime = 0;
 
 signals:
     void newDataAvailable();

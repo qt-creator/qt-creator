@@ -80,7 +80,7 @@ public:
         : IDataProvider(pid, parent)
     {}
 
-    double getMemoryConsumption()
+    double getMemoryConsumption() override
     {
         const FilePath statusMemory = FilePath::fromString(
             QStringLiteral("/proc/%1/status").arg(m_pid));
@@ -115,7 +115,7 @@ public:
     }
 
     // Provides the CPU usage from the last request
-    double getCpuConsumption()
+    double getCpuConsumption() override
     {
         const FilePath status = FilePath::fromString(QStringLiteral("/proc/%1/stat").arg(m_pid));
         const FilePath uptimeFile = FilePath::fromString(QStringLiteral("/proc/uptime"));
@@ -338,12 +338,12 @@ public:
         : IDataProvider(pid, parent)
     {}
 
-    double getCpuConsumption()
+    double getCpuConsumption() override
     {
         return 0.0;
     }
 
-    double getMemoryConsumption()
+    double getMemoryConsumption() override
     {
         return 0.0;
     }
