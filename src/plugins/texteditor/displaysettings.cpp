@@ -172,8 +172,8 @@ public:
                 Group {
                     title(Tr::tr("Margin")),
                     Column {
-                        Row { m.showMargin, m.marginColumn, st },
-                        Row { m.useIndenter, m.tintMarginArea, st },
+                        Row { m.showMargin, m.marginColumn, m.tintMarginArea, st },
+                        Row { m.useIndenter, st },
                         Row { m.centerEditorContentWidthPercent, st }
                     }
                 },
