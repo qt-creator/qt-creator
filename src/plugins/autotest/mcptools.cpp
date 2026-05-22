@@ -4,6 +4,7 @@
 #include "testresultsmanager.h"
 
 #include "autotestconstants.h"
+#include "testconfiguration.h"
 #include "testcodeparser.h"
 #include "testrunner.h"
 #include "testtreeitem.h"

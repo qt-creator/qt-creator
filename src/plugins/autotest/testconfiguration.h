@@ -34,7 +34,7 @@ class ITestConfiguration
 {
 public:
     explicit ITestConfiguration(ITestBase *testBase);
-    virtual ~ITestConfiguration() = default;
+    virtual ~ITestConfiguration();
 
     void setEnvironment(const Utils::Environment &env) { m_runnable.environment = env; }
     Utils::Environment environment() const { return m_runnable.environment; }

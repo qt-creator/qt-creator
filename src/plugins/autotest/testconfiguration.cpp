@@ -35,6 +35,8 @@ ITestConfiguration::ITestConfiguration(ITestBase *testBase)
 {
 }
 
+ITestConfiguration::~ITestConfiguration() = default;
+
 void ITestConfiguration::setWorkingDirectory(const FilePath &workingDirectory)
 {
     m_runnable.workingDirectory = workingDirectory;
@@ -82,6 +84,7 @@ TestConfiguration::TestConfiguration(ITestFramework *framework)
 
 TestConfiguration::~TestConfiguration()
 {
+    delete m_runConfig;
     m_testCases.clear();
 }
 
