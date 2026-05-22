@@ -7,7 +7,7 @@ QtcLibrary {
     cpp.defines: base.concat("TEXTEDITORSUPPORT_STATIC_LIBRARY")
 
     files: [
-        "tabsettings.cpp",
+        "tabsettingsdata.cpp",
         "tabsettings.h",
         "texteditorsupport_global.h",
     ]
