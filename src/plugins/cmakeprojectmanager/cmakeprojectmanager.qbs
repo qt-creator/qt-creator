@@ -4,6 +4,7 @@ QtcPlugin {
     name: "CMakeProjectManager"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "McpServerLib" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
