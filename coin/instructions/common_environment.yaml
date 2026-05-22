@@ -13,7 +13,7 @@ instructions:
             variableValue: 13.0
           - type: EnvironmentVariable
             variableName: QTC_QT_MODULES
-            variableValue: "qtbase qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttasktree qttools qttranslations qtwebengine"
+            variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttasktree qttools qttranslations qtwebengine"
         enable_if:
           condition: property
           property: features
@@ -29,7 +29,7 @@ instructions:
             variableValue: 11.0
           - type: EnvironmentVariable
             variableName: QTC_QT_MODULES
-            variableValue: "qtbase qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"
+            variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"
           - type: EnvironmentVariable
             variableName: QTC_SBOM_OPTION
             variableValue: "--no-sbom"
