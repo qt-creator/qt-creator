@@ -1706,6 +1706,8 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
 
     if (spec->termsAndConditions()) {
         if (!acceptTermsAndConditions(spec)) {
+            // Disable plugin so we don't try to load it again on startup.
+            spec->setEnabledBySettings(false);
             spec->setError(Tr::tr("You did not accept the terms and conditions"));
             return;
         }
