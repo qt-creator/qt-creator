@@ -28,7 +28,7 @@ public:
     };
 
     ITestBase();
-    virtual ~ITestBase() = default;
+    ~ITestBase() override = default;
 
     QString displayName() const { return m_displayName; }
     TestBaseType type() const { return m_type; }

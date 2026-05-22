@@ -87,7 +87,7 @@ static QString quickTestSrcDir(const FilePath &fileName)
 {
     const QList<CppEditor::ProjectPart::ConstPtr> parts =
         CppEditor::CppModelManager::projectPart(fileName);
-    if (parts.size() > 0) {
+    if (!parts.isEmpty()) {
         const ProjectExplorer::Macros &macros = parts.at(0)->projectMacros;
         auto found = std::find_if(macros.cbegin(), macros.cend(),
                                   [](const ProjectExplorer::Macro &macro) {

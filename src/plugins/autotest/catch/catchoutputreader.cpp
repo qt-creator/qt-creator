@@ -178,7 +178,7 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
 
 TestResult CatchOutputReader::createDefaultResult() const
 {
-    if (m_testCaseInfo.size() == 0)
+    if (m_testCaseInfo.isEmpty())
         return CatchResult(id(), {}, m_sectionDepth);
     CatchResult result = CatchResult(id(), m_testCaseInfo.first().name, m_sectionDepth);
     result.setDescription(m_testCaseInfo.last().name);
@@ -247,7 +247,7 @@ void CatchOutputReader::sendResult(const ResultType result)
     TestResult catchResult = createDefaultResult();
     catchResult.setResult(result);
 
-    if (result == ResultType::TestStart && m_testCaseInfo.size() > 0) {
+    if (result == ResultType::TestStart && !m_testCaseInfo.isEmpty()) {
         catchResult.setDescription(Tr::tr("Executing %1 \"%2\"...")
                    .arg(testOutputNodeToString().toLower(), catchResult.description()));
     } else if (result == ResultType::Pass || result == ResultType::UnexpectedPass) {

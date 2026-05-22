@@ -16,7 +16,7 @@ class TestOutputReader : public QObject
     Q_OBJECT
 public:
     TestOutputReader(Utils::Process *testApplication, const Utils::FilePath &buildDirectory);
-    virtual ~TestOutputReader();
+    ~TestOutputReader() override;
     void processStdOutput(const QByteArray &outputLine);
     virtual void processStdError(const QByteArray &outputLine);
     void reportCrash();

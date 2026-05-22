@@ -37,7 +37,7 @@ public:
     };
 
     TestCodeParser();
-    ~TestCodeParser();
+    ~TestCodeParser() override;
 
     void setState(State state);
     State state() const { return m_parserState; }

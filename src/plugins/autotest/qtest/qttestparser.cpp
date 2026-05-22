@@ -74,7 +74,7 @@ static bool qtTestLibDefined(const FilePath &fileName)
 {
     const QList<CppEditor::ProjectPart::ConstPtr> parts =
             CppEditor::CppModelManager::projectPart(fileName);
-    if (parts.size() > 0) {
+    if (!parts.isEmpty()) {
         return Utils::anyOf(parts.at(0)->projectMacros, [](const ProjectExplorer::Macro &macro) {
             return macro.key == "QT_TESTLIB_LIB";
         });
@@ -150,14 +150,14 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     QList<CPlusPlus::LookupItem> lookupItems = typeOfExpr(testCaseName.toUtf8(),
                                                           doc->globalNamespace());
     // fallback for inherited functions
-    if (lookupItems.size() == 0 && !alternativeFiles.isEmpty()) {
+    if (lookupItems.isEmpty() && !alternativeFiles.isEmpty()) {
         for (const FilePath &alternativeFile : alternativeFiles) {
             if (snapshot.contains(alternativeFile)) {
                 CPlusPlus::Document::Ptr document = snapshot.document(alternativeFile);
                 CPlusPlus::TypeOfExpression typeOfExpr; // we need a new one with no bindings
                 typeOfExpr.init(document, snapshot);
                 lookupItems = typeOfExpr(testCaseName.toUtf8(), document->globalNamespace());
-                if (lookupItems.size() != 0)
+                if (!lookupItems.isEmpty())
                     break;
             }
         }

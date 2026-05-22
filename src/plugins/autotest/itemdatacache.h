@@ -76,7 +76,7 @@ private:
     {
         int generation = 0;
         T value;
-        ITestBase::TestBaseType type;
+        ITestBase::TestBaseType type = ITestBase::None;
     };
     QHash<QString, Entry> m_cache;
 };

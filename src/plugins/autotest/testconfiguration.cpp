@@ -172,8 +172,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     if (buildTargets.size() > 1 )  // there are multiple executables with the same build target
         return;                    // let the user decide which one to run
 
-    BuildTargetInfo targetInfo = buildTargets.size() ? buildTargets.first()
-                                                     : BuildTargetInfo();
+    BuildTargetInfo targetInfo = !buildTargets.isEmpty() ? buildTargets.first() : BuildTargetInfo();
 
     const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(activeKit);
     if (deviceTypeId == ANDROID_DEVICE_TYPE) {

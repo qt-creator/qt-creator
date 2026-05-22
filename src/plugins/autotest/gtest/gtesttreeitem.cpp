@@ -360,7 +360,7 @@ TestTreeItem *GTestTreeItem::find(const TestParseResult *result)
                 }
                 return nullptr;
             } else { // GTestFilter
-                QTC_ASSERT(parseResult->children.size(), return nullptr);
+                QTC_ASSERT(!parseResult->children.isEmpty(), return nullptr);
                 auto fstChild = static_cast<const GTestParseResult *>(parseResult->children.at(0));
                 bool matching = matchesFilter(GTestFramework::currentGTestFilter(),
                                               parseResult->name + '.' + fstChild->name);

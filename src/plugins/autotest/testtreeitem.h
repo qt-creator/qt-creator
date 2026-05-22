@@ -11,17 +11,15 @@
 #include <QSet>
 #include <QString>
 
-namespace {
-    enum ItemRole {
-        LinkRole = Qt::UserRole + 2, // can be removed if AnnotationRole comes back
-        ItalicRole, // used only inside the delegate
-        TypeRole,
-        EnabledRole,
-        FailedRole  // marker for having failed in last run
-    };
-}
-
 namespace Autotest {
+
+enum ItemRole {
+    LinkRole = Qt::UserRole + 2, // can be removed if AnnotationRole comes back
+    ItalicRole, // used only inside the delegate
+    TypeRole,
+    EnabledRole,
+    FailedRole  // marker for having failed in last run
+};
 
 class ITestBase;
 class ITestFramework;

@@ -324,7 +324,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
                 if (member->line() != line)
                     continue;
                 fullName = CPlusPlus::LookupContext::fullyQualifiedName(member);
-                if (fullName.size()) {
+                if (!fullName.isEmpty()) {
                     const QString funcName = CPlusPlus::Overview().prettyName(fullName.last());
                     if (funcName == text)
                         break;
@@ -338,7 +338,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
             const TestFrameworks active = activeTestFrameworks();
             for (auto framework : active) {
                 const QStringList testName = framework->testNameForSymbolName(funcName);
-                if (!testName.size())
+                if (testName.isEmpty())
                     continue;
                 TestTreeItem *it = framework->rootNode()->findTestByNameAndFile(testName, filePath);
                 if (it) {
@@ -366,7 +366,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
         return it->line() == line && it->filePath() == filePath;
     });
 
-    if (filteredItems.size() == 0 && testsItems.size() > 1) {
+    if (filteredItems.isEmpty() && testsItems.size() > 1) {
         CPlusPlus::Scope *scope = doc->scopeAt(line, currentEditor->currentColumn());
         if (scope->asClass()) {
             const QList<const CPlusPlus::Name *> fullName
@@ -546,7 +546,7 @@ public:
 #endif
     }
 
-    void extensionsInitialized()
+    void extensionsInitialized() final
     {
         registerMcpTools();
 

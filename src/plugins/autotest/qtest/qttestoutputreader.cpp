@@ -374,9 +374,7 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
             processLocationOutput(match.captured("file").replace("\\\\", "\\"),
                                   match.captured("line"));
         }
-    } else if (hasMatch(locationUnix)) {
-        processLocationOutput(match.captured("file"), match.captured("line"));
-    } else if (hasMatch(locationWin)) {
+    } else if (hasMatch(locationUnix) || hasMatch(locationWin)) {
         processLocationOutput(match.captured("file"), match.captured("line"));
     } else if (hasMatch(benchDetails)) {
         m_description = match.captured(1);

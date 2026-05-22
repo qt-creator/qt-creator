@@ -68,10 +68,10 @@ private:
     TestTreeSortFilterModel m_sortFilterModel;
     TestTreeView *m_view;
     FancyLineEdit *m_filterLineEdit;
-    QToolButton *m_sort;
-    QToolButton *m_filterButton;
-    QMenu *m_filterMenu;
-    bool m_sortAlphabetically;
+    QToolButton *m_sort = nullptr;
+    QToolButton *m_filterButton = nullptr;
+    QMenu *m_filterMenu = nullptr;
+    bool m_sortAlphabetically = false;
     Utils::ProgressIndicator *m_progressIndicator;
     QTimer *m_progressTimer;
     QTimer *m_filterTimer;

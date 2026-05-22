@@ -178,7 +178,7 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
                 // content without the leading lparen
                 const QByteArray content = contentUntil(T_RPAREN).mid(1);
                 const QList<QByteArray> parts = content.split(',');
-                if (parts.size() == 0)
+                if (parts.isEmpty())
                     return;
                 token = m_tokens.at(m_currentIndex);
                 locationAndType = locationAndTypeFromToken(token, m_source, m_currentState, m_suites);

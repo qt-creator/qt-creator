@@ -78,16 +78,16 @@ void CatchCodeParser::handleIdentifier()
                || unprefixed == "TEMPLATE_PRODUCT_TEST_CASE_SIG") {
         handleParameterizedTestCase(false);
     } else if (unprefixed == "TEST_CASE_METHOD") {
-        handleFixtureOrRegisteredTestCase(/*fixture=*/true, /*scenario=*/false);
+        handleFixtureOrRegisteredTestCase(/*isFixture=*/true, /*isScenario=*/false);
     } else if (unprefixed == "SCENARIO_METHOD") {
-        handleFixtureOrRegisteredTestCase(/*fixture=*/true, /*scenario=*/true);
+        handleFixtureOrRegisteredTestCase(/*isFixture=*/true, /*isScenario=*/true);
     } else if (unprefixed == "TEMPLATE_TEST_CASE_METHOD_SIG"
                || unprefixed == "TEMPLATE_PRODUCT_TEST_CASE_METHOD_SIG"
                || unprefixed == "TEMPLATE_TEST_CASE_METHOD"
                || unprefixed == "TEMPLATE_LIST_TEST_CASE_METHOD") {
         handleParameterizedTestCase(true);
     } else if (unprefixed == "METHOD_AS_TEST_CASE" || unprefixed == "REGISTER_TEST_CASE") {
-        handleFixtureOrRegisteredTestCase(/*fixture=*/false, /*scenario=*/false);
+        handleFixtureOrRegisteredTestCase(/*isFixture=*/false, /*isScenario=*/false);
     }
 }
 

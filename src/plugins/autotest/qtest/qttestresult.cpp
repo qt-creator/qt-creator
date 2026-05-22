@@ -147,7 +147,7 @@ static ResultHooks::FindTestItemHook findTestItemHook(const FilePath &projectFil
 struct QtTestData
 {
     FilePath m_projectFile;
-    TestType m_type;
+    TestType m_type = TestType::QtTest;
     QString m_function;
     QString m_dataTag;
     bool isTestFunction() const { return !m_function.isEmpty() && m_dataTag.isEmpty(); }
