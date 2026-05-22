@@ -26,7 +26,7 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
                 set(VENDOR_MODE_OPTION "-mod=vendor")
             endif()
 
-            if ((${PLATFORM} STREQUAL "linux" OR (${PLATFORM} STREQUAL "windows" AND ${ARCHITECTURE} STREQUAL "amd64")) AND NOT UPX_BIN STREQUAL "UPX_BIN-NOTFOUND")
+            if ((${PLATFORM} STREQUAL "linux") AND NOT UPX_BIN STREQUAL "UPX_BIN-NOTFOUND")
                 add_custom_command(
                     OUTPUT "${OUTPUT}"
                     COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build ${VENDOR_MODE_OPTION} -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}.unpacked
