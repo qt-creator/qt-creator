@@ -171,9 +171,6 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
         break;
 
     case MarkerTag::SdkToolsMarker:
-        createPackage(&SdkManagerOutputParser::parseSdkToolsPackage);
-        break;
-
     case MarkerTag::CmdlineSdkToolsMarker:
         createPackage(&SdkManagerOutputParser::parseSdkToolsPackage);
         break;

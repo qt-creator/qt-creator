@@ -417,7 +417,7 @@ SystemImageList AndroidSdkManager::installedSystemImages()
     const QList<SdkPlatform *> platforms = Utils::static_container_cast<SdkPlatform *>(list);
     SystemImageList result;
     for (SdkPlatform *platform : platforms) {
-        if (platform->systemImages().size() > 0)
+        if (!platform->systemImages().isEmpty())
             result.append(platform->systemImages());
     }
     return result;

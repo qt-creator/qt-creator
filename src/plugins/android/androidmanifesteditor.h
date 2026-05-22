@@ -29,8 +29,8 @@ private:
     void updateInfoBar(const QString &errorMessage, int line, int column);
     void hideInfoBar();
 
-    int m_errorLine;
-    int m_errorColumn;
+    int m_errorLine = 0;
+    int m_errorColumn = 0;
 
     QTimer m_timerParseCheck;
     TextEditor::TextEditorWidget *m_textEditorWidget;

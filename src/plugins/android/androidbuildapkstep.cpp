@@ -864,8 +864,9 @@ bool AndroidBuildApkStep::verifyKeystorePassword()
     if (checkKeystorePassword(m_keystorePath, m_keystorePasswd))
         return true;
 
-    auto verifyCallback = std::bind(&checkKeystorePassword,
-                                    m_keystorePath, std::placeholders::_1);
+    auto verifyCallback = [this](const QString &pwd) {
+        return checkKeystorePassword(m_keystorePath, pwd);
+    };
     const Result<QString> result = getPassword(KeystorePassword, verifyCallback);
     if (result)
         m_keystorePasswd = *result;
@@ -885,9 +886,9 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
         return true;
     }
 
-    auto verifyCallback = std::bind(&checkCertificatePassword,
-                                    m_keystorePath, m_keystorePasswd,
-                                    m_certificateAlias, std::placeholders::_1);
+    auto verifyCallback = [this](const QString &certPwd) {
+        return checkCertificatePassword(m_keystorePath, m_keystorePasswd, m_certificateAlias, certPwd);
+    };
 
     const Result<QString> result = getPassword(CertificatePassword, verifyCallback,
                                                m_certificateAlias);

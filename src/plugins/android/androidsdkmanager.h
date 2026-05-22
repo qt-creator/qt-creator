@@ -32,7 +32,7 @@ class AndroidSdkManager : public QObject
 
 public:
     AndroidSdkManager();
-    ~AndroidSdkManager();
+    ~AndroidSdkManager() override;
 
     void setSpinnerTarget(QWidget *spinnerTarget);
 

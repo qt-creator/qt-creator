@@ -158,7 +158,7 @@ class AndroidDeviceManagerInstance : public QObject
 {
 public:
     AndroidDeviceManagerInstance();
-    ~AndroidDeviceManagerInstance()
+    ~AndroidDeviceManagerInstance() override
     {
         QTC_ASSERT(s_instance == this, return);
         s_instance = nullptr;

@@ -454,7 +454,7 @@ void AndroidSettingsWidget::addCustomNdkItem()
 
     if (AndroidConfig::isValidNdk(ndkPath)) {
         AndroidConfig::addCustomNdk(ndkPath);
-        if (m_ndkListWidget->findItems(ndkPath.toUrlishString(), Qt::MatchExactly).size() == 0) {
+        if (m_ndkListWidget->findItems(ndkPath.toUrlishString(), Qt::MatchExactly).isEmpty()) {
             m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath.toUrlishString()));
         }
     } else if (!ndkPath.isEmpty()) {

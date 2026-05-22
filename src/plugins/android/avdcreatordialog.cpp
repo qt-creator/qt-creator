@@ -87,7 +87,7 @@ private:
     {
         QString name_id;
         QString type_str;
-        DeviceType deviceType;
+        DeviceType deviceType = DeviceType::Phone;
     };
 
     CreateAvdInfo m_createdAvdInfo;

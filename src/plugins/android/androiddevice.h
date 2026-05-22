@@ -23,7 +23,7 @@ public:
     using Ptr = std::shared_ptr<AndroidDevice>;
 
     AndroidDevice();
-    ~AndroidDevice();
+    ~AndroidDevice() override;
 
     static IDevice::Ptr create();
     static AndroidDeviceInfo androidDeviceInfoFromDevice(const IDevice::ConstPtr &dev);

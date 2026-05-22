@@ -155,7 +155,7 @@ public:
     qint64 m_processPID = -1;
     qint64 m_processUser = -1;
     bool m_useCppDebugger = false;
-    QmlDebugServicesPreset m_qmlDebugServices;
+    QmlDebugServicesPreset m_qmlDebugServices = NoQmlDebugServices;
     int m_qmlPort = -1;
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
