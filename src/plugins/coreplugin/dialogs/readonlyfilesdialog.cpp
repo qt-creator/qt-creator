@@ -8,6 +8,7 @@
 #include "../icore.h"
 #include "../idocument.h"
 #include "../iversioncontrol.h"
+#include "../messagemanager.h"
 #include "../vcsmanager.h"
 
 #include <utils/algorithm.h>
@@ -24,7 +25,6 @@
 #include <QFileInfo>
 #include <QLabel>
 #include <QMap>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QTreeWidget>
@@ -50,7 +50,7 @@ public:
     };
 
     void initDialog(const FilePaths &filePaths);
-    void promptFailWarning(const FilePaths &files, ReadOnlyFilesDialog::ReadOnlyResult type) const;
+    void writeFailWarning(const FilePaths &files, ReadOnlyFilesDialog::ReadOnlyResult type) const;
     QRadioButton *createRadioButtonForItem(QTreeWidgetItem *item, QButtonGroup *group, ReadOnlyFilesTreeColumn type);
 
     void setAll(int index);
@@ -200,23 +200,21 @@ void ReadOnlyFilesDialog::setShowFailWarning(bool show, const QString &warning)
 }
 
 /*!
- * Opens a message box with an error description according to the type.
+ * Writes the error description according to the type to General Messages.
  * \internal
  */
-void ReadOnlyFilesDialogPrivate::promptFailWarning(const FilePaths &files, ReadOnlyFilesDialog::ReadOnlyResult type) const
+void ReadOnlyFilesDialogPrivate::writeFailWarning(const FilePaths &files, ReadOnlyFilesDialog::ReadOnlyResult type) const
 {
     if (files.isEmpty())
         return;
-    QString title;
+
     QString message;
-    QString details;
     if (files.count() == 1) {
         const FilePath file = files.first();
         switch (type) {
         case ReadOnlyFilesDialog::RO_OpenVCS: {
             if (IVersionControl *vc = versionControls[file]) {
                 const QString openText = Utils::stripAccelerator(vc->vcsOpenText());
-                title = Tr::tr("Failed to %1 File").arg(openText);
                 message = Tr::tr("%1 file %2 from version control system %3 failed.")
                         .arg(openText)
                         .arg(file.toUserOutput())
@@ -224,7 +222,6 @@ void ReadOnlyFilesDialogPrivate::promptFailWarning(const FilePaths &files, ReadO
                     + '\n'
                     + failWarning;
             } else {
-                title = Tr::tr("No Version Control System Found");
                 message = Tr::tr("Cannot open file %1 from version control system.\n"
                              "No version control system found.")
                         .arg(file.toUserOutput())
@@ -234,33 +231,24 @@ void ReadOnlyFilesDialogPrivate::promptFailWarning(const FilePaths &files, ReadO
             break;
         }
         case ReadOnlyFilesDialog::RO_MakeWritable:
-            title = Tr::tr("Cannot Set Permissions");
             message = Tr::tr("Cannot set permissions for %1 to writable.")
                     .arg(file.toUserOutput())
                 + '\n'
                 + failWarning;
             break;
         case ReadOnlyFilesDialog::RO_SaveAs:
-            title = Tr::tr("Cannot Save File");
             message = Tr::tr("Cannot save file %1").arg(file.toUserOutput())
                 + '\n'
                 + failWarning;
             break;
         default:
-            title = Tr::tr("Canceled Changing Permissions");
             message = failWarning;
             break;
         }
     } else {
-        title = Tr::tr("Could Not Change Permissions on Some Files");
-        message = failWarning + QLatin1Char('\n')
-                + Tr::tr("See details for a complete list of files.");
-        details = files.toUserOutput("\n");
+        message = failWarning + '\n' + files.toUserOutput("\n");
     }
-    QMessageBox msgBox(QMessageBox::Warning, title, message,
-                       QMessageBox::Ok, ICore::dialogParent());
-    msgBox.setDetailedText(details);
-    msgBox.exec();
+    MessageManager::writeDisrupting(message);
 }
 
 /*!
@@ -311,7 +299,7 @@ int ReadOnlyFilesDialog::exec()
     }
     if (!failedToMakeWritable.isEmpty()) {
         if (d->showWarnings)
-            d->promptFailWarning(failedToMakeWritable, result);
+            d->writeFailWarning(failedToMakeWritable, result);
     }
     return failedToMakeWritable.isEmpty() ? result : RO_Cancel;
 }
