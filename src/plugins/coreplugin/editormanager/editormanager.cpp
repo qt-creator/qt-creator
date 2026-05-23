@@ -32,6 +32,7 @@
 #include "ieditor.h"
 #include "ieditorfactory.h"
 #include "ieditorfactory_p.h"
+#include "messagemanager.h"
 #include "openeditorsview.h"
 #include "openeditorswindow.h"
 
@@ -64,7 +65,6 @@
 #include <QMainWindow>
 #include <QMap>
 #include <QMenu>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -2746,7 +2746,7 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
     }
 
     if (Result<> res = document->reload(IDocument::FlagReload, IDocument::TypeContents); !res)
-        QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("File Error"), res.error());
+        MessageManager::writeDisrupting(Tr::tr("Error reloading file: %1").arg(res.error()));
 }
 
 void EditorManagerPrivate::autoSuspendDocuments()
@@ -3642,7 +3642,7 @@ bool EditorManager::openExternalEditor(const FilePath &filePath, Id editorId)
     const Result<> res = ee->startEditor(filePath);
     QApplication::restoreOverrideCursor();
     if (!res)
-        QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("Opening File"), res.error());
+        MessageManager::writeDisrupting(Tr::tr("Error opening file: %1").arg(res.error()));
     return res.has_value();
 }
 
