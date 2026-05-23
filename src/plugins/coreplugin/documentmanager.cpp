@@ -15,6 +15,7 @@
 #include "editormanager/ieditorfactory.h"
 #include "icore.h"
 #include "idocumentfactory.h"
+#include "messagemanager.h"
 #include "systemsettings.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -725,12 +726,8 @@ bool DocumentManager::saveDocument(
                 *isReadOnly = false;
             }
         }
-        if (showErrorDialog) {
-            QMessageBox::critical(
-                ICore::dialogParent(),
-                Tr::tr("File Error"),
-                Tr::tr("Error while saving file: %1").arg(res.error()));
-        }
+        if (showErrorDialog)
+            MessageManager::writeDisrupting(Tr::tr("Error while saving file: %1").arg(res.error()));
     }
 
     addDocument(document, addWatcher);
