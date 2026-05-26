@@ -339,7 +339,7 @@ jobs:
             execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
           endfunction()
 
-          foreach(package qtbase qtdeclarative qttasktree qttools qtsvg qttranslations qtimageformats qtserialport qtquicktimeline qtquick3d qt5compat qtshadertools)
+          foreach(package qtbase qtdeclarative qttasktree qttools qtsvg qttranslations qtimageformats qtserialport qtquicktimeline qtquick3d qtshadertools)
             downloadAndExtract(${package} "")
           endforeach()
 

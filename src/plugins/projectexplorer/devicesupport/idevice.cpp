@@ -301,8 +301,7 @@ bool IDevice::supportsFileTransferMethod(FileTransferMethod method) const
     case FileTransferMethod::Sftp:
         return extraData(Constants::SUPPORTS_SFTP).toBool();
     case FileTransferMethod::Rsync:
-        return extraData(Constants::SUPPORTS_RSYNC).toBool()
-               || !deviceToolPath(Constants::RSYNC_TOOL_ID).isEmpty();
+        return extraData(Constants::SUPPORTS_RSYNC).toBool();
     case FileTransferMethod::GenericCopy:
         return true;
     }

@@ -503,7 +503,12 @@ static ExecutableItem terminalAwaiter(const Storage<DebuggerData> &storage)
 
 static ExecutableItem finalizeRecipe(const Storage<DebuggerData> &storage)
 {
-    const auto isRunning = [storage] { return storage->enginesDriver.isRunning(); };
+    const auto isRunning = [storage] {
+        if (!storage->enginesDriver.isRunning())
+            return false;
+        storage->enginesDriver.stop();
+        return storage->enginesDriver.isRunning();
+    };
     const auto isTerminalRunning = [storage] {
         return storage->terminalProcess && storage->terminalProcess->isRunning();
     };
@@ -511,7 +516,6 @@ static ExecutableItem finalizeRecipe(const Storage<DebuggerData> &storage)
     return Group {
         continueOnError,
         If (isRunning) >> Then {
-            QSyncTask([storage] { storage->enginesDriver.stop(); }),
             doneAwaiter(storage)
         },
         If (isTerminalRunning) >> Then {

@@ -26,6 +26,8 @@
 
 #include <cppeditor/cppmodelmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1142,6 +1144,8 @@ void ClangTool::filterOutCurrentKind()
 
 void ClangTool::update()
 {
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return;
     updateForInitialState();
     updateForCurrentState();
 }

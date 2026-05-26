@@ -376,6 +376,16 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 
     m_signPackageCheckBox = new QCheckBox(Tr::tr("Sign package"));
     m_signPackageCheckBox->setChecked(m_step->signPackage());
+    connect(m_signPackageCheckBox, &QAbstractButton::toggled,
+            this, &AndroidBuildApkWidget::signPackageCheckBoxToggled);
+
+    m_addDebuggerCheckBox = new QCheckBox(Tr::tr("Add debug server"));
+    m_addDebuggerCheckBox->setEnabled(false);
+    m_addDebuggerCheckBox->setToolTip(Tr::tr("Packages debug server with the APK "
+            "to enable debugging. For the signed APK this option is unchecked by default."));
+    m_addDebuggerCheckBox->setChecked(m_step->addDebugger());
+    connect(m_addDebuggerCheckBox, &QAbstractButton::toggled,
+            m_step, &AndroidBuildApkStep::setAddDebugger);
 
     m_signingDebugWarningLabel = new InfoLabel(Tr::tr("Signing a debug package"),
                                                InfoLabel::Warning);
@@ -393,13 +403,11 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
         Form {
             Tr::tr("Keystore:"), keystoreLocationChooser, keystoreCreateButton, br,
             m_signPackageCheckBox, br,
+            m_addDebuggerCheckBox, br,
             Tr::tr("Certificate alias:"), m_certificatesAliasComboBox,
                     m_signingDebugWarningLabel, st, br,
         }
     };
-
-    connect(m_signPackageCheckBox, &QAbstractButton::toggled,
-            this, &AndroidBuildApkWidget::signPackageCheckBoxToggled);
 
     auto updateAlias = [this](int idx) {
         QString alias = m_certificatesAliasComboBox->itemText(idx);
@@ -475,27 +483,16 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
         }
     };
 
-
     // Advanced Actions group
-
-    m_addDebuggerCheckBox = new QCheckBox(Tr::tr("Add debug server"));
-    m_addDebuggerCheckBox->setEnabled(false);
-    m_addDebuggerCheckBox->setToolTip(Tr::tr("Packages debug server with "
-           "the APK to enable debugging. For the signed APK this option is unchecked by default."));
-    m_addDebuggerCheckBox->setChecked(m_step->addDebugger());
-    connect(m_addDebuggerCheckBox, &QAbstractButton::toggled,
-            m_step, &AndroidBuildApkStep::setAddDebugger);
 
     Group advancedGroup {
         title(Tr::tr("Advanced Actions")),
         Column {
             m_step->buildAAB,
             m_step->openPackageLocation,
-            m_step->verboseOutput,
-            m_addDebuggerCheckBox
+            m_step->verboseOutput
         }
     };
-
 
     // Additional Libraries group
 

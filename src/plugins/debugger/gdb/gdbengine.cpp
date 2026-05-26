@@ -833,6 +833,8 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 
 void GdbEngine::commandTimeout()
 {
+    if (m_commandTimeoutPending)
+        return;
     const QList<int> keys = Utils::sorted(m_commandForToken.keys());
     for (int key : keys) {
         const DebuggerCommand &cmd = m_commandForToken.value(key);
@@ -845,7 +847,7 @@ void GdbEngine::commandTimeout()
         showMessage(QString("TIMED OUT WAITING FOR GDB REPLY. "
                       "COMMANDS STILL IN PROGRESS: ") + commands.join(", "));
         int timeOut = m_commandTimer.interval();
-        //m_commandTimer.stop();
+        m_commandTimeoutPending = true;
         const QString msg = Tr::tr("The gdb process has not responded "
             "to a command within %n seconds. This could mean it is stuck "
             "in an endless loop or taking longer than expected to perform "
@@ -856,14 +858,18 @@ void GdbEngine::commandTimeout()
             QMessageBox::Ok | QMessageBox::Cancel);
         mb->button(QMessageBox::Cancel)->setText(Tr::tr("Give GDB More Time"));
         mb->button(QMessageBox::Ok)->setText(Tr::tr("Stop Debugging"));
-        if (mb->exec() == QMessageBox::Ok) {
-            showMessage("KILLING DEBUGGER AS REQUESTED BY USER");
-            // This is an undefined state, so we just pull the emergency brake.
-            m_gdbProc.kill();
-            notifyEngineShutdownFinished();
-        } else {
-            showMessage("CONTINUE DEBUGGER AS REQUESTED BY USER");
-        }
+        connect(mb, &QDialog::finished, this, [this](int result) {
+            m_commandTimeoutPending = false;
+            if (result == QMessageBox::Ok) {
+                showMessage("KILLING DEBUGGER AS REQUESTED BY USER");
+                // This is an undefined state, so we just pull the emergency brake.
+                m_gdbProc.kill();
+                notifyEngineShutdownFinished();
+            } else {
+                showMessage("CONTINUE DEBUGGER AS REQUESTED BY USER");
+                m_commandTimer.start();
+            }
+        });
     } else {
         showMessage(QString("\nNON-CRITICAL TIMEOUT\nCOMMANDS STILL IN PROGRESS: ")
                     + commands.join(", "));

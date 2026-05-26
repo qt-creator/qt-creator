@@ -704,8 +704,9 @@ void EditorView::addEditor(IEditor *editor)
     int tabIndex = tabForEditor(editor);
     if (tabIndex < 0)
         tabIndex = m_tabBar->addTab(""); // text set below
-    m_tabBar->setTabData(
-        tabIndex, QVariant::fromValue(TabData({editor, DocumentModel::entryForDocument(document)})));
+    DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
+    QTC_CHECK(entry);
+    m_tabBar->setTabData(tabIndex, QVariant::fromValue(TabData({editor, entry})));
     updateTabUi(m_tabBar, tabIndex, document);
     m_tabBar->setVisible(false); // something is wrong with QTabBar... this is needed
     m_tabBar->setVisible(m_isShowingTabs);
@@ -882,6 +883,7 @@ void EditorView::ensurePinnedOrder()
     int lastPinnedIndex = -1;
     for (int i = 0; i < m_tabBar->count(); ++i) {
         const auto data = m_tabBar->tabData(i).value<TabData>();
+        QTC_ASSERT(data.entry, continue);
         if (data.entry->pinned) {
             if (i > lastPinnedIndex + 1) // there were unpinned in between, move
                 m_tabBar->moveTab(i, lastPinnedIndex + 1);

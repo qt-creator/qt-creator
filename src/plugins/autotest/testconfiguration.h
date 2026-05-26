@@ -34,7 +34,7 @@ class ITestConfiguration
 {
 public:
     explicit ITestConfiguration(ITestBase *testBase);
-    virtual ~ITestConfiguration() = default;
+    virtual ~ITestConfiguration();
 
     void setEnvironment(const Utils::Environment &env) { m_runnable.environment = env; }
     Utils::Environment environment() const { return m_runnable.environment; }
@@ -124,10 +124,15 @@ public:
     explicit TestToolConfiguration(ITestBase *testBase) : ITestConfiguration(testBase) {}
     Utils::CommandLine commandLine() const { return m_commandLine; }
     void setCommandLine(const Utils::CommandLine &cmdline) { m_commandLine = cmdline; }
-    Utils::FilePath testExecutable() const override { return m_commandLine.executable(); };
+    Utils::FilePath testExecutable() const override { return m_commandLine.executable(); }
+
+    void setInvalid(const QString &errorMessage) { m_invalidError.emplace(errorMessage); }
+    bool isInvalid() const { return m_invalidError.has_value(); }
+    QString errorMessage() const { return m_invalidError ? *m_invalidError : QString(); }
 
 private:
     Utils::CommandLine m_commandLine;
+    std::optional<QString> m_invalidError = std::nullopt;
 };
 
 } // namespace Autotest

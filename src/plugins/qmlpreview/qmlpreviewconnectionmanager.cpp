@@ -202,6 +202,16 @@ void QmlPreviewConnectionManager::createPreviewClient()
         }
     });
 
+    connect(
+        m_qmlPreviewClient.data(),
+        &QmlPreviewClient::hotReloadFailure,
+        this,
+        [this](const QString &status) {
+            Core::MessageManager::writeFlashing("Hot reload failed:");
+            Core::MessageManager::writeSilently(status);
+            emit restart();
+        });
+
     connect(m_qmlPreviewClient.data(), &QmlPreviewClient::debugServiceUnavailable,
                      this, []() {
         QMessageBox::warning(Core::ICore::dialogParent(), "Error loading QML Live Preview",

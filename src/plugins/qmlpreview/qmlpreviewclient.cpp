@@ -11,22 +11,11 @@ namespace QmlPreview {
 
 QmlPreviewClient::QmlPreviewClient(QmlDebug::QmlDebugConnection *connection)
     : QmlDebug::QmlDebugClient(QLatin1String("QmlPreview"), connection)
-    , m_recordClient(new QmlProfilerTraceClient(
-          connection,
-          std::bind(&QmlPreviewClient::appendEventType, this, std::placeholders::_1),
-          std::bind(&QmlPreviewClient::appendEvent, this, std::placeholders::_1),
-          1ull << ProfileInputEvents))
-    , m_replayClient(new QuickEventReplayClient(connection))
 {
-    m_recordClient->setFlushInterval(1);
-    m_recordClient->setRecording(true);
-
-    m_replayTimer.setInterval(100);
-    connect(&m_replayTimer, &QTimer::timeout, this, [this]() {
-        if (m_events.size() < m_numExpectedEvents)
-            return;
-        setAnimationSpeed(1);
-        m_replayTimer.stop();
+    connect(this, &QmlPreviewClient::configure, this, &QmlPreviewClient::announceConfiguration);
+    connect(this, &QmlPreviewClient::confirmation, this, [this](const Settings &settings) {
+        m_confirmedSettings = settings;
+        configureEventReplay();
     });
 }
 
@@ -39,7 +28,8 @@ void QmlPreviewClient::loadUrl(const QUrl &url)
     };
 
     m_numExpectedEvents = m_events.size();
-    if (m_numExpectedEvents > 0 && m_replayClient->state() == QmlDebugClient::Enabled) {
+    if (m_numExpectedEvents > 0 && m_replayClient->state() == QmlDebugClient::Enabled
+        && !m_confirmedSettings.enableInPlaceUpdates) {
         const QList<QmlEvent> recorded = std::exchange(m_events, {});
         setAnimationSpeed(1000);
         doLoad();
@@ -87,6 +77,16 @@ void QmlPreviewClient::announceError(const QString &path)
     sendMessage(packet.data());
 }
 
+void QmlPreviewClient::announceConfiguration()
+{
+    QPacket packet(dataStreamVersion());
+    // We always want in-place updates but this should be confirmed by the server
+    // and then the configured setting is written to m_confirmedSettings.
+    // This allows the server to disable in-place updates if it doesn't support them.
+    packet << static_cast<qint8>(Configuration) << true;
+    sendMessage(packet.data());
+}
+
 void QmlPreviewClient::clearCache()
 {
     QmlDebug::QPacket packet(dataStreamVersion());
@@ -126,6 +126,18 @@ void QmlPreviewClient::messageReceived(const QByteArray &data)
         emit fpsReported(info);
         break;
     }
+    case Confirmation: {
+        Settings settings;
+        packet >> settings.enableInPlaceUpdates;
+        emit confirmation(settings);
+        break;
+    }
+    case HotReloadFailure: {
+        QString reason;
+        packet >> reason;
+        emit hotReloadFailure(reason);
+        break;
+    }
     default:
         qDebug() << "invalid command" << command;
         break;
@@ -136,6 +148,8 @@ void QmlPreviewClient::stateChanged(QmlDebug::QmlDebugClient::State state)
 {
     if (state == Unavailable)
         emit debugServiceUnavailable();
+    else if (state == Enabled)
+        emit configure();
 }
 
 int QmlPreviewClient::appendEventType(QmlDebug::QmlEventType &&type)
@@ -150,6 +164,32 @@ void QmlPreviewClient::appendEvent(QmlDebug::QmlEvent &&event)
     // Compress the time stamps so that the events are processed in quick succession.
     event.setTimestamp(m_events.size());
     m_events.append(std::move(event));
+}
+
+void QmlPreviewClient::configureEventReplay()
+{
+    // Disable event replay if in-place updates are enabled
+    if (m_confirmedSettings.enableInPlaceUpdates)
+        return;
+
+    m_recordClient.reset(new QmlProfilerTraceClient(
+        connection(),
+        std::bind(&QmlPreviewClient::appendEventType, this, std::placeholders::_1),
+        std::bind(&QmlPreviewClient::appendEvent, this, std::placeholders::_1),
+        1ull << ProfileInputEvents));
+
+    m_recordClient->setFlushInterval(1);
+    m_recordClient->setRecording(true);
+
+    m_replayClient.reset(new QuickEventReplayClient(connection()));
+
+    m_replayTimer.setInterval(100);
+    connect(&m_replayTimer, &QTimer::timeout, this, [this]() {
+        if (m_events.size() < m_numExpectedEvents)
+            return;
+        setAnimationSpeed(1);
+        m_replayTimer.stop();
+    });
 }
 
 } // namespace QmlPreview

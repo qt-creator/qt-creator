@@ -170,7 +170,7 @@ void ConfigModel::appendConfiguration(const QString &key,
     if (m_kitConfiguration.contains(key))
         internalItem.kitValue = QString::fromUtf8(
             isInitial ? m_kitConfiguration.value(key).value
-                      : m_kitConfiguration.value(key).expandedValue(m_macroExpander).toUtf8());
+                      : m_kitConfiguration.value(key).expandedValue(m_macroExpander()).toUtf8());
     m_configuration.append(internalItem);
     setConfiguration(m_configuration);
 }
@@ -490,10 +490,10 @@ void ConfigModel::setConfiguration(const QList<ConfigModel::InternalDataItem> &c
 
 Utils::MacroExpander *ConfigModel::macroExpander() const
 {
-    return m_macroExpander;
+    return m_macroExpander();
 }
 
-void ConfigModel::setMacroExpander(Utils::MacroExpander *newExpander)
+void ConfigModel::setMacroExpander(const Utils::MacroExpanderProvider &newExpander)
 {
     m_macroExpander = newExpander;
 }
@@ -512,7 +512,7 @@ void ConfigModel::generateTree()
         if (it != initialHash.end())
             di.initialValue = it->expandedValue(expander);
 
-        root->appendChild(new Internal::ConfigModelTreeItem(&di, expander));
+        root->appendChild(new Internal::ConfigModelTreeItem(&di, m_macroExpander));
     }
     setRootItem(root);
 }
@@ -681,7 +681,7 @@ QString ConfigModelTreeItem::toolTip() const
 
         tooltip << pattern.arg(Tr::tr("Initial Configuration:")).arg(value);
 
-        const QString expandedValue = dataItem->expandedValue(m_macroExpander);
+        const QString expandedValue = dataItem->expandedValue(m_macroExpander());
         const bool showExpanded = expandedValue != value;
         if (showExpanded)
             tooltip << pattern.arg(Tr::tr("Expands to:")).arg(expandedValue);

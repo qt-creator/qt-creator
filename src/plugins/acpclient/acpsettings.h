@@ -27,7 +27,7 @@ public:
 
     static QFuture<QIcon> iconForUrl(const QString &url);
 
-    ~AcpSettings();
+    ~AcpSettings() override;
 
     static AcpSettings &instance();
 

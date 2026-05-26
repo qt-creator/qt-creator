@@ -25,6 +25,7 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QPointer>
 #include <QPushButton>
 
 using namespace QmakeProjectManager;
@@ -66,8 +67,8 @@ private:
     void updateWarningText();
 
 private:
-    BoolAspect *m_autoManagedSigning = nullptr;
-    StringAspect *m_signingIdentifier = nullptr;
+    QPointer<BoolAspect> m_autoManagedSigning;
+    QPointer<StringAspect> m_signingIdentifier;
     QString m_lastProfileSelection;
     QString m_lastTeamSelection;
     const bool m_isDevice;
@@ -231,6 +232,8 @@ void IosSigningSettingsWidget::configureSigningUi(bool autoManageSigning)
 
 void IosSigningSettingsWidget::announceSigningChanged(bool autoManagedSigning, QString identifier)
 {
+    if (!m_autoManagedSigning || !m_signingIdentifier)
+        return;
     if (m_signingIdentifier->value().compare(identifier) != 0
         || m_autoManagedSigning->value() != autoManagedSigning) {
         m_autoManagedSigning->setValue(autoManagedSigning);

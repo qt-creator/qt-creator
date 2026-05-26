@@ -50,6 +50,7 @@
 #include "versiondialog.h"
 #include "windowsupport.h"
 
+#include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
@@ -239,6 +240,7 @@ namespace Internal {
 
 class MainWindow : public AppMainWindow
 {
+    Q_OBJECT
 public:
     MainWindow()
     {
@@ -248,10 +250,14 @@ public:
         setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
     }
 
+signals:
+    void isShown();
+
 private:
     void closeEvent(QCloseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 };
 
 static QColor s_overrideColor;
@@ -1430,9 +1436,16 @@ void ICorePrivate::init()
         connect(&m_trimTimer, &QTimer::timeout, this, [] { malloc_trim(0); });
 #endif
     }
+
+    if (ExtensionSystem::PluginManager::hasError()) {
+        connect(
+            m_mainwindow,
+            &MainWindow::isShown,
+            this,
+            [] { ExtensionSystem::showPluginErrorOverview(); },
+            Qt::SingleShotConnection);
+    }
 }
-
-
 
 NavigationWidget *ICorePrivate::navigationWidget(Side side) const
 {
@@ -1595,6 +1608,12 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     ICore::restartTrimmer();
     AppMainWindow::mousePressEvent(event);
+}
+
+void MainWindow::showEvent(QShowEvent *event)
+{
+    QMetaObject::invokeMethod(this, &MainWindow::isShown, Qt::QueuedConnection);
+    AppMainWindow::showEvent(event);
 }
 
 void ICorePrivate::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
@@ -2667,3 +2686,5 @@ void ICore::setOverrideColor(const QColor &color)
 }
 
 } // namespace Core
+
+#include "icore.moc"

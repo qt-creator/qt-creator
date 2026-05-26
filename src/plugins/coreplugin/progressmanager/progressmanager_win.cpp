@@ -29,6 +29,7 @@
 
 namespace {
     int total = 0;
+    int minProgress = 0;
     ITaskbarList3* pITask = nullptr;
 }
 
@@ -105,14 +106,15 @@ void Core::Internal::ProgressManagerPrivate::updateApplicationLabelNow()
 
 void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min, int max)
 {
-    total = max-min;
+    minProgress = min;
+    total = max - min;
 }
 
 void Core::Internal::ProgressManagerPrivate::setApplicationProgressValue(int value)
 {
     if (pITask) {
         const HWND winId = hwndOfWidget(Core::ICore::mainWindow());
-        pITask->SetProgressValue(winId, value, total);
+        pITask->SetProgressValue(winId, value - minProgress, total);
     }
 }
 
