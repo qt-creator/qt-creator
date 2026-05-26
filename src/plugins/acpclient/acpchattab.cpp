@@ -103,6 +103,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             titleLabel->setFont(titleFont);
             titleLabel->setAlignment(Qt::AlignHCenter);
             connectLayout->addWidget(titleLabel);
+            connectLayout->addWidget(Layouting::createHr());
 
             m_serverButtonsLayout = new QVBoxLayout;
             m_serverButtonsLayout->setSpacing(6);
@@ -125,6 +126,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             connect(manageButton, &QAbstractButton::clicked, this, [] {
                 Core::ICore::showSettings("AI.ACPSERVERS");
             });
+            connectLayout->addWidget(Layouting::createHr());
             connectLayout->addWidget(manageButton);
 
             connectLayout->addStretch();
