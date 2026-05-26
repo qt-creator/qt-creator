@@ -19,6 +19,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/async.h>
+#include <utils/utilsicons.h>
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/progressindicator.h>
@@ -74,6 +75,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
                                                QtcButton::MediumSecondary);
             manageButton->setToolTip(Tr::tr("Open ACP server settings."));
+            manageButton->setPixmap(Utils::Icons::SETTINGS.pixmap());
             connect(manageButton, &QAbstractButton::clicked, this, [] {
                 Core::ICore::showSettings("AI.ACPSERVERS");
             });
@@ -117,8 +119,9 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             connectLayout->addWidget(m_connectionErrorLabel);
 
             auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
-                                               QtcButton::MediumSecondary);
+                                               QtcButton::MediumGhost);
             manageButton->setToolTip(Tr::tr("Open ACP server settings."));
+            manageButton->setPixmap(Utils::Icons::SETTINGS.pixmap());
             connect(manageButton, &QAbstractButton::clicked, this, [] {
                 Core::ICore::showSettings("AI.ACPSERVERS");
             });
@@ -496,7 +499,7 @@ void AcpChatTab::populateServerButtons()
 
     const QList<AcpSettings::ServerInfo> servers = AcpSettings::servers();
     for (const AcpSettings::ServerInfo &info : servers) {
-        auto *button = new QtcButton(info.name, QtcButton::MediumPrimary);
+        auto *button = new QtcButton(info.name, QtcButton::MediumTertiary);
         button->setToolTip(info.name);
         const QString serverId = info.id;
         const QString serverName = info.name;
