@@ -119,6 +119,7 @@ public:
         QPalette bodyPal = m_browser->palette();
         bodyPal.setColor(QPalette::Base, bgColor());
         m_browser->setPalette(bodyPal);
+        m_browser->setTextColor(Utils::creatorColor(Utils::Theme::Token_Text_Default));
         m_browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         m_browser->setMinimumWidth(1);
         m_bodyLayout->addWidget(m_browser);
@@ -206,8 +207,9 @@ protected:
 private:
     QColor bgColor() const
     {
-        return m_role == User ? Utils::creatorColor(Utils::Theme::ChatUserMessageBackground)
-                              : Qt::transparent;
+        return Utils::creatorColor(
+            m_role == User ? Utils::Theme::Token_Foreground_Default
+                           : Utils::Theme::Token_Background_Default);
     }
 
     void updateBrowserHeight()
