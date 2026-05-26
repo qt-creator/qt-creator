@@ -53,6 +53,7 @@ enum GenerateFlag {
     GenerateProperty = 1 << 5,
     GenerateConstantProperty = 1 << 6,
     HaveExistingQProperty = 1 << 7,
+    GenerateBindable = 1 << 8,
     Invalid = -1,
 };
 
@@ -168,6 +169,7 @@ struct ExistingGetterSetterData
     QString setterName;
     QString resetName;
     QString signalName;
+    QString bindableName;
     QString qPropertyName;
     QString memberVariableName;
     Document::Ptr doc;
@@ -226,6 +228,8 @@ static void extractNames(const CppRefactoringFilePtr &file,
             data.signalName = file->textOf(it->value->expression);
         } else if (!qstrcmp(tokenString, "MEMBER")) {
             data.memberVariableName = file->textOf(it->value->expression);
+        } else if (!qstrcmp(tokenString, "BINDABLE")) {
+            data.bindableName = file->textOf(it->value->expression);
         }
     }
 }
@@ -290,6 +294,7 @@ private:
         const QString &setterName() const { return m_data.setterName; }
         const QString &signalName() const { return m_data.signalName; }
         const QString &resetName() const { return m_data.resetName; }
+        const QString &bindableName() const { return m_data.bindableName; }
         const QString &qPropertyName() const { return m_data.qPropertyName; }
         const QString &memberVarName() const { return m_data.memberVariableName; }
         const QString &parameterName() const { return m_parameterName; }
@@ -304,6 +309,7 @@ private:
         bool generateSetter() const { return m_generateFlags & GenerateFlag::GenerateSetter; }
         bool generateReset() const { return m_generateFlags & GenerateFlag::GenerateReset; }
         bool generateSignal() const { return m_generateFlags & GenerateFlag::GenerateSignal; }
+        bool generateBindable() const { return m_generateFlags & GenerateFlag::GenerateBindable; }
         bool generateMemberVar() const;
         bool generateConstQProperty() const;
         bool generateQProperty() const;
@@ -335,6 +341,8 @@ private:
     void generateSignal();
     void generateMemberVariable();
     void generateQProperty();
+    void generateBindable();
+    bool isQObjectSubclass() const;
     QString setterBodyWithSignal();
     CppRefactoringFilePtr determineSourceFile();
 
@@ -1703,6 +1711,7 @@ void GetterSetterRefactoringHelper::performGeneration(
     generateSignal();
     generateMemberVariable();
     generateQProperty();
+    generateBindable();
 }
 
 void GetterSetterRefactoringHelper::applyChanges()
@@ -2186,6 +2195,30 @@ void GetterSetterRefactoringHelper::generateQProperty()
     addHeaderCode(InsertionPointLocator::Private, propertyDeclaration);
 }
 
+void GetterSetterRefactoringHelper::generateBindable()
+{
+    if (!m_data.generateBindable())
+        return;
+    const QString typeName = m_overview.prettyType(m_data.memberVarType());
+    const QString code = "QBindable<" + typeName + "> " + m_data.bindableName()
+                         + "() { return &" + m_data.memberVarName() + "; }\n";
+    addHeaderCode(InsertionPointLocator::Public, code);
+}
+
+bool GetterSetterRefactoringHelper::isQObjectSubclass() const
+{
+    const QByteArray connectName = "connect";
+    const Identifier connectId(connectName.data(), connectName.size());
+    const QList<LookupItem> items = m_operation->context().lookup(&connectId, m_class);
+    for (const LookupItem &item : items) {
+        if (item.declaration() && item.declaration()->enclosingClass()
+            && m_overview.prettyName(item.declaration()->enclosingClass()->name()) == "QObject") {
+            return true;
+        }
+    }
+    return false;
+}
+
 QString GetterSetterRefactoringHelper::setterBodyWithSignal()
 {
     QString body;
@@ -2215,13 +2248,27 @@ void GetterSetterRefactoringHelper::generateMemberVariable()
     if (!m_data.generateMemberVar())
         return;
 
-    QString storageDeclaration
-            = m_overview.prettyType(m_data.memberVarType(), m_data.memberVarName());
-    if (m_data.memberVarType()->asPointerType()
-            && m_operation->semanticInfo().doc->translationUnit()->languageFeatures().cxx11Enabled) {
-        storageDeclaration.append(" = nullptr");
+    QString storageDeclaration;
+    if (m_data.generateBindable()) {
+        const QString className = m_overview.prettyName(m_data.theClass()->name());
+        const QString typeName = m_overview.prettyType(m_data.memberVarType());
+        if (isQObjectSubclass()) {
+            storageDeclaration = "Q_OBJECT_BINDABLE_PROPERTY(" + className + ", " + typeName
+                                 + ", " + m_data.memberVarName();
+            if (!m_data.signalName().isEmpty())
+                storageDeclaration += ", &" + className + "::" + m_data.signalName();
+            storageDeclaration += ");\n";
+        } else {
+            storageDeclaration = "QProperty<" + typeName + "> " + m_data.memberVarName() + ";\n";
+        }
+    } else {
+        storageDeclaration = m_overview.prettyType(m_data.memberVarType(), m_data.memberVarName());
+        if (m_data.memberVarType()->asPointerType()
+                && m_operation->semanticInfo().doc->translationUnit()->languageFeatures().cxx11Enabled) {
+            storageDeclaration.append(" = nullptr");
+        }
+        storageDeclaration.append(";\n");
     }
-    storageDeclaration.append(";\n");
     addHeaderCode(InsertionPointLocator::Private, storageDeclaration);
 }
 
@@ -2307,21 +2354,9 @@ const FullySpecifiedType &GetterSetterRefactoringHelper::Data::returnTypeTemplat
 InsertionPointLocator::AccessSpec GetterSetterRefactoringHelper::Data::setterAccessSpec() const
 {
     if (!m_setterAccessSpec) {
-        m_setterAccessSpec = InsertionPointLocator::Public;
-        if (q->m_settings->setterAsSlot) {
-            const QByteArray connectName = "connect";
-            const Identifier connectId(connectName.data(), connectName.size());
-            const QList<LookupItem> items
-                    = q->m_operation->context().lookup(&connectId, theClass());
-            for (const LookupItem &item : items) {
-                if (item.declaration() && item.declaration()->enclosingClass()
-                    && q->m_overview.prettyName(item.declaration()->enclosingClass()->name())
-                           == "QObject") {
-                    m_setterAccessSpec = InsertionPointLocator::PublicSlot;
-                    break;
-                }
-            }
-        }
+        m_setterAccessSpec = q->m_settings->setterAsSlot && q->isQObjectSubclass()
+                ? InsertionPointLocator::PublicSlot
+                : InsertionPointLocator::Public;
     }
     return *m_setterAccessSpec;
 }
@@ -2647,6 +2682,8 @@ class InsertQtPropertyMembers : public CppQuickFixFactory
             generateFlags |= GenerateFlag::GenerateGetter;
         if (!existing.signalName.isEmpty())
             generateFlags |= GenerateFlag::GenerateSignal;
+        if (!existing.bindableName.isEmpty())
+            generateFlags |= GenerateFlag::GenerateBindable;
         Overview overview;
         for (int i = 0; i < existing.clazz->memberCount(); ++i) {
             Symbol *member = existing.clazz->memberAt(i);
@@ -2661,6 +2698,8 @@ class InsertQtPropertyMembers : public CppQuickFixFactory
                     generateFlags &= ~GenerateFlag::GenerateReset;
                 else if (name == existing.signalName)
                     generateFlags &= ~GenerateFlag::GenerateSignal;
+                else if (name == existing.bindableName)
+                    generateFlags &= ~GenerateFlag::GenerateBindable;
             } else if (member->asDeclaration()) {
                 const QString name = overview.prettyName(member->name());
                 if (haveFixMemberVariableName) {
