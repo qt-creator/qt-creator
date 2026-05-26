@@ -997,8 +997,10 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
                     const auto nodeMatcher = [uiFileName](Node *n) {
                         return n->filePath().fileName() == uiFileName;
                     };
-                    if (const Node * const uiNode = project->rootProjectNode()
-                            ->findNode(nodeMatcher)) {
+                    ProjectNode *rootNode = project->rootProjectNode();
+                    if (!rootNode)
+                        continue;
+                    if (const Node * const uiNode = rootNode->findNode(nodeMatcher)) {
                         EditorManager::openEditor(uiNode->filePath());
                         return;
                     }
