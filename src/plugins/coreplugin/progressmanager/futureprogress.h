@@ -45,7 +45,7 @@ public:
     Utils::Id type() const;
 
     void setKeepOnFinish(KeepOnFinishType keepType);
-    bool keepOnFinish() const;
+    KeepOnFinishType keepOnFinish() const;
 
     bool hasError() const;
 

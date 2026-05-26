@@ -3,6 +3,7 @@
 
 #include "../cplusplus_global.h"
 
+#include <cplusplus/Lexer.h>
 #include <cplusplus/Token.h>
 #include <cplusplus/SimpleLexer.h>
 
@@ -56,6 +57,8 @@ private slots:
     void digraph_data();
     void trigraph();
     void trigraph_data();
+
+    void truncatedMultibyteIdentifier();
 
     void bytes_and_utf16chars();
     void bytes_and_utf16chars_data();
@@ -559,6 +562,46 @@ void tst_SimpleLexer::ppOpOrPunc_data()
     QTest::newRow("or_eq") << T_OR_EQ;
     QTest::newRow("xor") << T_XOR;
     QTest::newRow("xor_eq") << T_XOR_EQ;
+}
+
+void tst_SimpleLexer::truncatedMultibyteIdentifier()
+{
+    // Truncated multi-byte UTF-8 sequences at end-of-buffer must not read
+    // past the null terminator (QT-CREATOR-50T).
+    //
+    // SimpleLexer goes through QString::fromUtf8 which sanitizes invalid
+    // sequences before they reach the Lexer, so we drive Lexer directly
+    // with the raw bytes. Without the fix this reliably crashes under
+    // AddressSanitizer; on un-instrumented builds the UB may or may not
+    // fault depending on the allocator's guard layout.
+
+    auto scanRaw = [](const QByteArray &src) -> QList<unsigned> {
+        const char *first = src.constData();
+        Lexer lex(first, first + src.size());
+        lex.setStartWithNewline(true);
+        QList<unsigned> kinds;
+        Token tok;
+        do {
+            lex.scan(&tok);
+            kinds << tok.kind();
+        } while (tok.isNot(T_EOF_SYMBOL));
+        return kinds;
+    };
+
+    // Each truncated sequence must produce exactly one identifier then EOF.
+    for (const QByteArray &src : {
+             _("abc\xC2"),         // 2-byte seq: 0 of 1 trailing bytes present
+             _("abc\xE4\xBA"),     // 3-byte seq: 1 of 2 trailing bytes present
+             _("abc\xF0\x90\x8C"), // 4-byte seq: 2 of 3 trailing bytes present
+             _("\xC2"),            // 2-byte seq alone
+             _("\xE4\xBA"),        // 3-byte seq, partial
+             _("\xF0\x90\x8C"),    // 4-byte seq, partial
+         }) {
+        const QList<unsigned> kinds = scanRaw(src);
+        QCOMPARE(kinds.size(), 2);
+        QCOMPARE(kinds.first(), (unsigned) T_IDENTIFIER);
+        QCOMPARE(kinds.last(),  (unsigned) T_EOF_SYMBOL);
+    }
 }
 
 void tst_SimpleLexer::bytes_and_utf16chars()

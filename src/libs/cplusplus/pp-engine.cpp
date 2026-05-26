@@ -2245,7 +2245,7 @@ void Preprocessor::startSkippingBlocks(const Preprocessor::PPToken &tk) const
             m_client->startSkippingBlocks(utf16charIter + 1);
             return;
         }
-        Lexer::yyinp_utf8(source, yychar, utf16charIter);
+        Lexer::yyinp_utf8(source, yychar, utf16charIter, sourceEnd);
     } while (source < sourceEnd);
 }
 

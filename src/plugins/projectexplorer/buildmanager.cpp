@@ -468,37 +468,37 @@ void BuildManager::extensionsInitialized()
                           100});
 }
 
-void BuildManager::buildProjectWithoutDependencies(Project *project)
+int BuildManager::buildProjectWithoutDependencies(Project *project)
 {
-    queue({std::make_pair(project, QList<Id>{Constants::BUILDSTEPS_BUILD})}, ConfigSelection::Active);
+    return queue({std::make_pair(project, QList<Id>{Constants::BUILDSTEPS_BUILD})}, ConfigSelection::Active);
 }
 
-void BuildManager::cleanProjectWithoutDependencies(Project *project)
+int BuildManager::cleanProjectWithoutDependencies(Project *project)
 {
-    queue({std::make_pair(project, QList<Id>{Constants::BUILDSTEPS_CLEAN})}, ConfigSelection::Active);
+    return queue({std::make_pair(project, QList<Id>{Constants::BUILDSTEPS_CLEAN})}, ConfigSelection::Active);
 }
 
-void BuildManager::rebuildProjectWithoutDependencies(Project *project)
+int BuildManager::rebuildProjectWithoutDependencies(Project *project)
 {
-    queue({std::make_pair(project, QList<Id>{Constants::BUILDSTEPS_CLEAN, Constants::BUILDSTEPS_BUILD})},
+    return queue({std::make_pair(project, QList<Id>{Constants::BUILDSTEPS_CLEAN, Constants::BUILDSTEPS_BUILD})},
           ConfigSelection::Active);
 }
 
-void BuildManager::buildProjectWithDependencies(Project *project, ConfigSelection configSelection,
+int BuildManager::buildProjectWithDependencies(Project *project, ConfigSelection configSelection,
                                                 RunControl *starter)
 {
-    queue(projectWithDependencies(project, {Id(Constants::BUILDSTEPS_BUILD)}),
+    return queue(projectWithDependencies(project, {Id(Constants::BUILDSTEPS_BUILD)}),
           configSelection, nullptr, starter);
 }
 
-void BuildManager::cleanProjectWithDependencies(Project *project, ConfigSelection configSelection)
+int BuildManager::cleanProjectWithDependencies(Project *project, ConfigSelection configSelection)
 {
-    queue(projectWithDependencies(project, {Id(Constants::BUILDSTEPS_CLEAN)}), configSelection);
+    return queue(projectWithDependencies(project, {Id(Constants::BUILDSTEPS_CLEAN)}), configSelection);
 }
 
-void BuildManager::rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection)
+int BuildManager::rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection)
 {
-    queue(
+    return queue(
         projectWithDependencies(
             project, QList<Id>{Constants::BUILDSTEPS_CLEAN, Constants::BUILDSTEPS_BUILD}),
         configSelection);
@@ -510,30 +510,30 @@ static ProjectsAndStepIds projectsWithStepIds(
     return Utils::transform(projects, [&](Project *p) { return std::make_pair(p, stepIds); });
 }
 
-void BuildManager::buildProjects(const QList<Project *> &projects, ConfigSelection configSelection)
+int BuildManager::buildProjects(const QList<Project *> &projects, ConfigSelection configSelection)
 {
-    queue(projectsWithStepIds(projects, {Constants::BUILDSTEPS_BUILD}), configSelection);
+    return queue(projectsWithStepIds(projects, {Constants::BUILDSTEPS_BUILD}), configSelection);
 }
 
-void BuildManager::cleanProjects(const QList<Project *> &projects, ConfigSelection configSelection)
+int BuildManager::cleanProjects(const QList<Project *> &projects, ConfigSelection configSelection)
 {
-    queue(projectsWithStepIds(projects, {Constants::BUILDSTEPS_CLEAN}), configSelection);
+    return queue(projectsWithStepIds(projects, {Constants::BUILDSTEPS_CLEAN}), configSelection);
 }
 
-void BuildManager::rebuildProjects(const QList<Project *> &projects,
+int BuildManager::rebuildProjects(const QList<Project *> &projects,
                                    ConfigSelection configSelection)
 {
-    queue(projectsWithStepIds(projects, {Constants::BUILDSTEPS_CLEAN, Constants::BUILDSTEPS_BUILD}),
+    return queue(projectsWithStepIds(projects, {Constants::BUILDSTEPS_CLEAN, Constants::BUILDSTEPS_BUILD}),
           configSelection);
 }
 
-void BuildManager::deployProjects(const QList<Project *> &projects)
+int BuildManager::deployProjects(const QList<Project *> &projects)
 {
     QList<Id> steps;
     if (globalProjectExplorerSettings().buildBeforeDeploy() != BuildBeforeRunMode::Off)
         steps << Id(Constants::BUILDSTEPS_BUILD);
     steps << Id(Constants::BUILDSTEPS_DEPLOY);
-    queue(projectsWithStepIds(projects, steps), ConfigSelection::Active);
+    return queue(projectsWithStepIds(projects, steps), ConfigSelection::Active);
 }
 
 BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfiguration *rc)
@@ -887,6 +887,7 @@ void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFor
     if (newlineSettings == BuildStep::DoAppendNewline)
         stringToWrite += '\n';
     d->m_outputWindow->appendText(stringToWrite, format);
+    emit instance()->outputText(stringToWrite, format);
 }
 
 void BuildManager::progressChanged(int percent, const QString &text)

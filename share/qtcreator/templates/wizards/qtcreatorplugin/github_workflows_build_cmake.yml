@@ -156,7 +156,7 @@ jobs:
             execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
           endfunction()
 
-          foreach(package qtbase qtdeclarative qt5compat qtshadertools)
+          foreach(package qtbase qtdeclarative qtshadertools)
             downloadAndExtract(${package} "")
           endforeach()
 

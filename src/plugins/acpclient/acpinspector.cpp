@@ -368,7 +368,7 @@ void AcpInspector::log(AcpLogMessage::MessageSender sender,
     std::list<AcpLogMessage> &clientLog = m_logs[clientName];
     while (clientLog.size() >= static_cast<std::size_t>(m_logSize))
         clientLog.pop_front();
-    clientLog.push_back({sender, QTime::currentTime(), message});
+    clientLog.emplace_back(sender, QTime::currentTime(), message);
     emit newMessage(clientName, clientLog.back());
 }
 

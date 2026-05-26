@@ -29,7 +29,6 @@
 #include "vcsmanager.h"
 
 #include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
@@ -560,8 +559,6 @@ void CorePlugin::extensionsInitialized()
     Find::extensionsInitialized();
     m_locator->extensionsInitialized();
     ICore::extensionsInitialized();
-    if (ExtensionSystem::PluginManager::hasError())
-        ExtensionSystem::showPluginErrorOverview();
     checkSettings();
     registerActionsForOptions();
 }

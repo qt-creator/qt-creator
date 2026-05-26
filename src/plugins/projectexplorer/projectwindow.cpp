@@ -1618,6 +1618,15 @@ public:
     {
         ProjectItem *item = itemForProject(project);
         QTC_ASSERT(item, return);
+        // if the current project gets deregistered, reset root indexes for all views
+        // as otherwise we may end up in an endless loop if one of the views tries to
+        // react on rowsAboutToRemoved() but ends up inside an invalid subtree
+        // which may happen on shutdown
+        if (m_projectsModel.itemForIndex(m_targetsView->rootIndex().parent()) == item) {
+            m_targetsView->setRootIndex({});
+            m_vanishedTargetsView->setRootIndex({});
+            m_projectSettingsView->setRootIndex({});
+        }
         m_projectsModel.destroyItem(item);
     }
 

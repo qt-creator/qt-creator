@@ -399,6 +399,10 @@ void TestRunner::runTestsHelper()
             }
         } else {
             TestToolConfiguration *current = static_cast<TestToolConfiguration *>(config);
+            if (current->isInvalid()) {
+                reportResult(ResultType::MessageWarn, current->errorMessage());
+                return SetupResult::StopWithSuccess;
+            }
             command.setArguments(current->commandLine().arguments());
         }
         process.setCommand(command);

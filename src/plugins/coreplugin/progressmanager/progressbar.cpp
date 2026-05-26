@@ -48,7 +48,7 @@ bool ProgressBar::event(QEvent *e)
     default:
         return QWidget::event(e);
     }
-    return false;
+    return QWidget::event(e);
 }
 
 void ProgressBar::reset()
@@ -68,9 +68,8 @@ void ProgressBar::setRange(int minimum, int maximum)
 
 void ProgressBar::setValue(int value)
 {
-    if (m_value == value
-            || m_value < m_minimum
-            || m_value > m_maximum) {
+    value = qBound(m_minimum, value, m_maximum);
+    if (m_value == value) {
         return;
     }
     m_value = value;

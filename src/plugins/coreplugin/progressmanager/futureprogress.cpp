@@ -138,6 +138,10 @@ FutureProgress::FutureProgress(QWidget *parent) :
 */
 FutureProgress::~FutureProgress()
 {
+    // possibly installed in tryToFadeAway
+    // doesn't hurt if that was never done
+    qApp->removeEventFilter(this);
+
     delete d->m_widget;
     delete d;
 }
@@ -150,12 +154,13 @@ FutureProgress::~FutureProgress()
 void FutureProgress::setWidget(QWidget *widget)
 {
     delete d->m_widget;
-    QSizePolicy sp = widget->sizePolicy();
-    sp.setHorizontalPolicy(QSizePolicy::Ignored);
-    widget->setSizePolicy(sp);
     d->m_widget = widget;
-    if (d->m_widget)
+    if (d->m_widget) {
+        QSizePolicy sp = d->m_widget->sizePolicy();
+        sp.setHorizontalPolicy(QSizePolicy::Ignored);
+        d->m_widget->setSizePolicy(sp);
         d->m_widgetLayout->addWidget(d->m_widget);
+    }
 }
 
 /*!
@@ -224,6 +229,7 @@ bool FutureProgress::eventFilter(QObject *, QEvent *e)
 {
     if (d->m_keep != KeepOnFinish && d->m_waitingForUserInteraction
             && (e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress)) {
+        // installed in tryToFadeAway
         qApp->removeEventFilter(this);
         QTimer::singleShot(notificationTimeout, d, &FutureProgressPrivate::fadeAway);
     }
@@ -349,7 +355,7 @@ void FutureProgress::setKeepOnFinish(KeepOnFinishType keepType)
         d->tryToFadeAway();
 }
 
-bool FutureProgress::keepOnFinish() const
+FutureProgress::KeepOnFinishType FutureProgress::keepOnFinish() const
 {
     return d->m_keep;
 }
