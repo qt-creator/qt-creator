@@ -22,6 +22,7 @@ find_dependency(Qt6 "@IDE_QT_VERSION_MIN@"
   Concurrent Core Gui Widgets Network PrintSupport Qml Sql
 )
 find_dependency(Qt6 COMPONENTS Quick QuickWidgets QUIET)
+find_dependency(Qt6 OPTIONAL_COMPONENTS TaskTree QUIET)
 
 if (NOT IDE_VERSION)
   include("${CMAKE_CURRENT_LIST_DIR}/QtCreatorIDEBranding.cmake")
