@@ -164,8 +164,11 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
         reportResult(ResultType::MessageFatal, Tr::tr("Test case canceled due to timeout.\nMaybe raise the timeout?"));
     else if (reason == UserCanceled)
         reportResult(ResultType::MessageFatal, Tr::tr("Test run canceled by user."));
-    m_taskTreeRunner.reset();
-    onFinished();
+    // Debug is handled internally and calls onFinished() on its own
+    if (m_runMode != TestRunMode::Debug && m_runMode != TestRunMode::DebugWithoutDeploy) {
+        m_taskTreeRunner.reset();
+        onFinished();
+    }
 }
 
 void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests)
