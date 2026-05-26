@@ -798,6 +798,233 @@ class OptimizeForLoop : public CppQuickFixFactory
     }
 };
 
+static bool isQtShareableClass(const QByteArray &name)
+{
+    // Full list from https://doc.qt.io/qt-6/shared.html
+    static const QSet<QByteArray> types{
+        "QBitArray",
+        "QBitmap",
+        "QBrush",
+        "QByteArray",
+        "QByteArrayList",
+        "QByteArrayView",
+        "QCache",
+        "QCollator",
+        "QCollatorSortKey",
+        "QCommandLineOption",
+        "QContiguousCache",
+        "QCursor",
+        "QDBusPendingCall",
+        "QDBusUnixFileDescriptor",
+        "QDateTime",
+        "QDebug",
+        "QDir",
+        "QDnsDomainNameRecord",
+        "QDnsHostAddressRecord",
+        "QDnsMailExchangeRecord",
+        "QDnsServiceRecord",
+        "QDnsTextRecord",
+        "QDnsTlsAssociationRecord",
+        "QFileInfo",
+        "QFont",
+        "QFontInfo",
+        "QFontMetrics",
+        "QFontMetricsF",
+        "QFontVariableAxis",
+        "QFormDataBuilder",
+        "QFormDataPartBuilder",
+        "QGeoAreaMonitorInfo",
+        "QGeoPositionInfo",
+        "QGeoSatelliteInfo",
+        "QGlyphRun",
+        "QGradient",
+        "QHash",
+        "QHostAddress",
+        "QHttp1Configuration",
+        "QHttp2Configuration",
+        "QHttpPart",
+        "QIcon",
+        "QImage",
+        "QJsonArray",
+        "QJsonDocument",
+        "QJsonObject",
+        "QJsonParseError",
+        "QJsonValue",
+        "QKeySequence",
+        "QLinkedList",
+        "QList",
+        "QLocale",
+        "QLowEnergyAdvertisingData",
+        "QLowEnergyAdvertisingParameters",
+        "QLowEnergyCharacteristicData",
+        "QLowEnergyConnectionParameters",
+        "QLowEnergyDescriptorData",
+        "QLowEnergyServiceData",
+        "QMap",
+        "QMimeType",
+        "QMqttTopicFilter",
+        "QMqttTopicName",
+        "QMultiHash",
+        "QMultiMap",
+        "QNetworkAddressEntry",
+        "QNetworkCacheMetaData",
+        "QNetworkCookie",
+        "QNetworkInterface",
+        "QNetworkProxy",
+        "QNetworkProxyQuery",
+        "QNetworkRequest",
+        "QNetworkRequestFactory",
+        "QOpenGLDebugMessage",
+        "QPageRanges",
+        "QPalette",
+        "QPen",
+        "QPersistentModelIndex",
+        "QPicture",
+        "QPixmap",
+        "QPolygon",
+        "QPolygonF",
+        "QProcessEnvironment",
+        "QQueue",
+        "QRawFont",
+        "QRegExp",
+        "QRegion",
+        "QRegularExpression",
+        "QRegularExpressionMatch",
+        "QRegularExpressionMatchIterator",
+        "QSet",
+        "QSqlField",
+        "QSqlQuery",
+        "QSqlRecord",
+        "QSslCertificate",
+        "QSslCertificateExtension",
+        "QSslCipher",
+        "QSslConfiguration",
+        "QSslDiffieHellmanParameters",
+        "QSslError",
+        "QSslKey",
+        "QSslPreSharedKeyAuthenticator",
+        "QStack",
+        "QStaticText",
+        "QStorageInfo",
+        "QString",
+        "QStringList",
+        "QTextBlockFormat",
+        "QTextBoundaryFinder",
+        "QTextCharFormat",
+        "QTextCursor",
+        "QTextDocumentFragment",
+        "QTextFormat",
+        "QTextFrameFormat",
+        "QTextImageFormat",
+        "QTextListFormat",
+        "QTextTableCellFormat",
+        "QTextTableFormat",
+        "QUrl",
+        "QUrlQuery",
+        "QVariant",
+        "QVector", // Qt5 compat alias for QList
+    };
+    return types.contains(name);
+}
+
+class WrapInStdAsConstOp : public CppQuickFixOperation
+{
+public:
+    WrapInStdAsConstOp(const CppQuickFixInterface &interface,
+                                  ExpressionAST *expression)
+        : CppQuickFixOperation(interface, 0)
+        , m_expression(expression)
+    {
+        setDescription(Tr::tr("Wrap in std::as_const()"));
+    }
+
+private:
+    void perform() override
+    {
+        const int startPos = currentFile()->startOf(m_expression);
+        const int endPos = currentFile()->endOf(m_expression);
+        ChangeSet changes;
+        changes.insert(startPos, "std::as_const(");
+        changes.insert(endPos, ")");
+        currentFile()->apply(changes);
+    }
+
+    ExpressionAST * const m_expression;
+};
+
+/*!
+  Wraps the container expression of a range-based for loop in std::as_const() if
+  the container is a non-const Qt implicit-sharing type. This prevents an unintended
+  detach (copy) of the shared data during iteration.
+
+  Activates on: the container expression of a range-based for loop.
+*/
+class WrapInStdAsConst : public CppQuickFixFactory
+{
+    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
+    {
+        const QList<AST *> &path = interface.path();
+        if (path.isEmpty())
+            return;
+
+        // Find the innermost range-based for statement containing the cursor.
+        const RangeBasedForStatementAST *forStmt = nullptr;
+        for (int i = path.size() - 1; i >= 0; --i) {
+            if ((forStmt = path.at(i)->asRangeBasedForStatement()))
+                break;
+        }
+        if (!forStmt || !forStmt->expression)
+            return;
+
+        // Cursor must be on the container expression (after the colon).
+        if (!interface.isCursorOn(forStmt->expression))
+            return;
+
+        // std::as_const() takes a non-const lvalue reference, so it cannot wrap a temporary
+        // returned by a function call. Reject call expressions to avoid a compile error.
+        if (forStmt->expression->asCall())
+            return;
+
+        // Determine the type of the container expression.
+        TypeOfExpression typeOfExpression;
+        typeOfExpression.init(interface.semanticInfo().doc, interface.snapshot(),
+                              interface.context().bindings());
+        const CppRefactoringFilePtr file = interface.currentFile();
+        Scope * const scope = file->scopeAt(forStmt->expression->firstToken());
+        const QList<LookupItem> items = typeOfExpression(
+            file->textOf(forStmt->expression).toUtf8(),
+            scope,
+            TypeOfExpression::Preprocess);
+        if (items.isEmpty())
+            return;
+
+        FullySpecifiedType type = items.first().type();
+
+        // Strip a reference layer, if present.
+        if (const ReferenceType *ref = type->asReferenceType())
+            type = ref->elementType();
+
+        // Container must not already be const.
+        if (type.isConst())
+            return;
+
+        // Container must be a Qt implicit-sharing (shareable) type.
+        const NamedType * const namedType = type->asNamedType();
+        if (!namedType)
+            return;
+        const Name * const name = namedType->name();
+        if (!name)
+            return;
+        const Identifier * const id = name->identifier();
+        if (!id)
+            return;
+        if (!isQtShareableClass(id->chars()))
+            return;
+
+        result << new WrapInStdAsConstOp(interface, forStmt->expression);
+    }
+};
+
 #ifdef WITH_TESTS
 class AddBracesToControlStatementTest : public Tests::CppQuickFixTestObject
 {
@@ -829,6 +1056,12 @@ class OptimizeForLoopTest : public Tests::CppQuickFixTestObject
 public:
     using CppQuickFixTestObject::CppQuickFixTestObject;
 };
+class WrapInStdAsConstTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
 #endif
 
 } // namespace
@@ -840,6 +1073,7 @@ void registerRewriteControlStatementQuickfixes()
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveDeclarationOutOfIf);
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveDeclarationOutOfWhile);
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(OptimizeForLoop);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(WrapInStdAsConst);
     CppQuickFixFactory::registerFactory<SplitIfStatement>();
 }
 
