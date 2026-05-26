@@ -132,7 +132,7 @@ private:
     static QIcon sidePanelIcon()
     {
         return Utils::Icon({{":/acpclient/images/sparklebubble.png",
-                             Utils::Theme::IconsBaseColor}}).icon();
+                             Utils::Theme::Token_Text_Accent}}).icon();
     }
 
     AcpInspector *m_inspector = nullptr;
