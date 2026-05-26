@@ -41,6 +41,8 @@
 #include <QTimer>
 #include <QVariant>
 
+#include <ranges>
+
 using namespace Core::Internal;
 using namespace Utils;
 
@@ -140,7 +142,7 @@ void PopupInfoBarDisplay::update()
         return;
 
     const QList<InfoBarEntry> entries = m_infoBar->entries();
-    for (const InfoBarEntry &info : entries) {
+    for (const InfoBarEntry &info : entries | std::views::reverse) {
         auto widget = new InfoWidget(info, m_infoBar);
         m_layout->addWidget(widget);
         m_infoWidgets.append(widget);
