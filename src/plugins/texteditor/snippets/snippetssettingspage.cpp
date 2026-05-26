@@ -68,6 +68,7 @@ public:
     void revertBuitInSnippet(const QModelIndex &modelIndex);
     void restoreRemovedBuiltInSnippets();
     void resetSnippets();
+    void reloadSnippets();
 
 private:
     void replaceSnippet(const Snippet &snippet, const QModelIndex &modelIndex);
@@ -215,6 +216,13 @@ void SnippetsTableModel::resetSnippets()
 {
     beginResetModel();
     SnippetsCollection::instance()->reset(m_activeGroupId);
+    endResetModel();
+}
+
+void SnippetsTableModel::reloadSnippets()
+{
+    beginResetModel();
+    SnippetsCollection::instance()->reload();
     endResetModel();
 }
 
@@ -399,7 +407,7 @@ void SnippetsSettingsAspect::apply()
 void SnippetsSettingsAspect::cancel()
 {
     if (m_snippetsCollectionChanged) {
-        SnippetsCollection::instance()->reload();
+        m_model.reloadSnippets();
         m_snippetsCollectionChanged = false;
     }
 }
