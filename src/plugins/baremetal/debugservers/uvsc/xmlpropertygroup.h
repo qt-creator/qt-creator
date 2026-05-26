@@ -5,16 +5,7 @@
 
 #include "xmlproperty.h"
 
-#include <projectexplorer/abi.h>
-
-#include <memory>
-
-namespace BareMetal {
-
-class ProductData;
-class Project;
-
-namespace Gen::Xml {
+namespace BareMetal::Gen::Xml {
 
 class PropertyGroup : public Property
 {
@@ -25,5 +16,4 @@ public:
     void accept(INodeVisitor *visitor) const final;
 };
 
-} // namespace Gen::Xml
-} // namespace BareMetal
+} // namespace BareMetal::Gen::Xml
