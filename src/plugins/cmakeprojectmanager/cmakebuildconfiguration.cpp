@@ -436,7 +436,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_showProgressTimer.start();
     });
 
-    m_configModel->setMacroExpander(bc->macroExpander());
+    m_configModel->setMacroExpander(Utils::MacroExpanderProvider(bc, bc->macroExpander()));
 
     if (bs->isParsing())
         m_showProgressTimer.start();
