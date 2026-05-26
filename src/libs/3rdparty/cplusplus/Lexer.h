@@ -70,7 +70,7 @@ public:
 
 public:
     static void yyinp_utf8(const char *&currentSourceChar, unsigned char &yychar,
-                           unsigned &utf16charCounter)
+                           unsigned &utf16charCounter, const char *lastChar)
     {
         ++utf16charCounter;
 
@@ -82,11 +82,14 @@ public:
             // Code points >= 0x00010000 are represented by two UTF-16 code units
             if (trailingBytesCurrentCodePoint >= 3)
                 ++utf16charCounter;
-            yychar = *(currentSourceChar += trailingBytesCurrentCodePoint + 1);
+            currentSourceChar += trailingBytesCurrentCodePoint + 1;
+            // Guard against truncated multi-byte sequences that advance past the buffer end.
+            yychar = currentSourceChar <= lastChar ? *currentSourceChar : '\0';
 
             // Process single-byte UTF-8 code point (latin1)
         } else {
-            yychar = *++currentSourceChar;
+            ++currentSourceChar;
+            yychar = currentSourceChar <= lastChar ? *currentSourceChar : '\0';
         }
     }
 
@@ -120,7 +123,7 @@ private:
 
     void yyinp()
     {
-        yyinp_utf8(_currentChar, _yychar, _currentCharUtf16);
+        yyinp_utf8(_currentChar, _yychar, _currentCharUtf16, _lastChar);
         if (CPLUSPLUS_UNLIKELY(_yychar == '\n'))
             pushLineStartOffset();
     }

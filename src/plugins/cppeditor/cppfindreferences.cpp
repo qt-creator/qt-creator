@@ -685,7 +685,7 @@ restart_search:
             const char *currentSourceByte = utf8Source.constData() + lineBegin;
             unsigned char yychar = *currentSourceByte;
             while (currentSourceByte != startOfUse)
-                CPlusPlus::Lexer::yyinp_utf8(currentSourceByte, yychar, *columnOfUseStart);
+                CPlusPlus::Lexer::yyinp_utf8(currentSourceByte, yychar, *columnOfUseStart, startOfUse);
         }
 
         const QByteArray matchingLine = utf8Source.mid(lineBegin, lineEnd - lineBegin);
