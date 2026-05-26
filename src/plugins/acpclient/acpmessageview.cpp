@@ -51,16 +51,14 @@ using namespace Utils::StyleHelper::SpacingTokens;
 namespace AcpClient::Internal {
 
 // ---------------------------------------------------------------------------
-// AvatarWidget — circular avatar for agent/user messages
+// AvatarWidget — circular avatar for agent messages
 // ---------------------------------------------------------------------------
 
 class AvatarWidget : public QWidget
 {
 public:
-    enum AvatarType { Agent, User };
-
-    explicit AvatarWidget(AvatarType type, QWidget *parent = nullptr)
-        : QWidget(parent), m_type(type)
+    explicit AvatarWidget(QWidget *parent = nullptr)
+        : QWidget(parent)
     {
         setFixedSize(28, 28);
     }
@@ -74,33 +72,20 @@ protected:
         p.setRenderHint(QPainter::Antialiasing);
         const QRectF r = QRectF(rect()).adjusted(2, 2, -2, -2);
 
-        if (m_type == Agent) {
-            if (!m_icon.isNull()) {
-                m_icon.paint(&p, r.toAlignedRect());
-            } else {
-                QRadialGradient gradient(r.center(), r.width() / 2.0);
-                gradient.setColorAt(0, QColor(0x5e, 0xea, 0x8d));
-                gradient.setColorAt(0.6, QColor(0x22, 0xc5, 0x5e));
-                gradient.setColorAt(1.0, QColor(0x16, 0xa3, 0x4a));
-                p.setBrush(gradient);
-                p.setPen(Qt::NoPen);
-                p.drawEllipse(r);
-            }
+        if (!m_icon.isNull()) {
+            m_icon.paint(&p, r.toAlignedRect());
         } else {
-            p.setBrush(QColor(0x52, 0x52, 0x5e));
+            QRadialGradient gradient(r.center(), r.width() / 2.0);
+            gradient.setColorAt(0, QColor(0x5e, 0xea, 0x8d));
+            gradient.setColorAt(0.6, QColor(0x22, 0xc5, 0x5e));
+            gradient.setColorAt(1.0, QColor(0x16, 0xa3, 0x4a));
+            p.setBrush(gradient);
             p.setPen(Qt::NoPen);
             p.drawEllipse(r);
-            p.setPen(Qt::white);
-            QFont f = font();
-            f.setPixelSize(11);
-            f.setBold(true);
-            p.setFont(f);
-            p.drawText(r, Qt::AlignCenter, QStringLiteral("U"));
         }
     }
 
 private:
-    AvatarType m_type;
     QIcon m_icon;
 };
 
@@ -1350,10 +1335,8 @@ QWidget *AcpMessageView::wrapWithSpacer(QWidget *widget, Qt::Alignment side)
     if (side == Qt::AlignRight) {
         hbox->addSpacerItem(new QSpacerItem(60, 0, QSizePolicy::MinimumExpanding));
         hbox->addWidget(widget);
-        auto *avatar = new AvatarWidget(AvatarWidget::User, row);
-        hbox->addWidget(avatar, 0, Qt::AlignTop);
     } else {
-        auto *avatar = new AvatarWidget(AvatarWidget::Agent, row);
+        auto *avatar = new AvatarWidget(row);
         Utils::onResultReady(AcpSettings::iconForUrl(m_agentIconUrl), this, [avatar](const QIcon &icon){
             avatar->setIcon(icon);
         });
