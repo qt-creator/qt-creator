@@ -11,6 +11,8 @@
 #include "utilsicons.h"
 #include "utilstr.h"
 
+#include <ranges>
+
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -459,7 +461,7 @@ void InfoBarDisplay::update()
         return;
 
     const QList<InfoBarEntry> entries = m_infoBar->entries();
-    for (const InfoBarEntry &info : entries) {
+    const auto processEntry = [&](const InfoBarEntry &info) {
         auto infoWidget = new InfoBarWidget(m_edge, info.infoType());
 
         auto hbox = new QHBoxLayout;
@@ -586,7 +588,11 @@ void InfoBarDisplay::update()
         });
         m_boxLayout->insertWidget(m_boxIndex, infoWidget);
         m_infoWidgets << infoWidget;
-    }
+    };
+    if (m_edge == Qt::TopEdge)
+        std::ranges::for_each(entries | std::views::reverse, processEntry);
+    else
+        std::ranges::for_each(entries, processEntry);
 }
 
 QString msgDoNotShowAgain()
