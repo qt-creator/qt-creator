@@ -257,7 +257,8 @@ public:
         auto *header = new QLabel(QStringLiteral("<i>Thought</i>"), this);
         QPalette hpal = header->palette();
         hpal.setColor(QPalette::WindowText,
-                      Utils::creatorColor(Utils::Theme::PaletteTextDisabled));
+                      Utils::creatorColor(Utils::Theme::Token_Text_Subtle));
+        setIndicatorColor(Utils::Theme::Token_Text_Subtle);
         header->setPalette(hpal);
         m_headerLayout->addWidget(header, 1);
 
@@ -267,7 +268,7 @@ public:
         m_label->setText(text);
         QPalette pal = m_label->palette();
         pal.setColor(QPalette::WindowText,
-                     Utils::creatorColor(Utils::Theme::PaletteTextDisabled));
+                     Utils::creatorColor(Utils::Theme::Token_Text_Subtle));
         m_label->setPalette(pal);
         QFont f = m_label->font();
         f.setItalic(true);
@@ -286,10 +287,10 @@ protected:
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, false);
-        QPen pen(palette().color(QPalette::Mid), 2, Qt::DashLine);
+        QPen pen(Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle), 2, Qt::SolidLine);
         pen.setCapStyle(Qt::FlatCap);
         p.setPen(pen);
-        p.drawLine(QPoint(1, 0), QPoint(1, height()));
+        p.drawLine(QPointF(1, 0), QPointF(1, height()));
     }
 
 private:

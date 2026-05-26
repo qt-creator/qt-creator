@@ -13,18 +13,6 @@
 
 namespace AcpClient::Internal {
 
-static Utils::Icon expandedIndicator()
-{
-    return Utils::Icon({{":/utils/images/arrowdown.png", Utils::Theme::PanelTextColorDark}},
-                       Utils::Icon::Tint);
-}
-
-static Utils::Icon collapsedIndicator()
-{
-    return Utils::Icon({{":/utils/images/next.png", Utils::Theme::PanelTextColorDark}},
-                       Utils::Icon::Tint);
-}
-
 CollapsibleFrame::CollapsibleFrame(QWidget *parent)
     : QFrame(parent)
 {
@@ -40,7 +28,7 @@ CollapsibleFrame::CollapsibleFrame(QWidget *parent)
     headerRow->setSpacing(4);
 
     m_indicator = new Utils::QtcIconDisplay(this);
-    m_indicator->setIcon(expandedIndicator());
+    m_indicator->setIcon(indicatorIcon());
     headerRow->addWidget(m_indicator, 0, Qt::AlignTop);
 
     m_headerLayout = new QHBoxLayout;
@@ -64,7 +52,7 @@ void CollapsibleFrame::setCollapsed(bool collapsed)
         return;
     m_collapsed = collapsed;
     m_body->setVisible(!collapsed);
-    m_indicator->setIcon(collapsed ? collapsedIndicator() : expandedIndicator());
+    m_indicator->setIcon(indicatorIcon());
     emit collapsedChanged(collapsed);
 }
 
@@ -90,6 +78,19 @@ bool CollapsibleFrame::eventFilter(QObject *watched, QEvent *event)
         return true;
     }
     return QFrame::eventFilter(watched, event);
+}
+
+Utils::Icon CollapsibleFrame::indicatorIcon() const
+{
+    const Utils::FilePath next(":/utils/images/next.png");
+    const Utils::FilePath arrowDown(":/utils/images/arrowdown.png");
+    return Utils::Icon({{m_collapsed ? next : arrowDown, m_indicatorColor}}, Utils::Icon::Tint);
+}
+
+void CollapsibleFrame::setIndicatorColor(Utils::Theme::Color indicatorColor)
+{
+    m_indicatorColor = indicatorColor;
+    m_indicator->setIcon(indicatorIcon());
 }
 
 } // namespace AcpClient::Internal
