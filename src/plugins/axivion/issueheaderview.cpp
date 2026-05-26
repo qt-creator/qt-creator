@@ -200,8 +200,7 @@ const QString IssueHeaderView::currentSortString() const
 const QMap<QString, QString> IssueHeaderView::currentFilterMapping() const
 {
     QMap<QString, QString> filter;
-    for (int i = 0, end = m_columnInfoList.size(); i < end; ++i) {
-        const ColumnInfo ci = m_columnInfoList.at(i);
+    for (const ColumnInfo &ci : std::as_const(m_columnInfoList)) {
         if (ci.filter.has_value())
             filter.insert("filter_" + ci.key, QString::fromUtf8(QUrl::toPercentEncoding(*ci.filter)));
     }
@@ -213,8 +212,7 @@ void IssueHeaderView::updateExistingColumnInfos(
         const std::optional<std::vector<Dto::SortInfoDto>> &sorters)
 {
     // update filters..
-    for (int i = 0, end = m_columnInfoList.size(); i < end; ++i) {
-        ColumnInfo &info = m_columnInfoList[i];
+    for (auto &info : m_columnInfoList) {
         const auto filterItem = filters.find(info.key);
         if (filterItem == filters.end())
             info.filter.reset();

@@ -28,7 +28,7 @@ class DynamicListModel : public QAbstractItemModel
     Q_OBJECT
 public:
     explicit DynamicListModel(QObject *parent = nullptr);
-    ~DynamicListModel();
+    ~DynamicListModel() override;
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const override;
     QModelIndex parent(const QModelIndex &child) const override;
