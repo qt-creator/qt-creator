@@ -30,6 +30,7 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/extracompiler.h>
+#include <projectexplorer/projectcommentssettings.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
@@ -312,7 +313,7 @@ static bool trySplitComment(TextEditorWidget *editorWidget,
                             const CPlusPlus::Snapshot &snapshot)
 {
     const CommentsSettings::Data settings =
-            commentsSettings(editorWidget->textDocument()->filePath());
+            ProjectExplorer::commentsSettings(editorWidget->textDocument()->filePath());
 
     if (!settings.enableDoxygen && !settings.leadingAsterisks)
         return false;

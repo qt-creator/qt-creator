@@ -16,6 +16,8 @@
 #include "tests/pyprojecttoml_test.h"
 #endif // WITH_TESTS
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildtargetinfo.h>

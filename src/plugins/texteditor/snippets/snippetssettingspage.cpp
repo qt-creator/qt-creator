@@ -13,6 +13,7 @@
 #include "../texteditorsettings.h"
 #include "../texteditortr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>

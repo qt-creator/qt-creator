@@ -3,9 +3,17 @@
 
 #pragma once
 
-namespace ProjectExplorer::Internal {
+#include "projectexplorer_export.h"
 
-void setupCommentsSettingsProjectPanel();
+#include <texteditor/commentssettings.h>
 
-} // namespace Internal::ProjectExplorer
+namespace Utils { class FilePath; }
 
+namespace ProjectExplorer {
+
+PROJECTEXPLORER_EXPORT TextEditor::CommentsSettings::Data commentsSettings(
+    const Utils::FilePath &filePath);
+
+namespace Internal { void setupCommentsSettingsProjectPanel(); }
+
+} // namespace ProjectExplorer

@@ -104,24 +104,6 @@ public:
         setCreateWidgetFunction([](Project *project) {
             return new ProjectCommentsSettingsWidget(project);
         });
-
-        TextEditor::setCommentsSettingsRetriever([](const FilePath &filePath) {
-            Project * const project = ProjectManager::projectForFile(filePath);
-            if (!project)
-                return CommentsSettings::instance().data();
-
-            const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
-            if (!entry.isValid())
-                return CommentsSettings::instance().data();
-
-            const Store data = storeFromVariant(entry);
-            if (data.value(kUseGlobalKey, true).toBool())
-                return CommentsSettings::instance().data();
-
-            TextEditor::CommentsSettings::Data customSettings;
-            customSettings.fromMap(data);
-            return customSettings;
-        });
     }
 };
 
@@ -130,4 +112,24 @@ void setupCommentsSettingsProjectPanel()
     static CommentsSettingsProjectPanelFactory theCommentsSettingsProjectPanelFactory;
 }
 
-} // ProjectExplorer::Internal
+} // namespace ProjectExplorer::Internal
+
+TextEditor::CommentsSettings::Data ProjectExplorer::commentsSettings(const FilePath &filePath)
+{
+    using namespace Internal;
+    Project * const project = ProjectManager::projectForFile(filePath);
+    if (!project)
+        return CommentsSettings::instance().data();
+
+    const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
+    if (!entry.isValid())
+        return CommentsSettings::instance().data();
+
+    const Store data = storeFromVariant(entry);
+    if (data.value(kUseGlobalKey, true).toBool())
+        return CommentsSettings::instance().data();
+
+    TextEditor::CommentsSettings::Data customSettings;
+    customSettings.fromMap(data);
+    return customSettings;
+}

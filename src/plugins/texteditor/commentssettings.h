@@ -5,7 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace TextEditor {
 
@@ -44,14 +44,6 @@ public:
     Utils::BoolAspect leadingAsterisks{this};
 };
 
-// Hook for ProjectExplorer
-
-TEXTEDITOR_EXPORT CommentsSettings::Data commentsSettings(const Utils::FilePath &filePath);
-
-TEXTEDITOR_EXPORT void setCommentsSettingsRetriever(
-        const std::function<CommentsSettings::Data(const Utils::FilePath &)> &);
-
-namespace Internal {  void setupCommentsSettings(); }
-
+namespace Internal { void setupCommentsSettings(); }
 
 } // namespace TextEditor

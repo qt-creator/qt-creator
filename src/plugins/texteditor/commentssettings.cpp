@@ -6,7 +6,9 @@
 #include "texteditorconstants.h"
 #include "texteditortr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
+
 #include <utils/layoutbuilder.h>
 
 using namespace Utils;
@@ -19,13 +21,11 @@ CommentsSettings &CommentsSettings::instance()
     return settings;
 }
 
-namespace {
 const char kDocumentationCommentsGroup[] = "CppToolsDocumentationComments";
 const char kEnableDoxygenBlocks[] = "EnableDoxygenBlocks";
 const char kGenerateBrief[] = "GenerateBrief";
 const char kAddLeadingAsterisks[] = "AddLeadingAsterisks";
 const char kCommandPrefix[] = "CommandPrefix";
-}
 
 Key CommentsSettings::mainSettingsKey() { return kDocumentationCommentsGroup; }
 
@@ -126,21 +126,6 @@ void CommentsSettings::Data::toMap(Store &data) const
     data.insert(kGenerateBrief, generateBrief);
     data.insert(kAddLeadingAsterisks, leadingAsterisks);
     data.insert(kCommandPrefix, int(commandPrefix));
-}
-
-// Hook for ProjectExplorer
-
-static  std::function<CommentsSettings::Data(const FilePath &)> g_retrieveCommentsSettings;
-
-void setCommentsSettingsRetriever(const std::function<CommentsSettings::Data(const FilePath &)> &retrieve)
-{
-    g_retrieveCommentsSettings = retrieve;
-}
-
-CommentsSettings::Data commentsSettings(const FilePath &filePath)
-{
-    QTC_ASSERT(g_retrieveCommentsSettings, return CommentsSettings::instance().data());
-    return g_retrieveCommentsSettings(filePath);
 }
 
 namespace Internal {

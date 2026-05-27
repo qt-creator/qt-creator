@@ -72,6 +72,7 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
