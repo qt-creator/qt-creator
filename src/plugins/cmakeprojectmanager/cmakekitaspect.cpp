@@ -338,24 +338,26 @@ void CMakeKitAspectFactory::setup(Kit *k)
     if (cmakeTool(k))
         return;
 
-    const QList<CMakeTool *> matchingTools = toolsForBuildDevice(k);
-    if (matchingTools.isEmpty())
+    const QList<CMakeTool *> toolsForDevice = toolsForBuildDevice(k);
+    if (toolsForDevice.isEmpty())
         return;
 
     // Look for a suitable auto-detected one:
-    const QString kitSource = k->detectionSource().id;
-    for (CMakeTool *tool : matchingTools) {
-        const QString toolSource = tool->detectionSource().id;
-        if (!toolSource.isEmpty() && toolSource == kitSource) {
-            CMakeKitAspect::setCMakeExecutable(k, tool->cmakeExecutable());
-            return;
+    const DetectionSource kitSource = k->detectionSource();
+    if (kitSource.isAutoDetected()) {
+        for (CMakeTool *tool : toolsForDevice) {
+            const DetectionSource toolSource = tool->detectionSource();
+            if (toolSource == kitSource) {
+                CMakeKitAspect::setCMakeExecutable(k, tool->cmakeExecutable());
+                return;
+            }
         }
     }
 
-    if (matchingTools.contains(CMakeToolManager::defaultCMakeTool()))
+    if (toolsForDevice.contains(CMakeToolManager::defaultCMakeTool()))
         CMakeKitAspect::setCMakeExecutable(k, defaultCMakeExecutable());
     else
-        CMakeKitAspect::setCMakeExecutable(k, matchingTools.first()->cmakeExecutable());
+        CMakeKitAspect::setCMakeExecutable(k, toolsForDevice.first()->cmakeExecutable());
 }
 
 void CMakeKitAspectFactory::fix(Kit *k)
