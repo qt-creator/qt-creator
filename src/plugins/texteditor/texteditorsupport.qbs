@@ -8,7 +8,6 @@ QtcLibrary {
 
     files: [
         "tabsettingsdata.cpp",
-        "tabsettings.h",
         "texteditorsupport_global.h",
     ]
 
