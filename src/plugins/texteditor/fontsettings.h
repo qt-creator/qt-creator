@@ -115,6 +115,11 @@ public:
 
     FontSettingsData data() const;
     void setData(const FontSettingsData &fs);
+    int setFontZoom(int zoom);
+    int increaseFontZoom();
+    int decreaseFontZoom();
+    int increaseFontZoom(int step);
+    void resetFontZoom();
 
     Utils::StringAspect  family{this};
     Utils::IntegerAspect fontSize{this};

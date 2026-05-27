@@ -588,6 +588,40 @@ FontSettings &globalFontSettings()
     return theGlobalFontSettingsContainer;
 }
 
+int FontSettings::setFontZoom(int zoom)
+{
+    zoom = qMax(10, zoom);
+    if (fontZoom() == zoom)
+        return zoom;
+    fontZoom.setValue(zoom);
+    writeSettings();
+    emit TextEditorSettings::instance()->fontSettingsChanged(data());
+    return zoom;
+}
+
+int FontSettings::increaseFontZoom()
+{
+    const int prev = fontZoom();
+    return setFontZoom(prev + 10 - prev % 10);
+}
+
+int FontSettings::decreaseFontZoom()
+{
+    const int prev = fontZoom();
+    const int delta = prev % 10;
+    return setFontZoom(prev - (delta == 0 ? 10 : delta));
+}
+
+int FontSettings::increaseFontZoom(int step)
+{
+    return setFontZoom(fontZoom() + step);
+}
+
+void FontSettings::resetFontZoom()
+{
+    setFontZoom(100);
+}
+
 void setupFontSettings(const FontSettingsData::FormatDescriptions &fd)
 {
     FontSettingsData fs;

@@ -8174,13 +8174,13 @@ static void showZoomIndicator(QWidget *editor, const int newZoom)
 void TextEditorWidget::increaseFontZoom()
 {
     d->clearVisibleFoldedBlock();
-    showZoomIndicator(this, TextEditorSettings::increaseFontZoom());
+    showZoomIndicator(this, globalFontSettings().increaseFontZoom());
 }
 
 void TextEditorWidget::decreaseFontZoom()
 {
     d->clearVisibleFoldedBlock();
-    showZoomIndicator(this, TextEditorSettings::decreaseFontZoom());
+    showZoomIndicator(this, globalFontSettings().decreaseFontZoom());
 }
 
 void TextEditorWidget::zoomF(float delta)
@@ -8193,13 +8193,12 @@ void TextEditorWidget::zoomF(float delta)
     else if (step < 0 && step > -1)
         step = -1;
 
-    const int newZoom = TextEditorSettings::increaseFontZoom(int(step));
-    showZoomIndicator(this, newZoom);
+    showZoomIndicator(this, globalFontSettings().increaseFontZoom(int(step)));
 }
 
 void TextEditorWidget::zoomReset()
 {
-    TextEditorSettings::resetFontZoom();
+    globalFontSettings().resetFontZoom();
     showZoomIndicator(this, 100);
 }
 

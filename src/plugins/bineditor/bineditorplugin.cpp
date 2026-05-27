@@ -1671,7 +1671,7 @@ void BinEditorWidget::zoomF(float delta)
     else if (step < 0 && step > -1)
         step = -1;
 
-    const int newZoom = TextEditorSettings::increaseFontZoom(int(step));
+    const int newZoom = TextEditor::globalFontSettings().increaseFontZoom(int(step));
 
     FadingIndicator::showText(this,
                               Tr::tr("Zoom: %1%").arg(newZoom),

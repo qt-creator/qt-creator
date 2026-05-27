@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "commentssettings.h"
 #include "texteditor_global.h"
 
 #include <utils/id.h>
@@ -36,8 +35,6 @@ public:
 
     static TextEditorSettings *instance();
 
-    static FontSettingsData fontSettings();
-
     static ICodeStylePreferences *codeStyle();
     static ICodeStylePreferences *codeStyle(Utils::Id languageId);
     static QMap<Utils::Id, ICodeStylePreferences *> codeStyles();
@@ -46,10 +43,6 @@ public:
 
     static void registerMimeTypeForLanguageId(const char *mimeType, Utils::Id languageId);
     static Utils::Id languageId(const QString &mimeType);
-    static int increaseFontZoom();
-    static int decreaseFontZoom();
-    static int increaseFontZoom(int step);
-    static void resetFontZoom();
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettingsData &);

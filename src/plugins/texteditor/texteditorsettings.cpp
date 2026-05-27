@@ -107,7 +107,6 @@ void TextEditorSettings::unregisterCodeStyle(Utils::Id languageId)
     d->m_languageToCodeStyle.remove(languageId);
 }
 
-
 void TextEditorSettings::registerMimeTypeForLanguageId(const char *mimeType, Utils::Id languageId)
 {
     d->m_mimeTypeToLanguage.insert(QString::fromLatin1(mimeType), languageId);
@@ -116,42 +115,6 @@ void TextEditorSettings::registerMimeTypeForLanguageId(const char *mimeType, Uti
 Utils::Id TextEditorSettings::languageId(const QString &mimeType)
 {
     return d->m_mimeTypeToLanguage.value(mimeType);
-}
-
-static int setFontZoom(int zoom)
-{
-    zoom = qMax(10, zoom);
-    FontSettingsData fs = globalFontSettings().data();
-    if (fs.fontZoom() != zoom) {
-        fs.setFontZoom(zoom);
-        globalFontSettings().setData(fs);
-        globalFontSettings().writeSettings();
-        emit textEditorSettings().fontSettingsChanged(fs);
-    }
-    return zoom;
-}
-
-int TextEditorSettings::increaseFontZoom()
-{
-    const int previousZoom = globalFontSettings().fontZoom();
-    return setFontZoom(previousZoom + 10 - previousZoom % 10);
-}
-
-int TextEditorSettings::decreaseFontZoom()
-{
-    const int previousZoom = globalFontSettings().fontZoom();
-    const int delta = previousZoom % 10;
-    return setFontZoom(previousZoom - (delta == 0 ? 10 : delta));
-}
-
-int TextEditorSettings::increaseFontZoom(int step)
-{
-    return setFontZoom(globalFontSettings().fontZoom() + step);
-}
-
-void TextEditorSettings::resetFontZoom()
-{
-    setFontZoom(100);
 }
 
 TextEditorSettings &Internal::textEditorSettings()
