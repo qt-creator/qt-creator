@@ -568,7 +568,7 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
         if (findById(d->m_defaultCMake))
             return;
         auto cmakeTool = Utils::findOrDefault(cmakeTools(), [](CMakeTool *tool) {
-            return tool->detectionSource().id.isEmpty() && tool->cmakeExecutable().isLocal();
+            return tool->cmakeExecutable().isLocal();
         });
         if (cmakeTool)
             d->m_defaultCMake = cmakeTool->id();
