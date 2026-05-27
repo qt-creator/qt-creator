@@ -59,13 +59,6 @@ private:
 class ClangFormatCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    static ClangFormatCodeStyleEditor *create(
-        const ICodeStylePreferencesFactory *factory,
-        const FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent);
-
-private:
     ClangFormatCodeStyleEditor(QWidget *parent);
 
     void init(
@@ -230,17 +223,6 @@ void ClangFormatCodeStyleEditorWidget::finish()
     m_clangFormatSettings->apply();
 }
 
-ClangFormatCodeStyleEditor *ClangFormatCodeStyleEditor::create(
-    const ICodeStylePreferencesFactory *factory,
-    const FilePath &projectFile,
-    ICodeStylePreferences *codeStyle,
-    QWidget *parent)
-{
-    auto editor = new ClangFormatCodeStyleEditor{parent};
-    editor->init(factory, projectFile, codeStyle);
-    return editor;
-}
-
 ClangFormatCodeStyleEditor::ClangFormatCodeStyleEditor(QWidget *parent)
     : CodeStyleEditor{parent}
 {}
@@ -328,7 +310,9 @@ public:
             ICodeStylePreferences *codeStyle,
             QWidget *parent = nullptr) const override
     {
-        return ClangFormatCodeStyleEditor::create(this, projectFile, codeStyle, parent);
+        auto editor = new ClangFormatCodeStyleEditor{parent};
+        editor->init(this, projectFile, codeStyle);
+        return editor;
     }
 
     QString displayName() override { return Tr::tr("C++"); }
