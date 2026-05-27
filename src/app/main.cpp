@@ -182,7 +182,7 @@ static void printThemes()
     QTextStream str(&output);
     str << "Available themes:\n";
     const FilePath themesDir = appInfo().resources / "themes";
-    const FilePaths entries = themesDir.dirEntries({{"*.creatortheme"}, QDir::Files});
+    const FilePaths entries = themesDir.dirEntries(FileFilter{{"*.creatortheme"}, DirFilterFlag::Files});
     for (const FilePath &entry : entries) {
         const QString id = entry.completeBaseName();
         QSettings s(entry.toFSPathString(), QSettings::IniFormat);

@@ -188,8 +188,8 @@ bool QmlProjectFileGenerator::isDirAcceptable(const FilePath &dir, const FilePat
 }
 
 const int TOO_FAR_AWAY = 4;
-const QDir::Filters FILES_ONLY = QDir::Files;
-const QDir::Filters DIRS_ONLY = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
+const DirFilterFlag FILES_ONLY = DirFilterFlag::Files;
+const DirFilterFlag DIRS_ONLY = DirFilterFlag::Dirs | DirFilterFlag::Readable | DirFilterFlag::NoDotAndDotDot;
 
 const FilePath QmlProjectFileGenerator::findInDirTree(const FilePath &dir, const QStringList &suffixes, int currentSearchDepth) const
 {

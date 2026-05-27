@@ -138,7 +138,7 @@ void GitLabCloneDialog::updateUi()
 static FilePaths scanDirectoryForFiles(const FilePath &directory)
 {
     FilePaths result;
-    const FilePaths entries = directory.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot);
+    const FilePaths entries = directory.dirEntries(DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot);
 
     for (const FilePath &entry : entries) {
         if (entry.isDir())

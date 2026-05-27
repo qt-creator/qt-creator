@@ -219,7 +219,7 @@ FilePath ClangFormatSettings::styleFileName(const QString &key) const
 
 void ClangFormatSettings::readStyles()
 {
-    const FilePaths dirs = m_styleDir.dirEntries(QDir::AllDirs | QDir::NoDotAndDotDot);
+    const FilePaths dirs = m_styleDir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
     for (const FilePath &dir : dirs) {
         if (auto contents = dir.pathAppended(m_ending).fileContents())
             m_styles.insert(dir.fileName(), QString::fromLocal8Bit(*contents));

@@ -452,9 +452,9 @@ QString apkDevicePreferredAbi(const BuildConfiguration *bc)
         }
     }
     QStringList apkAbis;
-    const FilePaths libsPaths = libsPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    const FilePaths libsPaths = libsPath.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
     for (const FilePath &abiDir : libsPaths) {
-        if (!abiDir.dirEntries({{"*.so"}, QDir::Files | QDir::NoDotAndDotDot}).isEmpty())
+        if (!abiDir.dirEntries({{"*.so"}, DirFilterFlag::Files | DirFilterFlag::NoDotAndDotDot}).isEmpty())
             apkAbis << abiDir.fileName();
     }
     return preferredAbi(apkAbis, bc);

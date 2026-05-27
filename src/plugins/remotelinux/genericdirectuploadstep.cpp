@@ -79,7 +79,7 @@ static QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployab
     QList<DeployableFile> collected;
     FilePath localFile = deployable.localFilePath();
     if (localFile.isDir()) {
-        const FilePaths files = localFile.dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        const FilePaths files = localFile.dirEntries(DirFilterFlag::Files | DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
         const QString remoteDir = deployable.remoteDirectory() + '/' + localFile.fileName();
         for (const FilePath &localFilePath : files)
             collected.append(collectFilesToUpload(DeployableFile(localFilePath, remoteDir)));

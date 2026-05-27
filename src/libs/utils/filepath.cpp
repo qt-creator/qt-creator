@@ -38,6 +38,16 @@ namespace Utils {
 
 Q_LOGGING_CATEGORY(fpLog, "qtc.filepath", QtWarningMsg);
 
+static QDir::Filters toQDir(DirFilterFlag f) { return QDir::Filters(static_cast<int>(f)); }
+[[maybe_unused]] static QDir::SortFlags toQDirSort(DirSortFlag f)
+{
+    return QDir::SortFlags(static_cast<int>(f));
+}
+static QDirIterator::IteratorFlags toQDirIterator(DirIteratorFlag f)
+{
+    return QDirIterator::IteratorFlags(static_cast<int>(f));
+}
+
 static DeviceFileHooks &deviceFileHooks()
 {
     static DeviceFileHooks theDeviceHooks;
@@ -989,7 +999,7 @@ bool FilePath::createDir() const
 
     \sa iterateDirectory()
 */
-FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) const
+FilePaths FilePath::dirEntries(const FileFilter &filter, DirSortFlag sort) const
 {
     FilePaths result;
 
@@ -999,14 +1009,14 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) c
      );
 
     // FIXME: Not all flags supported here.
-    const QDir::SortFlags sortBy = (sort & QDir::SortByMask);
+    const DirSortFlag sortBy = (sort & DirSortFlag::SortByMask);
 
     using Predicate = std::function<bool(const FilePath &, const FilePath &)>;
 
     std::function<void(FilePaths &, Predicate)> sortWithFolders =
         [](FilePaths &result, Predicate predicate) { Utils::sort(result, predicate); };
 
-    if (sort & QDir::DirsFirst) {
+    if ((sort & DirSortFlag::DirsFirst) != DirSortFlag{}) {
         sortWithFolders = [](FilePaths &result, Predicate predicate) {
             Predicate folderFilter = [predicate](const FilePath &path1, const FilePath &path2) {
                 if (path1.isDir() && !path2.isDir())
@@ -1019,17 +1029,17 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) c
         };
     }
 
-    if (sortBy == QDir::Name) {
+    if (sortBy == DirSortFlag::Name) {
         sortWithFolders(result, [](const FilePath &path1, const FilePath &path2) {
             return path1.fileName() < path2.fileName();
         });
-    } else if (sortBy == QDir::Time) {
+    } else if (sortBy == DirSortFlag::Time) {
         sortWithFolders(result, [](const FilePath &path1, const FilePath &path2) {
             return path1.lastModified() < path2.lastModified();
         });
     }
 
-    if (sort != QDir::NoSort && (sort & QDir::Reversed))
+    if (sort != DirSortFlag::NoSort && (sort & DirSortFlag::Reversed) != DirSortFlag{})
         std::reverse(result.begin(), result.end());
 
     return result;
@@ -1040,7 +1050,7 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) c
 
     \sa iterateDirectory()
 */
-FilePaths FilePath::dirEntries(QDir::Filters filters) const
+FilePaths FilePath::dirEntries(DirFilterFlag filters) const
 {
     return dirEntries(FileFilter({}, filters));
 }
@@ -2550,9 +2560,9 @@ FilePaths FilePath::searchAllInPath(const FilePaths &additionalDirs,
 
     Returns the first match found, or an empty FilePath if none is found.
 
-    \sa searchHereAndInParents(const QStringList &, QDir::Filter)
+    \sa searchHereAndInParents(const QStringList &, DirFilterFlag)
 */
-FilePath FilePath::searchHereAndInParents(const QString &fileName, QDir::Filter type) const
+FilePath FilePath::searchHereAndInParents(const QString &fileName, DirFilterFlag type) const
 {
     return searchHereAndInParents(QStringList{fileName}, type);
 }
@@ -2563,12 +2573,12 @@ FilePath FilePath::searchHereAndInParents(const QString &fileName, QDir::Filter 
 
     Returns the first match found, or an empty FilePath if none is found.
 
-    \sa searchHereAndInParents(const QString &, QDir::Filter)
+    \sa searchHereAndInParents(const QString &, DirFilterFlag)
 */
-FilePath FilePath::searchHereAndInParents(const QStringList &fileNames, QDir::Filter type) const
+FilePath FilePath::searchHereAndInParents(const QStringList &fileNames, DirFilterFlag type) const
 {
-    const bool wantFile = type == QDir::Files;
-    const bool wantDir = type == QDir::Dirs;
+    const bool wantFile = type == DirFilterFlag::Files;
+    const bool wantDir = type == DirFilterFlag::Dirs;
     QTC_ASSERT(wantFile || wantDir, return {});
 
     FilePath file;
@@ -3117,7 +3127,8 @@ bool FilePath::isNewerThan(const QDateTime &timeStamp) const
     if (!exists() || lastModified() > timeStamp)
         return true;
     if (isDir()) {
-        const FilePaths dirContents = dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        const FilePaths dirContents = dirEntries(
+            DirFilterFlag::Files | DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
         for (const FilePath &entry : dirContents) {
             if (entry.isNewerThan(timeStamp))
                 return true;
@@ -3523,29 +3534,30 @@ QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 
 // FileFilter
 FileFilter::FileFilter(const QStringList &nameFilters,
-                       const QDir::Filters fileFilters,
-                       const QDirIterator::IteratorFlags flags)
+                       const DirFilterFlag fileFilters,
+                       const DirIteratorFlag flags)
     : nameFilters(nameFilters),
       fileFilters(fileFilters),
       iteratorFlags(flags)
 {
-    QTC_CHECK(this->fileFilters != QDir::Filters());
+    QTC_CHECK(this->fileFilters != DirFilterFlag{});
 }
 
 QStringList FileFilter::asFindArguments(const QString &path) const
 {
     QStringList arguments;
 
-    const QDir::Filters filters = fileFilters;
+    const QDir::Filters filters = toQDir(fileFilters);
+    const QDirIterator::IteratorFlags qIterFlags = toQDirIterator(iteratorFlags);
 
-    if (iteratorFlags.testFlag(QDirIterator::FollowSymlinks))
+    if (qIterFlags.testFlag(QDirIterator::FollowSymlinks))
         arguments << "-L";
     else
         arguments << "-H";
 
     arguments << path;
 
-    if (!iteratorFlags.testFlag(QDirIterator::Subdirectories))
+    if (!qIterFlags.testFlag(QDirIterator::Subdirectories))
         arguments.append({"-maxdepth", "1"});
 
     QStringList filterOptions;

@@ -8,6 +8,7 @@
 
 #include <QCommandLineParser>
 #include <QCoreApplication>
+#include <QDir>
 #include <QLoggingCategory>
 #include <QSocketNotifier>
 

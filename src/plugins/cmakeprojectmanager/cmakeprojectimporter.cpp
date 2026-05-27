@@ -306,7 +306,7 @@ static FilePaths findBuildFolders(const FilePath &path, const QList<QStringView>
         return result;
     }
     const FilePaths candidates = path.dirEntries(
-        {{patterns.front().toString()}, QDir::Dirs | QDir::NoDotAndDotDot});
+        {{patterns.front().toString()}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot});
 
     for (const auto &candidate : candidates) {
         if (patterns.size() == 1)

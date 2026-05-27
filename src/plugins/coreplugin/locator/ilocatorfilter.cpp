@@ -15,6 +15,7 @@
 
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QDir>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QJsonDocument>

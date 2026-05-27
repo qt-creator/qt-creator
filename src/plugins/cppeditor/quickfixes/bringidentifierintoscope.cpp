@@ -1581,7 +1581,7 @@ private slots:
         operations.first()->perform();
 
         // Compare files.
-        const FileFilter filter({"*_expected"}, QDir::Files);
+        const FileFilter filter({"*_expected"}, DirFilterFlag::Files);
         const FilePaths expectedDocuments = projectDir->filePath().dirEntries(filter);
         QVERIFY(!expectedDocuments.isEmpty());
         for (const FilePath &expected : expectedDocuments) {

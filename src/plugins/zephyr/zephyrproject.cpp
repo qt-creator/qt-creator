@@ -62,8 +62,8 @@ public:
             },
             {{"*.c", "*.h", "*.cpp", "*.hpp", "*.cmake", "*.conf", "*.yml", "*.yaml",
               "CMakeLists.txt"},
-             QDir::Files,
-             QDirIterator::Subdirectories});
+             DirFilterFlag::Files,
+             DirIteratorFlag::Subdirectories});
 
         auto newRoot = std::make_unique<ProjectNode>(root);
         for (const FilePath &f : files)

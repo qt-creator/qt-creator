@@ -72,7 +72,7 @@ FilePaths QmakeProjectImporter::importCandidates()
         const FilePath baseDir = sbdir.absolutePath();
         if (!Utils::insert(seenBaseDirs, baseDir))
             continue;
-        for (const FilePath &path : baseDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        for (const FilePath &path : baseDir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot)) {
             if (!candidates.contains(path))
                 candidates << path;
         }

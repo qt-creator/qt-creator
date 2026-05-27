@@ -1503,7 +1503,7 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     FilePath::iterateDirectories(searchPaths, [&executables](const FilePath &path) {
         executables.append(path);
         return IterationPolicy::Continue;
-    }, {nameFilters, QDir::Files | QDir::Executable });
+    }, {nameFilters, DirFilterFlag::Files | DirFilterFlag::Executable});
 
     // Gcc is almost never what you want on macOS, but it is by default found in /usr/bin
     if (detector.device->osType() == OsTypeMac) {

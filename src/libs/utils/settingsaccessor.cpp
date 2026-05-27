@@ -189,7 +189,8 @@ FilePaths BackUpStrategy::readFileCandidates(const FilePath &baseFileName) const
     const QStringList filter(baseFileName.fileName() + '*');
     const FilePath baseFileDir = baseFileName.parentDir();
 
-    return baseFileDir.dirEntries({filter, QDir::Files | QDir::Hidden | QDir::System});
+    return baseFileDir.dirEntries(
+        {filter, DirFilterFlag::Files | DirFilterFlag::Hidden | DirFilterFlag::System});
 }
 
 int BackUpStrategy::compare(const SettingsAccessor::RestoreData &data1,

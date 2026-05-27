@@ -65,7 +65,7 @@ void NimProjectScanner::startScan()
                    || fp.contains(".nimproject.user") || fp.contains(".nimble.user");
         };
         task.setConcurrentCallData(&TreeScanner::scanForFiles, m_project->projectDirectory(),
-                                   filter, QDir::AllEntries | QDir::NoDotAndDotDot,
+                                   filter, DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot,
                                    &TreeScanner::genericFileType);
     };
     const auto onDone = [this](const Async<ResultType> &task) {

@@ -1099,7 +1099,7 @@ bool AndroidBuildApkStep::isApkUpToDate() const
         const FilePath libsDir = androidBuildDir / "libs" / abi;
         if (!libsDir.exists())
             return false;
-        for (const FilePath &lib : libsDir.dirEntries(QDir::Files)) {
+        for (const FilePath &lib : libsDir.dirEntries(DirFilterFlag::Files)) {
             if (lib.lastModified() > apkTime)
                 return false;
         }

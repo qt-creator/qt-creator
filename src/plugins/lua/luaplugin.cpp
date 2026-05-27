@@ -345,7 +345,7 @@ public:
             }
 
             QList<PluginSpec *> plugins;
-            const FilePaths dirs = path.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+            const FilePaths dirs = path.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
             for (const auto &dir : dirs) {
                 const auto specFilePath = dir / (dir.fileName() + ".lua");
                 if (specFilePath.exists()) {
@@ -426,13 +426,13 @@ public:
         QSet<PluginSpec *> plugins;
         for (const FilePath &path : pluginPaths) {
             const FilePaths folders =
-                path.dirEntries(FileFilter({}, QDir::Dirs | QDir::NoDotAndDotDot));
+                path.dirEntries(FileFilter({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot));
 
             for (const FilePath &folder : folders) {
                 FilePath script = folder / (folder.baseName() + ".lua");
                 if (!script.exists()) {
                     const FilePaths contents =
-                        folder.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+                        folder.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
                     if (contents.empty())
                         continue;
 
@@ -483,7 +483,7 @@ public:
     {
         ActionContainer *scriptContainer = ActionManager::actionContainer(M_SCRIPT);
 
-        const FilePaths scripts = scriptsPath.dirEntries(FileFilter({"*.lua"}, QDir::Files));
+        const FilePaths scripts = scriptsPath.dirEntries(FileFilter({"*.lua"}, DirFilterFlag::Files));
         for (const FilePath &script : scripts) {
             const Id base = Id(ACTION_SCRIPTS_BASE).withSuffix(script.baseName());
             const Id menuId = base.withSuffix(".Menu");

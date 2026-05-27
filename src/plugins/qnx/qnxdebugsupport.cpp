@@ -53,7 +53,7 @@ static FilePaths searchPaths(Kit *kit)
     if (!qtVersion)
         return {};
 
-    FilePaths searchPaths = qtVersion->pluginPath().dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    FilePaths searchPaths = qtVersion->pluginPath().dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
 
     searchPaths << qtVersion->libraryPath();
     searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/lib");

@@ -794,7 +794,7 @@ void removeOutdatedKits()
 static const FilePaths kitsFiles(const Kit *kit)
 {
     const FilePath qulRoot = kitDependencyPath(kit, Legacy::Constants::QUL_CMAKE_VAR);
-    return kitsPath(qulRoot).dirEntries(Utils::FileFilter({"*.json"}, QDir::Files));
+    return kitsPath(qulRoot).dirEntries(FileFilter({"*.json"}, DirFilterFlag::Files));
 }
 
 /*

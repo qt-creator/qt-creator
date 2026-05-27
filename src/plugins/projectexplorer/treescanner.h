@@ -47,7 +47,7 @@ PROJECTEXPLORER_EXPORT ProjectExplorer::FileType genericFileType(const Utils::Mi
 PROJECTEXPLORER_EXPORT void scanForFiles(QPromise<Result> &promise,
                                          const Utils::FilePath &directory,
                                          const Filter &filter,
-                                         QDir::Filters dirFilter,
+                                         Utils::DirFilterFlag dirFilter,
                                          const FileTypeFactory &factory);
 
 } // namespace ProjectExplorer::TreeScanner

@@ -11,6 +11,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <QComboBox>
+#include <QFileInfo>
 #include <QFutureWatcher>
 
 namespace CompilerExplorer {

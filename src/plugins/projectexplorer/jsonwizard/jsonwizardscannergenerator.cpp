@@ -126,8 +126,9 @@ Core::GeneratedFiles JsonWizardScannerGenerator::scan(const Utils::FilePath &dir
     if (!dir.exists())
         return result;
 
-    const FilePaths entries = dir.dirEntries({{}, QDir::AllEntries | QDir::NoDotAndDotDot},
-                                             QDir::DirsLast | QDir::Name);
+    const FilePaths entries = dir.dirEntries(
+        {{}, DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot},
+        DirSortFlag::DirsLast | DirSortFlag::Name);
     for (const FilePath &fi : entries) {
         const QString relativePath = fi.relativePathFromDir(base);
         if (fi.isDir() && matchesSubdirectoryPattern(relativePath)) {

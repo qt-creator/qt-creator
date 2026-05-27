@@ -1302,7 +1302,7 @@ private slots:
 
         // Compare files.
         static const QString suffix = "_expected.cmake";
-        const FileFilter filter({"*" + suffix}, QDir::Files);
+        const FileFilter filter({"*" + suffix}, DirFilterFlag::Files);
         const FilePaths expectedDocuments = projectDir->filePath().dirEntries(filter);
         QVERIFY(!expectedDocuments.isEmpty());
         for (const FilePath &expected : expectedDocuments) {
@@ -1870,7 +1870,7 @@ void CMakeBuildSystem::updateFallbackProjectData()
     using ResultType = TreeScanner::Result;
     const auto onSetup = [this](Async<ResultType> &task) {
         task.setConcurrentCallData(&TreeScanner::scanForFiles, projectDirectory(), mimeFileFilter,
-                                   QDir::AllEntries | QDir::NoDotAndDotDot,
+                                   DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot,
                                    &fileTypeFactory);
         QObject::connect(&task, &AsyncBase::started, this, [this, taskPtr = &task] {
             Core::ProgressManager::addTask(taskPtr->future(),

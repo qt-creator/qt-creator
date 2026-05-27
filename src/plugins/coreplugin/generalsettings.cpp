@@ -19,6 +19,7 @@
 
 #include <QApplication>
 #include <QCoreApplication>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QLibraryInfo>
 #include <QPushButton>

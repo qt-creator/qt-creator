@@ -310,7 +310,7 @@ CMakeKeywords CMakeTool::keywords()
         };
         for (auto &i : introspections) {
             const FilePaths files = cmakeRoot.pathAppended(i.helpPath)
-                                        .dirEntries({{"*.rst"}, QDir::Files}, QDir::Name);
+                                        .dirEntries({{"*.rst"}, DirFilterFlag::Files}, DirSortFlag::Name);
             for (const auto &filePath : files)
                 i.targetMap[filePath.completeBaseName()] = filePath;
         }
@@ -324,7 +324,7 @@ CMakeKeywords CMakeTool::keywords()
 
         // Modules
         const FilePaths files
-            = cmakeRoot.pathAppended("Help/module").dirEntries({{"*.rst"}, QDir::Files}, QDir::Name);
+            = cmakeRoot.pathAppended("Help/module").dirEntries({{"*.rst"}, DirFilterFlag::Files}, DirSortFlag::Name);
         for (const FilePath &filePath : files) {
             const QString fileName = filePath.completeBaseName();
             if (fileName.startsWith("Find"))

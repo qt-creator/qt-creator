@@ -93,7 +93,7 @@ static bool hasBuildGraph(const FilePath &dir)
 static FilePaths candidatesForDirectory(const FilePath &dir)
 {
     FilePaths candidates;
-    const FilePaths subDirs = dir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    const FilePaths subDirs = dir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
     for (const FilePath &subDir : subDirs) {
         if (hasBuildGraph(subDir))
             candidates << subDir;

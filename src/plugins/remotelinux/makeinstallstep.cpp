@@ -219,7 +219,7 @@ QtTaskTree::GroupItem MakeInstallStep::runRecipe()
             return IterationPolicy::Continue;
         };
         rootDir.iterateDirectory(
-            handleFile, {{}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});
+            handleFile, {{}, DirFilterFlag::Files | DirFilterFlag::Hidden, DirIteratorFlag::Subdirectories});
 
         buildSystem()->setDeploymentData(m_deploymentData);
     };

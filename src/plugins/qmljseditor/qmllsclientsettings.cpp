@@ -108,7 +108,7 @@ static std::pair<FilePath, QVersionNumber> evaluateGithubQmlls()
             }
             return IterationPolicy::Continue;
         },
-        {{"*"}, QDir::Dirs | QDir::NoDotAndDotDot});
+        FileFilter{{"*"}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot});
     if (lastVersion.isNull())
         return {};
 

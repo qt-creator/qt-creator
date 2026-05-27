@@ -17,6 +17,9 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
+
+#include <QDir>
+#include <QFileInfo>
 #include <utils/async.h>
 #include <utils/processinfo.h>
 #include <utils/processinterface.h>
@@ -46,7 +49,7 @@ static FilePaths dirsToCreate(const FilesToTransfer &files)
     for (const FileToTransfer &file : files) {
         FilePath parentDir = file.m_target.parentDir();
         while (true) {
-            if (dirs.contains(parentDir) || QDir(parentDir.path()).isRoot())
+            if (dirs.contains(parentDir) || parentDir.isRootPath())
                 break;
             dirs << parentDir;
             parentDir = parentDir.parentDir();

@@ -59,7 +59,8 @@ static const std::pair<Utils::FilePath, int> expandWildcards(
                                {patternComponents.constBegin() + 1, patternComponents.constEnd()});
 
     auto entries = path.dirEntries(
-        Utils::FileFilter({currentComponent}, QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot));
+        FileFilter({currentComponent},
+                   DirFilterFlag::Dirs | DirFilterFlag::Files | DirFilterFlag::NoDotAndDotDot));
 
     std::pair<FilePath, int> retPair = {path, patternComponents.size()};
 

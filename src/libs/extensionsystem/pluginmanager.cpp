@@ -1804,11 +1804,11 @@ static const FilePaths pluginFiles(const FilePaths &pluginPaths)
     FilePaths searchPaths = pluginPaths;
     while (!searchPaths.isEmpty()) {
         const FilePath dir = searchPaths.takeFirst().absoluteFilePath();
-        const FilePaths files = dir.dirEntries(QDir::Files | QDir::NoSymLinks);
+        const FilePaths files = dir.dirEntries(DirFilterFlag::Files | DirFilterFlag::NoSymLinks);
         pluginFiles += Utils::filtered(files, [](const FilePath &path) {
             return QLibrary::isLibrary(path.toFSPathString());
         });
-        const FilePaths dirs = dir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+        const FilePaths dirs = dir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
         searchPaths += dirs;
     }
     return pluginFiles;

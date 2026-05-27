@@ -93,7 +93,7 @@ std::optional<FilePath> tryGetFirstDirectory(const FilePath &path, const QString
 
             return IterationPolicy::Continue;
         },
-        FileFilter{nameFilters, QDir::Dirs});
+        FileFilter{nameFilters, DirFilterFlag::Dirs});
 
     return ret;
 }
@@ -470,7 +470,7 @@ static QList<int> availableNdkPlatformsLegacy(const FilePath &ndkLocation)
                 availableNdkPlatforms.push_back(fileName.mid(fileName.lastIndexOf('-') + 1).toInt());
                 return IterationPolicy::Continue;
             },
-            {{"android-*"}, QDir::Dirs});
+            {{"android-*"}, DirFilterFlag::Dirs});
 
     return availableNdkPlatforms;
 }
@@ -484,7 +484,7 @@ static QList<int> availableNdkPlatformsV21Plus(const FilePath &ndkLocation, cons
     const QString abi = toolsPrefix(abis.first());
     const FilePath libPath =
             AndroidConfig::toolchainPathFromNdk(ndkLocation, hostOs) / "sysroot/usr/lib" / abi;
-    const FilePaths dirEntries = libPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    const FilePaths dirEntries = libPath.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
     const QList<int> availableNdkPlatforms =
             Utils::transform(dirEntries, [](const FilePath &path) {
                 return path.fileName().toInt(); });
@@ -828,7 +828,7 @@ QVersionNumber buildToolsVersion()
     //TODO: return version according to qt version
     QVersionNumber maxVersion;
     const FilePath buildToolsPath = config().m_sdkLocation.pathAppended("build-tools");
-    for (const FilePath &file : buildToolsPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot))
+    for (const FilePath &file : buildToolsPath.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot))
         maxVersion = qMax(maxVersion, QVersionNumber::fromString(file.fileName()));
     return maxVersion;
 }

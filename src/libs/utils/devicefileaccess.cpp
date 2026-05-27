@@ -18,6 +18,8 @@
 #include "qtcprocess.h"
 #endif
 
+#include <QDir>
+#include <QDirIterator>
 #include <QElapsedTimer>
 #include <QFileSystemWatcher>
 #include <QOperatingSystemVersion>
@@ -210,7 +212,7 @@ static Result<> copyRecursively_fallback(const FilePath &src, const FilePath &ta
 
             return IterationPolicy::Continue;
         },
-        {{"*"}, QDir::NoDotAndDotDot | QDir::Files, QDirIterator::Subdirectories});
+        {{"*"}, DirFilterFlag::NoDotAndDotDot | DirFilterFlag::Files, DirIteratorFlag::Subdirectories});
 
     return result;
 }
@@ -1038,7 +1040,9 @@ Result<> DesktopDeviceFileAccess::iterateDirectory(
     const FilePath::IterateDirCallback &callBack,
     const FileFilter &filter) const
 {
-    QDirIterator it(filePath.path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
+    QDirIterator it(filePath.path(), filter.nameFilters,
+                    QDir::Filters(static_cast<int>(filter.fileFilters)),
+                    QDirIterator::IteratorFlags(static_cast<int>(filter.iteratorFlags)));
     while (it.hasNext()) {
         const FilePath path = FilePath::fromString(it.next());
         IterationPolicy res;
@@ -1947,7 +1951,8 @@ Result<> UnixDeviceFileAccess::findUsingLs(
         const QChar last = entry.back();
         if (last == '/') {
             entry.chop(1);
-            if (filter.iteratorFlags.testFlag(QDirIterator::Subdirectories) && entry != "."
+            if ((filter.iteratorFlags & DirIteratorFlag::Subdirectories) != DirIteratorFlag{}
+                && entry != "."
                 && entry != "..")
                 findUsingLs(current + '/' + entry, filter, found, start + entry + "/");
         }
@@ -1980,7 +1985,7 @@ static void iterateLsOutput(const FilePath &base,
     };
 
     // FIXME: Handle filters. For now bark on unsupported options.
-    QTC_CHECK(filter.fileFilters == QDir::NoFilter);
+    QTC_CHECK(filter.fileFilters == DirFilterFlag::NoFilter);
 
     for (const QString &entry : entries) {
         if (!nameMatches(entry))

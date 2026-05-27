@@ -110,7 +110,7 @@ void PluginDumper::onLoadPluginTypes(const FilePath &libraryPath,
     plugin.importVersion = importVersion;
 
     // add default qmltypes file if it exists
-    const FilePaths libEntries = canonicalLibraryPath.dirEntries({{"*.qmltypes"}, QDir::Files});
+    const FilePaths libEntries = canonicalLibraryPath.dirEntries(FileFilter{{"*.qmltypes"}, DirFilterFlag::Files});
     for (const FilePath &libEntry : libEntries) {
         if (!plugin.typeInfoPaths.contains(libEntry))
             plugin.typeInfoPaths += libEntry;
@@ -308,7 +308,7 @@ FilePath PluginDumper::buildQmltypesPath(const QString &name) const
         return {};
 
     for (const FilePath &path : paths) {
-        auto qmltypes = path.dirEntries(FileFilter(QStringList{"*.qmltypes"}, QDir::Files));
+        auto qmltypes = path.dirEntries(FileFilter(QStringList{"*.qmltypes"}, DirFilterFlag::Files));
         if (!qmltypes.isEmpty())
             return qmltypes.first();
     }

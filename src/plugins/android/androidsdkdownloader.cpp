@@ -18,6 +18,7 @@
 #include <utils/unarchiver.h>
 
 #include <QCryptographicHash>
+#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QStandardPaths>

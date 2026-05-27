@@ -141,7 +141,7 @@ QString StackFrame::toToolTip() const
 
 static FilePath findFile(const FilePath &baseDir, const FilePath &relativeFile)
 {
-    return baseDir.searchHereAndInParents(relativeFile.path(), QDir::Files);
+    return baseDir.searchHereAndInParents(relativeFile.path(), DirFilterFlag::Files);
 }
 
 // Try to resolve files coming from resource files.

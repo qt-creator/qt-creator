@@ -255,7 +255,7 @@ McuToolchainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &
         if (installDir.exists()) {
             // If GNU Tools installation dir has only one sub dir,
             // select the sub dir, otherwise the installation dir.
-            const FilePaths subDirs = installDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+            const FilePaths subDirs = installDir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
             if (subDirs.count() == 1)
                 defaultPath = subDirs.first();
         }
@@ -410,7 +410,7 @@ McuPackagePtr createMcuXpressoIdePackage(const SettingsHandler::Ptr &settingsHan
             defaultPath = programPath;
             // If default dir has exactly one sub dir that could be the IDE path, pre-select that.
             const FilePaths subDirs = defaultPath.dirEntries(
-                {{"MCUXpressoIDE*"}, QDir::Dirs | QDir::NoDotAndDotDot});
+                {{"MCUXpressoIDE*"}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot});
             if (subDirs.count() == 1)
                 defaultPath = subDirs.first();
         }
@@ -443,8 +443,8 @@ McuPackagePtr createCypressProgrammerPackage(const SettingsHandler::Ptr &setting
         const FilePath candidate = findInProgramFiles("Cypress");
         if (candidate.exists()) {
             // "Cypress Auto Flash Utility 1.0"
-            const auto subDirs = candidate.dirEntries({{"Cypress Auto Flash Utility*"}, QDir::Dirs},
-                                                      QDir::Unsorted);
+            const auto subDirs = candidate.dirEntries({{"Cypress Auto Flash Utility*"}, DirFilterFlag::Dirs},
+                                                      DirSortFlag::NoSort);
             if (!subDirs.empty())
                 defaultPath = subDirs.first();
         }
@@ -471,8 +471,8 @@ McuPackagePtr createRenesasProgrammerPackage(const SettingsHandler::Ptr &setting
         const FilePath candidate = findInProgramFiles("Renesas Electronics/Programming Tools");
         if (candidate.exists()) {
             // "Renesas Flash Programmer V3.09"
-            const auto subDirs = candidate.dirEntries({{"Renesas Flash Programmer*"}, QDir::Dirs},
-                                                      QDir::Unsorted);
+            const auto subDirs = candidate.dirEntries({{"Renesas Flash Programmer*"}, DirFilterFlag::Dirs},
+                                                      DirSortFlag::NoSort);
             if (!subDirs.empty())
                 defaultPath = subDirs.first();
         }
@@ -616,7 +616,7 @@ FilePath kitsPath(const FilePath &qtMcuSdkPath)
 
 static FilePaths targetDescriptionFiles(const FilePath &dir)
 {
-    return kitsPath(dir).dirEntries(Utils::FileFilter({"*.json"}, QDir::Files));
+    return kitsPath(dir).dirEntries(FileFilter({"*.json"}, DirFilterFlag::Files));
 }
 
 static QVariant getOsSpecificValue(const QJsonValue &entry)

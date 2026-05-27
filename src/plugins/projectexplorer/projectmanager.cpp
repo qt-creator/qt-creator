@@ -79,7 +79,7 @@ void CustomProjectSettingsHandler::load(Project &project) const
         if (!dirExpected)
             return showError(candidate, Tr::tr("Is a directory, but must be a file."));
         QVariantList list;
-        for (const FilePaths &entries = candidate.dirEntries(QDir::Files);
+        for (const FilePaths &entries = candidate.dirEntries(DirFilterFlag::Files);
              const FilePath &entry : entries) {
             const auto result = m_loader(entry, project);
             if (!result) {

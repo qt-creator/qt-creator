@@ -942,7 +942,7 @@ FilePath FileApiParser::scanForCMakeReplyFile(const FilePath &buildDirectory)
     if (!replyDir.exists())
         return {};
 
-    const FilePaths entries = replyDir.dirEntries({{"index-*.json"}, QDir::Files}, QDir::Name);
+    const FilePaths entries = replyDir.dirEntries({{"index-*.json"}, DirFilterFlag::Files}, DirSortFlag::Name);
     return entries.isEmpty() ? FilePath() : entries.first();
 }
 

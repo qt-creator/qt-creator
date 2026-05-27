@@ -1496,7 +1496,7 @@ QList<Workspace> DockManager::loadWorkspaces(const FilePath &dir) const
             workspaces.append(workspace);
             return IterationPolicy::Continue;
         },
-        FileFilter(QStringList{"*." + workspaceFileExtension}, QDir::Files));
+        FileFilter(QStringList{"*." + workspaceFileExtension}, DirFilterFlag::Files));
 
     return workspaces;
 }
@@ -1627,7 +1627,7 @@ void DockManager::syncWorkspacePresets()
 {
     qCInfo(adsLog) << "Sync workspaces";
 
-    auto fileFilter = FileFilter(QStringList{"*." + workspaceFileExtension, "*.json"}, QDir::Files);
+    auto fileFilter = FileFilter(QStringList{"*." + workspaceFileExtension, "*.json"}, DirFilterFlag::Files);
 
     // All files in the workspace preset directory with the file extension wrk or json
     auto presetFiles = presetDirectory().dirEntries(fileFilter);

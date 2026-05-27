@@ -37,7 +37,7 @@ void tst_QrcParser::readInData()
 {
     QTest::addColumn<QString>("path");
 
-    for (const FilePath &qrcFile : m_testSrcDir.dirEntries({{"*.qrc"}, QDir::Files}))
+    for (const FilePath &qrcFile : m_testSrcDir.dirEntries(FileFilter{{"*.qrc"}, DirFilterFlag::Files}))
         QTest::newRow(qrcFile.fileName().toLatin1()) << qrcFile.path();
 }
 

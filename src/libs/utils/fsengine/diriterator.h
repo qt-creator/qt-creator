@@ -6,6 +6,8 @@
 #include "../filepath.h"
 #include "../stringutils.h"
 
+#include <QDir>
+#include <QDirIterator>
 #include <QFileInfo>
 #include <QString>
 #include <QtGlobal>

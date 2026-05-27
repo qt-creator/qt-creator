@@ -70,8 +70,8 @@ static FilePaths findQmakesInDir(const FilePath &dir)
     FilePaths qmakes;
     std::set<FilePath> canonicalQmakes;
     const FilePaths candidates = dir.dirEntries(
-                {BuildableHelperLibrary::possibleQMakeCommands(), QDir::Files},
-                QDir::Name | QDir::Reversed);
+                {BuildableHelperLibrary::possibleQMakeCommands(), DirFilterFlag::Files},
+                DirSortFlag::Name | DirSortFlag::Reversed);
 
     const auto probablyMatchesExistingQmake = [&](const FilePath &qmake) {
         // This deals with symlinks.

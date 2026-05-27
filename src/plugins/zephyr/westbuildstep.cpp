@@ -225,7 +225,7 @@ public:
         // Auto-detect a single .qmlproject at project root on first creation.
         if (m_qmlProjectFile().isEmpty()) {
             const FilePaths found = project()->projectDirectory()
-                                        .dirEntries({{"*.qmlproject"}, QDir::Files});
+                                        .dirEntries({{"*.qmlproject"}, DirFilterFlag::Files});
             if (found.size() == 1)
                 m_qmlProjectFile.setValue(found.first());
         }

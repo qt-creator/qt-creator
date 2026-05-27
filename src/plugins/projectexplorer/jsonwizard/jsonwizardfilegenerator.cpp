@@ -212,7 +212,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(MacroExpander *expander,
     for (const File &dir : std::as_const(dirList)) {
         FilePath sourceDir(dir.source);
         const FilePaths entries =
-                sourceDir.dirEntries(QDir::NoDotAndDotDot | QDir::Files| QDir::Hidden);
+                sourceDir.dirEntries(DirFilterFlag::NoDotAndDotDot | DirFilterFlag::Files | DirFilterFlag::Hidden);
 
         for (const FilePath &entry : entries) {
             const QString relativeFilePath = entry.relativeChildPath(sourceDir).path();

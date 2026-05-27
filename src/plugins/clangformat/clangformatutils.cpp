@@ -343,7 +343,7 @@ ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils:
 Utils::FilePath findConfig(const Utils::FilePath &filePath)
 {
     return filePath.searchHereAndInParents(
-        {Constants::SETTINGS_FILE_NAME, Constants::SETTINGS_FILE_ALT_NAME}, QDir::Files);
+        {Constants::SETTINGS_FILE_NAME, Constants::SETTINGS_FILE_ALT_NAME}, DirFilterFlag::Files);
 }
 
 ICodeStylePreferences *preferencesForFile(const FilePath &filePath)

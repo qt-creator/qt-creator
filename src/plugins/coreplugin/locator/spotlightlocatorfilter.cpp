@@ -20,6 +20,7 @@
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
+#include <QDir>
 #include <QFormLayout>
 #include <QJsonObject>
 #include <QRegularExpression>

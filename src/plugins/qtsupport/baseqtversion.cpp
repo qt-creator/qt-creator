@@ -282,8 +282,8 @@ QString QtVersion::moduleForHeader(const QString &headerFileName) const
 {
     if (!d->m_classesPerModule) {
         d->m_classesPerModule.emplace();
-        const FileFilter filesFilter({}, QDir::Files);
-        const FileFilter frameworksFilter({"*.framework"}, QDir::Dirs | QDir::NoDotAndDotDot);
+        const FileFilter filesFilter({}, DirFilterFlag::Files);
+        const FileFilter frameworksFilter({"*.framework"}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
         const FilePaths frameworks = libraryPath().dirEntries(frameworksFilter);
         for (const FilePath &framework : frameworks) {
             const QString frameworkName = framework.fileName();
@@ -293,7 +293,7 @@ QString QtVersion::moduleForHeader(const QString &headerFileName) const
             d->m_classesPerModule->insert(moduleName, Utils::transform(headers, &FilePath::fileName));
         }
         if (frameworks.isEmpty()) {
-            const FileFilter modulesFilter({"Qt[A-Z]*"}, QDir::Dirs | QDir::NoDotAndDotDot);
+            const FileFilter modulesFilter({"Qt[A-Z]*"}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
             const FilePaths modules = headerPath().dirEntries(modulesFilter);
             for (const FilePath &module : modules) {
                 const FilePath headersDir = headerPath().resolvePath(module);
@@ -1415,7 +1415,7 @@ FilePaths QtVersion::qtSoPaths() const
 
         // FIXME: Could be sped up, we need just the info whether there is one such entry
         const FilePaths soPaths =
-                qtPath.dirEntries({{"*.so"}, QDir::Files, QDirIterator::Subdirectories});
+                qtPath.dirEntries({{"*.so"}, DirFilterFlag::Files, DirIteratorFlag::Subdirectories});
         for (const FilePath &soPath : soPaths)
             paths.append(soPath.parentDir());
     }
@@ -1658,7 +1658,7 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const BuildCo
     // FileInProjectFinder::checkProjectDirectory.
     // To work around further, we add all .qrc files found in the project:
     if (bc) {
-        const FileFilter filter = {{"*.qrc"},  QDir::Files|QDir::Hidden, QDirIterator::Subdirectories};
+        const FileFilter filter = {{"*.qrc"}, DirFilterFlag::Files|DirFilterFlag::Hidden, DirIteratorFlag::Subdirectories};
         const FilePaths extraQrcs = bc->buildDirectory().dirEntries(filter);
         sourceFiles += extraQrcs;
     }
@@ -2092,7 +2092,7 @@ FilePaths QtVersionPrivate::qtCorePaths()
 {
     const QString versionString = data().qtVersionString;
 
-    const QDir::Filters filters = QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot;
+    const DirFilterFlag filters = DirFilterFlag::Files | DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot;
     static const QStringList nameFilters{"QtCore*.framework",
                                          "libQtCore*",
                                          "libQt5Core*",

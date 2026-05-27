@@ -288,7 +288,7 @@ void JLSClient::updateProjectFiles()
 
             sources << sourceDir.relativeChildPath(projectDir);
 
-            libs << packageSourceDir.pathAppended("libs").dirEntries({{"*.jar"}, QDir::Files});
+            libs << packageSourceDir.pathAppended("libs").dirEntries({{"*.jar"}, DirFilterFlag::Files});
 
             const QStringList classPaths = node->data(Constants::AndroidClassPaths).toStringList();
             for (const QString &path : classPaths)

@@ -153,7 +153,7 @@ void CompilationDbParser::start()
                        || TreeScanner::isMimeTypeIgnored(mimeType);
             };
             task.setConcurrentCallData(&TreeScanner::scanForFiles, m_rootPath, filter,
-                                       QDir::AllEntries | QDir::NoDotAndDotDot,
+                                       DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot,
                                        &TreeScanner::genericFileType);
             QObject::connect(&task, &AsyncBase::started, this, [this, taskPtr = &task] {
                 Core::ProgressManager::addTask(taskPtr->future(),

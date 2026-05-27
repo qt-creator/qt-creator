@@ -218,7 +218,7 @@ QStringList SuiteConf::usedTestCases() const
 
     auto suiteDir = m_filePath.parentDir();
     const Utils::FilePaths entries = Utils::filtered(
-                suiteDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot),
+                suiteDir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot),
                 [](const Utils::FilePath &fp) {
         return fp.fileName().startsWith("tst_");
     });
@@ -288,7 +288,7 @@ FilePaths SuiteConf::validTestCases(const FilePath &baseDir)
         }
 
         // now unlisted matching tests (suite.conf's TEST_CASES is used for some ordering)
-        const FilePaths entries = baseDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+        const FilePaths entries = baseDir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
         for (const FilePath &entry : entries) {
             if (!entry.fileName().startsWith("tst_"))
                 continue;

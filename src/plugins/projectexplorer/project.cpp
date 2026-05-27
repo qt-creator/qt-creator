@@ -49,6 +49,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <QDir>
 #include <QFileDialog>
 #include <QHash>
 
@@ -1627,7 +1628,7 @@ static void findAllQrcFiles(const FilePath &filePath, FilePaths &out)
             out.append(path.canonicalPath());
             return IterationPolicy::Continue;
         },
-        {{"*.qrc"}, QDir::Files});
+        {{"*.qrc"}, DirFilterFlag::Files});
 }
 
 static bool s_qmlCodeModelIsUsed = false;

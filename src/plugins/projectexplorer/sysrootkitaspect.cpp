@@ -95,7 +95,7 @@ Tasks SysRootKitAspectFactory::validate(const Kit *k) const
     } else if (!dir.isDir()) {
         result << BuildSystemTask(Task::Warning,
                                   Tr::tr("Sys Root \"%1\" is not a directory.").arg(dir.toUserOutput()));
-    } else if (dir.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty()) {
+    } else if (dir.dirEntries(DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot).isEmpty()) {
         result << BuildSystemTask(Task::Warning,
                                   Tr::tr("Sys Root \"%1\" is empty.").arg(dir.toUserOutput()));
     }

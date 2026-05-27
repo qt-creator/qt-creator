@@ -327,7 +327,7 @@ void QnxConfiguration::mutableEnsureContents()
     if (m_qnxHost.osType() == Utils::OsTypeWindows)
         pattern += ".exe";
 
-    const FilePaths debuggerNames = hostUsrBinDir.dirEntries({{pattern}, QDir::Files});
+    const FilePaths debuggerNames = hostUsrBinDir.dirEntries({{pattern}, DirFilterFlag::Files});
     Environment sysEnv = m_qnxHost.deviceEnvironment();
     sysEnv.modify(qnxEnvironmentItems());
 
@@ -397,7 +397,7 @@ void QnxConfiguration::mutableEnsureContents()
         m_configName = childElt.firstChildElement(QLatin1String("name")).text();
         m_version = childElt.firstChildElement(QLatin1String("version")).text();
         return IterationPolicy::Stop;
-    }, {{"*.xml"}, QDir::Files});
+    }, {{"*.xml"}, DirFilterFlag::Files});
 }
 
 EnvironmentItems QnxConfiguration::qnxEnvironmentItems() const

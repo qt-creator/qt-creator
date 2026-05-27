@@ -171,7 +171,7 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Fi
             dirs.append(p.canonicalPath());
             return IterationPolicy::Continue;
         },
-        FileFilter{{}, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories});
+        FileFilter{{}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot, DirIteratorFlag::Subdirectories});
 
     QMetaObject::invokeMethod(
         this,
@@ -282,7 +282,7 @@ bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
 
 static QMap<QString, QDateTime> qmlFilesWithMTime(const FilePath &directory)
 {
-    const FilePaths qmlFiles = directory.dirEntries({{ "*.qml" }, QDir::Files}, QDir::Name);
+    const FilePaths qmlFiles = directory.dirEntries({{ "*.qml" }, DirFilterFlag::Files}, DirSortFlag::Name);
     QMap<QString, QDateTime> filesAndDates;
     for (const FilePath &info : qmlFiles)
         filesAndDates.insert(info.fileName(), info.lastModified());

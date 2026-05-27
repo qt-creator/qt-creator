@@ -251,7 +251,7 @@ void FileSystemAccessTest::testDirStatus()
             }
             return IterationPolicy::Stop;
         },
-        {{"test"}, QDir::Files});
+        {{"test"}, DirFilterFlag::Files});
 
     QVERIFY(fileExists);
     QVERIFY(testFilePath.removeFile());

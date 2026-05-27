@@ -22,7 +22,6 @@
 #include <QDebug>
 #include <QFile>
 #include <QMap>
-#include <QDir>
 #include <QTextStream>
 #include <QFileInfo>
 #include <QCoreApplication>
@@ -383,8 +382,8 @@ void CustomWizard::createWizards()
     if (CustomWizardPrivate::verbose)
         verboseLog += QString("### CustomWizard: Checking \"%1\"\n").arg(userTemplateDir.toUserOutput());
 
-    const FileFilter filters({}, QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot);
-    const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
+    const FileFilter filters({}, DirFilterFlag::Dirs|DirFilterFlag::Readable|DirFilterFlag::NoDotAndDotDot);
+    const DirSortFlag sortflags = DirSortFlag::Name|DirSortFlag::IgnoreCase;
     FilePaths dirs;
     if (userTemplateDir.exists()) {
         if (CustomWizardPrivate::verbose) {

@@ -15,6 +15,7 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QTextStream>
 

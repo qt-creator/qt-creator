@@ -157,8 +157,8 @@ std::optional<McuModuleProjectItem> McuModuleProjectItem::fromQmldirModule(const
     // list qml files
     const auto qmldirParent = qmldirFile.parentDir();
     auto qmlDirEntries = qmldirParent.dirEntries(Utils::FileFilter{{Constants::QmlDir::QML_FILE_FILTER},
-                                                                   QDir::NoFilter,
-                                                                   QDirIterator::Subdirectories});
+                                                                   Utils::DirFilterFlag::NoFilter,
+                                                                   Utils::DirIteratorFlag::Subdirectories});
     if (qmlDirEntries.empty()) {
         qCWarning(log) << "No qml files found in:" << qmldirParent;
         return {};

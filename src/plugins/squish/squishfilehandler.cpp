@@ -136,7 +136,7 @@ static void addAllEntriesRecursively(SquishTestTreeItem *item, SharedType shared
 {
     const Utils::FilePath folder = item->filePath();
 
-    for (const Utils::FilePath &file : folder.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot)) {
+    for (const Utils::FilePath &file : folder.dirEntries(DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot)) {
         const bool isDirectory = file.isDir();
         if (!file.isFile() && !isDirectory)
             continue;
@@ -186,7 +186,7 @@ static SquishTestTreeItem *createSuiteTreeItem(const QString &name,
         if (const Utils::FilePath data = testCaseDir.pathAppended("testdata"); data.isDir())
             processSharedSubFolders(child, data, SharedType::SharedData);
 
-        for (auto &file : testCaseDir.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot)) {
+        for (auto &file : testCaseDir.dirEntries(DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot)) {
             // ignore current test script and testdata folder
             const bool isDir = file.isDir();
             if (file == testCase || (isDir && file.fileName() == "testdata"))
@@ -442,7 +442,7 @@ void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &
 
 void addAllEntriesRecursively(SquishTestTreeItem *item)
 {
-    const Utils::FilePaths entries = item->filePath().dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot);
+    const Utils::FilePaths entries = item->filePath().dirEntries(DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot);
     for (const Utils::FilePath &path : entries) {
         // TODO improve this later? Squish refuses directories containing Squish test suites
         const bool isDir = path.isDir();

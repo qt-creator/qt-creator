@@ -706,7 +706,7 @@ void FontSettingsAspect::refreshColorSchemeList()
 
     const FilePath styleDir = Core::ICore::resourcePath("styles");
 
-    FilePaths schemeList = styleDir.dirEntries(FileFilter({"*.xml"}, QDir::Files));
+    FilePaths schemeList = styleDir.dirEntries(FileFilter({"*.xml"}, DirFilterFlag::Files));
     const FilePath defaultScheme = FontSettingsData::defaultSchemeFileName();
 
     if (schemeList.removeAll(defaultScheme))
@@ -723,7 +723,7 @@ void FontSettingsAspect::refreshColorSchemeList()
     if (colorSchemes.isEmpty())
         qWarning() << "Warning: no color schemes found in path:" << styleDir.toUserOutput();
 
-    const FilePaths files = customStylesPath().dirEntries(FileFilter({"*.xml"}, QDir::Files));
+    const FilePaths files = customStylesPath().dirEntries(FileFilter({"*.xml"}, DirFilterFlag::Files));
     for (const FilePath &file : files) {
         if (m_value.colorSchemeFileName().fileName() == file.fileName())
             selected = colorSchemes.size();

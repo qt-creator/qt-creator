@@ -16,6 +16,7 @@
 #include <utils/qtcassert.h>
 #include <utils/templateengine.h>
 
+#include <QDir>
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QSet>

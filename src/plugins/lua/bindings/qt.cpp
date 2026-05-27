@@ -143,9 +143,9 @@ void setupQtModule()
 
         qt["QDirIterator"] = lua.create_table_with(
             "IteratorFlag", lua.create_table_with(
-                "NoIteratorFlags", QDirIterator::NoIteratorFlags,
-                "FollowSymlinks", QDirIterator::FollowSymlinks,
-                "Subdirectories", QDirIterator::Subdirectories
+                "NoIteratorFlags", Utils::DirIteratorFlag::NoIteratorFlags,
+                "FollowSymlinks", Utils::DirIteratorFlag::FollowSymlinks,
+                "Subdirectories", Utils::DirIteratorFlag::Subdirectories
             )
         );
 

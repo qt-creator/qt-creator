@@ -10,6 +10,7 @@
 #include <utils/stringutils.h>
 
 #include <QApplication>
+#include <QDir>
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(integrationLog, "qtc.terminal.shellintegration", QtWarningMsg)

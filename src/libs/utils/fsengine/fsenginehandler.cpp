@@ -365,7 +365,9 @@ QAbstractFileEngine::IteratorUniquePtr FSEngineImpl::beginEntryList(
             g_filePathInfoCache.cache(p, data);
             return IterationPolicy::Continue;
         },
-        {filterNames, filters, iteratorFlags});
+        {filterNames,
+         static_cast<DirFilterFlag>(static_cast<int>(filters)),
+         static_cast<DirIteratorFlag>(static_cast<int>(iteratorFlags))});
 
     return std::make_unique<DirIterator>(std::move(paths), path, filters, filterNames);
 }

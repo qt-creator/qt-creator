@@ -38,6 +38,7 @@
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
+#include <QDirIterator>
 #include <QMessageBox>
 
 using namespace Core;

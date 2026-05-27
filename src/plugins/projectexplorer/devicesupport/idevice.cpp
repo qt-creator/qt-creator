@@ -1376,10 +1376,10 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
 
         // We are looking for something like ~/Qt/6.6.3/gcc_64/bin/
         const FilePath qtInstallation = q->filePath(qtPath);
-        for (const FilePath &qtVersion : qtInstallation.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        for (const FilePath &qtVersion : qtInstallation.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot)) {
             if (qtVersion.fileName().count(".") == 2) {
                 const QVersionNumber qtVersionNumber = QVersionNumber::fromString(qtVersion.fileName());
-                for (const FilePath &qtArch : qtVersion.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
+                for (const FilePath &qtArch : qtVersion.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot)) {
                     const FilePath qtBinPath = qtArch.pathAppended("bin");
                     if (qtBinPath.exists())
                         qtBinPaths += std::make_pair(qtVersionNumber, qtBinPath);

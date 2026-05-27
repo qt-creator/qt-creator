@@ -22,6 +22,7 @@
 #include <utils/unarchiver.h>
 
 #include <QApplication>
+#include <QDir>
 #include <QJsonDocument>
 #include <QLabel>
 #include <QMessageBox>

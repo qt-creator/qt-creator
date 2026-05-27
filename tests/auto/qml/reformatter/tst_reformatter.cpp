@@ -10,6 +10,8 @@
 #include <utils/filepath.h>
 
 #include <QApplication>
+#include <QDir>
+#include <QDirIterator>
 #include <QGraphicsObject>
 #include <QScopedPointer>
 #include <QTest>

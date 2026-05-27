@@ -3,6 +3,8 @@
 
 #include "qmltraceviewersettings.h"
 
+#include <QDir>
+
 namespace QmlTraceViewer {
 
 QmlTraceViewerSettings::QmlTraceViewerSettings()

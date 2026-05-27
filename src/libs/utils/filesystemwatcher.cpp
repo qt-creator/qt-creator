@@ -9,7 +9,6 @@
 #include <chrono>
 
 #include <QDateTime>
-#include <QDir>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
 #include <QTimer>
@@ -188,7 +187,7 @@ public:
 
         // Re-add files that were replaced (deleted + recreated).
         QStringList toReadd;
-        for (const FilePath &entry : dirPath.dirEntries(QDir::Files)) {
+        for (const FilePath &entry : dirPath.dirEntries(DirFilterFlag::Files)) {
             if (m_files.contains(entry))
                 toReadd.append(entry.toFSPathString());
         }

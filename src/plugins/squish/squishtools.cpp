@@ -1022,8 +1022,8 @@ void SquishTools::logrotateTestResults()
 {
     // make this configurable?
     const int maxNumberOfTestResults = 10;
-    const Utils::FilePaths existing = resultsDirectory.dirEntries({{}, QDir::Dirs | QDir::NoDotAndDotDot},
-                                                                  QDir::Name);
+    const Utils::FilePaths existing = resultsDirectory.dirEntries(
+        {{}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot}, DirSortFlag::Name);
 
     for (int i = 0, limit = existing.size() - maxNumberOfTestResults; i < limit; ++i) {
         if (!existing.at(i).removeRecursively())

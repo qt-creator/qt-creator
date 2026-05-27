@@ -1774,7 +1774,7 @@ FilePath findEffectFile(const ModelNode &effectNode)
         // Scan the project's content folder for a matching effect
         FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentResourcePath();
         const FilePaths matches = contentPath.dirEntries(
-            {{effectFile}, QDir::Files, QDirIterator::Subdirectories});
+            {{effectFile}, DirFilterFlag::Files, DirIteratorFlag::Subdirectories});
         if (matches.isEmpty()) {
             QMessageBox msgBox;
             msgBox.setText(

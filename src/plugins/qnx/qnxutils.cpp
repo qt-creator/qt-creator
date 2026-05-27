@@ -166,7 +166,7 @@ QList<QnxTarget> QnxUtils::findTargets(const FilePath &basePath)
                 }
                 return IterationPolicy::Continue;
             },
-            {{}, QDir::Dirs});
+            {{}, DirFilterFlag::Dirs});
 
     return result;
 }

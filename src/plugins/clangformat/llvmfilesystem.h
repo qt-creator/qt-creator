@@ -6,6 +6,8 @@
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
+
 #include <llvm/Support/VirtualFileSystem.h>
 
 namespace ClangFormat::Internal {

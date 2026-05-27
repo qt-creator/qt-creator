@@ -305,7 +305,7 @@ void ComponentViewController::updateIncludeDependencies(qmt::MPackage *rootPacka
 void ComponentViewController::doCreateComponentModel(
     const FilePath &filePath, qmt::MDiagram *diagram, const FilePath &anchorFolder, bool scanHeaders)
 {
-    for (const FilePath &file : filePath.dirEntries(QDir::Files)) {
+    for (const FilePath &file : filePath.dirEntries(DirFilterFlag::Files)) {
         QString componentName = qmt::NameController::convertFileNameToElementName(file);
         qmt::MComponent *component = nullptr;
         bool isSource = false;
@@ -348,7 +348,7 @@ void ComponentViewController::doCreateComponentModel(
             }
         }
     }
-    for (const FilePath &subdir : filePath.dirEntries(QDir::Dirs|QDir::NoDotAndDotDot))
+    for (const FilePath &subdir : filePath.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot))
         doCreateComponentModel(subdir, diagram, anchorFolder, scanHeaders);
 }
 

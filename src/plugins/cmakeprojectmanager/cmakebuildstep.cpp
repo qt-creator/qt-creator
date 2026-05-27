@@ -941,7 +941,7 @@ void CMakeBuildStep::updateDeploymentData()
         };
 
     rootDir.iterateDirectory(handleFile,
-                             {{}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});
+                             {{}, DirFilterFlag::Files | DirFilterFlag::Hidden, DirIteratorFlag::Subdirectories});
 
     buildSystem()->setDeploymentData(deploymentData);
 }

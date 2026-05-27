@@ -9,6 +9,8 @@
 #include <theme.h>
 #include <utils/stylehelper.h>
 
+#include <QFileInfo>
+
 namespace QmlDesigner {
 
 AssetsLibraryIconProvider::AssetsLibraryIconProvider(SynchronousImageCache &fontImageCache)

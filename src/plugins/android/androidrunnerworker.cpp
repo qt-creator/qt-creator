@@ -96,8 +96,8 @@ static FilePath debugServer(const BuildConfiguration *bc)
     const QString abiNeedle = lldbServerArch(apkDevicePreferredAbi(bc));
 
     // The new, built-in LLDB.
-    const QDir::Filters dirFilter = HostOsInfo::isWindowsHost() ? QDir::Files
-                                                                : QDir::Files|QDir::Executable;
+    const DirFilterFlag dirFilter = HostOsInfo::isWindowsHost() ? DirFilterFlag::Files
+                                                                : DirFilterFlag::Files|DirFilterFlag::Executable;
     FilePath lldbServer;
     const auto handleLldbServerCandidate = [&abiNeedle, &lldbServer] (const FilePath &path) {
         if (path.parentDir().fileName() == abiNeedle) {
@@ -107,7 +107,7 @@ static FilePath debugServer(const BuildConfiguration *bc)
         return IterationPolicy::Continue;
     };
     prebuilt.iterateDirectory(handleLldbServerCandidate,
-                              {{"lldb-server"}, dirFilter, QDirIterator::Subdirectories});
+                              {{"lldb-server"}, dirFilter, DirIteratorFlag::Subdirectories});
     return lldbServer;
 }
 

@@ -141,7 +141,7 @@ QHash<QString, Utils::FilePath> AssetsLibraryView::collectFiles(const Utils::Fil
 
     QHash<QString, Utils::FilePath> files;
 
-    Utils::FilePaths entryList = dirPath.dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+    Utils::FilePaths entryList = dirPath.dirEntries(Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Dirs | Utils::DirFilterFlag::NoDotAndDotDot);
     for (const Utils::FilePath &entry : entryList) {
         if (entry.isDir()) {
             files.insert(collectFiles(entry.absoluteFilePath(), suffix));

@@ -39,7 +39,9 @@ std::optional<Utils::FilePath> firstMatchingPath(const Utils::FilePath &path)
     // fallback to wildcards
     Utils::FilePath parentDir = path.parentDir();
     auto entries = parentDir.dirEntries(
-        Utils::FileFilter({path.fileName()}, QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot));
+        Utils::FileFilter({path.fileName()},
+                          Utils::DirFilterFlag::Dirs | Utils::DirFilterFlag::Files
+                              | Utils::DirFilterFlag::NoDotAndDotDot));
     if (entries.empty())
         return std::nullopt;
     return entries.first();

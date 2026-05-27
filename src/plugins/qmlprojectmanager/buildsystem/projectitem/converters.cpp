@@ -6,6 +6,8 @@
 #include "../../qmlprojectconstants.h"
 #include "../../qmlprojectexporter/filetypes.h"
 
+#include <QDir>
+#include <QDirIterator>
 #include <QJsonDocument>
 
 namespace QmlProjectManager::Converters {
@@ -249,7 +251,7 @@ QStringList qmlprojectsFromFilesNodes(const QJsonArray &fileGroups,
         }
         const Utils::FilePath dir = projectRootPath / directoryProp;
         qmlProjectFiles.append(Utils::transform<QStringList>(
-            dir.dirEntries(Utils::FileFilter({"*.qmlproject"}, QDir::Files)),
+            dir.dirEntries(Utils::FileFilter({"*.qmlproject"}, Utils::DirFilterFlag::Files)),
             [&projectRootPath](Utils::FilePath file) {
                 return file.absoluteFilePath().relativePathFromDir(projectRootPath);
             }));

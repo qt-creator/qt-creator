@@ -39,7 +39,7 @@ static void vcpkgManifests(QPromise<VcpkgManifest> &promise, const FilePath &vcp
 {
     const FilePath portsDir = vcpkgRoot / "ports";
     const FilePaths manifestFiles =
-        portsDir.dirEntries({{"vcpkg.json"}, QDir::Files, QDirIterator::Subdirectories});
+        portsDir.dirEntries({{"vcpkg.json"}, DirFilterFlag::Files, DirIteratorFlag::Subdirectories});
     for (const FilePath &manifestFile : manifestFiles) {
         if (promise.isCanceled())
             return;

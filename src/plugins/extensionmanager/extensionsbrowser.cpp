@@ -42,6 +42,7 @@
 #include <utils/utilsicons.h>
 
 #include <QApplication>
+#include <QDir>
 #include <QItemDelegate>
 #include <QLabel>
 #include <QLayout>

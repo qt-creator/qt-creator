@@ -262,7 +262,7 @@ static int addFilePathItems(const AssistInterface *interface,
     }
 
     const FilePaths filesPaths = baseDir.dirEntries(
-        FileFilter({QString("%1*").arg(prefix)}, QDir::AllEntries | QDir::NoDotAndDotDot));
+        FileFilter({QString("%1*").arg(prefix)}, DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot));
     for (const auto &file : filesPaths) {
         AssistProposalItem *item = new AssistProposalItem;
         QString fileName = file.fileName();
@@ -415,12 +415,12 @@ static QPair<QStringList, QStringList> getFindAndConfigCMakePackages(
             // Only search for directories if we have a prefix
             const FilePaths dirs = !m.pathPrefix.isEmpty()
                                        ? prefix.pathAppended(m.pathPrefix)
-                                             .dirEntries({{"*"}, QDir::Dirs | QDir::NoDotAndDotDot})
+                                             .dirEntries({{"*"}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot})
                                        : FilePaths{prefix};
             const QStringList cmakeFiles
                 = Utils::transform<QStringList>(dirs, [](const FilePath &path) {
-                      return Utils::transform(path.dirEntries({{"*.cmake"}, QDir::Files},
-                                                              QDir::Name),
+                      return Utils::transform(path.dirEntries({{"*.cmake"}, DirFilterFlag::Files},
+                                                              DirSortFlag::Name),
                                               &FilePath::fileName);
                   });
             m.result << Utils::transform(cmakeFiles, m.function);

@@ -417,7 +417,7 @@ The end.
                 qDebug() << path;
                 return IterationPolicy::Continue;
             },
-            FileFilter({}, QDir::AllEntries, QDirIterator::NoIteratorFlags));
+            FileFilter({}, DirFilterFlag::AllEntries, DirIteratorFlag::NoIteratorFlags));
 
         TestDFA dfa;
         dfa.iterateDirectory(
@@ -426,7 +426,7 @@ The end.
                 qDebug() << path;
                 return IterationPolicy::Continue;
             },
-            FileFilter({}, QDir::AllEntries, QDirIterator::NoIteratorFlags));
+            FileFilter({}, DirFilterFlag::AllEntries, DirIteratorFlag::NoIteratorFlags));
 
         // We had a bug where symlinks were filtered by the name of their target
         // instead of the name of the link itself. Test that this is not the case.
@@ -447,7 +447,7 @@ The end.
                 results << path.fileName();
                 return IterationPolicy::Continue;
             },
-            FileFilter{{"original*"}, QDir::AllEntries});
+            FileFilter{{"original*"}, DirFilterFlag::AllEntries});
 
         QCOMPARE(results, QStringList{"original-file.txt"});
     }
@@ -470,7 +470,7 @@ The end.
                 //qDebug() << path.toString() << info.lastModified;
                 return IterationPolicy::Continue;
             },
-            FileFilter({}, QDir::AllEntries, QDirIterator::NoIteratorFlags));
+            FileFilter({}, DirFilterFlag::AllEntries, DirIteratorFlag::NoIteratorFlags));
         qDebug() << "CmdBridge Find took:" << timer.restart();
 
         TestDFA dfa;
@@ -480,7 +480,7 @@ The end.
                 //qDebug() << path.toString() << info.lastModified;
                 return IterationPolicy::Continue;
             },
-            FileFilter({}, QDir::AllEntries, QDirIterator::NoIteratorFlags));
+            FileFilter({}, DirFilterFlag::AllEntries, DirIteratorFlag::NoIteratorFlags));
         qDebug() << "Fallback Find took:" << timer.elapsed();
     }
 

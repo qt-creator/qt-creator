@@ -10,6 +10,7 @@
 #include "stringutils.h"
 #include "utilstr.h"
 
+#include <QDir>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QScopeGuard>
@@ -669,8 +670,8 @@ std::optional<FileContainerIterator::Item> SubDirCache::updateCache(int advanceI
             using CanonicalDir = FilePath;
             std::vector<std::pair<Dir, CanonicalDir>> subDirs;
             if (!processed) {
-                const FilePaths entries = dir.dirEntries(QDir::Dirs | QDir::Hidden
-                                                         | QDir::NoDotAndDotDot);
+                const FilePaths entries = dir.dirEntries(
+                    DirFilterFlag::Dirs | DirFilterFlag::Hidden | DirFilterFlag::NoDotAndDotDot);
                 for (const FilePath &entry : entries) {
                     const FilePath canonicalDir = entry.canonicalPath();
                     if (!m_knownDirs.contains(canonicalDir))
@@ -678,7 +679,7 @@ std::optional<FileContainerIterator::Item> SubDirCache::updateCache(int advanceI
                 }
             }
             if (subDirs.empty()) {
-                const FilePaths allFilePaths = dir.dirEntries(QDir::Files | QDir::Hidden);
+                const FilePaths allFilePaths = dir.dirEntries(DirFilterFlag::Files | DirFilterFlag::Hidden);
                 const FilePaths filePaths = m_filterFilesFunction(allFilePaths);
                 m_items.reserve(m_items.size() + filePaths.size());
                 Utils::reverseForeach(filePaths, [this](const FilePath &file) {

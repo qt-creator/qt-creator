@@ -764,7 +764,7 @@ static FilePaths filesInDirectoryForLanguages(const FilePath &path,
     const QStringList pattern = ModelManagerInterface::globPatternsForLanguages(languages);
     FilePaths files;
 
-    for (const FilePath &p : path.dirEntries(FileFilter(pattern, QDir::Files)))
+    for (const FilePath &p : path.dirEntries(FileFilter(pattern, DirFilterFlag::Files)))
         files.append(p.absoluteFilePath());
 
     return files;
@@ -869,7 +869,7 @@ bool ModelManagerInterface::findNewQmlApplicationInPath(
     FilePath qmltypesFile;
 
     FilePaths qmlTypes = path.dirEntries(
-        FileFilter(QStringList{"*.qmltypes"}, QDir::Files));
+        FileFilter(QStringList{"*.qmltypes"}, DirFilterFlag::Files));
 
     if (qmlTypes.isEmpty())
         return false;
@@ -1226,7 +1226,7 @@ void ModelManagerInterface::importScanAsync(QPromise<void> &promise, const Worki
         // always descend tree, as we might have just scanned with a smaller depth
         if (toScan.depth < maxScanDepth) {
             FilePath dir = toScan.path;
-            const FilePaths subDirs = dir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+            const FilePaths subDirs = dir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
             workDone += 1;
             totalWork += pathBudget / 2 * subDirs.size() - pathBudget * 3 / 4 + 1;
             for (const FilePath &path : subDirs)

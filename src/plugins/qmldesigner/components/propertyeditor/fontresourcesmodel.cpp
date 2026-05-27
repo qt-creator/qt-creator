@@ -80,7 +80,7 @@ Utils::Result<QSet<QString>> mcuFonts()
     }
 
     QSet<QString> fonts;
-    const Utils::FilePaths fontFiles = mcuFontsDir->dirEntries({fontFilesFilterList(), QDir::Files});
+    const Utils::FilePaths fontFiles = mcuFontsDir->dirEntries({fontFilesFilterList(), Utils::DirFilterFlag::Files});
     for (const auto &file : fontFiles) {
         auto family = fontFamily(file.absoluteFilePath().toFSPathString());
         if (family) {

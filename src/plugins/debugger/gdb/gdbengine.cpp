@@ -1625,7 +1625,7 @@ FilePath GdbEngine::cleanupFullName(const QString &fileName)
                         m_baseNameToFullName.insert(name, filePath);
                     return IterationPolicy::Continue;
                 },
-                {{"*"}, QDir::NoFilter, QDirIterator::Subdirectories});
+                Utils::FileFilter{{"*"}, Utils::DirFilterFlag::NoFilter, Utils::DirIteratorFlag::Subdirectories});
         }
     }
 

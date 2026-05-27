@@ -392,7 +392,7 @@ void setupResources(QObject *guard, Mcp::Server &server, QParallelTaskTreeRunner
                 return ResultError("File does not exist: " + filePath.toUserOutput());
 
             if (filePath.isDir()) {
-                FilePaths entries = filePath.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot);
+                FilePaths entries = filePath.dirEntries(DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot);
                 Mcp::Schema::ReadResourceResult result;
                 QStringList data = transform(entries, [](const FilePath &entry) {
                     return entry.fileName();
@@ -512,7 +512,7 @@ void setupResources(QObject *guard, Mcp::Server &server, QParallelTaskTreeRunner
                         }
                         auto patterns = start.isEmpty() ? QStringList{} : QStringList{start + "*"};
                         return searchDir.dirEntries(
-                            {patterns, QDir::AllEntries | QDir::NoDotAndDotDot});
+                            {patterns, DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot});
                     },
                     FilePath::fromUserInput(actual));
             };

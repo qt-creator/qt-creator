@@ -353,7 +353,7 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
     paths = Utils::filteredUnique(paths);
 
     for (const FilePath &path : paths)
-        suspects.append(path.dirEntries({filters, QDir::Files | QDir::Executable}));
+        suspects.append(path.dirEntries(Utils::FileFilter{filters, Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Executable}));
 
     QStringList logMessages{Tr::tr("Searching debuggers...")};
     for (const FilePath &command : std::as_const(suspects)) {
@@ -653,7 +653,7 @@ ExecutableItem autoDetectDebuggerRecipe(
         FilePaths suspects;
 
         for (const FilePath &path : searchPaths)
-            suspects.append(path.dirEntries({searchFilters, QDir::Files | QDir::Executable}));
+            suspects.append(path.dirEntries(Utils::FileFilter{searchFilters, Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Executable}));
 
         for (const FilePath &command : std::as_const(suspects)) {
             const Result<DebuggerItem> item = makeAutoDetectedDebuggerItem(command, detectionSource);

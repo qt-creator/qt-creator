@@ -50,11 +50,10 @@ void setupUtilsModule()
                                      const sol::table &options,
                                      const sol::function &cb) {
                 const QStringList nameFilters = options.get_or<QStringList>("nameFilters"sv, {});
-                QDir::Filters fileFilters
-                    = (QDir::Filters) options.get_or<int>("fileFilters"sv, QDir::NoFilter);
-                QDirIterator::IteratorFlags flags
-                    = (QDirIterator::IteratorFlags)
-                          options.get_or<int>("flags"sv, QDirIterator::NoIteratorFlags);
+                const auto fileFilters = static_cast<DirFilterFlag>(
+                    options.get_or("fileFilters"sv, -1));
+                const auto flags = static_cast<DirIteratorFlag>(
+                    options.get_or("flags"sv, 0));
 
                 FileFilter filter(nameFilters, fileFilters, flags);
 

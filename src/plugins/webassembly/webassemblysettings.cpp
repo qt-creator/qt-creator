@@ -21,6 +21,7 @@
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
 
+#include <QDir>
 #include <QGroupBox>
 #include <QGuiApplication>
 #include <QTextBrowser>

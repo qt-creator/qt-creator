@@ -105,7 +105,7 @@ FilePath QmlFormatSettings::globalQmlFormatIniFile()
 
 FilePath QmlFormatSettings::currentQmlFormatIniFile(const FilePath &path)
 {
-    const FilePath iniFile = path.searchHereAndInParents(".qmlformat.ini", QDir::Files);
+    const FilePath iniFile = path.searchHereAndInParents(".qmlformat.ini", DirFilterFlag::Files);
     if (!iniFile.isEmpty())
         return iniFile;
     return globalQmlFormatIniFile();

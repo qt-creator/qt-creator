@@ -249,7 +249,7 @@ QStringList SessionManager::sessions()
     if (d->m_sessions.isEmpty()) {
         // We are not initialized yet, so do that now
         const FilePaths sessionFiles =
-                ICore::userResourcePath().dirEntries({{"*qws"}}, QDir::Time | QDir::Reversed);
+                ICore::userResourcePath().dirEntries({{"*qws"}}, DirSortFlag::Time | DirSortFlag::Reversed);
         const QVariantMap lastActiveTimes = ICore::settings()->value(LAST_ACTIVE_TIMES_KEY).toMap();
         for (const FilePath &file : sessionFiles) {
             const QString &name = file.completeBaseName();

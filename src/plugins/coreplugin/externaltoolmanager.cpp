@@ -106,7 +106,7 @@ static void parseDirectory(const FilePath &directory,
 {
     QTC_ASSERT(categoryMenus, return);
     QTC_ASSERT(tools, return);
-    const FilePaths filePaths = directory.dirEntries({{"*.xml"}, QDir::Files | QDir::Readable});
+    const FilePaths filePaths = directory.dirEntries(FileFilter{{"*.xml"}, DirFilterFlag::Files | DirFilterFlag::Readable});
     for (const FilePath &filePath : filePaths) {
         Result<ExternalTool *> res =
             ExternalTool::createFromFile(filePath, ICore::userInterfaceLanguage());

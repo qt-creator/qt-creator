@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QDebug>
+#include <QDir>
 #include <QIODevice>
 #include <QProcess>
 #include <QRandomGenerator>
@@ -85,7 +86,7 @@ private slots:
     {
         QStringList result;
         m_dfa.findUsingLs(m_tempDir.path(),
-                          {{}, QDir::NoFilter, QDirIterator::Subdirectories},
+                          FileFilter{{}, DirFilterFlag::NoFilter, DirIteratorFlag::Subdirectories},
                           &result);
 
         QCOMPARE(result, QStringList({".", "..", "size-test"}));
@@ -95,7 +96,7 @@ private slots:
 
         result.clear();
         m_dfa.findUsingLs(m_tempDir.path(),
-                          {{}, QDir::NoFilter, QDirIterator::Subdirectories},
+                          FileFilter{{}, DirFilterFlag::NoFilter, DirIteratorFlag::Subdirectories},
                           &result);
         QCOMPARE(result,
                  QStringList(

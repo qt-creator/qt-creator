@@ -9,7 +9,6 @@
 #include <utils/algorithm.h>
 
 #include <QFile>
-#include <QDir>
 #include <QTextStream>
 
 using namespace ProjectExplorer;
@@ -138,7 +137,7 @@ static QStringList getExtraCodeModelFlags(const RawProjectPart &rpp, const Proje
         if (!includeDir.pathAppended("cuda.h").exists())
             continue;
         if (cudaPath.isEmpty())
-            cudaPath = includeDir.parentDir().searchHereAndInParents("nvvm", QDir::Files);
+            cudaPath = includeDir.parentDir().searchHereAndInParents("nvvm", DirFilterFlag::Files);
         break;
     }
     if (!cudaPath.isEmpty())

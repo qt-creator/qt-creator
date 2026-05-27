@@ -137,7 +137,7 @@ bool checkIfEditorIsuiQml(IEditor *editor)
 
 const FilePath findQmlProject(const FilePath &folder)
 {
-    const FilePaths files = folder.dirEntries({QStringList("*.qmlproject"), QDir::Files});
+    const FilePaths files = folder.dirEntries({QStringList("*.qmlproject"), DirFilterFlag::Files});
     if (files.isEmpty())
         return {};
 

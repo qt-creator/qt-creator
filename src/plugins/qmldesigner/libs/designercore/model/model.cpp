@@ -26,6 +26,7 @@
 #include <qmldesignerutils/stringutils.h>
 #include <qmldesignerutils/version.h>
 
+#include <QFileInfo>
 #include <QWidget>
 
 /*!
@@ -2225,12 +2226,12 @@ QmlDesigner::Imports createPossibleFileImports(const Utils::FilePath &path)
                     append = true;
                     return Utils::IterationPolicy::Stop;
                 },
-                {{"*.qml"}, QDir::Files});
+                {{"*.qml"}, Utils::DirFilterFlag::Files});
             if (append)
                 imports.append(QmlDesigner::Import::createFileImport(item.fileName()));
             return Utils::IterationPolicy::Continue;
         },
-        {{}, QDir::Dirs | QDir::NoDotAndDotDot});
+        {{}, Utils::DirFilterFlag::Dirs | Utils::DirFilterFlag::NoDotAndDotDot});
 
     return imports;
 }

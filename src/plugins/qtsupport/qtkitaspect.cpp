@@ -507,7 +507,9 @@ std::optional<ExecutableItem> QtKitAspectFactory::autoDetect(
                 for (const FilePath &searchPath : searchPaths) {
                     searchPath.iterateDirectory(
                         handleQmake,
-                        {candidates, QDir::Files | QDir::Executable, QDirIterator::Subdirectories});
+                        {candidates,
+                         DirFilterFlag::Files | DirFilterFlag::Executable,
+                         DirIteratorFlag::Subdirectories});
                 }
             },
             searchPaths);

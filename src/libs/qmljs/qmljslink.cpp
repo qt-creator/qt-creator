@@ -16,6 +16,8 @@
 #include <utils/filepath.h>
 #include <utils/qrcparser.h>
 
+#include <QDir>
+
 using namespace LanguageUtils;
 using namespace QmlJS::AST;
 using namespace Utils;
@@ -428,7 +430,7 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
     if (!importFound) {
         for (const FilePath &dir : std::as_const(m_applicationDirectories)) {
             FilePaths qmltypes = dir.dirEntries(
-                FileFilter(QStringList{"*.qmltypes"}, QDir::Files));
+                FileFilter(QStringList{"*.qmltypes"}, DirFilterFlag::Files));
 
             // This adds the types to the C++ types, to be found below if applicable.
             if (!qmltypes.isEmpty())

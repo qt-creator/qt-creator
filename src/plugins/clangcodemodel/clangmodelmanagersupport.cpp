@@ -47,6 +47,7 @@
 
 #include <QApplication>
 #include <QDateTime>
+#include <QDirIterator>
 #include <QHash>
 #include <QLabel>
 #include <QLoggingCategory>

@@ -2366,19 +2366,19 @@ void tst_filepath::searchHereAndInParents()
     QVERIFY(dir.isDir());
 
     // Do not find (not reachable by going up from here).
-    const FilePath file2 = dir.searchHereAndInParents("file2.txt", QDir::Files);
+    const FilePath file2 = dir.searchHereAndInParents("file2.txt", Utils::DirFilterFlag::Files);
     QVERIFY2(file2.isEmpty(), qPrintable(file2.toUserOutput()));
 
     // Do not find (wrong type).
-    const FilePath file1Dir = dir.searchHereAndInParents("file1.txt", QDir::Dirs);
+    const FilePath file1Dir = dir.searchHereAndInParents("file1.txt", Utils::DirFilterFlag::Dirs);
     QVERIFY2(file1Dir.isEmpty(), qPrintable(file1Dir.toUserOutput()));
 
     // Find in same dir.
-    const FilePath file1 = dir.searchHereAndInParents("file1.txt", QDir::Files);
+    const FilePath file1 = dir.searchHereAndInParents("file1.txt", Utils::DirFilterFlag::Files);
     QCOMPARE(file1, dir.pathAppended("file1.txt"));
 
     // Find in some parent dir.
-    const FilePath file3 = file1.searchHereAndInParents("file3.txt", QDir::Files);
+    const FilePath file3 = file1.searchHereAndInParents("file3.txt", Utils::DirFilterFlag::Files);
     QCOMPARE(file3, FilePath::fromString(rootPath).pathAppended("a/file3.txt"));
 }
 

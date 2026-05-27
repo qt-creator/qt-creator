@@ -581,7 +581,7 @@ Result<QFuture<Client::FindData>> Client::find(
     const QString &directory, const Utils::FileFilter &filter)
 {
     // TODO: golang's walkDir does not support automatically following symlinks.
-    if (filter.iteratorFlags.testFlag(QDirIterator::FollowSymlinks))
+    if ((filter.iteratorFlags & DirIteratorFlag::FollowSymlinks) != DirIteratorFlag{})
         return ResultError(Tr::tr("FollowSymlinks is not supported."));
 
     QCborMap findArgs{
@@ -589,9 +589,9 @@ Result<QFuture<Client::FindData>> Client::find(
         {"Find",
          QCborMap{
              {"Directory", directory},
-             {"FileFilters", filter.fileFilters.toInt()},
+             {"FileFilters", static_cast<int>(filter.fileFilters)},
              {"NameFilters", QCborArray::fromStringList(filter.nameFilters)},
-             {"IteratorFlags", filter.iteratorFlags.toInt()}}}};
+             {"IteratorFlags", static_cast<int>(filter.iteratorFlags)}}}};
 
     return createJob<FindData>(
         d.get(),

@@ -335,7 +335,7 @@ void EffectComposerModel::chooseCustomPreviewImage()
 void EffectComposerModel::previewComboAboutToOpen()
 {
     m_customPreviewImages.clear();
-    const Utils::FilePaths imagePaths = customPreviewImagesPath().dirEntries(QDir::Files);
+    const Utils::FilePaths imagePaths = customPreviewImagesPath().dirEntries(Utils::DirFilterFlag::Files);
     for (const auto &imagePath : imagePaths) {
         QmlDesigner::Asset asset(imagePath.toFSPathString());
         if (asset.isImage())
@@ -1282,7 +1282,7 @@ QString EffectComposerModel::addNodeToLibraryNode(int idx)
     Utils::FilePaths oldFiles;
     bool update = nodePath.exists();
     if (update)
-        oldFiles = nodePath.dirEntries(QDir::Files);
+        oldFiles = nodePath.dirEntries(Utils::DirFilterFlag::Files);
     else
         nodePath.createDir();
 
@@ -1508,7 +1508,7 @@ void EffectComposerModel::saveResources(const QString &name)
     if (!effectPath.exists())
         effectPath.createDir();
     else
-        oldFiles = effectPath.dirEntries(QDir::Files);
+        oldFiles = effectPath.dirEntries(Utils::DirFilterFlag::Files);
 
     // Create effect qmldir
     newFileNames.insert(qmldirFileName);

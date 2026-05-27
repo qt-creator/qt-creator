@@ -10,9 +10,11 @@
 #include "result.h"
 #include "utiltypes.h"
 
-#include <QDir>
-#include <QDirIterator>
+#include <QChar>
+#include <QFile>
 #include <QMetaType>
+#include <QStringList>
+#include <QVariant>
 
 #include <functional>
 #include <memory>
@@ -37,18 +39,69 @@ class TextEncoding;
 
 using DeviceFileAccessPtr = std::shared_ptr<DeviceFileAccess>;
 
+enum class QTCREATOR_UTILS_EXPORT DirFilterFlag
+{
+    Dirs        = 0x001,
+    Files       = 0x002,
+    Drives      = 0x004,
+    NoSymLinks  = 0x008,
+    AllEntries  = Dirs | Files | Drives,
+    // TypeMask    = 0x00f,
+
+    Readable    = 0x010,
+    Writable    = 0x020,
+    Executable  = 0x040,
+    // PermissionMask    = 0x070,
+    Hidden      = 0x100,
+    System      = 0x200,
+
+    // AccessMask  = 0x3F0,
+
+    // AllDirs       = 0x400,
+    // CaseSensitive = 0x800,
+    // NoDot         = 0x2000,
+    // NoDotDot      = 0x4000,
+    NoDotAndDotDot = 0x6000, // NoDot | NoDotDot,
+
+    NoFilter = -1
+};
+
+enum class QTCREATOR_UTILS_EXPORT DirSortFlag
+{
+    Name        = 0x00,
+    Time        = 0x01,
+    // Size        = 0x02,
+    // Unsorted    = 0x03,
+    SortByMask  = 0x03,
+
+    DirsFirst   = 0x04,
+    Reversed    = 0x08,
+    IgnoreCase  = 0x10,
+    DirsLast    = 0x20,
+    // LocaleAware = 0x40,
+    Type        = 0x80,
+    NoSort = -1
+};
+
+enum class QTCREATOR_UTILS_EXPORT DirIteratorFlag
+{
+    NoIteratorFlags = 0x0,
+    FollowSymlinks = 0x1,
+    Subdirectories = 0x2
+};
+
 class QTCREATOR_UTILS_EXPORT FileFilter
 {
 public:
     FileFilter(const QStringList &nameFilters,
-                   const QDir::Filters fileFilters = QDir::NoFilter,
-                   const QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags);
+               const DirFilterFlag fileFilters = DirFilterFlag::NoFilter,
+               const DirIteratorFlag flags = DirIteratorFlag::NoIteratorFlags);
 
     QStringList asFindArguments(const QString &path) const;
 
     const QStringList nameFilters;
-    const QDir::Filters fileFilters = QDir::NoFilter;
-    const QDirIterator::IteratorFlags iteratorFlags = QDirIterator::NoIteratorFlags;
+    DirFilterFlag fileFilters = DirFilterFlag::NoFilter;
+    DirIteratorFlag iteratorFlags = DirIteratorFlag::NoIteratorFlags;
 };
 
 class FilePaths;
@@ -67,6 +120,7 @@ public:
 signals:
     void pathChanged(const Utils::FilePath &path);
 };
+
 
 class QTCREATOR_UTILS_EXPORT FilePath
 {
@@ -158,8 +212,8 @@ public:
     uint groupId() const;
     qint64 bytesAvailable() const;
     bool createDir() const;
-    FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;
-    FilePaths dirEntries(QDir::Filters filters) const;
+    FilePaths dirEntries(const FileFilter &filter, DirSortFlag sort = DirSortFlag::NoSort) const;
+    FilePaths dirEntries(DirFilterFlag filters) const;
     Result<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
     Result<qint64> writeFileContents(const QByteArray &data) const;
     FilePathInfo filePathInfo() const;
@@ -237,8 +291,8 @@ public:
                                             PathAmending = AppendToPath,
                                             const FilePathPredicate &filter = {},
                                             MatchScope matchScope = WithAnySuffix) const;
-    [[nodiscard]] FilePath searchHereAndInParents(const QString &fileName, QDir::Filter type) const;
-    [[nodiscard]] FilePath searchHereAndInParents(const QStringList &fileNames, QDir::Filter type) const;
+    [[nodiscard]] FilePath searchHereAndInParents(const QString &fileName, DirFilterFlag type) const;
+    [[nodiscard]] FilePath searchHereAndInParents(const QStringList &fileNames, DirFilterFlag type) const;
     void searchHereAndInParents(const std::function<IterationPolicy(const FilePath &)> &constraint) const;
 
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
@@ -445,6 +499,16 @@ QString doCleanPath(const QString &input, bool normalizeMacroContainingPaths = f
 } // Utils
 
 Q_DECLARE_METATYPE(Utils::FilePath)
+
+#define QTC_DECLARE_OPERATORS_FOR_FLAGS(Flags) \
+[[maybe_unused]] constexpr inline Flags operator|(Flags f1, Flags f2) noexcept \
+    { return static_cast<Flags>(static_cast<int>(f1) | static_cast<int>(f2)); } \
+[[maybe_unused]] constexpr inline Flags operator&(Flags f1, Flags f2) noexcept \
+    { return static_cast<Flags>(static_cast<int>(f1) & static_cast<int>(f2)); }
+
+QTC_DECLARE_OPERATORS_FOR_FLAGS(Utils::DirFilterFlag)
+QTC_DECLARE_OPERATORS_FOR_FLAGS(Utils::DirSortFlag)
+QTC_DECLARE_OPERATORS_FOR_FLAGS(Utils::DirIteratorFlag)
 
 namespace std {
 

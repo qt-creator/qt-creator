@@ -119,7 +119,7 @@ void PySideInstaller::installPySide(const FilePath &python, const QString &pySid
         if (qtInstallDir) {
             const FilePath qtForPythonDir = qtInstallDir->pathAppended("QtForPython");
             for (const FilePath &versionDir :
-                 qtForPythonDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
+                 qtForPythonDir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot)) {
                 FilePath requirements = versionDir.pathAppended("requirements.txt");
                 if (!requirementsList.contains(requirements) && requirements.exists())
                     availablePySides[QVersionNumber::fromString(versionDir.fileName())]

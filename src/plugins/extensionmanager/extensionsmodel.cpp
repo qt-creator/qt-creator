@@ -314,7 +314,7 @@ void ExtensionsModel::setRepositoryPaths(const FilePaths &paths)
         FilePath registryPath = path / "registry";
         if (!registryPath.isReadableDir()) {
             // Github has one top-level directory in its zip, so lets check if thats the case ...
-            const FilePaths firstLevelEntries = path.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+            const FilePaths firstLevelEntries = path.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
 
             if (firstLevelEntries.size() == 1)
                 registryPath = firstLevelEntries.first() / "registry";
@@ -358,7 +358,7 @@ void ExtensionsModel::setRepositoryPaths(const FilePaths &paths)
                 d->remotePlugins.push_back(std::move(remoteSpec));
                 return IterationPolicy::Continue;
             },
-            FileFilter({"extension.json"}, QDir::Files, QDirIterator::Subdirectories));
+            FileFilter({"extension.json"}, DirFilterFlag::Files, DirIteratorFlag::Subdirectories));
     };
 
     for (const FilePath &path : paths)

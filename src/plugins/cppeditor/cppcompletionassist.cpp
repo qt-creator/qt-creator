@@ -1234,7 +1234,9 @@ void InternalCppCompletionAssistProcessor::completeInclude(
     const Utils::FilePath &realPath, const QStringList &suffixes)
 {
     const Utils::FilePaths entries =
-        realPath.dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        realPath.dirEntries(
+            Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Dirs
+            | Utils::DirFilterFlag::NoDotAndDotDot);
     for (const Utils::FilePath &entry : entries) {
         const QString suffix = entry.suffix();
         if (suffix.isEmpty() || suffixes.contains(suffix)) {

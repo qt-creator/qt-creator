@@ -488,7 +488,7 @@ static bool hasExamplesOrDemosAndDocumentation(const QtVersion *v)
     // documentation or examples, but the directories exist and contain some other things.
     // The reasons is that e.g. the examples path is used as the base for example deployment to the
     // device. See QTBUG-126753
-    if (v->docsPath().dirEntries(Utils::FileFilter({"*.qch"}, QDir::Files)).isEmpty())
+    if (v->docsPath().dirEntries(FileFilter({"*.qch"}, DirFilterFlag::Files)).isEmpty())
         return false;
     return true;
 }

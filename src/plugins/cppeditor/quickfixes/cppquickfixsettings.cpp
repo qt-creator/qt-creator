@@ -517,7 +517,7 @@ CppQuickFixSettings *CppQuickFixProjectsSettings::getQuickFixSettings(ProjectExp
 
 FilePath CppQuickFixProjectsSettings::searchForCppQuickFixSettingsFile()
 {
-    return m_project->projectDirectory().searchHereAndInParents(SETTINGS_FILE_NAME, QDir::Files);
+    return m_project->projectDirectory().searchHereAndInParents(SETTINGS_FILE_NAME, DirFilterFlag::Files);
 }
 
 void CppQuickFixProjectsSettings::useGlobalSettings()

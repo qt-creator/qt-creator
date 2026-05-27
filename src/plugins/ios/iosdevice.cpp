@@ -355,41 +355,41 @@ Result<> IosFileAccess::iterateDirectory(
         else
             return std::get<1>(callBack)(f, info) == IterationPolicy::Continue;
     };
-    const bool isRecursive = filter.iteratorFlags.testFlag(QDirIterator::Subdirectories);
+    const bool isRecursive = (filter.iteratorFlags & DirIteratorFlag::Subdirectories)
+                             == DirIteratorFlag::Subdirectories;
     QString nameFilterRegExStr = Utils::transform(filter.nameFilters, [](const QString &filter) {
                                      return QRegularExpression::wildcardToRegularExpression(filter);
                                  }).join(")|(");
     if (!nameFilterRegExStr.isEmpty())
         nameFilterRegExStr = "(" + nameFilterRegExStr + ")";
-    const QRegularExpression nameFilterRegEx(
-        nameFilterRegExStr,
-        filter.fileFilters.testFlag(QDir::CaseSensitive)
-            ? QRegularExpression::NoPatternOption
-            : QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpression nameFilterRegEx(nameFilterRegExStr,
+                                            QRegularExpression::CaseInsensitiveOption);
     const auto passesFilter = [fileFilter = filter.fileFilters,
                                nameFilterRegEx](const FilePath &filePath, const FilePathInfo &info) {
         // check file patterns, but if AllDirs is set then only for files
         const bool isDirectory = info.fileFlags.testFlag(FilePathInfo::DirectoryType);
-        if (!nameFilterRegEx.pattern().isEmpty()                    // we have patterns
-            && !(fileFilter.testFlag(QDir::AllDirs) && isDirectory) // directories are not excluded
+        if (!nameFilterRegEx.pattern().isEmpty()                // we have patterns
             && !nameFilterRegEx.match(filePath.fileName()).hasMatch()) { // it doesn't match
             return false;
         }
-        if (!fileFilter.testFlag(QDir::Dirs) && isDirectory)
+        if ((fileFilter & DirFilterFlag::Dirs) != DirFilterFlag::Dirs && isDirectory)
             return false;
-        if (!fileFilter.testFlag(QDir::Files) && info.fileFlags.testFlag(FilePathInfo::FileType))
+        if ((fileFilter & DirFilterFlag::Files) != DirFilterFlag::Files
+            && info.fileFlags.testFlag(FilePathInfo::FileType))
             return false;
-        if (!fileFilter.testFlag(QDir::Hidden) && info.fileFlags.testFlag(FilePathInfo::HiddenFlag))
+        if ((fileFilter & DirFilterFlag::Hidden) != DirFilterFlag::Hidden
+            && info.fileFlags.testFlag(FilePathInfo::HiddenFlag))
             return false;
-        if (fileFilter.testFlag(QDir::NoSymLinks) && info.fileFlags.testFlag(FilePathInfo::LinkType))
+        if ((fileFilter & DirFilterFlag::NoSymLinks) == DirFilterFlag::NoSymLinks
+            && info.fileFlags.testFlag(FilePathInfo::LinkType))
             return false;
-        if (fileFilter.testFlag(QDir::Readable)
+        if ((fileFilter & DirFilterFlag::Readable) == DirFilterFlag::Readable
             && !info.fileFlags.testFlag(FilePathInfo::ReadUserPerm))
             return false;
-        if (fileFilter.testFlag(QDir::Writable)
+        if ((fileFilter & DirFilterFlag::Writable) == DirFilterFlag::Writable
             && !info.fileFlags.testFlag(FilePathInfo::WriteUserPerm))
             return false;
-        if (fileFilter.testFlag(QDir::Executable)
+        if ((fileFilter & DirFilterFlag::Executable) == DirFilterFlag::Executable
             && !info.fileFlags.testFlag(FilePathInfo::ExeUserPerm))
             return false;
         return true;
@@ -400,7 +400,7 @@ Result<> IosFileAccess::iterateDirectory(
     // Subitems of root path are systemCrashLogs and app IDs
     if (filePath.isRootPath()) {
         pathsToRecurse.clear();
-        if (!filter.fileFilters.testFlag(QDir::Dirs))
+        if ((filter.fileFilters & DirFilterFlag::Dirs) != DirFilterFlag::Dirs)
             return ResultOk;
         FilePathInfo info(
             {0,

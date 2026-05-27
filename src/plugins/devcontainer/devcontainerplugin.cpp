@@ -189,7 +189,7 @@ static FilePaths devContainerFilesForProject(Project *project)
     const FilePaths paths{rootDevcontainer, containerFolder / ".devcontainer"};
     return filtered(
         transform(
-            containerFolder.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot),
+            containerFolder.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot),
             [](const FilePath &path) { return path / "devcontainer.json"; })
             << rootDevcontainer << containerFolder / "devcontainer.json",
         &FilePath::isFile);
@@ -334,7 +334,7 @@ void DevContainerPlugin::onProjectTreeChanged(FolderNode *fn)
     // Watch all folders that could contain devcontainer.json files
     const FilePaths pathsToWatch = Utils::filtered(
         FilePaths{project->projectDirectory(), devContainerFolder}
-            + (devContainerFolder).dirEntries(QDir::Dirs | QDir::NoDotAndDotDot),
+            + (devContainerFolder).dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot),
         &FilePath::isDir);
 
     FilePathWatcherResults &watchMapEntry = configFileWatchersForProject[project];

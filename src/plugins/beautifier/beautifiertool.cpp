@@ -425,7 +425,9 @@ void AbstractSettings::readStyles()
     if (!m_styleDir.exists())
         return;
 
-    const FileFilter filter = {{'*' + m_ending}, QDir::Files | QDir::Readable | QDir::NoDotAndDotDot};
+    const FileFilter filter = {{'*' + m_ending},
+                               DirFilterFlag::Files | DirFilterFlag::Readable
+                                   | DirFilterFlag::NoDotAndDotDot};
     const FilePaths files = m_styleDir.dirEntries(filter);
     for (const FilePath &filePath : files) {
         // do not allow empty file names

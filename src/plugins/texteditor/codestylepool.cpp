@@ -214,7 +214,7 @@ ICodeStylePreferences *CodeStylePool::codeStyle(const QByteArray &id) const
 void CodeStylePool::loadCustomCodeStyles()
 {
     FilePath dir = settingsDir();
-    const FilePaths codeStyleFiles = dir.dirEntries({QStringList(QLatin1String("*.xml")), QDir::Files});
+    const FilePaths codeStyleFiles = dir.dirEntries(FileFilter{QStringList(QLatin1String("*.xml")), DirFilterFlag::Files});
     for (const FilePath &codeStyleFile : codeStyleFiles) {
         // filter out styles which id is the same as one of built-in styles
         if (!d->m_idToCodeStyle.contains(codeStyleFile.completeBaseName().toUtf8()))

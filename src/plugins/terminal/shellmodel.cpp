@@ -10,6 +10,8 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 
+#include <QDir>
+#include <QDirIterator>
 #include <QFileIconProvider>
 #include <QStandardPaths>
 

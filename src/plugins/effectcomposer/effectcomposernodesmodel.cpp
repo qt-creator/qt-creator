@@ -59,21 +59,19 @@ void EffectComposerNodesModel::loadModel()
     m_categories.clear();
     m_builtInNodeNames.clear();
 
-    QDirIterator itCategories(nodesPath.toUrlishString(), QDir::Dirs | QDir::NoDotAndDotDot);
-    while (itCategories.hasNext()) {
-        itCategories.next();
+    const Utils::FilePaths categoryPaths = nodesPath.dirEntries(
+        Utils::DirFilterFlag::Dirs | Utils::DirFilterFlag::NoDotAndDotDot);
+    for (const Utils::FilePath &categoryPath : categoryPaths) {
+        QString catName = categoryPath.fileName();
 
-        if (itCategories.fileName() == "images" || itCategories.fileName() == "common")
+        if (catName == "images" || catName == "common")
             continue;
 
-        QString catName = itCategories.fileName();
-
         QList<EffectNode *> effects = {};
-        Utils::FilePath categoryPath = nodesPath.resolvePath(itCategories.fileName());
-        QDirIterator itEffects(categoryPath.toUrlishString(), {"*.qen"}, QDir::Files);
-        while (itEffects.hasNext()) {
-            itEffects.next();
-            auto node = new EffectNode(itEffects.filePath(), true);
+        const Utils::FilePaths effectFiles = categoryPath.dirEntries(
+            {{"*.qen"}, Utils::DirFilterFlag::Files});
+        for (const Utils::FilePath &effectFilePath : effectFiles) {
+            auto node = new EffectNode(effectFilePath.toFSPathString(), true);
             if (!node->defaultImagesHash().isEmpty())
                 m_defaultImagesHash.insert(node->name(), node->defaultImagesHash());
             effects.push_back(node);
@@ -119,7 +117,7 @@ void EffectComposerNodesModel::loadCustomNodes()
     QList<EffectNode *> effects;
 
     const Utils::FilePath nodeLibPath = Utils::FilePath::fromString(EffectUtils::nodeLibraryPath());
-    const Utils::FilePaths libraryNodes = nodeLibPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    const Utils::FilePaths libraryNodes = nodeLibPath.dirEntries(Utils::DirFilterFlag::Dirs | Utils::DirFilterFlag::NoDotAndDotDot);
     for (const Utils::FilePath &nodePath : libraryNodes) {
         const Utils::FilePath qenPath = nodePath.pathAppended(nodePath.fileName() + ".qen");
         auto node = new EffectNode(qenPath.toFSPathString(), false);

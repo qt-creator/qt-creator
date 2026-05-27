@@ -87,7 +87,7 @@ void OpenSquishSuitesDialog::onDirectoryChanged()
     if (!baseDir.exists())
         return;
 
-    const Utils::FilePaths subDirs = baseDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    const Utils::FilePaths subDirs = baseDir.dirEntries(Utils::DirFilterFlag::Dirs | Utils::DirFilterFlag::NoDotAndDotDot);
     for (const Utils::FilePath &subDir : subDirs) {
         if (!subDir.baseName().startsWith("suite_"))
             continue;

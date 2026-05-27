@@ -38,7 +38,7 @@ bool RunSettingsData::hasConfigFileForSourceFile(const FilePath &sourceFile) con
 {
     if (!preferConfigFile)
         return false;
-    return !sourceFile.searchHereAndInParents(".clang-tidy", QDir::Files).isEmpty();
+    return !sourceFile.searchHereAndInParents(".clang-tidy", DirFilterFlag::Files).isEmpty();
 }
 
 ClangToolsSettings *ClangToolsSettings::instance()
@@ -80,7 +80,7 @@ bool RunSettings::hasConfigFileForSourceFile(const FilePath &sourceFile) const
 {
     if (!preferConfigFile())
         return false;
-    return !sourceFile.searchHereAndInParents(".clang-tidy", QDir::Files).isEmpty();
+    return !sourceFile.searchHereAndInParents(".clang-tidy", DirFilterFlag::Files).isEmpty();
 }
 
 ClangToolsSettings::ClangToolsSettings()

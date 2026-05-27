@@ -920,7 +920,7 @@ bool QmlJSCompletionAssistProcessor::completeFileName(const FilePath &relativeBa
         item->setIcon(QmlJSCompletionAssistInterface::fileNameIcon());
         m_completions.append(item);
         return IterationPolicy::Continue;
-    }, {patterns, QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot});
+    }, FileFilter{patterns, Utils::DirFilterFlag::Dirs | Utils::DirFilterFlag::Files | Utils::DirFilterFlag::NoDotAndDotDot});
 
     return !m_completions.isEmpty();
 }

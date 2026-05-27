@@ -95,7 +95,7 @@ QList<Import> McuSupportImportProvider::imports(ValueOwner *valueOwner,
         import.valid = true;
         import.object = new ObjectValue(valueOwner, moduleUri);
         import.info = ImportInfo::moduleImport(moduleUri, {1, 0}, QString());
-        for (const auto &qmlFilePath : moduleFolder.dirEntries(FileFilter({"*.qml"}, QDir::Files))) {
+        for (const auto &qmlFilePath : moduleFolder.dirEntries(FileFilter({"*.qml"}, DirFilterFlag::Files))) {
             Document::MutablePtr doc = Document::create(qmlFilePath, Dialect::Qml);
             doc->setSource(QString::fromLatin1(qmlFilePath.fileContents().value_or("")));
             doc->parseQml();
@@ -166,7 +166,7 @@ void McuSupportImportProvider::getInterfacesImport(const FilePath &path,
                                       .captured(1)
                                 : "");
 
-    for (const auto &qmlFilePath : lookupDir.dirEntries(FileFilter({"*.qml"}, QDir::Files))) {
+    for (const auto &qmlFilePath : lookupDir.dirEntries(FileFilter({"*.qml"}, DirFilterFlag::Files))) {
         Document::MutablePtr doc = Document::create(qmlFilePath, Dialect::Qml);
         doc->setSource(QString::fromLatin1(qmlFilePath.fileContents().value_or("")));
         doc->parseQml();

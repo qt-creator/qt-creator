@@ -400,7 +400,8 @@ Utils::FilePaths GeneratedComponentUtils::collectFiles(const Utils::FilePath &di
 
     Utils::FilePaths files;
 
-    const Utils::FilePaths entryList = dirPath.dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+    const Utils::FilePaths entryList = dirPath.dirEntries(
+        Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Dirs | Utils::DirFilterFlag::NoDotAndDotDot);
     for (const Utils::FilePath &entry : entryList) {
         if (entry.isDir())
             files.append(collectFiles(entry.absoluteFilePath(), suffix));
