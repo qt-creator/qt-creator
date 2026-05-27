@@ -8,6 +8,8 @@
 #include "fancylineedit.h"
 #include "lazy.h"
 
+Q_MOC_INCLUDE(<utils/filepath.h>)
+
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
 class QLineEdit;
