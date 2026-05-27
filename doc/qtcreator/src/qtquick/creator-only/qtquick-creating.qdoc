@@ -91,9 +91,7 @@
     \uicontrol Edit mode.
 
     \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
-    {Configure language servers for projects},
-    {Tutorial: Mobile application},
-    {Tutorial: Qt Quick and Python},
+    {Configure language servers for projects}, {Tutorial: Qt Quick and Python},
     {Tutorial: Qt Quick application}, {Creating projects},
     {Developing Qt Quick Applications}
 */
