@@ -20,6 +20,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 namespace Utils {
 class Icon;
@@ -216,6 +217,8 @@ public:
 
     const QVariantHash &extraData() const;
     void setExtraData(const QVariantHash &extraData);
+    // std::nullopt if no process involved, crashed or never ran
+    std::optional<int> lastExitCode() const;
 
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),

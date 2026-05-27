@@ -195,6 +195,7 @@ public:
     QString displayName;
     ProcessRunData runnable;
     QVariantHash extraData;
+    std::optional<int> exitCode;
     IDevice::ConstPtr device;
     Icon icon;
     const MacroExpander *macroExpander = nullptr;
@@ -693,6 +694,11 @@ void RunControl::setExtraData(const QVariantHash &extraData)
     d->data.extraData = extraData;
 }
 
+std::optional<int> RunControl::lastExitCode() const
+{
+    return d->data.exitCode;
+}
+
 QString RunControl::displayName() const
 {
     if (d->data.displayName.isEmpty())
@@ -1050,6 +1056,10 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
 
     const auto onDone = [this](const Process &process) {
         postMessage(process.exitMessage(), NormalMessageFormat);
+        // Expose the exit code to interested consumers (e.g. AutoTest::TestRunner).
+        // Leave it unset on crash so a crash is not mistaken for a clean exit(0).
+        if (process.exitStatus() == QProcess::NormalExit)
+            d->data.exitCode = process.exitCode();
         if (process.usesTerminal()) {
             Process &mutableProcess = const_cast<Process &>(process);
             auto processInterface = mutableProcess.takeProcessInterface();
