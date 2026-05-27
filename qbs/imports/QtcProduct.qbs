@@ -37,7 +37,7 @@ Product {
     Depends {
         name: "Qt"
         condition: useQt
-        submodules: ["core", "core5compat"]
+        submodules: ["core"]
         versionAtLeast: qtMinVersion.result
     }
 
