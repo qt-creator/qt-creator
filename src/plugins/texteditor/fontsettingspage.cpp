@@ -782,7 +782,6 @@ void FontSettingsAspect::saveSettings()
 void FontSettingsAspect::cancel()
 {
     m_value = m_lastValue;
-    globalFontSettings().setData(m_lastValue);
     if (m_antialias)
         m_antialias->setChecked(m_value.antialias());
     if (m_zoomSpinBox)
