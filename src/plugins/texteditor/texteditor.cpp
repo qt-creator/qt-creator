@@ -1336,15 +1336,16 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
         menu->popup(QCursor::pos());
     });
 
-    TextEditorSettings *settings = TextEditorSettings::instance();
-
     // Connect to settings change signals
-    connect(settings, &TextEditorSettings::typingSettingsChanged,
-            q, &TextEditorWidget::setTypingSettings);
-    connect(settings, &TextEditorSettings::storageSettingsChanged,
-            q, &TextEditorWidget::setStorageSettings);
-    connect(settings, &TextEditorSettings::behaviorSettingsChanged,
-            q, &TextEditorWidget::setBehaviorSettings);
+    connect(&globalTypingSettings(), &AspectContainer::changed, this, [this] {
+        q->setTypingSettings(globalTypingSettings().data());
+    });
+    connect(&globalStorageSettings(), &AspectContainer::changed, this, [this] {
+        q->setStorageSettings(globalStorageSettings().data());
+    });
+    connect(&globalBehaviorSettings(), &AspectContainer::changed, this, [this] {
+        q->setBehaviorSettings(globalBehaviorSettings().data());
+    });
     connect(&TextEditor::marginSettings(), &MarginSettings::changed, this, [this](){
         q->setMarginSettings(TextEditor::marginSettings().data());
     });
@@ -1353,8 +1354,9 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     });
     connect(&completionSettings(), &AspectContainer::changed,
             q, &TextEditorWidget::updateCompletionSettings);
-    connect(settings, &TextEditorSettings::extraEncodingSettingsChanged,
-            q, &TextEditorWidget::setExtraEncodingSettings);
+    connect(&globalExtraEncodingSettings(), &AspectContainer::changed, this, [this] {
+        q->setExtraEncodingSettings(globalExtraEncodingSettings().data());
+    });
 
     auto context = new Core::IContext(this);
     context->setWidget(q);

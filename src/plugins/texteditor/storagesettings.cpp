@@ -3,7 +3,6 @@
 
 #include "storagesettings.h"
 
-#include "texteditorsettings.h"
 #include "texteditortr.h"
 
 #include <utils/layoutbuilder.h>
@@ -29,7 +28,6 @@ void StorageSettings::apply()
 {
     AspectContainer::apply();
     AspectContainer::writeSettings();
-    emit TextEditorSettings::instance()->storageSettingsChanged(data());
 }
 
 StorageSettings::StorageSettings()

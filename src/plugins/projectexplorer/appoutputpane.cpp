@@ -727,7 +727,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     });
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
             ow, updateFontSettings);
-    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
+    connect(&TextEditor::globalBehaviorSettings(), &Utils::AspectContainer::changed,
             ow, updateBehaviorSettings);
 
     auto qtInternal = new QToolButton;

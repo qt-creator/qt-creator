@@ -3,7 +3,6 @@
 
 #include "typingsettings.h"
 
-#include "texteditorsettings.h"
 #include "texteditortr.h"
 
 #include <utils/layoutbuilder.h>
@@ -132,7 +131,6 @@ void TypingSettings::apply()
 {
     AspectContainer::apply();
     AspectContainer::writeSettings();
-    emit TextEditorSettings::instance()->typingSettingsChanged(data());
 }
 
 TypingSettingsData TypingSettings::data() const

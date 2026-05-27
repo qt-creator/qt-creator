@@ -253,29 +253,6 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     }
 }
 
-template<typename New, typename Old>
-static void switchSettings_helper(const New *newSender, const Old *oldSender,
-                                  TextEditorWidget *widget)
-{
-    QObject::disconnect(oldSender, &Old::typingSettingsChanged,
-                        widget, &TextEditorWidget::setTypingSettings);
-    QObject::disconnect(oldSender, &Old::storageSettingsChanged,
-                        widget, &TextEditorWidget::setStorageSettings);
-    QObject::disconnect(oldSender, &Old::behaviorSettingsChanged,
-                        widget, &TextEditorWidget::setBehaviorSettings);
-    QObject::disconnect(oldSender, &Old::extraEncodingSettingsChanged,
-                        widget, &TextEditorWidget::setExtraEncodingSettings);
-
-    QObject::connect(newSender, &New::typingSettingsChanged,
-                     widget, &TextEditorWidget::setTypingSettings);
-    QObject::connect(newSender, &New::storageSettingsChanged,
-                     widget, &TextEditorWidget::setStorageSettings);
-    QObject::connect(newSender, &New::behaviorSettingsChanged,
-                     widget, &TextEditorWidget::setBehaviorSettings);
-    QObject::connect(newSender, &New::extraEncodingSettingsChanged,
-                     widget, &TextEditorWidget::setExtraEncodingSettings);
-}
-
 void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
 {
     if (d->m_useGlobal) {
@@ -284,14 +261,40 @@ void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
         widget->setStorageSettings(globalStorageSettings().data());
         widget->setBehaviorSettings(globalBehaviorSettings().data());
         widget->setExtraEncodingSettings(globalExtraEncodingSettings().data());
-        switchSettings_helper(TextEditorSettings::instance(), this, widget);
+        QObject::disconnect(this, &EditorConfiguration::typingSettingsChanged,
+                            widget, &TextEditorWidget::setTypingSettings);
+        QObject::disconnect(this, &EditorConfiguration::storageSettingsChanged,
+                            widget, &TextEditorWidget::setStorageSettings);
+        QObject::disconnect(this, &EditorConfiguration::behaviorSettingsChanged,
+                            widget, &TextEditorWidget::setBehaviorSettings);
+        QObject::disconnect(this, &EditorConfiguration::extraEncodingSettingsChanged,
+                            widget, &TextEditorWidget::setExtraEncodingSettings);
+        QObject::connect(&globalTypingSettings(), &AspectContainer::changed,
+                         widget, [widget] { widget->setTypingSettings(globalTypingSettings().data()); });
+        QObject::connect(&globalStorageSettings(), &AspectContainer::changed,
+                         widget, [widget] { widget->setStorageSettings(globalStorageSettings().data()); });
+        QObject::connect(&globalBehaviorSettings(), &AspectContainer::changed,
+                         widget, [widget] { widget->setBehaviorSettings(globalBehaviorSettings().data()); });
+        QObject::connect(&globalExtraEncodingSettings(), &AspectContainer::changed,
+                         widget, [widget] { widget->setExtraEncodingSettings(globalExtraEncodingSettings().data()); });
     } else {
         widget->setMarginSettings(marginSettings.data());
         widget->setTypingSettings(typingSettings.data());
         widget->setStorageSettings(storageSettings.data());
         widget->setBehaviorSettings(behaviorSettings.data());
         widget->setExtraEncodingSettings(extraEncodingSettings.data());
-        switchSettings_helper(this, TextEditorSettings::instance(), widget);
+        QObject::disconnect(&globalTypingSettings(), &AspectContainer::changed, widget, nullptr);
+        QObject::disconnect(&globalStorageSettings(), &AspectContainer::changed, widget, nullptr);
+        QObject::disconnect(&globalBehaviorSettings(), &AspectContainer::changed, widget, nullptr);
+        QObject::disconnect(&globalExtraEncodingSettings(), &AspectContainer::changed, widget, nullptr);
+        QObject::connect(this, &EditorConfiguration::typingSettingsChanged,
+                         widget, &TextEditorWidget::setTypingSettings);
+        QObject::connect(this, &EditorConfiguration::storageSettingsChanged,
+                         widget, &TextEditorWidget::setStorageSettings);
+        QObject::connect(this, &EditorConfiguration::behaviorSettingsChanged,
+                         widget, &TextEditorWidget::setBehaviorSettings);
+        QObject::connect(this, &EditorConfiguration::extraEncodingSettingsChanged,
+                         widget, &TextEditorWidget::setExtraEncodingSettings);
     }
 }
 

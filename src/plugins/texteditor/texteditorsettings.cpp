@@ -62,13 +62,14 @@ TextEditorSettings::TextEditorSettings()
     connect(this, &TextEditorSettings::fontSettingsChanged,
             this, updateGeneralMessagesFontSettings);
     updateGeneralMessagesFontSettings();
-    auto updateBehaviorSettings = [](const BehaviorSettingsData &bs) {
+    auto updateBehaviorSettings = [] {
+        const BehaviorSettingsData bs = globalBehaviorSettings().data();
         Core::MessageManager::setWheelZoomEnabled(bs.m_scrollWheelZooming);
         FancyLineEdit::setCamelCaseNavigationEnabled(bs.m_camelCaseNavigation);
     };
-    connect(this, &TextEditorSettings::behaviorSettingsChanged,
+    connect(&globalBehaviorSettings(), &AspectContainer::changed,
             this, updateBehaviorSettings);
-    updateBehaviorSettings(globalBehaviorSettings().data());
+    updateBehaviorSettings();
 }
 
 TextEditorSettings::~TextEditorSettings()

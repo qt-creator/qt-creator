@@ -91,7 +91,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     connect(this, &IOutputPane::resetZoomRequested, m_outputWindow, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
             this, updateFontSettings);
-    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
+    connect(&TextEditor::globalBehaviorSettings(), &Utils::AspectContainer::changed,
             this, updateZoomEnabled);
 
     connect(m_settingsButton, &QToolButton::clicked, this, [] {

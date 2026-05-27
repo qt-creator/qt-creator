@@ -259,7 +259,7 @@ VcsOutputWindow::VcsOutputWindow()
     connect(this, &IOutputPane::zoomInRequested, &d->widget, &OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOutRequested, &d->widget, &OutputWindow::zoomOut);
     connect(this, &IOutputPane::resetZoomRequested, &d->widget, &OutputWindow::resetZoom);
-    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
+    connect(&TextEditor::globalBehaviorSettings(), &Utils::AspectContainer::changed,
             this, updateBehaviorSettings);
     connect(TextEditor::TextEditorSettings::instance(),
             &TextEditor::TextEditorSettings::fontSettingsChanged, this, updateFontSettings);
