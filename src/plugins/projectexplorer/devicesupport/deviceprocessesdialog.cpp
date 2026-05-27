@@ -10,6 +10,7 @@
 #include "../projectexplorertr.h"
 
 #include <utils/fancylineedit.h>
+#include <utils/guiutils.h>
 #include <utils/itemviews.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
@@ -71,7 +72,7 @@ class DeviceProcessesDialogPrivate : public QObject
     Q_OBJECT
 
 public:
-    DeviceProcessesDialogPrivate(KitChooser *chooser, QDialog *parent);
+    DeviceProcessesDialogPrivate(QDialog *parent);
 
     void setDevice(const IDevice::ConstPtr &device);
     void updateProcessList();
@@ -98,10 +99,10 @@ public:
     QDialogButtonBox *buttonBox;
 };
 
-DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, QDialog *parent)
+DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QDialog *parent)
     : q(parent)
     , kitLabel(new QLabel(Tr::tr("Kit:"), parent))
-    , kitChooser(chooser)
+    , kitChooser(new KitChooser(parent))
     , acceptButton(nullptr)
     , buttonBox(new QDialogButtonBox(parent))
 {
@@ -285,12 +286,8 @@ ProcessInfo DeviceProcessesDialogPrivate::selectedProcess() const
      \endlist
 */
 
-DeviceProcessesDialog::DeviceProcessesDialog(QWidget *parent)
-    : QDialog(parent), d(std::make_unique<Internal::DeviceProcessesDialogPrivate>(new KitChooser(this), this))
-{ }
-
-DeviceProcessesDialog::DeviceProcessesDialog(KitChooser *chooser, QWidget *parent)
-    : QDialog(parent), d(std::make_unique<Internal::DeviceProcessesDialogPrivate>(chooser, this))
+DeviceProcessesDialog::DeviceProcessesDialog()
+    : QDialog(dialogParent()), d(std::make_unique<Internal::DeviceProcessesDialogPrivate>(this))
 { }
 
 DeviceProcessesDialog::~DeviceProcessesDialog() = default;

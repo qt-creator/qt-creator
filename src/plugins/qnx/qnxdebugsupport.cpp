@@ -8,8 +8,6 @@
 #include "qnxtr.h"
 #include "slog2inforunner.h"
 
-#include <coreplugin/icore.h>
-
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
@@ -66,12 +64,15 @@ static FilePaths searchPaths(Kit *kit)
 
 // QnxAttachDebugDialog
 
-class QnxAttachDebugDialog : public DeviceProcessesDialog
+class QnxAttachDebugDialog final : public DeviceProcessesDialog
 {
 public:
-    QnxAttachDebugDialog(KitChooser *kitChooser)
-        : DeviceProcessesDialog(kitChooser, Core::ICore::dialogParent())
+    QnxAttachDebugDialog()
     {
+        kitChooser()->setKitPredicate([](const Kit *k) {
+            return k->isValid() && RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::QNX_QNX_OS_TYPE;
+        });
+
         auto sourceLabel = new QLabel(Tr::tr("Project source directory:"), this);
         m_projectSource = new PathChooser(this);
         m_projectSource->setExpectedKind(PathChooser::ExistingDirectory);
@@ -111,18 +112,13 @@ static Group attachToProcessRecipe(RunControl *runControl, const DebuggerRunPara
 
 void showAttachToProcessDialog()
 {
-    auto kitChooser = new KitChooser;
-    kitChooser->setKitPredicate([](const Kit *k) {
-        return k->isValid() && RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::QNX_QNX_OS_TYPE;
-    });
-
-    QnxAttachDebugDialog dlg(kitChooser);
+    QnxAttachDebugDialog dlg;
     dlg.addAcceptButton(msgAttachToProcess());
     dlg.showAllDevices();
     if (dlg.exec() == QDialog::Rejected)
         return;
 
-    Kit *kit = kitChooser->currentKit();
+    Kit *kit = dlg.kitChooser()->currentKit();
     if (!kit)
         return;
 

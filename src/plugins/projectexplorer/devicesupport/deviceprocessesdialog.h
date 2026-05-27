@@ -21,11 +21,10 @@ namespace Internal { class DeviceProcessesDialogPrivate; }
 
 class PROJECTEXPLORER_EXPORT DeviceProcessesDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
-    explicit DeviceProcessesDialog(QWidget *parent = nullptr);
+    DeviceProcessesDialog();
     ~DeviceProcessesDialog() override;
+
     void addAcceptButton(const QString &label);
     void addCloseButton();
 
@@ -34,7 +33,6 @@ public:
     Utils::ProcessInfo currentProcess() const;
     KitChooser *kitChooser() const;
     void logMessage(const QString &line);
-    DeviceProcessesDialog(KitChooser *chooser, QWidget *parent);
 
 private:
     void setKitVisible(bool);

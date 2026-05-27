@@ -51,6 +51,7 @@ void KitChooser::onManageButtonClicked()
 void KitChooser::setShowIcons(bool showIcons)
 {
     m_showIcons = showIcons;
+    populate();
 }
 
 void KitChooser::onCurrentIndexChanged()
@@ -128,6 +129,14 @@ void KitChooser::populate()
 Kit *KitChooser::currentKit() const
 {
     const Id id = Id::fromSetting(m_chooser->currentData());
+    return KitManager::kit(id);
+}
+
+Kit *KitChooser::lastKit()
+{
+    const Id id = Id::fromSetting(ICore::settings()->value(lastKitKey));
+    if (!id.isValid())
+        return activeKitForActiveProject();
     return KitManager::kit(id);
 }
 

@@ -33,6 +33,8 @@ public:
     Kit *currentKit() const;
     bool hasStartupKit() const { return m_hasStartupKit; }
 
+    static Kit *lastKit();
+
 signals:
     void currentIndexChanged();
     void activated();

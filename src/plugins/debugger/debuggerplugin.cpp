@@ -1646,24 +1646,19 @@ void DebuggerPluginPrivate::reloadDebuggingHelpers()
 
 void DebuggerPluginPrivate::attachToRunningApplication()
 {
-    auto kitChooser = new KitChooser;
-    kitChooser->setShowIcons(true);
-
-    auto dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
-    dlg->addAcceptButton(msgAttachToProcess());
-    dlg->showAllDevices();
-    if (dlg->exec() == QDialog::Rejected) {
-        delete dlg;
+    DeviceProcessesDialog dlg;
+    dlg.kitChooser()->setShowIcons(true);
+    dlg.addAcceptButton(msgAttachToProcess());
+    dlg.showAllDevices();
+    if (dlg.exec() == QDialog::Rejected)
         return;
-    }
 
-    dlg->setAttribute(Qt::WA_DeleteOnClose);
-    Kit *kit = kitChooser->currentKit();
+    Kit *kit = dlg.kitChooser()->currentKit();
     QTC_ASSERT(kit, return);
     IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
     QTC_ASSERT(device, return);
 
-    const ProcessInfo processInfo = dlg->currentProcess();
+    const ProcessInfo processInfo = dlg.currentProcess();
 
     if (device->type() == PE::DESKTOP_DEVICE_TYPE) {
         attachToRunningProcess(kit, processInfo, false);
@@ -2151,16 +2146,13 @@ Result<> DebuggerPlugin::initialize(const QStringList &arguments)
     return ResultOk;
 }
 
-void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePath &executable)
+void DebuggerPlugin::attachToProcess(const qint64 processId, const FilePath &executable)
 {
     ProcessInfo processInfo;
     processInfo.processId = processId;
     processInfo.executable = executable.path();
 
-    auto kitChooser = new KitChooser;
-    kitChooser->setShowIcons(true);
-    kitChooser->populate();
-    Kit *kit = kitChooser->currentKit();
+    Kit *kit = KitChooser::lastKit();
 
     dd->attachToRunningProcess(kit, processInfo, false);
 }
