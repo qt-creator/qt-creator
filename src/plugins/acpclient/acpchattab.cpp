@@ -115,7 +115,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_connectionErrorLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
             m_connectionErrorLabel->hide();
             QPalette errorPal = m_connectionErrorLabel->palette();
-            errorPal.setColor(QPalette::WindowText, QColor(0xfc, 0x8c, 0x8c));
+            errorPal.setColor(QPalette::WindowText, creatorColor(Theme::TextColorError));
             m_connectionErrorLabel->setPalette(errorPal);
             connectLayout->addWidget(m_connectionErrorLabel);
 
