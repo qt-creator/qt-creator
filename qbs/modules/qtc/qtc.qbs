@@ -1,23 +1,41 @@
 import qbs
 import qbs.Environment
+import qbs.File
 import qbs.FileInfo
+import qbs.TextFile
 import qbs.Utilities
 
 Module {
     Depends { name: "cpp" }
 
-    property string qtcreator_display_version: '21.0.0-beta1'
-    property string ide_version_major: '20'
-    property string ide_version_minor: '0'
-    property string ide_version_release: '82'
-    property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
-                                       + ide_version_release
+    Probe {
+        id: branding
+        readonly property string filePath: path + "/../../../cmake/QtCreatorIDEBranding.cmake"
+        readonly property var lastModified: File.lastModified(filePath)
+        property string displayVersion
+        property string version
+        property string compatVersion
+        configure: {
+            var f = new TextFile(filePath);
+            var content = f.readAll();
+            f.close();
+            displayVersion = content.match(/set\(IDE_VERSION_DISPLAY "([^"]+)"\)/)[1];
+            version = content.match(/set\(IDE_VERSION "([^"]+)"\)/)[1];
+            compatVersion = content.match(/set\(IDE_VERSION_COMPAT "([^"]+)"\)/)[1];
+            found = true;
+        }
+    }
 
-    property string ide_compat_version_major: '20'
-    property string ide_compat_version_minor: '0'
-    property string ide_compat_version_release: '82'
-    property string qtcreator_compat_version: ide_compat_version_major + '.'
-            + ide_compat_version_minor + '.' + ide_compat_version_release
+    property string qtcreator_display_version: branding.displayVersion
+    property string qtcreator_version: branding.version
+    property string ide_version_major: qtcreator_version.split('.')[0]
+    property string ide_version_minor: qtcreator_version.split('.')[1]
+    property string ide_version_release: qtcreator_version.split('.')[2]
+
+    property string qtcreator_compat_version: branding.compatVersion
+    property string ide_compat_version_major: qtcreator_compat_version.split('.')[0]
+    property string ide_compat_version_minor: qtcreator_compat_version.split('.')[1]
+    property string ide_compat_version_release: qtcreator_compat_version.split('.')[2]
 
     property string ide_author: "The Qt Company Ltd. and other contributors."
     property string ide_copyright_string: "Copyright (C) The Qt Company Ltd. and other contributors."
