@@ -845,6 +845,9 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
 
     postProcessTables(document()->rootFrame());
 
+    QTextCursor updateBlocker(document());
+    updateBlocker.beginEditBlock();
+
     for (QTextBlock block = document()->begin(); block != document()->end(); block = block.next()) {
         if (firstTime) {
             const QTextBlockFormat blockFormat = block.blockFormat();
@@ -930,6 +933,8 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
             fc.setCharFormat(charFormat);
         }
     }
+
+    updateBlocker.endEditBlock();
 }
 
 void MarkdownBrowser::changeEvent(QEvent *event)
