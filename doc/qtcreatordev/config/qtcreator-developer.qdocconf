@@ -16,7 +16,6 @@ headerdirs              = . \
                           ../src \
                           ../../../src/libs/aggregation \
                           ../../../src/libs/extensionsystem \
-                          ../../../src/libs/QtTaskTree \
                           ../../../src/libs/solutions \
                           ../../../src/libs/utils \
                           ../../../src/plugins/coreplugin
@@ -25,7 +24,6 @@ sourcedirs              = . \
                           ../src \
                           ../../../src/libs/aggregation \
                           ../../../src/libs/extensionsystem \
-                          ../../../src/libs/QtTaskTree \
                           ../../../src/libs/solutions \
                           ../../../src/libs/utils \
                           ../../../src/plugins/coreplugin
