@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only With Qt-GPL-exception-1.0
 
 #include "flamegraphview.h"
 #include "qmlprofilerconstants.h"
@@ -21,20 +21,39 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
     setObjectName("QmlProfiler.FlameGraph.Dock");
     setWindowTitle(Tr::tr("Flame Graph"));
 
-    m_content = new Timeline::FlameGraphWidget(
-            m_model,
-            QUrl(QStringLiteral("qrc:/qt/qml/QtCreator/QmlProfiler/QmlProfilerFlameGraphView.qml")),
-            this);
+    m_content = new Timeline::FlameGraphWidget(m_model, this);
 
-    auto layout = new QVBoxLayout(this);
+    auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_content);
 
     connect(m_content, &Timeline::FlameGraphWidget::typeSelected,
             this, &FlameGraphView::typeSelected);
-    connect(m_model, &FlameGraphModel::gotoSourceLocation,
+    connect(m_content, &Timeline::FlameGraphWidget::gotoSourceLocation,
             this, &FlameGraphView::gotoSourceLocation);
+
+    using Role = FlameGraphModel;
+    m_content->setTypeIdRole(Role::TypeIdRole);
+    m_content->setSourceRoles(Role::FilenameRole, Role::LineRole, Role::ColumnRole);
+    m_content->setSummaryRole(Role::DetailsRole);
+    m_content->setDetailsTitleRole(Role::TypeRole);
+    m_content->setNoteRole(Role::NoteRole);
+    m_content->setSizeRoles({
+        {Role::DurationRole,    Tr::tr("Total Time")},
+        {Role::MemoryRole,      Tr::tr("Memory")},
+        {Role::AllocationsRole, Tr::tr("Allocations")},
+    });
+    m_content->setDetailsRoles({
+        {Role::DetailsRole,     Tr::tr("Details")},
+        {Role::CallCountRole,   Tr::tr("Calls")},
+        {Role::DurationRole,    Tr::tr("Total Time")},
+        {Role::TimePerCallRole, Tr::tr("Mean Time")},
+        {Role::LocationRole,    Tr::tr("Location")},
+        {Role::MemoryRole,      Tr::tr("Memory")},
+        {Role::AllocationsRole, Tr::tr("Allocations")},
+    });
+    m_content->setOthersText(Tr::tr("Various Events"));
 }
 
 void FlameGraphView::selectByTypeId(int typeIndex)
