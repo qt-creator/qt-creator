@@ -177,6 +177,7 @@ public:
         FileUnstageAdded,
         FileRevertRenaming,
         FileRemove,
+        FileRemoveAdded,
         FileIgnore,
         FileMergeTool,
         FileMergeDiffIncoming,

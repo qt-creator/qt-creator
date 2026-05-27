@@ -2114,6 +2114,9 @@ void GitPluginPrivate::vcsFillFileActionMenu(QMenu *menu,
         addAction(Tr::tr("Stage \"%1\""), IVersionControl::FileStage);
         addAction(Tr::tr("Unstage \"%1\""), IVersionControl::FileUnstageAdded);
         addAction(Tr::tr("Mark Untracked \"%1\""), IVersionControl::FileUnstage);
+        addAction(Tr::tr("Remove \"%1\"..."), IVersionControl::FileRemoveAdded,
+                  Tr::tr("<p>Permanently remove the file \"%1\"?</p>"
+                         "<p>Note: The deletion cannot be undone.</p>"));
         break;
     case VcsFileState::Modified:
         addAction(Tr::tr("Stage \"%1\""), IVersionControl::FileStage);
@@ -2196,6 +2199,10 @@ bool GitPluginPrivate::vcsFileAction(const FilePath &topLevel, const FilePath &f
         }
         return true;
     }
+
+    case FileRemoveAdded:
+        gitClient().synchronousDelete(topLevel, false, {filePath.path()});
+        break;
 
     case FileIgnore:
         addToGitignore(topLevel, filePath);

@@ -338,7 +338,7 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
         } else {
             addAction(Tr::tr("Stage \"%1\""), IVersionControl::FileStage);
             addAction(Tr::tr("Mark Untracked \"%1\""), IVersionControl::FileUnstage);
-            addAction(Tr::tr("Remove \"%1\"..."), IVersionControl::FileRemove,
+            addAction(Tr::tr("Remove \"%1\"..."), IVersionControl::FileRemoveAdded,
                       Tr::tr("<p>Permanently remove the file \"%1\"?</p>"
                              "<p>Note: The deletion cannot be undone.</p>"));
         }
