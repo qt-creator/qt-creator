@@ -6,8 +6,9 @@
 #include "flamegraphmodel.h"
 #include "qmlprofilereventsview.h"
 
+#include <tracing/flamegraphwidget.h>
+
 #include <QWidget>
-#include <QQuickWidget>
 
 namespace QmlProfiler::Internal {
 
@@ -24,7 +25,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
 
 private:
-    QQuickWidget *m_content;
+    Timeline::FlameGraphWidget *m_content;
     FlameGraphModel *m_model;
 };
 

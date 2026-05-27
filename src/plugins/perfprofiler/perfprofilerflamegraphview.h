@@ -3,29 +3,15 @@
 
 #pragma once
 
-#include <QQuickWidget>
+#include <tracing/flamegraphwidget.h>
 
 namespace PerfProfiler::Internal {
 
-class PerfProfilerFlameGraphModel;
-
-class PerfProfilerFlameGraphView : public QQuickWidget
+class PerfProfilerFlameGraphView : public Timeline::FlameGraphWidget
 {
     Q_OBJECT
 public:
-    PerfProfilerFlameGraphView(QWidget *parent);
-    ~PerfProfilerFlameGraphView();
-
-    void selectByTypeId(int typeId);
-    void resetRoot();
-    bool isZoomed() const;
-
-signals:
-    void gotoSourceLocation(QString file, int line, int column);
-    void typeSelected(int typeId);
-
-private:
-    PerfProfilerFlameGraphModel *m_model;
+    explicit PerfProfilerFlameGraphView(QWidget *parent);
 };
 
 } // namespace PerfProfiler::Internal

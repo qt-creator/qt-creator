@@ -1,6 +1,7 @@
 set(TRACING_CPP_SOURCES
   flamegraph.cpp flamegraph.h
   flamegraphattached.h
+  flamegraphwidget.cpp flamegraphwidget.h
   safecastable.h
   timelineabstractrenderer.cpp timelineabstractrenderer.h
   timelineformattime.cpp timelineformattime.h
