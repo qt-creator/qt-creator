@@ -134,11 +134,7 @@ void CtfVisualizerTool::toggleThreadRestriction(QAction *action)
 
     // deselect possibly current event
     // (avoids crashes as next / previous would act afterwards on different or even nullptr models)
-    if (auto root = m_traceView->rootObject()) {
-        QMetaObject::invokeMethod(root, "selectByIndices",
-                                  Q_ARG(QVariant, QVariant(-1)),
-                                  Q_ARG(QVariant, QVariant(-1)));
-    }
+    m_traceView->selectByIndices(-1, -1);
 
     m_traceManager->setThreadRestriction(tid, action->isChecked());
 }

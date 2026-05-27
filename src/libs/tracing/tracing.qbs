@@ -1,7 +1,7 @@
 QtcLibrary {
     name: "Tracing"
 
-    Depends { name: "Qt"; submodules: ["qml", "quick", "gui"] }
+    Depends { name: "Qt"; submodules: ["qml", "quick", "quickwidgets", "gui"] }
     Depends { name: "Qt.testlib"; condition: qtc.withAutotests }
     Depends { name: "Utils" }
 
@@ -27,6 +27,7 @@ QtcLibrary {
             "timelinetheme.cpp", "timelinetheme.h",
             "timelinetracefile.cpp", "timelinetracefile.h",
             "timelinetracemanager.cpp", "timelinetracemanager.h",
+            "timelinewidget.cpp", "timelinewidget.h",
             "timelinezoomcontrol.cpp", "timelinezoomcontrol.h",
             "traceevent.h", "traceeventtype.h", "tracestashfile.h",
             "tracingtr.h",

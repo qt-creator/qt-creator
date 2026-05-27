@@ -39,7 +39,6 @@ public:
     void updateCursorPosition();
 
 protected:
-    void changeEvent(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;

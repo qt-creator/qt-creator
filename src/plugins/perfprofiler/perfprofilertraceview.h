@@ -3,29 +3,18 @@
 
 #pragma once
 
-#include <QQuickWidget>
-#include <QWidget>
+#include <tracing/timelinewidget.h>
 
 namespace PerfProfiler::Internal {
 
 class PerfProfilerTool;
 
-class PerfProfilerTraceView : public QQuickWidget
+class PerfProfilerTraceView : public Timeline::TimelineWidget
 {
     Q_OBJECT
 
 public:
     PerfProfilerTraceView(QWidget *parent, PerfProfilerTool *tool);
-    bool isUsable() const;
-    void selectByTypeId(int typeId);
-    void clear();
-
-signals:
-    void gotoSourceLocation(QString file, int line, int column);
-    void typeSelected(int typeId);
-
-private:
-    void updateCursorPosition();
 };
 
 } // namespace PerfProfiler::Internal

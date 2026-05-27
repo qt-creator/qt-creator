@@ -23,9 +23,7 @@
 
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/timelinerenderer.h>
-#include <tracing/timelineoverviewrenderer.h>
-#include <tracing/timelinetheme.h>
+#include <tracing/timelinewidget.h>
 #include <tracing/timelineformattime.h>
 
 #include <aggregation/aggregate.h>
@@ -33,17 +31,10 @@
 #include <utils/styledbar.h>
 #include <utils/algorithm.h>
 
-#include <QQmlContext>
 #include <QToolButton>
 #include <QEvent>
 #include <QVBoxLayout>
-#include <QGraphicsObject>
-#include <QScrollBar>
-#include <QSlider>
 #include <QMenu>
-#include <QQmlEngine>
-#include <QQuickItem>
-#include <QQuickWidget>
 #include <QApplication>
 #include <QRegularExpression>
 #include <QTextCursor>
@@ -57,7 +48,7 @@ public:
     QmlProfilerTraceViewPrivate(QmlProfilerTraceView *qq) : q(qq) {}
     QmlProfilerTraceView *q;
     QmlProfilerViewManager *m_viewContainer;
-    QQuickWidget *m_mainView;
+    Timeline::TimelineWidget *m_mainView;
     QmlProfilerModelManager *m_modelManager;
     QVariantList m_suspendedModels;
     Timeline::TimelineModelAggregator *m_modelProxy;
@@ -96,21 +87,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
         }
     });
 
-    auto groupLayout = new QVBoxLayout;
-    groupLayout->setContentsMargins(0, 0, 0, 0);
-    groupLayout->setSpacing(0);
-
-    d->m_mainView = new QQuickWidget(this);
-    d->m_mainView->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    d->m_mainView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setFocusProxy(d->m_mainView);
-
-    Aggregation::aggregate({d->m_mainView, new TraceViewFindSupport(this, modelManager)});
-
-    groupLayout->addWidget(d->m_mainView);
-    groupLayout->addWidget(new Core::FindToolBarPlaceHolder(this));
-    setLayout(groupLayout);
-
     d->m_viewContainer = container;
     d->m_modelProxy = new Timeline::TimelineModelAggregator(this);
     d->m_modelProxy->setNotes(modelManager->notesModel());
@@ -131,20 +107,22 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     }
     d->m_modelProxy->setModels(models);
 
-    // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
-    setMinimumHeight(170);
+    d->m_mainView = new Timeline::TimelineWidget(d->m_modelProxy, d->m_zoomControl, this);
+    setFocusProxy(d->m_mainView);
 
-    d->m_mainView->engine()->addImportPath(":/qt/qml/");
-    Timeline::TimelineTheme::setupTheme(d->m_mainView->engine());
+    Aggregation::aggregate({d->m_mainView, new TraceViewFindSupport(this, modelManager)});
 
-    d->m_mainView->rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
-                                                     d->m_modelProxy);
-    d->m_mainView->rootContext()->setContextProperty(QLatin1String("zoomControl"),
-                                                     d->m_zoomControl);
-    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/qt/qml/QtCreator/Tracing/MainView.qml")));
+    auto groupLayout = new QVBoxLayout;
+    groupLayout->setContentsMargins(0, 0, 0, 0);
+    groupLayout->setSpacing(0);
+    groupLayout->addWidget(d->m_mainView);
+    groupLayout->addWidget(new Core::FindToolBarPlaceHolder(this));
+    setLayout(groupLayout);
 
-    connect(d->m_modelProxy, &Timeline::TimelineModelAggregator::updateCursorPosition,
-            this, &QmlProfilerTraceView::updateCursorPosition);
+    connect(d->m_mainView, &Timeline::TimelineWidget::gotoSourceLocation,
+            this, &QmlProfilerTraceView::gotoSourceLocation);
+    connect(d->m_mainView, &Timeline::TimelineWidget::typeSelected,
+            this, &QmlProfilerTraceView::typeSelected);
 }
 
 QmlProfilerTraceView::~QmlProfilerTraceView()
@@ -155,58 +133,42 @@ QmlProfilerTraceView::~QmlProfilerTraceView()
 
 bool QmlProfilerTraceView::hasValidSelection() const
 {
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (rootObject)
-        return rootObject->property("selectionRangeReady").toBool();
-    return false;
+    return d->m_mainView->hasValidSelection();
 }
 
 qint64 QmlProfilerTraceView::selectionStart() const
 {
-    return d->m_zoomControl->selectionStart();
+    return d->m_mainView->selectionStart();
 }
 
 qint64 QmlProfilerTraceView::selectionEnd() const
 {
-    return d->m_zoomControl->selectionEnd();
+    return d->m_mainView->selectionEnd();
 }
 
 void QmlProfilerTraceView::clear()
 {
-    QMetaObject::invokeMethod(d->m_mainView->rootObject(), "clear");
+    d->m_mainView->clear();
 }
 
 void QmlProfilerTraceView::selectByTypeId(int typeId)
 {
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (!rootObject)
-        return;
-    QMetaObject::invokeMethod(rootObject, "selectByTypeId", Q_ARG(QVariant,QVariant(typeId)));
+    d->m_mainView->selectByTypeId(typeId);
 }
 
 void QmlProfilerTraceView::selectByEventIndex(int modelId, int eventIndex)
 {
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (!rootObject)
-        return;
-
     const int modelIndex = d->m_modelProxy->modelIndexById(modelId);
     QTC_ASSERT(modelIndex != -1, return);
-    QMetaObject::invokeMethod(rootObject, "selectByIndices",
-                              Q_ARG(QVariant, QVariant(modelIndex)),
-                              Q_ARG(QVariant, QVariant(eventIndex)));
+    d->m_mainView->selectByIndices(modelIndex, eventIndex);
 }
 
-// Goto source location
 void QmlProfilerTraceView::updateCursorPosition()
 {
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    QString file = rootObject->property("fileName").toString();
+    const QString file = d->m_mainView->currentFile();
     if (!file.isEmpty())
-        emit gotoSourceLocation(file, rootObject->property("lineNumber").toInt(),
-                                rootObject->property("columnNumber").toInt());
-
-    emit typeSelected(rootObject->property("typeId").toInt());
+        emit gotoSourceLocation(file, d->m_mainView->currentLine(), d->m_mainView->currentColumn());
+    emit typeSelected(d->m_mainView->currentTypeId());
 }
 
 void QmlProfilerTraceView::mousePressEvent(QMouseEvent *event)
@@ -264,9 +226,7 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
 
 bool QmlProfilerTraceView::isUsable() const
 {
-    const QSGRendererInterface::GraphicsApi api =
-            d->m_mainView->quickWindow()->rendererInterface()->graphicsApi();
-    return QSGRendererInterface::isApiRhiBased(api);
+    return d->m_mainView->isUsable();
 }
 
 bool QmlProfilerTraceView::isSuspended() const
@@ -274,13 +234,6 @@ bool QmlProfilerTraceView::isSuspended() const
     return !d->m_suspendedModels.isEmpty();
 }
 
-void QmlProfilerTraceView::changeEvent(QEvent *e)
-{
-    if (e->type() == QEvent::EnabledChange) {
-        QQuickItem *rootObject = d->m_mainView->rootObject();
-        rootObject->setProperty("enabled", isEnabled());
-    }
-}
 
 TraceViewFindSupport::TraceViewFindSupport(QmlProfilerTraceView *view,
                                            QmlProfilerModelManager *manager)

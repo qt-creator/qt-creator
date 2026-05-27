@@ -17,6 +17,7 @@ set(TRACING_CPP_SOURCES
   timelinetheme.cpp timelinetheme.h
   timelinetracefile.cpp timelinetracefile.h
   timelinetracemanager.cpp timelinetracemanager.h
+  timelinewidget.cpp timelinewidget.h
   timelinezoomcontrol.cpp timelinezoomcontrol.h
   traceevent.h
   traceeventtype.h
@@ -30,7 +31,7 @@ find_package(Qt6 COMPONENTS ShaderTools QUIET)
 add_qtc_library(Tracing
   CONDITION TARGET Qt6::ShaderTools AND TARGET Qt::Quick
   FEATURE_INFO
-  DEPENDS Utils Qt::Quick
+  DEPENDS Utils Qt::Quick Qt::QuickWidgets
   PUBLIC_DEPENDS Qt::Widgets Qt::Qml
 )
 
