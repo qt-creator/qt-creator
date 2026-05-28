@@ -258,7 +258,17 @@ SystemSettings::SystemSettings()
         Utils::setCrashReportingEnabled(systemSettings().enableCrashReports());
     });
 
-    setLayouter([this]() -> Layouting::Layout {
+    QPushButton *crashButton = nullptr;
+    if (qtcEnvironmentVariableIsSet("QTC_SHOW_CRASHBUTTON") && isCrashReportingAvailable()) {
+        crashButton = new QPushButton("CRASH!!!");
+        QObject::connect(crashButton, &QPushButton::clicked, [] {
+            // do a real crash
+            volatile int *a = reinterpret_cast<volatile int *>(NULL);
+            *a = 1;
+        });
+    }
+
+    setLayouter([this, crashButton]() -> Layouting::Layout {
         using namespace Layouting;
         // clang-format off
         return Form {
@@ -282,7 +292,7 @@ SystemSettings::SystemSettings()
             warnBeforeOpeningBigFiles, Row { bigFileSizeLimitInMB }, st, br,
             askBeforeExit, br,
             If (isCrashReportingAvailable()) >> Then {
-                enableCrashReports, br,
+                enableCrashReports, If (crashButton) >> Then { crashButton }, br,
             },
         };
         // clang-format on

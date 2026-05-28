@@ -58,6 +58,7 @@
 
 #include <QAuthenticator>
 #include <QCheckBox>
+#include <QDialog>
 #include <QDateTime>
 #include <QDebug>
 #include <QDialogButtonBox>
@@ -268,10 +269,7 @@ static void registerStandardLocation(MacroExpander *expander,
         });
 }
 
-static void warnAboutCrashReporting(
-    InfoBar *infoBar,
-    const QString &optionsButtonText,
-    const InfoBarEntry::CallBack &optionsButtonCallback)
+static void warnAboutCrashReporting(InfoBar *infoBar)
 {
     static const char kCrashReportingInfoBarEntry[] = "WarnCrashReporting";
 
@@ -279,45 +277,51 @@ static void warnAboutCrashReporting(
         return;
     if (!infoBar->canInfoBeAdded(kCrashReportingInfoBarEntry))
         return;
+    if (systemSettings().enableCrashReports())
+        return;
 
-    QString warnStr = systemSettings().enableCrashReports()
-                          ? Tr::tr(
-                                "%1 collects crash reports for the sole purpose of fixing bugs. "
-                                "To disable this feature go to %2.")
-                          : Tr::tr(
-                                "%1 can collect crash reports for the sole purpose of fixing bugs. "
-                                "To enable this feature go to %2.");
-
-    if (Utils::HostOsInfo::isMacHost()) {
-        warnStr = warnStr.arg(
-            QGuiApplication::applicationDisplayName(),
-            QGuiApplication::applicationDisplayName()
-                + Tr::tr(" > Preferences > Environment > System"));
-    } else {
-        warnStr = warnStr.arg(
-            QGuiApplication::applicationDisplayName(),
-            Tr::tr("Edit > Preferences > Environment > System"));
-    }
-
-    Utils::InfoBarEntry
-        info(kCrashReportingInfoBarEntry, warnStr, Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    Utils::InfoBarEntry info(
+        kCrashReportingInfoBarEntry,
+        Tr::tr("%1 can collect crash reports for the sole purpose of fixing bugs.")
+            .arg(QGuiApplication::applicationDisplayName()),
+        Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("Crash Reporting"));
     info.setInfoType(InfoLabel::Information);
-    info.addCustomButton(
-        optionsButtonText,
-        optionsButtonCallback,
-        {},
-        InfoBarEntry::ButtonAction::SuppressPersistently);
-
-    info.setDetailsWidgetCreator([]() -> QWidget * {
-        auto label = new QLabel;
-        label->setWindowTitle(Tr::tr("Crash Reporting"));
-        label->setWordWrap(true);
-        label->setOpenExternalLinks(true);
-        label->setText(Utils::breakpadInformation());
-        label->setContentsMargins(0, 0, 0, 8);
-        return label;
+    info.addCustomButton(Tr::tr("Enable Crash Reporting..."), [infoBar] {
+        infoBar->removeInfo(kCrashReportingInfoBarEntry);
+        auto dialog = new QDialog(ICore::dialogParent());
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        dialog->setWindowTitle(Tr::tr("Enable Crash Reporting"));
+        ICore::registerWindow(dialog, Context("Core.EnableCrashReportingDialog"));
+        auto infoLabel = new QLabel(Utils::breakpadInformation());
+        infoLabel->setWordWrap(true);
+        infoLabel->setOpenExternalLinks(true);
+        const QString preferencesText = HostOsInfo::isMacHost()
+                                            ? Tr::tr("%1 > Preferences > Environment > System")
+                                                  .arg(QGuiApplication::applicationDisplayName())
+                                            : Tr::tr("Edit > Preferences > Environment > System");
+        auto preferencesLabel = new QLabel(
+            Tr::tr("Change this later in %1.")
+                .arg("<a href=\"settings\">" + preferencesText + "</a>"));
+        preferencesLabel->setOpenExternalLinks(false);
+        QObject::connect(preferencesLabel, &QLabel::linkActivated, dialog, [dialog] {
+            dialog->reject();
+            ICore::showSettings(Constants::SETTINGS_ID_SYSTEM);
+        });
+        auto buttonBox = new QDialogButtonBox;
+        buttonBox->addButton(Tr::tr("Cancel"), QDialogButtonBox::RejectRole);
+        buttonBox->addButton(Tr::tr("Enable Crash Reporting"), QDialogButtonBox::AcceptRole);
+        QObject::connect(buttonBox, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+        QObject::connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+        QObject::connect(dialog, &QDialog::accepted, [] {
+            systemSettings().enableCrashReports.setValue(true);
+            systemSettings().writeSettings();
+        });
+        using namespace Layouting;
+        Column{infoLabel, preferencesLabel, buttonBox}.attachTo(dialog);
+        dialog->show();
     });
+
     infoBar->addInfo(info);
 }
 
@@ -495,9 +499,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
             &ICore::coreOpened,
             this,
             [] {
-                warnAboutCrashReporting(ICore::popupInfoBar(), ICore::msgShowSettings(), [] {
-                    ICore::showSettings(Constants::SETTINGS_ID_SYSTEM);
-                });
+                warnAboutCrashReporting(ICore::popupInfoBar());
             },
             Qt::QueuedConnection);
     }
