@@ -333,6 +333,11 @@ void QbsBuildSystem::buildFile(FileNode *file)
     buildSingleFile(static_cast<QbsProject *>(project()), file->filePath());
 }
 
+bool QbsBuildSystem::canBuildFile(ProjectExplorer::FileNode *file) const
+{
+    return file->filePath().suffix() != "qbs";
+}
+
 ProjectExplorer::DeploymentKnowledge QbsProject::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Perfect;

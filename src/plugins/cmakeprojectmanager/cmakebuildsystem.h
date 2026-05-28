@@ -84,6 +84,8 @@ public:
                      const Utils::FilePairs &filesToRename,
                      Utils::FilePaths *notRenamed) final;
     void buildNamedTarget(const QString &target) final;
+    void buildFile(ProjectExplorer::FileNode *file) final;
+    bool canBuildFile(ProjectExplorer::FileNode *file) const final;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
 

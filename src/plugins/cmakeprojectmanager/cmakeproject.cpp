@@ -64,6 +64,7 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDisplayName(projectFilePath()));
     setCanBuildProducts();
+    setCanBuildFiles();
     setBuildSystemCreator<CMakeBuildSystem>();
 
     // Allow presets to check if being run under Qt Creator

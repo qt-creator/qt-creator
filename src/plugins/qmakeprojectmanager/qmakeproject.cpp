@@ -1451,6 +1451,14 @@ void QmakeBuildSystem::buildFile(ProjectExplorer::FileNode *file)
     buildHelper(BUILD, true, QmakeProFileNode::buildableFileProFile(file), file);
 }
 
+bool QmakeBuildSystem::canBuildFile(ProjectExplorer::FileNode *file) const
+{
+    const FileType type = file->fileType();
+    if (type != FileType::Source && type != FileType::Header && type != FileType::Form)
+        return false;
+    return dynamic_cast<QmakePriFileNode *>(file->parentProjectNode());
+}
+
 FilePaths QmakeBuildSystem::filesGeneratedFrom(const FilePath &input) const
 {
     if (!project()->rootProjectNode())

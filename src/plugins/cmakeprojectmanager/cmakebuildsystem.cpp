@@ -26,6 +26,9 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <cppeditor/cppprojectfile.h>
+#include <cppeditor/cpptoolsreuse.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -36,10 +39,10 @@
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/treescanner.h>
 
 #include <texteditor/texteditor.h>
-#include <texteditor/textdocument.h>
 
 #include <qtapplicationmanager/appmanagerconstants.h>
 
@@ -1139,6 +1142,71 @@ bool CMakeBuildSystem::renameFile(
 void CMakeBuildSystem::buildNamedTarget(const QString &target)
 {
     CMakeProjectManager::Internal::buildTarget(this, target);
+}
+
+void CMakeBuildSystem::buildFile(ProjectExplorer::FileNode *file)
+{
+    CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(file->parentProjectNode());
+    if (!targetNode)
+        return;
+    FilePath filePath = file->filePath();
+    if (filePath.fileName().contains(".h")) {
+        bool wasHeader = false;
+        const FilePath sourceFile = CppEditor::correspondingHeaderOrSource(filePath, &wasHeader);
+        if (wasHeader && !sourceFile.isEmpty())
+            filePath = sourceFile;
+    }
+    const QString generator = CMakeGeneratorKitAspect::generator(project()->activeKit());
+    const FilePath relativeSource = filePath.relativeChildPath(targetNode->filePath());
+    Utils::FilePath targetBase;
+    if (generator == "Ninja") {
+        const Utils::FilePath relativeBuildDir = targetNode->buildDirectory().relativeChildPath(
+                    buildConfiguration()->buildDirectory());
+        targetBase = relativeBuildDir / "CMakeFiles" / (targetNode->displayName() + ".dir");
+    } else if (!generator.contains("Makefiles")) {
+        Core::MessageManager::writeFlashing(addCMakePrefix(
+            Tr::tr("Build File is not supported for generator \"%1\"").arg(generator)));
+        return;
+    }
+
+    const QString sourceFile = targetBase.resolvePath(relativeSource).path();
+    const QString objExtension = [&]() -> QString {
+        const auto sourceKind = CppEditor::ProjectFile::classify(relativeSource);
+        const QByteArray cmakeLangExtension = CppEditor::ProjectFile::isCxx(sourceKind)
+                                                  ? "CMAKE_CXX_OUTPUT_EXTENSION"
+                                                  : "CMAKE_C_OUTPUT_EXTENSION";
+        const QString extension = configurationFromCMake().stringValueOf(cmakeLangExtension);
+        if (!extension.isEmpty())
+            return extension;
+
+        const auto toolchain = CppEditor::ProjectFile::isCxx(sourceKind)
+                                   ? ToolchainKitAspect::cxxToolchain(project()->activeKit())
+                                   : ToolchainKitAspect::cToolchain(project()->activeKit());
+        using namespace ProjectExplorer::Constants;
+        static QSet<Id> objIds{
+            CLANG_CL_TOOLCHAIN_TYPEID,
+            MSVC_TOOLCHAIN_TYPEID,
+            MINGW_TOOLCHAIN_TYPEID,
+        };
+        if (toolchain && objIds.contains(toolchain->typeId()))
+            return ".obj";
+        return ".o";
+    }();
+
+    buildCMakeTarget(sourceFile + objExtension);
+}
+
+bool CMakeBuildSystem::canBuildFile(ProjectExplorer::FileNode *file) const
+{
+    const QString generator = CMakeGeneratorKitAspect::generator(file->getProject()->activeKit());
+    if (generator != "Ninja" && !generator.contains("Makefiles"))
+        return false;
+
+    const FileType type = file->fileType();
+    if (type != FileType::Source && type != FileType::Header)
+        return false;
+
+    return dynamic_cast<CMakeTargetNode *>(file->parentProjectNode());
 }
 
 static Result<bool> insertDependencies(

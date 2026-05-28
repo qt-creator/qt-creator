@@ -70,6 +70,7 @@ public:
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
     void buildFile(ProjectExplorer::FileNode *file) final;
+    bool canBuildFile(ProjectExplorer::FileNode *file) const final;
 
     bool isProjectEditable() const;
     bool addFilesToProduct(const Utils::FilePaths &filePaths,

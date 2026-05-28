@@ -243,6 +243,12 @@ void BuildSystem::buildFile(FileNode *file)
     QTC_CHECK(false);
 }
 
+bool BuildSystem::canBuildFile(FileNode *file) const
+{
+    Q_UNUSED(file)
+    return false;
+}
+
 ExtraCompiler *BuildSystem::extraCompilerForSource(const Utils::FilePath &source) const
 {
     return findExtraCompiler([source](const ExtraCompiler *ec) { return ec->source() == source; });

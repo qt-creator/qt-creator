@@ -608,6 +608,7 @@ public:
     void editorOpened(IEditor *editor);
 
     void buildCurrentFile();
+    void buildSelectedFile();
 
 public:
     QMenu *m_openWithMenu;
@@ -625,6 +626,7 @@ public:
     Action *m_buildProjectForAllConfigsAction;
     Action *m_buildAction;
     Action *m_buildFileAction;
+    QAction *m_buildFileActionCtx;
     Action *m_buildForRunConfigAction;
     ProxyAction *m_modeBarBuildAction;
     QAction *m_buildActionContextMenu;
@@ -1757,6 +1759,14 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
                 "ProjectExplorer.CreateSource",
                 projectTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
+
+    dd->m_buildFileActionCtx = new QAction(Tr::tr("Build File"), this);
+    cmd = ActionManager::registerAction(
+                dd->m_buildFileActionCtx, Constants::BUILD_FILE_CTX, projectTreeContext);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    mfileContextMenu->addAction(cmd, ProjectExplorer::Constants::G_FILE_OTHER);
+    connect(dd->m_buildFileActionCtx, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::buildSelectedFile);
 
     // Not yet used by anyone, so hide for now
 //    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
@@ -3070,7 +3080,8 @@ void ProjectExplorerPluginPrivate::updateFileActions()
     while (productNode && !productNode->isProduct())
         productNode = productNode->parentProjectNode();
     const bool visible = project && project->canBuildFiles() && productNode;
-    const bool enabled = visible && bs && !bs->isParsing() && !BuildManager::isBuilding(project);
+    const bool enabled = visible && bs && !bs->isParsing() && bs->canBuildFile(fileNode)
+            && !BuildManager::isBuilding(project);
     const QString fileName = visible && fileNode ? fileNode->filePath().fileName() : QString();
 
     m_buildFileAction->setVisible(visible);
@@ -3292,6 +3303,14 @@ void ProjectExplorerPluginPrivate::buildCurrentFile()
     IDocument * const doc = EditorManager::currentDocument();
     QTC_ASSERT(doc, return);
     Node * const node = ProjectTree::nodeForFile(doc->filePath());
+    QTC_ASSERT(node, return);
+    FileNode * const fileNode = node->asFileNode();
+    QTC_ASSERT(fileNode, return);
+    fileNode->build();
+}
+void ProjectExplorerPluginPrivate::buildSelectedFile()
+{
+    Node * const node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
     FileNode * const fileNode = node->asFileNode();
     QTC_ASSERT(fileNode, return);
@@ -3716,6 +3735,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_deleteFileAction->setEnabled(false);
     m_renameFileAction->setEnabled(false);
     m_diffFileAction->setEnabled(false);
+    m_buildFileActionCtx->setEnabled(false);
     m_createHeaderAction->setEnabled(false);
     m_createSourceAction->setEnabled(false);
 
@@ -3855,6 +3875,16 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
                     }
                 }
             }
+
+            Project * const project = fileNode ? fileNode->getProject() : nullptr;
+            BuildSystem * const bs = project ? activeBuildSystem(project) : nullptr;
+            ProjectNode *productNode = fileNode ? fileNode->parentProjectNode() : nullptr;
+            while (productNode && !productNode->isProduct())
+                productNode = productNode->parentProjectNode();
+            m_buildFileActionCtx->setEnabled(
+                        project && project->canBuildFiles() && productNode
+                        && bs && !bs->isParsing() && bs->canBuildFile(fileNode)
+                        && !BuildManager::isBuilding(project));
 
             EditorManager::populateOpenWithMenu(m_openWithMenu, currentNode->filePath());
         }

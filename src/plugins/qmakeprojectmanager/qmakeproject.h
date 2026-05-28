@@ -79,6 +79,7 @@ public:
                          const QStringList &dependencies) override;
     void triggerParsing() final;
     void buildFile(ProjectExplorer::FileNode *file) override;
+    bool canBuildFile(ProjectExplorer::FileNode *file) const override;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &file) const final;
     QVariant additionalData(Utils::Id id) const final;

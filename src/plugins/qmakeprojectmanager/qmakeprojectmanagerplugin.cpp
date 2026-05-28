@@ -59,9 +59,6 @@ public:
     void updateRunQMakeAction();
     void updateContextActions(Node *node);
     void buildStateChanged(Project *pro);
-    void updateBuildFileAction();
-    void disableBuildFileMenus();
-    void enableBuildFileMenus(const FilePath &file);
 
     Core::Context projectContext;
 
@@ -81,7 +78,6 @@ public:
     QAction *m_subProjectRebuildSeparator = nullptr;
     QAction *m_rebuildSubProjectContextMenu = nullptr;
     QAction *m_cleanSubProjectContextMenu = nullptr;
-    QAction *m_buildFileContextMenu = nullptr;
     Action *m_buildSubProjectAction = nullptr;
     QAction *m_rebuildSubProjectAction = nullptr;
     QAction *m_cleanSubProjectAction = nullptr;
@@ -96,7 +92,6 @@ public:
     void buildSubDirContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::BUILD, false); }
     void rebuildSubDirContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::REBUILD, false); }
     void cleanSubDirContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::CLEAN, false); }
-    void buildFileContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::BUILD, true); }
 
     void handleSubDirContextMenu(QmakeBuildSystem::Action action, bool isFileBuild);
     void addLibraryImpl(const FilePath &filePath, TextEditor::BaseTextEditor *editor);
@@ -162,8 +157,6 @@ void QmakeProjectManagerPlugin::initialize()
             ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     ActionContainer *msubproject =
             ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
-    ActionContainer *mfile =
-            ActionManager::actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
 
     //register actions
     Command *command = nullptr;
@@ -206,13 +199,6 @@ void QmakeProjectManagerPlugin::initialize()
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(d->m_cleanSubProjectContextMenu, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::cleanSubDirContextMenu);
-
-    d->m_buildFileContextMenu = new QAction(Tr::tr("Build"), this);
-    command = ActionManager::registerAction(d->m_buildFileContextMenu, Constants::BUILDFILECONTEXTMENU, projectContext);
-    command->setAttribute(Command::CA_Hide);
-    mfile->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(d->m_buildFileContextMenu, &QAction::triggered,
-            d, &QmakeProjectManagerPluginPrivate::buildFileContextMenu);
 
     d->m_buildSubProjectAction = new Action(Tr::tr("Build &Subproject"), Tr::tr("Build &Subproject \"%1\""),
                                                          Action::AlwaysEnabled, this);
@@ -291,9 +277,6 @@ void QmakeProjectManagerPlugin::initialize()
 
     command = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(command);
-
-    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            d, &QmakeProjectManagerPluginPrivate::updateBuildFileAction);
 
     d->updateActions();
 }
@@ -426,15 +409,11 @@ void QmakeProjectManagerPluginPrivate::updateContextActions(Node *node)
     m_addLibraryActionContextMenu->setVisible(proFileNode);
     auto *qmakeProject = qobject_cast<QmakeProject *>(project);
     QmakeProFileNode *subProjectNode = nullptr;
-    disableBuildFileMenus();
     if (node) {
         auto subPriFileNode = dynamic_cast<const QmakePriFileNode *>(node);
         if (!subPriFileNode)
             subPriFileNode = dynamic_cast<QmakePriFileNode *>(node->parentProjectNode());
         subProjectNode = subPriFileNode ? subPriFileNode->proFileNode() : nullptr;
-
-        if (const FileNode *fileNode = node->asFileNode())
-            enableBuildFileMenus(fileNode->filePath());
     }
 
     bool subProjectActionsVisible = false;
@@ -479,40 +458,7 @@ void QmakeProjectManagerPluginPrivate::buildStateChanged(Project *pro)
     if (pro == ProjectTree::currentProject()) {
         updateRunQMakeAction();
         updateContextActions(ProjectTree::currentNode());
-        updateBuildFileAction();
     }
-}
-
-void QmakeProjectManagerPluginPrivate::updateBuildFileAction()
-{
-    disableBuildFileMenus();
-    if (IDocument *currentDocument = EditorManager::currentDocument())
-        enableBuildFileMenus(currentDocument->filePath());
-}
-
-void QmakeProjectManagerPluginPrivate::disableBuildFileMenus()
-{
-    m_buildFileContextMenu->setEnabled(false);
-}
-
-void QmakeProjectManagerPluginPrivate::enableBuildFileMenus(const FilePath &file)
-{
-    bool visible = false;
-    bool enabled = false;
-
-    if (Node *node = ProjectTree::nodeForFile(file)) {
-        if (Project *project = ProjectManager::projectForFile(file)) {
-            if (const FileNode *fileNode = node->asFileNode()) {
-                const FileType type = fileNode->fileType();
-                visible = qobject_cast<QmakeProject *>(project)
-                        && dynamic_cast<QmakePriFileNode *>(node->parentProjectNode())
-                        && (type == FileType::Source || type == FileType::Header);
-
-                enabled = !BuildManager::isBuilding(project);
-            }
-        }
-    }
-    m_buildFileContextMenu->setEnabled(visible && enabled);
 }
 
 } // QmakeProjectManager::Internal
