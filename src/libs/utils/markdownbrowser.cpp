@@ -9,11 +9,11 @@
 #include "movie.h"
 #include "networkaccessmanager.h"
 #include "stringutils.h"
+#include "qtcwidgets.h"
 #include "stylehelper.h"
 #include "textutils.h"
 #include "theme/theme.h"
 #include "utilsicons.h"
-#include "utilstr.h"
 
 #include <QtTaskTree/QNetworkReplyWrapper>
 #include <QtTaskTree/QSingleTaskTreeRunner>
@@ -91,154 +91,15 @@ static QStringList defaultCodeFontFamilies()
     return {"Menlo", "Source Code Pro", "Monospace", "Courier"};
 }
 
-static QTextFragment copyButtonFragment(const QTextBlock &block);
+static constexpr int kCopyIconSize = 16;
+static constexpr int kCopyButtonPadding = 4;
+static constexpr int kCopyButtonMargin = 2;
 
-class CopyButtonHandler : public QObject, public QTextObjectInterface
+static QIcon copyIcon(bool isCopied)
 {
-    Q_OBJECT
-    Q_INTERFACES(QTextObjectInterface)
-
-public:
-    explicit CopyButtonHandler(QObject *parent = nullptr)
-        : QObject(parent)
-    {}
-
-    static constexpr int objectId() { return QTextFormat::UserObject + 1; }
-    static constexpr int codePropertyId() { return QTextFormat::UserProperty + 1; }
-    static constexpr int isCopiedPropertyId() { return QTextFormat::UserProperty + 2; }
-
-    static QString text(bool isCopied)
-    {
-        return " " + (isCopied ? Tr::tr("Copied") : Tr::tr("Copy"));
-    }
-    static QIcon icon(bool isCopied)
-    {
-        static QIcon clickedIcon = Utils::Icons::OK.icon();
-        static QIcon unclickedIcon = Utils::Icons::COPY.icon();
-        if (isCopied)
-            return clickedIcon;
-        return unclickedIcon;
-    }
-
-    static void resetOtherCopyButtons(QTextDocument *doc, const QTextFragment &clickedFragment)
-    {
-        for (QTextBlock block = doc->begin(); block != doc->end(); block = block.next()) {
-            const QTextFragment otherFragment = copyButtonFragment(block);
-            if (otherFragment.isValid() && otherFragment != clickedFragment) {
-                QTextCursor resetCursor(block);
-                resetCursor.setPosition(otherFragment.position());
-                resetCursor.setPosition(
-                    otherFragment.position() + otherFragment.length(), QTextCursor::KeepAnchor);
-                QTextCharFormat resetFormat = otherFragment.charFormat();
-                resetFormat.setProperty(isCopiedPropertyId(), false);
-                resetCursor.setCharFormat(resetFormat);
-            }
-        }
-    }
-
-    static void copyCodeAndUpdateButton(QTextCursor &cursor, const QTextCharFormat &format)
-    {
-        const QString code = format.property(codePropertyId()).value<QString>();
-        Utils::setClipboardAndSelection(code);
-
-        QTextCharFormat newFormat = format;
-        newFormat.setProperty(isCopiedPropertyId(), true);
-        cursor.setCharFormat(newFormat);
-    }
-
-    QSizeF intrinsicSize(QTextDocument *doc, int pos, const QTextFormat &format) override
-    {
-        Q_UNUSED(pos)
-
-        if (!doc || !format.hasProperty(isCopiedPropertyId()))
-            return QSizeF(0, 0);
-
-        const QFontMetricsF metrics(getFont(doc));
-        const bool isCopied = format.property(isCopiedPropertyId()).value<bool>();
-
-        return QSizeF(metrics.horizontalAdvance(text(isCopied)) + 30, metrics.height() + 10);
-    }
-
-    void drawObject(
-        QPainter *painter,
-        const QRectF &rect,
-        QTextDocument *doc,
-        int pos,
-        const QTextFormat &format) override
-    {
-        Q_UNUSED(pos)
-
-        if (!doc || !format.hasProperty(isCopiedPropertyId()))
-            return;
-
-        painter->setPen(Qt::NoPen);
-        painter->setBrush(Qt::transparent);
-        painter->drawRect(rect);
-
-        const bool isCopied = format.property(isCopiedPropertyId()).value<bool>();
-
-        constexpr int iconSize = 16;
-        QRectF iconRect(rect.left(), rect.top() + (rect.height() - iconSize) / 2, iconSize, iconSize);
-        icon(isCopied).paint(painter, iconRect.toRect());
-
-        painter->setPen(creatorColor(Theme::Color::PanelTextColorMid));
-        painter->setFont(getFont(doc));
-        painter
-            ->drawText(rect.adjusted(20, 0, -5, 0), Qt::AlignLeft | Qt::AlignVCenter, text(isCopied));
-    }
-
-private:
-    QFont getFont(QTextDocument *doc) const
-    {
-        QFont font = doc->defaultFont();
-        font.setPointSize(10);
-        return font;
-    }
-};
-
-static QTextFragment copyButtonFragment(const QTextBlock &block)
-{
-    for (auto it = block.begin(); !it.atEnd(); ++it) {
-        QTextFragment fragment = it.fragment();
-        if (fragment.charFormat().objectType() == CopyButtonHandler::objectId())
-            return fragment;
-    }
-    return QTextFragment();
-}
-
-static QPointF blockBBoxTopLeftPosition(const QTextBlock &block)
-{
-    const QAbstractTextDocumentLayout *docLayout = block.document()->documentLayout();
-    const QRectF blockRect = docLayout->blockBoundingRect(block);
-    return blockRect.topLeft();
-}
-
-static QRectF calculateFragmentBounds(
-    const QTextBlock &block, const QTextFragment &fragment, const QPointF &documentOffset)
-{
-    QRectF bounds(0, 0, 0, 0);
-
-    if (!block.isValid() || !fragment.isValid())
-        return bounds;
-
-    QTextLayout *layout = block.layout();
-    if (!layout)
-        return bounds;
-
-    int fragmentStart = fragment.position() - block.position();
-    QTextLine line = layout->lineForTextPosition(fragmentStart);
-    if (!line.isValid())
-        return bounds;
-
-    qreal x = line.cursorToX(fragmentStart);
-    qreal y = line.y();
-    qreal width = line.cursorToX(fragmentStart + fragment.length()) - x;
-    qreal height = line.height();
-
-    bounds = QRectF(x, y, width, height);
-    bounds.translate(documentOffset);
-
-    return bounds;
+    static QIcon clickedIcon = Utils::Icons::OK.icon();
+    static QIcon unclickedIcon = Utils::Icons::COPY.icon();
+    return isCopied ? clickedIcon : unclickedIcon;
 }
 
 class AnimatedImageHandler : public QObject, public QTextObjectInterface
@@ -629,9 +490,12 @@ MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     connect(this, &QTextBrowser::anchorClicked, this, &MarkdownBrowser::handleAnchorClicked);
 
     setDocument(new AnimatedDocument(this));
-    document()
-        ->documentLayout()
-        ->registerHandler(CopyButtonHandler::objectId(), new CopyButtonHandler(document()));
+    connect(document()->documentLayout(),
+            &QAbstractTextDocumentLayout::documentSizeChanged,
+            this, &MarkdownBrowser::updateCopyButtonPositions);
+    connect(document()->documentLayout(),
+            &QAbstractTextDocumentLayout::update,
+            this, &MarkdownBrowser::updateCopyButtonPositions);
 }
 
 void MarkdownBrowser::highlightCodeBlock(const QString &language, QTextBlock &block)
@@ -668,22 +532,35 @@ void MarkdownBrowser::highlightCodeBlock(const QString &language, QTextBlock &bl
     QTextCursor frameCursor(frame);
 
     if (m_enableCodeCopyButton) {
-        QTextBlockFormat rightAlignedCopyButton;
-        rightAlignedCopyButton.setAlignment(Qt::AlignRight);
-        frameCursor.insertBlock(rightAlignedCopyButton);
-
         QString copiableCode = code;
         copiableCode.replace(QChar::ParagraphSeparator, '\n');
 
-        QTextCharFormat buttonFormat;
-        buttonFormat.setObjectType(CopyButtonHandler::objectId());
-        buttonFormat.setProperty(CopyButtonHandler::codePropertyId(), copiableCode);
-        buttonFormat.setProperty(CopyButtonHandler::isCopiedPropertyId(), false);
-        frameCursor.insertText(QString(QChar::ObjectReplacementCharacter), buttonFormat);
+        auto *button = new QtcButton(QString(), QtcButton::SmallGhost, viewport());
+        button->setCursor(Qt::PointingHandCursor);
+        const int size = currentButtonSize();
+        const int iconPx = size - 2 * kCopyButtonPadding;
+        button->setPixmap(copyIcon(false).pixmap(iconPx, iconPx));
+        button->setFixedSize(size, size);
+        button->show();
+        m_codeBlocks.append({frame, copiableCode, button});
 
-        QTextBlockFormat leftAlignedCode;
-        leftAlignedCode.setAlignment(Qt::AlignLeft);
-        frameCursor.insertBlock(leftAlignedCode);
+        connect(button, &QAbstractButton::clicked, this, [this, button] {
+            const int px = currentButtonSize() - 2 * kCopyButtonPadding;
+            for (CodeBlockEntry &e : m_codeBlocks) {
+                if (e.button == button) {
+                    Utils::setClipboardAndSelection(e.code);
+                    e.button->setPixmap(copyIcon(true).pixmap(px, px));
+                } else if (e.button) {
+                    e.button->setPixmap(copyIcon(false).pixmap(px, px));
+                }
+            }
+        });
+
+        // Reserve vertical space at top of frame so first code line is not
+        // covered by the overlay button.
+        QTextBlockFormat firstBlockFormat = frameCursor.blockFormat();
+        firstBlockFormat.setTopMargin(size + 2 * kCopyButtonMargin);
+        frameCursor.setBlockFormat(firstBlockFormat);
     }
 
     std::unique_ptr<QTextDocument> codeDoc(highlightText(code, language));
@@ -783,8 +660,14 @@ void MarkdownBrowser::setMarkdown(const QString &markdown)
     QScrollBar *sb = verticalScrollBar();
     const int scrollValue = sb->value();
 
+    for (const CodeBlockEntry &e : std::as_const(m_codeBlocks)) {
+        if (e.button)
+            e.button->deleteLater();
+    }
+    m_codeBlocks.clear();
     document()->setMarkdown(markdown);
     postProcessDocument(true);
+    updateCopyButtonPositions();
 
     QTimer::singleShot(0, this, [sb, scrollValue] { sb->setValue(scrollValue); });
 
@@ -939,73 +822,65 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
 
 void MarkdownBrowser::changeEvent(QEvent *event)
 {
-    if (event->type() == QEvent::FontChange)
+    if (event->type() == QEvent::FontChange) {
         postProcessDocument(false);
+        updateCopyButtonsForFontScale();
+        QTimer::singleShot(0, this, &MarkdownBrowser::updateCopyButtonPositions);
+    }
     QTextBrowser::changeEvent(event);
 }
 
-std::optional<std::pair<QTextFragment, QRectF>> MarkdownBrowser::findCopyButtonFragmentAt(const QPoint& viewportPos)
+int MarkdownBrowser::currentButtonSize() const
 {
-    QTextCursor cursor = cursorForPosition(viewportPos);
-    if (cursor.isNull())
-        return std::nullopt;
-
-    const QTextCharFormat format = cursor.charFormat();
-    if (format.objectType() != CopyButtonHandler::objectId())
-        return std::nullopt;
-
-    const QTextBlock block = cursor.block();
-    QTextFragment fragment = copyButtonFragment(block);
-    if (!fragment.isValid())
-        return std::nullopt;
-
-    QPointF blockPos = blockBBoxTopLeftPosition(block);
-    QRectF fragmentRect = calculateFragmentBounds(block, fragment, blockPos);
-    fragmentRect.translate(-horizontalScrollBar()->value(), -verticalScrollBar()->value());
-
-    if (fragmentRect.contains(viewportPos))
-        return std::make_pair(fragment, fragmentRect);
-    else
-        return std::nullopt;
+    const float fontScale = font().pointSizeF() / qGuiApp->font().pointSizeF();
+    const int base = kCopyIconSize + 2 * kCopyButtonPadding;
+    return qMax(base, int(base * fontScale));
 }
 
-void MarkdownBrowser::mousePressEvent(QMouseEvent *event)
+void MarkdownBrowser::updateCopyButtonsForFontScale()
 {
-    auto result = findCopyButtonFragmentAt(event->pos());
-    if (result) {
-        QTextFragment fragment = result->first;
-        QTextCursor cursor(document());
-        cursor.setPosition(fragment.position());
-        cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
+    const int size = currentButtonSize();
+    const int iconPx = size - 2 * kCopyButtonPadding;
+    for (CodeBlockEntry &entry : m_codeBlocks) {
+        if (!entry.button || !entry.frame)
+            continue;
+        entry.button->setFixedSize(size, size);
+        const bool isCopied = false;
+        entry.button->setPixmap(copyIcon(isCopied).pixmap(iconPx, iconPx));
 
-        CopyButtonHandler::resetOtherCopyButtons(document(), fragment);
-        CopyButtonHandler::copyCodeAndUpdateButton(cursor, fragment.charFormat());
-
-        document()->documentLayout()->update();
-        event->accept();
-    } else
-        QTextBrowser::mousePressEvent(event);
+        QTextCursor c(entry.frame);
+        QTextBlockFormat bf;
+        bf.setTopMargin(size + 2 * kCopyButtonMargin);
+        c.mergeBlockFormat(bf);
+    }
 }
 
-void MarkdownBrowser::mouseMoveEvent(QMouseEvent *event)
+void MarkdownBrowser::updateCopyButtonPositions()
 {
-    const QPoint mousePos = event->pos();
-
-    if (m_cachedCopyRect && m_cachedCopyRect->contains(mousePos)) {
-        QTextBrowser::mouseMoveEvent(event);
-        return;
+    for (const CodeBlockEntry &entry : std::as_const(m_codeBlocks)) {
+        if (!entry.button || !entry.frame)
+            continue;
+        QRectF frameRect = document()->documentLayout()->frameBoundingRect(entry.frame);
+        frameRect.translate(-horizontalScrollBar()->value(), -verticalScrollBar()->value());
+        const QTextFrameFormat fmt = entry.frame->frameFormat();
+        const QRectF inner = frameRect.adjusted(fmt.leftMargin(), fmt.topMargin(),
+                                                -fmt.rightMargin(), -fmt.bottomMargin());
+        const QSize s = entry.button->size();
+        entry.button->move(int(inner.right()) - s.width() - kCopyButtonMargin,
+                           int(inner.top()) + kCopyButtonMargin);
     }
+}
 
-    m_cachedCopyRect.reset();
-    viewport()->unsetCursor();
+void MarkdownBrowser::resizeEvent(QResizeEvent *event)
+{
+    QTextBrowser::resizeEvent(event);
+    updateCopyButtonPositions();
+}
 
-    auto result = findCopyButtonFragmentAt(mousePos);
-    if (result) {
-        m_cachedCopyRect = result->second;
-        viewport()->setCursor(Qt::PointingHandCursor);
-    }
-
-    QTextBrowser::mouseMoveEvent(event);
+void MarkdownBrowser::scrollContentsBy(int dx, int dy)
+{
+    QTextBrowser::scrollContentsBy(dx, dy);
+    updateCopyButtonPositions();
 }
 
 QMimeData *MarkdownBrowser::createMimeDataFromSelection() const

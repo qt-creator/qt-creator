@@ -11,11 +11,17 @@
 #include <QTextFragment>
 
 QT_BEGIN_NAMESPACE
+class QTextFrame;
+QT_END_NAMESPACE
+
+QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;
 class QNetworkRequest;
 QT_END_NAMESPACE
 
 namespace Utils {
+
+class QtcButton;
 
 class QTCREATOR_UTILS_EXPORT MarkdownBrowser : public QTextBrowser
 {
@@ -41,8 +47,8 @@ public:
 
 protected:
     void changeEvent(QEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void scrollContentsBy(int dx, int dy) override;
 
     QMimeData *createMimeDataFromSelection() const override;
 
@@ -50,11 +56,18 @@ private:
     void handleAnchorClicked(const QUrl &link);
     void postProcessDocument(bool firstTime);
     void highlightCodeBlock(const QString &language, QTextBlock &block);
-    std::optional<std::pair<QTextFragment, QRectF>> findCopyButtonFragmentAt(const QPoint& viewportPos);
 
-private:
+    struct CodeBlockEntry {
+        QTextFrame *frame = nullptr;
+        QString code;
+        QtcButton *button = nullptr;
+    };
+    void updateCopyButtonPositions();
+    void updateCopyButtonsForFontScale();
+    int currentButtonSize() const;
+
     bool m_enableCodeCopyButton = false;
-    std::optional<QRectF> m_cachedCopyRect;
+    QList<CodeBlockEntry> m_codeBlocks;
 };
 
 } // namespace Utils
