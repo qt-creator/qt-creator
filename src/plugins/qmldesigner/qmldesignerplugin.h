@@ -13,7 +13,6 @@
 
 #include <qmldesigner/qmldesignerplugin.h>
 
-#include <QElapsedTimer>
 
 QT_BEGIN_NAMESPACE
 class QStyle;
@@ -74,28 +73,9 @@ public:
 
     static void contextHelp(const Core::IContext::HelpCallback &callback, const QString &id);
 
-    static void emitUsageStatistics(const QString &identifier);
-    static void emitUsageStatisticsContextAction(const QString &identifier);
-    static void emitUsageStatisticsTime(const QString &identifier, int elapsed);
-    static void emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed);
-
     static AsynchronousImageCache &imageCache();
 
     static void registerPreviewImageProvider(QQmlEngine *engine);
-
-    static void trackWidgetFocusTime(QWidget *widget, const QString &identifier);
-    static void registerCombinedTracedPoints(const QString &identifierFirst,
-                                             const QString &identifierSecond,
-                                             const QString &newIdentifier,
-                                             int maxDuration = 10000);
-
-signals:
-    void usageStatisticsNotifier(const QString &identifier);
-    void usageStatisticsUsageTimer(const QString &identifier, int elapsed);
-    void usageStatisticsUsageDuration(const QString &identifier, int elapsed);
-    void usageStatisticsInsertFeedback(const QString &identifier,
-                                       const QString &feedback,
-                                       int rating);
 
 private: // functions
     void integrateIntoQtCreator(Internal::DesignModeWidget *modeWidget);
@@ -111,8 +91,6 @@ private: // functions
     void deactivateAutoSynchronization();
     void resetModelSelection();
     void initializeShutdownSettings();
-    QString identiferToDisplayString(const QString &identifier);
-
     RewriterView *rewriterView() const;
     Model *currentModel() const;
     static QmlDesignerPluginPrivate *privateInstance();
@@ -121,7 +99,6 @@ private: // functions
 private: // variables
     QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
-    QElapsedTimer m_usageTimer;
     bool m_delayedInitialized = false;
     bool m_shutdownPending = false;
 };

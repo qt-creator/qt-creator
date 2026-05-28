@@ -8,7 +8,6 @@
 
 #include <qmltimeline.h>
 
-#include <QElapsedTimer>
 #include <QGraphicsScene>
 
 #include <memory>
@@ -200,7 +199,6 @@ private:
 
     // sorted, unique cache of keyframes positions, used for snapping
     QVector<qreal> m_keyframePositionsCache;
-    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

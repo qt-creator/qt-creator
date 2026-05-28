@@ -311,8 +311,6 @@ void TransitionEditorView::resetTransitionToStateGroup(const ModelNode &transiti
 
     auto states = stateGroupObject.states().allStates();
 
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TRANSITION_ADDED);
-
     if (states.isEmpty()) {
         showWarningNoStates();
         return;
@@ -347,8 +345,6 @@ ModelNode TransitionEditorView::addNewTransition(const ModelNode &stateGroup, Sh
 
     if (objectNode.isValid())
         states = objectNode.states().allStates();
-
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TRANSITION_ADDED);
 
     if (warning == showWarning && states.isEmpty()) {
         showWarningNoStates();

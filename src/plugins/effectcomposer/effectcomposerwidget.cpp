@@ -103,8 +103,6 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     setStyleSheet(QmlDesigner::Theme::replaceCssColors(
         Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css")));
 
-    QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(this, QmlDesigner::Constants::EVENT_EFFECTCOMPOSER_TIME);
-
     qmlRegisterSingletonInstance<QQmlPropertyMap>(
         "EffectComposerPropertyData", 1, 0, "GlobalPropertyData", g_propertyData());
 
@@ -197,12 +195,6 @@ QPointer<EffectComposerNodesModel> EffectComposerWidget::effectComposerNodesMode
 void EffectComposerWidget::addEffectNode(const QString &nodeQenPath)
 {
     m_effectComposerModel->addNode(nodeQenPath);
-
-    if (!nodeQenPath.isEmpty()) {
-        using namespace QmlDesigner;
-        QString id = nodeQenPath.split('/').last().chopped(4).prepend('_');
-        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_EFFECTCOMPOSER_NODE + id);
-    }
 }
 
 void EffectComposerWidget::removeEffectNodeFromLibrary(const QString &nodeName)

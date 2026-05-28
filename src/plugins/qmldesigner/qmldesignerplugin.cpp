@@ -15,7 +15,6 @@
 #include "settingspage.h"
 #include "shortcutmanager.h"
 #include "toolbar.h"
-#include "utils/checkablemessagebox.h"
 
 #include <colortool/colortool.h>
 #include <connectionview.h>
@@ -116,16 +115,6 @@ public:
     QString displayNameForPlatform(Utils::Id) const override { return {}; }
 };
 
-QString normalizeIdentifier(const QString &string)
-{
-    if (string.isEmpty())
-        return {};
-    QString ret = string;
-    ret.remove(' ');
-    ret[0] = ret.at(0).toLower();
-    return ret;
-}
-
 class QtQuickDesignerFactory : public QmlJSEditor::QmlJSEditorFactory
 {
 public:
@@ -147,20 +136,6 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
 
 } // namespace Internal
 
-struct TraceIdentifierData
-{
-    TraceIdentifierData(const QString &_identifier, const QString &_newIdentifer, int _duration)
-        : identifier(_identifier), newIdentifer(_newIdentifer), maxDuration(_duration)
-    {}
-
-    TraceIdentifierData() = default;
-
-    QString identifier;
-    QString newIdentifer;
-    int maxDuration;
-    int time = 0;
-};
-
 class QmlDesignerPluginPrivate
 {
 public:
@@ -176,9 +151,6 @@ public:
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
     Utils::UniqueObjectPtr<QToolBar> toolBar;
     Utils::UniqueObjectPtr<QWidget> statusBar;
-    QHash<QString, TraceIdentifierData> m_traceIdentifierDataHash;
-    QHash<QString, TraceIdentifierData> m_activeTraceIdentifierDataHash;
-    QElapsedTimer timer;
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
@@ -266,7 +238,6 @@ Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
     QDir{}.mkpath(Core::ICore::cacheResourcePath().toUrlishString());
 
     d = new QmlDesignerPluginPrivate;
-    d->timer.start();
 
     const QString fontPath
         = Core::ICore::resourcePath(
@@ -312,10 +283,6 @@ void QmlDesignerPlugin::extensionsInitialized()
     actionManager.createDefaultAddResourceHandler();
     actionManager.createDefaultModelNodePreviewImageHandlers();
     actionManager.polishActions();
-
-    registerCombinedTracedPoints(Constants::EVENT_STATE_ADDED,
-                                 Constants::EVENT_STATE_CLONED,
-                                 Constants::EVENT_STATE_ADDED_AND_CLONED);
 
     Core::IWizardFactory::registerFeatureProvider(new FullQDSFeatureProvider);
 }
@@ -482,8 +449,6 @@ void QmlDesignerPlugin::showDesigner()
         return;
 
     setupDesigner();
-
-    m_usageTimer.restart();
 }
 
 void QmlDesignerPlugin::hideDesigner()
@@ -596,17 +561,6 @@ void QmlDesignerPlugin::resetModelSelection()
         return;
     }
     rewriterView()->setSelectedModelNodes(QList<ModelNode>());
-}
-
-QString QmlDesignerPlugin::identiferToDisplayString(const QString &identifier)
-{
-    NanotraceHR::Tracer tracer{"qml designer plugin identifier to display string", category()};
-
-    for (AbstractView *view : viewManager().views())
-        if (view->widgetInfo().uniqueId.toLower() == identifier.toLower())
-            return view->widgetInfo().feedbackDisplayName;
-
-    return identifier;
 }
 
 RewriterView *QmlDesignerPlugin::rewriterView() const
@@ -733,52 +687,7 @@ void QmlDesignerPlugin::contextHelp(const Core::IContext::HelpCallback &callback
 {
     NanotraceHR::Tracer tracer{"qml designer plugin context help", category()};
 
-    emitUsageStatistics(Constants::EVENT_HELP_REQUESTED + id);
     QmlDesignerPlugin::instance()->viewManager().qmlJSEditorContextHelp(callback);
-}
-
-void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
-{
-    NanotraceHR::Tracer tracer{"qml designer plugin emit usage statistics", category()};
-
-    QTC_ASSERT(instance(), return);
-    emit instance()->usageStatisticsNotifier(normalizeIdentifier(identifier));
-
-    TraceIdentifierData activeData = privateInstance()->m_activeTraceIdentifierDataHash.value(
-        identifier);
-
-    if (activeData.time) {
-        const int currentTime = privateInstance()->timer.elapsed();
-        const int currentDuration = (currentTime - activeData.time);
-        if (currentDuration < activeData.maxDuration)
-            emit instance()->usageStatisticsUsageDuration(activeData.newIdentifer, currentDuration);
-
-        privateInstance()->m_activeTraceIdentifierDataHash.remove(identifier);
-    }
-
-    TraceIdentifierData data = privateInstance()->m_traceIdentifierDataHash.value(identifier);
-
-    if (!data.identifier.isEmpty()) {
-        data.time = privateInstance()->timer.elapsed();
-        privateInstance()->m_activeTraceIdentifierDataHash.insert(data.identifier, data);
-    }
-
-    const auto values = privateInstance()->m_activeTraceIdentifierDataHash.values();
-    for (const auto &activeData : values) {
-        const int currentTime = privateInstance()->timer.elapsed();
-        const int currentDuration = (currentTime - activeData.time);
-
-        if (currentDuration > activeData.maxDuration) {
-            privateInstance()->m_activeTraceIdentifierDataHash.remove(activeData.identifier);
-        }
-    }
-}
-
-void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifier)
-{
-    NanotraceHR::Tracer tracer{"qml designer plugin emit usage statistics context action", category()};
-
-    emitUsageStatistics(Constants::EVENT_ACTION_EXECUTED + identifier);
 }
 
 AsynchronousImageCache &QmlDesignerPlugin::imageCache()
@@ -793,62 +702,6 @@ void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)
     NanotraceHR::Tracer tracer{"qml designer plugin register preview image provider", category()};
 
     m_instance->d->projectManager.registerPreviewImageProvider(engine);
-}
-
-void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &identifier)
-{
-    NanotraceHR::Tracer tracer{"qml designer plugin track widget focus time", category()};
-
-    connect(qApp, &QApplication::focusChanged, widget, [widget, identifier](QWidget *from, QWidget *to) {
-        const bool isAncestorOfFrom = widget->isAncestorOf(from);
-        const bool isAncestorOfTo = widget->isAncestorOf(to);
-        QMetaObject::invokeMethod(
-            widget,
-            [isAncestorOfFrom, isAncestorOfTo, identifier] {
-                static QElapsedTimer widgetUsageTimer;
-                static QString lastIdentifier;
-                if (isAncestorOfTo) {
-                    if (!lastIdentifier.isEmpty())
-                        emitUsageStatisticsTime(lastIdentifier, widgetUsageTimer.elapsed());
-                    widgetUsageTimer.restart();
-                    lastIdentifier = identifier;
-                } else if (isAncestorOfFrom && lastIdentifier == identifier) {
-                    emitUsageStatisticsTime(identifier, widgetUsageTimer.elapsed());
-                    lastIdentifier.clear();
-                }
-            },
-            Qt::QueuedConnection);
-    });
-}
-
-void QmlDesignerPlugin::registerCombinedTracedPoints(const QString &identifierFirst,
-                                                     const QString &identifierSecond,
-                                                     const QString &newIdentifier,
-                                                     int maxDuration)
-{
-    NanotraceHR::Tracer tracer{"qml designer plugin register combined traced points", category()};
-
-    QTC_ASSERT(privateInstance(), return);
-    privateInstance()->m_traceIdentifierDataHash.insert(identifierFirst,
-                                                        TraceIdentifierData(identifierSecond,
-                                                                            newIdentifier,
-                                                                            maxDuration));
-}
-
-void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
-{
-    NanotraceHR::Tracer tracer{"qml designer plugin emit usage statistics time", category()};
-
-    QTC_ASSERT(instance(), return);
-    emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
-}
-
-void QmlDesignerPlugin::emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed)
-{
-    NanotraceHR::Tracer tracer{"qml designer plugin emit usage statistics usage duration", category()};
-
-    QTC_ASSERT(instance(), return);
-    emit instance()->usageStatisticsUsageDuration(identifier, elapsed);
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()

@@ -195,8 +195,6 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &mainImageCache,
             &AssetsLibraryWidget::handleExtFilesDrop,
             Qt::QueuedConnection);
 
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ASSETSLIBRARY_TIME);
-
     auto map = m_assetsWidget->registerPropertyMap("AssetsLibraryBackend");
 
     map->setProperties({{"assetsModel", QVariant::fromValue(m_assetsModel)},
@@ -791,7 +789,6 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
     for (const QString &category : categoryFileNames.uniqueKeys()) {
         QStringList fileNames = categoryFileNames.values(category);
         AddResourceOperation operation = categoryToOperation.value(category);
-        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
         if (operation) {
             AddFilesResult result = operation(fileNames,
                                               document->fileName().parentDir().toUrlishString(), showDialog);

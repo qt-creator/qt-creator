@@ -170,8 +170,6 @@ void DynamicPropertiesProxyModel::createProperty(const QString &name, const QStr
 {
     NanotraceHR::Tracer tracer{"dynamic properties proxy model create property", category()};
 
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_PROPERTY_ADDED);
-
     TypeName typeName = type.toUtf8();
 
     const auto selectedNodes = dynamicPropertiesModel()->selectedNodes();

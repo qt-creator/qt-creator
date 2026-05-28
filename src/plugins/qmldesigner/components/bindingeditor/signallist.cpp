@@ -188,8 +188,6 @@ void SignalList::addConnection(const QModelIndex &modelIndex)
     const PropertyName signalName = m_model->data(signalModelIndex,
                                                  Qt::DisplayRole).toByteArray();
 
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_CONNECTION_ADDED);
-
     AbstractView *view = m_modelNode.view();
     const ModelNode rootModelNode = view->rootModelNode();
 

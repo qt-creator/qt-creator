@@ -381,9 +381,6 @@ void FormEditorScene::focusOutEvent(QFocusEvent *focusEvent)
     if (currentTool())
         currentTool()->focusLost();
 
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_FORMEDITOR_TIME,
-                                               m_usageTimer.elapsed());
-
     QGraphicsScene::focusOutEvent(focusEvent);
 }
 
@@ -391,7 +388,6 @@ void FormEditorScene::focusInEvent(QFocusEvent *focusEvent)
 {
     NanotraceHR::Tracer tracer{"form editor scene focus in event", category()};
 
-    m_usageTimer.restart();
     QGraphicsScene::focusInEvent(focusEvent);
 }
 

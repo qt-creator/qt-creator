@@ -5,7 +5,6 @@
 
 #include "keyframeitem.h"
 
-#include <QElapsedTimer>
 #include <QGraphicsScene>
 
 namespace QmlDesigner {
@@ -129,8 +128,6 @@ private:
     mutable QRectF m_limits;
 
     bool m_doNotMoveItems;
-
-    QElapsedTimer m_usageTimer;
 
     bool m_isMcu;
 };

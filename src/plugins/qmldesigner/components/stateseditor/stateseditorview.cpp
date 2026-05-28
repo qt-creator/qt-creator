@@ -159,8 +159,6 @@ void StatesEditorView::createNewState()
         && !m_activeStatesGroupNode.metaInfo().isQtQuickStateGroup())
         return;
 
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATE_ADDED);
-
     QStringList modelStateNames = activeStateGroup().names();
 
     QString newStateName;
@@ -190,8 +188,6 @@ void StatesEditorView::cloneState(int nodeId)
     QmlModelState modelState(stateNode);
     if (!modelState.isValid() || modelState.isBaseState())
         return;
-
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATE_CLONED);
 
     QString newName = modelState.name();
 
@@ -244,8 +240,6 @@ void StatesEditorView::extendState(int nodeId)
     QmlModelState modelState(stateNode);
     if (!modelState.isValid() || modelState.isBaseState())
         return;
-
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATE_EXTENDED);
 
     QString newName = modelState.name();
 

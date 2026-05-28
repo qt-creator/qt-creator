@@ -115,14 +115,11 @@ void StatesEditorWidget::showEvent(QShowEvent *event)
 
 void StatesEditorWidget::focusOutEvent(QFocusEvent *focusEvent)
 {
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_STATESEDITOR_TIME,
-                                               m_usageTimer.elapsed());
     StudioQuickWidget::focusOutEvent(focusEvent);
 }
 
 void StatesEditorWidget::focusInEvent(QFocusEvent *focusEvent)
 {
-    m_usageTimer.restart();
     StudioQuickWidget::focusInEvent(focusEvent);
 }
 

@@ -50,7 +50,6 @@ void RichTextEditorProxy::registerDeclarativeType()
 
 void RichTextEditorProxy::showWidget()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RICHTEXT_OPENED);
     m_dialog->show();
 }
 

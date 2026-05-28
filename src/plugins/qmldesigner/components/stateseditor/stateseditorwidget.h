@@ -5,7 +5,6 @@
 
 #include <studioquickwidget.h>
 
-#include <QElapsedTimer>
 #include <QPointer>
 #include <QQmlPropertyMap>
 
@@ -49,7 +48,6 @@ private:
     QPointer<StatesEditorView> m_statesEditorView;
     Internal::StatesEditorImageProvider *m_imageProvider;
     QShortcut *m_qmlSourceUpdateShortcut;
-    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

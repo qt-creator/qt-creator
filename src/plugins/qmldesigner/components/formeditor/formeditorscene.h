@@ -10,7 +10,6 @@
 #include <QGraphicsScene>
 #include <QPointer>
 #include <QHash>
-#include <QElapsedTimer>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsSceneMouseEvent;
@@ -109,7 +108,6 @@ private:
     ModelNode m_dragNode;
     bool m_showBoundingRects;
     bool m_annotationVisibility;
-    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

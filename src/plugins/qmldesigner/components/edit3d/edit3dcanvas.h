@@ -3,7 +3,6 @@
 #pragma once
 
 #include <QEvent>
-#include <QElapsedTimer>
 #include <QImage>
 #include <QPoint>
 #include <QPointer>
@@ -51,7 +50,6 @@ private:
     QPointer<Edit3DWidget> m_parent;
     QImage m_image;
     qint32 m_activeScene = -1;
-    QElapsedTimer m_usageTimer;
     qreal m_opacity = 1.0;
     bool m_isQDSTrusted = true;
     QWidget *m_busyIndicator = nullptr;

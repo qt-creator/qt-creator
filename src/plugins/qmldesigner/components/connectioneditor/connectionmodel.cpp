@@ -358,8 +358,6 @@ static PropertyName getFirstSignalForTarget(const NodeMetaInfo &target)
 
 void ConnectionModel::addConnection(const PropertyName &signalName)
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_CONNECTION_ADDED);
-
     ModelNode rootModelNode = connectionView()->rootModelNode();
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {

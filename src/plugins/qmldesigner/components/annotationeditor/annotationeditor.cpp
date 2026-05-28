@@ -102,7 +102,6 @@ void AnnotationEditor::appliedClicked()
 void AnnotationEditor::applyChanges()
 {
     if (const auto *dialog = qobject_cast<AnnotationEditorDialog *>(widget())) {
-        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_ANNOTATION_ADDED);
         const QString customId = dialog->customId();
         const Annotation annotation = dialog->annotation();
         auto &node = this->m_modelNode;

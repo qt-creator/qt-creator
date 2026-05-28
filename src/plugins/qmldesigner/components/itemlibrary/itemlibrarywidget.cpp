@@ -184,8 +184,6 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     m_itemsWidget->engine()->addImageProvider("itemlibrary_preview",
                                               new ItemLibraryIconImageProvider{m_imageCache});
 
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ITEMLIBRARY_TIME);
-
     // init the first load of the QML UI elements
 
     auto map = m_itemsWidget->registerPropertyMap("ItemLibraryBackend");
@@ -269,8 +267,6 @@ void ItemLibraryWidget::handleAddImport(int index)
                                      || import.url().startsWith("SimulinkConnector"))) {
         QString importStr = import.toImportString();
         importStr.replace(' ', '-');
-        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_IMPORT_ADDED
-                                               + importStr);
     }
 
     Imports imports;

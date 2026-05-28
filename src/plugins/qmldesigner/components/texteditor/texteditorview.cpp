@@ -129,7 +129,6 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
             &QTimer::timeout,
             this,
             &TextEditorWidget::updateSelectionByCursorPosition);
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_TEXTEDITOR_TIME);
 }
 
 void TextEditorWidget::setTextEditor(

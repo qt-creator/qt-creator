@@ -236,7 +236,6 @@ public:
 
     void actionTriggered(bool b) override
     {
-        QmlDesignerPlugin::emitUsageStatisticsContextAction(QString::fromUtf8(m_id));
         m_selectionContext.setToggled(b);
         m_action(m_selectionContext);
     }

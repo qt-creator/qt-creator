@@ -54,8 +54,6 @@ AbstractProperty DynamicPropertiesModel::currentProperty() const
 
 void DynamicPropertiesModel::add()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_PROPERTY_ADDED);
-
     if (const QList<ModelNode> nodes = selectedNodes(); nodes.size() == 1) {
         const ModelNode modelNode = nodes.constFirst();
         if (!modelNode.isValid())

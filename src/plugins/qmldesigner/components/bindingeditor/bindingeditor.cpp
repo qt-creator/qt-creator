@@ -35,8 +35,6 @@ void BindingEditor::registerDeclarativeType()
 
 void BindingEditor::prepareDialog()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_BINDINGEDITOR_OPENED);
-
     m_dialog = Utils::makeUniqueObjectPtr<BindingEditorDialog>(Core::ICore::dialogParent());
 
     QObject::connect(m_dialog.get(), &AbstractEditorDialog::accepted, this, &BindingEditor::accepted);

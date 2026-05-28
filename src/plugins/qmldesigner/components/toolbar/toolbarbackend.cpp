@@ -420,7 +420,6 @@ void ToolBarBackend::registerDeclarativeType()
 
 void ToolBarBackend::triggerModeChange()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_MODE_CHANGE);
     QTimer::singleShot(0, this, [this] { //Do not trigger mode change directly from QML
         bool qmlFileOpen = false;
 
@@ -449,7 +448,6 @@ void ToolBarBackend::triggerModeChange()
 
 void ToolBarBackend::triggerProjectSettings()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_PROJECT_SETTINGS);
     QTimer::singleShot(0, Core::ModeManager::instance(), []() { // Do not trigger mode change directly from QML
         Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     });
@@ -457,28 +455,24 @@ void ToolBarBackend::triggerProjectSettings()
 
 void ToolBarBackend::runProject()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_RUN_PROJECT);
     ProjectExplorer::ProjectExplorerPlugin::runStartupProject(
         ProjectExplorer::Constants::NORMAL_RUN_MODE);
 }
 
 void ToolBarBackend::goForward()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_GO_FORWARD);
     QTC_ASSERT(designModeWidget(), return );
     designModeWidget()->toolBarOnGoForwardClicked();
 }
 
 void ToolBarBackend::goBackward()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_GO_BACKWARD);
     QTC_ASSERT(designModeWidget(), return );
     designModeWidget()->toolBarOnGoBackClicked();
 }
 
 void ToolBarBackend::openFileByIndex(int i)
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_OPEN_FILE);
     auto fileName = Core::DocumentModel::entries().at(i)->filePath();
 
     Core::EditorManager::openEditor(fileName, Utils::Id(), Core::EditorManager::DoNotMakeVisible);
@@ -486,19 +480,16 @@ void ToolBarBackend::openFileByIndex(int i)
 
 void ToolBarBackend::closeDocument(int i)
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_CLOSE_DOCUMENT);
     Core::EditorManager::closeDocument(i);
 }
 
 void ToolBarBackend::closeCurrentDocument()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_CLOSE_CURRENT_DOCUMENT);
     Core::EditorManager::slotCloseCurrentEditorOrDocument();
 }
 
 void ToolBarBackend::shareApplicationOnline()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_SHARE_APPLICATION);
     auto command = Core::ActionManager::command("QmlProject.ShareDesign");
     if (command)
         command->action()->trigger();
@@ -506,7 +497,6 @@ void ToolBarBackend::shareApplicationOnline()
 
 void ToolBarBackend::setCurrentWorkspace(const QString &workspace)
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_SET_CURRENT_WORKSPACE);
     designModeWidget()->dockManager()->openWorkspace(workspace);
 }
 
@@ -522,7 +512,6 @@ void ToolBarBackend::editGlobalAnnoation()
 
 void ToolBarBackend::showZoomMenu(int x, int y)
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATUSBAR_SHOW_ZOOM);
     ZoomAction *zoomAction = qobject_cast<ZoomAction *>(m_zoomAction->action());
 
     QTC_ASSERT(zoomAction, return );
@@ -547,7 +536,6 @@ void ToolBarBackend::showZoomMenu(int x, int y)
 
 void ToolBarBackend::setCurrentStyle(int index)
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATUSBAR_SET_STYLE);
     const QList<StyleWidgetEntry> items = ChangeStyleWidgetAction::getAllStyleItems();
 
     QTC_ASSERT(items.size() > index, return);
@@ -781,8 +769,6 @@ bool ToolBarBackend::isDocumentDirty() const
 
 void ToolBarBackend::launchGlobalAnnotations()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION);
-
     QTC_ASSERT(currentDesignDocument(), return);
     ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
 

@@ -314,8 +314,6 @@ const QmlTimeline TimelineView::addNewTimeline()
 {
     QTC_ASSERT(isAttached(), return QmlTimeline());
 
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TIMELINE_ADDED);
-
     try {
         ensureQtQuickTimelineImport();
     } catch (const Exception &e) {
