@@ -21,7 +21,6 @@
 #include <connectionview.h>
 #include <curveeditor/curveeditorview.h>
 #include <designeractionmanager.h>
-#include <designsystemview/designsystemview.h>
 #include <eventlist/eventlistpluginview.h>
 #include <formeditor/view3dtool.h>
 #include <studioquickwidget.h>
@@ -99,7 +98,6 @@ using namespace QmlDesigner::Internal;
 
 namespace QmlDesigner {
 
-const char experimentalFeatures[] = "QML/Designer/UseExperimentalFeatures";
 using ProjectManagingTracing::category;
 
 namespace Internal {
@@ -184,19 +182,6 @@ public:
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
-
-bool QmlDesignerPlugin::experimentalFeaturesEnabled()
-{
-    return Core::ICore::settings()->value(experimentalFeaturesSettingsKey(), false).toBool();
-}
-
-QByteArray QmlDesignerPlugin::experimentalFeaturesSettingsKey()
-{
-    QString version = Utils::appInfo().displayVersion;
-    version.remove('.');
-
-    return QByteArray(experimentalFeatures) + version.toLatin1();
-}
 
 static bool isInDesignerMode()
 {
@@ -684,9 +669,6 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     auto transitionEditorView = d->viewManager.registerView(
         std::make_unique<TransitionEditorView>(d->externalDependencies));
     transitionEditorView->registerActions();
-
-    if (experimentalFeaturesEnabled())
-        d->viewManager.registerView(std::make_unique<DesignSystemView>(d->externalDependencies));
 
     d->viewManager.registerFormEditorTool(std::make_unique<SourceTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());

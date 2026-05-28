@@ -65,9 +65,6 @@ public:
     static ExternalDependenciesInterface &externalDependenciesForPluginInitializationOnly(); // if you use it your code smells
     static ADS::DockManager *dockManagerForPluginInitializationOnly();
 
-    static bool experimentalFeaturesEnabled();
-    static QByteArray experimentalFeaturesSettingsKey();
-
     DesignDocument *currentDesignDocument() const;
     Internal::DesignModeWidget *mainWidget() const;
 
