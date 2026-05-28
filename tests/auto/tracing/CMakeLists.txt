@@ -1,4 +1,5 @@
 add_subdirectory(flamegraph)
+add_subdirectory(timelinecoordinates)
 add_subdirectory(flamegraphview)
 add_subdirectory(timelineabstractrenderer)
 add_subdirectory(timelineitemsrenderpass)

@@ -10,6 +10,7 @@ Project {
         "timelinemodelaggregator/timelinemodelaggregator.qbs",
         "timelinenotesmodel/timelinenotesmodel.qbs",
         "timelineabstractrenderer/timelineabstractrenderer.qbs",
+        "timelinecoordinates/timelinecoordinates.qbs",
         "timelineitemsrenderpass/timelineitemsrenderpass.qbs",
         "timelinenotesrenderpass/timelinenotesrenderpass.qbs",
         "timelineoverviewrenderer/timelineoverviewrenderer.qbs",
