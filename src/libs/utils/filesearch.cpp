@@ -117,7 +117,7 @@ static SearchResultItems searchWithoutRegExp(const QFuture<void> &future, const 
                     SearchResultItem result;
                     result.setFilePath(filePath);
                     result.setMainRange(lineNr, regionPtr - chunkPtr, termMaxIndex + 1);
-                    result.setDisplayText(clippedText(chunk, MAX_LINE_SIZE));
+                    result.setLineText(clippedText(chunk, MAX_LINE_SIZE));
                     result.setUserData(QStringList());
                     result.setUseTextEditorFont(true);
                     results << result;
@@ -165,7 +165,7 @@ static SearchResultItems searchWithRegExp(const QFuture<void> &future, const QSt
             SearchResultItem result;
             result.setFilePath(filePath);
             result.setMainRange(lineNr, pos, match.capturedLength());
-            result.setDisplayText(resultItemText);
+            result.setLineText(resultItemText);
             result.setUserData(match.capturedTexts());
             result.setUseTextEditorFont(true);
             results << result;

@@ -99,7 +99,7 @@ static void processLine(QStringView line, SearchResultItems *resultList,
         matches.append(match);
         text = text.left(matchStart) + matchText + text.mid(matchEnd + resetColor.size());
     }
-    result.setDisplayText(text);
+    result.setLineText(text);
 
     for (const auto &match : std::as_const(matches)) {
         result.setMainRange(lineNumber, match.matchStart, match.matchLength);

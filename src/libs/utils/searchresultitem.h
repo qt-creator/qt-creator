@@ -51,7 +51,6 @@ public:
 
     QString lineText() const { return m_lineText; }
     void setLineText(const QString &text) { m_lineText = text; }
-    void setDisplayText(const QString &text);
 
     QIcon icon() const { return m_icon; }
     void setIcon(const QIcon &icon) { m_icon = icon; }

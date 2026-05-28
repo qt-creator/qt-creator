@@ -134,7 +134,7 @@ SearchResultItems parse(const QFuture<void> &future, const QString &input,
 
             SearchResultItem item;
             item.setFilePath(*lastFilePath);
-            item.setDisplayText(hitLine.toString());
+            item.setLineText(hitLine.toString());
             item.setUseTextEditorFont(true);
             for (const QPair<int, int> &hit : std::as_const(hits)) {
                 item.setMainRange(lineNumber, hit.first, hit.second);

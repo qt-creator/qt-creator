@@ -25,22 +25,6 @@ SearchResultColor::SearchResultColor(const QColor &textBg, const QColor &textFg,
         containingFunctionForeground = textForeground;
 }
 
-static QString displayText(const QString &line)
-{
-    QString result = line;
-    auto end = result.end();
-    for (auto it = result.begin(); it != end; ++it) {
-        if (!it->isSpace() && !it->isPrint())
-            *it = QChar('?');
-    }
-    return result;
-}
-
-void SearchResultItem::setDisplayText(const QString &text)
-{
-    setLineText(displayText(text));
-}
-
 void SearchResultItem::setMainRange(int line, int column, int length)
 {
     m_mainRange = {{line, column}, {line, column + length}};
