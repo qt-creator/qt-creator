@@ -306,6 +306,7 @@ void QtcButton::setPixmap(const QPixmap &pixmap)
 {
     m_pixmap = pixmap;
     updateMargins();
+    update();
 }
 
 void QtcButton::setRole(Role role)
