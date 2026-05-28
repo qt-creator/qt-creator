@@ -32,7 +32,7 @@ public:
                          bool categorize);
     ClangdFindReferences(ClangdClient *client, const Utils::Link &link, Core::SearchResult *search,
                          const Utils::LinkHandler &callback);
-    ~ClangdFindReferences();
+    ~ClangdFindReferences() override;
 
 signals:
     void foundReferences(const Utils::SearchResultItems &items);
@@ -51,7 +51,7 @@ public:
     explicit ClangdFindLocalReferences(
         ClangdClient *client, CppEditor::CppEditorWidget *editorWidget, const QTextCursor &cursor,
         const CppEditor::RenameCallback &callback);
-    ~ClangdFindLocalReferences();
+    ~ClangdFindLocalReferences() override;
 
 signals:
     void done();

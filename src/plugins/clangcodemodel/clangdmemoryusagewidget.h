@@ -13,7 +13,7 @@ class ClangdMemoryUsageWidget : public QWidget
 {
 public:
     explicit ClangdMemoryUsageWidget(ClangdClient *client);
-    ~ClangdMemoryUsageWidget();
+    ~ClangdMemoryUsageWidget() override;
 
     class Private;
     Private * const d;

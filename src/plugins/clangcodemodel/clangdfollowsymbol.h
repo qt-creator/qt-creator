@@ -29,7 +29,7 @@ public:
                        CppEditor::CppEditorWidget *editorWidget,
                        TextEditor::TextDocument *document, const Utils::LinkHandler &callback,
                        FollowTo followTo, bool openInSplit);
-    ~ClangdFollowSymbol();
+    ~ClangdFollowSymbol() override;
     void cancel();
     void clear();
 

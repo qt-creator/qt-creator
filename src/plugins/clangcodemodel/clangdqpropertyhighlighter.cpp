@@ -22,9 +22,9 @@ public:
 
     void highlightProperty();
 
-    const QTextDocument *document;
+    const QTextDocument *document = nullptr;
     QString input;
-    int position;
+    int position = 0;
     Preprocessor pp;
     Parser parser;
     TextEditor::HighlightingResults results;
@@ -179,19 +179,14 @@ void QPropertyHighlighter::Private::highlightAttributes()
 
     while (parser.test(IDENTIFIER)) {
         const QByteArray l = parser.lexem();
-        if (l[0] == 'C' && l == "CONSTANT") {
-            addResult(C_KEYWORD);
-            continue;
-        } else if (l[0] == 'F' && l == "FINAL") {
+        if ((l[0] == 'C' && l == "CONSTANT") || (l[0] == 'F' && l == "FINAL")
+            || (l[0] == 'R' && l == "REQUIRED")) {
             addResult(C_KEYWORD);
             continue;
         } else if (l[0] == 'N' && l == "NAME") {
             addResult(C_KEYWORD);
             parser.next(IDENTIFIER);
             addResult(C_FIELD);
-            continue;
-        } else if (l[0] == 'R' && l == "REQUIRED") {
-            addResult(C_KEYWORD);
             continue;
         } else if (l[0] == 'R' && l == "REVISION" && parser.test(LPAREN)) {
             parser.prev();

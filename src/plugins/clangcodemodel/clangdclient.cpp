@@ -1057,8 +1057,7 @@ void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &curs
 
     qCDebug(clangdLog) << "switch decl/dev requested" << document->filePath()
                        << cursor.blockNumber() << cursor.positionInBlock();
-    if (d->switchDeclDef)
-        delete d->switchDeclDef;
+    delete d->switchDeclDef;
     d->switchDeclDef = new ClangdSwitchDeclDef(this, document, cursor, editorWidget, callback);
     connect(d->switchDeclDef, &ClangdSwitchDeclDef::done, this, [this] {
         d->switchDeclDef->deleteLater();

@@ -57,12 +57,12 @@ class WidgetFromDiagnostics
 {
 public:
     struct DisplayHints {
-        bool showCategoryAndEnableOption;
-        bool showFileNameInMainDiagnostic;
-        bool enableClickableFixits;
-        bool limitWidth;
-        bool hideTooltipAfterLinkActivation;
-        bool allowTextSelection;
+        bool showCategoryAndEnableOption = false;
+        bool showFileNameInMainDiagnostic = false;
+        bool enableClickableFixits = false;
+        bool limitWidth = false;
+        bool hideTooltipAfterLinkActivation = false;
+        bool allowTextSelection = false;
     };
 
     WidgetFromDiagnostics(const DisplayHints &displayHints)

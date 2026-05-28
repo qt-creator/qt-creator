@@ -170,7 +170,7 @@ public:
     ClangdCompletionAssistProcessor(ClangdClient *client,
                                     const IAssistProvider *provider,
                                     const QString &snippetsGroup);
-    ~ClangdCompletionAssistProcessor();
+    ~ClangdCompletionAssistProcessor() override;
 
 private:
     IAssistProposal *perform() override;

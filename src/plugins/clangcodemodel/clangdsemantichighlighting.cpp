@@ -85,15 +85,13 @@ void doSemanticHighlighting(
             styles.mainStyle = C_NAMESPACE;
         } else if (token.type == "property") {
             styles.mainStyle = C_FIELD;
-        } else if (token.type == "enum") {
-            styles.mainStyle = C_TYPE;
         } else if (token.type == "enumMember") {
             styles.mainStyle = C_ENUMERATION;
         } else if (token.type == "parameter") {
             styles.mainStyle = C_PARAMETER;
         } else if (token.type == "macro") {
             styles.mainStyle = C_MACRO;
-        } else if (token.type == "type") {
+        } else if (token.type == "type" || token.type == "enum") {
             styles.mainStyle = C_TYPE;
         } else if (token.type == "concept") {
             styles.mainStyle = C_CONCEPT;

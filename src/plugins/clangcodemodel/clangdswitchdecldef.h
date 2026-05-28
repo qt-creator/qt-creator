@@ -24,7 +24,7 @@ public:
     ClangdSwitchDeclDef(ClangdClient *client, TextEditor::TextDocument *doc,
                         const QTextCursor &cursor, CppEditor::CppEditorWidget *editorWidget,
                         const Utils::LinkHandler &callback);
-    ~ClangdSwitchDeclDef();
+    ~ClangdSwitchDeclDef() override;
 
 signals:
     void done();

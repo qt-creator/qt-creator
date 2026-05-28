@@ -104,7 +104,7 @@ class ClangdTest : public QObject
     Q_OBJECT
 
 public:
-    ~ClangdTest();
+    ~ClangdTest() override;
 
 protected:
     // Convention: base bame == name of parent dir

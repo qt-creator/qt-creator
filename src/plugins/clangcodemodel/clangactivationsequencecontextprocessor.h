@@ -56,11 +56,11 @@ private:
     CPlusPlus::Token m_token;
     QTextDocument * const m_document;
     const CPlusPlus::LanguageFeatures m_languageFeatures;
-    int m_tokenIndex;
+    int m_tokenIndex = -1;
     const int m_positionInDocument;
     int m_startOfNamePosition;
     int m_operatorStartPosition;
-    CPlusPlus::Kind m_completionKind;
+    CPlusPlus::Kind m_completionKind = CPlusPlus::T_EOF_SYMBOL;
 };
 
 } // namespace ClangCodeModel::Internal
