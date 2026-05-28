@@ -20,8 +20,8 @@ namespace Utils { class ProgressIndicator; }
 
 namespace AcpClient::Internal {
 
+class AgentMessageWidget;
 class AuthenticationWidget;
-class MessageWidget;
 class SessionPickerWidget;
 class ThoughtWidget;
 class ToolCallDetailWidget;
@@ -83,7 +83,7 @@ private:
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
     QElapsedTimer *m_elapsedTimer = nullptr;
     QTimer *m_progressUpdateTimer = nullptr;
-    MessageWidget *m_currentAgentWidget = nullptr;
+    AgentMessageWidget *m_currentAgentWidget = nullptr;
     ThoughtWidget *m_currentThoughtWidget = nullptr;
     QList<ThoughtWidget *> m_thoughtWidgets;
     bool m_thoughtsVisible = true;
