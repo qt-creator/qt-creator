@@ -15456,372 +15456,372 @@ Locked components cannot be modified or selected.</source>
     <name>QtC::AcpClient</name>
     <message>
         <source>Session error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzungsfehler: %1</translation>
     </message>
     <message>
         <source>Session error: invalid response.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzungsfehler: ungültige Antwort.</translation>
     </message>
     <message>
         <source>Prompt error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Prompt-Fehler: %1</translation>
     </message>
     <message>
         <source>Failed to set config option: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Setzen der Konfigurationsoption: %1</translation>
     </message>
     <message>
         <source>Failed to list sessions: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auflisten der Sitzungen: %1</translation>
     </message>
     <message>
         <source>Failed to list sessions: invalid response.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auflisten der Sitzungen: ungültige Antwort.</translation>
     </message>
     <message>
         <source>Failed to load session: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Laden der Sitzung: %1</translation>
     </message>
     <message>
         <source>New Chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Chat</translation>
     </message>
     <message>
         <source>No ACP servers configured. Add a server in the settings to get started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine ACP-Server konfiguriert. Fügen Sie in den Einstellungen einen Server hinzu, um loszulegen.</translation>
     </message>
     <message>
         <source>Manage Agents...</source>
-        <translation type="unfinished"></translation>
+        <translation>Agenten verwalten...</translation>
     </message>
     <message>
         <source>Open ACP server settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>ACP-Server-Einstellungen öffnen.</translation>
     </message>
     <message>
         <source>Choose AI Agent</source>
-        <translation type="unfinished"></translation>
+        <translation>KI-Agent auswählen</translation>
     </message>
     <message>
         <source>Authentication Required</source>
-        <translation type="unfinished"></translation>
+        <translation>Authentifizierung erforderlich</translation>
     </message>
     <message>
         <source>Method:</source>
-        <translation type="unfinished">Methode:</translation>
+        <translation>Methode:</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Authenticate</source>
-        <translation type="unfinished"></translation>
+        <translation>Authentifizieren</translation>
     </message>
     <message>
         <source>Authentication failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Authentifizierung fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Connecting to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbinde mit %1</translation>
     </message>
     <message>
         <source>Add Chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Chat hinzufügen</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Schließen</translation>
+        <translation>Schließen</translation>
     </message>
     <message>
         <source>ACP Client</source>
-        <translation type="unfinished"></translation>
+        <translation>ACP Client</translation>
     </message>
     <message>
         <source>Show Agentic AI Chat in Side Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Agentenbasierten KI-Chat im Seitenbereich anzeigen</translation>
     </message>
     <message>
         <source>Inspect ACP Client...</source>
-        <translation type="unfinished"></translation>
+        <translation>ACP Client inspizieren...</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">Alle aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Client Message</source>
-        <translation type="unfinished">Client-Nachricht</translation>
+        <translation>Client-Nachricht</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished">Nachrichten</translation>
+        <translation>Nachrichten</translation>
     </message>
     <message>
         <source>Server Message</source>
-        <translation type="unfinished">Server-Nachricht</translation>
+        <translation>Server-Nachricht</translation>
     </message>
     <message>
         <source>Log File</source>
-        <translation type="unfinished">Logdatei</translation>
+        <translation>Logdatei</translation>
     </message>
     <message>
         <source>ACP Inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>ACP Inspektor</translation>
     </message>
     <message>
         <source>&lt;Select&gt;</source>
-        <translation type="unfinished">&lt;Auswählen&gt;</translation>
+        <translation>&lt;Auswählen&gt;</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>ACP Client:</source>
-        <translation type="unfinished"></translation>
+        <translation>ACP Client:</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <source>Allow</source>
-        <translation type="unfinished"></translation>
+        <translation>Zulassen</translation>
     </message>
     <message>
         <source>Allow Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer zulassen</translation>
     </message>
     <message>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Ablehnen</translation>
     </message>
     <message>
         <source>Reject Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer ablehnen</translation>
     </message>
     <message>
         <source>Permission Request</source>
-        <translation type="unfinished"></translation>
+        <translation>Berechtigungsanfrage</translation>
     </message>
     <message>
         <source>Authenticated</source>
-        <translation type="unfinished"></translation>
+        <translation>Authentifiziert</translation>
     </message>
     <message>
         <source>Deny</source>
-        <translation type="unfinished">Verbieten</translation>
+        <translation>Ablehnen</translation>
     </message>
     <message>
         <source>Denied</source>
-        <translation type="unfinished"></translation>
+        <translation>Abgelehnt</translation>
     </message>
     <message>
         <source>%1:%2 minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1:%2 Minuten</translation>
     </message>
     <message>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Sekunden</translation>
     </message>
     <message>
         <source>&lt;Custom&gt;</source>
-        <translation type="unfinished">&lt;Benutzerdefiniert&gt;</translation>
+        <translation>&lt;Benutzerdefiniert&gt;</translation>
     </message>
     <message>
         <source>Manually specify an agent not listed in the registry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie manuell einen Agenten an, der nicht im Register aufgeführt ist.</translation>
     </message>
     <message>
         <source>Template:</source>
-        <translation type="unfinished">Template:</translation>
+        <translation>Vorlage:</translation>
     </message>
     <message>
         <source>Select a template from the registry to pre-fill the settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine Vorlage aus dem Register, um die Einstellungen vorauszufüllen.</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>The display name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Anzeigename.</translation>
     </message>
     <message>
         <source>&lt;New Server&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Neuer Server&gt;</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>The executable to launch the ACP server process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei zum Starten des ACP-Server-Prozesses.</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>The arguments to launch the ACP server process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Argumente zum Starten des ACP-Server-Prozesses.</translation>
     </message>
     <message>
         <source>Environment changes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebungsänderungen:</translation>
     </message>
     <message>
         <source>The command that will spawn the ACP server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Befehl, der den ACP-Server startet.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is needed for this Agent, but was not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; wird für diesen Agenten benötigt, wurde aber nicht gefunden.</translation>
     </message>
     <message>
         <source>Make sure Node.js is installed and npx is available in PATH. See &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt; for installation instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stellen Sie sicher, dass Node.js installiert ist und npx im PATH verfügbar ist. Weitere Installationsanweisungen finden Sie auf &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Make sure UV is installed and uvx is available in PATH. See &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt; for installation instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stellen Sie sicher, dass UV installiert ist und uvx im PATH verfügbar ist. Weitere Installationsanweisungen finden Sie auf &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>ACP Servers</source>
-        <translation type="unfinished"></translation>
+        <translation>ACP-Server</translation>
     </message>
     <message>
         <source>No command configured for ACP server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Befehl für ACP-Server konfiguriert.</translation>
     </message>
     <message>
         <source>Command not found: &quot;%1&quot;. Check that it exists and is executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Befehl nicht gefunden: &quot;%1&quot;. Prüfen Sie, ob er existiert und ausführbar ist.</translation>
     </message>
     <message>
         <source>Command not found: &quot;%1&quot;. Check that it is executable and on your PATH.</source>
-        <translation type="unfinished"></translation>
+        <translation>Befehl nicht gefunden: &quot;%1&quot;. Prüfen Sie, ob er ausführbar ist und sich in Ihrem PATH befindet.</translation>
     </message>
     <message>
         <source>Cannot send data: process has not been started (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann keine Daten senden: Prozess wurde nicht gestartet (%1).</translation>
     </message>
     <message>
         <source>Cannot send data: process &quot;%1&quot; is not running (exit code %2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann keine Daten senden: Prozess &quot;%1&quot; läuft nicht (Rückgabewert %2).</translation>
     </message>
     <message>
         <source>JSON parse error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei Auswertung von JSON: %1</translation>
     </message>
     <message>
         <source>Expected JSON object.</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON-Objekt erwartet.</translation>
     </message>
     <message>
         <source>Type your message...</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Ihre Nachricht ein...</translation>
     </message>
     <message>
         <source>Remove Context</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontext entfernen</translation>
     </message>
     <message>
         <source>Configuration Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurationsoptionen</translation>
     </message>
     <message>
         <source>Show Thoughts</source>
-        <translation type="unfinished"></translation>
+        <translation>Gedanken anzeigen</translation>
     </message>
     <message>
         <source>Add Context</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontext hinzufügen</translation>
     </message>
     <message>
         <source>Add File...</source>
-        <translation type="unfinished">Datei hinzufügen...</translation>
+        <translation>Datei hinzufügen...</translation>
     </message>
     <message>
         <source>Add Context File</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontextdatei hinzufügen</translation>
     </message>
     <message>
         <source>Add Remote File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernte Datei hinzufügen...</translation>
     </message>
     <message>
         <source>Current Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktueller Editor</translation>
     </message>
     <message>
         <source>Insert Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Befehl einfügen</translation>
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished"></translation>
+        <translation>Senden</translation>
     </message>
     <message>
         <source>just now</source>
-        <translation type="unfinished"></translation>
+        <translation>gerade eben</translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>vor einer Minute</numerusform>
+            <numerusform>vor %n Minuten</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s) ago</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>vor einer Stunde</numerusform>
+            <numerusform>vor %n Stunden</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n day(s) ago</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>vor einem Tag</numerusform>
+            <numerusform>vor %n Tagen</numerusform>
         </translation>
     </message>
     <message>
         <source>No sessions available</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Sitzungen verfügbar</translation>
     </message>
     <message>
         <source>Load More...</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr laden...</translation>
     </message>
     <message>
         <source>New Session for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Sitzung für %1</translation>
     </message>
     <message>
         <source>New Session in Directory...</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Sitzung im Verzeichnis...</translation>
     </message>
     <message>
         <source>Choose Working Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Arbeitsverzeichnis auswählen</translation>
     </message>
     <message>
         <source>Current Project (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelles Projekt (%1)</translation>
     </message>
     <message>
         <source>(No Working Directory)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Kein Arbeitsverzeichnis)</translation>
     </message>
     <message>
         <source>Raw Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Rohdaten</translation>
     </message>
 </context>
 <context>
@@ -44697,131 +44697,131 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     <name>QtC::Mcp</name>
     <message>
         <source>No action found with ID &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Aktion mit ID &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Command &quot;%1&quot; has no associated action.</source>
-        <translation type="unfinished"></translation>
+        <translation>Befehl &quot;%1&quot; hat keine zugehörige Aktion.</translation>
     </message>
     <message>
         <source>Action &quot;%1&quot; is disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktion &quot;%1&quot; ist deaktiviert.</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">Alle aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Client Message</source>
-        <translation type="unfinished">Client-Nachricht</translation>
+        <translation>Client-Nachricht</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished">Nachrichten</translation>
+        <translation>Nachrichten</translation>
     </message>
     <message>
         <source>Server Message</source>
-        <translation type="unfinished">Server-Nachricht</translation>
+        <translation>Server-Nachricht</translation>
     </message>
     <message>
         <source>Log File</source>
-        <translation type="unfinished">Logdatei</translation>
+        <translation>Logdatei</translation>
     </message>
     <message>
         <source>MCP Server Inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>MCP Server Inspektor</translation>
     </message>
     <message>
         <source>&lt;Select&gt;</source>
-        <translation type="unfinished">&lt;Auswählen&gt;</translation>
+        <translation>&lt;Auswählen&gt;</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>Session:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzung:</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Localhost (127.0.0.1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Localhost (127.0.0.1)</translation>
     </message>
     <message>
         <source>Any (0.0.0.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle (0.0.0.0)</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation type="unfinished">Benutzerdefiniert</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <source>Invalid IP address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige IP-Adresse.</translation>
     </message>
     <message>
         <source>Inspect MCP Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>MCP-Server inspizieren...</translation>
     </message>
     <message>
         <source>Failed to start MCP server on &quot;%1:%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Start des MCP-Servers auf &quot;%1:%2&quot; fehlgeschlagen.</translation>
     </message>
     <message>
         <source>The MCP server is listening on &quot;%1:%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der MCP-Server lauscht auf &quot;%1:%2&quot;.</translation>
     </message>
     <message>
         <source>Enable MCP Server</source>
-        <translation type="unfinished"></translation>
+        <translation>MCP-Server aktivieren</translation>
     </message>
     <message>
         <source>The address the MCP Server should listen on for incoming connections.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Adresse, auf der der MCP-Server nach eingehenden Verbindungen lauschen soll.</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished">Port:</translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished">Automatisch</translation>
+        <translation>Automatisch</translation>
     </message>
     <message>
         <source>The port for the MCP Server to listen on. Leave on 0 to auto-select a free port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Port, auf dem der MCP-Server lauschen soll. Auf 0 belassen, um automatisch einen freien Port auszuwählen.</translation>
     </message>
     <message>
         <source>Enable Cross Origin access:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cross-Origin-Zugriff aktivieren:</translation>
     </message>
     <message>
         <source>Enable Cross-Origin Resource Sharing (CORS) for the MCP Server. This is necessary if you want to connect to the server from a web application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert Cross-Origin Resource Sharing (CORS) für den MCP-Server. Dies ist erforderlich, wenn Sie sich von einer Webanwendung aus mit dem Server verbinden möchten.</translation>
     </message>
     <message>
         <source>Address copied to clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse in die Zwischenablage kopiert.</translation>
     </message>
     <message>
         <source>The MCP Server is running, listening on: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der MCP-Server läuft, lauscht auf: %1.</translation>
     </message>
     <message>
         <source>The MCP Server is not running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der MCP-Server läuft nicht.</translation>
     </message>
     <message>
         <source>Listen on:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lausche auf:</translation>
     </message>
 </context>
 <context>
