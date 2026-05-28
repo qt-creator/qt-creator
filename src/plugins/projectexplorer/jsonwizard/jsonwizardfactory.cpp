@@ -54,7 +54,6 @@ const char CATEGORY_NAME_KEY[] = "trDisplayCategory";
 const char DISPLAY_NAME_KEY[] = "trDisplayName";
 const char ICON_KEY[] = "icon";
 const char ICON_TEXT_KEY[] = "iconText";
-const char FONT_ICON_NAME_KEY[] = "fontIconName";
 const char IMAGE_KEY[] = "image";
 const char ICON_KIND_KEY[] = "iconKind";
 const char DESCRIPTION_KEY[] = "trDescription";
@@ -861,9 +860,6 @@ Result<> JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &
                                             : QIcon(iconPath.toUrlishString()),
             iconText);
 
-    const QString fontIconName = data.value(QLatin1String(FONT_ICON_NAME_KEY)).toString();
-    setFontIconName(fontIconName);
-
     strVal = data.value(QLatin1String(IMAGE_KEY)).toString();
     if (!strVal.isEmpty()) {
         const FilePath imagePath = baseDir.resolvePath(strVal);
@@ -872,10 +868,6 @@ Result<> JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &
 
         setDescriptionImage(imagePath.toUrlishString());
     }
-
-    const FilePath detailsPage = baseDir.resolvePath(QString("detailsPage.qml"));
-    if (detailsPage.exists())
-        setDetailsPageQmlPath(detailsPage.toUrlishString());
 
     setRequiredFeatures(Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
     m_preferredFeatures = Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());

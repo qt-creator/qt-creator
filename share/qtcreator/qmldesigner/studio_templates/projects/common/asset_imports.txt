@@ -1,1 +1,0 @@
-Imported 3D assets and components imported from bundles will be created in this folder.

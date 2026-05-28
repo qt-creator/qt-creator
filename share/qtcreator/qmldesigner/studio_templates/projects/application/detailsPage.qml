@@ -1,5 +1,0 @@
-import ProjectType
-
-DefaultProject {
-
-}

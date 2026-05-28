@@ -41,7 +41,6 @@ public:
     Utils::Id id() const { return m_id; }
     WizardKind kind() const { return m_supportedProjectTypes.isEmpty() ? FileWizard : ProjectWizard; }
     QIcon icon() const { return m_icon; }
-    QString fontIconName() const { return m_fontIconName; }
     QString description() const { return m_description; }
     QString displayName() const { return m_displayName; }
     QString category() const { return m_category; }
@@ -49,14 +48,12 @@ public:
     QString descriptionImage() const { return m_descriptionImage; }
     QSet<Utils::Id> requiredFeatures() const { return m_requiredFeatures; }
     WizardFlags flags() const { return m_flags; }
-    QUrl detailsPageQmlPath() const { return m_detailsPageQmlPath; }
 
     QSet<Utils::Id> supportedProjectTypes() const { return m_supportedProjectTypes; }
 
     void setId(const Utils::Id id) { m_id = id; }
     void setSupportedProjectTypes(const QSet<Utils::Id> &projectTypes) { m_supportedProjectTypes = projectTypes; }
     void setIcon(const QIcon &icon, const QString &iconText = {});
-    void setFontIconName(const QString &code) { m_fontIconName = code; }
     void setDescription(const QString &description) { m_description = description; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setCategory(const QString &category) { m_category = category; }
@@ -65,7 +62,6 @@ public:
     void setRequiredFeatures(const QSet<Utils::Id> &featureSet) { m_requiredFeatures = featureSet; }
     void addRequiredFeature(const Utils::Id &feature) { m_requiredFeatures |= feature; }
     void setFlags(WizardFlags flags) { m_flags = flags; }
-    void setDetailsPageQmlPath(const QString &filePath);
 
     Utils::FilePath runPath(const Utils::FilePath &defaultPath) const;
 
@@ -114,13 +110,11 @@ private:
 
     QAction *m_action = nullptr;
     QIcon m_icon;
-    QString m_fontIconName;
     QString m_description;
     QString m_displayName;
     QString m_category;
     QString m_displayCategory;
     QString m_descriptionImage;
-    QUrl m_detailsPageQmlPath;
     QSet<Utils::Id> m_requiredFeatures;
     QSet<Utils::Id> m_supportedProjectTypes;
     WizardFlags m_flags;

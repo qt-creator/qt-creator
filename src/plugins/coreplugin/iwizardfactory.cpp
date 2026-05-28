@@ -483,21 +483,6 @@ void IWizardFactory::setIcon(const QIcon &icon, const QString &iconText)
     m_icon = iconWithText(icon, iconText);
 }
 
-void IWizardFactory::setDetailsPageQmlPath(const QString &filePath)
-{
-    if (filePath.isEmpty())
-        return;
-
-    if (filePath.startsWith(':')) {
-        m_detailsPageQmlPath.setScheme(QLatin1String("qrc"));
-        QString path = filePath;
-        path.remove(0, 1);
-        m_detailsPageQmlPath.setPath(path);
-    } else {
-        m_detailsPageQmlPath = QUrl::fromLocalFile(filePath);
-    }
-}
-
 QString Core::msgWizardDisplayCategoryQt()
 {
     return Tr::tr("Qt");
