@@ -1406,10 +1406,20 @@ bool CppPluginSpec::initializePlugin()
             ::ExtensionSystem::Tr::tr("Internal error: have no plugin instance to initialize"));
         return false;
     }
-    if (Result<> res = d->plugin->initialize(arguments()); !res) {
-        setError(::ExtensionSystem::Tr::tr("Plugin initialization failed: %1").arg(res.error()));
+    try {
+        if (Result<> res = d->plugin->initialize(arguments()); !res) {
+            setError(::ExtensionSystem::Tr::tr("Plugin initialization failed: %1").arg(res.error()));
+            return false;
+        }
+    } catch (const std::exception &e) {
+        setError(
+            ::ExtensionSystem::Tr::tr("Plugin initialization threw an exception: %1").arg(e.what()));
+        return false;
+    } catch (...) {
+        setError(::ExtensionSystem::Tr::tr("Plugin initialization threw an unknown exception"));
         return false;
     }
+
     setState(PluginSpec::Initialized);
     return true;
 }
