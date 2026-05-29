@@ -2086,10 +2086,9 @@ void CMakeBuildSystem::wireUpConnections()
         const FilePath cmakeCacheTxt = parameters.buildDirectory.pathAppended(
             Constants::CMAKE_CACHE_TXT);
         const bool hasCMakeCache = cmakeCacheTxt.exists();
-        const auto options = ReparseParameters(
-                    hasCMakeCache
-                    ? REPARSE_DEFAULT
-                    : (REPARSE_FORCE_INITIAL_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN));
+        const int options = hasCMakeCache
+                ? REPARSE_DEFAULT
+                : REPARSE_FORCE_INITIAL_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
         if (hasCMakeCache) {
             QString errorMessage;
             const CMakeConfig config = CMakeConfig::fromFile(cmakeCacheTxt, &errorMessage);

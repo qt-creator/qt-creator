@@ -33,7 +33,7 @@ private:
     bool m_special = false;
 };
 
-class CMakeBuildStep : public CMakeAbstractProcessStep
+class CMakeBuildStep final : public CMakeAbstractProcessStep
 {
     Q_OBJECT
 
