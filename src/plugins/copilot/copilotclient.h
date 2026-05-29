@@ -19,7 +19,7 @@
 
 namespace Copilot::Internal {
 
-class CopilotClient : public LanguageClient::Client
+class CopilotClient final : public LanguageClient::Client
 {
 public:
     CopilotClient(const Utils::FilePath &nodePath, const Utils::FilePath &distPath);
