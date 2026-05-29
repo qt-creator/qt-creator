@@ -20,7 +20,6 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/codestylepool.h>
 #include <texteditor/typingsettings.h>
 
 #include <utils/algorithm.h>
@@ -44,7 +43,7 @@ struct EditorConfigurationPrivate
         m_textEncoding(Core::EditorManager::defaultTextEncoding())
     { }
 
-    ICodeStylePreferences *m_defaultCodeStyle = nullptr;
+    SimpleCodeStylePreferences m_defaultCodeStyle;
     bool m_useGlobal = true;
     TextEncoding m_textEncoding;
 
@@ -56,6 +55,7 @@ EditorConfiguration::EditorConfiguration()
     : marginSettings(kPrefix)
     , d(std::make_unique<EditorConfigurationPrivate>())
 {
+    typingSettings.setAutoApply(true);
     behaviorSettings.setAutoApply(true);
     storageSettings.setAutoApply(true);
     extraEncodingSettings.setAutoApply(true);
@@ -79,12 +79,11 @@ EditorConfiguration::EditorConfiguration()
     }
 
     // clone of global prefs (not language specific), for project scope
-    d->m_defaultCodeStyle = new SimpleCodeStylePreferences(this);
-    d->m_defaultCodeStyle->setDelegatingPool(&globalCodeStylePool());
-    d->m_defaultCodeStyle->setDisplayName(Tr::tr("Project", "Settings"));
-    d->m_defaultCodeStyle->setId("Project");
+    d->m_defaultCodeStyle.setDelegatingPool(&globalCodeStylePool());
+    d->m_defaultCodeStyle.setDisplayName(Tr::tr("Project", "Settings"));
+    d->m_defaultCodeStyle.setId("Project");
     // if setCurrentDelegate is 0 values are read from *this prefs
-    d->m_defaultCodeStyle->setCurrentDelegate(&globalCodeStyle());
+    d->m_defaultCodeStyle.setCurrentDelegate(&globalCodeStyle());
 
     connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveProject,
             this, &EditorConfiguration::slotAboutToRemoveProject);
@@ -102,18 +101,13 @@ bool EditorConfiguration::useGlobalSettings() const
 
 void EditorConfiguration::cloneGlobalSettings()
 {
-    d->m_defaultCodeStyle->setTabSettings(globalCodeStyle().tabSettings());
+    d->m_defaultCodeStyle.setTabSettings(globalCodeStyle().tabSettings());
     typingSettings.setData(globalTypingSettings().data());
     storageSettings.setData(globalStorageSettings().data());
     behaviorSettings.setData(globalBehaviorSettings().data());
     extraEncodingSettings.setData(globalExtraEncodingSettings().data());
     marginSettings.setData(TextEditor::marginSettings().data());
     d->m_textEncoding = Core::EditorManager::defaultTextEncoding();
-
-    emit typingSettingsChanged(typingSettings.data());
-    emit storageSettingsChanged(storageSettings.data());
-    emit behaviorSettingsChanged(behaviorSettings.data());
-    emit extraEncodingSettingsChanged(extraEncodingSettings.data());
 }
 
 TextEncoding EditorConfiguration::textEncoding() const
@@ -123,7 +117,7 @@ TextEncoding EditorConfiguration::textEncoding() const
 
 ICodeStylePreferences *EditorConfiguration::codeStyle() const
 {
-    return d->m_defaultCodeStyle;
+    return &d->m_defaultCodeStyle;
 }
 
 ICodeStylePreferences *EditorConfiguration::codeStyle(Utils::Id languageId) const
@@ -165,7 +159,7 @@ Store EditorConfiguration::toMap() const
     }
 
     Store inner;
-    d->m_defaultCodeStyle->tabSettings().toMap(inner);
+    d->m_defaultCodeStyle.tabSettings().toMap(inner);
     typingSettings.toMap(inner);
     storageSettings.toMap(inner);
     behaviorSettings.toMap(inner);
@@ -202,7 +196,7 @@ void EditorConfiguration::fromMap(const Store &map)
         if (it.key().view().startsWith(kPrefix.view()))
             submap.insert(it.key().toByteArray().mid(kPrefix.view().size()), it.value());
     }
-    d->m_defaultCodeStyle->fromMap(submap);
+    d->m_defaultCodeStyle.fromMap(submap);
     typingSettings.fromMap(submap);
     storageSettings.fromMap(submap);
     behaviorSettings.fromMap(submap);
@@ -242,7 +236,7 @@ void EditorConfiguration::deconfigureEditor(Core::IEditor *editor) const
 void EditorConfiguration::setUseGlobalSettings(bool use)
 {
     d->m_useGlobal = use;
-    d->m_defaultCodeStyle->setCurrentDelegate(use ? &globalCodeStyle() : nullptr);
+    d->m_defaultCodeStyle.setCurrentDelegate(use ? &globalCodeStyle() : nullptr);
     const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForOpenedDocuments();
     for (Core::IEditor *editor : editors) {
         if (auto widget = TextEditorWidget::fromEditor(editor)) {
@@ -261,14 +255,10 @@ void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
         widget->setStorageSettings(globalStorageSettings().data());
         widget->setBehaviorSettings(globalBehaviorSettings().data());
         widget->setExtraEncodingSettings(globalExtraEncodingSettings().data());
-        QObject::disconnect(this, &EditorConfiguration::typingSettingsChanged,
-                            widget, &TextEditorWidget::setTypingSettings);
-        QObject::disconnect(this, &EditorConfiguration::storageSettingsChanged,
-                            widget, &TextEditorWidget::setStorageSettings);
-        QObject::disconnect(this, &EditorConfiguration::behaviorSettingsChanged,
-                            widget, &TextEditorWidget::setBehaviorSettings);
-        QObject::disconnect(this, &EditorConfiguration::extraEncodingSettingsChanged,
-                            widget, &TextEditorWidget::setExtraEncodingSettings);
+        QObject::disconnect(&typingSettings, &AspectContainer::changed, widget, nullptr);
+        QObject::disconnect(&storageSettings, &AspectContainer::changed, widget, nullptr);
+        QObject::disconnect(&behaviorSettings, &AspectContainer::changed, widget, nullptr);
+        QObject::disconnect(&extraEncodingSettings, &AspectContainer::changed, widget, nullptr);
         QObject::connect(&globalTypingSettings(), &AspectContainer::changed,
                          widget, [widget] { widget->setTypingSettings(globalTypingSettings().data()); });
         QObject::connect(&globalStorageSettings(), &AspectContainer::changed,
@@ -287,14 +277,14 @@ void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
         QObject::disconnect(&globalStorageSettings(), &AspectContainer::changed, widget, nullptr);
         QObject::disconnect(&globalBehaviorSettings(), &AspectContainer::changed, widget, nullptr);
         QObject::disconnect(&globalExtraEncodingSettings(), &AspectContainer::changed, widget, nullptr);
-        QObject::connect(this, &EditorConfiguration::typingSettingsChanged,
-                         widget, &TextEditorWidget::setTypingSettings);
-        QObject::connect(this, &EditorConfiguration::storageSettingsChanged,
-                         widget, &TextEditorWidget::setStorageSettings);
-        QObject::connect(this, &EditorConfiguration::behaviorSettingsChanged,
-                         widget, &TextEditorWidget::setBehaviorSettings);
-        QObject::connect(this, &EditorConfiguration::extraEncodingSettingsChanged,
-                         widget, &TextEditorWidget::setExtraEncodingSettings);
+        QObject::connect(&typingSettings, &AspectContainer::changed,
+                         widget, [this, widget] { widget->setTypingSettings(typingSettings.data()); });
+        QObject::connect(&storageSettings, &AspectContainer::changed,
+                         widget, [this, widget] { widget->setStorageSettings(storageSettings.data()); });
+        QObject::connect(&behaviorSettings, &AspectContainer::changed,
+                         widget, [this, widget] { widget->setBehaviorSettings(behaviorSettings.data()); });
+        QObject::connect(&extraEncodingSettings, &AspectContainer::changed,
+                         widget, [this, widget] { widget->setExtraEncodingSettings(extraEncodingSettings.data()); });
     }
 }
 

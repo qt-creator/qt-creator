@@ -19,7 +19,6 @@ class TextEditorWidget;
 class TextDocument;
 class TabSettingsData;
 class ICodeStylePreferences;
-class TypingSettingsData;
 } // namespace TextEditor
 
 namespace Core { class IEditor; }
@@ -36,8 +35,6 @@ struct EditorConfigurationPrivate;
 
 class PROJECTEXPLORER_EXPORT EditorConfiguration : public QObject
 {
-    Q_OBJECT
-
 public:
     EditorConfiguration();
     ~EditorConfiguration() override;
@@ -68,12 +65,6 @@ public:
     void setTextEncoding(const Utils::TextEncoding &textEncoding);
 
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);
-
-signals:
-    void typingSettingsChanged(const TextEditor::TypingSettingsData &);
-    void storageSettingsChanged(const TextEditor::StorageSettingsData &);
-    void behaviorSettingsChanged(const TextEditor::BehaviorSettingsData &);
-    void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettingsData &);
 
 private:
     void switchSettings(TextEditor::TextEditorWidget *baseTextEditor) const;
