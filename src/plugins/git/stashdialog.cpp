@@ -274,7 +274,7 @@ bool StashDialog::promptForRestore(QString *stash,
     const QString stashIn = *stash;
     bool modifiedPromptShown = false;
     switch (gitClient().gitStatus(
-                m_repository, StatusMode(NoUntracked | NoSubmodules), nullptr, errorMessage)) {
+                m_repository, StatusModes(NoUntracked | NoSubmodules), nullptr, errorMessage)) {
     case StatusResult::Failed:
         return false;
     case StatusResult::Changed: {

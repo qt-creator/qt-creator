@@ -1615,7 +1615,7 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
     const Group recipe {
         If (isHard) >> Then {
             statusResultStorage,
-            statusTask(workingDirectory, StatusMode(NoUntracked | NoSubmodules), statusResultStorage),
+            statusTask(workingDirectory, StatusModes(NoUntracked | NoSubmodules), statusResultStorage),
             onGroupDone(onStatusDone, CallDoneFlag::OnSuccess)
         },
         commandTask({workingDirectory, arguments, flags})
@@ -2053,7 +2053,7 @@ QString GitClient::synchronousStash(const FilePath &workingDirectory, const QStr
     bool success = false;
     // Check for changes and stash
     QString errorMessage;
-    switch (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules), nullptr, &errorMessage)) {
+    switch (gitStatus(workingDirectory, StatusModes(NoUntracked | NoSubmodules), nullptr, &errorMessage)) {
     case StatusResult::Changed: {
         message = creatorStashMessage(messageKeyword);
         do {
@@ -2470,7 +2470,7 @@ void GitClient::finishSubmoduleUpdate()
     m_updatedSubmodules.clear();
 }
 
-StatusResult GitClient::gitStatus(const FilePath &workingDirectory, StatusMode mode,
+StatusResult GitClient::gitStatus(const FilePath &workingDirectory, StatusModes mode,
                                   QString *output, QString *errorMessage) const
 {
     // Run 'status'. Note that git returns exitcode 1 if there are no added files.
@@ -2505,7 +2505,7 @@ StatusResult GitClient::gitStatus(const FilePath &workingDirectory, StatusMode m
     return hasChanges ? StatusResult::Changed : StatusResult::Unchanged;
 }
 
-ExecutableItem GitClient::statusTask(const FilePath &workingDirectory, StatusMode mode,
+ExecutableItem GitClient::statusTask(const FilePath &workingDirectory, StatusModes mode,
                                      const Storage<StatusResultData> &resultStorage) const
 {
     // Run 'status'. Note that git returns exitcode 1 if there are no added files.
@@ -2623,7 +2623,7 @@ void GitClient::continuePreviousGitCommand(const FilePath &workingDirectory,
         hasChanges = true;
         break;
     case SkipIfNoChanges:
-        hasChanges = gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules))
+        hasChanges = gitStatus(workingDirectory, StatusModes(NoUntracked | NoSubmodules))
             == StatusResult::Changed;
         if (!hasChanges)
             msgBoxText.prepend(Tr::tr("No changes found.") + ' ');
@@ -3267,7 +3267,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
 
     // Check for changes
     QString output;
-    switch (gitStatus(repoDirectory, StatusMode(NoUntracked | NoSubmodules), &output, errorMessage)) {
+    switch (gitStatus(repoDirectory, StatusModes(NoUntracked | NoSubmodules), &output, errorMessage)) {
     case StatusResult::Changed:
         break;
     case StatusResult::Unchanged:
@@ -3858,7 +3858,7 @@ bool GitClient::StashInfo::init(const FilePath &workingDirectory, const QString 
     m_pushAction = pushAction;
     QString errorMessage;
     QString statusOutput;
-    switch (gitClient().gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
+    switch (gitClient().gitStatus(m_workingDir, StatusModes(NoUntracked | NoSubmodules),
                                 &statusOutput, &errorMessage)) {
     case StatusResult::Changed:
         if (m_flags & NoPrompt)

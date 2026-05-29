@@ -52,6 +52,7 @@ enum StatusMode
     NoUntracked = 1,
     NoSubmodules = 2
 };
+Q_DECLARE_FLAGS(StatusModes, StatusMode)
 
 enum StashFlag {
     Default        = 0x00, /* Prompt and do not allow unstashed */
@@ -330,10 +331,10 @@ public:
 
     void formatPatch(const Utils::FilePath &workingDirectory, const QStringList &patchRange);
 
-    StatusResult gitStatus(const Utils::FilePath &workingDirectory, StatusMode mode,
+    StatusResult gitStatus(const Utils::FilePath &workingDirectory, StatusModes mode,
                            QString *output = nullptr, QString *errorMessage = nullptr) const;
 
-    QtTaskTree::ExecutableItem statusTask(const Utils::FilePath &workingDirectory, StatusMode mode,
+    QtTaskTree::ExecutableItem statusTask(const Utils::FilePath &workingDirectory, StatusModes mode,
                                        const QtTaskTree::Storage<StatusResultData> &resultStorage) const;
 
     CommandInProgress checkCommandInProgress(const Utils::FilePath &workingDirectory) const;

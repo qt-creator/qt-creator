@@ -408,7 +408,7 @@ bool BranchView::checkout()
 
     BranchCheckoutDialog branchCheckoutDialog(this, currentBranch, nextBranch);
 
-    if (gitClient().gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) != StatusResult::Changed)
+    if (gitClient().gitStatus(m_repository, StatusModes(NoUntracked | NoSubmodules)) != StatusResult::Changed)
         branchCheckoutDialog.foundNoLocalChanges();
 
     const QList<Stash> stashes = gitClient().synchronousStashList(m_repository);
