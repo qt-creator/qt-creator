@@ -306,7 +306,7 @@ public:
 class BreakpointDialog : public QDialog
 {
 public:
-    explicit BreakpointDialog(unsigned int enabledParts, QWidget *parent = nullptr);
+    explicit BreakpointDialog(BreakpointParts enabledParts, QWidget *parent = nullptr);
     bool showDialog(BreakpointParameters *data, BreakpointParts *parts);
 
     void setParameters(const BreakpointParameters &data);
@@ -315,15 +315,15 @@ public:
     void typeChanged(int index);
 
 private:
-    void setPartsEnabled(unsigned partsMask);
-    void clearOtherParts(unsigned partsMask);
-    void getParts(unsigned partsMask, BreakpointParameters *data) const;
-    void setParts(unsigned partsMask, const BreakpointParameters &data);
+    void setPartsEnabled(BreakpointParts parts);
+    void clearOtherParts(BreakpointParts parts);
+    void getParts(BreakpointParts parts, BreakpointParameters *data) const;
+    void setParts(BreakpointParts parts, const BreakpointParameters &data);
 
     void setType(BreakpointType type);
     BreakpointType type() const;
 
-    unsigned m_enabledParts;
+    BreakpointParts m_enabledParts;
     BreakpointParameters m_savedParameters;
     BreakpointType m_previousType;
     bool m_firstTypeChange;
@@ -364,7 +364,7 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-BreakpointDialog::BreakpointDialog(unsigned int enabledParts, QWidget *parent)
+BreakpointDialog::BreakpointDialog(BreakpointParts enabledParts, QWidget *parent)
     : QDialog(parent), m_enabledParts(enabledParts), m_previousType(UnknownBreakpointType),
       m_firstTypeChange(true)
 {
@@ -573,121 +573,121 @@ BreakpointParameters BreakpointDialog::parameters() const
     return data;
 }
 
-void BreakpointDialog::setPartsEnabled(unsigned partsMask)
+void BreakpointDialog::setPartsEnabled(BreakpointParts parts)
 {
-    partsMask &= m_enabledParts;
-    m_labelFileName->setEnabled(partsMask & FileAndLinePart);
-    m_pathChooserFileName->setEnabled(partsMask & FileAndLinePart);
-    m_labelLineNumber->setEnabled(partsMask & FileAndLinePart);
-    m_lineEditLineNumber->setEnabled(partsMask & FileAndLinePart);
-    m_labelUseFullPath->setEnabled(partsMask & FileAndLinePart);
-    m_comboBoxPathUsage->setEnabled(partsMask & FileAndLinePart);
+    parts &= m_enabledParts;
+    m_labelFileName->setEnabled(parts & FileAndLinePart);
+    m_pathChooserFileName->setEnabled(parts & FileAndLinePart);
+    m_labelLineNumber->setEnabled(parts & FileAndLinePart);
+    m_lineEditLineNumber->setEnabled(parts & FileAndLinePart);
+    m_labelUseFullPath->setEnabled(parts & FileAndLinePart);
+    m_comboBoxPathUsage->setEnabled(parts & FileAndLinePart);
 
-    m_labelFunction->setEnabled(partsMask & FunctionPart);
-    m_lineEditFunction->setEnabled(partsMask & FunctionPart);
+    m_labelFunction->setEnabled(parts & FunctionPart);
+    m_lineEditFunction->setEnabled(parts & FunctionPart);
 
-    m_labelOneShot->setEnabled(partsMask & OneShotPart);
-    m_checkBoxOneShot->setEnabled(partsMask & OneShotPart);
+    m_labelOneShot->setEnabled(parts & OneShotPart);
+    m_checkBoxOneShot->setEnabled(parts & OneShotPart);
 
-    m_labelAddress->setEnabled(partsMask & AddressPart);
-    m_lineEditAddress->setEnabled(partsMask & AddressPart);
-    m_labelExpression->setEnabled(partsMask & ExpressionPart);
-    m_lineEditExpression->setEnabled(partsMask & ExpressionPart);
+    m_labelAddress->setEnabled(parts & AddressPart);
+    m_lineEditAddress->setEnabled(parts & AddressPart);
+    m_labelExpression->setEnabled(parts & ExpressionPart);
+    m_lineEditExpression->setEnabled(parts & ExpressionPart);
 
-    m_labelCondition->setEnabled(partsMask & ConditionPart);
-    m_lineEditCondition->setEnabled(partsMask & ConditionPart);
-    m_labelIgnoreCount->setEnabled(partsMask & IgnoreCountPart);
-    m_spinBoxIgnoreCount->setEnabled(partsMask & IgnoreCountPart);
-    m_labelThreadSpec->setEnabled(partsMask & ThreadSpecPart);
-    m_lineEditThreadSpec->setEnabled(partsMask & ThreadSpecPart);
+    m_labelCondition->setEnabled(parts & ConditionPart);
+    m_lineEditCondition->setEnabled(parts & ConditionPart);
+    m_labelIgnoreCount->setEnabled(parts & IgnoreCountPart);
+    m_spinBoxIgnoreCount->setEnabled(parts & IgnoreCountPart);
+    m_labelThreadSpec->setEnabled(parts & ThreadSpecPart);
+    m_lineEditThreadSpec->setEnabled(parts & ThreadSpecPart);
 
-    m_labelModule->setEnabled(partsMask & ModulePart);
-    m_lineEditModule->setEnabled(partsMask & ModulePart);
+    m_labelModule->setEnabled(parts & ModulePart);
+    m_lineEditModule->setEnabled(parts & ModulePart);
 
-    m_labelTracepoint->setEnabled(partsMask & TracePointPart);
-    m_checkBoxTracepoint->setEnabled(partsMask & TracePointPart);
+    m_labelTracepoint->setEnabled(parts & TracePointPart);
+    m_checkBoxTracepoint->setEnabled(parts & TracePointPart);
 
-    m_labelCommands->setEnabled(partsMask & CommandPart);
-    m_textEditCommands->setEnabled(partsMask & CommandPart);
+    m_labelCommands->setEnabled(parts & CommandPart);
+    m_textEditCommands->setEnabled(parts & CommandPart);
 
-    m_labelMessage->setEnabled(partsMask & TracePointPart);
-    m_lineEditMessage->setEnabled(partsMask & TracePointPart);
+    m_labelMessage->setEnabled(parts & TracePointPart);
+    m_lineEditMessage->setEnabled(parts & TracePointPart);
 }
 
-void BreakpointDialog::clearOtherParts(unsigned partsMask)
+void BreakpointDialog::clearOtherParts(BreakpointParts parts)
 {
-    const unsigned invertedPartsMask = ~partsMask;
-    if (invertedPartsMask & FileAndLinePart) {
+    const BreakpointParts invertedParts = ~parts;
+    if (invertedParts & FileAndLinePart) {
         m_pathChooserFileName->setFilePath({});
         m_lineEditLineNumber->clear();
         m_comboBoxPathUsage->setCurrentIndex(BreakpointPathUsageEngineDefault);
     }
 
-    if (invertedPartsMask & FunctionPart)
+    if (invertedParts & FunctionPart)
         m_lineEditFunction->clear();
 
-    if (invertedPartsMask & AddressPart)
+    if (invertedParts & AddressPart)
         m_lineEditAddress->clear();
-    if (invertedPartsMask & ExpressionPart)
+    if (invertedParts & ExpressionPart)
         m_lineEditExpression->clear();
 
-    if (invertedPartsMask & ConditionPart)
+    if (invertedParts & ConditionPart)
         m_lineEditCondition->clear();
-    if (invertedPartsMask & IgnoreCountPart)
+    if (invertedParts & IgnoreCountPart)
         m_spinBoxIgnoreCount->clear();
-    if (invertedPartsMask & ThreadSpecPart)
+    if (invertedParts & ThreadSpecPart)
         m_lineEditThreadSpec->clear();
-    if (invertedPartsMask & ModulePart)
+    if (invertedParts & ModulePart)
         m_lineEditModule->clear();
 
-    if (partsMask & OneShotPart)
+    if (parts & OneShotPart)
         m_checkBoxOneShot->setChecked(false);
-    if (invertedPartsMask & CommandPart)
+    if (invertedParts & CommandPart)
         m_textEditCommands->clear();
-    if (invertedPartsMask & TracePointPart) {
+    if (invertedParts & TracePointPart) {
         m_checkBoxTracepoint->setChecked(false);
         m_lineEditMessage->clear();
     }
 }
 
-void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) const
+void BreakpointDialog::getParts(BreakpointParts parts, BreakpointParameters *data) const
 {
     data->enabled = m_checkBoxEnabled->isChecked();
 
-    if (partsMask & FileAndLinePart) {
+    if (parts & FileAndLinePart) {
         data->textPosition.line = m_lineEditLineNumber->text().toInt();
         data->pathUsage = static_cast<BreakpointPathUsage>(m_comboBoxPathUsage->currentIndex());
         data->fileName = m_pathChooserFileName->filePath();
     }
-    if (partsMask & FunctionPart)
+    if (parts & FunctionPart)
         data->functionName = m_lineEditFunction->text();
 
-    if (partsMask & AddressPart)
+    if (parts & AddressPart)
         data->address = m_lineEditAddress->text().toULongLong(nullptr, 0);
-    if (partsMask & ExpressionPart)
+    if (parts & ExpressionPart)
         data->expression = m_lineEditExpression->text();
 
-    if (partsMask & ConditionPart)
+    if (parts & ConditionPart)
         data->condition = m_lineEditCondition->text();
-    if (partsMask & IgnoreCountPart)
+    if (parts & IgnoreCountPart)
         data->ignoreCount = m_spinBoxIgnoreCount->text().toInt();
-    if (partsMask & ThreadSpecPart)
+    if (parts & ThreadSpecPart)
         data->threadSpec =
             BreakHandler::threadSpecFromDisplay(m_lineEditThreadSpec->text());
-    if (partsMask & ModulePart)
+    if (parts & ModulePart)
         data->module = m_lineEditModule->text();
 
-    if (partsMask & OneShotPart)
+    if (parts & OneShotPart)
         data->oneShot = m_checkBoxOneShot->isChecked();
-    if (partsMask & CommandPart)
+    if (parts & CommandPart)
         data->command = m_textEditCommands->toPlainText().trimmed();
-    if (partsMask & TracePointPart) {
+    if (parts & TracePointPart) {
         data->tracepoint = m_checkBoxTracepoint->isChecked();
         data->message = m_lineEditMessage->text();
     }
 }
 
-void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
+void BreakpointDialog::setParts(BreakpointParts mask, const BreakpointParameters &data)
 {
     m_checkBoxEnabled->setChecked(data.enabled);
     m_comboBoxPathUsage->setCurrentIndex(data.pathUsage);
@@ -796,12 +796,12 @@ void BreakpointDialog::typeChanged(int)
         break;
     case BreakpointAtJavaScriptThrow:
         clearOtherParts(AllParts);
-        setPartsEnabled(0);
+        setPartsEnabled(NoParts);
         break;
     case BreakpointAtMain:
         m_lineEditFunction->setText("main"); // Just for display
-        clearOtherParts(0);
-        setPartsEnabled(0);
+        clearOtherParts(NoParts);
+        setPartsEnabled(NoParts);
         break;
     case BreakpointByAddress:
     case WatchpointAtAddress:
@@ -842,7 +842,7 @@ bool BreakpointDialog::showDialog(BreakpointParameters *data,
 class MultiBreakPointsDialog : public QDialog
 {
 public:
-    MultiBreakPointsDialog(unsigned int enabledParts, QWidget *parent);
+    MultiBreakPointsDialog(BreakpointParts enabledParts, QWidget *parent);
 
     QString condition() const { return m_lineEditCondition->text(); }
     int ignoreCount() const { return m_spinBoxIgnoreCount->value(); }
@@ -861,7 +861,7 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-MultiBreakPointsDialog::MultiBreakPointsDialog(unsigned int enabledParts, QWidget *parent) :
+MultiBreakPointsDialog::MultiBreakPointsDialog(BreakpointParts enabledParts, QWidget *parent) :
     QDialog(parent)
 {
     setWindowTitle(Tr::tr("Edit Breakpoint Properties"));
@@ -1794,15 +1794,15 @@ void BreakHandler::removeBreakpoint(const Breakpoint &bp)
     }
 }
 
-static unsigned int engineBreakpointCapabilities(DebuggerEngine *engine)
+static BreakpointParts engineBreakpointCapabilities(DebuggerEngine *engine)
 {
-    unsigned int enabledParts = ~0;
+    BreakpointParts enabledParts = AllParts;
     if (!engine->hasCapability(BreakConditionCapability))
-        enabledParts &= ~ConditionPart;
+        enabledParts.setFlag(ConditionPart, false);
     if (!engine->hasCapability(BreakModuleCapability))
-        enabledParts &= ~ModulePart;
+        enabledParts.setFlag(ModulePart, false);
     if (!engine->hasCapability(TracePointCapability))
-        enabledParts &= ~TracePointPart;
+        enabledParts.setFlag(TracePointPart, false);
     return enabledParts;
 }
 
@@ -2634,7 +2634,7 @@ void BreakpointManager::executeAddBreakpointDialog()
 {
     BreakpointParameters data(BreakpointByFileAndLine);
     BreakpointParts parts = NoParts;
-    BreakpointDialog dialog(~0, ICore::dialogParent());
+    BreakpointDialog dialog(AllParts, ICore::dialogParent());
     dialog.setWindowTitle(Tr::tr("Add Breakpoint"));
     if (dialog.showDialog(&data, &parts))
         BreakpointManager::createBreakpoint(data);
@@ -2824,7 +2824,7 @@ void BreakpointManager::editBreakpoint(const GlobalBreakpoint &gbp, QWidget *par
     BreakpointParts parts = NoParts;
 
     BreakpointParameters params = gbp->requestedParameters();
-    BreakpointDialog dialog(~0, parent);
+    BreakpointDialog dialog(AllParts, parent);
     if (!dialog.showDialog(&params, &parts))
         return;
 
@@ -2848,7 +2848,7 @@ void BreakpointManager::editBreakpoints(const GlobalBreakpoints &gbps, QWidget *
     QTC_ASSERT(gbp, return);
     BreakpointParameters params = gbp->requestedParameters();
 
-    MultiBreakPointsDialog dialog(~0, parent);
+    MultiBreakPointsDialog dialog(AllParts, parent);
     dialog.setCondition(params.condition);
     dialog.setIgnoreCount(params.ignoreCount);
     dialog.setThreadSpec(params.threadSpec);

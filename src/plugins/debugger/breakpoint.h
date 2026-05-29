@@ -161,3 +161,5 @@ public:
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Debugger::Internal::BreakpointParts)
