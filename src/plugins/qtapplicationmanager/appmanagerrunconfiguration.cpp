@@ -102,7 +102,7 @@ public:
 
         const auto buildTargets = TargetInformation::readFromProject(bc);
         const auto filteredTargets = Utils::filtered(buildTargets, [this, bc](const TargetInformation &ti) {
-            const auto device = RunDeviceKitAspect::device(kit);
+            const auto device = RunDeviceKitAspect::device(bc->kit());
             if (!device)
                 return false;
 
