@@ -33519,7 +33519,7 @@ Installieren Sie das Paket &quot;Qt Debug Information Files&quot; für diese Qt-
     </message>
     <message>
         <source>Press %1 to execute a line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Drücken Sie %1, um eine Zeile auszuführen.</translation>
     </message>
     <message>
         <source>Reload Debugging Helpers</source>
@@ -33606,7 +33606,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>Searching last Core file...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach der letzten Core-Datei...</translation>
     </message>
     <message>
         <source>Cannot attach to process with PID 0</source>
@@ -34649,7 +34649,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Enables tooltips for variable values during debugging. This can slow down debugging and does not provide reliable information as it does not use scope information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert Tooltips für Variablenwerte während des Debuggens. Dies kann das Debuggen verlangsamen und liefert keine zuverlässigen Informationen, da keine Gültigkeitsbereichsinformationen verwendet werden.</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -35281,7 +35281,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Debug server executable not found on device &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Debug-Server-Datei wurde nicht auf Gerät &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Unsupported CDB host system.</source>
@@ -35849,48 +35849,48 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Script or command that will set up the gdb server connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skript oder Befehl, der die GDB-Server-Verbindung einrichtet.</translation>
     </message>
     <message>
         <source>Symbol file (local executable):</source>
-        <translation type="unfinished"></translation>
+        <translation>Symboldatei (lokale ausführbare Datei):</translation>
     </message>
     <message>
         <source>Server channel:</source>
-        <translation type="unfinished"></translation>
+        <translation>Serverkanal:</translation>
     </message>
     <message>
         <source>Break at &quot;&amp;main&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Haltepunkt bei &quot;&amp;main&quot;</translation>
     </message>
     <message>
         <source>Use &quot;%1&quot; to connect</source>
         <extracomment>%1 = &quot;target extended-remote&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verwende &quot;%1&quot; zum Verbinden</translation>
     </message>
     <message>
         <source>Remote Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernter Debugger</translation>
     </message>
     <message>
         <source>Remote Debugger: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernter Debugger: %1</translation>
     </message>
     <message>
         <source>The command must be set in order to debug.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Befehl muss gesetzt sein, um zu debuggen.</translation>
     </message>
     <message>
         <source>The symbol file must be set in order to debug.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Symboldatei muss gesetzt sein, um zu debuggen.</translation>
     </message>
     <message>
         <source>The GDB server channel must be set in order to debug.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der GDB-Server-Kanal muss gesetzt sein, um zu debuggen.</translation>
     </message>
     <message>
         <source>Starting %1...</source>
-        <translation type="unfinished">Starte %1...</translation>
+        <translation>Starte %1...</translation>
     </message>
 </context>
 <context>
@@ -36850,7 +36850,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>The process failed to start.</source>
-        <translation type="unfinished">Der Prozess konnte nicht gestartet werden.</translation>
+        <translation>Der Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Cannot reach &quot;%1&quot; from &quot;%2&quot;.</source>
@@ -36902,19 +36902,19 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Enable ptrace-based debugging:</source>
-        <translation type="unfinished"></translation>
+        <translation>ptrace-basiertes Debuggen aktivieren:</translation>
     </message>
     <message>
         <source>Needed for gdb and lldb to attach to processes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benötigt, damit gdb und lldb sich an Prozesse anhängen können.</translation>
     </message>
     <message>
         <source>Enable X11 forwarding:</source>
-        <translation type="unfinished"></translation>
+        <translation>X11-Weiterleitung aktivieren:</translation>
     </message>
     <message>
         <source>Mounts the X11 socket and Xauthority file into the container so that graphical applications can display on the host. Disable to reduce noise on the command line when X11 is not needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hängt den X11-Socket und die Xauthority-Datei in den Container ein, damit grafische Anwendungen auf dem Host angezeigt werden. Deaktivieren Sie dies, wenn X11 nicht benötigt wird, um die benutzte Befehlszeile zu reduzieren.</translation>
     </message>
     <message>
         <source>Path is empty.</source>
@@ -36930,11 +36930,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Process not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess nicht gefunden.</translation>
     </message>
     <message>
         <source>Signal operation canceled.</source>
-        <translation type="unfinished">Signaloperation abgebrochen.</translation>
+        <translation>Signaloperation abgebrochen.</translation>
     </message>
     <message>
         <source>Open Shell in Container</source>
@@ -37927,7 +37927,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Could not resolve the dependency on plugin &quot;%1(%2)&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Abhängigkeit von Plugin &quot;%1(%2)&quot; nicht auflösen</translation>
     </message>
     <message>
         <source>Loading the library failed because state != Resolved</source>
@@ -38121,19 +38121,19 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Terms and Conditions</source>
-        <translation type="unfinished">Bedingungen und Konditionen</translation>
+        <translation>Bedingungen und Konditionen</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">Annehmen</translation>
+        <translation>Annehmen</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">Ablehnen</translation>
+        <translation>Ablehnen</translation>
     </message>
     <message>
         <source>The plugin %1 requires you to accept the following terms and conditions:</source>
-        <translation type="unfinished">Das Plugin %1 erfordert, dass Sie folgende Bedingungen und Konditionen annehmen:</translation>
+        <translation>Das Plugin %1 erfordert, dass Sie folgende Bedingungen und Konditionen annehmen:</translation>
     </message>
 </context>
 <context>
@@ -38244,7 +38244,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Use Vim-Style Editing</source>
-        <translation type="unfinished"></translation>
+        <translation>Vim verwenden</translation>
     </message>
     <message>
         <source>Displays line numbers relative to the line containing text cursor.</source>
@@ -39058,176 +39058,176 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     <name>QtC::GNProjectManager</name>
     <message>
         <source>Generate</source>
-        <translation type="unfinished">Erstellen</translation>
+        <translation>Generieren</translation>
     </message>
     <message>
         <source>Build &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; erstellen</translation>
+        <translation>&quot;%1&quot; erstellen</translation>
     </message>
     <message>
         <source>Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen</translation>
     </message>
     <message>
         <source>GN</source>
-        <translation type="unfinished"></translation>
+        <translation>GN</translation>
     </message>
     <message>
         <source>Generate Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt generieren</translation>
     </message>
     <message>
         <source>Run &quot;gn gen --ide=json&quot; to (re)generate the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt &quot;gn gen --ide=json&quot; aus, um das Projekt (neu) zu generieren.</translation>
     </message>
     <message>
         <source>Open args.gn</source>
-        <translation type="unfinished"></translation>
+        <translation>args.gn öffnen</translation>
     </message>
     <message>
         <source>Opens args.gn from the build directory in the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnet args.gn aus dem Build-Verzeichnis im Editor.</translation>
     </message>
     <message>
         <source>Additional GN gen arguments (e.g. --args=&apos;is_debug=true&apos;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche GN gen-Argumente (z.B. --args=&apos;is_debug=true&apos;).</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Build</source>
         <comment>GNProjectManager::GNBuildStepConfigWidget display name.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen</translation>
     </message>
     <message>
         <source>Ninja arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ninja-Argumente:</translation>
     </message>
     <message>
         <source>Targets:</source>
-        <translation type="unfinished">Ziele:</translation>
+        <translation>Ziele:</translation>
     </message>
     <message>
         <source>GN Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit GN erstellen</translation>
     </message>
     <message>
         <source>GN build: Parsing failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit GN erstellen: Das Auswerten ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>No GN executable configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine ausführbare GN-Datei konfiguriert.</translation>
     </message>
     <message>
         <source>GN Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>GN-Werkzeug</translation>
     </message>
     <message>
         <source>The GN tool to use when building a project with GN. This setting is ignored when using other build systems.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das GN-Werkzeug, das beim Erstellen eines Projekts mit GN verwendet wird. Diese Einstellung wird ignoriert, wenn andere Build-Systeme verwendet werden.</translation>
     </message>
     <message>
         <source>Cannot validate this GN executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann diese ausführbare GN-Datei nicht validieren.</translation>
     </message>
     <message>
         <source>Unconfigured</source>
-        <translation type="unfinished">Nicht konfiguriert</translation>
+        <translation>Nicht konfiguriert</translation>
     </message>
     <message>
         <source>No GN tool set in kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein GN-Werkzeug im Kit gesetzt.</translation>
     </message>
     <message>
         <source>No compilers set in kit.</source>
-        <translation type="unfinished">Im Kit sind keine Compiler eingerichtet.</translation>
+        <translation>Im Kit sind keine Compiler eingerichtet.</translation>
     </message>
     <message>
         <source>Source Files</source>
-        <translation type="unfinished">Quelldateien</translation>
+        <translation>Quelldateien</translation>
     </message>
     <message>
         <source>Header Files</source>
-        <translation type="unfinished">Header-Dateien</translation>
+        <translation>Header-Dateien</translation>
     </message>
     <message>
         <source>Other Files</source>
-        <translation type="unfinished">Andere Dateien</translation>
+        <translation>Andere Dateien</translation>
     </message>
     <message>
         <source>GN executable does not exist: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare GN-Datei existiert nicht: %1</translation>
     </message>
     <message>
         <source>Running %1 in %2.</source>
-        <translation type="unfinished">Führe %1 in %2 aus.</translation>
+        <translation>Führe %1 in %2 aus.</translation>
     </message>
     <message>
         <source>Generating &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Generiere &quot;%1&quot;</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keins</translation>
     </message>
     <message>
         <source>Clone of %1</source>
-        <translation type="unfinished">Kopie von %1</translation>
+        <translation>Kopie von %1</translation>
     </message>
     <message>
         <source>GN executable path does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad der ausführbaren GN-Datei existiert nicht.</translation>
     </message>
     <message>
         <source>GN executable path is not a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur auführbaren GN-Datei ist keine Datei.</translation>
     </message>
     <message>
         <source>GN executable path is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur ausführbaren GN-Datei ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Cannot get tool version.</source>
-        <translation type="unfinished">Das Ermitteln der Werkzeug-Version ist fehlgeschlagen.</translation>
+        <translation>Das Ermitteln der Werkzeugversion ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Version: %1</source>
-        <translation type="unfinished">Version: %1</translation>
+        <translation>Version: %1</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort</translation>
     </message>
     <message>
         <source>New GN</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues GN</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">Pfad:</translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Set as the default GN executable to use when creating a new kit or when no value is set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare GN-Datei als Vorgabe festlegen, die beim Erstellen eines neuen Kits oder wenn kein Wert festgelegt ist, verwendet wird.</translation>
     </message>
     <message>
         <source>Tools</source>
-        <translation type="unfinished">Werkzeuge</translation>
+        <translation>Werkzeuge</translation>
     </message>
 </context>
 <context>
@@ -39872,11 +39872,12 @@ Jetzt Commit ausführen?</translation>
     <message>
         <source>For the following files, the staged content will be overwritten with the unstaged version.
 Continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Für die folgenden Dateien wird der für den Commit vorgesehene Inhalt mit der nicht vorgesehenen Version überschrieben.
+Fortfahren?</translation>
     </message>
     <message>
         <source>Possible Data Loss</source>
-        <translation type="unfinished"></translation>
+        <translation>Möglicher Datenverlust</translation>
     </message>
     <message>
         <source>Revert</source>
@@ -40694,15 +40695,15 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
     <message>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished">Diff für &quot;%1&quot;</translation>
+        <translation>Diff für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log &quot;%1&quot;</source>
-        <translation type="unfinished">Log für &quot;%1&quot;</translation>
+        <translation>Log für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Blame &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Blame für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Revert Renaming &quot;%1&quot;</source>
@@ -41696,11 +41697,11 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Undo All Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Änderungen rückgängig machen</translation>
     </message>
     <message>
         <source>Undo All Changes for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Änderungen für &quot;%1&quot; rückgängig machen</translation>
     </message>
     <message>
         <source>Create from Commits...</source>
@@ -42352,7 +42353,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Behavior</source>
-        <translation type="unfinished">Verhalten</translation>
+        <translation>Verhalten</translation>
     </message>
     <message>
         <source>Import Bookmarks...</source>
@@ -43297,15 +43298,15 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Cannot retrieve file contents for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiinhalt für &quot;%1&quot; kann nicht abgerufen werden.</translation>
     </message>
     <message>
         <source>Failed to create temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporäre Datei konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Cannot write file contents for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiinhalt für &quot;%1&quot; kann nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Product type:</source>
@@ -43439,7 +43440,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Application launch on simulator failed. Simulator not running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungsstart im Simulator fehlgeschlagen. Simulator läuft nicht.</translation>
     </message>
     <message>
         <source>Cannot capture console output from %1. Error redirecting output to %2.*</source>
@@ -43660,7 +43661,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output at %1 (line %2): %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei der Auswertung der devicectl-Ausgabe bei %1 (Zeile %2): %3.</translation>
     </message>
     <message>
         <source>Operation failed: %1</source>
@@ -43676,11 +43677,11 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output: Expected &quot;apps&quot; array.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei der Auswertung der devicectl-Ausgabe: &quot;apps&quot;-Array wurde erwartet.</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output: Expected &quot;files&quot; array.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei der Auswertung der devicectl-Ausgabe: &quot;files&quot;-Array wurde erwartet.</translation>
     </message>
     <message>
         <source>Failed to start process.</source>
@@ -43889,7 +43890,7 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Enabled:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert:</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -44199,19 +44200,19 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Open in Editor</source>
-        <translation type="unfinished">In Editor öffnen</translation>
+        <translation>In Editor öffnen</translation>
     </message>
     <message>
         <source>Open %1 Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Hierarchie öffnen</translation>
     </message>
     <message>
         <source>Call</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufruf</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Call Hierarchy</source>
@@ -45819,7 +45820,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keins</translation>
     </message>
     <message>
         <source>Meson Tool</source>
@@ -46648,11 +46649,11 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Starten</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Anhalten</translation>
+        <translation>Anhalten</translation>
     </message>
     <message>
         <source>Timeline</source>
@@ -47504,7 +47505,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Append Path...</source>
@@ -48484,7 +48485,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>The project is already open.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt ist bereits geöffnet.</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
@@ -48668,11 +48669,11 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished">&amp;Analyse</translation>
+        <translation>&amp;Analyse</translation>
     </message>
     <message>
         <source>Open Project...</source>
-        <translation type="unfinished">Projekt öffnen...</translation>
+        <translation>Projekt öffnen...</translation>
     </message>
     <message>
         <source>Close All Files in Project &quot;%1&quot;</source>
@@ -48985,7 +48986,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Automatically Managed</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch verwaltet</translation>
     </message>
     <message>
         <source>Automatically managed by %1 or the installer.</source>
@@ -49323,7 +49324,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprache</translation>
     </message>
     <message>
         <source>The following compiler was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
@@ -49652,7 +49653,7 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>Device is not connected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät ist nicht verbunden.</translation>
     </message>
     <message>
         <source>Enter lists and ranges like this: &quot;1024,1026-1028,1030&quot;.</source>
@@ -49668,7 +49669,7 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>Sourcing a script is not supported on this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Auslesen eines Skripts wird auf dieser Plattform nicht unterstützt.</translation>
     </message>
     <message>
         <source>Device</source>
@@ -49832,7 +49833,7 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>Set as the default kit to use when creating a new project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Vorgabe-Kit festlegen, das beim Erstellen eines neuen Projekts verwendet wird.</translation>
     </message>
     <message>
         <source>Default for %1</source>
@@ -51506,20 +51507,22 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     <message>
         <source>Creates a vertex shader in Vulkan-compatible GLSL. Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines to be rendered.
 Use this when targeting Qt6 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt einen Vertex Shader in Vulkan-kompatiblem GLSL. Vertex Shader transformieren Positionen, Normalen und Texturkoordinaten von Dreiecken, Punkten und Linien, die mit OpenGL gezeichnet werden.
+Verwenden Sie dies, wenn Sie Qt6 oder höher anvisieren.</translation>
     </message>
     <message>
         <source>Vertex Shader (Vulkan-compatible)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertex Shader (Vulkan-kompatibel)</translation>
     </message>
     <message>
         <source>Creates a fragment shader in Vulkan-compatible GLSL. Fragment shaders generate the final pixel colors for triangles, points and lines to be rendered.
 Use this when targeting Qt6 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt einen Fragment Shader in Vulkan-kompatiblem GLSL. Fragment Shader erzeugen abschließend die Pixelfarben für mit OpenGL gerenderte Dreiecke, Punkte und Linien.
+Verwenden Sie dies, wenn Sie Qt6 oder höher anvisieren.</translation>
     </message>
     <message>
         <source>Fragment Shader (Vulkan-compatible)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fragment Shader (Vulkan-kompatibel)</translation>
     </message>
     <message>
         <source>Qt6 and higher</source>
@@ -52688,11 +52691,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Use the Qt VNC platform for display</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt VNC-Plattform für die Anzeige verwenden</translation>
     </message>
     <message>
         <source>Sets QT_QPA_PLATFORM=vnc which forwards the Qt application&apos;s UI to a built-in VNC server. Connect to the application UI with a VNC client. See the application output for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt QT_QPA_PLATFORM=vnc, wodurch die UI der Qt-Anwendung an einen eingebauten VNC-Server weitergeleitet wird. Verbinden Sie sich mit der UI der Anwendung über einen VNC-Client. Weitere Details finden Sie in der Ausgabe der Anwendung.</translation>
     </message>
     <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
@@ -52728,7 +52731,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Use X11 forwarding:</source>
-        <translation type="unfinished"></translation>
+        <translation>X11-Weiterleitung verwenden:</translation>
     </message>
     <message>
         <source>Make arguments:</source>
@@ -54109,7 +54112,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
 </context>
 <context>
@@ -54189,7 +54192,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -54218,21 +54221,24 @@ Wählen Sie einen anderen Pfad.</translation>
     <message>
         <source>Venv creation failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Venv-Erstellung fehlgeschlagen:
+%1</translation>
     </message>
     <message>
         <source>Venv creation terminated abnormally:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Venv-Erstellung wurde unerwartet beendet:
+%1</translation>
     </message>
     <message>
         <source>Venv creation could not be started:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Venv-Erstellung konnte nicht gestartet werden:
+%1</translation>
     </message>
     <message>
         <source>Venv creation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Venv-Erstellung abgebrochen.</translation>
     </message>
     <message>
         <source>Interpreters</source>
@@ -58021,43 +58027,43 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Use qmlls from latest Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlls vom neuesten Qt verwenden</translation>
     </message>
     <message>
         <source>Use qmlls from latest Qt (located at &quot;%1&quot;)</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlls vom neuesten Qt verwenden (befindet sich in &quot;%1&quot;)</translation>
     </message>
     <message>
         <source>Use custom qmlls executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte ausführbare qmlls-Datei verwenden</translation>
     </message>
     <message>
         <source>Enable qmlls semantic highlighting</source>
-        <translation type="unfinished"></translation>
+        <translation>Semantische Hervorhebung mit qmlls aktivieren</translation>
     </message>
     <message>
         <source>Use advanced features (Document Outline)</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Funktionen verwenden (Dokumentenübersicht)</translation>
     </message>
     <message>
         <source>Extra arguments:</source>
-        <translation type="unfinished">Zusätzliche Argumente:</translation>
+        <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
         <source>Use Global Settings</source>
-        <translation type="unfinished">Globale Einstellungen verwenden</translation>
+        <translation>Globale Einstellungen verwenden</translation>
     </message>
     <message>
         <source>Override Global Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Einstellungen überschreiben</translation>
     </message>
     <message>
         <source>Extend Global Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Einstellungen erweitern</translation>
     </message>
     <message>
         <source>QML Language Server Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>QML Language Server Einstellungen</translation>
     </message>
     <message>
         <source>Downloading standalone QML Language Server...</source>
@@ -58317,7 +58323,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Open latest documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Neueste Dokumentation öffnen</translation>
     </message>
     <message>
         <source>Global formatting options are ignored by projects having their own deployed .qmlformat.ini files.</source>
@@ -58325,16 +58331,16 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>qmlformat not found. No version.</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlformat nicht gefunden. Keine Version.</translation>
     </message>
     <message>
         <source>Cannot run &quot;%1&quot; or some other error occurred. No version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann &quot;%1&quot; nicht ausführen oder ein anderer Fehler ist aufgetreten. Keine Version.</translation>
     </message>
     <message>
         <source>&quot;%1&quot;: %2. No version.</source>
         <extracomment>%1=exceutable, %2=error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;: %2. Keine Version.</translation>
     </message>
     <message>
         <source>QmlFormat not found. Using fallback output options.</source>
@@ -58407,11 +58413,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Reset to Original Preview Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf voreingestellten Vorschautext zurücksetzen</translation>
     </message>
     <message>
         <source>Format Current Preview Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuellen Vorschautext formatieren</translation>
     </message>
 </context>
 <context>
@@ -58481,11 +58487,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Starten</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Anhalten</translation>
+        <translation>Anhalten</translation>
     </message>
     <message>
         <source>Enable Profiling</source>
@@ -60007,7 +60013,7 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Invalid Qt version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Qt-Version:</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -60113,7 +60119,7 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Clone of %1</source>
-        <translation type="unfinished">Kopie von %1</translation>
+        <translation>Kopie von %1</translation>
     </message>
     <message>
         <source>Re-detect</source>
