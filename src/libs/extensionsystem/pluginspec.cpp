@@ -1413,7 +1413,7 @@ bool CppPluginSpec::initializePlugin()
         }
     } catch (const std::exception &e) {
         setError(
-            ::ExtensionSystem::Tr::tr("Plugin initialization threw an exception: %1").arg(e.what()));
+            ::ExtensionSystem::Tr::tr("Plugin initialization threw an exception: %1").arg(QLatin1String(e.what())));
         return false;
     } catch (...) {
         setError(::ExtensionSystem::Tr::tr("Plugin initialization threw an unknown exception"));
