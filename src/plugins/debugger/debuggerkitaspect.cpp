@@ -325,8 +325,9 @@ public:
                     level = DebuggerItem::MatchesPerfectlyInPath;
                 }
                 if (!item.detectionSource().id.isEmpty()
-                    && item.detectionSource().id == k->detectionSource().id)
-                    level = DebuggerItem::MatchLevel(level + 2);
+                    && item.detectionSource().id == k->detectionSource().id) {
+                    level = std::max(level, DebuggerItem::MatchesPerfectly);
+                }
             } else if (rawId.typeId() == QMetaType::QString) {
                 // New structure.
                 if (item.id() == rawId) {
