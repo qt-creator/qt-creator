@@ -138,15 +138,24 @@ void ChatInputEdit::keyPressEvent(QKeyEvent *event)
 
 void ChatInputEdit::updateHeight()
 {
-    // Count visual (wrapped) lines across all blocks
-    const int visualLines = editorLayout()->lineCount();
-    const int lineCount = qBound(1, visualLines, 5);
+    auto block = document()->firstBlock();
+    int lineCount = 0;
+    while (block.isValid() && lineCount < 5) {
+        editorLayout()->ensureBlockLayout(block);
+        lineCount += editorLayout()->blockLineCount(block);
+        block = block.next();
+    }
+    if (lineCount == 0)
+        lineCount = 1; // Ensure at least one line height
+    const bool limitHeight = lineCount > 5;
+    if (limitHeight)
+        lineCount = 5; // Limit to 5 lines for height calculation
+    setVerticalScrollBarPolicy(limitHeight ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff);
     const QMargins cm = contentsMargins();
     const int docMargin = static_cast<int>(document()->documentMargin());
     const int h = fontMetrics().lineSpacing() * lineCount
                   + cm.top() + cm.bottom() + 2 * docMargin + 2 * frameWidth();
     setFixedHeight(h);
-    setVerticalScrollBarPolicy(visualLines > 5 ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff);
 }
 
 void ChatInputEdit::updateSuggestion()
