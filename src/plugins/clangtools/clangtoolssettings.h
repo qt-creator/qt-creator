@@ -48,7 +48,7 @@ public:
     Utils::BoolAspect analyzeOpenFiles{this};
 };
 
-class ClangToolsSettings : public Utils::AspectContainer
+class ClangToolsSettings final : public Utils::AspectContainer
 {
     ClangToolsSettings();
 
