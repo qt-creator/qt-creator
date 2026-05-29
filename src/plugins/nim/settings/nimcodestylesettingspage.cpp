@@ -61,7 +61,7 @@ public:
         }.attachTo(this);
 
         decorateEditor();
-        connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+        connect(&globalFontSettings(), &FontSettings::changed,
                 this, &NimCodeStylePreferencesWidget::decorateEditor);
 
         connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,

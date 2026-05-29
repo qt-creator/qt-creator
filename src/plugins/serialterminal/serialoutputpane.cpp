@@ -16,7 +16,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/documenttabbar.h>
@@ -247,12 +246,11 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     Utils::Id contextId = Utils::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
     auto ow = new Core::OutputWindow(context, Key(), m_tabWidget);
-    using TextEditor::TextEditorSettings;
     auto fontSettingsChanged = [ow] {
         ow->setBaseFont(TextEditor::globalFontSettings().data().font());
     };
 
-    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+    connect(&TextEditor::globalFontSettings(), &TextEditor::FontSettings::changed,
             this, fontSettingsChanged);
     fontSettingsChanged();
     ow->setWindowTitle(Tr::tr("Serial Terminal Window"));

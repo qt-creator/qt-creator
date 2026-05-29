@@ -17,7 +17,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/behaviorsettings.h>
 
@@ -89,7 +88,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     connect(this, &IOutputPane::zoomInRequested, m_outputWindow, &Core::OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOutRequested, m_outputWindow, &Core::OutputWindow::zoomOut);
     connect(this, &IOutputPane::resetZoomRequested, m_outputWindow, &Core::OutputWindow::resetZoom);
-    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
+    connect(&TextEditor::globalFontSettings(), &TextEditor::FontSettings::changed,
             this, updateFontSettings);
     connect(&TextEditor::globalBehaviorSettings(), &Utils::AspectContainer::changed,
             this, updateZoomEnabled);

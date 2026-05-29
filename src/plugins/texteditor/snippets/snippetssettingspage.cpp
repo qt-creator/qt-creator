@@ -10,7 +10,6 @@
 #include "../fontsettings.h"
 #include "../textdocument.h"
 #include "../texteditorconstants.h"
-#include "../texteditorsettings.h"
 #include "../texteditortr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -373,8 +372,8 @@ void SnippetsSettingsAspect::addToLayoutImpl(Layouting::Layout &parent)
     connect(m_snippetsTable->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &SnippetsSettingsAspect::updateCurrentSnippetDependent);
 
-    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, &SnippetsSettingsAspect::decorateEditors);
+    connect(&globalFontSettings(), &FontSettings::changed,
+            this, [this] { decorateEditors(globalFontSettings().data()); });
 }
 
 SnippetEditorWidget *SnippetsSettingsAspect::currentEditor() const

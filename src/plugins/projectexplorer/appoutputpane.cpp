@@ -24,7 +24,6 @@
 #include <coreplugin/session.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <extensionsystem/invoker.h>
 #include <extensionsystem/pluginmanager.h>
@@ -725,7 +724,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         for (const RunControlTab &tab : std::as_const(m_runControlTabs))
             tab.window->setFontZoom(fontZoom);
     });
-    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
+    connect(&TextEditor::globalFontSettings(), &TextEditor::FontSettings::changed,
             ow, updateFontSettings);
     connect(&TextEditor::globalBehaviorSettings(), &Utils::AspectContainer::changed,
             ow, updateBehaviorSettings);

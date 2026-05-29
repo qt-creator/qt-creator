@@ -1023,11 +1023,9 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
     m_previewTextEdit->setSizePolicy(sp);
     decorateEditor(globalFontSettings().data());
 
-    connect(
-        TextEditorSettings::instance(),
-        &TextEditorSettings::fontSettingsChanged,
-        this,
-        &QmlJSCodeStylePreferencesWidget::decorateEditor);
+    connect(&globalFontSettings(), &FontSettings::changed, this, [this] {
+        decorateEditor(globalFontSettings().data());
+    });
 
     connect(
         m_formatterSelectionWidget,

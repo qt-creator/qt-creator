@@ -415,8 +415,8 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     , d(new Internal::CppCodeStylePreferencesWidgetPrivate(this))
 {
     decorateEditors(globalFontSettings().data());
-    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, &CppCodeStylePreferencesWidget::decorateEditors);
+    connect(&globalFontSettings(), &FontSettings::changed,
+            this, [this] { decorateEditors(globalFontSettings().data()); });
 
     setVisualizeWhitespace(true);
 

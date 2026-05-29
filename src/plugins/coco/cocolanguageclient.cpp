@@ -16,7 +16,6 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
 
 #include <utils/utilsicons.h>
@@ -171,10 +170,8 @@ public:
     CocoDiagnosticManager(Client *client)
         : DiagnosticManager(client)
     {
-        connect(TextEditor::TextEditorSettings::instance(),
-                &TextEditor::TextEditorSettings::fontSettingsChanged,
-                this,
-                &CocoDiagnosticManager::fontSettingsChanged);
+        connect(&TextEditor::globalFontSettings(), &TextEditor::FontSettings::changed,
+                this, &CocoDiagnosticManager::fontSettingsChanged);
         setExtraSelectionsId("CocoExtraSelections");
     }
 

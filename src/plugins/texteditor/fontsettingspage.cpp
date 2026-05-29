@@ -5,7 +5,6 @@
 
 #include "colorschemeedit.h"
 #include "fontsettings.h"
-#include "texteditorsettings.h"
 #include "texteditortr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -209,8 +208,8 @@ public:
                 this, &FontSettingsAspect::importScheme);
         connect(exportButton, &QPushButton::clicked,
                 this, &FontSettingsAspect::exportScheme);
-        connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-                this, &FontSettingsAspect::updateFontZoom);
+        connect(&globalFontSettings(), &FontSettings::changed,
+                this, [this] { updateFontZoom(globalFontSettings().data()); });
 
         updatePointSizes();
         refreshColorSchemeList();

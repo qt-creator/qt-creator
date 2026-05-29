@@ -39,7 +39,6 @@
 #include <coreplugin/outputwindow.h>
 
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
@@ -159,8 +158,7 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
                                   kInvertActionId,
                                   Context(Constants::C_PROJECTEXPLORER));
 
-    connect(TextEditor::TextEditorSettings::instance(),
-            &TextEditor::TextEditorSettings::fontSettingsChanged,
+    connect(&TextEditor::globalFontSettings(), &TextEditor::FontSettings::changed,
             this,
             [this] { setBaseFont(TextEditor::globalFontSettings().data().font()); });
     setBaseFont(TextEditor::globalFontSettings().data().font());

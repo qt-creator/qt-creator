@@ -1657,10 +1657,11 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      q,
                                      &TextEditorWidget::openFinishedSuccessfully);
 
-    m_documentConnections << connect(TextEditorSettings::instance(),
-                                     &TextEditorSettings::fontSettingsChanged,
+    m_documentConnections << connect(&globalFontSettings(), &FontSettings::changed,
                                      m_document.data(),
-                                     &TextDocument::setFontSettings);
+                                     [this] {
+                                         m_document->setFontSettings(globalFontSettings().data());
+                                     });
 
     slotUpdateExtraAreaWidth();
 

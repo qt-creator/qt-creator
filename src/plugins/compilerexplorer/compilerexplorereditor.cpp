@@ -25,7 +25,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
@@ -690,10 +689,9 @@ SearchableTerminal *CompilerWidget::createTerminal()
 
     setFontSize(TextEditor::globalFontSettings().data());
 
-    connect(TextEditorSettings::instance(),
-            &TextEditorSettings::fontSettingsChanged,
+    connect(&TextEditor::globalFontSettings(), &TextEditor::FontSettings::changed,
             this,
-            setFontSize);
+            [setFontSize] { setFontSize(TextEditor::globalFontSettings().data()); });
 
     return m_resultTerminal;
 }

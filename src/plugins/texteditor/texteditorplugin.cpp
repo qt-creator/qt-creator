@@ -160,8 +160,8 @@ void TextEditorPlugin::initialize()
 
 void TextEditorPlugin::extensionsInitialized()
 {
-    connect(&textEditorSettings(), &TextEditorSettings::fontSettingsChanged,
-            this, &TextEditorPlugin::updateSearchResultsFont);
+    connect(&globalFontSettings(), &FontSettings::changed,
+            this, [this] { updateSearchResultsFont(globalFontSettings().data()); });
 
     updateSearchResultsFont(globalFontSettings().data());
 

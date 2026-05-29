@@ -17,7 +17,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/async.h>
 #include <utils/mathutils.h>
@@ -765,9 +764,8 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
         m_editor[RightSide]->verticalScrollBar()->setFocusPolicy(Qt::NoFocus);
     });
 
-    connect(TextEditorSettings::instance(),
-            &TextEditorSettings::fontSettingsChanged,
-            this, &SideBySideDiffEditorWidget::setFontSettings);
+    connect(&globalFontSettings(), &TextEditor::FontSettings::changed,
+            this, [this] { setFontSettings(globalFontSettings().data()); });
     setFontSettings(globalFontSettings().data());
 
     syncHorizontalScrollBarPolicy();

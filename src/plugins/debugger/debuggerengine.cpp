@@ -59,7 +59,6 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 
 #include <utils/algorithm.h>
@@ -669,7 +668,7 @@ public:
         perspective->destroy();
 
         // disconnect the follow font size connection
-        TextEditorSettings::instance()->disconnect(this);
+        globalFontSettings().disconnect(this);
 
         delete perspective;
     }
@@ -1124,10 +1123,11 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addToolBarWidget(m_threadLabel);
     m_perspective->addToolBarWidget(m_threadsHandler.threadSwitcher());
 
-    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, [this](const FontSettingsData &fs) {
+    connect(&globalFontSettings(), &FontSettings::changed,
+            this, [this] {
         if (!Internal::settings().fontSizeFollowsEditor())
             return;
+        const FontSettingsData fs = globalFontSettings().data();
         const qreal size = fs.fontZoom() * fs.fontSize() / 100.;
         QFont font = m_breakWindow->font();
         font.setPointSizeF(size);

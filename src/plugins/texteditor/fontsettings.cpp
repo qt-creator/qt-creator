@@ -5,7 +5,6 @@
 
 #include "fontsettingspage.h"
 #include "texteditorconstants.h"
-#include "texteditorsettings.h"
 #include "texteditortr.h"
 
 #include <coreplugin/icore.h>
@@ -568,7 +567,7 @@ void FontSettings::writeSettings() const
 void FontSettings::apply()
 {
     writeSettings();
-    emit TextEditorSettings::instance()->fontSettingsChanged(data());
+    emit changed();
 }
 
 void FontSettings::setData(const FontSettingsData &fs)
@@ -595,7 +594,7 @@ int FontSettings::setFontZoom(int zoom)
         return zoom;
     fontZoom.setValue(zoom);
     writeSettings();
-    emit TextEditorSettings::instance()->fontSettingsChanged(data());
+    emit changed();
     return zoom;
 }
 

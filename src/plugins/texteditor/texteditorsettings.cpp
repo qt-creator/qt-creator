@@ -59,7 +59,7 @@ TextEditorSettings::TextEditorSettings()
     auto updateGeneralMessagesFontSettings = []() {
         Core::MessageManager::setFont(globalFontSettings().data().font());
     };
-    connect(this, &TextEditorSettings::fontSettingsChanged,
+    connect(&globalFontSettings(), &FontSettings::changed,
             this, updateGeneralMessagesFontSettings);
     updateGeneralMessagesFontSettings();
     auto updateBehaviorSettings = [] {

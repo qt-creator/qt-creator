@@ -77,7 +77,6 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
@@ -737,10 +736,9 @@ void DebuggerPluginPrivate::addFontSizeAdaptation(QWidget *widget)
         widget->setFont(font);
     };
 
-    QObject::connect(TextEditorSettings::instance(),
-                     &TextEditorSettings::fontSettingsChanged,
+    QObject::connect(&globalFontSettings(), &FontSettings::changed,
                      this,
-                     [widget, adaptFont](const FontSettingsData &fs) { adaptFont(widget, fs); });
+                     [widget, adaptFont] { adaptFont(widget, globalFontSettings().data()); });
 
     adaptFont(widget, globalFontSettings().data());
 };

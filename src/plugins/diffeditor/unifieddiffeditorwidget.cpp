@@ -12,7 +12,6 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/async.h>
 #include <utils/icon.h>
@@ -36,8 +35,8 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
 {
     setVisualIndentOffset(1);
 
-    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, &UnifiedDiffEditorWidget::setFontSettings);
+    connect(&globalFontSettings(), &TextEditor::FontSettings::changed,
+            this, [this] { setFontSettings(globalFontSettings().data()); });
     setFontSettings(globalFontSettings().data());
 
     clear(Tr::tr("No document"));

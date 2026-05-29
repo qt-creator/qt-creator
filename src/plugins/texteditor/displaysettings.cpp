@@ -6,7 +6,6 @@
 #include "fontsettings.h"
 #include "marginsettings.h"
 #include "texteditorconstants.h"
-#include "texteditorsettings.h"
 #include "texteditortr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -163,7 +162,7 @@ public:
                 label->setVisible(!normalLineSpacing);
             };
             updateWrapping();
-            connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+            connect(&globalFontSettings(), &FontSettings::changed,
                     label, updateWrapping);
             connect(label, &QLabel::linkActivated, [] {
                 Core::ICore::showSettings(Constants::TEXT_EDITOR_FONT_SETTINGS); });

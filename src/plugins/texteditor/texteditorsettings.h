@@ -16,9 +16,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class FontSettingsData;
 class ICodeStylePreferences;
-class CommentsSettings;
 
 /**
  * This class provides a central place for basic text editor settings. These
@@ -45,7 +43,6 @@ public:
     static Utils::Id languageId(const QString &mimeType);
 
 signals:
-    void fontSettingsChanged(const TextEditor::FontSettingsData &);
     void commentsSettingsChanged();
 };
 

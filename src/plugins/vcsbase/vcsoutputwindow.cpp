@@ -11,7 +11,6 @@
 
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
@@ -261,8 +260,8 @@ VcsOutputWindow::VcsOutputWindow()
     connect(this, &IOutputPane::resetZoomRequested, &d->widget, &OutputWindow::resetZoom);
     connect(&TextEditor::globalBehaviorSettings(), &Utils::AspectContainer::changed,
             this, updateBehaviorSettings);
-    connect(TextEditor::TextEditorSettings::instance(),
-            &TextEditor::TextEditorSettings::fontSettingsChanged, this, updateFontSettings);
+    connect(&TextEditor::globalFontSettings(), &TextEditor::FontSettings::changed,
+            this, updateFontSettings);
 }
 
 static QString filterPasswordFromUrls(QString input)

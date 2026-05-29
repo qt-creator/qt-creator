@@ -21,7 +21,6 @@
 #include <texteditor/codecchooser.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
@@ -385,8 +384,8 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
 
     // Font settings
     setFontSettings(globalFontSettings().data());
-    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, &BinEditorWidget::setFontSettings);
+    connect(&globalFontSettings(), &FontSettings::changed,
+            this, [this] { setFontSettings(globalFontSettings().data()); });
 
     const QByteArray setting = ICore::settings()->value(C_ENCODING_SETTING).toByteArray();
     if (!setting.isEmpty())

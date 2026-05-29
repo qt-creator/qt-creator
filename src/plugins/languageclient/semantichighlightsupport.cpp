@@ -9,7 +9,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
@@ -28,8 +27,7 @@ constexpr int tokenTypeBitOffset = 16;
 SemanticTokenSupport::SemanticTokenSupport(Client *client)
     : m_client(client)
 {
-    QObject::connect(TextEditorSettings::instance(),
-                     &TextEditorSettings::fontSettingsChanged,
+    QObject::connect(&globalFontSettings(), &FontSettings::changed,
                      client,
                      [this] { updateFormatHash(); });
     QObject::connect(Core::EditorManager::instance(),
