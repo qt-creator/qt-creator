@@ -70,7 +70,6 @@ public:
     void resetModel();
     void notifySelectionChanges(const QList<ModelNode> &selectedNodes,
                                 const QList<ModelNode> &deselectedNodes);
-    void updateMaterialComponent(int idx);
 
     Q_INVOKABLE void selectMaterial(int idx, bool appendMat = false);
     Q_INVOKABLE void duplicateMaterial(int idx);

@@ -9,8 +9,6 @@
 
 namespace QmlDesigner {
 
-class NodeMetaInfo;
-
 namespace Utils3D {
 
 ModelNode active3DSceneNode(AbstractView *view);
@@ -45,8 +43,6 @@ void openNodeInPropertyEditor(const ModelNode &node);
 
 #ifdef QDS_USE_PROJECTSTORAGE
 ModelNode createMaterial(AbstractView *view, const TypeName &typeName);
-#else
-ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo);
 #endif
 
 ModelNode createMaterial(AbstractView *view);

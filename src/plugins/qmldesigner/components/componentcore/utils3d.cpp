@@ -482,32 +482,6 @@ ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
 
     return newMatNode;
 }
-#else
-ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo)
-{
-    ModelNode matLib = Utils3D::materialLibraryNode(view);
-    if (!matLib.isValid() || !metaInfo.isValid())
-        return {};
-
-    ModelNode newMatNode = view->createModelNode(metaInfo.typeName(),
-                                                 metaInfo.majorVersion(),
-                                                 metaInfo.minorVersion());
-    matLib.defaultNodeListProperty().reparentHere(newMatNode);
-
-    static QRegularExpression rgx("([A-Z])([a-z]*)");
-    QString newName = QString::fromLatin1(metaInfo.simplifiedTypeName()).replace(rgx, " \\1\\2").trimmed();
-    if (newName.endsWith(" Material"))
-        newName.chop(9); // remove trailing " Material"
-    QString newId = view->model()->generateNewId(newName, "material");
-    newMatNode.setIdWithRefactoring(newId);
-
-    VariantProperty objNameProp = newMatNode.variantProperty("objectName");
-    objNameProp.setValue(newName);
-
-    view->emitCustomNotification("focus_material_section", {});
-
-    return newMatNode;
-}
 #endif
 
 bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog)

@@ -355,15 +355,6 @@ void MaterialBrowserModel::notifySelectionChanges(const QList<ModelNode> &select
         emit dataChanged(index(bound.first), index(bound.second), {Roles::SelectedRole});
 }
 
-void MaterialBrowserModel::updateMaterialComponent(int idx)
-{
-    if (!isValidIndex(idx))
-        return;
-
-    const QModelIndex &mIdx = index(idx);
-    emit dataChanged(mIdx, mIdx, {Roles::IsComponentRole});
-}
-
 void MaterialBrowserModel::selectMaterial(int idx, bool appendMat)
 {
     if (!isValidIndex(idx))
