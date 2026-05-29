@@ -104,7 +104,7 @@ public:
                                const Context &actionContext = {});
     static void restartTrimmer();
 
-    enum OpenFilesFlags {
+    enum OpenFilesFlag {
         None = 0,
         SwitchMode = 1,
         CanContainLineAndColumnNumbers = 2,
@@ -112,6 +112,7 @@ public:
         StopOnLoadFail = 4,
         SwitchSplitIfAlreadyVisible = 8
     };
+    Q_DECLARE_FLAGS(OpenFilesFlags, OpenFilesFlag)
 
     static void addPreCloseListener(const std::function<bool()> &listener);
 
