@@ -231,10 +231,10 @@ ValgrindSettings::ValgrindSettings(bool global)
     selfModifyingCodeDetection.setSettingsKey(base + "SelfModifyingCodeDetection");
     selfModifyingCodeDetection.setDefaultValue(DetectSmcStackOnly);
     selfModifyingCodeDetection.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    selfModifyingCodeDetection.addOption("No");
-    selfModifyingCodeDetection.addOption("Only on Stack");
-    selfModifyingCodeDetection.addOption("Everywhere");
-    selfModifyingCodeDetection.addOption("Everywhere Except in File-backend Mappings");
+    selfModifyingCodeDetection.addOption(Tr::tr("No", "Detect self-modifying code?"));
+    selfModifyingCodeDetection.addOption(Tr::tr("Only on Stack"));
+    selfModifyingCodeDetection.addOption(Tr::tr("Everywhere"));
+    selfModifyingCodeDetection.addOption(Tr::tr("Everywhere Except in File-backend Mappings"));
     selfModifyingCodeDetection.setLabelText(Tr::tr("Detect self-modifying code:"));
 
     // Memcheck

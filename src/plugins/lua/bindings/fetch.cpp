@@ -82,17 +82,18 @@ void setupFetchModule()
             setAutoApply(false);
 
             pluginsAllowedToFetch.setSettingsKey("pluginsAllowedToFetch");
-            pluginsAllowedToFetch.setLabelText("Plugins allowed to fetch data from the internet");
+            pluginsAllowedToFetch.setLabelText(
+                Tr::tr("Plugins allowed to fetch data from the internet"));
             pluginsAllowedToFetch.setToolTip(
-                "List of plugins that are allowed to fetch data from the internet");
+                Tr::tr("List of plugins that are allowed to fetch data from the internet"));
             pluginsAllowedToFetch.setUiAllowAdding(false);
             pluginsAllowedToFetch.setUiAllowEditing(false);
 
             pluginsNotAllowedToFetch.setSettingsKey("pluginsNotAllowedToFetch");
             pluginsNotAllowedToFetch.setLabelText(
-                "Plugins not allowed to fetch data from the internet");
+                Tr::tr("Plugins not allowed to fetch data from the internet"));
             pluginsNotAllowedToFetch.setToolTip(
-                "List of plugins that are not allowed to fetch data from the internet");
+                Tr::tr("List of plugins that are not allowed to fetch data from the internet"));
             pluginsNotAllowedToFetch.setUiAllowAdding(false);
             pluginsNotAllowedToFetch.setUiAllowEditing(false);
 
