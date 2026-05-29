@@ -32,8 +32,6 @@ public:
     Data data() const;
     void setData(const Data &data);
 
-    static CommentsSettings &instance();
-
     static Utils::Key mainSettingsKey();
 
     CommentsSettings();
@@ -43,6 +41,8 @@ public:
     Utils::BoolAspect generateBrief{this};
     Utils::BoolAspect leadingAsterisks{this};
 };
+
+TEXTEDITOR_EXPORT CommentsSettings &globalCommentsSettings();
 
 namespace Internal { void setupCommentsSettings(); }
 

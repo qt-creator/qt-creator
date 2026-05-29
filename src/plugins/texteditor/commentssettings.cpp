@@ -15,7 +15,7 @@ using namespace Utils;
 
 namespace TextEditor {
 
-CommentsSettings &CommentsSettings::instance()
+CommentsSettings &globalCommentsSettings()
 {
     static CommentsSettings settings;
     return settings;
@@ -138,7 +138,7 @@ public:
         setId(Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
         setDisplayName(Tr::tr("Documentation Comments"));
         setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-        setSettingsProvider([] { return &CommentsSettings::instance(); });
+        setSettingsProvider([] { return &globalCommentsSettings(); });
     }
 };
 

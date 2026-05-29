@@ -103,10 +103,10 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant, TextEditorW
             this, &CodeAssistantPrivate::automaticProposalTimeout);
 
     auto updateTimeout = [this] {
-        m_automaticProposalTimer.setInterval(completionSettings().automaticProposalTimeoutInMs());
+        m_automaticProposalTimer.setInterval(globalCompletionSettings().automaticProposalTimeoutInMs());
     };
     updateTimeout();
-    completionSettings().automaticProposalTimeoutInMs.addOnChanged(this, updateTimeout);
+    globalCompletionSettings().automaticProposalTimeoutInMs.addOnChanged(this, updateTimeout);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &CodeAssistantPrivate::clearAbortedPosition);
@@ -518,7 +518,7 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
 
 CompletionTrigger CodeAssistantPrivate::completionTrigger() const
 {
-    return m_completionTriggerOverride.value_or(completionSettings().completionTrigger());
+    return m_completionTriggerOverride.value_or(globalCompletionSettings().completionTrigger());
 }
 
 // -------------

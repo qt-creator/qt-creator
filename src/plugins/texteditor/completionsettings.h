@@ -47,7 +47,7 @@ public:
     Utils::BoolAspect overwriteClosingChars{this};
 };
 
-TEXTEDITOR_EXPORT CompletionSettings &completionSettings();
+TEXTEDITOR_EXPORT CompletionSettings &globalCompletionSettings();
 
 namespace Internal { void setupCompletionSettings(); }
 

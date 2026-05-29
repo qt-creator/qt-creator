@@ -18,7 +18,7 @@ using namespace Utils;
 
 namespace TextEditor {
 
-CompletionSettings &completionSettings()
+CompletionSettings &globalCompletionSettings()
 {
     static CompletionSettings theCompletionSettings;
     return theCompletionSettings;
@@ -187,7 +187,7 @@ public:
         setId("P.Completion");
         setDisplayName(Tr::tr("Completion"));
         setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-        setSettingsProvider([] { return &completionSettings(); });
+        setSettingsProvider([] { return &globalCompletionSettings(); });
     }
 };
 

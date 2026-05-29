@@ -29,11 +29,11 @@ class SettingsInjector
 {
 public:
     explicit SettingsInjector(const CommentsSettings::Data &tempSettings)
-        : m_oldSettings(CommentsSettings::instance().data())
+        : m_oldSettings(globalCommentsSettings().data())
     {
-        CommentsSettings::instance().setData(tempSettings);
+        globalCommentsSettings().setData(tempSettings);
     }
-    ~SettingsInjector() { CommentsSettings::instance().setData(m_oldSettings); }
+    ~SettingsInjector() { globalCommentsSettings().setData(m_oldSettings); }
 
 private:
     const CommentsSettings::Data m_oldSettings;
@@ -404,7 +404,7 @@ void DoxygenTest::testBasic()
     QFETCH(QByteArray, expected);
     QFETCH(int, commandPrefix);
 
-    CommentsSettings::Data settings = CommentsSettings::instance().data();
+    CommentsSettings::Data settings = globalCommentsSettings().data();
     settings.commandPrefix = static_cast<CommentsSettings::CommandPrefix>(commandPrefix);
     const SettingsInjector injector(settings);
 

@@ -421,7 +421,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform()
         --m_basePos;
     if (interface()->reason() == IdleEditor) {
         // Trigger an automatic completion request only when we are on a word with at least n "identifier" characters
-        if (m_pos - m_basePos < completionSettings().characterThreshold())
+        if (m_pos - m_basePos < globalCompletionSettings().characterThreshold())
             return nullptr;
         if (m_client->documentUpdatePostponed(interface()->filePath())) {
             m_postponedUpdateConnection

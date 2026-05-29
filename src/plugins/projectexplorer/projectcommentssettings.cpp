@@ -47,7 +47,7 @@ public:
             }
         }
         if (useGlobal)
-            m_displayedSettings.copyFrom(CommentsSettings::instance());
+            m_displayedSettings.copyFrom(globalCommentsSettings());
         m_displayedSettings.setAutoApply(true);
         m_displayedSettings.layouter()().attachTo(inner);
 
@@ -58,14 +58,14 @@ public:
                 [this, inner](bool useGlobal) {
                     inner->setEnabled(!useGlobal);
                     if (useGlobal)
-                        m_displayedSettings.copyFrom(CommentsSettings::instance());
+                        m_displayedSettings.copyFrom(globalCommentsSettings());
                     saveSettings(useGlobal);
                 });
 
-        connect(&CommentsSettings::instance(), &CommentsSettings::changed,
+        connect(&globalCommentsSettings(), &CommentsSettings::changed,
                 this, [this] {
                     if (useGlobalSettings())
-                        m_displayedSettings.copyFrom(CommentsSettings::instance());
+                        m_displayedSettings.copyFrom(globalCommentsSettings());
                 });
 
         connect(&m_displayedSettings, &AspectContainer::changed, this, [this] {
@@ -117,15 +117,15 @@ TextEditor::CommentsSettings::Data ProjectExplorer::commentsSettings(const FileP
     using namespace Internal;
     Project * const project = ProjectManager::projectForFile(filePath);
     if (!project)
-        return CommentsSettings::instance().data();
+        return globalCommentsSettings().data();
 
     const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
     if (!entry.isValid())
-        return CommentsSettings::instance().data();
+        return globalCommentsSettings().data();
 
     const Store data = storeFromVariant(entry);
     if (data.value(kUseGlobalKey, true).toBool())
-        return CommentsSettings::instance().data();
+        return globalCommentsSettings().data();
 
     TextEditor::CommentsSettings::Data customSettings;
     customSettings.fromMap(data);

@@ -1352,7 +1352,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     connect(&TextEditor::displaySettings(), &DisplaySettings::changed, this, [this](){
         q->setDisplaySettings(TextEditor::displaySettings().data());
     });
-    connect(&completionSettings(), &AspectContainer::changed,
+    connect(&globalCompletionSettings(), &AspectContainer::changed,
             q, &TextEditorWidget::updateCompletionSettings);
     connect(&globalExtraEncodingSettings(), &AspectContainer::changed, this, [this] {
         q->setExtraEncodingSettings(globalExtraEncodingSettings().data());
@@ -3108,8 +3108,8 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
 
         e->accept();
-        const bool animateOrHighlight = completionSettings().animateAutoComplete()
-                                     || completionSettings().highlightAutoComplete();
+        const bool animateOrHighlight = globalCompletionSettings().animateAutoComplete()
+                                     || globalCompletionSettings().highlightAutoComplete();
         cursor.beginEditBlock();
         for (QTextCursor &cursor : cursor) {
             const TabSettingsData ts = d->m_document->tabSettings();
@@ -3215,7 +3215,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             return;
         }
         QTextCursor cursor = textCursor();
-        if (e->key() == Qt::Key_Tab && completionSettings().skipAutoCompletedText()) {
+        if (e->key() == Qt::Key_Tab && globalCompletionSettings().skipAutoCompletedText()) {
             bool skippedAutoCompletedText = false;
             while (!d->m_autoCompleteHighlightPos.isNull()
                    && d->m_autoCompleteHighlightPos.selectionStart() == cursor.position()) {
@@ -3370,7 +3370,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         QString autoText;
         if (!inOverwriteMode) {
             int skippedChars = 0;
-            if (completionSettings().skipAutoCompletedText() && !d->m_autoCompleteHighlightPos.isNull()) {
+            if (globalCompletionSettings().skipAutoCompletedText() && !d->m_autoCompleteHighlightPos.isNull()) {
                 const QString autoCompletedText = d->m_autoCompleteHighlightPos.selectedText();
                 while (skippedChars < autoCompletedText.size() && skippedChars < eventText.size()) {
                     if (autoCompletedText.at(skippedChars) != eventText.at(skippedChars))
@@ -4019,7 +4019,7 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const HighlighterHelper::Defin
     InfoBar *infoBar = m_document->infoBar();
 
     if (definitions.isEmpty() && infoBar->canInfoBeAdded(missing)
-        && !highlighterSettings().skipUpdateCheck(fileName)) {
+        && !globalHighlighterSettings().skipUpdateCheck(fileName)) {
         InfoBarEntry info(missing,
                           Tr::tr("A highlight definition was not found for this file. "
                                  "Would you like to download additional highlight definition files?"),
@@ -7165,7 +7165,7 @@ void TextEditorWidgetPrivate::updateHighlights()
         }
     }
 
-    if (completionSettings().highlightAutoComplete() && !m_autoCompleteHighlightPos.isNull()) {
+    if (globalCompletionSettings().highlightAutoComplete() && !m_autoCompleteHighlightPos.isNull()) {
         QMetaObject::invokeMethod(this, [this] {
             const QTextCursor &cursor = q->textCursor();
             auto popAutoCompletion = [&]() {
@@ -8056,7 +8056,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
         }
     }
 
-    const bool removeAutoCompletedText = completionSettings().autoRemove();
+    const bool removeAutoCompletedText = globalCompletionSettings().autoRemove();
     for (QTextCursor &c : cursor) {
         const int pos = c.position();
         if (!pos)
@@ -8810,8 +8810,8 @@ void TextEditorWidgetPrivate::_q_highlightBlocks()
 
 void TextEditorWidgetPrivate::autocompleterHighlight(const QTextCursor &cursor)
 {
-    const bool animateAutoComplete = completionSettings().animateAutoComplete();
-    const bool highlightAutoComplete = completionSettings().highlightAutoComplete();
+    const bool animateAutoComplete = globalCompletionSettings().animateAutoComplete();
+    const bool highlightAutoComplete = globalCompletionSettings().highlightAutoComplete();
 
     if ((!animateAutoComplete && !highlightAutoComplete)
             || q->isReadOnly() || !cursor.hasSelection()) {
@@ -9501,7 +9501,7 @@ void TextEditorWidget::setStorageSettings(const StorageSettingsData &storageSett
 
 void TextEditorWidget::updateCompletionSettings()
 {
-    const CompletionSettings &s = completionSettings();
+    const CompletionSettings &s = globalCompletionSettings();
     d->m_autoCompleter->setAutoInsertBracketsEnabled(s.autoInsertBrackets());
     d->m_autoCompleter->setSurroundWithBracketsEnabled(s.surroundingAutoBrackets());
     d->m_autoCompleter->setAutoInsertQuotesEnabled(s.autoInsertQuotes());

@@ -146,7 +146,7 @@ public:
         QString content = text();
         int cursorOffset = 0;
 
-        const bool autoInsertBrackets = TextEditor::completionSettings().autoInsertBrackets();
+        const bool autoInsertBrackets = TextEditor::globalCompletionSettings().autoInsertBrackets();
 
         if (autoInsertBrackets && data().canConvert<CompleteFunctionCall>()) {
             CompleteFunctionCall function = data().value<CompleteFunctionCall>();

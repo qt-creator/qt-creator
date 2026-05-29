@@ -43,7 +43,7 @@ static KSyntaxHighlighting::Repository *highlightRepository()
     if (!repository) {
         repository = new KSyntaxHighlighting::Repository();
         repository->addCustomSearchPath(
-            highlighterSettings().definitionFilesPath().toFSPathString());
+            globalHighlighterSettings().definitionFilesPath().toFSPathString());
         const FilePath dir = Core::ICore::resourcePath("generic-highlighter/syntax");
         if (dir.exists())
             repository->addCustomSearchPath(dir.parentDir().path());
@@ -67,7 +67,7 @@ Definitions definitionsForDocument(const TextEditor::TextDocument *document)
     // never considered.
     // The KSyntaxHighlighting CLI also completely ignores MIME types.
     const FilePath &filePath = document->filePath();
-    if (highlighterSettings().skipHighlighting(filePath.fileName()))
+    if (globalHighlighterSettings().skipHighlighting(filePath.fileName()))
         return {};
     Definitions definitions = definitionsForFileName(filePath);
     if (definitions.isEmpty()) {
@@ -137,7 +137,7 @@ Definitions definitionsForMimeType(const QString &mimeType)
 
 Definitions definitionsForFileName(const FilePath &filePath)
 {
-    if (highlighterSettings().skipHighlighting(filePath.fileName()))
+    if (globalHighlighterSettings().skipHighlighting(filePath.fileName()))
         return {};
 
     Definitions definitions = highlightRepository()->definitionsForFileName(filePath.fileName());

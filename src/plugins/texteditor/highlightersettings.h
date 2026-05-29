@@ -20,6 +20,6 @@ public:
     Utils::StringListAspect skipFilesPattern{this};
 };
 
-HighlighterSettings &highlighterSettings();
+HighlighterSettings &globalHighlighterSettings();
 
 } // namespace TextEditor

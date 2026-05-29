@@ -489,7 +489,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
             d->m_explicitlySelected = false;
     }
 
-    if (completionSettings().partiallyComplete()
+    if (globalCompletionSettings().partiallyComplete()
             && d->m_kind == Completion
             && d->m_justInvoked
             && d->m_isSynchronized) {

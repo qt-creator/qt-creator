@@ -17,7 +17,7 @@ using namespace Utils;
 
 namespace TextEditor {
 
-HighlighterSettings &highlighterSettings()
+HighlighterSettings &globalHighlighterSettings()
 {
     static HighlighterSettings theHighlighterSettings;
     return theHighlighterSettings;
@@ -149,7 +149,7 @@ public:
         setId(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
         setDisplayName(Tr::tr("Generic Highlighter"));
         setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-        setSettingsProvider([] { return &highlighterSettings(); });
+        setSettingsProvider([] { return &globalHighlighterSettings(); });
     }
 };
 

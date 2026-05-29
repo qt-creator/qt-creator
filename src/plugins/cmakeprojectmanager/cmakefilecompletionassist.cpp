@@ -247,7 +247,7 @@ static int addFilePathItems(const AssistInterface *interface,
     const int startPos = findPathStart(interface);
 
     if (interface->reason() == IdleEditor
-            && interface->position() - startPos < completionSettings().characterThreshold())
+            && interface->position() - startPos < globalCompletionSettings().characterThreshold())
         return symbolStartPos;
 
     const QString word = interface->textAt(startPos, interface->position() - startPos);
@@ -495,7 +495,7 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
     if (interface()->reason() == IdleEditor) {
         const QChar chr = interface()->characterAt(interface()->position());
         const int wordSize = interface()->position() - startPos;
-        if (isValidIdentifierChar(chr) || wordSize < completionSettings().characterThreshold())
+        if (isValidIdentifierChar(chr) || wordSize < globalCompletionSettings().characterThreshold())
             return nullptr;
     }
 
