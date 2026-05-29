@@ -3,29 +3,13 @@
 
 #include "texteditorsettings.h"
 
-#include "behaviorsettings.h"
 #include "codestylepool.h"
 #include "commentssettings.h"
 #include "completionsettings.h"
 #include "displaysettings.h"
-#include "fontsettings.h"
 #include "fontsettingspage.h"
-#include "highlightersettings.h"
 #include "icodestylepreferences.h"
-#include "marginsettings.h"
-#include "texteditorconstants.h"
-#include "texteditortr.h"
 
-#include <coreplugin/find/searchresultwindow.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/fancylineedit.h>
-#include <utils/qtcassert.h>
-
-using namespace TextEditor::Constants;
 using namespace TextEditor::Internal;
 using namespace Utils;
 
@@ -53,23 +37,6 @@ TextEditorSettings::TextEditorSettings()
     setupDisplaySettings();
     setupCommentsSettings();
     Internal::setupGlobalCodeStyle();
-
-    // Note: default background colors are coming from FormatDescription::background()
-
-    auto updateGeneralMessagesFontSettings = []() {
-        Core::MessageManager::setFont(globalFontSettings().data().font());
-    };
-    connect(&globalFontSettings(), &FontSettings::changed,
-            this, updateGeneralMessagesFontSettings);
-    updateGeneralMessagesFontSettings();
-    auto updateBehaviorSettings = [] {
-        const BehaviorSettingsData bs = globalBehaviorSettings().data();
-        Core::MessageManager::setWheelZoomEnabled(bs.m_scrollWheelZooming);
-        FancyLineEdit::setCamelCaseNavigationEnabled(bs.m_camelCaseNavigation);
-    };
-    connect(&globalBehaviorSettings(), &AspectContainer::changed,
-            this, updateBehaviorSettings);
-    updateBehaviorSettings();
 }
 
 TextEditorSettings::~TextEditorSettings()

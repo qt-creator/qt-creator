@@ -8,12 +8,13 @@
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "texteditorconstants.h"
-#include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "typingsettings.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/messagemanager.h>
 
+#include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
@@ -176,6 +177,14 @@ public:
 void Internal::setupBehaviorSettings()
 {
     globalBehaviorSettings().readSettings();
+    auto update = [] {
+        const BehaviorSettingsData bs = globalBehaviorSettings().data();
+        Core::MessageManager::setWheelZoomEnabled(bs.m_scrollWheelZooming);
+        FancyLineEdit::setCamelCaseNavigationEnabled(bs.m_camelCaseNavigation);
+    };
+    QObject::connect(&globalBehaviorSettings(), &AspectContainer::changed,
+                     &globalBehaviorSettings(), update);
+    update();
     static BehaviorSettingsPage theBehaviorSettingsPage;
 }
 

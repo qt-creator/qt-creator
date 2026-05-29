@@ -8,6 +8,7 @@
 #include "texteditortr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/plaintextedit/plaintextedit.h>
@@ -629,6 +630,12 @@ void setupFontSettings(const FontSettingsData::FormatDescriptions &fd)
     if (fs.colorSchemeFileName().isEmpty())
         fs.loadColorScheme(FontSettingsData::defaultSchemeFileName(), fd);
     globalFontSettings().setData(fs);
+    auto updateFont = [] {
+        Core::MessageManager::setFont(globalFontSettings().data().font());
+    };
+    QObject::connect(&globalFontSettings(), &FontSettings::changed,
+                     &globalFontSettings(), updateFont);
+    updateFont();
 }
 
 namespace Internal {
