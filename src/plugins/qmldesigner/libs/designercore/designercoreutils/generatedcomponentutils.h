@@ -37,20 +37,10 @@ public:
     QString componentBundlesTypePrefix() const;
     QString composedEffectsTypePrefix() const;
 
-    QString materialsBundleId() const;
-    QString effectsBundleId() const;
     QString userMaterialsBundleId() const;
     QString userEffectsBundleId() const;
     QString user2DBundleId() const;
     QString user3DBundleId() const;
-
-    QString materialsBundleType() const;
-    QString effectsBundleType() const;
-    QString userBundleType(const QString &bundleId) const;
-    QString userMaterialsBundleType() const;
-    QString userEffectsBundleType() const;
-    QString user2DBundleType() const;
-    QString user3DBundleType() const;
 
     Utils::FilePaths imported3dComponents() const;
     QString getImported3dImportName(const Utils::FilePath &qmlFile) const;
