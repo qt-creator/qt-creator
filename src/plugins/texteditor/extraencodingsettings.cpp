@@ -4,7 +4,6 @@
 #include "extraencodingsettings.h"
 
 #include "texteditortr.h"
-#include "texteditorsettings.h"
 #include "codecchooser.h"
 
 #include <coreplugin/coreconstants.h>

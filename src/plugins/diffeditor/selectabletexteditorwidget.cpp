@@ -7,7 +7,7 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 
 #include <QPainter>
 #include <QTextBlock>
@@ -37,7 +37,7 @@ SelectableTextEditorWidget::SelectableTextEditorWidget(Utils::Id id, QWidget *pa
     });
     SelectableTextEditorWidget::setDisplaySettings(displaySettings());
 
-    textDocument()->setCodeStyle(TextEditorSettings::codeStyle());
+    textDocument()->setCodeStyle(&globalCodeStyle());
     setCodeFoldingSupported(true);
 }
 

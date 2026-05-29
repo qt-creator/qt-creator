@@ -25,7 +25,6 @@
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>

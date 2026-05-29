@@ -20,7 +20,7 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 #include <texteditor/typingsettings.h>
 
 #include <utils/algorithm.h>
@@ -60,7 +60,7 @@ EditorConfiguration::EditorConfiguration()
     storageSettings.setAutoApply(true);
     extraEncodingSettings.setAutoApply(true);
 
-    const QMap<Utils::Id, ICodeStylePreferences *> languageCodeStylePreferences = TextEditorSettings::codeStyles();
+    const QMap<Utils::Id, ICodeStylePreferences *> languageCodeStylePreferences = codeStyles();
     for (auto itCodeStyle = languageCodeStylePreferences.cbegin(), end = languageCodeStylePreferences.cend();
             itCodeStyle != end; ++itCodeStyle) {
         Utils::Id languageId = itCodeStyle.key();
@@ -84,7 +84,7 @@ EditorConfiguration::EditorConfiguration()
     d->m_defaultCodeStyle->setDisplayName(Tr::tr("Project", "Settings"));
     d->m_defaultCodeStyle->setId("Project");
     // if setCurrentDelegate is 0 values are read from *this prefs
-    d->m_defaultCodeStyle->setCurrentDelegate(TextEditorSettings::codeStyle());
+    d->m_defaultCodeStyle->setCurrentDelegate(&globalCodeStyle());
 
     connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveProject,
             this, &EditorConfiguration::slotAboutToRemoveProject);
@@ -102,7 +102,7 @@ bool EditorConfiguration::useGlobalSettings() const
 
 void EditorConfiguration::cloneGlobalSettings()
 {
-    d->m_defaultCodeStyle->setTabSettings(TextEditorSettings::codeStyle()->tabSettings());
+    d->m_defaultCodeStyle->setTabSettings(globalCodeStyle().tabSettings());
     typingSettings.setData(globalTypingSettings().data());
     storageSettings.setData(globalStorageSettings().data());
     behaviorSettings.setData(globalBehaviorSettings().data());
@@ -232,7 +232,7 @@ void EditorConfiguration::deconfigureEditor(Core::IEditor *editor) const
 {
     TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
     if (widget)
-        widget->textDocument()->setCodeStyle(TextEditorSettings::codeStyle(widget->languageSettingsId()));
+        widget->textDocument()->setCodeStyle(codeStyleForLanguage(widget->languageSettingsId()));
 
     d->m_editors.removeOne(editor);
 
@@ -242,7 +242,7 @@ void EditorConfiguration::deconfigureEditor(Core::IEditor *editor) const
 void EditorConfiguration::setUseGlobalSettings(bool use)
 {
     d->m_useGlobal = use;
-    d->m_defaultCodeStyle->setCurrentDelegate(use ? TextEditorSettings::codeStyle() : nullptr);
+    d->m_defaultCodeStyle->setCurrentDelegate(use ? &globalCodeStyle() : nullptr);
     const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForOpenedDocuments();
     for (Core::IEditor *editor : editors) {
         if (auto widget = TextEditorWidget::fromEditor(editor)) {
@@ -319,7 +319,7 @@ TabSettingsData actualTabSettings(const Utils::FilePath &file,
         return baseTextdocument->tabSettings();
     if (Project *project = ProjectManager::projectForFile(file))
         return project->editorConfiguration()->codeStyle()->tabSettings();
-    return TextEditorSettings::codeStyle()->tabSettings();
+    return globalCodeStyle().tabSettings();
 }
 
 } // ProjectExplorer

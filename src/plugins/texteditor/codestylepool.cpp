@@ -65,6 +65,8 @@ QByteArray CodeStylePoolPrivate::generateUniqueId(const QByteArray &id) const
 } // Internal
 
 static QMap<Id, CodeStylePool *> g_languageToCodeStylePool;
+static QMap<Id, ICodeStylePreferences *> g_languageToCodeStyle;
+static QMap<QString, Id> g_mimeTypeToLanguage;
 
 static FilePath customCodeStylesPath()
 {
@@ -302,6 +304,36 @@ CodeStylePool &globalCodeStylePool()
 CodeStylePool *codeStylePool(Id languageId)
 {
     return g_languageToCodeStylePool.value(languageId);
+}
+
+ICodeStylePreferences *codeStyleForLanguage(Id languageId)
+{
+    return g_languageToCodeStyle.value(languageId, &globalCodeStyle());
+}
+
+QMap<Id, ICodeStylePreferences *> codeStyles()
+{
+    return g_languageToCodeStyle;
+}
+
+void registerCodeStyle(Id languageId, ICodeStylePreferences *prefs)
+{
+    g_languageToCodeStyle.insert(languageId, prefs);
+}
+
+void unregisterCodeStyle(Id languageId)
+{
+    g_languageToCodeStyle.remove(languageId);
+}
+
+void registerMimeTypeForLanguageId(const char *mimeType, Id languageId)
+{
+    g_mimeTypeToLanguage.insert(QString::fromLatin1(mimeType), languageId);
+}
+
+Id languageId(const QString &mimeType)
+{
+    return g_mimeTypeToLanguage.value(mimeType);
 }
 
 namespace Internal {

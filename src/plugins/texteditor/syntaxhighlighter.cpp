@@ -3,7 +3,6 @@
 
 #include "syntaxhighlighter.h"
 #include "textdocumentlayout.h"
-#include "texteditorsettings.h"
 #include "fontsettings.h"
 
 #include <utils/algorithm.h>

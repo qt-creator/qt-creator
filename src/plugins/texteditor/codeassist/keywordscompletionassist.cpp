@@ -9,7 +9,6 @@
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/completionsettings.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
 

@@ -23,7 +23,6 @@
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/async.h>
 #include <utils/fsengine/fileiconprovider.h>

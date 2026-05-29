@@ -13,7 +13,7 @@
 
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -921,7 +921,7 @@ clang::format::FormatStyle ClangFormatBaseIndenterPrivate::customSettingsStyle(
     const ICodeStylePreferences *preferences
         =  !getProjectUseGlobalSettings(projectForFile) && projectForFile
               ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
-              : TextEditorSettings::codeStyle("Cpp")->currentPreferences();
+              : codeStyleForLanguage("Cpp")->currentPreferences();
 
     if (m_overriddenPreferences)
         preferences = m_overriddenPreferences->currentPreferences();

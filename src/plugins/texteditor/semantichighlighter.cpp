@@ -5,7 +5,6 @@
 
 #include "fontsettings.h"
 #include "syntaxhighlighter.h"
-#include "texteditorsettings.h"
 
 #include <utils/qtcassert.h>
 

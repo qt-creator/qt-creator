@@ -13,16 +13,16 @@
 
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/codestylepool.h>
+#include <texteditor/codestylepool.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/indenter.h>
 #include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
@@ -91,7 +91,7 @@ void NimCodeStylePreferencesWidget::updatePreview()
 
     const TabSettingsData &ts = m_preferences
             ? m_preferences->currentTabSettings()
-            : TextEditorSettings::codeStyle()->tabSettings();
+            : globalCodeStyle().tabSettings();
     m_previewTextEdit.textDocument()->setTabSettings(ts);
 
     QTextBlock block = doc->firstBlock();
@@ -221,7 +221,7 @@ public:
         m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
         m_globalCodeStyle.setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
         m_pool.addCodeStyle(&m_globalCodeStyle);
-        TextEditorSettings::registerCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID, &m_globalCodeStyle);
+        registerCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID, &m_globalCodeStyle);
 
         m_nimCodeStyle.setId("nim");
         m_nimCodeStyle.setDisplayName(Tr::tr("Nim"));
@@ -241,15 +241,15 @@ public:
         // load global settings (after built-in settings are added to the pool)
         m_globalCodeStyle.fromSettings(Nim::Constants::C_NIMLANGUAGE_ID);
 
-        TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE,
-                                                          Nim::Constants::C_NIMLANGUAGE_ID);
-        TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
-                                                          Nim::Constants::C_NIMLANGUAGE_ID);
+        registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE,
+                                      Nim::Constants::C_NIMLANGUAGE_ID);
+        registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
+                                      Nim::Constants::C_NIMLANGUAGE_ID);
     }
 
     ~NimCodeStyleSettingsPage()
     {
-        TextEditorSettings::unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
+        unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
     }
 
 private:

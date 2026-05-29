@@ -15,7 +15,6 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/SimpleLexer.h>

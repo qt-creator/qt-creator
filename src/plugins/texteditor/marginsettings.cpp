@@ -3,7 +3,6 @@
 
 #include "marginsettings.h"
 
-#include "texteditorsettings.h"
 #include "texteditortr.h"
 
 using namespace Utils;

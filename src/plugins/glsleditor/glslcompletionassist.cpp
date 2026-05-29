@@ -18,7 +18,6 @@
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Icons.h>

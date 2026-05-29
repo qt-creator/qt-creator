@@ -29,7 +29,6 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/utilsicons.h>

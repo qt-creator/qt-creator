@@ -34,7 +34,7 @@
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 
 #include <utils/aspects.h>
 #include <utils/commandline.h>
@@ -1154,7 +1154,7 @@ void QmlJSCodeStylePreferencesWidget::builtInFormatterPreview()
 
     const TabSettingsData &ts = m_preferences
             ? m_preferences->currentTabSettings()
-            : TextEditorSettings::codeStyle()->tabSettings();
+            : globalCodeStyle().tabSettings();
     m_previewTextEdit->textDocument()->setTabSettings(ts);
     CreatorCodeFormatter formatter(ts);
     formatter.invalidateCache(doc);
@@ -1366,7 +1366,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
     m_globalCodeStyle.setId(idKey);
     m_pool.addCodeStyle(&m_globalCodeStyle);
-    TextEditorSettings::registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, &m_globalCodeStyle);
+    registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, &m_globalCodeStyle);
 
     auto qtCodeStyle = new QmlJSCodeStylePreferences(this);
     qtCodeStyle->setId("qt");
@@ -1401,18 +1401,18 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     m_globalCodeStyle.fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 
     using namespace Utils::Constants;
-    TextEditorSettings::registerMimeTypeForLanguageId(QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(QMLUI_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(QBS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(QMLPROJECT_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(QMLTYPES_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(JS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(JSON_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    registerMimeTypeForLanguageId(QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    registerMimeTypeForLanguageId(QMLUI_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    registerMimeTypeForLanguageId(QBS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    registerMimeTypeForLanguageId(QMLPROJECT_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    registerMimeTypeForLanguageId(QMLTYPES_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    registerMimeTypeForLanguageId(JS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    registerMimeTypeForLanguageId(JSON_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
 }
 
 QmlJSToolsSettings::~QmlJSToolsSettings()
 {
-    TextEditorSettings::unregisterCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+    unregisterCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 }
 
 static QmlJSToolsSettings &toolsSettings()

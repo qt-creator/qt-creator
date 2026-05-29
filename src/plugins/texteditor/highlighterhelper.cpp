@@ -8,7 +8,6 @@
 #include "highlightersettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
-#include "texteditorsettings.h"
 #include "texteditortr.h"
 
 #include <coreplugin/editormanager/documentmodel.h>

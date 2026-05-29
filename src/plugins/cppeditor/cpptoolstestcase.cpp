@@ -30,7 +30,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -233,7 +233,7 @@ bool TestCase::openCppEditor(const FilePath &filePath, TextEditor::BaseTextEdito
             TextEditor::StorageSettingsData s = e->textDocument()->storageSettings();
             s.m_addFinalNewLine = false;
             e->textDocument()->setStorageSettings(s);
-            TextEditor::TabSettingsData ts = TextEditor::TextEditorSettings::codeStyle()->tabSettings();
+            TextEditor::TabSettingsData ts = TextEditor::globalCodeStyle().tabSettings();
             ts.m_autoDetect = false;
             e->textDocument()->setTabSettings(ts);
         }

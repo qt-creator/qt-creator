@@ -24,7 +24,11 @@
 #include "texteditor.h"
 #include "texteditor_test.h"
 #include "texteditorconstants.h"
-#include "texteditorsettings.h"
+#include "codestylepool.h"
+#include "commentssettings.h"
+#include "completionsettings.h"
+#include "displaysettings.h"
+#include "fontsettingspage.h"
 #include "texteditortr.h"
 #include "textmark.h"
 #include "typehierarchy.h"
@@ -112,10 +116,14 @@ void TextEditorPlugin::initialize()
     setupTypingSettings();
     // Currently needed after the previous four lines.
     // FIXME: This kind of dependency should not exist.
-    setupTextEditorSettings();
+    setupFontSettingsPage();
+    setupCompletionSettings();
+    setupDisplaySettings();
+    setupCommentsSettings();
+    setupGlobalCodeStyle();
 
     TabSettingsData::setRetriever(
-        [](const FilePath &) { return TextEditorSettings::codeStyle()->tabSettings(); });
+        [](const FilePath &) { return globalCodeStyle().tabSettings(); });
 
     setupTextMarkRegistry(this);
     setupOutlineFactory();
@@ -165,10 +173,10 @@ void TextEditorPlugin::extensionsInitialized()
 
     updateSearchResultsFont(globalFontSettings().data());
 
-    connect(TextEditorSettings::codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
+    connect(&globalCodeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
             this, &TextEditorPlugin::updateSearchResultsTabWidth);
 
-    updateSearchResultsTabWidth(TextEditorSettings::codeStyle()->currentTabSettings());
+    updateSearchResultsTabWidth(globalCodeStyle().currentTabSettings());
 
     connect(ExternalToolManager::instance(), &ExternalToolManager::replaceSelectionRequested,
             this, &TextEditorPlugin::updateCurrentSelection);

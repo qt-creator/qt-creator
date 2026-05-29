@@ -30,7 +30,6 @@
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/guard.h>
 #include <utils/infolabel.h>

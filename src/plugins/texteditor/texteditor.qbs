@@ -130,8 +130,6 @@ Project {
             "texteditoroverlay.cpp",
             "texteditoroverlay.h",
             "texteditorplugin.cpp",
-            "texteditorsettings.cpp",
-            "texteditorsettings.h",
             "texteditortr.h",
             "textindenter.cpp",
             "textindenter.h",

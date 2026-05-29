@@ -48,7 +48,6 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/appinfo.h>
 #include <utils/mimeutils.h>

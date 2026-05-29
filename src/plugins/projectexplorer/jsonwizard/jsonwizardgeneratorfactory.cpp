@@ -16,7 +16,7 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 #include <texteditor/textindenter.h>
 
 #include <utils/algorithm.h>
@@ -50,7 +50,7 @@ static ICodeStylePreferences *codeStylePreferences(Project *project, Id language
     if (project)
         return project->editorConfiguration()->codeStyle(languageId);
 
-    return TextEditorSettings::codeStyle(languageId);
+    return codeStyleForLanguage(languageId);
 }
 
 // --------------------------------------------------------------------
@@ -62,7 +62,7 @@ Result<> JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile
     if (file->isBinary() || file->contents().isEmpty())
         return ResultOk; // nothing to do
 
-    Id languageId = TextEditorSettings::languageId(Utils::mimeTypeForFile(file->filePath()).name());
+    Id languageId = TextEditor::languageId(Utils::mimeTypeForFile(file->filePath()).name());
 
     if (!languageId.isValid())
         return ResultOk; // don't modify files like *.ui, *.pro

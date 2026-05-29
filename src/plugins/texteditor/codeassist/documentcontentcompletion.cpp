@@ -10,7 +10,6 @@
 #include "iassistprocessor.h"
 #include "../snippets/snippetassistcollector.h"
 #include "../completionsettings.h"
-#include "../texteditorsettings.h"
 
 #include <utils/algorithm.h>
 

@@ -6,7 +6,6 @@
 #include "assistproposalitem.h"
 #include "codeassistant.h"
 
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/codeassist/assistproposaliteminterface.h>

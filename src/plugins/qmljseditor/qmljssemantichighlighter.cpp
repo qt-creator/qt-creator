@@ -18,7 +18,6 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <utils/async.h>
 #include <utils/algorithm.h>

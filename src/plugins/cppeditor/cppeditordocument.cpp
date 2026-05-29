@@ -32,7 +32,6 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/infobar.h>
 #include <utils/mimeconstants.h>

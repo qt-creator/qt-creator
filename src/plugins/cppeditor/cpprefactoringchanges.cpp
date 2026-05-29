@@ -15,7 +15,6 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <QTextDocument>
 

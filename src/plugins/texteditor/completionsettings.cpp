@@ -3,7 +3,6 @@
 
 #include "completionsettings.h"
 
-#include "texteditorsettings.h"
 #include "texteditorconstants.h"
 #include "texteditortr.h"
 

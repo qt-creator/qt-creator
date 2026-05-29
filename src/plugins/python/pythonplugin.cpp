@@ -28,7 +28,6 @@
 #include <projectexplorer/taskhub.h>
 
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/theme/theme.h>

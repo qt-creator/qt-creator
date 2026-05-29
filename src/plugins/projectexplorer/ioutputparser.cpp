@@ -8,7 +8,6 @@
 
 #include <coreplugin/outputwindow.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/algorithm.h>
 #include <utils/ansiescapecodehandler.h>
 

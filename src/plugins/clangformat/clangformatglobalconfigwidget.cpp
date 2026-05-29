@@ -14,7 +14,6 @@
 #include <projectexplorer/projecttree.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/codestyleselectorwidget.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 

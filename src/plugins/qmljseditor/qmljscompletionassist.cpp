@@ -13,7 +13,6 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
 #include <projectexplorer/project.h>

@@ -102,7 +102,6 @@ add_qtc_plugin(TextEditor
     texteditorconstants.cpp texteditorconstants.h
     texteditoroverlay.cpp texteditoroverlay.h
     texteditorplugin.cpp
-    texteditorsettings.cpp texteditorsettings.h
     texteditortr.h
     textindenter.cpp textindenter.h
     textmark.cpp textmark.h

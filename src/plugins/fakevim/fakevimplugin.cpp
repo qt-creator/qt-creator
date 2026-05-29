@@ -42,7 +42,7 @@
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
+
 #include <texteditor/textmark.h>
 #include <texteditor/typingsettings.h>
 

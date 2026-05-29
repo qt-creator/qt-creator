@@ -24,7 +24,6 @@
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/snippets/snippet.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
 #include <utils/algorithm.h>

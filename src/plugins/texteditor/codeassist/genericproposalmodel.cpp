@@ -4,7 +4,6 @@
 #include "genericproposalmodel.h"
 
 #include "assistproposalitem.h"
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
 #include <QDebug>

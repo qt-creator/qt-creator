@@ -11,7 +11,7 @@
 
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
@@ -353,7 +353,7 @@ ICodeStylePreferences *preferencesForFile(const FilePath &filePath)
 
     return !getProjectUseGlobalSettings(project) && project
                ? project->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
-               : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
+               : TextEditor::codeStyleForLanguage("Cpp")->currentPreferences();
 }
 
 FilePath configForFile(const FilePath &filePath)

@@ -16,7 +16,6 @@
 
 #include <extensionsystem/iplugin.h>
 #include <texteditor/marginsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/icon.h>
 #include <utils/theme/theme.h>

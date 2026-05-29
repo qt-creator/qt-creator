@@ -20,7 +20,7 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
@@ -128,7 +128,7 @@ CppToolsSettings::CppToolsSettings()
     g_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
     g_globalCodeStyle->setId(idKey);
     m_pool.addCodeStyle(g_globalCodeStyle);
-    TextEditorSettings::registerCodeStyle(Constants::CPP_SETTINGS_ID, g_globalCodeStyle);
+    registerCodeStyle(Constants::CPP_SETTINGS_ID, g_globalCodeStyle);
 
     /*
     For every language we have exactly 1 pool. The pool contains:
@@ -200,15 +200,15 @@ CppToolsSettings::CppToolsSettings()
 
     // mimetypes to be handled
     using namespace Utils::Constants;
-    TextEditorSettings::registerMimeTypeForLanguageId(C_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(C_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(CPP_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(CPP_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
+    registerMimeTypeForLanguageId(C_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
+    registerMimeTypeForLanguageId(C_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
+    registerMimeTypeForLanguageId(CPP_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
+    registerMimeTypeForLanguageId(CPP_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
 }
 
 CppToolsSettings::~CppToolsSettings()
 {
-    TextEditorSettings::unregisterCodeStyle(Constants::CPP_SETTINGS_ID);
+    unregisterCodeStyle(Constants::CPP_SETTINGS_ID);
 
     delete g_globalCodeStyle;
     g_globalCodeStyle = nullptr;

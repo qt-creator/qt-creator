@@ -5,7 +5,7 @@
 
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
+
 
 #include <utils/qtcassert.h>
 
@@ -125,8 +125,6 @@ namespace EffectComposer {
 
 class EffectsCodeAssistProposalItem final : public TextEditor::AssistProposalItem
 {
-    using TextEditorSettings = TextEditor::TextEditorSettings;
-
 public:
     bool prematurelyApplies(const QChar &c) const final
     {

@@ -6,7 +6,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 
 #include <QFocusEvent>

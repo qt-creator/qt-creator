@@ -13,7 +13,6 @@
 
 #include <coreplugin/icore.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/Overview.h>

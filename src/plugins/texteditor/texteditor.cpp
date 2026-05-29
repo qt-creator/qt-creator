@@ -31,7 +31,7 @@
 #include "textdocumentlayout.h"
 #include "texteditorconstants.h"
 #include "texteditoroverlay.h"
-#include "texteditorsettings.h"
+#include "codestylepool.h"
 #include "texteditortr.h"
 #include "typehierarchy.h"
 #include "typingsettings.h"
@@ -1677,7 +1677,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     if (!m_isCombinedEditor)
         setBackgroundColor();
 
-    const TabSettingsData tabSettings = TextEditorSettings::codeStyle()->tabSettings();
+    const TabSettingsData tabSettings = globalCodeStyle().tabSettings();
     if (m_document->tabSettings() == tabSettings)
         applyTabSettings();
     else
@@ -1689,7 +1689,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     q->setMarginSettings(marginSettings().data());
     q->setDisplaySettings(displaySettings().data());
     q->setExtraEncodingSettings(globalExtraEncodingSettings().data());
-    q->textDocument()->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
+    q->textDocument()->setCodeStyle(codeStyleForLanguage(m_tabSettingsId));
     q->updateCompletionSettings();
 
     m_blockCount = doc->document()->blockCount();
@@ -7971,7 +7971,7 @@ void TextEditorWidget::setLanguageSettingsId(Id settingsId)
 {
     d->m_tabSettingsId = settingsId;
     if (auto doc = textDocument())
-        doc->setCodeStyle(TextEditorSettings::codeStyle(settingsId));
+        doc->setCodeStyle(codeStyleForLanguage(settingsId));
 }
 
 Id TextEditorWidget::languageSettingsId() const

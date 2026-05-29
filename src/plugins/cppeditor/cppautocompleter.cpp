@@ -19,7 +19,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 
 #include <QScopeGuard>
 #include <QTest>
@@ -399,7 +399,7 @@ void AutoCompleterTest::testInsertParagraph_data()
             << QString(QLatin1String("{|}"))
             << 1;
 
-    QString indentation(TextEditor::TextEditorSettings::codeStyle()->tabSettings().m_indentSize,
+    QString indentation(TextEditor::globalCodeStyle().tabSettings().m_indentSize,
                         QChar::Space);
 
     QTest::newRow("Before Indented Block")
@@ -427,7 +427,7 @@ void AutoCompleterTest::testInsertParagraph()
     QVERIFY(!tc.isNull());
 
     CppAutoCompleter completer = CppAutoCompleter();
-    completer.setTabSettings(TextEditor::TextEditorSettings::codeStyle()->tabSettings());
+    completer.setTabSettings(TextEditor::globalCodeStyle().tabSettings());
 
     const int blockCount = completer.paragraphSeparatorAboutToBeInserted(tc);
 

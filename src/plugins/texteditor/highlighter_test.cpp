@@ -7,7 +7,6 @@
 #include "syntaxhighlighter.h"
 #include "textdocument.h"
 #include "texteditor.h"
-#include "texteditorsettings.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>

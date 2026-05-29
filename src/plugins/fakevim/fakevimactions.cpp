@@ -13,7 +13,7 @@
 #ifndef FAKEVIM_STANDALONE
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 #include <texteditor/typingsettings.h>
 #endif
 
@@ -192,7 +192,7 @@ FakeVimSettings::FakeVimSettings()
                 PushButton {
                     text(Tr::tr("Copy Text Editor Settings")),
                     onClicked(this, [this] {
-                        TabSettingsData ts = TextEditorSettings::codeStyle()->tabSettings();
+                        TabSettingsData ts = globalCodeStyle().tabSettings();
                         expandTab.setVolatileValue(ts.m_tabPolicy != TabSettingsData::TabsOnlyTabPolicy);
                         tabStop.setVolatileValue(ts.m_tabSize);
                         shiftWidth.setVolatileValue(ts.m_indentSize);

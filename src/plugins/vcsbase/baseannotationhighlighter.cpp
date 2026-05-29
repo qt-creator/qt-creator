@@ -5,7 +5,6 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 

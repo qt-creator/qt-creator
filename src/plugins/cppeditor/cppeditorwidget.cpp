@@ -49,8 +49,6 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/texteditorsettings.h>
-
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/MatchingText.h>
@@ -802,8 +800,6 @@ using Utils::Text::selectAt;
 
 QTextCharFormat occurrencesTextCharFormat()
 {
-    using TextEditor::TextEditorSettings;
-
     return globalFontSettings().data().toTextCharFormat(TextEditor::C_OCCURRENCES);
 }
 

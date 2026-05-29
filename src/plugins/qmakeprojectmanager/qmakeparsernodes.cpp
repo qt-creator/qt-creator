@@ -24,7 +24,7 @@
 
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/texteditorsettings.h>
+#include <texteditor/codestylepool.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -378,7 +378,7 @@ QString QmakePriFile::continuationIndent() const
 {
     const EditorConfiguration *editorConf = project()->editorConfiguration();
     const TextEditor::TabSettingsData &tabSettings = editorConf->useGlobalSettings()
-            ? TextEditor::TextEditorSettings::codeStyle()->tabSettings()
+            ? TextEditor::globalCodeStyle().tabSettings()
             : editorConf->codeStyle()->tabSettings();
     if (tabSettings.m_continuationAlignBehavior == TextEditor::TabSettingsData::ContinuationAlignWithIndent
             && tabSettings.m_tabPolicy == TextEditor::TabSettingsData::TabsOnlyTabPolicy) {

@@ -8,7 +8,6 @@
 #include "configurationeditor.h"
 
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/layoutbuilder.h>
 

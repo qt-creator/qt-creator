@@ -7,7 +7,6 @@
 
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <QObject>
 #include <QTest>

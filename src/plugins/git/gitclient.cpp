@@ -26,7 +26,6 @@
 #include <QtTaskTree/QConditional>
 
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/ansiescapecodehandler.h>
 #include <utils/async.h>

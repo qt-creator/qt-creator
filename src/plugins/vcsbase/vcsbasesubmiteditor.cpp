@@ -29,7 +29,6 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>

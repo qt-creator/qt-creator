@@ -5,7 +5,7 @@
 
 #include "icodestylepreferences.h"
 #include "texteditorconstants.h"
-#include "texteditorsettings.h"
+#include "codestylepool.h"
 #include "texteditortr.h"
 
 #include <coreplugin/icore.h>
@@ -200,7 +200,7 @@ public:
     GlobalTabSettings()
     {
         setCodingStyleWarningVisible(true);
-        setData(TextEditorSettings::codeStyle()->tabSettings());
+        setData(globalCodeStyle().tabSettings());
 
         connect(this, &TabSettings::codingStyleLinkClicked, [] (TabSettings::CodingStyleLink link) {
             switch (link) {
@@ -217,8 +217,8 @@ public:
     void apply() final
     {
         TabSettings::apply();
-        TextEditorSettings::codeStyle()->setTabSettings(data());
-        TextEditorSettings::codeStyle()->toSettings(Constants::CODE_STYLE_SETTINGS_PREFIX);
+        globalCodeStyle().setTabSettings(data());
+        globalCodeStyle().toSettings(Constants::CODE_STYLE_SETTINGS_PREFIX);
     }
 };
 

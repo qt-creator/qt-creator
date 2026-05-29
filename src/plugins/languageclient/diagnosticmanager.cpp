@@ -16,7 +16,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
 #include <texteditor/textstyles.h>
 

@@ -23,7 +23,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <cplusplus/CppDocument.h>
 

@@ -4,7 +4,6 @@
 #include "fontsettings.h"
 #include "textdocument.h"
 #include "textdocumentlayout.h"
-#include "texteditorsettings.h"
 
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>

@@ -5,7 +5,6 @@
 
 #include "mercurialtr.h"
 
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorconstants.h>

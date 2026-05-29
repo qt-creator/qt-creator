@@ -8,7 +8,9 @@
 #include <utils/filepath.h>
 #include <utils/id.h>
 
+#include <QMap>
 #include <QObject>
+#include <QString>
 
 namespace TextEditor {
 
@@ -67,6 +69,13 @@ TEXTEDITOR_EXPORT ICodeStylePreferences &globalCodeStyle();
 TEXTEDITOR_EXPORT CodeStylePool &globalCodeStylePool();
 
 TEXTEDITOR_EXPORT CodeStylePool *codeStylePool(Utils::Id languageId);
+
+TEXTEDITOR_EXPORT ICodeStylePreferences *codeStyleForLanguage(Utils::Id languageId);
+TEXTEDITOR_EXPORT QMap<Utils::Id, ICodeStylePreferences *> codeStyles();
+TEXTEDITOR_EXPORT void registerCodeStyle(Utils::Id languageId, ICodeStylePreferences *prefs);
+TEXTEDITOR_EXPORT void unregisterCodeStyle(Utils::Id languageId);
+TEXTEDITOR_EXPORT void registerMimeTypeForLanguageId(const char *mimeType, Utils::Id languageId);
+TEXTEDITOR_EXPORT Utils::Id languageId(const QString &mimeType);
 
 namespace Internal { void setupGlobalCodeStyle(); }
 

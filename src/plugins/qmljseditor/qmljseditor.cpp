@@ -49,7 +49,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/codeassist/iassistprocessor.h>

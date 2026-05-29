@@ -14,11 +14,11 @@
 
 #include <coreplugin/icore.h>
 
-#include <texteditor/icodestylepreferences.h>
+#include <texteditor/codestylepool.h>
 #include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/textindenter.h>
 
 #include <utils/algorithm.h>
@@ -203,7 +203,7 @@ static ICodeStylePreferences *codeStylePreferences(Project *project, Id language
     if (project)
         return project->editorConfiguration()->codeStyle(languageId);
 
-    return TextEditorSettings::codeStyle(languageId);
+    return codeStyleForLanguage(languageId);
 }
 
 void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
@@ -211,7 +211,7 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     if (file->isBinary() || file->contents().isEmpty())
         return; // nothing to do
 
-    Id languageId = TextEditorSettings::languageId(Utils::mimeTypeForFile(file->filePath()).name());
+    Id languageId = TextEditor::languageId(Utils::mimeTypeForFile(file->filePath()).name());
 
     if (!languageId.isValid())
         return; // don't modify files like *.ui *.pro

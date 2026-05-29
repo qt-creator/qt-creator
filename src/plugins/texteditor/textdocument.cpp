@@ -13,7 +13,6 @@
 #include "textdocumentlayout.h"
 #include "texteditor.h"
 #include "texteditorconstants.h"
-#include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "textindenter.h"
 #include "typingsettings.h"

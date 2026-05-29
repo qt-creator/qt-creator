@@ -6,7 +6,6 @@
 #include "bazaartr.h"
 #include "branchinfo.h"
 
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 
 #include <utils/completingtextedit.h>
