@@ -28,12 +28,12 @@ public:
     static HelpManager *instance();
     static QString collectionFilePath();
 
-    void registerDocumentation(const QStringList &fileNames) override;
-    void setBlockedDocumentation(const QStringList &fileNames) override;
-    void unregisterDocumentation(const QStringList &fileNames) override;
+    void registerDocumentation(const Utils::FilePaths &fileNames) override;
+    void setBlockedDocumentation(const Utils::FilePaths &fileNames) override;
+    void unregisterDocumentation(const Utils::FilePaths &fileNames) override;
 
-    static void registerUserDocumentation(const QStringList &filePaths);
-    static QSet<QString> userDocumentationPaths();
+    static void registerUserDocumentation(const Utils::FilePaths &filePaths);
+    static QSet<Utils::FilePath> userDocumentationPaths();
 
     QMultiMap<QString, QUrl> linksForIdentifier(const QString &id) override;
     QMultiMap<QString, QUrl> linksForKeyword(const QString &key) override;
@@ -46,7 +46,7 @@ public:
 
     static QStringList registeredNamespaces();
     static QString namespaceFromFile(const QString &file);
-    static QString fileFromNamespace(const QString &nameSpace);
+    static Utils::FilePath fileFromNamespace(const QString &nameSpace);
 
     Q_INVOKABLE void showHelpUrl(
         const QUrl &url,

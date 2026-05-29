@@ -658,10 +658,11 @@ private:
 
     void extensionsInitialized() final
     {
-        QStringList filesToRegister;
         // we might need to register creators inbuild help
-        filesToRegister.append(Core::HelpManager::documentationPath() + "/qtcreator.qch");
-        filesToRegister.append(Core::HelpManager::documentationPath() + "/qtcreator-dev.qch");
+        const FilePaths filesToRegister = {
+            Core::HelpManager::documentationPath() / "qtcreator.qch",
+            Core::HelpManager::documentationPath() / "qtcreator-dev.qch"
+        };
         Core::HelpManager::registerDocumentation(filesToRegister);
     }
 

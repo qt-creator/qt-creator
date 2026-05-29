@@ -405,10 +405,10 @@ void CMakeToolManager::restoreCMakeTools()
 void CMakeToolManager::updateDocumentation()
 {
     const QList<CMakeTool *> tools = cmakeTools();
-    QStringList docs;
+    FilePaths docs;
     for (const auto tool : tools) {
         if (!tool->qchFilePath().isEmpty())
-            docs.append(tool->qchFilePath().path());
+            docs.append(tool->qchFilePath());
     }
     Core::HelpManager::registerDocumentation(docs);
 }

@@ -677,11 +677,11 @@ void QtVersionManagerImpl::updateDocumentation(
         // Help plugin knows about this.
         const QSet<QString> reallyAllFiles = toSet(documentationFiles(newDoc, newDocFiles));
         const QSet<QString> toBlock = reallyAllFiles - toSet(docsOfAll);
-        Core::HelpManager::setBlockedDocumentation(toList(toBlock));
+        Core::HelpManager::setBlockedDocumentation(transform(toList(toBlock), &FilePath::fromString));
     }
 
-    Core::HelpManager::unregisterDocumentation(docsToRemove);
-    Core::HelpManager::registerDocumentation(docsToAdd);
+    Core::HelpManager::unregisterDocumentation(transform(docsToRemove, &FilePath::fromString));
+    Core::HelpManager::registerDocumentation(transform(docsToAdd, &FilePath::fromString));
 }
 
 int QtVersionManager::getUniqueId()

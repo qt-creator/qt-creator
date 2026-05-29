@@ -149,15 +149,15 @@ DocSettingsPageWidget::DocSettingsPageWidget()
     setToolTip(Tr::tr("Add and remove compressed help files, .qch."));
 
     const QStringList nameSpaces = HelpManager::registeredNamespaces();
-    const QSet<QString> userDocumentationPaths = HelpManager::userDocumentationPaths();
+    const QSet<FilePath> userDocumentationPaths = HelpManager::userDocumentationPaths();
 
     DocModel::DocEntries entries;
     entries.reserve(nameSpaces.size());
     for (const QString &nameSpace : nameSpaces) {
-        const QString filePath = HelpManager::fileFromNamespace(nameSpace);
+        const FilePath filePath = HelpManager::fileFromNamespace(nameSpace);
         bool user = userDocumentationPaths.contains(filePath);
-        entries.append(createEntry(nameSpace, filePath, user));
-        m_filesToRegister.insert(nameSpace, filePath);
+        entries.append(createEntry(nameSpace, filePath.path(), user));
+        m_filesToRegister.insert(nameSpace, filePath.path());
         m_filesToRegisterUserManaged.insert(nameSpace, user);
     }
     std::stable_sort(entries.begin(), entries.end());
@@ -289,12 +289,13 @@ void DocSettingsPageWidget::addDocumentation()
 
 void DocSettingsPageWidget::apply()
 {
-    HelpManager::instance()->unregisterDocumentation(m_filesToUnregister.values());
-    QStringList files;
+    HelpManager::instance()->unregisterDocumentation(
+        transform(m_filesToUnregister.values(), &FilePath::fromString));
+    FilePaths files;
     auto it = m_filesToRegisterUserManaged.constBegin();
     while (it != m_filesToRegisterUserManaged.constEnd()) {
         if (it.value()/*userManaged*/)
-            files << m_filesToRegister.value(it.key());
+            files << FilePath::fromString(m_filesToRegister.value(it.key()));
         ++it;
     }
     HelpManager::registerUserDocumentation(files);
@@ -334,7 +335,8 @@ void DocSettingsPageWidget::removeDocumentation(const QList<QModelIndex> &items)
 
         m_filesToRegister.remove(nameSpace);
         m_filesToRegisterUserManaged.remove(nameSpace);
-        m_filesToUnregister.insert(nameSpace, QDir::cleanPath(HelpManager::fileFromNamespace(nameSpace)));
+        m_filesToUnregister
+            .insert(nameSpace, HelpManager::fileFromNamespace(nameSpace).cleanPath().path());
 
         m_model.removeAt(row);
     }

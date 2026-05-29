@@ -35,6 +35,7 @@ public:
     FilePath crashReports;
 
     FilePath libexec;
+    FilePath documentation;
 };
 
 QTCREATOR_UTILS_EXPORT const AppInfo &appInfo();

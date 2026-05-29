@@ -47,7 +47,7 @@ struct HelpManagerPrivate
     HelpManagerPrivate() = default;
     ~HelpManagerPrivate();
 
-    const QStringList documentationFromInstaller();
+    const FilePaths documentationFromInstaller();
     void readSettings();
     void writeSettings();
     void cleanUpDocumentation();
@@ -57,11 +57,11 @@ struct HelpManagerPrivate
     Utils::FileSystemWatcher *m_collectionWatcher = nullptr;
 
     // data for delayed initialization
-    QSet<QString> m_filesToRegister;
-    QSet<QString> m_blockedDocumentation;
-    QSet<QString> m_filesToUnregister;
+    QSet<FilePath> m_filesToRegister;
+    QSet<FilePath> m_blockedDocumentation;
+    QSet<FilePath> m_filesToUnregister;
 
-    QSet<QString> m_userRegisteredFiles;
+    QSet<FilePath> m_userRegisteredFiles;
 
     QSequentialTaskTreeRunner m_taskTreeRunner;
 };
@@ -118,8 +118,8 @@ static QHash<QString, QStringList> namespacesByFile(QHelpEngineCore &helpEngine)
     return result;
 }
 
-static void registerDocumentationNow(QPromise<bool> &promise, const QString &collectionFilePath,
-                                     const QStringList &files)
+static void registerDocumentationNow(
+    QPromise<bool> &promise, const QString &collectionFilePath, const FilePaths &files)
 {
     promise.setProgressRange(0, files.count());
     promise.setProgressValue(0);
@@ -128,13 +128,13 @@ static void registerDocumentationNow(QPromise<bool> &promise, const QString &col
     helpEngine.setReadOnly(false);
     helpEngine.setupData();
     bool docsChanged = false;
-    QSet<QString> registeredNamespaces = toSet(helpEngine.registeredDocumentations());
+    QSet<QString> registeredNamespaces = Utils::toSet(helpEngine.registeredDocumentations());
     QHash<QString, QStringList> nsByFile = namespacesByFile(helpEngine);
-    for (const QString &file : files) {
+    for (const FilePath &file : files) {
         if (promise.isCanceled())
             break;
         promise.setProgressValue(promise.future().progressValue() + 1);
-        const QString filePath = QFileInfo(file).canonicalFilePath();
+        const QString filePath = file.canonicalPath().path();
         const QString &nameSpace = QHelpEngineCore::namespaceName(filePath);
         if (nameSpace.isEmpty())
             continue;
@@ -151,7 +151,7 @@ static void registerDocumentationNow(QPromise<bool> &promise, const QString &col
             }
         }
         if (!registeredNamespaces.contains(nameSpace)) {
-            if (helpEngine.registerDocumentation(file)) {
+            if (helpEngine.registerDocumentation(file.path())) {
                 docsChanged = true;
                 registeredNamespaces.insert(nameSpace);
             } else {
@@ -165,10 +165,10 @@ static void registerDocumentationNow(QPromise<bool> &promise, const QString &col
     promise.addResult(docsChanged);
 }
 
-void HelpManager::registerDocumentation(const QStringList &files)
+void HelpManager::registerDocumentation(const FilePaths &files)
 {
     if (d->m_needsSetup) {
-        for (const QString &filePath : files)
+        for (const FilePath &filePath : files)
             d->m_filesToRegister.insert(filePath);
         return;
     }
@@ -186,15 +186,14 @@ void HelpManager::registerDocumentation(const QStringList &files)
     d->m_taskTreeRunner.enqueue({AsyncTask<bool>(onSetup, onDone)});
 }
 
-void HelpManager::setBlockedDocumentation(const QStringList &fileNames)
+void HelpManager::setBlockedDocumentation(const FilePaths &fileNames)
 {
-    for (const QString &filePath : fileNames)
+    for (const FilePath &filePath : fileNames)
         d->m_blockedDocumentation.insert(filePath);
 }
 
-static void unregisterDocumentationNow(QPromise<bool> &promise,
-                                       const QString collectionFilePath,
-                                       const QStringList &files)
+static void unregisterDocumentationNow(
+    QPromise<bool> &promise, const QString collectionFilePath, const FilePaths &files)
 {
     promise.setProgressRange(0, files.count());
     promise.setProgressValue(0);
@@ -205,11 +204,11 @@ static void unregisterDocumentationNow(QPromise<bool> &promise,
     helpEngine.setReadOnly(false);
     helpEngine.setupData();
     QHash<QString, QStringList> nsByFile = namespacesByFile(helpEngine);
-    for (const QString &file : files) {
+    for (const FilePath &file : files) {
         if (promise.isCanceled())
             break;
         promise.setProgressValue(promise.future().progressValue() + 1);
-        const QString filePath = QFileInfo(file).canonicalFilePath();
+        const QString filePath = file.canonicalPath().path();
         // remove all namespaces that might refer to this file (e.g. if the file changed in between)
         const QStringList namespaces = nsByFile.value(filePath);
         nsByFile.remove(filePath); // a file may be listed more than once
@@ -225,10 +224,10 @@ static void unregisterDocumentationNow(QPromise<bool> &promise,
     promise.addResult(docsChanged);
 }
 
-void HelpManager::unregisterDocumentation(const QStringList &files)
+void HelpManager::unregisterDocumentation(const FilePaths &files)
 {
     if (d->m_needsSetup) {
-        for (const QString &file : files)
+        for (const FilePath &file : files)
             d->m_filesToUnregister.insert(file);
         return;
     }
@@ -248,14 +247,14 @@ void HelpManager::unregisterDocumentation(const QStringList &files)
     d->m_taskTreeRunner.enqueue({AsyncTask<bool>(onSetup, onDone)});
 }
 
-void HelpManager::registerUserDocumentation(const QStringList &filePaths)
+void HelpManager::registerUserDocumentation(const FilePaths &filePaths)
 {
-    for (const QString &filePath : filePaths)
+    for (const FilePath &filePath : filePaths)
         d->m_userRegisteredFiles.insert(filePath);
     m_instance->registerDocumentation(filePaths);
 }
 
-QSet<QString> HelpManager::userDocumentationPaths()
+QSet<FilePath> HelpManager::userDocumentationPaths()
 {
     return d->m_userRegisteredFiles;
 }
@@ -348,10 +347,10 @@ QString HelpManager::namespaceFromFile(const QString &file)
     return QHelpEngineCore::namespaceName(file);
 }
 
-QString HelpManager::fileFromNamespace(const QString &nameSpace)
+FilePath HelpManager::fileFromNamespace(const QString &nameSpace)
 {
     QTC_ASSERT(!d->m_needsSetup, return {});
-    return d->m_helpEngine->documentationFileName(nameSpace);
+    return FilePath::fromString(d->m_helpEngine->documentationFileName(nameSpace));
 }
 
 // -- private
@@ -370,7 +369,7 @@ void HelpManager::setupHelpManager()
     d->m_helpEngine->setUsesFilterEngine(true);
     d->m_helpEngine->setupData();
 
-    for (const QString &filePath : d->documentationFromInstaller())
+    for (const FilePath &filePath : d->documentationFromInstaller())
         d->m_filesToRegister.insert(filePath);
 
     // The online installer registers documentation for Qt versions explicitly via an install
@@ -400,10 +399,11 @@ void HelpManagerPrivate::cleanUpDocumentation()
     // mark documentation for removal that is neither user registered, nor marked for registration
     const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
     for (const QString &nameSpace : registeredDocs) {
-        const QString filePath = m_helpEngine->documentationFileName(nameSpace);
-        if (!QFileInfo::exists(filePath)
-                || (!m_filesToRegister.contains(filePath)
-                    && !m_userRegisteredFiles.contains(filePath))) {
+        const FilePath filePath = FilePath::fromString(
+            m_helpEngine->documentationFileName(nameSpace));
+        if (!filePath.exists()
+            || (!m_filesToRegister.contains(filePath)
+                && !m_userRegisteredFiles.contains(filePath))) {
             m_filesToUnregister.insert(filePath);
         }
     }
@@ -416,21 +416,18 @@ HelpManagerPrivate::~HelpManagerPrivate()
     m_helpEngine = nullptr;
 }
 
-const QStringList HelpManagerPrivate::documentationFromInstaller()
+const FilePaths HelpManagerPrivate::documentationFromInstaller()
 {
     QtcSettings *installSettings = ICore::settings();
-    const QStringList documentationPaths = installSettings->value("Help/InstalledDocumentation")
-            .toStringList();
-    QStringList documentationFiles;
-    for (const QString &path : documentationPaths) {
-        QFileInfo pathInfo(path);
-        if (pathInfo.isFile() && pathInfo.isReadable()) {
-            documentationFiles << pathInfo.absoluteFilePath();
-        } else if (pathInfo.isDir()) {
-            const QFileInfoList files(QDir(path).entryInfoList(QStringList(QLatin1String("*.qch")),
-                                                               QDir::Files | QDir::Readable));
-            for (const QFileInfo &fileInfo : files)
-                documentationFiles << fileInfo.absoluteFilePath();
+    const auto documentationPaths = FilePaths::fromSettings(
+        installSettings->value("Help/InstalledDocumentation"));
+    FilePaths documentationFiles;
+    for (const FilePath &path : documentationPaths) {
+        if (path.isReadableFile()) {
+            documentationFiles << path;
+        } else if (path.isDir()) {
+            documentationFiles += path.dirEntries(
+                FileFilter({"*.qch"}, DirFilterFlag::Files | DirFilterFlag::Readable));
         }
     }
     return documentationFiles;
@@ -438,12 +435,13 @@ const QStringList HelpManagerPrivate::documentationFromInstaller()
 
 void HelpManagerPrivate::readSettings()
 {
-    m_userRegisteredFiles = Utils::toSet(ICore::settings()->value(kUserDocumentationKey).toStringList());
+    m_userRegisteredFiles = Utils::toSet(
+        FilePaths::fromSettings(ICore::settings()->value(kUserDocumentationKey)));
 }
 
 void HelpManagerPrivate::writeSettings()
 {
-    const QStringList list = Utils::toList(m_userRegisteredFiles);
+    const QStringList list = Utils::transform(Utils::toList(m_userRegisteredFiles), &FilePath::path);
     ICore::settings()->setValueWithDefault(kUserDocumentationKey, list);
 }
 

@@ -8,12 +8,13 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <utils/appinfo.h>
 #include <utils/qtcassert.h>
 
 #include <qapplicationstatic.h>
-#include <QCoreApplication>
-#include <QDir>
 #include <QUrl>
+
+using namespace Utils;
 
 namespace Core::HelpManager {
 
@@ -54,18 +55,18 @@ Implementation::~Implementation()
     m_instance = nullptr;
 }
 
-QString documentationPath()
+FilePath documentationPath()
 {
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DOC_PATH);
+    return appInfo().documentation;
 }
 
-void registerDocumentation(const QStringList &files)
+void registerDocumentation(const FilePaths &files)
 {
     if (checkInstance())
         m_instance->registerDocumentation(files);
 }
 
-void unregisterDocumentation(const QStringList &fileNames)
+void unregisterDocumentation(const FilePaths &fileNames)
 {
     if (checkInstance())
         m_instance->unregisterDocumentation(fileNames);
@@ -97,7 +98,7 @@ void showHelpUrl(const QString &url, HelpViewerLocation location)
     showHelpUrl(QUrl(url), location);
 }
 
-void setBlockedDocumentation(const QStringList &fileNames)
+void setBlockedDocumentation(const FilePaths &fileNames)
 {
     if (checkInstance())
         m_instance->setBlockedDocumentation(fileNames);

@@ -16,9 +16,9 @@ protected:
     virtual ~Implementation();
 
 public:
-    virtual void registerDocumentation(const QStringList &fileNames) = 0;
-    virtual void setBlockedDocumentation(const QStringList &fileNames) = 0;
-    virtual void unregisterDocumentation(const QStringList &fileNames) = 0;
+    virtual void registerDocumentation(const Utils::FilePaths &fileNames) = 0;
+    virtual void setBlockedDocumentation(const Utils::FilePaths &fileNames) = 0;
+    virtual void unregisterDocumentation(const Utils::FilePaths &fileNames) = 0;
     virtual QMultiMap<QString, QUrl> linksForIdentifier(const QString &id) = 0;
     virtual QMultiMap<QString, QUrl> linksForKeyword(const QString &keyword) = 0;
     virtual QByteArray fileData(const QUrl &url) = 0;

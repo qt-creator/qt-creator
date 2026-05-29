@@ -173,12 +173,12 @@ FilePath McuSupportOptions::qulDocsDir() const
 
 void McuSupportOptions::registerQchFiles() const
 {
-    const QString docsDir = qulDocsDir().toUrlishString();
+    const FilePath docsDir = qulDocsDir();
     if (docsDir.isEmpty())
         return;
 
-    const QFileInfoList qchFiles = QDir(docsDir, "*.qch").entryInfoList();
-    Core::HelpManager::registerDocumentation(Utils::transform(qchFiles, &QFileInfo::absoluteFilePath));
+    const FilePaths qchFiles = docsDir.dirEntries(FileFilter({"*.qch"}, DirFilterFlag::Files));
+    Core::HelpManager::registerDocumentation(qchFiles);
 }
 
 void McuSupportOptions::registerExamples() const

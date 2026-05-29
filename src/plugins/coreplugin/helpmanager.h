@@ -5,6 +5,8 @@
 
 #include "core_global.h"
 
+#include <utils/filepath.h>
+
 #include <QObject>
 #include <QMap>
 
@@ -35,11 +37,11 @@ enum HelpViewerLocation {
     ExternalHelpAlways = 3
 };
 
-CORE_EXPORT QString documentationPath();
+CORE_EXPORT Utils::FilePath documentationPath();
 
-CORE_EXPORT void registerDocumentation(const QStringList &fileNames);
-CORE_EXPORT void setBlockedDocumentation(const QStringList &fileNames);
-CORE_EXPORT void unregisterDocumentation(const QStringList &fileNames);
+CORE_EXPORT void registerDocumentation(const Utils::FilePaths &fileNames);
+CORE_EXPORT void setBlockedDocumentation(const Utils::FilePaths &fileNames);
+CORE_EXPORT void unregisterDocumentation(const Utils::FilePaths &fileNames);
 
 CORE_EXPORT QMultiMap<QString, QUrl> linksForIdentifier(const QString &id);
 CORE_EXPORT QMultiMap<QString, QUrl> linksForKeyword(const QString &id);
