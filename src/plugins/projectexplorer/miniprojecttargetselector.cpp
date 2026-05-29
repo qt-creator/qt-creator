@@ -207,7 +207,22 @@ public:
         rootItem()->sortChildren(compare);
     }
 
-    void setColumnCount(int columns) { m_columnCount = columns; }
+    void setColumnCount(int columns)
+    {
+        if (m_columnCount == columns)
+            return;
+        // inform proxy model, assumption is: added/removed columns are rightmost
+        // if this does not hold anymore, adjust this code
+        if (columns > m_columnCount) {
+            beginInsertColumns(QModelIndex(), m_columnCount, columns - 1);
+            m_columnCount = columns;
+            endInsertColumns();
+        } else {
+            beginRemoveColumns(QModelIndex(), columns, m_columnCount - 1);
+            m_columnCount = columns;
+            endRemoveColumns();
+        }
+    }
 
 signals:
     void displayNameChanged();
@@ -234,7 +249,7 @@ public:
 
     int padding();
 
-    GenericModel *theModel() const { return static_cast<GenericModel *>(model()); }
+    virtual GenericModel *theModel() const { return static_cast<GenericModel *>(model()); }
 
 protected:
     void resetOptimalWidth()
@@ -326,21 +341,30 @@ class GenericListWidget : public SelectorView
     Q_OBJECT
 
 public:
-    explicit GenericListWidget(QWidget *parent = nullptr) : SelectorView(parent)
+    explicit GenericListWidget(QWidget *parent = nullptr, bool filterable = false)
+        : SelectorView(parent)
     {
         m_updateTimer.setSingleShot(true);
         const auto model = new GenericModel(this);
         connect(&m_updateTimer, &QTimer::timeout, this, [this, model] {
-            const GenericItem * const activeItem = model->itemForIndex(currentIndex());
+            const GenericItem * const activeItem = model->itemForIndex(toSource(currentIndex()));
             model->cachingSort();
             resetOptimalWidth();
             if (activeItem)
-                setCurrentIndex(activeItem->index());
+                setCurrentIndex(fromSource(activeItem->index()));
         });
         connect(model, &GenericModel::displayNameChanged, this, [this] {
             m_updateTimer.start(500);
         });
-        setModel(model);
+        if (filterable) {
+            m_proxy = new QSortFilterProxyModel(this);
+            m_proxy->setDynamicSortFilter(false); // rely on sorting via GenericModel
+            m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            m_proxy->setSourceModel(model);
+            setModel(m_proxy);
+        } else {
+            setModel(model);
+        }
         connect(selectionModel(), &QItemSelectionModel::currentChanged,
                 this, &GenericListWidget::rowChanged);
     }
@@ -349,6 +373,27 @@ signals:
     void changeActiveProjectConfiguration(QObject *pc);
 
 public:
+    GenericModel *theModel() const override
+    {
+        return m_proxy ? static_cast<GenericModel *>(m_proxy->sourceModel())
+                       : SelectorView::theModel();
+    }
+
+    QSortFilterProxyModel *filterModel() const
+    {
+        return m_proxy;
+    }
+
+    QModelIndex fromSource(const QModelIndex &s) const
+    {
+        return m_proxy ? m_proxy->mapFromSource(s) : s;
+    }
+
+    QModelIndex toSource(const QModelIndex &v) const
+    {
+        return m_proxy ? m_proxy->mapToSource(v) : v;
+    }
+
     void setProjectConfigurations(const QObjectList &list, QObject *active)
     {
         theModel()->rebuild(list);
@@ -359,29 +404,29 @@ public:
     void setActiveProjectConfiguration(QObject *active)
     {
         if (const GenericItem * const item = theModel()->itemForObject(active))
-            setCurrentIndex(item->index());
+            setCurrentIndex(fromSource(item->index()));
     }
 
     void addProjectConfiguration(QObject *pc)
     {
-        const auto activeItem = theModel()->itemForIndex(currentIndex());
+        const auto activeItem = theModel()->itemForIndex(toSource(currentIndex()));
         const auto item = theModel()->addItemForObject(pc);
         QFontMetrics fn(font());
         const int width = fn.horizontalAdvance(item->displayName()) + padding();
         if (width > optimalWidth())
             setOptimalWidth(width);
         if (activeItem)
-            setCurrentIndex(activeItem->index());
+            setCurrentIndex(fromSource(activeItem->index()));
     }
 
     void removeProjectConfiguration(QObject *pc)
     {
-        const auto activeItem = theModel()->itemForIndex(currentIndex());
+        const auto activeItem = theModel()->itemForIndex(toSource(currentIndex()));
         if (GenericItem * const item = theModel()->itemForObject(pc)) {
             theModel()->destroyItem(item);
             resetOptimalWidth();
             if (activeItem && activeItem != item)
-                setCurrentIndex(activeItem->index());
+                setCurrentIndex(fromSource(activeItem->index()));
         }
     }
 
@@ -403,7 +448,7 @@ private:
         m_pressedIndex = QModelIndex();
         if (pressedIndex.isValid() && pressedIndex == indexAt(event->pos())) {
             const auto rc = qobject_cast<RunConfiguration *>(
-                        theModel()->itemForIndex(pressedIndex)->object());
+                        theModel()->itemForIndex(toSource(pressedIndex))->object());
             QTC_ASSERT(rc, return);
             if (!BuildManager::isBuilding(rc->project()))
                 ProjectExplorerPlugin::runRunConfiguration(rc, Constants::NORMAL_RUN_MODE, true);
@@ -420,7 +465,7 @@ private:
 
     QObject *objectAt(const QModelIndex &index) const
     {
-        return theModel()->itemForIndex(index)->object();
+        return theModel()->itemForIndex(toSource(index))->object();
     }
 
     void rowChanged(const QModelIndex &index)
@@ -429,6 +474,7 @@ private:
             emit changeActiveProjectConfiguration(objectAt(index));
     }
 
+    QSortFilterProxyModel *m_proxy = nullptr;
     QModelIndex m_pressedIndex;
     QTimer m_updateTimer;
 };
@@ -728,7 +774,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 
     for (int i = TARGET; i < LAST; ++i) {
         m_titleWidgets[i] = createTitleLabel(titles.at(i -1));
-        m_listWidgets[i] = new GenericListWidget(this);
+        m_listWidgets[i] = new GenericListWidget(this, i == RUN);
         connect(m_listWidgets[i], &QAbstractItemView::doubleClicked,
                 this, &MiniProjectTargetSelector::hide);
     }
@@ -776,6 +822,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             this, [](QObject *pc) {
         qobject_cast<RunConfiguration *>(pc)->makeActive();
     });
+    connect(m_filterLineEdit, &FancyLineEdit::textChanged,
+            m_listWidgets[RUN]->filterModel(), &QSortFilterProxyModel::setFilterFixedString);
 }
 
 bool MiniProjectTargetSelector::event(QEvent *event)
@@ -931,6 +979,8 @@ void MiniProjectTargetSelector::doLayout()
     const int filterHeight = filterIsVisible ? m_filterLineEdit->sizeHint().height() : 0;
 
     m_filterLineEdit->move(0, filterY);
+    if (!filterIsVisible)
+        m_filterLineEdit->clear(); // fires only if not empty, needed to update filtered run targets
     m_filterLineEdit->setVisible(filterIsVisible);
 
     // Height to be aligned with side bar button
