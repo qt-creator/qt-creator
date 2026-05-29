@@ -708,6 +708,11 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_summaryLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     m_summaryLabel->setTextInteractionFlags(m_summaryLabel->textInteractionFlags() | Qt::LinksAccessibleByMouse);
 
+    m_filterLineEdit = new FancyLineEdit(this);
+    m_filterLineEdit->setHistoryCompleter("TargetSelector.Filter", false, 10);
+    m_filterLineEdit->setClearButtonEnabled(true);
+    m_filterLineEdit->setPlaceholderText(Tr::tr("Filter run targets"));
+
     m_listWidgets.resize(LAST);
     m_titleWidgets.resize(LAST);
     m_listWidgets[PROJECT] = nullptr; //project is not a generic list widget
@@ -921,6 +926,13 @@ void MiniProjectTargetSelector::doLayout()
 
     m_summaryLabel->move(0, summaryLabelY);
 
+    const bool filterIsVisible = m_listWidgets[RUN]->theModel()->rowCount() > 1;
+    const int filterY = summaryLabelY + summaryLabelHeight;
+    const int filterHeight = filterIsVisible ? m_filterLineEdit->sizeHint().height() : 0;
+
+    m_filterLineEdit->move(0, filterY);
+    m_filterLineEdit->setVisible(filterIsVisible);
+
     // Height to be aligned with side bar button
     int alignedWithActionHeight = 210;
     if (actionBar->isVisible())
@@ -943,10 +955,10 @@ void MiniProjectTargetSelector::doLayout()
         // and at most half the height of the entire Qt Creator window.
         const int minHeight = alignedWithActionHeight;
         const int maxHeight = std::max(minHeight, Core::ICore::mainWindow()->height() / 2);
-        heightWithoutKitArea = summaryLabelHeight
+        heightWithoutKitArea = summaryLabelHeight + filterHeight
             + qBound(minHeight, maxItemCount * 30 + bottomMargin + titleWidgetsHeight, maxHeight);
 
-        int titleY = summaryLabelY + summaryLabelHeight;
+        int titleY = filterY + filterHeight;
         int listY = titleY + titleWidgetsHeight;
         int listHeight = heightWithoutKitArea + kitAreaHeight - bottomMargin - listY + 1;
 
@@ -975,6 +987,7 @@ void MiniProjectTargetSelector::doLayout()
                                            - m_listWidgets[RUN]->padding());
         m_listWidgets[RUN]->setColumnWidth(1, runColumnWidth);
         m_summaryLabel->resize(x - 1, summaryLabelHeight);
+        m_filterLineEdit->resize(x - 1, filterHeight);
         m_kitAreaWidget->resize(x - 1, kitAreaHeight);
         newGeometry.setSize({x, heightWithoutKitArea + kitAreaHeight});
     } else {
@@ -1564,8 +1577,11 @@ void MiniProjectTargetSelector::updateSummary()
                 summary.append(QLatin1String("<br/>"));
         }
     }
+    const bool filterShouldBeVisible = m_listWidgets[RUN]->theModel()->rowCount() > 1;
     if (summary != m_summaryLabel->text()) {
         m_summaryLabel->setText(summary);
+        doLayout();
+    } else if (isVisible() && m_filterLineEdit->isVisible() != filterShouldBeVisible) {
         doLayout();
     }
 }

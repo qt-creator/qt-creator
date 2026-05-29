@@ -10,6 +10,8 @@ QT_BEGIN_NAMESPACE
 class QLabel;
 QT_END_NAMESPACE
 
+namespace Utils { class FancyLineEdit; }
+
 namespace ProjectExplorer {
 class Kit;
 class Project;
@@ -87,6 +89,7 @@ private:
     QList<GenericListWidget *> m_listWidgets;
     QList<QWidget *> m_titleWidgets;
     QLabel *m_summaryLabel;
+    Utils::FancyLineEdit *m_filterLineEdit;
 
     Project *m_project = nullptr;
     Target *m_target = nullptr;
