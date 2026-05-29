@@ -303,7 +303,9 @@ void ProgressBar::paintEvent(QPaintEvent *)
                 p.setPen(QPen(QColor(255, 255, 255, 30)));
                 p.drawLine(cancelVisualRect.topLeft() + QPointF(1.5, 0.5), cancelVisualRect.bottomLeft() + QPointF(1.5, -0.5));
             }
-            p.setPen(QPen(hover ? StyleHelper::panelTextColor() : QColor(180, 180, 180), 1.2, Qt::SolidLine, Qt::FlatCap));
+            const QColor closeIconColor = hover ? StyleHelper::panelTextColor()
+                                                : creatorColor(Theme::Token_Text_Muted);
+            p.setPen(QPen(closeIconColor, 1.2, Qt::SolidLine, Qt::FlatCap));
             p.setRenderHint(QPainter::Antialiasing, true);
             p.drawLine(cancelVisualRect.topLeft() + QPointF(4.0, 2.0), cancelVisualRect.bottomRight() + QPointF(-3.0, -2.0));
             p.drawLine(cancelVisualRect.bottomLeft() + QPointF(4.0, -2.0), cancelVisualRect.topRight() + QPointF(-3.0, 2.0));
