@@ -11,7 +11,6 @@
 
 #include <texteditor/commentssettings.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -63,7 +62,7 @@ public:
                     saveSettings(useGlobal);
                 });
 
-        connect(TextEditorSettings::instance(), &TextEditorSettings::commentsSettingsChanged,
+        connect(&CommentsSettings::instance(), &CommentsSettings::changed,
                 this, [this] {
                     if (useGlobalSettings())
                         m_displayedSettings.copyFrom(CommentsSettings::instance());
@@ -87,7 +86,6 @@ private:
         if (!useGlobal)
             m_displayedSettings.toMap(data);
         m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), variantFromStore(data));
-        emit TextEditorSettings::instance()->commentsSettingsChanged();
     }
 
     Project * const m_project;

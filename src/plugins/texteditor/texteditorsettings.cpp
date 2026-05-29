@@ -77,11 +77,6 @@ TextEditorSettings::~TextEditorSettings()
     delete d;
 }
 
-TextEditorSettings *TextEditorSettings::instance()
-{
-    return &textEditorSettings();
-}
-
 ICodeStylePreferences *TextEditorSettings::codeStyle()
 {
     return &globalCodeStyle();

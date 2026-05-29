@@ -25,13 +25,9 @@ class ICodeStylePreferences;
  */
 class TEXTEDITOR_EXPORT TextEditorSettings : public QObject
 {
-    Q_OBJECT
-
 public:
     TextEditorSettings();
     ~TextEditorSettings() override;
-
-    static TextEditorSettings *instance();
 
     static ICodeStylePreferences *codeStyle();
     static ICodeStylePreferences *codeStyle(Utils::Id languageId);
@@ -41,9 +37,6 @@ public:
 
     static void registerMimeTypeForLanguageId(const char *mimeType, Utils::Id languageId);
     static Utils::Id languageId(const QString &mimeType);
-
-signals:
-    void commentsSettingsChanged();
 };
 
 namespace Internal {
