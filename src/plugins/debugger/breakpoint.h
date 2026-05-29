@@ -81,7 +81,7 @@ enum BreakpointColumns
     BreakpointThreadsColumn
 };
 
-enum BreakpointParts
+enum BreakpointPart
 {
     NoParts         = 0,
     FileAndLinePart = (1 <<  0),
@@ -110,11 +110,7 @@ enum BreakpointParts
                |EnabledPart|TypePart|PathUsagePart|CommandPart|MessagePart
                |OneShotPart
 };
-
-inline void operator|=(BreakpointParts &p, BreakpointParts r)
-{
-    p = BreakpointParts(int(p) | int(r));
-}
+Q_DECLARE_FLAGS(BreakpointParts, BreakpointPart)
 
 class DEBUGGER_EXPORT BreakpointParameters
 {
