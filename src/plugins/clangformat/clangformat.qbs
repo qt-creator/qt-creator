@@ -36,8 +36,6 @@ QtcPlugin {
         "clangformatbaseindenter.cpp",
         "clangformatcodestylepreferencesfactory.cpp",
         "clangformatcodestylepreferencesfactory.h",
-        "clangformatconfigwidget.cpp",
-        "clangformatconfigwidget.h",
         "clangformatconstants.h",
         "clangformatglobalconfigwidget.cpp",
         "clangformatglobalconfigwidget.h",
