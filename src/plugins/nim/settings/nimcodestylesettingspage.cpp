@@ -20,7 +20,6 @@
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/indenter.h>
 #include <texteditor/snippets/snippeteditor.h>
-#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 
@@ -109,26 +108,14 @@ void NimCodeStylePreferencesWidget::updatePreview()
 class NimCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    NimCodeStyleEditor(const FilePath &projectFile,
-                       ICodeStylePreferences *codeStyle,
-                       QWidget *parent)
+    NimCodeStyleEditor(ICodeStylePreferences *codeStyle, QWidget *parent)
         : CodeStyleEditor{parent}
     {
-        auto selector = new CodeStyleSelectorWidget{projectFile, this};
+        auto selector = new CodeStyleSelectorWidget{{}, this};
         selector->setCodeStyle(codeStyle);
         addSelector(selector);
         addInfoLabel();
-        if (projectFile.isEmpty()) {
-            addEditorWidget(new NimCodeStylePreferencesWidget(codeStyle, this));
-        } else {
-            m_preview = new SnippetEditorWidget{};
-            DisplaySettingsData displaySettings = m_preview->displaySettings();
-            displaySettings.m_visualizeWhitespace = true;
-            m_preview->setDisplaySettings(displaySettings);
-            SnippetProvider::decorateEditor(m_preview, Constants::C_NIMSNIPPETSGROUP_ID);
-            m_preview->setPlainText(Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
-            setupPreview(createNimIndenter(m_preview->document()), projectFile, codeStyle);
-        }
+        addEditorWidget(new NimCodeStylePreferencesWidget(codeStyle, this));
     }
 };
 
@@ -142,12 +129,17 @@ public:
     {}
 
 private:
-    CodeStyleEditor *createCodeStyleEditor(
-            const FilePath &projectFile,
-            ICodeStylePreferences *codeStyle,
-            QWidget *parent) const final
+    CodeStyleEditor *createSettingsEditor(
+            ICodeStylePreferences *codeStyle, QWidget *parent) const final
     {
-        return new NimCodeStyleEditor{projectFile, codeStyle, parent};
+        return new NimCodeStyleEditor{codeStyle, parent};
+    }
+
+    QString snippetGroupId() const final { return Constants::C_NIMSNIPPETSGROUP_ID; }
+
+    QString previewText() const final
+    {
+        return QString::fromLatin1(Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
     }
 
     QString displayName() final
@@ -181,7 +173,7 @@ public:
 
         auto factory = codeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
         CodeStyleEditor *editor
-            = factory->createCodeStyleEditor({}, &m_nimCodeStylePreferences);
+            = factory->createSettingsEditor(&m_nimCodeStylePreferences, nullptr);
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);

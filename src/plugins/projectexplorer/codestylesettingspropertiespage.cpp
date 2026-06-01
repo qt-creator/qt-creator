@@ -42,7 +42,7 @@ public:
         for (ICodeStylePreferencesFactory *factory : codeStyleFactories()) {
             Utils::Id languageId = factory->languageId();
             ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
-            CodeStyleEditor *preview = factory->createCodeStyleEditor(
+            CodeStyleEditor *preview = factory->createProjectEditor(
                 project->projectFilePath(), codeStylePreferences, stackedWidget);
             if (preview && preview->layout())
                 preview->layout()->setContentsMargins(QMargins());

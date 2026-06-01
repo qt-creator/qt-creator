@@ -346,7 +346,7 @@ public:
 
         m_codeStyleEditor
             = codeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID)
-                  ->createCodeStyleEditor({}, m_pageCppCodeStylePreferences.get());
+                  ->createSettingsEditor(m_pageCppCodeStylePreferences.get(), nullptr);
 
         auto hbox = new QVBoxLayout(this);
         hbox->addWidget(m_codeStyleEditor);

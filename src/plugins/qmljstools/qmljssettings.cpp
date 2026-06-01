@@ -29,11 +29,11 @@
 #include <texteditor/command.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/snippets/snippeteditor.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/formattexteditor.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
-#include <texteditor/snippets/snippeteditor.h>
-#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/codestylepool.h>
 
@@ -1245,7 +1245,7 @@ public:
         auto vbox = new QVBoxLayout(this);
         vbox->addWidget(
             codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID)
-                ->createCodeStyleEditor({}, &m_preferences));
+                ->createSettingsEditor(&m_preferences, nullptr));
     }
 
     void apply() final
@@ -1283,30 +1283,18 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
 class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    QmlJsCodeStyleEditor(const FilePath &projectFile,
-                         ICodeStylePreferences *codeStyle,
-                         QWidget *parent)
+    QmlJsCodeStyleEditor(ICodeStylePreferences *codeStyle, QWidget *parent)
         : CodeStyleEditor{parent}
     {
-        auto selector = new CodeStyleSelectorWidget{projectFile, this};
+        auto selector = new CodeStyleSelectorWidget{{}, this};
         selector->setCodeStyle(codeStyle);
         addSelector(selector);
         addInfoLabel();
-        const QString text = QString::fromLatin1(Internal::previewText);
-        if (projectFile.isEmpty()) {
-            if (auto qmlJSPrefs = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle)) {
-                auto widget = new QmlJSCodeStylePreferencesWidget(text, this);
-                widget->setPreferences(qmlJSPrefs);
-                addEditorWidget(widget);
-            }
-        } else {
-            m_preview = new SnippetEditorWidget{};
-            DisplaySettingsData displaySettings = m_preview->displaySettings();
-            displaySettings.m_visualizeWhitespace = true;
-            m_preview->setDisplaySettings(displaySettings);
-            SnippetProvider::decorateEditor(m_preview, QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
-            m_preview->setPlainText(text);
-            setupPreview(QmlJSEditor::createQmlJsIndenter(m_preview->document()), projectFile, codeStyle);
+        if (auto qmlJSPrefs = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle)) {
+            auto widget = new QmlJSCodeStylePreferencesWidget(
+                QString::fromLatin1(Internal::previewText), this);
+            widget->setPreferences(qmlJSPrefs);
+            addEditorWidget(widget);
         }
     }
 };
@@ -1321,18 +1309,20 @@ public:
     {}
 
 private:
-    CodeStyleEditor *createCodeStyleEditor(
-            const FilePath &projectFile,
-            ICodeStylePreferences *codeStyle,
-            QWidget *parent) const final
+    CodeStyleEditor *createSettingsEditor(
+            ICodeStylePreferences *codeStyle, QWidget *parent) const final
     {
-        return new QmlJsCodeStyleEditor{projectFile, codeStyle, parent};
+        return new QmlJsCodeStyleEditor{codeStyle, parent};
     }
 
-    QString displayName() final
+    QString snippetGroupId() const final
     {
-        return Tr::tr("Qt Quick");
+        return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
     }
+
+    QString previewText() const final { return QString::fromLatin1(Internal::previewText); }
+
+    QString displayName() final { return Tr::tr("Qt Quick"); }
 
     ICodeStylePreferences *createCodeStyle() const final
     {

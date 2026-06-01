@@ -4,9 +4,12 @@
 #include "codestyleeditor.h"
 
 #include "codestyleselectorwidget.h"
+#include "displaysettings.h"
 #include "icodestylepreferences.h"
+#include "icodestylepreferencesfactory.h"
 #include "indenter.h"
 #include "snippets/snippeteditor.h"
+#include "snippets/snippetprovider.h"
 #include "textdocument.h"
 #include "texteditortr.h"
 
@@ -100,6 +103,37 @@ void CodeStyleEditor::setupPreview(Indenter *indenter, const FilePath &projectFi
     label->setFont(font);
     label->setWordWrap(true);
     m_layout->addWidget(label);
+}
+
+class CodeStyleProjectPreviewEditor final : public CodeStyleEditor
+{
+public:
+    CodeStyleProjectPreviewEditor(
+        const ICodeStylePreferencesFactory *factory,
+        const FilePath &projectFile,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent)
+        : CodeStyleEditor{parent}
+    {
+        auto selector = new CodeStyleSelectorWidget{projectFile, this};
+        selector->setCodeStyle(codeStyle);
+        addSelector(selector);
+        addInfoLabel();
+
+        m_preview = new SnippetEditorWidget{};
+        DisplaySettingsData displaySettings = m_preview->displaySettings();
+        displaySettings.m_visualizeWhitespace = true;
+        m_preview->setDisplaySettings(displaySettings);
+        SnippetProvider::decorateEditor(m_preview, factory->snippetGroupId());
+        m_preview->setPlainText(factory->previewText());
+        setupPreview(factory->createIndenter(m_preview->document()), projectFile, codeStyle);
+    }
+};
+
+CodeStyleEditor *ICodeStylePreferencesFactory::createProjectEditor(
+    const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent) const
+{
+    return new CodeStyleProjectPreviewEditor{this, projectFile, codeStyle, parent};
 }
 
 } // TextEditor

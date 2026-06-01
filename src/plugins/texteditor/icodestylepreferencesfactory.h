@@ -32,15 +32,18 @@ public:
     explicit ICodeStylePreferencesFactory(Utils::Id languageId = {});
     virtual ~ICodeStylePreferencesFactory();
 
-    virtual CodeStyleEditor *createCodeStyleEditor(
-        const Utils::FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr) const
-        = 0;
     virtual TextEditor::Indenter *createIndenter(QTextDocument *doc) const = 0;
+    virtual QString snippetGroupId() const { return {}; }
+    virtual QString previewText() const { return {}; }
     Utils::Id languageId() const;
     virtual QString displayName() = 0;
     virtual ICodeStylePreferences *createCodeStyle() const = 0;
+    virtual CodeStyleEditor *createSettingsEditor(
+        ICodeStylePreferences *codeStyle, QWidget *parent = nullptr) const = 0;
+    virtual CodeStyleEditor *createProjectEditor(
+        const Utils::FilePath &projectFile,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent = nullptr) const;
 
 private:
     Utils::Id m_languageId;

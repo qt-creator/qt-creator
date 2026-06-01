@@ -18,11 +18,8 @@
 #include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/completionsettings.h>
-#include <texteditor/displaysettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
-#include <texteditor/snippets/snippeteditor.h>
-#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/codestylepool.h>
 
@@ -50,31 +47,18 @@ CppCodeStylePreferences *cppCodeStyle()
 class CppCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    CppCodeStyleEditor(const FilePath &projectFile,
-                       ICodeStylePreferences *codeStyle,
-                       QWidget *parent)
+    CppCodeStyleEditor(ICodeStylePreferences *codeStyle, QWidget *parent)
         : CodeStyleEditor{parent}
     {
-        auto selector = new CodeStyleSelectorWidget{projectFile, this};
+        auto selector = new CodeStyleSelectorWidget{{}, this};
         selector->setCodeStyle(codeStyle);
         addSelector(selector);
         addInfoLabel();
-        if (projectFile.isEmpty()) {
-            if (auto cppPrefs = dynamic_cast<CppCodeStylePreferences *>(codeStyle)) {
-                m_widget = new CppCodeStylePreferencesWidget(this);
-                m_widget->layout()->setContentsMargins(0, 0, 0, 0);
-                m_widget->setCodeStyle(cppPrefs);
-                addEditorWidget(m_widget);
-            }
-        } else {
-            m_preview = new SnippetEditorWidget{};
-            DisplaySettingsData displaySettings = m_preview->displaySettings();
-            displaySettings.m_visualizeWhitespace = true;
-            m_preview->setDisplaySettings(displaySettings);
-            SnippetProvider::decorateEditor(m_preview, Constants::CPP_SNIPPETS_GROUP_ID);
-            m_preview->setPlainText(
-                QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
-            setupPreview(createCppQtStyleIndenter(m_preview->document()), projectFile, codeStyle);
+        if (auto cppPrefs = dynamic_cast<CppCodeStylePreferences *>(codeStyle)) {
+            m_widget = new CppCodeStylePreferencesWidget(this);
+            m_widget->layout()->setContentsMargins(0, 0, 0, 0);
+            m_widget->setCodeStyle(cppPrefs);
+            addEditorWidget(m_widget);
         }
     }
 
@@ -93,12 +77,17 @@ public:
     {}
 
 private:
-    CodeStyleEditor *createCodeStyleEditor(
-            const FilePath &projectFile,
-            ICodeStylePreferences *codeStyle,
-            QWidget *parent) const final
+    CodeStyleEditor *createSettingsEditor(
+            ICodeStylePreferences *codeStyle, QWidget *parent) const final
     {
-        return new CppCodeStyleEditor{projectFile, codeStyle, parent};
+        return new CppCodeStyleEditor{codeStyle, parent};
+    }
+
+    QString snippetGroupId() const final { return Constants::CPP_SNIPPETS_GROUP_ID; }
+
+    QString previewText() const final
+    {
+        return QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]);
     }
 
     QString displayName() final { return Tr::tr(Constants::CPP_SETTINGS_NAME); }
