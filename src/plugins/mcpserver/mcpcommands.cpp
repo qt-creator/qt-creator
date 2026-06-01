@@ -1136,7 +1136,7 @@ void McpCommands::registerCommands()
             .name("execute_command")
             .title("executes the command")
             .description(
-                "executes the command and returns the exit code as well as standart output and "
+                "executes the command and returns the exit code as well as standard output and "
                 "error")
             .inputSchema(
                 Tool::InputSchema()

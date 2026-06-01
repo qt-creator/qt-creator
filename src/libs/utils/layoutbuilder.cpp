@@ -41,6 +41,19 @@
 
 using namespace Layouting::Tools;
 
+/*!
+    \namespace Layouting
+    \inmodule QtCreator
+
+    \brief The Layouting namespace contains classes and functions to conveniently
+    create layouts in code.
+
+    Classes in the namespace help to create QLayout or QWidget derived classes.
+    Instances should be used locally within a function and never stored.
+
+    \sa Layouting::Widget, Layouting::Layout
+*/
+
 namespace Layouting {
 
 // FlowLayout
@@ -261,32 +274,31 @@ private:
 };
 
 /*!
-    \namespace Layouting
-    \inmodule QtCreator
-
-    \brief The Layouting namespace contains classes and functions to conveniently
-    create layouts in code.
-
-    Classes in the namespace help to create create QLayout or QWidget derived class,
-    instances should be used locally within a function and never stored.
-
-    \sa Layouting::Widget, Layouting::Layout
-*/
-
-/*!
     \class Layouting::Layout
     \inmodule QtCreator
+    \brief Base class for layout builder classes.
 
-    The Layout class is a base class for more specific builder
-    classes to create QLayout derived objects.
- */
+    Wraps a QLayout-derived object. Instances are ephemeral: construct, configure,
+    and call attachTo() or emerge(). Do not store them beyond the enclosing function.
+
+    Subclasses accumulate items via addItem(), addItems(), and addRow(), which are
+    flushed into the underlying QLayout when the builder is finalized. For layouts
+    that support rows and spans (Form, Grid), items are staged and committed to the
+    layout by flush().
+
+    \sa Layouting::Widget, Layouting::Column, Layouting::Row, Layouting::Form, Layouting::Grid
+*/
 
 /*!
     \class Layouting::Widget
     \inmodule QtCreator
+    \brief Base class for widget builder classes.
 
-    The Widget class is a base class for more specific builder
-    classes to create QWidget derived objects.
+    Wraps a QWidget-derived object. Instances are ephemeral: construct and configure.
+    They call emerge() to retrieve the underlying QWidget, or nest the builder inside
+    a Layout to embed it directly.
+
+    \sa Layouting::Layout
 */
 
 /*!
@@ -425,6 +437,12 @@ Layout::Layout(Implementation *w)
     ptr = w;
 }
 
+/*!
+    Sets the column span to \a cols and the row span to \a rows on the last item
+    that was added to this layout. Only meaningful for Grid layouts.
+
+    \sa Layouting::Span, Layouting::SpanAll
+*/
 void Layout::span(int cols, int rows)
 {
     QTC_ASSERT(!pendingItems.empty(), return);
@@ -432,6 +450,10 @@ void Layout::span(int cols, int rows)
     pendingItems.back().spanRows = rows;
 }
 
+/*!
+    Sets the alignment to \a alignment on the last item that was added to this layout.
+    Only meaningful for Grid and Form layouts.
+*/
 void Layout::align(Qt::Alignment alignment)
 {
     QTC_ASSERT(!pendingItems.empty(), return);
@@ -443,11 +465,21 @@ void Layout::setAlignment(Qt::Alignment alignment)
     access(this)->setAlignment(alignment);
 }
 
+/*!
+    Sets all four content margins to zero.
+
+    \sa Layout::setNormalMargins(), Layouting::noMargin
+*/
 void Layout::setNoMargins()
 {
     setContentsMargins(0, 0, 0, 0);
 }
 
+/*!
+    Sets all four content margins to 9 pixels.
+
+    \sa Layout::setNoMargins(), Layouting::normalMargin
+*/
 void Layout::setNormalMargins()
 {
     setContentsMargins(9, 9, 9, 9);
@@ -580,6 +612,11 @@ void addToLayout(Layout *layout, const QString &inner)
     layout->addLayoutItem(inner);
 }
 
+/*!
+    \fn void Layouting::empty(Layout *layout)
+    Adds an empty (no-op) placeholder item to \a layout. Useful as a filler in
+    Grid or Form rows where a cell should be left blank.
+*/
 void empty(Layout *layout)
 {
     LayoutItem item;
@@ -587,16 +624,35 @@ void empty(Layout *layout)
     layout->addLayoutItem(item);
 }
 
+/*!
+    \fn void Layouting::hr(Layout *layout)
+    Adds a horizontal rule (a sunken QFrame) to \a layout.
+
+    \sa Layouting::createHr()
+*/
 void hr(Layout *layout)
 {
     layout->addLayoutItem(createHr());
 }
 
+/*!
+    \fn void Layouting::br(Layout *layout)
+    Starts a new row in \a layout by calling flush(). Use in Grid and Form
+    initializer lists to end the current row.
+
+    \sa Layout::flush(), Layout::addRow()
+*/
 void br(Layout *layout)
 {
     layout->flush();
 }
 
+/*!
+    \fn void Layouting::st(Layout *layout)
+    Adds a stretch factor of 1 to \a layout. Only effective in box (Column/Row) layouts.
+
+    \sa Layouting::Stretch, Layouting::spacing()
+*/
 void st(Layout *layout)
 {
     LayoutItem item;
@@ -604,11 +660,23 @@ void st(Layout *layout)
     layout->addLayoutItem(item);
 }
 
+/*!
+    \fn void Layouting::noMargin(Layout *layout)
+    Sets all content margins of \a layout to zero.
+
+    \sa Layout::setNoMargins(), Layouting::normalMargin(), Layouting::tight()
+*/
 void noMargin(Layout *layout)
 {
     layout->setNoMargins();
 }
 
+/*!
+    \fn void Layouting::normalMargin(Layout *layout)
+    Sets all content margins of \a layout to 9 pixels.
+
+    \sa Layout::setNormalMargins(), Layouting::noMargin()
+*/
 void normalMargin(Layout *layout)
 {
     layout->setNormalMargins();
@@ -634,6 +702,19 @@ FlowLayout *Layout::asFlow()
     return dynamic_cast<FlowLayout *>(access(this));
 }
 
+/*!
+    Commits all accumulated pending items into the underlying QLayout.
+
+    For Grid layouts each call to flush() advances to the next row. For Form layouts
+    each flush() call adds one label-field row (or a single full-width row). For box
+    and flow layouts items are added directly and flush() is a no-op.
+
+    flush() is called automatically at the end of a constructor that accepts an
+    initializer list, and by attachTo() and emerge(). Call it manually only when
+    building a layout step by step with addItem() or addRow().
+
+    \sa Layout::attachTo(), Layout::emerge()
+*/
 void Layout::flush()
 {
     if (pendingItems.empty())
@@ -748,10 +829,26 @@ void Layout::flush_() const
     const_cast<Layout *>(this)->flush();
 }
 
+/*!
+    \fn void Layouting::withFormAlignment(Layout *layout)
+    Intended to enable form-style label alignment for \a layout. Not yet implemented.
+*/
 void withFormAlignment(Layout *layout)
 {
     layout->useFormAlignment = true;
 }
+
+/*!
+    \class Layouting::Flow
+    \inmodule QtCreator
+    \brief Arranges items in a left-to-right flow that wraps to a new line when the
+    available width is exceeded.
+
+    Backed by a custom \c FlowLayout. Margins and spacing can be adjusted via the
+    \c noMargin, \c normalMargin, and \c spacing LayoutModifiers.
+
+    \sa Layouting::Row, Layouting::Column, Layouting::Layout
+*/
 
 // Flow
 
@@ -767,6 +864,14 @@ Flow::Flow(std::initializer_list<I> ps)
     flush();
 }
 
+/*!
+    \class Layouting::Row
+    \inmodule QtCreator
+    \brief Arranges items horizontally (QHBoxLayout).
+
+    \sa Layouting::Column, Layouting::Layout
+*/
+
 // Row
 
 Row::Row()
@@ -780,6 +885,14 @@ Row::Row(std::initializer_list<I> ps)
     apply(this, ps);
     flush();
 }
+
+/*!
+    \class Layouting::Column
+    \inmodule QtCreator
+    \brief Arranges items vertically (QVBoxLayout).
+
+    \sa Layouting::Row, Layouting::Layout
+*/
 
 // Column
 
@@ -795,6 +908,20 @@ Column::Column(std::initializer_list<I> ps)
     flush();
 }
 
+/*!
+    \class Layouting::Grid
+    \inmodule QtCreator
+    \brief Arranges items in a two-dimensional grid (QGridLayout).
+
+    Items are added row by row. Call addRow() or use the \c br free function to start
+    a new row. Individual items can span multiple columns or rows via Span or SpanAll
+    wrappers, or by calling span() on the layout after adding the item. Multiple items
+    that share a single grid cell without advancing the column counter can be grouped
+    with GridCell.
+
+    \sa Layouting::Form, Layouting::Span, Layouting::SpanAll, Layouting::GridCell, Layouting::Layout
+*/
+
 // Grid
 
 Grid::Grid()
@@ -808,6 +935,22 @@ Grid::Grid(std::initializer_list<I> ps)
     apply(this, ps);
     flush();
 }
+
+/*!
+    \class Layouting::Form
+    \inmodule QtCreator
+    \brief Arranges label-field pairs in a two-column form layout (QFormLayout).
+
+    Each call to addRow() defines one row. If a row contains a single item it spans
+    both columns (full-width). If it contains two items, the first becomes the label
+    and the second the field. A plain \c QString is automatically wrapped in a QLabel.
+    Rows with more than two items pack the extra items into an auxiliary QHBoxLayout
+    in the field column. QLabel buddies are set automatically when possible.
+
+    By default the field growth policy is \c AllNonFixedFieldsGrow.
+
+    \sa Layouting::Grid, Layouting::Layout
+*/
 
 // Form
 
@@ -837,6 +980,15 @@ void Layout::setStretch(int index, int stretch)
         lt->setStretch(index, stretch);
 }
 
+/*!
+    Finalizes the layout and returns it wrapped in a new QWidget.
+
+    This is useful when a layout needs to be embedded as a widget (for example inside
+    a QScrollArea or a QStackedWidget) without an explicit outer Widget builder.
+    The caller takes ownership of the returned widget.
+
+    \sa Layout::attachTo()
+*/
 QWidget *Layout::emerge() const
 {
     const_cast<Layout *>(this)->flush();
@@ -880,6 +1032,9 @@ void Widget::setAutoFillBackground(bool on)
     access(this)->setAutoFillBackground(on);
 }
 
+/*!
+    Sets \a layout as the layout of this widget, finalizing it first.
+*/
 void Widget::setLayout(const Layout &layout)
 {
     access(this)->setLayout(access(&layout));
@@ -985,10 +1140,24 @@ void Widget::close()
     access(this)->close();
 }
 
+/*!
+    Returns the underlying QWidget.
+
+    The caller does not take ownership. The widget is owned by the builder's
+    parent widget or layout.
+*/
 QWidget *Widget::emerge() const
 {
     return access(this);
 }
+
+/*!
+    \class Layouting::Label
+    \inmodule QtCreator
+    \brief Wraps QLabel for use in a Layouting builder.
+
+    \sa Layouting::Widget
+*/
 
 // Label
 
@@ -1034,15 +1203,37 @@ void Label::setOpenExternalLinks(bool on)
     access(this)->setOpenExternalLinks(on);
 }
 
+/*!
+    Connects \a func to the QLabel::linkHovered signal.
+
+    The connection is automatically removed when \a guard is destroyed, which prevents
+    dangling connections. Pass the object whose lifetime determines when the connection
+    should be active, typically \c this of the enclosing class.
+*/
 void Label::onLinkHovered(QObject *guard, const std::function<void (const QString &)> &func)
 {
     QObject::connect(access(this), &QLabel::linkHovered, guard, func);
 }
 
+/*!
+    Connects \a func to the QLabel::linkActivated signal.
+    The connection is automatically removed when \a guard is destroyed.
+*/
 void Label::onLinkActivated(QObject *guard, const std::function<void(const QString &)> &func)
 {
     QObject::connect(access(this), &QLabel::linkActivated, guard, func);
 }
+
+/*!
+    \class Layouting::Group
+    \inmodule QtCreator
+    \brief Wraps QGroupBox for use in a Layouting builder.
+
+    A title and an optional checkable state can be configured via setTitle() and
+    setGroupChecker(). The group's content is provided by nesting a Layout inside it.
+
+    \sa Layouting::Widget
+*/
 
 // Group
 
@@ -1058,10 +1249,23 @@ void Group::setTitle(const QString &title)
     access(this)->setObjectName(title);
 }
 
+/*!
+    Calls \a checker with the underlying QGroupBox, allowing external code to
+    configure the group box, for example to make it checkable and bind its
+    checked state to a settings key.
+*/
 void Group::setGroupChecker(const std::function<void (QObject *)> &checker)
 {
     checker(access(this));
 }
+
+/*!
+    \class Layouting::SpinBox
+    \inmodule QtCreator
+    \brief Wraps QSpinBox for use in a Layouting builder.
+
+    \sa Layouting::Widget
+*/
 
 // SpinBox
 
@@ -1076,10 +1280,24 @@ void SpinBox::setValue(int val)
     access(this)->setValue(val);
 }
 
+/*!
+    Connects \a func to the QSpinBox::textChanged signal.
+    The connection is automatically removed when \a guard is destroyed.
+*/
 void SpinBox::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
 {
     QObject::connect(access(this), &QSpinBox::textChanged, guard, func);
 }
+
+/*!
+    \class Layouting::TextEdit
+    \inmodule QtCreator
+    \brief Wraps QTextEdit for use in a Layouting builder.
+
+    Supports both plain text (via setText()) and Markdown content (via setMarkdown()).
+
+    \sa Layouting::CompletingTextEdit, Layouting::LineEdit, Layouting::Widget
+*/
 
 // TextEdit
 
@@ -1108,6 +1326,18 @@ void TextEdit::setReadOnly(bool on)
 {
     access(this)->setReadOnly(on);
 }
+
+/*!
+    \class Layouting::CompletingTextEdit
+    \inmodule QtCreator
+    \brief Wraps Utils::CompletingTextEdit for use in a Layouting builder.
+
+    Provides auto-completion, an optional right-side icon, and configurable completion
+    behavior in addition to the standard multi-line text editing capabilities of
+    TextEdit.
+
+    \sa Layouting::TextEdit, Layouting::LineEdit, Layouting::Widget
+*/
 
 // CompletingTextEdit
 
@@ -1157,6 +1387,10 @@ void CompletingTextEdit::setCompleter(QCompleter *completer)
     access(this)->setCompleter(completer);
 }
 
+/*!
+    Connects \a func to the textChanged signal, passing the current plain text.
+    The connection is automatically removed when \a guard is destroyed.
+*/
 void CompletingTextEdit::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
 {
     QObject::connect(access(this), &Implementation::textChanged, guard, [func, this]() {
@@ -1169,11 +1403,19 @@ QCompleter *CompletingTextEdit::completer() const
     return access(this)->completer();
 }
 
+/*!
+    Connects \a func to the CompletingTextEdit::returnPressed signal.
+    The connection is automatically removed when \a guard is destroyed.
+*/
 void CompletingTextEdit::onReturnPressed(QObject *guard, const std::function<void()> &func)
 {
     QObject::connect(access(this), &Utils::CompletingTextEdit::returnPressed, guard, func);
 }
 
+/*!
+    Connects \a func to the CompletingTextEdit::rightSideIconClicked signal.
+    The connection is automatically removed when \a guard is destroyed.
+*/
 void CompletingTextEdit::onRightSideIconClicked(QObject *guard, const std::function<void()> &func)
 {
     QObject::connect(access(this), &Utils::CompletingTextEdit::rightSideIconClicked, guard, func);
@@ -1188,6 +1430,14 @@ void CompletingTextEdit::setCompletionBehavior(Utils::CompletingTextEdit::Comple
 {
     access(this)->setCompletionBehavior(behavior);
 }
+
+/*!
+    \class Layouting::PushButton
+    \inmodule QtCreator
+    \brief Wraps QPushButton for use in a Layouting builder.
+
+    \sa Layouting::ToolButton, Layouting::Widget
+*/
 
 // PushButton
 
@@ -1223,10 +1473,26 @@ void PushButton::setFlat(bool flat)
     access(this)->setFlat(flat);
 }
 
+/*!
+    Connects \a func to the QAbstractButton::clicked signal.
+    The connection is automatically removed when \a guard is destroyed.
+*/
 void PushButton::onClicked(QObject *guard, const std::function<void ()> &func)
 {
     QObject::connect(access(this), &QAbstractButton::clicked, guard, func);
 }
+
+/*!
+    \class Layouting::Stack
+    \inmodule QtCreator
+    \brief Wraps QStackedWidget for use in a Layouting builder.
+
+    Only one child widget is visible at a time. Children are added via the builder
+    initializer list. The visible child is controlled through the underlying
+    QStackedWidget after construction.
+
+    \sa Layouting::TabWidget, Layouting::Widget
+*/
 
 // Stack
 
@@ -1269,6 +1535,19 @@ void addToScrollArea(ScrollArea *scrollArea, const Widget &inner)
 {
     access(scrollArea)->setWidget(inner.emerge());
 }
+
+/*!
+    \class Layouting::ScrollArea
+    \inmodule QtCreator
+    \brief Wraps QScrollArea for use in a Layouting builder.
+
+    The scroll area is created with \c widgetResizable set to \c true. The inner
+    content can be a Layout, a Widget, or a raw QWidget. By default, sizeHint is
+    capped at 36x24 em-widths as a workaround for QTBUG-136762; call
+    setFixSizeHintBug(true) to disable the cap.
+
+    \sa Layouting::Widget
+*/
 
 // ScrollArea
 
@@ -1324,11 +1603,27 @@ void ScrollArea::setFrameShape(QFrame::Shape shape)
     access(this)->setFrameShape(shape);
 }
 
+/*!
+    When \a fixBug is \c true, disables the default sizeHint cap of 36x24 em-widths
+    that works around QTBUG-136762. Enable this when the scroll area must report its
+    full preferred size rather than capping it.
+*/
 void ScrollArea::setFixSizeHintBug(bool fixBug)
 {
     auto fixedScrollArea = static_cast<FixedScrollArea *>(access(this));
     fixedScrollArea->setFixSizeHintBug(fixBug);
 }
+
+/*!
+    \class Layouting::Splitter
+    \inmodule QtCreator
+    \brief Wraps QSplitter for use in a Layouting builder.
+
+    The default orientation is \c Qt::Vertical. Children can be any combination of
+    Layouts, Widgets, or raw QWidgets.
+
+    \sa Layouting::Widget
+*/
 
 // Splitter
 
@@ -1370,6 +1665,17 @@ void addToSplitter(Splitter *splitter, const Layout &inner)
     access(splitter)->addWidget(inner.emerge());
 }
 
+/*!
+    \class Layouting::ToolBar
+    \inmodule QtCreator
+    \brief Wraps QToolBar for use in a Layouting builder.
+
+    The toolbar is created with horizontal orientation. Items such as QAction-based
+    tool buttons and separators can be added via the initializer list.
+
+    \sa Layouting::ToolButton, Layouting::Widget
+*/
+
 // ToolBar
 
 ToolBar::ToolBar(std::initializer_list<I> ps)
@@ -1378,6 +1684,14 @@ ToolBar::ToolBar(std::initializer_list<I> ps)
     apply(this, ps);
     access(this)->setOrientation(Qt::Horizontal);
 }
+
+/*!
+    \class Layouting::ToolButton
+    \inmodule QtCreator
+    \brief Wraps QToolButton for use in a Layouting builder.
+
+    \sa Layouting::PushButton, Layouting::Widget
+*/
 
 // ToolButton
 
@@ -1391,6 +1705,17 @@ void ToolButton::setDefaultAction(QAction *action)
 {
     access(this)->setDefaultAction(action);
 }
+
+/*!
+    \class Layouting::TabWidget
+    \inmodule QtCreator
+    \brief Wraps QTabWidget for use in a Layouting builder.
+
+    Tabs are added by including Tab items in the initializer list. Each Tab carries
+    a tab label and a Layout that defines the tab's content.
+
+    \sa Layouting::Tab, Layouting::Stack, Layouting::Widget
+*/
 
 // TabWidget
 
@@ -1409,6 +1734,17 @@ void addToTabWidget(TabWidget *tabWidget, const Tab &tab)
 {
     access(tabWidget)->addTab(tab.inner.emerge(), tab.tabName);
 }
+
+/*!
+    \class Layouting::MarkdownBrowser
+    \inmodule QtCreator
+    \brief Wraps Utils::MarkdownBrowser for use in a Layouting builder.
+
+    Displays rendered Markdown content with optional code copy buttons and configurable
+    viewport margins.
+
+    \sa Layouting::TextEdit, Layouting::Widget
+*/
 
 // MarkdownBrowser
 
@@ -1442,6 +1778,25 @@ void MarkdownBrowser::setViewportMargins(int left, int top, int right, int botto
 {
     access(this)->setMargins(QMargins(left, top, right, bottom));
 }
+
+/*!
+    \class Layouting::Canvas
+    \inmodule QtCreator
+    \brief Provides a custom-painted widget surface for use in a Layouting builder.
+
+    The paint function is set via setPaintFunction() and receives a QPainter reference
+    on each paint event. The underlying widget is a CanvasWidget.
+
+    \sa Layouting::Widget
+*/
+
+/*!
+    \class Layouting::CanvasWidget
+    \inmodule QtCreator
+    \brief A QWidget subclass that delegates painting to a user-supplied function.
+
+    \sa Layouting::Canvas
+*/
 
 void CanvasWidget::setPaintFunction(const PaintFunction &paintFunction)
 {
@@ -1503,6 +1858,40 @@ void Preview::show() const
     widget->show();
 }
 
+/*!
+    \class Layouting::If
+    \inmodule QtCreator
+    \brief Conditionally includes layout items based on a boolean condition.
+
+    Use the \c >> operator to chain a Then and an optional Else clause:
+    \code
+        Column {
+            If(condition) >> Then { label1, label2 } >> Else { label3 },
+        }
+    \endcode
+
+    At construction time the condition is evaluated and the matching item list is
+    inlined into the enclosing layout.
+
+    \sa Layouting::Then, Layouting::Else
+*/
+
+/*!
+    \class Layouting::Then
+    \inmodule QtCreator
+    \brief Holds the list of items to include when the If condition is true.
+
+    \sa Layouting::If, Layouting::Else
+*/
+
+/*!
+    \class Layouting::Else
+    \inmodule QtCreator
+    \brief Holds the list of items to include when the If condition is false.
+
+    \sa Layouting::If, Layouting::Then
+*/
+
 // Special If
 
 If::If(bool condition)
@@ -1531,6 +1920,12 @@ void addToLayout(Layout *layout, const If &if_)
 
 // Specials
 
+/*!
+    Creates and returns a horizontal rule widget (a sunken QFrame with a HLine shape).
+    The optional \a parent is passed to the QFrame constructor.
+
+    \sa Layouting::hr()
+*/
 QWidget *createHr(QWidget *parent)
 {
     auto frame = new QFrame(parent);
@@ -1538,6 +1933,17 @@ QWidget *createHr(QWidget *parent)
     frame->setFrameShadow(QFrame::Sunken);
     return frame;
 }
+
+/*!
+    \class Layouting::Span
+    \inmodule QtCreator
+    \brief Sets a column and/or row span on a single item in a Grid layout.
+
+    \a cols and \a rows specify how many grid columns and rows the wrapped item
+    should occupy. Only the last pending item is affected.
+
+    \sa Layouting::SpanAll, Layouting::Grid
+*/
 
 Span::Span(int cols, const Layout::I &item)
     : item(item)
@@ -1560,6 +1966,17 @@ void addToLayout(Layout *layout, const Span &inner)
     layout->pendingItems.back().spanCols = inner.spanCols;
     layout->pendingItems.back().spanRows = inner.spanRows;
 }
+
+/*!
+    \class Layouting::SpanAll
+    \inmodule QtCreator
+    \brief Sets a column and/or row span on all items added by a nested builder.
+
+    Unlike Span, which only affects the last pending item, SpanAll applies the span
+    to every item that the wrapped builder produces.
+
+    \sa Layouting::Span, Layouting::Grid
+*/
 
 SpanAll::SpanAll(int cols, const Layout::I &item)
     : item(item)
@@ -1586,6 +2003,36 @@ void addToLayout(Layout *layout, const SpanAll &inner)
     }
 }
 
+/*!
+    \class Layouting::Align
+    \inmodule QtCreator
+    \brief Sets a Qt::Alignment on all items produced by the wrapped builder.
+
+    \sa Layouting::Grid, Layouting::Form
+*/
+
+/*!
+    \class Layouting::GridCell
+    \inmodule QtCreator
+    \brief Groups multiple items into a single grid cell without advancing the column counter.
+
+    Normally each item added to a Grid or Form advances the current column. Use
+    GridCell to place several items into the same cell. Only the last item in the
+    group advances the column.
+
+    \sa Layouting::Grid
+*/
+
+/*!
+    \class Layouting::Tab
+    \inmodule QtCreator
+    \brief Represents a single tab for use inside a TabWidget builder.
+
+    Carries a display name (\c tabName) and a Layout that defines the tab's content.
+
+    \sa Layouting::TabWidget
+*/
+
 Align::Align(Qt::Alignment alignment, const Layout::I &item)
     : item(item)
     , alignment(alignment)
@@ -1611,11 +2058,21 @@ void addToLayout(Layout *layout, const GridCell &inner)
     }
 }
 
+/*!
+    Returns a LayoutModifier that sets the spacing of a layout to \a space pixels.
+
+    \sa Layouting::stretch()
+*/
 LayoutModifier spacing(int space)
 {
     return [space](Layout *layout) { layout->setSpacing(space); };
 }
 
+/*!
+    Returns a LayoutModifier that sets the stretch factor of item at \a index to \a stretch.
+
+    \sa Layouting::spacing()
+*/
 LayoutModifier stretch(int index, int stretch)
 {
     return [index, stretch](Layout *layout) { layout->setStretch(index, stretch); };
@@ -1633,12 +2090,25 @@ void addToLayout(Layout *layout, const Stretch &inner)
         lt->addStretch(inner.stretch);
 }
 
+/*!
+    \fn void Layouting::tight(Layout *layout)
+    Sets both the content margins and the spacing of \a layout to zero.
+    Equivalent to calling noMargin() followed by spacing(0).
+
+    \sa Layouting::noMargin(), Layouting::spacing()
+*/
 void tight(Layout *layout)
 {
     layout->setNoMargins();
     layout->setSpacing(0);
 }
 
+/*!
+    \fn void Layouting::ignoreDirtyHooks(Widget *widget)
+    Marks \a widget so that changes to it do not trigger dirty-state notifications.
+    Useful for widgets whose value changes should not mark a settings page or document
+    as modified.
+*/
 void ignoreDirtyHooks(Widget *widget)
 {
     Utils::setIgnoreForDirtyHook(widget->emerge());
@@ -1659,6 +2129,18 @@ public:
 
     bool acceptReturnKeys = false;
 };
+
+/*!
+    \class Layouting::LineEdit
+    \inmodule QtCreator
+    \brief Wraps Utils::FancyLineEdit for use in a Layouting builder.
+
+    Supports auto-completion, a right-side icon button, a placeholder text, and
+    a return-key pressed signal. When onReturnPressed() is connected, the Return
+    and Enter keys are accepted (not propagated further).
+
+    \sa Layouting::CompletingTextEdit, Layouting::TextEdit, Layouting::Widget
+*/
 
 LineEdit::LineEdit(std::initializer_list<I> ps)
 {
@@ -1696,16 +2178,36 @@ void LineEdit::setCompleter(QCompleter *completer)
     access(this)->setSpecialCompleter(completer);
 }
 
+/*!
+    Connects \a func to the FancyLineEdit::returnPressed signal and enables
+    acceptance of Return/Enter key events so they are not propagated further.
+    The connection is automatically removed when \a guard is destroyed.
+*/
 void LineEdit::onReturnPressed(QObject *guard, const std::function<void()> &func)
 {
     static_cast<LineEditImpl *>(access(this))->acceptReturnKeys = true;
     QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, guard, func);
 }
 
+/*!
+    Connects \a func to the FancyLineEdit::rightButtonClicked signal.
+    The connection is automatically removed when \a guard is destroyed.
+*/
 void LineEdit::onRightSideIconClicked(QObject *guard, const std::function<void()> &func)
 {
     QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, guard, func);
 }
+
+/*!
+    \class Layouting::Spinner
+    \inmodule QtCreator
+    \brief Wraps SpinnerSolution::SpinnerWidget for use in a Layouting builder.
+
+    Displays an animated spinner that can be started and stopped via setRunning().
+    An optional visual decoration can be toggled with setDecorated().
+
+    \sa Layouting::Widget
+*/
 
 Spinner::Spinner(std::initializer_list<I> ps)
 {
@@ -1724,6 +2226,10 @@ void Spinner::setDecorated(bool on)
     access(this)->setDecorated(on);
 }
 
+/*!
+    Recursively destroys \a layout and all its child items and nested layouts.
+    Widgets owned by the layout items are also deleted.
+*/
 void destroyLayout(QLayout *layout)
 {
     if (layout) {

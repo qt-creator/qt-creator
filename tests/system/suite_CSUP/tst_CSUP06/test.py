@@ -89,6 +89,7 @@ def checkSymbolCompletion(editor, isClangCodeModel):
     if isClangCodeModel:
         missing = ["dummy.bla(", "freefunc2("]
         expectedSuggestion["internal.o"] = ["one"]
+        expectedSuggestion["in"] = ["internal", "int", "intmax_t|std::intmax_t"]
         if platform.system() in ('Microsoft', 'Windows'):
             expectedSuggestion["using namespace st"] = ["std", "stdext"]
         else:
@@ -108,10 +109,23 @@ def checkSymbolCompletion(editor, isClangCodeModel):
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')
             found = [i.strip() for i in dumpItems(proposalListView.model())]
             diffShownExp = set(expectedSug.get(symbol, [])) - set(found)
-            if not test.verify(len(diffShownExp) == 0,
-                               "Verify if all expected suggestions could be found"):
-                test.log("Expected but not found suggestions: %s" % diffShownExp,
-                         "%s | %s" % (expectedSug[symbol], str(found)))
+            if len(diffShownExp) != 0:
+                for miss in diffShownExp:
+                    # special handling for suggestions that may be flaky or depend on system compiler
+                    # a suggestion (except the first) may be a list of alternative separated by |
+                    if '|' in miss:
+                        alternatives = miss.split('|')
+                        foundAlternative = (False, None)
+                        for alt in alternatives:
+                            if alt in found:
+                                foundAlternative = (True, alt)
+                                break
+                        test.verify(foundAlternative,
+                                    "Found alternative '%s' for '%s'." % (alt, expectedSug[symbol]))
+                        test.log(str(found))
+                    else:
+                        test.fail("Expected but not found suggestions: %s" % diffShownExp,
+                                  "%s | %s" % (expectedSug[symbol], str(found)))
             # select first item of the expected suggestion list
             suggestionToClick = expectedSug.get(symbol, found)[0]
             if isClangCodeModel:

@@ -58,12 +58,20 @@ public:
     void announceDirectory(const QString &path, const QStringList &entries);
     void announceError(const QString &path);
     void announceConfiguration();
+    void doLoad(const QUrl &url);
     void clearCache();
     void setAnimationSpeed(float factor);
     void configureEventReplay(); // Configure the event replay client based on the current settings
+    void replayEventsForUrl(
+        const QUrl &url, QList<QmlDebug::QmlEvent> &events, QList<QmlDebug::QmlEventType> &types);
 
     void messageReceived(const QByteArray &message) override;
     void stateChanged(State state) override;
+
+    void setEvents(const QList<QmlDebug::QmlEvent> &events);
+    void setEventTypes(const QList<QmlDebug::QmlEventType> &types);
+    QList<QmlDebug::QmlEvent> events() const { return m_events; }
+    QList<QmlDebug::QmlEventType> eventTypes() const { return m_eventTypes; }
 
 #if WITH_TESTS
     void injectEvents(

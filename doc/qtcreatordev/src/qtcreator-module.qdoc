@@ -34,14 +34,11 @@
                 object pool.
 
         \row
-            \li \l{QtTaskTree}
-            \li Provides a declarative way to compose and execute asynchronous
-                task workflows with proper error handling and execution policies.
-                For more information, see \l {Qt TaskTree}.
-
-        \row
             \li \l{Utils}
             \li Useful classes that are reused in a lot of places in \QC code.
+                The \l{Layouting} namespace contains classes that allow using a declarative style
+                for the construction of graphical user interfaces.
+
     \omit
         \row
             \li \l{QmlJS}

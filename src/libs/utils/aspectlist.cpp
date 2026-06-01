@@ -362,9 +362,9 @@ public:
             [listView, layout, configWidget, this](const QModelIndex &current) mutable {
                 QWidget *newConfigWidget = nullptr;
                 if (current.isValid()) {
-                    newConfigWidget = new QWidget();
                     const AspectListModelItem *item = model.itemForIndex(current);
                     QTC_ASSERT(item, return);
+                    newConfigWidget = new QWidget();
 
                     if (auto container = dynamic_cast<AspectContainer *>(item->aspect().get()))
                         container->layouter()().attachTo(newConfigWidget);

@@ -9,6 +9,8 @@
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/runcontrol.h>
 #include <qmljs/qmljsdialect.h>
+#include <qmldebug/quickeventreplayclient.h>
+
 
 namespace Core { class IEditor; }
 
@@ -76,6 +78,11 @@ public:
     void previewCurrentFile();
     void addPreview(ProjectExplorer::RunControl *preview);
     void removePreview(ProjectExplorer::RunControl *preview);
+
+    QList<QmlDebug::QmlEvent> events() const;
+    QList<QmlDebug::QmlEventType> eventTypes() const;
+    void setEvents(const QList<QmlDebug::QmlEvent> &events);
+    void setEventTypes(const QList<QmlDebug::QmlEventType> &types);
 
 signals:
     void updatePreviews(const QString &previewedFile, const QString &changedFile,

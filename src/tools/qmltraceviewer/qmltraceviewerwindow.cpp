@@ -16,12 +16,14 @@
 #include <utils/utilsicons.h>
 
 #include <QApplication>
+#include <QDesktopServices>
 #include <QDockWidget>
 #include <QMessageBox>
 #include <QTime>
 #include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
+#include <QUrl>
 
 #include <iostream>
 
@@ -50,6 +52,8 @@ public:
     void resetLayout();
     void clearTrace();
     void setTraceDuration(milliseconds ms);
+
+    static void openHelpInBrowser();
 
     Window *q = nullptr;
     QmlProfilerPlainViewManager *viewManager;
@@ -157,6 +161,11 @@ void WindowPrivate::setTraceDuration(milliseconds ms)
     traceDurationLabel->setText(text);
 }
 
+void WindowPrivate::openHelpInBrowser()
+{
+    QDesktopServices::openUrl({"https://doc.qt.io/qtcreator/creator-qml-performance-monitor.html"});
+}
+
 Window::Window(QWidget *parent)
     : FancyMainWindow(parent)
     , d(new WindowPrivate(this))
@@ -172,15 +181,22 @@ Window::Window(QWidget *parent)
     clearAction->setShortcut(QKeySequence::Delete);
     connect(clearAction, &QAction::triggered, d, &WindowPrivate::clearTrace);
 
+    auto helpAction = new QAction("?", this);
+    helpAction->setToolTip(Tr::tr("Open Help in Web Browser"));
+    helpAction->setShortcut(QKeySequence::HelpContents);
+    connect(helpAction, &QAction::triggered, this, &WindowPrivate::openHelpInBrowser);
+
     d->traceDurationLabel = new QLabel;
     d->traceDurationLabel->setContentsMargins(SpacingTokens::PaddingHM, 0,
                                               SpacingTokens::PaddingHM, 0);
+    d->traceDurationLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
     auto toolBar = new QToolBar;
     toolBar->setObjectName("QmlProfileTraceViewer");
     toolBar->addActions({loadAction, clearAction});
     toolBar->addSeparator();
     toolBar->addWidget(d->traceDurationLabel);
+    toolBar->addAction(helpAction);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(16, 16));
     addToolBar(toolBar);

@@ -19,6 +19,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/async.h>
+#include <utils/utilsicons.h>
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/progressindicator.h>
@@ -74,6 +75,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
                                                QtcButton::MediumSecondary);
             manageButton->setToolTip(Tr::tr("Open ACP server settings."));
+            manageButton->setPixmap(Utils::Icons::SETTINGS.pixmap());
             connect(manageButton, &QAbstractButton::clicked, this, [] {
                 Core::ICore::showSettings("AI.ACPSERVERS");
             });
@@ -101,6 +103,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             titleLabel->setFont(titleFont);
             titleLabel->setAlignment(Qt::AlignHCenter);
             connectLayout->addWidget(titleLabel);
+            connectLayout->addWidget(Layouting::createHr());
 
             m_serverButtonsLayout = new QVBoxLayout;
             m_serverButtonsLayout->setSpacing(6);
@@ -112,16 +115,18 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_connectionErrorLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
             m_connectionErrorLabel->hide();
             QPalette errorPal = m_connectionErrorLabel->palette();
-            errorPal.setColor(QPalette::WindowText, QColor(0xfc, 0x8c, 0x8c));
+            errorPal.setColor(QPalette::WindowText, creatorColor(Theme::TextColorError));
             m_connectionErrorLabel->setPalette(errorPal);
             connectLayout->addWidget(m_connectionErrorLabel);
 
             auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
-                                               QtcButton::MediumSecondary);
+                                               QtcButton::MediumGhost);
             manageButton->setToolTip(Tr::tr("Open ACP server settings."));
+            manageButton->setPixmap(Utils::Icons::SETTINGS.pixmap());
             connect(manageButton, &QAbstractButton::clicked, this, [] {
                 Core::ICore::showSettings("AI.ACPSERVERS");
             });
+            connectLayout->addWidget(Layouting::createHr());
             connectLayout->addWidget(manageButton);
 
             connectLayout->addStretch();
@@ -323,9 +328,11 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
         m_chatPanel->setSendEnabled(true);
-        m_chatPanel->appendAgentText("Cute Greetings,\n\n your AI Agent is ready and you can start chatting.");
-        m_chatPanel->finishAgentMessage();
-        if (!m_pendingPrompt.isEmpty()) {
+        if (m_pendingPrompt.isEmpty()) {
+            m_chatPanel->appendAgentText(
+                "Cute Greetings,\n\n your AI Agent is ready and you can start chatting.");
+            m_chatPanel->finishAgentMessage();
+        } else  {
             const QString text = m_pendingPrompt;
             m_pendingPrompt.clear();
             m_chatPanel->addUserMessage(text);
@@ -496,7 +503,7 @@ void AcpChatTab::populateServerButtons()
 
     const QList<AcpSettings::ServerInfo> servers = AcpSettings::servers();
     for (const AcpSettings::ServerInfo &info : servers) {
-        auto *button = new QtcButton(info.name, QtcButton::MediumPrimary);
+        auto *button = new QtcButton(info.name, QtcButton::MediumTertiary);
         button->setToolTip(info.name);
         const QString serverId = info.id;
         const QString serverName = info.name;

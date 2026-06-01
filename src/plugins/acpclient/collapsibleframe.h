@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/theme/theme.h>
+
 #include <QFrame>
 
 QT_BEGIN_NAMESPACE
@@ -10,7 +12,10 @@ class QHBoxLayout;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace Utils { class QtcIconDisplay; }
+namespace Utils {
+class QtcIconDisplay;
+class Icon;
+} // namespace Utils
 
 namespace AcpClient::Internal {
 
@@ -37,6 +42,8 @@ public:
     QHBoxLayout *headerLayout() const { return m_headerLayout; }
     QVBoxLayout *bodyLayout() const { return m_bodyLayout; }
 
+    void setIndicatorColor(Utils::Theme::Color indicatorColor);
+
 signals:
     void collapsedChanged(bool collapsed);
 
@@ -48,10 +55,13 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
+    Utils::Icon indicatorIcon() const;
+
     QVBoxLayout *m_outerLayout = nullptr;
     QWidget *m_headerWidget = nullptr;
     QWidget *m_body = nullptr;
     Utils::QtcIconDisplay *m_indicator = nullptr;
+    Utils::Theme::Color m_indicatorColor = Utils::Theme::PanelTextColorDark;
     bool m_collapsed = false;
     bool m_collapsible = true;
 };

@@ -230,17 +230,18 @@ void BuildSettingsWidget::createConfiguration(const BuildInfo &info_)
     BuildInfo info = info_;
     if (info.displayName.isEmpty()) {
         bool ok = false;
-        info.displayName = uniqueName(
-                               QInputDialog::getText(
-                                   Core::ICore::dialogParent(),
-                                   Tr::tr("New Configuration"),
-                                   Tr::tr("New configuration name:"),
-                                   QLineEdit::Normal,
-                                   info.typeName,
-                                   &ok),
-                               false)
-                               .trimmed();
-        if (!ok || info.displayName.isEmpty())
+        QPointer<Target> target = m_target;
+        const QString name = QInputDialog::getText(
+            Core::ICore::dialogParent(),
+            Tr::tr("New Configuration"),
+            Tr::tr("New configuration name:"),
+            QLineEdit::Normal,
+            info.typeName,
+            &ok);
+        if (!ok || !target)
+            return;
+        info.displayName = uniqueName(name, false).trimmed();
+        if (info.displayName.isEmpty())
             return;
     }
     info = BuildConfiguration::fixupBuildInfo(

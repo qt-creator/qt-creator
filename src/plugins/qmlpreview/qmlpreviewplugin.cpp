@@ -122,6 +122,8 @@ public:
     QmlPreviewRunWorkerFactory runWorkerFactory;
 
     QSingleTaskTreeRunner m_parseRunner;
+    QList<QmlDebug::QmlEvent> m_events;
+    QList<QmlDebug::QmlEventType> m_eventTypes;
 };
 
 QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
@@ -517,6 +519,26 @@ void QmlPreviewPluginPrivate::checkDocument(const QString &name, const QByteArra
     };
     const auto onDone = [this, name, contents] { triggerPreview(name, contents); };
     m_parseRunner.start({Utils::AsyncTask<void>(onParseSetup)}, {}, onDone, CallDoneFlag::OnSuccess);
+}
+
+void QmlPreviewPlugin::setEvents(const QList<QmlDebug::QmlEvent> &events)
+{
+    d->m_events = events;
+}
+
+void QmlPreviewPlugin::setEventTypes(const QList<QmlDebug::QmlEventType> &types)
+{
+    d->m_eventTypes = types;
+}
+
+QList<QmlDebug::QmlEvent> QmlPreviewPlugin::events() const
+{
+    return d->m_events;
+}
+
+QList<QmlDebug::QmlEventType> QmlPreviewPlugin::eventTypes() const
+{
+    return d->m_eventTypes;
 }
 
 } // namespace QmlPreview

@@ -302,7 +302,7 @@ public:
     }
 };
 
-static void appendVscPathsToPatchCommandPath()
+static void appendVcsPathsToPatchCommandPath()
 {
     Environment env;
     env.appendToPath(VcsManager::additionalToolsPath());
@@ -319,10 +319,10 @@ void SystemSettings::delayedInitialize()
         VcsManager::instance(),
         &VcsManager::configurationChanged,
         this,
-        appendVscPathsToPatchCommandPath);
+        appendVcsPathsToPatchCommandPath);
     connect(
-        ICore::instance(), &ICore::systemEnvironmentChanged, this, appendVscPathsToPatchCommandPath);
-    appendVscPathsToPatchCommandPath();
+        ICore::instance(), &ICore::systemEnvironmentChanged, this, appendVcsPathsToPatchCommandPath);
+    appendVcsPathsToPatchCommandPath();
 }
 
 const SystemSettingsPage settingsPage;

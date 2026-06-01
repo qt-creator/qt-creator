@@ -110,11 +110,48 @@ ChatPanel::ChatPanel(QWidget *parent)
     m_agentLabel->setTextFormat(Qt::RichText);
     toolbarLayout->addWidget(m_agentLabel);
 
-    m_configOptionsLayout = new QHBoxLayout;
+    m_configOptionsWidget = new QWidget;
+    m_configOptionsLayout = new QHBoxLayout(m_configOptionsWidget);
+    m_configOptionsLayout->setContentsMargins(0, 0, 0, 0);
     m_configOptionsLayout->setSpacing(GapHS);
-    toolbarLayout->addLayout(m_configOptionsLayout);
+    toolbarLayout->addWidget(m_configOptionsWidget);
 
+    m_configOverflowButton = new QToolButton;
+    m_configOverflowButton->setIcon(Icons::SETTINGS_TOOLBAR.icon());
+    m_configOverflowButton->setToolTip(Tr::tr("Configuration Options"));
+    m_configOverflowButton->setAutoRaise(true);
+    m_configOverflowButton->hide();
+    connect(m_configOverflowButton, &QToolButton::clicked, this, [this] {
+        auto *menu = new QMenu(m_configOverflowButton);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+        for (const QString &id : std::as_const(m_configOrder)) {
+            QComboBox *combo = m_configCombos.value(id);
+            QLabel *label = m_configLabels.value(id);
+            if (!combo || !label || combo->count() == 0)
+                continue;
+            QString title = label->text();
+            if (title.endsWith(QLatin1Char(':')))
+                title.chop(1);
+            QMenu *sub = menu->addMenu(title);
+            for (int i = 0; i < combo->count(); ++i) {
+                QAction *a = sub->addAction(combo->itemText(i));
+                a->setCheckable(true);
+                a->setChecked(i == combo->currentIndex());
+                const QString value = combo->itemData(i).toString();
+                if (value.isEmpty()) {
+                    a->setEnabled(false); // group header
+                    continue;
+                }
+                connect(a, &QAction::triggered, this, [combo, i] {
+                    combo->setCurrentIndex(i);
+                    emit combo->activated(i);
+                });
+            }
+        }
+        menu->popup(QCursor::pos());
+    });
     toolbarLayout->addStretch(1);
+    toolbarLayout->addWidget(m_configOverflowButton);
 
     // --- Message view ---
     m_messageView = new AcpMessageView;
@@ -305,6 +342,8 @@ void ChatPanel::updateConfigOptions(const QList<SessionConfigOption> &configOpti
             label->setSizePolicy(QSizePolicy::Preferred, label->sizePolicy().verticalPolicy());
             label->setMinimumWidth(0);
             m_configOptionsLayout->addWidget(label);
+            m_configLabels.insert(configId, label);
+            m_configOrder.append(configId);
             combo = new QComboBox;
             combo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
             combo->setMinimumContentsLength(3);
@@ -356,6 +395,7 @@ void ChatPanel::updateConfigOptions(const QList<SessionConfigOption> &configOpti
         combo->setCurrentIndex(currentIndex);
         combo->setVisible(combo->count() > 0);
     }
+    updateConfigOverflow();
 }
 
 void ChatPanel::clear()
@@ -367,11 +407,40 @@ void ChatPanel::clearConfigOptions()
 {
     qDeleteAll(m_configCombos);
     m_configCombos.clear();
+    m_configLabels.clear();
+    m_configOrder.clear();
     // Also remove any labels added to the config options layout
     while (QLayoutItem *item = m_configOptionsLayout->takeAt(0)) {
         delete item->widget();
         delete item;
     }
+    updateConfigOverflow();
+}
+
+void ChatPanel::updateConfigOverflow()
+{
+    if (!m_configOptionsWidget || !m_configOverflowButton)
+        return;
+    const bool hasAny = !m_configCombos.isEmpty();
+    if (!hasAny) {
+        m_configOptionsWidget->setVisible(false);
+        m_configOverflowButton->setVisible(false);
+        return;
+    }
+    // Re-enable widget so its sizeHint reflects natural width
+    m_configOptionsWidget->setVisible(true);
+    const int agentW = m_agentLabel ? m_agentLabel->sizeHint().width() : 0;
+    const int configW = m_configOptionsWidget->sizeHint().width();
+    const int reserved = agentW + PaddingHM * 2 + GapHM * 3;
+    const bool collapse = (configW + reserved) > width();
+    m_configOptionsWidget->setVisible(!collapse);
+    m_configOverflowButton->setVisible(collapse);
+}
+
+void ChatPanel::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    updateConfigOverflow();
 }
 
 void ChatPanel::addUserMessage(const QString &text)

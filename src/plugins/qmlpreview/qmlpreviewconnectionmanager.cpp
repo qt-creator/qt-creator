@@ -120,6 +120,16 @@ void QmlPreviewConnectionManager::createPreviewClient()
 {
     m_qmlPreviewClient = new QmlPreviewClient(connection());
 
+    QmlPreviewPlugin *plugin = QmlPreviewPlugin::instance();
+    // Maybe we are starting after a hot reload failure, so we already have the events
+    // to replay in the plugin. In that case, we want to set them to the client, so that
+    // they can be replayed as soon as the configuration is confirmed.
+    if (plugin->events().size() > 0) {
+        m_qmlPreviewClient->setEvents(plugin->events());
+        m_qmlPreviewClient->setEventTypes(plugin->eventTypes());
+        plugin->setEvents({});
+        plugin->setEventTypes({});
+    }
     connect(this, &QmlPreviewConnectionManager::loadFile, m_qmlPreviewClient.data(),
                 [this](const QString &filename, const QString &changedFile,
                        const QByteArray &contents) {
@@ -206,9 +216,14 @@ void QmlPreviewConnectionManager::createPreviewClient()
         m_qmlPreviewClient.data(),
         &QmlPreviewClient::hotReloadFailure,
         this,
-        [this](const QString &status) {
-            Core::MessageManager::writeFlashing("Hot reload failed:");
-            Core::MessageManager::writeSilently(status);
+        [this, plugin](const QString &reason) {
+            // In case of hot reload failure, we want to keep the recorded events,
+            //  so that the user can start where they left off after restart.
+            // We have to keep the events in the plugin, because the connection manager
+            // and thus the client will be destroyed on restart.
+            plugin->setEvents(m_qmlPreviewClient->events());
+            plugin->setEventTypes(m_qmlPreviewClient->eventTypes());
+            Core::MessageManager::writeFlashing(QStringLiteral("Hot reload failed: %1").arg(reason));
             emit restart();
         });
 

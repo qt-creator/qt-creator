@@ -16,6 +16,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/elidinglabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/markdownbrowser.h>
 #include <utils/progressindicator.h>
@@ -23,7 +24,6 @@
 #include <utils/qtcwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
-#include <utils/elidinglabel.h>
 #include <utils/utilsicons.h>
 
 #include <limits>
@@ -51,16 +51,14 @@ using namespace Utils::StyleHelper::SpacingTokens;
 namespace AcpClient::Internal {
 
 // ---------------------------------------------------------------------------
-// AvatarWidget — circular avatar for agent/user messages
+// AvatarWidget — circular avatar for agent messages
 // ---------------------------------------------------------------------------
 
 class AvatarWidget : public QWidget
 {
 public:
-    enum AvatarType { Agent, User };
-
-    explicit AvatarWidget(AvatarType type, QWidget *parent = nullptr)
-        : QWidget(parent), m_type(type)
+    explicit AvatarWidget(QWidget *parent = nullptr)
+        : QWidget(parent)
     {
         setFixedSize(28, 28);
     }
@@ -74,80 +72,107 @@ protected:
         p.setRenderHint(QPainter::Antialiasing);
         const QRectF r = QRectF(rect()).adjusted(2, 2, -2, -2);
 
-        if (m_type == Agent) {
-            if (!m_icon.isNull()) {
-                m_icon.paint(&p, r.toAlignedRect());
-            } else {
-                QRadialGradient gradient(r.center(), r.width() / 2.0);
-                gradient.setColorAt(0, QColor(0x5e, 0xea, 0x8d));
-                gradient.setColorAt(0.6, QColor(0x22, 0xc5, 0x5e));
-                gradient.setColorAt(1.0, QColor(0x16, 0xa3, 0x4a));
-                p.setBrush(gradient);
-                p.setPen(Qt::NoPen);
-                p.drawEllipse(r);
-            }
+        if (!m_icon.isNull()) {
+            m_icon.paint(&p, r.toAlignedRect());
         } else {
-            p.setBrush(QColor(0x52, 0x52, 0x5e));
+            QRadialGradient gradient(r.center(), r.width() / 2.0);
+            gradient.setColorAt(0, QColor(0x5e, 0xea, 0x8d));
+            gradient.setColorAt(0.6, QColor(0x22, 0xc5, 0x5e));
+            gradient.setColorAt(1.0, QColor(0x16, 0xa3, 0x4a));
+            p.setBrush(gradient);
             p.setPen(Qt::NoPen);
             p.drawEllipse(r);
-            p.setPen(Qt::white);
-            QFont f = font();
-            f.setPixelSize(11);
-            f.setBold(true);
-            p.setFont(f);
-            p.drawText(r, Qt::AlignCenter, QStringLiteral("U"));
         }
     }
 
 private:
-    AvatarType m_type;
     QIcon m_icon;
 };
 
 // ---------------------------------------------------------------------------
-// MessageWidget — unified bubble for both user and agent messages
+// UserMessageWidget — bubble for user messages, plain text via QLabel
 // ---------------------------------------------------------------------------
 
-class MessageWidget : public CollapsibleFrame
+class UserMessageWidget : public QFrame
 {
 public:
-    enum Role { User, Agent };
-
-    explicit MessageWidget(Role role, QWidget *parent = nullptr)
-        : CollapsibleFrame(parent)
-        , m_role(role)
+    explicit UserMessageWidget(QWidget *parent = nullptr)
+        : QFrame(parent)
     {
         setFrameShape(QFrame::NoFrame);
-        setCollapsible(false);
-        setHeaderVisible(false);
 
-        if (role == Agent)
-            m_bodyLayout->setContentsMargins(0, 0, 0, 0);
+        auto *layout = new QVBoxLayout(this);
+        layout->setContentsMargins(PrimitiveL, PrimitiveM, PrimitiveL, PrimitiveM);
+        layout->setSpacing(0);
 
-        m_browser = new Utils::MarkdownBrowser(this);
-        m_browser->setFrameShape(QFrame::NoFrame);
-        m_browser->setOpenExternalLinks(true);
-        m_browser->setEnableCodeCopyButton(true);
-        m_browser->setMargins({0, 0, 0, 0});
-        m_browser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        m_browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        QPalette bodyPal = m_browser->palette();
-        bodyPal.setColor(QPalette::Base, bgColor());
-        m_browser->setPalette(bodyPal);
-        m_browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        m_browser->setMinimumWidth(1);
-        m_bodyLayout->addWidget(m_browser);
+        m_label = new QLabel(this);
+        m_label->setTextFormat(Qt::PlainText);
+        m_label->setWordWrap(true);
+        m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        m_label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        m_label->setMinimumWidth(1);
+        QPalette pal = m_label->palette();
+        pal.setColor(QPalette::WindowText,
+                     Utils::creatorColor(Utils::Theme::Token_Text_Default));
+        m_label->setPalette(pal);
+        layout->addWidget(m_label);
+    }
 
-        // Debounce markdown rendering to coalesce streamed chunks
+    void setText(const QString &text) { m_label->setText(text); }
+
+    QSize sizeHint() const override
+    {
+        const QFontMetrics fm = m_label->fontMetrics();
+        const QMargins lm = layout()->contentsMargins();
+        const QMargins cm = m_label->contentsMargins();
+        int maxLineWidth = 0;
+        for (const QString &line : m_label->text().split(QLatin1Char('\n')))
+            maxLineWidth = qMax(maxLineWidth, fm.horizontalAdvance(line));
+        const int w = maxLineWidth + lm.left() + lm.right() + cm.left() + cm.right();
+        return QSize(w, QFrame::sizeHint().height());
+    }
+
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        const QColor bg = Utils::creatorColor(Utils::Theme::Token_Foreground_Default);
+        Utils::StyleHelper::drawCardBg(&p, rect(), bg, Qt::NoPen, RadiusS);
+    }
+
+private:
+    QLabel *m_label = nullptr;
+};
+
+// ---------------------------------------------------------------------------
+// AgentMessageWidget — rendered via MarkdownBrowser
+// ---------------------------------------------------------------------------
+
+class AgentMessageWidget : public Utils::MarkdownBrowser
+{
+public:
+    explicit AgentMessageWidget(QWidget *parent = nullptr)
+        : Utils::MarkdownBrowser(parent)
+    {
+        setFrameShape(QFrame::NoFrame);
+        setOpenExternalLinks(true);
+        setEnableCodeCopyButton(true);
+        setMargins({0, 0, 0, 0});
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setTextColor(Utils::creatorColor(Utils::Theme::Token_Text_Default));
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        setMinimumWidth(1);
+
         m_renderTimer = new QTimer(this);
         m_renderTimer->setSingleShot(true);
         m_renderTimer->setInterval(100);
         connect(m_renderTimer, &QTimer::timeout, this, [this] {
-            m_browser->setMarkdown(m_rawText);
+            setMarkdown(m_rawText);
         });
 
-        // Update height when document size changes (content change OR reflow due to width change)
-        connect(m_browser->document()->documentLayout(),
+        connect(document()->documentLayout(),
                 &QAbstractTextDocumentLayout::documentSizeChanged,
                 this, [this] {
             if (!m_heightUpdatePending) {
@@ -160,14 +185,8 @@ public:
             }
         });
 
-        connect(m_browser->document(), &QTextDocument::contentsChanged,
+        connect(document(), &QTextDocument::contentsChanged,
                 this, [this] { m_cachedUnwrappedIdealWidth = -1; });
-    }
-
-    void setText(const QString &text)
-    {
-        m_rawText = text;
-        m_browser->setMarkdown(m_rawText);
     }
 
     void appendText(const QString &text)
@@ -180,61 +199,37 @@ public:
     {
         if (m_renderTimer->isActive()) {
             m_renderTimer->stop();
-            m_browser->setMarkdown(m_rawText);
+            setMarkdown(m_rawText);
         }
     }
 
     QSize sizeHint() const override
     {
-        if (!m_browser)
-            return CollapsibleFrame::sizeHint();
-        QTextDocument *doc = m_browser->document();
+        QTextDocument *doc = document();
         if (m_cachedUnwrappedIdealWidth < 0) {
-            // Temporarily remove the text width constraint so idealWidth() returns
-            // the true single-line (unwrapped) width of the document. Each toggle
-            // triggers a full relayout, so cache the result until contents change.
             const qreal savedTextWidth = doc->textWidth();
             doc->setTextWidth(-1);
             m_cachedUnwrappedIdealWidth = doc->idealWidth();
             doc->setTextWidth(savedTextWidth);
         }
         if (m_cachedUnwrappedIdealWidth <= 0)
-            return CollapsibleFrame::sizeHint();
-        const QMargins bm = m_bodyLayout->contentsMargins();
-        const QMargins bcm = m_browser->contentsMargins();
+            return Utils::MarkdownBrowser::sizeHint();
+        const QMargins bcm = contentsMargins();
         const int docMargin = static_cast<int>(doc->documentMargin());
-        const int contentWidth = qCeil(m_cachedUnwrappedIdealWidth) + bm.left() + bm.right()
+        const int contentWidth = qCeil(m_cachedUnwrappedIdealWidth)
                                  + bcm.left() + bcm.right() + 2 * docMargin;
-        return QSize(contentWidth, CollapsibleFrame::sizeHint().height());
-    }
-
-protected:
-    void paintEvent(QPaintEvent *) override
-    {
-        if (m_role != User)
-            return;
-        QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
-        Utils::StyleHelper::drawCardBg(&p, rect(), bgColor());
+        return QSize(contentWidth, Utils::MarkdownBrowser::sizeHint().height());
     }
 
 private:
-    QColor bgColor() const
-    {
-        return m_role == User ? Utils::creatorColor(Utils::Theme::ChatUserMessageBackground)
-                              : Qt::transparent;
-    }
-
     void updateBrowserHeight()
     {
-        const int docHeight = qCeil(m_browser->document()->size().height())
-                              + m_browser->contentsMargins().top()
-                              + m_browser->contentsMargins().bottom();
-        m_browser->setFixedHeight(qMax(docHeight, m_browser->fontMetrics().height()));
+        const int docHeight = qCeil(document()->size().height())
+                              + contentsMargins().top()
+                              + contentsMargins().bottom();
+        setFixedHeight(qMax(docHeight, fontMetrics().height()));
     }
 
-    Role m_role;
-    Utils::MarkdownBrowser *m_browser = nullptr;
     QTimer *m_renderTimer = nullptr;
     QString m_rawText;
     bool m_heightUpdatePending = false;
@@ -257,7 +252,8 @@ public:
         auto *header = new QLabel(QStringLiteral("<i>Thought</i>"), this);
         QPalette hpal = header->palette();
         hpal.setColor(QPalette::WindowText,
-                      Utils::creatorColor(Utils::Theme::PaletteTextDisabled));
+                      Utils::creatorColor(Utils::Theme::Token_Text_Subtle));
+        setIndicatorColor(Utils::Theme::Token_Text_Subtle);
         header->setPalette(hpal);
         m_headerLayout->addWidget(header, 1);
 
@@ -267,7 +263,7 @@ public:
         m_label->setText(text);
         QPalette pal = m_label->palette();
         pal.setColor(QPalette::WindowText,
-                     Utils::creatorColor(Utils::Theme::PaletteTextDisabled));
+                     Utils::creatorColor(Utils::Theme::Token_Text_Subtle));
         m_label->setPalette(pal);
         QFont f = m_label->font();
         f.setItalic(true);
@@ -286,10 +282,10 @@ protected:
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, false);
-        QPen pen(palette().color(QPalette::Mid), 2, Qt::DashLine);
+        QPen pen(Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle), 2, Qt::SolidLine);
         pen.setCapStyle(Qt::FlatCap);
         p.setPen(pen);
-        p.drawLine(QPoint(1, 0), QPoint(1, height()));
+        p.drawLine(QPointF(1, 0), QPointF(1, height()));
     }
 
 private:
@@ -1090,7 +1086,7 @@ void AcpMessageView::addUserMessage(const QString &text)
 {
     finishAgentMessage();
     finishToolCallGroup();
-    auto *msg = new MessageWidget(MessageWidget::User, m_container);
+    auto *msg = new UserMessageWidget(m_container);
     msg->setText(text);
     addWidget(wrapWithSpacer(msg, Qt::AlignRight));
     m_autoScroll = true; // reset auto-scroll when user sends a message to ensure they see the response
@@ -1104,7 +1100,7 @@ void AcpMessageView::appendAgentText(const QString &text)
     m_currentThoughtWidget = nullptr;
     finishToolCallGroup();
     if (!m_currentAgentWidget) {
-        m_currentAgentWidget = new MessageWidget(MessageWidget::Agent, m_container);
+        m_currentAgentWidget = new AgentMessageWidget(m_container);
         m_currentAgentWidget->appendText(text);
         addWidget(wrapWithSpacer(m_currentAgentWidget, Qt::AlignLeft));
     } else {
@@ -1349,10 +1345,8 @@ QWidget *AcpMessageView::wrapWithSpacer(QWidget *widget, Qt::Alignment side)
     if (side == Qt::AlignRight) {
         hbox->addSpacerItem(new QSpacerItem(60, 0, QSizePolicy::MinimumExpanding));
         hbox->addWidget(widget);
-        auto *avatar = new AvatarWidget(AvatarWidget::User, row);
-        hbox->addWidget(avatar, 0, Qt::AlignTop);
     } else {
-        auto *avatar = new AvatarWidget(AvatarWidget::Agent, row);
+        auto *avatar = new AvatarWidget(row);
         Utils::onResultReady(AcpSettings::iconForUrl(m_agentIconUrl), this, [avatar](const QIcon &icon){
             avatar->setIcon(icon);
         });

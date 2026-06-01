@@ -1149,14 +1149,16 @@ void EditorManagerPrivate::doEscapeKeyFocusMoveMagic()
             OutputPaneManager::instance()->slotHide();
             stuffHidden = true;
         }
-        QWidget *rightPane = RightPanePlaceHolder::current();
-        if (rightPane && rightPane->isVisible() && rightPane->window() == activeWindow) {
-            RightPaneWidget::instance()->setShown(false);
-            stuffHidden = true;
-        }
         if (findPane && findPane->isVisible() && findPane->window() == activeWindow) {
             findPane->hide();
             stuffHidden = true;
+        }
+        if (!stuffHidden) {
+            QWidget *rightPane = RightPanePlaceHolder::current();
+            if (rightPane && rightPane->isVisible() && rightPane->window() == activeWindow) {
+                RightPaneWidget::instance()->setShown(false);
+                stuffHidden = true;
+            }
         }
     }
     if (stuffHidden)

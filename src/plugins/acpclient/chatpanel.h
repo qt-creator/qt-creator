@@ -73,6 +73,9 @@ public:
 
     SessionPickerWidget *addSessionPicker();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 signals:
     void sendRequested(const QString &text);
     void cancelRequested();
@@ -84,8 +87,14 @@ signals:
 private:
     // Session toolbar
     QLabel *m_agentLabel;
+    QWidget *m_configOptionsWidget = nullptr;
     QHBoxLayout *m_configOptionsLayout;
+    QToolButton *m_configOverflowButton = nullptr;
     QMap<QString, QComboBox*> m_configCombos; // configId -> combo
+    QMap<QString, QLabel*> m_configLabels;    // configId -> label
+    QStringList m_configOrder;                // insertion order of configIds
+
+    void updateConfigOverflow();
 
     // Message area
     AcpMessageView *m_messageView;

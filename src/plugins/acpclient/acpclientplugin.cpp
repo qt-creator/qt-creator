@@ -67,20 +67,24 @@ public:
         menu->addAction(sidePanelCmd);
 
         // Add a tool button to each text editor toolbar
-        connect(EditorManager::instance(), &EditorManager::editorOpened,
-                this, [](IEditor *editor) {
+        auto checkEditor = [](IEditor *editor) {
             auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             if (!textEditor)
                 return;
             auto button = new QToolButton;
             button->setIcon(sidePanelIcon());
             button->setToolTip(Tr::tr("Show Agentic AI Chat in Side Panel"));
-            QObject::connect(button, &QToolButton::clicked,
-                             ActionManager::command(Constants::SHOW_CHAT_SIDEPANEL_ACTION_ID)->action(),
-                             &QAction::trigger);
-            textEditor->editorWidget()->insertExtraToolBarWidget(
-                TextEditor::TextEditorWidget::Right, button);
-        });
+            QObject::connect(
+                button,
+                &QToolButton::clicked,
+                ActionManager::command(Constants::SHOW_CHAT_SIDEPANEL_ACTION_ID)->action(),
+                &QAction::trigger);
+            textEditor->editorWidget()
+                ->insertExtraToolBarWidget(TextEditor::TextEditorWidget::Right, button);
+        };
+        connect(EditorManager::instance(), &EditorManager::editorOpened, this, checkEditor);
+        for (Core::IEditor *editor : DocumentModel::editorsForOpenedDocuments())
+            checkEditor(editor);
 
         connect(showSidePanelAction, &QAction::triggered, this, [this] {
             createRightPaneChatWidget();
@@ -132,7 +136,7 @@ private:
     static QIcon sidePanelIcon()
     {
         return Utils::Icon({{":/acpclient/images/sparklebubble.png",
-                             Utils::Theme::IconsBaseColor}}).icon();
+                             Utils::Theme::Token_Text_Accent}}).icon();
     }
 
     AcpInspector *m_inspector = nullptr;
