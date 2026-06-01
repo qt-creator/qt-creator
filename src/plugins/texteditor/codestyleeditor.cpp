@@ -41,9 +41,8 @@ void CodeStyleEditor::finish() {}
 
 void CodeStyleEditor::addSelector(CodeStyleSelectorWidget *selector)
 {
-    m_selector = selector;
-    m_layout->addWidget(m_selector);
-    Utils::installMarkSettingsDirtyTriggerRecursively(m_selector);
+    m_layout->addWidget(selector);
+    Utils::installMarkSettingsDirtyTriggerRecursively(selector);
 }
 
 void CodeStyleEditor::addInfoLabel()
@@ -117,20 +116,23 @@ public:
         const ICodeStylePreferencesFactory *factory,
         const FilePath &projectFile,
         ICodeStylePreferences *codeStyle)
+        : m_selector{projectFile, this}
     {
-        auto selector = new CodeStyleSelectorWidget{projectFile, this};
-        selector->setCodeStyle(codeStyle);
-        addSelector(selector);
+        m_selector.setCodeStyle(codeStyle);
+        addSelector(&m_selector);
         addInfoLabel();
 
-        auto preview = new SnippetEditorWidget{};
-        DisplaySettingsData displaySettings = preview->displaySettings();
+        DisplaySettingsData displaySettings = m_preview.displaySettings();
         displaySettings.m_visualizeWhitespace = true;
-        preview->setDisplaySettings(displaySettings);
-        SnippetProvider::decorateEditor(preview, factory->snippetGroupId());
-        preview->setPlainText(factory->previewText());
-        setupPreview(preview, factory->createIndenter(preview->document()), projectFile, codeStyle);
+        m_preview.setDisplaySettings(displaySettings);
+        SnippetProvider::decorateEditor(&m_preview, factory->snippetGroupId());
+        m_preview.setPlainText(factory->previewText());
+        setupPreview(&m_preview, factory->createIndenter(m_preview.document()), projectFile, codeStyle);
     }
+
+private:
+    CodeStyleSelectorWidget m_selector;
+    SnippetEditorWidget m_preview;
 };
 
 CodeStyleEditor *ICodeStylePreferencesFactory::createProjectEditor(

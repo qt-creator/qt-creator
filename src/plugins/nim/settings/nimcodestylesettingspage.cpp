@@ -109,13 +109,18 @@ class NimCodeStyleEditor final : public CodeStyleEditor
 {
 public:
     NimCodeStyleEditor(ICodeStylePreferences *codeStyle)
+        : m_selector{{}, this}
+        , m_widget{codeStyle, this}
     {
-        auto selector = new CodeStyleSelectorWidget{{}, this};
-        selector->setCodeStyle(codeStyle);
-        addSelector(selector);
+        m_selector.setCodeStyle(codeStyle);
+        addSelector(&m_selector);
         addInfoLabel();
-        addEditorWidget(new NimCodeStylePreferencesWidget(codeStyle, this));
+        addEditorWidget(&m_widget);
     }
+
+private:
+    CodeStyleSelectorWidget m_selector;
+    NimCodeStylePreferencesWidget m_widget;
 };
 
 // NimCodeStylePreferencesFactory

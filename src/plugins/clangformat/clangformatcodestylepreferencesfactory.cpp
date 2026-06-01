@@ -526,49 +526,48 @@ public:
     void finish() override;
 
 private:
-    ClangFormatGlobalConfigWidget *m_globalSettings = nullptr;
-    ClangFormatCodeStyleWidget *m_editorWidget = nullptr;
+    ClangFormatGlobalConfigWidget m_globalSettings;
+    ClangFormatSelectorWidget m_selector;
+    ClangFormatCodeStyleWidget m_widget;
 };
 
 ClangFormatSettingsEditor::ClangFormatSettingsEditor(ICodeStylePreferences *codeStyle)
+    : m_globalSettings{nullptr, codeStyle, this}
+    , m_selector{{}, this}
+    , m_widget{{}, codeStyle, this}
 {
-    m_globalSettings = new ClangFormatGlobalConfigWidget(nullptr, codeStyle, this);
-    addHeaderWidget(m_globalSettings);
-
-    auto selector = new ClangFormatSelectorWidget{{}, this};
-    selector->setCodeStyle(codeStyle);
-    addSelector(selector);
+    addHeaderWidget(&m_globalSettings);
+    m_selector.setCodeStyle(codeStyle);
+    addSelector(&m_selector);
     addInfoLabel();
+    addEditorWidget(&m_widget);
 
-    m_editorWidget = new ClangFormatCodeStyleWidget{{}, codeStyle, this};
-    addEditorWidget(m_editorWidget);
+    const ClangFormatSettings::Mode currentMode = m_globalSettings.mode();
+    connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
+            &m_selector, &ClangFormatSelectorWidget::onModeChanged);
+    m_selector.onModeChanged(currentMode);
+    connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
+            &m_selector, &ClangFormatSelectorWidget::onUseCustomSettingsChanged);
+    m_selector.onUseCustomSettingsChanged(m_globalSettings.useCustomSettings());
 
-    const ClangFormatSettings::Mode currentMode = m_globalSettings->mode();
-    connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
-            selector, &ClangFormatSelectorWidget::onModeChanged);
-    selector->onModeChanged(currentMode);
-    connect(m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
-            selector, &ClangFormatSelectorWidget::onUseCustomSettingsChanged);
-    selector->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
-
-    connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
-            m_editorWidget, &ClangFormatCodeStyleWidget::onModeChanged);
-    m_editorWidget->onModeChanged(currentMode);
-    connect(m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
-            m_editorWidget, &ClangFormatCodeStyleWidget::onUseCustomSettingsChanged);
-    m_editorWidget->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
+    connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
+            &m_widget, &ClangFormatCodeStyleWidget::onModeChanged);
+    m_widget.onModeChanged(currentMode);
+    connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
+            &m_widget, &ClangFormatCodeStyleWidget::onUseCustomSettingsChanged);
+    m_widget.onUseCustomSettingsChanged(m_globalSettings.useCustomSettings());
 }
 
 void ClangFormatSettingsEditor::apply()
 {
-    m_editorWidget->apply();
-    m_globalSettings->apply();
+    m_widget.apply();
+    m_globalSettings.apply();
 }
 
 void ClangFormatSettingsEditor::finish()
 {
-    m_editorWidget->finish();
-    m_globalSettings->finish();
+    m_widget.finish();
+    m_globalSettings.finish();
 }
 
 // ClangFormatProjectEditor
@@ -581,47 +580,49 @@ public:
     void finish() override;
 
 private:
-    ClangFormatGlobalConfigWidget *m_globalSettings = nullptr;
+    ClangFormatGlobalConfigWidget m_globalSettings;
+    ClangFormatSelectorWidget m_selector;
+    SnippetEditorWidget m_preview;
 };
 
 ClangFormatProjectEditor::ClangFormatProjectEditor(
         const FilePath &projectFile, ICodeStylePreferences *codeStyle)
+    : m_globalSettings{ProjectManager::projectWithProjectFile(projectFile, true), codeStyle, this}
+    , m_selector{projectFile, this}
 {
-    m_globalSettings = new ClangFormatGlobalConfigWidget(
-        ProjectManager::projectWithProjectFile(projectFile, true), codeStyle, this);
-    addHeaderWidget(m_globalSettings);
-
-    auto selector = new ClangFormatSelectorWidget{projectFile, this};
-    selector->setCodeStyle(codeStyle);
-    addSelector(selector);
+    addHeaderWidget(&m_globalSettings);
+    m_selector.setCodeStyle(codeStyle);
+    addSelector(&m_selector);
     addInfoLabel();
 
-    auto preview = new SnippetEditorWidget;
-    DisplaySettingsData displaySettings = preview->displaySettings();
+    DisplaySettingsData displaySettings = m_preview.displaySettings();
     displaySettings.m_visualizeWhitespace = true;
-    preview->setDisplaySettings(displaySettings);
-    SnippetProvider::decorateEditor(preview, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
-    preview->setPlainText(
+    m_preview.setDisplaySettings(displaySettings);
+    SnippetProvider::decorateEditor(&m_preview, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
+    m_preview.setPlainText(
         QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
-    setupPreview(preview, new ClangFormatForwardingIndenter(preview->document()), projectFile, codeStyle);
+    setupPreview(&m_preview,
+                 new ClangFormatForwardingIndenter(m_preview.document()),
+                 projectFile,
+                 codeStyle);
 
-    const ClangFormatSettings::Mode currentMode = m_globalSettings->mode();
-    connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
-            selector, &ClangFormatSelectorWidget::onModeChanged);
-    selector->onModeChanged(currentMode);
-    connect(m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
-            selector, &ClangFormatSelectorWidget::onUseCustomSettingsChanged);
-    selector->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
+    const ClangFormatSettings::Mode currentMode = m_globalSettings.mode();
+    connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
+            &m_selector, &ClangFormatSelectorWidget::onModeChanged);
+    m_selector.onModeChanged(currentMode);
+    connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
+            &m_selector, &ClangFormatSelectorWidget::onUseCustomSettingsChanged);
+    m_selector.onUseCustomSettingsChanged(m_globalSettings.useCustomSettings());
 }
 
 void ClangFormatProjectEditor::apply()
 {
-    m_globalSettings->apply();
+    m_globalSettings.apply();
 }
 
 void ClangFormatProjectEditor::finish()
 {
-    m_globalSettings->finish();
+    m_globalSettings.finish();
 }
 
 // ClangFormatCodeStylePreferencesFactory

@@ -41,7 +41,6 @@ protected:
 
 private:
     QVBoxLayout *m_layout = nullptr;
-    CodeStyleSelectorWidget *m_selector = nullptr;
 };
 
 } // namespace TextEditor

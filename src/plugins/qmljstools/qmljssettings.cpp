@@ -1284,16 +1284,19 @@ class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
 public:
     QmlJsCodeStyleEditor(QmlJSCodeStylePreferences *codeStyle)
+        : m_selector{{}, this}
+        , m_widget{QString::fromLatin1(Internal::previewText), this}
     {
-        auto selector = new CodeStyleSelectorWidget{{}, this};
-        selector->setCodeStyle(codeStyle);
-        addSelector(selector);
+        m_selector.setCodeStyle(codeStyle);
+        addSelector(&m_selector);
         addInfoLabel();
-        auto widget = new QmlJSCodeStylePreferencesWidget(
-            QString::fromLatin1(Internal::previewText), this);
-        widget->setPreferences(codeStyle);
-        addEditorWidget(widget);
+        m_widget.setPreferences(codeStyle);
+        addEditorWidget(&m_widget);
     }
+
+private:
+    CodeStyleSelectorWidget m_selector;
+    QmlJSCodeStylePreferencesWidget m_widget;
 };
 
 // QmlJSCodeStylePreferencesFactory

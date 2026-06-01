@@ -48,22 +48,23 @@ class CppCodeStyleEditor final : public CodeStyleEditor
 {
 public:
     CppCodeStyleEditor(CppCodeStylePreferences *codeStyle)
+        : m_selector{{}, this}
+        , m_widget{this}
     {
-        auto selector = new CodeStyleSelectorWidget{{}, this};
-        selector->setCodeStyle(codeStyle);
-        addSelector(selector);
+        m_selector.setCodeStyle(codeStyle);
+        addSelector(&m_selector);
         addInfoLabel();
-        m_widget = new CppCodeStylePreferencesWidget(this);
-        m_widget->layout()->setContentsMargins(0, 0, 0, 0);
-        m_widget->setCodeStyle(codeStyle);
-        addEditorWidget(m_widget);
+        m_widget.layout()->setContentsMargins(0, 0, 0, 0);
+        m_widget.setCodeStyle(codeStyle);
+        addEditorWidget(&m_widget);
     }
 
-    void apply() override { m_widget->apply(); }
-    void finish() override { m_widget->finish(); }
+    void apply() override { m_widget.apply(); }
+    void finish() override { m_widget.finish(); }
 
 private:
-    CppCodeStylePreferencesWidget *m_widget = nullptr;
+    CodeStyleSelectorWidget m_selector;
+    CppCodeStylePreferencesWidget m_widget;
 };
 
 class CppCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
