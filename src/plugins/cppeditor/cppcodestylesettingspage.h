@@ -15,7 +15,6 @@
 namespace TextEditor {
     class FontSettingsData;
     class SnippetEditorWidget;
-    class CodeStyleEditor;
 }
 
 namespace CppEditor {

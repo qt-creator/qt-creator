@@ -47,23 +47,21 @@ CppCodeStylePreferences *cppCodeStyle()
 class CppCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    CppCodeStyleEditor(ICodeStylePreferences *codeStyle, QWidget *parent)
+    CppCodeStyleEditor(CppCodeStylePreferences *codeStyle, QWidget *parent)
         : CodeStyleEditor{parent}
     {
         auto selector = new CodeStyleSelectorWidget{{}, this};
         selector->setCodeStyle(codeStyle);
         addSelector(selector);
         addInfoLabel();
-        if (auto cppPrefs = dynamic_cast<CppCodeStylePreferences *>(codeStyle)) {
-            m_widget = new CppCodeStylePreferencesWidget(this);
-            m_widget->layout()->setContentsMargins(0, 0, 0, 0);
-            m_widget->setCodeStyle(cppPrefs);
-            addEditorWidget(m_widget);
-        }
+        m_widget = new CppCodeStylePreferencesWidget(this);
+        m_widget->layout()->setContentsMargins(0, 0, 0, 0);
+        m_widget->setCodeStyle(codeStyle);
+        addEditorWidget(m_widget);
     }
 
-    void apply() override { if (m_widget) m_widget->apply(); }
-    void finish() override { if (m_widget) m_widget->finish(); }
+    void apply() override { m_widget->apply(); }
+    void finish() override { m_widget->finish(); }
 
 private:
     CppCodeStylePreferencesWidget *m_widget = nullptr;
@@ -80,7 +78,7 @@ private:
     CodeStyleEditor *createSettingsEditor(
             ICodeStylePreferences *codeStyle, QWidget *parent) const final
     {
-        return new CppCodeStyleEditor{codeStyle, parent};
+        return new CppCodeStyleEditor{static_cast<CppCodeStylePreferences *>(codeStyle), parent};
     }
 
     QString snippetGroupId() const final { return Constants::CPP_SNIPPETS_GROUP_ID; }
