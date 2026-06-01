@@ -107,6 +107,6 @@ CORE_EXPORT QString msgShowRightSideBar();
 CORE_EXPORT QString msgHideRightSideBar();
 CORE_EXPORT QString msgCopyToClipboard();
 
-} // namespace Core
+Q_DECLARE_OPERATORS_FOR_FLAGS(Command::CommandAttributes)
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::Command::CommandAttributes)
+} // namespace Core

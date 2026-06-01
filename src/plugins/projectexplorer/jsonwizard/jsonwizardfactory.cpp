@@ -227,7 +227,7 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
             continue;
         }
 
-        const DirFilterFlag filters = DirFilterFlag::Dirs|DirFilterFlag::Readable|DirFilterFlag::NoDotAndDotDot;
+        const DirFilterFlags filters = DirFilterFlag::Dirs|DirFilterFlag::Readable|DirFilterFlag::NoDotAndDotDot;
         FilePaths dirs = dir.dirEntries(filters);
 
         while (!dirs.isEmpty()) {
@@ -470,7 +470,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
         const FileFilter filter {
             {wizardFileName}, DirFilterFlag::Files|DirFilterFlag::Readable|DirFilterFlag::NoDotAndDotDot, DirIteratorFlag::Subdirectories
         };
-        const DirSortFlag sortflags = DirSortFlag::Name|DirSortFlag::IgnoreCase;
+        const DirSortFlags sortflags = DirSortFlag::Name|DirSortFlag::IgnoreCase;
         const FilePaths wizardFiles = path.dirEntries(filter, sortflags);
 
         for (const FilePath &currentFile : wizardFiles) {

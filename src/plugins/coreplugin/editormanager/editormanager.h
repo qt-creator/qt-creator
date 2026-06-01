@@ -209,6 +209,6 @@ private:
     friend class Internal::ICorePrivate;
 };
 
-} // namespace Core
+Q_DECLARE_OPERATORS_FOR_FLAGS(EditorManager::OpenEditorFlags)
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::EditorManager::OpenEditorFlags)
+} // namespace Core

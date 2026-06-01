@@ -383,7 +383,7 @@ void CustomWizard::createWizards()
         verboseLog += QString("### CustomWizard: Checking \"%1\"\n").arg(userTemplateDir.toUserOutput());
 
     const FileFilter filters({}, DirFilterFlag::Dirs|DirFilterFlag::Readable|DirFilterFlag::NoDotAndDotDot);
-    const DirSortFlag sortflags = DirSortFlag::Name|DirSortFlag::IgnoreCase;
+    const DirSortFlags sortflags = DirSortFlag::Name|DirSortFlag::IgnoreCase;
     FilePaths dirs;
     if (userTemplateDir.exists()) {
         if (CustomWizardPrivate::verbose) {

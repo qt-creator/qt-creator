@@ -38,14 +38,15 @@ namespace Utils {
 
 Q_LOGGING_CATEGORY(fpLog, "qtc.filepath", QtWarningMsg);
 
-static QDir::Filters toQDir(DirFilterFlag f) { return QDir::Filters(static_cast<int>(f)); }
-[[maybe_unused]] static QDir::SortFlags toQDirSort(DirSortFlag f)
+static QDir::Filters toQDir(DirFilterFlags f) { return QDir::Filters(f.toInt()); }
+[[maybe_unused]] static QDir::SortFlags toQDirSort(DirSortFlags f)
 {
     return QDir::SortFlags(static_cast<int>(f));
 }
-static QDirIterator::IteratorFlags toQDirIterator(DirIteratorFlag f)
+
+static QDirIterator::IteratorFlags toQDirIterator(DirIteratorFlags f)
 {
-    return QDirIterator::IteratorFlags(static_cast<int>(f));
+    return QDirIterator::IteratorFlags(f.toInt());
 }
 
 static DeviceFileHooks &deviceFileHooks()
@@ -999,7 +1000,7 @@ bool FilePath::createDir() const
 
     \sa iterateDirectory()
 */
-FilePaths FilePath::dirEntries(const FileFilter &filter, DirSortFlag sort) const
+FilePaths FilePath::dirEntries(const FileFilter &filter, DirSortFlags sort) const
 {
     FilePaths result;
 
@@ -1009,7 +1010,7 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, DirSortFlag sort) const
      );
 
     // FIXME: Not all flags supported here.
-    const DirSortFlag sortBy = (sort & DirSortFlag::SortByMask);
+    const DirSortFlags sortBy = (sort & DirSortFlag::SortByMask);
 
     using Predicate = std::function<bool(const FilePath &, const FilePath &)>;
 
@@ -1050,7 +1051,7 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, DirSortFlag sort) const
 
     \sa iterateDirectory()
 */
-FilePaths FilePath::dirEntries(DirFilterFlag filters) const
+FilePaths FilePath::dirEntries(DirFilterFlags filters) const
 {
     return dirEntries(FileFilter({}, filters));
 }
@@ -2562,7 +2563,7 @@ FilePaths FilePath::searchAllInPath(const FilePaths &additionalDirs,
 
     \sa searchHereAndInParents(const QStringList &, DirFilterFlag)
 */
-FilePath FilePath::searchHereAndInParents(const QString &fileName, DirFilterFlag type) const
+FilePath FilePath::searchHereAndInParents(const QString &fileName, DirFilterFlags type) const
 {
     return searchHereAndInParents(QStringList{fileName}, type);
 }
@@ -2575,7 +2576,7 @@ FilePath FilePath::searchHereAndInParents(const QString &fileName, DirFilterFlag
 
     \sa searchHereAndInParents(const QString &, DirFilterFlag)
 */
-FilePath FilePath::searchHereAndInParents(const QStringList &fileNames, DirFilterFlag type) const
+FilePath FilePath::searchHereAndInParents(const QStringList &fileNames, DirFilterFlags type) const
 {
     const bool wantFile = type == DirFilterFlag::Files;
     const bool wantDir = type == DirFilterFlag::Dirs;
@@ -3534,8 +3535,8 @@ QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 
 // FileFilter
 FileFilter::FileFilter(const QStringList &nameFilters,
-                       const DirFilterFlag fileFilters,
-                       const DirIteratorFlag flags)
+                       DirFilterFlags fileFilters,
+                       DirIteratorFlags flags)
     : nameFilters(nameFilters),
       fileFilters(fileFilters),
       iteratorFlags(flags)

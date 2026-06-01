@@ -59,7 +59,7 @@ const Result<QJsonObject> projectDefinition(const FilePath &path)
     return {};
 }
 
-static DirFilterFlag workspaceDirFilter = DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot | DirFilterFlag::Hidden;
+static DirFilterFlags workspaceDirFilter = DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot | DirFilterFlag::Hidden;
 
 class WorkspaceBuildSystem final : public BuildSystem
 {

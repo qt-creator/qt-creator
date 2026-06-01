@@ -1041,8 +1041,8 @@ Result<> DesktopDeviceFileAccess::iterateDirectory(
     const FileFilter &filter) const
 {
     QDirIterator it(filePath.path(), filter.nameFilters,
-                    QDir::Filters(static_cast<int>(filter.fileFilters)),
-                    QDirIterator::IteratorFlags(static_cast<int>(filter.iteratorFlags)));
+                    QDir::Filters(filter.fileFilters.toInt()),
+                    QDirIterator::IteratorFlags(filter.iteratorFlags.toInt()));
     while (it.hasNext()) {
         const FilePath path = FilePath::fromString(it.next());
         IterationPolicy res;

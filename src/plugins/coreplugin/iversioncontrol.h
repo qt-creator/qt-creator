@@ -275,6 +275,6 @@ private:
     Internal::IVersionControlPrivate *d;
 };
 
-} // namespace Core
+Q_DECLARE_OPERATORS_FOR_FLAGS(IVersionControl::SettingsFlags)
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IVersionControl::SettingsFlags)
+} // namespace Core

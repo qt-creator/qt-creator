@@ -96,8 +96,8 @@ static FilePath debugServer(const BuildConfiguration *bc)
     const QString abiNeedle = lldbServerArch(apkDevicePreferredAbi(bc));
 
     // The new, built-in LLDB.
-    const DirFilterFlag dirFilter = HostOsInfo::isWindowsHost() ? DirFilterFlag::Files
-                                                                : DirFilterFlag::Files|DirFilterFlag::Executable;
+    const DirFilterFlags dirFilter = HostOsInfo::isWindowsHost()
+        ? DirFilterFlag::Files : DirFilterFlag::Files|DirFilterFlag::Executable;
     FilePath lldbServer;
     const auto handleLldbServerCandidate = [&abiNeedle, &lldbServer] (const FilePath &path) {
         if (path.parentDir().fileName() == abiNeedle) {

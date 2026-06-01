@@ -170,10 +170,10 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
     const FilePath directory = isDir ? absoluteEntryPath : absoluteEntryPath.parentDir();
     const QString entryFileName = isDir ? QString() : absoluteEntryPath.fileName();
 
-    DirFilterFlag fileFilter = DirFilterFlag::Dirs | DirFilterFlag::Drives
+    DirFilterFlags fileFilter = DirFilterFlag::Dirs | DirFilterFlag::Drives
                                | DirFilterFlag::NoDotAndDotDot | DirFilterFlag::Files;
     if (includeHidden)
-        fileFilter = fileFilter | DirFilterFlag::Hidden;
+        fileFilter |= DirFilterFlag::Hidden;
     // use only 'name' for case sensitivity decision, because we need to make the path
     // match the case on the file system for case-sensitive file systems
     const Qt::CaseSensitivity caseSensitivity = ILocatorFilter::caseSensitivity(entryFileName);

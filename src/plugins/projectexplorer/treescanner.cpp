@@ -67,7 +67,7 @@ struct DirectoryScanResult
 static DirectoryScanResult scanForFilesImpl(
     const QFuture<void> &future,
     const FilePath &directory,
-    DirFilterFlag filter,
+    DirFilterFlags filter,
     const std::function<FileNode *(const FilePath &)> &factory,
     const QList<Core::IVersionControl *> &versionControls)
 {
@@ -106,7 +106,7 @@ static bool sortByPath(const std::unique_ptr<FileNode> &a, const std::unique_ptr
 static Result scanForFilesHelper(
     QPromise<Result> &promise,
     const FilePath &directory,
-    DirFilterFlag dirfilter,
+    DirFilterFlags dirfilter,
     const Filter &filter,
     const std::function<FileNode *(const FilePath &)> &factory)
 {
@@ -205,7 +205,7 @@ static Result scanForFilesHelper(
 void scanForFiles(QPromise<Result> &promise,
                   const FilePath &directory,
                   const Filter &filter,
-                  DirFilterFlag dirFilter,
+                  DirFilterFlags dirFilter,
                   const FileTypeFactory &factory)
 {
     Result result = scanForFilesHelper(

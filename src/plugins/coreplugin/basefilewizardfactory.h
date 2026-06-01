@@ -86,7 +86,7 @@ private:
                                  const QVariantMap &extraValues, bool showWizard = true) final;
 };
 
-} // namespace Core
+Q_DECLARE_OPERATORS_FOR_FLAGS(GeneratedFile::Attributes)
+Q_DECLARE_OPERATORS_FOR_FLAGS(WizardDialogParameters::DialogParameterFlags)
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::GeneratedFile::Attributes)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::WizardDialogParameters::DialogParameterFlags)
+} // namespace Core

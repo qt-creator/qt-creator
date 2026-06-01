@@ -2092,7 +2092,7 @@ FilePaths QtVersionPrivate::qtCorePaths()
 {
     const QString versionString = data().qtVersionString;
 
-    const DirFilterFlag filters = DirFilterFlag::Files | DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot;
+    const DirFilterFlags filters = DirFilterFlag::Files | DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot;
     static const QStringList nameFilters{"QtCore*.framework",
                                          "libQtCore*",
                                          "libQt5Core*",

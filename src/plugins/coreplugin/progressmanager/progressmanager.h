@@ -64,6 +64,6 @@ private:
     friend class Core::Internal::ProgressManagerPrivate;
 };
 
-} // namespace Core
+Q_DECLARE_OPERATORS_FOR_FLAGS(ProgressManager::ProgressFlags)
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::ProgressManager::ProgressFlags)
+} // namespace Core

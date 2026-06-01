@@ -120,6 +120,6 @@ private:
     Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
 };
 
-} // namespace Core
+Q_DECLARE_OPERATORS_FOR_FLAGS(IOutputPane::Flags)
 
- Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IOutputPane::Flags)
+} // namespace Core
