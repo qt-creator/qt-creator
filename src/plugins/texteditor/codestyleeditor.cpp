@@ -116,9 +116,7 @@ public:
     CodeStyleProjectPreviewEditor(
         const ICodeStylePreferencesFactory *factory,
         const FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent)
-        : CodeStyleEditor{parent}
+        ICodeStylePreferences *codeStyle)
     {
         auto selector = new CodeStyleSelectorWidget{projectFile, this};
         selector->setCodeStyle(codeStyle);
@@ -136,9 +134,9 @@ public:
 };
 
 CodeStyleEditor *ICodeStylePreferencesFactory::createProjectEditor(
-    const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent) const
+    const FilePath &projectFile, ICodeStylePreferences *codeStyle) const
 {
-    return new CodeStyleProjectPreviewEditor{this, projectFile, codeStyle, parent};
+    return new CodeStyleProjectPreviewEditor{this, projectFile, codeStyle};
 }
 
 } // TextEditor

@@ -108,8 +108,7 @@ void NimCodeStylePreferencesWidget::updatePreview()
 class NimCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    NimCodeStyleEditor(ICodeStylePreferences *codeStyle, QWidget *parent)
-        : CodeStyleEditor{parent}
+    NimCodeStyleEditor(ICodeStylePreferences *codeStyle)
     {
         auto selector = new CodeStyleSelectorWidget{{}, this};
         selector->setCodeStyle(codeStyle);
@@ -129,10 +128,9 @@ public:
     {}
 
 private:
-    CodeStyleEditor *createSettingsEditor(
-            ICodeStylePreferences *codeStyle, QWidget *parent) const final
+    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const final
     {
-        return new NimCodeStyleEditor{codeStyle, parent};
+        return new NimCodeStyleEditor{codeStyle};
     }
 
     QString snippetGroupId() const final
@@ -176,7 +174,7 @@ public:
 
         auto factory = codeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
         CodeStyleEditor *editor
-            = factory->createSettingsEditor(&m_nimCodeStylePreferences, nullptr);
+            = factory->createSettingsEditor(&m_nimCodeStylePreferences);
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);

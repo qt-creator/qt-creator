@@ -1245,7 +1245,7 @@ public:
         auto vbox = new QVBoxLayout(this);
         vbox->addWidget(
             codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID)
-                ->createSettingsEditor(&m_preferences, nullptr));
+                ->createSettingsEditor(&m_preferences));
     }
 
     void apply() final
@@ -1283,8 +1283,7 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
 class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    QmlJsCodeStyleEditor(QmlJSCodeStylePreferences *codeStyle, QWidget *parent)
-        : CodeStyleEditor{parent}
+    QmlJsCodeStyleEditor(QmlJSCodeStylePreferences *codeStyle)
     {
         auto selector = new CodeStyleSelectorWidget{{}, this};
         selector->setCodeStyle(codeStyle);
@@ -1307,10 +1306,9 @@ public:
     {}
 
 private:
-    CodeStyleEditor *createSettingsEditor(
-            ICodeStylePreferences *codeStyle, QWidget *parent) const final
+    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const final
     {
-        return new QmlJsCodeStyleEditor{static_cast<QmlJSCodeStylePreferences *>(codeStyle), parent};
+        return new QmlJsCodeStyleEditor{static_cast<QmlJSCodeStylePreferences *>(codeStyle)};
     }
 
     QString snippetGroupId() const final

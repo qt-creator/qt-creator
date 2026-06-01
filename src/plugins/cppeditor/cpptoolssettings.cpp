@@ -47,8 +47,7 @@ CppCodeStylePreferences *cppCodeStyle()
 class CppCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    CppCodeStyleEditor(CppCodeStylePreferences *codeStyle, QWidget *parent)
-        : CodeStyleEditor{parent}
+    CppCodeStyleEditor(CppCodeStylePreferences *codeStyle)
     {
         auto selector = new CodeStyleSelectorWidget{{}, this};
         selector->setCodeStyle(codeStyle);
@@ -75,10 +74,9 @@ public:
     {}
 
 private:
-    CodeStyleEditor *createSettingsEditor(
-            ICodeStylePreferences *codeStyle, QWidget *parent) const final
+    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const final
     {
-        return new CppCodeStyleEditor{static_cast<CppCodeStylePreferences *>(codeStyle), parent};
+        return new CppCodeStyleEditor{static_cast<CppCodeStylePreferences *>(codeStyle)};
     }
 
     QString snippetGroupId() const final { return Constants::CPP_SNIPPETS_GROUP_ID; }

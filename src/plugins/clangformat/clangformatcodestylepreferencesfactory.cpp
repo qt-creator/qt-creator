@@ -521,7 +521,7 @@ void ClangFormatCodeStyleWidget::finish()
 class ClangFormatSettingsEditor final : public CodeStyleEditor
 {
 public:
-    ClangFormatSettingsEditor(ICodeStylePreferences *codeStyle, QWidget *parent);
+    ClangFormatSettingsEditor(ICodeStylePreferences *codeStyle);
     void apply() override;
     void finish() override;
 
@@ -530,9 +530,7 @@ private:
     ClangFormatCodeStyleWidget *m_editorWidget = nullptr;
 };
 
-ClangFormatSettingsEditor::ClangFormatSettingsEditor(
-        ICodeStylePreferences *codeStyle, QWidget *parent)
-    : CodeStyleEditor{parent}
+ClangFormatSettingsEditor::ClangFormatSettingsEditor(ICodeStylePreferences *codeStyle)
 {
     m_globalSettings = new ClangFormatGlobalConfigWidget(nullptr, codeStyle, this);
     addHeaderWidget(m_globalSettings);
@@ -578,8 +576,7 @@ void ClangFormatSettingsEditor::finish()
 class ClangFormatProjectEditor final : public CodeStyleEditor
 {
 public:
-    ClangFormatProjectEditor(
-        const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent);
+    ClangFormatProjectEditor(const FilePath &projectFile, ICodeStylePreferences *codeStyle);
     void apply() override;
     void finish() override;
 
@@ -588,8 +585,7 @@ private:
 };
 
 ClangFormatProjectEditor::ClangFormatProjectEditor(
-        const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent)
-    : CodeStyleEditor{parent}
+        const FilePath &projectFile, ICodeStylePreferences *codeStyle)
 {
     m_globalSettings = new ClangFormatGlobalConfigWidget(
         ProjectManager::projectWithProjectFile(projectFile, true), codeStyle, this);
@@ -637,18 +633,16 @@ public:
         : ICodeStylePreferencesFactory(CppEditor::Constants::CPP_SETTINGS_ID)
     {}
 
-    CodeStyleEditor *createSettingsEditor(
-            ICodeStylePreferences *codeStyle, QWidget *parent) const override
+    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const override
     {
-        return new ClangFormatSettingsEditor{codeStyle, parent};
+        return new ClangFormatSettingsEditor{codeStyle};
     }
 
     CodeStyleEditor *createProjectEditor(
             const FilePath &projectFile,
-            ICodeStylePreferences *codeStyle,
-            QWidget *parent) const override
+            ICodeStylePreferences *codeStyle) const override
     {
-        return new ClangFormatProjectEditor{projectFile, codeStyle, parent};
+        return new ClangFormatProjectEditor{projectFile, codeStyle};
     }
 
     QString displayName() override { return Tr::tr("C++"); }

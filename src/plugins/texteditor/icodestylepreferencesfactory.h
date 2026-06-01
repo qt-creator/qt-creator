@@ -11,7 +11,6 @@ QT_BEGIN_NAMESPACE
 template <typename Key, typename T>
 class QMap;
 class QTextDocument;
-class QWidget;
 QT_END_NAMESPACE
 
 namespace Utils { class FilePath; }
@@ -38,12 +37,10 @@ public:
     Utils::Id languageId() const;
     virtual QString displayName() = 0;
     virtual ICodeStylePreferences *createCodeStyle() const = 0;
-    virtual CodeStyleEditor *createSettingsEditor(
-        ICodeStylePreferences *codeStyle, QWidget *parent = nullptr) const = 0;
+    virtual CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const = 0;
     virtual CodeStyleEditor *createProjectEditor(
         const Utils::FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr) const;
+        ICodeStylePreferences *codeStyle) const;
 
 private:
     Utils::Id m_languageId;

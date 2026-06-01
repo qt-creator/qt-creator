@@ -43,7 +43,7 @@ public:
             Utils::Id languageId = factory->languageId();
             ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
             CodeStyleEditor *preview = factory->createProjectEditor(
-                project->projectFilePath(), codeStylePreferences, stackedWidget);
+                project->projectFilePath(), codeStylePreferences);
             if (preview && preview->layout())
                 preview->layout()->setContentsMargins(QMargins());
             stackedWidget->addWidget(preview);
