@@ -54,31 +54,36 @@ void CodeStyleEditor::addInfoLabel()
     m_layout->addWidget(infoLabel);
 }
 
+void CodeStyleEditor::addHeaderWidget(QWidget *widget)
+{
+    m_layout->insertWidget(0, widget);
+}
+
 void CodeStyleEditor::addEditorWidget(QWidget *editor)
 {
     m_layout->addWidget(editor);
 }
 
-void CodeStyleEditor::setupPreview(Indenter *indenter, const FilePath &projectFile,
-                                   ICodeStylePreferences *codeStyle)
+void CodeStyleEditor::setupPreview(SnippetEditorWidget *preview, Indenter *indenter,
+                                   const FilePath &projectFile, ICodeStylePreferences *codeStyle)
 {
     indenter->setOverriddenPreferences(codeStyle);
     const FilePath fileName = !projectFile.isEmpty()
         ? projectFile.pathAppended("snippet.cpp")
         : Core::ICore::userResourcePath("snippet.cpp");
     indenter->setFileName(fileName);
-    m_preview->textDocument()->setIndenter(indenter);
+    preview->textDocument()->setIndenter(indenter);
 
-    const auto updatePreview = [this, codeStyle]() {
-        QTextDocument *doc = m_preview->document();
+    const auto updatePreview = [preview, codeStyle]() {
+        QTextDocument *doc = preview->document();
 
-        m_preview->textDocument()->indenter()->invalidateCache();
+        preview->textDocument()->indenter()->invalidateCache();
 
         QTextBlock block = doc->firstBlock();
-        QTextCursor tc = m_preview->textCursor();
+        QTextCursor tc = preview->textCursor();
         tc.beginEditBlock();
         while (block.isValid()) {
-            m_preview->textDocument()
+            preview->textDocument()
                 ->indenter()
                 ->indentBlock(block, QChar::Null, codeStyle->currentTabSettings());
             block = block.next();
@@ -92,7 +97,7 @@ void CodeStyleEditor::setupPreview(Indenter *indenter, const FilePath &projectFi
 
     updatePreview();
 
-    m_layout->addWidget(m_preview);
+    m_layout->addWidget(preview);
 
     QLabel *label = new QLabel(
         Tr::tr("Edit preview contents to see how the current settings "
@@ -120,13 +125,13 @@ public:
         addSelector(selector);
         addInfoLabel();
 
-        m_preview = new SnippetEditorWidget{};
-        DisplaySettingsData displaySettings = m_preview->displaySettings();
+        auto preview = new SnippetEditorWidget{};
+        DisplaySettingsData displaySettings = preview->displaySettings();
         displaySettings.m_visualizeWhitespace = true;
-        m_preview->setDisplaySettings(displaySettings);
-        SnippetProvider::decorateEditor(m_preview, factory->snippetGroupId());
-        m_preview->setPlainText(factory->previewText());
-        setupPreview(factory->createIndenter(m_preview->document()), projectFile, codeStyle);
+        preview->setDisplaySettings(displaySettings);
+        SnippetProvider::decorateEditor(preview, factory->snippetGroupId());
+        preview->setPlainText(factory->previewText());
+        setupPreview(preview, factory->createIndenter(preview->document()), projectFile, codeStyle);
     }
 };
 

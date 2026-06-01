@@ -5,14 +5,13 @@
 
 #include "texteditor_global.h"
 
-#include <utils/filepath.h>
-
-#include <QString>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 QT_END_NAMESPACE
+
+namespace Utils { class FilePath; }
 
 namespace TextEditor {
 class CodeStyleSelectorWidget;
@@ -31,16 +30,18 @@ public:
     virtual void finish();
 
 protected:
+    void addHeaderWidget(QWidget *widget);
     void addSelector(CodeStyleSelectorWidget *selector);
     void addInfoLabel();
     void addEditorWidget(QWidget *editor);
-    void setupPreview(Indenter *indenter,
+    void setupPreview(SnippetEditorWidget *preview,
+                      Indenter *indenter,
                       const Utils::FilePath &projectFile,
                       ICodeStylePreferences *codeStyle);
 
+private:
     QVBoxLayout *m_layout = nullptr;
     CodeStyleSelectorWidget *m_selector = nullptr;
-    SnippetEditorWidget *m_preview = nullptr;
 };
 
 } // namespace TextEditor

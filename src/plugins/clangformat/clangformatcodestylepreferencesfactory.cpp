@@ -535,7 +535,7 @@ ClangFormatSettingsEditor::ClangFormatSettingsEditor(
     : CodeStyleEditor{parent}
 {
     m_globalSettings = new ClangFormatGlobalConfigWidget(nullptr, codeStyle, this);
-    m_layout->addWidget(m_globalSettings);
+    addHeaderWidget(m_globalSettings);
 
     auto selector = new ClangFormatSelectorWidget{{}, this};
     selector->setCodeStyle(codeStyle);
@@ -593,21 +593,21 @@ ClangFormatProjectEditor::ClangFormatProjectEditor(
 {
     m_globalSettings = new ClangFormatGlobalConfigWidget(
         ProjectManager::projectWithProjectFile(projectFile, true), codeStyle, this);
-    m_layout->addWidget(m_globalSettings);
+    addHeaderWidget(m_globalSettings);
 
     auto selector = new ClangFormatSelectorWidget{projectFile, this};
     selector->setCodeStyle(codeStyle);
     addSelector(selector);
     addInfoLabel();
 
-    m_preview = new SnippetEditorWidget;
-    DisplaySettingsData displaySettings = m_preview->displaySettings();
+    auto preview = new SnippetEditorWidget;
+    DisplaySettingsData displaySettings = preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
-    m_preview->setDisplaySettings(displaySettings);
-    SnippetProvider::decorateEditor(m_preview, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
-    m_preview->setPlainText(
+    preview->setDisplaySettings(displaySettings);
+    SnippetProvider::decorateEditor(preview, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
+    preview->setPlainText(
         QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
-    setupPreview(new ClangFormatForwardingIndenter(m_preview->document()), projectFile, codeStyle);
+    setupPreview(preview, new ClangFormatForwardingIndenter(preview->document()), projectFile, codeStyle);
 
     const ClangFormatSettings::Mode currentMode = m_globalSettings->mode();
     connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
