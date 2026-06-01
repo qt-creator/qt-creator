@@ -60,7 +60,7 @@ add_qtc_plugin(QmlDesigner
     Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg Sqlite Qt::GuiPrivate
     Qt::Core Qt::GuiPrivate
   PUBLIC_DEPENDS
-    QmlDesignerUtils QmlPuppetCommunication QmlDesignerCore DesignSystem
+    QmlDesignerUtils QmlPuppetCommunication QmlDesignerCore
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
