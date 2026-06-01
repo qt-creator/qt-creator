@@ -3950,7 +3950,7 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
         }
         const int line = li.line;
         const FilePath path = li.path;
-        QString displayName = fn->filePath() == li.path
+        QString displayName = fn && fn->filePath() == li.path
                                   ? li.displayName
                                   : Tr::tr("%1 in %2").arg(li.displayName, li.path.toUserOutput());
         auto *action = new QAction(displayName, nullptr);

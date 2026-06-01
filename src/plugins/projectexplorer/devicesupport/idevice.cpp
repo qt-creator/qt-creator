@@ -242,12 +242,12 @@ void DeviceToolAspect::setToolId(const Id toolId)
     m_toolId = toolId;
 }
 
-DeviceToolAspect::ToolType DeviceToolAspect::toolType() const
+DeviceToolAspect::ToolTypes DeviceToolAspect::toolType() const
 {
     return m_toolType;
 }
 
-void DeviceToolAspect::setToolType(ToolType toolType)
+void DeviceToolAspect::setToolType(ToolTypes toolType)
 {
     m_toolType = toolType;
 }
@@ -498,7 +498,7 @@ void DeviceToolAspectFactory::setFilePattern(const QStringList &filePattern)
     m_filePattern = filePattern;
 }
 
-void DeviceToolAspectFactory::setToolType(DeviceToolAspect::ToolType toolType)
+void DeviceToolAspectFactory::setToolType(DeviceToolAspect::ToolTypes toolType)
 {
     m_toolType = toolType;
 }
@@ -1145,7 +1145,7 @@ FilePath IDevice::deviceToolPath(Id toolId, const FilePath &deviceHint)
     return dev->deviceToolPath(toolId);
 }
 
-QList<DeviceToolAspect *> IDevice::deviceToolAspects(DeviceToolAspect::ToolType supportType) const
+QList<DeviceToolAspect *> IDevice::deviceToolAspects(DeviceToolAspect::ToolTypes supportType) const
 {
     const QList<DeviceToolAspect *> list =
         filtered(d->deviceToolAspects.values(), [supportType](DeviceToolAspect *aspect) {
@@ -1172,7 +1172,7 @@ std::function<void(Layouting::Layout *)> IDevice::deviceToolsGui()
             Layouting::Group {
                 title(Tr::tr("Source and Build Tools on This Device")),
                 Form {
-                    deviceToolAspects(DeviceToolAspect::ToolType(
+                    deviceToolAspects(DeviceToolAspect::ToolTypes(
                         DeviceToolAspect::SourceTool | DeviceToolAspect::BuildTool))
                 }
             }, br,

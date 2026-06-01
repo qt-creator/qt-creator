@@ -27,7 +27,7 @@ class PROJECTEXPLORER_EXPORT WorkspaceProject : public Project
 public:
     WorkspaceProject(const Utils::FilePath &file, const QJsonObject &defaultConfiguration = {});
 
-    Utils::FilePath projectDirectory() const override;
+    Utils::FilePath projectDirectory() const final;
     RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) override;
 
     void excludeNode(Node *node);

@@ -1048,10 +1048,10 @@ Abi::OS Abi::osFromString(const QString &o)
 
 Abi::OSFlavor Abi::osFlavorFromString(const QString &of, const OS os)
 {
-    const int index = indexOfFlavor(of.toUtf8());
-    const auto flavor = OSFlavor(index);
-    if (index >= 0 && osSupportsFlavor(os, flavor))
-        return flavor;
+    if (const int index = indexOfFlavor(of.toUtf8()); index >= 0) {
+        if (const auto flavor = OSFlavor(index); osSupportsFlavor(os, flavor))
+            return flavor;
+    }
     return UnknownFlavor;
 }
 

@@ -443,7 +443,6 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &idx)
             newRows.append(t->files.at(i));
     }
     // now add them!
-    startOfBlock = 0;
     visibleIndex = 0;
     visibleEnd = t->visibleFiles.size();
     int newIndex = 0;

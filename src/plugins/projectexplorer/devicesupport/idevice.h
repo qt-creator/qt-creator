@@ -68,20 +68,21 @@ public:
         SourceTool = 4,  // Tool used on project sources (typically, but not necessarily build device)
         AllTools = RunTool | BuildTool | SourceTool
     };
+    Q_DECLARE_FLAGS(ToolTypes, ToolType)
 
     using Utils::FilePathAspect::FilePathAspect;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
     Utils::Id toolId() const;
-    ToolType toolType() const;
+    ToolTypes toolType() const;
 
     void setToolId(const Utils::Id toolId);
-    void setToolType(ToolType toolType);
+    void setToolType(ToolTypes toolType);
 
 public:
     Utils::Id m_toolId;
-    ToolType m_toolType = AllTools;
+    ToolTypes m_toolType = AllTools;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceToolAspectFactory
@@ -104,7 +105,7 @@ protected:
     void setToolTip(const QString &toolTip);
     void setVariablePrefix(const QByteArray &variablePrefix);
     void setChecker(const Checker &checker);
-    void setToolType(DeviceToolAspect::ToolType toolType);
+    void setToolType(DeviceToolAspect::ToolTypes toolType);
 
     Utils::Id m_toolId;
     QString m_labelText;
@@ -112,7 +113,7 @@ protected:
     QStringList m_filePattern;
     QByteArray m_variablePrefix;
     Checker m_checker;
-    DeviceToolAspect::ToolType m_toolType = DeviceToolAspect::AllTools;
+    DeviceToolAspect::ToolTypes m_toolType = DeviceToolAspect::AllTools;
 };
 
 enum class SignalOperationMode
@@ -249,7 +250,7 @@ public:
 
     static Utils::FilePath deviceToolPath(Utils::Id toolId, const Utils::FilePath &deviceHint);
     Utils::FilePath deviceToolPath(Utils::Id toolId) const;
-    QList<DeviceToolAspect *> deviceToolAspects(DeviceToolAspect::ToolType supportType) const;
+    QList<DeviceToolAspect *> deviceToolAspects(DeviceToolAspect::ToolTypes supportType) const;
 
     std::function<void(Layouting::Layout *)> deviceToolsGui();
 
