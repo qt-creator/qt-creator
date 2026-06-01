@@ -2637,7 +2637,7 @@ FilePath FilePath::findCmdExe() const
 
 FilePath FilePath::findCmdExe(const Environment &env) const
 {
-    const FilePath fromComspec = withNewPath(env.value("COMSPEC"));
+    const FilePath fromComspec = FilePath::fromUserInput(env.value("COMSPEC"));
     if (fromComspec.isExecutableFile())
         return fromComspec;
     return withNewPath("cmd.exe").searchInPath();
