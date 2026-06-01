@@ -6,8 +6,6 @@
 #include "async.h"
 
 #include <QCoreApplication>
-#include <QDebug>
-#include <QElapsedTimer>
 #include <QMutex>
 #include <QSet>
 #include <QTimer>
@@ -86,23 +84,14 @@ QTCREATOR_UTILS_EXPORT void scheduleGC()
         QTimer::singleShot(10s, qApp, [] { stringTable().startGC(); });
 }
 
-static inline bool isDetached(const QString &string, int &bytesSaved)
-{
-    return string.isDetached();
-}
-
 void StringTablePrivate::GC(QPromise<void> &promise)
 {
-    int initialSize = 0;
-    int bytesSaved = 0;
-    QElapsedTimer timer;
-
     // Collect all QStrings which have refcount 1. (One reference in m_strings and nowhere else.)
     for (QSet<QString>::iterator i = m_strings.begin(); i != m_strings.end();) {
         if (promise.isCanceled())
             return;
 
-        if (isDetached(*i, bytesSaved))
+        if (i->isDetached())
             i = m_strings.erase(i);
         else
             ++i;
