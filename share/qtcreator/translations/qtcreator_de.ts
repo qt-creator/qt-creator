@@ -61108,15 +61108,15 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Accessible host paths:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugängliche Hostpfade:</translation>
     </message>
     <message>
         <source>Defines paths on the host that are accessible from the remote machine under the same name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Definiert Pfade auf dem Host, die von der entfernten Maschine unter demselben Namen zugänglich sind.</translation>
     </message>
     <message>
         <source>Host directories that are accessible from the remote device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostverzeichnisse, die vom entfernten Gerät zugänglich sind.</translation>
     </message>
     <message>
         <source>Establishing a Connection</source>
@@ -61477,23 +61477,23 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>No device configured for the run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät für die Ausführungskonfiguration konfiguriert.</translation>
     </message>
     <message>
         <source>Connecting target device...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung zum Zielgerät wird hergestellt...</translation>
     </message>
     <message>
         <source>Device connected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät verbunden.</translation>
     </message>
     <message>
         <source>Failed: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>Connect to the target device</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbinden mit dem Zielgerät</translation>
     </message>
 </context>
 <context>
@@ -63099,7 +63099,7 @@ Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Anhalten</translation>
+        <translation>Anhalten</translation>
     </message>
     <message>
         <source>Inspect</source>
@@ -63656,7 +63656,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation type="unfinished">Rückgängig machen</translation>
+        <translation>Rückgängig machen</translation>
     </message>
     <message>
         <source>Another commit is currently being executed.</source>
@@ -63684,27 +63684,27 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>conflicted</source>
-        <translation type="unfinished"></translation>
+        <translation>konfliktbehaftet</translation>
     </message>
     <message>
         <source>untracked</source>
-        <translation type="unfinished">nicht unter Versionskontrolle</translation>
+        <translation>nicht unter Versionskontrolle</translation>
     </message>
     <message>
         <source>added</source>
-        <translation type="unfinished">hinzugefügt</translation>
+        <translation>hinzugefügt</translation>
     </message>
     <message>
         <source>modified</source>
-        <translation type="unfinished">geändert</translation>
+        <translation>geändert</translation>
     </message>
     <message>
         <source>deleted</source>
-        <translation type="unfinished">gelöscht</translation>
+        <translation>gelöscht</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished">unbekannt</translation>
+        <translation>unbekannt</translation>
     </message>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
@@ -64657,7 +64657,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>The selected configuration is read-only. Copy the configuration for editing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausgewählte Konfiguration ist schreibgeschützt. Kopieren Sie die Konfiguration zum Bearbeiten.</translation>
     </message>
     <message>
         <source>Copy Code Style</source>
@@ -64740,7 +64740,7 @@ Außer: %3
     </message>
     <message>
         <source>All changes below take effect immediately.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle unten durchgeführten Änderungen treten sofort in Kraft.</translation>
     </message>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
@@ -65099,11 +65099,11 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Editor content width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Breite des Editorinhalts:</translation>
     </message>
     <message>
         <source>100% means that whole width of editor window is used to display text content (default).&lt;br&gt;50% means that half of editor width is used to display text content.&lt;br&gt;Remaining 50% is divided as left and right margins while centering the content.</source>
-        <translation type="unfinished"></translation>
+        <translation>100% bedeutet, dass die gesamte Breite des Editorfensters zur Anzeige des Textinhalts verwendet wird (Standard).&lt;br&gt;50% bedeutet, dass die Hälfte der Editorbreite zur Anzeige des Textinhalts verwendet wird.&lt;br&gt;Die verbleibenden 50% werden in linke und rechte Ränder aufgeteilt, während der Inhalt zentriert wird.</translation>
     </message>
     <message>
         <source>Animate navigation within file</source>
@@ -65179,11 +65179,11 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Skip update check for files matching:</source>
-        <translation type="unfinished"></translation>
+        <translation>Prüfung auf Aktualisierungen für Dateien mit folgendem Muster überspringen:</translation>
     </message>
     <message>
         <source>Skip syntax highlighting for files matching:</source>
-        <translation type="unfinished"></translation>
+        <translation>Syntaxhervorhebung für Dateien mit folgendem Muster überspringen:</translation>
     </message>
     <message>
         <source>Reset definitions remembered for files that can be associated with more than one highlighter definition.</source>
@@ -67478,7 +67478,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>The Maintenance Tool is already running and has locked its cache. Please close the Maintenance Tool and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Qt Maintenance Tool läuft bereits und hat seinen Cache gesperrt. Bitte schließen Sie das Qt Maintenance Tool und versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>An error occurred. Check the output of the installer below.</source>
@@ -67989,7 +67989,9 @@ Die Trace-Daten sind verloren.</translation>
         <source>
 Process exited with code %1.
 Press Return to close this window...</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Prozess wurde mit Rückgabewert %1 beendet.
+Drücken Sie Return, um dieses Fenster zu schließen...</translation>
     </message>
     <message>
         <source>Failed to start terminal process. The stub exited before the inferior was started.</source>
@@ -68109,7 +68111,7 @@ Press Return to close this window...</source>
     </message>
     <message>
         <source>Failed to determine if &quot;%1&quot; and &quot;%2&quot; refer to the same file: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte nicht bestimmen, ob &quot;%1&quot; und &quot;%2&quot; auf dieselbe Datei verweisen: %3</translation>
     </message>
     <message>
         <source>Failed creating temporary directory &quot;%1&quot; (too many tries).</source>
@@ -68565,15 +68567,15 @@ Press Return to close this window...</source>
     <message>
         <source>Reset to default.</source>
         <comment>Color</comment>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen.</translation>
+        <translation>Auf Vorgabe zurücksetzen.</translation>
     </message>
     <message>
         <source>Reset to Default</source>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen</translation>
+        <translation>Auf Vorgabe zurücksetzen</translation>
     </message>
     <message>
         <source>Press and hold to reset to default.</source>
-        <translation type="unfinished"></translation>
+        <translation>Drücken und halten, um auf Standard zurückzusetzen.</translation>
     </message>
     <message>
         <source>Enable</source>
@@ -68589,7 +68591,7 @@ Press Return to close this window...</source>
     </message>
     <message>
         <source>Change...</source>
-        <translation type="unfinished">Ändern...</translation>
+        <translation>Ändern...</translation>
     </message>
     <message>
         <source>Show %1 Column</source>
@@ -68602,7 +68604,7 @@ Press Return to close this window...</source>
     <message>
         <source>The file can be a simple text file containing key/value pairs,
 or a script to be evaluated by the system shell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei kann eine einfache Textdatei mit Schlüssel/Wert-Paaren sein, oder ein Skript, das von der System-Shell ausgewertet wird.</translation>
     </message>
     <message>
         <source>Enter one environment variable per line.
@@ -68614,11 +68616,19 @@ Existing variables can be referenced in a VALUE with ${OTHER}.
 To clear a variable, put its name on a line with nothing else on it.
 Lines starting with &quot;##&quot; will be treated as comments.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie pro Zeile eine Umgebungsvariable ein.
+Um eine Variable zu setzen oder zu ändern, verwenden Sie VARIABLE=WERT.
+Um eine Variable zu deaktivieren, fügen Sie dieser Zeile ein &quot;#&quot; voran.
+Um einer Variable einen Wert anzuhängen, verwenden Sie VARIABLE+=WERT.
+Um einer Variable einen Wert voranzustellen, verwenden Sie VARIABLE=+WERT.
+Existierende Variablen können in einem WERT mit ${OTHER} referenziert werden.
+Um eine Variable zu löschen, geben Sie ihren Namen in einer Zeile ohne weitere Inhalte ein.
+Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.
+</translation>
     </message>
     <message>
         <source>Get variables from text file or shell script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen aus Textdatei oder Shell-Skript abrufen:</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -68844,82 +68854,82 @@ Lines starting with &quot;##&quot; will be treated as comments.
     <message>
         <source>Failed to get environment variables from device: %1</source>
         <extracomment>%1 = error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Abrufen der Umgebungsvariablen vom Gerät: %1</translation>
     </message>
     <message>
         <source>Failed to get environment variables from &quot;%1&quot;: %2</source>
         <extracomment>%1 = batch file path, %2 = error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Abrufen der Umgebungsvariablen von &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Failed to get environment variables from &quot;%1&quot;: Unexpected output</source>
         <extracomment>%1 = batch file path</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Abrufen der Umgebungsvariablen von &quot;%1&quot;: Unerwartete Ausgabe</translation>
     </message>
     <message>
         <source>%1 (Default)</source>
         <extracomment>%1 = some list item&apos;s name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Vorgabe)</translation>
     </message>
     <message>
         <source>Clone</source>
-        <translation type="unfinished">Klonen</translation>
+        <translation>Klonen</translation>
     </message>
     <message>
         <source>Make Default</source>
-        <translation type="unfinished">Als Vorgabe setzen</translation>
+        <translation>Als Vorgabe setzen</translation>
     </message>
     <message>
         <source>Restore</source>
-        <translation type="unfinished">Wiederherstellen</translation>
+        <translation>Wiederherstellen</translation>
     </message>
     <message>
         <source>Open Command Prompt Here</source>
-        <translation type="unfinished">Kommandoprompt öffnen</translation>
+        <translation>Kommandoprompt öffnen</translation>
     </message>
     <message>
         <source>Open Terminal Here</source>
-        <translation type="unfinished">Terminalfenster hier öffnen</translation>
+        <translation>Terminalfenster hier öffnen</translation>
     </message>
     <message>
         <source>The terminal emulator to use for opening a terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Terminal-Emulator, der zum Öffnen eines Terminals verwendet wird.</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Command line arguments used for &quot;%1&quot;.</source>
-        <translation type="unfinished">Kommandozeilenargumente für &quot;%1&quot;.</translation>
+        <translation>Kommandozeilenargumente für &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; Argumente:</translation>
     </message>
     <message>
         <source>Command line arguments used for &quot;Run in terminal&quot;.</source>
-        <translation type="unfinished">Kommandozeilenargumente für &quot;Im Terminal ausführen&quot;.</translation>
+        <translation>Kommandozeilenargumente für &quot;Im Terminal ausführen&quot;.</translation>
     </message>
     <message>
         <source>&quot;Run in Terminal&quot; arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Im Terminal ausführen&quot; Argumente:</translation>
     </message>
     <message>
         <source>Run in Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Terminal ausführen</translation>
     </message>
     <message>
         <source>Customize...</source>
-        <translation type="unfinished"></translation>
+        <translation>Anpassen...</translation>
     </message>
     <message>
         <source>Presets</source>
-        <translation type="unfinished"></translation>
+        <translation>Voreinstellungen</translation>
     </message>
     <message>
         <source>Select Terminal Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminal-Emulator auswählen</translation>
     </message>
 </context>
 <context>
@@ -69235,11 +69245,11 @@ Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Starten</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Anhalten</translation>
+        <translation>Anhalten</translation>
     </message>
     <message>
         <source>Resetting event counters...</source>
@@ -69785,32 +69795,32 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>The tool is designed to be used in Debug mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Werkzeug ist dafür ausgelegt, im Debug-Modus verwendet zu werden.</translation>
     </message>
     <message>
         <source>The tool is designed to be used in Profile mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Werkzeug ist dafür ausgelegt, im Profile-Modus verwendet zu werden.</translation>
     </message>
     <message>
         <source>The tool is designed to be used in Release mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Werkzeug ist dafür ausgelegt, im Release-Modus verwendet zu werden.</translation>
     </message>
     <message>
         <source>The tool is designed to be used with debug symbols (Debug or Profile mode).</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Werkzeug ist dafür ausgelegt, mit Debug-Symbolen (Debug- oder Profile-Modus) verwendet zu werden.</translation>
     </message>
     <message>
         <source>The tool is designed to be used on optimized code (Profile or Release mode).</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Werkzeug ist dafür ausgelegt, auf optimiertem Code (Profile- oder Release-Modus) verwendet zu werden.</translation>
     </message>
     <message>
         <source>Run %1 in %2 Mode?</source>
         <extracomment>%1 = tool name, %2 = debug/release/profile</extracomment>
-        <translation type="unfinished">Soll %1 im %2-Modus ausgeführt werden?</translation>
+        <translation>Soll %1 im %2-Modus ausgeführt werden?</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. %3&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Sie versuchen, das Werkzeug &quot;%1&quot; mit einer Anwendung im %2-Modus auszuführen. %3&lt;/p&gt;&lt;p&gt;Die Laufzeitcharakteristika unterscheiden sich deutlich zwischen optimierten und nicht optimierten Binärdateien. Analytische Erkenntnisse für einen Modus sind möglicherweise nicht für den anderen relevant.&lt;/p&gt;&lt;p&gt;Werkzeuge auf Binärdateien ohne Debug-Symbole auszuführen, die diese benötigen, kann zu fehlenden Funktionsnamen oder sonst unzureichenden Ausgaben führen.&lt;/p&gt;&lt;p&gt;Möchten Sie fortfahren und das Werkzeug im %2-Modus ausführen?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Analyzing finished.</source>
@@ -70059,7 +70069,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Cannot start %1 without a project. Open the project and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann %1 nicht ohne ein Projekt starten. Öffnen Sie das Projekt und versuchen Sie es erneut.</translation>
     </message>
 </context>
 <context>
@@ -70756,24 +70766,25 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>&quot;%1&quot; config file does not exist in &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; Konfigurationsdatei existiert nicht in &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Cached emsdk version is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwischengespeicherte emsdk-Version ist ungültig.</translation>
     </message>
     <message>
         <source>Failed to locate &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte &quot;%1&quot; nicht finden.</translation>
     </message>
     <message>
         <source>Failed to run %1:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Ausführen von %1:
+%2</translation>
     </message>
     <message>
         <source>Failed to parse emsdk version from output: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten der emsdk-Version aus der Ausgabe: &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -70903,75 +70914,75 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>QtC::ZenMode</name>
     <message>
         <source>Zen Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Zen-Modus</translation>
     </message>
     <message>
         <source>Toggle Distraction Free Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Ablenkungsfreien Modus umschalten</translation>
     </message>
     <message>
         <source>Shift+Escape</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Escape</translation>
     </message>
     <message>
         <source>Toggle Zen Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Zen-Modus umschalten</translation>
     </message>
     <message>
         <source>Shift+Alt+Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Alt+Z</translation>
     </message>
     <message>
         <source>Distraction free mode is active.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ablenkungsfreier Modus ist aktiv.</translation>
     </message>
     <message>
         <source>Distraction free mode is inactive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ablenkungsfreier Modus ist inaktiv.</translation>
     </message>
     <message>
         <source>Zen mode is active.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zen-Modus ist aktiv.</translation>
     </message>
     <message>
         <source>Zen mode is inactive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zen-Modus ist inaktiv.</translation>
     </message>
     <message>
         <source>Editor content width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Breite des Editorinhalts:</translation>
     </message>
     <message>
         <source>Hidden</source>
-        <translation type="unfinished">Unsichtbar</translation>
+        <translation>Verborgen</translation>
     </message>
     <message>
         <source>Hide the mode selector (default).</source>
-        <translation type="unfinished"></translation>
+        <translation>Modusauswahl verbergen (Standard).</translation>
     </message>
     <message>
         <source>Icons Only</source>
-        <translation type="unfinished">Nur Symbole</translation>
+        <translation>Nur Symbole</translation>
     </message>
     <message>
         <source>Show only icons in the mode selector.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Symbole in der Modusauswahl anzeigen.</translation>
     </message>
     <message>
         <source>Icons and Text</source>
-        <translation type="unfinished">Symbole und Text</translation>
+        <translation>Symbole und Text</translation>
     </message>
     <message>
         <source>Show icons and text in the mode selector.</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbole und Text in der Modusauswahl anzeigen.</translation>
     </message>
     <message>
         <source>When Zen Mode is Active</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Zen-Modus aktiv ist</translation>
     </message>
     <message>
         <source>Mode selector:</source>
-        <translation type="unfinished"></translation>
+        <translation>Modusauswahl:</translation>
     </message>
 </context>
 <context>
