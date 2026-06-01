@@ -243,6 +243,8 @@ void NavigatorView::modelAboutToBeDetached(Model *model)
                 const int rowCount = currentModel()->rowCount(index);
                 for (int i = 0; i < rowCount; ++i) {
                     const QModelIndex childIndex = currentModel()->index(i, 0, index);
+                    if (!childIndex.isValid())
+                        continue;
                     if (const ModelNode node = modelNodeForIndex(childIndex)) {
                         // Just store collapsed states as everything is expanded by default
                         if (!treeWidget()->isExpanded(childIndex))
