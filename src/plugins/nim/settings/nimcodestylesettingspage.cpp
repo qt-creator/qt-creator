@@ -12,6 +12,7 @@
 #include <coreplugin/icore.h>
 
 #include <texteditor/codestyleeditor.h>
+#include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
@@ -107,27 +108,22 @@ void NimCodeStylePreferencesWidget::updatePreview()
 class NimCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    NimCodeStyleEditor(QWidget *parent)
+    NimCodeStyleEditor(const ICodeStylePreferencesFactory *factory,
+                       const FilePath &projectFile,
+                       ICodeStylePreferences *codeStyle,
+                       QWidget *parent)
         : CodeStyleEditor{parent}
-    {}
-
-private:
-    CodeStyleWidget *createEditorWidget(
-        const FilePath & /*projectFile*/,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent) const final
     {
-        return new NimCodeStylePreferencesWidget(codeStyle, parent);
-    }
-
-    QString previewText() const final
-    {
-        return Constants::C_NIMCODESTYLEPREVIEWSNIPPET;
-    }
-
-    QString snippetProviderGroupId() const final
-    {
-        return Constants::C_NIMSNIPPETSGROUP_ID;
+        auto selector = new CodeStyleSelectorWidget{projectFile, this};
+        selector->setCodeStyle(codeStyle);
+        addSelector(selector);
+        addInfoLabel();
+        if (projectFile.isEmpty())
+            addEditorWidget(new NimCodeStylePreferencesWidget(codeStyle, this));
+        else
+            setupPreview(factory, projectFile, codeStyle,
+                         Constants::C_NIMCODESTYLEPREVIEWSNIPPET,
+                         Constants::C_NIMSNIPPETSGROUP_ID);
     }
 };
 
@@ -146,9 +142,7 @@ private:
             ICodeStylePreferences *codeStyle,
             QWidget *parent) const final
     {
-        auto editor = new NimCodeStyleEditor{parent};
-        editor->init(this, projectFile, codeStyle);
-        return editor;
+        return new NimCodeStyleEditor{this, projectFile, codeStyle, parent};
     }
 
     QString displayName() final

@@ -40,34 +40,20 @@ public:
     virtual void apply();
     virtual void finish();
 
-    virtual void init(
-        const ICodeStylePreferencesFactory *factory,
-        const Utils::FilePath &projectFile,
-        ICodeStylePreferences *codeStyle);
-
 protected:
+    void addSelector(CodeStyleSelectorWidget *selector);
+    void addInfoLabel();
+    void addEditorWidget(CodeStyleWidget *editor);
+    void setupPreview(const ICodeStylePreferencesFactory *factory,
+                      const Utils::FilePath &projectFile,
+                      ICodeStylePreferences *codeStyle,
+                      const QString &previewText,
+                      const QString &snippetGroupId);
+
     QVBoxLayout *m_layout = nullptr;
     CodeStyleSelectorWidget *m_selector = nullptr;
     SnippetEditorWidget *m_preview = nullptr;
     CodeStyleWidget *m_editor = nullptr;
-
-private:
-    virtual CodeStyleSelectorWidget *createCodeStyleSelectorWidget(
-        ICodeStylePreferences *codeStyle,
-        const Utils::FilePath &projectFile,
-        QWidget *parent = nullptr) const;
-    virtual SnippetEditorWidget *createPreviewWidget(
-        const ICodeStylePreferencesFactory *factory,
-        const Utils::FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr) const;
-    virtual CodeStyleWidget *createEditorWidget(
-        const Utils::FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr) const
-        = 0;
-    virtual QString previewText() const = 0;
-    virtual QString snippetProviderGroupId() const = 0;
 };
 
 } // namespace TextEditor

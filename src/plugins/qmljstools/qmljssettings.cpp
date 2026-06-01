@@ -24,6 +24,7 @@
 #include <projectexplorer/projecttree.h>
 
 #include <texteditor/codestyleeditor.h>
+#include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/command.h>
 #include <texteditor/displaysettings.h>
@@ -1282,32 +1283,27 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
 class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    QmlJsCodeStyleEditor(QWidget *parent)
+    QmlJsCodeStyleEditor(const ICodeStylePreferencesFactory *factory,
+                         const FilePath &projectFile,
+                         ICodeStylePreferences *codeStyle,
+                         QWidget *parent)
         : CodeStyleEditor{parent}
-    {}
-
-private:
-    CodeStyleWidget *createEditorWidget(
-        const FilePath &/*project*/,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent) const final
     {
-        auto qmlJSPreferences = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle);
-        if (qmlJSPreferences == nullptr)
-            return nullptr;
-        auto widget = new QmlJSCodeStylePreferencesWidget(previewText(), parent);
-        widget->setPreferences(qmlJSPreferences);
-        return widget;
-    }
-
-    QString previewText() const final
-    {
-        return QString::fromLatin1(Internal::previewText);
-    }
-
-    QString snippetProviderGroupId() const final
-    {
-        return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
+        auto selector = new CodeStyleSelectorWidget{projectFile, this};
+        selector->setCodeStyle(codeStyle);
+        addSelector(selector);
+        addInfoLabel();
+        const QString text = QString::fromLatin1(Internal::previewText);
+        if (projectFile.isEmpty()) {
+            if (auto qmlJSPrefs = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle)) {
+                auto widget = new QmlJSCodeStylePreferencesWidget(text, this);
+                widget->setPreferences(qmlJSPrefs);
+                addEditorWidget(widget);
+            }
+        } else {
+            setupPreview(factory, projectFile, codeStyle,
+                         text, QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
+        }
     }
 };
 
@@ -1326,9 +1322,7 @@ private:
             ICodeStylePreferences *codeStyle,
             QWidget *parent) const final
     {
-        auto editor = new QmlJsCodeStyleEditor{parent};
-        editor->init(this, projectFile, codeStyle);
-        return editor;
+        return new QmlJsCodeStyleEditor{this, projectFile, codeStyle, parent};
     }
 
     QString displayName() final

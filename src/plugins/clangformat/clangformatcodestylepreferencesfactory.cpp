@@ -59,25 +59,14 @@ private:
 class ClangFormatCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    ClangFormatCodeStyleEditor(QWidget *parent);
-
-    void init(
+    ClangFormatCodeStyleEditor(
         const ICodeStylePreferencesFactory *factory,
         const FilePath &projectFile,
-        ICodeStylePreferences *codeStyle) override;
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent);
+
     void apply() override;
     void finish() override;
-
-    CodeStyleWidget *createEditorWidget(
-        const FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent = nullptr) const override;
-    CodeStyleSelectorWidget *createCodeStyleSelectorWidget(
-        ICodeStylePreferences *codeStyle,
-        const FilePath &projectFile,
-        QWidget *parent = nullptr) const override;
-    QString previewText() const override;
-    QString snippetProviderGroupId() const override;
 
     ClangFormatGlobalConfigWidget *m_globalSettings = nullptr;
 };
@@ -223,31 +212,40 @@ void ClangFormatCodeStyleWidget::finish()
     m_clangFormatSettings->apply();
 }
 
-ClangFormatCodeStyleEditor::ClangFormatCodeStyleEditor(QWidget *parent)
+ClangFormatCodeStyleEditor::ClangFormatCodeStyleEditor(
+        const ICodeStylePreferencesFactory *factory,
+        const FilePath &projectFile,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent)
     : CodeStyleEditor{parent}
-{}
-
-void ClangFormatCodeStyleEditor::init(
-        const ICodeStylePreferencesFactory *factory, const FilePath &projectFile, ICodeStylePreferences *codeStyle)
 {
     m_globalSettings = new ClangFormatGlobalConfigWidget(
         ProjectManager::projectWithProjectFile(projectFile, !projectFile.isEmpty()), codeStyle, this);
     m_layout->addWidget(m_globalSettings);
-    CodeStyleEditor::init(factory, projectFile, codeStyle);
 
-    const ClangFormatSettings::Mode currentMode = m_globalSettings->mode();
+    auto selector = new ClangFormatSelectorWidget{projectFile, this};
+    selector->setCodeStyle(codeStyle);
+    addSelector(selector);
+    addInfoLabel();
 
-    auto selector = static_cast<ClangFormatSelectorWidget *>(m_selector);
-    if (selector) {
-        connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
-                selector, &ClangFormatSelectorWidget::onModeChanged);
-        selector->onModeChanged(currentMode);
-        connect(m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
-            selector, &ClangFormatSelectorWidget::onUseCustomSettingsChanged);
-        selector->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
+    ClangFormatCodeStyleWidget *editorWidget = nullptr;
+    if (projectFile.isEmpty()) {
+        editorWidget = new ClangFormatCodeStyleWidget{projectFile, codeStyle, this};
+        addEditorWidget(editorWidget);
+    } else {
+        setupPreview(factory, projectFile, codeStyle,
+                     QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]),
+                     CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
     }
 
-    auto editorWidget = static_cast<ClangFormatCodeStyleWidget *>(m_editor);
+    const ClangFormatSettings::Mode currentMode = m_globalSettings->mode();
+    connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
+            selector, &ClangFormatSelectorWidget::onModeChanged);
+    selector->onModeChanged(currentMode);
+    connect(m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
+            selector, &ClangFormatSelectorWidget::onUseCustomSettingsChanged);
+    selector->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
+
     if (editorWidget) {
         connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
                 editorWidget, &ClangFormatCodeStyleWidget::onModeChanged);
@@ -272,30 +270,6 @@ void ClangFormatCodeStyleEditor::finish()
     m_globalSettings->finish();
 }
 
-CodeStyleWidget *ClangFormatCodeStyleEditor::createEditorWidget(
-        const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent) const
-{
-    return new ClangFormatCodeStyleWidget{projectFile, codeStyle, parent};
-}
-
-CodeStyleSelectorWidget *ClangFormatCodeStyleEditor::createCodeStyleSelectorWidget(
-        ICodeStylePreferences *codeStyle, const FilePath &projectFile, QWidget *parent) const
-{
-    auto selector = new ClangFormatSelectorWidget{projectFile, parent};
-    selector->setCodeStyle(codeStyle);
-    return selector;
-}
-
-QString ClangFormatCodeStyleEditor::previewText() const
-{
-    return QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]);
-}
-
-QString ClangFormatCodeStyleEditor::snippetProviderGroupId() const
-{
-    return CppEditor::Constants::CPP_SNIPPETS_GROUP_ID;
-}
-
 // ClangFormatCodeStylePreferencesFactory
 
 class ClangFormatCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
@@ -310,9 +284,7 @@ public:
             ICodeStylePreferences *codeStyle,
             QWidget *parent = nullptr) const override
     {
-        auto editor = new ClangFormatCodeStyleEditor{parent};
-        editor->init(this, projectFile, codeStyle);
-        return editor;
+        return new ClangFormatCodeStyleEditor{this, projectFile, codeStyle, parent};
     }
 
     QString displayName() override { return Tr::tr("C++"); }
