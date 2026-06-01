@@ -41,6 +41,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+#include <climits>
+
 namespace ProjectExplorer::Internal {
 
 const char SETTINGS_KEY[] = "ProjectExplorer/CompileOutput/Zoom";
@@ -304,7 +306,7 @@ CompileOutputSettings::CompileOutputSettings()
             "it can be handled."));
 
     maxCharCount.setSettingsKey("ProjectExplorer/Settings/MaxBuildOutputLines");
-    maxCharCount.setRange(1, Core::Constants::DEFAULT_MAX_CHAR_COUNT);
+    maxCharCount.setRange(1, INT_MAX);
     maxCharCount.setDefaultValue(Core::Constants::DEFAULT_MAX_CHAR_COUNT);
 
     overwriteColor.setSettingsKey("ProjectExplorer/CompileOutput/OverwriteBackground");
