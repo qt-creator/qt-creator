@@ -110,8 +110,6 @@ Project {
             "refactoroverlay.h",
             "semantichighlighter.cpp",
             "semantichighlighter.h",
-            "simplecodestylepreferences.cpp",
-            "simplecodestylepreferences.h",
             "storagesettings.cpp",
             "storagesettings.h",
             "syntaxhighlighter.cpp",

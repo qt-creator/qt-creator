@@ -82,7 +82,6 @@ add_qtc_plugin(TextEditor
     refactoringchanges.cpp refactoringchanges.h
     refactoroverlay.cpp refactoroverlay.h
     semantichighlighter.cpp semantichighlighter.h
-    simplecodestylepreferences.cpp simplecodestylepreferences.h
     snippets/reuse.h
     snippets/snippet.cpp snippets/snippet.h
     snippets/snippetassistcollector.cpp snippets/snippetassistcollector.h

@@ -43,8 +43,8 @@ public:
     TabSettingsData tabSettings() const;
     TabSettingsData currentTabSettings() const;
 
-    virtual QVariant value() const = 0;
-    virtual void setValue(const QVariant &) = 0;
+    virtual QVariant value() const;
+    virtual void setValue(const QVariant &);
 
     QVariant currentValue() const; // may be from grandparent
 

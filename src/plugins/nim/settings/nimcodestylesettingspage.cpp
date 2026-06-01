@@ -13,13 +13,11 @@
 
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/codestylepool.h>
-#include <texteditor/codestylepool.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/indenter.h>
-#include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
@@ -160,7 +158,9 @@ private:
 
     ICodeStylePreferences *createCodeStyle() const final
     {
-        return new SimpleCodeStylePreferences();
+        auto prefs = new ICodeStylePreferences();
+        prefs->setSettingsSuffix("TabPreferences");
+        return prefs;
     }
 
     Indenter *createIndenter(QTextDocument *doc) const final
@@ -172,7 +172,7 @@ private:
 class NimCodeStyleSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
-    explicit NimCodeStyleSettingsWidget(SimpleCodeStylePreferences *codeStyle)
+    explicit NimCodeStyleSettingsWidget(ICodeStylePreferences *codeStyle)
         : m_codeStyle(codeStyle)
     {
         m_nimCodeStylePreferences.setDelegatingPool(m_codeStyle->delegatingPool());
@@ -201,8 +201,8 @@ public:
     }
 
 private:
-    SimpleCodeStylePreferences *m_codeStyle;
-    SimpleCodeStylePreferences m_nimCodeStylePreferences;
+    ICodeStylePreferences *m_codeStyle;
+    ICodeStylePreferences m_nimCodeStylePreferences;
 };
 
 // NimCodeStyleSettingsPage
@@ -217,6 +217,7 @@ public:
         setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
         setWidgetCreator([this] { return new NimCodeStyleSettingsWidget(&m_globalCodeStyle); });
 
+        m_globalCodeStyle.setSettingsSuffix("TabPreferences");
         m_globalCodeStyle.setDelegatingPool(&m_pool);
         m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
         m_globalCodeStyle.setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
@@ -255,8 +256,8 @@ public:
 private:
     NimCodeStylePreferencesFactory m_factory;
     CodeStylePool m_pool{&m_factory, Nim::Constants::C_NIMLANGUAGE_ID};
-    SimpleCodeStylePreferences m_globalCodeStyle;
-    SimpleCodeStylePreferences m_nimCodeStyle;
+    ICodeStylePreferences m_globalCodeStyle;
+    ICodeStylePreferences m_nimCodeStyle;
 };
 
 void Internal::setupNimCodeStyle()

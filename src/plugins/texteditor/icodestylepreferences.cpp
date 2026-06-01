@@ -30,6 +30,15 @@ public:
 
 } // Internal
 
+QVariant ICodeStylePreferences::value() const
+{
+    return {};
+}
+
+void ICodeStylePreferences::setValue(const QVariant &)
+{
+}
+
 ICodeStylePreferences::ICodeStylePreferences(QObject *parent) :
     QObject(parent),
     d(new Internal::ICodeStylePreferencesPrivate)

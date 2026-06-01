@@ -12,10 +12,10 @@
 
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/codestylepool.h>
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/extraencodingsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/marginsettings.h>
-#include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
@@ -43,7 +43,7 @@ struct EditorConfigurationPrivate
         m_textEncoding(Core::EditorManager::defaultTextEncoding())
     { }
 
-    SimpleCodeStylePreferences m_defaultCodeStyle;
+    ICodeStylePreferences m_defaultCodeStyle;
     bool m_useGlobal = true;
     TextEncoding m_textEncoding;
 

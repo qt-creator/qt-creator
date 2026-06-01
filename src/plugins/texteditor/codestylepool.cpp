@@ -4,7 +4,6 @@
 #include "codestylepool.h"
 #include "icodestylepreferencesfactory.h"
 #include "icodestylepreferences.h"
-#include "simplecodestylepreferences.h"
 #include "tabsettings.h"
 #include "texteditorconstants.h"
 #include "texteditortr.h"
@@ -291,7 +290,7 @@ void CodeStylePool::exportCodeStyle(const FilePath &fileName, ICodeStylePreferen
 
 ICodeStylePreferences &globalCodeStyle()
 {
-    static SimpleCodeStylePreferences theGlobalCodeStyle;
+    static ICodeStylePreferences theGlobalCodeStyle;
     return theGlobalCodeStyle;
 }
 
@@ -340,6 +339,8 @@ namespace Internal {
 
 void setupGlobalCodeStyle()
 {
+    globalCodeStyle().setSettingsSuffix("TabPreferences");
+    globalCodeStyle().setGlobalSettingsCategory(Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
     globalCodeStyle().setDisplayName(Tr::tr("Global", "Settings"));
     globalCodeStyle().setId(Constants::GLOBAL_SETTINGS_ID);
     globalCodeStyle().fromSettings(Constants::CODE_STYLE_SETTINGS_PREFIX);
