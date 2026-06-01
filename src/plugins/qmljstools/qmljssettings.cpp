@@ -1283,19 +1283,17 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
 class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    QmlJsCodeStyleEditor(ICodeStylePreferences *codeStyle, QWidget *parent)
+    QmlJsCodeStyleEditor(QmlJSCodeStylePreferences *codeStyle, QWidget *parent)
         : CodeStyleEditor{parent}
     {
         auto selector = new CodeStyleSelectorWidget{{}, this};
         selector->setCodeStyle(codeStyle);
         addSelector(selector);
         addInfoLabel();
-        if (auto qmlJSPrefs = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle)) {
-            auto widget = new QmlJSCodeStylePreferencesWidget(
-                QString::fromLatin1(Internal::previewText), this);
-            widget->setPreferences(qmlJSPrefs);
-            addEditorWidget(widget);
-        }
+        auto widget = new QmlJSCodeStylePreferencesWidget(
+            QString::fromLatin1(Internal::previewText), this);
+        widget->setPreferences(codeStyle);
+        addEditorWidget(widget);
     }
 };
 
@@ -1312,7 +1310,7 @@ private:
     CodeStyleEditor *createSettingsEditor(
             ICodeStylePreferences *codeStyle, QWidget *parent) const final
     {
-        return new QmlJsCodeStyleEditor{codeStyle, parent};
+        return new QmlJsCodeStyleEditor{static_cast<QmlJSCodeStylePreferences *>(codeStyle), parent};
     }
 
     QString snippetGroupId() const final
