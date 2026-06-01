@@ -38,6 +38,8 @@ using namespace Utils;
 
 namespace ClangFormat {
 
+class ClangFormatCodeStyleWidget;
+
 class ClangFormatSelectorWidget final : public CodeStyleSelectorWidget
 {
 public:
@@ -69,9 +71,10 @@ public:
     void finish() override;
 
     ClangFormatGlobalConfigWidget *m_globalSettings = nullptr;
+    ClangFormatCodeStyleWidget *m_editorWidget = nullptr;
 };
 
-class ClangFormatCodeStyleWidget : public CodeStyleWidget
+class ClangFormatCodeStyleWidget : public QWidget
 {
 public:
     ClangFormatCodeStyleWidget(
@@ -80,8 +83,8 @@ public:
     void onModeChanged(ClangFormatSettings::Mode newMode);
     void onUseCustomSettingsChanged(bool doUse);
 
-    void apply() override;
-    void finish() override;
+    void apply();
+    void finish();
 
 private:
     CppEditor::CppCodeStylePreferencesWidget *m_legacyIndenterSettings = nullptr;
@@ -166,7 +169,7 @@ void ClangFormatSelectorWidget::updateReadOnlyState()
 
 ClangFormatCodeStyleWidget::ClangFormatCodeStyleWidget(
     const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent)
-    : CodeStyleWidget{parent}
+    : QWidget{parent}
     , m_clangFormatSettings{new ClangFormatConfigWidget(
           ProjectManager::projectWithProjectFile(projectFile, !projectFile.isEmpty()), codeStyle, this)}
 {
@@ -228,10 +231,9 @@ ClangFormatCodeStyleEditor::ClangFormatCodeStyleEditor(
     addSelector(selector);
     addInfoLabel();
 
-    ClangFormatCodeStyleWidget *editorWidget = nullptr;
     if (projectFile.isEmpty()) {
-        editorWidget = new ClangFormatCodeStyleWidget{projectFile, codeStyle, this};
-        addEditorWidget(editorWidget);
+        m_editorWidget = new ClangFormatCodeStyleWidget{projectFile, codeStyle, this};
+        addEditorWidget(m_editorWidget);
     } else {
         setupPreview(factory, projectFile, codeStyle,
                      QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]),
@@ -246,27 +248,27 @@ ClangFormatCodeStyleEditor::ClangFormatCodeStyleEditor(
             selector, &ClangFormatSelectorWidget::onUseCustomSettingsChanged);
     selector->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
 
-    if (editorWidget) {
+    if (m_editorWidget) {
         connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
-                editorWidget, &ClangFormatCodeStyleWidget::onModeChanged);
-        editorWidget->onModeChanged(currentMode);
+                m_editorWidget, &ClangFormatCodeStyleWidget::onModeChanged);
+        m_editorWidget->onModeChanged(currentMode);
         connect(m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
-                editorWidget, &ClangFormatCodeStyleWidget::onUseCustomSettingsChanged);
-        editorWidget->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
+                m_editorWidget, &ClangFormatCodeStyleWidget::onUseCustomSettingsChanged);
+        m_editorWidget->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
     }
 }
 
 void ClangFormatCodeStyleEditor::apply()
 {
-    CodeStyleEditor::apply();
-
+    if (m_editorWidget)
+        m_editorWidget->apply();
     m_globalSettings->apply();
 }
 
 void ClangFormatCodeStyleEditor::finish()
 {
-    CodeStyleEditor::finish();
-
+    if (m_editorWidget)
+        m_editorWidget->finish();
     m_globalSettings->finish();
 }
 

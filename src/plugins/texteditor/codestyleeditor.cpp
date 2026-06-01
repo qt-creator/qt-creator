@@ -35,17 +35,9 @@ CodeStyleEditor::CodeStyleEditor(QWidget *parent)
     m_layout->setContentsMargins(0, 0, 0, 0);
 }
 
-void CodeStyleEditor::apply()
-{
-    if (m_editor)
-        m_editor->apply();
-}
+void CodeStyleEditor::apply() {}
 
-void CodeStyleEditor::finish()
-{
-    if (m_editor)
-        m_editor->finish();
-}
+void CodeStyleEditor::finish() {}
 
 void CodeStyleEditor::addSelector(CodeStyleSelectorWidget *selector)
 {
@@ -62,10 +54,9 @@ void CodeStyleEditor::addInfoLabel()
     m_layout->addWidget(infoLabel);
 }
 
-void CodeStyleEditor::addEditorWidget(CodeStyleWidget *editor)
+void CodeStyleEditor::addEditorWidget(QWidget *editor)
 {
-    m_editor = editor;
-    m_layout->addWidget(m_editor);
+    m_layout->addWidget(editor);
 }
 
 void CodeStyleEditor::setupPreview(

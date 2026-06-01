@@ -990,7 +990,7 @@ void QmlFormatSettingsWidget::generateFallbackJson()
 
 QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
     const QString &previewText, QWidget *parent)
-    : TextEditor::CodeStyleWidget(parent)
+    : QWidget(parent)
     , m_formatterSelectionWidget(new FormatterSelectionWidget(this))
     , m_formatterSettingsStack(new QStackedWidget(this))
 {

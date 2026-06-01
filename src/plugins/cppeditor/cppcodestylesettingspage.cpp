@@ -410,7 +410,7 @@ void setupCppCodeStyleSettings()
 } // namespace Internal
 
 CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
-    : TextEditor::CodeStyleWidget(parent)
+    : QWidget(parent)
     , d(new Internal::CppCodeStylePreferencesWidgetPrivate(this))
 {
     decorateEditors(globalFontSettings().data());

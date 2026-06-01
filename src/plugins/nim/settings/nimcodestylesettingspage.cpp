@@ -35,11 +35,11 @@ using namespace Utils;
 
 namespace Nim {
 
-class NimCodeStylePreferencesWidget : public CodeStyleWidget
+class NimCodeStylePreferencesWidget : public QWidget
 {
 public:
     NimCodeStylePreferencesWidget(ICodeStylePreferences *preferences, QWidget *parent)
-        : CodeStyleWidget(parent)
+        : QWidget(parent)
         , m_preferences(preferences)
     {
         m_tabSettingsWidget.setPreferences(preferences);

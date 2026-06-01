@@ -7,7 +7,7 @@
 #include "clangformatindenter.h"
 
 #include <coreplugin/editormanager/ieditor.h>
-#include <texteditor/codestyleeditor.h>
+#include <QWidget>
 #include <utils/filepath.h>
 #include <utils/guard.h>
 
@@ -21,6 +21,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 class ICodeStylePreferences;
+class SnippetEditorWidget;
 class TextEditorWidget;
 } // namespace TextEditor
 
@@ -31,7 +32,7 @@ class InfoLabel;
 namespace ProjectExplorer { class Project; }
 
 namespace ClangFormat {
-class ClangFormatConfigWidget final : public TextEditor::CodeStyleWidget
+class ClangFormatConfigWidget final : public QWidget
 {
 public:
     ClangFormatConfigWidget(
@@ -40,7 +41,7 @@ public:
         QWidget *parent);
     ~ClangFormatConfigWidget() override;
 
-    void apply() override;
+    void apply();
 
     void onUseCustomSettingsChanged(bool doUse);
 

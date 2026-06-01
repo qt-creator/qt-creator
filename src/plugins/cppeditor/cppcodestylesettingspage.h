@@ -16,7 +16,6 @@ namespace TextEditor {
     class FontSettingsData;
     class SnippetEditorWidget;
     class CodeStyleEditor;
-    class CodeStyleWidget;
 }
 
 namespace CppEditor {
@@ -29,7 +28,7 @@ void setupCppCodeStyleSettings();
 
 } // namespace Internal
 
-class CPPEDITOR_EXPORT CppCodeStylePreferencesWidget : public TextEditor::CodeStyleWidget
+class CPPEDITOR_EXPORT CppCodeStylePreferencesWidget : public QWidget
 {
     Q_OBJECT
 
@@ -39,8 +38,8 @@ public:
 
     void setCodeStyle(CppCodeStylePreferences *codeStylePreferences);
 
-    void apply() override;
-    void finish() override;
+    void apply();
+    void finish();
 
 signals:
     void applyEmitted();

@@ -59,10 +59,10 @@ public:
         addInfoLabel();
         if (projectFile.isEmpty()) {
             if (auto cppPrefs = dynamic_cast<CppCodeStylePreferences *>(codeStyle)) {
-                auto widget = new CppCodeStylePreferencesWidget(this);
-                widget->layout()->setContentsMargins(0, 0, 0, 0);
-                widget->setCodeStyle(cppPrefs);
-                addEditorWidget(widget);
+                m_widget = new CppCodeStylePreferencesWidget(this);
+                m_widget->layout()->setContentsMargins(0, 0, 0, 0);
+                m_widget->setCodeStyle(cppPrefs);
+                addEditorWidget(m_widget);
             }
         } else {
             setupPreview(factory, projectFile, codeStyle,
@@ -70,6 +70,12 @@ public:
                          Constants::CPP_SNIPPETS_GROUP_ID);
         }
     }
+
+    void apply() override { if (m_widget) m_widget->apply(); }
+    void finish() override { if (m_widget) m_widget->finish(); }
+
+private:
+    CppCodeStylePreferencesWidget *m_widget = nullptr;
 };
 
 class CppCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory

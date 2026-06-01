@@ -20,16 +20,6 @@ class ICodeStylePreferencesFactory;
 class ICodeStylePreferences;
 class SnippetEditorWidget;
 
-class TEXTEDITOR_EXPORT CodeStyleWidget : public QWidget
-{
-public:
-    CodeStyleWidget(QWidget *parent = nullptr)
-        : QWidget(parent)
-    {}
-    virtual void apply() {}
-    virtual void finish() {}
-};
-
 class TEXTEDITOR_EXPORT CodeStyleEditor : public QWidget
 {
     Q_OBJECT
@@ -43,7 +33,7 @@ public:
 protected:
     void addSelector(CodeStyleSelectorWidget *selector);
     void addInfoLabel();
-    void addEditorWidget(CodeStyleWidget *editor);
+    void addEditorWidget(QWidget *editor);
     void setupPreview(const ICodeStylePreferencesFactory *factory,
                       const Utils::FilePath &projectFile,
                       ICodeStylePreferences *codeStyle,
@@ -53,7 +43,6 @@ protected:
     QVBoxLayout *m_layout = nullptr;
     CodeStyleSelectorWidget *m_selector = nullptr;
     SnippetEditorWidget *m_preview = nullptr;
-    CodeStyleWidget *m_editor = nullptr;
 };
 
 } // namespace TextEditor

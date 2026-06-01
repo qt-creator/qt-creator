@@ -5,8 +5,9 @@
 
 #include "clangformatsettings.h"
 
-#include <texteditor/codestyleeditor.h>
 #include <utils/guard.h>
+
+#include <QWidget>
 
 class QCheckBox;
 class QComboBox;
@@ -26,7 +27,7 @@ class InfoLabel;
 }
 
 namespace ClangFormat {
-class ClangFormatGlobalConfigWidget final : public TextEditor::CodeStyleWidget
+class ClangFormatGlobalConfigWidget final : public QWidget
 {
     Q_OBJECT
 
@@ -35,8 +36,8 @@ public:
         ProjectExplorer::Project *project,
         TextEditor::ICodeStylePreferences *codeStyle,
         QWidget *parent);
-    void apply() override;
-    void finish() override;
+    void apply();
+    void finish();
 
     ClangFormatSettings::Mode mode() const;
     bool useCustomSettings() const;
