@@ -268,22 +268,6 @@ CompileOutputSettings &compileOutputSettings()
     return theSettings;
 }
 
-QVariant CompileOutputColorAspect::fromSettingsValue(const QVariant &savedValue) const
-{
-   const QColor color = savedValue.value<QColor>();
-   return color.isValid() ? color : Utils::creatorColor(Utils::Theme::PaletteBase);
-}
-
-QVariant CompileOutputMaxCharCountAspect::fromSettingsValue(const QVariant &savedValue) const
-{
-    return savedValue.toInt() * 100;
-}
-
-QVariant CompileOutputMaxCharCountAspect::toSettingsValue(const QVariant &valueToSave) const
-{
-    return valueToSave.toInt() / 100;
-}
-
 CompileOutputSettings::CompileOutputSettings()
 {
     setAutoApply(false);
