@@ -28,7 +28,7 @@ public:
 
     // document management commands
     bool openFile(const QString &path, int line = 0, int column = 0);
-    QString getFilePlainText(const QString &path);
+    QString getFilePlainText(const QString &path, int startLine = 0, int endLine = 0);
     QJsonObject setFilePlainText(const QString &path, const QString &contents);
     bool saveFile(const QString &path);
     bool closeFile(const QString &path);

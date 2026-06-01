@@ -109,7 +109,19 @@ bool McpCommands::openFile(const QString &path, int line, int column)
     return true;
 }
 
-QString McpCommands::getFilePlainText(const QString &path)
+static QString sliceLines(const QString &text, int startLine, int endLine)
+{
+    if (startLine <= 0 && endLine <= 0)
+        return text;
+    const QStringList lines = text.split('\n');
+    const int first = startLine > 0 ? startLine - 1 : 0;
+    const int last = endLine > 0 ? qMin(endLine, lines.size()) : lines.size();
+    if (first >= lines.size())
+        return QString();
+    return QStringList(lines.mid(first, last - first)).join('\n');
+}
+
+QString McpCommands::getFilePlainText(const QString &path, int startLine, int endLine)
 {
     if (path.isEmpty()) {
         qCDebug(mcpCommands) << "Empty file path provided";
@@ -123,22 +135,27 @@ QString McpCommands::getFilePlainText(const QString &path)
         return QString();
     }
 
+    QString text;
     if (auto doc = TextEditor::TextDocument::textDocumentForFilePath(filePath))
-        return doc->plainText();
+        text = doc->plainText();
+    else {
+        MimeType mime = mimeTypeForFile(filePath);
+        if (!mime.inherits("text/plain")) {
+            qCDebug(mcpCommands) << "File is not a plain text document:" << path
+                                 << "MIME type:" << mime.name();
+            return QString();
+        }
 
-    MimeType mime = mimeTypeForFile(filePath);
-    if (!mime.inherits("text/plain")) {
-        qCDebug(mcpCommands) << "File is not a plain text document:" << path
-                             << "MIME type:" << mime.name();
-        return QString();
+        Result<QByteArray> contents = filePath.fileContents();
+        if (!contents.has_value()) {
+            qCDebug(mcpCommands) << "Failed to read file contents:" << path
+                                 << "Error:" << contents.error();
+            return QString();
+        }
+        text = Core::EditorManager::defaultTextEncoding().decode(*contents);
     }
 
-    Result<QByteArray> contents = filePath.fileContents();
-    if (contents.has_value())
-        return Core::EditorManager::defaultTextEncoding().decode(*contents);
-
-    qCDebug(mcpCommands) << "Failed to read file contents:" << path << "Error:" << contents.error();
-    return QString();
+    return sliceLines(text, startLine, endLine);
 }
 
 QJsonObject McpCommands::setFilePlainText(const QString &path, const QString &contents)
@@ -704,8 +721,9 @@ void McpCommands::registerCommands()
             .name("file_plain_text")
             .title("file plain text")
             .description(
-                "Returns the content of the file as plain text. This also supports files on remote "
-                "devices with uris like docker://... or ssh:// and others.")
+                "Returns the content of the file as plain text. "
+                "Optionally restrict to a line range via startLine/endLine (1-based, inclusive). "
+                "Also supports files on remote devices with uris like docker://... or ssh:// and others.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -715,6 +733,16 @@ void McpCommands::registerCommands()
                             {"type", "string"},
                             {"format", "uri"},
                             {"description", "Absolute path of the file"}})
+                    .addProperty(
+                        "startLine",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "First line to return, 1-based inclusive (optional)"}})
+                    .addProperty(
+                        "endLine",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Last line to return, 1-based inclusive (optional)"}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -722,7 +750,9 @@ void McpCommands::registerCommands()
                     .addRequired("text")),
         wrap([](const QJsonObject &p) {
             const QString path = p.value("path").toString();
-            const QString text = commands.getFilePlainText(path);
+            const int startLine = p.value("startLine").toInt(0);
+            const int endLine = p.value("endLine").toInt(0);
+            const QString text = commands.getFilePlainText(path, startLine, endLine);
             return QJsonObject{{"text", text}};
         }));
 
