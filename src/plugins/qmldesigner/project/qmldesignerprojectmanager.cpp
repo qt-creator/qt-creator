@@ -63,11 +63,6 @@ ProjectExplorer::Target *activeTarget(ProjectExplorer::Project *project)
     return {};
 }
 
-QString resourcePath(const QString &relativePath)
-{
-    return Core::ICore::resourcePath(relativePath).cleanPath().path();
-}
-
 QString cacheResourcePath(const QString &relativePath)
 {
     return Core::ICore::cacheResourcePath(relativePath).cleanPath().path();

@@ -683,7 +683,8 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
     return topLevelWindows.constFirst()->screen()->devicePixelRatio();
 }
 
-void QmlDesignerPlugin::contextHelp(const Core::IContext::HelpCallback &callback, const QString &id)
+void QmlDesignerPlugin::contextHelp(const Core::IContext::HelpCallback &callback,
+                                    [[maybe_unused]] const QString &id)
 {
     NanotraceHR::Tracer tracer{"qml designer plugin context help", category()};
 
