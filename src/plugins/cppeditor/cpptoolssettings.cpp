@@ -18,8 +18,11 @@
 #include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/completionsettings.h>
+#include <texteditor/displaysettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
+#include <texteditor/snippets/snippeteditor.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/codestylepool.h>
 
@@ -47,8 +50,7 @@ CppCodeStylePreferences *cppCodeStyle()
 class CppCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    CppCodeStyleEditor(const ICodeStylePreferencesFactory *factory,
-                       const FilePath &projectFile,
+    CppCodeStyleEditor(const FilePath &projectFile,
                        ICodeStylePreferences *codeStyle,
                        QWidget *parent)
         : CodeStyleEditor{parent}
@@ -65,9 +67,14 @@ public:
                 addEditorWidget(m_widget);
             }
         } else {
-            setupPreview(factory, projectFile, codeStyle,
-                         QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]),
-                         Constants::CPP_SNIPPETS_GROUP_ID);
+            m_preview = new SnippetEditorWidget{};
+            DisplaySettingsData displaySettings = m_preview->displaySettings();
+            displaySettings.m_visualizeWhitespace = true;
+            m_preview->setDisplaySettings(displaySettings);
+            SnippetProvider::decorateEditor(m_preview, Constants::CPP_SNIPPETS_GROUP_ID);
+            m_preview->setPlainText(
+                QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
+            setupPreview(createCppQtStyleIndenter(m_preview->document()), projectFile, codeStyle);
         }
     }
 
@@ -91,7 +98,7 @@ private:
             ICodeStylePreferences *codeStyle,
             QWidget *parent) const final
     {
-        return new CppCodeStyleEditor{this, projectFile, codeStyle, parent};
+        return new CppCodeStyleEditor{projectFile, codeStyle, parent};
     }
 
     QString displayName() final { return Tr::tr(Constants::CPP_SETTINGS_NAME); }

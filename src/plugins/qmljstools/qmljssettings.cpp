@@ -1283,8 +1283,7 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
 class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    QmlJsCodeStyleEditor(const ICodeStylePreferencesFactory *factory,
-                         const FilePath &projectFile,
+    QmlJsCodeStyleEditor(const FilePath &projectFile,
                          ICodeStylePreferences *codeStyle,
                          QWidget *parent)
         : CodeStyleEditor{parent}
@@ -1301,8 +1300,13 @@ public:
                 addEditorWidget(widget);
             }
         } else {
-            setupPreview(factory, projectFile, codeStyle,
-                         text, QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
+            m_preview = new SnippetEditorWidget{};
+            DisplaySettingsData displaySettings = m_preview->displaySettings();
+            displaySettings.m_visualizeWhitespace = true;
+            m_preview->setDisplaySettings(displaySettings);
+            SnippetProvider::decorateEditor(m_preview, QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
+            m_preview->setPlainText(text);
+            setupPreview(QmlJSEditor::createQmlJsIndenter(m_preview->document()), projectFile, codeStyle);
         }
     }
 };
@@ -1322,7 +1326,7 @@ private:
             ICodeStylePreferences *codeStyle,
             QWidget *parent) const final
     {
-        return new QmlJsCodeStyleEditor{this, projectFile, codeStyle, parent};
+        return new QmlJsCodeStyleEditor{projectFile, codeStyle, parent};
     }
 
     QString displayName() final

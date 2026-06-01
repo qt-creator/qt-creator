@@ -16,8 +16,8 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 class CodeStyleSelectorWidget;
-class ICodeStylePreferencesFactory;
 class ICodeStylePreferences;
+class Indenter;
 class SnippetEditorWidget;
 
 class TEXTEDITOR_EXPORT CodeStyleEditor : public QWidget
@@ -34,11 +34,9 @@ protected:
     void addSelector(CodeStyleSelectorWidget *selector);
     void addInfoLabel();
     void addEditorWidget(QWidget *editor);
-    void setupPreview(const ICodeStylePreferencesFactory *factory,
+    void setupPreview(Indenter *indenter,
                       const Utils::FilePath &projectFile,
-                      ICodeStylePreferences *codeStyle,
-                      const QString &previewText,
-                      const QString &snippetGroupId);
+                      ICodeStylePreferences *codeStyle);
 
     QVBoxLayout *m_layout = nullptr;
     CodeStyleSelectorWidget *m_selector = nullptr;

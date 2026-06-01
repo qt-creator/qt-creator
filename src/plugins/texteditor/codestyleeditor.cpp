@@ -4,12 +4,9 @@
 #include "codestyleeditor.h"
 
 #include "codestyleselectorwidget.h"
-#include "displaysettings.h"
 #include "icodestylepreferences.h"
-#include "icodestylepreferencesfactory.h"
 #include "indenter.h"
 #include "snippets/snippeteditor.h"
-#include "snippets/snippetprovider.h"
 #include "textdocument.h"
 #include "texteditortr.h"
 
@@ -59,31 +56,15 @@ void CodeStyleEditor::addEditorWidget(QWidget *editor)
     m_layout->addWidget(editor);
 }
 
-void CodeStyleEditor::setupPreview(
-        const ICodeStylePreferencesFactory *factory,
-        const FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        const QString &previewText,
-        const QString &snippetGroupId)
+void CodeStyleEditor::setupPreview(Indenter *indenter, const FilePath &projectFile,
+                                   ICodeStylePreferences *codeStyle)
 {
-    m_preview = new SnippetEditorWidget{};
-    DisplaySettingsData displaySettings = m_preview->displaySettings();
-    displaySettings.m_visualizeWhitespace = true;
-    m_preview->setDisplaySettings(displaySettings);
-    SnippetProvider::decorateEditor(m_preview, snippetGroupId);
-    m_preview->setPlainText(previewText);
-
-    Indenter *indenter = factory->createIndenter(m_preview->document());
-    if (indenter) {
-        indenter->setOverriddenPreferences(codeStyle);
-        const FilePath fileName = !projectFile.isEmpty()
-            ? projectFile.pathAppended("snippet.cpp")
-            : Core::ICore::userResourcePath("snippet.cpp");
-        indenter->setFileName(fileName);
-        m_preview->textDocument()->setIndenter(indenter);
-    } else {
-        m_preview->textDocument()->setCodeStyle(codeStyle);
-    }
+    indenter->setOverriddenPreferences(codeStyle);
+    const FilePath fileName = !projectFile.isEmpty()
+        ? projectFile.pathAppended("snippet.cpp")
+        : Core::ICore::userResourcePath("snippet.cpp");
+    indenter->setFileName(fileName);
+    m_preview->textDocument()->setIndenter(indenter);
 
     const auto updatePreview = [this, codeStyle]() {
         QTextDocument *doc = m_preview->document();

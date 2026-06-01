@@ -20,6 +20,7 @@
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/indenter.h>
 #include <texteditor/snippets/snippeteditor.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 
@@ -108,8 +109,7 @@ void NimCodeStylePreferencesWidget::updatePreview()
 class NimCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    NimCodeStyleEditor(const ICodeStylePreferencesFactory *factory,
-                       const FilePath &projectFile,
+    NimCodeStyleEditor(const FilePath &projectFile,
                        ICodeStylePreferences *codeStyle,
                        QWidget *parent)
         : CodeStyleEditor{parent}
@@ -118,12 +118,17 @@ public:
         selector->setCodeStyle(codeStyle);
         addSelector(selector);
         addInfoLabel();
-        if (projectFile.isEmpty())
+        if (projectFile.isEmpty()) {
             addEditorWidget(new NimCodeStylePreferencesWidget(codeStyle, this));
-        else
-            setupPreview(factory, projectFile, codeStyle,
-                         Constants::C_NIMCODESTYLEPREVIEWSNIPPET,
-                         Constants::C_NIMSNIPPETSGROUP_ID);
+        } else {
+            m_preview = new SnippetEditorWidget{};
+            DisplaySettingsData displaySettings = m_preview->displaySettings();
+            displaySettings.m_visualizeWhitespace = true;
+            m_preview->setDisplaySettings(displaySettings);
+            SnippetProvider::decorateEditor(m_preview, Constants::C_NIMSNIPPETSGROUP_ID);
+            m_preview->setPlainText(Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
+            setupPreview(createNimIndenter(m_preview->document()), projectFile, codeStyle);
+        }
     }
 };
 
@@ -142,7 +147,7 @@ private:
             ICodeStylePreferences *codeStyle,
             QWidget *parent) const final
     {
-        return new NimCodeStyleEditor{this, projectFile, codeStyle, parent};
+        return new NimCodeStyleEditor{projectFile, codeStyle, parent};
     }
 
     QString displayName() final

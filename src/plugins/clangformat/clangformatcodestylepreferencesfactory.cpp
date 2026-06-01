@@ -37,6 +37,7 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
 #include <texteditor/snippets/snippeteditor.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
@@ -521,7 +522,6 @@ class ClangFormatCodeStyleEditor final : public CodeStyleEditor
 {
 public:
     ClangFormatCodeStyleEditor(
-        const ICodeStylePreferencesFactory *factory,
         const FilePath &projectFile,
         ICodeStylePreferences *codeStyle,
         QWidget *parent);
@@ -534,7 +534,6 @@ public:
 };
 
 ClangFormatCodeStyleEditor::ClangFormatCodeStyleEditor(
-        const ICodeStylePreferencesFactory *factory,
         const FilePath &projectFile,
         ICodeStylePreferences *codeStyle,
         QWidget *parent)
@@ -553,9 +552,14 @@ ClangFormatCodeStyleEditor::ClangFormatCodeStyleEditor(
         m_editorWidget = new ClangFormatCodeStyleWidget{projectFile, codeStyle, this};
         addEditorWidget(m_editorWidget);
     } else {
-        setupPreview(factory, projectFile, codeStyle,
-                     QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]),
-                     CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
+        m_preview = new SnippetEditorWidget;
+        DisplaySettingsData displaySettings = m_preview->displaySettings();
+        displaySettings.m_visualizeWhitespace = true;
+        m_preview->setDisplaySettings(displaySettings);
+        SnippetProvider::decorateEditor(m_preview, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
+        m_preview->setPlainText(
+            QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
+        setupPreview(new ClangFormatForwardingIndenter(m_preview->document()), projectFile, codeStyle);
     }
 
     const ClangFormatSettings::Mode currentMode = m_globalSettings->mode();
@@ -604,7 +608,7 @@ public:
             ICodeStylePreferences *codeStyle,
             QWidget *parent = nullptr) const override
     {
-        return new ClangFormatCodeStyleEditor{this, projectFile, codeStyle, parent};
+        return new ClangFormatCodeStyleEditor{projectFile, codeStyle, parent};
     }
 
     QString displayName() override { return Tr::tr("C++"); }
