@@ -30,15 +30,15 @@ public:
     virtual void finish() {}
 };
 
-class TEXTEDITOR_EXPORT CodeStyleEditor : public CodeStyleEditorWidget
+class TEXTEDITOR_EXPORT CodeStyleEditor : public QWidget
 {
     Q_OBJECT
 
 public:
     CodeStyleEditor(QWidget *parent = nullptr);
 
-    void apply() override;
-    void finish() override;
+    virtual void apply();
+    virtual void finish();
 
     virtual void init(
         const ICodeStylePreferencesFactory *factory,

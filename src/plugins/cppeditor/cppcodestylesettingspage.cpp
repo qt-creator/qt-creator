@@ -385,7 +385,7 @@ public:
     }
 
     std::unique_ptr<CppCodeStylePreferences> m_pageCppCodeStylePreferences;
-    CodeStyleEditorWidget *m_codeStyleEditor;
+    CodeStyleEditor *m_codeStyleEditor;
 };
 
 // CppCodeStyleSettingsPage

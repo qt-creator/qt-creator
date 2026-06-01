@@ -305,7 +305,7 @@ public:
         : ICodeStylePreferencesFactory(CppEditor::Constants::CPP_SETTINGS_ID)
     {}
 
-    CodeStyleEditorWidget *createCodeStyleEditor(
+    CodeStyleEditor *createCodeStyleEditor(
             const FilePath &projectFile,
             ICodeStylePreferences *codeStyle,
             QWidget *parent = nullptr) const override

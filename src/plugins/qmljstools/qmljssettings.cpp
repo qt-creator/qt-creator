@@ -1321,7 +1321,7 @@ public:
     {}
 
 private:
-    CodeStyleEditorWidget *createCodeStyleEditor(
+    CodeStyleEditor *createCodeStyleEditor(
             const FilePath &projectFile,
             ICodeStylePreferences *codeStyle,
             QWidget *parent) const final

@@ -141,7 +141,7 @@ public:
     {}
 
 private:
-    CodeStyleEditorWidget *createCodeStyleEditor(
+    CodeStyleEditor *createCodeStyleEditor(
             const FilePath &projectFile,
             ICodeStylePreferences *codeStyle,
             QWidget *parent) const final
@@ -181,7 +181,7 @@ public:
         m_nimCodeStylePreferences.setId(m_codeStyle->id());
 
         auto factory = codeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
-        CodeStyleEditorWidget *editor
+        CodeStyleEditor *editor
             = factory->createCodeStyleEditor({}, &m_nimCodeStylePreferences);
 
         auto layout = new QVBoxLayout(this);

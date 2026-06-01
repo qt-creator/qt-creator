@@ -123,7 +123,7 @@ SnippetEditorWidget *CodeStyleEditor::createPreviewWidget(
 }
 
 CodeStyleEditor::CodeStyleEditor(QWidget *parent)
-    : CodeStyleEditorWidget(parent)
+    : QWidget(parent)
 {
     m_layout = new QVBoxLayout{this};
     m_layout->setContentsMargins(0, 0, 0, 0);
@@ -131,13 +131,13 @@ CodeStyleEditor::CodeStyleEditor(QWidget *parent)
 
 void CodeStyleEditor::apply()
 {
-    if (m_editor != nullptr)
+    if (m_editor)
         m_editor->apply();
 }
 
 void CodeStyleEditor::finish()
 {
-    if (m_editor != nullptr)
+    if (m_editor)
         m_editor->finish();
 }
 

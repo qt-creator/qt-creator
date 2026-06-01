@@ -17,7 +17,7 @@ QT_END_NAMESPACE
 namespace Utils { class FilePath; }
 
 namespace TextEditor {
-class CodeStyleEditorWidget;
+class CodeStyleEditor;
 class ICodeStylePreferences;
 class Indenter;
 
@@ -32,7 +32,7 @@ public:
     explicit ICodeStylePreferencesFactory(Utils::Id languageId = {});
     virtual ~ICodeStylePreferencesFactory();
 
-    virtual CodeStyleEditorWidget *createCodeStyleEditor(
+    virtual CodeStyleEditor *createCodeStyleEditor(
         const Utils::FilePath &projectFile,
         ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const
