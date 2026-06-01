@@ -697,13 +697,6 @@ AsynchronousImageCache &QmlDesignerPlugin::imageCache()
     return m_instance->d->projectManager.asynchronousImageCache();
 }
 
-void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)
-{
-    NanotraceHR::Tracer tracer{"qml designer plugin register preview image provider", category()};
-
-    m_instance->d->projectManager.registerPreviewImageProvider(engine);
-}
-
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin instance", category()};

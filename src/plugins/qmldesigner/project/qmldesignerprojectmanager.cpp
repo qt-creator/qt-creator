@@ -27,7 +27,6 @@
 #include <asynchronousexplicitimagecache.h>
 #include <asynchronousimagecache.h>
 #include <imagecache/asynchronousimagefactory.h>
-#include <imagecache/explicitimagecacheimageprovider.h>
 #include <imagecache/imagecachedispatchcollector.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
@@ -72,16 +71,6 @@ QString resourcePath(const QString &relativePath)
 QString cacheResourcePath(const QString &relativePath)
 {
     return Core::ICore::cacheResourcePath(relativePath).cleanPath().path();
-}
-
-QString previewDefaultImagePath()
-{
-    return resourcePath("qmldesigner/welcomepage/images/newThumbnail.png");
-}
-
-QString previewBrokenImagePath()
-{
-    return resourcePath("qmldesigner/welcomepage/images/noPreview.png");
 }
 
 ::QmlProjectManager::QmlBuildSystem *getQmlBuildSystem(const ::ProjectExplorer::Target *target)
@@ -372,19 +361,6 @@ QmlDesignerProjectManager::QmlDesignerProjectManager()
 QmlDesignerProjectManager::~QmlDesignerProjectManager()
 {
     NanotraceHR::Tracer tracer{"qml designer project manager destructor", category()};
-}
-
-void QmlDesignerProjectManager::registerPreviewImageProvider(QQmlEngine *engine) const
-{
-    NanotraceHR::Tracer tracer{"qml designer project manager register preview image provider",
-                               category()};
-
-    auto imageProvider = std::make_unique<ExplicitImageCacheImageProvider>(
-        m_previewImageCacheData->cache,
-        QImage{previewDefaultImagePath()},
-        QImage{previewBrokenImagePath()});
-
-    engine->addImageProvider("project_preview", imageProvider.release());
 }
 
 AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()

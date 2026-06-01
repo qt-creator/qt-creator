@@ -75,8 +75,6 @@ public:
 
     static AsynchronousImageCache &imageCache();
 
-    static void registerPreviewImageProvider(QQmlEngine *engine);
-
 private: // functions
     void integrateIntoQtCreator(Internal::DesignModeWidget *modeWidget);
     void clearDesigner();

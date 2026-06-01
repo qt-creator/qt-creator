@@ -134,8 +134,6 @@ extend_qtc_library(QmlDesignerCore
     asynchronousimagecache.cpp
     asynchronousimagefactory.cpp
     asynchronousimagefactory.h
-    explicitimagecacheimageprovider.cpp
-    explicitimagecacheimageprovider.h
     imagecachecollectorinterface.h
     imagecachedispatchcollector.h
     imagecachegenerator.cpp

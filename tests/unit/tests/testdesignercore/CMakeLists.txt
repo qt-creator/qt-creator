@@ -118,8 +118,6 @@ extend_qtc_library(TestDesignerCore
     asynchronousimagecache.cpp
     asynchronousimagefactory.cpp
     asynchronousimagefactory.h
-    explicitimagecacheimageprovider.cpp
-    explicitimagecacheimageprovider.h
     imagecachecollectorinterface.h
     imagecachedispatchcollector.h
     imagecachegenerator.cpp
