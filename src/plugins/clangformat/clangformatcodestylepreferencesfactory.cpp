@@ -68,13 +68,14 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-class ClangFormatCodeStyleWidget;
-class ClangFormatConfigWidget;
+// ClangFormatSelectorWidget
 
 class ClangFormatSelectorWidget final : public CodeStyleSelectorWidget
 {
 public:
-    ClangFormatSelectorWidget(const FilePath &projectFile, QWidget *parent = nullptr);
+    ClangFormatSelectorWidget(const FilePath &projectFile, QWidget *parent)
+        : CodeStyleSelectorWidget{projectFile, parent}
+    {}
 
     void onModeChanged(ClangFormatSettings::Mode newMode);
     void onUseCustomSettingsChanged(bool doUse);
@@ -88,85 +89,6 @@ private:
     ClangFormatSettings::Mode m_currentMode = ClangFormatSettings::Mode::Indenting;
     bool m_useCustomSettings = false;
 };
-
-class ClangFormatCodeStyleEditor final : public CodeStyleEditor
-{
-public:
-    ClangFormatCodeStyleEditor(
-        const ICodeStylePreferencesFactory *factory,
-        const FilePath &projectFile,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent);
-
-    void apply() override;
-    void finish() override;
-
-    ClangFormatGlobalConfigWidget *m_globalSettings = nullptr;
-    ClangFormatCodeStyleWidget *m_editorWidget = nullptr;
-};
-
-class ClangFormatConfigWidget final : public QWidget
-{
-public:
-    ClangFormatConfigWidget(
-        const Project *project,
-        ICodeStylePreferences *codeStyle,
-        QWidget *parent);
-    ~ClangFormatConfigWidget() override;
-
-    void apply();
-
-    void onUseCustomSettingsChanged(bool doUse);
-
-private:
-    bool eventFilter(QObject *object, QEvent *event) override;
-
-    FilePath globalPath();
-    FilePath projectPath();
-    void createStyleFileIfNeeded(bool isGlobal);
-    void initPreview(ICodeStylePreferences *codeStyle);
-    void initEditor();
-    void reopenClangFormatDocument();
-    void updatePreview();
-    void slotCodeStyleChanged(ICodeStylePreferences *currentPreferences);
-    void updateReadOnlyState();
-    TextEditorWidget *editorWidget() const;
-
-    const Project *m_project = nullptr;
-    QScrollArea *m_editorScrollArea = nullptr;
-    SnippetEditorWidget * const m_preview;
-    std::unique_ptr<Core::IEditor> m_editor;
-    std::unique_ptr<ClangFormatFile> m_config;
-    Guard m_ignoreChanges;
-    QLabel *m_clangVersion;
-    InfoLabel *m_clangFileIsCorrectText;
-    ClangFormatIndenter *m_indenter;
-
-    bool m_useCustomSettings = false;
-};
-
-class ClangFormatCodeStyleWidget : public QWidget
-{
-public:
-    ClangFormatCodeStyleWidget(
-        const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent);
-
-    void onModeChanged(ClangFormatSettings::Mode newMode);
-    void onUseCustomSettingsChanged(bool doUse);
-
-    void apply();
-    void finish();
-
-private:
-    CppEditor::CppCodeStylePreferencesWidget *m_legacyIndenterSettings = nullptr;
-    ClangFormatConfigWidget *m_clangFormatSettings = nullptr;
-};
-
-// ClangFormatSelectorWidget
-
-ClangFormatSelectorWidget::ClangFormatSelectorWidget(const FilePath &projectFile, QWidget *parent)
-    : CodeStyleSelectorWidget{projectFile, parent}
-{}
 
 void ClangFormatSelectorWidget::onModeChanged(ClangFormatSettings::Mode newMode)
 {
@@ -251,6 +173,46 @@ static void invokeMethodForLanguageClientManager(const char *method, Args &&...a
         return;
     QMetaObject::invokeMethod(languageClientManager, method, args...);
 }
+
+class ClangFormatConfigWidget final : public QWidget
+{
+public:
+    ClangFormatConfigWidget(
+        const Project *project,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent);
+    ~ClangFormatConfigWidget() override;
+
+    void apply();
+
+    void onUseCustomSettingsChanged(bool doUse);
+
+private:
+    bool eventFilter(QObject *object, QEvent *event) override;
+
+    FilePath globalPath();
+    FilePath projectPath();
+    void createStyleFileIfNeeded(bool isGlobal);
+    void initPreview(ICodeStylePreferences *codeStyle);
+    void initEditor();
+    void reopenClangFormatDocument();
+    void updatePreview();
+    void slotCodeStyleChanged(ICodeStylePreferences *currentPreferences);
+    void updateReadOnlyState();
+    TextEditorWidget *editorWidget() const;
+
+    const Project *m_project = nullptr;
+    QScrollArea *m_editorScrollArea = nullptr;
+    SnippetEditorWidget * const m_preview;
+    std::unique_ptr<Core::IEditor> m_editor;
+    std::unique_ptr<ClangFormatFile> m_config;
+    Guard m_ignoreChanges;
+    QLabel *m_clangVersion;
+    InfoLabel *m_clangFileIsCorrectText;
+    ClangFormatIndenter *m_indenter;
+
+    bool m_useCustomSettings = false;
+};
 
 bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 {
@@ -488,6 +450,23 @@ void ClangFormatConfigWidget::onUseCustomSettingsChanged(bool doUse)
 
 // ClangFormatCodeStyleWidget
 
+class ClangFormatCodeStyleWidget : public QWidget
+{
+public:
+    ClangFormatCodeStyleWidget(
+        const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent);
+
+    void onModeChanged(ClangFormatSettings::Mode newMode);
+    void onUseCustomSettingsChanged(bool doUse);
+
+    void apply();
+    void finish();
+
+private:
+    CppEditor::CppCodeStylePreferencesWidget *m_legacyIndenterSettings = nullptr;
+    ClangFormatConfigWidget *m_clangFormatSettings = nullptr;
+};
+
 ClangFormatCodeStyleWidget::ClangFormatCodeStyleWidget(
     const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent)
     : QWidget{parent}
@@ -537,6 +516,22 @@ void ClangFormatCodeStyleWidget::finish()
 }
 
 // ClangFormatCodeStyleEditor
+
+class ClangFormatCodeStyleEditor final : public CodeStyleEditor
+{
+public:
+    ClangFormatCodeStyleEditor(
+        const ICodeStylePreferencesFactory *factory,
+        const FilePath &projectFile,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent);
+
+    void apply() override;
+    void finish() override;
+
+    ClangFormatGlobalConfigWidget *m_globalSettings = nullptr;
+    ClangFormatCodeStyleWidget *m_editorWidget = nullptr;
+};
 
 ClangFormatCodeStyleEditor::ClangFormatCodeStyleEditor(
         const ICodeStylePreferencesFactory *factory,
