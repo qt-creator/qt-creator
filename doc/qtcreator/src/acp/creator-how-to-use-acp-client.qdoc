@@ -31,9 +31,8 @@
 
     \section1 Configure an agent
 
-    Before opening a chat, configure in \preferences which agent you want to
-    talk to. You can either pick one of the preconfigured agents or define
-    a custom one.
+    Before opening a chat, select an agent in \preferences. You can either pick
+    one of the preconfigured agents or define a custom one.
 
     \section2 Preconfigured agents
 
@@ -54,8 +53,8 @@
     To set up a custom agent:
 
     \list 1
-        \li Ensure the agent process you intend to use is installed and
-            reachable on your machine or network.
+        \li Install the AI agent on the computer or network and check the
+            connection to it.
         \li Go to \preferences > \uicontrol AI > \uicontrol {ACP Servers}.
         \li Select \uicontrol {Add}.
         \li In \uicontrol {Template}, select \uicontrol {Custom}.
@@ -69,6 +68,37 @@
         \li Select \uicontrol Apply to save.
     \endlist
 
+    \section2 Connect to agents
+
+    The contents of the ACP registry determine the method to connect to a
+    particular agent:
+
+    \list
+        \li \c {binary} packages are used directly without dependencies.
+        \li \c {npx} Node.js packages require that you install \l {Node.js}.
+        \li \c {uvx} Python packages require that you install the \l uv
+            package manager and Python.
+    \endlist
+
+    \note Restart \QC after you install dependencies.
+
+    \section3 npx
+
+    To check that you have Node.js, enter \c {node --version} on the command line.
+
+    If the AI agent cannot find the \c npx binary it uses to run the Claude
+    agent even though the folder is in the PATH, add the \c npx directory to
+    the path in \preferences > \uicontrol Environment > \uicontrol System. In
+    \uicontrol Environment, select \uicontrol Change and add
+    \c {PATH+=<full-path-to-folder}).
+
+    \section3 Claude CLI
+
+    You might need to install more dependencies to use some agents. For example,
+    to authenticate to Claude, you must also install \l {Claude: Quick Start}
+    {Claude Code CLI}. To check that you have it, enter \c {claude --version} on
+    the command line.
+
     \section1 Open the ACP chat window
 
     In \uicontrol Edit mode, you can open the ACP chat window in the
@@ -78,6 +108,7 @@
         \li Go to \uicontrol Tools > \uicontrol {ACP Client} >
             \uicontrol {Show Agentic AI Chat in Side Panel}.
         \li Select \inlineimage {icons/message.png} {Show Agentic AI Chat in Side Panel}
+            (\uicontrol {Show Agentic AI Chat in Side Panel})
             in the editor toolbar when you have a file open.
     \endlist
 
@@ -90,17 +121,17 @@
     To connect to the ACP server:
 
     \list 1
-        \li In the \uicontrol Server drop-down, select the agent you configured.
-        \li In \uicontrol {Working directory}, verify or change the directory
-            that the agent should treat as the project root. This is set to
-            the active project's root directory by default.
+        \li Select the agent you configured.
         \li Select \uicontrol Connect.
     \endlist
 
+    If an agent is not listed in \uicontrol {Choose AI Agent}, select
+    \uicontrol {Manage Agents} to add it.
+
     \QC starts the agent process and establishes the ACP connection.
 
-    To start a new session, select \inlineimage {icons/plus.png} {New Chat Tab}
-    in the top right corner of the chat window and connect to a server.
+    To start a new session, select \inlineimage {icons/plus.png} {Add Chat}
+    \uicontrol {Add Chat} and connect to a server.
 
     \section1 Chat window toolbar
 
@@ -189,5 +220,5 @@
             and applies fixes. Watch the progress in the chat history.
     \endlist
 
-    \sa {Activate extensions}, {Use AI}{How to: Use AI}
+    \sa {Activate extensions}, {Use AI}{How to: Use AI}, {Qt for Python}
 */
