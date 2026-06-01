@@ -17708,7 +17708,7 @@ Setzen Sie die Eigenschaft &quot;%2&quot; manuell.</translation>
     </message>
     <message>
         <source>Hides internal messages by default. You can still enable them by using the test results filter.</source>
-        <translation>Versteckt üblicherweise interne Meldungen. Sie können durch den Testergebnisfilter wieder angezeigt werden.</translation>
+        <translation>Verbirgt üblicherweise interne Meldungen. Sie können durch den Testergebnisfilter wieder angezeigt werden.</translation>
     </message>
     <message>
         <source>Omit internal messages</source>
@@ -17830,7 +17830,7 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     </message>
     <message>
         <source>Hides warnings related to a deduced run configuration.</source>
-        <translation>Versteckt Warnungen, die zu einer hergeleiteten Laufzeitkonfiguration gehören.</translation>
+        <translation>Verbirgt Warnungen, die zu einer hergeleiteten Laufzeitkonfiguration gehören.</translation>
     </message>
     <message>
         <source>Clear all cached choices of run configurations for tests where the executable could not be deduced.</source>
@@ -25574,7 +25574,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>This will hide the menu bar completely. You can show it again by typing %1.&lt;br&gt;&lt;br&gt;Or, trigger the &quot;%2&quot; action from the &quot;%3&quot; locator filter (%4).</source>
-        <translation>Dies versteckt die Menüleiste vollständig. Sie können sie mit der Tastenkombination %1 wieder anzeigen.&lt;br&gt;&lt;br&gt;Oder führen Sie die Aktion &quot;%2&quot; über den Locator-Filter &quot;%3&quot; aus (%4).</translation>
+        <translation>Dies verbirgt die Menüleiste vollständig. Sie können sie mit der Tastenkombination %1 wieder anzeigen.&lt;br&gt;&lt;br&gt;Oder führen Sie die Aktion &quot;%2&quot; über den Locator-Filter &quot;%3&quot; aus (%4).</translation>
     </message>
     <message>
         <source>Change Log...</source>
@@ -25606,7 +25606,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Hidden</source>
-        <translation>Unsichtbar</translation>
+        <translation>Verborgen</translation>
     </message>
     <message>
         <source>Show %1</source>
@@ -36646,7 +36646,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Hide Change Description</source>
-        <translation>Beschreibung der Änderung ausblenden</translation>
+        <translation>Beschreibung der Änderung verbergen</translation>
     </message>
     <message>
         <source>Show Change Description</source>
@@ -39525,7 +39525,7 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Hide the file path of a change from the output.</source>
-        <translation>Dateipfad der Änderung in der Ausgabe nicht anzeigen.</translation>
+        <translation>Dateipfad der Änderung in der Ausgabe verbergen.</translation>
     </message>
     <message>
         <source>Omit Author</source>
@@ -39533,7 +39533,7 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Hide the author of a change from the output.</source>
-        <translation>Den Autor der Änderung in der Ausgabe nicht anzeigen.</translation>
+        <translation>Den Autor der Änderung in der Ausgabe verbergen.</translation>
     </message>
     <message>
         <source>Git Diff Staged &quot;%1&quot;</source>
@@ -40235,7 +40235,7 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>Hide the date of a change from the output.</source>
-        <translation>Datum der Änderung in Ausgabe nicht anzeigen.</translation>
+        <translation>Datum der Änderung in Ausgabe verbergen.</translation>
     </message>
     <message>
         <source>Omit Date</source>
@@ -43092,7 +43092,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Hide IncrediBuild Header in output:</source>
-        <translation>IncrediBuilds Kopfzeile in der Ausgabe verstecken:</translation>
+        <translation>IncrediBuilds Kopfzeile in der Ausgabe verbergen:</translation>
     </message>
     <message>
         <source>Suppresses IncrediBuild&apos;s header in the build output.</source>
@@ -47733,11 +47733,11 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Hide Generated Files</source>
-        <translation>Generierte Dateien nicht zeigen</translation>
+        <translation>Generierte Dateien verbergen</translation>
     </message>
     <message>
         <source>Hide Disabled Files</source>
-        <translation>Deaktivierte Dateien verstecken</translation>
+        <translation>Deaktivierte Dateien verbergen</translation>
     </message>
     <message>
         <source>Focus Document in Project Tree</source>
@@ -47753,11 +47753,11 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Hide Empty Directories</source>
-        <translation>Leere Verzeichnisse ausblenden</translation>
+        <translation>Leere Verzeichnisse verbergen</translation>
     </message>
     <message>
         <source>Hide Source and Header Groups</source>
-        <translation>Quelltext- und Header-Gruppenverzeichnisse ausblenden</translation>
+        <translation>Quelltext- und Header-Gruppenverzeichnisse verbergen</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
@@ -52358,7 +52358,7 @@ Verwenden Sie dies, wenn Sie Qt6 oder höher anvisieren.</translation>
     </message>
     <message>
         <source>Hide files matching:</source>
-        <translation>Verstecke übereinstimmende Dateien:</translation>
+        <translation>Verberge übereinstimmende Dateien:</translation>
     </message>
     <message>
         <source>Generating file list...
@@ -57111,7 +57111,7 @@ Error:
     </message>
     <message>
         <source>Hides this toolbar.</source>
-        <translation>Schließt diese Werkzeugleiste.</translation>
+        <translation>Verbirgt diese Werkzeugleiste.</translation>
     </message>
     <message>
         <source>Pin Toolbar</source>
@@ -57127,7 +57127,7 @@ Error:
     </message>
     <message>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
-        <translation>Schließt diese Werkzeugleiste. Sie kann in den Einstellung oder durch das Kontextmenü dauerhaft abgeschaltet werden.</translation>
+        <translation>Verbirgt diese Werkzeugleiste. Sie kann in den Einstellung oder durch das Kontextmenü dauerhaft abgeschaltet werden.</translation>
     </message>
     <message>
         <source>Double click for preview.</source>
@@ -58553,7 +58553,7 @@ Wollen Sie die Daten vorher speichern?</translation>
     </message>
     <message>
         <source>Hide or show event categories.</source>
-        <translation>Ereigniskategorien verstecken oder anzeigen.</translation>
+        <translation>Ereigniskategorien verbergen oder anzeigen.</translation>
     </message>
     <message>
         <source>Memory Usage</source>
@@ -64963,7 +64963,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Hide mouse cursor while typing</source>
-        <translation>Mauszeiger beim Tippen ausblenden</translation>
+        <translation>Mauszeiger beim Tippen verbergen</translation>
     </message>
     <message>
         <source>Pressing Alt displays context-sensitive help or type information as tooltips.</source>
@@ -67134,7 +67134,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Temporarily hide inline annotations for %1</source>
-        <translation>Inline-Annotationen für %1 temporär ausblenden</translation>
+        <translation>Inline-Annotationen für %1 temporär verbergen</translation>
     </message>
     <message>
         <source>Show Diagnostic Settings</source>
@@ -68712,7 +68712,7 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.
     </message>
     <message>
         <source>Show/Hide Password</source>
-        <translation>Passwort anzeigen/verstecken</translation>
+        <translation>Passwort anzeigen/verbergen</translation>
     </message>
     <message>
         <source>User:</source>
@@ -70879,7 +70879,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Pressing the Escape key brings you back to the editor. Press it multiple times to also hide context help and output, giving the editor more space.</source>
-        <translation>Wenn Sie die &quot;Escape&quot;-Taste betätigen, kommen Sie zurück zum Editor. Betätigen Sie sie mehrmals, um auch Ausgabebereiche sowie Kontexthilfe auszublenden und dem Editor mehr Platz zu geben.</translation>
+        <translation>Wenn Sie die &quot;Escape&quot;-Taste betätigen, kommen Sie zurück zum Editor. Betätigen Sie sie mehrmals, um auch Ausgabebereiche sowie Kontexthilfe verbergen und dem Editor mehr Platz zu geben.</translation>
     </message>
     <message>
         <source>See where the important UI elements are and how they are used. To take the tour later, select Help &gt; UI Tour.</source>
