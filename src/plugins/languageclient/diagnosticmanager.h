@@ -35,8 +35,8 @@ public:
                                 const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
                                 const std::optional<int> &version);
 
-    virtual void showDiagnostics(const Utils::FilePath &filePath, int version);
-    virtual void hideDiagnostics(const Utils::FilePath &filePath);
+    void showDiagnostics(const Utils::FilePath &filePath, int version);
+    void hideDiagnostics(const Utils::FilePath &filePath);
     virtual QList<LanguageServerProtocol::Diagnostic> filteredDiagnostics(
         const QList<LanguageServerProtocol::Diagnostic> &diagnostics) const;
 

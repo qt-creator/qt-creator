@@ -62,9 +62,9 @@ public:
                                             const QString &snippetsGroup);
     ~LanguageClientCompletionAssistProcessor() override;
     TextEditor::IAssistProposal *perform() override;
-    bool running() override;
+    bool running() final;
     bool needsRestart() const override { return true; }
-    void cancel() override;
+    void cancel() final;
 
 protected:
     QTextDocument *document() const;
