@@ -85,7 +85,7 @@ QString McpCommands::getVersion()
     return QCoreApplication::applicationVersion();
 }
 
-bool McpCommands::openFile(const QString &path)
+bool McpCommands::openFile(const QString &path, int line, int column)
 {
     if (path.isEmpty()) {
         qCDebug(mcpCommands) << "Empty file path provided";
@@ -101,7 +101,10 @@ bool McpCommands::openFile(const QString &path)
 
     qCDebug(mcpCommands) << "Opening file:" << path;
 
-    Core::EditorManager::openEditor(filePath);
+    if (line > 0)
+        Core::EditorManager::openEditorAt({filePath, line, column > 0 ? column - 1 : 0});
+    else
+        Core::EditorManager::openEditor(filePath);
 
     return true;
 }
@@ -663,7 +666,7 @@ void McpCommands::registerCommands()
         Tool{}
             .name("open_file")
             .title("Open a file in Qt Creator")
-            .description("Open a file in Qt Creator")
+            .description("Open a file in Qt Creator, optionally jumping to a specific line and column.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -673,6 +676,16 @@ void McpCommands::registerCommands()
                             {"type", "string"},
                             {"format", "uri"},
                             {"description", "Absolute path of the file to open"}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line number to jump to (optional)"}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column number to jump to (optional, requires line)"}})
                     .addRequired("path"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -680,7 +693,9 @@ void McpCommands::registerCommands()
                     .addRequired("success")),
         wrap([](const QJsonObject &p) {
             const QString path = p.value("path").toString();
-            bool ok = commands.openFile(path);
+            const int line = p.value("line").toInt(0);
+            const int column = p.value("column").toInt(0);
+            bool ok = commands.openFile(path, line, column);
             return QJsonObject{{"success", ok}};
         }));
 
