@@ -63,7 +63,7 @@ namespace Internal {
 
 void setupQmlJSToolsSettings();
 
-class QmlJSCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
+class QmlJSCodeStylePreferencesWidget : public TextEditor::CodeStyleWidget
 {
     Q_OBJECT
 

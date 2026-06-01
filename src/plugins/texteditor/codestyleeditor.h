@@ -20,10 +20,10 @@ class ICodeStylePreferencesFactory;
 class ICodeStylePreferences;
 class SnippetEditorWidget;
 
-class TEXTEDITOR_EXPORT CodeStyleEditorWidget : public QWidget
+class TEXTEDITOR_EXPORT CodeStyleWidget : public QWidget
 {
 public:
-    CodeStyleEditorWidget(QWidget *parent = nullptr)
+    CodeStyleWidget(QWidget *parent = nullptr)
         : QWidget(parent)
     {}
     virtual void apply() {}
@@ -49,7 +49,7 @@ protected:
     QVBoxLayout *m_layout = nullptr;
     CodeStyleSelectorWidget *m_selector = nullptr;
     SnippetEditorWidget *m_preview = nullptr;
-    CodeStyleEditorWidget *m_editor = nullptr;
+    CodeStyleWidget *m_editor = nullptr;
 
 private:
     virtual CodeStyleSelectorWidget *createCodeStyleSelectorWidget(
@@ -61,7 +61,7 @@ private:
         const Utils::FilePath &projectFile,
         ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const;
-    virtual CodeStyleEditorWidget *createEditorWidget(
+    virtual CodeStyleWidget *createEditorWidget(
         const Utils::FilePath &projectFile,
         ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const

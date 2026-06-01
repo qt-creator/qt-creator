@@ -30,7 +30,7 @@ namespace ClangFormat {
 
 ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     Project *project, ICodeStylePreferences *codeStyle, QWidget *parent)
-    : CodeStyleEditorWidget(parent)
+    : CodeStyleWidget(parent)
     , m_project(project)
     , m_codeStyle(codeStyle)
 {

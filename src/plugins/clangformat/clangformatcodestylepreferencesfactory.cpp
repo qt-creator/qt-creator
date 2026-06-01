@@ -68,7 +68,7 @@ public:
     void apply() override;
     void finish() override;
 
-    CodeStyleEditorWidget *createEditorWidget(
+    CodeStyleWidget *createEditorWidget(
         const FilePath &projectFile,
         ICodeStylePreferences *codeStyle,
         QWidget *parent = nullptr) const override;
@@ -82,10 +82,10 @@ public:
     ClangFormatGlobalConfigWidget *m_globalSettings = nullptr;
 };
 
-class ClangFormatCodeStyleEditorWidget : public CodeStyleEditorWidget
+class ClangFormatCodeStyleWidget : public CodeStyleWidget
 {
 public:
-    ClangFormatCodeStyleEditorWidget(
+    ClangFormatCodeStyleWidget(
         const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent);
 
     void onModeChanged(ClangFormatSettings::Mode newMode);
@@ -175,9 +175,9 @@ void ClangFormatSelectorWidget::updateReadOnlyState()
     setDisabled(isReadOnly);
 }
 
-ClangFormatCodeStyleEditorWidget::ClangFormatCodeStyleEditorWidget(
+ClangFormatCodeStyleWidget::ClangFormatCodeStyleWidget(
     const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent)
-    : CodeStyleEditorWidget{parent}
+    : CodeStyleWidget{parent}
     , m_clangFormatSettings{new ClangFormatConfigWidget(
           ProjectManager::projectWithProjectFile(projectFile, !projectFile.isEmpty()), codeStyle, this)}
 {
@@ -196,7 +196,7 @@ ClangFormatCodeStyleEditorWidget::ClangFormatCodeStyleEditorWidget(
     layout->addWidget(m_clangFormatSettings);
 }
 
-void ClangFormatCodeStyleEditorWidget::onModeChanged(ClangFormatSettings::Mode newMode)
+void ClangFormatCodeStyleWidget::onModeChanged(ClangFormatSettings::Mode newMode)
 {
     const bool isLegacyIndenterMode = newMode == ClangFormatSettings::Mode::Disable;
     if (m_legacyIndenterSettings)
@@ -204,19 +204,19 @@ void ClangFormatCodeStyleEditorWidget::onModeChanged(ClangFormatSettings::Mode n
     m_clangFormatSettings->setVisible(!isLegacyIndenterMode);
 }
 
-void ClangFormatCodeStyleEditorWidget::onUseCustomSettingsChanged(bool doUse)
+void ClangFormatCodeStyleWidget::onUseCustomSettingsChanged(bool doUse)
 {
     m_clangFormatSettings->onUseCustomSettingsChanged(doUse);
 }
 
-void ClangFormatCodeStyleEditorWidget::apply()
+void ClangFormatCodeStyleWidget::apply()
 {
     if (m_legacyIndenterSettings)
         m_legacyIndenterSettings->apply();
     m_clangFormatSettings->apply();
 }
 
-void ClangFormatCodeStyleEditorWidget::finish()
+void ClangFormatCodeStyleWidget::finish()
 {
     if (m_legacyIndenterSettings)
         m_legacyIndenterSettings->apply();
@@ -247,13 +247,13 @@ void ClangFormatCodeStyleEditor::init(
         selector->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
     }
 
-    auto editorWidget = static_cast<ClangFormatCodeStyleEditorWidget *>(m_editor);
+    auto editorWidget = static_cast<ClangFormatCodeStyleWidget *>(m_editor);
     if (editorWidget) {
         connect(m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
-                editorWidget, &ClangFormatCodeStyleEditorWidget::onModeChanged);
+                editorWidget, &ClangFormatCodeStyleWidget::onModeChanged);
         editorWidget->onModeChanged(currentMode);
         connect(m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
-                editorWidget, &ClangFormatCodeStyleEditorWidget::onUseCustomSettingsChanged);
+                editorWidget, &ClangFormatCodeStyleWidget::onUseCustomSettingsChanged);
         editorWidget->onUseCustomSettingsChanged(m_globalSettings->useCustomSettings());
     }
 }
@@ -272,10 +272,10 @@ void ClangFormatCodeStyleEditor::finish()
     m_globalSettings->finish();
 }
 
-CodeStyleEditorWidget *ClangFormatCodeStyleEditor::createEditorWidget(
+CodeStyleWidget *ClangFormatCodeStyleEditor::createEditorWidget(
         const FilePath &projectFile, ICodeStylePreferences *codeStyle, QWidget *parent) const
 {
-    return new ClangFormatCodeStyleEditorWidget{projectFile, codeStyle, parent};
+    return new ClangFormatCodeStyleWidget{projectFile, codeStyle, parent};
 }
 
 CodeStyleSelectorWidget *ClangFormatCodeStyleEditor::createCodeStyleSelectorWidget(

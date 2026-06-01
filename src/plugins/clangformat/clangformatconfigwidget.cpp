@@ -73,7 +73,7 @@ bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 
 ClangFormatConfigWidget::ClangFormatConfigWidget(
     const Project *project, TextEditor::ICodeStylePreferences *codeStyle, QWidget *parent)
-    : CodeStyleEditorWidget(parent)
+    : CodeStyleWidget(parent)
     , m_preview(new TextEditor::SnippetEditorWidget(this))
 
 {

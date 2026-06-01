@@ -31,7 +31,7 @@ class InfoLabel;
 namespace ProjectExplorer { class Project; }
 
 namespace ClangFormat {
-class ClangFormatConfigWidget final : public TextEditor::CodeStyleEditorWidget
+class ClangFormatConfigWidget final : public TextEditor::CodeStyleWidget
 {
 public:
     ClangFormatConfigWidget(

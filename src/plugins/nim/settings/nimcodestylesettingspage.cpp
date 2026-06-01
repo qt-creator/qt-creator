@@ -34,11 +34,11 @@ using namespace Utils;
 
 namespace Nim {
 
-class NimCodeStylePreferencesWidget : public CodeStyleEditorWidget
+class NimCodeStylePreferencesWidget : public CodeStyleWidget
 {
 public:
     NimCodeStylePreferencesWidget(ICodeStylePreferences *preferences, QWidget *parent)
-        : CodeStyleEditorWidget(parent)
+        : CodeStyleWidget(parent)
         , m_preferences(preferences)
     {
         m_tabSettingsWidget.setPreferences(preferences);
@@ -112,7 +112,7 @@ public:
     {}
 
 private:
-    CodeStyleEditorWidget *createEditorWidget(
+    CodeStyleWidget *createEditorWidget(
         const FilePath & /*projectFile*/,
         ICodeStylePreferences *codeStyle,
         QWidget *parent) const final

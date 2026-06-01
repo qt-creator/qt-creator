@@ -26,7 +26,7 @@ class InfoLabel;
 }
 
 namespace ClangFormat {
-class ClangFormatGlobalConfigWidget final : public TextEditor::CodeStyleEditorWidget
+class ClangFormatGlobalConfigWidget final : public TextEditor::CodeStyleWidget
 {
     Q_OBJECT
 
