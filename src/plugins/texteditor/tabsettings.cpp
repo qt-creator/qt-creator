@@ -14,7 +14,6 @@
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <QGuiApplication>
-#include <QLabel>
 
 #include <utils/layoutbuilder.h>
 
@@ -53,11 +52,11 @@ static QString continuationTooltip()
 
 TabSettings::TabSettings()
 {
-    m_codingStyleWarning = new QLabel(
+    m_codingStyleWarning.setText(
         Tr::tr("<i>Code indentation is configured in <a href=\"C++\">C++</a> "
            "and <a href=\"QtQuick\">Qt Quick</a> settings.</i>"));
-    m_codingStyleWarning->setVisible(false);
-    m_codingStyleWarning->setToolTip(
+    m_codingStyleWarning.setVisible(false);
+    m_codingStyleWarning.setToolTip(
         Tr::tr("The text editor indentation setting is used for non-code files only. See the C++ "
            "and Qt Quick coding style settings to configure indentation for code files."));
 
@@ -85,8 +84,13 @@ TabSettings::TabSettings()
     continuationAlignBehavior.addOption(Tr::tr("With Regular Indent"));
     continuationAlignBehavior.setToolTip(continuationTooltip());
 
-    connect(m_codingStyleWarning, &QLabel::linkActivated,
-            this, &TabSettings::codingStyleLinkActivated);
+    connect(&m_codingStyleWarning, &Utils::TextDisplay::linkActivated,
+            this, [this](const QString &link) {
+        if (link == QLatin1String("C++"))
+            emit codingStyleLinkClicked(CppLink);
+        else if (link == QLatin1String("QtQuick"))
+            emit codingStyleLinkClicked(QtQuickLink);
+    });
 
     setLayouter([this] {
         using namespace Layouting;
@@ -178,17 +182,9 @@ TabSettingsData TabSettings::data() const
     return set;
 }
 
-void TabSettings::codingStyleLinkActivated(const QString &linkString)
-{
-    if (linkString == QLatin1String("C++"))
-        emit codingStyleLinkClicked(CppLink);
-    else if (linkString == QLatin1String("QtQuick"))
-        emit codingStyleLinkClicked(QtQuickLink);
-}
-
 void TabSettings::setCodingStyleWarningVisible(bool visible)
 {
-    m_codingStyleWarning->setVisible(visible);
+    m_codingStyleWarning.setVisible(visible);
 }
 
 class GlobalTabSettings : public TabSettings

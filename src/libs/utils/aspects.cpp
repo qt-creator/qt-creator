@@ -3417,6 +3417,7 @@ void TextDisplay::addToLayoutImpl(Layout &parent)
     if (!d->m_label) {
         d->m_label = createSubWidget<InfoLabel>(d->m_message, d->m_type);
         d->m_label->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::TextSelectableByMouse);
+        d->m_label->setToolTip(toolTip());
         connect(d->m_label, &QLabel::linkActivated, this, &TextDisplay::linkActivated);
         d->m_label->setElideMode(Qt::ElideNone);
         d->m_label->setWordWrap(d->m_wordWrap);

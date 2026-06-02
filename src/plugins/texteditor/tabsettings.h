@@ -107,19 +107,17 @@ signals:
     void codingStyleLinkClicked(TextEditor::TabSettings::CodingStyleLink link);
 
 private:
-    void codingStyleLinkActivated(const QString &linkString);
     void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences);
     void slotTabSettingsChanged();
 
     ICodeStylePreferences *m_preferences = nullptr;
 
+    Utils::TextDisplay m_codingStyleWarning{this};
     Utils::BoolAspect autoDetect{this};
     Utils::SelectionAspect tabPolicy{this};
     Utils::IntegerAspect tabSize{this};
     Utils::IntegerAspect indentSize{this};
     Utils::SelectionAspect continuationAlignBehavior{this};
-
-    QLabel *m_codingStyleWarning;
 };
 
 TEXTEDITOR_EXPORT TabSettings &globalTabSettings();
