@@ -7,7 +7,7 @@ import "googlecommon.js" as googleCommon
 @if "%{TestFrameWork}" == "BoostTest"
 import qbs.Environment
 import qbs.File
-impoer qbs.FileInfo
+import qbs.FileInfo
 @endif
 @if "%{TestFrameWork}" == "BoostTest_dyn"
 import qbs.Environment
