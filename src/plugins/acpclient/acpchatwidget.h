@@ -5,8 +5,11 @@
 
 #include <QWidget>
 
-class QTabWidget;
+class QComboBox;
+class QStackedWidget;
+class QTabBar;
 class QToolButton;
+class QVBoxLayout;
 
 namespace AcpClient::Internal {
 
@@ -29,12 +32,20 @@ signals:
     void navigateStateUpdate();
 
 private:
+    void setUseTabs(bool useTabs);
     AcpChatTab *addNewTab();
     void closeTab(int index);
-    AcpChatTab *currentTab() const;
+    void setCurrentIndex(int index);
 
-    QTabWidget *m_tabWidget;
+    QToolButton *m_closeChatButton = nullptr;
+
+    // Both selectors always exist and stay in sync with m_stack; visibility follows
+    // the "Use tabbed editors" setting (m_tabBar when on, m_switcher when off).
+    QTabBar *m_tabBar = nullptr;
+    QComboBox *m_switcher = nullptr;
+    QStackedWidget *m_stack = nullptr;
     AcpInspector *m_inspector = nullptr;
+    bool m_blockIndexChanges = false;
 };
 
 } // namespace AcpClient::Internal
