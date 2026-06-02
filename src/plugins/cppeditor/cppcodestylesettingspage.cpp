@@ -334,19 +334,18 @@ public:
     CppCodeStyleSettingsPageWidget()
     {
         CppCodeStylePreferences *originalCodeStylePreferences = cppCodeStyle();
-        m_pageCppCodeStylePreferences.reset(new CppCodeStylePreferences);
-        m_pageCppCodeStylePreferences->setDelegatingPool(
+        m_pageCppCodeStylePreferences.setDelegatingPool(
             originalCodeStylePreferences->delegatingPool());
-        m_pageCppCodeStylePreferences->setCodeStyleSettings(
+        m_pageCppCodeStylePreferences.setCodeStyleSettings(
             originalCodeStylePreferences->codeStyleSettings());
-        m_pageCppCodeStylePreferences->setCurrentDelegate(
+        m_pageCppCodeStylePreferences.setCurrentDelegate(
             originalCodeStylePreferences->currentDelegate());
         // we set id so that it won't be possible to set delegate to the original prefs
-        m_pageCppCodeStylePreferences->setId(originalCodeStylePreferences->id());
+        m_pageCppCodeStylePreferences.setId(originalCodeStylePreferences->id());
 
         m_codeStyleEditor
             = codeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID)
-                  ->createSettingsEditor(m_pageCppCodeStylePreferences.get());
+                  ->createSettingsEditor(&m_pageCppCodeStylePreferences);
 
         auto hbox = new QVBoxLayout(this);
         hbox->addWidget(m_codeStyleEditor);
@@ -356,21 +355,21 @@ public:
     {
         CppCodeStylePreferences *originalCppCodeStylePreferences = cppCodeStyle();
         if (originalCppCodeStylePreferences->codeStyleSettings()
-            != m_pageCppCodeStylePreferences->codeStyleSettings()) {
+            != m_pageCppCodeStylePreferences.codeStyleSettings()) {
             originalCppCodeStylePreferences->setCodeStyleSettings(
-                m_pageCppCodeStylePreferences->codeStyleSettings());
+                m_pageCppCodeStylePreferences.codeStyleSettings());
             originalCppCodeStylePreferences->toSettings(CppEditor::Constants::CPP_SETTINGS_ID);
         }
         if (originalCppCodeStylePreferences->tabSettings()
-            != m_pageCppCodeStylePreferences->tabSettings()) {
+            != m_pageCppCodeStylePreferences.tabSettings()) {
             originalCppCodeStylePreferences->setTabSettings(
-                m_pageCppCodeStylePreferences->tabSettings());
+                m_pageCppCodeStylePreferences.tabSettings());
             originalCppCodeStylePreferences->toSettings(CppEditor::Constants::CPP_SETTINGS_ID);
         }
         if (originalCppCodeStylePreferences->currentDelegate()
-            != m_pageCppCodeStylePreferences->currentDelegate()) {
+            != m_pageCppCodeStylePreferences.currentDelegate()) {
             originalCppCodeStylePreferences->setCurrentDelegate(
-                m_pageCppCodeStylePreferences->currentDelegate());
+                m_pageCppCodeStylePreferences.currentDelegate());
             originalCppCodeStylePreferences->toSettings(CppEditor::Constants::CPP_SETTINGS_ID);
         }
 
@@ -384,8 +383,8 @@ public:
         emit codeStyle->currentPreferencesChanged(codeStyle->currentPreferences());
     }
 
-    std::unique_ptr<CppCodeStylePreferences> m_pageCppCodeStylePreferences;
-    CodeStyleEditor *m_codeStyleEditor;
+    CppCodeStylePreferences m_pageCppCodeStylePreferences;
+    CodeStyleEditor *m_codeStyleEditor = nullptr;
 };
 
 // CppCodeStyleSettingsPage
