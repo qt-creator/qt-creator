@@ -52,11 +52,11 @@ static QString continuationTooltip()
 
 TabSettings::TabSettings()
 {
-    m_codingStyleWarning.setText(
+    codingStyleWarning.setText(
         Tr::tr("<i>Code indentation is configured in <a href=\"C++\">C++</a> "
            "and <a href=\"QtQuick\">Qt Quick</a> settings.</i>"));
-    m_codingStyleWarning.setVisible(false);
-    m_codingStyleWarning.setToolTip(
+    codingStyleWarning.setVisible(false);
+    codingStyleWarning.setToolTip(
         Tr::tr("The text editor indentation setting is used for non-code files only. See the C++ "
            "and Qt Quick coding style settings to configure indentation for code files."));
 
@@ -84,14 +84,6 @@ TabSettings::TabSettings()
     continuationAlignBehavior.addOption(Tr::tr("With Regular Indent"));
     continuationAlignBehavior.setToolTip(continuationTooltip());
 
-    connect(&m_codingStyleWarning, &Utils::TextDisplay::linkActivated,
-            this, [this](const QString &link) {
-        if (link == QLatin1String("C++"))
-            emit codingStyleLinkClicked(CppLink);
-        else if (link == QLatin1String("QtQuick"))
-            emit codingStyleLinkClicked(QtQuickLink);
-    });
-
     setLayouter([this] {
         using namespace Layouting;
         return Column {
@@ -99,7 +91,7 @@ TabSettings::TabSettings()
                 title(Tr::tr("Tabs And Indentation")),
                 Row {
                     Form {
-                        m_codingStyleWarning, br,
+                        codingStyleWarning, br,
                         autoDetect, br,
                         tabPolicy, br,
                         indentSize, br,
@@ -182,28 +174,19 @@ TabSettingsData TabSettings::data() const
     return set;
 }
 
-void TabSettings::setCodingStyleWarningVisible(bool visible)
-{
-    m_codingStyleWarning.setVisible(visible);
-}
-
 class GlobalTabSettings : public TabSettings
 {
 public:
     GlobalTabSettings()
     {
-        setCodingStyleWarningVisible(true);
+        codingStyleWarning.setVisible(true);
         setData(globalCodeStyle().tabSettings());
 
-        connect(this, &TabSettings::codingStyleLinkClicked, [] (TabSettings::CodingStyleLink link) {
-            switch (link) {
-            case TabSettings::CppLink:
+        connect(&codingStyleWarning, &Utils::TextDisplay::linkActivated, [](const QString &link) {
+            if (link == QLatin1String("C++"))
                 Core::ICore::showSettings(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
-                break;
-            case TabSettings::QtQuickLink:
+            else if (link == QLatin1String("QtQuick"))
                 Core::ICore::showSettings(QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
-                break;
-            }
         });
     }
 

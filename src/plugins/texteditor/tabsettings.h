@@ -88,31 +88,22 @@ class TEXTEDITOR_EXPORT TabSettings : public Utils::AspectContainer
     Q_OBJECT
 
 public:
-    enum CodingStyleLink {
-        CppLink,
-        QtQuickLink
-    };
-
     TabSettings();
     ~TabSettings() override;
 
     void setPreferences(ICodeStylePreferences *preferences);
 
     TabSettingsData data() const;
-
-    void setCodingStyleWarningVisible(bool visible);
     void setData(const TabSettingsData &s);
 
-signals:
-    void codingStyleLinkClicked(TextEditor::TabSettings::CodingStyleLink link);
+protected:
+    Utils::TextDisplay codingStyleWarning{this};
 
 private:
     void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences);
     void slotTabSettingsChanged();
 
     ICodeStylePreferences *m_preferences = nullptr;
-
-    Utils::TextDisplay m_codingStyleWarning{this};
     Utils::BoolAspect autoDetect{this};
     Utils::SelectionAspect tabPolicy{this};
     Utils::IntegerAspect tabSize{this};
