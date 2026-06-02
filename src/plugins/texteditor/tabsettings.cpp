@@ -11,11 +11,14 @@
 #include <coreplugin/icore.h>
 
 #include <cppeditor/cppeditorconstants.h>
+
 #include <qmljstools/qmljstoolsconstants.h>
+
+#include <utils/layoutbuilder.h>
 
 #include <QGuiApplication>
 
-#include <utils/layoutbuilder.h>
+using namespace Utils;
 
 namespace TextEditor {
 
@@ -59,6 +62,12 @@ TabSettings::TabSettings()
     codingStyleWarning.setToolTip(
         Tr::tr("The text editor indentation setting is used for non-code files only. See the C++ "
            "and Qt Quick coding style settings to configure indentation for code files."));
+    connect(&codingStyleWarning, &TextDisplay::linkActivated, [](const QString &link) {
+        if (link == QLatin1String("C++"))
+            Core::ICore::showSettings(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
+        else if (link == QLatin1String("QtQuick"))
+            Core::ICore::showSettings(QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
+    });
 
     autoDetect.setLabel(Tr::tr("Auto detect"));
     autoDetect.setToolTip(
@@ -67,7 +76,7 @@ TabSettings::TabSettings()
             .arg(QGuiApplication::applicationDisplayName()));
 
     tabPolicy.setLabelText(Tr::tr("Default tab policy:"));
-    tabPolicy.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
+    tabPolicy.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     tabPolicy.addOption(Tr::tr("Spaces Only"));
     tabPolicy.addOption(Tr::tr("Tabs Only"));
 
@@ -78,7 +87,7 @@ TabSettings::TabSettings()
     indentSize.setRange(1, 20);
 
     continuationAlignBehavior.setLabelText(Tr::tr("Align continuation lines:"));
-    continuationAlignBehavior.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
+    continuationAlignBehavior.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     continuationAlignBehavior.addOption(Tr::tr("Not At All"));
     continuationAlignBehavior.addOption(Tr::tr("With Spaces"));
     continuationAlignBehavior.addOption(Tr::tr("With Regular Indent"));
@@ -181,13 +190,6 @@ public:
     {
         codingStyleWarning.setVisible(true);
         setData(globalCodeStyle().tabSettings());
-
-        connect(&codingStyleWarning, &Utils::TextDisplay::linkActivated, [](const QString &link) {
-            if (link == QLatin1String("C++"))
-                Core::ICore::showSettings(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
-            else if (link == QLatin1String("QtQuick"))
-                Core::ICore::showSettings(QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
-        });
     }
 
     void apply() final

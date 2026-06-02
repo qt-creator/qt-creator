@@ -85,8 +85,6 @@ public:
 
 class TEXTEDITOR_EXPORT TabSettings : public Utils::AspectContainer
 {
-    Q_OBJECT
-
 public:
     TabSettings();
     ~TabSettings() override;
@@ -96,19 +94,20 @@ public:
     TabSettingsData data() const;
     void setData(const TabSettingsData &s);
 
-protected:
-    Utils::TextDisplay codingStyleWarning{this};
-
 private:
     void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences);
     void slotTabSettingsChanged();
 
     ICodeStylePreferences *m_preferences = nullptr;
+
     Utils::BoolAspect autoDetect{this};
     Utils::SelectionAspect tabPolicy{this};
     Utils::IntegerAspect tabSize{this};
     Utils::IntegerAspect indentSize{this};
     Utils::SelectionAspect continuationAlignBehavior{this};
+
+protected:
+    Utils::TextDisplay codingStyleWarning{this};
 };
 
 TEXTEDITOR_EXPORT TabSettings &globalTabSettings();
