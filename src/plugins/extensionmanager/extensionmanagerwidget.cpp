@@ -108,7 +108,7 @@ static void requestRestart()
         info.setTitle(Tr::tr("Restart Required"));
         info.setInfoType(InfoLabel::Information);
         info.addCustomButton(
-            Tr::tr("Restart Now"), [] { ICore::restart(); }, {}, InfoBarEntry::ButtonAction::Hide);
+            ICore::msgRestartNow(), [] { ICore::restart(); }, {}, InfoBarEntry::ButtonAction::Hide);
         infoBar->addInfo(info);
     }
 }

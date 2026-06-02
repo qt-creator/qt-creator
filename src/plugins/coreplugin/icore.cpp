@@ -814,6 +814,11 @@ Utils::InfoBar *ICore::infoBar()
     return &d->m_infoBar;
 }
 
+QString ICore::msgRestartNow()
+{
+    return Tr::tr("Restart %1 Now").arg(QGuiApplication::applicationDisplayName());
+}
+
 InfoBar *ICore::popupInfoBar()
 {
     if (generalSettings().preferInfoBarOverPopup())
@@ -854,7 +859,7 @@ bool ICore::askForRestart(const QString &text, const QString &altButtonText)
     QString translatedAltButtonText = altButtonText.isEmpty() ? Tr::tr("Later") : altButtonText;
 
     mb.addButton(translatedAltButtonText, QMessageBox::NoRole);
-    mb.addButton(Tr::tr("Restart Now"), QMessageBox::YesRole);
+    mb.addButton(msgRestartNow(), QMessageBox::YesRole);
 
     mb.connect(&mb, &QDialog::accepted, ICore::instance(), &ICore::restart);
     mb.exec();

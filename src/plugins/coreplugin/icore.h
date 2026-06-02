@@ -82,6 +82,7 @@ public:
     static Utils::InfoBar *infoBar();
     static Utils::InfoBar *popupInfoBar();
 
+    static QString msgRestartNow();
     static bool askForRestart(const QString &text, const QString &altButtonText = {});
 
     static void raiseWindow(QWidget *widget);
