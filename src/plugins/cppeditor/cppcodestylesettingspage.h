@@ -5,23 +5,11 @@
 
 #include "cppcodestylesettings.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <texteditor/codestyleeditor.h>
-#include <texteditor/tabsettings.h>
-
 #include <QWidget>
-
-namespace TextEditor { class FontSettingsData; }
 
 namespace CppEditor {
 
-namespace Internal {
-
-class CppCodeStylePreferencesWidgetPrivate;
-
-void setupCppCodeStyleSettings();
-
-} // namespace Internal
+namespace Internal {  class CppCodeStylePreferencesWidgetPrivate;  }
 
 class CPPEDITOR_EXPORT CppCodeStylePreferencesWidget : public QWidget
 {
@@ -33,25 +21,9 @@ public:
     void cancel();
 
 private:
-    void decorateEditors(const TextEditor::FontSettingsData &fontSettings);
-    void setVisualizeWhitespace(bool on);
-    void slotTabSettingsChanged(const TextEditor::TabSettingsData &settings);
-    void slotCodeStyleSettingsChanged();
-    void updatePreview();
-    void setTabSettings(const TextEditor::TabSettingsData &settings);
-    TextEditor::TabSettingsData tabSettings() const;
-    void setCodeStyleSettings(const CppCodeStyleSettings &settings, bool preview = true);
-    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *, bool preview = true);
-
-    CppCodeStyleSettings cppCodeStyleSettings() const;
-
-    CppCodeStylePreferences *m_preferences = nullptr;
     Internal::CppCodeStylePreferencesWidgetPrivate *d = nullptr;
-    CppCodeStyleSettings m_originalCppCodeStyleSettings;
-    TextEditor::TabSettingsData m_originalTabSettings;
-    bool m_blockUpdates = false;
-
-    friend class Internal::CppCodeStylePreferencesWidgetPrivate;
 };
+
+namespace Internal { void setupCppCodeStyleSettings();  }
 
 } // namespace CppEditor

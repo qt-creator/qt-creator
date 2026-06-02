@@ -12,6 +12,8 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <cplusplus/Overview.h>
 #include <cplusplus/pp.h>
 
@@ -85,8 +87,10 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
 class CppCodeStylePreferencesWidgetPrivate
 {
 public:
-    CppCodeStylePreferencesWidgetPrivate(CppCodeStylePreferencesWidget *widget)
+    CppCodeStylePreferencesWidgetPrivate(CppCodeStylePreferencesWidget *widget,
+                                         CppCodeStylePreferences *codeStylePreferences)
         : q(widget)
+        , m_preferences(codeStylePreferences)
     {
         setupCheckBox(m_indentAccessSpecifiers,
                       Tr::tr("\"public\", \"protected\" and\n\"private\" within class body"));
@@ -165,7 +169,7 @@ public:
                       Tr::tr("This does not apply to references."));
 
         QObject::connect(&m_tabSettingsWidget, &TabSettings::settingsChanged,
-                         q, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
+                         q, [this](const TabSettingsData &s) { slotTabSettingsChanged(s); });
 
         using namespace Layouting;
 
@@ -248,7 +252,7 @@ public:
         // clang-format on
         QObject::connect(&m_statementMacros, &QPlainTextEdit::textChanged, q, [this] {
             m_handlingStatementMacroChange = true;
-            q->slotCodeStyleSettingsChanged();
+            slotCodeStyleSettingsChanged();
             m_handlingStatementMacroChange = false;
         });
 
@@ -275,6 +279,31 @@ public:
         m_controllers.append(switchGroupWidget);
         m_controllers.append(alignmentGroupWidget);
         m_controllers.append(typesGroupWidget);
+
+        decorateEditors(globalFontSettings().data());
+        QObject::connect(&globalFontSettings(), &FontSettings::changed,
+                         q, [this] { decorateEditors(globalFontSettings().data()); });
+
+        setVisualizeWhitespace(true);
+
+        QObject::connect(m_preferences, &CppCodeStylePreferences::currentTabSettingsChanged,
+                         q, [this](const TabSettingsData &s) { setTabSettings(s); });
+        QObject::connect(m_preferences, &CppCodeStylePreferences::currentValueChanged, q, [this] {
+            setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
+        });
+        QObject::connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
+                         q, [this](TextEditor::ICodeStylePreferences *currentPreferences) {
+            slotCurrentPreferencesChanged(currentPreferences);
+        });
+
+        setTabSettings(m_preferences->currentTabSettings());
+        setCodeStyleSettings(m_preferences->currentCodeStyleSettings(), false);
+        slotCurrentPreferencesChanged(m_preferences->currentPreferences(), false);
+
+        m_originalCppCodeStyleSettings = cppCodeStyleSettings();
+        m_originalTabSettings = tabSettings();
+
+        updatePreview();
     }
 
     void setupCheckBox(QCheckBox &checkBox, const QString &text, const QString &toolTip = {})
@@ -282,7 +311,7 @@ public:
         checkBox.setText(text);
         checkBox.setToolTip(toolTip);
         QObject::connect(&checkBox, &QCheckBox::toggled,
-                         q, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+                         q, [this] { slotCodeStyleSettingsChanged(); });
     }
 
     SnippetEditorWidget *createPreview(int i)
@@ -292,6 +321,19 @@ public:
         m_previews.append(editor);
         return editor;
     }
+
+    CppCodeStyleSettings cppCodeStyleSettings() const;
+    void setTabSettings(const TabSettingsData &settings);
+    TabSettingsData tabSettings() const;
+    void setCodeStyleSettings(const CppCodeStyleSettings &settings, bool preview = true);
+    void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences, bool preview = true);
+    void slotCodeStyleSettingsChanged();
+    void slotTabSettingsChanged(const TabSettingsData &settings);
+    void updatePreview();
+    void decorateEditors(const FontSettingsData &fontSettings);
+    void setVisualizeWhitespace(bool on);
+    void apply();
+    void cancel();
 
     CppCodeStylePreferencesWidget *q = nullptr;
 
@@ -324,7 +366,213 @@ public:
     QWidget *m_generalSettingsRow = nullptr;
     TabSettings m_tabSettingsWidget;
     bool m_handlingStatementMacroChange = false;
+
+    CppCodeStylePreferences *m_preferences = nullptr;
+    CppCodeStyleSettings m_originalCppCodeStyleSettings;
+    TabSettingsData m_originalTabSettings;
+    bool m_blockUpdates = false;
 };
+
+CppCodeStyleSettings CppCodeStylePreferencesWidgetPrivate::cppCodeStyleSettings() const
+{
+    CppCodeStyleSettings set;
+
+    set.statementMacros
+        = Utils::transform(m_statementMacros.toPlainText().trimmed().split('\n',
+                                                                           Qt::SkipEmptyParts),
+                           [](const QString &line) { return line.trimmed(); });
+    set.indentBlockBraces = m_indentBlockBraces.isChecked();
+    set.indentBlockBody = m_indentBlockBody.isChecked();
+    set.indentClassBraces = m_indentClassBraces.isChecked();
+    set.indentEnumBraces = m_indentEnumBraces.isChecked();
+    set.indentNamespaceBraces = m_indentNamespaceBraces.isChecked();
+    set.indentNamespaceBody = m_indentNamespaceBody.isChecked();
+    set.indentAccessSpecifiers = m_indentAccessSpecifiers.isChecked();
+    set.indentDeclarationsRelativeToAccessSpecifiers
+        = m_indentDeclarationsRelativeToAccessSpecifiers.isChecked();
+    set.indentFunctionBody = m_indentFunctionBody.isChecked();
+    set.indentFunctionBraces = m_indentFunctionBraces.isChecked();
+    set.indentSwitchLabels = m_indentSwitchLabels.isChecked();
+    set.indentStatementsRelativeToSwitchLabels = m_indentCaseStatements.isChecked();
+    set.indentBlocksRelativeToSwitchLabels = m_indentCaseBlocks.isChecked();
+    set.indentControlFlowRelativeToSwitchLabels = m_indentCaseBreak.isChecked();
+    set.bindStarToIdentifier = m_bindStarToIdentifier.isChecked();
+    set.bindStarToTypeName = m_bindStarToTypeName.isChecked();
+    set.bindStarToLeftSpecifier = m_bindStarToLeftSpecifier.isChecked();
+    set.bindStarToRightSpecifier = m_bindStarToRightSpecifier.isChecked();
+    set.extraPaddingForConditionsIfConfusingAlign = m_extraPaddingConditions.isChecked();
+    set.alignAssignments = m_alignAssignments.isChecked();
+
+    return set;
+}
+
+void CppCodeStylePreferencesWidgetPrivate::setTabSettings(const TabSettingsData &settings)
+{
+    m_tabSettingsWidget.setData(settings);
+}
+
+TextEditor::TabSettingsData CppCodeStylePreferencesWidgetPrivate::tabSettings() const
+{
+    return m_tabSettingsWidget.data();
+}
+
+void CppCodeStylePreferencesWidgetPrivate::setCodeStyleSettings(const CppCodeStyleSettings &s,
+                                                                bool preview)
+{
+    const bool wasBlocked = m_blockUpdates;
+    m_blockUpdates = true;
+    if (!m_handlingStatementMacroChange)
+        m_statementMacros.setPlainText(s.statementMacros.join('\n'));
+    m_indentBlockBraces.setChecked(s.indentBlockBraces);
+    m_indentBlockBody.setChecked(s.indentBlockBody);
+    m_indentClassBraces.setChecked(s.indentClassBraces);
+    m_indentEnumBraces.setChecked(s.indentEnumBraces);
+    m_indentNamespaceBraces.setChecked(s.indentNamespaceBraces);
+    m_indentNamespaceBody.setChecked(s.indentNamespaceBody);
+    m_indentAccessSpecifiers.setChecked(s.indentAccessSpecifiers);
+    m_indentDeclarationsRelativeToAccessSpecifiers.setChecked(
+        s.indentDeclarationsRelativeToAccessSpecifiers);
+    m_indentFunctionBody.setChecked(s.indentFunctionBody);
+    m_indentFunctionBraces.setChecked(s.indentFunctionBraces);
+    m_indentSwitchLabels.setChecked(s.indentSwitchLabels);
+    m_indentCaseStatements.setChecked(s.indentStatementsRelativeToSwitchLabels);
+    m_indentCaseBlocks.setChecked(s.indentBlocksRelativeToSwitchLabels);
+    m_indentCaseBreak.setChecked(s.indentControlFlowRelativeToSwitchLabels);
+    m_bindStarToIdentifier.setChecked(s.bindStarToIdentifier);
+    m_bindStarToTypeName.setChecked(s.bindStarToTypeName);
+    m_bindStarToLeftSpecifier.setChecked(s.bindStarToLeftSpecifier);
+    m_bindStarToRightSpecifier.setChecked(s.bindStarToRightSpecifier);
+    m_extraPaddingConditions.setChecked(s.extraPaddingForConditionsIfConfusingAlign);
+    m_alignAssignments.setChecked(s.alignAssignments);
+    m_blockUpdates = wasBlocked;
+    if (preview)
+        updatePreview();
+}
+
+void CppCodeStylePreferencesWidgetPrivate::slotCurrentPreferencesChanged(
+    ICodeStylePreferences *preferences, bool preview)
+{
+    const bool enable = !preferences->isReadOnly();
+    for (QWidget *widget : std::as_const(m_controllers))
+        widget->setEnabled(enable);
+    m_generalSettingsRow->setEnabled(enable);
+
+    if (preview)
+        updatePreview();
+}
+
+void CppCodeStylePreferencesWidgetPrivate::slotCodeStyleSettingsChanged()
+{
+    if (m_blockUpdates)
+        return;
+
+    if (m_preferences) {
+        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        if (current)
+            current->setCodeStyleSettings(cppCodeStyleSettings());
+    }
+
+    updatePreview();
+}
+
+void CppCodeStylePreferencesWidgetPrivate::slotTabSettingsChanged(const TabSettingsData &settings)
+{
+    if (m_blockUpdates)
+        return;
+
+    if (m_preferences) {
+        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        if (current)
+            current->setTabSettings(settings);
+    }
+
+    updatePreview();
+}
+
+void CppCodeStylePreferencesWidgetPrivate::updatePreview()
+{
+    CppCodeStylePreferences *cppCodeStylePreferences
+            = m_preferences ? m_preferences : cppCodeStyle();
+
+    const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
+    const TabSettingsData ts = cppCodeStylePreferences->currentTabSettings();
+    QtStyleCodeFormatter formatter(ts, ccss);
+    for (SnippetEditorWidget *preview : std::as_const(m_previews)) {
+        preview->textDocument()->setTabSettings(ts);
+        preview->textDocument()->setCodeStyle(cppCodeStylePreferences);
+
+        QTextDocument *doc = preview->document();
+        formatter.invalidateCache(doc);
+
+        QTextBlock block = doc->firstBlock();
+        QTextCursor tc = preview->textCursor();
+        tc.beginEditBlock();
+        while (block.isValid()) {
+            preview->textDocument()->indenter()->indentBlock(block, QChar::Null, ts);
+
+            block = block.next();
+        }
+        applyRefactorings(doc, preview, ccss);
+        tc.endEditBlock();
+    }
+}
+
+void CppCodeStylePreferencesWidgetPrivate::decorateEditors(const FontSettingsData &fontSettings)
+{
+    for (SnippetEditorWidget *editor : std::as_const(m_previews)) {
+        editor->textDocument()->setFontSettings(fontSettings);
+        SnippetProvider::decorateEditor(editor, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
+    }
+}
+
+void CppCodeStylePreferencesWidgetPrivate::setVisualizeWhitespace(bool on)
+{
+    for (SnippetEditorWidget *editor : std::as_const(m_previews)) {
+        DisplaySettingsData displaySettings = editor->displaySettings();
+        displaySettings.m_visualizeWhitespace = on;
+        editor->setDisplaySettings(displaySettings);
+    }
+}
+
+void CppCodeStylePreferencesWidgetPrivate::apply()
+{
+    m_originalTabSettings = tabSettings();
+    m_originalCppCodeStyleSettings = cppCodeStyleSettings();
+}
+
+void CppCodeStylePreferencesWidgetPrivate::cancel()
+{
+    if (m_preferences) {
+        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentDelegate());
+        if (current) {
+            current->setCodeStyleSettings(m_originalCppCodeStyleSettings);
+            current->setTabSettings(m_originalTabSettings);
+        }
+    }
+}
+
+} // namespace Internal
+
+CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(CppCodeStylePreferences *codeStylePreferences)
+    : d{new Internal::CppCodeStylePreferencesWidgetPrivate(this, codeStylePreferences)}
+{}
+
+CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()
+{
+    delete d;
+}
+
+void CppCodeStylePreferencesWidget::apply()
+{
+    d->apply();
+}
+
+void CppCodeStylePreferencesWidget::cancel()
+{
+    d->cancel();
+}
+
+namespace Internal {
 
 // CppCodeStyleSettingsPageWidget
 
@@ -407,216 +655,5 @@ void setupCppCodeStyleSettings()
 }
 
 } // namespace Internal
-
-CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(CppCodeStylePreferences *codeStylePreferences)
-    : m_preferences{codeStylePreferences}
-    , d{new Internal::CppCodeStylePreferencesWidgetPrivate(this)}
-{
-    decorateEditors(globalFontSettings().data());
-    connect(&globalFontSettings(), &FontSettings::changed,
-            this, [this] { decorateEditors(globalFontSettings().data()); });
-
-    setVisualizeWhitespace(true);
-
-    connect(m_preferences, &CppCodeStylePreferences::currentTabSettingsChanged,
-            this, &CppCodeStylePreferencesWidget::setTabSettings);
-    connect(m_preferences, &CppCodeStylePreferences::currentValueChanged, this, [this] {
-        setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
-    });
-    connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
-            this, [this](TextEditor::ICodeStylePreferences *currentPreferences) {
-        slotCurrentPreferencesChanged(currentPreferences);
-    });
-
-    setTabSettings(m_preferences->currentTabSettings());
-    setCodeStyleSettings(m_preferences->currentCodeStyleSettings(), false);
-    slotCurrentPreferencesChanged(m_preferences->currentPreferences(), false);
-
-    m_originalCppCodeStyleSettings = cppCodeStyleSettings();
-    m_originalTabSettings = tabSettings();
-
-    updatePreview();
-}
-
-CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()
-{
-    delete d;
-}
-
-CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
-{
-    CppCodeStyleSettings set;
-
-    set.statementMacros
-        = Utils::transform(d->m_statementMacros.toPlainText().trimmed().split('\n',
-                                                                              Qt::SkipEmptyParts),
-                           [](const QString &line) { return line.trimmed(); });
-    set.indentBlockBraces = d->m_indentBlockBraces.isChecked();
-    set.indentBlockBody = d->m_indentBlockBody.isChecked();
-    set.indentClassBraces = d->m_indentClassBraces.isChecked();
-    set.indentEnumBraces = d->m_indentEnumBraces.isChecked();
-    set.indentNamespaceBraces = d->m_indentNamespaceBraces.isChecked();
-    set.indentNamespaceBody = d->m_indentNamespaceBody.isChecked();
-    set.indentAccessSpecifiers = d->m_indentAccessSpecifiers.isChecked();
-    set.indentDeclarationsRelativeToAccessSpecifiers
-        = d->m_indentDeclarationsRelativeToAccessSpecifiers.isChecked();
-    set.indentFunctionBody = d->m_indentFunctionBody.isChecked();
-    set.indentFunctionBraces = d->m_indentFunctionBraces.isChecked();
-    set.indentSwitchLabels = d->m_indentSwitchLabels.isChecked();
-    set.indentStatementsRelativeToSwitchLabels = d->m_indentCaseStatements.isChecked();
-    set.indentBlocksRelativeToSwitchLabels = d->m_indentCaseBlocks.isChecked();
-    set.indentControlFlowRelativeToSwitchLabels = d->m_indentCaseBreak.isChecked();
-    set.bindStarToIdentifier = d->m_bindStarToIdentifier.isChecked();
-    set.bindStarToTypeName = d->m_bindStarToTypeName.isChecked();
-    set.bindStarToLeftSpecifier = d->m_bindStarToLeftSpecifier.isChecked();
-    set.bindStarToRightSpecifier = d->m_bindStarToRightSpecifier.isChecked();
-    set.extraPaddingForConditionsIfConfusingAlign = d->m_extraPaddingConditions.isChecked();
-    set.alignAssignments = d->m_alignAssignments.isChecked();
-
-    return set;
-}
-
-void CppCodeStylePreferencesWidget::setTabSettings(const TabSettingsData &settings)
-{
-    d->m_tabSettingsWidget.setData(settings);
-}
-
-TextEditor::TabSettingsData CppCodeStylePreferencesWidget::tabSettings() const
-{
-    return d->m_tabSettingsWidget.data();
-}
-
-void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSettings &s, bool preview)
-{
-    const bool wasBlocked = m_blockUpdates;
-    m_blockUpdates = true;
-    if (!d->m_handlingStatementMacroChange)
-        d->m_statementMacros.setPlainText(s.statementMacros.join('\n'));
-    d->m_indentBlockBraces.setChecked(s.indentBlockBraces);
-    d->m_indentBlockBody.setChecked(s.indentBlockBody);
-    d->m_indentClassBraces.setChecked(s.indentClassBraces);
-    d->m_indentEnumBraces.setChecked(s.indentEnumBraces);
-    d->m_indentNamespaceBraces.setChecked(s.indentNamespaceBraces);
-    d->m_indentNamespaceBody.setChecked(s.indentNamespaceBody);
-    d->m_indentAccessSpecifiers.setChecked(s.indentAccessSpecifiers);
-    d->m_indentDeclarationsRelativeToAccessSpecifiers.setChecked(
-        s.indentDeclarationsRelativeToAccessSpecifiers);
-    d->m_indentFunctionBody.setChecked(s.indentFunctionBody);
-    d->m_indentFunctionBraces.setChecked(s.indentFunctionBraces);
-    d->m_indentSwitchLabels.setChecked(s.indentSwitchLabels);
-    d->m_indentCaseStatements.setChecked(s.indentStatementsRelativeToSwitchLabels);
-    d->m_indentCaseBlocks.setChecked(s.indentBlocksRelativeToSwitchLabels);
-    d->m_indentCaseBreak.setChecked(s.indentControlFlowRelativeToSwitchLabels);
-    d->m_bindStarToIdentifier.setChecked(s.bindStarToIdentifier);
-    d->m_bindStarToTypeName.setChecked(s.bindStarToTypeName);
-    d->m_bindStarToLeftSpecifier.setChecked(s.bindStarToLeftSpecifier);
-    d->m_bindStarToRightSpecifier.setChecked(s.bindStarToRightSpecifier);
-    d->m_extraPaddingConditions.setChecked(s.extraPaddingForConditionsIfConfusingAlign);
-    d->m_alignAssignments.setChecked(s.alignAssignments);
-    m_blockUpdates = wasBlocked;
-    if (preview)
-        updatePreview();
-}
-
-void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences, bool preview)
-{
-    const bool enable = !preferences->isReadOnly();
-    for (QWidget *widget : std::as_const(d->m_controllers))
-        widget->setEnabled(enable);
-    d->m_generalSettingsRow->setEnabled(enable);
-
-    if (preview)
-        updatePreview();
-}
-
-void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
-{
-    if (m_blockUpdates)
-        return;
-
-    if (m_preferences) {
-        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
-        if (current)
-            current->setCodeStyleSettings(cppCodeStyleSettings());
-    }
-
-    updatePreview();
-}
-
-void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettingsData &settings)
-{
-    if (m_blockUpdates)
-        return;
-
-    if (m_preferences) {
-        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
-        if (current)
-            current->setTabSettings(settings);
-    }
-
-    updatePreview();
-}
-
-void CppCodeStylePreferencesWidget::updatePreview()
-{
-    CppCodeStylePreferences *cppCodeStylePreferences
-            = m_preferences ? m_preferences : cppCodeStyle();
-
-    const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
-    const TabSettingsData ts = cppCodeStylePreferences->currentTabSettings();
-    QtStyleCodeFormatter formatter(ts, ccss);
-    for (SnippetEditorWidget *preview : std::as_const(d->m_previews)) {
-        preview->textDocument()->setTabSettings(ts);
-        preview->textDocument()->setCodeStyle(cppCodeStylePreferences);
-
-        QTextDocument *doc = preview->document();
-        formatter.invalidateCache(doc);
-
-        QTextBlock block = doc->firstBlock();
-        QTextCursor tc = preview->textCursor();
-        tc.beginEditBlock();
-        while (block.isValid()) {
-            preview->textDocument()->indenter()->indentBlock(block, QChar::Null, ts);
-
-            block = block.next();
-        }
-        Internal::applyRefactorings(doc, preview, ccss);
-        tc.endEditBlock();
-    }
-}
-
-void CppCodeStylePreferencesWidget::decorateEditors(const FontSettingsData &fontSettings)
-{
-    for (SnippetEditorWidget *editor : std::as_const(d->m_previews)) {
-        editor->textDocument()->setFontSettings(fontSettings);
-        SnippetProvider::decorateEditor(editor, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
-    }
-}
-
-void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
-{
-    for (SnippetEditorWidget *editor : std::as_const(d->m_previews)) {
-        DisplaySettingsData displaySettings = editor->displaySettings();
-        displaySettings.m_visualizeWhitespace = on;
-        editor->setDisplaySettings(displaySettings);
-    }
-}
-
-void CppCodeStylePreferencesWidget::apply()
-{
-    m_originalTabSettings = tabSettings();
-    m_originalCppCodeStyleSettings = cppCodeStyleSettings();
-}
-
-void CppCodeStylePreferencesWidget::cancel()
-{
-    if (m_preferences) {
-        auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentDelegate());
-        if (current) {
-            current->setCodeStyleSettings(m_originalCppCodeStyleSettings);
-            current->setTabSettings(m_originalTabSettings);
-        }
-    }
-}
 
 } // namespace CppEditor
