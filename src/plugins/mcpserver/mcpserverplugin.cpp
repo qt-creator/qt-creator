@@ -27,14 +27,22 @@
 #include <utils/async.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
-#include <utils/stringutils.h>
 #include <utils/mimeutils.h>
+#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 
+#include <QApplication>
+#include <QHeaderView>
 #include <QLabel>
+#include <QLineEdit>
+#include <QPainter>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
+#include <QStandardItemModel>
+#include <QStyledItemDelegate>
+#include <QTableView>
 #include <QTcpServer>
 #include <QToolTip>
 
@@ -114,6 +122,238 @@ public:
     StringAspect customAddress{this};
 };
 
+// Calls resizeRowsToContents() deferred whenever the viewport is resized,
+// so row heights are computed after the columns have their final widths.
+class ResizeRowsOnViewportResize : public QObject
+{
+public:
+    explicit ResizeRowsOnViewportResize(QTableView *view)
+        : QObject(view)
+        , m_view(view)
+    {}
+
+protected:
+    bool eventFilter(QObject *, QEvent *e) override
+    {
+        if (e->type() == QEvent::Resize)
+            QMetaObject::invokeMethod(m_view, &QTableView::resizeRowsToContents, Qt::QueuedConnection);
+        return false;
+    }
+
+private:
+    QTableView *m_view;
+};
+
+class PaddedItemDelegate : public QStyledItemDelegate
+{
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QSize s = QStyledItemDelegate::sizeHint(option, index);
+        s.rheight() += 12;
+        return s;
+    }
+};
+
+class ToolFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+    using QSortFilterProxyModel::QSortFilterProxyModel;
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
+    {
+        const QRegularExpression re = filterRegularExpression();
+        if (!re.isValid() || re.pattern().isEmpty())
+            return true;
+        const QAbstractItemModel *m = sourceModel();
+        const QString name = m->index(sourceRow, 0, sourceParent).data(Qt::UserRole).toString();
+        const QString title = m->index(sourceRow, 1, sourceParent).data().toString();
+        const QString desc = m->index(sourceRow, 2, sourceParent).data().toString();
+        return name.contains(re) || title.contains(re) || desc.contains(re);
+    }
+};
+
+class ToolNameDelegate : public QStyledItemDelegate
+{
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QSize s = QStyledItemDelegate::sizeHint(option, index);
+        const QString name = index.data(Qt::UserRole).toString();
+        const QString title = index.data(Qt::DisplayRole).toString();
+        if (!name.isEmpty() && name != title)
+            s.rheight() += option.fontMetrics.height() + 2;
+        s.rheight() += 12;
+        return s;
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QStyleOptionViewItem opt = option;
+        initStyleOption(&opt, index);
+
+        const QString name = index.data(Qt::UserRole).toString();
+        const QString title = opt.text;
+        const bool showName = !name.isEmpty() && name != title;
+
+        opt.text.clear();
+        const QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
+        style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
+
+        const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt, opt.widget);
+        const QRect r = textRect.adjusted(2, 4, -2, -4);
+
+        const QColor baseColor = (opt.state & QStyle::State_Selected)
+                                     ? opt.palette.highlightedText().color()
+                                     : opt.palette.text().color();
+
+        painter->save();
+        painter->setPen(baseColor);
+
+        if (!showName) {
+            painter->drawText(r, Qt::AlignVCenter | Qt::AlignLeft, title);
+        } else {
+            const int lineH = opt.fontMetrics.height();
+            const int blockH = lineH * 2 + 2;
+            const int top = r.top() + (r.height() - blockH) / 2;
+
+            painter->drawText(QRect(r.left(), top, r.width(), lineH),
+                              Qt::AlignLeft, title);
+
+            QColor muted = baseColor;
+            muted.setAlphaF(0.55);
+            painter->setPen(muted);
+            painter
+                ->drawText(QRect(r.left(), top + lineH + 2, r.width(), lineH), Qt::AlignLeft, name);
+        }
+
+        painter->restore();
+    }
+};
+
+class ToolEnablerAspect : public AspectContainer
+{
+public:
+    ToolEnablerAspect(AspectContainer *parent)
+        : AspectContainer(parent)
+    {
+        connect(
+            &ToolRegistry::instance(),
+            &ToolRegistry::toolRegistered,
+            this,
+            &ToolEnablerAspect::onToolRegistered);
+        setLayouter([this]() { return buildLayout(); });
+    }
+
+    void apply() override
+    {
+        AspectContainer::apply();
+        for (auto it = m_toolAspects.cbegin(); it != m_toolAspects.cend(); ++it)
+            ToolRegistry::enableTool(it.key(), it.value()->value());
+    }
+
+private:
+    void onToolRegistered()
+    {
+        for (const Schema::Tool &tool : ToolRegistry::registeredTools()) {
+            const QString name = tool.name();
+            if (m_toolAspects.contains(name))
+                continue;
+            auto *aspect = new BoolAspect(this);
+            aspect->setSettingsKey(keyFromString(name));
+            aspect->setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+            aspect->setDefaultValue(true);
+            const SettingsGroupNester nester({"McpServer", "EnabledTools"});
+            aspect->readSettings();
+            ToolRegistry::enableTool(name, aspect->value());
+            m_toolAspects[name] = aspect;
+            m_toolMetadata[name] = tool;
+        }
+    }
+
+    Layouting::Column buildLayout()
+    {
+        using namespace Layouting;
+
+        auto *view = new QTableView;
+        auto *model = new QStandardItemModel(0, 3, view);
+        model->setHorizontalHeaderLabels({{}, Tr::tr("Name"), Tr::tr("Description")});
+
+        for (const QString &name : Utils::sorted(m_toolAspects.keys())) {
+            const Schema::Tool &tool = m_toolMetadata[name];
+            BoolAspect *aspect = m_toolAspects[name];
+
+            auto *checkItem = new QStandardItem;
+            checkItem->setCheckable(true);
+            checkItem->setCheckState(aspect->volatileValue() ? Qt::Checked : Qt::Unchecked);
+            checkItem->setEditable(false);
+            checkItem->setData(name, Qt::UserRole);
+            checkItem->setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
+            checkItem->setToolTip(Tr::tr("Enable or disable this tool for MCP clients."));
+
+            auto *nameItem = new QStandardItem(tool.title().value_or(name));
+            nameItem->setEditable(false);
+            nameItem->setData(name, Qt::UserRole);
+
+            auto *descItem = new QStandardItem(tool.description().value_or(QString{}));
+            descItem->setEditable(false);
+
+            model->appendRow({checkItem, nameItem, descItem});
+        }
+
+        auto *proxy = new ToolFilterProxyModel(view);
+        proxy->setSourceModel(model);
+        proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+        auto *filterEdit = new QLineEdit;
+        filterEdit->setPlaceholderText(Tr::tr("Filter by name or description..."));
+        filterEdit->setMinimumWidth(250);
+        filterEdit->setClearButtonEnabled(true);
+
+        view->setModel(proxy);
+        view->setWordWrap(true);
+        view->setSelectionBehavior(QAbstractItemView::SelectRows);
+        view->setSelectionMode(QAbstractItemView::SingleSelection);
+        view->verticalHeader()->setVisible(false);
+        view->horizontalHeader()->setStretchLastSection(true);
+        view->setShowGrid(false);
+        view->resizeColumnToContents(0);
+        view->resizeColumnToContents(1);
+        view->setItemDelegate(new PaddedItemDelegate(view));
+        view->setItemDelegateForColumn(1, new ToolNameDelegate(view));
+        view->viewport()->installEventFilter(new ResizeRowsOnViewportResize(view));
+        view->setAlternatingRowColors(true);
+
+        QObject::connect(filterEdit, &QLineEdit::textChanged, proxy, [proxy, view](const QString &text) {
+            proxy->setFilterFixedString(text);
+            QMetaObject::invokeMethod(view, &QTableView::resizeRowsToContents, Qt::QueuedConnection);
+        });
+
+        QObject::connect(
+            model,
+            &QStandardItemModel::dataChanged,
+            view,
+            [this, model](const QModelIndex &topLeft, const QModelIndex &, const QList<int> &roles) {
+                if (topLeft.column() != 0 || !roles.contains(Qt::CheckStateRole))
+                    return;
+                const QString name = model->data(topLeft, Qt::UserRole).toString();
+                if (auto *aspect = m_toolAspects.value(name))
+                    aspect->setVolatileValue(
+                        model->data(topLeft, Qt::CheckStateRole).toInt() == Qt::Checked);
+            });
+
+        return Column{noMargin, Row{st, filterEdit}, view};
+    }
+
+    QMap<QString, BoolAspect *> m_toolAspects;
+    QMap<QString, Schema::Tool> m_toolMetadata;
+};
+
 class McpServerPluginSettings : public AspectContainer
 {
 public:
@@ -123,6 +363,7 @@ public:
     ListenAddressAspect listenAddress{this};
     IntegerAspect port{this};
     BoolAspect enableCors{this};
+    ToolEnablerAspect enabledTools{this};
 };
 
 class McpServerSettingsPage : public Core::IOptionsPage
@@ -286,7 +527,13 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
             "This is necessary if you want to connect to the server from a web application."));
     enableCors.setDefaultValue(false);
 
-    connect(this, &AspectContainer::applied, plugin, [plugin]() { plugin->restartServer(); });
+    enabledTools.setSettingsGroup("EnabledTools");
+    enabledTools.setToolTip(Tr::tr("Select which tools to enable or disable"));
+
+    connect(&enabled, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
+    connect(&listenAddress, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
+    connect(&port, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
+    connect(&enableCors, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
 
     setLayouter([this, plugin]() {
         using namespace Layouting;
@@ -334,6 +581,7 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
             port, br,
             enableCors, br,
             statusIcon, statusLabel, br,
+            enabledTools, br,
         };
         // clang-format on
     });

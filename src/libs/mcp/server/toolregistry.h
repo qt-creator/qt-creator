@@ -8,6 +8,8 @@
 #include "../schemas/schema_2025_11_25.h"
 #include "mcpserver.h"
 
+#include <QList>
+
 namespace Mcp {
 
 class MCPSERVER_EXPORT ToolRegistry : public QObject
@@ -22,8 +24,12 @@ public:
 
     static const ToolRegistry &instance();
 
+    static void enableTool(const QString &toolName, bool enabled);
+    static QList<Schema::Tool> registeredTools();
+
 signals:
     void toolRegistered();
+    void toolEnabled(const QString &toolName, bool enabled);
 };
 
 class MCPSERVER_EXPORT AutoRegisteringServer : public Server, public QObject
