@@ -277,7 +277,7 @@ public:
 
 private:
     void slotSettingsChanged();
-    void slotTabSettingsChanged(const TabSettingsData &settings);
+    void slotTabSettingsChanged();
 
     IntegerAspect m_lineLength;
     TabSettings *m_tabSettingsWidget;
@@ -304,7 +304,7 @@ void BuiltinFormatterSettingsWidget::setPreferences(QmlJSCodeStylePreferences *p
                    this, &BuiltinFormatterSettingsWidget::slotCurrentPreferencesChanged);
         disconnect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
                    m_tabSettingsWidget, &TabSettings::setData);
-        disconnect(m_tabSettingsWidget, &TabSettings::settingsChanged,
+        disconnect(m_tabSettingsWidget, &TabSettings::changed,
                    this, &BuiltinFormatterSettingsWidget::slotTabSettingsChanged);
     }
     m_preferences = preferences;
@@ -318,7 +318,7 @@ void BuiltinFormatterSettingsWidget::setPreferences(QmlJSCodeStylePreferences *p
         m_tabSettingsWidget->setData(m_preferences->currentTabSettings());
         connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
                 m_tabSettingsWidget, &TabSettings::setData);
-        connect(m_tabSettingsWidget, &TabSettings::settingsChanged,
+        connect(m_tabSettingsWidget, &TabSettings::changed,
                 this, &BuiltinFormatterSettingsWidget::slotTabSettingsChanged);
     }
 }
@@ -342,7 +342,7 @@ void BuiltinFormatterSettingsWidget::slotSettingsChanged()
     emit settingsChanged(settings);
 }
 
-void BuiltinFormatterSettingsWidget::slotTabSettingsChanged(const TabSettingsData &settings)
+void BuiltinFormatterSettingsWidget::slotTabSettingsChanged()
 {
     if (!m_preferences)
         return;
@@ -351,7 +351,7 @@ void BuiltinFormatterSettingsWidget::slotTabSettingsChanged(const TabSettingsDat
     if (!current)
         return;
 
-    current->setTabSettings(settings);
+    current->setTabSettings(m_tabSettingsWidget->data());
 }
 
 // CustomFormatterWidget

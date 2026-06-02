@@ -168,8 +168,8 @@ public:
                       Tr::tr("Right const/volatile"),
                       Tr::tr("This does not apply to references."));
 
-        QObject::connect(&m_tabSettingsWidget, &TabSettings::settingsChanged,
-                         q, [this](const TabSettingsData &s) { slotTabSettingsChanged(s); });
+        QObject::connect(&m_tabSettingsWidget, &TabSettings::changed,
+                         q, [this] { slotTabSettingsChanged(); });
 
         using namespace Layouting;
 
@@ -328,7 +328,7 @@ public:
     void setCodeStyleSettings(const CppCodeStyleSettings &settings, bool preview = true);
     void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences, bool preview = true);
     void slotCodeStyleSettingsChanged();
-    void slotTabSettingsChanged(const TabSettingsData &settings);
+    void slotTabSettingsChanged();
     void updatePreview();
     void decorateEditors(const FontSettingsData &fontSettings);
     void setVisualizeWhitespace(bool on);
@@ -475,7 +475,7 @@ void CppCodeStylePreferencesWidgetPrivate::slotCodeStyleSettingsChanged()
     updatePreview();
 }
 
-void CppCodeStylePreferencesWidgetPrivate::slotTabSettingsChanged(const TabSettingsData &settings)
+void CppCodeStylePreferencesWidgetPrivate::slotTabSettingsChanged()
 {
     if (m_blockUpdates)
         return;
@@ -483,7 +483,7 @@ void CppCodeStylePreferencesWidgetPrivate::slotTabSettingsChanged(const TabSetti
     if (m_preferences) {
         auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
         if (current)
-            current->setTabSettings(settings);
+            current->setTabSettings(m_tabSettingsWidget.data());
     }
 
     updatePreview();

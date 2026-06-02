@@ -87,9 +87,6 @@ TabSettings::TabSettings()
 
     connect(m_codingStyleWarning, &QLabel::linkActivated,
             this, &TabSettings::codingStyleLinkActivated);
-    connect(this, &Utils::AspectContainer::changed, this, [this] {
-            emit settingsChanged(data());
-    });
 
     setLayouter([this] {
         using namespace Layouting;
@@ -125,7 +122,7 @@ void TabSettings::setPreferences(ICodeStylePreferences *preferences)
                    this, &TabSettings::setData);
         disconnect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
                    this, &TabSettings::slotCurrentPreferencesChanged);
-        disconnect(this, &TabSettings::settingsChanged,
+        disconnect(this, &TabSettings::changed,
                    this, &TabSettings::slotTabSettingsChanged);
     }
     m_preferences = preferences;
@@ -136,7 +133,7 @@ void TabSettings::setPreferences(ICodeStylePreferences *preferences)
                 this, &TabSettings::setData);
         connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
                 this, &TabSettings::slotCurrentPreferencesChanged);
-        connect(this, &TabSettings::settingsChanged,
+        connect(this, &TabSettings::changed,
                 this, &TabSettings::slotTabSettingsChanged);
     }
 }
@@ -147,14 +144,14 @@ void TabSettings::slotCurrentPreferencesChanged(ICodeStylePreferences *preferenc
                && !preferences->currentPreferences()->isReadOnly());
 }
 
-void TabSettings::slotTabSettingsChanged(const TabSettingsData &settings)
+void TabSettings::slotTabSettingsChanged()
 {
     if (!m_preferences)
         return;
     ICodeStylePreferences *current = m_preferences->currentPreferences();
     if (!current)
         return;
-    current->setTabSettings(settings);
+    current->setTabSettings(data());
 }
 
 void TabSettings::setData(const TabSettingsData &s)

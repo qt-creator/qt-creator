@@ -104,13 +104,12 @@ public:
     void setData(const TabSettingsData &s);
 
 signals:
-    void settingsChanged(const TextEditor::TabSettingsData &);
     void codingStyleLinkClicked(TextEditor::TabSettings::CodingStyleLink link);
 
 private:
     void codingStyleLinkActivated(const QString &linkString);
     void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences);
-    void slotTabSettingsChanged(const TabSettingsData &settings);
+    void slotTabSettingsChanged();
 
     ICodeStylePreferences *m_preferences = nullptr;
 
