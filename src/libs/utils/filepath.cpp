@@ -2088,6 +2088,9 @@ QVariant FilePath::toSettings() const
 
 FilePaths FilePaths::fromSettings(const QVariant &variant)
 {
+    // QVariant(QString).toList() would result in a list of chars
+    if (variant.typeId() == QMetaType::QString)
+        return FilePaths{FilePath::fromSettings(variant)};
     return FilePaths(transform(variant.toList(), &FilePath::fromSettings));
 }
 
