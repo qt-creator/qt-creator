@@ -1046,6 +1046,9 @@ public:
 
     QString text() const;
 
+signals:
+    void linkActivated(const QString &link);
+
 private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
 };
