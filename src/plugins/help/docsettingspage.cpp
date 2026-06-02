@@ -83,7 +83,7 @@ private:
 
     FilePath m_recentDialogPath;
 
-    using NameSpaceToPathHash = QMultiHash<QString, QString>;
+    using NameSpaceToPathHash = QMultiHash<QString, FilePath>;
     NameSpaceToPathHash m_filesToRegister;
     QHash<QString, bool> m_filesToRegisterUserManaged;
     NameSpaceToPathHash m_filesToUnregister;
@@ -157,7 +157,7 @@ DocSettingsPageWidget::DocSettingsPageWidget()
         const FilePath filePath = HelpManager::fileFromNamespace(nameSpace);
         bool user = userDocumentationPaths.contains(filePath);
         entries.append(createEntry(nameSpace, filePath.path(), user));
-        m_filesToRegister.insert(nameSpace, filePath.path());
+        m_filesToRegister.insert(nameSpace, filePath);
         m_filesToRegisterUserManaged.insert(nameSpace, user);
     }
     std::stable_sort(entries.begin(), entries.end());
@@ -223,21 +223,21 @@ void DocSettingsPageWidget::addDocumentation()
 
     NameSpaceToPathHash docsUnableToRegister;
     for (const FilePath &file : files) {
-        const QString filePath = file.cleanPath().toUrlishString();
+        const QString filePath = file.cleanPath().path();
         const QString &nameSpace = HelpManager::namespaceFromFile(filePath);
         if (nameSpace.isEmpty()) {
-            docsUnableToRegister.insert("UnknownNamespace", file.toUserOutput());
+            docsUnableToRegister.insert("UnknownNamespace", file);
             continue;
         }
 
         if (m_filesToRegister.contains(nameSpace)) {
-            docsUnableToRegister.insert(nameSpace, file.toUserOutput());
+            docsUnableToRegister.insert(nameSpace, file);
             continue;
         }
 
         m_model.insertEntry(createEntry(nameSpace, file.toUrlishString(), true /* user managed */));
 
-        m_filesToRegister.insert(nameSpace, filePath);
+        m_filesToRegister.insert(nameSpace, file.cleanPath());
         m_filesToRegisterUserManaged.insert(nameSpace, true/*user managed*/);
         markSettingsDirty();
 
@@ -250,10 +250,10 @@ void DocSettingsPageWidget::addDocumentation()
         // file with the same namespace but a different path, we need to unregister the namespace before
         // we can register the new one. Help engine allows just one registered namespace.
         if (m_filesToUnregister.contains(nameSpace)) {
-            QSet<QString> values = Utils::toSet(m_filesToUnregister.values(nameSpace));
-            values.remove(filePath);
+            QSet<FilePath> values = Utils::toSet(m_filesToUnregister.values(nameSpace));
+            values.remove(file.cleanPath());
             m_filesToUnregister.remove(nameSpace);
-            for (const QString &value : std::as_const(values))
+            for (const FilePath &value : std::as_const(values))
                 m_filesToUnregister.insert(nameSpace, value);
         }
     }
@@ -262,9 +262,9 @@ void DocSettingsPageWidget::addDocumentation()
     if (docsUnableToRegister.contains("UnknownNamespace")) {
         formatedFail += QString::fromLatin1("<ul><li><b>%1</b>")
                             .arg(Tr::tr("Invalid documentation file:"));
-        const QStringList values = docsUnableToRegister.values("UnknownNamespace");
-        for (const QString &value : values)
-            formatedFail += QString::fromLatin1("<ul><li>%2</li></ul>").arg(value);
+        const FilePaths values = docsUnableToRegister.values("UnknownNamespace");
+        for (const FilePath &value : values)
+            formatedFail += QString::fromLatin1("<ul><li>%2</li></ul>").arg(value.toUserOutput());
         formatedFail += "</li></ul>";
         docsUnableToRegister.remove("UnknownNamespace");
     }
@@ -274,7 +274,7 @@ void DocSettingsPageWidget::addDocumentation()
                             .arg(Tr::tr("Namespace already registered:"));
         const NameSpaceToPathHash::ConstIterator cend = docsUnableToRegister.constEnd();
         for (NameSpaceToPathHash::ConstIterator it = docsUnableToRegister.constBegin(); it != cend; ++it) {
-            formatedFail += QString::fromLatin1("<ul><li>%1 - %2</li></ul>").arg(it.key(), it.value());
+            formatedFail += QString::fromLatin1("<ul><li>%1 - %2</li></ul>").arg(it.key(), it.value().toUserOutput());
         }
         formatedFail += "</li></ul>";
     }
@@ -289,13 +289,12 @@ void DocSettingsPageWidget::addDocumentation()
 
 void DocSettingsPageWidget::apply()
 {
-    HelpManager::instance()->unregisterDocumentation(
-        transform(m_filesToUnregister.values(), &FilePath::fromString));
+    HelpManager::instance()->unregisterDocumentation(m_filesToUnregister.values());
     FilePaths files;
     auto it = m_filesToRegisterUserManaged.constBegin();
     while (it != m_filesToRegisterUserManaged.constEnd()) {
         if (it.value()/*userManaged*/)
-            files << FilePath::fromString(m_filesToRegister.value(it.key()));
+            files << m_filesToRegister.value(it.key());
         ++it;
     }
     HelpManager::registerUserDocumentation(files);
@@ -336,7 +335,7 @@ void DocSettingsPageWidget::removeDocumentation(const QList<QModelIndex> &items)
         m_filesToRegister.remove(nameSpace);
         m_filesToRegisterUserManaged.remove(nameSpace);
         m_filesToUnregister
-            .insert(nameSpace, HelpManager::fileFromNamespace(nameSpace).cleanPath().path());
+            .insert(nameSpace, HelpManager::fileFromNamespace(nameSpace).cleanPath());
 
         m_model.removeAt(row);
     }
