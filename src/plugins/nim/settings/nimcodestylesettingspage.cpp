@@ -108,7 +108,7 @@ void NimCodeStylePreferencesWidget::updatePreview()
 class NimCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    NimCodeStyleEditor(ICodeStylePreferences *codeStyle)
+    explicit NimCodeStyleEditor(ICodeStylePreferences *codeStyle)
         : m_selector{{}, this}
         , m_widget{codeStyle, this}
     {

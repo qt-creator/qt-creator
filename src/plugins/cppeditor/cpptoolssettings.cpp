@@ -47,7 +47,7 @@ CppCodeStylePreferences *cppCodeStyle()
 class CppCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    CppCodeStyleEditor(CppCodeStylePreferences *codeStyle)
+    explicit CppCodeStyleEditor(CppCodeStylePreferences *codeStyle)
         : m_selector{{}, this}
         , m_widget{this}
     {
@@ -59,8 +59,8 @@ public:
         addEditorWidget(&m_widget);
     }
 
-    void apply() override { m_widget.apply(); }
-    void finish() override { m_widget.finish(); }
+    void apply() final { m_widget.apply(); }
+    void finish() final { m_widget.finish(); }
 
 private:
     CodeStyleSelectorWidget m_selector;

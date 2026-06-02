@@ -1283,7 +1283,7 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
 class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
 public:
-    QmlJsCodeStyleEditor(QmlJSCodeStylePreferences *codeStyle)
+    explicit QmlJsCodeStyleEditor(QmlJSCodeStylePreferences *codeStyle)
         : m_selector{{}, this}
         , m_widget{QString::fromLatin1(Internal::previewText), this}
     {
