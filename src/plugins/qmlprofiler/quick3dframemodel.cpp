@@ -302,10 +302,6 @@ QModelIndex Quick3DFrameModel::parent(const QModelIndex &index) const
     }
 }
 
-static bool isParentOf(const Quick3DFrameModel::Item &child, const Quick3DFrameModel::Item &parent) {
-    return child.begin >= parent.begin && child.begin < parent.end;
-}
-
 const Quick3DFrameModel::Item *Quick3DFrameModel::findFrameGroup(const Quick3DFrameModel::Item *item) const
 {
     while (item) {
@@ -316,33 +312,6 @@ const Quick3DFrameModel::Item *Quick3DFrameModel::findFrameGroup(const Quick3DFr
     return nullptr;
 }
 
-Quick3DFrameModel::Item *Quick3DFrameModel::findParent(int child)
-{
-    const Item &ci = m_data[child];
-    if (ci.parent != -1)
-        return &m_data[ci.parent];
-    for (auto iter = m_data.begin(); iter != m_data.end(); iter++) {
-        if (ci.index == iter->index || iter->additionalType == SubData)
-            continue;
-        if (isParentOf(ci, *iter)) {
-            const Item *j = &m_data[iter->index];
-            bool allChecked = false;
-            while (!allChecked && j->hasChildren()) {
-                allChecked = true;
-                for (int i = 0; i < iter->children.size(); i++) {
-                    const Item &k = m_data[iter->children[i]];
-                    if (isParentOf(ci, k) && iter->additionalType != SubData) {
-                        j = &k;
-                        allChecked = false;
-                        break;
-                    }
-                }
-            }
-            return &m_data[j->index];
-        }
-    }
-    return nullptr;
-}
 
 void Quick3DFrameModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
@@ -503,27 +472,44 @@ void Quick3DFrameModel::finalize()
         endResetModel();
         return;
     }
-    for (auto &item : m_data) {
-        Item *parent = findParent(item.index);
-        if (parent) {
-            if (item.parent == -1) {
-                for (int i = 0; i < parent->children.size();) {
-                    Item &j = m_data[parent->children[i]];
-                    if (isParentOf(j, item) && j.additionalType != SubData) {
-                        parent->children.removeOne(j.index);
-                        item.children.push_back(j.index);
-                        j.parent = item.index;
-                    } else {
-                        i++;
-                    }
-                }
-                parent->children.push_back(item.index);
-                item.parent = parent->index;
-            }
-        } else {
-            m_stackBottom.children.push_back(item.index);
-        }
+
+    // Collect indices of items that need parent assignment.
+    // SubData items already have parents set during loadEvent.
+    QList<int> indices;
+    indices.reserve(m_data.size());
+    for (const auto &item : std::as_const(m_data)) {
+        if (item.parent == -1)
+            indices.push_back(item.index);
     }
+
+    // Sort by begin time ascending; for equal begins, larger range (= parent) comes first.
+    // FrameGroup items get begin = frame_begin - 1, so they naturally precede their children.
+    std::sort(indices.begin(), indices.end(), [this](int a, int b) {
+        const auto &ia = m_data[a];
+        const auto &ib = m_data[b];
+        if (ia.begin != ib.begin)
+            return ia.begin < ib.begin;
+        return ia.end > ib.end;
+    });
+
+    // Monotone stack: assign each item to the deepest open ancestor.
+    QList<int> stack;
+    for (int idx : indices) {
+        Item &item = m_data[idx];
+        while (!stack.isEmpty() && m_data[stack.back()].end <= item.begin)
+            stack.pop_back();
+
+        if (!stack.isEmpty()) {
+            const int parentIdx = stack.back();
+            item.parent = parentIdx;
+            m_data[parentIdx].children.push_back(idx);
+        } else {
+            m_stackBottom.children.push_back(idx);
+        }
+
+        stack.push_back(idx);
+    }
+
     endResetModel();
 }
 

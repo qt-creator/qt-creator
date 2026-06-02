@@ -130,7 +130,6 @@ public:
 private:
     QList<int> frameIndices(const QString &view3DFilter) const;
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type);
-    Item *findParent(int child);
     const Item *findFrameGroup(const Item *item) const;
     void finalize();
     int parentRow(int index) const;
