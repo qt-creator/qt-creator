@@ -3,60 +3,42 @@
 
 #pragma once
 
+#include "core_global.h"
+
 #include <utils/aspects.h>
 
-namespace Core::Internal {
+namespace Core {
 
-class CodecForLocaleAspect : public Utils::StringSelectionAspect
+class CORE_EXPORT CodecForLocaleAspect : public Utils::StringSelectionAspect
 {
 public:
     using StringSelectionAspect::StringSelectionAspect;
 
-    void fixupComboBox(QComboBox *comboBox) override
-    {
-        comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
-        comboBox->setMinimumContentsLength(20);
-    }
+    void fixupComboBox(QComboBox *comboBox) override;
 };
 
-class LanguageSelectionAspect : public Utils::StringSelectionAspect
+class CORE_EXPORT LanguageSelectionAspect : public Utils::StringSelectionAspect
 {
 public:
     using StringSelectionAspect::StringSelectionAspect;
 
     static inline const QString kSystemLanguage = "__system__";
 
-    void fixupComboBox(QComboBox *comboBox) override
-    {
-        comboBox->setObjectName("languageBox");
-        comboBox->setMinimumContentsLength(20);
-    }
+    void fixupComboBox(QComboBox *comboBox) override;
 
-    QVariant toSettingsValue(const QVariant &valueToSave) const override
-    {
-        const QString v = valueToSave.toString();
-        return v == kSystemLanguage ? QString() : v;
-    }
-
-    QVariant fromSettingsValue(const QVariant &savedValue) const override
-    {
-        const QString v = savedValue.toString();
-        return v.isEmpty() ? kSystemLanguage : v;
-    }
+    QVariant toSettingsValue(const QVariant &valueToSave) const override;
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
 };
 
-class ThemeSelectionAspect : public Utils::StringSelectionAspect
+class CORE_EXPORT ThemeSelectionAspect : public Utils::StringSelectionAspect
 {
 public:
     using StringSelectionAspect::StringSelectionAspect;
 
-    void fixupComboBox(QComboBox *comboBox) override
-    {
-        comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    }
+    void fixupComboBox(QComboBox *comboBox) override;
 };
 
-class GeneralSettings : public Utils::AspectContainer
+class CORE_EXPORT GeneralSettings : public Utils::AspectContainer
 {
 public:
     GeneralSettings();
@@ -76,6 +58,6 @@ public:
     ThemeSelectionAspect theme{this};
 };
 
-GeneralSettings &generalSettings();
+CORE_EXPORT GeneralSettings &generalSettings();
 
-} // Core::Internal
+} // Core

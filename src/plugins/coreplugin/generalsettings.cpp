@@ -18,6 +18,7 @@
 #include <utils/textcodec.h>
 
 #include <QApplication>
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -122,12 +123,6 @@ static void fillLanguageItems(const StringSelectionAspect::ResultCallback &cb)
     cb(items);
 }
 
-GeneralSettings &generalSettings()
-{
-    static GuardedObject<GeneralSettings> theSettings;
-    return theSettings;
-}
-
 static void fillThemeItems(const StringSelectionAspect::ResultCallback &cb)
 {
     const QList<ThemeEntry> themes = ThemeEntry::availableThemes();
@@ -193,6 +188,47 @@ InfoLabel *createEnvVarInfoLabel()
     auto envVarInfo = new InfoLabel(Tr::tr("Environment influences UI scaling behavior."));
     envVarInfo->setAdditionalToolTip(toolTip);
     return envVarInfo;
+}
+
+} // namespace Core::Internal
+
+namespace Core {
+
+using namespace Internal;
+
+void CodecForLocaleAspect::fixupComboBox(QComboBox *comboBox)
+{
+    comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    comboBox->setMinimumContentsLength(20);
+}
+
+void LanguageSelectionAspect::fixupComboBox(QComboBox *comboBox)
+{
+    comboBox->setObjectName("languageBox");
+    comboBox->setMinimumContentsLength(20);
+}
+
+QVariant LanguageSelectionAspect::toSettingsValue(const QVariant &valueToSave) const
+{
+    const QString v = valueToSave.toString();
+    return v == kSystemLanguage ? QString() : v;
+}
+
+QVariant LanguageSelectionAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+    const QString v = savedValue.toString();
+    return v.isEmpty() ? kSystemLanguage : v;
+}
+
+void ThemeSelectionAspect::fixupComboBox(QComboBox *comboBox)
+{
+    comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+}
+
+GeneralSettings &generalSettings()
+{
+    static GuardedObject<GeneralSettings> theSettings;
+    return theSettings;
 }
 
 GeneralSettings::GeneralSettings()
@@ -348,6 +384,10 @@ GeneralSettings::GeneralSettings()
 
     StyleHelper::setToolbarStyle(StyleHelper::ToolbarStyle(toolbarStyle()));
 }
+
+} // namespace Core
+
+namespace Core::Internal {
 
 // GeneralSettingsPage
 
