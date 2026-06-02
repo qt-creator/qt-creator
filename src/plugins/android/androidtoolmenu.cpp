@@ -423,7 +423,9 @@ void setupAndroidToolsMenu()
     for (QAction *action : {xmlSourceAction, iconAction, permissionsAction, splashscreenAction}) {
         action->setEnabled(hasProject);
         QObject::connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
-                         action, &QAction::setEnabled);
+                         action, [action](Project *project) {
+            action->setEnabled(project != nullptr);
+        });
     }
 }
 
