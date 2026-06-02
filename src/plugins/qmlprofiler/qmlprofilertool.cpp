@@ -47,6 +47,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/fancymainwindow.h>
+#include <utils/shutdownguard.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -896,12 +897,7 @@ void QmlProfilerTool::toggleVisibleFeature(QAction *action)
 
 void setupQmlProfilerTool()
 {
-    (void) new QmlProfilerTool;
-}
-
-void destroyQmlProfilerTool()
-{
-    delete m_instance;
+    static GuardedObject<QmlProfilerTool> theQmlProfilerTool;
 }
 
 } // QmlProfiler::Internal

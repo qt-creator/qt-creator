@@ -93,7 +93,6 @@ private:
 };
 
 void setupQmlProfilerTool();
-void destroyQmlProfilerTool();
 
 } // namespace Internal
 } // namespace QmlProfiler

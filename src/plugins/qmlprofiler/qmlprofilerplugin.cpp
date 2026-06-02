@@ -32,17 +32,6 @@
 
 #endif // WITH_TESTS
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/environmentkitaspect.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
-
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
-
 #include <extensionsystem/iplugin.h>
 
 using namespace ProjectExplorer;
@@ -88,13 +77,6 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
     void extensionsInitialized() final
     {
         RunConfiguration::registerAspect<QmlProfilerRunConfigurationAspect>();
-    }
-
-    ShutdownFlag aboutToShutdown() final
-    {
-        destroyQmlProfilerTool();
-
-        return SynchronousShutdown;
     }
 
     Core::IDocumentFactory m_traceFileFactory;
