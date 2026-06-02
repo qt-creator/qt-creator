@@ -2235,7 +2235,8 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
 {
     const DocumentUri &uri = params.uri();
 
-    const QList<Diagnostic> &diagnostics = params.diagnostics();
+    const QList<Diagnostic> &diagnostics
+        = Utils::filtered(params.diagnostics(), &Diagnostic::isValid);
     if (!d->m_diagnosticManager)
         d->m_diagnosticManager = createDiagnosticManager();
     const FilePath &path = serverUriToHostPath(uri);
