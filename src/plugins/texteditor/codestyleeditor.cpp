@@ -28,8 +28,7 @@ using namespace Utils;
 
 namespace TextEditor {
 
-CodeStyleEditor::CodeStyleEditor(QWidget *parent)
-    : QWidget(parent)
+CodeStyleEditor::CodeStyleEditor()
 {
     m_layout = new QVBoxLayout{this};
     m_layout->setContentsMargins(0, 0, 0, 0);

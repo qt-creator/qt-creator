@@ -21,10 +21,8 @@ class SnippetEditorWidget;
 
 class TEXTEDITOR_EXPORT CodeStyleEditor : public QWidget
 {
-    Q_OBJECT
-
 public:
-    CodeStyleEditor(QWidget *parent = nullptr);
+    CodeStyleEditor();
 
     virtual void apply();
     virtual void finish();
