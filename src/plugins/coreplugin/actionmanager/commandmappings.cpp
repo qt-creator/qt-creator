@@ -53,6 +53,7 @@ public:
 
         using namespace Layouting;
         Column {
+            noMargin,
             Group {
                 title(::Core::Tr::tr("Command Mappings")),
                 bindTo(&groupBox),
