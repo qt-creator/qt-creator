@@ -49,13 +49,12 @@ class CppCodeStyleEditor final : public CodeStyleEditor
 public:
     explicit CppCodeStyleEditor(CppCodeStylePreferences *codeStyle)
         : m_selector{{}, this}
-        , m_widget{this}
+        , m_widget{codeStyle}
     {
         m_selector.setCodeStyle(codeStyle);
         addSelector(&m_selector);
         addInfoLabel();
         m_widget.layout()->setContentsMargins(0, 0, 0, 0);
-        m_widget.setCodeStyle(codeStyle);
         addEditorWidget(&m_widget);
     }
 

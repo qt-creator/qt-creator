@@ -10,12 +10,8 @@
 #include <texteditor/tabsettings.h>
 
 #include <QWidget>
-#include <QPointer>
 
-namespace TextEditor {
-    class FontSettingsData;
-    class SnippetEditorWidget;
-}
+namespace TextEditor { class FontSettingsData; }
 
 namespace CppEditor {
 
@@ -30,10 +26,8 @@ void setupCppCodeStyleSettings();
 class CPPEDITOR_EXPORT CppCodeStylePreferencesWidget : public QWidget
 {
 public:
-    explicit CppCodeStylePreferencesWidget(QWidget *parent = nullptr);
+    explicit CppCodeStylePreferencesWidget(CppCodeStylePreferences *codeStylePreferences);
     ~CppCodeStylePreferencesWidget() override;
-
-    void setCodeStyle(CppCodeStylePreferences *codeStylePreferences);
 
     void apply();
     void cancel();

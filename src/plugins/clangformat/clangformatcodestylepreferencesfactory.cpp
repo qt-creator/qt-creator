@@ -480,9 +480,8 @@ ClangFormatCodeStyleWidget::ClangFormatCodeStyleWidget(
 
     if (QTC_GUARD(codeStyle)) {
         const auto cppPreferences = static_cast<CppEditor::CppCodeStylePreferences *>(codeStyle);
-        m_legacyIndenterSettings = new CppEditor::CppCodeStylePreferencesWidget{this};
+        m_legacyIndenterSettings = new CppEditor::CppCodeStylePreferencesWidget{cppPreferences};
         m_legacyIndenterSettings->layout()->setContentsMargins(0, 0, 0, 0);
-        m_legacyIndenterSettings->setCodeStyle(cppPreferences);
         layout->addWidget(m_legacyIndenterSettings);
     }
 

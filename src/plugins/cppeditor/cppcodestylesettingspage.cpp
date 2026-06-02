@@ -408,9 +408,9 @@ void setupCppCodeStyleSettings()
 
 } // namespace Internal
 
-CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
-    : QWidget(parent)
-    , d(new Internal::CppCodeStylePreferencesWidgetPrivate(this))
+CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(CppCodeStylePreferences *codeStylePreferences)
+    : m_preferences{codeStylePreferences}
+    , d{new Internal::CppCodeStylePreferencesWidgetPrivate(this)}
 {
     decorateEditors(globalFontSettings().data());
     connect(&globalFontSettings(), &FontSettings::changed,
@@ -418,25 +418,11 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
 
     setVisualizeWhitespace(true);
 
-//    m_ui->categoryTab->setCurrentIndex(0);
-}
-
-CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()
-{
-    delete d;
-}
-
-void CppCodeStylePreferencesWidget::setCodeStyle(CppCodeStylePreferences *codeStylePreferences)
-{
-    // code preferences
-    m_preferences = codeStylePreferences;
-
     connect(m_preferences, &CppCodeStylePreferences::currentTabSettingsChanged,
             this, &CppCodeStylePreferencesWidget::setTabSettings);
     connect(m_preferences, &CppCodeStylePreferences::currentValueChanged, this, [this] {
         setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
     });
-
     connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
             this, [this](TextEditor::ICodeStylePreferences *currentPreferences) {
         slotCurrentPreferencesChanged(currentPreferences);
@@ -450,6 +436,11 @@ void CppCodeStylePreferencesWidget::setCodeStyle(CppCodeStylePreferences *codeSt
     m_originalTabSettings = tabSettings();
 
     updatePreview();
+}
+
+CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()
+{
+    delete d;
 }
 
 CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
