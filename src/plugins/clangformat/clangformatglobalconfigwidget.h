@@ -37,7 +37,7 @@ public:
         TextEditor::ICodeStylePreferences *codeStyle,
         QWidget *parent);
     void apply();
-    void finish();
+    void cancel();
 
     ClangFormatSettings::Mode mode() const;
     bool useCustomSettings() const;

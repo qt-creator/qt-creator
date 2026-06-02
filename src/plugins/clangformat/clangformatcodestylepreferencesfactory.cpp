@@ -461,7 +461,7 @@ public:
     void onUseCustomSettingsChanged(bool doUse);
 
     void apply();
-    void finish();
+    void cancel();
 
 private:
     CppEditor::CppCodeStylePreferencesWidget *m_legacyIndenterSettings = nullptr;
@@ -509,7 +509,7 @@ void ClangFormatCodeStyleWidget::apply()
     m_clangFormatSettings->apply();
 }
 
-void ClangFormatCodeStyleWidget::finish()
+void ClangFormatCodeStyleWidget::cancel()
 {
     if (m_legacyIndenterSettings)
         m_legacyIndenterSettings->apply();
@@ -554,10 +554,10 @@ public:
         m_globalSettings.apply();
     }
 
-    void finish() final
+    void cancel() final
     {
-        m_widget.finish();
-        m_globalSettings.finish();
+        m_widget.cancel();
+        m_globalSettings.cancel();
     }
 
 private:
@@ -601,7 +601,7 @@ public:
     }
 
     void apply() final { m_globalSettings.apply(); }
-    void finish() final { m_globalSettings.finish(); }
+    void cancel() final { m_globalSettings.cancel(); }
 
 private:
     ClangFormatGlobalConfigWidget m_globalSettings;

@@ -38,11 +38,11 @@ public:
     void setCodeStyle(CppCodeStylePreferences *codeStylePreferences);
 
     void apply();
-    void finish();
+    void cancel();
 
 signals:
     void applyEmitted();
-    void finishEmitted();
+    void cancelEmitted();
 
 private:
     void decorateEditors(const TextEditor::FontSettingsData &fontSettings);

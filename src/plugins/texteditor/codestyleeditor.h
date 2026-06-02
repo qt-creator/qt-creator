@@ -25,7 +25,7 @@ public:
     CodeStyleEditor();
 
     virtual void apply();
-    virtual void finish();
+    virtual void cancel();
 
 protected:
     void addHeaderWidget(QWidget *widget);

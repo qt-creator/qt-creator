@@ -36,7 +36,7 @@ CodeStyleEditor::CodeStyleEditor()
 
 void CodeStyleEditor::apply() {}
 
-void CodeStyleEditor::finish() {}
+void CodeStyleEditor::cancel() {}
 
 void CodeStyleEditor::addSelector(CodeStyleSelectorWidget *selector)
 {

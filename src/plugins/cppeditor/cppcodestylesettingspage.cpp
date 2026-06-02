@@ -379,7 +379,7 @@ public:
 
     void cancel() final
     {
-        m_codeStyleEditor->finish();
+        m_codeStyleEditor->cancel();
         const auto codeStyle = cppCodeStyle();
         emit codeStyle->currentPreferencesChanged(codeStyle->currentPreferences());
     }
@@ -620,7 +620,7 @@ void CppCodeStylePreferencesWidget::apply()
     emit applyEmitted();
 }
 
-void CppCodeStylePreferencesWidget::finish()
+void CppCodeStylePreferencesWidget::cancel()
 {
     if (m_preferences) {
         auto current = dynamic_cast<CppCodeStylePreferences *>(m_preferences->currentDelegate());
@@ -629,7 +629,7 @@ void CppCodeStylePreferencesWidget::finish()
             current->setTabSettings(m_originalTabSettings);
         }
     }
-    emit finishEmitted();
+    emit cancelEmitted();
 }
 
 } // namespace CppEditor

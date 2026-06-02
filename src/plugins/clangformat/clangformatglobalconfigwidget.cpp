@@ -288,7 +288,7 @@ void ClangFormatGlobalConfigWidget::apply()
     settings.write();
 }
 
-void ClangFormatGlobalConfigWidget::finish()
+void ClangFormatGlobalConfigWidget::cancel()
 {
     ClangFormatSettings::instance().setUseCustomSettings(m_useCustomSettings);
 }

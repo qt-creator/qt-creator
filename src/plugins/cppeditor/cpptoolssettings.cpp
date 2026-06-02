@@ -60,7 +60,7 @@ public:
     }
 
     void apply() final { m_widget.apply(); }
-    void finish() final { m_widget.finish(); }
+    void cancel() final { m_widget.cancel(); }
 
 private:
     CodeStyleSelectorWidget m_selector;
