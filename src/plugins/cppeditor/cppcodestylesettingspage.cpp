@@ -615,8 +615,6 @@ void CppCodeStylePreferencesWidget::apply()
 {
     m_originalTabSettings = tabSettings();
     m_originalCppCodeStyleSettings = cppCodeStyleSettings();
-
-    emit applyEmitted();
 }
 
 void CppCodeStylePreferencesWidget::cancel()
@@ -628,7 +626,6 @@ void CppCodeStylePreferencesWidget::cancel()
             current->setTabSettings(m_originalTabSettings);
         }
     }
-    emit cancelEmitted();
 }
 
 } // namespace CppEditor

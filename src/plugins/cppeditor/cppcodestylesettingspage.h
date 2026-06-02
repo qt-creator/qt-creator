@@ -29,8 +29,6 @@ void setupCppCodeStyleSettings();
 
 class CPPEDITOR_EXPORT CppCodeStylePreferencesWidget : public QWidget
 {
-    Q_OBJECT
-
 public:
     explicit CppCodeStylePreferencesWidget(QWidget *parent = nullptr);
     ~CppCodeStylePreferencesWidget() override;
@@ -39,10 +37,6 @@ public:
 
     void apply();
     void cancel();
-
-signals:
-    void applyEmitted();
-    void cancelEmitted();
 
 private:
     void decorateEditors(const TextEditor::FontSettingsData &fontSettings);
