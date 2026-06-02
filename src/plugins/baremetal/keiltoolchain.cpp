@@ -473,7 +473,7 @@ Utils::LanguageExtensions KeilToolchain::languageExtensions(const QStringList &)
 WarningFlags KeilToolchain::warningFlags(const QStringList &cxxflags) const
 {
     Q_UNUSED(cxxflags)
-    return WarningFlags::Default;
+    return WarningFlag::Default;
 }
 
 Toolchain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunner(

@@ -147,7 +147,7 @@ LanguageExtensions CustomToolchain::languageExtensions(const QStringList &) cons
 WarningFlags CustomToolchain::warningFlags(const QStringList &cxxflags) const
 {
     Q_UNUSED(cxxflags)
-    return WarningFlags::Default;
+    return WarningFlag::Default;
 }
 
 const Macros &CustomToolchain::rawPredefinedMacros() const

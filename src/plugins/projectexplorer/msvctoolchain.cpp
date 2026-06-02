@@ -978,20 +978,20 @@ MsvcToolchain::MsvcToolchain(Utils::Id typeId)
 void MsvcToolchain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
 {
     // reset all except unrelated flag
-    flags = flags & WarningFlags::AsErrors;
+    flags = flags & WarningFlag::AsErrors;
 
     if (warningLevel >= 1)
-        flags |= WarningFlags(WarningFlags::Default | WarningFlags::IgnoredQualifiers
-                              | WarningFlags::HiddenLocals | WarningFlags::UnknownPragma);
+        flags |= WarningFlags(WarningFlag::Default | WarningFlag::IgnoredQualifiers
+                              | WarningFlag::HiddenLocals | WarningFlag::UnknownPragma);
     if (warningLevel >= 2)
-        flags |= WarningFlags::All;
+        flags |= WarningFlag::All;
     if (warningLevel >= 3) {
-        flags |= WarningFlags(WarningFlags::Extra | WarningFlags::NonVirtualDestructor
-                              | WarningFlags::SignedComparison | WarningFlags::UnusedLocals
-                              | WarningFlags::Deprecated);
+        flags |= WarningFlags(WarningFlag::Extra | WarningFlag::NonVirtualDestructor
+                              | WarningFlag::SignedComparison | WarningFlag::UnusedLocals
+                              | WarningFlag::Deprecated);
     }
     if (warningLevel >= 4)
-        flags |= WarningFlags::UnusedParams;
+        flags |= WarningFlag::UnusedParams;
 }
 
 MsvcToolchain::~MsvcToolchain()
@@ -1197,13 +1197,13 @@ Utils::LanguageExtensions MsvcToolchain::languageExtensions(const QStringList &c
 
 WarningFlags MsvcToolchain::warningFlags(const QStringList &cflags) const
 {
-    WarningFlags flags = WarningFlags::NoWarnings;
+    WarningFlags flags = WarningFlag::NoWarnings;
     for (QString flag : cflags) {
         if (!flag.isEmpty() && flag[0] == QLatin1Char('-'))
             flag[0] = QLatin1Char('/');
 
         if (flag == QLatin1String("/WX")) {
-            flags |= WarningFlags::AsErrors;
+            flags |= WarningFlag::AsErrors;
         } else if (flag == QLatin1String("/W0") || flag == QLatin1String("/w")) {
             inferWarningsForLevel(0, flags);
         } else if (flag == QLatin1String("/W1")) {
@@ -1219,25 +1219,25 @@ WarningFlags MsvcToolchain::warningFlags(const QStringList &cflags) const
         if (add.triggered())
             continue;
         // http://msdn.microsoft.com/en-us/library/ay4h0tc9.aspx
-        add(4263, WarningFlags::OverloadedVirtual);
+        add(4263, WarningFlag::OverloadedVirtual);
         // http://msdn.microsoft.com/en-us/library/ytxde1x7.aspx
-        add(4230, WarningFlags::IgnoredQualifiers);
+        add(4230, WarningFlag::IgnoredQualifiers);
         // not exact match, http://msdn.microsoft.com/en-us/library/0hx5ckb0.aspx
-        add(4258, WarningFlags::HiddenLocals);
+        add(4258, WarningFlag::HiddenLocals);
         // http://msdn.microsoft.com/en-us/library/wzxffy8c.aspx
-        add(4265, WarningFlags::NonVirtualDestructor);
+        add(4265, WarningFlag::NonVirtualDestructor);
         // http://msdn.microsoft.com/en-us/library/y92ktdf2%28v=vs.90%29.aspx
-        add(4018, WarningFlags::SignedComparison);
+        add(4018, WarningFlag::SignedComparison);
         // http://msdn.microsoft.com/en-us/library/w099eeey%28v=vs.90%29.aspx
-        add(4068, WarningFlags::UnknownPragma);
+        add(4068, WarningFlag::UnknownPragma);
         // http://msdn.microsoft.com/en-us/library/26kb9fy0%28v=vs.80%29.aspx
-        add(4100, WarningFlags::UnusedParams);
+        add(4100, WarningFlag::UnusedParams);
         // http://msdn.microsoft.com/en-us/library/c733d5h9%28v=vs.90%29.aspx
-        add(4101, WarningFlags::UnusedLocals);
+        add(4101, WarningFlag::UnusedLocals);
         // http://msdn.microsoft.com/en-us/library/xb1db44s%28v=vs.90%29.aspx
-        add(4189, WarningFlags::UnusedLocals);
+        add(4189, WarningFlag::UnusedLocals);
         // http://msdn.microsoft.com/en-us/library/ttcz0bys%28v=vs.90%29.aspx
-        add(4996, WarningFlags::Deprecated);
+        add(4996, WarningFlag::Deprecated);
     }
     return flags;
 }

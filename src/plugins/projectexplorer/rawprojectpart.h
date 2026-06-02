@@ -40,7 +40,7 @@ public:
 public:
     QStringList commandLineFlags;
     // The following are deduced from commandLineFlags.
-    Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;
+    Utils::WarningFlags warningFlags = Utils::WarningFlag::Default;
     Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
     Utils::FilePaths includedFiles;
 };

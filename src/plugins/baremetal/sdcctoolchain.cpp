@@ -253,7 +253,7 @@ LanguageExtensions SdccToolchain::languageExtensions(const QStringList &) const
 WarningFlags SdccToolchain::warningFlags(const QStringList &cxxflags) const
 {
     Q_UNUSED(cxxflags)
-    return WarningFlags::Default;
+    return WarningFlag::Default;
 }
 
 Toolchain::BuiltInHeaderPathsRunner SdccToolchain::createBuiltInHeaderPathsRunner(

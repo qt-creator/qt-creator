@@ -91,7 +91,7 @@ public:
     const ProjectExplorer::Abi toolchainAbi = ProjectExplorer::Abi::hostAbi();
     const Utils::FilePath toolchainInstallDir;
     const Utils::FilePath compilerFilePath;
-    const Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;
+    const Utils::WarningFlags warningFlags = Utils::WarningFlag::Default;
 
     // Misc
     const QStringList extraCodeModelFlags;

@@ -699,12 +699,12 @@ LanguageExtensions GccToolchain::languageExtensions(const QStringList &cxxflags)
 WarningFlags GccToolchain::warningFlags(const QStringList &cflags) const
 {
     // based on 'LC_ALL="en" gcc -Q --help=warnings | grep enabled'
-    WarningFlags flags(WarningFlags::Deprecated | WarningFlags::IgnoredQualifiers
-                       | WarningFlags::SignedComparison | WarningFlags::UninitializedVars);
-    WarningFlags groupWall(WarningFlags::All | WarningFlags::UnknownPragma | WarningFlags::UnusedFunctions
-                           | WarningFlags::UnusedLocals | WarningFlags::UnusedResult | WarningFlags::UnusedValue
-                           | WarningFlags::SignedComparison | WarningFlags::UninitializedVars);
-    WarningFlags groupWextra(WarningFlags::Extra | WarningFlags::IgnoredQualifiers | WarningFlags::UnusedParams);
+    WarningFlags flags(WarningFlag::Deprecated | WarningFlag::IgnoredQualifiers
+                       | WarningFlag::SignedComparison | WarningFlag::UninitializedVars);
+    WarningFlags groupWall(WarningFlag::All | WarningFlag::UnknownPragma | WarningFlag::UnusedFunctions
+                           | WarningFlag::UnusedLocals | WarningFlag::UnusedResult | WarningFlag::UnusedValue
+                           | WarningFlag::SignedComparison | WarningFlag::UninitializedVars);
+    WarningFlags groupWextra(WarningFlag::Extra | WarningFlag::IgnoredQualifiers | WarningFlag::UnusedParams);
 
     for (int end = cflags.size(), i = 0; i != end; ++i) {
         const QString &flag = cflags[i];
@@ -718,34 +718,34 @@ WarningFlags GccToolchain::warningFlags(const QStringList &cflags) const
             continue;
 
         // supported by clang too
-        add("error", WarningFlags::AsErrors);
+        add("error", WarningFlag::AsErrors);
         add("all", groupWall);
         add("extra", groupWextra);
-        add("deprecated", WarningFlags::Deprecated);
-        add("effc++", WarningFlags::EffectiveCxx);
-        add("ignored-qualifiers", WarningFlags::IgnoredQualifiers);
-        add("non-virtual-dtor", WarningFlags::NonVirtualDestructor);
-        add("overloaded-virtual", WarningFlags::OverloadedVirtual);
-        add("shadow", WarningFlags::HiddenLocals);
-        add("sign-compare", WarningFlags::SignedComparison);
-        add("unknown-pragmas", WarningFlags::UnknownPragma);
-        add("unused", WarningFlags::UnusedFunctions | WarningFlags::UnusedLocals | WarningFlags::UnusedParams
-                | WarningFlags::UnusedResult | WarningFlags::UnusedValue);
-        add("unused-function", WarningFlags::UnusedFunctions);
-        add("unused-variable", WarningFlags::UnusedLocals);
-        add("unused-parameter", WarningFlags::UnusedParams);
-        add("unused-result", WarningFlags::UnusedResult);
-        add("unused-value", WarningFlags::UnusedValue);
-        add("uninitialized", WarningFlags::UninitializedVars);
+        add("deprecated", WarningFlag::Deprecated);
+        add("effc++", WarningFlag::EffectiveCxx);
+        add("ignored-qualifiers", WarningFlag::IgnoredQualifiers);
+        add("non-virtual-dtor", WarningFlag::NonVirtualDestructor);
+        add("overloaded-virtual", WarningFlag::OverloadedVirtual);
+        add("shadow", WarningFlag::HiddenLocals);
+        add("sign-compare", WarningFlag::SignedComparison);
+        add("unknown-pragmas", WarningFlag::UnknownPragma);
+        add("unused", WarningFlag::UnusedFunctions | WarningFlag::UnusedLocals | WarningFlag::UnusedParams
+                | WarningFlag::UnusedResult | WarningFlag::UnusedValue);
+        add("unused-function", WarningFlag::UnusedFunctions);
+        add("unused-variable", WarningFlag::UnusedLocals);
+        add("unused-parameter", WarningFlag::UnusedParams);
+        add("unused-result", WarningFlag::UnusedResult);
+        add("unused-value", WarningFlag::UnusedValue);
+        add("uninitialized", WarningFlag::UninitializedVars);
     }
 
     if (m_subType == Clang) {
         for (int end = cflags.size(), i = 0; i != end; ++i) {
             const QString &flag = cflags[i];
             if (flag == "-Wdocumentation")
-                flags |= WarningFlags::Documentation;
+                flags |= WarningFlag::Documentation;
             if (flag == "-Wno-documentation")
-                flags &= ~WarningFlags::Documentation;
+                flags &= ~WarningFlags(WarningFlag::Documentation);
         }
     }
 

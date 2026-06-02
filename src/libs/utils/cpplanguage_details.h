@@ -38,7 +38,7 @@ enum class LanguageExtension : unsigned char {
     All = Gnu | Microsoft | Borland | OpenMP | ObjectiveC
 };
 
-enum class WarningFlags {
+enum class WarningFlag {
     // General settings
     NoWarnings = 0,
     AsErrors = 1 << 0,
@@ -68,44 +68,11 @@ enum class WarningFlags {
 };
 
 Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
+Q_DECLARE_FLAGS(WarningFlags, WarningFlag)
 
 enum class QtMajorVersion { Unknown = -1, None, Qt4, Qt5, Qt6 };
 
 } // namespace Utils
 
-constexpr Utils::LanguageExtension operator|(Utils::LanguageExtension first,
-                                             Utils::LanguageExtension second)
-{
-    return Utils::LanguageExtension(static_cast<unsigned char>(first)
-                                    | static_cast<unsigned char>(second));
-}
-
-constexpr bool operator&&(Utils::LanguageExtension first, Utils::LanguageExtension second)
-{
-    return static_cast<unsigned char>(first) & static_cast<unsigned char>(second);
-}
-
-inline Utils::WarningFlags operator|(Utils::WarningFlags first, Utils::WarningFlags second)
-{
-    return Utils::WarningFlags(int(first) | int(second));
-}
-
-inline Utils::WarningFlags operator&(Utils::WarningFlags first, Utils::WarningFlags second)
-{
-    return Utils::WarningFlags(int(first) & int(second));
-}
-
-inline void operator|=(Utils::WarningFlags &first, Utils::WarningFlags second)
-{
-    first = first | second;
-}
-
-inline void operator&=(Utils::WarningFlags &first, Utils::WarningFlags second)
-{
-    first = first & second;
-}
-
-inline Utils::WarningFlags operator~(Utils::WarningFlags flags)
-{
-    return Utils::WarningFlags(~int(flags));
-}
+Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::LanguageExtensions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::WarningFlags)

@@ -345,7 +345,7 @@ Utils::LanguageExtensions IarToolchain::languageExtensions(const QStringList &) 
 WarningFlags IarToolchain::warningFlags(const QStringList &cxxflags) const
 {
     Q_UNUSED(cxxflags)
-    return WarningFlags::Default;
+    return WarningFlag::Default;
 }
 
 Toolchain::BuiltInHeaderPathsRunner IarToolchain::createBuiltInHeaderPathsRunner(

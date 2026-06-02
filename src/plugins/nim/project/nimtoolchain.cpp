@@ -53,7 +53,7 @@ LanguageExtensions NimToolchain::languageExtensions(const QStringList &) const
 
 WarningFlags NimToolchain::warningFlags(const QStringList &) const
 {
-    return WarningFlags::NoWarnings;
+    return WarningFlag::NoWarnings;
 }
 
 Toolchain::BuiltInHeaderPathsRunner NimToolchain::createBuiltInHeaderPathsRunner(
