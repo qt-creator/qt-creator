@@ -46,111 +46,53 @@ static QString relativeTime(const QString &isoTimestamp)
 }
 
 // ---------------------------------------------------------------------------
-// SessionItemWidget — one row in the picker list
+// PickerItem — one clickable row in the picker list.
+//
+// Always reserves a leading icon column (whether or not an icon is set) so that
+// rows with and without an icon align their text.
 // ---------------------------------------------------------------------------
 
-class SessionItemWidget : public QWidget
+class PickerItem : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SessionItemWidget(const SessionInfo &session, QWidget *parent = nullptr)
-        : QWidget(parent)
-        , m_sessionId(session.sessionId())
-        , m_cwd(Utils::FilePath::fromUserInput(session.cwd()))
-    {
-        setCursor(Qt::PointingHandCursor);
-        setAttribute(Qt::WA_Hover);
-
-        auto *layout = new QHBoxLayout(this);
-        layout->setContentsMargins(12, 2, 12, 2);
-        layout->setSpacing(8);
-
-        const QString title = session.title().value_or(session.sessionId());
-        auto *titleLabel = new Utils::ElidingLabel(title, this);
-        titleLabel->setElideMode(Qt::ElideRight);
-        layout->addWidget(titleLabel, 1);
-
-        if (session.updatedAt().has_value()) {
-            auto *timeLabel = new QLabel(relativeTime(*session.updatedAt()), this);
-            QPalette pal = timeLabel->palette();
-            pal.setColor(QPalette::WindowText, pal.color(QPalette::PlaceholderText));
-            timeLabel->setPalette(pal);
-            layout->addWidget(timeLabel, 0, Qt::AlignRight);
-        }
-    }
-
-signals:
-    void clicked(const QString &sessionId, const Utils::FilePath &cwd);
-
-protected:
-    void mousePressEvent(QMouseEvent *event) override
-    {
-        if (event->button() == Qt::LeftButton)
-            emit clicked(m_sessionId, m_cwd);
-        QWidget::mousePressEvent(event);
-    }
-
-    void paintEvent(QPaintEvent *) override
-    {
-        if (underMouse()) {
-            QPainter p(this);
-            p.fillRect(rect(), palette().color(QPalette::Highlight).lighter(170));
-        }
-    }
-
-    bool event(QEvent *e) override
-    {
-        if (e->type() == QEvent::HoverEnter || e->type() == QEvent::HoverLeave)
-            update();
-        return QWidget::event(e);
-    }
-
-private:
-    QString m_sessionId;
-    Utils::FilePath m_cwd;
-};
-
-// ---------------------------------------------------------------------------
-// NewSessionItemWidget — clickable "New Session" row styled like SessionItemWidget
-// ---------------------------------------------------------------------------
-
-class NewSessionItemWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit NewSessionItemWidget(const QString &label,
-                                  const QIcon &icon,
-                                  const QString &subtitle,
-                                  QWidget *parent = nullptr)
+    explicit PickerItem(const QString &text, const QIcon &icon = {}, QWidget *parent = nullptr)
         : QWidget(parent)
     {
         setCursor(Qt::PointingHandCursor);
         setAttribute(Qt::WA_Hover);
 
-        auto *layout = new QHBoxLayout(this);
-        layout->setContentsMargins(12, 2, 12, 2);
-        layout->setSpacing(8);
+        m_layout = new QHBoxLayout(this);
+        m_layout->setContentsMargins(12, 2, 12, 2);
+        m_layout->setSpacing(8);
 
+        const int iconSize = fontMetrics().height();
         auto *iconLabel = new QLabel(this);
-        const int size = fontMetrics().height();
-        iconLabel->setPixmap(icon.pixmap(size, size));
-        layout->addWidget(iconLabel);
+        iconLabel->setFixedWidth(iconSize);
+        iconLabel->setAlignment(Qt::AlignCenter);
+        if (!icon.isNull())
+            iconLabel->setPixmap(icon.pixmap(iconSize, iconSize));
+        m_layout->addWidget(iconLabel);
 
-        auto *textLabel = new QLabel(label, this);
-        layout->addWidget(textLabel);
+        auto *textLabel = new Utils::ElidingLabel(text, this);
+        textLabel->setElideMode(Qt::ElideRight);
+        m_layout->addWidget(textLabel, 1);
+    }
 
-        if (!subtitle.isEmpty()) {
-            auto *subtitleLabel = new Utils::ElidingLabel(subtitle, this);
-            subtitleLabel->setElideMode(Qt::ElideMiddle);
-            QPalette pal = subtitleLabel->palette();
-            pal.setColor(QPalette::WindowText, pal.color(QPalette::PlaceholderText));
-            subtitleLabel->setPalette(pal);
-            layout->addWidget(subtitleLabel, 1);
-        } else {
-            layout->addStretch(1);
-        }
+    // Dimmed, right-aligned secondary text (e.g. relative time or directory).
+    // A non-eliding label keeps its natural width; an eliding one needs a
+    // stretch factor to claim space next to the (stretching) main text.
+    void setTrailingText(const QString &text,
+                         Qt::TextElideMode elideMode = Qt::ElideNone,
+                         int stretch = 0)
+    {
+        auto *label = new Utils::ElidingLabel(text, this);
+        label->setElideMode(elideMode);
+        QPalette pal = label->palette();
+        pal.setColor(QPalette::WindowText, pal.color(QPalette::PlaceholderText));
+        label->setPalette(pal);
+        m_layout->addWidget(label, stretch, Qt::AlignRight);
     }
 
 signals:
@@ -180,6 +122,9 @@ protected:
             update();
         return QWidget::event(e);
     }
+
+private:
+    QHBoxLayout *m_layout = nullptr;
 };
 
 // ---------------------------------------------------------------------------
@@ -215,14 +160,6 @@ SessionPickerWidget::SessionPickerWidget(QWidget *parent)
     setCollapsible(false);
     setHeaderVisible(false);
 
-    m_newSessionContainer = new QVBoxLayout;
-    m_newSessionContainer->setContentsMargins(0, 0, 0, 0);
-    m_newSessionContainer->setSpacing(0);
-    m_bodyLayout->addLayout(m_newSessionContainer);
-
-    m_topSeparator = createSeparator(this);
-    m_bodyLayout->addWidget(m_topSeparator);
-
     m_currentGroupContainer = new QVBoxLayout;
     m_currentGroupContainer->setContentsMargins(0, 0, 0, 0);
     m_currentGroupContainer->setSpacing(0);
@@ -252,6 +189,16 @@ SessionPickerWidget::SessionPickerWidget(QWidget *parent)
         emit loadMoreRequested(m_nextCursor);
     });
     m_bodyLayout->addWidget(m_loadMoreButton);
+
+    // The "New Session in Directory..." entry sits at the very bottom, below
+    // all project groups.
+    m_bottomSeparator = createSeparator(this);
+    m_bodyLayout->addWidget(m_bottomSeparator);
+
+    m_newSessionContainer = new QVBoxLayout;
+    m_newSessionContainer->setContentsMargins(0, 0, 0, 0);
+    m_newSessionContainer->setSpacing(0);
+    m_bodyLayout->addLayout(m_newSessionContainer);
 }
 
 void SessionPickerWidget::setCurrentProjectDir(const Utils::FilePath &dir)
@@ -262,31 +209,18 @@ void SessionPickerWidget::setCurrentProjectDir(const Utils::FilePath &dir)
 
 void SessionPickerWidget::setNewSessionTargets(const QList<NewSessionTarget> &targets)
 {
+    m_newSessionTargets = targets;
+
     while (QLayoutItem *item = m_newSessionContainer->takeAt(0)) {
         delete item->widget();
         delete item;
     }
 
-    const QIcon plusIcon = Utils::Icons::PLUS_TOOLBAR.icon();
-    for (const NewSessionTarget &t : targets) {
-        const QString label = Tr::tr("New Session for %1").arg(t.label);
-        auto *item = new NewSessionItemWidget(
-            label, plusIcon, t.tooltip.isEmpty() ? t.cwd.toUserOutput() : t.tooltip, this);
-        if (!t.tooltip.isEmpty())
-            item->setToolTip(t.tooltip);
-        const Utils::FilePath cwd = t.cwd;
-        connect(item, &NewSessionItemWidget::clicked, this, [this, cwd] {
-            requestNewSession(cwd);
-        });
-        m_newSessionContainer->addWidget(item);
-    }
-
-    auto *customItem = new NewSessionItemWidget(
-        Tr::tr("New Session in Directory..."),
-        Utils::Icons::OPENFILE_TOOLBAR.icon(),
-        QString(),
-        this);
-    connect(customItem, &NewSessionItemWidget::clicked,
+    // Each project is represented by its own group (with a "New Session" entry);
+    // the top container only offers picking an arbitrary directory.
+    auto *customItem = new PickerItem(
+        Tr::tr("New Session in Directory..."), Utils::Icons::OPENFILE_TOOLBAR.icon(), this);
+    connect(customItem, &PickerItem::clicked,
             this, &SessionPickerWidget::requestCustomDirectorySession);
     m_newSessionContainer->addWidget(customItem);
 }
@@ -318,6 +252,10 @@ void SessionPickerWidget::setInitialSessions(const QList<SessionInfo> &sessions,
                                              const std::optional<QString> &nextCursor)
 {
     clearGroups();
+
+    // Always show a group per project, even without prior sessions, so each
+    // offers a "New Session" entry.
+    ensureProjectGroups();
 
     for (const SessionInfo &session : sessions)
         addSessionItem(session);
@@ -354,7 +292,7 @@ void SessionPickerWidget::clearGroups()
     clearContainer(m_otherGroupsContainer);
     m_groups.clear();
     m_emptyLabel->hide();
-    m_topSeparator->hide();
+    m_bottomSeparator->hide();
     m_middleSeparator->hide();
 }
 
@@ -363,7 +301,7 @@ void SessionPickerWidget::updateEmptyState()
     const bool hasCurrent = !m_currentGroupKey.isEmpty() && m_groups.contains(m_currentGroupKey);
     const bool hasOthers = m_groups.size() > (hasCurrent ? 1 : 0);
     m_emptyLabel->setVisible(m_groups.isEmpty());
-    m_topSeparator->setVisible(hasCurrent || hasOthers);
+    m_bottomSeparator->setVisible(hasCurrent || hasOthers);
     m_middleSeparator->setVisible(hasCurrent && hasOthers);
 }
 
@@ -372,6 +310,18 @@ void SessionPickerWidget::updateCollapseState()
     for (auto it = m_groups.begin(); it != m_groups.end(); ++it) {
         if (it.key() != m_currentGroupKey || m_currentGroupKey.isEmpty())
             it.value().frame->setCollapsed(true);
+    }
+}
+
+void SessionPickerWidget::ensureProjectGroups()
+{
+    // Current project first so it lands in the "current" container.
+    if (!m_currentGroupKey.isEmpty())
+        ensureGroup(m_currentGroupKey);
+
+    for (const NewSessionTarget &t : std::as_const(m_newSessionTargets)) {
+        if (!t.cwd.isEmpty())
+            ensureGroup(t.cwd.toUserOutput());
     }
 }
 
@@ -391,12 +341,24 @@ SessionPickerWidget::Group &SessionPickerWidget::ensureGroup(const QString &cwd)
         headerText = cwd;
 
     Group group;
+    group.cwd = isCurrent ? m_currentProjectDir : Utils::FilePath::fromUserInput(cwd);
     group.frame = new CollapsibleFrame(this);
     group.frame->setFrameShape(QFrame::NoFrame);
     group.frame->headerLayout()->addWidget(createGroupHeaderLabel(headerText, group.frame), 1);
     group.layout = group.frame->bodyLayout();
     group.layout->setContentsMargins(0, 0, 0, 0);
     group.layout->setSpacing(0);
+
+    // Let the user start a new session in this preexisting workspace.
+    auto *newSessionItem = new PickerItem(
+        Tr::tr("New Session in %1").arg(group.cwd.fileName()),
+        Utils::Icons::PLUS_TOOLBAR.icon(),
+        group.frame);
+    const Utils::FilePath cwdPath = group.cwd;
+    connect(newSessionItem, &PickerItem::clicked, this, [this, cwdPath] {
+        requestNewSession(cwdPath);
+    });
+    group.layout->addWidget(newSessionItem);
 
     if (isCurrent) {
         const bool collapsed
@@ -427,19 +389,23 @@ void SessionPickerWidget::setResolved(const QString &)
 
 void SessionPickerWidget::addSessionItem(const SessionInfo &session)
 {
-    auto *item = new SessionItemWidget(session, this);
-    connect(item, &SessionItemWidget::clicked, this,
-            [this](const QString &sessionId, const Utils::FilePath &cwd) {
+    const QString title = session.title().value_or(session.sessionId());
+    auto *item = new PickerItem(title, {}, this);
+    if (session.updatedAt().has_value())
+        item->setTrailingText(relativeTime(*session.updatedAt()));
+
+    const QString sessionId = session.sessionId();
+    const Utils::FilePath cwd = Utils::FilePath::fromUserInput(session.cwd());
+    connect(item, &PickerItem::clicked, this, [this, sessionId, cwd] {
         if (m_resolved)
             return;
         emit sessionSelected(sessionId, cwd);
     });
 
-    QString key = session.cwd();
-    if (!key.isEmpty() && !m_currentProjectDir.isEmpty()
-        && Utils::FilePath::fromUserInput(key) == m_currentProjectDir) {
-        key = m_currentGroupKey;
-    }
+    // Canonicalize the cwd so sessions land in the matching project group
+    // (m_currentGroupKey is the current project's canonical user-output path).
+    const Utils::FilePath cwdPath = Utils::FilePath::fromUserInput(session.cwd());
+    const QString key = cwdPath.isEmpty() ? QString() : cwdPath.toUserOutput();
     Group &group = ensureGroup(key);
     group.layout->addWidget(item);
 }

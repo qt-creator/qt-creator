@@ -53,6 +53,7 @@ private:
     {
         CollapsibleFrame *frame = nullptr;
         QVBoxLayout *layout = nullptr;
+        Utils::FilePath cwd;
     };
 
     void addSessionItem(const Acp::SessionInfo &session);
@@ -62,14 +63,16 @@ private:
     void updateEmptyState();
     void clearGroups();
     void updateCollapseState();
+    void ensureProjectGroups();
     Group &ensureGroup(const QString &cwd);
 
+    QList<NewSessionTarget> m_newSessionTargets;
     QVBoxLayout *m_newSessionContainer = nullptr;
     QVBoxLayout *m_currentGroupContainer = nullptr;
     QVBoxLayout *m_otherGroupsContainer = nullptr;
     QHash<QString, Group> m_groups;
     QString m_currentGroupKey;
-    QFrame *m_topSeparator = nullptr;
+    QFrame *m_bottomSeparator = nullptr;
     QFrame *m_middleSeparator = nullptr;
     QLabel *m_emptyLabel = nullptr;
     QPushButton *m_loadMoreButton = nullptr;
