@@ -160,11 +160,20 @@ signals:
 protected:
     void clearTypeStorage() override;
 
+    void loadEvent(const Timeline::TraceEvent &event,
+                   const Timeline::TraceEventType &type) override;
+
     Timeline::TimelineTraceFile *createTraceFile() override;
     void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
                       ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
 
 private:
+    struct PerfLoaderEntry {
+        quint64 features = 0;
+        PerfEventLoader loader;
+    };
+
+    QList<PerfLoaderEntry> m_perfLoaders;
     QTimer m_reparseTimer;
 
     QList<QByteArray> m_strings;

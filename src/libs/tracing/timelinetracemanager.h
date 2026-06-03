@@ -114,6 +114,8 @@ protected:
     void setEventType(int typeId, TraceEventType &&type);
     int appendEventType(TraceEventType &&type);
 
+    virtual void loadEvent(const TraceEvent &event, const TraceEventType &type) = 0;
+
     virtual TimelineTraceFile *createTraceFile() = 0;
     virtual void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
                               ErrorHandler errorHandler, QFutureInterface<void> &future) const = 0;

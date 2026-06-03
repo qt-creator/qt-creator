@@ -72,6 +72,9 @@ signals:
     void typeDetailsFinished();
 
 private:
+    void loadEvent(const Timeline::TraceEvent &event,
+                   const Timeline::TraceEventType &type) override;
+
     void setTypeDetails(int typeId, const QString &details);
     void restrictByFilter(QmlEventFilter filter);
 

@@ -129,15 +129,23 @@ void PerfProfilerTraceManager::registerFeatures(quint64 features, PerfEventLoade
                                                 Initializer initializer, Finalizer finalizer,
                                                 Clearer clearer)
 {
-    const TraceEventLoader traceEventLoader = eventLoader ? [eventLoader](
-            const Timeline::TraceEvent &event, const Timeline::TraceEventType &type) {
-        QTC_ASSERT(event.is<PerfEvent>(), return);
-        QTC_ASSERT(type.is<PerfEventType>(), return);
-        eventLoader(event.asConstRef<PerfEvent>(), type.asConstRef<PerfEventType>());
-    } : TraceEventLoader();
+    if (eventLoader)
+        m_perfLoaders.append({features, std::move(eventLoader)});
+    Timeline::TimelineTraceManager::registerFeatures(features, TraceEventLoader(),
+                                                     initializer, finalizer, clearer);
+}
 
-    Timeline::TimelineTraceManager::registerFeatures(features, traceEventLoader, initializer,
-                                                     finalizer, clearer);
+void PerfProfilerTraceManager::loadEvent(const Timeline::TraceEvent &event,
+                                         const Timeline::TraceEventType &type)
+{
+    QTC_ASSERT(event.is<PerfEvent>(), return);
+    const PerfEvent &perfEvent = event.asConstRef<PerfEvent>();
+    const PerfEventType &perfType = type.asConstRef<PerfEventType>();
+    const quint64 featureBit = 1ULL << perfType.feature();
+    for (const PerfLoaderEntry &entry : std::as_const(m_perfLoaders)) {
+        if (entry.features & featureBit)
+            entry.loader(perfEvent, perfType);
+    }
 }
 
 void PerfProfilerTraceManager::clearTypeStorage()

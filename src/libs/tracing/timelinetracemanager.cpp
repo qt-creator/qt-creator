@@ -26,6 +26,8 @@ TraceEventStorage::~TraceEventStorage()
 class TimelineTraceManager::TimelineTraceManagerPrivate
 {
 public:
+    TimelineTraceManager *q = nullptr;
+
     std::unique_ptr<TraceEventTypeStorage> typeStorage;
     std::unique_ptr<TraceEventStorage> eventStorage;
 
@@ -37,7 +39,6 @@ public:
     quint64 recordedFeatures = 0;
     bool aggregateTraces = false;
 
-    QHash<quint8, QList<TraceEventLoader>> eventLoaders;
     QList<Initializer> initializers;
     QList<Finalizer> finalizers;
     QList<Clearer> clearers;
@@ -55,6 +56,7 @@ TimelineTraceManager::TimelineTraceManager(std::unique_ptr<TraceEventStorage> &&
                                            QObject *parent) :
     QObject(parent), d(new TimelineTraceManagerPrivate)
 {
+    d->q = this;
     d->eventStorage = std::move(eventStorage);
     d->typeStorage = std::move(typeStorage);
 }
@@ -134,13 +136,6 @@ void TimelineTraceManager::registerFeatures(quint64 features, TraceEventLoader e
     if ((features & d->visibleFeatures) != features) {
         d->visibleFeatures |= features;
         emit visibleFeaturesChanged(d->visibleFeatures);
-    }
-
-    for (quint8 feature = 0; feature != sizeof(features) * 8; ++feature) {
-        if (features & (1ULL << feature)) {
-            if (eventLoader)
-                d->eventLoaders[feature].append(eventLoader);
-        }
     }
 
     if (initializer)
@@ -397,9 +392,7 @@ void TimelineTraceManager::restrictByFilter(TraceEventFilter filter)
 void TimelineTraceManager::TimelineTraceManagerPrivate::dispatch(const TraceEvent &event,
                                                                  const TraceEventType &type)
 {
-    for (const TraceEventLoader &loader : eventLoaders[type.feature()])
-        loader(event, type);
-
+    q->loadEvent(event, type);
     if (event.timestamp() >= 0)
         updateTraceTime(event.timestamp());
     ++numEvents;

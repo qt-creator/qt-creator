@@ -105,10 +105,16 @@ private:
 class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
 {
 public:
+    struct QmlLoaderEntry {
+        quint64 features = 0;
+        QmlEventLoader loader;
+    };
+
     Internal::QmlProfilerTextMarkModel *textMarkModel = nullptr;
     Internal::QmlProfilerDetailsRewriter *detailsRewriter = nullptr;
 
     bool isRestrictedToRange = false;
+    QList<QmlLoaderEntry> qmlLoaders;
 };
 
 QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent)
@@ -143,15 +149,24 @@ void QmlProfilerModelManager::registerFeatures(quint64 features, QmlEventLoader 
                                                Initializer initializer, Finalizer finalizer,
                                                Clearer clearer)
 {
-    const TraceEventLoader traceEventLoader = eventLoader ? [eventLoader](
-            const Timeline::TraceEvent &event, const Timeline::TraceEventType &type) {
-        QTC_ASSERT(event.is<QmlEvent>(), return);
-        QTC_ASSERT(type.is<QmlEventType>(), return);
-        eventLoader(event.asConstRef<QmlEvent>(), type.asConstRef<QmlEventType>());
-    } : TraceEventLoader();
+    if (eventLoader)
+        d->qmlLoaders.append({features, std::move(eventLoader)});
+    Timeline::TimelineTraceManager::registerFeatures(features, TraceEventLoader(),
+                                                     initializer, finalizer, clearer);
+}
 
-    Timeline::TimelineTraceManager::registerFeatures(features, traceEventLoader, initializer,
-                                                     finalizer, clearer);
+void QmlProfilerModelManager::loadEvent(const Timeline::TraceEvent &event,
+                                        const Timeline::TraceEventType &type)
+{
+    QTC_ASSERT(event.is<QmlEvent>(), return);
+    const QmlEvent &qmlEvent = event.asConstRef<QmlEvent>();
+    const QmlEventType &qmlType = type.asConstRef<QmlEventType>();
+    const quint64 featureBit = 1ULL << qmlType.feature();
+    for (const QmlProfilerModelManagerPrivate::QmlLoaderEntry &entry
+         : std::as_const(d->qmlLoaders)) {
+        if (entry.features & featureBit)
+            entry.loader(qmlEvent, qmlType);
+    }
 }
 
 const QmlEventType &QmlProfilerModelManager::eventType(int typeId) const
