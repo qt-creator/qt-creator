@@ -56,7 +56,6 @@ public:
     TextEditor::ICodeStylePreferences *codeStyle(Utils::Id languageId) const;
 
     void configureEditor(Core::IEditor *editor) const;
-    void deconfigureEditor(Core::IEditor *editor) const;
 
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &map);

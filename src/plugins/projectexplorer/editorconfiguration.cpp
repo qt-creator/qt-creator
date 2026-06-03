@@ -48,7 +48,6 @@ struct EditorConfigurationPrivate
     TextEncoding m_textEncoding;
 
     QMap<Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
-    QList<Core::IEditor *> m_editors;
 };
 
 EditorConfiguration::EditorConfiguration()
@@ -210,21 +209,6 @@ void EditorConfiguration::configureEditor(Core::IEditor *editor) const
             switchSettings(widget);
         }
     }
-    d->m_editors.append(editor);
-    connect(editor, &Core::IEditor::destroyed, this, [this, editor]() {
-        d->m_editors.removeOne(editor);
-    });
-}
-
-void EditorConfiguration::deconfigureEditor(Core::IEditor *editor) const
-{
-    TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
-    if (widget)
-        widget->textDocument()->setCodeStyle(codeStyleForLanguage(widget->languageSettingsId()));
-
-    d->m_editors.removeOne(editor);
-
-    // TODO: what about text codec and switching settings?
 }
 
 void EditorConfiguration::setUseGlobalSettings(bool use)
@@ -292,8 +276,15 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
     if (project->editorConfiguration() != this)
         return;
 
-    for (Core::IEditor *editor : std::as_const(d->m_editors))
-        deconfigureEditor(editor);
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForOpenedDocuments()) {
+        if (auto widget = TextEditorWidget::fromEditor(editor)) {
+            const Utils::FilePath filePath = editor->document()->filePath();
+            if (project->isKnownFile(filePath) || ProjectManager::isInProjectSourceDir(filePath, *project)) {
+                widget->textDocument()->setCodeStyle(
+                    codeStyleForLanguage(widget->languageSettingsId()));
+            }
+        }
+    }
 }
 
 TabSettingsData actualTabSettings(const FilePath &file, const TextDocument *baseTextdocument)
