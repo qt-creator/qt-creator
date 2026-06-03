@@ -57,6 +57,24 @@
     To use the MCP server for other products, such as Claude Code, you must
     configure it. For more information, see the documentation of the product.
 
+    \section2 Inspect client communication
+
+    To inspect the communication between MCP clients and the \QC MCP server,
+    go to \uicontrol Tools > \uicontrol {Debug \QC} >
+    \uicontrol {Inspect MCP Servers}.
+
+    \image qtcreator-mcp-server-inspector.webp {MCP Server Inspector dialog}
+
+    In \uicontrol {Session}, select a session between an MPC client and server,
+    or \uicontrol {Global} to show general messages.
+
+    In \uicontrol {Client Message}, select a message to view more information in
+    \uicontrol {Server Message}.
+
+    To remove old entries, select \uicontrol Clear.
+
+    To save messages as a file, select \uicontrol Save.
+
     \sa {Activate extensions}, {Use AI}{How to: Use AI}
 */
 
@@ -141,28 +159,6 @@
             \image {qtcreator-preferences-ai-mcp-server-registry.webp} {Add MCP Server from Registry dialog}
         \li Select \uicontrol OK.
     \endlist
-
-    \sa {Activate extensions}, {Use AI}{How to: Use AI}
-*/
-
-/*!
-    \page creator-how-to-qt-documentation-mcp-server.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-ai
-
-    \title Connect to Qt Documentation MCP Server
-
-    Qt Documentation MCP Server reduces the time and resources an AI agent
-    spends researching context for a Qt development task or user query and offers
-    high-quality results. \QC connects to the server when you activate the
-    MCP Server extension.
-
-    To turn off Qt Documentation MCP Server, go to \preferences >
-    \uicontrol {AI} > \uicontrol {MCP Servers} and then clear
-    \uicontrol {Enable Qt Documentation MCP Server}.
-
-    \image {qtcreator-preferences-ai-mcp-servers.webp} {MCP Servers tab in the AI Preferences}
 
     \sa {Activate extensions}, {Use AI}{How to: Use AI}
 */

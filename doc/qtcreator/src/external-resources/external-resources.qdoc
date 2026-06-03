@@ -158,6 +158,10 @@
     \externalpage https://doc.qt.io/qtforpython-6/tutorials/index.html
     \title Qt for Python Examples and Tutorials
 */
+/*!
+    \externalpage https://pypi.org/project/uv/
+    \title uv
+*/
 
 // Embedded, Boot to Qt, and Qt for MCUs resources
 /*!
@@ -281,6 +285,10 @@
 /*!
     \externalpage https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager
     \title An introduction to the npm package manager
+*/
+/*!
+    \externalpage https://nodejs.org/en/download
+    \title Node.js
 */
 /*!
     \externalpage https://www.markdownguide.org/basic-syntax/
@@ -802,6 +810,11 @@
     \externalpage https://nim-lang.org/docs/nimsuggest.html
     \title Nim IDE Integration Guide
 */
+/*!
+    \externalpage https://vale.sh/docs/vale-ini
+    \title Vale: .vale.ini
+*/
+
 
 // Source control, diff, and search tool resources
 /*!
@@ -885,6 +898,10 @@
 /*!
     \externalpage https://platform.claude.com/
     \title Anthropic account
+*/
+/*!
+    \externalpage https://code.claude.com/docs/en/quickstart
+    \title Claude: Quick Start
 */
 /*!
     \externalpage https://platform.openai.com/

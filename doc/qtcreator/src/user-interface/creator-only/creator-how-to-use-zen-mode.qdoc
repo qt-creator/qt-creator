@@ -19,25 +19,35 @@
 
     The distraction free mode closes the sidebars and other views.
 
-    To toggle the distraction free mode, go to \uicontrol Tools >
-    \uicontrol {Zen Mode} > \uicontrol {Toggle Distraction Free Mode},
-    or press \key {Shift+Esc}.
+    To toggle the distraction free mode:
+
+    \list
+        \li Select \inlineimage {icons/distraction-free-mode.png} {Distraction Free Mode}.
+        \li Go to \uicontrol Tools > \uicontrol {Zen Mode}, and select
+            \uicontrol {Toggle Distraction Free Mode}.
+        \li Select \key {Shift+Esc}.
+    \endlist
 
     \section1 Toggle zen mode
 
-    The zen mode closes the sidebars and other views, and also switches
-    \QC to full screen and hides the main menu bar.
+    The zen mode closes the sidebars and other views, switches \QC to full
+    screen, and hides the main menu bar.
 
-    To toggle the zen mode, go to \uicontrol Tools > \uicontrol {Zen Mode} >
-    \uicontrol {Toggle Zen Mode}, or press \key {Alt+Shift+Z}.
+    To toggle the zen mode:
 
-    \note After you enable the zen mode, the main menu bar is hidden. To
-    leave the zen mode, use the keyboard shortcut (\key {Alt+Shift+Z}).
+    \list
+        \li Select \inlineimage {icons/zenmode.png} {Zen Mode}.
+        \li Go to \uicontrol Tools > \uicontrol {Zen Mode}, and select
+            \uicontrol {Toggle Zen Mode}.
+        \li Press \key {Alt+Shift+Z}.
+    \endlist
 
     \section1 Set Zen Mode preferences
 
     To set preferences for the Zen Mode extension, go to \preferences >
     \uicontrol {Zen Mode}.
+
+    \image {qtcreator-preferences-zen-mode.webp} {Zen Mode preferences}
 
     You can set the width of the editor content area and configure
     the appearance of the mode selector while the modes are active.
