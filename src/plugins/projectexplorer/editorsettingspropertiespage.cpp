@@ -21,7 +21,7 @@ using namespace Utils;
 
 namespace ProjectExplorer::Internal {
 
-class EditorSettingsWidget : public ProjectSettingsWidget
+class EditorSettingsWidget : public QWidget
 {
 public:
     explicit EditorSettingsWidget(Project *project);
@@ -35,9 +35,8 @@ private:
 
 EditorSettingsWidget::EditorSettingsWidget(Project *project)
 {
-    setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
-
     EditorConfiguration *config = project->editorConfiguration();
+    const bool initial = config->useGlobalSettings();
 
     using namespace Layouting;
 
@@ -61,8 +60,19 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
         st
     }.attachTo(&m_displaySettings);
 
+    const auto updateEnabled = [this](bool useGlobal) {
+        m_displaySettings.setEnabled(!useGlobal);
+        m_behaviorSettings.setEnabled(!useGlobal);
+        m_restoreButton.setEnabled(!useGlobal);
+    };
+
     Column {
-        createGlobalOrProjectSelector(),
+        createGlobalOrProjectSelector(this, initial,
+            TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS,
+            [config, updateEnabled](bool useGlobal) {
+                updateEnabled(useGlobal);
+                config->setUseGlobalSettings(useGlobal);
+            }),
         Row { &m_restoreButton, st },
         &m_displaySettings,
         &m_behaviorSettings,
@@ -71,20 +81,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
     }.attachTo(this);
 
     m_tabSettings.setPreferences(config->codeStyle());
+    updateEnabled(initial);
 
-    const auto updateEnabled = [this](bool useGlobal) {
-        m_displaySettings.setEnabled(!useGlobal);
-        m_behaviorSettings.setEnabled(!useGlobal);
-        m_restoreButton.setEnabled(!useGlobal);
-    };
-    updateEnabled(config->useGlobalSettings());
-    setUseGlobalSettings(config->useGlobalSettings());
-
-    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-            this, [config, updateEnabled](bool useGlobal) {
-        updateEnabled(useGlobal);
-        config->setUseGlobalSettings(useGlobal);
-    });
     connect(&m_restoreButton, &QAbstractButton::clicked,
             this, [this, config] {
         config->cloneGlobalSettings();

@@ -17,39 +17,24 @@ using namespace ProjectExplorer;
 
 namespace Copilot::Internal {
 
-class CopilotProjectSettingsWidget final : public ProjectSettingsWidget
-{
-public:
-    CopilotProjectSettingsWidget()
-    {
-        setGlobalSettingsId(Constants::COPILOT_GENERAL_OPTIONS_ID);
-    }
-};
-
-static ProjectSettingsWidget *createCopilotProjectPanel(Project *project)
+static QWidget *createCopilotProjectPanel(Project *project)
 {
     using namespace Layouting;
 
-    auto widget = new CopilotProjectSettingsWidget;
+    auto widget = new QWidget;
     auto settings = new CopilotProjectSettings(project);
     settings->setParent(widget);
 
-    QObject::connect(widget,
-                     &ProjectSettingsWidget::useGlobalSettingsChanged,
-                     settings,
-                     &CopilotProjectSettings::setUseGlobalSettings);
-
-    widget->setUseGlobalSettings(settings->useGlobalSettings());
     widget->setEnabled(!settings->useGlobalSettings());
-
-    QObject::connect(widget,
-                     &ProjectSettingsWidget::useGlobalSettingsChanged,
-                     widget,
-                     [widget](bool useGlobal) { widget->setEnabled(!useGlobal); });
 
     // clang-format off
     Column {
-        widget->createGlobalOrProjectSelector(),
+        createGlobalOrProjectSelector(widget, settings->useGlobalSettings(),
+            Constants::COPILOT_GENERAL_OPTIONS_ID,
+            [widget, settings](bool useGlobal) {
+                settings->setUseGlobalSettings(useGlobal);
+                widget->setEnabled(!useGlobal);
+            }),
         settings->enableCopilot,
         st,
     }.attachTo(widget);

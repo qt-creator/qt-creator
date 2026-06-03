@@ -5,8 +5,6 @@
 
 #include "projectexplorer_export.h"
 
-#include "projectsettingswidget.h"
-
 #include <utils/id.h>
 #include <utils/treemodel.h>
 

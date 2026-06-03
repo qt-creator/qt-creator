@@ -9,6 +9,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -24,7 +25,7 @@ static QString excludePlaceholder()
     return Tr::tr("<Enter regular expression to exclude>");
 }
 
-class TodoProjectPanelWidget final : public ProjectSettingsWidget
+class TodoProjectPanelWidget final : public QWidget
 {
 public:
     explicit TodoProjectPanelWidget(Project *project);
@@ -58,7 +59,7 @@ TodoProjectPanelWidget::TodoProjectPanelWidget(Project *project)
     using namespace Layouting;
 
     Column {
-        createGlobalOrProjectSelector(),
+        createGlobalOrProjectSelector(this, false, Constants::TODO_SETTINGS, [](bool) {}),
         Group {
             title(Tr::tr("Excluded Files")),
             Row {
@@ -73,7 +74,6 @@ TodoProjectPanelWidget::TodoProjectPanelWidget(Project *project)
     }.attachTo(this);
 
     setExcludedPatternsButtonsEnabled();
-    setGlobalSettingsId(Constants::TODO_SETTINGS);
     connect(addExcludedPatternButton,
             &QPushButton::clicked,
             this,

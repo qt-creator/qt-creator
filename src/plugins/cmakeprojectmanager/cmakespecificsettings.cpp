@@ -14,6 +14,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
+
+#include <QCheckBox>
 
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -206,36 +209,38 @@ public:
 
 const CMakeSpecificSettingsPage settingsPage;
 
-class CMakeProjectSettingsWidget : public ProjectSettingsWidget
+class CMakeProjectSettingsWidget : public QWidget
 {
 public:
     explicit CMakeProjectSettingsWidget(Project *project)
         : m_project(qobject_cast<CMakeProject *>(project))
         , m_displayedSettings(project, true)
     {
-        setGlobalSettingsId(Constants::Settings::GENERAL_ID);
+        const bool initial = m_displayedSettings.useGlobalSettings;
 
+        QCheckBox *checkBox = nullptr;
         using namespace Layouting;
         Column {
-            createGlobalOrProjectSelector(),
+            createGlobalOrProjectSelector(this, initial,
+                Constants::Settings::GENERAL_ID,
+                [this](bool useGlobal) {
+                    setEnabled(!useGlobal);
+                    m_displayedSettings.useGlobalSettings = useGlobal;
+                    if (m_project) {
+                        m_displayedSettings.copyFrom(
+                            useGlobal ? settings(nullptr) : m_project->settings());
+                        m_project->settings().useGlobalSettings = useGlobal;
+                        m_project->settings().writeSettings();
+                    }
+                },
+                &checkBox),
             m_displayedSettings,
             noMargin
         }.attachTo(this);
 
-        setUseGlobalSettings(m_displayedSettings.useGlobalSettings);
-        setEnabled(!useGlobalSettings());
+        setEnabled(!initial);
 
         if (m_project) {
-            connect(
-                this, &ProjectSettingsWidget::useGlobalSettingsChanged, this, [this](bool useGlobal) {
-                    setEnabled(!useGlobal);
-                    m_displayedSettings.useGlobalSettings = useGlobal;
-                    m_displayedSettings.copyFrom(
-                        useGlobal ? settings(nullptr) : m_project->settings());
-
-                    m_project->settings().useGlobalSettings = useGlobal;
-                    m_project->settings().writeSettings();
-                });
 
             // React on Global settings changes
             connect(&settings(nullptr), &AspectContainer::changed, this, [this] {
@@ -258,7 +263,8 @@ public:
             });
         } else {
             // Only for CMake projects
-            setUseGlobalSettingsCheckBoxEnabled(false);
+            if (checkBox)
+                checkBox->setEnabled(false);
         }
 
         // "CMake" project settings needs to react on the UI changes

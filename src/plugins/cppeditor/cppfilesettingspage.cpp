@@ -14,6 +14,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/aspects.h>
 #include <utils/fileutils.h>
@@ -430,41 +431,39 @@ public:
 
 // CppFileSettingsForProject
 
-class CppFileSettingsForProjectWidget : public ProjectSettingsWidget
+class CppFileSettingsForProjectWidget : public QWidget
 {
 public:
     CppFileSettingsForProjectWidget(Project *project)
         : m_project(project)
     {
-        setUseGlobalSettings(true);
+        m_useGlobal = true;
         if (m_project) {
             const QVariant entry = m_project->namedSettings(projectSettingsKeyC);
             if (entry.isValid()) {
                 const QVariantMap data = mapEntryFromStoreEntry(entry).toMap();
-                setUseGlobalSettings(data.value(useGlobalKeyC, true).toBool());
+                m_useGlobal = data.value(useGlobalKeyC, true).toBool();
                 m_customSettings.fromMap(storeFromMap(data));
             }
         }
 
         m_customSettings.setAutoApply(true);
 
-        setGlobalSettingsId(Constants::CPP_FILE_SETTINGS_ID);
-
         using namespace Layouting;
         Column {
-            createGlobalOrProjectSelector(),
+            createGlobalOrProjectSelector(this, m_useGlobal,
+                Constants::CPP_FILE_SETTINGS_ID,
+                [this](bool ug) {
+                    m_useGlobal = ug;
+                    setEnabled(!ug);
+                    saveSettings();
+                    clearHeaderSourceCache();
+                }),
             &m_customSettings,
             noMargin
         }.attachTo(this);
 
-        auto updateSubWidget = [this] { setEnabled(!useGlobalSettings()); };
-
-        updateSubWidget();
-        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this, [this, updateSubWidget] {
-            saveSettings();
-            clearHeaderSourceCache();
-            updateSubWidget();
-        });
+        setEnabled(!m_useGlobal);
 
         connect(&m_customSettings, &AspectContainer::changed, this, [this] {
             saveSettings();
@@ -479,20 +478,21 @@ private:
             return;
 
         // Optimization: Don't save anything if the user never switched away from the default.
-        if (useGlobalSettings() && !m_project->namedSettings(projectSettingsKeyC).isValid())
+        if (m_useGlobal && !m_project->namedSettings(projectSettingsKeyC).isValid())
             return;
 
         Store store;
         m_customSettings.toMap(store);
 
         QVariantMap data = mapFromStore(store);
-        data.insert(useGlobalKeyC, useGlobalSettings());
+        data.insert(useGlobalKeyC, m_useGlobal);
 
         m_project->setNamedSettings(projectSettingsKeyC, data);
     }
 
     Project * const m_project;
     CppFileSettings m_customSettings;
+    bool m_useGlobal = true;
 };
 
 class CppFileSettingsProjectPanelFactory final : public ProjectPanelFactory

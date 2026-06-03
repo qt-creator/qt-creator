@@ -1061,7 +1061,7 @@ void setupClangdSettingsPage()
     static ClangdSettingsPage theClangdSettingsPage;
 }
 
-class ClangdProjectSettingsWidget : public ProjectSettingsWidget
+class ClangdProjectSettingsWidget : public QWidget
 {
 public:
     ClangdProjectSettingsWidget(Project *project)
@@ -1071,19 +1071,30 @@ public:
 
         m_widget.setup(settings(), true);
 
-        setGlobalSettingsId(Constants::CPP_CLANGD_SETTINGS_ID);
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(createGlobalOrProjectSelector());
+        layout->addWidget(createGlobalOrProjectSelector(this, m_useGlobalSettings,
+            Constants::CPP_CLANGD_SETTINGS_ID,
+            [this](bool checked) {
+                m_widget.setEnabled(!checked);
+                setUseGlobalSettings(checked);
+                if (!checked)
+                    setSettings(m_widget.settingsData());
+            },
+            &m_globalCheckBox));
         layout->addWidget(&m_widget);
 
         const auto updateGlobalSettingsCheckBox = [this] {
             if (ClangdSettings::instance().data().isSessionMode()) {
-                setUseGlobalSettingsCheckBoxEnabled(false);
-                ProjectSettingsWidget::setUseGlobalSettings(true);
+                if (m_globalCheckBox)
+                    m_globalCheckBox->setEnabled(false);
+                if (m_globalCheckBox)
+                    m_globalCheckBox->setChecked(true);
             } else {
-                setUseGlobalSettingsCheckBoxEnabled(true);
-                ProjectSettingsWidget::setUseGlobalSettings(m_useGlobalSettings);
+                if (m_globalCheckBox)
+                    m_globalCheckBox->setEnabled(true);
+                if (m_globalCheckBox)
+                    m_globalCheckBox->setChecked(m_useGlobalSettings);
             }
             m_widget.setEnabled(!m_useGlobalSettings);
         };
@@ -1091,14 +1102,6 @@ public:
         updateGlobalSettingsCheckBox();
         connect(&ClangdSettings::instance(), &ClangdSettings::changed,
                 this, updateGlobalSettingsCheckBox);
-
-        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
-                [this](bool checked) {
-                    m_widget.setEnabled(!checked);
-                    setUseGlobalSettings(checked);
-                    if (!checked)
-                        setSettings(m_widget.settingsData());
-                });
 
         const auto timer = new QTimer(this);
         timer->setSingleShot(true);
@@ -1112,6 +1115,7 @@ public:
 
 private:
     ClangdSettingsWidget m_widget;
+    QCheckBox *m_globalCheckBox = nullptr;
 
     ClangdSettings::Data settings() const;
 

@@ -226,14 +226,12 @@ void setupCppCodeModelSettingsPage()
     CppCodeModelSettings::global().setAutoApply(false);
 }
 
-class CppCodeModelProjectSettingsWidget : public ProjectSettingsWidget
+class CppCodeModelProjectSettingsWidget : public QWidget
 {
 public:
     explicit CppCodeModelProjectSettingsWidget(Project *project)
         : m_project(project)
     {
-        setGlobalSettingsId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
-
         if (project) {
             const Store data = storeFromVariant(m_project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
             m_useGlobalSettings = data.value(useGlobalSettingsKey(), true).toBool();
@@ -242,19 +240,18 @@ public:
 
         using namespace Layouting;
         Column {
-            createGlobalOrProjectSelector(),
+            createGlobalOrProjectSelector(this, m_useGlobalSettings,
+                Constants::CPP_CODE_MODEL_SETTINGS_ID,
+                [this](bool checked) {
+                    setEnabled(!checked);
+                    m_useGlobalSettings = checked;
+                    saveSettings();
+                }),
             m_customSettings,
             noMargin
         }.attachTo(this);
 
-        setUseGlobalSettings(m_useGlobalSettings);
-        setEnabled(!useGlobalSettings());
-
-        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this, [this](bool checked) {
-            setEnabled(!checked);
-            m_useGlobalSettings = checked;
-            saveSettings();
-        });
+        setEnabled(!m_useGlobalSettings);
 
         connect(&m_customSettings, &AspectContainer::changed, this, [this] {
             saveSettings();

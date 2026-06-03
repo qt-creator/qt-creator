@@ -13,6 +13,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
@@ -154,39 +155,39 @@ public:
 
 static const VcpkgSettingsPage settingsPage;
 
-class VcpkgSettingsWidget : public ProjectSettingsWidget
+class VcpkgSettingsWidget : public QWidget
 {
 public:
     explicit VcpkgSettingsWidget(Project *project)
         : m_widget(new QWidget)
         , m_displayedSettings(project, true)
     {
-        setGlobalSettingsId(Constants::Settings::GENERAL_ID);
+        const bool initial = m_displayedSettings.useGlobalSettings;
 
         // Construct the widget layout from the aspect container
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(createGlobalOrProjectSelector());
         if (auto layouter = m_displayedSettings.layouter())
             layouter().attachTo(m_widget);
-        layout->addWidget(m_widget);
+        m_widget->setEnabled(!initial);
 
-        setUseGlobalSettings(m_displayedSettings.useGlobalSettings);
-        m_widget->setEnabled(!useGlobalSettings());
+        layout->addWidget(createGlobalOrProjectSelector(this, initial,
+            Constants::Settings::GENERAL_ID,
+            [this, project](bool useGlobal) {
+                m_widget->setEnabled(!useGlobal);
+                m_displayedSettings.useGlobalSettings = useGlobal;
+                if (project) {
+                    VcpkgSettings *projSettings = projectSettings(project);
+                    m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
+                    projSettings->useGlobalSettings = useGlobal;
+                    projSettings->writeSettings();
+                    projSettings->setVcpkgRootEnvironmentVariable();
+                }
+            }));
+        layout->addWidget(m_widget);
 
         if (project) {
             VcpkgSettings *projSettings = projectSettings(project);
-
-            connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-                    this, [this, projSettings](bool useGlobal) {
-                m_widget->setEnabled(!useGlobal);
-                m_displayedSettings.useGlobalSettings = useGlobal;
-                m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
-
-                projSettings->useGlobalSettings = useGlobal;
-                projSettings->writeSettings();
-                projSettings->setVcpkgRootEnvironmentVariable();
-            });
 
             // React on Global settings changes
             connect(settings(nullptr), &AspectContainer::changed, this, [this] {

@@ -32,7 +32,7 @@ enum ItemDataRole  {
     BaseTypeRole
 };
 
-class ProjectTestSettingsWidget : public ProjectSettingsWidget
+class ProjectTestSettingsWidget : public QWidget
 {
 public:
     explicit ProjectTestSettingsWidget(Project *project);
@@ -43,6 +43,7 @@ private:
     void populatePathFilters(const QStringList &filters);
     void onActiveFrameworkChanged(QTreeWidgetItem *item, int column);
     TestProjectSettings *m_projectSettings;
+    QWidget *m_generalWidget = nullptr;
     QTreeWidget *m_activeFrameworks = nullptr;
     QComboBox *m_runAfterBuild = nullptr;
     Utils::BoolAspect m_applyFilter;
@@ -54,9 +55,6 @@ private:
 ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     : m_projectSettings(projectSettings(project))
 {
-    setGlobalSettingsId(Constants::AUTOTEST_SETTINGS_ID);
-
-    QWidget *generalWidget;
     m_activeFrameworks = new QTreeWidget;
     m_activeFrameworks->setHeaderHidden(true);
     m_activeFrameworks->setRootIsDecorated(false);
@@ -74,11 +72,21 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     QPushButton *removeFilter = new QPushButton(Tr::tr("Remove"), this);
     removeFilter->setEnabled(false);
 
+    const bool initial = m_projectSettings->useGlobalSettings();
+
     // clang-format off
     using namespace Layouting;
     Column {
+        createGlobalOrProjectSelector(this, initial,
+            Constants::AUTOTEST_SETTINGS_ID,
+            [this](bool useGlobal) {
+                m_generalWidget->setEnabled(!useGlobal);
+                m_projectSettings->setUseGlobalSettings(useGlobal);
+                m_syncTimer.start(3000);
+                m_syncType = ITestBase::Framework | ITestBase::Tool;
+            }),
         Widget {
-            bindTo(&generalWidget),
+            bindTo(&m_generalWidget),
             Column {
                 Row {
                     Group {
@@ -113,21 +121,13 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     }.attachTo(this);
     // clang-format on
 
-    generalWidget->setDisabled(m_projectSettings->useGlobalSettings());
+    m_generalWidget->setDisabled(initial);
 
     populateFrameworks(m_projectSettings->activeFrameworks(),
                        m_projectSettings->activeTestTools());
 
     populatePathFilters(m_projectSettings->pathFilters());
-    setUseGlobalSettings(m_projectSettings->useGlobalSettings());
     m_applyFilter.setValue(m_projectSettings->limitToFilters());
-    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-            this, [this, generalWidget](bool useGlobalSettings) {
-                generalWidget->setEnabled(!useGlobalSettings);
-                m_projectSettings->setUseGlobalSettings(useGlobalSettings);
-                m_syncTimer.start(3000);
-                m_syncType = ITestBase::Framework | ITestBase::Tool;
-            });
 
     connect(m_activeFrameworks, &QTreeWidget::itemChanged,
             this, &ProjectTestSettingsWidget::onActiveFrameworkChanged);

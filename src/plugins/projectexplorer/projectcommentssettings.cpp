@@ -23,20 +23,12 @@ namespace ProjectExplorer::Internal {
 
 const char kUseGlobalKey[] = "UseGlobalKey";
 
-class ProjectCommentsSettingsWidget final : public ProjectSettingsWidget
+class ProjectCommentsSettingsWidget final : public QWidget
 {
 public:
     ProjectCommentsSettingsWidget(Project *project)
         : m_project(project)
     {
-        setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
-
-        const auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(createGlobalOrProjectSelector());
-        auto *inner = new QWidget;
-        layout->addWidget(inner);
-
         bool useGlobal = true;
         if (project) {
             const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
@@ -50,27 +42,34 @@ public:
         if (useGlobal)
             m_displayedSettings.copyFrom(globalCommentsSettings());
         m_displayedSettings.setAutoApply(true);
-        m_displayedSettings.layouter()().attachTo(inner);
 
-        setUseGlobalSettings(useGlobal);
+        m_useGlobal = useGlobal;
+
+        const auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        auto *inner = new QWidget;
+        m_displayedSettings.layouter()().attachTo(inner);
         inner->setEnabled(!useGlobal);
 
-        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
-                [this, inner](bool useGlobal) {
-                    inner->setEnabled(!useGlobal);
-                    if (useGlobal)
-                        m_displayedSettings.copyFrom(globalCommentsSettings());
-                    saveSettings(useGlobal);
-                });
+        layout->addWidget(createGlobalOrProjectSelector(this, useGlobal,
+            TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS,
+            [this, inner](bool ug) {
+                m_useGlobal = ug;
+                inner->setEnabled(!ug);
+                if (ug)
+                    m_displayedSettings.copyFrom(globalCommentsSettings());
+                saveSettings(ug);
+            }));
+        layout->addWidget(inner);
 
         connect(&globalCommentsSettings(), &CommentsSettings::changed,
                 this, [this] {
-                    if (useGlobalSettings())
+                    if (m_useGlobal)
                         m_displayedSettings.copyFrom(globalCommentsSettings());
                 });
 
         connect(&m_displayedSettings, &AspectContainer::changed, this, [this] {
-            if (!useGlobalSettings())
+            if (!m_useGlobal)
                 saveSettings(false);
         });
     }
@@ -91,6 +90,7 @@ private:
 
     Project * const m_project;
     CommentsSettings m_displayedSettings;
+    bool m_useGlobal = true;
 };
 
 class CommentsSettingsProjectPanelFactory final : public ProjectPanelFactory

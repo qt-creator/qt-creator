@@ -11,6 +11,7 @@
 #include <coreplugin/jsexpander.h>
 
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
 #include <projectexplorer/projecttree.h>
 
 #include <utils/guiutils.h>
@@ -716,7 +717,7 @@ private:
     QCheckBox *m_returnByConstRefCheckBox;
 };
 
-class CppQuickFixProjectSettingsWidget : public ProjectSettingsWidget
+class CppQuickFixProjectSettingsWidget : public QWidget
 {
 public:
     explicit CppQuickFixProjectSettingsWidget(Project *project);
@@ -729,18 +730,22 @@ private:
     CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr m_projectSettings;
 
     QPushButton *m_pushButton;
+    QCheckBox *m_globalCheckBox = nullptr;
 };
 
 CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *project)
 {
-    setGlobalSettingsId(CppEditor::Constants::QUICK_FIX_SETTINGS_ID);
     m_projectSettings = CppQuickFixProjectsSettings::getSettings(project);
 
     m_pushButton = new QPushButton(this);
 
     auto gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(0, 0, 0, 0);
-    gridLayout->addWidget(createGlobalOrProjectSelector(), 0, 0, 1, 2);
+    gridLayout->addWidget(createGlobalOrProjectSelector(this,
+        m_projectSettings->isUsingGlobalSettings(),
+        CppEditor::Constants::QUICK_FIX_SETTINGS_ID,
+        [this](bool useGlobal) { currentItemChanged(useGlobal); },
+        &m_globalCheckBox), 0, 0, 1, 2);
     gridLayout->addWidget(m_pushButton, 1, 0, 1, 1);
     auto layout = new QVBoxLayout();
     gridLayout->addLayout(layout, 2, 0, 1, 2);
@@ -752,9 +757,6 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *proj
         layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_settingsWidget);
 
-    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-            this, &CppQuickFixProjectSettingsWidget::currentItemChanged);
-    setUseGlobalSettings(m_projectSettings->isUsingGlobalSettings());
     currentItemChanged(m_projectSettings->isUsingGlobalSettings());
 
     connect(m_pushButton, &QAbstractButton::clicked,
@@ -762,7 +764,7 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *proj
     connect(m_settingsWidget, &CppQuickFixSettingsWidget::settingsChanged, this,
             [this] {
                 m_settingsWidget->saveSettings(m_projectSettings->getSettings());
-                if (!useGlobalSettings())
+                if (m_globalCheckBox && !m_globalCheckBox->isChecked())
                     m_projectSettings->saveOwnSettings();
             });
 }
@@ -778,7 +780,8 @@ void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobalSettings
         m_projectSettings->useGlobalSettings();
     } else /*Custom*/ {
         if (!m_projectSettings->useCustomSettings()) {
-            setUseGlobalSettings(!m_projectSettings->useCustomSettings());
+            if (m_globalCheckBox)
+                m_globalCheckBox->setChecked(!m_projectSettings->useCustomSettings());
             return;
         }
         m_pushButton->setToolTip(Tr::tr("Resets all settings to the global settings."));
@@ -793,7 +796,7 @@ void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobalSettings
 
 void CppQuickFixProjectSettingsWidget::buttonCustomClicked()
 {
-    if (useGlobalSettings()) {
+    if (m_globalCheckBox && m_globalCheckBox->isChecked()) {
         // delete file
         m_projectSettings->filePathOfSettingsFile().removeFile();
         m_pushButton->setVisible(false);

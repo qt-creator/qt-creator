@@ -28,61 +28,35 @@ QWidget *createGlobalSettingsLink(Utils::Id globalId)
     }.emerge();
 }
 
-void ProjectSettingsWidget::setUseGlobalSettings(bool useGlobalSettings)
-{
-    if (m_useGlobalSettings == useGlobalSettings)
-        return;
-    m_useGlobalSettings = useGlobalSettings;
-    emit useGlobalSettingsChanged(useGlobalSettings);
-}
-
-bool ProjectSettingsWidget::useGlobalSettings() const
-{
-    return m_useGlobalSettings;
-}
-
-void ProjectSettingsWidget::setUseGlobalSettingsCheckBoxEnabled(bool enabled)
-{
-    if (m_useGlobalSettingsCheckBoxEnabled == enabled)
-        return;
-    m_useGlobalSettingsCheckBoxEnabled = enabled;
-    emit useGlobalSettingsCheckBoxEnabledChanged(enabled);
-}
-
-void ProjectSettingsWidget::setGlobalSettingsId(Utils::Id globalId)
-{
-    m_globalSettingsId = globalId;
-}
-
-QWidget *ProjectSettingsWidget::createGlobalOrProjectSelector()
+QWidget *createGlobalOrProjectSelector(
+    QObject *guard,
+    bool initialUseGlobal,
+    Utils::Id globalId,
+    std::function<void(bool)> onChange,
+    QCheckBox **checkBoxOut)
 {
     const auto checkBox = new QCheckBox;
-    checkBox->setChecked(useGlobalSettings());
-    checkBox->setEnabled(m_useGlobalSettingsCheckBoxEnabled);
+    checkBox->setChecked(initialUseGlobal);
 
     const auto label = new QLabel(
         QStringLiteral("Use <a href=\"dummy\">global settings</a>"));
-    label->setEnabled(m_useGlobalSettingsCheckBoxEnabled);
 
-    connect(this, &ProjectSettingsWidget::useGlobalSettingsCheckBoxEnabledChanged,
-            this, [checkBox, label](bool enabled) {
-        checkBox->setEnabled(enabled);
-        label->setEnabled(enabled);
-    });
-    connect(checkBox, &QCheckBox::stateChanged,
-            this, &ProjectSettingsWidget::setUseGlobalSettings);
-    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-            checkBox, &QCheckBox::setChecked);
-    connect(label, &QLabel::linkActivated, this, [this] {
-        Core::ICore::showSettings(m_globalSettingsId);
-    });
+    QObject::connect(checkBox, &QCheckBox::stateChanged,
+                     guard, [onChange](int s) { onChange(s == Qt::Checked); });
+    QObject::connect(label, &QLabel::linkActivated,
+                     guard, [globalId] { Core::ICore::showSettings(globalId); });
+
+    if (checkBoxOut)
+        *checkBoxOut = checkBox;
 
     using namespace Layouting;
     return Column {
-        Row { checkBox, label, st, customMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN), spacing(CONTENTS_MARGIN) },
+        Row { checkBox, label, st,
+              customMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN),
+              spacing(CONTENTS_MARGIN) },
         createHr(),
         noMargin, spacing(0),
     }.emerge();
 }
 
-} // ProjectExplorer
+} // namespace ProjectExplorer
