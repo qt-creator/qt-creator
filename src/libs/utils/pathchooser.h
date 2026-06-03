@@ -25,6 +25,7 @@ class PathChooserPrivate;
 class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY(QString path READ path WRITE setPath NOTIFY textChanged)
 
 public:
     static QString browseButtonLabel();
@@ -146,6 +147,7 @@ signals:
     void returnPressed();
 
 private:
+    QString path() const; // used by the Q_PROPERTY for wizard field registration
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
     void slotBrowse(bool remote);
