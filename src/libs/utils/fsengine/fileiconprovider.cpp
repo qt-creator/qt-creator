@@ -15,11 +15,20 @@
 #include <QHash>
 #include <QDebug>
 
+#include <QCoreApplication>
+#include <QDeadlineTimer>
 #include <QFileIconProvider>
 #include <QIcon>
 #include <QLoggingCategory>
+#include <QMutex>
+#include <QThread>
+#include <QTimer>
 
+#include <future>
+
+#include <chrono>
 #include <optional>
+#include <queue>
 #include <variant>
 
 using namespace Utils;
@@ -70,7 +79,10 @@ class FileIconProviderImplementation : public QFileIconProvider
 {
 public:
     FileIconProviderImplementation()
-    {}
+    {
+        if (auto *app = QCoreApplication::instance())
+            QObject::connect(app, &QCoreApplication::aboutToQuit, [] { shutdown(); });
+    }
 
     QIcon icon(const FilePath &filePath) const;
     using QFileIconProvider::icon;
@@ -156,6 +168,21 @@ public:
     QString type(const QFileInfo &) const override;
 };
 
+// Thread-safe icon request dispatched to the main thread from background threads.
+struct PendingIconRequest
+{
+    FilePath filePath;
+    std::promise<QIcon> promise;
+};
+
+static QMutex s_queueMutex;
+static std::queue<PendingIconRequest> s_pendingRequests;
+static bool s_processingScheduled = false;
+static bool s_shuttingDown = false;
+static constexpr std::chrono::milliseconds kMaxTimePerRequestProcess(5);
+
+static void processIconRequests();
+
 QIcon FileIconProviderImplementation::icon(IconType type) const
 {
     return QFileIconProvider::icon(type);
@@ -192,6 +219,39 @@ QFileIconProvider *iconProvider()
     return instance();
 }
 
+static void processIconRequests()
+{
+    QDeadlineTimer deadline(kMaxTimePerRequestProcess);
+
+    // Process all pending requests.
+    // If this takes longer than max time deadline timer,
+    // reschedule further processing to not block the main thread too long
+    while (true) {
+        QMutexLocker locker(&s_queueMutex);
+        if (s_pendingRequests.empty()) {
+            s_processingScheduled = false;
+            return;
+        }
+
+        PendingIconRequest req = std::move(s_pendingRequests.front());
+        s_pendingRequests.pop();
+        locker.unlock();
+
+        req.promise.set_value(instance()->icon(req.filePath));
+
+        if (deadline.hasExpired()) {
+            locker.relock();
+
+            if (s_pendingRequests.empty())
+                s_processingScheduled = false;
+            else
+                QTimer::singleShot(0, QCoreApplication::instance(), [] { processIconRequests(); });
+
+            return;
+        }
+    }
+}
+
 static const QIcon &unknownFileIcon()
 {
     static const QIcon icon(QApplication::style()->standardIcon(QStyle::SP_FileIcon));
@@ -206,6 +266,32 @@ static const QIcon &dirIcon()
 
 QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 {
+    if (!QThread::isMainThread()) {
+        QTC_ASSERT(QCoreApplication::instance(), return QIcon());
+
+        PendingIconRequest req;
+        req.filePath = filePath;
+        std::future<QIcon> future = req.promise.get_future();
+        {
+            QMutexLocker locker(&s_queueMutex);
+            if (s_shuttingDown) {
+                req.promise.set_value(QIcon{});
+            } else {
+                s_pendingRequests.push(std::move(req));
+                if (!s_processingScheduled) {
+                    s_processingScheduled = true;
+                    QMetaObject::invokeMethod(
+                        QCoreApplication::instance(),
+                        [] { processIconRequests(); },
+                        Qt::QueuedConnection);
+                }
+            }
+        }
+        if (future.wait_for(std::chrono::seconds(1)) == std::future_status::ready)
+            return future.get();
+        return QIcon{};
+    }
+
     qCDebug(fileIconProvider) << "FileIconProvider::icon" << filePath.absoluteFilePath();
 
     if (filePath.isEmpty())
@@ -337,6 +423,21 @@ void registerIconOverlayForMimeType(const QString &path, const QString &mimeType
 void registerIconOverlayForFilename(const QString &path, const QString &filename)
 {
     instance()->registerIconOverlayForFilename(path, filename);
+}
+
+void shutdown()
+{
+    std::queue<PendingIconRequest> pending;
+    {
+        QMutexLocker locker(&s_queueMutex);
+        s_shuttingDown = true;
+        std::swap(pending, s_pendingRequests);
+        s_processingScheduled = false;
+    }
+    while (!pending.empty()) {
+        pending.front().promise.set_value(QIcon{});
+        pending.pop();
+    }
 }
 
 // Return a standard directory icon with the specified overlay:
