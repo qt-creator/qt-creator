@@ -1389,7 +1389,7 @@ void AcpMessageView::updateElapsedTimeLabel()
     const QString text = minutes ? Tr::tr("%1:%2 minutes")
                                        .arg(minutes)
                                        .arg(QString::number(secs % 60).rightJustified(2, '0'))
-                                 : Tr::tr("%1 seconds").arg(secs);
+                                 : Tr::tr("%n second(s)", nullptr, secs);
     m_elapsedLabel->setText(text);
 }
 
