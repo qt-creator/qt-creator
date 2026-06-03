@@ -78,7 +78,7 @@ public:
         useCustomStyle.setLabelText(Tr::tr("Use customized style:"));
 
         useSpecificConfigFile.setSettingsKey("useSpecificConfigFile");
-        useSpecificConfigFile.setLabelText(Tr::tr("Use file specific uncrustify.cfg"));
+        useSpecificConfigFile.setLabelText(Tr::tr("Use specific uncrustify.cfg file"));
 
         customStyle.setSettingsKey("customStyle");
 

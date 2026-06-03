@@ -191,7 +191,7 @@
     \row
         \li \uicontrol {Use specific config file}
 
-            \uicontrol {Use file specific uncrustify.cfg}
+            \uicontrol {Use specific uncrustify.cfg file}
         \li The file to use as the configuration file for the selected tool.
     \row
         \li \uicontrol {Use file uncrustify.cfg in <$HOME>}
