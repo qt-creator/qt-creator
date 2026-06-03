@@ -68,6 +68,7 @@ public:
     bool validParse() const override;
 
     void build() override;
+    bool canBuild() override { return true; }
 
     QStringList targetApplications() const override;
     AddNewInformation addNewInformation(const Utils::FilePaths &files, Node *context) const override;

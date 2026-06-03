@@ -35,6 +35,7 @@ public:
     explicit QbsProductNode(const QJsonObject &prd);
 
     void build() override;
+    bool canBuild() override { return true; }
     QStringList targetApplications() const override;
 
     QString fullDisplayName() const;

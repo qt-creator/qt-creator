@@ -104,7 +104,6 @@ private:
 
     void projectChanged(QbsProject *project);
 
-    void buildProductContextMenu();
     void cleanProductContextMenu();
     void rebuildProductContextMenu();
     void runStepsForProductContextMenu(const QList<Id> &stepTypes);
@@ -131,7 +130,6 @@ private:
     QbsProjectManagerPluginPrivate *d = nullptr;
     QAction *m_reparseQbs = nullptr;
     QAction *m_reparseQbsCtx = nullptr;
-    QAction *m_buildProductCtx = nullptr;
     QAction *m_cleanProductCtx = nullptr;
     QAction *m_rebuildProductCtx = nullptr;
     QAction *m_buildSubprojectCtx = nullptr;
@@ -189,13 +187,6 @@ void QbsProjectManagerPlugin::initialize()
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_reparseQbsCtx, &QAction::triggered,
             this, &QbsProjectManagerPlugin::reparseSelectedProject);
-
-    m_buildProductCtx = new QAction(Tr::tr("Build"), this);
-    command = Core::ActionManager::registerAction(m_buildProductCtx, Constants::ACTION_BUILD_PRODUCT_CONTEXT, projectContext);
-    command->setAttribute(Core::Command::CA_Hide);
-    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_buildProductCtx, &QAction::triggered,
-            this, &QbsProjectManagerPlugin::buildProductContextMenu);
 
     m_buildProduct = new Utils::Action(Tr::tr("Build Product"), Tr::tr("Build Product \"%1\""),
                                                 Utils::Action::AlwaysEnabled, this);
@@ -309,7 +300,6 @@ void QbsProjectManagerPlugin::updateContextActions(Node *node)
     bool isSubproject = project && subproject && subproject != project->rootProjectNode();
 
     m_reparseQbsCtx->setEnabled(isEnabled);
-    m_buildProductCtx->setVisible(isEnabled && isProduct);
     m_cleanProductCtx->setVisible(isEnabled && isProduct);
     m_rebuildProductCtx->setVisible(isEnabled && isProduct);
     m_buildSubprojectCtx->setVisible(isEnabled && isSubproject);
@@ -378,11 +368,6 @@ void QbsProjectManagerPlugin::projectChanged(QbsProject *project)
 
     if (!qbsProject || qbsProject == currentEditorProject())
         updateBuildActions();
-}
-
-void QbsProjectManagerPlugin::buildProductContextMenu()
-{
-    runStepsForProductContextMenu({Utils::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)});
 }
 
 void QbsProjectManagerPlugin::cleanProductContextMenu()

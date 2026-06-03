@@ -151,6 +151,7 @@ public:
 
     virtual QString buildKey() const { return {}; }
     virtual void build();
+    virtual bool canBuild() { return false; }
 
     void setParentFolderNode(FolderNode *parentFolder);
 
@@ -207,6 +208,7 @@ public:
     bool supportsAction(ProjectAction action, const Node *node) const override;
     QString displayName() const override;
     void build() override;
+    bool canBuild() override;
 
     bool hasError() const;
     void setHasError(const bool error);

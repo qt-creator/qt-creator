@@ -110,25 +110,6 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         };
         ProjectManager::registerProjectType<CMakeProject>(
             Utils::Constants::CMAKE_PROJECT_MIMETYPE, issuesGenerator);
-
-        ActionBuilder(this, Constants::BUILD_TARGET_CONTEXT_MENU)
-            .setParameterText(Tr::tr("Build \"%1\""), Tr::tr("Build"), ActionBuilder::AlwaysEnabled)
-            .setContext(CMakeProjectManager::Constants::CMAKE_PROJECT_ID)
-            .bindContextAction(&m_buildTargetContextAction)
-            .setCommandAttribute(Command::CA_Hide)
-            .setCommandAttribute(Command::CA_UpdateText)
-            .setCommandDescription(m_buildTargetContextAction->text())
-            .addToContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT,
-                            ProjectExplorer::Constants::G_PROJECT_BUILD)
-            .addOnTriggered(this, [] {
-                if (auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject())) {
-                    auto targetNode = dynamic_cast<const CMakeTargetNode *>(ProjectTree::currentNode());
-                    bs->buildCMakeTarget(targetNode ? targetNode->displayName() : QString());
-                }
-            });
-
-        connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
-                this, &CMakeProjectPlugin::updateContextActions);
     }
 
     void extensionsInitialized() final
@@ -140,22 +121,6 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
         setupOnlineHelpManager();
     }
-
-    void updateContextActions(ProjectExplorer::Node *node)
-    {
-        const Project *project = ProjectTree::projectForNode(node);
-
-        auto targetNode = dynamic_cast<const CMakeTargetNode *>(node);
-        const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
-        const bool isVisible = targetNode && !BuildManager::isBuilding(project);
-
-        // Build Target:
-        m_buildTargetContextAction->setParameter(targetDisplayName);
-        m_buildTargetContextAction->setEnabled(isVisible);
-        m_buildTargetContextAction->setVisible(isVisible);
-    }
-
-    Action *m_buildTargetContextAction = nullptr;
 };
 
 } // CMakeProjectManager::Internal

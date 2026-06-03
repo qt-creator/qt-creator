@@ -462,6 +462,13 @@ void FileNode::build()
         bs->buildFile(this);
 }
 
+bool FileNode::canBuild()
+{
+    if (BuildSystem * const bs = activeBuildSystem(getProject()))
+        return bs->canBuildFile(this);
+    return false;
+}
+
 /*!
   \class ProjectExplorer::FolderNode
 

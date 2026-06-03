@@ -14,6 +14,7 @@ const char MODE_SESSION[]         = "Project";
 const char BUILD[]                = "ProjectExplorer.Build";
 const char BUILD_FILE[]           = "ProjectExplorer.BuildFile";
 const char BUILD_FILE_CTX[]       = "ProjectExplorer.BuildFileCtx";
+const char BUILD_SUBPROJECT_CTX[] = "ProjectExplorer.BuildSubProjectCtx";
 const char CLEAN[]                = "ProjectExplorer.Clean";
 const char STOP[]                 = "ProjectExplorer.Stop";
 const char ADDNEWFILE[]           = "ProjectExplorer.AddNewFile";

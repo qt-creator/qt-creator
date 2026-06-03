@@ -63,9 +63,6 @@ const char FILE_OVERLAY[] = ":/cmakeproject/images/fileoverlay_cmake.png";
 const char SETTINGS_CATEGORY[] = ":/cmakeproject/images/settingscategory_cmakeprojectmanager.png";
 } // namespace Icons
 
-// Actions
-const char BUILD_TARGET_CONTEXT_MENU[] = "CMake.BuildTargetContextMenu";
-
 // Build Step
 const char CMAKE_BUILD_STEP_ID[] = "CMakeProjectManager.MakeStep";
 

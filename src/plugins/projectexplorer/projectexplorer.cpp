@@ -605,7 +605,7 @@ public:
     void editorOpened(IEditor *editor);
 
     void buildCurrentFile();
-    void buildSelectedFile();
+    void buildSelectedNode();
 
 public:
     QMenu *m_openWithMenu;
@@ -624,6 +624,7 @@ public:
     Action *m_buildAction;
     Action *m_buildFileAction;
     QAction *m_buildFileActionCtx;
+    QAction *m_buildSubProjectActionCtx;
     Action *m_buildForRunConfigAction;
     ProxyAction *m_modeBarBuildAction;
     QAction *m_buildActionContextMenu;
@@ -1676,6 +1677,14 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
+    dd->m_buildSubProjectActionCtx = new QAction(Tr::tr("Build"), this);
+    cmd = ActionManager::registerAction(
+                dd->m_buildSubProjectActionCtx, Constants::BUILD_SUBPROJECT_CTX, projectTreeContext);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    msubProjectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(dd->m_buildSubProjectActionCtx, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::buildSelectedNode);
+
     dd->m_closeProjectFilesActionContextMenu = new Action(
                 Tr::tr("Close All Files"), Tr::tr("Close All Files in Project \"%1\""),
                 Action::EnabledWithParameter, this);
@@ -1763,7 +1772,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     cmd->setAttribute(Core::Command::CA_Hide);
     mfileContextMenu->addAction(cmd, ProjectExplorer::Constants::G_FILE_OTHER);
     connect(dd->m_buildFileActionCtx, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::buildSelectedFile);
+            dd, &ProjectExplorerPluginPrivate::buildSelectedNode);
 
     // Not yet used by anyone, so hide for now
 //    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
@@ -3303,13 +3312,12 @@ void ProjectExplorerPluginPrivate::buildCurrentFile()
     QTC_ASSERT(fileNode, return);
     fileNode->build();
 }
-void ProjectExplorerPluginPrivate::buildSelectedFile()
+void ProjectExplorerPluginPrivate::buildSelectedNode()
 {
     Node * const node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
-    FileNode * const fileNode = node->asFileNode();
-    QTC_ASSERT(fileNode, return);
-    fileNode->build();
+    QTC_ASSERT(node->canBuild(), return);
+    node->build();
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu(RunConfiguration *rc)
@@ -3731,6 +3739,8 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_renameFileAction->setEnabled(false);
     m_diffFileAction->setEnabled(false);
     m_buildFileActionCtx->setEnabled(false);
+    m_buildSubProjectActionCtx->setVisible(false);
+    m_buildSubProjectActionCtx->setEnabled(false);
     m_createHeaderAction->setEnabled(false);
     m_createSourceAction->setEnabled(false);
 
@@ -3812,6 +3822,14 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
                     bs && (bs->isParsing() || bs->isWaitingForParse())) {
                 canEditProject = false;
             }
+        }
+        if (const auto projectNode = currentNode->asProjectNode()) {
+            BuildSystem * const bs = project ? activeBuildSystem(project) : nullptr;
+            m_buildSubProjectActionCtx->setVisible(
+                        project && projectNode != project->rootProjectNode() && projectNode->canBuild());
+            m_buildSubProjectActionCtx->setEnabled(projectNode->isEnabled()
+                        && m_buildSubProjectActionCtx->isVisible() && bs && !bs->isParsing()
+                        && !BuildManager::isBuilding(project));
         }
         if (currentNode->asFolderNode()) {
             // Also handles ProjectNode
