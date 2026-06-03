@@ -9,6 +9,7 @@
 #include <QObject>
 
 namespace ProjectExplorer { class RunControl; }
+namespace Utils { class FilePath; }
 
 namespace QmlProfiler {
 
@@ -57,6 +58,7 @@ public:
     static QString fileDialogTraceFilesFilter();
     void showSaveDialog();
     void showLoadDialog();
+    void loadFile(const Utils::FilePath &filePath);
 
     void profileStartupProject();
 

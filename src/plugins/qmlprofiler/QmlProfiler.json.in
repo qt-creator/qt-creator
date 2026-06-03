@@ -22,5 +22,15 @@
     ],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-qml-performance-monitor.html",
+    "Mimetypes" : [
+        "<?xml version='1.0'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='application/x-qmlprofiler-trace'>",
+        "        <comment>QML Profiler trace file</comment>",
+        "        <glob pattern='*.qtd'/>",
+        "        <glob pattern='*.qzt'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ],
     ${IDE_PLUGIN_DEPENDENCIES}
 }

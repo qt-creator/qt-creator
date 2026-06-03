@@ -5,6 +5,8 @@
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilertool.h"
 
+#include <coreplugin/idocumentfactory.h>
+
 #ifdef WITH_TESTS
 
 #include "tests/debugmessagesmodel_test.h"
@@ -58,6 +60,12 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
         setupQmlProfilerTool();
         setupQmlProfilerRunning();
 
+        m_traceFileFactory.addMimeType("application/x-qmlprofiler-trace");
+        m_traceFileFactory.setOpener([](const Utils::FilePath &filePath) -> Core::IDocument * {
+            QmlProfilerTool::instance()->loadFile(filePath);
+            return nullptr;
+        });
+
 #ifdef WITH_TESTS
         addTest<DebugMessagesModelTest>();
         addTest<FlameGraphModelTest>();
@@ -90,6 +98,8 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
 
         return SynchronousShutdown;
     }
+
+    Core::IDocumentFactory m_traceFileFactory;
 };
 
 } // QmlProfiler::Internal

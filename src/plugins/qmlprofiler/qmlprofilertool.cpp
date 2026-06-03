@@ -624,27 +624,30 @@ void QmlProfilerTool::showSaveDialog()
     }
 }
 
+void QmlProfilerTool::loadFile(const FilePath &filePath)
+{
+    saveLastTraceFile(filePath);
+    d->m_viewContainer->perspective()->select();
+    PerspectivesView::enableMainWindow(false);
+    connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
+            this, &QmlProfilerTool::setRecordedFeatures);
+    d->m_profilerModelManager->populateFileFinder();
+    Core::ProgressManager::addTask(d->m_profilerModelManager->load(filePath.toUrlishString()),
+                                   Tr::tr("Loading Trace Data"), TASK_LOAD);
+}
+
 void QmlProfilerTool::showLoadDialog()
 {
     if (!checkForUnsavedNotes())
         return;
-
-    d->m_viewContainer->perspective()->select();
 
     FilePath filePath = FileUtils::getOpenFilePath(
                 Tr::tr("Load QML Trace"),
                 globalSettings().lastTraceFile(),
                 fileDialogTraceFilesFilter());
 
-    if (!filePath.isEmpty()) {
-        saveLastTraceFile(filePath);
-        PerspectivesView::enableMainWindow(false);
-        connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
-                this, &QmlProfilerTool::setRecordedFeatures);
-        d->m_profilerModelManager->populateFileFinder();
-        Core::ProgressManager::addTask(d->m_profilerModelManager->load(filePath.toUrlishString()),
-                                       Tr::tr("Loading Trace Data"), TASK_LOAD);
-    }
+    if (!filePath.isEmpty())
+        loadFile(filePath);
 }
 
 void QmlProfilerTool::profileStartupProject()
