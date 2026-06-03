@@ -29,6 +29,9 @@ public:
     QString additionalToolTipSeparator() const;
     void setAdditionalToolTipSeparator(const QString &newAdditionalToolTipSeparator);
 
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void updateToolTip(const QString& elidedText);

@@ -52,6 +52,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+#include <climits>
+
 static Q_LOGGING_CATEGORY(appOutputLog, "qtc.projectexplorer.appoutput", QtWarningMsg);
 
 using namespace Core;
@@ -1307,7 +1309,7 @@ AppOutputSettings::AppOutputSettings()
     discardExcessiveOutput.setLabelText(Tr::tr("Discard excessive output"));
 
     maxCharCount.setSettingsKey("ProjectExplorer/Settings/MaxAppOutputLines");
-    maxCharCount.setRange(1, Core::Constants::DEFAULT_MAX_CHAR_COUNT);
+    maxCharCount.setRange(1, INT_MAX);
     maxCharCount.setDefaultValue(Core::Constants::DEFAULT_MAX_CHAR_COUNT);
 
     overwriteBackground.setSettingsKey("ProjectExplorer/Settings/OverwriteBackground");

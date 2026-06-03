@@ -106,4 +106,20 @@ void ElidingLabel::setAdditionalToolTipSeparator(const QString &newAdditionalToo
     m_additionalToolTipSeparator = newAdditionalToolTipSeparator;
 }
 
+QSize ElidingLabel::sizeHint() const
+{
+    if (m_elideMode == Qt::ElideNone)
+        return QLabel::sizeHint();
+    const int h = fontMetrics().height() + 2 * margin();
+    return QSize(QLabel::sizeHint().width(), h);
+}
+
+QSize ElidingLabel::minimumSizeHint() const
+{
+    if (m_elideMode == Qt::ElideNone)
+        return QLabel::minimumSizeHint();
+    const int h = fontMetrics().height() + 2 * margin();
+    return QSize(QLabel::minimumSizeHint().width(), h);
+}
+
 } // namespace Utils
