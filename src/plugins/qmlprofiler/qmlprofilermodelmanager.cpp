@@ -102,32 +102,17 @@ private:
     std::vector<QmlEvent> m_events;
 };
 
-class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
-{
-public:
-    struct QmlLoaderEntry {
-        quint64 features = 0;
-        QmlEventLoader loader;
-    };
-
-    Internal::QmlProfilerTextMarkModel *textMarkModel = nullptr;
-    Internal::QmlProfilerDetailsRewriter *detailsRewriter = nullptr;
-
-    bool isRestrictedToRange = false;
-    QList<QmlLoaderEntry> qmlLoaders;
-};
 
 QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent)
     : Timeline::TimelineTraceManager({}, std::make_unique<QmlProfilerEventTypeStorage>(), parent)
-    , d(new QmlProfilerModelManagerPrivate)
 {
     setNotesModel(new QmlProfilerNotesModel(this));
-    d->textMarkModel = new Internal::QmlProfilerTextMarkModel(this);
+    m_textMarkModel = new Internal::QmlProfilerTextMarkModel(this);
 
-    d->detailsRewriter = new Internal::QmlProfilerDetailsRewriter(this);
-    connect(d->detailsRewriter, &Internal::QmlProfilerDetailsRewriter::rewriteDetailsString,
+    m_detailsRewriter = new Internal::QmlProfilerDetailsRewriter(this);
+    connect(m_detailsRewriter, &Internal::QmlProfilerDetailsRewriter::rewriteDetailsString,
             this, &QmlProfilerModelManager::setTypeDetails);
-    connect(d->detailsRewriter, &Internal::QmlProfilerDetailsRewriter::eventDetailsChanged,
+    connect(m_detailsRewriter, &Internal::QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerModelManager::typeDetailsFinished);
     auto storage = new QmlProfilerEventStorage(QmlProfilerEventStorage::ErrorHandler());
     storage->setErrorHandler([this](const QString &message) { emit error(message); });
@@ -135,14 +120,9 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent)
     swapEventStorage(storagePtr);
 }
 
-QmlProfilerModelManager::~QmlProfilerModelManager()
-{
-    delete d;
-}
-
 Internal::QmlProfilerTextMarkModel *QmlProfilerModelManager::textMarkModel() const
 {
-    return d->textMarkModel;
+    return m_textMarkModel;
 }
 
 void QmlProfilerModelManager::loadEvent(const Timeline::TraceEvent &event,
@@ -210,7 +190,7 @@ void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
 
 void QmlProfilerModelManager::initialize()
 {
-    d->textMarkModel->hideTextMarks();
+    m_textMarkModel->hideTextMarks();
     TimelineTraceManager::initialize();
 }
 
@@ -229,7 +209,7 @@ void QmlProfilerModelManager::clearEventStorage()
 
 void QmlProfilerModelManager::clearTypeStorage()
 {
-    d->textMarkModel->clear();
+    m_textMarkModel->clear();
     TimelineTraceManager::clearTypeStorage();
 }
 
@@ -274,24 +254,24 @@ const char *QmlProfilerModelManager::featureName(ProfileFeature feature)
 
 void QmlProfilerModelManager::finalize()
 {
-    d->detailsRewriter->reloadDocuments();
+    m_detailsRewriter->reloadDocuments();
 
     // Load notes after the timeline models have been initialized ...
     // which happens on stateChanged(Done).
 
     TimelineTraceManager::finalize();
-    d->textMarkModel->showTextMarks();
+    m_textMarkModel->showTextMarks();
     emit traceChanged();
 }
 
 void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::BuildConfiguration *bc)
 {
-    d->detailsRewriter->populateFileFinder(bc);
+    m_detailsRewriter->populateFileFinder(bc);
 }
 
 Utils::FilePath QmlProfilerModelManager::findLocalFile(const QString &remoteFile)
 {
-    return d->detailsRewriter->getLocalFile(remoteFile);
+    return m_detailsRewriter->getLocalFile(remoteFile);
 }
 
 void QmlProfilerModelManager::setTypeDetails(int typeId, const QString &details)
@@ -328,7 +308,7 @@ int QmlProfilerModelManager::appendEventType(QmlEventType &&type)
     const QmlEventLocation &location = type.location();
     if (location.isValid()) {
         const RangeType rangeType = type.rangeType();
-        const QmlEventLocation localLocation(d->detailsRewriter->getLocalFile(location.filename())
+        const QmlEventLocation localLocation(m_detailsRewriter->getLocalFile(location.filename())
                                                  .toUrlishString(),
                                              location.line(),
                                              location.column());
@@ -338,8 +318,8 @@ int QmlProfilerModelManager::appendEventType(QmlEventType &&type)
 
         // Only bindings and signal handlers need rewriting
         if (rangeType == Binding || rangeType == HandlingSignal)
-            d->detailsRewriter->requestDetailsForLocation(typeIndex, location);
-        d->textMarkModel->addTextMarkId(typeIndex, localLocation);
+            m_detailsRewriter->requestDetailsForLocation(typeIndex, location);
+        m_textMarkModel->addTextMarkId(typeIndex, localLocation);
         return typeIndex;
     } else {
         // There is no point in looking for invalid locations; just add the type
@@ -356,9 +336,9 @@ void QmlProfilerModelManager::setEventType(int typeIndex, QmlEventType &&type)
     if (location.isValid()) {
         // Only bindings and signal handlers need rewriting
         if (type.rangeType() == Binding || type.rangeType() == HandlingSignal)
-            d->detailsRewriter->requestDetailsForLocation(typeIndex, location);
-        d->textMarkModel->addTextMarkId(typeIndex,
-                                        QmlEventLocation(d->detailsRewriter
+            m_detailsRewriter->requestDetailsForLocation(typeIndex, location);
+        m_textMarkModel->addTextMarkId(typeIndex,
+                                        QmlEventLocation(m_detailsRewriter
                                                              ->getLocalFile(location.filename())
                                                              .toUrlishString(),
                                                          location.line(),
@@ -376,13 +356,13 @@ void QmlProfilerModelManager::appendEvent(QmlEvent &&event)
 
 void QmlProfilerModelManager::restrictToRange(qint64 start, qint64 end)
 {
-    d->isRestrictedToRange = (start != -1 || end != -1);
+    m_isRestrictedToRange = (start != -1 || end != -1);
     restrictByFilter(rangeFilter(start, end));
 }
 
 bool QmlProfilerModelManager::isRestrictedToRange() const
 {
-    return d->isRestrictedToRange;
+    return m_isRestrictedToRange;
 }
 
 QmlProfilerModelManager::QmlEventFilter

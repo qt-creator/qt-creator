@@ -20,9 +20,7 @@
 namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QmlProfiler {
-
-class QmlProfilerModelManager;
-class QmlProfilerNotesModel;
+namespace Internal { class QmlProfilerDetailsRewriter; }
 
 // Interface between the Data Model and the Engine/Tool
 class QMLPROFILER_EXPORT QmlProfilerModelManager : public Timeline::TimelineTraceManager
@@ -40,7 +38,6 @@ public:
     QList<QmlLoaderEntry> qmlLoaders;
 
     explicit QmlProfilerModelManager(QObject *parent = nullptr);
-    ~QmlProfilerModelManager() override;
 
     Internal::QmlProfilerTextMarkModel *textMarkModel() const;
 
@@ -87,8 +84,9 @@ private:
     void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
                       ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
 
-    class QmlProfilerModelManagerPrivate;
-    QmlProfilerModelManagerPrivate *d;
+    Internal::QmlProfilerTextMarkModel *m_textMarkModel = nullptr;
+    Internal::QmlProfilerDetailsRewriter *m_detailsRewriter = nullptr;
+    bool m_isRestrictedToRange = false;
 };
 
 } // namespace QmlProfiler
