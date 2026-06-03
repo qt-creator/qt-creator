@@ -10,6 +10,11 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsinterpreter.h>
 
+#include <QHash>
+#include <QMutex>
+
+#include <optional>
+
 namespace McuSupport::Internal {
 using namespace QmlJS;
 using namespace Utils;
@@ -32,6 +37,10 @@ public:
     virtual Utils::FilePaths prioritizeImportPaths(const Document *context,
                                                    const Utils::FilePaths &importPaths) override;
 
+    // Precompute the target build folder on the GUI thread (ProjectManager / ProjectNode
+    // are not thread-safe). imports()/etc. read the cached value on the link worker thread.
+    void prepare(const Document *context) override;
+
     // Add to the interfaces needed for a document
     // path: opened qml document
     // importsPerDocument: imports available in the document (considered imported)
@@ -47,5 +56,11 @@ public:
     // Get the qmlproject module which a qmlfile is part of
     // nullopt means the file is part of the main project
     std::optional<FilePath> getFileModule(const FilePath &file, const FilePath &inputFile) const;
+
+private:
+    std::optional<FilePath> cachedTargetBuildFolder(const FilePath &path) const;
+
+    mutable QMutex m_mutex;
+    QHash<FilePath, FilePath> m_targetBuildFolders;
 };
 }; // namespace McuSupport::Internal
