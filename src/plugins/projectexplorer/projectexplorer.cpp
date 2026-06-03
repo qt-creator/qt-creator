@@ -392,14 +392,11 @@ public:
     }
 };
 
-class ProjectEnvironmentWidget : public ProjectSettingsWidget
+class ProjectEnvironmentWidget : public QWidget
 {
 public:
     explicit ProjectEnvironmentWidget(Project *project)
     {
-        setUseGlobalSettingsCheckBoxVisible(false);
-        setUseGlobalSettingsLabelVisible(false);
-
         const auto envWidget = new EnvironmentWidget(this, EnvironmentWidget::TypeLocal);
         envWidget->setOpenTerminalFunc({});
         envWidget->expand();

@@ -7,7 +7,6 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectpanelfactory.h"
-#include "projectsettingswidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/session.h>
@@ -219,15 +218,12 @@ void DependenciesView::updateSizeHint()
 // DependenciesWidget
 //
 
-class DependenciesWidget : public ProjectSettingsWidget
+class DependenciesWidget : public QWidget
 {
 public:
     explicit DependenciesWidget(Project *project)
         : m_model(project)
     {
-        setUseGlobalSettingsCheckBoxVisible(false);
-        setUseGlobalSettingsLabelVisible(false);
-
         m_detailsContainer = new Utils::DetailsWidget(this);
         m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
 
