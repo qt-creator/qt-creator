@@ -75,6 +75,33 @@ private:
     int m_size = 0;
 };
 
+class QmlProfilerInMemoryEventStorage : public Timeline::TraceEventStorage
+{
+public:
+    int append(Timeline::TraceEvent &&event) override
+    {
+        QTC_ASSERT(event.is<QmlEvent>(), return int(m_events.size()));
+        m_events.push_back(std::move(event.asRvalueRef<QmlEvent>()));
+        return int(m_events.size()) - 1;
+    }
+
+    int size() const override { return int(m_events.size()); }
+    void clear() override { m_events.clear(); }
+    void finalize() override {}
+
+    bool replay(const std::function<bool(Timeline::TraceEvent &&)> &receiver) const override
+    {
+        for (const QmlEvent &event : m_events) {
+            if (!receiver(QmlEvent(event)))
+                return false;
+        }
+        return true;
+    }
+
+private:
+    std::vector<QmlEvent> m_events;
+};
+
 class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
 {
 public:
@@ -181,6 +208,13 @@ void QmlProfilerModelManager::initialize()
 {
     d->textMarkModel->hideTextMarks();
     TimelineTraceManager::initialize();
+}
+
+void QmlProfilerModelManager::useInMemoryEventStorage()
+{
+    std::unique_ptr<Timeline::TraceEventStorage> storage =
+        std::make_unique<QmlProfilerInMemoryEventStorage>();
+    swapEventStorage(storage);
 }
 
 void QmlProfilerModelManager::clearEventStorage()

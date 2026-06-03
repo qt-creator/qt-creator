@@ -53,6 +53,8 @@ public:
     void populateFileFinder(const ProjectExplorer::BuildConfiguration *bc = nullptr);
     Utils::FilePath findLocalFile(const QString &remoteFile);
 
+    void useInMemoryEventStorage();
+
     static const char *featureName(QmlDebug::ProfileFeature feature);
 
     int appendEventType(QmlDebug::QmlEventType &&type);

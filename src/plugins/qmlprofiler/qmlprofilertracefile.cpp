@@ -108,6 +108,11 @@ QmlProfilerTraceFile::QmlProfilerTraceFile(QObject *parent) : Timeline::Timeline
 
 void QmlProfilerTraceFile::load(QIODevice *device)
 {
+    // Use in-memory storage for the load path: avoids writing all events to a temp file
+    // only to read them back again. The in-memory storage also serves subsequent replay
+    // (feature filtering, range restriction, saving) and is faster for that too.
+    modelManager()->useInMemoryEventStorage();
+
     const QFile *file = qobject_cast<QFile *>(device);
     if (file && file->fileName().endsWith(Constants::QtdFileExtension))
         loadQtd(device);
