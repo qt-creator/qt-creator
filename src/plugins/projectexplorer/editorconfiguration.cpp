@@ -83,6 +83,9 @@ EditorConfiguration::EditorConfiguration()
 
     connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveProject,
             this, &EditorConfiguration::slotAboutToRemoveProject);
+    connect(&extraEncodingSettings.defaultEncoding, &BaseAspect::changed, this, [this] {
+        setTextEncoding(extraEncodingSettings.defaultEncoding());
+    });
 }
 
 EditorConfiguration::~EditorConfiguration()

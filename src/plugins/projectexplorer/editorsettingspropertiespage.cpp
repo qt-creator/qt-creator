@@ -10,20 +10,12 @@
 #include "projectsettingswidget.h"
 
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/behaviorsettings.h>
-#include <texteditor/extraencodingsettings.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/marginsettings.h>
-#include <texteditor/storagesettings.h>
-#include <texteditor/typingsettings.h>
 
 #include <utils/layoutbuilder.h>
-#include <utils/textcodec.h>
 
-#include <QCheckBox>
 #include <QGroupBox>
 #include <QPushButton>
-#include <QSpinBox>
 
 using namespace Utils;
 
@@ -35,35 +27,22 @@ public:
     explicit EditorSettingsWidget(Project *project);
 
 private:
-    void globalSettingsActivated(bool useGlobal);
-    void restoreDefaultValues();
-
-    void settingsToUi(const EditorConfiguration *config);
-
-    Project *m_project;
-
-    QPushButton m_restoreButton;
-    QGroupBox m_displaySettings;
+    QPushButton m_restoreButton{Tr::tr("Restore Global")};
+    QGroupBox m_displaySettings{Tr::tr("Display Settings")};
     QWidget m_behaviorSettings;
-    TextEditor::TabSettings m_tabSettingsWidget;
+    TextEditor::TabSettings m_tabSettings;
 };
 
 EditorSettingsWidget::EditorSettingsWidget(Project *project)
-    : m_project(project)
-    , m_restoreButton(Tr::tr("Restore Global"), this)
-    , m_displaySettings(Tr::tr("Display Settings"), this)
-    , m_behaviorSettings(this)
 {
     setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
 
-    m_displaySettings.setEnabled(false);
-
-    EditorConfiguration *config = m_project->editorConfiguration();
+    EditorConfiguration *config = project->editorConfiguration();
 
     using namespace Layouting;
 
     Column {
-        &m_tabSettingsWidget,
+        &m_tabSettings,
         &config->typingSettings,
         &config->storageSettings,
         &config->extraEncodingSettings,
@@ -90,41 +69,26 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
         noMargin
     }.attachTo(this);
 
-    settingsToUi(config);
+    m_tabSettings.setPreferences(config->codeStyle());
 
-    globalSettingsActivated(config->useGlobalSettings());
+    const auto updateEnabled = [this](bool useGlobal) {
+        m_displaySettings.setEnabled(!useGlobal);
+        m_behaviorSettings.setEnabled(!useGlobal);
+        m_restoreButton.setEnabled(!useGlobal);
+    };
+    updateEnabled(config->useGlobalSettings());
     setUseGlobalSettings(config->useGlobalSettings());
 
     connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-            this, &EditorSettingsWidget::globalSettingsActivated);
-
-    connect(&m_restoreButton, &QAbstractButton::clicked,
-            this, &EditorSettingsWidget::restoreDefaultValues);
-
-    connect(&config->extraEncodingSettings.defaultEncoding, &BaseAspect::changed, config, [config] {
-            config->setTextEncoding(config->extraEncodingSettings.defaultEncoding());
+            this, [config, updateEnabled](bool useGlobal) {
+        updateEnabled(useGlobal);
+        config->setUseGlobalSettings(useGlobal);
     });
-}
-
-void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
-{
-    m_tabSettingsWidget.setPreferences(config->codeStyle());
-}
-
-void EditorSettingsWidget::globalSettingsActivated(bool useGlobal)
-{
-    m_displaySettings.setEnabled(!useGlobal);
-    m_behaviorSettings.setEnabled(!useGlobal);
-    m_restoreButton.setEnabled(!useGlobal);
-    EditorConfiguration *config = m_project->editorConfiguration();
-    config->setUseGlobalSettings(useGlobal);
-}
-
-void EditorSettingsWidget::restoreDefaultValues()
-{
-    EditorConfiguration *config = m_project->editorConfiguration();
-    config->cloneGlobalSettings();
-    settingsToUi(config);
+    connect(&m_restoreButton, &QAbstractButton::clicked,
+            this, [this, config] {
+        config->cloneGlobalSettings();
+        m_tabSettings.setPreferences(config->codeStyle());
+    });
 }
 
 class EditorSettingsProjectPanelFactory final : public ProjectPanelFactory
