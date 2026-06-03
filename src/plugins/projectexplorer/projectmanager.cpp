@@ -23,6 +23,7 @@
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
+#include <utils/infobar.h>
 #include <utils/mimeutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -43,11 +44,32 @@ using namespace ProjectExplorer::Internal;
 
 namespace ProjectExplorer {
 
+static Id idForInfoBarEntry(const FilePath &filePath)
+{
+    return Id("ProjectExplorer.OpenProject.").withSuffix(filePath.toFSPathString());
+}
+
 static void configureEditor(IEditor *editor, const FilePath &filePath)
 {
     // Global settings are the default.
-    if (const Project *project = ProjectManager::projectForFile(filePath))
+    if (const Project *project = ProjectManager::projectForFile(filePath)) {
         project->editorConfiguration()->configureEditor(editor);
+    } else {
+        const MimeType mt = Utils::mimeTypeForFile(filePath);
+        if (ProjectManager::canOpenProjectForMimeType(mt)) {
+            const Id id = idForInfoBarEntry(filePath);
+            IDocument *document = editor->document();
+            if (document->infoBar()->canInfoBeAdded(id)) {
+                InfoBarEntry
+                    info(id, Tr::tr("Open this project?"), InfoBarEntry::GlobalSuppression::Enabled);
+                info.addCustomButton(Tr::tr("Open Project"), [document, id] {
+                    document->infoBar()->removeInfo(id);
+                    ProjectExplorerPlugin::openProject(document->filePath());
+                });
+                document->infoBar()->addInfo(info);
+            }
+        }
+    }
 }
 
 static void configureEditors(const Project *project)
@@ -55,6 +77,7 @@ static void configureEditors(const Project *project)
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
         if (project->isKnownFile(document->filePath())) {
+            document->infoBar()->removeInfo(idForInfoBarEntry(document->filePath()));
             const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
             for (IEditor *editor : editors)
                 project->editorConfiguration()->configureEditor(editor);
