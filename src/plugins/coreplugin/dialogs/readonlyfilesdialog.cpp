@@ -56,13 +56,13 @@ public:
     void setAll(int index);
     void updateSelectAll();
 
-    ReadOnlyFilesDialog *q;
+    ReadOnlyFilesDialog *q = nullptr;
 
     // Buttongroups containing the operation for one file.
     struct ButtonGroupForFile
     {
         FilePath filePath;
-        QButtonGroup *group;
+        QButtonGroup *group = nullptr;
     };
     QList <ButtonGroupForFile> buttonGroups;
 
@@ -71,15 +71,15 @@ public:
     QHash<FilePath, IVersionControl*> versionControls;
 
     // Define if some specific operations should be allowed to make the files writable.
-    const bool useSaveAs;
-    bool useVCS;
+    const bool useSaveAs = false;
+    bool useVCS = false;
 
     // Define if an error should be displayed when an operation fails.
-    bool showWarnings;
+    bool showWarnings = false;
     QString failWarning;
 
     // The document is necessary for the Save As operation.
-    IDocument *document;
+    IDocument *document = nullptr;
 
     // Operation text for the tree widget header and combo box entries for
     // modifying operations for all files.
@@ -88,9 +88,9 @@ public:
     QString versionControlOpenText;
     const QString saveAsText;
 
-    QLabel *m_msgLabel;
-    QTreeWidget *m_treeWidget;
-    QComboBox *m_setAll;
+    QLabel *m_msgLabel = nullptr;
+    QTreeWidget *m_treeWidget = nullptr;
+    QComboBox *m_setAll = nullptr;
 };
 
 ReadOnlyFilesDialogPrivate::ReadOnlyFilesDialogPrivate(ReadOnlyFilesDialog *parent, IDocument *document, bool displaySaveAs)
