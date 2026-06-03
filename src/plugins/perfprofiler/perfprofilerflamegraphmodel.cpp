@@ -94,9 +94,10 @@ PerfProfilerFlameGraphModel::PerfProfilerFlameGraphModel(PerfProfilerTraceManage
     QAbstractItemModel(manager), m_stackBottom(new Data)
 {
     auto *data = new PerfProfilerFlameGraphData;
+    manager->perfLoaders.append({PerfEventType::attributeFeatures(),
+                                 std::bind(&PerfProfilerFlameGraphData::loadEvent, data,
+                                           std::placeholders::_1, std::placeholders::_2)});
     manager->registerFeatures(PerfEventType::attributeFeatures(),
-                              std::bind(&PerfProfilerFlameGraphData::loadEvent, data,
-                                        std::placeholders::_1, std::placeholders::_2),
                               std::bind(&PerfProfilerFlameGraphModel::initialize, this),
                               std::bind(&PerfProfilerFlameGraphModel::finalize, this, data),
                               std::bind(&PerfProfilerFlameGraphModel::clear, this, data));

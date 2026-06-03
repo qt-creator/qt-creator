@@ -12,12 +12,13 @@ namespace PerfProfiler::Internal {
 PerfTimelineModelManager::PerfTimelineModelManager()
    : Timeline::TimelineModelAggregator(&traceManager())
 {
+    traceManager().perfLoaders.append({PerfEventType::allFeatures(),
+                                       std::bind(&PerfTimelineModelManager::loadEvent, this,
+                                                 std::placeholders::_1, std::placeholders::_2)});
     traceManager().registerFeatures(PerfEventType::allFeatures(),
-                                   std::bind(&PerfTimelineModelManager::loadEvent, this,
-                                             std::placeholders::_1, std::placeholders::_2),
-                                   std::bind(&PerfTimelineModelManager::initialize, this),
-                                   std::bind(&PerfTimelineModelManager::finalize, this),
-                                   std::bind(&PerfTimelineModelManager::clear, this));
+                                    std::bind(&PerfTimelineModelManager::initialize, this),
+                                    std::bind(&PerfTimelineModelManager::finalize, this),
+                                    std::bind(&PerfTimelineModelManager::clear, this));
 }
 
 PerfTimelineModelManager::~PerfTimelineModelManager()

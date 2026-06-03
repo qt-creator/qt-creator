@@ -55,7 +55,6 @@ PerfProfilerTool::PerfProfilerTool()
 {
     s_instance = this;
     traceManager().registerFeatures(PerfEventType::allFeatures(),
-                                     nullptr,
                                      std::bind(&PerfProfilerTool::initialize, this),
                                      std::bind(&PerfProfilerTool::finalize, this),
                                      std::bind(&PerfProfilerTool::clearUi, this));

@@ -145,16 +145,6 @@ Internal::QmlProfilerTextMarkModel *QmlProfilerModelManager::textMarkModel() con
     return d->textMarkModel;
 }
 
-void QmlProfilerModelManager::registerFeatures(quint64 features, QmlEventLoader eventLoader,
-                                               Initializer initializer, Finalizer finalizer,
-                                               Clearer clearer)
-{
-    if (eventLoader)
-        d->qmlLoaders.append({features, std::move(eventLoader)});
-    Timeline::TimelineTraceManager::registerFeatures(features, TraceEventLoader(),
-                                                     initializer, finalizer, clearer);
-}
-
 void QmlProfilerModelManager::loadEvent(const Timeline::TraceEvent &event,
                                         const Timeline::TraceEventType &type)
 {
@@ -162,8 +152,7 @@ void QmlProfilerModelManager::loadEvent(const Timeline::TraceEvent &event,
     const QmlEvent &qmlEvent = event.asConstRef<QmlEvent>();
     const QmlEventType &qmlType = type.asConstRef<QmlEventType>();
     const quint64 featureBit = 1ULL << qmlType.feature();
-    for (const QmlProfilerModelManagerPrivate::QmlLoaderEntry &entry
-         : std::as_const(d->qmlLoaders)) {
+    for (const QmlLoaderEntry &entry : std::as_const(qmlLoaders)) {
         if (entry.features & featureBit)
             entry.loader(qmlEvent, qmlType);
     }

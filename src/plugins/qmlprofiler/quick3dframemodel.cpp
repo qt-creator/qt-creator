@@ -40,9 +40,10 @@ Quick3DFrameModel::Quick3DFrameModel(QmlProfilerModelManager *modelManager, QObj
     , m_modelManager(modelManager)
 {
     m_acceptedDetailTypes << RenderFrame << SynchronizeFrame << PrepareFrame << RenderCall << RenderPass << EventData << TextureLoad << MeshLoad << CustomMeshLoad;
+    modelManager->qmlLoaders.append({1ULL << ProfileQuick3D,
+                                     std::bind(&Quick3DFrameModel::loadEvent, this,
+                                               std::placeholders::_1, std::placeholders::_2)});
     modelManager->registerFeatures(1ULL << ProfileQuick3D,
-                                   std::bind(&Quick3DFrameModel::loadEvent, this,
-                                             std::placeholders::_1, std::placeholders::_2),
                                    std::bind(&Quick3DFrameModel::beginResetModel, this),
                                    std::bind(&Quick3DFrameModel::finalize, this),
                                    std::bind(&Quick3DFrameModel::clear, this));

@@ -34,9 +34,10 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
             this, [this](int typeId, int, int){loadNotes(typeId, true);});
     m_acceptedFeatures = supportedFeatures();
 
+    modelManager->qmlLoaders.append({m_acceptedFeatures,
+                                     std::bind(&FlameGraphModel::loadEvent, this,
+                                               std::placeholders::_1, std::placeholders::_2)});
     modelManager->registerFeatures(m_acceptedFeatures,
-                                   std::bind(&FlameGraphModel::loadEvent, this,
-                                             std::placeholders::_1, std::placeholders::_2),
                                    std::bind(&FlameGraphModel::beginResetModel, this),
                                    std::bind(&FlameGraphModel::finalize, this),
                                    std::bind(&FlameGraphModel::clear, this));

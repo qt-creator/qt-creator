@@ -71,7 +71,7 @@ public:
     const TraceEventStorage *eventStorage() const;
     const TraceEventTypeStorage *typeStorage() const;
 
-    void registerFeatures(quint64 features, TraceEventLoader eventLoader,
+    void registerFeatures(quint64 features,
                           Initializer initializer = Initializer(),
                           Finalizer finalizer = Finalizer(),
                           Clearer clearer = Clearer());

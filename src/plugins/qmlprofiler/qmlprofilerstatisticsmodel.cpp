@@ -51,9 +51,10 @@ QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *
 
     m_acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
 
+    modelManager->qmlLoaders.append({Constants::QML_JS_RANGE_FEATURES,
+                                     std::bind(&QmlProfilerStatisticsModel::loadEvent, this,
+                                               std::placeholders::_1, std::placeholders::_2)});
     modelManager->registerFeatures(Constants::QML_JS_RANGE_FEATURES,
-                                   std::bind(&QmlProfilerStatisticsModel::loadEvent, this,
-                                             std::placeholders::_1, std::placeholders::_2),
                                    std::bind(&QmlProfilerStatisticsModel::beginResetModel, this),
                                    std::bind(&QmlProfilerStatisticsModel::finalize, this),
                                    std::bind(&QmlProfilerStatisticsModel::clear, this));

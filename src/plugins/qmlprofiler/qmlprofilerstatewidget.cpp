@@ -53,7 +53,7 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
     // profiler state
     d->m_modelManager = modelManager;
 
-    modelManager->registerFeatures(0, QmlProfilerModelManager::QmlEventLoader(),
+    modelManager->registerFeatures(0,
                                    std::bind(&QmlProfilerStateWidget::initialize, this),
                                    std::bind(&QmlProfilerStateWidget::clear, this),
                                    std::bind(&QmlProfilerStateWidget::clear, this));

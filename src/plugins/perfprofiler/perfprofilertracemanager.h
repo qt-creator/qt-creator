@@ -91,10 +91,11 @@ public:
     PerfProfilerTraceManager();
     ~PerfProfilerTraceManager() override;
 
-    void registerFeatures(quint64 features, PerfEventLoader eventLoader,
-                          Initializer intializer = nullptr,
-                          Finalizer finalizer = nullptr,
-                          Clearer clearer = nullptr);
+    struct PerfLoaderEntry {
+        quint64 features = 0;
+        PerfEventLoader loader;
+    };
+    QList<PerfLoaderEntry> perfLoaders;
 
     void replayPerfEvents(PerfEventLoader loader, Initializer initializer, Finalizer finalizer,
                           ErrorHandler errorHandler, QFutureInterface<void> &future) const;
@@ -168,12 +169,6 @@ protected:
                       ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
 
 private:
-    struct PerfLoaderEntry {
-        quint64 features = 0;
-        PerfEventLoader loader;
-    };
-
-    QList<PerfLoaderEntry> m_perfLoaders;
     QTimer m_reparseTimer;
 
     QList<QByteArray> m_strings;

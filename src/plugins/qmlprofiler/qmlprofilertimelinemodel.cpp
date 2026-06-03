@@ -22,9 +22,10 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
     connect(modelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
             this, &QmlProfilerTimelineModel::onVisibleFeaturesChanged);
 
+    m_modelManager->qmlLoaders.append({1ULL << m_mainFeature,
+                                       std::bind(&QmlProfilerTimelineModel::loadEvent, this,
+                                                 std::placeholders::_1, std::placeholders::_2)});
     m_modelManager->registerFeatures(1ULL << m_mainFeature,
-                                     std::bind(&QmlProfilerTimelineModel::loadEvent, this,
-                                               std::placeholders::_1, std::placeholders::_2),
                                      std::bind(&QmlProfilerTimelineModel::initialize, this),
                                      std::bind(&QmlProfilerTimelineModel::finalize, this),
                                      std::bind(&QmlProfilerTimelineModel::clear, this));

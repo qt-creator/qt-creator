@@ -17,9 +17,11 @@ MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager,
 {
     // Register additional features. The base class already registers the main feature.
     // Don't register initializer, finalizer, or clearer as the base class has done so already.
-    modelManager()->registerFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << ProfileCompiling),
-                                     std::bind(&QmlProfilerTimelineModel::loadEvent, this,
-                                               std::placeholders::_1, std::placeholders::_2));
+    const quint64 features = Constants::QML_JS_RANGE_FEATURES ^ (1 << ProfileCompiling);
+    modelManager()->qmlLoaders.append({features,
+                                       std::bind(&QmlProfilerTimelineModel::loadEvent, this,
+                                                 std::placeholders::_1, std::placeholders::_2)});
+    modelManager()->registerFeatures(features);
 }
 
 qint64 MemoryUsageModel::rowMaxValue(int rowNumber) const

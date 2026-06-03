@@ -125,16 +125,6 @@ PerfProfilerTraceManager::PerfProfilerTraceManager()
 
 PerfProfilerTraceManager::~PerfProfilerTraceManager() = default;
 
-void PerfProfilerTraceManager::registerFeatures(quint64 features, PerfEventLoader eventLoader,
-                                                Initializer initializer, Finalizer finalizer,
-                                                Clearer clearer)
-{
-    if (eventLoader)
-        m_perfLoaders.append({features, std::move(eventLoader)});
-    Timeline::TimelineTraceManager::registerFeatures(features, TraceEventLoader(),
-                                                     initializer, finalizer, clearer);
-}
-
 void PerfProfilerTraceManager::loadEvent(const Timeline::TraceEvent &event,
                                          const Timeline::TraceEventType &type)
 {
@@ -142,7 +132,7 @@ void PerfProfilerTraceManager::loadEvent(const Timeline::TraceEvent &event,
     const PerfEvent &perfEvent = event.asConstRef<PerfEvent>();
     const PerfEventType &perfType = type.asConstRef<PerfEventType>();
     const quint64 featureBit = 1ULL << perfType.feature();
-    for (const PerfLoaderEntry &entry : std::as_const(m_perfLoaders)) {
+    for (const PerfLoaderEntry &entry : std::as_const(perfLoaders)) {
         if (entry.features & featureBit)
             entry.loader(perfEvent, perfType);
     }

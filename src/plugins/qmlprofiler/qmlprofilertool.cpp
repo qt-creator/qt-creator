@@ -135,7 +135,7 @@ QmlProfilerTool::QmlProfilerTool()
             this, &QmlProfilerTool::clientsDisconnected);
 
     d->m_profilerModelManager = new QmlProfilerModelManager(this);
-    d->m_profilerModelManager->registerFeatures(0, QmlProfilerModelManager::QmlEventLoader(),
+    d->m_profilerModelManager->registerFeatures(0,
                                                 std::bind(&QmlProfilerTool::initialize, this),
                                                 std::bind(&QmlProfilerTool::finalize, this),
                                                 std::bind(&QmlProfilerTool::clear, this));

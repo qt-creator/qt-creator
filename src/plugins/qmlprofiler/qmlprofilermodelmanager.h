@@ -33,14 +33,16 @@ public:
         = std::function<void (const QmlDebug::QmlEvent &, const QmlDebug::QmlEventType &)>;
     using QmlEventFilter = std::function<QmlEventLoader (QmlEventLoader)>;
 
+    struct QmlLoaderEntry {
+        quint64 features = 0;
+        QmlEventLoader loader;
+    };
+    QList<QmlLoaderEntry> qmlLoaders;
+
     explicit QmlProfilerModelManager(QObject *parent = nullptr);
     ~QmlProfilerModelManager() override;
 
     Internal::QmlProfilerTextMarkModel *textMarkModel() const;
-
-    void registerFeatures(quint64 features, QmlEventLoader eventLoader,
-                          Initializer initializer = nullptr, Finalizer finalizer = nullptr,
-                          Clearer clearer = nullptr);
 
     const QmlDebug::QmlEventType &eventType(int typeId) const;
 

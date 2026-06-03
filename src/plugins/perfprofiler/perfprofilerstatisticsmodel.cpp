@@ -323,12 +323,13 @@ PerfProfilerStatisticsMainModel::PerfProfilerStatisticsMainModel(QObject *parent
     m_children = new PerfProfilerStatisticsRelativesModel(Children, this);
     m_parents = new PerfProfilerStatisticsRelativesModel(Parents, this);
     PerfProfilerStatisticsData *data = new PerfProfilerStatisticsData;
+    traceManager().perfLoaders.append({PerfEventType::attributeFeatures(),
+                                       std::bind(&PerfProfilerStatisticsData::loadEvent, data,
+                                                 std::placeholders::_1, std::placeholders::_2)});
     traceManager().registerFeatures(PerfEventType::attributeFeatures(),
-                             std::bind(&PerfProfilerStatisticsData::loadEvent, data,
-                                       std::placeholders::_1, std::placeholders::_2),
-                             std::bind(&PerfProfilerStatisticsMainModel::initialize, this),
-                             std::bind(&PerfProfilerStatisticsMainModel::finalize, this, data),
-                             std::bind(&PerfProfilerStatisticsMainModel::clear, this, data));
+                                    std::bind(&PerfProfilerStatisticsMainModel::initialize, this),
+                                    std::bind(&PerfProfilerStatisticsMainModel::finalize, this, data),
+                                    std::bind(&PerfProfilerStatisticsMainModel::clear, this, data));
     m_offlineData.reset(data);
 }
 
