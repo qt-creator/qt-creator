@@ -62,6 +62,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
     }.attachTo(&m_displaySettings);
 
     Column {
+        createGlobalOrProjectSelector(),
         Row { &m_restoreButton, st },
         &m_displaySettings,
         &m_behaviorSettings,

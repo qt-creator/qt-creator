@@ -58,6 +58,7 @@ TodoProjectPanelWidget::TodoProjectPanelWidget(Project *project)
     using namespace Layouting;
 
     Column {
+        createGlobalOrProjectSelector(),
         Group {
             title(Tr::tr("Excluded Files")),
             Row {

@@ -166,6 +166,7 @@ public:
         // Construct the widget layout from the aspect container
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(createGlobalOrProjectSelector());
         if (auto layouter = m_displayedSettings.layouter())
             layouter().attachTo(m_widget);
         layout->addWidget(m_widget);

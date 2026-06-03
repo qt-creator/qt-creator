@@ -20,18 +20,12 @@ QWidget *createGlobalSettingsLink(Utils::Id globalId)
     QObject::connect(label, &QLabel::linkActivated, label, [globalId] {
         Core::ICore::showSettings(globalId);
     });
-    const auto row = new QHBoxLayout;
-    row->setContentsMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN);
-    row->setSpacing(CONTENTS_MARGIN);
-    row->addWidget(label);
-    row->addStretch(1);
-    const auto widget = new QWidget;
-    const auto vbox = new QVBoxLayout(widget);
-    vbox->setContentsMargins(0, 0, 0, 0);
-    vbox->setSpacing(0);
-    vbox->addLayout(row);
-    vbox->addWidget(Layouting::createHr());
-    return widget;
+    using namespace Layouting;
+    return Column {
+        Row { label, st, customMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN), spacing(CONTENTS_MARGIN) },
+        createHr(),
+        noMargin, spacing(0),
+    }.emerge();
 }
 
 void ProjectSettingsWidget::setUseGlobalSettings(bool useGlobalSettings)
@@ -75,48 +69,35 @@ void ProjectSettingsWidget::setExpanding(bool expanding)
     m_expanding = expanding;
 }
 
-void ProjectSettingsWidget::addGlobalOrProjectSelectorToLayout(QBoxLayout *layout)
+QWidget *ProjectSettingsWidget::createGlobalOrProjectSelector()
 {
-    if (!m_useGlobalSettingsCheckBoxVisibleVisible && !m_useGlobalSettingsLabelVisibleVisible)
-        return;
+    const auto checkBox = new QCheckBox;
+    checkBox->setChecked(useGlobalSettings());
+    checkBox->setEnabled(m_useGlobalSettingsCheckBoxEnabled);
 
-    const auto useGlobalSettingsCheckBox = new QCheckBox;
-    useGlobalSettingsCheckBox->setChecked(useGlobalSettings());
-    useGlobalSettingsCheckBox->setEnabled(m_useGlobalSettingsCheckBoxEnabled);
+    const auto label = new QLabel(
+        QStringLiteral("Use <a href=\"dummy\">global settings</a>"));
+    label->setEnabled(m_useGlobalSettingsCheckBoxEnabled);
 
-    const QString labelText = m_useGlobalSettingsCheckBoxVisibleVisible
-            ? QStringLiteral("Use <a href=\"dummy\">global settings</a>")
-            : QStringLiteral("<a href=\"dummy\">Global settings</a>");
-    const auto settingsLabel = new QLabel(labelText);
-    settingsLabel->setEnabled(m_useGlobalSettingsCheckBoxEnabled);
+    connect(this, &ProjectSettingsWidget::useGlobalSettingsCheckBoxEnabledChanged,
+            this, [checkBox, label](bool enabled) {
+        checkBox->setEnabled(enabled);
+        label->setEnabled(enabled);
+    });
+    connect(checkBox, &QCheckBox::stateChanged,
+            this, &ProjectSettingsWidget::setUseGlobalSettings);
+    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
+            checkBox, &QCheckBox::setChecked);
+    connect(label, &QLabel::linkActivated, this, [this] {
+        Core::ICore::showSettings(m_globalSettingsId);
+    });
 
-    const auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->setContentsMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN);
-    horizontalLayout->setSpacing(CONTENTS_MARGIN);
-
-    if (m_useGlobalSettingsCheckBoxVisibleVisible) {
-        horizontalLayout->addWidget(useGlobalSettingsCheckBox);
-
-        connect(this, &ProjectSettingsWidget::useGlobalSettingsCheckBoxEnabledChanged,
-                this, [useGlobalSettingsCheckBox, settingsLabel](bool enabled) {
-            useGlobalSettingsCheckBox->setEnabled(enabled);
-            settingsLabel->setEnabled(enabled);
-        });
-        connect(useGlobalSettingsCheckBox, &QCheckBox::stateChanged,
-                this, &ProjectSettingsWidget::setUseGlobalSettings);
-        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-                useGlobalSettingsCheckBox, &QCheckBox::setChecked);
-    }
-
-    if (m_useGlobalSettingsLabelVisibleVisible) {
-        horizontalLayout->addWidget(settingsLabel);
-        connect(settingsLabel, &QLabel::linkActivated, this, [this] {
-            Core::ICore::showSettings(m_globalSettingsId);
-        });
-    }
-    horizontalLayout->addStretch(1);
-    layout->addLayout(horizontalLayout);
-    layout->addWidget(Layouting::createHr());
+    using namespace Layouting;
+    return Column {
+        Row { checkBox, label, st, customMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN), spacing(CONTENTS_MARGIN) },
+        createHr(),
+        noMargin, spacing(0),
+    }.emerge();
 }
 
 } // ProjectExplorer

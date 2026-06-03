@@ -33,6 +33,7 @@ public:
 
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(createGlobalOrProjectSelector());
         auto *inner = new QWidget;
         layout->addWidget(inner);
 

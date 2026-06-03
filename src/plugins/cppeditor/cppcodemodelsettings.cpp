@@ -242,6 +242,7 @@ public:
 
         using namespace Layouting;
         Column {
+            createGlobalOrProjectSelector(),
             m_customSettings,
             noMargin
         }.attachTo(this);

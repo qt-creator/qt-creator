@@ -7,7 +7,6 @@
 
 #include <utils/id.h>
 
-#include <QBoxLayout>
 #include <QWidget>
 
 namespace ProjectExplorer {
@@ -28,7 +27,7 @@ public:
 
     void setExpanding(bool expanding);
 
-    void addGlobalOrProjectSelectorToLayout(QBoxLayout *layout);
+    QWidget *createGlobalOrProjectSelector();
 
 protected:
     void setUseGlobalSettingsCheckBoxVisible(bool visible);

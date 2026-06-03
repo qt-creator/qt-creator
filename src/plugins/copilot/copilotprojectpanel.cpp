@@ -23,7 +23,6 @@ public:
     CopilotProjectSettingsWidget()
     {
         setGlobalSettingsId(Constants::COPILOT_GENERAL_OPTIONS_ID);
-        setUseGlobalSettingsCheckBoxVisible(true);
     }
 };
 
@@ -50,6 +49,7 @@ static ProjectSettingsWidget *createCopilotProjectPanel(Project *project)
 
     // clang-format off
     Column {
+        widget->createGlobalOrProjectSelector(),
         settings->enableCopilot,
         st,
     }.attachTo(widget);

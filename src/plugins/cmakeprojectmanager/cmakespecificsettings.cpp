@@ -217,6 +217,7 @@ public:
 
         using namespace Layouting;
         Column {
+            createGlobalOrProjectSelector(),
             m_displayedSettings,
             noMargin
         }.attachTo(this);

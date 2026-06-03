@@ -69,21 +69,7 @@ QWidget *ProjectPanelFactory::createWidget(Project *project) const
 {
     QTC_ASSERT(project, return nullptr);
     QTC_ASSERT(m_widgetCreator, return nullptr);
-    QWidget *inner = m_widgetCreator(project);
-    auto psw = qobject_cast<ProjectSettingsWidget *>(inner);
-    if (!psw)
-        return inner;
-
-    auto wrapper = new QWidget;
-    wrapper->setFocusPolicy(Qt::NoFocus);
-    wrapper->setContentsMargins(0, 0, 0, 0);
-
-    auto layout = new QVBoxLayout(wrapper);
-    layout->setContentsMargins(0, 0, 0, 0);
-    psw->addGlobalOrProjectSelectorToLayout(layout);
-    layout->addWidget(psw);
-
-    return wrapper;
+    return m_widgetCreator(project);
 }
 
 void ProjectPanelFactory::setCreateWidgetFunction(const WidgetCreator &createWidgetFunction)

@@ -1074,6 +1074,7 @@ public:
         setGlobalSettingsId(Constants::CPP_CLANGD_SETTINGS_ID);
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(createGlobalOrProjectSelector());
         layout->addWidget(&m_widget);
 
         const auto updateGlobalSettingsCheckBox = [this] {

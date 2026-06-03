@@ -740,6 +740,7 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *proj
 
     auto gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(0, 0, 0, 0);
+    gridLayout->addWidget(createGlobalOrProjectSelector(), 0, 0, 1, 2);
     gridLayout->addWidget(m_pushButton, 1, 0, 1, 1);
     auto layout = new QVBoxLayout();
     gridLayout->addLayout(layout, 2, 0, 1, 2);
