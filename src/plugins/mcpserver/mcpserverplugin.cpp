@@ -226,7 +226,7 @@ public:
                               Qt::AlignLeft, title);
 
             QColor muted = baseColor;
-            muted.setAlphaF(0.55);
+            muted.setAlphaF(0.55f);
             painter->setPen(muted);
             painter
                 ->drawText(QRect(r.left(), top + lineH + 2, r.width(), lineH), Qt::AlignLeft, name);
