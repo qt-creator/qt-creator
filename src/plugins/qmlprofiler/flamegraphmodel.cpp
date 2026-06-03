@@ -102,8 +102,22 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
         }
 
     } else if (event.rangeStage() == RangeEnd) {
-        QTC_ASSERT(stackTop != &m_stackBottom, return);
-        QTC_ASSERT(stackTop->typeIndex == event.typeIndex(), return);
+        if (stackTop == &m_stackBottom)
+            return;
+        // Find matching start from the top; silently discard any unmatched opens above it.
+        int matchIdx = -1;
+        for (int i = stack.size() - 1; i >= 0; --i) {
+            if (stack.at(i).typeIndex() == event.typeIndex()) {
+                matchIdx = i;
+                break;
+            }
+        }
+        if (matchIdx < 0)
+            return;
+        while (stack.size() - 1 > matchIdx) {
+            stack.pop();
+            stackTop = stackTop->parent;
+        }
         stackTop->duration += event.timestamp() - stack.top().timestamp();
         stack.pop();
         stackTop = stackTop->parent;

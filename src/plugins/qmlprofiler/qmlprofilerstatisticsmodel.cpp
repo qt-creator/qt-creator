@@ -422,9 +422,20 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
             m_data.resize(m_modelManager->numEventTypes());
         break;
     case RangeEnd: {
+        // Find matching start from the top; silently discard any unmatched opens above it.
+        int matchIdx = -1;
+        for (int i = stack.size() - 1; i >= 0; --i) {
+            if (stack.at(i).typeIndex() == typeIndex) {
+                matchIdx = i;
+                break;
+            }
+        }
+        if (matchIdx < 0)
+            break;
+        while (stack.size() - 1 > matchIdx)
+            stack.pop();
+
         // update stats
-        QTC_ASSERT(!stack.isEmpty(), return);
-        QTC_ASSERT(stack.top().typeIndex() == typeIndex, return);
         QmlEventStats &stats = m_data[typeIndex];
         qint64 duration = event.timestamp() - stack.top().timestamp();
         stats.total += duration;

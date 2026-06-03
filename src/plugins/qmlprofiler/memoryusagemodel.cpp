@@ -126,9 +126,12 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             if (event.rangeStage() == RangeStart)
                 m_rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp()));
             else if (event.rangeStage() == RangeEnd) {
-                QTC_ASSERT(!m_rangeStack.isEmpty(), return);
-                QTC_ASSERT(m_rangeStack.top().originTypeIndex == event.typeIndex(), return);
-                m_rangeStack.pop();
+                for (int i = m_rangeStack.size() - 1; i >= 0; --i) {
+                    if (m_rangeStack[i].originTypeIndex == event.typeIndex()) {
+                        m_rangeStack.resize(i);
+                        break;
+                    }
+                }
             }
         }
         return;
