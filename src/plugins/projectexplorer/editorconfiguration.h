@@ -54,7 +54,6 @@ public:
 
     TextEditor::ICodeStylePreferences *codeStyle() const;
     TextEditor::ICodeStylePreferences *codeStyle(Utils::Id languageId) const;
-    QMap<Utils::Id, TextEditor::ICodeStylePreferences *> codeStyles() const;
 
     void configureEditor(Core::IEditor *editor) const;
     void deconfigureEditor(Core::IEditor *editor) const;

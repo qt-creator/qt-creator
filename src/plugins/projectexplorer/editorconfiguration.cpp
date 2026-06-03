@@ -47,7 +47,7 @@ struct EditorConfigurationPrivate
     bool m_useGlobal = true;
     TextEncoding m_textEncoding;
 
-    QMap<Utils::Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
+    QMap<Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
     QList<Core::IEditor *> m_editors;
 };
 
@@ -60,12 +60,8 @@ EditorConfiguration::EditorConfiguration()
     storageSettings.setAutoApply(true);
     extraEncodingSettings.setAutoApply(true);
 
-    const QMap<Utils::Id, ICodeStylePreferences *> languageCodeStylePreferences = codeStyles();
-    for (auto itCodeStyle = languageCodeStylePreferences.cbegin(), end = languageCodeStylePreferences.cend();
-            itCodeStyle != end; ++itCodeStyle) {
-        Utils::Id languageId = itCodeStyle.key();
-        // global prefs for language
-        ICodeStylePreferences *originalPreferences = itCodeStyle.value();
+    const QMap<Id, ICodeStylePreferences *> globalStyles = TextEditor::codeStyles();
+    for (const auto &[languageId, originalPreferences] : globalStyles.asKeyValueRange()) {
         ICodeStylePreferencesFactory *factory = codeStyleFactory(languageId);
         // clone of global prefs for language - it will became project prefs for language
         ICodeStylePreferences *preferences = factory->createCodeStyle();
@@ -120,14 +116,9 @@ ICodeStylePreferences *EditorConfiguration::codeStyle() const
     return &d->m_defaultCodeStyle;
 }
 
-ICodeStylePreferences *EditorConfiguration::codeStyle(Utils::Id languageId) const
+ICodeStylePreferences *EditorConfiguration::codeStyle(Id languageId) const
 {
     return d->m_languageCodeStylePreferences.value(languageId, codeStyle());
-}
-
-QMap<Utils::Id, ICodeStylePreferences *> EditorConfiguration::codeStyles() const
-{
-    return d->m_languageCodeStylePreferences;
 }
 
 static void toMapWithPrefix(Store *map, const Store &source)
@@ -302,8 +293,7 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
         deconfigureEditor(editor);
 }
 
-TabSettingsData actualTabSettings(const Utils::FilePath &file,
-                              const TextDocument *baseTextdocument)
+TabSettingsData actualTabSettings(const FilePath &file, const TextDocument *baseTextdocument)
 {
     if (baseTextdocument)
         return baseTextdocument->tabSettings();
