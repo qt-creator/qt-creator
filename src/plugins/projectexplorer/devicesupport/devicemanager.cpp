@@ -449,6 +449,13 @@ DeviceManager::DeviceManager()
         return filePath.host().toString();
     };
 
+    deviceHooks.deviceIcon = [](const FilePath &filePath) -> QIcon {
+        auto device = DeviceManager::deviceForPath(filePath);
+        if (!device)
+            return {};
+        return IDeviceFactory::iconForDeviceType(device->type());
+    };
+
     deviceHooks.ensureReachable = [](const FilePath &filePath, const FilePath &other) -> Result<> {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(

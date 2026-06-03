@@ -8,6 +8,7 @@
 #include "environment.h"
 #include "filestreamermanager.h"
 #include "fileutils.h"
+#include "fsengine/fileiconprovider.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
 #include "stringtable.h"
@@ -19,6 +20,7 @@
 #include <QDebug>
 #include <QDirIterator>
 #include <QFileInfo>
+#include <QIcon>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QStringView>
@@ -1683,6 +1685,15 @@ QString FilePath::displayName(const QString &args) const
 
     return Tr::tr("%1 %2 on %3", "File and args on device")
             .arg(fullPath, args, deviceName);
+}
+
+QIcon FilePath::icon() const
+{
+    if (isRootPath()) {
+        if (deviceFileHooks().deviceIcon)
+            return deviceFileHooks().deviceIcon(*this);
+    }
+    return FileIconProvider::icon(*this);
 }
 
 /*!

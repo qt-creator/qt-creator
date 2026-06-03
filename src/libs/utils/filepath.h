@@ -25,6 +25,7 @@ QT_BEGIN_NAMESPACE
 class QDateTime;
 class QDebug;
 class QFileInfo;
+class QIcon;
 class QUrl;
 QT_END_NAMESPACE
 
@@ -309,6 +310,7 @@ public:
     [[nodiscard]] FilePath normalizedPathName() const;
 
     QString displayName(const QString &args = {}) const;
+    QIcon icon() const;
     QString nativePath() const;
     QString shortNativePath() const;
     QString withTildeHomePath() const;
@@ -413,6 +415,7 @@ class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 public:
     std::function<Result<DeviceFileAccessPtr>(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
+    std::function<QIcon(const FilePath &)> deviceIcon;
     std::function<Result<>(const FilePath &, const FilePath &)> ensureReachable;
     std::function<Result<Environment>(const FilePath &)> environment;
     std::function<Result<Environment>(const FilePath &)> sourcedEnvironment;

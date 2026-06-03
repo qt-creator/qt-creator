@@ -203,7 +203,6 @@ public:
 
     SynchronizedValue<SshParameters> sshParameters;
 
-    QList<Icon> deviceIcons;
     QList<IDevice::DeviceAction> deviceActions;
     Store extraData;
     IDevice::OpenTerminal openTerminal;

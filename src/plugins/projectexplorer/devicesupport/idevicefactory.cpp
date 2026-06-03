@@ -7,6 +7,7 @@
 #include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronizedvalue.h>
 
 using namespace Utils;
 
@@ -86,6 +87,7 @@ IDevice::Ptr IDeviceFactory::construct() const
 }
 
 static QList<IDeviceFactory *> g_deviceFactories;
+static SynchronizedValue<QMap<Utils::Id, QIcon>> g_deviceTypeIcons;
 
 IDeviceFactory *IDeviceFactory::find(Utils::Id type)
 {
@@ -93,6 +95,11 @@ IDeviceFactory *IDeviceFactory::find(Utils::Id type)
         [&type](IDeviceFactory *factory) {
             return factory->deviceType() == type;
         });
+}
+
+QIcon IDeviceFactory::iconForDeviceType(Utils::Id type)
+{
+    return g_deviceTypeIcons.readLocked()->value(type, QIcon());
 }
 
 IDeviceFactory::IDeviceFactory(Utils::Id deviceType)
@@ -104,6 +111,7 @@ IDeviceFactory::IDeviceFactory(Utils::Id deviceType)
 void IDeviceFactory::setIcon(const QIcon &icon)
 {
     m_icon = icon;
+    g_deviceTypeIcons.writeLocked()->insert(m_deviceType, icon);
 }
 
 void IDeviceFactory::setCombinedIcon(const FilePath &small, const FilePath &large)

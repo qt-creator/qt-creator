@@ -34,6 +34,7 @@ public:
     virtual bool canRestore(const Utils::Store &) const { return true; }
 
     static IDeviceFactory *find(Utils::Id type);
+    static QIcon iconForDeviceType(Utils::Id type);
 
 protected:
     explicit IDeviceFactory(Utils::Id deviceType);
