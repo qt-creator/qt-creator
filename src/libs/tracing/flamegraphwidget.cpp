@@ -309,6 +309,8 @@ public:
     // Layout
     QList<LayoutNode> nodes;
     int treeDepth = 0;
+    static constexpr int kMinRowHeight = 30;
+    static constexpr int kMaxRowHeight = 60;
 
     // UI
     QScrollArea *scrollArea = nullptr;
@@ -324,9 +326,14 @@ public:
         return sizeRoles.isEmpty() ? -1 : sizeRoles.first().first;
     }
 
+    QSize canvasSizeHint() const
+    {
+        return {100, treeDepth * kMinRowHeight};
+    }
+
     void rebuild();
 
-    QVector<QRectF> computeRects(qreal canvasWidth, int rowHeight) const;
+    QVector<QRectF> computeRects(qreal canvasWidth, qreal canvasHeight, int rowHeight) const;
     QColor colorForNode(int i) const;
     QString summaryText(int i) const;
 
@@ -350,7 +357,12 @@ public:
 
     QSize sizeHint() const override
     {
-        return {100, d->treeDepth * kMinRowHeight};
+        return d->canvasSizeHint();
+    }
+
+    QSize minimumSizeHint() const override
+    {
+        return d->canvasSizeHint();
     }
 
     int m_hoveredNode = -1;
@@ -363,12 +375,9 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    static constexpr int kMinRowHeight = 30;
-    static constexpr int kMaxRowHeight = 60;
-
     int rowHeight() const
     {
-        return qBound(kMinRowHeight, height() / qMax(1, d->treeDepth), kMaxRowHeight);
+        return qBound(d->kMinRowHeight, height() / qMax(1, d->treeDepth), d->kMaxRowHeight);
     }
 
     int nodeAt(const QPoint &pos) const
@@ -376,7 +385,7 @@ private:
         if (d->nodes.isEmpty())
             return -1;
         int rh = rowHeight();
-        auto rects = d->computeRects(width(), rh);
+        auto rects = d->computeRects(width(), height(), rh);
         for (int i = rects.size() - 1; i >= 0; --i) {
             if (rects.at(i).contains(pos))
                 return i;
@@ -434,7 +443,7 @@ void FlameGraphCanvas::paintEvent(QPaintEvent *event)
         return;
 
     int rh = rowHeight();
-    auto rects = d->computeRects(width(), rh);
+    auto rects = d->computeRects(width(), height(), rh);
 
     p.setRenderHint(QPainter::Antialiasing, false);
 
@@ -467,7 +476,7 @@ void FlameGraphCanvas::paintEvent(QPaintEvent *event)
         //   default   → #B0B0B0,                        width 1
         static const QColor blue1 = QColor("blue").lighter();
         static const QColor blue2 = QColor::fromRgbF(0.375f, 0.0f, 1.0f);
-        static const QColor grey1 = QColor("#B0B0B0");
+        static const QColor grey1 = QColor::fromRgb(0xB0B0B0);
         QColor border;
         int borderWidth;
         if (hovered) {
@@ -639,17 +648,17 @@ void FlameGraphWidgetPrivate::rebuild()
     }
 }
 
-QVector<QRectF> FlameGraphWidgetPrivate::computeRects(qreal canvasWidth, int rowHeight) const
+QVector<QRectF> FlameGraphWidgetPrivate::computeRects(qreal canvasWidth, qreal canvasHeight, int rowHeight) const
 {
     QVector<QRectF> rects(nodes.size());
     for (int i = 0; i < nodes.size(); ++i) {
         const LayoutNode &node = nodes.at(i);
-        QRectF parentRect = node.parentNodeIndex < 0
-                                ? QRectF(0, 0, canvasWidth, treeDepth * rowHeight)
-                                : rects.at(node.parentNodeIndex);
+        const QRectF parentRect = node.parentNodeIndex < 0
+                                      ? QRectF(0, 0, canvasWidth, 0) // Rect height is irrelevant
+                                      : rects.at(node.parentNodeIndex);
         qreal x = parentRect.x() + node.relativePosition * parentRect.width();
         qreal w = node.relativeSize * parentRect.width();
-        qreal y = (treeDepth - 1 - node.depth) * rowHeight;
+        qreal y = canvasHeight - (node.depth + 1) * rowHeight;
         rects[i] = QRectF(x, y, w, rowHeight);
     }
     return rects;
@@ -734,7 +743,7 @@ void FlameGraphWidgetPrivate::showDetails(int nodeIndex)
 
         QList<QPair<QString, QString>> rows;
         if (node.modelIndex.isValid()) {
-            for (const auto &[role, name] : detailsRoles) {
+            for (const auto &[role, name] : std::as_const(detailsRoles)) {
                 QVariant val = node.modelIndex.data(role);
                 if (val.isNull() || !val.isValid())
                     continue;
