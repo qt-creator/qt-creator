@@ -3076,9 +3076,7 @@ void ProjectExplorerPluginPrivate::updateFileActions()
     FileNode * const fileNode = node ? node->asFileNode() : nullptr;
     Project * const project = fileNode ? fileNode->getProject() : nullptr;
     BuildSystem * const bs = project ? activeBuildSystem(project) : nullptr;
-    ProjectNode *productNode = fileNode ? fileNode->parentProjectNode() : nullptr;
-    while (productNode && !productNode->isProduct())
-        productNode = productNode->parentProjectNode();
+    ProjectNode * const productNode = fileNode ? fileNode->parentProductNode() : nullptr;
     const bool visible = project && project->canBuildFiles() && productNode;
     const bool enabled = visible && bs && !bs->isParsing() && bs->canBuildFile(fileNode)
             && !BuildManager::isBuilding(project);
@@ -3878,9 +3876,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
 
             Project * const project = fileNode ? fileNode->getProject() : nullptr;
             BuildSystem * const bs = project ? activeBuildSystem(project) : nullptr;
-            ProjectNode *productNode = fileNode ? fileNode->parentProjectNode() : nullptr;
-            while (productNode && !productNode->isProduct())
-                productNode = productNode->parentProjectNode();
+            ProjectNode * const productNode = fileNode ? fileNode->parentProductNode() : nullptr;
             m_buildFileActionCtx->setEnabled(
                         project && project->canBuildFiles() && productNode
                         && bs && !bs->isParsing() && bs->canBuildFile(fileNode)

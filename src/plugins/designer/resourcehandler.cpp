@@ -89,9 +89,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
         if (fileNode) {
             // We do not want qbs groups or qmake .pri files here, as they contain only a subset
             // of the relevant files.
-            projectNodeForUiFile = fileNode->parentProjectNode();
-            while (projectNodeForUiFile && !projectNodeForUiFile->isProduct())
-                projectNodeForUiFile = projectNodeForUiFile->parentProjectNode();
+            projectNodeForUiFile = fileNode->parentProductNode();
         }
         if (!projectNodeForUiFile)
             projectNodeForUiFile = project->rootProjectNode();
@@ -99,9 +97,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
         const auto useQrcFile = [projectNodeForUiFile, project](const Node *qrcNode) {
             if (projectNodeForUiFile == project->rootProjectNode())
                 return true;
-            ProjectNode *projectNodeForQrcFile = qrcNode->parentProjectNode();
-            while (projectNodeForQrcFile && !projectNodeForQrcFile->isProduct())
-                projectNodeForQrcFile = projectNodeForQrcFile->parentProjectNode();
+            ProjectNode * const projectNodeForQrcFile = qrcNode->parentProductNode();
             return !projectNodeForQrcFile
                     || projectNodeForQrcFile == projectNodeForUiFile
                     || projectNodeForQrcFile->productType() != ProductType::App;

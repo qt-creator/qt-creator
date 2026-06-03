@@ -565,17 +565,12 @@ void CppEditorDocument::updateSoftPreferredParseContext(const Node *currentNode)
     if (projectPartInfo.projectParts.size() < 2)
         return;
 
-    const ProjectNode *projectNode = nullptr;
-    for (projectNode = currentNode->parentProjectNode(); projectNode && !projectNode->isProduct();
-         projectNode = projectNode->parentProjectNode()) {
-        ;
-    }
-    if (!projectNode)
+    const ProjectNode * const productNode = currentNode->parentProductNode();
+    if (!productNode)
         return;
-    QTC_ASSERT(projectNode->isProduct(), return);
 
     for (const auto &pp : projectPartInfo.projectParts) {
-        if (!pp->buildSystemTarget.isEmpty() && pp->buildSystemTarget == projectNode->buildKey()) {
+        if (!pp->buildSystemTarget.isEmpty() && pp->buildSystemTarget == productNode->buildKey()) {
             BaseEditorDocumentParser::Configuration config = parser->configuration();
             if (config.setSoftPreferredProjectPartId(pp->id()))
                 d->processor()->setParserConfig(config);

@@ -1863,9 +1863,7 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
             const Node * const fileNode = ProjectTree::nodeForFile(filePath);
             if (!fileNode)
                 return nullptr;
-            const ProjectNode *productNode = fileNode->parentProjectNode();
-            while (productNode && !productNode->isProduct())
-                productNode = productNode->parentProjectNode();
+            const ProjectNode *productNode = fileNode->parentProductNode();
             if (!productNode)
                 productNode = fileNode->getProject()->rootProjectNode();
             return productNode;

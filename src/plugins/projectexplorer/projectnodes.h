@@ -113,6 +113,7 @@ public:
     int priority() const;
 
     ProjectNode *parentProjectNode() const; // parent project, will be nullptr for the top-level project
+    ProjectNode *parentProductNode() const; // nearest parent project that is a product
     FolderNode *parentFolderNode() const; // parent folder or project
 
     ProjectNode *managingProject();  // project managing this node.

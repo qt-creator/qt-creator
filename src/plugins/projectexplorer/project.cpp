@@ -1159,21 +1159,17 @@ ProjectNode *Project::productNodeForFilePath(
 {
     const QList<const Node *> fileNodes = nodesForFilePath(filePath, extraMatcher);
     QList<ProjectNode *> candidates;
-    for (const Node * const fileNode : fileNodes) {
-        for (ProjectNode *projectNode = fileNode->parentProjectNode(); projectNode;
-             projectNode = projectNode->parentProjectNode()) {
-            if (projectNode->isProduct()) {
-
-                // If there are several candidates, we prefer real products to pseudo-products.
-                // See QTCREATORBUG-33224. For now, we assume this is what all callers want.
-                // If the need arises, we can make this configurable.
-                if (projectNode->productType() == ProductType::App
-                    || projectNode->productType() == ProductType::Lib) {
-                    return projectNode;
-                }
-
-                candidates << projectNode;
+    for (const Node *const fileNode : fileNodes) {
+        if (ProjectNode *const productNode = fileNode->parentProductNode()) {
+            // If there are several candidates, we prefer real products to pseudo-products.
+            // See QTCREATORBUG-33224. For now, we assume this is what all callers want.
+            // If the need arises, we can make this configurable.
+            if (productNode->productType() == ProductType::App
+                || productNode->productType() == ProductType::Lib) {
+                return productNode;
             }
+
+            candidates << productNode;
         }
     }
     return candidates.isEmpty() ? nullptr : candidates.first();
@@ -1188,20 +1184,16 @@ FilePaths Project::binariesForSourceFile(const FilePath &sourceFile) const
     });
     FilePaths binaries;
     for (const Node * const fileNode : fileNodes) {
-        for (ProjectNode *projectNode = fileNode->parentProjectNode(); projectNode;
-             projectNode = projectNode->parentProjectNode()) {
-            if (!projectNode->isProduct())
-                continue;
-            if (projectNode->productType() == ProductType::App
-                || projectNode->productType() == ProductType::Lib) {
-                const QList<Node *> binaryNodes = projectNode->findNodes([](Node *n) {
+        if (ProjectNode * const productNode = fileNode->parentProductNode()) {
+            if (productNode->productType() == ProductType::App
+                || productNode->productType() == ProductType::Lib) {
+                const QList<Node *> binaryNodes = productNode->findNodes([](Node *n) {
                     return n->asFileNode() && (n->asFileNode()->fileType() == FileType::App
                                || n->asFileNode()->fileType() == FileType::Lib);
 
                 });
                 binaries << Utils::transform(binaryNodes, &Node::filePath);
             }
-            break;
         }
     }
     return binaries;

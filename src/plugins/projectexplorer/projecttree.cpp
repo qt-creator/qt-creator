@@ -488,9 +488,7 @@ Node *ProjectTree::nodeForFile(const FilePath &fileName)
 
 const QList<Node *> ProjectTree::siblingsWithSameBaseName(const Node *fileNode)
 {
-    ProjectNode *productNode = fileNode->parentProjectNode();
-    while (productNode && !productNode->isProduct())
-        productNode = productNode->parentProjectNode();
+    ProjectNode * const productNode = fileNode->parentProductNode();
     if (!productNode)
         return {};
     const FilePath fp = fileNode->filePath();

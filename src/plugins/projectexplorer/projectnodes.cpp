@@ -167,6 +167,15 @@ ProjectNode *Node::parentProjectNode() const
     return m_parentFolderNode->parentProjectNode();
 }
 
+ProjectNode *Node::parentProductNode() const
+{
+    for (ProjectNode *parent = parentProjectNode(); parent; parent = parent->parentProjectNode()) {
+        if (parent->isProduct())
+            return parent;
+    }
+    return nullptr;
+}
+
 /*!
   The parent in the node hierarchy.
   */
