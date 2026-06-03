@@ -1107,21 +1107,18 @@ QStringList ProjectSettings::disabledSettings()
     return m_disabledSettings;
 }
 
-class LanguageClientProjectSettingsWidget : public ProjectSettingsWidget
+class LanguageClientProjectSettingsWidget : public QWidget
 {
 public:
     explicit LanguageClientProjectSettingsWidget(Project *project)
         : m_settings(project)
     {
-        setUseGlobalSettingsCheckBoxVisible(false);
-        setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
-        setExpanding(true);
-
         BaseTextEditor *editor = createJsonEditor(this);
         editor->document()->setContents(m_settings.json());
 
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(ProjectExplorer::createGlobalSettingsLink(Constants::LANGUAGECLIENT_SETTINGS_PAGE));
 
         QFormLayout *settingsLayout = nullptr;
         for (auto settings : LanguageClientSettings::pageSettings()) {

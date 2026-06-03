@@ -12,6 +12,8 @@
 
 namespace ProjectExplorer {
 
+PROJECTEXPLORER_EXPORT QWidget *createGlobalSettingsLink(Utils::Id globalId);
+
 class PROJECTEXPLORER_EXPORT ProjectSettingsWidget : public QWidget
 {
     Q_OBJECT

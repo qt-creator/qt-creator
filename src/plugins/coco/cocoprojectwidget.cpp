@@ -359,21 +359,19 @@ void Internal::CocoProjectWidget::onTweaksButtonClicked()
 
 // CocoProjectSettingsWidget
 
-class CocoProjectSettingsWidget final : public ProjectSettingsWidget
+class CocoProjectSettingsWidget final : public QWidget
 {
 public:
     explicit CocoProjectSettingsWidget(Project *project)
     {
-        setUseGlobalSettingsCheckBoxVisible(false);
-        setGlobalSettingsId(Constants::COCO_SETTINGS_PAGE_ID);
-
-        auto layout = new QVBoxLayout;
+        auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(ProjectExplorer::createGlobalSettingsLink(Constants::COCO_SETTINGS_PAGE_ID));
         if (auto *abc = project->activeBuildConfiguration()) {
             if (abc->id() == QmakeProjectManager::Constants::QMAKE_BC_ID
                     || abc->id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID)
                 layout->addWidget(new CocoProjectWidget(project, abc));
         }
-        setLayout(layout);
     }
 };
 

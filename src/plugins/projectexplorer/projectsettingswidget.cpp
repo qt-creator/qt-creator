@@ -14,6 +14,26 @@ namespace ProjectExplorer {
 
 const int CONTENTS_MARGIN = 5;
 
+QWidget *createGlobalSettingsLink(Utils::Id globalId)
+{
+    const auto label = new QLabel(R"(<a href="dummy">Global settings</a>)");
+    QObject::connect(label, &QLabel::linkActivated, label, [globalId] {
+        Core::ICore::showSettings(globalId);
+    });
+    const auto row = new QHBoxLayout;
+    row->setContentsMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN);
+    row->setSpacing(CONTENTS_MARGIN);
+    row->addWidget(label);
+    row->addStretch(1);
+    const auto widget = new QWidget;
+    const auto vbox = new QVBoxLayout(widget);
+    vbox->setContentsMargins(0, 0, 0, 0);
+    vbox->setSpacing(0);
+    vbox->addLayout(row);
+    vbox->addWidget(Layouting::createHr());
+    return widget;
+}
+
 void ProjectSettingsWidget::setUseGlobalSettings(bool useGlobalSettings)
 {
     if (m_useGlobalSettings == useGlobalSettings)

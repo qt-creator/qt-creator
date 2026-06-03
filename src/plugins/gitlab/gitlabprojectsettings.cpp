@@ -113,7 +113,7 @@ void GitLabProjectSettings::save()
     m_project->setNamedSettings(PSK_LAST_REQ, m_lastRequest);
 }
 
-class GitLabProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+class GitLabProjectSettingsWidget : public QWidget
 {
 public:
     explicit GitLabProjectSettingsWidget(ProjectExplorer::Project *project);
@@ -141,10 +141,6 @@ private:
 GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Project *project)
     : m_projectSettings(projectSettings(project))
 {
-    setUseGlobalSettingsCheckBoxVisible(false);
-    setUseGlobalSettingsLabelVisible(true);
-    setGlobalSettingsId(Constants::GITLAB_SETTINGS);
-
     // setup ui
     m_hostCB = new QComboBox(this);
     m_linkedGitLabServer = new QComboBox(this);
@@ -160,6 +156,7 @@ GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Projec
 
     Column {
         noMargin,
+        ProjectExplorer::createGlobalSettingsLink(Constants::GITLAB_SETTINGS),
         Form {
             Tr::tr("Host:"), m_hostCB, br,
             Tr::tr("Linked GitLab Configuration"), m_linkedGitLabServer, br,

@@ -25,17 +25,13 @@ using namespace TextEditor;
 
 namespace ProjectExplorer::Internal {
 
-class CodeStyleSettingsWidget final : public ProjectSettingsWidget
+class CodeStyleSettingsWidget final : public QWidget
 {
 public:
     explicit CodeStyleSettingsWidget(Project *project)
     {
         auto languageComboBox = new QComboBox(this);
         auto stackedWidget = new QStackedWidget(this);
-
-        setGlobalSettingsId(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
-        setUseGlobalSettingsCheckBoxVisible(false);
-        setExpanding(true);
 
         const EditorConfiguration *config = project->editorConfiguration();
 
@@ -56,6 +52,7 @@ public:
         using namespace Layouting;
 
         Column {
+            createGlobalSettingsLink(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID),
             Row { new QLabel(Tr::tr("Language:")), languageComboBox, st },
             stackedWidget,
             noMargin
