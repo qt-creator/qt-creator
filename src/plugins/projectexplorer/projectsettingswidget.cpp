@@ -49,24 +49,9 @@ void ProjectSettingsWidget::setUseGlobalSettingsCheckBoxEnabled(bool enabled)
     emit useGlobalSettingsCheckBoxEnabledChanged(enabled);
 }
 
-void ProjectSettingsWidget::setUseGlobalSettingsCheckBoxVisible(bool visible)
-{
-    m_useGlobalSettingsCheckBoxVisibleVisible = visible;
-}
-
-void ProjectSettingsWidget::setUseGlobalSettingsLabelVisible(bool visible)
-{
-    m_useGlobalSettingsLabelVisibleVisible = visible;
-}
-
 void ProjectSettingsWidget::setGlobalSettingsId(Utils::Id globalId)
 {
     m_globalSettingsId = globalId;
-}
-
-void ProjectSettingsWidget::setExpanding(bool expanding)
-{
-    m_expanding = expanding;
 }
 
 QWidget *ProjectSettingsWidget::createGlobalOrProjectSelector()

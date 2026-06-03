@@ -25,13 +25,9 @@ public:
 
     void setUseGlobalSettingsCheckBoxEnabled(bool enadled);
 
-    void setExpanding(bool expanding);
-
     QWidget *createGlobalOrProjectSelector();
 
 protected:
-    void setUseGlobalSettingsCheckBoxVisible(bool visible);
-    void setUseGlobalSettingsLabelVisible(bool visible);
     void setGlobalSettingsId(Utils::Id globalId);
 
 signals:
@@ -41,9 +37,6 @@ signals:
 private:
     bool m_useGlobalSettings = true;
     bool m_useGlobalSettingsCheckBoxEnabled = true;
-    bool m_useGlobalSettingsCheckBoxVisibleVisible = true;
-    bool m_useGlobalSettingsLabelVisibleVisible = true;
-    bool m_expanding = false;
     Utils::Id m_globalSettingsId;
 };
 
