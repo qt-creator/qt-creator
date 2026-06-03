@@ -2,11 +2,9 @@ import qbs
 import "../tracingautotest.qbs" as TracingAutotest
 
 TracingAutotest {
-    name: "TimelineAbstractRenderer autotest"
+    name: "TrackPainterProperties autotest"
     Group {
         name: "Test sources"
-        files: [
-            "tst_timelineabstractrenderer.cpp"
-        ]
+        files: [ "tst_trackpainterproperties.cpp" ]
     }
 }

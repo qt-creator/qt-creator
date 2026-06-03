@@ -5,7 +5,6 @@
 #include "perfprofilertracemanager.h"
 #include "perftimelinemodel.h"
 #include "perftimelinemodelmanager.h"
-#include "perftimelineresourcesrenderpass.h"
 
 #include <tracing/timelineformattime.h>
 #include <utils/qtcassert.h>
@@ -617,13 +616,6 @@ qint64 PerfTimelineModel::rowMinValue(int rowNumber) const
 qint64 PerfTimelineModel::rowMaxValue(int rowNumber) const
 {
     return rowNumber == SamplesRow ? m_resourceBlocks.maxTotal() : 0;
-}
-
-QList<const Timeline::TimelineRenderPass *> PerfTimelineModel::supportedRenderPasses() const
-{
-    QList<const Timeline::TimelineRenderPass *> passes = TimelineModel::supportedRenderPasses();
-    passes.append(PerfTimelineResourcesRenderPass::instance());
-    return passes;
 }
 
 } // namespace PerfProfiler::Internal

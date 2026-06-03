@@ -18,6 +18,7 @@ Project {
         "timelinerenderpass/timelinerenderpass.qbs",
         "timelinerenderstate/timelinerenderstate.qbs",
         "timelineselectionrenderpass/timelineselectionrenderpass.qbs",
-        "timelinezoomcontrol/timelinezoomcontrol.qbs"
+        "timelinezoomcontrol/timelinezoomcontrol.qbs",
+        "timelinescrollsync/timelinescrollsync.qbs"
     ]
 }

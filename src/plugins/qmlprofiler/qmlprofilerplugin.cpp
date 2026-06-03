@@ -19,7 +19,6 @@
 #include "tests/qmlnote_test.h"
 #include "tests/qmlprofileranimationsmodel_test.h"
 #include "tests/qmlprofilerattachdialog_test.h"
-#include "tests/qmlprofilerbindingloopsrenderpass_test.h"
 #include "tests/qmlprofilerclientmanager_test.h"
 #include "tests/qmlprofilerdetailsrewriter_test.h"
 #include "tests/qmlprofilertool_test.h"
@@ -77,7 +76,6 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlNoteTest>();
         addTest<QmlProfilerAnimationsModelTest>();
         addTest<QmlProfilerAttachDialogTest>();
-        addTest<QmlProfilerBindingLoopsRenderPassTest>();
         addTest<QmlProfilerClientManagerTest>();
         addTest<QmlProfilerDetailsRewriterTest>();
         addTest<QmlProfilerToolTest>();

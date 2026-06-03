@@ -6,6 +6,8 @@
 #include <QList>
 #include <QtGlobal>
 
+#include <cmath>
+
 namespace Timeline {
 
 // Fraction of the visible range that `time` falls at.
@@ -64,5 +66,19 @@ inline int rowTop(int index, const QList<int> &rowHeights)
         top += rowHeights[i];
     return top;
 }
+
+// Duration of one major ruler block given visible range and pixel width.
+// Uses power-of-2 snapping matching the QML TimeDisplay.qml algorithm.
+// blockLengthHint is the target width of one block in pixels.
+inline qint64 rulerBlockDuration(qint64 rangeDuration, double widthPx,
+                                  int blockLengthHint = 120)
+{
+    if (widthPx <= 0.0 || rangeDuration <= 0)
+        return 1;
+    const double scale = widthPx / double(rangeDuration);
+    const double ideal = double(blockLengthHint) / scale;
+    return qMax(qint64(1), qint64(std::pow(2.0, std::floor(std::log2(ideal)))));
+}
+
 
 } // namespace Timeline

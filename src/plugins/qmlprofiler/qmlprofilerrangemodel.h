@@ -27,7 +27,6 @@ public:
         // not-expanded, per type
         int displayRowExpanded = 1;
         int displayRowCollapsed = Constants::QML_MIN_LEVEL;
-        int bindingLoopHead = -1;
     };
 
     QmlProfilerRangeModel(QmlProfilerModelManager *manager, QmlDebug::RangeType range,
@@ -35,7 +34,6 @@ public:
 
     Q_INVOKABLE int expandedRow(int index) const override;
     Q_INVOKABLE int collapsedRow(int index) const override;
-    int bindingLoopDest(int index) const;
     QRgb color(int index) const override;
 
     QVariantList labels() const override;
@@ -44,8 +42,6 @@ public:
 
     int typeId(int index) const override;
 
-    QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const override;
-
 protected:
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
     void finalize() override;
@@ -53,10 +49,8 @@ protected:
 
 private:
 
-    bool supportsBindingLoops() const;
     void computeNestingContracted();
     void computeExpandedLevels();
-    void findBindingLoops();
 
     QList<Item> m_data;
     QStack<int> m_stack;

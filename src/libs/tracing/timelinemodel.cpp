@@ -4,9 +4,6 @@
 #include "timelinemodel.h"
 #include "timelinemodel_p.h"
 #include "timelinemodelaggregator.h"
-#include "timelineitemsrenderpass.h"
-#include "timelineselectionrenderpass.h"
-#include "timelinenotesrenderpass.h"
 
 #include <utils/qtcassert.h>
 
@@ -431,15 +428,6 @@ qint64 TimelineModel::rowMaxValue(int rowNumber) const
 int TimelineModel::defaultRowHeight()
 {
     return TimelineModelPrivate::DefaultRowHeight;
-}
-
-QList<const TimelineRenderPass *> TimelineModel::supportedRenderPasses() const
-{
-    QList<const TimelineRenderPass *> passes;
-    passes << TimelineItemsRenderPass::instance()
-           << TimelineSelectionRenderPass::instance()
-           << TimelineNotesRenderPass::instance();
-    return passes;
 }
 
 QRgb TimelineModel::colorBySelectionId(int index) const

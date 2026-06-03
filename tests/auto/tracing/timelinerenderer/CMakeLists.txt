@@ -1,5 +1,4 @@
 add_qtc_test(tst_tracing_timelinerenderer
-  EXCLUDE_FROM_PRECHECK
-  DEPENDS Tracing Qt::Gui Qt::Quick
-  SOURCES tst_timelinerenderer.cpp
+  DEPENDS Tracing Qt::Gui
+  SOURCES tst_trackpainterinteraction.cpp
 )

@@ -2,11 +2,9 @@ import qbs
 import "../tracingautotest.qbs" as TracingAutotest
 
 TracingAutotest {
-    name: "TimelineOverviewRenderer autotest"
+    name: "OverviewWidget autotest"
     Group {
         name: "Test sources"
-        files: [
-            "tst_timelineoverviewrenderer.cpp"
-        ]
+        files: [ "tst_overviewwidget.cpp" ]
     }
 }

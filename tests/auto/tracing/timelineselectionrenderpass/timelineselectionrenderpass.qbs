@@ -1,13 +1,10 @@
 import qbs
-import QtcFunctions
 import "../tracingautotest.qbs" as TracingAutotest
 
 TracingAutotest {
-    name: "TimelineSelectionRenderPass autotest"
+    name: "SelectionStatePaint autotest"
     Group {
         name: "Test sources"
-        files: [
-            "tst_timelineselectionrenderpass.cpp"
-        ]
+        files: [ "tst_selectionstatepaint.cpp" ]
     }
 }

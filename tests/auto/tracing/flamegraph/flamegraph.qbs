@@ -2,11 +2,10 @@ import qbs
 import "../tracingautotest.qbs" as TracingAutotest
 
 TracingAutotest {
-    name: "FlameGraph autotest"
+    name: "FlameGraphWidget autotest"
+    Depends { name: "Utils" }
     Group {
         name: "Test sources"
-        files: [
-            "tst_flamegraph.cpp"
-        ]
+        files: [ "tst_flamegraphwidget.cpp" ]
     }
 }

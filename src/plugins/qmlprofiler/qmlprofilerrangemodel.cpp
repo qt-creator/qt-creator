@@ -1,14 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmlprofilerbindingloopsrenderpass.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilertr.h"
 
-#include <tracing/timelinenotesrenderpass.h>
-#include <tracing/timelineitemsrenderpass.h>
-#include <tracing/timelineselectionrenderpass.h>
 #include <tracing/timelineformattime.h>
 
 #include <QCoreApplication>
@@ -34,11 +30,6 @@ void QmlProfilerRangeModel::clear()
     m_data.clear();
     m_stack.clear();
     QmlProfilerTimelineModel::clear();
-}
-
-bool QmlProfilerRangeModel::supportsBindingLoops() const
-{
-    return rangeType() == Binding || rangeType() == HandlingSignal;
 }
 
 void QmlProfilerRangeModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -78,9 +69,6 @@ void QmlProfilerRangeModel::finalize()
 
     // compute nestingLevel - expanded
     computeExpandedLevels();
-
-    if (supportsBindingLoops())
-        findBindingLoops();
 
     QmlProfilerTimelineModel::finalize();
 }
@@ -131,33 +119,6 @@ void QmlProfilerRangeModel::computeExpandedLevels()
     setExpandedRowCount(m_expandedRowTypes.size());
 }
 
-void QmlProfilerRangeModel::findBindingLoops()
-{
-    using CallStackEntry = QPair<int, int>;
-    QStack<CallStackEntry> callStack;
-
-    for (int i = 0; i < count(); ++i) {
-        int potentialParent = callStack.isEmpty() ? -1 : callStack.top().second;
-
-        while (potentialParent != -1 && !(endTime(potentialParent) > startTime(i))) {
-            callStack.pop();
-            potentialParent = callStack.isEmpty() ? -1 : callStack.top().second;
-        }
-
-        // check whether event is already in stack
-        for (int ii = 0; ii < callStack.size(); ++ii) {
-            if (callStack.at(ii).first == typeId(i)) {
-                m_data[i].bindingLoopHead = callStack.at(ii).second;
-                break;
-            }
-        }
-
-        CallStackEntry newEntry(typeId(i), i);
-        callStack.push(newEntry);
-    }
-
-}
-
 int QmlProfilerRangeModel::expandedRow(int index) const
 {
     return m_data[index].displayRowExpanded;
@@ -166,11 +127,6 @@ int QmlProfilerRangeModel::expandedRow(int index) const
 int QmlProfilerRangeModel::collapsedRow(int index) const
 {
     return m_data[index].displayRowCollapsed;
-}
-
-int QmlProfilerRangeModel::bindingLoopDest(int index) const
-{
-    return m_data[index].bindingLoopHead;
 }
 
 QRgb QmlProfilerRangeModel::color(int index) const
@@ -219,21 +175,6 @@ QVariantMap QmlProfilerRangeModel::location(int index) const
 int QmlProfilerRangeModel::typeId(int index) const
 {
     return selectionId(index);
-}
-
-QList<const Timeline::TimelineRenderPass *> QmlProfilerRangeModel::supportedRenderPasses() const
-{
-    if (supportsBindingLoops()) {
-        QList<const Timeline::TimelineRenderPass *> passes;
-        passes << Timeline::TimelineItemsRenderPass::instance()
-               << QmlProfilerBindingLoopsRenderPass::instance()
-               << Timeline::TimelineSelectionRenderPass::instance()
-               << Timeline::TimelineNotesRenderPass::instance();
-        return passes;
-    } else {
-        return QmlProfilerTimelineModel::supportedRenderPasses();
-    }
-
 }
 
 } // namespaec QmlProfiler::Internal

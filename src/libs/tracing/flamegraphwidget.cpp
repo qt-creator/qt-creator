@@ -17,7 +17,6 @@
 #include <QPainter>
 #include <QResizeEvent>
 #include <QScrollArea>
-#include <QStyle>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -131,13 +130,13 @@ RangeDetails::RangeDetails(QWidget *parent)
     m_collapseButton->setAutoRaise(true);
     m_collapseButton->setFixedSize(kTitleHeight, kTitleHeight);
     m_collapseButton->setIconSize(QSize(16, 16));
-    m_collapseButton->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
+    m_collapseButton->setIcon(Utils::Icons::ARROW_UP.icon());
     m_collapseButton->setToolTip(tr("Collapse"));
     connect(m_collapseButton, &QToolButton::clicked, this, [this] {
         m_collapsed = !m_collapsed;
         m_content->setVisible(!m_collapsed);
-        m_collapseButton->setIcon(style()->standardIcon(
-            m_collapsed ? QStyle::SP_ArrowDown : QStyle::SP_ArrowUp));
+        m_collapseButton->setIcon(m_collapsed ? Utils::Icons::ARROW_DOWN.icon()
+                                              : Utils::Icons::ARROW_UP.icon());
         m_collapseButton->setToolTip(m_collapsed ? tr("Expand") : tr("Collapse"));
         adjustSize();
         setFixedWidth(300);

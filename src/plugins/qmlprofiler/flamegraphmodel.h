@@ -8,9 +8,10 @@
 #include <qmldebug/qmleventlocation.h>
 #include <qmldebug/qmlprofilereventtypes.h>
 
+#include <QAbstractItemModel>
 #include <QSet>
 #include <QStack>
-#include <QAbstractItemModel>
+#include <QtQml/qqml.h>
 
 namespace QmlProfiler::Internal {
 

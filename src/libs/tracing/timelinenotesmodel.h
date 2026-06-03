@@ -9,7 +9,6 @@
 #include <QList>
 #include <QObject>
 #include <QString>
-#include <QtQml/qqml.h>
 
 namespace Timeline {
 
@@ -18,7 +17,6 @@ class TRACING_EXPORT TimelineNotesModel : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY changed)
-    QML_ANONYMOUS
 
 public:
     TimelineNotesModel(QObject *parent = nullptr);

@@ -32,8 +32,6 @@ QtcPlugin {
         "perftimelinemodel.h",
         "perftimelinemodelmanager.cpp",
         "perftimelinemodelmanager.h",
-        "perftimelineresourcesrenderpass.cpp",
-        "perftimelineresourcesrenderpass.h",
         "perfprofilerflamegraphmodel.cpp",
         "perfprofilerflamegraphmodel.h",
         "perfprofilerflamegraphview.cpp",

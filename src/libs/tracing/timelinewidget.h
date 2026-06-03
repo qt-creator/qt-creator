@@ -39,9 +39,6 @@ signals:
     void gotoSourceLocation(const QString &file, int line, int column);
     void typeSelected(int typeId);
 
-protected:
-    void changeEvent(QEvent *e) override;
-
 private:
     class TimelineWidgetPrivate;
     TimelineWidgetPrivate *d;

@@ -33,7 +33,6 @@ set(PERFPROFILER_CPP_SOURCES
   perfsettings.cpp perfsettings.h
   perftimelinemodel.cpp perftimelinemodel.h
   perftimelinemodelmanager.cpp perftimelinemodelmanager.h
-  perftimelineresourcesrenderpass.cpp perftimelineresourcesrenderpass.h
   perftracepointdialog.cpp perftracepointdialog.h
 )
 

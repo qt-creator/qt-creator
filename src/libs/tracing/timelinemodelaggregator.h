@@ -36,6 +36,8 @@ public:
 
     Q_INVOKABLE int modelOffset(int modelIndex) const;
 
+    void moveModel(int from, int to);
+
     Q_INVOKABLE QVariantMap nextItem(int selectedModel, int selectedItem, qint64 time) const;
     Q_INVOKABLE QVariantMap prevItem(int selectedModel, int selectedItem, qint64 time) const;
 

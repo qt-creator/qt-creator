@@ -11,7 +11,6 @@ if(WITH_TESTS)
     tests/qmlnote_test.cpp tests/qmlnote_test.h
     tests/qmlprofileranimationsmodel_test.cpp tests/qmlprofileranimationsmodel_test.h
     tests/qmlprofilerattachdialog_test.cpp tests/qmlprofilerattachdialog_test.h
-    tests/qmlprofilerbindingloopsrenderpass_test.cpp tests/qmlprofilerbindingloopsrenderpass_test.h
     tests/qmlprofilerclientmanager_test.cpp tests/qmlprofilerclientmanager_test.h
     tests/qmlprofilerdetailsrewriter_test.cpp tests/qmlprofilerdetailsrewriter_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
@@ -34,7 +33,6 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilertr.h
   qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
   qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h
-  qmlprofilerbindingloopsrenderpass.cpp qmlprofilerbindingloopsrenderpass.h
   qmlprofilerclientmanager.cpp qmlprofilerclientmanager.h
   qmlprofilerconstants.h
   qmlprofilerdetailsrewriter.cpp qmlprofilerdetailsrewriter.h

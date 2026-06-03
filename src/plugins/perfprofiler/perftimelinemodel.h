@@ -73,7 +73,6 @@ public:
 
     qint64 rowMinValue(int rowNumber) const override;
     qint64 rowMaxValue(int rowNumber) const override;
-    QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const override;
 
     void addLostEvent(qint64 timestamp, int numConcurrentThreads);
 

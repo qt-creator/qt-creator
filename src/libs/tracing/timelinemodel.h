@@ -4,10 +4,8 @@
 #pragma once
 
 #include "tracing_global.h"
-#include "timelinerenderpass.h"
 #include <QVariant>
 #include <QColor>
-#include <QtQml/qqml.h>
 
 #include <memory>
 
@@ -32,8 +30,6 @@ class TRACING_EXPORT TimelineModel : public QObject
     Q_PROPERTY(QVariantList labels READ labels NOTIFY labelsChanged FINAL)
     Q_PROPERTY(int count READ count NOTIFY contentChanged FINAL)
     Q_PROPERTY(int defaultRowHeight READ defaultRowHeight CONSTANT FINAL)
-    QML_ELEMENT
-    QML_UNCREATABLE("")
 
 public:
     class TimelineModelPrivate;
@@ -109,7 +105,6 @@ public:
     Q_INVOKABLE int prevItemByTypeId(int typeId, qint64 time, int currentItem) const;
 
     static int defaultRowHeight();
-    virtual QList<const TimelineRenderPass *> supportedRenderPasses() const;
 
 signals:
     void expandedChanged();

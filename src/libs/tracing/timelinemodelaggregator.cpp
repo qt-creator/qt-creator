@@ -137,6 +137,16 @@ void TimelineModelAggregator::clear()
         emit heightChanged();
 }
 
+void TimelineModelAggregator::moveModel(int from, int to)
+{
+    Q_D(TimelineModelAggregator);
+    if (from == to || from < 0 || from >= d->modelList.size()
+            || to < 0 || to >= d->modelList.size())
+        return;
+    d->modelList.move(from, to);
+    emit modelsChanged();
+}
+
 int TimelineModelAggregator::modelOffset(int modelIndex) const
 {
     Q_D(const TimelineModelAggregator);

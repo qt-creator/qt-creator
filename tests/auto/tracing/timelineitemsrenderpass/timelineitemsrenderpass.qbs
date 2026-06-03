@@ -1,13 +1,10 @@
 import qbs
-import QtcFunctions
 import "../tracingautotest.qbs" as TracingAutotest
 
 TracingAutotest {
-    name: "TimelineItemsRenderPass autotest"
+    name: "TrackPainterVisibility autotest"
     Group {
         name: "Test sources"
-        files: [
-            "tst_timelineitemsrenderpass.cpp"
-        ]
+        files: [ "tst_trackpaintervisibility.cpp" ]
     }
 }

@@ -1,13 +1,10 @@
 import qbs
-import QtcFunctions
 import "../tracingautotest.qbs" as TracingAutotest
 
 TracingAutotest {
-    name: "TimelineRenderState autotest"
+    name: "ZoomControlState autotest"
     Group {
         name: "Test sources"
-        files: [
-            "tst_timelinerenderstate.cpp"
-        ]
+        files: [ "tst_zoomcontrolstate.cpp" ]
     }
 }

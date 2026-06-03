@@ -4,7 +4,6 @@
 #pragma once
 
 #include "tracing_global.h"
-#include <QtQml/qqml.h>
 #include <QTimer>
 
 namespace Timeline {
@@ -33,8 +32,6 @@ class TRACING_EXPORT TimelineZoomControl : public QObject {
 
     Q_PROPERTY(qint64 maximumZoomFactor READ maximumZoomFactor CONSTANT)
     Q_PROPERTY(qint64 minimumRangeLength READ minimumRangeLength CONSTANT)
-
-    QML_ANONYMOUS
 
 public:
     qint64 maximumZoomFactor() const { return 1 << 10; }

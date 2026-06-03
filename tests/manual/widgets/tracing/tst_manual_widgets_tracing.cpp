@@ -2,16 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QApplication>
-#include <QQuickView>
-#include <QQmlContext>
-#include <QQmlEngine>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
 
-#include <tracing/timelinerenderer.h>
-#include <tracing/timelineoverviewrenderer.h>
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/timelinetheme.h>
 #include <tracing/timelineformattime.h>
 #include <tracing/timelinezoomcontrol.h>
+#include <tracing/timelinenotesmodel.h>
+#include <tracing/timeruler.h>
+#include <tracing/tracklabels.h>
+#include <tracing/trackpainter.h>
+#include <tracing/timelinecontentwidget.h>
 
 #include "../common/themeselector.h"
 
@@ -96,49 +98,142 @@ public:
     }
 };
 
-class TraceView : public QQuickView
-{
-public:
-    TraceView(QWindow *parent = 0)
-        : QQuickView(parent)
-    {
-        setResizeMode(QQuickView::SizeRootObjectToView);
-
-        engine()->addImportPath(":/qt/qml/");
-        TimelineTheme::setupTheme(engine());
-
-        m_modelAggregator = new TimelineModelAggregator(this);
-        m_model = new DummyModel(m_modelAggregator);
-        m_model->populateData();
-        m_modelAggregator->setModels({QVariant::fromValue(m_model)});
-        rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
-                                          m_modelAggregator);
-
-        m_zoomControl = new TimelineZoomControl(this);
-        m_zoomControl->setTrace(0, oneMs * 1000); // Total timeline length
-        rootContext()->setContextProperty("zoomControl", m_zoomControl);
-        setSource(QUrl(QLatin1String("qrc:/qt/qml/QtCreator/Tracing/MainView.qml")));
-
-        // Zoom onto first timeline third. Needs to be done after loading setSource.
-        m_zoomControl->setRange(0, oneMs * 1000 / 3.0);
-    }
-
-   ~TraceView() override = default;
-
-    DummyModel *m_model;
-    TimelineModelAggregator *m_modelAggregator;
-    TimelineZoomControl *m_zoomControl;
-};
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
     ManualTest::ThemeSelector::setTheme(":/themes/flat.creatortheme");
 
-    auto view = new TraceView;
-    view->resize(700, 300);
-    view->show();
+    auto modelAggregator = new TimelineModelAggregator;
+    auto model = new DummyModel(modelAggregator);
+    model->populateData();
+    modelAggregator->setModels({QVariant::fromValue(model)});
+
+    auto notes = new Timeline::TimelineNotesModel;
+    notes->addTimelineModel(model);
+    notes->add(model->modelId(), 0, "Note on item 0");
+    notes->add(model->modelId(), 2, "Note on item 2");
+    modelAggregator->setNotes(notes);
+
+    auto zoomControl = new TimelineZoomControl;
+    zoomControl->setTrace(0, oneMs * 1000);
+    zoomControl->setRange(0, oneMs * 1000 / 3);
+
+    // QPainter ruler widget
+    auto rulerWindow = new QWidget;
+    rulerWindow->setWindowTitle("TimeRuler (QPainter)");
+    rulerWindow->resize(700, 60);
+
+    auto rulerLayout = new QVBoxLayout(rulerWindow);
+    rulerLayout->setContentsMargins(0, 0, 0, 0);
+    rulerLayout->setSpacing(2);
+
+    auto ruler = new Timeline::TimeRuler(rulerWindow);
+    ruler->setRange(0, oneMs * 1000 / 3);
+    rulerLayout->addWidget(ruler);
+
+    auto rangeLabel = new QLabel("range: 0 .. 333333333 ns", rulerWindow);
+    rangeLabel->setAlignment(Qt::AlignCenter);
+    rulerLayout->addWidget(rangeLabel);
+
+    QObject::connect(zoomControl, &Timeline::TimelineZoomControl::rangeChanged,
+                     ruler, [ruler, rangeLabel](qint64 start, qint64 end) {
+                         ruler->setRange(start, end);
+                         rangeLabel->setText(QString("range: %1 .. %2 ns").arg(start).arg(end));
+                     });
+
+    rulerWindow->show();
+
+    // TrackLabels sidebar widget
+    auto labelsWindow = new QWidget;
+    labelsWindow->setWindowTitle("TrackLabels (QPainter)");
+    labelsWindow->resize(200, 300);
+
+    auto labelsLayout = new QVBoxLayout(labelsWindow);
+    labelsLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto trackLabels = new Timeline::TrackLabels(labelsWindow);
+    labelsLayout->addWidget(trackLabels);
+    labelsLayout->addStretch();
+
+    {
+        using namespace Timeline;
+        const int defaultH = 30;
+
+        TrackInfo collapsed;
+        collapsed.name = "Dummy Category (collapsed)";
+        collapsed.color = Qt::yellow;
+        collapsed.expanded = false;
+        collapsed.rowHeights = {defaultH};
+
+        TrackInfo expanded;
+        expanded.name = "Dummy Category (expanded)";
+        expanded.color = Qt::cyan;
+        expanded.expanded = true;
+        expanded.rowLabels = {"Dummy sub category 1", "Dummy sub category 2"};
+        expanded.rowHeights = {defaultH, defaultH, defaultH};
+
+        TrackInfo another;
+        another.name = "Another Track";
+        another.color = QColor::fromHsl(200, 128, 128);
+        another.expanded = false;
+        another.rowHeights = {defaultH};
+
+        trackLabels->setTracks({collapsed, expanded, another});
+    }
+
+    labelsWindow->show();
+
+    // TrackPainter — single track event renderer
+    auto painterWindow = new QWidget;
+    painterWindow->setWindowTitle("TrackPainter (QPainter)");
+    painterWindow->resize(700, 120);
+
+    auto painterLayout = new QVBoxLayout(painterWindow);
+    painterLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto trackPainter = new Timeline::TrackPainter(painterWindow);
+    trackPainter->setModel(model);
+    trackPainter->setNotes(notes);
+    trackPainter->setRange(0, oneMs * 1000 / 3);
+    painterLayout->addWidget(trackPainter);
+    painterLayout->addStretch();
+
+    QObject::connect(zoomControl, &Timeline::TimelineZoomControl::rangeChanged,
+                     trackPainter, [trackPainter](qint64 start, qint64 end) {
+                         trackPainter->setRange(start, end);
+                     });
+
+    QObject::connect(trackPainter, &Timeline::TrackPainter::itemHovered,
+                     trackPainter, [trackPainter](int index) {
+                         trackPainter->setHoveredItem(index);
+                     });
+
+    QObject::connect(trackPainter, &Timeline::TrackPainter::itemClicked,
+                     trackPainter, [trackPainter](int index) {
+                         trackPainter->setSelectedItem(index);
+                     });
+
+    painterWindow->show();
+
+    // Composed TimelineContentWidget — full sidebar + ruler + track painters
+    auto contentWindow = new QWidget;
+    contentWindow->setWindowTitle("TimelineContentWidget (QPainter)");
+    contentWindow->resize(900, 330);
+    auto contentLayout = new QVBoxLayout(contentWindow);
+    contentLayout->setContentsMargins(0, 0, 0, 0);
+    contentLayout->setSpacing(0);
+    auto contentWidget = new Timeline::TimelineContentWidget(
+        modelAggregator, zoomControl, contentWindow);
+    contentLayout->addWidget(contentWidget, 1);
+
+    auto rangeBtn = new QPushButton("Selection Range", contentWindow);
+    rangeBtn->setCheckable(true);
+    contentLayout->addWidget(rangeBtn);
+    QObject::connect(rangeBtn, &QPushButton::toggled, contentWidget,
+                     &Timeline::TimelineContentWidget::setSelectionRangeMode);
+
+    contentWindow->show();
 
     return app.exec();
 }

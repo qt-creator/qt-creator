@@ -1,13 +1,10 @@
 import qbs
-import QtcFunctions
 import "../tracingautotest.qbs" as TracingAutotest
 
 TracingAutotest {
-    name: "TimelineRenderPass autotest"
+    name: "TimelineModelState autotest"
     Group {
         name: "Test sources"
-        files: [
-            "tst_timelinerenderpass.cpp"
-        ]
+        files: [ "tst_timelinemodelstate.cpp" ]
     }
 }
