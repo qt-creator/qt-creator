@@ -14,8 +14,6 @@
 #include <utils/filepath.h>
 #include <utils/store.h>
 
-#include <QFileSystemModel>
-
 #include <functional>
 #include <memory>
 

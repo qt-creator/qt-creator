@@ -34,12 +34,14 @@
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
+#include <utils/filesystemmodel.h>
+#include <utils/filepathinfo.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QComboBox>
 #include <QContextMenuEvent>
 #include <QDir>
-#include <QFileSystemModel>
 #include <QHeaderView>
 #include <QMenu>
 #include <QMessageBox>
@@ -104,14 +106,10 @@ private:
     bool m_delaying = false;
 };
 
-// FolderNavigationModel: Shows path as tooltip.
-class FolderNavigationModel : public QFileSystemModel
+// FolderNavigationModel: Shows path as tooltip and VCS state as foreground color.
+class FolderNavigationModel : public FileSystemModel
 {
 public:
-    enum Roles {
-        IsFolderRole = Qt::UserRole + 50 // leave some gap for the custom roles in QFileSystemModel
-    };
-
     explicit FolderNavigationModel(QObject *parent = nullptr);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
     Qt::DropActions supportedDragActions() const final;
@@ -125,54 +123,8 @@ private:
     Utils::FilePath m_rootDir;
 };
 
-// Sorts folders on top if wanted
-class FolderSortProxyModel : public QSortFilterProxyModel
-{
-public:
-    FolderSortProxyModel(QObject *parent = nullptr);
 
-protected:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
-};
-
-bool FolderSortProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
-{
-    if (static_cast<QFileSystemModel *>(sourceModel())->rootPath().isEmpty()) {
-        QModelIndex sourceIndex = sourceModel()->index(source_row, 0, source_parent);
-        while (sourceIndex.isValid()) {
-            if (sourceIndex.data().toString() == FilePath::specialRootName())
-                return false;
-
-            sourceIndex = sourceIndex.parent();
-        }
-    }
-
-    return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
-}
-
-FolderSortProxyModel::FolderSortProxyModel(QObject *parent)
-    : QSortFilterProxyModel(parent)
-{
-}
-
-bool FolderSortProxyModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
-{
-    const QAbstractItemModel *src = sourceModel();
-    if (sortRole() == FolderNavigationModel::IsFolderRole) {
-        const bool leftIsFolder = src->data(source_left, FolderNavigationModel::IsFolderRole)
-                                      .toBool();
-        const bool rightIsFolder = src->data(source_right, FolderNavigationModel::IsFolderRole)
-                                       .toBool();
-        if (leftIsFolder != rightIsFolder)
-            return leftIsFolder;
-    }
-    const QString leftName = src->data(source_left, QFileSystemModel::FileNameRole).toString();
-    const QString rightName = src->data(source_right, QFileSystemModel::FileNameRole).toString();
-    return FilePath::fromString(leftName) < FilePath::fromString(rightName);
-}
-
-FolderNavigationModel::FolderNavigationModel(QObject *parent) : QFileSystemModel(parent)
+FolderNavigationModel::FolderNavigationModel(QObject *parent) : FileSystemModel(parent)
 {
     connect(VcsManager::instance(), &VcsManager::updateFileState,
             this, &FolderNavigationModel::updateVCStatusFor);
@@ -197,7 +149,7 @@ void FolderNavigationModel::updateVCStatusFor(const FilePath &rootDir, const QSt
         return;
 
     for (const QString &fileName : files) {
-        const QModelIndex idx = index(rootDir.pathAppended(fileName).toFSPathString());
+        const QModelIndex idx = index(rootDir.pathAppended(fileName));
         if (QTC_GUARD(idx.isValid()))
             emit dataChanged(idx, idx, {Qt::ForegroundRole});
     }
@@ -205,23 +157,18 @@ void FolderNavigationModel::updateVCStatusFor(const FilePath &rootDir, const QSt
 
 QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
 {
-    const FilePath &file =
-        FilePath::fromString(QFileSystemModel::data(index, QFileSystemModel::FilePathRole).toString());
     if (role == Qt::ToolTipRole) {
-        QString tooltip = QDir::toNativeSeparators(QDir::cleanPath(filePath(index)));
-        const VcsFileState state = VcsManager::fileState(file);
-        if (state != VcsFileState::Unknown) {
-            const QString stateText = VcsManager::fileStateDescription(state);
-            tooltip += "<p>" + stateText;
-        }
+        const FilePath fp = filePath(index);
+        QString tooltip = fp.toUserOutput();
+        const VcsFileState state = VcsManager::fileState(fp);
+        if (state != VcsFileState::Unknown)
+            tooltip += "<p>" + VcsManager::fileStateDescription(state);
         return tooltip;
-    } else if (role == IsFolderRole) {
-        return isDir(index);
     } else if (role == Qt::ForegroundRole) {
-        return VcsManager::fileStateColor(VcsManager::fileState(file));
+        return VcsManager::fileStateColor(VcsManager::fileState(filePath(index)));
     }
 
-    return QFileSystemModel::data(index, role);
+    return FileSystemModel::data(index, role);
 }
 
 Qt::DropActions FolderNavigationModel::supportedDragActions() const
@@ -231,9 +178,9 @@ Qt::DropActions FolderNavigationModel::supportedDragActions() const
 
 Qt::ItemFlags FolderNavigationModel::flags(const QModelIndex &index) const
 {
-    if (index.isValid() && !fileInfo(index).isRoot())
-        return QFileSystemModel::flags(index) | Qt::ItemIsEditable;
-    return QFileSystemModel::flags(index);
+    if (index.isValid() && index.parent().isValid())
+        return FileSystemModel::flags(index) | Qt::ItemIsEditable;
+    return FileSystemModel::flags(index);
 }
 
 bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -241,16 +188,13 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
     QTC_ASSERT(index.isValid() && parent(index).isValid() && index.column() == 0
                    && role == Qt::EditRole && value.canConvert<QString>(),
                return false);
-    const QString afterFileName = value.toString();
-    const FilePath beforeFilePath =FilePath::fromString(filePath(index));
-    const FilePath parentPath = FilePath::fromString(filePath(parent(index)));
-    const FilePath afterFilePath = parentPath.pathAppended(afterFileName);
+    const FilePath beforeFilePath = filePath(index);
+    const FilePath afterFilePath = filePath(parent(index)).pathAppended(value.toString());
     if (beforeFilePath == afterFilePath)
         return false;
-    // need to rename through file system model, which takes care of not changing our selection
-    const bool success = QFileSystemModel::setData(index, value, role);
-    // for files we can do more than just rename on disk, for directories the user is on his/her own
-    if (success && fileInfo(index).isFile()) {
+    const bool isFile = !isDir(index);
+    const bool success = FileSystemModel::setData(index, value, role);
+    if (success && isFile) {
         DocumentManager::renamedFile(beforeFilePath, afterFilePath);
         emit m_instance->fileRenamed(beforeFilePath, afterFilePath);
     }
@@ -305,7 +249,7 @@ public:
 FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent),
     m_listView(new NavigationTreeView(this)),
     m_fileSystemModel(new FolderNavigationModel(this)),
-    m_sortProxyModel(new FolderSortProxyModel(m_fileSystemModel)),
+    m_sortProxyModel(new Utils::FileSystemProxyModel(m_fileSystemModel)),
     m_filterHiddenFilesAction(new QAction(Tr::tr("Show Hidden Files"), this)),
     m_showBreadCrumbsAction(new QAction(Tr::tr("Show Bread Crumbs"), this)),
     m_showFoldersOnTopAction(new QAction(Tr::tr("Show Folders on Top"), this)),
@@ -321,16 +265,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
     m_sortProxyModel->setSourceModel(m_fileSystemModel);
-    m_sortProxyModel->setSortRole(FolderNavigationModel::IsFolderRole);
+    m_sortProxyModel->setSortRole(FileSystemModel::FileSortRole);
     m_sortProxyModel->sort(0);
-
-    m_fileSystemModel->setResolveSymlinks(false);
-    m_fileSystemModel->setIconProvider(FileIconProvider::iconProvider());
-    QDir::Filters filters = QDir::AllEntries | QDir::NoDotAndDotDot;
-    if (HostOsInfo::isWindowsHost()) // Symlinked directories can cause file watcher warnings on Win32.
-        filters |= QDir::NoSymLinks;
-    m_fileSystemModel->setFilter(filters);
-    m_fileSystemModel->setRootPath(QString());
     m_filterHiddenFilesAction->setCheckable(true);
     m_showBreadCrumbsAction->setCheckable(true);
     m_showFoldersOnTopAction->setCheckable(true);
@@ -402,15 +338,14 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
             this,
             [this](const QModelIndex &index) {
                 const QModelIndex sourceIndex = m_sortProxyModel->mapToSource(index);
-                const auto filePath = FilePath::fromString(
-                    m_fileSystemModel->filePath(sourceIndex));
+                const auto filePath = m_fileSystemModel->filePath(sourceIndex);
                 QMetaObject::invokeMethod(this, [this, filePath] { setCrumblePath(filePath); },
                                           Qt::QueuedConnection);
             });
     connect(m_crumbLabel, &FileCrumbLabel::pathClicked, this, [this](const FilePath &path) {
-        const QModelIndex rootIndex = m_sortProxyModel->mapToSource(m_listView->rootIndex());
-        const QModelIndex fileIndex = m_fileSystemModel->index(path.toFSPathString());
-        if (!isChildOf(fileIndex, rootIndex))
+        const FilePath rootFilePath = m_fileSystemModel->filePath(
+            m_sortProxyModel->mapToSource(m_listView->rootIndex()));
+        if (path != rootFilePath && !path.isChildOf(rootFilePath))
             selectBestRootForFile(path);
         selectFile(path);
     });
@@ -460,8 +395,8 @@ void FolderNavigationWidget::setShowBreadCrumbs(bool show)
 void FolderNavigationWidget::setShowFoldersOnTop(bool onTop)
 {
     m_showFoldersOnTopAction->setChecked(onTop);
-    m_sortProxyModel->setSortRole(onTop ? int(FolderNavigationModel::IsFolderRole)
-                                        : int(QFileSystemModel::FileNameRole));
+    m_sortProxyModel->setSortRole(onTop ? int(FileSystemModel::FileSortRole)
+                                        : int(FileSystemModel::FileNameRole));
 }
 
 static bool itemLessThan(QComboBox *combo,
@@ -523,7 +458,7 @@ void FolderNavigationWidget::addNewItem()
     const QModelIndex current = m_sortProxyModel->mapToSource(m_listView->currentIndex());
     if (!current.isValid())
         return;
-    const auto filePath = FilePath::fromString(m_fileSystemModel->filePath(current));
+    const FilePath filePath = m_fileSystemModel->filePath(current);
     const FilePath path = filePath.isDir() ? filePath : filePath.parentDir();
     ICore::showNewItemDialog(Tr::tr("New File", "Title of dialog"),
                              Utils::filtered(IWizardFactory::allWizardFactories(),
@@ -544,7 +479,7 @@ void FolderNavigationWidget::removeCurrentItem()
     const QModelIndex current = m_sortProxyModel->mapToSource(m_listView->currentIndex());
     if (!current.isValid() || m_fileSystemModel->isDir(current))
         return;
-    const FilePath filePath = FilePath::fromString(m_fileSystemModel->filePath(current));
+    const FilePath filePath = m_fileSystemModel->filePath(current);
     RemoveFileDialog dialog(filePath);
     dialog.setDeleteFileVisible(false);
     if (dialog.exec() == QDialog::Accepted) {
@@ -621,7 +556,7 @@ void FolderNavigationWidget::selectBestRootForFile(const FilePath &filePath)
 void FolderNavigationWidget::selectFile(const FilePath &filePath)
 {
     const QModelIndex fileIndex = m_sortProxyModel->mapFromSource(
-        m_fileSystemModel->index(filePath.toFSPathString()));
+        m_fileSystemModel->index(filePath));
     if (fileIndex.isValid() || filePath.isEmpty() /* Computer root */) {
         // TODO This only scrolls to the right position if all directory contents are loaded.
         // Unfortunately listening to directoryLoaded was still not enough (there might also
@@ -630,7 +565,7 @@ void FolderNavigationWidget::selectFile(const FilePath &filePath)
         m_listView->setCurrentIndex(fileIndex);
         QTimer::singleShot(200, this, [this, filePath] {
             const QModelIndex fileIndex = m_sortProxyModel->mapFromSource(
-                m_fileSystemModel->index(filePath.toFSPathString()));
+                m_fileSystemModel->index(filePath));
             if (fileIndex == m_listView->rootIndex()) {
                 m_listView->horizontalScrollBar()->setValue(0);
                 m_listView->verticalScrollBar()->setValue(0);
@@ -639,14 +574,43 @@ void FolderNavigationWidget::selectFile(const FilePath &filePath)
             }
             setCrumblePath(filePath);
         });
+    } else {
+        // Path not yet populated in the async model. Walk up to the deepest
+        // ancestor that is already in the index and trigger a fetch there,
+        // then retry once the relevant directory is loaded.
+        FilePath ancestor = filePath.parentDir();
+        while (ancestor != filePath) {
+            const QModelIndex ancestorIndex = m_fileSystemModel->index(ancestor);
+            if (ancestorIndex.isValid()) {
+                if (m_fileSystemModel->canFetchMore(ancestorIndex))
+                    m_fileSystemModel->fetchMore(ancestorIndex);
+                break;
+            }
+            const FilePath next = ancestor.parentDir();
+            if (next == ancestor)
+                break;
+            ancestor = next;
+        }
+        auto *conn = new QMetaObject::Connection;
+        *conn = connect(m_fileSystemModel,
+                        &FileSystemModel::directoryLoaded,
+                        this,
+                        [this, filePath, conn](const Utils::FilePath &loaded) {
+                            if (filePath.isChildOf(loaded) || loaded == filePath.parentDir()) {
+                                disconnect(*conn);
+                                delete conn;
+                                selectFile(filePath);
+                            }
+                        });
     }
 }
 
 void FolderNavigationWidget::setRootDirectory(const FilePath &directory)
 {
-    const QModelIndex index = m_sortProxyModel->mapFromSource(
-        m_fileSystemModel->setRootPath(directory.toFSPathString()));
-    m_listView->setRootIndex(index);
+    m_fileSystemModel->setRootPath(directory);
+    const QModelIndex rootSource = directory.isEmpty() ? QModelIndex{}
+                                                       : m_fileSystemModel->index(directory);
+    m_listView->setRootIndex(m_sortProxyModel->mapFromSource(rootSource));
     m_fileSystemModel->setRootDir(directory);
 }
 
@@ -672,15 +636,14 @@ void FolderNavigationWidget::openItem(const QModelIndex &index)
     // but we don't want to do anything in that case
     if (m_fileSystemModel->isDir(index))
         return;
-    const QString path = m_fileSystemModel->filePath(index);
-    EditorManager::openEditor(FilePath::fromString(path), {}, EditorManager::AllowExternalEditor);
+    EditorManager::openEditor(m_fileSystemModel->filePath(index), {}, EditorManager::AllowExternalEditor);
 }
 
 void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
 {
     static const QString baseName = Tr::tr("New Folder");
     // find non-existing name
-    const QDir dir(m_fileSystemModel->filePath(parent));
+    const QDir dir(m_fileSystemModel->filePath(parent).toFSPathString());
     const QSet<FilePath> existingItems
         = Utils::transform<QSet>(dir.entryList({baseName + '*'}, QDir::AllEntries),
                                  &FilePath::fromString);
@@ -688,7 +651,7 @@ void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
                                                    existingItems);
     // create directory and edit
     const QModelIndex index = m_sortProxyModel->mapFromSource(
-        m_fileSystemModel->mkdir(parent, name.toFSPathString()));
+        m_fileSystemModel->mkdir(parent, name.fileName()));
     if (!index.isValid())
         return;
     m_listView->setCurrentIndex(index);
@@ -697,7 +660,7 @@ void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
 
 void FolderNavigationWidget::setCrumblePath(const FilePath &filePath)
 {
-    const QModelIndex index = m_fileSystemModel->index(filePath.toFSPathString());
+    const QModelIndex index = m_fileSystemModel->index(filePath);
     const int width = m_crumbLabel->width();
     const int previousHeight = m_crumbLabel->immediateHeightForWidth(width);
     m_crumbLabel->setPath(filePath);
@@ -732,9 +695,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *newFolder = nullptr;
     QAction *removeFolder = nullptr;
     const bool isDir = m_fileSystemModel->isDir(current);
-    const FilePath filePath = hasCurrentItem ? FilePath::fromString(
-                                                          m_fileSystemModel->filePath(current))
-                                             : FilePath();
+    const FilePath filePath = hasCurrentItem ? m_fileSystemModel->filePath(current) : FilePath();
     EditorManager::addContextMenuActions(&menu, filePath);
     menu.addSeparator();
 
@@ -783,12 +744,7 @@ bool FolderNavigationWidget::rootAutoSynchronization() const
 
 void FolderNavigationWidget::setHiddenFilesFilter(bool filter)
 {
-    QDir::Filters filters = m_fileSystemModel->filter();
-    if (filter)
-        filters |= QDir::Hidden;
-    else
-        filters &= ~(QDir::Hidden);
-    m_fileSystemModel->setFilter(filters);
+    static_cast<Utils::FileSystemProxyModel *>(m_sortProxyModel)->setShowHiddenFiles(filter);
     m_filterHiddenFilesAction->setChecked(filter);
 }
 

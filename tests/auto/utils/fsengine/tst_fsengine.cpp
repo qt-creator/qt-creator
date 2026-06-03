@@ -7,7 +7,6 @@
 #include <utils/hostosinfo.h>
 
 #include <QDebug>
-#include <QFileSystemModel>
 #include <QTemporaryFile>
 #include <QTest>
 

@@ -21,7 +21,6 @@ class QtcSettings;
 QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
-class QFileSystemModel;
 class QMenu;
 class QModelIndex;
 class QSortFilterProxyModel;
