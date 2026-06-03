@@ -1,0 +1,25 @@
+{
+  "type": "preamble",
+  "version": 2
+}
+{
+  "type": "trace-class"
+}
+{
+  "type": "data-stream-class"
+}
+{
+  "name": "ev",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "s"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

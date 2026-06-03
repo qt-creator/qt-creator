@@ -1,0 +1,341 @@
+{
+  "type": "preamble",
+  "uuid": [
+    89,
+    5,
+    35,
+    51,
+    228,
+    144,
+    78,
+    217,
+    175,
+    122,
+    182,
+    82,
+    67,
+    127,
+    186,
+    154
+  ],
+  "version": 2
+}
+{
+  "environment": {
+    "domain": "ust",
+    "hostname": "host",
+    "tracer_major": 2,
+    "tracer_minor": 3,
+    "tracer_name": "lttng-ust"
+  },
+  "packet-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "packet-magic-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "magic"
+      },
+      {
+        "field-class": {
+          "length": 16,
+          "roles": [
+            "metadata-stream-uuid"
+          ],
+          "type": "static-length-blob"
+        },
+        "name": "uuid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "data-stream-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "stream_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "trace-class",
+  "uid": "59052333-e490-4ed9-af7a-b652437fba9a",
+  "name": "",
+  "namespace": "lttng.org,2009"
+}
+{
+  "description": "Monotonic Clock",
+  "frequency": 1000000000,
+  "id": "monotonic",
+  "name": "monotonic",
+  "offset-from-origin": {
+    "cycles": 542680815,
+    "seconds": 1375437179
+  },
+  "origin": "unix-epoch",
+  "type": "clock-class",
+  "uid": "5f3ed925-9d73-4637-b8e4-02077abc8c8f"
+}
+{
+  "default-clock-class-id": "monotonic",
+  "event-record-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "byte-order": "little-endian",
+          "length": 5,
+          "mappings": {
+            "compact": [
+              [
+                0,
+                30
+              ]
+            ],
+            "extended": [
+              [
+                31,
+                31
+              ]
+            ]
+          },
+          "roles": [
+            "event-record-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "id"
+      },
+      {
+        "field-class": {
+          "options": [
+            {
+              "field-class": {
+                "member-classes": [
+                  {
+                    "field-class": {
+                      "byte-order": "little-endian",
+                      "length": 27,
+                      "roles": [
+                        "default-clock-timestamp"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "timestamp"
+                  }
+                ],
+                "type": "structure"
+              },
+              "name": "compact",
+              "selector-field-ranges": [
+                [
+                  0,
+                  30
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "member-classes": [
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 32,
+                      "roles": [
+                        "event-record-class-id"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "id"
+                  },
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 64,
+                      "roles": [
+                        "default-clock-timestamp"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "timestamp"
+                  }
+                ],
+                "type": "structure"
+              },
+              "name": "extended",
+              "selector-field-ranges": [
+                [
+                  31,
+                  31
+                ]
+              ]
+            }
+          ],
+          "selector-field-location": {
+            "origin": "event-record-header",
+            "path": [
+              "id"
+            ]
+          },
+          "type": "variant"
+        },
+        "name": "v"
+      }
+    ],
+    "minimum-alignment": 8,
+    "type": "structure"
+  },
+  "packet-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_begin"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-end-default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_end"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-content-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "content_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-total-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "discarded-event-record-counter-snapshot"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "events_discarded"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "cpu_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "data-stream-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "alert"
+    }
+  },
+  "name": "sequence event",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_seq_int_field_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 32,
+            "type": "fixed-length-signed-integer"
+          },
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_seq_int_field_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "seq_int_field"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_seq_long_field_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 64,
+            "type": "fixed-length-signed-integer"
+          },
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_seq_long_field_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "seq_long_field"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

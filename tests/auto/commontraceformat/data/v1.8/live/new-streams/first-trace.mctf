@@ -1,0 +1,90 @@
+--- metadata
+/* CTF 1.8 */
+
+typealias integer { size = 8; align = 8; signed = false; } := uint8_t;
+
+trace {
+	major = 1;
+	minor = 8;
+	byte_order = le;
+};
+
+clock {
+	name = cycle_counter_test;
+	uuid = "5b59e7db-5e49-418a-9adf-e1adfdf571c4";
+	freq = 1000000000;
+};
+
+typealias integer { size = 8; align = 8; signed = false; map = clock.cycle_counter_test.value; } := cc_count_t;
+
+struct packet_context {
+	cc_count_t timestamp_begin;
+	cc_count_t timestamp_end;
+	uint8_t content_size;
+	uint8_t packet_size;
+};
+
+struct event_header {
+	uint8_t id;
+	cc_count_t timestamp;
+};
+
+stream {
+	event.header := struct event_header;
+	packet.context := struct packet_context;
+};
+
+event {
+	name = "first_trace_event";
+	id = 0;
+	fields := struct {
+		uint8_t value;
+	};
+};
+
+--- first_trace_stream_0
+!macro packet(ts_beg, event_id)
+  <beg>
+  [         ts_beg : 8] # timestamp begin
+  [     ts_beg + 1 : 8] # timestamp end
+  [8 * (end - beg) : 8] # content size in bits
+  [8 * (end - beg) : 8] # packet size in bits
+
+  [       event_id : 8] # event id
+  [         ts_beg : 8] # timestamp
+  [             42 : 8] # value field
+  <end>
+!end
+
+{ p1_s0_ts = 10 }
+{ p2_s0_ts = 20 }
+
+<p1_s0>
+m:packet(p1_s0_ts, 0)
+<p1_s0_end>
+
+<p2_s0>
+m:packet(p2_s0_ts, 0)
+<p2_s0_end>
+
+--- index/first_trace_stream_0.idx
+!be
+
+[0xC1F1DCC1 : 32] # Magic number
+[         1 : 32] # Major
+[         0 : 32] # Minor
+[        56 : 32] # Index entry size (56 bytes)
+
+# Packet 1
+!macro entry(beg_label, end_label, ts_beg)
+  [                  beg_label : 64] # offset in bytes
+  [8 * (end_label - beg_label) : 64] # total size in bits
+  [8 * (end_label - beg_label) : 64] # content size in bits
+  [                     ts_beg : 64] # timestamp begin
+  [                 ts_beg + 1 : 64] # timestamp end
+  [                          0 : 64] # events discarded
+  [                          0 : 64] # stream class id
+!end
+
+m:entry(p1_s0, p1_s0_end, p1_s0_ts)
+m:entry(p2_s0, p2_s0_end, p2_s0_ts)

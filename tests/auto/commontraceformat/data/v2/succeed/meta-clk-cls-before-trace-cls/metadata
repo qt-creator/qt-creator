@@ -1,0 +1,19 @@
+
+{
+  "type": "preamble",
+  "version": 2
+}
+
+{
+  "type": "clock-class",
+  "frequency": 1000000000,
+  "id": "monotonic"
+}
+
+{
+  "type": "trace-class"
+}
+
+{
+  "type": "data-stream-class"
+}

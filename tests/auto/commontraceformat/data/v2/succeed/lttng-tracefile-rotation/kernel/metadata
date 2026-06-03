@@ -1,0 +1,1106 @@
+{
+  "type": "preamble",
+  "uuid": [
+    111,
+    24,
+    11,
+    12,
+    178,
+    66,
+    193,
+    72,
+    171,
+    68,
+    108,
+    191,
+    150,
+    10,
+    88,
+    178
+  ],
+  "version": 2
+}
+{
+  "environment": {
+    "domain": "kernel",
+    "hostname": "smarchi-efficios",
+    "kernel_release": "4.15.0-65-generic",
+    "kernel_version": "#74-Ubuntu SMP Tue Sep 17 17:06:04 UTC 2019",
+    "sysname": "Linux",
+    "tracer_major": 2,
+    "tracer_minor": 10,
+    "tracer_name": "lttng-modules",
+    "tracer_patchlevel": 8
+  },
+  "packet-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "packet-magic-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "magic"
+      },
+      {
+        "field-class": {
+          "length": 16,
+          "roles": [
+            "metadata-stream-uuid"
+          ],
+          "type": "static-length-blob"
+        },
+        "name": "uuid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "data-stream-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "stream_id"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "data-stream-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "stream_instance_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "trace-class",
+  "uid": "6f180b0c-b242-c148-ab44-6cbf960a58b2",
+  "name": "",
+  "namespace": "lttng.org,2009"
+}
+{
+  "description": "Monotonic Clock",
+  "frequency": 1000000000,
+  "id": "monotonic",
+  "name": "monotonic",
+  "offset-from-origin": {
+    "cycles": 155326264,
+    "seconds": 1571238431
+  },
+  "origin": "unix-epoch",
+  "type": "clock-class",
+  "uid": "25210548-98b9-4ab3-a9de-7d865e4ad32c"
+}
+{
+  "default-clock-class-id": "monotonic",
+  "event-record-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "byte-order": "little-endian",
+          "length": 5,
+          "mappings": {
+            "compact": [
+              [
+                0,
+                30
+              ]
+            ],
+            "extended": [
+              [
+                31,
+                31
+              ]
+            ]
+          },
+          "roles": [
+            "event-record-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "id"
+      },
+      {
+        "field-class": {
+          "options": [
+            {
+              "field-class": {
+                "member-classes": [
+                  {
+                    "field-class": {
+                      "byte-order": "little-endian",
+                      "length": 27,
+                      "roles": [
+                        "default-clock-timestamp"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "timestamp"
+                  }
+                ],
+                "type": "structure"
+              },
+              "name": "compact",
+              "selector-field-ranges": [
+                [
+                  0,
+                  30
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "member-classes": [
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 32,
+                      "roles": [
+                        "event-record-class-id"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "id"
+                  },
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 64,
+                      "roles": [
+                        "default-clock-timestamp"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "timestamp"
+                  }
+                ],
+                "type": "structure"
+              },
+              "name": "extended",
+              "selector-field-ranges": [
+                [
+                  31,
+                  31
+                ]
+              ]
+            }
+          ],
+          "selector-field-location": {
+            "origin": "event-record-header",
+            "path": [
+              "id"
+            ]
+          },
+          "type": "variant"
+        },
+        "name": "v"
+      }
+    ],
+    "minimum-alignment": 8,
+    "type": "structure"
+  },
+  "packet-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_begin"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-end-default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_end"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-content-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "content_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-total-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-sequence-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_seq_num"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "discarded-event-record-counter-snapshot"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "events_discarded"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "cpu_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "data-stream-class"
+}
+{
+  "name": "sched_kthread_stop",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 1,
+  "name": "sched_kthread_stop_ret",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "ret"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 2,
+  "name": "sched_waking",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prio"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "target_cpu"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 3,
+  "name": "sched_wakeup",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prio"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "target_cpu"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 4,
+  "name": "sched_wakeup_new",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prio"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "target_cpu"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 5,
+  "name": "sched_switch",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "prev_comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prev_tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prev_prio"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prev_state"
+      },
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "next_comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "next_tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "next_prio"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 6,
+  "name": "sched_migrate_task",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prio"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "orig_cpu"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "dest_cpu"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 7,
+  "name": "sched_process_free",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prio"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 8,
+  "name": "sched_process_exit",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prio"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 9,
+  "name": "sched_wait_task",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prio"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 10,
+  "name": "sched_process_wait",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "prio"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 11,
+  "name": "sched_process_fork",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "parent_comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "parent_tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "parent_pid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "parent_ns_inum"
+      },
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "child_comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "child_tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_vtids_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 32,
+            "type": "fixed-length-signed-integer"
+          },
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_vtids_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "vtids"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "child_pid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "child_ns_inum"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 12,
+  "name": "sched_process_exec",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "filename"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "old_tid"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 13,
+  "name": "sched_stat_wait",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "delay"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 14,
+  "name": "sched_stat_sleep",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "delay"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 15,
+  "name": "sched_stat_iowait",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "delay"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 16,
+  "name": "sched_stat_blocked",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "delay"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 17,
+  "name": "sched_stat_runtime",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "runtime"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "vruntime"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "id": 18,
+  "name": "sched_pi_setprio",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 16,
+          "type": "static-length-string"
+        },
+        "name": "comm"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "tid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "oldprio"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "newprio"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

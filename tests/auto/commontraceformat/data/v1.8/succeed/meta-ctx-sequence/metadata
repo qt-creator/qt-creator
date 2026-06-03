@@ -1,0 +1,19 @@
+/* CTF 1.8 */
+typealias integer { size = 8; align = 8; signed = false; } := uint8_t;
+
+trace {
+	major = 1;
+	minor = 8;
+	byte_order = le;
+};
+
+stream {
+	event.context := struct {
+		uint8_t __evt_ctx_seq_length;
+		uint8_t _evt_ctx_seq[ __evt_ctx_seq_length ];
+	};
+	packet.context := struct {
+		uint8_t __pkt_ctx_seq_length;
+		uint8_t _pkt_ctx_seq[ __pkt_ctx_seq_length ];
+	};
+};

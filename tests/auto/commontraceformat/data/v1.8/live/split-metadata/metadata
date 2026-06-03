@@ -1,0 +1,119 @@
+/* CTF 1.8 */
+
+typealias integer { size = 8; align = 8; signed = false; } := uint8_t;
+typealias integer { size = 16; align = 8; signed = false; } := uint16_t;
+typealias integer { size = 32; align = 8; signed = false; } := uint32_t;
+typealias integer { size = 64; align = 8; signed = false; } := uint64_t;
+typealias integer { size = 64; align = 8; signed = false; } := unsigned long;
+typealias integer { size = 5; align = 1; signed = false; } := uint5_t;
+typealias integer { size = 27; align = 1; signed = false; } := uint27_t;
+
+trace {
+	major = 1;
+	minor = 8;
+	uuid = "0339cd08-892d-404c-9291-64c1a8a74c81";
+	byte_order = le;
+	packet.header := struct {
+		uint32_t magic;
+		uint8_t  uuid[16];
+		uint32_t stream_id;
+		uint64_t stream_instance_id;
+	};
+};
+
+env {
+	domain = "ust";
+	tracer_name = "lttng-ust";
+	tracer_major = 2;
+	tracer_minor = 12;
+	tracer_buffering_scheme = "uid";
+	tracer_buffering_id = 1000;
+	architecture_bit_width = 64;
+	trace_name = "barney_descontie";
+	trace_creation_datetime = "20200715T174253-0400";
+	hostname = "raton";
+};
+
+clock {
+	name = "monotonic";
+	uuid = "81a04b89-9028-4d3e-a28d-5fbd53a8eb9d";
+	description = "Monotonic Clock";
+	freq = 1000000000; /* Frequency, in Hz */
+	/* clock value offset from Epoch is: offset * (1/freq) */
+	offset = 1594406328768346378;
+};
+
+typealias integer {
+	size = 27; align = 1; signed = false;
+	map = clock.monotonic.value;
+} := uint27_clock_monotonic_t;
+
+typealias integer {
+	size = 32; align = 8; signed = false;
+	map = clock.monotonic.value;
+} := uint32_clock_monotonic_t;
+
+typealias integer {
+	size = 64; align = 8; signed = false;
+	map = clock.monotonic.value;
+} := uint64_clock_monotonic_t;
+
+struct packet_context {
+	uint64_clock_monotonic_t timestamp_begin;
+	uint64_clock_monotonic_t timestamp_end;
+	uint64_t content_size;
+	uint64_t packet_size;
+	uint64_t packet_seq_num;
+	unsigned long events_discarded;
+	uint32_t cpu_id;
+};
+
+struct event_header_compact {
+	enum : uint5_t { compact = 0 ... 30, extended = 31 } id;
+	variant <id> {
+		struct {
+			uint27_clock_monotonic_t timestamp;
+		} compact;
+		struct {
+			uint32_t id;
+			uint64_clock_monotonic_t timestamp;
+		} extended;
+	} v;
+} align(8);
+
+struct event_header_large {
+	enum : uint16_t { compact = 0 ... 65534, extended = 65535 } id;
+	variant <id> {
+		struct {
+			uint32_clock_monotonic_t timestamp;
+		} compact;
+		struct {
+			uint32_t id;
+			uint64_clock_monotonic_t timestamp;
+		} extended;
+	} v;
+} align(8);
+
+stream {
+	id = 0;
+	event.header := struct event_header_large;
+	packet.context := struct packet_context;
+};
+
+event {
+	name = "my_app:signe_de_pia$$e";
+	id = 0;
+	stream_id = 0;
+	loglevel = 13;
+	fields := struct {
+	};
+};
+
+event {
+	name = "my_app:signe_de_pia$$e_2";
+	id = 1;
+	stream_id = 0;
+	loglevel = 13;
+	fields := struct {
+	};
+};

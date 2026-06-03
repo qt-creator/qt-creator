@@ -1,0 +1,67 @@
+{
+  "type": "preamble",
+  "version": 2
+}
+{
+  "type": "trace-class"
+}
+{
+  "type": "data-stream-class"
+}
+{
+  "name": "ev",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "x"
+      },
+      {
+        "field-class": {
+          "member-classes": [
+            {
+              "field-class": {
+                "alignment": 8,
+                "byte-order": "little-endian",
+                "length": 8,
+                "type": "fixed-length-unsigned-integer"
+              },
+              "name": "a"
+            },
+            {
+              "field-class": {
+                "element-field-class": {
+                  "alignment": 32,
+                  "byte-order": "little-endian",
+                  "length": 8,
+                  "type": "fixed-length-unsigned-integer"
+                },
+                "length": 0,
+                "type": "static-length-array"
+              },
+              "name": "b"
+            }
+          ],
+          "type": "structure"
+        },
+        "name": "y"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "z"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

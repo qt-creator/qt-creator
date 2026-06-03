@@ -1,0 +1,24 @@
+/* CTF 1.8 */
+
+trace {
+	major = 1;
+	minor = 8;
+	byte_order = be;
+};
+
+event {
+	name = yo;
+	fields := struct {
+		enum : integer { size = 8; } {
+			COSSETTE,
+			PELCHAT,
+			VOISINE,
+		} tag;
+
+		variant <tag> {
+			string COSSETTE;
+			string PELCHAT;
+			string VOISINE;
+		} var;
+	};
+};

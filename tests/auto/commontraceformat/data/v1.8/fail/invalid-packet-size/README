@@ -1,0 +1,2 @@
+The sum of the packet sizes in this trace (both in the index file and in the
+actual packet headers) is larger than the data file.

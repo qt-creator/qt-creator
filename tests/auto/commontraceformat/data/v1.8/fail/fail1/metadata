@@ -1,0 +1,49 @@
+/* CTF 1.8
+ *
+ * Architecture with 32-bit pointers, 32-bit integers, 32-bit longs.
+ */
+
+typealias integer { size = 1; align = 1; signed = false; } := uint1_t;
+typealias integer { size = 8; align = 8; signed = false; } := uint8_t;
+typealias integer { size = 63; align = 1; signed = false; } := timestamp_t;
+
+typealias integer { size = 32; align = 32; signed = false; base = 10; } := uint32_t;
+typealias integer { size = 32; align = 32; signed = false; } := void *;
+
+
+trace {
+	major = 0;
+	minor = 1;
+	uuid = "2a6422d0-6cee-11e0-8c08-cb07d7b3a564";
+	byte_order = le;
+	packet.header := struct {
+		uint32_t magic;
+		uint8_t  uuid[16];
+		uint32_t stream_id;
+	};
+};
+
+stream {
+	event.header := struct {
+		uint1_t id;
+		timestamp_t timestamp;
+	};
+	event.context := struct {
+		uint32_t thread_id;
+		uint32_t event_count;
+	};			
+};
+
+event {
+	name = func_enter;
+	id = 0;
+	fields := struct {
+		void *func_called;
+		void *called_from;
+	};
+};
+
+event {
+	name = func_exit;
+	id = 1;
+};

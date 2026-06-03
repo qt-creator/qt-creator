@@ -1,0 +1,41 @@
+/* CTF 1.8 */
+
+typealias integer { size = 8; align = 8; signed = false; } := uint8_t;
+
+trace {
+	major = 1;
+	minor = 8;
+	byte_order = le;
+};
+
+clock {
+        name = cycle_counter_test;
+        uuid = "5b59e7db-5e49-418a-9adf-e1adfdf571c4";
+};
+
+typealias integer { size = 8; align = 8; signed = false; map = clock.cycle_counter_test.value; } := cc_count_t;
+
+struct packet_context {
+	cc_count_t timestamp_begin;
+	cc_count_t timestamp_end;
+	uint8_t content_size;
+	uint8_t packet_size;
+};
+
+struct event_header {
+	uint8_t id;
+	cc_count_t timestamp;
+};
+
+stream {
+	event.header := struct event_header;
+	packet.context := struct packet_context;
+};
+
+event {
+	name = "first_trace_event";
+	id = 0;
+	fields := struct {
+		uint8_t value;
+	};
+};

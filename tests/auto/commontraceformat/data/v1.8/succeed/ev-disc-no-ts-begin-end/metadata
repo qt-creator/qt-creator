@@ -1,0 +1,21 @@
+/* CTF 1.8 */
+
+trace {
+	major = 1;
+	minor = 8;
+	byte_order = be;
+};
+
+stream {
+	packet.context := struct {
+		integer { size = 8; } packet_size;
+		integer { size = 8; } events_discarded;
+	};
+};
+
+event {
+	name = "ev";
+	fields := struct {
+		string s;
+	};
+};

@@ -1,0 +1,207 @@
+{
+  "type": "preamble",
+  "uuid": [
+    67,
+    119,
+    72,
+    222,
+    148,
+    53,
+    17,
+    233,
+    131,
+    83,
+    82,
+    84,
+    0,
+    124,
+    104,
+    87
+  ],
+  "version": 2
+}
+{
+  "environment": {
+    "barectf_gen_date": "2019-06-21T11:00:09.758481",
+    "domain": "bare",
+    "tracer_major": 2,
+    "tracer_minor": 3,
+    "tracer_name": "barectf",
+    "tracer_patch": 0
+  },
+  "packet-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 32,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "packet-magic-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "magic"
+      },
+      {
+        "field-class": {
+          "length": 16,
+          "roles": [
+            "metadata-stream-uuid"
+          ],
+          "type": "static-length-blob"
+        },
+        "name": "uuid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "roles": [
+            "data-stream-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "stream_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "trace-class",
+  "uid": "437748de-9435-11e9-8353-5254007c6857",
+  "name": "",
+  "namespace": "lttng.org,2009"
+}
+{
+  "frequency": 1000000000,
+  "id": "default",
+  "name": "default",
+  "offset-from-origin": {
+    "cycles": 0,
+    "seconds": 1434072888
+  },
+  "precision": 0,
+  "type": "clock-class"
+}
+{
+  "default-clock-class-id": "default",
+  "event-record-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 64,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp"
+      },
+      {
+        "field-class": {
+          "alignment": 16,
+          "byte-order": "little-endian",
+          "length": 16,
+          "roles": [
+            "event-record-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "id"
+      }
+    ],
+    "type": "structure"
+  },
+  "packet-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 64,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_begin"
+      },
+      {
+        "field-class": {
+          "alignment": 64,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-end-default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_end"
+      },
+      {
+        "field-class": {
+          "alignment": 32,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "packet-total-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_size"
+      },
+      {
+        "field-class": {
+          "alignment": 32,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "packet-content-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "content_size"
+      },
+      {
+        "field-class": {
+          "alignment": 32,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "discarded-event-record-counter-snapshot"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "events_discarded"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "data-stream-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "critical"
+    }
+  },
+  "name": "simple_uint32",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 32,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "value"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

@@ -1,0 +1,10 @@
+Trace created with:
+
+    lttng create
+    lttng enable-channel --kernel --tracefile-size=64k --subbuf-size=64k mychan
+    lttng enable-event -k --channel=mychan 'sched_*'
+    lttng start
+    sleep 2
+    lttng stop
+
+

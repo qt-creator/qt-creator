@@ -1,0 +1,54 @@
+{
+  "type": "preamble",
+  "version": 2
+}
+{
+  "type": "trace-class"
+}
+{
+  "packet-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 8,
+          "roles": [
+            "packet-total-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 8,
+          "roles": [
+            "discarded-event-record-counter-snapshot"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "events_discarded"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "data-stream-class"
+}
+{
+  "name": "ev",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "s"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

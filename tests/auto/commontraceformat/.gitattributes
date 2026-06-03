@@ -1,0 +1,20 @@
+# Test fixtures for the CommonTraceFormat library.
+#
+# The CTF data-stream files (dummystream*, mychan_*, kernel_channel_*, chan*,
+# stream*, u_*, *.mctf, ...) and the LTTng .idx index files are binary trace
+# data. Mark everything under data/ as binary by default: Git then stores it
+# verbatim (no end-of-line or encoding conversion) and the Qt sanity bot skips
+# its text/UTF-8/EOL checks on it. This clears the blocking "Invalid UTF-8 in
+# diff" and "CRLF line endings" sanity errors. (The remaining "big file" hits
+# are non-blocking warnings; .gitattributes cannot change a file's size.)
+data/**            binary
+
+# The metadata fragments are text and worth diffing during review, but their
+# bytes must be preserved exactly: some fixtures intentionally use CRLF or LF
+# to exercise the parser. Keep them diffable while disabling EOL normalization.
+data/**/metadata   -text diff
+data/**/*.json     -text diff
+
+# Plain-text helper fixtures.
+data/**/README     text
+data/**/*.expect   -text diff

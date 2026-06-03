@@ -1,0 +1,548 @@
+{
+  "type": "preamble",
+  "version": 2
+}
+{
+  "type": "trace-class"
+}
+{
+  "type": "data-stream-class"
+}
+{
+  "name": "yo",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 8,
+          "mappings": {
+            "__Bool": [
+              [
+                25,
+                25
+              ]
+            ],
+            "__Complex": [
+              [
+                26,
+                26
+              ]
+            ],
+            "__Imaginary": [
+              [
+                27,
+                27
+              ]
+            ],
+            "_align": [
+              [
+                0,
+                0
+              ]
+            ],
+            "_callsite": [
+              [
+                1,
+                1
+              ]
+            ],
+            "_char": [
+              [
+                3,
+                3
+              ]
+            ],
+            "_clock": [
+              [
+                4,
+                4
+              ]
+            ],
+            "_const": [
+              [
+                2,
+                2
+              ]
+            ],
+            "_double": [
+              [
+                5,
+                5
+              ]
+            ],
+            "_enum": [
+              [
+                6,
+                6
+              ]
+            ],
+            "_env": [
+              [
+                7,
+                7
+              ]
+            ],
+            "_event": [
+              [
+                8,
+                8
+              ]
+            ],
+            "_float": [
+              [
+                10,
+                10
+              ]
+            ],
+            "_floating_point": [
+              [
+                9,
+                9
+              ]
+            ],
+            "_int": [
+              [
+                12,
+                12
+              ]
+            ],
+            "_integer": [
+              [
+                11,
+                11
+              ]
+            ],
+            "_long": [
+              [
+                13,
+                13
+              ]
+            ],
+            "_short": [
+              [
+                14,
+                14
+              ]
+            ],
+            "_signed": [
+              [
+                15,
+                15
+              ]
+            ],
+            "_stream": [
+              [
+                16,
+                16
+              ]
+            ],
+            "_string": [
+              [
+                17,
+                17
+              ]
+            ],
+            "_struct": [
+              [
+                18,
+                18
+              ]
+            ],
+            "_trace": [
+              [
+                19,
+                19
+              ]
+            ],
+            "_typealias": [
+              [
+                20,
+                20
+              ]
+            ],
+            "_typedef": [
+              [
+                21,
+                21
+              ]
+            ],
+            "_unsigned": [
+              [
+                22,
+                22
+              ]
+            ],
+            "_variant": [
+              [
+                23,
+                23
+              ]
+            ],
+            "_void": [
+              [
+                24,
+                24
+              ]
+            ]
+          },
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "tag"
+      },
+      {
+        "field-class": {
+          "options": [
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "align",
+              "selector-field-ranges": [
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "callsite",
+              "selector-field-ranges": [
+                [
+                  1,
+                  1
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "const",
+              "selector-field-ranges": [
+                [
+                  2,
+                  2
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "char",
+              "selector-field-ranges": [
+                [
+                  3,
+                  3
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "clock",
+              "selector-field-ranges": [
+                [
+                  4,
+                  4
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "double",
+              "selector-field-ranges": [
+                [
+                  5,
+                  5
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "enum",
+              "selector-field-ranges": [
+                [
+                  6,
+                  6
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "env",
+              "selector-field-ranges": [
+                [
+                  7,
+                  7
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "event",
+              "selector-field-ranges": [
+                [
+                  8,
+                  8
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "floating_point",
+              "selector-field-ranges": [
+                [
+                  9,
+                  9
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "float",
+              "selector-field-ranges": [
+                [
+                  10,
+                  10
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "integer",
+              "selector-field-ranges": [
+                [
+                  11,
+                  11
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "int",
+              "selector-field-ranges": [
+                [
+                  12,
+                  12
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "long",
+              "selector-field-ranges": [
+                [
+                  13,
+                  13
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "short",
+              "selector-field-ranges": [
+                [
+                  14,
+                  14
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "signed",
+              "selector-field-ranges": [
+                [
+                  15,
+                  15
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "stream",
+              "selector-field-ranges": [
+                [
+                  16,
+                  16
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "string",
+              "selector-field-ranges": [
+                [
+                  17,
+                  17
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "struct",
+              "selector-field-ranges": [
+                [
+                  18,
+                  18
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "trace",
+              "selector-field-ranges": [
+                [
+                  19,
+                  19
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "typealias",
+              "selector-field-ranges": [
+                [
+                  20,
+                  20
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "typedef",
+              "selector-field-ranges": [
+                [
+                  21,
+                  21
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "unsigned",
+              "selector-field-ranges": [
+                [
+                  22,
+                  22
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "variant",
+              "selector-field-ranges": [
+                [
+                  23,
+                  23
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "void",
+              "selector-field-ranges": [
+                [
+                  24,
+                  24
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "_Bool",
+              "selector-field-ranges": [
+                [
+                  25,
+                  25
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "_Complex",
+              "selector-field-ranges": [
+                [
+                  26,
+                  26
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "_Imaginary",
+              "selector-field-ranges": [
+                [
+                  27,
+                  27
+                ]
+              ]
+            }
+          ],
+          "selector-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "tag"
+            ]
+          },
+          "type": "variant"
+        },
+        "name": "var"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

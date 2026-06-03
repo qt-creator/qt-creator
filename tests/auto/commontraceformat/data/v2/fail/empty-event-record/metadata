@@ -1,0 +1,13 @@
+
+{
+  "type": "preamble",
+  "version": 2
+}
+
+{
+  "type": "data-stream-class" 
+}
+
+{
+  "type": "event-record-class" 
+}

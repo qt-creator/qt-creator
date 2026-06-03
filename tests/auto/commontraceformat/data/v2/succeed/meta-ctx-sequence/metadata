@@ -1,0 +1,74 @@
+{
+  "type": "preamble",
+  "version": 2
+}
+{
+  "type": "trace-class"
+}
+{
+  "event-record-common-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_evt_ctx_seq_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 8,
+            "type": "fixed-length-unsigned-integer"
+          },
+          "length-field-location": {
+            "origin": "event-record-common-context",
+            "path": [
+              "_evt_ctx_seq_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "evt_ctx_seq"
+      }
+    ],
+    "type": "structure"
+  },
+  "packet-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_pkt_ctx_seq_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 8,
+            "type": "fixed-length-unsigned-integer"
+          },
+          "length-field-location": {
+            "origin": "packet-context",
+            "path": [
+              "_pkt_ctx_seq_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "pkt_ctx_seq"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "data-stream-class"
+}

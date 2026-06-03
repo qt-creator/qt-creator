@@ -1,0 +1,98 @@
+{
+  "type": "preamble",
+  "version": 2
+}
+{
+  "type": "trace-class"
+}
+{
+  "type": "data-stream-class"
+}
+{
+  "name": "yo",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 8,
+          "mappings": {
+            "COSSETTE": [
+              [
+                0,
+                0
+              ]
+            ],
+            "PELCHAT": [
+              [
+                1,
+                1
+              ]
+            ],
+            "VOISINE": [
+              [
+                2,
+                2
+              ]
+            ]
+          },
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "tag"
+      },
+      {
+        "field-class": {
+          "options": [
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "COSSETTE",
+              "selector-field-ranges": [
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "PELCHAT",
+              "selector-field-ranges": [
+                [
+                  1,
+                  1
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "type": "null-terminated-string"
+              },
+              "name": "VOISINE",
+              "selector-field-ranges": [
+                [
+                  2,
+                  2
+                ]
+              ]
+            }
+          ],
+          "selector-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "tag"
+            ]
+          },
+          "type": "variant"
+        },
+        "name": "var"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

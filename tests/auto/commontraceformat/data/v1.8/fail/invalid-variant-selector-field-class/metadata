@@ -1,0 +1,28 @@
+/* CTF 1.8 */
+typealias integer { size = 8; align = 8; signed = false; } := uint8_t;
+
+trace {
+	major = 1;
+	minor = 8;
+	byte_order = le;
+};
+
+stream {
+	event.header := struct {
+		uint8_t id;
+	};
+};
+
+event {
+	name = ze_event;
+	id = 1;
+	fields := struct {
+		struct {
+			uint8_t hello;
+		} selector;
+		variant<selector> {
+			uint8_t a;
+			uint8_t b;
+		} v;
+	};
+};

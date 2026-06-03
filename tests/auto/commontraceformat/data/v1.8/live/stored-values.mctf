@@ -1,0 +1,91 @@
+--- metadata
+/* CTF 1.8 */
+
+typealias integer { size = 8; align = 8; signed = false; } := uint8_t;
+
+trace {
+	major = 1;
+	minor = 8;
+	byte_order = le;
+};
+
+struct packet_context {
+	uint8_t timestamp_begin;
+	uint8_t timestamp_end;
+	uint8_t content_size;
+	uint8_t packet_size;
+};
+
+struct event_header {
+	uint8_t id;
+	uint8_t timestamp;
+};
+
+stream {
+	event.header := struct event_header;
+	packet.context := struct packet_context;
+};
+
+event {
+	name = "event1";
+	id = 1;
+	fields := struct {
+		uint8_t len;
+		uint8_t seq[len];
+	};
+};
+
+event {
+	name = "event2";
+	id = 2;
+	fields := struct {
+		uint8_t len;
+		uint8_t seq[len];
+	};
+};
+
+--- channel0_0
+!macro packet(ts_beg, event_id)
+  <beg>
+  [         ts_beg : 8] # timestamp begin
+  [     ts_beg + 1 : 8] # timestamp end
+  [8 * (end - beg) : 8] # content size in bits
+  [8 * (end - beg) : 8] # packet size in bits
+
+  [       event_id : 8] # event id
+  [         ts_beg : 8] # timestamp
+  [              0 : 8] # len field
+  <end>
+!end
+
+{ p1_ts = 10 }
+{ p2_ts = 20 }
+
+<p1>
+m:packet(p1_ts, 1)
+<p1_end>
+
+<p2>
+m:packet(p2_ts, 2)
+<p2_end>
+
+--- index/channel0_0.idx
+!be
+
+[0xC1F1DCC1 : 32] # Magic number
+[         1 : 32] # Major
+[         0 : 32] # Minor
+[        56 : 32] # Index entry size (56 bytes)
+
+!macro entry(beg_label, end_label, ts_beg)
+  [                  beg_label : 64] # offset in bytes
+  [8 * (end_label - beg_label) : 64] # total size in bits
+  [8 * (end_label - beg_label) : 64] # content size in bits
+  [                     ts_beg : 64] # timestamp begin
+  [                 ts_beg + 1 : 64] # timestamp end
+  [                          0 : 64] # events discarded
+  [                          0 : 64] # stream class id
+!end
+
+m:entry(p1, p1_end, p1_ts)
+m:entry(p2, p2_end, p2_ts)

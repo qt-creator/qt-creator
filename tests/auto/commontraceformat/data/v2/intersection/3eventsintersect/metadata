@@ -1,0 +1,234 @@
+{
+  "type": "preamble",
+  "uuid": [
+    122,
+    254,
+    143,
+    190,
+    121,
+    184,
+    79,
+    106,
+    187,
+    199,
+    208,
+    199,
+    130,
+    231,
+    221,
+    175
+  ],
+  "version": 2
+}
+{
+  "environment": {
+    "host": "sinkpad"
+  },
+  "packet-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 32,
+          "roles": [
+            "packet-magic-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "magic"
+      },
+      {
+        "field-class": {
+          "length": 16,
+          "roles": [
+            "metadata-stream-uuid"
+          ],
+          "type": "static-length-blob"
+        },
+        "name": "uuid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 32,
+          "roles": [
+            "data-stream-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "stream_id"
+      }
+    ],
+    "minimum-alignment": 8,
+    "type": "structure"
+  },
+  "type": "trace-class",
+  "uid": "7afe8fbe-79b8-4f6a-bbc7-d0c782e7ddaf",
+  "name": ""
+}
+{
+  "description": "This is a test clock",
+  "frequency": 1000000000,
+  "id": "test_clock",
+  "offset-from-origin": {
+    "cycles": 0,
+    "seconds": 13515309
+  },
+  "origin": "unix-epoch",
+  "precision": 10,
+  "type": "clock-class"
+}
+{
+  "default-clock-class-id": "test_clock",
+  "event-record-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 32,
+          "roles": [
+            "event-record-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "id"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 64,
+          "roles": [
+            "default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp"
+      }
+    ],
+    "minimum-alignment": 8,
+    "type": "structure"
+  },
+  "packet-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 64,
+          "roles": [
+            "default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_begin"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 64,
+          "roles": [
+            "packet-end-default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_end"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 64,
+          "roles": [
+            "packet-content-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "content_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 64,
+          "roles": [
+            "packet-total-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 64,
+          "roles": [
+            "discarded-event-record-counter-snapshot"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "events_discarded"
+      },
+      {
+        "field-class": {
+          "byte-order": "big-endian",
+          "length": 64,
+          "roles": [
+            "packet-sequence-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_seq_num"
+      }
+    ],
+    "minimum-alignment": 8,
+    "type": "structure"
+  },
+  "type": "data-stream-class"
+}
+{
+  "name": "dummy_event",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "byte-order": "big-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "dummy_value"
+      },
+      {
+        "field-class": {
+          "byte-order": "big-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "tracefile_id"
+      },
+      {
+        "field-class": {
+          "byte-order": "big-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_begin"
+      },
+      {
+        "field-class": {
+          "byte-order": "big-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_end"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

@@ -1,0 +1,31 @@
+/* CTF 1.8 */
+
+typealias integer { size = 8; align = 8; signed = false; } := uint8_t;
+
+trace {
+	major = 1;
+	minor = 8;
+	byte_order = be;
+	uuid = "c6e53ddd-925c-4b8f-bd19-acd28af9c4f2";
+
+	packet.header := struct {
+		uint8_t stream_id;
+		uint8_t stream_instance_id;
+	};
+};
+
+stream {
+	id = 0;
+	event.header := struct {
+		uint8_t id;
+	};
+
+	packet.context := struct {
+		uint8_t timestamp_begin;
+	};
+};
+
+event {
+	name = gadoua;
+	id = 1;
+};

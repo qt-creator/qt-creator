@@ -1,0 +1,1839 @@
+{
+  "type": "preamble",
+  "uuid": [
+    33,
+    205,
+    250,
+    94,
+    154,
+    100,
+    73,
+    10,
+    131,
+    44,
+    83,
+    172,
+    166,
+    193,
+    1,
+    186
+  ],
+  "version": 2
+}
+{
+  "environment": {
+    "domain": "ust",
+    "hostname": "smarchi-efficios",
+    "procname": "hello-ust",
+    "tracer_major": 2,
+    "tracer_minor": 11,
+    "tracer_name": "lttng-ust",
+    "tracer_patchlevel": 0,
+    "vpid": 10352
+  },
+  "packet-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "packet-magic-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "magic"
+      },
+      {
+        "field-class": {
+          "length": 16,
+          "roles": [
+            "metadata-stream-uuid"
+          ],
+          "type": "static-length-blob"
+        },
+        "name": "uuid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "data-stream-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "stream_id"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "data-stream-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "stream_instance_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "trace-class",
+  "uid": "21cdfa5e-9a64-490a-832c-53aca6c101ba",
+  "name": "",
+  "namespace": "lttng.org,2009"
+}
+{
+  "description": "Monotonic Clock",
+  "frequency": 1000000000,
+  "id": "monotonic",
+  "name": "monotonic",
+  "offset-from-origin": {
+    "cycles": 14585897,
+    "seconds": 1566682056
+  },
+  "origin": "unix-epoch",
+  "type": "clock-class",
+  "uid": "78760d96-b4c7-47f0-bd66-b73a504fee96"
+}
+{
+  "default-clock-class-id": "monotonic",
+  "event-record-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 16,
+          "mappings": {
+            "compact": [
+              [
+                0,
+                65534
+              ]
+            ],
+            "extended": [
+              [
+                65535,
+                65535
+              ]
+            ]
+          },
+          "roles": [
+            "event-record-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "id"
+      },
+      {
+        "field-class": {
+          "options": [
+            {
+              "field-class": {
+                "member-classes": [
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 32,
+                      "roles": [
+                        "default-clock-timestamp"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "timestamp"
+                  }
+                ],
+                "type": "structure"
+              },
+              "name": "compact",
+              "selector-field-ranges": [
+                [
+                  0,
+                  65534
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "member-classes": [
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 32,
+                      "roles": [
+                        "event-record-class-id"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "id"
+                  },
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 64,
+                      "roles": [
+                        "default-clock-timestamp"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "timestamp"
+                  }
+                ],
+                "type": "structure"
+              },
+              "name": "extended",
+              "selector-field-ranges": [
+                [
+                  65535,
+                  65535
+                ]
+              ]
+            }
+          ],
+          "selector-field-location": {
+            "origin": "event-record-header",
+            "path": [
+              "id"
+            ]
+          },
+          "type": "variant"
+        },
+        "name": "v"
+      }
+    ],
+    "minimum-alignment": 8,
+    "type": "structure"
+  },
+  "packet-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_begin"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-end-default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_end"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-content-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "content_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-total-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-sequence-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_seq_num"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "discarded-event-record-counter-snapshot"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "events_discarded"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "cpu_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "data-stream-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "name": "lttng_ust_statedump:start",
+  "payload-field-class": {
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 1,
+  "name": "lttng_ust_statedump:bin_info",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "preferred-display-base": 16,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "baddr"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "memsz"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "path"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "is_pic"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "has_build_id"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "has_debug_link"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 2,
+  "name": "lttng_ust_statedump:build_id",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "preferred-display-base": 16,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "baddr"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_build_id_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 8,
+            "preferred-display-base": 16,
+            "type": "fixed-length-unsigned-integer"
+          },
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_build_id_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "build_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 3,
+  "name": "lttng_ust_statedump:debug_link",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "preferred-display-base": 16,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "baddr"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "crc"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "filename"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 4,
+  "name": "lttng_ust_statedump:end",
+  "payload-field-class": {
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 5,
+  "name": "lttng_ust_lib:load",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "preferred-display-base": 16,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "baddr"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "memsz"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "path"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "has_build_id"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "has_debug_link"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 6,
+  "name": "lttng_ust_lib:build_id",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "preferred-display-base": 16,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "baddr"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_build_id_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 8,
+            "preferred-display-base": 16,
+            "type": "fixed-length-unsigned-integer"
+          },
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_build_id_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "build_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 7,
+  "name": "lttng_ust_lib:debug_link",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "preferred-display-base": 16,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "baddr"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "crc"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "filename"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 8,
+  "name": "lttng_ust_lib:unload",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "preferred-display-base": 16,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "baddr"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug"
+    }
+  },
+  "id": 9,
+  "name": "lttng_ust_tracef:event",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "emergency"
+    }
+  },
+  "id": 10,
+  "name": "lttng_ust_tracelog:TRACE_EMERG",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "alert"
+    }
+  },
+  "id": 11,
+  "name": "lttng_ust_tracelog:TRACE_ALERT",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "critical"
+    }
+  },
+  "id": 12,
+  "name": "lttng_ust_tracelog:TRACE_CRIT",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "error"
+    }
+  },
+  "id": 13,
+  "name": "lttng_ust_tracelog:TRACE_ERR",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "warning"
+    }
+  },
+  "id": 14,
+  "name": "lttng_ust_tracelog:TRACE_WARNING",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "notice"
+    }
+  },
+  "id": 15,
+  "name": "lttng_ust_tracelog:TRACE_NOTICE",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "info"
+    }
+  },
+  "id": 16,
+  "name": "lttng_ust_tracelog:TRACE_INFO",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:system"
+    }
+  },
+  "id": 17,
+  "name": "lttng_ust_tracelog:TRACE_DEBUG_SYSTEM",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:program"
+    }
+  },
+  "id": 18,
+  "name": "lttng_ust_tracelog:TRACE_DEBUG_PROGRAM",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:process"
+    }
+  },
+  "id": 19,
+  "name": "lttng_ust_tracelog:TRACE_DEBUG_PROCESS",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:module"
+    }
+  },
+  "id": 20,
+  "name": "lttng_ust_tracelog:TRACE_DEBUG_MODULE",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:unit"
+    }
+  },
+  "id": 21,
+  "name": "lttng_ust_tracelog:TRACE_DEBUG_UNIT",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:function"
+    }
+  },
+  "id": 22,
+  "name": "lttng_ust_tracelog:TRACE_DEBUG_FUNCTION",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 23,
+  "name": "lttng_ust_tracelog:TRACE_DEBUG_LINE",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug"
+    }
+  },
+  "id": 24,
+  "name": "lttng_ust_tracelog:TRACE_DEBUG",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "line"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "file"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "func"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_msg_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_msg_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "msg"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 25,
+  "name": "ust_tests_hello:tptest",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "intfield"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "preferred-display-base": 16,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "intfield2"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "longfield"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "netintfield"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "big-endian",
+          "length": 32,
+          "preferred-display-base": 16,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "netintfieldhex"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 64,
+            "type": "fixed-length-signed-integer"
+          },
+          "length": 3,
+          "type": "static-length-array"
+        },
+        "name": "blah"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 64,
+            "type": "fixed-length-signed-integer"
+          },
+          "length": 3,
+          "type": "static-length-array"
+        },
+        "name": "arrfield1"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 64,
+            "preferred-display-base": 16,
+            "type": "fixed-length-signed-integer"
+          },
+          "length": 3,
+          "type": "static-length-array"
+        },
+        "name": "arrfield1_hex"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "big-endian",
+            "length": 64,
+            "type": "fixed-length-signed-integer"
+          },
+          "length": 3,
+          "type": "static-length-array"
+        },
+        "name": "arrfield1_network"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "big-endian",
+            "length": 64,
+            "preferred-display-base": 16,
+            "type": "fixed-length-signed-integer"
+          },
+          "length": 3,
+          "type": "static-length-array"
+        },
+        "name": "arrfield1_network_hex"
+      },
+      {
+        "field-class": {
+          "length": 10,
+          "type": "static-length-string"
+        },
+        "name": "arrfield2"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_seqfield1_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 8,
+            "type": "fixed-length-signed-integer"
+          },
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_seqfield1_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "seqfield1"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_seqfield1_hex_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "little-endian",
+            "length": 8,
+            "preferred-display-base": 16,
+            "type": "fixed-length-signed-integer"
+          },
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_seqfield1_hex_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "seqfield1_hex"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_seqfield2_length"
+      },
+      {
+        "field-class": {
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_seqfield2_length"
+            ]
+          },
+          "type": "dynamic-length-string"
+        },
+        "name": "seqfield2"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "_seqfield_network_3_length"
+      },
+      {
+        "field-class": {
+          "element-field-class": {
+            "alignment": 8,
+            "byte-order": "big-endian",
+            "length": 64,
+            "type": "fixed-length-signed-integer"
+          },
+          "length-field-location": {
+            "origin": "event-record-payload",
+            "path": [
+              "_seqfield_network_3_length"
+            ]
+          },
+          "type": "dynamic-length-array"
+        },
+        "name": "seqfield_network_3"
+      },
+      {
+        "field-class": {
+          "type": "null-terminated-string"
+        },
+        "name": "stringfield"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-floating-point-number"
+        },
+        "name": "floatfield"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "type": "fixed-length-floating-point-number"
+        },
+        "name": "doublefield"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 8,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "boolfield"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "id": 26,
+  "name": "ust_tests_hello:tptest_sighandler",
+  "payload-field-class": {
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

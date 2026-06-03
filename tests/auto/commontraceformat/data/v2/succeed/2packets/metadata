@@ -1,0 +1,334 @@
+{
+  "type": "preamble",
+  "uuid": [
+    15,
+    55,
+    163,
+    43,
+    23,
+    150,
+    64,
+    141,
+    183,
+    35,
+    189,
+    39,
+    180,
+    89,
+    33,
+    198
+  ],
+  "version": 2
+}
+{
+  "environment": {
+    "domain": "ust",
+    "hostname": "joraj-alpa",
+    "tracer_major": 2,
+    "tracer_minor": 11,
+    "tracer_name": "lttng-ust"
+  },
+  "packet-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "packet-magic-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "magic"
+      },
+      {
+        "field-class": {
+          "length": 16,
+          "roles": [
+            "metadata-stream-uuid"
+          ],
+          "type": "static-length-blob"
+        },
+        "name": "uuid"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "roles": [
+            "data-stream-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "stream_id"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "data-stream-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "stream_instance_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "trace-class",
+  "uid": "0f37a32b-1796-408d-b723-bd27b45921c6",
+  "name": "",
+  "namespace": "lttng.org,2009"
+}
+{
+  "description": "Monotonic Clock",
+  "frequency": 1000000000,
+  "id": "monotonic",
+  "name": "monotonic",
+  "offset-from-origin": {
+    "cycles": 433067926,
+    "seconds": 1561498843
+  },
+  "origin": "unix-epoch",
+  "type": "clock-class",
+  "uid": "db965ea1-f862-45a3-ab65-602642fdad90"
+}
+{
+  "default-clock-class-id": "monotonic",
+  "event-record-common-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-signed-integer"
+        },
+        "name": "vpid"
+      }
+    ],
+    "type": "structure"
+  },
+  "event-record-header-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 16,
+          "mappings": {
+            "compact": [
+              [
+                0,
+                65534
+              ]
+            ],
+            "extended": [
+              [
+                65535,
+                65535
+              ]
+            ]
+          },
+          "roles": [
+            "event-record-class-id"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "id"
+      },
+      {
+        "field-class": {
+          "options": [
+            {
+              "field-class": {
+                "member-classes": [
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 32,
+                      "roles": [
+                        "default-clock-timestamp"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "timestamp"
+                  }
+                ],
+                "type": "structure"
+              },
+              "name": "compact",
+              "selector-field-ranges": [
+                [
+                  0,
+                  65534
+                ]
+              ]
+            },
+            {
+              "field-class": {
+                "member-classes": [
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 32,
+                      "roles": [
+                        "event-record-class-id"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "id"
+                  },
+                  {
+                    "field-class": {
+                      "alignment": 8,
+                      "byte-order": "little-endian",
+                      "length": 64,
+                      "roles": [
+                        "default-clock-timestamp"
+                      ],
+                      "type": "fixed-length-unsigned-integer"
+                    },
+                    "name": "timestamp"
+                  }
+                ],
+                "type": "structure"
+              },
+              "name": "extended",
+              "selector-field-ranges": [
+                [
+                  65535,
+                  65535
+                ]
+              ]
+            }
+          ],
+          "selector-field-location": {
+            "origin": "event-record-header",
+            "path": [
+              "id"
+            ]
+          },
+          "type": "variant"
+        },
+        "name": "v"
+      }
+    ],
+    "minimum-alignment": 8,
+    "type": "structure"
+  },
+  "packet-context-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_begin"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-end-default-clock-timestamp"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "timestamp_end"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-content-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "content_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-total-length"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_size"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "packet-sequence-number"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "packet_seq_num"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 64,
+          "roles": [
+            "discarded-event-record-counter-snapshot"
+          ],
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "events_discarded"
+      },
+      {
+        "field-class": {
+          "alignment": 8,
+          "byte-order": "little-endian",
+          "length": 32,
+          "type": "fixed-length-unsigned-integer"
+        },
+        "name": "cpu_id"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "data-stream-class"
+}
+{
+  "attributes": {
+    "lttng.org,2009": {
+      "log-level": "debug:line"
+    }
+  },
+  "name": "lttng_ust_statedump:procname",
+  "payload-field-class": {
+    "member-classes": [
+      {
+        "field-class": {
+          "length": 17,
+          "type": "static-length-string"
+        },
+        "name": "procname"
+      }
+    ],
+    "type": "structure"
+  },
+  "type": "event-record-class"
+}

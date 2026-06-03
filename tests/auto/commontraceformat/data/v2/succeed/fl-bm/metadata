@@ -1,0 +1,32 @@
+
+{
+  "type": "preamble",
+  "version": 2
+}
+
+{
+  "type": "data-stream-class"
+}
+
+{
+  "type": "event-record-class",
+  "name": "coucou",
+  "payload-field-class": {
+    "type": "structure",
+    "member-classes": [
+      {
+        "name": "lol",
+        "field-class": {
+          "type": "fixed-length-bit-map",
+          "length": 8,
+          "byte-order": "little-endian",
+          "flags": {
+            "SALUT": [[1, 3]],
+            "MEOW": [[2, 5]],
+            "MIX": [[7, 7]]
+          }
+        }
+      }
+    ]
+  }
+}

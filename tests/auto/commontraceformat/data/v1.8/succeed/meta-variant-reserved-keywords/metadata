@@ -1,0 +1,74 @@
+/* CTF 1.8 */
+
+trace {
+	major = 1;
+	minor = 8;
+	byte_order = be;
+};
+
+event {
+	name = yo;
+	fields := struct {
+		enum : integer { size = 8; } {
+			_align,
+			_callsite,
+			_const,
+			_char,
+			_clock,
+			_double,
+			_enum,
+			_env,
+			_event,
+			_floating_point,
+			_float,
+			_integer,
+			_int,
+			_long,
+			_short,
+			_signed,
+			_stream,
+			_string,
+			_struct,
+			_trace,
+			_typealias,
+			_typedef,
+			_unsigned,
+			_variant,
+			_void,
+			__Bool,
+			__Complex,
+			__Imaginary,
+		} tag;
+
+		variant <tag> {
+			string _align;
+			string _callsite;
+			string _const;
+			string _char;
+			string _clock;
+			string _double;
+			string _enum;
+			string _env;
+			string _event;
+			string _floating_point;
+			string _float;
+			string _integer;
+			string _int;
+			string _long;
+			string _short;
+			string _signed;
+			string _stream;
+			string _string;
+			string _struct;
+			string _trace;
+			string _typealias;
+			string _typedef;
+			string _unsigned;
+			string _variant;
+			string _void;
+			string __Bool;
+			string __Complex;
+			string __Imaginary;
+		} var;
+	};
+};

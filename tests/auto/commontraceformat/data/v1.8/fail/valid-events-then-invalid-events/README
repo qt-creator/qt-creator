@@ -1,0 +1,2 @@
+This trace was written by hand.  It contains two valid events, followed by an
+invalid one (the event id is invalid).
