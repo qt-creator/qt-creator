@@ -106,11 +106,6 @@ static bool isListedFileNode(const Node *node)
     return node->asContainerNode() || node->listInProject();
 }
 
-static bool nodeLessThan(const Node *n1, const Node *n2)
-{
-    return n1->filePath() < n2->filePath();
-}
-
 const Project::NodeMatcher Project::AllFiles = [](const Node *node) {
     return isListedFileNode(node);
 };
@@ -895,7 +890,9 @@ void Project::handleSubTreeChanged(FolderNode *node)
         d->m_rootProjectNode->forEachGenericNode([&nodeList](const Node *n) {
             nodeList.append(n);
         });
-        sort(nodeList, &nodeLessThan);
+        sort(nodeList, [](const Node *n1, const Node *n2) {
+            return n1->filePath() < n2->filePath();
+        });
     }
     d->m_sortedNodeList = nodeList;
 
@@ -1121,13 +1118,16 @@ EditorConfiguration *Project::editorConfiguration() const
     return &d->m_editorConfiguration;
 }
 
-bool Project::isKnownFile(const FilePath &filename) const
+bool Project::isKnownFile(const FilePath &filePath) const
 {
     if (d->m_sortedNodeList.empty())
-        return filename == projectFilePath();
-    const FileNode element(filename, FileType::Unknown);
-    return std::binary_search(std::begin(d->m_sortedNodeList), std::end(d->m_sortedNodeList),
-                              &element, nodeLessThan);
+        return filePath == projectFilePath();
+    const auto it = std::lower_bound(
+        std::cbegin(d->m_sortedNodeList),
+        std::cend(d->m_sortedNodeList),
+        filePath,
+        [](const Node *node, const FilePath &filePath) { return node->filePath() < filePath; });
+    return it != std::cend(d->m_sortedNodeList) && (*it)->filePath() == filePath;
 }
 
 const Node *Project::nodeForFilePath(const FilePath &filePath,
@@ -1140,13 +1140,16 @@ const Node *Project::nodeForFilePath(const FilePath &filePath,
 QList<const Node *> Project::nodesForFilePath(const Utils::FilePath &filePath,
                                               const NodeMatcher &extraMatcher) const
 {
-    const FileNode dummy(filePath, FileType::Unknown);
-    const auto range = std::equal_range(d->m_sortedNodeList.cbegin(), d->m_sortedNodeList.cend(),
-                                        &dummy, &nodeLessThan);
     QList<const Node *> nodes;
-    for (auto it = range.first; it != range.second; ++it) {
-        if ((*it)->filePath() == filePath && (!extraMatcher || extraMatcher(*it)))
+    auto it = std::lower_bound(
+        std::cbegin(d->m_sortedNodeList),
+        std::cend(d->m_sortedNodeList),
+        filePath,
+        [](const Node *node, const FilePath &filePath) { return node->filePath() < filePath; });
+    while (it != std::cend(d->m_sortedNodeList) && (*it)->filePath() == filePath) {
+        if (!extraMatcher || extraMatcher(*it))
             nodes << *it;
+        ++it;
     }
     return nodes;
 }

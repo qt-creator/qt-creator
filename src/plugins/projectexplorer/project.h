@@ -132,7 +132,7 @@ public:
     static const NodeMatcher HiddenRccFolders;
 
     Utils::FilePaths files(const NodeMatcher &matcher) const;
-    bool isKnownFile(const Utils::FilePath &filename) const;
+    bool isKnownFile(const Utils::FilePath &filePath) const;
     const Node *nodeForFilePath(const Utils::FilePath &filePath,
                                 const NodeMatcher &extraMatcher = {}) const;
     QList<const Node *> nodesForFilePath(const Utils::FilePath &filePath,
