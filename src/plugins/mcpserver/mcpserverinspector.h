@@ -5,58 +5,23 @@
 
 #include <mcp/server/mcpserver.h>
 
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonValue>
-#include <QMap>
-#include <QObject>
-#include <QTime>
+#include <utils/jsonrpcinspector.h>
 
-#include <list>
-#include <optional>
+#include <QJsonDocument>
 
 namespace Mcp::Internal {
 
-class McpLogMessage
+using McpLogMessage = Utils::JsonRpcLogMessage;
+
+class McpInspector : public Utils::JsonRpcInspector, public Mcp::Inspector
 {
 public:
-    enum MessageSender { ClientMessage, ServerMessage };
-
-    McpLogMessage() = default;
-    McpLogMessage(MessageSender sender, const QTime &time, const QJsonObject &message);
-
-    MessageSender sender = ClientMessage;
-    QTime time;
-    QJsonObject message;
-
-    QJsonValue id() const;
-    QString displayText() const;
-
-private:
-    mutable std::optional<QJsonValue> m_id;
-    mutable std::optional<QString> m_displayText;
-};
-
-class McpInspector : public QObject, public Mcp::Inspector
-{
-    Q_OBJECT
-public:
-    McpInspector() = default;
-
-    void show(const QString &defaultClient = {});
-
-    void log(
-        McpLogMessage::MessageSender sender, const QString &sessionId, const QJsonObject &message);
-
-    std::list<McpLogMessage> messages(const QString &sessionId) const;
-    QStringList sessions() const;
-    void clear() { m_logs.clear(); }
-
-    void onSessionStarted(const QString &) override {}
-
-    void onSessionEnded(const QString &) override {}
+    McpInspector();
 
     static QString sessionIdToDisplayName(const QString &sessionId);
+
+    void onSessionStarted(const QString &) override {}
+    void onSessionEnded(const QString &) override {}
 
     std::function<void(QByteArray)> onRequest(
         const QJsonDocument &request, const QString &sessionId) override
@@ -79,16 +44,6 @@ public:
     {
         log(McpLogMessage::ClientMessage, sessionIdToDisplayName(sessionId), notification.object());
     }
-
-signals:
-    void newMessage(const QString &sessionId, const McpLogMessage &message);
-
-private:
-    void onInspectorClosed();
-
-    QMap<QString, std::list<McpLogMessage>> m_logs;
-    QWidget *m_currentWidget = nullptr;
-    int m_logSize = 100;
 };
 
 } // namespace Mcp::Internal

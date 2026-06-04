@@ -9,6 +9,8 @@
 #include <utils/elidinglabel.h>
 #include <utils/fileutils.h>
 #include <utils/qtcsettings.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QDateTime>
@@ -164,10 +166,12 @@ protected:
 
     void paintEvent(QPaintEvent *) override
     {
-        if (underMouse()) {
-            QPainter p(this);
-            p.fillRect(rect(), palette().color(QPalette::Highlight).lighter(170));
-        }
+        if (!underMouse())
+            return;
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        Utils::StyleHelper::drawCardBg(
+            &p, rect(), Utils::creatorColor(Utils::Theme::Token_Foreground_Muted));
     }
 
     bool event(QEvent *e) override

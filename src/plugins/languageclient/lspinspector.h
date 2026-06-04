@@ -5,36 +5,14 @@
 
 #include "dynamiccapabilities.h"
 
-#include <QPointer>
-#include <QTime>
-#include <QWidget>
+#include <utils/jsonrpcinspector.h>
 
-#include <languageserverprotocol/basemessage.h>
+#include <languageserverprotocol/jsonrpcmessages.h>
 #include <languageserverprotocol/servercapabilities.h>
-
-#include <list>
 
 namespace LanguageClient {
 
-class LspLogMessage
-{
-public:
-    enum MessageSender { ClientMessage, ServerMessage } sender = ClientMessage;
-
-    LspLogMessage();
-    LspLogMessage(MessageSender sender,
-                  const QTime &time,
-                  const LanguageServerProtocol::JsonRpcMessage &message);
-    QTime time;
-    LanguageServerProtocol::JsonRpcMessage message;
-
-    LanguageServerProtocol::MessageId id() const;
-    QString displayText() const;
-
-private:
-    mutable std::optional<LanguageServerProtocol::MessageId> m_id;
-    mutable std::optional<QString> m_displayText;
-};
+using LspLogMessage = Utils::JsonRpcLogMessage;
 
 struct Capabilities
 {
@@ -42,15 +20,12 @@ struct Capabilities
     DynamicCapabilities dynamicCapabilities;
 };
 
-class LspInspector : public QObject
+class LspInspector : public Utils::JsonRpcInspector
 {
-    Q_OBJECT
 public:
-    LspInspector() {}
+    LspInspector();
 
-    void show(const QString &defaultClient = {});
-
-    void log(const LspLogMessage::MessageSender sender,
+    void log(LspLogMessage::MessageSender sender,
              const QString &clientName,
              const LanguageServerProtocol::JsonRpcMessage &message);
     void clientInitialized(const QString &clientName,
@@ -58,22 +33,10 @@ public:
     void updateCapabilities(const QString &clientName,
                             const DynamicCapabilities &dynamicCapabilities);
 
-    std::list<LspLogMessage> messages(const QString &clientName) const;
     Capabilities capabilities(const QString &clientName) const;
-    QStringList clients() const;
-    void clear() { m_logs.clear(); }
-
-signals:
-    void newMessage(const QString &clientName, const LspLogMessage &message);
-    void capabilitiesUpdated(const QString &clientName);
 
 private:
-    void onInspectorClosed();
-
-    QMap<QString, std::list<LspLogMessage>> m_logs;
     QMap<QString, Capabilities> m_capabilities;
-    QWidget *m_currentWidget = nullptr;
-    int m_logSize = 100; // default log size if no widget is currently visible
 };
 
 } // namespace LanguageClient

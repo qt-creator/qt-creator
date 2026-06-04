@@ -97,6 +97,7 @@ add_qtc_library(Utils
     infobar.cpp infobar.h
     infolabel.cpp infolabel.h
     itemviews.cpp itemviews.h
+    jsonrpcinspector.cpp jsonrpcinspector.h
     jsontreeitem.cpp jsontreeitem.h
     layoutbuilder.cpp layoutbuilder.h
     lazy.h

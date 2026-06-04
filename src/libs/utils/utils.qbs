@@ -193,6 +193,8 @@ QtcLibrary {
         "infolabel.h",
         "itemviews.cpp",
         "itemviews.h",
+        "jsonrpcinspector.cpp",
+        "jsonrpcinspector.h",
         "jsontreeitem.cpp",
         "jsontreeitem.h",
         "layoutbuilder.cpp",

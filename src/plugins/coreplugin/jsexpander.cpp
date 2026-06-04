@@ -11,6 +11,8 @@
 
 #include <QDebug>
 #include <QJSEngine>
+#include <QMutexLocker>
+#include <QRecursiveMutex>
 
 #include <unordered_map>
 
@@ -25,6 +27,10 @@ namespace Internal {
 class JsExpanderPrivate {
 public:
     QJSEngine m_engine;
+    // QJSEngine is not thread-safe, but the global expander's JS prefix is
+    // evaluated from many threads (e.g. async project/code model updates).
+    // Serialize all engine access; recursive to allow nested %{JS:...}.
+    QRecursiveMutex m_mutex;
 };
 
 } // namespace Internal
@@ -38,12 +44,14 @@ void JsExpander::registerGlobalObject(const QString &name, const ObjectFactory &
 
 void JsExpander::registerObject(const QString &name, QObject *obj)
 {
+    QMutexLocker locker(&d->m_mutex);
     QJSValue jsObj = d->m_engine.newQObject(obj);
     d->m_engine.globalObject().setProperty(name, jsObj);
 }
 
 QString JsExpander::evaluate(const QString &expression, QString *errorMessage)
 {
+    QMutexLocker locker(&d->m_mutex);
     QJSValue value = d->m_engine.evaluate(expression);
     if (value.isError()) {
         const QString msg = Tr::tr("Error in \"%1\": %2").arg(expression, value.toString());

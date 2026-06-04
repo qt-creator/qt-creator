@@ -9,42 +9,35 @@
 #include "languageclienttr.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/minisplitter.h>
 
 #include <languageserverprotocol/jsonkeys.h>
-#include <languageserverprotocol/jsonrpcmessages.h>
 
 #include <texteditor/texteditor.h>
 
-#include <utils/fileutils.h>
 #include <utils/jsontreeitem.h>
 #include <utils/layoutbuilder.h>
-#include <utils/listmodel.h>
 #include <utils/macroexpander.h>
 #include <utils/variablechooser.h>
 
 #include <QAction>
-#include <QApplication>
 #include <QBuffer>
 #include <QComboBox>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QElapsedTimer>
-#include <QFormLayout>
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QHeaderView>
-#include <QJsonDocument>
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
-#include <QSplitter>
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include <QVBoxLayout>
 
 using namespace LanguageServerProtocol;
 using namespace Utils;
 
 namespace LanguageClient {
+
+// --- JSON tree helpers (for the capabilities tab) ---
 
 class JsonTreeItemDelegate : public QStyledItemDelegate
 {
@@ -66,13 +59,13 @@ public:
     }
 };
 
-using JsonModel = Utils::TreeModel<Utils::JsonTreeItem>;
+using JsonModel = TreeModel<JsonTreeItem>;
 
-JsonModel *createJsonModel(const QString &displayName, const QJsonValue &value)
+static JsonModel *createJsonModel(const QString &displayName, const QJsonValue &value)
 {
     if (value.isNull())
         return nullptr;
-    auto root = new Utils::JsonTreeItem(displayName, value);
+    auto root = new JsonTreeItem(displayName, value);
     if (root->canFetchMore())
         root->fetchMore();
 
@@ -81,7 +74,7 @@ JsonModel *createJsonModel(const QString &displayName, const QJsonValue &value)
     return model;
 }
 
-QTreeView *createJsonTreeView()
+static QTreeView *createJsonTreeView()
 {
     auto view = new QTreeView;
     view->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -94,24 +87,7 @@ QTreeView *createJsonTreeView()
     return view;
 }
 
-QTreeView *createJsonTreeView(const QString &displayName, const QJsonValue &value)
-{
-    auto view = createJsonTreeView();
-    view->setModel(createJsonModel(displayName, value));
-    return view;
-}
-
-class MessageDetailWidget : public QGroupBox
-{
-public:
-    MessageDetailWidget();
-
-    void setMessage(const LspLogMessage &message);
-    void clear();
-
-private:
-    QTreeView *m_jsonTree = nullptr;
-};
+// --- LspCapabilitiesWidget ---
 
 class LspCapabilitiesWidget : public QWidget
 {
@@ -186,231 +162,7 @@ void LspCapabilitiesWidget::updateOptionsView(const QString &method)
     delete oldModel;
 }
 
-class LspLogWidget : public Core::MiniSplitter
-{
-public:
-    LspLogWidget();
-
-    void addMessage(const LspLogMessage &message);
-    void setMessages(const std::list<LspLogMessage> &messages);
-    void saveLog();
-
-    MessageDetailWidget *m_clientDetails = nullptr;
-    QListView *m_messages = nullptr;
-    MessageDetailWidget *m_serverDetails = nullptr;
-    Utils::ListModel<LspLogMessage> m_model;
-
-private:
-    void currentMessageChanged(const QModelIndex &index);
-    void selectMatchingMessage(const LspLogMessage &message);
-};
-
-static QVariant messageData(const LspLogMessage &message, int, int role)
-{
-    if (role == Qt::DisplayRole)
-        return message.displayText();
-    if (role == Qt::TextAlignmentRole)
-        return message.sender == LspLogMessage::ClientMessage ? Qt::AlignLeft : Qt::AlignRight;
-    return {};
-}
-
-LspLogWidget::LspLogWidget()
-{
-    setOrientation(Qt::Horizontal);
-
-    m_clientDetails = new MessageDetailWidget;
-    m_clientDetails->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_clientDetails->setTitle(Tr::tr("Client Message"));
-    addWidget(m_clientDetails);
-    setStretchFactor(0, 1);
-
-    m_model.setDataAccessor(&messageData);
-    m_messages = new QListView;
-    m_messages->setModel(&m_model);
-    m_messages->setAlternatingRowColors(true);
-    m_model.setHeader({Tr::tr("Messages")});
-    m_messages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    m_messages->setSelectionMode(QAbstractItemView::MultiSelection);
-    addWidget(m_messages);
-    setStretchFactor(1, 0);
-
-    m_serverDetails = new MessageDetailWidget;
-    m_serverDetails->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_serverDetails->setTitle(Tr::tr("Server Message"));
-    addWidget(m_serverDetails);
-    setStretchFactor(2, 1);
-
-    connect(m_messages->selectionModel(),
-            &QItemSelectionModel::currentChanged,
-            this,
-            &LspLogWidget::currentMessageChanged);
-}
-
-void LspLogWidget::currentMessageChanged(const QModelIndex &index)
-{
-    m_messages->clearSelection();
-    if (!index.isValid()) {
-        m_clientDetails->clear();
-        m_serverDetails->clear();
-        return;
-    }
-    LspLogMessage message = m_model.itemAt(index.row())->itemData;
-    if (message.sender == LspLogMessage::ClientMessage)
-        m_clientDetails->setMessage(message);
-    else
-        m_serverDetails->setMessage(message);
-    selectMatchingMessage(message);
-}
-
-static bool matches(LspLogMessage::MessageSender sender,
-                    const MessageId &id,
-                    const LspLogMessage &message)
-{
-    if (message.sender != sender)
-        return false;
-    return message.id() == id;
-}
-
-void LspLogWidget::selectMatchingMessage(const LspLogMessage &message)
-{
-    MessageId id = message.id();
-    if (!id.isValid())
-        return;
-    LspLogMessage::MessageSender sender = message.sender == LspLogMessage::ServerMessage
-                                              ? LspLogMessage::ClientMessage
-                                              : LspLogMessage::ServerMessage;
-    LspLogMessage *matchingMessage = m_model.findData(
-        [&](const LspLogMessage &message) { return matches(sender, id, message); });
-    if (!matchingMessage)
-        return;
-    auto index = m_model.findIndex(
-        [&](const LspLogMessage &message) { return &message == matchingMessage; });
-
-    m_messages->selectionModel()->select(index, QItemSelectionModel::Select);
-    if (matchingMessage->sender == LspLogMessage::ServerMessage)
-        m_serverDetails->setMessage(*matchingMessage);
-    else
-        m_clientDetails->setMessage(*matchingMessage);
-}
-
-void LspLogWidget::addMessage(const LspLogMessage &message)
-{
-    m_model.appendItem(message);
-}
-
-void LspLogWidget::setMessages(const std::list<LspLogMessage> &messages)
-{
-    m_model.clear();
-    for (const LspLogMessage &message : messages)
-        m_model.appendItem(message);
-}
-
-void LspLogWidget::saveLog()
-{
-    QString contents;
-    QTextStream stream(&contents);
-    m_model.forAllData([&](const LspLogMessage &message) {
-        stream << message.time.toString("hh:mm:ss.zzz") << ' ';
-        stream << (message.sender == LspLogMessage::ClientMessage ? QString{"Client"}
-                                                                  : QString{"Server"});
-        stream << '\n';
-        stream << QJsonDocument(message.message.toJsonObject()).toJson();
-        stream << "\n\n";
-    });
-
-    const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Log File"));
-    if (filePath.isEmpty())
-        return;
-    FileSaver saver(filePath, QIODevice::Text);
-    saver.write(contents.toUtf8());
-    if (const Result<> res = saver.finalize(); !res) {
-        FileUtils::showError(res.error());
-        saveLog();
-    }
-}
-
-class LspInspectorWidget : public QDialog
-{
-public:
-    explicit LspInspectorWidget(LspInspector *inspector);
-
-    void selectClient(const QString &clientName);
-private:
-    void addMessage(const QString &clientName, const LspLogMessage &message);
-    void updateCapabilities(const QString &clientName);
-    void currentClientChanged(const QString &clientName);
-    LspLogWidget *log() const;
-    LspCapabilitiesWidget *capabilities() const;
-
-    LspInspector *const m_inspector = nullptr;
-    LspLogWidget *m_logWidget = nullptr;
-    LspCapabilitiesWidget *m_capWidget = nullptr;
-    QTabWidget *m_tabWidget = nullptr;
-    const int m_numFixedTabs = 2;
-
-    QComboBox *m_clients = nullptr;
-};
-
-void LspInspector::show(const QString &defaultClient)
-{
-    if (!m_currentWidget) {
-        auto widget = new LspInspectorWidget(this);
-        connect(widget, &LspInspectorWidget::finished, this, &LspInspector::onInspectorClosed);
-        Core::ICore::registerWindow(widget, Core::Context("LanguageClient.Inspector"));
-        m_currentWidget = widget;
-    } else {
-        QApplication::setActiveWindow(m_currentWidget);
-    }
-    if (!defaultClient.isEmpty())
-        static_cast<LspInspectorWidget *>(m_currentWidget)->selectClient(defaultClient);
-    m_currentWidget->show();
-}
-
-void LspInspector::log(const LspLogMessage::MessageSender sender,
-                       const QString &clientName,
-                       const JsonRpcMessage &message)
-{
-    std::list<LspLogMessage> &clientLog = m_logs[clientName];
-    while (clientLog.size() >= static_cast<std::size_t>(m_logSize))
-        clientLog.pop_front();
-    clientLog.push_back({sender, QTime::currentTime(), message});
-    emit newMessage(clientName, clientLog.back());
-}
-
-void LspInspector::clientInitialized(const QString &clientName, const ServerCapabilities &capabilities)
-{
-    m_capabilities[clientName].capabilities = capabilities;
-    m_capabilities[clientName].dynamicCapabilities.reset();
-    emit capabilitiesUpdated(clientName);
-}
-
-void LspInspector::updateCapabilities(const QString &clientName,
-                                      const DynamicCapabilities &dynamicCapabilities)
-{
-    m_capabilities[clientName].dynamicCapabilities = dynamicCapabilities;
-    emit capabilitiesUpdated(clientName);
-}
-
-std::list<LspLogMessage> LspInspector::messages(const QString &clientName) const
-{
-    return m_logs.value(clientName);
-}
-
-Capabilities LspInspector::capabilities(const QString &clientName) const
-{
-    return m_capabilities.value(clientName);
-}
-
-QStringList LspInspector::clients() const
-{
-    return m_logs.keys();
-}
-
-void LspInspector::onInspectorClosed()
-{
-    m_currentWidget->deleteLater();
-    m_currentWidget = nullptr;
-}
+// --- message editor (header widget) ---
 
 static QString sendMessage(Client *client, const QString &msg)
 {
@@ -441,33 +193,11 @@ static QString sendMessage(Client *client, const QString &msg)
     return {};
 }
 
-LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
-    : m_inspector(inspector)
+static QWidget *createMessageEditor(QComboBox *clients)
 {
-    setWindowTitle(Tr::tr("Language Client Inspector"));
+    auto container = new QWidget;
 
-    connect(inspector, &LspInspector::newMessage, this, &LspInspectorWidget::addMessage);
-    connect(inspector, &LspInspector::capabilitiesUpdated,
-            this, &LspInspectorWidget::updateCapabilities);
-    connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &QWidget::close);
-
-    m_clients = new QComboBox;
-    m_clients->addItem(Tr::tr("<Select>"));
-    m_clients->addItems(inspector->clients());
-
-    m_logWidget = new LspLogWidget;
-    m_capWidget = new LspCapabilitiesWidget;
-
-    auto buttonBox = new QDialogButtonBox;
-    buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Close);
-    const auto clearButton = buttonBox->addButton(Tr::tr("Clear"), QDialogButtonBox::ResetRole);
-    connect(clearButton, &QPushButton::clicked, this, [this] {
-        m_inspector->clear();
-        if (m_clients->currentIndex() != 0)
-            currentClientChanged(m_clients->currentText());
-    });
-
-    TextEditor::BaseTextEditor *messageEditor = LanguageClient::createJsonEditor(this);
+    TextEditor::BaseTextEditor *messageEditor = LanguageClient::createJsonEditor(container);
     messageEditor->editorWidget()->setVisible(false);
     messageEditor->document()->setContents(R"({
     "jsonrpc": "2.0",
@@ -480,19 +210,19 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     vc->addMacroExpanderProvider(MacroExpanderProvider(globalMacroExpander()));
     vc->addSupportedWidget(messageEditor->editorWidget());
 
-    auto errorLabel = new QLabel();
-    auto send = [this, messageEditor, errorLabel]() {
+    auto errorLabel = new QLabel;
+    auto send = [clients, messageEditor, errorLabel] {
         if (messageEditor->editorWidget()->isHidden()) {
             messageEditor->editorWidget()->setVisible(true);
             return;
         }
-        const QList<Client *> clients = LanguageClientManager::instance()->clientsByName(
-            m_clients->currentText());
+        const QList<Client *> clientList = LanguageClientManager::clientsByName(
+            clients->currentText());
         QString errMsg;
-        for (Client *client : clients) {
+        for (Client *client : clientList) {
             errMsg += sendMessage(
                 client,
-                Utils::globalMacroExpander()->expand(messageEditor->textDocument()->plainText()));
+                globalMacroExpander()->expand(messageEditor->textDocument()->plainText()));
         }
         errorLabel->setText(errMsg);
     };
@@ -500,121 +230,71 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     // clang-format off
     using namespace Layouting;
     Column {
-        Row { Tr::tr("Language Server:"), m_clients, st, errorLabel, PushButton { text(Tr::tr("Send message")), onClicked(this, send) } },
         messageEditor->editorWidget(),
-        TabWidget {
-            bindTo(&m_tabWidget),
-            Tab(Tr::tr("Log"), Column { m_logWidget }),
-            Tab(Tr::tr("Capabilities"), Column { m_capWidget }),
-        },
-        buttonBox,
-    }.attachTo(this);
+        Row { st, errorLabel, PushButton { text(Tr::tr("Send message")), onClicked(container, send) } },
+        noMargin,
+    }.attachTo(container);
     // clang-format on
 
-    connect(
-        m_clients, &QComboBox::currentTextChanged, this, &LspInspectorWidget::currentClientChanged);
-
-    // save
-    connect(buttonBox, &QDialogButtonBox::accepted, log(), &LspLogWidget::saveLog);
-
-    // close
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    resize(1024, 768);
+    return container;
 }
 
-void LspInspectorWidget::selectClient(const QString &clientName)
+// --- LspInspector ---
+
+static JsonRpcInspector::Settings makeSettings(LspInspector *self)
 {
-    const int index = m_clients->findText(clientName, Qt::MatchExactly);
-    if (index >= 0)
-        m_clients->setCurrentIndex(index);
+    JsonRpcInspector::Settings s;
+    s.windowTitle = Tr::tr("Language Client Inspector");
+    s.endpointLabel = Tr::tr("Language Server:");
+    s.registerWindow = [](QWidget *widget) {
+        Core::ICore::registerWindow(widget, Core::Context("LanguageClient.Inspector"));
+        QObject::connect(
+            Core::ICore::instance(), &Core::ICore::coreAboutToClose, widget, &QWidget::close);
+    };
+    s.headerWidget = [](QComboBox *clients) { return createMessageEditor(clients); };
+    s.extraTabs = [self](const QString &clientName) {
+        QList<QPair<QWidget *, QString>> tabs;
+        auto capWidget = new LspCapabilitiesWidget;
+        capWidget->setCapabilities(self->capabilities(clientName));
+        tabs.append({capWidget, Tr::tr("Capabilities")});
+        for (Client *const c : LanguageClientManager::clientsByName(clientName)) {
+            for (const Client::CustomInspectorTab &tab : c->createCustomInspectorTabs())
+                tabs.append({tab.first, tab.second});
+        }
+        return tabs;
+    };
+    return s;
 }
 
-void LspInspectorWidget::addMessage(const QString &clientName, const LspLogMessage &message)
-{
-    if (m_clients->findText(clientName, Qt::MatchExactly) < 0)
-        m_clients->addItem(clientName);
-    if (m_clients->currentText() == clientName)
-        log()->addMessage(message);
-}
-
-void LspInspectorWidget::updateCapabilities(const QString &clientName)
-{
-    if (m_clients->findText(clientName, Qt::MatchExactly) < 0)
-        m_clients->addItem(clientName);
-    if (m_clients->currentText() == clientName)
-        capabilities()->setCapabilities(m_inspector->capabilities(clientName));
-}
-
-void LspInspectorWidget::currentClientChanged(const QString &clientName)
-{
-    log()->setMessages(m_inspector->messages(clientName));
-    capabilities()->setCapabilities(m_inspector->capabilities(clientName));
-
-    while (m_tabWidget->count() > m_numFixedTabs)
-        delete m_tabWidget->widget(m_tabWidget->count() - 1);
-
-    for (Client *const c : LanguageClientManager::clientsByName(clientName)) {
-        for (const Client::CustomInspectorTab &tab : c->createCustomInspectorTabs())
-            m_tabWidget->addTab(tab.first, tab.second);
-    }
-}
-
-LspLogWidget *LspInspectorWidget::log() const
-{
-    return m_logWidget;
-}
-
-LspCapabilitiesWidget *LspInspectorWidget::capabilities() const
-{
-    return m_capWidget;
-}
-
-MessageDetailWidget::MessageDetailWidget()
-{
-    auto layout = new QVBoxLayout;
-    setLayout(layout);
-
-    m_jsonTree = createJsonTreeView();
-
-    layout->addWidget(m_jsonTree);
-}
-
-void MessageDetailWidget::setMessage(const LspLogMessage &message)
-{
-    if (m_jsonTree->model())
-        m_jsonTree->model()->deleteLater();
-    m_jsonTree->setModel(createJsonModel("content", message.message.toJsonObject()));
-}
-
-void MessageDetailWidget::clear()
-{
-    if (m_jsonTree->model())
-        m_jsonTree->model()->deleteLater();
-    m_jsonTree->setModel(createJsonModel("", QJsonObject()));
-}
-
-LspLogMessage::LspLogMessage() = default;
-
-LspLogMessage::LspLogMessage(MessageSender sender, const QTime &time, const JsonRpcMessage &message)
-    : sender(sender)
-    , time(time)
-    , message(message)
+LspInspector::LspInspector()
+    : Utils::JsonRpcInspector(makeSettings(this))
 {}
 
-MessageId LspLogMessage::id() const
+void LspInspector::log(LspLogMessage::MessageSender sender,
+                       const QString &clientName,
+                       const JsonRpcMessage &message)
 {
-    if (!m_id.has_value())
-        m_id = MessageId(message.toJsonObject().value(idKey));
-    return *m_id;
+    JsonRpcInspector::log(sender, clientName, message.toJsonObject());
 }
 
-QString LspLogMessage::displayText() const
+void LspInspector::clientInitialized(const QString &clientName,
+                                     const ServerCapabilities &capabilities)
 {
-    if (!m_displayText.has_value()) {
-        m_displayText = QString(time.toString("hh:mm:ss.zzz") + '\n');
-        m_displayText->append(message.toJsonObject().value(methodKey).toString(id().toString()));
-    }
-    return *m_displayText;
+    m_capabilities[clientName].capabilities = capabilities;
+    m_capabilities[clientName].dynamicCapabilities.reset();
+    refreshEndpoint(clientName);
+}
+
+void LspInspector::updateCapabilities(const QString &clientName,
+                                      const DynamicCapabilities &dynamicCapabilities)
+{
+    m_capabilities[clientName].dynamicCapabilities = dynamicCapabilities;
+    refreshEndpoint(clientName);
+}
+
+Capabilities LspInspector::capabilities(const QString &clientName) const
+{
+    return m_capabilities.value(clientName);
 }
 
 } // namespace LanguageClient
