@@ -7,13 +7,14 @@
 
 #include <coreplugin/icore.h>
 
+#include <QTreeView>
 #include <QWidget>
 
 using namespace Utils;
 
 namespace AcpClient::Internal {
 
-static JsonRpcInspector::Settings makeSettings()
+static JsonRpcInspector::Settings makeSettings(AcpInspector *self)
 {
     JsonRpcInspector::Settings s;
     s.windowTitle = Tr::tr("ACP Inspector");
@@ -24,11 +25,29 @@ static JsonRpcInspector::Settings makeSettings()
         QObject::connect(
             Core::ICore::instance(), &Core::ICore::coreAboutToClose, widget, &QWidget::close);
     };
+    s.extraTabs = [self](const QString &endpoint) {
+        QList<QPair<QWidget *, QString>> tabs;
+        QTreeView *view = createJsonTreeView(Tr::tr("Agent Capabilities"),
+                                             self->capabilities(endpoint));
+        tabs.append({view, Tr::tr("Capabilities")});
+        return tabs;
+    };
     return s;
 }
 
 AcpInspector::AcpInspector()
-    : JsonRpcInspector(makeSettings())
+    : JsonRpcInspector(makeSettings(this))
 {}
+
+void AcpInspector::setCapabilities(const QString &endpoint, const QJsonObject &capabilities)
+{
+    m_capabilities.insert(endpoint, capabilities);
+    refreshEndpoint(endpoint);
+}
+
+QJsonObject AcpInspector::capabilities(const QString &endpoint) const
+{
+    return m_capabilities.value(endpoint);
+}
 
 } // namespace AcpClient::Internal

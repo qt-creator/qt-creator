@@ -21,10 +21,18 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QTreeView;
 class QWidget;
 QT_END_NAMESPACE
 
 namespace Utils {
+
+// Create a read-only tree view showing the given JSON value, with the columns
+// (Name, Value, Type), an "Expand All" context action and lazy child fetching.
+// Shared by the inspector's message detail panes and by protocol-specific tabs
+// such as the LanguageClient/ACP capabilities views.
+QTCREATOR_UTILS_EXPORT QTreeView *createJsonTreeView(const QString &displayName,
+                                                     const QJsonValue &value);
 
 // A single JSON-RPC message (request, response or notification) as logged by an endpoint.
 class QTCREATOR_UTILS_EXPORT JsonRpcLogMessage

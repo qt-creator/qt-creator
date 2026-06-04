@@ -81,6 +81,13 @@ static QTreeView *createJsonTreeView()
     return view;
 }
 
+QTreeView *createJsonTreeView(const QString &displayName, const QJsonValue &value)
+{
+    QTreeView *view = createJsonTreeView();
+    view->setModel(createJsonModel(displayName, value));
+    return view;
+}
+
 // --- MessageDetailWidget ---
 
 class MessageDetailWidget : public QGroupBox

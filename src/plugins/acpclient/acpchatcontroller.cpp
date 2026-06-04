@@ -367,6 +367,11 @@ void AcpChatController::onInitializeResult(const InitializeResponse &response)
     m_authMethods = response.authMethods().value_or(QList<AuthMethod>{});
     m_agentCapabilities = response.agentCapabilities();
 
+    if (m_inspector) {
+        m_inspector->setCapabilities(
+            m_serverName, m_agentCapabilities ? toJson(*m_agentCapabilities) : QJsonObject());
+    }
+
     emit agentInfoReceived(m_agentName, m_agentVersion, m_iconUrl);
 
     emit sessionSelectionRequired();
