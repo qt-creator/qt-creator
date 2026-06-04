@@ -9,10 +9,10 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/layoutbuilder.h>
 
+#include <QCheckBox>
 #include <QListWidget>
 #include <QPushButton>
 
@@ -41,6 +41,7 @@ private:
     void prepareItem(QListWidgetItem *item) const;
 
     Project *m_project;
+    QCheckBox m_globalCheckBox;
     QListWidget *m_excludedPatternsList;
     QPushButton *m_removeExcludedPatternButton;
 };
@@ -59,7 +60,8 @@ TodoProjectPanelWidget::TodoProjectPanelWidget(Project *project)
     using namespace Layouting;
 
     Column {
-        createGlobalOrProjectSelector(this, false, Constants::TODO_SETTINGS, [](bool) {}),
+        Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::TODO_SETTINGS), st },
+        createHr(),
         Group {
             title(Tr::tr("Excluded Files")),
             Row {

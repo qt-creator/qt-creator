@@ -4,9 +4,10 @@
 #include "projectpanelfactory.h"
 
 #include "project.h"
-#include "projectsettingswidget.h"
 
-#include <utils/layoutbuilder.h>
+#include <coreplugin/icore.h>
+
+#include <QLabel>
 
 using namespace ProjectExplorer::Internal;
 using namespace Utils;
@@ -85,6 +86,26 @@ bool ProjectPanelFactory::supports(Project *project)
 void ProjectPanelFactory::setSupportsFunction(std::function<bool (Project *)> function)
 {
     m_supportsFunction = function;
+}
+
+// Helpers
+
+QLabel *createGlobalSettingsLink(Utils::Id globalId)
+{
+    const auto label = new QLabel(R"(<a href="dummy">Global settings</a>)");
+    QObject::connect(label, &QLabel::linkActivated, label, [globalId] {
+        Core::ICore::showSettings(globalId);
+    });
+    return label;
+}
+
+QLabel *createUseGlobalSettingsLabel(Utils::Id globalId)
+{
+    const auto label = new QLabel(QStringLiteral("Use <a href=\"dummy\">global settings</a>"));
+    QObject::connect(label, &QLabel::linkActivated, label, [globalId] {
+        Core::ICore::showSettings(globalId);
+    });
+    return label;
 }
 
 } // namespace ProjectExplorer

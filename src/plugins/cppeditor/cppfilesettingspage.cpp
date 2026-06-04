@@ -14,7 +14,6 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/aspects.h>
 #include <utils/fileutils.h>
@@ -449,16 +448,18 @@ public:
 
         m_customSettings.setAutoApply(true);
 
+        m_globalCheckBox.setChecked(m_useGlobal);
+        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool ug) {
+            m_useGlobal = ug;
+            setEnabled(!ug);
+            saveSettings();
+            clearHeaderSourceCache();
+        });
+
         using namespace Layouting;
         Column {
-            createGlobalOrProjectSelector(this, m_useGlobal,
-                Constants::CPP_FILE_SETTINGS_ID,
-                [this](bool ug) {
-                    m_useGlobal = ug;
-                    setEnabled(!ug);
-                    saveSettings();
-                    clearHeaderSourceCache();
-                }),
+            Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::CPP_FILE_SETTINGS_ID), st },
+            createHr(),
             &m_customSettings,
             noMargin
         }.attachTo(this);
@@ -491,6 +492,7 @@ private:
     }
 
     Project * const m_project;
+    QCheckBox m_globalCheckBox;
     CppFileSettings m_customSettings;
     bool m_useGlobal = true;
 };

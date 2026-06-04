@@ -16,11 +16,11 @@
 #include <cppeditor/clangdiagnosticconfigsselectionwidget.h>
 
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QCheckBox>
 #include <QAbstractTableModel>
 #include <QComboBox>
 #include <QLabel>
@@ -71,6 +71,7 @@ private:
     QPushButton *m_removeAllButton;
 
     std::shared_ptr<ClangToolsProjectSettings> const m_projectSettings;
+    QCheckBox m_globalCheckBox;
     bool m_useGlobal = true;
 };
 
@@ -93,15 +94,22 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     m_removeSelectedButton = new QPushButton(Tr::tr("Remove Selected"), this);
     m_removeAllButton = new QPushButton(Tr::tr("Remove All"));
 
+    m_globalCheckBox.setChecked(m_useGlobal);
+    connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool useGlobal) {
+        m_useGlobal = useGlobal;
+        onGlobalCustomChanged(useGlobal);
+    });
+
     using namespace Layouting;
     Column {
-        createGlobalOrProjectSelector(this, m_useGlobal,
-            ClangTools::Constants::SETTINGS_PAGE_ID,
-            [this](bool useGlobal) {
-                m_useGlobal = useGlobal;
-                onGlobalCustomChanged(useGlobal);
-            }),
-        Row { m_restoreGlobal, st, gotoClangTidyModeLabel, gotoClazyModeLabel },
+        Row {
+            &m_globalCheckBox,
+            createUseGlobalSettingsLabel(ClangTools::Constants::SETTINGS_PAGE_ID), st
+        },
+        createHr(),
+        Row {
+            m_restoreGlobal, st, gotoClangTidyModeLabel, gotoClazyModeLabel
+        },
 
         m_runSettingsWidget,
 

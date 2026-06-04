@@ -14,7 +14,6 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>

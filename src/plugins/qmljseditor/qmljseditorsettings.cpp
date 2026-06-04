@@ -17,7 +17,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 #include <projectexplorer/projecttree.h>
 
 #include <qmljs/qmljscheck.h>

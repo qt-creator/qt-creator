@@ -18,7 +18,6 @@
 #include "projectimporter.h"
 #include "projectmanager.h"
 #include "projectpanelfactory.h"
-#include "projectsettingswidget.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"
 #include "target.h"

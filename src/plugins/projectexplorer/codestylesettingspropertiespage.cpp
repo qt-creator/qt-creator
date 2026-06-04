@@ -7,7 +7,6 @@
 #include "project.h"
 #include "projectexplorertr.h"
 #include "projectpanelfactory.h"
-#include "projectsettingswidget.h"
 
 #include <cppeditor/cppeditorconstants.h>
 

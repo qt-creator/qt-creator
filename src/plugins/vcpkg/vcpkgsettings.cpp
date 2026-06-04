@@ -13,12 +13,12 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 #include <utils/utilsicons.h>
 
+#include <QCheckBox>
 #include <QDesktopServices>
 #include <QToolButton>
 #include <QVariant>
@@ -167,21 +167,23 @@ public:
             layouter().attachTo(m_widget);
         m_widget->setEnabled(!initial);
 
+        m_globalCheckBox.setChecked(initial);
+        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this, project](bool useGlobal) {
+            m_widget->setEnabled(!useGlobal);
+            m_displayedSettings.useGlobalSettings = useGlobal;
+            if (project) {
+                VcpkgSettings *projSettings = projectSettings(project);
+                m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
+                projSettings->useGlobalSettings = useGlobal;
+                projSettings->writeSettings();
+                projSettings->setVcpkgRootEnvironmentVariable();
+            }
+        });
+
         using namespace Layouting;
         Column {
-            createGlobalOrProjectSelector(this, initial,
-                Constants::Settings::GENERAL_ID,
-                [this, project](bool useGlobal) {
-                    m_widget->setEnabled(!useGlobal);
-                    m_displayedSettings.useGlobalSettings = useGlobal;
-                    if (project) {
-                        VcpkgSettings *projSettings = projectSettings(project);
-                        m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
-                        projSettings->useGlobalSettings = useGlobal;
-                        projSettings->writeSettings();
-                        projSettings->setVcpkgRootEnvironmentVariable();
-                    }
-                }),
+            Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID), st },
+            createHr(),
             m_widget,
             noMargin,
         }.attachTo(this);
@@ -213,6 +215,7 @@ public:
     }
 
     QWidget *m_widget = nullptr;
+    QCheckBox m_globalCheckBox;
     VcpkgSettings m_displayedSettings;
 };
 

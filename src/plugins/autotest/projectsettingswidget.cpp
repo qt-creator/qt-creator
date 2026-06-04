@@ -11,13 +11,13 @@
 #include "testtreemodel.h"
 
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QPushButton>
 #include <QTimer>
@@ -43,6 +43,7 @@ private:
     void populatePathFilters(const QStringList &filters);
     void onActiveFrameworkChanged(QTreeWidgetItem *item, int column);
     TestProjectSettings *m_projectSettings;
+    QCheckBox m_globalCheckBox;
     QWidget *m_generalWidget = nullptr;
     QTreeWidget *m_activeFrameworks = nullptr;
     QComboBox *m_runAfterBuild = nullptr;
@@ -72,19 +73,11 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     QPushButton *removeFilter = new QPushButton(Tr::tr("Remove"), this);
     removeFilter->setEnabled(false);
 
-    const bool initial = m_projectSettings->useGlobalSettings();
-
     // clang-format off
     using namespace Layouting;
     Column {
-        createGlobalOrProjectSelector(this, initial,
-            Constants::AUTOTEST_SETTINGS_ID,
-            [this](bool useGlobal) {
-                m_generalWidget->setEnabled(!useGlobal);
-                m_projectSettings->setUseGlobalSettings(useGlobal);
-                m_syncTimer.start(3000);
-                m_syncType = ITestBase::Framework | ITestBase::Tool;
-            }),
+        Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::AUTOTEST_SETTINGS_ID), st },
+        createHr(),
         Widget {
             bindTo(&m_generalWidget),
             Column {
@@ -120,6 +113,16 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
         st,
     }.attachTo(this);
     // clang-format on
+
+    const bool initial = m_projectSettings->useGlobalSettings();
+
+    m_globalCheckBox.setChecked(initial);
+    connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool useGlobal) {
+        m_generalWidget->setEnabled(!useGlobal);
+        m_projectSettings->setUseGlobalSettings(useGlobal);
+        m_syncTimer.start(3000);
+        m_syncType = ITestBase::Framework | ITestBase::Tool;
+    });
 
     m_generalWidget->setDisabled(initial);
 

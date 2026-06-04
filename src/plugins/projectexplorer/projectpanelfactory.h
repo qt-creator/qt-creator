@@ -10,6 +10,8 @@
 
 #include <functional>
 
+class QLabel;
+
 namespace ProjectExplorer {
 
 class Project;
@@ -54,5 +56,9 @@ private:
     SupportsFunction m_supportsFunction;
     WidgetCreator m_widgetCreator;
 };
+
+// Re-usable helpers for project settings page items.
+PROJECTEXPLORER_EXPORT QLabel *createGlobalSettingsLink(Utils::Id globalId);
+PROJECTEXPLORER_EXPORT QLabel *createUseGlobalSettingsLabel(Utils::Id globalId);
 
 } // namespace ProjectExplorer

@@ -9,39 +9,47 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/layoutbuilder.h>
+
+#include <QCheckBox>
 
 using namespace ProjectExplorer;
 
 namespace Copilot::Internal {
 
-static QWidget *createCopilotProjectPanel(Project *project)
+class CopilotProjectWidget final : public QWidget
 {
-    using namespace Layouting;
+public:
+    CopilotProjectWidget(Project *project)
+    {
+        auto settings = new CopilotProjectSettings(project);
+        settings->setParent(this);
+        const bool initial = settings->useGlobalSettings();
+        setEnabled(!initial);
+        m_globalCheckBox.setChecked(initial);
+        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this, settings](bool useGlobal) {
+            settings->setUseGlobalSettings(useGlobal);
+            setEnabled(!useGlobal);
+        });
 
-    auto widget = new QWidget;
-    auto settings = new CopilotProjectSettings(project);
-    settings->setParent(widget);
+        // clang-format off
+        using namespace Layouting;
+        Column {
+            Row {
+                &m_globalCheckBox,
+                createUseGlobalSettingsLabel(Constants::COPILOT_GENERAL_OPTIONS_ID),
+                st
+            },
+            createHr(),
+            settings->enableCopilot,
+            st,
+        }.attachTo(this);
+        // clang-format on
+    }
 
-    widget->setEnabled(!settings->useGlobalSettings());
-
-    // clang-format off
-    Column {
-        createGlobalOrProjectSelector(widget, settings->useGlobalSettings(),
-            Constants::COPILOT_GENERAL_OPTIONS_ID,
-            [widget, settings](bool useGlobal) {
-                settings->setUseGlobalSettings(useGlobal);
-                widget->setEnabled(!useGlobal);
-            }),
-        settings->enableCopilot,
-        st,
-    }.attachTo(widget);
-    // clang-format on
-
-    return widget;
-}
+    QCheckBox m_globalCheckBox;
+};
 
 class CopilotProjectPanelFactory final : public ProjectPanelFactory
 {
@@ -50,7 +58,9 @@ public:
     {
         setPriority(1000);
         setDisplayName(Tr::tr("Copilot"));
-        setCreateWidgetFunction(&createCopilotProjectPanel);
+        setCreateWidgetFunction([](Project *project) {
+            return new CopilotProjectWidget(project);
+        });
     }
 };
 

@@ -14,7 +14,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <QCheckBox>
 
@@ -218,22 +217,22 @@ public:
     {
         const bool initial = m_displayedSettings.useGlobalSettings;
 
-        QCheckBox *checkBox = nullptr;
+        m_globalCheckBox.setChecked(initial);
+        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool useGlobal) {
+            setEnabled(!useGlobal);
+            m_displayedSettings.useGlobalSettings = useGlobal;
+            if (m_project) {
+                m_displayedSettings.copyFrom(
+                    useGlobal ? settings(nullptr) : m_project->settings());
+                m_project->settings().useGlobalSettings = useGlobal;
+                m_project->settings().writeSettings();
+            }
+        });
+
         using namespace Layouting;
         Column {
-            createGlobalOrProjectSelector(this, initial,
-                Constants::Settings::GENERAL_ID,
-                [this](bool useGlobal) {
-                    setEnabled(!useGlobal);
-                    m_displayedSettings.useGlobalSettings = useGlobal;
-                    if (m_project) {
-                        m_displayedSettings.copyFrom(
-                            useGlobal ? settings(nullptr) : m_project->settings());
-                        m_project->settings().useGlobalSettings = useGlobal;
-                        m_project->settings().writeSettings();
-                    }
-                },
-                &checkBox),
+            Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID), st },
+            createHr(),
             m_displayedSettings,
             noMargin
         }.attachTo(this);
@@ -263,8 +262,7 @@ public:
             });
         } else {
             // Only for CMake projects
-            if (checkBox)
-                checkBox->setEnabled(false);
+            m_globalCheckBox.setEnabled(false);
         }
 
         // "CMake" project settings needs to react on the UI changes
@@ -279,6 +277,7 @@ public:
     }
 
     CMakeProject *m_project = nullptr;
+    QCheckBox m_globalCheckBox;
     CMakeSpecificSettings m_displayedSettings;
 };
 

@@ -7,13 +7,13 @@
 #include "project.h"
 #include "projectexplorertr.h"
 #include "projectpanelfactory.h"
-#include "projectsettingswidget.h"
 
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/tabsettings.h>
 
 #include <utils/layoutbuilder.h>
 
+#include <QCheckBox>
 #include <QGroupBox>
 #include <QPushButton>
 
@@ -27,6 +27,7 @@ public:
     explicit EditorSettingsWidget(Project *project);
 
 private:
+    QCheckBox m_globalCheckBox;
     QPushButton m_restoreButton{Tr::tr("Restore Global")};
     QGroupBox m_displaySettings{Tr::tr("Display Settings")};
     QWidget m_behaviorSettings;
@@ -66,13 +67,19 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
         m_restoreButton.setEnabled(!useGlobal);
     };
 
+    m_globalCheckBox.setChecked(initial);
+    connect(&m_globalCheckBox, &QCheckBox::toggled, this, [config, updateEnabled](bool useGlobal) {
+        updateEnabled(useGlobal);
+        config->setUseGlobalSettings(useGlobal);
+    });
+
     Column {
-        createGlobalOrProjectSelector(this, initial,
-            TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS,
-            [config, updateEnabled](bool useGlobal) {
-                updateEnabled(useGlobal);
-                config->setUseGlobalSettings(useGlobal);
-            }),
+        Row {
+            &m_globalCheckBox,
+            createUseGlobalSettingsLabel(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS),
+            st
+        },
+        createHr(),
         Row { &m_restoreButton, st },
         &m_displaySettings,
         &m_behaviorSettings,

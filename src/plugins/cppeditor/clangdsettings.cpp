@@ -21,7 +21,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/clangutils.h>
 #include <utils/itemviews.h>
@@ -1070,32 +1069,29 @@ public:
 
         m_widget.setup(settings(), true);
 
+        m_globalCheckBox.setChecked(m_useGlobalSettings);
+        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+            m_widget.setEnabled(!checked);
+            setUseGlobalSettings(checked);
+            if (!checked)
+                setSettings(m_widget.settingsData());
+        });
+
         using namespace Layouting;
         Column {
-            createGlobalOrProjectSelector(this, m_useGlobalSettings,
-                Constants::CPP_CLANGD_SETTINGS_ID,
-                [this](bool checked) {
-                    m_widget.setEnabled(!checked);
-                    setUseGlobalSettings(checked);
-                    if (!checked)
-                        setSettings(m_widget.settingsData());
-                },
-                &m_globalCheckBox),
+            Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::CPP_CLANGD_SETTINGS_ID), st },
+            createHr(),
             &m_widget,
             noMargin,
         }.attachTo(this);
 
         const auto updateGlobalSettingsCheckBox = [this] {
             if (ClangdSettings::instance().data().isSessionMode()) {
-                if (m_globalCheckBox)
-                    m_globalCheckBox->setEnabled(false);
-                if (m_globalCheckBox)
-                    m_globalCheckBox->setChecked(true);
+                m_globalCheckBox.setEnabled(false);
+                m_globalCheckBox.setChecked(true);
             } else {
-                if (m_globalCheckBox)
-                    m_globalCheckBox->setEnabled(true);
-                if (m_globalCheckBox)
-                    m_globalCheckBox->setChecked(m_useGlobalSettings);
+                m_globalCheckBox.setEnabled(true);
+                m_globalCheckBox.setChecked(m_useGlobalSettings);
             }
             m_widget.setEnabled(!m_useGlobalSettings);
         };
@@ -1116,7 +1112,7 @@ public:
 
 private:
     ClangdSettingsWidget m_widget;
-    QCheckBox *m_globalCheckBox = nullptr;
+    QCheckBox m_globalCheckBox;
 
     ClangdSettings::Data settings() const;
 

@@ -14,7 +14,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -23,6 +22,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 #include <utils/store.h>
+
+#include <QCheckBox>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -238,15 +239,21 @@ public:
             m_customSettings.fromMap(data);
         }
 
+        m_globalCheckBox.setChecked(m_useGlobalSettings);
+        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+            setEnabled(!checked);
+            m_useGlobalSettings = checked;
+            saveSettings();
+        });
+
         using namespace Layouting;
         Column {
-            createGlobalOrProjectSelector(this, m_useGlobalSettings,
-                Constants::CPP_CODE_MODEL_SETTINGS_ID,
-                [this](bool checked) {
-                    setEnabled(!checked);
-                    m_useGlobalSettings = checked;
-                    saveSettings();
-                }),
+            Row {
+                &m_globalCheckBox,
+                createUseGlobalSettingsLabel(Constants::CPP_CODE_MODEL_SETTINGS_ID),
+                st
+            },
+            createHr(),
             m_customSettings,
             noMargin
         }.attachTo(this);
@@ -271,6 +278,7 @@ public:
 
 private:
     Project * const m_project;
+    QCheckBox m_globalCheckBox;
     CppCodeModelSettings m_customSettings;
     bool m_useGlobalSettings = true;
 };

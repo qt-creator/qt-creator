@@ -17,7 +17,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <texteditor/plaintexteditorfactory.h>
 #include <texteditor/textmark.h>

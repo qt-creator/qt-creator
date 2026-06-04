@@ -7,13 +7,13 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectpanelfactory.h"
-#include "projectsettingswidget.h"
 
 #include <texteditor/commentssettings.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/layoutbuilder.h>
 
+#include <QCheckBox>
 
 using namespace TextEditor;
 using namespace Utils;
@@ -48,17 +48,23 @@ public:
         m_displayedSettings.layouter()().attachTo(inner);
         inner->setEnabled(!useGlobal);
 
+        m_globalCheckBox.setChecked(useGlobal);
+        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this, inner](bool useGlobal) {
+            m_useGlobal = useGlobal;
+            inner->setEnabled(!useGlobal);
+            if (useGlobal)
+                m_displayedSettings.copyFrom(globalCommentsSettings());
+            saveSettings(useGlobal);
+        });
+
         using namespace Layouting;
         Column {
-            createGlobalOrProjectSelector(this, useGlobal,
-                TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS,
-                [this, inner](bool ug) {
-                    m_useGlobal = ug;
-                    inner->setEnabled(!ug);
-                    if (ug)
-                        m_displayedSettings.copyFrom(globalCommentsSettings());
-                    saveSettings(ug);
-                }),
+            Row {
+                &m_globalCheckBox,
+                createUseGlobalSettingsLabel(TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS),
+                st
+            },
+            createHr(),
             inner,
             noMargin,
         }.attachTo(this);
@@ -90,6 +96,7 @@ private:
     }
 
     Project * const m_project;
+    QCheckBox m_globalCheckBox;
     CommentsSettings m_displayedSettings;
     bool m_useGlobal = true;
 };
