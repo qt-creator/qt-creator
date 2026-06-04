@@ -65,7 +65,7 @@ class WorkspaceBuildSystem final : public BuildSystem
 {
 public:
     WorkspaceBuildSystem(BuildConfiguration *bc);
-    ~WorkspaceBuildSystem();
+    ~WorkspaceBuildSystem() final;
 
     static QString name() { return "Workspace"; }
 

@@ -59,7 +59,7 @@ public:
     void setDevice(const IDeviceConstPtr &device);
 
 private:
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 
     Utils::FilePath m_deviceRoot;
 };

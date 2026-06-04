@@ -1035,7 +1035,7 @@ BuildSystem *ProjectNode::buildSystem() const
 
 bool FolderNode::isEmpty() const
 {
-    return m_nodes.size() == 0;
+    return m_nodes.empty();
 }
 
 void FolderNode::handleSubTreeChanged(FolderNode *node)

@@ -244,13 +244,13 @@ void SelectableFilesModel::propagateUp(const QModelIndex &index)
         return;
     bool allChecked = true;
     bool allUnchecked = true;
-    for (int i = 0; i < parentT->childDirectories.size(); ++i) {
-        allChecked &= parentT->childDirectories.at(i)->checked == Qt::Checked;
-        allUnchecked &= parentT->childDirectories.at(i)->checked == Qt::Unchecked;
+    for (const Tree *tree : std::as_const(parentT->childDirectories)) {
+        allChecked &= tree->checked == Qt::Checked;
+        allUnchecked &= tree->checked == Qt::Unchecked;
     }
-    for (int i = 0; i < parentT->visibleFiles.size(); ++i) {
-        allChecked &= parentT->visibleFiles.at(i)->checked == Qt::Checked;
-        allUnchecked &= parentT->visibleFiles.at(i)->checked == Qt::Unchecked;
+    for (const Tree *tree : std::as_const(parentT->visibleFiles)) {
+        allChecked &= tree->checked == Qt::Checked;
+        allUnchecked &= tree->checked == Qt::Unchecked;
     }
     Qt::CheckState newState = Qt::PartiallyChecked;
     if (parentT->childDirectories.isEmpty() && parentT->visibleFiles.isEmpty())
@@ -438,9 +438,9 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &idx)
 
     // Figure out which rows should be visible
     QList<Tree *> newRows;
-    for (int i=0; i < t->files.size(); ++i) {
-        if (filter(t->files.at(i)) != FilterState::HIDDEN)
-            newRows.append(t->files.at(i));
+    for (Tree * const tree : std::as_const(t->files)) {
+        if (filter(tree) != FilterState::HIDDEN)
+            newRows.append(tree);
     }
     // now add them!
     visibleIndex = 0;
@@ -477,8 +477,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &idx)
         endInsertRows();
     }
 
-    for (int i=0; i < t->visibleFiles.size(); ++i) {
-        Tree * const fileNode = t->visibleFiles.at(i);
+    for (Tree * const fileNode : std::as_const(t->visibleFiles)) {
         fileNode->checked = filter(fileNode) == FilterState::CHECKED ? Qt::Checked : Qt::Unchecked;
         if (fileNode->checked)
             allUnchecked = false;

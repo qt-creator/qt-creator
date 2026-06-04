@@ -95,14 +95,14 @@ private:
 class TaskWindowPrivate
 {
 public:
-    Internal::TaskModel *m_model;
-    Internal::TaskFilterModel *m_filter;
+    Internal::TaskModel *m_model = nullptr;
+    Internal::TaskFilterModel *m_filter = nullptr;
     TaskView m_treeView;
     const Core::Context m_taskWindowContext{Core::Context(Core::Constants::C_PROBLEM_PANE)};
-    QToolButton *m_filterWarningsButton;
-    QToolButton *m_categoriesButton;
+    QToolButton *m_filterWarningsButton = nullptr;
+    QToolButton *m_categoriesButton = nullptr;
     QToolButton *m_externalButton = nullptr;
-    QMenu *m_categoriesMenu;
+    QMenu *m_categoriesMenu = nullptr;
     int m_visibleIssuesCount = 0;
 };
 

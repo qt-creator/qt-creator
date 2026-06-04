@@ -101,7 +101,7 @@ class LoggingCategoryRegistry : public QObject
 public:
     using QObject::QObject;
 
-    ~LoggingCategoryRegistry() { reset(); }
+    ~LoggingCategoryRegistry() override { reset(); }
 
     QMap<QString, QLoggingCategory *> categories() { return m_categories; }
 
@@ -673,8 +673,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     };
     if (tab != m_runControlTabs.end()) {
         // Reuse this tab
-        if (tab->runControl)
-            delete tab->runControl;
+        delete tab->runControl;
 
         tab->runControl = rc;
         tab->window->reset();

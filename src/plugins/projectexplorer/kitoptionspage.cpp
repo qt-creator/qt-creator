@@ -341,7 +341,7 @@ class KitOptionsPageWidget : public Core::IOptionsPageWidget
 {
 public:
     KitOptionsPageWidget();
-    ~KitOptionsPageWidget();
+    ~KitOptionsPageWidget() override;
 
     void kitSelectionChanged(int newRow);
     void addNewKit();

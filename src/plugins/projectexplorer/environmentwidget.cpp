@@ -140,20 +140,20 @@ public:
 
     EnvironmentWidget * const q;
     Utils::NameValueItemsWidget m_editor;
-    Utils::EnvironmentModel *m_model;
+    Utils::EnvironmentModel *m_model = nullptr;
     EnvironmentWidget::Type m_type = EnvironmentWidget::TypeLocal;
     QString m_baseEnvironmentText;
     EnvironmentWidget::OpenTerminalFunc m_openTerminalFunc;
-    Utils::DetailsWidget *m_detailsContainer;
-    QTreeView *m_environmentView;
-    QPushButton *m_editButton;
-    QPushButton *m_addButton;
-    QPushButton *m_resetButton;
-    QPushButton *m_unsetButton;
-    QPushButton *m_toggleButton;
+    Utils::DetailsWidget *m_detailsContainer = nullptr;
+    QTreeView *m_environmentView = nullptr;
+    QPushButton *m_editButton = nullptr;
+    QPushButton *m_addButton = nullptr;
+    QPushButton *m_resetButton = nullptr;
+    QPushButton *m_unsetButton = nullptr;
+    QPushButton *m_toggleButton = nullptr;
     QPushButton *m_appendPathButton = nullptr;
     QPushButton *m_prependPathButton = nullptr;
-    QPushButton *m_terminalButton;
+    QPushButton *m_terminalButton = nullptr;
 };
 
 EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additionalDetailsWidget)

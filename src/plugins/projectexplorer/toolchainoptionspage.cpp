@@ -204,7 +204,7 @@ class ToolchainModel final : public TypedGroupedModel<ToolchainTreeItem>
 {
 public:
     explicit ToolchainModel(StackedWidget *widgetStack);
-    ~ToolchainModel();
+    ~ToolchainModel() override;
 
     int insertBundle(const ToolchainBundle &bundle, bool changed = false);
     int addBundle(const ToolchainBundle &bundle);
@@ -605,7 +605,7 @@ void ToolChainOptionsWidget::handleToolchainsDeregistered(const Toolchains &tool
     }
 
     // Process in reverse order to preserve row indices during removal.
-    std::sort(affectedRows.begin(), affectedRows.end(), std::greater<int>());
+    std::sort(affectedRows.begin(), affectedRows.end(), std::greater<>());
     for (const int row : std::as_const(affectedRows)) {
         const ToolchainTreeItem it = m_model.item(row);
         if (it.bundle) {

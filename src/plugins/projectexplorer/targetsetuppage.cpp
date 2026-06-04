@@ -201,7 +201,7 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
 void TargetSetupPagePrivate::reset()
 {
     removeAdditionalWidgets();
-    while (widgets.size() > 0) {
+    while (!widgets.empty()) {
         TargetSetupWidget *w = widgets.back();
         Kit *k = w->kit();
 

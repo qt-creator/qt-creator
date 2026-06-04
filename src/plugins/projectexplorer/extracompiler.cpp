@@ -37,7 +37,7 @@ Q_LOGGING_CATEGORY(log, "qtc.projectexplorer.extracompiler", QtWarningMsg);
 class ExtraCompilerPrivate
 {
 public:
-    const Project *project;
+    const Project *project = nullptr;
     FilePath source;
     FileNameToContentsHash contents;
     QDateTime compileTime;

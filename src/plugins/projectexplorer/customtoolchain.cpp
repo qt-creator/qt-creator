@@ -131,7 +131,7 @@ Toolchain::MacroInspectionRunner CustomToolchain::createMacroInspectionRunner() 
         for (const QString &cxxFlag : cxxflags) {
             if (cxxFlag.startsWith(QLatin1String("-D")))
                 macros.append(Macro::fromKeyValue(cxxFlag.mid(2).trimmed()));
-             else if (cxxFlag.startsWith(QLatin1String("-U")) && !cxxFlag.contains('='))
+            else if (cxxFlag.startsWith(QLatin1String("-U")) && !cxxFlag.contains('='))
                 macros.append({cxxFlag.mid(2).trimmed().toUtf8(), MacroType::Undefine});
 
         }

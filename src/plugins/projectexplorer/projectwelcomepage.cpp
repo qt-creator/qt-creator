@@ -71,7 +71,7 @@ const int itemSpacing = GapVM;
 static FilePaths pathsForSession(const QString &session, QString *title = nullptr)
 {
     const FilePaths projects = ProjectManager::projectsForSessionName(session);
-    if (projects.size()) {
+    if (!projects.isEmpty()) {
         if (title) {
             //: title in expanded session items in welcome mode
             *title = Tr::tr("Projects");

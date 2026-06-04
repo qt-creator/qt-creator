@@ -177,12 +177,8 @@ void ResourcePreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
         m_path = findResourceInProject(str);
 
         // If resource does not exit, try to fallback to local files
-        if (m_path.isEmpty()) {
-            if (QFileInfo::exists(str))
-                m_path = str;
-            else if (QUrl(str).isLocalFile())
-                m_path = str;
-        }
+        if (m_path.isEmpty() && (QFileInfo::exists(str) || QUrl(str).isLocalFile()))
+            m_path = str;
 
         setPriority(m_path.isEmpty() ? Priority_None : Priority_Diagnostic + 1);
     }

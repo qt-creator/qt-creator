@@ -272,7 +272,7 @@ class ProjectItemBase : public TreeItem
 public:
     ProjectItemBase() = default;
 
-    ~ProjectItemBase() = default;
+    ~ProjectItemBase() override = default;
 
     // This item got activated through user interaction and
     // is now responsible for the central widget.
@@ -352,8 +352,8 @@ public:
     QVariant data(int column, int role) const final;
     Qt::ItemFlags flags(int column) const final;
 
-    void addToMenu(QMenu *menu) const;
-    void itemActivatedDirectly();
+    void addToMenu(QMenu *menu) const final;
+    void itemActivatedDirectly() final;
 
 protected:
     Store m_store;
@@ -615,7 +615,7 @@ public:
         });
     }
 
-    ~ProjectItem()
+    ~ProjectItem() override
     {
         // Actual deletion of the items below happens in the base destructor,
         // this here just removes some later dangling pointers for better debugging.
@@ -820,7 +820,7 @@ public:
             });
     }
 
-    ~TargetItem()
+    ~TargetItem() final
     {
         m_project->disconnect(m_targetRemovedConnection);
         delete m_buildSettingsWidget;
@@ -833,7 +833,7 @@ public:
         return m_project->target(m_kitId);
     }
 
-    Id kitId() const
+    Id kitId() const final
     {
         return m_kitId;
     }

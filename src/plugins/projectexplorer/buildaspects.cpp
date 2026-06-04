@@ -34,8 +34,8 @@ public:
     FilePath sourceDir;
     FilePath savedShadowBuildDir;
     QString specialProblem;
-    QLabel *genericProblemSpacer;
-    QLabel *specialProblemSpacer;
+    QLabel *genericProblemSpacer = nullptr;
+    QLabel *specialProblemSpacer = nullptr;
     QPointer<InfoLabel> genericProblemLabel;
     QPointer<InfoLabel> specialProblemLabel;
 };

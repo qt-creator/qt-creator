@@ -94,7 +94,7 @@ void OutputParserTester::testParsing(const QString &input,
             QCOMPARE(m_receivedTasks.at(i).column(), tasks.at(i).column());
             QCOMPARE(static_cast<int>(m_receivedTasks.at(i).type()), static_cast<int>(tasks.at(i).type()));
             // Skip formats check if we haven't specified expected
-            if (tasks.at(i).formats().size() == 0)
+            if (tasks.at(i).formats().isEmpty())
                 continue;
             QCOMPARE(m_receivedTasks.at(i).formats().size(), tasks.at(i).formats().size());
             for (int j = 0; j < tasks.at(i).formats().size(); ++j) {

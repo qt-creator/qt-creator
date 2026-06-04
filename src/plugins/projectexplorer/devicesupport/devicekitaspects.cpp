@@ -450,7 +450,7 @@ public:
 
 private:
     // QtC < 16 did not have a build device type, but the user might have set the build device.
-    void upgrade(Kit *k)
+    void upgrade(Kit *k) override
     {
         if (!Id::fromSetting(k->value(id())).isValid()) {
             if (const IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k))

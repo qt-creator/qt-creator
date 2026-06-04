@@ -466,7 +466,7 @@ void Project::removeTarget(Target *target)
     emit aboutToRemoveTarget(target);
     auto keep = take(d->m_targets, target);
     if (target == d->m_activeTarget) {
-        Target *newActiveTarget = (d->m_targets.size() == 0 ? nullptr : d->m_targets.at(0).get());
+        Target *newActiveTarget = (d->m_targets.empty() ? nullptr : d->m_targets.at(0).get());
         setActiveTarget(newActiveTarget, SetActive::Cascade);
     }
     emit removedTarget(target);
@@ -488,7 +488,7 @@ void Project::setActiveTargetHelper(Target *target)
         return;
 
     // Allow to set nullptr just before the last target is removed or when no target exists.
-    if ((!target && d->m_targets.size() == 0) ||
+    if ((!target && d->m_targets.empty()) ||
         (target && contains(d->m_targets, target))) {
         d->m_activeTarget = target;
         emit activeTargetChanged(d->m_activeTarget);
@@ -1294,7 +1294,7 @@ EnvironmentChanges Project::additionalEnvironment() const
 
 bool Project::needsConfiguration() const
 {
-    return d->m_targets.size() == 0;
+    return d->m_targets.empty();
 }
 
 bool Project::supportsBuilding() const

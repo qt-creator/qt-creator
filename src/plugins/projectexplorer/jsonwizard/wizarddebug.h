@@ -24,8 +24,6 @@ inline QDebug &operator<<(QDebug &dbg, const QVariant &var)
         debugString(dbg, var.toString());
         break;
     case QMetaType::QStringList:
-        dbg << var.toList();
-        break;
     case QMetaType::QVariantList:
         dbg << var.toList();
         break;

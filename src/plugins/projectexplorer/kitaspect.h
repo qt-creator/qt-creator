@@ -173,7 +173,7 @@ public:
 
 protected:
     KitAspectFactory();
-    ~KitAspectFactory();
+    ~KitAspectFactory() override;
 
     void setId(Utils::Id id) { m_id = id; }
     void setJsonKeys(const QList<Utils::Id> &ids) { m_jsonKeys = ids; }
@@ -207,7 +207,7 @@ public:
     };
 
     KitAspect(Kit *kit, const KitAspectFactory *factory);
-    ~KitAspect();
+    ~KitAspect() override;
 
     virtual void refresh();
 

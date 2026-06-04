@@ -629,8 +629,8 @@ void KitManager::deregisterKits(const QList<Kit *> kitList)
         emit instance()->defaultkitChanged();
     }
 
-    for (auto it = removed.cbegin(); it != removed.cend(); ++it)
-        emit instance()->kitRemoved(it->get());
+    for (const auto &kit : std::as_const(removed))
+        emit instance()->kitRemoved(kit.get());
     emit instance()->kitsChanged();
 
     // FIXME: TargetSetupPage potentially deregisters kits on destruction, after the final

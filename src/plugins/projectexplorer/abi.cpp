@@ -53,7 +53,7 @@ static QList<Abi::OSFlavor> moveGenericAndUnknownLast(const QList<Abi::OSFlavor>
 
 static void insertIntoOsFlavorMap(const std::vector<Abi::OS> &oses, const Abi::OSFlavor flavor)
 {
-    QTC_ASSERT(oses.size() > 0, return);
+    QTC_ASSERT(!oses.empty(), return);
     for (const Abi::OS &os : oses) {
         auto it = m_osToOsFlavorMap.find(os);
         if (it == m_osToOsFlavorMap.end()) {
@@ -121,7 +121,7 @@ static void setupPreregisteredOsFlavors() {
 }
 
 static std::vector<QByteArray> &registeredOsFlavors() {
-    if (m_registeredOsFlavors.size() == 0)
+    if (m_registeredOsFlavors.empty())
         setupPreregisteredOsFlavors();
     return m_registeredOsFlavors;
 }
@@ -482,7 +482,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         if (p == "unknown" || p == "pc"
                 || p == "gnu" || p == "uclibc"
                 || p == "86_64" || p == "redhat"
-                || p == "w64") {
+                || p == "w64" || p == "wrs") {
             continue;
         } else if (p == "i386" || p == "i486" || p == "i586"
                    || p == "i686" || p == "x86") {
@@ -622,8 +622,6 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             width = 32;
         } else if (p == "gnueabi" || p == "elf") {
             format = ElfFormat;
-        } else if (p == "wrs") {
-            continue;
         } else if (p == "vxworks") {
             os = VxWorks;
             flavor = VxWorksFlavor;
@@ -1093,7 +1091,7 @@ unsigned char Abi::wordWidthFromString(const QString &w)
 
 Abi::OSFlavor Abi::registerOsFlavor(const std::vector<OS> &oses, const QString &flavorName)
 {
-    QTC_ASSERT(oses.size() > 0, return UnknownFlavor);
+    QTC_ASSERT(!oses.empty(), return UnknownFlavor);
     const QByteArray flavorBytes = flavorName.toUtf8();
 
     int index = indexOfFlavor(flavorBytes);

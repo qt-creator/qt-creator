@@ -21,7 +21,7 @@ class PROJECTEXPLORER_EXPORT FileTransfer : public QObject
 
 public:
     FileTransfer();
-    ~FileTransfer();
+    ~FileTransfer() override;
 
     void setFilesToTransfer(const FilesToTransfer &files);
     void setTransferMethod(FileTransferMethod method);

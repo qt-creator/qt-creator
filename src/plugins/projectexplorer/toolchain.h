@@ -68,7 +68,7 @@ class PROJECTEXPLORER_EXPORT Toolchain : public Utils::AspectContainer
 public:
     using Predicate = std::function<bool(const Toolchain *)>;
 
-    virtual ~Toolchain();
+    ~Toolchain() override;
 
     QString displayName() const;
     void setDisplayName(const QString &name);
@@ -114,7 +114,7 @@ public:
     {
     public:
         Macros macros;
-        Utils::LanguageVersion languageVersion;
+        Utils::LanguageVersion languageVersion = Utils::LanguageVersion::None;
     };
 
     using MacrosCache = std::shared_ptr<Cache<QStringList, Toolchain::MacroInspectionReport, 64>>;

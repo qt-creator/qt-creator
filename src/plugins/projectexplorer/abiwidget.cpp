@@ -38,15 +38,15 @@ public:
 
     Utils::Guard m_ignoreChanges;
 
-    Abi m_currentAbi;
+    Abi m_currentAbi = Abi::UnknownArchitecture;
 
-    QComboBox *m_abi;
+    QComboBox *m_abi = nullptr;
 
-    QComboBox *m_architectureComboBox;
-    QComboBox *m_osComboBox;
-    QComboBox *m_osFlavorComboBox;
-    QComboBox *m_binaryFormatComboBox;
-    QComboBox *m_wordWidthComboBox;
+    QComboBox *m_architectureComboBox = nullptr;
+    QComboBox *m_osComboBox = nullptr;
+    QComboBox *m_osFlavorComboBox = nullptr;
+    QComboBox *m_binaryFormatComboBox = nullptr;
+    QComboBox *m_wordWidthComboBox = nullptr;
 };
 
 } // namespace Internal

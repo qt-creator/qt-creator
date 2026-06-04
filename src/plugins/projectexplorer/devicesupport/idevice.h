@@ -146,7 +146,7 @@ public:
     enum Origin { ManuallyAdded, AutoDetected, AddedBySdk };
     enum MachineType { Hardware, Emulator };
 
-    virtual ~IDevice();
+    ~IDevice() override;
 
     QString displayName() const;
     void setDisplayName(const QString &name);
@@ -321,8 +321,8 @@ public:
 protected:
     IDevice();
 
-    virtual void fromMap(const Utils::Store &map);
-    virtual void toMap(Utils::Store &map) const;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
     virtual void postLoad() {}
 
     using OpenTerminal = std::function<void(const Utils::Environment &,

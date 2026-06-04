@@ -197,7 +197,7 @@ void TaskModel::clearTasks(Utils::Id categoryId)
 QModelIndex TaskModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid())
-        return createIndex(row, column, quintptr(parent.row() + 1));
+        return createIndex(row, column, parent.row() + 1);
     return createIndex(row, column);
 }
 

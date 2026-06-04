@@ -114,7 +114,7 @@ void DesktopRunConfiguration::updateTargetInformation()
         aspect<ArgumentsAspect>()->setArguments(
             ProcessArgs::joinArgs(argumentsList, bti.targetFilePath.osType()));
 
-    if (bti.launchers.size() > 0) {
+    if (!bti.launchers.isEmpty()) {
         launcherAspect->setVisible(true);
         // Use start program by default, if defined (see toBuildTarget() for details)
         launcherAspect->setDefaultLauncher(bti.launchers.last());

@@ -28,8 +28,8 @@ public:
 
     DeviceTester * const deviceTester;
     bool finished;
-    QPlainTextEdit *textEdit;
-    QDialogButtonBox *buttonBox;
+    QPlainTextEdit *textEdit = nullptr;
+    QDialogButtonBox *buttonBox = nullptr;
 };
 
 DeviceTestDialog::DeviceTestDialog(const IDevice::Ptr &deviceConfiguration,

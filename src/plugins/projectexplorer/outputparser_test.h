@@ -26,7 +26,7 @@ public:
     };
 
     OutputParserTester();
-    ~OutputParserTester();
+    ~OutputParserTester() override;
 
     // test functions:
     void testParsing(const QString &input, Channel inputChannel,

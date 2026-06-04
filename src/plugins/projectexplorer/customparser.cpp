@@ -518,8 +518,8 @@ private:
     const Project * const m_project;
     QList<QPair<QCheckBox *, Utils::Id>> parserCheckBoxes;
     const CustomParsersSelectionWidget::Embedded m_where;
-    QVBoxLayout *m_extraWidgetsLayout;
-    QVBoxLayout *m_checkBoxesLayout;
+    QVBoxLayout *m_extraWidgetsLayout = nullptr;
+    QVBoxLayout *m_checkBoxesLayout = nullptr;
 };
 } // anonymous namespace
 
