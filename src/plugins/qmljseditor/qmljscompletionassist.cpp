@@ -297,12 +297,7 @@ const Value *getPropertyValue(const ObjectValue *object,
 
 bool isLiteral(AST::Node *ast)
 {
-    if (AST::cast<AST::StringLiteral *>(ast))
-        return true;
-    else if (AST::cast<AST::NumericLiteral *>(ast))
-        return true;
-    else
-        return false;
+    return AST::cast<AST::StringLiteral *>(ast) || AST::cast<AST::NumericLiteral *>(ast);
 }
 
 } // Anonymous

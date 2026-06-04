@@ -55,7 +55,7 @@ public:
     };
     Q_ENUM(QmlSemanticTokens);
     explicit QmllsClient(LanguageClient::StdIOClientInterface *interface);
-    ~QmllsClient();
+    ~QmllsClient() override;
 
     void startImpl() override;
     void updateQmllsSemanticHighlightingCapability();

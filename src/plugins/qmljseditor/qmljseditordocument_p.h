@@ -31,9 +31,9 @@ class QmllsStatus
 public:
     enum class Source { Qmlls, EmbeddedCodeModel };
 
-    Source semanticWarningsSource;
-    Source semanticHighlightSource;
-    Source completionSource;
+    Source semanticWarningsSource = Source::Qmlls;
+    Source semanticHighlightSource = Source::Qmlls;
+    Source completionSource = Source::Qmlls;
     Utils::FilePath qmllsPath;
 };
 

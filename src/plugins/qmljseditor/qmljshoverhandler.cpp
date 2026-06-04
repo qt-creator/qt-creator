@@ -61,7 +61,7 @@ namespace {
         AST::UiObjectInitializer *initializer = nullptr;
         if (auto binding = AST::cast<const AST::UiObjectBinding*>(node))
             initializer = binding->initializer;
-         else if (auto definition = AST::cast<const AST::UiObjectDefinition*>(node))
+        else if (auto definition = AST::cast<const AST::UiObjectDefinition*>(node))
             initializer = definition->initializer;
         return initializer;
     }
@@ -249,7 +249,7 @@ void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, R
         // Is the cursor on an import? The ast path will have an UiImport
         // member in the last or second to last position!
         AST::UiImport *import = nullptr;
-        if (astPath.size() >= 1)
+        if (!astPath.isEmpty())
             import = AST::cast<AST::UiImport *>(astPath.last());
         if (!import && astPath.size() >= 2)
             import = AST::cast<AST::UiImport *>(astPath.at(astPath.size() - 2));

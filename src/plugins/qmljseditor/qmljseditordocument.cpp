@@ -141,7 +141,7 @@ private:
 class FindDeclarations: protected Visitor
 {
     QList<Declaration> _declarations;
-    int _depth;
+    int _depth = 0;
 
 public:
     QList<Declaration> operator()(AST::Node *node)
@@ -356,7 +356,7 @@ protected:
 
 class CreateRanges: protected AST::Visitor
 {
-    QTextDocument *_textDocument;
+    QTextDocument *_textDocument = nullptr;
     QList<Range> _ranges;
 
 public:

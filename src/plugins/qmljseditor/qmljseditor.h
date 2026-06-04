@@ -112,7 +112,7 @@ private:
     QTimer m_updateUsesTimer; // to wait for multiple text cursor position changes
     QTimer m_updateOutlineIndexTimer;
     QTimer m_contextPaneTimer;
-    QComboBox *m_outlineCombo;
+    QComboBox *m_outlineCombo = nullptr;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager = nullptr;
 

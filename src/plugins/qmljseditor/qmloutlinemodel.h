@@ -126,7 +126,7 @@ private:
 
     QmlJSTools::SemanticInfo m_semanticInfo;
     QList<int> m_treePos;
-    QStandardItem *m_currentItem;
+    QStandardItem *m_currentItem = nullptr;
 
     QHash<QString, QIcon> m_typeToIcon;
     QHash<QmlOutlineItem*,QIcon> m_itemToIcon;

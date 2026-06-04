@@ -214,9 +214,7 @@ static void appendExtraSelectionsForMessages(
 
 void QmlJSEditorWidget::updateCodeWarnings(Document::Ptr doc)
 {
-    if (doc->ast()) {
-        setExtraSelections(CodeWarningsSelection, QList<QTextEdit::ExtraSelection>());
-    } else if (doc->language().isFullySupportedLanguage()) {
+    if (!doc->ast() && doc->language().isFullySupportedLanguage()) {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
         appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
@@ -415,12 +413,10 @@ protected:
     inline bool isIdBinding(UiObjectMember *member) const
     {
         if (auto script = cast<const UiScriptBinding *>(member)) {
-            if (! script->qualifiedId)
+            if (!script->qualifiedId || script->qualifiedId->name.isEmpty()
+                || script->qualifiedId->next) {
                 return false;
-            else if (script->qualifiedId->name.isEmpty())
-                return false;
-            else if (script->qualifiedId->next)
-                return false;
+            }
 
             QStringView propertyName = script->qualifiedId->name;
 
@@ -990,7 +986,7 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
             if (IAssistProposal *proposal = processor->start(std::move(interface)))
                 handleProposal(proposal);
-             else
+            else
                 processor->setAsyncCompletionAvailableHandler(handleProposal);
         }
     }

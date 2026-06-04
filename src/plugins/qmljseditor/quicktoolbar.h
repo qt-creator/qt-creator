@@ -22,7 +22,7 @@ class QuickToolBar : public QObject
 
     QuickToolBar();
 public:
-    ~QuickToolBar();
+    ~QuickToolBar() override;
 
     static QuickToolBar *instance();
 

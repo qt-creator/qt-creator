@@ -147,8 +147,6 @@ bool AutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
     const Token token = tokenUnderCursor(cursor);
     switch (token.kind) {
     case Token::Comment:
-        return false;
-
     case Token::RightBrace:
         return false;
 
@@ -191,8 +189,6 @@ bool AutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor,
     const Token token = tokenUnderCursor(cursor);
     switch (token.kind) {
     case Token::Comment:
-        return false;
-
     case Token::RightBrace:
         return false;
 
