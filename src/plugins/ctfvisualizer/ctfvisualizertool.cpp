@@ -30,7 +30,6 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
-#include <QScopedPointer>
 #include <QToolButton>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -49,10 +48,9 @@ class CtfVisualizerTool : public QObject
 {
 public:
     CtfVisualizerTool();
-    ~CtfVisualizerTool();
 
-    Timeline::TimelineModelAggregator *modelAggregator() const;
-    Timeline::TimelineZoomControl *zoomControl() const;
+    Timeline::TimelineModelAggregator *modelAggregator();
+    Timeline::TimelineZoomControl *zoomControl();
 
     void loadJson(const QString &fileName);
 
@@ -70,27 +68,22 @@ private:
                                                                  "Chrome Trace Format Visualizer")};
 
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
-    QScopedPointer<QAction> m_loadJson;
+    QAction m_loadJson;
+
+    Timeline::TimelineModelAggregator m_modelAggregator;
+    Timeline::TimelineZoomControl m_zoomControl;
+    CtfStatisticsModel m_statisticsModel{nullptr};
+    CtfTraceManager m_traceManager{nullptr, &m_modelAggregator, &m_statisticsModel};
 
     CtfVisualizerTraceView *m_traceView = nullptr;
-    const QScopedPointer<Timeline::TimelineModelAggregator> m_modelAggregator;
-    const QScopedPointer<Timeline::TimelineZoomControl> m_zoomControl;
-
-    const QScopedPointer<CtfStatisticsModel> m_statisticsModel;
     CtfStatisticsView *m_statisticsView = nullptr;
-
-    const QScopedPointer<CtfTraceManager> m_traceManager;
 
     QToolButton *const m_restrictToThreadsButton;
     QMenu *const m_restrictToThreadsMenu;
 };
 
 CtfVisualizerTool::CtfVisualizerTool()
-    : m_modelAggregator(new Timeline::TimelineModelAggregator(this))
-    , m_zoomControl(new Timeline::TimelineZoomControl(this))
-    , m_statisticsModel(new CtfStatisticsModel(this))
-    , m_traceManager(new CtfTraceManager(this, m_modelAggregator.get(), m_statisticsModel.get()))
-    , m_restrictToThreadsButton(new QToolButton)
+    : m_restrictToThreadsButton(new QToolButton)
     , m_restrictToThreadsMenu(new QMenu(m_restrictToThreadsButton))
 {
     ActionContainer *menu = ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER);
@@ -101,12 +94,12 @@ CtfVisualizerTool::CtfVisualizerTool()
 
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
 
-    m_loadJson.reset(new QAction(Tr::tr("Load JSON File"), options));
-    Core::Command *command = Core::ActionManager::registerAction(m_loadJson.get(),
+    m_loadJson.setText(Tr::tr("Load JSON File"));
+    Core::Command *command = Core::ActionManager::registerAction(&m_loadJson,
                                                                  Constants::CtfVisualizerTaskLoadJson,
                                                                  globalContext);
-    connect(m_loadJson.get(), &QAction::triggered, this, [this] {
-        QString filename = m_loadJson->data().toString();
+    connect(&m_loadJson, &QAction::triggered, this, [this] {
+        QString filename = m_loadJson.data().toString();
         if (filename.isEmpty())
             filename = QFileDialog::getOpenFileName(ICore::dialogParent(),
                                                     Tr::tr("Load Chrome Trace Format File"),
@@ -129,17 +122,15 @@ CtfVisualizerTool::CtfVisualizerTool()
     m_perspective.addToolBarWidget(m_restrictToThreadsButton);
 }
 
-CtfVisualizerTool::~CtfVisualizerTool() = default;
-
 void CtfVisualizerTool::createViews()
 {
-    m_traceView = new CtfVisualizerTraceView(nullptr, m_modelAggregator.get(), m_zoomControl.get());
+    m_traceView = new CtfVisualizerTraceView(nullptr, &m_modelAggregator, &m_zoomControl);
     m_traceView->setWindowTitle(Tr::tr("Timeline"));
 
     QMenu *contextMenu = new QMenu(m_traceView);
-    contextMenu->addAction(m_loadJson.get());
+    contextMenu->addAction(&m_loadJson);
     connect(contextMenu->addAction(Tr::tr("Reset Zoom")), &QAction::triggered, this, [this] {
-        m_zoomControl->setRange(m_zoomControl->traceStart(), m_zoomControl->traceEnd());
+        m_zoomControl.setRange(m_zoomControl.traceStart(), m_zoomControl.traceEnd());
     });
 
     m_traceView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -150,13 +141,13 @@ void CtfVisualizerTool::createViews()
 
     m_perspective.addWindow(m_traceView, Perspective::OperationType::SplitVertical, nullptr);
 
-    m_statisticsView = new CtfStatisticsView(m_statisticsModel.get());
+    m_statisticsView = new CtfStatisticsView(&m_statisticsModel);
     m_statisticsView->setWindowTitle(Tr::tr("Statistics"));
     connect(m_statisticsView, &CtfStatisticsView::eventTypeSelected, this, [this](QString title) {
-        int typeId = m_traceManager->getSelectionId(title.toStdString());
+        int typeId = m_traceManager.getSelectionId(title.toStdString());
         m_traceView->selectByTypeId(typeId);
     });
-    connect(m_traceManager.get(), &CtfTraceManager::detailsRequested, m_statisticsView,
+    connect(&m_traceManager, &CtfTraceManager::detailsRequested, m_statisticsView,
             &CtfStatisticsView::selectByTitle);
 
     m_perspective.addWindow(m_statisticsView, Perspective::AddToTab, m_traceView);
@@ -172,7 +163,7 @@ void CtfVisualizerTool::setAvailableThreads(const QList<CtfTimelineModel *> &thr
         QAction *action = m_restrictToThreadsMenu->addAction(timelineModel->displayName());
         action->setCheckable(true);
         action->setData(timelineModel->tid());
-        action->setChecked(m_traceManager->isRestrictedTo(timelineModel->tid()));
+        action->setChecked(m_traceManager.isRestrictedTo(timelineModel->tid()));
         action->setEnabled(timelineModel->count());
     }
 }
@@ -185,17 +176,17 @@ void CtfVisualizerTool::toggleThreadRestriction(QAction *action)
     // (avoids crashes as next / previous would act afterwards on different or even nullptr models)
     m_traceView->selectByIndices(-1, -1);
 
-    m_traceManager->setThreadRestriction(tid, action->isChecked());
+    m_traceManager.setThreadRestriction(tid, action->isChecked());
 }
 
-Timeline::TimelineModelAggregator *CtfVisualizerTool::modelAggregator() const
+Timeline::TimelineModelAggregator *CtfVisualizerTool::modelAggregator()
 {
-    return m_modelAggregator.get();
+    return &m_modelAggregator;
 }
 
-Timeline::TimelineZoomControl *CtfVisualizerTool::zoomControl() const
+Timeline::TimelineZoomControl *CtfVisualizerTool::zoomControl()
 {
-    return m_zoomControl.get();
+    return &m_zoomControl;
 }
 
 class CtfJsonParserFunctor
@@ -263,10 +254,10 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
         return;
 
     const auto onSetup = [this, fileName](Async<json> &async) {
-        m_traceManager->clearAll();
+        m_traceManager.clearAll();
         async.setConcurrentCallData(load, fileName);
         connect(&async, &AsyncBase::resultReadyAt, this, [this, asyncPtr = &async](int index) {
-            m_traceManager->addEvent(asyncPtr->resultAt(index));
+            m_traceManager.addEvent(asyncPtr->resultAt(index));
         });
     };
     const auto onTaskTreeSetup = [](QTaskTree &taskTree) {
@@ -275,21 +266,21 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
     };
     const auto onTaskTreeDone = [this](DoneWith result) {
         if (result == DoneWith::Success) {
-            m_traceManager->updateStatistics();
-            if (m_traceManager->isEmpty()) {
+            m_traceManager.updateStatistics();
+            if (m_traceManager.isEmpty()) {
                 QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("CTF Visualizer"),
                                      Tr::tr("The file does not contain any trace data."));
-            } else if (!m_traceManager->errorString().isEmpty()) {
+            } else if (!m_traceManager.errorString().isEmpty()) {
                 QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("CTF Visualizer"),
-                                     m_traceManager->errorString());
+                                     m_traceManager.errorString());
             } else {
-                m_traceManager->finalize();
+                m_traceManager.finalize();
                 m_perspective.select();
-                const auto end = m_traceManager->traceEnd() + m_traceManager->traceDuration() / 20;
-                zoomControl()->setTrace(m_traceManager->traceBegin(), end);
-                zoomControl()->setRange(m_traceManager->traceBegin(), end);
+                const auto end = m_traceManager.traceEnd() + m_traceManager.traceDuration() / 20;
+                m_zoomControl.setTrace(m_traceManager.traceBegin(), end);
+                m_zoomControl.setRange(m_traceManager.traceBegin(), end);
             }
-            setAvailableThreads(m_traceManager->getSortedThreads());
+            setAvailableThreads(m_traceManager.getSortedThreads());
         } else {
             QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("CTF Visualizer"),
                                  Tr::tr("Cannot read the CTF file."));
