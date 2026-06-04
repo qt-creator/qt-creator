@@ -10,7 +10,7 @@ QtcPlugin {
 
     Depends {
         name: "Qt"
-        submodules: [ "quick", "quickwidgets" ]
+        submodules: [ "widgets" ]
     }
 
     Properties {

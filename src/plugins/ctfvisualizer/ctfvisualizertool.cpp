@@ -30,7 +30,6 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
-#include <QQuickItem>
 #include <QScopedPointer>
 #include <QToolButton>
 #include <QtTaskTree/QSingleTaskTreeRunner>

@@ -1,6 +1,6 @@
 add_qtc_plugin(CtfVisualizer
   CONDITION TARGET Tracing
-  DEPENDS Tracing Qt::QuickWidgets
+  DEPENDS Tracing
   INCLUDES ${PROJECT_SOURCE_DIR}/src
   PLUGIN_DEPENDS Core ProjectExplorer
   SOURCES
