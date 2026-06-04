@@ -2,5 +2,5 @@ import qbs
 
 QtcAutotest {
     Depends { name: "Tracing" }
-    Depends { name: "Qt.gui" }
+    Depends { name: "Qt"; submodules: [ "widgets" ] }
 }
