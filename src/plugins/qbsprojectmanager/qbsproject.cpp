@@ -529,7 +529,7 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
                                    projectData());
     };
     const auto onDone = [this, continuation](const Async<BuildTreeResult> &task) {
-        OpTimer("updateProjectNodes continuation");
+        OpTimer opTimer("updateProjectNodes continuation");
         if (project()->activeBuildSystem() != this)
             return;
 
