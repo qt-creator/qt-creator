@@ -62,11 +62,12 @@ public:
 
     enum OutputNewlineSetting { DoAppendNewline, DontAppendNewline };
 
-    enum Flags {
+    enum Flag {
         Uncreatable = 1 << 0,
         Unclonable  = 1 << 1,
         UniqueStep  = 1 << 8    // Can't be used twice in a BuildStepList
     };
+    Q_DECLARE_FLAGS(Flags, Flag)
 
     bool widgetExpandedByDefault() const;
     bool hasUserExpansionState() const { return m_wasExpanded.has_value(); }
@@ -177,7 +178,7 @@ protected:
 private:
     Utils::Id m_stepId;
     QString m_displayName;
-    BuildStep::Flags m_flags = {};
+    BuildStep::Flags m_flags;
     BuildStepCreator m_creator;
 
     Utils::Id m_supportedProjectType;
