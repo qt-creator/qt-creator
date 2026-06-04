@@ -50,7 +50,7 @@ public:
     void runTest(TestRunMode mode, const ITestTreeItem *item);
     bool isTestRunning() const
     {
-        return m_buildConnect || m_stopDebugConnect || m_taskTreeRunner.isRunning()
+        return m_buildConnect || m_taskTreeRunner.isRunning()
                || !m_currentRunControl.isNull();
     }
 
@@ -85,10 +85,13 @@ private:
 
     void runTestsHelperViaRunControl();
     void runNextViaRunControl();
-    void debugTests(bool followUp);
-    void onDebugSingleFinished();
 
     void runOrDebugTests();
+    bool isDebugMode() const
+    {
+        return m_runMode == TestRunMode::Debug || m_runMode == TestRunMode::DebugWithoutDeploy;
+    }
+
     void reportResult(ResultType type, const QString &description);
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
@@ -100,17 +103,14 @@ private:
 
     // temporarily used if building before running is necessary
     QMetaObject::Connection m_buildConnect;
-    // temporarily used when debugging
-    QMetaObject::Connection m_stopDebugConnect;
-    QMetaObject::Connection m_debugRunControlConnect;
     // temporarily used for handling of switching the current target
     QMetaObject::Connection m_targetConnect;
     QTimer m_cancelTimer;
     bool m_skipTargetsCheck = false;
 
+    bool m_outputWarningShown = false;
     int m_runControlIndex = 0;
     QPointer<ProjectExplorer::RunControl> m_currentRunControl;
-    bool m_debugTestRunCanceled = false;
 };
 
 } // namespace Internal
