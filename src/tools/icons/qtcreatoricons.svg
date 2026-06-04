@@ -5907,7 +5907,7 @@
     <g
        transform="translate(32)"
        style="display:inline"
-       id="src/libs/tracing/qml/ico_rangeselection">
+       id="src/libs/tracing/images/rangeselection">
       <use
          x="0"
          y="0"
@@ -5936,7 +5936,7 @@
     <g
        transform="translate(32)"
        style="display:inline"
-       id="src/libs/tracing/qml/ico_rangeselected">
+       id="src/libs/tracing/images/rangeselected">
       <use
          x="0"
          y="0"
@@ -5947,7 +5947,7 @@
       <use
          x="0"
          y="0"
-         xlink:href="#src/libs/tracing/qml/ico_rangeselection"
+         xlink:href="#src/libs/tracing/images/rangeselection"
          id="use135"
          style="display:inline"
          transform="translate(-16)" />
@@ -5961,7 +5961,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/libs/tracing/qml/ico_selectionmode"
+       id="src/libs/tracing/images/selectionmode"
        clip-path="url(#clipPath6127)"
        transform="translate(31)">
       <use
@@ -5987,7 +5987,7 @@
        style="display:inline;fill:none;stroke:#000000;stroke-linejoin:round"
        d="m 1149,557.5 h 2.5 m -1.2672,9 L 1149,565 v -9 c 0,-1 0.5,-1.5 1.25,-1.5 0.75,0 1.25,0.5 1.25,1.5 v 9 z" />
     <g
-       id="src/libs/tracing/qml/ico_edit"
+       id="src/libs/tracing/images/edit"
        transform="translate(1)">
       <use
          x="0"

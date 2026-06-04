@@ -96,13 +96,13 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     const QIcon nextIcon = Utils::Icons::NEXT_TOOLBAR.icon();
     const QIcon zoomIcon = Utils::Icons::ZOOM_TOOLBAR.icon();
     const QIcon rangeSelIcon = Utils::Icon(
-        {{":/qt/qml/QtCreator/Tracing/ico_rangeselection.png",
+        {{":/tracing/images/rangeselection.png",
           Utils::Theme::IconsBaseColor}}).icon();
     const QIcon rangeSelActiveIcon = Utils::Icon(
-        {{":/qt/qml/QtCreator/Tracing/ico_rangeselected.png",
+        {{":/tracing/images/rangeselected.png",
           Utils::Theme::IconsBaseColor}}).icon();
     const QIcon lockIcon = Utils::Icon(
-        {{":/qt/qml/QtCreator/Tracing/ico_selectionmode.png",
+        {{":/tracing/images/selectionmode.png",
           Utils::Theme::IconsBaseColor}}).icon();
 
     auto prevAction = toolbar->addAction(prevIcon, tr("Jump to previous event"));

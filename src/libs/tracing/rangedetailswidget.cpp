@@ -150,7 +150,7 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     titleLayout->addWidget(m_titleLabel, 1);
 
     const QIcon editIcon = Utils::Icon(
-        {{":/qt/qml/QtCreator/Tracing/ico_edit.png", Utils::Theme::IconsBaseColor}}).icon();
+        {{":/tracing/images/edit.png", Utils::Theme::IconsBaseColor}}).icon();
     const QIcon lockOpenIcon = Utils::Icons::UNLOCKED_TOOLBAR.icon();
     const QIcon lockClosedIcon = Utils::Icons::LOCKED_TOOLBAR.icon();
     const QIcon arrowUpIcon = Utils::Icons::ARROW_UP.icon();

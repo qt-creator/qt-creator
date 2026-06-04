@@ -31,14 +31,14 @@ QtcLibrary {
     ]
 
     Group {
-        name: "Icons"
-        Qt.core.resourcePrefix: "qt/qml/QtCreator/Tracing/"
+        name: "images"
+        prefix: "images/"
         fileTags: "qt.core.resource_data"
         files: [
-            "qml/ico_edit.png", "qml/ico_edit@2x.png",
-            "qml/ico_rangeselected.png", "qml/ico_rangeselected@2x.png",
-            "qml/ico_rangeselection.png", "qml/ico_rangeselection@2x.png",
-            "qml/ico_selectionmode.png", "qml/ico_selectionmode@2x.png",
+            "edit.png", "edit@2x.png",
+            "rangeselected.png", "rangeselected@2x.png",
+            "rangeselection.png", "rangeselection@2x.png",
+            "selectionmode.png", "selectionmode@2x.png",
         ]
     }
 
