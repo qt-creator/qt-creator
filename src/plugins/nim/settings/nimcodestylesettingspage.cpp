@@ -135,7 +135,10 @@ private:
         return new NimCodeStyleEditor{codeStyle, parent};
     }
 
-    QString snippetGroupId() const final { return Constants::C_NIMSNIPPETSGROUP_ID; }
+    QString snippetGroupId() const final
+    {
+        return Constants::C_NIMSNIPPETSGROUP_ID;
+    }
 
     QString previewText() const final
     {
