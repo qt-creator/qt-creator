@@ -19,6 +19,7 @@
 #include "../icore.h"
 #include "../iversioncontrol.h"
 #include "../locator/ilocatorfilter.h"
+#include "../messagemanager.h"
 #include "../modemanager.h"
 #include "../outputpane.h"
 #include "../outputpanemanager.h"
@@ -32,7 +33,6 @@
 #include "ieditor.h"
 #include "ieditorfactory.h"
 #include "ieditorfactory_p.h"
-#include "messagemanager.h"
 #include "openeditorsview.h"
 #include "openeditorswindow.h"
 
