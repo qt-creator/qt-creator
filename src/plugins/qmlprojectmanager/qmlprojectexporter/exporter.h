@@ -14,7 +14,7 @@ class Exporter : public QObject
 
 public:
     Exporter(QmlBuildSystem *bs = nullptr);
-    virtual ~Exporter() = default;
+    ~Exporter() override = default;
 
     void updateMenuAction();
     void updateProject(QmlProject *project);

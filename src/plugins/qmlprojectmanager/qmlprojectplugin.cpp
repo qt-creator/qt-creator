@@ -238,7 +238,7 @@ class QmlProjectPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProjectManager.json")
 
 public:
-    ~QmlProjectPlugin()
+    ~QmlProjectPlugin() final
     {
         if (m_lastMessageBox)
             m_lastMessageBox->deleteLater();

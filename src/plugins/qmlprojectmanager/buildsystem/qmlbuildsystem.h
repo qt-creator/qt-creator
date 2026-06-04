@@ -24,7 +24,7 @@ class QMLPROJECTMANAGER_EXPORT QmlBuildSystem final : public ProjectExplorer::Bu
 
 public:
     explicit QmlBuildSystem(ProjectExplorer::BuildConfiguration *bc);
-    ~QmlBuildSystem() = default;
+    ~QmlBuildSystem() override = default;
 
     static QString name() { return "qml"; }
 

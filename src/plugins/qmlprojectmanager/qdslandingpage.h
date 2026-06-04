@@ -17,7 +17,7 @@ class QdsLandingPageWidget : public QWidget
 
 public:
     QdsLandingPageWidget(QWidget* parent = nullptr);
-    ~QdsLandingPageWidget();
+    ~QdsLandingPageWidget() override;
     QQuickWidget *widget();
 
 private:

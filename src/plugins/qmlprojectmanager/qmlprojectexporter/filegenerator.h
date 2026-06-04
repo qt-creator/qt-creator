@@ -23,7 +23,7 @@ public:
         ProjectExplorer::Task::TaskType type, const QString &text, const Utils::FilePath &file);
 
     FileGenerator(QmlBuildSystem *bs = nullptr);
-    virtual ~FileGenerator() = default;
+    ~FileGenerator() override = default;
 
     virtual void updateMenuAction() = 0;
     virtual void updateProject(QmlProject *project) = 0;
