@@ -64,11 +64,11 @@ private:
     void updateButtonStateRemoveAll();
     void removeSelected();
 
-    QPushButton *m_restoreGlobal;
-    RunSettingsWidget *m_runSettingsWidget;
-    QTreeView *m_diagnosticsView;
-    QPushButton *m_removeSelectedButton;
-    QPushButton *m_removeAllButton;
+    QPushButton m_restoreGlobal{Tr::tr("Restore Global Settings")};
+    RunSettingsWidget m_runSettingsWidget;
+    QTreeView m_diagnosticsView;
+    QPushButton m_removeSelectedButton{Tr::tr("Remove Selected")};
+    QPushButton m_removeAllButton{Tr::tr("Remove All")};
 
     std::shared_ptr<ClangToolsProjectSettings> const m_projectSettings;
     QCheckBox m_globalCheckBox;
@@ -79,20 +79,13 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     : m_projectSettings(ClangToolsProjectSettings::getSettings(project))
 {
     m_useGlobal = m_projectSettings->useGlobalSettings();
-    m_restoreGlobal = new QPushButton(Tr::tr("Restore Global Settings"));
 
     const auto gotoClangTidyModeLabel
             = new QLabel("<a href=\"target\">" + Tr::tr("Go to Clang-Tidy") + "</a>");
     const auto gotoClazyModeLabel
             = new QLabel("<a href=\"target\">" + Tr::tr("Go to Clazy") + "</a>");
 
-    m_runSettingsWidget = new ClangTools::Internal::RunSettingsWidget(this);
-
-    m_diagnosticsView = new QTreeView;
-    m_diagnosticsView->setSelectionMode(QAbstractItemView::SingleSelection);
-
-    m_removeSelectedButton = new QPushButton(Tr::tr("Remove Selected"), this);
-    m_removeAllButton = new QPushButton(Tr::tr("Remove All"));
+    m_diagnosticsView.setSelectionMode(QAbstractItemView::SingleSelection);
 
     m_globalCheckBox.setChecked(m_useGlobal);
     connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool useGlobal) {
@@ -108,18 +101,18 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
         },
         createHr(),
         Row {
-            m_restoreGlobal, st, gotoClangTidyModeLabel, gotoClazyModeLabel
+            &m_restoreGlobal, st, gotoClangTidyModeLabel, gotoClazyModeLabel
         },
 
-        m_runSettingsWidget,
+        &m_runSettingsWidget,
 
         Group {
             title(Tr::tr("Suppressed diagnostics")),
             Row {
-                m_diagnosticsView,
+                &m_diagnosticsView,
                 Column {
-                    m_removeSelectedButton,
-                    m_removeAllButton,
+                    &m_removeSelectedButton,
+                    &m_removeAllButton,
                     st
                 }
             }
@@ -133,8 +126,8 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     // Global settings
     connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
             this, [this] { onGlobalCustomChanged(m_useGlobal); });
-    connect(m_restoreGlobal, &QPushButton::clicked, this, [this] {
-        m_runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings);
+    connect(&m_restoreGlobal, &QPushButton::clicked, this, [this] {
+        m_runSettingsWidget.fromSettings(ClangToolsSettings::instance()->runSettings);
     });
 
     connect(gotoClangTidyModeLabel, &QLabel::linkActivated, [](const QString &) {
@@ -145,13 +138,13 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     });
 
     // Run options
-    connect(m_runSettingsWidget, &RunSettingsWidget::changed, this, [this] {
+    connect(&m_runSettingsWidget, &RunSettingsWidget::changed, this, [this] {
         // Save project run settings
-        m_runSettingsWidget->toSettings(m_projectSettings->runSettings);
+        m_runSettingsWidget.toSettings(m_projectSettings->runSettings);
 
         // Save global custom configs
         const CppEditor::ClangDiagnosticConfigs configs
-            = m_runSettingsWidget->diagnosticSelectionWidget()->customConfigs();
+            = m_runSettingsWidget.diagnosticSelectionWidget()->customConfigs();
         ClangToolsSettings::instance()->setDiagnosticConfigs(configs);
         ClangToolsSettings::instance()->writeSettings();
     });
@@ -164,15 +157,15 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
                     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
                     updateButtonStates();
             });
-    m_diagnosticsView->setModel(model);
+    m_diagnosticsView.setModel(model);
     updateButtonStates();
-    connect(m_diagnosticsView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+    connect(m_diagnosticsView.selectionModel(), &QItemSelectionModel::selectionChanged, this,
             [this](const QItemSelection &, const QItemSelection &) {
                 updateButtonStateRemoveSelected();
             });
-    connect(m_removeSelectedButton, &QAbstractButton::clicked,
+    connect(&m_removeSelectedButton, &QAbstractButton::clicked,
             this, [this](bool) { removeSelected(); });
-    connect(m_removeAllButton, &QAbstractButton::clicked,
+    connect(&m_removeAllButton, &QAbstractButton::clicked,
             this, [this](bool) { m_projectSettings->removeAllSuppressedDiagnostics();});
 }
 
@@ -180,9 +173,9 @@ void ClangToolsProjectSettingsWidget::onGlobalCustomChanged(bool useGlobal)
 {
     const RunSettings &runSettings = useGlobal ? ClangToolsSettings::instance()->runSettings
                                               : m_projectSettings->runSettings;
-    m_runSettingsWidget->fromSettings(runSettings);
-    m_runSettingsWidget->setEnabled(!useGlobal);
-    m_restoreGlobal->setEnabled(!useGlobal);
+    m_runSettingsWidget.fromSettings(runSettings);
+    m_runSettingsWidget.setEnabled(!useGlobal);
+    m_restoreGlobal.setEnabled(!useGlobal);
 
     m_projectSettings->setUseGlobalSettings(useGlobal);
 }
@@ -195,22 +188,22 @@ void ClangToolsProjectSettingsWidget::updateButtonStates()
 
 void ClangToolsProjectSettingsWidget::updateButtonStateRemoveSelected()
 {
-    const auto selectedRows = m_diagnosticsView->selectionModel()->selectedRows();
+    const auto selectedRows = m_diagnosticsView.selectionModel()->selectedRows();
     QTC_ASSERT(selectedRows.count() <= 1, return);
-    m_removeSelectedButton->setEnabled(!selectedRows.isEmpty());
+    m_removeSelectedButton.setEnabled(!selectedRows.isEmpty());
 }
 
 void ClangToolsProjectSettingsWidget::updateButtonStateRemoveAll()
 {
-    m_removeAllButton->setEnabled(m_diagnosticsView->model()->rowCount() > 0);
+    m_removeAllButton.setEnabled(m_diagnosticsView.model()->rowCount() > 0);
 }
 
 void ClangToolsProjectSettingsWidget::removeSelected()
 {
-    const auto selectedRows = m_diagnosticsView->selectionModel()->selectedRows();
+    const auto selectedRows = m_diagnosticsView.selectionModel()->selectedRows();
     QTC_ASSERT(selectedRows.count() == 1, return);
     const auto * const model
-            = static_cast<SuppressedDiagnosticsModel *>(m_diagnosticsView->model());
+            = static_cast<SuppressedDiagnosticsModel *>(m_diagnosticsView.model());
     m_projectSettings->removeSuppressedDiagnostic(model->diagnosticAt(selectedRows.first().row()));
 }
 

@@ -42,18 +42,15 @@ private:
 
     Project *m_project;
     QCheckBox m_globalCheckBox;
-    QListWidget *m_excludedPatternsList;
-    QPushButton *m_removeExcludedPatternButton;
+    QListWidget m_excludedPatternsList;
+    QPushButton m_removeExcludedPatternButton{Tr::tr("Remove")};
 };
 
 TodoProjectPanelWidget::TodoProjectPanelWidget(Project *project)
     : m_project(project)
 {
-    m_excludedPatternsList = new QListWidget;
-    m_excludedPatternsList->setSortingEnabled(true);
-    m_excludedPatternsList->setToolTip(Tr::tr("Regular expressions for file paths to be excluded from scanning."));
-
-    m_removeExcludedPatternButton = new QPushButton(Tr::tr("Remove"));
+    m_excludedPatternsList.setSortingEnabled(true);
+    m_excludedPatternsList.setToolTip(Tr::tr("Regular expressions for file paths to be excluded from scanning."));
 
     auto addExcludedPatternButton = new QPushButton(Tr::tr("Add"));
 
@@ -65,10 +62,10 @@ TodoProjectPanelWidget::TodoProjectPanelWidget(Project *project)
         Group {
             title(Tr::tr("Excluded Files")),
             Row {
-                m_excludedPatternsList,
+                &m_excludedPatternsList,
                 Column {
                     addExcludedPatternButton,
-                    m_removeExcludedPatternButton,
+                    &m_removeExcludedPatternButton,
                     st
                 }
             }
@@ -80,11 +77,11 @@ TodoProjectPanelWidget::TodoProjectPanelWidget(Project *project)
             &QPushButton::clicked,
             this,
             &TodoProjectPanelWidget::addExcludedPatternButtonClicked);
-    connect(m_removeExcludedPatternButton, &QPushButton::clicked,
+    connect(&m_removeExcludedPatternButton, &QPushButton::clicked,
             this, &TodoProjectPanelWidget::removeExcludedPatternButtonClicked);
-    connect(m_excludedPatternsList, &QListWidget::itemChanged,
+    connect(&m_excludedPatternsList, &QListWidget::itemChanged,
             this, &TodoProjectPanelWidget::excludedPatternChanged, Qt::QueuedConnection);
-    connect(m_excludedPatternsList, &QListWidget::itemSelectionChanged,
+    connect(&m_excludedPatternsList, &QListWidget::itemSelectionChanged,
             this, &TodoProjectPanelWidget::setExcludedPatternsButtonsEnabled);
 
     loadSettings();
@@ -95,7 +92,7 @@ QListWidgetItem *TodoProjectPanelWidget::addToExcludedPatternsList(const QString
     auto item = new QListWidgetItem(pattern);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     prepareItem(item);
-    m_excludedPatternsList->addItem(item);
+    m_excludedPatternsList.addItem(item);
     return item;
 }
 
@@ -103,7 +100,7 @@ void TodoProjectPanelWidget::loadSettings()
 {
     QVariant s = m_project->namedSettings(Constants::SETTINGS_NAME_KEY);
     QVariantMap settings = s.toMap();
-    m_excludedPatternsList->clear();
+    m_excludedPatternsList.clear();
     for (const QVariant &pattern : settings[Constants::EXCLUDES_LIST_KEY].toList())
         addToExcludedPatternsList(pattern.toString());
 }
@@ -113,8 +110,8 @@ void TodoProjectPanelWidget::saveSettings()
     QVariantMap settings;
     QVariantList excludes;
 
-    for (int i = 0; i < m_excludedPatternsList->count(); ++i)
-        excludes << m_excludedPatternsList->item(i)->text();
+    for (int i = 0; i < m_excludedPatternsList.count(); ++i)
+        excludes << m_excludedPatternsList.item(i)->text();
 
     settings[Constants::EXCLUDES_LIST_KEY] = excludes;
 
@@ -126,40 +123,40 @@ void TodoProjectPanelWidget::saveSettings()
 void TodoProjectPanelWidget::prepareItem(QListWidgetItem *item) const
 {
     if (QRegularExpression(item->text()).isValid())
-        item->setForeground(QBrush(m_excludedPatternsList->palette().color(QPalette::Active, QPalette::Text)));
+        item->setForeground(QBrush(m_excludedPatternsList.palette().color(QPalette::Active, QPalette::Text)));
     else
         item->setForeground(QBrush(Qt::red));
 }
 
 void TodoProjectPanelWidget::addExcludedPatternButtonClicked()
 {
-    if (!m_excludedPatternsList->findItems(excludePlaceholder(), Qt::MatchFixedString).isEmpty())
+    if (!m_excludedPatternsList.findItems(excludePlaceholder(), Qt::MatchFixedString).isEmpty())
         return;
-    m_excludedPatternsList->editItem(addToExcludedPatternsList(excludePlaceholder()));
+    m_excludedPatternsList.editItem(addToExcludedPatternsList(excludePlaceholder()));
 }
 
 void TodoProjectPanelWidget::removeExcludedPatternButtonClicked()
 {
-    delete m_excludedPatternsList->takeItem(m_excludedPatternsList->currentRow());
+    delete m_excludedPatternsList.takeItem(m_excludedPatternsList.currentRow());
     saveSettings();
 }
 
 void TodoProjectPanelWidget::setExcludedPatternsButtonsEnabled()
 {
-    const bool isSomethingSelected = !m_excludedPatternsList->selectedItems().isEmpty();
-    m_removeExcludedPatternButton->setEnabled(isSomethingSelected);
+    const bool isSomethingSelected = !m_excludedPatternsList.selectedItems().isEmpty();
+    m_removeExcludedPatternButton.setEnabled(isSomethingSelected);
 }
 
 void TodoProjectPanelWidget::excludedPatternChanged(QListWidgetItem *item)
 {
     if (item->text().isEmpty() || item->text() == excludePlaceholder()) {
-        m_excludedPatternsList->removeItemWidget(item);
+        m_excludedPatternsList.removeItemWidget(item);
         delete item;
     } else {
         prepareItem(item);
     }
     saveSettings();
-    m_excludedPatternsList->setCurrentItem(nullptr);
+    m_excludedPatternsList.setCurrentItem(nullptr);
 }
 
 class TodoProjectPanelFactory final : public ProjectPanelFactory

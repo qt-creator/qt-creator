@@ -158,18 +158,17 @@ class VcpkgSettingsWidget : public QWidget
 {
 public:
     explicit VcpkgSettingsWidget(Project *project)
-        : m_widget(new QWidget)
-        , m_displayedSettings(project, true)
+        : m_displayedSettings(project, true)
     {
         const bool initial = m_displayedSettings.useGlobalSettings;
 
         if (auto layouter = m_displayedSettings.layouter())
-            layouter().attachTo(m_widget);
-        m_widget->setEnabled(!initial);
+            layouter().attachTo(&m_widget);
+        m_widget.setEnabled(!initial);
 
         m_globalCheckBox.setChecked(initial);
         connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this, project](bool useGlobal) {
-            m_widget->setEnabled(!useGlobal);
+            m_widget.setEnabled(!useGlobal);
             m_displayedSettings.useGlobalSettings = useGlobal;
             if (project) {
                 VcpkgSettings *projSettings = projectSettings(project);
@@ -184,7 +183,7 @@ public:
         Column {
             Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID), st },
             createHr(),
-            m_widget,
+            &m_widget,
             noMargin,
         }.attachTo(this);
 
@@ -214,7 +213,7 @@ public:
         }
     }
 
-    QWidget *m_widget = nullptr;
+    QWidget m_widget;
     QCheckBox m_globalCheckBox;
     VcpkgSettings m_displayedSettings;
 };
