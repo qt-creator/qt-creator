@@ -18,6 +18,7 @@ static JsonRpcInspector::Settings makeSettings()
     JsonRpcInspector::Settings s;
     s.windowTitle = Tr::tr("MCP Server Inspector");
     s.endpointLabel = Tr::tr("Session:");
+    s.defaultExpandedKeys = {"params", "result", "error"};
     s.registerWindow = [](QWidget *widget) {
         Core::ICore::registerWindow(widget, Core::Context("McpClient.Inspector"));
         QObject::connect(

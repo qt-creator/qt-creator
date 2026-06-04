@@ -66,6 +66,11 @@ public:
         QString endpointLabel; // e.g. "Language Server:", "Session:", "ACP Client:"
         int maxLogSize = 100;
 
+        // JSON member names that are expanded by default when a message is shown in the
+        // detail tree (e.g. {"params", "result"}). The implicit top-level node is always
+        // expanded when this is non-empty so the message's members become visible.
+        QStringList defaultExpandedKeys;
+
         // Utils cannot depend on Core, so the owner registers the dialog as an application
         // window (Core::ICore::registerWindow, close on coreAboutToClose) via this hook.
         std::function<void(QWidget *)> registerWindow;

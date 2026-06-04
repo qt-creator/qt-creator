@@ -246,6 +246,7 @@ static JsonRpcInspector::Settings makeSettings(LspInspector *self)
     JsonRpcInspector::Settings s;
     s.windowTitle = Tr::tr("Language Client Inspector");
     s.endpointLabel = Tr::tr("Language Server:");
+    s.defaultExpandedKeys = {"params", "result", "error"};
     s.registerWindow = [](QWidget *widget) {
         Core::ICore::registerWindow(widget, Core::Context("LanguageClient.Inspector"));
         QObject::connect(

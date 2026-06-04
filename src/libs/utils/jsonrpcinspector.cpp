@@ -19,6 +19,7 @@
 #include <QJsonDocument>
 #include <QListView>
 #include <QPushButton>
+#include <QSet>
 #include <QSplitter>
 #include <QStyledItemDelegate>
 #include <QTabWidget>
@@ -83,7 +84,8 @@ static QTreeView *createJsonTreeView()
 class MessageDetailWidget : public QGroupBox
 {
 public:
-    MessageDetailWidget()
+    explicit MessageDetailWidget(const QStringList &defaultExpandedKeys)
+        : m_expandedKeys(defaultExpandedKeys.cbegin(), defaultExpandedKeys.cend())
     {
         auto layout = new QVBoxLayout;
         setLayout(layout);
@@ -96,6 +98,8 @@ public:
         if (m_jsonTree->model())
             m_jsonTree->model()->deleteLater();
         m_jsonTree->setModel(createJsonModel("content", message.message));
+        if (!m_expandedKeys.isEmpty())
+            expandDefault({});
     }
 
     void clear()
@@ -106,7 +110,27 @@ public:
     }
 
 private:
+    // Expand the implicit top-level node, then any descendant whose member name is in
+    // m_expandedKeys. Expanding an index triggers the model's lazy fetchMore(), so the
+    // children of a matched node become available before recursing into them.
+    void expandDefault(const QModelIndex &parent)
+    {
+        QAbstractItemModel *model = m_jsonTree->model();
+        if (!model)
+            return;
+        for (int row = 0, count = model->rowCount(parent); row < count; ++row) {
+            const QModelIndex index = model->index(row, 0, parent);
+            const bool expand = !parent.isValid() // the implicit "content" wrapper node
+                                || m_expandedKeys.contains(index.data(Qt::DisplayRole).toString());
+            if (expand) {
+                m_jsonTree->expand(index);
+                expandDefault(index);
+            }
+        }
+    }
+
     QTreeView *m_jsonTree = nullptr;
+    const QSet<QString> m_expandedKeys;
 };
 
 // --- LogWidget ---
@@ -123,11 +147,11 @@ static QVariant messageData(const JsonRpcLogMessage &message, int, int role)
 class LogWidget : public QSplitter
 {
 public:
-    LogWidget()
+    explicit LogWidget(const QStringList &defaultExpandedKeys)
     {
         setOrientation(Qt::Horizontal);
 
-        m_clientDetails = new MessageDetailWidget;
+        m_clientDetails = new MessageDetailWidget(defaultExpandedKeys);
         m_clientDetails->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         m_clientDetails->setTitle(Tr::tr("Client Message"));
         addWidget(m_clientDetails);
@@ -143,7 +167,7 @@ public:
         addWidget(m_messages);
         setStretchFactor(1, 0);
 
-        m_serverDetails = new MessageDetailWidget;
+        m_serverDetails = new MessageDetailWidget(defaultExpandedKeys);
         m_serverDetails->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         m_serverDetails->setTitle(Tr::tr("Server Message"));
         addWidget(m_serverDetails);
@@ -255,7 +279,7 @@ public:
         m_endpoints->addItem(Tr::tr("<Select>"));
         m_endpoints->addItems(inspector->endpoints());
 
-        m_logWidget = new LogWidget;
+        m_logWidget = new LogWidget(settings.defaultExpandedKeys);
 
         QWidget *header = settings.headerWidget ? settings.headerWidget(m_endpoints) : nullptr;
 
