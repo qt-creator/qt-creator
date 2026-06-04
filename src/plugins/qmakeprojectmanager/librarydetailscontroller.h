@@ -101,9 +101,9 @@ public:
     bool isComplete() const override;
     QString snippet() const override;
 protected:
-    AddLibraryWizard::LinkageType suggestedLinkageType() const override final;
-    AddLibraryWizard::MacLibraryType suggestedMacLibraryType() const override final;
-    QString suggestedIncludePath() const override final;
+    AddLibraryWizard::LinkageType suggestedLinkageType() const override;
+    AddLibraryWizard::MacLibraryType suggestedMacLibraryType() const override;
+    QString suggestedIncludePath() const override;
     void updateWindowsOptionsEnablement() override;
 private:
     void handleLinkageTypeChange();
@@ -126,7 +126,7 @@ public:
     bool isComplete() const override;
     QString snippet() const override;
 protected:
-    void updateWindowsOptionsEnablement() override final {
+    void updateWindowsOptionsEnablement() override {
         NonInternalLibraryDetailsController::updateWindowsOptionsEnablement();
     }
 private:
@@ -141,7 +141,7 @@ public:
                                             const Utils::FilePath &proFile,
                                             QObject *parent = nullptr);
 protected:
-    void updateWindowsOptionsEnablement() override final {
+    void updateWindowsOptionsEnablement() override {
         NonInternalLibraryDetailsController::updateWindowsOptionsEnablement();
     }
 };
@@ -154,7 +154,7 @@ public:
                                               const Utils::FilePath &proFile,
                                               QObject *parent = nullptr);
 protected:
-    void updateWindowsOptionsEnablement() override final;
+    void updateWindowsOptionsEnablement() override;
 };
 
 class InternalLibraryDetailsController : public LibraryDetailsController
@@ -167,10 +167,10 @@ public:
     bool isComplete() const override;
     QString snippet() const override;
 protected:
-    AddLibraryWizard::LinkageType suggestedLinkageType() const override final;
-    AddLibraryWizard::MacLibraryType suggestedMacLibraryType() const override final;
-    QString suggestedIncludePath() const override final;
-    void updateWindowsOptionsEnablement() override final;
+    AddLibraryWizard::LinkageType suggestedLinkageType() const override;
+    AddLibraryWizard::MacLibraryType suggestedMacLibraryType() const override;
+    QString suggestedIncludePath() const override;
+    void updateWindowsOptionsEnablement() override;
 private:
     void slotCurrentLibraryChanged();
     void updateProFile();

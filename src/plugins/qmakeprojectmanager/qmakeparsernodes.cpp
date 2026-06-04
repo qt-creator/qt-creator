@@ -75,12 +75,12 @@ public:
     FilePath projectFilePath;
     FilePath buildDirectory;
     FilePath sysroot;
-    QtSupport::ProFileReader *readerExact;
-    QtSupport::ProFileReader *readerCumulative;
-    QMakeGlobals *qmakeGlobals;
-    QMakeVfs *qmakeVfs;
+    QtSupport::ProFileReader *readerExact = nullptr;
+    QtSupport::ProFileReader *readerCumulative = nullptr;
+    QMakeGlobals *qmakeGlobals = nullptr;
+    QMakeVfs *qmakeVfs = nullptr;
     QSet<FilePath> parentFilePaths;
-    bool includedInExcactParse;
+    bool includedInExcactParse = false;
 };
 
 class QmakePriFileEvalResult
@@ -95,7 +95,7 @@ public:
 class QmakeIncludedPriFile
 {
 public:
-    ProFile *proFile;
+    ProFile *proFile = nullptr;
     FilePath name;
     QmakePriFileEvalResult result;
     bool fromExactParse = true;
@@ -113,8 +113,8 @@ public:
     ~QmakeEvalResult() { qDeleteAll(directChildren); }
 
     enum EvalResultState { EvalAbort, EvalFail, EvalPartial, EvalOk };
-    EvalResultState state;
-    ProjectType projectType;
+    EvalResultState state = EvalOk;
+    ProjectType projectType = ProjectType::Invalid;
 
     FilePaths subProjectsNotToDeploy;
     QSet<FilePath> exactSubdirs;
@@ -1104,7 +1104,7 @@ QByteArray QmakeProFile::cxxDefines() const
         // 'def' is shell input, so interpret it.
         ProcessArgs::SplitError error = ProcessArgs::SplitOk;
         const QStringList args = ProcessArgs::splitArgs(def, HostOsInfo::hostOs(), false, &error);
-        if (error != ProcessArgs::SplitOk || args.size() == 0)
+        if (error != ProcessArgs::SplitOk || args.isEmpty())
             continue;
 
         result += "#define ";

@@ -46,7 +46,7 @@ private:
 
     bool m_scriptTarget = false;
     FilePath m_makeFileToCheck;
-    bool m_unalignedBuildDir;
+    bool m_unalignedBuildDir = false;
     bool m_ignoredNonTopLevelBuild = false;
 };
 

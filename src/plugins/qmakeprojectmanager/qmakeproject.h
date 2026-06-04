@@ -53,7 +53,7 @@ class QmakeBuildSystem final : public ProjectExplorer::BuildSystem
 
 public:
     explicit QmakeBuildSystem(ProjectExplorer::BuildConfiguration *bc);
-    ~QmakeBuildSystem();
+    ~QmakeBuildSystem() override;
 
     static QString name() { return "qmake"; }
 

@@ -44,7 +44,7 @@ public:
     static Utils::Result<> qt4ProjectPostGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l);
 
 private:
-    Utils::Result<> postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l) const;
+    Utils::Result<> postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l) const override;
 };
 
 // A custom wizard with an additional Qt 4 target page

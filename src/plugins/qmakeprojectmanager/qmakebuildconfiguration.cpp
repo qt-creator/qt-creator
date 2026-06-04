@@ -241,8 +241,6 @@ void QmakeBuildConfiguration::updateProblemLabel()
         const QString makeFile = this->makefile().isEmpty() ? "Makefile" : makefile().path();
         switch (compareToImportFrom(buildDirectory() / makeFile, &errorString)) {
         case QmakeBuildConfiguration::MakefileMatches:
-            allGood = true;
-            break;
         case QmakeBuildConfiguration::MakefileMissing:
             allGood = true;
             break;
@@ -436,21 +434,21 @@ QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 
 QMakeStep *QmakeBuildConfiguration::qmakeStep() const
 {
-    QMakeStep *qs = nullptr;
     BuildStepList *bsl = buildSteps();
-    for (int i = 0; i < bsl->count(); ++i)
-        if ((qs = qobject_cast<QMakeStep *>(bsl->at(i))) != nullptr)
+    for (int i = 0; i < bsl->count(); ++i) {
+        if (QMakeStep *qs = qobject_cast<QMakeStep *>(bsl->at(i)))
             return qs;
+    }
     return nullptr;
 }
 
 MakeStep *QmakeBuildConfiguration::makeStep() const
 {
-    MakeStep *ms = nullptr;
     BuildStepList *bsl = buildSteps();
-    for (int i = 0; i < bsl->count(); ++i)
-        if ((ms = qobject_cast<MakeStep *>(bsl->at(i))) != nullptr)
+    for (int i = 0; i < bsl->count(); ++i) {
+        if (MakeStep *ms = qobject_cast<MakeStep *>(bsl->at(i)))
             return ms;
+    }
     return nullptr;
 }
 

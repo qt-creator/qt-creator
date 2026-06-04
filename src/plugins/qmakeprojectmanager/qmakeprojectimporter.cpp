@@ -53,7 +53,7 @@ struct DirectoryData
     QtVersion::QmakeBuildConfigs buildConfig;
     QString additionalArguments;
     QMakeStepConfig config;
-    QMakeStepConfig::OsType osType;
+    QMakeStepConfig::OsType osType = QMakeStepConfig::NoOsType;
 };
 
 QmakeProjectImporter::QmakeProjectImporter(const FilePath &path) :

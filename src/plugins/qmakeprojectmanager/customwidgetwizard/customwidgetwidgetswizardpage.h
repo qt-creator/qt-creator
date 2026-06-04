@@ -21,8 +21,6 @@ class ClassDefinition;
 class ClassList;
 struct PluginOptions;
 
-namespace Ui { class CustomWidgetWidgetsWizardPage; }
-
 class CustomWidgetWidgetsWizardPage : public QWizardPage
 {
     Q_OBJECT
