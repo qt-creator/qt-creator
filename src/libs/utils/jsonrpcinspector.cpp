@@ -16,7 +16,9 @@
 #include <QDialogButtonBox>
 #include <QGroupBox>
 #include <QHeaderView>
+#include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QListView>
 #include <QPushButton>
 #include <QSet>
@@ -190,22 +192,21 @@ public:
 
     void saveLog()
     {
-        QString contents;
-        QTextStream stream(&contents);
+        QJsonArray entries;
         m_model.forAllData([&](const JsonRpcLogMessage &message) {
-            stream << message.time.toString("hh:mm:ss.zzz") << ' ';
-            stream << (message.sender == JsonRpcLogMessage::ClientMessage ? QString{"Client"}
-                                                                          : QString{"Server"});
-            stream << '\n';
-            stream << QJsonDocument(message.message).toJson();
-            stream << "\n\n";
+            QJsonObject entry;
+            entry["time"] = message.time.toString("hh:mm:ss.zzz");
+            entry["sender"] = message.sender == JsonRpcLogMessage::ClientMessage ? QString{"Client"}
+                                                                                 : QString{"Server"};
+            entry["message"] = message.message;
+            entries.append(entry);
         });
 
         const FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Log File"));
         if (filePath.isEmpty())
             return;
         FileSaver saver(filePath, QIODevice::Text);
-        saver.write(contents.toUtf8());
+        saver.write(QJsonDocument(entries).toJson());
         if (const Result<> res = saver.finalize(); !res) {
             FileUtils::showError(res.error());
             saveLog();
