@@ -124,7 +124,7 @@ void QmlPreviewConnectionManager::createPreviewClient()
     // Maybe we are starting after a hot reload failure, so we already have the events
     // to replay in the plugin. In that case, we want to set them to the client, so that
     // they can be replayed as soon as the configuration is confirmed.
-    if (plugin->events().size() > 0) {
+    if (!plugin->events().isEmpty()) {
         m_qmlPreviewClient->setEvents(plugin->events());
         m_qmlPreviewClient->setEventTypes(plugin->eventTypes());
         plugin->setEvents({});

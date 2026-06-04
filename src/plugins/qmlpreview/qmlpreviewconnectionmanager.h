@@ -23,7 +23,7 @@ class QmlPreviewConnectionManager : public QmlDebug::QmlDebugConnectionManager
 {
     Q_OBJECT
 public:
-    virtual ~QmlPreviewConnectionManager();
+    ~QmlPreviewConnectionManager() override;
 
     explicit QmlPreviewConnectionManager(QObject *parent = nullptr);
     void setBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);

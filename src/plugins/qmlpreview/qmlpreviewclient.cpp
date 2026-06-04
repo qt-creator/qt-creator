@@ -184,7 +184,7 @@ void QmlPreviewClient::configureEventReplay()
     });
 
     // We want to start the replay as soon as possible after the configuration is confirmed.
-    if (m_events.size() > 0 && m_replayClient && m_replayClient->state() == QmlDebugClient::Enabled)
+    if (!m_events.isEmpty() && m_replayClient && m_replayClient->state() == QmlDebugClient::Enabled)
         replayEventsForUrl(QUrl(), m_events, m_eventTypes);
 }
 
