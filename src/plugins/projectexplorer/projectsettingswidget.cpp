@@ -12,8 +12,6 @@
 
 namespace ProjectExplorer {
 
-const int CONTENTS_MARGIN = 5;
-
 QWidget *createGlobalSettingsLink(Utils::Id globalId)
 {
     const auto label = new QLabel(R"(<a href="dummy">Global settings</a>)");
@@ -22,9 +20,9 @@ QWidget *createGlobalSettingsLink(Utils::Id globalId)
     });
     using namespace Layouting;
     return Column {
-        Row { label, st, customMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN), spacing(CONTENTS_MARGIN) },
+        Row { label, st },
         createHr(),
-        noMargin, spacing(0),
+        noMargin,
     }.emerge();
 }
 
@@ -51,11 +49,9 @@ QWidget *createGlobalOrProjectSelector(
 
     using namespace Layouting;
     return Column {
-        Row { checkBox, label, st,
-              customMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN),
-              spacing(CONTENTS_MARGIN) },
+        Row { checkBox, label, st },
         createHr(),
-        noMargin, spacing(0),
+        noMargin,
     }.emerge();
 }
 
