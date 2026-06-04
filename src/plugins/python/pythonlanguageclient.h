@@ -22,7 +22,7 @@ class PyLSClient : public LanguageClient::Client
     Q_OBJECT
 public:
     explicit PyLSClient(PyLSInterface *interface);
-    ~PyLSClient();
+    ~PyLSClient() override;
 
     void openDocument(TextEditor::TextDocument *document) override;
     void buildConfigurationClosed(ProjectExplorer::BuildConfiguration *bc) override;

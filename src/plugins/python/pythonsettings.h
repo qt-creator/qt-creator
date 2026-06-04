@@ -19,7 +19,7 @@ class PythonSettings : public QObject
 
 public:
     PythonSettings();
-    ~PythonSettings();
+    ~PythonSettings() override;
 
     using Interpreter = ProjectExplorer::Interpreter;
 

@@ -57,8 +57,7 @@ static TextEditor::TextStyle styleForFormat(int format)
     case Format_Identifier: return C_TEXT;
     case Format_Whitespace: return C_VISUAL_WHITESPACE;
     case Format_ImportedModule: return C_STRING;
-    case Format_LParen: return C_OPERATOR;
-    case Format_RParen: return C_OPERATOR;
+    case Format_LParen: case Format_RParen: return C_OPERATOR;
     case Format_FormatsAmount:
         QTC_CHECK(false); // should never get here
         return C_TEXT;

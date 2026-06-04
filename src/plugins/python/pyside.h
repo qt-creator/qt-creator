@@ -36,7 +36,7 @@ signals:
 
 private:
     PySideInstaller();
-    ~PySideInstaller();
+    ~PySideInstaller() override;
 
     void handlePySideMissing(const Utils::FilePath &python,
                              const QString &pySide,
