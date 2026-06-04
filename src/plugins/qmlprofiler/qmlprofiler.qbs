@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "QmlProfiler"
 
-    Depends { name: "Qt"; submodules: ["widgets", "network", "quick", "quickwidgets"] }
+    Depends { name: "Qt"; submodules: ["widgets", "network"] }
 
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
@@ -55,13 +55,6 @@ QtcPlugin {
             "quick3dframemodel.cpp", "quick3dframemodel.h",
             "scenegraphtimelinemodel.cpp", "scenegraphtimelinemodel.h",
         ]
-    }
-
-    Group {
-        name: "Qml Files"
-        Qt.core.resourcePrefix: "qt/qml/QtCreator/QmlProfiler/"
-        fileTags: "qt.core.resource_data"
-        files: "qml/**"
     }
 
     QtcTestFiles {

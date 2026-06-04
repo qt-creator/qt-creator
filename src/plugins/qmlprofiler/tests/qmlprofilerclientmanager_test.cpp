@@ -9,7 +9,6 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QLocalSocket>
-#include <QQmlDebuggingEnabler>
 
 #include <QTest>
 #include <QSignalSpy>

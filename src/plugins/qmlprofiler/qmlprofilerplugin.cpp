@@ -24,12 +24,6 @@
 #include "tests/qmlprofilertool_test.h"
 #include "tests/qmlprofilertraceview_test.h"
 
-// Force QML Debugging to be enabled, so that we can selftest the profiler
-#define QT_QML_DEBUG_NO_WARNING
-#include <QQmlDebuggingEnabler>
-#include <QQmlEngine>
-#undef QT_QML_DEBUG_NO_WARNING
-
 #endif // WITH_TESTS
 
 #include <extensionsystem/iplugin.h>
@@ -69,8 +63,6 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerDetailsRewriterTest>();
         addTest<QmlProfilerToolTest>();
         addTest<QmlProfilerTraceViewTest>();
-
-        addTest<QQmlEngine>(); // Trigger debug connector to be started
 #endif
     }
 
