@@ -113,7 +113,10 @@ static bool sessionModeEnabled()
 
 static const QList<TextEditor::TextDocument *> allCppDocuments()
 {
-    const auto isCppDocument = Utils::equal(&IDocument::id, Id(CppEditor::Constants::CPPEDITOR_ID));
+    const LanguageFilter filter = ClangdClient::supportedLanguage();
+    const auto isCppDocument = [&filter](IDocument *doc) {
+        return doc->id() == CppEditor::Constants::CPPEDITOR_ID && filter.isSupported(doc);
+    };
     const QList<IDocument *> documents = Utils::filtered(DocumentModel::openedDocuments(),
                                                          isCppDocument);
     return Utils::qobject_container_cast<TextEditor::TextDocument *>(documents);
@@ -935,7 +938,8 @@ void ClangModelManagerSupport::onEditorOpened(IEditor *editor)
     QTC_ASSERT(document, return);
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
-    if (textDocument && CppModelManager::isCppEditor(editor)) {
+    if (textDocument && CppModelManager::isCppEditor(editor)
+        && ClangdClient::supportedLanguage().isSupported(document)) {
         connectToWidgetsMarkContextMenuRequested(editor->widget());
 
         Project * project = ProjectManager::projectForFile(document->filePath());

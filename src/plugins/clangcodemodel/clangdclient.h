@@ -51,6 +51,8 @@ public:
                  const Utils::Id &id = {});
     ~ClangdClient() override;
 
+    static LanguageClient::LanguageFilter supportedLanguage();
+
     bool isFullyIndexed() const;
     QVersionNumber versionNumber() const;
     CppEditor::ClangdSettings::Data settingsData() const;
