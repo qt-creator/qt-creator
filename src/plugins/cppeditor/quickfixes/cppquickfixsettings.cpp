@@ -20,7 +20,6 @@
 
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -738,24 +737,22 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *proj
     m_projectSettings = CppQuickFixProjectsSettings::getSettings(project);
 
     m_pushButton = new QPushButton(this);
-
-    auto gridLayout = new QGridLayout(this);
-    gridLayout->setContentsMargins(0, 0, 0, 0);
-    gridLayout->addWidget(createGlobalOrProjectSelector(this,
-        m_projectSettings->isUsingGlobalSettings(),
-        CppEditor::Constants::QUICK_FIX_SETTINGS_ID,
-        [this](bool useGlobal) { currentItemChanged(useGlobal); },
-        &m_globalCheckBox), 0, 0, 1, 2);
-    gridLayout->addWidget(m_pushButton, 1, 0, 1, 1);
-    auto layout = new QVBoxLayout();
-    gridLayout->addLayout(layout, 2, 0, 1, 2);
-
     m_settingsWidget = new CppQuickFixSettingsWidget;
     m_settingsWidget->loadSettings(m_projectSettings->getSettings());
+    if (QLayout *l = m_settingsWidget->layout())
+        l->setContentsMargins(0, 0, 0, 0);
 
-    if (QLayout *layout = m_settingsWidget->layout())
-        layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_settingsWidget);
+    using namespace Layouting;
+    Column {
+        createGlobalOrProjectSelector(this,
+            m_projectSettings->isUsingGlobalSettings(),
+            CppEditor::Constants::QUICK_FIX_SETTINGS_ID,
+            [this](bool useGlobal) { currentItemChanged(useGlobal); },
+            &m_globalCheckBox),
+        Row { m_pushButton, st },
+        m_settingsWidget,
+        noMargin,
+    }.attachTo(this);
 
     currentItemChanged(m_projectSettings->isUsingGlobalSettings());
 

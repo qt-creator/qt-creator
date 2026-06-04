@@ -14,7 +14,6 @@
 
 #include <utils/layoutbuilder.h>
 
-#include <QVBoxLayout>
 
 using namespace TextEditor;
 using namespace Utils;
@@ -45,22 +44,24 @@ public:
 
         m_useGlobal = useGlobal;
 
-        const auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
         auto *inner = new QWidget;
         m_displayedSettings.layouter()().attachTo(inner);
         inner->setEnabled(!useGlobal);
 
-        layout->addWidget(createGlobalOrProjectSelector(this, useGlobal,
-            TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS,
-            [this, inner](bool ug) {
-                m_useGlobal = ug;
-                inner->setEnabled(!ug);
-                if (ug)
-                    m_displayedSettings.copyFrom(globalCommentsSettings());
-                saveSettings(ug);
-            }));
-        layout->addWidget(inner);
+        using namespace Layouting;
+        Column {
+            createGlobalOrProjectSelector(this, useGlobal,
+                TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS,
+                [this, inner](bool ug) {
+                    m_useGlobal = ug;
+                    inner->setEnabled(!ug);
+                    if (ug)
+                        m_displayedSettings.copyFrom(globalCommentsSettings());
+                    saveSettings(ug);
+                }),
+            inner,
+            noMargin,
+        }.attachTo(this);
 
         connect(&globalCommentsSettings(), &CommentsSettings::changed,
                 this, [this] {

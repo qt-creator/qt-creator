@@ -41,7 +41,6 @@
 #include <QStandardPaths>
 #include <QStringListModel>
 #include <QTimer>
-#include <QVBoxLayout>
 #include <QVersionNumber>
 
 #include <limits>
@@ -1071,18 +1070,20 @@ public:
 
         m_widget.setup(settings(), true);
 
-        const auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(createGlobalOrProjectSelector(this, m_useGlobalSettings,
-            Constants::CPP_CLANGD_SETTINGS_ID,
-            [this](bool checked) {
-                m_widget.setEnabled(!checked);
-                setUseGlobalSettings(checked);
-                if (!checked)
-                    setSettings(m_widget.settingsData());
-            },
-            &m_globalCheckBox));
-        layout->addWidget(&m_widget);
+        using namespace Layouting;
+        Column {
+            createGlobalOrProjectSelector(this, m_useGlobalSettings,
+                Constants::CPP_CLANGD_SETTINGS_ID,
+                [this](bool checked) {
+                    m_widget.setEnabled(!checked);
+                    setUseGlobalSettings(checked);
+                    if (!checked)
+                        setSettings(m_widget.settingsData());
+                },
+                &m_globalCheckBox),
+            &m_widget,
+            noMargin,
+        }.attachTo(this);
 
         const auto updateGlobalSettingsCheckBox = [this] {
             if (ClangdSettings::instance().data().isSessionMode()) {

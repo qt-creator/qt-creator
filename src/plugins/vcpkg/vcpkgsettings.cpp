@@ -22,7 +22,6 @@
 #include <QDesktopServices>
 #include <QToolButton>
 #include <QVariant>
-#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -164,27 +163,28 @@ public:
     {
         const bool initial = m_displayedSettings.useGlobalSettings;
 
-        // Construct the widget layout from the aspect container
-        const auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
         if (auto layouter = m_displayedSettings.layouter())
             layouter().attachTo(m_widget);
         m_widget->setEnabled(!initial);
 
-        layout->addWidget(createGlobalOrProjectSelector(this, initial,
-            Constants::Settings::GENERAL_ID,
-            [this, project](bool useGlobal) {
-                m_widget->setEnabled(!useGlobal);
-                m_displayedSettings.useGlobalSettings = useGlobal;
-                if (project) {
-                    VcpkgSettings *projSettings = projectSettings(project);
-                    m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
-                    projSettings->useGlobalSettings = useGlobal;
-                    projSettings->writeSettings();
-                    projSettings->setVcpkgRootEnvironmentVariable();
-                }
-            }));
-        layout->addWidget(m_widget);
+        using namespace Layouting;
+        Column {
+            createGlobalOrProjectSelector(this, initial,
+                Constants::Settings::GENERAL_ID,
+                [this, project](bool useGlobal) {
+                    m_widget->setEnabled(!useGlobal);
+                    m_displayedSettings.useGlobalSettings = useGlobal;
+                    if (project) {
+                        VcpkgSettings *projSettings = projectSettings(project);
+                        m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
+                        projSettings->useGlobalSettings = useGlobal;
+                        projSettings->writeSettings();
+                        projSettings->setVcpkgRootEnvironmentVariable();
+                    }
+                }),
+            m_widget,
+            noMargin,
+        }.attachTo(this);
 
         if (project) {
             VcpkgSettings *projSettings = projectSettings(project);
