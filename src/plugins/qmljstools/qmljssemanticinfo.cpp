@@ -23,7 +23,7 @@ namespace {
 class AstPath: protected AST::Visitor
 {
     QList<AST::Node *> _path;
-    unsigned _offset;
+    unsigned _offset = 0;
 
 public:
     QList<AST::Node *> operator()(AST::Node *node, unsigned offset)

@@ -48,13 +48,13 @@ public:
     class Entry
     {
     public:
-        EntryType type;
+        EntryType type = Function;
         QString symbolName;
         QString displayName;
         QString extraInfo;
         FilePath fileName;
-        int line;
-        int column;
+        int line = 0;
+        int column = 0;
     };
 
     QHash<FilePath, QList<Entry>> entries() const;

@@ -31,7 +31,7 @@ signals:
 
 private:
     QmlFormatSettings();
-    ~QmlFormatSettings();
+    ~QmlFormatSettings() override;
 
     void generateQmlFormatIniContent();
 
