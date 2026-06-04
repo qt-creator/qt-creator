@@ -3,12 +3,12 @@
 
 #include "ctfvisualizertraceview.h"
 
-#include "ctfvisualizertool.h"
-
 namespace CtfVisualizer::Internal {
 
-CtfVisualizerTraceView::CtfVisualizerTraceView(QWidget *parent, CtfVisualizerTool *tool)
-    : Timeline::TimelineWidget(tool->modelAggregator(), tool->zoomControl(), parent)
+CtfVisualizerTraceView::CtfVisualizerTraceView(QWidget *parent,
+                                               Timeline::TimelineModelAggregator *aggregator,
+                                               Timeline::TimelineZoomControl *zoomControl)
+    : Timeline::TimelineWidget(aggregator, zoomControl, parent)
 {
     setObjectName(QLatin1String("CtfVisualizerTraceView"));
 }

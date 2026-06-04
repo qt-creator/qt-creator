@@ -3,68 +3,8 @@
 
 #pragma once
 
-#include "ctfvisualizerconstants.h"
-
-#include <coreplugin/perspective.h>
-
-#include <tracing/timelinemodelaggregator.h>
-#include <tracing/timelinezoomcontrol.h>
-
-#include <QCoreApplication>
-#include <QScopedPointer>
-#include <QtTaskTree/QSingleTaskTreeRunner>
-#include <QToolButton>
-
 namespace CtfVisualizer::Internal {
 
-class CtfTraceManager;
-class CtfStatisticsModel;
-class CtfStatisticsView;
-class CtfTimelineModel;
-class CtfVisualizerTraceView;
-
-class CtfVisualizerTool  : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit CtfVisualizerTool(QObject *parent);
-    ~CtfVisualizerTool();
-
-    Timeline::TimelineModelAggregator *modelAggregator() const;
-    Timeline::TimelineZoomControl *zoomControl() const;
-
-    void loadJson(const QString &fileName);
-
-private:
-    void createViews();
-
-    void initialize();
-    void finalize();
-
-    void setAvailableThreads(const QList<CtfTimelineModel *> &threads);
-    void toggleThreadRestriction(QAction *action);
-
-    Core::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
-                                     QCoreApplication::translate("QtC::CtfVisualizer",
-                                                                 "Chrome Trace Format Visualizer")};
-
-    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
-    QScopedPointer<QAction> m_loadJson;
-
-    CtfVisualizerTraceView *m_traceView = nullptr;
-    const QScopedPointer<Timeline::TimelineModelAggregator> m_modelAggregator;
-    const QScopedPointer<Timeline::TimelineZoomControl> m_zoomControl;
-
-    const QScopedPointer<CtfStatisticsModel> m_statisticsModel;
-    CtfStatisticsView *m_statisticsView = nullptr;
-
-    const QScopedPointer<CtfTraceManager> m_traceManager;
-
-    QToolButton *const m_restrictToThreadsButton;
-    QMenu *const m_restrictToThreadsMenu;
-};
-
-void setupCtfVisualizerTool(QObject *guard);
+void setupCtfVisualizerTool();
 
 } // namespace CtfVisualizer::Internal

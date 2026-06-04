@@ -4,16 +4,20 @@
 
 #include <tracing/timelinewidget.h>
 
-namespace CtfVisualizer::Internal {
+namespace Timeline {
+class TimelineModelAggregator;
+class TimelineZoomControl;
+}
 
-class CtfVisualizerTool;
+namespace CtfVisualizer::Internal {
 
 class CtfVisualizerTraceView : public Timeline::TimelineWidget
 {
     Q_OBJECT
 
 public:
-    CtfVisualizerTraceView(QWidget *parent, CtfVisualizerTool *tool);
+    CtfVisualizerTraceView(QWidget *parent, Timeline::TimelineModelAggregator *aggregator,
+                           Timeline::TimelineZoomControl *zoomControl);
     ~CtfVisualizerTraceView() override = default;
 };
 

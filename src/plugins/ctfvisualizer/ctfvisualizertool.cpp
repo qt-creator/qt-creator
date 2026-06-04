@@ -7,6 +7,7 @@
 #include "ctfstatisticsview.h"
 #include "ctftimelinemodel.h"
 #include "ctftracemanager.h"
+#include "ctfvisualizerconstants.h"
 #include "ctfvisualizertr.h"
 #include "ctfvisualizertraceview.h"
 
@@ -14,16 +15,25 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/perspective.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
+#include <tracing/timelinemodelaggregator.h>
+#include <tracing/timelinezoomcontrol.h>
+
 #include <utils/async.h>
+#include <utils/shutdownguard.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
+#include <QCoreApplication>
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QQuickItem>
+#include <QScopedPointer>
+#include <QToolButton>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <fstream>
 
@@ -36,9 +46,50 @@ namespace CtfVisualizer::Internal {
 
 using json = nlohmann::json;
 
-CtfVisualizerTool::CtfVisualizerTool(QObject *parent)
-    : QObject(parent)
-    , m_modelAggregator(new Timeline::TimelineModelAggregator(this))
+class CtfVisualizerTool : public QObject
+{
+    Q_OBJECT
+
+public:
+    CtfVisualizerTool();
+    ~CtfVisualizerTool();
+
+    Timeline::TimelineModelAggregator *modelAggregator() const;
+    Timeline::TimelineZoomControl *zoomControl() const;
+
+    void loadJson(const QString &fileName);
+
+private:
+    void createViews();
+
+    void initialize();
+    void finalize();
+
+    void setAvailableThreads(const QList<CtfTimelineModel *> &threads);
+    void toggleThreadRestriction(QAction *action);
+
+    Core::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
+                                     QCoreApplication::translate("QtC::CtfVisualizer",
+                                                                 "Chrome Trace Format Visualizer")};
+
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
+    QScopedPointer<QAction> m_loadJson;
+
+    CtfVisualizerTraceView *m_traceView = nullptr;
+    const QScopedPointer<Timeline::TimelineModelAggregator> m_modelAggregator;
+    const QScopedPointer<Timeline::TimelineZoomControl> m_zoomControl;
+
+    const QScopedPointer<CtfStatisticsModel> m_statisticsModel;
+    CtfStatisticsView *m_statisticsView = nullptr;
+
+    const QScopedPointer<CtfTraceManager> m_traceManager;
+
+    QToolButton *const m_restrictToThreadsButton;
+    QMenu *const m_restrictToThreadsMenu;
+};
+
+CtfVisualizerTool::CtfVisualizerTool()
+    : m_modelAggregator(new Timeline::TimelineModelAggregator(this))
     , m_zoomControl(new Timeline::TimelineZoomControl(this))
     , m_statisticsModel(new CtfStatisticsModel(this))
     , m_traceManager(new CtfTraceManager(this, m_modelAggregator.get(), m_statisticsModel.get()))
@@ -54,8 +105,9 @@ CtfVisualizerTool::CtfVisualizerTool(QObject *parent)
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
 
     m_loadJson.reset(new QAction(Tr::tr("Load JSON File"), options));
-    Core::Command *command = Core::ActionManager::registerAction(m_loadJson.get(), Constants::CtfVisualizerTaskLoadJson,
-                                                  globalContext);
+    Core::Command *command = Core::ActionManager::registerAction(m_loadJson.get(),
+                                                                 Constants::CtfVisualizerTaskLoadJson,
+                                                                 globalContext);
     connect(m_loadJson.get(), &QAction::triggered, this, [this] {
         QString filename = m_loadJson->data().toString();
         if (filename.isEmpty())
@@ -84,7 +136,7 @@ CtfVisualizerTool::~CtfVisualizerTool() = default;
 
 void CtfVisualizerTool::createViews()
 {
-    m_traceView = new CtfVisualizerTraceView(nullptr, this);
+    m_traceView = new CtfVisualizerTraceView(nullptr, m_modelAggregator.get(), m_zoomControl.get());
     m_traceView->setWindowTitle(Tr::tr("Timeline"));
 
     QMenu *contextMenu = new QMenu(m_traceView);
@@ -249,9 +301,11 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
     m_taskTreeRunner.start({AsyncTask<json>(onSetup)}, onTaskTreeSetup, onTaskTreeDone);
 }
 
-void setupCtfVisualizerTool(QObject *guard)
+void setupCtfVisualizerTool()
 {
-    (void) new CtfVisualizerTool(guard);
+    static GuardedObject<CtfVisualizerTool> theTool;
 }
 
 }  // namespace CtfVisualizer::Internal
+
+#include "ctfvisualizertool.moc"
