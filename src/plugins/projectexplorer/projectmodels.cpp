@@ -565,7 +565,9 @@ void FlatModel::updateVCStatusFor(const Utils::FilePath root, const QStringList 
     for (const QString &relFilePath : files) {
         for (const Project * const project : ProjectManager::projects()) {
             const QList<const Node *> nodes
-                = project->nodesForFilePath(root.pathAppended(relFilePath), Project::AllFiles);
+                = project->nodesForFilePath(root.pathAppended(relFilePath), [](const Node *n) {
+                      return n->listInProject() && n->asFileNode();
+                  });
             for (const Node * const node : nodes) {
                 FileNode * const fileNode = static_cast<FileNode *>(const_cast<Node *>(node));
                 fileNode->resetModificationState();

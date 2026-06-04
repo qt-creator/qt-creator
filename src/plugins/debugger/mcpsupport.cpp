@@ -493,6 +493,27 @@ static Result<QJsonArray> getCallStack()
     return frames;
 }
 
+static Result<bool> selectFrame(int level)
+{
+    const QPointer<DebuggerEngine> engine = EngineManager::currentEngine();
+    if (!engine)
+        return ResultError("No active debug session");
+
+    if (engine->state() != InferiorStopOk)
+        return ResultError("Debugger is not paused (current state: "
+                           + DebuggerEngine::stateName(engine->state()) + ")");
+
+    StackHandler *handler = engine->stackHandler();
+    if (!handler || !handler->isContentsValid())
+        return ResultError("Call stack is not available");
+
+    if (level < 0 || level >= handler->stackSize())
+        return ResultError("Invalid frame level: " + QString::number(level));
+
+    engine->activateFrame(level);
+    return true;
+}
+
 static bool deleteBreakpoint(int id)
 {
     const GlobalBreakpoints bps = BreakpointManager::globalBreakpoints();
@@ -944,6 +965,34 @@ void registerMcpTools()
             if (!frames)
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(frames.error()));
             return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"frames", *frames}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("select_frame")
+            .title("Select a stack frame")
+            .description(
+                "Switches the current stack frame in the active debug session. "
+                "Subsequent get_variables / evaluate_expression calls operate on the selected frame. "
+                "Returns an error if no debug session is active or the debugger is not paused.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false).idempotentHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "level",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Frame level to select (as returned by get_call_stack, 0 = innermost)"}})
+                    .addRequired("level"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addRequired("success")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const Utils::Result<bool> ok = selectFrame(params.argumentsAsObject().value("level").toInt());
+            if (!ok)
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(ok.error()));
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});
         });
 
     ToolRegistry::registerTool(

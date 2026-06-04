@@ -1024,6 +1024,8 @@ bool TestTreeSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex 
 
     bool accept = true;
     switch (item->type()) {
+    case Autotest::ITestTreeItem::Root:
+        return true;
     case ITestTreeItem::TestDataFunction:
         accept = m_filterMode & ShowTestData;
         break;

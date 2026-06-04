@@ -133,6 +133,24 @@
     To start a new session, select \inlineimage {icons/plus.png} {Add Chat}
     \uicontrol {Add Chat} and connect to a server.
 
+    \section3 Inspect ACP communication
+
+    An ACP Client extension sends messages (\e requests) to an ACP server and
+    receives responses that have the requested information if the server is
+    capable of handling the requests. To inspect the communication between the
+    extension and ACP servers, go to \uicontrol Tools > \uicontrol {ACP Client} >
+    \uicontrol {Inspect ACP Client}.
+
+    \image qtcreator-acp-client-inspector.webp {ACP Client Inspector dialog}
+
+    In \uicontrol {ACP Client}, select an ACP server to show a list of events.
+    Select an event to view the client request in \uicontrol {Client Message}
+    and the server response in \uicontrol {Server Message}.
+
+    To remove old entries, select \uicontrol Clear.
+
+    To save messages as a file, select \uicontrol Save.
+
     \section1 Chat window toolbar
 
     Once connected, the toolbar at the bottom of the chat window shows
