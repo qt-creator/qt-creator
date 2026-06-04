@@ -12,10 +12,11 @@
 #include <QWidget>
 
 class QCheckBox;
+class QLabel;
 
 namespace ProjectExplorer {
 
-PROJECTEXPLORER_EXPORT QWidget *createGlobalSettingsLink(Utils::Id globalId);
+PROJECTEXPLORER_EXPORT QLabel *createGlobalSettingsLink(Utils::Id globalId);
 
 PROJECTEXPLORER_EXPORT QWidget *createGlobalOrProjectSelector(
     QObject *guard,

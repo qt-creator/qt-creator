@@ -12,18 +12,13 @@
 
 namespace ProjectExplorer {
 
-QWidget *createGlobalSettingsLink(Utils::Id globalId)
+QLabel *createGlobalSettingsLink(Utils::Id globalId)
 {
     const auto label = new QLabel(R"(<a href="dummy">Global settings</a>)");
     QObject::connect(label, &QLabel::linkActivated, label, [globalId] {
         Core::ICore::showSettings(globalId);
     });
-    using namespace Layouting;
-    return Column {
-        Row { label, st },
-        createHr(),
-        noMargin,
-    }.emerge();
+    return label;
 }
 
 QWidget *createGlobalOrProjectSelector(

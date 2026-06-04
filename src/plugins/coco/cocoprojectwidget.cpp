@@ -23,6 +23,8 @@
 #include <projectexplorer/projectsettingswidget.h>
 #include <projectexplorer/target.h>
 
+#include <utils/layoutbuilder.h>
+
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -367,6 +369,7 @@ public:
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(ProjectExplorer::createGlobalSettingsLink(Constants::COCO_SETTINGS_PAGE_ID));
+        layout->addWidget(Layouting::createHr());
         if (auto *abc = project->activeBuildConfiguration()) {
             if (abc->id() == QmakeProjectManager::Constants::QMAKE_BC_ID
                     || abc->id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID)

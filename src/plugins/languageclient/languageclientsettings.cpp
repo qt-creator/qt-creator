@@ -1119,6 +1119,7 @@ public:
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(ProjectExplorer::createGlobalSettingsLink(Constants::LANGUAGECLIENT_SETTINGS_PAGE));
+        layout->addWidget(Layouting::createHr());
 
         QFormLayout *settingsLayout = nullptr;
         for (auto settings : LanguageClientSettings::pageSettings()) {

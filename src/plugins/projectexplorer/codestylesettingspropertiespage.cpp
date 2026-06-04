@@ -53,6 +53,7 @@ public:
 
         Column {
             createGlobalSettingsLink(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID),
+            createHr(),
             Row { new QLabel(Tr::tr("Language:")), languageComboBox, st },
             stackedWidget,
             noMargin

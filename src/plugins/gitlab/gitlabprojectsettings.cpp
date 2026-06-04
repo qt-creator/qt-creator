@@ -157,6 +157,7 @@ GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Projec
     Column {
         noMargin,
         ProjectExplorer::createGlobalSettingsLink(Constants::GITLAB_SETTINGS),
+        createHr(),
         Form {
             Tr::tr("Host:"), m_hostCB, br,
             Tr::tr("Linked GitLab Configuration"), m_linkedGitLabServer, br,
