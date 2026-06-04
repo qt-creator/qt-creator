@@ -519,6 +519,7 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
 ProjectPanels MiscSettingsPanelItem::panelWidgets() const
 {
     if (!m_widget) {
+        QTC_ASSERT(m_project, return {});
         m_widget = new ProjectPanel(m_factory->createWidget(m_project));
         m_widget->setWindowTitle(m_factory->displayName());
     }

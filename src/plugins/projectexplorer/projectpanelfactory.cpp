@@ -67,6 +67,7 @@ void ProjectPanelFactory::setId(Id id)
 
 QWidget *ProjectPanelFactory::createWidget(Project *project) const
 {
+    QTC_ASSERT(project, return nullptr);
     QTC_ASSERT(m_widgetCreator, return nullptr);
     QWidget *inner = m_widgetCreator(project);
     auto psw = qobject_cast<ProjectSettingsWidget *>(inner);
