@@ -33,7 +33,6 @@ public:
     explicit CopilotProjectSettings(ProjectExplorer::Project *project);
 
     void save(ProjectExplorer::Project *project);
-    void setUseGlobalSettings(bool useGlobalSettings);
 
     bool isEnabled() const;
 

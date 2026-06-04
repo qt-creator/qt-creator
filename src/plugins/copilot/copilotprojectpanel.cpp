@@ -12,8 +12,6 @@
 
 #include <utils/layoutbuilder.h>
 
-#include <QCheckBox>
-
 using namespace ProjectExplorer;
 
 namespace Copilot::Internal {
@@ -22,33 +20,29 @@ class CopilotProjectWidget final : public QWidget
 {
 public:
     CopilotProjectWidget(Project *project)
+        : m_settings(project)
     {
-        auto settings = new CopilotProjectSettings(project);
-        settings->setParent(this);
-        const bool initial = settings->useGlobalSettings();
-        setEnabled(!initial);
-        m_globalCheckBox.setChecked(initial);
-        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this, settings](bool useGlobal) {
-            settings->setUseGlobalSettings(useGlobal);
-            setEnabled(!useGlobal);
+        m_settings.enableCopilot.setEnabled(!m_settings.useGlobalSettings());
+        m_settings.useGlobalSettings.addOnChanged(this, [this] {
+            m_settings.enableCopilot.setEnabled(!m_settings.useGlobalSettings());
         });
 
         // clang-format off
         using namespace Layouting;
         Column {
             Row {
-                &m_globalCheckBox,
+                m_settings.useGlobalSettings,
                 createUseGlobalSettingsLabel(Constants::COPILOT_GENERAL_OPTIONS_ID),
                 st
             },
             createHr(),
-            settings->enableCopilot,
+            m_settings.enableCopilot,
             st,
         }.attachTo(this);
         // clang-format on
     }
 
-    QCheckBox m_globalCheckBox;
+    CopilotProjectSettings m_settings;
 };
 
 class CopilotProjectPanelFactory final : public ProjectPanelFactory

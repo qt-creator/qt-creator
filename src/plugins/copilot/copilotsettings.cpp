@@ -222,11 +222,6 @@ CopilotProjectSettings::CopilotProjectSettings(ProjectExplorer::Project *project
     useGlobalSettings.addOnChanged(this, [this, project] { save(project); });
 }
 
-void CopilotProjectSettings::setUseGlobalSettings(bool useGlobal)
-{
-    useGlobalSettings.setValue(useGlobal);
-}
-
 bool CopilotProjectSettings::isEnabled() const
 {
     if (useGlobalSettings())
