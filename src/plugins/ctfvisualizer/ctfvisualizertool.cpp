@@ -20,19 +20,28 @@
 #include <tracing/timelinewidget.h>
 #include <tracing/timelinezoomcontrol.h>
 
+#include <commontraceformat/binary/fieldvalue.h>
+#include <commontraceformat/stream/datastreamreader.h>
+#include <commontraceformat/stream/tracedirectory.h>
+#include <commontraceformat/stream/tracereader.h>
+
 #include <utils/async.h>
 #include <utils/shutdownguard.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QToolButton>
+#include <QtCore/qendian.h>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <fstream>
+#include <string_view>
+#include <unordered_map>
 
 using namespace Core;
 using namespace CtfVisualizer::Constants;
@@ -52,6 +61,7 @@ public:
     Timeline::TimelineZoomControl *zoomControl();
 
     void loadJson(const QString &fileName);
+    void loadCtf2(const QString &dirPath);
 
 private:
     void createViews();
@@ -68,6 +78,7 @@ private:
 
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     QAction m_loadJson;
+    QAction m_loadCtf2;
 
     Timeline::TimelineModelAggregator m_modelAggregator;
     Timeline::TimelineZoomControl m_zoomControl;
@@ -107,6 +118,18 @@ CtfVisualizerTool::CtfVisualizerTool()
         loadJson(filename);
     });
     options->addAction(command);
+
+    m_loadCtf2.setText(Tr::tr("Load CTF2 Trace"));
+    Core::Command *ctf2Command = Core::ActionManager::registerAction(
+        &m_loadCtf2, Constants::CtfVisualizerTaskLoadCtf2, globalContext);
+    connect(&m_loadCtf2, &QAction::triggered, this, [this] {
+        QString dirPath = m_loadCtf2.data().toString();
+        if (dirPath.isEmpty())
+            dirPath = QFileDialog::getExistingDirectory(
+                ICore::dialogParent(), Tr::tr("Load CTF2 Trace Directory"));
+        loadCtf2(dirPath);
+    });
+    options->addAction(ctf2Command);
 
     m_perspective.setAboutToActivateCallback([this] { createViews(); });
 
@@ -284,6 +307,332 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
         } else {
             QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("CTF Visualizer"),
                                  Tr::tr("Cannot read the CTF file."));
+        }
+    };
+    m_taskTreeRunner.start({AsyncTask<json>(onSetup)}, onTaskTreeSetup, onTaskTreeDone);
+}
+
+static std::optional<std::string> fieldValueToString(const CommonTraceFormat::FieldValue &fv)
+{
+    return std::visit(
+        [](const auto &v) -> std::optional<std::string> {
+            using T = std::decay_t<decltype(v)>;
+            if constexpr (std::is_same_v<T, quint64>)
+                return std::to_string(v);
+            if constexpr (std::is_same_v<T, qint64>)
+                return std::to_string(v);
+            if constexpr (std::is_same_v<T, double>)
+                return std::to_string(v);
+            if constexpr (std::is_same_v<T, bool>)
+                return v ? std::string("true") : std::string("false");
+            if constexpr (std::is_same_v<T, QString>)
+                return v.toStdString();
+            return std::nullopt;
+        },
+        fv);
+}
+
+static json fieldValueToJson(const CommonTraceFormat::FieldValue &fv);
+
+static json structureValueToJson(const CommonTraceFormat::StructureValue &sv)
+{
+    json obj = json::object();
+    for (const QString &key : sv.order)
+        obj[key.toStdString()] = fieldValueToJson(sv.members.value(key));
+    return obj;
+}
+
+static json fieldValueToJson(const CommonTraceFormat::FieldValue &fv)
+{
+    return std::visit(
+        [](const auto &v) -> json {
+            using T = std::decay_t<decltype(v)>;
+            if constexpr (std::is_same_v<T, std::monostate>)
+                return nullptr;
+            if constexpr (std::is_same_v<T, bool>)
+                return v;
+            if constexpr (std::is_same_v<T, quint64>)
+                return v;
+            if constexpr (std::is_same_v<T, qint64>)
+                return v;
+            if constexpr (std::is_same_v<T, double>)
+                return v;
+            if constexpr (std::is_same_v<T, QString>)
+                return v.toStdString();
+            if constexpr (std::is_same_v<T, QByteArray>)
+                return v.toHex().toStdString();
+            if constexpr (std::is_same_v<T, std::shared_ptr<CommonTraceFormat::StructureValue>>)
+                return structureValueToJson(*v);
+            if constexpr (std::is_same_v<T, std::shared_ptr<CommonTraceFormat::ArrayValue>>) {
+                json arr = json::array();
+                for (const auto &elem : v->elements)
+                    arr.push_back(fieldValueToJson(elem));
+                return arr;
+            }
+            if constexpr (std::is_same_v<T, std::shared_ptr<CommonTraceFormat::VariantValue>>)
+                return v->value ? fieldValueToJson(*v->value) : json(nullptr);
+            return nullptr;
+        },
+        fv);
+}
+
+static void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
+{
+    using namespace Qt::StringLiterals;
+    using namespace CtfVisualizer::Constants;
+    using namespace CommonTraceFormat;
+
+    // TraceDirectory handles metadata discovery (domain/per-PID/session-rotation
+    // subdirectories), rotated-tracefile concatenation, and per-packet data
+    // stream class selection.
+    auto tdResult = TraceDirectory::open(dirPath);
+    if (!tdResult) {
+        promise.future().cancel();
+        return;
+    }
+    const TraceDirectory &traceDir = *tdResult;
+
+    // Collect all events first so we can sort by timestamp before emitting.
+    // CtfTraceManager sets the global time offset from the first event it receives,
+    // so events must arrive in chronological order to avoid a negative trace range
+    // when multiple streams cover different (possibly overlapping) time windows.
+    std::vector<json> events;
+
+    auto parseDur = [](const std::string &s) -> std::optional<double> {
+        char *end = nullptr;
+        const double val = std::strtod(s.c_str(), &end);
+        if (end == s.c_str() || *end != '\0')
+            return std::nullopt;
+        return val;
+    };
+
+    quint64 fallbackStreamId = 0;
+    for (const TraceDirectory::Trace &trace : traceDir.traces()) {
+        const Schema &schema = *trace.schema;
+        for (const TraceDirectory::Stream &sf : trace.streams) {
+            const DataStreamClass *dsc = sf.dsc;
+            if (!dsc)
+                continue;
+
+            // Resolve clock frequency and offset-from-origin for µs timestamp
+            // conversion (spec 5.7).
+            quint64 frequency = 1000000000ULL;
+            qint64 offsetSeconds = 0;
+            quint64 offsetCycles = 0;
+            if (!dsc->defaultClockClassName.isEmpty()) {
+                for (const ClockClass &cc : schema.clockClasses) {
+                    // CTF2 links by clock class id; legacy/TSDL schemas link by name.
+                    const bool matches = cc.id == dsc->defaultClockClassName
+                                         || cc.name == dsc->defaultClockClassName;
+                    if (matches && cc.frequency > 0) {
+                        frequency = cc.frequency;
+                        offsetSeconds = cc.offsetSeconds;
+                        offsetCycles = cc.offsetCycles;
+                        break;
+                    }
+                }
+            }
+
+            // Stream instance id, used as a pid/tid lane fallback.
+            const quint64 streamId = sf.streamId ? *sf.streamId : fallbackStreamId++;
+            DataStreamReader *stream = sf.reader;
+
+            while (!stream->atEnd()) {
+                if (promise.isCanceled())
+                    return;
+
+                auto eventResult = stream->nextEvent();
+                if (!eventResult)
+                    break;
+
+                const EventRecord &rec = *eventResult;
+                // Cycles → seconds from the clock origin, then µs (spec 5.7):
+                // offsetSeconds + (cycles + offsetCycles) / frequency.
+                const double ts = (double(offsetSeconds)
+                                   + (double(rec.timestamp) + double(offsetCycles))
+                                         / double(frequency))
+                                  * 1.0e6;
+
+                json event;
+                std::string evName = rec.eventClass ? rec.eventClass->name.toStdString()
+                                                    : std::to_string(rec.eventClassId);
+                event[CtfTracingClockTimestampKey] = ts;
+
+                auto findStrField = [&](const char *key) -> std::optional<std::string> {
+                    for (const StructureValue *sv :
+                         {&rec.commonContext, &rec.header, &rec.payload, &rec.specificContext}) {
+                        if (const FieldValue *fv = sv->get(QString::fromUtf8(key)))
+                            if (auto s = fieldValueToString(*fv))
+                                return s;
+                    }
+                    return std::nullopt;
+                };
+
+                auto pid = findStrField("pid");
+                event[CtfProcessIdKey] = pid ? json(*pid) : json(streamId);
+
+                auto tid = findStrField("tid");
+                event[CtfThreadIdKey] = tid ? json(*tid) : json(streamId);
+
+                auto ph = findStrField("ph");
+                auto dur = findStrField("dur");
+
+                // CTF events are instantaneous; the Chrome-format timeline needs a
+                // span. Derive Begin/End phases from the common entry/exit
+                // tracepoint naming conventions (Qt tracegen "<name>_entry"/"_exit",
+                // LTTng "syscall_entry_*"/"syscall_exit_*") so paired events render
+                // with a duration. The base name (suffix/prefix stripped) is used so
+                // an entry and its exit share a display name and selection id.
+                auto stripSuffix = [](std::string &n, std::string_view suf) {
+                    if (n.size() > suf.size()
+                        && n.compare(n.size() - suf.size(), suf.size(), suf) == 0) {
+                        n.resize(n.size() - suf.size());
+                        return true;
+                    }
+                    return false;
+                };
+                auto stripPrefix = [](std::string &n, std::string_view pre) {
+                    if (n.size() > pre.size() && n.compare(0, pre.size(), pre) == 0) {
+                        n.erase(0, pre.size());
+                        return true;
+                    }
+                    return false;
+                };
+
+                if (ph) {
+                    event[CtfEventPhaseKey] = *ph;
+                    if (*ph == CtfEventTypeComplete && dur)
+                        if (auto d = parseDur(*dur))
+                            event[CtfDurationKey] = *d;
+                } else if (dur) {
+                    if (auto d = parseDur(*dur)) {
+                        event[CtfEventPhaseKey] = std::string(CtfEventTypeComplete);
+                        event[CtfDurationKey] = *d;
+                    } else {
+                        event[CtfEventPhaseKey] = std::string(CtfEventTypeInstant);
+                    }
+                } else if (stripSuffix(evName, "_entry") || stripPrefix(evName, "syscall_entry_")) {
+                    event[CtfEventPhaseKey] = std::string(CtfEventTypeBegin);
+                } else if (stripSuffix(evName, "_exit") || stripPrefix(evName, "syscall_exit_")) {
+                    event[CtfEventPhaseKey] = std::string(CtfEventTypeEnd);
+                } else {
+                    event[CtfEventPhaseKey] = std::string(CtfEventTypeInstant);
+                }
+
+                event[CtfEventNameKey] = evName;
+
+                if (!rec.payload.order.isEmpty())
+                    event["args"] = structureValueToJson(rec.payload);
+
+                events.push_back(std::move(event));
+            }
+        }
+    }
+
+    std::sort(events.begin(), events.end(), [&](const json &a, const json &b) {
+        return a.value(CtfTracingClockTimestampKey, 0.0)
+               < b.value(CtfTracingClockTimestampKey, 0.0);
+    });
+
+    // Pair entry/exit events into Complete (duration) events here rather than
+    // leaning on the timeline model's blind LIFO matching. Kernel syscalls do
+    // not nest within a lane (a thread can block in one syscall while another
+    // runs), and traces without per-event thread context lump every event on a
+    // CPU into one lane -- so the model would close the wrong begin (e.g. an
+    // exit_ppoll ending a stale entry_futex left open after a thread migrated to
+    // another CPU), producing absurd multi-hour spans. Match by (lane, base
+    // name) so an end only closes a begin of the same tracepoint on the same
+    // lane; unmatched begins/ends degrade to instant events.
+    {
+        std::unordered_map<std::string, std::vector<size_t>> openByKey;
+        std::vector<bool> drop(events.size(), false);
+        auto laneKey = [](const json &e) {
+            std::string k = e.contains(CtfThreadIdKey) ? e[CtfThreadIdKey].dump() : std::string();
+            k += '\0';
+            k += e.value(CtfEventNameKey, std::string());
+            return k;
+        };
+        for (size_t i = 0; i < events.size(); ++i) {
+            const std::string ph = events[i].value(CtfEventPhaseKey, std::string());
+            if (ph == CtfEventTypeBegin) {
+                openByKey[laneKey(events[i])].push_back(i);
+            } else if (ph == CtfEventTypeEnd) {
+                auto it = openByKey.find(laneKey(events[i]));
+                if (it != openByKey.end() && !it->second.empty()) {
+                    const size_t b = it->second.back();
+                    it->second.pop_back();
+                    const double begin = events[b].value(CtfTracingClockTimestampKey, 0.0);
+                    const double end = events[i].value(CtfTracingClockTimestampKey, 0.0);
+                    events[b][CtfEventPhaseKey] = std::string(CtfEventTypeComplete);
+                    events[b][CtfDurationKey] = end - begin;
+                    drop[i] = true; // folded into the begin's duration
+                } else {
+                    events[i][CtfEventPhaseKey] = std::string(CtfEventTypeInstant);
+                }
+            }
+        }
+        for (auto &[key, stack] : openByKey)
+            for (size_t b : stack)
+                events[b][CtfEventPhaseKey] = std::string(CtfEventTypeInstant);
+
+        std::vector<json> kept;
+        kept.reserve(events.size());
+        for (size_t i = 0; i < events.size(); ++i) {
+            if (!drop[i])
+                kept.push_back(std::move(events[i]));
+        }
+        events.swap(kept);
+    }
+
+    for (json &ev : events) {
+        if (promise.isCanceled())
+            return;
+        promise.addResult(std::move(ev));
+    }
+}
+
+void CtfVisualizerTool::loadCtf2(const QString &dirPath)
+{
+    if (m_taskTreeRunner.isRunning() || dirPath.isEmpty())
+        return;
+
+    const auto onSetup = [this, dirPath](Async<json> &async) {
+        m_traceManager.clearAll();
+        async.setConcurrentCallData(loadCtf2Data, dirPath);
+        connect(&async, &AsyncBase::resultReadyAt, this, [this, asyncPtr = &async](int index) {
+            m_traceManager.addEvent(asyncPtr->resultAt(index));
+        });
+    };
+    const auto onTaskTreeSetup = [](QTaskTree &taskTree) {
+        auto progress = new TaskProgress(&taskTree);
+        progress->setDisplayName(Tr::tr("Loading CTF2 Trace"));
+    };
+    const auto onTaskTreeDone = [this](DoneWith result) {
+        if (result == DoneWith::Success) {
+            m_traceManager.updateStatistics();
+            if (m_traceManager.isEmpty()) {
+                QMessageBox::warning(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("CTF Visualizer"),
+                    Tr::tr("The trace does not contain any trace data."));
+            } else if (!m_traceManager.errorString().isEmpty()) {
+                QMessageBox::warning(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("CTF Visualizer"),
+                    m_traceManager.errorString());
+            } else {
+                m_traceManager.finalize();
+                m_perspective.select();
+                const auto end = m_traceManager.traceEnd() + m_traceManager.traceDuration() / 20;
+                zoomControl()->setTrace(m_traceManager.traceBegin(), end);
+                zoomControl()->setRange(m_traceManager.traceBegin(), end);
+            }
+            setAvailableThreads(m_traceManager.getSortedThreads());
+        } else {
+            QMessageBox::warning(
+                Core::ICore::dialogParent(),
+                Tr::tr("CTF Visualizer"),
+                Tr::tr("Cannot read the CTF2 trace."));
         }
     };
     m_taskTreeRunner.start({AsyncTask<json>(onSetup)}, onTaskTreeSetup, onTaskTreeDone);

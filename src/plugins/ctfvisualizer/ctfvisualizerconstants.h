@@ -9,6 +9,8 @@ namespace CtfVisualizer::Constants {
 const char CtfVisualizerMenuId[] = "Analyzer.Menu.CtfVisualizer";
 const char CtfVisualizerTaskLoadJson[] =
         "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadTrace";
+const char CtfVisualizerTaskLoadCtf2[] =
+        "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadCtf2Trace";
 
 const char CtfVisualizerPerspectiveId[] = "CtfVisualizer.Perspective";
 
