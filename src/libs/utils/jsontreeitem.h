@@ -22,6 +22,8 @@ public:
     bool canFetchMore() const override;
     void fetchMore() override;
 
+    QJsonValue value() const { return m_value; }
+
 private:
     bool canFetchObjectChildren() const;
     bool canFetchArrayChildren() const;

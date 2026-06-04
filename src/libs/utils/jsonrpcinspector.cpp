@@ -7,10 +7,12 @@
 #include "jsontreeitem.h"
 #include "layoutbuilder.h"
 #include "listmodel.h"
+#include "stringutils.h"
 #include "utilstr.h"
 
 #include <QAction>
 #include <QApplication>
+#include <QClipboard>
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -19,6 +21,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QKeySequence>
 #include <QListView>
 #include <QPushButton>
 #include <QSet>
@@ -68,6 +71,23 @@ static JsonModel *createJsonModel(const QString &displayName, const QJsonValue &
     return model;
 }
 
+static QString jsonValueToString(const QJsonValue &value)
+{
+    if (value.isObject())
+        return QString::fromUtf8(QJsonDocument(value.toObject()).toJson(QJsonDocument::Indented));
+    if (value.isArray())
+        return QString::fromUtf8(QJsonDocument(value.toArray()).toJson(QJsonDocument::Indented));
+    if (value.isString())
+        return value.toString();
+    if (value.isBool())
+        return value.toBool() ? QString("true") : QString("false");
+    if (value.isDouble())
+        return QString::number(value.toDouble());
+    if (value.isNull())
+        return QString("null");
+    return {};
+}
+
 static QTreeView *createJsonTreeView()
 {
     auto view = new QTreeView;
@@ -75,6 +95,20 @@ static QTreeView *createJsonTreeView()
     auto action = new QAction(Tr::tr("Expand All"), view);
     QObject::connect(action, &QAction::triggered, view, &QTreeView::expandAll);
     view->addAction(action);
+
+    auto copyAction = new QAction(Tr::tr("Copy JSON"), view);
+    copyAction->setShortcut(QKeySequence::Copy);
+    copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    QObject::connect(copyAction, &QAction::triggered, view, [view] {
+        const QModelIndex index = view->currentIndex();
+        auto model = static_cast<JsonModel *>(view->model());
+        if (!index.isValid() || !model)
+            return;
+        if (JsonTreeItem *item = model->itemForIndex(index))
+            Utils::setClipboardAndSelection(jsonValueToString(item->value()));
+    });
+    view->addAction(copyAction);
+
     view->setAlternatingRowColors(true);
     view->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     view->setItemDelegate(new JsonTreeItemDelegate);
