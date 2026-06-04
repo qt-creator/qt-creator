@@ -9,15 +9,19 @@
 #include "projectmanager.h"
 #include "projecttree.h"
 
+#include <utils/algorithm.h>
 #include <utils/shutdownguard.h>
 #include <utils/treemodel.h>
 
+#include <coreplugin/session.h>
+
 #include <QComboBox>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QGridLayout>
 #include <QPushButton>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
@@ -102,6 +106,10 @@ private:
     // deprecated
     QByteArray settingsKey() const final;
 
+    void restoreFromSession();
+    void saveToSession();
+    QByteArray sessionKey();
+
     TextEditor::FileContainerProvider fileContainerProvider() const final;
     Utils::FindFlags supportedFindFlags() const final;
     void setupSearch(Core::SearchResult *search) final;
@@ -112,6 +120,7 @@ private:
     FilePath selectedProjectPath() const;
 
     void selectCurrentProject();
+    void selectProject(Project *project);
 
     QPointer<QComboBox> m_projectsComboBox;
     QPointer<QWidget> m_configWidget;
@@ -174,9 +183,19 @@ QWidget *CurrentProjectFind::createConfigWidget()
                 sortModel, [sort] { sort(); });
         connect(ProjectManager::instance(), &ProjectManager::projectAdded,
                 sortModel, [sort] { sort(); });
+        connect(
+            SessionManager::instance(),
+            &SessionManager::sessionLoaded,
+            this,
+            &CurrentProjectFind::restoreFromSession);
+        connect(
+            SessionManager::instance(),
+            &SessionManager::aboutToSaveSession,
+            this,
+            &CurrentProjectFind::saveToSession);
         m_projectsComboBox->setModel(sortModel);
         const auto currentButton = new QPushButton(Tr::tr("Current"));
-        selectCurrentProject();
+        restoreFromSession();
         connect(currentButton, &QPushButton::clicked,
                 this, &CurrentProjectFind::selectCurrentProject);
         auto projectsLayout = new QHBoxLayout;
@@ -215,11 +234,19 @@ FilePath CurrentProjectFind::selectedProjectPath() const
 
 void CurrentProjectFind::selectCurrentProject()
 {
+    Project *project = ProjectTree::currentProject();
+    if (project)
+        selectProject(project);
+}
+
+void CurrentProjectFind::selectProject(Project *project)
+{
     if (m_projectsComboBox) {
         const auto sortModel = static_cast<SortModel *>(m_projectsComboBox->model());
         const auto projectsModel = static_cast<ProjectsModel *>(sortModel->sourceModel());
-        const QModelIndex idx = projectsModel->indexForProject(ProjectTree::currentProject());
-        m_projectsComboBox->setCurrentIndex(sortModel->mapFromSource(idx).row());
+        const QModelIndex idx = projectsModel->indexForProject(project);
+        if (QTC_GUARD(idx.isValid()))
+            m_projectsComboBox->setCurrentIndex(sortModel->mapFromSource(idx).row());
     }
 }
 
@@ -253,6 +280,30 @@ void CurrentProjectFind::restore(const Store &s)
 QByteArray CurrentProjectFind::settingsKey() const
 {
     return "CurrentProjectFind";
+}
+
+QByteArray ProjectExplorer::Internal::CurrentProjectFind::sessionKey()
+{
+    return QByteArray(id().toUtf8() + "/ProjectPath");
+}
+
+void CurrentProjectFind::restoreFromSession()
+{
+    const auto projectFilePath = FilePath::fromSettings(SessionManager::sessionValue(sessionKey()));
+    Project *project = Utils::findOrDefault(
+        ProjectManager::projects(), Utils::equal(&Project::projectFilePath, projectFilePath));
+    if (project)
+        selectProject(project);
+    else
+        selectCurrentProject();
+}
+
+void CurrentProjectFind::saveToSession()
+{
+    const FilePath projectFilePath = selectedProjectPath();
+    if (!projectFilePath.isEmpty()) {
+        SessionManager::setSessionValue(sessionKey(), projectFilePath.toSettings());
+    }
 }
 
 FindFlags CurrentProjectFind::supportedFindFlags() const
