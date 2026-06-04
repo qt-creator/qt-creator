@@ -327,7 +327,6 @@ QmlProfilerTool::QmlProfilerTool()
 
 QmlProfilerTool::~QmlProfilerTool()
 {
-    d->m_profilerModelManager->clearAll();
     delete d;
     m_instance = nullptr;
 }
