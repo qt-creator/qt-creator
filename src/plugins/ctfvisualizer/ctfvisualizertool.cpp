@@ -48,8 +48,6 @@ using json = nlohmann::json;
 
 class CtfVisualizerTool : public QObject
 {
-    Q_OBJECT
-
 public:
     CtfVisualizerTool();
     ~CtfVisualizerTool();
@@ -307,5 +305,3 @@ void setupCtfVisualizerTool()
 }
 
 }  // namespace CtfVisualizer::Internal
-
-#include "ctfvisualizertool.moc"
