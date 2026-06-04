@@ -29,9 +29,6 @@ class CodeStyleSettingsWidget final : public QWidget
 public:
     explicit CodeStyleSettingsWidget(Project *project)
     {
-        auto languageComboBox = new QComboBox(this);
-        auto stackedWidget = new QStackedWidget(this);
-
         const EditorConfiguration *config = project->editorConfiguration();
 
         for (ICodeStylePreferencesFactory *factory : codeStyleFactories()) {
@@ -41,23 +38,27 @@ public:
                 project->projectFilePath(), codeStylePreferences);
             if (preview && preview->layout())
                 preview->layout()->setContentsMargins(QMargins());
-            stackedWidget->addWidget(preview);
-            languageComboBox->addItem(factory->displayName());
+            m_stackedWidget.addWidget(preview);
+            m_languageComboBox.addItem(factory->displayName());
         }
 
-        connect(languageComboBox, &QComboBox::currentIndexChanged,
-                stackedWidget, &QStackedWidget::setCurrentIndex);
+        connect(&m_languageComboBox, &QComboBox::currentIndexChanged,
+                &m_stackedWidget, &QStackedWidget::setCurrentIndex);
 
         using namespace Layouting;
 
         Column {
             createGlobalSettingsLink(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID),
             createHr(),
-            Row { new QLabel(Tr::tr("Language:")), languageComboBox, st },
-            stackedWidget,
+            Row { new QLabel(Tr::tr("Language:")), &m_languageComboBox, st },
+            &m_stackedWidget,
             noMargin
         }.attachTo(this);
     }
+
+private:
+    QComboBox m_languageComboBox;
+    QStackedWidget m_stackedWidget;
 };
 
 class CodeStyleProjectPanelFactory final : public ProjectPanelFactory
