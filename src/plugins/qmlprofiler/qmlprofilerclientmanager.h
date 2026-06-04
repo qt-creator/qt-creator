@@ -8,20 +8,17 @@
 #include <qmldebug/qmlprofilertraceclient.h>
 
 #include <QPointer>
-#include <QTimer>
-#include <QUrl>
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
+
 class QmlProfilerModelManager;
 class QmlProfilerStateManager;
 
-namespace Internal {
-
-class QmlProfilerClientManager : public QmlDebug::QmlDebugConnectionManager
+class QmlProfilerClientManager final : public QmlDebug::QmlDebugConnectionManager
 {
-    Q_OBJECT
 public:
     explicit QmlProfilerClientManager(QObject *parent = nullptr);
+
     void setProfilerStateManager(QmlProfilerStateManager *profilerState);
     void clearEvents();
     void setModelManager(QmlProfilerModelManager *modelManager);
@@ -29,17 +26,15 @@ public:
     void clearBufferedData();
     void stopRecording();
 
-protected:
-    void createClients() override;
-    void destroyClients() override;
-    void logState(const QString &message) override;
-
 private:
+    void createClients() final;
+    void destroyClients() final;
+    void logState(const QString &message) final;
+
     QPointer<QmlDebug::QmlProfilerTraceClient> m_clientPlugin;
     QPointer<QmlProfilerStateManager> m_profilerState;
     QPointer<QmlProfilerModelManager> m_modelManager;
     quint32 m_flushInterval = 0;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

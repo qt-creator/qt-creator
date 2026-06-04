@@ -19,6 +19,7 @@
 #include <QDataStream>
 
 using namespace QmlDebug;
+
 namespace QmlProfiler::Internal {
 
 const char PROFILER_FILE_VERSION[] = "1.02";

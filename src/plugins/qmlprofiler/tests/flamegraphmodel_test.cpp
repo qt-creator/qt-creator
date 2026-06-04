@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "flamegraphmodel_test.h"
-#include "../qmlprofilertr.h"
 
-#include <qmlprofiler/qmlprofilerrangemodel.h>
+#include "../qmlprofilertr.h"
+#include "../qmlprofilerrangemodel.h"
+#include "../qmlprofilernotesmodel.h"
 
 #include <QTest>
 
 using namespace QmlDebug;
+
 namespace QmlProfiler::Internal {
 
 FlameGraphModelTest::FlameGraphModelTest()

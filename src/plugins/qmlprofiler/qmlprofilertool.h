@@ -3,24 +3,19 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
-
 #include <QAction>
 #include <QObject>
 
 namespace ProjectExplorer { class RunControl; }
 namespace Utils { class FilePath; }
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
 
+class QmlProfilerClientManager;
 class QmlProfilerModelManager;
 class QmlProfilerStateManager;
 
-namespace Internal {
-
-class QmlProfilerClientManager;
-
-class QMLPROFILER_EXPORT QmlProfilerTool : public QObject
+class QmlProfilerTool : public QObject
 {
     Q_OBJECT
 
@@ -94,5 +89,4 @@ private:
 
 void setupQmlProfilerTool();
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace Internal::Internal

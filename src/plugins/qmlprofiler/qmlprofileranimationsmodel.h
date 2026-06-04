@@ -8,21 +8,13 @@
 #include <qmldebug/qmleventlocation.h>
 #include <qmldebug/qmlprofilereventtypes.h>
 
-#include <QVariantList>
-#include <QColor>
-#include <QObject>
-
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerModelManager;
 
-namespace Internal {
-
-class QmlProfilerAnimationsModel : public QmlProfilerTimelineModel
+class QmlProfilerAnimationsModel final : public QmlProfilerTimelineModel
 {
-    Q_OBJECT
 public:
-
     struct Item {
         int framerate;
         int animationcount;
@@ -32,21 +24,21 @@ public:
     QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
                                Timeline::TimelineModelAggregator *parent);
 
-    qint64 rowMaxValue(int rowNumber) const override;
+    qint64 rowMaxValue(int rowNumber) const final;
 
-    int typeId(int index) const override;
-    Q_INVOKABLE int expandedRow(int index) const override;
-    Q_INVOKABLE int collapsedRow(int index) const override;
+    int typeId(int index) const final;
+    int expandedRow(int index) const final;
+    int collapsedRow(int index) const final;
 
-    QRgb color(int index) const override;
-    float relativeHeight(int index) const override;
+    QRgb color(int index) const final;
+    float relativeHeight(int index) const final;
 
-    QVariantList labels() const override;
-    QVariantMap details(int index) const override;
+    QVariantList labels() const final;
+    QVariantMap details(int index) const final;
 
-    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
-    void finalize() override;
-    void clear() override;
+    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) final;
+    void finalize() final;
+    void clear() final;
 
 private:
     QList<Item> m_data;
@@ -57,6 +49,4 @@ private:
     int rowFromThreadId(int threadId) const;
 };
 
-} // namespace Internal
-
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

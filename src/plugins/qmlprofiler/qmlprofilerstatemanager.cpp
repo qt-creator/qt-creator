@@ -9,9 +9,10 @@
 // uncomment for printing the state changes to debug output
 //#define _DEBUG_PROFILERSTATE_
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
 
-inline QString stringForState(int state) {
+static QString stringForState(int state)
+{
     switch (state) {
     case QmlProfilerStateManager::Idle: return QLatin1String("Idle");
     case QmlProfilerStateManager::AppRunning: return QLatin1String("AppRunning");
@@ -39,8 +40,10 @@ public:
     quint64 m_requestedFeatures;
     quint64 m_recordedFeatures;
 };
-QmlProfilerStateManager::QmlProfilerStateManager(QObject *parent) :
-    QObject(parent),d(new QmlProfilerStateManagerPrivate(this)) {}
+
+QmlProfilerStateManager::QmlProfilerStateManager(QObject *parent)
+    : QObject(parent), d(new QmlProfilerStateManagerPrivate(this))
+{}
 
 QmlProfilerStateManager::~QmlProfilerStateManager()
 {
@@ -150,4 +153,4 @@ void QmlProfilerStateManager::setRecordedFeatures(quint64 features)
     }
 }
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

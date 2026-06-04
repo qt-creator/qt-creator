@@ -13,11 +13,10 @@ namespace Utils { class FilePath; }
 
 namespace QmlProfiler {
 
-class QmlProfilerPlainViewManagerPrivate;
-
 class QMLPROFILER_EXPORT QmlProfilerPlainViewManager : public QObject
 {
     Q_OBJECT
+
 public:
     explicit QmlProfilerPlainViewManager(QObject *parent = nullptr);
 
@@ -34,7 +33,7 @@ signals:
     void typeSelected(int typeId);
 
 private:
-    QmlProfilerPlainViewManagerPrivate *d;
+    class QmlProfilerPlainViewManagerPrivate *d;
 };
 
 } // namespace QmlProfiler

@@ -46,6 +46,8 @@
 
 #include <texteditor/texteditor.h>
 
+#include <tracing/timelinenotesmodel.h>
+
 #include <utils/fancymainwindow.h>
 #include <utils/shutdownguard.h>
 #include <utils/fileinprojectfinder.h>

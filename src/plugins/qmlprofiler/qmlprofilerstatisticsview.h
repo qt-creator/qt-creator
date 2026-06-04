@@ -20,23 +20,20 @@ namespace QmlProfiler::Internal {
 class QmlProfilerStatisticsMainView;
 class QmlProfilerStatisticsRelativesView;
 
-class QmlProfilerStatisticsView : public QmlProfilerEventsView
+class QmlProfilerStatisticsView final : public QmlProfilerEventsView
 {
-    Q_OBJECT
-
 public:
     explicit QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
                                        QWidget *parent = nullptr);
-    ~QmlProfilerStatisticsView() override = default;
 
     QString summary(const QList<int> &typeIds) const;
     QStringList details(int typeId) const;
 
-    void selectByTypeId(int typeIndex) override;
-    void onVisibleFeaturesChanged(quint64 features) override;
+    void selectByTypeId(int typeIndex) final;
+    void onVisibleFeaturesChanged(quint64 features) final;
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *ev) override;
+    void contextMenuEvent(QContextMenuEvent *ev) final;
 
 private:
     QModelIndex selectedModelIndex() const;
@@ -49,13 +46,12 @@ private:
     std::unique_ptr<QmlProfilerStatisticsRelativesView> m_callersView;
 };
 
-class QmlProfilerStatisticsMainView : public Utils::TreeView
+class QmlProfilerStatisticsMainView final : public Utils::TreeView
 {
     Q_OBJECT
 
 public:
     explicit QmlProfilerStatisticsMainView(QmlProfilerStatisticsModel *model);
-    ~QmlProfilerStatisticsMainView() override;
 
     QModelIndex selectedModelIndex() const;
     void copyTableToClipboard() const;
@@ -85,13 +81,12 @@ private:
     bool m_showExtendedStatistics = false;
 };
 
-class QmlProfilerStatisticsRelativesView : public Utils::TreeView
+class QmlProfilerStatisticsRelativesView final : public Utils::TreeView
 {
     Q_OBJECT
 
 public:
     explicit QmlProfilerStatisticsRelativesView(QmlProfilerStatisticsRelativesModel *model);
-    ~QmlProfilerStatisticsRelativesView() override;
 
     void displayType(int typeIndex);
     void jumpToItem(int typeIndex);
@@ -100,7 +95,6 @@ signals:
     void typeClicked(int typeIndex);
 
 private:
-
     std::unique_ptr<QmlProfilerStatisticsRelativesModel> m_model;
 };
 

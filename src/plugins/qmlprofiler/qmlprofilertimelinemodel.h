@@ -3,21 +3,15 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
 
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
 
-class QMLPROFILER_EXPORT QmlProfilerTimelineModel : public Timeline::TimelineModel
+class QmlProfilerTimelineModel : public Timeline::TimelineModel
 {
-    Q_OBJECT
-    Q_PROPERTY(QmlDebug::RangeType rangeType READ rangeType CONSTANT)
-    Q_PROPERTY(QmlDebug::Message message READ message CONSTANT)
-    Q_PROPERTY(QmlProfilerModelManager *modelManager READ modelManager CONSTANT)
-
 public:
     QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager, QmlDebug::Message message,
                              QmlDebug::RangeType rangeType, QmlDebug::ProfileFeature mainFeature,
@@ -48,4 +42,4 @@ private:
     void updateProgress(qint64 count, qint64 max) const;
 };
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

@@ -4,16 +4,15 @@
 #pragma once
 
 #include "qmlprofilermodelmanager.h"
+
 #include <coreplugin/find/ifindsupport.h>
+
 #include <QWidget>
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerModelManager;
 class QmlProfilerStateManager;
-
-namespace Internal {
-
 class QmlProfilerTool;
 class QmlProfilerViewManager;
 
@@ -79,5 +78,4 @@ private:
     int m_currentPosition = -1;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

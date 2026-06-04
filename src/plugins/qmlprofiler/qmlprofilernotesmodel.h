@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qmlprofilermodelmanager.h"
 #include "qmlnote.h"
 
 #include <tracing/timelinenotesmodel.h>
@@ -11,22 +10,20 @@
 #include <QList>
 #include <QHash>
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
 
-class QMLPROFILER_EXPORT QmlProfilerNotesModel : public Timeline::TimelineNotesModel
+class QmlProfilerNotesModel final : public Timeline::TimelineNotesModel
 {
-    Q_OBJECT
-
 public:
     QmlProfilerNotesModel(QObject *parent);
 
-    void restore() override;
-    void stash() override;
+    void restore() final;
+    void stash() final;
+    void clear() final;
 
     const QList<QmlNote> &notes() const;
     void setNotes(const QList<QmlNote> &notes);
     void addNote(const QmlNote &note);
-    void clear() override;
 
 protected:
     QList<QmlNote> m_notes;
@@ -35,4 +32,4 @@ protected:
                    const QString &text);
 };
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

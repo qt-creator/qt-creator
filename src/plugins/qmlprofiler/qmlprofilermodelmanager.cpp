@@ -20,7 +20,7 @@
 #include <functional>
 
 using namespace QmlDebug;
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
 
 static const char *ProfileFeatureNames[] = {
     QT_TRANSLATE_NOOP("QtC::QmlProfiler", "JavaScript"),
@@ -107,12 +107,12 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent)
     : Timeline::TimelineTraceManager({}, std::make_unique<QmlProfilerEventTypeStorage>(), parent)
 {
     setNotesModel(new QmlProfilerNotesModel(this));
-    m_textMarkModel = new Internal::QmlProfilerTextMarkModel(this);
+    m_textMarkModel = new QmlProfilerTextMarkModel(this);
 
-    m_detailsRewriter = new Internal::QmlProfilerDetailsRewriter(this);
-    connect(m_detailsRewriter, &Internal::QmlProfilerDetailsRewriter::rewriteDetailsString,
+    m_detailsRewriter = new QmlProfilerDetailsRewriter(this);
+    connect(m_detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
             this, &QmlProfilerModelManager::setTypeDetails);
-    connect(m_detailsRewriter, &Internal::QmlProfilerDetailsRewriter::eventDetailsChanged,
+    connect(m_detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerModelManager::typeDetailsFinished);
     auto storage = new QmlProfilerEventStorage(QmlProfilerEventStorage::ErrorHandler());
     storage->setErrorHandler([this](const QString &message) { emit error(message); });
@@ -445,7 +445,7 @@ QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
 
 Timeline::TimelineTraceFile *QmlProfilerModelManager::createTraceFile()
 {
-    return new Internal::QmlProfilerTraceFile(this);
+    return new QmlProfilerTraceFile(this);
 }
 
 const Timeline::TraceEventType &QmlProfilerEventTypeStorage::get(int typeId) const
@@ -557,4 +557,4 @@ bool QmlProfilerEventStorage::replay(
     return false;
 }
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

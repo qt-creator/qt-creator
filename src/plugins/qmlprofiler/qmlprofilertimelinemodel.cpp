@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilertimelinemodel.h"
+
+#include "qmlprofilermodelmanager.h"
 #include "qmlprofilertr.h"
 
 using namespace QmlDebug;
-namespace QmlProfiler {
+
+namespace QmlProfiler::Internal {
 
 QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager,
                                                    Message message, RangeType rangeType,
@@ -94,4 +97,4 @@ void QmlProfilerTimelineModel::finalize()
     emit contentChanged();
 }
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

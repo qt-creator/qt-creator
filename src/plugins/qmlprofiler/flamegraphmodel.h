@@ -3,17 +3,18 @@
 
 #pragma once
 
-#include "qmlprofilernotesmodel.h"
-
+#include <qmldebug/qmlevent.h>
 #include <qmldebug/qmleventlocation.h>
+#include <qmldebug/qmleventtype.h>
 #include <qmldebug/qmlprofilereventtypes.h>
 
 #include <QAbstractItemModel>
 #include <QSet>
 #include <QStack>
-#include <QtQml/qqml.h>
 
 namespace QmlProfiler::Internal {
+
+class  QmlProfilerModelManager;
 
 struct FlameGraphData
 {
@@ -44,11 +45,10 @@ struct FlameGraphData
     QList<FlameGraphData *> children;
 };
 
-class FlameGraphModel : public QAbstractItemModel
+class FlameGraphModel final : public QAbstractItemModel
 {
     Q_OBJECT
-    QML_NAMED_ELEMENT(QmlProfilerFlameGraphModel)
-    QML_UNCREATABLE("use the context property")
+
 public:
     enum Role {
         TypeIdRole = Qt::UserRole + 1, // Sort by data, not by displayed string
@@ -72,12 +72,13 @@ public:
     FlameGraphModel(QmlProfilerModelManager *modelManager, QObject *parent = nullptr);
 
     QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &child) const override;
-    Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    Q_INVOKABLE int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QHash<int, QByteArray> roleNames() const override;
+                      const QModelIndex &parent = QModelIndex()) const final;
+    QModelIndex parent(const QModelIndex &child) const final;
+    Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const final;
+    Q_INVOKABLE int columnCount(const QModelIndex &parent = QModelIndex()) const final;
+    QVariant data(const QModelIndex &index, int role) const final;
+    QHash<int, QByteArray> roleNames() const final;
+
     QmlProfilerModelManager *modelManager() const;
 
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type);

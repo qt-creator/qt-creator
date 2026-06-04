@@ -12,6 +12,7 @@
 
 #include <utils/filepath.h>
 
+using namespace QmlProfiler::Internal;
 using namespace Utils;
 
 using namespace std::chrono;
@@ -21,15 +22,12 @@ namespace QmlProfiler {
 class QmlProfilerPlainViewManagerPrivate : public QObject
 {
 public:
-    QmlProfilerPlainViewManagerPrivate(QObject *parent = nullptr);
+    QmlProfilerPlainViewManagerPrivate(QObject *parent)
+        : QObject(parent)
+    {}
 
     QmlProfilerModelManager *modelManager = nullptr;
 };
-
-QmlProfilerPlainViewManagerPrivate::QmlProfilerPlainViewManagerPrivate(QObject *parent)
-    : QObject(parent)
-{
-}
 
 QmlProfilerPlainViewManager::QmlProfilerPlainViewManager(QObject *parent)
     : QObject(parent)

@@ -7,18 +7,17 @@
 
 #include <tracing/timelinetracefile.h>
 
-#include <QObject>
-#include <QString>
-
-QT_FORWARD_DECLARE_CLASS(QIODevice)
-QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
+QT_BEGIN_NAMESPACE
+class QIODevice;
+class QXmlStreamReader;
+QT_END_NAMESPACE
 
 namespace QmlProfiler::Internal {
 
+class QmlProfilerNotesModel;
+
 class QmlProfilerTraceFile : public Timeline::TimelineTraceFile
 {
-    Q_OBJECT
-
 public:
     explicit QmlProfilerTraceFile(QObject *parent = nullptr);
 
@@ -46,6 +45,5 @@ private:
     void addEventsProgress(qint64 timestamp);
     void addStageProgress(ProgressValues stage);
 };
-
 
 } // namespace QmlProfiler::Internal

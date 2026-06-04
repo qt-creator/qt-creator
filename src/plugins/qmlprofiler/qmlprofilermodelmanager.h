@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
 #include "qmlprofilertextmark.h"
 
 #include <qmldebug/qmlevent.h>
@@ -11,19 +10,20 @@
 #include <qmldebug/qmleventtype.h>
 #include <qmldebug/qmlprofilereventtypes.h>
 
-#include <utils/fileinprojectfinder.h>
 #include <tracing/timelinetracemanager.h>
 
-#include <QObject>
+#include <utils/fileinprojectfinder.h>
+
 #include <functional>
 
 namespace ProjectExplorer { class BuildConfiguration; }
 
-namespace QmlProfiler {
-namespace Internal { class QmlProfilerDetailsRewriter; }
+namespace QmlProfiler::Internal {
+
+class QmlProfilerDetailsRewriter;
 
 // Interface between the Data Model and the Engine/Tool
-class QMLPROFILER_EXPORT QmlProfilerModelManager : public Timeline::TimelineTraceManager
+class QmlProfilerModelManager final : public Timeline::TimelineTraceManager
 {
     Q_OBJECT
 public:
@@ -39,7 +39,7 @@ public:
 
     explicit QmlProfilerModelManager(QObject *parent = nullptr);
 
-    Internal::QmlProfilerTextMarkModel *textMarkModel() const;
+    QmlProfilerTextMarkModel *textMarkModel() const;
 
     const QmlDebug::QmlEventType &eventType(int typeId) const;
 
@@ -84,9 +84,9 @@ private:
     void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
                       ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
 
-    Internal::QmlProfilerTextMarkModel *m_textMarkModel = nullptr;
-    Internal::QmlProfilerDetailsRewriter *m_detailsRewriter = nullptr;
+    QmlProfilerTextMarkModel *m_textMarkModel = nullptr;
+    QmlProfilerDetailsRewriter *m_detailsRewriter = nullptr;
     bool m_isRestrictedToRange = false;
 };
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include "qmlprofilernotesmodel.h"
-
+#include <qmldebug/qmlevent.h>
+#include <qmldebug/qmleventtype.h>
 #include <qmldebug/qmlprofilereventtypes.h>
+
 #include <utils/qtcassert.h>
 
 #include <QHash>
@@ -13,7 +14,8 @@
 #include <QPointer>
 #include <QAbstractTableModel>
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
+
 class QmlProfilerModelManager;
 class QmlProfilerStatisticsRelativesModel;
 
@@ -56,10 +58,8 @@ enum RelativeField {
     MaxRelativeField
 };
 
-class QmlProfilerStatisticsModel : public QAbstractTableModel
+class QmlProfilerStatisticsModel final : public QAbstractTableModel
 {
-    Q_OBJECT
-
 public:
     struct QmlEventStats {
         std::vector<qint64> durations;
@@ -153,10 +153,8 @@ private:
     qint64 m_rootDuration = 0;
 };
 
-class QmlProfilerStatisticsRelativesModel : public QAbstractTableModel
+class QmlProfilerStatisticsRelativesModel final : public QAbstractTableModel
 {
-    Q_OBJECT
-
 public:
     struct QmlStatisticsRelativesData {
         QmlStatisticsRelativesData(qint64 duration = 0, qint64 calls = 0,
@@ -176,12 +174,11 @@ public:
     void clear();
     void loadEvent(QmlDebug::RangeType type, const QmlDebug::QmlEvent &event, bool isRecursive);
 
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-
-    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    int rowCount(const QModelIndex &parent) const final;
+    int columnCount(const QModelIndex &parent) const final;
+    QVariant data(const QModelIndex &index, int role) const final;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const final;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) final;
 
 private:
     QVariant dataForMainEntry(qint64 totalDuration, int role, int column) const;
@@ -203,4 +200,4 @@ private:
     const QmlProfilerStatisticsRelation m_relation;
 };
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

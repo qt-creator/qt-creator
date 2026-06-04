@@ -36,15 +36,12 @@
 #include <QPointer>
 #include <QAbstractItemModel>
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
+
 class QmlProfilerModelManager;
 
-namespace Internal {
-
-class Quick3DFrameModel : public QAbstractItemModel
+class Quick3DFrameModel final : public QAbstractItemModel
 {
-    Q_OBJECT
-
 public:
     struct Item {
         Item(int index = -1, int parent = -1, qint64 begin = 0, qint64 end = 0, int additionalType = 0, quint64 data = 0) :
@@ -114,12 +111,12 @@ public:
 
     void clear();
 
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent) const final;
+    int columnCount(const QModelIndex &parent) const final;
+    QVariant data(const QModelIndex &index, int role) const final;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const final;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const final;
+    QModelIndex parent(const QModelIndex &index) const final;
     QString location(int index) const;
 
     QStringList view3DNames() const;
@@ -145,5 +142,4 @@ private:
     int m_filterFrame = -1;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

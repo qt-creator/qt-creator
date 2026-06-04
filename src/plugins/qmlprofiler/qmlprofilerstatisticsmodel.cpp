@@ -6,13 +6,16 @@
 #include "qmlprofilertr.h"
 
 #include <tracing/timelineformattime.h>
+#include <tracing/timelinenotesmodel.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <functional>
 
 using namespace QmlDebug;
-namespace QmlProfiler {
+
+namespace QmlProfiler::Internal {
 
 QString nameForType(RangeType typeNumber)
 {
@@ -711,4 +714,4 @@ void QmlProfilerStatisticsRelativesModel::clear()
     endResetModel();
 }
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

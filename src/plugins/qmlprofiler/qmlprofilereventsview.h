@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
 
 #include <QAbstractItemModel>
@@ -11,7 +10,7 @@
 
 namespace QmlProfiler {
 
-class QMLPROFILER_EXPORT QmlProfilerEventsView : public QWidget
+class QmlProfilerEventsView : public QWidget
 {
     Q_OBJECT
 

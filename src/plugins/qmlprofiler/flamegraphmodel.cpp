@@ -12,7 +12,10 @@
 #include <QSet>
 #include <QString>
 
+#include <tracing/timelinenotesmodel.h>
+
 using namespace QmlDebug;
+
 namespace QmlProfiler::Internal {
 
 static inline quint64 supportedFeatures()

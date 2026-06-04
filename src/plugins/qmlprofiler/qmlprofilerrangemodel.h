@@ -9,20 +9,16 @@
 #include <qmldebug/qmleventlocation.h>
 #include <qmldebug/qmlprofilereventtypes.h>
 
-#include <QVariantList>
 #include <QColor>
 #include <QStack>
 
-namespace QmlProfiler {
-class QmlProfilerModelManager;
+namespace QmlProfiler::Internal {
 
-namespace Internal {
+class QmlProfilerModelManager;
 
 class QmlProfilerRangeModel : public QmlProfilerTimelineModel
 {
-    Q_OBJECT
 public:
-
     struct Item {
         // not-expanded, per type
         int displayRowExpanded = 1;
@@ -32,22 +28,20 @@ public:
     QmlProfilerRangeModel(QmlProfilerModelManager *manager, QmlDebug::RangeType range,
                           Timeline::TimelineModelAggregator *parent);
 
-    Q_INVOKABLE int expandedRow(int index) const override;
-    Q_INVOKABLE int collapsedRow(int index) const override;
-    QRgb color(int index) const override;
+    Q_INVOKABLE int expandedRow(int index) const final;
+    Q_INVOKABLE int collapsedRow(int index) const final;
+    QRgb color(int index) const final;
 
-    QVariantList labels() const override;
-    QVariantMap details(int index) const override;
-    QVariantMap location(int index) const override;
+    QVariantList labels() const final;
+    QVariantMap details(int index) const final;
+    QVariantMap location(int index) const final;
 
-    int typeId(int index) const override;
-
-protected:
-    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
-    void finalize() override;
-    void clear() override;
+    int typeId(int index) const final;
 
 private:
+    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) final;
+    void finalize() final;
+    void clear() final;
 
     void computeNestingContracted();
     void computeExpandedLevels();
@@ -57,5 +51,4 @@ private:
     QList<int> m_expandedRowTypes;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

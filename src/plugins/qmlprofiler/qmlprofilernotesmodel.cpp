@@ -6,11 +6,11 @@
 #include <tracing/timelinemodel.h>
 #include <utils/algorithm.h>
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
 
-QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent) : TimelineNotesModel(parent)
-{
-}
+QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent)
+    : TimelineNotesModel(parent)
+{}
 
 int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start, qint64 duration,
                                       const QString &text)
@@ -125,4 +125,4 @@ void QmlProfilerNotesModel::clear()
     m_notes.clear();
 }
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

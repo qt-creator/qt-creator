@@ -5,7 +5,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerStateManager : public QObject
 {
@@ -48,4 +48,4 @@ private:
     QmlProfilerStateManagerPrivate *d;
 };
 
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

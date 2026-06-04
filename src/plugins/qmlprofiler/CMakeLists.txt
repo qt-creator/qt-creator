@@ -1,49 +1,5 @@
-add_qtc_plugin(QmlProfiler
-  DEPENDS QmlDebug QmlJS Tracing
-  PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
-  SOURCES
-    debugmessagesmodel.cpp debugmessagesmodel.h
-    flamegraphmodel.cpp flamegraphmodel.h
-    flamegraphview.cpp flamegraphview.h
-    inputeventsmodel.cpp inputeventsmodel.h
-    memoryusagemodel.cpp memoryusagemodel.h
-    pixmapcachemodel.cpp pixmapcachemodel.h
-    qmlnote.cpp qmlnote.h
-    qmlprofiler_global.h
-    qmlprofilertr.h
-    qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
-    qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h
-    qmlprofilerclientmanager.cpp qmlprofilerclientmanager.h
-    qmlprofilerconstants.h
-    qmlprofilerdetailsrewriter.cpp qmlprofilerdetailsrewriter.h
-    qmlprofilereventsview.h
-    qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
-    qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
-    qmlprofilerplainviewmanager.cpp qmlprofilerplainviewmanager.h
-    qmlprofilerplugin.cpp
-    qmlprofilerrangemodel.cpp qmlprofilerrangemodel.h
-    qmlprofilerrunconfigurationaspect.cpp qmlprofilerrunconfigurationaspect.h
-    qmlprofilerruncontrol.cpp qmlprofilerruncontrol.h
-    qmlprofilersettings.cpp qmlprofilersettings.h
-    qmlprofilerstatemanager.cpp qmlprofilerstatemanager.h
-    qmlprofilerstatewidget.cpp qmlprofilerstatewidget.h
-    qmlprofilerstatisticsmodel.cpp qmlprofilerstatisticsmodel.h
-    qmlprofilerstatisticsview.cpp qmlprofilerstatisticsview.h
-    qmlprofilertextmark.cpp qmlprofilertextmark.h
-    qmlprofilertimelinemodel.cpp qmlprofilertimelinemodel.h
-    qmlprofilertool.cpp qmlprofilertool.h
-    qmlprofilertracefile.cpp qmlprofilertracefile.h
-    qmlprofilertraceview.cpp qmlprofilertraceview.h
-    qmlprofilerviewmanager.cpp qmlprofilerviewmanager.h
-    scenegraphtimelinemodel.cpp scenegraphtimelinemodel.h
-    quick3dmodel.cpp quick3dmodel.h
-    quick3dframeview.cpp quick3dframeview.h
-    quick3dframemodel.cpp quick3dframemodel.h
-)
-
-extend_qtc_plugin(QmlProfiler
-  CONDITION WITH_TESTS
-  SOURCES
+if(WITH_TESTS)
+  set(TEST_SOURCES
     tests/debugmessagesmodel_test.cpp tests/debugmessagesmodel_test.h
     tests/fakedebugserver.cpp tests/fakedebugserver.h
     tests/flamegraphmodel_test.cpp tests/flamegraphmodel_test.h
@@ -60,4 +16,54 @@ extend_qtc_plugin(QmlProfiler
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
     tests/tests.qrc
+  )
+else()
+  set(TEST_SOURCES "")
+endif()
+
+set(QMLPROFILER_CPP_SOURCES
+  debugmessagesmodel.cpp debugmessagesmodel.h
+  flamegraphmodel.cpp flamegraphmodel.h
+  flamegraphview.cpp flamegraphview.h
+  inputeventsmodel.cpp inputeventsmodel.h
+  memoryusagemodel.cpp memoryusagemodel.h
+  pixmapcachemodel.cpp pixmapcachemodel.h
+  qmlnote.cpp qmlnote.h
+  qmlprofiler_global.h
+  qmlprofilertr.h
+  qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
+  qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h
+  qmlprofilerclientmanager.cpp qmlprofilerclientmanager.h
+  qmlprofilerconstants.h
+  qmlprofilerdetailsrewriter.cpp qmlprofilerdetailsrewriter.h
+  qmlprofilereventsview.h
+  qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
+  qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
+  qmlprofilerplainviewmanager.cpp qmlprofilerplainviewmanager.h
+  qmlprofilerplugin.cpp
+  qmlprofilerrangemodel.cpp qmlprofilerrangemodel.h
+  qmlprofilerrunconfigurationaspect.cpp qmlprofilerrunconfigurationaspect.h
+  qmlprofilerruncontrol.cpp qmlprofilerruncontrol.h
+  qmlprofilersettings.cpp qmlprofilersettings.h
+  qmlprofilerstatemanager.cpp qmlprofilerstatemanager.h
+  qmlprofilerstatewidget.cpp qmlprofilerstatewidget.h
+  qmlprofilerstatisticsmodel.cpp qmlprofilerstatisticsmodel.h
+  qmlprofilerstatisticsview.cpp qmlprofilerstatisticsview.h
+  qmlprofilertextmark.cpp qmlprofilertextmark.h
+  qmlprofilertimelinemodel.cpp qmlprofilertimelinemodel.h
+  qmlprofilertool.cpp qmlprofilertool.h
+  qmlprofilertracefile.cpp qmlprofilertracefile.h
+  qmlprofilertraceview.cpp qmlprofilertraceview.h
+  scenegraphtimelinemodel.cpp scenegraphtimelinemodel.h
+  quick3dmodel.cpp quick3dmodel.h
+  quick3dframeview.cpp quick3dframeview.h
+  quick3dframemodel.cpp quick3dframemodel.h
+)
+
+add_qtc_plugin(QmlProfiler
+  DEPENDS QmlDebug QmlJS Tracing
+  PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
+  SOURCES
+    ${TEST_SOURCES}
+    ${QMLPROFILER_CPP_SOURCES}
 )

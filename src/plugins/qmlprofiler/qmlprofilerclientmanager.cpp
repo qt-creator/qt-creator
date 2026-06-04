@@ -2,17 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilerclientmanager.h"
+
+#include "qmlprofilerstatemanager.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerstatemanager.h"
 
 #include <utils/qtcassert.h>
 
 using namespace QmlDebug;
+
 namespace QmlProfiler::Internal {
 
-QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
-    QmlDebug::QmlDebugConnectionManager(parent)
+QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent)
+    : QmlDebug::QmlDebugConnectionManager(parent)
 {
     setObjectName(QLatin1String("QML Profiler Connections"));
 }

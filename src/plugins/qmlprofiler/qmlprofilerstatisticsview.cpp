@@ -41,6 +41,8 @@ static void getSourceLocation(const QModelIndex &index,
         receiver(fileName, line, column);
 }
 
+// QmlProfilerStatisticsView
+
 QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
                                                      QWidget *parent)
     : QmlProfilerEventsView(parent)
@@ -174,6 +176,8 @@ void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
     m_mainView->restrictToFeatures(features);
 }
 
+//  QmlProfilerStatisticsMainView
+
 QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(QmlProfilerStatisticsModel *model) :
     m_model(model)
 {
@@ -203,8 +207,6 @@ QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(QmlProfilerStatisti
     resizeColumnToContents(MainLocation);
     resizeColumnToContents(MainType);
 }
-
-QmlProfilerStatisticsMainView::~QmlProfilerStatisticsMainView() = default;
 
 void QmlProfilerStatisticsMainView::setShowExtendedStatistics(bool show)
 {
@@ -352,6 +354,8 @@ void QmlProfilerStatisticsMainView::copyRowToClipboard() const
     clipboard->setText(str, QClipboard::Clipboard);
 }
 
+//  QmlProfilerStatisticsRelativesView
+
 QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesView(
         QmlProfilerStatisticsRelativesModel *model) :
     m_model(model)
@@ -371,8 +375,6 @@ QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesView(
         jumpToItem(index.data(TypeIdRole).toInt());
     });
 }
-
-QmlProfilerStatisticsRelativesView::~QmlProfilerStatisticsRelativesView() = default;
 
 void QmlProfilerStatisticsRelativesView::displayType(int typeIndex)
 {

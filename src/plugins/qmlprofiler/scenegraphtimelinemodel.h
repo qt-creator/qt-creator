@@ -11,10 +11,8 @@
 
 namespace QmlProfiler::Internal {
 
-class SceneGraphTimelineModel : public QmlProfilerTimelineModel
+class SceneGraphTimelineModel final : public QmlProfilerTimelineModel
 {
-    Q_OBJECT
-
 public:
     enum SceneGraphStage {
         MinimumSceneGraphStage = 0,
@@ -63,21 +61,20 @@ public:
     SceneGraphTimelineModel(QmlProfilerModelManager *manager,
                             Timeline::TimelineModelAggregator *parent);
 
-    int expandedRow(int index) const override;
-    int collapsedRow(int index) const override;
-    int typeId(int index) const override;
-    QRgb color(int index) const override;
+    int expandedRow(int index) const final;
+    int collapsedRow(int index) const final;
+    int typeId(int index) const final;
+    QRgb color(int index) const final;
 
-    QVariantList labels() const override;
+    QVariantList labels() const final;
 
-    QVariantMap details(int index) const override;
-
-protected:
-    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
-    void finalize() override;
-    void clear() override;
+    QVariantMap details(int index) const final;
 
 private:
+    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) final;
+    void finalize() final;
+    void clear() final;
+
     void flattenLoads();
     qint64 insert(qint64 start, qint64 duration, int typeIndex, SceneGraphStage stage,
                   int glyphCount = -1);
