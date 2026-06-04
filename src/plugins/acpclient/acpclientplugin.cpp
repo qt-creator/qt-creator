@@ -101,10 +101,10 @@ public:
             }
         });
 
-        // Inspect action
+        // Inspect action, placed under Tools > Debug Qt Creator
         auto inspectAction = new QAction(Tr::tr("Inspect ACP Client..."), this);
         Command *inspectCmd = ActionManager::registerAction(inspectAction, Constants::INSPECT_ACTION_ID);
-        menu->addAction(inspectCmd);
+        ActionManager::actionContainer(Core::Constants::M_TOOLS_DEBUG)->addAction(inspectCmd);
 
         connect(inspectAction, &QAction::triggered, this, [this] {
             m_inspector->show();
