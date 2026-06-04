@@ -175,8 +175,7 @@ Timeline::ItemDetails Quick3DModel::details(int index) const
             result.insert(Tr::tr("Instances"), QString::number(instances));
     }
     if (!m_data[index].eventData.isEmpty()) {
-        for (int i = 0; i < m_data[index].eventData.size(); i++) {
-            int p = m_data[index].eventData[i];
+        for (const int p : std::as_const(m_data[index].eventData)) {
             if (m_eventData.contains(p)) {
                 const QmlEventType &et = modelManager()->eventType(m_eventData[p]);
                 QString type;
@@ -211,7 +210,7 @@ void Quick3DModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
     }
 
     QList<quint64> numbers = event.numbers<QList<quint64>>();
-    if (numbers.size() == 0)
+    if (numbers.isEmpty())
         return;
     qint64 eventDuration = numbers[0];
     qint64 eventTime = event.timestamp() - eventDuration;

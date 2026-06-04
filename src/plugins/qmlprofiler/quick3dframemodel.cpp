@@ -327,7 +327,7 @@ void Quick3DFrameModel::loadEvent(const QmlEvent &event, const QmlEventType &typ
     }
 
     QList<quint64> numbers = event.numbers<QList<quint64>>();
-    if (numbers.size() == 0)
+    if (numbers.isEmpty())
         return;
     qint64 eventDuration = numbers[0];
     qint64 eventTime = event.timestamp() - eventDuration;
@@ -356,7 +356,7 @@ void Quick3DFrameModel::loadEvent(const QmlEvent &event, const QmlEventType &typ
             m_data.push_back(child);
             m_data[index].children.push_back(child.index);
         }
-    } else if (eventData.size()) {
+    } else if (!eventData.isEmpty()) {
         m_data[index].eventData = eventData[0];
     }
 

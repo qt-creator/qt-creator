@@ -448,8 +448,8 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
         stack.pop();
 
         // recursion detection: check whether event was already in stack
-        for (int ii = 0; ii < stack.size(); ++ii) {
-            if (stack.at(ii).typeIndex() == typeIndex) {
+        for (const QmlEvent &event : std::as_const(stack)) {
+            if (event.typeIndex() == typeIndex) {
                 isRecursive = true;
                 stats.recursive += duration;
                 break;

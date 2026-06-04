@@ -67,8 +67,7 @@ void QmlProfilerNotesModel::restore()
 {
     {
         QSignalBlocker blocker(this);
-        for (int i = 0; i != m_notes.size(); ++i) {
-            QmlNote &note = m_notes[i];
+        for (QmlNote &note : m_notes) {
             note.setLoaded(addQmlNote(note.typeIndex(), note.collapsedRow(), note.startTime(),
                                       note.duration(), note.text()) != -1);
         }

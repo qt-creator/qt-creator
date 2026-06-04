@@ -44,7 +44,7 @@ private:
     QList<Item> m_data;
     int m_maxGuiThreadAnimations = 0;
     int m_maxRenderThreadAnimations = 0;
-    qint64 m_minNextStartTimes[2];
+    qint64 m_minNextStartTimes[2]{};
 
     int rowFromThreadId(int threadId) const;
 };
