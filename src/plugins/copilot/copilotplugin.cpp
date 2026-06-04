@@ -4,7 +4,6 @@
 #include "copilotclient.h"
 #include "copilotconstants.h"
 #include "copiloticons.h"
-#include "copilotprojectpanel.h"
 #include "copilotsettings.h"
 #include "copilottr.h"
 
@@ -133,7 +132,7 @@ public:
         toggleButton->setDefaultAction(toggleAction.contextAction());
         StatusBarManager::addStatusBarWidget(toggleButton, StatusBarManager::RightCorner);
 
-        setupCopilotProjectPanel();
+        setupCopilotSettings();
     }
 
     bool delayedInitialize() final

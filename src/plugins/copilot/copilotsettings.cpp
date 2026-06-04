@@ -11,6 +11,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -18,9 +19,10 @@
 
 #include <QToolTip>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Copilot {
+namespace Copilot::Internal {
 
 static void initEnableAspect(BoolAspect &enableCopilot)
 {
@@ -206,40 +208,9 @@ CopilotSettings::CopilotSettings()
     });
 }
 
-CopilotProjectSettings::CopilotProjectSettings(ProjectExplorer::Project *project)
-{
-    setAutoApply(true);
+// Global settings page
 
-    useGlobalSettings.setSettingsKey(Constants::COPILOT_USE_GLOBAL_SETTINGS);
-    useGlobalSettings.setDefaultValue(true);
-
-    initEnableAspect(enableCopilot);
-
-    Store map = storeFromVariant(project->namedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID));
-    fromMap(map);
-
-    enableCopilot.addOnChanged(this, [this, project] { save(project); });
-    useGlobalSettings.addOnChanged(this, [this, project] { save(project); });
-}
-
-bool CopilotProjectSettings::isEnabled() const
-{
-    if (useGlobalSettings())
-        return settings().enableCopilot();
-    return enableCopilot();
-}
-
-void CopilotProjectSettings::save(ProjectExplorer::Project *project)
-{
-    Store map;
-    toMap(map);
-    project->setNamedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID, variantFromStore(map));
-
-    // This triggers a restart of the Copilot language server.
-    settings().apply();
-}
-
-class CopilotSettingsPage : public Core::IOptionsPage
+class CopilotSettingsPage final : public Core::IOptionsPage
 {
 public:
     CopilotSettingsPage()
@@ -251,6 +222,99 @@ public:
     }
 };
 
-const CopilotSettingsPage settingsPage;
+// Project settings
 
-} // namespace Copilot
+class CopilotProjectSettings final : public AspectContainer
+{
+public:
+    explicit CopilotProjectSettings(Project *project)
+    {
+        setAutoApply(true);
+
+        useGlobalSettings.setSettingsKey(Constants::COPILOT_USE_GLOBAL_SETTINGS);
+        useGlobalSettings.setDefaultValue(true);
+
+        initEnableAspect(enableCopilot);
+
+        Store map = storeFromVariant(project->namedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID));
+        fromMap(map);
+
+        enableCopilot.addOnChanged(this, [this, project] { save(project); });
+        useGlobalSettings.addOnChanged(this, [this, project] { save(project); });
+    }
+
+    void save(Project *project)
+    {
+        Store map;
+        toMap(map);
+        project->setNamedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID, variantFromStore(map));
+
+        // This triggers a restart of the Copilot language server.
+        settings().apply();
+    }
+
+    BoolAspect enableCopilot{this};
+    BoolAspect useGlobalSettings{this};
+};
+
+class CopilotProjectWidget final : public QWidget
+{
+public:
+    CopilotProjectWidget(Project *project)
+        : m_settings(project)
+    {
+        m_settings.enableCopilot.setEnabled(!m_settings.useGlobalSettings());
+        m_settings.useGlobalSettings.addOnChanged(this, [this] {
+            m_settings.enableCopilot.setEnabled(!m_settings.useGlobalSettings());
+        });
+
+        // clang-format off
+        using namespace Layouting;
+        Column {
+            Row {
+                m_settings.useGlobalSettings,
+                createUseGlobalSettingsLabel(Constants::COPILOT_GENERAL_OPTIONS_ID),
+                st
+            },
+            createHr(),
+            m_settings.enableCopilot,
+            st,
+        }.attachTo(this);
+        // clang-format on
+    }
+
+    CopilotProjectSettings m_settings;
+};
+
+class CopilotProjectPanelFactory final : public ProjectPanelFactory
+{
+public:
+    CopilotProjectPanelFactory()
+    {
+        setPriority(1000);
+        setDisplayName(Tr::tr("Copilot"));
+        setCreateWidgetFunction([](Project *project) {
+            return new CopilotProjectWidget(project);
+        });
+    }
+};
+
+bool isCopilotEnabled(Project *project)
+{
+    if (!project)
+        return settings().enableCopilot();
+
+    CopilotProjectSettings projectSettings(project);
+    if (projectSettings.useGlobalSettings())
+        return settings().enableCopilot();
+
+    return projectSettings.enableCopilot();
+}
+
+void setupCopilotSettings()
+{
+    static CopilotSettingsPage theCopilotSettingsPage;
+    static CopilotProjectPanelFactory theCopilotProjectPanelFactory;
+}
+
+} // namespace Copilot::Internal

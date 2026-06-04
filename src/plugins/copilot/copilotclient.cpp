@@ -108,7 +108,7 @@ CopilotClient::~CopilotClient() = default;
 void CopilotClient::openDocument(TextDocument *document)
 {
     auto project = ProjectManager::projectForFile(document->filePath());
-    if (!isEnabled(project))
+    if (!isCopilotEnabled(project))
         return;
 
     Client::openDocument(document);
@@ -121,7 +121,7 @@ void CopilotClient::openDocument(TextDocument *document)
                     return;
 
                 auto project = ProjectManager::projectForFile(document->filePath());
-                if (!isEnabled(project))
+                if (!isCopilotEnabled(project))
                     return;
 
                 auto textEditor = BaseTextEditor::currentTextEditor();
@@ -167,7 +167,7 @@ void CopilotClient::requestCompletions(TextEditorWidget *editor)
 {
     auto project = ProjectManager::projectForFile(editor->textDocument()->filePath());
 
-    if (!isEnabled(project))
+    if (!isCopilotEnabled(project))
         return;
 
     MultiTextCursor cursor = editor->multiTextCursor();
@@ -291,16 +291,7 @@ void CopilotClient::requestSignInConfirm(
 
 bool CopilotClient::canOpenProject(Project *project)
 {
-    return isEnabled(project);
-}
-
-bool CopilotClient::isEnabled(Project *project)
-{
-    if (!project)
-        return settings().enableCopilot();
-
-    CopilotProjectSettings settings(project);
-    return settings.isEnabled();
+    return isCopilotEnabled(project);
 }
 
 } // namespace Copilot::Internal

@@ -7,7 +7,6 @@ add_qtc_plugin(Copilot
     copilotclient.cpp copilotclient.h
     copilotconstants.h
     copilotplugin.cpp
-    copilotprojectpanel.cpp copilotprojectpanel.h
     copilotsettings.cpp copilotsettings.h
     requests/checkstatus.h
     requests/getcompletions.h

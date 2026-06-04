@@ -48,8 +48,6 @@ public:
 
     bool canOpenProject(ProjectExplorer::Project *project) override;
 
-    bool isEnabled(ProjectExplorer::Project *project);
-
 private:
     QHash<TextEditor::TextEditorWidget *, GetCompletionRequest> m_runningRequests;
     struct ScheduleData

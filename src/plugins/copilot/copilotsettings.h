@@ -7,9 +7,9 @@
 
 namespace ProjectExplorer { class Project; }
 
-namespace Copilot {
+namespace Copilot::Internal {
 
-class CopilotSettings : public Utils::AspectContainer
+class CopilotSettings final : public Utils::AspectContainer
 {
 public:
     CopilotSettings();
@@ -27,17 +27,9 @@ public:
 
 CopilotSettings &settings();
 
-class CopilotProjectSettings : public Utils::AspectContainer
-{
-public:
-    explicit CopilotProjectSettings(ProjectExplorer::Project *project);
+bool isCopilotEnabled(ProjectExplorer::Project *project);
 
-    void save(ProjectExplorer::Project *project);
+void setupCopilotSettings();
 
-    bool isEnabled() const;
+} // namespace Copilot::Internal
 
-    Utils::BoolAspect enableCopilot{this};
-    Utils::BoolAspect useGlobalSettings{this};
-};
-
-} // namespace Copilot
