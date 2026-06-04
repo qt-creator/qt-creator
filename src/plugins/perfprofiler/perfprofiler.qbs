@@ -11,7 +11,7 @@ QtcPlugin {
 
     Depends {
         name: "Qt"
-        submodules: ["network", "quick", "quickwidgets"]
+        submodules: ["network", "widgets"]
     }
 
     files: [
@@ -57,14 +57,6 @@ QtcPlugin {
         "perftracepointdialog.h",
         "perfprofiler.qrc",
     ]
-
-    Qt.core.resourceFileBaseName: "PerfProfilerQml" // avoid conflicting qrc file
-    Group {
-        name: "Qml Files"
-        Qt.core.resourcePrefix: "qt/qml/QtCreator/PerfProfiler/"
-        fileTags: "qt.core.resource_data"
-        files: [ "PerfProfilerFlameGraphView.qml" ]
-    }
 
     QtcTestFiles {
         prefix: "tests/"
