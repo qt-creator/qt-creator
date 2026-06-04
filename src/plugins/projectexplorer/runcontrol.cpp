@@ -160,13 +160,9 @@ void RunWorkerFactory::dumpAll()
         qDebug() << "";
         for (Id device : devices) {
             for (Id runConfig : std::as_const(g_runConfigs)) {
-                const auto check = std::bind(
-                    &RunWorkerFactory::canCreate,
-                    std::placeholders::_1,
-                    runMode,
-                    device,
-                    runConfig,
-                    Utils::Id{}); // TODO: !!!
+                const auto check = [&](const RunWorkerFactory *f) {
+                    return f->canCreate(runMode, device, runConfig, Utils::Id{});
+                }; // TODO: !!!
                 const auto factory = findOrDefault(g_runWorkerFactories, check);
                 qDebug() << "MODE:" << runMode << device << runConfig << factory;
             }

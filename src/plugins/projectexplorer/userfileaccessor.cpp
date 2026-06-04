@@ -404,8 +404,9 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const KeyList
                                      "QmakeProjectManager.QmakeRunConfiguration.UseDyldImageSuffix"};
     switch (entry.typeId()) {
     case QMetaType::QVariantList:
-        return Utils::transform(entry.toList(),
-                                std::bind(&UserFileVersion19Upgrader::process, std::placeholders::_1, path));
+        return Utils::transform(entry.toList(), [&path](const QVariant &entry) {
+            return UserFileVersion19Upgrader::process(entry, path);
+        });
     case QMetaType::QVariantMap: {
         Store map = storeFromVariant(entry);
         Store result;
