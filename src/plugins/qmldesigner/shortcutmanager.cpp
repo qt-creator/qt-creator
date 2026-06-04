@@ -5,8 +5,7 @@
 
 #include <designersettings.h>
 
-#include <toolbarbackend.h>
-
+#include <designmodewidget.h>
 #include <viewmanager.h>
 #include <designeractionmanagerview.h>
 #include <componentcore_constants.h>
@@ -124,7 +123,14 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command = Core::ActionManager::registerAction(action, "Edit.Annotations", qmlDesignerMainContext);
     Core::ActionManager::actionContainer(Core::Constants::M_EDIT)
         ->addAction(command, Core::Constants::G_EDIT_OTHER);
-    connect(action, &QAction::triggered, this, [] { ToolBarBackend::launchGlobalAnnotations(); });
+    connect(action, &QAction::triggered, this, [] {
+        QTC_ASSERT(currentDesignDocument(), return);
+        ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
+        if (node.isValid()) {
+            QmlDesignerPlugin::instance()->mainWidget()->globalAnnotationEditor().setModelNode(node);
+            QmlDesignerPlugin::instance()->mainWidget()->globalAnnotationEditor().showWidget();
+        }
+    });
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [action] {
         action->setEnabled(Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN);
     });

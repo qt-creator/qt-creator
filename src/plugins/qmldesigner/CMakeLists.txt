@@ -704,19 +704,6 @@ extend_qtc_plugin(QmlDesigner
     shortcutwidget.cpp shortcutwidget.h
 )
 
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/toolbar
-  SOURCES
-    toolbar.cpp
-    toolbar.h
-    toolbarbackend.cpp
-    toolbarbackend.h
-    appoutputmodel.cpp
-    appoutputmodel.h
-    messagemodel.cpp
-    messagemodel.h
-)
-
 add_qtc_plugin(componentsplugin
   PLUGIN_CLASS ComponentsPlugin
   CONDITION TARGET QmlDesigner

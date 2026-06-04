@@ -6,7 +6,6 @@
 #include "qmldesignerplugin.h"
 
 #include <nodeabstractproperty.h>
-#include <toolbar.h>
 
 #include <qmldesigner/settings/designersettings.h>
 
@@ -215,8 +214,7 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 
 void CrumbleBar::updateVisibility()
 {
-    if (!ToolBar::isVisible())
-        crumblePath()->setVisible(crumblePath()->length() > 1);
+    crumblePath()->setVisible(crumblePath()->length() > 1);
 }
 
 bool operator ==(const CrumbleBarInfo &first, const CrumbleBarInfo &second)

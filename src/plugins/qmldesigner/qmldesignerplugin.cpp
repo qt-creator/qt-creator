@@ -14,7 +14,6 @@
 #include "quick2propertyeditorview.h"
 #include "settingspage.h"
 #include "shortcutmanager.h"
-#include "toolbar.h"
 
 #include <colortool/colortool.h>
 #include <connectionview.h>

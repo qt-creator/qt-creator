@@ -12,7 +12,6 @@
 #include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
 #include <theme.h>
-#include <toolbar.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -403,7 +402,7 @@ void DesignModeWidget::setup()
         mviews->addAction(command);
 
     // Create toolbars
-    if (!ToolBar::isVisible()) {
+    {
         auto toolBar = new QToolBar();
 
         toolBar->addAction(viewManager().componentViewAction());
@@ -749,8 +748,7 @@ void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
     m_canGoForward = m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1);
     m_toolBar->setCanGoBack(m_canGoBack);
     m_toolBar->setCanGoForward(m_canGoForward);
-    if (!ToolBar::isVisible())
-        m_toolBar->setCurrentEditor(editor);
+    m_toolBar->setCurrentEditor(editor);
 
     emit navigationHistoryChanged();
 }
