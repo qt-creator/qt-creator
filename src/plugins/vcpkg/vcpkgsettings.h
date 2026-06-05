@@ -12,21 +12,13 @@ namespace Vcpkg::Internal {
 class VcpkgSettings : public Utils::AspectContainer
 {
 public:
-    VcpkgSettings(ProjectExplorer::Project *project, bool autoApply);
-
-    void readSettings() final;
-    void writeSettings() const final;
+    VcpkgSettings();
 
     void setVcpkgRootEnvironmentVariable();
 
     Utils::FilePathAspect vcpkgRoot{this};
-
-    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from copyFrom/toMap
-
-private:
-    ProjectExplorer::Project *m_project{nullptr};
 };
 
-VcpkgSettings *settings(ProjectExplorer::Project *project);
+VcpkgSettings *settings(ProjectExplorer::Project *project = nullptr);
 
 } // Vcpkg::Internal

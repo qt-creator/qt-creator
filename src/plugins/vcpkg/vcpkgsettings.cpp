@@ -27,38 +27,12 @@ using namespace Utils;
 
 namespace Vcpkg::Internal {
 
-static VcpkgSettings *projectSettings(Project *project)
-{
-    const Key key = "VcpkgProjectSettings";
-    QVariant v = project->extraData(key);
-    if (v.isNull()) {
-        v = QVariant::fromValue(new VcpkgSettings(project, true));
-        project->setExtraData(key, v);
-    }
-    return v.value<VcpkgSettings *>();
-}
+// --- VcpkgSettings -----------------------------------------------------------
 
-VcpkgSettings *settings(Project *project)
-{
-    static VcpkgSettings theSettings{nullptr, false};
-    if (!project)
-        return &theSettings;
-
-    VcpkgSettings *projSettings = projectSettings(project);
-    if (projSettings->useGlobalSettings())
-        return &theSettings;
-
-    return projSettings;
-}
-
-VcpkgSettings::VcpkgSettings(Project *project, bool autoApply)
-    : m_project(project)
+VcpkgSettings::VcpkgSettings()
 {
     setSettingsGroup(Constants::Settings::GROUP_ID);
-    setAutoApply(autoApply);
-
-    useGlobalSettings.setDefaultValue(true);
-    useGlobalSettings.setAutoApply(autoApply);
+    setAutoApply(false);
 
     vcpkgRoot.setSettingsKey("VcpkgRoot");
     vcpkgRoot.setExpectedKind(PathChooser::ExistingDirectory);
@@ -84,7 +58,6 @@ VcpkgSettings::VcpkgSettings(Project *project, bool autoApply)
         });
 
         // clang-format off
-        using namespace Layouting;
         return Column {
             Group {
                 title(Tr::tr("Vcpkg installation")),
@@ -99,48 +72,94 @@ VcpkgSettings::VcpkgSettings(Project *project, bool autoApply)
     });
 
     readSettings();
-
-    if (m_project) {
-        // Re-read the settings. Reading in constructor is too early
-        connect(m_project, &Project::settingsLoaded, this, [this] { readSettings(); });
-    }
-}
-
-void VcpkgSettings::readSettings()
-{
-    if (!m_project) {
-        AspectContainer::readSettings();
-    } else {
-        Store data = storeFromVariant(m_project->namedSettings(Constants::Settings::GENERAL_ID));
-        if (data.isEmpty()) {
-            useGlobalSettings.setValue(true);
-            AspectContainer::readSettings();
-        } else {
-            useGlobalSettings.setValue(data.value(Constants::Settings::USE_GLOBAL_SETTINGS, true).toBool());
-            fromMap(data);
-        }
-    }
     setVcpkgRootEnvironmentVariable();
-}
-
-void VcpkgSettings::writeSettings() const
-{
-    if (!m_project) {
-        AspectContainer::writeSettings();
-    } else {
-        Store data;
-        toMap(data);
-        data.insert(Constants::Settings::USE_GLOBAL_SETTINGS, useGlobalSettings());
-        m_project->setNamedSettings(Constants::Settings::GENERAL_ID, variantFromStore(data));
-    }
 }
 
 void VcpkgSettings::setVcpkgRootEnvironmentVariable()
 {
-    // Set VCPKG_ROOT environment variable so that auto-setup.cmake would pick it up
     Environment::modifySystemEnvironment({{Constants::ENVVAR_VCPKG_ROOT,
         vcpkgRoot.expandedValue().nativePath()}});
 }
+
+// --- VcpkgProjectSettings ----------------------------------------------------
+
+class VcpkgProjectSettings : public VcpkgSettings
+{
+public:
+    explicit VcpkgProjectSettings(Project *project)
+        : m_project(project)
+    {
+        setAutoApply(true);
+
+        useGlobalSettings.setDefaultValue(true);
+
+        // Load project data (after base constructor loaded global data)
+        Store data = storeFromVariant(project->namedSettings(Constants::Settings::GENERAL_ID));
+        fromMap(data);
+        useGlobalSettings.setValue(data.value(Constants::Settings::USE_GLOBAL_SETTINGS, true).toBool());
+
+        vcpkgRoot.setEnabled(!useGlobalSettings());
+        setVcpkgRootEnvironmentVariable();
+
+        // Set up save connections after loading to avoid spurious saves during init
+        useGlobalSettings.addOnChanged(this, [this] {
+            vcpkgRoot.setEnabled(!useGlobalSettings());
+            save();
+        });
+        vcpkgRoot.addOnChanged(this, [this] {
+            if (!useGlobalSettings())
+                save();
+        });
+
+        // Re-read when project is fully loaded (reading in constructor is too early)
+        connect(m_project, &Project::settingsLoaded, this, [this] {
+            Store data = storeFromVariant(m_project->namedSettings(Constants::Settings::GENERAL_ID));
+            fromMap(data);
+            useGlobalSettings.setValue(data.value(Constants::Settings::USE_GLOBAL_SETTINGS, true).toBool());
+            setVcpkgRootEnvironmentVariable();
+        });
+    }
+
+    void save()
+    {
+        Store data;
+        toMap(data);
+        data.insert(Constants::Settings::USE_GLOBAL_SETTINGS, useGlobalSettings());
+        m_project->setNamedSettings(Constants::Settings::GENERAL_ID, variantFromStore(data));
+        setVcpkgRootEnvironmentVariable();
+    }
+
+    BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+
+private:
+    Project * const m_project;
+};
+
+// --- Helpers -----------------------------------------------------------------
+
+static VcpkgProjectSettings *projectSettings(Project *project)
+{
+    const Key key = "VcpkgProjectSettings";
+    QVariant v = project->extraData(key);
+    if (v.isNull()) {
+        v = QVariant::fromValue(new VcpkgProjectSettings(project));
+        project->setExtraData(key, v);
+    }
+    return v.value<VcpkgProjectSettings *>();
+}
+
+VcpkgSettings *settings(Project *project)
+{
+    static VcpkgSettings theSettings;
+    if (!project)
+        return &theSettings;
+    VcpkgProjectSettings *ps = projectSettings(project);
+    if (ps->useGlobalSettings())
+        return &theSettings;
+    return ps;
+}
+
+// --- Settings page -----------------------------------------------------------
 
 class VcpkgSettingsPage : public Core::IOptionsPage
 {
@@ -156,58 +175,27 @@ public:
 
 static const VcpkgSettingsPage settingsPage;
 
+// --- Project panel -----------------------------------------------------------
+
 class VcpkgSettingsWidget : public QWidget
 {
 public:
     explicit VcpkgSettingsWidget(Project *project)
-        : m_displayedSettings(project, true)
     {
-        m_displayedSettings.layouter()().attachTo(&m_widget);
-        m_widget.setEnabled(!m_displayedSettings.useGlobalSettings());
-
-        VcpkgSettings * const projSettings = projectSettings(project);
-        m_displayedSettings.useGlobalSettings.addOnChanged(this, [this, projSettings] {
-            const bool useGlobal = m_displayedSettings.useGlobalSettings();
-            m_widget.setEnabled(!useGlobal);
-            m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
-            projSettings->useGlobalSettings.setValue(useGlobal);
-            projSettings->writeSettings();
-            projSettings->setVcpkgRootEnvironmentVariable();
-        });
-
+        VcpkgProjectSettings * const ps = projectSettings(project);
+        QTC_ASSERT(ps, return);
         using namespace Layouting;
         Column {
-            Row { m_displayedSettings.useGlobalSettings,
-                  createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID), st },
+            Row {
+                ps->useGlobalSettings,
+                createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID),
+                st
+            },
             createHr(),
-            &m_widget,
+            *ps,
             noMargin,
         }.attachTo(this);
-
-        // React on Global settings changes
-        connect(settings(nullptr), &AspectContainer::changed, this, [this] {
-            if (m_displayedSettings.useGlobalSettings())
-                m_displayedSettings.copyFrom(*settings(nullptr));
-        });
-
-        // Reflect changes to the project settings in the displayed settings
-        connect(projSettings, &AspectContainer::changed, this, [this, projSettings] {
-            if (!m_displayedSettings.useGlobalSettings())
-                m_displayedSettings.copyFrom(*projSettings);
-        });
-
-        // React on displayed settings changes in the project settings
-        connect(&m_displayedSettings, &AspectContainer::changed, this, [this, projSettings] {
-            if (!m_displayedSettings.useGlobalSettings()) {
-                    projSettings->copyFrom(m_displayedSettings);
-                    projSettings->writeSettings();
-                    projSettings->setVcpkgRootEnvironmentVariable();
-                }
-            });
     }
-
-    QWidget m_widget;
-    VcpkgSettings m_displayedSettings;
 };
 
 class VcpkgSettingsPanelFactory final : public ProjectPanelFactory
