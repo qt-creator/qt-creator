@@ -13,8 +13,6 @@
 
 #include <utils/layoutbuilder.h>
 
-#include <QCheckBox>
-
 using namespace TextEditor;
 using namespace Utils;
 
@@ -22,83 +20,79 @@ namespace ProjectExplorer::Internal {
 
 const char kUseGlobalKey[] = "UseGlobalKey";
 
+class ProjectCommentsSettings : public CommentsSettings
+{
+public:
+    explicit ProjectCommentsSettings(Project *project)
+        : m_project(project)
+    {
+        useGlobalSettings.setDefaultValue(true);
+
+        const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
+        if (entry.isValid()) {
+            const Store store = storeFromVariant(entry);
+            fromMap(store);
+            useGlobalSettings.setValue(store.value(kUseGlobalKey, true).toBool());
+        }
+
+        setAutoApply(true);
+        setEnabled(!useGlobalSettings());
+
+        useGlobalSettings.addOnChanged(this, [this] {
+            setEnabled(!useGlobalSettings());
+            save();
+        });
+        addOnChanged(this, [this] {
+            if (!useGlobalSettings())
+                save();
+        });
+    }
+
+    void save()
+    {
+        // Optimization: Don't save if user never switched away from the default.
+        if (useGlobalSettings() && !m_project->namedSettings(CommentsSettings::mainSettingsKey()).isValid())
+            return;
+        Store data;
+        data.insert(kUseGlobalKey, useGlobalSettings());
+        if (!useGlobalSettings())
+            toMap(data);
+        m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), variantFromStore(data));
+    }
+
+    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+
+private:
+    Project * const m_project;
+};
+
+static ProjectCommentsSettings *projectCommentsSettings(Project *project)
+{
+    const Key key = "ProjectCommentsSettings";
+    QVariant v = project->extraData(key);
+    if (v.isNull()) {
+        v = QVariant::fromValue(new ProjectCommentsSettings(project));
+        project->setExtraData(key, v);
+    }
+    return v.value<ProjectCommentsSettings *>();
+}
+
 class ProjectCommentsSettingsWidget final : public QWidget
 {
 public:
     ProjectCommentsSettingsWidget(Project *project)
-        : m_project(project)
     {
-        bool useGlobal = true;
-        if (project) {
-            const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
-            if (entry.isValid()) {
-                const Store store = storeFromVariant(entry);
-                useGlobal = store.value(kUseGlobalKey, true).toBool();
-                if (!useGlobal)
-                    m_displayedSettings.fromMap(store);
-            }
-        }
-        if (useGlobal)
-            m_displayedSettings.copyFrom(globalCommentsSettings());
-        m_displayedSettings.setAutoApply(true);
-
-        m_useGlobal = useGlobal;
-
-        auto *inner = new QWidget;
-        m_displayedSettings.layouter()().attachTo(inner);
-        inner->setEnabled(!useGlobal);
-
-        m_globalCheckBox.setChecked(useGlobal);
-        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this, inner](bool useGlobal) {
-            m_useGlobal = useGlobal;
-            inner->setEnabled(!useGlobal);
-            if (useGlobal)
-                m_displayedSettings.copyFrom(globalCommentsSettings());
-            saveSettings(useGlobal);
-        });
-
+        ProjectCommentsSettings * const ps = projectCommentsSettings(project);
         using namespace Layouting;
         Column {
-            Row {
-                &m_globalCheckBox,
-                createUseGlobalSettingsLabel(TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS),
-                st
-            },
+            Row { ps->useGlobalSettings,
+                  createUseGlobalSettingsLabel(TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS),
+                  st },
             createHr(),
-            inner,
+            *ps,
             noMargin,
         }.attachTo(this);
-
-        connect(&globalCommentsSettings(), &CommentsSettings::changed,
-                this, [this] {
-                    if (m_useGlobal)
-                        m_displayedSettings.copyFrom(globalCommentsSettings());
-                });
-
-        connect(&m_displayedSettings, &AspectContainer::changed, this, [this] {
-            if (!m_useGlobal)
-                saveSettings(false);
-        });
     }
-
-private:
-    void saveSettings(bool useGlobal)
-    {
-        if (!m_project)
-            return;
-        if (useGlobal && !m_project->namedSettings(CommentsSettings::mainSettingsKey()).isValid())
-            return;
-        Store data;
-        data.insert(kUseGlobalKey, useGlobal);
-        if (!useGlobal)
-            m_displayedSettings.toMap(data);
-        m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), variantFromStore(data));
-    }
-
-    Project * const m_project;
-    QCheckBox m_globalCheckBox;
-    CommentsSettings m_displayedSettings;
-    bool m_useGlobal = true;
 };
 
 class CommentsSettingsProjectPanelFactory final : public ProjectPanelFactory
@@ -127,16 +121,6 @@ TextEditor::CommentsSettings::Data ProjectExplorer::commentsSettings(const FileP
     Project * const project = ProjectManager::projectForFile(filePath);
     if (!project)
         return globalCommentsSettings().data();
-
-    const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
-    if (!entry.isValid())
-        return globalCommentsSettings().data();
-
-    const Store data = storeFromVariant(entry);
-    if (data.value(kUseGlobalKey, true).toBool())
-        return globalCommentsSettings().data();
-
-    TextEditor::CommentsSettings::Data customSettings;
-    customSettings.fromMap(data);
-    return customSettings;
+    const auto *ps = projectCommentsSettings(project);
+    return ps->useGlobalSettings() ? globalCommentsSettings().data() : ps->data();
 }
