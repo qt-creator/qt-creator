@@ -19243,48 +19243,49 @@ Użytkownik: %2</translation>
     </message>
     <message>
         <source>Fetching DashboardInfo error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania DashboardInfo.</translation>
     </message>
     <message>
         <source>Fetching local DashboardInfo error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania lokalnego DashboardInfo.</translation>
     </message>
     <message>
         <source>Analysis path must be local.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka analizy musi być lokalna.</translation>
     </message>
     <message>
         <source>Invalid path elements (. or ..).</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowe elementy ścieżki (. lub ..).</translation>
     </message>
     <message>
         <source>Highlight marks</source>
-        <translation type="unfinished"></translation>
+        <translation>Podświetlanie znaczników</translation>
     </message>
     <message>
         <source>Marks issues on the scroll bar.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacza naruszenia na pasku przewijania.</translation>
     </message>
     <message>
         <source>Axivion Suite path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka do Axivion Suite:</translation>
     </message>
     <message>
         <source>Save all open files before starting an analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisywanie wszystkich otwartych plików przed uruchomieniem analizy</translation>
     </message>
     <message>
         <source>Path to python executable.
 Set it to overwrite global environment or if Axivion fails to find python in PATH.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka do pliku wykonywalnego python.
+Ustaw, aby nadpisać globalne środowisko lub gdy Axivion nie może znaleźć python w PATH.</translation>
     </message>
     <message>
         <source>Set it to overwrite global environment or if Axivion fails to find java in PATH.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw, aby nadpisać globalne środowisko lub gdy Axivion nie może znaleźć java w PATH.</translation>
     </message>
     <message>
         <source>Axivion: Deleting API token for %1 as respective dashboard server was removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion: Usuwanie tokenu API dla %1, ponieważ odpowiedni serwer panelu przeglądu został usunięty.</translation>
     </message>
     <message>
         <source>Dashboard URL:</source>
@@ -19312,7 +19313,7 @@ Set it to overwrite global environment or if Axivion fails to find python in PAT
     </message>
     <message>
         <source>Project name as it appears in the global dashboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa projektu wyświetlana w globalnym panelu przeglądu.</translation>
     </message>
     <message>
         <source>Analysis path:</source>
@@ -19321,7 +19322,8 @@ Set it to overwrite global environment or if Axivion fails to find python in PAT
     <message>
         <source>Root path of the analyzed project relative to the usedproject path inside the dashboard.
 Leave empty if the analyzed project refers to the basepath of the analyzed project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka główna analizowanego projektu względem ścieżki projektu wewnątrz panelu przeglądu.
+Zostaw puste, jeśli analizowany projekt odwołuje się do ścieżki bazowej analizowanego projektu.</translation>
     </message>
     <message>
         <source>Local path:</source>
@@ -19329,7 +19331,7 @@ Leave empty if the analyzed project refers to the basepath of the analyzed proje
     </message>
     <message>
         <source>Local directory path corresponding to the analyis path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalna ścieżka katalogu odpowiadająca ścieżce analizy.</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -19397,7 +19399,7 @@ Leave empty if the analyzed project refers to the basepath of the analyzed proje
     </message>
     <message>
         <source>Contact support@axivion.com if you need assistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skontaktuj się z support@axivion.com, jeśli potrzebujesz pomocy.</translation>
     </message>
     <message>
         <source>Misc Options</source>
@@ -19405,72 +19407,73 @@ Leave empty if the analyzed project refers to the basepath of the analyzed proje
     </message>
     <message>
         <source>unset</source>
-        <translation type="unfinished"></translation>
+        <translation>nieustawione</translation>
     </message>
     <message>
         <source>Remove Server Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń konfigurację serwera</translation>
     </message>
     <message>
         <source>Remove the server configuration &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy usunąć konfigurację serwera &quot;%1&quot;?</translation>
     </message>
     <message>
         <source>Add Dashboard Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj konfigurację panelu przeglądu</translation>
     </message>
     <message>
         <source>Edit Dashboard Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytuj konfigurację panelu przeglądu</translation>
     </message>
     <message>
         <source>Missing Path Mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak mapowania ścieżki</translation>
     </message>
     <message>
         <source>Configure a valid path mapping for &quot;%1&quot; to open files for this project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfiguruj prawidłowe mapowanie ścieżki dla &quot;%1&quot;, aby otwierać pliki dla tego projektu.</translation>
     </message>
     <message>
         <source>Select local file for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz lokalny plik dla &quot;%1&quot;</translation>
     </message>
     <message>
         <source>No matching path mapping for &quot;%1&quot; configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie skonfigurowano pasującego mapowania ścieżki dla &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>To open this file, you need to change the existing or add another valid path mapping.
 This may include changing the order of mappings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aby otworzyć ten plik, zmień istniejące lub dodaj kolejne prawidłowe mapowanie ścieżki.
+Może to wymagać zmiany kolejności mapowań.</translation>
     </message>
     <message>
         <source>No path mapping for &quot;%1&quot; configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie skonfigurowano mapowania ścieżki dla &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>To open files for this project, specify a valid path mapping or select a matching local file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aby otwierać pliki dla tego projektu, określ prawidłowe mapowanie ścieżki lub wybierz pasujący lokalny plik.</translation>
     </message>
     <message>
         <source>Select Matching File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz pasujący plik...</translation>
     </message>
     <message>
         <source>Change Existing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmień istniejące...</translation>
     </message>
     <message>
         <source>Set up Manually...</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfiguruj ręcznie...</translation>
     </message>
     <message>
         <source>Show Issue Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż właściwości naruszenia</translation>
     </message>
     <message>
         <source>Fetching...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie...</translation>
     </message>
     <message>
         <source>Allows for filters combined with &amp; as logical AND, | as logical OR and ! as logical NOT. The filters may contain * to match sequences of arbitrary characters. If a single filter is quoted with double quotes it will be matched on the complete string. Some filter characters require quoting of the filter expression with double quotes. If inside double quotes you need to escape &quot; and \ with a backslash.
@@ -19482,7 +19485,15 @@ a matches issues where the value contains the letter &apos;a&apos;
 (ab | cd) &amp; !ef matches issues with values containing &apos;ab&apos; or &apos;cd&apos; but not &apos;ef&apos;
 &quot;&quot; matches issues having an empty value in this column
 !&quot;&quot; matches issues having any non-empty value in this column</source>
-        <translation type="unfinished"></translation>
+        <translation>Umożliwia łączenie filtrów za pomocą &amp; jako logiczne AND, | jako logiczne OR i ! jako logiczne NOT. Filtry mogą zawierać * w celu dopasowania sekwencji dowolnych znaków. Jeśli pojedynczy filtr jest ujęty w cudzysłów, będzie dopasowany do całego ciągu. Niektóre znaki filtra wymagają ujęcia wyrażenia filtra w cudzysłów. Jeśli wewnątrz cudzysłowu musisz użyć &quot; lub \, poprzedź je odwrotnym ukośnikiem.
+Przykłady:
+
+a dopasowuje naruszenia, których wartość zawiera literę &apos;a&apos;
+&quot;abc&quot; dopasowuje naruszenia, których wartość to dokładnie &apos;abc&apos;
+!abc dopasowuje naruszenia, których wartość nie zawiera &apos;abc&apos;
+(ab | cd) &amp; !ef dopasowuje naruszenia z wartościami zawierającymi &apos;ab&apos; lub &apos;cd&apos;, ale nie &apos;ef&apos;
+&quot;&quot; dopasowuje naruszenia z pustą wartością w tej kolumnie
+!&quot;&quot; dopasowuje naruszenia z dowolną niepustą wartością w tej kolumnie</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -19490,7 +19501,7 @@ a matches issues where the value contains the letter &apos;a&apos;
     </message>
     <message>
         <source>Failed to start local dashboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd uruchamiania lokalnego panelu przeglądu.</translation>
     </message>
     <message>
         <source>Build type:</source>
@@ -19499,43 +19510,44 @@ a matches issues where the value contains the letter &apos;a&apos;
     <message>
         <source>Clean Build: Set environment variable AXIVION_CLEAN_BUILD=1
 Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1</source>
-        <translation type="unfinished"></translation>
+        <translation>Czyste budowanie: ustaw zmienną środowiskową AXIVION_CLEAN_BUILD=1
+Przyrostowe budowanie: ustaw zmienną środowiskową AXIVION_INCREMENTAL_BUILD=1</translation>
     </message>
     <message>
         <source>Clean Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Czyste budowanie</translation>
     </message>
     <message>
         <source>Incremental Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Przyrostowe budowanie</translation>
     </message>
     <message>
         <source>Warning: Modifying source files during the local build may produce unexpected warnings, errors, or wrong results.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostrzeżenie: Modyfikowanie plików źródłowych podczas lokalnego budowania może powodować nieoczekiwane ostrzeżenia, błędy lub nieprawidłowe wyniki.</translation>
     </message>
     <message>
         <source>Warning: If your build is not configured for local build, you may overwrite output files of your native compiler when starting a local build.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostrzeżenie: Jeśli projekt nie jest skonfigurowany do lokalnego budowania, uruchomienie go może nadpisać pliki wyjściowe natywnego kompilatora.</translation>
     </message>
     <message>
         <source>Start Local Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom lokalne budowanie</translation>
     </message>
     <message>
         <source>Choose the same Axivion Suite version as your CI build uses or the results may differ.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz tę samą wersję Axivion Suite, jakiej używa budowanie CI, w przeciwnym razie wyniki mogą się różnić.</translation>
     </message>
     <message>
         <source>Axivion Suite installation directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog instalacji Axivion Suite:</translation>
     </message>
     <message>
         <source>Enter the command for building %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wprowadź komendę budowania %1:</translation>
     </message>
     <message>
         <source>Local Build Command: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Komenda lokalnego budowania: %1</translation>
     </message>
     <message>
         <source>Started</source>
@@ -19583,7 +19595,7 @@ Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1</source>
     </message>
     <message>
         <source>Cannot parse JSON data &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można sparsować danych JSON &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Not a JSON object: %1</source>
@@ -19591,15 +19603,15 @@ Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1</source>
     </message>
     <message>
         <source>Unexpected response when starting PluginArServer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwana odpowiedź podczas uruchamiania PluginArServer.</translation>
     </message>
     <message>
         <source>Unexpected response for HTTP server start request.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwana odpowiedź na żądanie uruchomienia serwera HTTP.</translation>
     </message>
     <message>
         <source>PluginArServer stopped with unknown error.</source>
-        <translation type="unfinished"></translation>
+        <translation>PluginArServer zatrzymał się z nieznanym błędem.</translation>
     </message>
     <message>
         <source>Start</source>
@@ -19608,12 +19620,12 @@ Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1</source>
     <message>
         <source>No active project. Referring to %1 will fail.</source>
         <extracomment>%1 is a Qt Creator variable string</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Brak aktywnego projektu. Odwołanie do %1 zakończy się błędem.</translation>
     </message>
     <message>
         <source>or some shell/batch script holding cafeCC / axivion_analysis commands to execute.</source>
         <extracomment>the text is preceded by a command to execute</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>lub skrypt powłoki/wsadowy zawierający komendy cafeCC / axivion_analysis do wykonania.</translation>
     </message>
     <message>
         <source>BAUHAUS_CONFIG Directory</source>
@@ -19621,7 +19633,7 @@ Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1</source>
     </message>
     <message>
         <source>Usually the directory containing the file &quot;axivion_config.json&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zazwyczaj katalog zawierający plik &quot;axivion_config.json&quot;.</translation>
     </message>
     <message>
         <source>Analysis Command</source>
@@ -19630,7 +19642,8 @@ Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1</source>
     <message>
         <source>Axivion Suite path is neither configured nor in PATH.
 Set it up in Preferences &gt; Analyzers &gt; Axivion to start a single file analysis.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka do Axivion Suite nie jest skonfigurowana ani nie jest w PATH.
+Skonfiguruj ją w Ustawienia &gt; Analizatory &gt; Axivion, aby uruchomić analizę pojedynczego pliku.</translation>
     </message>
     <message>
         <source>Preparing</source>
@@ -19638,24 +19651,25 @@ Set it up in Preferences &gt; Analyzers &gt; Axivion to start a single file anal
     </message>
     <message>
         <source>Single file analysis finished successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Analiza pojedynczego pliku zakończyła się pomyślnie.</translation>
     </message>
     <message>
         <source>Single file analysis was canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Analiza pojedynczego pliku została anulowana.</translation>
     </message>
     <message>
         <source>Single file analysis failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Analiza pojedynczego pliku nie powiodła się.</translation>
     </message>
     <message>
         <source>Starting single file analysis (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie analizy pojedynczego pliku (%1)</translation>
     </message>
     <message>
         <source>There already is a single file analysis running for &quot;%1&quot;.
 Try again when it has finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Analiza pojedynczego pliku dla &quot;%1&quot; jest już uruchomiona.
+Spróbuj ponownie po jej zakończeniu.</translation>
     </message>
 </context>
 <context>
@@ -21363,19 +21377,19 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>The CMake flag for the provisioning profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Flaga CMake dla profilu udostępniania</translation>
     </message>
     <message>
         <source>The CMake flag for the architecture on macOS</source>
-        <translation type="unfinished"></translation>
+        <translation>Flaga CMake dla architektury na macOS</translation>
     </message>
     <message>
         <source>The C++ compiler QML debugging define, if enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Definicja debugowania QML kompilatora C++, jeśli włączone</translation>
     </message>
     <message>
         <source>The CMake boolean value for QML debugging: ON / OFF.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wartość boolowska CMake dla debugowania QML: ON / OFF.</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -21415,7 +21429,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Reload CMake Presets</source>
-        <translation>Przeładuj ustawienia CMake&apos;a</translation>
+        <translation>Przeładuj presety CMake</translation>
     </message>
     <message>
         <source>CMake Profiler</source>
@@ -21455,7 +21469,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Re-generates the kits that were created for CMake presets. All manual modifications to the CMake project settings will be lost.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ponownie generuje zestawy narzędzi, które zostały utworzone dla presetów CMake. Wszystkie ręczne modyfikacje ustawień projektu CMake zostaną utracone.</translation>
     </message>
     <message>
         <source>Reload</source>
@@ -21480,15 +21494,15 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Cannot set up compiler for CMake Preset &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można skonfigurować kompilatora dla presetu CMake &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot set up Qt for CMake Preset &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można skonfigurować Qt dla presetu CMake &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Creating Kits for CMake Presets</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzenie zestawów narzędzi dla presetów CMake</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -21522,15 +21536,15 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     <message>
         <source>Enables %1 to install dependencies from the conanfile.txt, conanfile.py, or vcpkg.json file from the project source directory.</source>
         <extracomment>%1 = applicationDisplayName</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Umożliwia %1 instalowanie zależności z pliku conanfile.txt, conanfile.py lub vcpkg.json z katalogu źródłowego projektu.</translation>
     </message>
     <message>
         <source>Qt Online Installer dependency provider</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostawca zależności Qt Online Installer</translation>
     </message>
     <message>
         <source>Use Qt Online Installer to install missing Qt components.</source>
-        <translation type="unfinished"></translation>
+        <translation>Używanie Qt Online Installer do instalowania brakujących komponentów Qt.</translation>
     </message>
     <message>
         <source>Ask before re-configuring with initial parameters</source>
@@ -21538,7 +21552,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Ask before reloading CMake Presets</source>
-        <translation>Pytaj przed przeładowaniem ustawień CMake</translation>
+        <translation>Pytaj przed przeładowaniem presetów CMake</translation>
     </message>
     <message>
         <source>Show subfolders inside source group folders</source>
@@ -21550,11 +21564,11 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Use junctions for CMake configuration and build operations</source>
-        <translation type="unfinished"></translation>
+        <translation>Używanie dowiązań katalogowych dla operacji konfiguracji i budowania CMake</translation>
     </message>
     <message>
         <source>Create and use junctions for the source and build directories to overcome issues with long paths on Windows.&lt;br&gt;&lt;br&gt;Junctions are stored under &lt;tt&gt;C:\ProgramData\QtCreator\Links&lt;/tt&gt; (overridable via the &lt;tt&gt;QTC_CMAKE_JUNCTIONS_DIR&lt;/tt&gt; environment variable).&lt;br&gt;&lt;br&gt;With &lt;tt&gt;QTC_CMAKE_JUNCTIONS_HASH_LENGTH&lt;/tt&gt;, you can shorten the MD5 hash key length to a value smaller than the default length value of 32.&lt;br&gt;&lt;br&gt;Junctions are used for CMake configure, build and install operations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy i używa dowiązań katalogowych dla katalogów źródłowych i budowania, aby obejść problemy z długimi ścieżkami w systemie Windows.&lt;br&gt;&lt;br&gt;Dowiązania są przechowywane w &lt;tt&gt;C:\ProgramData\QtCreator\Links&lt;/tt&gt; (można nadpisać przez zmienną środowiskową &lt;tt&gt;QTC_CMAKE_JUNCTIONS_DIR&lt;/tt&gt;).&lt;br&gt;&lt;br&gt;Za pomocą &lt;tt&gt;QTC_CMAKE_JUNCTIONS_HASH_LENGTH&lt;/tt&gt; można skrócić długość klucza hash MD5 do wartości mniejszej niż domyślna wartość 32.&lt;br&gt;&lt;br&gt;Dowiązania są używane dla operacji konfigurowania, budowania i instalowania CMake.</translation>
     </message>
     <message>
         <source>Clear old CMake output on a new run</source>
@@ -21670,23 +21684,23 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>CMakeUserPresets.json cannot re-define the %1 preset: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>CMakeUserPresets.json nie może ponownie definiować presetu %1: %2</translation>
     </message>
     <message>
         <source>Build preset %1 is missing a corresponding configure preset.</source>
-        <translation type="unfinished"></translation>
+        <translation>Preset budowania %1 nie ma odpowiadającego presetu konfiguracji.</translation>
     </message>
     <message>
         <source>Test preset %1 is missing a corresponding configure preset.</source>
-        <translation type="unfinished"></translation>
+        <translation>Preset testowy %1 nie ma odpowiadającego presetu konfiguracji.</translation>
     </message>
     <message>
         <source>Attempt to include &quot;%1&quot; which was already parsed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Próba dołączenia &quot;%1&quot;, który był już parsowany.</translation>
     </message>
     <message>
         <source>The kit needs to define a CMake tool to parse this project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zestaw narzędzi musi definiować narzędzie CMake do parsowania tego projektu.</translation>
     </message>
     <message>
         <source>Apply Configuration Changes?</source>
@@ -21702,11 +21716,11 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>&lt;b&gt;CMake configuration failed&lt;b&gt;&lt;p&gt;The backup of the previous configuration has been restored.&lt;/p&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Konfiguracja CMake nie powiodła się&lt;b&gt;&lt;p&gt;Przywrócono kopię zapasową poprzedniej konfiguracji.&lt;/p&gt;&lt;p&gt;Problemy i ustawienia &quot;Projekty &gt; Budowanie&quot; zawierają więcej informacji o błędzie.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Failed to load project&lt;b&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Błąd ładowania projektu&lt;b&gt;&lt;p&gt;Problemy i ustawienia &quot;Projekty &gt; Budowanie&quot; zawierają więcej informacji o błędzie.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Scan &quot;%1&quot; project tree</source>
@@ -21722,7 +21736,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>The remote CMake executable cannot write to the local build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdalny plik wykonywalny CMake nie może zapisywać do lokalnego katalogu budowania.</translation>
     </message>
     <message>
         <source>%1 (via CMake)</source>
@@ -21734,11 +21748,11 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Kit does not have a CMake binary set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zestaw narzędzi nie ma ustawionego pliku wykonywalnego CMake.</translation>
     </message>
     <message>
         <source>No valid CMake executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak poprawnego pliku wykonywalnego CMake.</translation>
     </message>
     <message>
         <source>Cannot create output directory &quot;%1&quot;.</source>
@@ -21750,7 +21764,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>A CMake tool must be set up for building. Configure a CMake tool in the kit options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie CMake musi być skonfigurowane do budowania. Skonfiguruj narzędzie CMake w opcjach zestawu narzędzi.</translation>
     </message>
     <message>
         <source>There is a CMakeCache.txt file in &quot;%1&quot;, which suggest an in-source build was done before. You are now building in &quot;%2&quot;, and the CMakeCache.txt file might confuse CMake.</source>
@@ -21762,11 +21776,11 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Build the executable used in the active run configuration. Currently: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Buduje plik wykonywalny używany w aktywnej konfiguracji uruchamiania. Aktualnie: %1</translation>
     </message>
     <message>
         <source>Target: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Cel: %1</translation>
     </message>
     <message>
         <source>CMake arguments:</source>
@@ -21774,11 +21788,11 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Enable automatic provisioning updates:</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączanie automatycznych aktualizacji profilu udostępniania:</translation>
     </message>
     <message>
         <source>Tells xcodebuild to create and download a provisioning profile if a valid one does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nakazuje narzędziu xcodebuild utworzenie i pobranie profilu udostępniania, jeśli prawidłowy nie istnieje.</translation>
     </message>
     <message>
         <source>Target</source>
@@ -21795,7 +21809,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     <message>
         <source>CMake Build</source>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
-        <translation type="unfinished">Wersja CMake</translation>
+        <translation>Budowanie CMake</translation>
     </message>
     <message>
         <source>Tool arguments:</source>
@@ -21803,34 +21817,34 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Install into staging directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Instaluj w katalogu tymczasowym:</translation>
     </message>
     <message>
         <source>Implies the %1 target, but sets the %2 variable to install into the specified directory instead of into the default system directories. This does not affect the target location for deployment configurations.</source>
         <extracomment>%1 = the &quot;install&quot; CMake target, %2 = the DESTDIR environment variable</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Implikuje cel %1, ale ustawia zmienną %2, aby instalować do określonego katalogu zamiast do domyślnych katalogów systemowych. Nie ma to wpływu na lokalizację docelową dla konfiguracji instalacyjnych.</translation>
     </message>
     <message>
         <source>Use this option for example if you develop for a remote target device and do not want to install into the system directories of the build device, or to use separate installation directories on the build device for different build configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj tej opcji na przykład, jeśli tworzysz oprogramowanie dla zdalnego urządzenia docelowego i nie chcesz instalować do katalogów systemowych urządzenia budowania, lub aby używać oddzielnych katalogów instalacyjnych na urządzeniu budowania dla różnych konfiguracji budowania.</translation>
     </message>
     <message>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Poproszono o zbudowanie wyłącznie celu bieżącej konfiguracji uruchamiania, ale konfiguracja ta nie ma przypisanego celu do zbudowania. Zaktualizuj krok Make w ustawieniach budowania.</translation>
     </message>
     <message>
         <source>Project did not parse successfully, cannot build.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt nie został pomyślnie sparsowany, nie można budować.</translation>
     </message>
     <message>
         <source>Stage at %2 for %3</source>
         <extracomment>Stage (for installation) at &lt;staging_dir&gt; for &lt;installation_dir&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tymczasowo w %2 dla %3</translation>
     </message>
     <message>
         <source>Build</source>
         <comment>ConfigWidget display name.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Budowanie</translation>
     </message>
     <message>
         <source>Clear system environment</source>
@@ -21879,19 +21893,19 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Expected JSON Object with key &quot;binary&quot; to be a string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwano, że klucz &quot;binary&quot; w obiekcie JSON będzie ciągiem znakowym.</translation>
     </message>
     <message>
         <source>CMake executable &quot;%1&quot; is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik wykonywalny CMake &quot;%1&quot; nie jest poprawny.</translation>
     </message>
     <message>
         <source>CMake tool &quot;%1&quot; is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie CMake &quot;%1&quot; nie jest poprawne.</translation>
     </message>
     <message>
         <source>Cannot create CMake tool from JSON: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć narzędzia CMake z JSON: %1</translation>
     </message>
     <message>
         <source>CMake version %1 is unsupported. Update to version 3.15 (with file-api) or later.</source>
@@ -21971,7 +21985,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Enter one CMake &lt;a href=&quot;variable&quot;&gt;variable&lt;/a&gt; per line.&lt;br/&gt;To set a variable, use -D&amp;lt;variable&amp;gt;:&amp;lt;type&amp;gt;=&amp;lt;value&amp;gt;.&lt;br/&gt;&amp;lt;type&amp;gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wprowadź jedną &lt;a href=&quot;variable&quot;&gt;zmienną&lt;/a&gt; CMake na wiersz.&lt;br/&gt;Aby ustawić zmienną, użyj -D&amp;lt;zmienna&amp;gt;:&amp;lt;typ&amp;gt;=&amp;lt;wartość&amp;gt;.&lt;br/&gt;&amp;lt;typ&amp;gt; może mieć jedną z następujących wartości: FILEPATH, PATH, BOOL, INTERNAL lub STRING.</translation>
     </message>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
@@ -22084,32 +22098,32 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>You may need to add the project directory to the list of directories that are mounted by the build device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Może być konieczne dodanie katalogu projektu do listy katalogów montowanych przez urządzenie budowania.</translation>
     </message>
     <message>
         <source>The source directory %1 is not reachable by the CMake executable %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog źródłowy %1 nie jest osiągalny dla pliku wykonywalnego CMake %2.</translation>
     </message>
     <message>
         <source>The build directory %1 is not reachable by the CMake executable %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog budowania %1 nie jest osiągalny dla pliku wykonywalnego CMake %2.</translation>
     </message>
     <message>
         <source>The build directory &quot;%1&quot; does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog budowania &quot;%1&quot; nie istnieje</translation>
     </message>
     <message>
         <source>CMake executable &quot;%1&quot; and build directory &quot;%2&quot; must be on the same device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik wykonywalny CMake &quot;%1&quot; i katalog budowania &quot;%2&quot; muszą być na tym samym urządzeniu.</translation>
     </message>
     <message>
         <source>The %1 installation is missing the &quot;cmake-helper&quot; directory. It was expected here: &quot;%2&quot;.</source>
         <extracomment>%1 applicationDisplayName</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja %1 nie zawiera katalogu &quot;cmake-helper&quot;. Oczekiwano go tutaj: &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Failed to copy &quot;cmake-helper&quot; folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd kopiowania katalogu &quot;cmake-helper&quot;:</translation>
     </message>
     <message>
         <source>Running %1 in %2.</source>
@@ -22171,15 +22185,15 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     <message>
         <source>CMake Install</source>
         <comment>Display name for CMakeProjectManager::CMakeInstallStep id.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja CMake</translation>
     </message>
     <message>
         <source>Build CMake Target</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbuduj cel CMake</translation>
     </message>
     <message>
         <source>Builds a target of any open CMake project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Buduje cel dowolnego otwartego projektu CMake.</translation>
     </message>
     <message>
         <source>Open CMake Target</source>
@@ -22187,7 +22201,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Locates the definition of a target of any open CMake project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizuje definicję celu dowolnego otwartego projektu CMake.</translation>
     </message>
     <message>
         <source>Run CTest Test</source>
@@ -22199,7 +22213,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>AutoTest plugin needs to be loaded in order to execute tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczka AutoTest musi być załadowana, aby wykonywać testy.</translation>
     </message>
     <message>
         <source>👉 Click here to install the missing component with the Qt Online Installer</source>
@@ -22211,7 +22225,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Unexpected source directory &quot;%1&quot;, expected &quot;%2&quot;. This can be correct in some situations, for example when importing a standalone Qt test, but usually this is an error. Import the build anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwany katalog źródłowy &quot;%1&quot;, oczekiwano &quot;%2&quot;. Może to być poprawne w niektórych sytuacjach, na przykład podczas importowania autonomicznego testu Qt, ale zazwyczaj jest to błąd. Czy mimo to zaimportować budowanie?</translation>
     </message>
     <message>
         <source>Version not parseable</source>
@@ -22227,7 +22241,7 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     </message>
     <message>
         <source>Failed to set up CMake file API support. %1 cannot extract project information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd konfigurowania obsługi file API CMake. %1 nie może wyodrębnić informacji o projekcie.</translation>
     </message>
     <message>
         <source>Invalid reply file created by CMake.</source>
@@ -22300,17 +22314,19 @@ Na przykład „Revision: 15" pozostawi gałąź w wersji 15.</translation>
     <message>
         <source>CMake project configuration failed. No CMake configuration for build type &quot;%1&quot; found. Check General Messages for more information.</source>
         <extracomment>General Messages refers to the output view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja projektu CMake nie powiodła się. Nie znaleziono konfiguracji CMake dla typu budowania &quot;%1&quot;. Sprawdź Komunikaty ogólne, aby uzyskać więcej informacji.</translation>
     </message>
     <message>
         <source>No &quot;%1&quot; CMake configuration found. Available configurations: &quot;%2&quot;.
 Make sure that CMAKE_CONFIGURATION_TYPES variable contains the &quot;Build type&quot; field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono konfiguracji CMake &quot;%1&quot;. Dostępne konfiguracje: &quot;%2&quot;.
+Upewnij się, że zmienna CMAKE_CONFIGURATION_TYPES zawiera pole &quot;Typ budowania&quot;.</translation>
     </message>
     <message>
         <source>No &quot;%1&quot; CMake configuration found. Available configuration: &quot;%2&quot;.
 Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono konfiguracji CMake &quot;%1&quot;. Dostępna konfiguracja: &quot;%2&quot;.
+Upewnij się, że zmienna CMAKE_BUILD_TYPE odpowiada polu &quot;Typ budowania&quot;.</translation>
     </message>
     <message>
         <source>CMake returned error code: %1</source>
@@ -22338,19 +22354,19 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
     <message>
         <source>Invalid &quot;configurePresets&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędna sekcja &quot;configurePresets&quot; w pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;buildPresets&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędna sekcja &quot;buildPresets&quot; w pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;testPresets&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędna sekcja &quot;testPresets&quot; w pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;vendor&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędna sekcja &quot;vendor&quot; w pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&lt;File System&gt;</source>
@@ -25079,7 +25095,7 @@ W przeciwnym razie należy podać ścieżkę do pliku %2 z wtyczki Copilot dla N
     </message>
     <message>
         <source>Restart Required</source>
-        <translation>Wymagane ponowne uruchomienie</translation>
+        <translation>Wymagany restart</translation>
     </message>
     <message>
         <source>Later</source>
@@ -36204,255 +36220,255 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <name>QtC::DevContainer</name>
     <message>
         <source>Inspecting container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdzanie kontenera: %1</translation>
     </message>
     <message>
         <source>Inspecting image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdzanie obrazu: %1</translation>
     </message>
     <message>
         <source>Create Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz kontener</translation>
     </message>
     <message>
         <source>Creating container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzenie kontenera: %1</translation>
     </message>
     <message>
         <source>Waiting for container to start: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwanie na uruchomienie kontenera: %1</translation>
     </message>
     <message>
         <source>Executing in container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykonywanie w kontenerze: %1</translation>
     </message>
     <message>
         <source>Invalid passwd line: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowa linia passwd: %1</translation>
     </message>
     <message>
         <source>Checking if container exists: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdzanie, czy kontener istnieje: %1</translation>
     </message>
     <message>
         <source>Container already exists: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontener już istnieje: %1</translation>
     </message>
     <message>
         <source>Container does not exist, proceeding to create: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontener nie istnieje, trwa tworzenie: %1</translation>
     </message>
     <message>
         <source>Start Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom kontener</translation>
     </message>
     <message>
         <source>Starting container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie kontenera: %1</translation>
     </message>
     <message>
         <source>Resume Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Wznów kontener</translation>
     </message>
     <message>
         <source>Resuming container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wznawianie kontenera: %1</translation>
     </message>
     <message>
         <source>Build Dockerfile</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbuduj Dockerfile</translation>
     </message>
     <message>
         <source>Building Dockerfile: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Budowanie Dockerfile: %1</translation>
     </message>
     <message>
         <source>Remove Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń kontener</translation>
     </message>
     <message>
         <source>Removing container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuwanie kontenera: %1</translation>
     </message>
     <message>
         <source>Remove Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń obraz</translation>
     </message>
     <message>
         <source>Removing image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuwanie obrazu: %1</translation>
     </message>
     <message>
         <source>Running instance cannot be null.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchomiona instancja nie może być pusta.</translation>
     </message>
     <message>
         <source>Invalid mount format: expected string or object, found &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy format montowania: oczekiwano ciągu znakowego lub obiektu, znaleziono &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid mount format: missing &quot;type&quot; field in mount object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy format montowania: brak pola &quot;type&quot; w obiekcie montowania.</translation>
     </message>
     <message>
         <source>Invalid mount format: missing &quot;target&quot; field in mount object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy format montowania: brak pola &quot;target&quot; w obiekcie montowania.</translation>
     </message>
     <message>
         <source>Cannot parse development container JSON file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania pliku JSON kontenera deweloperskiego: %1</translation>
     </message>
     <message>
         <source>Invalid development container JSON file: expected an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy plik JSON kontenera deweloperskiego: oczekiwano obiektu.</translation>
     </message>
     <message>
         <source>Feature dependency key cannot be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klucz zależności funkcji nie może być pusty.</translation>
     </message>
     <message>
         <source>Feature dependency key must contain an ID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klucz zależności funkcji musi zawierać identyfikator.</translation>
     </message>
     <message>
         <source>Failed to parse the development container feature file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania pliku funkcji kontenera deweloperskiego: %1</translation>
     </message>
     <message>
         <source>Development Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontener deweloperski</translation>
     </message>
     <message>
         <source>Rebuild the development container?</source>
-        <translation type="unfinished"></translation>
+        <translation>Przebudować kontener deweloperski?</translation>
     </message>
     <message>
         <source>The Development Container Configuration Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja kontenera deweloperskiego zmieniła się</translation>
     </message>
     <message>
         <source>Rebuild</source>
-        <translation type="unfinished">Przebuduj</translation>
+        <translation>Przebuduj</translation>
     </message>
     <message>
         <source>Development Container Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd kontenera deweloperskiego</translation>
     </message>
     <message>
         <source>Rebuild and restart the development container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przebuduj i zrestartuj kontener deweloperski.</translation>
     </message>
     <message>
         <source>The configuration does not contain a &quot;build&quot;, &quot;image&quot; or &quot;dockerComposeFile&quot; entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja nie zawiera wpisu &quot;build&quot;, &quot;image&quot; ani &quot;dockerComposeFile&quot;.</translation>
     </message>
     <message>
         <source>Cannot load the development container configuration: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd wczytywania konfiguracji kontenera deweloperskiego: %1</translation>
     </message>
     <message>
         <source>Cannot set up Command Bridge: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można skonfigurować Command Bridge: %1</translation>
     </message>
     <message>
         <source>Cannot create the development container recipe: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć przepisu kontenera deweloperskiego: %1</translation>
     </message>
     <message>
         <source>Unknown kit aspect factory: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznana fabryka aspektu zestawu: %1</translation>
     </message>
     <message>
         <source>Cannot create kit aspect %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć aspektu zestawu %1: %2</translation>
     </message>
     <message>
         <source>Cannot start the development container. Check General Messages for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić kontenera deweloperskiego. Szczegóły w Komunikatach ogólnych.</translation>
     </message>
     <message>
         <source>Starting the development container</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie kontenera deweloperskiego</translation>
     </message>
     <message>
         <source>The development container is not running or has not been started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontener deweloperski nie jest uruchomiony lub nie został uruchomiony.</translation>
     </message>
     <message>
         <source>Stopping the development container</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymywanie kontenera deweloperskiego</translation>
     </message>
     <message>
         <source>Cannot stop the development container. Check General Messages for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zatrzymać kontenera deweloperskiego. Szczegóły w Komunikatach ogólnych.</translation>
     </message>
     <message>
         <source>Restarting the development container</source>
-        <translation type="unfinished"></translation>
+        <translation>Ponowne uruchamianie kontenera deweloperskiego</translation>
     </message>
     <message>
         <source>System environment is not available for this device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Środowisko systemowe jest niedostępne dla tego urządzenia.</translation>
     </message>
     <message>
         <source>Cannot reach &quot;%1&quot; from &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uzyskać dostępu do &quot;%1&quot; z &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>File access is not available for this device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak dostępu do plików na tym urządzeniu.</translation>
     </message>
     <message>
         <source>No mapping available for %1 on %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak mapowania dla %1 na %2.</translation>
     </message>
     <message>
         <source>The project directory &quot;%1&quot; is not inside the development container workspace folder &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog projektu &quot;%1&quot; leży poza obszarem roboczym kontenera deweloperskiego &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Development Container Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie kontenera deweloperskiego</translation>
     </message>
     <message>
         <source>Found a development container in the project %1, would you like to start it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono kontener deweloperski w projekcie %1. Czy chcesz go uruchomić?</translation>
     </message>
     <message>
         <source>Configure the development container?</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfigurować kontener deweloperski?</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Tak</translation>
+        <translation>Tak</translation>
     </message>
     <message>
         <source>Start the development container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom kontener deweloperski.</translation>
     </message>
     <message>
         <source>Found development containers in the project %1, would you like to start any of them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono kontenery deweloperskie w projekcie %1. Czy chcesz uruchomić któryś z nich?</translation>
     </message>
     <message>
         <source>Failed to watch the configuration files for the development container for project %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd monitorowania plików konfiguracji kontenera deweloperskiego dla projektu %1: %2</translation>
     </message>
     <message>
         <source>Development Containers</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontenery deweloperskie</translation>
     </message>
     <message>
         <source>Start or Restart Development Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom lub zrestartuj kontener deweloperski</translation>
     </message>
     <message>
         <source>Start or stop and restart the development container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom lub zatrzymaj i zrestartuj kontener deweloperski.</translation>
     </message>
     <message>
         <source>Development Container for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontener deweloperski dla %1</translation>
     </message>
 </context>
 <context>
@@ -36658,71 +36674,71 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <name>QtC::Docker</name>
     <message>
         <source>Checking docker daemon</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdzanie demona Docker</translation>
     </message>
     <message>
         <source>Docker executable not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono pliku wykonywalnego Docker</translation>
     </message>
     <message>
         <source>Failed to list docker networks: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd listowania sieci Docker: %1</translation>
     </message>
     <message>
         <source>Failed to parse docker network info: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania informacji o sieci Docker: %1</translation>
     </message>
     <message>
         <source>Docker Image &quot;%1&quot; (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Obraz Docker &quot;%1&quot; (%2)</translation>
     </message>
     <message>
         <source>Cannot reach &quot;%1&quot; from &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uzyskać dostępu do &quot;%1&quot; z &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; is not mounted in the Docker device &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka &quot;%1&quot; nie jest zamontowana w urządzeniu Docker &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Host IP address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres IP hosta.</translation>
     </message>
     <message>
         <source>Host IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>IP hosta:</translation>
     </message>
     <message>
         <source>Host port number.</source>
-        <translation type="unfinished"></translation>
+        <translation>Numer portu hosta.</translation>
     </message>
     <message>
         <source>Host port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port hosta:</translation>
     </message>
     <message>
         <source>Container port number.</source>
-        <translation type="unfinished"></translation>
+        <translation>Numer portu kontenera.</translation>
     </message>
     <message>
         <source>Container port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port kontenera:</translation>
     </message>
     <message>
         <source>Protocol to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokół do użycia.</translation>
     </message>
     <message>
         <source>Protocol:</source>
-        <translation type="unfinished">Protokół:</translation>
+        <translation>Protokół:</translation>
     </message>
     <message>
         <source>Port mappings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapowania portów:</translation>
     </message>
     <message>
         <source>Image ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>ID obrazu:</translation>
     </message>
     <message>
         <source>Repository:</source>
@@ -36734,7 +36750,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Container environment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Środowisko kontenera:</translation>
     </message>
     <message>
         <source>Run as outside user:</source>
@@ -36742,43 +36758,43 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Do not modify entry point:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie modyfikuj punktu wejścia:</translation>
     </message>
     <message>
         <source>Path is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka jest pusta.</translation>
     </message>
     <message>
         <source>Cannot reach remote path &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uzyskać dostępu do zdalnej ścieżki &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Environment could not be captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można przechwycić środowiska.</translation>
     </message>
     <message>
         <source>Ready (waiting for access to container...)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gotowe (oczekiwanie na dostęp do kontenera...)</translation>
     </message>
     <message>
         <source>Process not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono procesu.</translation>
     </message>
     <message>
         <source>Signal operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Operacja sygnalizowania anulowana.</translation>
     </message>
     <message>
         <source>Paths to mount:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżki do zamontowania:</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapuje ścieżki z tej listy jeden do jednego w kontenerze Docker.</translation>
     </message>
     <message>
         <source>Host directories to mount into the container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalogi hosta do zamontowania w kontenerze.</translation>
     </message>
     <message>
         <source>Extra arguments:</source>
@@ -36786,7 +36802,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Extra arguments to pass to docker create.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodatkowe argumenty przekazywane do docker create.</translation>
     </message>
     <message>
         <source>Network:</source>
@@ -36794,39 +36810,39 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a directory or does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka &quot;%1&quot; nie jest katalogiem lub nie istnieje.</translation>
     </message>
     <message>
         <source>Enable ptrace-based debugging:</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz debugowanie z użyciem ptrace:</translation>
     </message>
     <message>
         <source>Needed for gdb and lldb to attach to processes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Potrzebne, aby gdb i lldb mogły dołączyć do procesów.</translation>
     </message>
     <message>
         <source>Mount Command Bridge:</source>
-        <translation type="unfinished"></translation>
+        <translation>Montuj Command Bridge:</translation>
     </message>
     <message>
         <source>The Command Bridge facilitates communication between Qt Creator and the running Container. It is mounted into the Container by default. If your Docker server does not have access to the folder where Qt Creator is installed this can fail. In that case you can disable this option for a slower workaround.</source>
-        <translation type="unfinished"></translation>
+        <translation>Command Bridge ułatwia komunikację między Qt Creatorem a uruchomionym kontenerem. Jest domyślnie montowany w kontenerze. Jeśli serwer Docker nie ma dostępu do katalogu, w którym zainstalowany jest Qt Creator, może to się nie powieść. W takim przypadku możesz wyłączyć tę opcję, stosując wolniejsze obejście.</translation>
     </message>
     <message>
         <source>Enable X11 forwarding:</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz przekierowanie X11:</translation>
     </message>
     <message>
         <source>Mounts the X11 socket and Xauthority file into the container so that graphical applications can display on the host. Disable to reduce noise on the command line when X11 is not needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Montuje gniazdo X11 i plik Xauthority w kontenerze, aby aplikacje graficzne mogły wyświetlać się na hoście. Wyłącz, aby zmniejszyć szum w wierszu poleceń, gdy X11 nie jest potrzebne.</translation>
     </message>
     <message>
         <source>Docker</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker</translation>
     </message>
     <message>
         <source>Open Shell in Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz powłokę w kontenerze</translation>
     </message>
     <message>
         <source>Error</source>
@@ -36834,43 +36850,43 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Failed creating Docker container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd tworzenia kontenera Docker: %1</translation>
     </message>
     <message>
         <source>Failed creating Docker container. No container ID received.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd tworzenia kontenera Docker. Nie otrzymano identyfikatora kontenera.</translation>
     </message>
     <message>
         <source>Failed starting Docker event listener. Exit code: %1, output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd uruchamiania monitora zdarzeń Docker. Kod wyjściowy: %1, wyjście: %2</translation>
     </message>
     <message>
         <source>Failed starting Docker container. Exit code: %1, output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd uruchamiania kontenera Docker. Kod wyjściowy: %1, wyjście: %2</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybór obrazu Docker</translation>
     </message>
     <message>
         <source>Docker device is not initialized. Cannot create command line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie Docker nie jest zainicjalizowane. Nie można utworzyć wiersza poleceń.</translation>
     </message>
     <message>
         <source>Device is shut down.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie jest wyłączone.</translation>
     </message>
     <message>
         <source>Docker system is not reachable.</source>
-        <translation type="unfinished"></translation>
+        <translation>System Docker jest nieosiągalny.</translation>
     </message>
     <message>
         <source>Docker image &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono obrazu Docker &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Show unnamed images</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż obrazy bez nazwy</translation>
     </message>
     <message>
         <source>Loading ...</source>
@@ -36878,15 +36894,15 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>The process failed to start.</source>
-        <translation type="unfinished">Błąd uruchamiania procesu.</translation>
+        <translation>Błąd uruchamiania procesu.</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Unexpected result: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwany wynik: %1</translation>
     </message>
     <message>
         <source>Done.</source>
@@ -36898,67 +36914,67 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Docker Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie Docker</translation>
     </message>
     <message>
         <source>Failed to inspect image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd inspekcji obrazu: %1</translation>
     </message>
     <message>
         <source>Could not parse image inspect output: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania wyniku inspekcji obrazu: %1</translation>
     </message>
     <message>
         <source>localSource: No mount point found for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>localSource: Nie znaleziono punktu montowania dla %1</translation>
     </message>
     <message>
         <source>Daemon state:</source>
-        <translation type="unfinished"></translation>
+        <translation>Stan demona:</translation>
     </message>
     <message>
         <source>Clears detected daemon state. It will be automatically re-evaluated next time access is needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Czyści wykryty stan demona. Zostanie automatycznie ponownie oceniony przy następnym dostępie.</translation>
     </message>
     <message>
         <source>Source directory list should not be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista katalogów źródłowych nie może być pusta.</translation>
     </message>
     <message>
         <source>Auto-detect Kit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykryj automatycznie elementy zestawu</translation>
     </message>
     <message>
         <source>Remove Auto-Detected Kit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń automatycznie wykryte elementy zestawu</translation>
     </message>
     <message>
         <source>List Auto-Detected Kit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż automatycznie wykryte elementy zestawu</translation>
     </message>
     <message>
         <source>Refresh Docker networks</source>
-        <translation type="unfinished"></translation>
+        <translation>Odśwież sieci Docker</translation>
     </message>
     <message>
         <source>Failed to start container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd uruchamiania kontenera.</translation>
     </message>
     <message>
         <source>Starting auto-detection...</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie automatycznego wykrywania...</translation>
     </message>
     <message>
         <source>Docker daemon appears to be stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Demon Docker: wygląda na zatrzymany.</translation>
     </message>
     <message>
         <source>Docker daemon appears to be running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Demon Docker: wygląda na uruchomiony.</translation>
     </message>
     <message>
         <source>Detection log:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dziennik wykrywania:</translation>
     </message>
     <message>
         <source>Command line:</source>
@@ -36966,15 +36982,15 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Daemon state not evaluated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stan demona nie został oceniony.</translation>
     </message>
     <message>
         <source>Docker daemon running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Demon Docker działa.</translation>
     </message>
     <message>
         <source>Docker daemon not running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Demon Docker nie działa.</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -36982,7 +36998,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Docker CLI</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker CLI</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -36990,7 +37006,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Fetch Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobierz środowisko</translation>
     </message>
 </context>
 <context>
@@ -37029,11 +37045,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed with exit code %2.</source>
-        <translation>Instalacja &quot;%1&quot; nie powiodła się z kodem wyjścia %2.</translation>
+        <translation>Instalacja &quot;%1&quot; zakończona błędem, kod wyjściowy %2.</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by timeout.</source>
-        <translation>Instalacja &quot;%1&quot; została anulowana z powodu przekroczenia limitu czasu.</translation>
+        <translation>Instalacja &quot;%1&quot; anulowana, przekroczenie limitu czasu.</translation>
     </message>
 </context>
 <context>
@@ -37317,228 +37333,232 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
 You acknowledge that you download, install, or use Extensions from the Qt Creator Extensions Store at your own discretion and risk. All Qt Creator Extensions are provided &quot;as is&quot; without warranties of any kind, and may be subject to additional license terms imposed by their owners or licensors.
 
 You can manage the use of Extensions in Preferences &gt; Extensions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozszerzenia Qt Creator są dostępne ze skonfigurowanych źródeł online, takich jak Qt Creator Extensions Store dostarczany przez Qt Group, a także ze źródeł zewnętrznych. Rozszerzenia Qt Creator mogą być tworzone i posiadane przez strony trzecie.
+
+Przyjmujesz do wiadomości, że pobieranie, instalowanie i używanie rozszerzeń z Qt Creator Extensions Store odbywa się na własne ryzyko. Wszystkie rozszerzenia Qt Creator są dostarczane w stanie „takim, jakie są", bez jakichkolwiek gwarancji i mogą podlegać dodatkowym warunkom licencji narzuconym przez ich właścicieli.
+
+Możesz zarządzać używaniem rozszerzeń w Preferencje &gt; Rozszerzenia.</translation>
     </message>
     <message>
         <source>Use %1 Extensions?</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączyć rozszerzenia %1?</translation>
     </message>
     <message>
         <source>Use</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz</translation>
     </message>
     <message>
         <source>Do Not Use</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie włączaj</translation>
     </message>
     <message>
         <source>Extensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozszerzenia</translation>
     </message>
     <message>
         <source>Use external repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Zewnętrzne repozytorium</translation>
     </message>
     <message>
         <source>Repository URLs:</source>
-        <translation type="unfinished"></translation>
+        <translation>URL-e repozytoriów:</translation>
     </message>
     <message>
         <source>Repositories to query for extensions. You can specify local paths or HTTP(S) URLs that should be merged with the main repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Repozytoria rozszerzeń. Możesz podać lokalne ścieżki lub adresy HTTP(S), które zostaną połączone z głównym repozytorium.</translation>
     </message>
     <message>
         <source>SSL support is not available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak obsługi SSL.</translation>
     </message>
     <message>
         <source>Note</source>
-        <translation type="unfinished">Uwaga</translation>
+        <translation>Uwaga</translation>
     </message>
     <message>
         <source>Use External Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Zewnętrzne repozytorium</translation>
     </message>
     <message>
         <source>Install Extension...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj rozszerzenie...</translation>
     </message>
     <message>
         <source>Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeglądarka</translation>
     </message>
     <message>
         <source>If you choose to link or connect an external repository, you are acting at your own discretion and risk. The Qt Company does not control, endorse, or maintain any external repositories that you connect. Any changes, unavailability or security issues in external repositories are beyond The Qt Company&apos;s control and responsibility. By linking or connecting external repositories, you acknowledge these conditions and accept responsibility for managing associated risks appropriately.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podłączając zewnętrzne repozytorium, działasz na własne ryzyko. Qt Company nie kontroluje, nie rekomenduje ani nie utrzymuje żadnych zewnętrznych repozytoriów. Wszelkie zmiany, niedostępność lub problemy z bezpieczeństwem w zewnętrznych repozytoriach są poza kontrolą i odpowiedzialnością Qt Company. Podłączając zewnętrzne repozytoria, przyjmujesz te warunki i akceptujesz odpowiedzialność za zarządzanie związanymi ryzykami.</translation>
     </message>
     <message>
         <source>Restart Required</source>
-        <translation type="unfinished">Wymagane ponowne uruchomienie</translation>
+        <translation>Wymagany restart</translation>
     </message>
     <message>
         <source>Restart Now</source>
-        <translation type="unfinished">Uruchom ponownie</translation>
+        <translation>Zrestartuj teraz</translation>
     </message>
     <message>
         <source>(Incompatible)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Niekompatybilne)</translation>
     </message>
     <message>
         <source>Install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj...</translation>
     </message>
     <message>
         <source>Remove...</source>
-        <translation type="unfinished">Usuń...</translation>
+        <translation>Usuń...</translation>
     </message>
     <message>
         <source>Update...</source>
-        <translation type="unfinished">Update...</translation>
+        <translation>Uaktualnij...</translation>
     </message>
     <message>
         <source>Cannot install extension: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zainstalować rozszerzenia: %1</translation>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktywne</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Błąd</translation>
+        <translation>Błąd</translation>
     </message>
     <message>
         <source>Loaded</source>
-        <translation type="unfinished">Załadowana</translation>
+        <translation>Załadowane</translation>
     </message>
     <message>
         <source>Not loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezaładowane</translation>
     </message>
     <message>
         <source>No details to show</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak szczegółów do wyświetlenia</translation>
     </message>
     <message>
         <source>Select an extension to see more information about it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz rozszerzenie, aby zobaczyć więcej informacji.</translation>
     </message>
     <message>
         <source>Last Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostatnia aktualizacja</translation>
     </message>
     <message>
         <source>Tags</source>
-        <translation type="unfinished">Tagi</translation>
+        <translation>Tagi</translation>
     </message>
     <message>
         <source>Platforms</source>
-        <translation type="unfinished"></translation>
+        <translation>Platformy</translation>
     </message>
     <message>
         <source>Dependencies</source>
-        <translation type="unfinished">Zależności</translation>
+        <translation>Zależności</translation>
     </message>
     <message>
         <source>Extensions in pack</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozszerzenia w pakiecie</translation>
     </message>
     <message>
         <source>Toggle Secondary Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz szczegóły dodatkowe</translation>
     </message>
     <message>
         <source>Extension details</source>
-        <translation type="unfinished"></translation>
+        <translation>Szczegóły rozszerzenia</translation>
     </message>
     <message>
         <source>Download Extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie rozszerzenia</translation>
     </message>
     <message>
         <source>Downloading...</source>
-        <translation type="unfinished">Pobieranie...</translation>
+        <translation>Pobieranie...</translation>
     </message>
     <message>
         <source>Download Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania</translation>
     </message>
     <message>
         <source>Cannot download extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można pobrać rozszerzenia</translation>
     </message>
     <message>
         <source>Code: %1 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Kod: %1 (%2).</translation>
     </message>
     <message>
         <source>Downloaded extension has an invalid hash.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobrane rozszerzenie ma nieprawidłową sumę kontrolną.</translation>
     </message>
     <message>
         <source>Inactive</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieaktywne</translation>
     </message>
     <message>
         <source>Last updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostatnio zaktualizowane</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>All</source>
         <comment>Extensions filter</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie</translation>
     </message>
     <message>
         <source>Extension packs</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakiety rozszerzeń</translation>
     </message>
     <message>
         <source>Individual extensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojedyncze rozszerzenia</translation>
     </message>
     <message>
         <source>No extension found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono rozszerzenia!</translation>
     </message>
     <message>
         <source>Manage Extensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj rozszerzeniami</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Wyszukaj</translation>
+        <translation>Wyszukaj</translation>
     </message>
     <message>
         <source>Filter by: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtruj według: %1</translation>
     </message>
     <message>
         <source>Sort by: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortuj według: %1</translation>
     </message>
     <message>
         <source>Documentation</source>
-        <translation type="unfinished">Dokumentacja</translation>
+        <translation>Dokumentacja</translation>
     </message>
     <message>
         <source>More Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Więcej informacji</translation>
     </message>
     <message>
         <source>Platform agnostic</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezależne od platformy</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Nowy</translation>
+        <translation>Nowe</translation>
     </message>
     <message>
         <source>Updated</source>
-        <translation type="unfinished">Uaktualniony</translation>
+        <translation>Zaktualizowane</translation>
     </message>
 </context>
 <context>
@@ -42945,7 +42965,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Writes a copy of the build progress file (.ib_mon) to the specified location. If only a folder name is given, a generated GUID will serve as the file name. The full path of the saved Build Monitor will be written to the end of the build output.</source>
-        <translation>Zapisuje kopię pliku postępu budowania (.ib_mon) w podanej lokalizacji. Jeśli podano tylko nazwę folderu, wygenerowany GUID posłuży jako nazwa pliku. Pełna ścieżka zapisanego Monitora budowania zostanie dopisana na końcu wyjścia budowania.</translation>
+        <translation>Zapisuje kopię pliku postępu budowania (.ib_mon) w podanej lokalizacji. Jeśli podano tylko nazwę katalogu, wygenerowany GUID posłuży jako nazwa pliku. Pełna ścieżka zapisanego Monitora budowania zostanie dopisana na końcu wyjścia budowania.</translation>
     </message>
     <message>
         <source>Suppress STDOUT:</source>
@@ -43113,7 +43133,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Could not find device specific debug symbols at %1. Debugging initialization will be slow until you open the Organizer window of Xcode with the device connected to have the symbols generated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odnaleźć symboli debugowania specyficznych dla urządzenia w %1. Inicjalizacja debugowania będzie wolna, dopóki nie otworzysz okna Organizer w Xcode z podłączonym urządzeniem, aby wygenerować symbole.</translation>
     </message>
     <message>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
@@ -43137,15 +43157,15 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Deployment canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja anulowana.</translation>
     </message>
     <message>
         <source>Failed to run devicectl: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd uruchamiania devicectl: %1.</translation>
     </message>
     <message>
         <source>devicectl returned unexpected output ... deployment might have failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>devicectl zwrócił nieoczekiwane wyjście... instalacja mogła zakończyć się błędem.</translation>
     </message>
     <message>
         <source>Deploy to iOS device</source>
@@ -43165,7 +43185,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>The provisioning profile &quot;%1&quot; (%2) used to sign the application does not cover the device %3 (%4). Deployment to it will fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil udostępniania &quot;%1&quot; (%2) użyty do podpisania aplikacji nie obejmuje urządzenia %3 (%4). Instalacja na nim zakończy się błędem.</translation>
     </message>
     <message>
         <source>iOS Device</source>
@@ -43202,7 +43222,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Product type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ produktu</translation>
     </message>
     <message>
         <source>An iOS device in user mode has been detected.</source>
@@ -43218,19 +43238,19 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Internal error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wewnętrzny błąd.</translation>
     </message>
     <message>
         <source>Cannot retrieve file contents for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można pobrać zawartości pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed to create temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd tworzenia tymczasowego pliku.</translation>
     </message>
     <message>
         <source>Cannot write file contents for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać zawartości pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Identifier:</source>
@@ -43238,7 +43258,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Product type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ produktu:</translation>
     </message>
     <message>
         <source>OS Version:</source>
@@ -43299,7 +43319,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Debugging on devices with iOS 17 and later requires Xcode 16 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugowanie na urządzeniach z iOS 17 i nowszym wymaga Xcode 16 lub nowszego.</translation>
     </message>
     <message>
         <source>Device type:</source>
@@ -43307,7 +43327,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">Uaktualnij</translation>
+        <translation>Uaktualnij</translation>
     </message>
     <message>
         <source>Could not find %1.</source>
@@ -43323,31 +43343,31 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Failed to determine bundle identifier.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd wyznaczania identyfikatora pakietu.</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; on %2...</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie &quot;%1&quot; na %2...</translation>
     </message>
     <message>
         <source>&quot;%1&quot; exited.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; zakończyło działanie.</translation>
     </message>
     <message>
         <source>Failed to retrieve process ID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania identyfikatora procesu.</translation>
     </message>
     <message>
         <source>Running failed. No iOS device found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchomienie nie powiodło się. Brak urządzenia iOS.</translation>
     </message>
     <message>
         <source>Running failed. Failed to create the temporary output file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchomienie nie powiodło się. Błąd tworzenia tymczasowego pliku wyjściowego.</translation>
     </message>
     <message>
         <source>Running canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchomienie anulowane.</translation>
     </message>
     <message>
         <source>The device is locked, please unlock.</source>
@@ -43355,23 +43375,23 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Failed to get a local debugger port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania lokalnego portu debuggera.</translation>
     </message>
     <message>
         <source>Listening for debugger on local port %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwanie na debugger na lokalnym porcie %1.</translation>
     </message>
     <message>
         <source>Failed to get a local debugger port for QML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania lokalnego portu debuggera QML.</translation>
     </message>
     <message>
         <source>Listening for QML debugger on local port %1 (port %2 on the device).</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwanie na debugger QML na lokalnym porcie %1 (port %2 na urządzeniu).</translation>
     </message>
     <message>
         <source>Could not get necessary ports for the QML debugger connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uzyskać wymaganych portów do połączenia z debuggerem QML.</translation>
     </message>
     <message>
         <source>Run ended.</source>
@@ -43383,11 +43403,11 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Run canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Praca anulowana.</translation>
     </message>
     <message>
         <source>Only C++ debugging is supported for devices with iOS 17 and later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko debugowanie C++ jest obsługiwane dla urządzeń z iOS 17 i nowszym.</translation>
     </message>
     <message>
         <source>iOS Simulator</source>
@@ -43399,7 +43419,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Application install on Simulator failed. Could not find bundle at expected location &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja aplikacji na symulatorze zakończona błędem. Nie można odnaleźć pakietu w oczekiwanej lokalizacji &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Application install on simulator failed. Simulator not running.</source>
@@ -43407,7 +43427,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Application launch on simulator failed. Invalid bundle path %1</source>
-        <translation>Uruchomienie aplikacji na symulatorze zakończone błędem. Niepoprawna ścieżka %1 dla bundle</translation>
+        <translation>Uruchomienie aplikacji na symulatorze zakończone błędem. Niepoprawna ścieżka %1 dla pakietu</translation>
     </message>
     <message>
         <source>Application install on simulator failed. %1</source>
@@ -43415,7 +43435,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Application launch on simulator failed. Simulator not running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchomienie aplikacji na symulatorze zakończone błędem. Symulator nie jest uruchomiony.</translation>
     </message>
     <message>
         <source>Cannot capture console output from %1. Error redirecting output to %2.*</source>
@@ -43463,7 +43483,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Provisioning profile:</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil udostępniania:</translation>
     </message>
     <message>
         <source>Default</source>
@@ -43472,7 +43492,7 @@ Czy nadpisać je?</translation>
     <message>
         <source>None</source>
         <comment>No signing identity</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Development team is not selected.</source>
@@ -43480,11 +43500,11 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Provisioning profile is not selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrano profilu udostępniania.</translation>
     </message>
     <message>
         <source>Using default development team and provisioning profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja zostanie podpisana z użyciem domyślnego zespołu deweloperskiego i profilu udostępniania.</translation>
     </message>
     <message>
         <source>Development team: %1 (%2)</source>
@@ -43496,7 +43516,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>%1 not configured. Use Xcode and Apple developer account to configure the provisioning profiles and teams.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nie skonfigurowane. Użyj Xcode i konta Apple Developer, aby skonfigurować profile udostępniania i zespoły.</translation>
     </message>
     <message>
         <source>Development teams</source>
@@ -43504,15 +43524,15 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Provisioning profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Profile udostępniania</translation>
     </message>
     <message>
         <source>No provisioning profile found for the selected team.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono profilu udostępniania dla wybranego zespołu.</translation>
     </message>
     <message>
         <source>Provisioning profile expired. Expiration date: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil udostępniania wygasł. Data wygaśnięcia: %1</translation>
     </message>
     <message>
         <source>iOS Configuration</source>
@@ -43524,7 +43544,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>Configure available simulator devices in &lt;a href=&quot;%1&quot;&gt;Xcode&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfiguruj dostępne urządzenia symulatora w &lt;a href=&quot;%1&quot;&gt;Xcode&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Devices</source>
@@ -43536,7 +43556,7 @@ Czy nadpisać je?</translation>
     </message>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 — bezpłatny zespół udostępniania: %2</translation>
     </message>
     <message>
         <source>Yes</source>
@@ -43568,7 +43588,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
     <message>
         <source>Process was forced to exit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces został przymusowo zakończony.</translation>
     </message>
     <message>
         <source>Cannot find xcrun.</source>
@@ -43576,71 +43596,71 @@ Termin wygaśnięcia: %3</translation>
     </message>
     <message>
         <source>xcrun is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>xcrun nie jest plikiem wykonywalnym.</translation>
     </message>
     <message>
         <source>Invalid Empty UDID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy pusty UDID.</translation>
     </message>
     <message>
         <source>Simulator device is not available. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie symulatora nie jest dostępne. (%1)</translation>
     </message>
     <message>
         <source>Simulator start was canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie symulatora zostało anulowane.</translation>
     </message>
     <message>
         <source>Cannot start Simulator device. Previous instance taking too long to shut down. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić symulatora urządzenia. Poprzednia instancja zbyt długo się wyłącza. (%1)</translation>
     </message>
     <message>
         <source>Cannot start Simulator device. Simulator not in shutdown state. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić symulatora urządzenia. Symulator nie jest w stanie wyłączenia. (%1)</translation>
     </message>
     <message>
         <source>Cannot start Simulator device. Simulator not in booted state. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić symulatora urządzenia. Symulator nie jest w stanie uruchomionym. (%1)</translation>
     </message>
     <message>
         <source>Bundle path does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka pakietu nie istnieje.</translation>
     </message>
     <message>
         <source>Invalid (empty) bundle identifier.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy (pusty) identyfikator pakietu.</translation>
     </message>
     <message>
         <source>Failed to parse the inferior PID from simctl output (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania PID podprocesu z wyjścia simctl (%1).</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output at %1 (line %2): %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania wyjścia devicectl w %1 (wiersz %2): %3.</translation>
     </message>
     <message>
         <source>Operation failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Operacja zakończona błędem: %1</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output: &quot;result&quot; is missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania wyjścia devicectl: brak &quot;result&quot;.</translation>
     </message>
     <message>
         <source>devicectl returned unexpected output ... running failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>devicectl zwrócił nieoczekiwane wyjście... błąd uruchamiania.</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output: Expected &quot;apps&quot; array.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania wyjścia devicectl: oczekiwana tablica &quot;apps&quot;.</translation>
     </message>
     <message>
         <source>Failed to parse devicectl output: Expected &quot;files&quot; array.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania wyjścia devicectl: oczekiwana tablica &quot;files&quot;.</translation>
     </message>
     <message>
         <source>Apple Clang iOS (%1 at &quot;%2&quot;)</source>
-        <translation type="unfinished"></translation>
+        <translation>Apple Clang iOS (%1 w &quot;%2&quot;)</translation>
     </message>
 </context>
 <context>
@@ -43651,43 +43671,43 @@ Termin wygaśnięcia: %3</translation>
     </message>
     <message>
         <source>Deprecated</source>
-        <translation type="unfinished"></translation>
+        <translation>Przestarzałe</translation>
     </message>
     <message>
         <source>Incoming</source>
-        <translation type="unfinished"></translation>
+        <translation>Przychodzące</translation>
     </message>
     <message>
         <source>Outgoing</source>
-        <translation type="unfinished"></translation>
+        <translation>Wychodzące</translation>
     </message>
     <message>
         <source>Bases</source>
-        <translation type="unfinished">Klasy bazowe</translation>
+        <translation>Klasy bazowe</translation>
     </message>
     <message>
         <source>Derived</source>
-        <translation type="unfinished">Klasy pochodne</translation>
+        <translation>Klasy pochodne</translation>
     </message>
     <message>
         <source>Open in Editor</source>
-        <translation type="unfinished">Otwórz w edytorze</translation>
+        <translation>Otwórz w edytorze</translation>
     </message>
     <message>
         <source>Open %1 Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz hierarchię %1</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">Zwiń wszystko</translation>
+        <translation>Zwiń wszystko</translation>
     </message>
     <message>
         <source>Call</source>
-        <translation type="unfinished"></translation>
+        <translation>Wywołanie</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Call Hierarchy</source>
@@ -43700,37 +43720,37 @@ Termin wygaśnięcia: %3</translation>
     <message>
         <source>%1 for %2 (%3, %4)</source>
         <extracomment>for example: MyServer for MyProject (Qt 1.2.3, Release)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 dla %2 (%3, %4)</translation>
     </message>
     <message>
         <source>uninitialized</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>niezainicjowany</translation>
     </message>
     <message>
         <source>initialize requested</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>żądanie inicjalizacji</translation>
     </message>
     <message>
         <source>failed to initialize</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>błąd inicjalizacji</translation>
     </message>
     <message>
         <source>initialized</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>zainicjalizowany</translation>
     </message>
     <message>
         <source>shutdown requested</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>żądanie wyłączenia</translation>
     </message>
     <message>
         <source>shut down</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>wyłączony</translation>
     </message>
     <message>
         <source>error</source>
@@ -43740,104 +43760,105 @@ Termin wygaśnięcia: %3</translation>
     <message>
         <source>failed to shutdown</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>błąd wyłączania</translation>
     </message>
     <message>
         <source>Invalid parameter in &quot;%1&quot;:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy parametr w &quot;%1&quot;:
+%2</translation>
     </message>
     <message>
         <source>Language Server &quot;%1&quot; Initialization Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd inicjalizacji serwera języka &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Initialization error: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd inicjalizacji: %1.</translation>
     </message>
     <message>
         <source>Initialize result is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wynik inicjalizacji jest nieprawidłowy.</translation>
     </message>
     <message>
         <source>Server Info is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Informacje o serwerze są nieprawidłowe.</translation>
     </message>
     <message>
         <source>No initialize result.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak wyniku inicjalizacji.</translation>
     </message>
     <message>
         <source>Language Client</source>
-        <translation type="unfinished"></translation>
+        <translation>Klient języka</translation>
     </message>
     <message>
         <source>Symbols in Current Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbole w bieżącym dokumencie</translation>
     </message>
     <message>
         <source>Locates symbols in the current document, based on a language server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizuje symbole w bieżącym dokumencie za pomocą serwera języka.</translation>
     </message>
     <message>
         <source>Symbols in Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbole w obszarze roboczym</translation>
     </message>
     <message>
         <source>Locates symbols in the language server workspace.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizuje symbole w obszarze roboczym serwera języka.</translation>
     </message>
     <message>
         <source>Classes and Structs in Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasy i struktury w obszarze roboczym</translation>
     </message>
     <message>
         <source>Locates classes and structs in the language server workspace.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizuje klasy i struktury w obszarze roboczym serwera języka.</translation>
     </message>
     <message>
         <source>Functions and Methods in Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Funkcje i metody w obszarze roboczym</translation>
     </message>
     <message>
         <source>Locates functions and methods in the language server workspace.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizuje funkcje i metody w obszarze roboczym serwera języka.</translation>
     </message>
     <message>
         <source>Cannot handle MIME type &quot;%1&quot; of message.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd obsługi typu MIME &quot;%1&quot; komunikatu.</translation>
     </message>
     <message>
         <source>Cannot send data to unstarted server %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można wysłać danych do nieuruchomionego serwera %1</translation>
     </message>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwane zakończenie. Restart za %1 sekund.</translation>
     </message>
     <message>
         <source>Unexpectedly finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwane zakończenie.</translation>
     </message>
     <message>
         <source>Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Serwer języka</translation>
     </message>
     <message>
         <source>Generic StdIO Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogólny serwer języka StdIO</translation>
     </message>
     <message>
         <source>Inspect Language Clients...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdź klientów języka...</translation>
     </message>
     <message>
         <source>Language Server Diagnostics</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagnostyka serwera języka</translation>
     </message>
     <message>
         <source>Issues provided by the Language Server in the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy zgłoszone przez serwer języka w bieżącym dokumencie.</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -43853,7 +43874,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
     <message>
         <source>File pattern:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wzorzec pliku:</translation>
     </message>
     <message>
         <source>Always On</source>
@@ -43861,15 +43882,15 @@ Termin wygaśnięcia: %3</translation>
     </message>
     <message>
         <source>Requires an Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wymaga otwartego pliku</translation>
     </message>
     <message>
         <source>Start Server per Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom serwer dla projektu</translation>
     </message>
     <message>
         <source>Enabled:</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączono:</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -43890,27 +43911,28 @@ Termin wygaśnięcia: %3</translation>
     <message>
         <source>List of file patterns.
 Example: *.cpp%1*.h</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista wzorców pliku.
+Przykład: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Startup behavior:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zachowanie przy uruchamianiu:</translation>
     </message>
     <message>
         <source>Initialization options:</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcje inicjalizacji:</translation>
     </message>
     <message>
         <source>Failed to parse JSON at %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania JSON przy %1: %2</translation>
     </message>
     <message>
         <source>Language server-specific JSON to pass via &quot;initializationOptions&quot; field of &quot;initialize&quot; request.</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON specyficzny dla serwera języka, przekazywany przez pole &quot;initializationOptions&quot; żądania &quot;initialize&quot;.</translation>
     </message>
     <message>
         <source>Select MIME Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz typy MIME</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -43930,19 +43952,19 @@ Example: *.cpp%1*.h</source>
     </message>
     <message>
         <source>Project Specific Language Servers</source>
-        <translation type="unfinished"></translation>
+        <translation>Serwery języka specyficzne dla projektu</translation>
     </message>
     <message>
         <source>Use Global Settings</source>
-        <translation type="unfinished">Użyj globalnych ustawień</translation>
+        <translation>Użyj globalnych ustawień</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączone</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished">Zablokowane</translation>
+        <translation>Wyłączone</translation>
     </message>
     <message>
         <source>Workspace Configuration</source>
@@ -43951,15 +43973,16 @@ Example: *.cpp%1*.h</source>
     <message>
         <source>Additional JSON configuration sent to all running language servers for this project.
 See the documentation of the specific language server for valid settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodatkowa konfiguracja JSON wysyłana do wszystkich uruchomionych serwerów języka dla tego projektu.
+Prawidłowe ustawienia można znaleźć w dokumentacji konkretnego serwera języka.</translation>
     </message>
     <message>
         <source>Search Again to update results and re-enable Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyszukaj ponownie, aby zaktualizować wyniki i umożliwić zastąpienie</translation>
     </message>
     <message numerus="yes">
         <source>Re&amp;name %n files</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Zmień &amp;nazwę w %n pliku</numerusform>
             <numerusform>Zmień &amp;nazwę w %n plikach</numerusform>
             <numerusform>Zmień &amp;nazwę w %n plikach</numerusform>
@@ -43977,15 +44000,15 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Renaming is not supported with %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmiana nazwy nie jest obsługiwana z %1</translation>
     </message>
     <message>
         <source>%1 is not reachable anymore.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nie jest już osiągalny.</translation>
     </message>
     <message>
         <source>Start typing to see replacements.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zacznij pisać, aby zobaczyć zamienniki.</translation>
     </message>
     <message>
         <source>Show available quick fixes</source>
@@ -43997,7 +44020,7 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Inspect Language Clients</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdź klientów języka</translation>
     </message>
     <message>
         <source>Manage...</source>
@@ -44005,39 +44028,39 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Install %1 language server via npm.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj serwer języka %1 za pomocą npm.</translation>
     </message>
     <message>
         <source>Set up %1 language server (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfiguruj serwer języka %1 (%2).</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Zainstaluj</translation>
+        <translation>Zainstaluj</translation>
     </message>
     <message>
         <source>Set Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfiguruj</translation>
     </message>
     <message>
         <source>%1 Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Serwer języka %1</translation>
     </message>
     <message>
         <source>Install npm Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj pakiet npm</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie &quot;%1&quot; w celu zainstalowania %2.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed with exit code %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja &quot;%1&quot; zakończona błędem, kod wyjściowy %2.</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by timeout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja &quot;%1&quot; anulowana, przekroczenie limitu czasu.</translation>
     </message>
     <message>
         <source>Expand All</source>
@@ -44045,11 +44068,11 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Capabilities:</source>
-        <translation type="unfinished"></translation>
+        <translation>Możliwości:</translation>
     </message>
     <message>
         <source>Dynamic Capabilities:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dynamiczne możliwości:</translation>
     </message>
     <message>
         <source>Method:</source>
@@ -44061,19 +44084,19 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Server Capabilities</source>
-        <translation type="unfinished"></translation>
+        <translation>Możliwości serwera</translation>
     </message>
     <message>
         <source>Client Message</source>
-        <translation type="unfinished">Komunikat klienta</translation>
+        <translation>Komunikat klienta</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished">Komunikaty</translation>
+        <translation>Komunikaty</translation>
     </message>
     <message>
         <source>Server Message</source>
-        <translation type="unfinished">Komunikat serwera</translation>
+        <translation>Komunikat serwera</translation>
     </message>
     <message>
         <source>Log File</source>
@@ -44081,23 +44104,23 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>No client selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrano klienta</translation>
     </message>
     <message>
         <source>Language Client Inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>Inspektor klienta języka</translation>
     </message>
     <message>
         <source>&lt;Select&gt;</source>
-        <translation type="unfinished">&lt;Wybierz&gt;</translation>
+        <translation>&lt;Wybierz&gt;</translation>
     </message>
     <message>
         <source>Language Server:</source>
-        <translation type="unfinished"></translation>
+        <translation>Serwer języka:</translation>
     </message>
     <message>
         <source>Send message</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyślij komunikat</translation>
     </message>
     <message>
         <source>Log</source>
@@ -44105,7 +44128,7 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Capabilities</source>
-        <translation type="unfinished"></translation>
+        <translation>Możliwości</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -44113,11 +44136,11 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Sort Alphabetically</source>
-        <translation type="unfinished">Posortuj alfabetycznie</translation>
+        <translation>Posortuj alfabetycznie</translation>
     </message>
     <message>
         <source>&lt;Select Symbol&gt;</source>
-        <translation type="unfinished">&lt;Wybierz symbol&gt;</translation>
+        <translation>&lt;Wybierz symbol&gt;</translation>
     </message>
 </context>
 <context>
@@ -44411,7 +44434,7 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Non-string key encountered in Lua table at path &quot;%1&quot;.</source>
-        <translation>Znaleziono klucz niebędący ciągiem znaków w tabeli Lua przy ścieżce &quot;%1&quot;.</translation>
+        <translation>Znaleziono klucz niebędący ciągiem znakowym w tabeli Lua przy ścieżce &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>No hook with the name &quot;%1&quot; found.</source>
@@ -46446,7 +46469,7 @@ Przydatne gdy katalog budowania jest uszkodzony lub przy ponownym budowaniu z no
     </message>
     <message>
         <source>Flame Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Flame Graph</translation>
     </message>
     <message>
         <source>Discard data.</source>
@@ -46470,7 +46493,7 @@ Przydatne gdy katalog budowania jest uszkodzony lub przy ponownym budowaniu z no
     </message>
     <message>
         <source>Reset Flame Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Zresetuj Flame Graph</translation>
     </message>
     <message>
         <source>The profiler did not produce any samples. Make sure that you are running a recent Linux kernel and that the &quot;perf&quot; utility is available and generates useful call graphs.
@@ -53995,23 +54018,23 @@ Select a different path.</source>
     <name>QtC::Python</name>
     <message>
         <source>👉 Click here to install %1 (requires pip)</source>
-        <translation type="unfinished"></translation>
+        <translation>👉 Kliknij tutaj, aby zainstalować %1 (wymaga pip)</translation>
     </message>
     <message>
         <source>PySide6</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide6</translation>
     </message>
     <message>
         <source>Buffered output</source>
-        <translation type="unfinished"></translation>
+        <translation>Buforowane wyjście</translation>
     </message>
     <message>
         <source>Enabling improves output performance, but results in delayed output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączenie poprawia wydajność wyjścia, ale powoduje opóźnienie w wyświetlaniu.</translation>
     </message>
     <message>
         <source>Script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrypt:</translation>
     </message>
     <message>
         <source>Run %1</source>
@@ -54019,213 +54042,213 @@ Select a different path.</source>
     </message>
     <message>
         <source>Update Requirements</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizuj wymagania</translation>
     </message>
     <message>
         <source>Install Requirements</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj wymagania</translation>
     </message>
     <message>
         <source>Update %1</source>
         <extracomment>%1 = package name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizuj %1</translation>
     </message>
     <message>
         <source>Install %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj %1</translation>
     </message>
     <message>
         <source>Update Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizuj pakiety</translation>
     </message>
     <message>
         <source>Install Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj pakiety</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie &quot;%1&quot; w celu zainstalowania %2.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja &quot;%1&quot; zakończona błędem: %2</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by timeout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja &quot;%1&quot; anulowana, przekroczenie limitu czasu.</translation>
     </message>
     <message>
         <source>Select PySide Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz wersję PySide</translation>
     </message>
     <message>
         <source>Missing PySide6 Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak instalacji PySide6</translation>
     </message>
     <message>
         <source>Install PySide6 via pip for %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstalować PySide6 za pomocą pip dla %1?</translation>
     </message>
     <message>
         <source>Installing PySide</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalowanie PySide</translation>
     </message>
     <message>
         <source>You can install PySide from PyPI (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide można zainstalować z PyPI (wersja Community OSS) lub z lokalizacji instalacji Qt, jeśli używasz Qt Installer i posiadasz licencję komercyjną.</translation>
     </message>
     <message>
         <source>Select which version to install:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz wersję do zainstalowania:</translation>
     </message>
     <message>
         <source>Latest PySide from the PyPI</source>
-        <translation type="unfinished"></translation>
+        <translation>Najnowszy PySide z PyPI</translation>
     </message>
     <message>
         <source>PySide %1 Wheel (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide %1 Wheel (%2)</translation>
     </message>
     <message>
         <source>%1 installation missing for %2 (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak instalacji %1 dla %2 (%3)</translation>
     </message>
     <message>
         <source>Install %1 for %2 using pip package installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj %1 dla %2 za pomocą menedżera pakietów pip.</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Zainstaluj</translation>
+        <translation>Zainstaluj</translation>
     </message>
     <message>
         <source>Run PySide6 project tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom narzędzie projektu PySide6</translation>
     </message>
     <message>
         <source>PySide project tool:</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie projektu PySide:</translation>
     </message>
     <message>
         <source>Enter location of PySide project tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podaj lokalizację narzędzia projektu PySide.</translation>
     </message>
     <message>
         <source>PySide uic tool:</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie uic PySide:</translation>
     </message>
     <message>
         <source>Enter location of PySide uic tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podaj lokalizację narzędzia uic PySide.</translation>
     </message>
     <message>
         <source>Effective venv:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktywne venv:</translation>
     </message>
     <message>
         <source>New Virtual Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowe środowisko wirtualne</translation>
     </message>
     <message>
         <source>Global Python</source>
-        <translation type="unfinished"></translation>
+        <translation>Globalny Python</translation>
     </message>
     <message>
         <source>%1 Virtual Environment</source>
         <extracomment>%1 = name of this Python as registered in QtC</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Środowisko wirtualne %1</translation>
     </message>
     <message>
         <source>REPL</source>
-        <translation type="unfinished"></translation>
+        <translation>REPL</translation>
     </message>
     <message>
         <source>Open interactive Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz interaktywny Python.</translation>
     </message>
     <message>
         <source>REPL Import File</source>
-        <translation type="unfinished"></translation>
+        <translation>REPL importuj plik</translation>
     </message>
     <message>
         <source>Open interactive Python and import file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz interaktywny Python i zaimportuj plik.</translation>
     </message>
     <message>
         <source>REPL Import *</source>
-        <translation type="unfinished"></translation>
+        <translation>REPL importuj *</translation>
     </message>
     <message>
         <source>Open interactive Python and import * from file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz interaktywny Python i zaimportuj * z pliku.</translation>
     </message>
     <message>
         <source>Open interactive Python. Either importing nothing, importing the current file, or importing everything (*) from the current file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwiera interaktywny Python. Bez importowania, z importem bieżącego pliku lub z importem wszystkiego (*) z bieżącego pliku.</translation>
     </message>
     <message>
         <source>No Python Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrano Pythona</translation>
     </message>
     <message>
         <source>Create Virtual Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz środowisko wirtualne</translation>
     </message>
     <message>
         <source>Manage Python Interpreters</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj interpreterami Pythona</translation>
     </message>
     <message>
         <source>Python Editor</source>
-        <translation type="unfinished">Edytor Pythona</translation>
+        <translation>Edytor Pythona</translation>
     </message>
     <message>
         <source>Python Language Server (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Serwer języka Python (%1)</translation>
     </message>
     <message>
         <source>Install Python language server (PyLS) for %1 (%2). The language server provides Python specific completion and annotation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj serwer języka Python (PyLS) dla %1 (%2). Serwer języka zapewnia uzupełnianie kodu i adnotacje specyficzne dla Pythona.</translation>
     </message>
     <message>
         <source>Update Python language server (PyLS) for %1 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaktualizuj serwer języka Python (PyLS) dla %1 (%2).</translation>
     </message>
     <message>
         <source>Always Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Zawsze aktualizuj</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">Uaktualnij</translation>
+        <translation>Uaktualnij</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished">Nigdy</translation>
+        <translation>Nigdy</translation>
     </message>
     <message>
         <source>No Python interpreter set for kit &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie ustawiono interpretera Pythona dla zestawu &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Issues parsed from Python runtime output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy sparsowane z wyjścia środowiska uruchomieniowego Python.</translation>
     </message>
     <message>
         <source>Unable to read &quot;%1&quot;: The file is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd odczytu &quot;%1&quot;: plik jest pusty.</translation>
     </message>
     <message>
         <source>Unable to parse &quot;%1&quot;:%2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania &quot;%1&quot;:%2: %3</translation>
     </message>
     <message>
         <source>Cannot save Python project file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać pliku projektu Python.</translation>
     </message>
     <message>
         <source>Cannot read Python project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd odczytu projektu Python.</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -54234,7 +54257,7 @@ Select a different path.</source>
     <message>
         <source>None</source>
         <comment>No Python interpreter</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Executable is empty.</source>
@@ -54250,7 +54273,7 @@ Select a different path.</source>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">Plik wykonywalny:</translation>
+        <translation>Plik wykonywalny:</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -54262,50 +54285,53 @@ Select a different path.</source>
     </message>
     <message>
         <source>&amp;Make Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw jako do&amp;myślny</translation>
     </message>
     <message>
         <source>&amp;Generate Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Generuj zestaw narzędzi</translation>
     </message>
     <message>
         <source>&amp;Clean Up</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Wyczyść</translation>
     </message>
     <message>
         <source>Remove all Python interpreters without a valid executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń wszystkie interpretery Pythona bez prawidłowego pliku wykonywalnego.</translation>
     </message>
     <message>
         <source>Venv creation failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd tworzenia venv:
+%1</translation>
     </message>
     <message>
         <source>Venv creation terminated abnormally:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzenie venv zostało przerwane nieprawidłowo:
+%1</translation>
     </message>
     <message>
         <source>Venv creation could not be started:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić tworzenia venv:
+%1</translation>
     </message>
     <message>
         <source>Venv creation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anulowano tworzenie venv.</translation>
     </message>
     <message>
         <source>Found &quot;%1&quot; (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono &quot;%1&quot; (%2).</translation>
     </message>
     <message>
         <source>Removing Python: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuwanie Pythona: %1.</translation>
     </message>
     <message>
         <source>Python: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python: %1.</translation>
     </message>
     <message>
         <source>Interpreters</source>
@@ -54321,11 +54347,11 @@ Select a different path.</source>
     </message>
     <message>
         <source>Use Python Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj serwera języka Python</translation>
     </message>
     <message>
         <source>For a complete list of available options, consult the [Python LSP Server configuration documentation](%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Pełna lista dostępnych opcji znajduje się w [dokumentacji konfiguracji serwera Python LSP](%1).</translation>
     </message>
     <message>
         <source>Advanced</source>
@@ -54333,19 +54359,19 @@ Select a different path.</source>
     </message>
     <message>
         <source>Language Server Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja serwera języka</translation>
     </message>
     <message>
         <source>Python interpreter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpreter Pythona:</translation>
     </message>
     <message>
         <source>New Python Virtual Environment Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowy katalog środowiska wirtualnego Python</translation>
     </message>
     <message>
         <source>Virtual environment directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog środowiska wirtualnego:</translation>
     </message>
     <message>
         <source>Create</source>
@@ -54357,15 +54383,15 @@ Select a different path.</source>
     </message>
     <message>
         <source>Create Python venv</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz venv Pythona</translation>
     </message>
     <message>
         <source>&quot;data&quot; of a Python wizard page expects a map with &quot;items&quot; containing a list of objects.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;data&quot; strony kreatora Python oczekuje mapy zawierającej &quot;items&quot; z listą obiektów.</translation>
     </message>
     <message>
         <source>An item of Python wizard page data expects a &quot;trKey&quot; field containing the UI visible string for that Python version and a &quot;value&quot; field containing an object with a &quot;PySideVersion&quot; field used for import statements in the Python files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Element danych strony kreatora Python oczekuje pola &quot;trKey&quot; zawierającego ciąg znakowy widoczny w interfejsie dla danej wersji Pythona oraz pola &quot;value&quot; zawierającego obiekt z polem &quot;PySideVersion&quot; używanym w instrukcjach importu plików Python.</translation>
     </message>
     <message>
         <source>PySide version:</source>
@@ -54373,55 +54399,55 @@ Select a different path.</source>
     </message>
     <message>
         <source>Parsing error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania: %1</translation>
     </message>
     <message>
         <source>Type error: &quot;%1&quot; must be a &quot;%2&quot;, not a &quot;%3&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd typu: &quot;%1&quot; musi być &quot;%2&quot;, a nie &quot;%3&quot;.</translation>
     </message>
     <message>
         <source>Missing node error: &quot;%1&quot; table must contain a &quot;%2&quot; node.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd brakującego węzła: tabela &quot;%1&quot; musi zawierać węzeł &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Node &quot;%1&quot; is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Węzeł &quot;%1&quot; jest pusty.</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Plik &quot;%1&quot; nie istnieje.</translation>
+        <translation>Plik &quot;%1&quot; nie istnieje.</translation>
     </message>
     <message>
         <source>The interpreter used for Python based projects.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpreter używany dla projektów Pythona.</translation>
     </message>
     <message>
         <source>No Python set up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak skonfigurowanego Pythona.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nie został znaleziony.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nie jest plikiem wykonywalnym.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable pip. pip is needed to install Python packages from the Python Package Index, like PySide and the Python language server. To use any of that functionality ensure that pip is installed for that Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nie zawiera użytecznego pip. pip jest potrzebny do instalacji pakietów Pythona z PyPI, takich jak PySide i serwer języka Python. Aby korzystać z tej funkcji, upewnij się, że pip jest zainstalowany dla tego Pythona.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable venv. venv is the recommended way to isolate a development environment for a project from the globally installed Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python &quot;%1&quot; nie zawiera użytecznego venv. venv jest zalecanym sposobem izolowania środowiska deweloperskiego projektu od globalnie zainstalowanego Pythona.</translation>
     </message>
     <message>
         <source>Name of Python Interpreter</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa interpretera Pythona</translation>
     </message>
     <message>
         <source>Path to Python Interpreter</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka do interpretera Pythona</translation>
     </message>
 </context>
 <context>
@@ -56847,7 +56873,7 @@ Error:
     </message>
     <message>
         <source>Restart Required</source>
-        <translation type="unfinished">Wymagane ponowne uruchomienie</translation>
+        <translation type="unfinished">Wymagany restart</translation>
     </message>
     <message>
         <source>The made changes will take effect after a restart of the QML Puppet or %1.</source>
@@ -57690,11 +57716,11 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Ctrl+Shift+;</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+;</translation>
     </message>
     <message>
         <source>Reformat Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeformatuj dokument</translation>
     </message>
     <message>
         <source>Inspect API for Element Under Cursor</source>
@@ -57702,19 +57728,19 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>QmlFormat not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak qmlformat.</translation>
     </message>
     <message>
         <source>Custom formatter path not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak własnego narzędzia formatującego.</translation>
     </message>
     <message>
         <source>Error: No current document to format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd: Brak bieżącego dokumentu do sformatowania.</translation>
     </message>
     <message>
         <source>Error: Formatting failed with the selected formatter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd: Formatowanie wybranym narzędziem zakończyło się niepowodzeniem.</translation>
     </message>
     <message>
         <source>QML</source>
@@ -57722,7 +57748,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Issues that the QML code parser found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy znalezione przez parser kodu QML.</translation>
     </message>
     <message>
         <source>QML Analysis</source>
@@ -57730,7 +57756,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Issues that the QML static analyzer found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy znalezione przez statyczny analizator QML.</translation>
     </message>
     <message>
         <source>QML</source>
@@ -57767,11 +57793,11 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Invalid component name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowa nazwa komponentu.</translation>
     </message>
     <message>
         <source>Invalid path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowa ścieżka.</translation>
     </message>
     <message>
         <source>Component already exists.</source>
@@ -57807,21 +57833,23 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Wrap Component in Loader</source>
-        <translation type="unfinished"></translation>
+        <translation>Opakuj komponent w Loader</translation>
     </message>
     <message>
         <source>// TODO: Move position bindings from the component to the Loader.
 //       Check all uses of &apos;parent&apos; inside the root element of the component.</source>
-        <translation type="unfinished"></translation>
+        <translation>// TODO: Move position bindings from the component to the Loader.
+//       Check all uses of &apos;parent&apos; inside the root element of the component.</translation>
     </message>
     <message>
         <source>//       Rename all outer uses of the id &quot;%1&quot; to &quot;%2.item&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>//       Rename all outer uses of the id &quot;%1&quot; to &quot;%2.item&quot;.</translation>
     </message>
     <message>
         <source>//       Rename all outer uses of the id &quot;%1&quot; to &quot;%2.item.%1&quot;.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>//       Rename all outer uses of the id &quot;%1&quot; to &quot;%2.item.%1&quot;.
+</translation>
     </message>
     <message>
         <source>Show Qt Quick ToolBar</source>
@@ -57845,7 +57873,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>QMLJS Editor</source>
-        <translation type="unfinished">Edytor QMLJS</translation>
+        <translation>Edytor QMLJS</translation>
     </message>
     <message>
         <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
@@ -57897,7 +57925,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Use customized static analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>Własny statyczny analizator</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -57909,7 +57937,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Enabled checks can be disabled for non Qt Quick UI files, but disabled checks cannot get explicitly enabled for non Qt Quick UI files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączone reguły mogą być wyłączone dla plików innych niż Qt Quick UI, ale wyłączone reguły nie mogą być jawnie włączone dla plików innych niż Qt Quick UI.</translation>
     </message>
     <message>
         <source>Features</source>
@@ -57921,19 +57949,19 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Only for Qt Quick UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko dla Qt Quick UI</translation>
     </message>
     <message>
         <source>Formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>Formatowanie</translation>
     </message>
     <message>
         <source>Set the path to the Qt Design Studio application to enable the &quot;Open in Qt Design Studio&quot; feature. If you have Qt Design Studio installed alongside Qt Creator with the Qt Online Installer, it is used as the default. Use &lt;a href=&quot;linwithqt&quot;&gt;&quot;Link with Qt&quot;&lt;/a&gt; to link an offline installation of Qt Creator to a Qt Online Installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw ścieżkę do Qt Design Studio, aby włączyć funkcję &quot;Otwórz w Qt Design Studio&quot;. Jeśli masz Qt Design Studio zainstalowane razem z Qt Creator przez Qt Online Installer, jest ono używane domyślnie. Użyj &lt;a href=&quot;linwithqt&quot;&gt;&quot;Połącz z Qt&quot;&lt;/a&gt;, aby powiązać instalację offline Qt Creator z Qt Online Installer.</translation>
     </message>
     <message>
         <source>Install Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj Qt Design Studio</translation>
     </message>
     <message>
         <source>QML Language Server</source>
@@ -57941,7 +57969,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Open Language Server preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz preferencje serwera języka...</translation>
     </message>
     <message>
         <source>Static Analyzer</source>
@@ -57977,141 +58005,143 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Rename Usages in Files?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienić nazwy w plikach?</translation>
     </message>
     <message>
         <source>Rename &quot;%1&quot; to &quot;%2&quot; in these files as well?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienić nazwy &quot;%1&quot; na &quot;%2&quot; także w tych plikach?</translation>
     </message>
     <message>
         <source>Use qmlls from latest Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj qmlls z najnowszego Qt</translation>
     </message>
     <message>
         <source>Use qmlls from latest Qt (located at &quot;%1&quot;)</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj qmlls z najnowszego Qt (w &quot;%1&quot;)</translation>
     </message>
     <message>
         <source>Use qmlls from project Qt kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj qmlls z zestawu narzędzi projektu</translation>
     </message>
     <message>
         <source>Use custom qmlls executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Własny plik wykonywalny qmlls</translation>
     </message>
     <message>
         <source>Allow versions below Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zezwól na wersje poniżej Qt %1</translation>
     </message>
     <message>
         <source>Enable qmlls semantic highlighting</source>
-        <translation type="unfinished"></translation>
+        <translation>Semantyczne podświetlanie składni qmlls</translation>
     </message>
     <message>
         <source>Use advanced features (Document Outline)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaawansowane funkcje (konspekt dokumentu)</translation>
     </message>
     <message>
         <source>Create .qmlls.ini files for new projects targeting Qt &lt; 6.10</source>
-        <translation type="unfinished"></translation>
+        <translation>Twórz pliki .qmlls.ini dla nowych projektów z Qt &lt; 6.10</translation>
     </message>
     <message>
         <source>Enable qmlls&apos;s CMake integration</source>
-        <translation type="unfinished"></translation>
+        <translation>Integracja CMake qmlls</translation>
     </message>
     <message>
         <source>Extra arguments:</source>
-        <translation type="unfinished">Dodatkowe argumenty:</translation>
+        <translation>Dodatkowe argumenty:</translation>
     </message>
     <message>
         <source>Custom qmlls executable &quot;%1&quot; does not exist and was disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Własny plik wykonywalny qmlls &quot;%1&quot; nie istnieje i został wyłączony.</translation>
     </message>
     <message>
         <source>Custom qmlls executable &quot;%1&quot; exited abnormally and was disabled. The custom executable output was:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Własny plik wykonywalny qmlls &quot;%1&quot; zakończył się nieprawidłowo i został wyłączony. Wyjście pliku wykonywalnego:
+%2</translation>
     </message>
     <message>
         <source>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Własny plik wykonywalny qmlls &quot;%1&quot; nie wydaje się być prawidłowym qmlls i został wyłączony.</translation>
     </message>
     <message>
         <source>Use Global Settings</source>
-        <translation type="unfinished">Użyj globalnych ustawień</translation>
+        <translation>Użyj globalnych ustawień</translation>
     </message>
     <message>
         <source>Override Global Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Nadpisz globalne ustawienia</translation>
     </message>
     <message>
         <source>Extend Global Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozszerz globalne ustawienia</translation>
     </message>
     <message>
         <source>QML Language Server Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia serwera języka QML</translation>
     </message>
     <message>
         <source>Current kit does not have a valid Qt version, disabling QML Language Server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bieżący zestaw narzędzi nie ma prawidłowej wersji Qt, wyłączanie serwera języka QML.</translation>
     </message>
     <message>
         <source>Download Standalone QML Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobierz samodzielny serwer języka QML</translation>
     </message>
     <message>
         <source>Downloading standalone QML Language Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie samodzielnego serwera języka QML...</translation>
     </message>
     <message>
         <source>SSL error: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd SSL: %1
+</translation>
     </message>
     <message>
         <source>Encountered SSL errors and aborted the download.</source>
-        <translation type="unfinished"></translation>
+        <translation>Napotkano błędy SSL i przerwano pobieranie.</translation>
     </message>
     <message>
         <source>Downloading from %1 failed: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania z %1: %2.</translation>
     </message>
     <message>
         <source>Could not find a suitable QML Language Server binary for this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak odpowiedniego pliku binarnego serwera języka QML dla tej platformy.</translation>
     </message>
     <message>
         <source>Latest standalone QML Language Server already exists at %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Najnowszy samodzielny serwer języka QML już istnieje w %1</translation>
     </message>
     <message>
         <source>Unarchiving QML Language Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozpakowywanie serwera języka QML...</translation>
     </message>
     <message>
         <source>Unarchiving error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd rozpakowywania: %1</translation>
     </message>
     <message>
         <source>Could not find &quot;qmlls&quot; in the extracted archive. Please create a bugreport.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono &quot;qmlls&quot; w rozpakowanym archiwum. Proszę zgłosić błąd.</translation>
     </message>
     <message>
         <source>Standalone QML Language Server succesfully downloaded in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Samodzielny serwer języka QML pomyślnie pobrany w %1</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Opcje</translation>
+        <translation>Opcje</translation>
     </message>
     <message>
         <source>Executable selection for qmlls</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybór pliku wykonywalnego qmlls</translation>
     </message>
     <message>
         <source>Download latest standalone qmlls</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobierz najnowszy samodzielny qmlls</translation>
     </message>
 </context>
 <context>
@@ -58327,7 +58357,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Select an externally started QML-debug enabled application.&lt;p&gt;Commonly used command-line arguments are:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz zewnętrznie uruchomioną aplikację z włączonym debugowaniem QML.&lt;p&gt;Często używane argumenty wiersza poleceń:</translation>
     </message>
     <message>
         <source>Kit:</source>
@@ -58351,7 +58381,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Search timeline event notes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyszukaj notatki zdarzeń na osi czasu.</translation>
     </message>
     <message>
         <source>Hide or show event categories.</source>
@@ -58359,11 +58389,11 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished">Początek</translation>
+        <translation>Początek</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Zatrzymaj</translation>
+        <translation>Zatrzymaj</translation>
     </message>
     <message>
         <source>A QML Profiler analysis is still in progress.</source>
@@ -58387,7 +58417,7 @@ poinformować edytor QML o prawdopodobnym URI.</translation>
     </message>
     <message>
         <source>The application finished before a connection could be established. No data was loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja zakończyła działanie przed nawiązaniem połączenia. Żadne dane nie zostały załadowane.</translation>
     </message>
     <message>
         <source>%1 s</source>
@@ -58430,7 +58460,7 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>Scene Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Graf sceny</translation>
     </message>
     <message>
         <source>Animations</source>
@@ -58482,11 +58512,11 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>Polish</source>
-        <translation type="unfinished"></translation>
+        <translation>Dopracowywanie</translation>
     </message>
     <message>
         <source>Wait</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwanie</translation>
     </message>
     <message>
         <source>GUI Thread Sync</source>
@@ -58502,23 +58532,23 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>Swap</source>
-        <translation type="unfinished"></translation>
+        <translation>Swap</translation>
     </message>
     <message>
         <source>Render Preprocess</source>
-        <translation type="unfinished"></translation>
+        <translation>Przetwarzanie wstępne renderingu</translation>
     </message>
     <message>
         <source>Render Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizacja renderingu</translation>
     </message>
     <message>
         <source>Render Bind</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiązanie renderingu</translation>
     </message>
     <message>
         <source>Render Render</source>
-        <translation type="unfinished"></translation>
+        <translation>Renderowanie właściwe</translation>
     </message>
     <message>
         <source>Material Compile</source>
@@ -58542,7 +58572,7 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>Texture Swizzle</source>
-        <translation type="unfinished"></translation>
+        <translation>Konwersja kanałów tekstury</translation>
     </message>
     <message>
         <source>Texture Upload</source>
@@ -58550,7 +58580,7 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>Texture Mipmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Generowanie mipmap tekstury</translation>
     </message>
     <message>
         <source>Texture Delete</source>
@@ -58610,7 +58640,7 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>Cannot open temporary trace file to store events.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd otwierania tymczasowego pliku stosu do zapisu zdarzeń.</translation>
     </message>
     <message>
         <source>&lt;bytecode&gt;</source>
@@ -58618,11 +58648,11 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>Quick3D</source>
-        <translation type="unfinished"></translation>
+        <translation>Quick3D</translation>
     </message>
     <message>
         <source>Failed to replay QML events from stash file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd odtwarzania zdarzeń QML z pliku podręcznego.</translation>
     </message>
     <message>
         <source>anonymous function</source>
@@ -58630,19 +58660,19 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>Failed to reset temporary trace file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd resetowania tymczasowego pliku stosu.</translation>
     </message>
     <message>
         <source>Failed to flush temporary trace file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd przepychania tymczasowego pliku stosu.</translation>
     </message>
     <message>
         <source>Could not re-open temporary trace file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd ponownego otwierania tymczasowego pliku stosu.</translation>
     </message>
     <message>
         <source>Read past end in temporary trace file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Odczyt poza końcem tymczasowego pliku stosu.</translation>
     </message>
     <message>
         <source>Saving Trace Data</source>
@@ -58666,7 +58696,7 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>Excessive number of event types: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbyt wiele typów zdarzeń: %1</translation>
     </message>
     <message>
         <source>Invalid type index %1</source>
@@ -58679,7 +58709,8 @@ Do you want to save the data first?</source>
     <message>
         <source>Could not re-read events from temporary trace file: %1
 Saving failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd ponownego odczytu zdarzeń z tymczasowego pliku stosu: %1
+Zapis nie powiódł się.</translation>
     </message>
     <message>
         <source>Duration</source>
@@ -58709,7 +58740,7 @@ Saving failed.</source>
         <source>Periodically flush pending data to the profiler. This reduces the delay when loading the
 data and the memory usage in the application. It distorts the profile as the flushing
 itself takes time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Okresowo przepycha oczekujące dane do profilera. Zmniejsza to opóźnienie przy ładowaniu danych oraz zajętość pamięci w aplikacji. Zniekształca to jednak profilowanie, ponieważ samo przepychanie zajmuje czas.</translation>
     </message>
     <message>
         <source>Flush interval (ms):</source>
@@ -58724,7 +58755,7 @@ itself takes time.</source>
 session ends. This way multiple recording sessions can be aggregated in a single trace,
 for example if multiple QML engines start and stop sequentially during a single run of
 the program.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przetwarza dane dopiero po zakończeniu profilowanego procesu, nie po zakończeniu bieżącej sesji nagrywania. Pozwala to agregować wiele sesji nagrywania w jednym stosie — na przykład gdy wiele silników QML startuje i zatrzymuje się kolejno podczas jednego uruchomienia programu.</translation>
     </message>
     <message>
         <source>QML Profiler Settings</source>
@@ -58740,15 +58771,15 @@ the program.</source>
     </message>
     <message>
         <source>Self Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas własny</translation>
     </message>
     <message>
         <source>Self Time in Percent</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas własny w procentach</translation>
     </message>
     <message>
         <source>Shortest Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Najkrótszy czas</translation>
     </message>
     <message>
         <source>Time in Percent</source>
@@ -58756,7 +58787,7 @@ the program.</source>
     </message>
     <message>
         <source>Median Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediana czasu</translation>
     </message>
     <message>
         <source>Main Program</source>
@@ -58764,19 +58795,19 @@ the program.</source>
     </message>
     <message>
         <source>Callee</source>
-        <translation type="unfinished">Zawołana</translation>
+        <translation>Wywołana</translation>
     </message>
     <message>
         <source>Caller</source>
-        <translation type="unfinished">Wołająca</translation>
+        <translation>Wywołująca</translation>
     </message>
     <message>
         <source>Callee Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Opis wywołanej</translation>
     </message>
     <message>
         <source>Caller Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Opis wywołującej</translation>
     </message>
     <message>
         <source>Source code not available</source>
@@ -58808,7 +58839,7 @@ the program.</source>
     </message>
     <message>
         <source>Reset Flame Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Zresetuj Flame Graph</translation>
     </message>
     <message>
         <source>called recursively</source>
@@ -58848,7 +58879,7 @@ the program.</source>
     </message>
     <message>
         <source>Could not re-read events from temporary trace file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd ponownego odczytu zdarzeń z tymczasowego pliku stosu: %1</translation>
     </message>
     <message>
         <source>Compile</source>
@@ -58864,7 +58895,7 @@ the program.</source>
     </message>
     <message>
         <source>Flame Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Flame Graph</translation>
     </message>
     <message>
         <source>Mouse Events</source>
@@ -58972,10 +59003,10 @@ the program.</source>
     </message>
     <message numerus="yes">
         <source>%n byte(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n bajt</numerusform>
+            <numerusform>%n bajty</numerusform>
+            <numerusform>%n bajtów</numerusform>
         </translation>
     </message>
     <message>
@@ -59032,7 +59063,7 @@ the program.</source>
     </message>
     <message>
         <source>Stage</source>
-        <translation type="unfinished"></translation>
+        <translation>Etap</translation>
     </message>
     <message>
         <source>Glyphs</source>
@@ -59052,7 +59083,7 @@ the program.</source>
     </message>
     <message>
         <source>others</source>
-        <translation type="unfinished">pozostałe</translation>
+        <translation>pozostałe</translation>
     </message>
     <message>
         <source>Memory</source>
@@ -59064,7 +59095,7 @@ the program.</source>
     </message>
     <message>
         <source>Error writing trace file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd zapisu pliku stosu.</translation>
     </message>
     <message>
         <source>Frame</source>
@@ -59072,7 +59103,7 @@ the program.</source>
     </message>
     <message>
         <source>Frame Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta ramki</translation>
     </message>
     <message>
         <source>View3D</source>
@@ -59081,17 +59112,17 @@ the program.</source>
     <message>
         <source>All</source>
         <comment>All frames</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie</translation>
     </message>
     <message>
         <source>None</source>
         <comment>Compare Frame: None</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>All</source>
         <comment>All View3D frames</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie</translation>
     </message>
     <message>
         <source>Quick3D Frame</source>
@@ -59108,7 +59139,7 @@ the program.</source>
     <message>
         <source>All</source>
         <comment>Compare Frame: All</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie</translation>
     </message>
     <message>
         <source>Render Frame</source>
@@ -59124,35 +59155,35 @@ the program.</source>
     </message>
     <message>
         <source>Mesh Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Ładowanie siatki</translation>
     </message>
     <message>
         <source>Custom Mesh Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Ładowanie własnej siatki</translation>
     </message>
     <message>
         <source>Texture Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Ładowanie tekstury</translation>
     </message>
     <message>
         <source>Generate Shader</source>
-        <translation type="unfinished"></translation>
+        <translation>Generowanie shadera</translation>
     </message>
     <message>
         <source>Load Shader</source>
-        <translation type="unfinished"></translation>
+        <translation>Ładowanie shadera</translation>
     </message>
     <message>
         <source>Particle Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizacja cząsteczek</translation>
     </message>
     <message>
         <source>Render Call</source>
-        <translation type="unfinished"></translation>
+        <translation>Wywołanie renderingu</translation>
     </message>
     <message>
         <source>Render Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>Przebieg renderingu</translation>
     </message>
     <message>
         <source>Event Data</source>
@@ -59160,27 +59191,27 @@ the program.</source>
     </message>
     <message>
         <source>Mesh Memory consumption</source>
-        <translation type="unfinished"></translation>
+        <translation>Zajętość pamięci przez siatki</translation>
     </message>
     <message>
         <source>Texture Memory consumption</source>
-        <translation type="unfinished"></translation>
+        <translation>Zajętość pamięci przez tekstury</translation>
     </message>
     <message>
         <source>Mesh Unload</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwalnianie siatki</translation>
     </message>
     <message>
         <source>Custom Mesh Unload</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwalnianie własnej siatki</translation>
     </message>
     <message>
         <source>Texture Unload</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwalnianie tekstury</translation>
     </message>
     <message>
         <source>Unknown Unload Message %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany komunikat zwalniania %1</translation>
     </message>
     <message>
         <source>Description</source>
@@ -59192,11 +59223,11 @@ the program.</source>
     </message>
     <message>
         <source>Draw Calls</source>
-        <translation type="unfinished"></translation>
+        <translation>Wywołania rysowania</translation>
     </message>
     <message>
         <source>Render Passes</source>
-        <translation type="unfinished"></translation>
+        <translation>Przebiegi renderingu</translation>
     </message>
     <message>
         <source>Total Memory Usage</source>
@@ -59204,18 +59235,18 @@ the program.</source>
     </message>
     <message>
         <source>Primitives</source>
-        <translation type="unfinished"></translation>
+        <translation>Prymitywy</translation>
     </message>
     <message>
         <source>Instances</source>
-        <translation type="unfinished"></translation>
+        <translation>Instancje</translation>
     </message>
 </context>
 <context>
     <name>QtC::QmlProjectManager</name>
     <message>
         <source>Update QmlProject File</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizuj plik QmlProject</translation>
     </message>
     <message>
         <source>Warning while loading project file %1.</source>
@@ -59225,15 +59256,17 @@ the program.</source>
         <source>Open the document in Qt Design Studio.
 
 Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &gt; QML/JS Editing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz dokument w Qt Design Studio.
+
+Qt Design Studio nie jest skonfigurowane. Skonfiguruj je w Ustawienia &gt; Qt Quick &gt; Edycja QML / JS.</translation>
     </message>
     <message>
         <source>Open the document in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz dokument w Qt Design Studio.</translation>
     </message>
     <message>
         <source>Kit has no device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak ustawionego urządzenia w zestawie narzędzi.</translation>
     </message>
     <message>
         <source>Qt version is too old.</source>
@@ -59241,11 +59274,11 @@ Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &g
     </message>
     <message>
         <source>Qt version has no QML utility.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja Qt nie ma narzędzia QML.</translation>
     </message>
     <message>
         <source>Non-desktop Qt is used with a desktop device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyto wersji niedesktopowej Qt dla urządzenia desktopowego.</translation>
     </message>
     <message>
         <source>No Qt version set in kit.</source>
@@ -59261,7 +59294,7 @@ Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &g
     </message>
     <message>
         <source>Override device QML viewer:</source>
-        <translation type="unfinished"></translation>
+        <translation>Niestandardowy program uruchomieniowy QML urządzenia:</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -59274,31 +59307,31 @@ Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &g
     <message>
         <source>QML Utility</source>
         <comment>QMLRunConfiguration display name.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie QML</translation>
     </message>
     <message>
         <source>No script file to execute.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak pliku skryptu do wykonania.</translation>
     </message>
     <message>
         <source>No QML utility found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono narzędzia QML.</translation>
     </message>
     <message>
         <source>No QML utility specified for target device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie określono narzędzia QML dla urządzenia docelowego.</translation>
     </message>
     <message>
         <source>QML Runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>Środowisko uruchomieniowe QML</translation>
     </message>
     <message>
         <source>No Qt Design Studio installation found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono instalacji Qt Design Studio</translation>
     </message>
     <message>
         <source>Would you like to install it now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz zainstalować go teraz?</translation>
     </message>
     <message>
         <source>Install</source>
@@ -59310,19 +59343,19 @@ Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &g
     </message>
     <message>
         <source>QML PROJECT FILE INFO</source>
-        <translation type="unfinished"></translation>
+        <translation>INFORMACJE O PLIKU PROJEKTU QML</translation>
     </message>
     <message>
         <source>Qt Version - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja Qt — %1</translation>
     </message>
     <message>
         <source>Qt Design Studio Version - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja Qt Design Studio — %1</translation>
     </message>
     <message>
         <source>No QML project file found - Would you like to create one?</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono pliku projektu QML — Czy chcesz go utworzyć?</translation>
     </message>
     <message>
         <source>Generate</source>
@@ -59334,7 +59367,7 @@ Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &g
     </message>
     <message>
         <source>Open with Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz w Qt Design Studio</translation>
     </message>
     <message>
         <source>Open</source>
@@ -59342,11 +59375,11 @@ Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &g
     </message>
     <message>
         <source>Open with Qt Creator - Text Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz w Qt Creator — tryb tekstowy</translation>
     </message>
     <message>
         <source>Remember my choice</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapamiętaj mój wybór</translation>
     </message>
     <message>
         <source>Export Project</source>
@@ -59362,170 +59395,177 @@ Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &g
     </message>
     <message>
         <source>Use MultiLanguage in 2D view</source>
-        <translation type="unfinished"></translation>
+        <translation>Używanie MultiLanguage w widoku 2D</translation>
     </message>
     <message>
         <source>Reads translations from MultiLanguage plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Odczytuje tłumaczenia z wtyczki MultiLanguage.</translation>
     </message>
     <message>
         <source>Project File Generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygenerowano plik projektu</translation>
     </message>
     <message>
         <source>File created:</source>
-        <translation type="unfinished"></translation>
+        <translation>Utworzono plik:</translation>
     </message>
     <message>
         <source>Select File Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz lokalizację pliku</translation>
     </message>
     <message>
         <source>Qt Design Studio Project Files (*.qmlproject)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pliki projektu Qt Design Studio (*.qmlproject)</translation>
     </message>
     <message>
         <source>Invalid Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy katalog</translation>
     </message>
     <message>
         <source>Project file must be placed in a parent directory of the QML files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik projektu musi być umieszczony w katalogu nadrzędnym plików QML.</translation>
     </message>
     <message>
         <source>Problem</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem</translation>
     </message>
     <message>
         <source>Selected directory is far away from the QML file. This can cause unexpected results.
 
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybrany katalog jest daleko od pliku QML. Może to powodować nieoczekiwane wyniki.
+
+Czy na pewno?</translation>
     </message>
     <message>
         <source>Failed to start Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd uruchamiania Qt Design Studio.</translation>
     </message>
     <message>
         <source>Enable CMake Generator</source>
-        <translation type="unfinished"></translation>
+        <translation>Generator CMake</translation>
     </message>
     <message>
         <source>Compiling the project as a library requires Qt Design Studio 4.8 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompilowanie projektu jako biblioteki wymaga Qt Design Studio 4.8 lub nowszego.</translation>
     </message>
     <message>
         <source>The project was created with a Qt Design Studio version earlier than Qt Design Studio 4.5. Due to limitations of the project structure in earlier Qt Design Studio versions, the resulting application might not display all the assets. Referring to assets between different QML modules does not work in the compiled application.&lt;br&gt;&lt;a href=&quot;https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html&quot;&gt;See the documentation for details.&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt został utworzony z wersją Qt Design Studio wcześniejszą niż Qt Design Studio 4.5. Ze względu na ograniczenia struktury projektu we wcześniejszych wersjach Qt Design Studio wynikowa aplikacja może nie wyświetlać wszystkich zasobów. Odwoływanie się do zasobów między różnymi modułami QML nie działa w skompilowanej aplikacji.&lt;br&gt;&lt;a href=&quot;https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html&quot;&gt;Szczegóły w dokumentacji.&lt;/a&gt;</translation>
     </message>
     <message>
         <source>The project structure has changed.
 Please clean the build folder before rebuilding.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Struktura projektu zmieniła się.
+Wyczyść katalog budowania przed ponownym budowaniem.
+</translation>
     </message>
     <message>
         <source>Failed to remove the qmlcomponents.cmake file.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd usuwania pliku qmlcomponents.cmake.
+</translation>
     </message>
     <message>
         <source>&quot;%1&quot; failed (exit code %2).</source>
-        <translation type="unfinished">&apos;%1&apos; zakończone błędem (kod wyjściowy %2).</translation>
+        <translation>&quot;%1&quot; zakończone błędem (kod wyjściowy %2).</translation>
     </message>
     <message>
         <source>Failed to generate deployable package!</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd generowania pakietu instalacyjnego.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
-        <translation type="unfinished">&quot;%1&quot; przerwał pracę.</translation>
+        <translation>&quot;%1&quot; przerwał pracę.</translation>
     </message>
     <message>
         <source>Generate QRC Resource File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygeneruj plik zasobów QRC...</translation>
     </message>
     <message>
         <source>Save Project as QRC File</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz projekt jako plik QRC</translation>
     </message>
     <message>
         <source>QML Resource File (*.qrc)</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik zasobów QML (*.qrc)</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Błąd</translation>
+        <translation>Błąd</translation>
     </message>
     <message>
         <source>Failed to generate QRC resource file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd generowania pliku zasobów QRC.</translation>
     </message>
     <message>
         <source>Success</source>
-        <translation type="unfinished"></translation>
+        <translation>Sukces</translation>
     </message>
     <message>
         <source>Successfully generated QRC resource file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomyślnie wygenerowano plik zasobów QRC.</translation>
     </message>
     <message>
         <source>Generate Deployable Package...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygeneruj pakiet instalacyjny...</translation>
     </message>
     <message>
         <source>Save Project as Resource</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz projekt jako zasób</translation>
     </message>
     <message>
         <source>Generating deployable package. Please wait...</source>
-        <translation type="unfinished"></translation>
+        <translation>Generowanie pakietu instalacyjnego. Proszę czekać...</translation>
     </message>
     <message>
         <source>Failed to generate deployable package!
 
 Please check the output pane for more information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd generowania pakietu instalacyjnego.
+
+Sprawdź panel wyjściowy, aby uzyskać więcej informacji.</translation>
     </message>
     <message>
         <source>Successfully generated deployable package.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomyślnie wygenerowano pakiet instalacyjny.</translation>
     </message>
     <message>
         <source>Failed to open file &quot;%1&quot; to write QRC XML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd otwierania pliku &quot;%1&quot; w celu zapisania XML QRC.</translation>
     </message>
     <message>
         <source>Resource generator is already running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generator zasobów jest już uruchomiony.</translation>
     </message>
     <message>
         <source>Unable to generate resource file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można wygenerować pliku zasobów &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>A timeout occurred running &quot;%1&quot;.</source>
-        <translation type="unfinished">Przekroczono limit czasu oczekiwania na odpowiedź od uruchomionego &quot;%1&quot;.</translation>
+        <translation>Przekroczono limit czasu oczekiwania na odpowiedź od uruchomionego &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>When parsing fields of page &quot;%1&quot;: %2</source>
-        <translation type="unfinished">W trakcie parsowania pól strony &quot;%1&quot;:  %2</translation>
+        <translation>W trakcie parsowania pól strony &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>No entries found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono wpisów.</translation>
     </message>
     <message>
         <source>Source template not found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono szablonu źródłowego: %1</translation>
     </message>
     <message>
         <source>Target path is outside the project: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka docelowa jest poza projektem: %1</translation>
     </message>
     <message>
         <source>When processing &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Podczas przetwarzania &quot;%1&quot;:</translation>
     </message>
 </context>
 <context>
@@ -59921,7 +59961,7 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>The kit has a Qt version, but no C++ compiler.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zestaw narzędzi ma wersję Qt, ale brak kompilatora C++.</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -59953,11 +59993,11 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Timeout running &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przekroczono limit czasu oczekiwania na &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; produced no output: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; nie wygenerowało żadnego wyjścia: %2.</translation>
     </message>
     <message>
         <source>No Qt version.</source>
@@ -59993,33 +60033,33 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Błąd</translation>
+        <translation>Błąd</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostrzeżenie</translation>
     </message>
     <message>
         <source>Clone of %1</source>
-        <translation type="unfinished">Klon %1</translation>
+        <translation>Klon %1</translation>
     </message>
     <message>
         <source>Re-detect</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykryj ponownie</translation>
     </message>
     <message>
         <source>Device:</source>
-        <translation type="unfinished">Urządzenie:</translation>
+        <translation>Urządzenie:</translation>
     </message>
     <message>
         <source>All</source>
         <comment>All documentation</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wszystko</translation>
     </message>
     <message>
         <source>None</source>
         <comment>No documentation</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Select a qmake Executable</source>
@@ -60039,31 +60079,31 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this %1 installation. Other %1 installations are not affected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Powiązanie z Qt automatycznie rejestruje wersje Qt, zestawy narzędzi i inne narzędzia w bieżącym %1. Pozostałe kopie %1 nie są objęte zmianami.</translation>
     </message>
     <message>
         <source>This functionality is only available for the Desktop device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta funkcjonalność jest dostępna tylko dla urządzenia Desktop.</translation>
     </message>
     <message>
         <source>%1&apos;s resource directory is not writable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog zasobów %1 nie ma praw do zapisu.</translation>
     </message>
     <message>
         <source>%1 is currently linked to &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 jest aktualnie powiązany z &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Qt installation information was not found in &quot;%1&quot;. Choose a directory that contains one of the files %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono informacji o instalacji Qt w &quot;%1&quot;. Wybierz katalog zawierający jeden z plików %2</translation>
     </message>
     <message>
         <source>Choose Qt Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz instalację Qt</translation>
     </message>
     <message>
         <source>The change will take effect after restart.</source>
-        <translation type="unfinished">Zmiana zostanie zastosowana po ponownym uruchomieniu.</translation>
+        <translation>Zmiana zostanie zastosowana po restarcie.</translation>
     </message>
     <message>
         <source>Qt installation path:</source>
@@ -60071,7 +60111,7 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Choose the Qt installation directory, or a directory that contains &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz katalog instalacji Qt lub katalog zawierający &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Link with Qt</source>
@@ -60083,15 +60123,15 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Remove Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń powiązanie</translation>
     </message>
     <message>
         <source>Error Linking With Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd powiązania z Qt</translation>
     </message>
     <message>
         <source>Could not write to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać do &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>This Qt version was already registered as &quot;%1&quot;.</source>
@@ -60195,19 +60235,19 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source> (on %1)</source>
-        <translation type="unfinished"></translation>
+        <translation> (na %1)</translation>
     </message>
     <message>
         <source>Qt version is not properly installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja Qt nie jest poprawnie zainstalowana</translation>
     </message>
     <message>
         <source>Invalid Qt version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowa wersja Qt:</translation>
     </message>
     <message>
         <source>Cannot update Qt version information from %1: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zaktualizować informacji o wersji Qt z %1: %2.</translation>
     </message>
     <message>
         <source>Qt version</source>
@@ -60235,11 +60275,11 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>The host location of the current Qt version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizacja hosta bieżącej wersji Qt.</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s internal host executable files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Położenie wewnętrznych plików wykonywalnych hosta instalacji bieżącej wersji Qt.</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s header files.</source>
@@ -60259,7 +60299,7 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s internal executable files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Położenie wewnętrznych plików wykonywalnych instalacji bieżącej wersji Qt.</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s plugins.</source>
@@ -60267,7 +60307,7 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s QML files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Położenie plików QML instalacji bieżącej wersji Qt.</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s imports.</source>
@@ -60303,12 +60343,12 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Mkspec:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mkspec:</translation>
     </message>
     <message>
         <source>None</source>
         <comment>No Qt version</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Name of Qt Version</source>
@@ -60324,35 +60364,35 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Found Qt version: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono wersję Qt: %1.</translation>
     </message>
     <message>
         <source>Removing Qt: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuwanie Qt: %1.</translation>
     </message>
     <message>
         <source>Qt: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt: %1.</translation>
     </message>
     <message>
         <source>Expected String, got: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwano ciągu znaków, otrzymano: %1.</translation>
     </message>
     <message>
         <source>Expected non-empty qmake path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwano niepustej ścieżki do qmake.</translation>
     </message>
     <message>
         <source>Cannot create Qt version from qmake path &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć wersji Qt ze ścieżki qmake &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Qt version &quot;%1&quot; is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja Qt &quot;%1&quot; nie jest prawidłowa.</translation>
     </message>
     <message>
         <source>Adding Qt version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodawanie wersji Qt: %1</translation>
     </message>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
@@ -60411,7 +60451,7 @@ Czy na pewno chcesz kontynuować?</translation>
     <message>
         <source>Featured</source>
         <comment>Category for highlighted examples</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wyróżnione</translation>
     </message>
     <message>
         <source>QML debugging and profiling:</source>
@@ -60419,7 +60459,7 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Might make your application vulnerable.&lt;br/&gt;Only use in a safe environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Może uczynić aplikację podatną na ataki.&lt;br/&gt;Używaj tylko w bezpiecznym środowisku.</translation>
     </message>
     <message>
         <source>Qt Quick Compiler:</source>
@@ -60431,43 +60471,43 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Link with a Qt installation to automatically register Qt versions and kits? To do this later, select Edit &gt; Preferences &gt; Kits &gt; Qt Versions &gt; Link with Qt.</source>
-        <translation type="unfinished"></translation>
+        <translation>Powiązać z instalacją Qt, aby automatycznie zarejestrować wersje Qt i zestawy narzędzi? Aby zrobić to później, wybierz Edycja &gt; Preferencje &gt; Zestawy narzędzi &gt; Wersje Qt &gt; Powiąż z Qt.</translation>
     </message>
     <message>
         <source>Link with an Installed Qt?</source>
-        <translation type="unfinished"></translation>
+        <translation>Powiązać z zainstalowanym Qt?</translation>
     </message>
     <message>
         <source>Full path to the host bin directory of the Qt version in the active kit of the project containing the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pełna ścieżka do katalogu bin hosta wersji Qt w aktywnym zestawie narzędzi projektu zawierającego bieżący dokument.</translation>
     </message>
     <message>
         <source>Full path to the target bin directory of the Qt version in the active kit of the project containing the current document.&lt;br&gt;You probably want %1 instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pełna ścieżka do katalogu bin docelowego wersji Qt w aktywnym zestawie narzędzi projektu zawierającego bieżący dokument.&lt;br&gt;Prawdopodobnie chcesz zamiast tego użyć %1.</translation>
     </message>
     <message>
         <source>Full path to the host libexec directory of the Qt version in the active kit of the project containing the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pełna ścieżka do katalogu libexec hosta wersji Qt w aktywnym zestawie narzędzi projektu zawierającego bieżący dokument.</translation>
     </message>
     <message>
         <source>Full path to the host bin directory of the Qt version in the active kit of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pełna ścieżka do katalogu bin hosta wersji Qt w aktywnym zestawie narzędzi aktywnego projektu.</translation>
     </message>
     <message>
         <source>Full path to the target bin directory of the Qt version in the active kit of the active project.&lt;br&gt;You probably want %1 instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pełna ścieżka do katalogu bin docelowego wersji Qt w aktywnym zestawie narzędzi aktywnego projektu.&lt;br&gt;Prawdopodobnie chcesz zamiast tego użyć %1.</translation>
     </message>
     <message>
         <source>Full path to the libexec directory of the Qt version in the active kit of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pełna ścieżka do katalogu libexec wersji Qt w aktywnym zestawie narzędzi aktywnego projektu.</translation>
     </message>
     <message>
         <source>Select a language for which a corresponding translation (.ts) file will be generated for you.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz język, dla którego zostanie wygenerowany odpowiedni plik tłumaczenia (.ts).</translation>
     </message>
     <message>
         <source>If you plan to provide translations for your project&apos;s user interface via the Qt Linguist tool, select a language here. A corresponding translation (.ts) file will be generated for you.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeśli planujesz udostępnić tłumaczenia interfejsu użytkownika projektu za pomocą narzędzia Qt Linguist, wybierz tu język. Zostanie dla Ciebie wygenerowany odpowiedni plik tłumaczenia (.ts).</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
@@ -60483,23 +60523,23 @@ Czy na pewno chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Could not determine target OS</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można określić docelowego systemu operacyjnego</translation>
     </message>
     <message>
         <source>Could not determine target architecture</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można określić docelowej architektury</translation>
     </message>
     <message>
         <source>Could not determine OS sub-type</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można określić podtypu systemu operacyjnego</translation>
     </message>
     <message>
         <source>Error reading &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd odczytu &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Core.json not found for Qt at &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak Core.json dla Qt w &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -68775,19 +68815,19 @@ Lines starting with &quot;##&quot; will be treated as comments.
     </message>
     <message>
         <source>Parsing canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anulowano parsowanie.</translation>
     </message>
     <message>
         <source>Premature end of XML document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przedwczesny koniec dokumentu XML.</translation>
     </message>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania liczby szesnastkowej z &quot;%1&quot; (%2).</translation>
     </message>
     <message>
         <source>Trying to read element text although current position is not start of element.</source>
-        <translation type="unfinished"></translation>
+        <translation>Próba odczytu tekstu elementu, gdy bieżąca pozycja nie jest początkiem elementu.</translation>
     </message>
     <message>
         <source>Unexpected child element while reading element text</source>
@@ -68803,7 +68843,7 @@ Lines starting with &quot;##&quot; will be treated as comments.
     </message>
     <message>
         <source>XmlProtocol version %1 not supported (supported versions: %2-%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieobsługiwana wersja %1 XmlProtocol (obsługiwane wersje: %2–%3)</translation>
     </message>
     <message>
         <source>Valgrind tool &quot;%1&quot; not supported</source>
@@ -68811,7 +68851,7 @@ Lines starting with &quot;##&quot; will be treated as comments.
     </message>
     <message>
         <source>Unknown %1 kind &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany rodzaj %1 &quot;%2&quot;</translation>
     </message>
     <message>
         <source>Could not parse error kind, tool not yet set.</source>
@@ -68923,7 +68963,7 @@ Lines starting with &quot;##&quot; will be treated as comments.
     </message>
     <message>
         <source>Extra Memcheck arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodatkowe argumenty Memcheck:</translation>
     </message>
     <message>
         <source>KCachegrind executable:</source>
@@ -68950,7 +68990,14 @@ With cache simulation, further event counters are enabled:
 &lt;li&gt;Data read accesses (&quot;Dr&quot;) and related cache misses (&quot;D1mr&quot;/&quot;D2mr&quot;).&lt;/li&gt;
 &lt;li&gt;Data write accesses (&quot;Dw&quot;) and related cache misses (&quot;D1mw&quot;/&quot;D2mw&quot;).&lt;/li&gt;&lt;/ul&gt;
 &lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Wykonuje pełną symulację pamięci podręcznej.&lt;/p&gt;
+&lt;p&gt;Domyślnie zliczane są jedynie odczyty instrukcji (&quot;Ir&quot;).&lt;/p&gt;
+&lt;p&gt;
+Przy symulacji pamięci podręcznej włączane są dodatkowe liczniki zdarzeń:
+&lt;ul&gt;&lt;li&gt;Chybienia pamięci podręcznej dla odczytów instrukcji (&quot;I1mr&quot;/&quot;I2mr&quot;).&lt;/li&gt;
+&lt;li&gt;Odczyty danych (&quot;Dr&quot;) i powiązane chybienia (&quot;D1mr&quot;/&quot;D2mr&quot;).&lt;/li&gt;
+&lt;li&gt;Zapisy danych (&quot;Dw&quot;) i powiązane chybienia (&quot;D1mw&quot;/&quot;D2mw&quot;).&lt;/li&gt;&lt;/ul&gt;
+&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enable branch prediction simulation</source>
@@ -68963,7 +69010,12 @@ With cache simulation, further event counters are enabled:
 &quot;Bc&quot;/&quot;Bcm&quot;).&lt;/li&gt;
 &lt;li&gt;Executed indirect jumps and related misses of the jump address predictor (
 &quot;Bi&quot;/&quot;Bim&quot;).)&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Wykonuje symulację przewidywania gałęzi.&lt;/p&gt;
+&lt;p&gt;Włączane są dodatkowe liczniki zdarzeń: &lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Liczba wykonanych gałęzi warunkowych i powiązanych chybień predyktora (
+&quot;Bc&quot;/&quot;Bcm&quot;).&lt;/li&gt;
+&lt;li&gt;Wykonane skoki pośrednie i powiązane chybienia predyktora adresu skoku (
+&quot;Bi&quot;/&quot;Bim&quot;).)&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Collect system call time</source>
@@ -68971,7 +69023,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Collect the number of global bus events that are executed. The event type &quot;Ge&quot; is used for these events.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbiera liczbę wykonanych globalnych zdarzeń magistrali. Typ zdarzenia &quot;Ge&quot; jest używany dla tych zdarzeń.</translation>
     </message>
     <message>
         <source>Valgrind Generic Settings</source>
@@ -68979,7 +69031,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Memcheck Memory Analysis Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcje analizy pamięci Memcheck</translation>
     </message>
     <message>
         <source>Callgrind Profiling Options</source>
@@ -68987,7 +69039,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Collect global bus events</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbieraj globalne zdarzenia magistrali</translation>
     </message>
     <message>
         <source>Visualization: Minimum event cost:</source>
@@ -69047,19 +69099,19 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished">Początek</translation>
+        <translation>Uruchom</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Zatrzymaj</translation>
+        <translation>Zatrzymaj</translation>
     </message>
     <message>
         <source>Starting Function Profiler...</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie profilera funkcji...</translation>
     </message>
     <message>
         <source>Function Profiler running...</source>
-        <translation type="unfinished"></translation>
+        <translation>Profiler funkcji uruchomiony...</translation>
     </message>
     <message>
         <source>Resetting event counters...</source>
@@ -69083,7 +69135,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Callgrind dumped profiling info.</source>
-        <translation type="unfinished"></translation>
+        <translation>Callgrind zrzucił dane profilowania.</translation>
     </message>
     <message>
         <source>Failed opening temp file...</source>
@@ -69267,15 +69319,15 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Size and Alignment Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędy rozmiaru i wyrównania</translation>
     </message>
     <message>
         <source>File Descriptor Issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy z deskryptorami plików</translation>
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Pozostałe</translation>
+        <translation>Pozostałe</translation>
     </message>
     <message>
         <source>Valgrind Analyze Memory uses the Memcheck tool to find memory leaks.</source>
@@ -69325,11 +69377,11 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>The %1 executables must be in the appropriate location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pliki wykonywalne %1 muszą znajdować się w odpowiednim miejscu.</translation>
     </message>
     <message>
         <source>Heob used with MinGW projects needs the %1 DLLs for proper stacktrace resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Heob używany z projektami MinGW wymaga bibliotek DLL %1 do prawidłowego śledzenia stosu wywołań.</translation>
     </message>
     <message>
         <source>Heob: Cannot create %1 process (%2).</source>
@@ -69349,15 +69401,15 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>Starting Memory Analyzer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie analizatora pamięci...</translation>
     </message>
     <message>
         <source>Memory Analyzer running...</source>
-        <translation type="unfinished"></translation>
+        <translation>Analizator pamięci uruchomiony...</translation>
     </message>
     <message>
         <source>XML Files (*.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pliki XML (*.xml)</translation>
     </message>
     <message>
         <source>Memcheck: Failed to open file for reading: %1</source>
@@ -69369,116 +69421,116 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message numerus="yes">
         <source>Memory Analyzer Tool finished. %n issues were found.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Analizator pamięci zakończył pracę. Znaleziono %n problem.</numerusform>
+            <numerusform>Analizator pamięci zakończył pracę. Znaleziono %n problemy.</numerusform>
+            <numerusform>Analizator pamięci zakończył pracę. Znaleziono %n problemów.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Log file processed. %n issues were found.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Przetworzono plik logu. Znaleziono %n problem.</numerusform>
+            <numerusform>Przetworzono plik logu. Znaleziono %n problemy.</numerusform>
+            <numerusform>Przetworzono plik logu. Znaleziono %n problemów.</numerusform>
         </translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Nowy</translation>
+        <translation>Nowy</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <source>XML output file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik wyjściowy XML:</translation>
     </message>
     <message>
         <source>Handle exceptions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Obsługa wyjątków:</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Wyłączone</translation>
+        <translation>Wyłączone</translation>
     </message>
     <message>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączone</translation>
     </message>
     <message>
         <source>Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko</translation>
     </message>
     <message>
         <source>Page protection:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ochrona stron pamięci:</translation>
     </message>
     <message>
         <source>After</source>
-        <translation type="unfinished"></translation>
+        <translation>Po</translation>
     </message>
     <message>
         <source>Before</source>
-        <translation type="unfinished"></translation>
+        <translation>Przed</translation>
     </message>
     <message>
         <source>Freed memory protection</source>
-        <translation type="unfinished"></translation>
+        <translation>Ochrona zwolnionej pamięci</translation>
     </message>
     <message>
         <source>Raise breakpoint exception on error</source>
-        <translation type="unfinished"></translation>
+        <translation>Zgłoś wyjątek pułapki przy błędzie</translation>
     </message>
     <message>
         <source>Leak details:</source>
-        <translation type="unfinished"></translation>
+        <translation>Szczegóły wycieku:</translation>
     </message>
     <message>
         <source>None</source>
         <comment>Leak details: None</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Simple</source>
-        <translation type="unfinished"></translation>
+        <translation>Proste</translation>
     </message>
     <message>
         <source>Detect Leak Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Typy wykrywanych wycieków</translation>
     </message>
     <message>
         <source>Detect Leak Types (Show Reachable)</source>
-        <translation type="unfinished"></translation>
+        <translation>Typy wykrywanych wycieków (pokaż osiągalne)</translation>
     </message>
     <message>
         <source>Fuzzy Detect Leak Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Przybliżone typy wykrywanych wycieków</translation>
     </message>
     <message>
         <source>Fuzzy Detect Leak Types (Show Reachable)</source>
-        <translation type="unfinished"></translation>
+        <translation>Przybliżone typy wykrywanych wycieków (pokaż osiągalne)</translation>
     </message>
     <message>
         <source>Minimum leak size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimalny rozmiar wycieku:</translation>
     </message>
     <message>
         <source>Control leak recording:</source>
-        <translation type="unfinished"></translation>
+        <translation>Steruj rejestrowaniem wycieków:</translation>
     </message>
     <message>
         <source>On (Start Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączone (start wyłączony)</translation>
     </message>
     <message>
         <source>On (Start Enabled)</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączone (start włączony)</translation>
     </message>
     <message>
         <source>Run with debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom z debuggerem</translation>
     </message>
     <message>
         <source>Extra arguments:</source>
@@ -69490,11 +69542,11 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>The location of heob32.exe and heob64.exe.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizacja pliku heob32.exe i heob64.exe.</translation>
     </message>
     <message>
         <source>Save current settings as default.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz bieżące ustawienia jako domyślne.</translation>
     </message>
     <message>
         <source>OK</source>
@@ -69502,15 +69554,15 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny</translation>
     </message>
     <message>
         <source>New Heob Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowy profil Heob</translation>
     </message>
     <message>
         <source>Heob profile name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa profilu Heob:</translation>
     </message>
     <message>
         <source>%1 (copy)</source>
@@ -69518,11 +69570,11 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>Delete Heob Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń profil Heob</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this profile permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy na pewno chcesz trwale usunąć ten profil?</translation>
     </message>
     <message>
         <source>Process %1</source>
@@ -69530,51 +69582,51 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>Process finished with exit code %1 (0x%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces zakończył się z kodem wyjściowym %1 (0x%2).</translation>
     </message>
     <message>
         <source>Unknown argument: -%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany argument: -%1</translation>
     </message>
     <message>
         <source>Cannot create target process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć procesu docelowego.</translation>
     </message>
     <message>
         <source>Wrong bitness.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezgodność bitowa.</translation>
     </message>
     <message>
         <source>Process killed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces zakończony.</translation>
     </message>
     <message>
         <source>Only works with dynamically linked CRT.</source>
-        <translation type="unfinished"></translation>
+        <translation>Działa tylko z dynamicznie linkowanym CRT.</translation>
     </message>
     <message>
         <source>Process stopped with unhandled exception code 0x%1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces zatrzymał się z nieobsłużonym kodem wyjątku 0x%1.</translation>
     </message>
     <message>
         <source>Not enough memory to keep track of allocations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Za mało pamięci do śledzenia alokacji.</translation>
     </message>
     <message>
         <source>Application stopped unexpectedly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwane zakończenie aplikacji.</translation>
     </message>
     <message>
         <source>Extra console.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodatkowa konsola.</translation>
     </message>
     <message>
         <source>Unknown exit reason.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznana przyczyna zakończenia.</translation>
     </message>
     <message>
         <source>Heob stopped unexpectedly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwane zakończenie Heob.</translation>
     </message>
     <message>
         <source>Heob: %1</source>
@@ -69582,7 +69634,7 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>Heob: Failure in process attach handshake (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Heob: Błąd uzgadniania dołączenia do procesu (%1).</translation>
     </message>
     <message>
         <source>Memory Issues</source>
@@ -69638,7 +69690,7 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>Profile Costs of This Function and Its Callees</source>
-        <translation type="unfinished"></translation>
+        <translation>Profiluj koszty tej funkcji i wywołanych przez nią</translation>
     </message>
     <message>
         <source>Visualization</source>
@@ -69662,7 +69714,7 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>Open results in KCachegrind.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz wyniki w KCachegrind.</translation>
     </message>
     <message>
         <source>Request the dumping of profile information. This will update the Callgrind visualization.</source>
@@ -69678,7 +69730,7 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>Discard Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Odrzuć dane</translation>
     </message>
     <message>
         <source>Go back one step in history. This will select the previously selected item.</source>
@@ -69722,11 +69774,11 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>Callgrind paused.</source>
-        <translation type="unfinished"></translation>
+        <translation>Callgrind wstrzymany.</translation>
     </message>
     <message>
         <source>Callgrind Output (callgrind.out*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyjście Callgrinda (callgrind.out*)</translation>
     </message>
     <message>
         <source>Enable cycle detection to properly handle recursive or circular function calls.</source>
@@ -69754,7 +69806,7 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
     <message>
         <source>%1 (Called: %2; Incl. Cost: %3)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (wywołania: %2; koszt łączny: %3)</translation>
     </message>
     <message>
         <source>A Valgrind Callgrind analysis is still in progress.</source>
@@ -69807,36 +69859,37 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     <message>
         <source>Valgrind executable &quot;%1&quot; not found or not executable.
 Check settings or ensure Valgrind is installed and available in PATH.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik wykonywalny Valgrind &quot;%1&quot; nie został znaleziony lub nie jest plikiem wykonywalnym.
+Sprawdź ustawienia lub upewnij się, że Valgrind jest zainstalowany i dostępny w PATH.</translation>
     </message>
     <message>
         <source>The tool is designed to be used in Debug mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie jest przeznaczone do użycia w trybie Debug.</translation>
     </message>
     <message>
         <source>The tool is designed to be used in Profile mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie jest przeznaczone do użycia w trybie Profile.</translation>
     </message>
     <message>
         <source>The tool is designed to be used in Release mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie jest przeznaczone do użycia w trybie Release.</translation>
     </message>
     <message>
         <source>The tool is designed to be used with debug symbols (Debug or Profile mode).</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie jest przeznaczone do użycia z symbolami debugowania (tryb Debug lub Profile).</translation>
     </message>
     <message>
         <source>The tool is designed to be used on optimized code (Profile or Release mode).</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie jest przeznaczone do użycia ze zoptymalizowanym kodem (tryb Profile lub Release).</translation>
     </message>
     <message>
         <source>Run %1 in %2 Mode?</source>
         <extracomment>%1 = tool name, %2 = debug/release/profile</extracomment>
-        <translation type="unfinished">Uruchomić %1 w trybie %2?</translation>
+        <translation>Uruchomić %1 w trybie %2?</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. %3&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Próbujesz uruchomić narzędzie &quot;%1&quot; dla aplikacji w trybie %2. %3&lt;/p&gt;&lt;p&gt;Właściwości działania w czasie wykonania znacznie się różnią między kodem skompilowanym z optymalizacją a bez niej. Wyniki analizy dla jednego trybu mogą, lecz nie muszą, mieć znaczenie dla drugiego.&lt;/p&gt;&lt;p&gt;Uruchamianie narzędzi wymagających symboli debugowania dla plików binarnych pozbawionych tych symboli może prowadzić do braku nazw funkcji lub niewystarczających danych wyjściowych.&lt;/p&gt;&lt;p&gt;Czy chcesz kontynuować i uruchomić narzędzie w trybie %2?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Analyzing finished.</source>
@@ -69852,27 +69905,27 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Start Remote Analysis</source>
-        <translation type="unfinished">Rozpocznij zdalną analizę</translation>
+        <translation>Rozpocznij zdalną analizę</translation>
     </message>
     <message>
         <source>Kit:</source>
-        <translation type="unfinished">Zestaw narzędzi:</translation>
+        <translation>Zestaw narzędzi:</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">Plik wykonywalny:</translation>
+        <translation>Plik wykonywalny:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumenty:</translation>
+        <translation>Argumenty:</translation>
     </message>
     <message>
         <source>Working directory:</source>
-        <translation type="unfinished">Katalog roboczy:</translation>
+        <translation>Katalog roboczy:</translation>
     </message>
     <message>
         <source>Cannot start %1 without a project. Open the project and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić %1 bez projektu. Otwórz projekt i spróbuj ponownie.</translation>
     </message>
 </context>
 <context>
