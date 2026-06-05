@@ -270,7 +270,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     connect(aggregator, &TimelineModelAggregator::notesChanged,
             this, &TimelineContentWidget::updateNotes);
     connect(m_ruler, &TimeRuler::markersChanged, this, [this](const QList<qint64> &markers) {
-        for (auto painter : m_painters)
+        for (auto painter : std::as_const(m_painters))
             painter->setMarkers(markers);
     });
 
@@ -486,7 +486,7 @@ void TimelineContentWidget::updateNotes()
             connect(m_notes, &TimelineNotesModel::changed, this,
                     &TimelineContentWidget::rebuildTracks);
     }
-    for (auto painter : m_painters)
+    for (auto painter : std::as_const(m_painters))
         painter->setNotes(notes);
     rebuildTracks();
 }
@@ -737,7 +737,7 @@ void TimelineContentWidget::setSelectionLocked(bool locked)
     if (m_details->locked() == locked)
         return;
     m_details->setLocked(locked);
-    for (auto painter : m_painters)
+    for (auto painter : std::as_const(m_painters))
         painter->setSelectionLocked(locked);
     emit selectionLockedChanged(locked);
 }

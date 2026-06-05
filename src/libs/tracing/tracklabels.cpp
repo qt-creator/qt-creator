@@ -61,7 +61,7 @@ QSize TrackLabels::sizeHint() const
 void TrackLabels::updateTotalHeight()
 {
     m_totalHeight = 0;
-    for (const TrackInfo &t : m_tracks) {
+    for (const TrackInfo &t : std::as_const(m_tracks)) {
         for (int h : t.rowHeights)
             m_totalHeight += h;
     }
@@ -73,8 +73,7 @@ bool TrackLabels::event(QEvent *e)
         auto *help = static_cast<QHelpEvent *>(e);
         const int hoverY = help->pos().y();
         int y = -m_scrollOffset;
-        for (int i = 0; i < m_tracks.size(); ++i) {
-            const TrackInfo &track = m_tracks[i];
+        for (const TrackInfo &track : std::as_const(m_tracks)) {
             const int titleHeight = track.rowHeights.isEmpty() ? 30 : track.rowHeights[0];
             int trackHeight = 0;
             for (int h : track.rowHeights)
@@ -137,7 +136,7 @@ void TrackLabels::paintEvent(QPaintEvent *)
     int y = -m_scrollOffset;
     bool firstTrack = true;
 
-    for (const TrackInfo &track : m_tracks) {
+    for (const TrackInfo &track : std::as_const(m_tracks)) {
         const int titleHeight = track.rowHeights.isEmpty() ? 30 : track.rowHeights[0];
         int trackHeight = 0;
         for (int h : track.rowHeights)
@@ -308,7 +307,7 @@ void TrackLabels::mouseMoveEvent(QMouseEvent *event)
             int cumY = 0;
             for (int i = 0; i < m_tracks.size(); ++i) {
                 int trackHeight = 0;
-                for (int h : m_tracks[i].rowHeights)
+                for (int h : std::as_const(m_tracks[i].rowHeights))
                     trackHeight += h;
                 if (dragY < cumY + trackHeight / 2)
                     break;
@@ -339,8 +338,7 @@ void TrackLabels::mouseMoveEvent(QMouseEvent *event)
     // Hover: update cursor based on what's under the mouse
     const int hoverY = event->pos().y();
     int y = -m_scrollOffset;
-    for (int i = 0; i < m_tracks.size(); ++i) {
-        const TrackInfo &track = m_tracks[i];
+    for (const TrackInfo &track : std::as_const(m_tracks)) {
         const int titleHeight = track.rowHeights.isEmpty() ? 30 : track.rowHeights[0];
         int trackHeight = 0;
         for (int h : track.rowHeights)

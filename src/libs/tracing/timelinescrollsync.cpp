@@ -43,7 +43,7 @@ void TimelineScrollSync::registerLabels(TrackLabels *labels)
 void TimelineScrollSync::setVerticalScrollBar(QScrollBar *scrollBar)
 {
     m_scrollBar = scrollBar;
-    for (auto labels : m_labels)
+    for (auto labels : std::as_const(m_labels))
         connect(scrollBar, &QScrollBar::valueChanged, labels, &TrackLabels::setScrollOffset);
 }
 

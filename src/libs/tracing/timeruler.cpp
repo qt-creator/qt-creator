@@ -125,7 +125,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
         const double hw = double(height()) * 0.707;
         const double dh = double(height()) * 0.707;
         const double btnSize = qMax(4.0, double(height()) / 4.0);
-        for (qint64 ts : m_markers) {
+        for (qint64 ts : std::as_const(m_markers)) {
             const double mx = markerPixel(ts);
             if (mx < -hw || mx > width() + hw)
                 continue;

@@ -662,7 +662,8 @@ int TimelineModel::prevItemByTypeId(int requestedTypeId, qint64 time, int curren
     }, time, currentItem);
 }
 
-HueLookupTable::HueLookupTable() {
+HueLookupTable::HueLookupTable()
+{
     for (int hue = 0; hue < 360; ++hue) {
         table[hue] = QColor::fromHsl(hue, TimelineModel::TimelineModelPrivate::Saturation,
                                      TimelineModel::TimelineModelPrivate::Lightness).rgb();
