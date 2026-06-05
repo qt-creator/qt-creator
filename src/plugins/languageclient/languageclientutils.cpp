@@ -223,6 +223,7 @@ public:
 
 void updateEditorToolBar(Core::IEditor *editor)
 {
+    static QString msgNoLanguageClientSelected = Tr::tr("No language client selected.");
     auto *textEditor = qobject_cast<BaseTextEditor *>(editor);
     if (!textEditor)
         return;
@@ -232,30 +233,36 @@ void updateEditorToolBar(Core::IEditor *editor)
 
     TextDocument *document = textEditor->textDocument();
     Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument());
+    const QList<Client *> supportingClients
+        = LanguageClientManager::clientsSupportingDocument(document, false);
 
     ClientExtras *extras = dynamic_cast<ClientExtras *>(
         widget->findChild<QObject *>(clientExtrasName, Qt::FindDirectChildrenOnly));
     if (!extras) {
-        if (!client)
+        if (!client && supportingClients.isEmpty())
             return;
         extras = new ClientExtras(widget);
     }
     if (extras->m_popupAction) {
         if (client) {
             extras->m_popupAction->setText(client->name());
+        } else if (!supportingClients.isEmpty()) {
+            extras->m_popupAction->setText(msgNoLanguageClientSelected);
         } else {
             widget->toolBar()->removeAction(extras->m_popupAction);
             delete extras->m_popupAction;
         }
-    } else if (client) {
+    } else if (client || !supportingClients.isEmpty()) {
         const QIcon icon = Utils::Icon({{":/languageclient/images/languageclient.png",
                                          Utils::Theme::IconsBaseColor}}).icon();
+        const QString name = client ? client->name() : msgNoLanguageClientSelected;
         extras->m_popupAction = widget->toolBar()->addAction(
-                    icon, client->name(), [widget, document = QPointer(document), client = QPointer<Client>(client)] {
+                    icon, name, [widget, document = QPointer(document)] {
             auto menu = new QMenu(widget);
             menu->setAttribute(Qt::WA_DeleteOnClose);
             auto clientsGroup = new QActionGroup(menu);
             clientsGroup->setExclusive(true);
+            Client *currentClient = LanguageClientManager::clientForDocument(document);
             for (auto client : LanguageClientManager::clientsSupportingDocument(document, false)) {
                 if (!client->activatable())
                     continue;
@@ -267,7 +274,7 @@ void updateEditorToolBar(Core::IEditor *editor)
                     action->setChecked(true);
                 };
                 action->setCheckable(true);
-                action->setChecked(client == LanguageClientManager::clientForDocument(document));
+                action->setChecked(client == currentClient);
                 action->setEnabled(client->reachable());
                 QObject::connect(client, &Client::stateChanged, action, [action, client] {
                     action->setEnabled(client->reachable());
@@ -277,10 +284,11 @@ void updateEditorToolBar(Core::IEditor *editor)
             menu->addActions(clientsGroup->actions());
             if (!clientsGroup->actions().isEmpty())
                 menu->addSeparator();
-            if (client && client->reachable()) {
-                menu->addAction(Tr::tr("Restart %1").arg(client->name()), [client] {
-                    if (client && client->reachable())
-                        LanguageClientManager::restartClient(client);
+            if (currentClient && currentClient->reachable()) {
+                menu->addAction(Tr::tr("Restart %1").arg(currentClient->name()),
+                                [currentClient = QPointer(currentClient)] {
+                    if (currentClient && currentClient->reachable())
+                        LanguageClientManager::restartClient(currentClient);
                 });
             }
             menu->addAction(Tr::tr("Inspect Language Clients"), [] {
