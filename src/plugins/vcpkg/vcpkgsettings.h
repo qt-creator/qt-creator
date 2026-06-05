@@ -5,9 +5,7 @@
 
 #include <utils/aspects.h>
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace Vcpkg::Internal {
 
@@ -18,7 +16,6 @@ public:
 
     void readSettings() final;
     void writeSettings() const final;
-
 
     void setVcpkgRootEnvironmentVariable();
 

@@ -166,16 +166,14 @@ public:
             layouter().attachTo(&m_widget);
         m_widget.setEnabled(!m_displayedSettings.useGlobalSettings());
 
-        m_displayedSettings.useGlobalSettings.addOnChanged(this, [this, project] {
+        VcpkgSettings * const projSettings = projectSettings(project);
+        m_displayedSettings.useGlobalSettings.addOnChanged(this, [this, projSettings] {
             const bool useGlobal = m_displayedSettings.useGlobalSettings();
             m_widget.setEnabled(!useGlobal);
-            if (project) {
-                VcpkgSettings *projSettings = projectSettings(project);
-                m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
-                projSettings->useGlobalSettings.setValue(useGlobal);
-                projSettings->writeSettings();
-                projSettings->setVcpkgRootEnvironmentVariable();
-            }
+            m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
+            projSettings->useGlobalSettings.setValue(useGlobal);
+            projSettings->writeSettings();
+            projSettings->setVcpkgRootEnvironmentVariable();
         });
 
         using namespace Layouting;
@@ -187,30 +185,26 @@ public:
             noMargin,
         }.attachTo(this);
 
-        if (project) {
-            VcpkgSettings *projSettings = projectSettings(project);
+        // React on Global settings changes
+        connect(settings(nullptr), &AspectContainer::changed, this, [this] {
+            if (m_displayedSettings.useGlobalSettings())
+                m_displayedSettings.copyFrom(*settings(nullptr));
+        });
 
-            // React on Global settings changes
-            connect(settings(nullptr), &AspectContainer::changed, this, [this] {
-                if (m_displayedSettings.useGlobalSettings())
-                    m_displayedSettings.copyFrom(*settings(nullptr));
-            });
+        // Reflect changes to the project settings in the displayed settings
+        connect(projSettings, &AspectContainer::changed, this, [this, projSettings] {
+            if (!m_displayedSettings.useGlobalSettings())
+                m_displayedSettings.copyFrom(*projSettings);
+        });
 
-            // Reflect changes to the project settings in the displayed settings
-            connect(projSettings, &AspectContainer::changed, this, [this, projSettings] {
-                if (!m_displayedSettings.useGlobalSettings())
-                    m_displayedSettings.copyFrom(*projSettings);
-            });
-
-            // React on displayed settings changes in the project settings
-            connect(&m_displayedSettings, &AspectContainer::changed, this, [this, projSettings] {
-                if (!m_displayedSettings.useGlobalSettings()) {
+        // React on displayed settings changes in the project settings
+        connect(&m_displayedSettings, &AspectContainer::changed, this, [this, projSettings] {
+            if (!m_displayedSettings.useGlobalSettings()) {
                     projSettings->copyFrom(m_displayedSettings);
                     projSettings->writeSettings();
                     projSettings->setVcpkgRootEnvironmentVariable();
                 }
             });
-        }
     }
 
     QWidget m_widget;
