@@ -162,8 +162,7 @@ public:
     explicit VcpkgSettingsWidget(Project *project)
         : m_displayedSettings(project, true)
     {
-        if (auto layouter = m_displayedSettings.layouter())
-            layouter().attachTo(&m_widget);
+        m_displayedSettings.layouter()().attachTo(&m_widget);
         m_widget.setEnabled(!m_displayedSettings.useGlobalSettings());
 
         VcpkgSettings * const projSettings = projectSettings(project);
