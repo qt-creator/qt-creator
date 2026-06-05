@@ -722,10 +722,9 @@ bool QmakePriFile::ensureWriteableProFile(const FilePath &file)
         if (!versionControl || !versionControl->vcsOpen(file)) {
             Result<> makeWritable = file.setPermissions(file.permissions() | QFile::WriteUser);
             if (!makeWritable) {
-                QMessageBox::warning(Core::ICore::dialogParent(),
-                                     Tr::tr("Failed"),
-                                     Tr::tr("Could not write project file %1: %2")
-                                        .arg(file.toUserOutput(), makeWritable.error()));
+                MessageManager::writeDisrupting(
+                    Tr::tr("Could not write project file %1: %2")
+                        .arg(file.toUserOutput(), makeWritable.error()));
                 return false;
             }
         }
