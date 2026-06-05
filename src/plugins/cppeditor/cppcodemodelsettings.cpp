@@ -302,36 +302,27 @@ bool CppCodeModelSettings::hasCustomSettings(const Project *project)
 {
     if (!project)
         return false;
-    CppCodeModelSettings m_customSettings;
-    const Store data = storeFromVariant(project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
-    return !data.value(useGlobalSettingsKey(), true).toBool();
+    return !Internal::cppCodeModelProjectSettings(const_cast<Project *>(project))->useGlobalSettings();
 }
 
 void CppCodeModelSettings::setSettingsForProject(Project *project, const CppCodeModelSettingsData &settings)
 {
     if (project) {
-        CppCodeModelSettings s;
-        s.setData(settings);
-        Store data;
-        s.toMap(data);
-        data.insert(useGlobalSettingsKey(), false);
-        project->setNamedSettings(Constants::CPPEDITOR_SETTINGSGROUP, variantFromStore(data));
+        Internal::CppCodeModelProjectSettings * const ps
+            = Internal::cppCodeModelProjectSettings(project);
+        ps->setData(settings);
+        ps->useGlobalSettings.setValue(false); // triggers save() + handleSettingsChange via addOnChanged
+    } else {
+        CppModelManager::handleSettingsChange(nullptr);
     }
-    CppModelManager::handleSettingsChange(project);
 }
 
 CppCodeModelSettingsData CppCodeModelSettings::settingsForProject(const Project *project)
 {
     if (!project)
-        return CppCodeModelSettings::global().data();
-
-    const Store data = storeFromVariant(project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
-    if (data.value(useGlobalSettingsKey(), true).toBool())
-        return CppCodeModelSettings::global().data();
-
-    CppCodeModelSettings customSettings;
-    customSettings.fromMap(data);
-    return customSettings.data();
+        return global().data();
+    const auto *ps = Internal::cppCodeModelProjectSettings(const_cast<Project *>(project));
+    return ps->useGlobalSettings() ? global().data() : ps->data();
 }
 
 namespace Internal {
