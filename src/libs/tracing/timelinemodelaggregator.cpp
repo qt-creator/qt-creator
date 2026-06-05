@@ -6,15 +6,12 @@
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
 
-#include <utils/algorithm.h>
-
 #include <QPointer>
-#include <QStringList>
-#include <QVariant>
 
 namespace Timeline {
 
-class TimelineModelAggregator::TimelineModelAggregatorPrivate {
+class TimelineModelAggregatorPrivate
+{
 public:
     QList <TimelineModel *> modelList;
     QPointer<TimelineNotesModel> notesModel;
@@ -22,31 +19,27 @@ public:
 };
 
 TimelineModelAggregator::TimelineModelAggregator(QObject *parent)
-    : QObject(parent), d_ptr(new TimelineModelAggregatorPrivate)
+    : QObject(parent), d(new TimelineModelAggregatorPrivate)
 {
 }
 
 TimelineModelAggregator::~TimelineModelAggregator()
 {
-    Q_D(TimelineModelAggregator);
     delete d;
 }
 
 int TimelineModelAggregator::height() const
 {
-    Q_D(const TimelineModelAggregator);
     return modelOffset(d->modelList.length());
 }
 
 int TimelineModelAggregator::generateModelId()
 {
-    Q_D(TimelineModelAggregator);
     return d->currentModelId++;
 }
 
 void TimelineModelAggregator::addModel(TimelineModel *m)
 {
-    Q_D(TimelineModelAggregator);
     d->modelList << m;
     connect(m, &TimelineModel::heightChanged, this, &TimelineModelAggregator::heightChanged);
     if (d->notesModel)
@@ -56,15 +49,9 @@ void TimelineModelAggregator::addModel(TimelineModel *m)
         emit heightChanged();
 }
 
-void TimelineModelAggregator::setModels(const QVariantList &models)
+void TimelineModelAggregator::setModels(const QList<TimelineModel *> &models)
 {
-    Q_D(TimelineModelAggregator);
-
-    const QList<TimelineModel *> timelineModels = Utils::transform(models, [](const QVariant &model) {
-        return qvariant_cast<TimelineModel *>(model);
-    });
-
-    if (d->modelList == timelineModels)
+    if (d->modelList == models)
         return;
 
     int prevHeight = height();
@@ -74,8 +61,8 @@ void TimelineModelAggregator::setModels(const QVariantList &models)
             d->notesModel->removeTimelineModel(m);
     }
 
-    d->modelList = timelineModels;
-    for (TimelineModel *m : timelineModels) {
+    d->modelList = models;
+    for (TimelineModel *m : models) {
         connect(m, &TimelineModel::heightChanged, this, &TimelineModelAggregator::heightChanged);
         if (d->notesModel)
             d->notesModel->addTimelineModel(m);
@@ -87,28 +74,21 @@ void TimelineModelAggregator::setModels(const QVariantList &models)
 
 const TimelineModel *TimelineModelAggregator::model(int modelIndex) const
 {
-    Q_D(const TimelineModelAggregator);
     return d->modelList[modelIndex];
 }
 
-QVariantList TimelineModelAggregator::models() const
+QList<TimelineModel *> TimelineModelAggregator::models() const
 {
-    Q_D(const TimelineModelAggregator);
-    QVariantList ret;
-    for (TimelineModel *model : d->modelList)
-        ret << QVariant::fromValue(model);
-    return ret;
+    return d->modelList;
 }
 
 TimelineNotesModel *TimelineModelAggregator::notes() const
 {
-    Q_D(const TimelineModelAggregator);
     return d->notesModel;
 }
 
 void TimelineModelAggregator::setNotes(TimelineNotesModel *notes)
 {
-    Q_D(TimelineModelAggregator);
     if (d->notesModel == notes)
         return;
 
@@ -127,7 +107,6 @@ void TimelineModelAggregator::setNotes(TimelineNotesModel *notes)
 
 void TimelineModelAggregator::clear()
 {
-    Q_D(TimelineModelAggregator);
     int prevHeight = height();
     d->modelList.clear();
     if (d->notesModel)
@@ -139,7 +118,6 @@ void TimelineModelAggregator::clear()
 
 void TimelineModelAggregator::moveModel(int from, int to)
 {
-    Q_D(TimelineModelAggregator);
     if (from == to || from < 0 || from >= d->modelList.size()
             || to < 0 || to >= d->modelList.size())
         return;
@@ -149,7 +127,6 @@ void TimelineModelAggregator::moveModel(int from, int to)
 
 int TimelineModelAggregator::modelOffset(int modelIndex) const
 {
-    Q_D(const TimelineModelAggregator);
     int ret = 0;
     for (int i = 0; i < modelIndex; ++i)
         ret += d->modelList[i]->height();
@@ -158,13 +135,11 @@ int TimelineModelAggregator::modelOffset(int modelIndex) const
 
 int TimelineModelAggregator::modelCount() const
 {
-    Q_D(const TimelineModelAggregator);
     return d->modelList.count();
 }
 
 int TimelineModelAggregator::modelIndexById(int modelId) const
 {
-    Q_D(const TimelineModelAggregator);
     for (int i = 0; i < d->modelList.count(); ++i) {
         if (d->modelList.at(i)->modelId() == modelId)
             return i;
@@ -172,8 +147,8 @@ int TimelineModelAggregator::modelIndexById(int modelId) const
     return -1;
 }
 
-QVariantMap TimelineModelAggregator::nextItem(int selectedModel, int selectedItem,
-                                              qint64 time) const
+ModelItem TimelineModelAggregator::nextItem(int selectedModel, int selectedItem,
+                                                   qint64 time) const
 {
     if (selectedItem != -1)
         time = model(selectedModel)->startTime(selectedItem);
@@ -227,14 +202,11 @@ QVariantMap TimelineModelAggregator::nextItem(int selectedModel, int selectedIte
         }
     }
 
-    QVariantMap ret;
-    ret.insert(QLatin1String("model"), candidateModelIndex);
-    ret.insert(QLatin1String("item"), itemIndex);
-    return ret;
+    return {candidateModelIndex, itemIndex};
 }
 
-QVariantMap TimelineModelAggregator::prevItem(int selectedModel, int selectedItem,
-                                              qint64 time) const
+ModelItem TimelineModelAggregator::prevItem(int selectedModel, int selectedItem,
+                                                   qint64 time) const
 {
     if (selectedItem != -1)
         time = model(selectedModel)->startTime(selectedItem);
@@ -285,10 +257,7 @@ QVariantMap TimelineModelAggregator::prevItem(int selectedModel, int selectedIte
         }
     }
 
-    QVariantMap ret;
-    ret.insert(QLatin1String("model"), candidateModelIndex);
-    ret.insert(QLatin1String("item"), itemIndex);
-    return ret;
+    return {candidateModelIndex, itemIndex};
 }
 
 } // namespace Timeline

@@ -72,7 +72,7 @@ public:
     Timeline::TimelineWidget *m_mainView; // Not owned
     QmlProfilerModelManager *m_modelManager; // Not owned
 
-    QVariantList m_suspendedModels;
+    QList<Timeline::TimelineModel *> m_suspendedModels;
     Timeline::TimelineModelAggregator m_modelProxy;
     Timeline::TimelineZoomControl m_zoomControl;
 };
@@ -87,7 +87,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerModelMana
         if (d->m_suspendedModels.isEmpty()) {
             // Temporarily remove the models, while we're changing them
             d->m_suspendedModels = d->m_modelProxy.models();
-            d->m_modelProxy.setModels(QVariantList());
+            d->m_modelProxy.setModels({});
         }
         // Otherwise models are suspended already. This can happen if either acquiring was
         // aborted or we're doing a "restrict to range" which consists of a partial clearing and
@@ -110,19 +110,16 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerModelMana
     d->m_modelProxy.setNotes(modelManager->notesModel());
     d->m_modelManager = modelManager;
 
-    QVariantList models;
-    models.append(QVariant::fromValue(new PixmapCacheModel(modelManager, &d->m_modelProxy)));
-    models.append(QVariant::fromValue(new SceneGraphTimelineModel(modelManager, &d->m_modelProxy)));
-    models.append(QVariant::fromValue(new MemoryUsageModel(modelManager, &d->m_modelProxy)));
-    models.append(QVariant::fromValue(new InputEventsModel(modelManager, &d->m_modelProxy)));
-    models.append(QVariant::fromValue(new DebugMessagesModel(modelManager, &d->m_modelProxy)));
-    models.append(QVariant::fromValue(new Quick3DModel(modelManager, &d->m_modelProxy)));
-    models.append(QVariant::fromValue(new QmlProfilerAnimationsModel(modelManager,
-                                                                     &d->m_modelProxy)));
-    for (int i = 0; i < MaximumRangeType; ++i) {
-        models.append(QVariant::fromValue(new QmlProfilerRangeModel(modelManager, (RangeType)i,
-                                                                    &d->m_modelProxy)));
-    }
+    QList<Timeline::TimelineModel *> models;
+    models.append(new PixmapCacheModel(modelManager, &d->m_modelProxy));
+    models.append(new SceneGraphTimelineModel(modelManager, &d->m_modelProxy));
+    models.append(new MemoryUsageModel(modelManager, &d->m_modelProxy));
+    models.append(new InputEventsModel(modelManager, &d->m_modelProxy));
+    models.append(new DebugMessagesModel(modelManager, &d->m_modelProxy));
+    models.append(new Quick3DModel(modelManager, &d->m_modelProxy));
+    models.append(new QmlProfilerAnimationsModel(modelManager, &d->m_modelProxy));
+    for (int i = 0; i < MaximumRangeType; ++i)
+        models.append(new QmlProfilerRangeModel(modelManager, (RangeType)i, &d->m_modelProxy));
     d->m_modelProxy.setModels(models);
 
     d->m_mainView = new Timeline::TimelineWidget(&d->m_modelProxy, &d->m_zoomControl, this);

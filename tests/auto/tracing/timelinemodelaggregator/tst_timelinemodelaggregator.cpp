@@ -98,28 +98,22 @@ void tst_TimelineModelAggregator::prevNext()
 
     // Add an empty model to trigger the special code paths that skip it
     aggregator.addModel(new TimelineModel(&aggregator));
-    QLatin1String item("item");
-    QLatin1String model("model");
-    QVariantMap result;
-
     {
         int indexes[] = {-1, -1, -1};
         int lastModel = -1;
         int lastIndex = -1;
         for (int i = 0; i < 60; ++i) {
-            result = aggregator.nextItem(lastModel, lastIndex, -1);
-            int nextModel = result.value(model).toInt();
-            int nextIndex = result.value(item).toInt();
-            QVERIFY(nextModel < 3);
-            QVERIFY(nextModel >= 0);
-            QCOMPARE(nextIndex, ++indexes[nextModel]);
-            lastModel = nextModel;
-            lastIndex = nextIndex;
+            ModelItem item = aggregator.nextItem(lastModel, lastIndex, -1);
+            QVERIFY(item.modelIndex < 3);
+            QVERIFY(item.modelIndex >= 0);
+            QCOMPARE(item.itemIndex, ++indexes[item.modelIndex]);
+            lastModel = item.modelIndex;
+            lastIndex = item.itemIndex;
         }
 
-        result = aggregator.nextItem(lastModel, lastIndex, -1);
-        QCOMPARE(result.value(model).toInt(), 0);
-        QCOMPARE(result.value(item).toInt(), 0);
+        ModelItem item = aggregator.nextItem(lastModel, lastIndex, -1);
+        QCOMPARE(item.modelIndex, 0);
+        QCOMPARE(item.itemIndex, 0);
     }
 
     {
@@ -127,19 +121,17 @@ void tst_TimelineModelAggregator::prevNext()
         int lastModel = -1;
         int lastIndex = -1;
         for (int i = 0; i < 60; ++i) {
-            result = aggregator.prevItem(lastModel, lastIndex, -1);
-            int prevModel = result.value(model).toInt();
-            int prevIndex = result.value(item).toInt();
-            QVERIFY(prevModel < 3);
-            QVERIFY(prevModel >= 0);
-            QCOMPARE(prevIndex, --indexes[prevModel]);
-            lastModel = prevModel;
-            lastIndex = prevIndex;
+            ModelItem item = aggregator.prevItem(lastModel, lastIndex, -1);
+            QVERIFY(item.modelIndex < 3);
+            QVERIFY(item.modelIndex >= 0);
+            QCOMPARE(item.itemIndex, --indexes[item.modelIndex]);
+            lastModel = item.modelIndex;
+            lastIndex = item.itemIndex;
         }
 
-        result = aggregator.prevItem(lastModel, lastIndex, -1);
-        QCOMPARE(result.value(model).toInt(), 2);
-        QCOMPARE(result.value(item).toInt(), 19);
+        ModelItem item = aggregator.prevItem(lastModel, lastIndex, -1);
+        QCOMPARE(item.modelIndex, 2);
+        QCOMPARE(item.itemIndex, 19);
     }
 }
 

@@ -8,12 +8,16 @@
 
 namespace Timeline {
 
+struct ModelItem
+{
+    int modelIndex = -1;
+    int itemIndex = -1;
+};
+
 class TRACING_EXPORT TimelineModelAggregator : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int height READ height NOTIFY heightChanged)
-    Q_PROPERTY(QVariantList models READ models WRITE setModels NOTIFY modelsChanged)
-    Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes WRITE setNotes NOTIFY notesChanged)
+
 public:
     TimelineModelAggregator(QObject *parent = nullptr);
     ~TimelineModelAggregator() override;
@@ -21,11 +25,11 @@ public:
     int height() const;
     int generateModelId();
 
-    void addModel(TimelineModel *m);
+    void addModel(TimelineModel *m); // Not owned
     const TimelineModel *model(int modelIndex) const;
 
-    QVariantList models() const;
-    void setModels(const QVariantList &models);
+    QList<TimelineModel *> models() const;
+    void setModels(const QList<TimelineModel *> &models);
 
     TimelineNotesModel *notes() const;
     void setNotes(TimelineNotesModel *notes);
@@ -34,12 +38,12 @@ public:
     int modelCount() const;
     int modelIndexById(int modelId) const;
 
-    Q_INVOKABLE int modelOffset(int modelIndex) const;
+    int modelOffset(int modelIndex) const;
 
     void moveModel(int from, int to);
 
-    Q_INVOKABLE QVariantMap nextItem(int selectedModel, int selectedItem, qint64 time) const;
-    Q_INVOKABLE QVariantMap prevItem(int selectedModel, int selectedItem, qint64 time) const;
+    ModelItem nextItem(int selectedModel, int selectedItem, qint64 time) const;
+    ModelItem prevItem(int selectedModel, int selectedItem, qint64 time) const;
 
 signals:
     void modelsChanged();
@@ -48,9 +52,7 @@ signals:
     void updateCursorPosition();
 
 private:
-    class TimelineModelAggregatorPrivate;
-    TimelineModelAggregatorPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(TimelineModelAggregator)
+    class TimelineModelAggregatorPrivate *d;
 };
 
 } // namespace Timeline

@@ -64,10 +64,10 @@ public:
 
     int modelIndex(int modelId) const
     {
-        const QVariantList models = m_aggregator->models();
+        const QList<TimelineModel *> models = m_aggregator->models();
         for (int i = 0; i < models.size(); ++i) {
-            auto model = qvariant_cast<TimelineModel *>(models.at(i));
-            if (model && model->modelId() == modelId)
+            TimelineModel *model = models.at(i);
+            if (model->modelId() == modelId)
                 return i;
         }
         return -1;

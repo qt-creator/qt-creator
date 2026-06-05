@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     auto modelAggregator = new TimelineModelAggregator;
     auto model = new DummyModel(modelAggregator);
     model->populateData();
-    modelAggregator->setModels({QVariant::fromValue(model)});
+    modelAggregator->setModels({model});
 
     auto notes = new Timeline::TimelineNotesModel;
     notes->addTimelineModel(model);

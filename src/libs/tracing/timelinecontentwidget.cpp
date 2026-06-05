@@ -211,10 +211,9 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
         if (trackIndex < 0 || trackIndex >= m_painters.size())
             return;
         const int modelId = m_painters[trackIndex]->model()->modelId();
-        for (const QVariant &v : m_aggregator->models()) {
-            auto mutableModel = qvariant_cast<TimelineModel *>(v);
-            if (mutableModel && mutableModel->modelId() == modelId) {
-                mutableModel->setExpanded(!mutableModel->expanded());
+        for (TimelineModel *model : m_aggregator->models()) {
+            if (model->modelId() == modelId) {
+                model->setExpanded(!model->expanded());
                 break;
             }
         }
@@ -229,9 +228,8 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
         if (trackIndex < 0 || trackIndex >= m_painters.size())
             return;
         const int modelId = m_painters[trackIndex]->model()->modelId();
-        for (const QVariant &v : m_aggregator->models()) {
-            auto model = qvariant_cast<TimelineModel *>(v);
-            if (!model || model->modelId() != modelId)
+        for (TimelineModel *model : m_aggregator->models()) {
+            if (model->modelId() != modelId)
                 continue;
             if (model->hasMixedTypesInExpandedState())
                 return;
@@ -255,9 +253,8 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
         if (trackIndex < 0 || trackIndex >= m_painters.size())
             return;
         const int modelId = m_painters[trackIndex]->model()->modelId();
-        for (const QVariant &v : m_aggregator->models()) {
-            auto model = qvariant_cast<TimelineModel *>(v);
-            if (model && model->modelId() == modelId) {
+        for (TimelineModel *model : m_aggregator->models()) {
+            if (model->modelId() == modelId) {
                 model->setExpandedRowHeight(rowIndex + 1, newHeight);
                 m_painters[trackIndex]->updateGeometry();
                 return;
@@ -365,10 +362,8 @@ void TimelineContentWidget::rebuildTracks()
     }
 
     // Disconnect all per-model signals from this before rebuilding
-    for (const QVariant &v : m_aggregator->models()) {
-        auto model = qvariant_cast<TimelineModel *>(v);
-        if (model)
-            disconnect(model, nullptr, this, nullptr);
+    for (TimelineModel *model : m_aggregator->models()) {
+        disconnect(model, nullptr, this, nullptr);
     }
 
     // Delete painters; Qt removes their layout items automatically on destruction
@@ -387,11 +382,9 @@ void TimelineContentWidget::rebuildTracks()
     const bool hasTrace = m_zoom->traceDuration() > 0;
     int totalRowsBefore = 0;
     int aggIdx = -1;
-    for (const QVariant &v : m_aggregator->models()) {
+    for (TimelineModel *model : m_aggregator->models()) {
         ++aggIdx;
-        auto model = qvariant_cast<TimelineModel *>(v);
-        if (!model)
-            continue;
+
 
         // Connect rebuild signals for ALL models so hidden/empty models becoming visible
         // trigger a rebuild without needing a modelsChanged emission.
@@ -665,7 +658,7 @@ void TimelineContentWidget::selectByTypeId(int typeId)
     if (typeId == -1 || m_currentTypeId == typeId)
         return;
 
-    const QVariantList models = m_aggregator->models();
+    const QList<TimelineModel *> models = m_aggregator->models();
 
     // Check notes first
     if (const TimelineNotesModel *notes = m_aggregator->notes()) {
@@ -675,8 +668,8 @@ void TimelineContentWidget::selectByTypeId(int typeId)
             const int modelId = notes->timelineModel(noteIdx);
             const int itemIdx = notes->timelineIndex(noteIdx);
             for (int aggIdx = 0; aggIdx < models.size(); ++aggIdx) {
-                auto model = qvariant_cast<TimelineModel *>(models[aggIdx]);
-                if (model && model->modelId() == modelId) {
+                TimelineModel *model = models[aggIdx];
+                if (model->modelId() == modelId) {
                     const int pi = aggregatorToPainter(aggIdx);
                     if (pi < 0)
                         break;
@@ -692,9 +685,8 @@ void TimelineContentWidget::selectByTypeId(int typeId)
     // Otherwise search models for items matching the type ID
     const int selectedAgg = painterToAggregator(m_selectedModelIndex);
     for (int aggIdx = 0; aggIdx < models.size(); ++aggIdx) {
-        auto model = qvariant_cast<TimelineModel *>(models[aggIdx]);
-        if (!model)
-            continue;
+        TimelineModel *model = models[aggIdx];
+
         if (aggIdx == selectedAgg && m_selectedItemIndex != -1
                 && model->typeId(m_selectedItemIndex) == typeId) {
             break;
@@ -718,16 +710,16 @@ void TimelineContentWidget::selectByTypeId(int typeId)
 
 void TimelineContentWidget::jumpToNext()
 {
-    const QVariantMap next = m_aggregator->nextItem(
+    const ModelItem next = m_aggregator->nextItem(
         painterToAggregator(m_selectedModelIndex), m_selectedItemIndex, m_zoom->rangeStart());
-    selectItem(aggregatorToPainter(next.value("model", -1).toInt()), next.value("item").toInt());
+    selectItem(aggregatorToPainter(next.modelIndex), next.itemIndex);
 }
 
 void TimelineContentWidget::jumpToPrev()
 {
-    const QVariantMap prev = m_aggregator->prevItem(
+    const ModelItem prev = m_aggregator->prevItem(
         painterToAggregator(m_selectedModelIndex), m_selectedItemIndex, m_zoom->rangeEnd());
-    selectItem(aggregatorToPainter(prev.value("model", -1).toInt()), prev.value("item").toInt());
+    selectItem(aggregatorToPainter(prev.modelIndex), prev.itemIndex);
 }
 
 void TimelineContentWidget::clear()

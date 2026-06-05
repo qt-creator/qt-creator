@@ -188,10 +188,10 @@ void CtfTraceManager::addModelsToAggregator()
         return value;
     });
 
-    QVariantList modelsToAdd;
+    QList<Timeline::TimelineModel *> modelsToAdd;
     for (CtfTimelineModel *model: models) {
         if (showAll || isRestrictedTo(model->tid()))
-            modelsToAdd.append(QVariant::fromValue(model));
+            modelsToAdd.append(model);
     }
     m_modelAggregator->setModels(modelsToAdd);
     updateStatistics();

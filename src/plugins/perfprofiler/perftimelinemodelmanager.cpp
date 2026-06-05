@@ -83,9 +83,9 @@ void PerfTimelineModelManager::finalize()
         return a->tid() < b->tid();
     });
 
-    QVariantList modelsToAdd;
+    QList<Timeline::TimelineModel *> modelsToAdd;
     for (PerfTimelineModel *model : std::as_const(finished))
-        modelsToAdd.append(QVariant::fromValue(model));
+        modelsToAdd.append(model);
     setModels(modelsToAdd);
 }
 
@@ -104,10 +104,10 @@ void PerfTimelineModelManager::loadEvent(const PerfEvent &event, const PerfEvent
 
 void PerfTimelineModelManager::clear()
 {
-    QVariantList perfModels = models();
+    const QList<Timeline::TimelineModel *> perfModels = models();
     Timeline::TimelineModelAggregator::clear();
-    for (QVariant &var : perfModels)
-        delete qvariant_cast<PerfTimelineModel *>(var);
+    for (Timeline::TimelineModel *model : perfModels)
+        delete model;
     qDeleteAll(m_unfinished);
     m_unfinished.clear();
     m_resourceContainers.clear();

@@ -126,11 +126,10 @@ void TimelineOverviewWidget::rebuildContentCache()
         return;
     }
 
-    const QVariantList models = m_aggregator->models();
+    const QList<TimelineModel *> models = m_aggregator->models();
     int numModels = 0;
-    for (const QVariant &v : models) {
-        auto model = qvariant_cast<TimelineModel *>(v);
-        if (model && !model->hidden())
+    for (TimelineModel *model : models) {
+        if (!model->hidden())
             ++numModels;
     }
 
@@ -141,8 +140,7 @@ void TimelineOverviewWidget::rebuildContentCache()
     if (numModels > 0) {
         const double bandH = double(contentH) / double(numModels);
         int bandIdx = 0;
-        for (const QVariant &v : models) {
-            auto model = qvariant_cast<TimelineModel *>(v);
+        for (TimelineModel *model : models) {
             if (!model || model->hidden())
                 continue;
 
@@ -182,8 +180,7 @@ void TimelineOverviewWidget::rebuildContentCache()
             int bandIdx = 0;
             const int modelId = notes->timelineModel(i);
             TimelineModel *noteModel = nullptr;
-            for (const QVariant &v : models) {
-                auto model = qvariant_cast<TimelineModel *>(v);
+            for (TimelineModel *model : models) {
                 if (!model || model->hidden())
                     continue;
                 if (model->modelId() == modelId) {

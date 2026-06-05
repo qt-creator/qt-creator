@@ -33,7 +33,7 @@ static void checkModels(PerfProfilerTraceManager *traceManager,
 {
     traceManager->finalize();
 
-    const QVariantList perfModels = modelManager->models();
+    const auto perfModels = modelManager->models();
 
     QCOMPARE(traceManager->locations().size(), static_cast<size_t>(2));
     QCOMPARE(traceManager->symbols().count(), 1);
@@ -43,7 +43,7 @@ static void checkModels(PerfProfilerTraceManager *traceManager,
 
     QCOMPARE(perfModels.size(), 1);
 
-    checkModelContainsTraceData(qvariant_cast<PerfTimelineModel *>(perfModels[0]));
+    checkModelContainsTraceData(static_cast<PerfTimelineModel *>(perfModels[0]));
 }
 
 struct MessageHandler {
