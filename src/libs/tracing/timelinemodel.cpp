@@ -389,11 +389,10 @@ int TimelineModel::parentIndex(int index) const
     return d->ranges[index].parent;
 }
 
-QVariantMap TimelineModel::location(int index) const
+ItemLocation TimelineModel::location(int index) const
 {
     Q_UNUSED(index)
-    QVariantMap map;
-    return map;
+    return {};
 }
 
 /*!
@@ -574,41 +573,28 @@ QRgb TimelineModel::color(int index) const
     return QRgb();
 }
 
-QVariantList TimelineModel::labels() const
+RowLabels TimelineModel::labels() const
 {
-    return QVariantList();
+    return {};
 }
 
-QVariantMap TimelineModel::details(int index) const
+ItemDetails TimelineModel::details(int index) const
 {
     Q_UNUSED(index)
-    return QVariantMap();
+    return {};
 }
 
-/**
- * @brief TimelineModel::orderedDetails returns the title and content for the details popup
- * @param index of the selected item
- * @return QVariantMap containing the fields 'title' (QString) and 'content' (QVariantList
- * with alternating keys and values as QStrings)
- */
-QVariantMap TimelineModel::orderedDetails(int index) const
+OrderedItemDetails TimelineModel::orderedDetails(int index) const
 {
-    QVariantMap info = details(index);
-    QVariantMap data;
-    QVariantList content;
-    auto it = info.constBegin();
-    auto end = info.constEnd();
-    while (it != end) {
-        if (it.key() == "displayName") {
-            data.insert("title", it.value());
-        } else {
-            content.append(it.key());
-            content.append(it.value());
-        }
-        ++it;
+    OrderedItemDetails result;
+    const ItemDetails info = details(index);
+    for (auto it = info.constBegin(); it != info.constEnd(); ++it) {
+        if (it.key() == QLatin1String("displayName"))
+            result.title = it.value();
+        else
+            result.content.append({it.key(), it.value()});
     }
-    data.insert("content", content);
-    return data;
+    return result;
 }
 
 int TimelineModel::expandedRow(int index) const

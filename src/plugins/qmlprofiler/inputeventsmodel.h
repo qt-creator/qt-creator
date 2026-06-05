@@ -28,8 +28,8 @@ public:
 
     int typeId(int index) const override;
     QRgb color(int index) const override;
-    QVariantList labels() const override;
-    QVariantMap details(int index) const override;
+    Timeline::RowLabels labels() const override;
+    Timeline::ItemDetails details(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
 

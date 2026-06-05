@@ -82,9 +82,9 @@ public:
     QRgb color(int index) const override;
     float relativeHeight(int index) const override;
 
-    QVariantList labels() const override;
+    Timeline::RowLabels labels() const override;
 
-    QVariantMap details(int index) const override;
+    Timeline::ItemDetails details(int index) const override;
 
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
     void finalize() override;

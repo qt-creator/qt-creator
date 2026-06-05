@@ -33,8 +33,8 @@ public:
     QRgb color(int index) const final;
     float relativeHeight(int index) const final;
 
-    QVariantList labels() const final;
-    QVariantMap details(int index) const final;
+    Timeline::RowLabels labels() const final;
+    Timeline::ItemDetails details(int index) const final;
 
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) final;
     void finalize() final;

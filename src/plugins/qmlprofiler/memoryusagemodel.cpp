@@ -56,25 +56,16 @@ float MemoryUsageModel::relativeHeight(int index) const
     return qMin(1.0f, (float)m_data[index].size / (float)m_maxSize);
 }
 
-QVariantMap MemoryUsageModel::location(int index) const
+Timeline::ItemLocation MemoryUsageModel::location(int index) const
 {
     return locationFromTypeId(index);
 }
 
-QVariantList MemoryUsageModel::labels() const
+Timeline::RowLabels MemoryUsageModel::labels() const
 {
-    QVariantList result;
-
-    QVariantMap element;
-    element.insert(QLatin1String("description"), Tr::tr("Memory Allocation"));
-    element.insert(QLatin1String("id"), HeapPage);
-    result << element;
-
-    element.clear();
-    element.insert(QLatin1String("description"), Tr::tr("Memory Usage"));
-    element.insert(QLatin1String("id"), SmallItem);
-    result << element;
-
+    Timeline::RowLabels result;
+    result.append({Tr::tr("Memory Allocation"), static_cast<int>(HeapPage)});
+    result.append({Tr::tr("Memory Usage"), static_cast<int>(SmallItem)});
     return result;
 }
 
@@ -87,9 +78,9 @@ static int toSameSignedInt(qint64 number)
     return static_cast<int>(number);
 }
 
-QVariantMap MemoryUsageModel::details(int index) const
+Timeline::ItemDetails MemoryUsageModel::details(int index) const
 {
-    QVariantMap result;
+    Timeline::ItemDetails result;
     const Item *ev = &m_data[index];
 
     if (ev->allocated >= -ev->deallocated)
@@ -100,12 +91,12 @@ QVariantMap MemoryUsageModel::details(int index) const
     result.insert(Tr::tr("Total"), Tr::tr("%n byte(s)", nullptr, toSameSignedInt(ev->size)));
     if (ev->allocations > 0) {
         result.insert(Tr::tr("Allocated"), Tr::tr("%n byte(s)", nullptr, toSameSignedInt(ev->allocated)));
-        result.insert(Tr::tr("Allocations"), ev->allocations);
+        result.insert(Tr::tr("Allocations"), QString::number(ev->allocations));
     }
     if (ev->deallocations > 0) {
         result.insert(Tr::tr("Deallocated"),
                       Tr::tr("%n byte(s)", nullptr, toSameSignedInt(-ev->deallocated)));
-        result.insert(Tr::tr("Deallocations"), ev->deallocations);
+        result.insert(Tr::tr("Deallocations"), QString::number(ev->deallocations));
     }
     QString memoryTypeName;
     switch (selectionId(index)) {

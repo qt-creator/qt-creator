@@ -7,6 +7,7 @@
 #include "timelinenotesmodel.h"
 
 #include <QPointer>
+#include <QVarLengthArray>
 
 namespace Timeline {
 

@@ -72,17 +72,11 @@ QString Quick3DModel::unloadMessageType(uint i)
     return Tr::tr("Unknown Unload Message %1").arg(i);
 }
 
-QVariantList Quick3DModel::labels() const
+Timeline::RowLabels Quick3DModel::labels() const
 {
-    QVariantList result;
-    for (int detailType : m_sortedTypes) {
-        QVariantMap element;
-        element.insert(QLatin1String("displayName"),
-                       detailType != ParticleUpdate ? Tr::tr("Render Thread") : Tr::tr("GUI Thread"));
-        element.insert(QLatin1String("description"), messageType(detailType));
-        element.insert(QLatin1String("id"), detailType);
-        result << element;
-    }
+    Timeline::RowLabels result;
+    for (int detailType : m_sortedTypes)
+        result.append({messageType(detailType), detailType});
     return result;
 }
 
@@ -144,11 +138,11 @@ bool Quick3DModel::resolveType(const QString &object, int detailType, QString &t
     return !type.isEmpty();
 }
 
-QVariantMap Quick3DModel::details(int index) const
+Timeline::ItemDetails Quick3DModel::details(int index) const
 {
     auto detailType = m_data[index].additionalType;
     bool unload = m_data[index].unload;
-    QVariantMap result;
+    Timeline::ItemDetails result;
     result.insert(QLatin1String("displayName"),
                   detailType != ParticleUpdate ? Tr::tr("Render Thread") : Tr::tr("GUI Thread"));
     result.insert(Tr::tr("Description"),
@@ -156,29 +150,29 @@ QVariantMap Quick3DModel::details(int index) const
     if (detailType < MeshMemoryConsumption)
         result.insert(Tr::tr("Duration"), Timeline::formatTime(duration(index)));
     if (detailType == ParticleUpdate)
-        result.insert(Tr::tr("Count"), m_data[index].data);
+        result.insert(Tr::tr("Count"), QString::number(m_data[index].data));
     if (detailType == RenderFrame) {
         quint32 calls = m_data[index].data & 0xffffffff;
         quint32 passes = m_data[index].data >> 32;
-        result.insert(Tr::tr("Draw Calls"), calls);
-        result.insert(Tr::tr("Render Passes"), passes);
+        result.insert(Tr::tr("Draw Calls"), QString::number(calls));
+        result.insert(Tr::tr("Render Passes"), QString::number(passes));
     }
     if ((detailType == RenderPass || detailType == PrepareFrame) && m_data[index].data) {
         quint32 width = m_data[index].data & 0xffffffff;
         quint32 height = m_data[index].data >> 32;
-        result.insert(Tr::tr("Width"), width);
-        result.insert(Tr::tr("Height"), height);
+        result.insert(Tr::tr("Width"), QString::number(width));
+        result.insert(Tr::tr("Height"), QString::number(height));
     }
     if ((detailType >= MeshLoad && detailType <= TextureLoad)
             || (detailType >= MeshMemoryConsumption && detailType <= TextureMemoryConsumption)) {
-        result.insert(Tr::tr("Total Memory Usage"), m_data[index].data);
+        result.insert(Tr::tr("Total Memory Usage"), QString::number(m_data[index].data));
     }
     if (detailType == RenderCall) {
         quint32 primitives = m_data[index].data & 0xffffffff;
         quint32 instances = m_data[index].data >> 32;
-        result.insert(Tr::tr("Primitives"), primitives);
+        result.insert(Tr::tr("Primitives"), QString::number(primitives));
         if (instances > 1)
-            result.insert(Tr::tr("Instances"), instances);
+            result.insert(Tr::tr("Instances"), QString::number(instances));
     }
     if (!m_data[index].eventData.isEmpty()) {
         for (int i = 0; i < m_data[index].eventData.size(); i++) {
@@ -348,38 +342,32 @@ void Quick3DModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
-QVariantMap Quick3DModel::locationFromEvent(int index) const
+Timeline::ItemLocation Quick3DModel::locationFromEvent(int index) const
 {
-    QVariantMap ret;
     for (auto e : m_data[index].eventData) {
         if (m_eventData.contains(e)) {
             const QmlEventType &et = modelManager()->eventType(m_eventData[e]);
             const QString data = et.data();
-            QString file, line;
             int lineIdx = data.lastIndexOf(QStringLiteral(".qml:"));
             int nameIdx = data.lastIndexOf(QStringLiteral(" "));
             if (lineIdx < 0)
-                return ret;
+                return {};
             lineIdx += 4;
-            file = data.mid(nameIdx + 1, lineIdx - nameIdx - 1);
-            line = data.right(data.size() - lineIdx - 1);
-            QUrl url(file);
-            ret.insert(QStringLiteral("file"), url.fileName());
-            ret.insert(QStringLiteral("line"), line.toInt());
-            ret.insert(QStringLiteral("column"), 0);
-            break;
+            const QString file = data.mid(nameIdx + 1, lineIdx - nameIdx - 1);
+            const int line = data.right(data.size() - lineIdx - 1).toInt();
+            return {QUrl(file).fileName(), line, 0};
         }
     }
-    return ret;
+    return {};
 }
 
-QVariantMap Quick3DModel::location(int index) const
+Timeline::ItemLocation Quick3DModel::location(int index) const
 {
-    QVariantMap ret;
-    if (!m_data[index].eventData.isEmpty())
-        ret = locationFromEvent(index);
-    if (!ret.isEmpty())
-        return ret;
+    if (!m_data[index].eventData.isEmpty()) {
+        const Timeline::ItemLocation loc = locationFromEvent(index);
+        if (!loc.file.isEmpty())
+            return loc;
+    }
     return locationFromTypeId(index);
 }
 

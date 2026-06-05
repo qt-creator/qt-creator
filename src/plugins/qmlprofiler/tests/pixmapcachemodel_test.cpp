@@ -190,7 +190,7 @@ void PixmapCacheModelTest::testConsistency()
         currentEnd = model.endTime(i);
         QVERIFY(currentEnd <= manager.traceEnd());
 
-        const QVariantMap details = model.details(i);
+        const Timeline::ItemDetails details = model.details(i);
 
         int collapsedRow = model.collapsedRow(i);
         int expandedRow = model.expandedRow(i);
@@ -220,22 +220,21 @@ void PixmapCacheModelTest::testConsistency()
             break;
         case 1:
             QCOMPARE(collapsedRow, 1);
-            QVERIFY(details[QLatin1String("displayName")].toString() == Tr::tr("Image Cached"));
+            QVERIFY(details[QLatin1String("displayName")] == Tr::tr("Image Cached"));
             QVERIFY(details.contains(Tr::tr("Cache Size")));
             break;
         default:
             QVERIFY(collapsedRow > 1);
             QCOMPARE(model.relativeHeight(i), 1.0f);
             QVERIFY(expandedRow < model.expandedRowCount());
-            QVERIFY(details[QLatin1String("displayName")].toString() == Tr::tr("Image Loaded"));
-            QCOMPARE(details[Tr::tr("Duration")].toString(),
-                    Timeline::formatTime(model.duration(i)));
+            QVERIFY(details[QLatin1String("displayName")] == Tr::tr("Image Loaded"));
+            QCOMPARE(details[Tr::tr("Duration")], Timeline::formatTime(model.duration(i)));
             // In expanded view pixmaps of the same URL but different sizes are allowed to overlap.
             // It looks bad, but that should be a rare thing.
             break;
         }
 
-        QString filename = details[Tr::tr("File")].toString();
+        QString filename = details[Tr::tr("File")];
         QVERIFY(filename == QString("dings.png") || filename == QString("blah.png"));
         QVERIFY(details.contains(Tr::tr("Width")));
         QVERIFY(details.contains(Tr::tr("Height")));
@@ -272,21 +271,17 @@ void PixmapCacheModelTest::testColor()
 
 void PixmapCacheModelTest::testLabels()
 {
-    const QVariantList labels = model.labels();
+    const Timeline::RowLabels labels = model.labels();
     QCOMPARE(labels.length(), 3);
 
-    const QVariantMap countRow = labels[0].toMap();
+    QCOMPARE(labels[0].description, Tr::tr("Cache Size"));
+    QCOMPARE(labels[0].id, 0);
 
-    QCOMPARE(countRow[QString("description")].toString(), Tr::tr("Cache Size"));
-    QCOMPARE(countRow[QString("id")].toInt(), 0);
+    QCOMPARE(labels[1].description, QString("dings.png"));
+    QCOMPARE(labels[1].id, 1); // urlIndex + 1
 
-    const QVariantMap dingsRow = labels[1].toMap();
-    QCOMPARE(dingsRow[QString("description")].toString(), QString("dings.png"));
-    QCOMPARE(dingsRow[QString("id")].toInt(), 1); // urlIndex + 1
-
-    const QVariantMap blahRow = labels[2].toMap();
-    QCOMPARE(blahRow[QString("description")].toString(), QString("blah.png"));
-    QCOMPARE(blahRow[QString("id")].toInt(), 2); // urlIndex + 1
+    QCOMPARE(labels[2].description, QString("blah.png"));
+    QCOMPARE(labels[2].id, 2); // urlIndex + 1
 }
 
 void PixmapCacheModelTest::cleanupTestCase()

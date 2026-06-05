@@ -28,13 +28,13 @@ public:
     QmlProfilerRangeModel(QmlProfilerModelManager *manager, QmlDebug::RangeType range,
                           Timeline::TimelineModelAggregator *parent);
 
-    Q_INVOKABLE int expandedRow(int index) const final;
-    Q_INVOKABLE int collapsedRow(int index) const final;
+    int expandedRow(int index) const final;
+    int collapsedRow(int index) const final;
     QRgb color(int index) const final;
 
-    QVariantList labels() const final;
-    QVariantMap details(int index) const final;
-    QVariantMap location(int index) const final;
+    Timeline::RowLabels labels() const final;
+    Timeline::ItemDetails details(int index) const final;
+    Timeline::ItemLocation location(int index) const final;
 
     int typeId(int index) const final;
 

@@ -273,7 +273,8 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
 
 }
 
-void RangeDetailsWidget::setData(const QString &title, const QVariantList &content,
+void RangeDetailsWidget::setData(const QString &title,
+                                  const QList<QPair<QString, QString>> &content,
                                   const QString &noteText)
 {
     saveNote();
@@ -348,7 +349,7 @@ void RangeDetailsWidget::fitHeight()
     setMaximumWidth(QWIDGETSIZE_MAX);
 }
 
-void RangeDetailsWidget::rebuildRows(const QVariantList &content)
+void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &content)
 {
     auto *cl = static_cast<QVBoxLayout *>(m_contentFrame->layout());
     const int idx = cl->indexOf(m_formWidget);
@@ -360,10 +361,10 @@ void RangeDetailsWidget::rebuildRows(const QVariantList &content)
     m_form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     cl->insertWidget(idx, m_formWidget);
 
-    const int pairs = content.size() / 2;
+    const int pairs = content.size();
     for (int i = 0; i < pairs; ++i) {
-        const QString key = content.at(i * 2).toString();
-        const QString val = content.at(i * 2 + 1).toString();
+        const QString key = content.at(i).first;
+        const QString val = content.at(i).second;
 
         auto keyLabel = new QLabel(key + ":");
         keyLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);

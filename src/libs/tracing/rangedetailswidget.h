@@ -4,8 +4,8 @@
 #pragma once
 
 #include "tracing_global.h"
+#include "timelinemodel.h"
 
-#include <QVariantList>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -25,7 +25,8 @@ class TRACING_EXPORT RangeDetailsWidget : public QWidget
 public:
     explicit RangeDetailsWidget(QWidget *parent = nullptr);
 
-    void setData(const QString &title, const QVariantList &content, const QString &noteText);
+    void setData(const QString &title, const QList<QPair<QString, QString>> &content,
+                 const QString &noteText);
     void clear();
     void saveNote();
 
@@ -45,7 +46,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *) override;
 
 private:
-    void rebuildRows(const QVariantList &content);
+    void rebuildRows(const QList<QPair<QString, QString>> &content);
     void scheduleNoteSave();
     void fitHeight();
 

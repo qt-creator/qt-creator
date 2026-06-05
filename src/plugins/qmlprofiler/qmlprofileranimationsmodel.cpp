@@ -126,32 +126,22 @@ float QmlProfilerAnimationsModel::relativeHeight(int index) const
                                                              m_maxRenderThreadAnimations);
 }
 
-QVariantList QmlProfilerAnimationsModel::labels() const
+Timeline::RowLabels QmlProfilerAnimationsModel::labels() const
 {
-    QVariantList result;
+    Timeline::RowLabels result;
 
-    if (m_maxGuiThreadAnimations > 0) {
-        QVariantMap element;
-        element.insert(QLatin1String("displayName"), Tr::tr("Animations"));
-        element.insert(QLatin1String("description"), Tr::tr("GUI Thread"));
-        element.insert(QLatin1String("id"), GuiThread);
-        result << element;
-    }
+    if (m_maxGuiThreadAnimations > 0)
+        result.append({Tr::tr("GUI Thread"), GuiThread});
 
-    if (m_maxRenderThreadAnimations > 0) {
-        QVariantMap element;
-        element.insert(QLatin1String("displayName"), Tr::tr("Animations"));
-        element.insert(QLatin1String("description"), Tr::tr("Render Thread"));
-        element.insert(QLatin1String("id"), RenderThread);
-        result << element;
-    }
+    if (m_maxRenderThreadAnimations > 0)
+        result.append({Tr::tr("Render Thread"), RenderThread});
 
     return result;
 }
 
-QVariantMap QmlProfilerAnimationsModel::details(int index) const
+Timeline::ItemDetails QmlProfilerAnimationsModel::details(int index) const
 {
-    QVariantMap result;
+    Timeline::ItemDetails result;
 
     result.insert(QStringLiteral("displayName"), displayName());
     result.insert(Tr::tr("Duration"), Timeline::formatTime(duration(index)));

@@ -50,14 +50,11 @@ QRgb PerfTimelineModel::color(int index) const
     return table.get(qAbs(selectionId(index) * 25) % 360, static_cast<int>(saturation));
 }
 
-QVariantList PerfTimelineModel::labels() const
+Timeline::RowLabels PerfTimelineModel::labels() const
 {
-    QVariantList result;
+    Timeline::RowLabels result;
 
-    QVariantMap sample;
-    sample.insert(QLatin1String("description"), Tr::tr("sample collected"));
-    sample.insert(QLatin1String("id"), PerfEvent::LastSpecialTypeId);
-    result << sample;
+    result.append({Tr::tr("sample collected"), PerfEvent::LastSpecialTypeId});
 
     const PerfProfilerTraceManager *manager = &traceManager();
     const bool aggregated = manager->aggregateAddresses();
@@ -65,18 +62,7 @@ QVariantList PerfTimelineModel::labels() const
         int locationId = m_locationOrder[i];
         const PerfProfilerTraceManager::Symbol &symbol
                 = manager->symbol(aggregated ? locationId : manager->symbolLocation(locationId));
-        const PerfEventType::Location &location = manager->location(locationId);
-        QVariantMap element;
-        const QByteArray file = manager->string(location.file);
-        if (!file.isEmpty()) {
-            element.insert(QLatin1String("displayName"), QString::fromLatin1("%1:%2")
-                           .arg(QFileInfo(QLatin1String(file)).fileName()).arg(location.line));
-        } else {
-            element.insert(QLatin1String("displayName"), manager->string(symbol.binary));
-        }
-        element.insert(QLatin1String("description"), manager->string(symbol.name));
-        element.insert(QLatin1String("id"), locationId);
-        result << element;
+        result.append({QString::fromUtf8(manager->string(symbol.name)), locationId});
     }
 
     return result;
@@ -127,9 +113,9 @@ static const QByteArray &orUnknown(const QByteArray &string)
     return string.isEmpty() ? unknown : string;
 }
 
-QVariantMap PerfTimelineModel::details(int index) const
+Timeline::ItemDetails PerfTimelineModel::details(int index) const
 {
-    QVariantMap result;
+    Timeline::ItemDetails result;
     result.insert(QLatin1String("displayName"), displayName());
 
     const StackFrame &frame = m_data[index];
@@ -138,7 +124,7 @@ QVariantMap PerfTimelineModel::details(int index) const
     int typeId = selectionId(index);
     if (isSample(index)) {
         const PerfEventType::Attribute &attribute = manager->attribute(typeId);
-        result.insert(Tr::tr("Details"), orUnknown(manager->string(attribute.name)));
+        result.insert(Tr::tr("Details"), QString::fromUtf8(orUnknown(manager->string(attribute.name))));
         result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
                                                                 manager->traceDuration()));
         const int guessedFrames = -frame.numSamples;
@@ -147,13 +133,15 @@ QVariantMap PerfTimelineModel::details(int index) const
         for (int i = 0, end = numAttributes(index); i < end; ++i) {
             const auto &name = orUnknown(manager->string(
                 manager->attribute(attributeId(index, i)).name));
-            result.insert(QString::fromUtf8(name), attributeValue(index, i));
+            result.insert(QString::fromUtf8(name), QString::number(attributeValue(index, i)));
         }
         if (attribute.type == PerfEventType::TypeTracepoint) {
             const PerfProfilerTraceManager::TracePoint &tracePoint
                     = manager->tracePoint(static_cast<int>(attribute.config));
-            result.insert(Tr::tr("System"), orUnknown(manager->string(tracePoint.system)));
-            result.insert(Tr::tr("Name"), orUnknown(manager->string(tracePoint.name)));
+            result.insert(Tr::tr("System"),
+                          QString::fromUtf8(orUnknown(manager->string(tracePoint.system))));
+            result.insert(Tr::tr("Name"),
+                          QString::fromUtf8(orUnknown(manager->string(tracePoint.name))));
             const QHash<qint32, QVariant> &extraData = m_extraData[index];
             for (auto it = extraData.constBegin(), end = extraData.constEnd(); it != end; ++it) {
                 result.insert(QString::fromUtf8(manager->string(it.key())),
@@ -185,9 +173,9 @@ QVariantMap PerfTimelineModel::details(int index) const
                 = manager->symbol(manager->aggregateAddresses()
                                   ? typeId : manager->symbolLocation(typeId));
         result.insert(Tr::tr("Duration"), Timeline::formatTime(duration(index)));
-        result.insert(Tr::tr("Samples"), qAbs(frame.numSamples));
-        result.insert(Tr::tr("Details"), orUnknown(manager->string(symbol.name)));
-        result.insert(Tr::tr("Binary"), orUnknown(manager->string(symbol.binary)));
+        result.insert(Tr::tr("Samples"), QString::number(qAbs(frame.numSamples)));
+        result.insert(Tr::tr("Details"), QString::fromUtf8(orUnknown(manager->string(symbol.name))));
+        result.insert(Tr::tr("Binary"), QString::fromUtf8(orUnknown(manager->string(symbol.binary))));
 
         const PerfEventType::Location &location = manager->location(typeId);
         QString address = QString::fromLatin1("0x%1").arg(location.address, 1, 16);
@@ -203,8 +191,8 @@ QVariantMap PerfTimelineModel::details(int index) const
             result.insert(Tr::tr("Source"), Tr::tr("[unknown]"));
         }
         const LocationStats &stats = locationStats(typeId);
-        result.insert(Tr::tr("Total Samples"), stats.numSamples);
-        result.insert(Tr::tr("Total Unique Samples"), stats.numUniqueSamples);
+        result.insert(Tr::tr("Total Samples"), QString::number(stats.numSamples));
+        result.insert(Tr::tr("Total Unique Samples"), QString::number(stats.numUniqueSamples));
         if (!m_resourceBlocks.isEmpty()) {
             result.insert(Tr::tr("Resource Peak"), prettyPrintMemory(frame.resourcePeak));
             result.insert(Tr::tr("Resource Change"), prettyPrintMemory(frame.resourceDelta));
@@ -217,22 +205,18 @@ QVariantMap PerfTimelineModel::details(int index) const
     return result;
 }
 
-QVariantMap PerfTimelineModel::location(int index) const
+Timeline::ItemLocation PerfTimelineModel::location(int index) const
 {
     const int typeId = selectionId(index);
     if (typeId < 0) // not a location
-        return QVariantMap();
+        return {};
 
-    const PerfEventType::Location &location = traceManager().location(typeId);
-    const QByteArray &file = traceManager().string(location.file);
+    const PerfEventType::Location &loc = traceManager().location(typeId);
+    const QByteArray &file = traceManager().string(loc.file);
     if (file.isEmpty())
-        return QVariantMap();
+        return {};
 
-    QVariantMap m;
-    m[QStringLiteral("file")] = file;
-    m[QStringLiteral("line")] = location.line;
-    m[QStringLiteral("column")] = location.column;
-    return m;
+    return {QString::fromUtf8(file), loc.line, loc.column};
 }
 
 int PerfTimelineModel::typeId(int index) const

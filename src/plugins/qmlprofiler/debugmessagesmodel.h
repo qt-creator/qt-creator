@@ -23,14 +23,14 @@ public:
 
     int typeId(int index) const override;
     QRgb color(int index) const override;
-    QVariantList labels() const override;
-    QVariantMap details(int index) const override;
+    Timeline::RowLabels labels() const override;
+    Timeline::ItemDetails details(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
     void finalize() override;
     void clear() override;
-    QVariantMap location(int index) const override;
+    Timeline::ItemLocation location(int index) const override;
 
 private:
     static QString messageType(uint i);

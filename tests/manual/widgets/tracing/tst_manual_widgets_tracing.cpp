@@ -46,29 +46,18 @@ public:
     }
 
     // Called when the category gets expanded
-    QVariantList labels() const override
+    RowLabels labels() const override
     {
-        QVariantList result;
-
-        QVariantMap element;
-        element.insert(QLatin1String("description"), QVariant("Dummy sub category 1"));
-        element.insert(QLatin1String("id"), 0);
-        result << element;
-
-        element.clear();
-        element.insert(QLatin1String("description"), QVariant("Dummy sub category 2"));
-        element.insert(QLatin1String("id"), 1);
-        result << element;
-
-        return result;
+        return {
+            {QLatin1String("Dummy sub category 1"), 0},
+            {QLatin1String("Dummy sub category 2"), 1},
+        };
     }
 
     // Called when a range (or track) is selected
-    QVariantMap details(int index) const override
+    ItemDetails details(int index) const override
     {
-        QVariantMap result;
-        result.insert(QLatin1String("displayName"),
-                      QString::fromLatin1("Details for range %1").arg(index));
+        Timeline::ItemDetails result;
         result.insert(QLatin1String("Foo A"), QString::fromLatin1("Bar %1a").arg(index));
         result.insert(QLatin1String("Foo B"), QString::fromLatin1("Bar %1b").arg(index));
         return result;

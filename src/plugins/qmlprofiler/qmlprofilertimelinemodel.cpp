@@ -67,24 +67,13 @@ void QmlProfilerTimelineModel::onVisibleFeaturesChanged(quint64 features)
     setHidden(!(features & (1ULL << m_mainFeature)));
 }
 
-QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
+Timeline::ItemLocation QmlProfilerTimelineModel::locationFromTypeId(int index) const
 {
-    QVariantMap result;
     int id = typeId(index);
-    if (id < 0)
-        return result;
-
-    const QmlProfilerModelManager *manager = modelManager();
-    if (id >= manager->numEventTypes())
-        return result;
-
-    QmlEventLocation location = manager->eventType(id).location();
-
-    result.insert(QStringLiteral("file"), location.filename());
-    result.insert(QStringLiteral("line"), location.line());
-    result.insert(QStringLiteral("column"), location.column());
-
-    return result;
+    if (id < 0 || id >= modelManager()->numEventTypes())
+        return {};
+    const QmlEventLocation location = modelManager()->eventType(id).location();
+    return {location.filename(), location.line(), location.column()};
 }
 
 void QmlProfilerTimelineModel::initialize()

@@ -58,25 +58,23 @@ static const char *messageTypes[] = {
 
 void DebugMessagesModelTest::testLabels()
 {
-    QVariantList labels = model.labels();
+    Timeline::RowLabels labels = model.labels();
     for (int i = 0; i <= QtMsgType::QtInfoMsg; ++i) {
-        QVariantMap element = labels[i].toMap();
-        QCOMPARE(element[QLatin1String("description")].toString(), Tr::tr(messageTypes[i]));
-        QCOMPARE(element[QLatin1String("id")].toInt(), i);
+        QCOMPARE(labels[i].description, Tr::tr(messageTypes[i]));
+        QCOMPARE(labels[i].id, i);
     }
 }
 
 void DebugMessagesModelTest::testDetails()
 {
     for (int i = 0; i < 10; ++i) {
-        QVariantMap details = model.details(i);
-        QCOMPARE(details.value(QLatin1String("displayName")).toString(),
+        Timeline::ItemDetails details = model.details(i);
+        QCOMPARE(details.value(QLatin1String("displayName")),
                  Tr::tr(messageTypes[i % (QtMsgType::QtInfoMsg + 1)]));
-        QCOMPARE(details.value(Tr::tr("Timestamp")).toString(),
-                 Timeline::formatTime(i));
-        QCOMPARE(details.value(Tr::tr("Message")).toString(),
+        QCOMPARE(details.value(Tr::tr("Timestamp")), Timeline::formatTime(i));
+        QCOMPARE(details.value(Tr::tr("Message")),
                  QString::fromLatin1("message %1").arg(i));
-        QCOMPARE(details.value(Tr::tr("Location")).toString(),
+        QCOMPARE(details.value(Tr::tr("Location")),
                  QString::fromLatin1("somefile.js:%1").arg(i));
     }
 }
@@ -95,13 +93,11 @@ void DebugMessagesModelTest::testCollapsedRow()
 
 void DebugMessagesModelTest::testLocation()
 {
-    QVariantMap expected;
-    expected[QLatin1String("file")] = QLatin1String("somefile.js");
-
     for (int i = 0; i < 10; ++i) {
-        expected[QLatin1String("line")] = i;
-        expected[QLatin1String("column")] = 10 - i;
-        QCOMPARE(model.location(i), expected);
+        const Timeline::ItemLocation loc = model.location(i);
+        QCOMPARE(loc.file, QLatin1String("somefile.js"));
+        QCOMPARE(loc.line, i);
+        QCOMPARE(loc.column, 10 - i);
     }
 }
 

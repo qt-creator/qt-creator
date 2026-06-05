@@ -66,33 +66,22 @@ QString getFilenameOnly(QString absUrl)
     return absUrl;
 }
 
-QVariantList PixmapCacheModel::labels() const
+Timeline::RowLabels PixmapCacheModel::labels() const
 {
-    QVariantList result;
+    Timeline::RowLabels result;
 
     // Cache Size
-    QVariantMap element;
-    element.insert(QLatin1String("description"), Tr::tr("Cache Size"));
+    result.append({Tr::tr("Cache Size"), 0});
 
-    element.insert(QLatin1String("id"), 0);
-    result << element;
-
-    for (int i = 0; i < m_pixmaps.count(); ++i) {
-        // Loading
-        QVariantMap element;
-        element.insert(QLatin1String("displayName"), m_pixmaps[i].url);
-        element.insert(QLatin1String("description"), getFilenameOnly(m_pixmaps[i].url));
-
-        element.insert(QLatin1String("id"), QVariant(i + 1));
-        result << element;
-    }
+    for (int i = 0; i < m_pixmaps.count(); ++i)
+        result.append({getFilenameOnly(m_pixmaps[i].url), i + 1});
 
     return result;
 }
 
-QVariantMap PixmapCacheModel::details(int index) const
+Timeline::ItemDetails PixmapCacheModel::details(int index) const
 {
-    QVariantMap result;
+    Timeline::ItemDetails result;
     const Item *ev = &m_data[index];
 
     if (ev->pixmapEventType == PixmapCacheCountChanged) {

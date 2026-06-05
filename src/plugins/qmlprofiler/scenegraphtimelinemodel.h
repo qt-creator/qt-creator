@@ -66,9 +66,9 @@ public:
     int typeId(int index) const final;
     QRgb color(int index) const final;
 
-    QVariantList labels() const final;
+    Timeline::RowLabels labels() const final;
 
-    QVariantMap details(int index) const final;
+    Timeline::ItemDetails details(int index) const final;
 
 private:
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) final;

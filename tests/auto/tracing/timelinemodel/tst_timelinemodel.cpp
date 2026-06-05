@@ -340,15 +340,16 @@ void tst_TimelineModel::displayName()
 void tst_TimelineModel::defaultValues()
 {
     TimelineModel dummy(&aggregator);
-    QCOMPARE(dummy.location(0), QVariantMap());
+    QCOMPARE(dummy.location(0), ItemLocation());
     QCOMPARE(dummy.handlesTypeId(0), false);
     QCOMPARE(dummy.relativeHeight(0), 1.0);
     QCOMPARE(dummy.rowMinValue(0), 0);
     QCOMPARE(dummy.rowMaxValue(0), 0);
     QCOMPARE(dummy.typeId(0), -1);
     QCOMPARE(dummy.color(0), QRgb());
-    QCOMPARE(dummy.labels(), QVariantList());
-    QCOMPARE(dummy.details(0), QVariantMap());
+    QCOMPARE(dummy.labels(), (RowLabels()));
+    const Timeline::ItemDetails emptyDetails;
+    QCOMPARE(dummy.details(0), emptyDetails);
     QCOMPARE(dummy.collapsedRow(0), 0);
     QCOMPARE(dummy.expandedRow(0), 0);
 }

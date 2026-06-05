@@ -20,7 +20,7 @@ static void checkModelContainsTraceData(PerfTimelineModel *model)
     bool sampleFound = false;
     for (int i = 0; i < model->count(); ++i) {
         if (model->isSample(i)) {
-            QCOMPARE(model->details(i).value("__probe_ip").toString(),
+            QCOMPARE(model->details(i).value("__probe_ip"),
                      QString("0x000055d1db028560"));
             sampleFound = true;
         }

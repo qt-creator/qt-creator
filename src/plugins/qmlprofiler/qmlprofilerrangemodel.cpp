@@ -134,27 +134,23 @@ QRgb QmlProfilerRangeModel::color(int index) const
     return colorBySelectionId(index);
 }
 
-QVariantList QmlProfilerRangeModel::labels() const
+Timeline::RowLabels QmlProfilerRangeModel::labels() const
 {
-    QVariantList result;
+    Timeline::RowLabels result;
 
     const QmlProfilerModelManager *manager = modelManager();
     for (int i = 1; i < expandedRowCount(); i++) { // Ignore the -1 for the first row
-        QVariantMap element;
         const int typeId = m_expandedRowTypes[i];
         const QmlEventType &type = manager->eventType(typeId);
-        element.insert(QLatin1String("displayName"), type.displayName());
-        element.insert(QLatin1String("description"), type.data());
-        element.insert(QLatin1String("id"), typeId);
-        result << element;
+        result.append({type.data(), typeId});
     }
 
     return result;
 }
 
-QVariantMap QmlProfilerRangeModel::details(int index) const
+Timeline::ItemDetails QmlProfilerRangeModel::details(int index) const
 {
-    QVariantMap result;
+    Timeline::ItemDetails result;
     int id = selectionId(index);
 
     result.insert(QStringLiteral("displayName"),
@@ -167,7 +163,7 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
     return result;
 }
 
-QVariantMap QmlProfilerRangeModel::location(int index) const
+Timeline::ItemLocation QmlProfilerRangeModel::location(int index) const
 {
     return locationFromTypeId(index);
 }

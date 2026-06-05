@@ -30,8 +30,8 @@ public:
                               const QString &pid);
 
     QRgb color(int index) const override;
-    QVariantList labels() const override;
-    QVariantMap orderedDetails(int index) const override;
+    Timeline::RowLabels labels() const override;
+    Timeline::OrderedItemDetails orderedDetails(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
 

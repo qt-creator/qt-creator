@@ -32,20 +32,11 @@ QRgb InputEventsModel::color(int index) const
     return colorBySelectionId(index);
 }
 
-QVariantList InputEventsModel::labels() const
+Timeline::RowLabels InputEventsModel::labels() const
 {
-    QVariantList result;
-
-    QVariantMap element;
-    element.insert(QLatin1String("description"), QVariant(Tr::tr("Mouse Events")));
-    element.insert(QLatin1String("id"), QVariant(Mouse));
-    result << element;
-
-    element.clear();
-    element.insert(QLatin1String("description"), QVariant(Tr::tr("Keyboard Events")));
-    element.insert(QLatin1String("id"), QVariant(Key));
-    result << element;
-
+    Timeline::RowLabels result;
+    result.append({Tr::tr("Mouse Events"), static_cast<int>(Mouse)});
+    result.append({Tr::tr("Keyboard Events"), static_cast<int>(Key)});
     return result;
 }
 
@@ -54,9 +45,9 @@ QMetaEnum InputEventsModel::metaEnum(const char *name)
     return Qt::staticMetaObject.enumerator(Qt::staticMetaObject.indexOfEnumerator(name));
 }
 
-QVariantMap InputEventsModel::details(int index) const
+Timeline::ItemDetails InputEventsModel::details(int index) const
 {
-    QVariantMap result;
+    Timeline::ItemDetails result;
     result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
                                                         modelManager()->traceDuration()));
     QString type;

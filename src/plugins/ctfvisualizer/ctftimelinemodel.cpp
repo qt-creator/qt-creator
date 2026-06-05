@@ -11,6 +11,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <QDebug>
 #include <string>
 
 namespace CtfVisualizer::Internal {
@@ -38,30 +39,24 @@ QRgb CtfTimelineModel::color(int index) const
     return colorBySelectionId(index);
 }
 
-QVariantList CtfTimelineModel::labels() const
+Timeline::RowLabels CtfTimelineModel::labels() const
 {
-    QVariantList result;
+    Timeline::RowLabels result;
 
     QList<std::string> sortedCounterNames = m_counterNames;
     std::sort(sortedCounterNames.begin(), sortedCounterNames.end());
     for (int i = 0; i < sortedCounterNames.size(); ++i) {
-        QVariantMap element;
-        element.insert(QLatin1String("description"), QString("~ %1").arg(QString::fromStdString(sortedCounterNames[i])));
-        element.insert(QLatin1String("id"), i);
-        result << element;
+        result.append({QString("~ %1").arg(QString::fromStdString(sortedCounterNames[i])), i});
     }
 
     for (int i = 0; i < m_maxStackSize; ++i) {
-        QVariantMap element;
-        element.insert(QLatin1String("description"),
-                       QStringLiteral("- ").append(Tr::tr("Stack Level %1").arg(i)));
-        element.insert(QLatin1String("id"), m_counterNames.size() + i);
-        result << element;
+        result.append({QStringLiteral("- ").append(Tr::tr("Stack Level %1").arg(i)),
+                       m_counterNames.size() + i});
     }
     return result;
 }
 
-QVariantMap CtfTimelineModel::orderedDetails(int index) const
+Timeline::OrderedItemDetails CtfTimelineModel::orderedDetails(int index) const
 {
     QMap<int, QPair<QString, QString>> info = m_details.value(index);
     const int counterIdx = m_itemToCounterIdx.value(index, 0);
@@ -77,21 +72,17 @@ QVariantMap CtfTimelineModel::orderedDetails(int index) const
     }
     info.insert(2, {Tr::tr("Start"), Timeline::formatTime(startTime(index))});
     info.insert(3, {Tr::tr("Wall Duration"), Timeline::formatTime(duration(index))});
-    QVariantMap data;
-    QString title = info.value(0).second;
-    data.insert("title", title);
-    QVariantList content;
+    Timeline::OrderedItemDetails result;
+    result.title = info.value(0).second;
     auto it = info.constBegin();
     auto end = info.constEnd();
     ++it;  // skip title
     while (it != end) {
-        content.append(it.value().first);
-        content.append(it.value().second);
+        result.content.append({it.value().first, it.value().second});
         ++it;
     }
-    data.insert("content", content);
-    emit detailsRequested(title);
-    return data;
+    emit detailsRequested(result.title);
+    return result;
 }
 
 int CtfTimelineModel::expandedRow(int index) const

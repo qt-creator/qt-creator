@@ -80,25 +80,21 @@ QRgb SceneGraphTimelineModel::color(int index) const
     return colorBySelectionId(index);
 }
 
-QVariantList SceneGraphTimelineModel::labels() const
+Timeline::RowLabels SceneGraphTimelineModel::labels() const
 {
-    QVariantList result;
+    Timeline::RowLabels result;
 
     for (SceneGraphStage i = MinimumSceneGraphStage; i < MaximumSceneGraphStage;
          i = static_cast<SceneGraphStage>(i + 1)) {
-        QVariantMap element;
-        element.insert(QLatin1String("displayName"), Tr::tr(threadLabel(i)));
-        element.insert(QLatin1String("description"), Tr::tr(StageLabels[i]));
-        element.insert(QLatin1String("id"), i);
-        result << element;
+        result.append({Tr::tr(StageLabels[i]), i});
     }
 
     return result;
 }
 
-QVariantMap SceneGraphTimelineModel::details(int index) const
+Timeline::ItemDetails SceneGraphTimelineModel::details(int index) const
 {
-    QVariantMap result;
+    Timeline::ItemDetails result;
     const SceneGraphStage stage = static_cast<SceneGraphStage>(selectionId(index));
 
     result.insert(QLatin1String("displayName"), Tr::tr(threadLabel(stage)));

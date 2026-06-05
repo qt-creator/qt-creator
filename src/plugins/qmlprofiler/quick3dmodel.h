@@ -44,8 +44,8 @@ public:
     Quick3DModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
     QRgb color(int index) const override;
-    QVariantList labels() const override;
-    QVariantMap details(int index) const override;
+    Timeline::RowLabels labels() const override;
+    Timeline::ItemDetails details(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
     qint64 rowMaxValue(int rowNumber) const override;
@@ -53,7 +53,7 @@ public:
     void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
     void finalize() override;
     void clear() override;
-    QVariantMap location(int index) const override;
+    Timeline::ItemLocation location(int index) const override;
     int typeId(int index) const override;
 
     static int eventDataId(int id);
@@ -62,7 +62,7 @@ private:
     static QString messageType(uint i);
     static QString unloadMessageType(uint i);
     static bool resolveType(const QString &object, int detailType, QString &type);
-    QVariantMap locationFromEvent(int poid) const;
+    Timeline::ItemLocation locationFromEvent(int index) const;
     void calculateRenderPassNesting();
 
     QSet<int> m_types;

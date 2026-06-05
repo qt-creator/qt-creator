@@ -42,25 +42,20 @@ QString DebugMessagesModel::messageType(uint i)
                                                        Tr::tr("Unknown Message %1").arg(i);
 }
 
-QVariantList DebugMessagesModel::labels() const
+Timeline::RowLabels DebugMessagesModel::labels() const
 {
-    QVariantList result;
-
-    for (int i = 0; i <= m_maximumMsgType; ++i) {
-        QVariantMap element;
-        element.insert(QLatin1String("description"), messageType(i));
-        element.insert(QLatin1String("id"), i);
-        result << element;
-    }
+    Timeline::RowLabels result;
+    for (int i = 0; i <= m_maximumMsgType; ++i)
+        result.append({messageType(i), i});
     return result;
 }
 
-QVariantMap DebugMessagesModel::details(int index) const
+Timeline::ItemDetails DebugMessagesModel::details(int index) const
 {
     const QmlProfilerModelManager *manager = modelManager();
     const QmlEventType &type = manager->eventType(m_data[index].typeId);
 
-    QVariantMap result;
+    Timeline::ItemDetails result;
     result.insert(QLatin1String("displayName"), messageType(type.detailType()));
     result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
                                                         manager->traceDuration()));
@@ -102,7 +97,7 @@ void DebugMessagesModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
-QVariantMap DebugMessagesModel::location(int index) const
+Timeline::ItemLocation DebugMessagesModel::location(int index) const
 {
     return locationFromTypeId(index);
 }

@@ -77,32 +77,26 @@ void QmlProfilerAnimationsModelTest::testRelativeHeight()
 
 void QmlProfilerAnimationsModelTest::testLabels()
 {
-    QVariantList labels = model.labels();
+    Timeline::RowLabels labels = model.labels();
     QCOMPARE(labels.length(), 2);
 
-    QVariantMap label0 = labels[0].toMap();
-    QCOMPARE(label0["displayName"].toString(), Tr::tr("Animations"));
-    QCOMPARE(label0["description"].toString(), Tr::tr("GUI Thread"));
-    QCOMPARE(label0["id"].toInt(), static_cast<int>(GuiThread));
+    QCOMPARE(labels[0].description, Tr::tr("GUI Thread"));
+    QCOMPARE(labels[0].id, static_cast<int>(GuiThread));
 
-    QVariantMap label1 = labels[1].toMap();
-    QCOMPARE(label1["displayName"].toString(), Tr::tr("Animations"));
-    QCOMPARE(label1["description"].toString(), Tr::tr("Render Thread"));
-    QCOMPARE(label1["id"].toInt(), static_cast<int>(RenderThread));
+    QCOMPARE(labels[1].description, Tr::tr("Render Thread"));
+    QCOMPARE(labels[1].id, static_cast<int>(RenderThread));
 }
 
 void QmlProfilerAnimationsModelTest::testDetails()
 {
     for (int i = 0; i < 10; ++i) {
-        QVariantMap details = model.details(i);
-        QCOMPARE(details["displayName"].toString(), model.displayName());
-        QCOMPARE(details[Tr::tr("Duration")].toString(),
-                Timeline::formatTime(1));
-        QCOMPARE(details[Tr::tr("Framerate")].toString(),
+        Timeline::ItemDetails details = model.details(i);
+        QCOMPARE(details["displayName"], model.displayName());
+        QCOMPARE(details[Tr::tr("Duration")], Timeline::formatTime(1));
+        QCOMPARE(details[Tr::tr("Framerate")],
                 QString::fromLatin1("%1 FPS").arg(frameRate(i)));
-        QCOMPARE(details[Tr::tr("Animations")].toString(),
-                QString::number(9 - i));
-        QCOMPARE(details[Tr::tr("Context")].toString(), i % 2 ?
+        QCOMPARE(details[Tr::tr("Animations")], QString::number(9 - i));
+        QCOMPARE(details[Tr::tr("Context")], i % 2 ?
                     Tr::tr("Render Thread") :
                     Tr::tr("GUI Thread"));
     }

@@ -25,7 +25,7 @@ public:
 
     bool handlesTypeId(int typeId) const override;
 
-    QVariantMap locationFromTypeId(int index) const;
+    Timeline::ItemLocation locationFromTypeId(int index) const;
 
     virtual void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) = 0;
     virtual void initialize();

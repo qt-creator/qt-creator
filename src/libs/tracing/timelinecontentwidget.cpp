@@ -25,7 +25,6 @@
 #include <QScrollBar>
 #include <QSplitter>
 #include <QSplitterHandle>
-#include <QVariantMap>
 #include <QVBoxLayout>
 
 #include <cmath>
@@ -233,10 +232,10 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
                 continue;
             if (model->hasMixedTypesInExpandedState())
                 return;
-            const QVariantList labels = model->labels();
+            const RowLabels labels = model->labels();
             if (rowIndex < 0 || rowIndex >= labels.size())
                 return;
-            const int selId = labels.at(rowIndex).toMap().value("id").toInt();
+            const int selId = labels.at(rowIndex).id;
             const qint64 time = m_zoom->rangeStart();
             const int curItem = (trackIndex == m_selectedModelIndex) ? m_selectedItemIndex : -1;
             const int item = reverse
@@ -442,10 +441,9 @@ void TimelineContentWidget::rebuildTracks()
         for (int row = 0; row < model->rowCount(); ++row)
             info.rowHeights.append(model->rowHeight(row));
         if (model->expanded()) {
-            for (const QVariant &label : model->labels()) {
-                const QVariantMap m = label.toMap();
-                info.rowLabels.append(m.value("description").toString());
-                info.rowLabelIds.append(m.value("id").toInt());
+            for (const RowLabel &label : model->labels()) {
+                info.rowLabels.append(label.description);
+                info.rowLabelIds.append(label.id);
             }
         }
         if (const TimelineNotesModel *notes = m_aggregator->notes()) {
@@ -529,10 +527,10 @@ void TimelineContentWidget::selectItem(int modelIndex, int itemIndex)
     if (modelIndex >= 0 && modelIndex < m_painters.size() && itemIndex >= 0) {
         const TimelineModel *model = m_painters[modelIndex]->model();
         const int newTypeId = model->typeId(itemIndex);
-        const QVariantMap loc = model->location(itemIndex);
-        m_currentFile = loc.value("file").toString();
-        m_currentLine = loc.value("line", -1).toInt();
-        m_currentColumn = loc.value("column", 0).toInt();
+        const ItemLocation loc = model->location(itemIndex);
+        m_currentFile = loc.file;
+        m_currentLine = loc.line;
+        m_currentColumn = loc.column;
         if (newTypeId != m_currentTypeId) {
             m_currentTypeId = newTypeId;
             emit m_aggregator->updateCursorPosition();
@@ -749,9 +747,9 @@ void TimelineContentWidget::showItemDetails(int modelIndex, int itemIndex)
 {
     if (modelIndex >= 0 && modelIndex < m_painters.size() && itemIndex >= 0) {
         const TimelineModel *model = m_painters[modelIndex]->model();
-        const QVariantMap od = model->orderedDetails(itemIndex);
-        const QString title = od.value("title").toString();
-        const QVariantList content = od.value("content").toList();
+        const OrderedItemDetails od = model->orderedDetails(itemIndex);
+        const QString title = od.title;
+        const QList<QPair<QString, QString>> content = od.content;
         QString noteText;
         if (TimelineNotesModel *notes = m_aggregator->notes()) {
             const int noteId = notes->get(model->modelId(), itemIndex);
