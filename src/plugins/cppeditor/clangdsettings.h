@@ -46,30 +46,6 @@ public:
         Utils::Store toMap() const;
         void fromMap(const Utils::Store &map);
 
-        friend bool operator==(const Data &s1, const Data &s2)
-        {
-            return s1.useClangd == s2.useClangd
-                   && s1.executableFilePath == s2.executableFilePath
-                   && s1.projectIndexPathTemplate == s2.projectIndexPathTemplate
-                   && s1.sessionIndexPathTemplate == s2.sessionIndexPathTemplate
-                   && s1.sessionsWithOneClangd == s2.sessionsWithOneClangd
-                   && s1.customDiagnosticConfigs == s2.customDiagnosticConfigs
-                   && s1.diagnosticConfigId == s2.diagnosticConfigId
-                   && s1.workerThreadLimit == s2.workerThreadLimit
-                   && s1.indexingPriority == s2.indexingPriority
-                   && s1.headerSourceSwitchMode == s2.headerSourceSwitchMode
-                   && s1.completionRankingModel == s2.completionRankingModel
-                   && s1.completionStyle == s2.completionStyle
-                   && s1.autoIncludeHeaders == s2.autoIncludeHeaders
-                   && s1.useExternalCompilationDb == s2.useExternalCompilationDb
-                   && s1.documentUpdateThreshold == s2.documentUpdateThreshold
-                   && s1.sizeThresholdEnabled == s2.sizeThresholdEnabled
-                   && s1.sizeThresholdInKb == s2.sizeThresholdInKb
-                   && s1.haveCheckedHardwareReqirements == s2.haveCheckedHardwareReqirements
-                   && s1.updateDependentSources == s2.updateDependentSources
-                   && s1.completionResults == s2.completionResults;
-        }
-
         Utils::FilePath clangdFilePath(const ProjectExplorer::Kit *kit) const;
         bool useGoodClangd(const ProjectExplorer::Kit *kit) const;
         Utils::FilePath clangdIncludePath(const ProjectExplorer::Kit *kit) const;
@@ -83,6 +59,8 @@ public:
         enum class Granularity { Project, Session };
         Granularity granularity() const;
         bool isSessionMode() const;
+
+        static int defaultCompletionResults();
 
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
@@ -107,10 +85,26 @@ public:
         int completionResults = defaultCompletionResults();
 
     private:
-        static int defaultCompletionResults();
+        friend bool operator==(const Data &, const Data &) = default;
     };
 
-    ClangdSettings(const Data &data) : m_data(data) {}
+    // Aspects (authoritative storage; m_data used only for complex fields)
+    Utils::BoolAspect useClangd{this};
+    Utils::FilePathAspect clangdPath{this};
+    Utils::BoolAspect autoIncludeHeaders{this};
+    Utils::BoolAspect sizeThresholdEnabled{this};
+    Utils::BoolAspect updateDependentSources{this};
+    Utils::BoolAspect useExternalCompilationDb{this};
+    Utils::IntegerAspect workerThreadLimit{this};
+    Utils::IntegerAspect documentUpdateThreshold{this};
+    Utils::IntegerAspect sizeThresholdInKb{this};
+    Utils::IntegerAspect completionResults{this};
+    Utils::StringAspect projectIndexPathTemplate{this};
+    Utils::StringAspect sessionIndexPathTemplate{this};
+    Utils::TypedSelectionAspect<IndexingPriority> indexingPriority{this};
+    Utils::TypedSelectionAspect<HeaderSourceSwitchMode> headerSourceSwitchMode{this};
+    Utils::TypedSelectionAspect<CompletionRankingModel> completionRankingModel{this};
+    Utils::TypedSelectionAspect<CompletionStyle> completionStyle{this};
 
     static ClangdSettings &instance();
     static void setUseClangd(bool use);
@@ -124,7 +118,7 @@ public:
     static ClangDiagnosticConfigsModel diagnosticConfigsModel();
 
     void setData(const Data &data, bool saveAndEmitSignal = true);
-    Data data() const { return m_data; }
+    Data data() const;
 
     static Utils::FilePath clangdUserConfigFilePath();
 
@@ -132,13 +126,13 @@ public:
     static void setClangdFilePath(const Utils::FilePath &filePath);
 #endif
 
-private:
-    ClangdSettings();
-
-    void loadSettings();
     void saveSettings();
 
     Data m_data;
+
+protected:
+    ClangdSettings();
+    void loadSettings();
 };
 
 CPPEDITOR_EXPORT ClangdSettings::Data clangdProjectSettings(ProjectExplorer::BuildConfiguration *bc);
