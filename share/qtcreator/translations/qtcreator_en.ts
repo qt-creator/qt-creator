@@ -17,6 +17,10 @@
 <context>
     <name>QtC::Core</name>
     <message>
+        <source>The terminal configured in Environment &gt; Sytem.</source>
+        <translation>The terminal configured in Environment &gt; System.</translation>
+    </message>
+    <message>
         <source>Stay in Settings Mode</source>
         <translation>Stay in Preferences Mode</translation>
     </message>
