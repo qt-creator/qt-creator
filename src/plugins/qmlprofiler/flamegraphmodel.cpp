@@ -195,12 +195,12 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         if (!m_typeIdsWithNotes.contains(stats.typeIndex))
             return ret;
         Timeline::TimelineNotesModel *notes = m_modelManager->notesModel();
-        const QList<QVariant> items = notes->byTypeId(stats.typeIndex);
-        for (const QVariant &item : items) {
+        const QList<int> items = notes->byTypeId(stats.typeIndex);
+        for (const int noteId : items) {
             if (ret.isEmpty())
-                ret = notes->text(item.toInt());
+                ret = notes->text(noteId);
             else
-                ret += QChar::LineFeed + notes->text(item.toInt());
+                ret += QChar::LineFeed + notes->text(noteId);
         }
         return ret;
     }

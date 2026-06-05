@@ -9,15 +9,12 @@
 #include <QList>
 #include <QObject>
 #include <QString>
-#include <QVariant>
-
 namespace Timeline {
 
 class TimelineModel;
 class TRACING_EXPORT TimelineNotesModel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count NOTIFY changed)
 
 public:
     TimelineNotesModel(QObject *parent = nullptr);
@@ -27,21 +24,21 @@ public:
     void removeTimelineModel(const TimelineModel *timelineModel);
     QList<const TimelineModel *> timelineModels() const;
 
-    Q_INVOKABLE int typeId(int index) const;
-    Q_INVOKABLE QString text(int index) const;
-    Q_INVOKABLE int timelineModel(int index) const;
-    Q_INVOKABLE int timelineIndex(int index) const;
+    int typeId(int index) const;
+    QString text(int index) const;
+    int timelineModel(int index) const;
+    int timelineIndex(int index) const;
 
-    Q_INVOKABLE QVariantList byTypeId(int typeId) const;
-    Q_INVOKABLE QVariantList byTimelineModel(int modelId) const;
+    QList<int> byTypeId(int typeId) const;
+    QList<int> byTimelineModel(int modelId) const;
 
-    Q_INVOKABLE int get(int modelId, int timelineIndex) const;
-    Q_INVOKABLE int add(int modelId, int timelineIndex, const QString &text);
-    Q_INVOKABLE void update(int index, const QString &text);
-    Q_INVOKABLE void remove(int index);
+    int get(int modelId, int timelineIndex) const;
+    int add(int modelId, int timelineIndex, const QString &text);
+    void update(int index, const QString &text);
+    void remove(int index);
 
-    Q_INVOKABLE void setText(int noteId, const QString &text);
-    Q_INVOKABLE void setText(int modelId, int index, const QString &text);
+    void setText(int noteId, const QString &text);
+    void setText(int modelId, int index, const QString &text);
 
     bool isModified() const;
     void resetModified();

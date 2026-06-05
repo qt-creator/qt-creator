@@ -109,7 +109,7 @@ void tst_TimelineNotesModel::selection()
     notes.addTimelineModel(&model);
     int id1 = notes.add(model.modelId(), 0, QLatin1String("blablub"));
     int id2 = notes.add(model.modelId(), 0, QLatin1String("xyz"));
-    QVariantList ids = notes.byTimelineModel(model.modelId());
+    QList<int> ids = notes.byTimelineModel(model.modelId());
     QCOMPARE(ids.length(), 2);
     QVERIFY(ids.contains(id1));
     QVERIFY(ids.contains(id2));

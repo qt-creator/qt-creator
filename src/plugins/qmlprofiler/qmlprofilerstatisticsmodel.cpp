@@ -398,13 +398,11 @@ void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
         }
     } else {
         m_notes.remove(typeIndex);
-        const QVariantList changedNotes = notesModel->byTypeId(typeIndex);
+        const QList<int> changedNotes = notesModel->byTypeId(typeIndex);
         if (!changedNotes.isEmpty()) {
             QStringList newNotes;
-            for (QVariantList::ConstIterator it = changedNotes.begin(); it !=  changedNotes.end();
-                 ++it) {
-                newNotes << notesModel->text(it->toInt());
-            }
+            for (const int noteId : changedNotes)
+                newNotes << notesModel->text(noteId);
             m_notes[typeIndex] = newNotes.join(QStringLiteral("\n"));
             emit dataChanged(index(typeIndex, 0), index(typeIndex, MainDetails), noteRoles);
         }

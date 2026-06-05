@@ -447,9 +447,8 @@ void TimelineContentWidget::rebuildTracks()
             }
         }
         if (const TimelineNotesModel *notes = m_aggregator->notes()) {
-            const QVariantList noteIds = notes->byTimelineModel(model->modelId());
-            for (const QVariant &nv : noteIds) {
-                const int noteId = nv.toInt();
+            const QList<int> noteIds = notes->byTimelineModel(model->modelId());
+            for (const int noteId : noteIds) {
                 info.noteEventIds.append(notes->timelineIndex(noteId));
                 info.noteTexts.append(notes->text(noteId));
             }
@@ -660,9 +659,9 @@ void TimelineContentWidget::selectByTypeId(int typeId)
 
     // Check notes first
     if (const TimelineNotesModel *notes = m_aggregator->notes()) {
-        const QVariantList noteIds = notes->byTypeId(typeId);
+        const QList<int> noteIds = notes->byTypeId(typeId);
         if (!noteIds.isEmpty()) {
-            const int noteIdx = noteIds.first().toInt();
+            const int noteIdx = noteIds.first();
             const int modelId = notes->timelineModel(noteIdx);
             const int itemIdx = notes->timelineIndex(noteIdx);
             for (int aggIdx = 0; aggIdx < models.size(); ++aggIdx) {

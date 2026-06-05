@@ -58,9 +58,9 @@ int TimelineNotesModel::timelineIndex(int index) const
     return m_data[index].timelineIndex;
 }
 
-QVariantList TimelineNotesModel::byTypeId(int selectedType) const
+QList<int> TimelineNotesModel::byTypeId(int selectedType) const
 {
-    QVariantList ret;
+    QList<int> ret;
     for (int noteId = 0; noteId < count(); ++noteId) {
         if (selectedType == typeId(noteId))
             ret << noteId;
@@ -68,9 +68,9 @@ QVariantList TimelineNotesModel::byTypeId(int selectedType) const
     return ret;
 }
 
-QVariantList TimelineNotesModel::byTimelineModel(int modelId) const
+QList<int> TimelineNotesModel::byTimelineModel(int modelId) const
 {
-    QVariantList ret;
+    QList<int> ret;
     for (int noteId = 0; noteId < count(); ++noteId) {
         if (m_data[noteId].timelineModel == modelId)
             ret << noteId;
