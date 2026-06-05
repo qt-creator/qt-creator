@@ -12,6 +12,8 @@ namespace Core { class Perspective; }
 
 namespace QmlProfiler::Internal {
 
+class QmlProfilerStateManager;
+
 class QmlProfilerViewManager : public QObject
 {
     Q_OBJECT

@@ -1,25 +1,20 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "qmlprofilertraceview.h"
+
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilernotesmodel.h"
 #include "qmlprofilerrangemodel.h"
-#include "qmlprofilerstatemanager.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilertr.h"
-#include "qmlprofilertraceview.h"
 
 #include "quick3dmodel.h"
 #include "inputeventsmodel.h"
 #include "pixmapcachemodel.h"
 #include "debugmessagesmodel.h"
-#include "flamegraphview.h"
 #include "memoryusagemodel.h"
 #include "scenegraphtimelinemodel.h"
-
-// Communication with the other views (limit events to range)
-#include "qmlprofilerviewmanager.h"
 
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timelinemodelaggregator.h>
@@ -31,43 +26,41 @@
 #include <utils/styledbar.h>
 #include <utils/algorithm.h>
 
-#include <QToolButton>
-#include <QEvent>
-#include <QVBoxLayout>
-#include <QMenu>
 #include <QApplication>
+#include <QContextMenuEvent>
+#include <QEvent>
+#include <QMenu>
 #include <QRegularExpression>
 #include <QTextCursor>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 using namespace QmlDebug;
+
 namespace QmlProfiler::Internal {
 
 class QmlProfilerTraceView::QmlProfilerTraceViewPrivate
 {
 public:
-    QmlProfilerTraceViewPrivate(QmlProfilerTraceView *qq) : q(qq) {}
-    QmlProfilerTraceView *q;
-    QmlProfilerViewManager *m_viewContainer;
-    Timeline::TimelineWidget *m_mainView;
-    QmlProfilerModelManager *m_modelManager;
+    Timeline::TimelineWidget *m_mainView; // Not owned
+    QmlProfilerModelManager *m_modelManager; // Not owned
+
     QVariantList m_suspendedModels;
-    Timeline::TimelineModelAggregator *m_modelProxy;
-    Timeline::TimelineZoomControl *m_zoomControl;
+    Timeline::TimelineModelAggregator m_modelProxy;
+    Timeline::TimelineZoomControl m_zoomControl;
 };
 
-QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManager *container,
-                                           QmlProfilerModelManager *modelManager)
-    : QWidget(parent), d(new QmlProfilerTraceViewPrivate(this))
+QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerModelManager *modelManager)
+    : QWidget(parent), d(new QmlProfilerTraceViewPrivate)
 {
     setWindowTitle(Tr::tr("Timeline"));
     setObjectName("QmlProfiler.Timeline.Dock");
 
-    d->m_zoomControl = new Timeline::TimelineZoomControl(this);
     modelManager->registerFeatures(0, [this] {
         if (d->m_suspendedModels.isEmpty()) {
             // Temporarily remove the models, while we're changing them
-            d->m_suspendedModels = d->m_modelProxy->models();
-            d->m_modelProxy->setModels(QVariantList());
+            d->m_suspendedModels = d->m_modelProxy.models();
+            d->m_modelProxy.setModels(QVariantList());
         }
         // Otherwise models are suspended already. This can happen if either acquiring was
         // aborted or we're doing a "restrict to range" which consists of a partial clearing and
@@ -75,39 +68,37 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     }, [this, modelManager]() {
         const qint64 start = modelManager->traceStart();
         const qint64 end = modelManager->traceEnd();
-        d->m_zoomControl->setTrace(start, end);
-        d->m_zoomControl->setRange(start, start + (end - start) / 10);
-        d->m_modelProxy->setModels(d->m_suspendedModels);
+        d->m_zoomControl.setTrace(start, end);
+        d->m_zoomControl.setRange(start, start + (end - start) / 10);
+        d->m_modelProxy.setModels(d->m_suspendedModels);
         d->m_suspendedModels.clear();
     }, [this] {
-        d->m_zoomControl->clear();
+        d->m_zoomControl.clear();
         if (!d->m_suspendedModels.isEmpty()) {
-            d->m_modelProxy->setModels(d->m_suspendedModels);
+            d->m_modelProxy.setModels(d->m_suspendedModels);
             d->m_suspendedModels.clear();
         }
     });
 
-    d->m_viewContainer = container;
-    d->m_modelProxy = new Timeline::TimelineModelAggregator(this);
-    d->m_modelProxy->setNotes(modelManager->notesModel());
+    d->m_modelProxy.setNotes(modelManager->notesModel());
     d->m_modelManager = modelManager;
 
     QVariantList models;
-    models.append(QVariant::fromValue(new PixmapCacheModel(modelManager, d->m_modelProxy)));
-    models.append(QVariant::fromValue(new SceneGraphTimelineModel(modelManager, d->m_modelProxy)));
-    models.append(QVariant::fromValue(new MemoryUsageModel(modelManager, d->m_modelProxy)));
-    models.append(QVariant::fromValue(new InputEventsModel(modelManager, d->m_modelProxy)));
-    models.append(QVariant::fromValue(new DebugMessagesModel(modelManager, d->m_modelProxy)));
-    models.append(QVariant::fromValue(new Quick3DModel(modelManager, d->m_modelProxy)));
+    models.append(QVariant::fromValue(new PixmapCacheModel(modelManager, &d->m_modelProxy)));
+    models.append(QVariant::fromValue(new SceneGraphTimelineModel(modelManager, &d->m_modelProxy)));
+    models.append(QVariant::fromValue(new MemoryUsageModel(modelManager, &d->m_modelProxy)));
+    models.append(QVariant::fromValue(new InputEventsModel(modelManager, &d->m_modelProxy)));
+    models.append(QVariant::fromValue(new DebugMessagesModel(modelManager, &d->m_modelProxy)));
+    models.append(QVariant::fromValue(new Quick3DModel(modelManager, &d->m_modelProxy)));
     models.append(QVariant::fromValue(new QmlProfilerAnimationsModel(modelManager,
-                                                                     d->m_modelProxy)));
+                                                                     &d->m_modelProxy)));
     for (int i = 0; i < MaximumRangeType; ++i) {
         models.append(QVariant::fromValue(new QmlProfilerRangeModel(modelManager, (RangeType)i,
-                                                                    d->m_modelProxy)));
+                                                                    &d->m_modelProxy)));
     }
-    d->m_modelProxy->setModels(models);
+    d->m_modelProxy.setModels(models);
 
-    d->m_mainView = new Timeline::TimelineWidget(d->m_modelProxy, d->m_zoomControl, this);
+    d->m_mainView = new Timeline::TimelineWidget(&d->m_modelProxy, &d->m_zoomControl, this);
     setFocusProxy(d->m_mainView);
 
     Aggregation::aggregate({d->m_mainView, new TraceViewFindSupport(this, modelManager)});
@@ -158,7 +149,7 @@ void QmlProfilerTraceView::selectByTypeId(int typeId)
 
 void QmlProfilerTraceView::selectByEventIndex(int modelId, int eventIndex)
 {
-    const int modelIndex = d->m_modelProxy->modelIndexById(modelId);
+    const int modelIndex = d->m_modelProxy.modelIndexById(modelId);
     QTC_ASSERT(modelIndex != -1, return);
     d->m_mainView->selectByIndices(modelIndex, eventIndex);
 }
@@ -173,13 +164,13 @@ void QmlProfilerTraceView::updateCursorPosition()
 
 void QmlProfilerTraceView::mousePressEvent(QMouseEvent *event)
 {
-    d->m_zoomControl->setWindowLocked(true);
+    d->m_zoomControl.setWindowLocked(true);
     QWidget::mousePressEvent(event);
 }
 
 void QmlProfilerTraceView::mouseReleaseEvent(QMouseEvent *event)
 {
-    d->m_zoomControl->setWindowLocked(false);
+    d->m_zoomControl.setWindowLocked(false);
     QWidget::mouseReleaseEvent(event);
 }
 
@@ -204,7 +195,7 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     if (!d->m_modelManager->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
-    if (d->m_zoomControl->traceDuration() > 0) {
+    if (d->m_zoomControl.traceDuration() > 0) {
         menu.addSeparator();
         viewAllAction = menu.addAction(Tr::tr("Reset Zoom"));
     }
@@ -213,8 +204,8 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
 
     if (selectedAction) {
         if (selectedAction == viewAllAction) {
-            d->m_zoomControl->setRange(d->m_zoomControl->traceStart(),
-                                       d->m_zoomControl->traceEnd());
+            d->m_zoomControl.setRange(d->m_zoomControl.traceStart(),
+                                       d->m_zoomControl.traceEnd());
         }
         if (selectedAction == getLocalStatsAction) {
             d->m_modelManager->restrictToRange(selectionStart(), selectionEnd());

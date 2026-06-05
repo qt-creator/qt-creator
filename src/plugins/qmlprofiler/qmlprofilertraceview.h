@@ -12,17 +12,13 @@
 namespace QmlProfiler::Internal {
 
 class QmlProfilerModelManager;
-class QmlProfilerStateManager;
-class QmlProfilerTool;
-class QmlProfilerViewManager;
 
 class QmlProfilerTraceView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManager *container,
-                                  QmlProfilerModelManager *modelManager);
+    explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerModelManager *modelManager);
     ~QmlProfilerTraceView() override;
 
     bool hasValidSelection() const;

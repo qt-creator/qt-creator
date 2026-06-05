@@ -33,7 +33,7 @@ QmlProfilerViewManager::QmlProfilerViewManager(QmlProfilerModelManager *modelMan
 
 void QmlProfilerViewManager::createViews()
 {
-    m_traceView = new QmlProfilerTraceView(nullptr, this, m_profilerModelManager);
+    m_traceView = new QmlProfilerTraceView(nullptr, m_profilerModelManager);
     connect(m_traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
     connect(m_traceView, &QmlProfilerTraceView::typeSelected,
