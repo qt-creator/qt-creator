@@ -239,8 +239,13 @@ public:
         Store map = storeFromVariant(project->namedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID));
         fromMap(map);
 
+        enableCopilot.setEnabled(!useGlobalSettings());
         enableCopilot.addOnChanged(this, [this, project] { save(project); });
-        useGlobalSettings.addOnChanged(this, [this, project] { save(project); });
+
+        useGlobalSettings.addOnChanged(this, [this, project] {
+            enableCopilot.setEnabled(!useGlobalSettings());
+            save(project);
+        });
     }
 
     void save(Project *project)
@@ -263,11 +268,6 @@ public:
     CopilotProjectWidget(Project *project)
         : m_settings(project)
     {
-        m_settings.enableCopilot.setEnabled(!m_settings.useGlobalSettings());
-        m_settings.useGlobalSettings.addOnChanged(this, [this] {
-            m_settings.enableCopilot.setEnabled(!m_settings.useGlobalSettings());
-        });
-
         // clang-format off
         using namespace Layouting;
         Column {
