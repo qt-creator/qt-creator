@@ -430,71 +430,83 @@ public:
 
 // CppFileSettingsForProject
 
+class CppFileProjectSettings final : public CppFileSettings
+{
+public:
+    explicit CppFileProjectSettings(Project *project)
+        : m_project(project)
+    {
+        useGlobalSettings.setDefaultValue(true);
+
+        const QVariant entry = project->namedSettings(projectSettingsKeyC);
+        if (entry.isValid()) {
+            const QVariantMap data = mapEntryFromStoreEntry(entry).toMap();
+            fromMap(storeFromMap(data));
+            useGlobalSettings.setValue(data.value(useGlobalKeyC, true).toBool());
+        }
+
+        setAutoApply(true);
+        setEnabled(!useGlobalSettings());
+
+        useGlobalSettings.addOnChanged(this, [this] {
+            setEnabled(!useGlobalSettings());
+            save();
+            clearHeaderSourceCache();
+        });
+    }
+
+    void save()
+    {
+        // Optimization: Don't save if user never switched away from the default.
+        if (useGlobalSettings() && !m_project->namedSettings(projectSettingsKeyC).isValid())
+            return;
+
+        Store store;
+        toMap(store);
+        QVariantMap data = mapFromStore(store);
+        data.insert(useGlobalKeyC, useGlobalSettings());
+        m_project->setNamedSettings(projectSettingsKeyC, data);
+    }
+
+    BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+
+private:
+    void apply() final
+    {
+        AspectContainer::apply();
+        save();
+        clearHeaderSourceCache();
+    }
+
+    Project * const m_project;
+};
+
+static CppFileProjectSettings *cppFileProjectSettings(Project *project)
+{
+    const Key key = "CppFileProjectSettings";
+    QVariant v = project->extraData(key);
+    if (v.isNull()) {
+        v = QVariant::fromValue(new CppFileProjectSettings(project));
+        project->setExtraData(key, v);
+    }
+    return v.value<CppFileProjectSettings *>();
+}
+
 class CppFileSettingsForProjectWidget : public QWidget
 {
 public:
     CppFileSettingsForProjectWidget(Project *project)
-        : m_project(project)
     {
-        m_useGlobal = true;
-        if (m_project) {
-            const QVariant entry = m_project->namedSettings(projectSettingsKeyC);
-            if (entry.isValid()) {
-                const QVariantMap data = mapEntryFromStoreEntry(entry).toMap();
-                m_useGlobal = data.value(useGlobalKeyC, true).toBool();
-                m_customSettings.fromMap(storeFromMap(data));
-            }
-        }
-
-        m_customSettings.setAutoApply(true);
-
-        m_globalCheckBox.setChecked(m_useGlobal);
-        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool ug) {
-            m_useGlobal = ug;
-            setEnabled(!ug);
-            saveSettings();
-            clearHeaderSourceCache();
-        });
-
+        CppFileProjectSettings * const ps = cppFileProjectSettings(project);
         using namespace Layouting;
         Column {
-            Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::CPP_FILE_SETTINGS_ID), st },
+            Row { ps->useGlobalSettings,
+                  createUseGlobalSettingsLabel(Constants::CPP_FILE_SETTINGS_ID), st },
             createHr(),
-            &m_customSettings,
+            *ps,
             noMargin
         }.attachTo(this);
-
-        setEnabled(!m_useGlobal);
-
-        connect(&m_customSettings, &AspectContainer::changed, this, [this] {
-            saveSettings();
-            clearHeaderSourceCache();
-        });
     }
-
-private:
-    void saveSettings()
-    {
-        if (!m_project)
-            return;
-
-        // Optimization: Don't save anything if the user never switched away from the default.
-        if (m_useGlobal && !m_project->namedSettings(projectSettingsKeyC).isValid())
-            return;
-
-        Store store;
-        m_customSettings.toMap(store);
-
-        QVariantMap data = mapFromStore(store);
-        data.insert(useGlobalKeyC, m_useGlobal);
-
-        m_project->setNamedSettings(projectSettingsKeyC, data);
-    }
-
-    Project * const m_project;
-    QCheckBox m_globalCheckBox;
-    CppFileSettings m_customSettings;
-    bool m_useGlobal = true;
 };
 
 class CppFileSettingsProjectPanelFactory final : public ProjectPanelFactory

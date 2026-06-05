@@ -60,7 +60,7 @@ public:
     QString headerGuard(const Utils::FilePath &headerFilePath) const;
 
 private:
-    void apply() final;
+    void apply() override;
     void slotEdit();
 };
 
