@@ -18,7 +18,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/utilsicons.h>
 
-#include <QCheckBox>
 #include <QDesktopServices>
 #include <QToolButton>
 #include <QVariant>
@@ -46,7 +45,7 @@ VcpkgSettings *settings(Project *project)
         return &theSettings;
 
     VcpkgSettings *projSettings = projectSettings(project);
-    if (projSettings->useGlobalSettings)
+    if (projSettings->useGlobalSettings())
         return &theSettings;
 
     return projSettings;
@@ -57,6 +56,9 @@ VcpkgSettings::VcpkgSettings(Project *project, bool autoApply)
 {
     setSettingsGroup(Constants::Settings::GROUP_ID);
     setAutoApply(autoApply);
+
+    useGlobalSettings.setDefaultValue(true);
+    useGlobalSettings.setAutoApply(autoApply);
 
     vcpkgRoot.setSettingsKey("VcpkgRoot");
     vcpkgRoot.setExpectedKind(PathChooser::ExistingDirectory);
@@ -111,10 +113,10 @@ void VcpkgSettings::readSettings()
     } else {
         Store data = storeFromVariant(m_project->namedSettings(Constants::Settings::GENERAL_ID));
         if (data.isEmpty()) {
-            useGlobalSettings = true;
+            useGlobalSettings.setValue(true);
             AspectContainer::readSettings();
         } else {
-            useGlobalSettings = data.value(Constants::Settings::USE_GLOBAL_SETTINGS, true).toBool();
+            useGlobalSettings.setValue(data.value(Constants::Settings::USE_GLOBAL_SETTINGS, true).toBool());
             fromMap(data);
         }
     }
@@ -128,7 +130,7 @@ void VcpkgSettings::writeSettings() const
     } else {
         Store data;
         toMap(data);
-        data.insert(Constants::Settings::USE_GLOBAL_SETTINGS, useGlobalSettings);
+        data.insert(Constants::Settings::USE_GLOBAL_SETTINGS, useGlobalSettings());
         m_project->setNamedSettings(Constants::Settings::GENERAL_ID, variantFromStore(data));
     }
 }
@@ -160,20 +162,17 @@ public:
     explicit VcpkgSettingsWidget(Project *project)
         : m_displayedSettings(project, true)
     {
-        const bool initial = m_displayedSettings.useGlobalSettings;
-
         if (auto layouter = m_displayedSettings.layouter())
             layouter().attachTo(&m_widget);
-        m_widget.setEnabled(!initial);
+        m_widget.setEnabled(!m_displayedSettings.useGlobalSettings());
 
-        m_globalCheckBox.setChecked(initial);
-        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this, project](bool useGlobal) {
+        m_displayedSettings.useGlobalSettings.addOnChanged(this, [this, project] {
+            const bool useGlobal = m_displayedSettings.useGlobalSettings();
             m_widget.setEnabled(!useGlobal);
-            m_displayedSettings.useGlobalSettings = useGlobal;
             if (project) {
                 VcpkgSettings *projSettings = projectSettings(project);
                 m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
-                projSettings->useGlobalSettings = useGlobal;
+                projSettings->useGlobalSettings.setValue(useGlobal);
                 projSettings->writeSettings();
                 projSettings->setVcpkgRootEnvironmentVariable();
             }
@@ -181,7 +180,8 @@ public:
 
         using namespace Layouting;
         Column {
-            Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID), st },
+            Row { m_displayedSettings.useGlobalSettings,
+                  createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID), st },
             createHr(),
             &m_widget,
             noMargin,
@@ -192,19 +192,19 @@ public:
 
             // React on Global settings changes
             connect(settings(nullptr), &AspectContainer::changed, this, [this] {
-                if (m_displayedSettings.useGlobalSettings)
+                if (m_displayedSettings.useGlobalSettings())
                     m_displayedSettings.copyFrom(*settings(nullptr));
             });
 
             // Reflect changes to the project settings in the displayed settings
             connect(projSettings, &AspectContainer::changed, this, [this, projSettings] {
-                if (!m_displayedSettings.useGlobalSettings)
+                if (!m_displayedSettings.useGlobalSettings())
                     m_displayedSettings.copyFrom(*projSettings);
             });
 
             // React on displayed settings changes in the project settings
             connect(&m_displayedSettings, &AspectContainer::changed, this, [this, projSettings] {
-                if (!m_displayedSettings.useGlobalSettings) {
+                if (!m_displayedSettings.useGlobalSettings()) {
                     projSettings->copyFrom(m_displayedSettings);
                     projSettings->writeSettings();
                     projSettings->setVcpkgRootEnvironmentVariable();
@@ -214,7 +214,6 @@ public:
     }
 
     QWidget m_widget;
-    QCheckBox m_globalCheckBox;
     VcpkgSettings m_displayedSettings;
 };
 

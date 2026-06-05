@@ -24,7 +24,7 @@ public:
 
     Utils::FilePathAspect vcpkgRoot{this};
 
-    bool useGlobalSettings{true};
+    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from copyFrom/toMap
 
 private:
     ProjectExplorer::Project *m_project{nullptr};
