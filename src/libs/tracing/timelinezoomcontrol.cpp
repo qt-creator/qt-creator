@@ -6,19 +6,17 @@
 
 namespace Timeline {
 
-TimelineZoomControl::TimelineZoomControl(QObject *parent) : QObject(parent),
-    m_traceStart(-1), m_traceEnd(-1), m_windowStart(-1), m_windowEnd(-1),
-    m_rangeStart(-1), m_rangeEnd(-1), m_selectionStart(-1), m_selectionEnd(-1),
-    m_windowLocked(false)
+TimelineZoomControl::TimelineZoomControl(QObject *parent)
+    : QObject(parent)
 {
     connect(&m_timer, &QTimer::timeout, this, &TimelineZoomControl::moveWindow);
 }
 
 void TimelineZoomControl::clear()
 {
-    bool changeTrace = (m_traceStart != -1 || m_traceEnd != -1);
-    bool changeWindow = (m_windowStart != -1 || m_windowEnd != -1);
-    bool changeRange = (m_rangeStart != -1 || m_rangeEnd != -1);
+    const bool changeTrace = m_traceStart != -1 || m_traceEnd != -1;
+    const bool changeWindow = m_windowStart != -1 || m_windowEnd != -1;
+    const bool changeRange = m_rangeStart != -1 || m_rangeEnd != -1;
 
     setWindowLocked(false);
     if (changeWindow && !m_timer.isActive())

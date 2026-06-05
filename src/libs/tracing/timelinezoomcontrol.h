@@ -4,40 +4,21 @@
 #pragma once
 
 #include "tracing_global.h"
+
 #include <QTimer>
 
 namespace Timeline {
 
-class TRACING_EXPORT TimelineZoomControl : public QObject {
+class TRACING_EXPORT TimelineZoomControl : public QObject
+{
     Q_OBJECT
 
-    Q_PROPERTY(qint64 traceStart READ traceStart NOTIFY traceChanged)
-    Q_PROPERTY(qint64 traceEnd READ traceEnd NOTIFY traceChanged)
-    Q_PROPERTY(qint64 traceDuration READ traceDuration NOTIFY traceChanged)
-
-    Q_PROPERTY(qint64 windowStart READ windowStart NOTIFY windowChanged)
-    Q_PROPERTY(qint64 windowEnd READ windowEnd NOTIFY windowChanged)
-    Q_PROPERTY(qint64 windowDuration READ windowDuration NOTIFY windowChanged)
-
-    Q_PROPERTY(qint64 rangeStart READ rangeStart NOTIFY rangeChanged)
-    Q_PROPERTY(qint64 rangeEnd READ rangeEnd NOTIFY rangeChanged)
-    Q_PROPERTY(qint64 rangeDuration READ rangeDuration NOTIFY rangeChanged)
-
-    Q_PROPERTY(qint64 selectionStart READ selectionStart NOTIFY selectionChanged)
-    Q_PROPERTY(qint64 selectionEnd READ selectionEnd NOTIFY selectionChanged)
-    Q_PROPERTY(qint64 selectionDuration READ selectionDuration NOTIFY selectionChanged)
-
-    Q_PROPERTY(bool windowLocked READ windowLocked WRITE setWindowLocked NOTIFY windowLockedChanged)
-    Q_PROPERTY(bool windowMoving READ windowMoving NOTIFY windowMovingChanged)
-
-    Q_PROPERTY(qint64 maximumZoomFactor READ maximumZoomFactor CONSTANT)
-    Q_PROPERTY(qint64 minimumRangeLength READ minimumRangeLength CONSTANT)
-
 public:
+    TimelineZoomControl(QObject *parent = nullptr);
+
     qint64 maximumZoomFactor() const { return 1 << 10; }
     qint64 minimumRangeLength() const { return 500; }
 
-    TimelineZoomControl(QObject *parent = nullptr);
     qint64 traceStart() const { return m_traceStart; }
     qint64 traceEnd() const { return m_traceEnd; }
     qint64 traceDuration() const { return m_traceEnd - m_traceStart; }
@@ -59,9 +40,9 @@ public:
 
     virtual void clear();
 
-    Q_INVOKABLE void setTrace(qint64 start, qint64 end);
-    Q_INVOKABLE void setRange(qint64 start, qint64 end);
-    Q_INVOKABLE void setSelection(qint64 start, qint64 end);
+    void setTrace(qint64 start, qint64 end);
+    void setRange(qint64 start, qint64 end);
+    void setSelection(qint64 start, qint64 end);
     void setWindowLocked(bool windowLocked);
 
 signals:
@@ -77,17 +58,17 @@ protected:
     void rebuildWindow();
     void clampRangeToWindow();
 
-    qint64 m_traceStart;
-    qint64 m_traceEnd;
-    qint64 m_windowStart;
-    qint64 m_windowEnd;
-    qint64 m_rangeStart;
-    qint64 m_rangeEnd;
-    qint64 m_selectionStart;
-    qint64 m_selectionEnd;
+    qint64 m_traceStart = -1;
+    qint64 m_traceEnd = -1;
+    qint64 m_windowStart = -1;
+    qint64 m_windowEnd = -1;
+    qint64 m_rangeStart = -1;
+    qint64 m_rangeEnd = -1;
+    qint64 m_selectionStart = -1;
+    qint64 m_selectionEnd = -1;
 
     QTimer m_timer;
-    bool m_windowLocked;
+    bool m_windowLocked = false;
 };
 
 } // namespace Timeline
