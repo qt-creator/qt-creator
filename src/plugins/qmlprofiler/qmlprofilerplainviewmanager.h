@@ -19,6 +19,7 @@ class QMLPROFILER_EXPORT QmlProfilerPlainViewManager : public QObject
 
 public:
     explicit QmlProfilerPlainViewManager(QObject *parent = nullptr);
+    ~QmlProfilerPlainViewManager();
 
     QWidgetList views(QWidget *parent);
     static QString fileDialogTraceFilesFilter();

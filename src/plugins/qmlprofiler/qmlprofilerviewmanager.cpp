@@ -17,10 +17,8 @@ using namespace Utils;
 
 namespace QmlProfiler::Internal {
 
-QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
-                                               QmlProfilerModelManager *modelManager,
+QmlProfilerViewManager::QmlProfilerViewManager(QmlProfilerModelManager *modelManager,
                                                QmlProfilerStateManager *profilerState)
-    : QObject(parent)
 {
     setObjectName("QML Profiler View Manager");
     m_profilerState = profilerState;

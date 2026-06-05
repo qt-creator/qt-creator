@@ -19,30 +19,30 @@ using namespace std::chrono;
 
 namespace QmlProfiler {
 
-class QmlProfilerPlainViewManagerPrivate : public QObject
+class QmlProfilerPlainViewManagerPrivate
 {
 public:
-    QmlProfilerPlainViewManagerPrivate(QObject *parent)
-        : QObject(parent)
-    {}
-
-    QmlProfilerModelManager *modelManager = nullptr;
+    QmlProfilerModelManager modelManager;
 };
+
+QmlProfilerPlainViewManager::~QmlProfilerPlainViewManager()
+{
+    delete d;
+}
 
 QmlProfilerPlainViewManager::QmlProfilerPlainViewManager(QObject *parent)
     : QObject(parent)
-    , d(new QmlProfilerPlainViewManagerPrivate(this))
+    , d(new QmlProfilerPlainViewManagerPrivate)
 {
-    d->modelManager = new QmlProfilerModelManager(this);
-    connect(d->modelManager, &QmlProfilerModelManager::error,
+    connect(&d->modelManager, &QmlProfilerModelManager::error,
             this, &QmlProfilerPlainViewManager::error);
-    connect(d->modelManager, &QmlProfilerModelManager::loadFinished,
+    connect(&d->modelManager, &QmlProfilerModelManager::loadFinished,
             this, &QmlProfilerPlainViewManager::loadFinished);
 }
 
 QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
 {
-    auto traceView = new Internal::QmlProfilerTraceView(parent, nullptr, d->modelManager);
+    auto traceView = new Internal::QmlProfilerTraceView(parent, nullptr, &d->modelManager);
     connect(traceView, &Internal::QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerPlainViewManager::gotoSourceLocation);
     connect(traceView, &Internal::QmlProfilerTraceView::typeSelected,
@@ -55,18 +55,18 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
                 this, &QmlProfilerPlainViewManager::typeSelected);
         connect(this, &QmlProfilerPlainViewManager::typeSelected,
                 view, &QmlProfilerEventsView::selectByTypeId);
-        connect(d->modelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
+        connect(&d->modelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
                 view, &QmlProfilerEventsView::onVisibleFeaturesChanged);
         connect(view, &QmlProfilerEventsView::gotoSourceLocation,
                 this, &QmlProfilerPlainViewManager::gotoSourceLocation);
         connect(view, &QmlProfilerEventsView::showFullRange,
-                this, [this](){ d->modelManager->restrictToRange(-1, -1);});
+                this, [this](){ d->modelManager.restrictToRange(-1, -1); });
     };
-    auto flameGraphView = new Internal::FlameGraphView(d->modelManager, parent);
+    auto flameGraphView = new Internal::FlameGraphView(&d->modelManager, parent);
     prepareEventsView(flameGraphView);
-    auto statisticsView = new Internal::QmlProfilerStatisticsView(d->modelManager, parent);
+    auto statisticsView = new Internal::QmlProfilerStatisticsView(&d->modelManager, parent);
     prepareEventsView(statisticsView);
-    auto quick3DView = new Internal::Quick3DFrameView(d->modelManager, parent);
+    auto quick3DView = new Internal::Quick3DFrameView(&d->modelManager, parent);
     prepareEventsView(quick3DView);
     return { traceView, flameGraphView, statisticsView, quick3DView };
 }
@@ -78,17 +78,17 @@ QString QmlProfilerPlainViewManager::fileDialogTraceFilesFilter()
 
 void QmlProfilerPlainViewManager::loadTraceFile(const FilePath &file)
 {
-    d->modelManager->load(file.toFSPathString());
+    d->modelManager.load(file.toFSPathString());
 }
 
 void QmlProfilerPlainViewManager::clear()
 {
-    d->modelManager->clearAll();
+    d->modelManager.clearAll();
 }
 
 milliseconds QmlProfilerPlainViewManager::traceDuration() const
 {
-    return duration_cast<milliseconds>(nanoseconds{d->modelManager->traceDuration()});
+    return duration_cast<milliseconds>(nanoseconds{d->modelManager.traceDuration()});
 }
 
 } // namespace QmlProfiler

@@ -17,8 +17,7 @@ class QmlProfilerViewManager : public QObject
     Q_OBJECT
 
 public:
-    QmlProfilerViewManager(QObject *parent,
-                           QmlProfilerModelManager *modelManager,
+    QmlProfilerViewManager(QmlProfilerModelManager *modelManager,
                            QmlProfilerStateManager *profilerState);
     ~QmlProfilerViewManager() override;
 
