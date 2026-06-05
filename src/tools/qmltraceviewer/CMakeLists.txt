@@ -38,12 +38,10 @@ create_standalone_install_component(standalone_qmltraceviewer
     wayland-shell-integration
     xcbglintegrations
   IMPORTS
-    QML
     Qt
     QtCore
     QtNetwork
     QtQml
-    QtQuick
     QtWayland
   RESOURCES
     themes
