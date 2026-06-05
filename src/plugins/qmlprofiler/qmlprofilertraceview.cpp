@@ -16,13 +16,15 @@
 #include "memoryusagemodel.h"
 #include "scenegraphtimelinemodel.h"
 
+#include <aggregation/aggregate.h>
+
+#include <coreplugin/find/ifindsupport.h>
+#include <coreplugin/findplaceholder.h>
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinewidget.h>
 #include <tracing/timelineformattime.h>
 
-#include <aggregation/aggregate.h>
-#include <coreplugin/findplaceholder.h>
 #include <utils/styledbar.h>
 #include <utils/algorithm.h>
 
@@ -38,6 +40,31 @@
 using namespace QmlDebug;
 
 namespace QmlProfiler::Internal {
+
+class TraceViewFindSupport : public Core::IFindSupport
+{
+public:
+    TraceViewFindSupport(QmlProfilerTraceView *view, QmlProfilerModelManager *manager);
+
+    bool supportsReplace() const override;
+    Utils::FindFlags supportedFindFlags() const override;
+    void resetIncrementalSearch() override;
+    void clearHighlights() override;
+    QString currentFindString() const override;
+    QString completedFindString() const override;
+    Result findIncremental(const QString &txt, Utils::FindFlags findFlags) override;
+    Result findStep(const QString &txt, Utils::FindFlags findFlags) override;
+
+private:
+    bool find(const QString &txt, Utils::FindFlags findFlags, int start, bool *wrapped);
+    bool findOne(const QString &txt, Utils::FindFlags findFlags, int start);
+
+    QmlProfilerTraceView *m_view;
+    QmlProfilerModelManager *m_modelManager;
+    int m_incrementalStartPos = -1;
+    bool m_incrementalWrappedState = false;
+    int m_currentPosition = -1;
+};
 
 class QmlProfilerTraceView::QmlProfilerTraceViewPrivate
 {

@@ -5,8 +5,6 @@
 
 #include "qmlprofilermodelmanager.h"
 
-#include <coreplugin/find/ifindsupport.h>
-
 #include <QWidget>
 
 namespace QmlProfiler::Internal {
@@ -45,33 +43,6 @@ signals:
 private:
     class QmlProfilerTraceViewPrivate;
     QmlProfilerTraceViewPrivate *d;
-};
-
-class TraceViewFindSupport : public Core::IFindSupport
-{
-    Q_OBJECT
-
-public:
-    TraceViewFindSupport(QmlProfilerTraceView *view, QmlProfilerModelManager *manager);
-
-    bool supportsReplace() const override;
-    Utils::FindFlags supportedFindFlags() const override;
-    void resetIncrementalSearch() override;
-    void clearHighlights() override;
-    QString currentFindString() const override;
-    QString completedFindString() const override;
-    Result findIncremental(const QString &txt, Utils::FindFlags findFlags) override;
-    Result findStep(const QString &txt, Utils::FindFlags findFlags) override;
-
-private:
-    bool find(const QString &txt, Utils::FindFlags findFlags, int start, bool *wrapped);
-    bool findOne(const QString &txt, Utils::FindFlags findFlags, int start);
-
-    QmlProfilerTraceView *m_view;
-    QmlProfilerModelManager *m_modelManager;
-    int m_incrementalStartPos = -1;
-    bool m_incrementalWrappedState = false;
-    int m_currentPosition = -1;
 };
 
 } // namespace QmlProfiler::Internal
