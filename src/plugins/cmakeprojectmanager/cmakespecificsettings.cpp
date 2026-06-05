@@ -15,10 +15,9 @@
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/projectpanelfactory.h>
 
-#include <QCheckBox>
-
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcassert.h>
 
 #include <QGuiApplication>
 
@@ -34,7 +33,7 @@ CMakeSpecificSettings &settings(Project *project)
         return theSettings;
 
     CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
-    if (!cmakeProject || cmakeProject->settings().useGlobalSettings)
+    if (!cmakeProject || cmakeProject->settings().useGlobalSettings())
         return theSettings;
 
     return cmakeProject->settings();
@@ -150,6 +149,17 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
     readSettings();
 
     if (project) {
+        setEnabled(!useGlobalSettings());
+
+        useGlobalSettings.addOnChanged(this, [this] {
+            setEnabled(!useGlobalSettings());
+            writeSettings();
+        });
+        addOnChanged(this, [this] {
+            if (!useGlobalSettings())
+                writeSettings();
+        });
+
         // Re-read the settings. Reading in constructor is too early
         connect(project, &Project::settingsLoaded, this, [this] { readSettings(); });
     }
@@ -165,18 +175,18 @@ void CMakeSpecificSettings::readSettings()
             CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
             if (cmakeProject && cmakeProject->presetsData().havePresets
                 && cmakeProject->presetsData().vendor) {
-                useGlobalSettings = false;
+                useGlobalSettings.setValue(false);
                 data = storeFromMap(cmakeProject->presetsData().vendor.value());
                 fromMap(data);
 
                 // Write the new loaded CMakePresets settings into .user file
                 writeSettings();
             } else {
-                useGlobalSettings = true;
+                useGlobalSettings.setValue(true);
                 AspectContainer::readSettings();
             }
         } else {
-            useGlobalSettings = data.value(Constants::Settings::USE_GLOBAL_SETTINGS, true).toBool();
+            useGlobalSettings.setValue(data.value(Constants::Settings::USE_GLOBAL_SETTINGS, true).toBool());
             fromMap(data);
         }
     }
@@ -189,7 +199,7 @@ void CMakeSpecificSettings::writeSettings() const
     } else {
         Store data;
         toMap(data);
-        data.insert(Constants::Settings::USE_GLOBAL_SETTINGS, useGlobalSettings);
+        data.insert(Constants::Settings::USE_GLOBAL_SETTINGS, useGlobalSettings());
         project->setNamedSettings(Constants::Settings::GENERAL_ID, variantFromStore(data));
     }
 }
@@ -212,73 +222,20 @@ class CMakeProjectSettingsWidget : public QWidget
 {
 public:
     explicit CMakeProjectSettingsWidget(Project *project)
-        : m_project(qobject_cast<CMakeProject *>(project))
-        , m_displayedSettings(project, true)
     {
-        const bool initial = m_displayedSettings.useGlobalSettings;
-
-        m_globalCheckBox.setChecked(initial);
-        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool useGlobal) {
-            setEnabled(!useGlobal);
-            m_displayedSettings.useGlobalSettings = useGlobal;
-            if (m_project) {
-                m_displayedSettings.copyFrom(
-                    useGlobal ? settings(nullptr) : m_project->settings());
-                m_project->settings().useGlobalSettings = useGlobal;
-                m_project->settings().writeSettings();
-            }
-        });
-
+        auto *cmakeProject = qobject_cast<CMakeProject *>(project);
+        QTC_ASSERT(cmakeProject, return);
+        CMakeSpecificSettings &ps = cmakeProject->settings();
         using namespace Layouting;
         Column {
-            Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID), st },
+            Row { ps.useGlobalSettings,
+                  createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID),
+                  st },
             createHr(),
-            m_displayedSettings,
-            noMargin
+            ps,
+            noMargin,
         }.attachTo(this);
-
-        setEnabled(!initial);
-
-        if (m_project) {
-
-            // React on Global settings changes
-            connect(&settings(nullptr), &AspectContainer::changed, this, [this] {
-                if (m_displayedSettings.useGlobalSettings)
-                    m_displayedSettings.copyFrom(settings(nullptr));
-            });
-
-            // Reflect changes to the project settings in the displayed settings
-            connect(&m_project->settings(), &AspectContainer::changed, this, [this] {
-                if (!m_displayedSettings.useGlobalSettings)
-                    m_displayedSettings.copyFrom(m_project->settings());
-            });
-
-            // React on project settings changes in the "CMake" project settings
-            connect(&m_displayedSettings, &AspectContainer::changed, this, [this] {
-                if (!m_displayedSettings.useGlobalSettings) {
-                    m_project->settings().copyFrom(m_displayedSettings);
-                    m_project->settings().writeSettings();
-                }
-            });
-        } else {
-            // Only for CMake projects
-            m_globalCheckBox.setEnabled(false);
-        }
-
-        // "CMake" project settings needs to react on the UI changes
-        m_displayedSettings.packageManagerAutoSetup.addOnChanged(this, [this] {
-            if (m_project)
-                emit m_project->settings().packageManagerAutoSetup.changed();
-        });
-        m_displayedSettings.maintenanceToolDependencyProvider.addOnChanged(this, [this] {
-            if (m_project)
-                emit m_project->settings().maintenanceToolDependencyProvider.changed();
-        });
     }
-
-    CMakeProject *m_project = nullptr;
-    QCheckBox m_globalCheckBox;
-    CMakeSpecificSettings m_displayedSettings;
 };
 
 class CMakeProjectSettingsPanelFactory final : public ProjectPanelFactory

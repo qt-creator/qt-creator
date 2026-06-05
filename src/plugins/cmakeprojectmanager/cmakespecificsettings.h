@@ -41,7 +41,7 @@ public:
     Utils::BoolAspect cleanOldOutput{this};
     Utils::BoolAspect configureDetailsExpanded{this};
 
-    bool useGlobalSettings{true};
+    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
 };
 
 CMakeSpecificSettings &settings(ProjectExplorer::Project *project);
