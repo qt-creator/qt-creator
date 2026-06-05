@@ -227,60 +227,73 @@ void setupCppCodeModelSettingsPage()
     CppCodeModelSettings::global().setAutoApply(false);
 }
 
+class CppCodeModelProjectSettings : public CppCodeModelSettings
+{
+public:
+    explicit CppCodeModelProjectSettings(Project *project)
+        : m_project(project)
+    {
+        setAutoApply(true);
+
+        useGlobalSettings.setDefaultValue(true);
+
+        const Store data = storeFromVariant(project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
+        fromMap(data);
+        useGlobalSettings.setValue(data.value(useGlobalSettingsKey(), true).toBool());
+
+        setEnabled(!useGlobalSettings());
+
+        useGlobalSettings.addOnChanged(this, [this] {
+            setEnabled(!useGlobalSettings());
+            save();
+        });
+        addOnChanged(this, [this] {
+            if (!useGlobalSettings())
+                save();
+        });
+    }
+
+    void save()
+    {
+        Store data;
+        toMap(data);
+        data.insert(useGlobalSettingsKey(), useGlobalSettings());
+        m_project->setNamedSettings(Constants::CPPEDITOR_SETTINGSGROUP, variantFromStore(data));
+        CppModelManager::handleSettingsChange(m_project);
+    }
+
+    BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+
+private:
+    Project * const m_project;
+};
+
+static CppCodeModelProjectSettings *cppCodeModelProjectSettings(Project *project)
+{
+    const Key key = "CppCodeModelProjectSettings";
+    QVariant v = project->extraData(key);
+    if (v.isNull()) {
+        v = QVariant::fromValue(new CppCodeModelProjectSettings(project));
+        project->setExtraData(key, v);
+    }
+    return v.value<CppCodeModelProjectSettings *>();
+}
+
 class CppCodeModelProjectSettingsWidget : public QWidget
 {
 public:
     explicit CppCodeModelProjectSettingsWidget(Project *project)
-        : m_project(project)
     {
-        if (project) {
-            const Store data = storeFromVariant(m_project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
-            m_useGlobalSettings = data.value(useGlobalSettingsKey(), true).toBool();
-            m_customSettings.fromMap(data);
-        }
-
-        m_globalCheckBox.setChecked(m_useGlobalSettings);
-        connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
-            setEnabled(!checked);
-            m_useGlobalSettings = checked;
-            saveSettings();
-        });
-
+        CppCodeModelProjectSettings * const ps = cppCodeModelProjectSettings(project);
         using namespace Layouting;
         Column {
-            Row {
-                &m_globalCheckBox,
-                createUseGlobalSettingsLabel(Constants::CPP_CODE_MODEL_SETTINGS_ID),
-                st
-            },
+            Row { ps->useGlobalSettings,
+                  createUseGlobalSettingsLabel(Constants::CPP_CODE_MODEL_SETTINGS_ID), st },
             createHr(),
-            m_customSettings,
+            *ps,
             noMargin
         }.attachTo(this);
-
-        setEnabled(!m_useGlobalSettings);
-
-        connect(&m_customSettings, &AspectContainer::changed, this, [this] {
-            saveSettings();
-        });
     }
-
-    void saveSettings()
-    {
-        if (m_project) {
-            Store data;
-            m_customSettings.toMap(data);
-            data.insert(useGlobalSettingsKey(), m_useGlobalSettings);
-            m_project->setNamedSettings(Constants::CPPEDITOR_SETTINGSGROUP, variantFromStore(data));
-        }
-        CppModelManager::handleSettingsChange(m_project);
-    }
-
-private:
-    Project * const m_project;
-    QCheckBox m_globalCheckBox;
-    CppCodeModelSettings m_customSettings;
-    bool m_useGlobalSettings = true;
 };
 
 } // namespace Internal
