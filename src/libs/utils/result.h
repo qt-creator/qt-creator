@@ -115,5 +115,14 @@ private:
     do { \
     } while (0)
 
+// Evaluates `result` exactly once while still reporting the original expression
+// text (#result) and the error message on failure, like QVERIFY2 would.
 #define QVERIFY_RESULT(result) \
-    QVERIFY2(result, result ? #result : static_cast<const char*>(result.error().toUtf8()))
+    do { \
+        const auto &_qtcVerifyResult = (result); \
+        if (!QTest::qVerify(bool(_qtcVerifyResult), #result, \
+                            _qtcVerifyResult ? "" \
+                                             : _qtcVerifyResult.error().toUtf8().constData(), \
+                            __FILE__, __LINE__)) \
+            return; \
+    } while (false)
