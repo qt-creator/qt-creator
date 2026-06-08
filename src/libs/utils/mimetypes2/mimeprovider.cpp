@@ -749,10 +749,24 @@ void MimeXMLProvider::findByMagic(const QByteArray &data, MimeMagicResult &resul
             continue;
         if (matcher.matches(data)) {
             const int priority = matcher.priority();
-            if (priority > result.accuracy) {
-                result.accuracy = priority;
-                result.candidate = matcher.mimetype();
+            if (priority < result.accuracy)
+                continue;
+            if (priority == result.accuracy) {
+                if (m_db->inherits(result.candidate, matcher.mimetype()))
+                    continue;
+
+                if (!m_db->inherits(matcher.mimetype(), result.candidate)) {
+                    // Two or more magic rules matching, both with the same priority but not
+                    // connected with one another should not happen:
+                    qWarning("QMimeXMLProvider: MimeType is ambiguous between %ls and %ls",
+                             qUtf16Printable(result.candidate),
+                             qUtf16Printable(matcher.mimetype()));
+                    continue;
+                }
             }
+
+            result.accuracy = priority;
+            result.candidate = matcher.mimetype();
         }
     }
 }
