@@ -314,8 +314,7 @@ bool ProjectImporter::findTemporaryHandler(Utils::Id id) const
 
 static Toolchain *toolChainFromVariant(const QVariant &v)
 {
-    const QByteArray tcId = v.toByteArray();
-    return ToolchainManager::findToolchain(tcId);
+    return ToolchainManager::findToolchain(Utils::Id::fromSetting(v));
 }
 
 void ProjectImporter::cleanupTemporaryToolchains(Kit *k, const QVariantList &vl)
@@ -392,8 +391,8 @@ ProjectImporter::findOrCreateToolchains(const ToolchainDescription &tcd) const
         return tc->language() == tcd.language && tc->matchesCompilerCommand(tcd.compilerPath);
     });
     for (const Toolchain *tc : std::as_const(result.tcs)) {
-        const QByteArray tcId = tc->id();
-        result.areTemporary = result.areTemporary ? true : hasKitWithTemporaryData(ToolchainKitAspect::id(), tcId);
+        result.areTemporary = result.areTemporary
+            ? true : hasKitWithTemporaryData(ToolchainKitAspect::id(), tc->id().toSetting());
     }
     if (!result.tcs.isEmpty())
         return result;

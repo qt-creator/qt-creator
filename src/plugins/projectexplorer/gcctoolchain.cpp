@@ -124,7 +124,7 @@ private:
     void setFromToolchain();
 
     void updateParentToolchainComboBox(); // Clang
-    Id bundleIdFromId(const QByteArray &parentId);
+    Id bundleIdFromId(Id parentId);
     Toolchain *toolchainFromBundleId(Id bundleId, Id language);
 
     AbiWidget *m_abiWidget;
@@ -487,9 +487,9 @@ static const Toolchains mingwToolchains()
     });
 }
 
-static const GccToolchain *mingwToolchainFromId(const QByteArray &id)
+static const GccToolchain *mingwToolchainFromId(Id id)
 {
-    if (id.isEmpty())
+    if (!id.isValid())
         return nullptr;
 
     for (const Toolchain *tc : mingwToolchains()) {
@@ -1076,7 +1076,7 @@ void GccToolchain::toMap(Store &data) const
     data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
 
     if (m_subType == Clang) {
-        data.insert(parentToolchainIdKeyC, m_parentToolchainId);
+        data.insert(parentToolchainIdKeyC, m_parentToolchainId.toByteArray());
         data.insert(priorityKeyC, m_priority);
     }
 }
@@ -1104,7 +1104,10 @@ void GccToolchain::fromMap(const Store &data)
         resetToolchain(compilerCommand());
 
     if (m_subType == Clang) {
-        m_parentToolchainId = data.value(parentToolchainIdKeyC).toByteArray();
+        m_parentToolchainId = {};
+        const QByteArray parentToolchainId = data.value(parentToolchainIdKeyC).toByteArray();
+        if (!parentToolchainId.isEmpty())
+            m_parentToolchainId = Id::fromName(parentToolchainId);
         m_priority = data.value(priorityKeyC, PriorityNormal).toInt();
         if (targetAbi().binaryFormat() == Abi::MachOFormat
             && compilerCommand().parentDir() != "/usr/bin") {
@@ -1926,7 +1929,7 @@ void GccToolchainConfigWidget::applyImpl()
         tc.setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
         tc.setPlatformLinkerFlags(splitString(m_platformLinkerFlagsLineEdit->text()));
 
-        tc.m_parentToolchainId.clear();
+        tc.m_parentToolchainId = {};
         if (parentBundleId.isValid()) {
             if (const Toolchain * const parentTc
                 = toolchainFromBundleId(parentBundleId, tc.language())) {
@@ -2060,7 +2063,7 @@ void GccToolchain::syncAutodetectedWithParentToolchains()
 
     if (!mingwToolchainFromId(m_parentToolchainId)) {
         const Toolchains mingwTCs = mingwToolchains();
-        m_parentToolchainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
+        m_parentToolchainId = mingwTCs.isEmpty() ? Id() : mingwTCs.front()->id();
     }
 
     // Subscribe only autodetected toolchains.
@@ -2093,8 +2096,7 @@ void GccToolchain::syncAutodetectedWithParentToolchains()
               }
               if (updateParentId) {
                   const Toolchains mingwTCs = mingwToolchains();
-                  m_parentToolchainId = mingwTCs.isEmpty() ? QByteArray()
-                                                           : mingwTCs.front()->id();
+                  m_parentToolchainId = mingwTCs.isEmpty() ? Id() : mingwTCs.front()->id();
               }
           });
 }
@@ -2167,7 +2169,7 @@ void GccToolchainConfigWidget::updateParentToolchainComboBox()
     }
 }
 
-Id GccToolchainConfigWidget::bundleIdFromId(const QByteArray &id)
+Id GccToolchainConfigWidget::bundleIdFromId(Id id)
 {
     const Toolchain * const tc = ToolchainManager::toolchain(
         [id](const Toolchain *tc) { return tc->id() == id; });

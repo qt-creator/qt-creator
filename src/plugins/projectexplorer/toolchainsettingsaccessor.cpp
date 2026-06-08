@@ -133,7 +133,7 @@ static Toolchains stabilizeOrder(const Toolchains &toRegister,
     Toolchains toHandle = toRegister;
 
     for (int i = 0; i < userFileTcs.count(); ++i) {
-        const QByteArray userId = userFileTcs.at(i)->id();
+        const Id userId = userFileTcs.at(i)->id();
         const int handlePos = Utils::indexOf(toHandle,
                                              [&userId](const Toolchain *htc) { return htc->id() == userId; });
         if (handlePos < 0)
@@ -297,7 +297,7 @@ Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const
         if (!restored)
             qWarning("Warning: Unable to restore compiler type '%s' for tool chain %s.",
                      qPrintable(tcType.toString()),
-                     qPrintable(QString::fromUtf8(ToolchainFactory::idFromMap(tcMap))));
+                     qPrintable(ToolchainFactory::idFromMap(tcMap).toString()));
     }
 
     return result;

@@ -128,7 +128,7 @@ private:
         bool operator !=(const LastKitState &other) const;
     private:
         int m_qtVersion = -1;
-        QByteArray m_toolchain;
+        Utils::Id m_toolchain;
         QString m_sysroot;
         QString m_mkspec;
     };

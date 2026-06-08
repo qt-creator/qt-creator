@@ -799,7 +799,7 @@ QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
       m_mkspec(QmakeKitAspect::mkspec(k))
 {
     Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
-    m_toolchain = tc ? tc->id() : QByteArray();
+    m_toolchain = tc ? tc->id() : Id();
 }
 
 bool QmakeBuildConfiguration::LastKitState::operator ==(const LastKitState &other) const

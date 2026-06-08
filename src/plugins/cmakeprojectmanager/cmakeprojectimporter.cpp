@@ -1814,7 +1814,7 @@ void CMakeProjectImporter::applyDirectoryDataToKit(const DirectoryData &data, Pr
 
         if (tcd.areTemporary) {
             for (Toolchain *tc : tcd.tcs)
-                addTemporaryData(ToolchainKitAspect::id(), tc->id(), k);
+                addTemporaryData(ToolchainKitAspect::id(), tc->id().toSetting(), k);
         }
 
         Toolchain *toolchain = tcd.tcs.at(0);

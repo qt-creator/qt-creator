@@ -77,7 +77,7 @@ public:
     bool isDeviceDetected() const;
     ToolchainFactory *factory() const;
 
-    QByteArray id() const;
+    Utils::Id id() const;
 
     Utils::Id bundleId() const;
     void setBundleId(Utils::Id id);
@@ -383,7 +383,7 @@ public:
 
     Toolchain *restore(const Utils::Store &data);
 
-    static QByteArray idFromMap(const Utils::Store &data);
+    static Utils::Id idFromMap(const Utils::Store &data);
     static Utils::Id typeIdFromMap(const Utils::Store &data);
     static void autoDetectionToMap(Utils::Store &data, bool detected);
 

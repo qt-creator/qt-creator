@@ -121,7 +121,7 @@ protected:
 
     QString sysRoot() const override;
     SubType subType() const { return m_subType; }
-    QByteArray parentToolchainId() const { return m_parentToolchainId; }
+    Utils::Id parentToolchainId() const { return m_parentToolchainId; }
 
 private:
     bool canShareBundleImpl(const Toolchain &other) const override;
@@ -150,7 +150,7 @@ private:
     // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
     // which is used for comparison with matchesCompilerCommand
     mutable std::optional<Utils::FilePath> m_resolvedCompilerCommand;
-    QByteArray m_parentToolchainId;
+    Utils::Id m_parentToolchainId;
     int m_priority = PriorityNormal;
     QMetaObject::Connection m_mingwToolchainAddedConnection;
     QMetaObject::Connection m_thisToolchainRemovedConnection;

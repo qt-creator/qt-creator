@@ -179,21 +179,21 @@ Toolchains ToolchainManager::findToolchains(const Abi &abi)
     return result;
 }
 
-Toolchain *ToolchainManager::findToolchain(const QByteArray &id)
+Toolchain *ToolchainManager::findToolchain(Id id)
 {
     QTC_CHECK(d->m_loaded);
-    if (id.isEmpty())
+    if (!id.isValid())
         return nullptr;
 
     Toolchain *tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, id));
 
     // Compatibility with versions 3.5 and earlier:
     if (!tc) {
-        const int pos = id.indexOf(':');
+        const int pos = id.name().indexOf(':');
         if (pos < 0)
             return tc;
 
-        const QByteArray shortId = id.mid(pos + 1);
+        const Id shortId = Id::fromName(id.name().mid(pos + 1));
 
         tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, shortId));
     }

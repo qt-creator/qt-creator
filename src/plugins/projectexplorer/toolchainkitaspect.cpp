@@ -235,8 +235,8 @@ void ToolchainKitAspectFactory::fix(Kit *k)
     const QList<Id> languages = ToolchainManager::allLanguages();
     const IDeviceConstPtr dev = BuildDeviceKitAspect::device(k);
     for (const Id l : languages) {
-        const QByteArray tcId = ToolchainKitAspect::toolchainId(k, l);
-        if (tcId.isEmpty())
+        const Id tcId = ToolchainKitAspect::toolchainId(k, l);
+        if (!tcId.isValid())
             continue;
         Toolchain * const tc = ToolchainManager::findToolchain(tcId);
         if (!tc)  {
@@ -340,13 +340,13 @@ static void setupForSdkKit(Kit *k)
             continue;
         }
 
-        const QByteArray id = i.value().toByteArray();
+        const Id id = Id::fromSetting(i.value());
         if (ToolchainManager::findToolchain(id))
             continue;
 
         // No toolchain with this id exists. Check whether it's an ABI string.
         lockToolchains = false;
-        const Abi abi = Abi::fromString(QString::fromUtf8(id));
+        const Abi abi = Abi::fromString(id.toString());
         if (!abi.isValid())
             continue;
 
@@ -630,13 +630,13 @@ Id ToolchainKitAspect::id()
     return "PE.Profile.ToolChainsV3";
 }
 
-QByteArray ToolchainKitAspect::toolchainId(const Kit *k, Id language)
+Id ToolchainKitAspect::toolchainId(const Kit *k, Id language)
 {
-    QTC_ASSERT(ToolchainManager::isLoaded(), return nullptr);
+    QTC_ASSERT(ToolchainManager::isLoaded(), return {});
     if (!k)
         return {};
     Store value = storeFromVariant(k->value(ToolchainKitAspect::id()));
-    return value.value(language.toKey(), QByteArray()).toByteArray();
+    return Id::fromSetting(value.value(language.toKey()));
 }
 
 Toolchain *ToolchainKitAspect::toolchain(const Kit *k, Id language)
@@ -661,7 +661,7 @@ QList<Toolchain *> ToolchainKitAspect::toolChains(const Kit *k)
     const Store value = storeFromVariant(k->value(ToolchainKitAspect::id()));
     const QList<Toolchain *> tcList
             = transform<QList>(ToolchainManager::allLanguages(), [&value](Id l) {
-                return ToolchainManager::findToolchain(value.value(l.toKey()).toByteArray());
+                return ToolchainManager::findToolchain(Id::fromSetting(value.value(l.toKey())));
             });
     return filtered(tcList, [](Toolchain *tc) { return tc; });
 }
@@ -671,7 +671,7 @@ void ToolchainKitAspect::setToolchain(Kit *k, Toolchain *tc)
     QTC_ASSERT(tc, return);
     QTC_ASSERT(k, return);
     Store result = storeFromVariant(k->value(ToolchainKitAspect::id()));
-    result.insert(tc->language().toKey(), tc->id());
+    result.insert(tc->language().toKey(), tc->id().toSetting());
 
     k->setValue(id(), variantFromStore(result));
 }

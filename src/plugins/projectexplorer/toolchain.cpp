@@ -17,7 +17,6 @@
 #include <utils/qtcassert.h>
 
 #include <QHash>
-#include <QUuid>
 
 #include <utility>
 
@@ -51,7 +50,7 @@ class ToolchainPrivate
 {
 public:
     explicit ToolchainPrivate(Id typeId) :
-        m_id(QUuid::createUuid().toByteArray()),
+        m_id(Id::generate()),
         m_typeId(typeId),
         m_predefinedMacrosCache(new Toolchain::MacrosCache::element_type()),
         m_headerPathsCache(new Toolchain::HeaderPathsCache::element_type())
@@ -60,7 +59,7 @@ public:
         QTC_ASSERT(!m_typeId.name().contains(':'), return);
     }
 
-    QByteArray m_id;
+    Id m_id;
     Id m_bundleId;
     FilePath m_compilerCommand;
     Key m_compilerCommandKey;
@@ -186,7 +185,7 @@ ToolchainFactory *Toolchain::factory() const
     return factory;
 }
 
-QByteArray Toolchain::id() const
+Id Toolchain::id() const
 {
     return d->m_id;
 }
@@ -279,7 +278,7 @@ Toolchain *Toolchain::clone() const
         toMap(data);
         tc->fromMap(data);
         // New ID for the clone. It's different.
-        tc->d->m_id = QUuid::createUuid().toByteArray();
+        tc->d->m_id = Id::generate();
         return tc;
     }
     QTC_CHECK(false);
@@ -296,7 +295,7 @@ void Toolchain::toMap(Store &result) const
 {
     AspectContainer::toMap(result);
 
-    QString idToSave = d->m_typeId.toString() + QLatin1Char(':') + QString::fromUtf8(id());
+    QString idToSave = d->m_typeId.toString() + QLatin1Char(':') + id().toString();
     result.insert(ID_KEY, idToSave);
     result.insert(BUNDLE_ID_KEY, d->m_bundleId.toSetting());
     result.insert(DISPLAY_NAME_KEY, displayName());
@@ -449,7 +448,7 @@ void Toolchain::fromMap(const Store &data)
     int pos = id.indexOf(QLatin1Char(':'));
     QTC_ASSERT(pos > 0, reportError(); return);
     d->m_typeId = Id::fromString(id.left(pos));
-    d->m_id = id.mid(pos + 1).toUtf8();
+    d->m_id = Id::fromString(id.mid(pos + 1));
     d->m_bundleId = Id::fromSetting(data.value(BUNDLE_ID_KEY));
 
     const bool autoDetect = data.value(AUTODETECT_KEY, false).toBool();
@@ -729,9 +728,9 @@ static QPair<QString, QString> rawIdData(const Store &data)
     return {raw.mid(0, pos), raw.mid(pos + 1)};
 }
 
-QByteArray ToolchainFactory::idFromMap(const Store &data)
+Id ToolchainFactory::idFromMap(const Store &data)
 {
-    return rawIdData(data).second.toUtf8();
+    return Id::fromString(rawIdData(data).second);
 }
 
 Id ToolchainFactory::typeIdFromMap(const Store &data)

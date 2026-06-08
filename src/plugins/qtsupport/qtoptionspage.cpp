@@ -318,7 +318,7 @@ private:
     };
     ValidityInfo validInformation(const QtVersion *version);
     QList<ProjectExplorer::Toolchain*> toolChains(const QtVersion *version);
-    QByteArray defaultToolchainId(const QtVersion *version);
+    Id defaultToolchainId(const QtVersion *version);
 
     bool isNameUnique(const QtVersion *version);
 
@@ -615,7 +615,7 @@ QList<Toolchain*> QtSettingsPageWidget::toolChains(const QtVersion *version)
     if (!version)
         return toolChains;
 
-    QSet<QByteArray> ids;
+    QSet<Id> ids;
     const Abis abis = version->qtAbis();
     for (const Abi &a : abis) {
         const Toolchains tcList = ToolchainManager::findToolchains(a);
@@ -628,12 +628,12 @@ QList<Toolchain*> QtSettingsPageWidget::toolChains(const QtVersion *version)
     return toolChains;
 }
 
-QByteArray QtSettingsPageWidget::defaultToolchainId(const QtVersion *version)
+Id QtSettingsPageWidget::defaultToolchainId(const QtVersion *version)
 {
     QList<Toolchain*> possibleToolChains = toolChains(version);
     if (!possibleToolChains.isEmpty())
         return possibleToolChains.first()->id();
-    return QByteArray();
+    return {};
 }
 
 bool QtSettingsPageWidget::isNameUnique(const QtVersion *version)

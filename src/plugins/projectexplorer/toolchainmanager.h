@@ -45,7 +45,7 @@ public:
 
     static Toolchain *toolchain(const Toolchain::Predicate &predicate);
     static QList<Toolchain *> findToolchains(const Abi &abi);
-    static Toolchain *findToolchain(const QByteArray &id);
+    static Toolchain *findToolchain(Utils::Id id);
 
     static bool isLoaded();
 
