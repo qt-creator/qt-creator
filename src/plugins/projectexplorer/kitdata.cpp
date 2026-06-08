@@ -12,13 +12,6 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-QIcon KitData::iconForDeviceType(Id deviceType)
-{
-    const IDeviceFactory *factory = findOrDefault(IDeviceFactory::allDeviceFactories(),
-        [&deviceType](const IDeviceFactory *f) { return f->deviceType() == deviceType; });
-    return factory ? factory->icon() : QIcon();
-}
-
 QString KitData::unexpandedDisplayName() const
 {
     return m_unexpandedDisplayName.value();
@@ -48,13 +41,13 @@ QIcon KitData::icon() const
     if (!m_deviceTypeForIcon.isValid() && !m_iconPath.isEmpty() && m_iconPath.exists())
         return QIcon(m_iconPath.toFSPathString());
     if (m_deviceTypeForIcon.isValid()) {
-        const QIcon deviceTypeIcon = iconForDeviceType(m_deviceTypeForIcon);
+        const QIcon deviceTypeIcon = IDeviceFactory::iconForDeviceType(m_deviceTypeForIcon);
         if (!deviceTypeIcon.isNull())
             return deviceTypeIcon;
     }
     // FIXME: Kit::icon() uses RunDeviceTypeKitAspect::deviceTypeId() as a fallback here,
     // so working copies of kits with a non-desktop run device show the wrong icon.
-    return iconForDeviceType(Constants::DESKTOP_DEVICE_TYPE);
+    return IDeviceFactory::iconForDeviceType(Constants::DESKTOP_DEVICE_TYPE);
 }
 
 } // namespace ProjectExplorer

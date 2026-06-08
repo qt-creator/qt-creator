@@ -5,10 +5,11 @@
 
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
+#include "devicesupport/idevicefactory.h"
+#include "ioutputparser.h"
 #include "kitaspect.h"
 #include "kitdata.h"
 #include "kitmanager.h"
-#include "ioutputparser.h"
 #include "outputparsers.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
@@ -384,13 +385,13 @@ QIcon Kit::icon() const
 
     const Id deviceType = d->m_deviceTypeForIcon.isValid()
             ? d->m_deviceTypeForIcon : RunDeviceTypeKitAspect::deviceTypeId(this);
-    const QIcon deviceTypeIcon = KitData::iconForDeviceType(deviceType);
+    const QIcon deviceTypeIcon = IDeviceFactory::iconForDeviceType(deviceType);
     if (!deviceTypeIcon.isNull()) {
         d->m_cachedIcon = deviceTypeIcon;
         return d->m_cachedIcon;
     }
 
-    d->m_cachedIcon = KitData::iconForDeviceType(Constants::DESKTOP_DEVICE_TYPE);
+    d->m_cachedIcon = IDeviceFactory::iconForDeviceType(Constants::DESKTOP_DEVICE_TYPE);
     return d->m_cachedIcon;
 }
 
