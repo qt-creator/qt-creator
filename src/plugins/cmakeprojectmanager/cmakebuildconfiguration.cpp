@@ -30,6 +30,7 @@
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -1722,9 +1723,17 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         if (extraInfoMap.contains(Constants::CMAKE_IMPORTED_BUILD))
             setExtraData(Constants::CMAKE_IMPORTED_BUILD, true);
 
-        qmlDebugging.setValue(extraInfoMap.contains(Constants::QML_DEBUG_SETTING)
-                                  ? TriState::fromVariant(extraInfoMap.value(Constants::QML_DEBUG_SETTING))
-                                  : TriState::Default);
+        const BuildPropertiesSettings &settings = buildPropertiesSettings();
+        const TriState qmlDebuggingFromBuildInfo
+            = extraInfoMap.contains(Constants::QML_DEBUG_SETTING)
+                  ? TriState::fromVariant(extraInfoMap.value(Constants::QML_DEBUG_SETTING))
+                  : TriState::Default;
+        const bool isImportedBuild = extraInfoMap.contains(Constants::CMAKE_IMPORTED_BUILD)
+                                     || extraInfoMap.value("hideImportedSuffix").toBool();
+        qmlDebugging.setValue(
+            (!isImportedBuild && settings.qmlDebugging() != TriState::Default)
+                ? settings.qmlDebugging()
+                : qmlDebuggingFromBuildInfo);
 
         if (qt && qt->isQmlDebuggingSupported())
             cmd.addArg(QLatin1String("-DQT_ENABLE_QML_DEBUG:BOOL=%{") + QT_ENABLE_QML_DEBUG_FLAG + "}");
