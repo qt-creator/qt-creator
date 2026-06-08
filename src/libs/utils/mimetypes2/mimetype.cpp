@@ -104,9 +104,7 @@ MimeType::MimeType(const MimeTypePrivate &dd) :
 
 /*!
     \fn void MimeType::swap(MimeType &other);
-    Swaps MimeType \a other with this MimeType object.
-
-    This operation is very fast and never fails.
+    \memberswap{mime type}
 
     The swap() method helps with the implementation of assignment
     operators in an exception-safe way. For more information consult
