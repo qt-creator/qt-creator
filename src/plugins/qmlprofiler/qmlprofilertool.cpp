@@ -217,7 +217,7 @@ QmlProfilerTool::QmlProfilerTool()
 
     QObject::connect(&d->m_startAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
 
-    Perspective *perspective = d->m_viewContainer.perspective();
+    Perspective *perspective = &d->m_viewContainer;
     perspective->addToolBarAction(&d->m_startAction);
     perspective->addToolBarAction(&d->m_stopAction);
     perspective->addToolBarWidget(d->m_recordButton);
@@ -545,7 +545,7 @@ RunControl *QmlProfilerTool::attachToWaitingApplication()
     serverUrl.setHost(toolControl.host());
     serverUrl.setPort(port);
 
-    d->m_viewContainer.perspective()->select();
+    d->m_viewContainer.select();
 
     auto runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     RunConfiguration *activeRunConfig = activeRunConfigForActiveProject();
@@ -618,7 +618,7 @@ void QmlProfilerTool::showSaveDialog()
 void QmlProfilerTool::loadFile(const FilePath &filePath)
 {
     saveLastTraceFile(filePath);
-    d->m_viewContainer.perspective()->select();
+    d->m_viewContainer.select();
     PerspectivesView::enableMainWindow(false);
     connect(&d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
             this, &QmlProfilerTool::setRecordedFeatures);
@@ -645,7 +645,7 @@ void QmlProfilerTool::profileStartupProject()
 {
     if (!prepareTool())
         return;
-    d->m_viewContainer.perspective()->select();
+    d->m_viewContainer.select();
     ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
 }
 

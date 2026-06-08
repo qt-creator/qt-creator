@@ -17,13 +17,13 @@ namespace QmlProfiler::Internal {
 
 QmlProfilerViewManager::QmlProfilerViewManager(QmlProfilerModelManager *modelManager,
                                                QmlProfilerStateManager *profilerState)
-    : m_profilerModelManager(modelManager)
+    : Core::Perspective(Constants::QmlProfilerPerspectiveId, Tr::tr("QML Profiler"))
+    , m_profilerModelManager(modelManager)
     , m_profilerState(profilerState)
     , m_traceView(nullptr, modelManager)
     , m_statisticsView(modelManager)
     , m_flameGraphView(modelManager)
     , m_quick3dView(modelManager)
-    , m_perspective(Constants::QmlProfilerPerspectiveId, Tr::tr("QML Profiler"))
 {
     setObjectName("QML Profiler View Manager");
 
@@ -54,11 +54,11 @@ QmlProfilerViewManager::QmlProfilerViewManager(QmlProfilerModelManager *modelMan
     prepareEventsView(&m_flameGraphView);
     prepareEventsView(&m_quick3dView);
 
-    m_perspective.addWindow(&m_traceView, Perspective::SplitVertical, nullptr);
-    m_perspective.addWindow(&m_flameGraphView, Perspective::AddToTab, &m_traceView);
-    m_perspective.addWindow(&m_quick3dView, Perspective::AddToTab, &m_flameGraphView);
-    m_perspective.addWindow(&m_statisticsView, Perspective::AddToTab, &m_traceView);
-    m_perspective.addWindow(&m_traceView, Perspective::Raise, nullptr);
+    addWindow(&m_traceView, Perspective::SplitVertical, nullptr);
+    addWindow(&m_flameGraphView, Perspective::AddToTab, &m_traceView);
+    addWindow(&m_quick3dView, Perspective::AddToTab, &m_flameGraphView);
+    addWindow(&m_statisticsView, Perspective::AddToTab, &m_traceView);
+    addWindow(&m_traceView, Perspective::Raise, nullptr);
 }
 
 void QmlProfilerViewManager::clear()

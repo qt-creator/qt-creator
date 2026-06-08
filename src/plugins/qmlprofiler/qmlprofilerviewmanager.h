@@ -14,7 +14,7 @@ namespace QmlProfiler::Internal {
 
 class QmlProfilerStateManager;
 
-class QmlProfilerViewManager : public QObject
+class QmlProfilerViewManager : public Core::Perspective
 {
     Q_OBJECT
 
@@ -26,7 +26,6 @@ public:
     QmlProfilerStatisticsView *statisticsView() { return &m_statisticsView; }
     FlameGraphView *flameGraphView() { return &m_flameGraphView; }
     Quick3DFrameView *quick3dView() { return &m_quick3dView; }
-    Core::Perspective *perspective() { return &m_perspective; }
 
     void clear();
 
@@ -41,7 +40,6 @@ private:
     QmlProfilerStatisticsView m_statisticsView;
     FlameGraphView m_flameGraphView;
     Quick3DFrameView m_quick3dView;
-    Core::Perspective m_perspective;
 };
 
 } // namespace QmlProfiler::Internal
