@@ -584,7 +584,14 @@ public:
                             || kind == Acp::PermissionOptionKind::reject_always;
         const auto role = reject ? Utils::QtcButton::MediumTertiary
                                  : Utils::QtcButton::MediumPrimary;
-        auto *button = new Utils::QtcButton(optionKindToUiString(kind), role, this);
+        QString buttonText;
+        if (text.isEmpty())
+            buttonText = optionKindToUiString(kind);
+        else if (text.size() > 30)
+            buttonText = text.left(27) + QStringLiteral("...");
+        else
+            buttonText = text;
+        auto *button = new Utils::QtcButton(buttonText, role, this);
         button->setToolTip(text);
         m_buttonLayout->addWidget(button);
         m_buttons.append(button);
