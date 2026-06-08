@@ -21,8 +21,6 @@
 
 namespace Utils {
 
-class MimeBinaryProvider;
-
 class MimeTypePrivate : public QSharedData
 {
 public:
