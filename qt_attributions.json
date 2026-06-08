@@ -731,8 +731,8 @@
         "Description": "The Apache Tika MimeTypes list many known MIME types and how to match files (using globs and/or 'magic' rules for the file contents). See qtbase/src/corelib/mimetypes/3rdparty/ for more information, also on how to update the file.",
         "Homepage": "https://github.com/apache/tika/tree/main/tika-core/src/main/resources/org/apache/tika/mime",
         "PURL": "pkg:github/apache/tika@$<VERSION>#tika-core/src/main/resources/org/apache/tika/mime/tika-mimetypes.xml",
-        "Version": "019041117149667bc4d18fabf222a0670d407959",
-        "DownloadLocation": "https://github.com/apache/tika/blob/019041117149667bc4d18fabf222a0670d407959/tika-core/src/main/resources/org/apache/tika/mime/tika-mimetypes.xml",
+        "Version": "c29724782854bb5a319f4a1940d0828a58ace3f9",
+        "DownloadLocation": "https://github.com/apache/tika/blob/c29724782854bb5a319f4a1940d0828a58ace3f9/tika-core/src/main/resources/org/apache/tika/mime/tika-mimetypes.xml",
         "License": "Apache License 2.0",
         "LicenseFile": "@SOURCE_DIR@/doc/qtcreator/src/overview/license-Apache-2.0.txt",
         "Copyright": "Copyright 2011 The Apache Software Foundation"
