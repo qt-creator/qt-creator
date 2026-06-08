@@ -760,11 +760,8 @@ void MimeXMLProvider::ensureLoaded()
 {
     QStringList allFiles;
     const QString packageDir = m_directory + QStringView(u"/packages");
-    QDir dir(packageDir);
-    const QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-    allFiles.reserve(files.size());
-    for (const QString &xmlFile : files)
-        allFiles.append(packageDir + u'/' + xmlFile);
+    for (const auto &entry : QDirListing(packageDir, QDirListing::IteratorFlag::FilesOnly))
+        allFiles.emplace_back(packageDir + u'/' + entry.fileName());
 
     if (m_allFiles == allFiles)
         return;
