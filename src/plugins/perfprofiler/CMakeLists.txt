@@ -18,7 +18,6 @@ add_qtc_plugin(PerfProfiler
     perfprofilertool.cpp perfprofilertool.h
     perfprofilertracefile.cpp perfprofilertracefile.h
     perfprofilertracemanager.cpp perfprofilertracemanager.h
-    perfprofilertraceview.cpp perfprofilertraceview.h
     perfprofiler_global.h
     perfprofilertr.h
     perfresourcecounter.h

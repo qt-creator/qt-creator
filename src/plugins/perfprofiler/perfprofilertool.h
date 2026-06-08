@@ -6,9 +6,9 @@
 #include "perfprofilerconstants.h"
 #include "perfprofilerflamegraphview.h"
 #include "perfprofilerstatisticsview.h"
-#include "perfprofilertraceview.h"
 
 #include <coreplugin/perspective.h>
+#include <tracing/timelinewidget.h>
 
 #include <utils/fileinprojectfinder.h>
 
@@ -101,7 +101,7 @@ private:
     QToolButton m_aggregateButton;
     QToolButton m_tracePointsButton;
 
-    PerfProfilerTraceView *m_traceView = nullptr;
+    Timeline::TimelineWidget *m_traceView = nullptr;
     PerfProfilerStatisticsView *m_statisticsView = nullptr;
     PerfProfilerFlameGraphView *m_flameGraphView = nullptr;
 

@@ -6,6 +6,7 @@
 #include "perfloaddialog.h"
 #include "perfprofilertr.h"
 #include "perfprofilertracemanager.h"
+#include "perftimelinemodelmanager.h"
 #include "perfsettings.h"
 #include "perftracepointdialog.h"
 
@@ -30,6 +31,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <tracing/timelinewidget.h>
 #include <tracing/timelinezoomcontrol.h>
 
 #include <utils/algorithm.h>
@@ -157,9 +159,10 @@ PerfProfilerTool::~PerfProfilerTool() = default;
 
 void PerfProfilerTool::createViews()
 {
-    m_traceView = new PerfProfilerTraceView(nullptr, this);
+    m_traceView = new Timeline::TimelineWidget(&modelManager(), m_zoomControl, nullptr);
+    m_traceView->setObjectName(QLatin1String("PerfProfilerTraceView"));
     m_traceView->setWindowTitle(Tr::tr("Timeline"));
-    connect(m_traceView, &PerfProfilerTraceView::gotoSourceLocation,
+    connect(m_traceView, &Timeline::TimelineWidget::gotoSourceLocation,
             this, &PerfProfilerTool::gotoSourceLocation);
 
     m_statisticsView = new PerfProfilerStatisticsView;
@@ -182,16 +185,16 @@ void PerfProfilerTool::createViews()
     m_perspective.addWindow(m_statisticsView, Perspective::AddToTab, m_flameGraphView);
 
     connect(m_statisticsView, &PerfProfilerStatisticsView::typeSelected,
-            m_traceView, &PerfProfilerTraceView::selectByTypeId);
+            m_traceView, &Timeline::TimelineWidget::selectByTypeId);
     connect(m_flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
-            m_traceView, &PerfProfilerTraceView::selectByTypeId);
+            m_traceView, &Timeline::TimelineWidget::selectByTypeId);
 
-    connect(m_traceView, &PerfProfilerTraceView::typeSelected,
+    connect(m_traceView, &Timeline::TimelineWidget::typeSelected,
             m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
     connect(m_flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
             m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
 
-    connect(m_traceView, &PerfProfilerTraceView::typeSelected,
+    connect(m_traceView, &Timeline::TimelineWidget::typeSelected,
             m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
     connect(m_statisticsView, &PerfProfilerStatisticsView::typeSelected,
             m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
