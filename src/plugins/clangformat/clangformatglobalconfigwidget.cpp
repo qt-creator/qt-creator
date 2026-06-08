@@ -175,6 +175,7 @@ void ClangFormatGlobalConfigWidget::initUseGlobalSettingsCheckBox()
         m_useGlobalSettings, &QCheckBox::toggled, this, [this, enableProjectSettings](bool checked) {
             m_project->setNamedSettings(Constants::USE_GLOBAL_SETTINGS, checked);
             enableProjectSettings();
+            emit modeChanged(mode());
         });
 }
 
