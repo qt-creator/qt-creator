@@ -120,7 +120,11 @@ static std::unique_ptr<MesonTargetNode> makeTargetNodes(std::unique_ptr<MesonPro
         targetNode->addNode(std::move(pyGroup));
     }
     if (!targetFiles.ui_files.isEmpty()) {
-        auto uiGroup = createVFolder(targetNode->path(), Tr::tr("Qt Designer Files"), true, ProjectExplorer::Constants::FILEOVERLAY_UI);
+        auto uiGroup = createVFolder(
+            targetNode->path(),
+            Tr::tr("Qt Widgets Designer Files"),
+            true,
+            ProjectExplorer::Constants::FILEOVERLAY_UI);
         for (const auto &file : targetFiles.ui_files) {
             uiGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Form));
         }

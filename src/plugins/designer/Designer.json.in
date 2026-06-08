@@ -30,7 +30,7 @@
         "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
         "    <mime-type type='application/x-designer'>",
         "        <sub-class-of type='application/xml'/>",
-        "        <comment>Qt Designer file</comment>",
+        "        <comment>Qt Widgets Designer file</comment>",
         "        <magic>",
         "            <match value='&lt;ui ' type='string' offset='0:256'/>",
         "            <match value='&lt;UI ' type='string' offset='0:256'/>",
