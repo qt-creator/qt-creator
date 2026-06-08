@@ -393,7 +393,6 @@ void MimeBinaryProvider::findByMagic(const QByteArray &data, MimeMagicResult &re
 
 void MimeBinaryProvider::addParents(const QString &mime, QStringList &result)
 {
-    const QByteArray mimeStr = mime.toLatin1();
     const int parentListOffset = m_cacheFile->getUint32(PosParentListOffset);
     const int numEntries = m_cacheFile->getUint32(parentListOffset);
 
@@ -404,7 +403,7 @@ void MimeBinaryProvider::addParents(const QString &mime, QStringList &result)
         const int off = parentListOffset + 4 + 8 * medium;
         const int mimeOffset = m_cacheFile->getUint32(off);
         const char *aMime = m_cacheFile->getCharStar(mimeOffset);
-        const int cmp = qstrcmp(aMime, mimeStr);
+        const int cmp = QLatin1StringView(aMime).compare(mime);
         if (cmp < 0) {
             begin = medium + 1;
         } else if (cmp > 0) {
@@ -425,7 +424,6 @@ void MimeBinaryProvider::addParents(const QString &mime, QStringList &result)
 
 QString MimeBinaryProvider::resolveAlias(const QString &name)
 {
-    const QByteArray input = name.toLatin1();
     const int aliasListOffset = m_cacheFile->getUint32(PosAliasListOffset);
     const int numEntries = m_cacheFile->getUint32(aliasListOffset);
     int begin = 0;
@@ -435,7 +433,7 @@ QString MimeBinaryProvider::resolveAlias(const QString &name)
         const int off = aliasListOffset + 4 + 8 * medium;
         const int aliasOffset = m_cacheFile->getUint32(off);
         const char *alias = m_cacheFile->getCharStar(aliasOffset);
-        const int cmp = qstrcmp(alias, input);
+        const int cmp = QLatin1StringView(alias).compare(name);
         if (cmp < 0) {
             begin = medium + 1;
         } else if (cmp > 0) {
@@ -451,7 +449,6 @@ QString MimeBinaryProvider::resolveAlias(const QString &name)
 
 void MimeBinaryProvider::addAliases(const QString &name, QStringList &result)
 {
-    const QByteArray input = name.toLatin1();
     const int aliasListOffset = m_cacheFile->getUint32(PosAliasListOffset);
     const int numEntries = m_cacheFile->getUint32(aliasListOffset);
     for (int pos = 0; pos < numEntries; ++pos) {
@@ -459,7 +456,7 @@ void MimeBinaryProvider::addAliases(const QString &name, QStringList &result)
         const int mimeOffset = m_cacheFile->getUint32(off + 4);
         const char *mimeType = m_cacheFile->getCharStar(mimeOffset);
 
-        if (input == mimeType) {
+        if (name == QLatin1StringView(mimeType)) {
             const int aliasOffset = m_cacheFile->getUint32(off);
             const char *alias = m_cacheFile->getCharStar(aliasOffset);
             const QString strAlias = QString::fromLatin1(alias);
@@ -602,7 +599,7 @@ MimeBinaryProvider::loadMimeTypeExtra(const QString &mimeName)
 
 // Binary search in the icons or generic-icons list
 QLatin1StringView MimeBinaryProvider::iconForMime(CacheFile *cacheFile, int posListOffset,
-                                                  const QByteArray &inputMime)
+                                                  QStringView inputMime)
 {
     const int iconsListOffset = cacheFile->getUint32(posListOffset);
     const int numIcons = cacheFile->getUint32(iconsListOffset);
@@ -613,7 +610,7 @@ QLatin1StringView MimeBinaryProvider::iconForMime(CacheFile *cacheFile, int posL
         const int off = iconsListOffset + 4 + 8 * medium;
         const int mimeOffset = cacheFile->getUint32(off);
         const char *mime = cacheFile->getCharStar(mimeOffset);
-        const int cmp = qstrcmp(mime, inputMime);
+        const int cmp = QLatin1StringView(mime).compare(inputMime);
         if (cmp < 0)
             begin = medium + 1;
         else if (cmp > 0)
@@ -628,14 +625,12 @@ QLatin1StringView MimeBinaryProvider::iconForMime(CacheFile *cacheFile, int posL
 
 QString MimeBinaryProvider::icon(const QString &name)
 {
-    const QByteArray inputMime = name.toLatin1();
-    return iconForMime(m_cacheFile.get(), PosIconsListOffset, inputMime);
+    return iconForMime(m_cacheFile.get(), PosIconsListOffset, name);
 }
 
 QString MimeBinaryProvider::genericIcon(const QString &name)
 {
-    const QByteArray inputMime = name.toLatin1();
-    return iconForMime(m_cacheFile.get(), PosGenericIconsListOffset, inputMime);
+    return iconForMime(m_cacheFile.get(), PosGenericIconsListOffset, name);
 }
 
 ////

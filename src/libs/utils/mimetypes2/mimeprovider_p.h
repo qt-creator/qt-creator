@@ -132,7 +132,7 @@ private:
                          bool caseSensitiveCheck);
     bool matchMagicRule(CacheFile *cacheFile, int numMatchlets, int firstOffset,
                         const QByteArray &data);
-         QLatin1StringView iconForMime(CacheFile *cacheFile, int posListOffset, const QByteArray &inputMime);
+    QLatin1StringView iconForMime(CacheFile *cacheFile, int posListOffset, QStringView inputMime);
     void loadMimeTypeList();
     bool checkCacheChanged();
 
