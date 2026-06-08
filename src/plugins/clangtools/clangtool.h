@@ -35,6 +35,7 @@ class ClangTool : public QObject
     Q_OBJECT
 
 public:
+    ~ClangTool() override { delete m_mainWidget; }
     void selectPerspective();
 
     enum class FileSelectionType {
@@ -137,6 +138,7 @@ private:
     QAction *m_clear = nullptr;
     QAction *m_expandCollapse = nullptr;
 
+    QWidget *m_mainWidget = nullptr;
     Core::Perspective m_perspective;
     const CppEditor::ClangToolType m_type;
 };

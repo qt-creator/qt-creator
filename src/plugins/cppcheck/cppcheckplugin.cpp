@@ -48,6 +48,7 @@ public:
     CppcheckTool manualRunTool{manualRunModel, Constants::MANUAL_CHECK_PROGRESS_ID};
     Perspective perspective{Constants::PERSPECTIVE_ID, ::Cppcheck::Tr::tr("Cppcheck")};
 
+    DiagnosticView *manualRunView = nullptr;
     Action *manualRunAction = nullptr;
     QHash<Project *, CppcheckSettings *> projectSettings;
 
@@ -65,7 +66,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
         trigger.recheck();
     });
 
-    auto manualRunView = new DiagnosticView;
+    manualRunView = new DiagnosticView;
     manualRunView->setModel(&manualRunModel);
     perspective.addWindow(manualRunView, Perspective::SplitVertical, nullptr);
 
@@ -128,6 +129,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
 
 CppcheckPluginPrivate::~CppcheckPluginPrivate()
 {
+    delete manualRunView;
     qDeleteAll(projectSettings);
     projectSettings.clear();
 }

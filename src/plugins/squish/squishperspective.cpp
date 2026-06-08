@@ -262,6 +262,13 @@ SquishPerspective::SquishPerspective()
     });
 }
 
+SquishPerspective::~SquishPerspective()
+{
+    delete m_localsWidget;
+    delete m_objectWidget;
+    delete m_propertiesWidget;
+}
+
 void SquishPerspective::initPerspective()
 {
     m_stopRecordAction = new QAction(this);
@@ -305,10 +312,10 @@ void SquishPerspective::initPerspective()
     localsView->setModel(&m_localsModel);
     localsView->setRootIsDecorated(true);
     localsMainLayout->addWidget(localsView);
-    QWidget *localsWidget = new QWidget;
-    localsWidget->setObjectName("SquishLocalsView");
-    localsWidget->setWindowTitle(Tr::tr("Squish Locals"));
-    localsWidget->setLayout(localsMainLayout);
+    m_localsWidget = new QWidget;
+    m_localsWidget->setObjectName("SquishLocalsView");
+    m_localsWidget->setWindowTitle(Tr::tr("Squish Locals"));
+    m_localsWidget->setLayout(localsMainLayout);
 
     QVBoxLayout *objectsMainLayout = new QVBoxLayout;
     objectsMainLayout->setContentsMargins(0, 0, 0, 0);
@@ -322,10 +329,10 @@ void SquishPerspective::initPerspective()
     m_objectsView->setRootIsDecorated(true);
     objectsMainLayout->addWidget(m_objectsView);
 
-    QWidget *objectWidget = new QWidget;
-    objectWidget->setObjectName("SquishObjectsView");
-    objectWidget->setWindowTitle(Tr::tr("Squish Objects"));
-    objectWidget->setLayout(objectsMainLayout);
+    m_objectWidget = new QWidget;
+    m_objectWidget->setObjectName("SquishObjectsView");
+    m_objectWidget->setWindowTitle(Tr::tr("Squish Objects"));
+    m_objectWidget->setLayout(objectsMainLayout);
 
     QVBoxLayout *propertiesMainLayout = new QVBoxLayout;
     propertiesMainLayout->setContentsMargins(0, 0, 0, 0);
@@ -339,10 +346,10 @@ void SquishPerspective::initPerspective()
     propertiesView->setRootIsDecorated(true);
     propertiesMainLayout->addWidget(propertiesView);
 
-    QWidget *propertiesWidget = new QWidget;
-    propertiesWidget->setObjectName("SquishPropertiesView");
-    propertiesWidget->setWindowTitle(Tr::tr("Squish Object Properties"));
-    propertiesWidget->setLayout(propertiesMainLayout);
+    m_propertiesWidget = new QWidget;
+    m_propertiesWidget->setObjectName("SquishPropertiesView");
+    m_propertiesWidget->setWindowTitle(Tr::tr("Squish Object Properties"));
+    m_propertiesWidget->setLayout(propertiesMainLayout);
 
     addToolBarAction(m_pausePlayAction);
     addToolBarAction(m_stepInAction);
@@ -355,9 +362,9 @@ void SquishPerspective::initPerspective()
     m_status = new QLabel;
     addToolBarWidget(m_status);
 
-    addWindow(objectWidget, Perspective::SplitVertical, nullptr);
-    addWindow(propertiesWidget, Perspective::SplitHorizontal, objectWidget);
-    addWindow(localsWidget, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
+    addWindow(m_objectWidget, Perspective::SplitVertical, nullptr);
+    addWindow(m_propertiesWidget, Perspective::SplitHorizontal, m_objectWidget);
+    addWindow(m_localsWidget, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
 
     connect(m_pausePlayAction, &QAction::triggered, this, &SquishPerspective::onPausePlayTriggered);
     connect(m_stepInAction, &QAction::triggered, this, [this] {

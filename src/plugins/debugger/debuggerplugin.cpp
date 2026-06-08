@@ -715,6 +715,12 @@ public:
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, Tr::tr("Debugger")};
     Perspective m_perspectiveDap{Constants::DAP_PERSPECTIVE_ID, Tr::tr("DAP")};
 
+    QWidget *m_engineManagerWindow = nullptr;
+    QWidget *m_breakpointManagerWindow = nullptr;
+    GlobalLogWindow *m_globalLogWindow = nullptr;
+    QWidget *m_dapEngineManagerWindow = nullptr;
+    QWidget *m_dapBreakpointManagerWindow = nullptr;
+
     std::optional<QPoint> attachToUnstartedApplicationDialogLastPosition;
 
     DebugServerToolFactory m_debugServerToolFactory;
@@ -845,7 +851,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
                           Tr::tr("Issues with starting the debugger.")});
 
     auto breakpointManagerView = createBreakpointManagerView("Debugger.BreakWindow");
-    auto breakpointManagerWindow
+    m_breakpointManagerWindow
         = createBreakpointManagerWindow(breakpointManagerView,
                                         Tr::tr("Breakpoint Preset"),
                                         "Debugger.Docks.BreakpointManager");
@@ -854,13 +860,13 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     auto engineManagerView = createEngineManagerView(EngineManager::model(),
                                                      Tr::tr("Running Debuggers"),
                                                      "Debugger.SnapshotView");
-    auto engineManagerWindow = createEngineManagerWindow(engineManagerView,
-                                                         Tr::tr("Debugger Perspectives"),
-                                                         "Debugger.Docks.Snapshots");
+    m_engineManagerWindow = createEngineManagerWindow(engineManagerView,
+                                                      Tr::tr("Debugger Perspectives"),
+                                                      "Debugger.Docks.Snapshots");
 
     // Logging
-    auto globalLogWindow = new GlobalLogWindow;
-    addFontSizeAdaptation(globalLogWindow);
+    m_globalLogWindow = new GlobalLogWindow;
+    addFontSizeAdaptation(m_globalLogWindow);
 
     ActionContainer *debugMenu = ActionManager::actionContainer(PE::M_DEBUG);
 
@@ -1222,11 +1228,11 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
     m_perspective.addToolBarAction(&m_startAction, Qt::ToolButtonTextBesideIcon);
 
-    m_perspective.addWindow(engineManagerWindow, Perspective::SplitVertical, nullptr);
-    m_perspective.addWindow(breakpointManagerWindow, Perspective::SplitHorizontal, engineManagerWindow);
-    m_perspective.addWindow(globalLogWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
+    m_perspective.addWindow(m_engineManagerWindow, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(m_breakpointManagerWindow, Perspective::SplitHorizontal, m_engineManagerWindow);
+    m_perspective.addWindow(m_globalLogWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
 
-    createDapDebuggerPerspective(globalLogWindow);
+    createDapDebuggerPerspective(m_globalLogWindow);
     setInitialState();
 
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
@@ -1267,7 +1273,7 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
     });
 
     auto breakpointManagerView = createBreakpointManagerView("DAPDebugger.BreakWindow");
-    auto breakpointManagerWindow
+    m_dapBreakpointManagerWindow
         = createBreakpointManagerWindow(breakpointManagerView,
                                         Tr::tr("DAP Breakpoint Preset"),
                                         "DAPDebugger.Docks.BreakpointManager");
@@ -1276,7 +1282,7 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
     auto engineManagerView = createEngineManagerView(EngineManager::dapModel(),
                                                      Tr::tr("Running Debuggers"),
                                                      "DAPDebugger.SnapshotView");
-    auto engineManagerWindow = createEngineManagerWindow(engineManagerView,
+    m_dapEngineManagerWindow = createEngineManagerWindow(engineManagerView,
                                                          Tr::tr("DAP Debugger Perspectives"),
                                                          "DAPDebugger.Docks.Snapshots");
 
@@ -1289,10 +1295,10 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
 
     m_perspectiveDap.useSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
 
-    m_perspectiveDap.addWindow(engineManagerWindow, Perspective::SplitVertical, nullptr);
-    m_perspectiveDap.addWindow(breakpointManagerWindow,
+    m_perspectiveDap.addWindow(m_dapEngineManagerWindow, Perspective::SplitVertical, nullptr);
+    m_perspectiveDap.addWindow(m_dapBreakpointManagerWindow,
                                Perspective::SplitHorizontal,
-                               engineManagerWindow);
+                               m_dapEngineManagerWindow);
     m_perspectiveDap.addWindow(globalLogWindow,
                                Perspective::AddToTab,
                                nullptr,
@@ -1304,6 +1310,11 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
 {
     qDeleteAll(m_optionPages);
     m_optionPages.clear();
+    delete m_engineManagerWindow;
+    delete m_breakpointManagerWindow;
+    delete m_globalLogWindow;
+    delete m_dapEngineManagerWindow;
+    delete m_dapBreakpointManagerWindow;
 }
 
 static QString msgParameterMissing(const QString &a)

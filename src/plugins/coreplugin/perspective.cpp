@@ -136,7 +136,7 @@ public:
 class PerspectivePrivate
 {
 public:
-    ~PerspectivePrivate();
+    PerspectivePrivate() = default;
 
     void showInnerToolBar();
     void hideInnerToolBar();
@@ -670,6 +670,8 @@ void DockOperation::ensureDockExists()
     if (dock)
         return;
 
+    QTC_ASSERT(widget, return);
+
     dock = theMainWindow->d->m_mainWindow.addDockForWidget(widget);
 
     if (theMainWindow->d->m_mainWindow.restoreDockWidget(dock)) {
@@ -913,12 +915,6 @@ void Perspective::registerNextPrevShortcuts(QAction *next, QAction *prev)
 Context PerspectivePrivate::context() const
 {
     return Context(Id::fromName(m_id.toUtf8()));
-}
-
-PerspectivePrivate::~PerspectivePrivate()
-{
-    for (const DockOperation &op : std::as_const(m_dockOperations))
-        delete op.widget;
 }
 
 void PerspectivePrivate::showInnerToolBar()

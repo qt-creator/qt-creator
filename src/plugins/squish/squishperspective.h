@@ -62,6 +62,7 @@ public:
     enum PerspectiveMode { NoMode, Interrupted, Running, Recording, Querying, Configuring };
 
     SquishPerspective();
+    ~SquishPerspective() override;
     void initPerspective();
     void setPerspectiveMode(PerspectiveMode mode);
     PerspectiveMode perspectiveMode() const { return m_mode; }
@@ -100,6 +101,9 @@ private:
     Utils::TreeModel<LocalsItem> m_localsModel;
     Utils::TreeModel<InspectedObjectItem> m_objectsModel;
     Utils::TreeModel<InspectedPropertyItem> m_propertiesModel;
+    QWidget *m_localsWidget = nullptr;
+    QWidget *m_objectWidget = nullptr;
+    QWidget *m_propertiesWidget = nullptr;
     Utils::TreeView *m_objectsView = nullptr;
     PerspectiveMode m_mode = NoMode;
     bool m_autIdKnown = false;

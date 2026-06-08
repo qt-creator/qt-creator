@@ -529,12 +529,12 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
     mainLayout->setSpacing(1);
     mainLayout->addWidget(m_infoBarWidget);
     mainLayout->addWidget(m_diagnosticView);
-    auto mainWidget = new QWidget;
-    mainWidget->setObjectName(id.toString() + "IssuesView");
-    mainWidget->setWindowTitle(Tr::tr("Diagnostics"));
-    mainWidget->setLayout(mainLayout);
+    m_mainWidget = new QWidget;
+    m_mainWidget->setObjectName(id.toString() + "IssuesView");
+    m_mainWidget->setWindowTitle(Tr::tr("Diagnostics"));
+    m_mainWidget->setLayout(mainLayout);
 
-    m_perspective.addWindow(mainWidget, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(m_mainWidget, Perspective::SplitVertical, nullptr);
 
     action = new QAction(name, this);
     action->setToolTip(toolTip);

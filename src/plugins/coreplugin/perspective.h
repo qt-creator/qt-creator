@@ -29,7 +29,7 @@ public:
 
     enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
 
-    void addWindow(QWidget *widget, // Perspective takes ownership.
+    void addWindow(QWidget *widget, // No ownership passed.
                    OperationType op,
                    QWidget *anchorWidget,
                    bool visibleByDefault = true,

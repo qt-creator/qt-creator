@@ -1748,6 +1748,7 @@ class AxivionPerspective : public Perspective
 {
 public:
     AxivionPerspective();
+    ~AxivionPerspective();
 
     void handleShowIssues(const QString &kind);
     void handleShowFilterException(const QString &errorMessage);
@@ -1886,6 +1887,14 @@ AxivionPerspective::AxivionPerspective()
     contextMenu->addSeparator();
     contextMenu->addAction(cmd);
     contextMenu->addSeparator();
+}
+
+AxivionPerspective::~AxivionPerspective()
+{
+    delete m_issuesWidget;
+    delete m_issueDetails;
+    delete m_progressWidget;
+    delete m_consoleWidget;
 }
 
 void AxivionPerspective::handleShowIssues(const QString &kind)

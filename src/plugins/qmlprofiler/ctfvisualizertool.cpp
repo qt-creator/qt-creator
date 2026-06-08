@@ -56,6 +56,7 @@ class CtfVisualizerTool : public QObject
 {
 public:
     CtfVisualizerTool();
+    ~CtfVisualizerTool() { delete m_traceView; delete m_statisticsView; }
 
     Timeline::TimelineModelAggregator *modelAggregator();
     Timeline::TimelineZoomControl *zoomControl();

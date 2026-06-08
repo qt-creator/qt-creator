@@ -155,7 +155,12 @@ PerfProfilerTool::PerfProfilerTool()
     updateRunActions();
 }
 
-PerfProfilerTool::~PerfProfilerTool() = default;
+PerfProfilerTool::~PerfProfilerTool()
+{
+    delete m_traceView;
+    delete m_flameGraphView;
+    delete m_statisticsView;
+}
 
 void PerfProfilerTool::createViews()
 {
