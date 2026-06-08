@@ -10,11 +10,10 @@ namespace QmakeProjectManager {
 class QmakeExtraBuildInfo final
 {
 public:
-    QmakeExtraBuildInfo();
-
     QString additionalArguments;
     QString makefile;
     QMakeStepConfig config;
+    bool isImported = false;
 };
 
 } // namespace QmakeProjectManager

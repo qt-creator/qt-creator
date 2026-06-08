@@ -203,6 +203,7 @@ BuildInfo QmakeProjectImporter::buildInfo(void *directoryData) const
     extra.additionalArguments = data->additionalArguments;
     extra.config = data->config;
     extra.makefile = data->makefile;
+    extra.isImported = true;
     info.extraInfo = QVariant::fromValue(extra);
 
     return info;
