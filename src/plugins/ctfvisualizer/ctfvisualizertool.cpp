@@ -9,8 +9,6 @@
 #include "ctftracemanager.h"
 #include "ctfvisualizerconstants.h"
 #include "ctfvisualizertr.h"
-#include "ctfvisualizertraceview.h"
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -19,6 +17,7 @@
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <tracing/timelinemodelaggregator.h>
+#include <tracing/timelinewidget.h>
 #include <tracing/timelinezoomcontrol.h>
 
 #include <utils/async.h>
@@ -75,7 +74,7 @@ private:
     CtfStatisticsModel m_statisticsModel{nullptr};
     CtfTraceManager m_traceManager{nullptr, &m_modelAggregator, &m_statisticsModel};
 
-    CtfVisualizerTraceView *m_traceView = nullptr;
+    Timeline::TimelineWidget *m_traceView = nullptr;
     CtfStatisticsView *m_statisticsView = nullptr;
 
     QToolButton *const m_restrictToThreadsButton;
@@ -124,7 +123,8 @@ CtfVisualizerTool::CtfVisualizerTool()
 
 void CtfVisualizerTool::createViews()
 {
-    m_traceView = new CtfVisualizerTraceView(nullptr, &m_modelAggregator, &m_zoomControl);
+    m_traceView = new Timeline::TimelineWidget(&m_modelAggregator, &m_zoomControl, nullptr);
+    m_traceView->setObjectName(QLatin1String("CtfVisualizerTraceView"));
     m_traceView->setWindowTitle(Tr::tr("Timeline"));
 
     QMenu *contextMenu = new QMenu(m_traceView);

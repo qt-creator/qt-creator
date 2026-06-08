@@ -27,7 +27,6 @@ QtcPlugin {
         "ctfvisualizerconstants.h",
         "ctfvisualizerplugin.cpp",
         "ctfvisualizertool.cpp", "ctfvisualizertool.h",
-        "ctfvisualizertraceview.cpp", "ctfvisualizertraceview.h",
         "ctfvisualizertr.h",
     ]
 }

@@ -10,7 +10,6 @@ add_qtc_plugin(CtfVisualizer
     ctfvisualizertool.cpp
     ctftimelinemodel.cpp
     ctftracemanager.cpp
-    ctfvisualizertraceview.cpp
     ctfstatisticsmodel.h
     ctfstatisticsview.h
     ctfvisualizertool.h
@@ -18,7 +17,6 @@ add_qtc_plugin(CtfVisualizer
     ctftimelinemodel.h
     ctftracemanager.h
     ctfvisualizerconstants.h
-    ctfvisualizertraceview.h
     ../../libs/3rdparty/json/json.hpp
   SBOM_ARGS
     USE_ATTRIBUTION_FILES
