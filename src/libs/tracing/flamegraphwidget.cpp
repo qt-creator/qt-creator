@@ -3,6 +3,7 @@
 
 #include "flamegraphwidget.h"
 
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -333,7 +334,7 @@ public:
     void rebuild();
 
     QVector<QRectF> computeRects(qreal canvasWidth, qreal canvasHeight, int rowHeight) const;
-    QColor colorForNode(int i) const;
+    QColor colorForNode(int i, QStyle::State state) const;
     QString summaryText(int i) const;
 
     // currentNode: hoveredNode (when unlocked) || selectedNode || lastHoveredNode
@@ -462,49 +463,41 @@ void FlameGraphCanvas::paintEvent(QPaintEvent *event)
         bool hasNote = (d->noteRole >= 0 && node.modelIndex.isValid()
                         && !node.modelIndex.data(d->noteRole).toString().isEmpty());
 
-        QColor fill = d->colorForNode(i);
-        if (selected)
-            fill = fill.lighter(130);
-        else if (hovered)
-            fill = fill.lighter(115);
+        const QStyle::State state = selected ? QStyle::State_Selected
+                                             : (hovered ? QStyle::State_MouseOver
+                                                        : QStyle::State_None);
+        const QColor fill = d->colorForNode(i, state);
 
-        // Colors match QML:
-        //   selected  → blue2 = rgba(0.375, 0, 1, 1), width 2 (selected IS currentNode)
-        //   hovered   → blue1 = lighter("blue"),       width 2
-        //   has note  → Timeline_HighlightColor,        width 3
-        //   default   → #B0B0B0,                        width 1
-        static const QColor blue1 = QColor("blue").lighter();
-        static const QColor blue2 = QColor::fromRgbF(0.375f, 0.0f, 1.0f);
-        static const QColor grey1 = QColor::fromRgb(0xB0B0B0);
-        QColor border;
-        int borderWidth;
-        if (hovered) {
-            border = blue1;
-            borderWidth = 2;
-        } else if (selected) {
-            // Selected node is currentNode when nothing is hovered → width 2
-            border = blue2;
-            borderWidth = 2;
+        QColor outline;
+        int outlineWidth = 0;
+        if (selected) {
+            outline = Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Default);
+            outlineWidth = 2;
+        } else if (hovered) {
+            outline = Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Muted);
+            outlineWidth = 2;
         } else if (hasNote) {
-            border = Utils::creatorColor(Utils::Theme::Timeline_HighlightColor);
-            borderWidth = 3;
-        } else {
-            border = grey1;
-            borderWidth = 1;
+            outline = Utils::creatorColor(Utils::Theme::Timeline_HighlightColor);
+            outlineWidth = 2;
         }
 
-        p.fillRect(r, fill);
-        p.setPen(QPen(border, borderWidth));
-        p.drawRect(r.adjusted(0, 0, -1, -1));
+        const int gap = 1;
+        if (outlineWidth > 0) {
+            p.fillRect(r.adjusted(0, 0, -gap, -gap), outline);
+            p.fillRect(r.adjusted(outlineWidth, outlineWidth,
+                                  -gap - outlineWidth, -gap - outlineWidth), fill);
+        } else {
+            p.fillRect(r.adjusted(0, 0, -gap, -gap), fill);
+        }
 
-        if (r.width() > 20 || selected) {
+        if (selected || hovered || r.width() > 20) {
             p.save();
             if (selected)
                 p.setFont(boldFont);
             p.setPen(Utils::creatorColor(Utils::Theme::PanelTextColorLight));
-            p.setClipRect(r.adjusted(3, 2, -3, -2));
-            p.drawText(r.adjusted(3, 2, -3, -2),
-                       Qt::AlignVCenter | Qt::AlignHCenter | Qt::TextWordWrap,
+            const int padding = qMax(outlineWidth, 1);
+            const QRect textRect = r.adjusted(padding, padding, -padding - gap, -padding - gap);
+            p.drawText(textRect, Qt::AlignVCenter | Qt::AlignHCenter | Qt::TextWordWrap,
                        d->summaryText(i));
             p.restore();
         }
@@ -663,16 +656,29 @@ QVector<QRectF> FlameGraphWidgetPrivate::computeRects(qreal canvasWidth, qreal c
     return rects;
 }
 
-QColor FlameGraphWidgetPrivate::colorForNode(int i) const
+QColor FlameGraphWidgetPrivate::colorForNode(int i, QStyle::State state) const
 {
     const LayoutNode &node = nodes.at(i);
     if (!node.modelIndex.isValid())
         return Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor2);
 
     int typeId = (typeIdRole >= 0) ? node.modelIndex.data(typeIdRole).toInt() : i;
-    // Hue in 0..55 degree band (matching QML scheme), shifted by typeId
-    int hue = (node.depth % 12) * 5 + (((typeId * 97) & 0xFF) % 5);
-    return QColor::fromHsl(hue, 230, 115);
+    static const QColor bgColor = Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor1);
+    const int bgBlend = state == QStyle::State_Selected ? 15
+                                                        : (state == QStyle::State_MouseOver ? 30
+                                                                                            : 45);
+    const QColor baseColor = Utils::StyleHelper::mergedColors(
+        Utils::creatorColor(Utils::Theme::Token_Notification_Danger_Default), bgColor, bgBlend);
+    const QColor tipColor = Utils::StyleHelper::mergedColors(
+        Utils::creatorColor(Utils::Theme::Token_Notification_Alert_Default), bgColor, bgBlend);
+    const int steps = qMin(8, treeDepth);
+    const int typeVariationRange = 32;
+    const int typeVariation = (((typeId * 97) & 0xFF) % typeVariationRange)
+                              - typeVariationRange / 2;
+    const int blendFactor = qBound(0,
+                                   100 - (100 / steps * (node.depth % steps)) + typeVariation,
+                                   100);
+    return Utils::StyleHelper::mergedColors(baseColor, tipColor, blendFactor);
 }
 
 QString FlameGraphWidgetPrivate::summaryText(int i) const
