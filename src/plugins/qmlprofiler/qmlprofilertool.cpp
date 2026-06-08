@@ -92,8 +92,8 @@ public:
     QToolButton *m_recordButton = nullptr;
     QMenu *m_recordFeaturesMenu = nullptr;
 
-    QAction *m_startAction = nullptr;
-    QAction *m_stopAction = nullptr;
+    QAction m_startAction;
+    QAction m_stopAction;
     QToolButton *m_clearButton = nullptr;
 
     // open search
@@ -212,17 +212,17 @@ QmlProfilerTool::QmlProfilerTool()
     // is available, then we can populate the file finder
     d->m_profilerModelManager.populateFileFinder();
 
-    d->m_startAction = new QAction(Tr::tr("Start"), this);
-    d->m_startAction->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR.icon());
+    d->m_startAction.setText(Tr::tr("Start"));
+    d->m_startAction.setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR.icon());
 
-    d->m_stopAction = new QAction(Tr::tr("Stop"), this);
-    d->m_stopAction->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
+    d->m_stopAction.setText(Tr::tr("Stop"));
+    d->m_stopAction.setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
 
-    QObject::connect(d->m_startAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
+    QObject::connect(&d->m_startAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
 
     Perspective *perspective = d->m_viewContainer.perspective();
-    perspective->addToolBarAction(d->m_startAction);
-    perspective->addToolBarAction(d->m_stopAction);
+    perspective->addToolBarAction(&d->m_startAction);
+    perspective->addToolBarAction(&d->m_stopAction);
     perspective->addToolBarWidget(d->m_recordButton);
     perspective->addToolBarWidget(d->m_clearButton);
     perspective->addToolBarWidget(d->m_searchButton);
@@ -335,16 +335,15 @@ QmlProfilerTool *QmlProfilerTool::instance()
 void QmlProfilerTool::updateRunActions()
 {
     if (d->m_toolBusy) {
-        d->m_startAction->setEnabled(false);
-        d->m_startAction->setToolTip(Tr::tr("A QML Profiler analysis is still in progress."));
-        d->m_stopAction->setEnabled(true);
+        d->m_startAction.setEnabled(false);
+        d->m_startAction.setToolTip(Tr::tr("A QML Profiler analysis is still in progress."));
+        d->m_stopAction.setEnabled(true);
     } else {
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
             ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-        d->m_startAction->setToolTip(canRun ? Tr::tr("Start QML Profiler analysis.")
-                                            : canRun.error());
-        d->m_startAction->setEnabled(canRun.has_value());
-        d->m_stopAction->setEnabled(false);
+        d->m_startAction.setToolTip(canRun ? Tr::tr("Start QML Profiler analysis.") : canRun.error());
+        d->m_startAction.setEnabled(canRun.has_value());
+        d->m_stopAction.setEnabled(false);
     }
 }
 
@@ -359,7 +358,7 @@ void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
         }
     }
 
-    connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
+    connect(&d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
 
     updateRunActions();
 
@@ -374,7 +373,7 @@ void QmlProfilerTool::handleStop()
 
     d->m_toolBusy = false;
     updateRunActions();
-    disconnect(d->m_stopAction, &QAction::triggered, nullptr, nullptr);
+    disconnect(&d->m_stopAction, &QAction::triggered, nullptr, nullptr);
 
     // If we're still trying to connect, stop now.
     if (d->m_profilerConnections.isConnecting()) {
@@ -655,12 +654,12 @@ void QmlProfilerTool::profileStartupProject()
 
 QAction *QmlProfilerTool::startAction() const
 {
-    return d->m_startAction;
+    return &d->m_startAction;
 }
 
 QAction *QmlProfilerTool::stopAction() const
 {
-    return d->m_stopAction;
+    return &d->m_stopAction;
 }
 
 void QmlProfilerTool::onLoadSaveFinished()
