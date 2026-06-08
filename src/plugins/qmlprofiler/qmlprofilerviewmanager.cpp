@@ -28,11 +28,7 @@ QmlProfilerViewManager::QmlProfilerViewManager(QmlProfilerModelManager *modelMan
     QTC_ASSERT(m_profilerState, return);
 
     m_perspective = new Perspective(Constants::QmlProfilerPerspectiveId, Tr::tr("QML Profiler"));
-    m_perspective->setAboutToActivateCallback([this]() { createViews(); });
-}
 
-void QmlProfilerViewManager::createViews()
-{
     m_traceView = new QmlProfilerTraceView(nullptr, m_profilerModelManager);
     connect(m_traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
@@ -69,8 +65,6 @@ void QmlProfilerViewManager::createViews()
     m_perspective->addWindow(m_quick3dView, Perspective::AddToTab, m_flameGraphView);
     m_perspective->addWindow(m_statisticsView, Perspective::AddToTab, m_traceView);
     m_perspective->addWindow(m_traceView, Perspective::Raise, nullptr);
-    m_perspective->setAboutToActivateCallback(Perspective::Callback());
-    emit viewsCreated();
 }
 
 QmlProfilerViewManager::~QmlProfilerViewManager()
@@ -84,8 +78,7 @@ QmlProfilerViewManager::~QmlProfilerViewManager()
 
 void QmlProfilerViewManager::clear()
 {
-    if (m_traceView)
-        m_traceView->clear();
+    m_traceView->clear();
 }
 
 } // namespace QmlProfiler::Internal

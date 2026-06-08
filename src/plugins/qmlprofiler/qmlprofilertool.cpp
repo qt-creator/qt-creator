@@ -185,9 +185,6 @@ QmlProfilerTool::QmlProfilerTool()
     d->m_searchButton->setEnabled(false);
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
-    connect(&d->m_viewContainer, &QmlProfilerViewManager::viewsCreated, this, [this] {
-        d->m_searchButton->setEnabled(true);
-    });
 
     d->m_displayFeaturesButton = new QToolButton;
     d->m_displayFeaturesButton->setIcon(Utils::Icons::FILTER.icon());
