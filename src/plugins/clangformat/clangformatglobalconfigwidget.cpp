@@ -74,13 +74,13 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
             m_formatWhileTyping,
             m_formatOnSave,
             m_projectHasClangFormat,
-            m_useCustomSettingsCheckBox,
             m_currentProjectLabel
         }
     };
 
     Column {
         globalSettingsGroupBox,
+        m_useCustomSettingsCheckBox,
         noMargin
     }.attachTo(this);
     // clang-format on
