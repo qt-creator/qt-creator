@@ -33,7 +33,6 @@ public:
     QStringList topics;
 
     friend bool operator==(const ClazyCheck &c1, const ClazyCheck &c2);
-    friend bool operator!=(const ClazyCheck &c1, const ClazyCheck &c2);
 };
 using ClazyChecks = QVector<ClazyCheck>;
 
@@ -47,7 +46,6 @@ public:
     ClazyChecks supportedChecks;
 
     friend bool operator==(const ClazyStandaloneInfo &c1, const ClazyStandaloneInfo &c2);
-    friend bool operator!=(const ClazyStandaloneInfo &c1, const ClazyStandaloneInfo &c2);
 };
 
 } // namespace ClangTools::Internal

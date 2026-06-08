@@ -30,8 +30,6 @@ public:
 
     friend bool operator==(const ClearCaseSettings &p1, const ClearCaseSettings &p2)
     { return p1.equals(p2); }
-    friend bool operator!=(const ClearCaseSettings &p1, const ClearCaseSettings &p2)
-    { return !p1.equals(p2); }
 
     QString ccCommand;
     Utils::FilePath ccBinaryPath;

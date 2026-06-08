@@ -43,7 +43,6 @@ class RegisterValue
 public:
     RegisterValue() { known = false; v.u64[1] = v.u64[0] = 0; }
     bool operator==(const RegisterValue &other);
-    bool operator!=(const RegisterValue &other) { return !operator==(other); }
 
     void fromString(const QString &str, RegisterFormat format);
     QString toString(RegisterKind kind, int size, RegisterFormat format,

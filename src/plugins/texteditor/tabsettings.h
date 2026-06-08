@@ -60,7 +60,6 @@ public:
     bool isIndentationClean(const QTextBlock &block, const int indent) const;
 
     friend bool operator==(const TabSettingsData &t1, const TabSettingsData &t2) { return t1.equals(t2); }
-    friend bool operator!=(const TabSettingsData &t1, const TabSettingsData &t2) { return !t1.equals(t2); }
 
     static int firstNonSpace(const QString &text);
     static QString indentationString(const QString &text);

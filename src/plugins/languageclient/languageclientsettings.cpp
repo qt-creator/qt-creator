@@ -969,11 +969,6 @@ bool LanguageFilter::operator==(const LanguageFilter &other) const
     return this->filePattern == other.filePattern && this->mimeTypes == other.mimeTypes;
 }
 
-bool LanguageFilter::operator!=(const LanguageFilter &other) const
-{
-    return this->filePattern != other.filePattern || this->mimeTypes != other.mimeTypes;
-}
-
 BaseTextEditor *createJsonEditor(QObject *parent)
 {
     using namespace Text;

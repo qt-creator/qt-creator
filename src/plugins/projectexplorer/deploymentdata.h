@@ -44,6 +44,5 @@ private:
     Utils::FilePath m_localInstallRoot;
 };
 
-inline bool operator!=(const DeploymentData &d1, const DeploymentData &d2) { return !(d1 == d2); }
 
 } // namespace ProjectExplorer

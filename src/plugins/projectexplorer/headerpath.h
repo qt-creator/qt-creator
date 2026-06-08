@@ -23,16 +23,6 @@ public:
         : path(path), type(type)
     {}
 
-    bool operator==(const HeaderPath &other) const
-    {
-        return type == other.type && path == other.path;
-    }
-
-    bool operator!=(const HeaderPath &other) const
-    {
-        return !(*this == other);
-    }
-
     static HeaderPath makeUser(const Utils::FilePath &fp)
     {
         return {fp, HeaderPathType::User};
@@ -57,6 +47,9 @@ public:
 
     Utils::FilePath path;
     HeaderPathType type = HeaderPathType::User;
+
+private:
+    friend bool operator==(const HeaderPath &, const HeaderPath &) = default;
 };
 
 using HeaderPaths = QList<HeaderPath>;

@@ -28,7 +28,6 @@ public:
     void setLoaded(bool loaded) { m_loaded = loaded; }
 
     friend bool operator==(const QmlNote &note1, const QmlNote &note2);
-    friend bool operator!=(const QmlNote &note1, const QmlNote &note2);
 
     friend QDataStream &operator>>(QDataStream &stream, QmlNote &note);
     friend QDataStream &operator<<(QDataStream &stream, const QmlNote &note);

@@ -906,16 +906,6 @@ Diff::Diff(Command com, const QString &txt) :
 {
 }
 
-bool Diff::operator==(const Diff &other) const
-{
-     return command == other.command && text == other.text;
-}
-
-bool Diff::operator!=(const Diff &other) const
-{
-     return !(operator == (other));
-}
-
 QString Diff::commandString(Command com)
 {
     if (com == Delete)

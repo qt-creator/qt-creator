@@ -85,7 +85,6 @@ public:
     static Utils::FilePath defaultSchemeFileName(const QString &fileName = {});
 
     friend bool operator==(const FontSettingsData &f1, const FontSettingsData &f2) { return f1.equals(f2); }
-    friend bool operator!=(const FontSettingsData &f1, const FontSettingsData &f2) { return !f1.equals(f2); }
 
 private:
     void addMixinStyle(QTextCharFormat &textCharFormat, const MixinTextStyles &mixinStyles) const;

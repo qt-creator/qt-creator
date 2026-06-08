@@ -134,10 +134,6 @@ inline bool operator==(const ClangDiagnostic &first, const ClangDiagnostic &seco
 {
     return first.text == second.text && first.location == second.location;
 }
-inline bool operator!=(const ClangDiagnostic &first, const ClangDiagnostic &second)
-{
-    return !(first == second);
-}
 
 } // namespace Internal
 } // namespace Clang

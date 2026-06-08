@@ -27,16 +27,12 @@ public:
     void fromMap(const Store &map, const Key &key);
 
 private:
+    QTCREATOR_UTILS_EXPORT friend bool operator==(const DisplayName &dn1, const DisplayName &dn2);
+
     QString m_value;
     QString m_defaultValue;
     bool m_forceSerialization = false;
 };
-
-bool QTCREATOR_UTILS_EXPORT operator==(const DisplayName &dn1, const DisplayName &dn2);
-inline bool operator!=(const DisplayName &dn1, const DisplayName &dn2)
-{
-    return !(dn1 == dn2);
-}
 
 } // namespace Utils
 

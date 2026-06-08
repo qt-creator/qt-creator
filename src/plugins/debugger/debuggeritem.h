@@ -85,7 +85,6 @@ public:
     QVariant data(int column, int role) const;
 
     bool operator==(const DebuggerItem &other) const;
-    bool operator!=(const DebuggerItem &other) const { return !operator==(other); }
 
     void reinitializeFromFile(QString *error = nullptr, Utils::Environment *env = nullptr);
 

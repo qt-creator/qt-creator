@@ -47,11 +47,6 @@ public:
             && ti1.additionalData == ti2.additionalData;
     }
 
-    friend bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
-    {
-        return !(ti1 == ti2);
-    }
-
     friend size_t qHash(const BuildTargetInfo &ti)
     {
         return qHash(ti.displayName) ^ qHash(ti.buildKey);

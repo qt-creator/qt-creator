@@ -54,7 +54,6 @@ public:
             && a.separateDebugInfo == b.separateDebugInfo;
     }
 
-    friend bool operator!=(const QMakeStepConfig &a, const QMakeStepConfig &b) { return !(a == b); }
 
     friend QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
     {

@@ -18,7 +18,6 @@ public:
     void swap(Frame &other);
 
     bool operator==(const Frame &other) const;
-    bool operator!=(const Frame &other) const;
 
     quint64 instructionPointer() const;
     void setInstructionPointer(quint64);

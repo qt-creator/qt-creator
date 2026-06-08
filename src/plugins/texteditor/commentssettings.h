@@ -26,7 +26,6 @@ public:
         bool leadingAsterisks = true;
 
         friend bool operator==(const Data &a, const Data &b);
-        friend bool operator!=(const Data &a, const Data &b) { return !(a == b); }
     };
 
     Data data() const;

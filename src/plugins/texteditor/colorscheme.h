@@ -59,7 +59,6 @@ public:
     bool equals(const Format &f) const;
 
     friend bool operator==(const Format &f1, const Format &f2) { return f1.equals(f2); }
-    friend bool operator!=(const Format &f1, const Format &f2) { return !f1.equals(f2); }
 
 private:
     QColor m_foreground;
@@ -105,7 +104,6 @@ public:
     static QString readNameOfScheme(const Utils::FilePath &filePath);
 
     friend bool operator==(const ColorScheme &cs1, const ColorScheme &cs2) { return cs1.equals(cs2); }
-    friend bool operator!=(const ColorScheme &cs1, const ColorScheme &cs2) { return !cs1.equals(cs2); }
 
 private:
     QMap<TextStyle, Format> m_formats;

@@ -45,7 +45,6 @@ public:
     void clear() { data.clear(); }
 
     friend bool operator<(const Key &a, const Key &b) { return a.data < b.data; }
-    friend bool operator==(const Key &a, const Key &b) { return a.data == b.data; }
 
     friend Key operator+(const Key &a, const Key &b)
     {
@@ -61,6 +60,8 @@ public:
     }
 
 private:
+    friend bool operator==(const Key &a, const Key &b) { return a.data == b.data; }
+
     QByteArray data;
 };
 

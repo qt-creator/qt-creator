@@ -56,7 +56,6 @@ public:
     void fromSettings(const QtcSettings *settings);
 
     bool operator==(const StartApplicationParameters &p) const { return equals(p); }
-    bool operator!=(const StartApplicationParameters &p) const { return !equals(p); }
 
     Id kitId;
     uint serverPort;

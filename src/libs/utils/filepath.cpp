@@ -3711,11 +3711,6 @@ QTCREATOR_UTILS_EXPORT bool operator==(const FilePath &first, const FilePath &se
     return first.isSameFile(second);
 }
 
-QTCREATOR_UTILS_EXPORT bool operator!=(const FilePath &first, const FilePath &second)
-{
-    return !(first == second);
-}
-
 QTCREATOR_UTILS_EXPORT bool operator<(const FilePath &first, const FilePath &second)
 {
     const bool firstNeedsDevice = !first.isLocal();
@@ -3840,10 +3835,6 @@ PathAndParents::iterator PathAndParents::iterator::operator++(int)
     return temp;
 }
 
-bool PathAndParents::iterator::operator!=(const iterator &other) const
-{
-    return !(*this == other);
-}
 
 bool PathAndParents::iterator::operator==(const iterator &other) const
 {

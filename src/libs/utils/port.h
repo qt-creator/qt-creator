@@ -32,17 +32,11 @@ public:
     friend bool operator>(const Port &p1, const Port &p2) { return p1.number() > p2.number(); }
     friend bool operator>=(const Port &p1, const Port &p2) { return p1.number() >= p2.number(); }
 
+private:
     friend bool operator==(const Port &p1, const Port &p2)
     {
         return p1.isValid() ? (p2.isValid() && p1.number() == p2.number()) : !p2.isValid();
     }
-
-    friend bool operator!=(const Port &p1, const Port &p2)
-    {
-        return p1.isValid() ? (!p2.isValid() || p1.number() != p2.number()) : p2.isValid();
-    }
-
-private:
     int m_port = -1;
 };
 

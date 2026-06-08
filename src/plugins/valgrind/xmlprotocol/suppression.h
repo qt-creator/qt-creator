@@ -21,10 +21,6 @@ public:
     SuppressionFrame &operator=(const SuppressionFrame &other);
     void swap(SuppressionFrame &other);
     bool operator==(const SuppressionFrame &other) const;
-    bool operator!=(const SuppressionFrame &other) const
-    {
-        return !operator==(other);
-    }
 
     QString object() const;
     void setObject(const QString &object);

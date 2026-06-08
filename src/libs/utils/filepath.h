@@ -384,7 +384,6 @@ public:
 private:
     // These are needed.
     QTCREATOR_UTILS_EXPORT friend bool operator==(const FilePath &first, const FilePath &second);
-    QTCREATOR_UTILS_EXPORT friend bool operator!=(const FilePath &first, const FilePath &second);
     QTCREATOR_UTILS_EXPORT friend bool operator<(const FilePath &first, const FilePath &second);
     QTCREATOR_UTILS_EXPORT friend bool operator<=(const FilePath &first, const FilePath &second);
     QTCREATOR_UTILS_EXPORT friend bool operator>(const FilePath &first, const FilePath &second);
@@ -472,7 +471,6 @@ public:
         iterator &operator++();
         iterator operator++(int);
 
-        bool operator!=(const iterator &other) const;
         bool operator==(const iterator &other) const;
         [[nodiscard]] const FilePath &operator*() const;
 

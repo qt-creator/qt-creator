@@ -133,7 +133,6 @@ public:
     void updateFromGdbOutput(const GdbMi &bkpt, const DebuggerRunParameters &rp);
 
     bool operator==(const BreakpointParameters &p) const { return equals(p); }
-    bool operator!=(const BreakpointParameters &p) const { return !equals(p); }
 
     BreakpointType type;     //!< Type of breakpoint.
     bool enabled;            //!< Should we talk to the debugger engine?

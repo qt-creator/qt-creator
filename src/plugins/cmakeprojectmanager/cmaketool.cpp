@@ -41,33 +41,9 @@ const char CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY[] = "AutoCreateBuildDir
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 const char CMAKE_INFORMATION_DETECTIONSOURCE[] = "DetectionSource";
 
-bool operator==(const CMakeTool::Version &v1, const CMakeTool::Version &v2)
-{
-    return v1.major == v2.major && v1.minor == v2.minor && v1.patch == v2.patch
-           && v1.fullVersion == v2.fullVersion;
-}
-
-bool operator!=(const CMakeTool::Version &v1, const CMakeTool::Version &v2)
-{
-    return !(v1 == v2);
-}
-
 bool CMakeTool::Generator::matches(const QString &n) const
 {
     return n == name;
-}
-
-bool operator==(const CMakeTool::Generator &g1, const CMakeTool::Generator &g2)
-{
-    return g1.name == g2.name
-           && g1.extraGenerators == g2.extraGenerators
-           && g1.supportsPlatform == g2.supportsPlatform
-           && g1.supportsToolset == g2.supportsToolset;
-}
-
-bool operator!=(const CMakeTool::Generator &g1, const CMakeTool::Generator &g2)
-{
-    return !(g1 == g2);
 }
 
 namespace Internal {
@@ -80,17 +56,10 @@ class FileApi {
 public:
     QString kind;
     std::pair<int, int> version;
+
+private:
+    friend bool operator==(const FileApi &, const FileApi &) = default;
 };
-
-bool operator==(const FileApi &f1, const FileApi &f2)
-{
-    return f1.kind == f2.kind && f1.version == f2.version;
-}
-
-bool operator!=(const FileApi &f1, const FileApi &f2)
-{
-    return !(f1 == f2);
-}
 
 class Capabilities {
 public:
@@ -99,19 +68,10 @@ public:
     QList<CMakeTool::Generator> generators;
     QList<FileApi> fileApis;
     CMakeTool::Version version;
+
+private:
+    friend bool operator==(const Capabilities &, const Capabilities &) = default;
 };
-
-bool operator==(const Capabilities &c1, const Capabilities &c2)
-{
-    return c1.generators == c2.generators
-           && c1.fileApis == c2.fileApis
-           && c1.version == c2.version;
-}
-
-bool operator!=(const Capabilities &c1, const Capabilities &c2)
-{
-    return !(c1 == c2);
-}
 
 class IntrospectionData
 {

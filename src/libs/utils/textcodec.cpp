@@ -115,11 +115,6 @@ bool operator==(const TextEncoding &left, const TextEncoding &right)
     return left.name() == right.name();
 }
 
-bool operator!=(const TextEncoding &left, const TextEncoding &right)
-{
-    return left.name() != right.name();
-}
-
 const QList<TextEncoding> &TextEncoding::availableEncodings()
 {
     static const QList<TextEncoding> theAvailableEncoding = [] {

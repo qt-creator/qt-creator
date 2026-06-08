@@ -51,7 +51,6 @@ public:
     bool isSupported(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupported(const Core::IDocument *document) const;
     bool operator==(const LanguageFilter &other) const;
-    bool operator!=(const LanguageFilter &other) const;
 };
 
 class LANGUAGECLIENT_EXPORT BaseSettings : public Utils::AspectContainer

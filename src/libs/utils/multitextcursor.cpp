@@ -376,11 +376,6 @@ bool MultiTextCursor::operator==(const MultiTextCursor &other) const
     return true;
 }
 
-bool MultiTextCursor::operator!=(const MultiTextCursor &other) const
-{
-    return !operator==(other);
-}
-
 void MultiTextCursor::mergeCursors()
 {
     QList<QTextCursor> cursors(m_cursorList.begin(), m_cursorList.end());

@@ -80,16 +80,6 @@ int Position::toPositionInDocument(const QTextDocument *document) const
     return -1;
 }
 
-bool operator==(const Position &left, const Position &right)
-{
-    return left.line == right.line && left.column == right.column;
-}
-
-bool operator!=(const Position &left, const Position &right)
-{
-    return !(left == right);
-}
-
 bool operator>=(const Position &left, const Position &right)
 {
     return !(left < right);
@@ -136,11 +126,6 @@ int Range::length(const QString &text) const
         ++currentLine;
     }
     return index + end.column - beginIndex;
-}
-
-bool Range::operator==(const Range &other) const
-{
-    return begin == other.begin && end == other.end;
 }
 
 bool Range::contains(const Position &pos) const

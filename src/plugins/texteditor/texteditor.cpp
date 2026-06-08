@@ -734,7 +734,6 @@ struct TextEditorPrivateHighlightBlocks
     inline bool operator==(const TextEditorPrivateHighlightBlocks &o) const {
         return (open == o.open && close == o.close && visualIndent == o.visualIndent);
     }
-    inline bool operator!=(const TextEditorPrivateHighlightBlocks &o) const { return !(*this == o); }
 };
 
 class TextEditorWidgetPrivate : public QObject

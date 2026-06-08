@@ -69,7 +69,6 @@ public:
                    && s1.updateDependentSources == s2.updateDependentSources
                    && s1.completionResults == s2.completionResults;
         }
-        friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
 
         Utils::FilePath clangdFilePath(const ProjectExplorer::Kit *kit) const;
         bool useGoodClangd(const ProjectExplorer::Kit *kit) const;

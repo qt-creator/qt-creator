@@ -84,9 +84,6 @@ struct Author {
     bool operator==(const Author &other) const {
         return name == other.name && email == other.email;
     }
-    bool operator!=(const Author &other) const {
-        return !operator==(other);
-    }
     QString name;
     QString email;
 };

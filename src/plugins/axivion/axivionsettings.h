@@ -23,7 +23,6 @@ class AxivionServer
 public:
     QString displayString() const { return username + " @ " + dashboard; }
     bool operator==(const AxivionServer &other) const;
-    bool operator!=(const AxivionServer &other) const;
 
     QJsonObject toJson() const;
     static AxivionServer fromJson(const QJsonObject &json);
@@ -41,7 +40,6 @@ class PathMapping
 {
 public:
     bool operator==(const PathMapping &other) const;
-    bool operator!=(const PathMapping &other) const;
 
     bool isValid() const;
     QString projectName;

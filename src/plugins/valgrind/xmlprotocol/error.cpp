@@ -72,11 +72,6 @@ bool Error::operator ==(const Error &other) const
     return *d == *other.d;
 }
 
-bool Error::operator !=(const Error &other) const
-{
-    return !(*d == *other.d);
-}
-
 Suppression Error::suppression() const
 {
     return d->suppression;

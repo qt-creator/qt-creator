@@ -29,7 +29,6 @@ public:
     bool isShuttingDown() const { return state == "Shutting Down"; }
     bool isShutdown() const { return state == "Shutdown"; }
     bool operator==(const SimulatorInfo &other) const;
-    bool operator!=(const SimulatorInfo &other) const { return !(*this == other); }
 
     QString name;
     QString identifier;

@@ -914,10 +914,9 @@ public:
     static const TriState Disabled;
     static const TriState Default;
 
-    friend bool operator==(TriState a, TriState b) { return a.m_value == b.m_value; }
-    friend bool operator!=(TriState a, TriState b) { return a.m_value != b.m_value; }
-
 private:
+    friend bool operator==(TriState, TriState) = default;
+
     Value m_value = DefaultValue;
 };
 

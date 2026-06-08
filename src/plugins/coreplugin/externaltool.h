@@ -59,7 +59,6 @@ public:
     Utils::Result<> save() const;
 
     bool operator==(const ExternalTool &other) const;
-    bool operator!=(const ExternalTool &other) const { return !((*this) == other); }
     ExternalTool &operator=(const ExternalTool &other);
 
     void setId(const QString &id);

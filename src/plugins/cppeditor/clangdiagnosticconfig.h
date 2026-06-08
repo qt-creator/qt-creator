@@ -68,7 +68,6 @@ public:
     bool isEnabled(ClangToolType tool) const;
 
     bool operator==(const ClangDiagnosticConfig &other) const;
-    bool operator!=(const ClangDiagnosticConfig &other) const;
 
 private:
     Utils::Id m_id;

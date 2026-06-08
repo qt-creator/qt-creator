@@ -47,15 +47,12 @@ struct FilePathInfo
 
     Q_DECLARE_FLAGS(FileFlags, FileFlag)
 
-    bool operator==(const FilePathInfo &other) const
-    {
-        return fileSize == other.fileSize && fileFlags == other.fileFlags
-               && lastModified == other.lastModified;
-    }
-
     qint64 fileSize = 0;
     FileFlags fileFlags;
     QDateTime lastModified;
+
+private:
+    friend bool operator==(const FilePathInfo &, const FilePathInfo &) = default;
 };
 
 } // namespace Utils

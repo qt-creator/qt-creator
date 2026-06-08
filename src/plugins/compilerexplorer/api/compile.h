@@ -247,7 +247,6 @@ struct CompileResult : CompilerResult
                 return name == other.name && range.startCol == other.range.startCol
                        && range.endCol == other.range.endCol;
             }
-            bool operator!=(const Label &other) const { return !(*this == other); }
         };
         QList<Label> labels;
         // The part of the source that generated this asm
@@ -260,7 +259,6 @@ struct CompileResult : CompilerResult
             {
                 return column == other.column && file == other.file && line == other.line;
             }
-            bool operator!=(const Source &other) const { return !(*this == other); }
         };
 
         std::optional<Source> source;
@@ -302,7 +300,6 @@ struct CompileResult : CompilerResult
         {
             return source == other.source && text == other.text && opcodes == other.opcodes;
         }
-        bool operator!=(const AssemblyLine &other) const { return !(*this == other); }
     };
 
     struct ExecResult

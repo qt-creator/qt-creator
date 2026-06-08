@@ -89,13 +89,6 @@ bool Environment::operator==(const Environment &other) const
     return dict == otherDict;
 }
 
-bool Environment::operator!=(const Environment &other) const
-{
-    const NameValueDictionary &dict = resolved();
-    const NameValueDictionary &otherDict = other.resolved();
-    return dict != otherDict;
-}
-
 QString Environment::value(const QString &key) const
 {
     const NameValueDictionary &dict = resolved();

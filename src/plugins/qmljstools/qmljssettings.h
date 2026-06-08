@@ -48,7 +48,6 @@ public:
 
     bool equals(const QmlJSCodeStyleSettings &rhs) const;
     bool operator==(const QmlJSCodeStyleSettings &s) const { return equals(s); }
-    bool operator!=(const QmlJSCodeStyleSettings &s) const { return !equals(s); }
 
     static QmlJSCodeStyleSettings currentGlobalCodeStyle();
     static TextEditor::TabSettingsData currentGlobalTabSettings();

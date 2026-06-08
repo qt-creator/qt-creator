@@ -48,8 +48,6 @@ public:
     bool isValid() const { return m_id; }
     bool operator==(Id id) const { return m_id == id.m_id; }
     bool operator==(const char *name) const;
-    bool operator!=(Id id) const { return m_id != id.m_id; }
-    bool operator!=(const char *name) const { return !operator==(name); }
     bool operator<(Id id) const { return m_id < id.m_id; }
     bool operator>(Id id) const { return m_id > id.m_id; }
     bool alphabeticallyBefore(Id other) const;

@@ -79,7 +79,6 @@ public:
     }
 
     bool operator==(const SearchResultItem &other) const;
-    bool operator!=(const SearchResultItem &other) const { return !(operator==(other)); }
 
 private:
     QStringList m_path; // hierarchy to the parent item of this item

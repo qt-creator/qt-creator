@@ -44,7 +44,6 @@ public:
     static void setupSshEnvironment(Utils::Process *process);
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
-    friend bool operator!=(const SshParameters &p1, const SshParameters &p2) { return !(p1 == p2); }
 
     Utils::FilePath privateKeyFile() const { return m_privateKeyFile; }
     void setPrivateKeyFile(const Utils::FilePath &file) { m_privateKeyFile = file; }

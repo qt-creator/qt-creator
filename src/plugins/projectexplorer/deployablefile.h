@@ -37,10 +37,6 @@ public:
         return d1.localFilePath() == d2.localFilePath() && d1.remoteDirectory() == d2.remoteDirectory();
     }
 
-    friend bool operator!=(const DeployableFile &d1, const DeployableFile &d2)
-    {
-        return !(d1 == d2);
-    }
     friend PROJECTEXPLORER_EXPORT size_t qHash(const DeployableFile &d);
 
 private:

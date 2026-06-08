@@ -45,11 +45,6 @@ bool AxivionServer::operator==(const AxivionServer &other) const
     return id == other.id && dashboard == other.dashboard && username == other.username;
 }
 
-bool AxivionServer::operator!=(const AxivionServer &other) const
-{
-    return !(*this == other);
-}
-
 QJsonObject AxivionServer::toJson() const
 {
     QJsonObject result;
@@ -84,11 +79,6 @@ bool PathMapping::operator==(const PathMapping &other) const
 {
     return projectName == other.projectName && analysisPath == other.analysisPath
             && localPath == other.localPath;
-}
-
-bool PathMapping::operator!=(const PathMapping &other) const
-{
-    return !(*this == other);
 }
 
 static Result<> analysisPathValid(const FilePath &analysisPath)

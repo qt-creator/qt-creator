@@ -54,11 +54,6 @@ bool Frame::operator==( const Frame &other ) const
     return *d == *other.d;
 }
 
-bool Frame::operator!=(const Frame &other) const
-{
-    return !(*this == other);
-}
-
 void Frame::swap(Frame &other)
 {
     std::swap(d, other.d);

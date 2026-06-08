@@ -35,16 +35,6 @@ public:
     static QVariantList toVariantList(const EnvironmentItem &item);
     static QString toShortSummary(const EnvironmentItems &list, bool multiLine = true);
 
-    friend bool operator==(const EnvironmentItem &first, const EnvironmentItem &second)
-    {
-        return first.operation == second.operation && first.name == second.name
-               && first.value == second.value;
-    }
-    friend bool operator!=(const EnvironmentItem &first, const EnvironmentItem &second)
-    {
-        return !(first == second);
-    }
-
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const EnvironmentItem &i);
 
 public:
@@ -53,6 +43,12 @@ public:
     Operation operation = Unset;
 
 private:
+    friend bool operator==(const EnvironmentItem &first, const EnvironmentItem &second)
+    {
+        return first.operation == second.operation && first.name == second.name
+               && first.value == second.value;
+    }
+
     QString separator() const;
 
     void apply(NameValueDictionary *dictionary, Operation op) const;

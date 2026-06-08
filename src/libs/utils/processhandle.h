@@ -25,7 +25,6 @@ private:
     bool equals(const ProcessHandle &) const;
 
     friend bool operator==(const ProcessHandle &p, const ProcessHandle &q) { return p.equals(q); }
-    friend bool operator!=(const ProcessHandle &p, const ProcessHandle &q) { return !p.equals(q); }
 
     qint64 m_pid;
 };

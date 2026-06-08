@@ -73,7 +73,6 @@ public:
 
     bool equals(const CppCodeStyleSettings &rhs) const;
     bool operator==(const CppCodeStyleSettings &s) const { return equals(s); }
-    bool operator!=(const CppCodeStyleSettings &s) const { return !equals(s); }
 
     static CppCodeStyleSettings getProjectCodeStyle(ProjectExplorer::Project *project);
     static CppCodeStyleSettings currentProjectCodeStyle();

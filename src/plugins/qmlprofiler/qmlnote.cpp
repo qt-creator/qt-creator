@@ -26,9 +26,4 @@ bool operator==(const QmlNote &note1, const QmlNote &note2)
             && note1.text() == note2.text();
 }
 
-bool operator!=(const QmlNote &note1, const QmlNote &note2)
-{
-    return !(note1 == note2);
-}
-
 } // namespace QmlProfiler

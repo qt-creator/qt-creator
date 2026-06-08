@@ -15,13 +15,14 @@ class QTCREATOR_UTILS_EXPORT DictKey
 public:
     DictKey(const QString &name, Qt::CaseSensitivity cs) : name(name), caseSensitivity(cs) {}
 
+    QString name;
+    Qt::CaseSensitivity caseSensitivity;
+
+private:
     friend bool operator==(const DictKey &k1, const DictKey &k2)
     {
         return k1.name.compare(k2.name, k1.caseSensitivity) == 0;
     }
-
-    QString name;
-    Qt::CaseSensitivity caseSensitivity;
 };
 inline bool operator<(const DictKey &k1, const DictKey &k2)
 {
@@ -52,7 +53,6 @@ public:
         // clang-format on
 
         bool operator==(const const_iterator &other) const { return it == other.it; }
-        bool operator!=(const const_iterator &other) const { return it != other.it; }
         std::tuple<QString, QString, bool> operator*() const
         {
             return std::make_tuple(it.key().name, it.value().first, it.value().second);
@@ -95,11 +95,7 @@ public:
     const const_iterator end() const { return const_iterator(m_values.end()); }
     const const_iterator find(const QString &key) const { return const_iterator(findKey(key)); }
 
-    friend bool operator!=(const NameValueDictionary &first, const NameValueDictionary &second)
-    {
-        return !(first == second);
-    }
-
+private:
     friend bool operator==(const NameValueDictionary &first, const NameValueDictionary &second)
     {
         return first.m_osType == second.m_osType && first.m_values == second.m_values;

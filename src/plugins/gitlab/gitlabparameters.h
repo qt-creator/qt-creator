@@ -23,7 +23,6 @@ public:
     GitLabServer(const Utils::Id &id, const QString &host, const QString &description,
                  const QString &token, unsigned short port, bool secure);
     bool operator==(const GitLabServer &other) const;
-    bool operator!=(const GitLabServer &other) const;
     QJsonObject toJson() const;
     static GitLabServer fromJson(const QJsonObject &json);
     QStringList curlArguments() const;
@@ -63,10 +62,6 @@ public:
     friend bool operator==(const GitLabParameters &p1, const GitLabParameters &p2)
     {
         return p1.equals(p2);
-    }
-    friend bool operator!=(const GitLabParameters &p1, const GitLabParameters &p2)
-    {
-        return !p1.equals(p2);
     }
 
     Utils::Id defaultGitLabServer;

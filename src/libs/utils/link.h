@@ -32,7 +32,6 @@ public:
 private:
     QTCREATOR_UTILS_EXPORT friend bool operator<(const Link &first, const Link &second);
     QTCREATOR_UTILS_EXPORT friend bool operator==(const Link &lhs, const Link &rhs);
-    friend bool operator!=(const Link &lhs, const Link &rhs) { return !(lhs == rhs); }
 
     QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const Link &link);
 

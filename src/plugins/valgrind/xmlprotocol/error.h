@@ -85,7 +85,6 @@ public:
     void swap(Error &other);
 
     bool operator==(const Error &other) const;
-    bool operator!=(const Error &other) const;
 
     qint64 unique() const;
     void setUnique(qint64 unique);

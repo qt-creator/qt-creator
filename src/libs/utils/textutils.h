@@ -30,14 +30,15 @@ public:
     static Position fromFileName(QStringView fileName, int &postfixPos);
     static Position fromPositionInDocument(const QTextDocument *document, int pos);
     static Position fromCursor(const QTextCursor &cursor);
+
+private:
+    friend bool operator==(const Position &, const Position &) = default;
 };
 
 QTCREATOR_UTILS_EXPORT bool operator<(const Position &left, const Position &right);
 QTCREATOR_UTILS_EXPORT bool operator<=(const Position &left, const Position &right);
 QTCREATOR_UTILS_EXPORT bool operator>(const Position &left, const Position &right);
 QTCREATOR_UTILS_EXPORT bool operator>=(const Position &left, const Position &right);
-QTCREATOR_UTILS_EXPORT bool operator==(const Position &left, const Position &right);
-QTCREATOR_UTILS_EXPORT bool operator!=(const Position &left, const Position &right);
 
 class QTCREATOR_UTILS_EXPORT Range
 {
@@ -48,14 +49,14 @@ public:
     Position end;
 
     bool operator<(const Range &other) const { return begin < other.begin; }
-    bool operator==(const Range &other) const;
-
-    bool operator!=(const Range &other) const { return !(operator==(other)); }
 
     bool contains(const Position &pos) const;
 
     QTextCursor toTextCursor(QTextDocument *doc) const;
     QString text(QTextDocument *doc) const;
+
+private:
+    friend bool operator==(const Range &, const Range &) = default;
 };
 
 // line is 1-based, column is 0-based

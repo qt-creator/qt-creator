@@ -28,7 +28,6 @@ public:
 private:
     friend bool operator<(const AndroidDeviceInfo &lhs, const AndroidDeviceInfo &rhs);
     friend bool operator==(const AndroidDeviceInfo &lhs, const AndroidDeviceInfo &rhs) = default;
-    friend bool operator!=(const AndroidDeviceInfo &lhs, const AndroidDeviceInfo &rhs) = default;
     friend QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device);
 };
 

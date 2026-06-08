@@ -46,11 +46,6 @@ bool GitLabServer::operator==(const GitLabServer &other) const
             && description == other.description && token == other.token ;
 }
 
-bool GitLabServer::operator!=(const GitLabServer &other) const
-{
-    return !(*this == other);
-}
-
 QJsonObject GitLabServer::toJson() const
 {
     QJsonObject result;

@@ -55,7 +55,6 @@ public:
                 && length == other.length
                 && kind == other.kind;
     }
-    bool operator!=(const HighlightingResult& other) const { return !(*this == other); }
 };
 
 using HighlightingResults = QList<HighlightingResult>;

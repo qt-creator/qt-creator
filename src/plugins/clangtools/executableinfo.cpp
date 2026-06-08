@@ -233,21 +233,11 @@ bool operator==(const ClazyStandaloneInfo &c1, const ClazyStandaloneInfo &c2)
            && c1.supportedChecks == c2.supportedChecks;
 }
 
-bool operator!=(const ClazyStandaloneInfo &c1, const ClazyStandaloneInfo &c2)
-{
-    return !(c1 == c2);
-}
-
 bool operator==(const ClazyCheck &c1, const ClazyCheck &c2)
 {
     return c1.name == c2.name
            && c1.level == c2.level
            && c1.topics == c2.topics;
-}
-
-bool operator!=(const ClazyCheck &c1, const ClazyCheck &c2)
-{
-    return !(c1 == c2);
 }
 
 } // namespace ClangTools::Internal

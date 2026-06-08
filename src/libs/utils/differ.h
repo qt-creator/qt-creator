@@ -29,10 +29,11 @@ public:
     QString text;
     Diff() = default;
     Diff(Command com, const QString &txt = {});
-    bool operator==(const Diff &other) const;
-    bool operator!=(const Diff &other) const;
     QString toString() const;
     static QString commandString(Command com);
+
+private:
+    friend bool operator==(const Diff &, const Diff &) = default;
 };
 
 class QTCREATOR_UTILS_EXPORT Differ

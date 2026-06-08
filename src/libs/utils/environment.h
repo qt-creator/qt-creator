@@ -94,7 +94,6 @@ public:
 
     void forEachEntry(const std::function<void (const QString &, const QString &, bool)> &callBack) const;
 
-    bool operator!=(const Environment &other) const;
     bool operator==(const Environment &other) const;
 
     static Environment systemEnvironment();
@@ -195,16 +194,11 @@ public:
     bool hasData() const { return !m_itemsFromUser.isEmpty() || !file().isEmpty(); }
     void clear();
 
+private:
     friend bool operator==(const EnvironmentChanges &e1, const EnvironmentChanges &e2)
     {
         return e1.m_itemsFromUser == e2.m_itemsFromUser && e1.m_file == e2.m_file;
     }
-    friend bool operator!=(const EnvironmentChanges &e1, const EnvironmentChanges &e2)
-    {
-        return !(e1 == e2);
-    }
-
-private:
     EnvironmentItems m_itemsFromUser;
     FilePath m_file;
     mutable std::optional<std::pair<QDateTime, EnvironmentItems>> m_itemsFromFile;

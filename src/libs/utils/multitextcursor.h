@@ -84,7 +84,6 @@ public:
     void insertText(const QString &text, bool selectNewText = false);
 
     bool operator==(const MultiTextCursor &other) const;
-    bool operator!=(const MultiTextCursor &other) const;
 
     template <typename T, typename mapit>
     class BaseIterator {
@@ -98,7 +97,6 @@ public:
         BaseIterator &operator++() { ++internalit; return *this; }
         BaseIterator operator++(int) { auto result = *this; ++(*this); return result; }
         bool operator==(BaseIterator other) const { return internalit == other.internalit; }
-        bool operator!=(BaseIterator other) const { return !(*this == other); }
         reference operator*() const { return *(internalit->second); }
 
     private:

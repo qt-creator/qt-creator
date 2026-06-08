@@ -65,11 +65,6 @@ bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
         && m_useBuildSystemWarnings == other.m_useBuildSystemWarnings;
 }
 
-bool ClangDiagnosticConfig::operator!=(const ClangDiagnosticConfig &other) const
-{
-    return !(*this == other);
-}
-
 ClangDiagnosticConfig::ClazyMode ClangDiagnosticConfig::clazyMode() const
 {
     return m_clazyMode;
