@@ -3,12 +3,12 @@
 
 #pragma once
 
+#include "flamegraphview.h"
 #include "qmlprofilerstatisticsview.h"
 #include "qmlprofilertraceview.h"
 #include "quick3dframeview.h"
-#include "flamegraphview.h"
 
-namespace Core { class Perspective; }
+#include <coreplugin/perspective.h>
 
 namespace QmlProfiler::Internal {
 
@@ -21,13 +21,12 @@ class QmlProfilerViewManager : public QObject
 public:
     QmlProfilerViewManager(QmlProfilerModelManager *modelManager,
                            QmlProfilerStateManager *profilerState);
-    ~QmlProfilerViewManager() override;
 
-    QmlProfilerTraceView *traceView() const { return m_traceView; }
-    QmlProfilerStatisticsView *statisticsView() const { return m_statisticsView; }
-    FlameGraphView *flameGraphView() const { return m_flameGraphView; }
-    Quick3DFrameView *quick3dView() const { return m_quick3dView; }
-    Core::Perspective *perspective() const { return m_perspective; }
+    QmlProfilerTraceView *traceView() { return &m_traceView; }
+    QmlProfilerStatisticsView *statisticsView() { return &m_statisticsView; }
+    FlameGraphView *flameGraphView() { return &m_flameGraphView; }
+    Quick3DFrameView *quick3dView() { return &m_quick3dView; }
+    Core::Perspective *perspective() { return &m_perspective; }
 
     void clear();
 
@@ -36,13 +35,13 @@ signals:
     void gotoSourceLocation(QString,int,int);
 
 private:
-    QmlProfilerTraceView *m_traceView = nullptr;
-    QmlProfilerStatisticsView *m_statisticsView = nullptr;
-    FlameGraphView *m_flameGraphView = nullptr;
-    Quick3DFrameView *m_quick3dView = nullptr;
-    QmlProfilerStateManager *m_profilerState = nullptr;
     QmlProfilerModelManager *m_profilerModelManager = nullptr;
-    Core::Perspective *m_perspective = nullptr;
+    QmlProfilerStateManager *m_profilerState = nullptr;
+    QmlProfilerTraceView m_traceView;
+    QmlProfilerStatisticsView m_statisticsView;
+    FlameGraphView m_flameGraphView;
+    Quick3DFrameView m_quick3dView;
+    Core::Perspective m_perspective;
 };
 
 } // namespace QmlProfiler::Internal
