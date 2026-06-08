@@ -537,9 +537,8 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
             if (candidateByData.isValid() && magicAccuracy > 0) {
                 const QString sniffedMime = candidateByData.name();
                 // If the sniffedMime matches a highest-weight glob match, use it
-                if (candidatesByName.m_matchingMimeTypes.contains(sniffedMime)) {
+                if (candidatesByName.m_matchingMimeTypes.contains(sniffedMime))
                     return candidateByData;
-                }
                 for (const QString &m : std::as_const(candidatesByName.m_allMatchingMimeTypes)) {
                     if (inherits(m, sniffedMime)) {
                         // We have magic + pattern pointing to this, so it's a pretty good match
