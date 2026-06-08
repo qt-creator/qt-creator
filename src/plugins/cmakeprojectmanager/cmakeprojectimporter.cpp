@@ -1289,6 +1289,9 @@ static void applyRunEnvironmentToKit(
 
 void CMakeProjectImporter::createKitsFromPresets()
 {
+    m_presetsTempDir
+        = ensureDir(projectFilePath().parentDir() / ".qtcreator", "qtc-cmake-presets-XXXXXXXX");
+
     const ListIterator iterator(presetCandidates());
     const Storage<InternalStorage> storage;
 

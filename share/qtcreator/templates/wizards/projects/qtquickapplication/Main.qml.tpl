@@ -6,16 +6,20 @@ import QtQuick.Controls.Basic
 import QtQuick.VirtualKeyboard
 @endif
 
-Window {
-@if %{UseVirtualKeyboard}
+ApplicationWindow {
     id: window
-@endif
     width: 640
     height: 480
-    minimumWidth: 150
+    minimumWidth: 200
     minimumHeight: 250
     visible: true
     title: qsTr("Hello World")
+    property bool lightMode: Application.styleHints.colorScheme === Qt.Light
+    property color reallyDark: "#1f1f1f"
+    property color dark: "#262626"
+    property color reallyLight: "#e7e7e7"
+    property color light: "#e0e0e0"
+
 @if %{UseVirtualKeyboard}
 
     InputPanel {
@@ -42,15 +46,16 @@ Window {
         }
     }
 @else
-
     GridLayout {
         id: grid
-        columns: width < 300 ? 1 : 2
+        columns: width < 400 ? 1 : 2
+        rowSpacing: 0
+        columnSpacing: 0
         anchors.fill: parent
 
         Rectangle {
             id: rectangle1
-            color: "#00414A" // Qt Pine
+            color: window.lightMode ? window.reallyLight : window.reallyDark
             Layout.fillHeight: true
             Layout.fillWidth: true
 
@@ -58,58 +63,58 @@ Window {
                 anchors.fill: parent
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
 
-                Text {
+                Label {
                     id: text1
-                    color: "#cdb0ff" // Qt Violet
-                    text: qsTr("Hello")
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-                    Layout.topMargin: 16
-                    font.pixelSize: 48
+                    color: window.lightMode ? window.dark : window.light
+                    font.pixelSize: 120
+                    fontSizeMode: Text.Fit
+                    text: qsTr("Hello World")
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.margins: 16
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                }
-                Button {
-                    id: button1
-                    text: qsTr("Toggle")
-                    Layout.bottomMargin: 16
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
-                    onClicked: {
-
-                        var tmpColor = text1.color.toString()
-                        text1.color = text2.color
-                        text2.color = tmpColor
-                        switch2.checked = !(switch2.checked)
-                    }
                 }
             }
         }
+
         Rectangle {
             id: rectangle2
-            color: "#2CDE85" // Qt Neon
+            color: window.lightMode ? window.light : window.dark
             Layout.fillHeight: true
             Layout.fillWidth: true
+
             ColumnLayout {
                 anchors.fill: parent
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
 
-                Text {
-                    id: text2
-                    color: "#d9f721" // Qt Lemon
-                    text: qsTr("World")
-                    Layout.alignment: Qt.AlignHCenter
-                    font.pixelSize: 48
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-                Switch {
-                    id: switch2
-                    text: qsTr("Selected")
-                    checkable: true
-                    checked: false
-                    Layout.alignment: Qt.AlignHCenter
+                Button {
+                    id: button1
+                    text: window.lightMode ? qsTr("\\u263D  Dark mode")
+                                    : qsTr("\\u263C  Light mode")
+                    Layout.bottomMargin: 16
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+
+                    contentItem: Text {
+                        text: button1.text
+                        color: window.lightMode ? window.light : window.dark
+                        font: button1.font
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    background: Rectangle {
+                        implicitWidth: 120
+                        implicitHeight: 36
+                        radius: 8
+                        color: window.lightMode ? window.dark : window.light
+                    }
+
+                    onClicked: window.lightMode = !window.lightMode
                 }
             }
         }
     }
+
 @endif
 }
