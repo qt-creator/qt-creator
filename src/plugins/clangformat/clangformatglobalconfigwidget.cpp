@@ -298,6 +298,8 @@ void ClangFormatGlobalConfigWidget::finish()
 
 ClangFormatSettings::Mode ClangFormatGlobalConfigWidget::mode() const
 {
+    if (m_project && m_useGlobalSettings->isChecked())
+        return ClangFormatSettings::instance().mode();
     return static_cast<ClangFormatSettings::Mode>(m_indentingOrFormatting->currentIndex());
 }
 
