@@ -134,10 +134,7 @@ bool comparesEqual(const MimeType &lhs, const MimeType &rhs) noexcept
 
 /*!
     \since 5.6
-    \relates MimeType
-
-    Returns the hash value for \a key, using
-    \a seed to seed the calculation.
+    \qhashold{QMimeType}
  */
 size_t qHash(const MimeType &key, size_t seed) noexcept
 {
