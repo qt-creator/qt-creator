@@ -110,7 +110,7 @@ public:
 
     bool m_toolBusy = false;
 
-    std::unique_ptr<Core::ActionContainer> m_options;
+    Core::ActionContainer *m_options = nullptr;
     QAction m_loadQmlTrace;
     QAction m_saveQmlTrace;
     QAction m_runAction;
@@ -302,7 +302,7 @@ QmlProfilerTool::QmlProfilerTool()
     });
     d->m_saveQmlTrace.setEnabled(!d->m_profilerModelManager.isEmpty());
 
-    d->m_options.reset(ActionManager::createMenu("Analyzer.Menu.QMLOptions"));
+    d->m_options = ActionManager::createMenu("Analyzer.Menu.QMLOptions");
     d->m_options->menu()->setTitle(Tr::tr("QML Profiler Options"));
     d->m_options->menu()->setEnabled(true);
     ActionContainer *menu = ActionManager::actionContainer(M_DEBUG_ANALYZER);
@@ -314,7 +314,7 @@ QmlProfilerTool::QmlProfilerTool()
                                                   "QmlProfiler.AttachToWaitingApplication"),
                     Core::Constants::G_ANALYZER_REMOTE_TOOLS);
 
-    menu->addMenu(d->m_options.get(), G_ANALYZER_OPTIONS);
+    menu->addMenu(d->m_options, G_ANALYZER_OPTIONS);
     d->m_options->addAction(ActionManager::registerAction(&d->m_loadQmlTrace,
                                                        Constants::QmlProfilerLoadActionId));
     d->m_options->addAction(ActionManager::registerAction(&d->m_saveQmlTrace,
