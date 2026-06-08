@@ -51,7 +51,7 @@ Timeline::RowLabels CtfTimelineModel::labels() const
 
     for (int i = 0; i < m_maxStackSize; ++i) {
         result.append({QStringLiteral("- ").append(Tr::tr("Stack Level %1").arg(i)),
-                       m_counterNames.size() + i});
+                       int(m_counterNames.size()) + i});
     }
     return result;
 }
