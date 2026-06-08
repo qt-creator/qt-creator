@@ -42,7 +42,7 @@ class MimeProviderBase
 
 public:
     MimeProviderBase(MimeDatabasePrivate *db, const QString &directory);
-    virtual ~MimeProviderBase() {}
+    virtual ~MimeProviderBase() = default;
 
     virtual bool isValid() = 0;
     virtual bool isInternalDatabase() const = 0;
