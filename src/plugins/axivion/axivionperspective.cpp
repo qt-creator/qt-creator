@@ -1748,7 +1748,6 @@ class AxivionPerspective : public Perspective
 {
 public:
     AxivionPerspective();
-    ~AxivionPerspective();
 
     void handleShowIssues(const QString &kind);
     void handleShowFilterException(const QString &errorMessage);
@@ -1777,41 +1776,37 @@ private:
     void removeFinishedBuilds();
     void onSingleFileAnalysisTriggered();
 
-    IssuesWidget *m_issuesWidget = nullptr;
-    LazyImageBrowser *m_issueDetails = nullptr;
-    ProgressWidget *m_progressWidget = nullptr;
-    ConsoleWidget *m_consoleWidget = nullptr;
+    IssuesWidget m_issuesWidget;
+    LazyImageBrowser m_issueDetails;
+    ProgressWidget m_progressWidget;
+    ConsoleWidget m_consoleWidget;
 };
 
 AxivionPerspective::AxivionPerspective()
     : Perspective("Axivion.Perspective", Tr::tr("Axivion"))
 {
-    m_issuesWidget = new IssuesWidget;
-    m_issuesWidget->setObjectName("AxivionIssuesWidget");
-    m_issuesWidget->setWindowTitle(Tr::tr("Issues"));
-    QPalette pal = m_issuesWidget->palette();
+    m_issuesWidget.setObjectName("AxivionIssuesWidget");
+    m_issuesWidget.setWindowTitle(Tr::tr("Issues"));
+    QPalette pal = m_issuesWidget.palette();
     pal.setColor(QPalette::Window, creatorColor(Theme::Color::BackgroundColorNormal));
-    m_issuesWidget->setPalette(pal);
+    m_issuesWidget.setPalette(pal);
 
-    m_issueDetails = new LazyImageBrowser;
-    m_issueDetails->setFrameStyle(QFrame::NoFrame);
-    m_issueDetails->setObjectName("AxivionIssuesDetails");
-    m_issueDetails->setWindowTitle(Tr::tr("Issue Details"));
+    m_issueDetails.setFrameStyle(QFrame::NoFrame);
+    m_issueDetails.setObjectName("AxivionIssuesDetails");
+    m_issueDetails.setWindowTitle(Tr::tr("Issue Details"));
     const QString text = Tr::tr(
                 "Search for issues inside the Axivion dashboard or request issue details for "
                 "Axivion inline annotations to see them here.");
-    m_issueDetails->setText("<p style='text-align:center'>" + text + "</p>");
-    m_issueDetails->setOpenLinks(false);
-    connect(m_issueDetails, &QTextBrowser::anchorClicked,
+    m_issueDetails.setText("<p style='text-align:center'>" + text + "</p>");
+    m_issueDetails.setOpenLinks(false);
+    connect(&m_issueDetails, &QTextBrowser::anchorClicked,
             this, &AxivionPerspective::handleAnchorClicked);
 
-    m_progressWidget = new ProgressWidget;
-    m_progressWidget->setObjectName("AxivionLocalBuildProgress");
-    m_progressWidget->setWindowTitle(Tr::tr("Local Analyses Progress"));
+    m_progressWidget.setObjectName("AxivionLocalBuildProgress");
+    m_progressWidget.setWindowTitle(Tr::tr("Local Analyses Progress"));
 
-    m_consoleWidget = new ConsoleWidget;
-    m_consoleWidget->setObjectName("AxivionAnalysisOutput");
-    m_consoleWidget->setWindowTitle(Tr::tr("Local Analyses Output"));
+    m_consoleWidget.setObjectName("AxivionAnalysisOutput");
+    m_consoleWidget.setWindowTitle(Tr::tr("Local Analyses Output"));
 
     auto reloadDataAct = new QAction(this);
     reloadDataAct->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
@@ -1845,10 +1840,10 @@ AxivionPerspective::AxivionPerspective()
     addToolBarAction(showIssuesAct);
     addToolBarAction(toggleIssuesAct);
 
-    addWindow(m_issuesWidget, Perspective::SplitVertical, nullptr);
-    addWindow(m_issueDetails, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
-    addWindow(m_progressWidget, Perspective::AddToTab, nullptr, false, Qt::RightDockWidgetArea);
-    addWindow(m_consoleWidget, Perspective::AddToTab, m_issuesWidget, false);
+    addWindow(&m_issuesWidget, Perspective::SplitVertical, nullptr);
+    addWindow(&m_issueDetails, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
+    addWindow(&m_progressWidget, Perspective::AddToTab, nullptr, false, Qt::RightDockWidgetArea);
+    addWindow(&m_consoleWidget, Perspective::AddToTab, &m_issuesWidget, false);
 
     setAboutToActivateCallback([this]{
         // ensure we display the Issues widget on first show
@@ -1857,7 +1852,7 @@ AxivionPerspective::AxivionPerspective()
             QTC_ASSERT(cmd, return);
             if (cmd->action() && !cmd->action()->isChecked())
                 cmd->action()->trigger();
-            if (auto dw = qobject_cast<QDockWidget *>(m_issuesWidget->parentWidget()))
+            if (auto dw = qobject_cast<QDockWidget *>(m_issuesWidget.parentWidget()))
                 dw->raise();
         }, Qt::QueuedConnection);
         setAboutToActivateCallback({}); // reset, as this should only happen on first show
@@ -1889,37 +1884,29 @@ AxivionPerspective::AxivionPerspective()
     contextMenu->addSeparator();
 }
 
-AxivionPerspective::~AxivionPerspective()
-{
-    delete m_issuesWidget;
-    delete m_issueDetails;
-    delete m_progressWidget;
-    delete m_consoleWidget;
-}
-
 void AxivionPerspective::handleShowIssues(const QString &kind)
 {
-    m_issuesWidget->updateUi(kind);
+    m_issuesWidget.updateUi(kind);
 }
 
 void AxivionPerspective::handleShowFilterException(const QString &errorMessage)
 {
-    m_issuesWidget->showOverlay(errorMessage, IssuesWidget::ErrorIcon);
+    m_issuesWidget.showOverlay(errorMessage, IssuesWidget::ErrorIcon);
 }
 
 void AxivionPerspective::handleShowErrorMessage(const QString &errorMessage)
 {
-    m_issuesWidget->showErrorMessage(errorMessage);
+    m_issuesWidget.showErrorMessage(errorMessage);
 }
 
 void AxivionPerspective::reinitDashboardList(const QString &preferredProject)
 {
-    m_issuesWidget->initDashboardList(preferredProject);
+    m_issuesWidget.initDashboardList(preferredProject);
 }
 
 void AxivionPerspective::resetDashboard()
 {
-    m_issuesWidget->resetDashboard();
+    m_issuesWidget.resetDashboard();
 }
 
 bool AxivionPerspective::handleContextMenu(bool globalDashboard, const QString &issue,
@@ -1927,7 +1914,7 @@ bool AxivionPerspective::handleContextMenu(bool globalDashboard, const QString &
 {
     if (!currentDashboardInfo())
         return false;
-    const std::optional<Dto::TableInfoDto> tableInfoOpt = m_issuesWidget->currentTableInfo();
+    const std::optional<Dto::TableInfoDto> tableInfoOpt = m_issuesWidget.currentTableInfo();
     if (!tableInfoOpt)
         return false;
     const QString baseUri = tableInfoOpt->issueBaseViewUri.value_or(QString());
@@ -1937,7 +1924,7 @@ bool AxivionPerspective::handleContextMenu(bool globalDashboard, const QString &
     QUrl dashboardUrl = resolveDashboardInfoUrl(globalDashboard ? DashboardMode::Global
                                                                 : DashboardMode::Local, baseUri);
     QUrl issueBaseUrl = dashboardUrl.resolved(issue);
-    const IssueListSearch search = m_issuesWidget->searchFromUi();
+    const IssueListSearch search = m_issuesWidget.searchFromUi();
     issueBaseUrl.setQuery(search.toUrlQuery(QueryMode::SimpleQuery));
     dashboardUrl.setQuery(search.toUrlQuery(QueryMode::FilterQuery));
 
@@ -2013,7 +2000,7 @@ bool AxivionPerspective::handleProgressContextMenu(const ItemViewEvent &e)
 
 void AxivionPerspective::setIssueDetailsHtml(const QString &html, const QString &projectName)
 {
-    m_issueDetails->setHtmlAfterCheckingCacheSize(html, projectName);
+    m_issueDetails.setHtmlAfterCheckingCacheSize(html, projectName);
 }
 
 void AxivionPerspective::handleAnchorClicked(const QUrl &url)
@@ -2038,7 +2025,7 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
         link.targetFilePath = FilePath::fromUserInput(path);
     FilePath targetFilePath = mappedPathForLink(link);
     if (targetFilePath.isEmpty())
-        targetFilePath = requestPathMapping(link, m_issueDetails->projectName());
+        targetFilePath = requestPathMapping(link, m_issueDetails.projectName());
     link.targetFilePath = targetFilePath;
     if (const QString line = query.queryItemValue("line"); !line.isEmpty())
         link.target.line = line.toInt();
@@ -2049,53 +2036,53 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
 
 void AxivionPerspective::updateNamedFilters()
 {
-    m_issuesWidget->updateNamedFilters();
+    m_issuesWidget.updateNamedFilters();
 }
 
 void AxivionPerspective::updateLocalBuildStateFor(const QString &projectName, const QString &state,
                                                   int percent)
 {
-    m_issuesWidget->updateLocalBuildState(projectName, percent);
-    m_progressWidget->addOrUpdateProgressItem(projectName, {projectName, {}, state, percent});
+    m_issuesWidget.updateLocalBuildState(projectName, percent);
+    m_progressWidget.addOrUpdateProgressItem(projectName, {projectName, {}, state, percent});
 }
 
 void AxivionPerspective::updateSfaStateFor(const FilePath &filePath, const QString &state,
                                            int percent)
 {
-    m_progressWidget->addOrUpdateProgressItem(QString{},
+    m_progressWidget.addOrUpdateProgressItem(QString{},
                                               {QString{}, filePath, state, percent});
 }
 
 void AxivionPerspective::appendConsoleOutput(const QString &console, const QString &output,
                                              OutputFormat f)
 {
-    m_consoleWidget->addOrUpdateConsole(console, output, f);
+    m_consoleWidget.addOrUpdateConsole(console, output, f);
 }
 
 void AxivionPerspective::resetConsole(const QString &console)
 {
-    m_consoleWidget->resetConsole(console);
+    m_consoleWidget.resetConsole(console);
 }
 
 void AxivionPerspective::openConsoleWith(const QString &console)
 {
-    m_consoleWidget->selectConsole(console);
+    m_consoleWidget.selectConsole(console);
     Command *cmd = ActionManager::command("Dock.AxivionAnalysisOutput");
     QTC_ASSERT(cmd, return);
     if (cmd->action() && !cmd->action()->isChecked())
         cmd->action()->trigger();
-    if (auto dockWidget = qobject_cast<QDockWidget *>(m_consoleWidget->parentWidget()))
+    if (auto dockWidget = qobject_cast<QDockWidget *>(m_consoleWidget.parentWidget()))
         dockWidget->raise();
 }
 
 void AxivionPerspective::leaveOrEnterDashboardMode(bool byLocalBuildButton)
 {
-    m_issuesWidget->leaveOrEnterDashboardMode(byLocalBuildButton);
+    m_issuesWidget.leaveOrEnterDashboardMode(byLocalBuildButton);
 }
 
 bool AxivionPerspective::currentIssueHasValidPathMapping() const
 {
-    return m_issuesWidget->currentIssueHasValidMapping();
+    return m_issuesWidget.currentIssueHasValidMapping();
 }
 
 void AxivionPerspective::showProgressWidget()
@@ -2110,15 +2097,15 @@ void AxivionPerspective::showProgressWidget()
 
 void AxivionPerspective::requestFocusForIssuesTable()
 {
-    m_issuesWidget->requestFocusForIssuesTable();
+    m_issuesWidget.requestFocusForIssuesTable();
 }
 
 void AxivionPerspective::removeFinishedBuilds()
 {
-    m_consoleWidget->removeFinished();
+    m_consoleWidget.removeFinished();
     removeFinishedLocalBuilds();
     removeFinishedAnalyses();
-    m_progressWidget->removeFinishedItems();
+    m_progressWidget.removeFinishedItems();
 }
 
 void AxivionPerspective::onSingleFileAnalysisTriggered()
