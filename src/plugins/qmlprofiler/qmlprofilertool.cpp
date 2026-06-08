@@ -111,10 +111,10 @@ public:
     bool m_toolBusy = false;
 
     std::unique_ptr<Core::ActionContainer> m_options;
-    std::unique_ptr<QAction> m_loadQmlTrace;
-    std::unique_ptr<QAction> m_saveQmlTrace;
-    std::unique_ptr<QAction> m_runAction;
-    std::unique_ptr<QAction> m_attachAction;
+    QAction m_loadQmlTrace;
+    QAction m_saveQmlTrace;
+    QAction m_runAction;
+    QAction m_attachAction;
 };
 
 QmlProfilerTool::QmlProfilerTool()
@@ -267,57 +267,57 @@ QmlProfilerTool::QmlProfilerTool()
     const QString description = Tr::tr("The QML Profiler can be used to find performance "
                                        "bottlenecks in applications using QML.");
 
-    d->m_runAction = std::make_unique<QAction>(Tr::tr("QML Profiler"));
-    d->m_runAction->setToolTip(description);
-    QObject::connect(d->m_runAction.get(), &QAction::triggered,
+    d->m_runAction.setText(Tr::tr("QML Profiler"));
+    d->m_runAction.setToolTip(description);
+    QObject::connect(&d->m_runAction, &QAction::triggered,
                      this, &QmlProfilerTool::profileStartupProject);
 
     QAction *toolStartAction = startAction();
     QObject::connect(toolStartAction, &QAction::changed, this, [this, toolStartAction] {
-        d->m_runAction->setEnabled(toolStartAction->isEnabled());
+        d->m_runAction.setEnabled(toolStartAction->isEnabled());
     });
 
-    d->m_attachAction = std::make_unique<QAction>(Tr::tr("QML Profiler (Attach to Waiting Application)"));
-    d->m_attachAction->setToolTip(description);
-    QObject::connect(d->m_attachAction.get(), &QAction::triggered,
+    d->m_attachAction.setText(Tr::tr("QML Profiler (Attach to Waiting Application)"));
+    d->m_attachAction.setToolTip(description);
+    QObject::connect(&d->m_attachAction, &QAction::triggered,
                      this, &QmlProfilerTool::attachToWaitingApplication);
 
-    d->m_loadQmlTrace = std::make_unique<QAction>(Tr::tr("Load QML Trace"));
-    connect(d->m_loadQmlTrace.get(), &QAction::triggered,
+    d->m_loadQmlTrace.setText(Tr::tr("Load QML Trace"));
+    connect(&d->m_loadQmlTrace, &QAction::triggered,
             this, &QmlProfilerTool::showLoadDialog, Qt::QueuedConnection);
 
-    d->m_saveQmlTrace = std::make_unique<QAction>(Tr::tr("Save QML Trace"));
-    connect(d->m_saveQmlTrace.get(), &QAction::triggered,
+    d->m_saveQmlTrace.setText(Tr::tr("Save QML Trace"));
+    connect(&d->m_saveQmlTrace, &QAction::triggered,
             this, &QmlProfilerTool::showSaveDialog, Qt::QueuedConnection);
 
     connect(&d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
             this, [this](bool recording) {
-        d->m_loadQmlTrace->setEnabled(!recording);
+        d->m_loadQmlTrace.setEnabled(!recording);
     });
-    d->m_loadQmlTrace->setEnabled(!d->m_profilerState.serverRecording());
+    d->m_loadQmlTrace.setEnabled(!d->m_profilerState.serverRecording());
 
     connect(&d->m_profilerModelManager, &QmlProfilerModelManager::traceChanged,
             this, [this] {
-        d->m_saveQmlTrace->setEnabled(!d->m_profilerModelManager.isEmpty());
+        d->m_saveQmlTrace.setEnabled(!d->m_profilerModelManager.isEmpty());
     });
-    d->m_saveQmlTrace->setEnabled(!d->m_profilerModelManager.isEmpty());
+    d->m_saveQmlTrace.setEnabled(!d->m_profilerModelManager.isEmpty());
 
     d->m_options.reset(ActionManager::createMenu("Analyzer.Menu.QMLOptions"));
     d->m_options->menu()->setTitle(Tr::tr("QML Profiler Options"));
     d->m_options->menu()->setEnabled(true);
     ActionContainer *menu = ActionManager::actionContainer(M_DEBUG_ANALYZER);
 
-    menu->addAction(ActionManager::registerAction(d->m_runAction.get(),
+    menu->addAction(ActionManager::registerAction(&d->m_runAction,
                                                   "QmlProfiler.Internal"),
                     Core::Constants::G_ANALYZER_TOOLS);
-    menu->addAction(ActionManager::registerAction(d->m_attachAction.get(),
+    menu->addAction(ActionManager::registerAction(&d->m_attachAction,
                                                   "QmlProfiler.AttachToWaitingApplication"),
                     Core::Constants::G_ANALYZER_REMOTE_TOOLS);
 
     menu->addMenu(d->m_options.get(), G_ANALYZER_OPTIONS);
-    d->m_options->addAction(ActionManager::registerAction(d->m_loadQmlTrace.get(),
+    d->m_options->addAction(ActionManager::registerAction(&d->m_loadQmlTrace,
                                                        Constants::QmlProfilerLoadActionId));
-    d->m_options->addAction(ActionManager::registerAction(d->m_saveQmlTrace.get(),
+    d->m_options->addAction(ActionManager::registerAction(&d->m_saveQmlTrace,
                                                        Constants::QmlProfilerSaveActionId));
 }
 
