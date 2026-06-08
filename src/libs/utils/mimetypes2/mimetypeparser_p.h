@@ -45,7 +45,7 @@ class MimeTypeParserBase
 
 public:
     MimeTypeParserBase() {}
-    virtual ~MimeTypeParserBase() {}
+    virtual ~MimeTypeParserBase();
 
     bool parse(QIODevice *dev, const QString &fileName, QString *errorMessage);
 
@@ -84,6 +84,7 @@ class MimeTypeParser : public MimeTypeParserBase
 {
 public:
     explicit MimeTypeParser(MimeXMLProvider &provider) : m_provider(provider) {}
+    ~MimeTypeParser() override;
 
 protected:
     inline bool process(const MimeTypeXMLData &t, QString *) override
