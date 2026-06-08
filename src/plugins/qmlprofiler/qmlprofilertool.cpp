@@ -186,7 +186,7 @@ QmlProfilerTool::QmlProfilerTool()
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
     connect(&d->m_viewContainer, &QmlProfilerViewManager::viewsCreated, this, [this] {
-        d->m_searchButton->setEnabled(d->m_viewContainer.traceView()->isUsable());
+        d->m_searchButton->setEnabled(true);
     });
 
     d->m_displayFeaturesButton = new QToolButton;
@@ -483,8 +483,7 @@ void QmlProfilerTool::setButtonsEnabled(bool enable)
 {
     d->m_clearButton->setEnabled(enable);
     d->m_displayFeaturesButton->setEnabled(enable);
-    const QmlProfilerTraceView *traceView = d->m_viewContainer.traceView();
-    d->m_searchButton->setEnabled(traceView && traceView->isUsable() && enable);
+    d->m_searchButton->setEnabled(enable);
     d->m_recordFeaturesMenu->setEnabled(enable);
 }
 

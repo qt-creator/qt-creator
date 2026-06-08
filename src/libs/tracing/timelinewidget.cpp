@@ -202,11 +202,6 @@ TimelineWidget::~TimelineWidget()
     delete d;
 }
 
-bool TimelineWidget::isUsable() const
-{
-    return true;
-}
-
 bool TimelineWidget::hasValidSelection() const
 {
     return d->m_content->selectionRangeReady();

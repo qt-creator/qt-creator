@@ -21,7 +21,6 @@ public:
                             QWidget *parent = nullptr);
     ~TimelineWidget() override;
 
-    bool isUsable() const;
     bool hasValidSelection() const;
     qint64 selectionStart() const;
     qint64 selectionEnd() const;

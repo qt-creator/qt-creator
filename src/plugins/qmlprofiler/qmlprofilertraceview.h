@@ -23,7 +23,6 @@ public:
     qint64 selectionStart() const;
     qint64 selectionEnd() const;
     void showContextMenu(QPoint position);
-    bool isUsable() const;
     bool isSuspended() const;
 
     void clear();

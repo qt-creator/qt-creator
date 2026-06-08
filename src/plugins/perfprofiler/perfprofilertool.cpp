@@ -176,12 +176,8 @@ void PerfProfilerTool::createViews()
     connect(m_flameGraphView, &PerfProfilerFlameGraphView::gotoSourceLocation,
             this, &PerfProfilerTool::gotoSourceLocation);
 
-    if (m_traceView->isUsable()) {
-        m_perspective.addWindow(m_traceView, Perspective::SplitVertical, nullptr);
-        m_perspective.addWindow(m_flameGraphView, Perspective::AddToTab, m_traceView);
-    } else {
-        m_perspective.addWindow(m_flameGraphView, Perspective::SplitVertical, nullptr);
-    }
+    m_perspective.addWindow(m_traceView, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(m_flameGraphView, Perspective::AddToTab, m_traceView);
     m_perspective.addWindow(m_statisticsView, Perspective::AddToTab, m_flameGraphView);
 
     connect(m_statisticsView, &PerfProfilerStatisticsView::typeSelected,

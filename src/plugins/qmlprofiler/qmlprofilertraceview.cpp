@@ -239,11 +239,6 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     }
 }
 
-bool QmlProfilerTraceView::isUsable() const
-{
-    return d->m_mainView->isUsable();
-}
-
 bool QmlProfilerTraceView::isSuspended() const
 {
     return !d->m_suspendedModels.isEmpty();

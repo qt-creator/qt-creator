@@ -64,19 +64,11 @@ void QmlProfilerViewManager::createViews()
     m_quick3dView = new Quick3DFrameView(m_profilerModelManager);
     prepareEventsView(m_quick3dView);
 
-    QWidget *anchorDock = nullptr;
-    if (m_traceView->isUsable()) {
-        anchorDock = m_traceView;
-        m_perspective->addWindow(m_traceView, Perspective::SplitVertical, nullptr);
-        m_perspective->addWindow(m_flameGraphView, Perspective::AddToTab, m_traceView);
-        m_perspective->addWindow(m_quick3dView, Perspective::AddToTab, m_flameGraphView);
-    } else {
-        anchorDock = m_flameGraphView;
-        m_perspective->addWindow(m_flameGraphView, Perspective::SplitVertical, nullptr);
-        m_perspective->addWindow(m_quick3dView, Perspective::AddToTab, m_flameGraphView);
-    }
-    m_perspective->addWindow(m_statisticsView, Perspective::AddToTab, anchorDock);
-    m_perspective->addWindow(anchorDock, Perspective::Raise, nullptr);
+    m_perspective->addWindow(m_traceView, Perspective::SplitVertical, nullptr);
+    m_perspective->addWindow(m_flameGraphView, Perspective::AddToTab, m_traceView);
+    m_perspective->addWindow(m_quick3dView, Perspective::AddToTab, m_flameGraphView);
+    m_perspective->addWindow(m_statisticsView, Perspective::AddToTab, m_traceView);
+    m_perspective->addWindow(m_traceView, Perspective::Raise, nullptr);
     m_perspective->setAboutToActivateCallback(Perspective::Callback());
     emit viewsCreated();
 }
