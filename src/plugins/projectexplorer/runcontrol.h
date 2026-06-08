@@ -57,7 +57,7 @@ protected:
     void addSupportedRunConfig(Utils::Id runConfig);
     void addSupportedDeviceType(Utils::Id deviceType);
     void addSupportForLocalRunConfigs();
-    void cloneProduct(Utils::Id exitstingStepId);
+    void cloneProduct(Utils::Id existingStepId);
 
 private:
     friend class RunControl;
