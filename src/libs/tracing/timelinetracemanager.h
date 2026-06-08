@@ -43,12 +43,12 @@ class TRACING_EXPORT TimelineTraceManager : public QObject
 {
     Q_OBJECT
 public:
-    typedef std::function<void(const TraceEvent &, const TraceEventType &)> TraceEventLoader;
-    typedef std::function<TraceEventLoader(TraceEventLoader)> TraceEventFilter;
-    typedef std::function<void()> Initializer;
-    typedef std::function<void()> Finalizer;
-    typedef std::function<void()> Clearer;
-    typedef std::function<void(const QString &)> ErrorHandler;
+    using TraceEventLoader = std::function<void(const TraceEvent &, const TraceEventType &)>;
+    using TraceEventFilter = std::function<TraceEventLoader(TraceEventLoader)>;
+    using Initializer = std::function<void()>;
+    using Finalizer = std::function<void()>;
+    using Clearer = std::function<void()>;
+    using ErrorHandler = std::function<void(const QString &)>;
 
     explicit TimelineTraceManager(std::unique_ptr<TraceEventStorage> &&eventStorage,
                                   std::unique_ptr<TraceEventTypeStorage> &&typeStorage,
