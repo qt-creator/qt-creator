@@ -14,8 +14,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 
 #include <nanotrace/nanotrace.h>
@@ -185,19 +183,7 @@ Toolchain *ToolchainManager::findToolchain(Id id)
     if (!id.isValid())
         return nullptr;
 
-    Toolchain *tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, id));
-
-    // Compatibility with versions 3.5 and earlier:
-    if (!tc) {
-        const int pos = id.name().indexOf(':');
-        if (pos < 0)
-            return tc;
-
-        const Id shortId = Id::fromName(id.name().mid(pos + 1));
-
-        tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, shortId));
-    }
-    return tc;
+    return Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, id));
 }
 
 bool ToolchainManager::isLoaded()
