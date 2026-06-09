@@ -18,7 +18,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/locator/commandlocator.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <extensionsystem/iplugin.h>
@@ -28,7 +27,6 @@
 #include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
-#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -65,7 +63,6 @@ using namespace Core;
 using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
-using namespace std::placeholders;
 
 namespace Subversion::Internal {
 
@@ -148,7 +145,9 @@ public:
          Tr::tr("Subversion File Log Editor"),
          Constants::SUBVERSION_LOG_MIMETYPE,
          [] { return new SubversionEditorWidget; },
-         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)}};
+         [this](const FilePath &source, const QString &changeNumber) {
+             vcsDescribe(source, changeNumber);
+         }}};
 
     VcsEditorFactory blameEditorFactory{
         {AnnotateOutput,
@@ -156,7 +155,9 @@ public:
          Tr::tr("Subversion Annotation Editor"),
          Constants::SUBVERSION_BLAME_MIMETYPE,
          [] { return new SubversionEditorWidget; },
-         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)}};
+         [this](const FilePath &source, const QString &changeNumber) {
+             vcsDescribe(source, changeNumber);
+         }}};
 
     SubversionPluginPrivate();
     ~SubversionPluginPrivate() final;
