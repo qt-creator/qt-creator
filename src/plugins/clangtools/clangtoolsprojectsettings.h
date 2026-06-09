@@ -7,6 +7,8 @@
 
 #include <projectexplorer/project.h>
 
+#include <utils/aspects.h>
+
 namespace ClangTools::Internal {
 
 class Diagnostic;
@@ -37,7 +39,7 @@ public:
 
 using SuppressedDiagnosticsList = QList<SuppressedDiagnostic>;
 
-class ClangToolsProjectSettings : public QObject
+class ClangToolsProjectSettings : public Utils::AspectContainer
 {
     Q_OBJECT
 
@@ -45,8 +47,7 @@ public:
     ClangToolsProjectSettings(ProjectExplorer::Project *project);
     ~ClangToolsProjectSettings() override;
 
-    bool useGlobalSettings() const { return m_useGlobalSettings; }
-    void setUseGlobalSettings(bool useGlobalSettings);
+    Utils::BoolAspect useGlobalSettings;
 
     QSet<Utils::FilePath> selectedDirs() const { return m_selectedDirs; }
     void setSelectedDirs(const QSet<Utils::FilePath> &value);
@@ -67,15 +68,12 @@ public:
 
 signals:
     void suppressedDiagnosticsChanged();
-    void changed();
 
 private:
     void load();
     void store();
 
     ProjectExplorer::Project *m_project;
-
-    bool m_useGlobalSettings = true;
 
     QSet<Utils::FilePath> m_selectedDirs;
     QSet<Utils::FilePath> m_selectedFiles;

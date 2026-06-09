@@ -20,7 +20,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
-#include <QCheckBox>
 #include <QAbstractTableModel>
 #include <QComboBox>
 #include <QLabel>
@@ -71,15 +70,11 @@ private:
     QPushButton m_removeAllButton{Tr::tr("Remove All")};
 
     std::shared_ptr<ClangToolsProjectSettings> const m_projectSettings;
-    QCheckBox m_globalCheckBox;
-    bool m_useGlobal = true;
 };
 
 ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *project)
     : m_projectSettings(ClangToolsProjectSettings::getSettings(project))
 {
-    m_useGlobal = m_projectSettings->useGlobalSettings();
-
     const auto gotoClangTidyModeLabel
             = new QLabel("<a href=\"target\">" + Tr::tr("Go to Clang-Tidy") + "</a>");
     const auto gotoClazyModeLabel
@@ -87,16 +82,14 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
 
     m_diagnosticsView.setSelectionMode(QAbstractItemView::SingleSelection);
 
-    m_globalCheckBox.setChecked(m_useGlobal);
-    connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool useGlobal) {
-        m_useGlobal = useGlobal;
-        onGlobalCustomChanged(useGlobal);
+    m_projectSettings->useGlobalSettings.addOnChanged(this, [this] {
+        onGlobalCustomChanged(m_projectSettings->useGlobalSettings());
     });
 
     using namespace Layouting;
     Column {
         Row {
-            &m_globalCheckBox,
+            m_projectSettings->useGlobalSettings,
             createUseGlobalSettingsLabel(ClangTools::Constants::SETTINGS_PAGE_ID), st
         },
         createHr(),
@@ -121,11 +114,11 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
         st
     }.attachTo(this);
 
-    onGlobalCustomChanged(m_useGlobal);
+    onGlobalCustomChanged(m_projectSettings->useGlobalSettings());
 
     // Global settings
-    connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
-            this, [this] { onGlobalCustomChanged(m_useGlobal); });
+    connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed, this,
+            [this] { onGlobalCustomChanged(m_projectSettings->useGlobalSettings()); });
     connect(&m_restoreGlobal, &QPushButton::clicked, this, [this] {
         m_runSettingsWidget.fromSettings(ClangToolsSettings::instance()->runSettings);
     });
@@ -176,8 +169,6 @@ void ClangToolsProjectSettingsWidget::onGlobalCustomChanged(bool useGlobal)
     m_runSettingsWidget.fromSettings(runSettings);
     m_runSettingsWidget.setEnabled(!useGlobal);
     m_restoreGlobal.setEnabled(!useGlobal);
-
-    m_projectSettings->setUseGlobalSettings(useGlobal);
 }
 
 void ClangToolsProjectSettingsWidget::updateButtonStates()

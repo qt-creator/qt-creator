@@ -27,26 +27,23 @@ static const char SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER[] = "ClangTools.Suppre
 ClangToolsProjectSettings::ClangToolsProjectSettings(ProjectExplorer::Project *project)
     : runSettings(SETTINGS_PREFIX), m_project(project)
 {
+    useGlobalSettings.setDefaultValue(true);
+
     load();
+
+    connect(&useGlobalSettings, &BoolAspect::changed,
+            this, [this] { emit changed(); });
     connect(this, &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
-            this, &ClangToolsProjectSettings::changed);
+            this, [this] { emit changed(); });
     connect(project, &ProjectExplorer::Project::settingsLoaded,
             this, &ClangToolsProjectSettings::load);
-    connect(project, &ProjectExplorer::Project::aboutToSaveSettings, this,
-            &ClangToolsProjectSettings::store);
+    connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
+            this, &ClangToolsProjectSettings::store);
 }
 
 ClangToolsProjectSettings::~ClangToolsProjectSettings()
 {
     store();
-}
-
-void ClangToolsProjectSettings::setUseGlobalSettings(bool useGlobalSettings)
-{
-    if (m_useGlobalSettings == useGlobalSettings)
-        return;
-    m_useGlobalSettings = useGlobalSettings;
-    emit changed();
 }
 
 void ClangToolsProjectSettings::setSelectedDirs(const QSet<Utils::FilePath> &value)
@@ -128,7 +125,7 @@ void ClangToolsProjectSettings::load()
     }
 
     // Read map
-    m_useGlobalSettings = map.value(SETTINGS_KEY_USE_GLOBAL_SETTINGS).toBool();
+    useGlobalSettings.setValue(map.value(SETTINGS_KEY_USE_GLOBAL_SETTINGS).toBool());
 
     const QVariantList dirs = map.value(SETTINGS_KEY_SELECTED_DIRS).toList();
     m_selectedDirs = Utils::transform<QSet>(dirs, Utils::FilePath::fromSettings);
@@ -163,7 +160,7 @@ void ClangToolsProjectSettings::load()
 void ClangToolsProjectSettings::store()
 {
     Store map;
-    map.insert(SETTINGS_KEY_USE_GLOBAL_SETTINGS, m_useGlobalSettings);
+    map.insert(SETTINGS_KEY_USE_GLOBAL_SETTINGS, useGlobalSettings());
 
     const QVariantList dirs = Utils::transform<QList>(m_selectedDirs, &Utils::FilePath::toSettings);
     map.insert(SETTINGS_KEY_SELECTED_DIRS, dirs);
