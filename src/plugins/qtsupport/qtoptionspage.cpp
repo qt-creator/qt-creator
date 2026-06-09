@@ -276,7 +276,7 @@ class QtSettingsPageWidget final : public IOptionsPageWidget
 {
 public:
     QtSettingsPageWidget();
-    ~QtSettingsPageWidget();
+    ~QtSettingsPageWidget() final;
 
     static void linkWithQt();
 

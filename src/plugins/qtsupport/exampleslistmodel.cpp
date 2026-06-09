@@ -449,10 +449,8 @@ void ExamplesViewController::updateExamples()
     m_view->setVisible(false);
     m_view->clear();
 
-    for (int i = 0; i < sections.size(); ++i) {
-        m_view->addSection(sections.at(i).first,
-                           static_container_cast<ListItem *>(sections.at(i).second));
-    }
+    for (const auto &section : std::as_const(sections))
+        m_view->addSection(section.first, static_container_cast<ListItem *>(section.second));
     if (!m_searchField->text().isEmpty())
         m_view->setSearchString(m_searchField->text());
 
@@ -550,15 +548,11 @@ QtVersion *ExampleSetModel::findHighestQtVersion(const QtVersions &versions) con
 {
     QtVersion *newVersion = nullptr;
     for (QtVersion *version : versions) {
-        if (!newVersion) {
+        if (!newVersion
+            || (version->qtVersion() > newVersion->qtVersion())
+            || (version->qtVersion() == newVersion->qtVersion()
+                && version->uniqueId() < newVersion->uniqueId())) {
             newVersion = version;
-        } else {
-            if (version->qtVersion() > newVersion->qtVersion()) {
-                newVersion = version;
-            } else if (version->qtVersion() == newVersion->qtVersion()
-                       && version->uniqueId() < newVersion->uniqueId()) {
-                newVersion = version;
-            }
         }
     }
 

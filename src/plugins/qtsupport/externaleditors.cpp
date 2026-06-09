@@ -67,9 +67,8 @@ static QString checkBinary(const QDir &dir, const QString &binary)
     case OsTypeWindows: {
             static const char *windowsExtensions[] = {".cmd", ".bat", ".exe", ".com"};
             // Check the Windows extensions using the order
-            const int windowsExtensionCount = sizeof(windowsExtensions)/sizeof(const char*);
-            for (int e = 0; e < windowsExtensionCount; e ++) {
-                const QFileInfo windowsBinary(dir.filePath(binary + QLatin1String(windowsExtensions[e])));
+            for (const char * const ext : windowsExtensions) {
+                const QFileInfo windowsBinary(dir.filePath(binary + QLatin1String(ext)));
                 if (windowsBinary.isFile() && windowsBinary.isExecutable())
                     return windowsBinary.absoluteFilePath();
             }

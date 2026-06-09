@@ -170,7 +170,7 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
         // in that case figure out if there's a qt in path
         // and add it to the Qt versions
         findSystemQt(DeviceManager::defaultDesktopDevice());
-        if (m_versions.size())
+        if (!m_versions.isEmpty())
             saveQtVersions();
     }
 
