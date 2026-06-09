@@ -140,7 +140,7 @@ public:
         addSupportedTargetDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     }
 
-    virtual bool filterTarget(Kit *kit, const TargetInformation &ti) const final
+    bool filterTarget(Kit *kit, const TargetInformation &ti) const final
     {
         return !AppManagerRunConfigurationFactory::filterTarget(kit, ti);
     }
