@@ -432,7 +432,7 @@ class QnxSettingsPage : public QObject, public Core::IOptionsPage
 {
 public:
     explicit QnxSettingsPage(QObject *guard);
-    ~QnxSettingsPage() {}
+    ~QnxSettingsPage() override {}
 
     void saveConfigs()
     {
