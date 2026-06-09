@@ -39,7 +39,7 @@ def main():
         return
     invokeMenuItem("File", "Save All")
     # verify Rectangle help
-    verifyInteractiveQMLHelp("Window {", "Window QML Type")
+    verifyInteractiveQMLHelp("Rectangle {", "Rectangle QML Type")
     # verify MouseArea help
     verifyInteractiveQMLHelp("MouseArea {", "MouseArea QML Type")
     # exit
