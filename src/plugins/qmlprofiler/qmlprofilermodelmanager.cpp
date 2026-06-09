@@ -107,8 +107,6 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent)
     : Timeline::TimelineTraceManager({}, std::make_unique<QmlProfilerEventTypeStorage>(), parent)
 {
     setNotesModel(new QmlProfilerNotesModel(this));
-    m_textMarkModel = new QmlProfilerTextMarkModel(this);
-
     m_detailsRewriter = new QmlProfilerDetailsRewriter(this);
     connect(m_detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
             this, &QmlProfilerModelManager::setTypeDetails);
@@ -118,11 +116,6 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent)
     storage->setErrorHandler([this](const QString &message) { emit error(message); });
     std::unique_ptr<Timeline::TraceEventStorage> storagePtr(storage);
     swapEventStorage(storagePtr);
-}
-
-Internal::QmlProfilerTextMarkModel *QmlProfilerModelManager::textMarkModel() const
-{
-    return m_textMarkModel;
 }
 
 void QmlProfilerModelManager::loadEvent(const Timeline::TraceEvent &event,
@@ -190,7 +183,7 @@ void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
 
 void QmlProfilerModelManager::initialize()
 {
-    m_textMarkModel->hideTextMarks();
+    emit initialized();
     TimelineTraceManager::initialize();
 }
 
@@ -209,7 +202,7 @@ void QmlProfilerModelManager::clearEventStorage()
 
 void QmlProfilerModelManager::clearTypeStorage()
 {
-    m_textMarkModel->clear();
+    emit typesCleared();
     TimelineTraceManager::clearTypeStorage();
 }
 
@@ -260,7 +253,6 @@ void QmlProfilerModelManager::finalize()
     // which happens on stateChanged(Done).
 
     TimelineTraceManager::finalize();
-    m_textMarkModel->showTextMarks();
     emit traceChanged();
 }
 
@@ -319,7 +311,7 @@ int QmlProfilerModelManager::appendEventType(QmlEventType &&type)
         // Only bindings and signal handlers need rewriting
         if (rangeType == Binding || rangeType == HandlingSignal)
             m_detailsRewriter->requestDetailsForLocation(typeIndex, location);
-        m_textMarkModel->addTextMarkId(typeIndex, localLocation);
+        emit typeLocationAdded(typeIndex, localLocation);
         return typeIndex;
     } else {
         // There is no point in looking for invalid locations; just add the type
@@ -337,12 +329,12 @@ void QmlProfilerModelManager::setEventType(int typeIndex, QmlEventType &&type)
         // Only bindings and signal handlers need rewriting
         if (type.rangeType() == Binding || type.rangeType() == HandlingSignal)
             m_detailsRewriter->requestDetailsForLocation(typeIndex, location);
-        m_textMarkModel->addTextMarkId(typeIndex,
-                                        QmlEventLocation(m_detailsRewriter
-                                                             ->getLocalFile(location.filename())
-                                                             .toUrlishString(),
-                                                         location.line(),
-                                                         location.column()));
+        emit typeLocationAdded(typeIndex,
+                               QmlEventLocation(m_detailsRewriter
+                                                    ->getLocalFile(location.filename())
+                                                    .toUrlishString(),
+                                                location.line(),
+                                                location.column()));
     }
 
     TimelineTraceManager::setEventType(typeIndex, std::move(type));

@@ -11,7 +11,6 @@
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilersettings.h"
 #include "qmlprofilerstatemanager.h"
-#include "qmlprofilertextmark.h"
 #include "qmlprofilertr.h"
 #include "qmlprofilerviewmanager.h"
 
@@ -229,12 +228,11 @@ QmlProfilerTool::QmlProfilerTool()
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &QmlProfilerTool::updateRunActions);
 
-    QmlProfilerTextMarkModel *model = d->m_profilerModelManager.textMarkModel();
     if (EditorManager *editorManager = EditorManager::instance()) {
         connect(editorManager, &EditorManager::editorCreated,
-                model, [this, model](Core::IEditor *editor, const FilePath &filePath) {
+                this, [this](Core::IEditor *editor, const FilePath &filePath) {
             Q_UNUSED(editor)
-            model->createMarks(&d->m_viewContainer,filePath.toUrlishString());
+            d->m_viewContainer.statisticsView()->createMarks(filePath.toUrlishString());
         });
     }
 
@@ -485,10 +483,10 @@ void QmlProfilerTool::setButtonsEnabled(bool enable)
 
 void QmlProfilerTool::createInitialTextMarks()
 {
-    QmlProfilerTextMarkModel *model = d->m_profilerModelManager.textMarkModel();
+    QmlProfilerStatisticsView *statsView = d->m_viewContainer.statisticsView();
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents)
-        model->createMarks(&d->m_viewContainer,document->filePath().toUrlishString());
+        statsView->createMarks(document->filePath().toUrlishString());
 }
 
 bool QmlProfilerTool::prepareTool()

@@ -3,6 +3,8 @@
 
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatisticsmodel.h"
+
+#include <utils/theme/theme.h>
 #include "qmlprofilertr.h"
 
 #include <tracing/timelineformattime.h>

@@ -2,23 +2,74 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilerstatisticsview.h"
+#include "qmlprofilerconstants.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilertr.h"
 
+#include <qmldebug/qmleventlocation.h>
+
+#include <texteditor/textmark.h>
+
 #include <coreplugin/minisplitter.h>
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <tracing/timelineformattime.h>
 
-#include <QHeaderView>
 #include <QApplication>
 #include <QClipboard>
-#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QHeaderView>
+#include <QLabel>
 #include <QMenu>
+#include <QMultiHash>
 #include <QSortFilterProxyModel>
+#include <QVBoxLayout>
 
 #include <functional>
 
+using namespace Utils;
+
 namespace QmlProfiler::Internal {
+
+class QmlProfilerTextMark : public TextEditor::TextMark
+{
+public:
+    QmlProfilerTextMark(QmlProfilerStatisticsView *statisticsView,
+                        int typeId, const FilePath &fileName, int lineNumber);
+
+    void addTypeId(int typeId);
+
+    bool addToolTipContent(QLayout *target) const override;
+
+private:
+    QmlProfilerStatisticsView *m_statisticsView;
+    QList<int> m_typeIds;
+};
+
+class QmlProfilerTextMarkModel : public QObject
+{
+public:
+    QmlProfilerTextMarkModel(QmlProfilerStatisticsView *statisticsView, QObject *parent = nullptr);
+    ~QmlProfilerTextMarkModel() override;
+
+    void clear();
+    void addTextMarkId(int typeId, const QmlDebug::QmlEventLocation &location);
+    void createMarks(const QString &fileName);
+
+    void showTextMarks();
+    void hideTextMarks();
+
+private:
+    struct TextMarkId {
+        int typeId;
+        int lineNumber;
+        int columnNumber;
+    };
+
+    QmlProfilerStatisticsView *m_statisticsView = nullptr;
+    QMultiHash<QString, TextMarkId> m_ids;
+    QList<QmlProfilerTextMark *> m_marks;
+};
 
 const int DEFAULT_SORT_COLUMN = MainTimeInPercent;
 
@@ -49,6 +100,16 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
 {
     setObjectName(QLatin1String("QmlProfiler.Statistics.Dock"));
     setWindowTitle(Tr::tr("Statistics"));
+
+    m_textMarkModel = new QmlProfilerTextMarkModel(this, this);
+    connect(profilerModelManager, &QmlProfilerModelManager::initialized,
+            m_textMarkModel, &QmlProfilerTextMarkModel::hideTextMarks);
+    connect(profilerModelManager, &QmlProfilerModelManager::typesCleared,
+            m_textMarkModel, &QmlProfilerTextMarkModel::clear);
+    connect(profilerModelManager, &QmlProfilerModelManager::typeLocationAdded,
+            m_textMarkModel, &QmlProfilerTextMarkModel::addTextMarkId);
+    connect(profilerModelManager, &Timeline::TimelineTraceManager::loadFinished,
+            m_textMarkModel, &QmlProfilerTextMarkModel::showTextMarks);
 
     auto model = new QmlProfilerStatisticsModel(profilerModelManager);
     m_mainView.reset(new QmlProfilerStatisticsMainView(model));
@@ -174,6 +235,11 @@ void QmlProfilerStatisticsView::selectByTypeId(int typeIndex)
 void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
 {
     m_mainView->restrictToFeatures(features);
+}
+
+void QmlProfilerStatisticsView::createMarks(const QString &fileName)
+{
+    m_textMarkModel->createMarks(fileName);
 }
 
 //  QmlProfilerStatisticsMainView
@@ -385,6 +451,119 @@ void QmlProfilerStatisticsRelativesView::displayType(int typeIndex)
 void QmlProfilerStatisticsRelativesView::jumpToItem(int typeIndex)
 {
     emit typeClicked(typeIndex);
+}
+
+QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerStatisticsView *statisticsView,
+                                         int typeId,
+                                         const FilePath &fileName, int lineNumber)
+    : TextMark(fileName, lineNumber, {Tr::tr("QML Profiler"), Constants::TEXT_MARK_CATEGORY})
+    , m_statisticsView(statisticsView)
+{
+    addTypeId(typeId);
+}
+
+void QmlProfilerTextMark::addTypeId(int typeId)
+{
+    m_typeIds.append(typeId);
+    QTC_ASSERT(m_statisticsView, return);
+    setLineAnnotation(m_statisticsView->summary(m_typeIds));
+}
+
+bool QmlProfilerTextMark::addToolTipContent(QLayout *target) const
+{
+    QTC_ASSERT(m_statisticsView, return false);
+
+    auto layout = new QGridLayout;
+    layout->setHorizontalSpacing(10);
+    for (int row = 0, rowEnd = m_typeIds.length(); row != rowEnd; ++row) {
+        int typeId = m_typeIds[row];
+        const QStringList typeDetails = m_statisticsView->details(m_typeIds[row]);
+        for (int column = 0, columnEnd = typeDetails.length(); column != columnEnd; ++column) {
+            QLabel *label = new QLabel;
+            label->setAlignment(column == columnEnd - 1 ? Qt::AlignRight : Qt::AlignLeft);
+            if (column == 0) {
+                label->setTextFormat(Qt::RichText);
+                label->setTextInteractionFlags(Qt::LinksAccessibleByMouse
+                                               | Qt::LinksAccessibleByKeyboard);
+                label->setText(QString("<a href='selectType' style='text-decoration:none'>%1</a>")
+                                   .arg(typeDetails[column]));
+                QObject::connect(label, &QLabel::linkActivated, m_statisticsView,
+                                 [this, typeId]() { emit m_statisticsView->typeSelected(typeId); });
+            } else {
+                label->setTextFormat(Qt::PlainText);
+                label->setText(typeDetails[column]);
+            }
+            layout->addWidget(label, row, column);
+        }
+    }
+
+    target->addItem(layout);
+    return true;
+}
+
+QmlProfilerTextMarkModel::QmlProfilerTextMarkModel(QmlProfilerStatisticsView *statisticsView,
+                                                   QObject *parent)
+    : QObject(parent)
+    , m_statisticsView(statisticsView)
+{}
+
+QmlProfilerTextMarkModel::~QmlProfilerTextMarkModel()
+{
+    qDeleteAll(m_marks);
+}
+
+void QmlProfilerTextMarkModel::clear()
+{
+    qDeleteAll(m_marks);
+    m_marks.clear();
+    m_ids.clear();
+}
+
+void QmlProfilerTextMarkModel::addTextMarkId(int typeId,
+                                             const QmlDebug::QmlEventLocation &location)
+{
+    m_ids.insert(location.filename(), {typeId, location.line(), location.column()});
+}
+
+void QmlProfilerTextMarkModel::createMarks(const QString &fileName)
+{
+    auto first = m_ids.find(fileName);
+    QVarLengthArray<TextMarkId> ids;
+
+    for (auto it = first; it != m_ids.end() && it.key() == fileName;) {
+        ids.append({it->typeId, it->lineNumber > 0 ? it->lineNumber : 1, it->columnNumber});
+        it = m_ids.erase(it);
+    }
+
+    std::sort(ids.begin(), ids.end(), [](const TextMarkId &a, const TextMarkId &b) {
+        return (a.lineNumber == b.lineNumber) ? (a.columnNumber < b.columnNumber)
+                                              : (a.lineNumber < b.lineNumber);
+    });
+
+    int lineNumber = -1;
+    for (const auto &id : ids) {
+        if (id.lineNumber == lineNumber) {
+            m_marks.last()->addTypeId(id.typeId);
+        } else {
+            lineNumber = id.lineNumber;
+            m_marks << new QmlProfilerTextMark(m_statisticsView,
+                                               id.typeId,
+                                               FilePath::fromString(fileName),
+                                               id.lineNumber);
+        }
+    }
+}
+
+void QmlProfilerTextMarkModel::showTextMarks()
+{
+    for (QmlProfilerTextMark *mark : std::as_const(m_marks))
+        mark->setVisible(true);
+}
+
+void QmlProfilerTextMarkModel::hideTextMarks()
+{
+    for (QmlProfilerTextMark *mark : std::as_const(m_marks))
+        mark->setVisible(false);
 }
 
 } // namespace QmlProfiler::Internal

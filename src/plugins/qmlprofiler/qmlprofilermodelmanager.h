@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "qmlprofilertextmark.h"
-
 #include <qmldebug/qmlevent.h>
 #include <qmldebug/qmleventlocation.h>
 #include <qmldebug/qmleventtype.h>
@@ -39,8 +37,6 @@ public:
 
     explicit QmlProfilerModelManager(QObject *parent = nullptr);
 
-    QmlProfilerTextMarkModel *textMarkModel() const;
-
     const QmlDebug::QmlEventType &eventType(int typeId) const;
 
     void replayQmlEvents(QmlEventLoader loader, Initializer initializer, Finalizer finalizer,
@@ -66,6 +62,9 @@ public:
     QmlEventFilter rangeFilter(qint64 start, qint64 end) const;
 
 signals:
+    void initialized();
+    void typesCleared();
+    void typeLocationAdded(int typeId, const QmlDebug::QmlEventLocation &location);
     void traceChanged();
     void typeDetailsChanged(int typeId);
     void typeDetailsFinished();
@@ -84,7 +83,6 @@ private:
     void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
                       ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
 
-    QmlProfilerTextMarkModel *m_textMarkModel = nullptr;
     QmlProfilerDetailsRewriter *m_detailsRewriter = nullptr;
     bool m_isRestrictedToRange = false;
 };
