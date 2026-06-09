@@ -127,8 +127,6 @@ int TimelineTraceManager::appendEventType(TraceEventType &&type)
 void TimelineTraceManager::registerFeatures(quint64 features, Initializer initializer,
                                             Finalizer finalizer, Clearer clearer)
 {
-    Q_UNUSED(eventLoader)
-
     if ((features & d->availableFeatures) != features) {
         d->availableFeatures |= features;
         emit availableFeaturesChanged(d->availableFeatures);
