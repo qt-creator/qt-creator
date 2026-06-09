@@ -31,7 +31,7 @@ struct ShortcutEntry
         : keyseq(0)
         , context(Qt::WindowShortcut)
         , enabled(false)
-        , autorepeat(1)
+        , autorepeat(true)
         , id(0)
         , owner(nullptr)
         , contextMatcher(nullptr)
@@ -41,7 +41,7 @@ struct ShortcutEntry
         : keyseq(k)
         , context(Qt::WindowShortcut)
         , enabled(false)
-        , autorepeat(1)
+        , autorepeat(true)
         , id(0)
         , owner(nullptr)
         , contextMatcher(nullptr)
@@ -311,7 +311,7 @@ bool ShortcutMap::hasShortcutForKeySequence(const QKeySequence &seq) const
 QKeySequence::SequenceMatch ShortcutMap::find(QKeyEvent *e, int ignoredModifiers)
 {
     Q_D(ShortcutMap);
-    if (!d->sequences.size())
+    if (d->sequences.isEmpty())
         return QKeySequence::NoMatch;
 
     createNewSequences(e, d->newEntries, ignoredModifiers);
@@ -355,7 +355,7 @@ QKeySequence::SequenceMatch ShortcutMap::find(QKeyEvent *e, int ignoredModifiers
                         identicalDisabledFound = true;
                 } else if (tempRes == QKeySequence::PartialMatch) {
                     // We don't need partials, if we have identicals
-                    if (d->identicals.size())
+                    if (!d->identicals.isEmpty())
                         break;
                     // We only care about enabled partials, so we don't consume
                     // key events when all partials are disabled!
@@ -381,7 +381,7 @@ QKeySequence::SequenceMatch ShortcutMap::find(QKeyEvent *e, int ignoredModifiers
         }
     }
 
-    if (d->identicals.size()) {
+    if (!d->identicals.isEmpty()) {
         result = QKeySequence::ExactMatch;
     } else if (partialFound) {
         result = QKeySequence::PartialMatch;
@@ -502,7 +502,7 @@ QList<const ShortcutEntry *> ShortcutMap::matches() const
 bool ShortcutMap::dispatchEvent(QKeyEvent *e)
 {
     Q_D(ShortcutMap);
-    if (!d->identicals.size())
+    if (d->identicals.isEmpty())
         return false;
 
     const QKeySequence &curKey = d->identicals.at(0)->keyseq;

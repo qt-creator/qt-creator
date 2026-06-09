@@ -599,11 +599,8 @@ void TerminalWidget::showEvent(QShowEvent *event)
 void TerminalWidget::handleEscKey(QKeyEvent *event)
 {
     bool sendToTerminal = settings().sendEscapeToTerminal();
-    bool send = false;
-    if (sendToTerminal && event->modifiers() == Qt::NoModifier)
-        send = true;
-    else if (!sendToTerminal && event->modifiers() == Qt::ShiftModifier)
-        send = true;
+    const bool send = (sendToTerminal && event->modifiers() == Qt::NoModifier)
+                      || (!sendToTerminal && event->modifiers() == Qt::ShiftModifier);
 
     if (send) {
         event->setModifiers(Qt::NoModifier);

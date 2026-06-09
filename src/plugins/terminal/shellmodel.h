@@ -24,7 +24,7 @@ class ShellModel : public QObject
 {
 public:
     ShellModel(QObject *parent = nullptr);
-    ~ShellModel();
+    ~ShellModel() override;
 
     QList<ShellModelItem> local() const;
     QList<ShellModelItem> remote() const;
