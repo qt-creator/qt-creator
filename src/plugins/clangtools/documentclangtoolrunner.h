@@ -5,7 +5,7 @@
 
 #include "clangfileinfo.h"
 #include "clangtoolsdiagnostic.h"
-#include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 

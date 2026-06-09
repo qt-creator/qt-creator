@@ -3,7 +3,7 @@
 
 #include "clangtoolscompilationdb.h"
 
-#include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "executableinfo.h"

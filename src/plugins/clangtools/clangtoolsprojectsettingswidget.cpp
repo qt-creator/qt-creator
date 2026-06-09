@@ -5,7 +5,7 @@
 
 #include "clangtool.h"
 #include "clangtoolsconstants.h"
-#include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolstr.h"
 #include "runsettingswidget.h"

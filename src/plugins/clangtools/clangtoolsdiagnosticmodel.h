@@ -4,7 +4,7 @@
 #pragma once
 
 #include "clangtoolsdiagnostic.h"
-#include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 
 #include <projectexplorer/detailederrorview.h>

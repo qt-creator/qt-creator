@@ -4,7 +4,7 @@
 #include "clangtoolsdiagnosticview.h"
 
 #include "clangtoolsdiagnosticmodel.h"
-#include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"

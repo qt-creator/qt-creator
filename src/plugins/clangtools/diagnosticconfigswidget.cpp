@@ -4,7 +4,6 @@
 #include "diagnosticconfigswidget.h"
 
 #include "clangtoolsdiagnostic.h"
-#include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"

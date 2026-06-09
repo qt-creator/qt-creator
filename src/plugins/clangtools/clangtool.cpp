@@ -8,7 +8,6 @@
 #include "clangtoolscompilationdb.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnosticview.h"
-#include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"

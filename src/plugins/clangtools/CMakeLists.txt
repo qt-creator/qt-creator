@@ -28,7 +28,6 @@ add_qtc_plugin(ClangTools
     clangtoolsdiagnosticview.cpp clangtoolsdiagnosticview.h
     clangtoolslogfilereader.cpp clangtoolslogfilereader.h
     clangtoolsplugin.cpp
-    clangtoolsprojectsettings.cpp clangtoolsprojectsettings.h
     clangtoolsprojectsettingswidget.cpp clangtoolsprojectsettingswidget.h
     clangtoolssettings.cpp clangtoolssettings.h
     clangtoolsutils.cpp clangtoolsutils.h

@@ -4,9 +4,7 @@
 #include "clangdiagnosticconfigsselectionwidget.h"
 
 #include "clangdiagnosticconfigswidget.h"
-#include "cppcodemodelsettings.h"
 #include "cppeditortr.h"
-#include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
 
