@@ -168,9 +168,7 @@ void UpdateInfoSettingsPageWidget::checkRunningChanged(bool running)
         }
         m_progressIndicator->show();
     } else {
-        if (m_progressIndicator) {
-            delete m_progressIndicator;
-        }
+        delete m_progressIndicator;
     }
 
     const QString message = running

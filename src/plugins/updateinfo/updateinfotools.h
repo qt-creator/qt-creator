@@ -25,7 +25,7 @@ struct Update
     bool operator==(const Update &other) const = default;
 };
 
-QList<Update> availableUpdates(const QString &updateXml)
+inline QList<Update> availableUpdates(const QString &updateXml)
 {
     QDomDocument document;
     document.setContent(updateXml);
@@ -54,7 +54,7 @@ struct Package
     bool operator==(const Package &) const = default;
 };
 
-QList<Package> availablePackages(const QString &packageXml)
+inline QList<Package> availablePackages(const QString &packageXml)
 {
     QDomDocument document;
     document.setContent(packageXml);
@@ -83,13 +83,13 @@ struct QtPackage
 {
     QString displayName;
     QVersionNumber version;
-    bool installed;
+    bool installed = false;
     bool isPrerelease = false;
 
     bool operator==(const QtPackage &other) const = default;
 };
 
-QList<QtPackage> availableQtPackages(const QString &packageXml)
+inline QList<QtPackage> availableQtPackages(const QString &packageXml)
 {
     const QList<Package> available = availablePackages(packageXml);
     QList<QtPackage> result;
@@ -108,7 +108,7 @@ QList<QtPackage> availableQtPackages(const QString &packageXml)
 }
 
 // Expects packages to be sorted, high version first.
-std::optional<QtPackage> highestInstalledQt(const QList<QtPackage> &packages)
+inline std::optional<QtPackage> highestInstalledQt(const QList<QtPackage> &packages)
 {
     const auto highestInstalledIt = std::find_if(packages.cbegin(),
                                                  packages.cend(),
@@ -119,7 +119,7 @@ std::optional<QtPackage> highestInstalledQt(const QList<QtPackage> &packages)
 }
 
 // Expects packages to be sorted, high version first.
-std::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
+inline std::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
                                         QVersionNumber *highestSeen)
 {
     // Filter out any Qt prereleases
