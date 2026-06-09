@@ -7,7 +7,7 @@ QtApplication {
     Depends { name: "Utils" }
 
     consoleApplication: true
-    cpp.cxxLanguageVersion: "c++17"
+    cpp.cxxLanguageVersion: "c++20"
     cpp.defines: {
         var defines = base;
         var absLibExecPath = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix,

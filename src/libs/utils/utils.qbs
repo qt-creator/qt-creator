@@ -147,6 +147,7 @@ QtcLibrary {
         "filenamevalidatinglineedit.h",
         "filepath.cpp",
         "filepath.h",
+        "filepathinfo.h",
         "filesearch.cpp",
         "filesearch.h",
         "filestreamer.cpp",
