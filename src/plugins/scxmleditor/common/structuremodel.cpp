@@ -284,32 +284,24 @@ void StructureModel::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag
         return;
 
     switch (change) {
-    case ScxmlDocument::TagAttributesChanged: {
+    case ScxmlDocument::TagAttributesChanged:
         emit dataChanged(QModelIndex(), QModelIndex());
         break;
-    }
     case ScxmlDocument::TagAddChild:
-    case ScxmlDocument::TagChangeParentAddChild: {
+    case ScxmlDocument::TagChangeParentAddChild:
         endInsertRows();
         emit childAdded(createIndex(0, 0, tag->child(value.toInt())));
         break;
-    }
-    case ScxmlDocument::TagChangeParentRemoveChild: {
+    case ScxmlDocument::TagChangeParentRemoveChild:
+    case ScxmlDocument::TagRemoveChild:
         endRemoveRows();
         break;
-    }
-    case ScxmlDocument::TagRemoveChild: {
-        endRemoveRows();
-        break;
-    }
-    case ScxmlDocument::TagChangeOrder: {
+    case ScxmlDocument::TagChangeOrder:
         endMoveRows();
         break;
-    }
-    case ScxmlDocument::TagCurrentChanged: {
+    case ScxmlDocument::TagCurrentChanged:
         emit selectIndex(createIndex(tag->index(), 0, tag));
         break;
-    }
     default:
         break;
     }

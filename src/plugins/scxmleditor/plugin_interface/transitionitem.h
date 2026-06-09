@@ -139,7 +139,7 @@ private:
 
     QPolygonF m_arrow;
     qreal m_arrowSize = 10;
-    qreal m_arrowAngle;
+    qreal m_arrowAngle = 0;
     QPen m_pen;
     QPen m_highlightPen;
     bool m_lineSelected = false;

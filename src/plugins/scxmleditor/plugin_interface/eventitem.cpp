@@ -32,7 +32,7 @@ EventItem::EventItem(const QPointF &pos, BaseItem *parent)
 void EventItem::updateAttributes()
 {
     QString text = "  " + tag()->tagName();
-    if (tag()->attributeNames().size() > 0) {
+    if (!tag()->attributeNames().isEmpty()) {
         for (int i = 0; i < tag()->attributeNames().size(); ++i)
             if (tag()->attributeNames().at(i) == "event") {
                 if (tag()->attributeValues().size() > i)

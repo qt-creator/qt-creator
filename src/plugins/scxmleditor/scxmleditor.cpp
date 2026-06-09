@@ -333,7 +333,7 @@ public:
             return m_editorData->createEditor();
         });
     }
-    ~ScxmlEditorFactory()
+    ~ScxmlEditorFactory() final
     {
         delete m_editorData;
     }
