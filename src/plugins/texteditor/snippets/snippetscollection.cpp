@@ -38,8 +38,7 @@ static bool snippetComp(const Snippet &a, const Snippet &b)
     const int comp = a.trigger().toLower().localeAwareCompare(b.trigger().toLower());
     if (comp < 0)
         return true;
-    else if (comp == 0 &&
-             a.complement().toLower().localeAwareCompare(b.complement().toLower()) < 0)
+    if (comp == 0 && a.complement().toLower().localeAwareCompare(b.complement().toLower()) < 0)
         return true;
     return false;
 }

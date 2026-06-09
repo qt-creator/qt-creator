@@ -40,7 +40,7 @@ private:
     struct SnippetSelection
     {
         int variableIndex = -1;
-        NameMangler *mangler;
+        NameMangler *mangler = nullptr;
     };
 
     int indexForCursor(const QTextCursor &cursor) const;

@@ -162,17 +162,16 @@ static constexpr char dropProperty[] = "dropProp";
 class LineColumnButtonPrivate
 {
 public:
+    TextEditorWidget * const m_editor;
     QSize m_maxSize;
-    TextEditorWidget *m_editor;
 };
 
 } // namespace Internal
 
 LineColumnButton::LineColumnButton(TextEditorWidget *parent)
     : QToolButton(parent)
-    , m_d(new LineColumnButtonPrivate)
+    , m_d(new LineColumnButtonPrivate{parent})
 {
-    m_d->m_editor = parent;
     connect(m_d->m_editor, &PlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
     connect(this, &QToolButton::clicked, ActionManager::instance(), [this] {
         m_d->m_editor->setFocus();
@@ -3448,8 +3447,8 @@ class PositionedPart : public ParsedSnippet::Part
 {
 public:
     explicit PositionedPart(const ParsedSnippet::Part &part) : ParsedSnippet::Part(part) {}
-    int start;
-    int end;
+    int start = 0;
+    int end = 0;
 };
 
 class CursorPart : public ParsedSnippet::Part
@@ -7695,7 +7694,7 @@ void TextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
         menu->addAction(Tr::tr("Fold All"), this, [this] { unfoldAll(/* unfold  = */ false); });
         menu->addAction(Tr::tr("Unfold"), this, [&] { unfold(block); });
         menu->addAction(Tr::tr("Unfold Recursively"), this, [&] { unfold(block, true); });
-        menu->addAction(Tr::tr("Unfold All"), this, [this] { unfoldAll(/* fold  = */ true); });
+        menu->addAction(Tr::tr("Unfold All"), this, [this] { unfoldAll(/* unfold  = */ true); });
         menu->exec(e->globalPos());
 
         delete menu;

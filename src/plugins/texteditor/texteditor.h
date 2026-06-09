@@ -768,7 +768,7 @@ class TEXTEDITOR_EXPORT LineColumnButton : public QToolButton
 {
 public:
     LineColumnButton(TextEditorWidget *parent);
-    ~LineColumnButton();
+    ~LineColumnButton() override;
 
 private:
     void update();

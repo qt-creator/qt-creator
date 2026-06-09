@@ -28,9 +28,9 @@ enum HighlighterTypeProperty
 class SyntaxHighlighterPrivate
 {
 public:
-    SyntaxHighlighterPrivate() = default;
-
-    SyntaxHighlighterPrivate(const FontSettingsData &fontSettings)
+    SyntaxHighlighterPrivate(SyntaxHighlighter *q) : q(q) {}
+    SyntaxHighlighterPrivate(SyntaxHighlighter *q, const FontSettingsData &fontSettings)
+        : SyntaxHighlighterPrivate(q)
     {
         updateFormats(fontSettings);
     }
@@ -69,7 +69,7 @@ public:
     int highlightStartBlock = 0;
     int highlightEndBlock = 0;
     QSet<int> forceRehighlightBlocks;
-    SyntaxHighlighter *q;
+    SyntaxHighlighter * const q;
 };
 
 static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsDelta)
@@ -100,9 +100,8 @@ void SyntaxHighlighter::continueRehighlight()
 
 #ifdef WITH_TESTS
 SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent, const FontSettingsData &fontsettings)
-    : QObject(parent), d(new SyntaxHighlighterPrivate(fontsettings))
+    : QObject(parent), d(new SyntaxHighlighterPrivate(this, fontsettings))
 {
-    d->q = this;
     if (parent)
         setDocument(parent);
 }
@@ -326,9 +325,8 @@ void SyntaxHighlighterPrivate::reformatBlock(const QTextBlock &block)
     Constructs a SyntaxHighlighter with the given \a parent.
 */
 SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
-    : QObject(parent), d(new SyntaxHighlighterPrivate)
+    : QObject(parent), d(new SyntaxHighlighterPrivate(this))
 {
-    d->q = this;
 }
 
 /*!
@@ -337,9 +335,8 @@ SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
     SyntaxHighlighter.
 */
 SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
-    : QObject(parent), d(new SyntaxHighlighterPrivate)
+    : QObject(parent), d(new SyntaxHighlighterPrivate(this))
 {
-    d->q = this;
     if (parent)
         setDocument(parent);
 }
@@ -350,9 +347,8 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
     the SyntaxHighlighter.
 */
 SyntaxHighlighter::SyntaxHighlighter(QTextEdit *parent)
-    : QObject(parent), d(new SyntaxHighlighterPrivate)
+    : QObject(parent), d(new SyntaxHighlighterPrivate(this))
 {
-    d->q = this;
     if (parent)
         setDocument(parent->document());
 }

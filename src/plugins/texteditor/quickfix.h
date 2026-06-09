@@ -58,7 +58,7 @@ public:
     virtual void perform() = 0;
 
 private:
-    int _priority;
+    int _priority = 0;
     QString _description;
 };
 

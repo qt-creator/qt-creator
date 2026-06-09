@@ -305,7 +305,7 @@ public:
         });
     }
 
-    ~MarkdownEditor() { delete widget(); }
+    ~MarkdownEditor() override { delete widget(); }
 
     void triggerEmphasis()
     {

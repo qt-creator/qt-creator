@@ -39,7 +39,7 @@ public:
     void setValue(const Utils::TextEncoding &value);
 
 private:
-    void addToLayoutImpl(Layouting::Layout &parent);
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     CodecChooser *m_codecChooser = nullptr;
 };

@@ -83,7 +83,7 @@ public:
     bool showControl(ShowControls showControl) const;
 
 private:
-    TextStyle m_id;            // Name of the category
+    TextStyle m_id = C_TEXT;    // Name of the category
     Format m_format;            // Default format
     QString m_displayName;      // Displayed name of the category
     QString m_tooltipText;      // Description text for category
