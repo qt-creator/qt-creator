@@ -13,6 +13,7 @@
 #include "shutdownguard.h"
 #include "textcodec.h"
 #include "utilstr.h"
+#include "winutils.h"
 
 #ifndef UTILS_STATIC_LIBRARY
 #include "qtcprocess.h"
@@ -820,6 +821,7 @@ Result<bool> DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) con
         if (s.st_nlink > 1)
             return true;
     }
+    return false;
 #elif defined(Q_OS_WIN)
     const HANDLE handle = CreateFile((wchar_t *) filePath.toUserOutput().utf16(),
                                      0,
@@ -829,16 +831,19 @@ Result<bool> DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) con
                                      FILE_FLAG_BACKUP_SEMANTICS,
                                      NULL);
     if (handle == INVALID_HANDLE_VALUE)
-        return false;
+        return ResultError(winErrorMessage(GetLastError()));
 
     FILE_STANDARD_INFO info;
     const bool success = GetFileInformationByHandleEx(handle, FileStandardInfo, &info, sizeof(info));
     CloseHandle(handle);
-    return success && info.NumberOfLinks > 1;
+    if (success)
+        return info.NumberOfLinks > 1;
+    else
+        return ResultError(winErrorMessage(GetLastError()));
 #else
     Q_UNUSED(filePath)
 #endif
-    return false;
+    return ResultError(ResultUnimplemented);
 }
 
 
