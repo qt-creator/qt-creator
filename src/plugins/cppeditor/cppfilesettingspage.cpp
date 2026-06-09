@@ -31,6 +31,7 @@
 #include <QFile>
 #include <QGuiApplication>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QLocale>
 #include <QStandardItem>
 #include <QTextStream>
@@ -202,8 +203,10 @@ CppFileSettings::CppFileSettings()
     headerPragmaOnce.setToolTip(
         Tr::tr("Uses \"#pragma once\" instead of \"#ifndef\" include guards."));
     headerPragmaOnce.addOnVolatileValueChanged(this, [this] {
-        headerGuardTemplate.setEnabled(!headerPragmaOnce.volatileValue());
+        headerGuardTemplate.setEnabled(isEnabled() && !headerPragmaOnce.volatileValue());
     });
+
+    includeGuardLabel.setText(Tr::tr("Include guard template:"));
 
     lowerCaseFiles.setSettingsKey(Constants::LOWERCASE_CPPFILES_KEY);
     lowerCaseFiles.setDefaultValue(Constants::LOWERCASE_CPPFILES_DEFAULT);
@@ -211,7 +214,14 @@ CppFileSettings::CppFileSettings()
 
     setLayouter([this] {
         using namespace Layouting;
-        headerGuardTemplate.setEnabled(!headerPragmaOnce());
+        headerGuardTemplate.setEnabled(isEnabled() && !headerPragmaOnce());
+
+        auto editButton = new QPushButton(Tr::tr("Edit..."));
+        editButton->setEnabled(isEnabled());
+        connect(this, &BaseAspect::enabledChanged, editButton,
+                [this, editButton] { editButton->setEnabled(isEnabled()); });
+        connect(editButton, &QPushButton::clicked, this, [this] { slotEdit(); });
+
         return Column {
             Group {
                 title(Tr::tr("Headers")),
@@ -219,7 +229,7 @@ CppFileSettings::CppFileSettings()
                     headerSuffix, st, br,
                     headerSearchPaths, br,
                     headerPrefixes, br,
-                    Tr::tr("Include guard template:"), headerPragmaOnce, headerGuardTemplate
+                    includeGuardLabel, headerPragmaOnce, headerGuardTemplate
                 },
             },
             Group {
@@ -233,14 +243,19 @@ CppFileSettings::CppFileSettings()
             lowerCaseFiles,
             Row {
                 licenseTemplatePath,
-                PushButton {
-                    text(Tr::tr("Edit...")),
-                    onClicked(this, [this] { slotEdit(); })
-                },
+                editButton,
             },
             st
         };
     });
+}
+
+void CppFileSettings::setEnabled(bool enabled)
+{
+    AspectContainer::setEnabled(enabled);
+    // Re-apply the secondary constraint: headerGuardTemplate must also be
+    // disabled when headerPragmaOnce is checked, regardless of container state.
+    headerGuardTemplate.setEnabled(enabled && !headerPragmaOnce());
 }
 
 void CppFileSettings::apply()

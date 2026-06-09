@@ -49,6 +49,7 @@ public:
 
     Utils::BoolAspect headerPragmaOnce{this};
     Utils::BoolAspect lowerCaseFiles{this};
+    Utils::TextDisplay includeGuardLabel{this};
 
     void addMimeInitializer() const;
     bool applySuffixesToMimeDB();
@@ -58,6 +59,9 @@ public:
 
     // Expanded headerGuardTemplate.
     QString headerGuard(const Utils::FilePath &headerFilePath) const;
+
+protected:
+    void setEnabled(bool enabled) override;
 
 private:
     void apply() final;
