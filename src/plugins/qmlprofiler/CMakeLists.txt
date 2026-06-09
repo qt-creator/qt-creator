@@ -22,6 +22,13 @@ else()
 endif()
 
 set(QMLPROFILER_CPP_SOURCES
+  ctfstatisticsmodel.cpp ctfstatisticsmodel.h
+  ctfstatisticsview.cpp ctfstatisticsview.h
+  ctftimelinemodel.cpp ctftimelinemodel.h
+  ctftracemanager.cpp ctftracemanager.h
+  ctfvisualizerconstants.h
+  ctfvisualizertr.h
+  ctfvisualizertool.cpp ctfvisualizertool.h
   debugmessagesmodel.cpp debugmessagesmodel.h
   flamegraphmodel.cpp flamegraphmodel.h
   flamegraphview.cpp flamegraphview.h
@@ -62,8 +69,17 @@ set(QMLPROFILER_CPP_SOURCES
 
 add_qtc_plugin(QmlProfiler
   DEPENDS QmlDebug QmlJS Tracing
+  INCLUDES ${PROJECT_SOURCE_DIR}/src
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
   SOURCES
     ${TEST_SOURCES}
     ${QMLPROFILER_CPP_SOURCES}
+    ../../libs/3rdparty/json/json.hpp
+  SBOM_ARGS
+    USE_ATTRIBUTION_FILES
+    CREATE_SBOM_FOR_EACH_ATTRIBUTION
+    ATTRIBUTION_FILE_PATHS
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS
+      json-nlohmann
 )

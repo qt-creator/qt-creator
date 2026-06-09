@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "ctfvisualizertool.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilertool.h"
@@ -39,6 +40,7 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        CtfVisualizer::Internal::setupCtfVisualizerTool();
         setupQmlProfilerTool();
         setupQmlProfilerRunning();
 

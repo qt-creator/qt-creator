@@ -18,6 +18,13 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
+            "ctfstatisticsmodel.cpp", "ctfstatisticsmodel.h",
+            "ctfstatisticsview.cpp", "ctfstatisticsview.h",
+            "ctftimelinemodel.cpp", "ctftimelinemodel.h",
+            "ctftracemanager.cpp", "ctftracemanager.h",
+            "ctfvisualizerconstants.h",
+            "ctfvisualizertr.h",
+            "ctfvisualizertool.cpp", "ctfvisualizertool.h",
             "debugmessagesmodel.cpp", "debugmessagesmodel.h",
             "flamegraphmodel.cpp", "flamegraphmodel.h",
             "flamegraphview.cpp", "flamegraphview.h",
