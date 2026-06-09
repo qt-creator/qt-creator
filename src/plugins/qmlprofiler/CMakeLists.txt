@@ -68,7 +68,7 @@ set(QMLPROFILER_CPP_SOURCES
 )
 
 add_qtc_plugin(QmlProfiler
-  DEPENDS QmlDebug QmlJS Tracing
+  DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat
   INCLUDES ${PROJECT_SOURCE_DIR}/src
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
   SOURCES
