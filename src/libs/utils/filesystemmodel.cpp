@@ -723,6 +723,9 @@ QVariant FileSystemModel::data(const QModelIndex &index, int role) const
         // Directories sort before files, then alphabetically case-insensitive
         return QVariant(QString(node->isDir() ? QChar('0') : QChar('1'))
                         + node->m_path.fileName().toLower());
+    case Qt::EditRole:
+        if (index.column() == NameColumn)
+            return node->m_path.fileName();
     }
 
     return {};
