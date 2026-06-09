@@ -50,11 +50,13 @@ static QByteArrayList mainFunctionHead(Language language)
 static QByteArrayList functionFooter(Language language)
 {
     switch (language) {
-    case Language::Python: return {};
-    case Language::Perl: return { "}" };
-    case Language::JavaScript: return { "}" };
-    case Language::Ruby: return {};
-    case Language::Tcl: return { "}" };
+    case Language::Perl:
+    case Language::JavaScript:
+    case Language::Tcl:
+        return { "}" };
+    case Language::Python:
+    case Language::Ruby:
+        return {};
     }
     return {};
 }

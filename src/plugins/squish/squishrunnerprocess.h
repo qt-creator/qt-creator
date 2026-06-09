@@ -20,7 +20,7 @@ public:
     enum RunnerError { InvalidSocket, MappedAutMissing };
 
     explicit SquishRunnerProcess(QObject *parent = nullptr);
-    ~SquishRunnerProcess() = default;
+    ~SquishRunnerProcess() override = default;
 
     void setupProcess(RunnerMode mode);
     void setTestCasePath(const Utils::FilePath &testCasePath) { m_currentTestCasePath = testCasePath; }

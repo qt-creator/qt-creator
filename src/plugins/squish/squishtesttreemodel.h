@@ -7,11 +7,8 @@
 
 #include <QSortFilterProxyModel>
 
-namespace {
-enum ItemRole { LinkRole = Qt::UserRole + 2, TypeRole, DisplayNameRole };
-}
-
 namespace Squish::Internal {
+enum ItemRole { LinkRole = Qt::UserRole + 2, TypeRole, DisplayNameRole };
 
 class SquishFileHandler;
 

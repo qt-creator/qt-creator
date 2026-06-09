@@ -43,7 +43,6 @@ private:
     QSortFilterProxyModel *m_filterModel;
 
     QLabel *m_detailsLabel;
-    QRadioButton *adjustReferencesRB;
     QListView *m_symbolicNamesList;
     QDialogButtonBox *m_buttonBox;
 };

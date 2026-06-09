@@ -139,8 +139,7 @@ SquishTools::SquishTools(QObject *parent)
 
 SquishTools::~SquishTools()
 {
-    if (m_locationMarker) // happens when QC is closed while Squish is executed
-        delete m_locationMarker;
+    delete m_locationMarker; // potentially needed when QC is closed while Squish is executed
 }
 
 SquishTools *SquishTools::instance()
@@ -1290,8 +1289,7 @@ void SquishTools::setupAndStartSquishRunnerProcess(const CommandLine &cmdLine)
 
 void SquishTools::setupRunnerForQuery()
 {
-    if (m_primaryRunner)
-        delete m_primaryRunner;
+    delete m_primaryRunner;
 
     m_primaryRunner = new SquishRunnerProcess(this);
     m_primaryRunner->setupProcess(SquishRunnerProcess::QueryServer);
@@ -1305,8 +1303,7 @@ void SquishTools::setupRunnerForQuery()
 
 void SquishTools::setupRunnerForRun()
 {
-    if (m_primaryRunner)
-        delete m_primaryRunner;
+    delete m_primaryRunner;
 
     m_primaryRunner = new SquishRunnerProcess(this);
     m_primaryRunner->setupProcess(m_request == RecordTestRequested ? SquishRunnerProcess::StartAut

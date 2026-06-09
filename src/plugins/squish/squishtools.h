@@ -164,7 +164,7 @@ private:
     QWindowList m_lastTopLevelWindows;
     class SquishLocationMark *m_locationMarker = nullptr;
     QTimer *m_requestVarsTimer = nullptr;
-    qint64 m_readResultsCount;
+    qint64 m_readResultsCount = 0;
     QueryCallback m_queryCallback;
     RunnerQuery m_query = ServerInfo;
     bool m_shutdownInitiated = false;

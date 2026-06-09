@@ -14,7 +14,7 @@ class SquishServerProcess : public SquishProcessBase
     Q_OBJECT
 public:
     explicit SquishServerProcess(QObject *parent = nullptr);
-    ~SquishServerProcess() = default;
+    ~SquishServerProcess() override = default;
 
     int port() const { return m_serverPort; }
 
