@@ -153,10 +153,9 @@ bool MimeGlobPattern::matchFileName(const QString &inputFileName) const
         return lastCharOK && QStringView{fileName}.mid(fileNameLength - 6, 5) == ".anim"_L1;
     }
     case OtherPattern:
-#if QT_CONFIG(regularexpression)
         // Other fallback patterns: slow but correct method
-        const QRegularExpression rx(QRegularExpression::anchoredPattern(
-            QRegularExpression::wildcardToRegularExpression(m_pattern)));
+#if QT_CONFIG(regularexpression)
+        auto rx = QRegularExpression::fromWildcard(m_pattern);
         return rx.match(fileName).hasMatch();
 #else
         return false;

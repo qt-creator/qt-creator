@@ -42,11 +42,7 @@ public:
     MimeType();
     MimeType(const MimeType &other);
     MimeType &operator=(const MimeType &other);
-    MimeType &operator=(MimeType &&other) noexcept
-    {
-        swap(other);
-        return *this;
-    }
+    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_PURE_SWAP(MimeType)
     void swap(MimeType &other) noexcept
     {
         d.swap(other.d);
