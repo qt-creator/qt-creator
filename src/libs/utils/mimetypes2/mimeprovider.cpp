@@ -533,13 +533,15 @@ MimeBinaryProvider::loadMimeTypeExtra(const QString &mimeName)
         // load comment and globPatterns
 
         // shared-mime-info since 1.3 lowercases the xml files
-        QString mimeFile = m_directory + u'/' + mimeName.toLower() + ".xml"_L1;
-        if (!QFileInfo::exists(mimeFile))
-            mimeFile = m_directory + u'/' + mimeName + ".xml"_L1; // pre-1.3
-
-        QFile qfile(mimeFile);
-        if (!qfile.open(QFile::ReadOnly))
-            return it;
+        QFile qfile;
+        const QString mimeFile = m_directory + u'/' + mimeName.toLower() + ".xml"_L1;
+        qfile.setFileName(mimeFile);
+        if (!qfile.open(QFile::ReadOnly)) {
+            const QString fallbackMimeFile = m_directory + u'/' + mimeName + ".xml"_L1; // pre-1.3
+            qfile.setFileName(fallbackMimeFile);
+            if (!qfile.open(QFile::ReadOnly))
+                return it;
+        }
 
         MimeTypeExtra &extra = it->second;
         QString mainPattern;
