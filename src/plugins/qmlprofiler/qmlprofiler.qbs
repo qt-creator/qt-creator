@@ -5,6 +5,7 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
 
+    Depends { name: "CommonTraceFormat" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }

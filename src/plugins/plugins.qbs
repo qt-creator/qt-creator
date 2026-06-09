@@ -34,7 +34,6 @@ Project {
         "cpaster/frontend/frontend.qbs",
         "cppcheck/cppcheck.qbs",
         "cppeditor/cppeditor.qbs",
-        "ctfvisualizer/ctfvisualizer.qbs",
         "cvs/cvs.qbs",
         "debugger/debugger.qbs",
         "debugger/ptracepreload.qbs",
