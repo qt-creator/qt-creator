@@ -714,15 +714,23 @@ QVariant FileSystemModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(node->m_path);
 
     case FileNameRole:
+        // Root paths (drives/devices) have an empty fileName(); fall back to the
+        // display name so they have a stable, meaningful sort key.
+        if (node->m_path.isRootPath())
+            return node->m_path.displayName();
         return node->m_path.fileName();
 
     case FileFlagsRole:
         return QVariant::fromValue(node->m_info.fileFlags);
 
-    case FileSortRole:
-        // Directories sort before files, then alphabetically case-insensitive
-        return QVariant(QString(node->isDir() ? QChar('0') : QChar('1'))
-                        + node->m_path.fileName().toLower());
+    case FileSortRole: {
+        // Directories sort before files, then alphabetically case-insensitive.
+        // Use the display name for root paths, whose fileName() is empty -
+        // otherwise all devices share the key "0" and order randomly.
+        const QString name = node->m_path.isRootPath() ? node->m_path.displayName()
+                                                       : node->m_path.fileName();
+        return QVariant(QString(node->isDir() ? QChar('0') : QChar('1')) + name.toLower());
+    }
     case Qt::EditRole:
         if (index.column() == NameColumn)
             return node->m_path.fileName();
