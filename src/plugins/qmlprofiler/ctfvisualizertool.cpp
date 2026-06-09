@@ -40,6 +40,7 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <fstream>
+#include <set>
 #include <string_view>
 #include <unordered_map>
 
@@ -408,6 +409,16 @@ static void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
         return val;
     };
 
+    // Kernel CTF traces (e.g. LTTng) carry no per-event pid/tid context: every
+    // event would otherwise share a single per-CPU (stream) lane. Reconstruct
+    // the thread running on each CPU from `sched_switch` and recover human
+    // names from `sched_switch` (prev_comm/next_comm) and the LTTng statedump
+    // (lttng_statedump_process_state: tid/pid/name). These maps are filled while
+    // streaming and applied in a post-pass so ordering does not matter.
+    std::unordered_map<std::string, std::string> pidByTid; // thread -> owning process
+    std::unordered_map<std::string, std::string> nameByTid; // thread -> command name
+    std::unordered_map<std::string, std::string> nameByPid; // process -> command name
+
     quint64 fallbackStreamId = 0;
     for (const TraceDirectory::Trace &trace : traceDir.traces()) {
         const Schema &schema = *trace.schema;
@@ -439,6 +450,10 @@ static void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
             const quint64 streamId = sf.streamId ? *sf.streamId : fallbackStreamId++;
             DataStreamReader *stream = sf.reader;
 
+            // Thread currently scheduled on this CPU (stream), updated by
+            // sched_switch. Empty until the first switch is seen.
+            std::string currentTid;
+
             while (!stream->atEnd()) {
                 if (promise.isCanceled())
                     return;
@@ -469,12 +484,63 @@ static void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
                     }
                     return std::nullopt;
                 };
+                // Lane identity comes from event *context* only. A payload "pid"/
+                // "tid" (e.g. the subject of an LTTng statedump or the prev/next
+                // thread of a sched_switch) describes another entity, not the
+                // thread that produced the event.
+                auto findCtxField = [&](const char *key) -> std::optional<std::string> {
+                    for (const StructureValue *sv :
+                         {&rec.commonContext, &rec.specificContext, &rec.header}) {
+                        if (const FieldValue *fv = sv->get(QString::fromUtf8(key)))
+                            if (auto s = fieldValueToString(*fv))
+                                return s;
+                    }
+                    return std::nullopt;
+                };
 
-                auto pid = findStrField("pid");
-                event[CtfProcessIdKey] = pid ? json(*pid) : json(streamId);
-
-                auto tid = findStrField("tid");
-                event[CtfThreadIdKey] = tid ? json(*tid) : json(streamId);
+                auto ctxPid = findCtxField("pid");
+                auto ctxTid = findCtxField("tid");
+                if (ctxTid || ctxPid) {
+                    // Traces with per-event context (e.g. Qt tracegen): trust it.
+                    const std::string lanePid = ctxPid ? *ctxPid : std::to_string(streamId);
+                    event[CtfProcessIdKey] = lanePid;
+                    event[CtfThreadIdKey] = ctxTid ? *ctxTid : lanePid;
+                } else {
+                    // Kernel-style trace: harvest names and reconstruct the
+                    // running thread per CPU. The owning process id is resolved
+                    // in the post-pass once the statedump has been fully read.
+                    if (evName == "sched_switch") {
+                        auto pt = findStrField("prev_tid");
+                        auto nt = findStrField("next_tid");
+                        if (auto pc = findStrField("prev_comm"); pt && pc)
+                            nameByTid[*pt] = *pc;
+                        if (auto nc = findStrField("next_comm"); nt && nc)
+                            nameByTid[*nt] = *nc;
+                        // The event marks the hand-over: attribute it to the
+                        // outgoing thread, then run the incoming one.
+                        if (pt)
+                            currentTid = *pt;
+                        event[CtfThreadIdKey] = currentTid.empty() ? std::to_string(streamId)
+                                                                   : currentTid;
+                        if (nt)
+                            currentTid = *nt;
+                    } else {
+                        if (evName == "lttng_statedump_process_state") {
+                            auto st = findStrField("tid");
+                            auto sp = findStrField("pid");
+                            auto sn = findStrField("name");
+                            if (st && sp)
+                                pidByTid[*st] = *sp;
+                            if (st && sn)
+                                nameByTid[*st] = *sn;
+                            if (sp && sn)
+                                nameByPid[*sp] = *sn;
+                        }
+                        event[CtfThreadIdKey] = currentTid.empty() ? std::to_string(streamId)
+                                                                   : currentTid;
+                    }
+                    // CtfProcessIdKey filled in the post-pass.
+                }
 
                 auto ph = findStrField("ph");
                 auto dur = findStrField("dur");
@@ -586,6 +652,57 @@ static void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
         events.swap(kept);
     }
 
+    // Resolve the owning process for every reconstructed (context-less) lane and
+    // synthesize Chrome-format process_name/thread_name metadata so the timeline
+    // models pick up real names. A thread whose process is unknown is treated as
+    // its own process (pid == tid).
+    std::vector<json> metadata;
+    {
+        std::set<std::string> laneTids;
+        for (json &ev : events) {
+            if (ev.contains(CtfProcessIdKey))
+                continue; // explicit-context lane, already complete
+            const std::string tid = ev.value(CtfThreadIdKey, std::string());
+            auto it = pidByTid.find(tid);
+            ev[CtfProcessIdKey] = (it != pidByTid.end()) ? it->second : tid;
+            laneTids.insert(tid);
+        }
+
+        const double t0 = events.empty()
+                              ? 0.0
+                              : events.front().value(CtfTracingClockTimestampKey, 0.0);
+        const auto metadataEvent = [&](const char *name, const std::string &pid,
+                                       const std::string &tid, const std::string &value) {
+            json ev;
+            ev[CtfTracingClockTimestampKey] = t0;
+            ev[CtfEventPhaseKey] = std::string(CtfEventTypeMetadata);
+            ev[CtfEventNameKey] = std::string(name);
+            ev[CtfProcessIdKey] = pid;
+            ev[CtfThreadIdKey] = tid;
+            ev["args"]["name"] = value;
+            metadata.push_back(std::move(ev));
+        };
+        for (const std::string &tid : laneTids) {
+            auto pit = pidByTid.find(tid);
+            const std::string pid = (pit != pidByTid.end()) ? pit->second : tid;
+            // Keep metadata on the existing lane tid so no phantom lanes appear.
+            if (auto nit = nameByTid.find(tid); nit != nameByTid.end())
+                metadataEvent("thread_name", pid, tid, nit->second);
+            if (auto pnit = nameByPid.find(pid); pnit != nameByPid.end())
+                metadataEvent("process_name", pid, tid, pnit->second);
+        }
+    }
+
+    // Metadata first: these are non-visible and share the timestamp of the first
+    // real event. CtfTraceManager resets its global time offset when a
+    // non-visible event matches the current offset, so emitting them ahead of the
+    // visible events lets the first real event establish the offset cleanly
+    // (emitting them afterwards would reset the offset and blow up the range).
+    for (json &ev : metadata) {
+        if (promise.isCanceled())
+            return;
+        promise.addResult(std::move(ev));
+    }
     for (json &ev : events) {
         if (promise.isCanceled())
             return;

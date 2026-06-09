@@ -206,15 +206,18 @@ QString CtfTimelineModel::eventTitle(int index) const
 
 void CtfTimelineModel::updateName()
 {
-    if (m_threadName.isEmpty()) {
-        setDisplayName(Tr::tr("Thread %1").arg(m_threadId));
-    } else {
-        setDisplayName(QString("%1 (%2)").arg(m_threadName, m_threadId));
-    }
-    QString process = m_processName.isEmpty() ? m_processId
-                                              : QString("%1 (%2)").arg(m_processName, m_processId);
-    QString thread = m_threadName.isEmpty() ? m_threadId
-                                            : QString("%1 (%2)").arg(m_threadName, m_threadId);
+    const QString process = m_processName.isEmpty() ? Tr::tr("Process %1").arg(m_processId)
+                                                    : QString("%1 (%2)").arg(m_processName, m_processId);
+    const QString thread = m_threadName.isEmpty() ? m_threadId
+                                                  : QString("%1 (%2)").arg(m_threadName, m_threadId);
+    // Lanes are per thread, so a multi-threaded process would otherwise show the
+    // same title several times. Lead with the process, but disambiguate the
+    // non-main threads (tid != pid) by their thread identity.
+    if (m_threadId == m_processId)
+        setDisplayName(process);
+    else
+        setDisplayName(QString("%1 / %2").arg(process, thread));
+
     setTooltip(QString("Process: %1\nThread: %2").arg(process, thread));
 }
 
