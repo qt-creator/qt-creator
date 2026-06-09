@@ -69,20 +69,23 @@ void McuSupportImportProvider::prepare(const Document *context)
         return;
     const FilePath path = context->fileName();
     const std::optional<FilePath> folder = getTargetBuildFolder(path);
-    QMutexLocker lock(&m_mutex);
-    if (folder)
-        m_targetBuildFolders.insert(path, *folder);
-    else
-        m_targetBuildFolders.remove(path);
+    m_targetBuildFolders.write([&](QHash<FilePath, FilePath> &folders) {
+        if (folder)
+            folders.insert(path, *folder);
+        else
+            folders.remove(path);
+    });
 }
 
 std::optional<FilePath> McuSupportImportProvider::cachedTargetBuildFolder(const FilePath &path) const
 {
-    QMutexLocker lock(&m_mutex);
-    const auto it = m_targetBuildFolders.constFind(path);
-    if (it == m_targetBuildFolders.constEnd())
-        return std::nullopt;
-    return *it;
+    return m_targetBuildFolders.get([&](const QHash<FilePath, FilePath> &folders)
+                                        -> std::optional<FilePath> {
+        const auto it = folders.constFind(path);
+        if (it == folders.constEnd())
+            return std::nullopt;
+        return *it;
+    });
 }
 
 QList<Import> McuSupportImportProvider::imports(ValueOwner *valueOwner,

@@ -7,11 +7,11 @@
 #include "mcusupportplugin.h"
 
 #include <utils/filepath.h>
+#include <utils/synchronizedvalue.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsinterpreter.h>
 
 #include <QHash>
-#include <QMutex>
 
 #include <optional>
 
@@ -60,7 +60,6 @@ public:
 private:
     std::optional<FilePath> cachedTargetBuildFolder(const FilePath &path) const;
 
-    mutable QMutex m_mutex;
-    QHash<FilePath, FilePath> m_targetBuildFolders;
+    Utils::SynchronizedValue<QHash<FilePath, FilePath>> m_targetBuildFolders;
 };
 }; // namespace McuSupport::Internal
