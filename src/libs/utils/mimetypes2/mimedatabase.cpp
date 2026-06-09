@@ -276,7 +276,7 @@ void MimeDatabasePrivate::loadProviders()
 
 const MimeDatabasePrivate::Providers &MimeDatabasePrivate::providers()
 {
-#ifndef Q_OS_WASM // stub implementation always returns true
+#if QT_CONFIG(thread) // stub implementation always returns true
     Q_ASSERT(!mutex.tryLock()); // caller should have locked mutex
 #endif
     if (m_providers.empty()) {
@@ -426,7 +426,9 @@ QStringList MimeDatabasePrivate::mimeParents(const QString &mimeName)
 
 QStringList MimeDatabasePrivate::parents(const QString &mimeName)
 {
+#if QT_CONFIG(thread) // stub implementation always returns true
     Q_ASSERT(!mutex.tryLock());
+#endif
     QStringList result;
     for (const auto &provider : providers()) {
         if (provider->hasMimeTypeForName(mimeName)) {
