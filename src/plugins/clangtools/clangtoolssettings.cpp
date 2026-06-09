@@ -5,18 +5,22 @@
 
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnostic.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
+#include "diagnosticconfigswidget.h"
 #include "executableinfo.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/clangdiagnosticconfig.h>
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/clangdiagnosticconfigswidget.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cpptoolsreuse.h>
 
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/store.h>
 
@@ -55,19 +59,43 @@ ClangToolsSettings *ClangToolsSettings::instance()
 RunSettings::RunSettings(const Key &prefix)
 {
     diagnosticConfigId.setDefaultValue(defaultDiagnosticId());
+    diagnosticConfigId.setSettingsKey(prefix + diagnosticConfigIdKey);
+    diagnosticConfigId.setModelFactory([] { return diagnosticConfigsModel(); });
 
     parallelJobs.setSettingsKey(prefix + "ParallelJobs");
-    // parallelJobs.setDefaultValue(-1);
     parallelJobs.setDefaultValue(qMax(0, QThread::idealThreadCount() / 2));
+    parallelJobs.setRange(1, QThread::idealThreadCount());
+    parallelJobs.setLabelText(Tr::tr("Parallel jobs:"));
 
     preferConfigFile.setSettingsKey(prefix + "PreferConfigFile");
     preferConfigFile.setDefaultValue(true);
+    preferConfigFile.setLabelText(Tr::tr("Prefer .clang-tidy file, if present"));
 
     buildBeforeAnalysis.setSettingsKey(prefix + "BuildBeforeAnalysis");
     buildBeforeAnalysis.setDefaultValue(true);
+    buildBeforeAnalysis.setLabelText(Tr::tr("Build the project before analysis"));
+    buildBeforeAnalysis.setToolTip(hintAboutBuildBeforeAnalysis());
 
     analyzeOpenFiles.setSettingsKey(prefix + "AnalyzeOpenFiles");
     analyzeOpenFiles.setDefaultValue(true);
+    analyzeOpenFiles.setLabelText(Tr::tr("Analyze open files"));
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title(Tr::tr("Run Options")),
+                Column {
+                    diagnosticConfigId,
+                    preferConfigFile,
+                    buildBeforeAnalysis,
+                    analyzeOpenFiles,
+                    Row { parallelJobs, st },
+                },
+            },
+            noMargin,
+        };
+    });
 }
 
 RunSettingsData RunSettings::data() const
@@ -192,6 +220,16 @@ ClangToolsProjectSettings::ClangToolsProjectSettings(ProjectExplorer::Project *p
     : runSettings(SETTINGS_PREFIX_PROJECT), m_project(project)
 {
     useGlobalSettings.setDefaultValue(true);
+
+    // Set the edit-widget factory for the project context (uses saved tool paths).
+    runSettings.diagnosticConfigId.setEditWidgetFactory(
+        [](const CppEditor::ClangDiagnosticConfigs &configs, const Utils::Id &id)
+            -> CppEditor::ClangDiagnosticConfigsWidget * {
+            return new DiagnosticConfigsWidget(
+                configs, id,
+                ClangTidyInfo(toolExecutable(CppEditor::ClangToolType::Tidy)),
+                ClazyStandaloneInfo(toolExecutable(CppEditor::ClangToolType::Clazy)));
+        });
 
     load();
 

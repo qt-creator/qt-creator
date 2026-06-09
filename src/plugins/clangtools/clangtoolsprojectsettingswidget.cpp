@@ -6,14 +6,11 @@
 #include "clangtool.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolssettings.h"
-#include "clangtoolssettings.h"
 #include "clangtoolstr.h"
-#include "runsettingswidget.h"
 
 #include <coreplugin/icore.h>
 
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
-#include <cppeditor/clangdiagnosticconfigsselectionwidget.h>
 
 #include <projectexplorer/projectpanelfactory.h>
 
@@ -64,7 +61,6 @@ private:
     void removeSelected();
 
     QPushButton m_restoreGlobal{Tr::tr("Restore Global Settings")};
-    RunSettingsWidget m_runSettingsWidget;
     QTreeView m_diagnosticsView;
     QPushButton m_removeSelectedButton{Tr::tr("Remove Selected")};
     QPushButton m_removeAllButton{Tr::tr("Remove All")};
@@ -97,7 +93,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
             &m_restoreGlobal, st, gotoClangTidyModeLabel, gotoClazyModeLabel
         },
 
-        &m_runSettingsWidget,
+        m_projectSettings->runSettings,
 
         Group {
             title(Tr::tr("Suppressed diagnostics")),
@@ -120,7 +116,14 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed, this,
             [this] { onGlobalCustomChanged(m_projectSettings->useGlobalSettings()); });
     connect(&m_restoreGlobal, &QPushButton::clicked, this, [this] {
-        m_runSettingsWidget.fromSettings(ClangToolsSettings::instance()->runSettings);
+        // Copy global run settings values to the project's run settings.
+        const RunSettings &global = ClangToolsSettings::instance()->runSettings;
+        RunSettings &ps = m_projectSettings->runSettings;
+        ps.diagnosticConfigId.setValue(global.safeDiagnosticConfigId());
+        ps.parallelJobs.setValue(global.parallelJobs());
+        ps.preferConfigFile.setValue(global.preferConfigFile());
+        ps.buildBeforeAnalysis.setValue(global.buildBeforeAnalysis());
+        ps.analyzeOpenFiles.setValue(global.analyzeOpenFiles());
     });
 
     connect(gotoClangTidyModeLabel, &QLabel::linkActivated, [](const QString &) {
@@ -130,17 +133,15 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
         clazyTool()->selectPerspective();
     });
 
-    // Run options
-    connect(&m_runSettingsWidget, &RunSettingsWidget::changed, this, [this] {
-        // Save project run settings
-        m_runSettingsWidget.toSettings(m_projectSettings->runSettings);
-
-        // Save global custom configs
-        const CppEditor::ClangDiagnosticConfigs configs
-            = m_runSettingsWidget.diagnosticSelectionWidget()->customConfigs();
-        ClangToolsSettings::instance()->setDiagnosticConfigs(configs);
-        ClangToolsSettings::instance()->writeSettings();
-    });
+    // The run settings aspects (including diagnosticConfigId) auto-apply since
+    // ClangToolsProjectSettings::runSettings has autoApply=true.
+    // Save custom diagnostic configs to global settings when the aspect changes.
+    connect(&m_projectSettings->runSettings.diagnosticConfigId,
+            &Utils::BaseAspect::changed, this, [this] {
+                ClangToolsSettings::instance()->setDiagnosticConfigs(
+                    m_projectSettings->runSettings.diagnosticConfigId.customConfigs());
+                ClangToolsSettings::instance()->writeSettings();
+            });
 
     // Suppressed diagnostics
     auto * const model = new SuppressedDiagnosticsModel(this);
@@ -164,10 +165,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
 
 void ClangToolsProjectSettingsWidget::onGlobalCustomChanged(bool useGlobal)
 {
-    const RunSettings &runSettings = useGlobal ? ClangToolsSettings::instance()->runSettings
-                                              : m_projectSettings->runSettings;
-    m_runSettingsWidget.fromSettings(runSettings);
-    m_runSettingsWidget.setEnabled(!useGlobal);
+    m_projectSettings->runSettings.setEnabled(!useGlobal);
     m_restoreGlobal.setEnabled(!useGlobal);
 }
 

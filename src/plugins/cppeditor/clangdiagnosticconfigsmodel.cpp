@@ -8,6 +8,7 @@
 #include "cpptoolsreuse.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 
@@ -62,7 +63,12 @@ bool ClangDiagnosticConfigsModel::hasConfigWithId(const Utils::Id &id) const
 
 const ClangDiagnosticConfig &ClangDiagnosticConfigsModel::configWithId(const Utils::Id &id) const
 {
-    return m_diagnosticConfigs.at(indexOfConfig(id));
+    const int index = indexOfConfig(id);
+    if (!QTC_GUARD(index != -1)) {
+        static const ClangDiagnosticConfig empty;
+        return empty;
+    }
+    return m_diagnosticConfigs.at(index);
 }
 
 ClangDiagnosticConfig ClangDiagnosticConfigsModel::createCustomConfig(

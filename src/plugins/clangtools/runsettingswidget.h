@@ -3,45 +3,7 @@
 
 #pragma once
 
-#include <cppeditor/clangdiagnosticconfig.h>
-
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QSpinBox;
-QT_END_NAMESPACE
-
-
-namespace CppEditor { class ClangDiagnosticConfigsSelectionWidget; }
-
 namespace ClangTools::Internal {
-
-class RunSettings;
-
-class RunSettingsWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit RunSettingsWidget(QWidget *parent = nullptr);
-    ~RunSettingsWidget();
-
-    CppEditor::ClangDiagnosticConfigsSelectionWidget *diagnosticSelectionWidget();
-
-    void fromSettings(const RunSettings &s);
-    void toSettings(RunSettings &s) const;
-
-signals:
-    void changed();
-
-private:
-    CppEditor::ClangDiagnosticConfigsSelectionWidget *m_diagnosticWidget;
-    QCheckBox *m_preferConfigFile;
-    QCheckBox *m_buildBeforeAnalysis;
-    QCheckBox *m_analyzeOpenFiles;
-    QSpinBox *m_parallelJobsSpinBox;
-};
 
 void setupClangToolsOptionsPage();
 

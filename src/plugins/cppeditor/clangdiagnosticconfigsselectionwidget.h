@@ -7,9 +7,15 @@
 
 #include "clangdiagnosticconfigsmodel.h"
 
+#include <utils/aspects.h>
+#include <utils/id.h>
+
+#include <QPointer>
 #include <QWidget>
 
 #include <functional>
+
+namespace Layouting { class Layout; }
 
 QT_BEGIN_NAMESPACE
 class QFormLayout;
@@ -56,4 +62,34 @@ private:
     CreateEditWidget m_createEditWidget;
 };
 
-} // CppEditor namespace
+// Aspect holding a ClangDiagnosticConfig identifier. addToLayoutImpl() creates a
+// ClangDiagnosticConfigsSelectionWidget driven by caller-supplied factories, so
+// it participates fully in AspectContainer setEnabled() and setLayouter() machinery.
+class CPPEDITOR_EXPORT DiagnosticConfigIdAspect final
+    : public Utils::TypedAspect<Utils::Id>
+{
+public:
+    explicit DiagnosticConfigIdAspect(Utils::AspectContainer *container = nullptr);
+
+    using ModelFactory      = std::function<ClangDiagnosticConfigsModel()>;
+    using EditWidgetFactory = std::function<ClangDiagnosticConfigsWidget *(
+        const ClangDiagnosticConfigs &, const Utils::Id &)>;
+
+    void setModelFactory(ModelFactory factory);
+    void setEditWidgetFactory(EditWidgetFactory factory);
+
+    ClangDiagnosticConfigs customConfigs() const { return m_customConfigs; }
+
+    void addToLayoutImpl(Layouting::Layout &parent) final;
+
+private:
+    bool guiToVolatileValue() final;
+    void volatileValueToGui() final;
+
+    ModelFactory      m_modelFactory;
+    EditWidgetFactory m_editFactory;
+    ClangDiagnosticConfigs m_customConfigs;
+    QPointer<ClangDiagnosticConfigsSelectionWidget> m_widget;
+};
+
+} // namespace CppEditor
