@@ -152,6 +152,7 @@ void CtfVisualizerTool::createViews()
 
     QMenu *contextMenu = new QMenu(m_traceView);
     contextMenu->addAction(&m_loadJson);
+    contextMenu->addAction(&m_loadCtf2);
     connect(contextMenu->addAction(Tr::tr("Reset Zoom")), &QAction::triggered, this, [this] {
         m_zoomControl.setRange(m_zoomControl.traceStart(), m_zoomControl.traceEnd());
     });
