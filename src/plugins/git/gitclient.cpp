@@ -2383,6 +2383,8 @@ Environment GitClient::processEnvironment(const FilePath &appliedTo) const
     environment.set("GIT_CONFIG_KEY_0",   "core.quotepath");
     environment.set("GIT_CONFIG_VALUE_0", "false");
 
+    environment.set("COLUMNS",            "200");
+
     return environment.appliedToEnvironment(appliedTo.deviceEnvironment());
 }
 
