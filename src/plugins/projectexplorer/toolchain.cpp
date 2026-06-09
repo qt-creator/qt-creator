@@ -11,7 +11,6 @@
 #include "toolchainmanager.h"
 #include "task.h"
 
-#include <utils/async.h>
 #include <utils/datafromprocess.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -50,7 +49,6 @@ class ToolchainPrivate
 {
 public:
     explicit ToolchainPrivate(Id typeId) :
-        m_id(Id::generate()),
         m_typeId(typeId),
         m_predefinedMacrosCache(new Toolchain::MacrosCache::element_type()),
         m_headerPathsCache(new Toolchain::HeaderPathsCache::element_type())
@@ -59,7 +57,6 @@ public:
         QTC_ASSERT(!m_typeId.name().contains(':'), return);
     }
 
-    Id m_id;
     Id m_bundleId;
     FilePath m_compilerCommand;
     Key m_compilerCommandKey;
@@ -134,6 +131,7 @@ using namespace Internal;
 Toolchain::Toolchain(Id typeId) :
     d(std::make_unique<ToolchainPrivate>(typeId))
 {
+    setId(Id::generate());
 }
 
 bool Toolchain::canShareBundleImpl(const Toolchain &other) const
@@ -183,11 +181,6 @@ ToolchainFactory *Toolchain::factory() const
     ToolchainFactory * const factory = ToolchainFactory::factoryForType(typeId());
     QTC_ASSERT(factory, qDebug() << typeId());
     return factory;
-}
-
-Id Toolchain::id() const
-{
-    return d->m_id;
 }
 
 Id Toolchain::bundleId() const
@@ -278,7 +271,7 @@ Toolchain *Toolchain::clone() const
         toMap(data);
         tc->fromMap(data);
         // New ID for the clone. It's different.
-        tc->d->m_id = Id::generate();
+        tc->setId(Id::generate());
         return tc;
     }
     QTC_CHECK(false);
@@ -448,7 +441,7 @@ void Toolchain::fromMap(const Store &data)
     int pos = id.indexOf(QLatin1Char(':'));
     QTC_ASSERT(pos > 0, reportError(); return);
     d->m_typeId = Id::fromString(id.left(pos));
-    d->m_id = Id::fromString(id.mid(pos + 1));
+    setId(Id::fromString(id.mid(pos + 1)));
     d->m_bundleId = Id::fromSetting(data.value(BUNDLE_ID_KEY));
 
     const bool autoDetect = data.value(AUTODETECT_KEY, false).toBool();

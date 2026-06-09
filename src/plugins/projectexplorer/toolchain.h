@@ -77,8 +77,6 @@ public:
     bool isDeviceDetected() const;
     ToolchainFactory *factory() const;
 
-    Utils::Id id() const;
-
     Utils::Id bundleId() const;
     void setBundleId(Utils::Id id);
     bool canShareBundle(const Toolchain &other) const;
