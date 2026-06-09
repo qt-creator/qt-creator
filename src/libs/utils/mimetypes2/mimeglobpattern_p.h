@@ -61,7 +61,7 @@ public:
         qSwap(m_patternType,     other.m_patternType);
     }
 
-    bool matchFileName(const QString &inputFileName) const;
+    bool matchFileName(const QString &fileName) const;
 
     inline const QString &pattern() const { return m_pattern; }
     inline unsigned weight() const { return m_weight; }

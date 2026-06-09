@@ -102,13 +102,10 @@ MimeGlobPattern::PatternType MimeGlobPattern::detectPatternType(QStringView patt
     \sa MimeType, MimeDatabase, MimeMagicRuleMatcher, MimeMagicRule
 */
 
-bool MimeGlobPattern::matchFileName(const QString &inputFileName) const
+bool MimeGlobPattern::matchFileName(const QString &fileName) const
 {
     // "Applications MUST match globs case-insensitively, except when the case-sensitive
     // attribute is set to true."
-    // The constructor takes care of putting case-insensitive patterns in lowercase.
-    const QString fileName = m_caseSensitivity == Qt::CaseInsensitive
-            ? inputFileName.toLower() : inputFileName;
 
     const qsizetype patternLength = m_pattern.size();
     if (!patternLength)
@@ -119,43 +116,37 @@ bool MimeGlobPattern::matchFileName(const QString &inputFileName) const
     case SuffixPattern: {
         if (fileNameLength + 1 < patternLength)
             return false;
-
-        const QChar *c1 = m_pattern.unicode() + patternLength - 1;
-        const QChar *c2 = fileName.unicode() + fileNameLength - 1;
-        int cnt = 1;
-        while (cnt < patternLength && *c1-- == *c2--)
-            ++cnt;
-        return cnt == patternLength;
+        // m_pattern is *.txt, skip the *
+        return fileName.endsWith(QStringView(m_pattern).mid(1), m_caseSensitivity);
     }
     case PrefixPattern: {
         if (fileNameLength + 1 < patternLength)
             return false;
-
-        const QChar *c1 = m_pattern.unicode();
-        const QChar *c2 = fileName.unicode();
-        int cnt = 1;
-        while (cnt < patternLength && *c1++ == *c2++)
-           ++cnt;
-        return cnt == patternLength;
+        // m_pattern ends with *, stop just before
+        return fileName.startsWith(QStringView(m_pattern).chopped(1), m_caseSensitivity);
     }
     case LiteralPattern:
-        return (m_pattern == fileName);
+        return m_pattern.compare(fileName, m_caseSensitivity) == 0;
     case VdrPattern: // "[0-9][0-9][0-9].vdr" case
         return fileNameLength == 7
                 && fileName.at(0).isDigit() && fileName.at(1).isDigit() && fileName.at(2).isDigit()
-                && QStringView{fileName}.mid(3, 4) == ".vdr"_L1;
+                && QStringView{fileName}.mid(3, 4).compare(".vdr"_L1, m_caseSensitivity) == 0;
     case AnimPattern: { // "*.anim[1-9j]" case
         if (fileNameLength < 6)
             return false;
-        const QChar lastChar = fileName.at(fileNameLength - 1);
+        QChar lastChar = fileName.at(fileNameLength - 1);
+        if (m_caseSensitivity == Qt::CaseInsensitive)
+            lastChar = lastChar.toLower();
         const bool lastCharOK = (lastChar.isDigit() && lastChar != u'0')
                               || lastChar == u'j';
-        return lastCharOK && QStringView{fileName}.mid(fileNameLength - 6, 5) == ".anim"_L1;
+        return lastCharOK && QStringView{fileName}.mid(fileNameLength - 6, 5).compare(".anim"_L1, m_caseSensitivity) == 0;
     }
     case OtherPattern:
         // Other fallback patterns: slow but correct method
 #if QT_CONFIG(regularexpression)
         auto rx = QRegularExpression::fromWildcard(m_pattern);
+        if (m_caseSensitivity == Qt::CaseInsensitive)
+            rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
         return rx.match(fileName).hasMatch();
 #else
         return false;
