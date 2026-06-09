@@ -72,6 +72,7 @@ inline constexpr char ACTIONS_MERGE_TEMPLATE_ENABLED[] = "ActionsMergeTemplateEn
 inline constexpr char DOWNLOADABLE_BUNDLES_URL[] = "DownloadableBundlesLocation";
 inline constexpr char CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS[]
     = "ContentLibraryNewFlagExpirationInDays";
+inline constexpr char ENABLE_ASSETIMPORTER_DEFAULTS[] = "EnableAssetImporterDefaults";
 } // namespace DesignerSettingsKey
 
 class QMLDESIGNERSETTINGS_EXPORT DesignerSettings
