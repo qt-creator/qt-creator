@@ -102,14 +102,18 @@ void TodoItemsProvider::setItemsListWithinStartupProject()
 {
     const auto filePaths = Utils::toSet(m_startupProject->files(Project::SourceFiles));
 
-    QVariantMap settings = m_startupProject->namedSettings(Constants::SETTINGS_NAME_KEY).toMap();
+    const QVariantMap settings =
+        m_startupProject->namedSettings(Constants::SETTINGS_NAME_KEY).toMap();
+    const bool useGlobal = settings.value(Constants::USE_GLOBAL_KEY, true).toBool();
+    const QStringList excludes =
+        useGlobal ? QStringList{} : settings.value(Constants::EXCLUDES_LIST_KEY).toStringList();
 
     for (auto it = m_itemsHash.cbegin(), end = m_itemsHash.cend(); it != end; ++it) {
         const FilePath filePath = it.key();
         if (filePaths.contains(filePath)) {
             bool skip = false;
-            for (const QVariant &pattern : settings[Constants::EXCLUDES_LIST_KEY].toList()) {
-                QRegularExpression re(pattern.toString());
+            for (const QString &pattern : excludes) {
+                QRegularExpression re(pattern);
                 if (filePath.toUrlishString().indexOf(re) != -1) {
                     skip = true;
                     break;

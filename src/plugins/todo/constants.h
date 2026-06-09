@@ -19,6 +19,7 @@ const char OUTPUT_PANE_TEXT_WIDTH[] = "OutputPaneTextColumnWidth";
 const char OUTPUT_PANE_FILE_WIDTH[] = "OutputPaneFileColumnWidth";
 const char SETTINGS_NAME_KEY[] = "TodoProjectSettings";
 const char EXCLUDES_LIST_KEY[] = "ExcludesList";
+const char USE_GLOBAL_KEY[]    = "UseGlobal";
 
 // TODO Output TreeWidget columns
 enum OutputColumnIndex {

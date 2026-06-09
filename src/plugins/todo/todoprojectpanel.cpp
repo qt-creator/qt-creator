@@ -10,154 +10,105 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 
+#include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 
-#include <QCheckBox>
-#include <QListWidget>
-#include <QPushButton>
+#include <QGroupBox>
+#include <QVariant>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Todo::Internal {
 
-static QString excludePlaceholder()
+class TodoProjectSettings : public AspectContainer
 {
-    return Tr::tr("<Enter regular expression to exclude>");
+public:
+    explicit TodoProjectSettings(Project *project)
+        : m_project(project)
+    {
+        setAutoApply(true);
+        useGlobalSettings.setDefaultValue(true);
+
+        excludePatterns.setUiAllowAdding(true);
+        excludePatterns.setUiAllowRemoving(true);
+        excludePatterns.setUiAllowEditing(true);
+        excludePatterns.setToolTip(
+            Tr::tr("Regular expressions for file paths to be excluded from scanning."));
+
+        const QVariantMap s =
+            project->namedSettings(Constants::SETTINGS_NAME_KEY).toMap();
+        useGlobalSettings.setValue(s.value(Constants::USE_GLOBAL_KEY, true).toBool());
+        excludePatterns.setValue(s.value(Constants::EXCLUDES_LIST_KEY).toStringList());
+
+        setEnabled(!useGlobalSettings());
+
+        useGlobalSettings.addOnChanged(this, [this] {
+            setEnabled(!useGlobalSettings());
+            save();
+            todoItemsProvider().projectSettingsChanged(m_project);
+        });
+        addOnChanged(this, [this] {
+            if (!useGlobalSettings())
+                save();
+            todoItemsProvider().projectSettingsChanged(m_project);
+        });
+    }
+
+    void save()
+    {
+        QVariantMap s;
+        s[Constants::USE_GLOBAL_KEY] = useGlobalSettings();
+        if (!useGlobalSettings())
+            s[Constants::EXCLUDES_LIST_KEY] = QVariant(excludePatterns());
+        m_project->setNamedSettings(Constants::SETTINGS_NAME_KEY, s);
+    }
+
+    BoolAspect useGlobalSettings; // not {this}: excluded from container's setEnabled cascade
+    StringListAspect excludePatterns{this};
+
+private:
+    Project * const m_project;
+};
+
+static TodoProjectSettings *todoProjectSettings(Project *project)
+{
+    const Key key = "TodoProjectSettings";
+    QVariant v = project->extraData(key);
+    if (v.isNull()) {
+        v = QVariant::fromValue(new TodoProjectSettings(project));
+        project->setExtraData(key, v);
+    }
+    return v.value<TodoProjectSettings *>();
 }
 
 class TodoProjectPanelWidget final : public QWidget
 {
 public:
-    explicit TodoProjectPanelWidget(Project *project);
+    explicit TodoProjectPanelWidget(Project *project)
+    {
+        TodoProjectSettings *ps = todoProjectSettings(project);
 
-private:
-    void addExcludedPatternButtonClicked();
-    void removeExcludedPatternButtonClicked();
-    void setExcludedPatternsButtonsEnabled();
-    void excludedPatternChanged(QListWidgetItem *item);
-    QListWidgetItem *addToExcludedPatternsList(const QString &pattern);
-    void loadSettings();
-    void saveSettings();
-    void prepareItem(QListWidgetItem *item) const;
+        QGroupBox *excludesGroup = nullptr;
+        using namespace Layouting;
+        Column {
+            Row { ps->useGlobalSettings, createUseGlobalSettingsLabel(Constants::TODO_SETTINGS), st },
+            createHr(),
+            Group {
+                bindTo(&excludesGroup),
+                title(Tr::tr("Excluded Files")),
+                Column { &ps->excludePatterns },
+            },
+        }.attachTo(this);
 
-    Project *m_project;
-    QCheckBox m_globalCheckBox;
-    QListWidget m_excludedPatternsList;
-    QPushButton m_removeExcludedPatternButton{Tr::tr("Remove")};
-};
-
-TodoProjectPanelWidget::TodoProjectPanelWidget(Project *project)
-    : m_project(project)
-{
-    m_excludedPatternsList.setSortingEnabled(true);
-    m_excludedPatternsList.setToolTip(Tr::tr("Regular expressions for file paths to be excluded from scanning."));
-
-    auto addExcludedPatternButton = new QPushButton(Tr::tr("Add"));
-
-    using namespace Layouting;
-
-    Column {
-        Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::TODO_SETTINGS), st },
-        createHr(),
-        Group {
-            title(Tr::tr("Excluded Files")),
-            Row {
-                &m_excludedPatternsList,
-                Column {
-                    addExcludedPatternButton,
-                    &m_removeExcludedPatternButton,
-                    st
-                }
-            }
-        }
-    }.attachTo(this);
-
-    setExcludedPatternsButtonsEnabled();
-    connect(addExcludedPatternButton,
-            &QPushButton::clicked,
-            this,
-            &TodoProjectPanelWidget::addExcludedPatternButtonClicked);
-    connect(&m_removeExcludedPatternButton, &QPushButton::clicked,
-            this, &TodoProjectPanelWidget::removeExcludedPatternButtonClicked);
-    connect(&m_excludedPatternsList, &QListWidget::itemChanged,
-            this, &TodoProjectPanelWidget::excludedPatternChanged, Qt::QueuedConnection);
-    connect(&m_excludedPatternsList, &QListWidget::itemSelectionChanged,
-            this, &TodoProjectPanelWidget::setExcludedPatternsButtonsEnabled);
-
-    loadSettings();
-}
-
-QListWidgetItem *TodoProjectPanelWidget::addToExcludedPatternsList(const QString &pattern)
-{
-    auto item = new QListWidgetItem(pattern);
-    item->setFlags(item->flags() | Qt::ItemIsEditable);
-    prepareItem(item);
-    m_excludedPatternsList.addItem(item);
-    return item;
-}
-
-void TodoProjectPanelWidget::loadSettings()
-{
-    QVariant s = m_project->namedSettings(Constants::SETTINGS_NAME_KEY);
-    QVariantMap settings = s.toMap();
-    m_excludedPatternsList.clear();
-    for (const QVariant &pattern : settings[Constants::EXCLUDES_LIST_KEY].toList())
-        addToExcludedPatternsList(pattern.toString());
-}
-
-void TodoProjectPanelWidget::saveSettings()
-{
-    QVariantMap settings;
-    QVariantList excludes;
-
-    for (int i = 0; i < m_excludedPatternsList.count(); ++i)
-        excludes << m_excludedPatternsList.item(i)->text();
-
-    settings[Constants::EXCLUDES_LIST_KEY] = excludes;
-
-    m_project->setNamedSettings(Constants::SETTINGS_NAME_KEY, settings);
-
-    todoItemsProvider().projectSettingsChanged(m_project);
-}
-
-void TodoProjectPanelWidget::prepareItem(QListWidgetItem *item) const
-{
-    if (QRegularExpression(item->text()).isValid())
-        item->setForeground(QBrush(m_excludedPatternsList.palette().color(QPalette::Active, QPalette::Text)));
-    else
-        item->setForeground(QBrush(Qt::red));
-}
-
-void TodoProjectPanelWidget::addExcludedPatternButtonClicked()
-{
-    if (!m_excludedPatternsList.findItems(excludePlaceholder(), Qt::MatchFixedString).isEmpty())
-        return;
-    m_excludedPatternsList.editItem(addToExcludedPatternsList(excludePlaceholder()));
-}
-
-void TodoProjectPanelWidget::removeExcludedPatternButtonClicked()
-{
-    delete m_excludedPatternsList.takeItem(m_excludedPatternsList.currentRow());
-    saveSettings();
-}
-
-void TodoProjectPanelWidget::setExcludedPatternsButtonsEnabled()
-{
-    const bool isSomethingSelected = !m_excludedPatternsList.selectedItems().isEmpty();
-    m_removeExcludedPatternButton.setEnabled(isSomethingSelected);
-}
-
-void TodoProjectPanelWidget::excludedPatternChanged(QListWidgetItem *item)
-{
-    if (item->text().isEmpty() || item->text() == excludePlaceholder()) {
-        m_excludedPatternsList.removeItemWidget(item);
-        delete item;
-    } else {
-        prepareItem(item);
+        // The QGroupBox itself is not part of the aspect container, so
+        // its enabled state must be managed explicitly.
+        excludesGroup->setEnabled(!ps->useGlobalSettings());
+        ps->useGlobalSettings.addOnChanged(excludesGroup, [ps, excludesGroup] {
+            excludesGroup->setEnabled(!ps->useGlobalSettings());
+        });
     }
-    saveSettings();
-    m_excludedPatternsList.setCurrentItem(nullptr);
-}
+};
 
 class TodoProjectPanelFactory final : public ProjectPanelFactory
 {
