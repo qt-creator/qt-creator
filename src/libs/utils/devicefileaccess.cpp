@@ -458,9 +458,9 @@ TextEncoding DeviceFileAccess::processStdErrEncoding(const FilePath &executable)
 
 bool DeviceFileAccess::supportsAtomicSaveFile(const FilePath &filePath) const
 {
-    if (hasHardLinks(filePath))
-        return false;
-    return true;
+    if (const Result<bool> res = hasHardLinks(filePath))
+        return !*res;
+    return false;
 }
 
 bool DeviceFileAccess::supportsRemovingFiles() const
