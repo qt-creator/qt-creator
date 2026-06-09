@@ -69,10 +69,7 @@ QmlProfilerViewManager::QmlProfilerViewManager(QmlProfilerModelManager *modelMan
 
 QmlProfilerViewManager::~QmlProfilerViewManager()
 {
-    delete m_traceView;
-    delete m_flameGraphView;
-    delete m_statisticsView;
-    delete m_quick3dView;
+    // views are owned by m_perspective - deletion happens their
     delete m_perspective;
 }
 
