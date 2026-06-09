@@ -453,6 +453,12 @@ public:
             save();
             clearHeaderSourceCache();
         });
+        addOnChanged(this, [this] {
+            if (!useGlobalSettings()) {
+                save();
+                clearHeaderSourceCache();
+            }
+        });
     }
 
     void save()
@@ -471,13 +477,6 @@ public:
     BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
 
 private:
-    void apply() final
-    {
-        AspectContainer::apply();
-        save();
-        clearHeaderSourceCache();
-    }
-
     Project * const m_project;
 };
 
