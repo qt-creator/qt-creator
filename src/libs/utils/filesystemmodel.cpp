@@ -88,10 +88,10 @@ public slots:
         emit childrenFetched(dirPath, children, infos, generation);
     }
 
-    void queueIcons(const Utils::FilePaths &paths)
+    void queueIcons(const Utils::FilePaths &paths, quint64 generation)
     {
         for (const FilePath &path : paths)
-            m_iconQueue.enqueue(path);
+            m_iconQueue.enqueue({path, generation});
         scheduleNextIcon();
     }
 
@@ -105,7 +105,7 @@ signals:
                          const Utils::FilePaths &children,
                          const QList<Utils::FilePathInfo> &infos,
                          quint64 generation);
-    void iconFetched(const Utils::FilePath &path, const QIcon &icon);
+    void iconFetched(const Utils::FilePath &path, const QIcon &icon, quint64 generation);
 
 private slots:
     void processNextIcon()
@@ -113,8 +113,8 @@ private slots:
         QElapsedTimer elapsed;
         elapsed.start();
         while (!m_iconQueue.isEmpty() && elapsed.elapsed() < 500) {
-            const FilePath path = m_iconQueue.dequeue();
-            emit iconFetched(path, iconForPath(path));
+            const auto [path, generation] = m_iconQueue.dequeue();
+            emit iconFetched(path, iconForPath(path), generation);
         }
         scheduleNextIcon();
     }
@@ -128,7 +128,7 @@ private:
                                       Qt::QueuedConnection);
     }
 
-    QQueue<FilePath> m_iconQueue;
+    QQueue<QPair<FilePath, quint64>> m_iconQueue;
 };
 
 // ===== Node =====
@@ -181,7 +181,7 @@ public:
 
 signals:
     void requestFetchChildren(const Utils::FilePath &path, quint64 generation);
-    void requestQueueIcons(const Utils::FilePaths &paths);
+    void requestQueueIcons(const Utils::FilePaths &paths, quint64 generation);
     void requestClearIconQueue();
 
 private slots:
@@ -189,7 +189,7 @@ private slots:
                            const Utils::FilePaths &children,
                            const QList<Utils::FilePathInfo> &infos,
                            quint64 generation);
-    void onIconFetched(const Utils::FilePath &path, const QIcon &icon);
+    void onIconFetched(const Utils::FilePath &path, const QIcon &icon, quint64 generation);
     void flushIconUpdates();
     void onDirectoryChanged(const Utils::FilePath &path);
 
@@ -345,7 +345,7 @@ void FileSystemModelPrivate::onChildrenFetched(const Utils::FilePath &dirPath,
                 m_nodeIndex[children[i]] = child;
             }
             m_q->endInsertRows();
-            emit requestQueueIcons(children);
+            emit requestQueueIcons(children, m_generation);
         }
     } else {
         applyChildrenDiff(node, parentIndex, children, infos);
@@ -464,12 +464,17 @@ void FileSystemModelPrivate::applyChildrenDiff(
             m_nodeIndex[toAdd[i]] = child;
         }
         m_q->endInsertRows();
-        emit requestQueueIcons(toAdd);
+        emit requestQueueIcons(toAdd, m_generation);
     }
 }
 
-void FileSystemModelPrivate::onIconFetched(const Utils::FilePath &path, const QIcon &icon)
+void FileSystemModelPrivate::onIconFetched(const Utils::FilePath &path,
+                                           const QIcon &icon,
+                                           quint64 generation)
 {
+    if (generation != m_generation)
+        return;
+
     FileSystemNode *node = m_nodeIndex.value(path, nullptr);
     if (!node)
         return;
