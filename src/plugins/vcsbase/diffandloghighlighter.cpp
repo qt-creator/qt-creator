@@ -194,14 +194,9 @@ void DiffAndLogHighlighter::highlightBlock(const QString &text)
         }
         break;
     case Internal::File:
-        if (format == TextEditor::C_DIFF_FILE) {
-            setFoldingIndent(currentBlock(), FILE_LEVEL);
-        } else if (format == TextEditor::C_DIFF_LOCATION) {
+        if (format == TextEditor::C_DIFF_LOCATION)
             d->m_foldingState = Internal::Location;
-            setFoldingIndent(currentBlock(), FILE_LEVEL);
-        } else {
-            setFoldingIndent(currentBlock(), FILE_LEVEL);
-        }
+        setFoldingIndent(currentBlock(), FILE_LEVEL);
         break;
     case Internal::Location:
         if (format == TextEditor::C_DIFF_FILE) {

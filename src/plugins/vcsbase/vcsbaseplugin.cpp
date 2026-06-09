@@ -172,7 +172,7 @@ class StateListener : public QObject
 
 public:
     explicit StateListener(QObject *parent);
-    ~StateListener();
+    ~StateListener() override;
 
     static QString windowTitleVcsTopic(const FilePath &filePath);
 

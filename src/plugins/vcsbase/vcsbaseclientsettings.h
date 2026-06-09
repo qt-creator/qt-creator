@@ -13,7 +13,7 @@ class VCSBASE_EXPORT VcsBaseSettings : public Utils::AspectContainer
 {
 public:
     VcsBaseSettings();
-    ~VcsBaseSettings();
+    ~VcsBaseSettings() override;
 
     Utils::FilePathAspect binaryPath{this};
     Utils::StringAspect userName{this};

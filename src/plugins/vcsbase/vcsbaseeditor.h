@@ -302,7 +302,7 @@ class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory
 {
 public:
     explicit VcsEditorFactory(const VcsBaseEditorParameters &parameters);
-    ~VcsEditorFactory();
+    ~VcsEditorFactory() override;
 };
 
 } // namespace VcsBase

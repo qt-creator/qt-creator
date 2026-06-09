@@ -383,9 +383,9 @@ private:
     class UrlData
     {
     public:
-        int startColumn;
+        int startColumn = 0;
         QString url;
-        qsizetype urlLength;
+        qsizetype urlLength = 0;
     };
 
     UrlData m_urlData;
