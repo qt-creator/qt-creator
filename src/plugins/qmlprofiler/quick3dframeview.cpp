@@ -25,7 +25,7 @@
 
 #include "quick3dframeview.h"
 
-#include "qmlprofilertr.h"
+#include "profilertr.h"
 
 #include <coreplugin/minisplitter.h>
 
@@ -36,7 +36,7 @@
 #include <QStringListModel>
 #include <QLabel>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 Quick3DFrameView::Quick3DFrameView(QmlProfilerModelManager *profilerModelManager, QWidget *parent)
     : QmlProfilerEventsView(parent)
@@ -171,4 +171,4 @@ void Quick3DMainView::setFilterFrame(const QString &)
     m_sortModel->setFilterFixedString("+");
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

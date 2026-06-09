@@ -12,12 +12,12 @@
 
 #include <utils/filepath.h>
 
-using namespace QmlProfiler::Internal;
+using namespace Profiler::Internal;
 using namespace Utils;
 
 using namespace std::chrono;
 
-namespace QmlProfiler {
+namespace Profiler {
 
 class QmlProfilerPlainViewManagerPrivate
 {
@@ -91,4 +91,4 @@ milliseconds QmlProfilerPlainViewManager::traceDuration() const
     return duration_cast<milliseconds>(nanoseconds{d->modelManager.traceDuration()});
 }
 
-} // namespace QmlProfiler
+} // namespace Profiler

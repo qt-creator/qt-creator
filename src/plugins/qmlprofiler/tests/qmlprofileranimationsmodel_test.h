@@ -8,7 +8,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerAnimationsModelTest : public QObject
 {
@@ -34,4 +34,4 @@ private:
     QmlProfilerAnimationsModel model;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

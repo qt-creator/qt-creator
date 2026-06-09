@@ -31,7 +31,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
 {
@@ -40,7 +40,7 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-        CtfVisualizer::Internal::setupCtfVisualizerTool();
+        Profiler::Internal::setupCtfVisualizerTool();
         setupQmlProfilerTool();
         setupQmlProfilerRunning();
 
@@ -76,6 +76,6 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
     Core::IDocumentFactory m_traceFileFactory;
 };
 
-} // QmlProfiler::Internal
+} // namespace Profiler::Internal
 
 #include "qmlprofilerplugin.moc"

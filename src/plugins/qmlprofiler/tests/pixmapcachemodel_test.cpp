@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pixmapcachemodel_test.h"
-#include "../qmlprofilertr.h"
+#include "../profilertr.h"
 
 #include <tracing/timelineformattime.h>
 
 #include <QTest>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 PixmapCacheModelTest::PixmapCacheModelTest()
     : model(&manager, &aggregator)
@@ -290,4 +290,4 @@ void PixmapCacheModelTest::cleanupTestCase()
     QCOMPARE(model.count(), 0);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

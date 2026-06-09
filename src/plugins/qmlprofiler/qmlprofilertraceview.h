@@ -7,7 +7,7 @@
 
 #include <QWidget>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 
@@ -44,4 +44,4 @@ private:
     QmlProfilerTraceViewPrivate *d;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

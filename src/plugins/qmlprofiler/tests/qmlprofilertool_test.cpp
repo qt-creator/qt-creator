@@ -26,7 +26,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 void QmlProfilerToolTest::testAttachToWaitingApplication()
 {
@@ -120,4 +120,4 @@ void QmlProfilerToolTest::testClearEvents()
     QCOMPARE(modelManager->numEvents(), 1);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

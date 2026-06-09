@@ -27,7 +27,6 @@ set(QMLPROFILER_CPP_SOURCES
   ctftimelinemodel.cpp ctftimelinemodel.h
   ctftracemanager.cpp ctftracemanager.h
   ctfvisualizerconstants.h
-  ctfvisualizertr.h
   ctfvisualizertool.cpp ctfvisualizertool.h
   debugmessagesmodel.cpp debugmessagesmodel.h
   flamegraphmodel.cpp flamegraphmodel.h
@@ -36,8 +35,8 @@ set(QMLPROFILER_CPP_SOURCES
   memoryusagemodel.cpp memoryusagemodel.h
   pixmapcachemodel.cpp pixmapcachemodel.h
   qmlnote.cpp qmlnote.h
+  profilertr.h
   qmlprofiler_global.h
-  qmlprofilertr.h
   qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
   qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h
   qmlprofilerclientmanager.cpp qmlprofilerclientmanager.h

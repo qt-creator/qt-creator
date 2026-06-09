@@ -37,7 +37,7 @@
 
 #include <memory>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class Quick3DMainView;
 
@@ -79,4 +79,4 @@ private:
     bool m_compareView;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

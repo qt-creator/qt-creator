@@ -1,8 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilertr.h"
 #include "scenegraphtimelinemodel.h"
 
 #include <qmldebug/qmlprofilereventtypes.h>
@@ -12,7 +12,7 @@
 #include <QDebug>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 static const char *ThreadLabels[] = {
     QT_TRANSLATE_NOOP("QtC::QmlProfiler", "GUI Thread"),
@@ -273,4 +273,4 @@ SceneGraphTimelineModel::Item::Item(int typeId, int glyphCount) :
 {
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

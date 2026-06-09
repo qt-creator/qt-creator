@@ -5,7 +5,7 @@
 
 #include "qmlprofilertimelinemodel.h"
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class InputEventsModel : public QmlProfilerTimelineModel
 {
@@ -41,4 +41,4 @@ private:
     QList<Item> m_data;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

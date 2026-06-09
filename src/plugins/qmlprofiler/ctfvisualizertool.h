@@ -3,8 +3,8 @@
 
 #pragma once
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 void setupCtfVisualizerTool();
 
-} // namespace CtfVisualizer::Internal
+} // namespace Profiler::Internal

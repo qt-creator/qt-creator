@@ -10,7 +10,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class FlameGraphModelTest : public QObject
 {
@@ -37,4 +37,4 @@ private:
     int rangeModelId = -1;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

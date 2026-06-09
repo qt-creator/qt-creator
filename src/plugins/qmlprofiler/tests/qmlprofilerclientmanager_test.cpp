@@ -15,7 +15,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 struct MessageHandler
 {
@@ -427,4 +427,4 @@ void QmlProfilerClientManagerTest::testConnectionDrop()
     QTRY_VERIFY(!stateManager.serverRecording());
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -11,7 +11,7 @@
 
 namespace Utils { class FilePath; }
 
-namespace QmlProfiler {
+namespace Profiler {
 
 class QMLPROFILER_EXPORT QmlProfilerPlainViewManager : public QObject
 {
@@ -37,4 +37,4 @@ private:
     class QmlProfilerPlainViewManagerPrivate *d;
 };
 
-} // namespace QmlProfiler
+} // namespace Profiler

@@ -9,7 +9,7 @@
 // uncomment for printing the state changes to debug output
 //#define _DEBUG_PROFILERSTATE_
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 static QString stringForState(int state)
 {
@@ -153,4 +153,4 @@ void QmlProfilerStateManager::setRecordedFeatures(quint64 features)
     }
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

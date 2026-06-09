@@ -7,7 +7,7 @@
 #include <QBuffer>
 #include <QTest>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlNoteTest::QmlNoteTest() = default;
 
@@ -57,4 +57,4 @@ void QmlNoteTest::testStreamOps()
     QCOMPARE(note2, note);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -3,11 +3,11 @@
 
 #include "qmlprofilertraceview.h"
 
+#include "profilertr.h"
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilertool.h"
-#include "qmlprofilertr.h"
 
 #include "quick3dmodel.h"
 #include "inputeventsmodel.h"
@@ -39,7 +39,7 @@
 
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class TraceViewFindSupport : public Core::IFindSupport
 {
@@ -367,4 +367,4 @@ bool TraceViewFindSupport::findOne(const QString &txt, Utils::FindFlags findFlag
     return false;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -7,7 +7,7 @@
 #include <QHeaderView>
 #include <QSortFilterProxyModel>
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 CtfStatisticsView::CtfStatisticsView(CtfStatisticsModel *model, QWidget *parent)
     : Utils::TreeView(parent)
@@ -55,4 +55,4 @@ void CtfStatisticsView::selectByTitle(const QString &title)
     }
 }
 
-}  // CtfVisualizer::Internal
+} // namespace Profiler::Internal

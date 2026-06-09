@@ -12,7 +12,7 @@
 #include <QColor>
 #include <QStack>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 
@@ -51,4 +51,4 @@ private:
     QList<int> m_expandedRowTypes;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

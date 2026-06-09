@@ -3,8 +3,8 @@
 
 #include "qmlprofilersettings.h"
 
+#include "profilertr.h"
 #include "qmlprofilerconstants.h"
-#include "qmlprofilertr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -12,7 +12,7 @@
 
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerSettings &globalSettings()
 {
@@ -79,4 +79,4 @@ public:
 
 const QmlProfilerSettingsPage settingsPage;
 
-} // QmlProfiler::Internal
+} // namespace Profiler::Internal

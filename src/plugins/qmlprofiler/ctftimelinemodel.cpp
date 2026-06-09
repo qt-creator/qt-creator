@@ -5,7 +5,7 @@
 
 #include "ctftracemanager.h"
 #include "ctfvisualizerconstants.h"
-#include "ctfvisualizertr.h"
+#include "profilertr.h"
 
 #include <tracing/timelineformattime.h>
 
@@ -14,7 +14,7 @@
 #include <QDebug>
 #include <string>
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 using json = nlohmann::json;
 using namespace Constants;
@@ -358,5 +358,5 @@ QString CtfTimelineModel::reuse(const QString &value)
     return *m_reusableStrings.insert(value);
 }
 
-} // namespace CtfVisualizer::Internal
+} // namespace Profiler::Internal
 

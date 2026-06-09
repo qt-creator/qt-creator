@@ -14,7 +14,7 @@
 #include <QPointer>
 #include <QAbstractTableModel>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 class QmlProfilerStatisticsRelativesModel;
@@ -200,4 +200,4 @@ private:
     const QmlProfilerStatisticsRelation m_relation;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

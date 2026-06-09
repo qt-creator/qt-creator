@@ -5,7 +5,7 @@
 
 #include <QTest>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerTraceViewTest::QmlProfilerTraceViewTest()
     : traceView(nullptr, &modelManager)
@@ -40,4 +40,4 @@ void QmlProfilerTraceViewTest::testStateChanges()
     QVERIFY(!traceView.isSuspended());
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -25,16 +25,16 @@
 
 #include "quick3dframemodel.h"
 
+#include "profilertr.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilertr.h"
 #include "quick3dmodel.h"
 
 #include <tracing/timelineformattime.h>
 
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 Quick3DFrameModel::Quick3DFrameModel(QmlProfilerModelManager *modelManager, QObject *parent)
     : QAbstractItemModel(parent)
@@ -515,4 +515,4 @@ void Quick3DFrameModel::finalize()
     endResetModel();
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

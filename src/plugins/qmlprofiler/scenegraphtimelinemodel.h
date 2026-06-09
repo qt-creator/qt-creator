@@ -9,7 +9,7 @@
 #include <QStringList>
 #include <QColor>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class SceneGraphTimelineModel final : public QmlProfilerTimelineModel
 {
@@ -83,4 +83,4 @@ private:
     QList<Item> m_data;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

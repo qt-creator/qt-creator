@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "flamegraphmodel.h"
+#include "profilertr.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilertr.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -16,7 +16,7 @@
 
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 static inline quint64 supportedFeatures()
 {
@@ -334,4 +334,4 @@ QmlProfilerModelManager *FlameGraphModel::modelManager() const
     return m_modelManager;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

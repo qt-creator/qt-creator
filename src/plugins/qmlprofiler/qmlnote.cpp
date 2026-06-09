@@ -5,7 +5,7 @@
 
 #include <QDataStream>
 
-namespace QmlProfiler {
+namespace Profiler {
 
 QDataStream &operator>>(QDataStream &stream, QmlNote &note)
 {
@@ -26,4 +26,4 @@ bool operator==(const QmlNote &note1, const QmlNote &note2)
             && note1.text() == note2.text();
 }
 
-} // namespace QmlProfiler
+} // namespace Profiler

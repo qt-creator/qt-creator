@@ -10,7 +10,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class FlameGraphViewTest : public QObject
 {
@@ -31,4 +31,4 @@ private:
     FlameGraphView view;
 };
 
-} // namespace QmlProfiler::Interna;
+} // namespace Profiler::Internal

@@ -8,7 +8,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class DebugMessagesModelTest : public QObject
 {
@@ -34,4 +34,4 @@ private:
     DebugMessagesModel model;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

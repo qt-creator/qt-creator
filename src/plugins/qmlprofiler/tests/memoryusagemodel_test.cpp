@@ -3,12 +3,12 @@
 
 #include "memoryusagemodel_test.h"
 
-#include "../qmlprofilertr.h"
+#include "../profilertr.h"
 
 #include <QTest>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 MemoryUsageModelTest::MemoryUsageModelTest()
     : model(&manager, &aggregator)
@@ -205,4 +205,4 @@ void MemoryUsageModelTest::cleanupTestCase()
     QCOMPARE(model.count(), 0);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

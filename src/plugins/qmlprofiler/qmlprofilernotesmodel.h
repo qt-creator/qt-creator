@@ -10,7 +10,7 @@
 #include <QList>
 #include <QHash>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerNotesModel final : public Timeline::TimelineNotesModel
 {
@@ -32,4 +32,4 @@ protected:
                    const QString &text);
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

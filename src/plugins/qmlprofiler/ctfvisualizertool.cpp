@@ -8,7 +8,7 @@
 #include "ctftimelinemodel.h"
 #include "ctftracemanager.h"
 #include "ctfvisualizerconstants.h"
-#include "ctfvisualizertr.h"
+#include "profilertr.h"
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -44,11 +44,11 @@
 #include <unordered_map>
 
 using namespace Core;
-using namespace CtfVisualizer::Constants;
+using namespace Profiler::Constants;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 using json = nlohmann::json;
 
@@ -380,7 +380,7 @@ static json fieldValueToJson(const CommonTraceFormat::FieldValue &fv)
 static void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
 {
     using namespace Qt::StringLiterals;
-    using namespace CtfVisualizer::Constants;
+    using namespace Profiler::Constants;
     using namespace CommonTraceFormat;
 
     // TraceDirectory handles metadata discovery (domain/per-PID/session-rotation
@@ -644,4 +644,4 @@ void setupCtfVisualizerTool()
     static GuardedObject<CtfVisualizerTool> theTool;
 }
 
-}  // namespace CtfVisualizer::Internal
+} // namespace Profiler::Internal

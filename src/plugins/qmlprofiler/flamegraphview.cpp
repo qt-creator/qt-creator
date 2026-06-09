@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only With Qt-GPL-exception-1.0
 
 #include "flamegraphview.h"
+#include "profilertr.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilertool.h"
-#include "qmlprofilertr.h"
 
 #include <tracing/flamegraphwidget.h>
 
@@ -12,7 +12,7 @@
 #include <QMenu>
 #include <QVBoxLayout>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent)
     : QmlProfilerEventsView(parent)
@@ -86,4 +86,4 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
         m_content->resetRoot();
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

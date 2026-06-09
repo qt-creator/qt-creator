@@ -1,8 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofilerattachdialog.h"
-#include "qmlprofilertr.h"
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kitchooser.h>
@@ -15,7 +15,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerAttachDialogPrivate
 {
@@ -90,4 +90,4 @@ void QmlProfilerAttachDialog::setKitId(Utils::Id id)
     d->kitChooser->setCurrentKitId(id);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

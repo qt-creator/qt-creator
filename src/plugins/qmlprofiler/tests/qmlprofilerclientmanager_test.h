@@ -9,7 +9,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerClientManagerTest : public QObject
 {
@@ -42,4 +42,4 @@ private:
 
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

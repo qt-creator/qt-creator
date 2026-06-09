@@ -10,7 +10,7 @@
 
 #include <coreplugin/perspective.h>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerStateManager;
 
@@ -42,4 +42,4 @@ private:
     Quick3DFrameView m_quick3dView;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

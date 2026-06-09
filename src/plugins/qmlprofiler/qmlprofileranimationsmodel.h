@@ -8,7 +8,7 @@
 #include <qmldebug/qmleventlocation.h>
 #include <qmldebug/qmlprofilereventtypes.h>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 
@@ -49,4 +49,4 @@ private:
     int rowFromThreadId(int threadId) const;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -22,7 +22,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class DummyProject : public Project
 {
@@ -202,4 +202,4 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
     ProjectManager::removeProject(project);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

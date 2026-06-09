@@ -9,7 +9,7 @@
 
 namespace ProjectExplorer { class Kit; }
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerAttachDialogPrivate;
 class QmlProfilerAttachDialog : public QDialog
@@ -30,4 +30,4 @@ private:
     QmlProfilerAttachDialogPrivate *d;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -10,7 +10,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerDetailsRewriter : public QObject
 {
@@ -47,8 +47,8 @@ private:
     friend class QTypeInfo<PendingEvent>;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(QmlProfiler::Internal::QmlProfilerDetailsRewriter::PendingEvent, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(Profiler::Internal::QmlProfilerDetailsRewriter::PendingEvent, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE

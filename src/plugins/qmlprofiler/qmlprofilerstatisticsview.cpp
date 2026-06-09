@@ -1,10 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofilerstatisticsview.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilertool.h"
-#include "qmlprofilertr.h"
 
 #include <qmldebug/qmleventlocation.h>
 
@@ -29,7 +29,7 @@
 
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerTextMark : public TextEditor::TextMark
 {
@@ -566,4 +566,4 @@ void QmlProfilerTextMarkModel::hideTextMarks()
         mark->setVisible(false);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

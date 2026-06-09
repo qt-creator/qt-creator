@@ -3,6 +3,7 @@
 
 #include "qmlprofilertool.h"
 
+#include "profilertr.h"
 #include "qmlprofilerattachdialog.h"
 #include "qmlprofilerclientmanager.h"
 #include "qmlprofilerconstants.h"
@@ -11,7 +12,6 @@
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilersettings.h"
 #include "qmlprofilerstatemanager.h"
-#include "qmlprofilertr.h"
 #include "qmlprofilerviewmanager.h"
 
 #include <coreplugin/actionmanager/command.h>
@@ -72,11 +72,11 @@
 using namespace Core;
 using namespace Core::Constants;
 using namespace QmlDebug;
-using namespace QmlProfiler::Constants;
+using namespace Profiler::Constants;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 static QmlProfilerTool *m_instance = nullptr;
 
@@ -888,4 +888,4 @@ void setupQmlProfilerTool()
     static GuardedObject<QmlProfilerTool> theQmlProfilerTool;
 }
 
-} // QmlProfiler::Internal
+} // namespace Profiler::Internal

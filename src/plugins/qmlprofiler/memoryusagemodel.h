@@ -9,7 +9,7 @@
 #include <QColor>
 #include <QStack>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class MemoryUsageModel : public QmlProfilerTimelineModel
 {
@@ -74,4 +74,4 @@ private:
     int m_continuation = ContinueNothing;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

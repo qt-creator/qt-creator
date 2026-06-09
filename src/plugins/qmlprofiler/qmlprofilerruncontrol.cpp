@@ -22,7 +22,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 Group qmlProfilerRecipe(RunControl *runControl)
 {
@@ -135,4 +135,4 @@ void setupQmlProfilerRunning()
     static LocalQmlProfilerRunWorkerFactory theLocalQmlProfilerRunWorkerFactory;
 }
 
-} // QmlProfiler::Internal
+} // namespace Profiler::Internal

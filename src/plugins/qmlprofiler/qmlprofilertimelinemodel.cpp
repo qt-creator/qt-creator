@@ -3,12 +3,12 @@
 
 #include "qmlprofilertimelinemodel.h"
 
+#include "profilertr.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilertr.h"
 
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager,
                                                    Message message, RangeType rangeType,
@@ -86,4 +86,4 @@ void QmlProfilerTimelineModel::finalize()
     emit contentChanged();
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

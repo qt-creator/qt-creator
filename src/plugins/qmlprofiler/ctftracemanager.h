@@ -11,7 +11,7 @@
 
 namespace Timeline { class TimelineModelAggregator; }
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 class CtfStatisticsModel;
 class CtfTimelineModel;
@@ -70,4 +70,4 @@ protected:
     QString m_errorString;
 };
 
-} // namespace CtfVisualizer::Internal
+} // namespace Profiler::Internal

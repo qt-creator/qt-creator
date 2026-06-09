@@ -6,7 +6,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmlprofiler/qmlprofilerdetailsrewriter.h>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerDetailsRewriterTest : public QObject
 {
@@ -29,4 +29,4 @@ private:
     void seedRewriter();
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

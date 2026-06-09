@@ -16,7 +16,7 @@
 
 namespace ProjectExplorer { class BuildConfiguration; }
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerDetailsRewriter;
 
@@ -87,4 +87,4 @@ private:
     bool m_isRestrictedToRange = false;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -5,8 +5,8 @@
 
 #include <QIODevice>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 void fakeDebugServer(QIODevice *socket);
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

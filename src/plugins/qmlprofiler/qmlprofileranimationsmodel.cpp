@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilertr.h"
 
 #include <utils/qtcassert.h>
 #include <tracing/timelineformattime.h>
@@ -15,7 +15,7 @@
 #include <QStack>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
                                                        Timeline::TimelineModelAggregator *parent) :
@@ -152,4 +152,4 @@ Timeline::ItemDetails QmlProfilerAnimationsModel::details(int index) const
     return result;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

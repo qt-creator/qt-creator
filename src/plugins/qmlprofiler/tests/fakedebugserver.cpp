@@ -5,7 +5,7 @@
 
 #include <qmldebug/qpacketprotocol.h>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 void fakeDebugServer(QIODevice *socket)
 {
@@ -25,4 +25,4 @@ void fakeDebugServer(QIODevice *socket)
     });
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

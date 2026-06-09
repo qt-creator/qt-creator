@@ -1,11 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatisticsmodel.h"
 
 #include <utils/theme/theme.h>
-#include "qmlprofilertr.h"
 
 #include <tracing/timelineformattime.h>
 #include <tracing/timelinenotesmodel.h>
@@ -17,7 +17,7 @@
 
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QString nameForType(RangeType typeNumber)
 {
@@ -714,4 +714,4 @@ void QmlProfilerStatisticsRelativesModel::clear()
     endResetModel();
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -9,7 +9,7 @@
 
 #include <QPointer>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 class QmlProfilerStateManager;
@@ -37,4 +37,4 @@ private:
     quint32 m_flushInterval = 0;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

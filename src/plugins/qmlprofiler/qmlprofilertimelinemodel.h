@@ -8,7 +8,7 @@
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerTimelineModel : public Timeline::TimelineModel
 {
@@ -42,4 +42,4 @@ private:
     void updateProgress(qint64 count, qint64 max) const;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -13,7 +13,7 @@
 
 #include <memory>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerStatisticsMainView;
 class QmlProfilerStatisticsRelativesView;
@@ -100,4 +100,4 @@ private:
     std::unique_ptr<QmlProfilerStatisticsRelativesModel> m_model;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

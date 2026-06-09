@@ -5,7 +5,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlNoteTest : public QObject
 {
@@ -19,4 +19,4 @@ private slots:
     void testStreamOps();
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

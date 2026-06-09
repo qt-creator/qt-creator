@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "ctfstatisticsmodel.h"
 
-#include "ctfvisualizertr.h"
+#include "profilertr.h"
 #include "json/json.hpp"
 
 #include <tracing/timelineformattime.h>
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 using json = nlohmann::json;
 
@@ -183,4 +183,4 @@ QVariant CtfStatisticsModel::headerData(int section, Qt::Orientation orientation
     }
 }
 
-}  // CtfVisualizer::Internal
+} // namespace Profiler::Internal

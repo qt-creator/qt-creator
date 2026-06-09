@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription("A tool for analyzing QML profiler traces.");
     parser.addHelpOption();
     parser.addVersionOption();
-    const QString extensions = QmlProfiler::QmlProfilerPlainViewManager::fileDialogTraceFilesFilter()
+    const QString extensions = Profiler::QmlProfilerPlainViewManager::fileDialogTraceFilesFilter()
                                    .split(";;").constFirst();
     parser.addPositionalArgument("tracefile", extensions);
     QCommandLineOption exitOnError(QStringList({"e", "exit-on-error"}),

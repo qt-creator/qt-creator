@@ -12,7 +12,7 @@
 #include <QSet>
 #include <QStack>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class  QmlProfilerModelManager;
 
@@ -108,4 +108,4 @@ private:
     QSet<int> m_typeIdsWithNotes;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

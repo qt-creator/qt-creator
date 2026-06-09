@@ -6,9 +6,9 @@
 #include "qmltraceviewerrpc.h"
 #include "qmltraceviewersettings.h"
 
+#include <qmlprofiler/profilertr.h>
 #include <qmlprofiler/qmlprofilerconstants.h>
 #include <qmlprofiler/qmlprofilerplainviewmanager.h>
-#include <qmlprofiler/qmlprofilertr.h>
 
 #include <utils/fileutils.h>
 #include <utils/progressindicator.h>
@@ -27,7 +27,7 @@
 
 #include <iostream>
 
-using namespace QmlProfiler;
+using namespace Profiler;
 using namespace Utils;
 using namespace Utils::StyleHelper;
 
@@ -193,7 +193,7 @@ Window::Window(QWidget *parent)
 
     auto toolBar = new QToolBar;
     toolBar->setObjectName("QmlProfileTraceViewer");
-    toolBar->addActions({loadAction, clearAction});
+    toolBar->addActions(QList<QAction *>{loadAction, clearAction});
     toolBar->addSeparator();
     toolBar->addWidget(d->traceDurationLabel);
     toolBar->addAction(helpAction);

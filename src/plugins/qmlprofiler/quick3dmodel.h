@@ -5,7 +5,7 @@
 
 #include "qmlprofilertimelinemodel.h"
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class Quick3DModel : public QmlProfilerTimelineModel
 {

@@ -11,11 +11,11 @@ QT_BEGIN_NAMESPACE
 namespace QtTaskTree { class Group; }
 QT_END_NAMESPACE
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QtTaskTree::Group qmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
 QtTaskTree::Group localQmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
 
 void setupQmlProfilerRunning();
 
-} // QmlProfiler::Internal
+} // namespace Profiler::Internal

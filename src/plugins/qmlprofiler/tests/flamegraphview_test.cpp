@@ -13,7 +13,7 @@
 #include <QWindow>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 FlameGraphViewTest::FlameGraphViewTest()
     : view(&manager)
@@ -150,4 +150,4 @@ void FlameGraphViewTest::cleanupTestCase()
     manager.clearAll();
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

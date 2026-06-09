@@ -13,7 +13,7 @@
 
 namespace Timeline { class TimelineModelAggregator; }
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 class CtfTraceManager;
 
@@ -90,4 +90,4 @@ protected:
     QList<int> m_counterIndexToRow;
 };
 
-} // namespace CtfVisualizer::Internal
+} // namespace Profiler::Internal

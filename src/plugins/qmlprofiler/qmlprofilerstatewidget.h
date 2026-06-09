@@ -8,7 +8,7 @@
 
 #include <QFrame>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerStateWidget : public QFrame
 {
@@ -31,4 +31,4 @@ private:
     QmlProfilerStateWidgetPrivate *d;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace CtfVisualizer {
+namespace Profiler {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(QtC::CtfVisualizer)
+    Q_DECLARE_TR_FUNCTIONS(QtC::QmlProfiler)
 };
 
-} // namespace CtfVisualizer
+} // namespace Profiler

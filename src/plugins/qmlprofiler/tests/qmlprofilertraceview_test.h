@@ -8,7 +8,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerTraceViewTest : public QObject
 {
@@ -25,4 +25,4 @@ private:
     QmlProfilerTraceView traceView;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

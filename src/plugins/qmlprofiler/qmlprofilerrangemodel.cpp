@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerrangemodel.h"
-#include "qmlprofilertr.h"
 
 #include <tracing/timelineformattime.h>
 
@@ -14,7 +14,7 @@
 #include <QUrl>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerRangeModel::QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,
                                              Timeline::TimelineModelAggregator *parent) :
@@ -173,4 +173,4 @@ int QmlProfilerRangeModel::typeId(int index) const
     return selectionId(index);
 }
 
-} // namespaec QmlProfiler::Internal
+} // namespace Profiler::Internal

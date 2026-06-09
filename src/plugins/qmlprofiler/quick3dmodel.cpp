@@ -1,13 +1,13 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofilerconstants.h"
-#include "qmlprofilertr.h"
 #include "quick3dmodel.h"
 #include <tracing/timelineformattime.h>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 int Quick3DModel::eventDataId(int id)
 {
@@ -379,4 +379,4 @@ int Quick3DModel::typeId(int index) const
     return QmlProfilerTimelineModel::typeId(index);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

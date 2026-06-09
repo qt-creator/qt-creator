@@ -8,7 +8,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class MemoryUsageModelTest : public QObject
 {
@@ -41,4 +41,4 @@ private:
     int rangeTypeId = -1;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

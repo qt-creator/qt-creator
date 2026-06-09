@@ -3,15 +3,15 @@
 
 #include "qmlprofilerrunconfigurationaspect.h"
 
+#include "profilertr.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilersettings.h"
-#include "qmlprofilertr.h"
 
 #include <projectexplorer/runconfiguration.h>
 
 using namespace ProjectExplorer;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(BuildConfiguration *)
 {
@@ -24,4 +24,4 @@ QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(BuildConfig
     setConfigWidgetCreator([this] { return createRunConfigAspectWidget(this); });
 }
 
-} // QmlProfiler::Internal
+} // namespace Profiler::Internal

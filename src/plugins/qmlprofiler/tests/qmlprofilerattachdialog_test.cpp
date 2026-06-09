@@ -8,7 +8,7 @@
 
 #include <QTest>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerAttachDialogTest::QmlProfilerAttachDialogTest() = default;
 
@@ -34,4 +34,4 @@ void QmlProfilerAttachDialogTest::testAccessors()
     ProjectExplorer::KitManager::deregisterKit(newKit);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

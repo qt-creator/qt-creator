@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilernotesmodel.h"
-#include "qmlprofilertr.h"
 #include "qmlprofilertracefile.h"
 
 #include <utils/qtcassert.h>
@@ -20,7 +20,7 @@
 
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 const char PROFILER_FILE_VERSION[] = "1.02";
 
@@ -858,4 +858,4 @@ QmlProfilerNotesModel *QmlProfilerTraceFile::qmlNotes()
     return static_cast<QmlProfilerNotesModel *>(notes());
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

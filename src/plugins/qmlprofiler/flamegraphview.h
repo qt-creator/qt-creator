@@ -10,7 +10,7 @@
 
 #include <QWidget>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class FlameGraphView : public QmlProfilerEventsView
 {
@@ -29,4 +29,4 @@ private:
     FlameGraphModel *m_model;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

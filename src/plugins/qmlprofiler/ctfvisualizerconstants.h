@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace CtfVisualizer::Constants {
+namespace Profiler::Constants {
 
 const char CtfVisualizerMenuId[] = "Analyzer.Menu.CtfVisualizer";
 const char CtfVisualizerTaskLoadJson[] =
@@ -32,4 +32,4 @@ const char CtfEventTypeInstant[] = "i";
 const char CtfEventTypeInstantDeprecated[] = "I";
 const char CtfEventTypeCounter[] = "C";
 
-} // namespace CtfVisualizer::Constants
+} // namespace Profiler::Constants

@@ -8,7 +8,7 @@
 #include <QAbstractItemModel>
 #include <QWidget>
 
-namespace QmlProfiler {
+namespace Profiler {
 
 class QmlProfilerEventsView : public QWidget
 {
@@ -26,4 +26,4 @@ signals:
     void showFullRange();
 };
 
-} // namespace QmlProfiler
+} // namespace Profiler

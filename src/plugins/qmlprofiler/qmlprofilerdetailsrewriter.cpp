@@ -19,7 +19,7 @@
 #include <QDebug>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal{
+namespace Profiler::Internal {
 
 class PropertyVisitor : protected QmlJS::AST::Visitor
 {
@@ -187,4 +187,4 @@ void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Build
     QtSupport::QtVersion::populateQmlFileFinder(&m_projectFinder, bc);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

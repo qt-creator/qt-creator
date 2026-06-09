@@ -8,7 +8,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class PixmapCacheModelTest : public QObject
 {
@@ -33,4 +33,4 @@ private:
     int eventTypeIndices[2 * QmlDebug::MaximumPixmapEventType]{};
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

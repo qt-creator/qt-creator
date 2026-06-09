@@ -5,7 +5,7 @@
 
 #include <utils/aspects.h>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerSettings : public Utils::AspectContainer
 {
@@ -20,4 +20,4 @@ public:
 
 QmlProfilerSettings &globalSettings();
 
-} // QmlProfiler::Internal
+} // namespace Profiler::Internal

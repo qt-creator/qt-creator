@@ -9,7 +9,7 @@
 namespace ProjectExplorer { class RunControl; }
 namespace Utils { class FilePath; }
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerClientManager;
 class QmlProfilerModelManager;

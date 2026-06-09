@@ -6,7 +6,7 @@
 #include <tracing/timelinemodel.h>
 #include <utils/algorithm.h>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent)
     : TimelineNotesModel(parent)
@@ -124,4 +124,4 @@ void QmlProfilerNotesModel::clear()
     m_notes.clear();
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

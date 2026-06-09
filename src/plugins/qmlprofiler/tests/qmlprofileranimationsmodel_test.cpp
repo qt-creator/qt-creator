@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofileranimationsmodel_test.h"
-#include "../qmlprofilertr.h"
+#include "../profilertr.h"
 #include <tracing/timelineformattime.h>
 #include <QTest>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerAnimationsModelTest::QmlProfilerAnimationsModelTest()
     : model(&manager, &aggregator)
@@ -110,4 +110,4 @@ void QmlProfilerAnimationsModelTest::cleanupTestCase()
     QCOMPARE(model.collapsedRowCount(), 1);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -5,7 +5,7 @@
 
 #include <utils/itemviews.h>
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 class CtfStatisticsModel;
 
@@ -22,4 +22,4 @@ signals:
     void eventTypeSelected(const QString &title);
 };
 
-}  // CtfVisualizer::Internal
+} // namespace Profiler::Internal

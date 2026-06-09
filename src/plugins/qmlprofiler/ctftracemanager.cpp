@@ -5,7 +5,7 @@
 #include "ctfstatisticsmodel.h"
 #include "ctftimelinemodel.h"
 #include "ctfvisualizerconstants.h"
-#include "ctfvisualizertr.h"
+#include "profilertr.h"
 
 #include <coreplugin/icore.h>
 
@@ -13,7 +13,7 @@
 
 #include <QMessageBox>
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 using json = nlohmann::json;
 using namespace Constants;
@@ -236,4 +236,4 @@ QString CtfTraceManager::errorString() const
     return m_errorString;
 }
 
-} // namespace CtfVisualizer::Internal
+} // namespace Profiler::Internal

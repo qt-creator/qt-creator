@@ -8,7 +8,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class InputEventsModelTest : public QObject
 {
@@ -36,4 +36,4 @@ private:
     int keyTypeId = -1;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

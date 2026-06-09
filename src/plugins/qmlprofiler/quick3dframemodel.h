@@ -36,7 +36,7 @@
 #include <QPointer>
 #include <QAbstractItemModel>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 
@@ -142,4 +142,4 @@ private:
     int m_filterFrame = -1;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

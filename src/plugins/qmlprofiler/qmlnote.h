@@ -6,7 +6,7 @@
 #include <QString>
 #include <QMetaType>
 
-namespace QmlProfiler {
+namespace Profiler {
 
 class QmlNote {
 
@@ -41,10 +41,10 @@ private:
     bool m_loaded;
 };
 
-} // namespace QmlProfiler
+} // namespace Profiler
 
-Q_DECLARE_METATYPE(QmlProfiler::QmlNote)
+Q_DECLARE_METATYPE(Profiler::QmlNote)
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(QmlProfiler::QmlNote, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(Profiler::QmlNote, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE

@@ -9,7 +9,7 @@
 #include <QSize>
 #include <QStringList>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class PixmapCacheModel : public QmlProfilerTimelineModel
 {
@@ -113,4 +113,4 @@ private:
     static const int s_pixmapCacheCountHue = 240;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

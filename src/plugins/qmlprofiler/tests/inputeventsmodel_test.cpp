@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "inputeventsmodel_test.h"
-#include "../qmlprofilertr.h"
+#include "../profilertr.h"
 
 #include <tracing/timelinemodel_p.h>
 #include <tracing/timelineformattime.h>
@@ -10,7 +10,7 @@
 #include <QTest>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 static InputEventType inputType(int i)
 {
@@ -175,4 +175,4 @@ void InputEventsModelTest::cleanupTestCase()
     QCOMPARE(model.collapsedRowCount(), 1);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

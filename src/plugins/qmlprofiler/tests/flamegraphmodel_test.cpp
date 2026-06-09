@@ -3,7 +3,7 @@
 
 #include "flamegraphmodel_test.h"
 
-#include "../qmlprofilertr.h"
+#include "../profilertr.h"
 #include "../qmlprofilerrangemodel.h"
 #include "../qmlprofilernotesmodel.h"
 
@@ -11,7 +11,7 @@
 
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 FlameGraphModelTest::FlameGraphModelTest()
     : model(&manager)
@@ -217,4 +217,4 @@ void FlameGraphModelTest::cleanupTestCase()
     QCOMPARE(model.rowCount(), 0);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

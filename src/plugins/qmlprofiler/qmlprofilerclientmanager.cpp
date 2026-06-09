@@ -11,7 +11,7 @@
 
 using namespace QmlDebug;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent)
     : QmlDebug::QmlDebugConnectionManager(parent)
@@ -124,4 +124,4 @@ void QmlProfilerClientManager::logState(const QString &message)
     QmlProfilerTool::logState(QLatin1String("QML Profiler: ") + message);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

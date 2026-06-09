@@ -12,7 +12,7 @@ class QIODevice;
 class QXmlStreamReader;
 QT_END_NAMESPACE
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerNotesModel;
 
@@ -46,4 +46,4 @@ private:
     void addStageProgress(ProgressValues stage);
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

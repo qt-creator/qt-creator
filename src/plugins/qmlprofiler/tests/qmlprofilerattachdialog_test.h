@@ -7,7 +7,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerAttachDialogTest : public QObject
 {
@@ -20,4 +20,4 @@ private slots:
     void testAccessors();
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

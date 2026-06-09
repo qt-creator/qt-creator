@@ -5,7 +5,7 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerToolTest : public QObject
 {
@@ -16,4 +16,4 @@ private slots:
     void testClearEvents();
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

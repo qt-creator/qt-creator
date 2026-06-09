@@ -6,7 +6,7 @@
 #include <QAbstractTableModel>
 #include <QHash>
 
-namespace CtfVisualizer::Internal {
+namespace Profiler::Internal {
 
 class CtfStatisticsModel : public QAbstractTableModel
 {
@@ -55,4 +55,4 @@ private:
 
 };
 
-}  // CtfVisualizer::Internal
+} // namespace Profiler::Internal

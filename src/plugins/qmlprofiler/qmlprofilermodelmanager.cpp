@@ -1,10 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofilerdetailsrewriter.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilernotesmodel.h"
-#include "qmlprofilertr.h"
 #include "qmlprofilertracefile.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -20,7 +20,7 @@
 #include <functional>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 static const char *ProfileFeatureNames[] = {
     QT_TRANSLATE_NOOP("QtC::QmlProfiler", "JavaScript"),
@@ -549,4 +549,4 @@ bool QmlProfilerEventStorage::replay(
     return false;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

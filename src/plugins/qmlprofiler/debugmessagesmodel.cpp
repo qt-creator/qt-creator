@@ -3,13 +3,13 @@
 
 #include "debugmessagesmodel.h"
 
+#include "profilertr.h"
 #include "qmlprofilerconstants.h"
-#include "qmlprofilertr.h"
 
 #include <tracing/timelineformattime.h>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager,
                                        Timeline::TimelineModelAggregator *parent) :
@@ -102,4 +102,4 @@ Timeline::ItemLocation DebugMessagesModel::location(int index) const
     return locationFromTypeId(index);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

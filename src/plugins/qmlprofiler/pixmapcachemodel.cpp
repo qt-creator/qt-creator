@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pixmapcachemodel.h"
+#include "profilertr.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilertr.h"
 
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <tracing/timelineformattime.h>
 
 using namespace QmlDebug;
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager,
                                    Timeline::TimelineModelAggregator *parent) :
@@ -479,4 +479,4 @@ int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
     return index;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "profilertr.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerstatewidget.h"
-#include "qmlprofilertr.h"
 #include "qmlprofilerviewmanager.h"
 
 #include <coreplugin/perspective.h>
@@ -13,7 +13,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerViewManager::QmlProfilerViewManager(QmlProfilerModelManager *modelManager,
                                                QmlProfilerStateManager *profilerState)
@@ -66,4 +66,4 @@ void QmlProfilerViewManager::clear()
     m_traceView.clear();
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal
