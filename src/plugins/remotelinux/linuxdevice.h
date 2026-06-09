@@ -43,7 +43,7 @@ public:
     using Ptr = std::shared_ptr<LinuxDevice>;
     using ConstPtr = std::shared_ptr<const LinuxDevice>;
 
-    ~LinuxDevice();
+    ~LinuxDevice() override;
 
     static Ptr create() { return Ptr(new LinuxDevice); }
 

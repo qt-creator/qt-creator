@@ -298,7 +298,7 @@ QStringList SshSharedConnection::connectionArgs(const FilePath &binary) const
 // The new thread is needed since SshSharedConnection is not thread-safe itself,
 // and it uses deleteLater, so we need an event loop to run things on that is never blocked even
 // if some thread waits for e.g. a device process to finish.
-class SshConnectionHandler : public QThread
+class SshConnectionHandler final : public QThread
 {
 public:
     SshConnectionHandler()
@@ -306,7 +306,7 @@ public:
         setObjectName("SshConnectionHandler");
         m_guard.moveToThread(this);
     }
-    ~SshConnectionHandler()
+    ~SshConnectionHandler() final
     {
         quit();
         wait();

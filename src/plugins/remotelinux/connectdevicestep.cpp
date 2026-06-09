@@ -43,7 +43,7 @@ private:
 
 struct DeviceAndResult
 {
-    ConnectDeviceStep *step;
+    ConnectDeviceStep *step = nullptr;
     LinuxDevice::ConstPtr device;
     Result<void> result;
 };

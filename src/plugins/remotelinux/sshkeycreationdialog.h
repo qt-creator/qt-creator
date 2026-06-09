@@ -21,7 +21,7 @@ class SshKeyCreationDialog : public QDialog
     Q_OBJECT
 public:
     SshKeyCreationDialog(QWidget *parent = nullptr);
-    ~SshKeyCreationDialog();
+    ~SshKeyCreationDialog() override;
 
     Utils::FilePath privateKeyFilePath() const;
     Utils::FilePath publicKeyFilePath() const;

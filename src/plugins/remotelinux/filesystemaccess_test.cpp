@@ -329,8 +329,8 @@ void FileSystemAccessTest::testFileTransfer()
         QFile file(dirForFilesToUpload.path() + '/' + fileName);
         QVERIFY2(file.open(QIODevice::WriteOnly), qPrintable(file.errorString()));
         int content[1024 / sizeof(int)];
-        for (size_t j = 0; j < sizeof content / sizeof content[0]; ++j)
-            content[j] = QRandomGenerator::global()->generate();
+        for (int &val : content)
+            val = QRandomGenerator::global()->generate();
         file.write(reinterpret_cast<char *>(content), sizeof content);
         file.close();
         QVERIFY2(file.error() == QFile::NoError, qPrintable(file.errorString()));
@@ -346,8 +346,8 @@ void FileSystemAccessTest::testFileTransfer()
     const int blockCount = bigFileSize / blockSize;
     for (int block = 0; block < blockCount; ++block) {
         int content[blockSize / sizeof(int)];
-        for (size_t j = 0; j < sizeof content / sizeof content[0]; ++j)
-            content[j] = QRandomGenerator::global()->generate();
+        for (int &val : content)
+            val = QRandomGenerator::global()->generate();
         bigFile.write(reinterpret_cast<char *>(content), sizeof content);
     }
     bigFile.close();
