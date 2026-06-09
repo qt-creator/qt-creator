@@ -3,7 +3,7 @@
 
 #include "datastreamreader.h"
 
-#include "metadata/metadatareader.h"
+#include "../metadata/metadatareader.h"
 
 #include <QIODevice>
 

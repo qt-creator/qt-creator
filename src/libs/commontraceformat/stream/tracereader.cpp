@@ -3,9 +3,9 @@
 
 #include "tracereader.h"
 
-#include "metadata/ctf1packets.h"
-#include "metadata/metadatareader.h"
-#include "metadata/tsdlparser.h"
+#include "../metadata/ctf1packets.h"
+#include "../metadata/metadatareader.h"
+#include "../metadata/tsdlparser.h"
 
 #include <QIODevice>
 

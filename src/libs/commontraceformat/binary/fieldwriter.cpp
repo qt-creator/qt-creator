@@ -7,7 +7,7 @@
 #include "../schema/compoundfieldclasses.h"
 #include "../schema/scalarfieldclasses.h"
 #include "../schema/stringfieldclasses.h"
-#include "util/leb128.h"
+#include "../util/leb128.h"
 
 #include <utils/qtcassert.h>
 

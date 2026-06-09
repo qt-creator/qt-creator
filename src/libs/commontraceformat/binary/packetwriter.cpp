@@ -8,7 +8,7 @@
 #include "../schema/blobfieldclasses.h"
 #include "../schema/compoundfieldclasses.h"
 #include "../schema/scalarfieldclasses.h"
-#include "metadata/metadatareader.h"
+#include "../metadata/metadatareader.h"
 
 #include <QBuffer>
 #include <QIODevice>

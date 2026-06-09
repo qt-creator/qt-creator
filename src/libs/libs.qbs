@@ -9,6 +9,7 @@ Project {
         "acp/acp.qbs",
         "advanceddockingsystem/advanceddockingsystem.qbs",
         "aggregation/aggregation.qbs",
+        "commontraceformat/commontraceformat.qbs",
         "cplusplus/cplusplus.qbs",
         "devcontainer/devcontainer.qbs",
         "extensionsystem/extensionsystem.qbs",

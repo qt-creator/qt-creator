@@ -3,7 +3,7 @@
 
 #include "tracewriter.h"
 
-#include "metadata/metadatawriter.h"
+#include "../metadata/metadatawriter.h"
 
 #include <QIODevice>
 

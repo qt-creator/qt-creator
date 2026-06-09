@@ -5,11 +5,11 @@
 
 #include "fieldreader.h"
 
+#include "../metadata/metadatareader.h"
 #include "../schema/blobfieldclasses.h"
 #include "../schema/compoundfieldclasses.h"
 #include "../schema/scalarfieldclasses.h"
 #include "../schema/schema.h"
-#include "metadata/metadatareader.h"
 
 #include <QIODevice>
 

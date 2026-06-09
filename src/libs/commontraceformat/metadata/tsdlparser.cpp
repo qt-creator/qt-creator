@@ -3,6 +3,7 @@
 
 #include "tsdlparser.h"
 
+#include "../binary/bitbuffer.h"
 #include "../schema/blobfieldclasses.h"
 #include "../schema/clockclass.h"
 #include "../schema/compoundfieldclasses.h"
@@ -11,7 +12,6 @@
 #include "../schema/scalarfieldclasses.h"
 #include "../schema/stringfieldclasses.h"
 #include "../schema/traceclass.h"
-#include "binary/bitbuffer.h"
 
 #include <utils/result.h>
 
