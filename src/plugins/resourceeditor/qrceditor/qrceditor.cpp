@@ -135,8 +135,8 @@ protected:
     }
 
 private:
-    int m_prefixArrayIndex;
-    int m_fileArrayIndex;
+    int m_prefixArrayIndex = -1;
+    int m_fileArrayIndex = -1;
 };
 
 class ModifyPropertyCommand : public ModelIndexViewCommand
@@ -281,10 +281,10 @@ private:
         m_view->removeFiles(m_prefixIndex, m_firstFile, m_lastFile);
     }
 
-    int m_prefixIndex;
-    int m_cursorFileIndex;
-    int m_firstFile;
-    int m_lastFile;
+    const int m_prefixIndex;
+    const int m_cursorFileIndex;
+    int m_firstFile = 0;
+    int m_lastFile = 0;
     const QStringList m_fileNames;
 };
 
@@ -306,7 +306,7 @@ private:
         delete m_view->removeEntry(prefixModelIndex);
     }
 
-    int m_prefixArrayIndex;
+    int m_prefixArrayIndex = 0;
 };
 
 ResourceView::ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent) :
