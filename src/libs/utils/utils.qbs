@@ -154,6 +154,8 @@ QtcLibrary {
         "filestreamer.h",
         "filestreamermanager.cpp",
         "filestreamermanager.h",
+        "filesystemmodel.cpp",
+        "filesystemmodel.h",
         "filesystemwatcher.cpp",
         "filesystemwatcher.h",
         "fileutils.cpp",
