@@ -1998,11 +1998,11 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         emit delayedQuitAllRequested(cmd.hasBang);
     } else if (cmd.matches("sp", "split")) {
         // :sp[lit]
-        triggerAction(Core::Constants::SPLIT);
+        EditorManager::split();
         updateAllHightLights();
     } else if (cmd.matches("vs", "vsplit")) {
         // :vs[plit]
-        triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
+        EditorManager::splitSideBySide();
         updateAllHightLights();
     } else if (cmd.matches("mak", "make")) {
         // :mak[e][!] [arguments]
