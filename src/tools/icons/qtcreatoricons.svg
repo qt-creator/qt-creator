@@ -3134,6 +3134,39 @@
       </g>
     </g>
     <g
+       transform="translate(128)"
+       id="src/libs/utils/images/slash">
+      <use
+         transform="translate(1740,132)"
+         height="100%"
+         width="100%"
+         id="use_slash_bg"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         d="M 1728.5,581.5 1735.5,570.5"
+         id="slash_line"
+         style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:round" />
+    </g>
+    <g
+       transform="translate(128)"
+       id="src/libs/utils/images/paperclip">
+      <use
+         transform="translate(1740,132)"
+         height="100%"
+         width="100%"
+         id="use_paperclip_bg"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="paperclip_wire"
+         transform="translate(1725,569) scale(0.58) rotate(-12,12,12)"
+         d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+         style="fill:none;stroke:#000000;stroke-width:1.72;stroke-linecap:round;stroke-linejoin:round" />
+    </g>
+    <g
        style="display:inline"
        transform="translate(144)"
        id="src/plugins/languageclient/images/languageclient">

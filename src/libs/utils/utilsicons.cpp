@@ -76,6 +76,14 @@ const Icon SETTINGS({
         {":/utils/images/settings.png", Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SETTINGS_TOOLBAR({
         {":/utils/images/settings.png", Theme::IconsBaseColor}});
+const Icon SLASH({
+        {":/utils/images/slash.png", Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon SLASH_TOOLBAR({
+        {":/utils/images/slash.png", Theme::IconsBaseColor}});
+const Icon PAPERCLIP({
+        {":/utils/images/paperclip.png", Theme::PaletteText}}, Icon::Tint);
+const Icon PAPERCLIP_TOOLBAR({
+        {":/utils/images/paperclip.png", Theme::IconsBaseColor}});
 
 const Icon NEWFILE({
         {":/utils/images/filenew.png", Theme::PanelTextColorMid}}, Icon::Tint);
@@ -414,6 +422,10 @@ static QHash<QString, Icon> s_nameToIcon = {
     MAKE_ENTRY(SAVEFILE),
     MAKE_ENTRY(SETTINGS_TOOLBAR),
     MAKE_ENTRY(SETTINGS),
+    MAKE_ENTRY(SLASH_TOOLBAR),
+    MAKE_ENTRY(SLASH),
+    MAKE_ENTRY(PAPERCLIP_TOOLBAR),
+    MAKE_ENTRY(PAPERCLIP),
     MAKE_ENTRY(SNAPSHOT_TOOLBAR),
     MAKE_ENTRY(SNAPSHOT),
     MAKE_ENTRY(SORT_ALPHABETICALLY_TOOLBAR),

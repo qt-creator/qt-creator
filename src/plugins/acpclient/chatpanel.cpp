@@ -203,7 +203,8 @@ ChatPanel::ChatPanel(QWidget *parent)
     verticalCenter->addStretch();
     bottomRowLayout->addLayout(verticalCenter, 1);
 
-    auto addContextButton = new QtcButton("+", QtcButton::MediumTertiary);
+    auto addContextButton = new QtcIconButton;
+    addContextButton->setIcon(Utils::Icons::PAPERCLIP.icon());
     addContextButton->setToolTip(Tr::tr("Add Context"));
     connect(addContextButton, &QtcIconButton::released, this, [this, addContextButton] {
         auto menu = new QMenu(addContextButton);
@@ -249,7 +250,8 @@ ChatPanel::ChatPanel(QWidget *parent)
     auto bottomRowButtonLayout = new QHBoxLayout;
     bottomRowButtonLayout->addWidget(addContextButton);
 
-    m_commandsButton = new QtcButton("/", QtcButton::MediumTertiary);
+    m_commandsButton = new QtcIconButton;
+    m_commandsButton->setIcon(Icons::SLASH.icon());
     m_commandsButton->setToolTip(Tr::tr("Insert Command"));
     m_commandsButton->hide();
     connect(m_commandsButton, &QAbstractButton::clicked, this, [this] {
