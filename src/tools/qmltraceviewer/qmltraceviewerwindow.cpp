@@ -61,6 +61,7 @@ public:
     QLabel *traceDurationLabel;
     ProgressIndicator *progressIndicator;
     QList<QDockWidget*> dockWidgets; // List with original dock widgets order
+    QDockWidget *detailsDock = nullptr; // Range details, docked to the right (not tabbed)
 };
 
 WindowPrivate::WindowPrivate(Window *window)
@@ -122,6 +123,10 @@ void WindowPrivate::addDocksForViews()
     const QWidgetList views = viewManager->views(q);
     for (QWidget *w : views)
         dockWidgets.append(q->addDockForWidget(w));
+
+    // The range details view lives next to the tabbed views, docked to the right.
+    if (QWidget *details = viewManager->rangeDetailsWidget())
+        detailsDock = q->addDockForWidget(details);
 }
 
 void WindowPrivate::resetLayout()
@@ -135,7 +140,22 @@ void WindowPrivate::resetLayout()
         dw->setFloating(false);
         if (!firstDockWidget)
             firstDockWidget = dw;
-        else
+    }
+
+    // Split the details off the first view before tabbing the others onto it.
+    // QMainWindow::splitDockWidget() only splits when the anchor is not yet tabbed;
+    // doing this after tabifying would just add the details as another tab.
+    if (detailsDock) {
+        detailsDock->setVisible(true);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        detailsDock->setDockLocation(Qt::RightDockWidgetArea);
+#endif
+        detailsDock->setFloating(false);
+        q->splitDockWidget(firstDockWidget, detailsDock, Qt::Horizontal);
+    }
+
+    for (QDockWidget *dw : std::as_const(dockWidgets)) {
+        if (dw != firstDockWidget)
             q->tabifyDockWidget(firstDockWidget, dw);
     }
     firstDockWidget->raise();

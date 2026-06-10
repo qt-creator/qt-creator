@@ -9,6 +9,7 @@
 
 namespace Timeline {
 
+class RangeDetailsWidget;
 class TimelineModelAggregator;
 class TimelineZoomControl;
 
@@ -20,6 +21,10 @@ public:
                             TimelineZoomControl *zoomControl,
                             QWidget *parent = nullptr);
     ~TimelineWidget() override;
+
+    // The range details panel, meant to be added to a perspective as a dockable
+    // view. Ownership transfers to the perspective via Perspective::addWindow().
+    RangeDetailsWidget *rangeDetailsWidget() const;
 
     bool hasValidSelection() const;
     qint64 selectionStart() const;

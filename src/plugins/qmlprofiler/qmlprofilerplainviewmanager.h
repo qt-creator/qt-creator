@@ -22,6 +22,7 @@ public:
     ~QmlProfilerPlainViewManager();
 
     QWidgetList views(QWidget *parent);
+    QWidget *rangeDetailsWidget() const;
     static QString fileDialogTraceFilesFilter();
     void loadTraceFile(const Utils::FilePath &file);
     void clear();

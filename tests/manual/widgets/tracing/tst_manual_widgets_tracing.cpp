@@ -14,6 +14,7 @@
 #include <tracing/tracklabels.h>
 #include <tracing/trackpainter.h>
 #include <tracing/timelinecontentwidget.h>
+#include <tracing/rangedetailswidget.h>
 
 #include "../common/themeselector.h"
 
@@ -212,9 +213,11 @@ int main(int argc, char *argv[])
     auto contentLayout = new QVBoxLayout(contentWindow);
     contentLayout->setContentsMargins(0, 0, 0, 0);
     contentLayout->setSpacing(0);
+    auto detailsWidget = new Timeline::RangeDetailsWidget(contentWindow);
     auto contentWidget = new Timeline::TimelineContentWidget(
-        modelAggregator, zoomControl, contentWindow);
+        modelAggregator, zoomControl, detailsWidget, contentWindow);
     contentLayout->addWidget(contentWidget, 1);
+    contentLayout->addWidget(detailsWidget);
 
     auto rangeBtn = new QPushButton("Selection Range", contentWindow);
     rangeBtn->setCheckable(true);

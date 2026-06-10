@@ -83,11 +83,13 @@ protected:
 
 TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator,
                                              TimelineZoomControl *zoom,
+                                             RangeDetailsWidget *details,
                                              QWidget *parent)
     : QWidget(parent)
     , m_aggregator(aggregator)
     , m_zoom(zoom)
     , m_sync(new TimelineScrollSync(zoom, this))
+    , m_details(details)
 {
     m_ruler = new TimeRuler;
     m_sync->registerRuler(m_ruler);
@@ -111,10 +113,6 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     m_overlay->raise();
     m_scrollArea->viewport()->installEventFilter(this);
 
-    m_details = new RangeDetailsWidget(this);
-    m_details->move(200, 25);
-    connect(m_details, &RangeDetailsWidget::lockChanged,
-            this, &TimelineContentWidget::setSelectionLocked);
     connect(m_details, &RangeDetailsWidget::recenterOnItem, this, [this] {
         recenterOnItem(m_selectedModelIndex, m_selectedItemIndex);
     });
@@ -325,7 +323,6 @@ static void fitFloatingWidget(QWidget *w, int parentW, int parentH)
 void TimelineContentWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    fitFloatingWidget(m_details, width(), height());
     fitFloatingWidget(m_selectionDetails, width(), height());
 }
 
@@ -391,7 +388,7 @@ void TimelineContentWidget::rebuildTracks()
         painter->setModel(model);
         painter->setNotes(m_aggregator->notes());
         painter->setStartOdd(totalRowsBefore % 2 == 0);
-        painter->setSelectionLocked(m_details->locked());
+        painter->setSelectionLocked(m_selectionLocked);
         totalRowsBefore += model->rowCount();
         m_trackLayout->addWidget(painter);
         m_sync->registerContent(painter);
@@ -451,10 +448,14 @@ void TimelineContentWidget::rebuildTracks()
     m_labels->setTracks(tracks);
     m_labels->setScrollOffset(m_scrollArea->verticalScrollBar()->value());
 
-    // Restore selection if the item's model is still visible; otherwise clear details
+    // Restore selection if the item's model is still visible and the item still
+    // exists; otherwise clear details. The item index can go stale when the model
+    // was cleared (e.g. on a new profiling run), which would index out of bounds.
     if (savedModelId >= 0) {
         for (int i = 0; i < m_painters.size(); ++i) {
-            if (m_painters[i]->model()->modelId() == savedModelId) {
+            const TimelineModel *model = m_painters[i]->model();
+            if (model->modelId() == savedModelId
+                    && savedItemIndex >= 0 && savedItemIndex < model->count()) {
                 m_selectedModelIndex = i;
                 m_selectedItemIndex = savedItemIndex;
                 m_painters[i]->setSelectedItem(savedItemIndex);
@@ -463,6 +464,8 @@ void TimelineContentWidget::rebuildTracks()
             }
         }
     }
+    m_selectedModelIndex = -1;
+    m_selectedItemIndex = -1;
     m_details->clear();
 }
 
@@ -491,7 +494,7 @@ void TimelineContentWidget::onItemHovered(int modelIndex, int itemIndex)
     m_hoveredItemIndex = itemIndex;
     emit itemHovered(modelIndex, itemIndex);
 
-    if (!m_details->locked()) {
+    if (!m_selectionLocked) {
         // In hover mode (unlocked), hovering over an item fully selects it so that
         // external views stay in sync. Moving away does not clear so the last details
         // remain readable.
@@ -719,14 +722,14 @@ void TimelineContentWidget::clear()
 
 bool TimelineContentWidget::selectionLocked() const
 {
-    return m_details->locked();
+    return m_selectionLocked;
 }
 
 void TimelineContentWidget::setSelectionLocked(bool locked)
 {
-    if (m_details->locked() == locked)
+    if (m_selectionLocked == locked)
         return;
-    m_details->setLocked(locked);
+    m_selectionLocked = locked;
     for (auto painter : std::as_const(m_painters))
         painter->setSelectionLocked(locked);
     emit selectionLockedChanged(locked);

@@ -31,6 +31,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <tracing/rangedetailswidget.h>
 #include <tracing/timelinewidget.h>
 #include <tracing/timelinezoomcontrol.h>
 
@@ -182,6 +183,10 @@ void PerfProfilerTool::createViews()
             this, &PerfProfilerTool::gotoSourceLocation);
 
     m_perspective.addWindow(m_traceView, Perspective::SplitVertical, nullptr);
+    // Split the details off before tabbing other views onto the trace view; otherwise
+    // QMainWindow::splitDockWidget() would just add it as a tab (the anchor is tabbed).
+    m_perspective.addWindow(m_traceView->rangeDetailsWidget(), Perspective::SplitHorizontal,
+                            m_traceView);
     m_perspective.addWindow(m_flameGraphView, Perspective::AddToTab, m_traceView);
     m_perspective.addWindow(m_statisticsView, Perspective::AddToTab, m_flameGraphView);
 
@@ -189,6 +194,12 @@ void PerfProfilerTool::createViews()
             m_traceView, &Timeline::TimelineWidget::selectByTypeId);
     connect(m_flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
             m_traceView, &Timeline::TimelineWidget::selectByTypeId);
+
+    // Route the flame graph's details into the shared range details view.
+    connect(m_flameGraphView, &Timeline::FlameGraphWidget::detailsChanged,
+            m_traceView->rangeDetailsWidget(), &Timeline::RangeDetailsWidget::setData);
+    connect(m_flameGraphView, &Timeline::FlameGraphWidget::detailsCleared,
+            m_traceView->rangeDetailsWidget(), &Timeline::RangeDetailsWidget::clear);
 
     connect(m_traceView, &Timeline::TimelineWidget::typeSelected,
             m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);

@@ -9,10 +9,9 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QFormLayout;
-class QFrame;
 class QLabel;
-class QToolButton;
+class QStandardItemModel;
+class QTreeView;
 QT_END_NAMESPACE
 
 namespace Timeline {
@@ -26,36 +25,22 @@ public:
     void setData(const QString &title, const QList<QPair<QString, QString>> &content);
     void clear();
 
-    bool locked() const { return m_locked; }
-    void setLocked(bool locked);
-
 signals:
-    void lockChanged(bool locked);
     void recenterOnItem();
 
 protected:
-    void paintEvent(QPaintEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
-    void mouseMoveEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
 
 private:
     void rebuildRows(const QList<QPair<QString, QString>> &content);
-    void fitHeight();
 
-    QWidget *m_titleBar;
-    QLabel *m_titleLabel;
-    QToolButton *m_lockBtn;
-    QToolButton *m_collapseBtn;
-    QFrame *m_contentFrame;
-    QWidget *m_formWidget;
-    QFormLayout *m_form;
+    QWidget *m_titleBar = nullptr;
+    QLabel *m_titleLabel = nullptr;
+    QTreeView *m_treeView = nullptr;
+    QStandardItemModel *m_model = nullptr;
 
-    QPoint m_dragOffset;
-    bool m_dragging = false;
-    bool m_didDrag = false;
-    bool m_locked = false;
-    bool m_collapsed = false;
+    bool m_hasData = false;
 };
 
 } // namespace Timeline

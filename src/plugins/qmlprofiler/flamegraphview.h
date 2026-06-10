@@ -21,6 +21,10 @@ public:
     void selectByTypeId(int typeIndex) override;
     void onVisibleFeaturesChanged(quint64 features) override;
 
+signals:
+    void detailsChanged(const QString &title, const QList<QPair<QString, QString>> &content);
+    void detailsCleared();
+
 protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
 

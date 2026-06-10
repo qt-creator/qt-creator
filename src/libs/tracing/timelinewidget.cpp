@@ -3,6 +3,7 @@
 
 #include "timelinewidget.h"
 
+#include "rangedetailswidget.h"
 #include "timelinecontentwidget.h"
 #include "timelinemodelaggregator.h"
 #include "timelinemodel.h"
@@ -30,6 +31,7 @@ public:
     TimelineZoomControl *m_zoomControl = nullptr;
     TimelineContentWidget *m_content = nullptr;
     TimelineOverviewWidget *m_overview = nullptr;
+    RangeDetailsWidget *m_details = nullptr; // Owned by the perspective once docked.
 
     QWidget *m_zoomSliderRow = nullptr;
     QSlider *m_zoomSlider = nullptr;
@@ -83,8 +85,11 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     d->m_zoomControl = zoomControl;
     setMinimumHeight(170);
 
+    // ---- Range details (hosted in a dockable view; ownership transfers there) ----
+    d->m_details = new RangeDetailsWidget(this);
+
     // ---- Content and overview ----
-    d->m_content = new TimelineContentWidget(aggregator, zoomControl, this);
+    d->m_content = new TimelineContentWidget(aggregator, zoomControl, d->m_details, this);
     d->m_overview = new TimelineOverviewWidget(aggregator, zoomControl, this);
 
     // ---- Toolbar (placed in the left-panel header slot of the content widget) ----
@@ -200,6 +205,11 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
 TimelineWidget::~TimelineWidget()
 {
     delete d;
+}
+
+RangeDetailsWidget *TimelineWidget::rangeDetailsWidget() const
+{
+    return d->m_details;
 }
 
 bool TimelineWidget::hasValidSelection() const

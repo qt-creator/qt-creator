@@ -5,20 +5,15 @@
 
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
-#include <utils/utilsicons.h>
 
 #include <QAbstractItemModel>
 #include <QComboBox>
 #include <QFrame>
-#include <QGridLayout>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QModelIndex>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QResizeEvent>
 #include <QScrollArea>
-#include <QToolButton>
 #include <QVBoxLayout>
 
 namespace Timeline {
@@ -33,249 +28,6 @@ struct LayoutNode {
     int depth;
     int parentNodeIndex;  // -1 = root
 };
-
-// ---------------------------------------------------------------------------
-// RangeDetails panel — mirrors RangeDetails.qml
-
-class RangeDetails : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit RangeDetails(QWidget *parent);
-
-    void setTitle(const QString &title);
-    void setContent(const QList<QPair<QString, QString>> &rows, const QString &note);
-    bool isLocked() const { return m_lockButton->isChecked(); }
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-
-private:
-    // outerMargin=10, innerMargin=5, titleBarHeight ~ toolBarHeight/1.2 ~ 24
-    static constexpr int kTitleHeight = 24;
-    static constexpr int kOuterMargin = 10;
-    static constexpr int kInnerMargin = 5;
-
-    QWidget *m_titleBar = nullptr;
-    QLabel *m_titleLabel = nullptr;
-    QToolButton *m_lockButton = nullptr;
-    QToolButton *m_collapseButton = nullptr;
-    QWidget *m_content = nullptr;
-    QGridLayout *m_grid = nullptr;
-    QLabel *m_noteLabel = nullptr;
-
-    bool m_collapsed = false;
-    QPoint m_dragOffset;
-    bool m_dragging = false;
-};
-
-RangeDetails::RangeDetails(QWidget *parent)
-    : QWidget(parent)
-{
-    // initialWidth: 300, minimumInnerWidth: 150
-    setFixedWidth(300);
-
-    // The outer widget auto-fills with PanelTextColorMid; the 1px margins become
-    // the outer border and the 1px layout spacing becomes the title/content separator,
-    // matching QML's separate bordered rectangles for titleBar and contentArea.
-    setAutoFillBackground(true);
-    {
-        QPalette pal = palette();
-        pal.setColor(QPalette::Window,
-                     Utils::creatorColor(Utils::Theme::PanelTextColorMid));
-        setPalette(pal);
-    }
-
-    // --- Title bar ---
-    m_titleBar = new QWidget(this);
-    m_titleBar->setFixedHeight(kTitleHeight);
-    m_titleBar->setAutoFillBackground(true);
-    {
-        QPalette pal = m_titleBar->palette();
-        pal.setColor(QPalette::Window,
-                     Utils::creatorColor(Utils::Theme::Timeline_PanelHeaderColor));
-        m_titleBar->setPalette(pal);
-    }
-
-    m_titleLabel = new QLabel(m_titleBar);
-    {
-        QFont f = m_titleLabel->font();
-        f.setBold(true);
-        m_titleLabel->setFont(f);
-        QPalette pal = m_titleLabel->palette();
-        pal.setColor(QPalette::WindowText,
-                     Utils::creatorColor(Utils::Theme::PanelTextColorLight));
-        m_titleLabel->setPalette(pal);
-    }
-    m_titleLabel->setAutoFillBackground(false);
-
-    // Lock: lock_open (unlocked) / lock_closed (locked) — matches imageSource in QML
-    m_lockButton = new QToolButton(m_titleBar);
-    m_lockButton->setCheckable(true);
-    m_lockButton->setChecked(false);
-    m_lockButton->setAutoRaise(true);
-    m_lockButton->setFixedSize(kTitleHeight, kTitleHeight);
-    m_lockButton->setIconSize(QSize(16, 16));
-    m_lockButton->setIcon(Utils::Icons::UNLOCKED_TOOLBAR.icon());
-    m_lockButton->setToolTip(tr("View event information on mouseover."));
-    connect(m_lockButton, &QToolButton::toggled, this, [this](bool checked) {
-        m_lockButton->setIcon(checked ? Utils::Icons::LOCKED_TOOLBAR.icon()
-                                      : Utils::Icons::UNLOCKED_TOOLBAR.icon());
-    });
-
-    // Collapse/expand — arrowup/arrowdown in QML
-    m_collapseButton = new QToolButton(m_titleBar);
-    m_collapseButton->setAutoRaise(true);
-    m_collapseButton->setFixedSize(kTitleHeight, kTitleHeight);
-    m_collapseButton->setIconSize(QSize(16, 16));
-    m_collapseButton->setIcon(Utils::Icons::ARROW_UP.icon());
-    m_collapseButton->setToolTip(tr("Collapse"));
-    connect(m_collapseButton, &QToolButton::clicked, this, [this] {
-        m_collapsed = !m_collapsed;
-        m_content->setVisible(!m_collapsed);
-        m_collapseButton->setIcon(m_collapsed ? Utils::Icons::ARROW_DOWN.icon()
-                                              : Utils::Icons::ARROW_UP.icon());
-        m_collapseButton->setToolTip(m_collapsed ? tr("Expand") : tr("Collapse"));
-        adjustSize();
-        setFixedWidth(300);
-    });
-
-    auto *titleLayout = new QHBoxLayout(m_titleBar);
-    titleLayout->setContentsMargins(kOuterMargin, 0, 0, 0);
-    titleLayout->setSpacing(0);
-    titleLayout->addWidget(m_titleLabel, 1);
-    titleLayout->addWidget(m_lockButton);
-    titleLayout->addWidget(m_collapseButton);
-
-    // --- Content area ---
-    m_content = new QWidget(this);
-    m_content->setAutoFillBackground(true);
-    {
-        QPalette pal = m_content->palette();
-        pal.setColor(QPalette::Window,
-                     Utils::creatorColor(Utils::Theme::Timeline_PanelBackgroundColor));
-        m_content->setPalette(pal);
-    }
-
-    m_grid = new QGridLayout(m_content);
-    m_grid->setContentsMargins(kOuterMargin, kInnerMargin, kOuterMargin, kInnerMargin);
-    m_grid->setHorizontalSpacing(kInnerMargin);
-    m_grid->setVerticalSpacing(kInnerMargin);
-    m_grid->setColumnStretch(1, 1);
-
-    m_noteLabel = new QLabel(m_content);
-    m_noteLabel->setWordWrap(true);
-    m_noteLabel->hide();
-    {
-        QFont nf = m_noteLabel->font();
-        nf.setItalic(true);
-        m_noteLabel->setFont(nf);
-        QPalette pal = m_noteLabel->palette();
-        pal.setColor(QPalette::WindowText,
-                     Utils::creatorColor(Utils::Theme::Timeline_HighlightColor));
-        m_noteLabel->setPalette(pal);
-    }
-
-    auto *outerLayout = new QVBoxLayout(this);
-    outerLayout->setContentsMargins(1, 1, 1, 1);
-    outerLayout->setSpacing(1);  // 1px gap = visible separator between title and content
-    outerLayout->addWidget(m_titleBar);
-    outerLayout->addWidget(m_content);
-}
-
-void RangeDetails::setTitle(const QString &title)
-{
-    m_titleLabel->setText(title);
-}
-
-void RangeDetails::setContent(const QList<QPair<QString, QString>> &rows, const QString &note)
-{
-    while (m_grid->count() > 0) {
-        QLayoutItem *item = m_grid->takeAt(0);
-        delete item->widget();
-        delete item;
-    }
-
-    // Labels are bold per Detail.qml (font.bold: isLabel)
-    int row = 0;
-    for (const auto &[label, value] : rows) {
-        auto *lbl = new QLabel(label + QLatin1Char(':'), m_content);
-        lbl->setAlignment(Qt::AlignRight | Qt::AlignTop);
-        {
-            QFont f = lbl->font();
-            f.setBold(true);
-            lbl->setFont(f);
-            QPalette pal = lbl->palette();
-            pal.setColor(QPalette::WindowText,
-                         Utils::creatorColor(Utils::Theme::PanelTextColorLight));
-            lbl->setPalette(pal);
-        }
-        auto *val = new QLabel(value, m_content);
-        val->setWordWrap(true);
-        val->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-        {
-            QPalette pal = val->palette();
-            pal.setColor(QPalette::WindowText,
-                         Utils::creatorColor(Utils::Theme::PanelTextColorLight));
-            val->setPalette(pal);
-        }
-        m_grid->addWidget(lbl, row, 0);
-        m_grid->addWidget(val, row, 1);
-        ++row;
-    }
-
-    if (!note.isEmpty()) {
-        m_noteLabel->setText(note);
-        m_grid->addWidget(m_noteLabel, row, 0, 1, 2);
-        m_noteLabel->show();
-    } else {
-        m_noteLabel->hide();
-    }
-
-    if (!m_collapsed)
-        adjustSize();
-    setFixedWidth(300);
-}
-
-void RangeDetails::paintEvent(QPaintEvent *event)
-{
-    // Background auto-fill (PanelTextColorMid) provides the outer border and
-    // title/content separator via layout margins and spacing. Delegate the rest.
-    QWidget::paintEvent(event);
-}
-
-void RangeDetails::mousePressEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton
-        && m_titleBar->geometry().contains(event->pos())) {
-        m_dragging = true;
-        m_dragOffset = event->pos();
-        event->accept();
-    }
-}
-
-void RangeDetails::mouseMoveEvent(QMouseEvent *event)
-{
-    if (!m_dragging)
-        return;
-    QPoint newPos = pos() + event->pos() - m_dragOffset;
-    if (parentWidget()) {
-        QRect pr = parentWidget()->rect();
-        newPos.setX(qBound(0, newPos.x(), pr.width() - width()));
-        newPos.setY(qBound(0, newPos.y(), pr.height() - height()));
-    }
-    move(newPos);
-    event->accept();
-}
-
-void RangeDetails::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton)
-        m_dragging = false;
-}
 
 // ---------------------------------------------------------------------------
 // Private + canvas forward declaration
@@ -316,7 +68,6 @@ public:
     QScrollArea *scrollArea = nullptr;
     FlameGraphCanvas *canvas = nullptr;
     QComboBox *modeCombo = nullptr;
-    RangeDetails *detailsPanel = nullptr;
 
     int currentSizeRole() const
     {
@@ -337,10 +88,9 @@ public:
     QColor colorForNode(int i, QStyle::State state) const;
     QString summaryText(int i) const;
 
-    // currentNode: hoveredNode (when unlocked) || selectedNode || lastHoveredNode
+    // currentNode: hoveredNode || selectedNode || lastHoveredNode
     int detailsNodeIndex() const;
     void showDetails(int nodeIndex);
-    void repositionDetails();  // clamp to parent bounds; does not reset position
 };
 
 // ---------------------------------------------------------------------------
@@ -707,11 +457,10 @@ QString FlameGraphWidgetPrivate::summaryText(int i) const
 
 int FlameGraphWidgetPrivate::detailsNodeIndex() const
 {
-    // Mirrors QML: currentNode = !locked && hoveredNode || selectedNode
-    // Plus: keep last hovered if nothing selected (QML onMouseExited logic)
-    bool locked = detailsPanel && detailsPanel->isLocked();
+    // currentNode = hoveredNode || selectedNode, keeping the last hovered if
+    // nothing is selected (QML onMouseExited logic).
     int hovered = canvas ? canvas->m_hoveredNode : -1;
-    if (hovered >= 0 && !locked)
+    if (hovered >= 0)
         return hovered;
     if (selectedNodeIndex >= 0)
         return selectedNodeIndex;
@@ -720,85 +469,40 @@ int FlameGraphWidgetPrivate::detailsNodeIndex() const
 
 void FlameGraphWidgetPrivate::showDetails(int nodeIndex)
 {
-    if (!detailsPanel)
-        return;
-
     if (nodeIndex < 0 || nodeIndex >= nodes.size()) {
-        // QML: show "No data available" when model has no rows; else hide.
-        bool noData = !model || model->rowCount() == 0;
-        if (noData) {
-            detailsPanel->setTitle(FlameGraphWidget::tr("No data available"));
-            detailsPanel->setContent({}, {});
-        } else {
-            detailsPanel->hide();
-            return;
-        }
-    } else {
-        const LayoutNode &node = nodes.at(nodeIndex);
-
-        QString title;
-        if (detailsTitleRole >= 0 && node.modelIndex.isValid())
-            title = node.modelIndex.data(detailsTitleRole).toString();
-        if (title.isEmpty())
-            title = summaryText(nodeIndex);
-        // QML fallback: "unknown"
-        if (title.isEmpty())
-            title = FlameGraphWidget::tr("unknown");
-        detailsPanel->setTitle(title);
-
-        QList<QPair<QString, QString>> rows;
-        if (node.modelIndex.isValid()) {
-            for (const auto &[role, name] : std::as_const(detailsRoles)) {
-                QVariant val = node.modelIndex.data(role);
-                if (val.isNull() || !val.isValid())
-                    continue;
-                QString valStr = val.toString();
-                if (valStr.isEmpty())
-                    continue;
-                rows.append({name, valStr});
-            }
-        } else {
-            // "others" node: show othersText as the single detail row
-            if (!detailsRoles.isEmpty()) {
-                QString label = detailsRoles.first().second;
-                rows.append({label, othersText.isEmpty()
-                                        ? FlameGraphWidget::tr("Various Events") : othersText});
-            }
-        }
-
-        QString note;
-        if (noteRole >= 0 && node.modelIndex.isValid())
-            note = node.modelIndex.data(noteRole).toString();
-        detailsPanel->setContent(rows, note);
-    }
-
-    // On first show, place at upper-left (QML default x=0, y=0 within flickable)
-    if (!detailsPanel->isVisible()) {
-        int margin = 8;
-        int topOffset = 0;
-        if (modeCombo) {
-            QWidget *topBar = modeCombo->parentWidget();
-            if (topBar && topBar->isVisible())
-                topOffset = topBar->height();
-        }
-        detailsPanel->move(margin, margin + topOffset);
-    }
-
-    detailsPanel->show();
-    detailsPanel->raise();
-    repositionDetails();
-}
-
-void FlameGraphWidgetPrivate::repositionDetails()
-{
-    if (!detailsPanel || !detailsPanel->isVisible())
+        emit q->detailsCleared();
         return;
-    // Clamp to stay inside parent, without resetting user-chosen position
-    QRect pr = q->rect();
-    QPoint p = detailsPanel->pos();
-    p.setX(qBound(0, p.x(), qMax(0, pr.width() - detailsPanel->width())));
-    p.setY(qBound(0, p.y(), qMax(0, pr.height() - detailsPanel->height())));
-    detailsPanel->move(p);
+    }
+
+    const LayoutNode &node = nodes.at(nodeIndex);
+
+    QString title;
+    if (detailsTitleRole >= 0 && node.modelIndex.isValid())
+        title = node.modelIndex.data(detailsTitleRole).toString();
+    if (title.isEmpty())
+        title = summaryText(nodeIndex);
+    if (title.isEmpty())
+        title = FlameGraphWidget::tr("unknown");
+
+    QList<QPair<QString, QString>> rows;
+    if (node.modelIndex.isValid()) {
+        for (const auto &[role, name] : std::as_const(detailsRoles)) {
+            QVariant val = node.modelIndex.data(role);
+            if (val.isNull() || !val.isValid())
+                continue;
+            QString valStr = val.toString();
+            if (valStr.isEmpty())
+                continue;
+            rows.append({name, valStr});
+        }
+    } else if (!detailsRoles.isEmpty()) {
+        // "others" node: show othersText as the single detail row
+        QString label = detailsRoles.first().second;
+        rows.append({label, othersText.isEmpty()
+                                ? FlameGraphWidget::tr("Various Events") : othersText});
+    }
+
+    emit q->detailsChanged(title, rows);
 }
 
 // ---------------------------------------------------------------------------
@@ -832,9 +536,6 @@ FlameGraphWidget::FlameGraphWidget(QAbstractItemModel *model, QWidget *parent)
     layout->setSpacing(0);
     layout->addWidget(topBar);
     layout->addWidget(d->scrollArea);
-
-    d->detailsPanel = new RangeDetails(this);
-    d->detailsPanel->hide();
 
     connect(d->modeCombo, &QComboBox::currentIndexChanged, this, [this](int) {
         d->rebuild();
@@ -924,12 +625,4 @@ bool FlameGraphWidget::isZoomed() const
     return d->root.isValid();
 }
 
-void FlameGraphWidget::resizeEvent(QResizeEvent *event)
-{
-    QWidget::resizeEvent(event);
-    d->repositionDetails();
-}
-
 } // namespace Timeline
-
-#include "flamegraphwidget.moc"

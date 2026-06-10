@@ -10,7 +10,11 @@
 #include "qmlprofiler/qmlprofilertool.h"
 #include "qmlprofiler/qmlprofilertraceview.h"
 
+#include <tracing/rangedetailswidget.h>
+
 #include <utils/filepath.h>
+
+#include <QPointer>
 
 using namespace Profiler::Internal;
 using namespace Utils;
@@ -23,6 +27,7 @@ class QmlProfilerPlainViewManagerPrivate
 {
 public:
     QmlProfilerModelManager modelManager;
+    QPointer<Timeline::RangeDetailsWidget> rangeDetails;
 };
 
 QmlProfilerPlainViewManager::~QmlProfilerPlainViewManager()
@@ -68,7 +73,21 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
     prepareEventsView(statisticsView);
     auto quick3DView = new Internal::Quick3DFrameView(&d->modelManager, parent);
     prepareEventsView(quick3DView);
+
+    // Route the flame graph's details into the shared range details view, matching the
+    // full QML Profiler perspective.
+    d->rangeDetails = traceView->rangeDetailsWidget();
+    connect(flameGraphView, &Internal::FlameGraphView::detailsChanged,
+            d->rangeDetails, &Timeline::RangeDetailsWidget::setData);
+    connect(flameGraphView, &Internal::FlameGraphView::detailsCleared,
+            d->rangeDetails, &Timeline::RangeDetailsWidget::clear);
+
     return { traceView, flameGraphView, statisticsView, quick3DView };
+}
+
+QWidget *QmlProfilerPlainViewManager::rangeDetailsWidget() const
+{
+    return d->rangeDetails;
 }
 
 QString QmlProfilerPlainViewManager::fileDialogTraceFilesFilter()

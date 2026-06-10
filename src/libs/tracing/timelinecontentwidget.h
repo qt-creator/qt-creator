@@ -34,6 +34,7 @@ class TRACING_EXPORT TimelineContentWidget : public QWidget
 public:
     explicit TimelineContentWidget(TimelineModelAggregator *aggregator,
                                    TimelineZoomControl *zoom,
+                                   RangeDetailsWidget *details,
                                    QWidget *parent = nullptr);
 
     QSize sizeHint() const override;
@@ -101,7 +102,7 @@ private:
     QWidget *m_leftHeader = nullptr;
     SelectionRangeOverlay *m_overlay;
     SelectionRangeDetailsWidget *m_selectionDetails;
-    RangeDetailsWidget *m_details;
+    RangeDetailsWidget *m_details; // Not owned; lives in a dockable view.
     TimelineNotesModel *m_notes = nullptr;
     QList<TrackPainter *> m_painters;
     QList<int> m_painterAggregatorMap; // m_painterAggregatorMap[painterIdx] = aggregator model index
@@ -115,6 +116,8 @@ private:
 
     int m_hoveredModelIndex = -1;
     int m_hoveredItemIndex = -1;
+
+    bool m_selectionLocked = false;
 };
 
 } // namespace Timeline

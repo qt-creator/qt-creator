@@ -16,6 +16,7 @@
 #include <coreplugin/perspective.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
+#include <tracing/rangedetailswidget.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinewidget.h>
 #include <tracing/timelinezoomcontrol.h>
@@ -166,6 +167,10 @@ void CtfVisualizerTool::createViews()
     });
 
     m_perspective.addWindow(m_traceView, Perspective::OperationType::SplitVertical, nullptr);
+    // Split the details off before tabbing other views onto the trace view; otherwise
+    // QMainWindow::splitDockWidget() would just add it as a tab (the anchor is tabbed).
+    m_perspective.addWindow(m_traceView->rangeDetailsWidget(), Perspective::SplitHorizontal,
+                            m_traceView);
 
     m_statisticsView = new CtfStatisticsView(&m_statisticsModel);
     m_statisticsView->setWindowTitle(Tr::tr("Statistics"));

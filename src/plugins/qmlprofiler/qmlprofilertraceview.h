@@ -7,6 +7,8 @@
 
 #include <QWidget>
 
+namespace Timeline { class RangeDetailsWidget; }
+
 namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
@@ -18,6 +20,8 @@ class QmlProfilerTraceView : public QWidget
 public:
     explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerModelManager *modelManager);
     ~QmlProfilerTraceView() override;
+
+    Timeline::RangeDetailsWidget *rangeDetailsWidget() const;
 
     bool hasValidSelection() const;
     qint64 selectionStart() const;

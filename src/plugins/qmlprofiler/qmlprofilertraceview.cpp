@@ -146,6 +146,11 @@ QmlProfilerTraceView::~QmlProfilerTraceView()
     delete d;
 }
 
+Timeline::RangeDetailsWidget *QmlProfilerTraceView::rangeDetailsWidget() const
+{
+    return d->m_mainView->rangeDetailsWidget();
+}
+
 bool QmlProfilerTraceView::hasValidSelection() const
 {
     return d->m_mainView->hasValidSelection();

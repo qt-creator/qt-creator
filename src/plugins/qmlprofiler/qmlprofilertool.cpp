@@ -49,6 +49,7 @@
 
 #include <texteditor/texteditor.h>
 
+#include <tracing/rangedetailswidget.h>
 #include <tracing/timelinenotesmodel.h>
 
 #include <utils/fancymainwindow.h>
@@ -142,6 +143,12 @@ QmlProfilerTool::QmlProfilerTool()
     connect(&d->m_traceView, &QmlProfilerTraceView::typeSelected,
             this, [this](int typeId) { d->selectByTypeId(typeId); });
 
+    // Route the flame graph's details into the shared range details view.
+    connect(&d->m_flameGraphView, &FlameGraphView::detailsChanged,
+            d->m_traceView.rangeDetailsWidget(), &Timeline::RangeDetailsWidget::setData);
+    connect(&d->m_flameGraphView, &FlameGraphView::detailsCleared,
+            d->m_traceView.rangeDetailsWidget(), &Timeline::RangeDetailsWidget::clear);
+
     new QmlProfilerStateWidget(&d->m_profilerState, &d->m_profilerModelManager,
                                &d->m_traceView);
 
@@ -160,6 +167,11 @@ QmlProfilerTool::QmlProfilerTool()
 
     d->m_perspective.setObjectName("QML Profiler View Manager");
     d->m_perspective.addWindow(&d->m_traceView, Perspective::SplitVertical, nullptr);
+    // Split the details off the trace view before tabbing the other views onto it.
+    // QMainWindow::splitDockWidget() only splits when the anchor is not yet tabbed;
+    // doing this later would just add the details as another tab.
+    d->m_perspective.addWindow(d->m_traceView.rangeDetailsWidget(),
+                               Perspective::SplitHorizontal, &d->m_traceView);
     d->m_perspective.addWindow(&d->m_flameGraphView, Perspective::AddToTab, &d->m_traceView);
     d->m_perspective.addWindow(&d->m_quick3dView, Perspective::AddToTab, &d->m_flameGraphView);
     d->m_perspective.addWindow(&d->m_statisticsView, Perspective::AddToTab, &d->m_traceView);

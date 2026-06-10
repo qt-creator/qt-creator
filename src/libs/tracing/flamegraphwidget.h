@@ -35,7 +35,7 @@ public:
     void setSourceRoles(int fileRole, int lineRole, int columnRole = -1);
     void setSummaryRole(int role);
 
-    // Floating details panel on click/hover
+    // Details shown on click/hover, emitted via detailsChanged()/detailsCleared().
     void setDetailsTitleRole(int role);
     void setDetailsRoles(const QList<QPair<int, QString>> &roles);
     void setNoteRole(int role);
@@ -50,9 +50,8 @@ public:
 signals:
     void typeSelected(int typeId);
     void gotoSourceLocation(const QString &file, int line, int column);
-
-protected:
-    void resizeEvent(QResizeEvent *event) override;
+    void detailsChanged(const QString &title, const QList<QPair<QString, QString>> &content);
+    void detailsCleared();
 
 private:
     FlameGraphWidgetPrivate *d;

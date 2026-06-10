@@ -32,6 +32,10 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
             this, &FlameGraphView::typeSelected);
     connect(m_content, &Timeline::FlameGraphWidget::gotoSourceLocation,
             this, &FlameGraphView::gotoSourceLocation);
+    connect(m_content, &Timeline::FlameGraphWidget::detailsChanged,
+            this, &FlameGraphView::detailsChanged);
+    connect(m_content, &Timeline::FlameGraphWidget::detailsCleared,
+            this, &FlameGraphView::detailsCleared);
 
     using Role = FlameGraphModel;
     m_content->setTypeIdRole(Role::TypeIdRole);
