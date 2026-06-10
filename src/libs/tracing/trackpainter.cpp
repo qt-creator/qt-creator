@@ -525,17 +525,21 @@ int TrackPainter::indexAt(const QPoint &pos) const
 
 void TrackPainter::mouseMoveEvent(QMouseEvent *event)
 {
+    // Use global position so that verticalPan-induced widget movement doesn't
+    // corrupt the delta: widget-local coords shift when the scroll area moves
+    // the widget under the cursor, causing a feedback loop.
+    const QPoint globalPos = event->globalPosition().toPoint();
     if ((event->buttons() & Qt::LeftButton) && !m_panning) {
-        const int dx = event->pos().x() - m_pressPos.x();
-        const int dy = event->pos().y() - m_pressPos.y();
+        const int dx = globalPos.x() - m_pressPos.x();
+        const int dy = globalPos.y() - m_pressPos.y();
         if (qAbs(dx) + qAbs(dy) > 4)
             m_panning = true;
     }
 
     if (m_panning) {
-        const int dx = event->pos().x() - m_pressPos.x();
-        const int dy = event->pos().y() - m_pressPos.y();
-        m_pressPos = event->pos();
+        const int dx = globalPos.x() - m_pressPos.x();
+        const int dy = globalPos.y() - m_pressPos.y();
+        m_pressPos = globalPos;
         if (dx != 0)
             emit horizontalPan(dx);
         if (dy != 0)
@@ -554,7 +558,7 @@ void TrackPainter::mouseMoveEvent(QMouseEvent *event)
 void TrackPainter::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        m_pressPos = event->pos();
+        m_pressPos = event->globalPosition().toPoint();
         m_panning = false;
     }
 }
