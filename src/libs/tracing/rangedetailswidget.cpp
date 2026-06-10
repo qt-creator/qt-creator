@@ -16,9 +16,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPalette>
-#include <QPlainTextEdit>
 #include <QSize>
-#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -149,25 +147,12 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     m_titleLabel->setTextFormat(Qt::PlainText);
     titleLayout->addWidget(m_titleLabel, 1);
 
-    const QIcon editIcon = Utils::Icon(
-        {{":/tracing/images/edit.png", Utils::Theme::IconsBaseColor}}).icon();
     const QIcon lockOpenIcon = Utils::Icons::UNLOCKED_TOOLBAR.icon();
     const QIcon lockClosedIcon = Utils::Icons::LOCKED_TOOLBAR.icon();
     const QIcon arrowUpIcon = Utils::Icons::ARROW_UP.icon();
     const QIcon arrowDownIcon = Utils::Icons::ARROW_DOWN.icon();
 
     const QSize iconSize(16, 16);
-
-    m_editBtn = new TitleBarButton(m_titleBar);
-    m_editBtn->setIcon(editIcon);
-    m_editBtn->setIconSize(iconSize);
-    m_editBtn->setToolTip("Edit note");
-    titleLayout->addWidget(m_editBtn);
-    connect(m_editBtn, &QToolButton::clicked, this, [this] {
-        m_noteEdit->setVisible(true);
-        fitHeight();
-        m_noteEdit->setFocus();
-    });
 
     m_lockBtn = new TitleBarButton(m_titleBar);
     m_lockBtn->setIcon(lockOpenIcon);
@@ -223,19 +208,6 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     m_form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     contentLayout->addWidget(m_formWidget);
 
-    m_noteEdit = new QPlainTextEdit;
-    m_noteEdit->setPlaceholderText("Add note...");
-    m_noteEdit->setFixedHeight(60);
-    QFont noteFont = m_noteEdit->font();
-    noteFont.setItalic(true);
-    m_noteEdit->setFont(noteFont);
-    m_noteEdit->setFrameShape(QFrame::NoFrame);
-    m_noteEdit->setAutoFillBackground(true);
-    m_noteEdit->document()->setDocumentMargin(0);
-    m_noteEdit->setVisible(false);
-    m_noteEdit->viewport()->installEventFilter(this);
-    contentLayout->addWidget(m_noteEdit);
-
     outerLayout->addWidget(m_contentFrame);
 
     // Bottom row: stretch + resize grip in the right corner
@@ -245,14 +217,6 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     bottomRow->addStretch(1);
     bottomRow->addWidget(new ResizeGrip(this));
     outerLayout->addLayout(bottomRow);
-
-    m_saveTimer = new QTimer(this);
-    m_saveTimer->setSingleShot(true);
-    m_saveTimer->setInterval(1000);
-    connect(m_saveTimer, &QTimer::timeout, this, [this] {
-        emit noteChanged(m_noteEdit->toPlainText());
-    });
-    connect(m_noteEdit, &QPlainTextEdit::textChanged, this, &RangeDetailsWidget::scheduleNoteSave);
 
     // Apply theme colors
     auto pal = palette();
@@ -265,27 +229,13 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     titlePal.setColor(QPalette::WindowText, themeColor(Utils::Theme::PanelTextColorLight));
     m_titleBar->setPalette(titlePal);
     m_titleLabel->setPalette(titlePal);
-
-    auto notePal = m_noteEdit->palette();
-    notePal.setColor(QPalette::Base, themeColor(Utils::Theme::Timeline_PanelBackgroundColor));
-    notePal.setColor(QPalette::Text, themeColor(Utils::Theme::Timeline_HighlightColor));
-    m_noteEdit->setPalette(notePal);
-
 }
 
 void RangeDetailsWidget::setData(const QString &title,
-                                  const QList<QPair<QString, QString>> &content,
-                                  const QString &noteText)
+                                  const QList<QPair<QString, QString>> &content)
 {
-    saveNote();
-
     m_titleLabel->setText(title);
     rebuildRows(content);
-
-    QSignalBlocker blocker(m_noteEdit);
-    m_noteEdit->setPlainText(noteText);
-    m_noteEdit->setVisible(!noteText.isEmpty());
-    m_saveTimer->stop();
 
     // show() before fitHeight() so that inserting m_formWidget into a visible
     // parent triggers polishing of the child labels; without it, font metrics
@@ -300,33 +250,9 @@ void RangeDetailsWidget::setLocked(bool locked)
     m_lockBtn->setChecked(locked);
 }
 
-void RangeDetailsWidget::saveNote()
-{
-    if (m_saveTimer->isActive()) {
-        m_saveTimer->stop();
-        emit noteChanged(m_noteEdit->toPlainText());
-    }
-}
-
 void RangeDetailsWidget::clear()
 {
-    saveNote();
     hide();
-}
-
-bool RangeDetailsWidget::eventFilter(QObject *watched, QEvent *event)
-{
-    if (watched == m_noteEdit->viewport() && event->type() == QEvent::FocusOut) {
-        if (m_saveTimer->isActive()) {
-            m_saveTimer->stop();
-            emit noteChanged(m_noteEdit->toPlainText());
-        }
-        if (m_noteEdit->toPlainText().isEmpty()) {
-            m_noteEdit->setVisible(false);
-            fitHeight();
-        }
-    }
-    return false;
 }
 
 void RangeDetailsWidget::paintEvent(QPaintEvent *)
@@ -382,11 +308,6 @@ void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &conte
 
         m_form->addRow(keyLabel, valLabel);
     }
-}
-
-void RangeDetailsWidget::scheduleNoteSave()
-{
-    m_saveTimer->start();
 }
 
 void RangeDetailsWidget::mousePressEvent(QMouseEvent *event)

@@ -12,8 +12,6 @@ QT_BEGIN_NAMESPACE
 class QFormLayout;
 class QFrame;
 class QLabel;
-class QPlainTextEdit;
-class QTimer;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -25,21 +23,17 @@ class TRACING_EXPORT RangeDetailsWidget : public QWidget
 public:
     explicit RangeDetailsWidget(QWidget *parent = nullptr);
 
-    void setData(const QString &title, const QList<QPair<QString, QString>> &content,
-                 const QString &noteText);
+    void setData(const QString &title, const QList<QPair<QString, QString>> &content);
     void clear();
-    void saveNote();
 
     bool locked() const { return m_locked; }
     void setLocked(bool locked);
 
 signals:
-    void noteChanged(const QString &text);
     void lockChanged(bool locked);
     void recenterOnItem();
 
 protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
     void paintEvent(QPaintEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;
@@ -47,19 +41,15 @@ protected:
 
 private:
     void rebuildRows(const QList<QPair<QString, QString>> &content);
-    void scheduleNoteSave();
     void fitHeight();
 
     QWidget *m_titleBar;
     QLabel *m_titleLabel;
-    QToolButton *m_editBtn;
     QToolButton *m_lockBtn;
     QToolButton *m_collapseBtn;
     QFrame *m_contentFrame;
     QWidget *m_formWidget;
     QFormLayout *m_form;
-    QPlainTextEdit *m_noteEdit;
-    QTimer *m_saveTimer;
 
     QPoint m_dragOffset;
     bool m_dragging = false;

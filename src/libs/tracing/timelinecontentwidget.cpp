@@ -118,14 +118,6 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     connect(m_details, &RangeDetailsWidget::recenterOnItem, this, [this] {
         recenterOnItem(m_selectedModelIndex, m_selectedItemIndex);
     });
-    connect(m_details, &RangeDetailsWidget::noteChanged, this, [this](const QString &text) {
-        if (m_selectedModelIndex < 0 || m_selectedItemIndex < 0)
-            return;
-        if (TimelineNotesModel *notes = m_aggregator->notes()) {
-            const int modelId = m_painters[m_selectedModelIndex]->model()->modelId();
-            notes->setText(modelId, m_selectedItemIndex, text);
-        }
-    });
 
     m_selectionDetails = new SelectionRangeDetailsWidget(this);
     m_selectionDetails->move(200, 50);
@@ -510,8 +502,6 @@ void TimelineContentWidget::onItemHovered(int modelIndex, int itemIndex)
 
 void TimelineContentWidget::selectItem(int modelIndex, int itemIndex)
 {
-    m_details->saveNote();
-
     if (m_selectedModelIndex != modelIndex && m_selectedModelIndex >= 0
             && m_selectedModelIndex < m_painters.size()) {
         m_painters[m_selectedModelIndex]->setSelectedItem(-1);
@@ -749,13 +739,7 @@ void TimelineContentWidget::showItemDetails(int modelIndex, int itemIndex)
         const OrderedItemDetails od = model->orderedDetails(itemIndex);
         const QString title = od.title;
         const QList<QPair<QString, QString>> content = od.content;
-        QString noteText;
-        if (TimelineNotesModel *notes = m_aggregator->notes()) {
-            const int noteId = notes->get(model->modelId(), itemIndex);
-            if (noteId >= 0)
-                noteText = notes->text(noteId);
-        }
-        m_details->setData(title, content, noteText);
+        m_details->setData(title, content);
     } else {
         m_details->clear();
     }
