@@ -63,6 +63,11 @@ TimelineTraceManager::TimelineTraceManager(std::unique_ptr<TraceEventStorage> &&
 
 TimelineTraceManager::~TimelineTraceManager()
 {
+    // The notes model is a child QObject and would otherwise be destroyed by ~QObject's
+    // deleteChildren(), i.e. *after* this destructor frees d below. Its destruction emits
+    // notesChanged, which fans out to views querying eventType()/the storages. Delete it
+    // here, while d (and the storages it owns) is still alive.
+    delete d->notesModel;
     delete d;
 }
 
