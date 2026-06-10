@@ -14,7 +14,6 @@ Product {
             "android/**/*",
             "cplusplus/**/*",
             "debugger/**/*",
-            "debugger-with-python2/**/*",
             "designer/**/*",
             "glsl/**/*",
             "jsonschemas/**/*",
@@ -37,7 +36,6 @@ Product {
             "qml-type-descriptions/qbs-bundle.json",
             "qml-type-descriptions/qbs.qmltypes",
             "debugger/**/__pycache__/*",
-            "debugger-with-python2/**/__pycache__/*",
         ]
     }
 
