@@ -277,7 +277,7 @@
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Zastosuj</translation>
+        <translation>Zastosuj</translation>
     </message>
 </context>
 <context>
@@ -24549,7 +24549,7 @@ Najpierw ustaw prawidłowy plik wykonywalny.</translation>
     </message>
     <message>
         <source>Paste Snippet...</source>
-        <translation>Wklej urywek...</translation>
+        <translation>Wklej fragment...</translation>
     </message>
     <message>
         <source>Alt+C,Alt+P</source>
@@ -24561,7 +24561,7 @@ Najpierw ustaw prawidłowy plik wykonywalny.</translation>
     </message>
     <message>
         <source>Fetch Snippet...</source>
-        <translation>Pobierz urywek...</translation>
+        <translation>Pobierz fragment...</translation>
     </message>
     <message>
         <source>Alt+C,Alt+F</source>
@@ -24585,7 +24585,7 @@ Najpierw ustaw prawidłowy plik wykonywalny.</translation>
     </message>
     <message>
         <source>Empty snippet received for &quot;%1&quot;.</source>
-        <translation>Otrzymano pusty urywek dla &quot;%1&quot;.</translation>
+        <translation>Otrzymano pusty fragment dla &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Code Pasting</source>
@@ -25165,32 +25165,33 @@ W przeciwnym razie należy podać ścieżkę do pliku %2 z wtyczki Copilot dla N
     </message>
     <message>
         <source>The following environment variables are set and can influence the UI scaling behavior of %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Następujące zmienne środowiskowe są ustawione i mogą wpływać na zachowanie skalowania interfejsu użytkownika %1:</translation>
     </message>
     <message>
         <source>Environment influences UI scaling behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>Środowisko wpływa na skalowanie interfejsu użytkownika.</translation>
     </message>
     <message>
         <source>Override cursors for views</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastąp kursory widoków</translation>
     </message>
     <message>
         <source>Provide cursors for resizing views.
 If the system cursors for resizing views are not displayed properly, you can use the cursors provided by %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostarcza kursory do zmiany rozmiaru widoków.
+Jeśli systemowe kursory do zmiany rozmiaru widoków nie są wyświetlane prawidłowo, możesz użyć kursorów dostarczanych przez %1.</translation>
     </message>
     <message>
         <source>Prefer banner style info bars over pop-ups</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferuj paski informacyjne zamiast wyskakujących okienek</translation>
     </message>
     <message>
         <source>Use tabbed editors</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj edytorów z zakładkami</translation>
     </message>
     <message>
         <source>Show OK and Cancel buttons in Preferences mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj przyciski OK i Anuluj w trybie preferencji</translation>
     </message>
     <message>
         <source>Always Round Up</source>
@@ -25222,11 +25223,11 @@ If the system cursors for resizing views are not displayed properly, you can use
     </message>
     <message>
         <source>Compact</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompaktowy</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation type="unfinished"></translation>
+        <translation>Swobodny</translation>
     </message>
     <message>
         <source>The DPI rounding policy change will take effect after restart.</source>
@@ -25310,55 +25311,55 @@ If the system cursors for resizing views are not displayed properly, you can use
     </message>
     <message>
         <source>Apply all changes and return to previous mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj wszystkie zmiany i wróć do poprzedniego trybu.</translation>
     </message>
     <message>
         <source>Apply all changes and stay here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj wszystkie zmiany i pozostań tutaj.</translation>
     </message>
     <message>
         <source>Discard all changes and stay here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Odrzuć wszystkie zmiany i pozostań tutaj.</translation>
     </message>
     <message>
         <source>Discard all changes and return to previous mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Odrzuć wszystkie zmiany i wróć do poprzedniego trybu.</translation>
     </message>
     <message>
         <source>Unapplied Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezastosowane zmiany</translation>
     </message>
     <message>
         <source>There are unapplied changes. Do you want to apply them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Istnieją niezastosowane zmiany. Czy chcesz je zastosować?</translation>
     </message>
     <message>
         <source>Apply Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj zmiany</translation>
     </message>
     <message>
         <source>The previous page contains unsaved changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzednia strona zawiera niezapisane zmiany.</translation>
     </message>
     <message>
         <source>Apply Unsaved Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj niezapisane zmiany</translation>
     </message>
     <message>
         <source>Abandon Unsaved Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Porzuć niezapisane zmiany</translation>
     </message>
     <message>
         <source>Return to Previous Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Wróć do poprzedniej strony</translation>
     </message>
     <message>
         <source>There are unsaved changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Istnieją niezapisane zmiany.</translation>
     </message>
     <message>
         <source>Stay in Settings Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozostań w trybie ustawień</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -25454,7 +25455,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Pin Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Przypnij edytor</translation>
     </message>
     <message>
         <source>Open With</source>
@@ -25506,7 +25507,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Drag to open the document in another split.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeciągnij, aby otworzyć dokument w sąsiadującym oknie.</translation>
     </message>
     <message>
         <source>Close Document</source>
@@ -25720,7 +25721,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>This will hide the menu bar completely. You can show it again by typing %1.&lt;br&gt;&lt;br&gt;Or, trigger the &quot;%2&quot; action from the &quot;%3&quot; locator filter (%4).</source>
-        <translation type="unfinished"></translation>
+        <translation>Spowoduje to całkowite ukrycie paska menu. Możesz go ponownie pokazać, wpisując %1.&lt;br&gt;&lt;br&gt;Lub wywołaj akcję &quot;%2&quot; z filtru lokatora &quot;%3&quot; (%4).</translation>
     </message>
     <message>
         <source>About &amp;%1</source>
@@ -25781,7 +25782,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>&lt;p&gt;Qt Creator developers can be reached at the Qt Creator mailing list:&lt;/p&gt;%1&lt;p&gt;or the #qt-creator channel on Libera.Chat IRC:&lt;/p&gt;%2&lt;p&gt;Our bug tracker is located at %3.&lt;/p&gt;&lt;p&gt;Please use %4 for bigger chunks of text.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Z programistami Qt Creator można się skontaktować na liście mailingowej Qt Creator:&lt;/p&gt;%1&lt;p&gt;lub na kanale #qt-creator na IRC Libera.Chat:&lt;/p&gt;%2&lt;p&gt;Nasz system śledzenia błędów znajduje się pod adresem %3.&lt;/p&gt;&lt;p&gt;Dla większych fragmentów tekstu używaj %4.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Full Screen</source>
@@ -25790,28 +25791,28 @@ Kontynuować?</translation>
     <message>
         <source>Open Preferences.</source>
         <comment>msgShowOptionsDialogToolTip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz preferencje.</translation>
     </message>
     <message>
         <source>Could not find %1 executable in %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można znaleźć pliku wykonywalnego %1 w %2</translation>
     </message>
     <message>
         <source>Built on %1 %2 based on Qt %3 (%4, %5)</source>
         <extracomment>Built on &lt;date&gt; &lt;time&gt; based on Qt &lt;version&gt; (&lt;compiler&gt;, &lt;arch&gt;)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zbudowano %1 %2 na bazie Qt %3 (%4, %5)</translation>
     </message>
     <message>
         <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
-        <translation type="unfinished"></translation>
+        <translation>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</translation>
     </message>
     <message>
         <source>%1 is free software, and you are welcome to redistribute it under &lt;a href=&quot;%2&quot;&gt;certain conditions&lt;/a&gt;. For some components, different conditions might apply though.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 jest wolnym oprogramowaniem i możesz je redystrybuować na &lt;a href=&quot;%2&quot;&gt;określonych warunkach&lt;/a&gt;. Dla niektórych komponentów mogą jednak obowiązywać inne warunki.</translation>
     </message>
     <message>
         <source>Open File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz plik...</translation>
     </message>
     <message>
         <source>Ctrl+Meta+F</source>
@@ -25863,11 +25864,11 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Entry is missing a logging category name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wpis nie zawiera nazwy kategorii logowania.</translation>
     </message>
     <message>
         <source>Entry is missing data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wpis nie zawiera danych.</translation>
     </message>
     <message>
         <source>Invalid level: %1</source>
@@ -25875,7 +25876,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>This logging category uses discouraged non-static approach and cannot get handled by the logging viewer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta kategoria logowania używa niezalecanego podejścia niestatycznego i nie może być obsługiwana przez przeglądarkę logów.</translation>
     </message>
     <message>
         <source>Category</source>
@@ -25895,11 +25896,11 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Critical</source>
-        <translation type="unfinished"></translation>
+        <translation>Krytyczny</translation>
     </message>
     <message>
         <source>Fatal</source>
-        <translation type="unfinished"></translation>
+        <translation>Fatalny</translation>
     </message>
     <message>
         <source>Info</source>
@@ -25915,7 +25916,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Logging Category Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeglądarka kategorii logowania</translation>
     </message>
     <message>
         <source>Save Log</source>
@@ -25947,7 +25948,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Filter categories by regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtruj kategorie wyrażeniem regularnym</translation>
     </message>
     <message>
         <source>Invalid regular expression: %1</source>
@@ -25971,23 +25972,23 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Uncheck All %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Odznacz wszystkie %1</translation>
     </message>
     <message>
         <source>Check All %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz wszystkie %1</translation>
     </message>
     <message>
         <source>Reset All %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zresetuj wszystkie %1</translation>
     </message>
     <message>
         <source>Save Enabled as Preset...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz włączone jako preset...</translation>
     </message>
     <message>
         <source>Update from Preset...</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizuj z presetu...</translation>
     </message>
     <message>
         <source>Save Logs As</source>
@@ -26003,31 +26004,31 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Save Enabled Categories As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz włączone kategorie jako...</translation>
     </message>
     <message>
         <source>Failed to write preset file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd zapisu pliku presetu &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Load Enabled Categories From</source>
-        <translation type="unfinished"></translation>
+        <translation>Wczytaj włączone kategorie z</translation>
     </message>
     <message>
         <source>Failed to open preset file &quot;%1&quot; for reading.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd odczytu pliku presetu &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed to read preset file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd odczytu pliku presetu &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Unexpected preset file format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwany format pliku presetu.</translation>
     </message>
     <message>
         <source>Show Non-matching Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj niedopasowane linie</translation>
     </message>
     <message>
         <source>Filter output...</source>
@@ -26048,12 +26049,12 @@ Kontynuować?</translation>
     <message>
         <source>Show {} &amp;preceding lines</source>
         <extracomment>The placeholder &quot;{}&quot; is replaced by a spin box for selecting a number.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż {} &amp;poprzednich linii</translation>
     </message>
     <message>
         <source>Show {} &amp;subsequent lines</source>
         <extracomment>The placeholder &quot;{}&quot; is replaced by a spin box for selecting a number.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż {} &amp;następnych linii</translation>
     </message>
     <message>
         <source>Out&amp;put</source>
@@ -26173,7 +26174,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished">Skopiuj do schowka</translation>
+        <translation>Skopiuj do schowka</translation>
     </message>
     <message>
         <source>Qt</source>
@@ -26240,11 +26241,11 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Show Bread Crumbs</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj ścieżkę nawigacji</translation>
     </message>
     <message>
         <source>Show Folders on Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj katalogi na górze</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
@@ -26265,7 +26266,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Remove Folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń katalog...</translation>
     </message>
     <message>
         <source>Meta+Y,Meta+F</source>
@@ -26308,7 +26309,10 @@ Kontynuować?</translation>
 &lt;p&gt;What to do with the executable&apos;s standard output.
 &lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it.&lt;/li&gt;&lt;li&gt;Show in General Messages.&lt;/li&gt;&lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Co zrobić ze standardowym wyjściem programu.
+&lt;ul&gt;&lt;li&gt;Ignoruj: Nie rób nic.&lt;/li&gt;&lt;li&gt;Pokaż w ogólnych komunikatach.&lt;/li&gt;&lt;li&gt;Zastąp zaznaczenie: Zastąp bieżące zaznaczenie w bieżącym dokumencie.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+</translation>
     </message>
     <message>
         <source>Show in General Messages</source>
@@ -26321,7 +26325,12 @@ Kontynuować?</translation>
 &lt;li&gt;Show in General Messages.&lt;/li&gt;
 &lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head&gt;&lt;body&gt;
+&lt;p &gt;Co zrobić ze standardowym wyjściem błędów programu.&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Ignoruj: Nie rób nic.&lt;/li&gt;
+&lt;li&gt;Pokaż w ogólnych komunikatach.&lt;/li&gt;
+&lt;li&gt;Zastąp zaznaczenie: Zastąp bieżące zaznaczenie w bieżącym dokumencie.&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -26329,11 +26338,11 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Custom Language Models</source>
-        <translation type="unfinished"></translation>
+        <translation>Własne modele językowe</translation>
     </message>
     <message>
         <source>&lt;New model&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Nowy model&gt;</translation>
     </message>
     <message>
         <source>Executable</source>
@@ -26523,7 +26532,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dane MIME magic są interpretowane zgodnie ze specyfikacją Shared MIME-info Database z &lt;a href=&quot;https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Host16</source>
@@ -26551,7 +26560,7 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note: Wide range values might impact performance when opening files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Uwaga: Szeroki zakres wartości może wpłynąć na wydajność podczas otwierania plików.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Mask:</source>
@@ -26575,19 +26584,19 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Reset all MIME type definitions to their defaults.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przywróć wszystkie definicje typów MIME do wartości domyślnych.</translation>
     </message>
     <message>
         <source>Reset the assigned handler for all MIME type definitions to the default.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przywróć domyślną obsługę dla wszystkich definicji typów MIME.</translation>
     </message>
     <message>
         <source>Reset Handlers</source>
-        <translation type="unfinished"></translation>
+        <translation>Przywróć domyślną obsługę</translation>
     </message>
     <message>
         <source>A semicolon-separated list of wildcarded file names.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista nazw plików z symbolami wieloznacznymi, rozdzielona średnikami.</translation>
     </message>
     <message>
         <source>Magic Header</source>
@@ -26708,11 +26717,11 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Enable %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz %1</translation>
     </message>
     <message>
         <source>The directory &quot;%1&quot; seems to be under version control that can be handled by the disabled %2 plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog &quot;%1&quot; wydaje się być pod kontrolą wersji obsługiwaną przez wyłączoną wtyczkę %2.</translation>
     </message>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
@@ -26724,11 +26733,11 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Remove the following files from the version control system (%1)?</source>
-        <translation type="unfinished"></translation>
+        <translation>Usunąć następujące pliki z systemu kontroli wersji (%1)?</translation>
     </message>
     <message>
         <source>Note: This might remove the local file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uwaga: Może to spowodować usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>Add to Version Control</source>
@@ -26759,10 +26768,16 @@ do systemu kontroli wersji (%2)?</translation>
 %2
 ... and %n more.</source>
         <extracomment>%1 = name of VCS system, %2 = lines with file paths</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Nie można dodać następujących plików do systemu kontroli wersji (%1)
+%2
+... i %n więcej.</numerusform>
+            <numerusform>Nie można dodać następujących plików do systemu kontroli wersji (%1)
+%2
+... i %n więcej.</numerusform>
+            <numerusform>Nie można dodać następujących plików do systemu kontroli wersji (%1)
+%2
+... i %n więcej.</numerusform>
         </translation>
     </message>
     <message>
@@ -26891,7 +26906,7 @@ do systemu kontroli wersji (%2)?</translation>
     <message>
         <source>Open Command Prompt With</source>
         <comment>Opens a submenu for choosing an environment, such as &quot;Run Environment&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz wiersz poleceń z</translation>
     </message>
     <message>
         <source>Open Terminal With</source>
@@ -26900,19 +26915,19 @@ do systemu kontroli wersji (%2)?</translation>
     </message>
     <message>
         <source>Failed to remove file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd usuwania pliku &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Cannot decode contents.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zdekodować zawartości.</translation>
     </message>
     <message>
         <source>Failed to rename the include guard in file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd zmiany nazwy include guard w pliku &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Failed to set permissions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd ustawiania uprawnień.</translation>
     </message>
     <message>
         <source>Unable to create the directory %1.</source>
@@ -26924,11 +26939,11 @@ do systemu kontroli wersji (%2)?</translation>
     </message>
     <message>
         <source>Runs the current QML file with QML utility.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamia bieżący plik QML za pomocą narzędzia QML.</translation>
     </message>
     <message>
         <source>QML utility</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzie QML</translation>
     </message>
     <message>
         <source>Edit with Notepad</source>
@@ -27029,7 +27044,7 @@ do systemu kontroli wersji (%2)?</translation>
     </message>
     <message>
         <source>Not implemented</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie zaimplementowano</translation>
     </message>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
@@ -27191,11 +27206,11 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
     </message>
     <message>
         <source>Cannot Create File</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć pliku</translation>
     </message>
     <message>
         <source>Cannot create file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Create Directory</source>
@@ -27203,7 +27218,7 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
     </message>
     <message>
         <source>Opens a file given by a relative path to the current document, or absolute path. &quot;~&quot; refers to your home directory. You have the option to create a file if it does not exist yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwiera plik na podstawie ścieżki względnej do bieżącego dokumentu lub ścieżki bezwzględnej. &quot;~&quot; odnosi się do katalogu domowego. Istnieje możliwość utworzenia pliku, jeśli jeszcze nie istnieje.</translation>
     </message>
     <message>
         <source>Create and Open File &quot;%1&quot;</source>
@@ -27341,7 +27356,7 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
     <message>
         <source>None</source>
         <comment>No find flags</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>, </source>
@@ -27425,7 +27440,7 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
     </message>
     <message>
         <source>Show Paths in Relation to Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj ścieżki względem aktywnego projektu</translation>
     </message>
     <message>
         <source>Filter Results</source>
@@ -27441,7 +27456,7 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
     </message>
     <message>
         <source>Show Full Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj pełne ścieżki</translation>
     </message>
     <message>
         <source>Search Results</source>
@@ -27453,7 +27468,7 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
     </message>
     <message>
         <source>Locates files from a custom set of directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyszukuje pliki z określonego zestawu katalogów. Dodaj &quot;+&lt;numer&gt;&quot; lub &quot;:&lt;numer&gt;&quot;, aby przejść do podanego numeru linii. Dodaj kolejne &quot;+&lt;numer&gt;&quot; lub &quot;:&lt;numer&gt;&quot;, aby przejść również do numeru kolumny.</translation>
     </message>
     <message>
         <source>Select Directory</source>
@@ -27477,7 +27492,7 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
     </message>
     <message>
         <source>Runs an arbitrary command with arguments. The command is searched for in the PATH environment variable if needed. Note that the command is run directly, not in a shell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamia dowolną komendę z argumentami. Jeśli potrzeba, komenda jest wyszukiwana w zmiennej środowiskowej PATH. Uwaga: komenda jest uruchamiana bezpośrednio, nie w powłoce.</translation>
     </message>
     <message>
         <source>Previous command is still running (&quot;%1&quot;).
@@ -27531,19 +27546,19 @@ Czy przerwać ją?</translation>
     </message>
     <message>
         <source>Use Tab Completion</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj uzupełniania klawiszem Tab</translation>
     </message>
     <message>
         <source>Locator filters show relative paths to the active project when possible.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtry lokatora pokazują ścieżki względne do aktywnego projektu, gdy jest to możliwe.</translation>
     </message>
     <message>
         <source>Ignore Generated Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignoruj wygenerowane pliki</translation>
     </message>
     <message>
         <source>Ignore generated files when using project related filters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignoruj wygenerowane pliki przy użyciu filtrów związanych z projektem.</translation>
     </message>
     <message>
         <source>Web Search</source>
@@ -27555,15 +27570,15 @@ Czy przerwać ją?</translation>
     </message>
     <message>
         <source>Triggers a web search with the selected search engine.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamia wyszukiwanie w internecie za pomocą wybranej wyszukiwarki.</translation>
     </message>
     <message>
         <source>Triggers a search in the Qt bug tracker.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamia wyszukiwanie w systemie śledzenia błędów Qt.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a document&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Open File or Project (%1)&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Recent Files&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Tools &gt; Locate (%2) and&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- type to open file from any open project&lt;/div&gt;%4%5&lt;div style=&quot;margin-left: 1em&quot;&gt;- type &lt;code&gt;%3&amp;lt;space&amp;gt;&amp;lt;filename&amp;gt;&lt;/code&gt; to open file from file system&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- select one of the other filters for jumping to a location&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Drag and drop files here&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Otwórz dokument&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Plik &gt; Otwórz plik lub projekt (%1)&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Plik &gt; Ostatnie pliki&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Narzędzia &gt; Lokalizuj (%2) i&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- wpisz, aby otworzyć plik z dowolnego otwartego projektu&lt;/div&gt;%4%5&lt;div style=&quot;margin-left: 1em&quot;&gt;- wpisz &lt;code&gt;%3&amp;lt;spacja&amp;gt;&amp;lt;nazwa_pliku&amp;gt;&lt;/code&gt; aby otworzyć plik z systemu plików&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- wybierz jeden z innych filtrów, aby przejść do lokalizacji&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Przeciągnij i upuść pliki tutaj&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;div style=&quot;margin-left: 1em&quot;&gt;- type &lt;code&gt;%1&amp;lt;space&amp;gt;&amp;lt;pattern&amp;gt;&lt;/code&gt; to jump to a class definition&lt;/div&gt;</source>
@@ -27583,7 +27598,7 @@ Czy przerwać ją?</translation>
     </message>
     <message>
         <source>Open as Centered Popup</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz jako centralne okienko</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -27625,7 +27640,7 @@ Czy przerwać ją?</translation>
     </message>
     <message>
         <source>AI</source>
-        <translation type="unfinished"></translation>
+        <translation>AI</translation>
     </message>
     <message>
         <source>Help</source>
@@ -27665,63 +27680,63 @@ Czy przerwać ją?</translation>
     </message>
     <message>
         <source>Is %1 running on Windows?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy %1 działa na systemie Windows?</translation>
     </message>
     <message>
         <source>Is %1 running on OS X?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy %1 działa na systemie OS X?</translation>
     </message>
     <message>
         <source>Is %1 running on Linux?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy %1 działa na systemie Linux?</translation>
     </message>
     <message>
         <source>Is %1 running on any unix-based platform?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy %1 działa na platformie uniksowej?</translation>
     </message>
     <message>
         <source>The path list separator for the platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Separator listy ścieżek dla danej platformy.</translation>
     </message>
     <message>
         <source>The platform executable suffix.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozszerzenie pliku wykonywalnego dla danej platformy.</translation>
     </message>
     <message>
         <source>.bat on windows, empty on all other platforms.</source>
-        <translation type="unfinished"></translation>
+        <translation>.bat w systemie Windows, puste na wszystkich innych platformach.</translation>
     </message>
     <message>
         <source>The path to the running %1 itself.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka do uruchomionego %1.</translation>
     </message>
     <message>
         <source>The directory where %1 finds its pre-installed resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog, w którym %1 znajduje swoje preinstalowane zasoby.</translation>
     </message>
     <message>
         <source>The directory where %1 puts custom user data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog, w którym %1 przechowuje dane własne użytkownika.</translation>
     </message>
     <message>
         <source>Convert string to pure ASCII.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konwertuje ciąg znaków na czysty ASCII.</translation>
     </message>
     <message>
         <source>Convert string to something that can be safely used in a file path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konwertuje ciąg znaków na postać, której można bezpiecznie użyć w ścieżce pliku.</translation>
     </message>
     <message>
         <source>The terminal configured in Environment &gt; Sytem.</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminal skonfigurowany w Środowisko &gt; System.</translation>
     </message>
     <message>
         <source>The arguments passed to the terminal command to run in terminal configured in Environment &gt; System.</source>
-        <translation type="unfinished"></translation>
+        <translation>Argumenty przekazywane do polecenia terminala skonfigurowanego w Środowisko &gt; System.</translation>
     </message>
     <message>
         <source>%1 &gt; %2 Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 &gt; %2 Preferencje...</translation>
     </message>
     <message>
         <source>Create Folder</source>
@@ -27729,19 +27744,19 @@ Czy przerwać ją?</translation>
     </message>
     <message>
         <source>Proxy Authentication Required</source>
-        <translation type="unfinished"></translation>
+        <translation>Wymagane uwierzytelnienie proxy</translation>
     </message>
     <message>
         <source>Do not ask again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie pytaj ponownie.</translation>
     </message>
     <message>
         <source>Copy Expanded Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Skopiuj rozszerzoną wartość</translation>
     </message>
     <message>
         <source>QStandardPaths::%1 location on the local filesystem.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizacja QStandardPaths::%1 w lokalnym systemie plików.</translation>
     </message>
     <message>
         <source>Settings File Error</source>
@@ -27764,15 +27779,16 @@ Nie będzie można zachować żadnych ustawień %2.</translation>
     <message>
         <source>Error reading settings file &quot;%1&quot;: %2
 You will likely experience further problems using this instance of %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd odczytu pliku ustawień &quot;%1&quot;: %2
+Prawdopodobnie napotkasz dalsze problemy podczas korzystania z tej instancji %3.</translation>
     </message>
     <message>
         <source>%1 collects crash reports for the sole purpose of fixing bugs. To disable this feature go to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 zbiera raporty awarii wyłącznie w celu naprawiania błędów. Aby wyłączyć tę funkcję, przejdź do %2.</translation>
     </message>
     <message>
         <source>%1 can collect crash reports for the sole purpose of fixing bugs. To enable this feature go to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 może zbierać raporty awarii wyłącznie w celu naprawiania błędów. Aby włączyć tę funkcję, przejdź do %2.</translation>
     </message>
     <message>
         <source> &gt; Preferences &gt; Environment &gt; System</source>
@@ -27822,7 +27838,7 @@ Czy nadpisać je?</translation>
     <message>
         <source>%1 file %2 from version control system %3 failed.</source>
         <translatorcomment>Horror!!!</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation>Operacja %1 na pliku %2 z systemu kontroli wersji %3 nie powiodła się.</translation>
     </message>
     <message>
         <source>No Version Control System Found</source>
@@ -27873,7 +27889,8 @@ Brak systemu kontroli wersji.</translation>
     <message>
         <source>The following files are not checked out yet.
 Do you want to check them out now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Następujące pliki nie są jeszcze pobrane z repozytorium.
+Czy chcesz je teraz pobrać?</translation>
     </message>
     <message>
         <source>Revert File to Saved</source>
@@ -27921,7 +27938,7 @@ Do you want to check them out now?</source>
     </message>
     <message>
         <source>Save Without Formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz bez formatowania</translation>
     </message>
     <message>
         <source>Previous Tab</source>
@@ -28126,7 +28143,7 @@ Do you want to check them out now?</source>
     </message>
     <message>
         <source>Evaluate simple JavaScript statements.&lt;br&gt;Literal &apos;}&apos; characters must be escaped as &quot;\}&quot;, &apos;\&apos; characters must be escaped as &quot;\\&quot;, and &quot;%{&quot; must be escaped as &quot;%\{&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oblicza proste wyrażenia JavaScript.&lt;br&gt;Literalne znaki &apos;}&apos; muszą być poprzedzone znakiem ucieczki jako &quot;\}&quot;, znaki &apos;\&apos; jako &quot;\\&quot;, a &quot;%{&quot; jako &quot;%\{&quot;.</translation>
     </message>
     <message>
         <source>Apply Chunk</source>
@@ -28202,11 +28219,11 @@ Do you want to check them out now?</source>
     </message>
     <message>
         <source>Use &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot; i &quot;Shift&quot; dla klawiszy modyfikujących. Używaj &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; itp. dla klawiszy specjalnych. Łącz pojedyncze klawisze za pomocą &quot;+&quot;, a wiele skrótów w sekwencję skrótów za pomocą &quot;,&quot;. Na przykład, jeśli użytkownik musi trzymać klawisze Ctrl i Shift naciskając Escape, a następnie puścić i nacisnąć A, wpisz &quot;Ctrl+Shift+Escape,A&quot;.</translation>
     </message>
     <message>
         <source>Use &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot; i &quot;Shift&quot; dla klawiszy modyfikujących. Używaj &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; itp. dla klawiszy specjalnych. Łącz pojedyncze klawisze za pomocą &quot;+&quot;, a wiele skrótów w sekwencję skrótów za pomocą &quot;,&quot;. Na przykład, jeśli użytkownik musi trzymać klawisze Ctrl i Shift naciskając Escape, a następnie puścić i nacisnąć A, wpisz &quot;Ctrl+Shift+Escape,A&quot;.</translation>
     </message>
     <message>
         <source>Reset to default.</source>
@@ -28222,7 +28239,7 @@ Do you want to check them out now?</source>
     </message>
     <message>
         <source>Key sequence will not work in editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekwencja klawiszy nie będzie działać w edytorze.</translation>
     </message>
     <message>
         <source>Import Keyboard Mapping Scheme</source>
@@ -28266,7 +28283,7 @@ Do you want to check them out now?</source>
     </message>
     <message>
         <source>Runs an external tool that you have set up in the preferences (Environment &gt; External Tools).</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamia zewnętrzne narzędzie skonfigurowane w preferencjach (Środowisko &gt; Narzędzia zewnętrzne).</translation>
     </message>
     <message>
         <source>Files in Directories</source>
@@ -28314,20 +28331,21 @@ Do you want to check them out now?</source>
     </message>
     <message>
         <source>Use freedesktop.org file manager D-Bus interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj interfejsu D-Bus menedżera plików freedesktop.org</translation>
     </message>
     <message>
         <source>Uses the &lt;a href=&quot;%1&quot;&gt;freedesktop.org D-Bus interface&lt;/a&gt; for &lt;i&gt;Open in File Manager&lt;/i&gt;, if available. Otherwise falls back to the &quot;External file browser&quot; above.</source>
-        <translation type="unfinished"></translation>
+        <translation>Używa &lt;a href=&quot;%1&quot;&gt;interfejsu D-Bus freedesktop.org&lt;/a&gt; dla &lt;i&gt;Otwórz w menedżerze plików&lt;/i&gt;, jeśli jest dostępny. W przeciwnym razie używa &quot;Zewnętrznej przeglądarki plików&quot; powyżej.</translation>
     </message>
     <message>
         <source>Command used for &lt;i&gt;Open in File Manager&lt;/i&gt; if the freedesktop.org D-Bus interface is not available. The command can contain the following variables:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Komenda używana do &lt;i&gt;Otwórz w menedżerze plików&lt;/i&gt;, gdy interfejs D-Bus freedesktop.org jest niedostępny. Komenda może zawierać następujące zmienne:
+</translation>
     </message>
     <message>
         <source>Crash reports are saved in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Raporty awarii są zapisywane w &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Warn before opening text files greater than</source>
@@ -28383,7 +28401,7 @@ Do you want to check them out now?</source>
     </message>
     <message>
         <source>Automatically creates temporary copies of modified files. If %1 is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie tworzy tymczasowe kopie zmodyfikowanych plików. Jeśli %1 zostanie uruchomiony ponownie po awarii lub zaniku zasilania, zapyta, czy odtworzyć automatycznie zapisaną zawartość.</translation>
     </message>
     <message>
         <source>Auto-save files after refactoring</source>
@@ -28392,31 +28410,32 @@ Do you want to check them out now?</source>
     <message>
         <source>Automatically saves all open files affected by a refactoring operation,
 provided they were unmodified before the refactoring.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie zapisuje wszystkie otwarte pliki objęte operacją refaktoryzacji,
+jeśli były niezmienione przed refaktoryzacją.</translation>
     </message>
     <message>
         <source>Minimum number of open documents that should be kept in memory. Increasing this number will lead to greater resource usage when not manually closing documents.</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimalna liczba otwartych dokumentów, które powinny pozostać w pamięci. Zwiększenie tej liczby spowoduje większe zużycie zasobów podczas pracy bez ręcznego zamykania dokumentów.</translation>
     </message>
     <message>
         <source>Number of &quot;Recent Files&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba &quot;ostatnich plików&quot;:</translation>
     </message>
     <message>
         <source>Ask for confirmation before exiting</source>
-        <translation type="unfinished"></translation>
+        <translation>Pytaj o potwierdzenie przed zamknięciem</translation>
     </message>
     <message>
         <source>Enable crash reporting</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz raportowanie awarii</translation>
     </message>
     <message>
         <source>Allow crashes to be automatically reported. Collected reports are used for the sole purpose of fixing bugs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zezwala na automatyczne raportowanie awarii. Zebrane raporty są używane wyłącznie w celu naprawiania błędów.</translation>
     </message>
     <message>
         <source>Crash Reporting</source>
-        <translation type="unfinished"></translation>
+        <translation>Raportowanie awarii</translation>
     </message>
     <message>
         <source>Automatically free resources of old documents that are not visible and not modified. They stay visible in the list of open documents.</source>
@@ -28480,11 +28499,11 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Global Actions &amp; Actions from the Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Akcje globalne i akcje z menu</translation>
     </message>
     <message>
         <source>Triggers an action. If it is from the menu it matches any part of a menu hierarchy, separated by &quot;&gt;&quot;. For example &quot;sess def&quot; matches &quot;File &gt; Sessions &gt; Default&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyzwala akcję. Jeśli pochodzi z menu, dopasowuje dowolną część hierarchii menu, oddzielonej &quot;&gt;&quot;. Na przykład &quot;sess def&quot; pasuje do &quot;Plik &gt; Sesje &gt; Domyślna&quot;.</translation>
     </message>
     <message>
         <source>Text Encoding</source>
@@ -28508,27 +28527,27 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>The evaluation was interrupted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Obliczanie zostało przerwane.</translation>
     </message>
     <message>
         <source>Engine reinitialized properly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Silnik prawidłowo zreinicjalizowany.</translation>
     </message>
     <message>
         <source>Engine did not reinitialize properly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Silnik nieprawidłowo zreinicjalizowany.</translation>
     </message>
     <message>
         <source>Engine aborted after timeout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Silnik został przerwany po przekroczeniu limitu czasu.</translation>
     </message>
     <message>
         <source>Evaluate JavaScript</source>
-        <translation type="unfinished"></translation>
+        <translation>Oblicz wyrażenie JavaScript</translation>
     </message>
     <message>
         <source>Evaluates arbitrary JavaScript expressions and copies the result.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oblicza dowolne wyrażenia JavaScript i kopiuje wynik.</translation>
     </message>
     <message>
         <source>Reset Engine</source>
@@ -28544,31 +28563,31 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Locator query string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciąg zapytania lokatora.</translation>
     </message>
     <message>
         <source>Locator query string with quotes escaped with backslash.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciąg zapytania lokatora ze znakami cudzysłowu poprzedzonymi ukośnikiem odwrotnym.</translation>
     </message>
     <message>
         <source>Locator query string with quotes escaped with backslash and spaces replaced with &quot;*&quot; wildcards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciąg zapytania lokatora ze znakami cudzysłowu poprzedzonymi ukośnikiem odwrotnym i spacjami zastąpionymi symbolami wieloznacznymi &quot;*&quot;.</translation>
     </message>
     <message>
         <source>Locator query string as regular expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciąg zapytania lokatora jako wyrażenie regularne.</translation>
     </message>
     <message>
         <source>File Name Index</source>
-        <translation type="unfinished"></translation>
+        <translation>Indeks nazw plików</translation>
     </message>
     <message>
         <source>Locates files from a global file system index (Spotlight, Locate, Everything). Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyszukuje pliki z globalnego indeksu systemu plików (Spotlight, Locate, Everything). Dodaj &quot;+&lt;numer&gt;&quot; lub &quot;:&lt;numer&gt;&quot;, aby przejść do podanego numeru linii. Dodaj kolejne &quot;+&lt;numer&gt;&quot; lub &quot;:&lt;numer&gt;&quot;, aby przejść również do numeru kolumny.</translation>
     </message>
     <message>
         <source>Locator: Error occurred when running &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokator: Wystąpił błąd podczas uruchamiania &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Sort results</source>
@@ -28581,7 +28600,8 @@ provided they were unmodified before the refactoring.</source>
     <message>
         <source>Add &quot;%1&quot; placeholder for the query string.
 Double-click to edit item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj symbol zastępczy &quot;%1&quot; dla ciągu zapytania.
+Kliknij dwukrotnie, aby edytować element.</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -28593,37 +28613,38 @@ Double-click to edit item.</source>
     </message>
     <message>
         <source>URLs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresy URL:</translation>
     </message>
     <message>
         <source>output.txt</source>
         <extracomment>default file name suggested for saving text from output views</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>output.txt</translation>
     </message>
     <message>
         <source>Save Contents...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz zawartość...</translation>
     </message>
     <message>
         <source>Copy Contents to Scratch Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Skopiuj zawartość do bufora roboczego</translation>
     </message>
     <message>
         <source>Failed to open editor for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd otwierania edytora dla &quot;%1&quot;.</translation>
     </message>
     <message numerus="yes">
         <source>Elided %n characters due to settings limit</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Pominięto %n znak z powodu limitu ustawień</numerusform>
+            <numerusform>Pominięto %n znaki z powodu limitu ustawień</numerusform>
+            <numerusform>Pominięto %n znaków z powodu limitu ustawień</numerusform>
         </translation>
     </message>
     <message>
         <source>[Discarding excessive amount of pending output.]
 </source>
-        <translation type="unfinished"></translation>
+        <translation>[Odrzucenie nadmiernej ilości oczekujących danych wyjściowych.]
+</translation>
     </message>
     <message>
         <source>Source</source>
@@ -28631,7 +28652,7 @@ Double-click to edit item.</source>
     </message>
     <message>
         <source>Choose source location. This can be a plugin library file or a zip file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz lokalizację źródła. Może to być plik biblioteki wtyczki lub plik zip.</translation>
     </message>
     <message>
         <source>File does not exist.</source>
@@ -28639,7 +28660,7 @@ Double-click to edit item.</source>
     </message>
     <message>
         <source>Check Archive</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdź archiwum</translation>
     </message>
     <message>
         <source>Canceled.</source>
@@ -28659,51 +28680,51 @@ Double-click to edit item.</source>
     </message>
     <message>
         <source>Plugin is already installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczka jest już zainstalowana.</translation>
     </message>
     <message>
         <source>A plugin with ID &quot;%1&quot; is already installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczka z identyfikatorem &quot;%1&quot; jest już zainstalowana.</translation>
     </message>
     <message>
         <source>No plugin with ID &quot;%1&quot; is installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Żadna wtyczka z identyfikatorem &quot;%1&quot; nie jest zainstalowana.</translation>
     </message>
     <message>
         <source>Plugin failed to resolve dependencies:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczce nie udało się rozwiązać zależności:</translation>
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono wtyczek.</translation>
     </message>
     <message>
         <source>More than one plugin found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono więcej niż jedną wtyczkę.</translation>
     </message>
     <message>
         <source>Archive extracted successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Archiwum zostało pomyślnie rozpakowane.</translation>
     </message>
     <message>
         <source>There was an error while unarchiving: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd podczas rozpakowywania: %1</translation>
     </message>
     <message>
         <source>Load plugin immediately</source>
-        <translation type="unfinished"></translation>
+        <translation>Wczytaj wtyczkę natychmiast</translation>
     </message>
     <message>
         <source>%1 will be installed into %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 zostanie zainstalowane w %2.</translation>
     </message>
     <message>
         <source>Accept Terms and Conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaakceptuj warunki i postanowienia</translation>
     </message>
     <message>
         <source>The plugin %1 requires you to accept the following terms and conditions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczka %1 wymaga zaakceptowania następujących warunków i postanowień:</translation>
     </message>
     <message>
         <source>Overwrite File</source>
@@ -28735,12 +28756,13 @@ Double-click to edit item.</source>
     </message>
     <message>
         <source>Copying plugin files...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiowanie plików wtyczki...</translation>
     </message>
     <message>
         <source>Copying
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiowanie
+%1</translation>
     </message>
     <message>
         <source>Failed to Copy Plugin Files</source>
@@ -28760,17 +28782,19 @@ Double-click to edit item.</source>
     </message>
     <message>
         <source>Cycle to Next Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz do następnego edytora</translation>
     </message>
     <message>
         <source>Unpin</source>
-        <translation type="unfinished"></translation>
+        <translation>Odepnij</translation>
     </message>
     <message>
         <source>For environment variables with list semantics that do not use the standard path list
 separator, you need to configure the respective separators here if you plan to
 aggregate them from several places (for instance from the kit and from the project).</source>
-        <translation type="unfinished"></translation>
+        <translation>Dla zmiennych środowiskowych z semantyką listy, które nie używają standardowego separatora listy ścieżek,
+musisz skonfigurować tutaj odpowiednie separatory, jeśli planujesz
+definiować je w kilku miejscach (na przykład w zestawie i projekcie).</translation>
     </message>
     <message>
         <source>Variable</source>
@@ -28782,15 +28806,15 @@ aggregate them from several places (for instance from the kit and from the proje
     </message>
     <message>
         <source>Add MCP Server From Registry</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj serwer MCP z rejestru</translation>
     </message>
     <message>
         <source>Filter servers...</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtruj serwery...</translation>
     </message>
     <message>
         <source>All Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie typy</translation>
     </message>
     <message>
         <source>npm</source>
@@ -28818,7 +28842,7 @@ aggregate them from several places (for instance from the kit and from the proje
     </message>
     <message>
         <source>Website:</source>
-        <translation type="unfinished"></translation>
+        <translation>Strona internetowa:</translation>
     </message>
     <message>
         <source>Packages:</source>
@@ -28826,47 +28850,47 @@ aggregate them from several places (for instance from the kit and from the proje
     </message>
     <message>
         <source>Remotes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdalne:</translation>
     </message>
     <message>
         <source>The display name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetlana nazwa.</translation>
     </message>
     <message>
         <source>&lt;New Server&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Nowy serwer&gt;</translation>
     </message>
     <message>
         <source>The command to launch the MCP server process. Only used for standard IO connection type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Komenda uruchamiająca proces serwera MCP. Używana tylko dla standardowego typu połączenia IO.</translation>
     </message>
     <message>
         <source>The arguments to launch the MCP server process. Only used for standard IO connection type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Argumenty uruchamiające proces serwera MCP. Używane tylko dla standardowego typu połączenia IO.</translation>
     </message>
     <message>
         <source>The URL to connect to the MCP server. Not used for standard IO connection type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres URL do połączenia z serwerem MCP. Nieużywany dla standardowego typu połączenia IO.</translation>
     </message>
     <message>
         <source>Connection type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ połączenia:</translation>
     </message>
     <message>
         <source>The type of connection to use for the MCP server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ połączenia używany dla serwera MCP.</translation>
     </message>
     <message>
         <source>Standard IO</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardowe IO</translation>
     </message>
     <message>
         <source>SSE</source>
-        <translation type="unfinished"></translation>
+        <translation>SSE</translation>
     </message>
     <message>
         <source>Streamable HTTP</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumieniowy HTTP</translation>
     </message>
     <message>
         <source>HTTP headers:</source>
@@ -28874,35 +28898,35 @@ aggregate them from several places (for instance from the kit and from the proje
     </message>
     <message>
         <source>HTTP headers to include when connecting to the MCP server. Only used for HTTP connection types.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nagłówki HTTP dołączane podczas łączenia z serwerem MCP. Używane tylko dla typów połączeń HTTP.</translation>
     </message>
     <message>
         <source>Environment variable changes applied when launching the MCP server process. Only used for standard IO connection type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmiany zmiennych środowiskowych stosowane podczas uruchamiania procesu serwera MCP. Używane tylko dla standardowego typu połączenia IO.</translation>
     </message>
     <message>
         <source>Choose Connection Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz typ połączenia</translation>
     </message>
     <message>
         <source>This server offers multiple ways to connect. Please choose one:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten serwer oferuje wiele sposobów połączenia. Wybierz jeden:</translation>
     </message>
     <message>
         <source>Add From Registry...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj z rejestru...</translation>
     </message>
     <message>
         <source>Enable Qt Documentation MCP Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz serwer MCP dokumentacji Qt</translation>
     </message>
     <message>
         <source>When enabled, the Qt documentation MCP server from https://qt-docs-mcp.qt.io/mcp will be used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po włączeniu używany będzie serwer MCP dokumentacji Qt z https://qt-docs-mcp.qt.io/mcp.</translation>
     </message>
     <message>
         <source>MCP Servers</source>
-        <translation type="unfinished"></translation>
+        <translation>Serwery MCP</translation>
     </message>
     <message>
         <source>Leave Debug Mode</source>
@@ -28918,11 +28942,11 @@ aggregate them from several places (for instance from the kit and from the proje
     </message>
     <message>
         <source>Secret storage is not available! Your values will be stored as plaintext in the settings!</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezpieczne przechowywanie danych nie jest dostępne! Twoje wartości będą przechowywane jako czysty tekst w ustawieniach!</translation>
     </message>
     <message>
         <source>You can install libsecret or KWallet to enable secret storage.</source>
-        <translation type="unfinished"></translation>
+        <translation>Możesz zainstalować libsecret lub KWallet, aby włączyć bezpieczne przechowywanie danych.</translation>
     </message>
 </context>
 <context>
@@ -49863,7 +49887,7 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Informacja</translation>
+        <translation>Informacja</translation>
     </message>
     <message>
         <source>Close Tab</source>
@@ -64055,11 +64079,11 @@ Nie można otworzyć pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Relative Foreground</source>
-        <translation type="unfinished"></translation>
+        <translation>Względny kolor pierwszoplanowy</translation>
     </message>
     <message>
         <source>Relative Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Względny kolor tła</translation>
     </message>
     <message>
         <source>Lightness:</source>
@@ -64067,7 +64091,7 @@ Nie można otworzyć pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Unset</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść</translation>
     </message>
     <message>
         <source>&lt;p align=&apos;center&apos;&gt;&lt;b&gt;Builtin color schemes need to be &lt;a href=&quot;copy&quot;&gt;copied&lt;/a&gt;&lt;br/&gt; before they can be changed&lt;/b&gt;&lt;/p&gt;</source>
@@ -64075,11 +64099,11 @@ Nie można otworzyć pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Unset foreground.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść kolor pierwszoplanowy.</translation>
     </message>
     <message>
         <source>Unset background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść kolor tła.</translation>
     </message>
     <message>
         <source>Saturation:</source>
@@ -64124,7 +64148,8 @@ Nie można otworzyć pliku &quot;%1&quot;.</translation>
     <message>
         <source>A line spacing value other than 100% disables text wrapping.
 A value less than 100% can result in overlapping and misaligned graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wartość odstępu między liniami inna niż 100% wyłącza zawijanie tekstu.
+Wartość mniejsza niż 100% może skutkować nakładaniem się i nieprawidłowym wyrównaniem elementów graficznych.</translation>
     </message>
     <message>
         <source>Import</source>
@@ -64144,7 +64169,7 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Locates bookmarks. Filter by file name, by the text on the line of the bookmark, or by the bookmark&apos;s note text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyszukuje zakładki. Filtruj według nazwy pliku, tekstu w linii zakładki lub tekstu notatki zakładki.</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -64224,19 +64249,19 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Ctrl+Alt+.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+.</translation>
     </message>
     <message>
         <source>Ctrl+Alt+,</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+,</translation>
     </message>
     <message>
         <source>Sort by Filenames</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortuj według nazw plików</translation>
     </message>
     <message>
         <source>Ctrl+Alt+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+P</translation>
     </message>
     <message>
         <source>Edit Bookmark</source>
@@ -64386,7 +64411,7 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Display Function Hint</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż podpowiedź funkcji</translation>
     </message>
     <message>
         <source>Meta+Shift+D</source>
@@ -64439,7 +64464,7 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Word under the current document&apos;s text cursor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Słowo pod kursorem tekstowym bieżącego dokumentu.</translation>
     </message>
     <message>
         <source>Text</source>
@@ -64448,7 +64473,8 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     <message>
         <source>Generic text and punctuation tokens.
 Applied to text that matched no other rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogólny tekst i znaki interpunkcyjne.
+Stosowane do tekstu, który nie pasuje do żadnej innej reguły.</translation>
     </message>
     <message>
         <source>Link</source>
@@ -64484,30 +64510,33 @@ Applied to text that matched no other rule.</source>
     </message>
     <message>
         <source>Search Result (Alternative 1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyniki wyszukiwania (wariant 1)</translation>
     </message>
     <message>
         <source>Highlighted search results inside the editor.
 Used to mark read accesses to C++ symbols.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podświetlone wyniki wyszukiwania w edytorze.
+Używane do oznaczania odczytów symboli C++.</translation>
     </message>
     <message>
         <source>Search Result (Alternative 2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyniki wyszukiwania (wariant 2)</translation>
     </message>
     <message>
         <source>Highlighted search results inside the editor.
 Used to mark write accesses to C++ symbols.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podświetlone wyniki wyszukiwania w edytorze.
+Używane do oznaczania zapisów symboli C++.</translation>
     </message>
     <message>
         <source>Search Result Containing function</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyniki wyszukiwania zawierające funkcję</translation>
     </message>
     <message>
         <source>Highlighted search results inside the editor.
 Used to mark containing function of the symbol usage.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podświetlone wyniki wyszukiwania w edytorze.
+Używane do oznaczania funkcji zawierającej użycie symbolu.</translation>
     </message>
     <message>
         <source>Search Scope</source>
@@ -64655,7 +64684,7 @@ Used to mark containing function of the symbol usage.</source>
     </message>
     <message>
         <source>Style adjustments to declarations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostosowania stylu deklaracji.</translation>
     </message>
     <message>
         <source>Function Definition</source>
@@ -64687,27 +64716,27 @@ Used to mark containing function of the symbol usage.</source>
     </message>
     <message>
         <source>Attribute</source>
-        <translation type="unfinished"></translation>
+        <translation>Atrybut</translation>
     </message>
     <message>
         <source>Attributes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Atrybuty.</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Informacja</translation>
+        <translation>Informacje</translation>
     </message>
     <message>
         <source>Underline color of info diagnostics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolor podkreślenia diagnostyk informacyjnych.</translation>
     </message>
     <message>
         <source>Info Context</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontekst informacji</translation>
     </message>
     <message>
         <source>Underline color of the contexts of info diagnostics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolor podkreślenia kontekstów diagnostyk informacyjnych.</translation>
     </message>
     <message>
         <source>Static Member</source>
@@ -64715,79 +64744,79 @@ Used to mark containing function of the symbol usage.</source>
     </message>
     <message>
         <source>Names of static fields or member functions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwy statycznych pól lub funkcji składowych.</translation>
     </message>
     <message>
         <source>Code Coverage Added Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokrycie kodu: kod dodany</translation>
     </message>
     <message>
         <source>New code that was not checked for tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowy kod, który nie był sprawdzony przez testy.</translation>
     </message>
     <message>
         <source>Partially Covered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Częściowo pokryty kod</translation>
     </message>
     <message>
         <source>Partial branch/condition coverage.</source>
-        <translation type="unfinished"></translation>
+        <translation>Częściowe pokrycie gałęzi/warunków.</translation>
     </message>
     <message>
         <source>Uncovered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepokryty kod</translation>
     </message>
     <message>
         <source>Not covered at all.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak jakiegokolwiek pokrycia.</translation>
     </message>
     <message>
         <source>Fully Covered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>W pełni pokryty kod</translation>
     </message>
     <message>
         <source>Fully covered code.</source>
-        <translation type="unfinished"></translation>
+        <translation>W pełni pokryty kod.</translation>
     </message>
     <message>
         <source>Manually Validated Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Ręcznie zwalidowany kod</translation>
     </message>
     <message>
         <source>User added validation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Walidacja dodana przez użytkownika.</translation>
     </message>
     <message>
         <source>Code Coverage Dead Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokrycie kodu: martwy kod</translation>
     </message>
     <message>
         <source>Unreachable code.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieosiągalny kod.</translation>
     </message>
     <message>
         <source>Code Coverage Execution Count Too Low</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokrycie kodu: zbyt mała liczba wykonań</translation>
     </message>
     <message>
         <source>Minimum count not reached.</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimalna liczba wykonań nie została osiągnięta.</translation>
     </message>
     <message>
         <source>Implicitly Not Covered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Niejawnie niepokryty kod</translation>
     </message>
     <message>
         <source>PLACEHOLDER</source>
-        <translation type="unfinished"></translation>
+        <translation>PLACEHOLDER</translation>
     </message>
     <message>
         <source>Implicitly Covered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Niejawnie pokryty kod</translation>
     </message>
     <message>
         <source>Implicit Manual Coverage Validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Niejawna ręczna walidacja pokrycia</translation>
     </message>
     <message>
         <source>Function</source>
@@ -64957,24 +64986,25 @@ Used to mark containing function of the symbol usage.</source>
     </message>
     <message>
         <source>Punctuation</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpunkcja</translation>
     </message>
     <message>
         <source>Punctuation excluding operators.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpunkcja z wyłączeniem operatorów.</translation>
     </message>
     <message>
         <source>Non user-defined language operators.
 To style user-defined operators, use Overloaded Operator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Operatory języka niezdefiniowane przez użytkownika.
+Do stylizowania operatorów zdefiniowanych przez użytkownika użyj Przeciążony operator.</translation>
     </message>
     <message>
         <source>Overloaded Operators</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeciążone operatory</translation>
     </message>
     <message>
         <source>Calls and declarations of overloaded (user-defined) operators.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wywołania i deklaracje przeciążonych (zdefiniowanych przez użytkownika) operatorów.</translation>
     </message>
     <message>
         <source>Macro</source>
@@ -65080,43 +65110,43 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
     <message>
         <source>Log Author Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Imię i nazwisko autora logu</translation>
     </message>
     <message>
         <source>Applied to author names in VCS log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stosowane do imion i nazwisk autorów w logu systemu kontroli wersji.</translation>
     </message>
     <message>
         <source>Log Commit Date</source>
-        <translation type="unfinished"></translation>
+        <translation>Data zatwierdzenia logu</translation>
     </message>
     <message>
         <source>Applied to commit dates in VCS log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stosowane do dat zatwierdzeń w logu systemu kontroli wersji.</translation>
     </message>
     <message>
         <source>Log Commit Hash</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrót zatwierdzenia logu</translation>
     </message>
     <message>
         <source>Applied to commit hashes in VCS log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stosowane do skrótów zatwierdzeń w logu systemu kontroli wersji.</translation>
     </message>
     <message>
         <source>Log Decoration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekoracje logu</translation>
     </message>
     <message>
         <source>Applied to commit decorations in VCS log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stosowane do dekoracji zatwierdzeń w logu systemu kontroli wersji.</translation>
     </message>
     <message>
         <source>Log Commit Subject</source>
-        <translation type="unfinished"></translation>
+        <translation>Temat zatwierdzenia logu</translation>
     </message>
     <message>
         <source>Applied to commit subjects in VCS log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stosowane do tematów zatwierdzeń w logu systemu kontroli wersji.</translation>
     </message>
     <message>
         <source>Underline color of error diagnostics.</source>
@@ -65180,19 +65210,19 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
     <message>
         <source>Skip update check for files matching:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomijaj sprawdzanie aktualizacji dla plików:</translation>
     </message>
     <message>
         <source>Skip syntax highlighting for files matching:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomijaj podświetlanie składni dla plików:</translation>
     </message>
     <message>
         <source>Highlight definitions are provided by the %1 engine.</source>
-        <translation type="unfinished"></translation>
+        <translation>Definicje podświetleń są dostarczane przez silnik %1.</translation>
     </message>
     <message>
         <source>Download missing and update existing syntax definition files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobierz brakujące i zaktualizuj istniejące pliki z definicjami składni.</translation>
     </message>
     <message>
         <source>Reload Definitions</source>
@@ -65208,7 +65238,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
     <message>
         <source>Reset definitions remembered for files that can be associated with more than one highlighter definition.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zresetuj zapamiętane definicje dla plików, które można powiązać z więcej niż jedną definicją podświetlacza.</translation>
     </message>
     <message>
         <source>User Highlight Definition Files</source>
@@ -65252,7 +65282,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
     <message>
         <source>Error reverting snippet.</source>
-        <translation>Nie można odwrócić urywku.</translation>
+        <translation>Nie można odwrócić fragmentu.</translation>
     </message>
     <message>
         <source>Group:</source>
@@ -65264,11 +65294,11 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
     <message>
         <source>Error While Saving Snippet Collection</source>
-        <translation>Błąd zapisu kolekcji urywków</translation>
+        <translation>Błąd zapisu kolekcji fragmentów</translation>
     </message>
     <message>
         <source>No snippet selected.</source>
-        <translation>Nie wybrano urywku.</translation>
+        <translation>Nie wybrano fragmentu.</translation>
     </message>
     <message>
         <source>Global</source>
@@ -65285,7 +65315,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
     <message>
         <source>All changes below take effect immediately.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie zmiany poniżej mają natychmiastowy efekt.</translation>
     </message>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
@@ -65305,11 +65335,11 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
     <message>
         <source>The selected configuration is read-only. Copy the configuration for editing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybrana konfiguracja jest tylko do odczytu. Skopiuj konfigurację, aby ją edytować.</translation>
     </message>
     <message>
         <source>Custom settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Własne ustawienia:</translation>
     </message>
     <message>
         <source>Delete Code Style</source>
@@ -65345,7 +65375,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
     <message>
         <source>%1 [customizable]</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 [modyfikowalne]</translation>
     </message>
     <message>
         <source>Files in File System</source>
@@ -65390,7 +65420,7 @@ Wykluczenia: %3
     <message>
         <source>None</source>
         <comment>Backspace indentation: None</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Backspace indentation:</source>
@@ -65524,19 +65554,19 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>Specifies where single line comments should be positioned.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustala, gdzie powinny być umieszczane komentarze w pojedynczych liniach.</translation>
     </message>
     <message>
         <source>%1: The highlight definition for the file determines the position. If no highlight definition is available, the comment is placed after leading whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Definicja podświetlenia pliku wyznacza pozycję. Jeśli brak definicji podświetlenia, komentarz jest umieszczany po wiodących białych znakach.</translation>
     </message>
     <message>
         <source>%1: The comment is placed at the start of the line.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Komentarz jest umieszczany na początku linii.</translation>
     </message>
     <message>
         <source>%1: The comment is placed after leading whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Komentarz jest umieszczany po wiodących białych znakach.</translation>
     </message>
     <message>
         <source>Preferred comment position:</source>
@@ -65548,11 +65578,11 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>For the file patterns listed, do not trim trailing whitespace.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie usuwaj końcowych białych znaków dla podanych wzorców plików.</translation>
     </message>
     <message>
         <source>List of wildcard-aware file patterns, separated by commas or semicolons.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista wzorców plików z obsługą symboli wieloznacznych, oddzielonych przecinkami lub średnikami.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -65562,7 +65592,13 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
 &lt;li&gt;&lt;i&gt;Always Delete:&lt;/i&gt; never write an UTF-8 BOM, possibly deleting a pre-existing one.&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;Note that UTF-8 BOMs are uncommon and treated incorrectly by some editors, so it usually makes little sense to add any.&lt;/p&gt;
 &lt;p&gt;This setting does &lt;b&gt;not&lt;/b&gt; influence the use of UTF-16 and UTF-32 BOMs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Jak edytory tekstu powinny obsługiwać znaczniki kolejności bajtów (BOM) UTF-8. Dostępne opcje:&lt;/p&gt;
+&lt;ul &gt;&lt;li&gt;&lt;i&gt;Dodawaj, w przypadku kodowania UTF-8:&lt;/i&gt; zawsze dodaje znacznik BOM przy zachowywaniu pliku w kodowaniu UTF-8. Uwaga: nie zadziała, jeśli kodowanie jest ustawione na &lt;i&gt;Systemowe&lt;/i&gt;, ponieważ edytor tekstu nie wie, jakie ono jest.&lt;/li&gt;
+&lt;li&gt;&lt;i&gt;Zachowuj, jeśli już istnieje: &lt;/i&gt;zachowuje plik ze znacznikiem BOM, jeśli plik miał go już przy otwarciu.&lt;/li&gt;
+&lt;li&gt;&lt;i&gt;Zawsze usuwaj:&lt;/i&gt; nigdy nie zapisuje znacznika BOM w kodowaniu UTF-8, ewentualnie usuwając istniejący.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Uwaga: znaczniki BOM w kodowaniu UTF-8 są rzadko stosowane i niektóre edytory obsługują je nieprawidłowo, dlatego zazwyczaj nie ma sensu ich dodawać.&lt;/p&gt;
+&lt;p&gt;To ustawienie &lt;b&gt;nie&lt;/b&gt; wpływa na użycie znaczników BOM w kodowaniach UTF-16 i UTF-32.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable &amp;mouse navigation</source>
@@ -65619,11 +65655,11 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>Using Select Block Up / Down actions will now provide smarter selections.</source>
-        <translation type="unfinished"></translation>
+        <translation>Akcje Zaznacz zewnętrzny/wewnętrzny blok zapewnią teraz inteligentniejszy wybór.</translation>
     </message>
     <message>
         <source>Enable smart selection changing</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz inteligentne zmienianie zaznaczenia</translation>
     </message>
     <message>
         <source>Export...</source>
@@ -65651,15 +65687,15 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>Enable minimap</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz minimapę</translation>
     </message>
     <message>
         <source>&lt;i&gt;Set &lt;a href=&quot;font zoom&quot;&gt;font line spacing&lt;/a&gt; to 100% to enable text wrapping option.&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;Ustaw &lt;a href=&quot;font zoom&quot;&gt;odstęp między liniami czcionki&lt;/a&gt; na 100%, aby włączyć opcję zawijania tekstu.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Display right &amp;margin after column:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetlaj prawy &amp;margines po kolumnie:</translation>
     </message>
     <message>
         <source>Tint whole margin area</source>
@@ -65671,15 +65707,15 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeśli dostępny, używaj innego marginesu. Na przykład ColumnLimit z wtyczki ClangFormat.</translation>
     </message>
     <message>
         <source>Editor content width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Szerokość treści edytora:</translation>
     </message>
     <message>
         <source>100% means that whole width of editor window is used to display text content (default).&lt;br&gt;50% means that half of editor width is used to display text content.&lt;br&gt;Remaining 50% is divided as left and right margins while centering the content.</source>
-        <translation type="unfinished"></translation>
+        <translation>100% oznacza, że cała szerokość okna edytora jest używana do wyświetlania treści tekstu (domyślnie).&lt;br&gt;50% oznacza, że połowa szerokości edytora jest używana do wyświetlania treści tekstu.&lt;br&gt;Pozostałe 50% jest dzielone jako lewy i prawy margines przy wyśrodkowaniu treści.</translation>
     </message>
     <message>
         <source>Mark &amp;text changes</source>
@@ -65747,7 +65783,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>Display tab settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż ustawienia tabulatorów</translation>
     </message>
     <message>
         <source>Highlight search results on the scrollbar</source>
@@ -65759,11 +65795,11 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>&amp;Highlight selection</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Podświetlaj zaznaczenie</translation>
     </message>
     <message>
         <source>Adds a colored background and a marker to the scrollbar to occurrences of the selected text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaje kolorowe tło i znacznik na pasku przewijania do wystąpień zaznaczonego tekstu.</translation>
     </message>
     <message>
         <source>Next to editor content</source>
@@ -65791,7 +65827,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>Not a valid trigger. A valid trigger can only contain letters, numbers, or underscores, where the first character is limited to letter or underscore.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy wyzwalacz. Prawidłowy wyzwalacz może zawierać tylko litery, cyfry lub podkreślenia, przy czym pierwszy znak jest ograniczony do litery lub podkreślenia.</translation>
     </message>
     <message>
         <source>Restore Removed Built-ins</source>
@@ -65876,19 +65912,19 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Auto detect</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykrywaj automatycznie</translation>
     </message>
     <message>
         <source>%1 tries to detect the indentation settings based on the file contents. It will fallback to the settings below if the detection fails.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 próbuje wykryć ustawienia wcięć na podstawie zawartości pliku. W przypadku niepowodzenia wykrywania, zastosowane zostaną ustawienia poniżej.</translation>
     </message>
     <message>
         <source>Default tab policy:</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślna polityka tabulatorów:</translation>
     </message>
     <message>
         <source>Default &amp;indent size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny rozmiar &amp;wcięć:</translation>
     </message>
     <message>
         <source>Not At All</source>
@@ -65970,7 +66006,7 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>(Sel: %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Zaznaczenie: %1)</translation>
     </message>
     <message>
         <source>Cursors:</source>
@@ -65986,15 +66022,15 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Selection length:</source>
-        <translation type="unfinished"></translation>
+        <translation>Długość zaznaczenia:</translation>
     </message>
     <message>
         <source>Selected lines:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznaczone linie:</translation>
     </message>
     <message>
         <source>Position in document:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozycja w dokumencie:</translation>
     </message>
     <message>
         <source>Anchor:</source>
@@ -66002,48 +66038,48 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Spaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Spacje</translation>
     </message>
     <message>
         <source>Tabs</source>
-        <translation type="unfinished">Tabulatory</translation>
+        <translation>Tabulatory</translation>
     </message>
     <message>
         <source>Indentation settings: %1 (%2)</source>
         <extracomment>%1=policy, %2=size</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia wcięć: %1 (%2)</translation>
     </message>
     <message>
         <source>Document Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia dokumentu</translation>
     </message>
     <message>
         <source>Tab Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia tabulatorów</translation>
     </message>
     <message>
         <source>Indent Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmiar wcięć</translation>
     </message>
     <message>
         <source>Tab Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmiar tabulatora</translation>
     </message>
     <message>
         <source>Global Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia globalne...</translation>
     </message>
     <message>
         <source>Unix Line Endings (LF)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakończenia linii Unix (LF)</translation>
     </message>
     <message>
         <source>Windows Line Endings (CRLF)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakończenia linii Windows (CRLF)</translation>
     </message>
     <message>
         <source>Other annotations</source>
-        <translation type="unfinished"></translation>
+        <translation>Inne adnotacje</translation>
     </message>
     <message>
         <source>Print Document</source>
@@ -66067,59 +66103,59 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Snippet Parse Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania fragmentu</translation>
     </message>
     <message>
         <source>A highlight definition was not found for this file. Would you like to download additional highlight definition files?</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono definicji podświetlenia dla tego pliku. Czy chcesz pobrać dodatkowe pliki z definicjami podświetleń?</translation>
     </message>
     <message>
         <source>More than one highlight definition was found for this file. Which one should be used to highlight this file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono więcej niż jedną definicję podświetlenia dla tego pliku. Której użyć do podświetlenia tego pliku?</translation>
     </message>
     <message>
         <source>Remember My Choice</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapamiętaj mój wybór</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Zastosuj</translation>
+        <translation>Zastosuj</translation>
     </message>
     <message>
         <source>Apply the current suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj bieżącą sugestię.</translation>
     </message>
     <message>
         <source>Apply one Word</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj jedno słowo</translation>
     </message>
     <message>
         <source>Apply one word of the current suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj jedno słowo z bieżącej sugestii.</translation>
     </message>
     <message>
         <source>Apply Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj linię</translation>
     </message>
     <message>
         <source>Apply one line of the current suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj jedną linię z bieżącej sugestii.</translation>
     </message>
     <message>
         <source>Fold Recursively</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwiń rekurencyjnie</translation>
     </message>
     <message>
         <source>Fold All</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwiń wszystkie</translation>
     </message>
     <message>
         <source>Unfold Recursively</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiń rekurencyjnie</translation>
     </message>
     <message>
         <source>Unfold All</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiń wszystkie</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
@@ -66135,7 +66171,7 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Could not find definition.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można znaleźć definicji.</translation>
     </message>
     <message>
         <source>Delete &amp;Line</source>
@@ -66319,15 +66355,15 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Open Type Hierarchy</source>
-        <translation type="unfinished">Otwórz hierarchię typów</translation>
+        <translation>Otwórz hierarchię typów</translation>
     </message>
     <message>
         <source>Meta+Shift+T</source>
-        <translation type="unfinished">Meta+Shift+T</translation>
+        <translation>Meta+Shift+T</translation>
     </message>
     <message>
         <source>Ctrl+Shift+T</source>
-        <translation type="unfinished">Ctrl+Shift+T</translation>
+        <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
         <source>Move the View a Page Up and Keep the Cursor Position</source>
@@ -66391,7 +66427,7 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Auto-&amp;format Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatyczne &amp;formatowanie zaznaczenia</translation>
     </message>
     <message>
         <source>Ctrl+;</source>
@@ -66475,7 +66511,7 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Add Next Occurrence to Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj następne wystąpienie do zaznaczenia</translation>
     </message>
     <message>
         <source>Ctrl+D</source>
@@ -66515,23 +66551,23 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Sort Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortuj linie</translation>
     </message>
     <message>
         <source>Go to Previous Word (Camel Case)</source>
-        <translation type="unfinished"></translation>
+        <translation>Przejdź do poprzedniego słowa (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Next Word (Camel Case)</source>
-        <translation type="unfinished"></translation>
+        <translation>Przejdź do następnego słowa (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Previous Word (Camel Case) with Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz od poprzedniego słowa (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Next Word (Camel Case) with Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz do następnego słowa (Camel Case)</translation>
     </message>
     <message>
         <source>Meta+Shift+S</source>
@@ -66684,7 +66720,7 @@ Wpływa na wcięcia przeniesionych linii.
     <message>
         <source>None</source>
         <comment>Case-sensitivity: None</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>First Letter</source>
@@ -66730,15 +66766,15 @@ po naciśnięciu klawisza Enter</translation>
     </message>
     <message>
         <source>Skip automatically inserted character if re-typed manually after completion or by pressing tab.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomiń automatycznie wstawiony znak, jeśli zostanie ponownie wpisany ręcznie po uzupełnieniu lub naciśnięciu Tab.</translation>
     </message>
     <message>
         <source>Overwrite closing punctuation</source>
-        <translation type="unfinished"></translation>
+        <translation>Nadpisuj zamykający znak interpunkcyjny</translation>
     </message>
     <message>
         <source>Automatically overwrite closing parentheses and quotes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie nadpisuj zamykające nawiasy i cudzysłowy.</translation>
     </message>
     <message>
         <source>&amp;Automatically Insert Matching Characters</source>
@@ -66822,7 +66858,9 @@ po naciśnięciu klawisza backspace</translation>
         <source>Doxygen allows &quot;@&quot; and &quot;\&quot; to start commands.
 By default, &quot;@&quot; is used if the surrounding comment starts with &quot;/**&quot; or &quot;///&quot;, and &quot;\&quot; is used
 if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Doxygen zezwala na użycie &quot;@&quot; i &quot;\&quot; do rozpoczynania komend.
+Domyślnie &quot;@&quot; jest używane, gdy otaczający komentarz zaczyna się od &quot;/**&quot; lub &quot;///&quot;, a &quot;\&quot; jest używane
+gdy komentarz zaczyna się od &quot;/*!&quot; lub &quot;//!&quot;.</translation>
     </message>
     <message>
         <source>Generate brief description</source>
@@ -66859,122 +66897,122 @@ if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
     <message>
         <source>example</source>
         <comment>group:&apos;Text&apos; trigger:&apos;global&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>przykład</translation>
     </message>
     <message>
         <source>derived from QObject</source>
         <comment>group:&apos;C++&apos; trigger:&apos;class&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>dziedziczące po QObject</translation>
     </message>
     <message>
         <source>derived from QWidget</source>
         <comment>group:&apos;C++&apos; trigger:&apos;class&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>dziedziczące po QWidget</translation>
     </message>
     <message>
         <source>template</source>
         <comment>group:&apos;C++&apos; trigger:&apos;class&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>szablonowe</translation>
     </message>
     <message>
         <source>with if</source>
         <comment>group:&apos;C++&apos; trigger:&apos;else&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>z if</translation>
     </message>
     <message>
         <source>range-based</source>
         <comment>group:&apos;C++&apos; trigger:&apos;for&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>zakresowe</translation>
     </message>
     <message>
         <source>and else</source>
         <comment>group:&apos;C++&apos; trigger:&apos;if&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>z else</translation>
     </message>
     <message>
         <source>with closing brace comment</source>
         <comment>group:&apos;C++&apos; trigger:&apos;namespace&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>z komentarzem przy klamrze zamykającej</translation>
     </message>
     <message>
         <source>and catch</source>
         <comment>group:&apos;C++&apos; trigger:&apos;try&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>i catch</translation>
     </message>
     <message>
         <source>namespace</source>
         <comment>group:&apos;C++&apos; trigger:&apos;using&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>przestrzeń nazw</translation>
     </message>
     <message>
         <source>template</source>
         <comment>group:&apos;C++&apos; trigger:&apos;struct&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>szablonowe</translation>
     </message>
     <message>
         <source>(type name READ name WRITE setName NOTIFY nameChanged FINAL)</source>
         <comment>group:&apos;C++&apos; trigger:&apos;Q_PROPERTY&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>(type name READ name WRITE setName NOTIFY nameChanged FINAL)</translation>
     </message>
     <message>
         <source>with targets</source>
         <comment>group:&apos;QML&apos; trigger:&apos;NumberAnimation&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>z celami</translation>
     </message>
     <message>
         <source>with target</source>
         <comment>group:&apos;QML&apos; trigger:&apos;NumberAnimation&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>z celem</translation>
     </message>
     <message>
         <source>with targets</source>
         <comment>group:&apos;QML&apos; trigger:&apos;PropertyAction&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>z celami</translation>
     </message>
     <message>
         <source>with target</source>
         <comment>group:&apos;QML&apos; trigger:&apos;PropertyAction&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>z celem</translation>
     </message>
     <message>
         <source>QuickTest Test Case</source>
         <comment>group:&apos;QML&apos; trigger:&apos;TestCase&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Przypadek testowy QuickTest</translation>
     </message>
     <message>
         <source>GTest Function</source>
         <comment>group:&apos;C++&apos; trigger:&apos;TEST&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Funkcja GTest</translation>
     </message>
     <message>
         <source>GTest Fixture</source>
         <comment>group:&apos;C++&apos; trigger:&apos;TEST_F&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>GTest z instancją testową</translation>
     </message>
     <message>
         <source>GTest Parameterized</source>
         <comment>group:&apos;C++&apos; trigger:&apos;TEST_P&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>GTest parametryzowany</translation>
     </message>
     <message>
         <source>Test Case</source>
         <comment>group:&apos;C++&apos; trigger:&apos;BOOST_AUTO_TEST_CASE&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Przypadek testowy</translation>
     </message>
     <message>
         <source>Test Suite</source>
         <comment>group:&apos;C++&apos; trigger:&apos;BOOST_AUTO_TEST_SUITE&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Zestaw testów</translation>
     </message>
     <message>
         <source>Catch Test Case</source>
         <comment>group:&apos;C++&apos; trigger:&apos;TEST_CASE&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Przypadek testowy Catch</translation>
     </message>
     <message>
         <source>Catch Scenario</source>
         <comment>group:&apos;C++&apos; trigger:&apos;SCENARIO&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Scenariusz Catch</translation>
     </message>
     <message>
         <source>Sort Alphabetically</source>
@@ -67022,15 +67060,15 @@ if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
     </message>
     <message>
         <source>Highlighter updates: done</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizacje definicji podświetleń: zakończone</translation>
     </message>
     <message>
         <source>Highlighter updates:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizacje definicji podświetleń:</translation>
     </message>
     <message>
         <source>Highlighter updates: starting</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizacje definicji podświetleń: uruchamianie</translation>
     </message>
     <message>
         <source>Emphasis</source>
@@ -67038,79 +67076,79 @@ if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
     </message>
     <message>
         <source>Markdown Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor Markdown</translation>
     </message>
     <message>
         <source>Inline Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Kod inline</translation>
     </message>
     <message>
         <source>Hyperlink</source>
-        <translation type="unfinished"></translation>
+        <translation>Hiperłącze</translation>
     </message>
     <message>
         <source>Show Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż edytor</translation>
     </message>
     <message>
         <source>Show Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż podgląd</translation>
     </message>
     <message>
         <source>Swap Views</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamień widoki</translation>
     </message>
     <message>
         <source>Expected delimiter after mangler ID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwany ogranicznik po identyfikatorze modyfikatora.</translation>
     </message>
     <message>
         <source>Expected mangler ID &quot;l&quot; (lowercase), &quot;u&quot; (uppercase), or &quot;c&quot; (titlecase) after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwany identyfikator modyfikatora &quot;l&quot; (małe litery), &quot;u&quot; (wielkie litery) lub &quot;c&quot; (wielka pierwsza litera) po dwukropku.</translation>
     </message>
     <message>
         <source>Missing closing variable delimiter for:</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak zamykającego ogranicznika zmiennej dla:</translation>
     </message>
     <message>
         <source>Show inline annotations for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż adnotacje w linii dla %1</translation>
     </message>
     <message>
         <source>Temporarily hide inline annotations for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tymczasowo ukryj adnotacje w linii dla %1</translation>
     </message>
     <message>
         <source>Show Diagnostic Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż ustawienia diagnostyki</translation>
     </message>
     <message>
         <source>JSON Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor JSON</translation>
     </message>
     <message>
         <source>Plain Text Editor</source>
-        <translation type="unfinished">Zwykły edytor tekstowy</translation>
+        <translation>Zwykły edytor tekstowy</translation>
     </message>
     <message>
         <source>Select Previous Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz poprzednią sugestię</translation>
     </message>
     <message>
         <source>Select Next Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz następną sugestię</translation>
     </message>
     <message>
         <source>Type Hierarchy</source>
-        <translation type="unfinished">Hierarchia typów</translation>
+        <translation>Hierarchia typów</translation>
     </message>
     <message>
         <source>No type hierarchy available</source>
-        <translation type="unfinished">Brak dostępnej hierarchii typów</translation>
+        <translation>Brak dostępnej hierarchii typów</translation>
     </message>
     <message>
         <source>Reloads the type hierarchy for the symbol under the cursor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeładowuje hierarchię typów dla symbolu pod kursorem.</translation>
     </message>
 </context>
 <context>
