@@ -23,7 +23,6 @@ add_qtc_library(Utils
     async.cpp async.h
     basetreeview.cpp basetreeview.h
     benchmarker.cpp benchmarker.h
-    buildablehelperlibrary.cpp buildablehelperlibrary.h
     builderutils.h
     camelcasecursor.cpp camelcasecursor.h
     categorysortfiltermodel.cpp categorysortfiltermodel.h

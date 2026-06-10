@@ -8,6 +8,7 @@
 #include "examplesparser.h"
 #include "gettingstartedwelcomepage.h"
 #include "qtsupportconstants.h"
+#include "qtsupportutils.h"
 #include "qtversionfactory.h"
 
 #include <coreplugin/icore.h>
@@ -18,8 +19,6 @@
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/buildablehelperlibrary.h>
-#include <utils/environment.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
@@ -475,8 +474,7 @@ void QtVersionManagerImpl::findSystemQt(const IDeviceConstPtr &device)
 {
     QTC_ASSERT(device, return);
 
-    FilePaths systemQMakes = BuildableHelperLibrary::findQtsInEnvironment(
-        device->systemEnvironment(), device->rootPath());
+    FilePaths systemQMakes = findQtsInEnvironment(device->systemEnvironment(), device->rootPath());
     systemQMakes.append(gatherQmakePathsFromQtChooser());
     addQtVersionsFromFilePaths(systemQMakes);
 }
@@ -484,7 +482,7 @@ void QtVersionManagerImpl::findSystemQt(const IDeviceConstPtr &device)
 void QtVersionManagerImpl::addQtVersionsFromFilePaths(const FilePaths &filePaths)
 {
     for (const FilePath &qmakePath : filePaths) {
-        if (BuildableHelperLibrary::isQtChooser(qmakePath))
+        if (isQtChooser(qmakePath))
             continue;
         const auto isSameQmake = [qmakePath](const QtVersion *version) {
             return qmakePath.isSameExecutable(version->qmakeFilePath());
@@ -506,7 +504,7 @@ void QtVersionManagerImpl::handleDeviceToolDetectionRequest(
 
     dev->registerToolDetectionTask(token);
     const VersionMap qtVersions = m_versions;
-    addQtVersionsFromFilePaths(BuildableHelperLibrary::findQtsInPaths(searchPaths));
+    addQtVersionsFromFilePaths(findQtsInPaths(searchPaths));
     if (qtVersions != m_versions) {
         saveQtVersions();
         emit QtVersionManager::instance()->qtVersionsChanged(m_versions.keys());

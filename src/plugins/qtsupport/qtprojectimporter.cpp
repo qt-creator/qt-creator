@@ -4,6 +4,7 @@
 #include "qtprojectimporter.h"
 
 #include "qtkitaspect.h"
+#include "qtsupportutils.h"
 #include "qtversionfactory.h"
 #include "qtversionmanager.h"
 
@@ -12,7 +13,6 @@
 #include <projectexplorer/sysrootkitaspect.h>
 
 #include <utils/algorithm.h>
-#include <utils/buildablehelperlibrary.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
@@ -25,6 +25,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QtSupport {
+using namespace Internal;
 
 static QtVersion *versionFromVariant(const QVariant &v)
 {
@@ -70,10 +71,9 @@ QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
 {
     QtVersionData result;
     result.qt = QtVersionManager::version(
-                Utils::equal(&QtVersion::qmakeFilePath,
-                             Utils::BuildableHelperLibrary::isQtChooser(qmakePath)
-                             ? Utils::BuildableHelperLibrary::qtChooserToQmakePath(qmakePath)
-                             : qmakePath));
+        Utils::equal(
+            &QtVersion::qmakeFilePath,
+            isQtChooser(qmakePath) ? qtChooserToQmakePath(qmakePath) : qmakePath));
     if (result.qt) {
         // Check if version is a temporary qt
         const int qtId = result.qt->uniqueId();

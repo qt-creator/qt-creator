@@ -25,8 +25,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
-#include <utils/buildablehelperlibrary.h>
-#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>

@@ -6,6 +6,7 @@
 #include "qtconfigwidget.h"
 #include "qtsupportconstants.h"
 #include "qtsupporttr.h"
+#include "qtsupportutils.h"
 #include "qtversionmanager.h"
 #include "qtversionfactory.h"
 
@@ -22,7 +23,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/guiutils.h>
-#include <utils/buildablehelperlibrary.h>
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>
 #include <utils/groupedmodel.h>
@@ -694,20 +694,20 @@ void QtSettingsPageWidget::addQtDir()
     const IDeviceConstPtr dev = m_deviceComboBox.currentDevice();
     if (dev && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
         initialDir = dev->rootPath();
-    FilePath qtVersion
-        = FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
-                                     initialDir,
-                                     BuildableHelperLibrary::filterForQmakeFileDialog(),
-                                     nullptr,
-                                     QFileDialog::DontResolveSymlinks,
-                                     true);
+    FilePath qtVersion = FileUtils::getOpenFilePath(
+        Tr::tr("Select a qmake Executable"),
+        initialDir,
+        filterForQmakeFileDialog(),
+        nullptr,
+        QFileDialog::DontResolveSymlinks,
+        true);
 
     if (qtVersion.isEmpty())
         return;
 
     // should add all qt versions here ?
-    if (BuildableHelperLibrary::isQtChooser(qtVersion))
-        qtVersion = BuildableHelperLibrary::qtChooserToQmakePath(qtVersion.symLinkTarget());
+    if (isQtChooser(qtVersion))
+        qtVersion = qtChooserToQmakePath(qtVersion.symLinkTarget());
 
     bool alreadyExists;
     QString otherName;
@@ -740,9 +740,9 @@ void QtSettingsPageWidget::addQtDir()
 void QtSettingsPageWidget::redetect()
 {
     for (const IDeviceConstPtr &dev : m_deviceComboBox.selectedDevices()) {
-        const FilePaths qMakes = BuildableHelperLibrary::findQtsInPaths(dev->toolSearchPaths());
+        const FilePaths qMakes = findQtsInPaths(dev->toolSearchPaths());
         for (const FilePath &qmakePath : qMakes) {
-            if (BuildableHelperLibrary::isQtChooser(qmakePath))
+            if (isQtChooser(qmakePath))
                 continue;
             if (checkAlreadyExists(qmakePath).first)
                 continue;
@@ -765,12 +765,12 @@ void QtSettingsPageWidget::editPath()
     QTC_ASSERT(row >= 0, return);
     QtVersion *current = m_model.item(row).version();
     QTC_ASSERT(current, return);
-    FilePath qtVersion =
-            FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
-                                       current->qmakeFilePath().absolutePath(),
-                                       BuildableHelperLibrary::filterForQmakeFileDialog(),
-                                       nullptr,
-                                       QFileDialog::DontResolveSymlinks);
+    FilePath qtVersion = FileUtils::getOpenFilePath(
+        Tr::tr("Select a qmake Executable"),
+        current->qmakeFilePath().absolutePath(),
+        filterForQmakeFileDialog(),
+        nullptr,
+        QFileDialog::DontResolveSymlinks);
     if (qtVersion.isEmpty())
         return;
     QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, DetectionSource::Manual, nullptr);

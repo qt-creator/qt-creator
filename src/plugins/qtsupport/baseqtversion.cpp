@@ -9,6 +9,7 @@
 #include "qtkitaspect.h"
 #include "qtsupportconstants.h"
 #include "qtsupporttr.h"
+#include "qtsupportutils.h"
 #include "qtversionfactory.h"
 #include "qtversionmanager.h"
 
@@ -26,7 +27,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
@@ -36,7 +36,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
-#include <utils/buildablehelperlibrary.h>
 #include <utils/displayname.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
@@ -654,11 +653,11 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath)
         string.remove(0, 1).prepend(QDir::homePath());
     qmake = qmake.withNewPath(string);
     if (d->m_qmakeCommand.isLocal()) {
-        if (BuildableHelperLibrary::isQtChooser(qmake)) {
+        if (isQtChooser(qmake)) {
             // we don't want to treat qtchooser as a normal qmake
             // see e.g. QTCREATORBUG-9841, also this lead to users changing what
             // qtchooser forwards too behind our backs, which will inadvertly lead to bugs
-            d->m_qmakeCommand = BuildableHelperLibrary::qtChooserToQmakePath(qmake);
+            d->m_qmakeCommand = qtChooserToQmakePath(qmake);
         }
     }
     d->m_qmakeCommand = filePath.resolvePath(d->m_qmakeCommand);

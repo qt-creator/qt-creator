@@ -7,14 +7,11 @@
 #include "debuggerengine.h"
 #include "debuggertr.h"
 
-#include <utils/buildablehelperlibrary.h>
-#include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>
 #include <utils/variablechooser.h>
 

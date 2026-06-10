@@ -65,8 +65,6 @@ QtcLibrary {
         "basetreeview.h",
         "benchmarker.cpp",
         "benchmarker.h",
-        "buildablehelperlibrary.cpp",
-        "buildablehelperlibrary.h",
         "builderutils.h",
         "camelcasecursor.cpp",
         "camelcasecursor.h",
