@@ -64,13 +64,14 @@ public:
         : QWidget(parent)
     {
         auto *layout = new QHBoxLayout(this);
-        layout->setContentsMargins(PaddingHM, 0, 0, 0);
-        layout->setSpacing(0);
+        layout->setContentsMargins(PaddingHM, PaddingVXs, PaddingHXs, PaddingVXs);
+        layout->setSpacing(PaddingHXs);
 
-        auto *label = new QLabel(text);
+        auto label = new QLabel(text);
         layout->addWidget(label);
 
-        auto *closeBtn = new QtcIconButton();
+        auto closeBtn = new QtcIconButton();
+        closeBtn->setMaximumSize(20, 20);
         closeBtn->setIcon(Icons::CLOSE_TOOLBAR.icon());
         closeBtn->setContentsMargins(0, 0, 0, 0);
         closeBtn->setToolTip(Tr::tr("Remove Context"));
@@ -87,7 +88,7 @@ protected:
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
         StyleHelper::drawCardBg(
-            &p, rect(), creatorColor(Theme::Token_Foreground_Subtle), QPen(Qt::NoPen), RadiusS);
+            &p, rect(), QBrush(), creatorColor(Theme::Token_Foreground_Subtle), RadiusS);
     }
 };
 
