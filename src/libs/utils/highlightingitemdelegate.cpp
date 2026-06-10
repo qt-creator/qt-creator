@@ -175,9 +175,9 @@ void HighlightingItemDelegate::drawText(QPainter *painter,
         }
 
         // adjust all following highlighting starts
-        for (int j = 0; j < searchTermStarts.size(); ++j) {
-            if (searchTermStarts.at(j) > i)
-                searchTermStarts[j] += tabDiff;
+        for (int &searchTermStart : searchTermStarts) {
+            if (searchTermStart > i)
+                searchTermStart += tabDiff;
         }
 
         i += tabDiff;

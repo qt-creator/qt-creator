@@ -2161,8 +2161,7 @@ void WidgetTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
         c.insertText(e->commitString());
     }
 
-    for (int i = 0; i < e->attributes().size(); ++i) {
-        const QInputMethodEvent::Attribute &a = e->attributes().at(i);
+    for (const QInputMethodEvent::Attribute &a : e->attributes()) {
         if (a.type == QInputMethodEvent::Selection) {
             QTextCursor oldCursor = cursor;
             int blockStart = a.start + cursor.block().position();
@@ -2183,8 +2182,7 @@ void WidgetTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
     const int oldPreeditCursor = preeditCursor;
     preeditCursor = e->preeditString().size();
     hideCursor = false;
-    for (int i = 0; i < e->attributes().size(); ++i) {
-        const QInputMethodEvent::Attribute &a = e->attributes().at(i);
+    for (const auto &a : e->attributes()) {
         if (a.type == QInputMethodEvent::Cursor) {
             preeditCursor = a.start;
             hideCursor = !a.length;
@@ -2592,8 +2590,7 @@ void WidgetTextControl::setExtraSelections(const QList<QTextEdit::ExtraSelection
         hash.insert(esel.cursor.anchor(), i);
     }
 
-    for (int i = 0; i < selections.size(); ++i) {
-        const QTextEdit::ExtraSelection &sel = selections.at(i);
+    for (const QTextEdit::ExtraSelection &sel : selections) {
         const auto it = hash.constFind(sel.cursor.anchor());
         if (it != hash.cend()) {
             const QAbstractTextDocumentLayout::Selection &esel = d->extraSelections.at(it.value());
@@ -3497,9 +3494,8 @@ UnicodeControlCharacterMenu::UnicodeControlCharacterMenu(QObject *_editWidget, Q
     : QMenu(parent), editWidget(_editWidget)
 {
     setTitle(Tr::tr("Insert Unicode Control Character"));
-    for (int i = 0; i < NUM_CONTROL_CHARACTERS; ++i) {
-        addAction(Tr::tr(qt_controlCharacters[i].text), this, SLOT(menuActionTriggered()));
-    }
+    for (const QUnicodeControlCharacter &qt_controlCharacter : qt_controlCharacters)
+        addAction(Tr::tr(qt_controlCharacter.text), this, SLOT(menuActionTriggered()));
 }
 
 void UnicodeControlCharacterMenu::menuActionTriggered()

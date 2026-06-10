@@ -1385,7 +1385,7 @@ PlainTextEdit::PlainTextEdit(QWidget *parent)
 
 /*!
     \internal
-    // Note: This constructor is unused, as we cannot forward the private "dd" argument 
+    // Note: This constructor is unused, as we cannot forward the private "dd" argument
 PlainTextEdit::PlainTextEdit(PlainTextEditPrivate &dd, QWidget *parent)
     : QAbstractScrollArea(parent)
     , d(std::make_unique<PlainTextEditPrivate>(this))
@@ -2057,8 +2057,8 @@ void PlainTextEdit::paintEvent(QPaintEvent *e)
             QList<QTextLayout::FormatRange> selections;
             int blpos = block.position();
             int bllen = block.length();
-            for (int i = 0; i < context.selections.size(); ++i) {
-                const QAbstractTextDocumentLayout::Selection &range = context.selections.at(i);
+            for (const QAbstractTextDocumentLayout::Selection &range :
+                 std::as_const(context.selections)) {
                 const int selStart = range.cursor.selectionStart() - blpos;
                 const int selEnd = range.cursor.selectionEnd() - blpos;
                 if (selStart < bllen && selEnd > 0

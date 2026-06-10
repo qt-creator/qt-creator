@@ -298,16 +298,16 @@ QString MultiTextCursor::selectedText() const
 void MultiTextCursor::removeSelectedText()
 {
     beginEditBlock();
-    for (auto cursor = m_cursorList.begin(); cursor != m_cursorList.end(); ++cursor)
-        cursor->removeSelectedText();
+    for (QTextCursor &cursor : m_cursorList)
+        cursor.removeSelectedText();
     endEditBlock();
     mergeCursors();
 }
 
 void MultiTextCursor::clearSelection()
 {
-    for (auto cursor = m_cursorList.begin(); cursor != m_cursorList.end(); ++cursor)
-        cursor->clearSelection();
+    for (QTextCursor &cursor : m_cursorList)
+        cursor.clearSelection();
 }
 
 static void insertAndSelect(QTextCursor &cursor, const QString &text, bool selectNewText)
@@ -343,8 +343,8 @@ void MultiTextCursor::insertText(const QString &text, bool selectNewText)
             return;
         }
     }
-    for (auto cursor = m_cursorList.begin(); cursor != m_cursorList.end(); ++cursor)
-        insertAndSelect(*cursor, text, selectNewText);
+    for (QTextCursor &cursor : m_cursorList)
+        insertAndSelect(cursor, text, selectNewText);
     m_cursorList.back().endEditBlock();
 }
 
@@ -435,8 +435,7 @@ bool MultiTextCursor::handleMoveKeyEvent(
         }
     }
 
-    for (auto it = m_cursorList.begin(); it != m_cursorList.end(); ++it) {
-        QTextCursor &cursor = *it;
+    for (QTextCursor &cursor : m_cursorList) {
         QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
         QTextCursor::MoveOperation op = QTextCursor::NoMove;
 

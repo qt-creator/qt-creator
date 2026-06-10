@@ -847,9 +847,8 @@ bool FancyMainWindow::isBlockingAutomaticUncollapse() const
 void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
 {
     QList<QAction *> actions;
-    QList<QDockWidget *> dockwidgets = findChildren<QDockWidget *>();
-    for (int i = 0; i < dockwidgets.size(); ++i) {
-        QDockWidget *dockWidget = dockwidgets.at(i);
+    const QList<QDockWidget *> dockwidgets = findChildren<QDockWidget *>();
+    for (QDockWidget * const dockWidget : dockwidgets) {
         if (dockWidget->property("managed_dockwidget").isNull()
                 && dockWidget->parentWidget() == this) {
             QAction *action = dockWidget->toggleViewAction();

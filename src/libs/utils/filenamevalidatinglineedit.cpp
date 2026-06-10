@@ -103,9 +103,8 @@ Result<> FileNameValidatingLineEdit::validateFileName(const QString &name, bool 
     }
 
     // Substrings
-    const int notAllowedSubStringCount = sizeof(notAllowedSubStrings)/sizeof(const char *);
-    for (int s = 0; s < notAllowedSubStringCount; s++) {
-        const QLatin1String notAllowedSubString(notAllowedSubStrings[s]);
+    for (const char * const s : notAllowedSubStrings) {
+        const QLatin1String notAllowedSubString(s);
         if (name.contains(notAllowedSubString))
             return ResultError(Tr::tr("Invalid characters \"%1\".").arg(QString(notAllowedSubString)));
     }

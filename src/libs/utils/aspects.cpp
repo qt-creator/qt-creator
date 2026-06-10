@@ -2491,8 +2491,8 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         }
         auto comboBox = createSubWidget<QComboBox>();
         comboBox->setObjectName(objectName());
-        for (int i = 0, n = d->m_options.size(); i < n; ++i)
-            comboBox->addItem(d->m_options.at(i).displayName);
+        for (const Option &option : std::as_const(d->m_options))
+            comboBox->addItem(option.displayName);
         comboBox->setCurrentIndex(volatileValue());
         addLabeledItem(parent, comboBox);
         connect(&d->m_undoable.m_signal, &UndoSignaller::changed, comboBox, [comboBox, this] {
