@@ -370,11 +370,6 @@ public:
             bauhausSuite.setValue(s_localBuildInstance.lastBauhausBase());
         else if (settings().versionInfo())
             bauhausSuite.setValue(settings().axivionSuitePath());
-        fileOrCommand.setExpectedKind(PathChooser::Any);
-        fileOrCommand.setAllowPathFromDevice(false);
-        fileOrCommand.setHistoryCompleter("LocalBuildHistory");
-        if (!settings().lastLocalBuildCommand().isEmpty())
-            fileOrCommand.setValue(settings().lastLocalBuildCommand());
         buildType.setLabelText(Tr::tr("Build type:"));
         buildType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         buildType.setToolTip(Tr::tr("Clean Build: Set environment variable AXIVION_CLEAN_BUILD=1\n"
@@ -422,7 +417,7 @@ public:
             Row { Tr::tr("Axivion Suite installation directory:") },
             Row { bauhausSuite },
             Row { Tr::tr("Enter the command for building %1:").arg(projectName) },
-            Row { fileOrCommand },
+            Row { settings().lastLocalBuildCommand },
             Row { buildType, st },
             st
         }.attachTo(widget);
@@ -431,18 +426,17 @@ public:
         layout->addWidget(widget);
         layout->addWidget(buttons);
 
-        connect(&fileOrCommand, &FilePathAspect::changed,
-                this, [this, okButton] { okButton->setEnabled(!fileOrCommand().isEmpty()); });
+        connect(&settings().lastLocalBuildCommand, &FilePathAspect::volatileValueChanged,
+                this, [okButton] { okButton->setEnabled(!settings().lastLocalBuildCommand().isEmpty()); });
         connect(okButton, &QPushButton::clicked,
                 this, &QDialog::accept);
         connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
                 this, &QDialog::reject);
         setWindowTitle(Tr::tr("Local Build Command: %1").arg(projectName));
-        okButton->setEnabled(!fileOrCommand().isEmpty());
+        okButton->setEnabled(!settings().lastLocalBuildCommand().isEmpty());
     }
 
     FilePathAspect bauhausSuite;
-    FilePathAspect fileOrCommand;
     SelectionAspect buildType;
 };
 
@@ -534,7 +528,7 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     if (dia.exec() != QDialog::Accepted)
         return false;
 
-    settings().lastLocalBuildCommand.setValue(dia.fileOrCommand());
+    settings().lastLocalBuildCommand.apply();
     settings().writeSettings();
 
     Environment env = Environment::systemEnvironment();
@@ -550,7 +544,7 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     qCDebug(localDashLog) << "passfile:" << createdPassFile;
 
     CommandLine cmdLine;
-    setupEnvAndCommandLineFromUserInput(&env, &cmdLine, dia.fileOrCommand(), dia.buildType());
+    setupEnvAndCommandLineFromUserInput(&env, &cmdLine, settings().lastLocalBuildCommand(), dia.buildType());
 
     const FilePath bauhaus = dia.bauhausSuite();
     if (!bauhaus.isEmpty()) {

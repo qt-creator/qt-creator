@@ -44,18 +44,6 @@ class SingleFileDialog : public QDialog
 public:
     SingleFileDialog()
     {
-        bauhausConfig.setExpectedKind(PathChooser::ExistingDirectory);
-        bauhausConfig.setAllowPathFromDevice(false);
-        bauhausConfig.setHistoryCompleter("Axivion.SFABauhausConfig");
-        if (const FilePath &last = settings().lastBauhausConfig(); !last.isEmpty())
-            bauhausConfig.setValue(last);
-        command.setExpectedKind(PathChooser::Any);
-        command.setAllowPathFromDevice(false);
-        command.setHistoryCompleter("Axivion.SFACommand");
-        const FilePath &last = FilePath::fromString(settings().lastSfaCommand.value());
-        if (!last.isEmpty())
-            command.setValue(last);
-
         QWidget *widget = new QWidget(this);
         auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
         auto okButton = buttons->button(QDialogButtonBox::Ok);
@@ -89,13 +77,13 @@ public:
                 title(Tr::tr("BAUHAUS_CONFIG Directory")), // could this be multiple directories?
                 Column {
                     Row { Tr::tr("Usually the directory containing the file \"axivion_config.json\".") },
-                    Row { bauhausConfig }
+                    Row { settings().lastBauhausConfig }
                 }
             },
             Layouting::Group {
                 title(Tr::tr("Analysis Command")),
                 Column {
-                    Row { command },
+                    Row { settings().lastSfaCommand },
                     Row { hint },
                     Row { warning }
                 }
@@ -113,17 +101,15 @@ public:
         setWindowTitle(Tr::tr("Single File Analysis"));
         okButton->setEnabled(false);
 
-        auto updateOk = [okButton, this] {
-            okButton->setEnabled(bauhausConfig.pathChooser()->isValid() && !command().isEmpty());
+        auto updateOk = [okButton] {
+            okButton->setEnabled(settings().lastBauhausConfig.pathChooser()->isValid()
+                                 && !settings().lastSfaCommand().isEmpty());
         };
-        connect(&bauhausConfig, &FilePathAspect::validChanged, this, updateOk);
-        connect(&command, &FilePathAspect::changed, this, updateOk);
+        connect(&settings().lastBauhausConfig, &FilePathAspect::validChanged, this, updateOk);
+        connect(&settings().lastSfaCommand, &FilePathAspect::volatileValueChanged, this, updateOk);
 
         resize(750, 300);
     }
-
-    FilePathAspect bauhausConfig;
-    FilePathAspect command;
 };
 
 struct SFAData
@@ -349,11 +335,11 @@ void startSingleFileAnalysis(const FilePath &file)
     if (dia.exec() != QDialog::Accepted)
         return;
 
-    settings().lastBauhausConfig.setValue(dia.bauhausConfig());
-    settings().lastSfaCommand.setValue(dia.command.value());
+    settings().lastBauhausConfig.apply();
+    settings().lastSfaCommand.apply();
     settings().writeSettings();
 
-    s_sfaInstance.startAnalysisFor(file, dia.bauhausConfig(), dia.command());
+    s_sfaInstance.startAnalysisFor(file, settings().lastBauhausConfig(), settings().lastSfaCommand());
 }
 
 
