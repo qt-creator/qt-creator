@@ -56,9 +56,8 @@ void TodoItemsProvider::settingsChanged()
     updateList();
 }
 
-void TodoItemsProvider::projectSettingsChanged(Project *project)
+void TodoItemsProvider::projectSettingsChanged()
 {
-    Q_UNUSED(project)
     updateList();
 }
 

@@ -46,12 +46,12 @@ public:
         useGlobalSettings.addOnChanged(this, [this] {
             setEnabled(!useGlobalSettings());
             save();
-            todoItemsProvider().projectSettingsChanged(m_project);
+            todoItemsProvider().projectSettingsChanged();
         });
         addOnChanged(this, [this] {
             if (!useGlobalSettings())
                 save();
-            todoItemsProvider().projectSettingsChanged(m_project);
+            todoItemsProvider().projectSettingsChanged();
         });
     }
 

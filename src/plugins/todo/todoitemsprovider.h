@@ -25,7 +25,7 @@ public:
     TodoItemsModel *todoItemsModel();
 
     void settingsChanged();
-    void projectSettingsChanged(ProjectExplorer::Project *project);
+    void projectSettingsChanged();
 
 private:
     Settings m_settings;
