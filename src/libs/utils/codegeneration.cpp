@@ -67,14 +67,11 @@ void writeQtIncludeSection(const QStringList &qt4,
         qtSection(toList(common), str);
 
         if (!qt4Only.isEmpty() || !qt5Only.isEmpty()) {
-            if (addQtVersionCheck)
-                writeBeginQtVersionCheck(str);
+            writeBeginQtVersionCheck(str);
             qtSection(toList(qt5Only), str);
-            if (addQtVersionCheck)
-                str << QLatin1String("#else\n");
+            str << QLatin1String("#else\n");
             qtSection(toList(qt4Only), str);
-            if (addQtVersionCheck)
-                str << QLatin1String("#endif\n");
+            str << QLatin1String("#endif\n");
         }
     } else {
         if (!qt5Only.isEmpty()) // default to Qt5
