@@ -82,7 +82,6 @@ signals:
 private:
     // Session toolbar
     QLabel *m_agentLabel;
-    QToolButton *m_configButton = nullptr;
 
     QList<Acp::SessionConfigOption> m_configOptions;
     void showConfigMenu();
@@ -96,6 +95,7 @@ private:
     ChatInputEdit *m_inputEdit;
     Utils::QtcButton *m_sendButton;
     Utils::QtcIconButton *m_commandsButton;
+    Utils::QtcIconButton *m_configButton = nullptr;
     QMenu *m_commandsMenu = nullptr;
     QWidget *m_contextBar = nullptr;
     QLayout *m_contextBarLayout = nullptr;

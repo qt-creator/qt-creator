@@ -107,15 +107,7 @@ ChatPanel::ChatPanel(QWidget *parent)
     m_agentLabel = new QLabel;
     m_agentLabel->setTextFormat(Qt::RichText);
     toolbarLayout->addWidget(m_agentLabel);
-
-    m_configButton = new QToolButton;
-    m_configButton->setIcon(Icons::SETTINGS_TOOLBAR.icon());
-    m_configButton->setToolTip(Tr::tr("Configuration Options"));
-    m_configButton->setAutoRaise(true);
-    m_configButton->hide();
-    connect(m_configButton, &QToolButton::clicked, this, &ChatPanel::showConfigMenu);
     toolbarLayout->addStretch(1);
-    toolbarLayout->addWidget(m_configButton);
 
     // --- Message view ---
     m_messageView = new AcpMessageView;
@@ -226,6 +218,13 @@ ChatPanel::ChatPanel(QWidget *parent)
         m_commandsMenu->popup(QPoint(topLeft.x(), topLeft.y() - menuSize.height()));
     });
     bottomRowButtonLayout->addWidget(m_commandsButton);
+
+    m_configButton = new QtcIconButton;
+    m_configButton->setIcon(Icons::SETTINGS.icon());
+    m_configButton->setToolTip(Tr::tr("Configuration Options"));
+    m_configButton->hide();
+    connect(m_configButton, &QAbstractButton::clicked, this, &ChatPanel::showConfigMenu);
+    bottomRowButtonLayout->addWidget(m_configButton);
 
     m_sendButton = new QtcButton(Tr::tr("Send"), QtcButton::MediumPrimary);
     m_sendButton->setEnabled(false);
