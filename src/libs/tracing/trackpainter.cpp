@@ -174,6 +174,30 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
     if (m_model->isEmpty() || rangeDuration <= 0 || width() == 0)
         return;
 
+    // Vertical grid lines (same block geometry as TimeRuler)
+    {
+        const double scale = double(width()) / double(rangeDuration);
+        const qint64 timePerBlock = rulerBlockDuration(rangeDuration, double(width()));
+        const double pixelsPerBlock = double(timePerBlock) * scale;
+        const double pixelsPerSection = pixelsPerBlock / 5.0;
+        const qint64 alignedStart = m_rangeStart - (m_rangeStart % timePerBlock);
+        const QColor gridColor = themeColor(Utils::Theme::Timeline_DividerColor);
+        p.setPen(QPen(gridColor, 1));
+        for (qint64 t = alignedStart; ; t += timePerBlock) {
+            const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, double(width()));
+            if (x > double(width()))
+                break;
+            for (int s = 1; s <= 4; ++s) {
+                const double sx = x + s * pixelsPerSection;
+                if (sx >= 0.0 && sx <= double(width()))
+                    p.drawLine(qRound(sx), 0, qRound(sx), height() - 1);
+            }
+            const double tickX = x + pixelsPerBlock;
+            if (tickX >= 0.0 && tickX <= double(width()))
+                p.drawLine(qRound(tickX), 0, qRound(tickX), height() - 1);
+        }
+    }
+
     // Value scale for expanded rows with min/max values (TimeMarks.qml equivalent)
     if (m_model->expanded()) {
         static const int kScaleMinH = 60;
@@ -207,12 +231,11 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
                 stepVal *= 2;
             }
             const double stepH = double(stepVal) * double(rowH) / double(valDiff);
+            const int topLabelBottom = rowY + kFontPx + kMarg * 2 + 2;
 
             p.setPen(scaleText);
-            p.drawText(QRect(kMarg, rowY + kMarg, width() - kMarg * 2, kFontPx + kMarg),
-                       Qt::AlignLeft | Qt::AlignTop, prettyPrintScale(maxVal));
+            p.drawText(QPointF(kMarg, topLabelBottom), prettyPrintScale(maxVal));
 
-            const int topLabelBottom = rowY + kFontPx + kMarg * 2 + 2;
             const int numLines = int(valDiff / stepVal);
             for (int i = 0; i < numLines; ++i) {
                 if (rowY + qRound(double(rowH) - double(i + 1) * stepH) <= topLabelBottom)
@@ -221,36 +244,11 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
                 p.setPen(scaleDiv);
                 p.drawLine(0, lineY, width() - 1, lineY);
                 p.setPen(scaleText);
-                p.drawText(QRect(kMarg, lineY - kFontPx - kMarg, width() - kMarg * 2, kFontPx),
-                           Qt::AlignLeft | Qt::AlignBottom,
+                p.drawText(QPointF(kMarg, lineY - kMarg),
                            prettyPrintScale(minVal + qint64(i) * stepVal));
             }
         }
         p.restore();
-    }
-
-    // Vertical grid lines (same block geometry as TimeRuler)
-    {
-        const double scale = double(width()) / double(rangeDuration);
-        const qint64 timePerBlock = rulerBlockDuration(rangeDuration, double(width()));
-        const double pixelsPerBlock = double(timePerBlock) * scale;
-        const double pixelsPerSection = pixelsPerBlock / 5.0;
-        const qint64 alignedStart = m_rangeStart - (m_rangeStart % timePerBlock);
-        const QColor gridColor = themeColor(Utils::Theme::Timeline_DividerColor);
-        p.setPen(QPen(gridColor, 1));
-        for (qint64 t = alignedStart; ; t += timePerBlock) {
-            const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, double(width()));
-            if (x > double(width()))
-                break;
-            for (int s = 1; s <= 4; ++s) {
-                const double sx = x + s * pixelsPerSection;
-                if (sx >= 0.0 && sx <= double(width()))
-                    p.drawLine(qRound(sx), 0, qRound(sx), height() - 1);
-            }
-            const double tickX = x + pixelsPerBlock;
-            if (tickX >= 0.0 && tickX <= double(width()))
-                p.drawLine(qRound(tickX), 0, qRound(tickX), height() - 1);
-        }
     }
 
     // Events (fills only; selection/hover borders are overlaid live in paintEvent)
