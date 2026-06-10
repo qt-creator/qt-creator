@@ -88,10 +88,13 @@ public:
 private:
     bool guiToVolatileValue() final;
     void volatileValueToGui() final;
+    bool isDirty() const final;
+    void apply() final;
 
     ModelFactory      m_modelFactory;
     EditWidgetFactory m_editFactory;
     ClangDiagnosticConfigs m_customConfigs;
+    ClangDiagnosticConfigs m_committedCustomConfigs;
     QPointer<ClangDiagnosticConfigsSelectionWidget> m_widget;
 };
 

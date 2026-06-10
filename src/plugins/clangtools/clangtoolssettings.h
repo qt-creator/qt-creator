@@ -59,6 +59,7 @@ class ClangToolsSettings final : public RunSettings
 
 public:
     static ClangToolsSettings *instance();
+    void apply() override;
     void writeSettings() const override;
 
     // Executables
@@ -66,7 +67,6 @@ public:
     Utils::FilePathAspect clazyStandaloneExecutable{this};
 
     Utils::FilePath executable(CppEditor::ClangToolType tool) const;
-    void setExecutable(CppEditor::ClangToolType tool, const Utils::FilePath &path);
 
     Utils::BoolAspect enableLowerClazyLevels{this};
 

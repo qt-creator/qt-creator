@@ -130,12 +130,55 @@ ClangToolsSettings::ClangToolsSettings()
 {
     setSettingsGroup(Constants::SETTINGS_ID);
 
+    const FilePath shippedTidy = toolShippedExecutable(ClangToolType::Tidy);
     clangTidyExecutable.setSettingsKey("ClangTidyExecutable");
+    clangTidyExecutable.setLabelText(Tr::tr("Clang-Tidy:"));
+    clangTidyExecutable.setDefaultPathValue(
+        shippedTidy.isEmpty() ? FilePath(Constants::CLANG_TIDY_EXECUTABLE_NAME) : shippedTidy);
+    clangTidyExecutable.setExpectedKind(PathChooser::ExistingCommand);
+    clangTidyExecutable.setPromptDialogTitle(Tr::tr("Clang-Tidy Executable"));
+    clangTidyExecutable.setHistoryCompleter(Key("ClangTools.ClangTidyExecutable.History"));
+    clangTidyExecutable.setCommandVersionArguments({"--version"});
+
+    const FilePath shippedClazy = toolShippedExecutable(ClangToolType::Clazy);
     clazyStandaloneExecutable.setSettingsKey("ClazyStandaloneExecutable");
+    clazyStandaloneExecutable.setLabelText(Tr::tr("Clazy-Standalone:"));
+    clazyStandaloneExecutable.setDefaultPathValue(
+        shippedClazy.isEmpty() ? FilePath(Constants::CLAZY_STANDALONE_EXECUTABLE_NAME) : shippedClazy);
+    clazyStandaloneExecutable.setExpectedKind(PathChooser::ExistingCommand);
+    clazyStandaloneExecutable.setPromptDialogTitle(Tr::tr("Clazy Executable"));
+    clazyStandaloneExecutable.setHistoryCompleter(Key("ClangTools.ClazyStandaloneExecutable.History"));
+    clazyStandaloneExecutable.setCommandVersionArguments({"--version"});
 
     enableLowerClazyLevels.setSettingsKey("EnableLowerClazyLevels");
     enableLowerClazyLevels.setDefaultValue(true);
 
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title(Tr::tr("Executables")),
+                Form {
+                    clangTidyExecutable, br,
+                    clazyStandaloneExecutable,
+                },
+            },
+            Group {
+                title(Tr::tr("Run Options")),
+                Column {
+                    diagnosticConfigId,
+                    preferConfigFile,
+                    buildBeforeAnalysis,
+                    analyzeOpenFiles,
+                    Row { parallelJobs, st },
+                },
+            },
+            st,
+            noMargin,
+        };
+    });
+
+    setAutoApply(false);
     readSettings();
 }
 
@@ -162,20 +205,20 @@ void ClangToolsSettings::writeSettings() const
     emit const_cast<ClangToolsSettings *>(this)->changed(); // FIXME: This is the wrong place
 }
 
+void ClangToolsSettings::apply()
+{
+    if (clangTidyExecutable.isDirty())
+        m_clangTidyVersion = {};
+    if (clazyStandaloneExecutable.isDirty())
+        m_clazyVersion = {};
+    if (diagnosticConfigId.hasWidget())
+        m_diagnosticConfigs = diagnosticConfigId.customConfigs();
+    AspectContainer::apply();
+}
+
 FilePath ClangToolsSettings::executable(ClangToolType tool) const
 {
     return tool == ClangToolType::Tidy ? clangTidyExecutable() : clazyStandaloneExecutable();
-}
-
-void ClangToolsSettings::setExecutable(ClangToolType tool, const FilePath &path)
-{
-    if (tool == ClangToolType::Tidy) {
-        clangTidyExecutable.setValue(path);
-        m_clangTidyVersion = {};
-    } else {
-        clazyStandaloneExecutable.setValue(path);
-        m_clazyVersion = {};
-    }
 }
 
 static VersionAndSuffix getVersionNumber(VersionAndSuffix &version, const FilePath &toolFilePath)

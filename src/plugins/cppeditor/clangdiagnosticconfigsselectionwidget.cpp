@@ -103,7 +103,7 @@ void ClangDiagnosticConfigsSelectionWidget::onButtonClicked()
         emit changed();
         if (origId != m_currentConfigId || origDisplayName != m_button->text()
             || oldConfigs != widget->configs()) {
-            Utils::markSettingsDirty();
+            Utils::checkSettingsDirty();
         }
     }
 }
@@ -131,7 +131,7 @@ void DiagnosticConfigIdAspect::addToLayoutImpl(Layouting::Layout &parent)
         const ClangDiagnosticConfigsModel model = m_modelFactory();
         const Id id = model.hasConfigWithId(volatileValue()) ? volatileValue() : defaultValue();
         m_widget->refresh(model, id, m_editFactory);
-        m_customConfigs = m_widget->customConfigs();
+        m_committedCustomConfigs = m_customConfigs = m_widget->customConfigs();
     }
     connect(m_widget, &ClangDiagnosticConfigsSelectionWidget::changed, this, [this] {
         if (m_widget)
@@ -150,6 +150,17 @@ bool DiagnosticConfigIdAspect::guiToVolatileValue()
     m_volatileValue = newId;
     m_customConfigs = newConfigs;
     return changed;
+}
+
+bool DiagnosticConfigIdAspect::isDirty() const
+{
+    return TypedAspect<Id>::isDirty() || m_customConfigs != m_committedCustomConfigs;
+}
+
+void DiagnosticConfigIdAspect::apply()
+{
+    TypedAspect<Id>::apply();
+    m_committedCustomConfigs = m_customConfigs;
 }
 
 void DiagnosticConfigIdAspect::refresh()

@@ -953,7 +953,7 @@ public:
                         sessionsView->selectionModel()->selection();
                     QTC_ASSERT(!sel.isEmpty(), return);
                     m_sessionsModel.removeRow(sel.indexes().first().row());
-                    markSettingsDirty();
+                    checkSettingsDirty();
                 });
         connect(addButton, &QPushButton::clicked, this,
                 [this, sessionsView] {
@@ -971,7 +971,7 @@ public:
                         current << dlg.textValue();
                         m_sessionsModel.setStringList(current);
                         m_sessionsModel.sort(0);
-                        markSettingsDirty();
+                        checkSettingsDirty();
                     }
                 });
         auto configFilesHelpLabel = new QLabel(
@@ -1009,7 +1009,16 @@ public:
             st,
         }.attachTo(this);
 
-        installMarkSettingsDirtyTriggerRecursively(this);
+        connect(&s, &AspectContainer::volatileValueChanged, this, [] { checkSettingsDirty(); });
+
+        setDirtyChecker([this] {
+            const ClangdSettings &s = ClangdSettings::instance();
+            if (s.isDirty())
+                return true;
+            QStringList stored = s.m_data.sessionsWithOneClangd;
+            stored.sort();
+            return m_sessionsModel.stringList() != stored;
+        });
     }
 
 private:
