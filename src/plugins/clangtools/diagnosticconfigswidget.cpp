@@ -1276,7 +1276,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
         return;
 
     ClangToolsSettings * const settings = ClangToolsSettings::instance();
-    ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
+    ClangDiagnosticConfigs configs = settings->diagnosticConfigId.customConfigs();
     Utils::Id activeConfigId = settings->diagnosticConfigId();
     ClangToolsProjectSettings::ClangToolsProjectSettingsPtr projectSettings;
 
@@ -1330,7 +1330,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
             }
         }
     }
-    settings->setDiagnosticConfigs(configs);
+    settings->diagnosticConfigId.setCustomConfigs(configs);
     settings->writeSettings();
 }
 

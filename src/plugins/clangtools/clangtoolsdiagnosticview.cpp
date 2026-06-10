@@ -394,7 +394,7 @@ bool DiagnosticView::disableChecksEnabled() const
         return false;
 
     ClangToolsSettings * const settings = ClangToolsSettings::instance();
-    const ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
+    const ClangDiagnosticConfigs configs = settings->diagnosticConfigId.customConfigs();
     Utils::Id activeConfigId = settings->diagnosticConfigId();
     if (ProjectExplorer::Project * const project
             = static_cast<DiagnosticFilterModel *>(model())->project()) {

@@ -106,7 +106,7 @@ void ClangToolsCompilationDb::Private::generate()
     QTC_ASSERT(projectSettings, return);
     const Id configId = projectSettings->diagnosticConfigId();
     const ClangDiagnosticConfig config = Utils::findOrDefault(
-        ClangToolsSettings::instance()->diagnosticConfigs(),
+        ClangToolsSettings::instance()->diagnosticConfigId.customConfigs(),
         [configId](const ClangDiagnosticConfig &c) { return c.id() == configId; });
     const auto useBuildSystemWarnings = config.useBuildSystemWarnings()
                                             ? UseBuildSystemWarnings::Yes

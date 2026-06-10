@@ -136,7 +136,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     // Save custom diagnostic configs to global settings when the aspect changes.
     connect(&m_projectSettings->diagnosticConfigId,
             &Utils::BaseAspect::changed, this, [this] {
-                ClangToolsSettings::instance()->setDiagnosticConfigs(
+                ClangToolsSettings::instance()->diagnosticConfigId.setCustomConfigs(
                     m_projectSettings->diagnosticConfigId.customConfigs());
                 ClangToolsSettings::instance()->writeSettings();
             });

@@ -70,19 +70,10 @@ public:
 
     Utils::BoolAspect enableLowerClazyLevels{this};
 
-    CppEditor::ClangDiagnosticConfigs diagnosticConfigs() const { return m_diagnosticConfigs; }
-    void setDiagnosticConfigs(const CppEditor::ClangDiagnosticConfigs &configs)
-    { m_diagnosticConfigs = configs; }
-
     static VersionAndSuffix clangTidyVersion();
     static QVersionNumber clazyVersion();
 
 private:
-    void readSettings() override;
-
-    // Diagnostic Configs
-    CppEditor::ClangDiagnosticConfigs m_diagnosticConfigs;
-
     // Version info. Ephemeral.
     VersionAndSuffix m_clangTidyVersion;
     QVersionNumber m_clazyVersion;

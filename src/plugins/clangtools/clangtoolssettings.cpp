@@ -178,30 +178,14 @@ ClangToolsSettings::ClangToolsSettings()
         };
     });
 
+    diagnosticConfigId.setPersistCustomConfigs(true);
     setAutoApply(false);
     readSettings();
-}
-
-void ClangToolsSettings::readSettings()
-{
-    AspectContainer::readSettings();
-
-    // TODO: The remaining things should be ready for aspectification now.
-    QtcSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::SETTINGS_ID);
-    m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
-    s->endGroup();
 }
 
 void ClangToolsSettings::writeSettings() const
 {
     AspectContainer::writeSettings();
-
-    QtcSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::SETTINGS_ID);
-    diagnosticConfigsToSettings(s, m_diagnosticConfigs);
-    s->endGroup();
-
     emit const_cast<ClangToolsSettings *>(this)->changed(); // FIXME: This is the wrong place
 }
 
@@ -211,8 +195,6 @@ void ClangToolsSettings::apply()
         m_clangTidyVersion = {};
     if (clazyStandaloneExecutable.isDirty())
         m_clazyVersion = {};
-    if (diagnosticConfigId.hasWidget())
-        m_diagnosticConfigs = diagnosticConfigId.customConfigs();
     AspectContainer::apply();
 }
 

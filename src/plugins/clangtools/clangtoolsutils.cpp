@@ -242,7 +242,8 @@ ClangDiagnosticConfigsModel diagnosticConfigsModel(const ClangDiagnosticConfigs 
 
 ClangDiagnosticConfigsModel diagnosticConfigsModel()
 {
-    return Internal::diagnosticConfigsModel(ClangToolsSettings::instance()->diagnosticConfigs());
+    return Internal::diagnosticConfigsModel(
+        ClangToolsSettings::instance()->diagnosticConfigId.customConfigs());
 }
 
 QString documentationUrl(const QString &checkName)

@@ -10,6 +10,8 @@
 
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcsettings.h>
+#include <utils/store.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -176,6 +178,35 @@ void DiagnosticConfigIdAspect::volatileValueToGui()
     const Id id = model.hasConfigWithId(m_volatileValue) ? m_volatileValue : defaultValue();
     m_widget->refresh(model, id, m_editFactory);
     m_customConfigs = m_widget->customConfigs();
+}
+
+void DiagnosticConfigIdAspect::fromMap(const Store &map)
+{
+    if (!settingsKey().isEmpty()) {
+        const auto it = map.find(settingsKey());
+        if (it != map.end())
+            setValue(Id::fromSetting(it.value()), BeQuiet);
+    }
+}
+
+void DiagnosticConfigIdAspect::toMap(Store &map) const
+{
+    if (!settingsKey().isEmpty())
+        map.insert(settingsKey(), value().toSetting());
+}
+
+void DiagnosticConfigIdAspect::readSettings()
+{
+    TypedAspect<Id>::readSettings();
+    if (m_persistCustomConfigs)
+        m_customConfigs = diagnosticConfigsFromSettings(&Utils::userSettings());
+}
+
+void DiagnosticConfigIdAspect::writeSettings() const
+{
+    TypedAspect<Id>::writeSettings();
+    if (m_persistCustomConfigs)
+        diagnosticConfigsToSettings(&Utils::userSettings(), m_customConfigs);
 }
 
 } // namespace CppEditor
