@@ -82,6 +82,9 @@ public:
 
     void addToLayoutImpl(Layouting::Layout &parent) final;
 
+    void refresh();
+    bool hasWidget() const { return m_widget != nullptr; }
+
 private:
     bool guiToVolatileValue() final;
     void volatileValueToGui() final;

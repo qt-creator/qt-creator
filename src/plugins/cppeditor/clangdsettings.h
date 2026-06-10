@@ -4,6 +4,7 @@
 #pragma once
 
 #include "clangdiagnosticconfig.h"
+#include "clangdiagnosticconfigsselectionwidget.h"
 #include "cppeditor_global.h"
 
 #include <utils/aspects.h>
@@ -19,7 +20,6 @@ class Project;
 namespace Utils { class MacroExpander; }
 
 namespace CppEditor {
-class ClangDiagnosticConfigsModel;
 
 // TODO: Can we move this to ClangCodeModel?
 class CPPEDITOR_EXPORT ClangdSettings : public Utils::AspectContainer
@@ -105,6 +105,7 @@ public:
     Utils::TypedSelectionAspect<HeaderSourceSwitchMode> headerSourceSwitchMode{this};
     Utils::TypedSelectionAspect<CompletionRankingModel> completionRankingModel{this};
     Utils::TypedSelectionAspect<CompletionStyle> completionStyle{this};
+    DiagnosticConfigIdAspect diagnosticConfigId{this};
 
     static ClangdSettings &instance();
     static void setUseClangd(bool use);
