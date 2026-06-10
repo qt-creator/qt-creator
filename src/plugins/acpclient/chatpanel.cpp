@@ -22,6 +22,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
+#include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPushButton>
@@ -43,6 +44,13 @@ public:
     explicit InputContainerWidget(QWidget *parent = nullptr) : QWidget(parent) {}
 
 protected:
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        if (QWidget *proxy = focusProxy())
+            proxy->setFocus(Qt::MouseFocusReason);
+        QWidget::mousePressEvent(event);
+    }
+
     void paintEvent(QPaintEvent *) override
     {
         QPainter p(this);
@@ -50,8 +58,8 @@ protected:
         StyleHelper::drawCardBg(
             &p,
             rect(),
-            palette().color(QPalette::Base),
-            QPen(palette().color(QPalette::Mid), 1),
+            creatorColor(Theme::Token_Background_Subtle),
+            creatorColor(Theme::Token_Foreground_Muted),
             RadiusM);
     }
 };
@@ -88,7 +96,7 @@ protected:
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
         StyleHelper::drawCardBg(
-            &p, rect(), QBrush(), creatorColor(Theme::Token_Foreground_Subtle), RadiusS);
+            &p, rect(), QBrush(), creatorColor(Theme::Token_Foreground_Muted), RadiusS);
     }
 };
 
@@ -112,7 +120,6 @@ ChatPanel::ChatPanel(QWidget *parent)
     });
     layout->addWidget(m_messageView, 1);
     layout->addWidget(new Core::FindToolBarPlaceHolder(m_messageView));
-    layout->addWidget(Layouting::createHr());
 
     // --- Input bar (rounded container) ---
     auto *inputOuter = new QWidget;
@@ -122,16 +129,8 @@ ChatPanel::ChatPanel(QWidget *parent)
 
     auto *inputContainer = new InputContainerWidget;
     auto *inputContainerLayout = new QVBoxLayout(inputContainer);
-    inputContainerLayout->setContentsMargins(PaddingHM, PaddingVXs, PaddingHM, PaddingVXs);
+    inputContainerLayout->setContentsMargins(PaddingHM, PaddingVM, PaddingHM, PaddingVM);
     inputContainerLayout->setSpacing(GapVXs);
-
-    m_inputEdit = new ChatInputEdit;
-    inputContainerLayout->addWidget(m_inputEdit);
-
-    auto *bottomRow = new QWidget;
-    auto *bottomRowLayout = new QHBoxLayout(bottomRow);
-    bottomRowLayout->setContentsMargins(0, 0, 0, 0);
-    bottomRowLayout->setSpacing(GapHS);
 
     m_contextBar = new QWidget;
     Layouting::Flow{}.attachTo(m_contextBar);
@@ -143,11 +142,16 @@ ChatPanel::ChatPanel(QWidget *parent)
         updateContextBar();
     });
 
-    QVBoxLayout *verticalCenter = new QVBoxLayout;
-    verticalCenter->addStretch();
-    verticalCenter->addWidget(m_contextBar);
-    verticalCenter->addStretch();
-    bottomRowLayout->addLayout(verticalCenter, 1);
+    inputContainerLayout->addWidget(m_contextBar);
+
+    m_inputEdit = new ChatInputEdit;
+    inputContainerLayout->addWidget(m_inputEdit);
+    inputContainer->setFocusProxy(m_inputEdit);
+
+    auto *bottomRow = new QWidget;
+    auto *bottomRowLayout = new QHBoxLayout(bottomRow);
+    bottomRowLayout->setContentsMargins(0, 0, 0, 0);
+    bottomRowLayout->setSpacing(GapHS);
 
     auto addContextButton = new QtcIconButton;
     addContextButton->setIcon(Utils::Icons::PAPERCLIP.icon());
@@ -193,8 +197,8 @@ ChatPanel::ChatPanel(QWidget *parent)
         menu->popup(QCursor::pos());
     });
 
-    auto bottomRowButtonLayout = new QHBoxLayout;
-    bottomRowButtonLayout->addWidget(addContextButton);
+    bottomRowLayout->addStretch(1);
+    bottomRowLayout->addWidget(addContextButton);
 
     m_commandsButton = new QtcIconButton;
     m_commandsButton->setIcon(Icons::SLASH.icon());
@@ -207,25 +211,22 @@ ChatPanel::ChatPanel(QWidget *parent)
         const QSize menuSize = m_commandsMenu->sizeHint();
         m_commandsMenu->popup(QPoint(topLeft.x(), topLeft.y() - menuSize.height()));
     });
-    bottomRowButtonLayout->addWidget(m_commandsButton);
+    bottomRowLayout->addWidget(m_commandsButton);
 
     m_configButton = new QtcIconButton;
     m_configButton->setIcon(Icons::SETTINGS.icon());
     m_configButton->setToolTip(Tr::tr("Configuration Options"));
     m_configButton->hide();
     connect(m_configButton, &QAbstractButton::clicked, this, &ChatPanel::showConfigMenu);
-    bottomRowButtonLayout->addWidget(m_configButton);
+    bottomRowLayout->addWidget(m_configButton);
 
     m_sendButton = new QtcButton(Tr::tr("Send"), QtcButton::MediumPrimary);
     m_sendButton->setEnabled(false);
-    bottomRowButtonLayout->addWidget(m_sendButton);
-    auto alignTop = new QVBoxLayout;
-    alignTop->addLayout(bottomRowButtonLayout);
-    alignTop->addStretch();
-    bottomRowLayout->addLayout(alignTop);
+    bottomRowLayout->addWidget(m_sendButton);
+
+    inputContainerLayout->addWidget(bottomRow);
 
     inputOuterLayout->addWidget(inputContainer);
-    inputOuterLayout->addWidget(bottomRow);
     layout->addWidget(inputOuter);
 
     // --- Connections ---
@@ -465,6 +466,8 @@ void ChatPanel::updateContextBar()
         });
         m_contextBarLayout->addWidget(item);
     }
+
+    m_contextBar->setVisible(m_contextBarLayout->count() > 0);
 }
 
 } // namespace AcpClient::Internal
