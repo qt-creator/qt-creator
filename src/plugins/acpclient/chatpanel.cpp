@@ -10,6 +10,7 @@
 #include <coreplugin/findplaceholder.h>
 
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -98,17 +99,6 @@ ChatPanel::ChatPanel(QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    // --- Session toolbar (StyledBar) ---
-    auto *toolbar = new StyledBar;
-    auto *toolbarLayout = new QHBoxLayout(toolbar);
-    toolbarLayout->setContentsMargins(PaddingHM, 0, PaddingHM, 0);
-    toolbarLayout->setSpacing(GapHM);
-
-    m_agentLabel = new QLabel;
-    m_agentLabel->setTextFormat(Qt::RichText);
-    toolbarLayout->addWidget(m_agentLabel);
-    toolbarLayout->addStretch(1);
-
     // --- Message view ---
     m_messageView = new AcpMessageView;
     m_messageView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -122,7 +112,7 @@ ChatPanel::ChatPanel(QWidget *parent)
     });
     layout->addWidget(m_messageView, 1);
     layout->addWidget(new Core::FindToolBarPlaceHolder(m_messageView));
-    layout->addWidget(toolbar);
+    layout->addWidget(Layouting::createHr());
 
     // --- Input bar (rounded container) ---
     auto *inputOuter = new QWidget;
@@ -262,18 +252,9 @@ ChatPanel::ChatPanel(QWidget *parent)
     updateContextBar();
 }
 
-void ChatPanel::setAgentInfo(const QString &name, const QString &version,
-                             const QString &iconUrl)
+void ChatPanel::setAgentIcon(const QString &iconUrl)
 {
     m_messageView->setAgentIconUrl(iconUrl);
-
-    QString html;
-    if (!name.isEmpty()) {
-        html = QStringLiteral("<b>%1</b>").arg(name.toHtmlEscaped());
-        if (!version.isEmpty())
-            html += QStringLiteral(" <small>v%1</small>").arg(version.toHtmlEscaped());
-    }
-    m_agentLabel->setText(html);
 }
 
 void ChatPanel::setPrompting(bool prompting)

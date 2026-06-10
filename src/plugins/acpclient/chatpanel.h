@@ -14,11 +14,9 @@
 namespace Utils {
 class QtcButton;
 class QtcIconButton;
-class StyledBar;
 } // namespace Utils
 
 class QHBoxLayout;
-class QLabel;
 class QLayout;
 class QMenu;
 class QToolButton;
@@ -40,8 +38,7 @@ public:
     AcpMessageView *messageView() const { return m_messageView; }
     ChatInputEdit *inputEdit() const { return m_inputEdit; }
 
-    void setAgentInfo(const QString &name, const QString &version,
-                      const QString &iconUrl = {});
+    void setAgentIcon(const QString &iconUrl = {});
     void setPrompting(bool prompting);
     void setSendEnabled(bool enabled);
 
@@ -80,9 +77,6 @@ signals:
     void authenticateRequested(const QString &methodId);
 
 private:
-    // Session toolbar
-    QLabel *m_agentLabel;
-
     QList<Acp::SessionConfigOption> m_configOptions;
     void showConfigMenu();
 

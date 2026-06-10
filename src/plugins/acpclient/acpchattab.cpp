@@ -308,8 +308,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         }
     });
     connect(m_controller, &AcpChatController::agentInfoReceived, this,
-            [this](const QString &name, const QString &version, const QString &iconUrl) {
-        m_chatPanel->setAgentInfo(name, version, iconUrl);
+            [this](const QString &, const QString &, const QString &iconUrl) {
+        m_chatPanel->setAgentIcon(iconUrl);
         updateTitle();
     });
     connect(m_controller, &AcpChatController::authenticationRequired,
