@@ -108,6 +108,7 @@ add_qtc_library(Utils
     macroexpander.cpp macroexpander.h
     markdownbrowser.cpp markdownbrowser.h
     mathutils.cpp mathutils.h
+    messagebox.cpp messagebox.h
     mimeconstants.h
     mimeutils.h
     minimizableinfobars.cpp

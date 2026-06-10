@@ -17,12 +17,11 @@
 #include <debugger/threadshandler.h>
 #include <debugger/watchhandler.h>
 
-#include <coreplugin/messagebox.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/fileutils.h>
+#include <utils/messagebox.h>
 
 #include <QDir>
 #include <QFileInfo>

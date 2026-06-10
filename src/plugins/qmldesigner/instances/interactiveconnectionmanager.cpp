@@ -9,7 +9,7 @@
 
 #include <qmldesigner/settings/designersettings.h>
 
-#include <coreplugin/messagebox.h>
+#include <utils/messagebox.h>
 
 #include <QLocalSocket>
 #include <QTimer>
@@ -54,7 +54,7 @@ void InteractiveConnectionManager::shutDown()
 
 void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
-    Core::AsynchronousMessageBox::warning(
+    Utils::AsynchronousMessageBox::warning(
         tr("Cannot Connect to QML Puppet"),
         tr("The executable of the QML Puppet may not be responding. "
            "Switching to another kit might help."));

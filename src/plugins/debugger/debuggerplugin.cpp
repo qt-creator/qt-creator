@@ -36,7 +36,6 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
@@ -84,6 +83,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/messagebox.h>
 #include <utils/processinfo.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>

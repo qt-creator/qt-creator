@@ -20,7 +20,6 @@
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 
 #include <debugger/debuggerruncontrol.h>
@@ -49,6 +48,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/messagebox.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>

@@ -39,7 +39,7 @@
 #include <qmlstate.h>
 #include <variantproperty.h>
 
-#include <coreplugin/messagebox.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QScopeGuard>
@@ -177,7 +177,7 @@ void DynamicPropertiesProxyModel::createProperty(const QString &name, const QStr
         const ModelNode modelNode = selectedNodes.constFirst();
         if (modelNode.isValid()) {
             if (modelNode.hasProperty(name.toUtf8())) {
-                Core::AsynchronousMessageBox::warning(tr("Property Already Exists"),
+                Utils::AsynchronousMessageBox::warning(tr("Property Already Exists"),
                                                       tr("Property \"%1\" already exists.")
                                                           .arg(name));
                 return;

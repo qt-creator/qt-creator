@@ -21,7 +21,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -36,6 +35,7 @@
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -638,7 +638,7 @@ void CvsPluginPrivate::revertAll()
     const auto revertResponse = runCvs(state.topLevel(), {"update", "-C",
                                        state.topLevel().toUrlishString()}, RunFlag::ShowStdOut);
     if (revertResponse.result() != ProcessResult::FinishedWithSuccess) {
-        Core::AsynchronousMessageBox::warning(title, Tr::tr("Revert failed: %1")
+        Utils::AsynchronousMessageBox::warning(title, Tr::tr("Revert failed: %1")
                                               .arg(revertResponse.exitMessage()));
         return;
     }

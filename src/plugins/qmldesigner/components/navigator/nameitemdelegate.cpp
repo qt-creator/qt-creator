@@ -18,7 +18,7 @@
 #include <qmlobjectnode.h>
 #include <theme.h>
 
-#include <coreplugin/messagebox.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <qmath.h>
@@ -182,7 +182,7 @@ static void setId(const QModelIndex &index, const QString &newId)
     if (!ModelNode::isValidId(newId)) {
         DialogUtils::showWarningForInvalidId(newId);
     } else if (modelNode.view()->hasId(newId)) {
-        Core::AsynchronousMessageBox::warning(Tr::tr("Invalid Id"),
+        Utils::AsynchronousMessageBox::warning(Tr::tr("Invalid Id"),
                                               Tr::tr("%1 already exists.").arg(newId));
     } else {
         modelNode.setIdWithRefactoring(newId);

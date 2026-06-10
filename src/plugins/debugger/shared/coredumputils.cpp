@@ -5,8 +5,7 @@
 
 #include "../debuggertr.h"
 
-#include <coreplugin/messagebox.h>
-
+#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 
 #include <QDebug>
@@ -80,7 +79,7 @@ Group lastCoreRecipe(const Storage<LastCore> &storage)
     };
 
     const auto onError = [] {
-        Core::AsynchronousMessageBox::warning(Tr::tr("Warning"),
+        Utils::AsynchronousMessageBox::warning(Tr::tr("Warning"),
             Tr::tr("coredumpctl did not find any cores created by systemd-coredump."));
     };
 

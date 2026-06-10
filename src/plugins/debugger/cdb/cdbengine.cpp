@@ -31,7 +31,6 @@
 #include <debugger/watchhandler.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/perspective.h>
 
 #include <projectexplorer/abi.h>
@@ -46,6 +45,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -267,7 +267,7 @@ void CdbEngine::createFullBacktrace()
 void CdbEngine::handleSetupFailure(const QString &errorMessage)
 {
     showMessage(errorMessage, LogError);
-    Core::AsynchronousMessageBox::critical(Tr::tr("Failed to Start the Debugger"), errorMessage);
+    Utils::AsynchronousMessageBox::critical(Tr::tr("Failed to Start the Debugger"), errorMessage);
     notifyEngineSetupFailed();
 }
 
@@ -2750,7 +2750,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         const FilePath loadOrderFile = dumperPath / "loadorder.txt";
         const Result<QByteArray> toLoad = loadOrderFile.fileContents();
         if (!toLoad) {
-            Core::AsynchronousMessageBox::critical(
+            Utils::AsynchronousMessageBox::critical(
                 Tr::tr("Cannot Find Debugger Initialization Script"),
                 Tr::tr("Cannot read \"%1\": %2").arg(loadOrderFile.toUserOutput(), toLoad.error()));
             notifyEngineSetupFailed();

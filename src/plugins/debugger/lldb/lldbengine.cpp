@@ -25,7 +25,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/perspective.h>
 
 #include <projectexplorer/abi.h>
@@ -33,6 +32,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -949,7 +949,7 @@ void LldbEngine::handleStateNotification(const GdbMi &item)
     else if (newState == "inferiorill")
         notifyInferiorIll();
     else if (newState == "enginesetupfailed") {
-        Core::AsynchronousMessageBox::critical(adapterStartFailed(),
+        Utils::AsynchronousMessageBox::critical(adapterStartFailed(),
                                                item["error"].data());
         notifyEngineSetupFailed();
     } else if (newState == "enginerunfailed")

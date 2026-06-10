@@ -15,9 +15,9 @@
 #include <variantproperty.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
 #include <utils/algorithm.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -194,7 +194,7 @@ void StatesEditorModel::renameState(int internalNodeId, const QString &newName)
 
     if (newName.isEmpty() ||! m_statesEditorView->validStateName(newName)) {
         QTimer::singleShot(0, this, [newName] {
-            Core::AsynchronousMessageBox::warning(
+            Utils::AsynchronousMessageBox::warning(
                         tr("Invalid state name"),
                         newName.isEmpty() ?
                             tr("The empty string as a name is reserved for the base state.") :
@@ -330,9 +330,9 @@ bool StatesEditorModel::renameActiveStateGroup(const QString &name)
     if (!QmlDesigner::ModelNode::isValidId(name) || m_statesEditorView->hasId(name)) {
         QString errMsg = QmlDesigner::ModelNode::getIdValidityErrorMessage(name);
         if (!errMsg.isEmpty())
-            Core::AsynchronousMessageBox::warning(tr("Invalid ID"), errMsg);
+            Utils::AsynchronousMessageBox::warning(tr("Invalid ID"), errMsg);
         else
-            Core::AsynchronousMessageBox::warning(tr("Invalid ID"),
+            Utils::AsynchronousMessageBox::warning(tr("Invalid ID"),
                                                   tr("%1 already exists.").arg(name));
         return false;
     }

@@ -19,7 +19,7 @@
 #include <utils3d.h>
 #include <variantproperty.h>
 
-#include <coreplugin/messagebox.h>
+#include <utils/messagebox.h>
 
 #include <QRegularExpression>
 #include <QStack>
@@ -223,7 +223,7 @@ bool CreateTexture::addFileToProject(const QString &filePath)
                 {filePath}, ModelNodeOperations::getImagesDefaultDirectory().toUrlishString(), false);
 
     if (result.status() == AddFilesResult::Failed) {
-        Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Texture"),
+        Utils::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Texture"),
                                               Tr::tr("Could not add %1 to project.").arg(filePath));
         return false;
     }

@@ -30,6 +30,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
@@ -38,7 +39,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/perspective.h>
 
 #include <projectexplorer/buildconfiguration.h>

@@ -29,10 +29,10 @@
 #include <theme.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils3d.h>
 
@@ -151,9 +151,9 @@ void PropertyEditorView::changeValue(const QString &name)
             m_locked = false;
             QString errMsg = QmlDesigner::ModelNode::getIdValidityErrorMessage(newId);
             if (!errMsg.isEmpty())
-                Core::AsynchronousMessageBox::warning(tr("Invalid ID"), errMsg);
+                Utils::AsynchronousMessageBox::warning(tr("Invalid ID"), errMsg);
             else
-                Core::AsynchronousMessageBox::warning(tr("Invalid ID"), tr("%1 already exists.").arg(newId));
+                Utils::AsynchronousMessageBox::warning(tr("Invalid ID"), tr("%1 already exists.").arg(newId));
         }
         return;
     }
@@ -477,7 +477,7 @@ void PropertyEditorView::generateAliasForProperty(const ModelNode &modelNode, co
 
     PropertyName propertyName = aliasName.toUtf8();
     if (rootNode.hasProperty(propertyName)) {
-        Core::AsynchronousMessageBox::warning(
+        Utils::AsynchronousMessageBox::warning(
             tr("Cannot Export Property as Alias"),
             tr("Property %1 does already exist for root component.").arg(aliasName));
         return;

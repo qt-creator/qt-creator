@@ -12,10 +12,9 @@
 #include <variantproperty.h>
 #include <dialogutils.h>
 
-#include <coreplugin/messagebox.h>
-
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QLabel>
@@ -129,7 +128,7 @@ TimelineForm::TimelineForm(QWidget *parent)
             DialogUtils::showWarningForInvalidId(newId);
             error = true;
         } else if (m_timeline.view()->hasId(newId)) {
-            Core::AsynchronousMessageBox::warning(tr("Invalid Id"),
+            Utils::AsynchronousMessageBox::warning(tr("Invalid Id"),
                                                   tr("%1 already exists.").arg(newId));
             error = true;
         } else {

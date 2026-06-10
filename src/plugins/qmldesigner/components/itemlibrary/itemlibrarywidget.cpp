@@ -36,13 +36,13 @@
 #include <utils/environment.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
 #include <QApplication>
 #include <QDrag>

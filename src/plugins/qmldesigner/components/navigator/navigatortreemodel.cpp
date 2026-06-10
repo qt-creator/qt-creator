@@ -37,6 +37,7 @@
 #include <qmlprojectmanager/qmlproject.h>
 
 #include <utils/algorithm.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
@@ -50,8 +51,6 @@
 #include <QFile>
 #include <QPixmap>
 #include <QTimer>
-
-#include <coreplugin/messagebox.h>
 
 #include <QtDebug>
 

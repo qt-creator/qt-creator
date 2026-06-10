@@ -20,8 +20,7 @@
 #include <uniquename.h>
 #include <variantproperty.h>
 
-#include <coreplugin/messagebox.h>
-
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
@@ -489,7 +488,7 @@ bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog)
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (!view || !view->model() || !document || document->inFileComponentModelActive()) {
         if (!suppressWarningDialog) {
-            Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Import"),
+            Utils::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Import"),
                                                   Tr::tr("Could not add QtQuick3D import to the document."));
         }
         return false;

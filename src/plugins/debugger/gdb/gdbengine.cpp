@@ -26,7 +26,6 @@
 #include <debugger/threadshandler.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/perspective.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -39,6 +38,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>

@@ -22,7 +22,6 @@
 
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/perspective.h>
 #include <coreplugin/session.h>
 
@@ -38,6 +37,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
 #include <utils/fancymainwindow.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>

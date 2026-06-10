@@ -28,12 +28,12 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
 #include <utils/algorithm.h>
 #include <qmldesignerutils/asset.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QFileDialog>
@@ -505,7 +505,7 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
             if (isDir)
                 m_assetsModel->updateExpandPath(src, dest);
         } else if (isDir) {
-            Core::AsynchronousMessageBox::warning(
+            Utils::AsynchronousMessageBox::warning(
                 Tr::tr("Failed to Move Folder"),
                 Tr::tr("Failed to move folder \"%1\". The folder might contain subfolders or one "
                        "of its files is in use.")
@@ -564,7 +564,7 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
                                                                            targetDirPath,
                                                                            false);
             if (result.status() == AddFilesResult::Failed) {
-                QWidget *w = Core::AsynchronousMessageBox::warning(
+                QWidget *w = Utils::AsynchronousMessageBox::warning(
                     Tr::tr("Failed to Add Files"),
                     Tr::tr("Could not add %1 to project.").arg(simpleFilePathStrings.join(' ')));
                 // Avoid multiple modal dialogs open at the same time
@@ -813,7 +813,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
     }
 
     if (!failedOpsFiles.isEmpty()) {
-        QWidget *w = Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Files"),
+        QWidget *w = Utils::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Files"),
                                                            Tr::tr("Could not add %1 to project.")
                                                                .arg(failedOpsFiles.join(' ')));
         // Avoid multiple modal dialogs open at the same time
@@ -822,7 +822,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
             mb->exec();
     }
     if (!unsupportedFiles.isEmpty()) {
-        Core::AsynchronousMessageBox::warning(
+        Utils::AsynchronousMessageBox::warning(
             Tr::tr("Failed to Add Files"),
             Tr::tr("Could not add %1 to project. Unsupported file format.")
                 .arg(unsupportedFiles.join(' ')));

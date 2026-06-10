@@ -21,8 +21,8 @@
 
 #include <qmldesigner/settings/designersettings.h>
 
-#include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -179,7 +179,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
         NodeMetaInfo metaInfo = m_model->metaInfo(typeName.toLatin1());
         if (!metaInfo.isValid()) {
-            Core::AsynchronousMessageBox::warning(tr("Invalid Type"),
+            Utils::AsynchronousMessageBox::warning(tr("Invalid Type"),
                                                   tr("%1 is an invalid type.").arg(typeName));
             return;
         }
@@ -467,7 +467,7 @@ QQmlComponent *PropertyEditorContextObject::specificQmlComponent()
     const bool showError = qEnvironmentVariableIsSet(Constants::ENVIRONMENT_SHOW_QML_ERRORS);
     if (showError && !m_specificQmlData.isEmpty() && !m_qmlComponent->errors().isEmpty()) {
         const QString errMsg = m_qmlComponent->errors().constFirst().toString();
-        Core::AsynchronousMessageBox::warning(tr("Invalid QML source"), errMsg);
+        Utils::AsynchronousMessageBox::warning(tr("Invalid QML source"), errMsg);
     }
 
     return m_qmlComponent;

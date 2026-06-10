@@ -104,7 +104,6 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/locator/directoryfilter.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
@@ -130,6 +129,7 @@
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
+#include <utils/messagebox.h>
 #include <utils/mimeutils.h>
 #include <utils/processinterface.h>
 #include <utils/proxyaction.h>
@@ -2821,7 +2821,7 @@ static void showRenameDiagnostics(
                            .arg(pathsToHtmlList(skippedRenames));
     }
 
-    Core::AsynchronousMessageBox::warning(Tr::tr("Renaming Issues"), messageBody);
+    Utils::AsynchronousMessageBox::warning(Tr::tr("Renaming Issues"), messageBody);
 }
 
 FilePairs ProjectExplorerPlugin::renameFiles(

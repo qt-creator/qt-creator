@@ -16,7 +16,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 
@@ -38,6 +37,7 @@
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
+#include <utils/messagebox.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 

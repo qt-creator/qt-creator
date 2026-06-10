@@ -21,7 +21,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <cppeditor/cppmodelmanager.h>
@@ -46,6 +45,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
+#include <utils/messagebox.h>
 #include <utils/progressindicator.h>
 #include <utils/proxyaction.h>
 #include <utils/stringutils.h>

@@ -10,12 +10,13 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
+
+#include <utils/messagebox.h>
 
 #include <QMessageBox>
 #include <QProgressDialog>
@@ -108,13 +109,13 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
 
         bool success = ResourceGenerator::createQrc(project, qrcFilePath);
         if (!success) {
-            Core::AsynchronousMessageBox::critical(Tr::tr("Error"),
+            Utils::AsynchronousMessageBox::critical(Tr::tr("Error"),
                                                    Tr::tr("Failed to generate QRC resource file.")
                                                        + "\n" + qrcFilePath.toUserOutput());
             return;
         }
 
-        Core::AsynchronousMessageBox::information(Tr::tr("Success"),
+        Utils::AsynchronousMessageBox::information(Tr::tr("Success"),
                                                   Tr::tr(
                                                       "Successfully generated QRC resource file.")
                                                       + "\n" + qrcFilePath.toUrlishString());

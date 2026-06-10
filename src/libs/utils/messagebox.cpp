@@ -3,11 +3,11 @@
 
 #include "messagebox.h"
 
+#include "guiutils.h"
+
 #include <QMessageBox>
 
-#include "icore.h"
-
-namespace Core {
+namespace Utils {
 namespace AsynchronousMessageBox {
 
 namespace {
@@ -18,7 +18,7 @@ QWidget *message(QMessageBox::Icon icon, const QString &title, const QString &de
                                               title,
                                               desciption,
                                               QMessageBox::Ok,
-                                              Core::ICore::dialogParent());
+                                              Utils::dialogParent());
 
     messageBox->setAttribute(Qt::WA_DeleteOnClose);
     messageBox->setModal(true);

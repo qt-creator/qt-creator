@@ -213,6 +213,8 @@ QtcLibrary {
         "markdownbrowser.h",
         "mathutils.cpp",
         "mathutils.h",
+        "messagebox.cpp",
+        "messagebox.h",
         "mimeconstants.h",
         "mimeutils.h",
         "minimizableinfobars.cpp",

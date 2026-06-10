@@ -220,8 +220,6 @@ add_qtc_plugin(Core
     mcp/mcpmanager.h
     mcp/mcpregistry.cpp
     mcp/mcpregistry.h
-    messagebox.cpp
-    messagebox.h
     messagemanager.cpp
     messagemanager.h
     mimetypemagicdialog.cpp

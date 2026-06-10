@@ -9,7 +9,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -18,6 +17,7 @@
 
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
+#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
@@ -159,7 +159,7 @@ void PerfConfigWidget::readTracePoints()
 void PerfConfigWidget::handleProcessDone()
 {
     if (m_process->error() == QProcess::FailedToStart) {
-        Core::AsynchronousMessageBox::warning(
+        Utils::AsynchronousMessageBox::warning(
                     Tr::tr("Cannot List Trace Points"),
                     Tr::tr("\"perf probe -l\" failed to start. Is perf installed?"));
         useTracePointsButton->setEnabled(true);
@@ -181,7 +181,7 @@ void PerfConfigWidget::handleProcessDone()
     }
 
     if (tracePoints.isEmpty()) {
-        Core::AsynchronousMessageBox::warning(
+        Utils::AsynchronousMessageBox::warning(
                     Tr::tr("No Trace Points Found"),
                     Tr::tr("Trace points can be defined with \"perf probe -a\"."));
     } else {

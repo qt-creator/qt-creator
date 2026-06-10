@@ -7,8 +7,8 @@
 #include "symbolpathsdialog.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
+#include <utils/messagebox.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
 
@@ -85,13 +85,13 @@ void CacheDirectoryDialog::accept()
     }
     // Does a file of the same name exist?
     if (cache.exists()) {
-        Core::AsynchronousMessageBox::warning(Tr::tr("Already Exists"),
+        Utils::AsynchronousMessageBox::warning(Tr::tr("Already Exists"),
                                               Tr::tr("A file named \"%1\" already exists.").arg(cache.toUserOutput()));
         return;
     }
     // Create
     if (!cache.ensureWritableDir()) {
-        Core::AsynchronousMessageBox::warning(Tr::tr("Cannot Create"),
+        Utils::AsynchronousMessageBox::warning(Tr::tr("Cannot Create"),
                                               Tr::tr("The folder \"%1\" could not be created.").arg(cache.toUserOutput()));
         return;
     }

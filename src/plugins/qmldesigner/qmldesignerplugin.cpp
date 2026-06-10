@@ -48,7 +48,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/iwizardfactory.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -63,6 +62,7 @@
 #include <utils/algorithm.h>
 #include <utils/guard.h>
 #include <utils/hostosinfo.h>
+#include <utils/messagebox.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
@@ -173,7 +173,7 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
                     || document->language() == QmlJS::Dialect::Qml;
 
         if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN) {
-            Core::AsynchronousMessageBox::warning(
+            Utils::AsynchronousMessageBox::warning(
                 Tr::tr("Cannot Open Design Mode"),
                 Tr::tr("The QML file is not currently opened in a QML Editor."));
             Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
@@ -253,7 +253,7 @@ Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
 
     Exception::setShowExceptionCallback([&](QStringView title, QStringView description) {
         const QString composedTitle = title.isEmpty() ? Tr::tr("Error") : title.toString();
-        Core::AsynchronousMessageBox::warning(composedTitle, description.toString());
+        Utils::AsynchronousMessageBox::warning(composedTitle, description.toString());
     });
 
     return Utils::ResultOk;

@@ -21,8 +21,8 @@
 #include <studioquickwidget.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QQmlEngine>
@@ -120,7 +120,7 @@ private:
             for (const QQmlError &error : errors())
                 errorString += "\n" + error.toString();
 
-            Core::AsynchronousMessageBox::warning(
+            Utils::AsynchronousMessageBox::warning(
                 Tr::tr("Cannot Create QtQuick View"),
                 Tr::tr("ConnectionsEditorWidget: %1 cannot be created: %2")
                     .arg(connectionsEditorResourcesPath(), errorString));

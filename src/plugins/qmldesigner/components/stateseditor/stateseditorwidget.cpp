@@ -11,9 +11,9 @@
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
-#include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -134,7 +134,7 @@ void StatesEditorWidget::reloadQmlSource()
         for (const QQmlError &error : errors())
             errorString += "\n" + error.toString();
 
-        Core::AsynchronousMessageBox::warning(tr("Cannot Create QtQuick View"),
+        Utils::AsynchronousMessageBox::warning(tr("Cannot Create QtQuick View"),
                                               tr("StatesEditorWidget: %1 cannot be created.%2")
                                                   .arg(qmlSourcesPath(), errorString));
         return;

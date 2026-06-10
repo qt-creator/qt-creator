@@ -15,6 +15,7 @@
 #include <qmlitemnode.h>
 #include <variantproperty.h>
 
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
 
@@ -22,7 +23,6 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -333,7 +333,7 @@ void DocumentManager::addFileToVersionControl(const QString &directoryPath, cons
                                                                           versionControl),
                                     QMessageBox::Yes | QMessageBox::No);
         if (button == QMessageBox::Yes && !versionControl->vcsAdd(FilePath::fromString(newFilePath))) {
-            Core::AsynchronousMessageBox::warning(Core::VcsManager::msgAddToVcsFailedTitle(),
+            Utils::AsynchronousMessageBox::warning(Core::VcsManager::msgAddToVcsFailedTitle(),
                                                   Core::VcsManager::msgAddToVcsFailed(
                                                       QStringList(newFilePath), versionControl));
         }

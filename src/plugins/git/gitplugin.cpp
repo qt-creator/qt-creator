@@ -34,7 +34,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/locator/commandlocator.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
@@ -49,6 +48,7 @@
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
+#include <utils/messagebox.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>

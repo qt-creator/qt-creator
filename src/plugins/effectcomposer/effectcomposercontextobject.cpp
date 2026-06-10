@@ -15,8 +15,8 @@
 #include <qmltimelinekeyframegroup.h>
 #include <variantproperty.h>
 
-#include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>

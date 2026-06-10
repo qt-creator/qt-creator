@@ -37,7 +37,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/perspective.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -67,6 +66,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/messagebox.h>
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>

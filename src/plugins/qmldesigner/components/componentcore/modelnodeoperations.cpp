@@ -45,7 +45,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -64,6 +63,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/messagebox.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -737,7 +737,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
     if (!qmlObjectNode.isValid()) {
         QString title = Tr::tr("Go to Implementation");
         QString description = Tr::tr("Invalid component.");
-        Core::AsynchronousMessageBox::warning(title, description);
+        Utils::AsynchronousMessageBox::warning(title, description);
         return;
     }
 
@@ -764,7 +764,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
     if (usages.isEmpty()) {
         QString title = Tr::tr("Go to Implementation");
         QString description = Tr::tr("Cannot find an implementation.");
-        Core::AsynchronousMessageBox::warning(title, description);
+        Utils::AsynchronousMessageBox::warning(title, description);
         return;
     }
 
@@ -1157,7 +1157,7 @@ static void setIndexProperty(const AbstractProperty &property, const QVariant &v
 
     QString title = Tr::tr("Cannot Set Property %1").arg(propertyName);
     QString description = Tr::tr("The property %1 is bound to an expression.").arg(propertyName);
-    Core::AsynchronousMessageBox::warning(title, description);
+    Utils::AsynchronousMessageBox::warning(title, description);
 }
 
 static std::optional<int> getIndexProperty(const AbstractProperty &property)
@@ -2178,7 +2178,7 @@ ModelNode handleItemLibraryImageDrop(const QString &imagePath,
             {imagePath}, getImagesDefaultDirectory().toUrlishString(), false);
 
         if (result.status() == AddFilesResult::Failed) {
-            Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Image"),
+            Utils::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Image"),
                                                   Tr::tr("Could not add %1 to project.").arg(imagePath));
             return {};
         }

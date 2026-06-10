@@ -28,12 +28,12 @@
 #include <qmldesigner/settings/designersettings.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 #include <qmljs/qmljssimplereader.h>
 #include <utils/algorithm.h>
 #include <utils/array.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/messagebox.h>
 #include <utils/smallstring.h>
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -496,7 +496,7 @@ void PropertyEditorQmlBackend::setSource(const QUrl &url)
 
     if (showError && !m_view->errors().isEmpty()) {
         const QString errMsg = m_view->errors().constFirst().toString();
-        Core::AsynchronousMessageBox::warning(Tr::tr("Invalid QML Source"), errMsg);
+        Utils::AsynchronousMessageBox::warning(Tr::tr("Invalid QML Source"), errMsg);
     }
 }
 

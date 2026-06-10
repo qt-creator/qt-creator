@@ -14,10 +14,10 @@
 #include "simplifytype.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
 #include <utils/basetreeview.h>
 #include <utils/fileutils.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -345,7 +345,7 @@ void StackHandler::saveTaskFile()
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QString msg = Tr::tr("Cannot open \"%1\": %2")
                     .arg(QDir::toNativeSeparators(fileName), file.errorString());
-            Core::AsynchronousMessageBox::warning(Tr::tr("Cannot Open Task File"), msg);
+            Utils::AsynchronousMessageBox::warning(Tr::tr("Cannot Open Task File"), msg);
         }
     }
 

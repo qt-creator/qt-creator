@@ -29,9 +29,9 @@
 #include <qmltimelinekeyframegroup.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
 #include <utils/algorithm.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>
@@ -279,7 +279,7 @@ QHash<QString, QStringList> getPropertiesForStateGroup(const ModelNode &stateGro
 
 void TransitionEditorView::showWarningNoStates()
 {
-    Core::AsynchronousMessageBox::warning(tr("No States Defined"),
+    Utils::AsynchronousMessageBox::warning(tr("No States Defined"),
                                           tr("There are no states defined in this component."));
 }
 
@@ -292,7 +292,7 @@ void TransitionEditorView::showWarningNoProperties()
         properties.append(QString::fromUtf8(property) + ", ");
     if (!properties.isEmpty())
         properties.chop(2);
-    Core::AsynchronousMessageBox::warning(
+    Utils::AsynchronousMessageBox::warning(
         tr("No Property Changes to Animate"),
         tr("To add transitions, first change the properties that you want to animate in states (%1).")
             .arg(properties));

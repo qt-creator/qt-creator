@@ -16,9 +16,8 @@
 #include <rewritertransaction.h>
 #include <variantproperty.h>
 
-#include <coreplugin/messagebox.h>
-
 #include <utils/algorithm.h>
+#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 
 namespace QmlDesigner {
@@ -50,7 +49,7 @@ TransitionForm::TransitionForm(QWidget *parent)
             DialogUtils::showWarningForInvalidId(newId);
             error = true;
         } else if (m_transition.view()->hasId(newId)) {
-            Core::AsynchronousMessageBox::warning(tr("Invalid ID"),
+            Utils::AsynchronousMessageBox::warning(tr("Invalid ID"),
                                                   tr("%1 already exists.").arg(newId));
             error = true;
         } else {
