@@ -187,8 +187,8 @@ void DocumentClangToolRunner::run()
 
     const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
     const RunSettings &runSettings = projectSettings->useGlobalSettings()
-                                   ? ClangToolsSettings::instance()->runSettings
-                                   : projectSettings->runSettings;
+                                   ? static_cast<const RunSettings &>(*ClangToolsSettings::instance())
+                                   : static_cast<const RunSettings &>(*projectSettings);
     m_suppressed = projectSettings->suppressedDiagnostics();
     m_lastProjectDirectory = project->projectDirectory();
     m_projectSettingsUpdate = connect(projectSettings.get(), &ClangToolsProjectSettings::changed,

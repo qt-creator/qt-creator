@@ -65,7 +65,7 @@ SettingsWidget::SettingsWidget()
     m_clangTidyPathChooser = createPathChooser(ClangToolType::Tidy);
     m_clazyStandalonePathChooser = createPathChooser(ClangToolType::Clazy);
 
-    m_settings->runSettings.diagnosticConfigId.setEditWidgetFactory(
+    m_settings->diagnosticConfigId.setEditWidgetFactory(
         [this](const ClangDiagnosticConfigs &configs, const Id &id)
             -> ClangDiagnosticConfigsWidget * {
             FilePath tidy = m_clangTidyPathChooser->unexpandedFilePath();
@@ -89,7 +89,7 @@ SettingsWidget::SettingsWidget()
                 Tr::tr("Clazy-Standalone:"), m_clazyStandalonePathChooser
             }
         },
-        m_settings->runSettings,
+        *m_settings,
         st
     }.attachTo(this);
 
@@ -98,7 +98,7 @@ SettingsWidget::SettingsWidget()
 
 SettingsWidget::~SettingsWidget()
 {
-    m_settings->runSettings.diagnosticConfigId.setEditWidgetFactory({});
+    m_settings->diagnosticConfigId.setEditWidgetFactory({});
 }
 
 void SettingsWidget::apply()
@@ -107,9 +107,8 @@ void SettingsWidget::apply()
                               m_clangTidyPathChooser->unexpandedFilePath());
     m_settings->setExecutable(ClangToolType::Clazy,
                               m_clazyStandalonePathChooser->unexpandedFilePath());
-    m_settings->setDiagnosticConfigs(
-        m_settings->runSettings.diagnosticConfigId.customConfigs());
-    m_settings->runSettings.apply();
+    m_settings->setDiagnosticConfigs(m_settings->diagnosticConfigId.customConfigs());
+    m_settings->apply();
     m_settings->writeSettings();
 }
 

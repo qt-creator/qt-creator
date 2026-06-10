@@ -93,7 +93,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
             &m_restoreGlobal, st, gotoClangTidyModeLabel, gotoClazyModeLabel
         },
 
-        m_projectSettings->runSettings,
+        *m_projectSettings,
 
         Group {
             title(Tr::tr("Suppressed diagnostics")),
@@ -116,14 +116,12 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed, this,
             [this] { onGlobalCustomChanged(m_projectSettings->useGlobalSettings()); });
     connect(&m_restoreGlobal, &QPushButton::clicked, this, [this] {
-        // Copy global run settings values to the project's run settings.
-        const RunSettings &global = ClangToolsSettings::instance()->runSettings;
-        RunSettings &ps = m_projectSettings->runSettings;
-        ps.diagnosticConfigId.setValue(global.safeDiagnosticConfigId());
-        ps.parallelJobs.setValue(global.parallelJobs());
-        ps.preferConfigFile.setValue(global.preferConfigFile());
-        ps.buildBeforeAnalysis.setValue(global.buildBeforeAnalysis());
-        ps.analyzeOpenFiles.setValue(global.analyzeOpenFiles());
+        const ClangToolsSettings *global = ClangToolsSettings::instance();
+        m_projectSettings->diagnosticConfigId.setValue(global->safeDiagnosticConfigId());
+        m_projectSettings->parallelJobs.setValue(global->parallelJobs());
+        m_projectSettings->preferConfigFile.setValue(global->preferConfigFile());
+        m_projectSettings->buildBeforeAnalysis.setValue(global->buildBeforeAnalysis());
+        m_projectSettings->analyzeOpenFiles.setValue(global->analyzeOpenFiles());
     });
 
     connect(gotoClangTidyModeLabel, &QLabel::linkActivated, [](const QString &) {
@@ -136,10 +134,10 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     // The run settings aspects (including diagnosticConfigId) auto-apply since
     // ClangToolsProjectSettings::runSettings has autoApply=true.
     // Save custom diagnostic configs to global settings when the aspect changes.
-    connect(&m_projectSettings->runSettings.diagnosticConfigId,
+    connect(&m_projectSettings->diagnosticConfigId,
             &Utils::BaseAspect::changed, this, [this] {
                 ClangToolsSettings::instance()->setDiagnosticConfigs(
-                    m_projectSettings->runSettings.diagnosticConfigId.customConfigs());
+                    m_projectSettings->diagnosticConfigId.customConfigs());
                 ClangToolsSettings::instance()->writeSettings();
             });
 
@@ -165,7 +163,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
 
 void ClangToolsProjectSettingsWidget::onGlobalCustomChanged(bool useGlobal)
 {
-    m_projectSettings->runSettings.setEnabled(!useGlobal);
+    m_projectSettings->setRunSettingsEnabled(!useGlobal);
     m_restoreGlobal.setEnabled(!useGlobal);
 }
 

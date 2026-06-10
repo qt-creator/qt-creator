@@ -44,6 +44,7 @@ public:
 
     Utils::Id safeDiagnosticConfigId() const;
     bool hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) const;
+    void setRunSettingsEnabled(bool enabled);
 
     CppEditor::DiagnosticConfigIdAspect diagnosticConfigId{this};
     Utils::IntegerAspect parallelJobs{this};
@@ -52,7 +53,7 @@ public:
     Utils::BoolAspect analyzeOpenFiles{this};
 };
 
-class ClangToolsSettings final : public Utils::AspectContainer
+class ClangToolsSettings final : public RunSettings
 {
     ClangToolsSettings();
 
@@ -75,9 +76,6 @@ public:
 
     static VersionAndSuffix clangTidyVersion();
     static QVersionNumber clazyVersion();
-
-    // Run settings
-    RunSettings runSettings{{}}; // no prefix.
 
 private:
     void readSettings() override;
@@ -109,7 +107,7 @@ public:
 
 using SuppressedDiagnosticsList = QList<SuppressedDiagnostic>;
 
-class ClangToolsProjectSettings : public Utils::AspectContainer
+class ClangToolsProjectSettings : public RunSettings
 {
     Q_OBJECT
 
@@ -133,8 +131,6 @@ public:
 
     using ClangToolsProjectSettingsPtr = std::shared_ptr<ClangToolsProjectSettings>;
     static ClangToolsProjectSettingsPtr getSettings(ProjectExplorer::Project *project);
-
-    RunSettings runSettings;
 
 signals:
     void suppressedDiagnosticsChanged();

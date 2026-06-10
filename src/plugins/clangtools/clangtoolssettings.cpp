@@ -116,10 +116,18 @@ bool RunSettings::hasConfigFileForSourceFile(const FilePath &sourceFile) const
     return !sourceFile.searchHereAndInParents(".clang-tidy", DirFilterFlag::Files).isEmpty();
 }
 
-ClangToolsSettings::ClangToolsSettings()
+void RunSettings::setRunSettingsEnabled(bool enabled)
 {
-    registerAspect(&runSettings);
+    diagnosticConfigId.setEnabled(enabled);
+    parallelJobs.setEnabled(enabled);
+    preferConfigFile.setEnabled(enabled);
+    buildBeforeAnalysis.setEnabled(enabled);
+    analyzeOpenFiles.setEnabled(enabled);
+}
 
+ClangToolsSettings::ClangToolsSettings()
+    : RunSettings({})
+{
     setSettingsGroup(Constants::SETTINGS_ID);
 
     clangTidyExecutable.setSettingsKey("ClangTidyExecutable");
@@ -139,12 +147,6 @@ void ClangToolsSettings::readSettings()
     QtcSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
     m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
-
-    // Run settings
-    Store map;
-    map.insert(diagnosticConfigIdKey,
-               s->value(diagnosticConfigIdKey, defaultDiagnosticId().toSetting()));
-
     s->endGroup();
 }
 
@@ -154,13 +156,7 @@ void ClangToolsSettings::writeSettings() const
 
     QtcSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
-
     diagnosticConfigsToSettings(s, m_diagnosticConfigs);
-
-    Store map;
-    for (Store::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
-        s->setValue(it.key(), it.value());
-
     s->endGroup();
 
     emit const_cast<ClangToolsSettings *>(this)->changed(); // FIXME: This is the wrong place
@@ -217,12 +213,12 @@ const char SETTINGS_KEY_SUPPRESSED_DIAGS_MESSAGE[] = "ClangTools.SuppressedDiagn
 const char SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER[] = "ClangTools.SuppressedDiagnosticUniquifier";
 
 ClangToolsProjectSettings::ClangToolsProjectSettings(ProjectExplorer::Project *project)
-    : runSettings(SETTINGS_PREFIX_PROJECT), m_project(project)
+    : RunSettings(SETTINGS_PREFIX_PROJECT), m_project(project)
 {
     useGlobalSettings.setDefaultValue(true);
 
     // Set the edit-widget factory for the project context (uses saved tool paths).
-    runSettings.diagnosticConfigId.setEditWidgetFactory(
+    diagnosticConfigId.setEditWidgetFactory(
         [](const CppEditor::ClangDiagnosticConfigs &configs, const Utils::Id &id)
             -> CppEditor::ClangDiagnosticConfigsWidget * {
             return new DiagnosticConfigsWidget(
@@ -347,7 +343,7 @@ void ClangToolsProjectSettings::load()
     }
     emit suppressedDiagnosticsChanged();
 
-    runSettings.fromMap(map);
+    fromMap(map);
 
     if (write)
         store();
@@ -375,7 +371,7 @@ void ClangToolsProjectSettings::store()
     }
     map.insert(SETTINGS_KEY_SUPPRESSED_DIAGS, list);
 
-    runSettings.toMap(map);
+    toMap(map);
 
     m_project->setNamedSettings(SETTINGS_KEY_MAIN, variantFromStore(map));
 }

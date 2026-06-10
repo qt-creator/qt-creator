@@ -356,9 +356,9 @@ static RunSettings &runSettings()
     if (Project *project = ProjectManager::startupProject()) {
         const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())
-            return projectSettings->runSettings;
+            return *projectSettings;
     }
-    return ClangToolsSettings::instance()->runSettings;
+    return *ClangToolsSettings::instance();
 }
 
 ClangTool::~ClangTool()
