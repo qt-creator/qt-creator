@@ -265,7 +265,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     if constexpr (has_onReturnPressed<T>) {
         const auto callback = children.get<sol::optional<sol::main_function>>("onReturnPressed"sv);
         if (callback) {
-            item->onReturnPressed(guard, [func = *callback]() { void_safe_call(func); });
+            item->onReturnPressed(guard, [func = *callback](auto &) { void_safe_call(func); });
         }
     }
 

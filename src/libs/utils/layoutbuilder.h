@@ -410,7 +410,7 @@ public:
     void setRightSideIconPath(const Utils::FilePath &path);
     QCompleter *completer() const;
     void setCompleter(QCompleter *completer);
-    void onReturnPressed(QObject *guard, const std::function<void()> &);
+    void onReturnPressed(QObject *guard, const std::function<void(Implementation &)> &);
     void onRightSideIconClicked(QObject *guard, const std::function<void()> &);
     void onTextChanged(QObject *guard, const std::function<void(QString)> &func);
     Utils::CompletingTextEdit::CompletionBehavior completionBehavior() const;
@@ -429,9 +429,9 @@ public:
     QString text() const;
     void setText(const QString &);
     void setRightSideIconPath(const Utils::FilePath &path);
-    void setPlaceHolderText(const QString &text);
+    void setPlaceholderText(const QString &text);
     void setCompleter(QCompleter *completer);
-    void onReturnPressed(QObject *guard, const std::function<void()> &);
+    void onReturnPressed(QObject *guard, const std::function<void(Implementation &)> &);
     void onRightSideIconClicked(QObject *guard, const std::function<void()> &);
 };
 
@@ -703,6 +703,7 @@ QTC_DEFINE_BUILDER_SETTER(maximumWidth, setMaximumWidth)
 QTC_DEFINE_BUILDER_SETTER(maximumHeight, setMaximumHeight)
 QTC_DEFINE_BUILDER_SETTER(minimumWidth, setMinimumWidth)
 QTC_DEFINE_BUILDER_SETTER(minimumHeight, setMinimumHeight)
+QTC_DEFINE_BUILDER_SETTER(onReturnPressed, onReturnPressed)
 
 // Nesting dispatchers
 

@@ -6,6 +6,7 @@
 
 #include "algorithm.h"
 #include "environment.h"
+#include "filedialog.h"
 #include "qtcassert.h"
 #include "utilstr.h"
 
@@ -288,36 +289,6 @@ static QUrl filePathToQUrl(const FilePath &filePath)
     return QUrl::fromLocalFile(filePath.toFSPathString());
 }
 
-static void prepareNonNativeDialog(QFileDialog &dialog)
-{
-    const auto isValidSideBarPath = [](const FilePath &fp) {
-        return fp.isLocal() || fp.hasFileAccess();
-    };
-
-    // Checking QFileDialog::itemDelegate() seems to be the only way to determine
-    // whether the dialog is native or not.
-    if (dialog.itemDelegate()) {
-        FilePaths sideBarPaths;
-
-        // Check existing urls, remove paths that need a device and are no longer valid.
-        for (const QUrl &url : dialog.sidebarUrls()) {
-            FilePath path = FilePath::fromUrl(url);
-            if (isValidSideBarPath(path))
-                sideBarPaths.append(path);
-        }
-
-        // Add all device roots that are not already in the sidebar and valid.
-        for (const FilePath &path : FSEngine::registeredDeviceRoots()) {
-            if (!sideBarPaths.contains(path) && isValidSideBarPath(path))
-                sideBarPaths.append(path);
-        }
-
-        dialog.setSidebarUrls(Utils::transform(sideBarPaths, filePathToQUrl));
-        dialog.setIconProvider(Utils::FileIconProvider::iconProvider());
-        dialog.setFilter(QDir::Hidden | dialog.filter());
-    }
-}
-
 FilePaths getFilePaths(const QString &caption,
                        const FilePath &dir,
                        const QString &filter,
@@ -328,14 +299,32 @@ FilePaths getFilePaths(const QString &caption,
                        QFileDialog::FileMode fileMode,
                        QFileDialog::AcceptMode acceptMode)
 {
+#ifdef QT_DEBUG
+    const bool shiftPressed = QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier);
+#else
+    const bool shiftPressed = false;
+#endif
+    if (!hasNativeFileDialog() || forceNonNativeDialog || shiftPressed || !dir.isLocal()
+        || options.testFlag(QFileDialog::DontUseNativeDialog)) {
+        FileDialog dialog(dialogParent());
+        dialog.setMode(fileMode);
+        if (!caption.isEmpty())
+            dialog.setWindowTitle(caption);
+        dialog.setDirectory(dir.isEmpty() ? FilePath::fromString(QDir::homePath()) : dir);
+        if (!filter.isEmpty())
+            dialog.setNameFilters({filter});
+        dialog.setAcceptMode(acceptMode);
+        if (dialog.exec() == QDialog::Accepted) {
+            if (selectedFilter)
+                *selectedFilter = dialog.selectedNameFilter();
+            return dialog.selectedFiles();
+        }
+        return {};
+    }
+
     QFileDialog dialog(dialogParent(), caption, dir.toFSPathString(), filter);
     dialog.setFileMode(fileMode);
-
-    if (forceNonNativeDialog || !dir.isLocal())
-        options.setFlag(QFileDialog::DontUseNativeDialog);
-
     dialog.setOptions(options);
-    prepareNonNativeDialog(dialog);
 
     dialog.setSupportedSchemes(supportedSchemes);
     dialog.setAcceptMode(acceptMode);
@@ -357,15 +346,10 @@ FilePath firstOrEmpty(const FilePaths &filePaths)
 
 bool hasNativeFileDialog()
 {
-    static std::optional<bool> hasNative;
-    if (!hasNative.has_value()) {
-        // Checking QFileDialog::itemDelegate() seems to be the only way to determine
-        // whether the dialog is native or not.
-        QFileDialog dialog;
-        hasNative = dialog.itemDelegate() == nullptr;
-    }
-
-    return *hasNative;
+    // Checking QFileDialog::itemDelegate() seems to be the only way to determine
+    // whether the dialog is native or not.
+    static bool hasNative = QFileDialog().itemDelegate() == nullptr;
+    return hasNative;
 }
 
 FilePath getOpenFilePath(const QString &caption,

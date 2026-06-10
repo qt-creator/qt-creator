@@ -1407,9 +1407,14 @@ QCompleter *CompletingTextEdit::completer() const
     Connects \a func to the CompletingTextEdit::returnPressed signal.
     The connection is automatically removed when \a guard is destroyed.
 */
-void CompletingTextEdit::onReturnPressed(QObject *guard, const std::function<void()> &func)
+void CompletingTextEdit::onReturnPressed(
+    QObject *guard, const std::function<void(Implementation &)> &func)
 {
-    QObject::connect(access(this), &Utils::CompletingTextEdit::returnPressed, guard, func);
+    QObject::connect(
+        access(this),
+        &Utils::CompletingTextEdit::returnPressed,
+        guard,
+        [func, self = access(this)]() { func(*self); });
 }
 
 /*!
@@ -2168,7 +2173,7 @@ void LineEdit::setRightSideIconPath(const Utils::FilePath &path)
     }
 }
 
-void LineEdit::setPlaceHolderText(const QString &text)
+void LineEdit::setPlaceholderText(const QString &text)
 {
     access(this)->setPlaceholderText(text);
 }
@@ -2183,10 +2188,13 @@ void LineEdit::setCompleter(QCompleter *completer)
     acceptance of Return/Enter key events so they are not propagated further.
     The connection is automatically removed when \a guard is destroyed.
 */
-void LineEdit::onReturnPressed(QObject *guard, const std::function<void()> &func)
+void LineEdit::onReturnPressed(QObject *guard, const std::function<void(Implementation &)> &func)
 {
     static_cast<LineEditImpl *>(access(this))->acceptReturnKeys = true;
-    QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, guard, func);
+    QObject::connect(
+        access(this), &Utils::FancyLineEdit::returnPressed, guard, [func, self = access(this)]() {
+            func(*self);
+        });
 }
 
 /*!

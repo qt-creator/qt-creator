@@ -653,6 +653,8 @@ void QtcIconButton::paintEvent(QPaintEvent *e)
         StyleHelper::drawPanelBgRect(&p, r, c);
     }
 
+    if (!isEnabled())
+        p.setOpacity(disabledIconOpacity);
     icon().paint(&p, r, Qt::AlignCenter);
 }
 

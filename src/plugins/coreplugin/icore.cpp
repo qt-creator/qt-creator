@@ -1823,13 +1823,11 @@ void ICorePrivate::registerDefaultActions()
     openWithAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
     openWithAction.addOnTriggered(this, &ICore::openFileWith);
 
-    if (FSEngine::isAvailable()) {
-        // Open From Device Action
-        ActionBuilder openFromDeviceAction(this, Constants::OPEN_FROM_DEVICE);
-        openFromDeviceAction.setText(Tr::tr("Open From Device..."));
-        openFromDeviceAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
-        openFromDeviceAction.addOnTriggered(this, [this] { openFileFromDevice(); });
-    }
+    // Open From Device Action
+    ActionBuilder openFromDeviceAction(this, Constants::OPEN_FROM_DEVICE);
+    openFromDeviceAction.setText(Tr::tr("Open From Device..."));
+    openFromDeviceAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
+    openFromDeviceAction.addOnTriggered(this, [this] { openFileFromDevice(); });
 
     // File->Recent Files Menu
     ActionContainer *ac = ActionManager::createMenu(Constants::M_FILE_RECENTFILES);

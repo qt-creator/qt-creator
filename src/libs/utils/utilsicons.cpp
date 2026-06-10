@@ -30,10 +30,12 @@ const Icon NEXT({
         {":/utils/images/next.png", Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
 const Icon NEXT_TOOLBAR({
         {":/utils/images/next.png", Theme::IconsNavigationArrowsColor}});
+const Icon NEXT_NEUTRAL({{":/utils/images/next.png", Theme::IconsBaseColor}});
 const Icon PREV({
         {":/utils/images/prev.png", Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
 const Icon PREV_TOOLBAR({
         {":/utils/images/prev.png", Theme::IconsNavigationArrowsColor}});
+const Icon PREV_NEUTRAL({{":/utils/images/prev.png", Theme::IconsBaseColor}});
 const Icon PROJECT({
         {":/utils/images/project.png", Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon ZOOM({
