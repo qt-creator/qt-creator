@@ -13,12 +13,12 @@ namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
 
-class QmlProfilerTraceView : public QWidget
+class QmlProfilerTraceView final : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerModelManager *modelManager);
+    explicit QmlProfilerTraceView(QmlProfilerModelManager *modelManager);
     ~QmlProfilerTraceView() override;
 
     Timeline::RangeDetailsWidget *rangeDetailsWidget() const;

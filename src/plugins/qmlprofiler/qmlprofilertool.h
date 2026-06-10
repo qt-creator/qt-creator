@@ -57,9 +57,6 @@ public:
 
     void profileStartupProject();
 
-    QAction *startAction() const;
-    QAction *stopAction() const;
-
 private:
     void clearEvents();
     void clearData();

@@ -8,7 +8,7 @@
 namespace Profiler::Internal {
 
 QmlProfilerTraceViewTest::QmlProfilerTraceViewTest()
-    : traceView(nullptr, &modelManager)
+    : traceView(&modelManager)
 {}
 
 void QmlProfilerTraceViewTest::testStateChanges()

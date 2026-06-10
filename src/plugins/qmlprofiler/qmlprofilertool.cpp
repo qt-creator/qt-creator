@@ -93,7 +93,7 @@ public:
     QmlProfilerModelManager m_profilerModelManager;
 
     Perspective m_perspective{Constants::QmlProfilerPerspectiveId, Tr::tr("QML Profiler")};
-    QmlProfilerTraceView m_traceView{nullptr, &m_profilerModelManager};
+    QmlProfilerTraceView m_traceView{&m_profilerModelManager};
     QmlProfilerStatisticsView m_statisticsView{&m_profilerModelManager};
     FlameGraphView m_flameGraphView{&m_profilerModelManager};
     Quick3DFrameView m_quick3dView{&m_profilerModelManager};
@@ -107,7 +107,7 @@ public:
     }
 
     QToolButton m_recordButton;
-    QMenu *m_recordFeaturesMenu = nullptr;
+    QMenu m_recordFeaturesMenu;
 
     QAction m_startAction;
     QAction m_stopAction;
@@ -118,7 +118,7 @@ public:
 
     // hide and show categories
     QToolButton m_displayFeaturesButton;
-    QMenu *m_displayFeaturesMenu = nullptr;
+    QMenu m_displayFeaturesMenu;
 
     // elapsed time display
     QLabel m_timeLabel;
@@ -221,10 +221,9 @@ QmlProfilerTool::QmlProfilerTool()
     connect(&d->m_recordButton, &QAbstractButton::clicked,
             this, &QmlProfilerTool::recordingButtonChanged);
     d->m_recordButton.setChecked(true);
-    d->m_recordFeaturesMenu = new QMenu(&d->m_recordButton);
-    d->m_recordButton.setMenu(d->m_recordFeaturesMenu);
+    d->m_recordButton.setMenu(&d->m_recordFeaturesMenu);
     d->m_recordButton.setPopupMode(QToolButton::MenuButtonPopup);
-    connect(d->m_recordFeaturesMenu, &QMenu::triggered,
+    connect(&d->m_recordFeaturesMenu, &QMenu::triggered,
             this, &QmlProfilerTool::toggleRequestedFeature);
 
     d->m_clearButton.setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
@@ -243,9 +242,8 @@ QmlProfilerTool::QmlProfilerTool()
     d->m_displayFeaturesButton.setToolTip(Tr::tr("Hide or show event categories."));
     d->m_displayFeaturesButton.setPopupMode(QToolButton::InstantPopup);
     d->m_displayFeaturesButton.setProperty(StyleHelper::C_NO_ARROW, true);
-    d->m_displayFeaturesMenu = new QMenu(&d->m_displayFeaturesButton);
-    d->m_displayFeaturesButton.setMenu(d->m_displayFeaturesMenu);
-    connect(d->m_displayFeaturesMenu, &QMenu::triggered,
+    d->m_displayFeaturesButton.setMenu(&d->m_displayFeaturesMenu);
+    connect(&d->m_displayFeaturesMenu, &QMenu::triggered,
             this, &QmlProfilerTool::toggleVisibleFeature);
 
     StyleHelper::setPanelWidget(&d->m_timeLabel);
@@ -318,9 +316,8 @@ QmlProfilerTool::QmlProfilerTool()
     QObject::connect(&d->m_runAction, &QAction::triggered,
                      this, &QmlProfilerTool::profileStartupProject);
 
-    QAction *toolStartAction = startAction();
-    QObject::connect(toolStartAction, &QAction::changed, this, [this, toolStartAction] {
-        d->m_runAction.setEnabled(toolStartAction->isEnabled());
+    QObject::connect(&d->m_startAction, &QAction::changed, this, [this] {
+        d->m_runAction.setEnabled(d->m_startAction.isEnabled());
     });
 
     d->m_attachAction.setText(Tr::tr("QML Profiler (Attach to Waiting Application)"));
@@ -495,11 +492,9 @@ void QmlProfilerTool::updateTimeDisplay()
 
 void QmlProfilerTool::showTimeLineSearch()
 {
-    QmlProfilerTraceView *traceView = &d->m_traceView;
-    QTC_ASSERT(traceView, return);
-    QTC_ASSERT(qobject_cast<QDockWidget *>(traceView->parentWidget()), return);
-    traceView->parentWidget()->raise();
-    traceView->setFocus();
+    QTC_ASSERT(qobject_cast<QDockWidget *>(d->m_traceView.parentWidget()), return);
+    d->m_traceView.parentWidget()->raise();
+    d->m_traceView.setFocus();
     Core::Find::openFindToolBar(Core::Find::FindForwardDirection);
 }
 
@@ -529,7 +524,7 @@ void QmlProfilerTool::setButtonsEnabled(bool enable)
     d->m_clearButton.setEnabled(enable);
     d->m_displayFeaturesButton.setEnabled(enable);
     d->m_searchButton.setEnabled(enable);
-    d->m_recordFeaturesMenu->setEnabled(enable);
+    d->m_recordFeaturesMenu.setEnabled(enable);
 }
 
 void QmlProfilerTool::createInitialTextMarks()
@@ -698,16 +693,6 @@ void QmlProfilerTool::profileStartupProject()
     ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
 }
 
-QAction *QmlProfilerTool::startAction() const
-{
-    return &d->m_startAction;
-}
-
-QAction *QmlProfilerTool::stopAction() const
-{
-    return &d->m_stopAction;
-}
-
 void QmlProfilerTool::onLoadSaveFinished()
 {
     disconnect(&d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
@@ -766,23 +751,21 @@ void QmlProfilerTool::setAvailableFeatures(quint64 features)
 {
     if (features != d->m_profilerState.requestedFeatures())
         d->m_profilerState.setRequestedFeatures(features); // by default, enable them all.
-    if (d->m_recordFeaturesMenu && d->m_displayFeaturesMenu) {
-        d->m_recordFeaturesMenu->clear();
-        d->m_displayFeaturesMenu->clear();
-        for (int feature = 0; feature < MaximumProfileFeature; ++feature) {
-            if (features & (1ULL << feature)) {
-                addFeatureToMenu(d->m_recordFeaturesMenu, ProfileFeature(feature),
-                                 d->m_profilerState.requestedFeatures());
-                addFeatureToMenu(d->m_displayFeaturesMenu, ProfileFeature(feature),
-                                 d->m_profilerModelManager.visibleFeatures());
-            }
+    d->m_recordFeaturesMenu.clear();
+    d->m_displayFeaturesMenu.clear();
+    for (int feature = 0; feature < MaximumProfileFeature; ++feature) {
+        if (features & (1ULL << feature)) {
+            addFeatureToMenu(&d->m_recordFeaturesMenu, ProfileFeature(feature),
+                             d->m_profilerState.requestedFeatures());
+            addFeatureToMenu(&d->m_displayFeaturesMenu, ProfileFeature(feature),
+                             d->m_profilerModelManager.visibleFeatures());
         }
     }
 }
 
 void QmlProfilerTool::setRecordedFeatures(quint64 features)
 {
-    const QList<QAction *> actions = d->m_displayFeaturesMenu->actions();
+    const QList<QAction *> actions = d->m_displayFeaturesMenu.actions();
     for (QAction *action : actions)
         action->setEnabled(features & (1ULL << action->data().toUInt()));
 }

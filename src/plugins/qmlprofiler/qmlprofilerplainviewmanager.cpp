@@ -47,7 +47,8 @@ QmlProfilerPlainViewManager::QmlProfilerPlainViewManager(QObject *parent)
 
 QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
 {
-    auto traceView = new Internal::QmlProfilerTraceView(parent, &d->modelManager);
+    auto traceView = new Internal::QmlProfilerTraceView(&d->modelManager);
+    traceView->setParent(parent);
     connect(traceView, &Internal::QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerPlainViewManager::gotoSourceLocation);
     connect(traceView, &Internal::QmlProfilerTraceView::typeSelected,

@@ -77,8 +77,8 @@ public:
     Timeline::TimelineZoomControl m_zoomControl;
 };
 
-QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerModelManager *modelManager)
-    : QWidget(parent), d(new QmlProfilerTraceViewPrivate)
+QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager)
+    : d(new QmlProfilerTraceViewPrivate)
 {
     setWindowTitle(Tr::tr("Timeline"));
     setObjectName("QmlProfiler.Timeline.Dock");
