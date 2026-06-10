@@ -12,23 +12,6 @@
 
 namespace Utils {
 
-QTCREATOR_UTILS_EXPORT QString fileNameToCppIdentifier(const QString &s)
-{
-    QString rc;
-    const int len = s.size();
-    const QChar underscore =  QLatin1Char('_');
-    const QChar dot =  QLatin1Char('.');
-
-    for (int i = 0; i < len; i++) {
-        const QChar c = s.at(i);
-        if (c == underscore || c.isLetterOrNumber())
-            rc += c;
-        else if (c == dot)
-            rc += underscore;
-    }
-    return rc;
-}
-
 QTCREATOR_UTILS_EXPORT
 void writeIncludeFileDirective(const QString &file, bool globalInclude,
                                QTextStream &str)
