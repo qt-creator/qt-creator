@@ -8,6 +8,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/manhattanstyle.h>
 
+#include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
@@ -29,12 +30,11 @@ using namespace Qt::StringLiterals;
 
 namespace QmlTraceViewer {
 
-static QString relativePathFromAppDirToShare()
+static FilePath relativePathFromAppDirToShare()
 {
     switch (HostOsInfo::hostOs()) {
     case OsTypeMac:
-        // TODO
-        return "../Resources";
+        return Utils::findOr(FilePaths{"../Resources", ".."}, "", &FilePath::isReadableDir);
     case OsTypeWindows:
         return "../share/qtcreator/";
     case OsTypeLinux:
@@ -54,7 +54,7 @@ static void initAppInfo()
     info.revision = Constants::IDE_REVISION_STR;
     info.revisionUrl = Constants::IDE_REVISION_URL;
     const FilePath appDirPath = FilePath::fromUserInput(QApplication::applicationDirPath());
-    info.resources = (appDirPath / relativePathFromAppDirToShare()).cleanPath();
+    info.resources = appDirPath.resolvePath(relativePathFromAppDirToShare());
 #ifdef QTC_SHOW_BUILD_DATE
     const auto dateTime = QLatin1String(__DATE__ " " __TIME__);
     info.buildTime = QDateTime::fromString(dateTime, "MMM d yyyy hh:mm:ss");
