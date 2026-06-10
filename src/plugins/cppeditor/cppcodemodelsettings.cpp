@@ -310,8 +310,14 @@ void CppCodeModelSettings::setSettingsForProject(Project *project, const CppCode
     if (project) {
         Internal::CppCodeModelProjectSettings * const ps
             = Internal::cppCodeModelProjectSettings(project);
-        ps->setData(settings);
-        ps->useGlobalSettings.setValue(false); // triggers save() + handleSettingsChange via addOnChanged
+        {
+            QSignalBlocker blocker(ps);
+            ps->setData(settings);
+        }
+        if (ps->useGlobalSettings())
+            ps->useGlobalSettings.setValue(false);
+        else
+            ps->save();
     } else {
         CppModelManager::handleSettingsChange(nullptr);
     }
