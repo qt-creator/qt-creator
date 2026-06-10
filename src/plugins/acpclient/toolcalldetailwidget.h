@@ -22,7 +22,6 @@ class MarkdownBrowser;
 namespace AcpClient::Internal {
 
 QWidget *toolCallStatusWidget(Acp::ToolCallStatus status, QWidget *parent = nullptr);
-QColor toolCallBorderColor(Acp::ToolCallStatus status);
 std::optional<Utils::Icon> iconForToolKind(std::optional<Acp::ToolKind> kind);
 
 class ToolCallDetailWidget : public CollapsibleFrame

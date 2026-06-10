@@ -621,15 +621,13 @@ protected:
     void paintEvent(QPaintEvent *) override
     {
         QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
         const QColor bg = Utils::creatorColor(Utils::Theme::ChatToolCallBackground);
-        Utils::StyleHelper::drawCardBg(&p, rect(), bg, QPen(Qt::NoPen), RadiusS);
-        QPainterPath clip;
-        clip.addRoundedRect(rect(), RadiusS, RadiusS);
-        p.setClipPath(clip);
-        p.setRenderHint(QPainter::Antialiasing, false);
-        p.fillRect(QRect(0, 0, 3, height()), QColor{0x1e, 0x90, 0xff}); // blue
-        p.setClipping(false);
+        Utils::StyleHelper::drawCardBg(&p, rect(), bg);
+        QRect clipRect = rect();
+        clipRect.setWidth(3);
+        p.setClipRect(clipRect);
+        const QColor accent = Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Muted);
+        Utils::StyleHelper::drawCardBg(&p, rect(), accent);
     }
 
 private:

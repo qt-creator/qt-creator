@@ -84,15 +84,15 @@ std::optional<Utils::Icon> iconForToolKind(std::optional<ToolKind> kind)
     return std::nullopt;
 }
 
-QColor toolCallBorderColor(ToolCallStatus status)
+Utils::Theme::Color toolCallBorderColor(ToolCallStatus status)
 {
     switch (status) {
-    case ToolCallStatus::pending:     return Qt::gray;
-    case ToolCallStatus::in_progress: return QColor{0x1e, 0x90, 0xff}; // dodgerblue
-    case ToolCallStatus::completed:   return Qt::green;
-    case ToolCallStatus::failed:      return Qt::red;
+    case ToolCallStatus::pending:     return Utils::Theme::Token_Foreground_Muted;
+    case ToolCallStatus::in_progress: return Utils::Theme::Token_Notification_Neutral_Muted;
+    case ToolCallStatus::completed:   return Utils::Theme::Token_Notification_Success_Muted;
+    case ToolCallStatus::failed:      return Utils::Theme::Token_Notification_Danger_Muted;
     }
-    return Qt::gray;
+    return Utils::Theme::ChatPlanBackground;
 }
 
 ToolCallDetailWidget::ToolCallDetailWidget(const ToolCall &toolCall, QWidget *parent)
@@ -134,18 +134,13 @@ void ToolCallDetailWidget::applyStatus(ToolCallStatus status)
 void ToolCallDetailWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
     Utils::StyleHelper::drawCardBg(&p, rect(),
-        Utils::creatorColor(Utils::Theme::ChatToolCallBackground),
-        QPen(palette().color(QPalette::Mid), 1),
-        RadiusM);
-    QPainterPath clip;
-    clip.addRoundedRect(QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5),
-                        RadiusM - 0.5, RadiusM - 0.5);
-    p.setClipPath(clip);
-    p.setRenderHint(QPainter::Antialiasing, false);
-    p.fillRect(QRect(0, 0, 3, height()), toolCallBorderColor(m_status));
-    p.setClipping(false);
+        Utils::creatorColor(Utils::Theme::ChatToolCallBackground), palette().color(QPalette::Mid));
+    QRect clipRect = rect();
+    clipRect.setWidth(3);
+    p.setClipRect(clipRect);
+    const QColor accent = Utils::creatorColor(toolCallBorderColor(m_status));
+    Utils::StyleHelper::drawCardBg(&p, rect(), accent);
 }
 
 void ToolCallDetailWidget::setContentMaxWidth(int width)
