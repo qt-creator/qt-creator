@@ -10,7 +10,6 @@
 
 #include <coreplugin/findplaceholder.h>
 
-#include <utils/elidinglabel.h>
 #include <utils/fileutils.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/styledbar.h>
@@ -19,7 +18,6 @@
 #include <utils/utilsicons.h>
 
 #include <QApplication>
-#include <QComboBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -110,48 +108,14 @@ ChatPanel::ChatPanel(QWidget *parent)
     m_agentLabel->setTextFormat(Qt::RichText);
     toolbarLayout->addWidget(m_agentLabel);
 
-    m_configOptionsWidget = new QWidget;
-    m_configOptionsLayout = new QHBoxLayout(m_configOptionsWidget);
-    m_configOptionsLayout->setContentsMargins(0, 0, 0, 0);
-    m_configOptionsLayout->setSpacing(GapHS);
-    toolbarLayout->addWidget(m_configOptionsWidget);
-
-    m_configOverflowButton = new QToolButton;
-    m_configOverflowButton->setIcon(Icons::SETTINGS_TOOLBAR.icon());
-    m_configOverflowButton->setToolTip(Tr::tr("Configuration Options"));
-    m_configOverflowButton->setAutoRaise(true);
-    m_configOverflowButton->hide();
-    connect(m_configOverflowButton, &QToolButton::clicked, this, [this] {
-        auto *menu = new QMenu(m_configOverflowButton);
-        menu->setAttribute(Qt::WA_DeleteOnClose);
-        for (const QString &id : std::as_const(m_configOrder)) {
-            QComboBox *combo = m_configCombos.value(id);
-            QLabel *label = m_configLabels.value(id);
-            if (!combo || !label || combo->count() == 0)
-                continue;
-            QString title = label->text();
-            if (title.endsWith(QLatin1Char(':')))
-                title.chop(1);
-            QMenu *sub = menu->addMenu(title);
-            for (int i = 0; i < combo->count(); ++i) {
-                QAction *a = sub->addAction(combo->itemText(i));
-                a->setCheckable(true);
-                a->setChecked(i == combo->currentIndex());
-                const QString value = combo->itemData(i).toString();
-                if (value.isEmpty()) {
-                    a->setEnabled(false); // group header
-                    continue;
-                }
-                connect(a, &QAction::triggered, this, [combo, i] {
-                    combo->setCurrentIndex(i);
-                    emit combo->activated(i);
-                });
-            }
-        }
-        menu->popup(QCursor::pos());
-    });
+    m_configButton = new QToolButton;
+    m_configButton->setIcon(Icons::SETTINGS_TOOLBAR.icon());
+    m_configButton->setToolTip(Tr::tr("Configuration Options"));
+    m_configButton->setAutoRaise(true);
+    m_configButton->hide();
+    connect(m_configButton, &QToolButton::clicked, this, &ChatPanel::showConfigMenu);
     toolbarLayout->addStretch(1);
-    toolbarLayout->addWidget(m_configOverflowButton);
+    toolbarLayout->addWidget(m_configButton);
 
     // --- Message view ---
     m_messageView = new AcpMessageView;
@@ -296,7 +260,6 @@ ChatPanel::ChatPanel(QWidget *parent)
         }
     });
 
-    // Config option combo connections are made dynamically in updateConfigOptions()
     updateContextBar();
 }
 
@@ -328,76 +291,53 @@ void ChatPanel::setSendEnabled(bool enabled)
     m_sendButton->setEnabled(enabled);
 }
 
-void ChatPanel::updateConfigOptions(const QList<SessionConfigOption> &configOptions)
+void ChatPanel::showConfigMenu()
 {
-    for (const SessionConfigOption &option : configOptions) {
+    auto *menu = new QMenu(m_configButton);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    menu->setToolTipsVisible(true);
+    for (const SessionConfigOption &option : std::as_const(m_configOptions)) {
         auto select = fromJson<SessionConfigSelect>(QJsonValue(toJson(option)));
         if (!select)
             continue;
 
-        const QString configId = option.id();
-
-        // Find or create a combo for this config option
-        QComboBox *combo = m_configCombos.value(configId);
-        if (!combo) {
-            auto *label = new ElidingLabel(option.name() + QLatin1Char(':'));
-            label->setSizePolicy(QSizePolicy::Preferred, label->sizePolicy().verticalPolicy());
-            label->setMinimumWidth(0);
-            m_configOptionsLayout->addWidget(label);
-            m_configLabels.insert(configId, label);
-            m_configOrder.append(configId);
-            combo = new QComboBox;
-            combo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-            combo->setMinimumContentsLength(3);
-            QSizePolicy policy = combo->sizePolicy();
-            policy.setHorizontalPolicy(QSizePolicy::Preferred);
-            combo->setSizePolicy(policy);
-
-            if (option.description().has_value())
-                combo->setToolTip(*option.description());
-            m_configOptionsLayout->addWidget(combo);
-            m_configCombos.insert(configId, combo);
-
-            connect(combo, &QComboBox::activated, this, [this, configId, combo](int index) {
-                const QString value = combo->itemData(index).toString();
-                if (!value.isEmpty())
-                    emit configOptionChanged(configId, value);
-            });
-        }
-
-        const QSignalBlocker blocker(combo);
-        combo->clear();
-
-        int currentIndex = 0;
+        const QString id = option.id();
         const QString currentValue = select->currentValue();
+
+        QMenu *sub = menu->addMenu(option.name());
+
+        const auto addOption = [&](const SessionConfigSelectOption &opt, const QString &prefix) {
+            QAction *a = sub->addAction(prefix + opt.name());
+            if (auto tooltip = opt.description())
+                a->setToolTip(*tooltip);
+            a->setCheckable(true);
+            a->setChecked(opt.value() == currentValue);
+            const QString value = opt.value();
+            connect(a, &QAction::triggered, this, [this, id, value] {
+                emit configOptionChanged(id, value);
+            });
+        };
 
         const auto &opts = select->options();
         if (auto *flatOptions = std::get_if<QList<SessionConfigSelectOption>>(&opts)) {
-            for (const SessionConfigSelectOption &opt : *flatOptions) {
-                combo->addItem(opt.name(), opt.value());
-                if (opt.value() == currentValue)
-                    currentIndex = combo->count() - 1;
-                if (auto tooltip = opt.description())
-                    combo->setItemData(combo->count() - 1, *tooltip, Qt::ToolTipRole);
-            }
+            for (const SessionConfigSelectOption &opt : *flatOptions)
+                addOption(opt, {});
         } else if (auto *groups = std::get_if<QList<SessionConfigSelectGroup>>(&opts)) {
             for (const SessionConfigSelectGroup &group : *groups) {
-                combo->addItem(QStringLiteral("\u2014 %1 \u2014").arg(group.name()));
-                combo->setItemData(combo->count() - 1, 0, Qt::UserRole - 1);
-                for (const SessionConfigSelectOption &opt : group.options()) {
-                    combo->addItem(QStringLiteral("  %1").arg(opt.name()), opt.value());
-                    if (opt.value() == currentValue)
-                        currentIndex = combo->count() - 1;
-                    if (auto tooltip = opt.description())
-                        combo->setItemData(combo->count() - 1, *tooltip, Qt::ToolTipRole);
-                }
+                QAction *header = sub->addAction(QStringLiteral("— %1 —").arg(group.name()));
+                header->setEnabled(false);
+                for (const SessionConfigSelectOption &opt : group.options())
+                    addOption(opt, QStringLiteral("  "));
             }
         }
-
-        combo->setCurrentIndex(currentIndex);
-        combo->setVisible(combo->count() > 0);
     }
-    updateConfigOverflow();
+    menu->popup(QCursor::pos());
+}
+
+void ChatPanel::setConfigOptions(const QList<SessionConfigOption> &configOptions)
+{
+    m_configOptions = configOptions;
+    m_configButton->setVisible(!m_configOptions.isEmpty());
 }
 
 void ChatPanel::clear()
@@ -407,42 +347,8 @@ void ChatPanel::clear()
 
 void ChatPanel::clearConfigOptions()
 {
-    qDeleteAll(m_configCombos);
-    m_configCombos.clear();
-    m_configLabels.clear();
-    m_configOrder.clear();
-    // Also remove any labels added to the config options layout
-    while (QLayoutItem *item = m_configOptionsLayout->takeAt(0)) {
-        delete item->widget();
-        delete item;
-    }
-    updateConfigOverflow();
-}
-
-void ChatPanel::updateConfigOverflow()
-{
-    if (!m_configOptionsWidget || !m_configOverflowButton)
-        return;
-    const bool hasAny = !m_configCombos.isEmpty();
-    if (!hasAny) {
-        m_configOptionsWidget->setVisible(false);
-        m_configOverflowButton->setVisible(false);
-        return;
-    }
-    // Re-enable widget so its sizeHint reflects natural width
-    m_configOptionsWidget->setVisible(true);
-    const int agentW = m_agentLabel ? m_agentLabel->sizeHint().width() : 0;
-    const int configW = m_configOptionsWidget->sizeHint().width();
-    const int reserved = agentW + PaddingHM * 2 + GapHM * 3;
-    const bool collapse = (configW + reserved) > width();
-    m_configOptionsWidget->setVisible(!collapse);
-    m_configOverflowButton->setVisible(collapse);
-}
-
-void ChatPanel::resizeEvent(QResizeEvent *event)
-{
-    QWidget::resizeEvent(event);
-    updateConfigOverflow();
+    m_configOptions.clear();
+    m_configButton->setVisible(false);
 }
 
 void ChatPanel::addUserMessage(const QString &text)

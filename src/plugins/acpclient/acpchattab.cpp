@@ -342,7 +342,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         }
     });
     connect(m_controller, &AcpChatController::configOptionsReceived,
-            m_chatPanel, &ChatPanel::updateConfigOptions);
+            m_chatPanel, &ChatPanel::setConfigOptions);
     connect(m_controller, &AcpChatController::sessionUpdate,
             this, [this](const QString &sessionId, const SessionUpdate &update) {
         Q_UNUSED(sessionId)
@@ -373,7 +373,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
                 m_chatPanel->addPlan(*p);
         } else if (kind == QLatin1String("config_option_update")) {
             if (const auto *cu = update.get<ConfigOptionUpdate>())
-                m_chatPanel->updateConfigOptions(cu->configOptions());
+                m_chatPanel->setConfigOptions(cu->configOptions());
         } else if (kind == QLatin1String("available_commands_update")) {
             if (const auto *acu = update.get<AvailableCommandsUpdate>())
                 m_chatPanel->updateAvailableCommands(acu->availableCommands());
