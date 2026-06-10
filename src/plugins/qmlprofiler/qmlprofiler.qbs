@@ -56,7 +56,6 @@ QtcPlugin {
             "qmlprofilertool.cpp", "qmlprofilertool.h",
             "qmlprofilertracefile.cpp", "qmlprofilertracefile.h",
             "qmlprofilertraceview.cpp", "qmlprofilertraceview.h",
-            "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
             "quick3dmodel.cpp", "quick3dmodel.h",
             "quick3dframeview.cpp", "quick3dframeview.h",
             "quick3dframemodel.cpp", "quick3dframemodel.h",

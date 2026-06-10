@@ -46,7 +46,6 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
   qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
   qmlprofilerplainviewmanager.cpp qmlprofilerplainviewmanager.h
-  qmlprofilerviewmanager.cpp qmlprofilerviewmanager.h
   qmlprofilerplugin.cpp
   qmlprofilerrangemodel.cpp qmlprofilerrangemodel.h
   qmlprofilerrunconfigurationaspect.cpp qmlprofilerrunconfigurationaspect.h
