@@ -361,6 +361,13 @@ static RunSettings &runSettings()
     return ClangToolsSettings::instance()->runSettings;
 }
 
+ClangTool::~ClangTool()
+{
+    delete m_mainWidget;
+    delete m_selectFixitsCheckBox;
+    delete m_applyFixitsButton;
+}
+
 ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
     : m_name(name), m_perspective{id.toString(), name}, m_type(type)
 {

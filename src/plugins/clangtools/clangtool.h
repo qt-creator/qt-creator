@@ -35,7 +35,7 @@ class ClangTool : public QObject
     Q_OBJECT
 
 public:
-    ~ClangTool() override { delete m_mainWidget; }
+    ~ClangTool() override;
     void selectPerspective();
 
     enum class FileSelectionType {

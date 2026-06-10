@@ -36,7 +36,7 @@ public:
                    Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
 
     void addToolBarAction(QAction *action, Qt::ToolButtonStyle style = Qt::ToolButtonIconOnly);
-    void addToolBarWidget(QWidget *widget); // Perspecive takes ownership.
+    void addToolBarWidget(QWidget *widget); // No ownership passed.
     void addToolbarSeparator();
 
     void registerNextPrevShortcuts(QAction *next, QAction *prev);

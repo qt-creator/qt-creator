@@ -266,14 +266,15 @@ public:
     // Navigation
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;
-    QPointer<QLineEdit> m_searchFilter = nullptr;
+    QLineEdit m_searchFilter;
 
     // Cost formatting
     QAction *m_filterProjectCosts = nullptr;
     QAction *m_costAbsolute = nullptr;
     QAction *m_costRelative = nullptr;
     QAction *m_costRelativeToParent = nullptr;
-    QPointer<QComboBox> m_eventCombo;
+    QComboBox m_eventCombo;
+    QToolButton m_costFormatButton;
 
     QTimer m_updateTimer;
 
@@ -486,9 +487,8 @@ CallgrindTool::CallgrindTool(QObject *parent)
     connect(action, &QAction::triggered, &m_stackBrowser, &StackBrowser::goNext);
 
     // event selection
-    m_eventCombo = new QComboBox;
-    m_eventCombo->setToolTip(Tr::tr("Selects which events from the profiling data are shown and visualized."));
-    connect(m_eventCombo, &QComboBox::currentIndexChanged,
+    m_eventCombo.setToolTip(Tr::tr("Selects which events from the profiling data are shown and visualized."));
+    connect(&m_eventCombo, &QComboBox::currentIndexChanged,
             this, &CallgrindTool::setCostEvent);
     updateEventCombo();
 
@@ -503,7 +503,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     m_perspective.addToolBarAction(m_goBack);
     m_perspective.addToolBarAction(m_goNext);
     m_perspective.addToolbarSeparator();
-    m_perspective.addToolBarWidget(m_eventCombo);
+    m_perspective.addToolBarWidget(&m_eventCombo);
     m_perspective.registerNextPrevShortcuts(m_goNext, m_goBack);
 
     // Cost formatting
@@ -532,12 +532,11 @@ CallgrindTool::CallgrindTool(QObject *parent)
     connect(m_costRelativeToParent, &QAction::toggled, this, &CallgrindTool::updateCostFormat);
     group->addAction(m_costRelativeToParent);
 
-    auto button = new QToolButton;
-    button->addActions(group->actions());
-    button->setPopupMode(QToolButton::InstantPopup);
-    button->setText("$");
-    button->setToolTip(Tr::tr("Cost Format"));
-    m_perspective.addToolBarWidget(button);
+    m_costFormatButton.addActions(group->actions());
+    m_costFormatButton.setPopupMode(QToolButton::InstantPopup);
+    m_costFormatButton.setText("$");
+    m_costFormatButton.setToolTip(Tr::tr("Cost Format"));
+    m_perspective.addToolBarWidget(&m_costFormatButton);
     }
 
     // Filtering
@@ -545,9 +544,8 @@ CallgrindTool::CallgrindTool(QObject *parent)
     connect(action, &QAction::toggled, this, &CallgrindTool::handleFilterProjectCosts);
 
     // Filter
-    m_searchFilter = new QLineEdit;
-    m_searchFilter->setPlaceholderText(Tr::tr("Filter..."));
-    connect(m_searchFilter, &QLineEdit::textChanged,
+    m_searchFilter.setPlaceholderText(Tr::tr("Filter..."));
+    connect(&m_searchFilter, &QLineEdit::textChanged,
             &m_updateTimer, QOverload<>::of(&QTimer::start));
 
     setCostFormat(CostDelegate::CostFormat(globalSettings().costFormat()));
@@ -555,7 +553,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     m_perspective.addToolBarAction(globalSettings().detectCycles.action());
     m_perspective.addToolBarAction(globalSettings().shortenTemplates.action());
     m_perspective.addToolBarAction(m_filterProjectCosts);
-    m_perspective.addToolBarWidget(m_searchFilter);
+    m_perspective.addToolBarWidget(&m_searchFilter);
 
     m_perspective.addWindow(m_flatView, Perspective::SplitVertical, nullptr);
     m_perspective.addWindow(m_calleesView, Perspective::SplitVertical, nullptr);
@@ -585,8 +583,7 @@ void CallgrindTool::doClear()
     if (m_filterProjectCosts)
         m_filterProjectCosts->setChecked(false);
     m_proxyModel.setFilterBaseDir(QString());
-    if (m_searchFilter)
-        m_searchFilter->clear();
+    m_searchFilter.clear();
     m_proxyModel.setFilterRegularExpression(QRegularExpression());
 }
 
@@ -648,7 +645,7 @@ void CallgrindTool::stackBrowserChanged()
 
 void CallgrindTool::updateFilterString()
 {
-    m_proxyModel.setFilterRegularExpression(QRegularExpression::escape(m_searchFilter->text()));
+    m_proxyModel.setFilterRegularExpression(QRegularExpression::escape(m_searchFilter.text()));
 }
 
 void CallgrindTool::setCostFormat(CostDelegate::CostFormat format)
@@ -761,8 +758,7 @@ void CallgrindTool::doSetParseData(const ParseDataPtr &data)
     m_calleesModel.setParseData(newData);
     m_callersModel.setParseData(newData);
 
-    if (m_eventCombo)
-        updateEventCombo();
+    updateEventCombo();
 
     // clear history for new data
     m_stackBrowser.clear();
@@ -773,20 +769,18 @@ void CallgrindTool::doSetParseData(const ParseDataPtr &data)
 
 void CallgrindTool::updateEventCombo()
 {
-    QTC_ASSERT(m_eventCombo, return);
-
-    m_eventCombo->clear();
+    m_eventCombo.clear();
 
     const ParseDataPtr data = m_dataModel.parseData();
     if (!data || data->events().isEmpty()) {
-        m_eventCombo->hide();
+        m_eventCombo.hide();
         return;
     }
 
-    m_eventCombo->show();
+    m_eventCombo.show();
     const QStringList events = data->events();
     for (const QString &event : events)
-        m_eventCombo->addItem(ParseData::prettyStringForEvent(event));
+        m_eventCombo.addItem(ParseData::prettyStringForEvent(event));
 }
 
 void CallgrindTool::setupRunControl(RunControl *runControl)

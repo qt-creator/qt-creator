@@ -157,8 +157,9 @@ public:
     QString m_settingsId;
     QList<DockOperation> m_dockOperations;
     Perspective::Callback m_aboutToActivateCallback;
-    QPointer<QWidget> m_innerToolBar;
+    QWidget *m_innerToolBar = nullptr;
     QHBoxLayout *m_innerToolBarLayout = nullptr;
+    QList<QPointer<QWidget>> m_toolBarWidgets;
     QPointer<QWidget> m_switcher;
     QString m_lastActiveSubPerspectiveId;
 };
@@ -365,6 +366,20 @@ void PerspectivesView::doShutdown()
     QTC_ASSERT(theMainWindow, return);
 
     theMainWindow->savePersistentSettings();
+
+    // Delete inner toolbars before the main window so that tracked toolbar
+    // widgets (which may be value members in plugin-owned objects) are
+    // unparented before Qt's parent-child deletion runs.
+    for (const QPointer<Perspective> &p : theMainWindow->d->m_perspectives) {
+        if (!p)
+            continue;
+        for (const QPointer<QWidget> &w : p->d->m_toolBarWidgets) {
+            if (w)
+                w->setParent(nullptr);
+        }
+        delete p->d->m_innerToolBar;
+        p->d->m_innerToolBar = nullptr;
+    }
 
     delete theMainWindow;
     theMainWindow = nullptr;
@@ -815,6 +830,8 @@ Perspective::Perspective(const QString &id, const QString &name,
 Perspective::~Perspective()
 {
     if (theMainWindow) {
+        for (const QPointer<QWidget> &w : d->m_toolBarWidgets)
+            if (w) w->setParent(nullptr);
         delete d->m_innerToolBar;
         d->m_innerToolBar = nullptr;
     }
@@ -881,9 +898,8 @@ void Perspective::addToolBarAction(QAction *action, Qt::ToolButtonStyle style)
 void Perspective::addToolBarWidget(QWidget *widget)
 {
     QTC_ASSERT(widget, return);
-    // QStyle::polish is called before it is added to the toolbar, explicitly make it a panel widget
     StyleHelper::setPanelWidget(widget);
-    widget->setParent(d->m_innerToolBar);
+    d->m_toolBarWidgets.append(widget);
     d->m_innerToolBarLayout->addWidget(widget);
 }
 
@@ -926,7 +942,6 @@ void PerspectivePrivate::showInnerToolBar()
 
 void PerspectivePrivate::hideInnerToolBar()
 {
-    QTC_ASSERT(m_innerToolBar, return);
     m_innerToolBar->setVisible(false);
     if (m_switcher)
         m_switcher->setVisible(false);

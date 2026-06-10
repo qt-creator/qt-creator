@@ -91,13 +91,11 @@ private:
     Timeline::TimelineWidget *m_traceView = nullptr;
     CtfStatisticsView *m_statisticsView = nullptr;
 
-    QToolButton *const m_restrictToThreadsButton;
-    QMenu *const m_restrictToThreadsMenu;
+    QToolButton m_restrictToThreadsButton;
+    QMenu *m_restrictToThreadsMenu = new QMenu(&m_restrictToThreadsButton);
 };
 
 CtfVisualizerTool::CtfVisualizerTool()
-    : m_restrictToThreadsButton(new QToolButton)
-    , m_restrictToThreadsMenu(new QMenu(m_restrictToThreadsButton))
 {
     ActionContainer *menu = ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER);
     ActionContainer *options = ActionManager::createMenu(Constants::CtfVisualizerMenuId);
@@ -136,15 +134,15 @@ CtfVisualizerTool::CtfVisualizerTool()
 
     m_perspective.setAboutToActivateCallback([this] { createViews(); });
 
-    m_restrictToThreadsButton->setIcon(Icons::FILTER.icon());
-    m_restrictToThreadsButton->setToolTip(Tr::tr("Restrict to Threads"));
-    m_restrictToThreadsButton->setPopupMode(QToolButton::InstantPopup);
-    m_restrictToThreadsButton->setProperty(StyleHelper::C_NO_ARROW, true);
-    m_restrictToThreadsButton->setMenu(m_restrictToThreadsMenu);
+    m_restrictToThreadsButton.setIcon(Icons::FILTER.icon());
+    m_restrictToThreadsButton.setToolTip(Tr::tr("Restrict to Threads"));
+    m_restrictToThreadsButton.setPopupMode(QToolButton::InstantPopup);
+    m_restrictToThreadsButton.setProperty(StyleHelper::C_NO_ARROW, true);
+    m_restrictToThreadsButton.setMenu(m_restrictToThreadsMenu);
     connect(m_restrictToThreadsMenu, &QMenu::triggered,
             this, &CtfVisualizerTool::toggleThreadRestriction);
 
-    m_perspective.addToolBarWidget(m_restrictToThreadsButton);
+    m_perspective.addToolBarWidget(&m_restrictToThreadsButton);
 }
 
 void CtfVisualizerTool::createViews()

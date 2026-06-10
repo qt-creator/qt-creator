@@ -96,7 +96,7 @@ private:
     QAction *m_stepOutAction = nullptr;
     QAction *m_stopAction = nullptr;
     QAction *m_inspectAction = nullptr;
-    QLabel *m_status = nullptr;
+    QLabel m_status;
     class SquishControlBar *m_controlBar = nullptr;
     Utils::TreeModel<LocalsItem> m_localsModel;
     Utils::TreeModel<InspectedObjectItem> m_objectsModel;

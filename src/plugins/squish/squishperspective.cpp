@@ -359,8 +359,7 @@ void SquishPerspective::initPerspective()
     addToolbarSeparator();
     addToolBarAction(m_inspectAction);
     addToolbarSeparator();
-    m_status = new QLabel;
-    addToolBarWidget(m_status);
+    addToolBarWidget(&m_status);
 
     addWindow(m_objectWidget, Perspective::SplitVertical, nullptr);
     addWindow(m_propertiesWidget, Perspective::SplitHorizontal, m_objectWidget);
@@ -548,7 +547,7 @@ void SquishPerspective::onPropertiesFetched(const QStringList &properties)
 
 void SquishPerspective::updateStatus(const QString &status)
 {
-    m_status->setText(status);
+    m_status.setText(status);
     if (m_controlBar)
         m_controlBar->updateProgressText(status);
 }

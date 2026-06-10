@@ -106,22 +106,22 @@ public:
         m_quick3dView.selectByTypeId(typeId);
     }
 
-    QToolButton *m_recordButton = nullptr;
+    QToolButton m_recordButton;
     QMenu *m_recordFeaturesMenu = nullptr;
 
     QAction m_startAction;
     QAction m_stopAction;
-    QToolButton *m_clearButton = nullptr;
+    QToolButton m_clearButton;
 
     // open search
-    QToolButton *m_searchButton = nullptr;
+    QToolButton m_searchButton;
 
     // hide and show categories
-    QToolButton *m_displayFeaturesButton = nullptr;
+    QToolButton m_displayFeaturesButton;
     QMenu *m_displayFeaturesMenu = nullptr;
 
     // elapsed time display
-    QLabel *m_timeLabel = nullptr;
+    QLabel m_timeLabel;
     QTimer m_recordingTimer;
     QElapsedTimer m_recordingElapsedTime;
 
@@ -217,49 +217,40 @@ QmlProfilerTool::QmlProfilerTool()
     //
     // Toolbar
     //
-    d->m_recordButton = new QToolButton;
-    d->m_recordButton->setCheckable(true);
-
-    connect(d->m_recordButton,&QAbstractButton::clicked,
+    d->m_recordButton.setCheckable(true);
+    connect(&d->m_recordButton, &QAbstractButton::clicked,
             this, &QmlProfilerTool::recordingButtonChanged);
-    d->m_recordButton->setChecked(true);
-    d->m_recordFeaturesMenu = new QMenu(d->m_recordButton);
-    d->m_recordButton->setMenu(d->m_recordFeaturesMenu);
-    d->m_recordButton->setPopupMode(QToolButton::MenuButtonPopup);
+    d->m_recordButton.setChecked(true);
+    d->m_recordFeaturesMenu = new QMenu(&d->m_recordButton);
+    d->m_recordButton.setMenu(d->m_recordFeaturesMenu);
+    d->m_recordButton.setPopupMode(QToolButton::MenuButtonPopup);
     connect(d->m_recordFeaturesMenu, &QMenu::triggered,
             this, &QmlProfilerTool::toggleRequestedFeature);
 
-    d->m_clearButton = new QToolButton;
-    d->m_clearButton->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
-    d->m_clearButton->setToolTip(Tr::tr("Discard data"));
-
-    connect(d->m_clearButton, &QAbstractButton::clicked, [this] {
+    d->m_clearButton.setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
+    d->m_clearButton.setToolTip(Tr::tr("Discard data"));
+    connect(&d->m_clearButton, &QAbstractButton::clicked, [this] {
         if (checkForUnsavedNotes())
             clearData();
     });
 
-    d->m_searchButton = new QToolButton;
-    d->m_searchButton->setIcon(Utils::Icons::ZOOM_TOOLBAR.icon());
-    d->m_searchButton->setToolTip(Tr::tr("Search timeline event notes."));
-    d->m_searchButton->setEnabled(false);
+    d->m_searchButton.setIcon(Utils::Icons::ZOOM_TOOLBAR.icon());
+    d->m_searchButton.setToolTip(Tr::tr("Search timeline event notes."));
+    d->m_searchButton.setEnabled(false);
+    connect(&d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
 
-    connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
-
-    d->m_displayFeaturesButton = new QToolButton;
-    d->m_displayFeaturesButton->setIcon(Utils::Icons::FILTER.icon());
-    d->m_displayFeaturesButton->setToolTip(Tr::tr("Hide or show event categories."));
-    d->m_displayFeaturesButton->setPopupMode(QToolButton::InstantPopup);
-    d->m_displayFeaturesButton->setProperty(StyleHelper::C_NO_ARROW, true);
-    d->m_displayFeaturesMenu = new QMenu(d->m_displayFeaturesButton);
-    d->m_displayFeaturesButton->setMenu(d->m_displayFeaturesMenu);
+    d->m_displayFeaturesButton.setIcon(Utils::Icons::FILTER.icon());
+    d->m_displayFeaturesButton.setToolTip(Tr::tr("Hide or show event categories."));
+    d->m_displayFeaturesButton.setPopupMode(QToolButton::InstantPopup);
+    d->m_displayFeaturesButton.setProperty(StyleHelper::C_NO_ARROW, true);
+    d->m_displayFeaturesMenu = new QMenu(&d->m_displayFeaturesButton);
+    d->m_displayFeaturesButton.setMenu(d->m_displayFeaturesMenu);
     connect(d->m_displayFeaturesMenu, &QMenu::triggered,
             this, &QmlProfilerTool::toggleVisibleFeature);
 
-    d->m_timeLabel = new QLabel();
-    StyleHelper::setPanelWidget(d->m_timeLabel);
-    d->m_timeLabel->setIndent(10);
+    StyleHelper::setPanelWidget(&d->m_timeLabel);
+    d->m_timeLabel.setIndent(10);
     updateTimeDisplay();
-    connect(d->m_timeLabel, &QObject::destroyed, &d->m_recordingTimer, &QTimer::stop);
 
     setAvailableFeatures(d->m_profilerModelManager.availableFeatures());
     setRecordedFeatures(0);
@@ -279,11 +270,11 @@ QmlProfilerTool::QmlProfilerTool()
     Perspective *perspective = &d->m_perspective;
     perspective->addToolBarAction(&d->m_startAction);
     perspective->addToolBarAction(&d->m_stopAction);
-    perspective->addToolBarWidget(d->m_recordButton);
-    perspective->addToolBarWidget(d->m_clearButton);
-    perspective->addToolBarWidget(d->m_searchButton);
-    perspective->addToolBarWidget(d->m_displayFeaturesButton);
-    perspective->addToolBarWidget(d->m_timeLabel);
+    perspective->addToolBarWidget(&d->m_recordButton);
+    perspective->addToolBarWidget(&d->m_clearButton);
+    perspective->addToolBarWidget(&d->m_searchButton);
+    perspective->addToolBarWidget(&d->m_displayFeaturesButton);
+    perspective->addToolBarWidget(&d->m_timeLabel);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &QmlProfilerTool::updateRunActions);
@@ -305,17 +296,17 @@ QmlProfilerTool::QmlProfilerTool()
         const static QIcon recordOff = ProjectExplorer::Icons::RECORD_OFF.icon();
 
         // update display
-        d->m_recordButton->setToolTip(recording ? Tr::tr("Disable Profiling") : Tr::tr("Enable Profiling"));
-        d->m_recordButton->setIcon(recording ? recordOn : recordOff);
-        d->m_recordButton->setChecked(recording);
+        d->m_recordButton.setToolTip(recording ? Tr::tr("Disable Profiling") : Tr::tr("Enable Profiling"));
+        d->m_recordButton.setIcon(recording ? recordOn : recordOff);
+        d->m_recordButton.setChecked(recording);
     };
 
     connect(&d->m_profilerState, &QmlProfilerStateManager::stateChanged,
-            d->m_recordButton, updateRecordButton);
+            &d->m_recordButton, updateRecordButton);
     connect(&d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
-            d->m_recordButton, updateRecordButton);
+            &d->m_recordButton, updateRecordButton);
     connect(&d->m_profilerState, &QmlProfilerStateManager::clientRecordingChanged,
-            d->m_recordButton, updateRecordButton);
+            &d->m_recordButton, updateRecordButton);
     updateRecordButton();
 
 
@@ -450,7 +441,7 @@ void QmlProfilerTool::recordingButtonChanged(bool recording)
                 d->m_profilerState.setClientRecording(false);
             d->m_profilerState.setClientRecording(true);
         } else {
-            d->m_recordButton->setChecked(false);
+            d->m_recordButton.setChecked(false);
         }
     } else {
         if (d->m_profilerState.clientRecording() == recording)
@@ -499,7 +490,7 @@ void QmlProfilerTool::updateTimeDisplay()
     }
     QString timeString = QString::number(seconds,'f',1);
     QString profilerTimeStr = Tr::tr("%1 s").arg(timeString, 6);
-    d->m_timeLabel->setText(Tr::tr("Elapsed: %1").arg(profilerTimeStr));
+    d->m_timeLabel.setText(Tr::tr("Elapsed: %1").arg(profilerTimeStr));
 }
 
 void QmlProfilerTool::showTimeLineSearch()
@@ -535,9 +526,9 @@ void QmlProfilerTool::clearDisplay()
 
 void QmlProfilerTool::setButtonsEnabled(bool enable)
 {
-    d->m_clearButton->setEnabled(enable);
-    d->m_displayFeaturesButton->setEnabled(enable);
-    d->m_searchButton->setEnabled(enable);
+    d->m_clearButton.setEnabled(enable);
+    d->m_displayFeaturesButton.setEnabled(enable);
+    d->m_searchButton.setEnabled(enable);
     d->m_recordFeaturesMenu->setEnabled(enable);
 }
 
@@ -806,14 +797,14 @@ void QmlProfilerTool::finalize()
     updateTimeDisplay();
     createInitialTextMarks();
     setButtonsEnabled(true);
-    d->m_recordButton->setEnabled(true);
+    d->m_recordButton.setEnabled(true);
 }
 
 void QmlProfilerTool::clear()
 {
     clearDisplay();
     setButtonsEnabled(true);
-    d->m_recordButton->setEnabled(true);
+    d->m_recordButton.setEnabled(true);
 }
 
 QList <QAction *> QmlProfilerTool::profilerContextMenuActions()

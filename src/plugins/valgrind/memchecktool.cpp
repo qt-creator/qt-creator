@@ -282,6 +282,7 @@ public:
 
 private:
     ValgrindSettings *m_settings;
+    QToolButton m_filterButton;
     QMenu *m_filterMenu = nullptr;
 
     Valgrind::XmlProtocol::ErrorListModel m_errorModel;
@@ -487,20 +488,19 @@ MemcheckTool::MemcheckTool(QObject *parent)
     connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
     m_goNext = action;
 
-    auto filterButton = new QToolButton;
-    filterButton->setIcon(Utils::Icons::FILTER.icon());
-    filterButton->setText(Tr::tr("Error Filter"));
-    filterButton->setPopupMode(QToolButton::InstantPopup);
-    filterButton->setProperty(StyleHelper::C_NO_ARROW, true);
+    m_filterButton.setIcon(Utils::Icons::FILTER.icon());
+    m_filterButton.setText(Tr::tr("Error Filter"));
+    m_filterButton.setPopupMode(QToolButton::InstantPopup);
+    m_filterButton.setProperty(StyleHelper::C_NO_ARROW, true);
 
-    m_filterMenu = new QMenu(filterButton);
+    m_filterMenu = new QMenu(&m_filterButton);
     for (QAction *filterAction : std::as_const(m_errorFilterActions))
         m_filterMenu->addAction(filterAction);
     m_filterMenu->addSeparator();
     m_filterMenu->addAction(m_filterProjectAction);
     m_filterMenu->addAction(m_suppressionSeparator);
     connect(m_filterMenu, &QMenu::triggered, this, &MemcheckTool::updateErrorFilter);
-    filterButton->setMenu(m_filterMenu);
+    m_filterButton.setMenu(m_filterMenu);
 
     ActionContainer *menu = ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER);
     QString toolTip = Tr::tr("Valgrind Analyze Memory uses the Memcheck tool to find memory leaks.");
@@ -565,7 +565,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
     m_perspective.addToolBarAction(m_loadExternalLogFile);
     m_perspective.addToolBarAction(m_goBack);
     m_perspective.addToolBarAction(m_goNext);
-    m_perspective.addToolBarWidget(filterButton);
+    m_perspective.addToolBarWidget(&m_filterButton);
     m_perspective.registerNextPrevShortcuts(m_goNext, m_goBack);
 
     updateFromSettings();

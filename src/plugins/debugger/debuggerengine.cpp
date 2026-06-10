@@ -617,6 +617,7 @@ public:
         ActionManager::unregisterAction(&m_frameDownAction, Constants::FRAME_DOWN);
         destroyPerspective();
 
+        delete m_threadLabel;
         delete m_logWindow;
         delete m_breakWindow;
         delete m_returnWindow;
@@ -801,7 +802,7 @@ public:
     QPointer<LogWindow> m_logWindow;
     QPointer<LocalsAndInspectorWindow> m_localsAndInspectorWindow;
 
-    QPointer<QLabel> m_threadLabel;
+    QLabel *m_threadLabel = nullptr;
 
     bool m_busy = false;
     bool m_isDying = false;
