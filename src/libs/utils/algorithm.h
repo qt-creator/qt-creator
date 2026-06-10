@@ -1238,7 +1238,7 @@ template<typename Container>
 inline Container sorted(Container &&container)
 {
     sort(container);
-    return std::move(container);
+    return std::forward<Container>(container);
 }
 
 // const rvalue
@@ -1273,7 +1273,7 @@ template<typename Container, typename Predicate>
 inline Container sorted(Container &&container, Predicate p)
 {
     sort(container, p);
-    return std::move(container);
+    return std::forward<Container>(container);
 }
 
 // const rvalue
@@ -1320,7 +1320,7 @@ template<typename Container, typename R, typename S>
 inline Container sorted(Container &&container, R S::*member)
 {
     sort(container, member);
-    return std::move(container);
+    return std::forward<Container>(container);
 }
 
 // const rvalue
@@ -1367,7 +1367,7 @@ template<typename Container, typename R, typename S>
 inline Container sorted(Container &&container, R (S::*function)() const)
 {
     sort(container, function);
-    return std::move(container);
+    return std::forward<Container>(container);
 }
 
 // const rvalue
