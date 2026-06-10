@@ -12,7 +12,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 
-#include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 
@@ -47,7 +46,7 @@ void SquishTestTreeView::mousePressEvent(QMouseEvent *event)
             }
         }
     }
-    QTreeView::mousePressEvent(event);
+    View::mousePressEvent(event);
 }
 
 void SquishTestTreeView::mouseReleaseEvent(QMouseEvent *event)
@@ -75,7 +74,7 @@ void SquishTestTreeView::mouseReleaseEvent(QMouseEvent *event)
             }
         }
     }
-    QTreeView::mouseReleaseEvent(event);
+    View::mouseReleaseEvent(event);
 }
 
 /****************************** SquishTestTreeItemDelegate *************************************/
