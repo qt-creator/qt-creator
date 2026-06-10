@@ -86,8 +86,6 @@ static QmlProfilerTool *m_instance = nullptr;
 
 class QmlProfilerPerspective : public Core::Perspective
 {
-    Q_OBJECT
-
 public:
     QmlProfilerPerspective(QmlProfilerModelManager *modelManager,
                            QmlProfilerStateManager *profilerState);
@@ -96,9 +94,6 @@ public:
     QmlProfilerStatisticsView *statisticsView() { return &m_statisticsView; }
     FlameGraphView *flameGraphView() { return &m_flameGraphView; }
     Quick3DFrameView *quick3dView() { return &m_quick3dView; }
-
-signals:
-    void gotoSourceLocation(QString,int,int);
 
 private:
     void selectByTypeId(int typeId)
@@ -129,8 +124,6 @@ QmlProfilerPerspective::QmlProfilerPerspective(QmlProfilerModelManager *modelMan
 {
     setObjectName("QML Profiler View Manager");
 
-    connect(&m_traceView, &QmlProfilerTraceView::gotoSourceLocation,
-            this, &QmlProfilerPerspective::gotoSourceLocation);
     connect(&m_traceView, &QmlProfilerTraceView::typeSelected,
             this, &QmlProfilerPerspective::selectByTypeId);
 
@@ -141,8 +134,6 @@ QmlProfilerPerspective::QmlProfilerPerspective(QmlProfilerModelManager *modelMan
                 this, &QmlProfilerPerspective::selectByTypeId);
         connect(m_profilerModelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
                 view, &QmlProfilerEventsView::onVisibleFeaturesChanged);
-        connect(view, &QmlProfilerEventsView::gotoSourceLocation,
-                this, &QmlProfilerPerspective::gotoSourceLocation);
         connect(view, &QmlProfilerEventsView::showFullRange,
                 this, [this](){ m_profilerModelManager->restrictToRange(-1, -1);});
         new QmlProfilerStateWidget(m_profilerState, m_profilerModelManager, view);
@@ -230,7 +221,13 @@ QmlProfilerTool::QmlProfilerTool()
 
     d->m_recordingTimer.setInterval(100);
     connect(&d->m_recordingTimer, &QTimer::timeout, this, &QmlProfilerTool::updateTimeDisplay);
-    connect(&d->m_viewContainer, &QmlProfilerPerspective::gotoSourceLocation,
+    connect(d->m_viewContainer.traceView(), &QmlProfilerTraceView::gotoSourceLocation,
+            this, &QmlProfilerTool::gotoSourceLocation);
+    connect(d->m_viewContainer.statisticsView(), &QmlProfilerEventsView::gotoSourceLocation,
+            this, &QmlProfilerTool::gotoSourceLocation);
+    connect(d->m_viewContainer.flameGraphView(), &QmlProfilerEventsView::gotoSourceLocation,
+            this, &QmlProfilerTool::gotoSourceLocation);
+    connect(d->m_viewContainer.quick3dView(), &QmlProfilerEventsView::gotoSourceLocation,
             this, &QmlProfilerTool::gotoSourceLocation);
 
     //
@@ -968,5 +965,3 @@ void setupQmlProfilerTool()
 }
 
 } // namespace Profiler::Internal
-
-#include "qmlprofilertool.moc"
