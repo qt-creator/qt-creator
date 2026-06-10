@@ -10,6 +10,7 @@
 
 #include <aggregation/aggregate.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -54,9 +55,23 @@ void LocatorManager::showFilter(ILocatorFilter *filter)
     Locator::showFilter(filter, locatorWidget());
 }
 
+static void hideApplicationPopups()
+{
+    const auto popups = Utils::transform<QList<QPointer<QWidget>>>(
+        Utils::filtered(
+            QApplication::topLevelWidgets(),
+            [](QWidget *w) { return w->windowFlags().testFlag(Qt::Popup); }),
+        [](QWidget *w) { return QPointer<QWidget>(w); });
+    for (const QPointer<QWidget> &p : popups) {
+        if (p)
+            p->close();
+    }
+}
+
 void LocatorManager::show(const QString &text,
                           int selectionStart, int selectionLength)
 {
+    hideApplicationPopups();
     locatorWidget()->showText(text, selectionStart, selectionLength);
 }
 
