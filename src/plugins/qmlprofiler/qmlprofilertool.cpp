@@ -98,10 +98,17 @@ public:
     Quick3DFrameView *quick3dView() { return &m_quick3dView; }
 
 signals:
-    void typeSelected(int typeId);
     void gotoSourceLocation(QString,int,int);
 
 private:
+    void selectByTypeId(int typeId)
+    {
+        m_traceView.selectByTypeId(typeId);
+        m_statisticsView.selectByTypeId(typeId);
+        m_flameGraphView.selectByTypeId(typeId);
+        m_quick3dView.selectByTypeId(typeId);
+    }
+
     QmlProfilerModelManager *m_profilerModelManager = nullptr;
     QmlProfilerStateManager *m_profilerState = nullptr;
     QmlProfilerTraceView m_traceView;
@@ -125,17 +132,13 @@ QmlProfilerPerspective::QmlProfilerPerspective(QmlProfilerModelManager *modelMan
     connect(&m_traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerPerspective::gotoSourceLocation);
     connect(&m_traceView, &QmlProfilerTraceView::typeSelected,
-            this, &QmlProfilerPerspective::typeSelected);
-    connect(this, &QmlProfilerPerspective::typeSelected,
-            &m_traceView, &QmlProfilerTraceView::selectByTypeId);
+            this, &QmlProfilerPerspective::selectByTypeId);
 
     new QmlProfilerStateWidget(m_profilerState, m_profilerModelManager, &m_traceView);
 
     auto prepareEventsView = [this](QmlProfilerEventsView *view) {
         connect(view, &QmlProfilerEventsView::typeSelected,
-                this, &QmlProfilerPerspective::typeSelected);
-        connect(this, &QmlProfilerPerspective::typeSelected,
-                view, &QmlProfilerEventsView::selectByTypeId);
+                this, &QmlProfilerPerspective::selectByTypeId);
         connect(m_profilerModelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
                 view, &QmlProfilerEventsView::onVisibleFeaturesChanged);
         connect(view, &QmlProfilerEventsView::gotoSourceLocation,
