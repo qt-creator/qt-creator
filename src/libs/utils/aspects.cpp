@@ -4736,10 +4736,12 @@ void EnvironmentChangesAspect::addToLayoutImpl(Layouting::Layout &parent)
     };
     updateChangesLabel();
     connect(this, &EnvironmentChangesAspect::volatileValueChanged, this, updateChangesLabel);
+    registerSubWidget(changesLabel);
     parent.addItem(changesLabel);
 
     QPushButton *changeButton = new QPushButton(Tr::tr("Change..."));
     changeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+    registerSubWidget(changeButton);
     parent.addItem(changeButton);
     connect(changeButton, &QPushButton::clicked, this, [changeButton, this]() {
         std::optional<EnvironmentChanges> changes
