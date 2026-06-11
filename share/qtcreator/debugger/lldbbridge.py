@@ -280,7 +280,7 @@ class Dumper(DumperBase):
                 val = self.Value(self)
                 val.name = fieldName
                 val.isBaseClass = False
-                val.typeid = typeid=self.from_native_type(nativeFieldType)
+                val.typeid = self.from_native_type(nativeFieldType)
                 field_offset = fakeMemberAddress - fakeLAddress
                 if value.laddress is not None:
                     val.laddress = value.laddress + field_offset
