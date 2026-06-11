@@ -784,7 +784,7 @@ class Dumper(DumperBase):
     def extractQtVersion(self):
         for func in self.target.FindFunctions('qVersion'):
             name = func.GetSymbol().GetName()
-            if name == None:
+            if name is None:
                 continue
             if name.endswith('()'):
                 name = name[:-2]
@@ -1570,7 +1570,7 @@ class Dumper(DumperBase):
         filename = filespec.GetFilename()
         if filename and filename.endswith('libart.so'):
             return True
-        if funcname == None and not frame.line_entry.file.IsValid() and filename == None:
+        if funcname is None and not frame.line_entry.file.IsValid() and filename is None:
             return True
         return False
 
@@ -1667,7 +1667,7 @@ class Dumper(DumperBase):
         while True:
             try:
                 msg = proc(1024)
-                if msg == None or len(msg) == 0:
+                if not msg:
                     break
                 self.report('output={channel="%s",data="%s"}' % (channel, self.hexencode(msg)))
             except SystemError as e:
