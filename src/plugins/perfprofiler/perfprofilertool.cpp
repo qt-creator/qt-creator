@@ -152,19 +152,7 @@ PerfProfilerTool::PerfProfilerTool()
     StyleHelper::setPanelWidget(&m_aggregateButton);
     StyleHelper::setPanelWidget(&m_recordedLabel);
     StyleHelper::setPanelWidget(&m_delayLabel);
-    m_perspective.setAboutToActivateCallback([this]() { createViews(); });
-    updateRunActions();
-}
 
-PerfProfilerTool::~PerfProfilerTool()
-{
-    delete m_traceView;
-    delete m_flameGraphView;
-    delete m_statisticsView;
-}
-
-void PerfProfilerTool::createViews()
-{
     m_traceView = new Timeline::TimelineWidget(&modelManager(), m_zoomControl, nullptr);
     m_traceView->setObjectName(QLatin1String("PerfProfilerTraceView"));
     m_traceView->setWindowTitle(Tr::tr("Timeline"));
@@ -344,7 +332,14 @@ void PerfProfilerTool::createViews()
     m_perspective.addToolBarWidget(&m_delayLabel);
     m_perspective.addToolBarWidget(&m_tracePointsButton);
 
-    m_perspective.setAboutToActivateCallback(Perspective::Callback());
+    updateRunActions();
+}
+
+PerfProfilerTool::~PerfProfilerTool()
+{
+    delete m_traceView;
+    delete m_flameGraphView;
+    delete m_statisticsView;
 }
 
 PerfProfilerTool *PerfProfilerTool::instance()
