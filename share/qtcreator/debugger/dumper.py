@@ -3839,17 +3839,6 @@ typename))
 
     def type_target(self, typeid):
         return self.type_target_cache.get(typeid, None)
-        targetid = self.type_target_cache.get(typeid, None)
-        if not targetid in self.type_code_cache:
-            typename = self.type_name_cache.get(targetid, None)
-            if typename is None:
-                raise RuntimeError('NAME/ID ERROR FOR TARGET %s' % targetid)
-            typeobj = self.lookupType(typename)
-            if typeobj is None:
-                #self.warn("EMERGENCY LOOKUP FAILED FOR %s %s "  % (typename, typeid))
-                #self.dump_type_cache()
-                return 0 # Void type id
-        return targetid
 
     def type_template_arguments(self, typeid):
         targs = []
