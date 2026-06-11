@@ -365,15 +365,18 @@ class CocoProjectSettingsWidget final : public QWidget
 public:
     explicit CocoProjectSettingsWidget(Project *project)
     {
-        auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(ProjectExplorer::createGlobalSettingsLink(Constants::COCO_SETTINGS_PAGE_ID));
-        layout->addWidget(Layouting::createHr());
+        using namespace Layouting;
+        Column contents{
+            ProjectExplorer::createGlobalSettingsLink(Constants::COCO_SETTINGS_PAGE_ID),
+            createHr(),
+            noMargin,
+        };
         if (auto *abc = project->activeBuildConfiguration()) {
             if (abc->id() == QmakeProjectManager::Constants::QMAKE_BC_ID
                     || abc->id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID)
-                layout->addWidget(new CocoProjectWidget(project, abc));
+                contents.addItem(new CocoProjectWidget(project, abc));
         }
+        contents.attachTo(this);
     }
 };
 
