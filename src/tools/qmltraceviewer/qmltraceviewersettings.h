@@ -15,6 +15,10 @@ public:
     Utils::FilePathAspect lastTraceFile{this};
     Utils::ByteArrayAspect windowGeometry{this};
 
+    // Call-stack sampling (Record a new Trace).
+    Utils::StringAspect recordProcessName{this};
+    Utils::IntegerAspect recordIntervalUs{this};
+
     // Not persisted:
     Utils::BoolAspect exitOnError{this};
     Utils::BoolAspect withRpc{this};

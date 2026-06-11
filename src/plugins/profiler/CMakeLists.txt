@@ -23,6 +23,8 @@ endif()
 
 set(QMLPROFILER_CPP_SOURCES
   ctfloader.cpp ctfloader.h
+  macsampler.cpp macsampler.h
+  sampletrace.cpp sampletrace.h
   ctfplainviewmanager.cpp ctfplainviewmanager.h
   ctfstatisticsmodel.cpp ctfstatisticsmodel.h
   ctfstatisticsview.cpp ctfstatisticsview.h
@@ -68,7 +70,7 @@ set(QMLPROFILER_CPP_SOURCES
 )
 
 add_qtc_plugin(QmlProfiler
-  DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat
+  DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree
   INCLUDES ${PROJECT_SOURCE_DIR}/src
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
   SOURCES

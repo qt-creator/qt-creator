@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
     Depends { name: "Tracing" }
+    Depends { name: "QtTaskTree" }
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
@@ -20,6 +21,8 @@ QtcPlugin {
         name: "General"
         files: [
             "ctfloader.cpp", "ctfloader.h",
+            "macsampler.cpp", "macsampler.h",
+            "sampletrace.cpp", "sampletrace.h",
             "ctfplainviewmanager.cpp", "ctfplainviewmanager.h",
             "ctfstatisticsmodel.cpp", "ctfstatisticsmodel.h",
             "ctfstatisticsview.cpp", "ctfstatisticsview.h",

@@ -23,6 +23,7 @@ Project {
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
         "qmldebug/qmldebug.qbs",
+        "qmltraceviewer/qmltraceviewer.qbs",
         "qttasktree/qttasktree.qbs",
         "sdktool/sdktool.qbs",
         "solutions/solutions.qbs",

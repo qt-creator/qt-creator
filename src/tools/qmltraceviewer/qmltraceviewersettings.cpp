@@ -17,6 +17,12 @@ QmlTraceViewerSettings::QmlTraceViewerSettings()
 
     windowGeometry.setSettingsKey("WindowGeometry");
 
+    recordProcessName.setSettingsKey("RecordProcessName");
+    recordProcessName.setDefaultValue("Qt Creator");
+
+    recordIntervalUs.setSettingsKey("RecordIntervalUs");
+    recordIntervalUs.setDefaultValue(200); // ~5 kHz; 0 = as fast as possible
+
     exitOnError.setDefaultValue(false);
 
     withRpc.setDefaultValue(false);

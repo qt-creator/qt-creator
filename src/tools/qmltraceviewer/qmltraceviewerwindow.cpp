@@ -3,9 +3,11 @@
 
 #include "qmltraceviewerwindow.h"
 
+#include <profiler/macsampler.h>
 #include "qmltraceviewerrpc.h"
 #include "qmltraceviewersettings.h"
 #include "mainsidebar.h"
+#include "recordingpage.h"
 #include "welcomepage.h"
 
 #include <profiler/ctfplainviewmanager.h>
@@ -24,6 +26,7 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QDockWidget>
+#include <QFutureWatcher>
 #include <QMessageBox>
 #include <QSplitter>
 #include <QStackedWidget>
@@ -33,9 +36,14 @@
 #include <QToolButton>
 #include <QUrl>
 
+#include <QtConcurrent>
+
+#include <atomic>
 #include <iostream>
+#include <memory>
 
 using namespace Profiler;
+using namespace QmlProfiler::Internal;
 using namespace Utils;
 using namespace Utils::StyleHelper;
 
@@ -63,6 +71,7 @@ public:
 
     void showOpenFileDialog();
     void showOpenCtfDirDialog();
+    void startRecording();
 
     void onError(const QString &error);
     void onLoadFinished();
@@ -80,8 +89,9 @@ public:
     static void openHelpInBrowser();
 
     Window *q = nullptr;
-    QStackedWidget *rightPane = nullptr;  // Welcome page or trace area (right pane).
+    QStackedWidget *rightPane = nullptr;  // Welcome / recording page or trace area.
     WelcomePage *welcomePage = nullptr;   // Shown while no trace is loaded.
+    RecordingPage *recordingPage = nullptr; // Shown while a recording is running.
     FancyMainWindow *traceArea = nullptr; // Hosts the trace view docks (right pane).
     MainSidebar *sidebar = nullptr;       // List of opened traces (left pane).
     QmlProfilerPlainViewManager *qmlManager;
@@ -92,6 +102,10 @@ public:
     ProgressIndicator *progressIndicator;
     ViewGroup qmlGroup;
     ViewGroup ctfGroup;
+    bool recording = false;
+    std::shared_ptr<std::atomic_bool> stopRecording;
+    std::shared_ptr<std::atomic<int>> recordProgress;
+    QTimer *processingPoll = nullptr;
 };
 
 WindowPrivate::WindowPrivate(Window *window)
@@ -105,15 +119,31 @@ WindowPrivate::WindowPrivate(Window *window)
     sidebar = new MainSidebar(q);
 
     welcomePage = new WelcomePage(q);
+    recordingPage = new RecordingPage(q);
 
     rightPane = new QStackedWidget(q);
     rightPane->addWidget(welcomePage);
+    rightPane->addWidget(recordingPage);
     rightPane->addWidget(traceArea);
     rightPane->setCurrentWidget(welcomePage);
 
-    // Recording is not implemented yet; it will be wired up later.
     connect(welcomePage, &WelcomePage::openTraceRequested,
             this, &WindowPrivate::showOpenFileDialog);
+    connect(welcomePage, &WelcomePage::recordTraceRequested,
+            this, &WindowPrivate::startRecording);
+    processingPoll = new QTimer(this);
+    processingPoll->setInterval(50);
+    connect(processingPoll, &QTimer::timeout, this, [this] {
+        if (recordProgress)
+            recordingPage->setProgress(recordProgress->load(std::memory_order_relaxed));
+    });
+
+    connect(recordingPage, &RecordingPage::stopRequested, this, [this] {
+        if (stopRecording)
+            stopRecording->store(true);
+        recordingPage->setProcessing();
+        processingPoll->start();
+    });
 
     qmlManager = new QmlProfilerPlainViewManager(traceArea);
     ctfManager = new CtfPlainViewManager(traceArea);
@@ -156,6 +186,48 @@ void WindowPrivate::showOpenCtfDirDialog()
 
     if (!dir.isEmpty())
         q->loadTraceFile(dir);
+}
+
+void WindowPrivate::startRecording()
+{
+    if (recording)
+        return;
+    recording = true;
+
+    SamplerOptions opts;
+    opts.processName = settings().recordProcessName();
+    opts.intervalUs = int(settings().recordIntervalUs());
+
+    // Sampling suspends/walks the target in a tight loop, so it must run off the
+    // GUI thread. It samples until `stopRecording` is set by the Stop button,
+    // then publishes post-processing progress through `recordProgress`.
+    stopRecording = std::make_shared<std::atomic_bool>(false);
+    recordProgress = std::make_shared<std::atomic<int>>(0);
+    recordingPage->start(opts.processName);
+    rightPane->setCurrentWidget(recordingPage);
+
+    auto watcher = new QFutureWatcher<Result<FilePath>>(this);
+    connect(watcher, &QFutureWatcherBase::finished, this, [this, watcher] {
+        watcher->deleteLater();
+        recording = false;
+        processingPoll->stop();
+        stopRecording.reset();
+        recordProgress.reset();
+        recordingPage->stop();
+
+        const Result<FilePath> result = watcher->result();
+        if (!result) {
+            rightPane->setCurrentWidget(welcomePage);
+            onError(result.error());
+            return;
+        }
+        q->loadTraceFile(*result);
+    });
+    const std::shared_ptr<std::atomic_bool> stop = stopRecording;
+    const std::shared_ptr<std::atomic<int>> progress = recordProgress;
+    watcher->setFuture(QtConcurrent::run([opts, stop, progress] {
+        return recordSampleTrace(opts, *stop, progress.get());
+    }));
 }
 
 void WindowPrivate::onError(const QString &error)

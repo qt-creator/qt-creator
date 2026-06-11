@@ -7,6 +7,7 @@ QtcTool {
     Depends { name: "Utils" }
     Depends { name: "Core" }
     Depends { name: "QmlProfiler" }
+    Depends { name: "CommonTraceFormat" }
 
     files: [
         "qmltraceviewerinit.cpp",
@@ -20,6 +21,8 @@ QtcTool {
         "qmltraceviewerwindow.h",
         "mainsidebar.cpp",
         "mainsidebar.h",
+        "recordingpage.cpp",
+        "recordingpage.h",
         "welcomepage.cpp",
         "welcomepage.h",
         "schema/api.h",
