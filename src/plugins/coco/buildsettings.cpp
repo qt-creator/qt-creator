@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "buildsettings.h"
-
-#include "buildsettings.h"
 #include "cmakemodificationfile.h"
 #include "cocobuildstep.h"
 #include "cococommon.h"

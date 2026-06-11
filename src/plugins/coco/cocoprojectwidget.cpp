@@ -6,8 +6,6 @@
 #include "buildsettings.h"
 #include "cococommon.h"
 #include "cocopluginconstants.h"
-#include "cocoprojectwidget.h"
-#include "cocotr.h"
 #include "cocotr.h"
 #include "globalsettings.h"
 
@@ -24,10 +22,8 @@
 
 #include <utils/layoutbuilder.h>
 
-#include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QVBoxLayout>
 
 using namespace Core;
 using namespace ProjectExplorer;
