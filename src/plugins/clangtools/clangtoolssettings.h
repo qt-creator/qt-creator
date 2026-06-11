@@ -66,8 +66,6 @@ public:
     Utils::FilePathAspect clangTidyExecutable{this};
     Utils::FilePathAspect clazyStandaloneExecutable{this};
 
-    Utils::FilePath executable(CppEditor::ClangToolType tool) const;
-
     Utils::BoolAspect enableLowerClazyLevels{this};
 
     static VersionAndSuffix clangTidyVersion();

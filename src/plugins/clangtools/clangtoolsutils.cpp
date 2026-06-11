@@ -182,7 +182,9 @@ FilePath toolShippedExecutable(ClangToolType tool)
 
 FilePath toolExecutable(ClangToolType tool)
 {
-    const FilePath fromSettings = ClangToolsSettings::instance()->executable(tool);
+    const FilePath fromSettings = tool == ClangToolType::Tidy
+        ? ClangToolsSettings::instance()->clangTidyExecutable()
+        : ClangToolsSettings::instance()->clazyStandaloneExecutable();
     if (!fromSettings.isEmpty())
         return fullPath(fromSettings);
     return toolFallbackExecutable(tool);

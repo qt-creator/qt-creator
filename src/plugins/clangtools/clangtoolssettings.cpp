@@ -198,11 +198,6 @@ void ClangToolsSettings::apply()
     AspectContainer::apply();
 }
 
-FilePath ClangToolsSettings::executable(ClangToolType tool) const
-{
-    return tool == ClangToolType::Tidy ? clangTidyExecutable() : clazyStandaloneExecutable();
-}
-
 static VersionAndSuffix getVersionNumber(VersionAndSuffix &version, const FilePath &toolFilePath)
 {
     if (version.first.isNull() && !toolFilePath.isEmpty()) {
