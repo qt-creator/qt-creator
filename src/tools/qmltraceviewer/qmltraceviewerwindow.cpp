@@ -5,11 +5,15 @@
 
 #include "qmltraceviewerrpc.h"
 #include "qmltraceviewersettings.h"
+#include "mainsidebar.h"
 
 #include <qmlprofiler/profilertr.h>
 #include <qmlprofiler/qmlprofilerconstants.h>
 #include <qmlprofiler/qmlprofilerplainviewmanager.h>
 
+#include <coreplugin/minisplitter.h>
+
+#include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
 #include <utils/progressindicator.h>
 #include <utils/stylehelper.h>
@@ -19,6 +23,7 @@
 #include <QDesktopServices>
 #include <QDockWidget>
 #include <QMessageBox>
+#include <QSplitter>
 #include <QTime>
 #include <QTimer>
 #include <QToolBar>
@@ -51,14 +56,17 @@ public:
     void addDocksForViews();
     void resetLayout();
     void clearTrace();
+    void doLoad(const Utils::FilePath &filePath);
     void setTraceDuration(milliseconds ms);
 
     static void openHelpInBrowser();
 
     Window *q = nullptr;
+    FancyMainWindow *traceArea = nullptr; // Hosts the trace view docks (right pane).
+    MainSidebar *sidebar = nullptr; // List of opened traces (left pane).
     QmlProfilerPlainViewManager *viewManager;
     QString lastLoadError;
-    QLabel *traceDurationLabel;
+    QLabel *traceDurationLabel = nullptr;
     ProgressIndicator *progressIndicator;
     QList<QDockWidget*> dockWidgets; // List with original dock widgets order
     QDockWidget *detailsDock = nullptr; // Range details, docked to the right (not tabbed)
@@ -68,10 +76,18 @@ WindowPrivate::WindowPrivate(Window *window)
     : QObject(window)
     , q(window)
 {
-    viewManager = new QmlProfilerPlainViewManager(q);
+    traceArea = new FancyMainWindow(q);
+    traceArea->setDockNestingEnabled(true);
+    traceArea->setDocumentMode(true);
+
+    sidebar = new MainSidebar(q);
+
+    viewManager = new QmlProfilerPlainViewManager(traceArea);
 
     progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
     progressIndicator->hide();
+
+    connect(sidebar, &MainSidebar::traceActivated, this, &WindowPrivate::doLoad);
 
     connect(viewManager, &QmlProfilerPlainViewManager::error, this, &WindowPrivate::onError);
     connect(viewManager, &QmlProfilerPlainViewManager::loadFinished,
@@ -120,13 +136,13 @@ void WindowPrivate::onGotoSourceLocation(const QString &fileUrl, int lineNumber,
 void WindowPrivate::addDocksForViews()
 {
     QTC_ASSERT(dockWidgets.isEmpty(), return);
-    const QWidgetList views = viewManager->views(q);
+    const QWidgetList views = viewManager->views(traceArea);
     for (QWidget *w : views)
-        dockWidgets.append(q->addDockForWidget(w));
+        dockWidgets.append(traceArea->addDockForWidget(w));
 
     // The range details view lives next to the tabbed views, docked to the right.
     if (QWidget *details = viewManager->rangeDetailsWidget())
-        detailsDock = q->addDockForWidget(details);
+        detailsDock = traceArea->addDockForWidget(details);
 }
 
 void WindowPrivate::resetLayout()
@@ -151,12 +167,12 @@ void WindowPrivate::resetLayout()
         detailsDock->setDockLocation(Qt::RightDockWidgetArea);
 #endif
         detailsDock->setFloating(false);
-        q->splitDockWidget(firstDockWidget, detailsDock, Qt::Horizontal);
+        traceArea->splitDockWidget(firstDockWidget, detailsDock, Qt::Horizontal);
     }
 
     for (QDockWidget *dw : std::as_const(dockWidgets)) {
         if (dw != firstDockWidget)
-            q->tabifyDockWidget(firstDockWidget, dw);
+            traceArea->tabifyDockWidget(firstDockWidget, dw);
     }
     firstDockWidget->raise();
 }
@@ -166,6 +182,16 @@ void WindowPrivate::clearTrace()
     setTraceDuration(milliseconds{0});
     viewManager->clear();
     RPC::notifyTraceDiscarded();
+}
+
+void WindowPrivate::doLoad(const FilePath &filePath)
+{
+    settings().lastTraceFile.setValue(filePath);
+    setTraceDuration(milliseconds{0});
+    progressIndicator->show();
+    lastLoadError.clear();
+    RPC::notifyTraceFileLoadingStarted(filePath);
+    viewManager->loadTraceFile(filePath);
 }
 
 void WindowPrivate::setTraceDuration(milliseconds ms)
@@ -187,12 +213,9 @@ void WindowPrivate::openHelpInBrowser()
 }
 
 Window::Window(QWidget *parent)
-    : FancyMainWindow(parent)
+    : QMainWindow(parent)
     , d(new WindowPrivate(this))
 {
-    setDockNestingEnabled(true);
-    setDocumentMode(true);
-
     auto loadAction = new QAction(Icons::OPENFILE_TOOLBAR.icon(), Tr::tr("Load QML Trace"), this);
     loadAction->setShortcut(QKeySequence::Open);
     connect(loadAction, &QAction::triggered, d, &WindowPrivate::showOpenFileDialog);
@@ -223,21 +246,25 @@ Window::Window(QWidget *parent)
 
     d->addDocksForViews();
     d->resetLayout();
-    connect(this, &FancyMainWindow::resetLayout, d, &WindowPrivate::resetLayout);
+    connect(d->traceArea, &FancyMainWindow::resetLayout, d, &WindowPrivate::resetLayout);
 
-    d->progressIndicator->attachToWidget(this);
+    auto splitter = new Core::MiniSplitter(Qt::Horizontal);
+    splitter->addWidget(d->sidebar);
+    splitter->addWidget(d->traceArea);
+    splitter->setStretchFactor(0, 0);
+    splitter->setStretchFactor(1, 1);
+    splitter->setSizes({200, 800});
+    setCentralWidget(splitter);
+
+    d->progressIndicator->attachToWidget(d->traceArea);
 
     restoreGeometry(settings().windowGeometry());
 }
 
 void Window::loadTraceFile(const FilePath &filePath)
 {
-    settings().lastTraceFile.setValue(filePath);
-    d->setTraceDuration(milliseconds{0});
-    d->progressIndicator->show();
-    d->lastLoadError.clear();
-    RPC::notifyTraceFileLoadingStarted(filePath);
-    d->viewManager->loadTraceFile(filePath);
+    d->sidebar->addTrace(filePath); // Registers + selects it without triggering a reload.
+    d->doLoad(filePath);
 }
 
 void Window::closeEvent(QCloseEvent *event)

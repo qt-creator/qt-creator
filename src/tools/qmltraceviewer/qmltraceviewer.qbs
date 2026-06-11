@@ -18,6 +18,8 @@ QtcTool {
         "qmltraceviewersettings.h",
         "qmltraceviewerwindow.cpp",
         "qmltraceviewerwindow.h",
+        "mainsidebar.cpp",
+        "mainsidebar.h",
         "schema/api.h",
     ]
 

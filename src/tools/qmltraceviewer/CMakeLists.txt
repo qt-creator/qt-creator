@@ -11,6 +11,7 @@ add_qtc_executable(qmltraceviewer
     qmltraceviewerrpc.cpp qmltraceviewerrpc.h
     qmltraceviewersettings.cpp qmltraceviewersettings.h
     qmltraceviewerwindow.h qmltraceviewerwindow.cpp
+    mainsidebar.cpp mainsidebar.h
     schema/api.h
 )
 

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/fancymainwindow.h>
+#include <QMainWindow>
 
 namespace Utils { class FilePath; }
 
@@ -11,7 +11,7 @@ namespace QmlTraceViewer {
 
 class WindowPrivate;
 
-class Window : public Utils::FancyMainWindow
+class Window : public QMainWindow
 {
     Q_OBJECT
 
