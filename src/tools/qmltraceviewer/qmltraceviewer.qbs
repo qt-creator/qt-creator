@@ -20,6 +20,8 @@ QtcTool {
         "qmltraceviewerwindow.h",
         "mainsidebar.cpp",
         "mainsidebar.h",
+        "welcomepage.cpp",
+        "welcomepage.h",
         "schema/api.h",
     ]
 

@@ -24,6 +24,10 @@ public:
     // Adds the trace if not present yet and selects it without emitting traceActivated().
     void addTrace(const Utils::FilePath &filePath);
 
+    // Removes the currently selected trace. Removing it selects a neighbour (which
+    // emits traceActivated()); returns true if a trace remains selected afterwards.
+    bool removeCurrentTrace();
+
     Utils::FilePath currentTrace() const;
 
 signals:

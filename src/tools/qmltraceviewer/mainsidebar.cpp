@@ -64,6 +64,18 @@ void MainSidebar::addTrace(const FilePath &filePath)
     m_list->setCurrentItem(item);
 }
 
+bool MainSidebar::removeCurrentTrace()
+{
+    QListWidgetItem *current = m_list->currentItem();
+    if (!current)
+        return false;
+
+    // takeItem() drops the row and selects a neighbour, emitting currentItemChanged
+    // (and thus traceActivated) for the new selection, or nullptr if none remain.
+    delete m_list->takeItem(m_list->row(current));
+    return m_list->currentItem() != nullptr;
+}
+
 FilePath MainSidebar::currentTrace() const
 {
     if (QListWidgetItem *item = m_list->currentItem())
