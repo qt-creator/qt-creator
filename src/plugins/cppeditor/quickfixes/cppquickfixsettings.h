@@ -7,6 +7,8 @@
 
 #include <projectexplorer/project.h>
 
+#include <utils/aspects.h>
+
 #include <QRegularExpression>
 
 #include <optional>
@@ -141,13 +143,11 @@ public:
 
 namespace Internal {
 
-class CppQuickFixProjectsSettings : public QObject
+class CppQuickFixProjectsSettings : public Utils::AspectContainer
 {
-    Q_OBJECT
 public:
     CppQuickFixProjectsSettings(ProjectExplorer::Project *project);
     CppQuickFixSettings *getSettings();
-    bool isUsingGlobalSettings() const;
     const Utils::FilePath &filePathOfSettingsFile() const;
 
     using CppQuickFixProjectsSettingsPtr = QSharedPointer<CppQuickFixProjectsSettings>;
@@ -156,10 +156,11 @@ public:
 
     Utils::FilePath searchForCppQuickFixSettingsFile();
 
-    void useGlobalSettings();
     [[nodiscard]] bool useCustomSettings();
     void resetOwnSettingsToGlobal();
     bool saveOwnSettings();
+
+    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from container
 
 private:
     void loadOwnSettingsFromFile();
@@ -167,7 +168,6 @@ private:
     ProjectExplorer::Project *m_project;
     Utils::FilePath m_settingsFile;
     CppQuickFixSettings m_ownSettings;
-    bool m_useGlobalSettings;
 };
 
 void setupCppQuickFixSettings();

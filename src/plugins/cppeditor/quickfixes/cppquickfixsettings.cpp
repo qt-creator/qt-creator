@@ -457,36 +457,34 @@ const char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
 CppQuickFixProjectsSettings::CppQuickFixProjectsSettings(ProjectExplorer::Project *project)
 {
     m_project = project;
+    useGlobalSettings.setDefaultValue(true);
     const auto settings = storeFromVariant(m_project->namedSettings(QUICK_FIX_SETTINGS_ID));
     // if no option is saved try to load settings from a file
-    m_useGlobalSettings = settings.value(USE_GLOBAL_SETTINGS, false).toBool();
-    if (!m_useGlobalSettings) {
+    const bool global = settings.value(USE_GLOBAL_SETTINGS, false).toBool();
+    if (!global) {
         m_settingsFile = searchForCppQuickFixSettingsFile();
         if (!m_settingsFile.isEmpty()) {
             loadOwnSettingsFromFile();
-            m_useGlobalSettings = false;
+            useGlobalSettings.setValue(false);
         } else {
-            m_useGlobalSettings = true;
+            useGlobalSettings.setValue(true);
         }
+    } else {
+        useGlobalSettings.setValue(true);
     }
     connect(project, &ProjectExplorer::Project::aboutToSaveSettings, this, [this] {
         auto settings = m_project->namedSettings(QUICK_FIX_SETTINGS_ID).toMap();
-        settings.insert(USE_GLOBAL_SETTINGS, m_useGlobalSettings);
+        settings.insert(USE_GLOBAL_SETTINGS, useGlobalSettings());
         m_project->setNamedSettings(QUICK_FIX_SETTINGS_ID, settings);
     });
 }
 
 CppQuickFixSettings *CppQuickFixProjectsSettings::getSettings()
 {
-    if (m_useGlobalSettings)
+    if (useGlobalSettings())
         return CppQuickFixSettings::instance();
 
     return &m_ownSettings;
-}
-
-bool CppQuickFixProjectsSettings::isUsingGlobalSettings() const
-{
-    return m_useGlobalSettings;
 }
 
 const Utils::FilePath &CppQuickFixProjectsSettings::filePathOfSettingsFile() const
@@ -517,11 +515,6 @@ CppQuickFixSettings *CppQuickFixProjectsSettings::getQuickFixSettings(ProjectExp
 FilePath CppQuickFixProjectsSettings::searchForCppQuickFixSettingsFile()
 {
     return m_project->projectDirectory().searchHereAndInParents(SETTINGS_FILE_NAME, DirFilterFlag::Files);
-}
-
-void CppQuickFixProjectsSettings::useGlobalSettings()
-{
-    m_useGlobalSettings = true;
 }
 
 bool CppQuickFixProjectsSettings::useCustomSettings()
@@ -557,7 +550,6 @@ bool CppQuickFixProjectsSettings::useCustomSettings()
     if (m_settingsFile.exists())
         loadOwnSettingsFromFile();
 
-    m_useGlobalSettings = false;
     return true;
 }
 
@@ -721,14 +713,13 @@ public:
     explicit CppQuickFixProjectSettingsWidget(Project *project);
 
 private:
-    void currentItemChanged(bool useGlobalSettings);
+    void currentItemChanged(bool useGlobal);
     void buttonCustomClicked();
 
     CppQuickFixSettingsWidget *m_settingsWidget;
     CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr m_projectSettings;
 
     QPushButton *m_pushButton;
-    QCheckBox m_globalCheckBox;
 };
 
 CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *project)
@@ -741,14 +732,10 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *proj
     if (QLayout *l = m_settingsWidget->layout())
         l->setContentsMargins(0, 0, 0, 0);
 
-    m_globalCheckBox.setChecked(m_projectSettings->isUsingGlobalSettings());
-    connect(&m_globalCheckBox, &QCheckBox::toggled, this,
-            [this](bool useGlobal) { currentItemChanged(useGlobal); });
-
     using namespace Layouting;
     Column {
         Row {
-            &m_globalCheckBox,
+            m_projectSettings->useGlobalSettings,
             createUseGlobalSettingsLabel(CppEditor::Constants::QUICK_FIX_SETTINGS_ID),
             st
         },
@@ -758,30 +745,33 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *proj
         noMargin,
     }.attachTo(this);
 
-    currentItemChanged(m_projectSettings->isUsingGlobalSettings());
+    currentItemChanged(m_projectSettings->useGlobalSettings());
+
+    m_projectSettings->useGlobalSettings.addOnChanged(this, [this] {
+        currentItemChanged(m_projectSettings->useGlobalSettings());
+    });
 
     connect(m_pushButton, &QAbstractButton::clicked,
             this, &CppQuickFixProjectSettingsWidget::buttonCustomClicked);
     connect(m_settingsWidget, &CppQuickFixSettingsWidget::settingsChanged, this,
             [this] {
                 m_settingsWidget->saveSettings(m_projectSettings->getSettings());
-                if (!m_globalCheckBox.isChecked())
+                if (!m_projectSettings->useGlobalSettings())
                     m_projectSettings->saveOwnSettings();
             });
 }
 
-void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobalSettings)
+void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobal)
 {
-    if (useGlobalSettings) {
+    if (useGlobal) {
         const auto &path = m_projectSettings->filePathOfSettingsFile();
         m_pushButton->setToolTip(Tr::tr("Custom settings are saved in a file. If you use the "
                                         "global settings, you can delete that file."));
         m_pushButton->setText(Tr::tr("Delete Custom Settings File"));
         m_pushButton->setVisible(!path.isEmpty() && path.exists());
-        m_projectSettings->useGlobalSettings();
     } else /*Custom*/ {
         if (!m_projectSettings->useCustomSettings()) {
-            m_globalCheckBox.setChecked(!m_projectSettings->useCustomSettings());
+            m_projectSettings->useGlobalSettings.setValue(true, Utils::BaseAspect::BeQuiet);
             return;
         }
         m_pushButton->setToolTip(Tr::tr("Resets all settings to the global settings."));
@@ -791,12 +781,12 @@ void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobalSettings
         m_projectSettings->saveOwnSettings();
     }
     m_settingsWidget->loadSettings(m_projectSettings->getSettings());
-    m_settingsWidget->setEnabled(!useGlobalSettings);
+    m_settingsWidget->setEnabled(!useGlobal);
 }
 
 void CppQuickFixProjectSettingsWidget::buttonCustomClicked()
 {
-    if (m_globalCheckBox.isChecked()) {
+    if (m_projectSettings->useGlobalSettings()) {
         // delete file
         m_projectSettings->filePathOfSettingsFile().removeFile();
         m_pushButton->setVisible(false);
