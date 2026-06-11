@@ -1842,7 +1842,8 @@ class Dumper(DumperBase):
         lldbId = int(args['lldbid'])
         if lldbId > qqWatchpointOffset:
             res = self.target.DeleteWatchpoint(lldbId - qqWatchpointOffset)
-        res = self.target.BreakpointDelete(lldbId)
+        else:
+            res = self.target.BreakpointDelete(lldbId)
         self.reportResult('success="%d"' % int(res), args)
 
     def fetchModules(self, args):
