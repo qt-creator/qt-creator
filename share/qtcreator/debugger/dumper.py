@@ -4315,7 +4315,7 @@ typename))
         value.check()
         if other.type.name == value.type.name:
             stripped = self.type_strip_typedefs(value.typeid)
-            if self.type_code(stripped.code) == TypeCode.Pointer:
+            if self.type_code(stripped) == TypeCode.Pointer:
                 item_size = self.type_size(self.type_dereference(stripped))
                 return (value.pointer() - other.pointer()) // item_size
         raise RuntimeError('BAD DATA TO SUB TO: %s %s' % (value.type, other))
