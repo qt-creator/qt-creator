@@ -34,30 +34,4 @@ private:
     QString m_delimiter;
 };
 
-class QTCREATOR_UTILS_EXPORT PathChooserDelegate : public QStyledItemDelegate
-{
-public:
-    explicit PathChooserDelegate(QObject *parent = nullptr);
-
-    void setExpectedKind(PathChooser::Kind kind);
-    void setPromptDialogFilter(const QString &filter);
-
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const override;
-
-    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
-    void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const override;
-
-    void updateEditorGeometry(QWidget *editor,
-        const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-
-    void setHistoryCompleter(const Key &key);
-
-private:
-    PathChooser::Kind m_kind = PathChooser::ExistingDirectory;
-    QString m_filter;
-    Key m_historyKey;
-};
-
 } // Utils
