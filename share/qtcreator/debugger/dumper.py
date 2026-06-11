@@ -2595,8 +2595,7 @@ typename))
                 open_p, close_p, open_b, close_b = '(', ')', '[', ']'
             else:
                 open_p, close_p, open_b, close_b = ')', '(', ']', '['
-            for i in range(len(s)):
-                c = s[i]
+            for i, c in enumerate(s):
                 if c == open_p:
                     paran += 1
                 elif c == open_b:

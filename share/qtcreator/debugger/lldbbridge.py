@@ -1418,8 +1418,7 @@ class Dumper(DumperBase):
                 with Children(self):
                     statics = frame.GetVariables(False, False, True, False)
                     if len(statics):
-                        for i in range(len(statics)):
-                            staticVar = statics[i]
+                        for i, staticVar in enumerate(statics):
                             staticVar.SetPreferSyntheticValue(False)
                             typename = staticVar.GetType().GetName()
                             name = staticVar.GetName()
@@ -2102,10 +2101,10 @@ class Dumper(DumperBase):
         sbtype = self.lookupNativeType(typename)
         sizeof = sbtype.GetByteSize()
         error = lldb.SBError()
-        for i in range(len(values)):
+        for i, value in enumerate(values):
             sbaddr = lldb.SBAddress(address + i * sizeof, self.target)
             sbvalue = self.target.CreateValueFromAddress('x', sbaddr, sbtype)
-            sbvalue.SetValueFromCString(str(values[i]), error)
+            sbvalue.SetValueFromCString(str(value), error)
 
     def assignValue(self, args):
         self.reportToken(args)

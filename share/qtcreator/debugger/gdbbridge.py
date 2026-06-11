@@ -769,10 +769,9 @@ class Dumper(DumperBase):
     def callHelper(self, rettype, value, function, args):
         # args is a tuple.
         arg = ''
-        for i in range(len(args)):
+        for i, a in enumerate(args):
             if i:
                 arg += ','
-            a = args[i]
             if (':' in a) and not ("'" in a):
                 arg = "'%s'" % a
             else:
