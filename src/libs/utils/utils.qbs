@@ -229,8 +229,6 @@ QtcLibrary {
         "namevalueitem.h",
         "namevaluesdialog.cpp",
         "namevaluesdialog.h",
-        "namevaluevalidator.cpp",
-        "namevaluevalidator.h",
         "navigationtreeview.cpp",
         "navigationtreeview.h",
         "networkaccessmanager.cpp",
