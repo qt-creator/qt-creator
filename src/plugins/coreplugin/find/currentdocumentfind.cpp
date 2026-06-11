@@ -10,7 +10,6 @@
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QApplication>
 #include <QWidget>
 
@@ -19,7 +18,7 @@ using namespace Utils;
 namespace Core::Internal {
 
 CurrentDocumentFind::CurrentDocumentFind()
-  : m_currentFind(nullptr)
+    : DelegatingFindSupport([this]() -> IFindSupport * { return m_currentFind; })
 {
     connect(qApp, &QApplication::focusChanged,
             this, &CurrentDocumentFind::updateCandidateFindFilter,
@@ -32,18 +31,6 @@ void CurrentDocumentFind::removeConnections()
     removeFindSupportConnections();
 }
 
-void CurrentDocumentFind::resetIncrementalSearch()
-{
-    QTC_ASSERT(m_currentFind, return);
-    m_currentFind->resetIncrementalSearch();
-}
-
-void CurrentDocumentFind::clearHighlights()
-{
-    QTC_ASSERT(m_currentFind, return);
-    m_currentFind->clearHighlights();
-}
-
 bool CurrentDocumentFind::isEnabled() const
 {
     return m_currentFind && (!m_currentWidget || m_currentWidget->isVisible());
@@ -54,74 +41,10 @@ IFindSupport *CurrentDocumentFind::candidate() const
     return m_candidateFind;
 }
 
-bool CurrentDocumentFind::supportsReplace() const
-{
-    if (!m_currentFind)
-        return false;
-    return m_currentFind->supportsReplace();
-}
-
-bool CurrentDocumentFind::supportsSelectAll() const
-{
-    if (!m_currentFind)
-        return false;
-    return m_currentFind->supportsSelectAll();
-}
-
-FindFlags CurrentDocumentFind::supportedFindFlags() const
-{
-    QTC_ASSERT(m_currentFind, return {});
-    return m_currentFind->supportedFindFlags();
-}
-
-QString CurrentDocumentFind::currentFindString() const
-{
-    if (!m_currentFind)
-        return QString();
-    return m_currentFind->currentFindString();
-}
-
-QString CurrentDocumentFind::completedFindString() const
-{
-    QTC_ASSERT(m_currentFind, return QString());
-    return m_currentFind->completedFindString();
-}
-
-void CurrentDocumentFind::highlightAll(const QString &txt, FindFlags findFlags)
-{
-    if (!m_currentFind)
-        return;
-    m_currentFind->highlightAll(txt, findFlags);
-}
-
-IFindSupport::Result CurrentDocumentFind::findIncremental(const QString &txt, FindFlags findFlags)
-{
-    QTC_ASSERT(m_currentFind, return IFindSupport::NotFound);
-    return m_currentFind->findIncremental(txt, findFlags);
-}
-
-IFindSupport::Result CurrentDocumentFind::findStep(const QString &txt, FindFlags findFlags)
-{
-    QTC_ASSERT(m_currentFind, return IFindSupport::NotFound);
-    return m_currentFind->findStep(txt, findFlags);
-}
-
 void CurrentDocumentFind::selectAll(const QString &txt, FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind && m_currentFind->supportsSelectAll(), return);
     m_currentFind->selectAll(txt, findFlags);
-}
-
-void CurrentDocumentFind::replace(const QString &before, const QString &after, FindFlags findFlags)
-{
-    QTC_ASSERT(m_currentFind, return);
-    m_currentFind->replace(before, after, findFlags);
-}
-
-bool CurrentDocumentFind::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
-{
-    QTC_ASSERT(m_currentFind, return false);
-    return m_currentFind->replaceStep(before, after, findFlags);
 }
 
 int CurrentDocumentFind::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
@@ -132,19 +55,6 @@ int CurrentDocumentFind::replaceAll(const QString &before, const QString &after,
     FadingIndicator::showText(m_currentWidget, Tr::tr("%n occurrences replaced.", nullptr, count),
                               FadingIndicator::SmallText);
     return count;
-}
-
-void CurrentDocumentFind::defineFindScope()
-{
-    if (!m_currentFind)
-        return;
-    m_currentFind->defineFindScope();
-}
-
-void CurrentDocumentFind::clearFindScope()
-{
-    QTC_ASSERT(m_currentFind, return);
-    m_currentFind->clearFindScope();
 }
 
 void CurrentDocumentFind::updateCandidateFindFilter()

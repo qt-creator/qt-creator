@@ -5,38 +5,19 @@
 
 #include "ifindsupport.h"
 
-#include <utils/filesearch.h>
-
 #include <QPointer>
 
 namespace Core::Internal {
 
-class CurrentDocumentFind : public QObject
+class CurrentDocumentFind : public DelegatingFindSupport
 {
     Q_OBJECT
 
 public:
     CurrentDocumentFind();
 
-    void resetIncrementalSearch();
-    void clearHighlights();
-    bool supportsReplace() const;
-    bool supportsSelectAll() const;
-    Utils::FindFlags supportedFindFlags() const;
-    QString currentFindString() const;
-    QString completedFindString() const;
-
     bool isEnabled() const;
     IFindSupport *candidate() const;
-    void highlightAll(const QString &txt, Utils::FindFlags findFlags);
-    IFindSupport::Result findIncremental(const QString &txt, Utils::FindFlags findFlags);
-    IFindSupport::Result findStep(const QString &txt, Utils::FindFlags findFlags);
-    void selectAll(const QString &txt, Utils::FindFlags findFlags);
-    void replace(const QString &before, const QString &after, Utils::FindFlags findFlags);
-    bool replaceStep(const QString &before, const QString &after, Utils::FindFlags findFlags);
-    int replaceAll(const QString &before, const QString &after, Utils::FindFlags findFlags);
-    void defineFindScope();
-    void clearFindScope();
     void acceptCandidate();
 
     void removeConnections();
@@ -44,8 +25,10 @@ public:
 
     bool eventFilter(QObject *obj, QEvent *event) override;
 
+    void selectAll(const QString &txt, Utils::FindFlags findFlags) override;
+    int replaceAll(const QString &before, const QString &after, Utils::FindFlags findFlags) override;
+
 signals:
-    void changed();
     void candidateChanged();
 
 private:
