@@ -4,6 +4,7 @@
 #include "perfprofilerruncontrol.h"
 
 #include "perfdatareader.h"
+#include "perfprofilerconstants.h"
 #include "perfprofilertool.h"
 #include "perfprofilertr.h"
 
