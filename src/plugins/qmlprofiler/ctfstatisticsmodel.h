@@ -5,6 +5,7 @@
 
 #include <QAbstractTableModel>
 #include <QHash>
+#include <QList>
 
 namespace Profiler::Internal {
 
@@ -35,6 +36,11 @@ public:
         qint64 maxDuration = 0.0;
     };
 
+    struct Row {
+        QString title;
+        EventData data;
+    };
+
     explicit CtfStatisticsModel(QObject *parent);
     ~CtfStatisticsModel() override = default;
 
@@ -51,6 +57,7 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
     QHash<QString, EventData> m_data;
+    QList<Row> m_rows;
     qint64 m_measurementDurationInNs = 0;
 
 };

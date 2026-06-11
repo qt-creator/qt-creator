@@ -20,6 +20,7 @@ void CtfStatisticsModel::beginLoading()
 {
     beginResetModel();
     m_data.clear();
+    m_rows.clear();
 }
 
 void CtfStatisticsModel::addEvent(const QString &title, qint64 durationInNs)
@@ -40,12 +41,16 @@ void CtfStatisticsModel::setMeasurementDuration(qint64 timeInNs)
 
 void CtfStatisticsModel::endLoading()
 {
+    m_rows.clear();
+    m_rows.reserve(m_data.size());
+    for (auto it = m_data.cbegin(), end = m_data.cend(); it != end; ++it)
+        m_rows.append({it.key(), it.value()});
     endResetModel();
 }
 
 int CtfStatisticsModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_data.size();
+    return parent.isValid() ? 0 : m_rows.size();
 }
 
 int CtfStatisticsModel::columnCount(const QModelIndex &parent) const
@@ -55,12 +60,11 @@ int CtfStatisticsModel::columnCount(const QModelIndex &parent) const
 
 QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
+    if (!index.isValid() || index.row() < 0 || index.row() >= m_rows.size())
         return {};
 
-    auto it = m_data.cbegin();
-    std::advance(it, index.row());
-    const QString &title = it.key();
+    const QString &title = m_rows.at(index.row()).title;
+    const EventData &eventData = m_rows.at(index.row()).data;
 
     switch (role) {
     case Qt::TextAlignmentRole:
@@ -83,25 +87,23 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         case Column::Title:
             return title;
         case Column::Count:
-            return m_data.value(title).count;
+            return eventData.count;
         case Column::TotalDuration:
-            return m_data.value(title).totalDuration;
         case Column::RelativeDuration:
-            return m_data.value(title).totalDuration;
+            return eventData.totalDuration;
         case Column::MinDuration:
         {
-            auto minDuration = m_data.value(title).minDuration;
+            auto minDuration = eventData.minDuration;
             return minDuration != std::numeric_limits<qint64>::max() ? minDuration : 0;
         }
         case Column::AvgDuration:
         {
-            auto data = m_data.value(title);
-            if (data.totalDuration > 0 && data.count > 0)
-                return double(data.totalDuration) / data.count;
+            if (eventData.totalDuration > 0 && eventData.count > 0)
+                return double(eventData.totalDuration) / eventData.count;
             return 0;
         }
         case Column::MaxDuration:
-            return m_data.value(title).maxDuration;
+            return eventData.maxDuration;
         default:
             return {};
         }
@@ -110,10 +112,10 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         case Column::Title:
             return title;
         case Column::Count:
-            return m_data.value(title).count;
+            return eventData.count;
         case Column::TotalDuration:
         {
-            auto totalDuration = m_data.value(title).totalDuration;
+            auto totalDuration = eventData.totalDuration;
             if (totalDuration > 0)
                 return Timeline::formatTime(totalDuration);
             else
@@ -121,7 +123,7 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         }
         case Column::RelativeDuration:
         {
-            auto totalDuration = m_data.value(title).totalDuration;
+            auto totalDuration = eventData.totalDuration;
             if (m_measurementDurationInNs > 0 && totalDuration > 0) {
                 const double percent = (totalDuration / double(m_measurementDurationInNs)) * 100;
                 return QString("%1 %").arg(percent, 0, 'f', 2);
@@ -131,7 +133,7 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         }
         case Column::MinDuration:
         {
-            auto minDuration = m_data.value(title).minDuration;
+            auto minDuration = eventData.minDuration;
             if (minDuration != std::numeric_limits<qint64>::max())
                 return Timeline::formatTime(minDuration);
             else
@@ -139,14 +141,13 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         }
         case Column::AvgDuration:
         {
-            auto data = m_data.value(title);
-            if (data.totalDuration > 0 && data.count > 0)
-                return Timeline::formatTime(data.totalDuration / data.count);
+            if (eventData.totalDuration > 0 && eventData.count > 0)
+                return Timeline::formatTime(eventData.totalDuration / eventData.count);
             return "-";
         }
         case Column::MaxDuration:
         {
-            auto maxDuration = m_data.value(title).maxDuration;
+            auto maxDuration = eventData.maxDuration;
             if (maxDuration > 0)
                 return Timeline::formatTime(maxDuration);
             else
