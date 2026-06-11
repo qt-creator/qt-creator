@@ -3,21 +3,12 @@
 
 #pragma once
 
-#include "perfprofilerconstants.h"
-#include "perfprofilerflamegraphview.h"
-#include "perfprofilerstatisticsview.h"
+#include <QObject>
 
-#include <coreplugin/perspective.h>
-#include <tracing/timelinezoomcontrol.h>
-#include <tracing/timelinewidget.h>
-
-#include <utils/action.h>
-#include <utils/fileinprojectfinder.h>
-
-#include <QCoreApplication>
-#include <QLabel>
-#include <QMenu>
-#include <QToolButton>
+QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class Kit;
@@ -26,6 +17,8 @@ class RunControl;
 }
 
 namespace PerfProfiler::Internal {
+
+class PerfProfilerToolPrivate;
 
 class PerfProfilerTool  : public QObject
 {
@@ -40,7 +33,7 @@ public:
     bool isRecording() const;
     void onReaderFinished();
 
-    const QAction *stopAction() const { return &m_stopAction; }
+    const QAction *stopAction() const;
 
     void onRunControlStarted();
     void onRunControlFinished();
@@ -76,34 +69,7 @@ private:
     void initialize();
     void finalize();
 
-    Core::Perspective m_perspective {
-        Constants::PerfProfilerPerspectiveId,
-        QCoreApplication::translate("QtC::PerfProfiler", "Performance Analyzer")
-    };
-
-    QAction m_startAction;
-    QAction m_stopAction;
-    Utils::Action m_loadPerfData;
-    Utils::Action m_loadTrace;
-    Utils::Action m_saveTrace;
-    Utils::Action m_limitToRange;
-    Utils::Action m_showFullRange;
-    QToolButton m_clearButton;
-    QToolButton m_recordButton;
-    QLabel m_recordedLabel;
-    QLabel m_delayLabel;
-    QMenu m_filterMenu;
-    QToolButton m_filterButton;
-    QToolButton m_aggregateButton;
-    QToolButton m_tracePointsButton;
-
-    Timeline::TimelineZoomControl m_zoomControl;
-    Timeline::TimelineWidget m_traceView;
-    PerfProfilerStatisticsView m_statisticsView;
-    PerfProfilerFlameGraphView m_flameGraphView{nullptr};
-    Utils::FileInProjectFinder m_fileFinder;
-    bool m_readerRunning = false;
-    bool m_processRunning = false;
+    PerfProfilerToolPrivate *d = nullptr;
 };
 
 void setupPerfProfilerTool();
