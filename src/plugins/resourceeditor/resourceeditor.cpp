@@ -18,7 +18,6 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
-#include <utils/reloadpromptutils.h>
 #include <utils/stringutils.h>
 
 #include <QAction>

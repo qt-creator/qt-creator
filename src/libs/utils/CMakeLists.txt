@@ -156,7 +156,6 @@ add_qtc_library(Utils
     qtcwidgets.cpp qtcwidgets.h
     qtdesignsystemstyle.cpp qtdesignsystemstyle.h
     ranges.h
-    reloadpromptutils.cpp reloadpromptutils.h
     removefiledialog.cpp removefiledialog.h
     result.cpp result.h
     savefile.cpp savefile.h

@@ -302,8 +302,6 @@ QtcLibrary {
         "qtdesignsystemstyle.cpp",
         "qtdesignsystemstyle.h",
         "ranges.h",
-        "reloadpromptutils.cpp",
-        "reloadpromptutils.h",
         "removefiledialog.cpp",
         "removefiledialog.h",
         "result.cpp",
