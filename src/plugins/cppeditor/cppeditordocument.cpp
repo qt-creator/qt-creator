@@ -395,6 +395,12 @@ void CppEditorDocument::Private::onFilePathChanged(const FilePath &oldPath, cons
     Q_UNUSED(oldPath)
 
     if (!newPath.isEmpty()) {
+        // tabSettings() is overridden to prefer the indenter's tab settings, which
+        // depend on the file path (ClangFormat looks up .clang-format relative to
+        // the file). Notify the attached widgets so they recompute their tab stops
+        // with the now resolvable style.
+        emit q->tabSettingsChanged();
+
         q->setMimeType(mimeTypeForFile(newPath).name());
 
         connect(q, &Core::IDocument::contentsChanged,
