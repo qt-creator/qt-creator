@@ -48,6 +48,7 @@
 #include <utils/messagebox.h>
 #include <utils/progressindicator.h>
 #include <utils/proxyaction.h>
+#include <utils/shutdownguard.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 #include <utils/utilsicons.h>
@@ -725,8 +726,7 @@ Group ClangTool::runRecipe(const RunSettingsData &runSettings,
             .arg(name(), projectFile.toUserOutput(), diagnosticConfig.displayName()),
             NormalMessageFormat);
 
-        const ClangToolType tool = this == ClangTidyTool::instance() ? ClangToolType::Tidy
-                                                                     : ClangToolType::Clazy;
+        const ClangToolType tool = m_type;
         const FilePath executable = toolExecutable(tool);
         const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
         // Collect files
@@ -1363,15 +1363,18 @@ void ClangTool::updateForCurrentState()
     m_infoBarWidget->setDiagText(diagText);
 }
 
-ClangTidyTool::ClangTidyTool() : ClangTool(Tr::tr("Clang-Tidy"), "ClangTidy.Perspective",
-                                           ClangToolType::Tidy)
+ClangTool *clangTidyTool()
 {
-    m_instance = this;
+    static GuardedObject<ClangTool> theTool(
+        Tr::tr("Clang-Tidy"), "ClangTidy.Perspective", ClangToolType::Tidy);
+    return theTool.get();
 }
 
-ClazyTool::ClazyTool() : ClangTool(Tr::tr("Clazy"), "Clazy.Perspective", ClangToolType::Clazy)
+ClangTool *clazyTool()
 {
-    m_instance = this;
+    static GuardedObject<ClangTool> theTool(
+        Tr::tr("Clazy"), "Clazy.Perspective", ClangToolType::Clazy);
+    return theTool.get();
 }
 
 } // namespace ClangTools::Internal

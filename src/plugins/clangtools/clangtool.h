@@ -35,7 +35,9 @@ class ClangTool : public QObject
     Q_OBJECT
 
 public:
+    ClangTool(const QString &name, Utils::Id id, CppEditor::ClangToolType type);
     ~ClangTool() override;
+
     void selectPerspective();
 
     enum class FileSelectionType {
@@ -67,9 +69,6 @@ public:
 
 signals:
     void finished(const QString &errorText); // For testing.
-
-protected:
-    ClangTool(const QString &name, Utils::Id id, CppEditor::ClangToolType type);
 
 private:
     QtTaskTree::Group runRecipe(const RunSettingsData &runSettings,
@@ -114,7 +113,7 @@ private:
     ProjectExplorer::RunControl *m_runControl = nullptr;
 
     InfoBarWidget *m_infoBarWidget = nullptr;
-    DiagnosticView *m_diagnosticView = nullptr;;
+    DiagnosticView *m_diagnosticView = nullptr;
 
     QAction *m_startAction = nullptr;
     QAction *m_startOnCurrentFileAction = nullptr;
@@ -143,24 +142,7 @@ private:
     const CppEditor::ClangToolType m_type;
 };
 
-class ClangTidyTool : public ClangTool
-{
-public:
-    ClangTidyTool();
-    static ClangTool *instance() { return m_instance; }
-
-private:
-    static inline ClangTool *m_instance = nullptr;
-};
-
-class ClazyTool : public ClangTool
-{
-public:
-    ClazyTool();
-    static ClangTool *instance() { return m_instance; }
-
-private:
-    static inline ClangTool *m_instance = nullptr;
-};
+ClangTool *clangTidyTool();
+ClangTool *clazyTool();
 
 } // namespace ClangTools::Internal

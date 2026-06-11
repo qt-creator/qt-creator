@@ -131,10 +131,10 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     });
 
     connect(gotoClangTidyModeLabel, &QLabel::linkActivated, [](const QString &) {
-        ClangTidyTool::instance()->selectPerspective();
+        clangTidyTool()->selectPerspective();
     });
     connect(gotoClazyModeLabel, &QLabel::linkActivated, [](const QString &) {
-        ClazyTool::instance()->selectPerspective();
+        clazyTool()->selectPerspective();
     });
 
     // Run options

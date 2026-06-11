@@ -85,8 +85,6 @@ public:
         return nullptr;
     }
 
-    ClangTidyTool clangTidyTool;
-    ClazyTool clazyTool;
     QSet<TextEditor::TextDocument *> documentsWithRunners;
     DocumentQuickFixFactory quickFixFactory;
 };
@@ -242,10 +240,10 @@ void ClangToolsPlugin::registerAnalyzeActions()
         mcontext->addSeparator(menuGroupId);
     }
 
-    for (const auto &toolInfo : {std::make_tuple(ClangTidyTool::instance(),
+    for (const auto &toolInfo : {std::make_tuple(clangTidyTool(),
                                                  Id(Constants::RUN_CLANGTIDY_ON_PROJECT),
                                                  Id(Constants::RUN_CLANGTIDY_ON_CURRENT_FILE)),
-                                 std::make_tuple(ClazyTool::instance(),
+                                 std::make_tuple(clazyTool(),
                                                  Id(Constants::RUN_CLAZY_ON_PROJECT),
                                                  Id(Constants::RUN_CLAZY_ON_CURRENT_FILE))}) {
         ClangTool * const tool = std::get<0>(toolInfo);
@@ -281,9 +279,9 @@ void ClangToolsPlugin::registerAnalyzeActions()
         button->setMenu(toolsMenu);
         for (const auto &toolInfo :
              {std::pair<ClangTool *, Utils::Id>(
-                  ClangTidyTool::instance(), Constants::RUN_CLANGTIDY_ON_CURRENT_FILE),
+                  clangTidyTool(), Constants::RUN_CLANGTIDY_ON_CURRENT_FILE),
               std::pair<ClangTool *, Utils::Id>(
-                  ClazyTool::instance(), Constants::RUN_CLAZY_ON_CURRENT_FILE)}) {
+                  clazyTool(), Constants::RUN_CLAZY_ON_CURRENT_FILE)}) {
             ClangTool * const tool = toolInfo.first;
             Command * const cmd = ActionManager::command(toolInfo.second);
             QAction *const action = toolsMenu->addAction(tool->name(), [editor, tool] {

@@ -105,7 +105,7 @@ void ClangToolsUnitTests::testProject()
     QVERIFY(projectManager.open(projectFilePath, m_kit));
 
     // Run tools
-    for (ClangTool * const tool : {ClangTidyTool::instance(), ClazyTool::instance()}) {
+    for (ClangTool * const tool : {clangTidyTool(), clazyTool()}) {
         tool->startTool(ClangTool::FileSelectionType::AllFiles,
                         ClangToolsSettings::instance()->runSettings.data(),
                         diagnosticConfig);
@@ -118,7 +118,7 @@ void ClangToolsUnitTests::testProject()
         if (!finishedSuccessfully)
             qWarning("Error: %s", qPrintable(errorText));
         QVERIFY(finishedSuccessfully);
-        QCOMPARE(tool->diagnostics().count(), tool == ClangTidyTool::instance()
+        QCOMPARE(tool->diagnostics().count(), tool == clangTidyTool()
                  ? expectedDiagCountClangTidy : expectedDiagCountClazy);
     }
 }
