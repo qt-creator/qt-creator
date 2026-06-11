@@ -94,7 +94,8 @@ protected:
     QExplicitlySharedDataPointer<MimeTypePrivate> d;
 
 private:
-    friend Q_CORE_EXPORT bool comparesEqual(const MimeType &lhs, const MimeType &rhs) noexcept;
+    friend QTCREATOR_UTILS_EXPORT bool comparesEqual(const MimeType &lhs,
+                                                     const MimeType &rhs) noexcept;
     Q_DECLARE_EQUALITY_COMPARABLE(MimeType)
 };
 
