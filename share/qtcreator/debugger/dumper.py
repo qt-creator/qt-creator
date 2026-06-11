@@ -2355,7 +2355,7 @@ typename))
                                     isSignal = True
                                 elif flags == 0x0a:
                                     typ = 'slot'
-                                elif flags == 0x0a:
+                                elif flags == 0x02:
                                     typ = 'invokable'
                                 else:
                                     typ = '<unknown>'
