@@ -19,6 +19,7 @@ class OutputLineParser;
 
 namespace Core {
 
+class IFindSupport;
 namespace Internal { class OutputWindowPrivate; }
 
 class CORE_EXPORT OutputWindow : public QPlainTextEdit
@@ -75,6 +76,8 @@ public:
 
     void setOutputFileNameHint(const QString &fileName);
 
+    IFindSupport *findSupport() const;
+
     void filterNewContent();
 
 signals:
@@ -87,6 +90,9 @@ public slots:
     void setDiscardExcessiveOutput(bool discard);
 
 protected:
+    OutputWindow(
+        Context context, const Utils::Key &settingsKey, bool aggregateFindSupport, QWidget *parent);
+
     virtual void handleLink(const QPoint &pos);
     virtual void adaptContextMenu(QMenu *menu, const QPoint &pos);
 

@@ -106,6 +106,7 @@ public:
     QTimer scrollTimer;
     QElapsedTimer lastMessage;
     QHash<unsigned int, QPair<int, int>> taskPositions;
+    IFindSupport *findSupport = nullptr;
 };
 
 } // namespace Internal
@@ -113,6 +114,11 @@ public:
 /*******************/
 
 OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *parent)
+    : OutputWindow(context, settingsKey, /*aggregateFindSupport=*/true, parent)
+{}
+
+OutputWindow::OutputWindow(
+    Context context, const Key &settingsKey, bool aggregateFindSupport, QWidget *parent)
     : QPlainTextEdit(parent)
     , d(new Internal::OutputWindowPrivate(document()))
 {
@@ -203,13 +209,21 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     p.setColor(QPalette::HighlightedText, activeHighlightedText);
     setPalette(p);
 
-    auto find = new BaseTextFind(this);
-    Aggregation::aggregate({this, find});
+    d->findSupport = new BaseTextFind(this);
+    if (aggregateFindSupport)
+        Aggregation::aggregate({this, d->findSupport});
+    else
+        d->findSupport->setParent(this);
 }
 
 OutputWindow::~OutputWindow()
 {
     delete d;
+}
+
+IFindSupport *OutputWindow::findSupport() const
+{
+    return d->findSupport;
 }
 
 void OutputWindow::mousePressEvent(QMouseEvent *e)

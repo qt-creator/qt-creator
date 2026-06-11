@@ -170,3 +170,107 @@ void IFindSupport::showWrapIndicator(QWidget *parent)
     FadingIndicator::showPixmap(parent, StyleHelper::dpiSpecificImageFile(
                                             ":/find/images/wrapindicator.png"));
 }
+
+DelegatingFindSupport::DelegatingFindSupport(std::function<IFindSupport *()> currentFindSupport)
+    : m_currentFindSupport(std::move(currentFindSupport))
+{}
+
+bool DelegatingFindSupport::supportsReplace() const
+{
+    IFindSupport *fs = m_currentFindSupport();
+    return fs && fs->supportsReplace();
+}
+
+bool DelegatingFindSupport::supportsSelectAll() const
+{
+    IFindSupport *fs = m_currentFindSupport();
+    return fs && fs->supportsSelectAll();
+}
+
+void DelegatingFindSupport::resetIncrementalSearch()
+{
+    if (IFindSupport *fs = m_currentFindSupport())
+        fs->resetIncrementalSearch();
+}
+
+void DelegatingFindSupport::clearHighlights()
+{
+    if (IFindSupport *fs = m_currentFindSupport())
+        fs->clearHighlights();
+}
+
+QString DelegatingFindSupport::currentFindString() const
+{
+    IFindSupport *fs = m_currentFindSupport();
+    return fs ? fs->currentFindString() : QString{};
+}
+
+QString DelegatingFindSupport::completedFindString() const
+{
+    IFindSupport *fs = m_currentFindSupport();
+    return fs ? fs->completedFindString() : QString{};
+}
+
+void DelegatingFindSupport::highlightAll(const QString &txt, Utils::FindFlags flags)
+{
+    if (IFindSupport *fs = m_currentFindSupport())
+        fs->highlightAll(txt, flags);
+}
+
+void DelegatingFindSupport::replace(
+    const QString &before, const QString &after, Utils::FindFlags flags)
+{
+    if (IFindSupport *fs = m_currentFindSupport())
+        fs->replace(before, after, flags);
+}
+
+bool DelegatingFindSupport::replaceStep(
+    const QString &before, const QString &after, Utils::FindFlags flags)
+{
+    IFindSupport *fs = m_currentFindSupport();
+    return fs && fs->replaceStep(before, after, flags);
+}
+
+int DelegatingFindSupport::replaceAll(
+    const QString &before, const QString &after, Utils::FindFlags flags)
+{
+    IFindSupport *fs = m_currentFindSupport();
+    return fs ? fs->replaceAll(before, after, flags) : 0;
+}
+
+void DelegatingFindSupport::selectAll(const QString &txt, Utils::FindFlags flags)
+{
+    if (IFindSupport *fs = m_currentFindSupport())
+        fs->selectAll(txt, flags);
+}
+
+void DelegatingFindSupport::defineFindScope()
+{
+    if (IFindSupport *fs = m_currentFindSupport())
+        fs->defineFindScope();
+}
+
+void DelegatingFindSupport::clearFindScope()
+{
+    if (IFindSupport *fs = m_currentFindSupport())
+        fs->clearFindScope();
+}
+
+IFindSupport::Result DelegatingFindSupport::findStep(const QString &txt, Utils::FindFlags flags)
+{
+    IFindSupport *fs = m_currentFindSupport();
+    return fs ? fs->findStep(txt, flags) : NotFound;
+}
+
+IFindSupport::Result DelegatingFindSupport::findIncremental(
+    const QString &txt, Utils::FindFlags flags)
+{
+    IFindSupport *fs = m_currentFindSupport();
+    return fs ? fs->findIncremental(txt, flags) : NotFound;
+}
+
+FindFlags DelegatingFindSupport::supportedFindFlags() const
+{
+    IFindSupport *fs = m_currentFindSupport();
+    return fs ? fs->supportedFindFlags() : Utils::FindFlags{};
+}

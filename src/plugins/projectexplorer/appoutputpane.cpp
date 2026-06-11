@@ -15,10 +15,13 @@
 #include "showoutputtaskhandler.h"
 #include "windebuginterface.h"
 
+#include <aggregation/aggregate.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
+#include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/session.h>
@@ -137,12 +140,15 @@ private:
     QMap<QString, QLoggingCategory *> m_categories;
 };
 
-class AppOutputWindow : public Core::OutputWindow
+class AppOutputWindow : public OutputWindow
 {
     Q_OBJECT
 
 public:
-    using OutputWindow::OutputWindow;
+    AppOutputWindow(Context context, const Key &settingsKey, QWidget *parent = nullptr)
+        : OutputWindow(context, settingsKey, /*aggregateFindSupport=*/false, parent)
+    {
+    }
 
     void updateCategoriesProperties(const QMap<QString, QLoggingCategory *> &categories)
     {
@@ -372,8 +378,9 @@ private:
     QList<QPair<QString, QLoggingCategory *>> m_categories;
 };
 
-AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, Core::OutputWindow *w) :
-    runControl(runControl), window(w)
+AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, AppOutputWindow *w)
+    : runControl(runControl)
+    , window(w)
 {
     if (runControl && w) {
         w->reset();
@@ -475,6 +482,17 @@ AppOutputPane::AppOutputPane() :
     setFilteringEnabled(false);
     setZoomButtonsEnabled(false);
     setupContext("Core.AppOutputPane", m_tabWidget);
+
+    auto findSupport = new DelegatingFindSupport([this]() -> IFindSupport * {
+        const RunControlTab *tab = currentTab();
+        if (!tab)
+            return nullptr;
+        return tab->window ? tab->window->findSupport() : nullptr;
+    });
+    Aggregation::aggregate({m_tabWidget, findSupport});
+    connect(m_tabWidget, &QTabWidget::currentChanged, findSupport, [findSupport] {
+        emit findSupport->changed();
+    });
 }
 
 AppOutputPane::~AppOutputPane()
@@ -590,8 +608,8 @@ void AppOutputPane::setFocus()
 void AppOutputPane::updateFilter()
 {
     if (RunControlTab * const tab = currentTab()) {
-        auto appwindow = qobject_cast<AppOutputWindow*>(tab->window);
-        appwindow->updateCategoriesProperties(appwindow->registry()->categories());
+        QTC_ASSERT(tab->window, return);
+        tab->window->updateCategoriesProperties(tab->window->registry()->categories());
         if (!tab->window->updateFilterProperties(
                 filterText(),
                 filterCaseSensitivity(),
@@ -899,12 +917,13 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, OutputForm
     if (!tab)
         return;
 
-    if (qobject_cast<AppOutputWindow *>(tab->window)->filterEnabled()) {
+    QTC_ASSERT(tab->window, return);
+    if (tab->window->filterEnabled()) {
         const QStringList lines = out.split('\n');
         for (const QString &line : lines) {
             if (line.contains("_logging_categories") && line.contains("CATEGORY:")) {
-                auto appwindow = qobject_cast<AppOutputWindow*>(tab->window);
-                appwindow->registry()->onNewCategory(line.section("CATEGORY:", 1, 1).section('\n', 0, 0));
+                tab->window->registry()->onNewCategory(
+                    line.section("CATEGORY:", 1, 1).section('\n', 0, 0));
             }
         }
     }
@@ -1135,9 +1154,8 @@ void AppOutputPane::enableButtons(const RunControl *rc)
 void AppOutputPane::tabChanged(int i)
 {
     RunControlTab * const controlTab = tabFor(m_tabWidget->widget(i));
-    if (i != -1 && controlTab) {
-        auto appwindow = qobject_cast<AppOutputWindow*>(controlTab->window);
-        appwindow->updateCategoriesProperties(appwindow->registry()->categories());
+    if (i != -1 && controlTab && QTC_GUARD(controlTab->window)) {
+        controlTab->window->updateCategoriesProperties(controlTab->window->registry()->categories());
         if (!controlTab->window->updateFilterProperties(filterText(), filterCaseSensitivity(),
                                                     filterUsesRegexp(), filterIsInverted(),
                                                     beforeContext(), afterContext()))

@@ -26,6 +26,7 @@ class RunControl;
 
 namespace Internal {
 
+class AppOutputWindow;
 class ShowOutputTaskHandler;
 class TabWidget;
 
@@ -117,10 +118,9 @@ private:
 
     class RunControlTab {
     public:
-        explicit RunControlTab(RunControl *runControl = nullptr,
-                               Core::OutputWindow *window = nullptr);
+        explicit RunControlTab(RunControl *runControl = nullptr, AppOutputWindow *window = nullptr);
         QPointer<RunControl> runControl;
-        QPointer<Core::OutputWindow> window;
+        QPointer<AppOutputWindow> window;
         AppOutputPaneMode behaviorOnOutput = AppOutputPaneMode::FlashOnOutput;
     };
 

@@ -10,6 +10,8 @@
 #include <QObject>
 #include <QString>
 
+#include <functional>
+
 namespace Core {
 
 class CORE_EXPORT IFindSupport : public QObject
@@ -46,6 +48,33 @@ public:
 
 signals:
     void changed();
+};
+
+class CORE_EXPORT DelegatingFindSupport : public IFindSupport
+{
+    Q_OBJECT
+public:
+    explicit DelegatingFindSupport(std::function<IFindSupport *()> currentFindSupport);
+
+    bool supportsReplace() const override;
+    bool supportsSelectAll() const override;
+    Utils::FindFlags supportedFindFlags() const override;
+    void resetIncrementalSearch() override;
+    void clearHighlights() override;
+    QString currentFindString() const override;
+    QString completedFindString() const override;
+    void highlightAll(const QString &txt, Utils::FindFlags flags) override;
+    Result findIncremental(const QString &txt, Utils::FindFlags flags) override;
+    Result findStep(const QString &txt, Utils::FindFlags flags) override;
+    void replace(const QString &before, const QString &after, Utils::FindFlags flags) override;
+    bool replaceStep(const QString &before, const QString &after, Utils::FindFlags flags) override;
+    int replaceAll(const QString &before, const QString &after, Utils::FindFlags flags) override;
+    void selectAll(const QString &txt, Utils::FindFlags flags) override;
+    void defineFindScope() override;
+    void clearFindScope() override;
+
+private:
+    std::function<IFindSupport *()> m_currentFindSupport;
 };
 
 } // namespace Core
