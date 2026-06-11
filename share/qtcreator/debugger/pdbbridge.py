@@ -139,7 +139,7 @@ def effective(filename, line, frame):
                         return (b, True)
                 # else:
                 #   continue
-            except:
+            except Exception:
                 # if eval fails, most conservative thing is to stop on
                 # breakpoint regardless of ignore count. Don't delete
                 # temporary, as another hint to user.
@@ -760,7 +760,7 @@ class QtcInternalDumper():
                 print('Post-mortem debugging is finished - ending debug session.')
                 sys.exit(0)
 
-            except:
+            except Exception:
                 traceback.print_exc()
                 print('Uncaught exception. Entering post mortem debugging')
                 t = sys.exc_info()[2]
@@ -906,7 +906,7 @@ class QtcInternalDumper():
                 sys.stdout = save_stdout
                 sys.stdin = save_stdin
                 sys.displayhook = save_displayhook
-        except:
+        except Exception:
             exc_info = sys.exc_info()[:2]
             self.error(traceback.format_exception_only(*exc_info)[-1].strip())
 
@@ -977,7 +977,7 @@ class QtcInternalDumper():
                     func = eval(arg,
                                 self.curframe.f_globals,
                                 self.curframe_locals)
-                except:
+                except Exception:
                     func = arg
                 try:
                     if hasattr(func, '__func__'):
@@ -988,7 +988,7 @@ class QtcInternalDumper():
                     funcname = code.co_name
                     lineno = code.co_firstlineno
                     filename = code.co_filename
-                except:
+                except Exception:
                     # last thing to try
                     (ok, filename, ln) = self.lineinfo(arg)
                     if not ok:
@@ -1151,7 +1151,7 @@ class QtcInternalDumper():
         args = arg.split()
         try:
             count = int(args[1].strip())
-        except:
+        except Exception:
             count = 0
         try:
             bp = self.get_bpbynumber(args[0].strip())
@@ -1366,7 +1366,7 @@ class QtcInternalDumper():
     def _getval(self, arg):
         try:
             return eval(arg, self.curframe.f_globals, self.curframe_locals)
-        except:
+        except Exception:
             exc_info = sys.exc_info()[:2]
             self.error(traceback.format_exception_only(*exc_info)[-1].strip())
             raise
@@ -1376,7 +1376,7 @@ class QtcInternalDumper():
             if frame is None:
                 return eval(arg, self.curframe.f_globals, self.curframe_locals)
             return eval(arg, frame.f_globals, frame.f_locals)
-        except:
+        except Exception:
             exc_info = sys.exc_info()[:2]
             err = traceback.format_exception_only(*exc_info)[-1].strip()
             return _rstr('** raised %s **' % err)
@@ -1387,7 +1387,7 @@ class QtcInternalDumper():
         """
         try:
             value = self._getval(arg)
-        except:
+        except Exception:
             # _getval() already printed the error
             return
         code = None
@@ -1489,7 +1489,7 @@ class QtcInternalDumper():
             try:
                 res = eval(exp, {}, frame.f_locals)
                 self.putValue(res)
-            except:
+            except Exception:
                 self.putValue('<unavailable>')
             self.put('}')
             # self.dumpValue(eval(value), escapedExp, iname)
@@ -1657,7 +1657,7 @@ class QtcInternalDumper():
                         continue
                     try:
                         self.dumpValue(attr, child, '%s.%s' % (iname, child))
-                    except:
+                    except Exception:
                         pass
                 self.put('],')
         self.put('},')

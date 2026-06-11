@@ -17,7 +17,7 @@ try:
     # we do not need to hard fail in cases of partial python installation
     # that will never use this.
     import json
-except:
+except ImportError:
     print("Python module json not found. "
           "Native combined debugging might not work.")
     pass
@@ -27,7 +27,7 @@ try:
     import base64
     def hexencode_(s):
         return base64.b16encode(s).decode('utf8')
-except:
+except ImportError:
     def hexencode_(s):
         return ''.join(["%x" % c for c in s])
 
@@ -137,10 +137,14 @@ class DumperBase():
         self.warn('**** CAUGHT EXCEPTION: %s ****' % msg)
         try:
             import traceback
+        except ImportError:
+            return
+        try:
             for frame_desc in traceback.format_exception(exType, exValue, exTraceback):
                 for line in frame_desc.split('\n'):
                     self.warn(line)
-        except:
+        except Exception:
+            # This is error reporting, it must not throw itself.
             pass
 
     def dump_location(self):
@@ -201,7 +205,7 @@ class DumperBase():
                 os.path.splitext(os.path.basename(p))[0] for p in
                 glob.glob(os.path.join(os.path.dirname(__file__), '*types.py'))
             ]
-        except:
+        except Exception:
             pass
 
         # These values are never used, but the variables need to have
@@ -414,7 +418,7 @@ class DumperBase():
                     if self.currentValue.length:
                         self.put('valuelen="%s",' % self.currentValue.length)
                     self.put('value="%s",' % self.currentValue.value)
-            except:
+            except Exception:
                 pass
             if self.useTimeStamps:
                 self.put('time="%s",' % (time.time() - item.startTime))
@@ -443,7 +447,7 @@ class DumperBase():
 
                 if self.currentType.value:
                     self.put('}')
-            except:
+            except Exception:
                 pass
         self.currentIName = item.savedIName
         self.currentValue = item.savedValue
@@ -1101,7 +1105,7 @@ class DumperBase():
             try:
                 blob = self.readRawMemory(base, maximum)
                 break
-            except:
+            except Exception:
                 maximum = int(maximum / 2)
                 self.warn('REDUCING READING MAXIMUM TO %s' % maximum)
 
@@ -1538,7 +1542,7 @@ class DumperBase():
 
         try:
             self.readRawMemory(pointer, 1)
-        except:
+        except Exception:
             # Failure to dereference a pointer should at least
             # show the value of a pointer.
             #self.warn('BAD POINTER: %s' % value)
@@ -1722,7 +1726,7 @@ class DumperBase():
             self.putValue(raw, 'utf16', 1)
             return True
 
-        except:
+        except Exception:
             #    warn('NO QOBJECT: %s' % value.type)
             return False
 
@@ -1741,13 +1745,13 @@ class DumperBase():
     def couldBeQObjectPointer(self, objectPtr):
         try:
             vtablePtr, dd = self.split('pp', objectPtr)
-        except:
+        except Exception:
             self.bump('nostruct-1')
             return False
 
         try:
             dvtablePtr, qptr, parentPtr = self.split('ppp', dd)
-        except:
+        except Exception:
             self.bump('nostruct-2')
             return False
         # Check d_ptr.d.q_ptr == objectPtr
@@ -1763,7 +1767,7 @@ class DumperBase():
             jumpCode = 0xff
             try:
                 data = dumper.readRawMemory(address, 6)
-            except:
+            except Exception:
                 return 0
             primaryOpcode = data[0]
             if primaryOpcode == relativeJumpCode:
@@ -1788,7 +1792,7 @@ class DumperBase():
         try:
             customEventOffset = 8 if self.isMsvcTarget() else 9
             customEventFunc = self.extract_pointer_at_address(vtablePtr + customEventOffset * self.ptrSize())
-        except:
+        except Exception:
             self.bump('nostruct-3')
             return False
 
@@ -1845,7 +1849,7 @@ class DumperBase():
                 #self.warn('MO RES: %s' % res)
                 self.bump('successfulMetaObjectCall')
                 return self.value_as_address(res)
-            except:
+            except Exception:
                 self.bump('failedMetaObjectCall')
                 #self.warn('COULD NOT EXECUTE: %s' % cmd)
             return 0
@@ -2005,7 +2009,7 @@ class DumperBase():
             try:
                 s = struct.unpack_from('%ds' % size, self.readRawMemory(base, size))[0]
                 return s.decode('utf8')
-            except:
+            except Exception:
                 return '<not available>'
 
         if revision >= 9:  # Qt 6.
@@ -2258,7 +2262,7 @@ typename))
                                         #self.warn('PROP CMD: %s' % cmd)
                                     res = self.parseAndEvaluate(cmd)
                                     #self.warn('PROP RES: %s' % res)
-                                except:
+                                except Exception:
                                     self.bump('failedMetaObjectCall')
                                     putt(name, ' ')
                                     continue
@@ -2517,7 +2521,7 @@ typename))
                 while self.extract_pointer_at_address(p) and n <= 100:
                     p += ptr_size
                     n += 1
-        except:
+        except Exception:
             pass
 
         with TopLevelItem(self, 'local.argv'):
@@ -2626,7 +2630,7 @@ typename))
                 bb = self.value_as_integer(self.parseAndEvaluate(b))
                 if aa < bb and ss > 0:
                     return True, aa, ss, bb + 1, template
-            except:
+            except Exception:
                 pass
         return False, 0, 1, 1, exp
 
@@ -2737,15 +2741,15 @@ typename))
                 typename = funcname[7:]
                 try:
                     self.qqFormats[typename] = function()
-                except:
+                except Exception:
                     self.qqFormats[typename] = []
             elif funcname.startswith('qedit__'):
                 typename = funcname[7:]
                 try:
                     self.qqEditable[typename] = function
-                except:
+                except Exception:
                     pass
-        except:
+        except Exception:
             pass
 
     def setupDumpers(self, _={}):
@@ -2872,7 +2876,7 @@ typename))
                 try:
                     resdict = json.loads(payload)
                     continue
-                except:
+                except Exception:
                     self.warn('Cannot parse native payload: %s' % payload)
             else:
                 print('interpreteralien=%s'
@@ -4279,7 +4283,7 @@ typename))
         elif value.type.code == TypeCode.Pointer:
             try:
                 val = self.nativeValueDereferencePointer(value)
-            except:
+            except Exception:
                 val.laddress = value.pointer()
                 val.typeid = self.type_dereference(value.typeid)
                 if self.useDynamicType:

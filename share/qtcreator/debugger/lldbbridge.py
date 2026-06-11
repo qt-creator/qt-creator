@@ -183,7 +183,7 @@ class Dumper(DumperBase):
                     # 1 happens on Linux e.g. for QObject uses outside of QtCore.
                     try:
                         val.ldata = data.ReadRawData(error, 0, size)
-                    except:
+                    except Exception:
                         pass
 
             val.typeid = self.from_native_type(nativeType)
@@ -676,7 +676,7 @@ class Dumper(DumperBase):
                 'exited',     # Process has exited and can't be examined.
                 'suspended'   # Process or thread is in a suspended state as far
             )[s]
-        except:
+        except Exception:
             return 'unknown(%s)' % s
 
     def stopReason(self, s):
@@ -694,7 +694,7 @@ class Dumper(DumperBase):
                 'threadexiting',
                 'instrumentation',
             )[s]
-        except:
+        except Exception:
             return 'unknown(%s)' % s
 
     def enumExpression(self, enumType, enumValue):
@@ -764,7 +764,7 @@ class Dumper(DumperBase):
                 output = result.GetOutput().strip()
             if output:
                 return output
-        except:
+        except Exception:
             pass
         return '0x%x' % address
 
@@ -823,7 +823,7 @@ class Dumper(DumperBase):
             versionValue = self.target.EvaluateExpression('qtHookData[2]').GetNonSyntheticValue()
             if versionValue.IsValid():
                 return versionValue.unsigned
-        except:
+        except Exception:
             pass
 
         return None
@@ -948,7 +948,7 @@ class Dumper(DumperBase):
         if self.workingDirectory_ == '':
             try:
                 self.workingDirectory_ = os.getcwd()
-            except:  # Could have been deleted in the mean time.
+            except Exception:  # Could have been deleted in the mean time.
                 pass
 
         if self.platform_:
@@ -1785,7 +1785,7 @@ class Dumper(DumperBase):
                 error = lldb.SBError()
                 bp = self.target.WatchAddress(value.GetLoadAddress(),
                                               value.GetByteSize(), False, True, error)
-            except:
+            except Exception:
                 bp = self.target.BreakpointCreateByName(None)
         else:
             # This leaves the unhandled breakpoint in a (harmless)
@@ -2439,7 +2439,7 @@ class SummaryProvider(LogMixin):
                 try:
                     decodedValue = Dumper.hexdecode(summaryValue, encoding)
                     return '"' + decodedValue + '"'
-                except:
+                except Exception:
                     return "<failed to decode '%s' as '%s': %s>" % (summaryValue, encoding, sys.exc_info()[1])
 
             # FIXME: Support these

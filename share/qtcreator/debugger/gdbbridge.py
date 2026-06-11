@@ -3,7 +3,7 @@
 
 try:
     import __builtin__
-except:
+except ImportError:
     import builtins
 
 import gdb
@@ -28,7 +28,7 @@ from gdbtracepoint import *
 def safePrint(output):
     try:
         print(output)
-    except:
+    except Exception:
         out = ''
         for c in output:
             cc = ord(c)
@@ -128,7 +128,7 @@ class PlainDumper():
             value.nativeValue = nativePointer.cast(nativeTypePointer).dereference()
         try:
             printer = self.printer.gen_printer(value.nativeValue)
-        except:
+        except Exception:
             printer = self.printer.invoke(value.nativeValue)
         d.putType(value.nativeValue.type.name)
         val = printer.to_string()
@@ -164,7 +164,7 @@ def importPlainDumpers(args):
         theDumper.usePlainDumpers = False
         try:
             gdb.execute('disable pretty-printer .* .*')
-        except:
+        except Exception:
             # Might occur in non-ASCII directories
             theDumper.warn('COULD NOT DISABLE PRETTY PRINTERS')
     else:
@@ -207,7 +207,7 @@ class Dumper(DumperBase):
         if self.useDynamicType:
             try:
                 val = nativeValue.cast(nativeValue.dynamic_type)
-            except:
+            except Exception:
                 pass
         return self.fromNativeValue(val)
 
@@ -244,7 +244,7 @@ class Dumper(DumperBase):
         elif code == gdb.TYPE_CODE_STRUCT:
             try:
                 val.ldata = nativeValue.bytes # GDB 15 only
-            except:
+            except AttributeError:
                 val.ldata = self.nativeDataFromValueFallback(nativeValue, nativeValue.type.sizeof)
 
         val.typeid = self.from_native_type(nativeType)
@@ -266,7 +266,7 @@ class Dumper(DumperBase):
             try:
                 # extract int presentation from native value and remember it
                 val.ldata = int(nativeValue)
-            except:
+            except Exception:
                 # GDB only support converting integers of max. 64 bits to Python int as of now
                 pass
         elif code == gdb.TYPE_CODE_TYPEDEF:
@@ -288,10 +288,10 @@ class Dumper(DumperBase):
             for i in range(size):
                 try:
                     buf[i] = int(y[i])
-                except:
+                except Exception:
                     pass
             return bytes(buf)
-        except:
+        except Exception:
             self.warn('VALUE EXTRACTION FAILED: VALUE: %s SIZE: %s' % (nativeValue, size))
         return None
 
@@ -443,7 +443,7 @@ class Dumper(DumperBase):
     def nativeTemplateParameter(self, typeid, index, nativeType):
         try:
             targ = nativeType.template_argument(index)
-        except:
+        except Exception:
             return None
         if isinstance(targ, gdb.Type):
             return self.Type(self, self.from_native_type(targ.unqualified()))
@@ -474,7 +474,7 @@ class Dumper(DumperBase):
                 # Leftover value
                 flags.append('unknown: %d' % v)
             return '(' + " | ".join(flags) + ') (' + (form % intval) + ')'
-        except:
+        except Exception:
             pass
         return form % intval
 
@@ -529,7 +529,7 @@ class Dumper(DumperBase):
             if nativeValue is not None:
                 try:
                     native_member = nativeValue[nativeField]
-                except:
+                except Exception:
                     self.warn('  COULD NOT ACCESS FIELD: %s' % nativeFieldType)
                     continue
 
@@ -602,7 +602,7 @@ class Dumper(DumperBase):
         except RuntimeError as error:
             #self.warn('BLOCK IN FRAME NOT ACCESSIBLE: %s' % error)
             return []
-        except:
+        except Exception:
             self.warn('BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS')
             return []
 
@@ -641,7 +641,7 @@ class Dumper(DumperBase):
                         #self.warn('READ 1: %s' % value.stringify())
                         items.append(value)
                         continue
-                    except:
+                    except Exception:
                         pass
 
                     try:
@@ -650,7 +650,7 @@ class Dumper(DumperBase):
                         value.name = name
                         items.append(value)
                         continue
-                    except:
+                    except Exception:
                         # RuntimeError: happens for
                         #     void foo() { std::string s; std::wstring w; }
                         # ValueError: happens for (as of 2010/11/4)
@@ -664,7 +664,7 @@ class Dumper(DumperBase):
                         value = self.fromFrameValue(gdb.parse_and_eval(name))
                         value.name = name
                         items.append(value)
-                    except:
+                    except Exception:
                         # Can happen in inlined code (see last line of
                         # RowPainter::paintChars(): 'RuntimeError:
                         # No symbol '__val' in current context.\n'
@@ -718,7 +718,7 @@ class Dumper(DumperBase):
                 value.name = self.resultVarName
                 value.iname = 'return.' + self.resultVarName
                 variables.append(value)
-            except:
+            except Exception:
                 # Don't bother. It's only supplementary information anyway.
                 pass
 
@@ -847,7 +847,7 @@ class Dumper(DumperBase):
         try:
             # gdb.Inferior is new in gdb 7.2
             self.cachedInferior = gdb.selected_inferior()
-        except:
+        except Exception:
             # Pre gdb 7.4. Right now we don't have more than one inferior anyway.
             self.cachedInferior = gdb.inferiors()[0]
 
@@ -870,7 +870,7 @@ class Dumper(DumperBase):
         try:
             # Older GDB ~7.4 don't have gdb.Symbol.value()
             return int(symbol.value().address)
-        except:
+        except Exception:
             pass
 
         address = gdb.parse_and_eval("&'%s'" % symbolName)
@@ -892,18 +892,18 @@ class Dumper(DumperBase):
     def prettySymbolByAddress(self, address):
         try:
             return str(gdb.parse_and_eval('(void(*))0x%x' % address))
-        except:
+        except Exception:
             return '0x%x' % address
 
     def qtVersionString(self):
         try:
             return str(gdb.lookup_symbol('qVersion')[0].value()())
-        except:
+        except Exception:
             pass
         try:
             ns = self.qtNamespace()
             return str(gdb.parse_and_eval("((const char*(*)())'%sqVersion')()" % ns))
-        except:
+        except Exception:
             pass
         return None
 
@@ -911,7 +911,7 @@ class Dumper(DumperBase):
         try:
             # Only available with Qt 5.3+
             return int(str(gdb.parse_and_eval('((void**)&qtHookData)[2]')), 16)
-        except:
+        except Exception:
             pass
 
         try:
@@ -920,7 +920,7 @@ class Dumper(DumperBase):
             qtversion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
             self.qtVersion = lambda: qtversion
             return qtversion
-        except:
+        except Exception:
             # Use fallback until we have a better answer.
             return None
 
@@ -956,7 +956,7 @@ class Dumper(DumperBase):
 
             try:
                 return SpecialBreakpoint(spec)
-            except:
+            except Exception:
                 return Pre81SpecialBreakpoint(spec)
 
         # FIXME: ns is accessed too early. gdb.Breakpoint() has no
@@ -1054,7 +1054,7 @@ class Dumper(DumperBase):
     def findSymbol(self, symbolName):
         try:
             return int(gdb.parse_and_eval("(size_t)&'%s'" % symbolName))
-        except:
+        except Exception:
             return 0
 
     def symbolAddress(self, symbolName):
@@ -1083,7 +1083,7 @@ class Dumper(DumperBase):
             clean = cooked.split('"')[1]
             newdir = '/'.join(objfile.filename.split('/')[:-1])
             gdb.execute('set debug-file-directory %s:%s' % (clean, newdir))
-        except:
+        except Exception:
             pass
 
     def handleQtCoreLoaded(self, objfile):
@@ -1270,7 +1270,7 @@ class Dumper(DumperBase):
             try:
                 typeobj = self.parse_and_eval(exp).type.target()
                 #self.warn("LOOKING UP 3 '%s'" % typeobj)
-            except:
+            except Exception:
                 # Can throw 'RuntimeError: No type named class Foo.'
                 pass
 
@@ -1316,7 +1316,7 @@ class Dumper(DumperBase):
                 block = None
                 try:
                     block = frame.block()
-                except:
+                except Exception:
                     pass
                 if block is not None:
                     for symbol in block:
@@ -1333,7 +1333,7 @@ class Dumper(DumperBase):
                                             expr = pat.format(ns, addr)
                                             res = str(gdb.parse_and_eval(expr))
                                             break
-                                        except:
+                                        except Exception:
                                             continue
 
                                     if res is None:
@@ -1406,7 +1406,7 @@ class Dumper(DumperBase):
                 # gdb.error: DW_FORM_addr_index used without .debug_addr section
                 #[in module /data/dev/qt-6/qtbase/lib/libQt6Widgets.so.6]
                 frame = frame.older()
-            except:
+            except Exception:
                 break
             i += 1
         self.put(']}')

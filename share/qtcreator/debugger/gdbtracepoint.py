@@ -8,7 +8,7 @@ import time
 # for ProcessName capture
 try:
     import psutil
-except:
+except ImportError:
     psutil = None
 
 # Caps types
@@ -157,7 +157,7 @@ class GDBTracepoint(gdb.Breakpoint):
                         result = gdb.parse_and_eval(self.condition)
                         if result.type.code == gdb.TYPE_CODE_BOOL and str(result) == 'false':
                             return False
-                    except:
+                    except Exception:
                         pass
                 if self.ignore_count > 0:
                     return False
@@ -182,7 +182,7 @@ class GDBTracepoint(gdb.Breakpoint):
                 result['caps'] = caps
             self.onHit(self, result)
             return False
-        except:
+        except Exception:
             # Always return false, regardless...
             return False
 
@@ -194,7 +194,7 @@ class GDBTracepoint(gdb.Breakpoint):
             if block is None:
                 return None
             return block.function
-        except:
+        except Exception:
             return None
 
     def _getAddress(self):
