@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/binary"
 	"flag"
 	"fmt"
@@ -21,6 +22,46 @@ import (
 var MagicPacketMarker = "-magic-packet-marker-"
 
 var globalWaitGroup sync.WaitGroup
+
+// Registry of cancel functions for long-running, cancelable jobs (e.g. find),
+// keyed by command Id. A "cancel" command looks the Id up here and stops the job
+// early so it does not keep streaming results to a client that stopped listening.
+var jobCancels = struct {
+	sync.Mutex
+	funcs map[int]context.CancelFunc
+}{funcs: make(map[int]context.CancelFunc)}
+
+func registerCancelable(id int) context.Context {
+	ctx, cancel := context.WithCancel(context.Background())
+	jobCancels.Lock()
+	jobCancels.funcs[id] = cancel
+	jobCancels.Unlock()
+	return ctx
+}
+
+func unregisterCancelable(id int) {
+	jobCancels.Lock()
+	if cancel, ok := jobCancels.funcs[id]; ok {
+		cancel()
+		delete(jobCancels.funcs, id)
+	}
+	jobCancels.Unlock()
+}
+
+func cancelJob(id int) {
+	jobCancels.Lock()
+	if cancel, ok := jobCancels.funcs[id]; ok {
+		cancel()
+	}
+	jobCancels.Unlock()
+}
+
+// processCancel asks a running cancelable job to stop early. If no such job is
+// registered it has already finished, so its terminal packet has been (or will
+// be) delivered through the normal path and there is nothing more to do.
+func processCancel(cmd command) {
+	cancelJob(cmd.Id)
+}
 
 type issamefile struct {
 	Path1 string
@@ -521,6 +562,8 @@ func processCommand(watcher *WatcherHandler, socketHandler *SocketForwardHandler
 	switch cmd.Type {
 	case "ping":
 		// just a keepalive
+	case "cancel":
+		processCancel(cmd)
 	case "copyfile":
 		processCopyFile(cmd, out)
         case "createsymlink":

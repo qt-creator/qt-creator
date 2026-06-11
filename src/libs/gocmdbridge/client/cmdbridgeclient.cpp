@@ -495,8 +495,27 @@ static Utils::Result<QFuture<R>> createJob(
 
     auto j = d->jobs.writeLocked();
     int id = j->nextId++;
-    j->map.insert(id, [handleErrors, promise, resultFunc](QVariantMap map) {
+    j->map.insert(
+        id,
+        [d, id, handleErrors, promise, resultFunc, cancelSent = false](QVariantMap map) mutable {
         QString type = map.value("Type").toString();
+
+        // The consumer canceled the future. Ask the server to abort the job
+        // (once) so it stops streaming results, but keep the job registered and
+        // let resultFunc decide when it is truly done. Removing it now would
+        // make the packets still in flight hit an empty job map.
+        if (promise->isCanceled() && !cancelSent) {
+            cancelSent = true;
+            const QCborMap cancel{{"Type", "cancel"}, {"Id", id}};
+            QMetaObject::invokeMethod(
+                d->process,
+                [d, cancel] {
+                    QTC_ASSERT(d->process, return);
+                    d->process->writeRaw(cancel.toCborValue().toCbor());
+                },
+                Qt::QueuedConnection);
+        }
+
         if (handleErrors == Errors::Handle && type == "error") {
             const QString err = map.value("Error", QString{}).toString();
             const QString errType = map.value("ErrorType", QString{}).toString();
@@ -598,10 +617,14 @@ Result<QFuture<Client::FindData>> Client::find(
         findArgs,
         [hasEntries = false,
          cache = QList<FindData>()](QVariantMap map, QPromise<FindData> &promise) mutable {
-            if (promise.isCanceled())
-                return JobResult::Done;
-
             QString type = map.value("Type").toString();
+
+            // After cancellation the server has been told to stop (by the job
+            // wrapper). Discard whatever is still streaming in and finish the
+            // job when its terminal "findend"/"error" packet arrives.
+            if (promise.isCanceled())
+                return type == "finddata" ? JobResult::Continue : JobResult::Done;
+
             if (type == "finddata") {
                 hasEntries = true;
                 FindEntry data;

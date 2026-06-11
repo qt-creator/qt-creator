@@ -61,11 +61,22 @@ type finddata struct {
 }
 
 func processFind(cmd command, out chan<- []byte) {
+	// Register a cancelable context so a "cancel" command for this Id can stop
+	// the walk early instead of streaming the whole tree to a client that has
+	// already stopped listening.
+	ctx := registerCancelable(cmd.Id)
+	defer unregisterCancelable(cmd.Id)
+
 	writer := NewChannelWriter(out)
 
 	fileSystem := os.DirFS(cmd.Find.Directory)
 
 	fs.WalkDir(fileSystem, ".", func(path string, dirEntry fs.DirEntry, err error) error {
+		// Abort as soon as the client cancels the search.
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+
 		if err != nil {
 			return nil
 		}
