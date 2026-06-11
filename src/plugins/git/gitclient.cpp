@@ -2973,7 +2973,7 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
         if (output.isEmpty())
             return ResultError(msgNoCommits(false));
     } else {
-        commitData.commentChar = commentChar(repoDirectory);
+        commitData.commentMarker = commentMarker(repoDirectory);
     }
 
     if (commitData.commitType == AmendCommit) {
@@ -3798,10 +3798,10 @@ QString GitClient::readConfigValue(const FilePath &workingDirectory, const QStri
     return readOneLine(workingDirectory, {"config", configVar});
 }
 
-QChar GitClient::commentChar(const Utils::FilePath &workingDirectory)
+QString GitClient::commentMarker(const Utils::FilePath &workingDirectory)
 {
-    const QString commentChar = readConfigValue(workingDirectory, "core.commentChar");
-    return commentChar.isEmpty() ? QChar(Constants::DEFAULT_COMMENT_CHAR) : commentChar.at(0);
+    const QString commentMarker = readConfigValue(workingDirectory, "core.commentChar");
+    return commentMarker.isEmpty() ? QString(Constants::DEFAULT_COMMENT_CHAR) : commentMarker;
 }
 
 void GitClient::setConfigValue(const FilePath &workingDirectory, const QString &configVar,

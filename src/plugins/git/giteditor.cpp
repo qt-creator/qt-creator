@@ -229,13 +229,13 @@ void GitEditorWidget::init()
     const bool isRebaseEditor = editorId == Git::Constants::GIT_REBASE_EDITOR_ID;
     if (!isCommitEditor && !isRebaseEditor)
         return;
-    const QChar commentChar = gitClient().commentChar(source());
+    const QString commentMarker = gitClient().commentMarker(source());
     if (isCommitEditor)
         textDocument()->resetSyntaxHighlighter(
-            [commentChar] { return new GitSubmitHighlighter(commentChar); });
+            [commentMarker] { return new GitSubmitHighlighter(commentMarker); });
     else if (isRebaseEditor)
         textDocument()->resetSyntaxHighlighter(
-            [commentChar] { return new GitRebaseHighlighter(commentChar); });
+            [commentMarker] { return new GitRebaseHighlighter(commentMarker); });
 }
 
 void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)

@@ -84,7 +84,7 @@ public:
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
     bool enablePush = false;
-    QChar commentChar;
+    QString commentMarker;
     QString commitTemplate;
 
     QList<StateFilePair> files;

@@ -34,16 +34,16 @@ enum Format {
 class GitSubmitHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
-    explicit GitSubmitHighlighter(QChar commentChar = QChar(), QTextEdit *parent = nullptr);
+    explicit GitSubmitHighlighter(const QString &commentMarker = {}, QTextEdit *parent = nullptr);
 
     void highlightBlock(const QString &text) override;
-    QChar commentChar() const;
-    void setCommentChar(QChar commentChar);
+    QString commentMarker() const;
+    void setCommentChar(const QString &commentMarker);
 
 private:
     enum State { None = -1, Header, Other };
     const QRegularExpression m_keywordPattern;
-    QChar m_commentChar;
+    QString m_commentMarker;
 };
 
 // Highlighter for interactive rebase todo. Indicates comments as such
@@ -51,7 +51,7 @@ private:
 class GitRebaseHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
-    explicit GitRebaseHighlighter(QChar commentChar, QTextDocument *parent = nullptr);
+    explicit GitRebaseHighlighter(const QString &commentMarker, QTextDocument *parent = nullptr);
     void highlightBlock(const QString &text) override;
 
 private:
@@ -62,7 +62,7 @@ private:
         Format formatCategory;
         RebaseAction(const QString &regexp, const Format formatCategory);
     };
-    const QChar m_commentChar;
+    const QString m_commentMarker;
     const QRegularExpression m_changeNumberPattern;
     QList<RebaseAction> m_actions;
 };

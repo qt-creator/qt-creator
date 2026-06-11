@@ -171,8 +171,8 @@ void GitSubmitEditorWidget::initialize(const FilePath &repository, const CommitD
         m_gitSubmitPanel->editGroup->hide();
         hideDescription();
     } else {
-        m_highlighter->setCommentChar(data.commentChar);
-        if (data.commentChar != Constants::DEFAULT_COMMENT_CHAR)
+        m_highlighter->setCommentChar(data.commentMarker);
+        if (data.commentMarker != Constants::DEFAULT_COMMENT_CHAR)
             verifyDescription();
     }
     insertTopWidget(m_gitSubmitPanel);
@@ -244,12 +244,12 @@ QString GitSubmitEditorWidget::cleanupDescription(const QString &input) const
     // We need to manually purge out comment lines starting with
     // the comment char (default hash '#') since git does not do that when using -F.
     const QChar newLine = '\n';
-    const QChar commentChar = m_highlighter->commentChar();
+    const QString commentMarker = m_highlighter->commentMarker();
     QString message = input;
     for (int pos = 0; pos < message.size(); ) {
         const int newLinePos = message.indexOf(newLine, pos);
         const int startOfNextLine = newLinePos == -1 ? message.size() : newLinePos + 1;
-        if (message.at(pos) == commentChar)
+        if (message.mid(pos, commentMarker.size()) == commentMarker)
             message.remove(pos, startOfNextLine - pos);
         else
             pos = startOfNextLine;

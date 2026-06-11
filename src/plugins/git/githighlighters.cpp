@@ -12,12 +12,13 @@ namespace Git::Internal {
 
 const char CHANGE_PATTERN[] = "\\b[a-f0-9]{7,40}\\b";
 
-GitSubmitHighlighter::GitSubmitHighlighter(QChar commentChar, QTextEdit * parent) :
+GitSubmitHighlighter::GitSubmitHighlighter(const QString &commentMarker, QTextEdit *parent) :
     TextEditor::SyntaxHighlighter(parent),
     m_keywordPattern("^[\\w-]+:")
 {
     setDefaultTextFormatCategories();
-    m_commentChar = commentChar.isNull() ? QChar(Constants::DEFAULT_COMMENT_CHAR) : commentChar;
+    m_commentMarker =
+        commentMarker.isNull() ? QString(Constants::DEFAULT_COMMENT_CHAR) : commentMarker;
     QTC_CHECK(m_keywordPattern.isValid());
 }
 
@@ -30,7 +31,7 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
             state = Other;
         setCurrentBlockState(state);
         return;
-    } else if (text.startsWith(m_commentChar)) {
+    } else if (text.startsWith(m_commentMarker)) {
         setFormat(0, text.size(), formatForCategory(TextEditor::C_COMMENT));
         setCurrentBlockState(state);
         return;
@@ -61,16 +62,16 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
     }
 }
 
-QChar GitSubmitHighlighter::commentChar() const
+QString GitSubmitHighlighter::commentMarker() const
 {
-    return m_commentChar;
+    return m_commentMarker;
 }
 
-void GitSubmitHighlighter::setCommentChar(QChar commentChar)
+void GitSubmitHighlighter::setCommentChar(const QString &commentMarker)
 {
-    if (m_commentChar == commentChar)
+    if (m_commentMarker == commentMarker)
         return;
-    m_commentChar = commentChar;
+    m_commentMarker = commentMarker;
     rehighlight();
 }
 
@@ -109,9 +110,9 @@ static TextEditor::TextStyle styleForFormat(int format)
     return C_TEXT;
 }
 
-GitRebaseHighlighter::GitRebaseHighlighter(QChar commentChar, QTextDocument *parent) :
+GitRebaseHighlighter::GitRebaseHighlighter(const QString &commentMarker, QTextDocument *parent) :
     TextEditor::SyntaxHighlighter(parent),
-    m_commentChar(commentChar),
+    m_commentMarker(commentMarker),
     m_changeNumberPattern(CHANGE_PATTERN)
 {
     setTextFormatCategories(Format_Count, styleForFormat);
@@ -132,7 +133,7 @@ GitRebaseHighlighter::GitRebaseHighlighter(QChar commentChar, QTextDocument *par
 
 void GitRebaseHighlighter::highlightBlock(const QString &text)
 {
-    if (text.startsWith(m_commentChar)) {
+    if (text.startsWith(m_commentMarker)) {
         setFormat(0, text.size(), formatForCategory(Format_Comment));
         QRegularExpressionMatchIterator it = m_changeNumberPattern.globalMatch(text);
         while (it.hasNext()) {
