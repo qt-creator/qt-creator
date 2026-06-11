@@ -3,9 +3,11 @@
 
 #include "filedialog.h"
 
+#include "async.h"
 #include "fancylineedit.h"
 #include "filepathinfo.h"
 #include "filesystemmodel.h"
+#include "fsengine/fileiconprovider.h"
 #include "fsengine/fsengine.h"
 #include "hostosinfo.h"
 #include "layoutbuilder.h"
@@ -15,12 +17,16 @@
 #include "theme/theme.h"
 #include "utilsicons.h"
 #include "utilstr.h"
+#include "utiltypes.h"
+
+#include <solutions/spinner/spinner.h>
 
 #include <QComboBox>
 #include <QDir>
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QElapsedTimer>
 #include <QFileDialog>
 #include <QFileIconProvider>
 #include <QHeaderView>
@@ -32,6 +38,7 @@
 #include <QMimeData>
 #include <QMimeDatabase>
 #include <QPainter>
+#include <QPromise>
 #include <QPushButton>
 #include <QSettings>
 #include <QSortFilterProxyModel>
@@ -41,6 +48,7 @@
 #include <QStandardPaths>
 #include <QStyle>
 #include <QStyledItemDelegate>
+#include <QTimer>
 #include <QToolButton>
 #include <QTreeView>
 #include <QUrl>
@@ -114,14 +122,17 @@ public:
     // which only hides hidden files.
     bool acceptsContent(const QModelIndex &sourceIdx) const
     {
+        // Fast path: with no name filter and not in directory mode nothing is
+        // ever rejected, so don't fetch any roles. flags() calls this for every
+        // row during layout, so this matters a lot for large result lists.
+        if (!m_directoriesOnly && m_suffixes.isEmpty())
+            return true;
         const auto flags = sourceIdx.data(FileSystemModel::FileFlagsRole)
                                .value<FilePathInfo::FileFlags>();
         const bool isDir = flags & FilePathInfo::DirectoryType;
         if (m_directoriesOnly)
             return isDir;
         if (isDir)
-            return true;
-        if (m_suffixes.isEmpty())
             return true;
         const auto fp = sourceIdx.data(FileSystemModel::FilePathRole).value<FilePath>();
         return m_suffixes.contains(fp.suffix().toLower());
@@ -629,6 +640,187 @@ private:
     SidebarView *m_view;
 };
 
+// ===== Recursive search =====
+
+// Flat list of files/directories matching a search term, gathered by
+// recursively walking a root directory on a background thread. Mirrors the
+// roles and columns of FileSystemModel so it can be dropped in as the source
+// model of FileFilterProxy while a search is active.
+class SearchModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    struct Hit
+    {
+        FilePath path;
+        FilePathInfo info;
+        QString relPath; // path relative to the search root, shown in the Name column
+        QString sortKey; // directories-first, lowercased relPath; matches FileSortRole
+    };
+
+    explicit SearchModel(QObject *parent = nullptr)
+        : QAbstractListModel(parent)
+    {}
+
+    ~SearchModel() override { cancel(); }
+
+    // Cancels any running search and starts a fresh recursive walk of \a root,
+    // reporting entries whose file name contains \a text (case-insensitive).
+    void search(const FilePath &root, const QString &text)
+    {
+        cancel();
+
+        beginResetModel();
+        m_hits.clear();
+        endResetModel();
+
+        m_future = Utils::asyncRun(QThread::LowPriority, [root, text](QPromise<Hit> &promise) {
+            // Batch matches on the worker thread before reporting them. Reporting
+            // every single hit would flood the GUI thread with resultsReadyAt
+            // deliveries and block it; one addResults() per batch emits a single
+            // signal for the whole range instead.
+            QList<Hit> batch;
+            QElapsedTimer sinceFlush;
+            sinceFlush.start();
+            const auto flush = [&] {
+                if (!batch.isEmpty()) {
+                    promise.addResults(batch);
+                    batch.clear();
+                }
+                sinceFlush.restart();
+            };
+
+            root.iterateDirectory(
+                [&](const FilePath &item, const FilePathInfo &info) {
+                    if (promise.isCanceled())
+                        return IterationPolicy::Stop;
+                    if (item.fileName().contains(text, Qt::CaseInsensitive)) {
+                        const bool isDir = info.fileFlags & FilePathInfo::DirectoryType;
+                        const QString rel = item.relativePathFromDir(root);
+                        batch.append(
+                            Hit{item, info, rel, QChar(isDir ? '0' : '1') + rel.toLower()});
+                        // Flush on size, or on time so sparse matches still appear.
+                        if (batch.size() >= (256) || sinceFlush.elapsed() >= 100)
+                            flush();
+                    }
+                    return IterationPolicy::Continue;
+                },
+                FileFilter(
+                    {},
+                    DirFilterFlag::NoDotAndDotDot | DirFilterFlag::AllEntries,
+                    DirIteratorFlag::Subdirectories));
+            flush();
+        });
+
+        if (!m_watcher) {
+            m_watcher = new QFutureWatcher<Hit>(this);
+            // Append batches at the end; never move the heavy Hit objects around.
+            // The proxy keeps the view sorted by shuffling only its integer row
+            // mapping, which is far cheaper than sorted insertion into m_hits.
+            connect(m_watcher, &QFutureWatcherBase::resultsReadyAt, this, [this](int begin, int end) {
+                const int first = m_hits.size();
+                beginInsertRows({}, first, first + (end - begin) - 1);
+                // No reserve(): append grows geometrically, so total copies stay
+                // O(n). Reserving the exact size each batch would instead force a
+                // reallocation that recopies every existing Hit -> O(n^2).
+                for (int i = begin; i < end; ++i)
+                    m_hits.append(m_watcher->future().resultAt(i));
+                endInsertRows();
+            });
+            connect(m_watcher, &QFutureWatcherBase::finished, this, &SearchModel::searchFinished);
+        }
+        m_watcher->setFuture(m_future);
+    }
+
+    void cancel()
+    {
+        m_future.cancel();
+        if (m_watcher)
+            m_watcher->setFuture({});
+        m_future = {};
+    }
+
+    int rowCount(const QModelIndex &parent = {}) const override
+    {
+        return parent.isValid() ? 0 : int(m_hits.size());
+    }
+
+    int columnCount(const QModelIndex &parent = {}) const override
+    {
+        return parent.isValid() ? 0 : FileSystemModel::NumColumns;
+    }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    {
+        if (!index.isValid() || index.row() >= m_hits.size())
+            return {};
+        const Hit &hit = m_hits.at(index.row());
+        const bool isDir = hit.info.fileFlags & FilePathInfo::DirectoryType;
+
+        switch (role) {
+        case Qt::DisplayRole:
+            switch (index.column()) {
+            case FileSystemModel::NameColumn:
+                return hit.relPath.isEmpty() ? hit.path.fileName() : hit.relPath;
+            case FileSystemModel::SizeColumn:
+                return isDir ? QVariant() : QLocale().formattedDataSize(hit.info.fileSize);
+            case FileSystemModel::TypeColumn:
+                if (isDir)
+                    return Tr::tr("Directory");
+                if (const QString ext = hit.path.suffix(); !ext.isEmpty())
+                    return Tr::tr("%1 File").arg(ext.toUpper());
+                return Tr::tr("File");
+            case FileSystemModel::DateModifiedColumn:
+                return hit.info.lastModified.isValid()
+                           ? QLocale().toString(hit.info.lastModified, QLocale::ShortFormat)
+                           : QVariant();
+            }
+            return {};
+        case Qt::DecorationRole:
+            if (index.column() == FileSystemModel::NameColumn)
+                return isDir ? FileIconProvider::icon(QFileIconProvider::Folder)
+                             : FileIconProvider::icon(QFileIconProvider::File);
+            return {};
+        case Qt::ToolTipRole:
+            return hit.path.toUserOutput();
+        case FileSystemModel::FilePathRole:
+            return QVariant::fromValue(hit.path);
+        case FileSystemModel::FileNameRole:
+            return hit.path.fileName();
+        case FileSystemModel::FileFlagsRole:
+            return QVariant::fromValue(hit.info.fileFlags);
+        case FileSystemModel::FileSortRole:
+            return hit.sortKey;
+        }
+        return {};
+    }
+
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override
+    {
+        if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
+            return {};
+        switch (section) {
+        case FileSystemModel::NameColumn:
+            return Tr::tr("Name");
+        case FileSystemModel::SizeColumn:
+            return Tr::tr("Size");
+        case FileSystemModel::TypeColumn:
+            return Tr::tr("Type");
+        case FileSystemModel::DateModifiedColumn:
+            return Tr::tr("Date Modified");
+        }
+        return {};
+    }
+
+signals:
+    void searchFinished();
+
+private:
+    QList<Hit> m_hits;
+    QFuture<Hit> m_future;
+    QFutureWatcher<Hit> *m_watcher = nullptr;
+};
+
 // ===== Navigation history =====
 
 // Back/forward history shared by all FileDialog instances and kept for the
@@ -672,6 +864,7 @@ class FileDialogPrivate
 {
 public:
     FileSystemModel *m_model = nullptr;
+    SearchModel *m_searchModel = nullptr;
     FileFilterProxy *m_proxy = nullptr;
     QTreeView *m_treeView = nullptr;
     QListView *m_listView = nullptr;
@@ -681,7 +874,12 @@ public:
     QComboBox *m_filterCombo = nullptr;
     QLabel *m_fileNameLabel = nullptr;
     FancyLineEdit *m_fileNameEdit = nullptr;
+    FancyLineEdit *m_searchEdit = nullptr;
+    SpinnerSolution::Spinner *m_searchSpinner = nullptr;
     QAbstractButton *m_acceptButton = nullptr;
+    // Coalesces keystrokes so the recursive walk only starts once typing
+    // settles, avoiding a storm of started/canceled finds on remote devices.
+    QTimer m_searchTimer;
     FilePath m_currentDir;
     FilePath m_selectedFile;
     QFileDialog::FileMode m_fileMode = QFileDialog::ExistingFile;
@@ -693,6 +891,31 @@ public:
     bool acceptsAsSelection(bool isDir) const
     {
         return m_fileMode == QFileDialog::Directory ? isDir : !isDir;
+    }
+
+    bool isSearching() const { return m_proxy->sourceModel() == m_searchModel; }
+
+    void setSpinnerRunning(bool running) { m_searchSpinner->setVisible(running); }
+
+    // Points both views at the contents of the current directory in the file
+    // system model. index(0,0) is the directory node itself.
+    void setNormalRoot()
+    {
+        const QModelIndex rootProxy = m_proxy->mapFromSource(m_model->index(0, 0));
+        m_treeView->setRootIndex(rootProxy);
+        m_listView->setRootIndex(rootProxy);
+    }
+
+    // Switches the proxy back to the file system model (if needed) and stops any
+    // running search.
+    void leaveSearch()
+    {
+        m_searchModel->cancel();
+        setSpinnerRunning(false);
+        if (m_proxy->sourceModel() != m_model) {
+            m_proxy->setSourceModel(m_model);
+            setNormalRoot();
+        }
     }
 
     // The directory currently shown, when it is itself a valid target. In
@@ -725,6 +948,7 @@ FileDialog::FileDialog(QWidget *parent)
     resize(860, 520);
 
     d->m_model = new FileSystemModel(this);
+    d->m_searchModel = new SearchModel(this);
     d->m_proxy = new FileFilterProxy(this);
     d->m_proxy->setSourceModel(d->m_model);
 
@@ -733,19 +957,30 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_treeView->setModel(d->m_proxy);
     d->m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     d->m_treeView->setRootIsDecorated(false);
+    // All rows are the same height, so the view can skip per-row size-hint
+    // computation (which shapes the item text). Without this, relayout on every
+    // insertion measures every row and dominates the profile.
+    d->m_treeView->setUniformRowHeights(true);
     d->m_treeView->setSortingEnabled(true);
     d->m_treeView->sortByColumn(FileSystemModel::NameColumn, Qt::AscendingOrder);
     d->m_treeView->setAlternatingRowColors(true);
     d->m_treeView->setDragEnabled(true);
     d->m_treeView->setDragDropMode(QAbstractItemView::DragOnly);
-    d->m_treeView->header()->setSectionResizeMode(FileSystemModel::NameColumn,
-                                                  QHeaderView::Stretch);
-    d->m_treeView->header()->setSectionResizeMode(FileSystemModel::SizeColumn,
-                                                  QHeaderView::ResizeToContents);
-    d->m_treeView->header()->setSectionResizeMode(FileSystemModel::TypeColumn,
-                                                  QHeaderView::ResizeToContents);
-    d->m_treeView->header()->setSectionResizeMode(FileSystemModel::DateModifiedColumn,
-                                                  QHeaderView::ResizeToContents);
+    // Name stretches; the other columns use fixed initial widths the user can
+    // drag. ResizeToContents must not be used here: it re-measures (and shapes
+    // the text of) every row on each relayout, which dominates with long result
+    // lists.
+    d->m_treeView->header()->setSectionResizeMode(FileSystemModel::NameColumn, QHeaderView::Stretch);
+    d->m_treeView->header()
+        ->setSectionResizeMode(FileSystemModel::SizeColumn, QHeaderView::Interactive);
+    d->m_treeView->header()
+        ->setSectionResizeMode(FileSystemModel::TypeColumn, QHeaderView::Interactive);
+    d->m_treeView->header()
+        ->setSectionResizeMode(FileSystemModel::DateModifiedColumn, QHeaderView::Interactive);
+    d->m_treeView->header()->setStretchLastSection(false);
+    d->m_treeView->header()->resizeSection(FileSystemModel::SizeColumn, 90);
+    d->m_treeView->header()->resizeSection(FileSystemModel::TypeColumn, 120);
+    d->m_treeView->header()->resizeSection(FileSystemModel::DateModifiedColumn, 140);
 
     // Icon view
     d->m_listView = new QListView(this);
@@ -897,8 +1132,7 @@ FileDialog::FileDialog(QWidget *parent)
                 Grid {
                     columnStretch(0, 0),
                     columnStretch(1, 0),
-                    columnStretch(2, 0),
-                    columnStretch(3, 1),
+                    columnStretch(2, 1),
                     Row {
                         QtcWidgets::IconButton {
                             bindTo(&backButton),
@@ -953,7 +1187,14 @@ FileDialog::FileDialog(QWidget *parent)
                                 }
                             }),
                         }
-                    }
+                    },
+                    Align {
+                        Qt::AlignRight,
+                        LineEdit {
+                            bindTo(&d->m_searchEdit),
+                            placeholderText(Tr::tr("Search")),
+                        },
+                    },
                 },
                 d->m_viewStack,
                 Column {
@@ -1001,6 +1242,46 @@ FileDialog::FileDialog(QWidget *parent)
         d->updateAcceptButtonState();
     });
 
+    d->m_searchEdit->setButtonIcon(FancyLineEdit::Left, Icons::MAGNIFIER.icon());
+    d->m_searchEdit->setButtonVisible(FancyLineEdit::Left, true);
+    d->m_searchEdit->setButtonIcon(FancyLineEdit::Right, Icons::EDIT_CLEAR.icon());
+    d->m_searchEdit->setButtonVisible(FancyLineEdit::Right, true);
+    d->m_searchEdit->setButtonToolTip(FancyLineEdit::Right, Tr::tr("Clear"));
+    d->m_searchEdit->setAutoHideButton(FancyLineEdit::Right, true);
+    connect(d->m_searchEdit, &FancyLineEdit::rightButtonClicked, d->m_searchEdit, &QLineEdit::clear);
+    d->m_searchEdit->setFixedWidth(180);
+    // Overlay shown on top of the file views while a recursive search runs.
+    d->m_searchSpinner
+        = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Medium, d->m_viewStack);
+    d->m_searchSpinner->hide();
+    d->m_searchTimer.setSingleShot(true);
+    d->m_searchTimer.setInterval(300);
+    connect(d->m_searchEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
+        if (text.trimmed().isEmpty()) {
+            d->m_searchTimer.stop();
+            d->leaveSearch();
+            return;
+        }
+        d->m_searchTimer.start();
+    });
+    connect(&d->m_searchTimer, &QTimer::timeout, this, [this] {
+        const QString needle = d->m_searchEdit->text().trimmed();
+        if (needle.isEmpty())
+            return;
+        if (!d->isSearching()) {
+            d->m_proxy->setSourceModel(d->m_searchModel);
+            d->m_treeView->setRootIndex({});
+            d->m_listView->setRootIndex({});
+        }
+        // Set the spinner running after search() so the cancel() it performs
+        // internally (which may emit searchFinished) cannot leave it hidden.
+        d->m_searchModel->search(d->m_currentDir, needle);
+        d->setSpinnerRunning(true);
+    });
+    connect(d->m_searchModel, &SearchModel::searchFinished, this, [this] {
+        d->setSpinnerRunning(false);
+    });
+
     // Native "go to parent" shortcut: Cmd+Up on macOS, Alt+Up elsewhere.
     auto *parentAction = new QAction(this);
     parentAction->setShortcut(parentShortcut);
@@ -1045,9 +1326,10 @@ FileDialog::FileDialog(QWidget *parent)
     setViewMode(FileDialog::ViewMode::List);
 
     auto onActivated = [this](const QModelIndex &proxyIndex) {
-        const QModelIndex srcIndex = d->m_proxy->mapToSource(proxyIndex.siblingAtColumn(0));
-        const FilePath fp = d->m_model->filePath(srcIndex);
-        const bool isDir = d->m_model->isDir(srcIndex);
+        const QModelIndex idx = proxyIndex.siblingAtColumn(0);
+        const FilePath fp = idx.data(FileSystemModel::FilePathRole).value<FilePath>();
+        const auto flags = idx.data(FileSystemModel::FileFlagsRole).value<FilePathInfo::FileFlags>();
+        const bool isDir = flags & FilePathInfo::DirectoryType;
         // Directories always navigate on activation (double-click). In Directory
         // mode, selecting the directory itself is reserved for the accept button.
         if (isDir) {
@@ -1072,9 +1354,11 @@ FileDialog::FileDialog(QWidget *parent)
                 }
                 const QModelIndex proxyIdx =
                     selected.indexes().constFirst().siblingAtColumn(0);
-                const QModelIndex srcIdx = d->m_proxy->mapToSource(proxyIdx);
-                const FilePath fp = d->m_model->filePath(srcIdx);
-                d->m_selectedFile = d->acceptsAsSelection(d->m_model->isDir(srcIdx)) ? fp : FilePath();
+                const FilePath fp = proxyIdx.data(FileSystemModel::FilePathRole).value<FilePath>();
+                const auto flags
+                    = proxyIdx.data(FileSystemModel::FileFlagsRole).value<FilePathInfo::FileFlags>();
+                const bool isDir = flags & FilePathInfo::DirectoryType;
+                d->m_selectedFile = d->acceptsAsSelection(isDir) ? fp : FilePath();
                 d->updateAcceptButtonState();
             });
 
@@ -1114,6 +1398,13 @@ void FileDialog::setDirectory(const FilePath &path)
     if (path.isEmpty())
         return;
 
+    // Navigating away from search results returns to the normal listing.
+    if (!d->m_searchEdit->text().isEmpty()) {
+        QSignalBlocker blocker(d->m_searchEdit);
+        d->m_searchEdit->clear();
+    }
+    d->leaveSearch();
+
     if (path.isDir()) {
         d->m_currentDir = path;
         d->m_selectedFile = {};
@@ -1132,10 +1423,7 @@ void FileDialog::setDirectory(const FilePath &path)
     d->m_model->setRootPath(d->m_currentDir);
 
     // index(0,0) is the directory node itself; set as root so both views show its contents.
-    const QModelIndex rootSrc = d->m_model->index(0, 0);
-    const QModelIndex rootProxy = d->m_proxy->mapFromSource(rootSrc);
-    d->m_treeView->setRootIndex(rootProxy);
-    d->m_listView->setRootIndex(rootProxy);
+    d->setNormalRoot();
 }
 
 FilePath FileDialog::directory() const
@@ -1230,9 +1518,10 @@ FilePaths FileDialog::selectedFiles() const
     FilePaths result;
     const QModelIndexList indexes = d->m_treeView->selectionModel()->selectedRows(0);
     for (const QModelIndex &proxyIdx : indexes) {
-        const QModelIndex srcIdx = d->m_proxy->mapToSource(proxyIdx);
-        if (d->acceptsAsSelection(d->m_model->isDir(srcIdx)))
-            result << d->m_model->filePath(srcIdx);
+        const auto flags
+            = proxyIdx.data(FileSystemModel::FileFlagsRole).value<FilePathInfo::FileFlags>();
+        if (d->acceptsAsSelection(flags & FilePathInfo::DirectoryType))
+            result << proxyIdx.data(FileSystemModel::FilePathRole).value<FilePath>();
     }
     // No child selected: fall back to the recorded selection (e.g. the current
     // directory accepted in Directory mode).
