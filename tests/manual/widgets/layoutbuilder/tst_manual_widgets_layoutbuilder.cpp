@@ -5,7 +5,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
 #include <utils/utilsicons.h>
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 
     // clang-format off
     using namespace Utils;
-    using namespace Utils::QtcWidgets;
+    using namespace Utils::QtDesignWidgets;
     Widget {
         windowTitle("Qtc Controls"),
 
@@ -224,12 +224,12 @@ int main(int argc, char *argv[])
             },
             "QtcLabel:",
             Row {
-                Utils::QtcWidgets::Label { text("Primary label"), role(Utils::QtcLabel::Primary) },
-                Utils::QtcWidgets::Label { text("Secondary label"), role(Utils::QtcLabel::Secondary) },
+                Utils::QtDesignWidgets::Label { text("Primary label"), role(Utils::QtcLabel::Primary) },
+                Utils::QtDesignWidgets::Label { text("Secondary label"), role(Utils::QtcLabel::Secondary) },
                 st,
             },
             "QtcSearchBox:",
-            Utils::QtcWidgets::SearchBox {
+            Utils::QtDesignWidgets::SearchBox {
                 placeholderText("Search example..."),
                 onTextChanged(qApp, [](const QString &text){ qDebug() << "Text:" << text; })
             },

@@ -21,7 +21,7 @@
 #include <utils/markdownbrowser.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>

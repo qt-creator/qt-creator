@@ -27,7 +27,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>

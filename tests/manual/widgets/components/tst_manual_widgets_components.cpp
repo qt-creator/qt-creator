@@ -9,7 +9,7 @@
 
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 
 using namespace Utils;
 

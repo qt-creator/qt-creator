@@ -40,7 +40,7 @@
 #include <utils/mimeutils.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/progressdialog.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>

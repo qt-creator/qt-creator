@@ -13,7 +13,7 @@
 #include "layoutbuilder.h"
 #include "messagebox.h"
 #include "mimedatabase.h"
-#include "qtcwidgets.h"
+#include "qtdesignwidgets.h"
 #include "theme/theme.h"
 #include "utilsicons.h"
 #include "utilstr.h"
@@ -1141,26 +1141,26 @@ FileDialog::FileDialog(QWidget *parent)
                     columnStretch(1, 0),
                     columnStretch(2, 1),
                     Row {
-                        QtcWidgets::IconButton {
+                        QtDesignWidgets::IconButton {
                             bindTo(&backButton),
                             icon(Icons::PREV_NEUTRAL),
                             Layouting::toolTip(withShortcut(Tr::tr("Back"), backShortcut)),
                             onClicked(this, goBack),
                         },
-                        QtcWidgets::IconButton {
+                        QtDesignWidgets::IconButton {
                             bindTo(&forwardButton),
                             icon(Icons::NEXT_NEUTRAL),
                             Layouting::toolTip(withShortcut(Tr::tr("Forward"), forwardShortcut)),
                             onClicked(this, goForward),
                         },
-                        QtcWidgets::IconButton {
+                        QtDesignWidgets::IconButton {
                             bindTo(&upButton),
                             icon(Icons::ARROW_UP),
                             Layouting::toolTip(
                                 withShortcut(Tr::tr("Go to parent directory"), parentShortcut)),
                             onClicked(this, goToParent),
                         },
-                        QtcWidgets::IconButton {
+                        QtDesignWidgets::IconButton {
                             icon(Icons::SETTINGS),
                             Layouting::toolTip(Tr::tr("View options")),
                             onClicked(this, [=] {
@@ -1207,7 +1207,7 @@ FileDialog::FileDialog(QWidget *parent)
                 Column {
                     d->m_filterCombo,
                     Row {
-                        QtcWidgets::Button {
+                        QtDesignWidgets::Button {
                             text(Tr::tr("New Folder")),
                             onClicked(this, createFolder),
                             role(QtcButton::Role::MediumSecondary),
@@ -1215,7 +1215,7 @@ FileDialog::FileDialog(QWidget *parent)
                         st,
                         DialogButtonBox {
                             dialogButton(QDialogButtonBox::ButtonRole::AcceptRole,
-                                QtcWidgets::Button {
+                                QtDesignWidgets::Button {
                                     bindTo(&d->m_acceptButton),
                                     stdButtonText(QDialogButtonBox::StandardButton::Open),
                                     enabled(false),
@@ -1224,7 +1224,7 @@ FileDialog::FileDialog(QWidget *parent)
                                 }
                             ),
                             dialogButton(QDialogButtonBox::ButtonRole::RejectRole,
-                                QtcWidgets::Button {
+                                QtDesignWidgets::Button {
                                     stdButtonText(QDialogButtonBox::StandardButton::Cancel),
                                     onClicked(this, [this] { reject(); }),
                                     role(QtcButton::Role::MediumSecondary),

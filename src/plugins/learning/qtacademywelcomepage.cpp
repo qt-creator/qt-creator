@@ -19,7 +19,7 @@
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>
@@ -326,7 +326,7 @@ static Grid createDetailWidget(const CourseItem *course)
 
     // clang-format off
     return Grid {
-        Align(Qt::AlignLeft | Qt::AlignVCenter, QtcWidgets::Image {
+        Align(Qt::AlignLeft | Qt::AlignVCenter, QtDesignWidgets::Image {
                 url(course->imageUrl),
                 radius(StyleHelper::SpacingTokens::RadiusM),
                 minimumWidth(300),
@@ -336,17 +336,17 @@ static Grid createDetailWidget(const CourseItem *course)
         Column {
             nameLabel(course->name),
             Row {
-                QtcWidgets::Rectangle {
+                QtDesignWidgets::Rectangle {
                     fillBrush(Qt::gray),
                     Row {
                         customMargins(5, 0, 5, 0),
-                        QtcWidgets::IconDisplay {
+                        QtDesignWidgets::IconDisplay {
                             icon(Utils::Icons::CLOCK_BLACK)
                         },
                         blackLabel(course->duration)
                     }
                 },
-                QtcWidgets::Rectangle {
+                QtDesignWidgets::Rectangle {
                     fillBrush(difficultyColor(course)),
                     Grid {
                         customMargins(5, 0, 5, 0),
@@ -371,7 +371,7 @@ static Grid createDetailWidget(const CourseItem *course)
                 st
             },
             Row {
-                QtcWidgets::Button {
+                QtDesignWidgets::Button {
                     role(QtcButton::Role::MediumPrimary),
                     text(Tr::tr("Start Course")),
                     onClicked(qApp, [course]() {
@@ -436,7 +436,7 @@ public:
         using namespace Layouting;
 
         // clang-format off
-        auto detailWdgt = QtcWidgets::Rectangle {
+        auto detailWdgt = QtDesignWidgets::Rectangle {
             Layouting::sizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding)),
             fillBrush(creatorColor(Theme::Color::BackgroundColorNormal)),
             replaceLayoutOn(this, &QtAcademyWelcomePageWidget::courseSelected, [this]() -> Layouting::Layout {

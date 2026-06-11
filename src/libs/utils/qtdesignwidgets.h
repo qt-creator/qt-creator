@@ -3,12 +3,9 @@
 
 #pragma once
 
-#include "utils_global.h"
-
 #include "fancylineedit.h"
 #include "layoutbuilder.h"
 #include "stylehelper.h"
-#include "theme/theme.h"
 
 #include <QAbstractButton>
 #include <QComboBox>
@@ -223,7 +220,7 @@ private:
     std::unique_ptr<IconDisplayPrivate> d;
 };
 
-namespace QtcWidgets {
+namespace QtDesignWidgets {
 
 class QTCREATOR_UTILS_EXPORT Label : public Layouting::Widget
 {

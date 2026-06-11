@@ -6,7 +6,7 @@
 #include <qmlprofiler/profilertr.h>
 
 #include <utils/layoutbuilder.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 
 using namespace Layouting;
 using namespace Profiler;
@@ -23,14 +23,14 @@ WelcomePage::WelcomePage(QWidget *parent)
         st,
         Column {
             st,
-            QtcWidgets::Button {
+            QtDesignWidgets::Button {
                 role(QtcButton::LargePrimary),
                 text(Tr::tr("Start Recording")),
                 Layouting::toolTip(Tr::tr("Record a new trace.")),
                 onClicked(this, [this] { emit recordTraceRequested(); }),
             },
             Space(SpacingTokens::PrimitiveM),
-            QtcWidgets::Button {
+            QtDesignWidgets::Button {
                 role(QtcButton::LargeSecondary),
                 text(Tr::tr("Open Existing")),
                 Layouting::toolTip(Tr::tr("Load a QML, Chrome Trace Format or Common Trace Format trace.")),

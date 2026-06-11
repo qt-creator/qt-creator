@@ -9,7 +9,7 @@
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/overlaywidget.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 
 #include <coreplugin/welcomepagehelper.h>
@@ -127,7 +127,7 @@ QWidget *createOnboardingWizard(QWidget *parent)
 
     using namespace Layouting;
     QWidget *wizard = Column {
-        QtcWidgets::Rectangle {
+        QtDesignWidgets::Rectangle {
             radius(SpacingTokens::RadiusL),
             fillBrush(creatorColor(Theme::Token_Background_Muted)),
             strokePen(creatorColor(Core::WelcomePageHelpers::cardDefaultStroke)),

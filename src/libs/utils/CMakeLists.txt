@@ -152,8 +152,8 @@ add_qtc_library(Utils
     qtcolorbutton.cpp qtcolorbutton.h
     qtcprocess.cpp qtcprocess.h
     qtcsettings.cpp qtcsettings.h qtcsettings_p.h
-    qtcwidgets.cpp qtcwidgets.h
     qtdesignsystemstyle.cpp qtdesignsystemstyle.h
+    qtdesignwidgets.cpp qtdesignwidgets.h
     ranges.h
     removefiledialog.cpp removefiledialog.h
     result.cpp result.h

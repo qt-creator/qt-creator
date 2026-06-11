@@ -19,7 +19,7 @@
 #include "qtcassert.h"
 #include "qtcolorbutton.h"
 #include "qtcsettings.h"
-#include "qtcwidgets.h"
+#include "qtdesignwidgets.h"
 #include "stylehelper.h"
 #include "treemodel.h"
 #include "utilsicons.h"

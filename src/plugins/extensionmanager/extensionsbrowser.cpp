@@ -36,7 +36,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/unarchiver.h>
 #include <utils/utilsicons.h>

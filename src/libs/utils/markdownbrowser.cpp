@@ -9,7 +9,7 @@
 #include "movie.h"
 #include "networkaccessmanager.h"
 #include "stringutils.h"
-#include "qtcwidgets.h"
+#include "qtdesignwidgets.h"
 #include "stylehelper.h"
 #include "textutils.h"
 #include "theme/theme.h"

@@ -23,7 +23,7 @@
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/progressindicator.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 
 #include <QComboBox>
 #include <QFormLayout>

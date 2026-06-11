@@ -13,7 +13,7 @@
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/overlaywidget.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
@@ -397,7 +397,7 @@ public:
                 st,
                 Column { st, m_pageIndicator, st },
                 st,
-                QtcWidgets::Button {
+                QtDesignWidgets::Button {
                     text(Tr::tr("Show All")),
                     role(QtcButton::MediumGhost),
                     onClicked(this, [] {
@@ -590,7 +590,7 @@ public:
 
         using namespace Layouting;
         Column {
-            QtcWidgets::Rectangle {
+            QtDesignWidgets::Rectangle {
                 bindTo(&m_background),
                 strokePen(creatorColor(Theme::Token_Stroke_Subtle)),
                 radius(SpacingTokens::RadiusS),
@@ -675,7 +675,7 @@ public:
                     st,
                     Row {
                         st,
-                        QtcWidgets::Button {
+                        QtDesignWidgets::Button {
                             text(Tr::tr("Show All")),
                             role(QtcButton::MediumGhost),
                             onClicked(this, showAll),
@@ -760,7 +760,7 @@ private:
     static QWidget *recentProjectsPanel()
     {
         using namespace Layouting;
-        QWidget *panel = QtcWidgets::Rectangle {
+        QWidget *panel = QtDesignWidgets::Rectangle {
             radius(SpacingTokens::RadiusS), fillBrush(rectFill()), strokePen(rectStroke()),
             customMargins(SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl,
             SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl),
@@ -776,7 +776,7 @@ private:
     static QWidget *blogPostsPanel()
     {
         using namespace Layouting;
-        return QtcWidgets::Rectangle {
+        return QtDesignWidgets::Rectangle {
             radius(SpacingTokens::RadiusS), fillBrush(rectFill()), strokePen(rectStroke()),
             customMargins(SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl,
                           SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl),

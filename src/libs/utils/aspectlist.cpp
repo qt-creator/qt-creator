@@ -7,7 +7,7 @@
 #include "itemviews.h"
 #include "layoutbuilder.h"
 #include "qtcassert.h"
-#include "qtcwidgets.h"
+#include "qtdesignwidgets.h"
 #include "treemodel.h"
 #include "utilsicons.h"
 #include "utilstr.h"
@@ -251,7 +251,7 @@ public:
     void addToLayoutImplInlineList(Layouting::Layout &parent, AspectList *aspect)
     {
         using namespace Layouting;
-        using namespace Utils::QtcWidgets;
+        using namespace Utils::QtDesignWidgets;
 
         auto fill = [this, aspect] {
             const auto createRow = [aspect](const std::shared_ptr<BaseAspect> &item) {
@@ -300,7 +300,7 @@ public:
     void addToLayoutImplListView(Layouting::Layout &parent, AspectList *aspect)
     {
         using namespace Layouting;
-        using namespace Utils::QtcWidgets;
+        using namespace Utils::QtDesignWidgets;
 
         QPushButton *removeButton = nullptr;
         QWidget *configWidget = nullptr;

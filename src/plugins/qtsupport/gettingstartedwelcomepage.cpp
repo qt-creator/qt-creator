@@ -24,7 +24,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/shutdownguard.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>

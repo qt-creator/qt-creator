@@ -1,7 +1,7 @@
 // Copyright (C) 2023 Tasuku Suzuki <tasuku.suzuki@signal-slot.co.jp>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qtcwidgets.h"
+#include "qtdesignwidgets.h"
 
 #include "hostosinfo.h"
 #include "icon.h"
@@ -1042,7 +1042,7 @@ void QtcIconDisplay::setIcon(const Icon &icon)
 }
 
 
-namespace QtcWidgets {
+namespace QtDesignWidgets {
 
 Button::Button()
 {
@@ -1050,7 +1050,7 @@ Button::Button()
 }
 
 Button::Button(std::initializer_list<I> ps)
-    : Utils::QtcWidgets::Button()
+    : Utils::QtDesignWidgets::Button()
 {
     Layouting::Tools::apply(this, ps);
 }
@@ -1217,9 +1217,7 @@ void IconDisplay::setIcon(const Utils::Icon &icon)
     Layouting::Tools::access(this)->setIcon(icon);
 }
 
-
 } // namespace QtcWidgets
-
 } // namespace Utils
 
-#include "qtcwidgets.moc"
+#include "qtdesignwidgets.moc"

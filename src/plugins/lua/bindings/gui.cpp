@@ -11,7 +11,7 @@
 #include <utils/aspects.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcwidgets.h>
+#include <utils/qtdesignwidgets.h>
 
 #include <QCompleter>
 
@@ -638,59 +638,59 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object>());
 
-        auto qtcButton = gui.new_usertype<Utils::QtcWidgets::Button>(
+        auto qtcButton = gui.new_usertype<Utils::QtDesignWidgets::Button>(
             "QtcButton",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
-                return constructWidgetType<Utils::QtcWidgets::Button>(children, guard);
+                return constructWidgetType<Utils::QtDesignWidgets::Button>(children, guard);
             }),
             "setText",
-            &Utils::QtcWidgets::Button::setText,
+            &Utils::QtDesignWidgets::Button::setText,
             "setIcon",
-            &Utils::QtcWidgets::Button::setIcon,
+            &Utils::QtDesignWidgets::Button::setIcon,
             "setRole",
-            &Utils::QtcWidgets::Button::setRole,
+            &Utils::QtDesignWidgets::Button::setRole,
             sol::base_classes,
             sol::bases<Widget, Object>());
 
-        gui.new_usertype<Utils::QtcWidgets::Switch>(
+        gui.new_usertype<Utils::QtDesignWidgets::Switch>(
             "QtcSwitch",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
-                return constructWidgetType<Utils::QtcWidgets::Switch>(children, guard);
+                return constructWidgetType<Utils::QtDesignWidgets::Switch>(children, guard);
             }),
             "setText",
-            &Utils::QtcWidgets::Switch::setText,
+            &Utils::QtDesignWidgets::Switch::setText,
             "setChecked",
-            &Utils::QtcWidgets::Switch::setChecked,
+            &Utils::QtDesignWidgets::Switch::setChecked,
             "onClicked",
-            &Utils::QtcWidgets::Switch::onClicked,
+            &Utils::QtDesignWidgets::Switch::onClicked,
             sol::base_classes,
             sol::bases<Widget, Object>());
 
-        auto qtcLabel = gui.new_usertype<Utils::QtcWidgets::Label>(
+        auto qtcLabel = gui.new_usertype<Utils::QtDesignWidgets::Label>(
             "QtcLabel",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
-                return constructWidgetType<Utils::QtcWidgets::Label>(children, guard);
+                return constructWidgetType<Utils::QtDesignWidgets::Label>(children, guard);
             }),
             "setText",
-            &Utils::QtcWidgets::Label::setText,
+            &Utils::QtDesignWidgets::Label::setText,
             "setRole",
-            &Utils::QtcWidgets::Label::setRole,
+            &Utils::QtDesignWidgets::Label::setRole,
             sol::base_classes,
             sol::bases<Widget, Object>());
 
-        gui.new_usertype<Utils::QtcWidgets::SearchBox>(
+        gui.new_usertype<Utils::QtDesignWidgets::SearchBox>(
             "QtcSearchBox",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
-                return constructWidgetType<Utils::QtcWidgets::SearchBox>(children, guard);
+                return constructWidgetType<Utils::QtDesignWidgets::SearchBox>(children, guard);
             }),
             "setPlaceholderText",
-            &Utils::QtcWidgets::SearchBox::setPlaceholderText,
+            &Utils::QtDesignWidgets::SearchBox::setPlaceholderText,
             "setText",
-            &Utils::QtcWidgets::SearchBox::setText,
+            &Utils::QtDesignWidgets::SearchBox::setText,
             sol::base_classes,
             sol::bases<Widget, Object>());
 
@@ -892,11 +892,11 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object>());
 
-        gui.new_usertype<QtcWidgets::IconDisplay>(
+        gui.new_usertype<QtDesignWidgets::IconDisplay>(
             "IconDisplay",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
-                return constructWidgetType<QtcWidgets::IconDisplay>(children, guard);
+                return constructWidgetType<QtDesignWidgets::IconDisplay>(children, guard);
             }),
             sol::base_classes,
             sol::bases<Widget, Object>());
