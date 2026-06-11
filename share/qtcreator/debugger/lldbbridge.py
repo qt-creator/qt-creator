@@ -1374,10 +1374,10 @@ class Dumper(DumperBase):
 
     def fetchVariables(self, args):
         start_time = time.perf_counter()
-        #(ok, res) = self.tryFetchInterpreterVariables(args)
-        #if ok:
-        #    self.reportResult(res, args)
-        #    return
+        (ok, res) = self.tryFetchInterpreterVariables(args)
+        if ok:
+            self.reportResult(res, args)
+            return
 
         self.setVariableFetchingOptions(args)
 

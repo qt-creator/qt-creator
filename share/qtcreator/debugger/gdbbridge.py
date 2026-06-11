@@ -193,6 +193,7 @@ class Dumper(DumperBase):
         # These values will be kept between calls to 'fetchVariables'.
         self.isGdb = True
         self.interpreterBreakpointResolvers = []
+        self.interpreterMessageBreakpoint = None
 
     def warn(self, message):
         print('bridgemessage={msg="%s"},' % message.replace('"', '$').encode('latin1'))
@@ -684,10 +685,10 @@ class Dumper(DumperBase):
         self.packCode = '>' if self.isBigEndian else '<'
         self.byteorder = 'big' if self.isBigEndian else 'little'
 
-        #(ok, res) = self.tryFetchInterpreterVariables(args)
-        #if ok:
-        #    safePrint(res)
-        #    return
+        (ok, res) = self.tryFetchInterpreterVariables(args)
+        if ok:
+            self.reportResult(res, args)
+            return
 
         self.put('data=[')
 
@@ -1414,6 +1415,16 @@ class Dumper(DumperBase):
 
         self.interpreterBreakpointResolvers.append(Resolver(self, args))
 
+    def insertInterpreterBreakpoint(self, args):
+        # The interpreter signals events worth stopping for by calling
+        # qt_qmlDebugMessageAvailable(). Make sure we break there.
+        if self.interpreterMessageBreakpoint is None:
+            try:
+                self.interpreterMessageBreakpoint = InterpreterMessageBreakpoint()
+            except Exception as error:
+                self.warn('Cannot set interpreter message breakpoint: %s' % error)
+        DumperBase.insertInterpreterBreakpoint(self, args)
+
     def exitGdb(self, _):
         gdb.execute('quit')
 
@@ -1595,6 +1606,3 @@ def new_objfile_handler(event):
 
 
 gdb.events.new_objfile.connect(new_objfile_handler)
-
-
-#InterpreterMessageBreakpoint()
