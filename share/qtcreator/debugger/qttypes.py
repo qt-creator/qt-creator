@@ -2703,7 +2703,7 @@ def qdump__QV4__PropertyHash(d, value):
             if identifier != 0:
                 n += 1
                 with SubItem(d):
-                    d.putItem(d, d.createValue(identifier, '@QV4::Identifier'))
+                    d.putItem(d.createValue(identifier, '@QV4::Identifier'))
                     d.put('keysuffix', ' %d' % index)
     d.putItemCount(n)
     d.putPlainChildren(value)
