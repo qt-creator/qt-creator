@@ -1191,6 +1191,8 @@ static Result<bool> insertDependencies(
     // target_link_libraries
     //
     cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+    if (!cmakeListFile)
+        return ResultError("Failed to re-read " + targetCMakeFile.toUserOutput());
 
     function = findFunction(
         *cmakeListFile,
