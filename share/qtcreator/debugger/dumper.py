@@ -243,7 +243,7 @@ class DumperBase():
         self.partialVariable = args.get('partialvar', '')
         self.uninitialized = args.get('uninitialized', [])
 
-        self.uninitialized = list(map(lambda x: self.hexdecode(x), self.uninitialized))
+        self.uninitialized = [self.hexdecode(x) for x in self.uninitialized]
 
         if self.qtversion is None:
             self.qtversion = args.get('qtversion', None)
