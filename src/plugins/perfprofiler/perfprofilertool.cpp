@@ -55,6 +55,7 @@ namespace PerfProfiler::Internal {
 static PerfProfilerTool *s_instance;
 
 PerfProfilerTool::PerfProfilerTool()
+    : m_traceView(&modelManager(), &m_zoomControl)
 {
     s_instance = this;
     traceManager().registerFeatures(PerfEventType::allFeatures(),
@@ -62,7 +63,6 @@ PerfProfilerTool::PerfProfilerTool()
                                      std::bind(&PerfProfilerTool::finalize, this),
                                      std::bind(&PerfProfilerTool::clearUi, this));
 
-    m_zoomControl = new Timeline::TimelineZoomControl(this) ;
     const Id subMenu = "Analyzer.Menu.PerfOptions";
     ActionContainer *options = ActionManager::createMenu(subMenu);
     options->menu()->setTitle(Tr::tr("Performance Analyzer Options"));
@@ -73,34 +73,34 @@ PerfProfilerTool::PerfProfilerTool()
 
     ActionBuilder(options, Constants::PerfProfilerTaskLoadPerf)
         .setText(Tr::tr("Load perf.data File"))
-        .bindContextAction(&m_loadPerfData)
+        .adopt(&m_loadPerfData)
         .addToContainer(subMenu)
         .addOnTriggered(this, &PerfProfilerTool::showLoadPerfDialog);
 
     ActionBuilder(options, Constants::PerfProfilerTaskLoadTrace)
         .setText(Tr::tr("Load Trace File"))
-        .bindContextAction(&m_loadTrace)
+        .adopt(&m_loadTrace)
         .addToContainer(subMenu)
         .addOnTriggered(this, &PerfProfilerTool::showLoadTraceDialog);
 
     ActionBuilder(options, Constants::PerfProfilerTaskSaveTrace)
-        .bindContextAction(&m_saveTrace)
+        .adopt(&m_saveTrace)
         .setText(Tr::tr("Save Trace File"))
         .addToContainer(subMenu)
         .addOnTriggered(this, &PerfProfilerTool::showSaveTraceDialog);
 
     ActionBuilder(options, Constants::PerfProfilerTaskLimit)
-        .bindContextAction(&m_limitToRange)
+        .adopt(&m_limitToRange)
         .setText(Tr::tr("Limit to Range Selected in Timeline"))
         .addToContainer(subMenu)
         .addOnTriggered(this, [this] {
             traceManager().restrictByFilter(traceManager().rangeAndThreadFilter(
-                m_zoomControl->selectionStart(),
-                m_zoomControl->selectionEnd()));
+                m_zoomControl.selectionStart(),
+                m_zoomControl.selectionEnd()));
         });
 
     ActionBuilder(options, Constants::PerfProfilerTaskFullRange)
-        .bindContextAction(&m_showFullRange)
+        .adopt(&m_showFullRange)
         .setText(Tr::tr("Show Full Range"))
         .addToContainer(subMenu)
         .addOnTriggered(this, [] {
@@ -153,57 +153,53 @@ PerfProfilerTool::PerfProfilerTool()
     StyleHelper::setPanelWidget(&m_recordedLabel);
     StyleHelper::setPanelWidget(&m_delayLabel);
 
-    m_traceView = new Timeline::TimelineWidget(&modelManager(), m_zoomControl, nullptr);
-    m_traceView->setObjectName(QLatin1String("PerfProfilerTraceView"));
-    m_traceView->setWindowTitle(Tr::tr("Timeline"));
-    connect(m_traceView, &Timeline::TimelineWidget::gotoSourceLocation,
+    m_traceView.setObjectName(QLatin1String("PerfProfilerTraceView"));
+    m_traceView.setWindowTitle(Tr::tr("Timeline"));
+    connect(&m_traceView, &Timeline::TimelineWidget::gotoSourceLocation,
             this, &PerfProfilerTool::gotoSourceLocation);
 
-    m_statisticsView = new PerfProfilerStatisticsView;
-    m_statisticsView->setWindowTitle(Tr::tr("Statistics"));
+    m_statisticsView.setWindowTitle(Tr::tr("Statistics"));
+    m_flameGraphView.setWindowTitle(Tr::tr("Flame Graph"));
 
-    m_flameGraphView = new PerfProfilerFlameGraphView(nullptr);
-    m_flameGraphView->setWindowTitle(Tr::tr("Flame Graph"));
-
-    connect(m_statisticsView, &PerfProfilerStatisticsView::gotoSourceLocation,
+    connect(&m_statisticsView, &PerfProfilerStatisticsView::gotoSourceLocation,
             this, &PerfProfilerTool::gotoSourceLocation);
-    connect(m_flameGraphView, &PerfProfilerFlameGraphView::gotoSourceLocation,
+    connect(&m_flameGraphView, &PerfProfilerFlameGraphView::gotoSourceLocation,
             this, &PerfProfilerTool::gotoSourceLocation);
 
-    m_perspective.addWindow(m_traceView, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(&m_traceView, Perspective::SplitVertical, nullptr);
     // Split the details off before tabbing other views onto the trace view; otherwise
     // QMainWindow::splitDockWidget() would just add it as a tab (the anchor is tabbed).
-    m_perspective.addWindow(m_traceView->rangeDetailsWidget(), Perspective::SplitHorizontal,
-                            m_traceView);
-    m_perspective.addWindow(m_flameGraphView, Perspective::AddToTab, m_traceView);
-    m_perspective.addWindow(m_statisticsView, Perspective::AddToTab, m_flameGraphView);
+    m_perspective.addWindow(m_traceView.rangeDetailsWidget(), Perspective::SplitHorizontal,
+                            &m_traceView);
+    m_perspective.addWindow(&m_flameGraphView, Perspective::AddToTab, &m_traceView);
+    m_perspective.addWindow(&m_statisticsView, Perspective::AddToTab, &m_flameGraphView);
 
-    connect(m_statisticsView, &PerfProfilerStatisticsView::typeSelected,
-            m_traceView, &Timeline::TimelineWidget::selectByTypeId);
-    connect(m_flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
-            m_traceView, &Timeline::TimelineWidget::selectByTypeId);
+    connect(&m_statisticsView, &PerfProfilerStatisticsView::typeSelected,
+            &m_traceView, &Timeline::TimelineWidget::selectByTypeId);
+    connect(&m_flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
+            &m_traceView, &Timeline::TimelineWidget::selectByTypeId);
 
     // Route the flame graph's details into the shared range details view.
-    connect(m_flameGraphView, &Timeline::FlameGraphWidget::detailsChanged,
-            m_traceView->rangeDetailsWidget(), &Timeline::RangeDetailsWidget::setData);
-    connect(m_flameGraphView, &Timeline::FlameGraphWidget::detailsCleared,
-            m_traceView->rangeDetailsWidget(), &Timeline::RangeDetailsWidget::clear);
+    connect(&m_flameGraphView, &Timeline::FlameGraphWidget::detailsChanged,
+            m_traceView.rangeDetailsWidget(), &Timeline::RangeDetailsWidget::setData);
+    connect(&m_flameGraphView, &Timeline::FlameGraphWidget::detailsCleared,
+            m_traceView.rangeDetailsWidget(), &Timeline::RangeDetailsWidget::clear);
 
-    connect(m_traceView, &Timeline::TimelineWidget::typeSelected,
-            m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
-    connect(m_flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
-            m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
+    connect(&m_traceView, &Timeline::TimelineWidget::typeSelected,
+            &m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
+    connect(&m_flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
+            &m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
 
-    connect(m_traceView, &Timeline::TimelineWidget::typeSelected,
-            m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
-    connect(m_statisticsView, &PerfProfilerStatisticsView::typeSelected,
-            m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
+    connect(&m_traceView, &Timeline::TimelineWidget::typeSelected,
+            &m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
+    connect(&m_statisticsView, &PerfProfilerStatisticsView::typeSelected,
+            &m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
 
     // Clear settings if the statistics or flamegraph view isn't there yet.
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(Key("AnalyzerViewSettings_") + Constants::PerfProfilerPerspectiveId);
-    if (!settings->contains(keyFromString(m_statisticsView->objectName()))
-            || !settings->contains(keyFromString(m_flameGraphView->objectName()))) {
+    if (!settings->contains(keyFromString(m_statisticsView.objectName()))
+            || !settings->contains(keyFromString(m_flameGraphView.objectName()))) {
         settings->remove(Key());
     }
     settings->endGroup();
@@ -273,53 +269,53 @@ PerfProfilerTool::PerfProfilerTool()
     connect(this, &PerfProfilerTool::aggregatedChanged,
             &traceManager(), &PerfProfilerTraceManager::setAggregateAddresses);
 
-    QMenu *menu1 = new QMenu(m_traceView);
+    QMenu *menu1 = new QMenu(&m_traceView);
     addLoadSaveActionsToMenu(menu1);
     connect(menu1->addAction(Tr::tr("Limit to Selected Range")), &QAction::triggered,
-            m_limitToRange, &QAction::trigger);
-    menu1->addAction(m_showFullRange);
+            &m_limitToRange, &QAction::trigger);
+    menu1->addAction(&m_showFullRange);
     connect(menu1->addAction(Tr::tr("Reset Zoom")), &QAction::triggered, this, [this](){
-        m_zoomControl->setRange(m_zoomControl->traceStart(), m_zoomControl->traceEnd());
+        m_zoomControl.setRange(m_zoomControl.traceStart(), m_zoomControl.traceEnd());
     });
 
-    m_traceView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_traceView, &QWidget::customContextMenuRequested,
+    m_traceView.setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(&m_traceView, &QWidget::customContextMenuRequested,
             menu1, [menu1, this](const QPoint &pos) {
-        menu1->exec(m_traceView->mapToGlobal(pos));
+        menu1->exec(m_traceView.mapToGlobal(pos));
     });
 
-    menu1 = new QMenu(m_statisticsView);
+    menu1 = new QMenu(&m_statisticsView);
     addLoadSaveActionsToMenu(menu1);
     connect(menu1->addAction(Tr::tr("Limit to Range Selected in Timeline")), &QAction::triggered,
-            m_limitToRange, &QAction::trigger);
+            &m_limitToRange, &QAction::trigger);
     connect(menu1->addAction(Tr::tr("Show Full Range")), &QAction::triggered,
-            m_showFullRange, &QAction::trigger);
+            &m_showFullRange, &QAction::trigger);
     connect(menu1->addAction(Tr::tr("Copy Table")), &QAction::triggered,
-            m_statisticsView, &PerfProfilerStatisticsView::copyFocusedTableToClipboard);
+            &m_statisticsView, &PerfProfilerStatisticsView::copyFocusedTableToClipboard);
     QAction *copySelection = menu1->addAction(Tr::tr("Copy Row"));
     connect(copySelection, &QAction::triggered,
-            m_statisticsView, &PerfProfilerStatisticsView::copyFocusedSelectionToClipboard);
-    m_statisticsView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_statisticsView, &QWidget::customContextMenuRequested,
+            &m_statisticsView, &PerfProfilerStatisticsView::copyFocusedSelectionToClipboard);
+    m_statisticsView.setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(&m_statisticsView, &QWidget::customContextMenuRequested,
             menu1, [this, menu1, copySelection](const QPoint &pos) {
-        copySelection->setEnabled(m_statisticsView->focusedTableHasValidSelection());
-        menu1->exec(m_statisticsView->mapToGlobal(pos));
+        copySelection->setEnabled(m_statisticsView.focusedTableHasValidSelection());
+        menu1->exec(m_statisticsView.mapToGlobal(pos));
     });
 
-    menu1 = new QMenu(m_flameGraphView);
+    menu1 = new QMenu(&m_flameGraphView);
     addLoadSaveActionsToMenu(menu1);
     connect(menu1->addAction(Tr::tr("Limit to Range Selected in Timeline")), &QAction::triggered,
-            m_limitToRange, &QAction::trigger);
+            &m_limitToRange, &QAction::trigger);
     connect(menu1->addAction(Tr::tr("Show Full Range")), &QAction::triggered,
-            m_showFullRange, &QAction::trigger);
+            &m_showFullRange, &QAction::trigger);
     QAction *resetAction = menu1->addAction(Tr::tr("Reset Flame Graph"));
     connect(resetAction, &QAction::triggered,
-            m_flameGraphView, &PerfProfilerFlameGraphView::resetRoot);
-    m_flameGraphView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_flameGraphView, &QWidget::customContextMenuRequested,
+            &m_flameGraphView, &PerfProfilerFlameGraphView::resetRoot);
+    m_flameGraphView.setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(&m_flameGraphView, &QWidget::customContextMenuRequested,
             menu1, [this, menu1, resetAction](const QPoint &pos) {
-        resetAction->setEnabled(m_flameGraphView->isZoomed());
-        menu1->exec(m_flameGraphView->mapToGlobal(pos));
+        resetAction->setEnabled(m_flameGraphView.isZoomed());
+        menu1->exec(m_flameGraphView.mapToGlobal(pos));
     });
 
     m_perspective.addToolBarAction(&m_startAction);
@@ -335,12 +331,7 @@ PerfProfilerTool::PerfProfilerTool()
     updateRunActions();
 }
 
-PerfProfilerTool::~PerfProfilerTool()
-{
-    delete m_traceView;
-    delete m_flameGraphView;
-    delete m_statisticsView;
-}
+PerfProfilerTool::~PerfProfilerTool() = default;
 
 PerfProfilerTool *PerfProfilerTool::instance()
 {
@@ -349,9 +340,9 @@ PerfProfilerTool *PerfProfilerTool::instance()
 
 void PerfProfilerTool::addLoadSaveActionsToMenu(QMenu *menu)
 {
-    menu->addAction(m_loadPerfData);
-    menu->addAction(m_loadTrace);
-    menu->addAction(m_saveTrace);
+    menu->addAction(&m_loadPerfData);
+    menu->addAction(&m_loadTrace);
+    menu->addAction(&m_saveTrace);
 }
 
 void PerfProfilerTool::createTracePoints()
@@ -371,9 +362,9 @@ void PerfProfilerTool::finalize()
     const qint64 startTime = traceManager().traceStart();
     const qint64 endTime = traceManager().traceEnd();
     QTC_ASSERT(endTime >= startTime, return);
-    m_zoomControl->setTrace(startTime, endTime);
-    m_zoomControl->setRange(startTime, startTime + (endTime - startTime) / 10);
-    updateTime(m_zoomControl->traceDuration(), -1);
+    m_zoomControl.setTrace(startTime, endTime);
+    m_zoomControl.setRange(startTime, startTime + (endTime - startTime) / 10);
+    updateTime(m_zoomControl.traceDuration(), -1);
     updateFilterMenu();
     updateRunActions();
     setToolActionsEnabled(true);
@@ -428,39 +419,32 @@ void PerfProfilerTool::updateRunActions()
     if (m_readerRunning || m_processRunning) {
         m_startAction.setEnabled(false);
         m_startAction.setToolTip(Tr::tr("A performance analysis is still in progress."));
-        m_loadPerfData->setEnabled(false);
-        m_loadTrace->setEnabled(false);
+        m_loadPerfData.setEnabled(false);
+        m_loadTrace.setEnabled(false);
     } else {
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
             ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
         m_startAction.setToolTip(canRun ? Tr::tr("Start a performance analysis.") : canRun.error());
         m_startAction.setEnabled(canRun.has_value());
-        m_loadPerfData->setEnabled(true);
-        m_loadTrace->setEnabled(true);
+        m_loadPerfData.setEnabled(true);
+        m_loadTrace.setEnabled(true);
     }
-    m_saveTrace->setEnabled(!traceManager().isEmpty());
+    m_saveTrace.setEnabled(!traceManager().isEmpty());
 }
 
 void PerfProfilerTool::setToolActionsEnabled(bool on)
 {
-    m_limitToRange->setEnabled(on);
-    m_showFullRange->setEnabled(on);
+    m_limitToRange.setEnabled(on);
+    m_showFullRange.setEnabled(on);
     m_clearButton.setEnabled(on);
     m_filterButton.setEnabled(on);
     m_aggregateButton.setEnabled(on);
     m_filterMenu.setEnabled(on);
-    if (m_traceView)
-        m_traceView->setEnabled(on);
-    if (m_statisticsView)
-        m_statisticsView->setEnabled(on);
-    if (m_flameGraphView)
-        m_flameGraphView->setEnabled(on);
+    m_traceView.setEnabled(on);
+    m_statisticsView.setEnabled(on);
+    m_flameGraphView.setEnabled(on);
 }
 
-Timeline::TimelineZoomControl *PerfProfilerTool::zoomControl() const
-{
-    return m_zoomControl;
-}
 
 bool PerfProfilerTool::isRecording() const
 {
@@ -672,13 +656,12 @@ void PerfProfilerTool::clearData()
 {
     traceManager().clearAll();
     traceManager().setAggregateAddresses(m_aggregateButton.isChecked());
-    m_zoomControl->clear();
+    m_zoomControl.clear();
 }
 
 void PerfProfilerTool::clearUi()
 {
-    if (m_traceView)
-        m_traceView->clear();
+    m_traceView.clear();
     updateTime(0, 0);
     updateFilterMenu();
     updateRunActions();

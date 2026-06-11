@@ -8,8 +8,10 @@
 #include "perfprofilerstatisticsview.h"
 
 #include <coreplugin/perspective.h>
+#include <tracing/timelinezoomcontrol.h>
 #include <tracing/timelinewidget.h>
 
+#include <utils/action.h>
 #include <utils/fileinprojectfinder.h>
 
 #include <QCoreApplication>
@@ -23,8 +25,6 @@ class Project;
 class RunControl;
 }
 
-namespace Timeline { class TimelineZoomControl; }
-
 namespace PerfProfiler::Internal {
 
 class PerfProfilerTool  : public QObject
@@ -36,8 +36,6 @@ public:
     ~PerfProfilerTool();
 
     static PerfProfilerTool *instance();
-
-    Timeline::TimelineZoomControl *zoomControl() const;
 
     bool isRecording() const;
     void onReaderFinished();
@@ -58,8 +56,6 @@ signals:
     void aggregatedChanged(bool aggregated);
 
 private:
-    void createViews();
-
     void gotoSourceLocation(QString filePath, int lineNumber, int columnNumber);
     void showLoadPerfDialog();
     void showLoadTraceDialog();
@@ -87,11 +83,11 @@ private:
 
     QAction m_startAction;
     QAction m_stopAction;
-    QAction *m_loadPerfData = nullptr; // not owned
-    QAction *m_loadTrace = nullptr; // not owned
-    QAction *m_saveTrace = nullptr; // not owned
-    QAction *m_limitToRange = nullptr; // not owned
-    QAction *m_showFullRange = nullptr; // not owned
+    Utils::Action m_loadPerfData;
+    Utils::Action m_loadTrace;
+    Utils::Action m_saveTrace;
+    Utils::Action m_limitToRange;
+    Utils::Action m_showFullRange;
     QToolButton m_clearButton;
     QToolButton m_recordButton;
     QLabel m_recordedLabel;
@@ -101,11 +97,10 @@ private:
     QToolButton m_aggregateButton;
     QToolButton m_tracePointsButton;
 
-    Timeline::TimelineWidget *m_traceView = nullptr;
-    PerfProfilerStatisticsView *m_statisticsView = nullptr;
-    PerfProfilerFlameGraphView *m_flameGraphView = nullptr;
-
-    Timeline::TimelineZoomControl *m_zoomControl = nullptr;
+    Timeline::TimelineZoomControl m_zoomControl;
+    Timeline::TimelineWidget m_traceView;
+    PerfProfilerStatisticsView m_statisticsView;
+    PerfProfilerFlameGraphView m_flameGraphView{nullptr};
     Utils::FileInProjectFinder m_fileFinder;
     bool m_readerRunning = false;
     bool m_processRunning = false;
