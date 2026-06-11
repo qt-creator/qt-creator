@@ -241,6 +241,7 @@ GeneralSettings::GeneralSettings()
         }
         cb(codecNames);
     });
+    codecForLocale.setDefaultValue(QString::fromUtf8(TextEncoding(TextEncoding::System).name()));
 
     connect(&codecForLocale, &BaseAspect::changed, this, [this] {
         TextEncoding::setEncodingForLocale(codecForLocale.value().toUtf8());
