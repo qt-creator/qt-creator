@@ -56,13 +56,6 @@ func cancelJob(id int) {
 	jobCancels.Unlock()
 }
 
-// processCancel asks a running cancelable job to stop early. If no such job is
-// registered it has already finished, so its terminal packet has been (or will
-// be) delivered through the normal path and there is nothing more to do.
-func processCancel(cmd command) {
-	cancelJob(cmd.Id)
-}
-
 type issamefile struct {
 	Path1 string
 	Path2 string
@@ -563,7 +556,11 @@ func processCommand(watcher *WatcherHandler, socketHandler *SocketForwardHandler
 	case "ping":
 		// just a keepalive
 	case "cancel":
-		processCancel(cmd)
+		// Ask a running cancelable job to stop early. If no such job is
+		// registered it has already finished, so its terminal packet has been
+		// (or will be) delivered through the normal path and there is nothing
+		// more to do.
+		cancelJob(cmd.Id)
 	case "copyfile":
 		processCopyFile(cmd, out)
         case "createsymlink":

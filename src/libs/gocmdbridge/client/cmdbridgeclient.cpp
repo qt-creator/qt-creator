@@ -495,26 +495,8 @@ static Utils::Result<QFuture<R>> createJob(
 
     auto j = d->jobs.writeLocked();
     int id = j->nextId++;
-    j->map.insert(
-        id,
-        [d, id, handleErrors, promise, resultFunc, cancelSent = false](QVariantMap map) mutable {
+    j->map.insert(id, [handleErrors, promise, resultFunc](QVariantMap map) {
         QString type = map.value("Type").toString();
-
-        // The consumer canceled the future. Ask the server to abort the job
-        // (once) so it stops streaming results, but keep the job registered and
-        // let resultFunc decide when it is truly done. Removing it now would
-        // make the packets still in flight hit an empty job map.
-        if (promise->isCanceled() && !cancelSent) {
-            cancelSent = true;
-            const QCborMap cancel{{"Type", "cancel"}, {"Id", id}};
-            QMetaObject::invokeMethod(
-                d->process,
-                [d, cancel] {
-                    QTC_ASSERT(d->process, return);
-                    d->process->writeRaw(cancel.toCborValue().toCbor());
-                },
-                Qt::QueuedConnection);
-        }
 
         if (handleErrors == Errors::Handle && type == "error") {
             const QString err = map.value("Error", QString{}).toString();
@@ -551,6 +533,35 @@ static Utils::Result<QFuture<R>> createJob(
         [d, args]() {
             QTC_ASSERT(d->process, return);
             d->process->writeRaw(args.toCborValue().toCbor());
+        },
+        Qt::QueuedConnection);
+
+    // Proactively tell the server to abort the job the moment the consumer
+    // cancels the future, independent of any traffic. Reacting to canceled only
+    // while a packet is being processed would never fire for a job that streams
+    // nothing (e.g. a find whose name filters exclude everything), leaving the
+    // server to walk the whole tree to completion. The job is kept registered
+    // until its terminal packet arrives, so in-flight packets never hit an empty
+    // job map.
+    //
+    // The watcher is created in the bridge thread (next to d->process) so its
+    // signals are delivered there and writeRaw runs on the right thread. It is
+    // parented to d->process and deletes itself once the future finishes, so it
+    // never outlives the client.
+    QMetaObject::invokeMethod(
+        d->process,
+        [d, id, future]() {
+            QTC_ASSERT(d->process, return);
+            auto *watcher = new QFutureWatcher<R>(d->process);
+            QObject::connect(watcher, &QFutureWatcherBase::canceled, d->process, [d, id] {
+                QTC_ASSERT(d->process, return);
+                const QCborMap cancel{{"Type", "cancel"}, {"Id", id}};
+                d->process->writeRaw(cancel.toCborValue().toCbor());
+            });
+            QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, [watcher] {
+                watcher->deleteLater();
+            });
+            watcher->setFuture(future);
         },
         Qt::QueuedConnection);
 
@@ -619,9 +630,10 @@ Result<QFuture<Client::FindData>> Client::find(
          cache = QList<FindData>()](QVariantMap map, QPromise<FindData> &promise) mutable {
             QString type = map.value("Type").toString();
 
-            // After cancellation the server has been told to stop (by the job
-            // wrapper). Discard whatever is still streaming in and finish the
-            // job when its terminal "findend"/"error" packet arrives.
+            // After cancellation the server has been told to stop (by the
+            // future watcher in createJob). Discard whatever is still streaming
+            // in and finish the job when its terminal "findend"/"error" packet
+            // arrives.
             if (promise.isCanceled())
                 return type == "finddata" ? JobResult::Continue : JobResult::Done;
 
