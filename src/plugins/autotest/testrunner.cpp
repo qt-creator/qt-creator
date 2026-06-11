@@ -771,7 +771,7 @@ static RunAfterBuildMode runAfterBuild()
 
     TestProjectSettings *projectSettings = Internal::projectSettings(project);
     return projectSettings->useGlobalSettings() ? testSettings().runAfterBuildMode()
-                                                : projectSettings->runAfterBuild();
+                                                : projectSettings->runAfterBuildMode();
 }
 
 void TestRunner::onBuildQueueFinished(bool success)

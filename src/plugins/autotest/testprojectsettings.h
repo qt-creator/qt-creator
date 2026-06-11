@@ -6,6 +6,8 @@
 #include "itemdatacache.h"
 #include "testsettings.h"
 
+#include <utils/aspects.h>
+
 namespace ProjectExplorer { class Project; }
 
 namespace Autotest {
@@ -15,35 +17,32 @@ class ITestTool;
 
 namespace Internal {
 
-class TestProjectSettings : public QObject
+class TestProjectSettings : public Utils::AspectContainer
 {
-    Q_OBJECT
 public:
     explicit TestProjectSettings(ProjectExplorer::Project *project);
     ~TestProjectSettings() override = default;
 
-    void setUseGlobalSettings(bool useGlobal);
-    bool useGlobalSettings() const { return m_useGlobalSettings; }
-    void setRunAfterBuild(RunAfterBuildMode mode) {m_runAfterBuild = mode; }
-    RunAfterBuildMode runAfterBuild() const { return m_runAfterBuild; }
+    RunAfterBuildMode runAfterBuildMode() const;
+
     QHash<ITestFramework *, bool> activeFrameworks() const { return m_activeTestFrameworks; }
     void activateFramework(const Utils::Id &id, bool activate);
     QHash<ITestTool *, bool> activeTestTools() const { return m_activeTestTools; }
     void activateTestTool(const Utils::Id &id, bool activate);
     Internal::ItemDataCache<Qt::CheckState> *checkStateCache() { return &m_checkStateCache; }
-    bool limitToFilters() const { return m_limitToFilter; }
-    void setLimitToFilter(bool enable) { m_limitToFilter = enable; }
     const QStringList pathFilters() const { return m_pathFilters; }
     void setPathFilters(const QStringList &filters) { m_pathFilters = filters; }
     void addPathFilter(const QString &filter) { m_pathFilters.append(filter); }
+
+    Utils::BoolAspect useGlobalSettings;   // not {this}: excluded from toMap/fromMap
+    Utils::SelectionAspect runAfterBuild{this};
+    Utils::BoolAspect limitToFilter{this};
+
 private:
     void load();
     void save();
 
     ProjectExplorer::Project *m_project;
-    bool m_useGlobalSettings = true;
-    bool m_limitToFilter = false;
-    RunAfterBuildMode m_runAfterBuild = RunAfterBuildMode::None;
     QHash<ITestFramework *, bool> m_activeTestFrameworks;
     QHash<ITestTool *, bool> m_activeTestTools;
     QStringList m_pathFilters;

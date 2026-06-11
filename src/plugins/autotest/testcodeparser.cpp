@@ -327,7 +327,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     }
 
     const TestProjectSettings *settings = projectSettings(project);
-    if (settings->limitToFilters()) {
+    if (settings->limitToFilter()) {
         qCDebug(LOG) << "Applying project path filters - currently" << files.size() << "files";
         const QStringList filters = settings->pathFilters();
         if (!filters.isEmpty()) {

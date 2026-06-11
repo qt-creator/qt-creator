@@ -17,8 +17,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
-#include <QCheckBox>
-#include <QComboBox>
 #include <QPushButton>
 #include <QTimer>
 #include <QTreeWidget>
@@ -43,11 +41,8 @@ private:
     void populatePathFilters(const QStringList &filters);
     void onActiveFrameworkChanged(QTreeWidgetItem *item, int column);
     TestProjectSettings *m_projectSettings;
-    QCheckBox m_globalCheckBox;
     QWidget *m_generalWidget = nullptr;
     QTreeWidget m_activeFrameworks;
-    QComboBox m_runAfterBuild;
-    Utils::BoolAspect m_applyFilter;
     QTreeWidget m_pathFilters;
     QTimer m_syncTimer;
     int m_syncType = 0;
@@ -58,13 +53,6 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
 {
     m_activeFrameworks.setHeaderHidden(true);
     m_activeFrameworks.setRootIsDecorated(false);
-
-    m_runAfterBuild.addItem(Tr::tr("No Tests"));
-    m_runAfterBuild.addItem(Tr::tr("All", "Run tests after build"));
-    m_runAfterBuild.addItem(Tr::tr("Selected"));
-    m_runAfterBuild.setCurrentIndex(int(m_projectSettings->runAfterBuild()));
-
-    m_applyFilter.setToolTip(Tr::tr("Apply path filters before scanning for tests."));
 
     m_pathFilters.setHeaderHidden(true);
     m_pathFilters.setRootIsDecorated(false);
@@ -77,7 +65,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     // clang-format off
     using namespace Layouting;
     Column {
-        Row { &m_globalCheckBox, createUseGlobalSettingsLabel(Constants::AUTOTEST_SETTINGS_ID), st },
+        Row { m_projectSettings->useGlobalSettings, createUseGlobalSettingsLabel(Constants::AUTOTEST_SETTINGS_ID), st },
         createHr(),
         Widget {
             bindTo(&m_generalWidget),
@@ -89,18 +77,14 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
                     },
                     st,
                 },
-                Row {
-                    Tr::tr("Automatically run tests after build"),
-                    &m_runAfterBuild,
-                    st,
-                },
+                Row { m_projectSettings->runAfterBuild, st },
                 noMargin,
             },
         },
         Row { // explicitly outside of the global settings
             Group {
                 title(Tr::tr("Limit Files to Path Patterns")),
-                groupChecker(m_applyFilter.groupChecker()),
+                groupChecker(m_projectSettings->limitToFilter.groupChecker()),
                 Column {
                     filterLabel,
                     Row {
@@ -115,29 +99,21 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     }.attachTo(this);
     // clang-format on
 
-    const bool initial = m_projectSettings->useGlobalSettings();
-
-    m_globalCheckBox.setChecked(initial);
-    connect(&m_globalCheckBox, &QCheckBox::toggled, this, [this](bool useGlobal) {
-        m_generalWidget->setEnabled(!useGlobal);
-        m_projectSettings->setUseGlobalSettings(useGlobal);
-        m_syncTimer.start(3000);
-        m_syncType = ITestBase::Framework | ITestBase::Tool;
-    });
-
-    m_generalWidget->setDisabled(initial);
+    m_generalWidget->setDisabled(m_projectSettings->useGlobalSettings());
 
     populateFrameworks(m_projectSettings->activeFrameworks(),
                        m_projectSettings->activeTestTools());
 
     populatePathFilters(m_projectSettings->pathFilters());
-    m_applyFilter.setValue(m_projectSettings->limitToFilters());
+
+    m_projectSettings->useGlobalSettings.addOnChanged(this, [this] {
+        m_generalWidget->setEnabled(!m_projectSettings->useGlobalSettings());
+        m_syncTimer.start(3000);
+        m_syncType = ITestBase::Framework | ITestBase::Tool;
+    });
 
     connect(&m_activeFrameworks, &QTreeWidget::itemChanged,
             this, &ProjectTestSettingsWidget::onActiveFrameworkChanged);
-    connect(&m_runAfterBuild, &QComboBox::currentIndexChanged, this, [this](int index) {
-        m_projectSettings->setRunAfterBuild(RunAfterBuildMode(index));
-    });
 
     auto itemsToStringList = [this] {
         QStringList items;
@@ -153,9 +129,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
         parser->emitUpdateTestTree();
     };
 
-    connect(&m_applyFilter, &Utils::BoolAspect::changed,
-            this, [this, triggerRescan] {
-        m_projectSettings->setLimitToFilter(m_applyFilter.value());
+    m_projectSettings->limitToFilter.addOnChanged(this, [triggerRescan] {
         triggerRescan();
     });
     connect(&m_pathFilters, &QTreeWidget::itemSelectionChanged,
@@ -253,7 +227,6 @@ public:
     AutotestProjectPanelFactory()
     {
         setPriority(666);
-        //    setIcon();  // TODO ?
         setDisplayName(Tr::tr("Testing"));
         setCreateWidgetFunction([](Project *project) {
             return new ProjectTestSettingsWidget(project);

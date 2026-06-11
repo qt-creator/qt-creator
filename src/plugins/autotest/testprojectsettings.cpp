@@ -4,6 +4,7 @@
 #include "testprojectsettings.h"
 
 #include "autotestconstants.h"
+#include "autotesttr.h"
 #include "testcodeparser.h"
 #include "testframeworkmanager.h"
 #include "testtreemodel.h"
@@ -29,18 +30,24 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.projectsettings", QtWarningMsg)
 TestProjectSettings::TestProjectSettings(ProjectExplorer::Project *project)
     : m_project(project)
 {
+    setAutoApply(true);
+
+    useGlobalSettings.setDefaultValue(true);
+
+    runAfterBuild.addOption(Tr::tr("No Tests"));
+    runAfterBuild.addOption(Tr::tr("All", "Run tests after build"));
+    runAfterBuild.addOption(Tr::tr("Selected"));
+    runAfterBuild.setLabelText(Tr::tr("Automatically run tests after build"));
+    runAfterBuild.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+
     load();
-    connect(project, &ProjectExplorer::Project::settingsLoaded,
-            this, &TestProjectSettings::load);
-    connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
-            this, &TestProjectSettings::save);
+    connect(project, &ProjectExplorer::Project::settingsLoaded, this, [this] { load(); });
+    connect(project, &ProjectExplorer::Project::aboutToSaveSettings, this, [this] { save(); });
 }
 
-void TestProjectSettings::setUseGlobalSettings(bool useGlobal)
+RunAfterBuildMode TestProjectSettings::runAfterBuildMode() const
 {
-    if (m_useGlobalSettings == useGlobal)
-        return;
-     m_useGlobalSettings = useGlobal;
+    return static_cast<RunAfterBuildMode>(runAfterBuild());
 }
 
 void TestProjectSettings::activateFramework(const Id &id, bool activate)
@@ -64,17 +71,17 @@ void TestProjectSettings::activateTestTool(const Id &id, bool activate)
 void TestProjectSettings::load()
 {
     const QVariant useGlobal = m_project->namedSettings(Constants::SK_USE_GLOBAL);
-    m_useGlobalSettings = useGlobal.isValid() ? useGlobal.toBool() : true;
+    useGlobalSettings.setValue(useGlobal.isValid() ? useGlobal.toBool() : true);
 
     const TestFrameworks registeredFrameworks = TestFrameworkManager::registeredFrameworks();
     qCDebug(LOG) << "Registered frameworks sorted by priority" << registeredFrameworks;
     const TestTools registeredTestTools = TestFrameworkManager::registeredTestTools();
-    const QVariant activeFrameworks = m_project->namedSettings(SK_ACTIVE_FRAMEWORKS);
+    const QVariant activeFrameworksVar = m_project->namedSettings(SK_ACTIVE_FRAMEWORKS);
 
     m_activeTestFrameworks.clear();
     m_activeTestTools.clear();
-    if (activeFrameworks.isValid()) {
-        const Store frameworksMap = storeFromVariant(activeFrameworks);
+    if (activeFrameworksVar.isValid()) {
+        const Store frameworksMap = storeFromVariant(activeFrameworksVar);
         for (ITestFramework *framework : registeredFrameworks) {
             const Id id = framework->id();
             bool active = frameworksMap.value(id.toKey(), framework->active()).toBool();
@@ -92,28 +99,27 @@ void TestProjectSettings::load()
             m_activeTestTools.insert(testTool, testTool->active());
     }
 
-    const QVariant runAfterBuild = m_project->namedSettings(SK_RUN_AFTER_BUILD);
-    m_runAfterBuild = runAfterBuild.isValid() ? RunAfterBuildMode(runAfterBuild.toInt())
-                                              : RunAfterBuildMode::None;
+    const QVariant runAfterBuildVar = m_project->namedSettings(SK_RUN_AFTER_BUILD);
+    runAfterBuild.setValue(runAfterBuildVar.isValid() ? runAfterBuildVar.toInt() : 0);
     m_checkStateCache.fromSettings(m_project->namedSettings(SK_CHECK_STATES).toMap());
-    m_limitToFilter = m_project->namedSettings(SK_APPLY_FILTER).toBool();
+    limitToFilter.setValue(m_project->namedSettings(SK_APPLY_FILTER).toBool());
     m_pathFilters = m_project->namedSettings(SK_PATH_FILTERS).toStringList();
 }
 
 void TestProjectSettings::save()
 {
-    m_project->setNamedSettings(Constants::SK_USE_GLOBAL, m_useGlobalSettings);
-    QVariantMap activeFrameworks;
+    m_project->setNamedSettings(Constants::SK_USE_GLOBAL, useGlobalSettings());
+    QVariantMap activeFrameworksMap;
     auto end = m_activeTestFrameworks.cend();
     for (auto it = m_activeTestFrameworks.cbegin(); it != end; ++it)
-        activeFrameworks.insert(it.key()->id().toString(), it.value());
+        activeFrameworksMap.insert(it.key()->id().toString(), it.value());
     auto endTools = m_activeTestTools.cend();
     for (auto it = m_activeTestTools.cbegin(); it != endTools; ++it)
-        activeFrameworks.insert(it.key()->id().toString(), it.value());
-    m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworks);
-    m_project->setNamedSettings(SK_RUN_AFTER_BUILD, int(m_runAfterBuild));
+        activeFrameworksMap.insert(it.key()->id().toString(), it.value());
+    m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworksMap);
+    m_project->setNamedSettings(SK_RUN_AFTER_BUILD, runAfterBuild());
     m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings(Qt::Checked));
-    m_project->setNamedSettings(SK_APPLY_FILTER, m_limitToFilter);
+    m_project->setNamedSettings(SK_APPLY_FILTER, limitToFilter());
     m_project->setNamedSettings(SK_PATH_FILTERS, m_pathFilters);
 }
 
