@@ -7,6 +7,7 @@
 #include "qmltraceviewersettings.h"
 #include "mainsidebar.h"
 
+#include <qmlprofiler/ctfplainviewmanager.h>
 #include <qmlprofiler/profilertr.h>
 #include <qmlprofiler/qmlprofilerconstants.h>
 #include <qmlprofiler/qmlprofilerplainviewmanager.h>
@@ -42,34 +43,51 @@ using namespace std::chrono;
 
 namespace QmlTraceViewer {
 
+// A trace file format determines which manager and view set are used. Chrome
+// Trace Format and Common Trace Format both render through the CTF views.
+enum class Format { Qml, Ctf };
+
+// One tabbed set of dock widgets, plus its (untabbed) range-details dock.
+struct ViewGroup
+{
+    QList<QDockWidget *> docks;         // List with original dock widgets order
+    QDockWidget *detailsDock = nullptr; // Range details, docked to the right (not tabbed)
+};
+
 class WindowPrivate : public QObject
 {
 public:
     WindowPrivate(Window *window = nullptr);
 
     void showOpenFileDialog();
+    void showOpenCtfDirDialog();
 
     void onError(const QString &error);
     void onLoadFinished();
     void onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
 
     void addDocksForViews();
-    void resetLayout();
+    void resetLayout(Format format);
+    void resetActiveLayout() { resetLayout(activeFormat); }
+    void setActiveFormat(Format format);
     void clearTrace();
     void doLoad(const Utils::FilePath &filePath);
     void setTraceDuration(milliseconds ms);
+    milliseconds activeTraceDuration() const;
 
     static void openHelpInBrowser();
 
     Window *q = nullptr;
     FancyMainWindow *traceArea = nullptr; // Hosts the trace view docks (right pane).
-    MainSidebar *sidebar = nullptr; // List of opened traces (left pane).
-    QmlProfilerPlainViewManager *viewManager;
+    MainSidebar *sidebar = nullptr;       // List of opened traces (left pane).
+    QmlProfilerPlainViewManager *qmlManager;
+    CtfPlainViewManager *ctfManager;
+    Format activeFormat = Format::Qml;
     QString lastLoadError;
     QLabel *traceDurationLabel = nullptr;
     ProgressIndicator *progressIndicator;
-    QList<QDockWidget*> dockWidgets; // List with original dock widgets order
-    QDockWidget *detailsDock = nullptr; // Range details, docked to the right (not tabbed)
+    ViewGroup qmlGroup;
+    ViewGroup ctfGroup;
 };
 
 WindowPrivate::WindowPrivate(Window *window)
@@ -82,29 +100,47 @@ WindowPrivate::WindowPrivate(Window *window)
 
     sidebar = new MainSidebar(q);
 
-    viewManager = new QmlProfilerPlainViewManager(traceArea);
+    qmlManager = new QmlProfilerPlainViewManager(traceArea);
+    ctfManager = new CtfPlainViewManager(traceArea);
 
     progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
     progressIndicator->hide();
 
     connect(sidebar, &MainSidebar::traceActivated, this, &WindowPrivate::doLoad);
 
-    connect(viewManager, &QmlProfilerPlainViewManager::error, this, &WindowPrivate::onError);
-    connect(viewManager, &QmlProfilerPlainViewManager::loadFinished,
+    connect(qmlManager, &QmlProfilerPlainViewManager::error, this, &WindowPrivate::onError);
+    connect(qmlManager, &QmlProfilerPlainViewManager::loadFinished,
             this, &WindowPrivate::onLoadFinished);
-    connect(viewManager, &QmlProfilerPlainViewManager::gotoSourceLocation,
+    connect(qmlManager, &QmlProfilerPlainViewManager::gotoSourceLocation,
             this, &WindowPrivate::onGotoSourceLocation);
+
+    connect(ctfManager, &CtfPlainViewManager::error, this, &WindowPrivate::onError);
+    connect(ctfManager, &CtfPlainViewManager::loadFinished, this, &WindowPrivate::onLoadFinished);
 }
 
 void WindowPrivate::showOpenFileDialog()
 {
-    const FilePath filePath = FileUtils::getOpenFilePath(
-        Tr::tr("Load QML Trace"),
-        settings().lastTraceFile(),
-        QmlProfilerPlainViewManager::fileDialogTraceFilesFilter());
+    // "metadata" matches a Common Trace Format metadata file, which selects the
+    // containing directory as the CTF2 trace (see loadTraceFile).
+    const QString filter = Tr::tr("Traces (*.qtd *.qzip *.json metadata)") + ";;"_L1
+                           + Tr::tr("QML Trace Files (*.qtd *.qzip)") + ";;"_L1
+                           + Tr::tr("Chrome Trace Format Files (*.json)") + ";;"_L1
+                           + Tr::tr("Common Trace Format Metadata Files (metadata)") + ";;"_L1
+                           + Tr::tr("All Files (*)");
+    const FilePath filePath
+        = FileUtils::getOpenFilePath(Tr::tr("Load Trace"), settings().lastTraceFile(), filter);
 
     if (!filePath.isEmpty())
         q->loadTraceFile(filePath);
+}
+
+void WindowPrivate::showOpenCtfDirDialog()
+{
+    const FilePath dir = FileUtils::getExistingDirectory(
+        Tr::tr("Load Common Trace Format Directory"), settings().lastTraceFile().parentDir());
+
+    if (!dir.isEmpty())
+        q->loadTraceFile(dir);
 }
 
 void WindowPrivate::onError(const QString &error)
@@ -123,7 +159,7 @@ void WindowPrivate::onError(const QString &error)
 
 void WindowPrivate::onLoadFinished()
 {
-    setTraceDuration(viewManager->traceDuration());
+    setTraceDuration(activeTraceDuration());
     progressIndicator->hide();
     RPC::notifyTraceFileLoadingFinished(settings().lastTraceFile(), lastLoadError);
 }
@@ -133,22 +169,44 @@ void WindowPrivate::onGotoSourceLocation(const QString &fileUrl, int lineNumber,
     RPC::notifyTraceEventSelected(fileUrl, lineNumber, columnNumber);
 }
 
-void WindowPrivate::addDocksForViews()
+milliseconds WindowPrivate::activeTraceDuration() const
 {
-    QTC_ASSERT(dockWidgets.isEmpty(), return);
-    const QWidgetList views = viewManager->views(traceArea);
-    for (QWidget *w : views)
-        dockWidgets.append(traceArea->addDockForWidget(w));
-
-    // The range details view lives next to the tabbed views, docked to the right.
-    if (QWidget *details = viewManager->rangeDetailsWidget())
-        detailsDock = traceArea->addDockForWidget(details);
+    return activeFormat == Format::Qml ? qmlManager->traceDuration() : ctfManager->traceDuration();
 }
 
-void WindowPrivate::resetLayout()
+void WindowPrivate::addDocksForViews()
 {
+    QTC_ASSERT(qmlGroup.docks.isEmpty() && ctfGroup.docks.isEmpty(), return);
+
+    const auto buildGroup = [this](const QWidgetList &views, QWidget *details, ViewGroup &group) {
+        for (QWidget *w : views)
+            group.docks.append(traceArea->addDockForWidget(w));
+        // The range details view lives next to the tabbed views, docked to the right.
+        if (details)
+            group.detailsDock = traceArea->addDockForWidget(details);
+    };
+
+    // views() populates the manager's range-details widget, so query it afterwards.
+    const QWidgetList qmlViews = qmlManager->views(traceArea);
+    buildGroup(qmlViews, qmlManager->rangeDetailsWidget(), qmlGroup);
+
+    const QWidgetList ctfViews = ctfManager->views(traceArea);
+    buildGroup(ctfViews, ctfManager->rangeDetailsWidget(), ctfGroup);
+}
+
+void WindowPrivate::resetLayout(Format format)
+{
+    ViewGroup &active = format == Format::Qml ? qmlGroup : ctfGroup;
+    ViewGroup &inactive = format == Format::Qml ? ctfGroup : qmlGroup;
+
+    // Hide the docks belonging to the other format.
+    for (QDockWidget *dw : std::as_const(inactive.docks))
+        dw->setVisible(false);
+    if (inactive.detailsDock)
+        inactive.detailsDock->setVisible(false);
+
     QDockWidget *firstDockWidget = nullptr;
-    for (QDockWidget *dw : std::as_const(dockWidgets)) {
+    for (QDockWidget *dw : std::as_const(active.docks)) {
         dw->setVisible(true);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
         dw->setDockLocation(Qt::TopDockWidgetArea);
@@ -157,30 +215,40 @@ void WindowPrivate::resetLayout()
         if (!firstDockWidget)
             firstDockWidget = dw;
     }
+    QTC_ASSERT(firstDockWidget, return);
 
     // Split the details off the first view before tabbing the others onto it.
     // QMainWindow::splitDockWidget() only splits when the anchor is not yet tabbed;
     // doing this after tabifying would just add the details as another tab.
-    if (detailsDock) {
-        detailsDock->setVisible(true);
+    if (active.detailsDock) {
+        active.detailsDock->setVisible(true);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
-        detailsDock->setDockLocation(Qt::RightDockWidgetArea);
+        active.detailsDock->setDockLocation(Qt::RightDockWidgetArea);
 #endif
-        detailsDock->setFloating(false);
-        traceArea->splitDockWidget(firstDockWidget, detailsDock, Qt::Horizontal);
+        active.detailsDock->setFloating(false);
+        traceArea->splitDockWidget(firstDockWidget, active.detailsDock, Qt::Horizontal);
     }
 
-    for (QDockWidget *dw : std::as_const(dockWidgets)) {
+    for (QDockWidget *dw : std::as_const(active.docks)) {
         if (dw != firstDockWidget)
             traceArea->tabifyDockWidget(firstDockWidget, dw);
     }
     firstDockWidget->raise();
 }
 
+void WindowPrivate::setActiveFormat(Format format)
+{
+    if (activeFormat == format)
+        return;
+    activeFormat = format;
+    resetLayout(format);
+}
+
 void WindowPrivate::clearTrace()
 {
     setTraceDuration(milliseconds{0});
-    viewManager->clear();
+    qmlManager->clear();
+    ctfManager->clear();
     RPC::notifyTraceDiscarded();
 }
 
@@ -191,7 +259,23 @@ void WindowPrivate::doLoad(const FilePath &filePath)
     progressIndicator->show();
     lastLoadError.clear();
     RPC::notifyTraceFileLoadingStarted(filePath);
-    viewManager->loadTraceFile(filePath);
+
+    // Pick the manager by file format. A directory or a bare "metadata" file is a
+    // Common Trace Format trace; a .json file is Chrome Trace Format; anything
+    // else is treated as a QML profiler trace.
+    if (filePath.isDir()) {
+        setActiveFormat(Format::Ctf);
+        ctfManager->loadCtf2(filePath);
+    } else if (filePath.fileName() == "metadata"_L1) {
+        setActiveFormat(Format::Ctf);
+        ctfManager->loadCtf2(filePath.parentDir());
+    } else if (filePath.suffix() == "json"_L1) {
+        setActiveFormat(Format::Ctf);
+        ctfManager->loadJson(filePath);
+    } else {
+        setActiveFormat(Format::Qml);
+        qmlManager->loadTraceFile(filePath);
+    }
 }
 
 void WindowPrivate::setTraceDuration(milliseconds ms)
@@ -216,9 +300,15 @@ Window::Window(QWidget *parent)
     : QMainWindow(parent)
     , d(new WindowPrivate(this))
 {
-    auto loadAction = new QAction(Icons::OPENFILE_TOOLBAR.icon(), Tr::tr("Load QML Trace"), this);
+    auto loadAction = new QAction(Icons::OPENFILE_TOOLBAR.icon(), Tr::tr("Load Trace"), this);
+    loadAction->setToolTip(Tr::tr("Load a QML or Chrome Trace Format trace file."));
     loadAction->setShortcut(QKeySequence::Open);
     connect(loadAction, &QAction::triggered, d, &WindowPrivate::showOpenFileDialog);
+
+    auto loadCtfDirAction
+        = new QAction(Icons::DIR.icon(), Tr::tr("Load Common Trace Format Directory"), this);
+    loadCtfDirAction->setToolTip(Tr::tr("Load a Common Trace Format trace directory."));
+    connect(loadCtfDirAction, &QAction::triggered, d, &WindowPrivate::showOpenCtfDirDialog);
 
     auto clearAction = new QAction(Icons::CLEAN_TOOLBAR.icon(), Tr::tr("Discard Data"), this);
     clearAction->setShortcut(QKeySequence::Delete);
@@ -236,7 +326,7 @@ Window::Window(QWidget *parent)
 
     auto toolBar = new QToolBar;
     toolBar->setObjectName("QmlProfileTraceViewer");
-    toolBar->addActions(QList<QAction *>{loadAction, clearAction});
+    toolBar->addActions(QList<QAction *>{loadAction, loadCtfDirAction, clearAction});
     toolBar->addSeparator();
     toolBar->addWidget(d->traceDurationLabel);
     toolBar->addAction(helpAction);
@@ -245,8 +335,8 @@ Window::Window(QWidget *parent)
     addToolBar(toolBar);
 
     d->addDocksForViews();
-    d->resetLayout();
-    connect(d->traceArea, &FancyMainWindow::resetLayout, d, &WindowPrivate::resetLayout);
+    d->resetActiveLayout();
+    connect(d->traceArea, &FancyMainWindow::resetLayout, d, &WindowPrivate::resetActiveLayout);
 
     auto splitter = new Core::MiniSplitter(Qt::Horizontal);
     splitter->addWidget(d->sidebar);

@@ -22,6 +22,8 @@ else()
 endif()
 
 set(QMLPROFILER_CPP_SOURCES
+  ctfloader.cpp ctfloader.h
+  ctfplainviewmanager.cpp ctfplainviewmanager.h
   ctfstatisticsmodel.cpp ctfstatisticsmodel.h
   ctfstatisticsview.cpp ctfstatisticsview.h
   ctftimelinemodel.cpp ctftimelinemodel.h

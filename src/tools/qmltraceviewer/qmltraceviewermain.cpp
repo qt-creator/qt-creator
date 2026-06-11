@@ -9,8 +9,6 @@
 #include <QCommandLineParser>
 #include <QTimer>
 
-#include <qmlprofiler/qmlprofilerplainviewmanager.h>
-
 #include <coreplugin/icore.h>
 
 #include <utils/filepath.h>
@@ -40,12 +38,14 @@ int main(int argc, char *argv[])
     QmlTraceViewer::init();
 
     QCommandLineParser parser;
-    parser.setApplicationDescription("A tool for analyzing QML profiler traces.");
+    parser.setApplicationDescription(
+        "A tool for analyzing QML profiler, Chrome Trace Format and Common Trace Format traces.");
     parser.addHelpOption();
     parser.addVersionOption();
-    const QString extensions = Profiler::QmlProfilerPlainViewManager::fileDialogTraceFilesFilter()
-                                   .split(";;").constFirst();
-    parser.addPositionalArgument("tracefile", extensions);
+    parser.addPositionalArgument(
+        "tracefile",
+        "A QML trace (*.qtd, *.qzip), a Chrome Trace Format file (*.json), or a Common Trace "
+        "Format trace directory (or its metadata file).");
     QCommandLineOption exitOnError(QStringList({"e", "exit-on-error"}),
                                    "Exit on error, with error message on stderr.");
     parser.addOption(exitOnError);
