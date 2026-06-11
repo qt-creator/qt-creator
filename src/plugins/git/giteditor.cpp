@@ -163,8 +163,8 @@ static QString sanitizeBlameOutput(const QString &b, QVector<int> *lines)
         static const QString sep = "  ";
         const QRegularExpressionMatch match = i.next();
         const QString hash   = match.captured(1) + sep;
-        const QString path   = omitPath   ? QString() : match.captured(2);
         const QString line   = match.captured(3);
+        const QString path   = omitPath   ? QString() : match.captured(2) + line;
         const QString author = omitAuthor ? QString() : match.captured(4) + sep;
         const QString date   = omitDate   ? QString() : match.captured(5);
         const QString code   = match.captured(6);
