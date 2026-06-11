@@ -115,14 +115,14 @@ PerfProfilerTool::PerfProfilerTool()
     menu->addMenu(options, Core::Constants::G_ANALYZER_OPTIONS);
 
     ActionBuilder(options, Constants::PerfProfilerTaskLoadPerf)
-        .setText(Tr::tr("Load perf.data File"))
         .adopt(&d->m_loadPerfData)
+        .setText(Tr::tr("Load perf.data File"))
         .addToContainer(subMenu)
         .addOnTriggered(this, &PerfProfilerTool::showLoadPerfDialog);
 
     ActionBuilder(options, Constants::PerfProfilerTaskLoadTrace)
-        .setText(Tr::tr("Load Trace File"))
         .adopt(&d->m_loadTrace)
+        .setText(Tr::tr("Load Trace File"))
         .addToContainer(subMenu)
         .addOnTriggered(this, &PerfProfilerTool::showLoadTraceDialog);
 
