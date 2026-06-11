@@ -377,7 +377,6 @@ class Dumper(DumperBase):
             self.type_name_cache[typeid] = str(nativeType)
             self.type_size_cache[typeid] = nativeType.sizeof
             self.type_code_cache[typeid] = type_code
-            self.type_nativetype_cache[typeid] = nativeType
 
             if type_code == TypeCode.Enum:
                 self.type_enum_display_cache[typeid] = lambda intval, addr, form: \
