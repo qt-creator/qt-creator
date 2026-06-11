@@ -62,10 +62,13 @@ public:
     ClazyMode clazyMode() const;
     void setClazyMode(const ClazyMode &clazyMode);
 
-    QString checks(ClangToolType tool) const;
-    void setChecks(ClangToolType tool, const QString &checks);
+    QString tidyChecks() const;
+    void setTidyChecks(const QString &checks);
+    QString clazyChecks() const;
+    void setClazyChecks(const QString &checks);
 
-    bool isEnabled(ClangToolType tool) const;
+    bool isTidyEnabled() const;
+    bool isClazyEnabled() const;
 
     bool operator==(const ClangDiagnosticConfig &other) const;
 

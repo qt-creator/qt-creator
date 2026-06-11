@@ -218,7 +218,9 @@ void DocumentClangToolRunner::run()
         if (!toolEnabled(tool, config, runSettings))
             return;
         const RunSettingsData runSettingsData = runSettings.data();
-        if (!config.isEnabled(tool) && !runSettingsData.hasConfigFileForSourceFile(m_fileInfo.file))
+        const bool enabled = tool == ClangToolType::Tidy ? config.isTidyEnabled()
+                                                         : config.isClazyEnabled();
+        if (!enabled && !runSettingsData.hasConfigFileForSourceFile(m_fileInfo.file))
             return;
         const FilePath executable = toolExecutable(tool);
         if (executable.isEmpty() || !executable.isExecutableFile())

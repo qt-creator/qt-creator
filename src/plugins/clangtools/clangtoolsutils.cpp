@@ -364,7 +364,7 @@ bool toolEnabled(CppEditor::ClangToolType type, const ClangDiagnosticConfig &con
 {
     if (type == ClangToolType::Tidy && runSettings.preferConfigFile())
         return true;
-    return config.isEnabled(type);
+    return type == ClangToolType::Tidy ? config.isTidyEnabled() : config.isClazyEnabled();
 }
 
 } // namespace ClangTools::Internal

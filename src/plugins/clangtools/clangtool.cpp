@@ -731,7 +731,8 @@ Group ClangTool::runRecipe(const RunSettingsData &runSettings,
         // Collect files
         AnalyzeUnits unitsToProcess;
         for (const FileInfo &fileInfo : fileInfos) {
-            if (diagnosticConfig.isEnabled(tool)
+            if ((tool == ClangToolType::Tidy ? diagnosticConfig.isTidyEnabled()
+                                             : diagnosticConfig.isClazyEnabled())
                 || runSettings.hasConfigFileForSourceFile(fileInfo.file)) {
                 unitsToProcess.append({fileInfo, tool});
             }

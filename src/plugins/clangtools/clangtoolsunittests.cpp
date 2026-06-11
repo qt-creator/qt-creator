@@ -83,8 +83,8 @@ static ClangDiagnosticConfig configFor(const QString &tidyChecks, const QString 
     QString theTidyChecks = "-*";
     if (!tidyChecks.isEmpty())
         theTidyChecks.append(',').append(tidyChecks);
-    config.setChecks(ClangToolType::Tidy, theTidyChecks);
-    config.setChecks(ClangToolType::Clazy, clazyChecks);
+    config.setTidyChecks(theTidyChecks);
+    config.setClazyChecks(clazyChecks);
     return config;
 }
 

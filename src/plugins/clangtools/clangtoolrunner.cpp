@@ -46,9 +46,9 @@ static QStringList checksArguments(const AnalyzeUnit &unit, const AnalyzeInputDa
             return {"-config=" + input.config.clangTidyChecksAsJson()};
         }
     }
-    const QString clazyChecks = input.config.checks(ClangToolType::Clazy);
+    const QString clazyChecks = input.config.clazyChecks();
     if (!clazyChecks.isEmpty())
-        return {"-checks=" + input.config.checks(ClangToolType::Clazy)};
+        return {"-checks=" + clazyChecks};
     return {};
 }
 

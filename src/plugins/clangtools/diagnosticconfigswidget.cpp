@@ -1113,7 +1113,7 @@ void DiagnosticConfigsWidget::syncClazyWidgets(const ClangDiagnosticConfig &conf
     const QStringList checkNames = config.clazyMode()
                       == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks
                       ? m_clazyInfo.defaultChecks
-                      : config.checks(ClangToolType::Clazy).split(',', Qt::SkipEmptyParts);
+                      : config.clazyChecks().split(',', Qt::SkipEmptyParts);
     m_clazyTreeModel->enableChecks(checkNames);
 
     syncClazyChecksGroupBox();
@@ -1135,7 +1135,7 @@ void DiagnosticConfigsWidget::syncTidyChecksToTree(const ClangDiagnosticConfig &
     const QString checks = config.clangTidyMode()
                                    == ClangDiagnosticConfig::TidyMode::UseDefaultChecks
                                ? m_tidyInfo.defaultChecks.join(',')
-                               : config.checks(ClangToolType::Tidy);
+                               : config.tidyChecks();
     m_tidyTreeModel->selectChecks(checks);
 }
 
@@ -1218,7 +1218,7 @@ void DiagnosticConfigsWidget::onClangTidyTreeChanged()
     ClangDiagnosticConfig config = currentConfig();
     if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseDefaultChecks)
         config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
-    config.setChecks(ClangToolType::Tidy, m_tidyTreeModel->selectedChecks());
+    config.setTidyChecks(m_tidyTreeModel->selectedChecks());
     updateConfig(config);
 }
 
@@ -1229,7 +1229,7 @@ void DiagnosticConfigsWidget::onClazyTreeChanged()
     ClangDiagnosticConfig config = currentConfig();
     if (config.clazyMode() == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks)
         config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
-    config.setChecks(ClangToolType::Clazy, m_clazyTreeModel->enabledChecks().join(","));
+    config.setClazyChecks(m_clazyTreeModel->enabledChecks().join(","));
     updateConfig(config);
 }
 
@@ -1307,18 +1307,16 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
                 config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
                 const ClazyStandaloneInfo clazyInfo
                         = ClazyStandaloneInfo(toolExecutable(ClangToolType::Clazy));
-                config.setChecks(ClangToolType::Clazy, clazyInfo.defaultChecks.join(','));
+                config.setClazyChecks(clazyInfo.defaultChecks.join(','));
             }
-            config.setChecks(ClangToolType::Clazy,
-                             removeClazyCheck(config.checks(ClangToolType::Clazy), diag.name));
+            config.setClazyChecks(removeClazyCheck(config.clazyChecks(), diag.name));
         } else if (!settings->preferConfigFile()){
             if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseDefaultChecks) {
                 config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
                 const ClangTidyInfo tidyInfo(toolExecutable(ClangToolType::Tidy));
-                config.setChecks(ClangToolType::Tidy, tidyInfo.defaultChecks.join(','));
+                config.setTidyChecks(tidyInfo.defaultChecks.join(','));
             }
-            config.setChecks(ClangToolType::Tidy,
-                             removeClangTidyCheck(config.checks(ClangToolType::Tidy), diag.name));
+            config.setTidyChecks(removeClangTidyCheck(config.tidyChecks(), diag.name));
         }
     }
 
