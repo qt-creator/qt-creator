@@ -472,23 +472,23 @@ int TrackPainter::indexAt(const QPoint &pos) const
 
     const qint64 t = pixelToTime(pos.x(), double(width()), m_rangeStart, m_rangeEnd);
 
-    // Search around bestIndex for the smallest item that contains the cursor
-    int best = -1;
-    qint64 bestWidth = std::numeric_limits<qint64>::max();
-
     const int candidate = m_model->bestIndex(t);
     if (candidate < 0)
         return -1;
 
-    // Check a window of items around the candidate
-    const int first = m_model->firstIndex(m_rangeStart);
-    const int last = m_model->lastIndex(m_rangeEnd);
-    if (first < 0 || last < first)
-        return -1;
-    const int lo = qMax(first, candidate - 10);
-    const int hi = qMin(last, candidate + 10);
+    // Search outward from the candidate for the smallest item whose drawn
+    // rectangle contains the cursor. Items are ordered by start time, not by
+    // row, so the item under the cursor (a long parent range, or an item on a
+    // different row) can be arbitrarily far from the candidate in index space.
+    // A fixed-size window therefore misses such items; instead we expand until
+    // the start-time ordering proves no further item can match.
+    int best = -1;
+    qint64 bestWidth = std::numeric_limits<qint64>::max();
+    const int count = m_model->count();
 
-    for (int i = lo; i <= hi; ++i) {
+    // Test whether item i is drawn under the cursor and, if so, whether it is
+    // narrower than the current best (innermost nested item wins).
+    const auto test = [&](int i) {
         const int row = m_model->row(i);
         const int rowH = m_model->rowHeight(row);
         const int rowY = m_model->rowOffset(row);
@@ -498,7 +498,7 @@ int TrackPainter::indexAt(const QPoint &pos) const
         const double itemY = rowY + rowH - itemH;
 
         if (pos.y() < itemY || pos.y() >= itemY + itemH)
-            continue;
+            return;
 
         const qint64 start = m_model->startTime(i);
         const qint64 end = m_model->endTime(i);
@@ -509,13 +509,35 @@ int TrackPainter::indexAt(const QPoint &pos) const
             x2 = x1 + 1.0;
 
         if (pos.x() < x1 || pos.x() >= x2)
-            continue;
+            return;
 
         const qint64 w = end - start;
         if (best == -1 || w < bestWidth) {
             best = i;
             bestWidth = w;
         }
+    };
+
+    // Forward: start times only increase, so once an item starts to the right
+    // of the cursor no later item can contain it.
+    for (int i = candidate; i < count; ++i) {
+        if (timeToPixel(m_model->startTime(i), m_rangeStart, m_rangeEnd, double(width())) > pos.x())
+            break;
+        test(i);
+    }
+
+    // Backward: a short item that doesn't reach the cursor may still have a
+    // long parent that does. Only stop once neither the item nor its parent can
+    // cover the cursor time.
+    for (int i = candidate - 1; i >= 0; --i) {
+        const qint64 end = m_model->endTime(i);
+        if (end < t) {
+            const int parent = m_model->parentIndex(i);
+            const qint64 parentEnd = parent == -1 ? end : m_model->endTime(parent);
+            if (parentEnd < t)
+                break;
+        }
+        test(i);
     }
 
     return best;

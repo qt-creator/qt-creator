@@ -24,6 +24,23 @@ public:
     }
 };
 
+// One long range covering many short children. The long range sorts to index 0
+// while bestIndex() of a click in a gap between children lands far away in the
+// index space, exercising the outward search in indexAt().
+class NestedModel : public TimelineModel
+{
+public:
+    NestedModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
+
+    void loadData()
+    {
+        insert(0, 1000, 0);
+        for (int i = 1; i <= 20; ++i)
+            insert(i * 40, 5, i);
+        computeNesting();
+    }
+};
+
 class tst_TrackPainterInteraction : public QObject
 {
     Q_OBJECT
@@ -32,6 +49,7 @@ private slots:
     void initialState();
     void selectionLockedHover();
     void indexAtWithData();
+    void indexAtFarParent();
     void unlockedHover();
 };
 
@@ -73,6 +91,26 @@ void tst_TrackPainterInteraction::indexAtWithData()
     int idx = painter.indexAt(QPoint(5, 15));
     QVERIFY(idx >= 0);
     QCOMPARE(idx, 0);
+}
+
+void tst_TrackPainterInteraction::indexAtFarParent()
+{
+    TrackPainter painter;
+    TimelineModelAggregator aggregator;
+    NestedModel model(&aggregator);
+    model.loadData();
+    painter.setModel(&model);
+    painter.setRange(0, 1000);
+    painter.resize(1000, 30);
+
+    // x=610 falls in a gap between the children at 600..605 and 640..645, so
+    // only the long parent (index 0) is drawn there. bestIndex() lands near the
+    // children, far from index 0 in the index space.
+    QCOMPARE(painter.indexAt(QPoint(610, 15)), 0);
+
+    // x=602 is covered by both the child at 600..605 and the parent; the
+    // narrower child must win.
+    QCOMPARE(painter.indexAt(QPoint(602, 15)), 15);
 }
 
 void tst_TrackPainterInteraction::unlockedHover()
