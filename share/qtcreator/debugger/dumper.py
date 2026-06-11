@@ -1640,9 +1640,23 @@ class DumperBase():
         # Overrridden
         pass
 
+    def is_qobject_based(self, native_type):
+        # Overridden in the GDB and LLDB bridges. None means 'unknown'.
+        return None
+
     def putQObjectNameValue(self, value):
-        is_qobject_based = self.type_qobject_based_cache.get(value.typeid, None)
-        if is_qobject_based == False:
+        typeid = value.typeid
+        if typeid in self.type_qobject_based_cache:
+            is_qobject_based = self.type_qobject_based_cache[typeid]
+        else:
+            native_type = self.type_nativetype_cache.get(typeid, None)
+            try:
+                is_qobject_based = None if native_type is None \
+                    else self.is_qobject_based(native_type)
+            except Exception:
+                is_qobject_based = None
+            self.type_qobject_based_cache[typeid] = is_qobject_based
+        if is_qobject_based is False:
             #self.warn("SKIP TEST OBJNAME: %s" % self.type_name(value.typeid))
             return
 
