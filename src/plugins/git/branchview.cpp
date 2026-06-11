@@ -226,7 +226,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     const QString indexName = m_model->fullName(index);
     const QModelIndex currentBranch = m_model->currentBranch();
     const QString currentName = m_model->fullName(currentBranch);
-    const QString trackingName = m_model->tracking(currentBranch);
+    const QString trackingName = m_model->tracking(index);
     const bool currentSelected = index.sibling(index.row(), 0) == currentBranch;
     const bool isLocal = m_model->isLocal(index);
     const bool isTag = m_model->isTag(index);
@@ -281,6 +281,10 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             contextMenu.addAction(Tr::tr("Re&name..."), this, &BranchView::rename);
         if (!currentSelected)
             contextMenu.addAction(Tr::tr("&Checkout"), this, &BranchView::checkout);
+        if (isLocal && !trackingName.isEmpty()) {
+            contextMenu.addAction(Tr::tr("Stop tracking \"%1\"").arg(trackingName),
+                                  this, [this] { m_model->setRemoteTracking({}); });
+        }
         contextMenu.addSeparator();
         contextMenu.addAction(Tr::tr("&Diff"), this, [this] {
             const QString fullName = m_model->fullName(selectedIndex(), true);

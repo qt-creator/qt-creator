@@ -938,9 +938,13 @@ void BranchModel::setRemoteTracking(const QModelIndex &trackingIndex)
     const QString shortTracking = fullName(trackingIndex);
     const QString tracking = fullName(trackingIndex, true);
     qCDebug(modelLog) << "setRemoteTracking: currentName=" << currentName << "shortTracking=" << shortTracking << "tracking=" << tracking;
+    const QStringList arguments = [tracking, currentName, trackingIndex] {
+        if (!trackingIndex.isValid())
+            return QStringList{"branch", "--unset-upstream", currentName};
+        return QStringList{"branch", "--set-upstream-to=" + tracking, currentName};
+    }();
     const ExecutableItem setTrackingBranchTask = gitClient().commandTask({
-        d->workingDirectory,
-        {"branch", "--set-upstream-to=" + tracking, currentName}
+        d->workingDirectory, arguments
     });
 
     const QSyncTask sync([this, nodePtr = QPointer<BranchNode>(d->currentBranch), shortTracking] {
