@@ -408,7 +408,7 @@ class DumperBase():
             try:
                 if self.currentType.value:
                     typename = self.currentType.value
-                    if len(typename) > 0 and typename != self.currentChildType:
+                    if typename and typename != self.currentChildType:
                         self.putField('type', typename)
                 if self.currentValue.value is None:
                     self.put('value="",encoding="notaccessible",numchild="0",')
@@ -714,7 +714,7 @@ class DumperBase():
         #self.warn("TARGS: %s %s" % (typename, targs))
         idx = 0
         for item in targs[::-1]:
-            if len(item) == 0:
+            if not item:
                 continue
             if item == "false": # Triggered in StdTuple dumper
                 self.type_template_arguments_cache[(typeid, idx)] = False
@@ -1163,7 +1163,7 @@ class DumperBase():
                 if item.get('type', '') == 'function':
                     continue
                 name = item.get('name', '')
-                if len(name) == 0:
+                if not name:
                     name = str(index)
                     index += 1
                 pairs.append((name, self.variablesToMi(item, prefix)))
@@ -1362,7 +1362,7 @@ class DumperBase():
 
     def stripNamespaceFromType(self, typename):
         ns = self.qtNamespace()
-        if len(ns) > 0 and typename.startswith(ns):
+        if ns and typename.startswith(ns):
             typename = typename[len(ns):]
         # self.warn( 'stripping %s' % typename )
         lvl = 0
@@ -4190,7 +4190,7 @@ typename))
         if size <= 0:
             raise RuntimeError('SIZE WRONG VALUE: %s' % size)
         res = self.readRawMemory(address, size)
-        if len(res) > 0:
+        if res:
             return res
         raise RuntimeError('CANNOT READ %d BYTES FROM ADDRESS: %s' % (size, address))
 

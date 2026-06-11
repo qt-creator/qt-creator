@@ -541,7 +541,7 @@ class Dumper(DumperBase):
         # Don't use GetDisplayTypeName since LLDB removed the inline namespace __1
         # https://reviews.llvm.org/D74478
         name = nativeType.GetName()
-        if name is None or len(name) == 0:
+        if not name:
             c = '0'
         elif name == '(anonymous struct)':
             c = 's' if code == lldb.eTypeClassStruct else 'u'
@@ -1405,7 +1405,7 @@ class Dumper(DumperBase):
         self.byteorder = 'big' if self.isBigEndian else 'little'
 
         self.output = []
-        isPartial = len(self.partialVariable) > 0
+        isPartial = bool(self.partialVariable)
 
         self.currentIName = 'local'
         self.put('data=[')

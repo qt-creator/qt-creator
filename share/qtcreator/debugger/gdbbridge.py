@@ -101,7 +101,7 @@ class ScanStackCommand(gdb.Command):
         super(ScanStackCommand, self).__init__('scanStack', gdb.COMMAND_OBSCURE)
 
     def invoke(self, args, from_tty):
-        if len(args) == 0:
+        if not args:
             args = 20
         safePrint(scanStack(gdb.parse_and_eval('$sp'), int(args)))
 
@@ -434,7 +434,7 @@ class Dumper(DumperBase):
         if str(nativeType) == self.qtNamespace() + 'QObject':
             return True
         fields = nativeType.fields()
-        if len(fields) == 0:
+        if not fields:
             return None  # No info, can't drill deeper
         if not fields[0].is_base_class:
             return False
@@ -482,7 +482,7 @@ class Dumper(DumperBase):
         if nativeType and (nativeType.code == gdb.TYPE_CODE_TYPEDEF):
             return '%s{%s}' % (nativeType, nativeType.strip_typedefs())
         name = str(nativeType)
-        if len(name) == 0:
+        if not name:
             c = '0'
         elif name == 'union {...}':
             c = 'u'
@@ -516,7 +516,7 @@ class Dumper(DumperBase):
             # multiple anonymous unions in the struct.
             # Since GDB commit b5b08fb4 anonymous structs get also reported
             # with a 'None' name.
-            if field_name is None or len(field_name) == 0:
+            if not field_name:
                 anonNumber += 1
                 field_name = '#%s' % anonNumber
             #self.warn('FIELD: %s' % field_name)
@@ -705,14 +705,14 @@ class Dumper(DumperBase):
         self.put('data=[')
 
         partialVar = args.get('partialvar', '')
-        isPartial = len(partialVar) > 0
+        isPartial = bool(partialVar)
         partialName = partialVar.split('.')[1].split('@')[0] if isPartial else None
 
         variables = self.listLocals(partialName)
         #self.warn('VARIABLES: %s' % variables)
 
         # Take care of the return value of the last function call.
-        if len(self.resultVarName) > 0:
+        if self.resultVarName:
             try:
                 value = self.parseAndEvaluate(self.resultVarName)
                 value.name = self.resultVarName
