@@ -8,6 +8,7 @@
 #include "designdocument.h"
 
 #include <projectexplorer/target.h>
+#include <qmldesignerutils/stringutils.h>
 #include <qmljs/qmljssimplereader.h>
 #include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
@@ -173,7 +174,8 @@ void DesignerMcuManager::readVersionData(const DesignerMcuManager::Version &vers
             allowedProperties.properties = readPropertyList("allowedProperties", child);
 
             if (!allowedProperties.properties.isEmpty())
-                m_allowedItemProperties.insert(child->name(), allowedProperties);
+                m_allowedItemProperties.insert(StringUtils::split_last(child->name()).second.toString(),
+                                               allowedProperties);
         }
 
         //handling banned properties:
