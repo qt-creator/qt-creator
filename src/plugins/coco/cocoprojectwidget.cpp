@@ -343,8 +343,8 @@ void CocoProjectWidget::onExcludeDirButtonClicked()
 
     const QString projectDir = m_buildSettings->projectDirectory();
     if (path.startsWith(projectDir))
-        // Make it a relative path with "*/" at the beginnig.
-        path = "*/" + path.arg(path.mid(projectDir.size()));
+        // Make it a relative path with "*/" at the beginning.
+        path = "*/" + path.mid(projectDir.size());
 
     addCocoOption("--cs-exclude-file-abs-wildcard=" + maybeQuote(path + "/*"));
 
