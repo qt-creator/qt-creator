@@ -64,6 +64,9 @@ public:
 signals:
     void rootPathChanged(const Utils::FilePath &newPath);
     void directoryLoaded(const Utils::FilePath &path);
+    // Brackets the asynchronous listing of a directory. The end notification
+    // is not delivered for fetches a setRootPath() discards while in flight.
+    void fetchingChanged(const Utils::FilePath &path, bool fetching);
 
 private:
     friend class FileSystemModelPrivate;

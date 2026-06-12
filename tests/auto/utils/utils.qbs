@@ -11,6 +11,7 @@ Project {
         "expected/expected.qbs",
         "filepath/filepath.qbs",
         "fileinprojectfinder/fileinprojectfinder.qbs",
+        "filesystemmodel/filesystemmodel.qbs",
         "fileutils/fileutils.qbs",
         "fsengine/fsengine.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",

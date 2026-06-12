@@ -875,11 +875,14 @@ public:
     QLabel *m_fileNameLabel = nullptr;
     FancyLineEdit *m_fileNameEdit = nullptr;
     FancyLineEdit *m_searchEdit = nullptr;
-    SpinnerSolution::Spinner *m_searchSpinner = nullptr;
+    SpinnerSolution::Spinner *m_spinner = nullptr;
     QAbstractButton *m_acceptButton = nullptr;
     // Coalesces keystrokes so the recursive walk only starts once typing
     // settles, avoiding a storm of started/canceled finds on remote devices.
     QTimer m_searchTimer;
+    // Defers showing the spinner while the file system model fetches a
+    // directory listing, so fast (local) listings do not flicker.
+    QTimer m_spinnerDelay;
     FilePath m_currentDir;
     FilePath m_selectedFile;
     QFileDialog::FileMode m_fileMode = QFileDialog::ExistingFile;
@@ -895,7 +898,7 @@ public:
 
     bool isSearching() const { return m_proxy->sourceModel() == m_searchModel; }
 
-    void setSpinnerRunning(bool running) { m_searchSpinner->setVisible(running); }
+    void setSpinnerRunning(bool running) { m_spinner->setVisible(running); }
 
     // Points both views at the contents of the current directory in the file
     // system model. index(0,0) is the directory node itself.
@@ -911,6 +914,7 @@ public:
     void leaveSearch()
     {
         m_searchModel->cancel();
+        m_spinnerDelay.stop();
         setSpinnerRunning(false);
         if (m_proxy->sourceModel() != m_model) {
             m_proxy->setSourceModel(m_model);
@@ -1250,10 +1254,11 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_searchEdit->setAutoHideButton(FancyLineEdit::Right, true);
     connect(d->m_searchEdit, &FancyLineEdit::rightButtonClicked, d->m_searchEdit, &QLineEdit::clear);
     d->m_searchEdit->setFixedWidth(180);
-    // Overlay shown on top of the file views while a recursive search runs.
-    d->m_searchSpinner
+    // Overlay shown on top of the file views while a recursive search runs or
+    // the file system model fetches a directory listing.
+    d->m_spinner
         = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Medium, d->m_viewStack);
-    d->m_searchSpinner->hide();
+    d->m_spinner->hide();
     d->m_searchTimer.setSingleShot(true);
     d->m_searchTimer.setInterval(300);
     connect(d->m_searchEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
@@ -1276,11 +1281,36 @@ FileDialog::FileDialog(QWidget *parent)
         // Set the spinner running after search() so the cancel() it performs
         // internally (which may emit searchFinished) cannot leave it hidden.
         d->m_searchModel->search(d->m_currentDir, needle);
+        d->m_spinnerDelay.stop(); // The search owns the spinner now.
         d->setSpinnerRunning(true);
     });
     connect(d->m_searchModel, &SearchModel::searchFinished, this, [this] {
         d->setSpinnerRunning(false);
     });
+
+    // While the model fetches the listing of the current directory, show the
+    // spinner — but only once the fetch takes noticeably long. The views
+    // trigger the fetch lazily after setDirectory(), so this is signal-driven.
+    d->m_spinnerDelay.setSingleShot(true);
+    d->m_spinnerDelay.setInterval(200);
+    connect(&d->m_spinnerDelay, &QTimer::timeout, this, [this] { d->setSpinnerRunning(true); });
+    connect(
+        d->m_model,
+        &FileSystemModel::fetchingChanged,
+        this,
+        [this](const FilePath &path, bool fetching) {
+            if (path != d->m_currentDir)
+                return;
+            if (fetching) {
+                if (!d->isSearching())
+                    d->m_spinnerDelay.start();
+            } else {
+                d->m_spinnerDelay.stop();
+                // While searching, the spinner belongs to the search.
+                if (!d->isSearching())
+                    d->setSpinnerRunning(false);
+            }
+        });
 
     // Native "go to parent" shortcut: Cmd+Up on macOS, Alt+Up elsewhere.
     auto *parentAction = new QAction(this);

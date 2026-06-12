@@ -318,6 +318,7 @@ void FileSystemModelPrivate::triggerFetch(FileSystemNode *node)
         return;
     node->m_state = FileSystemNode::State::Fetching;
     emit requestFetchChildren(node->m_path, m_generation);
+    emit m_q->fetchingChanged(node->m_path, true);
 }
 
 void FileSystemModelPrivate::onChildrenFetched(const Utils::FilePath &dirPath,
@@ -363,6 +364,7 @@ void FileSystemModelPrivate::onChildrenFetched(const Utils::FilePath &dirPath,
     }
 
     node->m_state = FileSystemNode::State::Fetched;
+    emit m_q->fetchingChanged(dirPath, false);
     emit m_q->directoryLoaded(dirPath);
 }
 
@@ -373,6 +375,7 @@ void FileSystemModelPrivate::onDirectoryChanged(const Utils::FilePath &path)
         return;
     node->m_state = FileSystemNode::State::Fetching;
     emit requestFetchChildren(path, m_generation);
+    emit m_q->fetchingChanged(path, true);
 }
 
 void FileSystemModelPrivate::removeNodeFromIndex(FileSystemNode *node)
