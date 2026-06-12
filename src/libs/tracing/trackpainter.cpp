@@ -280,7 +280,7 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
             x2 = qMin(x2, wf);
 
             // Skip if entirely covered by a previous event in this row.
-            if (x2 <= rowNextX[row])
+            if (x2 <= rowNextX[row] && m_model->expanded())
                 continue;
             const double drawX1 = qMax(x1, rowNextX[row]);
             rowNextX[row] = x2;

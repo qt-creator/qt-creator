@@ -146,22 +146,36 @@ void TimelineOverviewWidget::rebuildContentCache()
 
             const double bandY = contentTop + bandIdx * bandH;
             const int count = model->count();
-            double nextX = -1.0;
+
+            QVarLengthArray<double, 64> rowNextX(model->rowCount());
+            std::fill(rowNextX.begin(), rowNextX.end(), -1.0);
+
             for (int i = 0; i < count; ++i) {
-                const double x1 = timeToPixel(model->startTime(i));
-                double x2 = timeToPixel(model->endTime(i));
+
+                const int row = model->row(i);
+                const qint64 start = model->startTime(i);
+                const qint64 end   = model->endTime(i);
+
+                double x1 = timeToPixel(start);
+                double x2 = timeToPixel(end);
+
                 if (x2 - x1 < 1.0)
                     x2 = x1 + 1.0;
-                if (x2 < 0 || x1 > wf)
+
+                if (x2 < 0.0 || x1 > wf)
                     continue;
-                if (x2 <= nextX)
-                    continue;
-                const double drawX1 = qMax(qMax(x1, 0.0), nextX);
-                nextX = qMin(x2, wf);
+
+                x1 = qMax(0.0, x1);
+                x2 = qMin(wf, x2);
+
+                const double drawX1 = qMax(x1, rowNextX[row]);
+                rowNextX[row] = x2;
+
                 const double relH = model->relativeHeight(i);
                 const double itemH = bandH * relH;
                 const double itemY = bandY + bandH - itemH;
-                p.fillRect(QRectF(drawX1, itemY, nextX - drawX1, itemH),
+
+                p.fillRect(QRectF(drawX1, itemY, x2 - drawX1, itemH),
                            QColor::fromRgb(model->color(i)));
             }
 
