@@ -528,26 +528,17 @@ CppFileSettings &globalCppFileSettings()
     return theGlobalCppFileSettings;
 }
 
-static CppFileSettings *findSettings(Project *project, CppFileSettings *customSettings)
+static CppFileSettings *findSettings(Project *project)
 {
-    if (project) {
-        const QVariant entry = project->namedSettings(projectSettingsKeyC);
-        if (entry.isValid()) {
-            const QVariantMap data = mapEntryFromStoreEntry(entry).toMap();
-            const bool useGlobalSettings = data.value(useGlobalKeyC, true).toBool();
-            if (!useGlobalSettings) {
-                customSettings->fromMap(storeFromMap(data));
-                return customSettings;
-            }
-        }
-    }
-    return &globalCppFileSettings();
+    if (!project)
+        return &globalCppFileSettings();
+    CppFileProjectSettings * const ps = cppFileProjectSettings(project);
+    return ps->useGlobalSettings() ? &globalCppFileSettings() : ps;
 }
 
 CppFileSettingsData cppFileSettingsForProject(Project *project)
 {
-    CppFileSettings customSettings;
-    CppFileSettings *settings = findSettings(project, &customSettings);
+    CppFileSettings *settings = findSettings(project);
 
     CppFileSettingsData data;
 
@@ -570,18 +561,12 @@ CppFileSettingsData cppFileSettingsForProject(Project *project)
 
 QString headerGuardForProject(Project *project, const FilePath &headerFilePath)
 {
-    CppFileSettings customSettings;
-    CppFileSettings *settings = findSettings(project, &customSettings);
-
-    return settings->headerGuard(headerFilePath);
+    return findSettings(project)->headerGuard(headerFilePath);
 }
 
 QString licenseTemplateForProject(Project *project)
 {
-    CppFileSettings customSettings;
-    CppFileSettings *settings = findSettings(project, &customSettings);
-
-    return settings->licenseTemplate();
+    return findSettings(project)->licenseTemplate();
 }
 
 #ifdef WITH_TESTS

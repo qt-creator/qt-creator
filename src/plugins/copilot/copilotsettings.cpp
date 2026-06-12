@@ -12,6 +12,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettings.h>
 #include <projectexplorer/useglobalaspect.h>
 
 #include <utils/algorithm.h>
@@ -258,27 +259,32 @@ public:
         settings().apply();
     }
 
+    static Utils::Key extraDataKey() { return "CopilotProjectSettings"; }
+
     BoolAspect enableCopilot{this};
     UseGlobalAspect useGlobalSettings{Constants::COPILOT_GENERAL_OPTIONS_ID, this};
 };
+
+static CopilotProjectSettings *copilotProjectSettings(Project *project)
+{
+    return projectSettings<CopilotProjectSettings>(project);
+}
 
 class CopilotProjectWidget final : public QWidget
 {
 public:
     CopilotProjectWidget(Project *project)
-        : m_settings(project)
     {
+        CopilotProjectSettings * const ps = copilotProjectSettings(project);
         // clang-format off
         using namespace Layouting;
         Column {
-            m_settings.useGlobalSettings,
-            m_settings.enableCopilot,
+            ps->useGlobalSettings,
+            ps->enableCopilot,
             st,
         }.attachTo(this);
         // clang-format on
     }
-
-    CopilotProjectSettings m_settings;
 };
 
 class CopilotProjectPanelFactory final : public ProjectPanelFactory
@@ -299,11 +305,11 @@ bool isCopilotEnabled(Project *project)
     if (!project)
         return settings().enableCopilot();
 
-    CopilotProjectSettings projectSettings(project);
-    if (projectSettings.useGlobalSettings())
+    CopilotProjectSettings * const ps = copilotProjectSettings(project);
+    if (ps->useGlobalSettings())
         return settings().enableCopilot();
 
-    return projectSettings.enableCopilot();
+    return ps->enableCopilot();
 }
 
 void setupCopilotSettings()
