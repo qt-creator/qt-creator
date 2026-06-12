@@ -62,7 +62,7 @@ private:
 
     QString deduceType() const
     {
-        const auto settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+        const auto settings = cppQuickFixSettingsForProject(
             ProjectExplorer::ProjectTree::currentProject());
         if (m_file->cppDocument()->languageFeatures().cxx11Enabled && settings->useAuto)
             return "auto " + m_originalName;

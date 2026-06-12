@@ -217,7 +217,7 @@ void DiagnosticView::suppressCurrentDiagnostic()
     }
 
     if (project)
-        ClangToolsProjectSettings::getSettings(project)->addSuppressedDiagnostics(diags);
+        clangToolsProjectSettings(project)->addSuppressedDiagnostics(diags);
     else
         filterModel->addSuppressedDiagnostics(diags);
 }
@@ -398,7 +398,7 @@ bool DiagnosticView::disableChecksEnabled() const
     Utils::Id activeConfigId = settings->diagnosticConfigId();
     if (ProjectExplorer::Project * const project
             = static_cast<DiagnosticFilterModel *>(model())->project()) {
-        const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
+        const auto projectSettings = clangToolsProjectSettings(project);
         if (!projectSettings->useGlobalSettings())
             activeConfigId = projectSettings->diagnosticConfigId();
     }

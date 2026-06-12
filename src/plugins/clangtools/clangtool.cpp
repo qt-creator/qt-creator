@@ -354,7 +354,7 @@ static FileInfos sortedFileInfos(const CppCodeModelSettingsData &settings,
 static RunSettings &runSettings()
 {
     if (Project *project = ProjectManager::startupProject()) {
-        const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
+        const auto projectSettings = clangToolsProjectSettings(project);
         if (!projectSettings->useGlobalSettings())
             return *projectSettings;
     }
@@ -1190,7 +1190,7 @@ static FileInfos fileInfosMatchingEditedDocuments(const FileInfos &fileInfos)
 
 FileInfoProviders ClangTool::fileInfoProviders(Project *project, const FileInfos &allFileInfos)
 {
-    const std::shared_ptr<ClangToolsProjectSettings> s = ClangToolsProjectSettings::getSettings(project);
+    const std::shared_ptr<ClangToolsProjectSettings> s = clangToolsProjectSettings(project);
     static FileInfoSelection openedFilesSelection;
     static FileInfoSelection editeddFilesSelection;
 

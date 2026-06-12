@@ -58,7 +58,7 @@ ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType, BuildCo
     connect(bc, &BuildConfiguration::destroyed, [bc, toolType] {
         dbs.remove(std::make_pair(toolType, bc));
     });
-    connect(ClangToolsProjectSettings::getSettings(bc->project()).get(),
+    connect(clangToolsProjectSettings(bc->project()).get(),
             &ClangToolsProjectSettings::changed,
             this, &ClangToolsCompilationDb::invalidate);
     connect(CppModelManager::instance(), &CppModelManager::projectPartsUpdated, this,
@@ -102,7 +102,7 @@ void ClangToolsCompilationDb::Private::generate()
             .arg(clangToolName(toolType), dir.path().toUserOutput()));
 
     const auto bc = static_cast<BuildConfiguration *>(q->parent());
-    const auto projectSettings = ClangToolsProjectSettings::getSettings(bc->project());
+    const auto projectSettings = clangToolsProjectSettings(bc->project());
     QTC_ASSERT(projectSettings, return);
     const Id configId = projectSettings->diagnosticConfigId();
     const ClangDiagnosticConfig config = Utils::findOrDefault(

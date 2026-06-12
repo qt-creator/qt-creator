@@ -69,7 +69,7 @@ private:
 };
 
 ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *project)
-    : m_projectSettings(ClangToolsProjectSettings::getSettings(project))
+    : m_projectSettings(clangToolsProjectSettings(project))
 {
     const auto gotoClangTidyModeLabel
             = new QLabel("<a href=\"target\">" + Tr::tr("Go to Clang-Tidy") + "</a>");

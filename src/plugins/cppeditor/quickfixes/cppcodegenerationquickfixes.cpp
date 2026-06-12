@@ -180,7 +180,7 @@ struct ExistingGetterSetterData
 // FIXME: Should be a member?
 static void findExistingFunctions(ExistingGetterSetterData &existing, QStringList memberFunctionNames)
 {
-    const CppQuickFixSettings *settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+    const CppQuickFixSettings *settings = cppQuickFixSettingsForProject(
         ProjectExplorer::ProjectTree::currentProject());
     const QString lowerBaseName = CppQuickFixSettings::memberBaseName(existing.memberVariableName).toLower();
     const QStringList getterNames{lowerBaseName,
@@ -280,7 +280,7 @@ protected:
     const CppRefactoringFilePtr m_headerFile;
     bool m_isHeaderHeaderFile = false; // the "header" (where the class is defined) can be a source file
     const CppRefactoringFilePtr m_sourceFile = determineSourceFile();
-    CppQuickFixSettings *const m_settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+    CppQuickFixSettings *const m_settings = cppQuickFixSettingsForProject(
         ProjectTree::currentProject());
     Class *const m_class;
 
@@ -2716,7 +2716,7 @@ class InsertQtPropertyMembers : public CppQuickFixFactory
             }
         }
         if (generateFlags & GenerateFlag::GenerateMemberVariable) {
-            CppQuickFixSettings *settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+            CppQuickFixSettings *settings = cppQuickFixSettingsForProject(
                 ProjectExplorer::ProjectTree::currentProject());
             existing.memberVariableName = settings->getMemberVariableName(existing.qPropertyName);
         }

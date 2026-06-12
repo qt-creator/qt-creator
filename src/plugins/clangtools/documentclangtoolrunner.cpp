@@ -185,7 +185,7 @@ void DocumentClangToolRunner::run()
     if (!m_fileInfo.file.exists())
         return;
 
-    const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
+    const auto projectSettings = clangToolsProjectSettings(project);
     const RunSettings &runSettings = projectSettings->useGlobalSettings()
                                    ? static_cast<const RunSettings &>(*ClangToolsSettings::instance())
                                    : static_cast<const RunSettings &>(*projectSettings);

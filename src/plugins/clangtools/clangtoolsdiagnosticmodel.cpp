@@ -548,13 +548,13 @@ void DiagnosticFilterModel::setProject(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
     if (m_project) {
-        disconnect(ClangToolsProjectSettings::getSettings(m_project).get(),
+        disconnect(clangToolsProjectSettings(m_project).get(),
                    &ClangToolsProjectSettings::suppressedDiagnosticsChanged, this,
                    &DiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
     }
     m_project = project;
     m_lastProjectDirectory = m_project->projectDirectory();
-    connect(ClangToolsProjectSettings::getSettings(m_project).get(),
+    connect(clangToolsProjectSettings(m_project).get(),
             &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
             this, &DiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
     handleSuppressedDiagnosticsChanged();
@@ -703,7 +703,7 @@ void DiagnosticFilterModel::handleSuppressedDiagnosticsChanged()
 {
     QTC_ASSERT(m_project, return);
     m_suppressedDiagnostics
-            = ClangToolsProjectSettings::getSettings(m_project)->suppressedDiagnostics();
+            = clangToolsProjectSettings(m_project)->suppressedDiagnostics();
     invalidate();
 }
 

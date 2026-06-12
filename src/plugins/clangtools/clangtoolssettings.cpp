@@ -396,14 +396,14 @@ void ClangToolsProjectSettings::store()
     m_project->setNamedSettings(SETTINGS_KEY_MAIN, variantFromStore(map));
 }
 
-ClangToolsProjectSettings::ClangToolsProjectSettingsPtr
-    ClangToolsProjectSettings::getSettings(ProjectExplorer::Project *project)
+ClangToolsProjectSettings::ClangToolsProjectSettingsPtr clangToolsProjectSettings(
+    ProjectExplorer::Project *project)
 {
     const Key key = "ClangToolsProjectSettings";
     QVariant v = project->extraData(key);
     if (v.isNull()) {
         v = QVariant::fromValue(
-                     ClangToolsProjectSettingsPtr{new ClangToolsProjectSettings(project)});
+            std::shared_ptr<ClangToolsProjectSettings>(new ClangToolsProjectSettings(project)));
         project->setExtraData(key, v);
     }
     return v.value<std::shared_ptr<ClangToolsProjectSettings>>();

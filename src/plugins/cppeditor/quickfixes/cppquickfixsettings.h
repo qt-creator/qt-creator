@@ -152,8 +152,6 @@ public:
     const Utils::FilePath &filePathOfSettingsFile() const;
 
     using CppQuickFixProjectsSettingsPtr = QSharedPointer<CppQuickFixProjectsSettings>;
-    static CppQuickFixProjectsSettingsPtr getSettings(ProjectExplorer::Project *project);
-    static CppQuickFixSettings *getQuickFixSettings(ProjectExplorer::Project *project);
 
     Utils::FilePath searchForCppQuickFixSettingsFile();
 
@@ -170,6 +168,10 @@ private:
     Utils::FilePath m_settingsFile;
     CppQuickFixSettings m_ownSettings;
 };
+
+CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr cppQuickFixProjectSettings(
+    ProjectExplorer::Project *project);
+CppQuickFixSettings *cppQuickFixSettingsForProject(ProjectExplorer::Project *project);
 
 void setupCppQuickFixSettings();
 void setupCppQuickFixProjectPanel();

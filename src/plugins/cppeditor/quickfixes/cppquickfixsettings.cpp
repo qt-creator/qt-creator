@@ -255,7 +255,7 @@ QString CppQuickFixSettings::memberBaseName(
         baseNameTemplateValue = *baseNameTemplate;
     } else {
         const CppQuickFixSettings *const settings
-            = Internal::CppQuickFixProjectsSettings::getQuickFixSettings(
+            = Internal::cppQuickFixSettingsForProject(
                 ProjectExplorer::ProjectTree::currentProject());
         baseNameTemplateValue = settings->nameFromMemberVariableTemplate;
     }
@@ -492,23 +492,24 @@ const Utils::FilePath &CppQuickFixProjectsSettings::filePathOfSettingsFile() con
     return m_settingsFile;
 }
 
-CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr CppQuickFixProjectsSettings::getSettings(
+CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr cppQuickFixProjectSettings(
     ProjectExplorer::Project *project)
 {
     const Key key = "CppQuickFixProjectsSettings";
     QVariant v = project->extraData(key);
     if (v.isNull()) {
         v = QVariant::fromValue(
-            CppQuickFixProjectsSettingsPtr{new CppQuickFixProjectsSettings(project)});
+            CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr{
+                new CppQuickFixProjectsSettings(project)});
         project->setExtraData(key, v);
     }
     return v.value<QSharedPointer<CppQuickFixProjectsSettings>>();
 }
 
-CppQuickFixSettings *CppQuickFixProjectsSettings::getQuickFixSettings(ProjectExplorer::Project *project)
+CppQuickFixSettings *cppQuickFixSettingsForProject(ProjectExplorer::Project *project)
 {
     if (project)
-        return getSettings(project)->getSettings();
+        return cppQuickFixProjectSettings(project)->getSettings();
     return CppQuickFixSettings::instance();
 }
 
@@ -724,7 +725,7 @@ private:
 
 CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *project)
 {
-    m_projectSettings = CppQuickFixProjectsSettings::getSettings(project);
+    m_projectSettings = cppQuickFixProjectSettings(project);
 
     m_pushButton = new QPushButton(this);
     m_settingsWidget = new CppQuickFixSettingsWidget;

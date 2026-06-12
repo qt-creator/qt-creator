@@ -245,7 +245,7 @@ private:
     QString getDeclaration()
     {
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
-        const auto settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+        const auto settings = cppQuickFixSettingsForProject(
             ProjectTree::currentProject());
 
         if (currentFile()->cppDocument()->languageFeatures().cxx11Enabled && settings->useAuto)

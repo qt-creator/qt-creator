@@ -120,7 +120,6 @@ public:
     void removeAllSuppressedDiagnostics();
 
     using ClangToolsProjectSettingsPtr = std::shared_ptr<ClangToolsProjectSettings>;
-    static ClangToolsProjectSettingsPtr getSettings(ProjectExplorer::Project *project);
 
 signals:
     void suppressedDiagnosticsChanged();
@@ -134,6 +133,9 @@ private:
     QSet<Utils::FilePath> m_selectedFiles;
     SuppressedDiagnosticsList m_suppressedDiagnostics;
 };
+
+ClangToolsProjectSettings::ClangToolsProjectSettingsPtr clangToolsProjectSettings(
+    ProjectExplorer::Project *project);
 
 } // namespace ClangTools::Internal
 
