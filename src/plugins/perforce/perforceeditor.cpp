@@ -38,6 +38,7 @@ PerforceEditorWidget::PerforceEditorWidget() :
     setLogEntryPattern("^... #\\d change (\\d+) ");
     setAnnotateRevisionTextFormat(Tr::tr("Annotate change list \"%1\""));
     setAnnotationEntryPattern("^(\\d+):");
+    setMarginsEnabled(true);
 }
 
 QString PerforceEditorWidget::changeUnderCursor(const QTextCursor &c) const
