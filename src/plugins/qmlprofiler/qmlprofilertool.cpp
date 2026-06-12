@@ -125,8 +125,6 @@ public:
     QTimer m_recordingTimer;
     QElapsedTimer m_recordingElapsedTime;
 
-    bool m_toolBusy = false;
-
     Core::ActionContainer *m_options = nullptr;
     QAction m_loadQmlTrace;
     QAction m_saveQmlTrace;
@@ -179,6 +177,8 @@ QmlProfilerTool::QmlProfilerTool()
 
     connect(&d->m_profilerState, &QmlProfilerStateManager::stateChanged,
             this, &QmlProfilerTool::profilerStateChanged);
+    connect(&d->m_profilerState, &QmlProfilerStateManager::stateChanged,
+            this, &QmlProfilerTool::updateRunActions);
     connect(&d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
             this, &QmlProfilerTool::serverRecordingChanged);
     connect(&d->m_profilerState, &QmlProfilerStateManager::recordedFeaturesChanged,
@@ -377,7 +377,7 @@ QmlProfilerTool *QmlProfilerTool::instance()
 
 void QmlProfilerTool::updateRunActions()
 {
-    if (d->m_toolBusy) {
+    if (d->m_profilerState.currentState() != QmlProfilerStateManager::Idle) {
         d->m_startAction.setEnabled(false);
         d->m_startAction.setToolTip(Tr::tr("A QML Profiler analysis is still in progress."));
         d->m_stopAction.setEnabled(true);
@@ -392,7 +392,6 @@ void QmlProfilerTool::updateRunActions()
 
 void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
 {
-    d->m_toolBusy = true;
     if (auto aspect = runControl->aspectData<QmlProfilerRunConfigurationAspect>()) {
         if (auto settings = static_cast<const QmlProfilerSettings *>(aspect->currentSettings)) {
             d->m_profilerConnections.setFlushInterval(settings->flushEnabled() ?
@@ -411,10 +410,6 @@ void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
 
 void QmlProfilerTool::handleStop()
 {
-    if (!d->m_toolBusy)
-        return;
-
-    d->m_toolBusy = false;
     updateRunActions();
     disconnect(&d->m_stopAction, &QAction::triggered, nullptr, nullptr);
 
@@ -718,7 +713,7 @@ bool QmlProfilerTool::checkForUnsavedNotes()
 
 void QmlProfilerTool::clientsDisconnected()
 {
-    if (d->m_toolBusy) {
+    if (d->m_profilerState.currentState() != QmlProfilerStateManager::Idle) {
         if (d->m_profilerModelManager.aggregateTraces()) {
             d->m_profilerModelManager.finalize();
         } else if (d->m_profilerState.serverRecording()) {
