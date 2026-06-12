@@ -139,6 +139,8 @@ QtcLibrary {
         "fancymainwindow.h",
         "filecrumblabel.cpp",
         "filecrumblabel.h",
+        "filedialog.cpp",
+        "filedialog.h",
         "fileinprojectfinder.cpp",
         "fileinprojectfinder.h",
         "filenamevalidatinglineedit.cpp",
