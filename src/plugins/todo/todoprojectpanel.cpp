@@ -41,18 +41,7 @@ public:
         useGlobalSettings.setValue(s.value(Constants::USE_GLOBAL_KEY, true).toBool());
         excludePatterns.setValue(s.value(Constants::EXCLUDES_LIST_KEY).toStringList());
 
-        setEnabled(!useGlobalSettings());
-
-        useGlobalSettings.addOnChanged(this, [this] {
-            setEnabled(!useGlobalSettings());
-            save();
-            todoItemsProvider().projectSettingsChanged();
-        });
-        addOnChanged(this, [this] {
-            if (!useGlobalSettings())
-                save();
-            todoItemsProvider().projectSettingsChanged();
-        });
+        setupUseGlobalSettings(this, &useGlobalSettings, [this] { save(); });
     }
 
     void save()
@@ -62,6 +51,7 @@ public:
         if (!useGlobalSettings())
             s[Constants::EXCLUDES_LIST_KEY] = QVariant(excludePatterns());
         m_project->setNamedSettings(Constants::SETTINGS_NAME_KEY, s);
+        todoItemsProvider().projectSettingsChanged();
     }
 
     static Key extraDataKey() { return "TodoProjectSettings"; }

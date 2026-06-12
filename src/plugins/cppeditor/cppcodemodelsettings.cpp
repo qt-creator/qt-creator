@@ -237,16 +237,7 @@ public:
 
         loadProjectSettings(*this, useGlobalSettings, project, Constants::CPPEDITOR_SETTINGSGROUP);
 
-        setEnabled(!useGlobalSettings());
-
-        useGlobalSettings.addOnChanged(this, [this] {
-            setEnabled(!useGlobalSettings());
-            save();
-        });
-        addOnChanged(this, [this] {
-            if (!useGlobalSettings())
-                save();
-        });
+        setupUseGlobalSettings(this, &useGlobalSettings, [this] { save(); });
     }
 
     void save()

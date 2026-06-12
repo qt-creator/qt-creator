@@ -11,11 +11,21 @@
 #include <utils/aspects.h>
 #include <utils/store.h>
 
+#include <functional>
+
 namespace ProjectExplorer {
 
 // Key under which the "use global settings" flag is stored inside a project's
 // settings store. Shared by all project settings built around UseGlobalAspect.
 PROJECTEXPLORER_EXPORT Utils::Key useGlobalSettingsKey();
+
+// Wires up the common "use global settings" behavior on \a container: disables
+// it while the global settings are in effect, and calls \a save whenever the
+// flag changes, or whenever a project setting changes while not using the
+// global settings. \a save is expected to both persist and apply the settings.
+PROJECTEXPLORER_EXPORT void setupUseGlobalSettings(Utils::AspectContainer *container,
+                                                   UseGlobalAspect *useGlobal,
+                                                   const std::function<void()> &save);
 
 // Loads the per-project store named \a settingsKey into \a container and sets
 // \a useGlobal from the stored flag (defaulting to true for fresh projects).

@@ -12,6 +12,20 @@ Key useGlobalSettingsKey()
     return "useGlobalSettings";
 }
 
+void setupUseGlobalSettings(AspectContainer *container, UseGlobalAspect *useGlobal,
+                            const std::function<void()> &save)
+{
+    container->setEnabled(!useGlobal->value());
+    useGlobal->addOnChanged(container, [container, useGlobal, save] {
+        container->setEnabled(!useGlobal->value());
+        save();
+    });
+    container->addOnChanged(container, [useGlobal, save] {
+        if (!useGlobal->value())
+            save();
+    });
+}
+
 void loadProjectSettings(AspectContainer &container, UseGlobalAspect &useGlobal,
                          Project *project, const Key &settingsKey)
 {

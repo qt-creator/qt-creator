@@ -7,6 +7,7 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectpanelfactory.h"
+#include "projectsettings.h"
 #include "useglobalaspect.h"
 
 #include <texteditor/commentssettings.h>
@@ -35,16 +36,7 @@ public:
         }
 
         setAutoApply(true);
-        setEnabled(!useGlobalSettings());
-
-        useGlobalSettings.addOnChanged(this, [this] {
-            setEnabled(!useGlobalSettings());
-            save();
-        });
-        addOnChanged(this, [this] {
-            if (!useGlobalSettings())
-                save();
-        });
+        setupUseGlobalSettings(this, &useGlobalSettings, [this] { save(); });
     }
 
     void save()

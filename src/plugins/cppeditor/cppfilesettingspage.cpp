@@ -463,19 +463,7 @@ public:
         }
 
         setAutoApply(true);
-        setEnabled(!useGlobalSettings());
-
-        useGlobalSettings.addOnChanged(this, [this] {
-            setEnabled(!useGlobalSettings());
-            save();
-            clearHeaderSourceCache();
-        });
-        addOnChanged(this, [this] {
-            if (!useGlobalSettings()) {
-                save();
-                clearHeaderSourceCache();
-            }
-        });
+        setupUseGlobalSettings(this, &useGlobalSettings, [this] { save(); });
     }
 
     void save()
@@ -489,6 +477,7 @@ public:
         QVariantMap data = mapFromStore(store);
         data.insert(useGlobalKeyC, useGlobalSettings());
         m_project->setNamedSettings(projectSettingsKeyC, data);
+        clearHeaderSourceCache();
     }
 
     static Key extraDataKey() { return "CppFileProjectSettings"; }
