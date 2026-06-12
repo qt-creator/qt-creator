@@ -369,7 +369,7 @@ Window::Window(QWidget *parent)
     splitter->setSizes({200, 800});
     setCentralWidget(splitter);
 
-    d->progressIndicator->attachToWidget(d->traceArea);
+    d->progressIndicator->attachToWidget(this);
 
     restoreGeometry(settings().windowGeometry());
 }
