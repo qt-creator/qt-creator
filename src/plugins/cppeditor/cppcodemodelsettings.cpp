@@ -14,6 +14,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettings.h>
 #include <projectexplorer/useglobalaspect.h>
 
 #include <utils/algorithm.h>
@@ -30,8 +31,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CppEditor {
-
-static Key useGlobalSettingsKey() { return "useGlobalSettings"; }
 
 CppCodeModelSettings::CppCodeModelSettings()
 {
@@ -236,9 +235,7 @@ public:
     {
         setAutoApply(true);
 
-        const Store data = storeFromVariant(project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
-        fromMap(data);
-        useGlobalSettings.setValue(data.value(useGlobalSettingsKey(), true).toBool());
+        loadProjectSettings(*this, useGlobalSettings, project, Constants::CPPEDITOR_SETTINGSGROUP);
 
         setEnabled(!useGlobalSettings());
 
@@ -254,12 +251,11 @@ public:
 
     void save()
     {
-        Store data;
-        toMap(data);
-        data.insert(useGlobalSettingsKey(), useGlobalSettings());
-        m_project->setNamedSettings(Constants::CPPEDITOR_SETTINGSGROUP, variantFromStore(data));
+        saveProjectSettings(*this, useGlobalSettings, m_project, Constants::CPPEDITOR_SETTINGSGROUP);
         CppModelManager::handleSettingsChange(m_project);
     }
+
+    static Key extraDataKey() { return "CppCodeModelProjectSettings"; }
 
     UseGlobalAspect useGlobalSettings{Constants::CPP_CODE_MODEL_SETTINGS_ID};
 
@@ -269,13 +265,7 @@ private:
 
 static CppCodeModelProjectSettings *cppCodeModelProjectSettings(Project *project)
 {
-    const Key key = "CppCodeModelProjectSettings";
-    QVariant v = project->extraData(key);
-    if (v.isNull()) {
-        v = QVariant::fromValue(new CppCodeModelProjectSettings(project));
-        project->setExtraData(key, v);
-    }
-    return v.value<CppCodeModelProjectSettings *>();
+    return projectSettings<CppCodeModelProjectSettings>(project);
 }
 
 class CppCodeModelProjectSettingsWidget : public QWidget
