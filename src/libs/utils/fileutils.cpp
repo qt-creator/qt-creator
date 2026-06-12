@@ -284,11 +284,6 @@ QString fetchQrc(const QString &fileName)
     return QString::fromUtf8(file.readAll());
 }
 
-static QUrl filePathToQUrl(const FilePath &filePath)
-{
-    return QUrl::fromLocalFile(filePath.toFSPathString());
-}
-
 FilePaths getFilePaths(const QString &caption,
                        const FilePath &dir,
                        const QString &filter,
