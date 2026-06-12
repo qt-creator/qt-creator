@@ -20,13 +20,10 @@
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
-#include <QFormLayout>
-#include <QHBoxLayout>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QUrl>
-#include <QVBoxLayout>
-#include <QVariant>
+
+using namespace Utils;
 
 namespace GitLab {
 
@@ -87,7 +84,7 @@ void GitLabProjectSettings::setLinked(bool linked)
 
 void GitLabProjectSettings::load()
 {
-    m_id = Utils::Id::fromSetting(m_project->namedSettings(PSK_LINKED_ID));
+    m_id = Id::fromSetting(m_project->namedSettings(PSK_LINKED_ID));
     m_host = m_project->namedSettings(PSK_SERVER).toString();
     m_currentProject = m_project->namedSettings(PSK_PROJECT).toString();
     m_lastRequest = m_project->namedSettings(PSK_LAST_REQ).toDateTime();
@@ -105,7 +102,7 @@ void GitLabProjectSettings::save()
         m_project->setNamedSettings(PSK_LINKED_ID, m_id.toSetting());
         m_project->setNamedSettings(PSK_SERVER, m_host);
     } else {
-        m_project->setNamedSettings(PSK_LINKED_ID, Utils::Id().toSetting());
+        m_project->setNamedSettings(PSK_LINKED_ID, Id().toSetting());
         m_project->setNamedSettings(PSK_SERVER, QString());
     }
     m_project->setNamedSettings(PSK_PROJECT, m_currentProject);
@@ -122,7 +119,7 @@ private:
 
     void unlink();
     void checkConnection(CheckMode mode);
-    void onConnectionChecked(const Project &project, const Utils::Id &serverId,
+    void onConnectionChecked(const Project &project, const Id &serverId,
                              const QString &remote, const QString &projName);
     void updateUi();
     void updateEnabledStates();
@@ -133,7 +130,7 @@ private:
     QPushButton m_linkWithGitLab{Tr::tr("Link with GitLab")};
     QPushButton m_unlink{Tr::tr("Unlink from GitLab")};
     QPushButton m_checkConnection{Tr::tr("Test Connection")};
-    Utils::InfoLabel m_infoLabel;
+    InfoLabel m_infoLabel;
     CheckMode m_checkMode = Connection;
 };
 
@@ -197,7 +194,7 @@ void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
 
     const auto [remoteHost, projName, port] = GitLabProjectSettings::remotePartsFromRemote(remote);
     if (remoteHost != server.host) { // port check as well
-        m_infoLabel.setType(Utils::InfoLabel::NotOk);
+        m_infoLabel.setType(InfoLabel::NotOk);
         m_infoLabel.setText(Tr::tr("Remote host does not match chosen GitLab configuration."));
         m_infoLabel.setVisible(true);
         return;
@@ -212,7 +209,7 @@ void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
     const Query query(Query::Project, {projName});
     QueryRunner *runner = new QueryRunner(query, server.id, this);
     // can't use server, projName as captures inside the lambda below (bindings vs. local vars) :/
-    const Utils::Id id = server.id;
+    const Id id = server.id;
     const QString projectName = projName;
     connect(runner, &QueryRunner::resultRetrieved, this,
             [this, id, remote, projectName](const QByteArray &result) {
@@ -223,23 +220,23 @@ void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
 }
 
 void GitLabProjectSettingsWidget::onConnectionChecked(const Project &project,
-                                                      const Utils::Id &serverId,
+                                                      const Id &serverId,
                                                       const QString &remote,
                                                       const QString &projectName)
 {
     bool linkable = false;
     if (!project.error.message.isEmpty()) {
-        m_infoLabel.setType(Utils::InfoLabel::Error);
+        m_infoLabel.setType(InfoLabel::Error);
         m_infoLabel.setText(Tr::tr("Check settings for misconfiguration.")
                              + " (" + project.error.message + ')');
     } else {
         if (project.accessLevel != -1) {
-            m_infoLabel.setType(Utils::InfoLabel::Ok);
+            m_infoLabel.setType(InfoLabel::Ok);
             m_infoLabel.setText(Tr::tr("Accessible (%1).")
                                  .arg(accessLevelString(project.accessLevel)));
             linkable = true;
         } else {
-            m_infoLabel.setType(Utils::InfoLabel::Warning);
+            m_infoLabel.setType(InfoLabel::Warning);
             m_infoLabel.setText(Tr::tr("Read only access."));
         }
     }
@@ -264,8 +261,8 @@ void GitLabProjectSettingsWidget::updateUi()
         m_linkedGitLabServer.addItem(display, QVariant::fromValue(server));
     }
 
-    const Utils::FilePath projectDirectory = m_projectSettings->project()->projectDirectory();
-    const Utils::FilePath repository =
+    const FilePath projectDirectory = m_projectSettings->project()->projectDirectory();
+    const FilePath repository =
         Git::Internal::gitClient().findRepositoryForDirectory(projectDirectory);
 
     m_hostCB.clear();
@@ -278,7 +275,7 @@ void GitLabProjectSettingsWidget::updateUi()
         }
     }
 
-    const Utils::Id id = m_projectSettings->currentServer();
+    const Id id = m_projectSettings->currentServer();
     const QString serverHost = m_projectSettings->currentServerHost();
     if (id.isValid()) {
         const GitLabServer server = gitLabParameters().serverForId(id);
@@ -309,14 +306,14 @@ void GitLabProjectSettingsWidget::updateEnabledStates()
     m_unlink.setEnabled(isGitRepository && linked);
     m_checkConnection.setEnabled(isGitRepository && hasGitLabServers);
     if (!isGitRepository) {
-        const Utils::FilePath projectDirectory = m_projectSettings->project()->projectDirectory();
-        const Utils::FilePath repository =
+        const FilePath projectDirectory = m_projectSettings->project()->projectDirectory();
+        const FilePath repository =
             Git::Internal::gitClient().findRepositoryForDirectory(projectDirectory);
         if (repository.isEmpty())
             m_infoLabel.setText(Tr::tr("Not a git repository."));
         else
             m_infoLabel.setText(Tr::tr("Local git repository without remotes."));
-        m_infoLabel.setType(Utils::InfoLabel::None);
+        m_infoLabel.setType(InfoLabel::None);
         m_infoLabel.setVisible(true);
     }
 }
