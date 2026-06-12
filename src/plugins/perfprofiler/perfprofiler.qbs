@@ -11,7 +11,7 @@ QtcPlugin {
 
     Depends {
         name: "Qt"
-        submodules: ["network", "widgets"]
+        submodules: ["network", "qml", "widgets"]
     }
 
     files: [
