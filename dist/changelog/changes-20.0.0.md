@@ -19,7 +19,7 @@ New plugins
 Adds a chat panel that allows connecting to and chatting with an ACP server
 in Qt Creator.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-use-acp-client.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-how-to-use-acp-client.html))
 
 ### Zen Mode
 
@@ -27,13 +27,13 @@ Adds `Tools > Zen Mode > Toggle Distraction Free Mode` and `Zen Mode` and
 corresponding actions and tool buttons that put the editor into the focus of
 your work.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-use-zen-mode.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-how-to-use-zen-mode.html))
 
 ### GN (Generate Ninja) Project Manager
 
 Adds support for opening GN projects and working with them.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-build-with-gn.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-how-to-build-with-gn.html))
 
 General
 -------
@@ -62,7 +62,7 @@ Fixed
 Added
 
 * A preferences page `AI > MCP Servers` for managing MCP servers
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-add-mcp-servers.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-add-mcp-servers.html))
 * A dialog `Tools > Debug Qt Creator > Inspect MCP Server` for investigating
   the MCP communication
 * Support for [Tasks](https://modelcontextprotocol.io/specification/draft/basic/utilities/tasks)
@@ -107,7 +107,7 @@ Added
     * The option `Use externally provided compilation database` instead of the
       automatically created one
       ([QTCREATORBUG-34066](https://bugreports.qt.io/browse/QTCREATORBUG-34066))
-      ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-preferences-cpp-clangd.html))
+      ([Documentation](https://doc.qt.io/qtcreator/creator-preferences-cpp-clangd.html))
     * `Fold/Unfold All Inactive Code`
 
 Changed
@@ -141,6 +141,12 @@ Added
    [QTCREATORBUG-22561](https://bugreports.qt.io/browse/QTCREATORBUG-22561))
 * Support for new symbol tags and using them for symbol icons
 
+Fixed
+
+* That if a language server fails the editor tool button could vanish even
+  though other registered servers would be available for the document
+  ([QTCREATORBUG-34587](https://bugreports.qt.io/browse/QTCREATORBUG-34587))
+
 ### Markdown
 
 Fixed
@@ -155,7 +161,7 @@ Added
 * Vulkan compatible file wizards
   ([QTCREATORBUG-26058](https://bugreports.qt.io/browse/QTCREATORBUG-26058),
    [QTCREATORBUG-32869](https://bugreports.qt.io/browse/QTCREATORBUG-32869))
-   ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-create-opengl-shaders.html))
+   ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-create-opengl-shaders.html))
 
 Projects
 --------
@@ -165,7 +171,7 @@ Added
 * The option to `Get variables from text file or shell script`
   to modify the environment
   ([QTCREATORBUG-27746](https://bugreports.qt.io/browse/QTCREATORBUG-27746))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-set-project-environment.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-set-project-environment.html))
 * Output parsing of `file://` links
   ([QTCREATORBUG-34176](https://bugreports.qt.io/browse/QTCREATORBUG-34176))
 
@@ -177,6 +183,8 @@ Fixed
 
 * A performance issue with the `Application Output`
   ([QTCREATORBUG-34132](https://bugreports.qt.io/browse/QTCREATORBUG-34132))
+* A crash when making a project file writable failed
+  ([QTCREATORBUG-34628](https://bugreports.qt.io/browse/QTCREATORBUG-34628))
 
 ### CMake
 
@@ -184,9 +192,9 @@ Added
 
 * Presets
     * `qt` and `compiler` to the Qt Creator vendor presets
-      ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-build-settings-cmake-presets-qt-vendor.html))
+      ([Documentation](https://doc.qt.io/qtcreator/creator-build-settings-cmake-presets-qt-vendor.html))
     * That included preset files are watched for changes
-      ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-build-settings-cmake-presets.html))
+      ([Documentation](https://doc.qt.io/qtcreator/creator-build-settings-cmake-presets.html))
 * Conan
     * Support for `CONAN_HOST_PROFILE` and `CONAN_BUILD_PROFILE`
       ([QTCREATORBUG-34388](https://bugreports.qt.io/browse/QTCREATORBUG-34388))
@@ -195,7 +203,11 @@ Fixed
 
 * That the Qt Online Installer dependency provider could drop error messages
   about missing dependencies
-  (QTCREATORBUG-34494)
+  ([QTCREATORBUG-34494](https://bugreports.qt.io/browse/QTCREATORBUG-34494))
+* That the global setting for QML debugging was ignored
+  ([QTCREATORBUG-28705](https://bugreports.qt.io/browse/QTCREATORBUG-28705))
+* A crash when an automatic modification of a CMake file fails
+  ([QTCREATORBUG-34622](https://bugreports.qt.io/browse/QTCREATORBUG-34622))
 
 Changed
 
@@ -204,7 +216,14 @@ Changed
 * The default path of the optional staging directory to a subdirectory of the
   build directory
 
-###
+### qmake
+
+Fixed
+
+* The handling of the global settings for separate debug information,
+  QML debugging, and `qmlcachegen` usage
+
+### Meson
 
 Changed
 
@@ -217,7 +236,7 @@ Added
 
 * A `Remote Debugger` run configuration type with functionality similar to
   `Debug > Start Debugging > Attach to Running Debug Server`
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-debug-remotely-gdb.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-debug-remotely-gdb.html))
 
 Fixed
 
@@ -229,7 +248,7 @@ Fixed
 Added
 
 * An image preview for the `QPixmap` pretty printer
-  (QTCREATORBUG-34498)
+  ([QTCREATORBUG-34498](https://bugreports.qt.io/browse/QTCREATORBUG-34498))
 * LLDB
     * Support for trace points
 
@@ -259,7 +278,7 @@ Added
 * The version control operations to the context menu in `Open Documents` and for
   editors
   ([QTCREATORBUG-29164](https://bugreports.qt.io/browse/QTCREATORBUG-29164))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-use-common-vcs-functions.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-use-common-vcs-functions.html))
 * `Mark Untracked` to the version control context menu
 * The version control state to the file properties dialog
 * Improvements to the detection of which line to jump to when double-clicking
@@ -305,7 +324,7 @@ Added
 * The option to filter the `Tests` view
   ([QTCREATORBUG-23377](https://bugreports.qt.io/browse/QTCREATORBUG-23377),
    [QTCREATORBUG-34244](https://bugreports.qt.io/browse/QTCREATORBUG-34244))
-   ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-build-and-run-tests.html))
+   ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-build-and-run-tests.html))
 
 Platforms
 ---------
@@ -313,7 +332,7 @@ Platforms
 ### Windows
 
 * Fixed saving files on WSL shares
-  (QTCREATORBUG-34506)
+  ([QTCREATORBUG-34506](https://bugreports.qt.io/browse/QTCREATORBUG-34506))
 
 ### Android
 
@@ -324,7 +343,7 @@ Added
     * `Splashscreen Editor`
     * `Permissions Editor`
 
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-android-manifest.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-android-manifest.html))
 
 ### iOS
 
@@ -333,7 +352,7 @@ Added
 * Limited file access to iOS devices, the crash reports directory and the
   developer's application directories, to the `File System` view, the Locator,
   and remote file dialogs
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-file-system-view.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-file-system-view.html))
 * The OS version and supported architectures to the Simulator selection
 
 ### Remote Linux
@@ -342,9 +361,9 @@ Added
 
 * Automatic connection to devices before deployment and running
   ([QTCREATORBUG-34011](https://bugreports.qt.io/browse/QTCREATORBUG-34011))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-how-to-run-on-remote-linux.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-run-on-remote-linux.html))
 * The option to `Use the Qt VNC platform for display` when running
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/creator-run-settings-remote-linux.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-run-settings-remote-linux.html))
 * The `Accessible host paths` options that specifies directories on the host
   that can be accessed by the remote device
 * OpenHarmony as a Linux variant
@@ -364,7 +383,7 @@ Added
 
 * Support for specifying arbitrary CMake variables
   ([QTCREATORBUG-34220](https://bugreports.qt.io/browse/QTCREATORBUG-34220))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-20.0/devcontainer.html))
+  ([Documentation](https://doc.qt.io/qtcreator/devcontainer.html))
 
 ### Docker
 
@@ -373,9 +392,14 @@ Fixed
 * Support for QML debugging
   ([QTCREATORBUG-34094](https://bugreports.qt.io/browse/QTCREATORBUG-34094))
 
+### MCU
+
+* Fixed a crash when scanning for imports
+
 Credits for these changes go to:
 --------------------------------
 Alessandro Portale  
+Alexandre Laurent  
 André Hartmann  
 André Pönitz  
 Björn Schäpers  
