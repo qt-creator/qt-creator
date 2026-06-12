@@ -84,7 +84,7 @@ public:
             QObject::connect(app, &QCoreApplication::aboutToQuit, [] { shutdown(); });
     }
 
-    QIcon icon(const FilePath &filePath) const;
+    QIcon icon(const FilePath &filePath, std::optional<bool> prefetchedIsDir = {}) const;
     using QFileIconProvider::icon;
 
     void registerIconOverlayForFilename(const QString &iconFilePath, const QString &filename)
@@ -172,6 +172,9 @@ public:
 struct PendingIconRequest
 {
     FilePath filePath;
+    // File information fetched on the requesting thread, so the main thread
+    // does not have to do potentially blocking IO when creating the icon.
+    std::optional<bool> isDir;
     std::promise<QIcon> promise;
 };
 
@@ -237,7 +240,7 @@ static void processIconRequests()
         s_pendingRequests.pop();
         locker.unlock();
 
-        req.promise.set_value(instance()->icon(req.filePath));
+        req.promise.set_value(instance()->icon(req.filePath, req.isDir));
 
         if (deadline.hasExpired()) {
             locker.relock();
@@ -264,13 +267,18 @@ static const QIcon &dirIcon()
     return icon;
 }
 
-QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
+QIcon FileIconProviderImplementation::icon(
+    const FilePath &filePath, std::optional<bool> prefetchedIsDir) const
 {
     if (!QThread::isMainThread()) {
         QTC_ASSERT(QCoreApplication::instance(), return QIcon());
 
+        if (!prefetchedIsDir)
+            prefetchedIsDir = filePath.isDir();
+
         PendingIconRequest req;
         req.filePath = filePath;
+        req.isDir = prefetchedIsDir;
         std::future<QIcon> future = req.promise.get_future();
         {
             QMutexLocker locker(&s_queueMutex);
@@ -304,7 +312,7 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
             return dirIcon();
     }
 
-    const bool isDir = filePath.isDir();
+    const bool isDir = prefetchedIsDir ? *prefetchedIsDir : filePath.isDir();
 
     // Check for cached overlay icons by file suffix.
     const QString filename = !isDir ? filePath.fileName() : QString();
