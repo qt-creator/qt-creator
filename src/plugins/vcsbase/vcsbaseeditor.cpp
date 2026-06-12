@@ -575,6 +575,7 @@ public:
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
+    bool m_marginsEnabled = false;
 
     QSingleTaskTreeRunner m_taskTreeRunner;
 
@@ -694,6 +695,11 @@ bool VcsBaseEditorWidget::supportChangeLinks() const
     default:
         return false;
     }
+}
+
+void VcsBaseEditorWidget::setMarginsEnabled(bool enabled)
+{
+    d->m_marginsEnabled = enabled;
 }
 
 FilePath VcsBaseEditorWidget::fileNameForLine(int line) const
@@ -1110,8 +1116,10 @@ void VcsBaseEditorWidget::keyPressEvent(QKeyEvent *e)
 
 void VcsBaseEditorWidget::setMarginSettings(const TextEditor::MarginSettingsData &ms)
 {
-    Q_UNUSED(ms)
-    TextEditorWidget::setMarginSettings({});
+    if (d->m_marginsEnabled)
+        TextEditorWidget::setMarginSettings(ms);
+    else
+        TextEditorWidget::setMarginSettings({});
 }
 
 void VcsBaseEditorWidget::slotActivateAnnotation()

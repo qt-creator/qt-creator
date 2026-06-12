@@ -142,6 +142,8 @@ protected:
     void setAnnotationSeparatorPattern(const QString &pattern);
     virtual bool supportChangeLinks() const;
     virtual Utils::FilePath fileNameForLine(int line) const;
+    // Enable margins for example in diff editors. default is disabled
+    void setMarginsEnabled(bool enabled);
 
     QString lineNumber(int blockNumber) const override;
     int lineNumberDigits() const override;
