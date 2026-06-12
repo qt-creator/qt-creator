@@ -7,14 +7,10 @@
 
 namespace PerfProfiler::Internal {
 
-PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(QWidget *parent)
-    : Timeline::FlameGraphWidget(
-          new PerfProfilerFlameGraphModel(&traceManager()),
-          parent)
+PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(PerfProfilerFlameGraphModel *model)
+    : Timeline::FlameGraphWidget(model)
 {
     setObjectName(QLatin1String("PerfProfilerFlameGraphView"));
-
-    model()->setParent(this);
 
     using Role = PerfProfilerFlameGraphModel;
     setTypeIdRole(Role::TypeIdRole);

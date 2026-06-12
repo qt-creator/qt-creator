@@ -70,6 +70,7 @@ signals:
     void gotoSourceLocation(QString file, int line, int column);
 
 private:
+    PerfProfilerTraceManager *m_manager = nullptr;
     std::unique_ptr<Data> m_stackBottom;
     std::unique_ptr<PerfProfilerFlameGraphData> m_offlineData;
 };

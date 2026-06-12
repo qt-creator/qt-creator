@@ -4,6 +4,7 @@
 #include "perfprofilertool.h"
 
 #include "perfprofilerconstants.h"
+#include "perfprofilerflamegraphmodel.h"
 #include "perfprofilerflamegraphview.h"
 #include "perfloaddialog.h"
 #include "perfprofilerstatisticsview.h"
@@ -89,7 +90,8 @@ public:
     Timeline::TimelineZoomControl m_zoomControl;
     Timeline::TimelineWidget m_traceView{&modelManager(), &m_zoomControl};
     PerfProfilerStatisticsView m_statisticsView;
-    PerfProfilerFlameGraphView m_flameGraphView{nullptr};
+    PerfProfilerFlameGraphModel m_flameGraphModel{&traceManager()};
+    PerfProfilerFlameGraphView m_flameGraphView{&m_flameGraphModel};
     Utils::FileInProjectFinder m_fileFinder;
     bool m_readerRunning = false;
     bool m_processRunning = false;

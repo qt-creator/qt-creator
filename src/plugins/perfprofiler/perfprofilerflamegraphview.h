@@ -3,15 +3,16 @@
 
 #pragma once
 
+#include "perfprofilerflamegraphmodel.h"
+
 #include <tracing/flamegraphwidget.h>
 
 namespace PerfProfiler::Internal {
 
 class PerfProfilerFlameGraphView : public Timeline::FlameGraphWidget
 {
-    Q_OBJECT
 public:
-    explicit PerfProfilerFlameGraphView(QWidget *parent);
+    explicit PerfProfilerFlameGraphView(PerfProfilerFlameGraphModel *model);
 };
 
 } // namespace PerfProfiler::Internal

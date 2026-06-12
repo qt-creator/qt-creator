@@ -91,7 +91,7 @@ private:
 };
 
 PerfProfilerFlameGraphModel::PerfProfilerFlameGraphModel(PerfProfilerTraceManager *manager) :
-    QAbstractItemModel(manager), m_stackBottom(new Data)
+    QAbstractItemModel(nullptr), m_manager(manager), m_stackBottom(new Data)
 {
     auto *data = new PerfProfilerFlameGraphData;
     manager->perfLoaders.append({PerfEventType::attributeFeatures(),
@@ -183,8 +183,8 @@ QVariant PerfProfilerFlameGraphModel::data(const QModelIndex &index, int role) c
         return QVariant();
 
     // Need to look up stuff from modelmanager
-    auto *manager = qobject_cast<PerfProfilerTraceManager *>(QObject::parent());
-    QTC_ASSERT(manager, return QVariant());
+    QTC_ASSERT(m_manager, return QVariant());
+    const auto *manager = m_manager;
     const bool aggregated = manager->aggregateAddresses();
     const PerfProfilerTraceManager::Symbol &symbol
             = manager->symbol(aggregated ? data->typeId
@@ -214,8 +214,7 @@ void PerfProfilerFlameGraphModel::initialize()
     PerfProfilerFlameGraphData *offline = m_offlineData.release();
     QTC_ASSERT(offline, return);
     QTC_ASSERT(offline->isEmpty(), offline->clear());
-    offline->setManager(qobject_cast<PerfProfilerTraceManager *>(QObject::parent()));
-    QTC_CHECK(offline->manager());
+    offline->setManager(m_manager);
 }
 
 void PerfProfilerFlameGraphData::updateTraceData(const PerfEvent &event, const PerfEventType &type,
