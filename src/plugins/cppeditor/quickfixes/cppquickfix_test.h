@@ -29,11 +29,11 @@ namespace Internal::Tests {
 
 class QuickFixSettings
 {
-    const CppQuickFixSettings original = *CppQuickFixSettings::instance();
+    const CppQuickFixSettings original = *globalCppQuickFixSettings();
 
 public:
-    CppQuickFixSettings *operator->() { return CppQuickFixSettings::instance(); }
-    ~QuickFixSettings() { *CppQuickFixSettings::instance() = original; }
+    CppQuickFixSettings *operator->() { return globalCppQuickFixSettings(); }
+    ~QuickFixSettings() { *globalCppQuickFixSettings() = original; }
 };
 
 class BaseQuickFixTestCase : public CppEditor::Tests::TestCase

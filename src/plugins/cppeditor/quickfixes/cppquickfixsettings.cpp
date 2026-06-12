@@ -44,6 +44,12 @@ CppQuickFixSettings::CppQuickFixSettings(bool loadGlobalSettings)
         this->loadGlobalSettings();
 }
 
+CppQuickFixSettings *globalCppQuickFixSettings()
+{
+    static CppQuickFixSettings settings(true);
+    return &settings;
+}
+
 void CppQuickFixSettings::loadGlobalSettings()
 {
     loadSettingsFrom(Core::ICore::settings());
@@ -255,8 +261,7 @@ QString CppQuickFixSettings::memberBaseName(
         baseNameTemplateValue = *baseNameTemplate;
     } else {
         const CppQuickFixSettings *const settings
-            = Internal::cppQuickFixSettingsForProject(
-                ProjectExplorer::ProjectTree::currentProject());
+            = Internal::cppQuickFixSettingsForProject(ProjectTree::currentProject());
         baseNameTemplateValue = settings->nameFromMemberVariableTemplate;
     }
     if (!baseNameTemplateValue.isEmpty())
@@ -454,7 +459,7 @@ using namespace Constants;
 const char SETTINGS_FILE_NAME[] = ".cppQuickFix";
 const char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
 
-CppQuickFixProjectsSettings::CppQuickFixProjectsSettings(ProjectExplorer::Project *project)
+CppQuickFixProjectsSettings::CppQuickFixProjectsSettings(Project *project)
 {
     m_project = project;
     useGlobalSettings.setSettingsPageId(Constants::QUICK_FIX_SETTINGS_ID);
@@ -472,7 +477,7 @@ CppQuickFixProjectsSettings::CppQuickFixProjectsSettings(ProjectExplorer::Projec
     } else {
         useGlobalSettings.setValue(true);
     }
-    connect(project, &ProjectExplorer::Project::aboutToSaveSettings, this, [this] {
+    connect(project, &Project::aboutToSaveSettings, this, [this] {
         auto settings = m_project->namedSettings(QUICK_FIX_SETTINGS_ID).toMap();
         settings.insert(USE_GLOBAL_SETTINGS, useGlobalSettings());
         m_project->setNamedSettings(QUICK_FIX_SETTINGS_ID, settings);
@@ -482,18 +487,18 @@ CppQuickFixProjectsSettings::CppQuickFixProjectsSettings(ProjectExplorer::Projec
 CppQuickFixSettings *CppQuickFixProjectsSettings::getSettings()
 {
     if (useGlobalSettings())
-        return CppQuickFixSettings::instance();
+        return globalCppQuickFixSettings();
 
     return &m_ownSettings;
 }
 
-const Utils::FilePath &CppQuickFixProjectsSettings::filePathOfSettingsFile() const
+const FilePath &CppQuickFixProjectsSettings::filePathOfSettingsFile() const
 {
     return m_settingsFile;
 }
 
 CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr cppQuickFixProjectSettings(
-    ProjectExplorer::Project *project)
+    Project *project)
 {
     const Key key = "CppQuickFixProjectsSettings";
     QVariant v = project->extraData(key);
@@ -506,11 +511,11 @@ CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr cppQuickFixProjectSe
     return v.value<QSharedPointer<CppQuickFixProjectsSettings>>();
 }
 
-CppQuickFixSettings *cppQuickFixSettingsForProject(ProjectExplorer::Project *project)
+CppQuickFixSettings *cppQuickFixSettingsForProject(Project *project)
 {
     if (project)
         return cppQuickFixProjectSettings(project)->getSettings();
-    return CppQuickFixSettings::instance();
+    return globalCppQuickFixSettings();
 }
 
 FilePath CppQuickFixProjectsSettings::searchForCppQuickFixSettingsFile()
@@ -522,7 +527,7 @@ bool CppQuickFixProjectsSettings::useCustomSettings()
 {
     if (m_settingsFile.isEmpty()) {
         m_settingsFile = searchForCppQuickFixSettingsFile();
-        const Utils::FilePath defaultLocation = m_project->projectDirectory() / SETTINGS_FILE_NAME;
+        const FilePath defaultLocation = m_project->projectDirectory() / SETTINGS_FILE_NAME;
         if (m_settingsFile.isEmpty()) {
             m_settingsFile = defaultLocation;
         } else if (m_settingsFile != defaultLocation) {
@@ -556,7 +561,7 @@ bool CppQuickFixProjectsSettings::useCustomSettings()
 
 void CppQuickFixProjectsSettings::resetOwnSettingsToGlobal()
 {
-    m_ownSettings = *CppQuickFixSettings::instance();
+    m_ownSettings = *globalCppQuickFixSettings();
 }
 
 bool CppQuickFixProjectsSettings::saveOwnSettings()
@@ -767,7 +772,7 @@ void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobal)
         m_pushButton->setVisible(!path.isEmpty() && path.exists());
     } else /*Custom*/ {
         if (!m_projectSettings->useCustomSettings()) {
-            m_projectSettings->useGlobalSettings.setValue(true, Utils::BaseAspect::BeQuiet);
+            m_projectSettings->useGlobalSettings.setValue(true, BaseAspect::BeQuiet);
             return;
         }
         m_pushButton->setToolTip(Tr::tr("Resets all settings to the global settings."));
@@ -1100,7 +1105,7 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
     connect(m_radioButton_generateMissingNamespace, &QRadioButton::clicked, then);
     connect(m_radioButton_rewriteTypes, &QRadioButton::clicked, then);
 
-    loadSettings(CppQuickFixSettings::instance());
+    loadSettings(globalCppQuickFixSettings());
 
     Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
@@ -1215,7 +1220,7 @@ void CppQuickFixSettingsWidget::saveSettings(CppQuickFixSettings *settings)
 
 void CppQuickFixSettingsWidget::apply()
 {
-    const auto s = CppQuickFixSettings::instance();
+    const auto s = globalCppQuickFixSettings();
     saveSettings(s);
     s->saveAsGlobalSettings();
 }

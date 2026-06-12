@@ -22,11 +22,6 @@ namespace CppEditor {
 class CppQuickFixSettings
 {
 public:
-    static CppQuickFixSettings *instance()
-    {
-        static CppQuickFixSettings settings(true);
-        return &settings;
-    }
     struct CustomTemplate
     {
         bool operator==(const CustomTemplate &b) const
@@ -141,6 +136,8 @@ public:
     bool useAuto = true;
     std::vector<CustomTemplate> customTemplates;
 };
+
+CppQuickFixSettings *globalCppQuickFixSettings();
 
 namespace Internal {
 
