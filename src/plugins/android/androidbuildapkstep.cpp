@@ -580,8 +580,14 @@ void AndroidBuildApkWidget::signPackageCheckBoxToggled(bool checked)
     updateSigningWarning();
     if (!checked)
         return;
-    if (!m_step->keystorePath().isEmpty())
-        setCertificates();
+    // setCertificates() may pop up a modal keystore password dialog. Defer it,
+    // so that its nested event loop cannot run while this widget is created
+    // during project panel setup: the target can be removed from within that
+    // loop, and panel creation would then crash on a null target.
+    if (!m_step->keystorePath().isEmpty()) {
+        QMetaObject::invokeMethod(this, &AndroidBuildApkWidget::setCertificates,
+                                  Qt::QueuedConnection);
+    }
 }
 
 void AndroidBuildApkWidget::onOpenSslCheckBoxChanged()
