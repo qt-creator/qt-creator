@@ -21,6 +21,8 @@ QtcPlugin {
         name: "General"
         files: [
             "ctfloader.cpp", "ctfloader.h",
+            "calltreemodel.cpp", "calltreemodel.h",
+            "cpuusagemodel.cpp", "cpuusagemodel.h",
             "macsampler.cpp", "macsampler.h",
             "sampletrace.cpp", "sampletrace.h",
             "ctfplainviewmanager.cpp", "ctfplainviewmanager.h",
