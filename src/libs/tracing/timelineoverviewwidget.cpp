@@ -83,7 +83,10 @@ bool TimelineOverviewWidget::nearHandle(double px, double handlePx) const
 
 void TimelineOverviewWidget::rebuildContentCache()
 {
-    m_contentCache = QPixmap(size());
+    const qreal dpr = devicePixelRatioF();
+    m_contentCache = QPixmap(qRound(width() * dpr), qRound(height() * dpr));
+    m_contentCache.setDevicePixelRatio(dpr);
+
     QPainter p(&m_contentCache);
     p.fillRect(m_contentCache.rect(), themeColor(Utils::Theme::Timeline_BackgroundColor2));
 
