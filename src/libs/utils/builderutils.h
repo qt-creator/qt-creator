@@ -3,7 +3,10 @@
 
 #pragma once
 
+#include <concepts>
 #include <functional>
+#include <tuple>
+#include <utility>
 
 namespace Building {
 
@@ -39,24 +42,43 @@ public:
     const std::function<void(X *)> apply;
 };
 
-#define QTC_DEFINE_BUILDER_SETTER(name, setter) \
-class name##_TAG {}; \
-template <typename ...Args> \
-inline auto name(Args &&...args) { \
-    return Building::IdAndArg{name##_TAG{}, std::tuple<Args...>{std::forward<Args>(args)...}}; \
-} \
-template <typename L, typename ...Args> \
-inline void doit(L *x, name##_TAG, const std::tuple<Args...> &arg) { \
-    /* The requires expressions must live outside the lambda: MSVC raises a \
-       hard error instead of an unsatisfied constraint when a requires \
-       expression in a lambda body names a non-existent member. */ \
-    if constexpr (requires(L *l, const Args &...a) { l->setter(a...); }) \
-        std::apply([x](const auto &...a) { x->setter(a...); }, arg); \
-    else if constexpr (requires(L &l, const Args &...a) { setter(l, a...); }) \
-        std::apply([x](const auto &...a) { setter(*x, a...); }, arg); \
-    else \
-        static_assert(sizeof...(Args) + 1 == 0, \
-                      "no matching member or free function \"" #setter "\""); \
+// Defines a property setter for use in builder expressions. For example
+//
+//    inline constexpr auto text = Building::setter([](auto &x, auto &&...a) { x.setText(a...); });
+//
+// creates a builder item `text(...)` that invokes the given function object
+// with the builder object followed by the arguments of the use site.
+
+template <typename SetterFunction>
+class Setter
+{
+public:
+    template <typename ...Args>
+    auto operator()(Args &&...args) const
+    {
+        return IdAndArg{*this, std::tuple<Args...>{std::forward<Args>(args)...}};
+    }
+};
+
+template <typename SetterFunction, typename L, typename ...Args, std::size_t ...I>
+void applySetter(L *x, const std::tuple<Args...> &arg, std::index_sequence<I...>)
+{
+    SetterFunction{}(*x, std::get<I>(arg)...);
+}
+
+template <typename L, typename SetterFunction, typename ...Args>
+void doit(L *x, Setter<SetterFunction>, const std::tuple<Args...> &arg)
+{
+    applySetter<SetterFunction>(x, arg, std::make_index_sequence<sizeof...(Args)>{});
+}
+
+// The constraint rejects capturing lambdas at the definition site; the
+// function object is recreated from its type in applySetter, so it must
+// be default-constructible.
+template <std::default_initializable SetterFunction>
+constexpr Setter<SetterFunction> setter(SetterFunction)
+{
+    return {};
 }
 
 } // Building

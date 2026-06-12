@@ -514,15 +514,34 @@ public:
     const std::function<void(X *)> apply;
 };
 
-#define QTC_DEFINE_BUILDER_SETTER(name, setter) \
-class name##_TAG {}; \
-template <typename ...Args> \
-inline auto name(Args &&...args) { \
-    return Building::IdAndArg{name##_TAG{}, std::tuple<Args...>{std::forward<Args>(args)...}}; \
-} \
-template <typename L, typename ...Args> \
-inline void doit(L *x, name##_TAG, const std::tuple<Args...> &arg) { \
-    std::apply(&L::setter, std::tuple_cat(std::make_tuple(x), arg)); \
+// See Utils::Building::setter in utils/builderutils.h.
+template <typename SetterFunction>
+class Setter
+{
+public:
+    template <typename ...Args>
+    auto operator()(Args &&...args) const
+    {
+        return IdAndArg{*this, std::tuple<Args...>{std::forward<Args>(args)...}};
+    }
+};
+
+template <typename SetterFunction, typename L, typename ...Args, std::size_t ...I>
+inline void applySetter(L *x, const std::tuple<Args...> &arg, std::index_sequence<I...>)
+{
+    SetterFunction{}(*x, std::get<I>(arg)...);
+}
+
+template <typename L, typename SetterFunction, typename ...Args>
+inline void doit(L *x, Setter<SetterFunction>, const std::tuple<Args...> &arg)
+{
+    applySetter<SetterFunction>(x, arg, std::make_index_sequence<sizeof...(Args)>{});
+}
+
+template <typename SetterFunction>
+constexpr Setter<SetterFunction> setter(SetterFunction)
+{
+    return {};
 }
 
 } // Building
@@ -851,23 +870,30 @@ void doit(Interface *x, IdId, auto p)
 
 // Setter dispatchers
 
-QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
-QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
-QTC_DEFINE_BUILDER_SETTER(openExternalLinks, setOpenExternalLinks)
-QTC_DEFINE_BUILDER_SETTER(size, setSize)
-QTC_DEFINE_BUILDER_SETTER(text, setText)
-QTC_DEFINE_BUILDER_SETTER(textFormat, setTextFormat)
-QTC_DEFINE_BUILDER_SETTER(textInteractionFlags, setTextInteractionFlags)
-QTC_DEFINE_BUILDER_SETTER(title, setTitle)
-QTC_DEFINE_BUILDER_SETTER(toolTip, setToolTip)
-QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
-QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap)
-QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation)
-QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
-QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
-QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
-QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
-QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
+using Building::setter;
+
+inline constexpr auto fieldGrowthPolicy
+    = setter([](auto &x, auto &&...a) { x.setFieldGrowthPolicy(a...); });
+inline constexpr auto groupChecker = setter([](auto &x, auto &&...a) { x.setGroupChecker(a...); });
+inline constexpr auto openExternalLinks
+    = setter([](auto &x, auto &&...a) { x.setOpenExternalLinks(a...); });
+inline constexpr auto size = setter([](auto &x, auto &&...a) { x.setSize(a...); });
+inline constexpr auto text = setter([](auto &x, auto &&...a) { x.setText(a...); });
+inline constexpr auto textFormat = setter([](auto &x, auto &&...a) { x.setTextFormat(a...); });
+inline constexpr auto textInteractionFlags
+    = setter([](auto &x, auto &&...a) { x.setTextInteractionFlags(a...); });
+inline constexpr auto title = setter([](auto &x, auto &&...a) { x.setTitle(a...); });
+inline constexpr auto toolTip = setter([](auto &x, auto &&...a) { x.setToolTip(a...); });
+inline constexpr auto windowTitle = setter([](auto &x, auto &&...a) { x.setWindowTitle(a...); });
+inline constexpr auto wordWrap = setter([](auto &x, auto &&...a) { x.setWordWrap(a...); });
+inline constexpr auto orientation = setter([](auto &x, auto &&...a) { x.setOrientation(a...); });
+inline constexpr auto columnStretch
+    = setter([](auto &x, auto &&...a) { x.setColumnStretch(a...); });
+inline constexpr auto onClicked = setter([](auto &x, auto &&...a) { x.onClicked(a...); });
+inline constexpr auto onLinkHovered = setter([](auto &x, auto &&...a) { x.onLinkHovered(a...); });
+inline constexpr auto onTextChanged = setter([](auto &x, auto &&...a) { x.onTextChanged(a...); });
+inline constexpr auto customMargins
+    = setter([](auto &x, auto &&...a) { x.setContentsMargins(a...); });
 
 // Nesting dispatchers
 

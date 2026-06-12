@@ -188,6 +188,7 @@ int main(int argc, char *argv[])
     flowlayouts->show();
 
     // clang-format off
+    using namespace Utils;
     using namespace Utils::QtcWidgets;
     Widget {
         windowTitle("Qtc Controls"),

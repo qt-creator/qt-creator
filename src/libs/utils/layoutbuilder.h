@@ -586,10 +586,6 @@ public:
 };
 
 QTCREATOR_UTILS_EXPORT QString standardButtonText(QDialogButtonBox::StandardButton stdButton);
-void setStdButtonText(AbstractButtonBuilder auto &button, QDialogButtonBox::StandardButton stdButton)
-{
-    button.setText(standardButtonText(stdButton));
-}
 
 // Special
 
@@ -690,50 +686,91 @@ void doit(Interface *x, IdId, auto p)
 
 // Setter dispatchers
 
-QTC_DEFINE_BUILDER_SETTER(alignment, setAlignment)
-QTC_DEFINE_BUILDER_SETTER(childrenCollapsible, setChildrenCollapsible)
-QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
-QTC_DEFINE_BUILDER_SETTER(enabled, setEnabled)
-QTC_DEFINE_BUILDER_SETTER(rowStretch, setRowStretch)
-QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
-QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
-QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
-QTC_DEFINE_BUILDER_SETTER(icon, setIcon)
-QTC_DEFINE_BUILDER_SETTER(objectName, setObjectName)
-QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
-QTC_DEFINE_BUILDER_SETTER(onDestroyed, onDestroyed)
-QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
-QTC_DEFINE_BUILDER_SETTER(onLinkActivated, onLinkActivated)
-QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
-QTC_DEFINE_BUILDER_SETTER(openExternalLinks, setOpenExternalLinks)
-QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation);
-QTC_DEFINE_BUILDER_SETTER(size, setSize)
-QTC_DEFINE_BUILDER_SETTER(text, setText)
-QTC_DEFINE_BUILDER_SETTER(textFormat, setTextFormat)
-QTC_DEFINE_BUILDER_SETTER(textInteractionFlags, setTextInteractionFlags)
-QTC_DEFINE_BUILDER_SETTER(title, setTitle)
-QTC_DEFINE_BUILDER_SETTER(toolTip, setToolTip)
-QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
-QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
-QTC_DEFINE_BUILDER_SETTER(windowFlags, setWindowFlags);
-QTC_DEFINE_BUILDER_SETTER(widgetAttribute, setWidgetAttribute);
-QTC_DEFINE_BUILDER_SETTER(autoFillBackground, setAutoFillBackground);
-QTC_DEFINE_BUILDER_SETTER(readOnly, setReadOnly);
-QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown);
-QTC_DEFINE_BUILDER_SETTER(sizePolicy, setSizePolicy);
-QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
-QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
-QTC_DEFINE_BUILDER_SETTER(placeholderText, setPlaceholderText);
-QTC_DEFINE_BUILDER_SETTER(frameShape, setFrameShape);
-QTC_DEFINE_BUILDER_SETTER(paint, setPaintFunction);
-QTC_DEFINE_BUILDER_SETTER(fixSizeHintBug, setFixSizeHintBug);
-QTC_DEFINE_BUILDER_SETTER(maximumWidth, setMaximumWidth)
-QTC_DEFINE_BUILDER_SETTER(maximumHeight, setMaximumHeight)
-QTC_DEFINE_BUILDER_SETTER(minimumWidth, setMinimumWidth)
-QTC_DEFINE_BUILDER_SETTER(minimumHeight, setMinimumHeight)
-QTC_DEFINE_BUILDER_SETTER(onReturnPressed, onReturnPressed)
-QTC_DEFINE_BUILDER_SETTER(dialogButton, addButton)
-QTC_DEFINE_BUILDER_SETTER(stdButtonText, setStdButtonText)
+inline constexpr auto alignment = Building::setter(
+    [](auto &x, auto &&...a) { x.setAlignment(a...); });
+inline constexpr auto childrenCollapsible = Building::setter(
+    [](auto &x, auto &&...a) { x.setChildrenCollapsible(a...); });
+inline constexpr auto columnStretch = Building::setter(
+    [](auto &x, auto &&...a) { x.setColumnStretch(a...); });
+inline constexpr auto enabled = Building::setter([](auto &x, auto &&...a) { x.setEnabled(a...); });
+inline constexpr auto rowStretch = Building::setter(
+    [](auto &x, auto &&...a) { x.setRowStretch(a...); });
+inline constexpr auto customMargins = Building::setter(
+    [](auto &x, auto &&...a) { x.setContentsMargins(a...); });
+inline constexpr auto fieldGrowthPolicy = Building::setter(
+    [](auto &x, auto &&...a) { x.setFieldGrowthPolicy(a...); });
+inline constexpr auto groupChecker = Building::setter(
+    [](auto &x, auto &&...a) { x.setGroupChecker(a...); });
+inline constexpr auto icon = Building::setter([](auto &x, auto &&...a) { x.setIcon(a...); });
+inline constexpr auto objectName = Building::setter(
+    [](auto &x, auto &&...a) { x.setObjectName(a...); });
+inline constexpr auto onClicked = Building::setter([](auto &x, auto &&...a) { x.onClicked(a...); });
+inline constexpr auto onDestroyed = Building::setter(
+    [](auto &x, auto &&...a) { x.onDestroyed(a...); });
+inline constexpr auto onLinkHovered = Building::setter(
+    [](auto &x, auto &&...a) { x.onLinkHovered(a...); });
+inline constexpr auto onLinkActivated = Building::setter(
+    [](auto &x, auto &&...a) { x.onLinkActivated(a...); });
+inline constexpr auto onTextChanged = Building::setter(
+    [](auto &x, auto &&...a) { x.onTextChanged(a...); });
+inline constexpr auto openExternalLinks = Building::setter(
+    [](auto &x, auto &&...a) { x.setOpenExternalLinks(a...); });
+inline constexpr auto orientation = Building::setter(
+    [](auto &x, auto &&...a) { x.setOrientation(a...); });
+inline constexpr auto size = Building::setter([](auto &x, auto &&...a) { x.setSize(a...); });
+inline constexpr auto text = Building::setter([](auto &x, auto &&...a) { x.setText(a...); });
+inline constexpr auto textFormat = Building::setter(
+    [](auto &x, auto &&...a) { x.setTextFormat(a...); });
+inline constexpr auto textInteractionFlags = Building::setter(
+    [](auto &x, auto &&...a) { x.setTextInteractionFlags(a...); });
+inline constexpr auto title = Building::setter([](auto &x, auto &&...a) { x.setTitle(a...); });
+inline constexpr auto toolTip = Building::setter([](auto &x, auto &&...a) { x.setToolTip(a...); });
+inline constexpr auto windowTitle = Building::setter(
+    [](auto &x, auto &&...a) { x.setWindowTitle(a...); });
+inline constexpr auto wordWrap = Building::setter(
+    [](auto &x, auto &&...a) { x.setWordWrap(a...); });
+inline constexpr auto windowFlags = Building::setter(
+    [](auto &x, auto &&...a) { x.setWindowFlags(a...); });
+inline constexpr auto widgetAttribute = Building::setter(
+    [](auto &x, auto &&...a) { x.setWidgetAttribute(a...); });
+inline constexpr auto autoFillBackground = Building::setter(
+    [](auto &x, auto &&...a) { x.setAutoFillBackground(a...); });
+inline constexpr auto readOnly = Building::setter(
+    [](auto &x, auto &&...a) { x.setReadOnly(a...); });
+inline constexpr auto markdown = Building::setter(
+    [](auto &x, auto &&...a) { x.setMarkdown(a...); });
+inline constexpr auto sizePolicy = Building::setter(
+    [](auto &x, auto &&...a) { x.setSizePolicy(a...); });
+inline constexpr auto basePath = Building::setter(
+    [](auto &x, auto &&...a) { x.setBasePath(a...); });
+inline constexpr auto fixedSize = Building::setter(
+    [](auto &x, auto &&...a) { x.setFixedSize(a...); });
+inline constexpr auto placeholderText = Building::setter(
+    [](auto &x, auto &&...a) { x.setPlaceholderText(a...); });
+inline constexpr auto frameShape = Building::setter(
+    [](auto &x, auto &&...a) { x.setFrameShape(a...); });
+inline constexpr auto paint = Building::setter(
+    [](auto &x, auto &&...a) { x.setPaintFunction(a...); });
+inline constexpr auto fixSizeHintBug = Building::setter(
+    [](auto &x, auto &&...a) { x.setFixSizeHintBug(a...); });
+inline constexpr auto maximumWidth = Building::setter(
+    [](auto &x, auto &&...a) { x.setMaximumWidth(a...); });
+inline constexpr auto maximumHeight = Building::setter(
+    [](auto &x, auto &&...a) { x.setMaximumHeight(a...); });
+inline constexpr auto minimumWidth = Building::setter(
+    [](auto &x, auto &&...a) { x.setMinimumWidth(a...); });
+inline constexpr auto minimumHeight = Building::setter(
+    [](auto &x, auto &&...a) { x.setMinimumHeight(a...); });
+inline constexpr auto onReturnPressed = Building::setter(
+    [](auto &x, auto &&...a) { x.onReturnPressed(a...); });
+inline constexpr auto dialogButton = Building::setter(
+    [](auto &x, QDialogButtonBox::ButtonRole role, const AbstractButtonBuilder auto &button) {
+        x.addButton(role, button);
+    });
+inline constexpr auto stdButtonText = Building::setter(
+    [](AbstractButtonBuilder auto &button, QDialogButtonBox::StandardButton stdButton) {
+        button.setText(standardButtonText(stdButton));
+    });
 
 // Nesting dispatchers
 

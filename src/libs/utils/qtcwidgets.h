@@ -323,11 +323,12 @@ public:
 
 } // namespace QtcWidgets
 
-QTC_DEFINE_BUILDER_SETTER(role, setRole);
-QTC_DEFINE_BUILDER_SETTER(fillBrush, setFillBrush);
-QTC_DEFINE_BUILDER_SETTER(strokePen, setStrokePen);
-QTC_DEFINE_BUILDER_SETTER(radius, setRadius);
-QTC_DEFINE_BUILDER_SETTER(url, setUrl)
-
+inline constexpr auto role = Building::setter([](auto &x, auto &&...a) { x.setRole(a...); });
+inline constexpr auto fillBrush = Building::setter(
+    [](auto &x, auto &&...a) { x.setFillBrush(a...); });
+inline constexpr auto strokePen = Building::setter(
+    [](auto &x, auto &&...a) { x.setStrokePen(a...); });
+inline constexpr auto radius = Building::setter([](auto &x, auto &&...a) { x.setRadius(a...); });
+inline constexpr auto url = Building::setter([](auto &x, auto &&...a) { x.setUrl(a...); });
 
 } // namespace Utils
