@@ -1083,6 +1083,7 @@ public:
             createHr(),
             &m_widget,
             noMargin,
+            st,
         }.attachTo(this);
 
         const auto updateGlobalSettingsCheckBox = [this] {
