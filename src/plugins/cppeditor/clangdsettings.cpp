@@ -21,6 +21,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettings.h>
 #include <projectexplorer/useglobalaspect.h>
 
 #include <utils/clangutils.h>
@@ -860,6 +861,8 @@ public:
         m_project->setNamedSettings(clangdSettingsKey(), variantFromStore(store));
     }
 
+    static Key extraDataKey() { return "ClangdProjectSettings"; }
+
     UseGlobalAspect useGlobalSettings{Constants::CPP_CLANGD_SETTINGS_ID};
 
 private:
@@ -869,13 +872,7 @@ private:
 
 static ClangdProjectSettings *projectClangdSettings(Project *project)
 {
-    const Key key = "ClangdProjectSettings";
-    QVariant v = project->extraData(key);
-    if (v.isNull()) {
-        v = QVariant::fromValue(new ClangdProjectSettings(project));
-        project->setExtraData(key, v);
-    }
-    return v.value<ClangdProjectSettings *>();
+    return projectSettings<ClangdProjectSettings>(project);
 }
 
 ClangdSettings::Data clangdProjectSettings(Project *project)

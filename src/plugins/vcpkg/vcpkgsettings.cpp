@@ -13,6 +13,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettings.h>
 #include <projectexplorer/useglobalaspect.h>
 
 #include <utils/environment.h>
@@ -128,6 +129,8 @@ public:
         setVcpkgRootEnvironmentVariable();
     }
 
+    static Key extraDataKey() { return "VcpkgProjectSettings"; }
+
     UseGlobalAspect useGlobalSettings{Constants::Settings::GENERAL_ID};
 
 private:
@@ -138,13 +141,7 @@ private:
 
 static VcpkgProjectSettings *projectSettings(Project *project)
 {
-    const Key key = "VcpkgProjectSettings";
-    QVariant v = project->extraData(key);
-    if (v.isNull()) {
-        v = QVariant::fromValue(new VcpkgProjectSettings(project));
-        project->setExtraData(key, v);
-    }
-    return v.value<VcpkgProjectSettings *>();
+    return ProjectExplorer::projectSettings<VcpkgProjectSettings>(project);
 }
 
 VcpkgSettings *vcpkgSettingsForProject(Project *project)

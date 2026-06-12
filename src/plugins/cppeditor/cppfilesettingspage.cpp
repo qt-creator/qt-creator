@@ -14,6 +14,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettings.h>
 #include <projectexplorer/useglobalaspect.h>
 
 #include <utils/aspects.h>
@@ -490,6 +491,8 @@ public:
         m_project->setNamedSettings(projectSettingsKeyC, data);
     }
 
+    static Key extraDataKey() { return "CppFileProjectSettings"; }
+
     UseGlobalAspect useGlobalSettings{Constants::CPP_FILE_SETTINGS_ID};
 
 private:
@@ -498,13 +501,7 @@ private:
 
 static CppFileProjectSettings *cppFileProjectSettings(Project *project)
 {
-    const Key key = "CppFileProjectSettings";
-    QVariant v = project->extraData(key);
-    if (v.isNull()) {
-        v = QVariant::fromValue(new CppFileProjectSettings(project));
-        project->setExtraData(key, v);
-    }
-    return v.value<CppFileProjectSettings *>();
+    return projectSettings<CppFileProjectSettings>(project);
 }
 
 class CppFileSettingsForProjectWidget : public QWidget
