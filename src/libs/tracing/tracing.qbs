@@ -34,6 +34,7 @@ QtcLibrary {
         name: "images"
         prefix: "images/"
         fileTags: "qt.core.resource_data"
+        Qt.core.resourceSourceBase: sourceDirectory + "/.."
         files: [
             "edit.png", "edit@2x.png",
             "rangeselected.png", "rangeselected@2x.png",
