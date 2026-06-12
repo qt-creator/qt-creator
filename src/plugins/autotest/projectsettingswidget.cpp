@@ -49,7 +49,7 @@ private:
 };
 
 ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
-    : m_projectSettings(projectSettings(project))
+    : m_projectSettings(testProjectSettings(project))
 {
     m_activeFrameworks.setHeaderHidden(true);
     m_activeFrameworks.setRootIsDecorated(false);

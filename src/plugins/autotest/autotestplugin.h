@@ -26,7 +26,7 @@ struct ChoicePair
     Utils::FilePath executable;
 };
 
-TestProjectSettings *projectSettings(ProjectExplorer::Project *project);
+TestProjectSettings *testProjectSettings(ProjectExplorer::Project *project);
 TestFrameworks activeTestFrameworks();
 void updateMenuItemsEnabledState();
 void cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice);

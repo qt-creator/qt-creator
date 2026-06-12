@@ -769,7 +769,7 @@ static RunAfterBuildMode runAfterBuild()
     if (!project->namedSettings(Constants::SK_USE_GLOBAL).isValid())
         return testSettings().runAfterBuildMode();
 
-    TestProjectSettings *projectSettings = Internal::projectSettings(project);
+    TestProjectSettings *projectSettings = Internal::testProjectSettings(project);
     return projectSettings->useGlobalSettings() ? testSettings().runAfterBuildMode()
                                                 : projectSettings->runAfterBuildMode();
 }

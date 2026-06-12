@@ -139,7 +139,7 @@ private:
 
 // --- Helpers -----------------------------------------------------------------
 
-static VcpkgProjectSettings *projectSettings(Project *project)
+static VcpkgProjectSettings *vcpkgProjectSettings(Project *project)
 {
     return ProjectExplorer::projectSettings<VcpkgProjectSettings>(project);
 }
@@ -149,7 +149,7 @@ VcpkgSettings *vcpkgSettingsForProject(Project *project)
     static VcpkgSettings theSettings;
     if (!project)
         return &theSettings;
-    VcpkgProjectSettings *ps = projectSettings(project);
+    VcpkgProjectSettings *ps = vcpkgProjectSettings(project);
     if (ps->useGlobalSettings())
         return &theSettings;
     return ps;
@@ -178,7 +178,7 @@ class VcpkgSettingsWidget : public QWidget
 public:
     explicit VcpkgSettingsWidget(Project *project)
     {
-        VcpkgProjectSettings * const ps = projectSettings(project);
+        VcpkgProjectSettings * const ps = vcpkgProjectSettings(project);
         QTC_ASSERT(ps, return);
         using namespace Layouting;
         Column {

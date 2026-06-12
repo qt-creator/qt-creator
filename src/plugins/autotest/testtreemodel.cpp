@@ -85,7 +85,7 @@ void TestTreeModel::setupParsingConnections()
         m_parser->onStartupProjectChanged(project);
         removeAllTestToolItems();
         synchronizeTestTools();
-        m_checkStateCache = project ? projectSettings(project)->checkStateCache() : nullptr;
+        m_checkStateCache = project ? testProjectSettings(project)->checkStateCache() : nullptr;
         onBuildSystemTestsUpdated(); // we may have old results if project was open before switching
         m_failedStateCache.clear();
         if (project) {
@@ -258,7 +258,7 @@ void TestTreeModel::onBuildSystemTestsUpdated()
     if (!testTool)
         return;
     // FIXME
-    const TestProjectSettings *projectSettings = Internal::projectSettings(bs->project());
+    const TestProjectSettings *projectSettings = Internal::testProjectSettings(bs->project());
     if ((projectSettings->useGlobalSettings() && !testTool->active())
             || !projectSettings->activeTestTools().contains(testTool)) {
         return;
@@ -394,12 +394,12 @@ void TestTreeModel::synchronizeTestTools()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     TestTools tools;
-    if (!project || Internal::projectSettings(project)->useGlobalSettings()) {
+    if (!project || Internal::testProjectSettings(project)->useGlobalSettings()) {
         tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),
                                 &ITestFramework::active);
         qCDebug(LOG) << "Active test tools" << Utils::transform(tools, &ITestBase::displayName); // FIXME tools aren't sorted
     } else { // we've got custom project settings
-        const TestProjectSettings *settings = Internal::projectSettings(project);
+        const TestProjectSettings *settings = Internal::testProjectSettings(project);
         const QHash<ITestTool *, bool> active = settings->activeTestTools();
         tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),
                                 [active](ITestTool *testTool) {

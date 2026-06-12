@@ -135,7 +135,7 @@ AutotestPluginPrivate::~AutotestPluginPrivate()
     delete m_resultsPane;
 }
 
-TestProjectSettings *projectSettings(Project *project)
+TestProjectSettings *testProjectSettings(Project *project)
 {
     return ProjectExplorer::projectSettings<TestProjectSettings>(project);
 }
@@ -400,11 +400,11 @@ TestFrameworks activeTestFrameworks()
 {
     Project *project = ProjectManager::startupProject();
     TestFrameworks sorted;
-    if (!project || projectSettings(project)->useGlobalSettings()) {
+    if (!project || testProjectSettings(project)->useGlobalSettings()) {
         sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
                                  &ITestFramework::active);
     } else { // we've got custom project settings
-        const TestProjectSettings *settings = projectSettings(project);
+        const TestProjectSettings *settings = testProjectSettings(project);
         const QHash<ITestFramework *, bool> active = settings->activeFrameworks();
         sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
                                  [active](ITestFramework *framework) {

@@ -57,7 +57,7 @@ private:
     Project * const m_project;
 };
 
-static ProjectCommentsSettings *projectCommentsSettings(Project *project)
+static ProjectCommentsSettings *commentsProjectSettings(Project *project)
 {
     const Key key = "ProjectCommentsSettings";
     QVariant v = project->extraData(key);
@@ -73,7 +73,7 @@ class ProjectCommentsSettingsWidget final : public QWidget
 public:
     ProjectCommentsSettingsWidget(Project *project)
     {
-        ProjectCommentsSettings * const ps = projectCommentsSettings(project);
+        ProjectCommentsSettings * const ps = commentsProjectSettings(project);
         using namespace Layouting;
         Column {
             ps->useGlobalSettings,
@@ -109,6 +109,6 @@ TextEditor::CommentsSettings::Data ProjectExplorer::commentsSettingsForFile(cons
     Project * const project = ProjectManager::projectForFile(filePath);
     if (!project)
         return globalCommentsSettings().data();
-    const auto *ps = projectCommentsSettings(project);
+    const auto *ps = commentsProjectSettings(project);
     return ps->useGlobalSettings() ? globalCommentsSettings().data() : ps->data();
 }
