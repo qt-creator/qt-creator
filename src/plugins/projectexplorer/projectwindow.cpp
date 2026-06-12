@@ -810,8 +810,14 @@ public:
         m_targetRemovedConnection = QObject::connect(
             project,
             &ProjectExplorer::Project::removedTarget,
-            [this, t = target()](ProjectExplorer::Target *rt) {
-                if (t == rt) {
+            [this](ProjectExplorer::Target *rt) {
+                if (rt->id() == m_kitId) {
+                    if (m_buildSettingsWidget)
+                        m_buildSettingsWidget->deleteLater();
+                    if (m_deploySettingsWidget)
+                        m_deploySettingsWidget->deleteLater();
+                    if (m_runSettingsWidget)
+                        m_runSettingsWidget->deleteLater();
                     m_buildSettingsWidget.clear();
                     m_deploySettingsWidget.clear();
                     m_runSettingsWidget.clear();
@@ -910,18 +916,33 @@ public:
 
     ProjectPanels panelWidgets() const final
     {
-        if (!m_buildSettingsWidget)
-            m_buildSettingsWidget = new ProjectPanel(createBuildSettingsWidget(target()));
-        if (!m_deploySettingsWidget)
-            m_deploySettingsWidget = new ProjectPanel(createDeploySettingsWidget(target()));
-        if (!m_runSettingsWidget)
-            m_runSettingsWidget = new ProjectPanel(createRunSettingsWidget(target()));
-
-        return {
-            m_buildSettingsWidget.get(),
-            m_deploySettingsWidget.get(),
-            m_runSettingsWidget.get()
+        // Creating a settings widget can re-enter the event loop, e.g. via a
+        // password dialog, and the target can be removed meanwhile. Re-check
+        // the target after each creation and bail out if it is gone.
+        const auto makePanel = [this](QPointer<QWidget> &panel, QWidget *(*create)(Target *)) {
+            if (panel)
+                return;
+            Target * const t = target();
+            if (!t)
+                return;
+            QWidget * const inner = create(t);
+            if (target() == t)
+                panel = new ProjectPanel(inner);
+            else
+                delete inner;
         };
+        makePanel(m_buildSettingsWidget, &createBuildSettingsWidget);
+        makePanel(m_deploySettingsWidget, &createDeploySettingsWidget);
+        makePanel(m_runSettingsWidget, &createRunSettingsWidget);
+
+        ProjectPanels panels;
+        if (m_buildSettingsWidget)
+            panels.append(m_buildSettingsWidget.get());
+        if (m_deploySettingsWidget)
+            panels.append(m_deploySettingsWidget.get());
+        if (m_runSettingsWidget)
+            panels.append(m_runSettingsWidget.get());
+        return panels;
     }
 
     void addToMenu(QMenu *menu) const final
