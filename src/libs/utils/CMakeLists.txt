@@ -273,6 +273,11 @@ extend_qtc_library(Utils
     widgettextcontrol.h
 )
 
+# QPlatformTheme::standardButtonText, replaced by public API in Qt 6.12
+extend_qtc_library(Utils CONDITION Qt6_VERSION VERSION_LESS 6.12.0
+  DEPENDS Qt::GuiPrivate
+)
+
 if (MSVC)
     find_library(DbgHelpLib dbghelp)
 endif()

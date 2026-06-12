@@ -47,7 +47,16 @@ inline auto name(Args &&...args) { \
 } \
 template <typename L, typename ...Args> \
 inline void doit(L *x, name##_TAG, const std::tuple<Args...> &arg) { \
-    std::apply(&L::setter, std::tuple_cat(std::make_tuple(x), arg)); \
+    /* The requires expressions must live outside the lambda: MSVC raises a \
+       hard error instead of an unsatisfied constraint when a requires \
+       expression in a lambda body names a non-existent member. */ \
+    if constexpr (requires(L *l, const Args &...a) { l->setter(a...); }) \
+        std::apply([x](const auto &...a) { x->setter(a...); }, arg); \
+    else if constexpr (requires(L &l, const Args &...a) { setter(l, a...); }) \
+        std::apply([x](const auto &...a) { setter(*x, a...); }, arg); \
+    else \
+        static_assert(sizeof...(Args) + 1 == 0, \
+                      "no matching member or free function \"" #setter "\""); \
 }
 
 } // Building

@@ -1,4 +1,5 @@
 import qbs.FileInfo
+import qbs.Utilities
 
 QtcLibrary {
     name: "Utils"
@@ -38,6 +39,11 @@ QtcLibrary {
     }
 
     Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "printsupport", "qml", "widgets", "xml", "sql"] }
+    // QPlatformTheme::standardButtonText, replaced by public API in Qt 6.12
+    Depends {
+        name: "Qt.gui-private"
+        condition: Utilities.versionCompare(Qt.core.version, "6.12.0") < 0
+    }
     Depends { name: "Qt.macextras"; condition: Qt.core.versionMajor < 6 && qbs.targetOS.contains("macos") }
     Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
     Depends { name: "Spinner" }

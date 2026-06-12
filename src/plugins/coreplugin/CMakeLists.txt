@@ -1,7 +1,7 @@
 find_package(Qt6 COMPONENTS DBus QUIET)
 
 add_qtc_plugin(Core
-  DEPENDS Qt::PrintSupport Qt::Qml Qt::Gui Qt::GuiPrivate TerminalLib qtkeychain
+  DEPENDS Qt::PrintSupport Qt::Qml Qt::Gui TerminalLib qtkeychain
   PLUGIN_TEST_DEPENDS TextEditor
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils
   SOURCES
@@ -313,6 +313,7 @@ extend_qtc_plugin(Core
 
 extend_qtc_plugin(Core
   CONDITION WIN32
+  DEPENDS Qt::GuiPrivate
   SOURCES progressmanager/progressmanager_win.cpp
 )
 

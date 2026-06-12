@@ -1210,27 +1210,24 @@ FileDialog::FileDialog(QWidget *parent)
                             role(QtcButton::Role::MediumSecondary),
                         },
                         st,
-                        If (HostOsInfo::isMacHost()) >> Then {
-                            QtcWidgets::Button {
-                                text(Tr::tr("Cancel")),
-                                onClicked(this, [this] { reject(); }),
-                                role(QtcButton::Role::MediumSecondary),
-                            },
+                        DialogButtonBox {
+                            dialogButton(QDialogButtonBox::ButtonRole::AcceptRole,
+                                QtcWidgets::Button {
+                                    bindTo(&d->m_acceptButton),
+                                    stdButtonText(QDialogButtonBox::StandardButton::Open),
+                                    enabled(false),
+                                    onClicked(this, handleOpen),
+                                    role(QtcButton::Role::MediumPrimary),
+                                }
+                            ),
+                            dialogButton(QDialogButtonBox::ButtonRole::RejectRole,
+                                QtcWidgets::Button {
+                                    stdButtonText(QDialogButtonBox::StandardButton::Cancel),
+                                    onClicked(this, [this] { reject(); }),
+                                    role(QtcButton::Role::MediumSecondary),
+                                }
+                            ),
                         },
-                        QtcWidgets::Button {
-                            bindTo(&d->m_acceptButton),
-                            text(Tr::tr("Open")),
-                            enabled(false),
-                            onClicked(this, handleOpen),
-                            role(QtcButton::Role::MediumPrimary),
-                        },
-                        If (!HostOsInfo::isMacHost()) >> Then {
-                            QtcWidgets::Button {
-                                text(Tr::tr("Cancel")),
-                                onClicked(this, [this] { reject(); }),
-                                role(QtcButton::Role::MediumSecondary),
-                            },
-                        }
                     }
                 },
             }
@@ -1516,7 +1513,9 @@ void FileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
 {
     d->m_acceptMode = mode;
     const bool saveMode = mode == QFileDialog::AcceptSave;
-    d->m_acceptButton->setText(saveMode ? Tr::tr("Save") : Tr::tr("Open"));
+    d->m_acceptButton->setText(
+        saveMode ? Layouting::standardButtonText(QDialogButtonBox::Save)
+                 : Layouting::standardButtonText(QDialogButtonBox::Open));
     d->m_fileNameEdit->setVisible(saveMode);
     d->m_fileNameLabel->setVisible(saveMode);
     d->updateAcceptButtonState();

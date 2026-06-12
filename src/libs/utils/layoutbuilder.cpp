@@ -39,6 +39,11 @@
 #include <QToolBar>
 #include <QToolButton>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 12, 0)
+#include <QtGui/private/qguiapplication_p.h>
+#include <qpa/qplatformtheme.h>
+#endif
+
 using namespace Layouting::Tools;
 
 /*!
@@ -2257,4 +2262,25 @@ void destroyLayout(QLayout *layout)
 //     item->onAdd = [t](LayoutBuilder &builder) { doAddWidget(builder, t); };
 // }
 
+DialogButtonBox::DialogButtonBox(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    Layouting::Tools::apply(this, ps);
+}
+
+void DialogButtonBox::addButton(QDialogButtonBox::ButtonRole role, QAbstractButton *button)
+{
+    access(this)->addButton(button, role);
+}
+
+QString standardButtonText(QDialogButtonBox::StandardButton stdButton)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 12, 0)
+    QPlatformTheme *theme = QGuiApplicationPrivate::platformTheme();
+    QTC_ASSERT(theme, return {});
+    return theme->standardButtonText(stdButton);
+#else
+    return QDialogButtonBox::standardButtonText(stdButton);
+#endif
+}
 } // namespace Layouting

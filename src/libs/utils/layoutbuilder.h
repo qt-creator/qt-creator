@@ -7,6 +7,7 @@
 #include "completingtextedit.h"
 
 #include <QAction>
+#include <QDialogButtonBox>
 #include <QFrame>
 #include <QPointer>
 #include <QString>
@@ -563,6 +564,33 @@ public:
     void setPaintFunction(const CanvasWidget::PaintFunction &paintFunction);
 };
 
+// A Layouting builder whose product is a QAbstractButton.
+template<typename T>
+concept AbstractButtonBuilder = std::derived_from<T, Layouting::Widget>
+                                && std::derived_from<typename T::Implementation, QAbstractButton>;
+
+class QTCREATOR_UTILS_EXPORT DialogButtonBox : public Layouting::Widget
+{
+public:
+    using Implementation = QDialogButtonBox;
+    using I = Building::BuilderItem<DialogButtonBox>;
+
+    DialogButtonBox(std::initializer_list<I> ps);
+
+    void addButton(QDialogButtonBox::ButtonRole role, const AbstractButtonBuilder auto &button)
+    {
+        addButton(role, static_cast<QAbstractButton *>(button.product()));
+    }
+
+    void addButton(QDialogButtonBox::ButtonRole role, QAbstractButton *button);
+};
+
+QTCREATOR_UTILS_EXPORT QString standardButtonText(QDialogButtonBox::StandardButton stdButton);
+void setStdButtonText(AbstractButtonBuilder auto &button, QDialogButtonBox::StandardButton stdButton)
+{
+    button.setText(standardButtonText(stdButton));
+}
+
 // Special
 
 class QTCREATOR_UTILS_EXPORT Preview : public Column
@@ -704,6 +732,8 @@ QTC_DEFINE_BUILDER_SETTER(maximumHeight, setMaximumHeight)
 QTC_DEFINE_BUILDER_SETTER(minimumWidth, setMinimumWidth)
 QTC_DEFINE_BUILDER_SETTER(minimumHeight, setMinimumHeight)
 QTC_DEFINE_BUILDER_SETTER(onReturnPressed, onReturnPressed)
+QTC_DEFINE_BUILDER_SETTER(dialogButton, addButton)
+QTC_DEFINE_BUILDER_SETTER(stdButtonText, setStdButtonText)
 
 // Nesting dispatchers
 
