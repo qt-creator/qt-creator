@@ -48,6 +48,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectsettings.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
@@ -103,7 +104,6 @@ public:
 };
 
 static AutotestPluginPrivate *dd = nullptr;
-static QHash<Project *, TestProjectSettings *> s_projectSettings;
 
 AutotestPluginPrivate::AutotestPluginPrivate()
 {
@@ -128,33 +128,16 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     auto projectManager = ProjectManager::instance();
     connect(projectManager, &ProjectManager::startupProjectChanged,
             this, [this] { m_runconfigCache.clear(); });
-
-    connect(projectManager, &ProjectManager::projectRemoved, this, [](Project *project) {
-        const auto it = s_projectSettings.constFind(project);
-        if (it != s_projectSettings.constEnd()) {
-            delete it.value();
-            s_projectSettings.erase(it);
-        }
-    });
 }
 
 AutotestPluginPrivate::~AutotestPluginPrivate()
 {
-    if (!s_projectSettings.isEmpty()) {
-        qDeleteAll(s_projectSettings);
-        s_projectSettings.clear();
-    }
-
     delete m_resultsPane;
 }
 
 TestProjectSettings *projectSettings(Project *project)
 {
-    auto &settings = s_projectSettings[project];
-    if (!settings)
-        settings = new TestProjectSettings(project);
-
-    return settings;
+    return ProjectExplorer::projectSettings<TestProjectSettings>(project);
 }
 
 void AutotestPluginPrivate::initializeMenuEntries()

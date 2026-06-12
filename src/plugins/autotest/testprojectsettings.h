@@ -44,6 +44,8 @@ public:
     explicit TestProjectSettings(ProjectExplorer::Project *project);
     ~TestProjectSettings() override = default;
 
+    static Utils::Key extraDataKey() { return "TestProjectSettings"; }
+
     RunAfterBuildMode runAfterBuildMode() const;
 
     QHash<ITestFramework *, bool> activeFrameworks() const { return activeTestFrameworks(); }

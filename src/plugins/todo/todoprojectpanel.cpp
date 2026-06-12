@@ -9,6 +9,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettings.h>
 #include <projectexplorer/useglobalaspect.h>
 
 #include <utils/aspects.h>
@@ -63,6 +64,8 @@ public:
         m_project->setNamedSettings(Constants::SETTINGS_NAME_KEY, s);
     }
 
+    static Key extraDataKey() { return "TodoProjectSettings"; }
+
     UseGlobalAspect useGlobalSettings{Constants::TODO_SETTINGS};
     StringListAspect excludePatterns{this};
 
@@ -72,13 +75,7 @@ private:
 
 static TodoProjectSettings *todoProjectSettings(Project *project)
 {
-    const Key key = "TodoProjectSettings";
-    QVariant v = project->extraData(key);
-    if (v.isNull()) {
-        v = QVariant::fromValue(new TodoProjectSettings(project));
-        project->setExtraData(key, v);
-    }
-    return v.value<TodoProjectSettings *>();
+    return projectSettings<TodoProjectSettings>(project);
 }
 
 class TodoProjectPanelWidget final : public QWidget
