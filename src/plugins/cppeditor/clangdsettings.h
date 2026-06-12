@@ -136,8 +136,8 @@ protected:
     void loadSettings();
 };
 
-CPPEDITOR_EXPORT ClangdSettings::Data clangdProjectSettings(ProjectExplorer::BuildConfiguration *bc);
-CPPEDITOR_EXPORT ClangdSettings::Data clangdProjectSettings(ProjectExplorer::Project *project);
+CPPEDITOR_EXPORT ClangdSettings::Data clangdSettingsForProject(ProjectExplorer::BuildConfiguration *bc);
+CPPEDITOR_EXPORT ClangdSettings::Data clangdSettingsForProject(ProjectExplorer::Project *project);
 
 CPPEDITOR_EXPORT void clangdBlockIndexingForProject(ProjectExplorer::Project *project);
 CPPEDITOR_EXPORT void clangdUnblockIndexingForProject(ProjectExplorer::Project *project);

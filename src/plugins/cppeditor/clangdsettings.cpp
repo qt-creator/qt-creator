@@ -870,16 +870,16 @@ private:
     bool m_ownDiagConfigChange = false;
 };
 
-static ClangdProjectSettings *projectClangdSettings(Project *project)
+static ClangdProjectSettings *clangdProjectSettings(Project *project)
 {
     return projectSettings<ClangdProjectSettings>(project);
 }
 
-ClangdSettings::Data clangdProjectSettings(Project *project)
+ClangdSettings::Data clangdSettingsForProject(Project *project)
 {
     if (!project)
         return ClangdSettings::instance().data();
-    const auto *ps = projectClangdSettings(project);
+    const auto *ps = clangdProjectSettings(project);
     ClangdSettings::Data d = ps->useGlobalSettings()
         ? ClangdSettings::instance().data() : ps->data();
     if (project->property(blockProjectIndexingProperty).toBool())
@@ -887,9 +887,9 @@ ClangdSettings::Data clangdProjectSettings(Project *project)
     return d;
 }
 
-ClangdSettings::Data clangdProjectSettings(BuildConfiguration *bc)
+ClangdSettings::Data clangdSettingsForProject(BuildConfiguration *bc)
 {
-    return clangdProjectSettings(bc ? bc->project() : nullptr);
+    return clangdSettingsForProject(bc ? bc->project() : nullptr);
 }
 
 void clangdBlockIndexingForProject(Project *project)
@@ -909,7 +909,7 @@ void clangdUnblockIndexingForProject(Project *project)
 void clangdSetDiagnosticConfigId(Project *project, Id id)
 {
     QTC_ASSERT(project, return);
-    ClangdProjectSettings *ps = projectClangdSettings(project);
+    ClangdProjectSettings *ps = clangdProjectSettings(project);
     ps->diagnosticConfigId.setValue(id, BaseAspect::BeQuiet);
     ps->useGlobalSettings.setValue(false, BaseAspect::BeQuiet);
     ps->save();
@@ -1055,7 +1055,7 @@ class ClangdProjectSettingsWidget : public QWidget
 public:
     ClangdProjectSettingsWidget(Project *project)
     {
-        ClangdProjectSettings *ps = projectClangdSettings(project);
+        ClangdProjectSettings *ps = clangdProjectSettings(project);
 
         using namespace Layouting;
         auto settingsWidget = Column {

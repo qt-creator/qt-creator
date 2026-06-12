@@ -176,7 +176,7 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
 {
     using CppEditor::ClangdSettings;
     QString indexingOption = "--background-index";
-    const ClangdSettings::Data settings = CppEditor::clangdProjectSettings(bc);
+    const ClangdSettings::Data settings = CppEditor::clangdSettingsForProject(bc);
     const bool indexingEnabled = settings.indexingPriority != ClangdSettings::IndexingPriority::Off;
     if (!indexingEnabled)
         indexingOption += "=0";
@@ -313,7 +313,7 @@ class ClangdClient::Private
 {
 public:
     Private(ClangdClient *q, BuildConfiguration *bc)
-        : q(q), buildConfig(bc), settings(CppEditor::clangdProjectSettings(bc))
+        : q(q), buildConfig(bc), settings(CppEditor::clangdSettingsForProject(bc))
     {}
 
     void findUsages(TextDocument *document, const QTextCursor &cursor,
