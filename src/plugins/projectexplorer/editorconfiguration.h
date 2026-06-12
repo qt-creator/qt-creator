@@ -14,7 +14,6 @@
 #include <memory>
 
 namespace TextEditor {
-class BaseTextEditor;
 class TextEditorWidget;
 class TextDocument;
 class TabSettingsData;
@@ -33,19 +32,18 @@ namespace ProjectExplorer {
 class Project;
 struct EditorConfigurationPrivate;
 
-class PROJECTEXPLORER_EXPORT EditorConfiguration : public QObject
+class PROJECTEXPLORER_EXPORT EditorConfiguration final : public Utils::AspectContainer
 {
 public:
     EditorConfiguration();
-    ~EditorConfiguration() override;
+    ~EditorConfiguration() final;
 
-    void setUseGlobalSettings(bool use);
-    bool useGlobalSettings() const;
     void cloneGlobalSettings();
 
     // The default codec is returned in the case the project doesn't override it.
     Utils::TextEncoding textEncoding() const;
 
+    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from container
     TextEditor::StorageSettings storageSettings;
     TextEditor::BehaviorSettings behaviorSettings;
     TextEditor::ExtraEncodingSettings extraEncodingSettings;
@@ -57,14 +55,13 @@ public:
 
     void configureEditor(Core::IEditor *editor) const;
 
-    Utils::Store toMap() const;
-    void fromMap(const Utils::Store &map);
+    void toMap(Utils::Store &map) const final;
+    void fromMap(const Utils::Store &map) final;
 
     void setTextEncoding(const Utils::TextEncoding &textEncoding);
 
-    void slotAboutToRemoveProject(ProjectExplorer::Project *project);
-
 private:
+    void slotAboutToRemoveProject(ProjectExplorer::Project *project);
     void switchSettings(TextEditor::TextEditorWidget *baseTextEditor) const;
 
     const std::unique_ptr<EditorConfigurationPrivate> d;

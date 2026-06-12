@@ -13,7 +13,6 @@
 
 #include <utils/layoutbuilder.h>
 
-#include <QCheckBox>
 #include <QGroupBox>
 #include <QPushButton>
 
@@ -27,7 +26,6 @@ public:
     explicit EditorSettingsWidget(Project *project);
 
 private:
-    QCheckBox m_globalCheckBox;
     QPushButton m_restoreButton{Tr::tr("Restore Global")};
     QGroupBox m_displaySettings{Tr::tr("Display Settings")};
     QWidget m_behaviorSettings;
@@ -37,7 +35,6 @@ private:
 EditorSettingsWidget::EditorSettingsWidget(Project *project)
 {
     EditorConfiguration *config = project->editorConfiguration();
-    const bool initial = config->useGlobalSettings();
 
     using namespace Layouting;
 
@@ -67,15 +64,13 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
         m_restoreButton.setEnabled(!useGlobal);
     };
 
-    m_globalCheckBox.setChecked(initial);
-    connect(&m_globalCheckBox, &QCheckBox::toggled, this, [config, updateEnabled](bool useGlobal) {
-        updateEnabled(useGlobal);
-        config->setUseGlobalSettings(useGlobal);
+    config->useGlobalSettings.addOnChanged(this, [updateEnabled, config] {
+        updateEnabled(config->useGlobalSettings());
     });
 
     Column {
         Row {
-            &m_globalCheckBox,
+            config->useGlobalSettings,
             createUseGlobalSettingsLabel(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS),
             st
         },
@@ -88,7 +83,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
     }.attachTo(this);
 
     m_tabSettings.setPreferences(config->codeStyle());
-    updateEnabled(initial);
+    updateEnabled(config->useGlobalSettings());
 
     connect(&m_restoreButton, &QAbstractButton::clicked,
             this, [this, config] {

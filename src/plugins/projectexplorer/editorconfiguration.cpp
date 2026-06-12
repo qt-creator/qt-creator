@@ -44,7 +44,6 @@ struct EditorConfigurationPrivate
     { }
 
     ICodeStylePreferences m_defaultCodeStyle;
-    bool m_useGlobal = true;
     TextEncoding m_textEncoding;
 
     QMap<Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
@@ -54,6 +53,8 @@ EditorConfiguration::EditorConfiguration()
     : marginSettings(kPrefix)
     , d(std::make_unique<EditorConfigurationPrivate>())
 {
+    useGlobalSettings.setDefaultValue(true);
+
     typingSettings.setAutoApply(true);
     behaviorSettings.setAutoApply(true);
     storageSettings.setAutoApply(true);
@@ -85,16 +86,24 @@ EditorConfiguration::EditorConfiguration()
     connect(&extraEncodingSettings.defaultEncoding, &BaseAspect::changed, this, [this] {
         setTextEncoding(extraEncodingSettings.defaultEncoding());
     });
+
+    useGlobalSettings.addOnChanged(this, [this] {
+        const bool use = useGlobalSettings();
+        d->m_defaultCodeStyle.setCurrentDelegate(use ? &globalCodeStyle() : nullptr);
+        const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForOpenedDocuments();
+        for (Core::IEditor *editor : editors) {
+            if (auto widget = TextEditorWidget::fromEditor(editor)) {
+                Project *project = ProjectManager::projectForFile(editor->document()->filePath());
+                if (project && project->editorConfiguration() == this)
+                    switchSettings(widget);
+            }
+        }
+    });
 }
 
 EditorConfiguration::~EditorConfiguration()
 {
     qDeleteAll(d->m_languageCodeStylePreferences);
-}
-
-bool EditorConfiguration::useGlobalSettings() const
-{
-    return d->m_useGlobal;
 }
 
 void EditorConfiguration::cloneGlobalSettings()
@@ -129,13 +138,11 @@ static void toMapWithPrefix(Store *map, const Store &source)
         map->insert(kPrefix + it.key(), it.value());
 }
 
-Store EditorConfiguration::toMap() const
+void EditorConfiguration::toMap(Store &map) const
 {
-    Store map = {
-        {kUseGlobal, d->m_useGlobal},
-        {kCodec, d->m_textEncoding.name()},
-        {kCodeStyleCount, d->m_languageCodeStylePreferences.count()}
-    };
+    map.insert(kUseGlobal, useGlobalSettings());
+    map.insert(kCodec, d->m_textEncoding.name());
+    map.insert(kCodeStyleCount, d->m_languageCodeStylePreferences.count());
 
     int i = 0;
     for (auto itCodeStyle = d->m_languageCodeStylePreferences.cbegin(),
@@ -159,8 +166,6 @@ Store EditorConfiguration::toMap() const
     extraEncodingSettings.toMap(inner);
     toMapWithPrefix(&map, inner);
     marginSettings.toMap(map);
-
-    return map;
 }
 
 void EditorConfiguration::fromMap(const Store &map)
@@ -196,7 +201,7 @@ void EditorConfiguration::fromMap(const Store &map)
     extraEncodingSettings.fromMap(submap);
     marginSettings.fromMap(map);
 
-    setUseGlobalSettings(map.value(kUseGlobal, d->m_useGlobal).toBool());
+    useGlobalSettings.setValue(map.value(kUseGlobal, true).toBool());
 }
 
 void EditorConfiguration::configureEditor(Core::IEditor *editor) const
@@ -204,30 +209,16 @@ void EditorConfiguration::configureEditor(Core::IEditor *editor) const
     TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
     if (widget) {
         widget->textDocument()->setCodeStyle(codeStyle(widget->languageSettingsId()));
-        if (!d->m_useGlobal) {
+        if (!useGlobalSettings()) {
             widget->textDocument()->setEncoding(d->m_textEncoding);
             switchSettings(widget);
         }
     }
 }
 
-void EditorConfiguration::setUseGlobalSettings(bool use)
-{
-    d->m_useGlobal = use;
-    d->m_defaultCodeStyle.setCurrentDelegate(use ? &globalCodeStyle() : nullptr);
-    const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForOpenedDocuments();
-    for (Core::IEditor *editor : editors) {
-        if (auto widget = TextEditorWidget::fromEditor(editor)) {
-            Project *project = ProjectManager::projectForFile(editor->document()->filePath());
-            if (project && project->editorConfiguration() == this)
-                switchSettings(widget);
-        }
-    }
-}
-
 void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
 {
-    if (d->m_useGlobal) {
+    if (useGlobalSettings()) {
         widget->setMarginSettings(TextEditor::marginSettings().data());
         widget->setTypingSettings(globalTypingSettings().data());
         widget->setStorageSettings(globalStorageSettings().data());

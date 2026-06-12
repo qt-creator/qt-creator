@@ -987,7 +987,9 @@ void Project::toMap(Store &map) const
         ++index;
     }
 
-    map.insert(EDITOR_SETTINGS_KEY, variantFromStore(d->m_editorConfiguration.toMap()));
+    Store editorMap;
+    d->m_editorConfiguration.toMap(editorMap);
+    map.insert(EDITOR_SETTINGS_KEY, variantFromStore(editorMap));
     if (!d->m_pluginSettings.isEmpty())
         map.insert(PLUGIN_SETTINGS_KEY, variantFromStore(d->m_pluginSettings));
 }
