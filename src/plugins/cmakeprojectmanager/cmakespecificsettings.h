@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <projectexplorer/useglobalaspect.h>
+
 #include <utils/aspects.h>
 
 namespace ProjectExplorer {
@@ -41,7 +43,7 @@ public:
     Utils::BoolAspect cleanOldOutput{this};
     Utils::BoolAspect configureDetailsExpanded{this};
 
-    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+    ProjectExplorer::UseGlobalAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
 };
 
 CMakeSpecificSettings &cmakeSettingsForProject(ProjectExplorer::Project *project);

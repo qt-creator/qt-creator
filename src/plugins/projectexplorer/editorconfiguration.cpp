@@ -12,6 +12,7 @@
 
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/codestylepool.h>
+#include <texteditor/texteditorconstants.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/extraencodingsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
@@ -53,7 +54,7 @@ EditorConfiguration::EditorConfiguration()
     : marginSettings(kPrefix)
     , d(std::make_unique<EditorConfigurationPrivate>())
 {
-    useGlobalSettings.setDefaultValue(true);
+    useGlobalSettings.setSettingsPageId(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
 
     typingSettings.setAutoApply(true);
     behaviorSettings.setAutoApply(true);

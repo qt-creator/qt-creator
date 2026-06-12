@@ -9,6 +9,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/useglobalaspect.h>
 
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
@@ -28,8 +29,6 @@ public:
         : m_project(project)
     {
         setAutoApply(true);
-        useGlobalSettings.setDefaultValue(true);
-
         excludePatterns.setUiAllowAdding(true);
         excludePatterns.setUiAllowRemoving(true);
         excludePatterns.setUiAllowEditing(true);
@@ -64,7 +63,7 @@ public:
         m_project->setNamedSettings(Constants::SETTINGS_NAME_KEY, s);
     }
 
-    BoolAspect useGlobalSettings; // not {this}: excluded from container's setEnabled cascade
+    UseGlobalAspect useGlobalSettings{Constants::TODO_SETTINGS};
     StringListAspect excludePatterns{this};
 
 private:
@@ -92,8 +91,7 @@ public:
         QGroupBox *excludesGroup = nullptr;
         using namespace Layouting;
         Column {
-            Row { ps->useGlobalSettings, createUseGlobalSettingsLabel(Constants::TODO_SETTINGS), st },
-            createHr(),
+            ps->useGlobalSettings,
             Group {
                 bindTo(&excludesGroup),
                 title(Tr::tr("Excluded Files")),

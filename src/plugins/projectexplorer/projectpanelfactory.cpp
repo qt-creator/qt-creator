@@ -99,13 +99,4 @@ QLabel *createGlobalSettingsLink(Utils::Id globalId)
     return label;
 }
 
-QLabel *createUseGlobalSettingsLabel(Utils::Id globalId)
-{
-    const auto label = new QLabel(QStringLiteral("Use <a href=\"dummy\">global settings</a>"));
-    QObject::connect(label, &QLabel::linkActivated, label, [globalId] {
-        Core::ICore::showSettings(globalId);
-    });
-    return label;
-}
-
 } // namespace ProjectExplorer

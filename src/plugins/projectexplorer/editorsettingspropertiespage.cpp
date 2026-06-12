@@ -8,7 +8,6 @@
 #include "projectexplorertr.h"
 #include "projectpanelfactory.h"
 
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/tabsettings.h>
 
 #include <utils/layoutbuilder.h>
@@ -69,12 +68,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
     });
 
     Column {
-        Row {
-            config->useGlobalSettings,
-            createUseGlobalSettingsLabel(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS),
-            st
-        },
-        createHr(),
+        config->useGlobalSettings,
         Row { &m_restoreButton, st },
         &m_displaySettings,
         &m_behaviorSettings,

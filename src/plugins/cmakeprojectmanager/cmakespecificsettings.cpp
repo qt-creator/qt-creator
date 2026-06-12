@@ -57,6 +57,8 @@ QVariant NinjaPathAspect::toSettingsValue(const QVariant &valueToSave) const
 CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
     : project(p)
 {
+    useGlobalSettings.setSettingsPageId(Constants::Settings::GENERAL_ID);
+
     setLayouter([this] {
         using namespace Layouting;
         return Column {
@@ -228,10 +230,7 @@ public:
         CMakeSpecificSettings &ps = cmakeProject->settings();
         using namespace Layouting;
         Column {
-            Row { ps.useGlobalSettings,
-                  createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID),
-                  st },
-            createHr(),
+            ps.useGlobalSettings,
             ps,
             noMargin,
         }.attachTo(this);

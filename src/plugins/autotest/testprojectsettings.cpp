@@ -64,7 +64,7 @@ TestProjectSettings::TestProjectSettings(ProjectExplorer::Project *project)
 {
     setAutoApply(true);
 
-    useGlobalSettings.setDefaultValue(true);
+    useGlobalSettings.setSettingsPageId(Constants::AUTOTEST_SETTINGS_ID);
 
     runAfterBuild.addOption(Tr::tr("No Tests"));
     runAfterBuild.addOption(Tr::tr("All", "Run tests after build"));

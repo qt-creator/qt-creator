@@ -169,6 +169,7 @@ add_qtc_plugin(ProjectExplorer
     toolchainoptionspage.cpp toolchainoptionspage.h
     toolchainsettingsaccessor.cpp toolchainsettingsaccessor.h
     treescanner.cpp treescanner.h
+    useglobalaspect.cpp useglobalaspect.h
     userfileaccessor.cpp userfileaccessor.h
     waitforstopdialog.cpp waitforstopdialog.h
     windebuginterface.cpp windebuginterface.h

@@ -6,6 +6,8 @@
 #include "itemdatacache.h"
 #include "testsettings.h"
 
+#include <projectexplorer/useglobalaspect.h>
+
 #include <utils/aspects.h>
 
 namespace ProjectExplorer { class Project; }
@@ -51,7 +53,7 @@ public:
     void setPathFilters(const QStringList &filters) { pathFilters.setValue(filters); }
     void addPathFilter(const QString &filter) { setPathFilters(pathFilters() << filter); }
 
-    Utils::BoolAspect useGlobalSettings;   // not {this}: excluded from toMap/fromMap
+    ProjectExplorer::UseGlobalAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
     Utils::SelectionAspect runAfterBuild{this};
     Utils::BoolAspect limitToFilter{this};
     Utils::StringListAspect pathFilters{this};

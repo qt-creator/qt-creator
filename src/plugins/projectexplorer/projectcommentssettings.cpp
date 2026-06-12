@@ -7,6 +7,7 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectpanelfactory.h"
+#include "useglobalaspect.h"
 
 #include <texteditor/commentssettings.h>
 #include <texteditor/texteditorconstants.h>
@@ -26,8 +27,6 @@ public:
     explicit ProjectCommentsSettings(Project *project)
         : m_project(project)
     {
-        useGlobalSettings.setDefaultValue(true);
-
         const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
         if (entry.isValid()) {
             const Store store = storeFromVariant(entry);
@@ -60,7 +59,7 @@ public:
         m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), variantFromStore(data));
     }
 
-    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+    UseGlobalAspect useGlobalSettings{TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS};
 
 private:
     Project * const m_project;
@@ -85,10 +84,7 @@ public:
         ProjectCommentsSettings * const ps = projectCommentsSettings(project);
         using namespace Layouting;
         Column {
-            Row { ps->useGlobalSettings,
-                  createUseGlobalSettingsLabel(TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS),
-                  st },
-            createHr(),
+            ps->useGlobalSettings,
             *ps,
             noMargin,
         }.attachTo(this);

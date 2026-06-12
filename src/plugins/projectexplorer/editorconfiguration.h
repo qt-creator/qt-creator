@@ -4,6 +4,7 @@
 #pragma once
 
 #include "projectexplorer_export.h"
+#include "useglobalaspect.h"
 
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
@@ -43,7 +44,7 @@ public:
     // The default codec is returned in the case the project doesn't override it.
     Utils::TextEncoding textEncoding() const;
 
-    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from container
+    UseGlobalAspect useGlobalSettings; // not {this}: excluded from container
     TextEditor::StorageSettings storageSettings;
     TextEditor::BehaviorSettings behaviorSettings;
     TextEditor::ExtraEncodingSettings extraEncodingSettings;

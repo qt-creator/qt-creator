@@ -12,6 +12,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/useglobalaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -232,7 +233,6 @@ public:
         setAutoApply(true);
 
         useGlobalSettings.setSettingsKey(Constants::COPILOT_USE_GLOBAL_SETTINGS);
-        useGlobalSettings.setDefaultValue(true);
 
         initEnableAspect(enableCopilot);
 
@@ -259,7 +259,7 @@ public:
     }
 
     BoolAspect enableCopilot{this};
-    BoolAspect useGlobalSettings{this};
+    UseGlobalAspect useGlobalSettings{Constants::COPILOT_GENERAL_OPTIONS_ID, this};
 };
 
 class CopilotProjectWidget final : public QWidget
@@ -271,12 +271,7 @@ public:
         // clang-format off
         using namespace Layouting;
         Column {
-            Row {
-                m_settings.useGlobalSettings,
-                createUseGlobalSettingsLabel(Constants::COPILOT_GENERAL_OPTIONS_ID),
-                st
-            },
-            createHr(),
+            m_settings.useGlobalSettings,
             m_settings.enableCopilot,
             st,
         }.attachTo(this);

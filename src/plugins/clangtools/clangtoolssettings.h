@@ -7,6 +7,7 @@
 #include <cppeditor/clangdiagnosticconfigsselectionwidget.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/useglobalaspect.h>
 
 #include <utils/aspects.h>
 #include <utils/filepath.h>
@@ -104,7 +105,7 @@ public:
     ClangToolsProjectSettings(ProjectExplorer::Project *project);
     ~ClangToolsProjectSettings() override;
 
-    Utils::BoolAspect useGlobalSettings;
+    ProjectExplorer::UseGlobalAspect useGlobalSettings;
 
     QSet<Utils::FilePath> selectedDirs() const { return m_selectedDirs; }
     void setSelectedDirs(const QSet<Utils::FilePath> &value);

@@ -14,6 +14,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/useglobalaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -235,8 +236,6 @@ public:
     {
         setAutoApply(true);
 
-        useGlobalSettings.setDefaultValue(true);
-
         const Store data = storeFromVariant(project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
         fromMap(data);
         useGlobalSettings.setValue(data.value(useGlobalSettingsKey(), true).toBool());
@@ -262,7 +261,7 @@ public:
         CppModelManager::handleSettingsChange(m_project);
     }
 
-    BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+    UseGlobalAspect useGlobalSettings{Constants::CPP_CODE_MODEL_SETTINGS_ID};
 
 private:
     Project * const m_project;
@@ -287,9 +286,7 @@ public:
         CppCodeModelProjectSettings * const ps = cppCodeModelProjectSettings(project);
         using namespace Layouting;
         Column {
-            Row { ps->useGlobalSettings,
-                  createUseGlobalSettingsLabel(Constants::CPP_CODE_MODEL_SETTINGS_ID), st },
-            createHr(),
+            ps->useGlobalSettings,
             *ps,
             noMargin
         }.attachTo(this);

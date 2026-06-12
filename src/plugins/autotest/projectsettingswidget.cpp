@@ -65,8 +65,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     // clang-format off
     using namespace Layouting;
     Column {
-        Row { m_projectSettings->useGlobalSettings, createUseGlobalSettingsLabel(Constants::AUTOTEST_SETTINGS_ID), st },
-        createHr(),
+        m_projectSettings->useGlobalSettings,
         Widget {
             bindTo(&m_generalWidget),
             Column {
@@ -77,7 +76,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
                     },
                     st,
                 },
-                Row { m_projectSettings->runAfterBuild, st },
+                m_projectSettings->runAfterBuild,
                 noMargin,
             },
         },

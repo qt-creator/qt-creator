@@ -13,6 +13,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/useglobalaspect.h>
 
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
@@ -91,8 +92,6 @@ public:
     {
         setAutoApply(true);
 
-        useGlobalSettings.setDefaultValue(true);
-
         // Load project data (after base constructor loaded global data)
         Store data = storeFromVariant(project->namedSettings(Constants::Settings::GENERAL_ID));
         fromMap(data);
@@ -129,7 +128,7 @@ public:
         setVcpkgRootEnvironmentVariable();
     }
 
-    BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+    UseGlobalAspect useGlobalSettings{Constants::Settings::GENERAL_ID};
 
 private:
     Project * const m_project;
@@ -186,12 +185,7 @@ public:
         QTC_ASSERT(ps, return);
         using namespace Layouting;
         Column {
-            Row {
-                ps->useGlobalSettings,
-                createUseGlobalSettingsLabel(Constants::Settings::GENERAL_ID),
-                st
-            },
-            createHr(),
+            ps->useGlobalSettings,
             *ps,
             noMargin,
         }.attachTo(this);

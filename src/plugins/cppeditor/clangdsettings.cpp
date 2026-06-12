@@ -21,6 +21,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/useglobalaspect.h>
 
 #include <utils/clangutils.h>
 #include <utils/itemviews.h>
@@ -786,7 +787,6 @@ public:
         // Base constructor loaded global settings into aspects; now override
         // with project-specific values if applicable.
         setAutoApply(true);
-        useGlobalSettings.setDefaultValue(true);
         setLayouter([this] { return clangdSettingsLayout(this); });
 
         const Store store =
@@ -860,7 +860,7 @@ public:
         m_project->setNamedSettings(clangdSettingsKey(), variantFromStore(store));
     }
 
-    BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+    UseGlobalAspect useGlobalSettings{Constants::CPP_CLANGD_SETTINGS_ID};
 
 private:
     Project * const m_project;
@@ -1071,12 +1071,7 @@ public:
         });
 
         Column {
-            Row {
-                ps->useGlobalSettings,
-                createUseGlobalSettingsLabel(Constants::CPP_CLANGD_SETTINGS_ID),
-                st,
-            },
-            createHr(),
+            ps->useGlobalSettings,
             settingsWidget,
             noMargin,
             st,

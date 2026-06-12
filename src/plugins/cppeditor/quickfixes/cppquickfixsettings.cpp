@@ -457,7 +457,7 @@ const char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
 CppQuickFixProjectsSettings::CppQuickFixProjectsSettings(ProjectExplorer::Project *project)
 {
     m_project = project;
-    useGlobalSettings.setDefaultValue(true);
+    useGlobalSettings.setSettingsPageId(Constants::QUICK_FIX_SETTINGS_ID);
     const auto settings = storeFromVariant(m_project->namedSettings(QUICK_FIX_SETTINGS_ID));
     // if no option is saved try to load settings from a file
     const bool global = settings.value(USE_GLOBAL_SETTINGS, false).toBool();
@@ -734,12 +734,7 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *proj
 
     using namespace Layouting;
     Column {
-        Row {
-            m_projectSettings->useGlobalSettings,
-            createUseGlobalSettingsLabel(CppEditor::Constants::QUICK_FIX_SETTINGS_ID),
-            st
-        },
-        createHr(),
+        m_projectSettings->useGlobalSettings,
         Row { m_pushButton, st },
         m_settingsWidget,
         noMargin,

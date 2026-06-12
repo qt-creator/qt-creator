@@ -6,6 +6,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/useglobalaspect.h>
 
 #include <utils/aspects.h>
 
@@ -160,7 +161,7 @@ public:
     void resetOwnSettingsToGlobal();
     bool saveOwnSettings();
 
-    Utils::BoolAspect useGlobalSettings; // not {this}: excluded from container
+    ProjectExplorer::UseGlobalAspect useGlobalSettings; // not {this}: excluded from container
 
 private:
     void loadOwnSettingsFromFile();

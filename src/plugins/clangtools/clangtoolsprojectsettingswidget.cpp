@@ -84,11 +84,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
 
     using namespace Layouting;
     Column {
-        Row {
-            m_projectSettings->useGlobalSettings,
-            createUseGlobalSettingsLabel(ClangTools::Constants::SETTINGS_PAGE_ID), st
-        },
-        createHr(),
+        m_projectSettings->useGlobalSettings,
         Row {
             &m_restoreGlobal, st, gotoClangTidyModeLabel, gotoClazyModeLabel
         },

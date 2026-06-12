@@ -235,7 +235,7 @@ const char SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER[] = "ClangTools.SuppressedDia
 ClangToolsProjectSettings::ClangToolsProjectSettings(ProjectExplorer::Project *project)
     : RunSettings(SETTINGS_PREFIX_PROJECT), m_project(project)
 {
-    useGlobalSettings.setDefaultValue(true);
+    useGlobalSettings.setSettingsPageId(Constants::SETTINGS_PAGE_ID);
 
     // Set the edit-widget factory for the project context (uses saved tool paths).
     diagnosticConfigId.setEditWidgetFactory(

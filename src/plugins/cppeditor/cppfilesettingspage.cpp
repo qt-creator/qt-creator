@@ -14,6 +14,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/useglobalaspect.h>
 
 #include <utils/aspects.h>
 #include <utils/fileutils.h>
@@ -453,8 +454,6 @@ public:
     explicit CppFileProjectSettings(Project *project)
         : m_project(project)
     {
-        useGlobalSettings.setDefaultValue(true);
-
         const QVariant entry = project->namedSettings(projectSettingsKeyC);
         if (entry.isValid()) {
             const QVariantMap data = mapEntryFromStoreEntry(entry).toMap();
@@ -491,7 +490,7 @@ public:
         m_project->setNamedSettings(projectSettingsKeyC, data);
     }
 
-    BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
+    UseGlobalAspect useGlobalSettings{Constants::CPP_FILE_SETTINGS_ID};
 
 private:
     Project * const m_project;
@@ -516,9 +515,7 @@ public:
         CppFileProjectSettings * const ps = cppFileProjectSettings(project);
         using namespace Layouting;
         Column {
-            Row { ps->useGlobalSettings,
-                  createUseGlobalSettingsLabel(Constants::CPP_FILE_SETTINGS_ID), st },
-            createHr(),
+            ps->useGlobalSettings,
             *ps,
             noMargin
         }.attachTo(this);
