@@ -148,7 +148,7 @@ static VcpkgProjectSettings *projectSettings(Project *project)
     return v.value<VcpkgProjectSettings *>();
 }
 
-VcpkgSettings *settings(Project *project)
+VcpkgSettings *vcpkgSettingsForProject(Project *project)
 {
     static VcpkgSettings theSettings;
     if (!project)
@@ -169,7 +169,7 @@ public:
         setId(Constants::Settings::GENERAL_ID);
         setDisplayName("Vcpkg");
         setCategory(Constants::Settings::CATEGORY);
-        setSettingsProvider([] { return settings(nullptr); });
+        setSettingsProvider([] { return vcpkgSettingsForProject(nullptr); });
     }
 };
 

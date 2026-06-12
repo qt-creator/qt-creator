@@ -716,7 +716,7 @@ static void addCompileGroups(ProjectNode *targetRoot,
         if (buildDirQmldirOrRcc || otherDirQmldirOrMetatypes || buildDirPluginCpp || buildRccInitCpp)
             node->setIsGenerated(true);
 
-        const bool showSourceFolders = settings(targetRoot->getProject()).showSourceSubFolders()
+        const bool showSourceFolders = cmakeSettingsForProject(targetRoot->getProject()).showSourceSubFolders()
                                        && defaultCMakeSourceGroupFolder(td.sourceGroups[si.sourceGroup]);
 
         // Where does the file node need to go?
@@ -730,7 +730,7 @@ static void addCompileGroups(ProjectNode *targetRoot,
     }
 
     for (size_t i = 0; i < sourceGroupFileNodes.size(); ++i) {
-        const bool showSourceFolders = settings(targetRoot->getProject()).showSourceSubFolders()
+        const bool showSourceFolders = cmakeSettingsForProject(targetRoot->getProject()).showSourceSubFolders()
                                        && defaultCMakeSourceGroupFolder(td.sourceGroups[i]);
 
         std::vector<std::unique_ptr<FileNode>> &current = sourceGroupFileNodes[i];

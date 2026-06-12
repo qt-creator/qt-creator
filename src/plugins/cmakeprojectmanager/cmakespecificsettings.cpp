@@ -26,7 +26,7 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-CMakeSpecificSettings &settings(Project *project)
+CMakeSpecificSettings &cmakeSettingsForProject(Project *project)
 {
     static CMakeSpecificSettings theSettings(nullptr, false);
     if (!project)
@@ -212,7 +212,7 @@ public:
         setId(Constants::Settings::GENERAL_ID);
         setDisplayName(::CMakeProjectManager::Tr::tr("General"));
         setCategory(Constants::Settings::CATEGORY);
-        setSettingsProvider([] { return &settings(nullptr); });
+        setSettingsProvider([] { return &cmakeSettingsForProject(nullptr); });
     }
 };
 

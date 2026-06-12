@@ -164,7 +164,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
-    if (settings(parameters.project).cleanOldOutput())
+    if (cmakeSettingsForProject(parameters.project).cleanOldOutput())
     {
         ProjectExplorerPlugin::buildSystemOutput()->clearLinesPrefixedWith(Constants::OUTPUT_PREFIX, true);
         Core::MessageManager::clearLinesPrefixedWith(Constants::OUTPUT_PREFIX, false);

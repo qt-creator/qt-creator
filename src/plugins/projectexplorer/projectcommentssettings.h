@@ -11,7 +11,7 @@ namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 
-PROJECTEXPLORER_EXPORT TextEditor::CommentsSettings::Data commentsSettings(
+PROJECTEXPLORER_EXPORT TextEditor::CommentsSettings::Data commentsSettingsForFile(
     const Utils::FilePath &filePath);
 
 namespace Internal { void setupCommentsSettingsProjectPanel(); }

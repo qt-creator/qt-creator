@@ -311,7 +311,7 @@ static bool trySplitComment(TextEditorWidget *editorWidget,
                             const CPlusPlus::Snapshot &snapshot)
 {
     const CommentsSettings::Data settings =
-            ProjectExplorer::commentsSettings(editorWidget->textDocument()->filePath());
+            ProjectExplorer::commentsSettingsForFile(editorWidget->textDocument()->filePath());
 
     if (!settings.enableDoxygen && !settings.leadingAsterisks)
         return false;

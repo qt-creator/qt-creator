@@ -115,7 +115,7 @@ void setupCommentsSettingsProjectPanel()
 
 } // namespace ProjectExplorer::Internal
 
-TextEditor::CommentsSettings::Data ProjectExplorer::commentsSettings(const FilePath &filePath)
+TextEditor::CommentsSettings::Data ProjectExplorer::commentsSettingsForFile(const FilePath &filePath)
 {
     using namespace Internal;
     Project * const project = ProjectManager::projectForFile(filePath);

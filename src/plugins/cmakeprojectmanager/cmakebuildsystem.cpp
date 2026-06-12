@@ -801,7 +801,7 @@ bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, Fi
 
         const bool haveGlobbing = isGlobbingFunction(*cmakeListFile, *function);
         n->setVisibleAfterAddFileAction(!haveGlobbing);
-        if (haveGlobbing && settings(project()).autorunCMake()) {
+        if (haveGlobbing && cmakeSettingsForProject(project()).autorunCMake()) {
             runCMake();
         } else {
             const std::string target_name = function->Arguments().front().Value;
@@ -1026,7 +1026,7 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
         if (notRemoved && !badFiles.isEmpty())
             *notRemoved = badFiles;
 
-        if (haveGlobbing && settings(project()).autorunCMake())
+        if (haveGlobbing && cmakeSettingsForProject(project()).autorunCMake())
             runCMake();
 
         return badFiles.isEmpty() ? RemovedFilesFromProject::Ok : RemovedFilesFromProject::Error;
@@ -1072,7 +1072,7 @@ bool CMakeBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename
         }
     }
 
-    if (shouldRunCMake && settings(project()).autorunCMake())
+    if (shouldRunCMake && cmakeSettingsForProject(project()).autorunCMake())
         runCMake();
 
     return success;
@@ -2179,7 +2179,7 @@ void CMakeBuildSystem::wireUpConnections()
     connect(project(), &Project::projectFileIsDirty, this, [this] {
         const bool isBuilding = BuildManager::isBuilding(project());
         if (buildConfiguration()->isActive() && !isParsing() && !isBuilding) {
-            if (settings(project()).autorunCMake()) {
+            if (cmakeSettingsForProject(project()).autorunCMake()) {
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
                 reparse(CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
             }

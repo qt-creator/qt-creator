@@ -373,7 +373,7 @@ void CMakeManager::reloadCMakePresets()
         Tr::tr("Reload CMake Presets"),
         Tr::tr("Re-generates the kits that were created for CMake presets. All manual "
                "modifications to the CMake project settings will be lost."),
-        settings(project).askBeforePresetsReload.askAgainCheckableDecider(),
+        cmakeSettingsForProject(project).askBeforePresetsReload.askAgainCheckableDecider(),
         QMessageBox::Yes | QMessageBox::Cancel,
         QMessageBox::Yes,
         QMessageBox::Yes,
@@ -381,7 +381,7 @@ void CMakeManager::reloadCMakePresets()
             {QMessageBox::Yes, Tr::tr("Reload")},
         });
 
-    settings(project).writeSettings();
+    cmakeSettingsForProject(project).writeSettings();
 
     if (clickedButton == QMessageBox::Cancel)
         return;

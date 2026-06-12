@@ -225,8 +225,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 {
     m_configureDetailsWidget = new DetailsWidget;
     connect(m_configureDetailsWidget, &DetailsWidget::expanded, this, [](bool expanded) {
-        settings(nullptr).configureDetailsExpanded.setValue(expanded);
-        settings(nullptr).writeSettings();
+        cmakeSettingsForProject(nullptr).configureDetailsExpanded.setValue(expanded);
+        cmakeSettingsForProject(nullptr).writeSettings();
     });
 
     updateConfigureDetailsWidgetsSummary();
@@ -364,7 +364,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     m_showAdvancedCheckBox = new QCheckBox(Tr::tr("Advanced"));
     m_showAdvancedCheckBox->setChecked(
-        settings(m_buildConfig->project()).showAdvancedOptionsByDefault());
+        cmakeSettingsForProject(m_buildConfig->project()).showAdvancedOptionsByDefault());
 
     connect(m_configView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this](const QItemSelection &, const QItemSelection &) {
@@ -662,11 +662,11 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
     QMessageBox::StandardButton reply = CheckableMessageBox::question(
         Tr::tr("Re-configure with Initial Parameters"),
         Tr::tr("Clear CMake configuration and configure with initial parameters?"),
-        settings(m_buildConfig->project()).askBeforeReConfigureInitialParams.askAgainCheckableDecider(),
+        cmakeSettingsForProject(m_buildConfig->project()).askBeforeReConfigureInitialParams.askAgainCheckableDecider(),
         QMessageBox::Yes | QMessageBox::No,
         QMessageBox::Yes);
 
-    settings(m_buildConfig->project()).writeSettings();
+    cmakeSettingsForProject(m_buildConfig->project()).writeSettings();
 
     if (reply != QMessageBox::Yes)
         return;
@@ -714,9 +714,9 @@ void CMakeBuildSettingsWidget::updateSettingsToCMakeConfigItems(CMakeConfig &ini
 AspectToConfigItemList CMakeBuildSettingsWidget::getAspectToConfigureItemList()
 {
     AspectToConfigItemList list
-        = {{settings(m_buildConfig->project()).packageManagerAutoSetup,
+        = {{cmakeSettingsForProject(m_buildConfig->project()).packageManagerAutoSetup,
             enablePackageManagerAutoSetupParameter()},
-           {settings(m_buildConfig->project()).maintenanceToolDependencyProvider,
+           {cmakeSettingsForProject(m_buildConfig->project()).maintenanceToolDependencyProvider,
             enableMaintenanceToolDependencyProvider()}};
     return list;
 }
@@ -838,7 +838,7 @@ void CMakeBuildSettingsWidget::updateConfigureDetailsWidgetsSummary(
 
     m_configureDetailsWidget->setSummaryText(params.summary(Tr::tr("Configure")));
     m_configureDetailsWidget->setState(
-        settings(nullptr).configureDetailsExpanded() ? DetailsWidget::Expanded
+        cmakeSettingsForProject(nullptr).configureDetailsExpanded() ? DetailsWidget::Expanded
                                                      : DetailsWidget::Collapsed);
 }
 
@@ -1289,10 +1289,10 @@ static CommandLine defaultInitialCMakeCommand(
     cmd.addArg(getCMakeHelperParameter().toArgument());
 
     // Package manager auto setup
-    if (settings(project).packageManagerAutoSetup())
+    if (cmakeSettingsForProject(project).packageManagerAutoSetup())
         cmd.addArg(enablePackageManagerAutoSetupParameter().toArgument());
 
-    if (settings(project).maintenanceToolDependencyProvider())
+    if (cmakeSettingsForProject(project).maintenanceToolDependencyProvider())
         cmd.addArg(enableMaintenanceToolDependencyProvider().toArgument());
 
     // Cross-compilation settings:
@@ -2331,7 +2331,7 @@ void CMakeBuildConfiguration::addToEnvironment(Environment &env) const
     if (!cmakeExecutable.isEmpty() && !cmakeExecutable.isLocal())
         return;
 
-    const FilePath ninja = settings(nullptr).ninjaPath();
+    const FilePath ninja = cmakeSettingsForProject(nullptr).ninjaPath();
     if (!ninja.isEmpty())
         env.appendOrSetPath(ninja.isFile() ? ninja.parentDir() : ninja);
 }

@@ -19,6 +19,6 @@ public:
     Utils::FilePathAspect vcpkgRoot{this};
 };
 
-VcpkgSettings *settings(ProjectExplorer::Project *project = nullptr);
+VcpkgSettings *vcpkgSettingsForProject(ProjectExplorer::Project *project = nullptr);
 
 } // Vcpkg::Internal

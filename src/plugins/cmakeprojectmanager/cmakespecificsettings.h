@@ -44,6 +44,6 @@ public:
     Utils::BoolAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
 };
 
-CMakeSpecificSettings &settings(ProjectExplorer::Project *project);
+CMakeSpecificSettings &cmakeSettingsForProject(ProjectExplorer::Project *project);
 
 } // CMakeProjectManager::Internal

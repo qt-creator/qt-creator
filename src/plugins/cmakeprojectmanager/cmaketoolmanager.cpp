@@ -508,7 +508,7 @@ FilePath CMakeToolManager::mappedFilePath(Project *project, const FilePath &path
     const bool enableJunctions
         = QVariant(environment.value_or(
                        "QTC_CMAKE_USE_JUNCTIONS",
-                       Internal::settings(project).useJunctionsForSourceAndBuildDirectories() ? "1"
+                       Internal::cmakeSettingsForProject(project).useJunctionsForSourceAndBuildDirectories() ? "1"
                                                                                               : "0"))
               .toBool();
 

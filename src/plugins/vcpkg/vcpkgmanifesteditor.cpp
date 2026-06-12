@@ -42,7 +42,7 @@ static QString cmakeCodeForPackage(const QString &package)
 
     Project *currentProject = ProjectTree::currentProject();
     const FilePath usageFile =
-        settings(currentProject)->vcpkgRoot.expandedValue() / "ports" / package / "usage";
+        vcpkgSettingsForProject(currentProject)->vcpkgRoot.expandedValue() / "ports" / package / "usage";
     if (usageFile.exists()) {
         if (const Result<QByteArray> res = usageFile.fileContents())
             result = QString::fromUtf8(*res);
@@ -122,14 +122,14 @@ public:
         });
 
         updateToolBar();
-        connect(&settings(ProjectTree::currentProject())->vcpkgRoot, &Utils::BaseAspect::changed,
+        connect(&vcpkgSettingsForProject(ProjectTree::currentProject())->vcpkgRoot, &Utils::BaseAspect::changed,
                 this, &VcpkgManifestEditorWidget::updateToolBar);
     }
 
     void updateToolBar()
     {
         Utils::FilePath vcpkgRoot =
-            settings(ProjectTree::currentProject())->vcpkgRoot.expandedValue();
+            vcpkgSettingsForProject(ProjectTree::currentProject())->vcpkgRoot.expandedValue();
         Utils::FilePath vcpkg = vcpkgRoot.pathAppended("vcpkg").withExecutableSuffix();
         const bool vcpkgEncabled = vcpkg.isExecutableFile();
         m_searchPkgAction->setEnabled(vcpkgEncabled);

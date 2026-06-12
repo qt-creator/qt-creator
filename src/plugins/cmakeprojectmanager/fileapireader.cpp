@@ -123,7 +123,7 @@ void FileApiReader::parse(bool forceCMakeRun,
     const bool hasArguments = !args.isEmpty();
     const bool replyFileMissing = !replyFile.exists();
     const bool cmakeFilesChanged = m_parameters.isValid()
-                                   && settings(m_parameters.project).autorunCMake()
+                                   && cmakeSettingsForProject(m_parameters.project).autorunCMake()
                                    && anyOf(m_cmakeFiles, [&replyFile](const CMakeFileInfo &info) {
                                           return !info.isGenerated
                                                  && info.path.lastModified() > replyFile.lastModified();
