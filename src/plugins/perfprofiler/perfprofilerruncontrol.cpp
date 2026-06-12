@@ -5,6 +5,7 @@
 
 #include "perfdatareader.h"
 #include "perfprofilerconstants.h"
+#include "perfprofilertracemanager.h"
 #include "perfprofilertool.h"
 #include "perfprofilertr.h"
 
@@ -60,13 +61,10 @@ static ExecutableItem perfParserRecipe(RunControl *runControl)
                          &reader, &PerfDataReader::triggerRecordingStateChange);
 
         QObject::connect(&reader, &PerfDataReader::updateTimestamps, tool, &PerfProfilerTool::updateTime);
-        QObject::connect(&reader, &PerfDataReader::starting, tool, &PerfProfilerTool::startLoading);
-        QObject::connect(&reader, &PerfDataReader::started, tool, &PerfProfilerTool::onReaderStarted);
-        QObject::connect(&reader, &PerfDataReader::finishing, tool, [tool] {
-            // Temporarily disable buttons.
-            tool->setToolActionsEnabled(false);
-        });
-        QObject::connect(&reader, &PerfDataReader::finished, tool, &PerfProfilerTool::onReaderFinished);
+        QObject::connect(&reader, &PerfDataReader::started, &traceManager(),
+                         &PerfProfilerTraceManager::initialize);
+        QObject::connect(&reader, &PerfDataReader::finished, &traceManager(),
+                         &PerfProfilerTraceManager::finalize);
         QObject::connect(&reader, &PerfDataReader::processStarted, runControl, &RunControl::reportStarted);
 
         QObject::connect(runControl, &RunControl::stdOutData, &reader,

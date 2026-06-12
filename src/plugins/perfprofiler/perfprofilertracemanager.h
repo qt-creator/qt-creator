@@ -157,6 +157,7 @@ public:
 signals:
     void aggregateAddressesChanged(bool aggregateAddresses);
     void threadEnabledChanged(quint32 tid, bool enabled);
+    void finishedEmpty();
 
 protected:
     void clearTypeStorage() override;

@@ -31,24 +31,21 @@ public:
     static PerfProfilerTool *instance();
 
     bool isRecording() const;
-    void onReaderFinished();
 
     const QAction *stopAction() const;
 
     void onRunControlStarted();
     void onRunControlFinished();
-    void onReaderStarted();
     void onWorkerCreation(ProjectExplorer::RunControl *runControl);
 
     void updateTime(qint64 duration, qint64 delay);
-    void startLoading();
-    void setToolActionsEnabled(bool on);
 
 signals:
     void recordingChanged(bool recording);
     void aggregatedChanged(bool aggregated);
 
 private:
+    void setToolActionsEnabled(bool on);
     void gotoSourceLocation(QString filePath, int lineNumber, int columnNumber);
     void showLoadPerfDialog();
     void showLoadTraceDialog();

@@ -300,9 +300,15 @@ PerfProfilerTool::PerfProfilerTool()
         errorDialog->show();
     });
 
-    connect(&traceManager(), &PerfProfilerTraceManager::loadFinished, this, [this] {
+    connect(&traceManager(), &PerfProfilerTraceManager::finishedEmpty, this, [this] {
         d->m_readerRunning = false;
-        updateRunActions();
+        Core::MessageManager::writeDisrupting(
+            Tr::tr("The profiler did not produce any samples. "
+                   "Make sure that you are running a recent Linux kernel and that "
+                   "the \"perf\" utility is available and generates useful call "
+                   "graphs.\nYou might find further explanations in the "
+                   "Application Output view."));
+        clear();
     });
 
     connect(&traceManager(), &PerfProfilerTraceManager::saveFinished, this, [this] {
@@ -404,12 +410,15 @@ void PerfProfilerTool::createTracePoints()
 
 void PerfProfilerTool::initialize()
 {
+    d->m_readerRunning = true;
     clearUi();
     setToolActionsEnabled(false);
+    updateRunActions();
 }
 
 void PerfProfilerTool::finalize()
 {
+    d->m_readerRunning = false;
     const qint64 startTime = traceManager().traceStart();
     const qint64 endTime = traceManager().traceEnd();
     QTC_ASSERT(endTime >= startTime, return);
@@ -419,27 +428,6 @@ void PerfProfilerTool::finalize()
     updateFilterMenu();
     updateRunActions();
     setToolActionsEnabled(true);
-}
-
-void PerfProfilerTool::startLoading()
-{
-    d->m_readerRunning = true;
-}
-
-void PerfProfilerTool::onReaderFinished()
-{
-    d->m_readerRunning = false;
-    if (traceManager().traceDuration() <= 0) {
-        Core::MessageManager::writeDisrupting(
-            Tr::tr("The profiler did not produce any samples. "
-                   "Make sure that you are running a recent Linux kernel and that "
-                   "the \"perf\" utility is available and generates useful call "
-                   "graphs.\nYou might find further explanations in the "
-                   "Application Output view."));
-        clear();
-    } else {
-        traceManager().finalize();
-    }
 }
 
 void PerfProfilerTool::onRunControlStarted()
@@ -452,11 +440,6 @@ void PerfProfilerTool::onRunControlFinished()
 {
     d->m_processRunning = false;
     updateRunActions();
-}
-
-void PerfProfilerTool::onReaderStarted()
-{
-    traceManager().initialize();
 }
 
 void PerfProfilerTool::onWorkerCreation(RunControl *runControl)
@@ -605,8 +588,6 @@ void PerfProfilerTool::showLoadPerfDialog()
     if (dlg.exec() != PerfLoadDialog::Accepted)
         return;
 
-    startLoading();
-
     Kit *kit = dlg.kit();
     d->m_fileFinder.setAdditionalSearchDirectories(collectQtIncludePaths(kit));
     d->m_fileFinder.setSysroot(sysroot(kit));
@@ -622,8 +603,6 @@ void PerfProfilerTool::showLoadTraceDialog()
                                                    {}, Tr::tr("Trace File (*.ptq)"));
     if (filePath.isEmpty())
         return;
-
-    startLoading();
 
     const Project *activeProject = ProjectManager::startupProject();
     const Kit *kit = activeKit(activeProject);

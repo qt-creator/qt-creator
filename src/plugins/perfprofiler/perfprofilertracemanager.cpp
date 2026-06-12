@@ -200,6 +200,10 @@ void PerfProfilerTraceManager::resetAttributes()
 
 void PerfProfilerTraceManager::finalize()
 {
+    if (traceDuration() <= 0) {
+        emit finishedEmpty();
+        return;
+    }
     TimelineTraceManager::finalize();
 }
 
