@@ -21,6 +21,9 @@
     "LongDescription" : ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-use-acp-client.html",
+    "extensionsystem" : {
+        "TermsAndConditionsDependency" : "licensechecker"
+    },
     "TermsAndConditions": {
             "version": 1.0,
             "text": "# Appendix for Qt AI Services
