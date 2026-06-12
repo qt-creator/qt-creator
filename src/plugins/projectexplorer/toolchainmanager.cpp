@@ -183,7 +183,20 @@ Toolchain *ToolchainManager::findToolchain(Id id)
     if (!id.isValid())
         return nullptr;
 
-    return Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, id));
+    Toolchain *tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, id));
+
+    // Compatibility with versions 3.5 and earlier.
+    // Also still used by the installer, e.g. see QTCREATORBUG-34681.
+    if (!tc) {
+        const int pos = id.name().indexOf(':');
+        if (pos < 0)
+            return tc;
+
+        const Id shortId = Id::fromName(id.name().mid(pos + 1));
+
+        tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, shortId));
+    }
+    return tc;
 }
 
 bool ToolchainManager::isLoaded()
