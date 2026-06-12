@@ -8,6 +8,7 @@ QtcTool {
     Depends { name: "Core" }
     Depends { name: "QmlProfiler" }
     Depends { name: "CommonTraceFormat" }
+    Depends { name: "Tracing" }
 
     files: [
         "qmltraceviewerinit.cpp",

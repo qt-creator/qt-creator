@@ -12,6 +12,7 @@ Project {
         "pluginview/pluginview.qbs",
         "proparser/testreader.qbs",
         "remotelinux/remotelinux.qbs",
+        "sampler-testapp/sampler-testapp.qbs",
         "scripts/scripts.qbs",
         "spinner/spinner.qbs",
         "subdirfilecontainer/subdirfilecontainer.qbs",

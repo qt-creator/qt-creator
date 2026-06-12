@@ -4,14 +4,16 @@
 #include "qmltraceviewerwindow.h"
 
 #include <profiler/macsampler.h>
+#include "mainsidebar.h"
 #include "qmltraceviewerrpc.h"
 #include "qmltraceviewersettings.h"
-#include "mainsidebar.h"
 #include "recordingpage.h"
+#include <profiler/samplerviewmanager.h>
 #include "welcomepage.h"
 
 #include <profiler/ctfplainviewmanager.h>
 #include <profiler/profilertr.h>
+#include <profiler/sampletrace.h>
 #include <profiler/qmlprofilerconstants.h>
 #include <profiler/qmlprofilerplainviewmanager.h>
 
@@ -55,13 +57,16 @@ namespace QmlTraceViewer {
 
 // A trace file format determines which manager and view set are used. Chrome
 // Trace Format and Common Trace Format both render through the CTF views.
-enum class Format { Qml, Ctf };
+enum class Format { Qml, Ctf, Sampler };
 
-// One tabbed set of dock widgets, plus its (untabbed) range-details dock.
+// One set of dock widgets, plus its (untabbed) range-details dock. The views
+// are tabbed onto the first by default; when stackVertically is set they are
+// split below it instead (the sampler stacks Call Stacks below CPU Usage).
 struct ViewGroup
 {
     QList<QDockWidget *> docks;         // List with original dock widgets order
     QDockWidget *detailsDock = nullptr; // Range details, docked to the right (not tabbed)
+    bool stackVertically = false;
 };
 
 class WindowPrivate : public QObject
@@ -96,12 +101,14 @@ public:
     MainSidebar *sidebar = nullptr;       // List of opened traces (left pane).
     QmlProfilerPlainViewManager *qmlManager;
     CtfPlainViewManager *ctfManager;
+    SamplerViewManager *samplerManager;
     Format activeFormat = Format::Qml;
     QString lastLoadError;
     QLabel *traceDurationLabel = nullptr;
     ProgressIndicator *progressIndicator;
     ViewGroup qmlGroup;
     ViewGroup ctfGroup;
+    ViewGroup samplerGroup;
     bool recording = false;
     std::shared_ptr<std::atomic_bool> stopRecording;
     std::shared_ptr<std::atomic<int>> recordProgress;
@@ -147,6 +154,7 @@ WindowPrivate::WindowPrivate(Window *window)
 
     qmlManager = new QmlProfilerPlainViewManager(traceArea);
     ctfManager = new CtfPlainViewManager(traceArea);
+    samplerManager = new SamplerViewManager(traceArea);
 
     progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
     progressIndicator->hide();
@@ -161,6 +169,10 @@ WindowPrivate::WindowPrivate(Window *window)
 
     connect(ctfManager, &CtfPlainViewManager::error, this, &WindowPrivate::onError);
     connect(ctfManager, &CtfPlainViewManager::loadFinished, this, &WindowPrivate::onLoadFinished);
+
+    connect(samplerManager, &SamplerViewManager::error, this, &WindowPrivate::onError);
+    connect(samplerManager, &SamplerViewManager::loadFinished,
+            this, &WindowPrivate::onLoadFinished);
 }
 
 void WindowPrivate::showOpenFileDialog()
@@ -258,12 +270,19 @@ void WindowPrivate::onGotoSourceLocation(const QString &fileUrl, int lineNumber,
 
 milliseconds WindowPrivate::activeTraceDuration() const
 {
-    return activeFormat == Format::Qml ? qmlManager->traceDuration() : ctfManager->traceDuration();
+    switch (activeFormat) {
+    case Format::Qml: return qmlManager->traceDuration();
+    case Format::Ctf: return ctfManager->traceDuration();
+    case Format::Sampler: return samplerManager->traceDuration();
+    }
+    Q_UNREACHABLE_RETURN(milliseconds{0});
 }
 
 void WindowPrivate::addDocksForViews()
 {
-    QTC_ASSERT(qmlGroup.docks.isEmpty() && ctfGroup.docks.isEmpty(), return);
+    QTC_ASSERT(qmlGroup.docks.isEmpty() && ctfGroup.docks.isEmpty()
+                   && samplerGroup.docks.isEmpty(),
+               return);
 
     const auto buildGroup = [this](const QWidgetList &views, QWidget *details, ViewGroup &group) {
         for (QWidget *w : views)
@@ -279,18 +298,35 @@ void WindowPrivate::addDocksForViews()
 
     const QWidgetList ctfViews = ctfManager->views(traceArea);
     buildGroup(ctfViews, ctfManager->rangeDetailsWidget(), ctfGroup);
+
+    const QWidgetList samplerViews = samplerManager->views(traceArea);
+    buildGroup(samplerViews, samplerManager->rangeDetailsWidget(), samplerGroup);
+    // Stack Call Stacks below CPU Usage instead of tabbing them together.
+    samplerGroup.stackVertically = true;
 }
 
 void WindowPrivate::resetLayout(Format format)
 {
-    ViewGroup &active = format == Format::Qml ? qmlGroup : ctfGroup;
-    ViewGroup &inactive = format == Format::Qml ? ctfGroup : qmlGroup;
+    const auto groupFor = [this](Format f) -> ViewGroup & {
+        switch (f) {
+        case Format::Qml: return qmlGroup;
+        case Format::Ctf: return ctfGroup;
+        case Format::Sampler: return samplerGroup;
+        }
+        Q_UNREACHABLE_RETURN(qmlGroup);
+    };
+    ViewGroup &active = groupFor(format);
 
-    // Hide the docks belonging to the other format.
-    for (QDockWidget *dw : std::as_const(inactive.docks))
-        dw->setVisible(false);
-    if (inactive.detailsDock)
-        inactive.detailsDock->setVisible(false);
+    // Hide the docks belonging to the other formats.
+    for (Format other : {Format::Qml, Format::Ctf, Format::Sampler}) {
+        if (other == format)
+            continue;
+        ViewGroup &inactive = groupFor(other);
+        for (QDockWidget *dw : std::as_const(inactive.docks))
+            dw->setVisible(false);
+        if (inactive.detailsDock)
+            inactive.detailsDock->setVisible(false);
+    }
 
     QDockWidget *firstDockWidget = nullptr;
     for (QDockWidget *dw : std::as_const(active.docks)) {
@@ -317,7 +353,11 @@ void WindowPrivate::resetLayout(Format format)
     }
 
     for (QDockWidget *dw : std::as_const(active.docks)) {
-        if (dw != firstDockWidget)
+        if (dw == firstDockWidget)
+            continue;
+        if (active.stackVertically)
+            traceArea->splitDockWidget(firstDockWidget, dw, Qt::Vertical);
+        else
             traceArea->tabifyDockWidget(firstDockWidget, dw);
     }
     firstDockWidget->raise();
@@ -342,6 +382,7 @@ void WindowPrivate::clearTrace()
     setTraceDuration(milliseconds{0});
     qmlManager->clear();
     ctfManager->clear();
+    samplerManager->clear();
     rightPane->setCurrentWidget(welcomePage);
     RPC::notifyTraceDiscarded();
 }
@@ -355,15 +396,19 @@ void WindowPrivate::doLoad(const FilePath &filePath)
     lastLoadError.clear();
     RPC::notifyTraceFileLoadingStarted(filePath);
 
-    // Pick the manager by file format. A directory or a bare "metadata" file is a
-    // Common Trace Format trace; a .json file is Chrome Trace Format; anything
-    // else is treated as a QML profiler trace.
-    if (filePath.isDir()) {
-        setActiveFormat(Format::Ctf);
-        ctfManager->loadCtf2(filePath);
-    } else if (filePath.fileName() == "metadata"_L1) {
-        setActiveFormat(Format::Ctf);
-        ctfManager->loadCtf2(filePath.parentDir());
+    // Pick the manager by file format. A directory or a bare "metadata" file
+    // holds either a recorded sampler trace or a generic Common Trace Format
+    // trace; a .json file is Chrome Trace Format; anything else is treated as
+    // a QML profiler trace.
+    if (filePath.isDir() || filePath.fileName() == "metadata"_L1) {
+        const FilePath dir = filePath.isDir() ? filePath : filePath.parentDir();
+        if (SamplerViewManager::isSamplerTrace(dir)) {
+            setActiveFormat(Format::Sampler);
+            samplerManager->load(dir);
+        } else {
+            setActiveFormat(Format::Ctf);
+            ctfManager->loadCtf2(dir);
+        }
     } else if (filePath.suffix() == "json"_L1) {
         setActiveFormat(Format::Ctf);
         ctfManager->loadJson(filePath);
