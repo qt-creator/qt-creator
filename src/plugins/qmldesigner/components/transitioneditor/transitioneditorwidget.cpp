@@ -71,7 +71,7 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
     , m_toolbar(new TransitionEditorToolBar(this))
     , m_rulerView(new QGraphicsView(this))
     , m_graphicsView(new QGraphicsView(this))
-    , m_scrollbar(new Utils::ScrollBar(this))
+    , m_scrollbar(new QScrollBar(this))
     , m_statusBar(new QLabel(this))
     , m_transitionEditorView(view)
     , m_graphicsScene(new TransitionEditorGraphicsScene(this))
@@ -382,7 +382,6 @@ void TransitionEditorWidget::setupScrollbar(int min, int max, int current)
         m_scrollbar->setValue(current);
         m_scrollbar->setSingleStep(singleStep);
         m_scrollbar->blockSignals(b);
-        m_scrollbar->flash();
     }
 }
 

@@ -23,7 +23,6 @@
 #include <theme.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/transientscroll.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -97,7 +96,7 @@ TimelineWidget::TimelineWidget(TimelineView *view, ModulesStorage &modulesStorag
     , m_toolbar(new TimelineToolBar(this))
     , m_rulerView(new QGraphicsView(this))
     , m_graphicsView(new QGraphicsView(this))
-    , m_scrollbar(new Utils::ScrollBar(this))
+    , m_scrollbar(new QScrollBar(this))
     , m_statusBar(new QLabel(this))
     , m_timelineView(view)
     , m_graphicsScene(new TimelineGraphicsScene(this, view->externalDependencies(), modulesStorage))
@@ -135,7 +134,7 @@ TimelineWidget::TimelineWidget(TimelineView *view, ModulesStorage &modulesStorag
     m_graphicsView->setFrameShape(QFrame::NoFrame);
     m_graphicsView->setFrameShadow(QFrame::Plain);
     m_graphicsView->setLineWidth(0);
-    m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     m_graphicsView->setSizePolicy(sizePolicy1);
@@ -277,8 +276,6 @@ TimelineWidget::TimelineWidget(TimelineView *view, ModulesStorage &modulesStorag
 
     auto onFinish = [this] { graphicsScene()->setCurrentFrame(m_playbackAnimation->startValue().toInt()); };
     connect(m_playbackAnimation, &QVariantAnimation::finished, onFinish);
-
-    TimeLineNS::TimelineScrollAreaSupport::support(m_graphicsView, m_scrollbar);
 
     IContext::attach(this, Context(TimelineConstants::C_QMLTIMELINE),
                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
@@ -546,7 +543,6 @@ void TimelineWidget::setupScrollbar(int min, int max, int current)
         m_scrollbar->setValue(current);
         m_scrollbar->setSingleStep(singleStep);
         m_scrollbar->blockSignals(b);
-        m_scrollbar->flash();
     }
 }
 
@@ -575,26 +571,18 @@ void TimelineWidget::setTimelineId(const QString &id)
 
 void TimelineWidget::setTimelineActive(bool b)
 {
+    m_toolbar->setVisible(b);
+    m_graphicsView->setVisible(b);
+    m_rulerView->setVisible(b);
+    m_scrollbar->setVisible(b);
+    m_addButton->setVisible(!b);
+    m_onboardingContainer->setVisible(!b);
+
     if (b) {
-        m_toolbar->setVisible(true);
-        m_graphicsView->setVisible(true);
-        m_rulerView->setVisible(true);
-        m_scrollbar->setEnabled(true); // Set the transient scrollbar enabled to be able to flash it.
-        m_scrollbar->setVisible(true);
-        m_addButton->setVisible(false);
-        m_onboardingContainer->setVisible(false);
         m_graphicsView->update();
         m_rulerView->update();
     } else {
-        m_toolbar->setVisible(false);
-        m_graphicsView->setVisible(false);
-        m_rulerView->setVisible(false);
-        m_scrollbar->setEnabled(
-            false); // Set the transient scrollbar disabled to prevent it from being flashed.
-        m_scrollbar->setVisible(false);
         m_statusBar->clear();
-        m_addButton->setVisible(true);
-        m_onboardingContainer->setVisible(true);
     }
 }
 
@@ -639,145 +627,4 @@ TimelineView *TimelineWidget::timelineView() const
     return m_timelineView;
 }
 
-namespace TimeLineNS {
-
-using ScrollBar = Utils::ScrollBar;
-static constexpr char timelineScrollAreaSupportName[] = "timelinetransientScrollAreSupport";
-static constexpr char focusedPropertyName[] = "focused";
-
-class TimelineScrollAreaPrivate
-{
-public:
-    TimelineScrollAreaPrivate(QAbstractScrollArea *area, ScrollBar *scrollbar)
-        : area(area)
-        , scrollbar(scrollbar)
-    {}
-
-    inline QRect scrollBarRect(ScrollBar *scrollBar)
-    {
-        QRect rect = viewPort ? viewPort->rect() : area->rect();
-        if (scrollBar->orientation() == Qt::Vertical) {
-            int mDiff = rect.width() - scrollBar->sizeHint().width();
-            return rect.adjusted(mDiff, 0, mDiff, 0);
-        } else {
-            int mDiff = rect.height() - scrollBar->sizeHint().height();
-            return rect.adjusted(0, mDiff, 0, mDiff);
-        }
-    }
-
-    inline bool checkToFlashScroll(QPointer<ScrollBar> scrollBar, const QPoint &pos)
-    {
-        if (scrollBar.isNull())
-            return false;
-
-        if (!scrollBar->style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, scrollBar))
-            return false;
-
-        if (scrollBarRect(scrollBar).contains(pos)) {
-            scrollBar->flash();
-            return true;
-        }
-        return false;
-    }
-
-    inline bool checkToFlashScroll(const QPoint &pos)
-    {
-        bool coversScroll = checkToFlashScroll(scrollbar, pos);
-
-        return coversScroll;
-    }
-
-    inline bool setFocus(const bool &focus)
-    {
-        if (scrollbar.isNull())
-            return false;
-
-        if (!scrollbar->style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, scrollbar))
-            return false;
-
-        return scrollbar->setFocused(focus);
-    }
-
-    inline void installViewPort(QObject *eventHandler)
-    {
-        QWidget *viewPort = area->viewport();
-        if (viewPort && viewPort != this->viewPort
-            && viewPort->style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, viewPort)) {
-            viewPort->installEventFilter(eventHandler);
-            this->viewPort = viewPort;
-        }
-    }
-
-    inline void uninstallViewPort(QObject *eventHandler)
-    {
-        if (viewPort) {
-            viewPort->removeEventFilter(eventHandler);
-            this->viewPort = nullptr;
-        }
-    }
-
-    QAbstractScrollArea *area = nullptr;
-    QPointer<QWidget> viewPort = nullptr;
-    QPointer<ScrollBar> scrollbar;
-};
-
-TimelineScrollAreaSupport::TimelineScrollAreaSupport(QAbstractScrollArea *scrollArea,
-                                                     Utils::ScrollBar *scrollbar)
-    : QObject(scrollArea)
-    , d(new TimelineScrollAreaPrivate(scrollArea, scrollbar))
-{
-    scrollArea->installEventFilter(this);
-}
-
-void TimelineScrollAreaSupport::support(QAbstractScrollArea *scrollArea, Utils::ScrollBar *scrollbar)
-{
-    QObject *prevSupport = scrollArea->property(timelineScrollAreaSupportName).value<QObject *>();
-    if (!prevSupport)
-        scrollArea->setProperty(timelineScrollAreaSupportName,
-                                QVariant::fromValue(
-                                    new TimelineScrollAreaSupport(scrollArea, scrollbar)));
-}
-
-TimelineScrollAreaSupport::~TimelineScrollAreaSupport()
-{
-    delete d;
-}
-
-bool TimelineScrollAreaSupport::eventFilter(QObject *watched, QEvent *event)
-{
-    switch (event->type()) {
-    case QEvent::Enter: {
-        if (watched == d->area)
-            d->installViewPort(this);
-    } break;
-    case QEvent::Leave: {
-        if (watched == d->area)
-            d->uninstallViewPort(this);
-    } break;
-    case QEvent::MouseMove: {
-        if (watched == d->viewPort) {
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if (mouseEvent) {
-                if (d->checkToFlashScroll(mouseEvent->pos()))
-                    return true;
-            }
-        }
-    } break;
-    case QEvent::DynamicPropertyChange: {
-        if (watched == d->area) {
-            auto *pEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
-            if (!pEvent || pEvent->propertyName() != focusedPropertyName)
-                break;
-
-            bool focused = d->area->property(focusedPropertyName).toBool();
-            d->setFocus(focused);
-        }
-    } break;
-    default:
-        break;
-    }
-    return QObject::eventFilter(watched, event);
-}
-
-} // namespace TimeLineNS
 } // namespace QmlDesigner

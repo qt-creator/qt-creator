@@ -19,7 +19,6 @@
 #include <QEvent>
 #include <QLoggingCategory>
 #include <QPointer>
-#include <QQuickItem>
 #include <QScrollArea>
 #include <QSplitter>
 #include <QStack>
@@ -27,7 +26,6 @@
 #include <QToolBar>
 #include <QWindow>
 #include <QXmlStreamWriter>
-#include <QtQuickWidgets/QQuickWidget>
 
 namespace ADS {
 /**
@@ -51,7 +49,6 @@ public:
     QPointer<DockAreaWidget> m_dockArea;
     QAction *m_toggleViewAction = nullptr;
     bool m_closed = false;
-    bool m_focused = false;
     QScrollArea *m_scrollArea = nullptr;
     QToolBar *m_toolBar = nullptr;
     Qt::ToolButtonStyle m_toolBarStyleDocked = Qt::ToolButtonIconOnly;
@@ -232,7 +229,6 @@ void DockWidgetPrivate::setupScrollArea()
     m_scrollArea = new QScrollArea(q);
     m_scrollArea->setObjectName("dockWidgetScrollArea");
     m_scrollArea->setWidgetResizable(true);
-    m_scrollArea->setProperty("focused", q->isFocused());
     m_layout->addWidget(m_scrollArea);
 }
 
@@ -312,7 +308,6 @@ void DockWidget::setWidget(QWidget *widget, eInsertMode insertMode)
         if (scrollAreaWidget) {
             if (scrollAreaWidget->viewport())
                 scrollAreaWidget->viewport()->setProperty("dockWidgetContent", true);
-            scrollAreaWidget->setProperty("focused", isFocused());
         }
     } else {
         d->setupScrollArea();
@@ -473,50 +468,6 @@ bool DockWidget::isInFloatingContainer() const
 bool DockWidget::isClosed() const
 {
     return d->m_closed;
-}
-
-void DockWidget::setFocused(bool focused)
-{
-    if (d->m_focused == focused)
-        return;
-
-    d->m_focused = focused;
-
-    if (d->m_scrollArea)
-        d->m_scrollArea->setProperty("focused", focused);
-
-    QList<QAbstractScrollArea *> scrollAreas = d->m_widget->findChildren<QAbstractScrollArea *>(QString(),
-        Qt::FindDirectChildrenOnly);
-    for (QAbstractScrollArea *scrollArea : scrollAreas)
-        scrollArea->setProperty("focused", focused);
-
-    const QString customObjectName = QString("__mainSrollView");
-
-    QList<QQuickWidget *> quickWidgets = d->m_widget->findChildren<QQuickWidget *>();
-
-    for (const auto &quickWidget : std::as_const(quickWidgets)) {
-        QQuickItem *rootItem = quickWidget->rootObject();
-        if (!rootItem)
-            continue;
-
-        if (rootItem->objectName() == customObjectName) {
-            rootItem->setProperty("adsFocus", focused);
-            continue;
-        }
-
-        QQuickItem *scrollView = rootItem->findChild<QQuickItem *>(customObjectName);
-        if (!scrollView)
-            continue;
-
-        scrollView->setProperty("adsFocus", focused);
-    }
-
-    emit focusedChanged();
-}
-
-bool DockWidget::isFocused() const
-{
-    return d->m_focused;
 }
 
 QAction *DockWidget::toggleViewAction() const

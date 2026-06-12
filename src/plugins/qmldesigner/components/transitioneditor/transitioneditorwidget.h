@@ -7,11 +7,10 @@
 
 #include <coreplugin/icontext.h>
 
-#include <utils/transientscroll.h>
-
 #include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QComboBox)
+QT_FORWARD_DECLARE_CLASS(QScrollBar)
 QT_FORWARD_DECLARE_CLASS(QGraphicsView)
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QResizeEvent)
@@ -66,7 +65,7 @@ private:
 
     QGraphicsView *m_graphicsView = nullptr;
 
-    Utils::ScrollBar *m_scrollbar = nullptr;
+    QScrollBar *m_scrollbar = nullptr;
 
     QLabel *m_statusBar = nullptr;
 

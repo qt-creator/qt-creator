@@ -21,7 +21,6 @@
 #include <qmljstools/qmljsindenter.h>
 
 #include <utils/mimeconstants.h>
-#include <utils/transientscroll.h>
 
 #include <QAction>
 
@@ -33,8 +32,6 @@ BindingEditorWidget::BindingEditorWidget()
                           ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
     Core::IContext::attach(this, context);
-
-    Utils::TransientScrollArea::support(this);
 
     /*
      * We have to register our own active auto completion shortcut, because the original short cut will

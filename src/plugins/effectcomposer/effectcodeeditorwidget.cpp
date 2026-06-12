@@ -25,7 +25,6 @@
 #include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/temporaryfile.h>
-#include <utils/transientscroll.h>
 
 #include <QAction>
 #include <QTemporaryFile>
@@ -42,8 +41,6 @@ EffectCodeEditorWidget::EffectCodeEditorWidget()
     m_context->setWidget(this);
     m_context->setContext(context);
     Core::ICore::addContextObject(m_context);
-
-    Utils::TransientScrollArea::support(this);
 
     /*
      * We have to register our own active auto completion shortcut, because the original shortcut will

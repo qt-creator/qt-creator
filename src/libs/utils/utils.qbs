@@ -323,8 +323,6 @@ QtcLibrary {
         "textfileformat.h",
         "textutils.cpp",
         "textutils.h",
-        "transientscroll.cpp",
-        "transientscroll.h",
         "treemodel.cpp",
         "treemodel.h",
         "treeviewcombobox.cpp",

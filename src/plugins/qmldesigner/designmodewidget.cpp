@@ -41,7 +41,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
-#include <utils/transientscroll.h>
 
 #include <QActionGroup>
 #include <QApplication>
@@ -453,8 +452,6 @@ void DesignModeWidget::setup()
         setupNavigatorHistory(currentDesignDocument()->textEditor());
 
     m_dockManager->initialize();
-    if (style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, this))
-        Utils::GlobalTransient::support(m_dockManager);
 
     // Hide all floating widgets if the initial mode isn't design mode
     if (Core::ModeManager::instance()->currentModeId() != Core::Constants::MODE_DESIGN) {
