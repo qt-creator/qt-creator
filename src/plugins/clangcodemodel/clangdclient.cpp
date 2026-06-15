@@ -391,12 +391,7 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
     : Client(clientInterface(bc, jsonDbDir), id), d(new Private(this, bc))
 {
     setName(Tr::tr("clangd"));
-    LanguageFilter langFilter;
-    using namespace Utils::Constants;
-    langFilter.mimeTypes = QStringList{C_HEADER_MIMETYPE, C_SOURCE_MIMETYPE,
-            CPP_HEADER_MIMETYPE, CPP_SOURCE_MIMETYPE, OBJECTIVE_CPP_SOURCE_MIMETYPE,
-            OBJECTIVE_C_SOURCE_MIMETYPE, CUDA_SOURCE_MIMETYPE};
-    setSupportedLanguage(langFilter);
+    setSupportedLanguage(supportedLanguage());
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
     setFunctionHintAssistProvider(new ClangdFunctionHintProvider(this));
     setQuickFixAssistProvider(new ClangdQuickFixProvider(this));
@@ -506,6 +501,21 @@ ClangdClient::~ClangdClient()
     for (ClangdFollowSymbol * const followSymbol : std::as_const(d->followSymbolOps))
         followSymbol->clear();
     delete d;
+}
+
+LanguageFilter ClangdClient::supportedLanguage()
+{
+    using namespace Utils::Constants;
+    LanguageFilter langFilter;
+    langFilter.mimeTypes = QStringList{
+        C_HEADER_MIMETYPE,
+        C_SOURCE_MIMETYPE,
+        CPP_HEADER_MIMETYPE,
+        CPP_SOURCE_MIMETYPE,
+        OBJECTIVE_CPP_SOURCE_MIMETYPE,
+        OBJECTIVE_C_SOURCE_MIMETYPE,
+        CUDA_SOURCE_MIMETYPE};
+    return langFilter;
 }
 
 bool ClangdClient::isFullyIndexed() const

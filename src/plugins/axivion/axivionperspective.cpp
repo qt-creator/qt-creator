@@ -17,6 +17,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/findplaceholder.h>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/perspective.h>
 
@@ -1676,7 +1677,9 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
     using namespace Layouting;
     Column {
         Row { m_consoleSelector, st},
-        m_consoleStack
+        m_consoleStack,
+        new FindToolBarPlaceHolder(this),
+        spacing(0), noMargin,
     }.attachTo(this);
 
     connect(&m_consoleSelector, &QComboBox::currentIndexChanged, [this]{

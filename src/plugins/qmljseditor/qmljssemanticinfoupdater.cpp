@@ -9,6 +9,7 @@
 #include <qmljs/qmljscheck.h>
 #include <qmljs/jsoncheck.h>
 #include <qmljs/qmljscontext.h>
+#include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslink.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
@@ -29,6 +30,10 @@ void SemanticInfoUpdater::abort()
 
 void SemanticInfoUpdater::update(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot)
 {
+    // Precompute provider data needing GUI-thread-only APIs before the worker links.
+    for (QmlJS::CustomImportsProvider *provider : QmlJS::CustomImportsProvider::allProviders())
+        provider->prepare(doc.data());
+
     QMutexLocker locker(&m_mutex);
     m_sourceDocument = doc;
     m_sourceSnapshot = snapshot;
@@ -37,8 +42,18 @@ void SemanticInfoUpdater::update(const QmlJS::Document::Ptr &doc, const QmlJS::S
 
 void SemanticInfoUpdater::reupdate(const QmlJS::Snapshot &snapshot)
 {
+    QmlJS::Document::Ptr doc;
+    {
+        QMutexLocker locker(&m_mutex);
+        doc = m_lastSemanticInfo.document;
+    }
+
+    // Precompute provider data needing GUI-thread-only APIs before the worker links.
+    for (QmlJS::CustomImportsProvider *provider : QmlJS::CustomImportsProvider::allProviders())
+        provider->prepare(doc.data());
+
     QMutexLocker locker(&m_mutex);
-    m_sourceDocument = m_lastSemanticInfo.document;
+    m_sourceDocument = doc;
     m_sourceSnapshot = snapshot;
     m_condition.wakeOne();
 }

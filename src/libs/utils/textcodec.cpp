@@ -133,6 +133,8 @@ const QList<TextEncoding> &TextEncoding::availableEncodings()
             TextEncoding encoding(name.toUtf8());
             encodings.append(encoding);
         }
+        if (!encodings.contains(TextEncoding(QStringEncoder::System)))
+            encodings.prepend(TextEncoding(QStringEncoder::System));
         return encodings;
     }();
     return theAvailableEncoding;

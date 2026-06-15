@@ -55,13 +55,6 @@ using namespace QmakeProjectManager::Internal;
 
 namespace QmakeProjectManager {
 
-QmakeExtraBuildInfo::QmakeExtraBuildInfo()
-{
-    const BuildPropertiesSettings &settings = buildPropertiesSettings();
-    config.separateDebugInfo = settings.separateDebugInfo();
-    config.linkQmlDebuggingQQ2 = settings.qmlDebugging();
-    config.useQtQuickCompiler = settings.qtQuickCompiler();
-}
 
 // --------------------------------------------------------------------
 // Helpers:
@@ -108,9 +101,15 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         if (!additionalArguments.isEmpty())
             qmakeStep->userArguments.setArguments(additionalArguments);
 
-        separateDebugInfo.setValue(qmakeExtra.config.separateDebugInfo);
-        qmlDebugging.setValue(qmakeExtra.config.linkQmlDebuggingQQ2);
-        useQtQuickCompiler.setValue(qmakeExtra.config.useQtQuickCompiler);
+        const BuildPropertiesSettings &settings = buildPropertiesSettings();
+        const auto applyGlobal = [&](TriState globalSetting, TriState fromBuildInfo) {
+            return (!qmakeExtra.isImported && globalSetting != TriState::Default)
+                       ? globalSetting
+                       : fromBuildInfo;
+        };
+        separateDebugInfo.setValue(applyGlobal(settings.separateDebugInfo(), qmakeExtra.config.separateDebugInfo));
+        qmlDebugging.setValue(applyGlobal(settings.qmlDebugging(), qmakeExtra.config.linkQmlDebuggingQQ2));
+        useQtQuickCompiler.setValue(applyGlobal(settings.qtQuickCompiler(), qmakeExtra.config.useQtQuickCompiler));
 
         setQMakeBuildConfiguration(config);
 
@@ -672,7 +671,6 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
 static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
                  BuildConfiguration::BuildType type)
 {
-    const BuildPropertiesSettings &settings = buildPropertiesSettings();
     QtVersion *version = QtKitAspect::qtVersion(k);
     QmakeExtraBuildInfo extraInfo;
     BuildInfo info;
@@ -685,10 +683,8 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
         info.displayName = msgBuildConfigurationRelease();
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = Tr::tr("Release", "Shadow build directory suffix");
-        if (settings.qtQuickCompiler() == TriState::Default) {
-            if (version && version->isQtQuickCompilerSupported())
-                extraInfo.config.useQtQuickCompiler = TriState::Enabled;
-        }
+        if (version && version->isQtQuickCompilerSupported())
+            extraInfo.config.useQtQuickCompiler = TriState::Enabled;
     } else {
         if (type == BuildConfiguration::Debug) {
             //: The name of the debug build configuration created by default for a qmake project.
@@ -700,18 +696,13 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
             info.displayName = msgBuildConfigurationProfile();
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = Tr::tr("Profile", "Shadow build directory suffix");
-            if (settings.separateDebugInfo() == TriState::Default)
-                extraInfo.config.separateDebugInfo = TriState::Enabled;
+            extraInfo.config.separateDebugInfo = TriState::Enabled;
 
-            if (settings.qtQuickCompiler() == TriState::Default) {
-                if (version && version->isQtQuickCompilerSupported())
-                    extraInfo.config.useQtQuickCompiler = TriState::Enabled;
-            }
+            if (version && version->isQtQuickCompilerSupported())
+                extraInfo.config.useQtQuickCompiler = TriState::Enabled;
         }
-        if (settings.qmlDebugging() == TriState::Default) {
-            if (version && version->isQmlDebuggingSupported())
-                extraInfo.config.linkQmlDebuggingQQ2 = TriState::Enabled;
-        }
+        if (version && version->isQmlDebuggingSupported())
+            extraInfo.config.linkQmlDebuggingQQ2 = TriState::Enabled;
     }
     info.typeName = info.displayName;
     // Leave info.buildDirectory unset;

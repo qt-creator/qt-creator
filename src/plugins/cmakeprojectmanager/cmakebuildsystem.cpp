@@ -36,6 +36,7 @@
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -1259,6 +1260,8 @@ static Result<bool> insertDependencies(
     // target_link_libraries
     //
     cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+    if (!cmakeListFile)
+        return ResultError("Failed to re-read " + targetCMakeFile.toUserOutput());
 
     function = findFunction(
         *cmakeListFile,
@@ -2112,28 +2115,33 @@ void CMakeBuildSystem::wireUpConnections()
         // Build configuration has changed:
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active target changed";
         reparse(CMakeBuildSystem::REPARSE_DEFAULT);
-        if (hasInstallDeployPreset(project())) {
-            DeployConfiguration *dc = target()->activeDeployConfiguration();
-            QTC_ASSERT(dc, return);
-            BuildStepList *stepsList = dc->stepList();
-            QTC_ASSERT(stepsList, return);
-            if (stepsList->contains(Constants::CMAKE_INSTALL_STEP_ID)) {
-                qCDebug(cmakeBuildSystemLog) << "cmake --install deploy step already added";
-                return;
-            }
-            const auto factories = BuildStepFactory::allBuildStepFactories();
-            auto factoryIt = std::ranges::find_if(factories, [](const BuildStepFactory *factory){
-                return factory->stepId() == Constants::CMAKE_INSTALL_STEP_ID;
-            });
-            QTC_ASSERT(factoryIt != factories.end(), return);
-            BuildStep *newStep = (*factoryIt)->create(stepsList);
-            QTC_ASSERT(newStep, return);
-            stepsList->appendStep(newStep);
-            qCDebug(cmakeBuildSystemLog) << "Added cmake --install deploy step";
-        }
     });
 
-    // BuildConfiguration changed:
+    connect(ProjectManager::instance(), &ProjectManager::currentBuildConfigurationChanged,
+            this, [this](BuildConfiguration *bc){
+                if (!bc || !bc->isActive())
+                    return;
+                if (hasInstallDeployPreset(project())) {
+                    DeployConfiguration *dc = target()->activeDeployConfiguration();
+                    QTC_ASSERT(dc, return);
+                    BuildStepList *stepsList = dc->stepList();
+                    QTC_ASSERT(stepsList, return);
+                    if (stepsList->contains(Constants::CMAKE_INSTALL_STEP_ID)) {
+                        qCDebug(cmakeBuildSystemLog) << "cmake --install deploy step already added";
+                        return;
+                    }
+                    const auto factories = BuildStepFactory::allBuildStepFactories();
+                    auto factoryIt = std::ranges::find_if(factories, [](const BuildStepFactory *factory){
+                        return factory->stepId() == Constants::CMAKE_INSTALL_STEP_ID;
+                    });
+                    QTC_ASSERT(factoryIt != factories.end(), return);
+                    BuildStep *newStep = (*factoryIt)->create(stepsList);
+                    QTC_ASSERT(newStep, return);
+                    stepsList->appendStep(newStep);
+                    qCDebug(cmakeBuildSystemLog) << "Added cmake --install deploy step";
+                }
+    });
+
     connect(buildConfiguration(), &BuildConfiguration::environmentChanged, this, [this] {
         if (!buildConfiguration()->isActive())
             return;

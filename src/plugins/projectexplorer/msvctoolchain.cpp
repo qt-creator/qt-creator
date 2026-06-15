@@ -1269,8 +1269,9 @@ Toolchain::BuiltInHeaderPathsRunner MsvcToolchain::createBuiltInHeaderPathsRunne
 static void prependPathEnvironmentVariable(Utils::Environment &result, const Utils::Environment &env)
 {
     QSet<FilePath> resultPathSet = Utils::toSet(result.path());
+    const FilePath vcInstallDir = FilePath::fromUserInput(env.value("VCINSTALLDIR"));
     for (const FilePath &path : env.path()) {
-        if (Utils::insert(resultPathSet, path))
+        if (!path.isChildOf(vcInstallDir) && Utils::insert(resultPathSet, path))
             result.prependOrSetPath(path);
     }
 }

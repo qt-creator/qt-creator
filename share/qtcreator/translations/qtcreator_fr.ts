@@ -37,15 +37,15 @@
     </message>
     <message>
         <source>Toggles if the button is exclusive. Non-exclusive checkable buttons that belong to the same parent behave as if they are part of the same button group; only one button can be checked at any time.</source>
-        <translation>Activé/désactive l&apos;exclusivité du bouton. Les boutons cochables non exclusifs appartenant au même parent se comportent comme s&apos;ils appartiennent au même groupe de boutons&#xa0;: seul un bouton peut être coché à la fois.</translation>
+        <translation>Active/désactive l&apos;exclusivité du bouton. Les boutons cochables non exclusifs appartenant au même parent se comportent comme s&apos;ils appartenaient au même groupe de boutons&#xa0;: seul un bouton peut être coché à la fois.</translation>
     </message>
     <message>
         <source>Toggles if pressed, released, and clicked actions are repeated while the button is pressed and held down.</source>
-        <translation>Active/désactive la répétition des actions pressées, relachées et cliquées lorsque le bouton est pressé et maintenu appuyé.</translation>
+        <translation>Active/désactive la répétition des actions pressées, relâchées et cliquées lorsque le bouton est pressé et maintenu appuyé.</translation>
     </message>
     <message>
         <source>Sets the initial delay of auto-repetition in milliseconds.</source>
-        <translation>Définit l&apos;attente initial en millisecondes avant le déclenchement de la répétition automatique.</translation>
+        <translation>Définit l&apos;attente initiale en millisecondes avant le déclenchement de la répétition automatique.</translation>
     </message>
     <message>
         <source>Sets the interval between auto-repetitions in milliseconds.</source>
@@ -416,15 +416,6 @@
     </message>
 </context>
 <context>
-    <name>AiAssistantView</name>
-    <message>
-        <source>Attach an image.
-The attached image will be analyzed and integrated into the response by the AI.</source>
-        <translation>Joindre une image.
-L&apos;image jointe sera analysée et intégrée par l&apos;IA dans la réponse.</translation>
-    </message>
-</context>
-<context>
     <name>AlignDistributeSection</name>
     <message>
         <source>Alignment</source>
@@ -683,7 +674,7 @@ Utilisez AmbientSound.Infinite pour boucler indéfiniment.</translation>
     </message>
     <message>
         <source>Animated image</source>
-        <translation>Image animé</translation>
+        <translation>Image animée</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -1169,20 +1160,6 @@ Utilisez AmbientSound.Infinite pour boucler indéfiniment.</translation>
     <message>
         <source> (empty)</source>
         <translation> (vide)</translation>
-    </message>
-</context>
-<context>
-    <name>AssetImage</name>
-    <message>
-        <source>Remove the attached image.</source>
-        <translation>Supprimer l&apos;image jointe.</translation>
-    </message>
-</context>
-<context>
-    <name>AssetImagesPopup</name>
-    <message>
-        <source>No image assets available.</source>
-        <translation>Aucune ressource image disponible.</translation>
     </message>
 </context>
 <context>
@@ -5031,20 +5008,6 @@ définit par la&lt;b&gt;taille du pas&lt;/b&gt;.</translation>
     <message>
         <source>Effect Composer is not supported in MCU projects.</source>
         <translation>Le compositeur d&apos;effets n&apos;est pas pris en charge dans les projets MCU.</translation>
-    </message>
-</context>
-<context>
-    <name>EffectComposer::EffectComposerView</name>
-    <message>
-        <source>Effect Composer</source>
-        <translation>Compositeur d&apos;effets</translation>
-    </message>
-</context>
-<context>
-    <name>EffectComposer::EffectShadersCodeEditor</name>
-    <message>
-        <source>Untitled Editor</source>
-        <translation>Éditeur sans titre</translation>
     </message>
 </context>
 <context>
@@ -9463,70 +9426,6 @@ ajouter un composant en surbrillance.</translation>
         <source>Boolean</source>
         <translation>Booléen</translation>
     </message>
-    <message>
-        <source>Online</source>
-        <translation>En ligne</translation>
-    </message>
-    <message>
-        <source>Offline</source>
-        <translation>Hors ligne</translation>
-    </message>
-    <message>
-        <source>To preview your application on an Android device:</source>
-        <translation>Pour prévisualiser votre application sur un périphérique Android&#xa0;:</translation>
-    </message>
-    <message>
-        <source>Select the “GET IT ON Google Play” link or scan the QR code below with your Android device.</source>
-        <translation>Sélectionnez le lien «&#xa0;GET IT ON Google Play&#xa0;» ou scannez le code QR ci-dessous avec votre périphérique Android.</translation>
-    </message>
-    <message>
-        <source>Install Qt UI Viewer on your Android device.</source>
-        <translation>Installez Qt&#xa0;UI&#xa0;Viewer sur votre périphérique Android.</translation>
-    </message>
-    <message>
-        <source>Connect your Android device to the same network as your Qt Design Studio. For secured office networks contact the network admin to identify the correct network.</source>
-        <translation>Connectez votre périphérique Android au même réseau que Qt&#xa0;Design&#xa0;Studio. Pour les réseaux d&apos;entreprise sécurisés, veuillez contacter l&apos;administrateur réseau pour identifier le réseau adéquat.</translation>
-    </message>
-    <message>
-        <source>Open Qt UI Viewer and find the IP address of the device.</source>
-        <translation>Ouvrez Qt&#xa0;UI&#xa0;Viewer et trouvez l&apos;adresse IP du périphérique.</translation>
-    </message>
-    <message>
-        <source>Open the application you want to preview in Qt Design Studio.</source>
-        <translation>Ouvrez l&apos;application que vous souhaitez prévisualiser dans Qt&#xa0;Design&#xa0;Studio.</translation>
-    </message>
-    <message>
-        <source>Go to Run dropdown in the top toolbar and select Device Manager.</source>
-        <translation>Allez au menu déroulant «&#xa0;Exécuter&#xa0;» dans la barre supérieure et sélectionnez «&#xa0;Gestionnaire de périphériques&#xa0;».</translation>
-    </message>
-    <message>
-        <source>Add your Qt UI Viewer IP address in the Device Manager.</source>
-        <translation>Ajoutez l&apos;adresse IP de Qt&#xa0;UI&#xa0;Viewer dans le «&#xa0;Gestionnaire de périphériques&#xa0;».</translation>
-    </message>
-    <message>
-        <source>Select your Android device from the Run dropdown from the Qt Design Studio top toolbar and select Run.</source>
-        <translation>Sélectionnez votre périphérique Android depuis le menu déroulant «&#xa0;Exécuter&#xa0;» de la barre supérieure de Qt&#xa0;Design&#xa0;Studio et sélectionner «&#xa0;Exécuter&#xa0;».</translation>
-    </message>
-    <message>
-        <source>Set target device IP</source>
-        <translation>Définir l&apos;adresse IP du périphérique cible</translation>
-    </message>
-    <message>
-        <source>Add Run Target</source>
-        <translation>Ajouter une cible d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Remove Run Target</source>
-        <translation>Supprimer une cible d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation>Colonnes</translation>
-    </message>
-    <message>
-        <source>Manage target devices to be used to display the project</source>
-        <translation>Gérer les périphériques cibles à utiliser pour afficher ce projet</translation>
-    </message>
 </context>
 <context>
     <name>MainGridStack</name>
@@ -12390,18 +12289,6 @@ est en cours.</translation>
     </message>
 </context>
 <context>
-    <name>PromptTextBox</name>
-    <message>
-        <source>Describe what you want to generate...</source>
-        <translatorcomment>Dans un texte de placeholder</translatorcomment>
-        <translation>Décrivez ce que vous souhaitez générer…</translation>
-    </message>
-    <message>
-        <source>Send</source>
-        <translation>Envoyer</translation>
-    </message>
-</context>
-<context>
     <name>PropertiesDialog</name>
     <message>
         <source>Owner</source>
@@ -12754,25 +12641,6 @@ est en cours.</translation>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::AiAssistantView</name>
-    <message>
-        <source>AI Assistant</source>
-        <translation>Assistant IA</translation>
-    </message>
-    <message>
-        <source>AI Assistant view</source>
-        <translation>Vue de l&apos;assistant IA</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::AiAssistantWidget</name>
-    <message>
-        <source>AI Assistant</source>
-        <comment>Title of Ai Assistant widget</comment>
-        <translation>Assistant IA</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::AlignDistribute</name>
     <message>
         <source>Cannot Distribute Perfectly</source>
@@ -13108,22 +12976,6 @@ est en cours.</translation>
     <message>
         <source>DesignSystemWidget: %1 cannot be created.%2</source>
         <translation>DesignSystemWidget&#xa0;: impossible de créer %1. %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::DeviceShare::DeviceManagerWidget</name>
-    <message>
-        <source>Device Manager</source>
-        <comment>Title of device manager widget</comment>
-        <translation>Gestionnaire de périphériques</translation>
-    </message>
-    <message>
-        <source>Cannot Create QtQuick View</source>
-        <translation>Impossible de créer une vue QtQuick</translation>
-    </message>
-    <message>
-        <source>StatesEditorWidget: %1 cannot be created.%2</source>
-        <translation>StatesEditorWidget&#xa0;: %1 ne peut être créé. %2</translation>
     </message>
 </context>
 <context>
@@ -15729,6 +15581,382 @@ Les composants verrouillés ne peuvent être ni modifiés ni sélectionnés.</tr
     </message>
 </context>
 <context>
+    <name>QtC::AcpClient</name>
+    <message>
+        <source>Session error: %1</source>
+        <translation>Erreur de session&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Session error: invalid response.</source>
+        <translation>Erreur de session&#xa0;: réponse invalide.</translation>
+    </message>
+    <message>
+        <source>Prompt error: %1</source>
+        <translatorcomment>ou garder prompt</translatorcomment>
+        <translation>Erreur d&apos;invite&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Failed to set config option: %1</source>
+        <translation>Échec lors de la définition d&apos;une option de configuration&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Failed to list sessions: %1</source>
+        <translatorcomment>Trop long?</translatorcomment>
+        <translation>Échec lors de l&apos;établissement de la liste des sessions&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Failed to list sessions: invalid response.</source>
+        <translation>Échec lors de l&apos;établissement de la liste des sessions&#xa0;: réponse invalide.</translation>
+    </message>
+    <message>
+        <source>Failed to load session: %1</source>
+        <translation>Échec lors du chargement de la session&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>New Chat</source>
+        <translatorcomment>Ou garder chat?</translatorcomment>
+        <translation>Nouvelle discussion</translation>
+    </message>
+    <message>
+        <source>No ACP servers configured. Add a server in the settings to get started.</source>
+        <translation>Aucun serveur ACP n&apos;est configuré. Ajoutez un serveur depuis les paramètres pour pouvoir démarrer.</translation>
+    </message>
+    <message>
+        <source>Manage Agents...</source>
+        <translation>Gérer les agents…</translation>
+    </message>
+    <message>
+        <source>Open ACP server settings.</source>
+        <translation>Ouvrir les paramètres du serveur ACP.</translation>
+    </message>
+    <message>
+        <source>Choose AI Agent</source>
+        <translatorcomment>Label titre</translatorcomment>
+        <translation>Sélectionner un agent IA</translation>
+    </message>
+    <message>
+        <source>Authentication Required</source>
+        <translation>Authentification nécessaire</translation>
+    </message>
+    <message>
+        <source>Method:</source>
+        <translation>Méthode&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Authenticate</source>
+        <translation>S&apos;authentifier</translation>
+    </message>
+    <message>
+        <source>Authentication failed: %1</source>
+        <translation>Échec de l&apos;authentification&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Connecting to %1</source>
+        <translation>En cours de connexion à %1</translation>
+    </message>
+    <message>
+        <source>Add Chat</source>
+        <translation>Ajouter une discussion</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Fermer</translation>
+    </message>
+    <message>
+        <source>ACP Client</source>
+        <translation>Client ACP</translation>
+    </message>
+    <message>
+        <source>Show Agentic AI Chat in Side Panel</source>
+        <translation>Afficher la discussion de l&apos;agent IA dans le panneau latéral</translation>
+    </message>
+    <message>
+        <source>Inspect ACP Client...</source>
+        <translation>Inspecter le client ACP…</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation>Tout développer</translation>
+    </message>
+    <message>
+        <source>Client Message</source>
+        <translation>Message du client</translation>
+    </message>
+    <message>
+        <source>Messages</source>
+        <translation>Messages</translation>
+    </message>
+    <message>
+        <source>Server Message</source>
+        <translation>Message du serveur</translation>
+    </message>
+    <message>
+        <source>Log File</source>
+        <translation>Fichier journal</translation>
+    </message>
+    <message>
+        <source>ACP Inspector</source>
+        <translation>Inspecteur de l&apos;ACP</translation>
+    </message>
+    <message>
+        <source>&lt;Select&gt;</source>
+        <translation>&lt;Sélectionner&gt;</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Effacer</translation>
+    </message>
+    <message>
+        <source>ACP Client:</source>
+        <translation>Client ACP&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Inconnu</translation>
+    </message>
+    <message>
+        <source>Allow</source>
+        <translation>Autoriser</translation>
+    </message>
+    <message>
+        <source>Allow Always</source>
+        <translation>Toujours autoriser</translation>
+    </message>
+    <message>
+        <source>Reject</source>
+        <translation>Rejeter</translation>
+    </message>
+    <message>
+        <source>Reject Always</source>
+        <translation>Toujours rejeter</translation>
+    </message>
+    <message>
+        <source>Permission Request</source>
+        <translation>Demande de permission</translation>
+    </message>
+    <message>
+        <source>Authenticated</source>
+        <translatorcomment>Connecté?</translatorcomment>
+        <translation>Authentifié</translation>
+    </message>
+    <message>
+        <source>Deny</source>
+        <translation>Refuser</translation>
+    </message>
+    <message>
+        <source>Denied</source>
+        <translation>Refusé</translation>
+    </message>
+    <message>
+        <source>%1:%2 minutes</source>
+        <translatorcomment>%1 le nombre de minutes et %2 le nombre de seconde</translatorcomment>
+        <translation>%1:%2 minutes</translation>
+    </message>
+    <message>
+        <source>%1 seconds</source>
+        <translation>%1 secondes</translation>
+    </message>
+    <message>
+        <source>&lt;Custom&gt;</source>
+        <translation>&lt;Personnalisé&gt;</translation>
+    </message>
+    <message>
+        <source>Manually specify an agent not listed in the registry.</source>
+        <translation>Indiquer manuellement un agent qui n&apos;est pas listé dans le registre.</translation>
+    </message>
+    <message>
+        <source>Template:</source>
+        <translation>Modèle&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Select a template from the registry to pre-fill the settings.</source>
+        <translation>Sélectionnez un modèle depuis le registre pour préremplir les paramètres.</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Nom&#xa0;:</translation>
+    </message>
+    <message>
+        <source>The display name.</source>
+        <translation>Le nom à afficher.</translation>
+    </message>
+    <message>
+        <source>&lt;New Server&gt;</source>
+        <translation>&lt;Nouveau serveur&gt;</translation>
+    </message>
+    <message>
+        <source>Executable:</source>
+        <translation>Exécutable&#xa0;:</translation>
+    </message>
+    <message>
+        <source>The executable to launch the ACP server process.</source>
+        <translation>L&apos;exécutable pour lancer le processus du serveur ACP.</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Arguments&#xa0;:</translation>
+    </message>
+    <message>
+        <source>The arguments to launch the ACP server process.</source>
+        <translation>Les arguments pour lancer le processus du serveur ACP.</translation>
+    </message>
+    <message>
+        <source>Environment changes:</source>
+        <translation>Modifications de l&apos;environnement&#xa0;:</translation>
+    </message>
+    <message>
+        <source>The command that will spawn the ACP server.</source>
+        <translation>La commande qui démarrera le serveur ACP.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is needed for this Agent, but was not found.</source>
+        <translation>«&#xa0;%1&#xa0;» est nécessaire pour cet agent, mais n&apos;a pas été trouvé.</translation>
+    </message>
+    <message>
+        <source>Make sure Node.js is installed and npx is available in PATH. See &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt; for installation instructions.</source>
+        <translation>Assurez-vous que Node.js est installé et que npx est disponible dans la variable d&apos;environnement PATH. Consultez &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt; pour plus d&apos;informations sur l&apos;installation.</translation>
+    </message>
+    <message>
+        <source>Make sure UV is installed and uvx is available in PATH. See &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt; for installation instructions.</source>
+        <translation>Assurez-vous que UV est installé et que uvx est disponible dans la variable d&apos;environnement PATH. Consultez &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt; pour plus d&apos;informations sur l&apos;installation.</translation>
+    </message>
+    <message>
+        <source>ACP Servers</source>
+        <translation>Serveurs ACP</translation>
+    </message>
+    <message>
+        <source>No command configured for ACP server.</source>
+        <translation>Aucune commande n&apos;a été configurée pour le serveur ACP.</translation>
+    </message>
+    <message>
+        <source>Command not found: &quot;%1&quot;. Check that it exists and is executable.</source>
+        <translation>La commande n&apos;a pas été trouvée&#xa0;: «&#xa0;%1&#xa0;». Vérifiez que le programme existe et qu&apos;il est exécutable.</translation>
+    </message>
+    <message>
+        <source>Command not found: &quot;%1&quot;. Check that it is executable and on your PATH.</source>
+        <translation>La commande n&apos;a pas été trouvée&#xa0;: «&#xa0;%1&#xa0;». Vérifiez que le programme est exécutable et qu&apos;il est dans la variable d&apos;environnement PATH.</translation>
+    </message>
+    <message>
+        <source>Cannot send data: process has not been started (%1).</source>
+        <translation>Impossible d&apos;envoyer les données&#xa0;: le processus n&apos;a pas été démarré (%1).</translation>
+    </message>
+    <message>
+        <source>Cannot send data: process &quot;%1&quot; is not running (exit code %2).</source>
+        <translation>Impossible d&apos;envoyer les données&#xa0;: le processus «&#xa0;%1&#xa0;» n&apos;est pas en cours d&apos;exécution (code de sortie %2).</translation>
+    </message>
+    <message>
+        <source>JSON parse error: %1</source>
+        <translation>Erreur d&apos;analyse JSON&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Expected JSON object.</source>
+        <translation>Objet JSON attendu.</translation>
+    </message>
+    <message>
+        <source>Type your message...</source>
+        <translatorcomment>placeholder</translatorcomment>
+        <translation>Tapez votre message…</translation>
+    </message>
+    <message>
+        <source>Remove Context</source>
+        <translation>Supprimer le contexte</translation>
+    </message>
+    <message>
+        <source>Show Thoughts</source>
+        <translation>Afficher les pensées</translation>
+    </message>
+    <message>
+        <source>Add Context</source>
+        <translation>Ajouter un contexte</translation>
+    </message>
+    <message>
+        <source>Add File...</source>
+        <translation>Ajouter un fichier…</translation>
+    </message>
+    <message>
+        <source>Add Context File</source>
+        <translation>Ajouter un fichier de contexte</translation>
+    </message>
+    <message>
+        <source>Add Remote File...</source>
+        <translation>Ajouter un fichier distant…</translation>
+    </message>
+    <message>
+        <source>Current Editor</source>
+        <translation>Éditeur actuel</translation>
+    </message>
+    <message>
+        <source>Insert Command</source>
+        <translatorcomment>Tooltip</translatorcomment>
+        <translation>Insère une commande</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>Envoyer</translation>
+    </message>
+    <message>
+        <source>just now</source>
+        <translation>À l&apos;instant</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n minute(s) ago</source>
+        <translation>
+            <numerusform>Il y a %n minute</numerusform>
+            <numerusform>Il y a %n minutes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s) ago</source>
+        <translation>
+            <numerusform>Il y a %n heure</numerusform>
+            <numerusform>Il y a %n heures</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n day(s) ago</source>
+        <translation>
+            <numerusform>Il y a %n jour</numerusform>
+            <numerusform>Il y a %n jours</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>No sessions available</source>
+        <translation>Aucune session n&apos;est disponible</translation>
+    </message>
+    <message>
+        <source>Load More...</source>
+        <translation>Charger plus…</translation>
+    </message>
+    <message>
+        <source>New Session for %1</source>
+        <translation>Nouvelle session pour %1</translation>
+    </message>
+    <message>
+        <source>New Session in Directory...</source>
+        <translation>Nouvelle session dans le répertoire…</translation>
+    </message>
+    <message>
+        <source>Choose Working Directory</source>
+        <translation>Choisir le répertoire de travail</translation>
+    </message>
+    <message>
+        <source>Current Project (%1)</source>
+        <translation>Projet actuel (%1)</translation>
+    </message>
+    <message>
+        <source>(No Working Directory)</source>
+        <translation>(Aucun répertoire de travail)</translation>
+    </message>
+    <message>
+        <source>Raw Input</source>
+        <translation>Entrée brute</translation>
+    </message>
+</context>
+<context>
     <name>QtC::Android</name>
     <message>
         <source>Android SDK Manager</source>
@@ -16327,6 +16555,10 @@ dans le navigateur système pour un téléchargement manuel.</translation>
         <translation>Fichier de trousseau de clés (*.keystore *.jks)</translation>
     </message>
     <message>
+        <source>No valid Android Qt version configured for kit &quot;%1&quot;. Configure a Qt version in Projects &gt; Manage Kits.</source>
+        <translation>Aucune version valide de Qt pour Android n&apos;est configurée pour le kit «&#xa0;%1&#xa0;». Configurez une version de Qt dans Projets &gt; Gérer les kits.</translation>
+    </message>
+    <message>
         <source>Include prebuilt OpenSSL libraries</source>
         <translation>Inclure les bibliothèques précompilées OpenSSL</translation>
     </message>
@@ -16385,6 +16617,10 @@ Le niveau minimum d&apos;API nécessaire par le kit est %1.</translation>
         <translation>Le dossier de compilation Android «&#xa0;%1&#xa0;» n&apos;a pas été trouvé ou ne peut être créé.</translation>
     </message>
     <message>
+        <source>Invalid password.</source>
+        <translation>Mot de passe invalide.</translation>
+    </message>
+    <message>
         <source>Cannot copy the target&apos;s lib file &quot;%1&quot; to the Android build folder &quot;%2&quot;.</source>
         <translation>Impossible de copier le fichier cible de la bibliothèque «&#xa0;%1&#xa0;» dans le répertoire de compilation Android «&#xa0;%2&#xa0;».</translation>
     </message>
@@ -16395,6 +16631,10 @@ Le niveau minimum d&apos;API nécessaire par le kit est %1.</translation>
     <message>
         <source>Cannot open androiddeployqt input file &quot;%1&quot; for writing.</source>
         <translation>Impossible d&apos;ouvrir le fichier d&apos;entrée androiddeployqt «&#xa0;%1&#xa0;» en écriture.</translation>
+    </message>
+    <message>
+        <source>APK is up to date.</source>
+        <translation>L&apos;APK est à jour.</translation>
     </message>
     <message>
         <source>Cannot set up &quot;%1&quot;, not building an APK.</source>
@@ -16792,16 +17032,79 @@ Cela ne peut être annulé.</translation>
         <translation>Art&#xa0;: compilation des profils d&apos;application échoué.</translation>
     </message>
     <message>
+        <source>Select Android Manifest Directory</source>
+        <translatorcomment>Titre d&apos;une dialogue</translatorcomment>
+        <translation>Sélectionnez le répertoire du fichier manifest Android</translation>
+    </message>
+    <message>
+        <source>The Android manifest directory was not found automatically.
+Select it manually or create it using the wizard.</source>
+        <translation>Le répertoire du fichier manifest d&apos;Android n&apos;a pas pu être trouvé automatiquement.
+Sélectionnez-le manuellement ou créez-le depuis l&apos;assistant.</translation>
+    </message>
+    <message>
+        <source>Select Directory...</source>
+        <translation>Sélectionner un répertoire…</translation>
+    </message>
+    <message>
+        <source>Create Android Templates...</source>
+        <translation>Créer des fichiers de modèle Android…</translation>
+    </message>
+    <message>
+        <source>Operation Failed</source>
+        <translation>Échec de l&apos;opération</translation>
+    </message>
+    <message>
+        <source>This operation requires that you open your project file first.</source>
+        <translation>Cette opération nécessite que vous ouvriez d&apos;abord le fichier de projet.</translation>
+    </message>
+    <message>
+        <source>XML Source</source>
+        <translation>Source XML</translation>
+    </message>
+    <message>
+        <source>Icon</source>
+        <translation>Icône</translation>
+    </message>
+    <message>
+        <source>Permissions</source>
+        <translation>Permissions</translation>
+    </message>
+    <message>
+        <source>Splash Screen</source>
+        <translation>Écran de démarrage</translation>
+    </message>
+    <message>
         <source>Android Manifest editor</source>
         <translation>Éditeur de manifest Android</translation>
     </message>
     <message>
-        <source>Package</source>
-        <translation>Paquet</translation>
+        <source>No Project</source>
+        <translation>Aucun projet</translation>
     </message>
     <message>
-        <source>Splash screen</source>
-        <translation>Écran de démarrage</translation>
+        <source>First open a project.</source>
+        <translation>Ouvrez d&apos;abord un projet.</translation>
+    </message>
+    <message>
+        <source>Manifest XML Source</source>
+        <translation>Source XML du manifest</translation>
+    </message>
+    <message>
+        <source>Icon Editor</source>
+        <translation>Éditeur d&apos;icône</translation>
+    </message>
+    <message>
+        <source>Permissions Editor</source>
+        <translation>Éditeur des permissions</translation>
+    </message>
+    <message>
+        <source>Splashscreen Editor</source>
+        <translation>Éditeur de l&apos;écran de démarrage</translation>
+    </message>
+    <message>
+        <source>Package</source>
+        <translation>Paquet</translation>
     </message>
     <message>
         <source>Go to Error</source>
@@ -16979,6 +17282,22 @@ Les fichiers du répertoire source du paquet Android seront copiés dans le rép
         <translation>Assistant de création des fichiers modèles Android</translation>
     </message>
     <message>
+        <source>Qt for Android Not Configured</source>
+        <translation>Qt pour Android n&apos;est pas configuré</translation>
+    </message>
+    <message>
+        <source>Cannot create Android templates because Qt for Android is not installed or configured.
+
+Install Qt for Android (for example, android_arm64_v8a) and configure your kit to use it.
+
+Expected templates at: %1</source>
+        <translation>Impossible de créer les fichiers de modèle Android car Qt pour Android n&apos;est pas installé ou n&apos;est pas configuré.
+
+Installez Qt pour Android (par exemple, android_arm64_v8a) et configurez votre kit pour l&apos;utiliser.
+
+Modèles attendus à l&apos;emplacement&#xa0;: %1</translation>
+    </message>
+    <message>
         <source>Project File Update Failed</source>
         <translation>Échec de la mise à jour du fichier du projet</translation>
     </message>
@@ -17011,10 +17330,6 @@ Définissez la propriété «&#xa0;%2&#xa0;» manuellement.</translation>
     <message>
         <source>Icon scaled up.</source>
         <translation>Icône agrandie.</translation>
-    </message>
-    <message>
-        <source>Click to select...</source>
-        <translation>Cliquer pour sélectionner…</translation>
     </message>
     <message>
         <source>Deploy to Android Device</source>
@@ -17157,16 +17472,8 @@ Définissez la propriété «&#xa0;%2&#xa0;» manuellement.</translation>
         <translation>Sélectionner une image de démarrage</translation>
     </message>
     <message>
-        <source>Portrait splash screen</source>
-        <translation>Écran de démarrage en mode portrait</translation>
-    </message>
-    <message>
         <source>Select portrait splash screen image</source>
         <translation>Sélectionner une image pour l&apos;écran de démarrage en mode portrait</translation>
-    </message>
-    <message>
-        <source>Landscape splash screen</source>
-        <translation>Écran de démarrage en mode paysage</translation>
     </message>
     <message>
         <source>Select landscape splash screen image</source>
@@ -17177,22 +17484,12 @@ Définissez la propriété «&#xa0;%2&#xa0;» manuellement.</translation>
         <translation>Tout effacer</translation>
     </message>
     <message>
-        <source>A non-sticky splash screen is hidden automatically when an activity is drawn.
-To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
-        <translation>Un écran de démarrage non collant est caché automatiquement lorsque l&apos;activité est dessinée.
-Pour cacher un écran de démarrage collant, appelez la fonction QtAndroid::hideSplashScreen().</translation>
-    </message>
-    <message>
         <source>Sticky splash screen:</source>
         <translation>Écran de démarrage collant&#xa0;:</translation>
     </message>
     <message>
         <source>Image show mode:</source>
         <translation>Mode d&apos;affichage de l&apos;image&#xa0;:</translation>
-    </message>
-    <message>
-        <source>Background color of the splash screen.</source>
-        <translation>Couleur de fond de l&apos;écran de démarrage.</translation>
     </message>
     <message>
         <source>Background color:</source>
@@ -17203,24 +17500,53 @@ Pour cacher un écran de démarrage collant, appelez la fonction QtAndroid::hide
         <translation>Sélectionner l&apos;image principale à utiliser.</translation>
     </message>
     <message>
-        <source>Master image:</source>
-        <translation>Image principale&#xa0;:</translation>
+        <source>Master</source>
+        <translation>Principal</translation>
     </message>
     <message>
-        <source>Select portrait master image to use.</source>
-        <translation>Sélectionner une image principale à utiliser en mode portrait.</translation>
+        <source>Portrait</source>
+        <translation>Portrait</translation>
     </message>
     <message>
-        <source>Portrait master image:</source>
-        <translation>Image principale en mode portrait&#xa0;:</translation>
+        <source>Landscape</source>
+        <translation>Paysage</translation>
     </message>
     <message>
-        <source>Select landscape master image to use.</source>
-        <translation>Sélectionner une image principale à utiliser en mode paysage.</translation>
+        <source>Clear %1</source>
+        <translation>Effacer %1</translation>
     </message>
     <message>
-        <source>Landscape master image:</source>
-        <translation>Image principale en mode paysage&#xa0;:</translation>
+        <source>Place the object in the center of the screen in both the vertical and horizontal axis, not changing its size.</source>
+        <translation>Placer l&apos;objet horizontalement et verticalement au centre de l&apos;écran, sans changer sa taille.</translation>
+    </message>
+    <message>
+        <source>Grow the horizontal and vertical size of the image if needed so it completely fills its screen.</source>
+        <translation>Augmenter, si nécessaire, la taille horizontale et verticale de l&apos;image afin qu&apos;elle remplisse complètement l&apos;écran.</translation>
+    </message>
+    <message>
+        <source>A non-sticky splash screen is hidden automatically when an activity is drawn. To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
+        <translation>Un écran de démarrage non collant est caché automatiquement lorsqu&apos;une activité est dessinée. Pour cacher l&apos;écran de démarrage collant, appelez QtAndroid::hideSplashScreen().</translation>
+    </message>
+    <message>
+        <source>Select Master Image</source>
+        <translation>Sélectionner l&apos;image principale</translation>
+    </message>
+    <message>
+        <source>Select Portrait Image</source>
+        <translation>Sélectionner l&apos;image en mode portrait</translation>
+    </message>
+    <message>
+        <source>Select portrait image to use.</source>
+        <translatorcomment>tooltip</translatorcomment>
+        <translation>Sélectionne l&apos;image à utiliser en mode portrait.</translation>
+    </message>
+    <message>
+        <source>Select Landscape Image</source>
+        <translation>Sélectionner l&apos;image en mode paysage</translation>
+    </message>
+    <message>
+        <source>Select landscape image to use.</source>
+        <translation>Sélectionne l&apos;image à utiliser en mode paysage.</translation>
     </message>
     <message>
         <source>LDPI</source>
@@ -17243,31 +17569,19 @@ Pour cacher un écran de démarrage collant, appelez la fonction QtAndroid::hide
         <translation>XXHDPI</translation>
     </message>
     <message>
-        <source>XXXHDPI</source>
-        <translation>XXXHDPI</translation>
+        <source>XXXDPI</source>
+        <translation>XXXDPI</translation>
     </message>
     <message>
-        <source>An image is used for the splashscreen. Qt Creator manages splashscreen by using a different method which requires changing the manifest file by overriding your settings. Allow override?</source>
-        <translation>Une image est utilisée comme écran de démarrage. Qt Creator gère l&apos;écran de démarrage en utilisant une méthode différente nécessitant de changer le fichier manifeste et d&apos;écraser vos paramètres. Accepter l&apos;écrasement&#xa0;?</translation>
+        <source>Select Background Color</source>
+        <translation>Sélectionner la couleur d&apos;arrière-plan</translation>
     </message>
     <message>
-        <source>Convert</source>
-        <translation>Convertir</translation>
-    </message>
-    <message>
-        <source>Select background color</source>
-        <translation>Sélectionner la couleur de fond</translation>
-    </message>
-    <message>
-        <source>Select master image</source>
-        <translation>Sélectionner l&apos;image principale</translation>
-    </message>
-    <message>
-        <source>Select portrait master image</source>
+        <source>Select Portrait Master Image</source>
         <translation>Sélectionner l&apos;image principale en mode portrait</translation>
     </message>
     <message>
-        <source>Select landscape master image</source>
+        <source>Select Landscape Master Image</source>
         <translation>Sélectionner l&apos;image principale en mode paysage</translation>
     </message>
     <message>
@@ -17277,6 +17591,120 @@ Pour cacher un écran de démarrage collant, appelez la fonction QtAndroid::hide
     <message>
         <source>Java Editor</source>
         <translation>Éditeur Java</translation>
+    </message>
+    <message>
+        <source>Remove Icon</source>
+        <translation>Supprimer l&apos;icône</translation>
+    </message>
+    <message>
+        <source>Select Icon</source>
+        <translation>Sélectionner une icône</translation>
+    </message>
+    <message>
+        <source>Images (*.png *.jpg *.jpeg *.svg)</source>
+        <translation>Images (*.png *.jpg *.jpeg *.svg)</translation>
+    </message>
+    <message>
+        <source>Failed to save pixmap data to file &quot;%1&quot;.</source>
+        <translation>Échec lors de l&apos;enregistrement des données pixmap dans le fichier «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Icon file &quot;%1&quot; does not exist after writing and closing.</source>
+        <translation>Le fichier d&apos;icône «&#xa0;%1&#xa0;» n&apos;existe pas après avoir été enregistré et fermé.</translation>
+    </message>
+    <message>
+        <source>Cannot open file for writing: &quot;%1&quot; (Error: %2).</source>
+        <translation>Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;» en écriture (Erreur&#xa0;: %2).</translation>
+    </message>
+    <message>
+        <source>Select Master Icon</source>
+        <translation>Sélectionner l&apos;icône principale</translation>
+    </message>
+    <message>
+        <source>Select master icon.</source>
+        <translation>Sélectionne l&apos;icône principale.</translation>
+    </message>
+    <message>
+        <source>Clear Icon</source>
+        <translation>Effacer l&apos;icône</translation>
+    </message>
+    <message>
+        <source>Clear set icons.</source>
+        <translatorcomment>tooltip</translatorcomment>
+        <translation>Efface les icônes définies.</translation>
+    </message>
+    <message>
+        <source>Select an icon suitable for low-density (ldpi) screens (~120dpi).</source>
+        <translation>Sélectionnez une icône appropriée pour les écrans basse densité (ldpi, ~120dpi).</translation>
+    </message>
+    <message>
+        <source>Select an icon for medium-density (mdpi) screens (~160dpi).</source>
+        <translation>Sélectionnez une icône appropriée pour les écrans de moyenne densité (mdpi, ~160dpi).</translation>
+    </message>
+    <message>
+        <source>Select an icon for high-density (hdpi) screens (~240dpi).</source>
+        <translation>Sélectionnez une icône appropriée pour les écrans haute densité (hdpi, ~240dpi).</translation>
+    </message>
+    <message>
+        <source>Select an icon for extra-high-density (xhdpi) screens (~320dpi).</source>
+        <translation>Sélectionnez une icône appropriée pour les écrans très haute densité (xhdpi, ~320dpi).</translation>
+    </message>
+    <message>
+        <source>Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi).</source>
+        <translation>Sélectionnez une icône appropriée pour les écrans très très haute densité (xxhdpi, ~480dpi).</translation>
+    </message>
+    <message>
+        <source>Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi).</source>
+        <translation>Sélectionnez une icône appropriée pour les écrans très très très haute densité (xxxhdpi, ~640dpi).</translation>
+    </message>
+    <message>
+        <source>Images %1</source>
+        <extracomment>%1 expands to wildcard list for file dialog, do not change order</extracomment>
+        <translation>Images %1</translation>
+    </message>
+    <message>
+        <source>Permission</source>
+        <translation>Permission</translation>
+    </message>
+    <message>
+        <source>Attributes</source>
+        <translation>Attributs</translation>
+    </message>
+    <message>
+        <source>No attributes</source>
+        <translation>Aucun attribut</translation>
+    </message>
+    <message>
+        <source>Include default permissions for Qt modules</source>
+        <translation>Ajouter les permissions par défaut pour les modules Qt</translation>
+    </message>
+    <message>
+        <source>Include default features for Qt modules</source>
+        <translation>Ajouter les fonctionnalités par défaut pour les modules Qt</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Ajouter</translation>
+    </message>
+    <message>
+        <source>Edit Attributes</source>
+        <translation>Modifier les attributs</translation>
+    </message>
+    <message>
+        <source>Permission: &lt;b&gt;%1&lt;/b&gt;</source>
+        <translation>Permission&#xa0;: &lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Remove Selected</source>
+        <translation>Supprimer la sélection</translation>
+    </message>
+    <message>
+        <source>Attribute:</source>
+        <translation>Attribut&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Value:</source>
+        <translation>Valeur&#xa0;:</translation>
     </message>
 </context>
 <context>
@@ -17803,7 +18231,7 @@ Exécutable&#xa0;: %2</translation>
     </message>
     <message>
         <source>Warn on empty tests</source>
-        <translation>Avertit des tests vides</translation>
+        <translation>Avertir si des tests sont vides</translation>
     </message>
     <message>
         <source>Warns if a test section does not check any assertion.</source>
@@ -18230,6 +18658,10 @@ Voir la documentation de Google Test pour plus d&apos;informations sur les filtr
         <translation>Tests</translation>
     </message>
     <message>
+        <source>Filter output...</source>
+        <translation>Filtrer la sortie…</translation>
+    </message>
+    <message>
         <source>No active test frameworks.</source>
         <translation>Aucun cadriciel de test actif.</translation>
     </message>
@@ -18264,6 +18696,10 @@ Voir la documentation de Google Test pour plus d&apos;informations sur les filtr
     <message>
         <source>Sort Naturally</source>
         <translation>Trier naturellement</translation>
+    </message>
+    <message>
+        <source>Show Text Filter</source>
+        <translation>Afficher le filtre</translation>
     </message>
     <message>
         <source>Expand All</source>
@@ -18537,6 +18973,14 @@ Cela peut provoquer des problèmes lors de l&apos;exécution.
         <translation>Compilation échouée. Annulation de l&apos;exécution des tests.</translation>
     </message>
     <message>
+        <source>Deploy failed. Canceling test run.</source>
+        <translation>Échec lors du déploiement. Annulation de l&apos;exécution des tests.</translation>
+    </message>
+    <message>
+        <source>Device connection failed. Canceling test run.</source>
+        <translation>Échec de l&apos;établissement de la connexion au périphérique. Annulation de l&apos;exécution des tests.</translation>
+    </message>
+    <message>
         <source>Select Run Configuration</source>
         <translation>Sélectionner la configuration de l&apos;exécution</translation>
     </message>
@@ -18750,6 +19194,14 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
         <source>Test run requests from the build system get processed only if there is no running build or test run.</source>
         <translation>Les demandes d&apos;exécution des tests du système de compilation ne sont pris en compte que s&apos;il n&apos;y a pas de compilation ni de tests en cours d&apos;exécution.</translation>
     </message>
+    <message>
+        <source>Build and run device mismatch - skipping run of ctest.</source>
+        <translation>Les périphériques de compilation et d&apos;exécution diffèrent - exécution des ctest ignorée.</translation>
+    </message>
+    <message>
+        <source>Build or run device does not exist - skipping run of ctest.</source>
+        <translation>Le périphérique de compilation ou d&apos;exécution n&apos;existe pas - exécution des ctest ignorée.</translation>
+    </message>
 </context>
 <context>
     <name>QtC::AutotoolsProjectManager</name>
@@ -18825,12 +19277,26 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
         <translation>Détails des problèmes</translation>
     </message>
     <message>
+        <source>Local Analyses Progress</source>
+        <translatorcomment>titre de fenêtre</translatorcomment>
+        <translation>Analyses locales en cours</translation>
+    </message>
+    <message>
+        <source>Local Analyses Output</source>
+        <translatorcomment>Titre de fenêtre</translatorcomment>
+        <translation>Sortie de l&apos;analyse locale</translation>
+    </message>
+    <message>
         <source>Reload</source>
         <translation>Recharger</translation>
     </message>
     <message>
         <source>Show Issue Annotations Inline</source>
         <translation>Afficher les problèmes avec des annotations en ligne</translation>
+    </message>
+    <message>
+        <source>Show Build Output...</source>
+        <translation>Afficher la sortie de compilation…</translation>
     </message>
     <message>
         <source>Show Online Filter Help</source>
@@ -18873,10 +19339,6 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
         <translation>Échec</translation>
     </message>
     <message>
-        <source>Local Build Progress</source>
-        <translation>Progression de la compilation locale</translation>
-    </message>
-    <message>
         <source>Show Issues in Editor</source>
         <translation>Afficher les problèmes dans l&apos;éditeur</translation>
     </message>
@@ -18904,14 +19366,6 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
     <message>
         <source>Cancel Single File Analysis</source>
         <translation>Annuler l&apos;analyse d&apos;un unique fichier</translation>
-    </message>
-    <message>
-        <source>See Axivion Log...</source>
-        <translation>Voir les journaux Axivion…</translation>
-    </message>
-    <message>
-        <source>See Build Log...</source>
-        <translation>Voir les journaux de compilation…</translation>
     </message>
     <message>
         <source>Remove All Finished</source>
@@ -19321,6 +19775,26 @@ Compilation incrémentale&#xa0;: définissez la variable d&apos;environnement AX
         <translation>Mise à jour du tableau de bord</translation>
     </message>
     <message>
+        <source>Local build finished successfully.</source>
+        <translation>La compilation locale s&apos;est terminée avec succès.</translation>
+    </message>
+    <message>
+        <source>Canceled</source>
+        <translation>Annulée</translation>
+    </message>
+    <message>
+        <source>Local build was canceled.</source>
+        <translation>La compilation locale a été annulée.</translation>
+    </message>
+    <message>
+        <source>Local build failed.</source>
+        <translation>Échec de la compilation locale.</translation>
+    </message>
+    <message>
+        <source>Starting local build (%1)</source>
+        <translation>Démarrage de la compilation locale (%1)</translation>
+    </message>
+    <message>
         <source>Finished</source>
         <translation>Fini</translation>
     </message>
@@ -19383,6 +19857,22 @@ Définissez le dans Préférences &gt; Analyseurs &gt; Axivion pour démarrer un
     <message>
         <source>Preparing</source>
         <translation>En cours de préparation</translation>
+    </message>
+    <message>
+        <source>Single file analysis finished successfully.</source>
+        <translation>L&apos;analyse d&apos;un unique fichier s&apos;est terminée avec succès.</translation>
+    </message>
+    <message>
+        <source>Single file analysis was canceled.</source>
+        <translation>L&apos;analyse d&apos;un unique fichier a été annulée.</translation>
+    </message>
+    <message>
+        <source>Single file analysis failed.</source>
+        <translation>Échec de l&apos;analyse d&apos;un unique fichier.</translation>
+    </message>
+    <message>
+        <source>Starting single file analysis (%1)</source>
+        <translation>Démarrage de l&apos;analyse d&apos;un unique fichier (%1)</translation>
     </message>
     <message>
         <source>There already is a single file analysis running for &quot;%1&quot;.
@@ -20798,14 +21288,6 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
         <translation>Décalage du fichier trop important.</translation>
     </message>
     <message>
-        <source>&amp;Undo</source>
-        <translation>Annu&amp;ler</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation>&amp;Refaire</translation>
-    </message>
-    <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>L’éditeur binaire ne peut ouvrir des fichiers vides.</translation>
     </message>
@@ -21194,14 +21676,6 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
         <translation>Le drapeau CMake pour l’architecture sur macOS</translation>
     </message>
     <message>
-        <source>Minimum Size Release</source>
-        <translation>Minimum Size Release</translation>
-    </message>
-    <message>
-        <source>Release with Debug Information</source>
-        <translation>Release with Debug Information</translation>
-    </message>
-    <message>
         <source>Additional CMake &lt;a href=&quot;options&quot;&gt;options&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;options&quot;&gt;Options&lt;/a&gt; CMake supplémentaires&#xa0;:</translation>
     </message>
@@ -21302,8 +21776,25 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
         <translation>CMake</translation>
     </message>
     <message>
+        <source>%1: %2 %3 Debugger</source>
+        <extracomment>%1=project name, %2=CMake preset name, %3=debugger base name</extracomment>
+        <translation>%1&#xa0;: %2 Débogueur %3</translation>
+    </message>
+    <message>
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;Aucun outil CMake disponible&gt;</translation>
+    </message>
+    <message>
+        <source>Cannot set up compiler for CMake Preset &quot;%1&quot;.</source>
+        <translation>Impossible de configurer le compilateur pour le préréglage CMake «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Cannot set up Qt for CMake Preset &quot;%1&quot;.</source>
+        <translation>Impossible de configurer Qt pour le préréglage CMake «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Creating Kits for CMake Presets</source>
+        <translation>Création des kits pour le préréglage CMake</translation>
     </message>
     <message>
         <source>CMake Tool</source>
@@ -21691,10 +22182,6 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
         <translation>Tentative d’inclusion de %1 qui a déjà été analysé.</translation>
     </message>
     <message>
-        <source>CMake Preset (%1) %2 Debugger</source>
-        <translation>Préréglage CMake (%1) de débogueur %2</translation>
-    </message>
-    <message>
         <source>Unexpected source directory &quot;%1&quot;, expected &quot;%2&quot;. This can be correct in some situations, for example when importing a standalone Qt test, but usually this is an error. Import the build anyway?</source>
         <translation>Répertoire source inattendu «&#xa0;%1&#xa0;», attendu «&#xa0;%2&#xa0;». Cela peut être correct dans certaines situations, par exemple lors de l’importation d’un test Qt autonome, mais il s’agit généralement d’une erreur. Importer quand même la compilation&#xa0;?</translation>
     </message>
@@ -21811,18 +22298,6 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Cloner</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>Make Default</source>
-        <translation>Rendre par défaut</translation>
     </message>
     <message>
         <source>Set as the default CMake Tool to use when creating a new kit or when no value is set.</source>
@@ -22069,6 +22544,10 @@ Assurez-vous que la variable CMAKE_BUILD_TYPE contient le champ «&#xa0;Build ty
     <message>
         <source>&lt;File System&gt;</source>
         <translation>&lt;Système de fichiers&gt;</translation>
+    </message>
+    <message>
+        <source>👉 Click here to install the missing component with the Qt Online Installer</source>
+        <translation>👉 Cliquez ici pour installer les composants manquant avec l&apos;installateur Qt en ligne</translation>
     </message>
     <message>
         <source>Call stack:</source>
@@ -22593,6 +23072,10 @@ Assurez-vous que la variable CMAKE_BUILD_TYPE contient le champ «&#xa0;Build ty
 %1</translation>
     </message>
     <message>
+        <source>Cannot use clangd: No compilation database in &quot;%1&quot;.</source>
+        <translation>Impossible d&apos;utiliser clang&#xa0;: aucune base de données de compilation dans «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
         <source>Project: %1 (based on %2)</source>
         <translation>Projet : %1 (fondé sur %2)</translation>
     </message>
@@ -22628,10 +23111,6 @@ Assurez-vous que la variable CMAKE_BUILD_TYPE contient le champ «&#xa0;Build ty
 </context>
 <context>
     <name>QtC::ClangTools</name>
-    <message>
-        <source>Files outside of the base directory</source>
-        <translation>Fichiers en dehors du répertoire de base</translation>
-    </message>
     <message>
         <source>Files to Analyze</source>
         <translation>Fichiers à analyser</translation>
@@ -22735,6 +23214,10 @@ Assurez-vous que la variable CMAKE_BUILD_TYPE contient le champ «&#xa0;Build ty
     <message>
         <source>Failed to build the project.</source>
         <translation>Échec de la compilation du projet.</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Arrêter</translation>
     </message>
     <message>
         <source>Failed to start the analyzer.</source>
@@ -23806,6 +24289,10 @@ Oui :)</translatorcomment>
         <translation>Impossible d&apos;obtenir l&apos;identifiant du fichier «&#xa0;%1&#xa0;»&#xa0;: %2</translation>
     </message>
     <message>
+        <source>Could not check if &quot;%1&quot; and &quot;%2&quot; are the same file: %3</source>
+        <translation>Impossible de vérifier si «&#xa0;%1&#xa0;» et «&#xa0;%2&#xa0;» correspondent au même fichier&#xa0;: %3</translation>
+    </message>
+    <message>
         <source>Could not get the file path info of &quot;%1&quot;: %2</source>
         <translation>Impossible d&apos;obtenir les informations sur le chemin du fichier «&#xa0;%1&#xa0;»&#xa0;: %2</translation>
     </message>
@@ -23884,6 +24371,10 @@ Oui :)</translatorcomment>
     <message>
         <source>Could not create a temporary file for &quot;%1&quot;: %2</source>
         <translation>Impossible de créer le fichier temporaire pour «&#xa0;%1&#xa0;»&#xa0;: %2</translation>
+    </message>
+    <message>
+        <source>The bridge is not initialized.</source>
+        <translation>La liaison n&apos;a pas été initialisée.</translation>
     </message>
     <message>
         <source>Cannot start bridge process.</source>
@@ -24603,9 +25094,9 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Chemin vers %1&#xa0;:</translation>
     </message>
     <message>
-        <source>%1 path</source>
+        <source>Path to %1</source>
         <extracomment>%1 is the filename of the copilot language server</extracomment>
-        <translation>Chemin %1</translation>
+        <translation>Chemin vers %1</translation>
     </message>
     <message>
         <source>Select path to %2 in Copilot Neovim plugin. See %1 for installation instructions.</source>
@@ -24947,6 +25438,10 @@ Sinon, vous devez spécifier le chemin vers le fichier %2 du greffon Copilot Neo
         <translation>Épingler l’éditeur</translation>
     </message>
     <message>
+        <source>Diff Against Current File</source>
+        <translation>Diff par rapport au fichier actuel</translation>
+    </message>
+    <message>
         <source>Open With</source>
         <translation>Ouvrir avec</translation>
     </message>
@@ -25095,10 +25590,6 @@ Poursuivre&#xa0;?</translation>
         <translation>Terminal :</translation>
     </message>
     <message>
-        <source>?</source>
-        <translation>?</translation>
-    </message>
-    <message>
         <source>Reset Warnings</source>
         <comment>Button text</comment>
         <translation>Réinitialiser les avertissements</translation>
@@ -25210,16 +25701,8 @@ Si les curseurs de redimensionnement des vues du système ne s&apos;affichent pa
         <translation>Interface</translation>
     </message>
     <message>
-        <source>Variables</source>
-        <translation>Variables</translation>
-    </message>
-    <message>
         <source>When files are externally modified:</source>
         <translation>Quand des fichiers ont été modifiés en dehors de Qt Creator&#xa0;:</translation>
-    </message>
-    <message>
-        <source>User Interface</source>
-        <translation>Interface utilisateur</translation>
     </message>
     <message>
         <source>Color:</source>
@@ -25262,10 +25745,6 @@ Si les curseurs de redimensionnement des vues du système ne s&apos;affichent pa
         <translation>Libérer automatiquement les ressources des anciens documents qui ne sont ni visibles ni modifiés. Ils restent visibles dans la liste des documents ouverts.</translation>
     </message>
     <message>
-        <source>Command line arguments used for &quot;Run in terminal&quot;.</source>
-        <translation>Arguments de ligne de commande utilisés pour «&#xa0;Exécuter dans le terminal&#xa0;».</translation>
-    </message>
-    <message>
         <source>Always Ask</source>
         <translation>Demander quoi faire</translation>
     </message>
@@ -25274,8 +25753,34 @@ Si les curseurs de redimensionnement des vues du système ne s&apos;affichent pa
         <translation>Utiliser le gestionnaire de fichiers de l&apos;interface D-Bus freedesktop.org</translation>
     </message>
     <message>
+        <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
+        <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Remplacer par&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;le répertoire du fichier actuel&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;le nom du fichier (avec le chemin complet)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;le nom du fichier (sans le chemin)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+    </message>
+    <message>
         <source>Uses the &lt;a href=&quot;%1&quot;&gt;freedesktop.org D-Bus interface&lt;/a&gt; for &lt;i&gt;Open in File Manager&lt;/i&gt;, if available. Otherwise falls back to the &quot;External file browser&quot; above.</source>
         <translation>Utilise l&apos;&lt;a href=&quot;%1&quot;&gt;interface D-Bus freedesktop.org&lt;/a&gt; pour &lt;i&gt;ouvrir le gestionnaire de fichiers&lt;/i&gt; lorsque disponible. Sinon, utilise le « Navigateur de fichiers externe&#xa0;» spécifié ci-dessus comme solution de secours.</translation>
+    </message>
+    <message>
+        <source>Command used for &lt;i&gt;Open in File Manager&lt;/i&gt; if the freedesktop.org D-Bus interface is not available. The command can contain the following variables:
+</source>
+        <translation>La commande à utiliser pour la fonctionnalité &lt;i&gt;Ouvrir dans le gestionnaire de fichiers&lt;/i&gt; lorsque l&apos;interface D-Bus freedesktop.org n&apos;est pas disponible. La commande peut contenir les variables suivantes&#xa0;:
+</translation>
+    </message>
+    <message>
+        <source>Enable crash reporting</source>
+        <translation>Activer les rapports de plantage</translation>
+    </message>
+    <message>
+        <source>Allow crashes to be automatically reported. Collected reports are used for the sole purpose of fixing bugs.</source>
+        <translation>Autoriser le signalement automatique des plantages. Les rapports collectés sont utilisés dans le seul but de corriger les bogues.</translation>
+    </message>
+    <message>
+        <source>Crash reports are saved in &quot;%1&quot;.</source>
+        <translation>Les rapports de plantage sont enregistrés dans «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Number of &quot;Recent Files&quot;:</source>
+        <translation>Nombre de «&#xa0;fichiers récents&#xa0;»&#xa0;:</translation>
     </message>
     <message>
         <source>Reload All Unchanged Editors</source>
@@ -25304,17 +25809,6 @@ aggregate them from several places (for instance from the kit and from the proje
         <translation>Séparateurs de variable&#xa0;:</translation>
     </message>
     <message>
-        <source>Maximum number of entries in &quot;Recent Files&quot;:</source>
-        <translation>Nombre maximal d’entrées dans «&#xa0;Fichiers récents&#xa0;» :</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n custom separators configured</source>
-        <translation>
-            <numerusform>%n séparateur personnalisé configuré</numerusform>
-            <numerusform>%n séparateurs personnalisés configurés</numerusform>
-        </translation>
-    </message>
-    <message>
         <source>Command used for reverting diff chunks.</source>
         <translation>Commande utilisée pour revenir sur des fragments de diff (diff chunk).</translation>
     </message>
@@ -25329,50 +25823,12 @@ provided they were unmodified before the refactoring.</source>
 à condition qu’ils n’aient pas été modifiés avant la refactorisation.</translation>
     </message>
     <message>
-        <source>Case Sensitive (Default)</source>
-        <translation>Sensible à la casse (par défaut)</translation>
-    </message>
-    <message>
-        <source>Case Insensitive (Default)</source>
-        <translation>Insensible à la casse (par défaut)</translation>
-    </message>
-    <message>
-        <source>Case Insensitive</source>
-        <translation>Insensible à la casse</translation>
-    </message>
-    <message>
-        <source>The file system case sensitivity change will take effect after restart.</source>
-        <translation>La modification de la sensibilité à la casse du système de fichiers prendra effet après le redémarrage.</translation>
-    </message>
-    <message>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
     </message>
     <message>
-        <source>Reset to default.</source>
-        <comment>Color</comment>
-        <translation>Restaurer les paramètres par défaut.</translation>
-    </message>
-    <message>
-        <source>Reset to default.</source>
-        <comment>Terminal</comment>
-        <translation>Restaurer les paramètres par défaut.</translation>
-    </message>
-    <message>
         <source>Auto-save modified files</source>
         <translation>Enregistrer automatiquement les fichiers modifiés</translation>
-    </message>
-    <message>
-        <source>Command line arguments used for &quot;%1&quot;.</source>
-        <translation>Arguments de la ligne de commande utilisés pour «&#xa0;%1&#xa0;».</translation>
-    </message>
-    <message>
-        <source>File system case sensitivity:</source>
-        <translation>Sensibilité à la casse du système de fichiers :</translation>
-    </message>
-    <message>
-        <source>Influences how file names are matched to decide if they are the same.</source>
-        <translation>Influence la façon dont les noms de fichiers sont comparés pour déterminer s’ils sont identiques.</translation>
     </message>
     <message>
         <source>Files to keep open:</source>
@@ -25667,6 +26123,10 @@ provided they were unmodified before the refactoring.</source>
         <translation>%1 est un logiciel libre et vous êtes invités à le redistribuer sous &lt;a href=&quot;%2&quot;&gt;certaines conditions&lt;/a&gt;. Toutefois, d&apos;autres conditions peuvent s&apos;appliquer pour certains composants.</translation>
     </message>
     <message>
+        <source>Open File...</source>
+        <translation>Ouvrir fichier…</translation>
+    </message>
+    <message>
         <source>Meta+0</source>
         <translation>Meta+0</translation>
     </message>
@@ -25821,6 +26281,10 @@ provided they were unmodified before the refactoring.</source>
     <message>
         <source>Invalid level: %1</source>
         <translation>Niveau invalide&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>This logging category uses discouraged non-static approach and cannot get handled by the logging viewer.</source>
+        <translation>Cette catégorie de journalisation utilise une approche non statique déconseillée et ne peut pas être gérée par le visualiseur de journaux.</translation>
     </message>
     <message>
         <source>Debug</source>
@@ -26114,15 +26578,15 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Import Keyboard Mapping Scheme</source>
-        <translation>Importer le mapping clavier</translation>
+        <translation>Importer des raccourcis clavier</translation>
     </message>
     <message>
         <source>Keyboard Mapping Scheme (*.kms)</source>
-        <translation>Schéma de mapping clavier (*.kms)</translation>
+        <translation>Schéma de raccourcis clavier (*.kms)</translation>
     </message>
     <message>
         <source>Export Keyboard Mapping Scheme</source>
-        <translation>Exporter le mapping clavier</translation>
+        <translation>Exporter les raccourcis clavier</translation>
     </message>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
@@ -26425,6 +26889,11 @@ provided they were unmodified before the refactoring.</source>
         <translation>Dernière modification :</translation>
     </message>
     <message>
+        <source>Version control state:</source>
+        <translatorcomment>+logiciel?</translatorcomment>
+        <translation>État du contrôle de version&#xa0;:</translation>
+    </message>
+    <message>
         <source>Readable:</source>
         <translation>Lisible&#xa0;:</translation>
     </message>
@@ -26684,18 +27153,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Boucler sur le prochain éditeur</translation>
     </message>
     <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation>Appliquer</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Abandonner</translation>
-    </message>
-    <message>
         <source>Sort categories</source>
         <translation>Trier les catégories</translation>
     </message>
@@ -26720,6 +27177,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Unapplied Changes</source>
         <translation>Changements non appliqués</translation>
+    </message>
+    <message>
+        <source>There are unapplied changes. Do you want to apply them?</source>
+        <translation>Il y a des changements non appliqués. Souhaitez-vous les appliquer&#xa0;?</translation>
+    </message>
+    <message>
+        <source>Apply Changes</source>
+        <translation>Appliquer les changements</translation>
     </message>
     <message>
         <source>The previous page contains unsaved changes.</source>
@@ -27250,6 +27715,34 @@ au gestionnaire de versions (%2)&#xa0;?</translation>
         <translation>Impossible d’ajouter les fichiers
 %1
 au gestionnaire de versions (%2)</translation>
+    </message>
+    <message>
+        <source>added</source>
+        <translation>ajouté</translation>
+    </message>
+    <message>
+        <source>modified</source>
+        <translation>modifié</translation>
+    </message>
+    <message>
+        <source>deleted</source>
+        <translation>supprimé</translation>
+    </message>
+    <message>
+        <source>renamed</source>
+        <translation>renommé</translation>
+    </message>
+    <message>
+        <source>untracked</source>
+        <translation>non suivi</translation>
+    </message>
+    <message>
+        <source>unmerged</source>
+        <translation>non fusionné</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>inconnu</translation>
     </message>
     <message>
         <source>Tags:</source>
@@ -27812,18 +28305,6 @@ Souhaitez-vous les importer maintenant&#xa0;?</translation>
         <translation>Ne plus demander.</translation>
     </message>
     <message>
-        <source>Terms and Conditions</source>
-        <translation>Termes et conditions</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation>Accepter</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation>Refuser</translation>
-    </message>
-    <message>
         <source>The plugin %1 requires you to accept the following terms and conditions:</source>
         <translation>Le greffon %1 nécessite que vous acceptiez les termes et conditions&#xa0;:</translation>
     </message>
@@ -27834,6 +28315,26 @@ Souhaitez-vous les importer maintenant&#xa0;?</translation>
     <message>
         <source>QStandardPaths::%1 location on the local filesystem.</source>
         <translation>Emplacement de QStandardPaths::%1 dans le système de fichiers local.</translation>
+    </message>
+    <message>
+        <source>%1 collects crash reports for the sole purpose of fixing bugs. To disable this feature go to %2.</source>
+        <translation>%1 récupère les rapports de plantage dans le seul but de corriger les bogues. Pour désactiver cette fonction, allez à %2.</translation>
+    </message>
+    <message>
+        <source>%1 can collect crash reports for the sole purpose of fixing bugs. To enable this feature go to %2.</source>
+        <translation>%1 peut recevoir des rapports de plantage dans le seul but de corriger des bogues. Pour activer cette fonction, allez à %2.</translation>
+    </message>
+    <message>
+        <source> &gt; Preferences &gt; Environment &gt; System</source>
+        <translation> &gt; Préférences &gt; Environnement &gt; Système</translation>
+    </message>
+    <message>
+        <source>Edit &gt; Preferences &gt; Environment &gt; System</source>
+        <translation>Édition &gt; Préférences &gt; Environnement &gt; Système</translation>
+    </message>
+    <message>
+        <source>Crash Reporting</source>
+        <translation>Rapport de plantage</translation>
     </message>
     <message>
         <source>No themes found in installation.</source>
@@ -27938,6 +28439,18 @@ Souhaitez-vous les importer maintenant&#xa0;?</translation>
     <message>
         <source>Convert string to pure ASCII.</source>
         <translation>Impossible de convertir la chaîne de caractères en pur ASCII.</translation>
+    </message>
+    <message>
+        <source>Convert string to something that can be safely used in a file path.</source>
+        <translation>Convertir la chaîne de caractères pour une utilisation sécurisée comme chemin de fichier.</translation>
+    </message>
+    <message>
+        <source>The terminal configured in Environment &gt; Sytem.</source>
+        <translation>Le terminal est configuré dans Environnement &gt; Système.</translation>
+    </message>
+    <message>
+        <source>The arguments passed to the terminal command to run in terminal configured in Environment &gt; System.</source>
+        <translation>Les arguments passés à la commande pour exécuter un terminal sont définis dans Environnement &gt; Système.</translation>
     </message>
     <message>
         <source>%1 &gt; %2 Preferences...</source>
@@ -28178,10 +28691,10 @@ Double-cliquez pour modifier l’élément.</translation>
         <translation>Impossible d&apos;ouvrir l&apos;éditeur pour «&#xa0;%1&#xa0;».</translation>
     </message>
     <message numerus="yes">
-        <source>Elided %n characters due to Application Output settings</source>
+        <source>Elided %n characters due to settings limit</source>
         <translation>
-            <numerusform>Élision d’un caractère en raison des paramètres de sortie de l’application</numerusform>
-            <numerusform>Élision de %n caractères en raison des paramètres de sortie de l’application</numerusform>
+            <numerusform>un caractère caché à cause de la limite paramétrée</numerusform>
+            <numerusform>%n caractères cachés à cause de la limite paramétrée</numerusform>
         </translation>
     </message>
     <message>
@@ -28396,6 +28909,143 @@ Double-cliquez pour modifier l’élément.</translation>
         <source>Unpin</source>
         <translation>Détacher</translation>
     </message>
+    <message>
+        <source>Add MCP Server From Registry</source>
+        <translation>Ajouter un serveur MCP depuis le registre</translation>
+    </message>
+    <message>
+        <source>Filter servers...</source>
+        <translation>Filtrer les serveurs…</translation>
+    </message>
+    <message>
+        <source>All Types</source>
+        <translation>Tous les types</translation>
+    </message>
+    <message>
+        <source>npm</source>
+        <translation>npm</translation>
+    </message>
+    <message>
+        <source>PyPI</source>
+        <translation>PyPI</translation>
+    </message>
+    <message>
+        <source>NuGet</source>
+        <translation>NuGet</translation>
+    </message>
+    <message>
+        <source>OCI</source>
+        <translation>OCI</translation>
+    </message>
+    <message>
+        <source>Remote</source>
+        <translation>Distant</translation>
+    </message>
+    <message>
+        <source>Repository:</source>
+        <translation>Dépôt&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Website:</source>
+        <translation>Site Internet&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Packages:</source>
+        <translation>Paquets&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Remotes:</source>
+        <translation>Distants&#xa0;:</translation>
+    </message>
+    <message>
+        <source>The display name.</source>
+        <translation>Le nom à afficher.</translation>
+    </message>
+    <message>
+        <source>&lt;New Server&gt;</source>
+        <translation>&lt;Nouveau serveur&gt;</translation>
+    </message>
+    <message>
+        <source>The command to launch the MCP server process. Only used for standard IO connection type.</source>
+        <translation>La commande à exécuter pour lancer le processus du serveur MCP. Utilisée uniquement pour les connexions de type E/S standard.</translation>
+    </message>
+    <message>
+        <source>The arguments to launch the MCP server process. Only used for standard IO connection type.</source>
+        <translation>Les arguments à utiliser pour lancer le processus du serveur MCP. Utilisés uniquement pour les connexions de type E/S standard.</translation>
+    </message>
+    <message>
+        <source>The URL to connect to the MCP server. Not used for standard IO connection type.</source>
+        <translation>L&apos;URL pour se connecter au serveur MCP. Non utilisée pour les connexions de type E/S standard.</translation>
+    </message>
+    <message>
+        <source>Connection type:</source>
+        <translation>Type de connexion&#xa0;:</translation>
+    </message>
+    <message>
+        <source>The type of connection to use for the MCP server.</source>
+        <translation>Le type de connexion à utiliser pour le serveur MCP.</translation>
+    </message>
+    <message>
+        <source>Standard IO</source>
+        <translation>E/S standard</translation>
+    </message>
+    <message>
+        <source>SSE</source>
+        <translation>SSE</translation>
+    </message>
+    <message>
+        <source>Streamable HTTP</source>
+        <translation>HTTP en flux</translation>
+    </message>
+    <message>
+        <source>HTTP headers:</source>
+        <translation>En-têtes HTTP&#xa0;:</translation>
+    </message>
+    <message>
+        <source>HTTP headers to include when connecting to the MCP server. Only used for HTTP connection types.</source>
+        <translation>Les en-têtes HTTP à inclure lors de la connexion au serveur MCP. Utilisées uniquement pour les connexions de type HTTP.</translation>
+    </message>
+    <message>
+        <source>Environment variable changes applied when launching the MCP server process. Only used for standard IO connection type.</source>
+        <translation>Les variables d&apos;environnement à appliquer lors du lancement du processus du serveur MCP. Utilisées uniquement pour les connexions de type E/S standard.</translation>
+    </message>
+    <message>
+        <source>Choose Connection Type</source>
+        <translatorcomment>Titre de fenêtre</translatorcomment>
+        <translation>Choisissez le type de connexion</translation>
+    </message>
+    <message>
+        <source>This server offers multiple ways to connect. Please choose one:</source>
+        <translation>Ce serveur permet plusieurs types de connexion. Veuillez choisir quel type utiliser&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Add From Registry...</source>
+        <translation>Ajouter depuis le registre…</translation>
+    </message>
+    <message>
+        <source>Enable Qt Documentation MCP Server</source>
+        <translation>Activer le serveur MCP de la documentation Qt</translation>
+    </message>
+    <message>
+        <source>When enabled, the Qt documentation MCP server from https://qt-docs-mcp.qt.io/mcp will be used.</source>
+        <translation>Lorsque activé, le serveur MCP de la documentation Qt provenant de https://qt-docs-mcp.qt.io/mcp sera utilisé.</translation>
+    </message>
+    <message>
+        <source>MCP Servers</source>
+        <translation>Serveurs MCP</translation>
+    </message>
+    <message>
+        <source>Leave Debug Mode</source>
+        <translation>Quitter le mode Debug</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Barre d&apos;outils</translation>
+    </message>
+    <message>
+        <source>Editor</source>
+        <translation>Éditeur</translation>
+    </message>
 </context>
 <context>
     <name>QtC::CppEditor</name>
@@ -28476,6 +29126,14 @@ Double-cliquez pour modifier l’élément.</translation>
         <translation>C++</translation>
     </message>
     <message>
+        <source>Detailed</source>
+        <translation>Détaillé</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Compacté</translation>
+    </message>
+    <message>
         <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;&lt;p&gt;Low Priority: Same priority as other clangd work.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Si l’indexation en arrière-plan est activée, les recherches globales de symboles donneront des résultats plus précis, au prix d’une charge de travail supplémentaire du CPU lors de la première ouverture du projet. Le résultat de l’indexation est conservé dans le répertoire de construction du projet. Si vous désactivez l’indexation en arrière-plan, un indexeur intégré plus rapide, mais moins précis, est utilisé à la place. La priorité des threads pour la construction de l’index d’arrière-plan peut être ajustée depuis clangd 15.&lt;/p&gt;&lt;p&gt;Priorité d’arrière-plan : priorité minimale, s’exécute sur les processeurs inactifs. Peut laisser les cœurs de «&#xa0;performance&#xa0;» inutilisés.&lt;/p&gt;&lt;p&gt;Priorité normale : priorité réduite par rapport au travail interactif.&lt;/p&gt;&lt;p&gt;Priorité basse : même priorité que les autres travaux de clangd.&lt;/p&gt;</translation>
     </message>
@@ -28496,6 +29154,10 @@ Double-cliquez pour modifier l’élément.</translation>
         <translation>&lt;p&gt;Quel modèle clangd doit-il utiliser pour classer les complétions possibles.&lt;/p&gt;&lt;p&gt;Cela détermine l&apos;ordre des candidats dans la combobox lors d&apos;une complétion de code.&lt;/p&gt;&lt;p&gt;Le modèle «&#xa0;%1&#xa0;» utilisé par défaut offre des résultats provenant du machine learning (pré-entrainé) et fournit généralement de meilleurs résultats.&lt;/p&gt;&lt;p&gt;Si vous pensez que les suggestions sont trop éloignées de ce que vous attendez pour votre code, essayez de passer au modèle sur mesure «&#xa0;%2&#xa0;»</translation>
     </message>
     <message>
+        <source>&lt;p&gt;Which granularity to use for completion items.&lt;/p&gt;&lt;p&gt;Determines whether to use one item per overload or bundle them together.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;La granularité à utiliser pour les éléments de complétion.&lt;/p&gt;&lt;p&gt;Détermine s&apos;il faut utiliser un élément par surcharge ou les compacter ensemble.&lt;/p&gt;</translation>
+    </message>
+    <message>
         <source>Number of worker threads used by clangd. Background indexing also uses this many worker threads.</source>
         <translation>Nombre de threads de travail utilisés par clangd. L’indexation en arrière-plan utilise également ce nombre de threads de travail.</translation>
     </message>
@@ -28506,6 +29168,10 @@ Double-cliquez pour modifier l’élément.</translation>
     <message>
         <source>&lt;p&gt;Controls whether when editing a header file, clangd should re-parse all source files including that header.&lt;/p&gt;&lt;p&gt;Note that enabling this option can cause considerable CPU load when editing widely included headers.&lt;/p&gt;&lt;p&gt;If this option is disabled, the dependent source files are only re-parsed when the header file is saved.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Détermine si la modification d&apos;un fichier d&apos;en-tête déclenche l&apos;analyse par clangd, des fichiers sources incluant ce fichier d&apos;en-tête.&lt;/p&gt;&lt;p&gt;Notez que l&apos;activation de cette option augmente considérablement la charge CPU lors de la modification d&apos;un fichier d&apos;en-tête fréquemment inclût.&lt;/p&gt;&lt;p&gt;Si cette option est désactivée, les fichiers sources dépendants ne seront ré-analysés que lors de l&apos;enregistrement du fichier d&apos;en-tête.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Controls whether clangd will use an existing compile_commands.json file, rather than one set up by Qt Creator, which is the default.&lt;/p&gt;&lt;p&gt;When enabling this option, the user is responsible for providing a suitable file at the index location specified above, as well as for keeping that file in sync with the project state.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Contrôle si clangd utilisera un fichier compile_commands.json existant ou si celui-ci doit être mis en place par Qt&#xa0;Creator, ce qui correspond au comportement par défaut.&lt;/p&gt;&lt;p&gt;Lors de l&apos;activation de cette option, l&apos;utilisateur doit fournir un fichier adéquat à l&apos;emplacement de l&apos;index spécifié ci-dessus et garder ce fichier synchronisé avec l&apos;état du projet.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Defines the amount of time %1 waits before sending document changes to the server.
@@ -28530,6 +29196,10 @@ Le modèle de code intégré gèrera le surlignage, la complétion, etc.</transl
     <message>
         <source>Insert header files on completion</source>
         <translation>Insérer les fichiers d’en-tête dans la complétion</translation>
+    </message>
+    <message>
+        <source>Use externally provided compilation database</source>
+        <translation>Utiliser une base de données de compilation externe</translation>
     </message>
     <message>
         <source>Update dependent sources</source>
@@ -28578,6 +29248,10 @@ Le modèle de code intégré gèrera le surlignage, la complétion, etc.</transl
     <message>
         <source>Completion ranking model:</source>
         <translation>Modèle de classement de la complétion&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Completion style:</source>
+        <translation>Style de complétion&#xa0;:</translation>
     </message>
     <message>
         <source>Document update threshold:</source>
@@ -29910,6 +30584,14 @@ Ces préfixes sont utilisés en complément au répertoire actuel pour basculer 
         <translation>Afficher la source prétraitée dans le prochain panneau</translation>
     </message>
     <message>
+        <source>Fold All Inactive Code</source>
+        <translation>Replier tous les codes inactifs</translation>
+    </message>
+    <message>
+        <source>Unfold All Inactive Code</source>
+        <translation>Déplier tous les codes inactifs</translation>
+    </message>
+    <message>
         <source>Find Unused Functions</source>
         <translation>Trouver les fonctions inutilisées</translation>
     </message>
@@ -30142,6 +30824,10 @@ Ces préfixes sont utilisés en complément au répertoire actuel pour basculer 
         <translation>Suivre le symbole pour taper n’est disponible que lorsque l’on utilise clangd</translation>
     </message>
     <message>
+        <source>Folding inactive code is only available with clangd.</source>
+        <translation>Le repliement du code inactif n&apos;est disponible qu&apos;avec clangd.</translation>
+    </message>
+    <message>
         <source>Compiler Flags</source>
         <translation>Drapeaux du compilateur</translation>
     </message>
@@ -30365,6 +31051,10 @@ Ces préfixes sont utilisés en complément au répertoire actuel pour basculer 
     <message>
         <source>Add Project Dependency %1</source>
         <translation>Ajouter la dépendance de projet %1</translation>
+    </message>
+    <message>
+        <source>Preview %1</source>
+        <translation>Prévisualisation %1</translation>
     </message>
 </context>
 <context>
@@ -30672,6 +31362,10 @@ Souhaitez-vous tout de même les afficher&#xa0;?</translation>
     <message>
         <source>Shows a warning on debugger start-up when breakpoints are requested which are not supported by the selected debugger engine.</source>
         <translation>Affiche un avertissement au démarrage du débogueur lorsque des points d&apos;arrêt ne sont pas pris en charge par le débogueur sélectionné.</translation>
+    </message>
+    <message>
+        <source>Enables tooltips for variable values during debugging. This can slow down debugging and does not provide reliable information as it does not use scope information.</source>
+        <translation>Active les infobulles pour les valeurs des variables pendant le débogage. Cela peut ralentir le débogage et l&apos;information peut être imprécise, car ne reposant pas sur les informations de portée.</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -31250,10 +31944,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf
         <translation>Il est possible pour GDB d’enregistrer automatiquement une copie de son index des symboles dans un cache sur le disque et d’y accéder à partir de là lors du chargement du même binaire à l’avenir.</translation>
     </message>
     <message>
-        <source>Enables tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation>Active les infobulles pour les valeurs des variables pendant le débogage. Comme cela peut ralentir le débogage et ne fournit pas d’informations fiables puisqu’il n’utilise pas d’informations de contexte, cette option est désactivée par défaut.</translation>
-    </message>
-    <message>
         <source>Use Tooltips in Locals View when Debugging</source>
         <translation>Utiliser les info-bulles dans la vue «&#xa0;variables locales&#xa0;» lors du débogage</translation>
     </message>
@@ -31375,7 +32065,7 @@ Dans ce cas, la valeur doit être augmentée.</translation>
     </message>
     <message>
         <source>Display thread names</source>
-        <translation>Affiches les noms des threads</translation>
+        <translation>Afficher les noms des threads</translation>
     </message>
     <message>
         <source>Library %1 loaded.</source>
@@ -32780,6 +33470,10 @@ Veuillez sélectionner un débogueur 64 bits dans les paramètres du kit pour ce
         <translation>Exécutable déboguée</translation>
     </message>
     <message>
+        <source>Debug server executable not found on device &quot;%1&quot;.</source>
+        <translation>L&apos;exécutable du serveur de débogage n&apos;a pas été trouvé sur le périphérique «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
         <source>Unsupported CDB host system.</source>
         <translation>Système hôte CDB non pris en charge.</translation>
     </message>
@@ -32820,6 +33514,10 @@ Veuillez sélectionner un débogueur 64 bits dans les paramètres du kit pour ce
         <translation>Enregistrer le contenu</translation>
     </message>
     <message>
+        <source>Press %1 to execute a line.</source>
+        <translation>Cliquer sur %1 pour exécuter une ligne.</translation>
+    </message>
+    <message>
         <source>Debugger &amp;Log</source>
         <translation>&amp;Journal du débogueur</translation>
     </message>
@@ -32841,10 +33539,6 @@ Il peut vous être demandé de partager le contenu de ce journal lorsque vous si
     <message>
         <source>Reload Debugging Helpers</source>
         <translation>Recharger l’assistance au débogage</translation>
-    </message>
-    <message>
-        <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation>Taper Ctrl-&lt;Retour&gt; pour exécuter une ligne.</translation>
     </message>
     <message>
         <source>Repeat last command for debug reasons.</source>
@@ -32976,6 +33670,10 @@ Il peut vous être demandé de partager le contenu de ce journal lorsque vous si
     <message>
         <source>Start Debugging of Startup Project</source>
         <translation>Lancer le débogage du projet</translation>
+    </message>
+    <message>
+        <source>Searching last Core file...</source>
+        <translation>En cours de recherche du dernier fichier core…</translation>
     </message>
     <message>
         <source>Reload debugging helpers skipped as no engine is running.</source>
@@ -33263,10 +33961,6 @@ Il peut vous être demandé de partager le contenu de ce journal lorsque vous si
         <translation>Problèmes trouvés par les outils Valgrind lors de l&apos;analyse du code.</translation>
     </message>
     <message>
-        <source>&amp;Analyze</source>
-        <translation>A&amp;nalyser</translation>
-    </message>
-    <message>
         <source>Issues with starting the debugger.</source>
         <translation>Problèmes rencontrés lors du démarrage du débogueur.</translation>
     </message>
@@ -33377,39 +34071,6 @@ Il peut vous être demandé de partager le contenu de ce journal lorsque vous si
     <message>
         <source>Last Core file &quot;%1&quot;</source>
         <translation>Dernier fichier core «&#xa0;%1&#xa0;»</translation>
-    </message>
-    <message>
-        <source>in Debug mode</source>
-        <translation>en mode Debug</translation>
-    </message>
-    <message>
-        <source>in Profile mode</source>
-        <translation>en mode Profile</translation>
-    </message>
-    <message>
-        <source>in Release mode</source>
-        <translation>en mode Release</translation>
-    </message>
-    <message>
-        <source>with debug symbols (Debug or Profile mode)</source>
-        <translation>avec les symboles de débogage (modes Debug ou Profile)</translation>
-    </message>
-    <message>
-        <source>on optimized code (Profile or Release mode)</source>
-        <translation>sur du code optimisé (modes Profile ou Release)</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translatorcomment>%3 est remplacé par la chaîne précédente (on optimized code...)</translatorcomment>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vous essayez d&apos;exécuter l&apos;outil «&#xa0;%1&#xa0;» sur une application en mode %2. L&apos;outil est conçu pour être utilisé %3.&lt;/p&gt;&lt;p&gt;Les caractéristiques d&apos;exécution diffèrent considérablement entre les binaires optimisés et non optimisés. L&apos;exécution d&apos;outils nécessitant des symboles de débogage sur des binaires qui n&apos;en fournissent pas peut conduire à des noms de fonctions manquants ou à des résultats insuffisants.&lt;/p&gt;&lt;p&gt;Voulez-vous continuer et exécuter l&apos;outil en mode %2&#xa0;?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation>Démarrer</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Arrêter</translation>
     </message>
     <message>
         <source>F8</source>
@@ -35056,10 +35717,6 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
         <translation>Impossible de créer le débogueur depuis le fichier JSON&#xa0;: %1</translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation>Cloner</translation>
-    </message>
-    <message>
         <source>Re-detect</source>
         <translation>Re-détecter</translation>
     </message>
@@ -35074,10 +35731,6 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
     <message>
         <source>New Debugger</source>
         <translation>Nouveau débogueur</translation>
-    </message>
-    <message>
-        <source>Restore</source>
-        <translation>Restaurer</translation>
     </message>
     <message>
         <source>Searching debuggers...</source>
@@ -35146,18 +35799,6 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
         <translation>Retirer le point d’arrêt</translation>
     </message>
     <message>
-        <source>Cannot start %1 without a project. Please open the project and try again.</source>
-        <translation>Impossible de démarrer %1 sans projet. Veuillez ouvrir le projet et réessayer.</translation>
-    </message>
-    <message>
-        <source>Run %1 in %2 Mode?</source>
-        <translation>Lancer %1 en mode %2&#xa0;?</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Copier</translation>
-    </message>
-    <message>
         <source>&amp;Copy</source>
         <translation>&amp;Copier</translation>
     </message>
@@ -35168,30 +35809,6 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
     <message>
         <source>C&amp;lear</source>
         <translation>&amp;Effacer</translation>
-    </message>
-    <message>
-        <source>&amp;Views</source>
-        <translation>&amp;Vues</translation>
-    </message>
-    <message>
-        <source>Leave Debug Mode</source>
-        <translation>Quitter le mode Debug</translation>
-    </message>
-    <message>
-        <source>Toolbar</source>
-        <translation>Barre d’outils</translation>
-    </message>
-    <message>
-        <source>Editor</source>
-        <translation>Éditeur</translation>
-    </message>
-    <message>
-        <source>Next Item</source>
-        <translation>Élément suivant</translation>
-    </message>
-    <message>
-        <source>Previous Item</source>
-        <translation>Élément précédent</translation>
     </message>
     <message>
         <source>Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6</source>
@@ -35320,6 +35937,51 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
     <message>
         <source>Install debugpy</source>
         <translation>Installer debugpy</translation>
+    </message>
+    <message>
+        <source>Script or command that will set up the gdb server connection.</source>
+        <translation>Script ou commande qui sera utilisé pour configurer la connexion au serveur gdb.</translation>
+    </message>
+    <message>
+        <source>Symbol file (local executable):</source>
+        <translation>Fichier de symboles (exécutable local)&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Server channel:</source>
+        <translation>Canal du serveur&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Break at &quot;&amp;main&quot;</source>
+        <translation>Arrêt à «&#xa0;&amp;main&#xa0;»&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Use &quot;%1&quot; to connect</source>
+        <extracomment>%1 = &quot;target extended-remote&quot;</extracomment>
+        <translation>Utiliser «&#xa0;%1&#xa0;» pour se connecter</translation>
+    </message>
+    <message>
+        <source>Remote Debugger</source>
+        <translation>Débogueur distant</translation>
+    </message>
+    <message>
+        <source>Remote Debugger: %1</source>
+        <translation>Débogueur distant&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>The command must be set in order to debug.</source>
+        <translation>La commande doit être définie pour pouvoir déboguer.</translation>
+    </message>
+    <message>
+        <source>The symbol file must be set in order to debug.</source>
+        <translation>Le fichier de symboles doit être défini pour pouvoir déboguer.</translation>
+    </message>
+    <message>
+        <source>The GDB server channel must be set in order to debug.</source>
+        <translation>Le canal du serveur GDB doit être défini pour pouvoir déboguer.</translation>
+    </message>
+    <message>
+        <source>Starting %1...</source>
+        <translation>Démarrage de %1…</translation>
     </message>
 </context>
 <context>
@@ -36256,10 +36918,6 @@ La recompilation du projet peut aider.</translation>
         <translation>Ne pas modifier le point d&apos;entrée&#xa0;:</translation>
     </message>
     <message>
-        <source>Enable flags needed for LLDB:</source>
-        <translation>Activer les options nécessaires pour LLDB&#xa0;:</translation>
-    </message>
-    <message>
         <source>Extra arguments:</source>
         <translation>Arguments supplémentaires&#xa0;:</translation>
     </message>
@@ -36293,6 +36951,10 @@ La recompilation du projet peut aider.</translation>
         <source>Show unnamed images</source>
         <translatorcomment>anonymes?</translatorcomment>
         <translation>Afficher les images sans nom</translation>
+    </message>
+    <message>
+        <source>The process failed to start.</source>
+        <translation>Le processus n&apos;a pas démarré.</translation>
     </message>
     <message>
         <source>Cannot reach &quot;%1&quot; from &quot;%2&quot;.</source>
@@ -36343,6 +37005,22 @@ La recompilation du projet peut aider.</translation>
         <translation>Erreur</translation>
     </message>
     <message>
+        <source>Enable ptrace-based debugging:</source>
+        <translation>Activer le débogage basé sur ptrace&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Needed for gdb and lldb to attach to processes.</source>
+        <translation>Requis par gdb et lldb pour s&apos;attacher aux processus.</translation>
+    </message>
+    <message>
+        <source>Enable X11 forwarding:</source>
+        <translation>Activer le transfert X11&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Mounts the X11 socket and Xauthority file into the container so that graphical applications can display on the host. Disable to reduce noise on the command line when X11 is not needed.</source>
+        <translation>Monte le socket X11 et le fichier Xauthority dans le conteneur afin de permettre aux applications graphiques de s&apos;afficher sur l&apos;hôte. Désactivez cette option pour réduire le bruit dans la ligne de commande lorsque X11 n&apos;est pas nécessaire.</translation>
+    </message>
+    <message>
         <source>Path is empty.</source>
         <translation>Le chemin est vide.</translation>
     </message>
@@ -36353,6 +37031,14 @@ La recompilation du projet peut aider.</translation>
     <message>
         <source>Ready (waiting for access to container...)</source>
         <translation>Prêt (en attente d&apos;accès au conteneur…)</translation>
+    </message>
+    <message>
+        <source>Process not found.</source>
+        <translation>Le processus n&apos;a pas été trouvé.</translation>
+    </message>
+    <message>
+        <source>Signal operation canceled.</source>
+        <translation>Opération de signal annulée.</translation>
     </message>
     <message>
         <source>Open Shell in Container</source>
@@ -36730,6 +37416,14 @@ La recompilation du projet peut aider.</translation>
     <message>
         <source>Set this to use an item in the scene as %1 instead of the above image.</source>
         <translation>Définir cette propriété pour utiliser un élément de la scène comme %1 au lieu de l&apos;image ci-dessus.</translation>
+    </message>
+    <message>
+        <source>Effect Composer</source>
+        <translation>Compositeur d&apos;effets</translation>
+    </message>
+    <message>
+        <source>Untitled Editor</source>
+        <translation>Éditeur sans titre</translation>
     </message>
 </context>
 <context>
@@ -37356,8 +38050,20 @@ Raison : %3</translation>
         <translation>Désactiver le greffon</translation>
     </message>
     <message>
-        <source>No callback set to accept terms and conditions</source>
-        <translation>Aucun retour défini pour accepter les termes et conditions</translation>
+        <source>Terms and Conditions</source>
+        <translation>Termes et conditions</translation>
+    </message>
+    <message>
+        <source>Accept</source>
+        <translation>Accepter</translation>
+    </message>
+    <message>
+        <source>Decline</source>
+        <translation>Refuser</translation>
+    </message>
+    <message>
+        <source>The plugin %1 requires you to accept the following terms and conditions:</source>
+        <translation>Le greffon %1 nécessite que vous acceptiez les termes et conditions&#xa0;:</translation>
     </message>
     <message>
         <source>You did not accept the terms and conditions</source>
@@ -37412,10 +38118,6 @@ Raison : %3</translation>
     <message>
         <source>Cannot perform extensionsInitialized because state != Initialized</source>
         <translation>Impossible d’exécuter extensionsInitialized car l’état est différent de «&#xa0;Initialisé&#xa0;»</translation>
-    </message>
-    <message>
-        <source>Could not resolve dependency &apos;%1(%2)&apos;</source>
-        <translation>Impossible de résoudre la dépendance «&#xa0;%1(%2)&#xa0;»</translation>
     </message>
     <message>
         <source>Cannot open file</source>
@@ -37486,6 +38188,10 @@ Raison : %3</translation>
         <translation>Argument : «&#xa0;%1&#xa0;» est vide</translation>
     </message>
     <message>
+        <source>Could not resolve the dependency on plugin &quot;%1(%2)&quot;</source>
+        <translation>Impossible de résoudre les dépendances du greffon «&#xa0;%1 (%2)&#xa0;»</translation>
+    </message>
+    <message>
         <source>Plugin is not valid (does not derive from IPlugin)</source>
         <translation>Le greffon n’est pas valide (il n’est pas une sous-classe de IPlugin)</translation>
     </message>
@@ -37540,10 +38246,6 @@ Raison : %3</translation>
 </context>
 <context>
     <name>QtC::FakeVim</name>
-    <message>
-        <source>Use Vim-style Editing</source>
-        <translation>Utiliser l’édition en mode Vim</translation>
-    </message>
     <message>
         <source>%1%2%</source>
         <translation>%1%2%</translation>
@@ -37779,6 +38481,10 @@ Raison : %3</translation>
     <message>
         <source>Keyword characters:</source>
         <translation>Caractères mot-clés :</translation>
+    </message>
+    <message>
+        <source>Use Vim-Style Editing</source>
+        <translation>Utiliser le style de modification de Vim</translation>
     </message>
     <message>
         <source>Copy Text Editor Settings</source>
@@ -38453,6 +39159,183 @@ Raison : %3</translation>
     <message>
         <source>Options</source>
         <translation>Options</translation>
+    </message>
+</context>
+<context>
+    <name>QtC::GNProjectManager</name>
+    <message>
+        <source>Generate</source>
+        <translation>Générer</translation>
+    </message>
+    <message>
+        <source>Build &quot;%1&quot;</source>
+        <translation>Compiler «&#xa0;%1&#xa0;»</translation>
+    </message>
+    <message>
+        <source>Build</source>
+        <translation>Compiler</translation>
+    </message>
+    <message>
+        <source>GN</source>
+        <translation>GN</translation>
+    </message>
+    <message>
+        <source>Generate Project</source>
+        <translation>Générer le projet</translation>
+    </message>
+    <message>
+        <source>Run &quot;gn gen --ide=json&quot; to (re)generate the project.</source>
+        <translatorcomment>tooltip</translatorcomment>
+        <translation>Exécute «&#xa0;gn gen --ide=json&#xa0;» pour (re)générer le projet.</translation>
+    </message>
+    <message>
+        <source>Open args.gn</source>
+        <translation>Ouvrir les arguments de gn</translation>
+    </message>
+    <message>
+        <source>Opens args.gn from the build directory in the editor.</source>
+        <translation>Ouvre args.gn du répertoire de compilation dans un éditeur.</translation>
+    </message>
+    <message>
+        <source>Additional GN gen arguments (e.g. --args=&apos;is_debug=true&apos;).</source>
+        <translation>Arguments supplémentaires de GN gen (par exemple&#xa0;: --args=&apos;is_debug=true&apos;).</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Arguments&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Build</source>
+        <comment>GNProjectManager::GNBuildStepConfigWidget display name.</comment>
+        <translation>Compilation</translation>
+    </message>
+    <message>
+        <source>Ninja arguments:</source>
+        <translation>Arguments Ninja&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Targets:</source>
+        <translation>Cibles&#xa0;:</translation>
+    </message>
+    <message>
+        <source>GN Build</source>
+        <translation>Compilation GN</translation>
+    </message>
+    <message>
+        <source>GN build: Parsing failed.</source>
+        <translation>Compilation GN&#xa0;: échec de l&apos;analyse.</translation>
+    </message>
+    <message>
+        <source>No GN executable configured.</source>
+        <translation>Aucun exécutable GN n&apos;est configuré.</translation>
+    </message>
+    <message>
+        <source>GN Tool</source>
+        <translation>Outil GN</translation>
+    </message>
+    <message>
+        <source>The GN tool to use when building a project with GN. This setting is ignored when using other build systems.</source>
+        <translation>L&apos;outil GN à utiliser lors de la compilation du projet avec GN. Ce paramètre est ignoré lors de l&apos;utilisation d&apos;autres systèmes de compilation.</translation>
+    </message>
+    <message>
+        <source>Cannot validate this GN executable.</source>
+        <translation>Impossible de valider cet exécutable GN.</translation>
+    </message>
+    <message>
+        <source>Unconfigured</source>
+        <translation>Non configuré</translation>
+    </message>
+    <message>
+        <source>No GN tool set in kit.</source>
+        <translation>Aucun outil GN n&apos;est défini dans le kit.</translation>
+    </message>
+    <message>
+        <source>No compilers set in kit.</source>
+        <translation>Aucun compilateur n&apos;est défini dans le kit.</translation>
+    </message>
+    <message>
+        <source>Source Files</source>
+        <translation>Fichiers source</translation>
+    </message>
+    <message>
+        <source>Header Files</source>
+        <translation>Fichiers d&apos;en-tête</translation>
+    </message>
+    <message>
+        <source>Other Files</source>
+        <translation>Autres fichiers</translation>
+    </message>
+    <message>
+        <source>GN executable does not exist: %1</source>
+        <translation>L&apos;exécutable GN n&apos;existe pas&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Running %1 in %2.</source>
+        <translation>Exécute %1 dans %2.</translation>
+    </message>
+    <message>
+        <source>Generating &quot;%1&quot;</source>
+        <translation>Génération de «&#xa0;%1&#xa0;»</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Aucun</translation>
+    </message>
+    <message>
+        <source>Clone of %1</source>
+        <translation>Clone de %1</translation>
+    </message>
+    <message>
+        <source>GN executable path does not exist.</source>
+        <translation>Le chemin d&apos;accès à l&apos;exécutable GN n&apos;existe pas.</translation>
+    </message>
+    <message>
+        <source>GN executable path is not a file.</source>
+        <translation>Le chemin d&apos;accès à l&apos;exécutable GN n&apos;est pas un fichier.</translation>
+    </message>
+    <message>
+        <source>GN executable path is not executable.</source>
+        <translation>Le chemin d&apos;accès à l&apos;exécutable GN n&apos;est pas exécutable.</translation>
+    </message>
+    <message>
+        <source>Cannot get tool version.</source>
+        <translation>Impossible d&apos;obtenir la version de l&apos;outil.</translation>
+    </message>
+    <message>
+        <source>Version: %1</source>
+        <translation>Version&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Emplacement</translation>
+    </message>
+    <message>
+        <source>New GN</source>
+        <translation>Nouveau GN</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Nom&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Path:</source>
+        <translation>Chemin&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Ajouter</translation>
+    </message>
+    <message>
+        <source>Set as the default GN executable to use when creating a new kit or when no value is set.</source>
+        <translation>Définir l&apos;exécutable GN par défaut à utiliser lors de la création d&apos;un nouveau kit ou lorsque aucune valeur n&apos;est définie.</translation>
+    </message>
+    <message>
+        <source>Tools</source>
+        <translation>Outils</translation>
     </message>
 </context>
 <context>
@@ -39165,6 +40048,17 @@ Valider maintenant&#xa0;?</translation>
         </translation>
     </message>
     <message>
+        <source>For the following files, the staged content will be overwritten with the unstaged version.
+Continue?</source>
+        <translatorcomment>Ici, j&apos;utilise cache, mais je pense qu&apos;à d&apos;autre endroit, c&apos;est staging qui a été utilisé. Votre opinion?</translatorcomment>
+        <translation>Pour les lignes suivantes, le contenu en cache sera écrasé avec la version n&apos;étant pas en cache.
+Voulez-vous continuer&#xa0;?</translation>
+    </message>
+    <message>
+        <source>Possible Data Loss</source>
+        <translation>Perte de données possible</translation>
+    </message>
+    <message>
         <source>Di&amp;ff &amp;&amp; Cancel</source>
         <translation>Di&amp;ff &amp;&amp; Annuler</translation>
     </message>
@@ -39437,22 +40331,22 @@ Valider maintenant&#xa0;?</translation>
     <message>
         <source>Blame Current File</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation>Blamer le fichier actuel</translation>
+        <translation>Blâmer le fichier actuel</translation>
     </message>
     <message>
         <source>Blame for &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation>Blamer «&#xa0;%1&#xa0;»</translation>
+        <translation>Blâmer «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
         <source>Instant Blame Current Line</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation>Blamer instantanément la ligne actuelle</translation>
+        <translation>Blâmer instantanément la ligne actuelle</translation>
     </message>
     <message>
         <source>Instant Blame for &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Blame&quot;</extracomment>
-        <translation>Blamer instantanément «&#xa0;%1&#xa0;»</translation>
+        <translation>Blâmer instantanément «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
         <source>Stage &quot;%1&quot; for Commit</source>
@@ -39479,14 +40373,6 @@ Valider maintenant&#xa0;?</translation>
         <source>Undo Unstaged Changes for &quot;%1&quot;</source>
         <translatorcomment>&quot;non ajoutés à la staging area&quot; commencait a faire trop alambiqué et trop anglais...</translatorcomment>
         <translation>Annuler les changements non mis en cache pour «&#xa0;%1&#xa0;»</translation>
-    </message>
-    <message>
-        <source>Undo Uncommitted Changes</source>
-        <translation>Annuler les changements non committés</translation>
-    </message>
-    <message>
-        <source>Undo Uncommitted Changes for &quot;%1&quot;</source>
-        <translation>Annuler les changements non committés pour «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
         <source>Diff Project Directory</source>
@@ -39779,6 +40665,14 @@ Valider maintenant&#xa0;?</translation>
     <message>
         <source>Alt+G,Alt+S</source>
         <translation>Alt+G, Alt+S</translation>
+    </message>
+    <message>
+        <source>Undo All Changes</source>
+        <translation>Annuler tous les changements</translation>
+    </message>
+    <message>
+        <source>Undo All Changes for &quot;%1&quot;</source>
+        <translation>Annuler tous les changements pour «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
         <source>Current &amp;Project Directory</source>
@@ -40176,11 +41070,11 @@ Vous pouvez choisir entre mettre les changements dans une remise («&#xa0;stash&
     </message>
     <message>
         <source>&amp;Blame %1</source>
-        <translation>&amp;Blamer %1</translation>
+        <translation>&amp;Blâmer %1</translation>
     </message>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
-        <translation>Blamer la révision &amp;parental %1</translation>
+        <translation>Blâmer la révision &amp;parental %1</translation>
     </message>
     <message>
         <source>Stage Chunk...</source>
@@ -40660,6 +41554,18 @@ n’ont pas été vérifiés auprès des dépôt distants dans %3. Sélectionner
         <translation>&amp;Soumettre</translation>
     </message>
     <message>
+        <source>Diff &quot;%1&quot;</source>
+        <translation>Faire un diff de «&#xa0;%1&#xa0;»</translation>
+    </message>
+    <message>
+        <source>Log &quot;%1&quot;</source>
+        <translation>Réaliser un log de «&#xa0;%1&#xa0;»</translation>
+    </message>
+    <message>
+        <source>Blame &quot;%1&quot;</source>
+        <translation>Blâmer «&#xa0;%1&#xa0;»</translation>
+    </message>
+    <message>
         <source>Revert Renaming &quot;%1&quot;</source>
         <translation>Défaire le renommage de «&#xa0;%1&#xa0;»</translation>
     </message>
@@ -40670,10 +41576,6 @@ n’ont pas été vérifiés auprès des dépôt distants dans %3. Sélectionner
     <message>
         <source>Confirm File Changes</source>
         <translation>Confirmer les changements du fichier</translation>
-    </message>
-    <message>
-        <source>Open &quot;%1&quot;</source>
-        <translation>Ouvrir «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
         <source>Copy &quot;%1&quot;</source>
@@ -41107,11 +42009,11 @@ Laisser vide pour rechercher dans le système de fichiers.</translation>
     </message>
     <message>
         <source>Blame %1</source>
-        <translation>Blamer %1</translation>
+        <translation>Blâmer %1</translation>
     </message>
     <message>
         <source>Blame Parent</source>
-        <translation>Blamer le parent</translation>
+        <translation>Blâmer le parent</translation>
     </message>
     <message>
         <source>File at %1</source>
@@ -41813,6 +42715,10 @@ Remarque : cela peut vous exposer à une attaque de type «&#xa0;homme du milieu
         <translation>Bascule dans l’aide contextuelle de l’éditeur après la fermeture de la dernière page d’aide.</translation>
     </message>
     <message>
+        <source>Behavior</source>
+        <translation>Comportement</translation>
+    </message>
+    <message>
         <source>Viewer backend:</source>
         <translation>Backend de l’afficheur :</translation>
     </message>
@@ -41859,10 +42765,6 @@ Remarque : cela peut vous exposer à une attaque de type «&#xa0;homme du milieu
     <message>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
-    </message>
-    <message>
-        <source>Behaviour</source>
-        <translation>Comportement</translation>
     </message>
     <message>
         <source>Return to editor on closing the last page</source>
@@ -42559,6 +43461,18 @@ Souhaitez-vous les écraser&#xa0;?</translation>
         <translation>Nom du périphérique&#xa0;:</translation>
     </message>
     <message>
+        <source>Cannot retrieve file contents for &quot;%1&quot;.</source>
+        <translation>Impossible de récupérer le contenu du fichier pour «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Failed to create temporary file.</source>
+        <translation>Échec lors de la création du fichier temporaire.</translation>
+    </message>
+    <message>
+        <source>Cannot write file contents for &quot;%1&quot;.</source>
+        <translation>Impossible d&apos;écrire le contenu du fichier pour «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
         <source>Identifier:</source>
         <translation>Identifiant&#xa0;:</translation>
     </message>
@@ -42846,12 +43760,12 @@ Date d&apos;expiration&#xa0;: %3</translation>
         <translation>Lancement de l&apos;application sur le simulateur échoué. Chemin de bundle invalide %1</translation>
     </message>
     <message>
-        <source>Application launch on simulator failed. Simulator not running. %1</source>
-        <translation>Lancement de l&apos;application sur le simulateur échoué. Le simulateur n&apos;est pas en cours d&apos;exécution. %1</translation>
-    </message>
-    <message>
         <source>Application install on simulator failed. %1</source>
         <translation>Installation de l&apos;application sur le simulateur échouée. %1</translation>
+    </message>
+    <message>
+        <source>Application launch on simulator failed. Simulator not running.</source>
+        <translation>Le lancement de l&apos;application sur le simulateur a échoué. Le simulateur n&apos;est pas en cours d&apos;exécution.</translation>
     </message>
     <message>
         <source>Cannot capture console output from %1. Error redirecting output to %2.*</source>
@@ -42926,8 +43840,8 @@ Date d&apos;expiration&#xa0;: %3</translation>
         <translation>Échec lors de l&apos;analyse du PID du processus débogué depuis la sortie de simctl (%1).</translation>
     </message>
     <message>
-        <source>Failed to parse devicectl output: %1.</source>
-        <translation>Échec lors de l&apos;analyse de la sortie de devicectl&#xa0;: %1.</translation>
+        <source>Failed to parse devicectl output at %1 (line %2): %3.</source>
+        <translation>Échec lors de l&apos;analyse de la sortie de devicectl à la position %1 (ligne %2)&#xa0;: %3</translation>
     </message>
     <message>
         <source>Operation failed: %1</source>
@@ -42940,6 +43854,14 @@ Date d&apos;expiration&#xa0;: %3</translation>
     <message>
         <source>devicectl returned unexpected output ... running failed.</source>
         <translation>La commande devicectl a renvoyé une sortie inattendue… exécution échouée.</translation>
+    </message>
+    <message>
+        <source>Failed to parse devicectl output: Expected &quot;apps&quot; array.</source>
+        <translation>Échec lors de l&apos;analyse de la sortie de devicectl&#xa0;: tableau «&#xa0;apps&#xa0;» attendu.</translation>
+    </message>
+    <message>
+        <source>Failed to parse devicectl output: Expected &quot;files&quot; array.</source>
+        <translation>Échec lors de l&apos;analyse de la sortie de devicectl&#xa0;: tableau «&#xa0;files&#xa0;» attendu.</translation>
     </message>
     <message>
         <source>Apple Clang iOS (%1 at &quot;%2&quot;)</source>
@@ -42971,6 +43893,22 @@ Date d&apos;expiration&#xa0;: %3</translation>
     <message>
         <source>Derived</source>
         <translation>Dérivé</translation>
+    </message>
+    <message>
+        <source>Open in Editor</source>
+        <translation>Ouvrir dans l&apos;éditeur</translation>
+    </message>
+    <message>
+        <source>Open %1 Hierarchy</source>
+        <translation>Ouvrir la hiérarchie %1</translation>
+    </message>
+    <message>
+        <source>Call</source>
+        <translation>Appel</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
     </message>
     <message>
         <source>Call Hierarchy</source>
@@ -43196,6 +44134,10 @@ Exemple : *.cpp%1*.h</translation>
     <message>
         <source>Filter</source>
         <translation>Filtrer</translation>
+    </message>
+    <message>
+        <source>Enabled:</source>
+        <translation>Activé&#xa0;:</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -43775,53 +44717,6 @@ Voir la documentation spécifique au serveur de langage pour la liste des param�
     </message>
 </context>
 <context>
-    <name>QtC::MCP</name>
-    <message>
-        <source>MCP Server Status</source>
-        <translation>Status du serveur MCP</translation>
-    </message>
-    <message>
-        <source>MCP Server</source>
-        <translation>Serveur MCP</translation>
-    </message>
-    <message>
-        <source>Restart Server</source>
-        <translation>Redémarrer le serveur</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-    <message>
-        <source>MCP Server is running</source>
-        <translation>Le serveur MCP est en cours d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>The MCP server is active on port %1 and accepting connections.</source>
-        <translation>Le serveur MCP est actif sur le port %1 et accepte les connexions.</translation>
-    </message>
-    <message>
-        <source>MCP Server is not running</source>
-        <translation>Le serveur MCP n&apos;est pas en cours d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>The MCP server is not active. Select &quot;Restart Server&quot; to try starting it again.</source>
-        <translation>Le serveur MCP n&apos;est pas actif. Sélectionnez «&#xa0;Redémarrer le serveur&#xa0;» pour essayer de le démarrer à nouveau.</translation>
-    </message>
-    <message>
-        <source>Failed to start the MCP server.</source>
-        <translation>Échec lors du démarrage du serveur MCP.</translation>
-    </message>
-    <message>
-        <source>The MCP server is loaded and functioning - the server is running on port %1.</source>
-        <translation>Le serveur MCP est chargé et en cours de fonctionnement - le serveur écoute sur le port %1.</translation>
-    </message>
-    <message>
-        <source>About MCP Server</source>
-        <translation>À propos du serveur MCP</translation>
-    </message>
-</context>
-<context>
     <name>QtC::Macros</name>
     <message>
         <source>Preferences</source>
@@ -43926,6 +44821,138 @@ Voir la documentation spécifique au serveur de langage pour la liste des param�
     <message>
         <source>Runs a text editing macro that was recorded with Tools &gt; Text Editing Macros &gt; Record Macro.</source>
         <translation>Exécute une macro d’édition de texte qui a été enregistrée avec Outils &gt; Macros d’édition de texte &gt; Enregistrer une macro.</translation>
+    </message>
+</context>
+<context>
+    <name>QtC::Mcp</name>
+    <message>
+        <source>No action found with ID &quot;%1&quot;.</source>
+        <translation>Aucune action trouvée avec l&apos;identifiant «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Command &quot;%1&quot; has no associated action.</source>
+        <translation>La commande «&#xa0;%1&#xa0;» n&apos;a pas d&apos;action associée.</translation>
+    </message>
+    <message>
+        <source>Action &quot;%1&quot; is disabled.</source>
+        <translation>L&apos;action «&#xa0;%1&#xa0;» est désactivée.</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation>Tout développer</translation>
+    </message>
+    <message>
+        <source>Client Message</source>
+        <translation>Message du client</translation>
+    </message>
+    <message>
+        <source>Messages</source>
+        <translation>Messages</translation>
+    </message>
+    <message>
+        <source>Server Message</source>
+        <translation>Message du serveur</translation>
+    </message>
+    <message>
+        <source>Log File</source>
+        <translation>Fichier journal</translation>
+    </message>
+    <message>
+        <source>MCP Server Inspector</source>
+        <translation>Inspecteur de serveur MCP</translation>
+    </message>
+    <message>
+        <source>&lt;Select&gt;</source>
+        <translation>&lt;Sélectionner&gt;</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Effacer</translation>
+    </message>
+    <message>
+        <source>Session:</source>
+        <translation>Session&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Inconnu</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Localhost (127.0.0.1)</source>
+        <translation>Localhost (127.0.0.1)</translation>
+    </message>
+    <message>
+        <source>Any (0.0.0.0)</source>
+        <translation>Tout (0.0.0.0)</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Personnalisé</translation>
+    </message>
+    <message>
+        <source>Invalid IP address.</source>
+        <translation>Adresse IP invalide.</translation>
+    </message>
+    <message>
+        <source>Inspect MCP Server...</source>
+        <translation>Inspecter le serveur MCP…</translation>
+    </message>
+    <message>
+        <source>Failed to start MCP server on &quot;%1:%2&quot;.</source>
+        <translation>Échec lors du lancement du serveur MCP sur «&#xa0;%1:%2&#xa0;».</translation>
+    </message>
+    <message>
+        <source>The MCP server is listening on &quot;%1:%2&quot;.</source>
+        <translation>Le serveur MCP écoute sur «&#xa0;%1:%2&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Enable MCP Server</source>
+        <translation>Activer le serveur MCP</translation>
+    </message>
+    <message>
+        <source>The address the MCP Server should listen on for incoming connections.</source>
+        <translation>L&apos;adresse sur laquelle le serveur MCP doit recevoir les connexions entrantes.</translation>
+    </message>
+    <message>
+        <source>Port:</source>
+        <translation>Port&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Automatic</source>
+        <translation>Automatique</translation>
+    </message>
+    <message>
+        <source>The port for the MCP Server to listen on. Leave on 0 to auto-select a free port.</source>
+        <translation>Le port sur lequel le serveur MCP doit écouter. Laissez 0 pour qu&apos;il utilise automatiquement un port libre.</translation>
+    </message>
+    <message>
+        <source>Enable Cross Origin access:</source>
+        <translatorcomment>Traduction littérale trouvée sur Wikipedia...</translatorcomment>
+        <translation>Activer l&apos;accès d&apos;origine croisée (CORS)&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Enable Cross-Origin Resource Sharing (CORS) for the MCP Server. This is necessary if you want to connect to the server from a web application.</source>
+        <translation>Active le partage de ressources d&apos;origines croisées (CORS) pour le serveur MCP. Ceci est nécessaire si vous souhaitez vous connecter au serveur depuis une application Web.</translation>
+    </message>
+    <message>
+        <source>Address copied to clipboard.</source>
+        <translation>Adresse copiée dans le presse-papier.</translation>
+    </message>
+    <message>
+        <source>The MCP Server is running, listening on: %1.</source>
+        <translation>Le serveur MCP est en cours d&apos;exécution, en écoute sur&#xa0;: %1.</translation>
+    </message>
+    <message>
+        <source>The MCP Server is not running.</source>
+        <translation>Le serveur MCP n&apos;est pas en cours d&apos;exécution.</translation>
+    </message>
+    <message>
+        <source>Listen on:</source>
+        <translation>Écoute sur&#xa0;:</translation>
     </message>
 </context>
 <context>
@@ -44885,6 +45912,10 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
         <translation>Pas d’ensemble de compilation dans le kit.</translation>
     </message>
     <message>
+        <source>None</source>
+        <translation>Aucun</translation>
+    </message>
+    <message>
         <source>Meson Tool</source>
         <translation>Outils Meson</translation>
     </message>
@@ -44960,18 +45991,6 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Cloner</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>Make Default</source>
-        <translation>Rendre par défaut</translation>
     </message>
     <message>
         <source>Set as the default Meson executable to use when creating a new kit or when no value is set.</source>
@@ -45515,10 +46534,6 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
         <translation>Des points de traçage peuvent être définis avec «&#xa0;perf probe -a&#xa0;».</translation>
     </message>
     <message>
-        <source>Perf Data Parser Failed</source>
-        <translation>Échec de l’analyseur des données Perf</translation>
-    </message>
-    <message>
         <source>The Perf data parser failed to process all the samples. Your trace is incomplete. The exit code was %1.</source>
         <translation>L’analyseur des données Perf n’a pas réussi à traiter tous les échantillons. Votre trace est incomplète. Le code de sortie était %1.</translation>
     </message>
@@ -45533,10 +46548,6 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
     <message>
         <source>Perf Data Parser Crashed</source>
         <translation>L’analyseur des données Perf a planté</translation>
-    </message>
-    <message>
-        <source>This is a bug. Please report it.</source>
-        <translation>Il s’agit d’un bogue. Veuillez le signaler.</translation>
     </message>
     <message>
         <source>Skipping Processing Delay</source>
@@ -45692,6 +46703,14 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
         <translation>Identifie les goulets d’étranglement en matière de performances.</translation>
     </message>
     <message>
+        <source>Start</source>
+        <translation>Démarrer</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Arrêter</translation>
+    </message>
+    <message>
         <source>Timeline</source>
         <translation>Ligne du temps</translation>
     </message>
@@ -45726,10 +46745,6 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
     <message>
         <source>Reset Flame Graph</source>
         <translation>Réinitialiser le Flame Graph</translation>
-    </message>
-    <message>
-        <source>No Data Loaded</source>
-        <translation>Aucune donnée chargée</translation>
     </message>
     <message>
         <source>The profiler did not produce any samples. Make sure that you are running a recent Linux kernel and that the &quot;perf&quot; utility is available and generates useful call graphs.
@@ -46887,18 +47902,6 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>Paramètres de l’affichage</translation>
     </message>
     <message>
-        <source>Display right &amp;margin at column:</source>
-        <translation>Afficher une &amp;marge à la colonne :</translation>
-    </message>
-    <message>
-        <source>Use context-specific margin</source>
-        <translation>Utiliser une marge spécifique à l’aide contextuelle</translation>
-    </message>
-    <message>
-        <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
-        <translation>Si possible, utilisez une marge différente. Par exemple, la marge ColumnLimit du greffon ClangFormat.</translation>
-    </message>
-    <message>
         <source>Session Manager</source>
         <translation>Gestionnaire de session</translation>
     </message>
@@ -47223,10 +48226,6 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>Nouveau projet…</translation>
     </message>
     <message>
-        <source>Load Project...</source>
-        <translation>Charger le projet…</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+O</source>
         <translation>Ctrl+Maj+O</translation>
     </message>
@@ -47381,6 +48380,14 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     <message>
         <source>SDKs</source>
         <translation>SDKs</translation>
+    </message>
+    <message>
+        <source>&amp;Analyze</source>
+        <translation>&amp;Analyser</translation>
+    </message>
+    <message>
+        <source>Open Project...</source>
+        <translation>Ouvrir un projet…</translation>
     </message>
     <message>
         <source>Open Workspace...</source>
@@ -47731,6 +48738,10 @@ Souhaitez-vous les ignorer&#xa0;?</translation>
     <message>
         <source>Open Project &quot;%1&quot;</source>
         <translation>Ouvrir le projet «&#xa0;%1&#xa0;»</translation>
+    </message>
+    <message>
+        <source>The project is already open.</source>
+        <translation>Le projet est déjà ouvert.</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
@@ -48158,7 +49169,7 @@ Veuillez réessayer.</translation>
     </message>
     <message>
         <source>Warn against build directories with spaces or non-ASCII characters</source>
-        <translation>Avertit à propos des répertoires de compilation contenant des espaces ou des caractères non ASCII</translation>
+        <translation>Avertir à propos des répertoires de compilation contenant des espaces ou des caractères non ASCII</translation>
     </message>
     <message>
         <source>Some legacy build tools do not deal well with paths that contain &quot;special&quot; characters such as spaces, potentially resulting in spurious build errors.&lt;p&gt;Uncheck this option if you do not work with such tools.</source>
@@ -50423,6 +51434,10 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Nom :</translation>
     </message>
     <message>
+        <source>Automatically Managed</source>
+        <translation>Géré automatiquement</translation>
+    </message>
+    <message>
         <source>Automatically managed by %1 or the installer.</source>
         <translation>Géré automatiquement par %1 ou le programme d’installation.</translation>
     </message>
@@ -50462,6 +51477,10 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <translation>Si cette option est cochée, %1 créera deux instances de chaque compilateur x86_64 :
 un pour la cible x86_64 native, et un pour une cible x86 ordinaire.
 Activez cette option si vous envisagez de créer des binaires x86 32 bits sans utiliser de compilateur croisé dédié.</translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation>Langage</translation>
     </message>
     <message>
         <source>The following compiler was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
@@ -50662,15 +51681,6 @@ Activez cette option si vous envisagez de créer des binaires x86 32 bits sans u
 Note: existing output will not get recolored.</source>
         <translation>Personnalise la couleur de fond de la sortie de l&apos;application.
 Note&#xa0;: les sorties existantes ne seront pas modifiées.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Réinitialiser</translation>
-    </message>
-    <message>
-        <source>Reset to default.</source>
-        <comment>Color</comment>
-        <translation>Restaurer la couleur par défaut.</translation>
     </message>
     <message>
         <source>Limit output to %1 characters</source>
@@ -50972,6 +51982,10 @@ Les ports locaux et distants sont déterminés automatiquement.</translation>
         <translation>Configurer les kits pour les chaînes de compilation du périphérique.</translation>
     </message>
     <message>
+        <source>Device is not connected.</source>
+        <translation>Le périphérique n&apos;est pas connecté.</translation>
+    </message>
+    <message>
         <source>Enter lists and ranges like this: &quot;1024,1026-1028,1030&quot;.</source>
         <translation>Saisissez des listes ou des plages comme suit&#xa0;: «&#xa0;1024, 1026-1028, 1030&#xa0;».</translation>
     </message>
@@ -50982,6 +51996,10 @@ Les ports locaux et distants sont déterminés automatiquement.</translation>
     <message>
         <source>The file &quot;%1&quot; cannot be handled by the device &quot;%2&quot;.</source>
         <translation>Le fichier «&#xa0;%1&#xa0;» ne peut être pris en charge par le périphérique «&#xa0;%2&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Sourcing a script is not supported on this platform.</source>
+        <translation>L&apos;exécution de script n&apos;est pas prise en charge sur cette plateforme.</translation>
     </message>
     <message>
         <source>Device</source>
@@ -51218,10 +52236,6 @@ Les ports locaux et distants sont déterminés automatiquement.</translation>
         <translation>Paramètres supplémentaires de l’environnement de compilation lors de l’utilisation de ce kit.</translation>
     </message>
     <message>
-        <source>The environment setting value is invalid.</source>
-        <translation>La valeur du réglage de l’environnement n’est pas valide.</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Aucune</translation>
     </message>
@@ -51327,6 +52341,11 @@ Les ports locaux et distants sont déterminés automatiquement.</translation>
         <translation>Le nom d’affichage n’est pas unique.</translation>
     </message>
     <message>
+        <source>Set as the default kit to use when creating a new project.</source>
+        <translatorcomment>Tooltip</translatorcomment>
+        <translation>Le kit à utiliser par défaut lors de la création d&apos;un nouveau projet.</translation>
+    </message>
+    <message>
         <source>Default for %1</source>
         <translation>Valeur par défaut pour %1</translation>
     </message>
@@ -51339,21 +52358,8 @@ Les ports locaux et distants sont déterminés automatiquement.</translation>
         <translation>Images (*.png *.xpm *.jpg)</translation>
     </message>
     <message>
-        <source>Auto-detected</source>
-        <translation>Autodétecté</translation>
-    </message>
-    <message>
-        <source>%1 (default)</source>
-        <extracomment>Mark up a kit as the default one.</extracomment>
-        <translation>%1 (par défaut)</translation>
-    </message>
-    <message>
         <source>Kits</source>
         <translation>Kits</translation>
-    </message>
-    <message>
-        <source>Make Default</source>
-        <translation>Rendre par défaut</translation>
     </message>
     <message>
         <source>Settings Filter...</source>
@@ -52695,6 +53701,15 @@ Que doit faire %1 maintenant&#xa0;?</translation>
         <translation>Ajouter le chemin de recherche de la bibliothèque de compilation à LD_LIBRARY_PATH</translation>
     </message>
     <message>
+        <source>Use the Qt VNC platform for display</source>
+        <translation>Utiliser la plateforme Qt&#xa0;VNC pour l&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Sets QT_QPA_PLATFORM=vnc which forwards the Qt application&apos;s UI to a built-in VNC server. Connect to the application UI with a VNC client. See the application output for details.</source>
+        <translatorcomment>Tooltip</translatorcomment>
+        <translation>Définit QT_QPA_PLATFORM=vnc ce qui transfère l&apos;interface de l&apos;application vers un serveur VNC intégré. Vous pouvez ainsi vous connecter à l&apos;application à l&apos;aide d&apos;un client VNC. Consultez la sortie de l&apos;application pour plus d&apos;informations.</translation>
+    </message>
+    <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>Utiliser les versions debug des cadriciels (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
@@ -52731,12 +53746,12 @@ Que doit faire %1 maintenant&#xa0;?</translation>
         <translation>Lanceur&#xa0;:</translation>
     </message>
     <message>
-        <source>Interpreter</source>
-        <translation>Interpréteur</translation>
+        <source>Use X11 forwarding:</source>
+        <translation>Utiliser le transfert X11&#xa0;:</translation>
     </message>
     <message>
-        <source>X11 Forwarding:</source>
-        <translation>X11 forwarding :</translation>
+        <source>Interpreter</source>
+        <translation>Interpréteur</translation>
     </message>
     <message>
         <source>Source directory:</source>
@@ -53225,6 +54240,10 @@ Choisissez un chemin différent.</translation>
         <source>Failed to copy project user settings from &quot;%1&quot; to new default location &quot;%2&quot;: %3</source>
         <translation>Échec lors de la copie des paramètres utilisateurs du projet «&#xa0;%1&#xa0;» vers le nouvel emplacement par défaut «&#xa0;%2&#xa0;»&#xa0;: %3</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation>Copier</translation>
+    </message>
 </context>
 <context>
     <name>QtC::Python</name>
@@ -53459,10 +54478,6 @@ Choisissez un chemin différent.</translation>
         <translation>Nom :</translation>
     </message>
     <message>
-        <source>Executable</source>
-        <translation>Exécutable</translation>
-    </message>
-    <message>
         <source>None</source>
         <comment>No Python interpreter</comment>
         <translation>Aucun</translation>
@@ -53478,6 +54493,10 @@ Choisissez un chemin différent.</translation>
     <message>
         <source>&quot;%1&quot; is not an executable file.</source>
         <translation>«&#xa0;%1&#xa0;» n&apos;est pas un fichier exécutable.</translation>
+    </message>
+    <message>
+        <source>Executable:</source>
+        <translation>Exécutable&#xa0;:</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -53502,6 +54521,28 @@ Choisissez un chemin différent.</translation>
     <message>
         <source>Remove all Python interpreters without a valid executable.</source>
         <translation>Supprimer tous les interpréteurs Python qui n’ont pas d’exécutable valide.</translation>
+    </message>
+    <message>
+        <source>Venv creation failed:
+%1</source>
+        <translation>Échec de la création du venv&#xa0;:
+%1</translation>
+    </message>
+    <message>
+        <source>Venv creation terminated abnormally:
+%1</source>
+        <translation>La création du venv s&apos;est terminée de manière inattendue&#xa0;:
+%1</translation>
+    </message>
+    <message>
+        <source>Venv creation could not be started:
+%1</source>
+        <translation>La création du venv n&apos;a pas pu démarrer&#xa0;:
+%1</translation>
+    </message>
+    <message>
+        <source>Venv creation canceled.</source>
+        <translation>Création du venv annulée.</translation>
     </message>
     <message>
         <source>Interpreters</source>
@@ -56003,112 +57044,8 @@ Erreur&#xa0;:
         <translation>Vue des jetons d&apos;apparence</translation>
     </message>
     <message>
-        <source>Enables or disables the targeted device in the Run dropdown.</source>
-        <translation>Active ou désactive les périphériques cibles dans le menu déroulant «&#xa0;Exécuter&#xa0;».</translation>
-    </message>
-    <message>
-        <source>Indicates whether the Qt UI Viewer on the targeted device is turned on or off.</source>
-        <translation>Indique si Qt&#xa0;Ui&#xa0;Viewer est ouvert ou non sur le périphérique cible.</translation>
-    </message>
-    <message>
-        <source>Sets the name of the targeted device.</source>
-        <translation>Définit le nom du périphérique cible.</translation>
-    </message>
-    <message>
-        <source>Displays the IP address of the targeted device.</source>
-        <translation>Affiche l&apos;adresse IP du périphérique cible.</translation>
-    </message>
-    <message>
-        <source>Displays the operating system of the targeted device.</source>
-        <translation>Affiche le système d&apos;exploitation du périphérique cible.</translation>
-    </message>
-    <message>
-        <source>Displays the version of the operating system on the targeted device.</source>
-        <translation>Affiche la version du système d&apos;exploitation du périphérique cible.</translation>
-    </message>
-    <message>
-        <source>Displays the CPU architecture information of the targeted device.</source>
-        <translation>Affiche l&apos;architecture CPU du périphérique cible.</translation>
-    </message>
-    <message>
-        <source>Displays the screen dimensions of the targeted device.</source>
-        <translation>Affiche les dimensions de l&apos;écran du périphérique cible.</translation>
-    </message>
-    <message>
-        <source>Displays the version ID of the Qt UI Viewer application.</source>
-        <translation>Affiche l&apos;identifiant de version de l&apos;application Qt&#xa0;Ui&#xa0;Viewer.</translation>
-    </message>
-    <message>
-        <source>Displays the ID created by the target device.</source>
-        <translation>Affiche l&apos;identifiant créé par le périphérique cible.</translation>
-    </message>
-    <message>
-        <source>Displays the ID created by Qt Design Studio for the target device.</source>
-        <translation>Affiche l&apos;identifiant créé par Qt&#xa0;Design&#xa0;Studio pour le périphérique cible.</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Actif</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>État</translation>
-    </message>
-    <message>
-        <source>Alias</source>
-        <translation>Alias</translation>
-    </message>
-    <message>
-        <source>IP Address</source>
-        <translation>Adresse IP</translation>
-    </message>
-    <message>
-        <source>OS</source>
-        <translation>Système d&apos;exploitation</translation>
-    </message>
-    <message>
-        <source>OS Version</source>
-        <translation>Version du système d&apos;exploitation</translation>
-    </message>
-    <message>
-        <source>Architecture</source>
-        <translation>Architecture</translation>
-    </message>
-    <message>
-        <source>Screen Size</source>
-        <translation>Taille d&apos;écran</translation>
-    </message>
-    <message>
-        <source>App Version</source>
-        <translation>Version de l&apos;application</translation>
-    </message>
-    <message>
-        <source>Self ID</source>
-        <translation>Identifiant</translation>
-    </message>
-    <message>
-        <source>Device ID</source>
-        <translation>Identifiant du périphérique</translation>
-    </message>
-    <message>
         <source>Invalid QML Source</source>
         <translation>Source QML invalide</translation>
-    </message>
-    <message>
-        <source>Run App</source>
-        <translation>Exécuter l&apos;application</translation>
-    </message>
-    <message>
-        <source>Live Preview</source>
-        <translation>Prévisualisation en direct</translation>
-    </message>
-    <message>
-        <source>Style Incompatibility</source>
-        <translation>Incompatibilité de style</translation>
-    </message>
-    <message>
-        <source>Qt UI Viewer only supports the default Android style (Material). Different styles may not be displayed correctly.</source>
-        <translation>Qt&#xa0;Ui&#xa0;Viewser ne prend en charge que le style Android (Material). Les autres styles peuvent ne pas être affichés correctement.</translation>
     </message>
     <message>
         <source>Not Supported for MCUs</source>
@@ -57149,10 +58086,6 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
         <translation>Permettre les versions Qt inférieures à %1</translation>
     </message>
     <message>
-        <source>Use advanced features (renaming, find usages, and so on) (experimental)</source>
-        <translation>Utiliser les fonctionnalités avancées (renommage, trouver les utilisations, etc.) (expérimental)</translation>
-    </message>
-    <message>
         <source>Custom qmlls executable &quot;%1&quot; does not exist and was disabled.</source>
         <translation>L&apos;exécutable personnalisé qmlls «&#xa0;%1&#xa0;» n&apos;existe pas et a été désactivé.</translation>
     </message>
@@ -57165,6 +58098,22 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
     <message>
         <source>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled.</source>
         <translation>L&apos;exécutable personnalisé qmlls «&#xa0;%1&#xa0;» ne semble pas être un exécutable qmlls et a été désactivé.</translation>
+    </message>
+    <message>
+        <source>Use Global Settings</source>
+        <translation>Utiliser les paramètres généraux</translation>
+    </message>
+    <message>
+        <source>Override Global Settings</source>
+        <translation>Surcharger les paramètres généraux</translation>
+    </message>
+    <message>
+        <source>Extend Global Settings</source>
+        <translation>Étendre les paramètres généraux</translation>
+    </message>
+    <message>
+        <source>QML Language Server Settings</source>
+        <translation>Paramètres du serveur de langage QML</translation>
     </message>
     <message>
         <source>Current kit does not have a valid Qt version, disabling QML Language Server.</source>
@@ -57217,8 +58166,32 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
         <translation>Créer les fichiers .qmlls.ini pour les nouveaux projets ciblant Qt&#xa0;&lt;&#xa0;6.10</translation>
     </message>
     <message>
+        <source>Use qmlls from latest Qt</source>
+        <translation>Utiliser qmlls depuis la dernière version de Qt</translation>
+    </message>
+    <message>
+        <source>Use qmlls from latest Qt (located at &quot;%1&quot;)</source>
+        <translation>Utiliser qmlls depuis la dernière version de Qt (situé dans «&#xa0;%1&#xa0;»)</translation>
+    </message>
+    <message>
+        <source>Use custom qmlls executable</source>
+        <translation>Utiliser un exécutable qmlls personnalisé</translation>
+    </message>
+    <message>
+        <source>Enable qmlls semantic highlighting</source>
+        <translation>Activer la mise en évidence sémantique</translation>
+    </message>
+    <message>
+        <source>Use advanced features (Document Outline)</source>
+        <translation>Utiliser les fonctionnalités avancées (contour du document)</translation>
+    </message>
+    <message>
         <source>Enable qmlls&apos;s CMake integration</source>
         <translation>Activer l&apos;intégration de qmlls dans CMake</translation>
+    </message>
+    <message>
+        <source>Extra arguments:</source>
+        <translation>Arguments supplémentaires&#xa0;:</translation>
     </message>
     <message>
         <source>Encountered SSL errors and aborted the download.</source>
@@ -57227,14 +58200,6 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
     <message>
         <source>Use qmlls from project Qt kit</source>
         <translation>Utiliser qmlls depuis le kit Qt du projet</translation>
-    </message>
-    <message>
-        <source>Use qmlls from latest Qt kit (located at %1)</source>
-        <translation>Utiliser qmlls depuis le dernier kit Qt (situé dans %1)</translation>
-    </message>
-    <message>
-        <source>Use custom qmlls executable:</source>
-        <translation>Utiliser un exécutable qmlls personnalisé&#xa0;:</translation>
     </message>
     <message>
         <source>Download latest standalone qmlls</source>
@@ -57247,10 +58212,6 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
     <message>
         <source>Executable selection for qmlls</source>
         <translation>Sélection d&apos;exécutable pour qmlls</translation>
-    </message>
-    <message>
-        <source>Enable semantic highlighting (experimental)</source>
-        <translation>Activer la mise en évidence sémantique (expérimental)</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -57271,10 +58232,6 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
     <message>
         <source>Features</source>
         <translation>Fonctionnalités</translation>
-    </message>
-    <message>
-        <source>Qt Quick</source>
-        <translation>Qt Quick</translation>
     </message>
     <message>
         <source>Open .ui.qml files with:</source>
@@ -57516,8 +58473,25 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
         <translation>Configuration qmlformat globale</translation>
     </message>
     <message>
+        <source>Open latest documentation</source>
+        <translation>Ouvrir la dernière version de la documentation</translation>
+    </message>
+    <message>
         <source>Global formatting options are ignored by projects having their own deployed .qmlformat.ini files.</source>
         <translation>Les options de formatage globales sont ignorées pour les projets ayant déployé leurs propres fichiers .qmlformat.ini.</translation>
+    </message>
+    <message>
+        <source>qmlformat not found. No version.</source>
+        <translation>Aucun qmlformat n&apos;a été trouvé. Aucune version.</translation>
+    </message>
+    <message>
+        <source>Cannot run &quot;%1&quot; or some other error occurred. No version.</source>
+        <translation>Impossible d&apos;exécuter «&#xa0;%1&#xa0;» ou une quelconque erreur s&apos;est produite. Aucune version.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot;: %2. No version.</source>
+        <extracomment>%1=exceutable, %2=error</extracomment>
+        <translation>«&#xa0;%1&#xa0;»&#xa0;: %2. Aucune version.</translation>
     </message>
     <message>
         <source>QmlFormat not found. Using fallback output options.</source>
@@ -57587,6 +58561,14 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Modifier l&apos;aperçu du contenu pour voir la manière dont les paramètres actuels sont appliqués dans l&apos;extrait de code personnalisé. Les changements dans la zone d&apos;aperçu n&apos;affectent pas les paramètres actuels.</translation>
+    </message>
+    <message>
+        <source>Reset to Original Preview Text</source>
+        <translation>Réinitialiser au texte de prévisualisation original</translation>
+    </message>
+    <message>
+        <source>Format Current Preview Text</source>
+        <translation>Formater le texte de prévisualisation actuel</translation>
     </message>
 </context>
 <context>
@@ -57691,6 +58673,14 @@ Veuillez utiliser le bouton d’arrêt à la place.</translation>
     <message>
         <source>Hide or show event categories.</source>
         <translation>Cache ou affiche les catégories d&apos;événements.</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Démarrer</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Arrêter</translation>
     </message>
     <message>
         <source>Disable Profiling</source>
@@ -59184,10 +60174,6 @@ Voulez-vous vraiment continuer&#xa0;?</translation>
         <translation>Linux embarqué</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>Modifier</translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
@@ -59236,8 +60222,8 @@ Voulez-vous vraiment continuer&#xa0;?</translation>
         <translation>Nom :</translation>
     </message>
     <message>
-        <source>Invalid Qt version</source>
-        <translation>Version de Qt invalide</translation>
+        <source>Invalid Qt version:</source>
+        <translation>Version de Qt invalide&#xa0;:</translation>
     </message>
     <message>
         <source>ABI:</source>
@@ -59396,24 +60382,12 @@ Voulez-vous vraiment continuer&#xa0;?</translation>
         <translation>Aucune fabrique trouvée pour qmake : «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
-        <source>&lt;specify a name&gt;</source>
-        <translation>&lt;spécifier un nom&gt;</translation>
-    </message>
-    <message>
         <source>Do you want to remove all invalid Qt Versions?&lt;br&gt;&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;&lt;br&gt;will be removed.</source>
         <translation>Voulez-vous retirer toutes les versions de Qt invalides&#xa0;?&lt;br/&gt;&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;br/&gt; seront supprimées.</translation>
     </message>
     <message>
         <source>Qt version %1 for %2</source>
         <translation>Qt %1 pour %2</translation>
-    </message>
-    <message>
-        <source>Qt Version</source>
-        <translation>Version de Qt</translation>
-    </message>
-    <message>
-        <source>Location of qmake</source>
-        <translation>Emplacement de qmake</translation>
     </message>
     <message>
         <source>Link with Qt...</source>
@@ -59458,6 +60432,10 @@ Voulez-vous vraiment continuer&#xa0;?</translation>
     <message>
         <source>Warning</source>
         <translation>Avertissement</translation>
+    </message>
+    <message>
+        <source>Clone of %1</source>
+        <translation>Clone de %1</translation>
     </message>
     <message>
         <source>Re-detect</source>
@@ -60057,10 +61035,6 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
         <translation>Périphérique Linux distant</translation>
     </message>
     <message>
-        <source>Device is disconnected.</source>
-        <translation>Le périphérique est déconnecté.</translation>
-    </message>
-    <message>
         <source>Source profile before executing commands.</source>
         <translation>Lire le fichier profile avant d&apos;exécuter les commandes.</translation>
     </message>
@@ -60103,6 +61077,20 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
     <message>
         <source>Establishing initial connection to device &quot;%1&quot;. This might take a moment.</source>
         <translation>Établissement de la connexion initiale au périphérique «&#xa0;%1&#xa0;». Cela peut prendre un certain temps.</translation>
+    </message>
+    <message>
+        <source>Accessible host paths:</source>
+        <translation>Chemins de l&apos;hôte accessible&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Defines paths on the host that are accessible from the remote machine under the same name.</source>
+        <translatorcomment>Tooltip</translatorcomment>
+        <translation>Définit les chemins de l&apos;hôte qui sont accessibles, avec le même nom, depuis la machine distante.</translation>
+    </message>
+    <message>
+        <source>Host directories that are accessible from the remote device.</source>
+        <translatorcomment>placeholder</translatorcomment>
+        <translation>Répertoires hôtes qui sont accessibles depuis le périphérique distant.</translation>
     </message>
     <message>
         <source>Signal operation canceled.</source>
@@ -60648,6 +61636,26 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
     <message>
         <source>Rsync executable:</source>
         <translation>Exécutable rsync&#xa0;:</translation>
+    </message>
+    <message>
+        <source>No device configured for the run configuration.</source>
+        <translation>Aucun périphérique n&apos;est configuré pour la configuration d&apos;exécution.</translation>
+    </message>
+    <message>
+        <source>Connecting target device...</source>
+        <translation>Connexion au périphérique cible…</translation>
+    </message>
+    <message>
+        <source>Device connected.</source>
+        <translation>Périphérique connecté.</translation>
+    </message>
+    <message>
+        <source>Failed: %1.</source>
+        <translation>Échec&#xa0;: %1.</translation>
+    </message>
+    <message>
+        <source>Connect to the target device</source>
+        <translation>Se connecter au périphérique cible</translation>
     </message>
 </context>
 <context>
@@ -62255,6 +63263,10 @@ Refus d&apos;enregistrer le cas de test «&#xa0;%2&#xa0;».</translation>
         <translation>Sortir de</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Arrêter</translation>
+    </message>
+    <message>
         <source>Inspect</source>
         <translation>Inspecter</translation>
     </message>
@@ -62856,6 +63868,10 @@ Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;».</translation>
         <translation>Échec de la restauration : %1</translation>
     </message>
     <message>
+        <source>Revert</source>
+        <translation>Rétablir</translation>
+    </message>
+    <message>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Le fichier a été modifié. Voulez-vous le rétablir&#xa0;?</translation>
     </message>
@@ -62878,6 +63894,30 @@ Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;».</translation>
     <message>
         <source>Subversion Submit</source>
         <translation>Submit sur Subversion</translation>
+    </message>
+    <message>
+        <source>conflicted</source>
+        <translation>en conflit</translation>
+    </message>
+    <message>
+        <source>untracked</source>
+        <translation>non suivi</translation>
+    </message>
+    <message>
+        <source>added</source>
+        <translation>ajouté</translation>
+    </message>
+    <message>
+        <source>modified</source>
+        <translation>modifié</translation>
+    </message>
+    <message>
+        <source>deleted</source>
+        <translation>supprimé</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>inconnu</translation>
     </message>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
@@ -65109,6 +66149,15 @@ Ne s’applique pas aux espaces blancs dans les commentaires et dans les chaîne
         <translation>Éditeur de texte</translation>
     </message>
     <message>
+        <source>Skip update check for files matching:</source>
+        <translatorcomment>Qt Creator ne vérifiera pas que les fichiers mentionnés ont été modifiés afin de mettre à jour la coloration syntaxique</translatorcomment>
+        <translation>Désactiver la vérification d&apos;une mise à jour pour les fichiers correspondants&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Skip syntax highlighting for files matching:</source>
+        <translation>Désactiver la coloration syntaxique pour les fichiers correspondants&#xa0;:</translation>
+    </message>
+    <message>
         <source>Highlight definitions are provided by the %1 engine.</source>
         <translation>Les définitions en surbrillance sont déterminées par le moteur %1.</translation>
     </message>
@@ -65135,10 +66184,6 @@ Ne s’applique pas aux espaces blancs dans les commentaires et dans les chaîne
     <message>
         <source>User Highlight Definition Files</source>
         <translation>Fichiers de définition de surlignage de l’utilisateur</translation>
-    </message>
-    <message>
-        <source>Download finished</source>
-        <translation>Téléchargement terminé</translation>
     </message>
     <message>
         <source>Generic Highlighter</source>
@@ -65384,6 +66429,10 @@ Ne s’applique pas aux espaces blancs dans les commentaires et dans les chaîne
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Impossible de créer le dossier utilisateur d’extraits de code %1</translation>
+    </message>
+    <message>
+        <source>The selected configuration is read-only. Copy the configuration for editing.</source>
+        <translation>La configuration sélectionnée est en lecture seule. Copiez la configuration pour la modifier.</translation>
     </message>
     <message>
         <source>Custom settings:</source>
@@ -65796,6 +66845,14 @@ Notez que les BOM UTF-8 sont peu courants et traités de manière incorrecte par
         <translation>Si possible, utilisez une marge différente. Par exemple, la marge ColumnLimit du greffon ClangFormat.</translation>
     </message>
     <message>
+        <source>Editor content width:</source>
+        <translation>Largeur du contenu de l&apos;éditeur&#xa0;:</translation>
+    </message>
+    <message>
+        <source>100% means that whole width of editor window is used to display text content (default).&lt;br&gt;50% means that half of editor width is used to display text content.&lt;br&gt;Remaining 50% is divided as left and right margins while centering the content.</source>
+        <translation>100&#xa0;% signifie que la totalité de la largeur de la fenêtre de l&apos;éditeur est utilisée pour afficher du texte (comportement par défaut).&lt;br&gt;50&#xa0;% indique que la moitié de la largeur de l&apos;éditeur est utilisée pour afficher du texte.&lt;br&gt;Les 50&#xa0;% restant sont utilisés comme marges gauche et droite pour centrer le contenu.</translation>
+    </message>
+    <message>
         <source>Highlight search results on the scrollbar</source>
         <translation>Surligner les résultats de recherche sur la barre de défilement</translation>
     </message>
@@ -65823,7 +66880,7 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
     </message>
     <message>
         <source>&amp;Highlight selection</source>
-        <translation>&amp;Mis en avant de la sélection</translation>
+        <translation>&amp;Mettre en avant la sélection</translation>
     </message>
     <message>
         <source>Adds a colored background and a marker to the scrollbar to occurrences of the selected text.</source>
@@ -65889,10 +66946,6 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
     <message>
         <source>Syntax Highlight Definition Files</source>
         <translation>Fichiers de définition de coloration syntaxique</translation>
-    </message>
-    <message>
-        <source>Ignored file patterns:</source>
-        <translation>Motifs de fichier ignorés :</translation>
     </message>
     <message>
         <source>Add</source>
@@ -66230,10 +67283,6 @@ Influence l’indentation des lignes de continuation.
         <translation>Délimiteur de variable fermant manquant pour :</translation>
     </message>
     <message>
-        <source>Diff Against Current File</source>
-        <translation>Diff par rapport au fichier actuel</translation>
-    </message>
-    <message>
         <source>Opening File</source>
         <translation>Ouverture du fichier</translation>
     </message>
@@ -66560,6 +67609,10 @@ Les données de la trace sont perdues.</translation>
         <translation>Les paquets suivants ont été trouvés&#xa0;:</translation>
     </message>
     <message>
+        <source>The Maintenance Tool is already running and has locked its cache. Please close the Maintenance Tool and try again.</source>
+        <translation>L&apos;outil de maintenance est déjà en cours d&apos;exécution et a verrouillé son cache. Veuillez fermer l&apos;outil de maintenance et réessayer.</translation>
+    </message>
+    <message>
         <source>An error occurred. Check the output of the installer below.</source>
         <translation>Une erreur s&apos;est produite. Vérifiez la sortie de l&apos;installateur ci-dessous.</translation>
     </message>
@@ -66747,10 +67800,6 @@ Les données de la trace sont perdues.</translation>
         <translation>Impossible d’établir le canal de communication : %1</translation>
     </message>
     <message>
-        <source>Press &lt;RETURN&gt; to close this window...</source>
-        <translation>Appuyez sur &lt;ENTRÉE&gt; pour fermer cette fenêtre…</translation>
-    </message>
-    <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Impossible de créer un fichier temporaire : %1</translation>
     </message>
@@ -66769,6 +67818,14 @@ Les données de la trace sont perdues.</translation>
     <message>
         <source>Cannot execute &quot;%1&quot;: %2</source>
         <translation>Impossible d’exécuter «&#xa0;%1&#xa0;» : %2</translation>
+    </message>
+    <message>
+        <source>
+Process exited with code %1.
+Press Return to close this window...</source>
+        <translation>
+Le processus s&apos;est arrêté avec le code %1.
+Appuyez sur Entrée pour fermer cette fenêtre…</translation>
     </message>
     <message>
         <source>Failed to start terminal process. The stub exited before the inferior was started.</source>
@@ -67082,10 +68139,6 @@ Les données de la trace sont perdues.</translation>
         <translation>Fermer</translation>
     </message>
     <message>
-        <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Remplacer par&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;le répertoire du fichier actuel&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;le nom du fichier (avec le chemin complet)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;le nom du fichier (sans le chemin)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-    <message>
         <source>...</source>
         <translation>…</translation>
     </message>
@@ -67277,6 +68330,10 @@ Les données de la trace sont perdues.</translation>
         <translation>Impossible de changer les permissions de «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
+        <source>Failed to determine if &quot;%1&quot; and &quot;%2&quot; refer to the same file: %3</source>
+        <translation>Échec lors de la vérification visant à déterminer si «&#xa0;%1&#xa0;» et «&#xa0;%2&#xa0;» correspondent au même fichier&#xa0;: %3</translation>
+    </message>
+    <message>
         <source>Failed creating temporary directory &quot;%1&quot; (too many tries).</source>
         <translation>Impossible de créer le répertoire temporaire «&#xa0;%1&#xa0;» (trop d&apos;essais).</translation>
     </message>
@@ -67456,6 +68513,21 @@ Les données de la trace sont perdues.</translation>
         <translation>Réinitialiser</translation>
     </message>
     <message>
+        <source>Reset to default.</source>
+        <comment>Color</comment>
+        <translatorcomment>Tooltip pour un bouton &quot;Reset&quot; pour une couleur</translatorcomment>
+        <translation>Réinitialise la couleur à la valeur par défaut.</translation>
+    </message>
+    <message>
+        <source>Reset to Default</source>
+        <translation>Restaurer les paramètres par défaut</translation>
+    </message>
+    <message>
+        <source>Press and hold to reset to default.</source>
+        <translatorcomment>Tooltip</translatorcomment>
+        <translation>Cliquez et maintenez appuyé pour réinitialiser à la valeur par défaut.</translation>
+    </message>
+    <message>
         <source>Enable</source>
         <translation>Activer</translation>
     </message>
@@ -67466,6 +68538,10 @@ Les données de la trace sont perdues.</translation>
     <message>
         <source>Default</source>
         <translation>Défaut</translation>
+    </message>
+    <message>
+        <source>Change...</source>
+        <translation>Modifier…</translation>
     </message>
     <message>
         <source>Show %1 Column</source>
@@ -67629,6 +68705,12 @@ Les données de la trace sont perdues.</translation>
         <translation>Minimiser</translation>
     </message>
     <message>
+        <source>The file can be a simple text file containing key/value pairs,
+or a script to be evaluated by the system shell.</source>
+        <translation>Le fichier peut être soit un simple fichier texte contenant des pairs clé/valeur,
+ou un script devant être interprété par le shell système.</translation>
+    </message>
+    <message>
         <source>Enter one environment variable per line.
 To set or change a variable, use VARIABLE=VALUE.
 To disable a variable, prefix this line with &quot;#&quot;.
@@ -67636,7 +68718,9 @@ To append to a variable, use VARIABLE+=VALUE.
 To prepend to a variable, use VARIABLE=+VALUE.
 Existing variables can be referenced in a VALUE with ${OTHER}.
 To clear a variable, put its name on a line with nothing else on it.
-Lines starting with &quot;##&quot; will be treated as comments.</source>
+Lines starting with &quot;##&quot; will be treated as comments.
+</source>
+        <translatorcomment>Changement de la dernière ligne par rapport à l&apos;ancien texte. Avant, c&apos;était &apos;###&apos; pour commenter une ligne.</translatorcomment>
         <translation>Saisissez une variable d&apos;environnement par ligne.
 Pour définir ou changer une variable, utilisez VARIABLE=VALEUR.
 Pour désactiver une variable, préfixez la ligne avec le caractère «&#xa0;#&#xa0;».
@@ -67644,7 +68728,11 @@ Pour suffixer une variable, utilisez VARIABLE+=VALEUR.
 Pour préfixer une variable, utilisez VARIABLE=+VALEUR.
 Les variables existantes peuvent être référencées dans une VALEUR avec ${AUTRE}.
 Pour effacer une variable, placez son nom sur une ligne avec rien d&apos;autre sur celle-ci.
-Les lignes débutant avec «&#xa0;###&#xa0;» seront traitées comme commentaires.</translation>
+Les lignes débutant avec «&#xa0;##&#xa0;» seront traitées comme commentaires.</translation>
+    </message>
+    <message>
+        <source>Get variables from text file or shell script:</source>
+        <translation>Récupérer les variables depuis un fichier texte ou un script shell&#xa0;:</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -67789,30 +68877,6 @@ Les lignes débutant avec «&#xa0;###&#xa0;» seront traitées comme commentaire
         <translation>Échec lors de l&apos;écriture du fichier.</translation>
     </message>
     <message>
-        <source>The process failed to start.</source>
-        <translation>Le processus n’a pas démarré.</translation>
-    </message>
-    <message>
-        <source>Timeout while trying to check for %1.</source>
-        <translation>Dépassement de délai lors de la vérification de %1.</translation>
-    </message>
-    <message>
-        <source>Command &quot;%1&quot; was not found.</source>
-        <translation>La commande «&#xa0;%1&#xa0;» n&apos;a pas été trouvée.</translation>
-    </message>
-    <message>
-        <source>Script installation was forced to fail.</source>
-        <translation>Échec forcé du script d&apos;installation.</translation>
-    </message>
-    <message>
-        <source>Timeout while waiting for shell script installation.</source>
-        <translation>Dépassement de délai lors de l&apos;attente de l&apos;installation du script shell.</translation>
-    </message>
-    <message>
-        <source>Failed to install shell script: %1</source>
-        <translation>Échec d&apos;installation du script shell&#xa0;: %1</translation>
-    </message>
-    <message>
         <source>Show/Hide Password</source>
         <translation>Afficher/Cacher le mot de passe</translation>
     </message>
@@ -67945,18 +69009,6 @@ Les lignes débutant avec «&#xa0;###&#xa0;» seront traitées comme commentaire
         <translation>Annulé.</translation>
     </message>
     <message>
-        <source>Enable crash reporting</source>
-        <translation>Activer les rapports de plantage</translation>
-    </message>
-    <message>
-        <source>Allow crashes to be automatically reported. Collected reports are used for the sole purpose of fixing bugs.</source>
-        <translation>Autoriser le signalement automatique des plantages. Les rapports collectés sont utilisés dans le seul but de corriger les bogues.</translation>
-    </message>
-    <message>
-        <source>Crash reports are saved in &quot;%1&quot;.</source>
-        <translation>Les rapports de plantage sont enregistrés dans «&#xa0;%1&#xa0;».</translation>
-    </message>
-    <message>
         <source>%1 uses %2 for collecting crashes and sending them to Sentry for processing. %2 may capture arbitrary contents from crashed process’ memory, including user sensitive information, URLs, and whatever other content users have trusted %1 with. The collected crash reports are however only used for the sole purpose of fixing bugs.</source>
         <extracomment>%1 = application name, %2 crash backend name (Google Crashpad or Google Breakpad)</extracomment>
         <translation>%1 utilise %2 pour la création des journaux de plantage et pour les envoyer à Sentry. %2 peut enregistrer du contenu arbitraire depuis la mémoire du processus planté, incluant des informations sensibles, URLs et n&apos;importe quelles autres données que l&apos;utilisateur a fournies en toute confiance à %1. Cependant, les rapports de plantage sont collectés dans le seul but de corriger des bogues.</translation>
@@ -67974,68 +69026,89 @@ Les lignes débutant avec «&#xa0;###&#xa0;» seront traitées comme commentaire
         <translation>politique de sécurité %1</translation>
     </message>
     <message>
-        <source>Bytes</source>
-        <translation>Octets</translation>
-    </message>
-    <message>
-        <source>KiB</source>
-        <translation>Kio</translation>
-    </message>
-    <message>
-        <source>MiB</source>
-        <translation>Mio</translation>
-    </message>
-    <message>
-        <source>GiB</source>
-        <translation>Gio</translation>
-    </message>
-    <message>
-        <source>TiB</source>
-        <translation>Tio</translation>
-    </message>
-    <message>
-        <source>The crash reporting change will take effect after restart.</source>
-        <translation>Les modifications de la configuration des rapports de plantage prendront effet au redémarrage.</translation>
-    </message>
-    <message>
-        <source>Manage</source>
-        <translation>Gérer</translation>
-    </message>
-    <message>
-        <source>Go to Crash Reports</source>
-        <translation>Aller aux rapports de plantage</translation>
-    </message>
-    <message>
-        <source>Clear Crash Reports</source>
-        <translation>Nettoyer les rapports de plantage</translation>
-    </message>
-    <message>
-        <source>?</source>
-        <translation>?</translation>
-    </message>
-    <message>
-        <source>Crash Reporting</source>
-        <translation>Rapport de plantage</translation>
-    </message>
-    <message>
-        <source>%1 collects crash reports for the sole purpose of fixing bugs. To disable this feature go to %2.</source>
-        <translation>%1 récupère les rapports de plantage dans le seul but de corriger les bogues. Pour désactiver cette fonction, allez à %2.</translation>
-    </message>
-    <message>
-        <source>%1 can collect crash reports for the sole purpose of fixing bugs. To enable this feature go to %2.</source>
-        <translation>%1 peut recevoir des rapports de plantage dans le seul but de corriger des bogues. Pour activer cette fonction, allez à %2.</translation>
-    </message>
-    <message>
-        <source> &gt; Preferences &gt; Environment &gt; System</source>
-        <translation> &gt; Préférences &gt; Environnement &gt; Système</translation>
-    </message>
-    <message>
-        <source>Edit &gt; Preferences &gt; Environment &gt; System</source>
-        <translation>Édition &gt; Préférences &gt; Environnement &gt; Système</translation>
-    </message>
-    <message>
         <source>No changes to apply.</source>
         <translation>Aucune modification à appliquer.</translation>
+    </message>
+    <message>
+        <source>Failed to get environment variables from device: %1</source>
+        <extracomment>%1 = error message</extracomment>
+        <translation>Échec lors de la récupération des variables d&apos;environnement du périphérique&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Failed to get environment variables from &quot;%1&quot;: %2</source>
+        <extracomment>%1 = batch file path, %2 = error message</extracomment>
+        <translation>Échec lors de la récupération des variables d&apos;environnement de «&#xa0;%1&#xa0;»&#xa0;: %2</translation>
+    </message>
+    <message>
+        <source>Failed to get environment variables from &quot;%1&quot;: Unexpected output</source>
+        <extracomment>%1 = batch file path</extracomment>
+        <translation>Échec lors de la récupération des variables d&apos;environnement de «&#xa0;%1&#xa0;»&#xa0;: sortie inattendue</translation>
+    </message>
+    <message>
+        <source>%1 (Default)</source>
+        <extracomment>%1 = some list item&apos;s name</extracomment>
+        <translation>%1 (défaut)</translation>
+    </message>
+    <message>
+        <source>Clone</source>
+        <translation>Cloner</translation>
+    </message>
+    <message>
+        <source>Make Default</source>
+        <translation>Rendre par défaut</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation>Restaurer</translation>
+    </message>
+    <message>
+        <source>Open Command Prompt Here</source>
+        <translation>Ouvrir une invite de commande ici</translation>
+    </message>
+    <message>
+        <source>Open Terminal Here</source>
+        <translation>Ouvrir un terminal ici</translation>
+    </message>
+    <message>
+        <source>The terminal emulator to use for opening a terminal.</source>
+        <translation>L&apos;émulateur de terminal à utiliser pour ouvrir un terminal.</translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation>Commande&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Command line arguments used for &quot;%1&quot;.</source>
+        <translation>Arguments de la ligne de commande utilisés pour «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; arguments:</source>
+        <translation>«&#xa0;%1&#xa0;» arguments&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Command line arguments used for &quot;Run in terminal&quot;.</source>
+        <translation>Arguments de ligne de commande utilisés pour «&#xa0;Exécuter dans le terminal&#xa0;».</translation>
+    </message>
+    <message>
+        <source>&quot;Run in Terminal&quot; arguments:</source>
+        <translation>Arguments pour «&#xa0;Exécuter dans le terminal&#xa0;»&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Run in Terminal</source>
+        <translation>Exécuter dans le terminal</translation>
+    </message>
+    <message>
+        <source>Customize...</source>
+        <translation>Personnaliser…</translation>
+    </message>
+    <message>
+        <source>Presets</source>
+        <translation>Préréglages</translation>
+    </message>
+    <message>
+        <source>Select Terminal Emulator</source>
+        <translatorcomment>Titre de fenêtre</translatorcomment>
+        <translation>Sélectionnez un émulateur de terminal</translation>
     </message>
 </context>
 <context>
@@ -68913,6 +69986,14 @@ Lorsqu’un problème est détecté, l’application s’interrompt et peut êtr
         <translation>Créer un dump des données de profilage…</translation>
     </message>
     <message>
+        <source>Start</source>
+        <translation>Démarrer</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Arrêter</translation>
+    </message>
+    <message>
         <source>Resetting event counters...</source>
         <translation>Réinitialisation des compteurs d’évènements…</translation>
     </message>
@@ -69088,26 +70169,37 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
 Vérifiez les paramètres pour vous assurer que Valgrind est installé et disponible dans la variable d&apos;environnement PATH.</translation>
     </message>
     <message>
+        <source>The tool is designed to be used in Debug mode.</source>
+        <translation>L&apos;outil est conçu pour être utilisé en mode débogage.</translation>
+    </message>
+    <message>
+        <source>The tool is designed to be used in Profile mode.</source>
+        <translation>L&apos;outil est conçu pour être utilisé en mode profilage.</translation>
+    </message>
+    <message>
+        <source>The tool is designed to be used in Release mode.</source>
+        <translation>L&apos;outil est conçu pour être utilisé en mode release.</translation>
+    </message>
+    <message>
+        <source>The tool is designed to be used with debug symbols (Debug or Profile mode).</source>
+        <translation>L&apos;outil est conçu pour être utilisé avec les symboles de débogage (mode débogage ou profilage).</translation>
+    </message>
+    <message>
+        <source>The tool is designed to be used on optimized code (Profile or Release mode).</source>
+        <translation>L&apos;outil est conçu pour être utilisé avec un code optimisé (mode profilage ou release).</translation>
+    </message>
+    <message>
+        <source>Run %1 in %2 Mode?</source>
+        <extracomment>%1 = tool name, %2 = debug/release/profile</extracomment>
+        <translation>Lancer %1 en mode %2&#xa0;?</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. %3&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Vous essayez d&apos;exécuter l&apos;outil «&#xa0;%1&#xa0;» sur une application en mode %2. %3&lt;/p&gt;&lt;p&gt;Les caractéristiques d&apos;exécution diffèrent significativement entre les binaires optimisés et non optimisés. Les résultats analytiques d&apos;un mode peuvent être ou peuvent ne pas être comparables à un autre.&lt;/p&gt;&lt;p&gt;L&apos;exécution des outils qui nécessitent les symboles de débogage sur des binaires qui n&apos;en fournissent pas peuvent indiquer des noms de fonction incorrects, manquants ou encore, fournir une sortie incomplète.&lt;/p&gt;&lt;p&gt;Souhaitez-vous continuer et exécuter l&apos;outil dans le mode %2&#xa0;?&lt;/p&gt;</translation>
+    </message>
+    <message>
         <source>Analyzing finished.</source>
         <translation>L’analyse est terminée.</translation>
-    </message>
-    <message>
-        <source>Error: &quot;%1&quot; could not be started: %2</source>
-        <translation>Erreur : «&#xa0;%1&#xa0;» ne peux pas démarrer : %2</translation>
-    </message>
-    <message>
-        <source>Error: no Valgrind executable set.</source>
-        <translation>Erreur : aucun exécutable Valgrind est défini.</translation>
-    </message>
-    <message>
-        <source>Process terminated.</source>
-        <translation>Le processus s’est terminé.</translation>
-    </message>
-    <message>
-        <source>Process exited with return value %1
-</source>
-        <translation>Le processus s’est terminé avec la valeur de retour %1
-</translation>
     </message>
     <message>
         <source>Valgrind Generic Settings</source>
@@ -69156,6 +70248,10 @@ Vérifiez les paramètres pour vous assurer que Valgrind est installé et dispon
     <message>
         <source>Working directory:</source>
         <translation>Répertoire de travail&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Cannot start %1 without a project. Open the project and try again.</source>
+        <translation>Impossible de démarrer %1 sans un projet. Ouvrir le projet et réessayez.</translation>
     </message>
 </context>
 <context>
@@ -69766,10 +70862,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation>Sélectionnez le répertoire racine d’une %1 installée. Assurez-vous que la version activée du SDK est compatible avec la version %2 ou %3 pour laquelle vous prévoyez de développer.</translation>
     </message>
     <message>
-        <source>The activated SDK is not usable by %1.</source>
-        <translation>Le kit de développement activé n&apos;est pas utilisable par %1.</translation>
-    </message>
-    <message>
         <source>Emscripten SDK environment:</source>
         <translation>Environnement SDK d’Emscripten :</translation>
     </message>
@@ -69849,6 +70941,28 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <message>
         <source>Emscripten</source>
         <translation>Emscripten</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; config file does not exist in &quot;%2&quot;.</source>
+        <translation>Le fichier de configuration «&#xa0;%1&#xa0;» n&apos;existe pas dans «&#xa0;%2&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Cached emsdk version is invalid.</source>
+        <translation>La version emsdk en cache est invalide.</translation>
+    </message>
+    <message>
+        <source>Failed to locate &quot;%1&quot;.</source>
+        <translation>Impossible de localiser «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Failed to run %1:
+%2</source>
+        <translation>Échec lors de l&apos;exécution %1&#xa0;:
+%2</translation>
+    </message>
+    <message>
+        <source>Failed to parse emsdk version from output: &quot;%1&quot;.</source>
+        <translation>Échec lors de l&apos;analyse de la version emsdk depuis la sortie&#xa0;: «&#xa0;%1&#xa0;».</translation>
     </message>
 </context>
 <context>
@@ -69973,6 +71087,81 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <message>
         <source>Take a UI Tour?</source>
         <translation>Faire une visite guidée de l&apos;interface utilisateur&#xa0;?</translation>
+    </message>
+</context>
+<context>
+    <name>QtC::ZenMode</name>
+    <message>
+        <source>Zen Mode</source>
+        <translation>Mode zen</translation>
+    </message>
+    <message>
+        <source>Toggle Distraction Free Mode</source>
+        <translation>Activer/désactiver le mode sans distraction</translation>
+    </message>
+    <message>
+        <source>Shift+Escape</source>
+        <translation>Maj&#xa0;+&#xa0;Échap</translation>
+    </message>
+    <message>
+        <source>Toggle Zen Mode</source>
+        <translation>Activer/désactiver le mode zen</translation>
+    </message>
+    <message>
+        <source>Shift+Alt+Z</source>
+        <translation>Maj&#xa0;+&#xa0;Alt&#xa0;+&#xa0;Z</translation>
+    </message>
+    <message>
+        <source>Distraction free mode is active.</source>
+        <translation>Le mode sans distraction est actif.</translation>
+    </message>
+    <message>
+        <source>Distraction free mode is inactive.</source>
+        <translation>Le mode sans distraction est inactif.</translation>
+    </message>
+    <message>
+        <source>Zen mode is active.</source>
+        <translation>Le mode zen est actif.</translation>
+    </message>
+    <message>
+        <source>Zen mode is inactive.</source>
+        <translation>Le mode zen est inactif.</translation>
+    </message>
+    <message>
+        <source>Editor content width:</source>
+        <translation>Largeur du contenu de l&apos;éditeur&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Hidden</source>
+        <translation>Caché</translation>
+    </message>
+    <message>
+        <source>Hide the mode selector (default).</source>
+        <translation>Cache le sélecteur de mode (défaut).</translation>
+    </message>
+    <message>
+        <source>Icons Only</source>
+        <translation>Icônes uniquement</translation>
+    </message>
+    <message>
+        <source>Show only icons in the mode selector.</source>
+        <translation>Affiche seulement des icônes dans le sélecteur de mode.</translation>
+    </message>
+    <message>
+        <source>Icons and Text</source>
+        <translation>Icônes et texte</translation>
+    </message>
+    <message>
+        <source>Show icons and text in the mode selector.</source>
+        <translation>Affiche des icônes et du texte dans le sélecteur de mode.</translation>
+    </message>
+    <message>
+        <source>When Zen Mode is Active</source>
+        <translation>Lorsque le mode zen est actif</translation>
+    </message>
+    <message>
+        <source>Mode selector:</source>
+        <translation>Sélecteur de mode&#xa0;:</translation>
     </message>
 </context>
 <context>
@@ -73012,25 +74201,6 @@ atteint le début ou la fin.</translation>
     <message>
         <source>Wrap</source>
         <translation>Boucle</translation>
-    </message>
-</context>
-<context>
-    <name>SplitButton</name>
-    <message>
-        <source>Packing</source>
-        <translation>Empaquetage</translation>
-    </message>
-    <message>
-        <source>Sending</source>
-        <translation>Envoi</translation>
-    </message>
-    <message>
-        <source>Starting</source>
-        <translation>Démarrage</translation>
-    </message>
-    <message>
-        <source>Device Manager</source>
-        <translation>Gestionnaire de périphériques</translation>
     </message>
 </context>
 <context>

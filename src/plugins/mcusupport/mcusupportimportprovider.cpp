@@ -62,6 +62,32 @@ static std::optional<FilePath> getTargetBuildFolder(const FilePath &path)
     return projectBuildFolder / "CMakeFiles" / (project->displayName() + ".dir");
 };
 
+void McuSupportImportProvider::prepare(const Document *context)
+{
+    // Runs on the GUI thread (called by SemanticInfoUpdater before the worker-thread link).
+    if (!context)
+        return;
+    const FilePath path = context->fileName();
+    const std::optional<FilePath> folder = getTargetBuildFolder(path);
+    m_targetBuildFolders.write([&](QHash<FilePath, FilePath> &folders) {
+        if (folder)
+            folders.insert(path, *folder);
+        else
+            folders.remove(path);
+    });
+}
+
+std::optional<FilePath> McuSupportImportProvider::cachedTargetBuildFolder(const FilePath &path) const
+{
+    return m_targetBuildFolders.get([&](const QHash<FilePath, FilePath> &folders)
+                                        -> std::optional<FilePath> {
+        const auto it = folders.constFind(path);
+        if (it == folders.constEnd())
+            return std::nullopt;
+        return *it;
+    });
+}
+
 QList<Import> McuSupportImportProvider::imports(ValueOwner *valueOwner,
                                                 const Document *context,
                                                 Snapshot *snapshot) const
@@ -69,7 +95,7 @@ QList<Import> McuSupportImportProvider::imports(ValueOwner *valueOwner,
     QList<Import> ret;
 
     const FilePath path = context->fileName();
-    const std::optional<FilePath> cmakeFilesPathOpt = getTargetBuildFolder(path);
+    const std::optional<FilePath> cmakeFilesPathOpt = cachedTargetBuildFolder(path);
     if (!cmakeFilesPathOpt)
         return {};
 
@@ -126,7 +152,7 @@ FilePaths McuSupportImportProvider::prioritizeImportPaths(const Document *contex
 {
     if (!context)
         return importPaths;
-    const std::optional<FilePath> cmakeFilesPathOpt = getTargetBuildFolder(context->fileName());
+    const std::optional<FilePath> cmakeFilesPathOpt = cachedTargetBuildFolder(context->fileName());
     if (!cmakeFilesPathOpt)
         return importPaths;
     FilePaths ret;
@@ -151,7 +177,7 @@ void McuSupportImportProvider::getInterfacesImport(const FilePath &path,
                                                    ValueOwner *valueOwner,
                                                    Snapshot *snapshot) const
 {
-    const std::optional<FilePath> cmakeFilesPathOpt = getTargetBuildFolder(path);
+    const std::optional<FilePath> cmakeFilesPathOpt = cachedTargetBuildFolder(path);
     if (!cmakeFilesPathOpt)
         return;
 

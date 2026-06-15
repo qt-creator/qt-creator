@@ -127,8 +127,7 @@
     \section1 Set the path to vcpkg
 
     To set the path to the directory where you installed vcpkg, select
-    \imagesettings {Configure} (\uicontrol Configure) on the
-    editor toolbar.
+    \imagesettings (\uicontrol Configure) on the editor toolbar.
 
     \sa {Set up vcpkg package manager}, {Create vcpkg manifest files}
 */

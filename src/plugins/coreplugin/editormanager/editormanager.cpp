@@ -4208,6 +4208,14 @@ TextFileFormat::LineTerminationMode EditorManager::defaultLineEnding()
 }
 
 /*!
+    Splits the editor view vertically into stacked views.
+*/
+void EditorManager::split()
+{
+    EditorManagerPrivate::split(Qt::Vertical);
+}
+
+/*!
     Splits the editor view horizontally into adjacent views.
 */
 void EditorManager::splitSideBySide()
