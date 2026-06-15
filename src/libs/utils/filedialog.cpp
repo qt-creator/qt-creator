@@ -88,6 +88,13 @@ public:
         invalidateFilter();
     }
 
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    {
+        if (role == Qt::TextAlignmentRole && index.column() == FileSystemModel::SizeColumn)
+            return QVariant::fromValue(Qt::AlignRight | Qt::AlignVCenter);
+        return QSortFilterProxyModel::data(index, role);
+    }
+
     Qt::ItemFlags flags(const QModelIndex &index) const override
     {
         Qt::ItemFlags f = QSortFilterProxyModel::flags(index);
