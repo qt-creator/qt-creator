@@ -393,30 +393,29 @@ void CppEditorDocument::Private::reparseWithPreferredParseContext(const QString 
 void CppEditorDocument::Private::onFilePathChanged(const FilePath &oldPath, const FilePath &newPath)
 {
     Q_UNUSED(oldPath)
+    QTC_ASSERT(!newPath.isEmpty(), return);
 
-    if (!newPath.isEmpty()) {
-        // tabSettings() is overridden to prefer the indenter's tab settings, which
-        // depend on the file path (ClangFormat looks up .clang-format relative to
-        // the file). Notify the attached widgets so they recompute their tab stops
-        // with the now resolvable style.
-        emit q->tabSettingsChanged();
+    // tabSettings() is overridden to prefer the indenter's tab settings, which
+    // depend on the file path (ClangFormat looks up .clang-format relative to
+    // the file). Notify the attached widgets so they recompute their tab stops
+    // with the now resolvable style.
+    emit q->tabSettingsChanged();
 
-        q->setMimeType(mimeTypeForFile(newPath).name());
+    q->setMimeType(mimeTypeForFile(newPath).name());
 
-        connect(q, &Core::IDocument::contentsChanged,
-                q, &CppEditorDocument::scheduleProcessDocument,
-                Qt::UniqueConnection);
+    connect(q, &Core::IDocument::contentsChanged,
+            q, &CppEditorDocument::scheduleProcessDocument,
+            Qt::UniqueConnection);
 
-        // Un-Register/Register in ModelManager
-        m_editorDocumentHandle.reset();
-        m_editorDocumentHandle.reset(new CppEditorDocumentHandleImpl(this));
+    // Un-Register/Register in ModelManager
+    m_editorDocumentHandle.reset();
+    m_editorDocumentHandle.reset(new CppEditorDocumentHandleImpl(this));
 
-        resetProcessor();
-        applyPreferredParseContextFromSettings();
-        applyExtraPreprocessorDirectivesFromSettings();
-        m_processorRevision = document()->revision();
-        processDocument();
-    }
+    resetProcessor();
+    applyPreferredParseContextFromSettings();
+    applyExtraPreprocessorDirectivesFromSettings();
+    m_processorRevision = document()->revision();
+    processDocument();
 }
 
 void CppEditorDocument::scheduleProcessDocument()
