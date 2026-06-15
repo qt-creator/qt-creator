@@ -15324,7 +15324,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Workspace Manager</source>
-        <translation>Zarządzanie obszarami roboczymi</translation>
+        <translation>Zarządzanie obszarem roboczym</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-workspaces.html&quot;&gt;What is a Workspace?&lt;/a&gt;</source>
@@ -17695,7 +17695,7 @@ Ustaw właściwość &quot;%2&quot; ręcznie.</translation>
     </message>
     <message>
         <source>Enables grouping of test cases.</source>
-        <translation>Odblokowuje grupowanie wartiantów testu.</translation>
+        <translation>Odblokowuje grupowanie wariantów testu.</translation>
     </message>
     <message>
         <source>Reset Cached Choices</source>
@@ -46618,7 +46618,7 @@ Przydatne gdy katalog budowania jest uszkodzony lub przy ponownym budowaniu z no
         <source>The profiler did not produce any samples. Make sure that you are running a recent Linux kernel and that the &quot;perf&quot; utility is available and generates useful call graphs.
 You might find further explanations in the Application Output view.</source>
         <translation>Profiler nie wyprodukował żadnych próbek. Upewnij się, że używasz aktualnego jądra Linuksa i że narzędzie &quot;perf&quot; jest dostępne i generuje użyteczne grafy wywołań.
-Więcej informacji możesz znaleźć w widoku Wyjście aplikacji.</translation>
+Więcej informacji możesz znaleźć w widoku Komunikaty aplikacji.</translation>
     </message>
     <message>
         <source>A performance analysis is still in progress.</source>
@@ -47433,12 +47433,12 @@ Więcej informacji możesz znaleźć w widoku Wyjście aplikacji.</translation>
     <message>
         <source>None</source>
         <comment>Stop applications before building: None</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>All</source>
         <comment>Stop all projects</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie</translation>
     </message>
     <message>
         <source>Same Application</source>
@@ -47459,23 +47459,23 @@ Więcej informacji możesz znaleźć w widoku Wyjście aplikacji.</translation>
     <message>
         <source>s</source>
         <extracomment>Suffix for &quot;seconds&quot;</extracomment>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>Time to wait before force-stopping applications:</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas oczekiwania przed wymuszonym zatrzymaniem aplikacji:</translation>
     </message>
     <message>
         <source>The amount of seconds to wait between a &quot;soft kill&quot; and a &quot;hard kill&quot; of a running application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba sekund oczekiwania między &quot;miękkim&quot; a &quot;twardym&quot; zakończeniem działającej aplikacji.</translation>
     </message>
     <message>
         <source>Environment changes to apply to run configurations, but not build configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmiany środowiskowe stosowane do konfiguracji uruchamiania, ale nie do konfiguracji budowania.</translation>
     </message>
     <message>
         <source>Application environment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Środowisko aplikacji:</translation>
     </message>
     <message>
         <source>Projects Directory</source>
@@ -47523,15 +47523,15 @@ Więcej informacji możesz znaleźć w widoku Wyjście aplikacji.</translation>
     </message>
     <message>
         <source>Template used to construct the default build directory.&lt;br&gt;&lt;br&gt;The default value can be set using the environment variable &lt;tt&gt;%1&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Szablon używany do tworzenia domyślnego katalogu budowania.&lt;br&gt;&lt;br&gt;Wartość domyślna może być ustawiona za pomocą zmiennej środowiskowej &lt;tt&gt;%1&lt;/tt&gt;.</translation>
     </message>
     <message>
         <source>Default working directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny katalog roboczy:</translation>
     </message>
     <message>
         <source>Template used to construct the default working directory of a run configuration.&lt;br&gt;&lt;br&gt;The default value can be set using the environment variable &lt;tt&gt;%1&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Szablon używany do tworzenia domyślnego katalogu roboczego konfiguracji uruchamiania.&lt;br&gt;&lt;br&gt;Wartość domyślna może być ustawiona za pomocą zmiennej środowiskowej &lt;tt&gt;%1&lt;/tt&gt;.</translation>
     </message>
     <message>
         <source>QML debugging:</source>
@@ -47563,35 +47563,35 @@ Więcej informacji możesz znaleźć w widoku Wyjście aplikacji.</translation>
     </message>
     <message>
         <source>Keep run configurations in sync:</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronizuj konfiguracje uruchamiania:</translation>
     </message>
     <message>
         <source>Whether adding, removing or editing a run configuration in one build configuration should update other build configurations accordingly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Określa, czy dodawanie, usuwanie lub edytowanie konfiguracji uruchamiania w jednej konfiguracji budowania powinno aktualizować inne konfiguracje budowania.</translation>
     </message>
     <message>
         <source>Do Not Sync</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie synchronizuj</translation>
     </message>
     <message>
         <source>All build configurations have their own set of run configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Każda konfiguracja budowania ma własny zestaw konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>Sync Within One Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronizuj w ramach jednego zestawu narzędzi</translation>
     </message>
     <message>
         <source>Build configurations in the same kit keep their run configurations in sync.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracje budowania z tego samego zestawu narzędzi synchronizują swoje konfiguracje uruchamiania.</translation>
     </message>
     <message>
         <source>Sync Across All Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronizuj we wszystkich zestawach narzędzi</translation>
     </message>
     <message>
         <source>All build configurations in a project keep their run configurations in sync, even across kits.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie konfiguracje budowania w projekcie synchronizują swoje konfiguracje uruchamiania, nawet między zestawami narzędzi.</translation>
     </message>
     <message>
         <source>Clear issues list on new build</source>
@@ -47607,27 +47607,27 @@ Więcej informacji możesz znaleźć w widoku Wyjście aplikacji.</translation>
     </message>
     <message>
         <source>Warn against build directories with spaces or non-ASCII characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostrzegaj o katalogach budowania ze spacjami lub znakami spoza ASCII</translation>
     </message>
     <message>
         <source>Some legacy build tools do not deal well with paths that contain &quot;special&quot; characters such as spaces, potentially resulting in spurious build errors.&lt;p&gt;Uncheck this option if you do not work with such tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niektóre starsze narzędzia budowania nie radzą sobie dobrze ze ścieżkami zawierającymi &quot;specjalne&quot; znaki, takie jak spacje, co może powodować fałszywe błędy budowania.&lt;p&gt;Odznacz tę opcję, jeśli nie korzystasz z takich narzędzi.</translation>
     </message>
     <message>
         <source>Show All Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż wszystkie zestawy narzędzi</translation>
     </message>
     <message>
         <source>Show Only Suitable Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż tylko odpowiednie zestawy narzędzi</translation>
     </message>
     <message>
         <source>Show Only Active Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż tylko aktywne zestawy narzędzi</translation>
     </message>
     <message>
         <source>Kits listed in &quot;Projects&quot; mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zestawy narzędzi wyświetlane w trybie &quot;Projekty&quot;:</translation>
     </message>
     <message>
         <source>Do Not Build Anything</source>
@@ -47643,7 +47643,7 @@ Więcej informacji możesz znaleźć w widoku Wyjście aplikacji.</translation>
     </message>
     <message>
         <source>Building and Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Budowanie i uruchamianie</translation>
     </message>
     <message>
         <source>Same Build Directory</source>
@@ -47727,7 +47727,7 @@ Więcej informacji możesz znaleźć w widoku Wyjście aplikacji.</translation>
     </message>
     <message>
         <source>Locates files of all open projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyszukuje pliki we wszystkich otwartych projektach. Dodaj &quot;+&lt;number&gt;&quot; lub &quot;:&lt;number&gt;&quot;, aby przejść do podanego numeru linii. Dodaj kolejne &quot;+&lt;number&gt;&quot; lub &quot;:&lt;number&gt;&quot;, aby przejść również do numeru kolumny.</translation>
     </message>
     <message>
         <source>All Projects</source>
@@ -47759,7 +47759,7 @@ Wykluczenia: %2
     </message>
     <message>
         <source>The build device failed to prepare for the build of %1 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd przygotowywania budowania %1 (%2) na urządzeniu do budowania.</translation>
     </message>
     <message>
         <source>Compile</source>
@@ -47768,7 +47768,7 @@ Wykluczenia: %2
     </message>
     <message>
         <source>Issues parsed from the compile output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy wykryte w wynikach kompilacji.</translation>
     </message>
     <message>
         <source>Build System</source>
@@ -47777,7 +47777,7 @@ Wykluczenia: %2
     </message>
     <message>
         <source>Issues from the build system, such as CMake or qmake.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy z systemu budowania, np. CMake lub qmake.</translation>
     </message>
     <message>
         <source>Deployment</source>
@@ -47806,16 +47806,16 @@ Wykluczenia: %2
     </message>
     <message>
         <source>Issues found when deploying applications to devices.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy wykryte podczas instalowania aplikacji na urządzenia.</translation>
     </message>
     <message>
         <source>Autotests</source>
         <comment>Category for autotest issues listed under &apos;Issues&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Testy automatyczne</translation>
     </message>
     <message>
         <source>Issues found when running tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy wykryte podczas uruchamiania testów.</translation>
     </message>
     <message>
         <source>Running steps for project %1...</source>
@@ -47839,11 +47839,11 @@ Wykluczenia: %2
     </message>
     <message>
         <source>Clone...</source>
-        <translation type="unfinished">Klonuj...</translation>
+        <translation>Klonuj...</translation>
     </message>
     <message>
         <source>Active build configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktywna konfiguracja budowania:</translation>
     </message>
     <message>
         <source>New Configuration</source>
@@ -47896,19 +47896,19 @@ Wykluczenia: %2
     <message>
         <source>compile-output.txt</source>
         <extracomment>file name suggested for saving compile output</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>compile-output.txt</translation>
     </message>
     <message>
         <source>Show Compile &amp;Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż &amp;wyniki kompilacji</translation>
     </message>
     <message>
         <source>Show the output that generated this issue in Compile Output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż wynik kompilacji, który wygenerował ten problem.</translation>
     </message>
     <message>
         <source>Discarded excessive compile output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Odrzucono nadmiarowe wyniki kompilacji.</translation>
     </message>
     <message>
         <source>Open Compile Output when building</source>
@@ -47916,7 +47916,7 @@ Wykluczenia: %2
     </message>
     <message>
         <source>Discards compile output that continuously comes in faster than it can be handled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Odrzuca wyniki kompilacji napływające szybciej niż można je przetworzyć.</translation>
     </message>
     <message>
         <source>Files in Current Project</source>
@@ -47924,11 +47924,11 @@ Wykluczenia: %2
     </message>
     <message>
         <source>Locates files from the current document&apos;s project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyszukuje pliki z projektu bieżącego dokumentu. Dodaj &quot;+&lt;number&gt;&quot; lub &quot;:&lt;number&gt;&quot;, aby przejść do podanego numeru linii. Dodaj kolejne &quot;+&lt;number&gt;&quot; lub &quot;:&lt;number&gt;&quot;, aby przejść również do numeru kolumny.</translation>
     </message>
     <message>
         <source>Single Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Pojedynczy projekt</translation>
     </message>
     <message>
         <source>Project &quot;%1&quot;:</source>
@@ -47940,7 +47940,7 @@ Wykluczenia: %2
     </message>
     <message>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>Bieżący</translation>
     </message>
     <message>
         <source>Unable to Add Dependency</source>
@@ -47988,7 +47988,7 @@ Wykluczenia: %2
     </message>
     <message>
         <source>Open a terminal with this environment set up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz terminal z tym środowiskiem.</translation>
     </message>
     <message>
         <source>Unset &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
@@ -48000,15 +48000,15 @@ Wykluczenia: %2
     </message>
     <message>
         <source>Append &lt;b&gt;%2&lt;/b&gt; to &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Dołącz &lt;b&gt;%2&lt;/b&gt; do &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Prepend &lt;b&gt;%2&lt;/b&gt; to &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wstaw &lt;b&gt;%2&lt;/b&gt; przed &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Set &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; to &lt;b&gt;%2&lt;/b&gt; [disabled]</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; na &lt;b&gt;%2&lt;/b&gt; [wyłączone]</translation>
     </message>
     <message>
         <source>Use &lt;b&gt;%1&lt;/b&gt;</source>
@@ -48017,7 +48017,7 @@ Wykluczenia: %2
     </message>
     <message>
         <source>&lt;b&gt;No environment changes&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Brak zmian środowiskowych&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Use &lt;b&gt;%1&lt;/b&gt; and</source>
@@ -48314,12 +48314,12 @@ Czy zignorować je?</translation>
     </message>
     <message>
         <source>No executable configured in the custom run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak skonfigurowanego pliku wykonywalnego we własnej konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>Go to the %1 run configuration and set up an executable.</source>
         <extracomment>%1 = display name of the run configuration</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Przejdź do konfiguracji uruchamiania %1 i skonfiguruj plik wykonywalny.</translation>
     </message>
     <message>
         <source>New Subproject</source>
@@ -48356,7 +48356,7 @@ Czy zignorować je?</translation>
     </message>
     <message>
         <source>Issues from a task list file (.tasks).</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy z pliku listy zadań (.tasks).</translation>
     </message>
     <message>
         <source>Parse Build Output...</source>
@@ -48372,11 +48372,11 @@ Czy zignorować je?</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmieniono nazwę pliku &quot;%1&quot; na &quot;%2&quot;, ale następujące projekty nie mogły zostać automatycznie zaktualizowane: %3</translation>
     </message>
     <message>
         <source>The following projects failed to automatically remove the file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Następujące projekty nie usunęły automatycznie pliku: %1</translation>
     </message>
     <message>
         <source>Close %1?</source>
@@ -48384,11 +48384,11 @@ Czy zignorować je?</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and close %1 anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz anulować proces budowania i mimo to zamknąć %1?</translation>
     </message>
     <message>
         <source>A run action is already scheduled for the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Akcja uruchamiania jest już zaplanowana dla aktywnego projektu.</translation>
     </message>
     <message>
         <source>%1 in %2</source>
@@ -48396,7 +48396,7 @@ Czy zignorować je?</translation>
     </message>
     <message>
         <source>The following subprojects could not be added to project &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można dodać następujących podprojektów do projektu &quot;%1&quot;:</translation>
     </message>
     <message>
         <source>Adding Subproject Failed</source>
@@ -48415,7 +48415,8 @@ Czy zignorować je?</translation>
     <message>
         <source>File &quot;%1&quot; was not removed, because the project has changed in the meantime.
 Please try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik &quot;%1&quot; nie został usunięty, ponieważ projekt zmienił się w trakcie.
+Spróbuj ponownie.</translation>
     </message>
     <message>
         <source>Could not remove file &quot;%1&quot; from project &quot;%2&quot;.</source>
@@ -48439,7 +48440,7 @@ Please try again.</source>
     </message>
     <message>
         <source>Locates files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyszukuje pliki ze wszystkich katalogów projektów. Dodaj &quot;+&lt;number&gt;&quot; lub &quot;:&lt;number&gt;&quot;, aby przejść do podanego numeru linii. Dodaj kolejne &quot;+&lt;number&gt;&quot; lub &quot;:&lt;number&gt;&quot;, aby przejść również do numeru kolumny.</translation>
     </message>
     <message>
         <source>Run Run Configuration</source>
@@ -48451,11 +48452,11 @@ Please try again.</source>
     </message>
     <message>
         <source>Debug Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdebuguj konfigurację uruchamiania</translation>
     </message>
     <message>
         <source>Starts debugging a run configuration of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozpoczyna debugowanie konfiguracji uruchamiania aktywnego projektu.</translation>
     </message>
     <message>
         <source>Switched run configuration to
@@ -48477,67 +48478,67 @@ Please try again.</source>
     </message>
     <message>
         <source>SSH executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik wykonywalny SSH:</translation>
     </message>
     <message>
         <source>Ninja executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik wykonywalny Ninja:</translation>
     </message>
     <message>
         <source>SDKs</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK</translation>
     </message>
     <message>
         <source>Edit Active Build Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmodyfikuj aktywną konfigurację budowania</translation>
     </message>
     <message>
         <source>Ctrl+E, Ctrl+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+E, Ctrl+B</translation>
     </message>
     <message>
         <source>Edit Active Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmodyfikuj aktywną konfigurację uruchamiania</translation>
     </message>
     <message>
         <source>Ctrl+E, Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+E, Ctrl+R</translation>
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished">Otwórz projekt</translation>
+        <translation>Otwórz projekt</translation>
     </message>
     <message>
         <source>Open Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz obszar roboczy</translation>
     </message>
     <message>
         <source>Issues not covered by a more specialized category.</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy nieobsługiwane przez bardziej wyspecjalizowaną kategorię.</translation>
     </message>
     <message>
         <source>Cannot open project &quot;%1&quot;: Plugin is not loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd otwierania projektu &quot;%1&quot;: wtyczka nie jest załadowana.</translation>
     </message>
     <message>
         <source>The following files could not be renamed in the file system:%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zmienić nazw następujących plików w systemie plików:%1</translation>
     </message>
     <message>
         <source>These files were renamed in the file system, but project files were not updated:%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmieniono nazwy plików w systemie plików, ale pliki projektu nie zostały zaktualizowane:%1</translation>
     </message>
     <message>
         <source>These files were renamed in the file system, but the project structure was not updated (context lost or not supported):%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmieniono nazwy plików w systemie plików, ale struktura projektu nie została zaktualizowana (kontekst utracony lub nieobsługiwany):%1</translation>
     </message>
     <message>
         <source>Renaming Issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemy ze zmianą nazw</translation>
     </message>
     <message>
         <source>The project is already open.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt jest już otwarty.</translation>
     </message>
     <message>
         <source>A build is in progress.</source>
@@ -48561,7 +48562,7 @@ Please try again.</source>
     </message>
     <message>
         <source>Failed to open terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd otwierania terminala.</translation>
     </message>
     <message>
         <source>Removing File Failed</source>
@@ -48597,15 +48598,15 @@ Please try again.</source>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished">&amp;Analiza</translation>
+        <translation>&amp;Analiza</translation>
     </message>
     <message>
         <source>Open Project...</source>
-        <translation type="unfinished">Otwórz projekt...</translation>
+        <translation>Otwórz projekt...</translation>
     </message>
     <message>
         <source>Open Workspace...</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz obszar roboczy...</translation>
     </message>
     <message>
         <source>Close All Files in Project</source>
@@ -48645,7 +48646,7 @@ Please try again.</source>
     </message>
     <message>
         <source>Build Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbuduj aktywny projekt</translation>
     </message>
     <message>
         <source>Build Project for All Configurations</source>
@@ -48673,7 +48674,7 @@ Please try again.</source>
     </message>
     <message>
         <source>Clean Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść aktywny projekt</translation>
     </message>
     <message>
         <source>Clean Project for All Configurations</source>
@@ -48685,7 +48686,7 @@ Please try again.</source>
     </message>
     <message>
         <source>Run Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom aktywny projekt</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -48697,11 +48698,11 @@ Please try again.</source>
     </message>
     <message>
         <source>Create Header File</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz plik nagłówkowy</translation>
     </message>
     <message>
         <source>Create Source File</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz plik źródłowy</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -48717,11 +48718,11 @@ Please try again.</source>
     </message>
     <message>
         <source>Enable %1 Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz wtyczkę %1</translation>
     </message>
     <message>
         <source>The plugin &quot;%1&quot; is required to open projects of type &quot;%2&quot; Do you want to enable it now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczka &quot;%1&quot; jest wymagana do otwierania projektów typu &quot;%2&quot;. Czy chcesz ją teraz włączyć?</translation>
     </message>
     <message>
         <source>New Project</source>
@@ -48803,11 +48804,11 @@ do projektu &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Hide Disabled Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj wyłączone pliki</translation>
     </message>
     <message>
         <source>Focus Document in Project Tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Przejdź do dokumentu w drzewie projektu</translation>
     </message>
     <message>
         <source>Meta+Shift+L</source>
@@ -48823,7 +48824,7 @@ do projektu &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Hide Source and Header Groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj grupy plików źródłowych i nagłówkowych</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
@@ -48884,11 +48885,11 @@ do projektu &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Remove Project from Recent Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń projekt z ostatnich projektów</translation>
     </message>
     <message>
         <source>Clear Recent Project List</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść listę ostatnich projektów</translation>
     </message>
     <message>
         <source>Clone</source>
@@ -48940,35 +48941,35 @@ do projektu &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Variables in the run environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienne środowiska uruchamiania.</translation>
     </message>
     <message>
         <source>The run configuration&apos;s working directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog roboczy konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>Use &lt;a href=&quot;dummy&quot;&gt;global settings&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj &lt;a href=&quot;dummy&quot;&gt;ustawień globalnych&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Use global settings</source>
-        <translation type="unfinished">Użyj globalnych ustawień</translation>
+        <translation>Użyj globalnych ustawień</translation>
     </message>
     <message>
         <source>Use Global Settings</source>
-        <translation type="unfinished">Użyj globalnych ustawień</translation>
+        <translation>Użyj globalnych ustawień</translation>
     </message>
     <message>
         <source>Use Customized Settings</source>
-        <translation type="unfinished">Użyj własnych ustawień</translation>
+        <translation>Użyj własnych ustawień</translation>
     </message>
     <message>
         <source>The run configuration&apos;s name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>The run configuration&apos;s executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik wykonywalny konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>Run on %{Device:Name}</source>
@@ -49005,11 +49006,11 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Clone into This...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sklonuj do tego...</translation>
     </message>
     <message>
         <source>Active run configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktywna konfiguracja uruchamiania:</translation>
     </message>
     <message>
         <source>Remove Run Configurations?</source>
@@ -49029,19 +49030,19 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Clone From Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Sklonuj konfigurację uruchamiania</translation>
     </message>
     <message>
         <source>There are no other run configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak innych konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>Deploy Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia instalacji</translation>
     </message>
     <message>
         <source>Active deployment configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktywna konfiguracja instalacji:</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -49069,7 +49070,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Bulk Remove...</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń zbiorczo...</translation>
     </message>
     <message>
         <source>Error while restoring session</source>
@@ -49089,7 +49090,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Delete Sessions</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń sesje</translation>
     </message>
     <message>
         <source>Delete session %1?</source>
@@ -49098,19 +49099,20 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     <message>
         <source>Delete these sessions?
     %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Usunąć te sesje?
+    %1</translation>
     </message>
     <message>
         <source>Failed to load settings from &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd wczytywania ustawień z &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Is a directory, but must be a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jest katalogiem, ale musi być plikiem.</translation>
     </message>
     <message>
         <source>Is a file, but must be a directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jest plikiem, ale musi być katalogiem.</translation>
     </message>
     <message>
         <source>Could not restore the following project files:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;</source>
@@ -49134,7 +49136,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Could not save session %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd zapisu sesji %1</translation>
     </message>
     <message>
         <source>Could not save session to file &quot;%1&quot;</source>
@@ -49154,7 +49156,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <extracomment>Displayed name for a &quot;cleaning&quot; build step
 ----------
 Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
-        <translation type="unfinished">Wyczyść</translation>
+        <translation>Wyczyść</translation>
     </message>
     <message>
         <source>Custom Output Parsers</source>
@@ -49162,11 +49164,11 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Parse standard output during build</source>
-        <translation type="unfinished"></translation>
+        <translation>Parsuj standardowe wyjście podczas budowania</translation>
     </message>
     <message>
         <source>Makes output parsers look for diagnostics on stdout rather than stderr.</source>
-        <translation type="unfinished"></translation>
+        <translation>Powoduje, że parsery wyników szukają diagnostyki na stdout zamiast stderr.</translation>
     </message>
     <message>
         <source>Build Settings</source>
@@ -49174,7 +49176,7 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>The project root directory. May differ from Project:Path for some build systems.</source>
-        <translation type="unfinished"></translation>
+        <translation>Główny katalog projektu. Może różnić się od Project:Path dla niektórych systemów budowania.</translation>
     </message>
     <message>
         <source>Build directory</source>
@@ -49182,59 +49184,59 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Name of the build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa konfiguracji budowania</translation>
     </message>
     <message>
         <source>Variables in the build configuration&apos;s environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienne środowiskowe konfiguracji budowania</translation>
     </message>
     <message>
         <source>Tooltip in target selector:</source>
-        <translation type="unfinished"></translation>
+        <translation>Podpowiedź w selektorze celów:</translation>
     </message>
     <message>
         <source>Appears as a tooltip when hovering the build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetlana jako podpowiedź po najechaniu na konfigurację budowania</translation>
     </message>
     <message>
         <source>The project was not parsed successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt nie został pomyślnie sparsowany.</translation>
     </message>
     <message>
         <source>No build device is set for the kit &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak ustawionego urządzenia budowania dla zestawu narzędzi &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>You can try mounting the folder in your device settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Możesz spróbować zamontować katalog w ustawieniach urządzenia.</translation>
     </message>
     <message>
         <source>The build device &quot;%1&quot; cannot reach the project directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie budowania &quot;%1&quot; nie może uzyskać dostępu do katalogu projektu.</translation>
     </message>
     <message>
         <source>The build device &quot;%1&quot; cannot reach the build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie budowania &quot;%1&quot; nie może uzyskać dostępu do katalogu budowania.</translation>
     </message>
     <message>
         <source>Main file of the project</source>
-        <translation type="unfinished"></translation>
+        <translation>Główny plik projektu</translation>
     </message>
     <message>
         <source>Name of the project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa projektu</translation>
     </message>
     <message>
         <source>Name of the project&apos;s active build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa aktywnej konfiguracji budowania projektu</translation>
     </message>
     <message>
         <source>Name of the project&apos;s active build system</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa aktywnego systemu budowania projektu</translation>
     </message>
     <message>
         <source>Type of the project&apos;s active build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ aktywnej konfiguracji budowania projektu</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -49270,151 +49272,151 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Boost.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten kreator tworzy prosty projekt testów jednostkowych z użyciem Boost.</translation>
     </message>
     <message>
         <source>Boost Test (header only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Boost Test (tylko nagłówki)</translation>
     </message>
     <message>
         <source>Boost Test (shared libraries)</source>
-        <translation type="unfinished"></translation>
+        <translation>Boost Test (biblioteki współdzielone)</translation>
     </message>
     <message>
         <source>Boost include directory (optional):</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog include Boost (opcjonalnie):</translation>
     </message>
     <message>
         <source>Boost install directory (optional):</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog instalacji Boost (opcjonalnie):</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Boost. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy nowy projekt testów jednostkowych z użyciem Boost. Testy jednostkowe pozwalają sprawdzić, czy kod działa poprawnie i czy nie ma regresji.</translation>
     </message>
     <message>
         <source>Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt testów</translation>
     </message>
     <message>
         <source>Boost Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Boost Test</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Qt Quick Test.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten kreator tworzy prosty projekt testów jednostkowych z użyciem Qt Quick Test.</translation>
     </message>
     <message>
         <source>Generate setup code</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj kod konfiguracyjny</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Qt Quick Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy nowy projekt testów jednostkowych z użyciem Qt Quick Test. Testy jednostkowe pozwalają sprawdzić, czy kod działa poprawnie i czy nie ma regresji.</translation>
     </message>
     <message>
         <source>Qt Quick Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Qt Quick Test</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Catch2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten kreator tworzy prosty projekt testów jednostkowych z użyciem Catch2.</translation>
     </message>
     <message>
         <source>Catch2 v2 (header only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Catch2 v2 (tylko nagłówki)</translation>
     </message>
     <message>
         <source>Catch2 v3 (shared libraries)</source>
-        <translation type="unfinished"></translation>
+        <translation>Catch2 v3 (biblioteki współdzielone)</translation>
     </message>
     <message>
         <source>Catch2 include directory (optional):</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog include Catch2 (opcjonalnie):</translation>
     </message>
     <message>
         <source>Catch2 install directory (optional):</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog instalacji Catch2 (opcjonalnie):</translation>
     </message>
     <message>
         <source>Use own main</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj własnej funkcji main</translation>
     </message>
     <message>
         <source>Use Qt libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj bibliotek Qt</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Catch2. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy nowy projekt testów jednostkowych z użyciem Catch2. Testy jednostkowe pozwalają sprawdzić, czy kod działa poprawnie i czy nie ma regresji.</translation>
     </message>
     <message>
         <source>Catch2 Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Catch2 Test</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Qt Test.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten kreator tworzy prosty projekt testów jednostkowych z użyciem Qt Test.</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Qt Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy nowy projekt testów jednostkowych z użyciem Qt Test. Testy jednostkowe pozwalają sprawdzić, czy kod działa poprawnie i czy nie ma regresji.</translation>
     </message>
     <message>
         <source>Qt Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Qt Test</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Google Test.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten kreator tworzy prosty projekt testów jednostkowych z użyciem Google Test.</translation>
     </message>
     <message>
         <source>Google Test (header only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Google Test (tylko nagłówki)</translation>
     </message>
     <message>
         <source>Google Test (shared libraries)</source>
-        <translation type="unfinished"></translation>
+        <translation>Google Test (biblioteki współdzielone)</translation>
     </message>
     <message>
         <source>Googletest source directory (optional):</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog źródłowy Googletest (opcjonalnie):</translation>
     </message>
     <message>
         <source>Googletest install directory (optional):</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog instalacji Googletest (opcjonalnie):</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Google Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy nowy projekt testów jednostkowych z użyciem Google Test. Testy jednostkowe pozwalają sprawdzić, czy kod działa poprawnie i czy nie ma regresji.</translation>
     </message>
     <message>
         <source>Google Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Google Test</translation>
     </message>
     <message>
         <source>This wizard creates a custom Qt Creator plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten kreator tworzy własną wtyczkę Qt Creator.</translation>
     </message>
     <message>
         <source>Specify details about your custom Qt Creator plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podaj szczegóły swojej własnej wtyczki Qt Creator.</translation>
     </message>
     <message>
         <source>MyCompany</source>
-        <translation type="unfinished"></translation>
+        <translation>MojaFirma</translation>
     </message>
     <message>
         <source>(C) %{VendorName}</source>
-        <translation type="unfinished"></translation>
+        <translation>(C) %{VendorName}</translation>
     </message>
     <message>
         <source>Put short license information here</source>
-        <translation type="unfinished"></translation>
+        <translation>Wpisz tu krótką informację o licencji</translation>
     </message>
     <message>
         <source>Put a short description of your plugin here</source>
-        <translation type="unfinished"></translation>
+        <translation>Wpisz tu krótki opis wtyczki</translation>
     </message>
     <message>
         <source>Type:</source>
@@ -49466,11 +49468,11 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Deploy dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj zależności</translation>
     </message>
     <message>
         <source>Do not just build dependencies, but deploy them as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie tylko buduj zależności, ale również je instaluj.</translation>
     </message>
     <message>
         <source>Dependencies</source>
@@ -49628,15 +49630,15 @@ Display name of the build build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Querying %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wysyłanie zapytania do %1...</translation>
     </message>
     <message>
         <source>Get help from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uzyskaj pomoc od %1</translation>
     </message>
     <message>
         <source>Ask the %1 LLM to help with this issue.</source>
-        <translation type="unfinished"></translation>
+        <translation>Poproś model językowy %1 o pomoc w rozwiązaniu tego problemu.</translation>
     </message>
     <message>
         <source>Deploy</source>
@@ -49657,15 +49659,15 @@ Display name of the deploy build step list. Used as part of the labels in the pr
     </message>
     <message>
         <source>No recipe producer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak producenta przepisu.</translation>
     </message>
     <message>
         <source>Cannot use ports gatherer. No device is set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd użycia wykrywacza portów. Brak ustawionego urządzenia.</translation>
     </message>
     <message>
         <source>No free ports found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono wolnych portów.</translation>
     </message>
     <message>
         <source>Application Still Running</source>
@@ -49681,19 +49683,19 @@ Display name of the deploy build step list. Used as part of the labels in the pr
     </message>
     <message>
         <source>Stopping process forcefully...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wymuszanie zatrzymania procesu...</translation>
     </message>
     <message>
         <source>Requesting process to stop...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wysyłanie żądania zatrzymania procesu...</translation>
     </message>
     <message>
         <source>Process unexpectedly did not finish.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces nieoczekiwanie nie zakończył się.</translation>
     </message>
     <message>
         <source>Connectivity lost?</source>
-        <translation type="unfinished"></translation>
+        <translation>Utracono połączenie?</translation>
     </message>
     <message>
         <source>Cannot run: No command given.</source>
@@ -49741,7 +49743,7 @@ Display name of the deploy build step list. Used as part of the labels in the pr
     </message>
     <message>
         <source>Create Issues From External Build Output...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wczytaj problemy z zewnętrznych wyników budowania...</translation>
     </message>
     <message>
         <source>Filter by categories</source>
@@ -49769,36 +49771,37 @@ Display name of the deploy build step list. Used as part of the labels in the pr
     </message>
     <message>
         <source>MACRO[=VALUE]</source>
-        <translation type="unfinished"></translation>
+        <translation>MACRO[=VALUE]</translation>
     </message>
     <message>
         <source>%1 (%2 %3 at &quot;%4&quot;)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2 %3 w &quot;%4&quot;)</translation>
     </message>
     <message>
         <source>Override for code model</source>
-        <translation type="unfinished"></translation>
+        <translation>Nadpisanie dla modelu kodu</translation>
     </message>
     <message>
         <source>Enable in the rare case that the code model
 fails because Clang does not understand the target architecture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz tylko w rzadkich przypadkach, gdy model kodu
+nie działa z powodu braku obsługi architektury docelowej przez Clang.</translation>
     </message>
     <message>
         <source>Platform codegen flags:</source>
-        <translation type="unfinished">Flagi codegen platformy:</translation>
+        <translation>Flagi codegen platformy:</translation>
     </message>
     <message>
         <source>Platform linker flags:</source>
-        <translation type="unfinished"></translation>
+        <translation>Flagi linkera platformy:</translation>
     </message>
     <message>
         <source>Target triple:</source>
-        <translation type="unfinished"></translation>
+        <translation>Trójka docelowa:</translation>
     </message>
     <message>
         <source>Parent toolchain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nadrzędny łańcuch narzędzi:</translation>
     </message>
     <message>
         <source>&amp;ABI:</source>
@@ -49834,11 +49837,11 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Create Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz konfigurację uruchamiania</translation>
     </message>
     <message>
         <source>Filter candidates by name</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtruj kandydatów po nazwie</translation>
     </message>
     <message>
         <source>Create</source>
@@ -49846,15 +49849,15 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Remove Run Configurations</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń konfiguracje uruchamiania</translation>
     </message>
     <message>
         <source>Filter run configurations by name</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtruj konfiguracje uruchamiania po nazwie</translation>
     </message>
     <message>
         <source>Remove Selected</source>
-        <translation type="unfinished">Usuń zaznaczone</translation>
+        <translation>Usuń zaznaczone</translation>
     </message>
     <message>
         <source>Type</source>
@@ -49862,11 +49865,11 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Automatically Managed</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzany automatycznie</translation>
     </message>
     <message>
         <source>Automatically managed by %1 or the installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzany automatycznie przez %1 lub instalator.</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -49874,33 +49877,35 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>This toolchain is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten łańcuch narzędzi jest nieprawidłowy.</translation>
     </message>
     <message>
         <source>Toolchain Auto-detection Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia automatycznego wykrywania łańcucha narzędzi</translation>
     </message>
     <message>
         <source>Detect x86_64 GCC compilers as x86_64 and x86</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykrywaj kompilatory GCC x86_64 jako x86_64 i x86</translation>
     </message>
     <message>
         <source>If checked, %1 will set up two instances of each x86_64 compiler:
 One for the native x86_64 target, and one for a plain x86 target.
 Enable this if you plan to create 32-bit x86 binaries without using a dedicated cross compiler.</source>
-        <translation type="unfinished"></translation>
+        <translation>Po zaznaczeniu %1 skonfiguruje dwie instancje każdego kompilatora x86_64:
+Jedną dla natywnego celu x86_64 i jedną dla zwykłego celu x86.
+Włącz tę opcję, jeśli planujesz tworzyć pliki binarne 32-bitowe x86 bez dedykowanego kompilatora krzyżowego.</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Język</translation>
     </message>
     <message>
         <source>Re-detect</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykryj ponownie</translation>
     </message>
     <message>
         <source>Auto-detection Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia automatycznego wykrywania...</translation>
     </message>
     <message>
         <source>Duplicate Compilers Detected</source>
@@ -49909,11 +49914,11 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     <message>
         <source>None</source>
         <comment>Toolchain bundle display name</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Not all compilers are set up correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wszystkie kompilatory są skonfigurowane poprawnie.</translation>
     </message>
     <message>
         <source>The following compiler was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
@@ -49941,15 +49946,15 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     </message>
     <message>
         <source>Category</source>
-        <translation type="unfinished">Kategoria</translation>
+        <translation>Kategoria</translation>
     </message>
     <message>
         <source>Critical</source>
-        <translation type="unfinished"></translation>
+        <translation>Krytyczny</translation>
     </message>
     <message>
         <source>Fatal</source>
-        <translation type="unfinished"></translation>
+        <translation>Fatalny</translation>
     </message>
     <message>
         <source>Info</source>
@@ -49969,11 +49974,11 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     </message>
     <message>
         <source>Show &amp;App Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż &amp;wyniki aplikacji</translation>
     </message>
     <message>
         <source>Show the output that generated this issue in Application Output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż komunikaty aplikacji, które wygenerowały ten problem.</translation>
     </message>
     <message>
         <source>A</source>
@@ -49982,31 +49987,31 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     <message>
         <source>application-output-%1.txt</source>
         <extracomment>file name suggested for saving application output, %1 = run configuration display name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>application-output-%1.txt</translation>
     </message>
     <message>
         <source>Filter Qt Internal Log Categories</source>
-        <translation type="unfinished">Przefiltruj kategorie wewnętrznego logu Qt</translation>
+        <translation>Przefiltruj kategorie wewnętrznego logu Qt</translation>
     </message>
     <message>
         <source>Filter categories by regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtruj kategorie wyrażeniem regularnym</translation>
     </message>
     <message>
         <source>Invalid regular expression: %1</source>
-        <translation type="unfinished">Niepoprawne wyrażenie regularne: %1</translation>
+        <translation>Niepoprawne wyrażenie regularne: %1</translation>
     </message>
     <message>
         <source>Uncheck All</source>
-        <translation type="unfinished">Odznacz wszystko</translation>
+        <translation>Odznacz wszystko</translation>
     </message>
     <message>
         <source>Uncheck All %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Odznacz wszystkie %1</translation>
     </message>
     <message>
         <source>Check All %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz wszystkie %1</translation>
     </message>
     <message>
         <source>Word-wrap output</source>
@@ -50030,16 +50035,17 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     </message>
     <message>
         <source>Discard excessive output</source>
-        <translation type="unfinished"></translation>
+        <translation>Odrzucaj nadmiarowe wyniki</translation>
     </message>
     <message>
         <source>Overwrite background color</source>
-        <translation type="unfinished"></translation>
+        <translation>Nadpisz kolor tła</translation>
     </message>
     <message>
         <source>Customize background color of the application output.
 Note: existing output will not get recolored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostosowuje kolor tła wyników aplikacji.
+Uwaga: istniejące wyniki nie zostaną ponownie pokolorowane.</translation>
     </message>
     <message>
         <source>Limit output to %1 characters</source>
@@ -50059,11 +50065,11 @@ Note: existing output will not get recolored.</source>
     </message>
     <message>
         <source>Re-run this run-configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zrestartuj tę konfigurację uruchamiania.</translation>
     </message>
     <message>
         <source>Stop running program.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj uruchomiony program.</translation>
     </message>
     <message>
         <source>Application Output Window</source>
@@ -50133,7 +50139,7 @@ Note: existing output will not get recolored.</source>
     </message>
     <message>
         <source>&amp;Start Wizard to Add Device...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Uruchom kreator dodawania urządzenia...</translation>
     </message>
     <message>
         <source>Add %1</source>
@@ -50142,7 +50148,7 @@ Note: existing output will not get recolored.</source>
     </message>
     <message>
         <source>&amp;Restore</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Przywróć</translation>
     </message>
     <message>
         <source>Yes (id is &quot;%1&quot;)</source>
@@ -50167,7 +50173,7 @@ Note: existing output will not get recolored.</source>
     <message>
         <source>All</source>
         <comment>All devices</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie</translation>
     </message>
     <message>
         <source>%1 (default for %2)</source>
@@ -50211,101 +50217,103 @@ Note: existing output will not get recolored.</source>
     </message>
     <message>
         <source>Fetching process list. This might take a while.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie listy procesów. Może to chwilę potrwać.</translation>
     </message>
     <message>
         <source>Failed to fetch process list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania listy procesów.</translation>
     </message>
     <message numerus="yes">
         <source>Found %n free ports.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Znaleziono %n wolny port.</numerusform>
+            <numerusform>Znaleziono %n wolne porty.</numerusform>
+            <numerusform>Znaleziono %n wolnych portów.</numerusform>
         </translation>
     </message>
     <message>
         <source>Search in PATH</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukaj w PATH</translation>
     </message>
     <message>
         <source>Search in Qt installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukaj w instalacji Qt</translation>
     </message>
     <message>
         <source>Search in directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukaj w katalogach</translation>
     </message>
     <message>
         <source>Semicolon-separated list of directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista katalogów rozdzielona średnikami</translation>
     </message>
     <message>
         <source>Select the paths on the device that should be scanned for binaries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz ścieżki na urządzeniu, które mają być skanowane w poszukiwaniu plików binarnych.</translation>
     </message>
     <message>
         <source>Create kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz zestawy narzędzi</translation>
     </message>
     <message>
         <source>Set up kits for this device&apos;s toolchains.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfiguruj zestawy narzędzi dla łańcuchów narzędzi tego urządzenia.</translation>
     </message>
     <message>
         <source>Device is not connected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie nie jest podłączone.</translation>
     </message>
     <message>
         <source>Leave empty to look up executable in $PATH</source>
-        <translation type="unfinished">Pozostaw puste aby znaleźć plik w $PATH</translation>
+        <translation>Pozostaw puste, aby znaleźć plik wykonywalny w $PATH</translation>
     </message>
     <message>
         <source>Use SSH port forwarding for debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj przekierowania portów SSH do debugowania</translation>
     </message>
     <message>
         <source>Enable debugging on remote targets that cannot expose GDB server ports.
 The SSH tunneling is used to map the remote GDB server port to localhost.
 The local and remote ports are determined automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącza debugowanie na zdalnych celach, które nie mogą udostępniać portów serwera GDB.
+Tunelowanie SSH mapuje zdalny port serwera GDB na localhost.
+Porty lokalne i zdalne są wykrywane automatycznie.</translation>
     </message>
     <message>
         <source>Access via:</source>
-        <translation type="unfinished">Dostęp poprzez:</translation>
+        <translation>Dostęp poprzez:</translation>
     </message>
     <message>
         <source>Select the device to connect through.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz urządzenie, przez które ma być nawiązywane połączenie.</translation>
     </message>
     <message>
         <source>Direct</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezpośrednie</translation>
     </message>
     <message>
         <source>The device name cannot be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa urządzenia nie może być pusta.</translation>
     </message>
     <message>
         <source>A device with this name already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie o tej nazwie już istnieje.</translation>
     </message>
     <message>
         <source>Enter lists and ranges like this: &quot;1024,1026-1028,1030&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wprowadź listy i zakresy w formacie: &quot;1024,1026-1028,1030&quot;.</translation>
     </message>
     <message>
         <source>Opening a terminal is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak obsługi terminala.</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; cannot be handled by the device &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik &quot;%1&quot; nie może być obsłużony przez urządzenie &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Sourcing a script is not supported on this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak obsługi skryptów źródłowych na tej platformie.</translation>
     </message>
     <message>
         <source>Device</source>
@@ -50313,11 +50321,11 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>No signal operation recipe is available for this device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak przepisu operacji sygnałowej dla tego urządzenia.</translation>
     </message>
     <message>
         <source>Ready to use</source>
-        <translation type="unfinished"></translation>
+        <translation>Gotowe do użycia</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -50333,27 +50341,27 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Run Tools on This Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom narzędzia na tym urządzeniu</translation>
     </message>
     <message>
         <source>Source and Build Tools on This Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzia źródłowe i do budowania na tym urządzeniu</translation>
     </message>
     <message>
         <source>Auto-Detection</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatyczne wykrywanie</translation>
     </message>
     <message>
         <source>localSource() not implemented for this device type.</source>
-        <translation type="unfinished"></translation>
+        <translation>localSource() nie jest zaimplementowane dla tego typu urządzenia.</translation>
     </message>
     <message>
         <source>No path specified for SignalOperationData.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie podano ścieżki dla SignalOperationData.</translation>
     </message>
     <message>
         <source>No valid PID specified for SignalOperationData.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie podano prawidłowego PID dla SignalOperationData.</translation>
     </message>
     <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
@@ -50429,19 +50437,19 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>The name of the kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa zestawu narzędzi.</translation>
     </message>
     <message>
         <source>The name of the kit in a filesystem-friendly version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa zestawu narzędzi w wersji przyjaznej dla systemu plików.</translation>
     </message>
     <message>
         <source>The ID of the kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator zestawu narzędzi.</translation>
     </message>
     <message>
         <source>%1 needs a compiler set up to build. Configure a compiler in the kit options.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wymaga skonfigurowanego kompilatora do budowania. Skonfiguruj kompilator w opcjach zestawu narzędzi.</translation>
     </message>
     <message>
         <source>Error:</source>
@@ -50477,16 +50485,16 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Sysroot</source>
-        <translation type="unfinished"></translation>
+        <translation>Sysroot</translation>
     </message>
     <message>
         <source>Compilers produce code for different ABIs: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompilatory generują kod dla różnych ABI: %1</translation>
     </message>
     <message>
         <source>None</source>
         <comment>No compiler</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Path to the compiler executable</source>
@@ -50502,27 +50510,27 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Found toolchain: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono łańcuch narzędzi: %1.</translation>
     </message>
     <message>
         <source>Removing toolchain: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuwanie łańcucha narzędzi: %1.</translation>
     </message>
     <message>
         <source>Toolchain: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Łańcuch narzędzi: %1.</translation>
     </message>
     <message>
         <source>Expected a JSON object for toolchain detection, got: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwano obiektu JSON do automatycznego wykrywania łańcucha narzędzi, otrzymano: %1.</translation>
     </message>
     <message>
         <source>No toolchains found in JSON object for detection.</source>
-        <translation type="unfinished"></translation>
+        <translation>W obiekcie JSON do automatycznego wykrywania nie znaleziono łańcuchów narzędzi.</translation>
     </message>
     <message>
         <source>Unknown language in toolchain detection: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany język podczas wykrywania łańcucha narzędzi: %1.</translation>
     </message>
     <message>
         <source>No compiler set in kit.</source>
@@ -50530,7 +50538,7 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Run device type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ urządzenia docelowego</translation>
     </message>
     <message>
         <source>Unknown device type</source>
@@ -50538,7 +50546,7 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Device:</source>
-        <translation type="unfinished">Urządzenie:</translation>
+        <translation>Urządzenie:</translation>
     </message>
     <message>
         <source>Device type</source>
@@ -50546,99 +50554,99 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>No run device set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak ustawionego urządzenia docelowego.</translation>
     </message>
     <message>
         <source>Build device is incompatible with this kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie budowania jest niekompatybilne z tym zestawem narzędzi.</translation>
     </message>
     <message>
         <source>Run device is incompatible with this kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie docelowe jest niekompatybilne z tym zestawem narzędzi.</translation>
     </message>
     <message>
         <source>Host address (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres hosta (%1)</translation>
     </message>
     <message>
         <source>SSH port (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Port SSH (%1)</translation>
     </message>
     <message>
         <source>User name (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa użytkownika (%1)</translation>
     </message>
     <message>
         <source>Private key file (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik klucza prywatnego (%1)</translation>
     </message>
     <message>
         <source>Device name (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa urządzenia (%1)</translation>
     </message>
     <message>
         <source>Device root directory (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Główny katalog urządzenia (%1)</translation>
     </message>
     <message>
         <source>Run device</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie docelowe</translation>
     </message>
     <message>
         <source>Build device type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ urządzenia budowania</translation>
     </message>
     <message>
         <source>The type of device to build on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ urządzenia, na którym ma odbywać się budowanie.</translation>
     </message>
     <message>
         <source>Enable to specify a private key file to use for authentication, otherwise the default mechanism is used for authentication (password, .sshconfig and the default private key).</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz, aby określić plik klucza prywatnego do uwierzytelniania. W przeciwnym razie używany jest domyślny mechanizm uwierzytelniania (hasło, .sshconfig i domyślny klucz prywatny).</translation>
     </message>
     <message>
         <source>Use specific key:</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj określonego klucza:</translation>
     </message>
     <message>
         <source>The device&apos;s SSH host key checking mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tryb sprawdzania klucza hosta SSH urządzenia.</translation>
     </message>
     <message>
         <source>Host key check:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdzanie klucza hosta:</translation>
     </message>
     <message>
         <source>No host key checking.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bez sprawdzania klucza hosta.</translation>
     </message>
     <message>
         <source>Strict</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścisłe</translation>
     </message>
     <message>
         <source>Strict host key checking.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścisłe sprawdzanie klucza hosta.</translation>
     </message>
     <message>
         <source>Allow No Match</source>
-        <translation type="unfinished"></translation>
+        <translation>Zezwalaj na brak dopasowania</translation>
     </message>
     <message>
         <source>Allow host key checking.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zezwalaj na sprawdzanie klucza hosta.</translation>
     </message>
     <message>
         <source>Host name or IP address</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa hosta lub adres IP</translation>
     </message>
     <message>
         <source>The device&apos;s host name or IP address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa hosta lub adres IP urządzenia.</translation>
     </message>
     <message>
         <source>Host name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa hosta:</translation>
     </message>
     <message>
         <source>User name</source>
@@ -50646,19 +50654,19 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>The device&apos;s SSH user name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa użytkownika SSH urządzenia.</translation>
     </message>
     <message>
         <source>User name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa użytkownika:</translation>
     </message>
     <message>
         <source>The device&apos;s SSH port number.</source>
-        <translation type="unfinished"></translation>
+        <translation>Numer portu SSH urządzenia.</translation>
     </message>
     <message>
         <source>SSH port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port SSH:</translation>
     </message>
     <message>
         <source>Private key file</source>
@@ -50666,55 +50674,55 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>The device&apos;s private key file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik klucza prywatnego urządzenia.</translation>
     </message>
     <message>
         <source>Private key file:</source>
-        <translation type="unfinished">Plik z kluczem prywatnym:</translation>
+        <translation>Plik z kluczem prywatnym:</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Limit czasu oczekiwania:</translation>
+        <translation>Limit czasu oczekiwania:</translation>
     </message>
     <message>
         <source>The device&apos;s SSH connection timeout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Limit czasu połączenia SSH urządzenia.</translation>
     </message>
     <message>
         <source>Build device</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie budowania</translation>
     </message>
     <message>
         <source>The device used to build applications on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie używane do budowania aplikacji.</translation>
     </message>
     <message>
         <source>No build device set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak ustawionego urządzenia budowania.</translation>
     </message>
     <message>
         <source>Edit Build Environment...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmodyfikuj środowisko budowania...</translation>
     </message>
     <message>
         <source>Edit Run Environment...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmodyfikuj środowisko uruchamiania...</translation>
     </message>
     <message>
         <source>Edit Build Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmodyfikuj środowisko budowania</translation>
     </message>
     <message>
         <source>Edit Run Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmodyfikuj środowisko uruchamiania</translation>
     </message>
     <message>
         <source>Force UTF-8 MSVC output</source>
-        <translation type="unfinished"></translation>
+        <translation>Wymuś wyjście UTF-8 MSVC</translation>
     </message>
     <message>
         <source>Either switches MSVC to English or keeps the language and just forces UTF-8 output (may vary depending on the used MSVC compiler).</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącza MSVC na język angielski lub zachowuje język i wymusza wyłącznie wyjście UTF-8 (może się różnić w zależności od używanego kompilatora MSVC).</translation>
     </message>
     <message>
         <source>Kit name and icon.</source>
@@ -50722,7 +50730,7 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The name of the kit suitable for generating directory names. This value is used for the variable &lt;i&gt;%1&lt;/i&gt;, which for example determines the name of the shadow build directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nazwa zestawu narzędzi odpowiednia do generowania nazw katalogów. Wartość ta jest używana dla zmiennej &lt;i&gt;%1&lt;/i&gt;, która określa np. nazwę katalogu shadow build.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>File system name:</source>
@@ -50730,19 +50738,19 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Kit icon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikona zestawu narzędzi.</translation>
     </message>
     <message>
         <source>Select Icon...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz ikonę...</translation>
     </message>
     <message>
         <source>Set as the default kit to use when creating a new project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw jako domyślny zestaw narzędzi przy tworzeniu nowego projektu.</translation>
     </message>
     <message>
         <source>Default for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny dla %1</translation>
     </message>
     <message>
         <source>Reset to Device Default Icon</source>
@@ -50755,15 +50763,15 @@ The local and remote ports are determined automatically.</source>
     <message>
         <source>%1 on %2</source>
         <extracomment>&lt;abi&gt; on &lt;device display name&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 na %2</translation>
     </message>
     <message>
         <source>Desktop (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pulpit (%1)</translation>
     </message>
     <message>
         <source>Loading Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Wczytywanie zestawów narzędzi</translation>
     </message>
     <message>
         <source>Mark as Mutable</source>
@@ -50771,27 +50779,27 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Kit aspect factory &quot;%1&quot; does not support creating aspects from JSON.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fabryka aspektów zestawu narzędzi &quot;%1&quot; nie obsługuje tworzenia aspektów z JSON.</translation>
     </message>
     <message>
         <source>Auto detecting kits for device: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatyczne wykrywanie zestawów narzędzi dla urządzenia: %1</translation>
     </message>
     <message>
         <source>Found kit: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono zestaw narzędzi: %1.</translation>
     </message>
     <message>
         <source>Removing kits for device: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuwanie zestawów narzędzi dla urządzenia: %1.</translation>
     </message>
     <message>
         <source>Removing kit: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuwanie zestawu narzędzi: %1.</translation>
     </message>
     <message>
         <source>Kit: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zestaw narzędzi: %1.</translation>
     </message>
     <message>
         <source>Select Icon</source>
@@ -50803,19 +50811,19 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Settings Filter...</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr ustawień...</translation>
     </message>
     <message>
         <source>Choose which settings to display for this kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz ustawienia wyświetlane dla tego zestawu narzędzi.</translation>
     </message>
     <message>
         <source>Default Settings Filter...</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny filtr ustawień...</translation>
     </message>
     <message>
         <source>Choose which kit settings to display by default.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz ustawienia zestawu narzędzi wyświetlane domyślnie.</translation>
     </message>
     <message>
         <source>Kits</source>
@@ -50903,7 +50911,7 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Show in Application Output when running</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj w komunikatach aplikacji podczas uruchamiania</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -51040,35 +51048,35 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>%1 does not exist. Your %2 installation seems to be corrupt.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nie istnieje. Instalacja %2 wydaje się być uszkodzona.</translation>
     </message>
     <message>
         <source>You will need at least one port for QML debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>Do debugowania QML potrzebny jest co najmniej jeden port.</translation>
     </message>
     <message>
         <source>Run Auto-Detection Now</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom teraz automatyczne wykrywanie</translation>
     </message>
     <message>
         <source>Machine type:</source>
-        <translation type="unfinished">Typ maszyny:</translation>
+        <translation>Typ maszyny:</translation>
     </message>
     <message>
         <source>Physical Device</source>
-        <translation type="unfinished">Urządzenie fizyczne</translation>
+        <translation>Urządzenie fizyczne</translation>
     </message>
     <message>
         <source>Free ports:</source>
-        <translation type="unfinished">Wolne porty:</translation>
+        <translation>Wolne porty:</translation>
     </message>
     <message>
         <source>&quot;%1&quot; can only handle local files.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; obsługuje tylko pliki lokalne.</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; is not ready to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie &quot;%1&quot; nie jest gotowe do użycia.</translation>
     </message>
     <message>
         <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
@@ -51096,15 +51104,15 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Import Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostrzeżenie o imporcie</translation>
     </message>
     <message>
         <source>Import Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaimportuj budowanie</translation>
     </message>
     <message>
         <source>%1 (imported)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (zaimportowane)</translation>
     </message>
     <message>
         <source>%1 - temporary</source>
@@ -51116,11 +51124,11 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>No suitable kits found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono odpowiednich zestawów narzędzi.</translation>
     </message>
     <message>
         <source>Add a kit in the &lt;a href=&quot;buildandrun&quot;&gt;options&lt;/a&gt; or via the maintenance tool of the SDK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj zestaw narzędzi w &lt;a href=&quot;buildandrun&quot;&gt;opcjach&lt;/a&gt; lub przez aktualizator SDK.</translation>
     </message>
     <message>
         <source>Select all kits</source>
@@ -51132,7 +51140,7 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Hide unsuitable kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj nieodpowiednie zestawy narzędzi</translation>
     </message>
     <message>
         <source>Select Kits for Your Project</source>
@@ -51191,19 +51199,19 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Override deployment data from build system</source>
-        <translation type="unfinished"></translation>
+        <translation>Nadpisz dane instalacji z systemu budowania</translation>
     </message>
     <message>
         <source>Project File</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik projektu</translation>
     </message>
     <message>
         <source>Choose Project File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz plik projektu</translation>
     </message>
     <message>
         <source>The project contains more than one project file. Select the one you would like to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt zawiera więcej niż jeden plik projektu. Wybierz plik, którego chcesz użyć.</translation>
     </message>
     <message>
         <source>Check whether a variable exists.&lt;br&gt;Returns &quot;true&quot; if it does and an empty string if not.</source>
@@ -51239,7 +51247,7 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Failed to Polish Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd dopracowywania plików</translation>
     </message>
     <message>
         <source>Failed to Open Files</source>
@@ -51283,7 +51291,7 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>No fields found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono pól.</translation>
     </message>
     <message>
         <source>&quot;data&quot; for a &quot;File&quot; page needs to be unset or an empty object.</source>
@@ -51392,27 +51400,27 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Minimum required Qt version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimalna wymagana wersja Qt:</translation>
     </message>
     <message>
         <source>MyItem</source>
-        <translation type="unfinished"></translation>
+        <translation>MyItem</translation>
     </message>
     <message>
         <source>com.mycompany.qmlcomponents</source>
-        <translation type="unfinished"></translation>
+        <translation>com.mojafirma.komponentyqml</translation>
     </message>
     <message>
         <source>Create example project</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz przykładowy projekt</translation>
     </message>
     <message>
         <source>Custom Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Własne parametry</translation>
     </message>
     <message>
         <source>Creates a C++ plugin to load Qt Quick extensions dynamically into applications using the QQmlEngine class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy wtyczkę C++ umożliwiającą dynamiczne ładowanie rozszerzeń Qt Quick w aplikacjach za pomocą klasy QQmlEngine.</translation>
     </message>
     <message>
         <source>Translation File</source>
@@ -51426,239 +51434,245 @@ The local and remote ports are determined automatically.</source>
         <source>Creates a Qt Quick application that contains an empty window.
 
 Use this &quot;compat&quot; version if you want to use other build systems than CMake or Qt versions lower than 6.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy aplikację Qt Quick zawierającą puste okno.
+
+Użyj tej wersji &quot;compat&quot;, jeśli chcesz używać innych systemów budowania niż CMake lub wersji Qt niższych niż 6.</translation>
     </message>
     <message>
         <source>Application (Qt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja (Qt)</translation>
     </message>
     <message>
         <source>Qt6 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt6 i wyższe</translation>
     </message>
     <message>
         <source>Qt5 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt5 i wyższe</translation>
     </message>
     <message>
         <source>Qt code compatibility:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zgodność kodu Qt:</translation>
     </message>
     <message>
         <source>CMake for Qt5 and Qt 6</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake dla Qt 5 i Qt 6</translation>
     </message>
     <message>
         <source>Creates a fragment shader in Vulkan-compatible GLSL. Fragment shaders generate the final pixel colors for triangles, points and lines to be rendered.
 Use this when targeting Qt6 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy shader fragmentów w GLSL zgodnym z Vulkan. Shadery fragmentów generują końcowe kolory pikseli dla trójkątów, punktów i linii do renderowania.
+Użyj tego przy Qt6 lub nowszym.</translation>
     </message>
     <message>
         <source>Fragment Shader (Vulkan-compatible)</source>
-        <translation type="unfinished"></translation>
+        <translation>Shader fragmentów (zgodny z Vulkan)</translation>
     </message>
     <message>
         <source>Creates a vertex shader in Vulkan-compatible GLSL. Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines to be rendered.
 Use this when targeting Qt6 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy shader wierzchołków w GLSL zgodnym z Vulkan. Shadery wierzchołków przekształcają pozycje, normalne i współrzędne tekstur trójkątów, punktów i linii do renderowania.
+Użyj tego przy Qt6 lub nowszym.</translation>
     </message>
     <message>
         <source>Vertex Shader (Vulkan-compatible)</source>
-        <translation type="unfinished"></translation>
+        <translation>Shader wierzchołków (zgodny z Vulkan)</translation>
     </message>
     <message>
         <source>Creates a translation file that you can add to a Qt project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy plik tłumaczeń, który można dodać do projektu Qt.</translation>
     </message>
     <message>
         <source>Qt Translation File</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik tłumaczeń Qt</translation>
     </message>
     <message>
         <source>Project name must use only letters, digits, or underscores.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa projektu może zawierać tylko litery, cyfry lub podkreślenia.</translation>
     </message>
     <message>
         <source>Request passthrough</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądanie trybu przejściowego</translation>
     </message>
     <message>
         <source>Request permissions for passthrough mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądaj uprawnień do trybu przejściowego.</translation>
     </message>
     <message>
         <source>Request hand tracking</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądanie śledzenia dłoni</translation>
     </message>
     <message>
         <source>Request permissions for hand tracking.</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądaj uprawnień do śledzenia dłoni.</translation>
     </message>
     <message>
         <source>Request spatial anchors</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądanie kotwic przestrzennych</translation>
     </message>
     <message>
         <source>Request permissions for anchors API.</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądaj uprawnień do API kotwic.</translation>
     </message>
     <message>
         <source>XR Features</source>
-        <translation type="unfinished"></translation>
+        <translation>Funkcje XR</translation>
     </message>
     <message>
         <source>Features</source>
-        <translation type="unfinished">Cechy</translation>
+        <translation>Cechy</translation>
     </message>
     <message>
         <source>Kit Selection: For Apple Vision Pro, select any kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybór zestawu narzędzi: dla Apple Vision Pro wybierz dowolny zestaw narzędzi.</translation>
     </message>
     <message>
         <source>Creates a Qt Quick 3D XR application with QML and C++ code. You can build and deploy the application to desktop VR and standalone XR platforms. For the Apple Vision Pro, you can develop in Qt Creator but must deploy the CMake project with XCode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy aplikację Qt Quick 3D XR z kodem QML i C++. Możesz budować i instalować aplikację na desktopowych platformach VR i samodzielnych platformach XR. Dla Apple Vision Pro możesz programować w Qt Creator, ale instalację projektu CMake musisz wykonać przez XCode.</translation>
     </message>
     <message>
         <source>XR Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja XR</translation>
     </message>
     <message>
         <source>Create a project that you can open in Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz projekt, który można otworzyć w Qt Design Studio</translation>
     </message>
     <message>
         <source>Creates a project with a structure that is compatible both with Qt Design Studio and with Qt Creator. It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy projekt o strukturze zgodnej zarówno z Qt Design Studio, jak i Qt Creator. Zawiera formularz .ui.qml, który można wizualnie edytować w Qt Design Studio.</translation>
     </message>
     <message>
         <source>This wizard creates a Qt Interface Framework project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten kreator tworzy projekt Qt Interface Framework.</translation>
     </message>
     <message>
         <source>Configure the interface that describes data exchanged between frontend and backend.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfiguruj interfejs opisujący dane wymieniane między frontendem a backendem.</translation>
     </message>
     <message>
         <source>Name of the created project, starting with an upper case letter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa tworzonego projektu, zaczynająca się wielką literą.</translation>
     </message>
     <message>
         <source>Interface name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa interfejsu:</translation>
     </message>
     <message>
         <source>Name of the interface that becomes a part of the created module, starting with an upper case letter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa interfejsu, który staje się częścią tworzonego modułu, zaczynająca się wielką literą.</translation>
     </message>
     <message>
         <source>Add sample code to the project</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj przykładowy kod do projektu</translation>
     </message>
     <message>
         <source>Includes basic constructs, otherwise an empty project is created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zawiera podstawowe konstrukcje, w przeciwnym razie tworzony jest pusty projekt.</translation>
     </message>
     <message>
         <source>Generate a zoned interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj interfejs strefowy</translation>
     </message>
     <message>
         <source>A zoned interface has corresponding elements for all data in multiple zones.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfejs strefowy ma odpowiadające elementy dla wszystkich danych w wielu strefach.</translation>
     </message>
     <message>
         <source>Backend setup:</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja backendu:</translation>
     </message>
     <message>
         <source>Generate a simulation backend</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj backend symulacji</translation>
     </message>
     <message>
         <source>Creates a simulation backend which is scriptable from QML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy backend symulacji obsługujący skrypty QML.</translation>
     </message>
     <message>
         <source>Generate a production backend implementation</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj implementację backendu produkcyjnego</translation>
     </message>
     <message>
         <source>Creates a full, native implementation backend.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy pełny, natywny backend implementacji.</translation>
     </message>
     <message>
         <source>Generate a Qt Remote Objects backend</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj backend Qt Remote Objects</translation>
     </message>
     <message>
         <source>Generates a backend that can connect to the server side by using Qt Remote Objects technology.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuje backend łączący się z serwerem za pomocą technologii Qt Remote Objects.</translation>
     </message>
     <message>
         <source>Generate a Qt Remote Objects simulation server</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj serwer symulacji Qt Remote Objects</translation>
     </message>
     <message>
         <source>Generates a simulation server that can be connected by the Qt Remote Objects backend.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuje serwer symulacji, z którym może łączyć się backend Qt Remote Objects.</translation>
     </message>
     <message>
         <source>Generate a Qt Remote Objects production server</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj produkcyjny serwer Qt Remote Objects</translation>
     </message>
     <message>
         <source>Generates a natively implemented server that can be connected by the Qt Remote Objects backend.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuje natywnie zaimplementowany serwer, z którym może łączyć się backend Qt Remote Objects.</translation>
     </message>
     <message>
         <source>If no functioning backend is selected, the sample code of the frontend UI will not work and may even throw errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeśli nie wybrano żadnego działającego backendu, przykładowy kod interfejsu użytkownika frontendowego nie będzie działać i może zgłaszać błędy.</translation>
     </message>
     <message>
         <source>Configure Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfiguruj interfejs</translation>
     </message>
     <message>
         <source>Configure</source>
-        <translation type="unfinished">Konfiguracja</translation>
+        <translation>Konfiguracja</translation>
     </message>
     <message>
         <source>Creates a Qt Interface Framework project with a configured frontend and optional backends.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy projekt Qt Interface Framework ze skonfigurowanym frontendem i opcjonalnymi backendami.</translation>
     </message>
     <message>
         <source>Qt Interface Framework Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Qt Interface Framework</translation>
     </message>
     <message>
         <source>Qt Quick Application (compat)</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja Qt Quick (compat)</translation>
     </message>
     <message>
         <source>CMake with Qt 5 Compatibility</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake ze zgodnością z Qt 5</translation>
     </message>
     <message>
         <source>Qt 6.8</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 6.8</translation>
     </message>
     <message>
         <source>Qt 6.10</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 6.10</translation>
     </message>
     <message>
         <source>Set QT_QML_GENERATE_QMLLS_INI to ON in CMake</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw QT_QML_GENERATE_QMLLS_INI na ON w CMake</translation>
     </message>
     <message>
         <source>Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy aplikację Qt Quick z kodem QML i C++. Możesz budować aplikację i instalować ją na desktopowych, wbudowanych i mobilnych platformach docelowych.</translation>
     </message>
     <message>
         <source>Creates a project containing a single main.cpp file with a stub implementation and no graphical UI.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy projekt zawierający pojedynczy plik main.cpp ze szkieletową implementacją bez graficznego interfejsu użytkownika.
+
+Wstępnie wybiera desktopowe Qt do budowania aplikacji, jeśli jest dostępne.</translation>
     </message>
     <message>
         <source>Binary</source>
@@ -51666,7 +51680,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Hybrid</source>
-        <translation type="unfinished"></translation>
+        <translation>Hybrydowy</translation>
     </message>
     <message>
         <source>Author:</source>
@@ -51718,7 +51732,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Proprietary</source>
-        <translation type="unfinished"></translation>
+        <translation>Komercyjny</translation>
     </message>
     <message>
         <source>Other</source>
@@ -51726,11 +51740,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Cpp</source>
-        <translation type="unfinished"></translation>
+        <translation>Cpp</translation>
     </message>
     <message>
         <source>Objective C</source>
-        <translation type="unfinished"></translation>
+        <translation>Objective C</translation>
     </message>
     <message>
         <source>Javascript</source>
@@ -51738,7 +51752,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Backend:</source>
-        <translation type="unfinished"></translation>
+        <translation>Backend:</translation>
     </message>
     <message>
         <source>1.0.0</source>
@@ -51746,19 +51760,19 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Min Nim Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimalna wersja Nim:</translation>
     </message>
     <message>
         <source>Define Project Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdefiniuj konfigurację projektu</translation>
     </message>
     <message>
         <source>Creates a Nim application with Nimble.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy aplikację Nim za pomocą Nimble.</translation>
     </message>
     <message>
         <source>Nimble Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja Nimble</translation>
     </message>
     <message>
         <source>Qt 6.5</source>
@@ -51810,15 +51824,15 @@ Wstępnie wybiera platformę desktopową Qt do budowania aplikacji, jeśli jest 
     </message>
     <message>
         <source>Application (Qt for Python)</source>
-        <translation>Aplikacja (Qt dla Pythona)</translation>
+        <translation>Aplikacja (Qt for Python)</translation>
     </message>
     <message>
         <source>Window UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfejs okienkowy</translation>
     </message>
     <message>
         <source>Creates a Qt for Python application that contains an empty window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy aplikację Qt for Python zawierającą puste okno.</translation>
     </message>
     <message>
         <source>Empty Window</source>
@@ -51826,27 +51840,27 @@ Wstępnie wybiera platformę desktopową Qt do budowania aplikacji, jeśli jest 
     </message>
     <message>
         <source>Creates a Qt Quick application that contains an empty window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy aplikację Qt Quick zawierającą puste okno.</translation>
     </message>
     <message>
         <source>Qt Quick Application - Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja Qt Quick — pusta</translation>
     </message>
     <message>
         <source>Creates a Qt for Python application that contains only the main code for a QApplication.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy aplikację Qt for Python zawierającą tylko główny kod dla QApplication.</translation>
     </message>
     <message>
         <source>Empty Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Pusta aplikacja</translation>
     </message>
     <message>
         <source>Creates a Qt for Python application that includes a Qt Widgets Designer-based widget (ui file). Requires .ui to Python conversion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy aplikację Qt for Python zawierającą widżet oparty na Qt Widgets Designer (plik .ui). Wymaga konwersji pliku .ui do Pythona.</translation>
     </message>
     <message>
         <source>This wizard creates a C++ library project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten kreator tworzy projekt biblioteki C++.</translation>
     </message>
     <message>
         <source>Shared Library</source>
@@ -51890,11 +51904,11 @@ Wstępnie wybiera platformę desktopową Qt do budowania aplikacji, jeśli jest 
     </message>
     <message>
         <source>Core</source>
-        <translation type="unfinished">Zrzut</translation>
+        <translation>Zrzut</translation>
     </message>
     <message>
         <source>Gui</source>
-        <translation type="unfinished"></translation>
+        <translation>Gui</translation>
     </message>
     <message>
         <source>Widgets</source>
@@ -51906,7 +51920,7 @@ Wstępnie wybiera platformę desktopową Qt do budowania aplikacji, jeśli jest 
     </message>
     <message>
         <source>Creates a C++ library. You can create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy bibliotekę C++. Dostępne typy:&lt;ul&gt;&lt;li&gt;współdzielona biblioteka C++ do użycia z &lt;tt&gt;QPluginLoader&lt;/tt&gt; w czasie wykonania (Wtyczki)&lt;/li&gt;&lt;li&gt;współdzielona lub statyczna biblioteka C++ do użycia w innym projekcie podczas linkowania&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>C++ Library</source>
@@ -51914,7 +51928,7 @@ Wstępnie wybiera platformę desktopową Qt do budowania aplikacji, jeśli jest 
     </message>
     <message>
         <source>Creates a header file that you can add to a C/C++ project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy plik nagłówkowy, który można dodać do projektu C/C++.</translation>
     </message>
     <message>
         <source>C/C++</source>
@@ -51926,7 +51940,7 @@ Wstępnie wybiera platformę desktopową Qt do budowania aplikacji, jeśli jest 
     </message>
     <message>
         <source>Creates a source file that you can add to a C/C++ project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy plik źródłowy, który można dodać do projektu C/C++.</translation>
     </message>
     <message>
         <source>C/C++ Source File</source>
@@ -51934,17 +51948,19 @@ Wstępnie wybiera platformę desktopową Qt do budowania aplikacji, jeśli jest 
     </message>
     <message>
         <source>Creates a markdown file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy plik Markdown.</translation>
     </message>
     <message>
         <source>Markdown File</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik Markdown</translation>
     </message>
     <message>
         <source>You must tell Qt Creator which test framework is used inside the project.
 
 You should not mix multiple test frameworks in a project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wskaż, jakiego środowiska testowego używa projekt.
+
+Nie należy mieszać wielu środowisk testowych w jednym projekcie.</translation>
     </message>
     <message>
         <source>Google Test</source>
@@ -51976,31 +51992,31 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Test suite name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa zestawu testów:</translation>
     </message>
     <message>
         <source>Test Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informacje o teście</translation>
     </message>
     <message>
         <source>Creates a source file that you can add to an existing test project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy plik źródłowy, który można dodać do istniejącego projektu testowego.</translation>
     </message>
     <message>
         <source>Test Case</source>
-        <translation type="unfinished"></translation>
+        <translation>Przypadek testowy</translation>
     </message>
     <message>
         <source>&quot;%{JS: Util.toNativeSeparators(value(&apos;TargetPath&apos;))}&quot; exists in the filesystem.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%{JS: Util.toNativeSeparators(value(&apos;TargetPath&apos;))}&quot; istnieje w systemie plików.</translation>
     </message>
     <message>
         <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy plik QML z kodem szablonowym, zaczynający się od &quot;import QtQuick&quot;.</translation>
     </message>
     <message>
         <source>Qt Creator C++ Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Wtyczka Qt Creator C++</translation>
     </message>
     <message>
         <source>Items are editable</source>
@@ -52020,11 +52036,11 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Define Item Model Class</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdefiniuj klasę modelu elementów</translation>
     </message>
     <message>
         <source>Creates a Qt item model.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy model elementów Qt.</translation>
     </message>
     <message>
         <source>Qt</source>
@@ -52032,15 +52048,15 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Qt Item Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Model elementów Qt</translation>
     </message>
     <message>
         <source>Fully qualified name, including namespaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Pełna nazwa kwalifikowana, łącznie z przestrzeniami nazw</translation>
     </message>
     <message>
         <source>Include QQuickItem</source>
-        <translation type="unfinished"></translation>
+        <translation>Dołącz QQuickItem</translation>
     </message>
     <message>
         <source>Add Q_OBJECT</source>
@@ -52052,11 +52068,11 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Qt for Python module:</source>
-        <translation>Moduł Qt dla Pythona:</translation>
+        <translation>Moduł Qt for Python:</translation>
     </message>
     <message>
         <source>You can choose Qt classes only if you select a Qt for Python module.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasy Qt można wybrać tylko po wybraniu modułu Qt for Python.</translation>
     </message>
     <message>
         <source>Import QtCore</source>
@@ -52176,11 +52192,11 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Creates a scratch buffer using a temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy bufor roboczy w pliku tymczasowym.</translation>
     </message>
     <message>
         <source>Scratch Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Bufor roboczy</translation>
     </message>
     <message>
         <source>State chart name:</source>
@@ -52284,15 +52300,15 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Creates a vertex shader in the Desktop OpenGL Shading Language (GLSL). Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy vertex shader w języku Desktop OpenGL Shading Language (GLSL). Vertex shadery przekształcają pozycje, normalne i współrzędne tekstur trójkątów, punktów i linii renderowanych przez OpenGL.</translation>
     </message>
     <message>
         <source>Creates a vertex shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy vertex shader w języku OpenGL/ES 2.0 Shading Language (GLSL/ES). Vertex shadery przekształcają pozycje, normalne i współrzędne tekstur trójkątów, punktów i linii renderowanych przez OpenGL.</translation>
     </message>
     <message>
         <source>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; exists in the filesystem.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; istnieje w systemie plików.</translation>
     </message>
     <message>
         <source>GUI Application</source>
@@ -52356,7 +52372,7 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Repository URL is not valid</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres URL repozytorium jest nieprawidłowy</translation>
     </message>
     <message>
         <source>Use existing directory</source>
@@ -52368,15 +52384,15 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Stacked</source>
-        <translation type="unfinished"></translation>
+        <translation>Zależny</translation>
     </message>
     <message>
         <source>Make the new branch depend on the availability of the source branch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uzależnij nową gałąź od dostępności gałęzi źródłowej.</translation>
     </message>
     <message>
         <source>Standalone</source>
-        <translation type="unfinished"></translation>
+        <translation>Samodzielny</translation>
     </message>
     <message>
         <source>Do not use a shared repository.</source>
@@ -52384,27 +52400,27 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Bind new branch to source location</source>
-        <translation type="unfinished"></translation>
+        <translation>Powiąż nową gałąź z lokalizacją źródłową</translation>
     </message>
     <message>
         <source>Bind the new branch to the source location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Powiązuje nową gałąź z lokalizacją źródłową.</translation>
     </message>
     <message>
         <source>Switch checkout</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz kopię roboczą</translation>
     </message>
     <message>
         <source>Switch the checkout in the current directory to the new branch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącza kopię roboczą w bieżącym katalogu na nową gałąź.</translation>
     </message>
     <message>
         <source>Hardlink</source>
-        <translation type="unfinished"></translation>
+        <translation>Hard link</translation>
     </message>
     <message>
         <source>Use hard-links in working tree.</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj hard linków w drzewie roboczym.</translation>
     </message>
     <message>
         <source>No working-tree</source>
@@ -52416,7 +52432,7 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Revision:</source>
-        <translation type="unfinished">Wersja:</translation>
+        <translation>Wersja:</translation>
     </message>
     <message>
         <source>Specify repository URL, checkout directory, and path.</source>
@@ -52424,11 +52440,11 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Running Bazaar branch...</source>
-        <translation type="unfinished"></translation>
+        <translation>Trwa tworzenie gałęzi Bazaar...</translation>
     </message>
     <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klonuje gałąź Bazaar i próbuje wczytać zawarty projekt.</translation>
     </message>
     <message>
         <source>Import Project</source>
@@ -52436,7 +52452,7 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Bazaar Clone (Or Branch)</source>
-        <translation type="unfinished"></translation>
+        <translation>Klon (lub gałąź) Bazaar</translation>
     </message>
     <message>
         <source>Module:</source>
@@ -52444,11 +52460,11 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Specify module and checkout directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Określ moduł i katalog kopii roboczej.</translation>
     </message>
     <message>
         <source>Running CVS checkout...</source>
-        <translation type="unfinished"></translation>
+        <translation>Trwa tworzenie kopii roboczej CVS...</translation>
     </message>
     <message>
         <source>Checkout</source>
@@ -52456,7 +52472,7 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy kopię roboczą repozytorium CVS i próbuje wczytać zawarty projekt.</translation>
     </message>
     <message>
         <source>CVS Checkout</source>
@@ -52468,17 +52484,19 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Meson</source>
-        <translation type="unfinished"></translation>
+        <translation>Meson</translation>
     </message>
     <message>
         <source>Use Qt Virtual Keyboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj wirtualnej klawiatury Qt</translation>
     </message>
     <message>
         <source>Creates a Qt Quick UI project for previewing and prototyping designs.
 
 To develop a full application, create a Qt Quick Application project instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy projekt interfejsu użytkownika Qt Quick do podglądu i prototypowania projektów.
+
+Aby stworzyć pełną aplikację, utwórz zamiast tego projekt Qt Quick Application.</translation>
     </message>
     <message>
         <source>Branch:</source>
@@ -52522,23 +52540,23 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Trust Server Certificate</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaufaj certyfikatowi serwera</translation>
     </message>
     <message>
         <source>Running Subversion checkout...</source>
-        <translation type="unfinished"></translation>
+        <translation>Trwa tworzenie kopii roboczej Subversion...</translation>
     </message>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy kopię roboczą repozytorium Subversion i próbuje wczytać zawarty projekt.</translation>
     </message>
     <message>
         <source>Subversion Checkout</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopia robocza Subversion</translation>
     </message>
     <message>
         <source>Creates a fragment shader in the Desktop OpenGL Shading Language (GLSL). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy fragment shader w języku Desktop OpenGL Shading Language (GLSL). Fragment shadery generują końcowe kolory pikseli trójkątów, punktów i linii renderowanych przez OpenGL.</translation>
     </message>
     <message>
         <source>GLSL</source>
@@ -52546,23 +52564,23 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Fragment Shader (Desktop OpenGL)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fragment shader (Desktop OpenGL)</translation>
     </message>
     <message>
         <source>Vertex Shader (Desktop OpenGL)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertex shader (Desktop OpenGL)</translation>
     </message>
     <message>
         <source>Creates a fragment shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy fragment shader w języku OpenGL/ES 2.0 Shading Language (GLSL/ES). Fragment shadery generują końcowe kolory pikseli trójkątów, punktów i linii renderowanych przez OpenGL.</translation>
     </message>
     <message>
         <source>Fragment Shader (OpenGL/ES 2.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fragment shader (OpenGL/ES 2.0)</translation>
     </message>
     <message>
         <source>Vertex Shader (OpenGL/ES 2.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertex shader (OpenGL/ES 2.0)</translation>
     </message>
     <message>
         <source>Field is not an object.</source>
@@ -52574,11 +52592,11 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Line Edit Validator Expander</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekspander walidatora pola edycji</translation>
     </message>
     <message>
         <source>The text edit input to fix up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst wejściowy pola do poprawienia.</translation>
     </message>
     <message>
         <source>Field &quot;%1&quot; has no type.</source>
@@ -52594,71 +52612,71 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Label (&quot;%1&quot;) data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane etykiety (&quot;%1&quot;) nie są obiektem.</translation>
     </message>
     <message>
         <source>Label (&quot;%1&quot;) has no trText.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etykieta (&quot;%1&quot;) nie ma atrybutu trText.</translation>
     </message>
     <message>
         <source>Spacer (&quot;%1&quot;) data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane separatora (&quot;%1&quot;) nie są obiektem.</translation>
     </message>
     <message>
         <source>Spacer (&quot;%1&quot;) property &quot;factor&quot; is no integer value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Właściwość &quot;factor&quot; separatora (&quot;%1&quot;) nie jest wartością całkowitą.</translation>
     </message>
     <message>
         <source>LineEdit (&quot;%1&quot;) data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane pola edycji (&quot;%1&quot;) nie są obiektem.</translation>
     </message>
     <message>
         <source>LineEdit (&quot;%1&quot;) has an invalid regular expression &quot;%2&quot; in &quot;validator&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pole edycji (&quot;%1&quot;) zawiera nieprawidłowe wyrażenie regularne &quot;%2&quot; w &quot;validator&quot;.</translation>
     </message>
     <message>
         <source>LineEdit (&quot;%1&quot;) has an invalid value &quot;%2&quot; in &quot;completion&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pole edycji (&quot;%1&quot;) zawiera nieprawidłową wartość &quot;%2&quot; w &quot;completion&quot;.</translation>
     </message>
     <message>
         <source>TextEdit (&quot;%1&quot;) data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane edytora tekstu (&quot;%1&quot;) nie są obiektem.</translation>
     </message>
     <message>
         <source>CheckBox (&quot;%1&quot;) data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane pola wyboru (&quot;%1&quot;) nie są obiektem.</translation>
     </message>
     <message>
         <source>CheckBox (&quot;%1&quot;) values for checked and unchecked state are identical.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pole wyboru (&quot;%1&quot;) ma identyczne wartości dla stanu zaznaczonego i niezaznaczonego.</translation>
     </message>
     <message>
         <source>No JSON lists allowed inside List items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Listy JSON nie są dozwolone wewnątrz elementów listy.</translation>
     </message>
     <message>
         <source>No &quot;key&quot; found in List items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak &quot;key&quot; w elementach listy.</translation>
     </message>
     <message>
         <source>%1 (&quot;%2&quot;) data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane %1 (&quot;%2&quot;) nie są obiektem.</translation>
     </message>
     <message>
         <source>%1 (&quot;%2&quot;) &quot;index&quot; is not an integer value.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (&quot;%2&quot;): &quot;index&quot; nie jest wartością całkowitą.</translation>
     </message>
     <message>
         <source>%1 (&quot;%2&quot;) &quot;disabledIndex&quot; is not an integer value.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (&quot;%2&quot;): &quot;disabledIndex&quot; nie jest wartością całkowitą.</translation>
     </message>
     <message>
         <source>%1 (&quot;%2&quot;) &quot;items&quot; missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (&quot;%2&quot;): brak &quot;items&quot;.</translation>
     </message>
     <message>
         <source>%1 (&quot;%2&quot;) &quot;items&quot; is not a JSON list.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (&quot;%2&quot;): &quot;items&quot; nie jest listą JSON.</translation>
     </message>
     <message>
         <source>PathChooser data is not an object.</source>
@@ -52670,7 +52688,7 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Files data list entry is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Element listy danych plików nie jest obiektem.</translation>
     </message>
     <message>
         <source>Source and target are both empty.</source>
@@ -52690,7 +52708,7 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Subproject &quot;%1&quot; outside of &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podprojekt &quot;%1&quot; jest poza &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Generator is not a object.</source>
@@ -52746,7 +52764,7 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>* Failed to create: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>* Błąd tworzenia: %1</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -52778,7 +52796,7 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>No valid typeId.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak prawidłowego typeId.</translation>
     </message>
     <message>
         <source>JsonWizard: &quot;%1&quot; not found.</source>
@@ -52852,15 +52870,15 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Kit is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy zestaw narzędzi.</translation>
     </message>
     <message>
         <source>Kit has no build device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak urządzenia budowania w zestawie narzędzi.</translation>
     </message>
     <message>
         <source>Build device &quot;%2&quot; cannot handle project file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie budowania &quot;%2&quot; nie obsługuje pliku projektu &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Incompatible Kit</source>
@@ -52892,79 +52910,79 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Could not load kits in a reasonable amount of time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przekroczenie limitu czasu podczas wczytywania zestawów narzędzi.</translation>
     </message>
     <message>
         <source>Select the Root Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz katalog główny</translation>
     </message>
     <message>
         <source>Project &quot;%1&quot; was configured for kit &quot;%2&quot; with id %3, which does not exist anymore. You can create a new kit or copy the steps of the vanished kit to another kit in %4 mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt &quot;%1&quot; był skonfigurowany dla zestawu narzędzi &quot;%2&quot; o id %3, który już nie istnieje. Możesz utworzyć nowy zestaw narzędzi lub skopiować kroki nieistniejącego zestawu do innego w trybie %4.</translation>
     </message>
     <message>
         <source>Could not find any qml_*.qm file at &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono żadnego pliku qml_*.qm w &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>%1: Name.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Nazwa.</translation>
     </message>
     <message>
         <source>%1: Full path to main file.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Pełna ścieżka do pliku głównego.</translation>
     </message>
     <message>
         <source>%1: Full path to Project Directory.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Pełna ścieżka do katalogu projektu.</translation>
     </message>
     <message>
         <source>%1: The name of the active kit.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Nazwa aktywnego zestawu narzędzi.</translation>
     </message>
     <message>
         <source>%1: Name of the active build configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Nazwa aktywnej konfiguracji budowania.</translation>
     </message>
     <message>
         <source>%1: Type of the active build configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Typ aktywnej konfiguracji budowania.</translation>
     </message>
     <message>
         <source>%1: Full build path of active build configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Pełna ścieżka budowania aktywnej konfiguracji.</translation>
     </message>
     <message>
         <source>%1: Variables in the active build environment.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Zmienne aktywnego środowiska budowania.</translation>
     </message>
     <message>
         <source>%1: Name of the active run configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Nazwa aktywnej konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>%1: Executable of the active run configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Plik wykonywalny aktywnej konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>%1: Variables in the environment of the active run configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Zmienne środowiska aktywnej konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>%1: Working directory of the active run configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Katalog roboczy aktywnej konfiguracji uruchamiania.</translation>
     </message>
     <message>
         <source>The files are implicitly added to the projects:</source>
@@ -52980,7 +52998,7 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Build system</source>
-        <translation type="unfinished"></translation>
+        <translation>System budowania</translation>
     </message>
     <message>
         <source>Replacing signature</source>
@@ -52996,7 +53014,7 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Ignoring invalid task (no text).</source>
-        <translation type="unfinished"></translation>
+        <translation>Pominięto nieprawidłowe zadanie (brak tekstu).</translation>
     </message>
     <message>
         <source>File Error</source>
@@ -53008,15 +53026,15 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>At least one required feature is not present.</source>
-        <translation type="unfinished"></translation>
+        <translation>Co najmniej jedna wymagana funkcjonalność jest niedostępna.</translation>
     </message>
     <message>
         <source>Platform is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Platforma nie jest obsługiwana.</translation>
     </message>
     <message>
         <source>At least one preferred feature is not present.</source>
-        <translation type="unfinished"></translation>
+        <translation>Co najmniej jedna preferowana funkcjonalność jest niedostępna.</translation>
     </message>
     <message>
         <source>Feature list is set and not of type list.</source>
@@ -53048,7 +53066,7 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is inside the build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Ostrzeżenie:&lt;/b&gt; Ten plik jest wewnątrz katalogu budowania.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
@@ -53084,7 +53102,7 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Toggle multi-line mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz tryb wieloliniowy.</translation>
     </message>
     <message>
         <source>Executable</source>
@@ -53116,11 +53134,11 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Use the Qt VNC platform for display</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj platformy Qt VNC do wyświetlania</translation>
     </message>
     <message>
         <source>Sets QT_QPA_PLATFORM=vnc which forwards the Qt application&apos;s UI to a built-in VNC server. Connect to the application UI with a VNC client. See the application output for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawia QT_QPA_PLATFORM=vnc, co przekierowuje interfejs aplikacji Qt do wbudowanego serwera VNC. Połącz się z interfejsem aplikacji za pomocą klienta VNC. Szczegóły w komunikatach aplikacji.</translation>
     </message>
     <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
@@ -53132,35 +53150,35 @@ To develop a full application, create a Qt Quick Application project instead.</s
     </message>
     <message>
         <source>Run as User</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom jako użytkownik</translation>
     </message>
     <message>
         <source>Run as user:</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom jako użytkownik:</translation>
     </message>
     <message>
         <source>root</source>
-        <translation type="unfinished"></translation>
+        <translation>root</translation>
     </message>
     <message>
         <source>Enable logging category filtering</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz filtrowanie kategorii logowania</translation>
     </message>
     <message>
         <source>Enables filtering for logging categories (QLoggingCategory) in the Application Output. Requires Qt 6.11 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącza filtrowanie kategorii logowania (QLoggingCategory) w komunikatach aplikacji. Wymaga Qt 6.11 lub nowszego.</translation>
     </message>
     <message>
         <source>Emulator</source>
-        <translation type="unfinished">Emulator</translation>
+        <translation>Emulator</translation>
     </message>
     <message>
         <source>Launcher:</source>
-        <translation type="unfinished"></translation>
+        <translation>Program uruchamiający:</translation>
     </message>
     <message>
         <source>Use X11 forwarding:</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj przekierowania X11:</translation>
     </message>
     <message>
         <source>Synchronize configuration</source>
@@ -53220,7 +53238,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>Falling back to use the cached environment for &quot;%1&quot; after:</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako fallback użyto zapisanego środowiska dla &quot;%1&quot; po:</translation>
     </message>
     <message>
         <source>Initialization:</source>
@@ -53228,7 +53246,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>No MSVC toolchains were found. You need to install Visual Studio or the Visual Studio Build Tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono łańcuchów narzędzi MSVC. Zainstaluj Visual Studio lub Visual Studio Build Tools.</translation>
     </message>
     <message>
         <source>&lt;empty&gt;</source>
@@ -53284,48 +53302,48 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>Show Non-matching Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj niedopasowane linie</translation>
     </message>
     <message>
         <source>The project was configured for kits that no longer exist. Select one of the following options in the context menu to restore the project&apos;s settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt był skonfigurowany dla zestawów narzędzi, które już nie istnieją. Wybierz jedną z poniższych opcji w menu kontekstowym, aby przywrócić ustawienia projektu:</translation>
     </message>
     <message>
         <source>Create a new kit with the same name for the same device type, with the original build, deploy, and run steps. Other kit settings are not restored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy nowy zestaw narzędzi o tej samej nazwie dla tego samego typu urządzenia, z oryginalnymi krokami budowania, instalacji i uruchamiania. Pozostałe ustawienia zestawu narzędzi nie są przywracane.</translation>
     </message>
     <message>
         <source>Copy the build, deploy, and run steps to another kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuje kroki budowania, instalacji i uruchamiania do innego zestawu narzędzi.</translation>
     </message>
     <message>
         <source>%1 (%2)</source>
         <extracomment>vanished target display role: vanished target name (device type name)</extracomment>
-        <translation type="unfinished">%1 (%2)</translation>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Create a New Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz nowy zestaw narzędzi</translation>
     </message>
     <message>
         <source>Copy Steps to Another Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Skopiuj kroki do innego zestawu narzędzi</translation>
     </message>
     <message>
         <source>Remove Vanished Target &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń zanikły cel &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Remove All Vanished Targets</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń wszystkie zanikłe cele</translation>
     </message>
     <message>
         <source>Click to enable target, click again to make active</source>
-        <translation type="unfinished"></translation>
+        <translation>Kliknij, aby włączyć cel; kliknij ponownie, aby ustawić jako aktywny</translation>
     </message>
     <message>
         <source>Vanished Targets</source>
-        <translation type="unfinished"></translation>
+        <translation>Zanikłe cele</translation>
     </message>
     <message>
         <source>Active Project</source>
@@ -53425,7 +53443,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>Build directory contains potentially problematic character &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog budowania zawiera potencjalnie problematyczny znak &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>This warning can be suppressed &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
@@ -53437,15 +53455,15 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>The project is currently being parsed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt jest aktualnie parsowany.</translation>
     </message>
     <message>
         <source>The project could not be fully parsed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt nie mógł być w pełni sparsowany.</translation>
     </message>
     <message>
         <source>The project file &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik projektu &quot;%1&quot; nie istnieje.</translation>
     </message>
     <message>
         <source>Source:</source>
@@ -53475,16 +53493,16 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>Failed to read custom output parsers from &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd odczytu własnych parserów wyjścia z &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Custom output parsers scan command line output for user-provided error patterns&lt;br&gt;to create entries in Issues.&lt;br&gt;The parsers can be configured &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Własne parsery wyjścia skanują wyniki wiersza poleceń w poszukiwaniu wzorców błędów zdefiniowanych przez użytkownika&lt;br&gt;i tworzą wpisy w widoku problemów.&lt;br&gt;Parsery można skonfigurować &lt;a href=&quot;dummy&quot;&gt;tutaj&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>%1 (project default)</source>
         <extracomment>%1 = parser display name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (domyślny w projekcie)</translation>
     </message>
     <message>
         <source>There are no custom parsers active</source>
@@ -53492,35 +53510,35 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message numerus="yes">
         <source>There are %n custom parsers active</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Aktywny jest %n własny parser</numerusform>
+            <numerusform>Aktywne są %n własne parsery</numerusform>
+            <numerusform>Aktywnych jest %n własnych parserów</numerusform>
         </translation>
     </message>
     <message>
         <source>Build default</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny dla budowania</translation>
     </message>
     <message>
         <source>Run default</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny dla uruchamiania</translation>
     </message>
     <message>
         <source>The name of the custom parser.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa własnego parsera.</translation>
     </message>
     <message>
         <source>This custom parser is used by default for all build configurations of the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten własny parser jest domyślnie używany dla wszystkich konfiguracji budowania projektu.</translation>
     </message>
     <message>
         <source>This custom parser is used by default for all run configurations of the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten własny parser jest domyślnie używany dla wszystkich konfiguracji uruchamiania projektu.</translation>
     </message>
     <message>
         <source>Cannot modify parser because it was auto-imported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zmodyfikować parsera, ponieważ został zaimportowany automatycznie.</translation>
     </message>
     <message>
         <source>Custom output parsers defined here can be enabled individually in the project&apos;s build or run settings.</source>
@@ -53532,11 +53550,11 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>Export...</source>
-        <translation type="unfinished">Eksportuj...</translation>
+        <translation>Eksportuj...</translation>
     </message>
     <message>
         <source>Import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importuj...</translation>
     </message>
     <message>
         <source>New Parser</source>
@@ -53544,23 +53562,23 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>Save Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz parsery</translation>
     </message>
     <message>
         <source>Load Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Wczytaj parsery</translation>
     </message>
     <message>
         <source>*.json</source>
-        <translation type="unfinished"></translation>
+        <translation>*.json</translation>
     </message>
     <message>
         <source>Error Loading Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd wczytywania parserów</translation>
     </message>
     <message>
         <source>Error loading parsers: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd wczytywania parserów: %1</translation>
     </message>
     <message>
         <source>No device for path &quot;%1&quot;</source>
@@ -53568,19 +53586,19 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>No device found for path &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono urządzenia dla ścieżki &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>No file access for device &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak dostępu do plików na urządzeniu &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>No device set for test transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak urządzenia do testowego transferu.</translation>
     </message>
     <message>
         <source>No files to transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak plików do transferu.</translation>
     </message>
     <message>
         <source>Missing transfer implementation.</source>
@@ -53708,20 +53726,21 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
     <message>
         <source>Overriding &lt;code&gt;MAKEFLAGS&lt;/code&gt; environment variable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nadpisywanie zmiennej środowiskowej &lt;code&gt;MAKEFLAGS&lt;/code&gt;.</translation>
     </message>
     <message>
         <source>&lt;code&gt;MAKEFLAGS&lt;/code&gt; specifies a conflicting job count.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;code&gt;MAKEFLAGS&lt;/code&gt; określa inną liczbę zadań.</translation>
     </message>
     <message>
         <source>No conflict with &lt;code&gt;MAKEFLAGS&lt;/code&gt; environment variable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak konfliktu ze zmienną środowiskową &lt;code&gt;MAKEFLAGS&lt;/code&gt;.</translation>
     </message>
     <message>
         <source>The process cannot access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces nie może uzyskać dostępu do pliku, ponieważ jest on używany przez inny proces.
+Zamknij wszystkie uruchomione instancje aplikacji przed rozpoczęciem budowania.</translation>
     </message>
     <message>
         <source>Parse Build Output</source>
@@ -53769,7 +53788,7 @@ Please close all running instances of your application before starting a build.<
     </message>
     <message>
         <source>Cannot parse: The chosen kit does not provide an output parser.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania: wybrany zestaw narzędzi nie dostarcza parsera wyjścia.</translation>
     </message>
     <message>
         <source>unavailable</source>
@@ -53777,41 +53796,43 @@ Please close all running instances of your application before starting a build.<
     </message>
     <message>
         <source>No kits are enabled for this project. Enable kits in the &quot;Projects&quot; mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak włączonych zestawów narzędzi dla tego projektu. Włącz zestawy narzędzi w trybie &quot;Projekty&quot;.</translation>
     </message>
     <message>
         <source>Rename More Files?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienić nazwy kolejnych plików?</translation>
     </message>
     <message>
         <source>Would you like to rename these files as well?
     %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy zmienić nazwy również tych plików?
+    %1</translation>
     </message>
     <message>
         <source>Choose Drop Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz działanie przy upuszczaniu</translation>
     </message>
     <message>
         <source>You just dragged some files from one project node to another.
 What should %1 do now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeniesiono pliki z jednego węzła projektu do innego.
+Co powinien teraz zrobić %1?</translation>
     </message>
     <message>
         <source>Copy Only File References</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj tylko odwołania do plików</translation>
     </message>
     <message>
         <source>Move Only File References</source>
-        <translation type="unfinished"></translation>
+        <translation>Przenieś tylko odwołania do plików</translation>
     </message>
     <message>
         <source>Copy file references and files</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj odwołania i pliki</translation>
     </message>
     <message>
         <source>Move file references and files</source>
-        <translation type="unfinished"></translation>
+        <translation>Przenieś odwołania i pliki</translation>
     </message>
     <message>
         <source>Target directory:</source>
@@ -53819,39 +53840,39 @@ What should %1 do now?</source>
     </message>
     <message>
         <source>Copy File References</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj odwołania do plików</translation>
     </message>
     <message>
         <source>Move File References</source>
-        <translation type="unfinished"></translation>
+        <translation>Przenieś odwołania do plików</translation>
     </message>
     <message>
         <source>Not all operations finished successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wszystkie operacje zakończyły się pomyślnie.</translation>
     </message>
     <message>
         <source>The following files could not be copied or moved:</source>
-        <translation type="unfinished"></translation>
+        <translation>Następujące pliki nie mogły zostać skopiowane ani przeniesione:</translation>
     </message>
     <message>
         <source>The following files could not be removed from the project file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Następujące pliki nie mogły zostać usunięte z pliku projektu:</translation>
     </message>
     <message>
         <source>The following files could not be added to the project file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Następujące pliki nie mogły zostać dodane do pliku projektu:</translation>
     </message>
     <message>
         <source>The following files could not be deleted:</source>
-        <translation type="unfinished"></translation>
+        <translation>Następujące pliki nie mogły zostać usunięte:</translation>
     </message>
     <message>
         <source>A version control operation failed for the following files. Please check your repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Operacja kontroli wersji nie powiodła się dla następujących plików. Sprawdź swoje repozytorium.</translation>
     </message>
     <message>
         <source>Failure Updating Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd aktualizacji projektu</translation>
     </message>
     <message>
         <source>Files</source>
@@ -53876,262 +53897,268 @@ What should %1 do now?</source>
     </message>
     <message>
         <source>Import as qmake or CMake Project (Limited Functionality)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaimportuj jako projekt qmake lub CMake (ograniczona funkcjonalność)</translation>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.&lt;p&gt;This creates a project file that allows you to use %1 as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated project file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importuje istniejące projekty nieużywające qmake, CMake, Qbs, Meson ani Autotools.&lt;p&gt;Tworzy plik projektu umożliwiający używanie %1 jako edytora kodu i programu uruchamiającego narzędzia do debugowania i analizy. Aby zbudować projekt, może być konieczna edycja wygenerowanego pliku projektu.</translation>
     </message>
     <message>
         <source>Unknown build system &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany system budowania &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Taskhub Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd TaskHub</translation>
     </message>
     <message>
         <source>Taskhub Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostrzeżenie TaskHub</translation>
     </message>
     <message>
         <source>Build Issue</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem z budowaniem</translation>
     </message>
     <message>
         <source>Profile</source>
-        <translation type="unfinished">Profile</translation>
+        <translation>Profile</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Skopiuj</translation>
+        <translation>Skopiuj</translation>
     </message>
     <message>
         <source>None</source>
         <comment>Add to project: None</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>%1 at &quot;%2&quot;</source>
         <extracomment>toolchain &apos;name&apos; at &apos;path&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 w &quot;%2&quot;</translation>
     </message>
     <message>
         <source>&amp;Compiler path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka do k&amp;ompilatora</translation>
     </message>
     <message>
         <source>%1 compiler path</source>
         <extracomment>%1 = programming language</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka do kompilatora %1</translation>
     </message>
     <message>
         <source>Provide manually</source>
-        <translation type="unfinished"></translation>
+        <translation>Podaj ręcznie</translation>
     </message>
     <message>
         <source>None</source>
         <comment>No compiler language</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>None</source>
         <comment>No compiler category</comment>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Failed to copy project user settings from &quot;%1&quot; to new default location &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd kopiowania ustawień projektu z &quot;%1&quot; do nowej domyślnej lokalizacji &quot;%2&quot;: %3</translation>
     </message>
     <message>
         <source>Could not open &quot;%1&quot; for writing: %2.</source>
-        <translation type="unfinished">Nie można otworzyć &quot;%1&quot; do zapisu: %2.</translation>
+        <translation>Nie można otworzyć &quot;%1&quot; do zapisu: %2.</translation>
     </message>
     <message>
         <source>Windows Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja Windows</translation>
     </message>
     <message>
         <source>All changes on this page take effect immediately.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie zmiany na tej stronie są stosowane natychmiast.</translation>
     </message>
     <message>
         <source>Select the download path of NuGet and Windows App SDK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz ścieżkę pobierania NuGet i Windows App SDK.</translation>
     </message>
     <message>
         <source>Select Download Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz ścieżkę pobierania</translation>
     </message>
     <message>
         <source>Select the path of NuGet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz ścieżkę do NuGet.</translation>
     </message>
     <message>
         <source>Select nuget.exe File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz plik nuget.exe</translation>
     </message>
     <message>
         <source>Download NuGet</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobierz NuGet</translation>
     </message>
     <message>
         <source>Automatically download NuGet.
 
 NuGet is needed for downloading Windows App SDK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie pobiera NuGet.
+
+NuGet jest wymagany do pobierania Windows App SDK.</translation>
     </message>
     <message>
         <source>Select the path of the Windows App SDK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz ścieżkę do Windows App SDK.</translation>
     </message>
     <message>
         <source>Download Windows App SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobierz Windows App SDK</translation>
     </message>
     <message>
         <source>Automatically download Windows App SDK with NuGet.
 
 If the automatic download fails, Qt Creator proposes to open the download URL
 in the system browser for manual download.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie pobiera Windows App SDK za pomocą NuGet.
+
+Jeśli automatyczne pobieranie nie powiedzie się, Qt Creator zaproponuje otwarcie strony pobierania
+w przeglądarce systemowej.</translation>
     </message>
     <message>
         <source>Download path exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka pobierania istnieje.</translation>
     </message>
     <message>
         <source>NuGet path exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka NuGet istnieje.</translation>
     </message>
     <message>
         <source>Windows App SDK path exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka Windows App SDK istnieje.</translation>
     </message>
     <message>
         <source>Windows App SDK settings are OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia Windows App SDK są prawidłowe.</translation>
     </message>
     <message>
         <source>Windows App SDK settings have errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia Windows App SDK zawierają błędy.</translation>
     </message>
     <message>
         <source>Select Windows App SDK Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz ścieżkę Windows App SDK</translation>
     </message>
     <message>
         <source>Download Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka pobierania</translation>
     </message>
     <message>
         <source>Download location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizacja pobierania:</translation>
     </message>
     <message>
         <source>NuGet</source>
-        <translation type="unfinished"></translation>
+        <translation>NuGet</translation>
     </message>
     <message>
         <source>NuGet location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizacja NuGet:</translation>
     </message>
     <message>
         <source>Windows App SDK Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia Windows App SDK</translation>
     </message>
     <message>
         <source>Windows App SDK location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizacja Windows App SDK:</translation>
     </message>
     <message>
         <source>NuGet download failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania NuGet.</translation>
     </message>
     <message>
         <source>Open NuGet URL for manual download?</source>
-        <translation type="unfinished"></translation>
+        <translation>Otworzyć adres URL NuGet do ręcznego pobierania?</translation>
     </message>
     <message>
         <source>Open Download URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz adres URL pobierania</translation>
     </message>
     <message>
         <source>Downloading</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie</translation>
     </message>
     <message>
         <source>Downloading NuGet...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie NuGet...</translation>
     </message>
     <message>
         <source>The SDK Tools download URL is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres URL pobierania narzędzi SDK jest pusty.</translation>
     </message>
     <message>
         <source>Encountered SSL errors, download is aborted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Napotkano błędy SSL, pobieranie zostało przerwane.</translation>
     </message>
     <message>
         <source>Downloading NuGet from URL %1 has failed: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania NuGet z adresu URL %1: %2.</translation>
     </message>
     <message>
         <source>Download from %1 was redirected.</source>
-        <translation type="unfinished">Pobieranie z %1 zostało przekierowane.</translation>
+        <translation>Pobieranie z %1 zostało przekierowane.</translation>
     </message>
     <message>
         <source>The selected download path (%1) for NuGet already exists.
 Select a different path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybrana ścieżka pobierania (%1) dla NuGet już istnieje.
+Wybierz inną ścieżkę.</translation>
     </message>
     <message>
         <source>Download path is not configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka pobierania nie jest skonfigurowana.</translation>
     </message>
     <message>
         <source>Downloading Windows App SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie Windows App SDK</translation>
     </message>
     <message>
         <source>Windows App SDK is already configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK jest już skonfigurowany.</translation>
     </message>
     <message>
         <source>Downloading Windows App SDK...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie Windows App SDK...</translation>
     </message>
     <message>
         <source>Windows App SDK download failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pobierania Windows App SDK.</translation>
     </message>
     <message>
         <source>Open Windows App SDK URL for manual download?</source>
-        <translation type="unfinished"></translation>
+        <translation>Otworzyć adres URL Windows App SDK do ręcznego pobierania?</translation>
     </message>
     <message>
         <source>Windows App SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows App SDK</translation>
     </message>
     <message>
         <source>Clone the configuration to change it. Or, make the changes in the .qtcreator/project.json file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sklonuj konfigurację, aby ją zmienić. Lub wprowadź zmiany bezpośrednio w pliku .qtcreator/project.json.</translation>
     </message>
     <message>
         <source>Workspace Manager</source>
-        <translation type="unfinished">Zarządzanie obszarami roboczymi</translation>
+        <translation>Zarządzanie obszarem roboczym</translation>
     </message>
     <message>
         <source>Copy of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopia %1</translation>
     </message>
     <message>
         <source>Exclude from Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyklucz z projektu</translation>
     </message>
     <message>
         <source>Rescan Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Ponownie przeskanuj obszar roboczy</translation>
     </message>
 </context>
 <context>
