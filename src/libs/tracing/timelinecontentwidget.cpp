@@ -116,6 +116,14 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
         recenterOnItem(m_selectedModelIndex, m_selectedItemIndex);
     });
 
+    connect(m_details, &RangeDetailsWidget::rowDoubleClicked, this, [this](int row) {
+        if (m_selectedModelIndex >= 0 && m_selectedModelIndex < m_painters.size()
+                && m_selectedItemIndex >= 0) {
+            m_painters[m_selectedModelIndex]->model()->navigateToDetail(
+                m_selectedItemIndex, row);
+        }
+    });
+
     m_selectionDetails = new SelectionRangeDetailsWidget(this);
     m_selectionDetails->move(200, 50);
     connect(zoom, &TimelineZoomControl::selectionChanged, this,

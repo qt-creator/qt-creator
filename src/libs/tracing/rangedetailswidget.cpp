@@ -60,6 +60,14 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
         m_titleLabel,
     }.attachTo(m_titleBar);
 
+    connect(m_treeView, &QAbstractItemView::doubleClicked, this,
+            [this](const QModelIndex &index) {
+                // Only top-level rows map 1:1 to orderedDetails content rows;
+                // child rows (the "Arguments" JSON expansion) are not navigable.
+                if (!index.parent().isValid())
+                    emit rowDoubleClicked(index.row());
+            });
+
     Column{
         noMargin,
         spacing(0),

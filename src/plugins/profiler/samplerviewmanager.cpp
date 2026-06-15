@@ -89,6 +89,8 @@ QWidgetList SamplerViewManager::views(QWidget *parent)
 
     connect(d->callTreeView, &CallTreeView::gotoSourceLocation,
             this, &SamplerViewManager::gotoSourceLocation);
+    connect(&d->cpuModel, &Timeline::TimelineModel::gotoSourceLocation,
+            this, &SamplerViewManager::gotoSourceLocation);
 
     return {d->timelineView, d->callTreeView};
 }

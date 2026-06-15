@@ -59,11 +59,13 @@ void CpuUsageModel::load()
     {
         quint64 tsUs = 0;
         int running = 0;
-        QList<quint64> runningTids;
+        struct Running { quint64 tid; int sampleIndex; };
+        QList<Running> runningTids;
     };
     QList<Tick> ticks;
     QHash<quint64, int> threadRows;
-    for (const SampleTraceData::ThreadSample &sample : m_data->samples) {
+    for (qsizetype s = 0; s < m_data->samples.size(); ++s) {
+        const SampleTraceData::ThreadSample &sample = m_data->samples.at(s);
         if (ticks.isEmpty() || ticks.last().tsUs != sample.tsUs)
             ticks.append({sample.tsUs, 0, {}});
         if (!threadRows.contains(sample.tid)) {
@@ -72,7 +74,7 @@ void CpuUsageModel::load()
         }
         if (sample.running) {
             ++ticks.last().running;
-            ticks.last().runningTids.append(sample.tid);
+            ticks.last().runningTids.append({sample.tid, int(s)});
         }
         m_maxRunning = qMax(m_maxRunning, ticks.last().running);
     }
@@ -86,8 +88,8 @@ void CpuUsageModel::load()
         row.startNs = qint64(tick.tsUs) * 1000;
         row.running = tick.running;
         row.runningRows.reserve(tick.runningTids.size());
-        for (quint64 tid : tick.runningTids)
-            row.runningRows.append(FirstThreadRow + threadRows.value(tid));
+        for (const Tick::Running &r : tick.runningTids)
+            row.runningRows.append(FirstThreadRow + threadRows.value(r.tid));
         m_ticks.append(row);
     }
 
@@ -102,11 +104,11 @@ void CpuUsageModel::load()
         const qint64 startNs = qint64(tick.tsUs) * 1000;
         const qint64 durNs = qMax<qint64>(durUs, 1) * 1000;
 
-        m_items.insert(insert(startNs, durNs, 0), Item{tick.running, -1, 0});
-        for (quint64 tid : tick.runningTids) {
-            const int threadRow = threadRows.value(tid);
+        m_items.insert(insert(startNs, durNs, 0), Item{tick.running, -1, 0, -1, int(i)});
+        for (const Tick::Running &r : tick.runningTids) {
+            const int threadRow = threadRows.value(r.tid);
             m_items.insert(insert(startNs, durNs, 1 + threadRow),
-                           Item{tick.running, threadRow, tid});
+                           Item{tick.running, threadRow, r.tid, r.sampleIndex, int(i)});
         }
     }
     m_traceEndNs = qint64(ticks.last().tsUs) * 1000;
@@ -192,6 +194,11 @@ Timeline::RowLabels CpuUsageModel::labels() const
 Timeline::ItemDetails CpuUsageModel::details(int index) const
 {
     Timeline::ItemDetails result;
+    // The base class can re-enter this during teardown (clear() emits
+    // expandedChanged while its range count is still stale), so the index may
+    // outrun our parallel item list. Guard rather than assert.
+    if (index < 0 || index >= m_items.size())
+        return result;
     const Item &item = m_items.at(index);
     if (item.threadRow < 0) {
         result.insert("displayName"_L1, Tr::tr("CPU Usage"));
@@ -205,6 +212,74 @@ Timeline::ItemDetails CpuUsageModel::details(int index) const
         result.insert(Tr::tr("State"), Tr::tr("Running"));
     }
     return result;
+}
+
+Timeline::OrderedItemDetails CpuUsageModel::orderedDetails(int index) const
+{
+    Timeline::OrderedItemDetails result;
+    // See details(): the index can be stale during teardown.
+    if (index < 0 || index >= m_items.size())
+        return result;
+    const Item &item = m_items.at(index);
+
+    if (item.threadRow >= 0) {
+        // Thread bar: the sampled call stack, innermost frame first.
+        const QString name = m_data ? m_data->threadNames.value(item.tid) : QString();
+        result.title = name.isEmpty() ? Tr::tr("Thread %1").arg(item.tid) : name;
+        if (m_data && item.sampleIndex >= 0 && item.sampleIndex < m_data->samples.size()) {
+            const QList<int> &frames = m_data->samples.at(item.sampleIndex).frames; // root-first
+            int depth = 0;
+            for (auto it = frames.crbegin(); it != frames.crend(); ++it) {
+                const int id = *it;
+                const QString fn = (id >= 0 && id < m_data->labels.size())
+                                       ? m_data->labels.at(id).name
+                                       : QString();
+                result.content.append({QString::number(depth++), fn});
+            }
+        }
+        return result;
+    }
+
+    // Total bar: the running-thread count and the names of those threads.
+    result.title = Tr::tr("CPU Usage");
+    result.content.append({Tr::tr("Running Threads"), QString::number(item.running)});
+    if (item.tickIndex >= 0 && item.tickIndex < m_ticks.size()) {
+        for (int row : m_ticks.at(item.tickIndex).runningRows) {
+            const int idx = row - FirstThreadRow;
+            if (idx >= 0 && idx < m_threads.size()) {
+                const quint64 tid = m_threads.at(idx);
+                const QString name = m_data ? m_data->threadNames.value(tid) : QString();
+                result.content.append({Tr::tr("Thread"),
+                                       name.isEmpty() ? Tr::tr("Thread %1").arg(tid) : name});
+            }
+        }
+    }
+    return result;
+}
+
+void CpuUsageModel::navigateToDetail(int itemIndex, int detailRow)
+{
+    if (itemIndex < 0 || itemIndex >= m_items.size())
+        return;
+    const Item &item = m_items.at(itemIndex);
+    // Only thread bars carry a call stack; the total bar lists thread names.
+    if (item.threadRow < 0 || !m_data
+            || item.sampleIndex < 0 || item.sampleIndex >= m_data->samples.size())
+        return;
+
+    const QList<int> &frames = m_data->samples.at(item.sampleIndex).frames; // root-first
+    // Detail rows are innermost-first, so row 0 is the last (leaf) frame.
+    if (detailRow < 0 || detailRow >= frames.size())
+        return;
+    const int id = frames.at(frames.size() - 1 - detailRow);
+    if (id < 0 || id >= m_data->labels.size())
+        return;
+
+    const SampleTraceData::Label &label = m_data->labels.at(id);
+    if (label.file.isEmpty() && label.module.isEmpty() && label.offset == 0)
+        return; // nothing to point at
+
+    emit gotoSourceLocation(label.file, label.line, 0, label.module, label.offset);
 }
 
 bool CpuUsageModel::rendersAsDensity() const

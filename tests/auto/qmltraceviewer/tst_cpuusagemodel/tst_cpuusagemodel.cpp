@@ -5,6 +5,7 @@
 
 #include <tracing/timelinemodelaggregator.h>
 
+#include <QSignalSpy>
 #include <QtTest>
 
 using namespace QmlProfiler::Internal;
@@ -268,6 +269,121 @@ private slots:
         QCOMPARE(model.rowColor(1), model.color(totalItem));          // total row
         QCOMPARE(model.rowColor(threadRow), model.color(threadItem)); // a thread row
         QCOMPARE(model.rowColor(999), QRgb(0xff808080));              // out of range -> grey
+    }
+
+    void selectedEventShowsStack()
+    {
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = {"start", "main", "work"}; // frames index into these (root-first)
+        data.threadNames = {{10, "worker"}};
+        data.samples = {{0, 10, true, {0, 1, 2}}}; // start>main>work; leaf = work
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        model.setTraceData(&data);
+
+        int threadItem = -1, totalItem = -1;
+        for (int i = 0; i < model.count(); ++i) {
+            if (model.expandedRow(i) == 1 && totalItem < 0)
+                totalItem = i;
+            else if (model.expandedRow(i) >= 2 && threadItem < 0)
+                threadItem = i;
+        }
+        QVERIFY(threadItem >= 0);
+        QVERIFY(totalItem >= 0);
+
+        const Timeline::OrderedItemDetails od = model.orderedDetails(threadItem);
+        QCOMPARE(od.title, QString("worker"));
+        QCOMPARE(od.content.size(), 3);
+        QCOMPARE(od.content[0].second, QString("work"));
+        QCOMPARE(od.content[1].second, QString("main"));
+        QCOMPARE(od.content[2].second, QString("start"));
+
+        const Timeline::OrderedItemDetails tod = model.orderedDetails(totalItem);
+        QCOMPARE(tod.title, QString("CPU Usage"));
+        bool listsWorker = false;
+        for (const auto &row : tod.content)
+            if (row.first == QString("worker") || row.second == QString("worker"))
+                listsWorker = true;
+        QVERIFY(listsWorker);
+    }
+
+    void doubleClickFrameEmitsGotoSource()
+    {
+        SampleTraceData data;
+        data.pid = 1;
+        SampleTraceData::Label start("start");
+        SampleTraceData::Label mainFn("main");
+        SampleTraceData::Label work("work");
+        work.file = "/src/work.cpp";
+        work.line = 42;
+        work.module = "libwork";
+        work.offset = 0x1000;
+        data.labels = {start, mainFn, work};
+        data.threadNames = {{10, "worker"}};
+        data.samples = {{0, 10, true, {0, 1, 2}}}; // start>main>work; leaf = work
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        model.setTraceData(&data);
+
+        int threadItem = -1, totalItem = -1;
+        for (int i = 0; i < model.count(); ++i) {
+            if (model.expandedRow(i) == 1 && totalItem < 0)
+                totalItem = i;
+            else if (model.expandedRow(i) >= 2 && threadItem < 0)
+                threadItem = i;
+        }
+        QVERIFY(threadItem >= 0);
+        QVERIFY(totalItem >= 0);
+
+        QSignalSpy spy(&model, &Timeline::TimelineModel::gotoSourceLocation);
+
+        // Detail row 0 = leaf = "work" (has a source location).
+        model.navigateToDetail(threadItem, 0);
+        QCOMPARE(spy.count(), 1);
+        const QList<QVariant> args = spy.takeFirst();
+        QCOMPARE(args.at(0).toString(), QString("/src/work.cpp"));
+        QCOMPARE(args.at(1).toInt(), 42);
+        QCOMPARE(args.at(2).toInt(), 0);
+        QCOMPARE(args.at(3).toString(), QString("libwork"));
+        QCOMPARE(args.at(4).value<quint64>(), quint64(0x1000));
+
+        // Inner frame "main" has no location -> no emission.
+        model.navigateToDetail(threadItem, 1);
+        QCOMPARE(spy.count(), 0);
+
+        // Total bar, out-of-range row, out-of-range item -> nothing, no crash.
+        model.navigateToDetail(totalItem, 0);
+        model.navigateToDetail(threadItem, 99);
+        model.navigateToDetail(9999, 0);
+        QCOMPARE(spy.count(), 0);
+    }
+
+    void detailsToleratesStaleIndex()
+    {
+        // A selection index that was valid before the trace was unloaded can
+        // still reach the detail accessors: TimelineModel::clear() emits
+        // expandedChanged while its range count is still stale, so the timeline
+        // re-shows the old selection (rebuildTracks -> showItemDetails) against
+        // the now-empty model. The accessors must not index out of bounds.
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = {"start", "main", "work"};
+        data.threadNames = {{10, "worker"}};
+        data.samples = {{0, 10, true, {0, 1, 2}}};
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        model.setTraceData(&data);
+        const int staleIndex = model.count() - 1;
+        QVERIFY(staleIndex >= 0);
+
+        model.setTraceData(nullptr);
+        QCOMPARE(model.count(), 0);
+
+        const Timeline::OrderedItemDetails od = model.orderedDetails(staleIndex);
+        QVERIFY(od.title.isEmpty());
+        QVERIFY(od.content.isEmpty());
+        QVERIFY(model.details(staleIndex).isEmpty());
     }
 
     void clearEmptiesModel()

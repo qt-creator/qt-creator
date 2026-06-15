@@ -27,6 +27,7 @@ public:
 
 signals:
     void recenterOnItem();
+    void rowDoubleClicked(int row);
 
 protected:
     void mousePressEvent(QMouseEvent *) override;

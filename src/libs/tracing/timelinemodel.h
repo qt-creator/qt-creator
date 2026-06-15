@@ -111,6 +111,11 @@ public:
     virtual int collapsedRow(int index) const;
     int row(int index) const;
 
+    // Invoked when a details-panel row is double-clicked (row = index into the
+    // orderedDetails content). Default: no-op. Models that map detail rows to a
+    // source location override this and emit gotoSourceLocation().
+    virtual void navigateToDetail(int itemIndex, int detailRow);
+
     virtual ItemLocation location(int index) const;
     virtual int typeId(int index) const;
     virtual bool handlesTypeId(int typeId) const;
@@ -153,6 +158,8 @@ signals:
     void hasMixedTypesInExpandedStateChanged();
     void labelsChanged();
     void detailsChanged();
+    void gotoSourceLocation(const QString &file, int line, int column,
+                            const QString &module, quint64 offset);
 
 protected:
     QRgb colorBySelectionId(int index) const;

@@ -622,6 +622,12 @@ OrderedItemDetails TimelineModel::orderedDetails(int index) const
     return result;
 }
 
+void TimelineModel::navigateToDetail(int itemIndex, int detailRow)
+{
+    Q_UNUSED(itemIndex)
+    Q_UNUSED(detailRow)
+}
+
 int TimelineModel::expandedRow(int index) const
 {
     Q_UNUSED(index)

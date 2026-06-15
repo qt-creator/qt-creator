@@ -35,6 +35,8 @@ public:
     qint64 rowMaxValue(int rowNumber) const override;
     Timeline::RowLabels labels() const override;
     Timeline::ItemDetails details(int index) const override;
+    Timeline::OrderedItemDetails orderedDetails(int index) const override;
+    void navigateToDetail(int itemIndex, int detailRow) override;
 
     bool rendersAsDensity() const override;
     bool fillDensityColumns(int row, qint64 startTime, qint64 endTime,
@@ -49,9 +51,11 @@ private:
 
     struct Item
     {
-        int running = 0;    // running threads at this tick
-        int threadRow = -1; // -1: total item; otherwise index into m_threads
+        int running = 0;      // running threads at this tick
+        int threadRow = -1;   // -1: total item; otherwise index into m_threads
         quint64 tid = 0;
+        int sampleIndex = -1; // thread items: index into m_data->samples (the stack)
+        int tickIndex = -1;   // index into m_ticks (used by the total item)
     };
 
     // Retained sample grid for per-column density aggregation. Sorted ascending

@@ -21,6 +21,7 @@ public:
     explicit TrackPainter(QWidget *parent = nullptr);
 
     void setModel(TimelineModel *model);
+    TimelineModel *model() { return m_model; }
     const TimelineModel *model() const { return m_model; }
 
     void setStartOdd(bool startOdd);
