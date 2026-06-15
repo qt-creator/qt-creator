@@ -17,6 +17,27 @@ class ITestTool;
 
 namespace Internal {
 
+using ActiveTestFrameworks = QHash<ITestFramework *, bool>;
+
+// Holds the per-project "active" flag for each registered test framework.
+// The frameworks are keyed by pointer (they are registered at runtime), so this
+// aspect is not serialized through the container; TestProjectSettings reconciles
+// it against the registered frameworks in load()/save().
+class ActiveTestFrameworksAspect : public Utils::TypedAspect<ActiveTestFrameworks>
+{
+public:
+    explicit ActiveTestFrameworksAspect(Utils::AspectContainer *container = nullptr)
+        : TypedAspect(container)
+    {}
+
+    void setActive(ITestFramework *framework, bool active)
+    {
+        ActiveTestFrameworks map = value();
+        map.insert(framework, active);
+        setValue(map);
+    }
+};
+
 class TestProjectSettings : public Utils::AspectContainer
 {
 public:
@@ -25,7 +46,7 @@ public:
 
     RunAfterBuildMode runAfterBuildMode() const;
 
-    QHash<ITestFramework *, bool> activeFrameworks() const { return m_activeTestFrameworks; }
+    QHash<ITestFramework *, bool> activeFrameworks() const { return activeTestFrameworks(); }
     void activateFramework(const Utils::Id &id, bool activate);
     QHash<ITestTool *, bool> activeTestTools() const { return m_activeTestTools; }
     void activateTestTool(const Utils::Id &id, bool activate);
@@ -37,16 +58,18 @@ public:
     Utils::SelectionAspect runAfterBuild{this};
     Utils::BoolAspect limitToFilter{this};
     Utils::StringListAspect pathFilters{this};
+    ActiveTestFrameworksAspect activeTestFrameworks{this};
 
 private:
     void load();
     void save();
 
     ProjectExplorer::Project *m_project;
-    QHash<ITestFramework *, bool> m_activeTestFrameworks;
     QHash<ITestTool *, bool> m_activeTestTools;
     Internal::ItemDataCache<Qt::CheckState> m_checkStateCache;
 };
 
 } // namespace Internal
 } // namespace Autotest
+
+Q_DECLARE_METATYPE(Autotest::Internal::ActiveTestFrameworks)
