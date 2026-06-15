@@ -8,6 +8,9 @@
 #include "trackpainter.h"
 #include "timelinezoomcontrol.h"
 
+#include <utils/qtcassert.h>
+
+#include <QEvent>
 #include <QScrollBar>
 
 namespace Timeline {
@@ -22,6 +25,12 @@ void TimelineScrollSync::registerRuler(TimeRuler *ruler)
 {
     ruler->setRange(m_zoom->rangeStart(), m_zoom->rangeEnd());
     connect(m_zoom, &TimelineZoomControl::rangeChanged, ruler, &TimeRuler::setRange);
+
+    if (!m_ruler && m_scrollBar) {
+        m_ruler = ruler;
+        m_scrollBar->installEventFilter(this);
+        updateRulerMargins();
+    }
 }
 
 void TimelineScrollSync::registerContent(TrackPainter *painter)
@@ -45,6 +54,30 @@ void TimelineScrollSync::setVerticalScrollBar(QScrollBar *scrollBar)
     m_scrollBar = scrollBar;
     for (auto labels : std::as_const(m_labels))
         connect(scrollBar, &QScrollBar::valueChanged, labels, &TrackLabels::setScrollOffset);
+
+    if (m_ruler) {
+        scrollBar->installEventFilter(this);
+        updateRulerMargins();
+    }
+}
+
+bool TimelineScrollSync::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == m_scrollBar
+        && (event->type() == QEvent::Show || event->type() == QEvent::Hide)) {
+        updateRulerMargins();
+    }
+    return QObject::eventFilter(watched, event);
+}
+
+void TimelineScrollSync::updateRulerMargins()
+{
+    if (!m_ruler)
+        return;
+
+    const int scrollBarWidth = (m_scrollBar && m_scrollBar->isVisible())
+                                   ? m_scrollBar->sizeHint().width() : 0;
+    m_ruler->setContentsMargins(0, 0, scrollBarWidth, 0);
 }
 
 } // namespace Timeline

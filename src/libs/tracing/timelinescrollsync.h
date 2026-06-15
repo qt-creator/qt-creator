@@ -30,7 +30,13 @@ public:
     void registerLabels(TrackLabels *labels);
     void setVerticalScrollBar(QScrollBar *scrollBar);
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
+    void updateRulerMargins();
+
+    TimeRuler *m_ruler = nullptr;
     TimelineZoomControl *m_zoom;
     QList<TrackLabels *> m_labels;
     QScrollBar *m_scrollBar = nullptr;

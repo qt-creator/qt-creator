@@ -92,7 +92,6 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     , m_details(details)
 {
     m_ruler = new TimeRuler;
-    m_sync->registerRuler(m_ruler);
 
     m_labels = new TrackLabels;
 
@@ -161,6 +160,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
 
     m_sync->registerLabels(m_labels);
     m_sync->setVerticalScrollBar(m_scrollArea->verticalScrollBar());
+    m_sync->registerRuler(m_ruler);
 
     // Left panel: header placeholder matching ruler height, then labels below
     const int rulerH = m_ruler->sizeHint().height();

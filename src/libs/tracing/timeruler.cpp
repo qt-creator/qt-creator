@@ -52,9 +52,10 @@ void TimeRuler::paintEvent(QPaintEvent *)
     if (rangeDuration <= 0 || width() == 0)
         return;
 
-    const double spacing = double(width()) / double(rangeDuration);
+    const double rulerWidth = width() - contentsMargins().right();
+    const double spacing = rulerWidth / double(rangeDuration);
 
-    const qint64 timePerBlock = rulerBlockDuration(rangeDuration, double(width()),
+    const qint64 timePerBlock = rulerBlockDuration(rangeDuration, rulerWidth,
                                                    kInitialBlockLength);
 
     // Align the first block to a timePerBlock boundary at or before rangeStart.
@@ -79,12 +80,12 @@ void TimeRuler::paintEvent(QPaintEvent *)
     p.setPen(dividerColor);
 
     for (qint64 t = alignedStart; ; t += timePerBlock) {
-        const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, double(width()));
-        if (x > double(width()))
+        const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, rulerWidth);
+        if (x > rulerWidth)
             break;
 
         // Label for time t, left-aligned in [x, x+pixelsPerBlock].
-        if (x + pixelsPerBlock > 0.0 && x < double(width())) {
+        if (x + pixelsPerBlock > 0.0 && x < rulerWidth) {
             const QString label = formatTime(t, rangeDuration);
             const QRectF labelRect(x + kTextMargin, 0,
                                    pixelsPerBlock - kTextMargin, double(labelsHeight));
@@ -96,7 +97,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
         // 4 minor ticks at 1/5..4/5 of the block.
         for (int s = 1; s <= 4; ++s) {
             const double sx = x + s * pixelsPerSection;
-            if (sx >= 0.0 && sx <= double(width())) {
+            if (sx >= 0.0 && sx <= rulerWidth) {
                 const int ix = qRound(sx);
                 p.drawLine(ix, ticksTop, ix, height() - 1);
             }
@@ -104,7 +105,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
         // Major tick at the right edge of this block (= left edge of next block).
         const double tickX = x + pixelsPerBlock;
-        if (tickX >= 0.0 && tickX <= double(width())) {
+        if (tickX >= 0.0 && tickX <= rulerWidth) {
             const int ix = qRound(tickX);
             p.drawLine(ix, 0, ix, height() - 1);
         }
@@ -185,7 +186,8 @@ void TimeRuler::mousePressEvent(QMouseEvent *event)
     } else {
         // Add a new marker at the clicked time
         if (m_rangeEnd > m_rangeStart) {
-            const qint64 ts = pixelToTime(event->pos().x(), double(width()),
+            const double rulerWidth = width() - contentsMargins().right();
+            const qint64 ts = pixelToTime(event->pos().x(), rulerWidth,
                                           m_rangeStart, m_rangeEnd);
             m_markers.append(ts);
             emit markersChanged(m_markers);
@@ -206,7 +208,8 @@ void TimeRuler::mouseMoveEvent(QMouseEvent *event)
         return;
     }
     m_dragged = true;
-    m_markers[m_dragIndex] = pixelToTime(event->pos().x(), double(width()),
+    const double rulerWidth = width() - contentsMargins().right();
+    m_markers[m_dragIndex] = pixelToTime(event->pos().x(), rulerWidth,
                                           m_rangeStart, m_rangeEnd);
     emit markersChanged(m_markers);
     update();
@@ -237,7 +240,8 @@ double TimeRuler::markerPixel(qint64 timestamp) const
 {
     if (m_rangeEnd <= m_rangeStart)
         return 0.0;
-    return timeToPixel(timestamp, m_rangeStart, m_rangeEnd, double(width()));
+    const double rulerWidth = width() - contentsMargins().right();
+    return timeToPixel(timestamp, m_rangeStart, m_rangeEnd, rulerWidth);
 }
 
 } // namespace Timeline
