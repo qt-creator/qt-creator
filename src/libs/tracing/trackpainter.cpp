@@ -198,59 +198,6 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
         }
     }
 
-    // Value scale for expanded rows with min/max values (TimeMarks.qml equivalent)
-    if (m_model->expanded()) {
-        static const int kScaleMinH = 60;
-        static const int kScaleStep = 30;
-        static const int kFontPx = 8;
-        static const int kMarg = 2;
-
-        p.save();
-        QFont sf = p.font();
-        sf.setPixelSize(kFontPx);
-        p.setFont(sf);
-        const QColor scaleText = themeColor(Utils::Theme::Timeline_TextColor);
-        const QColor scaleDiv  = themeColor(Utils::Theme::Timeline_DividerColor);
-
-        for (int row = 0; row < rowCount; ++row) {
-            const int rowH = m_model->rowHeight(row);
-            const int rowY = m_model->rowOffset(row);
-            if (rowH < kScaleMinH)
-                continue;
-            const qint64 minVal = m_model->rowMinValue(row);
-            const qint64 maxVal = m_model->rowMaxValue(row);
-            if (maxVal <= minVal)
-                continue;
-            const qint64 valDiff = maxVal - minVal;
-
-            const int numSteps = qMax(1, rowH / kScaleStep);
-            double ugly = std::ceil(double(valDiff) / double(numSteps));
-            qint64 stepVal = 1;
-            while (ugly > 1.0) {
-                ugly /= 2.0;
-                stepVal *= 2;
-            }
-            const double stepH = double(stepVal) * double(rowH) / double(valDiff);
-            const int topLabelBottom = rowY + kFontPx + kMarg * 2 + 2;
-
-            p.setPen(scaleText);
-            p.drawText(QPointF(kMarg, topLabelBottom), prettyPrintScale(maxVal));
-
-            const int numLines = int(valDiff / stepVal);
-            for (int i = 0; i < numLines; ++i) {
-                if (rowY + qRound(double(rowH) - double(i + 1) * stepH) <= topLabelBottom)
-                    break;
-                const int lineY = rowY + rowH - qRound(double(i) * stepH);
-                p.setPen(scaleDiv);
-                p.drawLine(0, lineY, width() - 1, lineY);
-                p.setPen(scaleText);
-                p.drawText(QPointF(kMarg, lineY - kMarg),
-                           prettyPrintScale(minVal + qint64(i) * stepVal));
-            }
-        }
-        p.restore();
-    }
-
     // Events (fills only; selection/hover borders are overlaid live in paintEvent)
     const int first = m_model->firstIndex(iterStart);
     const int last = m_model->lastIndex(iterEnd);
@@ -332,6 +279,64 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
             p.drawPoint(QPointF(cx, (dotStart + dotEnd) / 2.0));
         }
     }
+}
+
+// Value scale for expanded rows with min/max values (TimeMarks.qml equivalent)
+void TrackPainter::paintScaleOverlay(QPainter &p)
+{
+    if (!m_model || !m_model->expanded())
+        return;
+
+    static const int kScaleMinH = 60;
+    static const int kScaleStep = 30;
+    static const int kFontPx = 8;
+    static const int kMarg = 2;
+
+    p.save();
+    QFont sf = p.font();
+    sf.setPixelSize(kFontPx);
+    p.setFont(sf);
+    const QColor scaleText = themeColor(Utils::Theme::Timeline_TextColor);
+    const QColor scaleDiv  = themeColor(Utils::Theme::Timeline_DividerColor);
+
+    const int rowCount = m_model->rowCount();
+    for (int row = 0; row < rowCount; ++row) {
+        const int rowH = m_model->rowHeight(row);
+        const int rowY = m_model->rowOffset(row);
+        if (rowH < kScaleMinH)
+            continue;
+        const qint64 minVal = m_model->rowMinValue(row);
+        const qint64 maxVal = m_model->rowMaxValue(row);
+        if (maxVal <= minVal)
+            continue;
+        const qint64 valDiff = maxVal - minVal;
+
+        const int numSteps = qMax(1, rowH / kScaleStep);
+        double ugly = std::ceil(double(valDiff) / double(numSteps));
+        qint64 stepVal = 1;
+        while (ugly > 1.0) {
+            ugly /= 2.0;
+            stepVal *= 2;
+        }
+        const double stepH = double(stepVal) * double(rowH) / double(valDiff);
+        const int topLabelBottom = rowY + kFontPx + kMarg * 2 + 2;
+
+        p.setPen(scaleText);
+        p.drawText(QPointF(kMarg, topLabelBottom), prettyPrintScale(maxVal));
+
+        const int numLines = int(valDiff / stepVal);
+        for (int i = 0; i < numLines; ++i) {
+            if (rowY + qRound(double(rowH) - double(i + 1) * stepH) <= topLabelBottom)
+                break;
+            const int lineY = rowY + rowH - qRound(double(i) * stepH);
+            p.setPen(scaleDiv);
+            p.drawLine(0, lineY, width() - 1, lineY);
+            p.setPen(scaleText);
+            p.drawText(QPointF(kMarg, lineY - kMarg),
+                       prettyPrintScale(minVal + qint64(i) * stepVal));
+        }
+    }
+    p.restore();
 }
 
 void TrackPainter::invalidateCache()
@@ -418,6 +423,8 @@ void TrackPainter::paintEvent(QPaintEvent *)
     }
 
     p.drawPixmap(QPointF(0, 0), m_cache);
+
+    paintScaleOverlay(p);
 
     // Overlay selection/hover borders live (not cached).
     if (m_model && !m_model->hidden() && m_rangeStart < m_rangeEnd
