@@ -113,10 +113,10 @@ void RunWorkerFactory::addSupportForLocalRunConfigs()
     addSupportedRunConfig(ProjectExplorer::Constants::WORKSPACE_RUNCONFIG_ID);
 }
 
-void RunWorkerFactory::cloneProduct(Id exitstingStepId)
+void RunWorkerFactory::cloneProduct(Id existingStepId)
 {
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->m_id == exitstingStepId) {
+        if (factory->m_id == existingStepId) {
             m_recipeCreator = factory->m_recipeCreator;
             // Other bits are intentionally not copied as they are unlikely to be
             // useful in the cloner's context. The cloner can/has to finish the
@@ -125,7 +125,7 @@ void RunWorkerFactory::cloneProduct(Id exitstingStepId)
         }
     }
     // Existence should be guaranteed by plugin dependencies. In case it fails, bark.
-    QTC_CHECK(false);
+    QTC_ASSERT(false, qDebug() << existingStepId);
 }
 
 bool RunWorkerFactory::canCreate(

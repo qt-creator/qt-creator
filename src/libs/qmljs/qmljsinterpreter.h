@@ -1163,6 +1163,9 @@ public:
     {
         return importPaths;
     }
+    // Called on the GUI thread before the (worker-thread) link runs, so providers can
+    // precompute data that relies on thread-unsafe APIs.
+    virtual void prepare([[maybe_unused]] const Document *context) {}
 };
 
 } // namespace QmlJS

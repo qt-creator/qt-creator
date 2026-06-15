@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \example transitions
+    \page qtquick-app-tutorial.html
     \previouspage creator-tutorials.html
     \nextpage creator-how-tos.html
     \ingroup creator-tutorials
@@ -10,180 +10,353 @@
     \keyword {Creating a Qt Quick Application}
     \title Tutorial: Qt Quick application
 
-    \brief How to create a Qt Quick Application in the \uicontrol Edit mode.
+    \brief How to use the project wizard to create a Qt Quick Application, and
+    run it on a device.
 
-    This tutorial illustrates basic concepts of \l{Qt Quick}. For more
-    information about the UI choices you have, see \l{User Interfaces}.
+    This tutorial illustrates basic concepts of
+    \l{Getting started with Qt Quick applications}{Qt Quick}. With the Qt Quick
+    module, you can build fluid animated user interfaces in QML and connect them
+    to back-end C++ libraries.
 
-    This tutorial describes how to use \QC to implement \l{Qt Quick States}
-    {states} and \l{Animation and Transitions in Qt Quick}{transitions}
-    when using Qt 6 as the minimum Qt version and CMake as the build system.
+    The Qt Quick module provides all the basic types necessary for creating user
+    interfaces with QML. It provides a visual canvas and includes types for
+    creating and animating visual components, receiving user input, and so on.
+    For more information about the UI choices you have, see \l{User Interfaces}.
 
-    You will use the \l{Editing code}{Edit} mode to create an application
-    that moves a Qt logo between three rectangles when you select them.
+    This tutorial describes the example application that the
+    \uicontrol {New Project} wizard generates. It imports QML types from the
+    \l{Qt Quick}, \l{Qt Quick Controls}, and \l{Qt Quick Layouts} modules. It
+    also creates a main C++ source file for building and running the application
+    using the CMake build configuration system.
 
-    \image {qtquick-tutorial.gif} {Transitions example}
+    You will use the \l{Editing code}{Edit} mode to inspect the QML and the C++
+    code and the CMake build configuration of the project. You will then run the
+    application on an Android or iOS device.
+
+    \image {qtquick-tutorial.webp} {Qt Quick Application created with the new project wizard}
 
     For more examples, see \l{Qt Quick Examples and Tutorials}.
 
-    You can use a visual editor to develop Qt Quick applications in the
-    \uicontrol Design mode or in \QDS.
+    \section1 Set up the development environment
+
+    To build the application for and run it on a mobile device, you must
+    set up the development environment for the device platform and configure a
+    connection between \QC and the mobile device.
+
+    To develop for Android devices, you must install \l{Qt for Android}
+    and set up the development environment, as instructed in
+    \l{Developing for Android}.
+
+    To develop for iOS devices, you must install \l{Qt for iOS}. You also need
+    to install Xcode and use it to configure a device. For this, you need an
+    Apple developer account and iOS Developer Program certificate that you
+    receive from Apple. For more information, see \l{Developing for iOS}.
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
     \QC generates a component file, \c Main.qml, and opens it in the
     \uicontrol Edit mode.
 
-    \section1 Deploy applications
+    \section1 Preview the application
 
-    The main view of the application displays a Qt logo inside a rectangle in
-    the top left corner of the view and two empty rectangles.
+    The main view of the application shows two rectangles with background color,
+    text, and a button. Selecting the button toggles the application between
+    light and dark mode.
 
-    For the image to appear when you run the application, you must specify it
-    as a resource in the \c RESOURCES section of \c CMakeLists.txt file that
-    the wizard created for you:
-
-    \quotefromfile transitions/CMakeLists.txt
-    \skipto qt_add_qml_module
-    \printuntil )
-
-    \section1 Create a custom QML type
-
-    Because the \l Window QML type requires that you add states into child
-    components, use the wizard to create a custom QML type called
-    \e Page that you refer to from \c Main.qml.
-
-    To create a custom QML type:
-
-    \list 1
-        \li Go to \uicontrol File > \uicontrol {New File}.
-        \li Select \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)}.
-        \li Select \uicontrol Choose to open the \uicontrol Location dialog.
-        \li In \uicontrol {File name}, enter a name for the custom
-            QML type: \e Page.
-        \li Select \uicontrol Next to open the \uicontrol {Project Management}
-            dialog.
-        \li Select \uicontrol Finish to create \c Page.qml.
+    \list
+        \li To preview the application, select
+            \inlineimage {icons/live-preview.png} {Live Preview} on the top
+            toolbar.
+        \li To run the application on the desktop, select \imagerunsmall.
     \endlist
 
-    \QC opens \c Page.qml in the \uicontrol Edit mode. It has a root item
-    of the type \l Item. Replace it with a \l Rectangle type. Give the
-    type the ID \e page, anchor it to the parent item on all sides, and set
-    its color to white:
+    \section1 Inspect the QML code
 
-    \quotefromfile transitions/Page.qml
-    \skipto import
-    \printuntil color
+    Open \c Main.qml to inspect the generated QML code.
 
-    When you start typing the QML type name, \QC suggests available types
-    and properties to \l{Complete code}{complete the code}.
+    \section2 QML imports
 
-    Select the light bulb icon
-    \inlineimage {icons/refactormarker.png} {Light bulb icon} next to the
-    type name to open a \l{Edit rectangles}{toolbar} that you can use to specify
-    rectangle properties, such as color, transparency, and gradients.
+    The file has import statements for the Qt modules that contain the QML
+    types used in the application:
 
-    \image {qml-toolbar-rectangle.png} {Qt Quick toolbar for rectangles}
+    \code [text]
+    import QtQuick
+    import QtQuick.Layouts
+    import QtQuick.Controls.Basics
+    \endcode
 
-    Next, add an \l Image type with \c qt-logo.png as the source. You can also
-    use any other image or a component. Position the image in the top-left
-    corner of the rectangle:
+    \section2 Main window
 
-    \printuntil }
+    The file contains an instance of the \l{ApplicationWindow} QML type, which
+    creates a main window. The window properties set an initial and minimum size,
+    as well as a window title. Also, they determine that the window is visible on
+    the screen.
 
-    Use a \l{Preview images}{toolbar for images} to specify image properties,
-    such as source file and fill mode.
+    \code [text]
+    ApplicationWindow {
+        id: window
+        width: 640
+        height: 480
+        minimumWidth: 200
+        minimumHeight: 250
+        visible: true
+        title: qsTr("Hello World")
 
-    \image {qml-toolbar-image.png} {Logo visible in Qt Quick toolbar for images}
+        property bool lightMode: Application.styleHints.colorScheme === Qt.Light
+        property color reallyDark: "#1f1f1f"
+        property color dark: "#262626"
+        property color reallyLight: "#e7e7e7"
+        property color light: "#e0e0e0"
+    \endcode
 
-    Now, create the rectangles that the image will move between. Their size
-    should match the image size and they should be transparent, so that the
-    image is visible. Set the border color to light gray to make the
-    rectangles visible:
+    The custom properties set the application colors in the light and dark modes.
 
-    \printuntil border.color
+    \section2 Layout
 
-    Anchor the rectangles to their parent to position them in its
-    top-left and bottom-left corners, as well as the vertical center
-    of its right edge. The following code snippet anchors a rectangle to
-    the top-left corner of its parent:
+    The window contains an instance of the \l {GridLayout} QML type from the
+    Qt Quick Layouts module, which positions two instances of the \l {Rectangle}
+    type in a grid. The grid properties set the column width and the spacing
+    between rows and columns, as well as bind the grid size to the window size.
 
-    \printuntil anchors.topMargin
+    \code [text]
+        GridLayout {
+            id: grid
+            columns: width < 400 ? 1 : 2
+            rowSpacing: 0
+            columnSpacing: 0
+            anchors.fill: parent
+    \endcode
 
-    Add a \l MouseArea type to make the rectangle clickable by users:
+    If the column width becomes less than 400 pixels in the running application,
+    the rectangles are positioned in one column.
 
-    \printuntil anchors.fill
+    \image {qtquick-tutorial-column-width.webp} {The application running in a narrow window}
 
-    To check your code, compare it with the \c {Page.qml} example file.
+    \section2 Basic QML types
 
-    Next, make the image move between the rectangles when users click
-    them by adding states and by connecting mouse clicks to state changes.
+    Each instance of the Rectangle type has properties that set the type ID and
+    the color. The rectangle color is bound to the window color in the current
+    mode. The \l {Layout} properties make the rectagle fit the grid cell.
 
-    \section1 Connect mouse clicks to state changes
+    \code [text]
+            Rectangle {
+                id: rectangle1
+                color: window.lightMode ? window.reallyLight : window.reallyDark
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+    \endcode
 
-    To make the image move between the rectangles when users select them, add
-    states to the Page component where you change the values of the \c x and
-    \c y properties of \e icon to match those of the middle right and top left
-    rectangles. To make sure that the image stays within the rectangle
-    when the view is scaled on different sizes of screens, \e bind the values
-    of the \c x and \c y properties of \e icon to those of the rectangles:
+    Both rectangles contain a \l{ColumnLayout}, which position instances
+    of the \l [QML] {Label} and \l [QML] {Button} types from the
+    Qt Quick Controls module.
 
-    \dots
-    \skipto states:
-    \printuntil ]
+    \code [text]
+                ColumnLayout {
+                    anchors.fill: parent
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+    \endcode
 
-    Then, connect the \c onClicked signals of the mouse areas to the state
-    changes:
+    The Layout properties align the column at the top center of the rectangle,
+    and set top and bottom margins for the layout to position the text and the
+    button.
 
-    \quotefromfile transitions/Page.qml
-    \skipto Connections {
-    \printuntil }
+    \section3 Change the properties
 
-    Because you develop with Qt 6, you must specify the connections as functions.
+    When you preview the application, you can change the values of the properties
+    in the code and see the changes immediately.
 
-    \section1 Add Page to the main view
+    Experiment by changing the colors, margins, and alignment.
 
-    Open \c Main.qml for editing and add an instance of the Page custom
-    component to it:
+    \section2 Qt Quick Controls
 
-    \quotefromfile transitions/main.qml
-    \skipto import
-    \printuntil /^\ {0}\}/
+    The Qt Quick Controls module provides a set of controls for building complete
+    user interfaces in Qt Quick. The application contains instaces of Label and
+    Button controls.
 
-    Select \key {Ctrl+R} to run the application, and then select the rectangles to
-    move the Qt logo from one rectangle to another.
+    \section3 Label
 
-    \section1 Animate transitions
+    The \l [QML] {Label} properties set the heading text, as well as its color
+    and its size in pixels. Also, they center the label text horizontally and
+    vertically within the element's width and height, as well as adjust the font
+    size to fit the text within the label when the column width changes.
 
-    Create transitions to apply animation to the image. For example,
-    the image bounces back when it moves to \e middleRightRect and eases into
-    \e bottomLeftRect.
+    The Layout properties make the label fit the grid cell with 16 pixel margins.
 
-    Specify transitions for switching from each state to the other two
-    states:
+    \code [text]
+                    Label {
+                        id: text1
+                        color: window.lightMode ? window.dark : window.light
+                        font.pixelSize: 120
+                        fontSizeMode: Text.Fit
+                        text: qsTr("Hello World")
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.margins: 16
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+    \endcode
 
-    \quotefromfile transitions/Page.qml
-    \skipto transitions:
-    \printuntil },
+    \section3 Button
 
-    Change the easing curve type for transitions to \e State2 from linear to
-    \c Easing.OutBounce to create the bounce effect:
+    The \l [QtQuickControls] {Button} \c text property sets the button icon and
+    text depending on the window mode.
 
-    \printuntil },
+    The Layout properties align the button at the bottom center of the rectangle,
+    and set the bottom margin for the layout to position the button.
 
-    \note Use a \l{Preview animations}{toolbar for animations} to specify the
-    easing curve type and animation duration.
+    \code [text]
+                    Button {
+                        id: button1
+                        text: window.lightMode ? qsTr("\u263D  Dark mode")
+                                               : qsTr("\u263C  Light mode")
 
-    \image {qml-toolbar-animation.png} {Qt Quick Toolbar for animation}
+                            Layout.bottomMargin: 16
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+                        ...
+                    }
+    \endcode
 
-    Then, change the easing curve type for transitions to \e State2 from
-    linear to \c Easing.InOutQuad to create the easing effect:
+    The \l [QML] {Text} properties bind the button text, as well as its color and
+    font to the window mode.
 
-    \printuntil /^\ {0}\}/
+    \code [text]
+                        ...
+                        contentItem: Text {
+                            text: button1.text
+                            color: window.lightMode ? window.light : window.dark
+                            font: button1.font
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+    \endcode
 
-    Select \key {Ctrl+R} to run the application, and then select the rectangles to
-    view the animated transitions.
+    The \c {background} item holds an instance of the Rectangle type. The
+    rectangle properties make the button corners round and set the button
+    background color according to the window mode.
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
-    {Designing Qt Quick UIs}
+    \code [text]
+                        ...
+                        background: Rectangle {
+                            implicitWidth: 120
+                            implicitHeight: 36
+                            radius: 8
+                            color: window.lightMode ? window.dark : window.light
+                        }
+                        ...
+                    }
+    \endcode
+
+    \section2 Change the styling
+
+    The example application uses the Basic styling for Qt Quick Controls.
+    It is a simple and light-weight all-round style that offers the maximum
+    performance.
+
+    There are several other styles that you can choose based on your target
+    platform, such as iOS, \macos, or Material for Android. To experiment
+    with different styles, add a style name to \c {import QtQuick.Controls}.
+    For example: \c {import QtQuick.Controls.Material}.
+
+    Since Qt 6.12, you can import \c {QtQuick.Controls.Native}, which imports
+    the default style for the target platform.
+
+    For more information about the available styles, see
+    \l {Styling Qt Quick Controls}.
+
+    \section2 Signals and signal handlers
+
+    The \c onClicked signal handler of the Button type reacts to button clicks.
+    In the example application, selecting the button toggles the light and dark
+    mode.
+
+    \code [text]
+                    Button {
+                        id: button1
+                        text: window.lightMode ? qsTr("\u263D  Dark mode")
+                                               : qsTr("\u263C  Light mode")
+                        Layout.bottomMargin: 16
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+
+                        contentItem: Text {
+                            text: button1.text
+                            color: window.lightMode ? window.light : window.dark
+                            font: button1.font
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        background: Rectangle {
+                            implicitWidth: 120
+                            implicitHeight: 36
+                            radius: 8
+                            color: window.lightMode ? window.dark : window.light
+                        }
+
+                        onClicked: window.lightMode = !window.lightMode
+                    }
+                }
+            }
+        }
+    \endcode
+
+    \section1 Inspect the C++ source code
+
+    Open the \c main.cpp file to inspect the generated C++ code. It declares the
+    application, \c app, and the application engine, \c engine. The engine loads
+    the main QML file when you run the application.
+
+    \code
+    #include <QGuiApplication>
+    #include <QQmlApplicationEngine>
+
+    int main(int argc, char *argv[])
+    {
+        QGuiApplication app(argc, argv);
+
+        QQmlApplicationEngine engine;
+        QObject::connect(
+            &engine,
+            &QQmlApplicationEngine::objectCreationFailed,
+            &app,
+            []() { QCoreApplication::exit(-1); },
+            Qt::QueuedConnection);
+        engine.loadFromModule("HelloWorld", "Main");
+
+        return QGuiApplication::exec();
+    }
+    \endcode
+
+    \section1 Inspect the CMake configuration file
+
+    The wizard generates a \c {CMakeLists.txt} configuration file for building
+    the application.
+
+    The \c RESOURCES section lists the source files for the application. If you
+    add source files to the project, \QC automatically adds them to the section.
+
+    For more information, see \l {Build with CMake}.
+
+    \section1 Run the application on a device
+
+    You can now deploy the application to a device and run it there:
+
+    \list 1
+        \li Enable \e{USB Debugging} on the Android device or \e{developer mode}
+            on the iOS device.
+        \li Connect the device to the development PC.
+        \li Go to \uicontrol Projects, and activate the appropriate kit for the
+            project.
+        \li Go to \preferences > \uicontrol Kits > \uicontrol Kits, and select
+            the device from the list in \uicontrol {Run device},
+            \uicontrol {Device}.
+        \li To run the application on the device, select \key {Ctrl+R}.
+    \endlist
+
+    \sa {Activate kits for a project}, {Deploy applications to Android},
+    {Build with CMake}{How to: Build with CMake},
+    {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
+    {Qt Quick UI design}, {Designing Qt Quick UIs},
+    {Getting Started programming with Qt Quick: An Alarm Application}
+
 */

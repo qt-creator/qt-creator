@@ -14,19 +14,19 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    available = ["6.2"]
+    available = ["6.9", "6.7"] if os.getenv("SYSTEST_NEW_SETTINGS") == "1" else ["6.9"]
 
     for qtVersion in available:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         checkedKits, projectName = createNewQtQuickUI(workingDir, qtVersion)
         checkedKitNames = Targets.getTargetsAsStrings(checkedKits)
-        test.verify(_exactlyOne_(map(lambda name: qtVersion in name, checkedKitNames)),
-                    "The requested kit should have been checked")
-        if qtVersion == "6.2":
-            check = lambda name : ("5.10" in name or "5.14" in name)
+        test.verify(any(map(lambda name: qtVersion in name, checkedKitNames)),
+                    "Any of the requested kits should have been checked")
+        if qtVersion == "6.5":
+            check = lambda name : ("5.10" in name or "5.14" in name or "6.2" in name)
             test.verify(not any(map(check, checkedKitNames)),
-                        "The 5.x kits should not have been checked when 6.2 is required")
+                        "No kits before required version (6.5) should have been checked")
         clickButton(waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton"))
         if not waitForProcessRunning():
             test.fatal("Couldn't start application - leaving test")

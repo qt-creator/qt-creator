@@ -363,9 +363,7 @@ bool QbsBuildSystem::ensureWriteableQbsFile(const FilePath &file)
         if (!versionControl || !versionControl->vcsOpen(file)) {
             Result<> makeWritable = file.setPermissions(file.permissions() | QFile::WriteUser);
             if (!makeWritable) {
-                QMessageBox::warning(
-                    ICore::dialogParent(),
-                    Tr::tr("Failed"),
+                MessageManager::writeDisrupting(
                     Tr::tr("Could not write project file \"%1\": %2")
                         .arg(file.toUserOutput(), makeWritable.error()));
                 return false;
@@ -538,7 +536,7 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
                                    projectData());
     };
     const auto onDone = [this, continuation](const Async<BuildTreeResult> &task) {
-        OpTimer("updateProjectNodes continuation");
+        OpTimer opTimer("updateProjectNodes continuation");
         if (project()->activeBuildSystem() != this)
             return;
 

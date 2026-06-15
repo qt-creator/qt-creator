@@ -172,6 +172,7 @@ void ClangFormatGlobalConfigWidget::initUseGlobalSettingsCheckBox()
         m_useGlobalSettings, &QCheckBox::toggled, this, [this, enableProjectSettings](bool checked) {
             m_project->setNamedSettings(Constants::USE_GLOBAL_SETTINGS, checked);
             enableProjectSettings();
+            emit modeChanged(mode());
         });
 }
 
@@ -197,6 +198,10 @@ void ClangFormatGlobalConfigWidget::initFileSizeThresholdSpinBox()
 void ClangFormatGlobalConfigWidget::initCurrentProjectLabel()
 {
     auto setCurrentProjectLabelVisible = [this]() {
+        if (mode() == ClangFormatSettings::Mode::Disable) {
+            m_currentProjectLabel->hide();
+            return;
+        }
         ProjectExplorer::Project *currentProject
             = m_project ? m_project : ProjectExplorer::ProjectTree::currentProject();
 
@@ -216,6 +221,11 @@ void ClangFormatGlobalConfigWidget::initCurrentProjectLabel()
     };
     setCurrentProjectLabelVisible();
     connect(m_useCustomSettingsCheckBox, &QCheckBox::toggled, this, setCurrentProjectLabelVisible);
+    connect(m_useGlobalSettings, &QCheckBox::toggled, this, setCurrentProjectLabelVisible);
+    connect(m_indentingOrFormatting,
+            &QComboBox::currentIndexChanged,
+            this,
+            [setCurrentProjectLabelVisible](int) { setCurrentProjectLabelVisible(); });
 }
 
 bool ClangFormatGlobalConfigWidget::projectClangFormatFileExists()
@@ -295,6 +305,8 @@ void ClangFormatGlobalConfigWidget::cancel()
 
 ClangFormatSettings::Mode ClangFormatGlobalConfigWidget::mode() const
 {
+    if (m_project && m_useGlobalSettings->isChecked())
+        return ClangFormatSettings::instance().mode();
     return static_cast<ClangFormatSettings::Mode>(m_indentingOrFormatting->currentIndex());
 }
 

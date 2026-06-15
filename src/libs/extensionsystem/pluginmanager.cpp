@@ -1705,12 +1705,20 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         return;
 
     if (spec->termsAndConditions()) {
-        if (!acceptTermsAndConditions(spec)) {
-            // Disable plugin so we don't try to load it again on startup.
-            spec->setEnabledBySettings(false);
-            writeSettings();
-            spec->setError(Tr::tr("You did not accept the terms and conditions"));
-            return;
+        const QString pluginDependency = spec->metaData()
+                                             .value("extensionsystem")
+                                             .toObject()
+                                             .value("TermsAndConditionsDependency")
+                                             .toString();
+        PluginSpec *depSpec = pluginById(pluginDependency);
+        if (pluginDependency.isEmpty() || (depSpec && depSpec->isEffectivelyEnabled())) {
+            if (!acceptTermsAndConditions(spec)) {
+                // Disable plugin so we don't try to load it again on startup.
+                spec->setEnabledBySettings(false);
+                writeSettings();
+                spec->setError(Tr::tr("You did not accept the terms and conditions"));
+                return;
+            }
         }
     }
 

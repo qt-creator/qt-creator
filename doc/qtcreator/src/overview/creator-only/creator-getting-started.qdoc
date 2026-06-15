@@ -48,7 +48,7 @@
 
                 Now you are ready to start developing your own applications.
                 Pick a tutorial to follow in \l{Tutorials}. To start developing
-                for mobile devices, select \l{Tutorial: Mobile application}.
+                for mobile devices, select \l{Tutorial: Qt Quick application}.
             \li \b{\l {Qt Documentation}}
 
                 For more examples, as well as the details about using Qt tools

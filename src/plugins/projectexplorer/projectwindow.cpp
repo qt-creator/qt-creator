@@ -34,6 +34,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/outputwindow.h>
 
@@ -1413,8 +1414,6 @@ public:
     ProjectWindowPrivate(ProjectWindow *parent)
         : q(parent), m_centralWidget(new CentralWidget(q))
     {
-        q->setCentralWidget(m_centralWidget);
-
         m_projectsModel.setHeader({Tr::tr("Projects")});
 
         m_targetsView = new SelectorTree;
@@ -1558,8 +1557,20 @@ public:
         selectorLayout->addWidget(styledBar);
         selectorLayout->addLayout(innerLayout);
 
-        auto selectorDock = q->addDockForWidget(selectorView, true);
-        q->addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
+        // The project selector is always visible and never floats or closes,
+        // so it lives in a splitter next to the central panel area rather than
+        // in a dock widget (a dock would be hidden by QMainWindow::restoreState
+        // whenever the persisted layout did not yet know about it).
+        m_selectorSplitter = new MiniSplitter(Qt::Horizontal);
+        m_selectorSplitter->setObjectName("ProjectWindowSplitter");
+        m_selectorSplitter->addWidget(selectorView);
+        m_selectorSplitter->addWidget(m_centralWidget);
+        m_selectorSplitter->setStretchFactor(0, 0);
+        m_selectorSplitter->setStretchFactor(1, 1);
+        m_selectorSplitter->setCollapsible(0, false);
+        m_selectorSplitter->setCollapsible(1, false);
+        m_selectorSplitter->setSizes({200, 600});
+        q->setCentralWidget(m_selectorSplitter);
 
         m_buildSystemOutput = new BuildSystemOutputWindow;
         auto output = new QWidget;
@@ -1819,6 +1830,7 @@ public:
     QPushButton *m_importBuild;
     QAction m_toggleRightSidebarAction;
     QDockWidget *m_outputDock;
+    QSplitter *m_selectorSplitter = nullptr;
     BuildSystemOutputWindow *m_buildSystemOutput;
     CentralWidget *m_centralWidget;
 };
@@ -1880,6 +1892,8 @@ void ProjectWindow::savePersistentSettings() const
     QtcSettings * const settings = ICore::settings();
     settings->beginGroup(PROJECT_WINDOW_KEY);
     saveSettings(settings);
+    if (d->m_selectorSplitter)
+        settings->setValue("SelectorSplitter", d->m_selectorSplitter->saveState());
     settings->endGroup();
 }
 
@@ -1890,6 +1904,11 @@ void ProjectWindow::loadPersistentSettings()
     QtcSettings * const settings = ICore::settings();
     settings->beginGroup(PROJECT_WINDOW_KEY);
     restoreSettings(settings);
+    if (d->m_selectorSplitter) {
+        const QByteArray splitterState = settings->value("SelectorSplitter").toByteArray();
+        if (!splitterState.isEmpty())
+            d->m_selectorSplitter->restoreState(splitterState);
+    }
     settings->endGroup();
     d->m_toggleRightSidebarAction.setChecked(d->m_outputDock->isVisible());
 }

@@ -1254,7 +1254,7 @@ void AndroidConfigurations::registerNewToolchains()
 void AndroidConfigurations::removeOldToolchains()
 {
     const auto invalidAndroidTcs = ToolchainManager::toolchains([](const Toolchain *tc) {
-        return tc->id() == Constants::ANDROID_TOOLCHAIN_TYPEID && !tc->isValid();
+        return tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID && !tc->isValid();
     });
     ToolchainManager::deregisterToolchains(invalidAndroidTcs);
 }

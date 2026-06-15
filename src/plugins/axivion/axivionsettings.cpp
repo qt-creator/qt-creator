@@ -293,9 +293,20 @@ AxivionSettings::AxivionSettings()
     javaHome.setToolTip(Tr::tr("Set it to overwrite global environment or if Axivion fails to "
                                "find java in PATH."));
 
-    lastLocalBuildCommand.setSettingsKey("LastLocalBuildCmd"); // used without UI
-    lastBauhausConfig.setSettingsKey("LastBauhausConfig"); // user without UI
-    lastSfaCommand.setSettingsKey("LastSfaCmd"); // used without UI
+    lastLocalBuildCommand.setSettingsKey("LastLocalBuildCmd"); // used outside settings
+    lastLocalBuildCommand.setExpectedKind(PathChooser::Any);
+    lastLocalBuildCommand.setAllowPathFromDevice(false);
+    lastLocalBuildCommand.setHistoryCompleter("LocalBuildHistory");
+
+    lastBauhausConfig.setSettingsKey("LastBauhausConfig"); // used outside settings
+    lastBauhausConfig.setExpectedKind(PathChooser::ExistingDirectory);
+    lastBauhausConfig.setAllowPathFromDevice(false);
+    lastBauhausConfig.setHistoryCompleter("Axivion.SFABauhausConfig");
+
+    lastSfaCommand.setSettingsKey("LastSfaCmd"); // used outside settings
+    lastSfaCommand.setExpectedKind(PathChooser::Any);
+    lastSfaCommand.setAllowPathFromDevice(false);
+    lastSfaCommand.setHistoryCompleter("Axivion.SFACommand");
 
     defaultIssueKind.setSettingsKey("DefaultIssueKind"); // used without UI
     defaultIssueKind.setDefaultValue("SV"); // style violations

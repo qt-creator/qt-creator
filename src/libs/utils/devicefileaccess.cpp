@@ -460,9 +460,9 @@ TextEncoding DeviceFileAccess::processStdErrEncoding(const FilePath &executable)
 
 bool DeviceFileAccess::supportsAtomicSaveFile(const FilePath &filePath) const
 {
-    if (hasHardLinks(filePath))
-        return false;
-    return true;
+    if (const Result<bool> res = hasHardLinks(filePath))
+        return !*res;
+    return false;
 }
 
 bool DeviceFileAccess::supportsRemovingFiles() const
@@ -834,8 +834,9 @@ Result<bool> DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) con
         return false;
 
     FILE_STANDARD_INFO info;
-    if (GetFileInformationByHandleEx(handle, FileStandardInfo, &info, sizeof(info)))
-        return info.NumberOfLinks > 1;
+    const bool success = GetFileInformationByHandleEx(handle, FileStandardInfo, &info, sizeof(info));
+    CloseHandle(handle);
+    return success && info.NumberOfLinks > 1;
 #else
     Q_UNUSED(filePath)
 #endif

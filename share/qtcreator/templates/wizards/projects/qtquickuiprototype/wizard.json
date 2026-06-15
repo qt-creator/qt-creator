@@ -74,7 +74,7 @@
             "typeId": "Kits",
             "data": {
                 "projectFilePath": "%{QmlProjectFileName}",
-                "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQtQuick.6" ]
+                "requiredFeatures": [ "QtSupport.Wizards.FeatureQt6.5", "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQtQuick.6" ]
             }
         },
         {

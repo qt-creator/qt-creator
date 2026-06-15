@@ -46,16 +46,6 @@
                     {
                         "trText": "0.0.1"
                     }
-                },
-                {
-                    "name": "Dependencies",
-                    "trDisplayName": "Dependencies:",
-                    "mandatory": false,
-                    "type": "TextEdit",
-                    "data":
-                    {
-                        "text": "  \"dependencies\": [\n    \"fmt\"\n  ]"
-                    }
                 }
             ]
         },

@@ -4106,4 +4106,5 @@ ByteArrayAspect::ByteArrayAspect(AspectContainer *container)
 {}
 
 ByteArrayAspect::~ByteArrayAspect() = default;
+
 } // namespace Utils
