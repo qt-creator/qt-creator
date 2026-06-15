@@ -44,13 +44,17 @@ void notifyTraceFileLoadingFinished(const Utils::FilePath &file, const QString &
     writeQJsonObject(toJson(notification));
 }
 
-void notifyTraceEventSelected(const QString &sourceFilePath, int line, int column)
+void notifyTraceEventSelected(const QString &sourceFilePath, int line, int column,
+                              const QString &module, quint64 offset)
 {
     const TraceEventSelectedNotification notification(
         TraceEventSelectedNotification::Params()
             .sourceFilePath(sourceFilePath)
             .lineNumber(line)
-            .columnNumber(column));
+            .columnNumber(column)
+            .module(module.isEmpty() ? std::optional<QString>{} : std::optional<QString>{module})
+            .offset(offset != 0 ? QString("0x%1").arg(offset, 0, 16)
+                                : std::optional<QString>{}));
 
     writeQJsonObject(toJson(notification));
 }

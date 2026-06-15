@@ -56,7 +56,7 @@ public:
     QModelIndex indexFor(const Node *node, int column = 0) const;
     QString symbol(const Node *node) const;
 
-    struct SourceLocation { QString file; int line = 0; };
+    struct SourceLocation { QString file; int line = 0; QString module; quint64 offset = 0; };
     // The node's representative source location, or an empty file when the
     // frame has no debug info. Valid until the next rebuild, like node().
     SourceLocation location(const Node *node) const;

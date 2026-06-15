@@ -90,8 +90,11 @@ void CallTreeView::emitGotoForIndex(const QModelIndex &index)
     if (!node)
         return;
     const CallTreeModel::SourceLocation loc = m_model->location(node);
-    if (!loc.file.isEmpty())
-        emit gotoSourceLocation(loc.file, loc.line, 0);
+    if (loc.file.isEmpty() && loc.module.isEmpty() && loc.offset == 0)
+        return; // nothing to point at
+    // Emit source (when known) and module/offset (always available for sampled
+    // frames) together; the consumer uses whichever it needs.
+    emit gotoSourceLocation(loc.file, loc.line, 0, loc.module, loc.offset);
 }
 
 void CallTreeView::onHeaviestCurrentChanged(QTreeWidgetItem *item)

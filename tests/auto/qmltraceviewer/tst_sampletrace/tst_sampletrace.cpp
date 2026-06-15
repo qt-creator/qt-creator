@@ -15,8 +15,10 @@ static SampleTraceData makeTestData()
 {
     SampleTraceData data;
     data.pid = 1234;
-    data.labels = {{"start", "/src/start.cpp", 1}, {"main", "/src/main.cpp", 42},
-                   "work()", "idle()"}; // mix of with- and without-source labels
+    data.labels = {{"start", "/src/start.cpp", 1, "app", 0x10},
+                   {"main", "/src/main.cpp", 42},
+                   {"qt_frame", QString(), 0, "QtCore", 0x2bc},
+                   "idle()"};
     data.threadNames = {{10, "main"}, {11, "worker"}};
     data.samples = {
         {0, 10, true, {0, 1, 2}},

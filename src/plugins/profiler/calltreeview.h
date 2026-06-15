@@ -28,7 +28,8 @@ public:
     explicit CallTreeView(CallTreeModel *model, QWidget *parent = nullptr);
 
 signals:
-    void gotoSourceLocation(const QString &file, int line, int column);
+    void gotoSourceLocation(const QString &file, int line, int column,
+                            const QString &module, quint64 offset);
 
 private:
     void updateHeaviestStack();

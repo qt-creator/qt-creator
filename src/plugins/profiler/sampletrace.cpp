@@ -87,6 +87,8 @@ static Schema buildSamplerSchema()
         payload->members.append({u"name"_s, std::make_shared<NullTerminatedStringFC>(), {}});
         payload->members.append({u"file"_s, std::make_shared<NullTerminatedStringFC>(), {}});
         payload->members.append({u"line"_s, u64Field(), {}});
+        payload->members.append({u"module"_s, std::make_shared<NullTerminatedStringFC>(), {}});
+        payload->members.append({u"offset"_s, u64Field(), {}});
         erc.payloadFieldClass = std::move(payload);
         dsc.eventRecordClasses.append(std::move(erc));
     }
@@ -162,6 +164,8 @@ Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
         payload.set(u"name"_s, label.name);
         payload.set(u"file"_s, label.file);
         payload.set(u"line"_s, quint64(std::max(0, label.line)));
+        payload.set(u"module"_s, label.module);
+        payload.set(u"offset"_s, label.offset);
         if (auto r = writer->writeEvent(LabelEvent, payload, {}, processCtx, 0); !r)
             return ResultError(r.error());
     }
@@ -267,7 +271,9 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir)
             data.labels[id] = SampleTraceData::Label{
                 stringField(rec->payload, u"name"_s),
                 stringField(rec->payload, u"file"_s),
-                int(uintField(rec->payload, u"line"_s))};
+                int(uintField(rec->payload, u"line"_s)),
+                stringField(rec->payload, u"module"_s),
+                uintField(rec->payload, u"offset"_s)};
             break;
         }
         case ThreadEvent: {

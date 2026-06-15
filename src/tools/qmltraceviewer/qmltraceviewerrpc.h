@@ -13,7 +13,8 @@ namespace QmlTraceViewer::RPC {
 
 void notifyTraceFileLoadingStarted(const Utils::FilePath &file);
 void notifyTraceFileLoadingFinished(const Utils::FilePath &file, const QString &errorMessage);
-void notifyTraceEventSelected(const QString &sourceFilePath, int line, int column);
+void notifyTraceEventSelected(const QString &sourceFilePath, int line, int column,
+                              const QString &module = {}, quint64 offset = 0);
 void notifyTraceDiscarded();
 
 } // namespace QmlTraceViewer::RPC

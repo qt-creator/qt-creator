@@ -200,6 +200,14 @@
             "columnNumber": {
               "type": "integer",
               "description": "The column number in the source file to show (1-based index)."
+            },
+            "module": {
+              "type": "string",
+              "description": "Binary/module name when no source file is available (optional)."
+            },
+            "offset": {
+              "type": "string",
+              "description": "Hex offset within the module, e.g. \"0x12345\" (optional)."
             }
           },
           "required": [

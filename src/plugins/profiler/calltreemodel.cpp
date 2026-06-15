@@ -117,7 +117,7 @@ CallTreeModel::SourceLocation CallTreeModel::location(const Node *node) const
     if (!m_data || !node || node->labelId < 0 || node->labelId >= m_data->labels.size())
         return {};
     const SampleTraceData::Label &label = m_data->labels.at(node->labelId);
-    return {label.file, label.line};
+    return {label.file, label.line, label.module, label.offset};
 }
 
 QList<const CallTreeModel::Node *> CallTreeModel::heaviestPath(const Node *from) const

@@ -2,7 +2,7 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- C:\dev\bin\Python313\python.exe \
+ /opt/homebrew/opt/python@3.14/bin/python3.14 \
   scripts/generate_cpp_from_schema.py \
   src/tools/qmltraceviewer/schema/qmltraceviewerapi.json.schema src/tools/qmltraceviewer/schema/api.h --namespace QmlTraceViewer::Api::Schema
 */
@@ -254,14 +254,20 @@ struct TraceEventSelectedNotification {
         QString _sourceFilePath;  //!< The file path of the source file to show.
         int _lineNumber;  //!< The line number in the source file to show (1-based index).
         int _columnNumber;  //!< The column number in the source file to show (1-based index).
+        std::optional<QString> _module;  //!< Binary/module name when no source file is available (optional).
+        std::optional<QString> _offset;  //!< Hex offset within the module, e.g. "0x12345" (optional).
 
         Params& sourceFilePath(const QString & v) { _sourceFilePath = v; return *this; }
         Params& lineNumber(int v) { _lineNumber = v; return *this; }
         Params& columnNumber(int v) { _columnNumber = v; return *this; }
+        Params& module(const std::optional<QString> & v) { _module = v; return *this; }
+        Params& offset(const std::optional<QString> & v) { _offset = v; return *this; }
 
         const QString& sourceFilePath() const { return _sourceFilePath; }
         const int& lineNumber() const { return _lineNumber; }
         const int& columnNumber() const { return _columnNumber; }
+        const std::optional<QString>& module() const { return _module; }
+        const std::optional<QString>& offset() const { return _offset; }
     };
 
     Params _params;
@@ -286,6 +292,10 @@ inline Utils::Result<TraceEventSelectedNotification::Params> fromJson<TraceEvent
     result._sourceFilePath = obj.value("sourceFilePath").toString();
     result._lineNumber = obj.value("lineNumber").toInt();
     result._columnNumber = obj.value("columnNumber").toInt();
+    if (obj.contains("module"))
+        result._module = obj.value("module").toString();
+    if (obj.contains("offset"))
+        result._offset = obj.value("offset").toString();
     return result;
 }
 
@@ -295,6 +305,10 @@ inline QJsonObject toJson(const TraceEventSelectedNotification::Params &data) {
         {"lineNumber", data._lineNumber},
         {"columnNumber", data._columnNumber}
     };
+    if (data._module.has_value())
+        obj.insert("module", *data._module);
+    if (data._offset.has_value())
+        obj.insert("offset", *data._offset);
     return obj;
 }
 

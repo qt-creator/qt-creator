@@ -38,13 +38,15 @@ public:
     struct Label
     {
         QString name;
-        QString file; // source path from debug info; empty if unavailable
+        QString file;       // source path from debug info; empty if unavailable
         int line = 0;
+        QString module;     // binary/dylib name; empty if no loaded image
+        quint64 offset = 0; // offset within the module (or the address if no image)
 
         Label() = default;
-        Label(const char *n) : name(QString::fromUtf8(n)) {}             // ergonomic test init
-        Label(QString n, QString f = {}, int l = 0)
-            : name(std::move(n)), file(std::move(f)), line(l) {}
+        Label(const char *n) : name(QString::fromUtf8(n)) {}
+        Label(QString n, QString f = {}, int l = 0, QString m = {}, quint64 o = 0)
+            : name(std::move(n)), file(std::move(f)), line(l), module(std::move(m)), offset(o) {}
 
         friend bool operator==(const Label &, const Label &) = default;
     };

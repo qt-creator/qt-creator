@@ -80,7 +80,8 @@ public:
 
     void onError(const QString &error);
     void onLoadFinished();
-    void onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
+    void onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber,
+                              const QString &module = {}, quint64 offset = 0);
 
     void addDocksForViews();
     void resetLayout(Format format);
@@ -164,8 +165,10 @@ WindowPrivate::WindowPrivate(Window *window)
     connect(qmlManager, &QmlProfilerPlainViewManager::error, this, &WindowPrivate::onError);
     connect(qmlManager, &QmlProfilerPlainViewManager::loadFinished,
             this, &WindowPrivate::onLoadFinished);
-    connect(qmlManager, &QmlProfilerPlainViewManager::gotoSourceLocation,
-            this, &WindowPrivate::onGotoSourceLocation);
+    connect(qmlManager, &QmlProfilerPlainViewManager::gotoSourceLocation, this,
+            [this](const QString &file, int line, int column) {
+                onGotoSourceLocation(file, line, column);
+            });
 
     connect(ctfManager, &CtfPlainViewManager::error, this, &WindowPrivate::onError);
     connect(ctfManager, &CtfPlainViewManager::loadFinished, this, &WindowPrivate::onLoadFinished);
@@ -265,9 +268,10 @@ void WindowPrivate::onLoadFinished()
     RPC::notifyTraceFileLoadingFinished(settings().lastTraceFile(), lastLoadError);
 }
 
-void WindowPrivate::onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber)
+void WindowPrivate::onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber,
+                                         const QString &module, quint64 offset)
 {
-    RPC::notifyTraceEventSelected(fileUrl, lineNumber, columnNumber);
+    RPC::notifyTraceEventSelected(fileUrl, lineNumber, columnNumber, module, offset);
 }
 
 milliseconds WindowPrivate::activeTraceDuration() const

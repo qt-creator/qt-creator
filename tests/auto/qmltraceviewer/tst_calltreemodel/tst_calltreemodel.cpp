@@ -114,7 +114,7 @@ private slots:
     {
         SampleTraceData data;
         data.pid = 1;
-        data.labels = {{"root", "/r.cpp", 5}, {"leaf"}}; // leaf has no source info
+        data.labels = {{"root", "/r.cpp", 5, "app", 0x40}, {"leaf", QString(), 0, "QtCore", 0x99}};
         data.samples = {{0, 10, true, {0, 1}}};
         CallTreeModel model;
         model.setTraceData(&data);
@@ -124,11 +124,15 @@ private slots:
         QCOMPARE(model.symbol(root), QString("root"));
         QCOMPARE(model.location(root).file, QString("/r.cpp"));
         QCOMPARE(model.location(root).line, 5);
+        QCOMPARE(model.location(root).module, QString("app"));
+        QCOMPARE(model.location(root).offset, quint64(0x40));
 
         const CallTreeModel::Node *leaf = model.node(model.index(0, 0, rootIdx));
         QCOMPARE(model.symbol(leaf), QString("leaf"));
         QVERIFY(model.location(leaf).file.isEmpty());
         QCOMPARE(model.location(leaf).line, 0);
+        QCOMPARE(model.location(leaf).module, QString("QtCore"));
+        QCOMPARE(model.location(leaf).offset, quint64(0x99));
         QVERIFY(model.location(nullptr).file.isEmpty()); // null-safe
     }
 

@@ -180,17 +180,32 @@ std::vector<Image> readImages(task_t task)
     return images;
 }
 
-// "module+0xoffset" (or a bare hex address when no image contains it). Used as
-// the fallback when CoreSymbolication has no function symbol for an address.
-QString moduleOffsetLabel(quint64 addr, const std::vector<Image> &images)
+// Module name and offset (addr - image base) for an address. Empty module and
+// offset = addr when no loaded image contains it.
+void moduleAndOffset(quint64 addr, const std::vector<Image> &images,
+                     QString *module, quint64 *offset)
 {
     auto it = std::upper_bound(images.begin(), images.end(), addr,
                                [](quint64 a, const Image &img) { return a < img.base; });
     if (it != images.begin()) {
         --it;
-        return u"%1+0x%2"_s.arg(it->name).arg(addr - it->base, 0, 16);
+        *module = it->name;
+        *offset = addr - it->base;
+    } else {
+        *module = QString();
+        *offset = addr;
     }
-    return u"0x%1"_s.arg(addr, 0, 16);
+}
+
+// "module+0xoffset" (or a bare hex address when no image contains it). Used as
+// the fallback when CoreSymbolication has no function symbol for an address.
+QString moduleOffsetLabel(quint64 addr, const std::vector<Image> &images)
+{
+    QString module;
+    quint64 offset = 0;
+    moduleAndOffset(addr, images, &module, &offset);
+    return module.isEmpty() ? u"0x%1"_s.arg(offset, 0, 16)
+                            : u"%1+0x%2"_s.arg(module).arg(offset, 0, 16);
 }
 
 QString demangle(const char *name)
@@ -471,6 +486,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
             SampleTraceData::Label l;
             l.name = label;
             symbolicator.sourceInfo(addr, &l.file, &l.line); // representative location
+            moduleAndOffset(addr, images, &l.module, &l.offset);
             data.labels.append(l);
         }
         labelIdByAddr.insert(addr, id);
