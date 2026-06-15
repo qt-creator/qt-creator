@@ -17,7 +17,7 @@ static SampleTraceData makeTestData()
 {
     SampleTraceData data;
     data.pid = 1;
-    data.labels = QStringList{"start"};
+    data.labels = {"start"};
     data.threadNames = {{10, "main"}, {11, QString()}};
     data.samples = {
         {0, 10, true, {0}},
@@ -139,7 +139,7 @@ private slots:
         // thread 11 on for 2; peak concurrent running = 2.
         SampleTraceData data;
         data.pid = 1;
-        data.labels = QStringList{"f"};
+        data.labels = {"f"};
         data.threadNames = {{10, "a"}, {11, "b"}};
         data.samples = {
             {0, 10, true, {0}},   {0, 11, true, {0}},    // running 2
@@ -173,7 +173,7 @@ private slots:
         // thread on for the first half, off for the second.
         SampleTraceData data;
         data.pid = 1;
-        data.labels = QStringList{"f"};
+        data.labels = {"f"};
         data.threadNames = {{10, "a"}};
         data.samples = {
             {0, 10, true, {0}}, {100, 10, true, {0}},
@@ -195,7 +195,7 @@ private slots:
         // More columns than ticks: empty columns inherit the covering tick.
         SampleTraceData data;
         data.pid = 1;
-        data.labels = QStringList{"f"};
+        data.labels = {"f"};
         data.threadNames = {{10, "a"}};
         data.samples = {{0, 10, true, {0}}, {100, 10, false, {0}}};
         Timeline::TimelineModelAggregator aggregator;

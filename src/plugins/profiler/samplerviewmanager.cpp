@@ -87,6 +87,9 @@ QWidgetList SamplerViewManager::views(QWidget *parent)
     d->callTreeView->setObjectName("SamplerCallTreeView");
     d->callTreeView->setWindowTitle(Tr::tr("Call Stacks"));
 
+    connect(d->callTreeView, &CallTreeView::gotoSourceLocation,
+            this, &SamplerViewManager::gotoSourceLocation);
+
     return {d->timelineView, d->callTreeView};
 }
 

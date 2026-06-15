@@ -173,6 +173,8 @@ WindowPrivate::WindowPrivate(Window *window)
     connect(samplerManager, &SamplerViewManager::error, this, &WindowPrivate::onError);
     connect(samplerManager, &SamplerViewManager::loadFinished,
             this, &WindowPrivate::onLoadFinished);
+    connect(samplerManager, &SamplerViewManager::gotoSourceLocation,
+            this, &WindowPrivate::onGotoSourceLocation);
 }
 
 void WindowPrivate::showOpenFileDialog()

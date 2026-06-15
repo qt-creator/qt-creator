@@ -227,6 +227,12 @@ public:
             dlsym(m_lib, "CSSymbolicatorGetSymbolWithAddressAtTime"));
         m_symbolName = reinterpret_cast<SymbolNameFn>(dlsym(m_lib, "CSSymbolGetName"));
         m_release = reinterpret_cast<ReleaseFn>(dlsym(m_lib, "CSRelease"));
+        m_getSourceInfo = reinterpret_cast<GetSourceInfoFn>(
+            dlsym(m_lib, "CSSymbolicatorGetSourceInfoWithAddressAtTime"));
+        m_sourceInfoPath = reinterpret_cast<SourceInfoPathFn>(
+            dlsym(m_lib, "CSSourceInfoGetPath"));
+        m_sourceInfoLine = reinterpret_cast<SourceInfoLineFn>(
+            dlsym(m_lib, "CSSourceInfoGetLineNumber"));
         if (m_createWithTask && m_getSymbol && m_symbolName && m_release)
             m_cs = m_createWithTask(task);
     }
@@ -254,6 +260,20 @@ public:
         return demangle(m_symbolName(symbol));
     }
 
+    // Best-effort source path + line for an address. Leaves *path/*line
+    // untouched when the framework or debug info is unavailable.
+    void sourceInfo(quint64 addr, QString *path, int *line) const
+    {
+        if (isNull(m_cs) || !m_getSourceInfo || !m_sourceInfoPath || !m_sourceInfoLine)
+            return;
+        const CSTypeRef info = m_getSourceInfo(m_cs, addr, kCSNow);
+        if (isNull(info))
+            return;
+        if (const char *p = m_sourceInfoPath(info))
+            *path = QString::fromUtf8(p);
+        *line = m_sourceInfoLine(info);
+    }
+
 private:
     // CoreSymbolication passes its handles by value as a pair of pointers.
     struct CSTypeRef
@@ -268,6 +288,9 @@ private:
     using GetSymbolFn = CSTypeRef (*)(CSTypeRef, mach_vm_address_t, quint64);
     using SymbolNameFn = const char *(*) (CSTypeRef);
     using ReleaseFn = void (*)(CSTypeRef);
+    using GetSourceInfoFn = CSTypeRef (*)(CSTypeRef, mach_vm_address_t, quint64);
+    using SourceInfoPathFn = const char *(*) (CSTypeRef);
+    using SourceInfoLineFn = int (*)(CSTypeRef);
 
     void *m_lib = nullptr;
     CSTypeRef m_cs;
@@ -275,6 +298,9 @@ private:
     GetSymbolFn m_getSymbol = nullptr;
     SymbolNameFn m_symbolName = nullptr;
     ReleaseFn m_release = nullptr;
+    GetSourceInfoFn m_getSourceInfo = nullptr;
+    SourceInfoPathFn m_sourceInfoPath = nullptr;
+    SourceInfoLineFn m_sourceInfoLine = nullptr;
 };
 
 void walkThread(task_t task, thread_act_t thread, Sample &sample)
@@ -442,7 +468,10 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
         } else {
             id = int(data.labels.size());
             labelIds.insert(label, id);
-            data.labels.append(label);
+            SampleTraceData::Label l;
+            l.name = label;
+            symbolicator.sourceInfo(addr, &l.file, &l.line); // representative location
+            data.labels.append(l);
         }
         labelIdByAddr.insert(addr, id);
         return id;

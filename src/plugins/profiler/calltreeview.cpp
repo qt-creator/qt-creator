@@ -11,6 +11,7 @@
 
 #include <utils/itemviews.h>
 
+#include <QAbstractItemView>
 #include <QHeaderView>
 #include <QTreeWidget>
 #include <QVBoxLayout>
@@ -55,8 +56,12 @@ CallTreeView::CallTreeView(CallTreeModel *model, QWidget *parent)
 
     connect(m_tree->selectionModel(), &QItemSelectionModel::currentChanged,
             this, [this] { updateHeaviestStack(); });
-    connect(m_heaviest, &QTreeWidget::itemActivated,
-            this, &CallTreeView::activateHeaviestFrame);
+    connect(m_tree, &QAbstractItemView::doubleClicked,
+            this, &CallTreeView::emitGotoForIndex);
+    connect(m_heaviest, &QTreeWidget::currentItemChanged,
+            this, [this](QTreeWidgetItem *cur, QTreeWidgetItem *) { onHeaviestCurrentChanged(cur); });
+    connect(m_heaviest, &QTreeWidget::itemDoubleClicked,
+            this, [this](QTreeWidgetItem *item, int) { onHeaviestDoubleClicked(item); });
     connect(model, &QAbstractItemModel::modelReset, this, [this] { updateHeaviestStack(); });
 
     updateHeaviestStack();
@@ -64,6 +69,8 @@ CallTreeView::CallTreeView(CallTreeModel *model, QWidget *parent)
 
 void CallTreeView::updateHeaviestStack()
 {
+    if (m_syncingSelection) // a heaviest->tree click must not re-root the pane
+        return;
     m_heaviest->clear();
     const CallTreeModel::Node *from = m_model->node(m_tree->currentIndex());
     const QList<const CallTreeModel::Node *> path = m_model->heaviestPath(from);
@@ -77,13 +84,36 @@ void CallTreeView::updateHeaviestStack()
     }
 }
 
-void CallTreeView::activateHeaviestFrame(QTreeWidgetItem *item)
+void CallTreeView::emitGotoForIndex(const QModelIndex &index)
 {
+    const CallTreeModel::Node *node = m_model->node(index);
+    if (!node)
+        return;
+    const CallTreeModel::SourceLocation loc = m_model->location(node);
+    if (!loc.file.isEmpty())
+        emit gotoSourceLocation(loc.file, loc.line, 0);
+}
+
+void CallTreeView::onHeaviestCurrentChanged(QTreeWidgetItem *item)
+{
+    if (!item)
+        return;
     const QModelIndex index = item->data(0, Qt::UserRole).value<QPersistentModelIndex>();
     if (!index.isValid())
         return;
+    // Navigate the tree to the frame without rebuilding (and thus re-rooting)
+    // the heaviest pane, so a double-click's two clicks land on the same row.
+    m_syncingSelection = true;
     m_tree->setCurrentIndex(index);
     m_tree->scrollTo(index);
+    m_syncingSelection = false;
+}
+
+void CallTreeView::onHeaviestDoubleClicked(QTreeWidgetItem *item)
+{
+    if (!item)
+        return;
+    emitGotoForIndex(item->data(0, Qt::UserRole).value<QPersistentModelIndex>());
 }
 
 } // namespace QmlProfiler::Internal

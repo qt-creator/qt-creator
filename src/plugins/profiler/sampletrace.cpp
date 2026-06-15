@@ -77,7 +77,7 @@ static Schema buildSamplerSchema()
         dsc.eventRecordCommonContextFieldClass = std::move(ctx);
     }
 
-    // label: { uint64 id, string name } — one per distinct frame label.
+    // label: { uint64 id, string name, string file, uint64 line } — one per distinct frame label.
     {
         EventRecordClass erc;
         erc.id = LabelEvent;
@@ -85,6 +85,8 @@ static Schema buildSamplerSchema()
         auto payload = std::make_shared<StructureFC>();
         payload->members.append({u"id"_s, u64Field(), {}});
         payload->members.append({u"name"_s, std::make_shared<NullTerminatedStringFC>(), {}});
+        payload->members.append({u"file"_s, std::make_shared<NullTerminatedStringFC>(), {}});
+        payload->members.append({u"line"_s, u64Field(), {}});
         erc.payloadFieldClass = std::move(payload);
         dsc.eventRecordClasses.append(std::move(erc));
     }
@@ -154,9 +156,12 @@ Result<> writeSampleTrace(const SampleTraceData &data, const FilePath &dir,
     processCtx.set(u"tid"_s, quint64(0));
 
     for (qsizetype i = 0; i < data.labels.size(); ++i) {
+        const SampleTraceData::Label &label = data.labels.at(i);
         StructureValue payload;
         payload.set(u"id"_s, quint64(i));
-        payload.set(u"name"_s, data.labels.at(i));
+        payload.set(u"name"_s, label.name);
+        payload.set(u"file"_s, label.file);
+        payload.set(u"line"_s, quint64(std::max(0, label.line)));
         if (auto r = writer->writeEvent(LabelEvent, payload, {}, processCtx, 0); !r)
             return ResultError(r.error());
     }
@@ -259,7 +264,10 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir)
             const int id = int(uintField(rec->payload, u"id"_s));
             if (data.labels.size() <= id)
                 data.labels.resize(id + 1);
-            data.labels[id] = stringField(rec->payload, u"name"_s);
+            data.labels[id] = SampleTraceData::Label{
+                stringField(rec->payload, u"name"_s),
+                stringField(rec->payload, u"file"_s),
+                int(uintField(rec->payload, u"line"_s))};
             break;
         }
         case ThreadEvent: {

@@ -38,6 +38,7 @@ public:
 signals:
     void error(const QString &error);
     void loadFinished();
+    void gotoSourceLocation(const QString &file, int line, int column);
 
 private:
     class SamplerViewManagerPrivate *d;

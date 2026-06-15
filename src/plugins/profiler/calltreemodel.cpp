@@ -109,7 +109,15 @@ QString CallTreeModel::symbol(const Node *node) const
 {
     if (!m_data || !node || node->labelId < 0 || node->labelId >= m_data->labels.size())
         return {};
-    return m_data->labels.at(node->labelId);
+    return m_data->labels.at(node->labelId).name;
+}
+
+CallTreeModel::SourceLocation CallTreeModel::location(const Node *node) const
+{
+    if (!m_data || !node || node->labelId < 0 || node->labelId >= m_data->labels.size())
+        return {};
+    const SampleTraceData::Label &label = m_data->labels.at(node->labelId);
+    return {label.file, label.line};
 }
 
 QList<const CallTreeModel::Node *> CallTreeModel::heaviestPath(const Node *from) const

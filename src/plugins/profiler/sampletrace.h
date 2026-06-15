@@ -11,9 +11,9 @@
 #include <QHash>
 #include <QLatin1StringView>
 #include <QList>
-#include <QStringList>
 
 #include <functional>
+#include <utility>
 
 namespace QmlProfiler::Internal {
 
@@ -35,8 +35,22 @@ public:
         friend bool operator==(const ThreadSample &, const ThreadSample &) = default;
     };
 
+    struct Label
+    {
+        QString name;
+        QString file; // source path from debug info; empty if unavailable
+        int line = 0;
+
+        Label() = default;
+        Label(const char *n) : name(QString::fromUtf8(n)) {}             // ergonomic test init
+        Label(QString n, QString f = {}, int l = 0)
+            : name(std::move(n)), file(std::move(f)), line(l) {}
+
+        friend bool operator==(const Label &, const Label &) = default;
+    };
+
     quint64 pid = 0;
-    QStringList labels;                  // index = label id
+    QList<Label> labels;                 // index = label id
     QHash<quint64, QString> threadNames; // tid -> name (entries may be empty)
     QList<ThreadSample> samples;         // ordered by tsUs
 

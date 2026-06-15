@@ -13,7 +13,7 @@ static SampleTraceData makeTestData()
 {
     SampleTraceData data;
     data.pid = 1;
-    data.labels = QStringList{"start", "main", "work", "idle", "helper"};
+    data.labels = {"start", "main", "work", "idle", "helper"};
     data.samples = {
         {0, 10, true, {0, 1, 2}},    // start>main>work
         {0, 11, true, {0, 1, 4}},    // start>main>helper
@@ -108,6 +108,28 @@ private slots:
         const QString weight
             = model.data(model.index(0, CallTreeModel::WeightColumn), Qt::DisplayRole).toString();
         QVERIFY2(weight.contains("4") && weight.contains("100.0"), qPrintable(weight));
+    }
+
+    void locationFromLabel()
+    {
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = {{"root", "/r.cpp", 5}, {"leaf"}}; // leaf has no source info
+        data.samples = {{0, 10, true, {0, 1}}};
+        CallTreeModel model;
+        model.setTraceData(&data);
+
+        const QModelIndex rootIdx = model.index(0, 0);
+        const CallTreeModel::Node *root = model.node(rootIdx);
+        QCOMPARE(model.symbol(root), QString("root"));
+        QCOMPARE(model.location(root).file, QString("/r.cpp"));
+        QCOMPARE(model.location(root).line, 5);
+
+        const CallTreeModel::Node *leaf = model.node(model.index(0, 0, rootIdx));
+        QCOMPARE(model.symbol(leaf), QString("leaf"));
+        QVERIFY(model.location(leaf).file.isEmpty());
+        QCOMPARE(model.location(leaf).line, 0);
+        QVERIFY(model.location(nullptr).file.isEmpty()); // null-safe
     }
 
     void clearedModelIsEmpty()
