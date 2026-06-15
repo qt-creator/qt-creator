@@ -103,7 +103,7 @@ void TestProjectSettings::load()
     runAfterBuild.setValue(runAfterBuildVar.isValid() ? runAfterBuildVar.toInt() : 0);
     m_checkStateCache.fromSettings(m_project->namedSettings(SK_CHECK_STATES).toMap());
     limitToFilter.setValue(m_project->namedSettings(SK_APPLY_FILTER).toBool());
-    m_pathFilters = m_project->namedSettings(SK_PATH_FILTERS).toStringList();
+    pathFilters.setValue(m_project->namedSettings(SK_PATH_FILTERS).toStringList());
 }
 
 void TestProjectSettings::save()
@@ -120,7 +120,7 @@ void TestProjectSettings::save()
     m_project->setNamedSettings(SK_RUN_AFTER_BUILD, runAfterBuild());
     m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings(Qt::Checked));
     m_project->setNamedSettings(SK_APPLY_FILTER, limitToFilter());
-    m_project->setNamedSettings(SK_PATH_FILTERS, m_pathFilters);
+    m_project->setNamedSettings(SK_PATH_FILTERS, pathFilters());
 }
 
 } // namespace Autotest::Internal

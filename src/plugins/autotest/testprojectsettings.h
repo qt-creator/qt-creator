@@ -30,13 +30,13 @@ public:
     QHash<ITestTool *, bool> activeTestTools() const { return m_activeTestTools; }
     void activateTestTool(const Utils::Id &id, bool activate);
     Internal::ItemDataCache<Qt::CheckState> *checkStateCache() { return &m_checkStateCache; }
-    const QStringList pathFilters() const { return m_pathFilters; }
-    void setPathFilters(const QStringList &filters) { m_pathFilters = filters; }
-    void addPathFilter(const QString &filter) { m_pathFilters.append(filter); }
+    void setPathFilters(const QStringList &filters) { pathFilters.setValue(filters); }
+    void addPathFilter(const QString &filter) { setPathFilters(pathFilters() << filter); }
 
     Utils::BoolAspect useGlobalSettings;   // not {this}: excluded from toMap/fromMap
     Utils::SelectionAspect runAfterBuild{this};
     Utils::BoolAspect limitToFilter{this};
+    Utils::StringListAspect pathFilters{this};
 
 private:
     void load();
@@ -45,7 +45,6 @@ private:
     ProjectExplorer::Project *m_project;
     QHash<ITestFramework *, bool> m_activeTestFrameworks;
     QHash<ITestTool *, bool> m_activeTestTools;
-    QStringList m_pathFilters;
     Internal::ItemDataCache<Qt::CheckState> m_checkStateCache;
 };
 
