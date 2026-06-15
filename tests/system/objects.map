@@ -5,7 +5,7 @@
 :*Qt Creator.Find_Find::Internal::FindToolBar	{type='Core::Internal::FindToolBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Find'}
 :*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack	{name='FormEditorStack' type='Designer::Internal::FormEditorStack' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip='Interrupt' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.ProjectSelectorDockWidget_QDockWidget	{name='ProjectSelectorDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.ProjectSelectorSplitter	{name='ProjectWindowSplitter' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Run_Core::Internal::FancyToolButton	{name='Run.Button' text='Run' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip?='Start debugging*' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Widget Box_QDockWidget	{name='WidgetBoxDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Widget Box'}
@@ -114,8 +114,8 @@
 :PasteSelectDialog_CodePaster::PasteSelectDialog	{name='CodePaster.PasteSelectDialog' type='QDialog' visible='1'}
 :Path.Utils_BaseValidatingLineEdit	{container=':qt_tabwidget_stackedwidget_QWidget' name='LineEdit' type='Utils::FancyLineEdit' visible='1'}
 :ProjectConfigurationTabBar	{name='ProjectConfigurationTabBar' type='QTabBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:ProjectSelectionComboBox	{container=':*Qt Creator.ProjectSelectorDockWidget_QDockWidget' name='ProjectSelection' type='QComboBox' visible='1'}
-:Projects.ProjectNavigationTreeView	{container=':*Qt Creator.ProjectSelectorDockWidget_QDockWidget' name='ProjectNavigation' type='QTreeView' visible='1'}
+:ProjectSelectionComboBox	{container=':*Qt Creator.ProjectSelectorSplitter' name='ProjectSelection' type='QComboBox' visible='1'}
+:Projects.ProjectNavigationTreeView	{container=':*Qt Creator.ProjectSelectorSplitter' name='ProjectNavigation' type='QTreeView' visible='1'}
 :QML Debugging.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':QML Debugging_QMessageBox'}
 :QML Debugging_QMessageBox	{text='The option will only take effect if the project is recompiled. Do you want to recompile now?' type='QMessageBox' unnamed='1' visible='1'}
 :Qt Creator.Add Bookmark_QToolButton	{text='Add Bookmark' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
