@@ -316,25 +316,21 @@ private:
     void populateLocations()
     {
         using SP = QStandardPaths;
-        struct Loc {
-            SP::StandardLocation loc;
-            QString name;
+        const SP::StandardLocation locs[] = {
+            SP::HomeLocation,
+            SP::DesktopLocation,
+            SP::DocumentsLocation,
+            SP::DownloadLocation,
+            SP::MusicLocation,
+            SP::PicturesLocation,
         };
-        const Loc locs[] = {
-            {SP::HomeLocation,      Tr::tr("Home")     },
-            {SP::DesktopLocation,   Tr::tr("Desktop")  },
-            {SP::DocumentsLocation, Tr::tr("Documents")},
-            {SP::DownloadLocation,  Tr::tr("Downloads")},
-            {SP::MusicLocation,     Tr::tr("Music")    },
-            {SP::PicturesLocation,  Tr::tr("Pictures") },
-        };
-        for (const auto &l : locs) {
-            const QString p = SP::writableLocation(l.loc);
+        for (SP::StandardLocation l : locs) {
+            const QString p = SP::writableLocation(l);
             if (p.isEmpty())
                 continue;
             const FilePath fp = FilePath::fromString(p);
             if (fp.isDir())
-                appendRow(makeEntryItem(l.name, fp));
+                appendRow(makeEntryItem(SP::displayName(l), fp));
         }
     }
 
