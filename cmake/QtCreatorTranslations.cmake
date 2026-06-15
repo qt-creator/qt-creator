@@ -40,6 +40,7 @@ function(_extract_ts_data_from_targets outprefix)
             .*[.]pro
             .*[.]pri
             .*[.]css
+            "(^|/)testcases/.*"
             "${binary_dir_regex}/.*"
           )
           list(JOIN _exclude_patterns "|" _exclude_pattern)
