@@ -41,7 +41,6 @@ namespace AcpClient::Internal {
 
 AcpChatTab::AcpChatTab(QWidget *parent)
     : QWidget(parent)
-    , m_title(Tr::tr("New Chat"))
 {
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -281,7 +280,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_pendingPrompt = text;
             const Project *project = ProjectManager::startupProject();
             m_controller->createNewSession(project ? project->projectDirectory() : FilePath{});
-            updateTitle();
+            emit titleChanged();
             return;
         }
         m_chatPanel->addUserMessage(text);
@@ -306,13 +305,13 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_chatPanel->setSendEnabled(false);
             m_chatPanel->setPrompting(false);
             m_chatPanel->clearConfigOptions();
-            updateTitle();
+            emit titleChanged();
         }
     });
     connect(m_controller, &AcpChatController::agentInfoReceived, this,
             [this](const QString &, const QString &, const QString &iconUrl) {
         m_chatPanel->setAgentIcon(iconUrl);
-        updateTitle();
+        emit titleChanged();
     });
     connect(m_controller, &AcpChatController::authenticationRequired,
             this, [this](const QList<Acp::AuthMethod> &methods) {
@@ -451,7 +450,7 @@ void AcpChatTab::setFocus()
 
 QString AcpChatTab::title() const
 {
-    return m_title;
+    return m_controller->displayName();
 }
 
 void AcpChatTab::showSessionPicker()
@@ -479,12 +478,12 @@ void AcpChatTab::showSessionPicker()
             [this, picker](const QString &sessionId, const FilePath &cwd) {
         picker->setResolved(sessionId);
         m_controller->loadSession(sessionId, cwd);
-        updateTitle();
+        emit titleChanged();
     });
     connect(picker, &SessionPickerWidget::newSessionRequested,
             this, [this](const FilePath &cwd) {
         m_controller->createNewSession(cwd);
-        updateTitle();
+        emit titleChanged();
     });
     connect(picker, &SessionPickerWidget::loadMoreRequested,
             m_controller, &AcpChatController::listSessions);
@@ -530,7 +529,7 @@ void AcpChatTab::populateServerButtons()
             m_initializingLabel->setText(Tr::tr("Connecting to %1").arg(serverName));
             m_stack->setCurrentIndex(3);
             m_controller->connectToServer(serverId);
-            updateTitle();
+            emit titleChanged();
         });
         Utils::onResultReady(
             AcpSettings::iconForUrl(info.iconUrl), button, [button](const QIcon &icon) {
@@ -541,19 +540,6 @@ void AcpChatTab::populateServerButtons()
     }
 
     m_configStack->setCurrentIndex(servers.isEmpty() ? 0 : 1);
-}
-
-void AcpChatTab::updateTitle()
-{
-    const QString serverName = m_controller->serverName();
-    const FilePath cwd = m_controller->workingDirectory();
-    if (serverName.isEmpty())
-        m_title = Tr::tr("New Chat");
-    else if (cwd.isEmpty())
-        m_title = serverName;
-    else
-        m_title = QString("%1 - %2").arg(serverName, cwd.fileName());
-    emit titleChanged();
 }
 
 } // namespace AcpClient::Internal

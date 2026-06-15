@@ -42,7 +42,6 @@ signals:
 
 private:
     void populateServerButtons();
-    void updateTitle();
     void showSessionPicker();
 
     // Config page
@@ -66,7 +65,6 @@ private:
     AcpChatController *m_controller;
     SessionPickerWidget *m_activePicker = nullptr;
     QString m_pendingPrompt;
-    QString m_title;
 };
 
 } // namespace AcpClient::Internal

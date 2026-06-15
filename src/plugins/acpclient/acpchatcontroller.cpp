@@ -464,6 +464,15 @@ NewSessionRequest AcpChatController::buildNewSessionRequest() const
     return req;
 }
 
+QString AcpChatController::displayName() const
+{
+    if (m_serverName.isEmpty())
+        return Tr::tr("New Chat");
+    if (m_workingDirectory.isEmpty())
+        return m_serverName;
+    return QString("%1 - %2").arg(m_serverName, m_workingDirectory.fileName());
+}
+
 bool AcpChatController::supportsSessionList() const
 {
     if (!m_agentCapabilities)
