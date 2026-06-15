@@ -38,6 +38,7 @@ void CpuUsageModel::clear()
     m_data = nullptr;
     m_items.clear();
     m_threads.clear();
+    m_ticks.clear();
     m_maxRunning = 1;
     m_traceEndNs = 0;
     TimelineModel::clear();
@@ -75,6 +76,18 @@ void CpuUsageModel::load()
     }
 
     QTC_ASSERT(!ticks.isEmpty(), return); // non-empty samples imply at least one tick
+
+    // Retain the grid (row-indexed) for per-column density aggregation.
+    m_ticks.reserve(ticks.size());
+    for (const Tick &tick : std::as_const(ticks)) {
+        TickRow row;
+        row.startNs = qint64(tick.tsUs) * 1000;
+        row.running = tick.running;
+        row.runningRows.reserve(tick.runningTids.size());
+        for (quint64 tid : tick.runningTids)
+            row.runningRows.append(FirstThreadRow + threadRows.value(tid));
+        m_ticks.append(row);
+    }
 
     // A tick's item lasts until the next tick; the last tick reuses the
     // previous interval (or 1 µs for a single-tick trace). Graph items never
@@ -174,6 +187,74 @@ Timeline::ItemDetails CpuUsageModel::details(int index) const
         result.insert(Tr::tr("State"), Tr::tr("Running"));
     }
     return result;
+}
+
+bool CpuUsageModel::rendersAsDensity() const
+{
+    return true;
+}
+
+bool CpuUsageModel::fillDensityColumns(int row, qint64 startNs, qint64 endNs,
+                                       QList<float> &out) const
+{
+    const int columns = int(out.size());
+    if (m_ticks.isEmpty() || columns <= 0 || endNs <= startNs)
+        return false;
+
+    const bool isTotal = row == TotalRow;
+    // Accumulate active and covered tick counts per column in one pass; the
+    // total row also sums running threads so its fill is avgRunning/maxRunning.
+    QList<int> covered(columns, 0);
+    QList<int> active(columns, 0); // thread rows: ticks the row was on-CPU
+    QList<int> runSum(columns, 0); // total row: sum of running threads
+
+    const double span = double(endNs - startNs);
+    for (const TickRow &tick : m_ticks) {
+        if (tick.startNs < startNs || tick.startNs > endNs)
+            continue;
+        int col = int(double(tick.startNs - startNs) * columns / span);
+        if (col >= columns)
+            col = columns - 1; // a tick exactly at endNs lands in the last column
+        ++covered[col];
+        if (isTotal)
+            runSum[col] += tick.running;
+        else if (tick.runningRows.contains(row))
+            ++active[col];
+    }
+
+    for (int c = 0; c < columns; ++c) {
+        if (covered[c] == 0) {
+            out[c] = -1.0f; // marker: filled by the inherit pass below
+            continue;
+        }
+        if (isTotal)
+            out[c] = float(double(runSum[c]) / covered[c] / qMax(1, m_maxRunning));
+        else
+            out[c] = float(double(active[c]) / covered[c]);
+    }
+
+    // Columns with no tick of their own (zoomed in finer than the sample rate)
+    // inherit the value of the nearest column that has one. Walk forward, then
+    // backward, propagating the last computed value.
+    float last = -1.0f;
+    for (int c = 0; c < columns; ++c) {
+        if (out[c] >= 0.0f)
+            last = out[c];
+        else if (last >= 0.0f)
+            out[c] = last;
+    }
+    last = -1.0f;
+    for (int c = columns - 1; c >= 0; --c) {
+        if (out[c] >= 0.0f)
+            last = out[c];
+        else if (last >= 0.0f)
+            out[c] = last;
+    }
+    for (int c = 0; c < columns; ++c) {
+        if (out[c] < 0.0f)
+            out[c] = 0.0f; // no ticks intersect the range at all
+    }
+    return true;
 }
 
 } // namespace QmlProfiler::Internal

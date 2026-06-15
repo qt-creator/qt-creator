@@ -118,6 +118,16 @@ public:
     virtual qint64 rowMinValue(int rowNumber) const;
     virtual qint64 rowMaxValue(int rowNumber) const;
 
+    // Density-graph models fill each pixel column by the activity in the time
+    // it covers, instead of drawing one bar per item. When rendersAsDensity()
+    // is true, the track painter calls fillDensityColumns() once per row.
+    virtual bool rendersAsDensity() const;
+    // Fill `out` (already sized to the column count) with the 0..1 activity
+    // fraction of `row` across the equal time columns spanning [startTime,
+    // endTime]; return false to fall back to per-item rendering.
+    virtual bool fillDensityColumns(int row, qint64 startTime, qint64 endTime,
+                                    QList<float> &out) const;
+
     int nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const;
     int nextItemByTypeId(int typeId, qint64 time, int currentItem) const;
     int prevItemBySelectionId(int selectionId, qint64 time, int currentItem) const;

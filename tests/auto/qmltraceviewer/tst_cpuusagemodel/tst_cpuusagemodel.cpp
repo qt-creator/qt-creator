@@ -133,6 +133,85 @@ private slots:
         QCOMPARE(model.expandedRowHeight(1), 3 * Timeline::TimelineModel::defaultRowHeight());
     }
 
+    void densityZoomedOutAverages()
+    {
+        // 5 ticks at 0,100,200,300,400 us. thread 10 on for 3 of them,
+        // thread 11 on for 2; peak concurrent running = 2.
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = QStringList{"f"};
+        data.threadNames = {{10, "a"}, {11, "b"}};
+        data.samples = {
+            {0, 10, true, {0}},   {0, 11, true, {0}},    // running 2
+            {100, 10, true, {0}}, {100, 11, false, {0}}, // running 1
+            {200, 10, true, {0}}, {200, 11, false, {0}}, // running 1
+            {300, 10, false, {0}},{300, 11, true, {0}},  // running 1
+            {400, 10, false, {0}},{400, 11, false, {0}}, // running 0
+        };
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        model.setTraceData(&data);
+        QVERIFY(model.rendersAsDensity());
+
+        // One column covering the whole trace [0, 400us] in ns.
+        QList<float> col(1, 0.0f);
+        // thread 10 row (row 2): on 3 of 5 ticks -> 0.6
+        QVERIFY(model.fillDensityColumns(2, 0, qint64(400) * 1000, col));
+        QCOMPARE(col[0], 0.6f);
+        // thread 11 row (row 3): on 2 of 5 ticks -> 0.4
+        col.assign(1, 0.0f);
+        QVERIFY(model.fillDensityColumns(3, 0, qint64(400) * 1000, col));
+        QCOMPARE(col[0], 0.4f);
+        // total row (row 1): avg running (2+1+1+1+0)/5 = 1.0, / maxRunning(2) = 0.5
+        col.assign(1, 0.0f);
+        QVERIFY(model.fillDensityColumns(1, 0, qint64(400) * 1000, col));
+        QCOMPARE(col[0], 0.5f);
+    }
+
+    void densityTwoColumnsSplit()
+    {
+        // thread on for the first half, off for the second.
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = QStringList{"f"};
+        data.threadNames = {{10, "a"}};
+        data.samples = {
+            {0, 10, true, {0}}, {100, 10, true, {0}},
+            {200, 10, false, {0}}, {300, 10, false, {0}},
+        };
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        model.setTraceData(&data);
+
+        // Two columns over [0, 400us): ticks 0,100 in col 0; 200,300 in col 1.
+        QList<float> col(2, 0.0f);
+        QVERIFY(model.fillDensityColumns(2, 0, qint64(400) * 1000, col));
+        QCOMPARE(col[0], 1.0f); // both first-half ticks running
+        QCOMPARE(col[1], 0.0f); // both second-half ticks idle
+    }
+
+    void densityZoomedInInheritsTick()
+    {
+        // More columns than ticks: empty columns inherit the covering tick.
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = QStringList{"f"};
+        data.threadNames = {{10, "a"}};
+        data.samples = {{0, 10, true, {0}}, {100, 10, false, {0}}};
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        model.setTraceData(&data);
+
+        // 8 columns over [0,100us): early columns map to tick@0 (running),
+        // later columns to tick@100 (idle); none left at the uninitialised -1.
+        QList<float> col(8, -1.0f);
+        QVERIFY(model.fillDensityColumns(2, 0, qint64(100) * 1000, col));
+        QCOMPARE(col.first(), 1.0f); // covered by the running tick@0
+        QCOMPARE(col.last(), 0.0f);  // covered by the idle tick@100
+        for (float v : col)
+            QVERIFY(v == 0.0f || v == 1.0f); // never the uninitialised -1
+    }
+
     void clearEmptiesModel()
     {
         Timeline::TimelineModelAggregator aggregator;

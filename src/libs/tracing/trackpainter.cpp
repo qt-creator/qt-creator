@@ -162,6 +162,18 @@ static QString prettyPrintScale(qint64 amount)
     return result;
 }
 
+// First item index whose row() equals `row`, or -1. Used to read a density
+// row's constant colour from the model's public color(int) API.
+int TrackPainter::firstItemInRow(int row) const
+{
+    const int count = m_model->count();
+    for (int i = 0; i < count; ++i) {
+        if (m_model->row(i) == row)
+            return i;
+    }
+    return -1;
+}
+
 void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) const
 {
     const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
@@ -207,6 +219,34 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
         }
     }
 
+    // Density graphs (e.g. CPU usage) fill each pixel column by the activity in
+    // the time it covers, rather than drawing one bar per item. The density
+    // branch ignores the [iterStart, iterEnd] strip range and renders every
+    // column across [m_rangeStart, m_rangeEnd]; the painter's clip rect limits
+    // what is shown during a strip (pan) render, like the value-scale block.
+    if (m_model->rendersAsDensity()) {
+        const int w = width();
+        QList<float> columns;
+        for (int row = 0; row < rowCount; ++row) {
+            columns.assign(w, 0.0f);
+            if (!m_model->fillDensityColumns(row, m_rangeStart, m_rangeEnd, columns))
+                continue;
+            const int rowH = m_model->rowHeight(row);
+            const int rowY = m_model->rowOffset(row);
+            // Constant per-row colour: use the first item that maps to this row.
+            QColor rowColor = QColor::fromRgb(0xff808080);
+            const int firstRowItem = firstItemInRow(row);
+            if (firstRowItem >= 0)
+                rowColor = QColor::fromRgb(m_model->color(firstRowItem));
+            for (int x = 0; x < w; ++x) {
+                const double frac = qBound(0.0f, columns[x], 1.0f);
+                if (frac <= 0.0)
+                    continue;
+                const double itemH = rowH * frac;
+                p.fillRect(QRectF(x, rowY + rowH - itemH, 1.0, itemH), rowColor);
+            }
+        }
+    } else {
     // Events (fills only; selection/hover borders are overlaid live in paintEvent)
     const int first = m_model->firstIndex(iterStart);
     const int last = m_model->lastIndex(iterEnd);
@@ -250,6 +290,7 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
             p.fillRect(QRectF(drawX1, itemY, x2 - drawX1, itemH),
                        QColor::fromRgb(m_model->color(i)));
         }
+    }
     }
 
     // Time ruler marker lines

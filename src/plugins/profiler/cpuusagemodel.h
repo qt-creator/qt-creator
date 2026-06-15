@@ -36,6 +36,10 @@ public:
     Timeline::RowLabels labels() const override;
     Timeline::ItemDetails details(int index) const override;
 
+    bool rendersAsDensity() const override;
+    bool fillDensityColumns(int row, qint64 startTime, qint64 endTime,
+                            QList<float> &out) const override;
+
     void clear() override;
 
 private:
@@ -48,9 +52,19 @@ private:
         quint64 tid = 0;
     };
 
+    // Retained sample grid for per-column density aggregation. Sorted ascending
+    // by startNs; one entry per sampling tick.
+    struct TickRow
+    {
+        qint64 startNs = 0;
+        int running = 0;        // running threads at this tick
+        QList<int> runningRows; // thread row indices (FirstThreadRow + idx) on-CPU
+    };
+
     const SampleTraceData *m_data = nullptr;
     QList<Item> m_items;      // parallel to TimelineModel item indices
     QList<quint64> m_threads; // per-thread row order (first appearance)
+    QList<TickRow> m_ticks;
     int m_maxRunning = 1;     // peak concurrent on-CPU threads; the total row's full scale
     qint64 m_traceEndNs = 0;
 };

@@ -424,6 +424,21 @@ qint64 TimelineModel::rowMaxValue(int rowNumber) const
     return 0;
 }
 
+bool TimelineModel::rendersAsDensity() const
+{
+    return false;
+}
+
+bool TimelineModel::fillDensityColumns(int row, qint64 startTime, qint64 endTime,
+                                       QList<float> &out) const
+{
+    Q_UNUSED(row)
+    Q_UNUSED(startTime)
+    Q_UNUSED(endTime)
+    Q_UNUSED(out)
+    return false;
+}
+
 int TimelineModel::defaultRowHeight()
 {
     return TimelineModelPrivate::DefaultRowHeight;
