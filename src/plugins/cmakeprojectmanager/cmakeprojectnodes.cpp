@@ -284,8 +284,9 @@ std::optional<FilePath> CMakeTargetNode::visibleAfterAddFileAction() const
     return std::nullopt;
 }
 
-void CMakeTargetNode::build()
+void CMakeTargetNode::build(BuildAction action)
 {
+    QTC_ASSERT(action == BuildAction::Build, return);
     if (BuildSystem * const bs = activeBuildSystem(getProject()))
         static_cast<CMakeBuildSystem *>(bs)->buildCMakeTarget(displayName());
 }

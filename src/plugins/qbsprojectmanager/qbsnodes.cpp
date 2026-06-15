@@ -99,10 +99,12 @@ QbsProductNode::QbsProductNode(const QJsonObject &prd) : ProjectNode(FilePath())
     setDisplayName(prd.value("full-display-name").toString());
 }
 
-void QbsProductNode::build()
+void QbsProductNode::build(BuildAction action)
 {
-    buildNamedProduct(static_cast<QbsProject *>(getProject()),
-                      m_productData.value("full-display-name").toString());
+    runStepsForNamedProduct(
+        static_cast<QbsProject *>(getProject()),
+        m_productData.value("full-display-name").toString(),
+        action);
 }
 
 QStringList QbsProductNode::targetApplications() const

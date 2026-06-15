@@ -56,7 +56,7 @@ void setupMesonActions(QObject *guard)
         .addOnTriggered(guard, [] {
             if (qobject_cast<MesonBuildSystem *>(activeBuildSystemForCurrentProject())) {
                 auto targetNode = dynamic_cast<MesonTargetNode *>(ProjectTree::currentNode());
-                targetNode->build();
+                targetNode->build(BuildAction::Build);
             }
         });
 

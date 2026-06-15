@@ -315,7 +315,7 @@ void Node::setEnabled(bool enabled)
         m_flags = static_cast<NodeFlag>(m_flags & ~FlagIsEnabled);
 }
 
-void Node::build()
+void Node::build(BuildAction)
 {
     QTC_CHECK(false);
 }
@@ -456,14 +456,17 @@ QString FileNode::displayName() const
     return Node::displayName() + ':' + QString::number(l);
 }
 
-void FileNode::build()
+void FileNode::build(BuildAction action)
 {
+    QTC_ASSERT(action == BuildAction::Build, return);
     if (BuildSystem * const bs = activeBuildSystem(getProject()); QTC_GUARD(bs))
         bs->buildFile(this);
 }
 
-bool FileNode::canBuild()
+bool FileNode::canBuild(BuildAction action)
 {
+    if (action != BuildAction::Build)
+        return false;
     if (BuildSystem * const bs = activeBuildSystem(getProject()))
         return bs->canBuildFile(this);
     return false;

@@ -57,7 +57,7 @@ void setupGNActions(QObject *guard)
         .addOnTriggered(guard, [] {
             if (qobject_cast<GNBuildSystem *>(activeBuildSystemForCurrentProject())) {
                 auto targetNode = dynamic_cast<GNTargetNode *>(ProjectTree::currentNode());
-                targetNode->build();
+                targetNode->build(BuildAction::Build);
             }
         });
 

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <projectexplorer/projectnodes.h>
+
 #include <QString>
 
 namespace Utils { class FilePath; }
@@ -11,7 +13,8 @@ namespace QbsProjectManager::Internal {
 
 class QbsProject;
 
-void buildNamedProduct(QbsProject *project, const QString &product);
+void runStepsForNamedProduct(QbsProject *project, const QString &product,
+                             ProjectExplorer::BuildAction action);
 void buildSingleFile(QbsProject *project, const Utils::FilePath &file);
 
 } // QbsProjectManager::Private

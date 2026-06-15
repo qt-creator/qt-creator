@@ -66,8 +66,8 @@ public:
 
     std::optional<Utils::FilePath> visibleAfterAddFileAction() const override;
 
-    void build() override;
-    bool canBuild() override { return true; }
+    void build(ProjectExplorer::BuildAction action) override;
+    bool canBuild(ProjectExplorer::BuildAction action) override { return action == ProjectExplorer::BuildAction::Build; }
 
     QVariant data(Utils::Id role) const override;
     void setConfig(const CMakeConfig &config);

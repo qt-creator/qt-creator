@@ -22,7 +22,7 @@ public:
                  const QString &targetType,
                  const QStringList &outputs);
 
-    void build() override;
+    void build(ProjectExplorer::BuildAction action) override;
     QString tooltip() const final;
     QString buildKey() const final;
 

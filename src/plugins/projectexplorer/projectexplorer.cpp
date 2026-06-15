@@ -605,7 +605,7 @@ public:
     void editorOpened(IEditor *editor);
 
     void buildCurrentFile();
-    void buildSelectedNode();
+    void buildSelectedNode(BuildAction action);
 
 public:
     QMenu *m_openWithMenu;
@@ -625,6 +625,8 @@ public:
     Action *m_buildFileAction;
     QAction *m_buildFileActionCtx;
     QAction *m_buildSubProjectActionCtx;
+    QAction *m_cleanSubProjectActionCtx;
+    QAction *m_rebuildSubProjectActionCtx;
     Action *m_buildForRunConfigAction;
     ProxyAction *m_modeBarBuildAction;
     QAction *m_buildActionContextMenu;
@@ -1682,8 +1684,27 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
                 dd->m_buildSubProjectActionCtx, Constants::BUILD_SUBPROJECT_CTX, projectTreeContext);
     cmd->setAttribute(Core::Command::CA_Hide);
     msubProjectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(dd->m_buildSubProjectActionCtx, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::buildSelectedNode);
+    connect(dd->m_buildSubProjectActionCtx, &QAction::triggered, dd, [] {
+        dd->buildSelectedNode(BuildAction::Build);
+    });
+
+    dd->m_cleanSubProjectActionCtx = new QAction(Tr::tr("Clean"), this);
+    cmd = ActionManager::registerAction(
+                dd->m_cleanSubProjectActionCtx, Constants::CLEAN_SUBPROJECT_CTX, projectTreeContext);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    msubProjectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(dd->m_cleanSubProjectActionCtx, &QAction::triggered, dd, [] {
+        dd->buildSelectedNode(BuildAction::Clean);
+    });
+
+    dd->m_rebuildSubProjectActionCtx = new QAction(Tr::tr("Rebuild"), this);
+    cmd = ActionManager::registerAction(
+                dd->m_rebuildSubProjectActionCtx, Constants::REBUILD_SUBPROJECT_CTX, projectTreeContext);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    msubProjectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(dd->m_rebuildSubProjectActionCtx, &QAction::triggered, dd, [] {
+        dd->buildSelectedNode(BuildAction::Rebuild);
+    });
 
     dd->m_closeProjectFilesActionContextMenu = new Action(
                 Tr::tr("Close All Files"), Tr::tr("Close All Files in Project \"%1\""),
@@ -1771,8 +1792,9 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
                 dd->m_buildFileActionCtx, Constants::BUILD_FILE_CTX, projectTreeContext);
     cmd->setAttribute(Core::Command::CA_Hide);
     mfileContextMenu->addAction(cmd, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(dd->m_buildFileActionCtx, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::buildSelectedNode);
+    connect(dd->m_buildFileActionCtx, &QAction::triggered, dd, [] {
+        dd->buildSelectedNode(BuildAction::Build);
+    });
 
     // Not yet used by anyone, so hide for now
 //    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
@@ -1906,7 +1928,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
         ProjectNode * const productNode = runConfig->productNode();
         QTC_ASSERT(productNode, return);
         QTC_ASSERT(productNode->isProduct(), return);
-        productNode->build();
+        productNode->build(BuildAction::Build);
     });
     connect(dd->m_buildDependenciesActionContextMenu, &QAction::triggered, dd, [] {
         BuildManager::buildProjectWithDependencies(ProjectTree::currentProject());
@@ -3310,14 +3332,14 @@ void ProjectExplorerPluginPrivate::buildCurrentFile()
     QTC_ASSERT(node, return);
     FileNode * const fileNode = node->asFileNode();
     QTC_ASSERT(fileNode, return);
-    fileNode->build();
+    fileNode->build(BuildAction::Build);
 }
-void ProjectExplorerPluginPrivate::buildSelectedNode()
+void ProjectExplorerPluginPrivate::buildSelectedNode(BuildAction action)
 {
     Node * const node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
-    QTC_ASSERT(node->canBuild(), return);
-    node->build();
+    QTC_ASSERT(node->canBuild(action), return);
+    node->build(action);
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu(RunConfiguration *rc)
@@ -3740,6 +3762,10 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_buildFileActionCtx->setEnabled(false);
     m_buildSubProjectActionCtx->setVisible(false);
     m_buildSubProjectActionCtx->setEnabled(false);
+    m_cleanSubProjectActionCtx->setVisible(false);
+    m_cleanSubProjectActionCtx->setEnabled(false);
+    m_rebuildSubProjectActionCtx->setVisible(false);
+    m_rebuildSubProjectActionCtx->setEnabled(false);
     m_createHeaderAction->setEnabled(false);
     m_createSourceAction->setEnabled(false);
 
@@ -3824,11 +3850,16 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
         }
         if (const auto projectNode = currentNode->asProjectNode()) {
             BuildSystem * const bs = project ? activeBuildSystem(project) : nullptr;
-            m_buildSubProjectActionCtx->setVisible(
-                        project && projectNode != project->rootProjectNode() && projectNode->canBuild());
-            m_buildSubProjectActionCtx->setEnabled(projectNode->isEnabled()
-                        && m_buildSubProjectActionCtx->isVisible() && bs && !bs->isParsing()
-                        && !BuildManager::isBuilding(project));
+            const bool isSubProject = project && projectNode != project->rootProjectNode();
+            const bool additionalCriteria = projectNode->isEnabled() && isSubProject && bs
+                    && !bs->isParsing() && !BuildManager::isBuilding(project);
+            for (const auto [action, actionWidget] :
+            {std::pair{BuildAction::Build, m_buildSubProjectActionCtx},
+                 std::pair{BuildAction::Clean, m_cleanSubProjectActionCtx},
+                 std::pair{BuildAction::Rebuild, m_rebuildSubProjectActionCtx}}) {
+                actionWidget->setVisible(isSubProject && projectNode->canBuild(action));
+                actionWidget->setEnabled(additionalCriteria && actionWidget->isVisible());
+            }
         }
         if (currentNode->asFolderNode()) {
             // Also handles ProjectNode

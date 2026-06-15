@@ -45,8 +45,9 @@ GNTargetNode::GNTargetNode(const FilePath &directory,
     }
 }
 
-void GNTargetNode::build()
+void GNTargetNode::build(BuildAction action)
 {
+    QTC_ASSERT(action == BuildAction::Build, return);
     if (const auto bc = activeBuildConfig(getProject()))
         static_cast<GNBuildConfiguration *>(bc)->build(m_name);
 }

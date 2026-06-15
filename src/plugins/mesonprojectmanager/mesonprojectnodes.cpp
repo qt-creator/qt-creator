@@ -37,8 +37,9 @@ MesonTargetNode::MesonTargetNode(const FilePath &directory, const QString &name,
     setProductType(ProductType::Other);
 }
 
-void MesonTargetNode::build()
+void MesonTargetNode::build(BuildAction action)
 {
+    QTC_ASSERT(action == BuildAction::Build, return);
     if (const auto bc = activeBuildConfig(getProject()))
         static_cast<MesonBuildConfiguration *>(bc)->build(m_name);
 }

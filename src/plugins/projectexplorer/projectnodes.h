@@ -91,6 +91,8 @@ private:
 
 using IconCreator = std::function<QIcon()>;
 
+enum class BuildAction { Build, Clean, Rebuild };
+
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Node
 {
@@ -150,8 +152,8 @@ public:
     virtual const ContainerNode *asContainerNode() const { return nullptr; }
 
     virtual QString buildKey() const { return {}; }
-    virtual void build();
-    virtual bool canBuild() { return false; }
+    virtual void build(BuildAction action);
+    virtual bool canBuild(BuildAction) { return false; }
 
     void setParentFolderNode(FolderNode *parentFolder);
 
@@ -207,8 +209,8 @@ public:
 
     bool supportsAction(ProjectAction action, const Node *node) const override;
     QString displayName() const override;
-    void build() override;
-    bool canBuild() override;
+    void build(BuildAction action) override;
+    bool canBuild(BuildAction action) override;
 
     bool hasError() const;
     void setHasError(const bool error);

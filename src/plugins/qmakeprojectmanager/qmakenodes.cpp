@@ -345,9 +345,21 @@ bool QmakeProFileNode::validParse() const
     return pro && pro->validParse();
 }
 
-void QmakeProFileNode::build()
+void QmakeProFileNode::build(BuildAction action)
 {
-    m_buildSystem->buildHelper(QmakeBuildSystem::BUILD, false, this, nullptr);
+    // FIXME: Use upstream type directly.
+    const QmakeBuildSystem::Action qmakeAction = [action] {
+        switch (action) {
+        case BuildAction::Build:
+            return QmakeBuildSystem::BUILD;
+        case BuildAction::Clean:
+            return QmakeBuildSystem::CLEAN;
+        case BuildAction::Rebuild:
+            return QmakeBuildSystem::REBUILD;
+        }
+        QTC_ASSERT(false, return QmakeBuildSystem::BUILD);
+    }();
+    m_buildSystem->buildHelper(qmakeAction, false, this, nullptr);
 }
 
 QStringList QmakeProFileNode::targetApplications() const

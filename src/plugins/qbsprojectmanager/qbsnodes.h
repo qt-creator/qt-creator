@@ -34,8 +34,8 @@ class QbsProductNode : public ProjectExplorer::ProjectNode
 public:
     explicit QbsProductNode(const QJsonObject &prd);
 
-    void build() override;
-    bool canBuild() override { return true; }
+    void build(ProjectExplorer::BuildAction action) override;
+    bool canBuild(ProjectExplorer::BuildAction) override { return true; }
     QStringList targetApplications() const override;
 
     QString fullDisplayName() const;

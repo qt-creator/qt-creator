@@ -67,8 +67,8 @@ public:
     bool parseInProgress() const override;
     bool validParse() const override;
 
-    void build() override;
-    bool canBuild() override { return true; }
+    void build(ProjectExplorer::BuildAction action) override;
+    bool canBuild(ProjectExplorer::BuildAction) override { return true; }
 
     QStringList targetApplications() const override;
     AddNewInformation addNewInformation(const Utils::FilePaths &files, Node *context) const override;
