@@ -306,7 +306,6 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_chatPanel->setSendEnabled(false);
             m_chatPanel->setPrompting(false);
             m_chatPanel->clearConfigOptions();
-            m_currentServerName.clear();
             updateTitle();
         }
     });
@@ -528,11 +527,10 @@ void AcpChatTab::populateServerButtons()
         const QString serverName = info.name;
         connect(button, &QAbstractButton::clicked, this, [this, serverId, serverName] {
             m_connectionErrorLabel->hide();
-            m_currentServerName = serverName;
-            updateTitle();
             m_initializingLabel->setText(Tr::tr("Connecting to %1").arg(serverName));
             m_stack->setCurrentIndex(3);
             m_controller->connectToServer(serverId);
+            updateTitle();
         });
         Utils::onResultReady(
             AcpSettings::iconForUrl(info.iconUrl), button, [button](const QIcon &icon) {
@@ -547,13 +545,14 @@ void AcpChatTab::populateServerButtons()
 
 void AcpChatTab::updateTitle()
 {
+    const QString serverName = m_controller->serverName();
     const FilePath cwd = m_controller->workingDirectory();
-    if (m_currentServerName.isEmpty())
+    if (serverName.isEmpty())
         m_title = Tr::tr("New Chat");
     else if (cwd.isEmpty())
-        m_title = m_currentServerName;
+        m_title = serverName;
     else
-        m_title = QString("%1 - %2").arg(m_currentServerName, cwd.fileName());
+        m_title = QString("%1 - %2").arg(serverName, cwd.fileName());
     emit titleChanged();
 }
 

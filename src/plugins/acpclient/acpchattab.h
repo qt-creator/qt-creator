@@ -51,7 +51,6 @@ private:
     QVBoxLayout *m_serverButtonsLayout = nullptr;
     Utils::InfoLabel *m_noServerLabel;
     Utils::InfoLabel *m_connectionErrorLabel = nullptr;
-    QString m_currentServerName;
 
     // Initializing page
     QLabel *m_initializingLabel = nullptr;
