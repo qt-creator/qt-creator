@@ -66,7 +66,6 @@ private:
     // Caller must set painter clip rect for strip renders.
     void renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) const;
     void paintScaleOverlay(QPainter &p);
-    int firstItemInRow(int row) const;
 
     TimelineModel *m_model = nullptr;
     const TimelineNotesModel *m_notes = nullptr;

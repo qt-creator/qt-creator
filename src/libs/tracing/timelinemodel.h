@@ -128,6 +128,11 @@ public:
     virtual bool fillDensityColumns(int row, qint64 startTime, qint64 endTime,
                                     QList<float> &out) const;
 
+    // Constant colour of a whole row, for density-graph rendering. The default
+    // reproduces the per-item lookup (first item in the row); density models
+    // that know their row colours cheaply should override.
+    virtual QRgb rowColor(int row) const;
+
     int nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const;
     int nextItemByTypeId(int typeId, qint64 time, int currentItem) const;
     int prevItemBySelectionId(int selectionId, qint64 time, int currentItem) const;

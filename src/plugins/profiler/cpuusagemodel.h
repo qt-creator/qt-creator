@@ -39,11 +39,13 @@ public:
     bool rendersAsDensity() const override;
     bool fillDensityColumns(int row, qint64 startTime, qint64 endTime,
                             QList<float> &out) const override;
+    QRgb rowColor(int row) const override;
 
     void clear() override;
 
 private:
     void load();
+    void ensureDensityCache(qint64 startNs, qint64 endNs, int columns) const;
 
     struct Item
     {
@@ -64,9 +66,20 @@ private:
     const SampleTraceData *m_data = nullptr;
     QList<Item> m_items;      // parallel to TimelineModel item indices
     QList<quint64> m_threads; // per-thread row order (first appearance)
+    QList<QRgb> m_rowColors; // index = expanded row; constant colour per row
     QList<TickRow> m_ticks;
     int m_maxRunning = 1;     // peak concurrent on-CPU threads; the total row's full scale
     qint64 m_traceEndNs = 0;
+
+    // Per-column density accumulators, rebuilt once per (start, end, columns)
+    // view and shared across all rows of a repaint. See ensureDensityCache().
+    mutable qint64 m_cacheStartNs = 0;
+    mutable qint64 m_cacheEndNs = -1;
+    mutable int m_cacheColumns = 0;
+    mutable bool m_cacheValid = false;
+    mutable QList<int> m_cacheCovered;       // [col] ticks in the column
+    mutable QList<int> m_cacheRunSum;        // [col] sum of running threads
+    mutable QList<QList<int>> m_cacheActive; // [threadIndex][col] on-CPU ticks
 };
 
 } // namespace QmlProfiler::Internal

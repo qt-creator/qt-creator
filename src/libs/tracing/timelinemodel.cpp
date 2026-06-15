@@ -439,6 +439,16 @@ bool TimelineModel::fillDensityColumns(int row, qint64 startTime, qint64 endTime
     return false;
 }
 
+QRgb TimelineModel::rowColor(int row) const
+{
+    const int n = count();
+    for (int i = 0; i < n; ++i) {
+        if (this->row(i) == row)
+            return color(i);
+    }
+    return 0xff808080; // neutral grey when the row has no items
+}
+
 int TimelineModel::defaultRowHeight()
 {
     return TimelineModelPrivate::DefaultRowHeight;

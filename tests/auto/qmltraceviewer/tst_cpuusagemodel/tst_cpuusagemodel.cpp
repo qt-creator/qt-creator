@@ -212,6 +212,64 @@ private slots:
             QVERIFY(v == 0.0f || v == 1.0f); // never the uninitialised -1
     }
 
+    void densityCacheStableAndInvalidated()
+    {
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        SampleTraceData data;
+        data.pid = 1;
+        data.labels = {"f"};
+        data.threadNames = {{10, "a"}};
+        data.samples = {{0, 10, true, {0}}, {100, 10, false, {0}}};
+        model.setTraceData(&data);
+
+        // Same (range, width) twice -> identical results (cache-hit path).
+        QList<float> a(4, 0.0f), b(4, 0.0f);
+        QVERIFY(model.fillDensityColumns(2, 0, qint64(100) * 1000, a));
+        QVERIFY(model.fillDensityColumns(2, 0, qint64(100) * 1000, b));
+        QCOMPARE(a, b);
+        QCOMPARE(a.first(), 1.0f); // thread on in the first half
+        QCOMPARE(a.last(), 0.0f);  // off in the second half
+
+        // Reloading different data must invalidate the cache: thread 10 never
+        // runs now, so every column is 0 (not the stale running values).
+        SampleTraceData data2;
+        data2.pid = 1;
+        data2.labels = {"f"};
+        data2.threadNames = {{10, "a"}};
+        data2.samples = {{0, 10, false, {0}}, {100, 10, false, {0}}};
+        model.setTraceData(&data2);
+        QList<float> c(4, -1.0f);
+        QVERIFY(model.fillDensityColumns(2, 0, qint64(100) * 1000, c));
+        for (float v : c)
+            QCOMPARE(v, 0.0f);
+    }
+
+    void rowColorCachedPerRow()
+    {
+        Timeline::TimelineModelAggregator aggregator;
+        CpuUsageModel model(&aggregator);
+        SampleTraceData data = makeTestData();
+        model.setTraceData(&data);
+        model.setExpanded(true);
+
+        int totalItem = -1, threadItem = -1, threadRow = -1;
+        for (int i = 0; i < model.count(); ++i) {
+            if (model.expandedRow(i) == 1) {
+                if (totalItem < 0)
+                    totalItem = i;
+            } else if (model.expandedRow(i) >= 2 && threadItem < 0) {
+                threadItem = i;
+                threadRow = model.expandedRow(i);
+            }
+        }
+        QVERIFY(totalItem >= 0);
+        QVERIFY(threadItem >= 0);
+        QCOMPARE(model.rowColor(1), model.color(totalItem));          // total row
+        QCOMPARE(model.rowColor(threadRow), model.color(threadItem)); // a thread row
+        QCOMPARE(model.rowColor(999), QRgb(0xff808080));              // out of range -> grey
+    }
+
     void clearEmptiesModel()
     {
         Timeline::TimelineModelAggregator aggregator;

@@ -162,18 +162,6 @@ static QString prettyPrintScale(qint64 amount)
     return result;
 }
 
-// First item index whose row() equals `row`, or -1. Used to read a density
-// row's constant colour from the model's public color(int) API.
-int TrackPainter::firstItemInRow(int row) const
-{
-    const int count = m_model->count();
-    for (int i = 0; i < count; ++i) {
-        if (m_model->row(i) == row)
-            return i;
-    }
-    return -1;
-}
-
 void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) const
 {
     const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
@@ -233,11 +221,7 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
                 continue;
             const int rowH = m_model->rowHeight(row);
             const int rowY = m_model->rowOffset(row);
-            // Constant per-row colour: use the first item that maps to this row.
-            QColor rowColor = QColor::fromRgb(0xff808080);
-            const int firstRowItem = firstItemInRow(row);
-            if (firstRowItem >= 0)
-                rowColor = QColor::fromRgb(m_model->color(firstRowItem));
+            const QColor rowColor = QColor::fromRgb(m_model->rowColor(row));
             for (int x = 0; x < w; ++x) {
                 const double frac = qBound(0.0f, columns[x], 1.0f);
                 if (frac <= 0.0)

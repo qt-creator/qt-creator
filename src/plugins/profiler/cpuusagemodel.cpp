@@ -39,6 +39,8 @@ void CpuUsageModel::clear()
     m_items.clear();
     m_threads.clear();
     m_ticks.clear();
+    m_rowColors.clear();
+    m_cacheValid = false;
     m_maxRunning = 1;
     m_traceEndNs = 0;
     TimelineModel::clear();
@@ -114,6 +116,17 @@ void CpuUsageModel::load()
     // A taller total row makes the graph readable and is what triggers the
     // track painter's value-scale axis (drawn only for rows >= 60 px).
     setExpandedRowHeight(TotalRow, 3 * defaultRowHeight());
+
+    // Cache each row's constant colour so the density renderer needn't scan
+    // items per row. The colour is constant within a row, so repeated writes
+    // are idempotent; rows with no items keep the grey fallback.
+    m_rowColors.assign(FirstThreadRow + int(m_threads.size()), QRgb(0xff808080));
+    for (int i = 0; i < count(); ++i) {
+        const int r = expandedRow(i);
+        if (r >= 0 && r < int(m_rowColors.size()))
+            m_rowColors[r] = color(i);
+    }
+
     emit contentChanged();
 }
 
@@ -134,6 +147,11 @@ QRgb CpuUsageModel::color(int index) const
     // A constant color per row is what makes varying bar heights read as a
     // graph; a load-dependent hue would make the bars look like event ranges.
     return colorBySelectionId(index);
+}
+
+QRgb CpuUsageModel::rowColor(int row) const
+{
+    return m_rowColors.value(row, QRgb(0xff808080));
 }
 
 float CpuUsageModel::relativeHeight(int index) const
@@ -194,19 +212,18 @@ bool CpuUsageModel::rendersAsDensity() const
     return true;
 }
 
-bool CpuUsageModel::fillDensityColumns(int row, qint64 startNs, qint64 endNs,
-                                       QList<float> &out) const
+void CpuUsageModel::ensureDensityCache(qint64 startNs, qint64 endNs, int columns) const
 {
-    const int columns = int(out.size());
-    if (m_ticks.isEmpty() || columns <= 0 || endNs <= startNs)
-        return false;
+    if (m_cacheValid && m_cacheStartNs == startNs && m_cacheEndNs == endNs
+        && m_cacheColumns == columns) {
+        return;
+    }
 
-    const bool isTotal = row == TotalRow;
-    // Accumulate active and covered tick counts per column in one pass; the
-    // total row also sums running threads so its fill is avgRunning/maxRunning.
-    QList<int> covered(columns, 0);
-    QList<int> active(columns, 0); // thread rows: ticks the row was on-CPU
-    QList<int> runSum(columns, 0); // total row: sum of running threads
+    // One pass distributes each tick into per-column accumulators for every row
+    // at once, so a repaint costs O(ticks) here instead of O(rows x ticks).
+    m_cacheCovered.assign(columns, 0);
+    m_cacheRunSum.assign(columns, 0);
+    m_cacheActive.assign(m_threads.size(), QList<int>(columns, 0));
 
     const double span = double(endNs - startNs);
     for (const TickRow &tick : m_ticks) {
@@ -214,23 +231,49 @@ bool CpuUsageModel::fillDensityColumns(int row, qint64 startNs, qint64 endNs,
             continue;
         int col = int(double(tick.startNs - startNs) * columns / span);
         if (col >= columns)
-            col = columns - 1; // a tick exactly at endNs lands in the last column
-        ++covered[col];
-        if (isTotal)
-            runSum[col] += tick.running;
-        else if (tick.runningRows.contains(row))
-            ++active[col];
+            col = columns - 1;
+        ++m_cacheCovered[col];
+        m_cacheRunSum[col] += tick.running;
+        for (int r : tick.runningRows) {
+            const int idx = r - FirstThreadRow;
+            if (idx >= 0 && idx < int(m_cacheActive.size()))
+                ++m_cacheActive[idx][col];
+        }
+    }
+
+    m_cacheStartNs = startNs;
+    m_cacheEndNs = endNs;
+    m_cacheColumns = columns;
+    m_cacheValid = true;
+}
+
+bool CpuUsageModel::fillDensityColumns(int row, qint64 startNs, qint64 endNs,
+                                       QList<float> &out) const
+{
+    const int columns = int(out.size());
+    if (m_ticks.isEmpty() || columns <= 0 || endNs <= startNs)
+        return false;
+
+    ensureDensityCache(startNs, endNs, columns);
+
+    const bool isTotal = row == TotalRow;
+    const QList<int> *active = nullptr;
+    if (!isTotal) {
+        const int idx = row - FirstThreadRow;
+        if (idx < 0 || idx >= int(m_cacheActive.size()))
+            return false; // header row or unknown row: nothing to draw
+        active = &m_cacheActive[idx];
     }
 
     for (int c = 0; c < columns; ++c) {
-        if (covered[c] == 0) {
+        if (m_cacheCovered[c] == 0) {
             out[c] = -1.0f; // marker: filled by the inherit pass below
             continue;
         }
         if (isTotal)
-            out[c] = float(double(runSum[c]) / covered[c] / qMax(1, m_maxRunning));
+            out[c] = float(double(m_cacheRunSum[c]) / m_cacheCovered[c] / qMax(1, m_maxRunning));
         else
-            out[c] = float(double(active[c]) / covered[c]);
+            out[c] = float(double((*active)[c]) / m_cacheCovered[c]);
     }
 
     // Columns with no tick of their own (zoomed in finer than the sample rate)
