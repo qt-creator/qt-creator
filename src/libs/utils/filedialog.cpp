@@ -186,7 +186,7 @@ static QString truncatedFilter(const QString &filter, int maxLen = 60)
     // If we can fit the description and an opening paren, truncate inside the pattern list.
     if (open > 0 && open < maxLen - 3)
         return filter.left(maxLen - 2) + u"…)";
-    return filter.left(maxLen - 1) + u'…';
+    return filter.left(maxLen - 1) + u"…";
 }
 
 static bool looksLikeMimeType(const QString &filter)
