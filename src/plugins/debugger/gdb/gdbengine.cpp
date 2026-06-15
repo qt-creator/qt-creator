@@ -396,7 +396,12 @@ void GdbEngine::handleResponse(const QString &buff)
             m_pendingLogStreamOutput += data;
 
             if (isGdbConnectionError(data)) {
-                notifyInferiorExited();
+                // The async =thread-group-exited may already have driven
+                // shutdown; only treat this as the exit notification if we
+                // are still running.
+                if (state() == InferiorRunOk || state() == InferiorStopOk
+                        || state() == InferiorShutdownRequested)
+                    notifyInferiorExited();
                 break;
             }
 
@@ -1657,6 +1662,11 @@ void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
         // notifyInferiorShutdownFinished();
         return;
     }
+    // With remote targets the async =thread-group-exited notification may
+    // arrive before the ^error response to "kill", advancing the state past
+    // InferiorShutdownRequested. In that case the inferior is already gone.
+    if (state() != InferiorShutdownRequested)
+        return;
     // "kill" got stuck, gdb was kill -9'd, or similar.
     CHECK_STATE(InferiorShutdownRequested);
     QString msg = response.data["msg"].data();
