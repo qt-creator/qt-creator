@@ -281,6 +281,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_pendingPrompt = text;
             const Project *project = ProjectManager::startupProject();
             m_controller->createNewSession(project ? project->projectDirectory() : FilePath{});
+            updateTitle();
             return;
         }
         m_chatPanel->addUserMessage(text);
@@ -479,10 +480,12 @@ void AcpChatTab::showSessionPicker()
             [this, picker](const QString &sessionId, const FilePath &cwd) {
         picker->setResolved(sessionId);
         m_controller->loadSession(sessionId, cwd);
+        updateTitle();
     });
     connect(picker, &SessionPickerWidget::newSessionRequested,
             this, [this](const FilePath &cwd) {
         m_controller->createNewSession(cwd);
+        updateTitle();
     });
     connect(picker, &SessionPickerWidget::loadMoreRequested,
             m_controller, &AcpChatController::listSessions);
@@ -544,7 +547,13 @@ void AcpChatTab::populateServerButtons()
 
 void AcpChatTab::updateTitle()
 {
-    m_title = m_currentServerName.isEmpty() ? Tr::tr("New Chat") : m_currentServerName;
+    const FilePath cwd = m_controller->workingDirectory();
+    if (m_currentServerName.isEmpty())
+        m_title = Tr::tr("New Chat");
+    else if (cwd.isEmpty())
+        m_title = m_currentServerName;
+    else
+        m_title = QString("%1 - %2").arg(m_currentServerName, cwd.fileName());
     emit titleChanged();
 }
 

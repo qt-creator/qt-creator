@@ -52,6 +52,7 @@ public:
     bool supportsSessionList() const;
     bool supportsSessionDelete() const;
     const QString &sessionId() const { return m_sessionId; }
+    const Utils::FilePath &workingDirectory() const { return m_workingDirectory; }
     const QString &agentName() const { return m_agentName; }
     const QString &agentVersion() const { return m_agentVersion; }
 
