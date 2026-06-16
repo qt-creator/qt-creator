@@ -12,6 +12,13 @@ initialize to confirm.  Bridges MCP stdio transport (newline-delimited
 JSON on stdin/stdout) to the Streamable-HTTP transport (POST / + SSE
 GET /) used by Qt Creator 19+.
 
+If the backend stops responding (e.g. the targeted Qt Creator instance
+was restarted and came back on a different auto-selected port), the proxy
+re-runs discovery, replays the cached initialize handshake to establish a
+fresh session, and continues -- transparently to the MCP client.  This
+keeps the connection alive across the frequent restarts typical when
+working on Qt Creator itself, including when several instances are running.
+
 Usage: python3 mcp_proxy.py [--prefer-cwd]
 
   --prefer-cwd  Query each candidate's get_current_project tool and
@@ -239,13 +246,21 @@ def _find_best_port(prefer_cwd):
 
 
 class _Proxy:
-    def __init__(self, port, probe_sid):
+    def __init__(self, port, probe_sid, prefer_cwd):
         self._port = port
         self._probe_sid = probe_sid
+        self._prefer_cwd = prefer_cwd
         self._sid = None
         self._sse_started = False
+        self._init_request = None
+        # Bumped on every successful re-discovery; lets a thread tell whether
+        # another thread already reconnected while its request was failing.
+        self._generation = 0
+        self._reconnect_lock = threading.Lock()
 
-    def _post(self, msg):
+    def _do_post(self, msg):
+        # Single HTTP POST attempt against the current backend.  Returns the
+        # list of parsed responses, or None if the backend is unreachable.
         body = json.dumps(msg, separators=(',', ':')).encode()
         headers = {
             'Content-Type': 'application/json',
@@ -260,7 +275,7 @@ class _Proxy:
             r = c.getresponse()
         except OSError as e:
             _log(f"POST failed: {e}")
-            return []
+            return None
         sid = r.getheader('mcp-session-id')
         if sid:
             self._sid = sid
@@ -283,15 +298,51 @@ class _Proxy:
         except json.JSONDecodeError:
             return []
 
+    def _post(self, msg):
+        results = self._do_post(msg)
+        if results is not None:
+            return results
+        # The backend went away -- typically this Qt Creator instance was
+        # restarted and came back on a different auto-selected port.  Find the
+        # matching instance again, replay the cached initialize handshake to
+        # establish a fresh session, then retry the request once.
+        if not self._rediscover(self._generation):
+            return []
+        results = self._do_post(msg)
+        return results if results is not None else []
+
+    def _rediscover(self, gen):
+        with self._reconnect_lock:
+            if gen != self._generation:
+                # Another thread already reconnected since the caller failed.
+                return True
+            port, probe_sid = _find_best_port(self._prefer_cwd)
+            if not port:
+                _log("re-discovery found no running Qt Creator MCP server")
+                return False
+            _log(f"re-discovered Qt Creator MCP on port {port}, re-initializing session")
+            self._port = port
+            self._sid = None
+            _delete_session(port, probe_sid)
+            if self._init_request is not None:
+                self._do_post(self._init_request)
+                self._do_post({'jsonrpc': '2.0', 'method': 'notifications/initialized'})
+            self._generation += 1
+            return True
+
     def _start_sse(self):
         self._sse_started = True
         def worker():
             while True:
+                sid = self._sid
+                if not sid:
+                    time.sleep(0.2)
+                    continue
                 try:
                     c = http.client.HTTPConnection('127.0.0.1', self._port, timeout=None)
                     c.request('GET', '/', headers={
                         'Accept': 'text/event-stream',
-                        'mcp-session-id': self._sid,
+                        'mcp-session-id': sid,
                     })
                     r = c.getresponse()
                     if r.status != 200:
@@ -307,8 +358,11 @@ class _Proxy:
                                 pass
                     c.close()
                 except OSError as e:
+                    # Backend gone; re-discover so server-initiated messages
+                    # keep flowing across restarts even while idle.
                     _log(f"SSE stream closed ({e}), reconnecting")
-                    time.sleep(1)
+                    if not self._rediscover(self._generation):
+                        time.sleep(1)
         threading.Thread(target=worker, daemon=True).start()
 
     def run(self):
@@ -321,6 +375,8 @@ class _Proxy:
                 msg = json.loads(raw_line)
             except json.JSONDecodeError:
                 continue
+            if msg.get('method') == 'initialize':
+                self._init_request = msg
             is_notification = 'id' not in msg
             responses = self._post(msg)
             if self._sid and not self._sse_started:
@@ -335,4 +391,4 @@ if __name__ == '__main__':
     port, probe_sid = _find_best_port(prefer_cwd)
     if not port:
         sys.exit(1)
-    _Proxy(port, probe_sid).run()
+    _Proxy(port, probe_sid, prefer_cwd).run()
