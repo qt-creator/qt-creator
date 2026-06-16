@@ -116,11 +116,11 @@
                         "items":
                         [
                             {
-                                "trKey": "Qt6 and higher",
+                                "trKey": "Qt 6 and higher",
                                 "value": "Qt6+"
                             },
                             {
-                                "trKey": "Qt5 and higher",
+                                "trKey": "Qt 5 and higher",
                                 "value": "Qt5+"
                             }
                         ]

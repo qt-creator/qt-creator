@@ -108,11 +108,11 @@
                         "items":
                         [
                             {
-                                "trKey": "Qt6 and higher",
+                                "trKey": "Qt 6 and higher",
                                 "value": "Qt6+"
                             },
                             {
-                                "trKey": "Qt5 and higher",
+                                "trKey": "Qt 5 and higher",
                                 "value": "Qt5+"
                             }
                         ]
@@ -135,7 +135,7 @@
                                 "condition": "%{JS: isPluginRunning('qmakeprojectmanager')}"
                             },
                             {
-                                "trKey": "CMake for Qt5 and Qt 6",
+                                "trKey": "CMake for Qt 5 and Qt 6",
                                 "value": "cmake",
                                 "condition": "%{JS: isPluginRunning('cmakeprojectmanager')}"
                             },
