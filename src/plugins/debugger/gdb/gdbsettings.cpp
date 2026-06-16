@@ -207,10 +207,11 @@ GdbSettings::GdbSettings()
         using namespace Layouting;
 
         auto labelDangerous = new QLabel("<html><head/><body><i>" +
-            Tr::tr("The options below give access to advanced<br>"
-                   "or experimental functions of GDB.<p>"
-                   "Enabling them may negatively impact<br>"
-                   "your debugging experience.") + "</i></body></html>");
+            QLatin1String("%1<p>%2")
+                .arg(Tr::tr("The options below give access to advanced or experimental functions of GDB."),
+                     Tr::tr("Enabling them may negatively impact your debugging experience."))
+            + "</i></body></html>");
+        labelDangerous->setWordWrap(true);
 
         Group general {
             title(Tr::tr("General")),

@@ -117,8 +117,9 @@ QString StackFrame::toToolTip() const
     str <<"<br> <br><i>" << Tr::tr("Note:") << " </i> ";
     bool showDistributionNote = false;
     if (isUsable()) {
-        str << Tr::tr("Sources for this frame are available.<br>Double-click on "
-            "the file name to open an editor.");
+        str << Tr::tr("Sources for this frame are available.")
+            << "<br>"
+            << Tr::tr("Double-click on the file name to open an editor.");
     } else if (line <= 0) {
         str << Tr::tr("Binary debug information is not accessible for this "
             "frame. This either means the core was not compiled "

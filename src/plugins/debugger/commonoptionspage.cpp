@@ -204,8 +204,8 @@ QString msgSetBreakpointAtFunction(const char *function)
 QString msgSetBreakpointAtFunctionToolTip(const char *function, const QString &hint)
 {
     QString result = "<html><head/><body>";
-    result += Tr::tr("Always adds a breakpoint on the <i>%1()</i> function.")
-            .arg(QLatin1String(function));
+    result += Tr::tr("Always adds a breakpoint on the %1 function.")
+            .arg("<i>" + QLatin1String(function) + "()</i>");
     if (!hint.isEmpty()) {
         result += "<br>";
         result += hint;
