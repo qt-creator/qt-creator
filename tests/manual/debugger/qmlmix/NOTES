@@ -1,0 +1,187 @@
+Findings on native combined (C++ + QML) debugging
+==================================================
+
+Status as of June 2026, measured against a Linux developer build of
+Qt (qtdeclarative dev branch), GDB 15, debug info available for
+libQt6Qml. The numbers below come from qmlmix-bp-experiment.py; they
+will vary with hardware and versions but the orders of magnitude are
+the point.
+
+Two in-process mechanisms exist in qtdeclarative
+------------------------------------------------
+
+1. The NativeQmlDebugger service (qmldbg_native + qmldbg_nativedebugger
+   plugins). The native debugger drives it through inferior calls:
+   qt_qmlDebugSendDataToService() carries JSON requests (backtrace,
+   variables, expressions, setbreakpoint, stepin, ...), replies are
+   read from qt_qmlDebugMessageBuffer, and asynchronous events stop
+   the debugger via a breakpoint on qt_qmlDebugMessageAvailable().
+   This is what QTC_DEBUGGER_NATIVE_MIXED uses; the Qt Creator side
+   lives in share/qtcreator/debugger (search for 'interpreter').
+
+2. A dormant direct interface in qv4vme_moth.cpp: qt_v4DebuggerHook()
+   takes JSON commands (insertBreakpoint, removeBreakpoint,
+   prepareStep) and maintains a breakpoint list *inside the inferior*.
+   qt_v4CheckForBreak() filters every executed statement in-process
+   and calls the exported, empty qt_v4TriggeredBreakpointHook() on a
+   match - that function exists solely for the native debugger to set
+   a breakpoint on. GdbEngine::handleStop0() still recognizes the
+   function name. Note that the statics live in an anonymous
+   namespace ('(anonymous namespace)::qt_v4Breakpoints').
+
+Passive stack and locals extraction works
+-----------------------------------------
+
+The QML stack can be extracted without executing any code in the
+inferior (see qmlmix-passive-stack.py): find any QV4::Moth::VME::exec
+frame, take its 'engine' parameter, walk the
+engine->currentStackFrame->parent chain, and decode each frame from
+memory:
+
+- function name: compiledFunction->nameIndex into the
+  CompiledData::Unit string table (offsetToStringTable; each entry is
+  a qint32 size followed by UTF-16 data)
+- source file: the runtime CompilationUnit::m_fileName QString; the
+  on-disk Unit::sourceFileIndex is empty for qmlcachegen units
+- precise current line: lower_bound over the
+  CodeOffsetToLineAndStatement table keyed by frame->instructionPointer;
+  the table offset is computed (localsOffset + nLocals * 4), not stored
+
+This mirrors CppStackFrame::lineNumber() / Unit::stringAtInternal().
+Version-sensitive details encountered: Function::compilationUnit is a
+GC-heap WriteBarrier::HeapObjectWrapper (opaque quintptr enum), and
+the on-disk integers are quint32_le wrapper classes (member 'val').
+With DWARF available the member offsets self-adjust; renames still
+break the decoding, so this wants version guards like the dumpers.
+
+Since nothing runs in the inferior, the technique works in principle
+on core dumps - something the service approach can never do. Locals
+should be extractable the same way (CallData registers, scope chain),
+but that part is not prototyped yet.
+
+Both mechanisms need Debug instructions in the bytecode
+-------------------------------------------------------
+
+The compiler emits Debug bytecode instructions (which call
+debug_slowPath() per statement) only when a debugger is installed on
+the engine at compile time (Module::debugMode). The cheapest known
+way to get there is loading the app with
+-qmljsdebugger=native,services:NativeQmlDebugger and enabling the
+service before any engine exists - one inferior call to
+qt_qmlDebugEnableService() at a breakpoint on
+qt_qmlDebugConnectorOpen(). Without this, qmlcachegen bytecode has no
+Debug instructions and per-statement hooks never run. QML compiled
+ahead of time also bypasses the interpreter entirely unless
+QV4_FORCE_INTERPRETER is set (the native mixed setup sets it).
+
+Measured breakpoint strategy costs
+----------------------------------
+
+20000 iteration JS loop (one statement per iteration dominating),
+wall time between the two marker property writes:
+
+  baseline, qmlcachegen bytecode, no Debug instructions     4 ms
+  baseline, Debug instructions active                      11 ms
+  GDB python breakpoint on debug_slowPath, count only     774 ms  (~38 us/stmt)
+  ... plus passive position decode + compare             2301 ms  (~115 us/stmt)
+  qt_v4 in-process check, non-matching breakpoint          10 ms  (free)
+  qt_v4 matching breakpoint            stops correctly at the line
+
+Interpretation: a fully passive QML line breakpoint (GDB trap per
+executed statement) slows hot QML down ~200x. Acceptable for cold
+code - a click handler running a hundred statements still reacts in
+~12 ms - but unbearable for animations or hot loops. The qt_v4
+in-process filtering costs nothing measurable and only traps on
+actual hits.
+
+Stepping status (June 2026)
+---------------------------
+
+QML-to-QML stepping works through the service: 'stepin', 'stepover',
+and 'stepout' arm NativeDebugger's statement hooks, the next matching
+statement pauses via the usual break event. Breakpoint removal works
+by service id. Both are covered by qmlmix-gdb-test.py. Stepping past
+the last statement of a handler degrades to 'continue' by design of
+NativeDebugger::leavingFunction().
+
+C++ to QML stepping works with GDB: a step from a C++ frame arms the
+service with 'stepin' and relies on session-wide GDB 'skip' entries
+for the V4 dispatch and the generic signal plumbing, so the native
+step passes through the machinery while the armed service pauses at
+the next executed JS statement. Whichever stops first wins; the stop
+handler disarms the service if the native stop comes first, so no
+stale stepping request fires on a later continue. Note the skips also
+change plain C++ stepping in native mixed sessions: stepping into
+QV4, QQml*, QtPrivate or QMetaObject internals is suppressed.
+
+Stepping out of a C++ method back to the QML caller works too: step
+out from a C++ frame whose caller is the QML interpreter (reached
+through nothing but the metacall machinery) arms the service and
+resumes, landing at the next JS statement; from a deeper C++ frame a
+normal finish is used. Confirmed working in Qt Creator.
+
+Run-control note: the dumper resumes the inferior from stop handlers
+(the breakpoint resolver, and the QML-to-C++ descent that breaks at
+the receiver's qt_static_metacall and steps into the method). The
+GDB engine treats a *running while InferiorStopOk in a native mixed
+session as a proper run request, and ignores the *running/*stopped of
+the descent via an m_inNativeMixedStep flag set by nativemixedstep
+markers the dumper prints, so only the final landing surfaces.
+
+QML to C++ stepping (stepping into a C++ method called from JS) needs
+a qtdeclarative hook, because the call dispatches through the generic
+metacall and is unreachable by stepping: a plain step drowns in
+argument marshalling (>400 steps), and skip-stepping steps over the
+whole native call (gdb 'skip' is step-over and does not stop in a
+non-skipped callee reached through skipped frames).
+
+The hook is qt_v4AboutToCallNativeMethodHook(const QMetaObject *), in
+the qt_v4* family in qv4qobjectwrapper.cpp, gated by the exported flag
+qt_v4NativeCallHookEnabled and called from QObjectMethod::callInternal
+right before dispatch (interpreter path only; native mixed forces the
+interpreter anyway). The whole recipe is free of inferior calls:
+
+- arm by writing qt_v4NativeCallHookEnabled (plain memory write);
+- break on qt_v4AboutToCallNativeMethodHook;
+- read its receiverMeta argument (a parameter read at entry);
+- read receiverMeta->d.static_metacall (a struct-field memory read) to
+  get the receiver's generated qt_static_metacall;
+- break there and step into the about-to-be-called method.
+
+Passing the QMetaObject as an argument is what avoids the inferior
+call: without it the debugger would have to call receiver->metaObject()
+(a virtual call) to reach the same pointer.
+
+Validated end to end in qmlmix-gdb-test.py, which falls back to a
+direct breakpoint on the method when the hook symbol is absent, so it
+also passes against a Qt without the hook. The AOT-compiled call paths
+(QQmlPrivate::AOTCompiledContext) would need the same treatment for
+completeness.
+
+The earlier makeshift (native breakpoints on the QObjectMethod and
+property-write choke points, racing the service 'stepin') only stops
+at the engine dispatch, not in the callee, and needs debug info for
+version-fragile private symbols. The hook supersedes it.
+
+Suggested design
+----------------
+
+Hybrid, minimizing code execution inside the debuggee:
+
+- stacks and locals: passive memory reads (works always, including
+  core dumps; no protocol state)
+- breakpoints and stepping: the qt_v4DebuggerHook() interface - one
+  small inferior call per breakpoint change, in-process filtering,
+  debugger breakpoint on qt_v4TriggeredBreakpointHook()
+- the NativeQmlDebugger service remains useful only as the enabler
+  for Debug instructions (and for expression evaluation, which
+  inherently needs to execute code)
+
+Minimal qtdeclarative changes worth considering, in increasing order
+of usefulness vs. invasiveness:
+
+- export qt_v4DebuggerHook() (the trigger hook already is exported);
+  without this, release/stripped Qt cannot use the interface
+- an environment variable to force Module::debugMode without any
+  qmldebug service, decoupling the qt_v4 path from the service
+  machinery entirely

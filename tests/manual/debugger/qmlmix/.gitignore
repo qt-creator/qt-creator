@@ -1,0 +1,21 @@
+# In-source build and configure artifacts from building the test app
+# here (a shadow build is cleaner, but in-source is convenient).
+/build/
+/.cmake/
+/.qt/
+/.qtc_clangd/
+/.qtcreator/
+/CMakeFiles/
+/CMakeCache.txt
+/CMakeCache.txt.prev
+/Testing/
+/MixTest/
+/meta_types/
+/qmltypes/
+/qmlmixtest
+/qmlmixtest_autogen/
+/qmlmixtest_qmltyperegistrations.cpp
+/*.cmake
+/*.ninja*
+/qtcsettings.cmake
+/.ninja_*

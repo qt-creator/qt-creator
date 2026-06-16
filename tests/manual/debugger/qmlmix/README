@@ -1,0 +1,114 @@
+Manual test for native combined (C++ + QML) debugging.
+
+The application is a small Qt Quick program covering the cases the
+debugging machinery needs to handle:
+
+- a repeating timer with a JS handler, for QML breakpoints, stepping,
+  and a property write as a QML-to-C++ transition;
+- nested JS functions (square() called from compute() called from
+  Component.onCompleted), for multi-frame JS stacks;
+- a C++ type 'Backend' with a Q_INVOKABLE process() that compute()
+  calls, as a genuine user-code target for stepping into C++;
+- a 20000 iteration JS hot loop, delimited by two property writes so
+  its duration can be measured from outside, for the breakpoint cost
+  experiment.
+
+The interesting source lines carry 'MARKER: <name>' comments; the
+scripts resolve those to line numbers rather than hardcoding them, so
+the app can be edited without breaking them. Several scripts exercise
+different QML debugging mechanisms against the app. See the NOTES file
+for measurements and design findings.
+
+Prerequisites
+-------------
+
+- A Qt build with the qmldbg_native and qmldbg_nativedebugger
+  plugins (any standard qtdeclarative build has them).
+- For the passive scripts and the experiment: debug info for
+  libQt6Qml (e.g. a developer build of Qt).
+
+Build the application with the Qt to be tested:
+
+    qt-cmake -S . -B build && cmake --build build
+
+All scripts pick up the application from ./build/qmlmixtest or from
+the QMLMIX_EXECUTABLE environment variable.
+
+Starter scripts
+---------------
+
+    ./start-creator.sh         Qt Creator with QTC_DEBUGGER_NATIVE_MIXED=1
+                               and this project (set QTC for a specific
+                               Qt Creator binary)
+    ./run-gdb-test.sh          scripted check of the service approach
+    ./run-passive-stack.sh     passive stack extraction proof of concept
+    ./run-bp-experiment.sh     breakpoint cost measurement; all modes,
+                               or pass mode names for a subset
+
+The run-*.sh scripts rebuild the test program if ./build is already
+configured, and print build instructions otherwise.
+
+Interactive use in Qt Creator
+-----------------------------
+
+Enable "Use native combined debugging" in Preferences > Debugger >
+General, or start Qt Creator with the QTC_DEBUGGER_NATIVE_MIXED
+environment variable set to 1 (the variable overrides the setting).
+Open this project and enable both C++ and QML debugging in
+Projects > Run > Debugger Settings.
+
+Set a breakpoint on one of the lines inside onTriggered in Main.qml
+and start debugging with the GDB or LLDB engine. The breakpoint
+should be hit within a second, the QML frame should appear at the
+top of the stack view, and Locals should show the QML scope (this,
+message, ...) instead of C++ variables.
+
+This uses the in-process NativeQmlDebugger service (qmldbg_native
+and qmldbg_nativedebugger plugins of qtdeclarative) driven by
+inferior calls from the native debugger - no separate QML debug
+server connection is involved.
+
+qmlmix-gdb-test.py - scripted check of the service approach
+-----------------------------------------------------------
+
+    QMLMIX_EXECUTABLE=build/qmlmixtest gdb -batch -x qmlmix-gdb-test.py
+
+Drives the Qt Creator dumper machinery (share/qtcreator/debugger)
+the way the GDB engine would: interpreter breakpoint insertion with
+the pending-resolver fallback, the stop on qt_qmlDebugMessageAvailable,
+the mixed stack, and QML locals including expansion. Prints PASS or
+FAIL for each step and exits non-zero on failure. Useful as a quick
+regression check after touching the native mixed code paths.
+
+qmlmix-passive-stack.py - passive QML stack extraction
+------------------------------------------------------
+
+    QMLMIX_EXECUTABLE=build/qmlmixtest gdb -batch -x qmlmix-passive-stack.py
+
+Proof of concept for the 'passive' approach: extracts the QML stack
+purely by reading inferior memory at an ordinary C++ breakpoint - no
+qmldebug service and no inferior calls, so the same technique would
+work on core dumps. Decodes function name, source file, and the
+precise current line from the QV4 CompiledData structures. Also
+registers a GDB frame filter that shows the QML source position on
+QV4::Moth::VME::exec frames directly in 'bt'.
+
+qmlmix-bp-experiment.py - breakpoint strategy cost measurement
+--------------------------------------------------------------
+
+    EXP_MODE=<mode> QMLMIX_EXECUTABLE=build/qmlmixtest \
+        gdb -batch -x qmlmix-bp-experiment.py
+
+Measures the wall time of the startup hot loop under one of these
+modes, reported as an EXPRESULT line:
+
+    baseline        debug instructions active, nothing else
+    gdbtrap_count   GDB python breakpoint on debug_slowPath() per
+                    executed statement, counting only
+    gdbtrap_decode  ... plus passive position decode and compare per
+                    hit; this emulates a fully passive QML breakpoint
+    qt_v4_miss      breakpoint list inside the inferior via
+                    qt_v4DebuggerHook(), checked in-process, no match
+    qt_v4_hit       qt_v4 breakpoint on the loop body line; expects a
+                    stop in qt_v4TriggeredBreakpointHook() and decodes
+                    the position passively (functional check)
