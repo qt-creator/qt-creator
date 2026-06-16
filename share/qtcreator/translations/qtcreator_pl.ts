@@ -80,7 +80,7 @@
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Sets the color applied to models illuminated by this light.</source>
@@ -104,7 +104,7 @@
     </message>
     <message>
         <source>Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakres</translation>
     </message>
     <message>
         <source>Sets a Node in the scene to be the scope of this light. Only that node and it&apos;s children are affected by this light.</source>
@@ -123,27 +123,27 @@
     <name>ActionsComboBox</name>
     <message>
         <source>Call Function</source>
-        <translation type="unfinished">Wywołaj funkcję</translation>
+        <translation>Wywołaj funkcję</translation>
     </message>
     <message>
         <source>Assign</source>
-        <translation type="unfinished">Przypisz</translation>
+        <translation>Przypisz</translation>
     </message>
     <message>
         <source>Change State</source>
-        <translation type="unfinished">Zmień stan</translation>
+        <translation>Zmień stan</translation>
     </message>
     <message>
         <source>Set Property</source>
-        <translation type="unfinished">Ustaw właściwość</translation>
+        <translation>Ustaw właściwość</translation>
     </message>
     <message>
         <source>Print Message</source>
-        <translation type="unfinished">Wydrukuj komunikat</translation>
+        <translation>Wydrukuj komunikat</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation type="unfinished">Własne</translation>
+        <translation>Własne</translation>
     </message>
 </context>
 <context>
@@ -181,7 +181,7 @@
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Color channel</source>
@@ -221,7 +221,7 @@
     </message>
     <message>
         <source>Uniform Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa zmiennej uniform</translation>
     </message>
     <message>
         <source>Sets the uniform name of the property.</source>
@@ -233,7 +233,7 @@
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Opis</translation>
+        <translation>Opis</translation>
     </message>
     <message>
         <source>Sets the property description.</source>
@@ -241,7 +241,7 @@
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Sets the property type.</source>
@@ -249,7 +249,7 @@
     </message>
     <message>
         <source>Default Value</source>
-        <translation type="unfinished">Domyślna wartość</translation>
+        <translation>Domyślna wartość</translation>
     </message>
     <message>
         <source>Sets the default value of the property.</source>
@@ -389,7 +389,7 @@
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>Sets the ParticleSystem3D for the affector. If system is direct parent of the affector, this property does not need to be defined.</source>
@@ -405,7 +405,7 @@
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>If set to false, this affector will not alter any particles. Usually this is used to conditionally turn an affector on or off.</source>
@@ -553,7 +553,7 @@ Wartości pomiędzy 0 a 1 osłabią głośność, zaś wartości powyżej 1 dost
     </message>
     <message>
         <source>Loops</source>
-        <translation>Ilość pętli</translation>
+        <translation>Pętle</translation>
     </message>
     <message>
         <source>Sets how often the sound is played before the player stops.
@@ -659,7 +659,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Komunikaty</translation>
+        <translation>Komunikaty</translation>
     </message>
 </context>
 <context>
@@ -713,7 +713,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Loops</source>
-        <translation type="unfinished">Ilość pętli</translation>
+        <translation>Pętle</translation>
     </message>
     <message>
         <source>Indicate the number of times the animation should reply, set to -1 for Infinite</source>
@@ -721,7 +721,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwarzanie</translation>
     </message>
     <message>
         <source>Indicates whether the application is running or not</source>
@@ -737,7 +737,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Source path</source>
-        <translation type="unfinished">Ścieżka do źródła</translation>
+        <translation>Ścieżka do źródła</translation>
     </message>
     <message>
         <source>Path to the directory with images for the sprite animation</source>
@@ -752,7 +752,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Adds an image from the local file system.</source>
@@ -770,21 +770,21 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
         <source>W</source>
         <comment>width</comment>
         <extracomment>The width of the animated sprite frame</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Width.</source>
-        <translation type="unfinished">Szerokość.</translation>
+        <translation>Szerokość.</translation>
     </message>
     <message>
         <source>H</source>
         <comment>height</comment>
         <extracomment>The height of the animated sprite frame</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>Height.</source>
-        <translation type="unfinished">Wysokość.</translation>
+        <translation>Wysokość.</translation>
     </message>
     <message>
         <source>Frame coordinates</source>
@@ -798,7 +798,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
         <source>X</source>
         <comment>Frame X</comment>
         <extracomment>The width of the animated sprite frame</extracomment>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Frame X coordinate.</source>
@@ -808,7 +808,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
         <source>Y</source>
         <comment>Frame Y</comment>
         <extracomment>The height of the animated sprite frame</extracomment>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Frame Y coordinate.</source>
@@ -848,7 +848,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Loops</source>
-        <translation type="unfinished">Ilość pętli</translation>
+        <translation>Pętle</translation>
     </message>
     <message>
         <source>After playing the animation this many times, the animation will automatically stop.</source>
@@ -880,7 +880,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwarzanie</translation>
     </message>
     <message>
         <source>Whether the sprite is animating or not.</source>
@@ -919,7 +919,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Loops</source>
-        <translation>Ilość pętli</translation>
+        <translation>Pętle</translation>
     </message>
     <message>
         <source>Number of times the animation should play.</source>
@@ -958,7 +958,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished">Cel</translation>
+        <translation>Cel</translation>
     </message>
     <message>
         <source>Target to animate the properties of.</source>
@@ -1023,7 +1023,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Thickness</source>
@@ -1035,7 +1035,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Arc start</source>
@@ -1058,7 +1058,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Fill color</source>
-        <translation type="unfinished">Kolor wypełnienia</translation>
+        <translation>Kolor wypełnienia</translation>
     </message>
     <message>
         <source>Sets the color inside the Arc stroke. This only works if the &lt;b&gt;Full outline&lt;/b&gt; option is selected and the Arc stroke is not thick enough to fill the space.</source>
@@ -1082,7 +1082,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
     <message>
         <source>Arc start</source>
@@ -1102,7 +1102,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Outline</source>
-        <translation type="unfinished">Konspekt</translation>
+        <translation>Konspekt</translation>
     </message>
     <message>
         <source>Outline width</source>
@@ -1207,7 +1207,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Edit Component</source>
-        <translation type="unfinished">Zmodyfikuj komponent</translation>
+        <translation>Zmodyfikuj komponent</translation>
     </message>
     <message>
         <source>Reimport 3D Asset</source>
@@ -1262,7 +1262,7 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Czas trwania</translation>
+        <translation>Czas trwania</translation>
     </message>
     <message>
         <source>Sets the duration in milliseconds how long it takes for particles to reach the attaction position.</source>
@@ -1463,7 +1463,7 @@ A positive value will increase reverb for higher frequencies and dampen lower fr
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>XY Grid</source>
@@ -1562,7 +1562,7 @@ for example in form of casting shadows or indirect light.</source>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>If checked, baked lightmap texture is generated and rendered for this model.</source>
@@ -1606,7 +1606,7 @@ Instead, user is expected to set baking properties manually.</source>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>When false, the lightmap generated for the model is not stored during lightmap baking,
@@ -1656,7 +1656,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Spacing</source>
-        <translation type="unfinished">Odstępy</translation>
+        <translation>Odstępy</translation>
     </message>
     <message>
         <source>Bar spacing in the X and Z dimensions</source>
@@ -1668,7 +1668,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Row</source>
-        <translation type="unfinished">Wiersz</translation>
+        <translation>Wiersz</translation>
     </message>
     <message>
         <source>Relative Spacing</source>
@@ -1711,7 +1711,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Górny</translation>
     </message>
     <message>
         <source>Sets a flat cut on the top left or right corners.</source>
@@ -1719,7 +1719,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolny</translation>
     </message>
     <message>
         <source>Sets a flat cut on the bottom left or right corners.</source>
@@ -1727,7 +1727,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Globalne</translation>
+        <translation>Globalne</translation>
     </message>
     <message>
         <source>Sets a flat cut on all of the corners.</source>
@@ -1960,7 +1960,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Border Image</source>
-        <translation>Obraz brzegowy</translation>
+        <translation>Obrazek brzegowy</translation>
     </message>
     <message>
         <source>Source size</source>
@@ -1991,7 +1991,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
     <message>
         <source>Draw Edges</source>
@@ -1999,7 +1999,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished">W pionie</translation>
+        <translation>W pionie</translation>
     </message>
     <message>
         <source>Toggles the top or bottom edges of the border.</source>
@@ -2007,7 +2007,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Horizontal</source>
-        <translation type="unfinished">W poziomie</translation>
+        <translation>W poziomie</translation>
     </message>
     <message>
         <source>Toggles the left or right edges of the border.</source>
@@ -2033,11 +2033,11 @@ It should be a relative path.</source>
     <name>BrandBar</name>
     <message>
         <source>Welcome to</source>
-        <translation type="unfinished">Start</translation>
+        <translation>Start</translation>
     </message>
     <message>
         <source>Qt Design Studio</source>
-        <translation type="unfinished">Qt Design Studio</translation>
+        <translation>Qt Design Studio</translation>
     </message>
     <message>
         <source>Lite QML Designer</source>
@@ -2045,7 +2045,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Community Edition</source>
-        <translation type="unfinished">Wydanie społecznościowe</translation>
+        <translation>Wydanie społecznościowe</translation>
     </message>
     <message>
         <source>Enterprise Edition</source>
@@ -2123,7 +2123,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Rozmiar</translation>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <source>Size of the brush.</source>
@@ -2154,7 +2154,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Parameter</source>
-        <translation type="unfinished">Parametr</translation>
+        <translation>Parametr</translation>
     </message>
     <message>
         <source>Sets buffer input buffer name in the shader.</source>
@@ -2169,7 +2169,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Sets the buffer name.</source>
@@ -2177,7 +2177,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished">Format</translation>
+        <translation>Format</translation>
     </message>
     <message>
         <source>Sets the format of the buffer.</source>
@@ -2185,7 +2185,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>Sets the texture filter for the buffer.</source>
@@ -2404,7 +2404,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Height</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
     <message>
         <source>Sets the height of the capsule.</source>
@@ -2536,15 +2536,15 @@ It should be a relative path.</source>
     <name>ChartViewSpecifics</name>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Tytuł</translation>
+        <translation>Tytuł</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Background</source>
-        <translation type="unfinished">Kolor tła</translation>
+        <translation>Kolor tła</translation>
     </message>
     <message>
         <source>Roundness</source>
@@ -2691,7 +2691,7 @@ It should be a relative path.</source>
     <name>CloseButton</name>
     <message>
         <source>Close Tab</source>
-        <translation type="unfinished">Zamknij kartę</translation>
+        <translation>Zamknij kartę</translation>
     </message>
 </context>
 <context>
@@ -2702,18 +2702,18 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Zamknij</translation>
+        <translation>Zamknij</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Zastosuj</translation>
+        <translation>Zastosuj</translation>
     </message>
 </context>
 <context>
     <name>CodeEditorHeader</name>
     <message>
         <source>Columns</source>
-        <translation type="unfinished">Kolumny</translation>
+        <translation>Kolumny</translation>
     </message>
     <message>
         <source>Open Effect Composer Help.</source>
@@ -2879,7 +2879,7 @@ It should be a relative path.</source>
     <name>ColorMasterSection</name>
     <message>
         <source>Colors</source>
-        <translation type="unfinished">Kolory</translation>
+        <translation>Kolory</translation>
     </message>
     <message>
         <source>Red Strength</source>
@@ -3003,11 +3003,11 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Fill mode</source>
-        <translation type="unfinished">Tryb wypełniania</translation>
+        <translation>Tryb wypełniania</translation>
     </message>
     <message>
         <source>Alignment H</source>
@@ -3207,7 +3207,7 @@ This can not be undone.</source>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Wyczyść</translation>
+        <translation>Wyczyść</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3268,7 +3268,7 @@ This can not be undone.</source>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaakceptuj</translation>
     </message>
 </context>
 <context>
@@ -3463,7 +3463,7 @@ This can not be undone.</source>
     </message>
     <message>
         <source>No match found.</source>
-        <translation type="unfinished">Brak pasującego wyniku.</translation>
+        <translation>Brak pasującego wyniku.</translation>
     </message>
 </context>
 <context>
@@ -3493,7 +3493,7 @@ This can not be undone.</source>
     </message>
     <message>
         <source>Remove from project</source>
-        <translation type="unfinished">Usuń z projektu</translation>
+        <translation>Usuń z projektu</translation>
     </message>
     <message>
         <source>Remove from Content Library</source>
@@ -3641,7 +3641,7 @@ This can not be undone.</source>
     </message>
     <message>
         <source>No match found.</source>
-        <translation type="unfinished">Brak pasującego wyniku.</translation>
+        <translation>Brak pasującego wyniku.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Content Library&lt;/b&gt; is not supported in Qt5 projects.</source>
@@ -3749,7 +3749,7 @@ This can not be undone.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Defines the location of the mesh file used to define the shape.</source>
@@ -3764,7 +3764,7 @@ This can not be undone.</source>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Górny</translation>
     </message>
     <message>
         <source>Toggles the top left or right corner to a rounded shape.</source>
@@ -3772,7 +3772,7 @@ This can not be undone.</source>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolny</translation>
     </message>
     <message>
         <source>Toggles the bottom left or right corner to a rounded shape.</source>
@@ -3780,7 +3780,7 @@ This can not be undone.</source>
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Globalne</translation>
+        <translation>Globalne</translation>
     </message>
     <message>
         <source>Toggles all the corners into a rounded shape.</source>
@@ -3925,7 +3925,7 @@ Unshaded materials are not affected by the environment (for example, lights).</s
     <name>DebugViewSection</name>
     <message>
         <source>Debug View</source>
-        <translation type="unfinished">Widok debugowy</translation>
+        <translation>Widok debugowy</translation>
     </message>
     <message>
         <source>Source View</source>
@@ -3998,7 +3998,7 @@ Vertex colors are multiplied with any other color for the material.</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Sets the base color.</source>
@@ -4069,7 +4069,7 @@ The default value (0) disables specularity.</source>
     </message>
     <message>
         <source>Model</source>
-        <translation type="unfinished">Model</translation>
+        <translation>Model</translation>
     </message>
     <message>
         <source>Sets the functions to calculate specular highlights for lights in the scene.
@@ -4127,7 +4127,7 @@ decreases head-on reflections (looking directly at the surface) while maintainin
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">Nieprzezroczystość</translation>
+        <translation>Nieprzezroczystość</translation>
     </message>
     <message>
         <source>Sets the opacity of just this material, separate from the model.</source>
@@ -4334,7 +4334,7 @@ A value of 0 will not wrap the light at all, while a value of 1 will wrap the li
     </message>
     <message>
         <source>Use Qt Virtual Keyboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj wirtualnej klawiatury Qt</translation>
     </message>
     <message>
         <source>Enable Cmake Generation</source>
@@ -4472,7 +4472,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">Próbki</translation>
+        <translation>Próbki</translation>
     </message>
     <message>
         <source>Samples per pixel for blur calculation. A larger value produces better quality, but is slower to render.</source>
@@ -4550,7 +4550,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Radius of the effect.</source>
@@ -4558,7 +4558,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Width</source>
-        <translation type="unfinished">Szerokość</translation>
+        <translation>Szerokość</translation>
     </message>
     <message>
         <source>Width of the distortion.</source>
@@ -4566,7 +4566,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Height</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
     <message>
         <source>Height of the distortion.</source>
@@ -4597,7 +4597,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Radius of the effect.</source>
@@ -4605,7 +4605,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Height</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
     <message>
         <source>Height of the distortion.</source>
@@ -4628,7 +4628,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Radius of the effect.</source>
@@ -4689,15 +4689,15 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     <name>DownloadPanel</name>
     <message>
         <source>Progress:</source>
-        <translation type="unfinished">Postęp:</translation>
+        <translation>Postęp:</translation>
     </message>
     <message>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Otwórz</translation>
+        <translation>Otwórz</translation>
     </message>
 </context>
 <context>
@@ -4739,7 +4739,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>The softness of the shadow. A larger radius causes the edges of the shadow to appear more blurry.</source>
@@ -4747,7 +4747,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">Próbki</translation>
+        <translation>Próbki</translation>
     </message>
     <message>
         <source>Samples per pixel for edge softening blur calculation. Ideally, this value should be twice as large as the highest required radius value plus one.</source>
@@ -4767,13 +4767,13 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Offset</source>
-        <translation type="unfinished">Przesunięcie</translation>
+        <translation>Przesunięcie</translation>
     </message>
     <message>
         <source>H</source>
         <comment>horizontal</comment>
         <extracomment>The horizontal offset</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>The horizontal offset for the rendered shadow compared to the inner shadow component&apos;s horizontal position.</source>
@@ -4834,7 +4834,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>If set to false, this burst will not emit any particles. Usually this is used to conditionally turn a burst on or off.</source>
@@ -4895,7 +4895,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     <name>EdgeDetectSection</name>
     <message>
         <source>Edge</source>
-        <translation type="unfinished">Krawędź</translation>
+        <translation>Krawędź</translation>
     </message>
     <message>
         <source>Strength</source>
@@ -4964,23 +4964,23 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     <name>EffectComposerPreview</name>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Powiększ</translation>
+        <translation>Powiększ</translation>
     </message>
     <message>
         <source>Zoom out</source>
-        <translation type="unfinished">Pomniejsz</translation>
+        <translation>Pomniejsz</translation>
     </message>
     <message>
         <source>Reset View</source>
-        <translation type="unfinished">Zresetuj widok</translation>
+        <translation>Zresetuj widok</translation>
     </message>
     <message>
         <source>Restart Animation</source>
-        <translation type="unfinished">Zrestartuj animację</translation>
+        <translation>Zrestartuj animację</translation>
     </message>
     <message>
         <source>Play Animation</source>
-        <translation type="unfinished">Odtwórz animację</translation>
+        <translation>Odtwórz animację</translation>
     </message>
 </context>
 <context>
@@ -5003,7 +5003,7 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Untitled</source>
-        <translation type="unfinished">Nienazwane</translation>
+        <translation>Nienazwane</translation>
     </message>
     <message>
         <source>In advanced mode, you can manage effect properties and edit shader code for all effects.</source>
@@ -5051,7 +5051,7 @@ Are you sure you want to update it?</source>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">Uaktualnij</translation>
+        <translation>Uaktualnij</translation>
     </message>
     <message>
         <source>Edit effect name</source>
@@ -5059,7 +5059,7 @@ Are you sure you want to update it?</source>
     </message>
     <message>
         <source>Add Property</source>
-        <translation type="unfinished">Dodaj właściwość</translation>
+        <translation>Dodaj właściwość</translation>
     </message>
     <message>
         <source>Add new property to the effect.</source>
@@ -5107,7 +5107,7 @@ You can reuse effects added to the library in other effect compositions.</source
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Edycja</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -5146,7 +5146,7 @@ Are you sure you want to remove node:
     <name>EffectSection</name>
     <message>
         <source>Effect</source>
-        <translation type="unfinished">Efekt</translation>
+        <translation>Efekt</translation>
     </message>
     <message>
         <source>Passes</source>
@@ -5181,7 +5181,7 @@ Are you sure you want to remove node:
     </message>
     <message>
         <source>Visible</source>
-        <translation type="unfinished"></translation>
+        <translation>Widoczny</translation>
     </message>
     <message>
         <source>Toggles the visibility of visual effects on the component.</source>
@@ -5218,7 +5218,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Background</source>
-        <translation type="unfinished">Kolor tła</translation>
+        <translation>Kolor tła</translation>
     </message>
     <message>
         <source>Sets a component as the background of a transparent component.The &lt;b&gt;Background Blur&lt;/b&gt; works only on this component. The component should be solid.</source>
@@ -5254,7 +5254,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Sets the color of the shadow.</source>
@@ -5262,7 +5262,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Offset</source>
-        <translation type="unfinished">Przesunięcie</translation>
+        <translation>Przesunięcie</translation>
     </message>
     <message>
         <source>Moves the shadow with respect to the component in X and Y coordinates by pixels.</source>
@@ -5301,7 +5301,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Fill color</source>
-        <translation type="unfinished">Kolor wypełnienia</translation>
+        <translation>Kolor wypełnienia</translation>
     </message>
     <message>
         <source>Sets the color to fill the Ellipse.</source>
@@ -5325,7 +5325,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
 </context>
 <context>
@@ -5351,7 +5351,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Czas</translation>
+        <translation>Czas</translation>
     </message>
     <message>
         <source>Sets the time in milliseconds when emitting the burst starts.</source>
@@ -5367,7 +5367,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Czas trwania</translation>
+        <translation>Czas trwania</translation>
     </message>
     <message>
         <source>Sets the duration of the burst.</source>
@@ -5479,7 +5479,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Antialiasing</source>
-        <translation type="unfinished">Antyaliasing</translation>
+        <translation>Antyaliasing</translation>
     </message>
     <message>
         <source>Antialiasing Mode</source>
@@ -5579,7 +5579,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>Enables color adjustments</source>
@@ -5619,7 +5619,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Rozmiar</translation>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <source>Sets the size of the LUT texture. The texture should have the dimensions: width=(size * size), height=(size).</source>
@@ -5851,7 +5851,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Sets the color of the vignette effect.</source>
@@ -5863,7 +5863,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Sets the radius of the vignette effect.</source>
@@ -5983,7 +5983,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Kierunek</translation>
     </message>
     <message>
         <source>Sets the direction of the camera in the scene.</source>
@@ -6015,7 +6015,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Orientation</source>
-        <translation type="unfinished">Orientacja</translation>
+        <translation>Orientacja</translation>
     </message>
     <message>
         <source>Sets the orientation of the light probe.</source>
@@ -6027,7 +6027,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Effects</source>
-        <translation type="unfinished">Efekty</translation>
+        <translation>Efekty</translation>
     </message>
     <message>
         <source>Post Processing effects applied to this scene.</source>
@@ -6043,7 +6043,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Zaawansowane</translation>
+        <translation>Zaawansowane</translation>
     </message>
     <message>
         <source>Enable Depth Test</source>
@@ -6078,7 +6078,7 @@ The foreground component should be transparent, and the background component sho
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>The distance of the neighboring pixels which affect the blurring of an individual pixel. A larger radius increases the blur effect.</source>
@@ -6122,11 +6122,11 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished">Pomiń</translation>
+        <translation>Pomiń</translation>
     </message>
     <message>
         <source>Submit</source>
-        <translation type="unfinished">Utwórz poprawkę</translation>
+        <translation>Utwórz poprawkę</translation>
     </message>
 </context>
 <context>
@@ -6137,7 +6137,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Sets the location of an XML or binary file containing the instance data.</source>
@@ -6222,7 +6222,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Origin</source>
-        <translation type="unfinished">Początek</translation>
+        <translation>Początek</translation>
     </message>
     <message>
         <source>Sets the origin point of the content.</source>
@@ -6348,7 +6348,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Horizontal</source>
-        <translation type="unfinished">W poziomie</translation>
+        <translation>W poziomie</translation>
     </message>
     <message>
         <source>Flip horizontally.</source>
@@ -6356,7 +6356,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished">W pionie</translation>
+        <translation>W pionie</translation>
     </message>
     <message>
         <source>Flip vertically.</source>
@@ -6387,7 +6387,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">Nieprzezroczystość</translation>
+        <translation>Nieprzezroczystość</translation>
     </message>
     <message>
         <source>Front</source>
@@ -6399,7 +6399,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished">Wstecz</translation>
+        <translation>Wstecz</translation>
     </message>
     <message>
         <source>Sets the visibility percentage of the back side component within the Flipable component.</source>
@@ -6433,7 +6433,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Layout direction</source>
-        <translation type="unfinished">Kierunek rozmieszczenia</translation>
+        <translation>Kierunek rozmieszczenia</translation>
     </message>
     <message>
         <source>Sets in which direction items in the flow are placed.</source>
@@ -6448,7 +6448,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>Controls whether fog is applied to the scene</source>
@@ -6456,7 +6456,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>The color of the fog</source>
@@ -6504,7 +6504,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Height</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
     <message>
         <source>Controls if height fog is enabled</source>
@@ -6551,7 +6551,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Capitalization</source>
-        <translation type="unfinished">Kapitaliki</translation>
+        <translation>Wielkość liter</translation>
     </message>
     <message>
         <source>Sets capitalization rules for the text.</source>
@@ -6563,7 +6563,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Sets the font style.</source>
-        <translation type="unfinished">Ustawia styl czcionki.</translation>
+        <translation>Ustawia styl czcionki.</translation>
     </message>
     <message>
         <source>Style color</source>
@@ -6614,7 +6614,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Sets the font size in pixels or points.</source>
-        <translation type="unfinished">Ustawia rozmiar czcionki w pikselach lub punktach.</translation>
+        <translation>Ustawia rozmiar czcionki w pikselach lub punktach.</translation>
     </message>
     <message>
         <source>Emphasis</source>
@@ -6622,7 +6622,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Sets the text to bold, italic, underlined, or strikethrough.</source>
-        <translation type="unfinished">Ustawia wytłuszczenie, kursywę, podkreślenie lub przekreślenie tekstu.</translation>
+        <translation>Ustawia wytłuszczenie, kursywę, podkreślenie lub przekreślenie tekstu.</translation>
     </message>
     <message>
         <source>Capitalization</source>
@@ -6638,7 +6638,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Sets the overall thickness of the font.</source>
-        <translation type="unfinished">Ustawia całkowitą grubość czcionki.</translation>
+        <translation>Ustawia całkowitą grubość czcionki.</translation>
     </message>
     <message>
         <source>Style name</source>
@@ -6646,7 +6646,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Sets the style of the selected font. This is prioritized over &lt;b&gt;Weight&lt;/b&gt; and &lt;b&gt;Emphasis&lt;/b&gt;.</source>
-        <translation type="unfinished">Ustawia styl wybranej czcionki. Ustawienie to ma priorytet przed &lt;b&gt;Grubością pisma&lt;/b&gt; i &lt;b&gt;Emfazą&lt;/b&gt;.</translation>
+        <translation>Ustawia styl wybranej czcionki. Ustawienie to ma priorytet przed &lt;b&gt;Grubością pisma&lt;/b&gt; i &lt;b&gt;Emfazą&lt;/b&gt;.</translation>
     </message>
     <message>
         <source>Sets the font style.</source>
@@ -6658,7 +6658,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Sets the color for the font style.</source>
-        <translation type="unfinished">Ustawia kolor czcionki stylu.</translation>
+        <translation>Ustawia kolor czcionki stylu.</translation>
     </message>
     <message>
         <source>Hinting</source>
@@ -6674,7 +6674,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Sets the letter spacing for the text.</source>
-        <translation type="unfinished">Ustawia odstępy pomiędzy literami w tekście.</translation>
+        <translation>Ustawia odstępy pomiędzy literami w tekście.</translation>
     </message>
     <message>
         <source>Word spacing</source>
@@ -6682,7 +6682,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Sets the word spacing for the text.</source>
-        <translation type="unfinished">Ustawia odstępy pomiędzy słowami w tekście.</translation>
+        <translation>Ustawia odstępy pomiędzy słowami w tekście.</translation>
     </message>
     <message>
         <source>Auto kerning</source>
@@ -6724,7 +6724,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Górny</translation>
     </message>
     <message>
         <source>Sets the top plane of the camera view frustum.</source>
@@ -6732,7 +6732,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolny</translation>
     </message>
     <message>
         <source>Sets the bottom plane of the camera view frustum.</source>
@@ -6740,7 +6740,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Prawy</translation>
     </message>
     <message>
         <source>Sets the right plane of the camera view frustum.</source>
@@ -6748,7 +6748,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Lewy</translation>
     </message>
     <message>
         <source>Sets the left plane of the camera view frustum.</source>
@@ -6790,7 +6790,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>The distance of the neighboring pixels which affect the blurring of an individual pixel. A larger radius increases the blur effect.</source>
@@ -6806,7 +6806,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">Próbki</translation>
+        <translation>Próbki</translation>
     </message>
     <message>
         <source>Samples per pixel for blur calculation. A larger value produces better quality, but is slower to render.</source>
@@ -6928,7 +6928,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Percentage</source>
-        <translation type="unfinished"></translation>
+        <translation>Udział [%]</translation>
     </message>
     <message>
         <source>Z stack</source>
@@ -6940,7 +6940,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Origin</source>
-        <translation type="unfinished">Początek</translation>
+        <translation>Początek</translation>
     </message>
     <message>
         <source>Sets the modification point of the component.</source>
@@ -6963,7 +6963,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>The softness of the glow. A larger radius causes the edges of the glow to appear more blurry. Depending on the radius value, value of the samples should be set to sufficiently large to ensure the visual quality.</source>
@@ -6971,7 +6971,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">Próbki</translation>
+        <translation>Próbki</translation>
     </message>
     <message>
         <source>Samples per pixel for edge softening blur calculation. A larger value produces better quality, but is slower to render. Ideally, this value should be twice as large as the highest required radius value plus one.</source>
@@ -7010,7 +7010,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     <name>GradientPresetList</name>
     <message>
         <source>Gradient Picker</source>
-        <translation type="unfinished">Selektor gradientów</translation>
+        <translation>Selektor gradientów</translation>
     </message>
     <message>
         <source>System Presets</source>
@@ -7057,7 +7057,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation>Cel</translation>
     </message>
     <message>
         <source>Camera target position</source>
@@ -7065,7 +7065,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished">Powiększ</translation>
+        <translation>Powiększ</translation>
     </message>
     <message>
         <source>Camera zoom level</source>
@@ -7132,7 +7132,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     <name>GraphsSection</name>
     <message>
         <source>Graph</source>
-        <translation type="unfinished">Graf</translation>
+        <translation>Graf</translation>
     </message>
     <message>
         <source>Render Mode</source>
@@ -7184,7 +7184,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Margin</source>
-        <translation type="unfinished">Margines</translation>
+        <translation>Margines</translation>
     </message>
     <message>
         <source>Graph background margin</source>
@@ -7203,19 +7203,19 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     <name>GraphsViewSpecifics</name>
     <message>
         <source>Background</source>
-        <translation type="unfinished">Kolor tła</translation>
+        <translation>Kolor tła</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Margins</source>
-        <translation type="unfinished">Marginesy</translation>
+        <translation>Marginesy</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Górny</translation>
     </message>
     <message>
         <source>The amount of empty space on the top of the graph.</source>
@@ -7223,7 +7223,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolny</translation>
     </message>
     <message>
         <source>The amount of empty space on the bottom of the graph.</source>
@@ -7231,7 +7231,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Lewy</translation>
     </message>
     <message>
         <source>The amount of empty space on the left of the graph.</source>
@@ -7239,7 +7239,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Prawy</translation>
     </message>
     <message>
         <source>The amount of empty space on the right of the graph.</source>
@@ -7262,7 +7262,7 @@ Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Kierunek</translation>
     </message>
     <message>
         <source>Sets the direction the gravity will affect toward.</source>
@@ -7631,7 +7631,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Sets the location of an image file containing the heightmap data.</source>
@@ -7654,7 +7654,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Sets the location of an image file containing the heightmap data.</source>
@@ -7787,7 +7787,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
 </context>
 <context>
@@ -7905,7 +7905,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Visible</source>
-        <translation type="unfinished"></translation>
+        <translation>Widoczny</translation>
     </message>
     <message>
         <source>Sets whether the infinite grid is visible.</source>
@@ -7921,11 +7921,11 @@ a highlight component.</source>
     </message>
     <message>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączone</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Wyłączone</translation>
+        <translation>Wyłączone</translation>
     </message>
     <message>
         <source>Grid Interval</source>
@@ -7952,7 +7952,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>The softness of the shadow. A larger radius causes the edges of the shadow to appear more blurry.</source>
@@ -7960,7 +7960,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">Próbki</translation>
+        <translation>Próbki</translation>
     </message>
     <message>
         <source>Samples per pixel for edge softening blur calculation. Ideally, this value should be twice as large as the highest required radius value plus one.</source>
@@ -7976,7 +7976,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">Szybkie</translation>
+        <translation>Szybkie</translation>
     </message>
     <message>
         <source>The blurring algorithm that is used to produce the softness for the effect.</source>
@@ -7988,13 +7988,13 @@ a highlight component.</source>
     </message>
     <message>
         <source>Offset</source>
-        <translation type="unfinished">Przesunięcie</translation>
+        <translation>Przesunięcie</translation>
     </message>
     <message>
         <source>H</source>
         <comment>horizontal</comment>
         <extracomment>The horizontal offset</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>The horizontal offset for the rendered shadow compared to the inner shadow component&apos;s horizontal position.</source>
@@ -8089,7 +8089,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Sets the color for the instance.</source>
@@ -8097,7 +8097,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Pozycja</translation>
+        <translation>Pozycja</translation>
     </message>
     <message>
         <source>Sets the position for the instance.</source>
@@ -8105,7 +8105,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Scale</source>
-        <translation type="unfinished">Skala</translation>
+        <translation>Skala</translation>
     </message>
     <message>
         <source>Sets the scale for the instance.</source>
@@ -8113,7 +8113,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Rotation</source>
-        <translation type="unfinished">Rotacja</translation>
+        <translation>Rotacja</translation>
     </message>
     <message>
         <source>Sets the rotation for the instance.</source>
@@ -8128,7 +8128,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Instances</source>
-        <translation type="unfinished"></translation>
+        <translation>Instancje</translation>
     </message>
     <message>
         <source>Sets the list of instance definitions. Modifying this list, or any of its elements, will cause the instance table to be updated.</source>
@@ -8200,15 +8200,15 @@ a highlight component.</source>
     <name>IssuesOutputPanel</name>
     <message>
         <source>Issues</source>
-        <translation type="unfinished">Problemy</translation>
+        <translation>Problemy</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Komunikaty</translation>
+        <translation>Komunikaty</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Wyczyść</translation>
+        <translation>Wyczyść</translation>
     </message>
 </context>
 <context>
@@ -8331,7 +8331,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Index</source>
-        <translation type="unfinished">Indeks</translation>
+        <translation>Indeks</translation>
     </message>
     <message>
         <source>Sets the index of this joint.</source>
@@ -8350,7 +8350,7 @@ a highlight component.</source>
     <name>Label</name>
     <message>
         <source>This property is not available in this configuration.</source>
-        <translation type="unfinished">Właściwość jest niedostępna w tej konfiguracji.</translation>
+        <translation>Właściwość jest niedostępna w tej konfiguracji.</translation>
     </message>
 </context>
 <context>
@@ -8609,7 +8609,7 @@ be rendered into the texture.</source>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Komunikaty</translation>
+        <translation>Komunikaty</translation>
     </message>
     <message>
         <source>Caching</source>
@@ -8656,7 +8656,7 @@ be rendered into the texture.</source>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">Próbki</translation>
+        <translation>Próbki</translation>
     </message>
     <message>
         <source>The number of samples per lightmap texel.</source>
@@ -8786,7 +8786,7 @@ be rendered into the texture.</source>
     </message>
     <message>
         <source>Layout direction</source>
-        <translation type="unfinished">Kierunek rozmieszczenia</translation>
+        <translation>Kierunek rozmieszczenia</translation>
     </message>
     <message>
         <source>Sets the direction that the cells flow inside a list.</source>
@@ -8913,7 +8913,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktywne</translation>
     </message>
     <message>
         <source>Sets if the Loader3D is currently active.</source>
@@ -8921,7 +8921,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Sets the URL of the QML component to instantiate.</source>
@@ -8952,7 +8952,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktywne</translation>
     </message>
     <message>
         <source>Whether the loader is currently active.</source>
@@ -9149,7 +9149,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Edit Annotations</source>
-        <translation type="unfinished">Zmodyfikuj adnotację</translation>
+        <translation>Zmodyfikuj adnotacje</translation>
     </message>
     <message>
         <source>Share</source>
@@ -9205,15 +9205,15 @@ a highlight component.</source>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostrzeżenie</translation>
     </message>
     <message>
         <source>Rename collection</source>
-        <translation type="unfinished">Zmień nazwę kolekcji</translation>
+        <translation>Zmień nazwę kolekcji</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished">Zmień nazwę</translation>
+        <translation>Zmień nazwę</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -9225,7 +9225,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz</translation>
     </message>
     <message>
         <source>Remove collection</source>
@@ -9245,7 +9245,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <source>NewCollection</source>
@@ -9253,7 +9253,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished">Odśwież</translation>
+        <translation>Odśwież</translation>
     </message>
     <message>
         <source>Invalid binding. Cyclic binding is not allowed.</source>
@@ -9265,7 +9265,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Set Binding</source>
-        <translation type="unfinished">Ustaw powiązanie</translation>
+        <translation>Ustaw powiązanie</translation>
     </message>
     <message>
         <source>Duplicate mode</source>
@@ -9301,7 +9301,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Create mode</source>
@@ -9313,11 +9313,11 @@ a highlight component.</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Numer</translation>
     </message>
     <message>
         <source>String</source>
@@ -9336,11 +9336,11 @@ a highlight component.</source>
     </message>
     <message>
         <source>Remove Project from Recent Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń projekt z ostatnich projektów</translation>
     </message>
     <message>
         <source>Clear Recent Project List</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść listę ostatnich projektów</translation>
     </message>
 </context>
 <context>
@@ -9355,19 +9355,19 @@ a highlight component.</source>
     </message>
     <message>
         <source>New to Qt?</source>
-        <translation type="unfinished">Dopiero zaczynasz?</translation>
+        <translation>Dopiero zaczynasz?</translation>
     </message>
     <message>
         <source>Get Started</source>
-        <translation type="unfinished">Zacznij tutaj</translation>
+        <translation>Zacznij tutaj</translation>
     </message>
     <message>
         <source>Recent Projects</source>
-        <translation type="unfinished">Ostatnie projekty</translation>
+        <translation>Ostatnie projekty</translation>
     </message>
     <message>
         <source>Examples</source>
-        <translation type="unfinished">Przykłady</translation>
+        <translation>Przykłady</translation>
     </message>
     <message>
         <source>Qt Academy</source>
@@ -9375,11 +9375,11 @@ a highlight component.</source>
     </message>
     <message>
         <source>User Guide</source>
-        <translation type="unfinished">Przewodnik użytkownika</translation>
+        <translation>Przewodnik użytkownika</translation>
     </message>
     <message>
         <source>Blog</source>
-        <translation type="unfinished">Blog</translation>
+        <translation>Blog</translation>
     </message>
     <message>
         <source>Forums</source>
@@ -9387,15 +9387,15 @@ a highlight component.</source>
     </message>
     <message>
         <source>Account</source>
-        <translation type="unfinished">Konto</translation>
+        <translation>Konto</translation>
     </message>
     <message>
         <source>Get Qt</source>
-        <translation type="unfinished">Pobierz Qt</translation>
+        <translation>Pobierz Qt</translation>
     </message>
     <message>
         <source>UI Tour</source>
-        <translation type="unfinished">Wycieczka po UI</translation>
+        <translation>Wycieczka po UI</translation>
     </message>
 </context>
 <context>
@@ -9452,7 +9452,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>The distance of the neighboring pixels which affect the blurring of an individual pixel. A larger radius increases the blur effect.</source>
@@ -9460,7 +9460,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">Próbki</translation>
+        <translation>Próbki</translation>
     </message>
     <message>
         <source>Samples per pixel for blur calculation. A larger value produces better quality, but is slower to render.</source>
@@ -9577,7 +9577,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Export Material</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyeksportuj materiał</translation>
     </message>
 </context>
 <context>
@@ -9620,7 +9620,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Adds an image from the local file system.</source>
@@ -9659,15 +9659,15 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Min</source>
-        <translation type="unfinished">Minimum</translation>
+        <translation>Minimum</translation>
     </message>
     <message>
         <source>Max</source>
-        <translation type="unfinished">Maksimum</translation>
+        <translation>Maksimum</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Komunikaty</translation>
+        <translation>Komunikaty</translation>
     </message>
     <message>
         <source>Below min</source>
@@ -9756,11 +9756,11 @@ This overrides the scene&apos;s light probe.</source>
     <name>ModelSection</name>
     <message>
         <source>Model</source>
-        <translation type="unfinished">Model</translation>
+        <translation>Model</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Sets the location of the mesh file containing the geometry of this model.</source>
@@ -9776,7 +9776,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Materials</source>
-        <translation type="unfinished">Materiały</translation>
+        <translation>Materiały</translation>
     </message>
     <message>
         <source>Edit material</source>
@@ -9868,7 +9868,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Animation</source>
-        <translation type="unfinished">Animacja</translation>
+        <translation>Animacja</translation>
     </message>
     <message>
         <source>Skeleton</source>
@@ -9923,7 +9923,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Grubość pisma</translation>
     </message>
     <message>
         <source>Sets the weight of the current morph target.</source>
@@ -9931,7 +9931,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Attributes</source>
-        <translation type="unfinished">Atrybuty</translation>
+        <translation>Atrybuty</translation>
     </message>
     <message>
         <source>Sets the set of attributes of the current morph target.</source>
@@ -10037,7 +10037,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished">Cel</translation>
+        <translation>Cel</translation>
     </message>
     <message>
         <source>Sets the component to have drag functionalities.</source>
@@ -10213,7 +10213,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Translation</source>
-        <translation type="unfinished">Tłumaczenie</translation>
+        <translation>Tłumaczenie</translation>
     </message>
     <message>
         <source>Sets the translation of the node.</source>
@@ -10256,7 +10256,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Komunikaty</translation>
+        <translation>Komunikaty</translation>
     </message>
 </context>
 <context>
@@ -10286,7 +10286,7 @@ This overrides the scene&apos;s light probe.</source>
     <name>Object3DSection</name>
     <message>
         <source>Object</source>
-        <translation type="unfinished">Obiekt</translation>
+        <translation>Obiekt</translation>
     </message>
 </context>
 <context>
@@ -10340,7 +10340,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Komunikaty</translation>
+        <translation>Komunikaty</translation>
     </message>
 </context>
 <context>
@@ -10351,7 +10351,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Origin</source>
-        <translation type="unfinished">Początek</translation>
+        <translation>Początek</translation>
     </message>
     <message>
         <source>The node that the camera will orbit around.</source>
@@ -10473,7 +10473,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Globalne</translation>
+        <translation>Globalne</translation>
     </message>
     <message>
         <source>Sets the padding for all sides of the item.</source>
@@ -10516,7 +10516,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>Bieżący</translation>
     </message>
     <message>
         <source>Sets the current page.</source>
@@ -10524,7 +10524,7 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Interactive</source>
-        <translation type="unfinished">Interaktywny</translation>
+        <translation>Interaktywny</translation>
     </message>
     <message>
         <source>Toggles if the user can interact with the page indicator.</source>
@@ -10634,7 +10634,7 @@ the total implicit size.</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Sets the base color that is used for colorizing the particles.</source>
@@ -10737,7 +10737,7 @@ the total implicit size.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Sets the location of the shape file.</source>
@@ -10752,7 +10752,7 @@ the total implicit size.</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>Sets the ParticleSystem3D for the emitter. If system is direct parent of the emitter, this property does not need to be defined.</source>
@@ -10784,7 +10784,7 @@ the total implicit size.</source>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>If enabled is set to false, this emitter will not emit any particles.</source>
@@ -10868,7 +10868,7 @@ the total implicit size.</source>
     </message>
     <message>
         <source>Rotation</source>
-        <translation type="unfinished">Rotacja</translation>
+        <translation>Rotacja</translation>
     </message>
     <message>
         <source>Sets the rotation of the particles in the beginning. Rotation is defined as degrees in euler angles.</source>
@@ -10934,7 +10934,7 @@ the total implicit size.</source>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Sets the type of the shape.</source>
@@ -10965,7 +10965,7 @@ the total implicit size.</source>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Czas</translation>
+        <translation>Czas</translation>
     </message>
     <message>
         <source>Sets the time in milliseconds for the system.</source>
@@ -10973,7 +10973,7 @@ the total implicit size.</source>
     </message>
     <message>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwarzanie</translation>
     </message>
     <message>
         <source>Sets if system is currently running.</source>
@@ -11016,7 +11016,7 @@ the total implicit size.</source>
     <name>PassSection</name>
     <message>
         <source>Pass</source>
-        <translation type="unfinished">Zdany</translation>
+        <translation>Zdany</translation>
     </message>
     <message>
         <source>Commands</source>
@@ -11255,7 +11255,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Odtwarzanie</translation>
     </message>
     <message>
         <source>Whether the physics world is running.</source>
@@ -11334,7 +11334,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Fill color</source>
-        <translation type="unfinished">Kolor wypełnienia</translation>
+        <translation>Kolor wypełnienia</translation>
     </message>
     <message>
         <source>Sets the color to fill the Pie.</source>
@@ -11358,7 +11358,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
     <message>
         <source>Pie start</source>
@@ -11431,7 +11431,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Kierunek</translation>
     </message>
     <message>
         <source>Sets the direction for the rotation. Values will be automatically normalized to a unit vector.</source>
@@ -11559,11 +11559,11 @@ a highlight component.</source>
     </message>
     <message>
         <source>Basic</source>
-        <translation type="unfinished">Podstawowe</translation>
+        <translation>Podstawowe</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Studio</source>
@@ -11571,7 +11571,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Landscape</source>
-        <translation type="unfinished"></translation>
+        <translation>Poziomy</translation>
     </message>
 </context>
 <context>
@@ -11644,7 +11644,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Map</source>
@@ -11696,7 +11696,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normalny</translation>
+        <translation>Normalny</translation>
     </message>
     <message>
         <source>Sets an RGB image used to simulate fine geometry displacement across the surface of the material.</source>
@@ -11728,7 +11728,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">Nieprzezroczystość</translation>
+        <translation>Nieprzezroczystość</translation>
     </message>
     <message>
         <source>Sets the opacity of just this material, separate from the model.</source>
@@ -11760,7 +11760,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Height</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
     <message>
         <source>Sets the factor used to modify the values from the heightMap texture.</source>
@@ -11916,7 +11916,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Zaawansowane</translation>
+        <translation>Zaawansowane</translation>
     </message>
     <message>
         <source>Vertex Colors</source>
@@ -11928,11 +11928,11 @@ a highlight component.</source>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished">Zablokowane</translation>
+        <translation>Zablokowane</translation>
     </message>
     <message>
         <source>Point Size</source>
@@ -12067,7 +12067,7 @@ a highlight component.</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Specifies the color at the sun on the skybox.</source>
@@ -12219,11 +12219,11 @@ operation is in progress.</source>
     <name>PropertyEditorPane</name>
     <message>
         <source>No match found.</source>
-        <translation type="unfinished">Brak pasującego wyniku.</translation>
+        <translation>Brak pasującego wyniku.</translation>
     </message>
     <message>
         <source>Current State</source>
-        <translation type="unfinished">Bieżący stan</translation>
+        <translation>Bieżący stan</translation>
     </message>
     <message>
         <source>The current state of the States View.</source>
@@ -12288,7 +12288,7 @@ operation is in progress.</source>
     <name>QKeychain::DeletePasswordJobPrivate</name>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany błąd</translation>
     </message>
     <message>
         <source>Could not open wallet: %1; %2</source>
@@ -12333,7 +12333,7 @@ operation is in progress.</source>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany błąd</translation>
     </message>
     <message>
         <source>No keychain service available</source>
@@ -12372,7 +12372,7 @@ operation is in progress.</source>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany błąd</translation>
     </message>
     <message>
         <source>Could not open wallet: %1; %2</source>
@@ -12405,7 +12405,7 @@ operation is in progress.</source>
     </message>
     <message>
         <source>Minimize</source>
-        <translation type="unfinished">Zminimalizuj</translation>
+        <translation>Zminimalizuj</translation>
     </message>
 </context>
 <context>
@@ -12478,7 +12478,7 @@ operation is in progress.</source>
     <name>QmlDesigner::ActionEditorDialog</name>
     <message>
         <source>Action Editor</source>
-        <translation type="unfinished">Edytor akcji</translation>
+        <translation>Edytor akcji</translation>
     </message>
 </context>
 <context>
@@ -12712,7 +12712,7 @@ operation is in progress.</source>
     <name>QmlDesigner::ConnectionModel</name>
     <message>
         <source>Target</source>
-        <translation type="unfinished">Cel</translation>
+        <translation>Cel</translation>
     </message>
     <message>
         <source>Signal Handler</source>
@@ -12829,11 +12829,11 @@ operation is in progress.</source>
     <message>
         <source>Design Tokens</source>
         <comment>Title of Editor widget</comment>
-        <translation type="unfinished"></translation>
+        <translation>Tokeny projektu</translation>
     </message>
     <message>
         <source>Cannot Create QtQuick View</source>
-        <translation type="unfinished">Nie można utworzyć widoku QtQuick</translation>
+        <translation>Nie można utworzyć widoku QtQuick</translation>
     </message>
     <message>
         <source>DesignSystemWidget: %1 cannot be created.%2</source>
@@ -12894,7 +12894,7 @@ operation is in progress.</source>
     <name>QmlDesigner::Edit3DMaterialsAction</name>
     <message>
         <source>Materials</source>
-        <translation type="unfinished">Materiały</translation>
+        <translation>Materiały</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -12902,7 +12902,7 @@ operation is in progress.</source>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Edycja</translation>
     </message>
 </context>
 <context>
@@ -12925,7 +12925,7 @@ operation is in progress.</source>
     </message>
     <message>
         <source>Primitives</source>
-        <translation type="unfinished"></translation>
+        <translation>Prymitywy</translation>
     </message>
 </context>
 <context>
@@ -12956,15 +12956,15 @@ operation is in progress.</source>
     </message>
     <message>
         <source>Align Camera to View</source>
-        <translation type="unfinished"></translation>
+        <translation>Zestrój kamerę z widokiem</translation>
     </message>
     <message>
         <source>Align View to Camera</source>
-        <translation type="unfinished">Zestrój widok z kamerą</translation>
+        <translation>Zestrój widok z kamerą</translation>
     </message>
     <message>
         <source>Bake Lights</source>
-        <translation type="unfinished"></translation>
+        <translation>Wypal oświetlenie</translation>
     </message>
     <message>
         <source>Select Parent</source>
@@ -13111,7 +13111,7 @@ operation is in progress.</source>
     <name>QmlDesigner::EventListDelegate</name>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Release</translation>
+        <translation>Release</translation>
     </message>
     <message>
         <source>Connect</source>
@@ -13159,11 +13159,11 @@ operation is in progress.</source>
     <name>QmlDesigner::GlobalAnnotationEditor</name>
     <message>
         <source>Global Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Globalna adnotacja</translation>
     </message>
     <message>
         <source>Delete this annotation?</source>
-        <translation type="unfinished"></translation>
+        <translation>Usunąć tę adnotację?</translation>
     </message>
 </context>
 <context>
@@ -13197,11 +13197,11 @@ operation is in progress.</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Zamknij</translation>
+        <translation>Zamknij</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished">Zaimportuj</translation>
+        <translation>Zaimportuj</translation>
     </message>
     <message>
         <source>Importing:</source>
@@ -13237,7 +13237,7 @@ operation is in progress.</source>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaakceptuj</translation>
     </message>
     <message>
         <source>Object Type: %1
@@ -13362,7 +13362,7 @@ operation is in progress.</source>
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished">Pomiń</translation>
+        <translation>Pomiń</translation>
     </message>
     <message>
         <source>Failed to start import 3D asset process.</source>
@@ -13533,7 +13533,7 @@ operation is in progress.</source>
     <name>QmlDesigner::ListModelEditorPropertyDialog</name>
     <message>
         <source>Property name:</source>
-        <translation type="unfinished">Nazwa właściwości:</translation>
+        <translation>Nazwa właściwości:</translation>
     </message>
     <message>
         <source>Add property</source>
@@ -13563,7 +13563,7 @@ operation is in progress.</source>
     <name>QmlDesigner::MaterialBrowserView</name>
     <message>
         <source>Material Browser</source>
-        <translation type="unfinished">Przeglądarka materiałów</translation>
+        <translation>Przeglądarka materiałów</translation>
     </message>
     <message>
         <source>Material Browser view</source>
@@ -13586,7 +13586,7 @@ operation is in progress.</source>
     <name>QmlDesigner::MultiPropertyEditorView</name>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Właściwości</translation>
+        <translation>Właściwości</translation>
     </message>
 </context>
 <context>
@@ -13910,22 +13910,22 @@ Locked components cannot be modified or selected.</source>
     <name>QmlDesigner::ScriptEditorBackend</name>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Błąd</translation>
+        <translation>Błąd</translation>
     </message>
 </context>
 <context>
     <name>QmlDesigner::ScriptEditorStatements</name>
     <message>
         <source>Function</source>
-        <translation type="unfinished">Funkcja</translation>
+        <translation>Funkcja</translation>
     </message>
     <message>
         <source>Assignment</source>
-        <translation type="unfinished">Przypisanie</translation>
+        <translation>Przypisanie</translation>
     </message>
     <message>
         <source>Set Property</source>
-        <translation type="unfinished">Ustaw właściwość</translation>
+        <translation>Ustaw właściwość</translation>
     </message>
     <message>
         <source>Set State</source>
@@ -13937,11 +13937,11 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Empty</source>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation type="unfinished">Własne</translation>
+        <translation>Własne</translation>
     </message>
 </context>
 <context>
@@ -14064,7 +14064,7 @@ Locked components cannot be modified or selected.</source>
     <name>QmlDesigner::StatementDelegate</name>
     <message>
         <source>Base State</source>
-        <translation type="unfinished">Stan bazowy</translation>
+        <translation>Stan bazowy</translation>
     </message>
 </context>
 <context>
@@ -14088,7 +14088,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Invalid ID</source>
-        <translation type="unfinished">Niepoprawny identyfikator</translation>
+        <translation>Niepoprawny identyfikator</translation>
     </message>
     <message>
         <source>%1 already exists.</source>
@@ -14139,7 +14139,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Cannot Create QtQuick View</source>
-        <translation type="unfinished">Nie można utworzyć widoku QtQuick</translation>
+        <translation>Nie można utworzyć widoku QtQuick</translation>
     </message>
     <message>
         <source>StatesEditorWidget: %1 cannot be created.%2</source>
@@ -14248,7 +14248,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>none</source>
-        <translation type="unfinished">brak</translation>
+        <translation>brak</translation>
     </message>
     <message>
         <source>Transition to state:</source>
@@ -14271,7 +14271,7 @@ Locked components cannot be modified or selected.</source>
     <name>QmlDesigner::TimelineForm</name>
     <message>
         <source>Timeline Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia osi czasu</translation>
     </message>
     <message>
         <source>Timeline ID:</source>
@@ -14307,7 +14307,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Animation</source>
-        <translation type="unfinished">Animacja</translation>
+        <translation>Animacja</translation>
     </message>
     <message>
         <source>Expression binding:</source>
@@ -14365,7 +14365,7 @@ Locked components cannot be modified or selected.</source>
     <name>QmlDesigner::TimelineSettingsDialog</name>
     <message>
         <source>Add Timeline</source>
-        <translation type="unfinished">Dodaj oś czasu</translation>
+        <translation>Dodaj oś czasu</translation>
     </message>
     <message>
         <source>Remove Timeline</source>
@@ -14627,7 +14627,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Change State</source>
-        <translation type="unfinished">Zmień stan</translation>
+        <translation>Zmień stan</translation>
     </message>
     <message>
         <source>Change State Group</source>
@@ -14755,7 +14755,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Edit Component</source>
-        <translation type="unfinished">Zmodyfikuj komponent</translation>
+        <translation>Zmodyfikuj komponent</translation>
     </message>
     <message>
         <source>Jump to the Code</source>
@@ -14831,19 +14831,19 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished">Górny</translation>
+        <translation>Górny</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">Prawy</translation>
+        <translation>Prawy</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished">Dolny</translation>
+        <translation>Dolny</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">Lewy</translation>
+        <translation>Lewy</translation>
     </message>
     <message>
         <source>Vertical Center</source>
@@ -14987,7 +14987,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Column Layout</source>
-        <translation type="unfinished">Rozmieszczenie w pionie</translation>
+        <translation>Rozmieszczenie w pionie</translation>
     </message>
     <message>
         <source>Row Layout</source>
@@ -56472,7 +56472,7 @@ Czy chcesz edytować ten efekt?</translation>
     </message>
     <message>
         <source>Align View to Camera</source>
-        <translation>Dopasuj widok do kamery</translation>
+        <translation>Zestrój widok z kamerą</translation>
     </message>
     <message>
         <source>Toggle Perspective/Orthographic Camera Mode</source>
@@ -71674,7 +71674,7 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">Próbki</translation>
+        <translation>Próbki</translation>
     </message>
     <message>
         <source>Samples per pixel for blur calculation. A larger value produces better quality, but is slower to render. This property is not intended to be animated. Changing this property may cause the underlying OpenGL shaders to be recompiled.</source>
@@ -71686,13 +71686,13 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
     <message>
         <source>Offset</source>
-        <translation type="unfinished">Przesunięcie</translation>
+        <translation>Przesunięcie</translation>
     </message>
     <message>
         <source>H</source>
         <comment>horizontal</comment>
         <extracomment>The horizontal offset</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>The horizontal offset for the rendered shadow compared to the inner shadow component&apos;s horizontal position.</source>
@@ -71788,7 +71788,7 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Komunikaty</translation>
+        <translation>Komunikaty</translation>
     </message>
 </context>
 <context>
@@ -71880,7 +71880,7 @@ defined in step size.</source>
     </message>
     <message>
         <source>Fill color</source>
-        <translation type="unfinished">Kolor wypełnienia</translation>
+        <translation>Kolor wypełnienia</translation>
     </message>
     <message>
         <source>Sets the color to fill the Rectangle.</source>
@@ -71904,7 +71904,7 @@ defined in step size.</source>
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
 </context>
 <context>
@@ -71954,7 +71954,7 @@ defined in step size.</source>
     </message>
     <message>
         <source>Loops</source>
-        <translation type="unfinished">Ilość pętli</translation>
+        <translation>Pętle</translation>
     </message>
     <message>
         <source>The amount of blur iterations that are going to be performed for the source.</source>
@@ -71962,7 +71962,7 @@ defined in step size.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>The distance of the neighboring pixels which affect the blurring of an individual pixel. A larger radius increases the blur effect.</source>
@@ -72022,7 +72022,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Debug View</source>
-        <translation type="unfinished">Widok debugowy</translation>
+        <translation>Widok debugowy</translation>
     </message>
     <message>
         <source>Enables rendering a wireframe to visualize the reflection probe box.</source>
@@ -72077,7 +72077,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Fill color</source>
-        <translation type="unfinished">Kolor wypełnienia</translation>
+        <translation>Kolor wypełnienia</translation>
     </message>
     <message>
         <source>Sets the color to fill the enclosed Regular Polygon.</source>
@@ -72101,7 +72101,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
     <message>
         <source>Side count</source>
@@ -72117,7 +72117,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Sets the radius of the corners in the Regular Polygon.</source>
@@ -72132,7 +72132,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Folder name cannot be empty.</source>
-        <translation type="unfinished">Nazwa katalogu nie może być pusta.</translation>
+        <translation>Nazwa katalogu nie może być pusta.</translation>
     </message>
     <message>
         <source>Could not rename folder. Make sure no folder with the same name exists.</source>
@@ -72159,7 +72159,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Model</source>
-        <translation type="unfinished">Model</translation>
+        <translation>Model</translation>
     </message>
     <message>
         <source>The model providing data for the repeater. This can simply specify the number of delegate instances to create or it can be bound to an actual model.</source>
@@ -72205,7 +72205,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Sets the radius of the effect.</source>
@@ -72256,7 +72256,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Textures</source>
-        <translation type="unfinished">Tekstury</translation>
+        <translation>Tekstury</translation>
     </message>
     <message>
         <source>A list of textures to be loaded and cached.</source>
@@ -72310,7 +72310,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Layout direction</source>
-        <translation type="unfinished">Kierunek rozmieszczenia</translation>
+        <translation>Kierunek rozmieszczenia</translation>
     </message>
     <message>
         <source>Sets the direction of the item flow in the &lt;b&gt;Row Layout&lt;/b&gt;.</source>
@@ -72341,7 +72341,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Layout direction</source>
-        <translation type="unfinished">Kierunek rozmieszczenia</translation>
+        <translation>Kierunek rozmieszczenia</translation>
     </message>
     <message>
         <source>Sets in which direction items in the row are placed.</source>
@@ -72356,7 +72356,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Sets the URL of the 3D asset to import at runtime.</source>
@@ -72411,7 +72411,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Contrast Boost</source>
@@ -72470,27 +72470,27 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Pozycja</translation>
+        <translation>Pozycja</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Rozmiar</translation>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <source>W</source>
         <comment>width</comment>
         <extracomment>The width of the object</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>H</source>
         <comment>height</comment>
         <extracomment>The height of the object</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>fillColor</source>
@@ -72498,7 +72498,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">Nieprzezroczystość</translation>
+        <translation>Nieprzezroczystość</translation>
     </message>
 </context>
 <context>
@@ -72509,31 +72509,31 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Pozycja</translation>
+        <translation>Pozycja</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Rozmiar</translation>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <source>W</source>
         <comment>width</comment>
         <extracomment>The width of the object</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>H</source>
         <comment>height</comment>
         <extracomment>The height of the object</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>fillColor</source>
@@ -72541,7 +72541,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">Nieprzezroczystość</translation>
+        <translation>Nieprzezroczystość</translation>
     </message>
 </context>
 <context>
@@ -72552,31 +72552,31 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Pozycja</translation>
+        <translation>Pozycja</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Rozmiar</translation>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <source>W</source>
         <comment>width</comment>
         <extracomment>The width of the object</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>H</source>
         <comment>height</comment>
         <extracomment>The height of the object</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">Tekst</translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>fillColor</source>
@@ -72584,15 +72584,15 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">Nieprzezroczystość</translation>
+        <translation>Nieprzezroczystość</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation type="unfinished">Czcionka</translation>
+        <translation>Czcionka</translation>
     </message>
     <message>
         <source>Emphasis</source>
-        <translation type="unfinished">Emfaza</translation>
+        <translation>Emfaza</translation>
     </message>
     <message>
         <source>Alignment H</source>
@@ -72604,11 +72604,11 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Wrap mode</source>
-        <translation type="unfinished">Tryb zawijania</translation>
+        <translation>Tryb zawijania</translation>
     </message>
     <message>
         <source>Dynamic</source>
-        <translation type="unfinished">Dynamiczne</translation>
+        <translation>Dynamiczne</translation>
     </message>
 </context>
 <context>
@@ -72619,7 +72619,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Effect name: </source>
-        <translation type="unfinished">Nazwa efektu: </translation>
+        <translation>Nazwa efektu: </translation>
     </message>
     <message>
         <source>Name contains invalid characters.</source>
@@ -72643,7 +72643,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Zachowaj</translation>
+        <translation>Zachowaj</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -72654,7 +72654,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     <name>SaveChangesDialog</name>
     <message>
         <source>Save Changes</source>
-        <translation type="unfinished">Zachowaj zmiany</translation>
+        <translation>Zachowaj zmiany</translation>
     </message>
     <message>
         <source>Current composition has unsaved changes.</source>
@@ -72666,7 +72666,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Zachowaj</translation>
+        <translation>Zachowaj</translation>
     </message>
     <message>
         <source>Discard Changes</source>
@@ -72705,7 +72705,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Czas trwania</translation>
+        <translation>Czas trwania</translation>
     </message>
     <message>
         <source>Sets the duration of scaling period.</source>
@@ -72713,7 +72713,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Easing curve</source>
-        <translation type="unfinished">Przebieg animacji</translation>
+        <translation>Przebieg animacji</translation>
     </message>
     <message>
         <source>Sets a custom scaling curve.</source>
@@ -72783,7 +72783,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Kierunek</translation>
     </message>
     <message>
         <source>Direction of scatter. 0 = both, 1 = horizontal, 2 = vertical.</source>
@@ -72791,7 +72791,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Randomize</source>
-        <translation type="unfinished">Randomizacja</translation>
+        <translation>Randomizacja</translation>
     </message>
     <message>
         <source>Specifies if the scatter is random.</source>
@@ -72838,7 +72838,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Effects</source>
-        <translation type="unfinished">Efekty</translation>
+        <translation>Efekty</translation>
     </message>
     <message>
         <source>Post Processing effects applied to this scene.</source>
@@ -72862,7 +72862,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Antialiasing</source>
-        <translation type="unfinished">Antyaliasing</translation>
+        <translation>Antyaliasing</translation>
     </message>
     <message>
         <source>Antialiasing Mode</source>
@@ -72910,7 +72910,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>Enables ambient occlusion.</source>
@@ -72994,7 +72994,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Orientation</source>
-        <translation type="unfinished">Orientacja</translation>
+        <translation>Orientacja</translation>
     </message>
     <message>
         <source>Sets the orientation of the light probe.</source>
@@ -73002,7 +73002,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Zaawansowane</translation>
+        <translation>Zaawansowane</translation>
     </message>
     <message>
         <source>Enable Depth Test</source>
@@ -73045,7 +73045,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Output Device</source>
-        <translation type="unfinished">Urządzenie wyjściowe</translation>
+        <translation>Urządzenie wyjściowe</translation>
     </message>
     <message>
         <source>Background color</source>
@@ -73059,21 +73059,21 @@ Setting this property to true corrects the cubemap by taking the camera position
         <source>W</source>
         <comment>width</comment>
         <extracomment>The width of the object</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Width</source>
-        <translation type="unfinished">Szerokość</translation>
+        <translation>Szerokość</translation>
     </message>
     <message>
         <source>H</source>
         <comment>height</comment>
         <extracomment>The height of the object</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>Height</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
 </context>
 <context>
@@ -73088,7 +73088,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Sets the component and its property from which the value is copied.</source>
-        <translation type="unfinished">Ustawia komponent i jego właściwość której wartość jest kopiowana.</translation>
+        <translation>Ustawia komponent i jego właściwość której wartość jest kopiowana.</translation>
     </message>
     <message>
         <source>Sets the component and its property to which the copied value is assigned.</source>
@@ -73124,27 +73124,27 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Add Condition</source>
-        <translation type="unfinished">Dodaj warunek</translation>
+        <translation>Dodaj warunek</translation>
     </message>
     <message>
         <source>Remove Condition</source>
-        <translation type="unfinished">Usuń warunek</translation>
+        <translation>Usuń warunek</translation>
     </message>
     <message>
         <source>Add Else Statement</source>
-        <translation type="unfinished">Dodaj alternatywny warunek (else)</translation>
+        <translation>Dodaj alternatywny warunek (else)</translation>
     </message>
     <message>
         <source>Sets an alternate condition for the previously defined logical condition.</source>
-        <translation type="unfinished">Ustawia alternatywny warunek do poprzednio zdefiniowanego warunku logicznego.</translation>
+        <translation>Ustawia alternatywny warunek do poprzednio zdefiniowanego warunku logicznego.</translation>
     </message>
     <message>
         <source>Remove Else Statement</source>
-        <translation type="unfinished">Usuń alternatywny warunek (else)</translation>
+        <translation>Usuń alternatywny warunek (else)</translation>
     </message>
     <message>
         <source>Removes the alternate logical condition for the previously defined logical condition.</source>
-        <translation type="unfinished">Usuwa alternatywny warunek do poprzednio zdefiniowanego warunku logicznego.</translation>
+        <translation>Usuwa alternatywny warunek do poprzednio zdefiniowanego warunku logicznego.</translation>
     </message>
     <message>
         <source>Write the conditions manually.</source>
@@ -73167,7 +73167,7 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Action</source>
-        <translation type="unfinished">Akcja</translation>
+        <translation>Akcja</translation>
     </message>
     <message>
         <source>Sets an action that is associated with the selected &lt;b&gt;ScriptAction&lt;/b&gt;.</source>
@@ -73240,7 +73240,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation>Cel</translation>
     </message>
     <message>
         <source>Sets the name of the uniform to change value for a pass.</source>
@@ -73248,7 +73248,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Wartość</translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <source>Sets the value of the uniform.</source>
@@ -73263,7 +73263,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Sets the shader source code.</source>
@@ -73271,7 +73271,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Stage</source>
-        <translation type="unfinished"></translation>
+        <translation>Etap</translation>
     </message>
     <message>
         <source>Sets the shader stage.</source>
@@ -73302,7 +73302,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>Sets how much blur is applied to the shadows.</source>
@@ -73384,7 +73384,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Drag threshold</source>
-        <translation type="unfinished">Próg przeciągania</translation>
+        <translation>Próg przeciągania</translation>
     </message>
     <message>
         <source>The threshold (in logical pixels) at which a drag event will be initiated.</source>
@@ -73471,7 +73471,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Interval</source>
-        <translation type="unfinished">Interwał</translation>
+        <translation>Interwał</translation>
     </message>
     <message>
         <source>Position</source>
@@ -73527,14 +73527,14 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Reset All</source>
-        <translation type="unfinished"></translation>
+        <translation>Przywróć wszystkie</translation>
     </message>
 </context>
 <context>
     <name>SocialButton</name>
     <message>
         <source>Text</source>
-        <translation type="unfinished">Tekst</translation>
+        <translation>Tekst</translation>
     </message>
 </context>
 <context>
@@ -73558,12 +73558,12 @@ This is used for calculating the total implicit size.</source>
     <message>
         <source>Set the overall volume for this sound source.
 Values between 0 and 1 will attenuate the sound, while values above 1 provide an additional gain boost.</source>
-        <translation type="unfinished">Ustawia całkowitą głośność tego źródła dźwięku.
+        <translation>Ustawia całkowitą głośność tego źródła dźwięku.
 Wartości pomiędzy 0 a 1 osłabią głośność, zaś wartości powyżej 1 dostarczą dodatkowego wzmocnienia.</translation>
     </message>
     <message>
         <source>Loops</source>
-        <translation>Ilość pętli</translation>
+        <translation>Pętle</translation>
     </message>
     <message>
         <source>Sets how often the sound is played before the player stops.
@@ -73572,7 +73572,7 @@ Bind to SpatialSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Auto Play</source>
-        <translation type="unfinished">Automatyczne odtwarzanie</translation>
+        <translation>Automatyczne odtwarzanie</translation>
     </message>
     <message>
         <source>Sets whether the sound should automatically start playing when a source gets specified.</source>
@@ -73692,7 +73692,7 @@ A near field gain of 1 will raise the volume of the sound signal by approx 20 dB
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Sets the albedo color of the material.</source>
@@ -73744,7 +73744,7 @@ A near field gain of 1 will raise the volume of the sound signal by approx 20 dB
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normalny</translation>
+        <translation>Normalny</translation>
     </message>
     <message>
         <source>Sets an RGB image used to simulate fine geometry displacement across the surface of the material.</source>
@@ -73776,7 +73776,7 @@ A near field gain of 1 will raise the volume of the sound signal by approx 20 dB
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">Nieprzezroczystość</translation>
+        <translation>Nieprzezroczystość</translation>
     </message>
     <message>
         <source>Sets the opacity of just this material, separate from the model.</source>
@@ -73808,7 +73808,7 @@ A near field gain of 1 will raise the volume of the sound signal by approx 20 dB
     </message>
     <message>
         <source>Height</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
     <message>
         <source>Sets the factor used to modify the values from the heightMap texture.</source>
@@ -73956,7 +73956,7 @@ A near field gain of 1 will raise the volume of the sound signal by approx 20 dB
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Zaawansowane</translation>
+        <translation>Zaawansowane</translation>
     </message>
     <message>
         <source>Vertex Colors</source>
@@ -73968,11 +73968,11 @@ A near field gain of 1 will raise the volume of the sound signal by approx 20 dB
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished">Zablokowane</translation>
+        <translation>Zablokowane</translation>
     </message>
     <message>
         <source>Point Size</source>
@@ -74203,7 +74203,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Lights</source>
-        <translation type="unfinished">Światła</translation>
+        <translation>Światła</translation>
     </message>
     <message>
         <source>Sets the lights used for the particles.</source>
@@ -74211,7 +74211,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Offset</source>
-        <translation type="unfinished">Przesunięcie</translation>
+        <translation>Przesunięcie</translation>
     </message>
     <message>
         <source>Offsets the X coordinate.</source>
@@ -74254,7 +74254,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Czas trwania</translation>
+        <translation>Czas trwania</translation>
     </message>
     <message>
         <source>Sets the duration in milliseconds how long it takes for the sprite sequence to animate.</source>
@@ -74379,7 +74379,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Line height</source>
-        <translation type="unfinished">Wysokość linii</translation>
+        <translation>Wysokość linii</translation>
     </message>
     <message>
         <source>Line height for the text.</source>
@@ -74414,7 +74414,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Fill color</source>
-        <translation type="unfinished">Kolor wypełnienia</translation>
+        <translation>Kolor wypełnienia</translation>
     </message>
     <message>
         <source>Sets the color to fill the enclosed Star.</source>
@@ -74438,11 +74438,11 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">Ilość</translation>
+        <translation>Ilość</translation>
     </message>
     <message>
         <source>Sets the number of TODO for the Star.</source>
@@ -74462,7 +74462,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Sets the radius of the corners in the Regular Polygon.</source>
@@ -74501,15 +74501,15 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Edit Annotation</source>
-        <translation type="unfinished">Zmodyfikuj adnotację</translation>
+        <translation>Zmodyfikuj adnotację</translation>
     </message>
     <message>
         <source>Add Annotation</source>
-        <translation type="unfinished">Dodaj adnotację</translation>
+        <translation>Dodaj adnotację</translation>
     </message>
     <message>
         <source>Remove Annotation</source>
-        <translation type="unfinished">Usuń adnotację</translation>
+        <translation>Usuń adnotację</translation>
     </message>
 </context>
 <context>
@@ -74559,7 +74559,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Base State</source>
-        <translation type="unfinished">Stan bazowy</translation>
+        <translation>Stan bazowy</translation>
     </message>
     <message>
         <source>No Property Changes Available</source>
@@ -74567,7 +74567,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished">Cel</translation>
+        <translation>Cel</translation>
     </message>
     <message>
         <source>Explicit</source>
@@ -74633,7 +74633,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Thickness</source>
@@ -74645,7 +74645,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Flip</source>
@@ -74766,7 +74766,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie</translation>
     </message>
     <message>
         <source>Light</source>
@@ -74824,7 +74824,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Fill color</source>
-        <translation type="unfinished">Kolor wypełnienia</translation>
+        <translation>Kolor wypełnienia</translation>
     </message>
     <message>
         <source>Sets the color to fill the SVG Path Item.</source>
@@ -74848,7 +74848,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
     <message>
         <source>Path Info</source>
@@ -74871,7 +74871,7 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Interactive</source>
-        <translation type="unfinished">Interaktywny</translation>
+        <translation>Interaktywny</translation>
     </message>
     <message>
         <source>Toggles if the user can interact with the view.</source>
@@ -74984,7 +74984,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Pozycja</translation>
+        <translation>Pozycja</translation>
     </message>
     <message>
         <source>Sets the position for particles target.</source>
@@ -75027,7 +75027,7 @@ This is used for calculating the total implicit size.</source>
     <name>TestControlPanel</name>
     <message>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Theme</source>
@@ -75047,11 +75047,11 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Basic</source>
-        <translation type="unfinished">Podstawowe</translation>
+        <translation>Podstawowe</translation>
     </message>
     <message>
         <source>Community</source>
-        <translation type="unfinished">Społeczność</translation>
+        <translation>Społeczność</translation>
     </message>
     <message>
         <source>&lt;</source>
@@ -75426,7 +75426,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Fill color</source>
-        <translation type="unfinished">Kolor wypełnienia</translation>
+        <translation>Kolor wypełnienia</translation>
     </message>
     <message>
         <source>Sets the color to fill the Text.</source>
@@ -75450,15 +75450,15 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">Tekst</translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <source>Sets the text to display.</source>
-        <translation type="unfinished">Ustawia tekst do wyświetlenia.</translation>
+        <translation>Ustawia tekst do wyświetlenia.</translation>
     </message>
 </context>
 <context>
@@ -75535,7 +75535,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>Sets the texture enabled state.</source>
@@ -75550,7 +75550,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Sets the location of an image file containing the data used by the texture.</source>
@@ -75558,7 +75558,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Source Item</source>
-        <translation type="unfinished">Element źródłowy</translation>
+        <translation>Element źródłowy</translation>
     </message>
     <message>
         <source>Sets an item to be used as the source of the texture.</source>
@@ -75574,7 +75574,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Scale</source>
-        <translation type="unfinished">Skala</translation>
+        <translation>Skala</translation>
     </message>
     <message>
         <source>Sets how to scale the U texture coordinate when mapping to UV coordinates of a mesh.</source>
@@ -75650,7 +75650,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Pozycja</translation>
+        <translation>Pozycja</translation>
     </message>
     <message>
         <source>Sets the U coordinate mapping offset from left to right.</source>
@@ -75756,7 +75756,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Downloading...</source>
-        <translation type="unfinished">Pobieranie...</translation>
+        <translation>Pobieranie...</translation>
     </message>
     <message>
         <source>Extracting...</source>
@@ -75799,7 +75799,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished">W pionie</translation>
+        <translation>W pionie</translation>
     </message>
     <message>
         <source>Specifies if the tilt shift is vertical.</source>
@@ -75887,19 +75887,19 @@ This is used for calculating the total implicit size.</source>
     <name>ToolBar</name>
     <message>
         <source>Apply texture to selected model&apos;s material.</source>
-        <translation type="unfinished">Zastosuj teksturę do wybranego materiału w modelu.</translation>
+        <translation>Zastosuj teksturę do wybranego materiału w modelu.</translation>
     </message>
     <message>
         <source>Create new texture.</source>
-        <translation type="unfinished">Utwórz nową teksturę.</translation>
+        <translation>Utwórz nową teksturę.</translation>
     </message>
     <message>
         <source>Delete current texture.</source>
-        <translation type="unfinished">Usuń bieżącą teksturę.</translation>
+        <translation>Usuń bieżącą teksturę.</translation>
     </message>
     <message>
         <source>Open material browser.</source>
-        <translation type="unfinished">Otwórz przeglądarkę materiałów.</translation>
+        <translation>Otwórz przeglądarkę materiałów.</translation>
     </message>
 </context>
 <context>
@@ -75952,22 +75952,22 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Open material browser.</source>
-        <translation type="unfinished">Otwórz przeglądarkę materiałów.</translation>
+        <translation>Otwórz przeglądarkę materiałów.</translation>
     </message>
 </context>
 <context>
     <name>TopSection</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Material name</source>
-        <translation type="unfinished">Nazwa materiału</translation>
+        <translation>Nazwa materiału</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Texture name</source>
@@ -76002,7 +76002,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>States</source>
-        <translation type="unfinished">Stany</translation>
+        <translation>Stany</translation>
     </message>
     <message>
         <source>An introduction to states.</source>
@@ -76087,7 +76087,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Follow</source>
-        <translation type="unfinished"></translation>
+        <translation>Podążaj</translation>
     </message>
     <message>
         <source>Sets the logical particle which this emitter follows.</source>
@@ -76102,7 +76102,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Fill color</source>
-        <translation type="unfinished">Kolor wypełnienia</translation>
+        <translation>Kolor wypełnienia</translation>
     </message>
     <message>
         <source>Sets the color to fill the Triangle.</source>
@@ -76126,7 +76126,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj</translation>
     </message>
     <message>
         <source>Radiuses</source>
@@ -76134,7 +76134,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Sets the radius of the corners and the radius for the edges of the intersections in the Triangle.</source>
@@ -76142,11 +76142,11 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Margin</source>
-        <translation type="unfinished">Margines</translation>
+        <translation>Margines</translation>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished">W pionie</translation>
+        <translation>W pionie</translation>
     </message>
     <message>
         <source>Sets the top and bottom margins for the Triangle component.</source>
@@ -76154,15 +76154,15 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>The margin above the item.</source>
-        <translation type="unfinished">Margines nad elementem.</translation>
+        <translation>Margines nad elementem.</translation>
     </message>
     <message>
         <source>The margin below the item.</source>
-        <translation type="unfinished">Margines pod elementem.</translation>
+        <translation>Margines pod elementem.</translation>
     </message>
     <message>
         <source>Horizontal</source>
-        <translation type="unfinished">W poziomie</translation>
+        <translation>W poziomie</translation>
     </message>
     <message>
         <source>Sets the left and right margins for the Triangle component.</source>
@@ -76185,7 +76185,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">Źródło</translation>
+        <translation>Źródło</translation>
     </message>
     <message>
         <source>Defines the location of the mesh file used to define the shape.</source>
@@ -76305,7 +76305,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Kierunek</translation>
     </message>
     <message>
         <source>Sets the direction for particles target.</source>
@@ -76351,7 +76351,7 @@ Are you sure you want to remove it?</source>
     <name>View3DSection</name>
     <message>
         <source>View3D</source>
-        <translation type="unfinished">View3D</translation>
+        <translation>View3D</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -76363,7 +76363,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Environment</source>
-        <translation type="unfinished">Środowisko</translation>
+        <translation>Środowisko</translation>
     </message>
     <message>
         <source>Sets the scene environment used to render the scene.</source>
@@ -76402,7 +76402,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Promień</translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <source>Set the vignette radius.</source>
@@ -76437,7 +76437,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Globalne</translation>
+        <translation>Globalne</translation>
     </message>
     <message>
         <source>Amount</source>
@@ -76516,7 +76516,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokowany</translation>
     </message>
     <message>
         <source>Invert Y</source>
@@ -76548,7 +76548,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Speed</source>
-        <translation type="unfinished">Prędkość</translation>
+        <translation>Prędkość</translation>
     </message>
     <message>
         <source>Sets the general navigation speed multiplier.</source>
@@ -76725,7 +76725,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">Próbki</translation>
+        <translation>Próbki</translation>
     </message>
     <message>
         <source>Samples per pixel to calculate blur. A larger value produces better quality, but is slower to render.</source>
@@ -76737,13 +76737,13 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Offset</source>
-        <translation type="unfinished">Przesunięcie</translation>
+        <translation>Przesunięcie</translation>
     </message>
     <message>
         <source>H</source>
         <comment>horizontal</comment>
         <extracomment>The horizontal offset</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>W</translation>
     </message>
     <message>
         <source>The horizontal offset for the rendered shadow compared to the inner shadow component&apos;s horizontal position.</source>
@@ -76791,31 +76791,31 @@ Are you sure you want to remove it?</source>
     <name>itemlibrary</name>
     <message>
         <source>Item</source>
-        <translation type="unfinished">Element</translation>
+        <translation>Element</translation>
     </message>
     <message>
         <source>Rectangle</source>
-        <translation type="unfinished">Prostokąt</translation>
+        <translation>Prostokąt</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">Tekst</translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <source>Text Edit</source>
-        <translation type="unfinished">Edytor tekstu</translation>
+        <translation>Edytor tekstu</translation>
     </message>
     <message>
         <source>Text Input</source>
-        <translation type="unfinished">Wejście tekstu</translation>
+        <translation>Wejście tekstu</translation>
     </message>
     <message>
         <source>Mouse Area</source>
-        <translation type="unfinished">Obszar Myszy</translation>
+        <translation>Obszar Myszy</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished">Obrazek</translation>
+        <translation>Obrazek</translation>
     </message>
     <message>
         <source>Animated Image</source>
@@ -76827,11 +76827,11 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Border Image</source>
-        <translation type="unfinished">Obraz brzegowy</translation>
+        <translation>Obrazek brzegowy</translation>
     </message>
     <message>
         <source>Flickable</source>
-        <translation type="unfinished">Element przerzucalny</translation>
+        <translation>Element przerzucalny</translation>
     </message>
     <message>
         <source>Grid View</source>
@@ -76839,11 +76839,11 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>List View</source>
-        <translation type="unfinished">Widok listy</translation>
+        <translation>Widok listy</translation>
     </message>
     <message>
         <source>Path View</source>
-        <translation type="unfinished">Widok ścieżki</translation>
+        <translation>Widok ścieżki</translation>
     </message>
     <message>
         <source>Focus Scope</source>
@@ -76851,15 +76851,15 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Kolumna</translation>
+        <translation>Kolumna</translation>
     </message>
     <message>
         <source>Row</source>
-        <translation type="unfinished">Wiersz</translation>
+        <translation>Wiersz</translation>
     </message>
     <message>
         <source>Grid</source>
-        <translation type="unfinished">Siatka</translation>
+        <translation>Siatka</translation>
     </message>
     <message>
         <source>Flow</source>
@@ -76867,7 +76867,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Property</source>
-        <translation type="unfinished">Właściwość</translation>
+        <translation>Właściwość</translation>
     </message>
     <message>
         <source>Pause</source>
@@ -76879,7 +76879,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Parallel</source>
-        <translation type="unfinished">Stan równoległy</translation>
+        <translation>Stan równoległy</translation>
     </message>
     <message>
         <source>Script</source>
@@ -76887,11 +76887,11 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Kolor</translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Numer</translation>
     </message>
     <message>
         <source>Loader</source>
@@ -76903,15 +76903,15 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Busy Indicator</source>
-        <translation type="unfinished">Wskaźnik zajętości</translation>
+        <translation>Wskaźnik zajętości</translation>
     </message>
     <message>
         <source>Button</source>
-        <translation type="unfinished">Przycisk</translation>
+        <translation>Przycisk</translation>
     </message>
     <message>
         <source>Check Box</source>
-        <translation type="unfinished">Przycisk wyboru</translation>
+        <translation>Przycisk wyboru</translation>
     </message>
     <message>
         <source>Check Delegate</source>
@@ -76919,7 +76919,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Combo Box</source>
-        <translation type="unfinished">Pole wyboru</translation>
+        <translation>Pole wyboru</translation>
     </message>
     <message>
         <source>Control</source>
@@ -76935,7 +76935,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <source>Group Box</source>
@@ -76947,11 +76947,11 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">Etykieta</translation>
+        <translation>Etykieta</translation>
     </message>
     <message>
         <source>Page</source>
-        <translation type="unfinished">Strona</translation>
+        <translation>Strona</translation>
     </message>
     <message>
         <source>Page Indicator</source>
@@ -76963,11 +76963,11 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Progress Bar</source>
-        <translation type="unfinished">Pasek postępu</translation>
+        <translation>Pasek postępu</translation>
     </message>
     <message>
         <source>Radio Button</source>
-        <translation type="unfinished">Przycisk opcji</translation>
+        <translation>Przycisk opcji</translation>
     </message>
     <message>
         <source>Radio Delegate</source>
@@ -76979,7 +76979,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Round Button</source>
-        <translation type="unfinished">Zaokrąglony przycisk</translation>
+        <translation>Zaokrąglony przycisk</translation>
     </message>
     <message>
         <source>Slider</source>
@@ -77023,15 +77023,15 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Text Area</source>
-        <translation type="unfinished">Obszar tekstowy</translation>
+        <translation>Obszar tekstowy</translation>
     </message>
     <message>
         <source>Text Field</source>
-        <translation type="unfinished">Pole tekstowe</translation>
+        <translation>Pole tekstowe</translation>
     </message>
     <message>
         <source>Tool Bar</source>
-        <translation type="unfinished">Pasek narzędzi</translation>
+        <translation>Pasek narzędzi</translation>
     </message>
     <message>
         <source>Tool Button</source>
@@ -77039,7 +77039,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Tool Separator</source>
-        <translation type="unfinished">Separator narzędzi</translation>
+        <translation>Separator narzędzi</translation>
     </message>
     <message>
         <source>Tumbler</source>
@@ -77055,7 +77055,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Animation</source>
-        <translation type="unfinished">Animacja</translation>
+        <translation>Animacja</translation>
     </message>
     <message>
         <source>Instancers</source>
@@ -77063,7 +77063,7 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Basic</source>
-        <translation type="unfinished">Podstawowe</translation>
+        <translation>Podstawowe</translation>
     </message>
     <message>
         <source>Controls 2</source>
