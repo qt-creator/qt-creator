@@ -1544,10 +1544,12 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
         double doubleValue, doubleValueOld;
         asDouble(selStart, doubleValue, false);
         asDouble(selStart, doubleValueOld, true);
-        str << tableRowStartC << Tr::tr("<i>double</i>&nbsp;value:") << numericTableRowSepC
+        //: %1 - double
+        str << tableRowStartC << Tr::tr("%1&nbsp;value:").arg("<i>double</i>") << numericTableRowSepC
             << doubleValue << tableRowEndC;
         if (doubleValue != doubleValueOld)
-            str << tableRowStartC << Tr::tr("Previous <i>double</i>&nbsp;value:") << numericTableRowSepC
+            //: %1 - double
+            str << tableRowStartC << Tr::tr("Previous %1&nbsp;value:").arg("<i>double</i>") << numericTableRowSepC
                 << doubleValueOld << tableRowEndC;
         str << "</table>";
     }
@@ -1558,10 +1560,12 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
         float floatValue, floatValueOld;
         asFloat(selStart, floatValue, false);
         asFloat(selStart, floatValueOld, true);
-        str << tableRowStartC << Tr::tr("<i>float</i>&nbsp;value:") << numericTableRowSepC
+        //: %1 - float
+        str << tableRowStartC << Tr::tr("%1&nbsp;value:").arg("<i>float</i>") << numericTableRowSepC
             << floatValue << tableRowEndC;
         if (floatValue != floatValueOld)
-            str << tableRowStartC << Tr::tr("Previous <i>float</i>&nbsp;value:") << numericTableRowSepC
+            //: %1 - float
+            str << tableRowStartC << Tr::tr("Previous %1&nbsp;value:").arg("<i>float</i>") << numericTableRowSepC
                 << floatValueOld << tableRowEndC;
 
         str << "</table>";
