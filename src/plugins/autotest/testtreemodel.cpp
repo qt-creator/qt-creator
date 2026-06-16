@@ -378,10 +378,10 @@ void TestTreeModel::synchronizeTestFrameworks()
             newlyAdded.insert(parser);
     }
     for (ITestTreeItem *oldFrameworkRoot : oldFrameworkRoots) {
-        if (oldFrameworkRoot->testBase()->type() == ITestBase::Framework)
-            oldFrameworkRoot->removeChildren();
-        else // re-add the test tools - they are handled separately
+        if (oldFrameworkRoot->testBase()->type() == ITestBase::Tool)
             invisibleRoot->appendChild(oldFrameworkRoot);
+        // Framework roots removed from the active set are left detached with their
+        // children intact, preserving check states for a later re-enable cycle.
     }
 
     m_parser->syncTestFrameworks(sortedParsers);
@@ -488,17 +488,6 @@ void TestTreeModel::rebuild(const QList<Id> &frameworkIds)
     }
 }
 
-void TestTreeModel::updateCheckStateCache()
-{
-    m_checkStateCache->evolve(ITestBase::Framework);
-
-    for (TestTreeItem *rootNode : frameworkRootNodes()) {
-        rootNode->forAllChildItems([this](TestTreeItem *childItem) {
-            m_checkStateCache->insert(childItem, childItem->checked());
-        });
-    }
-}
-
 bool TestTreeModel::hasFailedTests() const
 {
     auto failedItem = rootItem()->findAnyChild([](TreeItem *it) {
@@ -539,10 +528,6 @@ void TestTreeModel::markForRemoval(const QSet<Utils::FilePath> &filePaths)
 void TestTreeModel::sweep()
 {
     for (TestTreeItem *frameworkRoot : frameworkRootNodes()) {
-        if (frameworkRoot->m_status == TestTreeItem::ForcedRootRemoval) {
-            frameworkRoot->framework()->resetRootNode();
-            continue;
-        }
         sweepChildren(frameworkRoot);
         revalidateCheckState(frameworkRoot);
     }

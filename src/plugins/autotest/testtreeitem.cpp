@@ -214,9 +214,8 @@ bool TestTreeItem::modifyLineAndColumn(const TestParseResult *result)
 void TestTreeItem::markForRemoval(bool mark)
 {
     if (type() == Root)
-        m_status = mark ? ForcedRootRemoval : NewlyAdded;
-    else
-        m_status = mark ? MarkedForRemoval : Cleared;
+        return; // root status is managed by the model, not sweep
+    m_status = mark ? MarkedForRemoval : Cleared;
 }
 
 void TestTreeItem::markForRemovalRecursively(bool mark)

@@ -308,7 +308,6 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     }
 
     m_parsingHasFailed = false;
-    TestTreeModel::instance()->updateCheckStateCache();
     if (isFullParse) {
         // remove qml files as they will be found automatically by the referencing cpp file
         files = Utils::filtered(files, [](const FilePath &fn) { return !fn.endsWith(".qml"); });

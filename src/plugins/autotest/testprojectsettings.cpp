@@ -54,18 +54,22 @@ void TestProjectSettings::activateFramework(const Id &id, bool activate)
 {
     ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
     activeTestFrameworks.setActive(framework, activate);
-    if (TestTreeModel::instance()->parser()->isParsing())
-        framework->rootNode()->markForRemoval(!activate);
-    else if (!activate)
-        framework->resetRootNode();
+    if (!activate) {
+        TestTreeItem *root = framework->rootNode();
+        if (root->model())
+            TestTreeModel::instance()->takeItem(root);
+    }
 }
 
 void TestProjectSettings::activateTestTool(const Id &id, bool activate)
 {
     ITestTool *testTool = TestFrameworkManager::testToolForId(id);
     m_activeTestTools[testTool] = activate;
-    if (!activate)
-        testTool->resetRootNode();
+    if (!activate) {
+        ITestTreeItem *root = testTool->rootNode();
+        if (root->model())
+            TestTreeModel::instance()->takeItem(root);
+    }
 }
 
 void TestProjectSettings::load()

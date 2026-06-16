@@ -52,7 +52,6 @@ public:
     void synchronizeTestTools();
     void rebuild(const QList<Utils::Id> &frameworkIds);
 
-    void updateCheckStateCache();
     bool hasFailedTests() const;
     void clearFailedMarks();
 #ifdef WITH_TESTS
