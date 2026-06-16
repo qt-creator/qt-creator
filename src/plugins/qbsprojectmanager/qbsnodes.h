@@ -62,6 +62,9 @@ public:
     const QJsonObject projectData() const { return m_projectData; }
 
 private:
+    void build(ProjectExplorer::BuildAction action) override;
+    bool canBuild(ProjectExplorer::BuildAction) override { return true; }
+
     const QJsonObject m_projectData;
 };
 

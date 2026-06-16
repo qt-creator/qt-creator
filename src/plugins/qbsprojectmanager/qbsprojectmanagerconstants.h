@@ -14,13 +14,10 @@ const char PROJECT_ID[] = "Qbs.QbsProject";
 const char ACTION_REPARSE_QBS[] = "Qbs.Reparse";
 const char ACTION_REPARSE_QBS_CONTEXT[] = "Qbs.ReparseCtx";
 const char ACTION_BUILD_PRODUCT[] = "Qbs.BuildProduct";
-const char ACTION_BUILD_SUBPROJECT_CONTEXT[] = "Qbs.BuildSubprojectCtx";
 const char ACTION_BUILD_SUBPROJECT[] = "Qbs.BuildSubproduct";
 const char ACTION_CLEAN_PRODUCT[] = "Qbs.CleanProduct";
-const char ACTION_CLEAN_SUBPROJECT_CONTEXT[] = "Qbs.CleanSubprojectCtx";
 const char ACTION_CLEAN_SUBPROJECT[] = "Qbs.CleanSubproject";
 const char ACTION_REBUILD_PRODUCT[] = "Qbs.RebuildProduct";
-const char ACTION_REBUILD_SUBPROJECT_CONTEXT[] = "Qbs.RebuildSubprojectCtx";
 const char ACTION_REBUILD_SUBPROJECT[] = "Qbs.RebuildSubproject";
 
 // Ids:

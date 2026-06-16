@@ -10,13 +10,8 @@
 #include "qbssession.h"
 
 #include <android/androidconstants.h>
-#include <coreplugin/idocument.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
-#include <qtsupport/qtsupportconstants.h>
-#include <resourceeditor/resourcenode.h>
 
-#include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -101,9 +96,9 @@ QbsProductNode::QbsProductNode(const QJsonObject &prd) : ProjectNode(FilePath())
 
 void QbsProductNode::build(BuildAction action)
 {
-    runStepsForNamedProduct(
+    runStepsForNamedProducts(
         static_cast<QbsProject *>(getProject()),
-        m_productData.value("full-display-name").toString(),
+        {m_productData.value("full-display-name").toString()},
         action);
 }
 
@@ -260,6 +255,15 @@ QbsProjectNode::QbsProjectNode(const QJsonObject &projectData)
 {
     setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT));
     setDisplayName(projectData.value("name").toString());
+}
+
+void QbsProjectNode::build(ProjectExplorer::BuildAction action)
+{
+    QStringList toBuild;
+    forAllProducts(m_projectData, [&toBuild](const QJsonObject &data) {
+        toBuild << data.value("full-display-name").toString();
+    });
+    runStepsForNamedProducts(static_cast<QbsProject *>(getProject()), toBuild, action);
 }
 
 } // namespace QbsProjectManager::Internal

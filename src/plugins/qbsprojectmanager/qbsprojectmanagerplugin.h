@@ -13,8 +13,8 @@ namespace QbsProjectManager::Internal {
 
 class QbsProject;
 
-void runStepsForNamedProduct(QbsProject *project, const QString &product,
-                             ProjectExplorer::BuildAction action);
+void runStepsForNamedProducts(QbsProject *project, const QStringList &products,
+                              ProjectExplorer::BuildAction action);
 void buildSingleFile(QbsProject *project, const Utils::FilePath &file);
 
 } // QbsProjectManager::Private
