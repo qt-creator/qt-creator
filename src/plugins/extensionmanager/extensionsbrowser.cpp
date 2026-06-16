@@ -520,7 +520,7 @@ static QWidget *extensionViewPlaceHolder()
     auto text = new QLabel;
     applyTf(text, tF, false);
     text->setAlignment(Qt::AlignCenter);
-    text->setText(Tr::tr("No extension found!"));
+    text->setText(Tr::tr("No extensions found."));
     text->setWordWrap(true);
 
     using namespace Layouting;
