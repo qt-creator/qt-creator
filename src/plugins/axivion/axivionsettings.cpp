@@ -615,7 +615,7 @@ public:
         m_localPath.setLabelText(Tr::tr("Local path:"));
         m_localPath.setExpectedKind(PathChooser::ExistingDirectory);
         m_localPath.setAllowPathFromDevice(false);
-        m_localPath.setToolTip(Tr::tr("Local directory path corresponding to the analyis path."));
+        m_localPath.setToolTip(Tr::tr("Local directory path corresponding to the analysis path."));
         m_localPath.setShowToolTipOnLabel(true);
 
         using namespace Layouting;
