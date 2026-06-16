@@ -42,6 +42,7 @@ public:
     void cancelPrompt();
     void authenticate(const QString &methodId);
     void setConfigOption(const QString &configId, const QString &value);
+    void setSessionMode(const QString &modeId);
     void sendPermissionResponse(const QJsonValue &id, const QString &optionId);
     void sendPermissionCancelled(const QJsonValue &id);
     void deleteSession(const QString &sessionId);
@@ -63,6 +64,8 @@ signals:
                         const std::optional<QString> &nextCursor);
     void sessionDeleted(const QString &sessionId);
     void configOptionsReceived(const QList<Acp::SessionConfigOption> &configOptions);
+    void sessionModesReceived(const QList<Acp::SessionMode> &modes, const QString &currentModeId);
+    void currentModeChanged(const QString &modeId);
     void sessionUpdate(const QString &sessionId, const Acp::SessionUpdate &update);
     void authenticationRequired(const QList<Acp::AuthMethod> &methods);
     void authenticationFailed(const QString &error);

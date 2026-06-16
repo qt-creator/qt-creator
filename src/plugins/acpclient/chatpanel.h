@@ -43,6 +43,8 @@ public:
     void setSendEnabled(bool enabled);
 
     void setConfigOptions(const QList<Acp::SessionConfigOption> &configOptions);
+    void setSessionModes(const QList<Acp::SessionMode> &modes, const QString &currentModeId);
+    void setCurrentMode(const QString &modeId);
     void clear();
     void clearConfigOptions();
 
@@ -72,6 +74,7 @@ signals:
     void sendRequested(const QString &text);
     void cancelRequested();
     void configOptionChanged(const QString &configId, const QString &value);
+    void modeChanged(const QString &modeId);
     void permissionOptionSelected(const QJsonValue &id, const QString &optionId);
     void permissionCancelled(const QJsonValue &id);
     void authenticateRequested(const QString &methodId);
@@ -82,6 +85,11 @@ private:
 
     void updateConfigOptions();
 
+    QList<Acp::SessionMode> m_sessionModes;
+    QString m_currentModeId;
+    void showModeMenu();
+    void updateModeButton();
+
     // Message area
     AcpMessageView *m_messageView;
 
@@ -90,6 +98,7 @@ private:
     Utils::QtcButton *m_sendButton;
     Utils::QtcIconButton *m_commandsButton;
     Utils::QtcIconButton *m_configButton = nullptr;
+    Utils::QtcButton *m_modeButton = nullptr;
     QMenu *m_commandsMenu = nullptr;
     QWidget *m_contextBar = nullptr;
     QLayout *m_contextBarLayout = nullptr;

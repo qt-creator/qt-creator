@@ -194,6 +194,9 @@ void AcpChatController::createNewSession(const FilePath &workingDirectory)
             qCDebug(logController) << "Session response has no configOptions";
         }
 
+        if (const auto &modes = response->modes())
+            emit sessionModesReceived(modes->availableModes(), modes->currentModeId());
+
         qCDebug(logController) << "Session created:" << m_sessionId;
     });
 }
@@ -340,6 +343,24 @@ void AcpChatController::setConfigOption(const QString &configId, const QString &
         auto resp = fromJson<SetSessionConfigOptionResponse>(QJsonValue(result));
         if (resp)
             emit configOptionsReceived(resp->configOptions());
+    });
+}
+
+void AcpChatController::setSessionMode(const QString &modeId)
+{
+    if (m_sessionId.isEmpty() || !m_client)
+        return;
+
+    SetSessionModeRequest req;
+    req.sessionId(m_sessionId);
+    req.modeId(modeId);
+    m_client->setSessionMode(req, [this, modeId](const QJsonObject &result, const std::optional<Error> &error) {
+        Q_UNUSED(result)
+        if (error) {
+            emit errorOccurred(Tr::tr("Failed to set mode: %1").arg(error->message()));
+            return;
+        }
+        emit currentModeChanged(modeId);
     });
 }
 
@@ -524,6 +545,8 @@ void AcpChatController::loadSession(const QString &sessionId, const FilePath &wo
                 }
                 emit configOptionsReceived(configOptions);
             }
+            if (const auto &modes = resp->modes())
+                emit sessionModesReceived(modes->availableModes(), modes->currentModeId());
         }
     });
 }
