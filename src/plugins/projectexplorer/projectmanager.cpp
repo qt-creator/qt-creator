@@ -706,8 +706,9 @@ void ProjectManagerPrivate::askUserAboutFailedProjects()
         const QString fileList = failedProjects.toUserOutput("<br>");
         QMessageBox box(QMessageBox::Warning,
                                    Tr::tr("Failed to restore project files"),
-                                   Tr::tr("Could not restore the following project files:<br><b>%1</b>").
-                                   arg(fileList));
+                                   //: %1 is a list of project file paths
+                                   Tr::tr("Could not restore the following project files: %1")
+                                       .arg("<br><b>" + fileList + "</b>"));
         auto keepButton = new QPushButton(Tr::tr("Keep projects in Session"), &box);
         auto removeButton = new QPushButton(Tr::tr("Remove projects from Session"), &box);
         box.addButton(keepButton, QMessageBox::AcceptRole);

@@ -1580,7 +1580,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     if (!runConfig.isEmpty())
         lines << Tr::tr("<b>Run:</b> %1").arg(runConfig);
     if (!targetToolTipText.isEmpty())
-        lines << Tr::tr("%1").arg(targetToolTipText);
+        lines << targetToolTipText;
     QString toolTip = QString("<html><nobr>%1</html>")
             .arg(lines.join(QLatin1String("<br/>")));
     m_projectAction->setToolTip(toolTip);
@@ -1597,19 +1597,24 @@ void MiniProjectTargetSelector::updateSummary()
     QString summary;
     if (Project *startupProject = ProjectManager::startupProject()) {
         if (!m_projectListWidget->isVisibleTo(this))
-            summary.append(Tr::tr("Project: <b>%1</b><br/>").arg(startupProject->displayName()));
+            summary.append(Tr::tr("Project: %1")
+                .arg("<b>" + startupProject->displayName() + "</b><br/>"));
         if (Target *activeTarget = startupProject->activeTarget()) {
             if (!m_listWidgets[TARGET]->isVisibleTo(this))
-                summary.append(Tr::tr("Kit: <b>%1</b><br/>").arg( activeTarget->displayName()));
+                summary.append(Tr::tr("Kit: %1")
+                    .arg("<b>" + activeTarget->displayName() + "</b><br/>"));
             if (!m_listWidgets[BUILD]->isVisibleTo(this) && activeTarget->activeBuildConfiguration())
-                summary.append(Tr::tr("Build: <b>%1</b><br/>").arg(
-                                   activeTarget->activeBuildConfiguration()->displayName()));
+                summary.append(Tr::tr("Build: %1")
+                    .arg("<b>" + activeTarget->activeBuildConfiguration()->displayName()
+                         + "</b><br/>"));
             if (!m_listWidgets[DEPLOY]->isVisibleTo(this) && activeTarget->activeDeployConfiguration())
-                summary.append(Tr::tr("Deploy: <b>%1</b><br/>").arg(
-                                   activeTarget->activeDeployConfiguration()->displayName()));
+                summary.append(Tr::tr("Deploy: %1")
+                    .arg("<b>" + activeTarget->activeDeployConfiguration()->displayName()
+                         + "</b><br/>"));
             if (!m_listWidgets[RUN]->isVisibleTo(this) && activeTarget->activeRunConfiguration())
-                summary.append(Tr::tr("Run: <b>%1</b><br/>").arg(
-                                   activeTarget->activeRunConfiguration()->expandedDisplayName()));
+                summary.append(Tr::tr("Run: %1")
+                    .arg("<b>" + activeTarget->activeRunConfiguration()->expandedDisplayName()
+                         + "</b><br/>"));
         } else if (startupProject->needsConfiguration()) {
             summary = Tr::tr("<style type=text/css>"
                          "a:link {color: rgb(128, 128, 255);}</style>"
