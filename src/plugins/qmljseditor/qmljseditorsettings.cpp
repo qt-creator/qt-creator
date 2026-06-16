@@ -285,7 +285,7 @@ public:
                                     "the \"Open in Qt Design Studio\" feature. If you have Qt "
                                     "Design Studio installed alongside Qt Creator with the Qt "
                                     "Online Installer, it is used as the default. Use "
-                                    "<a href=\"linwithqt\">\"Link with Qt\"</a> to link an "
+                                    "<a href=\"linkwithqt\">\"Link with Qt\"</a> to link an "
                                     "offline installation of Qt Creator to a Qt Online Installer.")),
                         onLinkActivated(this, [](const QString &) { openQtVersionsOptions(); })
                     },
