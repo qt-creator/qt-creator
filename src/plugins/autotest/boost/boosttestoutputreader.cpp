@@ -330,7 +330,7 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
             = Tr::tr("%n failure(s) detected in %1.", nullptr, failed).arg(match.captured(3));
         const int passed = qMax(0, m_testCaseCount - failed);
         if (m_testCaseCount != -1)
-            txt.append(' ').append(Tr::tr("%1 tests passed.").arg(passed));
+            txt.append(' ').append(Tr::tr("%n test(s) passed.", nullptr, passed));
         result.setDescription(txt);
         result.setResult(ResultType::MessageInfo);
         reportResult(result);
@@ -348,7 +348,7 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
         BoostTestResult result(id(), {}, m_projectFile);
         QString txt = Tr::tr("No errors detected.");
         if (m_testCaseCount != -1)
-            txt.append(' ').append(Tr::tr("%1 tests passed.").arg(m_testCaseCount));
+            txt.append(' ').append(Tr::tr("%n test(s) passed.", nullptr, m_testCaseCount));
         result.setDescription(txt);
         result.setResult(ResultType::MessageInfo);
         reportResult(result);
