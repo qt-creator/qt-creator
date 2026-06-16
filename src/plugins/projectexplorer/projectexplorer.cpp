@@ -3349,10 +3349,9 @@ static QPair<bool, QString> subprojectEnabledState(const Project *pro)
         if (const BuildConfiguration *const bc = activeBuildConfig(project);
             bc && !bc->isEnabled()) {
             result.first = false;
-            result.second += Tr::tr("Building \"%1\" is disabled: %2<br>")
-                                 .arg(
-                                     project->displayName(),
-                                     bc->disabledReason());
+            result.second += Tr::tr("Building \"%1\" is disabled: %2")
+                                 .arg(project->displayName(),
+                                      bc->disabledReason()) + "<br>";
         }
     }
 
