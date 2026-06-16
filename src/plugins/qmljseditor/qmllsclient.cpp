@@ -96,8 +96,19 @@ private:
 
     TextEditor::GenericProposal *handleCodeActionResult(const LanguageServerProtocol::CodeActionResult &result) override
     {
-        return TextEditor::GenericProposal::createProposal(
-            interface(), resultToOperations(result) + m_builtinOps);
+        QuickFixOperations operations = resultToOperations(result);
+
+        for (const QuickFixOperation::Ptr &builtInOp : std::as_const(m_builtinOps)) {
+            if (std::none_of(
+                    operations.cbegin(),
+                    operations.cend(),
+                    [&builtInOp](const QuickFixOperation::Ptr &op) {
+                        return op->description() == builtInOp->description();
+                    })) {
+                operations.append(builtInOp);
+            }
+        }
+        return TextEditor::GenericProposal::createProposal(interface(), operations);
     }
 
     QuickFixOperations m_builtinOps;
