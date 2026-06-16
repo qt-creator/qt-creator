@@ -145,7 +145,6 @@ class QdbSettingsPage : public QWizardPage
 public:
     QdbSettingsPage()
     {
-        setWindowTitle(Tr::tr("WizardPage"));
         setTitle(Tr::tr("Device Settings"));
 
         nameLineEdit = new QLineEdit(this);

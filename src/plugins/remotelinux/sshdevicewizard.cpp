@@ -33,7 +33,6 @@ public:
         : m_device(device)
     {
         setTitle(Tr::tr("Connection"));
-        setWindowTitle(Tr::tr("WizardPage"));
 
         m_nameLineEdit = new FancyLineEdit(this);
         m_nameLineEdit->setHistoryCompleter("DeviceName");
