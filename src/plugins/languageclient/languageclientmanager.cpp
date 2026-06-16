@@ -180,7 +180,7 @@ void LanguageClientManager::clientFinished(Client *client)
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->log(
                     QtMsgType::QtWarningMsg,
-                    Tr::tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
+                    Tr::tr("Unexpectedly finished. Restarting in %n second(s).", nullptr, restartTimeoutS));
                 QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
                 for (const QPointer<TextEditor::TextDocument> &document : clientDocs) {
                     if (!document)
