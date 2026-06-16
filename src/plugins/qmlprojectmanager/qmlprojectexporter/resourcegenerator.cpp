@@ -56,14 +56,14 @@ ResourceGenerator::ResourceGenerator(QObject *parent)
                                     .arg(m_rccProcess.commandLine().toUserOutput())
                                     .arg(m_rccProcess.exitCode());
             Core::MessageManager::writeDisrupting(errorMessage);
-            emit errorOccurred(Tr::tr("Failed to generate deployable package!"));
+            emit errorOccurred(Tr::tr("Failed to generate deployable package."));
             return;
         }
 
         if (m_rccProcess.exitStatus() != QProcess::NormalExit) {
             Core::MessageManager::writeDisrupting(
                 Tr::tr("\"%1\" crashed.").arg(m_rccProcess.commandLine().toUserOutput()));
-            emit errorOccurred(Tr::tr("Failed to generate deployable package!"));
+            emit errorOccurred(Tr::tr("Failed to generate deployable package."));
             return;
         }
 
@@ -167,10 +167,10 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
         }
 
         if (!future.result()) {
-            Core::MessageManager::writeDisrupting(Tr::tr("Failed to generate deployable package!"));
+            Core::MessageManager::writeDisrupting(Tr::tr("Failed to generate deployable package."));
             QMessageBox msgBox;
             msgBox.setWindowTitle(Tr::tr("Error"));
-            msgBox.setText(Tr::tr("Failed to generate deployable package!\n\nPlease check "
+            msgBox.setText(Tr::tr("Failed to generate deployable package.\n\nPlease check "
                                   "the output pane for more information."));
             msgBox.exec();
             return;
