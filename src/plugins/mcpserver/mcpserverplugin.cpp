@@ -53,7 +53,7 @@ using namespace QtTaskTree;
 using namespace Utils;
 
 // Define logging category for the plugin
-Q_LOGGING_CATEGORY(mcpPlugin, "qtc.mcpserver.plugin", QtWarningMsg)
+Q_LOGGING_CATEGORY(mcpPlugin, "qtc.mcpserver.plugin", QtInfoMsg)
 
 namespace Mcp::Internal {
 
@@ -438,8 +438,11 @@ public:
                     .arg(settings.listenAddress.hostAddress().toString())
                     .arg(settings.port()));
         } else {
-            qCInfo(mcpPlugin) << "MCP server started successfully on" << tcpServer->serverAddress()
-                              << ":" << tcpServer->serverPort();
+            qCInfo(mcpPlugin).noquote()
+                << "MCP server started successfully on"
+                << QString("%1:%2")
+                       .arg(tcpServer->serverAddress().toString())
+                       .arg(tcpServer->serverPort());
             // Show startup message in General Messages panel
             MessageManager::writeSilently(
                 Tr::tr("The MCP server is listening on \"%1:%2\".")
