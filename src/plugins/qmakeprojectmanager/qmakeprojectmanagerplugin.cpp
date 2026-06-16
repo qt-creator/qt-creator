@@ -85,11 +85,11 @@ public:
     void runQMake();
     void runQMakeContextMenu();
 
-    void buildSubDirContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::BUILD, false); }
-    void rebuildSubDirContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::REBUILD, false); }
-    void cleanSubDirContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::CLEAN, false); }
+    void buildSubDirContextMenu() { handleSubDirContextMenu(BuildAction::Build, false); }
+    void rebuildSubDirContextMenu() { handleSubDirContextMenu(BuildAction::Rebuild, false); }
+    void cleanSubDirContextMenu() { handleSubDirContextMenu(BuildAction::Clean, false); }
 
-    void handleSubDirContextMenu(QmakeBuildSystem::Action action, bool isFileBuild);
+    void handleSubDirContextMenu(BuildAction action, bool isFileBuild);
     void addLibraryImpl(const FilePath &filePath, TextEditor::BaseTextEditor *editor);
     void runQMakeImpl(Project *p, ProjectExplorer::Node *node);
 };
@@ -329,7 +329,7 @@ void QmakeProjectManagerPluginPrivate::runQMakeImpl(Project *p, Node *node)
     bc->setSubNodeBuild(nullptr);
 }
 
-void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(QmakeBuildSystem::Action action, bool isFileBuild)
+void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(BuildAction action, bool isFileBuild)
 {
     Node *node = ProjectTree::currentNode();
 

@@ -347,19 +347,7 @@ bool QmakeProFileNode::validParse() const
 
 void QmakeProFileNode::build(BuildAction action)
 {
-    // FIXME: Use upstream type directly.
-    const QmakeBuildSystem::Action qmakeAction = [action] {
-        switch (action) {
-        case BuildAction::Build:
-            return QmakeBuildSystem::BUILD;
-        case BuildAction::Clean:
-            return QmakeBuildSystem::CLEAN;
-        case BuildAction::Rebuild:
-            return QmakeBuildSystem::REBUILD;
-        }
-        QTC_ASSERT(false, return QmakeBuildSystem::BUILD);
-    }();
-    m_buildSystem->buildHelper(qmakeAction, false, this, nullptr);
+    m_buildSystem->buildHelper(action, false, this, nullptr);
 }
 
 QStringList QmakeProFileNode::targetApplications() const

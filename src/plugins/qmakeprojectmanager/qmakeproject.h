@@ -147,8 +147,7 @@ public:
 
     void notifyChanged(const Utils::FilePath &name);
 
-    enum Action { BUILD, REBUILD, CLEAN };
-    void buildHelper(Action action, bool isFileBuild,
+    void buildHelper(ProjectExplorer::BuildAction action, bool isFileBuild,
                      QmakeProFileNode *profile,
                      ProjectExplorer::FileNode *buildableFile);
 

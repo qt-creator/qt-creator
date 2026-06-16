@@ -1448,7 +1448,7 @@ void QmakeBuildSystem::triggerParsing()
 
 void QmakeBuildSystem::buildFile(ProjectExplorer::FileNode *file)
 {
-    buildHelper(BUILD, true, QmakeProFileNode::buildableFileProFile(file), file);
+    buildHelper(BuildAction::Build, true, QmakeProFileNode::buildableFileProFile(file), file);
 }
 
 bool QmakeBuildSystem::canBuildFile(ProjectExplorer::FileNode *file) const
@@ -1561,7 +1561,7 @@ void QmakeBuildSystem::runGenerator(Utils::Id id)
     proc->start();
 }
 
-void QmakeBuildSystem::buildHelper(Action action, bool isFileBuild, QmakeProFileNode *profile,
+void QmakeBuildSystem::buildHelper(BuildAction action, bool isFileBuild, QmakeProFileNode *profile,
                                    FileNode *buildableFile)
 {
     auto bc = qmakeBuildConfiguration();
@@ -1581,12 +1581,17 @@ void QmakeBuildSystem::buildHelper(Action action, bool isFileBuild, QmakeProFile
             buildSteps = bsl;
     }
     if (ProjectExplorerPlugin::saveModifiedFiles()) {
-        if (action == BUILD)
+        switch (action) {
+        case BuildAction::Build:
             BuildManager::buildList(buildSteps);
-        else if (action == CLEAN)
+            break;
+        case BuildAction::Clean:
             BuildManager::buildList(bc->cleanSteps());
-        else if (action == REBUILD)
+            break;
+        case BuildAction::Rebuild:
             BuildManager::buildLists({bc->cleanSteps(), buildSteps});
+            break;
+        }
     }
 
     bc->setSubNodeBuild(nullptr);
