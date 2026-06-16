@@ -389,7 +389,7 @@ void PermissionsContainerWidget::editAttributes()
     QDialog dialog(this);
     QVBoxLayout *dialogLayout = new QVBoxLayout(&dialog);
 
-    QLabel *permissionLabel = new QLabel(Tr::tr("Permission: <b>%1</b>").arg(permission), &dialog);
+    QLabel *permissionLabel = new QLabel(Tr::tr("Permission: %1").arg("<b>" + permission + "</b>"), &dialog);
     dialogLayout->addWidget(permissionLabel);
 
     QListWidget *attrListWidget = new QListWidget(&dialog);

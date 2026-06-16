@@ -275,8 +275,8 @@ void BuildSettingsWidget::renameConfiguration()
     QTC_ASSERT(m_buildConfiguration, return);
     bool ok;
     QString name = QInputDialog::getText(this, Tr::tr("Rename..."),
-                                         Tr::tr("New name for build configuration <b>%1</b>:").
-                                            arg(m_buildConfiguration->displayName()),
+                                         Tr::tr("New name for build configuration %1:").
+                                            arg("<b>" + m_buildConfiguration->displayName() + "</b>"),
                                          QLineEdit::Normal,
                                          m_buildConfiguration->displayName(), &ok);
     if (!ok)
@@ -349,7 +349,7 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
         QPushButton *cancelClose = box.addButton(Tr::tr("Do Not Remove"), QMessageBox::RejectRole);
         box.setDefaultButton(cancelClose);
         box.setWindowTitle(Tr::tr("Remove Build Configuration %1?").arg(deleteConfiguration->displayName()));
-        box.setText(Tr::tr("The build configuration <b>%1</b> is currently being built.").arg(deleteConfiguration->displayName()));
+        box.setText(Tr::tr("The build configuration %1 is currently being built.").arg("<b>" + deleteConfiguration->displayName() + "</b>"));
         box.setInformativeText(Tr::tr("Do you want to cancel the build process and remove the Build Configuration anyway?"));
         box.exec();
         if (box.clickedButton() != closeAnyway)
@@ -357,7 +357,7 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
         BuildManager::cancel();
     } else {
         QMessageBox msgBox(QMessageBox::Question, Tr::tr("Remove Build Configuration?"),
-                           Tr::tr("Do you really want to delete build configuration <b>%1</b>?").arg(deleteConfiguration->displayName()),
+                           Tr::tr("Do you really want to delete build configuration %1?").arg("<b>" + deleteConfiguration->displayName() + "</b>"),
                            QMessageBox::Yes|QMessageBox::No, this);
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);

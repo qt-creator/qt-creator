@@ -388,7 +388,7 @@ void ModeManagerPrivate::appendMode(IMode *mode, int originalIndex)
 
     // Register mode shortcut
     const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
-    QAction *action = new QAction(Tr::tr("Switch to <b>%1</b> mode").arg(mode->displayName()), m_instance);
+    QAction *action = new QAction(Tr::tr("Switch to %1 mode").arg("<b>" + mode->displayName() + "</b>"), m_instance);
     Command *cmd = ActionManager::registerAction(action, actionId);
     cmd->setDefaultKeySequence(QKeySequence(
         useMacShortcuts ? QString("Meta+%1").arg(originalIndex + 1)

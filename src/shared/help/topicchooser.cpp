@@ -61,7 +61,7 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
 
     using namespace Layouting;
     Column {
-        ::Help::Tr::tr("Choose a topic for <b>%1</b>:").arg(keyword),
+        ::Help::Tr::tr("Choose a topic for %1:").arg("<b>" + keyword + "</b>"),
         m_lineEdit,
         m_listWidget,
         buttonBox,

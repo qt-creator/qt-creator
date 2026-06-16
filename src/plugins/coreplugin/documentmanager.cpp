@@ -176,10 +176,10 @@ static ReloadPromptAnswer reloadPrompt(const FilePath &fileName, bool modified, 
     QString msg;
 
     if (modified) {
-        msg = Tr::tr("The unsaved file <i>%1</i> has been changed on disk. "
+        msg = Tr::tr("The unsaved file \"%1\" has been changed on disk. "
                      "Do you want to reload it and discard your changes?");
     } else {
-        msg = Tr::tr("The file <i>%1</i> has been changed on disk. Do you want to reload it?");
+        msg = Tr::tr("The file \"%1\" has been changed on disk. Do you want to reload it?");
     }
     msg = "<p>" + msg.arg(fileName.fileName()) + "</p><p>";
     if (HostOsInfo::isMacHost()) {

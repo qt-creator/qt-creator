@@ -145,7 +145,7 @@ void VcsConfigurationPage::initializePage()
 
     d->m_configureButton->setEnabled(d->m_versionControl);
     if (d->m_versionControl)
-        setSubTitle(Tr::tr("Please configure <b>%1</b> now.").arg(d->m_versionControl->displayName()));
+        setSubTitle(Tr::tr("Please configure %1 now.").arg("<b>" + d->m_versionControl->displayName() + "</b>"));
     else
         setSubTitle(Tr::tr("No known version control selected."));
 }

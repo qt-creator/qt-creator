@@ -379,7 +379,7 @@ void DeploySettingsWidget::removeDeployConfiguration()
         QPushButton *cancelClose = box.addButton(Tr::tr("Do Not Remove"), QMessageBox::RejectRole);
         box.setDefaultButton(cancelClose);
         box.setWindowTitle(Tr::tr("Remove Deploy Configuration %1?").arg(dc->displayName()));
-        box.setText(Tr::tr("The deploy configuration <b>%1</b> is currently being built.").arg(dc->displayName()));
+        box.setText(Tr::tr("The deploy configuration %1 is currently being built.").arg("<b>" + dc->displayName() + "</b>"));
         box.setInformativeText(Tr::tr("Do you want to cancel the build process and remove the Deploy Configuration anyway?"));
         box.exec();
         if (box.clickedButton() != closeAnyway)
@@ -387,7 +387,7 @@ void DeploySettingsWidget::removeDeployConfiguration()
         BuildManager::cancel();
     } else {
         QMessageBox msgBox(QMessageBox::Question, Tr::tr("Remove Deploy Configuration?"),
-                           Tr::tr("Do you really want to delete deploy configuration <b>%1</b>?").arg(dc->displayName()),
+                           Tr::tr("Do you really want to delete deploy configuration %1?").arg("<b>" + dc->displayName() + "</b>"),
                            QMessageBox::Yes|QMessageBox::No, this);
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);
@@ -411,8 +411,8 @@ void DeploySettingsWidget::renameDeployConfiguration()
 {
     bool ok;
     QString name = QInputDialog::getText(this, Tr::tr("Rename..."),
-                                         Tr::tr("New name for deploy configuration <b>%1</b>:").
-                                            arg(m_target->activeDeployConfiguration()->displayName()),
+                                         Tr::tr("New name for deploy configuration %1:").
+                                            arg("<b>" + m_target->activeDeployConfiguration()->displayName() + "</b>"),
                                          QLineEdit::Normal,
                                          m_target->activeDeployConfiguration()->displayName(), &ok);
     if (!ok)
@@ -723,7 +723,7 @@ void RunSettingsWidget::removeRunConfiguration()
 {
     RunConfiguration *rc = m_target->activeRunConfiguration();
     QMessageBox msgBox(QMessageBox::Question, Tr::tr("Remove Run Configuration?"),
-                       Tr::tr("Do you really want to delete the run configuration <b>%1</b>?").arg(rc->displayName()),
+                       Tr::tr("Do you really want to delete the run configuration %1?").arg("<b>" + rc->displayName() + "</b>"),
                        QMessageBox::Yes|QMessageBox::No, this);
     msgBox.setDefaultButton(QMessageBox::No);
     msgBox.setEscapeButton(QMessageBox::No);
@@ -801,8 +801,8 @@ void RunSettingsWidget::renameRunConfiguration()
 {
     bool ok;
     QString name = QInputDialog::getText(this, Tr::tr("Rename..."),
-                                         Tr::tr("New name for run configuration <b>%1</b>:").
-                                            arg(m_target->activeRunConfiguration()->displayName()),
+                                         Tr::tr("New name for run configuration %1:").
+                                            arg("<b>" + m_target->activeRunConfiguration()->displayName() + "</b>"),
                                          QLineEdit::Normal,
                                          m_target->activeRunConfiguration()->displayName(), &ok);
     if (!ok)

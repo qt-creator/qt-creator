@@ -1386,10 +1386,10 @@ bool WatchModel::hasChildren(const QModelIndex &idx) const
 static QString variableToolTip(const QString &name, const QString &type, quint64 offset)
 {
     return offset
-        ? //: HTML tooltip of a variable in the memory editor
-          Tr::tr("<i>%1</i> %2 at #%3").arg(type, name).arg(offset)
-        : //: HTML tooltip of a variable in the memory editor
-          Tr::tr("<i>%1</i> %2").arg(type, name);
+        ? //: HTML tooltip of a variable in the memory editor, %1 - type, %2 - name, %3 - offset
+          Tr::tr("%1 %2 at #%3").arg("<i>" + type + "</i>", name).arg(offset)
+        : //: HTML tooltip of a variable in the memory editor, %1 - type, %2 - name
+          Tr::tr("%1 %2").arg("<i>" + type + "</i>", name);
 }
 
 void WatchModel::grabWidget()
@@ -1529,7 +1529,8 @@ MemoryMarkupList WatchModel::variableMemoryMarkup(WatchItem *item,
             const quint64 offset = it.key() - address;
             if (offset < size) {
                 ranges[offset] = ColorNumberToolTip(registerColorNumber,
-                           Tr::tr("Register <i>%1</i>").arg(it.value()));
+                           //: %1 - name of the CPU register
+                           Tr::tr("Register %1").arg("<i>" + it.value() + "</i>"));
             } else {
                 break; // Sorted.
             }
