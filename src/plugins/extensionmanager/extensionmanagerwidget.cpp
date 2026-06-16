@@ -4,7 +4,6 @@
 #include "extensionmanagerwidget.h"
 
 #include "extensionmanagerconstants.h"
-#include "extensionmanagersettings.h"
 #include "extensionmanagertr.h"
 #include "extensionsbrowser.h"
 #include "extensionsmodel.h"
@@ -12,7 +11,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwelcomepage.h>
 #include <coreplugin/minisplitter.h>
@@ -28,7 +26,6 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
-#include <utils/appinfo.h>
 #include <utils/dropsupport.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -39,13 +36,12 @@
 #include <utils/markdownbrowser.h>
 #include <utils/mimeutils.h>
 #include <utils/networkaccessmanager.h>
-#include <utils/progressdialog.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stringutils.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QApplication>
@@ -56,6 +52,7 @@
 #include <QJsonDocument>
 #include <QMessageBox>
 #include <QMetaEnum>
+#include <QProgressDialog>
 #include <QScrollArea>
 
 using namespace Core;

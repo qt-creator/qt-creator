@@ -25,12 +25,9 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/find/findplugin.h>
-#include <coreplugin/findplaceholder.h>
 #include <coreplugin/helpitem.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
@@ -45,11 +42,11 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 #include <utils/stringutils.h>
 #include <utils/qtcsettings.h>
 #include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QApplication>

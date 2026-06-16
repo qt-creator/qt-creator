@@ -11,11 +11,11 @@
 #include "guard.h"
 #include "hostosinfo.h"
 #include "macroexpander.h"
-#include "optionpushbutton.h"
 #include "qtcprocess.h"
 #include "qtcassert.h"
 #include "tooltip/tooltip.h"
 #include "utilstr.h"
+#include "widgets.h"
 
 #include <QFileDialog>
 #include <QGuiApplication>

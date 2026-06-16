@@ -43,16 +43,14 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/action.h>
-#include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/fileutils.h>
-#include <utils/infobar.h>
 #include <utils/macroexpander.h>
-#include <utils/messagebox.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <vcsbase/cleandialog.h>
 #include <vcsbase/submitfilemodel.h>

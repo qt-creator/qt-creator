@@ -5,7 +5,7 @@
 
 #include <qmldesignertr.h>
 
-#include <utils/messagebox.h>
+#include <utils/widgets.h>
 
 namespace QmlDesigner {
 

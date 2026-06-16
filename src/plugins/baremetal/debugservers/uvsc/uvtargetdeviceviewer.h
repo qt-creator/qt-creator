@@ -5,9 +5,9 @@
 
 #include "uvtargetdeviceselection.h"
 
-#include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
 #include <utils/filepath.h>
+#include <utils/widgets.h>
 
 #include <QDialog>
 

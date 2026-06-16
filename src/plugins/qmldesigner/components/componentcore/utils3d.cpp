@@ -20,8 +20,8 @@
 #include <uniquename.h>
 #include <variantproperty.h>
 
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QRegularExpression>
 #include <QTextDocument>

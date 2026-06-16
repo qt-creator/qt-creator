@@ -11,13 +11,13 @@
 #include "fsengine/fsengine.h"
 #include "hostosinfo.h"
 #include "layoutbuilder.h"
-#include "messagebox.h"
 #include "mimedatabase.h"
 #include "qtdesignwidgets.h"
 #include "theme/theme.h"
 #include "utilsicons.h"
 #include "utilstr.h"
 #include "utiltypes.h"
+#include "widgets.h"
 
 #include <solutions/spinner/spinner.h>
 

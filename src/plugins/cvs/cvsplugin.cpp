@@ -8,7 +8,6 @@
 #include "cvsutils.h"
 
 #include <vcsbase/vcsbaseclient.h>
-#include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
@@ -21,7 +20,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -35,9 +33,9 @@
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QDate>

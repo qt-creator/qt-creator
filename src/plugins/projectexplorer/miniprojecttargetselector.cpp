@@ -22,11 +22,11 @@
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

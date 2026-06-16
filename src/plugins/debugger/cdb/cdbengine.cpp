@@ -45,11 +45,11 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/widgets.h>
 #include <utils/winutils.h>
 
 #include <cplusplus/findcdbbreakpoint.h>

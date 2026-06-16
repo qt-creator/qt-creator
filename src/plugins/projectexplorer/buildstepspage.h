@@ -5,7 +5,7 @@
 
 #include "buildstep.h"
 
-#include <utils/detailsbutton.h>
+#include <utils/widgets.h>
 
 QT_BEGIN_NAMESPACE
 class QPushButton;

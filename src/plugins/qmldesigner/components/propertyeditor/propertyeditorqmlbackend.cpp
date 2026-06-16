@@ -33,8 +33,8 @@
 #include <utils/array.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/messagebox.h>
 #include <utils/smallstring.h>
+#include <utils/widgets.h>
 
 #ifdef QDS_USE_PROJECTSTORAGE
 #include <qmlprojectmanager/qmlproject.h>

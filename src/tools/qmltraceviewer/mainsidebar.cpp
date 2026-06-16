@@ -7,7 +7,7 @@
 
 #include <utils/filepath.h>
 #include <utils/stylehelper.h>
-#include <utils/styledbar.h>
+#include <utils/widgets.h>
 
 #include <QLabel>
 #include <QListWidget>

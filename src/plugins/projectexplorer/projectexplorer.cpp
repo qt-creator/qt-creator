@@ -129,16 +129,15 @@
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
-#include <utils/messagebox.h>
 #include <utils/mimeutils.h>
 #include <utils/processinterface.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
-#include <utils/removefiledialog.h>
 #include <utils/stringutils.h>
 #include <utils/terminalhooks.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 

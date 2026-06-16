@@ -8,9 +8,9 @@
 #include "../texteditortr.h"
 
 #include <utils/algorithm.h>
-#include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QDebug>
 #include <QApplication>

@@ -62,11 +62,11 @@
 #include <utils/algorithm.h>
 #include <utils/guard.h>
 #include <utils/hostosinfo.h>
-#include <utils/messagebox.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 #include <utils/uniqueobjectptr.h>
+#include <utils/widgets.h>
 
 #include <designersettings.h>
 #include <studioquickutils.h>

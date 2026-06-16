@@ -5,8 +5,6 @@
 
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
-#include <debugger/debuggercore.h>
-#include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
@@ -15,17 +13,14 @@
 #include <debugger/registerhandler.h>
 #include <debugger/sourceutils.h>
 #include <debugger/stackhandler.h>
-#include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
-#include <debugger/watchutils.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
-#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
 #include <QDateTime>

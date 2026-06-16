@@ -4,7 +4,6 @@
 #include "chatpanel.h"
 #include "acpclienttr.h"
 #include "acpmessageview.h"
-#include "acpsettings.h"
 #include "chatinputedit.h"
 #include "sessionpickerwidget.h"
 
@@ -12,10 +11,10 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtdesignwidgets.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QFileDialog>

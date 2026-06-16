@@ -6,9 +6,9 @@
 #include "../coreplugintr.h"
 
 #include <utils/fancylineedit.h>
-#include <utils/headerviewstretcher.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QDebug>
 #include <QHeaderView>

@@ -8,7 +8,7 @@
 #include <QDebug>
 
 #include <utils/crumblepath.h>
-#include <utils/styledbar.h>
+#include <utils/widgets.h>
 
 #include "../common/themeselector.h"
 

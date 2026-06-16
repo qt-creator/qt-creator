@@ -17,9 +17,9 @@
 
 #include <utils/basetreeview.h>
 #include <utils/fileutils.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/widgets.h>
 
 #include <QContextMenuEvent>
 #include <QDebug>

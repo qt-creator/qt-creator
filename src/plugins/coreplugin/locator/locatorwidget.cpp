@@ -14,7 +14,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
-#include <utils/execmenu.h>
 #include <utils/fancylineedit.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
@@ -23,6 +22,8 @@
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QColor>

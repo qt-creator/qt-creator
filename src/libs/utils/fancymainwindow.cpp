@@ -7,9 +7,9 @@
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "stringutils.h"
-#include "styledbar.h"
 #include "utilsicons.h"
 #include "utilstr.h"
+#include "widgets.h"
 
 #include <QAbstractButton>
 #include <QApplication>

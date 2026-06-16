@@ -9,21 +9,18 @@
 #include "serialterminaltr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>
 #include <texteditor/fontsettings.h>
 
 #include <utils/algorithm.h>
-#include <utils/documenttabbar.h>
 #include <utils/icon.h>
-#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QComboBox>

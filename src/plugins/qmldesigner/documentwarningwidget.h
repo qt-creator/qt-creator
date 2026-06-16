@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/faketooltip.h>
+#include <utils/widgets.h>
 #include <documentmessage.h>
 
 QT_BEGIN_NAMESPACE

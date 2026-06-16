@@ -3,7 +3,6 @@
 
 #include "genericproposalwidget.h"
 #include "genericproposalmodel.h"
-#include "assistproposalitem.h"
 #include "codeassistant.h"
 
 #include <texteditor/completionsettings.h>
@@ -11,9 +10,9 @@
 #include <texteditor/codeassist/assistproposaliteminterface.h>
 
 #include <utils/algorithm.h>
-#include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QRect>
 #include <QLatin1String>

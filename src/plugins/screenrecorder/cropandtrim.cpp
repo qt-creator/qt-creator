@@ -10,10 +10,9 @@
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcsettings.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <coreplugin/icore.h>
 

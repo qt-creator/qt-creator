@@ -3,7 +3,7 @@
 
 #include "capturingconnectionmanager.h"
 
-#include <utils/messagebox.h>
+#include <utils/widgets.h>
 
 #include <QCoreApplication>
 #include <QDebug>

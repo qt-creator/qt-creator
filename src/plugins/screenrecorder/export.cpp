@@ -11,8 +11,7 @@
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
-#include <utils/styledbar.h>
-#include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <coreplugin/progressmanager/processprogress.h>
 

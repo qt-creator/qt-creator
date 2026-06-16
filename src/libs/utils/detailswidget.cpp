@@ -3,10 +3,10 @@
 
 #include "detailswidget.h"
 
-#include "detailsbutton.h"
 #include "hostosinfo.h"
 #include "stylehelper.h"
 #include "theme/theme.h"
+#include "widgets.h"
 
 #include <QGridLayout>
 #include <QLabel>

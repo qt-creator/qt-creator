@@ -14,8 +14,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QLabel>
 #include <QLineEdit>

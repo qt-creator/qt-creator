@@ -11,12 +11,9 @@
 #include "openpagesswitcher.h"
 #include "openpageswidget.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
-
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/styledbar.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QClipboard>

@@ -19,7 +19,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/imode.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/perspective.h>
@@ -40,13 +39,12 @@
 #include <tracing/timelinezoomcontrol.h>
 
 #include <utils/action.h>
-#include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/fileutils.h>
-#include <utils/messagebox.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QCoreApplication>
 #include <QDirIterator>

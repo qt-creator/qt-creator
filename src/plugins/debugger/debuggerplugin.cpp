@@ -83,13 +83,12 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/messagebox.h>
 #include <utils/processinfo.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
-#include <utils/statuslabel.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
+#include <utils/widgets.h>
 #include <utils/winutils.h>
 
 #include <QAction>

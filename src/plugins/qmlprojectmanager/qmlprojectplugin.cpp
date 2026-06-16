@@ -46,12 +46,11 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/messagebox.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QDesktopServices>

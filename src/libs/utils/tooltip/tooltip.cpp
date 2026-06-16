@@ -5,9 +5,9 @@
 #include "tips.h"
 #include "effects.h"
 
-#include "faketooltip.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
+#include "widgets.h"
 
 #include <QApplication>
 #include <QColor>

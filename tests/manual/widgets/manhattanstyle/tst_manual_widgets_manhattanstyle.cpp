@@ -19,7 +19,7 @@
 
 #include <utils/utilsicons.h>
 #include <utils/fancylineedit.h>
-#include <utils/styledbar.h>
+#include <utils/widgets.h>
 
 #include "../common/themeselector.h"
 

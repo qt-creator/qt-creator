@@ -16,13 +16,13 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
-#include <utils/detailsbutton.h>
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QCheckBox>
 #include <QComboBox>

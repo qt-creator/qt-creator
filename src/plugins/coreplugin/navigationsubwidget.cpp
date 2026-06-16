@@ -10,9 +10,9 @@
 #include "inavigationwidgetfactory.h"
 #include "navigationwidget.h"
 
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QHBoxLayout>
 #include <QMenu>

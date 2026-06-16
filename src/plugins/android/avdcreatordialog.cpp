@@ -18,11 +18,9 @@
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
-#include <utils/progressdialog.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -32,6 +30,7 @@
 #include <QLineEdit>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSpinBox>

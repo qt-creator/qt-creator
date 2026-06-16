@@ -32,8 +32,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 #include <utils3d.h>
 
 #include <QApplication>

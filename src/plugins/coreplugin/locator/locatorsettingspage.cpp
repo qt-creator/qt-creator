@@ -15,11 +15,11 @@
 #include <utils/categorysortfiltermodel.h>
 #include <utils/fancylineedit.h>
 #include <utils/guiutils.h>
-#include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
+#include <utils/widgets.h>
 
 #include <QAbstractTextDocumentLayout>
 #include <QCheckBox>

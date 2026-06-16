@@ -8,12 +8,10 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "kitaspect.h"
-#include "kitoptionspage.h"
 
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
-#include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
@@ -21,6 +19,7 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
+#include <utils/widgets.h>
 
 #include <QCheckBox>
 #include <QHBoxLayout>

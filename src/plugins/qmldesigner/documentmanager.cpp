@@ -15,9 +15,9 @@
 #include <qmlitemnode.h>
 #include <variantproperty.h>
 
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
+#include <utils/widgets.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/iversioncontrol.h>

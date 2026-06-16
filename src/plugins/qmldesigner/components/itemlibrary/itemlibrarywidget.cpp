@@ -36,10 +36,10 @@
 #include <utils/environment.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

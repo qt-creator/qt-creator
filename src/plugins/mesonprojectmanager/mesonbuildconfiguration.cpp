@@ -19,16 +19,14 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectconfiguration.h>
-#include <projectexplorer/projectexplorer.h>
 
 #include <utils/categorysortfiltermodel.h>
 #include <utils/detailswidget.h>
-#include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcprocess.h>
 #include <utils/progressindicator.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QLayout>
 #include <QPushButton>

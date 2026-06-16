@@ -27,31 +27,27 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/find/optionspopup.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/outputwindow.h>
 
 #include <texteditor/fontsettings.h>
 
-#include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 #include <utils/qtdesignwidgets.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QCheckBox>

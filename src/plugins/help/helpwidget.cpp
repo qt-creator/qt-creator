@@ -6,7 +6,6 @@
 #include "bookmarkmanager.h"
 #include "contentwindow.h"
 #include "helpconstants.h"
-#include "helpicons.h"
 #include "helpplugin.h"
 #include "helptr.h"
 #include "helpviewer.h"
@@ -26,11 +25,10 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
-#include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QComboBox>
 #include <QHBoxLayout>

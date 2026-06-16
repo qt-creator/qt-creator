@@ -17,9 +17,9 @@
 
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QDebug>

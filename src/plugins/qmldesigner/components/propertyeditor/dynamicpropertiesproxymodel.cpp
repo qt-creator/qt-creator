@@ -39,8 +39,8 @@
 #include <qmlstate.h>
 #include <variantproperty.h>
 
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QScopeGuard>
 

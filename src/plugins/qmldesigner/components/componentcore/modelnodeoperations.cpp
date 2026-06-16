@@ -63,11 +63,11 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/messagebox.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/smallstring.h>
+#include <utils/widgets.h>
 
 #include <QComboBox>
 #include <QCoreApplication>

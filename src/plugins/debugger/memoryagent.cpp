@@ -11,20 +11,16 @@
 
 #include <bineditor/bineditorservice.h>
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
-#include <utils/messagebox.h>
-#include <utils/qtcassert.h>
 #include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/invoker.h>
+
+#include <utils/qtcassert.h>
 
 #include <QVBoxLayout>
-
-#include <cstring>
 
 using namespace Core;
 using namespace ProjectExplorer;

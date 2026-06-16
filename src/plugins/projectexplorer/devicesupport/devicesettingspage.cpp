@@ -21,8 +21,8 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/layoutbuilder.h>
-#include <utils/optionpushbutton.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QComboBox>
 #include <QFormLayout>

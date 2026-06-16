@@ -16,8 +16,8 @@
 #include <variantproperty.h>
 
 #include <utils/algorithm.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QCursor>

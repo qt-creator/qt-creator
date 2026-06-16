@@ -5,12 +5,12 @@
 
 #include "fancylineedit.h"
 #include "fancyiconbutton.h"
-#include "headerviewstretcher.h" // IconButton
 #include "macroexpander.h"
 #include "qtcassert.h"
 #include "treemodel.h"
 #include "utilsicons.h"
 #include "utilstr.h"
+#include "widgets.h"
 
 #include <QApplication>
 #include <QHeaderView>

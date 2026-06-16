@@ -17,11 +17,10 @@
 #include <utils/fancymainwindow.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
-#include <utils/statuslabel.h>
 #include <utils/storekey.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QComboBox>

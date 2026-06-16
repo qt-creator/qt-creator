@@ -18,8 +18,8 @@
 #include <qmlobjectnode.h>
 #include <theme.h>
 
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <qmath.h>
 #include <QLineEdit>

@@ -19,7 +19,7 @@
 #include <utils3d.h>
 #include <variantproperty.h>
 
-#include <utils/messagebox.h>
+#include <utils/widgets.h>
 
 #include <QRegularExpression>
 #include <QStack>

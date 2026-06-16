@@ -7,26 +7,22 @@
 #include "projectexplorertr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
 
 #include <QtTaskTree/QNetworkReplyWrapper>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
-#include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/pathchooser.h>
-#include <utils/progressdialog.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stylehelper.h>
 #include <utils/summarywidget.h>
-#include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QCheckBox>
 #include <QDesktopServices>
@@ -39,6 +35,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QTimer>

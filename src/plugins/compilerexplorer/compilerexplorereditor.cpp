@@ -9,16 +9,12 @@
 #include "compilerexplorersettings.h"
 #include "compilerexplorertr.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/terminal/searchableterminal.h>
-
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <solutions/spinner/spinner.h>
 
@@ -34,8 +30,8 @@
 #include <utils/mimetypes2/mimetype.h>
 #include <utils/mimeutils.h>
 #include <utils/store.h>
-#include <utils/styledbar.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QDesktopServices>
 #include <QDockWidget>

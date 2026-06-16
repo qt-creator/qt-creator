@@ -11,7 +11,6 @@
 #include "../icore.h"
 
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 

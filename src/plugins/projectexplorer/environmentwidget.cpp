@@ -14,7 +14,6 @@
 #include <utils/environmentdialog.h>
 #include <utils/environmentmodel.h>
 #include <utils/fileutils.h>
-#include <utils/headerviewstretcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/macroexpander.h>
@@ -22,6 +21,7 @@
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilstr.h>
+#include <utils/widgets.h>
 
 #include <QDialogButtonBox>
 #include <QDir>

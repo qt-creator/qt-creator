@@ -5,7 +5,7 @@
 
 #include "ffmpegutils.h"
 
-#include <utils/styledbar.h>
+#include <utils/widgets.h>
 
 QT_BEGIN_NAMESPACE
 class QToolButton;

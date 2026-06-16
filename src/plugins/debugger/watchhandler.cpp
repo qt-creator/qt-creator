@@ -32,15 +32,14 @@
 #include <texteditor/texteditor.h>
 
 #include <cppeditor/cppmodelmanager.h>
-#include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
 #include <utils/fancymainwindow.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QDebug>

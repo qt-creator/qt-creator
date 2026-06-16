@@ -6,9 +6,9 @@
 #include "coreplugintr.h"
 #include "icore.h"
 
-#include <utils/headerviewstretcher.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QDesktopServices>
 #include <QMessageBox>

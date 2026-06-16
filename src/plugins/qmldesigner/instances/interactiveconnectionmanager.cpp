@@ -9,7 +9,7 @@
 
 #include <qmldesigner/settings/designersettings.h>
 
-#include <utils/messagebox.h>
+#include <utils/widgets.h>
 
 #include <QLocalSocket>
 #include <QTimer>

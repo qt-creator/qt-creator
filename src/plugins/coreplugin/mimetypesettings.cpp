@@ -13,12 +13,12 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
-#include <utils/headerviewstretcher.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
 #include <utils/patternvalidator.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/widgets.h>
 
 #include <QAbstractTableModel>
 #include <QDebug>

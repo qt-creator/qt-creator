@@ -68,12 +68,12 @@
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 #include <utils/searchresultitem.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/textutils.h>
 #include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/uncommentselection.h>
+#include <utils/widgets.h>
 
 #include <QAbstractTextDocumentLayout>
 #include <QActionGroup>

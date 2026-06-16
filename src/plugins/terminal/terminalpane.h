@@ -7,8 +7,8 @@
 
 #include <coreplugin/ioutputpane.h>
 
-#include <utils/documenttabbar.h>
 #include <utils/terminalhooks.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QMenu>

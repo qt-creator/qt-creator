@@ -11,7 +11,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/iwelcomepage.h>
@@ -20,17 +19,13 @@
 #include <coreplugin/welcomepagehelper.h>
 
 #include <utils/algorithm.h>
-#include <utils/elidinglabel.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
 #include <utils/qtdesignwidgets.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
-#include <utils/treemodel.h>
+#include <utils/widgets.h>
 
 #include <QButtonGroup>
 #include <QDesktopServices>

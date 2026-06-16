@@ -5,9 +5,8 @@
 
 #include "currentdocumentfind.h"
 
-#include <utils/id.h>
 #include <utils/store.h>
-#include <utils/styledbar.h>
+#include <utils/widgets.h>
 
 #include <QTimer>
 

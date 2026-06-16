@@ -17,7 +17,6 @@
 #include "editormanager_p.h"
 
 #include <utils/algorithm.h>
-#include <utils/documenttabbar.h>
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/infobar.h>
@@ -28,6 +27,7 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QDrag>
 #include <QFileInfo>

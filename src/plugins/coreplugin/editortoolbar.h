@@ -5,7 +5,7 @@
 
 #include "core_global.h"
 
-#include <utils/styledbar.h>
+#include <utils/widgets.h>
 
 #include <functional>
 

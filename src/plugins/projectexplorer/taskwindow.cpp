@@ -20,7 +20,6 @@
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
-#include <utils/execmenu.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
@@ -30,6 +29,7 @@
 #include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QAbstractTextDocumentLayout>
 #include <QDesktopServices>

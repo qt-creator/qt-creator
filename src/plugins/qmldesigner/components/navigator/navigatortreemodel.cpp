@@ -37,10 +37,10 @@
 #include <qmlprojectmanager/qmlproject.h>
 
 #include <utils/algorithm.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QMimeData>
 #include <QMessageBox>

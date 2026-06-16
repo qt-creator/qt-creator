@@ -22,10 +22,10 @@
 #include <utils/layoutbuilder.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QApplication>

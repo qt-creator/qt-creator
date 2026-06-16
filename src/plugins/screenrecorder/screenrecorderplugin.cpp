@@ -14,19 +14,17 @@
 #include "screenrecorder_test.h"
 #endif // WITH_TESTS
 
-#include <extensionsystem/iplugin.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
 
-#include <utils/layoutbuilder.h>
-#include <utils/styledbar.h>
-#include <utils/stylehelper.h>
-#include <utils/temporaryfile.h>
-#include <utils/utilsicons.h>
+#include <extensionsystem/iplugin.h>
 
 #include <solutions/spinner/spinner.h>
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/icore.h>
+#include <utils/icon.h>
+#include <utils/layoutbuilder.h>
+#include <utils/stylehelper.h>
+#include <utils/temporaryfile.h>
 
 #include <QDialog>
 #include <QLayout>

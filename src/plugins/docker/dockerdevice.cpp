@@ -10,8 +10,6 @@
 #include "dockersettings.h"
 #include "dockertr.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -30,15 +28,12 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
-#include <utils/basetreeview.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
-#include <utils/infolabel.h>
+#include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
-#include <utils/overridecursor.h>
 #include <utils/pathlisteditor.h>
 #include <utils/port.h>
 #include <utils/processinfo.h>
@@ -51,7 +46,7 @@
 #include <utils/terminalhooks.h>
 #include <utils/treemodel.h>
 #include <utils/url.h>
-#include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QCheckBox>

@@ -11,8 +11,8 @@
 
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
-#include <utils/styledbar.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QMenu>
 #include <QIcon>

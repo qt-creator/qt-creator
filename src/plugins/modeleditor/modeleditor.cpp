@@ -39,14 +39,12 @@
 #include "qmt/model_widgets_ui/modeltreefilter.h"
 #include "qmt/model_widgets_ui/modeltreeview.h"
 #include "qmt/model_widgets_ui/propertiesview.h"
-#include "qmt/stereotype/shapepaintvisitor.h"
 #include "qmt/stereotype/stereotypecontroller.h"
 #include "qmt/stereotype/stereotypeicon.h"
 #include "qmt/stereotype/toolbar.h"
 #include "qmt/style/style.h"
 #include "qmt/style/stylecontroller.h"
 #include "qmt/tasks/diagramscenecontroller.h"
-#include "qmt/tasks/finddiagramvisitor.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -56,8 +54,8 @@
 #include <utils/fadingindicator.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
-#include <utils/styledbar.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QActionGroup>

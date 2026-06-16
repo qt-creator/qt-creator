@@ -16,7 +16,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/messagebox.h>
+#include <utils/widgets.h>
 
 #include <QMessageBox>
 #include <QProgressDialog>

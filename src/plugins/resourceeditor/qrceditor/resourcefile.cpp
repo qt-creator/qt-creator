@@ -10,10 +10,9 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/removefiledialog.h>
 #include <utils/theme/theme.h>
+#include <utils/widgets.h>
 
 #include <QDebug>
 #include <QDir>

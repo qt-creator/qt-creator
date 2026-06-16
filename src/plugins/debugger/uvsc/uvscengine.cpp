@@ -5,7 +5,6 @@
 #include "uvscutils.h"
 
 #include <debugger/breakhandler.h>
-#include <debugger/debuggercore.h>
 #include <debugger/debuggertr.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
@@ -17,11 +16,8 @@
 #include <debugger/threadshandler.h>
 #include <debugger/watchhandler.h>
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
-
 #include <utils/fileutils.h>
-#include <utils/messagebox.h>
+#include <utils/widgets.h>
 
 #include <QDir>
 #include <QFileInfo>

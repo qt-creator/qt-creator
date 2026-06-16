@@ -6,15 +6,13 @@
 #include "topicchooser.h"
 
 #include <helptr.h>
-#include <helpviewer.h>
 #include <localhelpmanager.h>
 #include <openpagesmanager.h>
 
 #include <utils/fancylineedit.h>
-#include <utils/hostosinfo.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
+#include <utils/widgets.h>
 
 #include <QAbstractItemModel>
 #include <QLayout>

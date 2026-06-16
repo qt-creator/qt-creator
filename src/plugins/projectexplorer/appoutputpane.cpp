@@ -34,13 +34,13 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/basetreeview.h>
-#include <utils/documenttabbar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/storekey.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QAbstractListModel>
 #include <QAction>

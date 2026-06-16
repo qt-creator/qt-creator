@@ -44,13 +44,13 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
-#include <utils/messagebox.h>
 #include <utils/progressindicator.h>
 #include <utils/proxyaction.h>
 #include <utils/shutdownguard.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QCheckBox>

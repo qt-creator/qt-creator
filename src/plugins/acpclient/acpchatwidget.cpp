@@ -5,9 +5,8 @@
 #include "acpchattab.h"
 #include "acpclienttr.h"
 
-#include <utils/documenttabbar.h>
-#include <utils/styledbar.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QHBoxLayout>
 #include <QTabWidget>

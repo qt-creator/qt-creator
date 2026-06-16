@@ -7,15 +7,14 @@
 #include "helptr.h"
 #include "localhelpmanager.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/progressindicator.h>
 #include <utils/stringutils.h>
-#include <utils/styledbar.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QHelpEngine>

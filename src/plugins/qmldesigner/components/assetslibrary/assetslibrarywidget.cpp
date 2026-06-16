@@ -33,8 +33,8 @@
 #include <qmldesignerutils/asset.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QFileDialog>
 #include <QFileInfo>

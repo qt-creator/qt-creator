@@ -4,7 +4,6 @@
 #include "fancylineedit.h"
 
 #include "camelcasecursor.h"
-#include "execmenu.h"
 #include "futuresynchronizer.h"
 #include "fancyiconbutton.h"
 #include "historycompleter.h"
@@ -12,6 +11,7 @@
 #include "icon.h"
 #include "qtcassert.h"
 #include "utilstr.h"
+#include "widgets.h"
 
 #include <solutions/spinner/spinner.h>
 

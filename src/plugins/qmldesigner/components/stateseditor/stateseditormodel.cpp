@@ -17,8 +17,8 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QDebug>
 #include <QWidget>

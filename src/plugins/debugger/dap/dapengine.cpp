@@ -10,38 +10,24 @@
 #include "pydapengine.h"
 
 #include <debugger/breakhandler.h>
-#include <debugger/debuggeractions.h>
-#include <debugger/debuggercore.h>
-#include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
 #include <debugger/moduleshandler.h>
-#include <debugger/procinterrupt.h>
 #include <debugger/registerhandler.h>
 #include <debugger/sourceutils.h>
 #include <debugger/stackhandler.h>
 #include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
-#include <debugger/watchutils.h>
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/algorithm.h>
-#include <utils/environment.h>
-#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
+#include <utils/widgets.h>
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/perspective.h>
 
-#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>

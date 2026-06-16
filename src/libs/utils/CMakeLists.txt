@@ -38,13 +38,10 @@ add_qtc_library(Utils
     crumblepath.cpp crumblepath.h
     datafromprocess.cpp datafromprocess.h
     delegates.cpp delegates.h
-    detailsbutton.cpp detailsbutton.h
     detailswidget.cpp detailswidget.h
     devicefileaccess.cpp devicefileaccess.h
     differ.cpp differ.h
     displayname.cpp displayname.h
-    documenttabbar.cpp
-    documenttabbar.h
     dropsupport.cpp dropsupport.h
     elfreader.cpp elfreader.h
     elidinglabel.cpp elidinglabel.h
@@ -53,15 +50,12 @@ add_qtc_library(Utils
     environmentdialog.cpp environmentdialog.h
     environmentmodel.cpp environmentmodel.h
     environmentfwd.h
-    execmenu.cpp execmenu.h
     expected.h
     externalterminalprocessimpl.cpp externalterminalprocessimpl.h
     fadingindicator.cpp fadingindicator.h
-    faketooltip.cpp faketooltip.h
     fancyiconbutton.cpp fancyiconbutton.h
     fancylineedit.cpp fancylineedit.h
     fancymainwindow.cpp fancymainwindow.h
-    filecrumblabel.cpp filecrumblabel.h
     fileinprojectfinder.cpp fileinprojectfinder.h
     filepath.cpp filepath.h
     filepathinfo.h
@@ -83,7 +77,6 @@ add_qtc_library(Utils
     guard.cpp guard.h
     guardedcallback.h
     guiutils.cpp guiutils.h
-    headerviewstretcher.cpp headerviewstretcher.h
     historycompleter.cpp historycompleter.h
     hostosinfo.cpp hostosinfo.h
     htmldocextractor.cpp htmldocextractor.h
@@ -104,7 +97,6 @@ add_qtc_library(Utils
     macroexpander.cpp macroexpander.h
     markdownbrowser.cpp markdownbrowser.h
     mathutils.cpp mathutils.h
-    messagebox.cpp messagebox.h
     mimeconstants.h
     mimeutils.h
     minimizableinfobars.cpp
@@ -115,14 +107,11 @@ add_qtc_library(Utils
     namevalueitem.cpp namevalueitem.h
     navigationtreeview.cpp navigationtreeview.h
     networkaccessmanager.cpp networkaccessmanager.h
-    optionpushbutton.h
-    optionpushbutton.cpp
     osspecificaspects.cpp osspecificaspects.h
     outputformat.h
     outputformatter.cpp outputformatter.h
     overlaywidget.cpp overlaywidget.h
     overloaded.h
-    overridecursor.cpp overridecursor.h
     passworddialog.cpp passworddialog.h
     pathchooser.cpp pathchooser.h
     pathlisteditor.cpp pathlisteditor.h
@@ -138,7 +127,6 @@ add_qtc_library(Utils
     processinfo.cpp processinfo.h
     processinterface.cpp processinterface.h
     processreaper.cpp processreaper.h
-    progressdialog.cpp progressdialog.h
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h
     proxyaction.cpp proxyaction.h
@@ -149,7 +137,6 @@ add_qtc_library(Utils
     qtcsettings.cpp qtcsettings.h qtcsettings_p.h
     qtdesignwidgets.cpp qtdesignwidgets.h
     ranges.h
-    removefiledialog.cpp removefiledialog.h
     result.cpp result.h
     savefile.cpp savefile.h
     scopedswap.h
@@ -171,12 +158,10 @@ add_qtc_library(Utils
     smallstringview.h
     sortfiltermodel.h
     span.h
-    statuslabel.cpp statuslabel.h
     store.cpp store.h
     storekey.h
     stringtable.cpp stringtable.h
     stringutils.cpp stringutils.h
-    styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h
     summarywidget.cpp summarywidget.h
     synchronizedvalue.h
@@ -187,8 +172,6 @@ add_qtc_library(Utils
     terminalhooks.cpp terminalhooks.h
     terminalinterface.cpp terminalinterface.h
     textcodec.cpp textcodec.h
-    textfieldcheckbox.cpp textfieldcheckbox.h
-    textfieldcombobox.cpp textfieldcombobox.h
     textfileformat.cpp textfileformat.h
     textutils.cpp textutils.h
     theme/theme.cpp theme/theme.h theme/theme_p.h
@@ -210,6 +193,7 @@ add_qtc_library(Utils
     utiltypes.h
     utility.h
     variablechooser.cpp variablechooser.h
+    widgets.cpp widgets.h
     winutils.cpp winutils.h
     wizard.cpp wizard.h
     movie.cpp movie.h

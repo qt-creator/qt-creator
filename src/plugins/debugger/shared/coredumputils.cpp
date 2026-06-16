@@ -5,8 +5,8 @@
 
 #include "../debuggertr.h"
 
-#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
+#include <utils/widgets.h>
 
 #include <QDebug>
 #include <QDir>

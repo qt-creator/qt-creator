@@ -23,10 +23,8 @@
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinewidget.h>
-#include <tracing/timelineformattime.h>
 
-#include <utils/styledbar.h>
-#include <utils/algorithm.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QContextMenuEvent>

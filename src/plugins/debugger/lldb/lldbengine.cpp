@@ -6,7 +6,6 @@
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
-#include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggerprotocol.h>
@@ -18,13 +17,11 @@
 #include <debugger/registerhandler.h>
 #include <debugger/sourceutils.h>
 #include <debugger/stackhandler.h>
-#include <debugger/terminal.h>
 #include <debugger/threadshandler.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/perspective.h>
 
 #include <projectexplorer/abi.h>
@@ -32,10 +29,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QDateTime>

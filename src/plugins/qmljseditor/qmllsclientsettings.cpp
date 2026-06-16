@@ -6,12 +6,6 @@
 #include "qmljseditortr.h"
 #include "qmllsclient.h"
 
-#include <utils/mimeconstants.h>
-#include <utils/networkaccessmanager.h>
-#include <utils/progressdialog.h>
-#include <utils/qtcsettings.h>
-#include <utils/unarchiver.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -30,6 +24,12 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <utils/mimeconstants.h>
+#include <utils/networkaccessmanager.h>
+#include <utils/qtcsettings.h>
+#include <utils/unarchiver.h>
+#include <utils/widgets.h>
+
 #include <QtTaskTree/QNetworkReplyWrapper>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -37,6 +37,7 @@
 #include <QJsonDocument>
 #include <QLayout>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QStandardPaths>

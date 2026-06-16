@@ -12,14 +12,13 @@
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
-#include <utils/messagebox.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QComboBox>
 #include <QHeaderView>

@@ -10,7 +10,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <utils/environment.h>
-#include <utils/messagebox.h>
+#include <utils/widgets.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QMessageBox>

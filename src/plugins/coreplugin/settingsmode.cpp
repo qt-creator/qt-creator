@@ -25,8 +25,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stringutils.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
+#include <utils/widgets.h>
 
 #include <extensionsystem/pluginmanager.h>
 

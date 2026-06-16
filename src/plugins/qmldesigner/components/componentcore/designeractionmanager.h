@@ -9,7 +9,7 @@
 #include "modelnodeoperations.h"
 
 #include <coreplugin/actionmanager/command.h>
-#include <utils/styledbar.h>
+#include <utils/widgets.h>
 
 #include <QToolBar>
 #include <QImage>

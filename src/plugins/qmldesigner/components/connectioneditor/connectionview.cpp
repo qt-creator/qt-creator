@@ -22,8 +22,8 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/messagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/widgets.h>
 
 #include <QQmlEngine>
 #include <QShortcut>

@@ -20,19 +20,17 @@
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
-#include <utils/filecrumblabel.h>
 #include <utils/filepath.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
-#include <utils/removefiledialog.h>
 #include <utils/store.h>
 #include <utils/stringutils.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <utils/filesystemmodel.h>
 #include <utils/filepathinfo.h>

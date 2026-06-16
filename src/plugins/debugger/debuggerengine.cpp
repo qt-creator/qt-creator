@@ -66,14 +66,13 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
-#include <utils/messagebox.h>
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/styledbar.h>
 #include <utils/url.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QApplication>
 #include <QDebug>

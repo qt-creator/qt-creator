@@ -15,10 +15,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/aspects.h>
-#include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 

@@ -47,12 +47,11 @@
 #include <utils/link.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
-#include <utils/overridecursor.h>
 #include <utils/qtcassert.h>
 #include <utils/searchresultitem.h>
-#include <utils/settingsdatabase.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QApplication>

@@ -7,9 +7,7 @@
 #include "../projectexplorertr.h"
 
 #include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
-#include <utils/textfieldcheckbox.h>
-#include <utils/textfieldcombobox.h>
+#include <utils/widgets.h>
 
 #include <QDebug>
 #include <QDir>

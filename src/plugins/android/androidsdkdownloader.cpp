@@ -14,13 +14,14 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/networkaccessmanager.h>
-#include <utils/progressdialog.h>
 #include <utils/unarchiver.h>
+#include <utils/widgets.h>
 
 #include <QCryptographicHash>
 #include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QStandardPaths>
 
 using namespace QtTaskTree;

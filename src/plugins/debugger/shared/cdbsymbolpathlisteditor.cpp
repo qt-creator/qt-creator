@@ -8,9 +8,9 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/messagebox.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QCheckBox>
