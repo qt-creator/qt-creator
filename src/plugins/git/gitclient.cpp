@@ -2831,29 +2831,21 @@ bool GitClient::launchGitGui(const FilePath &workingDirectory)
 
 FilePath GitClient::gitBinDirectory() const
 {
-    const QString git = vcsBinary({}).toUrlishString();
+    const FilePath git = vcsBinary({});
     if (git.isEmpty())
         return {};
 
-    // Is 'git\cmd' in the path (folder containing .bats)?
-    QString path = QFileInfo(git).absolutePath();
-    // Git for Windows has git and gitk redirect executables in {setup dir}/cmd
-    // and the real binaries are in {setup dir}/bin. If cmd is configured in PATH
-    // or in Git settings, return bin instead.
-    if (HostOsInfo::isWindowsHost()) {
-        if (path.endsWith("/cmd", Qt::CaseInsensitive))
-            path.replace(path.size() - 3, 3, "bin");
-        if (path.endsWith("/bin", Qt::CaseInsensitive)
-                && !path.endsWith("/usr/bin", Qt::CaseInsensitive)) {
-            // Legacy msysGit used Git/bin for additional tools.
-            // Git for Windows uses Git/usr/bin. Prefer that if it exists.
-            QString usrBinPath = path;
-            usrBinPath.replace(usrBinPath.size() - 3, 3, "usr/bin");
-            if (QFileInfo::exists(usrBinPath))
-                path = usrBinPath;
-        }
-    }
-    return FilePath::fromString(path);
+    const FilePath path = git.absolutePath();
+    if (path.osType() != OsTypeWindows)
+        return path;
+
+    // Git for Windows has git and gitk redirect executables in Git/cmd
+    // and the real binaries are in Git/usr/bin. If Git/cmd is configured
+    // in PATH or in Git settings, return Git/usr/bin instead.
+    if (path.fileName().compare("cmd", Qt::CaseInsensitive) == 0)
+        return path.parentDir() / "usr" / "bin";
+
+    return path;
 }
 
 bool GitClient::launchGitBash(const FilePath &workingDirectory)
