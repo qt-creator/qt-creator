@@ -2886,7 +2886,7 @@ typename))
     def fetchInterpreterResult(self):
         buf = self.parseAndEvaluateAllowingCalls('qt_qmlDebugMessageBuffer')
         size = self.parseAndEvaluateAllowingCalls('qt_qmlDebugMessageLength')
-        msg = self.hexdecode(self.readMemory(buf, size))
+        msg = self.hexdecode(self.readMemory(buf.pointer(), size.integer()))
         # msg is a sequence of 'servicename<space>msglen<space>msg' items.
         resdict = {}  # Native payload.
         while len(msg):
