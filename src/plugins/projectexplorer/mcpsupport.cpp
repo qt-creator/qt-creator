@@ -204,6 +204,46 @@ static QJsonObject getCurrentProject()
     };
 }
 
+static QJsonObject openProjectFile(const QString &path)
+{
+    const FilePath fp = FilePath::fromUserInput(path);
+    if (fp.isEmpty())
+        return {{"success", false}, {"message", "Empty project path."}};
+    if (!fp.exists()) {
+        return {
+            {"success", false},
+            {"message", QString("Path does not exist: %1").arg(fp.toUserOutput())}};
+    }
+
+    const OpenProjectResult result = ProjectExplorerPlugin::openProject(fp);
+
+    if (!result.alreadyOpen().isEmpty()) {
+        Project *p = result.alreadyOpen().first();
+        return {
+            {"success", true},
+            {"already_open", true},
+            {"message",
+             QString("Project '%1' is already open.").arg(p ? p->displayName() : path)},
+            {"project", p ? QJsonValue(projectInfoObject(p)) : QJsonValue()}};
+    }
+
+    if (!result) {
+        return {
+            {"success", false},
+            {"message",
+             result.errorMessage().isEmpty()
+                 ? QString("Failed to open project: %1").arg(fp.toUserOutput())
+                 : result.errorMessage()}};
+    }
+
+    Project *p = result.project();
+    return {
+        {"success", true},
+        {"already_open", false},
+        {"message", QString("Opened project '%1'.").arg(p ? p->displayName() : path)},
+        {"project", p ? QJsonValue(projectInfoObject(p)) : QJsonValue()}};
+}
+
 static QString getCurrentBuildConfig()
 {
     Project *project = ProjectManager::startupProject();
@@ -1415,6 +1455,40 @@ void registerMcpTools()
                 {"active_project", projectInfoObject(target)},
                 {"previous_active_project",
                  previous ? QJsonValue(projectInfoObject(previous)) : QJsonValue()}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("open_project")
+            .title("Open a project")
+            .description(
+                "Opens a project in Qt Creator from a project file path (e.g., "
+                "CMakeLists.txt, a .pro, .qbs, or .qmlproject file). If the project is "
+                "already open, returns success with already_open=true. The opened project "
+                "is added to the session; use set_active_project to make it the startup "
+                "project.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"format", "uri"},
+                            {"description",
+                             "Absolute path to the project file to open (e.g., "
+                             "CMakeLists.txt, .pro, .qbs, .qmlproject)."}})
+                    .addRequired("path"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("already_open", QJsonObject{{"type", "boolean"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("project", QJsonObject{{"type", "object"}})
+                    .addRequired("success")
+                    .addRequired("message")),
+        wrap([](const QJsonObject &p) {
+            return openProjectFile(p.value("path").toString());
         }));
 
     ToolRegistry::registerTool(
