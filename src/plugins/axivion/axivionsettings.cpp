@@ -606,7 +606,7 @@ public:
             const FilePath fp = FilePath::fromString(input.replace('\\', '/'));
             return analysisPathValid(fp);
         });
-        m_analysisPath.setToolTip(Tr::tr("Root path of the analyzed project relative to the used"
+        m_analysisPath.setToolTip(Tr::tr("Root path of the analyzed project relative to the used "
                                          "project path inside the dashboard.\nLeave empty if the "
                                          "analyzed project refers to the basepath of the analyzed "
                                          "project."));
