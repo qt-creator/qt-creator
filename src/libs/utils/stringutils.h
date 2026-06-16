@@ -116,30 +116,6 @@ QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QStrin
 
 QTCREATOR_UTILS_EXPORT int endOfNextWord(const QString &string, int position = 0);
 
-class QTCREATOR_UTILS_EXPORT MarkdownHighlighter : public QSyntaxHighlighter
-{
-public:
-    MarkdownHighlighter(QTextDocument *parent);
-    void highlightBlock(const QString &text) override;
-
-private:
-    QBrush codeBgBrush();
-
-    QBrush m_codeBgBrush;
-};
-
-class QTCREATOR_UTILS_EXPORT MarkdownView : public QTextBrowser
-{
-public:
-    MarkdownView(QWidget *parent = nullptr);
-
-protected:
-    void paintEvent(QPaintEvent *ev) override;
-
-private:
-    QPointF contentOffset() const;
-};
-
 QTCREATOR_UTILS_EXPORT QString ansiColoredText(const QString &text, const QColor &color);
 
 } // namespace Utils
