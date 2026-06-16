@@ -64,6 +64,7 @@
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/markdownbrowser.h>
 #include <utils/mimeutils.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
@@ -2572,12 +2573,9 @@ void ICorePrivate::changeLog()
         versionCombo->addItem(f.first.toString());
     dialog = new LogDialog(ICore::dialogParent());
     auto showInExplorer = new QPushButton(FileUtils::msgGraphicalShellAction());
-    auto textEdit = new MarkdownView();
-    textEdit->setOpenExternalLinks(true);
+    auto textEdit = new Utils::MarkdownBrowser();
 
     Aggregation::aggregate({textEdit, new BaseTextFind(textEdit)});
-
-    new MarkdownHighlighter(textEdit->document());
 
     auto findToolBar = new FindToolBarPlaceHolder(dialog);
     findToolBar->setLightColored(true);
