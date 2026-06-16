@@ -6,6 +6,8 @@
 #include "editorconfiguration.h"
 #include "issuesmanager.h"
 #include "kit.h"
+#include "kitaspect.h"
+#include "kitmanager.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -14,6 +16,7 @@
 #include "runconfiguration.h"
 #include "runcontrol.h"
 #include "target.h"
+#include "task.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
@@ -127,6 +130,65 @@ static ResolvedProjects resolveProjects(const QString &projectName,
     return result;
 }
 
+struct ProjectResolution
+{
+    Project *project = nullptr; // non-null on success
+    QJsonObject error;          // ready-to-return failure object when project is null
+};
+
+// Resolves the single project a tool should act on from a (projectName,
+// projectPath) pair, applying the same dual-key rules and error conventions as
+// set_active_project. When both are empty: defaults to the startup project if
+// defaultToStartup is true (error reason "no_startup_project" when there is
+// none), otherwise fails with reason "no_target". A name matching multiple
+// loaded projects fails with reason "ambiguous_name" plus a candidates array.
+static ProjectResolution resolveTargetProject(
+    const QString &projectName, const QString &projectPath, bool defaultToStartup)
+{
+    ProjectResolution r;
+
+    if (projectName.isEmpty() && projectPath.isEmpty()) {
+        if (defaultToStartup) {
+            r.project = ProjectManager::startupProject();
+            if (!r.project)
+                r.error = {{"success", false}, {"reason", "no_startup_project"},
+                           {"message", "No startup project. Pass projectName or projectPath."}};
+        } else {
+            r.error = {{"success", false}, {"reason", "no_target"},
+                       {"message", "Pass projectName or projectPath to identify the target "
+                                   "project."}};
+        }
+        return r;
+    }
+
+    const ResolvedProjects resolved = resolveProjects(projectName, projectPath);
+    if (resolved.projects.isEmpty()) {
+        r.error = {
+            {"success", false},
+            {"reason", projectPath.isEmpty() ? "project_not_loaded" : "path_not_loaded"},
+            {"message",
+             projectPath.isEmpty()
+                 ? QString("No project named '%1' is currently loaded.").arg(projectName)
+                 : QString("No project at path '%1' is currently loaded.").arg(projectPath)},
+            {"candidates", resolved.candidates}};
+        return r;
+    }
+    if (resolved.projects.size() > 1) {
+        r.error = {
+            {"success", false},
+            {"reason", "ambiguous_name"},
+            {"message",
+             QString("Multiple projects named '%1' are loaded. Pass projectPath "
+                     "(one of the listed candidates) to disambiguate.")
+                 .arg(projectName)},
+            {"candidates", resolved.candidates}};
+        return r;
+    }
+
+    r.project = resolved.projects.first();
+    return r;
+}
+
 static QString getBuildStatus()
 {
     const auto buildProgress = BuildManager::currentProgress();
@@ -202,6 +264,131 @@ static QJsonObject getCurrentProject()
         {"projectFile", project->projectFilePath().toUserOutput()},
         {"projectDirectory", project->projectDirectory().toUserOutput()},
     };
+}
+
+static QJsonObject kitInfoObject(const Kit *k)
+{
+    if (!k)
+        return {};
+    const DetectionSource ds = k->detectionSource();
+    QJsonArray issues;
+    for (const Task &t : k->validate()) {
+        if (!t.summary().isEmpty())
+            issues.append(t.summary());
+    }
+    return {
+        {"name", k->displayName()},
+        {"id", k->id().toString()},
+        {"valid", k->isValid()},
+        {"has_warning", k->hasWarning()},
+        {"is_default", k == KitManager::defaultKit()},
+        {"auto_detected", ds.isAutoDetected()},
+        {"sdk_provided", ds.isSdkProvided()},
+        {"file_system_friendly_name", k->fileSystemFriendlyName()},
+        {"issues", issues},
+    };
+}
+
+static QJsonArray listKits()
+{
+    QJsonArray result;
+    for (Kit *k : KitManager::sortedKits())
+        result.append(kitInfoObject(k));
+    return result;
+}
+
+// Returns the kits a project is configured for (one per Target), with is_active
+// marking the kit of the project's active target. Defaults to the startup
+// project when neither projectName nor projectPath is supplied.
+static QJsonObject projectKits(const QString &projectName, const QString &projectPath)
+{
+    const ProjectResolution resolution = resolveTargetProject(projectName, projectPath, true);
+    if (!resolution.project)
+        return resolution.error;
+    Project *project = resolution.project;
+
+    const Target *activeTarget = project->activeTarget();
+    QJsonArray kits;
+    for (const Target *target : project->targets()) {
+        QJsonObject obj = kitInfoObject(target->kit());
+        obj["is_active"] = (target == activeTarget);
+        kits.append(obj);
+    }
+
+    return {
+        {"success", true},
+        {"reason", "ok"},
+        {"message", QString("Project '%1' is configured for %2 kit(s).")
+                        .arg(project->displayName())
+                        .arg(kits.size())},
+        {"project", projectInfoObject(project)},
+        {"kits", kits}};
+}
+
+// Resolves a kit by its id first (ids are unique), then falls back to an exact
+// display-name match. Returns nullptr if nothing matches.
+static Kit *resolveKit(const QString &identifier)
+{
+    if (identifier.isEmpty())
+        return nullptr;
+    if (Kit *byId = KitManager::kit(Utils::Id::fromString(identifier)))
+        return byId;
+    return KitManager::kit([&identifier](const Kit *k) { return k->displayName() == identifier; });
+}
+
+// Adds a build target for each requested kit to a project. `kitIdentifiers` may
+// hold kit ids or display names. Defaults to the startup project when neither
+// projectName nor projectPath is supplied. Reports per-kit results
+// (added/already_present/not_found/failed) without aborting on the first error.
+static QJsonObject addKitsToProject(
+    const QString &projectName, const QString &projectPath, const QStringList &kitIdentifiers)
+{
+    const ProjectResolution resolution = resolveTargetProject(projectName, projectPath, true);
+    if (!resolution.project)
+        return resolution.error;
+    Project *project = resolution.project;
+
+    if (kitIdentifiers.isEmpty())
+        return {{"success", false}, {"reason", "no_kits"}, {"message", "No kits specified."}};
+
+    QJsonArray results;
+    int addedCount = 0;
+    for (const QString &identifier : kitIdentifiers) {
+        Kit *kit = resolveKit(identifier);
+        if (!kit) {
+            results.append(QJsonObject{
+                {"kit", identifier}, {"status", "not_found"},
+                {"message", QString("No kit matching '%1'.").arg(identifier)}});
+            continue;
+        }
+        if (project->target(kit)) {
+            results.append(QJsonObject{
+                {"kit", kit->displayName()}, {"id", kit->id().toString()},
+                {"status", "already_present"}});
+            continue;
+        }
+        Target *target = project->addTargetForKit(kit);
+        if (target) {
+            ++addedCount;
+            results.append(QJsonObject{
+                {"kit", kit->displayName()}, {"id", kit->id().toString()},
+                {"status", "added"}});
+        } else {
+            results.append(QJsonObject{
+                {"kit", kit->displayName()}, {"id", kit->id().toString()},
+                {"status", "failed"},
+                {"message", QString("Failed to add kit '%1'.").arg(kit->displayName())}});
+        }
+    }
+
+    return {
+        {"success", true},
+        {"reason", "ok"},
+        {"message", QString("Added %1 kit(s) to project '%2'.")
+                        .arg(addedCount)
+                        .arg(project->displayName())},
+        {"project", projectInfoObject(project)},
+        {"results", results}};
 }
 
 static QJsonObject openProjectFile(const QString &path)
@@ -1281,6 +1468,141 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("list_kits")
+            .title("List all available kits")
+            .description(
+                "List all kits configured in Qt Creator. Each entry includes the kit name, "
+                "its id, whether it is valid, whether it has warnings, whether it is the "
+                "default kit, whether it was auto-detected (and SDK-provided), a "
+                "filesystem-friendly name, and an issues array with validation messages for "
+                "invalid or warning kits.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "kits",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items",
+                             QJsonObject{
+                                 {"type", "object"},
+                                 {"properties",
+                                  QJsonObject{
+                                      {"name", QJsonObject{{"type", "string"}}},
+                                      {"id", QJsonObject{{"type", "string"}}},
+                                      {"valid", QJsonObject{{"type", "boolean"}}},
+                                      {"has_warning", QJsonObject{{"type", "boolean"}}},
+                                      {"is_default", QJsonObject{{"type", "boolean"}}},
+                                      {"auto_detected", QJsonObject{{"type", "boolean"}}},
+                                      {"sdk_provided", QJsonObject{{"type", "boolean"}}},
+                                      {"file_system_friendly_name",
+                                       QJsonObject{{"type", "string"}}},
+                                      {"issues",
+                                       QJsonObject{
+                                           {"type", "array"},
+                                           {"items", QJsonObject{{"type", "string"}}}}},
+                                  }}}}})
+                    .addRequired("kits")),
+        wrap([](const QJsonObject &) { return QJsonObject{{"kits", listKits()}}; }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_project_kits")
+            .title("List kits a project is configured for")
+            .description(
+                "List the kits a project is configured for (one per build target). "
+                "Defaults to the active startup project when neither projectName nor "
+                "projectPath is given. Each kit entry has the same fields as list_kits "
+                "plus is_active, which marks the kit of the project's active target. When "
+                "multiple loaded projects share the same display name, pass projectPath to "
+                "disambiguate (returns reason:\"ambiguous_name\" with candidates otherwise).")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "projectName",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Display name of the project. Optional; defaults to the active "
+                             "startup project."}})
+                    .addProperty(
+                        "projectPath",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to the project file. Unambiguously identifies "
+                             "the project and takes precedence over projectName."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("project", QJsonObject{{"type", "object"}})
+                    .addProperty("kits", QJsonObject{{"type", "array"}})
+                    .addProperty("candidates", QJsonObject{{"type", "array"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) {
+            return projectKits(
+                p.value("projectName").toString(), p.value("projectPath").toString());
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("add_kits_to_project")
+            .title("Add kits to a project")
+            .description(
+                "Adds a build target for each of the given kits to a project. Kits may be "
+                "identified by kit id or display name (see list_kits). Defaults to the "
+                "active startup project when neither projectName nor projectPath is given. "
+                "Returns a per-kit results array with status added/already_present/"
+                "not_found/failed; the call does not abort on the first error. When "
+                "multiple loaded projects share the same display name, pass projectPath to "
+                "disambiguate.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "kits",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "string"}}},
+                            {"description",
+                             "Kit ids or display names to add to the project."}})
+                    .addProperty(
+                        "projectName",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Display name of the project. Optional; defaults to the active "
+                             "startup project."}})
+                    .addProperty(
+                        "projectPath",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to the project file. Unambiguously identifies "
+                             "the project and takes precedence over projectName."}})
+                    .addRequired("kits"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("project", QJsonObject{{"type", "object"}})
+                    .addProperty("results", QJsonObject{{"type", "array"}})
+                    .addProperty("candidates", QJsonObject{{"type", "array"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) {
+            QStringList kits;
+            for (const QJsonValue &v : p.value("kits").toArray())
+                kits.append(v.toString());
+            return addKitsToProject(
+                p.value("projectName").toString(), p.value("projectPath").toString(), kits);
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("list_build_configs")
             .title("List available build configurations")
             .description("List available build configurations")
@@ -1398,41 +1720,13 @@ void registerMcpTools()
             const QString projectName = p.value("projectName").toString();
             const QString projectPath = p.value("projectPath").toString();
 
-            if (projectName.isEmpty() && projectPath.isEmpty()) {
-                return {
-                    {"success", false},
-                    {"reason", "no_target"},
-                    {"message",
-                     "Pass projectName or projectPath to identify the target project."}};
-            }
-
-            const ResolvedProjects resolved = resolveProjects(projectName, projectPath);
-
-            if (resolved.projects.isEmpty()) {
-                return {
-                    {"success", false},
-                    {"reason", projectPath.isEmpty() ? "project_not_loaded" : "path_not_loaded"},
-                    {"message",
-                     projectPath.isEmpty()
-                         ? QString("No project named '%1' is currently loaded.").arg(projectName)
-                         : QString("No project at path '%1' is currently loaded.")
-                               .arg(projectPath)},
-                    {"candidates", resolved.candidates}};
-            }
-
-            if (resolved.projects.size() > 1) {
-                return {
-                    {"success", false},
-                    {"reason", "ambiguous_name"},
-                    {"message",
-                     QString("Multiple projects named '%1' are loaded. Pass projectPath "
-                             "(one of the listed candidates) to disambiguate.")
-                         .arg(projectName)},
-                    {"candidates", resolved.candidates}};
-            }
+            const ProjectResolution resolution
+                = resolveTargetProject(projectName, projectPath, false);
+            if (!resolution.project)
+                return resolution.error;
 
             Project *previous = ProjectManager::startupProject();
-            Project *target = resolved.projects.first();
+            Project *target = resolution.project;
 
             if (previous == target) {
                 return {
