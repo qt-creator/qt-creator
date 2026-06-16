@@ -279,7 +279,7 @@ void SummaryPage::initializePage()
 {
     m_snippet = m_libraryWizard->snippet();
     m_summaryLabel->setText(
-            Tr::tr("The following snippet will be added to the<br><b>%1</b> file:")
+            Tr::tr("The following snippet will be added to the file \"%1\":")
             .arg(m_libraryWizard->proFile().fileName()));
     QString richSnippet;
     {
