@@ -595,7 +595,8 @@ void CppEditorPlugin::registerVariables()
         [] { return globalCppFileSettings().licenseTemplatePath(); });
     expander->registerVariable(
         "Cpp:PragmaOnce",
-        Tr::tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),
+        //: %1=#pragma once, %2=#ifndef
+        Tr::tr("Insert \"%1\" instead of \"%2\" include guards into header file").arg("#pragma once", "#ifndef"),
         [] { return globalCppFileSettings().headerPragmaOnce() ? QString("true") : QString(); });
 }
 

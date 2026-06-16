@@ -199,9 +199,11 @@ CppFileSettings::CppFileSettings()
 
     headerPragmaOnce.setSettingsKey("HeaderPragmaOnce");
     headerPragmaOnce.setDefaultValue(false);
-    headerPragmaOnce.setLabelText(Tr::tr("Use \"#pragma once\" instead"));
+    //: %1=#pragma once
+    headerPragmaOnce.setLabelText(Tr::tr("Use \"%1\" instead").arg("#pragma once"));
     headerPragmaOnce.setToolTip(
-        Tr::tr("Uses \"#pragma once\" instead of \"#ifndef\" include guards."));
+        //: %1=#pragma once, %2=#ifndef
+        Tr::tr("Uses \"%1\" instead of \"%2\" include guards.").arg("#pragma once", "#ifndef"));
     headerPragmaOnce.addOnVolatileValueChanged(this, [this] {
         headerGuardTemplate.setEnabled(isEnabled() && !headerPragmaOnce.volatileValue());
     });
