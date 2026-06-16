@@ -1259,11 +1259,12 @@ QString ICore::aboutInformationHtml()
     const AppInfo &appInfo = Utils::appInfo();
     QString ideRev;
     if (!appInfo.revision.isEmpty())
-        ideRev = Tr::tr("<br/>From revision %1<br/>")
+        ideRev = "<br/>" + Tr::tr("From revision %1")
                      .arg(appInfo.revisionUrl.isEmpty()
                               ? appInfo.revision
                               : QString::fromLatin1("<a href=\"%1\">%2</a>")
-                                    .arg(appInfo.revisionUrl, appInfo.revision));
+                                    .arg(appInfo.revisionUrl, appInfo.revision))
+                 + "<br/>";
     QString buildInfo;
     if (appInfo.buildTime.isValid()) {
         QLocale locale(ICore::userInterfaceLanguage());
