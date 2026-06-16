@@ -106,6 +106,7 @@ private:
     QList<Utils::FilePath> m_manualContextFiles;
 
     void updateContextBar();
+    void addContextFiles(const QList<Utils::FilePath> &files);
 
     bool m_prompting = false;
 };

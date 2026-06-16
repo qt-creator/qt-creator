@@ -18,8 +18,11 @@
 #include <utils/widgets.h>
 
 #include <QApplication>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QMimeData>
 #include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
@@ -38,10 +41,27 @@ using namespace Utils::StyleHelper::SpacingTokens;
 
 namespace AcpClient::Internal {
 
+static QList<FilePath> localFilesFromMime(const QMimeData *mime)
+{
+    QList<FilePath> files;
+    if (!mime || !mime->hasUrls())
+        return files;
+    for (const QUrl &url : mime->urls()) {
+        if (url.isLocalFile())
+            files.append(FilePath::fromUserInput(url.toLocalFile()));
+    }
+    return files;
+}
+
 class InputContainerWidget : public QWidget
 {
 public:
-    explicit InputContainerWidget(QWidget *parent = nullptr) : QWidget(parent) {}
+    explicit InputContainerWidget(QWidget *parent = nullptr) : QWidget(parent)
+    {
+        setAcceptDrops(true);
+    }
+
+    std::function<void(const QList<FilePath> &)> onFilesDropped;
 
 protected:
     void mousePressEvent(QMouseEvent *event) override
@@ -49,6 +69,34 @@ protected:
         if (QWidget *proxy = focusProxy())
             proxy->setFocus(Qt::MouseFocusReason);
         QWidget::mousePressEvent(event);
+    }
+
+    void dragEnterEvent(QDragEnterEvent *event) override
+    {
+        if (!localFilesFromMime(event->mimeData()).isEmpty())
+            event->acceptProposedAction();
+        else
+            QWidget::dragEnterEvent(event);
+    }
+
+    void dragMoveEvent(QDragMoveEvent *event) override
+    {
+        if (!localFilesFromMime(event->mimeData()).isEmpty())
+            event->acceptProposedAction();
+        else
+            QWidget::dragMoveEvent(event);
+    }
+
+    void dropEvent(QDropEvent *event) override
+    {
+        const QList<FilePath> files = localFilesFromMime(event->mimeData());
+        if (!files.isEmpty()) {
+            event->acceptProposedAction();
+            if (onFilesDropped)
+                onFilesDropped(files);
+            return;
+        }
+        QWidget::dropEvent(event);
     }
 
     void paintEvent(QPaintEvent *) override
@@ -128,6 +176,7 @@ ChatPanel::ChatPanel(QWidget *parent)
     inputOuterLayout->setSpacing(GapVXs);
 
     auto *inputContainer = new InputContainerWidget;
+    inputContainer->onFilesDropped = [this](const QList<FilePath> &files) { addContextFiles(files); };
     auto *inputContainerLayout = new QVBoxLayout(inputContainer);
     inputContainerLayout->setContentsMargins(PaddingHM, PaddingVM, PaddingHM, PaddingVM);
     inputContainerLayout->setSpacing(GapVXs);
@@ -498,6 +547,19 @@ void ChatPanel::updateAvailableCommands(const QList<AvailableCommand> &commands)
             m_inputEdit->setFocus();
         });
     }
+}
+
+void ChatPanel::addContextFiles(const QList<Utils::FilePath> &files)
+{
+    bool added = false;
+    for (const FilePath &fp : files) {
+        if (!fp.isEmpty() && !m_manualContextFiles.contains(fp)) {
+            m_manualContextFiles.append(fp);
+            added = true;
+        }
+    }
+    if (added)
+        updateContextBar();
 }
 
 void ChatPanel::updateContextBar()
