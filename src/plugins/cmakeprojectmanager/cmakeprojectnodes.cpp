@@ -5,6 +5,7 @@
 
 #include "cmakebuildsystem.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectmanager.h"
 #include "cmakeprojectmanagertr.h"
 
 #include <android/androidconstants.h>
@@ -67,6 +68,11 @@ CMakePresetsNode::CMakePresetsNode(const FilePath &projectPath) :
     setDisplayName(Tr::tr("CMake Presets"));
     setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_PRODUCT));
     setListInProject(false);
+}
+
+void CMakeListsNode::build(ProjectExplorer::BuildAction action)
+{
+    runSubprojectOperation(getProject()->activeBuildSystem(), this, action);
 }
 
 bool CMakeListsNode::hasSubprojectBuildSupport() const

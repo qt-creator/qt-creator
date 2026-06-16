@@ -36,6 +36,9 @@ public:
     bool addSubProject(const Utils::FilePath &subProjectFilePath) override;
     QStringList subProjectFileNamePatterns() const override;
 
+    bool canBuild(ProjectExplorer::BuildAction) override { return m_hasSubprojectBuildSupport; }
+    void build(ProjectExplorer::BuildAction action) override;
+
     bool hasSubprojectBuildSupport() const;
     void setHasSubprojectBuildSupport(bool hasSubprojectBuildSupport);
 };

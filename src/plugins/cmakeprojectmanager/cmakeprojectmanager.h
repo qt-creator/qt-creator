@@ -3,7 +3,11 @@
 
 #pragma once
 
-namespace ProjectExplorer { class BuildSystem; }
+namespace ProjectExplorer {
+enum class BuildAction;
+class BuildSystem;
+class ProjectNode;
+}
 
 namespace CMakeProjectManager::Internal {
 
@@ -12,5 +16,10 @@ void setupOnlineHelpManager();
 
 void runCMake(ProjectExplorer::BuildSystem *buildSystem);
 void runCMakeWithProfiling(ProjectExplorer::BuildSystem *buildSystem);
+
+void runSubprojectOperation(
+    ProjectExplorer::BuildSystem *bs,
+    const ProjectExplorer::ProjectNode *node,
+    ProjectExplorer::BuildAction action);
 
 } // CMakeProjectManager::Internal

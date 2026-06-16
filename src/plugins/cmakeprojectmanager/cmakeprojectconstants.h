@@ -19,9 +19,6 @@ const char RELOAD_CMAKE_PRESETS[] = "CMakeProject.ReloadCMakePresets";
 const char BUILD_SUBPROJECT[] = "CMakeProject.BuildSubProject";
 const char CLEAN_SUBPROJECT[] = "CMakeProject.CleanSubProject";
 const char REBUILD_SUBPROJECT[] = "CMakeProject.RebuildSubProject";
-const char BUILD_SUBPROJECT_CONTEXT_MENU[] = "CMakeProject.BuildSubProjectContextMenu";
-const char CLEAN_SUBPROJECT_CONTEXT_MENU[] = "CMakeProject.CleanSubProjectContextMenu";
-const char REBUILD_SUBPROJECT_CONTEXT_MENU[] = "CMakeProject.RebuildSubProjectContextMenu";
 
 const char CMAKE_CURRENT_SOURCE_DIR[] = "${CMAKE_CURRENT_SOURCE_DIR}";
 
