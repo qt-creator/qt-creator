@@ -2020,14 +2020,7 @@ void PlainTextEdit::paintEvent(QPaintEvent *e)
     er.setRight(qMin(er.right(), maxX));
     painter.setClipRect(er);
 
-    if (d->placeHolderTextToBeShown()) {
-        const QColor col = d->control->palette().placeholderText().color();
-        painter.setPen(col);
-        painter.setClipRect(e->rect());
-        const int margin = int(document()->documentMargin());
-        QRectF textRect = viewportRect.adjusted(margin, margin, 0, 0);
-        painter.drawText(textRect, Qt::AlignTop | Qt::TextWordWrap, placeholderText());
-    }
+    paintPlaceholderText(&painter);
 
     QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
     painter.setPen(context.palette.text().color());
@@ -2486,6 +2479,19 @@ void PlainTextEdit::zoomInF(float range)
         return;
     f.setPointSizeF(newSize);
     setFont(f);
+}
+
+void PlainTextEdit::paintPlaceholderText(QPainter *painter)
+{
+    if (painter && d->placeHolderTextToBeShown()) {
+        const int margin = int(document()->documentMargin());
+        const QRectF textRect = viewport()->rect().adjusted(margin, margin, 0, 0);
+
+        painter->save();
+        painter->setPen(d->control->palette().placeholderText().color());
+        painter->drawText(textRect, Qt::AlignTop | Qt::TextWordWrap, placeholderText());
+        painter->restore();
+    }
 }
 
 #ifndef QT_NO_CONTEXTMENU

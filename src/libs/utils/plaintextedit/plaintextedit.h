@@ -242,6 +242,8 @@ protected:
 
     void zoomInF(float range);
 
+    void paintPlaceholderText(QPainter *painter);
+
 private:
     Q_DISABLE_COPY(PlainTextEdit)
 

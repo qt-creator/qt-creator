@@ -6402,6 +6402,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     QPainter painter(viewport());
     // Set a brush origin so that the WaveUnderline knows where the wave started
     painter.setBrushOrigin(data.mainLayoutOffset);
+    painter.setClipRect(data.eventRect);
 
     data.block = firstVisibleBlock();
     data.context = getPaintContext();
@@ -6425,6 +6426,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
         // paint selection highlights
         d->paintSelectionOverlay(data, painter);
     }
+
+    paintPlaceholderText(&painter);
 
     while (data.block.isValid()) {
 
