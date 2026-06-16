@@ -88,7 +88,6 @@ add_qtc_library(Utils
     guardedcallback.h
     guiutils.cpp guiutils.h
     headerviewstretcher.cpp headerviewstretcher.h
-    highlightingitemdelegate.cpp highlightingitemdelegate.h
     historycompleter.cpp historycompleter.h
     hostosinfo.cpp hostosinfo.h
     htmldocextractor.cpp htmldocextractor.h

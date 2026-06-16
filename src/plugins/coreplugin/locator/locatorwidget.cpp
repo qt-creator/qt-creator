@@ -13,10 +13,10 @@
 #include "../modemanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/delegates.h>
 #include <utils/execmenu.h>
 #include <utils/fancylineedit.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/highlightingitemdelegate.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/progressindicator.h>

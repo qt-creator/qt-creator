@@ -183,8 +183,6 @@ QtcLibrary {
         "guardedcallback.h",
         "guiutils.cpp",
         "guiutils.h",
-        "highlightingitemdelegate.cpp",
-        "highlightingitemdelegate.h",
         "historycompleter.cpp",
         "historycompleter.h",
         "hostosinfo.h",
