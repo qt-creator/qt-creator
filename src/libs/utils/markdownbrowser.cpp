@@ -31,6 +31,7 @@
 #include <QTextDocument>
 #include <QTextDocumentFragment>
 #include <QTextDocumentWriter>
+#include <QTextList>
 #include <QTextObjectInterface>
 #include <QTextTable>
 #include <QTimer>
@@ -761,6 +762,16 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
                 QTextCursor cursor(block);
                 cursor.setBlockCharFormat(cFormat);
             }
+
+            // Show bullet points as filled circles
+            QTextCursor listCursor(block);
+            if (QTextList *list = listCursor.currentList()) {
+                QTextListFormat listFmt = list->format();
+                if (listFmt.indent() == 1 && listFmt.style() == QTextListFormat::ListCircle) {
+                    listFmt.setStyle(QTextListFormat::ListDisc);
+                    list->setFormat(listFmt);
+                }
+            }
         }
 
         // Update fonts
@@ -813,6 +824,8 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
             } else {
                 charFormat.setForeground(color(contentTF));
             }
+            if (charFormat.fontFixedPitch())
+                charFormat.setBackground(creatorColor(Theme::Token_Background_Muted));
             fc.setCharFormat(charFormat);
         }
     }
