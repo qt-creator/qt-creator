@@ -16,12 +16,12 @@
 #include <coreplugin/minisplitter.h>
 
 #include <utils/action.h>
+#include <utils/markdownbrowser.h>
 #include <utils/ranges.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QDesktopServices>
 #include <QHBoxLayout>
 #include <QRegularExpression>
 #include <QScrollBar>
@@ -85,21 +85,13 @@ public:
         m_splitter = new MiniSplitter;
 
         // preview
-        m_previewWidget = new MarkdownView();
-        m_previewWidget->setOpenLinks(false); // we want to open files in QtC, not the browser
+        m_previewWidget = new Utils::MarkdownBrowser();
         m_previewWidget->setFrameShape(QFrame::NoFrame);
-        new Utils::MarkdownHighlighter(m_previewWidget->document());
         connect(m_previewWidget, &QTextBrowser::anchorClicked, this, [this](const QUrl &link) {
-            if (link.hasFragment() && link.path().isEmpty() && link.scheme().isEmpty()) {
-                // local anchor
-                m_previewWidget->scrollToAnchor(link.fragment(QUrl::FullyEncoded));
-            } else if (link.isLocalFile() || link.scheme().isEmpty()) {
-                // absolute path or relative (to the document)
-                // open in Qt Creator
+            if (link.isLocalFile() || (link.scheme().isEmpty() && !link.path().isEmpty())) {
+                // absolute path or relative (to the document): open in Qt Creator
                 EditorManager::openEditor(
                     document()->filePath().parentDir().resolvePath(link.path()));
-            } else {
-                QDesktopServices::openUrl(link);
             }
         });
 
@@ -129,6 +121,11 @@ public:
 
         m_splitter->addWidget(m_textEditorWidget); // sets splitter->focusWidget() on non-Windows
         m_splitter->addWidget(m_previewWidget);
+
+        // Ignore size hints and just distribute equally 50%/50%
+        m_previewWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+        m_textEditorWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+        m_splitter->setSizes({1, 1});
 
         setContext(Context(MARKDOWNVIEWER_ID));
 
@@ -206,26 +203,6 @@ public:
             m_previewRestoreScrollPosition.reset();
 
             m_previewWidget->setMarkdown(m_document->plainText());
-            // Add anchors to headings. This should actually be done by Qt QTBUG-120518
-            for (QTextBlock block = m_previewWidget->document()->begin(); block.isValid();
-                 block = block.next()) {
-                QTextBlockFormat fmt = block.blockFormat();
-                if (fmt.hasProperty(QTextFormat::HeadingLevel)) {
-                    QTextCharFormat cFormat = block.charFormat();
-                    QString anchor;
-                    const QString text = block.text();
-                    for (const QChar &c : text) {
-                        if (c == ' ')
-                            anchor.append('-');
-                        else if (c == '_' || c == '-' || c.isDigit() || c.isLetter())
-                            anchor.append(c.toLower());
-                    }
-                    cFormat.setAnchor(true);
-                    cFormat.setAnchorNames({anchor});
-                    QTextCursor cursor(block);
-                    cursor.setBlockCharFormat(cFormat);
-                }
-            }
 
             m_previewWidget->horizontalScrollBar()->setValue(positions.x());
             m_previewWidget->verticalScrollBar()->setValue(positions.y());
@@ -506,7 +483,7 @@ private:
     QTimer m_previewTimer;
     bool m_performDelayedUpdate = false;
     MiniSplitter *m_splitter;
-    QTextBrowser *m_previewWidget;
+    Utils::MarkdownBrowser *m_previewWidget;
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
     QList<QToolButton *> m_markDownButtons;
