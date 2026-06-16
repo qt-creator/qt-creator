@@ -3607,7 +3607,7 @@ bool GitClient::canRebase(const FilePath &workingDirectory) const
     if (gitDir.pathAppended("rebase-apply").exists()
             || gitDir.pathAppended("rebase-merge").exists()) {
         VcsOutputWindow::appendError(workingDirectory,
-                    Tr::tr("Rebase, merge or am is in progress. Finish "
+                    Tr::tr("Rebase, merge or \"am\" is in progress. Finish "
                        "or abort it and then try again."));
         return false;
     }
