@@ -129,6 +129,29 @@ CommonSettings::CommonSettings()
     warnOnReleaseBuilds.setToolTip(Tr::tr("Shows a warning when starting the debugger "
                                           "on a binary with insufficient debug information."));
 
+    nativeMixedMode.setSettingsKey(debugModeGroup, "UseNativeCombinedDebugging");
+    nativeMixedMode.setLabelText(Tr::tr("Use native combined debugging (experimental)"));
+    nativeMixedMode.setToolTip(
+        "<p>"
+        + Tr::tr("Debugs QML through the C++ debugger backend when both C++ "
+                 "and QML debugging are enabled for a run: QML breakpoints, "
+                 "mixed stacks, and QML locals are handled by the same "
+                 "debugger session instead of a separate QML debugger "
+                 "connection. The QTC_DEBUGGER_NATIVE_MIXED environment "
+                 "variable overrides this setting."));
+
+    collapseMachineryFrames.setSettingsKey(debugModeGroup, "CollapseDebuggerMachineryFrames");
+    collapseMachineryFrames.setDefaultValue(true);
+    collapseMachineryFrames.setLabelText(
+        Tr::tr("Collapse debugger machinery stack frames"));
+    collapseMachineryFrames.setToolTip(
+        "<p>"
+        + Tr::tr("In native combined debugging, replaces the frames between "
+                 "a QML frame and the application code, which only execute "
+                 "debugger machinery, with a single placeholder frame in the "
+                 "stack view."));
+    collapseMachineryFrames.setEnabler(&nativeMixedMode);
+
     useToolTipsInMainEditor.setSettingsKey(debugModeGroup, "UseToolTips");
     useToolTipsInMainEditor.setLabelText(Tr::tr("Use tooltips in main editor when debugging"));
     useToolTipsInMainEditor.setToolTip(
@@ -149,6 +172,8 @@ CommonSettings::CommonSettings()
                 warnOnReleaseBuilds,
                 breakpointsFullPathByDefault,
                 forceLoggingToConsole,
+                nativeMixedMode,
+                collapseMachineryFrames,
                 Row { maximalStackDepth, st },
                 st
             }

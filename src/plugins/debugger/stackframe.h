@@ -38,6 +38,7 @@ public:
     qint32 line = -1;
     quint64 address = 0;
     bool usable = false;
+    bool machinery = false; // Executes debugger machinery rather than user code.
     QString context;  // Opaque value produced and consumed by the native backends.
     uint debuggerId = 0;
 };

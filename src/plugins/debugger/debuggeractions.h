@@ -25,6 +25,8 @@ public:
     Utils::BoolAspect &raiseOnInterrupt;
     Utils::BoolAspect &breakpointsFullPathByDefault;
     Utils::BoolAspect &warnOnReleaseBuilds;
+    Utils::BoolAspect &nativeMixedMode;
+    Utils::BoolAspect &collapseMachineryFrames;
     Utils::IntegerAspect &maximalStackDepth;
 
     Utils::BoolAspect &fontSizeFollowsEditor;

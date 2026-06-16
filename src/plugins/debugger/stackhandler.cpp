@@ -73,8 +73,22 @@ QVariant StackFrameItem::data(int column, int role) const
 {
     if (role == Qt::DisplayRole) {
         switch (column) {
-        case StackLevelColumn:
+        case StackLevelColumn: {
+            // Show the real backend frame level, but 1-based: backend
+            // levels are 0-based, while the column has always been 1-based.
+            // For a regular stack level == row, so this matches the old
+            // row + 1; in native mixed stacks the level differs from the
+            // row (QML frames are spliced in without a level, and collapsed
+            // machinery frames leave gaps), and showing it keeps those gaps
+            // visible. Fall back to the 1-based row when there is no numeric
+            // level, e.g. for QML frames or for DAP, whose frame id is not a
+            // sequential level.
+            bool ok = false;
+            const int level = frame.level.toInt(&ok);
+            if (ok)
+                return level + 1;
             return row >= 0 ? QString::number(row + 1) : QString();
+        }
         case StackFunctionNameColumn:
             return simplifyType(frame.function);
         case StackFileNameColumn:
@@ -218,20 +232,56 @@ void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
     emit stackChanged();
 }
 
+// Replaces each run of debugger machinery frames with a single
+// placeholder frame. The frames keep their backend levels, so the
+// resulting list works for frame activation despite the gaps.
+static StackFrames collapsedMachineryFrames(const StackFrames &frames)
+{
+    StackFrames result;
+    int count = 0;
+    StackFrame placeholder;
+    const auto flush = [&] {
+        if (!count)
+            return;
+        placeholder.function = Tr::tr("<%n frames of debugger machinery>", nullptr, count);
+        placeholder.file = {};
+        placeholder.module.clear();
+        placeholder.line = -1;
+        result.append(placeholder);
+        count = 0;
+    };
+    for (const StackFrame &frame : frames) {
+        if (frame.machinery) {
+            if (count == 0)
+                placeholder = frame;
+            ++count;
+            continue;
+        }
+        flush();
+        result.append(frame);
+    }
+    flush();
+    return result;
+}
+
 void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
 {
-    int targetFrame = -1;
-
     StackFrames stackFrames;
     const int n = frames.childCount();
-    for (int i = 0; i != n; ++i) {
+    for (int i = 0; i != n; ++i)
         stackFrames.append(StackFrame::parseFrame(frames.childAt(i), m_engine->runParameters()));
-        const StackFrame &frame = stackFrames.back();
 
-        // Initialize top frame to the first valid frame.
-        const bool isValid = frame.isUsable() && !frame.function.isEmpty();
-        if (isValid && targetFrame == -1)
+    if (settings().collapseMachineryFrames())
+        stackFrames = collapsedMachineryFrames(stackFrames);
+
+    // Initialize top frame to the first valid frame.
+    int targetFrame = -1;
+    for (int i = 0; i != stackFrames.size(); ++i) {
+        const StackFrame &frame = stackFrames.at(i);
+        if (frame.isUsable() && !frame.function.isEmpty()) {
             targetFrame = i;
+            break;
+        }
     }
 
     bool canExpand = !isFull && n >= settings().maximalStackDepth();

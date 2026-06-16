@@ -1299,6 +1299,7 @@ class Dumper(DumperBase):
                 DumperBase.warn("Failed to fetch qml stack - you need Qt debug information")
                 ii = 0
 
+        inMachineryBlock = False
         for i in range(n - ii):
             frame = thread.GetFrameAtIndex(i)
             if not frame.IsValid():
@@ -1316,16 +1317,26 @@ class Dumper(DumperBase):
             module = frame.GetModule()
 
             if isNativeMixed and functionName == '::qt_qmlDebugMessageAvailable()':
+                inMachineryBlock = True
                 interpreterStack = self.extractInterpreterStack()
                 for interpreterFrame in interpreterStack.get('frames', []):
-                    function = interpreterFrame.get('function', '')
-                    fileName = toCString(interpreterFrame.get('file', ''))
-                    language = interpreterFrame.get('language', '')
-                    lineNumber = interpreterFrame.get('line', 0)
-                    context = interpreterFrame.get('context', 0)
                     result += ('frame={function="%s",file="%s",'
                                'line="%s",language="%s",context="%s"}'
-                               % (function, fileName, lineNumber, language, context))
+                               % (interpreterFrame.get('function', ''),
+                                  toCString(interpreterFrame.get('file', '')),
+                                  interpreterFrame.get('line', 0),
+                                  interpreterFrame.get('language', ''),
+                                  interpreterFrame.get('context', 0)))
+
+            # Mark the contiguous block of debugger machinery frames on
+            # top of the stack. The frontend de-emphasizes or collapses
+            # them.
+            extra = ''
+            if inMachineryBlock:
+                if self.isInterpreterMachineryFrame(functionName):
+                    extra = ',usable="0",machinery="1"'
+                else:
+                    inMachineryBlock = False
 
             fileName = fileNameAsString(lineEntry.file)
             result += '{pc="0x%x"' % pc
@@ -1334,6 +1345,7 @@ class Dumper(DumperBase):
             result += ',function="%s"' % functionName
             result += ',line="%d"' % lineNumber
             result += ',module="%s"' % toCString(module)
+            result += extra
             result += ',file="%s"},' % fileName
         result += ']'
         result += ',hasmore="%d"' % isLimited

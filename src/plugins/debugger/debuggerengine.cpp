@@ -192,6 +192,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
 
     params.m_toolChainAbi = ToolchainKitAspect::targetAbi(kit);
 
+    params.m_nativeMixedEnabled = settings().nativeMixedMode();
     bool ok = false;
     const int nativeMixedOverride = qtcEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);
     if (ok)
@@ -392,9 +393,9 @@ bool DebuggerRunParameters::isNativeMixedDebugging() const
     return m_nativeMixedEnabled && isCppDebugging() && m_isQmlDebugging;
 }
 
-FilePaths DebuggerRunParameters::findQmlFile(const QUrl &url) const
+FilePaths DebuggerRunParameters::findQmlFile(const QUrl &url, bool *success) const
 {
-    return m_qmlFileFinder.findFile(url);
+    return m_qmlFileFinder.findFile(url, success);
 }
 
 void DebuggerRunParameters::populateQmlFileFinder(const RunControl *runControl)

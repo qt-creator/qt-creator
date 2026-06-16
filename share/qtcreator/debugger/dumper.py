@@ -178,6 +178,8 @@ class DumperBase():
         self.qtPropertyFunc = 0
         self.passExceptions = False
         self.isTesting = False
+        self.allowInferiorCalls = False
+        self.interpreterStepArmed = False
         self.qtLoaded = False
 
         self.isBigEndian = False
@@ -2824,6 +2826,16 @@ typename))
         value = struct.unpack_from('!I', buf, offset)[0]
         return (value, offset + 4)
 
+    def parseAndEvaluateAllowingCalls(self, exp):
+        # The communication with the interpreter relies on inferior calls,
+        # independently of whether they are allowed for value display.
+        savedAllowInferiorCalls = self.allowInferiorCalls
+        self.allowInferiorCalls = True
+        try:
+            return self.parseAndEvaluate(exp)
+        finally:
+            self.allowInferiorCalls = savedAllowInferiorCalls
+
     def handleInterpreterMessage(self):
         """ Return True if inferior stopped """
         resdict = self.fetchInterpreterResult()
@@ -2858,7 +2870,7 @@ typename))
         self.reportInterpreterResult(resdict, args)
 
     def resolvePendingInterpreterBreakpoint(self, args):
-        self.parseAndEvaluate('qt_qmlDebugEnableService("NativeQmlDebugger")')
+        self.parseAndEvaluateAllowingCalls('qt_qmlDebugEnableService("NativeQmlDebugger")')
         response = self.sendInterpreterRequest('setbreakpoint', args)
         bp = None if response is None else response.get('breakpoint', None)
         resdict = args.copy()
@@ -2872,8 +2884,8 @@ typename))
         self.reportInterpreterAsync(resdict, 'breakpointmodified')
 
     def fetchInterpreterResult(self):
-        buf = self.parseAndEvaluate('qt_qmlDebugMessageBuffer')
-        size = self.parseAndEvaluate('qt_qmlDebugMessageLength')
+        buf = self.parseAndEvaluateAllowingCalls('qt_qmlDebugMessageBuffer')
+        size = self.parseAndEvaluateAllowingCalls('qt_qmlDebugMessageLength')
         msg = self.hexdecode(self.readMemory(buf, size))
         # msg is a sequence of 'servicename<space>msglen<space>msg' items.
         resdict = {}  # Native payload.
@@ -2896,7 +2908,7 @@ typename))
                       % {'service': service, 'payload': self.hexencode(payload)})
         try:
             expr = 'qt_qmlDebugClearBuffer()'
-            res = self.parseAndEvaluate(expr)
+            res = self.parseAndEvaluateAllowingCalls(expr)
         except RuntimeError as error:
             self.warn('Cleaning buffer failed: %s: %s' % (expr, error))
 
@@ -2907,7 +2919,7 @@ typename))
         hexdata = self.hexencode(encoded)
         expr = 'qt_qmlDebugSendDataToService("NativeQmlDebugger","%s")' % hexdata
         try:
-            res = self.parseAndEvaluate(expr)
+            res = self.parseAndEvaluateAllowingCalls(expr)
         except RuntimeError as error:
             self.warn('Interpreter command failed: %s: %s' % (encoded, error))
             return {}
@@ -2923,22 +2935,84 @@ typename))
     def executeStep(self, args):
         if self.nativeMixed:
             response = self.sendInterpreterRequest('stepin', args)
+            self.interpreterStepArmed = True
+            # Stepping from a QML frame into a C++ method, if the running
+            # Qt has the native call hook. Without it this is a no-op and
+            # the step behaves like a step over the C++ call.
+            self.armNativeCallStepIn()
         self.doContinue()
 
     def executeStepOut(self, args):
         if self.nativeMixed:
             response = self.sendInterpreterRequest('stepout', args)
+            self.interpreterStepArmed = True
+        self.doContinue()
+
+    def executeNativeMixedStepOut(self, args):
+        # Stepping out of a C++ frame in a native mixed session. If the
+        # frame was called straight from the QML interpreter, return to
+        # the QML caller by pausing at the next JS statement; otherwise
+        # step out normally in C++.
+        if self.atNativeToQmlBoundary():
+            self.sendInterpreterRequest('stepin', args)
+            self.interpreterStepArmed = True
+            self.setupMachinerySkips()
+            self.doContinue()
+        else:
+            self.doFinish()
+
+    def atNativeToQmlBoundary(self):
+        # Overridden in the GDB bridge.
+        return False
+
+    def doFinish(self):
+        # Overridden in the GDB bridge.
         self.doContinue()
 
     def executeNext(self, args):
         if self.nativeMixed:
             response = self.sendInterpreterRequest('stepover', args)
+            self.interpreterStepArmed = True
         self.doContinue()
 
     def executeContinue(self, args):
         if self.nativeMixed:
             response = self.sendInterpreterRequest('continue', args)
+            self.interpreterStepArmed = False
         self.doContinue()
+
+    def armInterpreterStepIn(self, args):
+        # Crossing from C++ into QML: arm the interpreter to pause at the
+        # next executed JS statement while the native step proceeds. It is
+        # the running inferior, not the (single-threaded) Python, that may
+        # reach either stop first - the native step finishing, or the
+        # interpreter's next-statement notification. disarmInterpreterStep()
+        # takes back whichever did not fire.
+        self.setupMachinerySkips()
+        self.sendInterpreterRequest('stepin', args)
+        self.interpreterStepArmed = True
+        self.reportResult('', args)
+
+    def setupMachinerySkips(self):
+        # Overridden in the GDB bridge.
+        pass
+
+    def armNativeCallStepIn(self):
+        # Overridden in the GDB bridge.
+        pass
+
+    def disarmNativeCallStepIn(self):
+        # Overridden in the GDB bridge.
+        pass
+
+    def disarmInterpreterStep(self):
+        # The native part of a mixed step stopped first; take back the
+        # interpreter stepping request so that it does not fire on some
+        # later continue.
+        if self.interpreterStepArmed:
+            self.interpreterStepArmed = False
+            self.sendInterpreterRequest('continue', {})
+        self.disarmNativeCallStepIn()
 
     def doInsertInterpreterBreakpoint(self, args, wasPending):
         #self.warn('DO INSERT INTERPRETER BREAKPOINT, WAS PENDING: %s' % wasPending)
@@ -2972,6 +3046,33 @@ typename))
 
     def isReportableInterpreterFrame(self, functionName):
         return functionName and functionName.find('QV4::Moth::VME::exec') >= 0
+
+    # Recognizes frames executing debugger or interpreter machinery
+    # rather than application code, e.g. the qmldbg service plumbing
+    # between a QML breakpoint hit and the interpreter dispatch. The
+    # stack reports mark them as not 'usable' to de-emphasize them.
+    # The generic signal dispatch entries only count as machinery here
+    # because the check is limited to the contiguous block on top of
+    # the stack.
+    def isInterpreterMachineryFrame(self, functionName):
+        if not functionName:
+            return False
+        if functionName.startswith('::'):
+            functionName = functionName[2:]
+        if functionName.startswith('qt_qmlDebug') or functionName.startswith('qt_v4'):
+            return True
+        if functionName.startswith('debug_slowPath'):
+            return True
+        for needle in ('QV4::Moth::VME::', 'QV4::doCall', 'QV4::Function::call',
+                       'QV4::convertAndCall',
+                       'QQmlNativeDebugConnector::', 'DebugService',
+                       'NativeDebugger::', 'QtPrivate::',
+                       'QMetaObject::activate', 'doActivate'):
+            if functionName.find(needle) >= 0:
+                return True
+        # Lambdas in the V4 dispatch. Only sensible because the check
+        # is limited to the block below the interpreter hook.
+        return functionName == 'operator()'
 
     def extractInterpreterStack(self):
         return self.sendInterpreterRequest('backtrace', {'limit': 10})

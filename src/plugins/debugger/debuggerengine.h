@@ -272,7 +272,7 @@ public:
     void setAddQmlServerInferiorCmdArgIfNeeded(bool on) { m_addQmlServerInferiorCmdArgIfNeeded = on; }
     bool isAddQmlServerInferiorCmdArgIfNeeded() const { return m_addQmlServerInferiorCmdArgIfNeeded; }
 
-    Utils::FilePaths findQmlFile(const QUrl &url) const;
+    Utils::FilePaths findQmlFile(const QUrl &url, bool *success = nullptr) const;
     void populateQmlFileFinder(const ProjectExplorer::RunControl *runControl);
 
     Utils::FilePath mapToProjectPath(const QString &debuggerOutput) const;

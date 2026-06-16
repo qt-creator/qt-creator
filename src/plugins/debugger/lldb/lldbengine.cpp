@@ -510,11 +510,21 @@ void LldbEngine::activateFrame(int frameIndex)
     handler->setCurrentIndex(frameIndex);
     gotoCurrentLocation();
 
-    DebuggerCommand cmd("activateFrame");
-    cmd.arg("index", frameIndex);
-    if (Thread thread = threadsHandler()->currentThread())
-        cmd.arg("thread", thread->id());
-    runCommand(cmd);
+    // A QML frame is not a real native frame; selecting it in lldb would
+    // pick a wrong native frame. Only activate native frames.
+    if (handler->frameAt(frameIndex).language != QmlLanguage) {
+        // With native mixed stacks the row index does not correspond to
+        // the debugger's frame level: QML frames are spliced in, and
+        // machinery frames may be collapsed. Use the reported level.
+        bool ok = false;
+        const int level = handler->frameAt(frameIndex).level.toInt(&ok);
+
+        DebuggerCommand cmd("activateFrame");
+        cmd.arg("index", ok ? level : frameIndex);
+        if (Thread thread = threadsHandler()->currentThread())
+            cmd.arg("thread", thread->id());
+        runCommand(cmd);
+    }
 
     updateLocals();
     reloadRegisters();

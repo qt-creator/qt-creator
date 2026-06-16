@@ -328,6 +328,17 @@ void GdbEngine::handleResponse(const QString &buff)
                     handleInterpreterBreakpointModified(allData["interpreterasync"]);
                 break;
             }
+            if (data.startsWith("nativemixedstep={")) {
+                // The dumper internally steps from QML into a C++ method.
+                // Ignore the intermediate run/stop cycles it produces; only
+                // the final landing, reported after the 'left' marker,
+                // should surface.
+                GdbMi allData;
+                allData.fromStringMultiple(data, m_gdbOutputDecoder);
+                m_inNativeMixedStep =
+                    allData["nativemixedstep"]["state"].data() == "entered";
+                break;
+            }
             if (data.startsWith("tracepointhit={")) {
                 GdbMi allData;
                 allData.fromStringMultiple(data, m_gdbOutputDecoder);
@@ -472,16 +483,16 @@ void GdbEngine::handleResponse(const QString &buff)
 void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &result)
 {
     if (asyncClass == u"stopped") {
-        if (m_inUpdateLocals) {
-            showMessage("UNEXPECTED *stopped NOTIFICATION IGNORED", LogWarning);
+        if (m_inUpdateLocals || m_inNativeMixedStep) {
+            showMessage("INTERMEDIATE *stopped NOTIFICATION IGNORED", LogWarning);
         } else {
             handleStopResponse(result);
             m_pendingLogStreamOutput.clear();
             m_pendingConsoleStreamOutput.clear();
         }
     } else if (asyncClass == u"running") {
-        if (m_inUpdateLocals) {
-            showMessage("UNEXPECTED *running NOTIFICATION IGNORED", LogWarning);
+        if (m_inUpdateLocals || m_inNativeMixedStep) {
+            showMessage("INTERMEDIATE *running NOTIFICATION IGNORED", LogWarning);
         } else {
             GdbMi threads = result["thread-id"];
             threadsHandler()->notifyRunning(threads.data());
@@ -496,6 +507,13 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
                 // We get multiple *running after thread creation and in Windows terminals.
                 showMessage(QString("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
                             arg(DebuggerEngine::stateName(state())));
+            } else if (state() == InferiorStopOk && isNativeMixedActive()) {
+                // Native combined debugging resumes the inferior internally,
+                // e.g. when resolving a pending QML breakpoint from a stop
+                // handler. Model it as a proper run request rather than a
+                // bare, and therefore illegal, transition to InferiorRunOk.
+                notifyInferiorRunRequested();
+                notifyInferiorRunOk();
             } else {
                 notifyInferiorRunOk();
             }
@@ -1832,6 +1850,10 @@ void GdbEngine::executeStepIn(bool byInstruction)
             cmd.function += "--reverse";
         cmd.callback = CB(handleExecuteContinue);
     } else {
+        // Crossing from C++ into QML: pause at the next executed JS
+        // statement in case the native step reaches the interpreter.
+        if (isNativeMixedActive())
+            runCommand({"armInterpreterStepIn"});
         cmd.flags = RunRequest|NeedsFlush;
         cmd.function = "-exec-step";
         if (isReverseDebugging())
@@ -1886,6 +1908,11 @@ void GdbEngine::executeStepOut()
     showStatusMessage(Tr::tr("Finish function requested..."), 5000);
     if (isNativeMixedActiveFrame()) {
         runCommand({"executeStepOut", RunRequest});
+    } else if (isNativeMixedActive()) {
+        // A C++ frame in a native mixed session. The dumper returns to
+        // the QML caller if the frame sits right on the C++/QML boundary,
+        // and steps out in C++ otherwise.
+        runCommand({"executeNativeMixedStepOut", RunRequest});
     } else {
         // -exec-finish in 'main' results (correctly) in
         //  40^error,msg="\"finish\" not meaningful in the outermost frame."
@@ -3152,13 +3179,20 @@ void GdbEngine::activateFrame(int frameIndex)
     handler->setCurrentIndex(frameIndex);
     gotoCurrentLocation();
 
-    if (handler->frameAt(frameIndex).language != QmlLanguage) {
+    const StackFrame &frame = handler->frameAt(frameIndex);
+    if (frame.language != QmlLanguage) {
+        // With native mixed stacks the row index does not correspond to
+        // the debugger's frame level: QML frames are spliced in, and
+        // machinery frames may be collapsed. Use the reported level.
+        bool ok = false;
+        const int level = frame.level.toInt(&ok);
         // Assuming the command always succeeds this saves a roundtrip.
         // Otherwise the lines below would need to get triggered
         // after a response to this -stack-select-frame here.
         //if (!m_currentThread.isEmpty())
         //    cmd += " --thread " + m_currentThread;
-        runCommand({"-stack-select-frame " + QString::number(frameIndex), Discardable});
+        runCommand({"-stack-select-frame " + QString::number(ok ? level : frameIndex),
+                    Discardable});
     }
 
     updateLocals();

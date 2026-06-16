@@ -194,6 +194,10 @@ class Dumper(DumperBase):
         self.isGdb = True
         self.interpreterBreakpointResolvers = []
         self.interpreterMessageBreakpoint = None
+        self.machinerySkipsDone = False
+        self.nativeCallHookBreakpoint = None
+        self.nativeCallHookChecked = False
+        self.nativeCallHookSymbol = None
 
     def warn(self, message):
         print('bridgemessage={msg="%s"},' % message.replace('"', '$').encode('latin1'))
@@ -1338,8 +1342,32 @@ class Dumper(DumperBase):
                 frame = frame.older()
                 i += 1
 
+        # Pre-pass: find where the QML frames will be spliced and the
+        # contiguous metacall machinery run leading down to it, so those
+        # frames (e.g. qt_static_metacall, QMetaObject::metacall between a
+        # C++ method and its QML caller) can be de-emphasized too.
+        preSpliceMachineryPcs = set()
+        if self.nativeMixed:
+            scan = gdb.newest_frame()
+            pending = []
+            steps = 0
+            while scan is not None and steps < limit:
+                steps += 1
+                scanName = scan.name() or ''
+                if (scanName == 'qt_qmlDebugMessageAvailable'
+                        or scanName.startswith('QV4::Moth::VME::')):
+                    preSpliceMachineryPcs.update(pending)
+                    break
+                if self.isQmlCallMachineryFrame(scan):
+                    pending.append(scan.pc())
+                else:
+                    pending = []  # only the run immediately above the splice
+                scan = scan.older()
+
         frame = gdb.newest_frame()
         self.currentCallContext = None
+        inMachineryBlock = False
+        splicedQml = False
         while i < limit and frame:
             name = frame.name()
             functionName = '??' if name is None else name
@@ -1360,33 +1388,43 @@ class Dumper(DumperBase):
                     else:
                         fileName = fromNativePath(fullname)
 
-            if self.nativeMixed and functionName == 'qt_qmlDebugMessageAvailable':
+            # Splice the QML frames into the C++ stack. At a QML breakpoint
+            # this happens at the qt_qmlDebugMessageAvailable notification;
+            # when stopped in a C++ method called from QML there is no such
+            # frame, so splice at the QML interpreter frame instead, which
+            # shows the QML caller chain. Do it once.
+            if (self.nativeMixed and not splicedQml
+                    and (functionName == 'qt_qmlDebugMessageAvailable'
+                         or functionName.startswith('QV4::Moth::VME::'))):
+                splicedQml = True
+                inMachineryBlock = True
                 interpreterStack = self.extractInterpreterStack()
                 #print('EXTRACTED INTEPRETER STACK: %s' % interpreterStack)
                 for interpreterFrame in interpreterStack.get('frames', []):
-                    function = interpreterFrame.get('function', '')
-                    fileName = interpreterFrame.get('file', '')
-                    language = interpreterFrame.get('language', '')
-                    lineNumber = interpreterFrame.get('line', 0)
-                    context = interpreterFrame.get('context', 0)
-
                     self.put(('frame={function="%s",file="%s",'
                               'line="%s",language="%s",context="%s"}')
-                             % (function, self.hexencode(fileName), lineNumber, language, context))
+                             % (interpreterFrame.get('function', ''),
+                                interpreterFrame.get('file', ''),
+                                interpreterFrame.get('line', 0),
+                                interpreterFrame.get('language', ''),
+                                interpreterFrame.get('context', 0)))
 
-                if False and self.isInternalInterpreterFrame(functionName):
-                    frame = frame.older()
-                    self.put(('frame={address="0x%x",function="%s",'
-                              'file="%s",line="%s",'
-                              'module="%s",language="c",usable="0"}') %
-                             (pc, functionName, fileName, line, objfile))
-                    i += 1
-                    frame = frame.older()
-                    continue
+            # Mark debugger machinery frames. The frontend de-emphasizes
+            # or collapses them. Two runs are marked: the metacall chain
+            # between a C++ method and its QML caller (preSpliceMachineryPcs),
+            # and the contiguous block at and below the QML splice point.
+            extra = ''
+            if pc in preSpliceMachineryPcs:
+                extra = 'usable="0",machinery="1",'
+            elif inMachineryBlock:
+                if self.isInterpreterMachineryFrame(functionName):
+                    extra = 'usable="0",machinery="1",'
+                else:
+                    inMachineryBlock = False
 
             self.put(('frame={level="%s",address="0x%x",function="%s",'
-                      'file="%s",line="%s",module="%s",language="c"}') %
-                     (i, pc, functionName, fileName, line, objfile))
+                      'file="%s",line="%s",module="%s",%slanguage="c"}') %
+                     (i, pc, functionName, fileName, line, objfile, extra))
 
             try:
                 # This may fail with something like
@@ -1409,13 +1447,20 @@ class Dumper(DumperBase):
                     __init__(spec, gdb.BP_BREAKPOINT, internal=True, temporary=False)
 
             def stop(self):
-                self.dumper.resolvePendingInterpreterBreakpoint(args)
+                # Inferior calls are not allowed from within stop() and
+                # can leave the inferior's other threads suspended, e.g.
+                # deadlocking the xcb event thread. Stop for real; the
+                # work happens in interpreterStopHandler().
                 self.enabled = False
-                return False
+                return True
+
+            def interpreterEventHandler(self):
+                self.dumper.resolvePendingInterpreterBreakpoint(self.args)
+                return False  # Do not stay stopped.
 
         self.interpreterBreakpointResolvers.append(Resolver(self, args))
 
-    def insertInterpreterBreakpoint(self, args):
+    def ensureInterpreterMessageBreakpoint(self):
         # The interpreter signals events worth stopping for by calling
         # qt_qmlDebugMessageAvailable(). Make sure we break there.
         if self.interpreterMessageBreakpoint is None:
@@ -1423,6 +1468,143 @@ class Dumper(DumperBase):
                 self.interpreterMessageBreakpoint = InterpreterMessageBreakpoint()
             except Exception as error:
                 self.warn('Cannot set interpreter message breakpoint: %s' % error)
+
+    def setupMachinerySkips(self):
+        # Cross stepping pauses in qt_qmlDebugMessageAvailable() even
+        # when no interpreter breakpoint was ever inserted.
+        self.ensureInterpreterMessageBreakpoint()
+        # Stepping from C++ should pass through the V4 dispatch and the
+        # generic signal plumbing rather than stop at their entries;
+        # while passing through, an armed interpreter step pauses at
+        # the next JS statement. Session-wide, only set up in native
+        # mixed sessions.
+        if self.machinerySkipsDone:
+            return
+        self.machinerySkipsDone = True
+        for pattern in ('^QV4::', '^QQml', '^QtPrivate::', '^doActivate',
+                        '^QMetaObject::', '^qt_qmlDebug', '^debug_slowPath'):
+            try:
+                # to_string captures, and thus suppresses, gdb's
+                # "Function ... will be skipped ..." console output; the
+                # returned text is not needed.
+                gdb.execute("skip -rfu %s" % pattern, to_string=True)
+            except Exception as error:
+                self.warn('Cannot set up machinery skip %s: %s' % (pattern, error))
+
+    def nativeCallHookAvailable(self):
+        # The hook only exists in a Qt that carries the qtdeclarative
+        # change; without it QML-to-C++ step-in degrades to a step over.
+        if self.nativeCallHookChecked:
+            return self.nativeCallHookSymbol is not None
+        self.nativeCallHookChecked = True
+        try:
+            self.nativeCallHookSymbol = \
+                gdb.lookup_global_symbol('qt_v4AboutToCallNativeMethodHook')
+        except Exception:
+            self.nativeCallHookSymbol = None
+        return self.nativeCallHookSymbol is not None
+
+    def armNativeCallStepIn(self):
+        # Make the interpreter call qt_v4AboutToCallNativeMethodHook()
+        # right before a JS-to-C++ method dispatch, and break there.
+        if not self.nativeCallHookAvailable():
+            return
+        if self.nativeCallHookBreakpoint is None:
+            try:
+                self.nativeCallHookBreakpoint = NativeMethodCallBreakpoint()
+            except Exception as error:
+                self.warn('Cannot set native call hook breakpoint: %s' % error)
+                return
+        self.setupMachinerySkips()
+        try:
+            gdb.execute('set variable qt_v4NativeCallHookEnabled = 1')
+        except gdb.error as error:
+            self.warn('Cannot arm native call hook: %s' % error)
+
+    def disarmNativeCallStepIn(self):
+        if not self.nativeCallHookAvailable():
+            return
+        try:
+            gdb.execute('set variable qt_v4NativeCallHookEnabled = 0')
+        except gdb.error:
+            pass
+
+    def handleNativeCallHook(self):
+        # Stopped at qt_v4AboutToCallNativeMethodHook, right before a
+        # JS-to-C++ method dispatch. We are leaving QML for C++, so take
+        # back the racing interpreter step, then break in the method via
+        # the receiver's generated qt_static_metacall and step into it.
+        # Return True to stay stopped in the method.
+        self.disarmNativeCallStepIn()
+        self.disarmInterpreterStep()
+        try:
+            meta = gdb.newest_frame().read_var('receiverMeta')
+            address = int(meta['d']['static_metacall'].cast(
+                gdb.lookup_type('unsigned long')))
+        except Exception as error:
+            self.warn('Cannot resolve native method target: %s' % error)
+            return True
+        if address == 0:
+            return True
+        # The descent below runs the inferior several times. Bracket it
+        # so the engine ignores the intermediate run/stop cycles and only
+        # surfaces the final landing reported after this returns.
+        self.enterInternalStepping()
+        try:
+            gdb.Breakpoint('*0x%x' % address, internal=True, temporary=True)
+            gdb.execute('continue')
+            # Step out of the generated qt_static_metacall trampoline into
+            # the actual method.
+            for _ in range(32):
+                gdb.execute('step')
+                if 'qt_static_metacall' not in (gdb.newest_frame().name() or ''):
+                    break
+        finally:
+            self.leaveInternalStepping()
+        return True
+
+    def enterInternalStepping(self):
+        print('nativemixedstep={state="entered"}')
+
+    def leaveInternalStepping(self):
+        print('nativemixedstep={state="left"}')
+
+    def doFinish(self):
+        gdb.execute('finish')
+
+    def isQmlCallMachineryFrame(self, frame):
+        # A frame on the metacall path between a C++ method and the QML
+        # interpreter: the generated qt_(static_)metacall trampolines, or
+        # anything inside the Qt libraries (recognized by source path, or
+        # by having no source at all in a release build).
+        name = frame.name() or ''
+        if 'qt_static_metacall' in name or 'qt_metacall' in name:
+            return True
+        sal = frame.find_sal()
+        fileName = sal.symtab.fullname() if sal and sal.symtab else ''
+        if not fileName:
+            return True
+        return '/qtbase/' in fileName or '/qtdeclarative/' in fileName
+
+    def atNativeToQmlBoundary(self):
+        # True if the current C++ frame was called straight from the QML
+        # interpreter through the metacall machinery, with no intervening
+        # user C++ frame. Stepping out then returns to the QML caller.
+        frame = gdb.newest_frame()
+        frame = frame.older() if frame else None
+        limit = 24
+        while frame is not None and limit > 0:
+            limit -= 1
+            name = frame.name() or ''
+            if 'QV4::Moth::VME::' in name or 'callInternal' in name:
+                return True
+            if not self.isQmlCallMachineryFrame(frame):
+                return False
+            frame = frame.older()
+        return False
+
+    def insertInterpreterBreakpoint(self, args):
+        self.ensureInterpreterMessageBreakpoint()
         DumperBase.insertInterpreterBreakpoint(self, args)
 
     def exitGdb(self, _):
@@ -1591,8 +1773,31 @@ class InterpreterMessageBreakpoint(gdb.Breakpoint):
             __init__(spec, gdb.BP_BREAKPOINT, internal=True)
 
     def stop(self):
+        # See the interpreter breakpoint resolver: no inferior calls
+        # from within stop(). The work happens in
+        # interpreterStopHandler().
+        return True
+
+    def interpreterEventHandler(self):
         print('Interpreter event received.')
+        # Stay stopped if the interpreter reported a 'break' event.
         return theDumper.handleInterpreterMessage()
+
+
+class NativeMethodCallBreakpoint(gdb.Breakpoint):
+    def __init__(self):
+        spec = 'qt_v4AboutToCallNativeMethodHook'
+        super(NativeMethodCallBreakpoint, self).\
+            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
+
+    def stop(self):
+        # See the interpreter breakpoint resolver: no inferior calls
+        # from within stop(). The work happens in
+        # interpreterStopHandler().
+        return True
+
+    def interpreterEventHandler(self):
+        return theDumper.handleNativeCallHook()
 
 
 #######################################################################
@@ -1606,3 +1811,40 @@ def new_objfile_handler(event):
 
 
 gdb.events.new_objfile.connect(new_objfile_handler)
+
+
+def interpreterStopHandler(event):
+    # Performs the work for the interpreter breakpoint resolvers and
+    # InterpreterMessageBreakpoint. This runs with the inferior fully
+    # stopped, where inferior calls are safe, unlike in
+    # gdb.Breakpoint.stop().
+    if isinstance(event, gdb.BreakpointEvent):
+        # Several of our breakpoints can sit on the same location, e.g.
+        # one resolver per pending interpreter breakpoint. Run all
+        # handlers.
+        handled = False
+        stay_stopped = False
+        for bp in event.breakpoints:
+            handler = getattr(bp, 'interpreterEventHandler', None)
+            if handler is None:
+                continue
+            handled = True
+            try:
+                if handler():
+                    stay_stopped = True
+            except Exception as error:
+                # A failing handler must not leave the inferior stopped in
+                # machinery code; log and let the continue below run.
+                theDumper.warn('Interpreter event handler failed: %s' % error)
+        if handled:
+            if stay_stopped:
+                theDumper.disarmInterpreterStep()
+            else:
+                gdb.execute('continue')
+            return
+    # A stop somewhere else, e.g. a finished native step or an ordinary
+    # breakpoint. If interpreter stepping was armed, it lost the race.
+    theDumper.disarmInterpreterStep()
+
+
+gdb.events.stop.connect(interpreterStopHandler)

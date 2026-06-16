@@ -10,6 +10,7 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QUrl>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -73,7 +74,14 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
     frame.level = frameMi["level"].data();
     frame.function = frameMi["function"].data();
     frame.module = frameMi["module"].data();
-    frame.file = rp.mapToProjectPath(frameMi["file"].data()).cleanPath();
+    const QString fileName = frameMi["file"].data();
+    if (fileName.startsWith("qrc:")) {
+        // Resolving against the build directory would bury the prefix
+        // inside an absolute path. fixQrcFrame() handles these.
+        frame.file = FilePath::fromString(fileName);
+    } else {
+        frame.file = rp.mapToProjectPath(fileName).cleanPath();
+    }
     frame.line = frameMi["line"].toInt();
     frame.address = frameMi["address"].toAddress();
     frame.context = frameMi["context"].data();
@@ -88,6 +96,7 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
         frame.usable = usable.data().toInt();
     else
         frame.usable = frame.file.isReadableFile();
+    frame.machinery = frameMi["machinery"].toInt();
     return frame;
 }
 
@@ -156,6 +165,17 @@ void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
     }
     if (!file.path().startsWith("qrc:/"))
         return;
+
+    // The QML file finder knows how to map resource paths to project
+    // files, including the synthetic /qt/qml/<module> prefix of standard
+    // QML modules, which does not correspond to the source layout.
+    bool found = false;
+    const FilePaths candidates = rp.findQmlFile(QUrl(file.path()), &found);
+    if (found && !candidates.isEmpty()) {
+        file = candidates.first();
+        usable = true;
+        return;
+    }
 
     FilePath relativeFile = file;
     QString relativePath = file.path();

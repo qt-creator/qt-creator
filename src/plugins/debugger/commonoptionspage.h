@@ -53,6 +53,8 @@ public:
     Utils::BoolAspect raiseOnInterrupt{this};
     Utils::BoolAspect breakpointsFullPathByDefault{this};
     Utils::BoolAspect warnOnReleaseBuilds{this};
+    Utils::BoolAspect nativeMixedMode{this};
+    Utils::BoolAspect collapseMachineryFrames{this};
     Utils::IntegerAspect maximalStackDepth{this};
 
     Utils::BoolAspect fontSizeFollowsEditor{this};

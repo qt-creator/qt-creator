@@ -996,7 +996,9 @@ void DapEngine::refreshStack(const QJsonArray &stackFrames)
     for (const auto &value : stackFrames) {
         StackFrame frame;
         QJsonObject item = value.toObject();
-        frame.level = item.value("id").toString();
+        // The "id" is an opaque DAP frame id kept in debuggerId below for
+        // frame selection; it is not a sequential level, so leave
+        // frame.level empty and let the view show the row number.
         frame.function = item.value("name").toString();
         frame.line = item.value("line").toInt();
         QJsonObject source = item.value("source").toObject();

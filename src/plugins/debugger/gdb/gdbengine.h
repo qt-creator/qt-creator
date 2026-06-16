@@ -308,6 +308,11 @@ private: ////////// General Interface //////////
     // while updating locals.
     bool m_inUpdateLocals = false;
 
+    // For suppressing processing *stopped and *running responses while
+    // the dumper internally steps from QML into a C++ method (native
+    // combined debugging). Only the final landing should surface.
+    bool m_inNativeMixedStep = false;
+
     QString m_lastWinException;
     bool m_expectTerminalTrap = false;
     bool usesExecInterrupt() const;
