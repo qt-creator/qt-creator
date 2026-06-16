@@ -524,10 +524,10 @@ private:
     Button m_okButtonLong{Layouting::standardButtonText(QDialogButtonBox::Ok), Button::MediumPrimary};
     Button m_applyButtonLong{Layouting::standardButtonText(QDialogButtonBox::Apply), Button::MediumSecondary};
     Button m_cancelButtonLong{Layouting::standardButtonText(QDialogButtonBox::Cancel), Button::MediumSecondary};
-    Button m_discardButtonLong{Layouting::standardButtonText(QDialogButtonBox::Discard), Button::MediumSecondary};
+    Button m_discardButtonLong{Tr::tr("Discard"), Button::MediumSecondary};
 
     Button m_applyButtonShort{Layouting::standardButtonText(QDialogButtonBox::Apply), Button::MediumPrimary};
-    Button m_discardButtonShort{Layouting::standardButtonText(QDialogButtonBox::Discard), Button::MediumSecondary};
+    Button m_discardButtonShort{Tr::tr("Discard"), Button::MediumSecondary};
 
     bool m_isDirty = false;
     bool m_currentlySwitching = false;
