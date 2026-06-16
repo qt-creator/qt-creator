@@ -40,6 +40,11 @@ public:
     {
     }
 
+    static QString mustNotEndWithMessage(const QString &suffix)
+    {
+        return Tr::tr("References must not end with \"%1\".").arg(suffix);
+    }
+
     State validate(QString &input, int &pos) const override
     {
         Q_UNUSED(pos)
@@ -54,17 +59,17 @@ public:
         // "Intermediate" patterns, may change to Acceptable when user edits further:
 
         if (input.endsWith(".lock")) { // may not end with ".lock"
-            m_errorMessage = Tr::tr("References must not end with \".lock\".");
+            m_errorMessage = mustNotEndWithMessage(".lock");
             return Intermediate;
         }
 
         if (input.endsWith('.')) { // no dot at the end (but allowed in the middle)
-            m_errorMessage = Tr::tr("References must not end with \".\".");
+            m_errorMessage = mustNotEndWithMessage(".");
             return Intermediate;
         }
 
         if (input.endsWith('/')) { // no slash at the end (but allowed in the middle)
-            m_errorMessage = Tr::tr("References must not end with \"/\".");
+            m_errorMessage = mustNotEndWithMessage("/");
             return Intermediate;
         }
 
