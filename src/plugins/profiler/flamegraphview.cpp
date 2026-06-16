@@ -80,14 +80,11 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
     QAction *getGlobalStatsAction = menu.addAction(Tr::tr("Show Full Range"));
     getGlobalStatsAction->setEnabled(m_model->modelManager()->isRestrictedToRange());
-    QAction *resetAction = menu.addAction(Tr::tr("Reset Flame Graph"));
-    resetAction->setEnabled(m_content->isZoomed());
+    menu.addAction(m_content->resetAction());
 
     const QAction *selected = menu.exec(position);
     if (selected == getGlobalStatsAction)
         emit showFullRange();
-    else if (selected == resetAction)
-        m_content->resetRoot();
 }
 
 } // namespace Profiler::Internal

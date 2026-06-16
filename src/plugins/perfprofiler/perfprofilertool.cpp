@@ -357,13 +357,10 @@ PerfProfilerTool::PerfProfilerTool()
             &d->m_limitToRange, &QAction::trigger);
     connect(menu1->addAction(Tr::tr("Show Full Range")), &QAction::triggered,
             &d->m_showFullRange, &QAction::trigger);
-    QAction *resetAction = menu1->addAction(Tr::tr("Reset Flame Graph"));
-    connect(resetAction, &QAction::triggered,
-            &d->m_flameGraphView, &PerfProfilerFlameGraphView::resetRoot);
+    menu1->addAction(d->m_flameGraphView.resetAction());
     d->m_flameGraphView.setContextMenuPolicy(Qt::CustomContextMenu);
     connect(&d->m_flameGraphView, &QWidget::customContextMenuRequested,
-            menu1, [this, menu1, resetAction](const QPoint &pos) {
-        resetAction->setEnabled(d->m_flameGraphView.isZoomed());
+            menu1, [this, menu1](const QPoint &pos) {
         menu1->exec(d->m_flameGraphView.mapToGlobal(pos));
     });
 

@@ -2,11 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "flamegraphwidget.h"
+#include "tracingtr.h"
 
+#include <utils/utilsicons.h>
+#include <utils/widgets.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QAbstractItemModel>
+#include <QAction>
 #include <QComboBox>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -14,6 +18,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollArea>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 namespace Timeline {
@@ -65,9 +70,11 @@ public:
     static constexpr int kMaxRowHeight = 60;
 
     // UI
+    QWidget *toolbar = nullptr;
     QScrollArea *scrollArea = nullptr;
     FlameGraphCanvas *canvas = nullptr;
     QComboBox *modeCombo = nullptr;
+    QAction *resetAction = nullptr;
 
     int currentSizeRole() const
     {
@@ -150,8 +157,8 @@ private:
             d->selectedTypeId = -1;
             d->selectedNodeIndex = -1;
             d->lastHoveredNodeIndex = -1;
-            d->showDetails(-1);
-            emit d->q->typeSelected(-1);
+            d->showDetails(d->selectedNodeIndex);
+            emit d->q->typeSelected(d->selectedTypeId);
             update();
             return;
         }
@@ -384,6 +391,9 @@ void FlameGraphWidgetPrivate::rebuild()
         }
     }
 
+    if (resetAction)
+        resetAction->setEnabled(root.isValid());
+
     if (canvas) {
         canvas->updateGeometry();
         canvas->update();
@@ -522,19 +532,29 @@ FlameGraphWidget::FlameGraphWidget(QAbstractItemModel *model, QWidget *parent)
     d->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     d->scrollArea->setFrameShape(QFrame::NoFrame);
 
-    auto *topBar = new QWidget(this);
-    topBar->setVisible(false);
-    auto *barLayout = new QHBoxLayout(topBar);
-    barLayout->setContentsMargins(2, 2, 2, 2);
-    barLayout->addStretch();
-    d->modeCombo = new QComboBox(topBar);
-    d->modeCombo->setMinimumWidth(160);
-    barLayout->addWidget(d->modeCombo);
+    d->toolbar = new Utils::StyledBar(this);
+    auto *toolbarLayout = new QHBoxLayout(d->toolbar);
+    toolbarLayout->setContentsMargins(0, 0, 0, 0);
+    d->modeCombo = new QComboBox(d->toolbar);
+    d->modeCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    toolbarLayout->addWidget(d->modeCombo);
+
+    d->resetAction = new QAction(this);
+    d->resetAction->setText(Tr::tr("Reset Flame Graph"));
+    d->resetAction->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
+    d->resetAction->setEnabled(false);
+    connect(d->resetAction, &QAction::triggered, this, &FlameGraphWidget::resetRoot);
+
+    auto resetToolButton = new QToolButton(d->toolbar);
+    resetToolButton->setDefaultAction(d->resetAction);
+    toolbarLayout->addWidget(resetToolButton);
+
+    toolbarLayout->addStretch();
 
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(topBar);
+    layout->addWidget(d->toolbar);
     layout->addWidget(d->scrollArea);
 
     connect(d->modeCombo, &QComboBox::currentIndexChanged, this, [this](int) {
@@ -565,9 +585,7 @@ void FlameGraphWidget::setSizeRoles(const QList<QPair<int, QString>> &roles)
     for (const auto &[role, name] : roles)
         d->modeCombo->addItem(name);
 
-    // Show the toolbar only when there are multiple modes to choose from
-    auto *topBar = d->modeCombo->parentWidget();
-    topBar->setVisible(roles.size() > 1);
+    d->modeCombo->setVisible(roles.size() > 1);
 
     d->rebuild();
 }
@@ -623,6 +641,11 @@ void FlameGraphWidget::resetRoot()
 bool FlameGraphWidget::isZoomed() const
 {
     return d->root.isValid();
+}
+
+QAction *FlameGraphWidget::resetAction() const
+{
+    return d->resetAction;
 }
 
 } // namespace Timeline

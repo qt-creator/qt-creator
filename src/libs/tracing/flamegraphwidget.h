@@ -12,6 +12,7 @@
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
+class QAction;
 QT_END_NAMESPACE
 
 namespace Timeline {
@@ -46,6 +47,8 @@ public:
     void selectByTypeId(int typeId);
     void resetRoot();
     bool isZoomed() const;
+
+    QAction *resetAction() const;
 
 signals:
     void typeSelected(int typeId);
