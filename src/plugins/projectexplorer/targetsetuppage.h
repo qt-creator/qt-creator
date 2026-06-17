@@ -7,7 +7,7 @@
 
 #include "kit.h"
 
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 namespace Utils { class FilePath; }
 

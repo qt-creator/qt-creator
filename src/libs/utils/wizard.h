@@ -3,15 +3,23 @@
 
 #pragma once
 
+#include "result.h"
 #include "utils_global.h"
 
+#include <QHash>
+#include <QSet>
+#include <QString>
+#include <QVariant>
 #include <QWizard>
+#include <QWizardPage>
+
+#include <functional>
 
 namespace Utils {
 
-class Wizard;
-class WizardProgress;
+class FilePath;
 class WizardPrivate;
+class WizardProgress;
 
 const char SHORT_TITLE_PROPERTY[] = "shortTitle";
 
@@ -152,6 +160,127 @@ private:
     Q_DECLARE_PRIVATE(WizardProgressItem)
 
     class WizardProgressItemPrivate *d_ptr;
+};
+
+namespace Internal {
+
+class QTCREATOR_UTILS_EXPORT ObjectToFieldWidgetConverter : public QWidget
+{
+    Q_OBJECT
+    Q_PROPERTY(QVariant value READ value NOTIFY valueChanged)
+
+public:
+    template<class T, typename... Arguments>
+    static ObjectToFieldWidgetConverter *create(T *sender,
+                                                void (T::*member)(Arguments...),
+                                                const std::function<QVariant()> &toVariantFunction)
+    {
+        auto widget = new ObjectToFieldWidgetConverter();
+        widget->toVariantFunction = toVariantFunction;
+        connect(sender, &QObject::destroyed, widget, &QObject::deleteLater);
+        connect(sender, member, widget, [widget] { emit widget->valueChanged(widget->value()); });
+        return widget;
+    }
+
+signals:
+    void valueChanged(const QVariant &);
+
+private:
+    ObjectToFieldWidgetConverter () = default;
+
+    // is used by the property value
+    QVariant value() { return toVariantFunction(); }
+    std::function<QVariant()> toVariantFunction;
+};
+
+} // Internal
+
+class QTCREATOR_UTILS_EXPORT WizardPage : public QWizardPage
+{
+    Q_OBJECT
+
+public:
+    using QWizardPage::QWizardPage;
+
+    virtual void pageWasAdded(); // called when this page was added to a Utils::Wizard
+
+    template<class T, typename... Arguments>
+    void registerObjectAsFieldWithName(const QString &name,
+                                       T *sender,
+                                       void (T::*changeSignal)(Arguments...),
+                                       const std::function<QVariant()> &senderToVariant)
+    {
+        registerFieldWithName(name,
+                              Internal::ObjectToFieldWidgetConverter::create(sender,
+                                                                             changeSignal,
+                                                                             senderToVariant),
+                              "value",
+                              SIGNAL(valueChanged(QValue)));
+    }
+
+    void registerFieldWithName(const QString &name, QWidget *widget,
+                               const char *property = nullptr, const char *changedSignal = nullptr);
+
+    void setSkipForSubprojects(bool skip) { m_skipForSubproject = skip; }
+    bool skipForSubprojects() const { return m_skipForSubproject; }
+
+    virtual bool handleReject();
+    virtual bool handleAccept();
+
+signals:
+    // Emitted when there is something that the developer using this page should be aware of.
+    void reportError(const QString &errorMessage);
+
+private:
+    void registerFieldName(const QString &name);
+
+    QSet<QString> m_toRegister;
+    bool m_skipForSubproject = false;
+};
+
+class QTCREATOR_UTILS_EXPORT FileWizardPage : public WizardPage
+{
+    Q_OBJECT
+    Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
+    Q_PROPERTY(QString fileName READ fileName WRITE setFileName DESIGNABLE true)
+
+public:
+    explicit FileWizardPage(QWidget *parent = nullptr);
+    ~FileWizardPage() override;
+
+    QString fileName() const;
+    [[deprecated("Use filePath()")]] QString path() const;
+
+    Utils::FilePath filePath() const;
+
+    bool isComplete() const override;
+
+    void setFileNameLabel(const QString &label);
+    void setPathLabel(const QString &label);
+    void setDefaultSuffix(const QString &suffix);
+
+    bool forceFirstCapitalLetterForFileName() const;
+    void setForceFirstCapitalLetterForFileName(bool b);
+    void setAllowDirectoriesInFileSelector(bool allow);
+
+    // Validate a base name entry field (potentially containing extension)
+    static Utils::Result<> validateBaseName(const QString &name);
+
+signals:
+    void activated();
+    void pathChanged();
+
+public slots:
+    void setPath(const QString &path); // Deprecated: Use setFilePath
+    void setPathVisible(bool visible);
+    void setFileName(const QString &name);
+    void setFilePath(const Utils::FilePath &filePath);
+
+private:
+    void slotValidChanged();
+    void slotActivated();
+
+    class FileWizardPagePrivate *d;
 };
 
 QTCREATOR_UTILS_EXPORT QDebug &operator<<(QDebug &debug, const WizardProgress &progress);

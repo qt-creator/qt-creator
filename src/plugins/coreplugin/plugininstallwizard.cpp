@@ -24,7 +24,6 @@
 #include <utils/temporarydirectory.h>
 #include <utils/unarchiver.h>
 #include <utils/wizard.h>
-#include <utils/wizardpage.h>
 
 #include <QButtonGroup>
 #include <QCheckBox>

@@ -75,7 +75,6 @@ add_qtc_library(Utils
     filesystemmodel.cpp filesystemmodel.h
     filesystemwatcher.cpp filesystemwatcher.h
     fileutils.cpp fileutils.h
-    filewizardpage.cpp filewizardpage.h
     fsengine/fsengine.cpp fsengine/fsengine.h
     fsengine/fileiconprovider.cpp fsengine/fileiconprovider.h
     futuresynchronizer.cpp futuresynchronizer.h
@@ -219,7 +218,6 @@ add_qtc_library(Utils
     variablechooser.cpp variablechooser.h
     winutils.cpp winutils.h
     wizard.cpp wizard.h
-    wizardpage.cpp wizardpage.h
     movie.cpp movie.h
   SBOM_ARGS
     USE_ATTRIBUTION_FILES

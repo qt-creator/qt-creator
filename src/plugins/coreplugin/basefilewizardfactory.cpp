@@ -8,11 +8,6 @@
 #include "dialogs/promptoverwritedialog.h"
 #include "editormanager/editormanager.h"
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/filewizardpage.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>

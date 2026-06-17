@@ -10,8 +10,8 @@
 #include <coreplugin/iwizardfactory.h>
 
 #include <utils/infolabel.h>
-#include <utils/wizardpage.h>
 #include <utils/treemodel.h>
+#include <utils/wizard.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

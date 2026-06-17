@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/filewizardpage.h>
+#include <utils/wizard.h>
 
 namespace ProjectExplorer {
 

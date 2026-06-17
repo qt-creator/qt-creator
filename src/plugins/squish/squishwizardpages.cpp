@@ -15,7 +15,7 @@
 
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 #include <QApplication>
 #include <QButtonGroup>

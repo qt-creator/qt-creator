@@ -24,7 +24,6 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/wizard.h>
-#include <utils/wizardpage.h>
 
 #include <QDebug>
 #include <QDir>

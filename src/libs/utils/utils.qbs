@@ -166,8 +166,6 @@ QtcLibrary {
         "filesystemwatcher.h",
         "fileutils.cpp",
         "fileutils.h",
-        "filewizardpage.cpp",
-        "filewizardpage.h",
         "futuresynchronizer.cpp",
         "futuresynchronizer.h",
         "fuzzymatcher.cpp",
@@ -395,8 +393,6 @@ QtcLibrary {
         "winutils.h",
         "wizard.cpp",
         "wizard.h",
-        "wizardpage.cpp",
-        "wizardpage.h",
         "images/*.png",
     ]
 

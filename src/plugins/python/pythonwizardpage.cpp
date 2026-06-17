@@ -3,27 +3,16 @@
 
 #include "pythonwizardpage.h"
 
-#include "pythonconstants.h"
-#include "pythonkitaspect.h"
-#include "pythonsettings.h"
 #include "pythontr.h"
-
-#include <coreplugin/generatedfile.h>
 
 #include <projectexplorer/jsonwizard/jsonwizard.h>
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
-#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

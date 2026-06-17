@@ -7,8 +7,7 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
-#include <utils/filepath.h>
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;

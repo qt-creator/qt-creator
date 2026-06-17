@@ -5,7 +5,7 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 QT_BEGIN_NAMESPACE
 class QDesignerNewFormWidgetInterface;

@@ -17,8 +17,6 @@
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/filewizardpage.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/wizard.h>

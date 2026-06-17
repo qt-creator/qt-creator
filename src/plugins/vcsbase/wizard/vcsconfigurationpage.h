@@ -7,7 +7,7 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 namespace Core { class IVersionControl; }
 

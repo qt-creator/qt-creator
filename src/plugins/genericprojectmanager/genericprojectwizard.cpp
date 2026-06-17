@@ -15,8 +15,6 @@
 #include <projectexplorer/selectablefilesmodel.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/filewizardpage.h>
 #include <utils/mimeutils.h>
 #include <utils/wizard.h>
 

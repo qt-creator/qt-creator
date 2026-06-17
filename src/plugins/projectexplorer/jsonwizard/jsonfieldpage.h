@@ -6,7 +6,7 @@
 #include "../projectexplorer_export.h"
 
 #include <utils/pathchooser.h>
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 #include <QRegularExpression>
 #include <QVariant>

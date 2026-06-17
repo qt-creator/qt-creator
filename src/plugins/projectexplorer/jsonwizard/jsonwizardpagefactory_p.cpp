@@ -14,7 +14,7 @@
 #include "../projectexplorertr.h"
 
 #include <utils/qtcassert.h>
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 using namespace Utils;
 

@@ -24,7 +24,7 @@
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>

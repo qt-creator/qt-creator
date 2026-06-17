@@ -8,7 +8,7 @@
 #include "filepath.h"
 #include "id.h"
 #include "infolabel.h"
-#include "wizardpage.h"
+#include "wizard.h"
 
 namespace Utils {
 

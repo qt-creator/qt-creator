@@ -13,7 +13,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
-#include <utils/wizardpage.h>
+#include <utils/wizard.h>
 
 #include <QComboBox>
 #include <QFormLayout>
