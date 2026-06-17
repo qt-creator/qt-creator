@@ -2880,7 +2880,7 @@ typename))
         self.reportInterpreterResult(resdict, args)
 
     def resolvePendingInterpreterBreakpoint(self, args):
-        self.parseAndEvaluateAllowingCalls('qt_qmlDebugEnableService("NativeQmlDebugger")')
+        self.callServiceFunction('qt_qmlDebugEnableService', ['NativeQmlDebugger'])
         response = self.sendInterpreterRequest('setbreakpoint', args)
         bp = None if response is None else response.get('breakpoint', None)
         resdict = args.copy()
@@ -2893,9 +2893,23 @@ typename))
             resdict['error'] = 'Pending interpreter breakpoint insertion failed.'
         self.reportInterpreterAsync(resdict, 'breakpointmodified')
 
+    def callServiceFunction(self, function, args=None):
+        # Issue an inferior call to a NativeQmlDebugger service function with
+        # string arguments. GDB and LLDB inline the arguments as string
+        # literals; the CDB bridge overrides this to marshal each string into
+        # target memory and call by pointer, because cdb's .call rejects
+        # string literals (see tests/manual/debugger/qmlmix/cdb-reference.md).
+        literals = ', '.join('"%s"' % arg for arg in (args or []))
+        return self.parseAndEvaluateAllowingCalls('%s(%s)' % (function, literals))
+
+    def readServiceVariable(self, name):
+        # Read a NativeQmlDebugger service global. Overridable so the CDB
+        # bridge can module-qualify the symbol.
+        return self.parseAndEvaluateAllowingCalls(name)
+
     def fetchInterpreterResult(self):
-        buf = self.parseAndEvaluateAllowingCalls('qt_qmlDebugMessageBuffer')
-        size = self.parseAndEvaluateAllowingCalls('qt_qmlDebugMessageLength')
+        buf = self.readServiceVariable('qt_qmlDebugMessageBuffer')
+        size = self.readServiceVariable('qt_qmlDebugMessageLength')
         msg = self.hexdecode(self.readMemory(buf.pointer(), size.integer()))
         # msg is a sequence of 'servicename<space>msglen<space>msg' items.
         resdict = {}  # Native payload.
@@ -2917,19 +2931,18 @@ typename))
                 print('interpreteralien=%s'
                       % {'service': service, 'payload': self.hexencode(payload)})
         try:
-            expr = 'qt_qmlDebugClearBuffer()'
-            res = self.parseAndEvaluateAllowingCalls(expr)
+            res = self.callServiceFunction('qt_qmlDebugClearBuffer')
         except RuntimeError as error:
-            self.warn('Cleaning buffer failed: %s: %s' % (expr, error))
+            self.warn('Cleaning buffer failed: %s' % error)
 
         return resdict
 
     def sendInterpreterRequest(self, command, args={}):
         encoded = json.dumps({'command': command, 'arguments': args})
         hexdata = self.hexencode(encoded)
-        expr = 'qt_qmlDebugSendDataToService("NativeQmlDebugger","%s")' % hexdata
         try:
-            res = self.parseAndEvaluateAllowingCalls(expr)
+            res = self.callServiceFunction('qt_qmlDebugSendDataToService',
+                                           ['NativeQmlDebugger', hexdata])
         except RuntimeError as error:
             self.warn('Interpreter command failed: %s: %s' % (encoded, error))
             return {}

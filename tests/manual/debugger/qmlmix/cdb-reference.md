@@ -138,15 +138,36 @@ the backtrace. That is the cleanest way to get a representative result.
 
 ---
 
-## 5. If the experiment passes: what building CDB support involves
+## 5. Building CDB support (experiment passed — green light)
+
+The feasibility experiment came back **GO** (Stage C): the full service
+round-trip is drivable from cdb via inferior `.call`, confirmed with a real
+QML backtrace. Two findings from it are now load-bearing for the build-out:
+
+- **String literals are rejected by cdb `.call`** (`String literals not
+  allowed`). Every string argument (service name, hex payload) **must be
+  marshalled into target memory and passed by pointer.** Not optional.
+- **There is no `.call`-able allocator** (`malloc` has no usable PDB
+  prototype). The experiment used the `.dvalloc`/`eb` commands; a bridge needs
+  the extension to allocate + write target memory.
 
 In rough order, and with the honest caveats:
 
-1. **Service round-trip in `cdbbridge.py`.** Give `sendInterpreterRequest`/
-   `fetchInterpreterResult` a CDB path: issue the calls via `cdbext.call`
-   (marshalling strings into target memory if literals are unreliable), read
-   `qt_qmlDebugMessageBuffer`/`Length`, hex-decode. This is the part the
-   experiment de-risks.
+0. **(Done, shared) The call seam.** `dumper.py` now routes the service
+   inferior calls through `callServiceFunction(function, args)` and
+   `readServiceVariable(name)`. GDB/LLDB inline string literals; **CDB overrides
+   both** (`cdbbridge.py`, drafted but UNTESTED) to module-qualify the symbol
+   (`qmldbg_native[d]!...`) and pass marshalled pointers.
+
+1. **Service round-trip in `cdbbridge.py`.** Finish the override: implement
+   `marshalString()` (write the bytes + NUL into target memory, return the
+   address), then `callServiceFunction` issues `cdbext.call('MOD!fn(@p1,@p2)')`
+   and `fetchInterpreterResult` reads `qt_qmlDebugMessageBuffer`/`Length` via
+   `readServiceVariable` + `readRawMemory`, hex-decodes, and clears.
+   **Blocker:** `qtcreatorcdbext` currently has `readRawMemory` but **no
+   memory-write or allocation** primitive. Add e.g. `cdbext.allocate(size)` and
+   `cdbext.writeRawMemory(address, bytes)` (C++ extension work, Windows-only to
+   build) — this is the first concrete task.
 
 2. **Interpreter breakpoints + the "QML stop".** Implement the equivalents of
    gdb's resolver / `InterpreterMessageBreakpoint`: a breakpoint on
@@ -187,9 +208,10 @@ hook-dependent checks on Qt >= 6.12).
 
 ## 6. Known risks, ranked
 
-1. **`.call` reliability/volume.** The protocol issues several inferior calls
-   per stop; cdb `.call` is historically fragile and used sparingly today. The
-   experiment is precisely about this.
+1. **`.call` reliability/volume — CLEARED.** The experiment drove the full
+   round-trip via `.call` with the pointer-marshalling workaround; reliable
+   enough. The residual cost is the mandatory string marshalling (needs the new
+   extension memory-write/allocate APIs in §5.1).
 2. **Orchestration model.** No in-debugger event loop on CDB; expect engine /
    extension work, not a pure Python mirror.
 3. **No skip mechanism** for C++->QML step-in.

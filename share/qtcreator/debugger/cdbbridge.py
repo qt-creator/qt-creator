@@ -244,6 +244,43 @@ class Dumper(DumperBase):
     def nativeParseAndEvaluate(self, exp: str) -> cdbext.Value:
         return cdbext.parseAndEvaluate(exp)
 
+    # --- Native combined (C++/QML) service plumbing -----------------------
+    # Draft, UNTESTED. The cdb feasibility experiment (Stage C, green) showed
+    # the NativeQmlDebugger round-trip works via inferior .call, but cdb
+    # rejects string literals, so service-name and hex-payload arguments must
+    # be marshalled into target memory and passed by pointer. See
+    # tests/manual/debugger/qmlmix/cdb-reference.md.
+
+    def serviceModuleName(self) -> str:
+        # The qmldbg_native plugin (debug builds: qmldbg_natived) hosts the
+        # NativeQmlDebugger entry points; cdb needs the module prefix.
+        for module in cdbext.listOfModules():
+            if module.startswith('qmldbg_native'):
+                return module
+        return ''
+
+    def marshalString(self, text: str) -> int:
+        # Write 'text' plus a terminating NUL into target memory and return
+        # its address (used as a char*). FIXME: qtcreatorcdbext exposes
+        # readRawMemory but no memory-write or allocation primitive, and
+        # '.call malloc(...)' has no usable prototype. This needs new
+        # extension APIs (e.g. cdbext.allocate(size) + cdbext.writeRawMemory(
+        # address, bytes)); the experiment used the '.dvalloc'/'eb' commands.
+        raise NotImplementedError(
+            'CDB string marshalling needs cdbext.allocate/writeRawMemory '
+            '(see cdb-reference.md)')
+
+    def callServiceFunction(self, function, args=None):
+        module = self.serviceModuleName()
+        qualified = ('%s!%s' % (module, function)) if module else function
+        pointers = ['0x%x' % self.marshalString(arg) for arg in (args or [])]
+        return cdbext.call('%s(%s)' % (qualified, ', '.join(pointers)))
+
+    def readServiceVariable(self, name):
+        module = self.serviceModuleName()
+        qualified = ('%s!%s' % (module, name)) if module else name
+        return self.fromNativeValue(cdbext.parseAndEvaluate(qualified))
+
     def isWindowsTarget(self) -> bool:
         return True
 
