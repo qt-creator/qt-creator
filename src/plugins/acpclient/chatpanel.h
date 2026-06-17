@@ -24,10 +24,18 @@ class QToolButton;
 
 namespace AcpClient::Internal {
 
+enum class TextContextScope {
+    None,      // not remembered (transient)
+    Session,   // remember for this agent's session id
+    Agent,     // remember for this agent
+    AllAgents, // remember for all agents
+};
+
 struct TextContext
 {
     QString name;
     QString text;
+    TextContextScope scope = TextContextScope::Session;
 };
 
 class AcpMessageView;
@@ -47,6 +55,8 @@ public:
     ChatInputEdit *inputEdit() const { return m_inputEdit; }
 
     void setAgentIcon(const QString &iconUrl = {});
+    void setAgentId(const QString &agentId);
+    void setSessionId(const QString &sessionId);
     void setPrompting(bool prompting);
     void setSendEnabled(bool enabled);
 
@@ -120,6 +130,15 @@ private:
 
     void updateContextBar();
     void addContextFiles(const QList<Utils::FilePath> &files);
+
+    QString m_agentId;
+    QString m_sessionId;
+    void reloadPersistedTextContexts();
+    void persistTextContexts();
+
+    QList<TextContext> textContextHistory() const;
+    void addTextContextToHistory(const QString &name, const QString &text);
+    void removeTextContextHistoryAt(int index);
 
     TextContextEditor *m_textContextEditor = nullptr;
     int m_editingTextContextIndex = -1;

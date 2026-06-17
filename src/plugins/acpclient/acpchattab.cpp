@@ -326,7 +326,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->showAuthenticationError(
             Tr::tr("Authentication failed: %1").arg(error));
     });
-    connect(m_controller, &AcpChatController::sessionCreated, this, [this]() {
+    connect(m_controller, &AcpChatController::sessionCreated, this, [this](const QString &sessionId) {
+        m_chatPanel->setSessionId(sessionId);
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
         m_chatPanel->setSendEnabled(true);
@@ -406,7 +407,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_stack->setCurrentIndex(2);
         showSessionPicker();
     });
-    connect(m_controller, &AcpChatController::sessionLoaded, this, [this]() {
+    connect(m_controller, &AcpChatController::sessionLoaded, this, [this](const QString &sessionId) {
+        m_chatPanel->setSessionId(sessionId);
         m_stack->setCurrentIndex(2);
         m_chatPanel->setSendEnabled(true);
     });
@@ -530,6 +532,7 @@ void AcpChatTab::populateServerButtons()
             m_connectionErrorLabel->hide();
             m_initializingLabel->setText(Tr::tr("Connecting to %1").arg(serverName));
             m_stack->setCurrentIndex(3);
+            m_chatPanel->setAgentId(serverId);
             m_controller->connectToServer(serverId);
             emit titleChanged();
         });

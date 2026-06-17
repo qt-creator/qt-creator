@@ -20,6 +20,7 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/plaintextedit/texteditorlayout.h>
+#include <utils/settingsdatabase.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
@@ -28,12 +29,16 @@
 #include <utils/widgets.h>
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QFileDialog>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMimeData>
 #include <QLabel>
 #include <QMenu>
@@ -46,6 +51,7 @@
 #include <QTextCursor>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <QWidgetAction>
 
 using namespace Acp;
 using namespace Utils;
@@ -128,8 +134,10 @@ class ContextItem : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ContextItem(const QString &text, const QIcon &icon, QWidget *parent = nullptr)
+    explicit ContextItem(const QString &text, const QIcon &icon, QWidget *parent = nullptr,
+                         bool withBorder = true)
         : QWidget(parent)
+        , m_withBorder(withBorder)
     {
         auto *layout = new QHBoxLayout(this);
         layout->setContentsMargins(PaddingHM, PaddingVXs, PaddingHXs, PaddingVXs);
@@ -171,11 +179,16 @@ protected:
 
     void paintEvent(QPaintEvent *) override
     {
+        if (!m_withBorder)
+            return;
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
         StyleHelper::drawCardBg(
             &p, rect(), QBrush(), creatorColor(Theme::Token_Foreground_Muted), RadiusS);
     }
+
+private:
+    bool m_withBorder = true;
 };
 
 // Plain text editor with the same font/color setup as the chat input.
@@ -293,9 +306,22 @@ public:
         layout->setContentsMargins(PaddingHM, PaddingVM, PaddingHM, PaddingVM);
         layout->setSpacing(GapVXs);
 
+        auto *nameRow = new QWidget;
+        auto *nameLayout = new QHBoxLayout(nameRow);
+        nameLayout->setContentsMargins(0, 0, 0, 0);
+        nameLayout->setSpacing(GapHS);
+
         m_nameEdit = new ContextTextEdit(Tr::tr("Name"));
         m_nameEdit->setFixedLineCount(1);
-        layout->addWidget(m_nameEdit);
+        nameLayout->addWidget(m_nameEdit, 1);
+
+        m_historyButton = new QtcIconButton;
+        m_historyButton->setIcon(Utils::Icons::CLOCK_TOOLBAR.icon());
+        m_historyButton->setToolTip(Tr::tr("Previously Entered Contexts"));
+        connect(m_historyButton, &QAbstractButton::clicked, this, [this] { showHistoryMenu(); });
+        nameLayout->addWidget(m_historyButton, 0, Qt::AlignTop);
+
+        layout->addWidget(nameRow);
 
         auto *hr = new QFrame;
         hr->setFrameShape(QFrame::HLine);
@@ -310,10 +336,28 @@ public:
         m_textEdit->setAutoHeightLineRange(4, 12);
         layout->addWidget(m_textEdit);
 
+        // Tab from the name field should reach the context text, not the
+        // history button that follows the name field in the layout.
+        setTabOrder(m_nameEdit, m_textEdit);
+
         auto *buttonRow = new QWidget;
         auto *buttonLayout = new QHBoxLayout(buttonRow);
         buttonLayout->setContentsMargins(0, 0, 0, 0);
         buttonLayout->setSpacing(GapHS);
+
+        m_rememberCombo = new QtcComboBox;
+        m_rememberCombo->setToolTip(Tr::tr("Controls whether and where this context is remembered."));
+        const auto addScope = [this](TextContextScope scope) {
+            m_rememberCombo->addItem(scopeName(scope), int(scope));
+            m_rememberCombo->setItemData(
+                m_rememberCombo->count() - 1, scopeTooltip(scope), Qt::ToolTipRole);
+        };
+        addScope(TextContextScope::None);
+        addScope(TextContextScope::Session);
+        addScope(TextContextScope::Agent);
+        addScope(TextContextScope::AllAgents);
+        buttonLayout->addWidget(m_rememberCombo);
+
         buttonLayout->addStretch(1);
 
         auto *cancelButton = new QtcButton(Tr::tr("Cancel"), QtcButton::MediumTertiary);
@@ -324,20 +368,28 @@ public:
 
         connect(cancelButton, &QAbstractButton::clicked, this, &TextContextEditor::cancelled);
         connect(saveButton, &QAbstractButton::clicked, this, [this] {
-            emit saved(m_nameEdit->toPlainText().trimmed(), m_textEdit->toPlainText());
+            const auto scope = TextContextScope(m_rememberCombo->currentData().toInt());
+            emit saved(m_nameEdit->toPlainText().trimmed(), m_textEdit->toPlainText(), scope);
         });
     }
 
-    void setContext(const QString &name, const QString &text)
+    void setContext(const QString &name, const QString &text, TextContextScope scope)
     {
         m_nameEdit->setPlainText(name);
         m_textEdit->setPlainText(text);
+        const int index = m_rememberCombo->findData(int(scope));
+        m_rememberCombo->setCurrentIndex(index < 0 ? 0 : index);
     }
 
     void focusName() { m_nameEdit->setFocus(); }
 
+    // Supplies the list of previously entered contexts for the history menu.
+    std::function<QList<TextContext>()> historyProvider;
+    // Removes the history entry at the given index from the settings.
+    std::function<void(int)> onRemoveHistory;
+
 signals:
-    void saved(const QString &name, const QString &text);
+    void saved(const QString &name, const QString &text, TextContextScope scope);
     void cancelled();
 
 protected:
@@ -354,8 +406,76 @@ protected:
     }
 
 private:
+    static QString scopeName(TextContextScope scope)
+    {
+        switch (scope) {
+        case TextContextScope::None:      return Tr::tr("Do Not Remember");
+        case TextContextScope::Session:   return Tr::tr("Remember for This Session");
+        case TextContextScope::Agent:     return Tr::tr("Remember for This Agent");
+        case TextContextScope::AllAgents: return Tr::tr("Remember for All Agents");
+        }
+        return {};
+    }
+
+    static QString scopeTooltip(TextContextScope scope)
+    {
+        switch (scope) {
+        case TextContextScope::None:
+            return Tr::tr("Use this context only for the current chat session and do not "
+                          "store it.");
+        case TextContextScope::Session:
+            return Tr::tr("Remember this context for this chat and restore it when the "
+                          "session is reopened.");
+        case TextContextScope::Agent:
+            return Tr::tr("Remember this context for every chat with the current agent.");
+        case TextContextScope::AllAgents:
+            return Tr::tr("Remember this context for every chat with any agent.");
+        }
+        return {};
+    }
+
+    void showHistoryMenu()
+    {
+        if (!historyProvider)
+            return;
+        const QList<TextContext> history = historyProvider();
+
+        auto *menu = new QMenu(m_historyButton);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+
+        if (history.isEmpty()) {
+            QAction *a = menu->addAction(Tr::tr("No Previous Contexts"));
+            a->setEnabled(false);
+        }
+        for (int i = 0; i < history.size(); ++i) {
+            const TextContext ctx = history.at(i);
+            auto *row = new ContextItem(ctx.name, {}, nullptr, /*withBorder=*/false);
+            auto *action = new QWidgetAction(menu);
+            action->setDefaultWidget(row);
+            menu->addAction(action);
+            connect(row, &ContextItem::clicked, this, [this, ctx, menu] {
+                m_nameEdit->setPlainText(ctx.name);
+                m_textEdit->setPlainText(ctx.text);
+                menu->close();
+                m_nameEdit->setFocus();
+            });
+            connect(row, &ContextItem::removeRequested, this, [this, i, menu] {
+                if (onRemoveHistory)
+                    onRemoveHistory(i);
+                menu->close();
+                // Reopen so the user sees the updated list.
+                QMetaObject::invokeMethod(this, [this] { showHistoryMenu(); }, Qt::QueuedConnection);
+            });
+        }
+
+        const QPoint topLeft = m_historyButton->mapToGlobal(QPoint(0, 0));
+        menu->popup(QPoint(topLeft.x(), topLeft.y() - menu->sizeHint().height()));
+    }
+
     ContextTextEdit *m_nameEdit;
     ContextTextEdit *m_textEdit;
+    QtcIconButton *m_historyButton = nullptr;
+    QtcComboBox *m_rememberCombo = nullptr;
 };
 
 ChatPanel::ChatPanel(QWidget *parent)
@@ -505,7 +625,7 @@ ChatPanel::ChatPanel(QWidget *parent)
     m_textContextEditor = new TextContextEditor;
     m_textContextEditor->hide();
     connect(m_textContextEditor, &TextContextEditor::saved, this,
-            [this](const QString &name, const QString &text) {
+            [this](const QString &name, const QString &text, TextContextScope scope) {
         const bool editing = m_editingTextContextIndex >= 0
                              && m_editingTextContextIndex < m_textContexts.size();
         if (text.isEmpty()) {
@@ -514,13 +634,17 @@ ChatPanel::ChatPanel(QWidget *parent)
         } else {
             const QString n = name.isEmpty() ? Tr::tr("Text") : name;
             if (editing)
-                m_textContexts[m_editingTextContextIndex] = {n, text};
+                m_textContexts[m_editingTextContextIndex] = {n, text, scope};
             else
-                m_textContexts.append({n, text});
+                m_textContexts.append({n, text, scope});
+            addTextContextToHistory(n, text);
         }
         hideTextContextEditor();
+        persistTextContexts();
         updateContextBar();
     });
+    m_textContextEditor->historyProvider = [this] { return textContextHistory(); };
+    m_textContextEditor->onRemoveHistory = [this](int index) { removeTextContextHistoryAt(index); };
     connect(m_textContextEditor, &TextContextEditor::cancelled, this,
             [this] { hideTextContextEditor(); });
 
@@ -877,6 +1001,7 @@ void ChatPanel::updateContextBar()
             m_textContexts.at(i).name, Core::Icons::MODE_EDIT_FLAT.icon(), m_contextBar);
         connect(item, &ContextItem::removeRequested, this, [this, i] {
             m_textContexts.removeAt(i);
+            persistTextContexts();
             QMetaObject::invokeMethod(this, [this] { updateContextBar(); }, Qt::QueuedConnection);
         });
         connect(item, &ContextItem::clicked, this, [this, i] {
@@ -893,9 +1018,9 @@ void ChatPanel::showTextContextEditor(int index)
     m_editingTextContextIndex = index;
     if (index >= 0 && index < m_textContexts.size()) {
         const TextContext &ctx = m_textContexts.at(index);
-        m_textContextEditor->setContext(ctx.name, ctx.text);
+        m_textContextEditor->setContext(ctx.name, ctx.text, ctx.scope);
     } else {
-        m_textContextEditor->setContext({}, {});
+        m_textContextEditor->setContext({}, {}, TextContextScope::None);
     }
     m_textContextEditor->show();
     m_textContextEditor->focusName();
@@ -905,6 +1030,144 @@ void ChatPanel::hideTextContextEditor()
 {
     m_editingTextContextIndex = -1;
     m_textContextEditor->hide();
+}
+
+void ChatPanel::setAgentId(const QString &agentId)
+{
+    if (m_agentId == agentId)
+        return;
+    m_agentId = agentId;
+    reloadPersistedTextContexts();
+}
+
+void ChatPanel::setSessionId(const QString &sessionId)
+{
+    if (m_sessionId == sessionId)
+        return;
+    m_sessionId = sessionId;
+    reloadPersistedTextContexts();
+}
+
+// Remembered text contexts are persisted in the settings database (not the ini
+// settings), since they can hold large multi-line text.
+static QString textContextGlobalKey() { return "AcpClient/TextContexts/Global"; }
+static QString textContextAgentKey(const QString &agentId)
+{
+    return "AcpClient/TextContexts/Agent/" + agentId;
+}
+static QString textContextSessionKey(const QString &agentId, const QString &sessionId)
+{
+    return "AcpClient/TextContexts/Session/" + agentId + '/' + sessionId;
+}
+
+void ChatPanel::reloadPersistedTextContexts()
+{
+    // Drop previously loaded remembered contexts, keep only transient (none) ones.
+    m_textContexts.removeIf([](const TextContext &ctx) {
+        return ctx.scope != TextContextScope::None;
+    });
+
+    const auto load = [this](const QString &key, TextContextScope scope) {
+        // Stored as a JSON array string: SQLite cannot round-trip a nested
+        // QVariantList/QVariantMap through a single bound value.
+        const QByteArray json = SettingsDatabase::value(key).toString().toUtf8();
+        const QJsonArray array = QJsonDocument::fromJson(json).array();
+        for (const QJsonValue &item : array) {
+            const QJsonObject o = item.toObject();
+            m_textContexts.append(
+                {o.value("name").toString(), o.value("text").toString(), scope});
+        }
+    };
+
+    load(textContextGlobalKey(), TextContextScope::AllAgents);
+    if (!m_agentId.isEmpty())
+        load(textContextAgentKey(m_agentId), TextContextScope::Agent);
+    if (!m_agentId.isEmpty() && !m_sessionId.isEmpty())
+        load(textContextSessionKey(m_agentId, m_sessionId), TextContextScope::Session);
+
+    updateContextBar();
+}
+
+void ChatPanel::persistTextContexts()
+{
+    QJsonArray global;
+    QJsonArray agent;
+    QJsonArray session;
+    for (const TextContext &ctx : std::as_const(m_textContexts)) {
+        const QJsonObject o{{"name", ctx.name}, {"text", ctx.text}};
+        if (ctx.scope == TextContextScope::AllAgents)
+            global.append(o);
+        else if (ctx.scope == TextContextScope::Agent)
+            agent.append(o);
+        else if (ctx.scope == TextContextScope::Session)
+            session.append(o);
+    }
+    // Stored as a JSON array string: SQLite cannot round-trip a nested
+    // QVariantList/QVariantMap through a single bound value.
+    const auto toJson = [](const QJsonArray &a) {
+        return QString::fromUtf8(QJsonDocument(a).toJson(QJsonDocument::Compact));
+    };
+    SettingsDatabase::setValue(textContextGlobalKey(), toJson(global), std::chrono::seconds::max());
+    if (!m_agentId.isEmpty())
+        SettingsDatabase::setValue(textContextAgentKey(m_agentId), toJson(agent), std::chrono::years(1));
+    if (!m_agentId.isEmpty() && !m_sessionId.isEmpty())
+        SettingsDatabase::setValue(
+            textContextSessionKey(m_agentId, m_sessionId), toJson(session), std::chrono::months(3));
+}
+
+// History of every text context the user has entered, independent of scope, so
+// previously used contexts can be picked again from the editor.
+static QString textContextHistoryKey() { return "AcpClient/TextContexts/History"; }
+static constexpr int textContextHistoryMax = 50;
+
+QList<TextContext> ChatPanel::textContextHistory() const
+{
+    const QByteArray json = SettingsDatabase::value(textContextHistoryKey()).toString().toUtf8();
+    const QJsonArray array = QJsonDocument::fromJson(json).array();
+    QList<TextContext> result;
+    for (const QJsonValue &item : array) {
+        const QJsonObject o = item.toObject();
+        result.append({o.value("name").toString(), o.value("text").toString(),
+                       TextContextScope::None});
+    }
+    return result;
+}
+
+void ChatPanel::addTextContextToHistory(const QString &name, const QString &text)
+{
+    if (text.isEmpty())
+        return;
+
+    QList<TextContext> history = textContextHistory();
+    // Drop an existing identical entry, then prepend so it becomes most recent.
+    history.removeIf([&](const TextContext &c) { return c.name == name && c.text == text; });
+    history.prepend({name, text, TextContextScope::None});
+    while (history.size() > textContextHistoryMax)
+        history.removeLast();
+
+    QJsonArray array;
+    for (const TextContext &c : std::as_const(history))
+        array.append(QJsonObject{{"name", c.name}, {"text", c.text}});
+    SettingsDatabase::setValue(
+        textContextHistoryKey(),
+        QString::fromUtf8(QJsonDocument(array).toJson(QJsonDocument::Compact)),
+        std::chrono::seconds::max());
+}
+
+void ChatPanel::removeTextContextHistoryAt(int index)
+{
+    QList<TextContext> history = textContextHistory();
+    if (index < 0 || index >= history.size())
+        return;
+    history.removeAt(index);
+
+    QJsonArray array;
+    for (const TextContext &c : std::as_const(history))
+        array.append(QJsonObject{{"name", c.name}, {"text", c.text}});
+    SettingsDatabase::setValue(
+        textContextHistoryKey(),
+        QString::fromUtf8(QJsonDocument(array).toJson(QJsonDocument::Compact)),
+        std::chrono::seconds::max());
 }
 
 } // namespace AcpClient::Internal

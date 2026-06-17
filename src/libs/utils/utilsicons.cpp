@@ -265,6 +265,7 @@ const Icon EXPAND_TOOLBAR({
 const Icon COLLAPSE({
         {":/utils/images/collapse.png", Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon CLOCK_BLACK({{":/utils/images/clock.png", Theme::Token_Basic_Black}}, Icon::Tint);
+const Icon CLOCK_TOOLBAR({{":/utils/images/clock.png", Theme::IconsBaseColor}}, Icon::Tint);
 const Icon COLLAPSE_TOOLBAR({
         {":/utils/images/collapse.png", Theme::IconsBaseColor}});
 const Icon PAN_TOOLBAR({
