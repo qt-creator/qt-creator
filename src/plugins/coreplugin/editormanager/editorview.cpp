@@ -426,7 +426,12 @@ public:
 
     void ensurePinnedOrder()
     {
+        if (m_ensuringPinnedOrder)
+            return;
         // ensure that pinned tabs go first
+        // m_ensuringPinnedOrder prevents re-entry via the tabMoved signal emitted by moveTab;
+        // m_tabData is still kept in sync by the signal handler during our moveTab calls
+        m_ensuringPinnedOrder = true;
         int lastPinnedIndex = -1;
         for (int i = 0; i < m_tabBar->count(); ++i) {
             const auto &data = m_tabData.at(i);
@@ -437,6 +442,7 @@ public:
                 ++lastPinnedIndex;
             }
         }
+        m_ensuringPinnedOrder = false;
     }
 
     QList<EditorView::TabData> tabs() const { return m_tabData; }
@@ -520,6 +526,7 @@ private:
     ViewTabBar *m_tabBar;
     EditorView *m_parentView;
     QList<EditorView::TabData> m_tabData;
+    bool m_ensuringPinnedOrder = false;
 };
 
 EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
