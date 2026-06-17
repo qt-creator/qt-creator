@@ -263,7 +263,10 @@ bool QmlDesignerPlugin::delayedInitialize()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin delayed initialize", category()};
 
-    enforceDelayedInitialize();
+    // Registering the designer views and tools (and scanning metainfo) is expensive and only
+    // needed once the QML Designer is actually used. enforceDelayedInitialize() is run lazily
+    // from showDesigner(), so we no longer do it here where it would block startup and session
+    // restore for sessions that never open the designer.
     return true;
 }
 
