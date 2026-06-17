@@ -9,6 +9,8 @@
 #include <utils/basetreeview.h>
 #include <utils/treemodel.h>
 
+#include <QSet>
+
 namespace Debugger::Internal {
 
 class DebuggerEngine;
@@ -101,6 +103,12 @@ signals:
 private:
     int stackRowCount() const; // Including the <more...> "frame"
 
+    // Native mixed: collapsed runs of debugger machinery frames can be
+    // expanded in place for users who want to see them.
+    bool isMachineryPlaceholder(int index) const;
+    void setMachineryRunExpanded(quint64 runId, bool expanded);
+    void rebuildStackFrames(); // Re-applies machinery collapsing to m_fullFrames.
+
     bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
     ThreadDummyItem *dummyThreadItem() const;
 
@@ -112,6 +120,11 @@ private:
     int m_currentIndex = -1;
     bool m_canExpand = false;
     bool m_contentsValid = false;
+
+    // The full, uncollapsed frame list and the set of machinery runs the
+    // user expanded (keyed by the address of each run's first frame).
+    StackFrames m_fullFrames;
+    QSet<quint64> m_expandedMachineryRuns;
 };
 
 } // Debugger::Internal

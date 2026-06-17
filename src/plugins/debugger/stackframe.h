@@ -39,6 +39,8 @@ public:
     quint64 address = 0;
     bool usable = false;
     bool machinery = false; // Executes debugger machinery rather than user code.
+    bool machineryPlaceholder = false; // Stands in for a collapsed run of machinery frames.
+    quint64 machineryRunId = 0; // Identifies the collapsed run (address of its first frame).
     QString context;  // Opaque value produced and consumed by the native backends.
     uint debuggerId = 0;
 };

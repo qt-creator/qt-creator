@@ -114,7 +114,8 @@ QVariant StackFrameItem::data(int column, int role) const
 
 Qt::ItemFlags StackFrameItem::flags(int column) const
 {
-    const bool isValid = frame.isUsable() || handler->operatesByInstruction();
+    const bool isValid = frame.isUsable() || frame.machineryPlaceholder
+                         || handler->operatesByInstruction();
     return isValid && handler->isContentsValid()
             ? TreeItem::flags(column) : Qt::ItemFlags();
 }
@@ -129,6 +130,13 @@ QIcon StackHandler::iconForRow(int row) const
 bool StackHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
 {
     if (role == BaseTreeView::ItemActivatedRole || role == BaseTreeView::ItemClickedRole) {
+        if (isMachineryPlaceholder(idx.row())) {
+            // Expand on activation (double-click / Enter); a plain click only
+            // selects the placeholder row.
+            if (role == BaseTreeView::ItemActivatedRole)
+                setMachineryRunExpanded(frameAt(idx.row()).machineryRunId, true);
+            return true;
+        }
         m_engine->activateFrame(idx.row());
         return true;
     }
@@ -232,29 +240,45 @@ void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
     emit stackChanged();
 }
 
-// Replaces each run of debugger machinery frames with a single
-// placeholder frame. The frames keep their backend levels, so the
-// resulting list works for frame activation despite the gaps.
-static StackFrames collapsedMachineryFrames(const StackFrames &frames)
+// Replaces each run of debugger machinery frames with a single placeholder
+// frame, unless the user expanded that run (then the frames are shown but
+// tagged so they can be collapsed again). The frames keep their backend
+// levels, so the resulting list works for frame activation despite the gaps.
+// A run is identified by the address of its first frame.
+static StackFrames collapseMachinery(const StackFrames &frames,
+                                     const QSet<quint64> &expandedRuns)
 {
     StackFrames result;
-    int count = 0;
-    StackFrame placeholder;
+    StackFrames run;
     const auto flush = [&] {
-        if (!count)
+        if (run.isEmpty())
             return;
-        placeholder.function = Tr::tr("<%n frames of debugger machinery>", nullptr, count);
-        placeholder.file = {};
-        placeholder.module.clear();
-        placeholder.line = -1;
-        result.append(placeholder);
-        count = 0;
+        const quint64 runId = run.first().address;
+        if (expandedRuns.contains(runId)) {
+            // Expanded on purpose: re-evaluate usability the same way normal
+            // frames do (the backend forced usable=0 for machinery), so a
+            // frame is navigable exactly when its source is available.
+            for (StackFrame frame : std::as_const(run)) {
+                frame.machineryRunId = runId;
+                frame.usable = frame.file.isReadableFile();
+                result.append(frame);
+            }
+        } else {
+            StackFrame placeholder = run.first();
+            placeholder.function = Tr::tr("<%n frames of debugger machinery>",
+                                          nullptr, int(run.size()));
+            placeholder.file = {};
+            placeholder.module.clear();
+            placeholder.line = -1;
+            placeholder.machineryPlaceholder = true;
+            placeholder.machineryRunId = runId;
+            result.append(placeholder);
+        }
+        run.clear();
     };
     for (const StackFrame &frame : frames) {
         if (frame.machinery) {
-            if (count == 0)
-                placeholder = frame;
-            ++count;
+            run.append(frame);
             continue;
         }
         flush();
@@ -271,8 +295,10 @@ void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
     for (int i = 0; i != n; ++i)
         stackFrames.append(StackFrame::parseFrame(frames.childAt(i), m_engine->runParameters()));
 
+    m_fullFrames = stackFrames;
+    m_expandedMachineryRuns.clear();
     if (settings().collapseMachineryFrames())
-        stackFrames = collapsedMachineryFrames(stackFrames);
+        stackFrames = collapseMachinery(stackFrames, m_expandedMachineryRuns);
 
     // Initialize top frame to the first valid frame.
     int targetFrame = -1;
@@ -324,6 +350,46 @@ void StackHandler::prependFrames(const StackFrames &frames)
 bool StackHandler::isSpecialFrame(int index) const
 {
     return m_canExpand && index + 1 == stackRowCount();
+}
+
+bool StackHandler::isMachineryPlaceholder(int index) const
+{
+    return index >= 0 && index < stackSize() && frameAt(index).machineryPlaceholder;
+}
+
+void StackHandler::setMachineryRunExpanded(quint64 runId, bool expanded)
+{
+    if (!runId)
+        return;
+    if (expanded)
+        m_expandedMachineryRuns.insert(runId);
+    else
+        m_expandedMachineryRuns.remove(runId);
+    rebuildStackFrames();
+}
+
+void StackHandler::rebuildStackFrames()
+{
+    // A pure view operation: re-apply machinery collapsing to the full frame
+    // list, preserving the current frame across the rebuild by its address.
+    const quint64 currentAddress = (m_currentIndex >= 0 && m_currentIndex < stackSize())
+            ? frameAt(m_currentIndex).address : 0;
+
+    StackFrames frames = m_fullFrames;
+    if (settings().collapseMachineryFrames())
+        frames = collapseMachinery(frames, m_expandedMachineryRuns);
+
+    setFrames(frames, m_canExpand);
+
+    if (currentAddress) {
+        for (int i = 0, n = stackSize(); i != n; ++i) {
+            const StackFrame &frame = frameAt(i);
+            if (!frame.machineryPlaceholder && frame.address == currentAddress) {
+                setCurrentIndex(i);
+                break;
+            }
+        }
+    }
 }
 
 int StackHandler::firstUsableIndex() const
@@ -418,6 +484,33 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     const quint64 address = frame.address;
 
     menu->addAction(settings().expandStack.action());
+
+    bool hasMachinery = false;
+    for (const StackFrame &f : std::as_const(m_fullFrames)) {
+        if (f.machinery) {
+            hasMachinery = true;
+            break;
+        }
+    }
+    if (hasMachinery) {
+        if (frame.machineryPlaceholder) {
+            const quint64 runId = frame.machineryRunId;
+            addAction(this, menu, Tr::tr("Expand Debugger Machinery Frames"), true,
+                      [this, runId] { setMachineryRunExpanded(runId, true); });
+        } else if (frame.machinery && frame.machineryRunId) {
+            const quint64 runId = frame.machineryRunId;
+            addAction(this, menu, Tr::tr("Collapse Debugger Machinery Frames"), true,
+                      [this, runId] { setMachineryRunExpanded(runId, false); });
+        }
+        const bool collapse = settings().collapseMachineryFrames();
+        addAction(this, menu,
+                  collapse ? Tr::tr("Show All Debugger Machinery Frames")
+                           : Tr::tr("Collapse Debugger Machinery Frames"),
+                  true, [this, collapse] {
+                      settings().collapseMachineryFrames.setValue(!collapse);
+                      rebuildStackFrames();
+                  });
+    }
 
     addAction(this, menu, Tr::tr("Save as Task File..."), true, [this] { saveTaskFile(); });
 
