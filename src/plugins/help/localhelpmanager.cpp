@@ -502,8 +502,8 @@ QByteArray LocalHelpManager::loadErrorMessage(const QUrl &url, const QString &er
     const QString g_percent1 = Tr::tr("Error loading page");
     // percent2 will be the error details
     // percent3 will be the url of the page we got the error from
-    const QString g_percent4 = Tr::tr("<p>Check that you have the corresponding "
-                                      "documentation set installed.</p>");
+    const QString g_percent4 = "<p>" + Tr::tr("Check that you have the corresponding "
+                                      "documentation set installed.") + "</p>";
 
     return QString::fromLatin1(g_htmlPage)
         .arg(g_percent1, errorString, Tr::tr("Error loading: %1").arg(url.toString()), g_percent4)
