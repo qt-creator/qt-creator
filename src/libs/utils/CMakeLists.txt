@@ -181,7 +181,6 @@ add_qtc_library(Utils
     storekey.h
     stringtable.cpp stringtable.h
     stringutils.cpp stringutils.h
-    styleanimator.cpp styleanimator.h
     styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h
     summarywidget.cpp summarywidget.h
