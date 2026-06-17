@@ -104,6 +104,13 @@ void LldbEngine::runCommand(const DebuggerCommand &command)
         // triggered by changes in view visibility.
         showMessage(QString("NO LLDB PROCESS RUNNING, CMD IGNORED: %1 %2")
             .arg(command.function).arg(state()));
+        // Report failure so a waiting caller (e.g. a DebuggerCommandTask) does
+        // not hang, mirroring GdbEngine::runCommand().
+        if (command.callback) {
+            DebuggerResponse response;
+            response.resultClass = ResultFail;
+            command.callback(response);
+        }
         return;
     }
     const int tok = ++currentToken();
