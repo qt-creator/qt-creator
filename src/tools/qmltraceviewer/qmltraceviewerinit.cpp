@@ -97,7 +97,7 @@ static void deinitSettings()
 static void initStyle()
 {
     const QString baseName = QApplication::style()->objectName();
-    QApplication::setStyle(new ManhattanStyle(baseName));
+    QApplication::setStyle(new Core::ManhattanStyle(baseName));
     setBaseColor(QColor(DEFAULT_BASE_COLOR));
     setToolbarStyle(ToolbarStyle::Relaxed);
 }

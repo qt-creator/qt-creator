@@ -7,6 +7,7 @@
 
 #include <QProxyStyle>
 
+namespace Core {
 class ManhattanStylePrivate;
 
 class CORE_EXPORT ManhattanStyle : public QProxyStyle
@@ -109,3 +110,5 @@ private:
 
     ManhattanStylePrivate *d = nullptr;
 };
+
+} // namespace Core

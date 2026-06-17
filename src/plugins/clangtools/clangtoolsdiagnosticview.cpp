@@ -47,7 +47,7 @@ static QString getBaseStyleName()
 }
 
 // Paints the check box indicator disabled if requested by client.
-class DiagnosticViewStyle : public ManhattanStyle
+class DiagnosticViewStyle : public Core::ManhattanStyle
 {
 public:
     DiagnosticViewStyle(const QString &baseStyleName = getBaseStyleName())

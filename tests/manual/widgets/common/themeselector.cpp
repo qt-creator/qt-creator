@@ -26,7 +26,7 @@ void ThemeSelector::setTheme(const QString &themeFile)
     theme.readSettings(settings);
     setCreatorTheme(&theme);
     StyleHelper::setBaseColor(QColor(StyleHelper::DEFAULT_BASE_COLOR));
-    QApplication::setStyle(new ManhattanStyle(creatorTheme()->preferredStyles().value(0)));
+    QApplication::setStyle(new Core::ManhattanStyle(creatorTheme()->preferredStyles().value(0)));
     QApplication::setPalette(theme.palette());
 }
 

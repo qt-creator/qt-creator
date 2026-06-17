@@ -41,6 +41,7 @@
 
 using namespace Utils;
 
+namespace Core {
 namespace {
 /*
  * This is a set of helper classes to allow for widget animations in
@@ -106,7 +107,7 @@ const QStyle::State State_Animating = QStyle::State(0x00000040);
 
 // Because designer needs to disable this for widget previews
 // we have a custom property that is inherited
-bool styleEnabled(const QWidget *widget)
+static bool styleEnabled(const QWidget *widget)
 {
     const QWidget *p = widget;
     while (p) {
@@ -128,7 +129,7 @@ static bool isInUnstyledDialogOrPopup(const QWidget *widget)
 }
 
 // Consider making this a QStyle state
-bool panelWidget(const QWidget *widget)
+static bool panelWidget(const QWidget *widget)
 {
     if (!widget)
         return false;
@@ -158,7 +159,7 @@ bool panelWidget(const QWidget *widget)
 }
 
 // Consider making this a QStyle state
-bool lightColored(const QWidget *widget)
+static bool lightColored(const QWidget *widget)
 {
     if (!widget)
         return false;
@@ -1443,7 +1444,7 @@ void ManhattanStyle::drawButtonSeparator(QPainter *painter, const QRect &rect, b
         else
            painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
     }
- }
+}
 
 Animation * StyleAnimator::widgetAnimation(const QWidget *widget) const
 {
@@ -1559,3 +1560,5 @@ void StyleAnimator::startAnimation(Animation *t)
     if (animations.size() > 0 && !animationTimer.isActive())
         animationTimer.start(35, this);
 }
+
+} // namespace Core
