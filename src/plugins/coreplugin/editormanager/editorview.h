@@ -41,7 +41,7 @@ namespace Internal {
 
 class EditorArea;
 class SplitterOrView;
-class ViewTabBar;
+class TabBarInfo;
 #if WITH_TESTS
 class TabbedEditorTest;
 #endif
@@ -167,11 +167,7 @@ private:
     void splitNewWindow();
     void closeSplit();
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
-    int tabForEntry(DocumentModel::Entry *entry) const;
-    void activateTab(int index);
     void tabCloseRequested(int index);
-    void closeTab(int index);
-    void ensurePinnedOrder();
 
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 
@@ -186,7 +182,7 @@ private:
 
     SplitterOrView *m_parentSplitterOrView;
     EditorToolBar *m_toolBar;
-    ViewTabBar *m_tabBar;
+    std::unique_ptr<TabBarInfo> m_tabInfo;
     bool m_isShowingTabs = false;
 
     QStackedWidget *m_container;
