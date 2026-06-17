@@ -1299,7 +1299,29 @@ class Dumper(DumperBase):
                 DumperBase.warn("Failed to fetch qml stack - you need Qt debug information")
                 ii = 0
 
+        # Pre-pass: find where the QML frames will be spliced and the
+        # contiguous metacall machinery run leading down to it, so those
+        # frames (e.g. qt_static_metacall, QMetaObject::metacall between a
+        # C++ method and its QML caller) can be de-emphasized too.
+        preSpliceMachineryPcs = set()
+        if isNativeMixed:
+            pending = []
+            for k in range(n):
+                scan = thread.GetFrameAtIndex(k)
+                if not scan.IsValid():
+                    break
+                scanName = scan.GetFunctionName() or ''
+                if (scanName == '::qt_qmlDebugMessageAvailable()'
+                        or 'QV4::Moth::VME::' in scanName):
+                    preSpliceMachineryPcs.update(pending)
+                    break
+                if self.isQmlCallMachineryFrame(scan):
+                    pending.append(scan.GetPC())
+                else:
+                    pending = []  # only the run immediately above the splice
+
         inMachineryBlock = False
+        splicedQml = False
         for i in range(n - ii):
             frame = thread.GetFrameAtIndex(i)
             if not frame.IsValid():
@@ -1316,7 +1338,15 @@ class Dumper(DumperBase):
             functionName = frame.GetFunctionName()
             module = frame.GetModule()
 
-            if isNativeMixed and functionName == '::qt_qmlDebugMessageAvailable()':
+            # Splice the QML frames into the C++ stack. At a QML breakpoint
+            # this happens at the qt_qmlDebugMessageAvailable notification;
+            # when stopped in a C++ method called from QML there is no such
+            # frame, so splice at the QML interpreter frame instead, which
+            # shows the QML caller chain. Do it once.
+            if (isNativeMixed and not splicedQml
+                    and (functionName == '::qt_qmlDebugMessageAvailable()'
+                         or 'QV4::Moth::VME::' in (functionName or ''))):
+                splicedQml = True
                 inMachineryBlock = True
                 interpreterStack = self.extractInterpreterStack()
                 for interpreterFrame in interpreterStack.get('frames', []):
@@ -1328,11 +1358,14 @@ class Dumper(DumperBase):
                                   interpreterFrame.get('language', ''),
                                   interpreterFrame.get('context', 0)))
 
-            # Mark the contiguous block of debugger machinery frames on
-            # top of the stack. The frontend de-emphasizes or collapses
-            # them.
+            # Mark debugger machinery frames. The frontend de-emphasizes
+            # or collapses them. Two runs are marked: the metacall chain
+            # between a C++ method and its QML caller (preSpliceMachineryPcs),
+            # and the contiguous block at and below the QML splice point.
             extra = ''
-            if inMachineryBlock:
+            if pc in preSpliceMachineryPcs:
+                extra = ',usable="0",machinery="1"'
+            elif inMachineryBlock:
                 if self.isInterpreterMachineryFrame(functionName):
                     extra = ',usable="0",machinery="1"'
                 else:
@@ -1625,6 +1658,8 @@ class Dumper(DumperBase):
                     #self.report("FRAME: %s" % frame)
                     function = frame.GetFunction()
                     functionName = function.GetName()
+                    if self.handleNativeMethodStepInto(stoppedThread, functionName):
+                        return
                     if functionName == "::qt_qmlDebugConnectorOpen()":
                         self.report("RESOLVER HIT")
                         for resolver in self.interpreterBreakpointResolvers:
@@ -1635,12 +1670,22 @@ class Dumper(DumperBase):
                         return
                     if functionName == "::qt_qmlDebugMessageAvailable()":
                         self.report("ASYNC MESSAGE FROM SERVICE")
+                        # The interpreter step won the race (possibly a
+                        # C++-to-QML crossing); the armed interpreter step
+                        # and the native call hook are now consumed.
+                        self.interpreterStepArmed = False
+                        self.disarmNativeCallStepIn()
                         res = self.handleInterpreterMessage()
                         if not res:
                             self.report("EVENT NEEDS NO STOP")
                             self.reportState("stopped")
                             self.process.Continue()
                             return
+                # A native step (possibly a C++-to-QML crossing attempt)
+                # stopped in C++ rather than re-entering QML: take back the
+                # armed interpreter step so it does not fire on a later run.
+                if self.interpreterStepArmed:
+                    self.disarmInterpreterStep()
                 if self.isInterrupting_:
                     self.isInterrupting_ = False
                     self.reportState("inferiorstopok")
@@ -1896,16 +1941,179 @@ class Dumper(DumperBase):
         self.reportResult(result, args)
 
     def executeNext(self, args):
-        self.currentThread().StepOver()
+        if self.atQmlStop():
+            self.sendInterpreterRequest('stepover', args)
+            self.process.Continue()
+        else:
+            self.currentThread().StepOver()
         self.reportResult('', args)
 
     def executeNextI(self, args):
         self.currentThread().StepInstruction(True)
         self.reportResult('', args)
 
+    def atQmlStop(self):
+        # True if the inferior is stopped at the interpreter's stop hook,
+        # i.e. the current frame is a QML frame.
+        if not self.nativeMixed or self.process is None:
+            return False
+        frame = self.currentThread().GetFrameAtIndex(0)
+        return (frame.GetFunctionName() or '') == '::qt_qmlDebugMessageAvailable()'
+
     def executeStep(self, args):
-        self.currentThread().StepInto()
+        if self.atQmlStop():
+            # Stepping from QML: pause at the next JS statement, and arm
+            # the native call hook so a C++ method call is stepped into.
+            self.sendInterpreterRequest('stepin', args)
+            self.armNativeCallStepIn()
+            self.process.Continue()
+        else:
+            # Stepping from C++: if the step reaches the QML interpreter,
+            # pause at the next JS statement. The native step and the
+            # armed interpreter step race; disarmInterpreterStep() resolves
+            # it when the native part stops first.
+            if self.nativeMixed:
+                self.setupMachinerySkips()
+                self.sendInterpreterRequest('stepin', args)
+                self.interpreterStepArmed = True
+            self.currentThread().StepInto()
         self.reportResult('', args)
+
+    def nativeCallHookAvailable(self):
+        if not getattr(self, 'nativeCallHookChecked', False):
+            self.nativeCallHookChecked = True
+            sym = self.target.FindFirstGlobalVariable('qt_v4NativeCallHookEnabled')
+            self.nativeCallHookOk = sym.IsValid()
+        return self.nativeCallHookOk
+
+    def armNativeCallStepIn(self):
+        if not self.nativeCallHookAvailable():
+            return
+        if getattr(self, 'nativeCallHookBreakpoint', None) is None:
+            self.nativeCallHookBreakpoint = \
+                self.target.BreakpointCreateByName('qt_v4AboutToCallNativeMethodHook')
+        self.parseAndEvaluate('qt_v4NativeCallHookEnabled = 1')
+
+    def disarmNativeCallStepIn(self):
+        if self.nativeCallHookAvailable():
+            self.parseAndEvaluate('qt_v4NativeCallHookEnabled = 0')
+
+    def setupMachinerySkips(self):
+        # Stepping from C++ should pass through the V4 dispatch and the
+        # generic signal plumbing rather than stop at their entries; while
+        # passing through, an armed interpreter step pauses at the next JS
+        # statement. LLDB takes a single step-avoid regexp, so combine the
+        # machinery patterns (and keep the std default).
+        if getattr(self, 'machinerySkipsDone', False):
+            return
+        self.machinerySkipsDone = True
+        pattern = ('(^QV4::)|(^QQml)|(^QtPrivate::)|(^doActivate)|'
+                   '(^QMetaObject::)|(^qt_qmlDebug)|(^debug_slowPath)|(^std::)')
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(
+            'settings set target.process.thread.step-avoid-regexp ' + pattern,
+            result)
+
+    def isQmlCallMachineryFrame(self, frame):
+        # A frame on the metacall path between a C++ method and the QML
+        # interpreter: the generated qt_(static_)metacall trampolines, or
+        # anything inside the Qt libraries (recognized by source path, or
+        # by having no source at all in a release build).
+        name = frame.GetFunctionName() or ''
+        if 'qt_static_metacall' in name or 'qt_metacall' in name:
+            return True
+        fileName = ''
+        lineEntry = frame.GetLineEntry()
+        if lineEntry.IsValid():
+            fileSpec = lineEntry.GetFileSpec()
+            if fileSpec.IsValid():
+                fileName = fileSpec.GetDirectory() or ''
+        if not fileName:
+            return True
+        return '/qtbase/' in fileName or '/qtdeclarative/' in fileName
+
+    def atNativeToQmlBoundary(self):
+        # True if the current C++ frame was called straight from the QML
+        # interpreter through the metacall machinery, with no intervening
+        # user C++ frame. Stepping out then returns to the QML caller.
+        thread = self.currentThread()
+        if thread is None:
+            return False
+        limit = min(thread.GetNumFrames(), 25)
+        for i in range(1, limit):
+            frame = thread.GetFrameAtIndex(i)
+            name = frame.GetFunctionName() or ''
+            if 'QV4::Moth::VME::' in name or 'callInternal' in name:
+                return True
+            if not self.isQmlCallMachineryFrame(frame):
+                return False
+        return False
+
+    def waitForNativeStop(self):
+        # Synchronously pump the process's state-change events until it next
+        # settles - stops, exits or dies - so the engine never sees the
+        # intermediate run/stop cycles of a multi-step descent. This reuses
+        # the debugger's listener on purpose: it runs on the event-pump thread
+        # (inside handleEvent), so there is no contention, and the intermediate
+        # events must be drained here rather than re-surfaced by handleEvent.
+        # Time-bounded so a wedged or crashed inferior cannot block for long;
+        # the normal case returns on the first settled event in milliseconds.
+        settled = (lldb.eStateStopped, lldb.eStateExited,
+                   lldb.eStateCrashed, lldb.eStateDetached)
+        event = lldb.SBEvent()
+        listener = self.debugger.GetListener()
+        deadline = time.time() + 10
+        while time.time() < deadline:
+            if not listener.WaitForEvent(1, event):
+                continue
+            if not lldb.SBProcess.EventIsProcessEvent(event):
+                continue
+            state = lldb.SBProcess.GetStateFromEvent(event)
+            self.eventState = state
+            if state in settled:
+                return state
+        return lldb.eStateInvalid
+
+    def handleNativeMethodStepInto(self, thread, functionName):
+        # When stopped at the JS-to-C++ dispatch hook, drive the descent
+        # into the C++ method synchronously (mirroring the GDB bridge's
+        # handleNativeCallHook), so the engine only ever sees the final
+        # landing in the user method. Returns False so handleEvent reports
+        # that final stop normally.
+        if 'qt_v4AboutToCallNativeMethodHook' not in (functionName or ''):
+            return False
+        # Leaving QML for C++: take back the racing interpreter step and
+        # resolve the receiver's generated qt_static_metacall trampoline
+        # via meta->d.static_metacall.
+        self.disarmNativeCallStepIn()
+        self.sendInterpreterRequest('continue', {})
+        self.interpreterStepArmed = False
+        frame = thread.GetFrameAtIndex(0)
+        meta = frame.FindVariable('receiverMeta')
+        smc = meta.GetChildMemberWithName('d').GetChildMemberWithName(
+            'static_metacall')
+        addr = smc.GetValueAsUnsigned()
+        if addr == 0:
+            return False
+        bp = self.target.BreakpointCreateByAddress(addr)
+        bp.SetThreadID(thread.GetThreadID())
+        self.process.Continue()
+        landed = self.waitForNativeStop()
+        self.target.BreakpointDelete(bp.GetID())
+        if landed != lldb.eStateStopped:
+            return False
+        # Step out of the generated qt_static_metacall trampoline into the
+        # actual method.
+        thread = self.firstStoppedThread() or self.process.GetSelectedThread()
+        for _ in range(32):
+            fn = thread.GetFrameAtIndex(0).GetFunctionName() or ''
+            if 'qt_static_metacall' not in fn:
+                break
+            thread.StepInto()
+            if self.waitForNativeStop() != lldb.eStateStopped:
+                break
+            thread = self.firstStoppedThread() or self.process.GetSelectedThread()
+        return False
 
     def shutdownInferior(self, args):
         self.isShuttingDown_ = True
@@ -1926,7 +2134,19 @@ class Dumper(DumperBase):
         self.reportResult('', args)
 
     def executeStepOut(self, args={}):
-        self.currentThread().StepOut()
+        if self.atQmlStop():
+            self.sendInterpreterRequest('stepout', args)
+            self.process.Continue()
+        elif self.nativeMixed and self.atNativeToQmlBoundary():
+            # The C++ frame was called straight from the QML interpreter;
+            # return to the QML caller by letting the frame finish and
+            # pausing at the next JS statement.
+            self.setupMachinerySkips()
+            self.sendInterpreterRequest('stepin', args)
+            self.interpreterStepArmed = True
+            self.process.Continue()
+        else:
+            self.currentThread().StepOut()
         self.reportResult('', args)
 
     def executeRunToLocation(self, args):

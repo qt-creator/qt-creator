@@ -182,6 +182,16 @@ class DumperBase():
         self.interpreterStepArmed = False
         self.qtLoaded = False
 
+        # Defaults for the value-fetching options, so that an early
+        # parseAndEvaluate (e.g. from the native combined breakpoint
+        # resolver, before the first setVariableFetchingOptions) works.
+        self.useFancy = False
+        self.useDynamicType = True
+        self.showQObjectNames = False
+        self.autoDerefPointers = False
+        self.useTimeStamps = False
+        self.forceQtNamespace = False
+
         self.isBigEndian = False
         self.packCode = '<'
         self.byteorder = 'little'
