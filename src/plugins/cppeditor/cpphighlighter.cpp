@@ -297,12 +297,14 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
     }
 
-    // rehighlight the next block if it contains a folding marker since we move the folding
-    // marker in some cases and we need to rehighlight the next block to update this floding indent
+    // The folding marker of a block that opens a fold at the start of the line is moved up to
+    // the preceding (current) block (see the T_LBRACE handling above), so that block's fold
+    // decision depends on this block's text. When this block changes (e.g. on undo), the next
+    // block must be rehighlighted to re-evaluate that decision.
     if (const QTextBlock nextBlock = currentBlock().next(); nextBlock.isValid()) {
         if (TextBlockUserData::foldingIndent(nextBlock.next())
             > TextBlockUserData::foldingIndent(nextBlock)) {
-            forceRehighlightBlock(nextBlock.next());
+            forceRehighlightBlock(nextBlock);
         }
     }
 
