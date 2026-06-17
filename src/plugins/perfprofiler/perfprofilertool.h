@@ -10,6 +10,10 @@ class QAction;
 class QMenu;
 QT_END_NAMESPACE
 
+namespace Utils {
+class FilePath;
+}
+
 namespace ProjectExplorer {
 class Kit;
 class Project;
@@ -38,6 +42,7 @@ public:
     void onRunControlFinished();
     void onWorkerCreation(ProjectExplorer::RunControl *runControl);
 
+    void loadTraceFile(const Utils::FilePath &filePath);
     void updateTime(qint64 duration, qint64 delay);
 
 signals:

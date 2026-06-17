@@ -597,20 +597,25 @@ void PerfProfilerTool::showLoadPerfDialog()
     traceManager().loadFromPerfData(FilePath::fromUserInput(dlg.traceFilePath()), dlg.executableDirPath(), kit);
 }
 
-void PerfProfilerTool::showLoadTraceDialog()
+void PerfProfilerTool::loadTraceFile(const FilePath &filePath)
 {
     d->m_perspective.select();
-
-    FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Load Trace File"),
-                                                   {}, Tr::tr("Trace File (*.ptq)"));
-    if (filePath.isEmpty())
-        return;
 
     const Project *activeProject = ProjectManager::startupProject();
     const Kit *kit = activeKit(activeProject);
     populateFileFinder(activeProject, kit);
 
     traceManager().loadFromTraceFile(filePath);
+}
+
+void PerfProfilerTool::showLoadTraceDialog()
+{
+    const FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Load Trace File"),
+                                                         {}, Tr::tr("Trace File (*.ptq)"));
+    if (filePath.isEmpty())
+        return;
+
+    loadTraceFile(filePath);
 }
 
 void PerfProfilerTool::showSaveTraceDialog()

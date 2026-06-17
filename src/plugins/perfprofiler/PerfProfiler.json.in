@@ -24,5 +24,14 @@
     ],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-cpu-usage-analyzer.html",
+    "Mimetypes" : [
+        "<?xml version='1.0'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='application/x-perfprofiler-trace'>",
+        "        <comment>Perf Profiler trace file</comment>",
+        "        <glob pattern='*.ptq'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ],
     ${IDE_PLUGIN_DEPENDENCIES}
 }

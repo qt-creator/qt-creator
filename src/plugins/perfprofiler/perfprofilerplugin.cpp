@@ -5,6 +5,8 @@
 #include "perfprofilertool.h"
 #include "perfrunconfigurationaspect.h"
 
+#include <coreplugin/idocumentfactory.h>
+
 #if WITH_TESTS
 //#  include "tests/perfprofilertracefile_test.h"    // FIXME has to be rewritten
 #  include "tests/perfresourcecounter_test.h"
@@ -13,6 +15,7 @@
 #include <extensionsystem/iplugin.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace PerfProfiler::Internal {
 
@@ -27,6 +30,12 @@ class PerfProfilerPlugin final : public ExtensionSystem::IPlugin
         setupPerfProfilerRunWorker();
         RunConfiguration::registerAspect<PerfRunConfigurationAspect>();
 
+        m_traceFileFactory.addMimeType("application/x-perfprofiler-trace");
+        m_traceFileFactory.setOpener([](const Utils::FilePath &filePath) -> Core::IDocument * {
+            PerfProfilerTool::instance()->loadTraceFile(filePath);
+            return nullptr;
+        });
+
 #if WITH_TESTS
         //   addTest<PerfProfilerTraceFileTest>();  // FIXME these tests have to get rewritten
         addTestCreator(createPerfResourceCounterTest);
@@ -39,6 +48,8 @@ class PerfProfilerPlugin final : public ExtensionSystem::IPlugin
 
         return SynchronousShutdown;
     }
+
+    Core::IDocumentFactory m_traceFileFactory;
 };
 
 } // namespace PerfProfiler::Internal
