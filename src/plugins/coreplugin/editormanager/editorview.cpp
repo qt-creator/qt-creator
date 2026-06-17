@@ -180,44 +180,6 @@ private:
     int m_leftClickedIndex = false;
 };
 
-static void updateTabUi(QTabBar *tabBar, int index, IDocument *document)
-{
-    QTC_ASSERT(index >= 0 && index < tabBar->count(), return);
-    const auto data = tabBar->tabData(index).value<EditorView::TabData>();
-    QString title = document->displayName();
-    if (document->isModified())
-        title += '*';
-    if (qtcEnvironmentVariableIsSet("QTC_DEBUG_DOCUMENTMODEL") && !data.editor)
-        title += " (s)";
-    tabBar->setTabText(index, title);
-    const Utils::FilePath fullPath = document->filePath();
-    const VcsFileState state = VcsManager::fileState(fullPath);
-    const QColor color = VcsManager::fileStateColor(state);
-    tabBar->setTabTextColor(index, color);
-    QString toolTip = document->toolTip();
-    if (state != VcsFileState::Unknown)
-        toolTip += "<p>" + VcsManager::fileStateDescription(state);
-    tabBar->setTabToolTip(index, toolTip);
-
-    // HACK:
-    // Make close button to unpin button or back again
-    // Relies on Qt implementation details
-    QWidget *closeButton = [tabBar, index] {
-        if (QWidget *button = tabBar->tabButton(index, QTabBar::LeftSide))
-            return button;
-        return tabBar->tabButton(index, QTabBar::RightSide);
-    }();
-    DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
-    if (QTC_GUARD(entry && closeButton)) {
-        closeButton->setProperty(StyleHelper::C_TABBAR_PINNED_DOCUMENT, entry->pinned);
-        closeButton->setToolTip(
-            entry->pinned ? Tr::tr("Unpin")
-                          : QCoreApplication::translate("CloseButton", "Close Tab"));
-        closeButton->resize(closeButton->sizeHint());
-        closeButton->update();
-    }
-}
-
 class TabBarInfo
 {
 public:
@@ -253,14 +215,15 @@ public:
                 const int index = m_tabBar->tabAt(pos);
                 if (index < 0 || index >= m_tabBar->count())
                     return;
-                const auto data = m_tabBar->tabData(index).value<EditorView::TabData>();
+                const auto data = m_tabData.at(index);
                 QMenu menu;
                 EditorManagerPrivate::addContextMenuActions(
                     &menu, data.entry, data.editor, m_parentView, EditorManager::ShowEditorActions);
                 menu.exec(m_tabBar->mapToGlobal(pos));
             },
             Qt::QueuedConnection);
-        QObject::connect(m_tabBar, &QTabBar::tabMoved, m_parentView, [this] {
+        QObject::connect(m_tabBar, &QTabBar::tabMoved, m_parentView, [this](int from, int to) {
+            m_tabData.move(from, to);
             ensurePinnedOrder();
         });
         // We cannot watch for IDocument changes, because the tab might refer
@@ -275,7 +238,7 @@ public:
                     DocumentModel::Entry *e = DocumentModel::entryAtRow(i);
                     const int tabIndex = tabForEntry(e);
                     if (tabIndex >= 0)
-                        updateTabUi(m_tabBar, tabIndex, e->document);
+                        updateTabUi(tabIndex, e->document);
                     ensurePinnedOrder();
                 }
             });
@@ -290,17 +253,18 @@ public:
                     DocumentModel::Entry *e = DocumentModel::entryAtRow(i);
                     const int tabIndex = tabForEntry(e);
                     if (tabIndex >= 0) {
-                        const auto data = m_tabBar->tabData(tabIndex).value<EditorView::TabData>();
                         // for editors we get a call of removeEditor, but not for suspended tabs
-                        if (!data.editor)
+                        if (!m_tabData.at(tabIndex).editor) {
                             m_tabBar->removeTab(tabIndex);
+                            m_tabData.removeAt(tabIndex);
+                        }
                     }
                 }
             });
         // Handle dragging outside the tab bar (e.g. to a different view)
         QObject::connect(m_tabBar, &ViewTabBar::dragRequested, m_parentView, [this](int index) {
             QTC_ASSERT(index >= 0 && index < m_tabBar->count(), return);
-            const auto data = m_tabBar->tabData(index).value<EditorView::TabData>();
+            const auto data = m_tabData.at(index);
             DocumentModel::Entry *entry = data.entry;
             QTC_ASSERT(entry, return);
             auto drag = new QDrag(m_parentView);
@@ -322,7 +286,7 @@ public:
     {
         QStringList tabs;
         for (int i = 0; i < m_tabBar->count(); ++i) {
-            const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
+            const auto data = m_tabData.at(i);
             IDocument *document = data.entry->document;
             const FilePath path = document->filePath();
             if (!document->isTemporary() && !path.isEmpty())
@@ -337,6 +301,7 @@ public:
             return;
         while (m_tabBar->count() > 0)
             m_tabBar->removeTab(0);
+        m_tabData.clear();
         QStringList tabs;
         *stream >> tabs;
         QSet<DocumentModel::Entry *> seen;
@@ -347,11 +312,9 @@ public:
             m_tabBar->addTab(""); // text set below
             const int tabIndex = m_tabBar->count() - 1;
             // use already added IEditor for auto saved document if possible
-            m_tabBar->setTabData(
-                tabIndex,
-                QVariant::fromValue(
-                    EditorView::TabData({m_parentView->editorForDocument(entry->document), entry})));
-            updateTabUi(m_tabBar, tabIndex, entry->document);
+            m_tabData.append(
+                EditorView::TabData({m_parentView->editorForDocument(entry->document), entry}));
+            updateTabUi(tabIndex, entry->document);
         }
     }
 
@@ -359,12 +322,16 @@ public:
     {
         IDocument *document = editor->document();
         int tabIndex = tabForEditor(editor);
-        if (tabIndex < 0)
-            tabIndex = m_tabBar->addTab(""); // text set below
         DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
         QTC_CHECK(entry);
-        m_tabBar->setTabData(tabIndex, QVariant::fromValue(EditorView::TabData({editor, entry})));
-        updateTabUi(m_tabBar, tabIndex, document);
+        if (tabIndex < 0) {
+            m_tabBar->addTab(""); // text set below
+            tabIndex = m_tabBar->count() - 1;
+            m_tabData.append(EditorView::TabData({editor, entry}));
+        } else {
+            m_tabData[tabIndex] = EditorView::TabData({editor, entry});
+        }
+        updateTabUi(tabIndex, document);
         m_tabBar->setVisible(false); // something is wrong with QTabBar... this is needed
         m_tabBar->setVisible(m_parentView->isShowingTabs());
         ensurePinnedOrder();
@@ -376,25 +343,23 @@ public:
         if (QTC_GUARD(tabIndex >= 0)) {
             if (option == EditorView::RemoveTab) {
                 m_tabBar->removeTab(tabIndex);
+                m_tabData.removeAt(tabIndex);
             } else {
-                const auto data = m_tabBar->tabData(tabIndex).value<EditorView::TabData>();
-                m_tabBar->setTabData(
-                    tabIndex, QVariant::fromValue(EditorView::TabData({nullptr, data.entry})));
-                // use data.entry->document here, since the editor's document might have been
+                DocumentModel::Entry *entry = m_tabData.at(tabIndex).entry;
+                m_tabData[tabIndex] = EditorView::TabData({nullptr, entry});
+                // use entry->document here, since the editor's document might have been
                 // removed from the document model already
-                updateTabUi(m_tabBar, tabIndex, data.entry->document);
+                updateTabUi(tabIndex, entry->document);
             }
         }
     }
 
     int tabForEditor(IEditor *editor) const
     {
-        for (int i = 0; i < m_tabBar->count(); ++i) {
-            const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
-            if (data.editor ? data.editor == editor : data.entry->document == editor->document())
-                return i;
-        }
-        return -1;
+        return Utils::indexOf(m_tabData, [editor](const EditorView::TabData &data) {
+            return data.editor ? data.editor == editor
+                               : data.entry->document == editor->document();
+        });
     }
 
     void closeOtherTabs(DocumentModel::Entry *entry)
@@ -405,7 +370,7 @@ public:
         bool closeCurrentEditor = false;
         for (int i = m_tabBar->count() - 1; i >= 0; --i) {
             if (i != indexToKeep) {
-                if (m_tabBar->tabData(i).value<EditorView::TabData>().editor == current)
+                if (m_tabData.at(i).editor == current)
                     closeCurrentEditor = true;
                 else
                     closeTab(i);
@@ -421,9 +386,11 @@ public:
     void removeUnpinnedSuspendedTabs()
     {
         for (int i = m_tabBar->count() - 1; i >= 0; --i) {
-            const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
-            if (!data.editor && !data.entry->pinned)
+            const auto &data = m_tabData.at(i);
+            if (!data.editor && !data.entry->pinned) {
                 m_tabBar->removeTab(i);
+                m_tabData.removeAt(i);
+            }
         }
     }
 
@@ -431,7 +398,7 @@ public:
     {
         if (index < 0 || index >= m_tabBar->count())
             return;
-        const auto data = m_tabBar->tabData(index).value<EditorView::TabData>();
+        const auto data = m_tabData.at(index);
         if (data.entry->pinned) {
             DocumentModelPrivate::setPinned(data.entry, false);
         } else {
@@ -443,13 +410,14 @@ public:
     {
         if (index < 0 || index >= m_tabBar->count())
             return;
-        const auto data = m_tabBar->tabData(index).value<EditorView::TabData>();
+        const auto data = m_tabData.at(index);
         if (data.entry->pinned)
             return;
         if (data.editor)
             EditorManagerPrivate::closeEditorOrDocument(data.editor);
         else {
             m_tabBar->removeTab(index);
+            m_tabData.removeAt(index);
             EditorManagerPrivate::tabClosed(data.entry);
         }
     }
@@ -461,7 +429,7 @@ public:
         // ensure that pinned tabs go first
         int lastPinnedIndex = -1;
         for (int i = 0; i < m_tabBar->count(); ++i) {
-            const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
+            const auto &data = m_tabData.at(i);
             QTC_ASSERT(data.entry, continue);
             if (data.entry->pinned) {
                 if (i > lastPinnedIndex + 1) // there were unpinned in between, move
@@ -471,29 +439,20 @@ public:
         }
     }
 
-    QList<EditorView::TabData> tabs() const
-    {
-        QList<EditorView::TabData> result;
-        for (int i = 0; i < m_tabBar->count(); ++i)
-            result.append(m_tabBar->tabData(i).value<EditorView::TabData>());
-        return result;
-    }
+    QList<EditorView::TabData> tabs() const { return m_tabData; }
 
     int tabForEntry(DocumentModel::Entry *entry) const
     {
-        for (int i = 0; i < m_tabBar->count(); ++i) {
-            const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
-            if (data.entry == entry)
-                return i;
-        }
-        return -1;
+        return Utils::indexOf(m_tabData, [entry](const EditorView::TabData &data) {
+            return data.entry == entry;
+        });
     }
 
     void activateTab(int index)
     {
         if (index < 0) // this happens when clicking in the bar outside of tabs on macOS...
             return;
-        const auto data = m_tabBar->tabData(index).value<EditorView::TabData>();
+        const auto data = m_tabData.at(index);
         if (data.editor)
             EditorManagerPrivate::activateEditor(m_parentView, data.editor);
         else
@@ -521,8 +480,46 @@ public:
     }
 
 private:
+    void updateTabUi(int index, IDocument *document)
+    {
+        QTC_ASSERT(index >= 0 && index < m_tabBar->count(), return);
+        const auto &data = m_tabData.at(index);
+        QString title = document->displayName();
+        if (document->isModified())
+            title += '*';
+        if (qtcEnvironmentVariableIsSet("QTC_DEBUG_DOCUMENTMODEL") && !data.editor)
+            title += " (s)";
+        m_tabBar->setTabText(index, title);
+        const Utils::FilePath fullPath = document->filePath();
+        const VcsFileState state = VcsManager::fileState(fullPath);
+        const QColor color = VcsManager::fileStateColor(state);
+        m_tabBar->setTabTextColor(index, color);
+        QString toolTip = document->toolTip();
+        if (state != VcsFileState::Unknown)
+            toolTip += "<p>" + VcsManager::fileStateDescription(state);
+        m_tabBar->setTabToolTip(index, toolTip);
+
+        // HACK:
+        // Make close button to unpin button or back again
+        // Relies on Qt implementation details
+        QWidget *closeButton = [this, index] {
+            if (QWidget *button = m_tabBar->tabButton(index, QTabBar::LeftSide))
+                return button;
+            return m_tabBar->tabButton(index, QTabBar::RightSide);
+        }();
+        if (QTC_GUARD(data.entry && closeButton)) {
+            closeButton->setProperty(StyleHelper::C_TABBAR_PINNED_DOCUMENT, data.entry->pinned);
+            closeButton->setToolTip(
+                data.entry->pinned ? Tr::tr("Unpin")
+                                   : QCoreApplication::translate("CloseButton", "Close Tab"));
+            closeButton->resize(closeButton->sizeHint());
+            closeButton->update();
+        }
+    }
+
     ViewTabBar *m_tabBar;
     EditorView *m_parentView;
+    QList<EditorView::TabData> m_tabData;
 };
 
 EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
