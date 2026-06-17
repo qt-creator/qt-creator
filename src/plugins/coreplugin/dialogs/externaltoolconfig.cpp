@@ -511,11 +511,13 @@ ExternalToolConfig::ExternalToolConfig()
     m_workingDirectory = new PathChooser(m_infoWidget);
 
     auto outputLabel = new QLabel(Tr::tr("Output:"));
-    outputLabel->setToolTip(Tr::tr("<html><head/><body>\n"
-        "<p>What to do with the executable's standard output.\n"
-        "<ul><li>Ignore: Do nothing with it.</li><li>Show in General Messages.</li>"
-        "<li>Replace selection: Replace the current selection in the current document with it.</li>"
-        "</ul></p></body></html>\n"));
+    outputLabel->setToolTip(Tr::tr(
+        "<p>What to do with the executable's standard output?</p>\n"
+        "<ul>\n"
+        "<li>Ignore: Do nothing with it.</li>\n"
+        "<li>Show in General Messages.</li>\n"
+        "<li>Replace selection: Replace the current selection in the current document with it.</li>\n"
+        "</ul>"));
 
     m_outputBehavior = new QComboBox(m_infoWidget);
     m_outputBehavior->addItem(Tr::tr("Ignore"));
@@ -523,12 +525,13 @@ ExternalToolConfig::ExternalToolConfig()
     m_outputBehavior->addItem(Tr::tr("Replace Selection"));
 
     auto errorOutputLabel = new QLabel(Tr::tr("Error output:"));
-    errorOutputLabel->setToolTip(Tr::tr("<html><head><body>\n"
-        "<p >What to do with the executable's standard error output.</p>\n"
-        "<ul><li>Ignore: Do nothing with it.</li>\n"
+    errorOutputLabel->setToolTip(Tr::tr(
+        "<p>What to do with the executable's standard error output?</p>\n"
+        "<ul>\n"
+        "<li>Ignore: Do nothing with it.</li>\n"
         "<li>Show in General Messages.</li>\n"
         "<li>Replace selection: Replace the current selection in the current document with it.</li>\n"
-        "</ul></body></html>"));
+        "</ul>"));
 
     m_errorOutputBehavior = new QComboBox(m_infoWidget);
     m_errorOutputBehavior->addItem(Tr::tr("Ignore"));

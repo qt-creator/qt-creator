@@ -923,10 +923,10 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
                 Tr::tr("Rewrite types to match the existing namespaces"));
 
     m_useAutoCheckBox = new QCheckBox(this);
-    m_useAutoCheckBox->setToolTip(Tr::tr("<html><head/><body><p>Uncheck this to make Qt Creator try to "
+    m_useAutoCheckBox->setToolTip(Tr::tr("<p>Uncheck this to make Qt Creator try to "
                                          "derive the type of expression in the &quot;Assign to Local "
                                          "Variable&quot; quickfix.</p><p>Note that this might fail for "
-                                         "more complex types.</p></body></html>"));
+                                         "more complex types.</p>"));
     m_useAutoCheckBox->setText(Tr::tr("Use type \"auto\" when creating new variables"));
 
     m_groupBox_customTemplate = new QGroupBox(Tr::tr("Template"));

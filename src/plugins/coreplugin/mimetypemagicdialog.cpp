@@ -32,10 +32,11 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
 
     auto informationLabel = new QLabel;
     informationLabel->setText(
-        Tr::tr("<html><head/><body><p>MIME magic data is interpreted as defined "
-               "by the Shared MIME-info Database specification from "
-               "<a href=\"https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/\">"
-               "freedesktop.org</a>.<hr/></p></body></html>")); // FIXME: Simplify for translators
+        "<p>" + Tr::tr("MIME magic data is interpreted as defined "
+               "by the Shared MIME-info Database specification from %1.")
+               .arg("<a href=\"https://www.freedesktop.org/wiki/"
+                    "Specifications/shared-mime-info-spec/\">freedesktop.org</a>")
+               + "<hr/></p>");
     informationLabel->setWordWrap(true);
 
     m_valueLineEdit = new QLineEdit;
@@ -56,9 +57,9 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     m_useRecommendedGroupBox = new QGroupBox(Tr::tr("Use Recommended"));
     m_useRecommendedGroupBox->setCheckable(true);
 
-    m_noteLabel = new QLabel(Tr::tr("<html><head/><body><p><span style=\" font-style:italic;\">"
-                            "Note: Wide range values might impact performance when opening "
-                            "files.</span></p></body></html>"));
+    m_noteLabel = new QLabel(
+        "<p><i>" + Tr::tr("Note: Wide range values might impact performance when opening files.")
+        + "</i></p>");
     m_noteLabel->setTextFormat(Qt::RichText);
 
     m_startRangeLabel = new QLabel(Tr::tr("Range start:"));

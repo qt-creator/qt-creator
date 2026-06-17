@@ -399,10 +399,10 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     nameLabel->setToolTip(Tr::tr("Kit name and icon."));
 
     const QString fsToolTip =
-        Tr::tr("<html><head/><body><p>The name of the kit suitable for generating "
-               "directory names. This value is used for the variable <i>%1</i>, "
-               "which for example determines the name of the shadow build directory."
-               "</p></body></html>").arg(QLatin1String("Kit:FileSystemName"));
+        "<p>" + Tr::tr("The name of the kit suitable for generating "
+               "directory names. This value is used for the variable %1, "
+               "which for example determines the name of the shadow build directory.")
+               .arg("<i>Kit:FileSystemName</i>") + "</p>";
     m_fileSystemFriendlyNameLineEdit.setToolTip(fsToolTip);
     static const QRegularExpression fileSystemFriendlyNameRegexp(QLatin1String("^[A-Za-z0-9_-]*$"));
     QTC_CHECK(fileSystemFriendlyNameRegexp.isValid());
