@@ -52,8 +52,8 @@ static QJsonObject watchItemToJson(const WatchItem *item)
     obj["name"] = item->name;
     obj["value"] = item->value;
     obj["type"] = item->type;
-    obj["valueEditable"] = item->valueEditable;
-    obj["hasChildren"] = item->wantsChildren || item->childCount() > 0;
+    obj["value_editable"] = item->valueEditable;
+    obj["has_children"] = item->wantsChildren || item->childCount() > 0;
     if (item->address != 0)
         obj["address"] = QString("0x%1").arg(item->address, 0, 16);
     return obj;
@@ -203,18 +203,18 @@ static Result<QJsonObject> debuggerGetStatus()
 
     QJsonObject result;
     if (!engine) {
-        result["hasSession"] = false;
+        result["has_session"] = false;
         result["state"] = "none";
         return result;
     }
 
-    result["hasSession"] = true;
+    result["has_session"] = true;
     result["state"] = DebuggerEngine::stateName(engine->state());
 
     const bool isPaused = engine->state() == InferiorStopOk;
     const bool isRunning = engine->state() == InferiorRunOk;
-    result["isPaused"] = isPaused;
-    result["isRunning"] = isRunning;
+    result["is_paused"] = isPaused;
+    result["is_running"] = isRunning;
 
     if (isPaused) {
         const StackHandler *handler = engine->stackHandler();
@@ -227,7 +227,7 @@ static Result<QJsonObject> debuggerGetStatus()
                 pos["line"] = frame.line;
             if (!frame.function.isEmpty())
                 pos["function"] = frame.function;
-            result["currentPosition"] = pos;
+            result["current_position"] = pos;
         }
     }
 
@@ -422,7 +422,7 @@ static Result<QJsonArray> getThreads()
         if (!d.state.isEmpty())
             obj["state"] = d.state;
         if (!d.targetId.isEmpty())
-            obj["targetId"] = d.targetId;
+            obj["target_id"] = d.targetId;
         if (!d.details.isEmpty())
             obj["details"] = d.details;
         if (!d.function.isEmpty())
@@ -549,9 +549,9 @@ static QJsonArray getBreakpoints()
         if (!p.condition.isEmpty())
             obj["condition"] = p.condition;
         if (p.ignoreCount != 0)
-            obj["ignoreCount"] = p.ignoreCount;
+            obj["ignore_count"] = p.ignoreCount;
         if (p.oneShot)
-            obj["oneShot"] = true;
+            obj["one_shot"] = true;
         if (!p.message.isEmpty())
             obj["message"] = p.message;
         result.append(obj);
@@ -656,7 +656,7 @@ void registerMcpTools()
                     {"current",  QJsonObject{{"type", "boolean"}, {"description", "True for the currently selected thread"}}},
                     {"name",     QJsonObject{{"type", "string"},  {"description", "Thread name"}}},
                     {"state",    QJsonObject{{"type", "string"},  {"description", "Thread state, e.g. \"stopped\""}}},
-                    {"targetId", QJsonObject{{"type", "string"},  {"description", "Target-level thread identifier"}}},
+                    {"target_id", QJsonObject{{"type", "string"},  {"description", "Target-level thread identifier"}}},
                     {"details",  QJsonObject{{"type", "string"},  {"description", "Additional details from the debugger"}}},
                     {"function", QJsonObject{{"type", "string"},  {"description", "Current function name"}}},
                     {"file",     QJsonObject{{"type", "string"},  {"description", "Current source file"}}},
@@ -714,15 +714,15 @@ void registerMcpTools()
     const auto varItemSchema = [] {
         return QJsonObject{
             {"type", "object"},
-            {"required", QJsonArray{"iname", "name", "value", "type", "valueEditable", "hasChildren"}},
+            {"required", QJsonArray{"iname", "name", "value", "type", "value_editable", "has_children"}},
             {"properties", QJsonObject{
-                {"iname",         QJsonObject{{"type", "string"},  {"description", "Internal name, e.g. \"local.myVar\". Use as key for get_variable / set_variable."}}},
-                {"name",          QJsonObject{{"type", "string"},  {"description", "Display name"}}},
-                {"value",         QJsonObject{{"type", "string"},  {"description", "Current value as a string"}}},
-                {"type",          QJsonObject{{"type", "string"},  {"description", "Type name"}}},
-                {"address",       QJsonObject{{"type", "string"},  {"description", "Memory address, e.g. \"0x1234\""}}},
-                {"valueEditable", QJsonObject{{"type", "boolean"}, {"description", "Whether the value can be changed via set_variable"}}},
-                {"hasChildren",   QJsonObject{{"type", "boolean"}, {"description", "Whether the variable has child members"}}},
+                {"iname",          QJsonObject{{"type", "string"},  {"description", "Internal name, e.g. \"local.myVar\". Use as key for get_variable / set_variable."}}},
+                {"name",           QJsonObject{{"type", "string"},  {"description", "Display name"}}},
+                {"value",          QJsonObject{{"type", "string"},  {"description", "Current value as a string"}}},
+                {"type",           QJsonObject{{"type", "string"},  {"description", "Type name"}}},
+                {"address",        QJsonObject{{"type", "string"},  {"description", "Memory address, e.g. \"0x1234\""}}},
+                {"value_editable", QJsonObject{{"type", "boolean"}, {"description", "Whether the value can be changed via set_variable"}}},
+                {"has_children",   QJsonObject{{"type", "boolean"}, {"description", "Whether the variable has child members"}}},
             }},
         };
     };
@@ -734,14 +734,14 @@ void registerMcpTools()
             .description(
                 "Returns local variables for the current stack frame. "
                 "Optionally includes watch expressions. "
-                "Variables with hasChildren=true may include a children array if already expanded; "
+                "Variables with has_children=true may include a children array if already expanded; "
                 "otherwise call get_variable with the variable's iname to retrieve sub-fields. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
-                        "includeWatchers",
+                        "include_watchers",
                         QJsonObject{
                             {"type", "boolean"},
                             {"description", "Also return watch expressions (default: false)"},
@@ -757,7 +757,7 @@ void registerMcpTools()
                     .addRequired("variables")),
         [](const Schema::CallToolRequestParams &params,
            const ToolInterface &toolInterface) -> Utils::Result<> {
-            const bool includeWatchers = params.argumentsAsObject().value("includeWatchers").toBool(false);
+            const bool includeWatchers = params.argumentsAsObject().value("include_watchers").toBool(false);
             getVariables(includeWatchers, [toolInterface](Utils::Result<QJsonArray> vars) {
                 if (!vars)
                     toolInterface.finish(CallToolResult{}.isError(true).addContent(
@@ -776,7 +776,7 @@ void registerMcpTools()
             .description(
                 "Returns the details of a single variable by its iname, including its children "
                 "if it has any (e.g. struct members or array elements). "
-                "If a child also has hasChildren=true, call get_variable again with that child's iname "
+                "If a child also has has_children=true, call get_variable again with that child's iname "
                 "to retrieve its sub-fields. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -792,17 +792,17 @@ void registerMcpTools()
                 QJsonObject schema = [] {
                     QJsonObject s;
                     s["type"] = "object";
-                    s["required"] = QJsonArray{"iname", "name", "value", "type", "valueEditable", "hasChildren"};
+                    s["required"] = QJsonArray{"iname", "name", "value", "type", "value_editable", "has_children"};
                     s["properties"] = QJsonObject{
-                        {"iname",         QJsonObject{{"type", "string"}}},
-                        {"name",          QJsonObject{{"type", "string"}}},
-                        {"value",         QJsonObject{{"type", "string"}}},
-                        {"type",          QJsonObject{{"type", "string"}}},
-                        {"address",       QJsonObject{{"type", "string"}}},
-                        {"valueEditable", QJsonObject{{"type", "boolean"}}},
-                        {"hasChildren",   QJsonObject{{"type", "boolean"}}},
-                        {"children",      QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "object"}}},
-                                                      {"description", "Child members, present when hasChildren is true"}}},
+                        {"iname",          QJsonObject{{"type", "string"}}},
+                        {"name",           QJsonObject{{"type", "string"}}},
+                        {"value",          QJsonObject{{"type", "string"}}},
+                        {"type",           QJsonObject{{"type", "string"}}},
+                        {"address",        QJsonObject{{"type", "string"}}},
+                        {"value_editable", QJsonObject{{"type", "boolean"}}},
+                        {"has_children",   QJsonObject{{"type", "boolean"}}},
+                        {"children",       QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "object"}}},
+                                                      {"description", "Child members, present when has_children is true"}}},
                     };
                     return s;
                 }();
@@ -829,7 +829,7 @@ void registerMcpTools()
             .title("Set a variable value")
             .description(
                 "Changes the value of a variable in the current debug session. "
-                "Only works for variables where valueEditable is true. "
+                "Only works for variables where value_editable is true. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -1069,7 +1069,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"}, {"description", "Optional condition expression"}})
                     .addProperty(
-                        "ignoreCount",
+                        "ignore_count",
                         QJsonObject{
                             {"type", "integer"},
                             {"description", "Number of hits to ignore before breaking"}})
@@ -1080,7 +1080,7 @@ void registerMcpTools()
                             {"description", "Whether the breakpoint is enabled. Defaults to true."},
                             {"default", true}})
                     .addProperty(
-                        "oneShot",
+                        "one_shot",
                         QJsonObject{
                             {"type", "boolean"},
                             {"description",
@@ -1103,9 +1103,9 @@ void registerMcpTools()
                 p.value("function").toString(),
                 static_cast<quint64>(p.value("address").toInteger(0)),
                 p.value("condition").toString(),
-                p.value("ignoreCount").toInt(0),
+                p.value("ignore_count").toInt(0),
                 p.value("enabled").toBool(true),
-                p.value("oneShot").toBool(false));
+                p.value("one_shot").toBool(false));
         }));
 
     // Debugger stepping tools
@@ -1214,12 +1214,12 @@ void registerMcpTools()
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
-                    .addProperty("hasSession", QJsonObject{{"type", "boolean"}})
+                    .addProperty("has_session", QJsonObject{{"type", "boolean"}})
                     .addProperty("state", QJsonObject{{"type", "string"}})
-                    .addProperty("isPaused", QJsonObject{{"type", "boolean"}})
-                    .addProperty("isRunning", QJsonObject{{"type", "boolean"}})
-                    .addProperty("currentPosition", QJsonObject{{"type", "object"}})
-                    .addRequired("hasSession")
+                    .addProperty("is_paused", QJsonObject{{"type", "boolean"}})
+                    .addProperty("is_running", QJsonObject{{"type", "boolean"}})
+                    .addProperty("current_position", QJsonObject{{"type", "object"}})
+                    .addRequired("has_session")
                     .addRequired("state")),
         [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
             const auto result = debuggerGetStatus();

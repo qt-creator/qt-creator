@@ -35,7 +35,7 @@ void registerMcpTools()
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}.addProperty(
-                    "projectName",
+                    "project_name",
                     QJsonObject{
                         {"type", "string"},
                         {"description",
@@ -44,32 +44,32 @@ void registerMcpTools()
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
-                        "qtDirectory",
+                        "qt_directory",
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Qt installation prefix directory"}})
                     .addProperty(
-                        "qtVersion",
+                        "qt_version",
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Qt version string (e.g. \"6.8.0\")"}})
                     .addProperty(
-                        "binPath",
+                        "bin_path",
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Path to Qt target bin directory"}})
                     .addProperty(
-                        "headerPath",
+                        "header_path",
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Path to Qt header directory"}})
                     .addProperty(
-                        "libraryPath",
+                        "library_path",
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Path to Qt library directory"}})),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
-            const QString projectName = params.arguments()->value("projectName").toString();
+            const QString projectName = params.arguments()->value("project_name").toString();
             ProjectExplorer::Project *project = nullptr;
             if (projectName.isEmpty()) {
                 project = ProjectExplorer::ProjectManager::startupProject();
@@ -95,11 +95,11 @@ void registerMcpTools()
             return CallToolResult{}
                 .isError(false)
                 .structuredContent(QJsonObject{
-                    {"qtDirectory", qt->prefix().toUserOutput()},
-                    {"qtVersion", qt->qtVersionString()},
-                    {"binPath", qt->binPath().toUserOutput()},
-                    {"headerPath", qt->headerPath().toUserOutput()},
-                    {"libraryPath", qt->libraryPath().toUserOutput()},
+                    {"qt_directory", qt->prefix().toUserOutput()},
+                    {"qt_version", qt->qtVersionString()},
+                    {"bin_path", qt->binPath().toUserOutput()},
+                    {"header_path", qt->headerPath().toUserOutput()},
+                    {"library_path", qt->libraryPath().toUserOutput()},
                 });
         });
 }

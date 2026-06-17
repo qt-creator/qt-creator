@@ -506,8 +506,8 @@ void McpCommands::executeCommand(
     auto process = new Process(this);
     connect(process, &Process::done, this, [process, callback]() {
         QJsonObject response;
-        response["exitCode"] = process->exitCode();
-        response["exitMessage"] = process->verboseExitMessage();
+        response["exit_code"] = process->exitCode();
+        response["exit_message"] = process->verboseExitMessage();
         response["stdout"] = process->readAllStandardOutput();
         response["stderr"] = process->readAllStandardError();
         callback(response);
@@ -722,7 +722,7 @@ void McpCommands::registerCommands()
             .title("file plain text")
             .description(
                 "Returns the content of the file as plain text. "
-                "Optionally restrict to a line range via startLine/endLine (1-based, inclusive). "
+                "Optionally restrict to a line range via start_line/end_line (1-based, inclusive). "
                 "Also supports files on remote devices with uris like docker://... or ssh:// and others.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -734,12 +734,12 @@ void McpCommands::registerCommands()
                             {"format", "uri"},
                             {"description", "Absolute path of the file"}})
                     .addProperty(
-                        "startLine",
+                        "start_line",
                         QJsonObject{
                             {"type", "integer"},
                             {"description", "First line to return, 1-based inclusive (optional)"}})
                     .addProperty(
-                        "endLine",
+                        "end_line",
                         QJsonObject{
                             {"type", "integer"},
                             {"description", "Last line to return, 1-based inclusive (optional)"}})
@@ -750,8 +750,8 @@ void McpCommands::registerCommands()
                     .addRequired("text")),
         wrap([](const QJsonObject &p) {
             const QString path = p.value("path").toString();
-            const int startLine = p.value("startLine").toInt(0);
-            const int endLine = p.value("endLine").toInt(0);
+            const int startLine = p.value("start_line").toInt(0);
+            const int endLine = p.value("end_line").toInt(0);
             const QString text = commands.getFilePlainText(path, startLine, endLine);
             return QJsonObject{{"text", text}};
         }));
@@ -784,12 +784,12 @@ void McpCommands::registerCommands()
                             {"format", "uri"},
                             {"description", "Absolute path of the file"}})
                     .addProperty(
-                        "plainText",
+                        "plain_text",
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Text to write into the file."}})
                     .addRequired("path")
-                    .addRequired("plainText"))
+                    .addRequired("plain_text"))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("success", QJsonObject{{"type", "boolean"}})
@@ -818,7 +818,7 @@ void McpCommands::registerCommands()
                     .addRequired("message")),
         wrap([](const QJsonObject &p) {
             const QString path = p.value("path").toString();
-            const QString text = p.value("plainText").toString();
+            const QString text = p.value("plain_text").toString();
             return commands.setFilePlainText(path, text);
         }));
 
@@ -897,7 +897,7 @@ void McpCommands::registerCommands()
                             {"type", "boolean"},
                             {"description", "Whether the pattern is a regular expression"}})
                     .addProperty(
-                        "caseSensitive",
+                        "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
                             {"description", "Whether the search should be case sensitive"}})
@@ -908,7 +908,7 @@ void McpCommands::registerCommands()
             const QString path = p.value("path").toString();
             const QString pattern = p.value("pattern").toString();
             const bool isRegex = p.value("regex").toBool(false);
-            const bool caseSensitive = p.value("caseSensitive").toBool(false);
+            const bool caseSensitive = p.value("case_sensitive").toBool(false);
             commands.searchInFile(path, pattern, isRegex, caseSensitive, callback);
         }));
 
@@ -937,7 +937,7 @@ void McpCommands::registerCommands()
                             {"type", "boolean"},
                             {"description", "Whether the pattern is a regular expression"}})
                     .addProperty(
-                        "caseSensitive",
+                        "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
                             {"description", "Whether the search should be case sensitive"}})
@@ -948,7 +948,7 @@ void McpCommands::registerCommands()
             const QString directory = p.value("directory").toString();
             const QString pattern = p.value("pattern").toString();
             const bool isRegex = p.value("regex").toBool(false);
-            const bool caseSensitive = p.value("caseSensitive").toBool(false);
+            const bool caseSensitive = p.value("case_sensitive").toBool(false);
             commands.searchInDirectory(directory, pattern, isRegex, caseSensitive, callback);
         }));
 
@@ -979,7 +979,7 @@ void McpCommands::registerCommands()
                             {"type", "boolean"},
                             {"description", "Whether the pattern is a regular expression"}})
                     .addProperty(
-                        "caseSensitive",
+                        "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
                             {"description", "Whether the search should be case sensitive"}})
@@ -995,7 +995,7 @@ void McpCommands::registerCommands()
             const QString pattern = p.value("pattern").toString();
             const QString replacement = p.value("replacement").toString();
             const bool isRegex = p.value("regex").toBool(false);
-            const bool caseSensitive = p.value("caseSensitive").toBool(false);
+            const bool caseSensitive = p.value("case_sensitive").toBool(false);
             commands.replaceInFile(path, pattern, replacement, isRegex, caseSensitive, callback);
         }));
 
@@ -1027,7 +1027,7 @@ void McpCommands::registerCommands()
                             {"type", "boolean"},
                             {"description", "Whether the pattern is a regular expression"}})
                     .addProperty(
-                        "caseSensitive",
+                        "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
                             {"description", "Whether the search should be case sensitive"}})
@@ -1043,7 +1043,7 @@ void McpCommands::registerCommands()
             const QString pattern = p.value("pattern").toString();
             const QString replacement = p.value("replacement").toString();
             const bool isRegex = p.value("regex").toBool(false);
-            const bool caseSensitive = p.value("caseSensitive").toBool(false);
+            const bool caseSensitive = p.value("case_sensitive").toBool(false);
             commands.replaceInDirectory(
                 directory, pattern, replacement, isRegex, caseSensitive, callback);
         }));
@@ -1057,15 +1057,15 @@ void McpCommands::registerCommands()
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
-                        "openFiles",
+                        "open_files",
                         QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
-                    .addRequired("openFiles")),
+                    .addRequired("open_files")),
         wrap([](const QJsonObject &) {
             const QStringList files = commands.listOpenFiles();
             QJsonArray arr;
             for (const QString &f : files)
                 arr.append(f);
-            return QJsonObject{{"openFiles", arr}};
+            return QJsonObject{{"open_files", arr}};
         }));
 
     ToolRegistry::registerTool(
@@ -1077,15 +1077,15 @@ void McpCommands::registerCommands()
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
-                        "visibleFiles",
+                        "visible_files",
                         QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
-                    .addRequired("visibleFiles")),
+                    .addRequired("visible_files")),
         wrap([](const QJsonObject &) {
             const QStringList files = commands.listVisibleFiles();
             QJsonArray arr;
             for (const QString &f : files)
                 arr.append(f);
-            return QJsonObject{{"visibleFiles", arr}};
+            return QJsonObject{{"visible_files", arr}};
         }));
 
     ToolRegistry::registerTool(
@@ -1117,16 +1117,16 @@ void McpCommands::registerCommands()
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
-                        "sessionName",
+                        "session_name",
                         QJsonObject{
                             {"type", "string"}, {"description", "Name of the session to load"}})
-                    .addRequired("sessionName"))
+                    .addRequired("session_name"))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("success", QJsonObject{{"type", "boolean"}})
                     .addRequired("success")),
         wrap([](const QJsonObject &p) {
-            const QString name = p.value("sessionName").toString();
+            const QString name = p.value("session_name").toString();
             bool ok = commands.loadSession(name);
             return QJsonObject{{"success", ok}};
         }));
@@ -1194,18 +1194,18 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"}, {"description", "Arguments passed to the command"}})
                     .addProperty(
-                        "workingDir",
+                        "working_dir",
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Directory in which the command is executed"}}))
             .outputSchema(
                 Tool::OutputSchema()
-                    .addRequired("exitCode")
+                    .addRequired("exit_code")
                     .addProperty(
-                        "exitCode",
+                        "exit_code",
                         QJsonObject{{"type", "integer"}, {"description", "Exit code of the command"}})
                     .addProperty(
-                        "exitMessage",
+                        "exit_message",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
@@ -1222,7 +1222,7 @@ void McpCommands::registerCommands()
             commands.executeCommand(
                 p["command"].toString(),
                 p["arguments"].toString(),
-                p["workingDir"].toString(),
+                p["working_dir"].toString(),
                 callback);
         }));
 

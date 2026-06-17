@@ -260,9 +260,9 @@ static QJsonObject getCurrentProject()
     if (!project)
         return {};
     return {
-        {"projectName", project->displayName()},
-        {"projectFile", project->projectFilePath().toUserOutput()},
-        {"projectDirectory", project->projectDirectory().toUserOutput()},
+        {"project_name", project->displayName()},
+        {"project_file", project->projectFilePath().toUserOutput()},
+        {"project_directory", project->projectDirectory().toUserOutput()},
     };
 }
 
@@ -785,7 +785,7 @@ void registerMcpTools()
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .inputSchema(
                 Tool::InputSchema().addProperty(
-                    "projectName",
+                    "project_name",
                     QJsonObject{
                         {"description",
                          "Name of the project to build. Defaults to the active startup "
@@ -800,7 +800,7 @@ void registerMcpTools()
                     .readOnlyHint(false)),
         [](const Schema::CallToolRequestParams &params,
            const ToolInterface &toolInterface) -> Utils::Result<> {
-            const QString projectName = params.arguments()->value("projectName").toString();
+            const QString projectName = params.arguments()->value("project_name").toString();
 
             QList<Project *> projects{ProjectManager::startupProject()};
             if (!projectName.isEmpty())
@@ -1249,14 +1249,14 @@ void registerMcpTools()
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
-                        "filePattern",
+                        "file_pattern",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "File pattern to filter which files to search (e.g., '*.cpp', "
                              "'*.h')"}})
                     .addProperty(
-                        "projectName",
+                        "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
@@ -1271,20 +1271,20 @@ void registerMcpTools()
                             {"type", "boolean"},
                             {"description", "Whether the pattern is a regular expression"}})
                     .addProperty(
-                        "caseSensitive",
+                        "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
                             {"description", "Whether the search should be case sensitive"}})
-                    .addRequired("filePattern")
+                    .addRequired("file_pattern")
                     .addRequired("pattern")),
         wrapAsync([](const QJsonObject &p, const Callback &callback) {
-            const QString filePattern = p.value("filePattern").toString();
+            const QString filePattern = p.value("file_pattern").toString();
             const QString pattern = p.value("pattern").toString();
             const bool isRegex = p.value("regex").toBool(false);
-            const bool caseSensitive = p.value("caseSensitive").toBool(false);
-            const std::optional<QString> projectName = p.contains("projectName")
+            const bool caseSensitive = p.value("case_sensitive").toBool(false);
+            const std::optional<QString> projectName = p.contains("project_name")
                                                            ? std::optional<QString>(
-                                                                 p.value("projectName").toString())
+                                                                 p.value("project_name").toString())
                                                            : std::nullopt;
             searchInFiles(
                 filePattern,
@@ -1307,14 +1307,14 @@ void registerMcpTools()
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
-                        "filePattern",
+                        "file_pattern",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "File pattern to filter which files to modify (e.g., '*.cpp', "
                              "'*.h')"}})
                     .addProperty(
-                        "projectName",
+                        "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
@@ -1332,11 +1332,11 @@ void registerMcpTools()
                             {"type", "boolean"},
                             {"description", "Whether the pattern is a regular expression"}})
                     .addProperty(
-                        "caseSensitive",
+                        "case_sensitive",
                         QJsonObject{
                             {"type", "boolean"},
                             {"description", "Whether the search should be case sensitive"}})
-                    .addRequired("filePattern")
+                    .addRequired("file_pattern")
                     .addRequired("pattern")
                     .addRequired("replacement"))
             .outputSchema(
@@ -1344,14 +1344,14 @@ void registerMcpTools()
                     .addProperty("ok", QJsonObject{{"type", "boolean"}})
                     .addRequired("ok")),
         wrapAsync([](const QJsonObject &p, const Callback &callback) {
-            const QString filePattern = p.value("filePattern").toString();
+            const QString filePattern = p.value("file_pattern").toString();
             const QString pattern = p.value("pattern").toString();
             const QString replacement = p.value("replacement").toString();
             const bool isRegex = p.value("regex").toBool(false);
-            const bool caseSensitive = p.value("caseSensitive").toBool(false);
-            const std::optional<QString> projectName = p.contains("projectName")
+            const bool caseSensitive = p.value("case_sensitive").toBool(false);
+            const std::optional<QString> projectName = p.contains("project_name")
                                                            ? std::optional<QString>(
-                                                                 p.value("projectName").toString())
+                                                                 p.value("project_name").toString())
                                                            : std::nullopt;
             replaceInFiles(
                 filePattern,
@@ -1387,7 +1387,7 @@ void registerMcpTools()
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
-                        "projectName",
+                        "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
@@ -1415,7 +1415,7 @@ void registerMcpTools()
                     .addRequired("files")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<Schema::CallToolResult> {
             const QJsonObject &p = params.argumentsAsObject();
-            const QString projectName = p.value("projectName").toString();
+            const QString projectName = p.value("project_name").toString();
             const QString pattern = p.value("pattern").toString();
             const bool isRegex = p.value("regex").toBool();
 
@@ -1511,28 +1511,28 @@ void registerMcpTools()
             .title("List kits a project is configured for")
             .description(
                 "List the kits a project is configured for (one per build target). "
-                "Defaults to the active startup project when neither projectName nor "
-                "projectPath is given. Each kit entry has the same fields as list_kits "
+                "Defaults to the active startup project when neither project_name nor "
+                "project_path is given. Each kit entry has the same fields as list_kits "
                 "plus is_active, which marks the kit of the project's active target. When "
-                "multiple loaded projects share the same display name, pass projectPath to "
+                "multiple loaded projects share the same display name, pass project_path to "
                 "disambiguate (returns reason:\"ambiguous_name\" with candidates otherwise).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
-                        "projectName",
+                        "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "Display name of the project. Optional; defaults to the active "
                              "startup project."}})
                     .addProperty(
-                        "projectPath",
+                        "project_path",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "Absolute path to the project file. Unambiguously identifies "
-                             "the project and takes precedence over projectName."}}))
+                             "the project and takes precedence over project_name."}}))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("success", QJsonObject{{"type", "boolean"}})
@@ -1544,7 +1544,7 @@ void registerMcpTools()
                     .addRequired("success")),
         wrap([](const QJsonObject &p) {
             return projectKits(
-                p.value("projectName").toString(), p.value("projectPath").toString());
+                p.value("project_name").toString(), p.value("project_path").toString());
         }));
 
     ToolRegistry::registerTool(
@@ -1554,10 +1554,10 @@ void registerMcpTools()
             .description(
                 "Adds a build target for each of the given kits to a project. Kits may be "
                 "identified by kit id or display name (see list_kits). Defaults to the "
-                "active startup project when neither projectName nor projectPath is given. "
+                "active startup project when neither project_name nor project_path is given. "
                 "Returns a per-kit results array with status added/already_present/"
                 "not_found/failed; the call does not abort on the first error. When "
-                "multiple loaded projects share the same display name, pass projectPath to "
+                "multiple loaded projects share the same display name, pass project_path to "
                 "disambiguate.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -1570,19 +1570,19 @@ void registerMcpTools()
                             {"description",
                              "Kit ids or display names to add to the project."}})
                     .addProperty(
-                        "projectName",
+                        "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "Display name of the project. Optional; defaults to the active "
                              "startup project."}})
                     .addProperty(
-                        "projectPath",
+                        "project_path",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "Absolute path to the project file. Unambiguously identifies "
-                             "the project and takes precedence over projectName."}})
+                             "the project and takes precedence over project_name."}})
                     .addRequired("kits"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1598,7 +1598,7 @@ void registerMcpTools()
             for (const QJsonValue &v : p.value("kits").toArray())
                 kits.append(v.toString());
             return addKitsToProject(
-                p.value("projectName").toString(), p.value("projectPath").toString(), kits);
+                p.value("project_name").toString(), p.value("project_path").toString(), kits);
         }));
 
     ToolRegistry::registerTool(
@@ -1610,15 +1610,15 @@ void registerMcpTools()
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
-                        "buildConfigs",
+                        "build_configs",
                         QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
-                    .addRequired("buildConfigs")),
+                    .addRequired("build_configs")),
         wrap([](const QJsonObject &) {
             const QStringList configs = listBuildConfigs();
             QJsonArray arr;
             for (const QString &c : configs)
                 arr.append(c);
-            return QJsonObject{{"buildConfigs", arr}};
+            return QJsonObject{{"build_configs", arr}};
         }));
 
     ToolRegistry::registerTool(
@@ -1653,13 +1653,13 @@ void registerMcpTools()
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
-                        "projectName",
+                        "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Display name of the currently active project"},
                             })
                     .addProperty(
-                        "projectFile",
+                        "project_file",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
@@ -1667,12 +1667,12 @@ void registerMcpTools()
                              "CMakeLists.txt)"},
                             })
                     .addProperty(
-                        "projectDirectory",
+                        "project_directory",
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Path to the project's directory"},
                             })
-                    .addRequired("projectDirectory")),
+                    .addRequired("project_directory")),
         wrap([](const QJsonObject &) { return getCurrentProject(); }));
 
     ToolRegistry::registerTool(
@@ -1681,29 +1681,29 @@ void registerMcpTools()
             .title("Set the active startup project")
             .description(
                 "Changes the active startup project (the one Qt Creator builds, runs, and "
-                "debugs by default). Accepts projectName, projectPath, or both. When "
+                "debugs by default). Accepts project_name, project_path, or both. When "
                 "multiple loaded projects share the same display name (e.g. the same "
-                "project open in two Git worktrees), you must also supply projectPath to "
+                "project open in two Git worktrees), you must also supply project_path to "
                 "disambiguate; the tool returns reason:\"ambiguous_name\" with a "
-                "candidates array if projectPath is omitted and the name matches more "
+                "candidates array if project_path is omitted and the name matches more "
                 "than one project.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
-                        "projectName",
+                        "project_name",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "Display name of the project to activate. Required unless "
-                             "projectPath alone is sufficient to identify it."}})
+                             "project_path alone is sufficient to identify it."}})
                     .addProperty(
-                        "projectPath",
+                        "project_path",
                         QJsonObject{
                             {"type", "string"},
                             {"description",
                              "Absolute path to the project file. Unambiguously identifies "
-                             "the project and takes precedence over projectName when "
+                             "the project and takes precedence over project_name when "
                              "multiple projects share the same display name."}}))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1717,8 +1717,8 @@ void registerMcpTools()
                     .addRequired("reason")
                     .addRequired("message")),
         wrap([](const QJsonObject &p) -> QJsonObject {
-            const QString projectName = p.value("projectName").toString();
-            const QString projectPath = p.value("projectPath").toString();
+            const QString projectName = p.value("project_name").toString();
+            const QString projectPath = p.value("project_path").toString();
 
             const ProjectResolution resolution
                 = resolveTargetProject(projectName, projectPath, false);
@@ -1793,10 +1793,10 @@ void registerMcpTools()
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
-                    .addProperty("buildConfig", QJsonObject{{"type", "string"}})
-                    .addRequired("buildConfig")),
+                    .addProperty("build_config", QJsonObject{{"type", "string"}})
+                    .addRequired("build_config")),
         wrap([](const QJsonObject &) {
-            return QJsonObject{{"buildConfig", getCurrentBuildConfig()}};
+            return QJsonObject{{"build_config", getCurrentBuildConfig()}};
         }));
 
     ToolRegistry::registerTool(
