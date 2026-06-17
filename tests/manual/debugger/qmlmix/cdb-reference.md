@@ -159,15 +159,18 @@ In rough order, and with the honest caveats:
    both** (`cdbbridge.py`, drafted but UNTESTED) to module-qualify the symbol
    (`qmldbg_native[d]!...`) and pass marshalled pointers.
 
-1. **Service round-trip in `cdbbridge.py`.** Finish the override: implement
-   `marshalString()` (write the bytes + NUL into target memory, return the
-   address), then `callServiceFunction` issues `cdbext.call('MOD!fn(@p1,@p2)')`
-   and `fetchInterpreterResult` reads `qt_qmlDebugMessageBuffer`/`Length` via
-   `readServiceVariable` + `readRawMemory`, hex-decodes, and clears.
-   **Blocker:** `qtcreatorcdbext` currently has `readRawMemory` but **no
-   memory-write or allocation** primitive. Add e.g. `cdbext.allocate(size)` and
-   `cdbext.writeRawMemory(address, bytes)` (C++ extension work, Windows-only to
-   build) — this is the first concrete task.
+1. **Service round-trip — DONE and VALIDATED on Windows.** The two missing
+   extension primitives are added: `cdbext.writeRawMemory(addr, bytes)`
+   (mirrors `readRawMemory` via `IDebugDataSpaces::WriteVirtual`) and
+   `cdbext.allocate(size)` (`ExtensionContext::allocateMemory` runs `.dvalloc`
+   and parses the address). `cdbbridge.py` implements `marshalString()`
+   (allocate -> write bytes+NUL -> return address) and `callServiceFunction`/
+   `readServiceVariable` against them; `fetchInterpreterResult` reads
+   `qt_qmlDebugMessageBuffer`/`Length` + `readRawMemory`, hex-decodes, clears.
+   Verified end to end with `cdb-roundtrip.cdb` (June 2026): enable service ->
+   setbreakpoint -> backtrace returns a live QML frame. The draft needed no
+   code changes; the `(char *)` cast, the `.dvalloc` parse and `cdbext.call`
+   return handling all worked as written.
 
 2. **Interpreter breakpoints + the "QML stop".** Implement the equivalents of
    gdb's resolver / `InterpreterMessageBreakpoint`: a breakpoint on
@@ -177,10 +180,16 @@ In rough order, and with the honest caveats:
 
    **Caveat (orchestration model):** gdb hangs this off `gdb.events.stop` and
    lldb off its event loop. CDB has no in-debugger Python event loop — stops
-   are reported to the C++ `CdbEngine`. So this wiring likely lives in
-   `cdbengine.cpp` / the extension, which must recognize a stop at those
-   symbols and call into the bridge. Budget for engine-level work, not just a
-   `cdbbridge.py` mirror.
+   are reported to the C++ `CdbEngine`. So this wiring lives in `cdbengine.cpp`.
+   Confirmed hook points (June 2026 walk-through): set the internal breakpoints
+   on the two symbols via cdb (`bu`), then in `CdbEngine::examineStopReason`
+   (cdbengine.cpp ~1629) / `processStop` (~578) recognize a stop at them
+   **by function/address** — they are not `breakHandler` breakpoints, so the
+   existing `reason == "breakpoint"` + `breakpointId` path won't match them.
+   On match, invoke the bridge (`resolvePendingInterpreterBreakpoint` /
+   `handleInterpreterMessage`) via an extension `script` command and then
+   continue or stay. `handleInterpreterMessage` is shared and already works on
+   cdb (it uses the now-validated `fetchInterpreterResult`).
 
 3. **QML->C++ step-in (needs Qt >= 6.12 hook).** Arm
    `qt_v4NativeCallHookEnabled`, break at `qt_v4AboutToCallNativeMethodHook`,
@@ -189,10 +198,19 @@ In rough order, and with the honest caveats:
    caveat above). Mirror `handleNativeCallHook` (gdb) /
    `handleNativeMethodStepInto` (lldb).
 
-4. **Mixed stack splice.** Port `fetchStack`'s splice + metacall dimming:
-   splice the interpreter `backtrace` frames in at the
-   `qt_qmlDebugMessageAvailable` / `QV4::Moth::VME` frame and mark the metacall
-   machinery run. Straightforward once the backtrace works.
+4. **Mixed stack splice — NOT a `fetchStack` port on cdb.** gdb/lldb do the
+   splice in their Python `fetchStack`; cdb has **no** `fetchStack` (neither
+   `cdbbridge.py` nor base `dumper.py` defines one). cdb stacks come from the
+   C++ extension `stack` command via `CdbEngine::reloadFullStack` /
+   `handleStackTrace` (cdbengine.cpp ~1449). So the splice (interleave the
+   interpreter `backtrace` frames at the `qt_qmlDebugMessageAvailable` /
+   `QV4::Moth::VME` frame + mark the metacall machinery run) must be done in
+   `handleStackTrace` (combine the native stack with the service `backtrace`,
+   which now works) or by teaching the extension `stack` command a native-mixed
+   mode. Building block: the extension already has a `qmlstack` command +
+   `AdditionalQmlStackCapability` (an on-demand, separate QML stack via the old
+   `qt_v4StackTrace` path) - reusable for the QML frames, but it is not the
+   inline splice.
 
 5. **C++->QML step-in — the doubtful one.** This relies on "machinery skips":
    gdb `skip -rfu <regex>`, lldb `step-avoid-regexp`. **CDB has no equivalent.**
@@ -220,3 +238,48 @@ hook-dependent checks on Qt >= 6.12).
 
 Report back the experiment outcome (which stage, literal vs pointer args, raw
 backtrace output, cdb + Qt versions) so the go/no-go is on record.
+
+---
+
+## 7. Continuing from here (the Windows inner loop)
+
+The service round-trip is **built and validated** (June 2026, on a real
+Windows/cdb/DbgEng box): the extension primitives (`cdbext.writeRawMemory`,
+`cdbext.allocate`) and the `cdbbridge.py` overrides drive enable-service ->
+setbreakpoint -> backtrace and return a live QML frame, with no code changes
+needed beyond the original draft.
+
+### Build and load the patched extension
+- Build just the extension: `cmake --build <build> --target qtcreatorcdbext`.
+  The DLL lands in `<build>/lib/qtcreatorcdbext64/qtcreatorcdbext.dll`
+  (32-bit: `qtcreatorcdbext32`). A full Creator configure works fine and is
+  not otherwise needed for this test.
+- Drive cdb directly with that DLL (no full Creator needed). The validated
+  command script is `cdb-roundtrip.cdb` next to this file - edit its `<...>`
+  paths and run it with `cdb -cf cdb-roundtrip.cdb <fixture>\qmlmixtest.exe
+  -qmljsdebugger=native,services:NativeQmlDebugger` plus the env shown in the
+  script header (`QV4_FORCE_INTERPRETER=1`, `QT_QPA_PLATFORM=offscreen`,
+  `_NT_SYMBOL_PATH` at the Qt `bin` + `plugins\qmltooling`).
+
+### Two cdb-script gotchas (cost real time - heed them)
+1. **`;` is a cdb command separator.** Put ONE python statement per
+   `!qtcreatorcdbext.script` line; `theDumper = Dumper(); theDumper.setupDumpers()`
+   on one line silently runs only the first half.
+2. **`!qtcreatorcdbext.pid` is required** at the stop where you operate - it
+   hooks the DbgEng output callbacks that `.call` / `allocate` depend on.
+   Without it, `allocate` fails with "Attempt to allocate with no output
+   hooked". (`tst_dumpers.cpp` calls `.pid` for the same reason.)
+
+### Done / next milestone
+Validation target once the engine side exists: extend
+`tests/auto/debugger/tst_nativemixed.cpp` to recognize the CDB engine and reuse
+the same checks (it already gates hook-dependent checks on Qt >= 6.12).
+
+The remaining work is the **engine-level wiring** (§5 items 2+: the resolver /
+QML-stop, then stepping; and §6 risks #2/#3). No in-debugger event loop on CDB
+means it lives in `CdbEngine` + the extension, and it needs live Windows
+iteration - a separate effort from this validated foundation.
+
+### Context
+Confirmed experiment findings + raw transcript: Gerrit change 745640
+(`cdb-experiment-results.md`); the essentials are summarized in §5.

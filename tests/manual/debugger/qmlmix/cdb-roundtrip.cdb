@@ -1,0 +1,37 @@
+$$ CDB acceptance test for the native combined NativeQmlDebugger service
+$$ round-trip. VALIDATED on Windows (cdb + qtcreatorcdbext built with the
+$$ writeRawMemory/allocate primitives): it enables the service, sets a QML
+$$ breakpoint, and reads back a QML backtrace, all driven from cdbbridge.py.
+$$
+$$ Replace the <...> paths (debug build => qmldbg_natived; release =>
+$$ qmldbg_native) and run, e.g.:
+$$
+$$   set "PATH=<QT>\bin;<PYTHON>;%PATH%"
+$$   set "QV4_FORCE_INTERPRETER=1"
+$$   set "QT_QPA_PLATFORM=offscreen"
+$$   set "_NT_SYMBOL_PATH=<QT>\bin;<QT>\plugins\qmltooling"
+$$   cdb -cf cdb-roundtrip.cdb <FIXTURE>\qmlmixtest.exe -qmljsdebugger=native,services:NativeQmlDebugger
+$$
+$$ Gotchas learned the hard way:
+$$  - ';' is a cdb command separator, so put ONE python statement per
+$$    "!qtcreatorcdbext.script" line (never "a; b" on one line).
+$$  - "!qtcreatorcdbext.pid" is required at the stop where you operate: it
+$$    hooks the output callbacks that .call / allocate depend on. Without it
+$$    allocate fails with "Attempt to allocate with no output hooked".
+.sympath <QT>\bin;<QT>\plugins\qmltooling
+.load <BUILD>\lib\qtcreatorcdbext64\qtcreatorcdbext.dll
+!qtcreatorcdbext.script sys.path.insert(1, r'<REPO>\share\qtcreator\debugger')
+!qtcreatorcdbext.script from cdbbridge import *
+!qtcreatorcdbext.script theDumper = Dumper()
+!qtcreatorcdbext.script theDumper.setupDumpers()
+bu qmldbg_natived!qt_qmlDebugConnectorOpen
+g
+.echo === STOP-CONNECTOR ===
+!qtcreatorcdbext.pid
+!qtcreatorcdbext.script print("ENABLE:", theDumper.callServiceFunction('qt_qmlDebugEnableService', ['NativeQmlDebugger']))
+!qtcreatorcdbext.script print("SETBP:", theDumper.sendInterpreterRequest('setbreakpoint', {'file': r'<REPO>\tests\manual\debugger\qmlmix\Main.qml', 'line': 49, 'condition': ''}))
+bu qmldbg_natived!qt_qmlDebugMessageAvailable
+g
+.echo === STOP-MESSAGE ===
+!qtcreatorcdbext.script print("BACKTRACE:", theDumper.sendInterpreterRequest('backtrace', {'limit': 10}))
+q

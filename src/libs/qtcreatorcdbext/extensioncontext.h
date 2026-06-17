@@ -90,6 +90,10 @@ public:
     std::wstring stopRecordingOutput();
     // Execute a function call and record the output.
     bool call(const std::string &functionCall, unsigned callFlags, std::wstring *output, std::string *errorMessage);
+    // Allocate a block of memory in the inferior via '.dvalloc' and return
+    // its address. Used by the native combined (C++/QML) bridge to marshal
+    // string arguments for service calls, since cdb's .call rejects literals.
+    bool allocateMemory(unsigned long size, ULONG64 *address, std::string *errorMessage);
 
     CIDebugClient *hookedClient() const { return m_hookedClient; }
 

@@ -286,6 +286,38 @@ static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
     return ret;
 }
 
+static PyObject *cdbext_writeRawMemory(PyObject *, PyObject *args) // (address, bytes)
+{
+    ULONG64 address = 0;
+    const char *buffer = nullptr;
+    Py_ssize_t size = 0;
+    if (!PyArg_ParseTuple(args, "Ky#", &address, &buffer, &size))
+        Py_RETURN_NONE;
+
+    CIDebugDataSpaces *data = ExtensionCommandContext::instance()->dataSpaces();
+    ULONG bytesWritten = 0;
+    HRESULT hr = data->WriteVirtual(address, const_cast<char *>(buffer),
+                                    ULONG(size), &bytesWritten);
+    if (FAILED(hr))
+        bytesWritten = 0;
+    return Py_BuildValue("k", bytesWritten);
+}
+
+static PyObject *cdbext_allocate(PyObject *, PyObject *args) // (size)
+{
+    unsigned long size = 0;
+    if (!PyArg_ParseTuple(args, "k", &size))
+        Py_RETURN_NONE;
+
+    ULONG64 address = 0;
+    std::string error;
+    if (!ExtensionContext::instance().allocateMemory(size, &address, &error)) {
+        DebugPrint() << "allocate failed: " << error;
+        Py_RETURN_NONE;
+    }
+    return Py_BuildValue("K", address);
+}
+
 static PyObject *cdbext_createValue(PyObject *, PyObject *args)
 {
     ULONG64 address = 0;
@@ -365,6 +397,10 @@ static PyMethodDef cdbextMethods[] = {
      "Returns the size of a pointer"},
     {"readRawMemory",       cdbext_readRawMemory,       METH_VARARGS,
      "Read a block of data from the virtual address space"},
+    {"writeRawMemory",      cdbext_writeRawMemory,      METH_VARARGS,
+     "Write a block of data to the virtual address space"},
+    {"allocate",            cdbext_allocate,            METH_VARARGS,
+     "Allocate a block of memory in the inferior and return its address"},
     {"createValue",         cdbext_createValue,         METH_VARARGS,
      "Creates a value with the given type at the given address"},
     {"call",                cdbext_call,                METH_VARARGS,

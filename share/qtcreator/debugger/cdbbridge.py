@@ -253,27 +253,36 @@ class Dumper(DumperBase):
 
     def serviceModuleName(self) -> str:
         # The qmldbg_native plugin (debug builds: qmldbg_natived) hosts the
-        # NativeQmlDebugger entry points; cdb needs the module prefix.
+        # NativeQmlDebugger entry points; cdb needs the module prefix. Match
+        # the exact name - a loose "qmldbg_native" prefix also matches the
+        # unrelated qmldbg_nativedebugger plugin and resolves the call to the
+        # wrong module.
         for module in cdbext.listOfModules():
-            if module.startswith('qmldbg_native'):
+            if module in ('qmldbg_natived', 'qmldbg_native'):
                 return module
         return ''
 
     def marshalString(self, text: str) -> int:
-        # Write 'text' plus a terminating NUL into target memory and return
-        # its address (used as a char*). FIXME: qtcreatorcdbext exposes
-        # readRawMemory but no memory-write or allocation primitive, and
-        # '.call malloc(...)' has no usable prototype. This needs new
-        # extension APIs (e.g. cdbext.allocate(size) + cdbext.writeRawMemory(
-        # address, bytes)); the experiment used the '.dvalloc'/'eb' commands.
-        raise NotImplementedError(
-            'CDB string marshalling needs cdbext.allocate/writeRawMemory '
-            '(see cdb-reference.md)')
+        # Write 'text' plus a terminating NUL into freshly allocated target
+        # memory and return its address (used as a char*); cdb rejects string
+        # literals in .call. Uses the cdbext.allocate/writeRawMemory primitives
+        # added for this. NOTE: each call leaks the allocation for the session
+        # lifetime - fine for the low call volume; revisit with a reused
+        # scratch buffer if it matters.
+        data = text.encode('utf-8') + b'\x00'
+        address = cdbext.allocate(len(data))
+        if not address:
+            raise RuntimeError('cdbext.allocate failed')
+        written = cdbext.writeRawMemory(address, data)
+        if written != len(data):
+            raise RuntimeError('cdbext.writeRawMemory wrote %d of %d bytes'
+                               % (written, len(data)))
+        return address
 
     def callServiceFunction(self, function, args=None):
         module = self.serviceModuleName()
         qualified = ('%s!%s' % (module, function)) if module else function
-        pointers = ['0x%x' % self.marshalString(arg) for arg in (args or [])]
+        pointers = ['(char *)0x%x' % self.marshalString(arg) for arg in (args or [])]
         return cdbext.call('%s(%s)' % (qualified, ', '.join(pointers)))
 
     def readServiceVariable(self, name):

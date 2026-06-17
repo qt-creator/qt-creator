@@ -639,6 +639,15 @@ void CdbEngine::runEngine()
 //        runCommand({"bm /( QtCored4!qFatal", BuiltinCommand}); // 'bm': All overloads.
 //        runCommand({"bm /( Qt5Cored!QMessageLogger::fatal", BuiltinCommand});
 //    }
+    // Native combined (C++/QML) debugging: break in the in-process
+    // NativeQmlDebugger service's notification hooks so the engine can drive
+    // the QML side - qt_qmlDebugConnectorOpen (enable service + resolve
+    // pending QML breakpoints) and qt_qmlDebugMessageAvailable (a QML event).
+    // 'bu' defers until the qmldbg_native[d] plugin loads.
+    if (isNativeMixedActive()) {
+        runCommand({breakAtFunctionCommand("qt_qmlDebugConnectorOpen"), BuiltinCommand, cb});
+        runCommand({breakAtFunctionCommand("qt_qmlDebugMessageAvailable"), BuiltinCommand, cb});
+    }
     if (runParameters().startMode() == AttachToCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
         notifyEngineRunOkAndInferiorUnrunnable();

@@ -502,6 +502,60 @@ bool ExtensionContext::call(const std::string &functionCall,
     return true;
 }
 
+bool ExtensionContext::allocateMemory(unsigned long size, ULONG64 *address,
+                                      std::string *errorMessage)
+{
+    // DbgEng has no direct allocator; '.dvalloc' reserves inferior memory.
+    if (!m_creatorOutputCallback) {
+        *errorMessage = "Attempt to allocate with no output hooked.";
+        return false;
+    }
+    const std::string cmd = ".dvalloc " + std::to_string(size);
+    startRecordingOutput();
+    const HRESULT hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, cmd.c_str(),
+                                          DEBUG_EXECUTE_ECHO);
+    const std::wstring output = stopRecordingOutput();
+    if (FAILED(hr)) {
+        *errorMessage = msgDebugEngineComFailed("Execute", hr);
+        return false;
+    }
+    // Expected: "Allocated <n> bytes starting at <addr>", where <addr> may
+    // carry a backtick separator, e.g. 00000250`6f3a0000.
+    const std::wstring marker = L"starting at ";
+    const std::wstring::size_type pos = output.find(marker);
+    if (pos == std::wstring::npos) {
+        *errorMessage = "Could not parse '.dvalloc' output";
+        return false;
+    }
+    ULONG64 value = 0;
+    bool any = false;
+    for (std::wstring::size_type i = pos + marker.size(); i < output.size(); ++i) {
+        const wchar_t c = output[i];
+        if (c == L'`')
+            continue;
+        int digit = -1;
+        if (c >= L'0' && c <= L'9')
+            digit = c - L'0';
+        else if (c >= L'a' && c <= L'f')
+            digit = c - L'a' + 10;
+        else if (c >= L'A' && c <= L'F')
+            digit = c - L'A' + 10;
+        if (digit < 0) {
+            if (any)
+                break;
+            continue;
+        }
+        value = (value << 4) | ULONG64(digit);
+        any = true;
+    }
+    if (!any) {
+        *errorMessage = "No address in '.dvalloc' output";
+        return false;
+    }
+    *address = value;
+    return true;
+}
+
 // Exported C-functions
 extern "C" {
 
