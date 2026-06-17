@@ -4,6 +4,7 @@
 #pragma once
 
 #include "acpclientobject.h"
+#include "chatpanel.h"
 
 #include <acp/acp.h>
 
@@ -39,7 +40,8 @@ public:
     void listSessions(const std::optional<QString> &cursor = {});
     void loadSession(const QString &sessionId, const Utils::FilePath &workingDirectory);
     void sendPrompt(const QString &text, const QList<Utils::FilePath> &additionalFiles = {},
-                    bool includeCurrentEditor = true);
+                    bool includeCurrentEditor = true,
+                    const QList<TextContext> &textContexts = {});
     void cancelPrompt();
     void authenticate(const QString &methodId);
     void setConfigOption(const QString &configId, const QString &value);

@@ -286,7 +286,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->addUserMessage(text);
         m_chatPanel->setPrompting(true);
         m_controller->sendPrompt(
-            text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext());
+            text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext(),
+            m_chatPanel->textContexts());
     });
     connect(m_chatPanel, &ChatPanel::cancelRequested, m_controller, &AcpChatController::cancelPrompt);
     connect(m_chatPanel, &ChatPanel::configOptionChanged,
@@ -339,7 +340,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_chatPanel->addUserMessage(text);
             m_chatPanel->setPrompting(true);
             m_controller->sendPrompt(
-                text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext());
+                text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext(),
+                m_chatPanel->textContexts());
         }
     });
     connect(m_controller, &AcpChatController::configOptionsReceived,

@@ -218,7 +218,8 @@ static bool supportsEmbeddedPromptResources(std::optional<Acp::AgentCapabilities
 
 void AcpChatController::sendPrompt(const QString &text,
                                    const QList<Utils::FilePath> &additionalFiles,
-                                   bool includeCurrentEditor)
+                                   bool includeCurrentEditor,
+                                   const QList<TextContext> &textContexts)
 {
     using namespace TextEditor;
     if (text.isEmpty() || !m_client || m_sessionId.isEmpty())
@@ -284,6 +285,12 @@ void AcpChatController::sendPrompt(const QString &text,
                         .uri(uri));
             }
         }
+    }
+
+    for (const TextContext &ctx : textContexts) {
+        const QString uri = QStringLiteral("context://%1").arg(ctx.name);
+        content << EmbeddedResource().resource(
+            TextResourceContents().text(ctx.text).uri(uri));
     }
 
     request.prompt(content);

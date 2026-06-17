@@ -24,10 +24,17 @@ class QToolButton;
 
 namespace AcpClient::Internal {
 
+struct TextContext
+{
+    QString name;
+    QString text;
+};
+
 class AcpMessageView;
 class ChatInputEdit;
 class SendButton;
 class SessionPickerWidget;
+class TextContextEditor;
 
 class ChatPanel : public QWidget
 {
@@ -53,6 +60,7 @@ public:
     void updateAvailableCommands(const QList<Acp::AvailableCommand> &commands);
     bool includeCurrentEditorContext() const { return m_includeCurrentEditorContext; }
     QList<Utils::FilePath> manualContextFiles() const { return m_manualContextFiles; }
+    QList<TextContext> textContexts() const { return m_textContexts; }
 
     // Delegate to message view
     void addUserMessage(const QString &text);
@@ -108,9 +116,15 @@ private:
     QLayout *m_contextBarLayout = nullptr;
     bool m_includeCurrentEditorContext = true;
     QList<Utils::FilePath> m_manualContextFiles;
+    QList<TextContext> m_textContexts;
 
     void updateContextBar();
     void addContextFiles(const QList<Utils::FilePath> &files);
+
+    TextContextEditor *m_textContextEditor = nullptr;
+    int m_editingTextContextIndex = -1;
+    void showTextContextEditor(int index);
+    void hideTextContextEditor();
 
     bool m_prompting = false;
 };

@@ -7,9 +7,19 @@
 #include "chatinputedit.h"
 #include "sessionpickerwidget.h"
 
+#include <coreplugin/coreicons.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 
+#include <texteditor/displaysettings.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/marginsettings.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditorconstants.h>
+
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
+#include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
@@ -21,7 +31,9 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QFileDialog>
+#include <QFrame>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QMimeData>
 #include <QLabel>
 #include <QMenu>
@@ -116,12 +128,18 @@ class ContextItem : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ContextItem(const QString &text, QWidget *parent = nullptr)
+    explicit ContextItem(const QString &text, const QIcon &icon, QWidget *parent = nullptr)
         : QWidget(parent)
     {
         auto *layout = new QHBoxLayout(this);
         layout->setContentsMargins(PaddingHM, PaddingVXs, PaddingHXs, PaddingVXs);
         layout->setSpacing(PaddingHXs);
+
+        if (!icon.isNull()) {
+            auto iconLabel = new QLabel;
+            iconLabel->setPixmap(icon.pixmap(16, 16));
+            layout->addWidget(iconLabel);
+        }
 
         auto label = new QLabel(text);
         layout->addWidget(label);
@@ -133,12 +151,24 @@ public:
         closeBtn->setToolTip(Tr::tr("Remove Context"));
         connect(closeBtn, &QToolButton::clicked, this, &ContextItem::removeRequested);
         layout->addWidget(closeBtn);
+        setCursor(Qt::PointingHandCursor);
     }
 
 signals:
     void removeRequested();
+    void clicked();
 
 protected:
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        // Emit queued: a handler may rebuild the context bar and delete this
+        // widget, so the click must not run while we are still inside the
+        // event (which would return into a deleted 'this').
+        if (event->button() == Qt::LeftButton)
+            QMetaObject::invokeMethod(this, &ContextItem::clicked, Qt::QueuedConnection);
+        QWidget::mousePressEvent(event);
+    }
+
     void paintEvent(QPaintEvent *) override
     {
         QPainter p(this);
@@ -146,6 +176,186 @@ protected:
         StyleHelper::drawCardBg(
             &p, rect(), QBrush(), creatorColor(Theme::Token_Foreground_Muted), RadiusS);
     }
+};
+
+// Plain text editor with the same font/color setup as the chat input.
+class ContextTextEdit : public TextEditor::TextEditorWidget
+{
+public:
+    explicit ContextTextEdit(const QString &placeholder, QWidget *parent = nullptr)
+        : TextEditor::TextEditorWidget(parent)
+    {
+        using namespace TextEditor;
+        setupFallBackEditor(Utils::Id("AcpClient.ContextEdit"));
+        setTabChangesFocus(true);
+        setPlaceholderText(placeholder);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        setFrameShape(QFrame::NoFrame);
+        setHighlightCurrentLine(false);
+        setLineNumbersVisible(false);
+        setMarksVisible(false);
+        setMinimapVisible(false);
+
+        auto applyWidgetColors = [this] {
+            FontSettingsData fontSettings = textDocument()->fontSettings();
+            const QFont appFont = QApplication::font();
+            fontSettings.setFamily(appFont.family());
+            fontSettings.setFontSize(appFont.pointSize());
+            fontSettings.setFontZoom(100);
+            fontSettings.formatFor(C_TEXT).setForeground(creatorColor(Theme::Token_Text_Default));
+            fontSettings.formatFor(C_TEXT).setBackground(creatorColor(Theme::Token_Background_Subtle));
+            fontSettings.formatFor(C_DISABLED_CODE).setForeground(creatorColor(Theme::Token_Text_Subtle));
+            fontSettings.formatFor(C_DISABLED_CODE).setBackground(creatorColor(Theme::Token_Background_Subtle));
+            textDocument()->setFontSettings(fontSettings);
+        };
+        applyWidgetColors();
+        connect(textDocument(), &TextEditor::TextDocument::fontSettingsChanged, this, applyWidgetColors);
+    }
+
+    // Pin the widget to a fixed number of text lines (used for the name editor).
+    void setFixedLineCount(int lines)
+    {
+        const int docMargin = static_cast<int>(document()->documentMargin());
+        setFixedHeight(fontMetrics().lineSpacing() * lines + 2 * docMargin);
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    }
+
+    // Grow with the content between [minLines, maxLines] visible text lines.
+    void setAutoHeightLineRange(int minLines, int maxLines)
+    {
+        m_minLines = minLines;
+        m_maxLines = maxLines;
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        connect(this, &TextEditor::TextEditorWidget::textChanged, this, [this] { updateHeight(); });
+        updateHeight();
+    }
+
+    void updateHeight()
+    {
+        if (m_maxLines <= 0)
+            return;
+
+        auto block = document()->firstBlock();
+        int lineCount = 0;
+        while (block.isValid() && lineCount < m_maxLines) {
+            editorLayout()->ensureBlockLayout(block);
+            lineCount += editorLayout()->blockLineCount(block);
+            block = block.next();
+        }
+        lineCount = std::clamp(lineCount, m_minLines, m_maxLines);
+        const bool limitHeight = lineCount >= m_maxLines;
+        setVerticalScrollBarPolicy(limitHeight ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff);
+
+        const QMargins cm = contentsMargins();
+        const int docMargin = static_cast<int>(document()->documentMargin());
+        const int h = fontMetrics().lineSpacing() * lineCount
+                      + cm.top() + cm.bottom() + 2 * docMargin + 2 * frameWidth();
+        setFixedHeight(h);
+    }
+
+    void setDisplaySettings(const TextEditor::DisplaySettingsData &settings) override
+    {
+        TextEditor::DisplaySettingsData overridden = settings;
+        overridden.m_visualizeWhitespace = false;
+        overridden.m_visualizeIndent = false;
+        overridden.m_textWrapping = true;
+        overridden.m_scrollBarHighlights = false;
+        overridden.m_centerCursorOnScroll = false;
+        TextEditorWidget::setDisplaySettings(overridden);
+    }
+
+    void setMarginSettings(const TextEditor::MarginSettingsData &settings) override
+    {
+        TextEditor::MarginSettingsData overridden = settings;
+        overridden.m_showMargin = false;
+        overridden.m_useIndenter = false;
+        TextEditorWidget::setMarginSettings(overridden);
+    }
+
+protected:
+    int extraAreaWidth(int * = nullptr) const override { return 0; }
+
+private:
+    int m_minLines = 0;
+    int m_maxLines = 0;
+};
+
+// Inline editor for a named plain-text context. Styled like the input
+// container and shown above it while adding or modifying a text context.
+class TextContextEditor : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit TextContextEditor(QWidget *parent = nullptr) : QWidget(parent)
+    {
+        auto *layout = new QVBoxLayout(this);
+        layout->setContentsMargins(PaddingHM, PaddingVM, PaddingHM, PaddingVM);
+        layout->setSpacing(GapVXs);
+
+        m_nameEdit = new ContextTextEdit(Tr::tr("Name"));
+        m_nameEdit->setFixedLineCount(1);
+        layout->addWidget(m_nameEdit);
+
+        auto *hr = new QFrame;
+        hr->setFrameShape(QFrame::HLine);
+        hr->setFrameShadow(QFrame::Plain);
+        hr->setFixedHeight(1);
+        QPalette pal = hr->palette();
+        pal.setColor(QPalette::WindowText, creatorColor(Theme::Token_Foreground_Muted));
+        hr->setPalette(pal);
+        layout->addWidget(hr);
+
+        m_textEdit = new ContextTextEdit(Tr::tr("Context"));
+        m_textEdit->setAutoHeightLineRange(4, 12);
+        layout->addWidget(m_textEdit);
+
+        auto *buttonRow = new QWidget;
+        auto *buttonLayout = new QHBoxLayout(buttonRow);
+        buttonLayout->setContentsMargins(0, 0, 0, 0);
+        buttonLayout->setSpacing(GapHS);
+        buttonLayout->addStretch(1);
+
+        auto *cancelButton = new QtcButton(Tr::tr("Cancel"), QtcButton::MediumTertiary);
+        buttonLayout->addWidget(cancelButton);
+        auto *saveButton = new QtcButton(Tr::tr("Save"), QtcButton::MediumPrimary);
+        buttonLayout->addWidget(saveButton);
+        layout->addWidget(buttonRow);
+
+        connect(cancelButton, &QAbstractButton::clicked, this, &TextContextEditor::cancelled);
+        connect(saveButton, &QAbstractButton::clicked, this, [this] {
+            emit saved(m_nameEdit->toPlainText().trimmed(), m_textEdit->toPlainText());
+        });
+    }
+
+    void setContext(const QString &name, const QString &text)
+    {
+        m_nameEdit->setPlainText(name);
+        m_textEdit->setPlainText(text);
+    }
+
+    void focusName() { m_nameEdit->setFocus(); }
+
+signals:
+    void saved(const QString &name, const QString &text);
+    void cancelled();
+
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        StyleHelper::drawCardBg(
+            &p,
+            rect(),
+            creatorColor(Theme::Token_Background_Subtle),
+            creatorColor(Theme::Token_Foreground_Muted),
+            RadiusM);
+    }
+
+private:
+    ContextTextEdit *m_nameEdit;
+    ContextTextEdit *m_textEdit;
 };
 
 ChatPanel::ChatPanel(QWidget *parent)
@@ -234,6 +444,11 @@ ChatPanel::ChatPanel(QWidget *parent)
             }
         });
 
+        auto *addTextAction = menu->addAction(Tr::tr("Add Text..."));
+        connect(addTextAction, &QAction::triggered, this, [this] {
+            showTextContextEditor(-1);
+        });
+
         if (!m_includeCurrentEditorContext) {
             menu->addSeparator();
             auto *action = menu->addAction(Tr::tr("Current Editor"));
@@ -287,6 +502,29 @@ ChatPanel::ChatPanel(QWidget *parent)
 
     inputContainerLayout->addWidget(bottomRow);
 
+    m_textContextEditor = new TextContextEditor;
+    m_textContextEditor->hide();
+    connect(m_textContextEditor, &TextContextEditor::saved, this,
+            [this](const QString &name, const QString &text) {
+        const bool editing = m_editingTextContextIndex >= 0
+                             && m_editingTextContextIndex < m_textContexts.size();
+        if (text.isEmpty()) {
+            if (editing)
+                m_textContexts.removeAt(m_editingTextContextIndex);
+        } else {
+            const QString n = name.isEmpty() ? Tr::tr("Text") : name;
+            if (editing)
+                m_textContexts[m_editingTextContextIndex] = {n, text};
+            else
+                m_textContexts.append({n, text});
+        }
+        hideTextContextEditor();
+        updateContextBar();
+    });
+    connect(m_textContextEditor, &TextContextEditor::cancelled, this,
+            [this] { hideTextContextEditor(); });
+
+    inputOuterLayout->addWidget(m_textContextEditor);
     inputOuterLayout->addWidget(inputContainer);
     layout->addWidget(inputOuter);
 
@@ -608,10 +846,14 @@ void ChatPanel::updateContextBar()
             Utils::FilePath filePath = editor->document()->filePath();
             if (!filePath.isEmpty()) {
                 const QString name = filePath.fileName();
-                auto *item = new ContextItem(name, m_contextBar);
-                connect(item, &ContextItem::removeRequested, this, [this, name] {
+                auto *item = new ContextItem(
+                    name, FileIconProvider::icon(filePath), m_contextBar);
+                connect(item, &ContextItem::removeRequested, this, [this] {
                     m_includeCurrentEditorContext = false;
                     QMetaObject::invokeMethod(this, [this] { updateContextBar(); }, Qt::QueuedConnection);
+                });
+                connect(item, &ContextItem::clicked, this, [filePath] {
+                    Core::EditorManager::openEditor(filePath);
                 });
                 m_contextBarLayout->addWidget(item);
             }
@@ -619,15 +861,50 @@ void ChatPanel::updateContextBar()
     }
 
     for (const Utils::FilePath &file : std::as_const(m_manualContextFiles)) {
-        auto *item = new ContextItem(file.fileName(), m_contextBar);
+        auto *item = new ContextItem(file.fileName(), FileIconProvider::icon(file), m_contextBar);
         connect(item, &ContextItem::removeRequested, this, [this, file] {
             m_manualContextFiles.removeOne(file);
             QMetaObject::invokeMethod(this, [this] { updateContextBar(); }, Qt::QueuedConnection);
+        });
+        connect(item, &ContextItem::clicked, this, [file] {
+            Core::EditorManager::openEditor(file);
+        });
+        m_contextBarLayout->addWidget(item);
+    }
+
+    for (int i = 0; i < m_textContexts.size(); ++i) {
+        auto *item = new ContextItem(
+            m_textContexts.at(i).name, Core::Icons::MODE_EDIT_FLAT.icon(), m_contextBar);
+        connect(item, &ContextItem::removeRequested, this, [this, i] {
+            m_textContexts.removeAt(i);
+            QMetaObject::invokeMethod(this, [this] { updateContextBar(); }, Qt::QueuedConnection);
+        });
+        connect(item, &ContextItem::clicked, this, [this, i] {
+            showTextContextEditor(i);
         });
         m_contextBarLayout->addWidget(item);
     }
 
     m_contextBar->setVisible(m_contextBarLayout->count() > 0);
+}
+
+void ChatPanel::showTextContextEditor(int index)
+{
+    m_editingTextContextIndex = index;
+    if (index >= 0 && index < m_textContexts.size()) {
+        const TextContext &ctx = m_textContexts.at(index);
+        m_textContextEditor->setContext(ctx.name, ctx.text);
+    } else {
+        m_textContextEditor->setContext({}, {});
+    }
+    m_textContextEditor->show();
+    m_textContextEditor->focusName();
+}
+
+void ChatPanel::hideTextContextEditor()
+{
+    m_editingTextContextIndex = -1;
+    m_textContextEditor->hide();
 }
 
 } // namespace AcpClient::Internal
