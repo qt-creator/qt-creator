@@ -486,16 +486,6 @@ private:
     const FilePath m_lastPath;
 };
 
-// Needed with older gcc.
-template<template<typename...> class C = QList, // result container
-         typename F> // Arguments to C
-Q_REQUIRED_RESULT
-    auto transform(const FilePaths &container, F function)
-{
-    return transform<C, const QList<FilePath> &>(static_cast<QList<FilePath>>(container), function);
-}
-
-
 // For testing
 QTCREATOR_UTILS_EXPORT
 QString doCleanPath(const QString &input, bool normalizeMacroContainingPaths = false);
