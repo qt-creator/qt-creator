@@ -375,6 +375,10 @@ public:
             // empty lists as "false" and convert them back when loading.
             if (valueToSave.value<QStringList>().isEmpty())
                 return QVariant(false);
+        } else if constexpr (std::is_same_v<ValueType, Id>) {
+            // Id holds a process-local handle, not the string, and has no QVariant converter.
+            // Store its persistent string form so it round-trips through QSettings.
+            return valueToSave.value<Id>().toSetting();
         }
         return valueToSave;
     }
@@ -383,6 +387,8 @@ public:
         if constexpr (std::is_same_v<ValueType, QStringList>) {
             if (savedValue.typeId() == QMetaType::Bool && !savedValue.toBool())
                 return QVariant(QStringList());
+        } else if constexpr (std::is_same_v<ValueType, Id>) {
+            return QVariant::fromValue(Id::fromSetting(savedValue));
         }
         return savedValue;
     }
@@ -1022,9 +1028,6 @@ class QTCREATOR_UTILS_EXPORT IdAspect : public TypedAspect<Id>
 
 public:
     using TypedAspect::TypedAspect;
-
-    void fromMap(const Store &map) override;
-    void toMap(Store &map) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
