@@ -9,7 +9,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
-#include <utils/filenamevalidatinglineedit.h>
+#include <utils/fancylineedit.h>
 #include <utils/persistentsettings.h>
 
 #include <QDirIterator>

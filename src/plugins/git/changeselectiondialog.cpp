@@ -10,7 +10,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/ansiescapecodehandler.h>
-#include <utils/completinglineedit.h>
+#include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>

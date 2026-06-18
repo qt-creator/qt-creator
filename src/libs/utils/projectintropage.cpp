@@ -5,7 +5,6 @@
 
 #include "algorithm.h"
 #include "fancylineedit.h"
-#include "filenamevalidatinglineedit.h"
 #include "fileutils.h"
 #include "infolabel.h"
 #include "layoutbuilder.h"

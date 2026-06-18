@@ -28,11 +28,9 @@ add_qtc_library(Utils
     categorysortfiltermodel.cpp categorysortfiltermodel.h
     changeset.cpp changeset.h
     checkablemessagebox.cpp checkablemessagebox.h
-    classnamevalidatinglineedit.cpp classnamevalidatinglineedit.h
     clangutils.cpp clangutils.h
     codegeneration.cpp codegeneration.h
     commandline.cpp commandline.h
-    completinglineedit.cpp completinglineedit.h
     completingtextedit.cpp completingtextedit.h
     covariantcallback.h
     cpplanguage_details.h
@@ -65,7 +63,6 @@ add_qtc_library(Utils
     fancymainwindow.cpp fancymainwindow.h
     filecrumblabel.cpp filecrumblabel.h
     fileinprojectfinder.cpp fileinprojectfinder.h
-    filenamevalidatinglineedit.cpp filenamevalidatinglineedit.h
     filepath.cpp filepath.h
     filepathinfo.h
     filesearch.cpp filesearch.h

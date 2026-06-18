@@ -5,8 +5,7 @@
 
 #include "../designertr.h"
 
-#include <utils/classnamevalidatinglineedit.h>
-#include <utils/filenamevalidatinglineedit.h>
+#include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 

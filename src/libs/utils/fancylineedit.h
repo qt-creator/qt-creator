@@ -5,12 +5,12 @@
 
 #include "utils_global.h"
 
-#include "completinglineedit.h"
 #include "result.h"
 #include "storekey.h"
 
 #include <QAbstractButton>
 #include <QFuture>
+#include <QLineEdit>
 
 #include <functional>
 
@@ -20,6 +20,18 @@ class QKeySequence;
 QT_END_NAMESPACE
 
 namespace Utils {
+
+class QTCREATOR_UTILS_EXPORT CompletingLineEdit : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    using QLineEdit::QLineEdit;
+
+protected:
+    bool event(QEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
+};
 
 class FancyLineEditPrivate;
 
@@ -141,6 +153,94 @@ private:
     friend class FancyLineEditPrivate;
 
     FancyLineEditPrivate *d;
+};
+
+struct ClassNameValidatingLineEditPrivate;
+
+class QTCREATOR_UTILS_EXPORT ClassNameValidatingLineEdit : public FancyLineEdit
+{
+    Q_OBJECT
+    Q_PROPERTY(bool namespacesEnabled READ namespacesEnabled WRITE setNamespacesEnabled DESIGNABLE true)
+    Q_PROPERTY(bool lowerCaseFileName READ lowerCaseFileName WRITE setLowerCaseFileName)
+
+public:
+    explicit ClassNameValidatingLineEdit(QWidget *parent = nullptr);
+    ~ClassNameValidatingLineEdit() override;
+
+    bool namespacesEnabled() const;
+    void setNamespacesEnabled(bool b);
+
+    QString namespaceDelimiter();
+    void setNamespaceDelimiter(const QString &delimiter);
+
+    bool lowerCaseFileName() const;
+    void setLowerCaseFileName(bool v);
+
+    bool forceFirstCapitalLetter() const;
+    void setForceFirstCapitalLetter(bool b);
+
+    // Clean an input string to get a valid class name.
+    static QString createClassName(const QString &name);
+
+signals:
+    // Will be emitted with a suggestion for a base name of the
+    // source/header file of the class.
+    void updateFileName(const QString &t);
+
+protected:
+    Result<> validateClassName(const QString &text) const;
+    void handleChanged(const QString &t) override;
+    QString fixInputString(const QString &string) override;
+
+private:
+    void updateRegExp() const;
+
+    ClassNameValidatingLineEditPrivate *d;
+};
+
+class QTCREATOR_UTILS_EXPORT FileNameValidatingLineEdit : public FancyLineEdit
+{
+    Q_OBJECT
+    Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
+    Q_PROPERTY(QStringList requiredExtensions READ requiredExtensions WRITE setRequiredExtensions)
+    Q_PROPERTY(bool forceFirstCapitalLetter READ forceFirstCapitalLetter WRITE setForceFirstCapitalLetter)
+
+public:
+    explicit FileNameValidatingLineEdit(QWidget *parent = nullptr);
+
+    static Result<> validateFileName(const QString &name, bool allowDirectories = false);
+
+    static Result<> validateFileNameExtension(const QString &name,
+                                              const QStringList &requiredExtensions = {});
+
+    /**
+     * Sets whether entering directories is allowed. This will enable the user
+     * to enter slashes in the filename. Default is off.
+     */
+    bool allowDirectories() const;
+    void setAllowDirectories(bool v);
+
+    /**
+     * Sets whether the first letter is forced to be a capital letter
+     * Default is off.
+     */
+    bool forceFirstCapitalLetter() const;
+    void setForceFirstCapitalLetter(bool b);
+
+    /**
+     * Sets a requred extension. If the extension is empty no extension is required.
+     * Default is empty.
+     */
+    QStringList requiredExtensions() const;
+    void setRequiredExtensions(const QStringList &extensionList);
+
+protected:
+    QString fixInputString(const QString &string) override;
+
+private:
+    bool m_allowDirectories;
+    QStringList m_requiredExtensionList;
+    bool m_forceFirstCapitalLetter;
 };
 
 } // namespace Utils

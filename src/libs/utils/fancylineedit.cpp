@@ -15,13 +15,16 @@
 
 #include <solutions/spinner/spinner.h>
 
+#include <QAbstractItemView>
 #include <QApplication>
 #include <qapplicationstatic.h>
+#include <QCompleter>
 #include <QFutureWatcher>
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QMenu>
 #include <QPropertyAnimation>
+#include <QRegularExpression>
 #include <QShortcut>
 #include <QStyle>
 #include <QStyleOptionFocusRect>
@@ -61,8 +64,27 @@
 
     A visible hint text results validation to be in state 'DisplayingInitialText',
     which is not valid, but is not marked red.
-
  */
+
+/*!
+    \class Utils::ClassNameValidatingLineEdit
+    \inmodule QtCreator
+
+    \brief The ClassNameValidatingLineEdit class implements a line edit that
+    validates a C++ class name and emits a signal
+    to derive suggested file names from it.
+*/
+
+/*!
+  \class Utils::FileNameValidatingLineEdit
+  \inmodule QtCreator
+
+  \brief The FileNameValidatingLineEdit class is a control that lets the user
+  choose a (base) file name, based on a QLineEdit.
+
+  The class has
+   some validation logic for embedding into QWizardPage.
+*/
 
 enum { margin = 6 };
 
@@ -92,6 +114,35 @@ private:
 };
 Q_APPLICATION_STATIC(CompletionShortcut, completionShortcut)
 
+bool CompletingLineEdit::event(QEvent *e)
+{
+    // workaround for QTCREATORBUG-9453
+    if (e->type() == QEvent::ShortcutOverride) {
+        if (QCompleter *comp = completer()) {
+            if (comp->popup() && comp->popup()->isVisible()) {
+                auto ke = static_cast<QKeyEvent *>(e);
+                if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+                    ke->accept();
+                    return true;
+                }
+            }
+        }
+    }
+    return QLineEdit::event(e);
+}
+
+void CompletingLineEdit::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Down && !(e->modifiers() & ~Qt::KeypadModifier)) {
+        if (QCompleter *comp = completer()) {
+            if (!comp->popup()->isVisible()) {
+                comp->complete();
+                return;
+            }
+        }
+    }
+    QLineEdit::keyPressEvent(e);
+}
 
 // --------- FancyLineEditPrivate
 class FancyLineEditPrivate : public QObject
@@ -667,6 +718,297 @@ void FancyLineEdit::validate()
 QString FancyLineEdit::fixInputString(const QString &string)
 {
     return string;
+}
+
+// Match something like "Namespace1::Namespace2::ClassName".
+
+struct ClassNameValidatingLineEditPrivate
+{
+    QRegularExpression m_nameRegexp;
+    QString m_namespaceDelimiter{"::"};
+    bool m_namespacesEnabled = false;
+    bool m_lowerCaseFileName = true;
+    bool m_forceFirstCapitalLetter = false;
+};
+
+// --------------------- ClassNameValidatingLineEdit
+ClassNameValidatingLineEdit::ClassNameValidatingLineEdit(QWidget *parent) :
+    FancyLineEdit(parent),
+    d(new ClassNameValidatingLineEditPrivate)
+{
+    setValidationFunction([this](const QString &text) { return validateClassName(text); });
+    updateRegExp();
+}
+
+ClassNameValidatingLineEdit::~ClassNameValidatingLineEdit()
+{
+    delete d;
+}
+
+bool ClassNameValidatingLineEdit::namespacesEnabled() const
+{
+    return d->m_namespacesEnabled;
+}
+
+void ClassNameValidatingLineEdit::setNamespacesEnabled(bool b)
+{
+    d->m_namespacesEnabled = b;
+}
+
+/**
+ * @return Language-specific namespace delimiter, e.g. '::' or '.'
+ */
+QString ClassNameValidatingLineEdit::namespaceDelimiter()
+{
+    return d->m_namespaceDelimiter;
+}
+
+/**
+ * @brief Sets language-specific namespace delimiter, e.g. '::' or '.'
+ * Do not use identifier characters in delimiter
+ */
+void ClassNameValidatingLineEdit::setNamespaceDelimiter(const QString &delimiter)
+{
+    d->m_namespaceDelimiter = delimiter;
+}
+
+Result<> ClassNameValidatingLineEdit::validateClassName(const QString &text) const
+{
+    QTC_ASSERT(d->m_nameRegexp.isValid(), return ResultError(ResultAssert));
+
+    if (!d->m_namespacesEnabled && text.contains(d->m_namespaceDelimiter))
+        return ResultError(Tr::tr("The class name must not contain namespace delimiters."));
+
+    if (text.isEmpty())
+        return ResultError(Tr::tr("Please enter a class name."));
+
+    if (!d->m_nameRegexp.match(text).hasMatch())
+        return ResultError(Tr::tr("The class name contains invalid characters."));
+
+    return ResultOk;
+}
+
+void ClassNameValidatingLineEdit::handleChanged(const QString &t)
+{
+    if (isValid()) {
+        // Suggest file names, strip namespaces
+        QString fileName = d->m_lowerCaseFileName ? t.toLower() : t;
+        if (d->m_namespacesEnabled) {
+            const int namespaceIndex = fileName.lastIndexOf(d->m_namespaceDelimiter);
+            if (namespaceIndex != -1)
+                fileName.remove(0, namespaceIndex + d->m_namespaceDelimiter.size());
+        }
+        emit updateFileName(fileName);
+    }
+}
+
+QString ClassNameValidatingLineEdit::fixInputString(const QString &string)
+{
+    if (!forceFirstCapitalLetter())
+        return string;
+
+    QString fixedString = string;
+    if (!string.isEmpty() && string.at(0).isLower())
+        fixedString[0] = string.at(0).toUpper();
+
+    return fixedString;
+}
+
+void ClassNameValidatingLineEdit::updateRegExp() const
+{
+    const QString pattern = "^%1(%2%1)*$";
+    d->m_nameRegexp.setPattern(pattern.arg(QString("[a-zA-Z_][a-zA-Z0-9_]*"),
+                                           QRegularExpression::escape(d->m_namespaceDelimiter)));
+}
+
+QString ClassNameValidatingLineEdit::createClassName(const QString &name)
+{
+    // Remove spaces and convert the adjacent characters to uppercase
+    QString className = name;
+    static const QRegularExpression spaceMatcher(" +(\\w)");
+    QTC_CHECK(spaceMatcher.isValid());
+    while (true) {
+        const QRegularExpressionMatch match = spaceMatcher.match(className);
+        if (!match.hasMatch())
+            break;
+        className.replace(match.capturedStart(), match.capturedLength(), match.captured(1).toUpper());
+    }
+
+    // Filter out any remaining invalid characters
+    static const QRegularExpression regexp("[^a-zA-Z0-9_]");
+    className.remove(regexp);
+
+    // If the first character is numeric, prefix the name with a "_"
+    if (className.at(0).isNumber()) {
+        className.prepend(QLatin1Char('_'));
+    } else {
+        // Convert the first character to uppercase
+        className.replace(0, 1, className.left(1).toUpper());
+    }
+
+    return className;
+}
+
+bool ClassNameValidatingLineEdit::lowerCaseFileName() const
+{
+    return d->m_lowerCaseFileName;
+}
+
+void ClassNameValidatingLineEdit::setLowerCaseFileName(bool v)
+{
+    d->m_lowerCaseFileName = v;
+}
+
+bool ClassNameValidatingLineEdit::forceFirstCapitalLetter() const
+{
+    return d->m_forceFirstCapitalLetter;
+}
+
+void ClassNameValidatingLineEdit::setForceFirstCapitalLetter(bool b)
+{
+    d->m_forceFirstCapitalLetter = b;
+}
+
+#define WINDOWS_DEVICES_PATTERN "(CON|AUX|PRN|NUL|COM[1-9]|LPT[1-9])(\\..*)?"
+
+// Naming a file like a device name will break on Windows, even if it is
+// "com1.txt". Since we are cross-platform, we generally disallow such file
+//  names.
+static const QRegularExpression &windowsDeviceNoSubDirPattern()
+{
+    static const QRegularExpression rc(QString("^" WINDOWS_DEVICES_PATTERN "$"),
+                                       QRegularExpression::CaseInsensitiveOption);
+    QTC_ASSERT(rc.isValid(), return rc);
+    return rc;
+}
+
+static const QRegularExpression &windowsDeviceSubDirPattern()
+{
+    static const QRegularExpression rc(QString("^.*[/\\\\]" WINDOWS_DEVICES_PATTERN "$"),
+                                       QRegularExpression::CaseInsensitiveOption);
+    QTC_ASSERT(rc.isValid(), return rc);
+    return rc;
+}
+
+// ----------- FileNameValidatingLineEdit
+FileNameValidatingLineEdit::FileNameValidatingLineEdit(QWidget *parent) :
+    FancyLineEdit(parent),
+    m_allowDirectories(false),
+    m_forceFirstCapitalLetter(false)
+{
+    setValidationFunction([this](const QString &text) {
+        if (const Result<> res = validateFileNameExtension(text, requiredExtensions()); !res)
+            return res;
+        if (const Result<> res = validateFileName(text, allowDirectories()); !res)
+            return res;
+        return ResultOk;
+    });
+}
+
+bool FileNameValidatingLineEdit::allowDirectories() const
+{
+    return m_allowDirectories;
+}
+
+void FileNameValidatingLineEdit::setAllowDirectories(bool v)
+{
+    m_allowDirectories = v;
+}
+
+bool FileNameValidatingLineEdit::forceFirstCapitalLetter() const
+{
+    return m_forceFirstCapitalLetter;
+}
+
+void FileNameValidatingLineEdit::setForceFirstCapitalLetter(bool b)
+{
+    m_forceFirstCapitalLetter = b;
+}
+
+/* Validate a file base name, check for forbidden characters/strings. */
+
+#define SLASHES "/\\"
+
+Result<> FileNameValidatingLineEdit::validateFileName(const QString &name, bool allowDirectories)
+{
+    static const char notAllowedCharsSubDir[]   = ",^@={}[]~!?:&*\"|#%<>$\"'();`' ";
+    static const char notAllowedCharsNoSubDir[] = ",^@={}[]~!?:&*\"|#%<>$\"'();`' " SLASHES;
+
+    static const char *notAllowedSubStrings[] = {".."};
+
+    if (name.isEmpty())
+        return ResultError(Tr::tr("Name is empty."));
+
+    // Characters
+    const char *notAllowedChars = allowDirectories ? notAllowedCharsSubDir : notAllowedCharsNoSubDir;
+    for (const char *c = notAllowedChars; *c; c++) {
+        if (name.contains(QLatin1Char(*c))) {
+            const QChar qc = QLatin1Char(*c);
+            if (qc.isSpace())
+                return ResultError(Tr::tr("Name contains white space."));
+            return ResultError(Tr::tr("Invalid character \"%1\".").arg(qc));
+        }
+    }
+
+    // Substrings
+    for (const char * const s : notAllowedSubStrings) {
+        const QLatin1String notAllowedSubString(s);
+        if (name.contains(notAllowedSubString))
+            return ResultError(Tr::tr("Invalid characters \"%1\".").arg(QString(notAllowedSubString)));
+    }
+
+    // Windows devices
+    bool matchesWinDevice = name.contains(windowsDeviceNoSubDirPattern());
+    if (!matchesWinDevice && allowDirectories)
+        matchesWinDevice = name.contains(windowsDeviceSubDirPattern());
+    if (matchesWinDevice) {
+        return ResultError(Tr::tr("Name matches MS Windows device"
+                                  " (CON, AUX, PRN, NUL,"
+                                  " COM1, COM2, ..., COM9,"
+                                  " LPT1, LPT2, ..., LPT9)"));
+    }
+    return ResultOk;
+}
+
+QString FileNameValidatingLineEdit::fixInputString(const QString &string)
+{
+    if (!forceFirstCapitalLetter())
+        return string;
+
+    QString fixedString = string;
+    if (!string.isEmpty() && string.at(0).isLower())
+        fixedString[0] = string.at(0).toUpper();
+
+    return fixedString;
+}
+
+Result<> FileNameValidatingLineEdit::validateFileNameExtension(const QString &fileName,
+                                                               const QStringList &requiredExtensions)
+{
+    // file extension
+    if (requiredExtensions.isEmpty())
+        return ResultOk;
+
+    for (const QString &requiredExtension : requiredExtensions) {
+        QString extension = QLatin1Char('.') + requiredExtension;
+        if (fileName.endsWith(extension, Qt::CaseSensitive) && extension.size() < fileName.size())
+            return ResultOk;
+    }
+
+    if (requiredExtensions.size() == 1)
+        return ResultError(Tr::tr("File extension %1 is required:").arg(requiredExtensions.first()));
+
+    return ResultError(Tr::tr("File extensions %1 are required:").arg(requiredExtensions.join(", ")));
+}
+
+QStringList FileNameValidatingLineEdit::requiredExtensions() const
+{
+    return m_requiredExtensionList;
+}
+
+void FileNameValidatingLineEdit::setRequiredExtensions(const QStringList &extensions)
+{
+    m_requiredExtensionList = extensions;
 }
 
 } // namespace Utils

@@ -4,7 +4,7 @@
 #include "wizard.h"
 
 #include "algorithm.h"
-#include "filenamevalidatinglineedit.h"
+#include "fancylineedit.h"
 #include "filepath.h"
 #include "guiutils.h"
 #include "hostosinfo.h"
