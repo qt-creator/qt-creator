@@ -228,11 +228,22 @@ int main(int argc, char *argv[])
                 Utils::QtDesignWidgets::Label { text("Secondary label"), role(Utils::QtcLabel::Secondary) },
                 st,
             },
-            "QtcSearchBox:",
-            Utils::QtDesignWidgets::SearchBox {
-                placeholderText("Search example..."),
-                onTextChanged(qApp, [](const QString &text){ qDebug() << "Text:" << text; })
-            },
+            Row {
+                Column {
+                    "QtcLineEdit:",
+                    Utils::QtDesignWidgets::LineEdit {
+                        placeholderText("Enter name..."),
+                        onTextChanged(qApp, [](const QString &text){ qDebug() << "Text:" << text; })
+                    },
+                },
+                Column {
+                    "QtcSearchBox:",
+                    Utils::QtDesignWidgets::SearchBox {
+                        placeholderText("Search example..."),
+                        onTextChanged(qApp, [](const QString &text){ qDebug() << "Text:" << text; })
+                    },
+                },
+            }
         }
     }.emerge()->show();
     // clang-format on

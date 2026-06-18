@@ -111,6 +111,12 @@ QWidget *widgets()
         },
         Row {
             Group {
+                title("LineEdit"),
+                Column {
+                    new QtcLineEdit,
+                },
+            },
+            Group {
                 title("SearchBox"),
                 Column {
                     new QtcSearchBox,

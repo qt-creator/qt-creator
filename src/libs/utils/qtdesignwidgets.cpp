@@ -181,6 +181,19 @@ static int iconLabelGap(QtcButton::Role role)
     Q_UNREACHABLE_RETURN(-1);
 }
 
+
+static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget *w)
+{
+    const QBrush fill(creatorColor(Theme::Token_Background_Muted));
+    const Theme::Color c =
+        w->isEnabled() ? (w->hasFocus() ? Theme::Token_Stroke_Strong
+                                        : (w->underMouse() ? Theme::Token_Stroke_Muted
+                                                           : Theme::Token_Stroke_Subtle))
+                       : Theme::Token_Foreground_Subtle;
+    const QPen pen(creatorColor(c));
+    StyleHelper::drawCardBg(p, rect, fill, pen);
+}
+
 void QtcButton::paintEvent(QPaintEvent *event)
 {
     // Without pixmap
@@ -383,10 +396,69 @@ void QtcLabel::setRole(Role role)
     update();
 }
 
-constexpr TextFormat searchBoxTextTF
+constexpr TextFormat lineEditTextTF
     {Theme::Token_Text_Default, StyleHelper::UiElement::UiElementBody2};
-constexpr TextFormat searchBoxPlaceholderTF
-    {Theme::Token_Text_Muted, searchBoxTextTF.uiElement};
+constexpr TextFormat lineEditPlaceholderTF
+    {Theme::Token_Text_Muted, lineEditTextTF.uiElement};
+
+QtcLineEdit::QtcLineEdit(QWidget *parent)
+    : FancyLineEdit(parent)
+{
+    setAttribute(Qt::WA_MacShowFocusRect, false);
+    setAutoFillBackground(false);
+    setFont(lineEditTextTF.font());
+    setFrame(false);
+    setMouseTracking(true);
+
+    QPalette pal = palette();
+    pal.setColor(QPalette::Base, Qt::transparent);
+    pal.setColor(QPalette::Active, QPalette::PlaceholderText, lineEditPlaceholderTF.color());
+    pal.setColor(QPalette::Disabled, QPalette::PlaceholderText,
+                 creatorColor(Theme::Token_Text_Subtle));
+    pal.setColor(QPalette::Text, lineEditTextTF.color());
+    pal.setColor(QPalette::Disabled, QPalette::Text,
+                 creatorColor(Theme::Token_Text_Subtle));
+    setPalette(pal);
+
+    setContentsMargins({PaddingHM, PaddingVS, 0, PaddingVS});
+    setFixedHeight(PaddingVS + lineEditTextTF.lineHeight() + PaddingVS);
+}
+
+QSize QtcLineEdit::minimumSizeHint() const
+{
+    const QFontMetrics fm(lineEditTextTF.font());
+    const QSize textS = fm.size(Qt::TextSingleLine, text());
+    const QMargins margins = contentsMargins();
+    return {margins.left() + textS.width() + margins.right(),
+            margins.top() + lineEditTextTF.lineHeight() + margins.bottom()};
+}
+
+void QtcLineEdit::enterEvent(QEnterEvent *event)
+{
+    QLineEdit::enterEvent(event);
+    update();
+}
+
+void QtcLineEdit::leaveEvent(QEvent *event)
+{
+    QLineEdit::leaveEvent(event);
+    update();
+}
+
+void QtcLineEdit::paintEvent(QPaintEvent *event)
+{
+    // +-----------+-----------+-----------+
+    // |           |(PaddingVS)|           |
+    // |           +-----------+           |
+    // |(PaddingHM)| <lineEdit>|(PaddingHM)|
+    // |           +-----------+           |
+    // |           |(PaddingVS)|           |
+    // +-----------+-----------+-----------+
+
+    QPainter p(this);
+    paintCommonBackground(&p, rect(), this);
+    QLineEdit::paintEvent(event);
+}
 
 static const QPixmap &searchBoxIcon()
 {
@@ -396,74 +468,17 @@ static const QPixmap &searchBoxIcon()
 }
 
 QtcSearchBox::QtcSearchBox(QWidget *parent)
-    : Utils::FancyLineEdit(parent)
+    : QtcLineEdit(parent)
 {
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setAutoFillBackground(false);
-    setFont(searchBoxTextTF.font());
-    setFrame(false);
-    setMouseTracking(true);
-
-    QPalette pal = palette();
-    pal.setColor(QPalette::Base, Qt::transparent);
-    pal.setColor(QPalette::Active, QPalette::PlaceholderText, searchBoxPlaceholderTF.color());
-    pal.setColor(QPalette::Disabled, QPalette::PlaceholderText,
-                 creatorColor(Theme::Token_Text_Subtle));
-    pal.setColor(QPalette::Text, searchBoxTextTF.color());
-    setPalette(pal);
-
-    setContentsMargins({PaddingHM, PaddingVS, 0, PaddingVS});
-    setFixedHeight(PaddingVS + searchBoxTextTF.lineHeight() + PaddingVS);
     setFiltering(true);
-}
-
-QSize QtcSearchBox::minimumSizeHint() const
-{
-    const QFontMetrics fm(searchBoxTextTF.font());
-    const QSize textS = fm.size(Qt::TextSingleLine, text());
-    const QMargins margins = contentsMargins();
-    return {margins.left() + textS.width() + margins.right(),
-            margins.top() + searchBoxTextTF.lineHeight() + margins.bottom()};
-}
-
-void QtcSearchBox::enterEvent(QEnterEvent *event)
-{
-    QLineEdit::enterEvent(event);
-    update();
-}
-
-void QtcSearchBox::leaveEvent(QEvent *event)
-{
-    QLineEdit::leaveEvent(event);
-    update();
-}
-
-static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget *w)
-{
-    const QBrush fill(creatorColor(Theme::Token_Background_Muted));
-    const Theme::Color c =
-        w->isEnabled() ? (w->hasFocus() ? Theme::Token_Stroke_Strong
-                                        : (w->underMouse() ? Theme::Token_Stroke_Muted
-                                                           : Theme::Token_Stroke_Subtle))
-                       : Theme::Token_Foreground_Subtle;
-    const QPen pen(creatorColor(c));
-    StyleHelper::drawCardBg(p, rect, fill, pen);
 }
 
 void QtcSearchBox::paintEvent(QPaintEvent *event)
 {
-    // +-----------+-----------+-------+------+-----------+
-    // |           |(PaddingVS)|       |      |           |
-    // |           +-----------+       |      |           |
-    // |(PaddingHM)| <lineEdit>|(GapHM)|<icon>|(PaddingHM)|
-    // |           +-----------+       |      |           |
-    // |           |(PaddingVS)|       |      |           |
-    // +-----------+-----------+-------+------+-----------+
+    QtcLineEdit::paintEvent(event);
 
-    QPainter p(this);
-
-    paintCommonBackground(&p, rect(), this);
     if (text().isEmpty()) {
+        QPainter p(this);
         const QPixmap icon = searchBoxIcon();
         const QSize iconS = icon.deviceIndependentSize().toSize();
         const QPoint iconPos(width() - PaddingHM - iconS.width(), (height() - iconS.height()) / 2);
@@ -471,8 +486,6 @@ void QtcSearchBox::paintEvent(QPaintEvent *event)
             p.setOpacity(disabledIconOpacity);
         p.drawPixmap(iconPos, icon);
     }
-
-    QLineEdit::paintEvent(event);
 }
 
 constexpr TextFormat ComboBoxTf
@@ -1141,6 +1154,32 @@ void Label::setText(const QString &text)
 void Label::setRole(QtcLabel::Role role)
 {
     Layouting::Tools::access(this)->setRole(role);
+}
+
+LineEdit::LineEdit()
+{
+    ptr = new Implementation();
+}
+
+LineEdit::LineEdit(std::initializer_list<I> ps)
+    : LineEdit()
+{
+    Layouting::Tools::apply(this, ps);
+}
+
+void LineEdit::setPlaceholderText(const QString &text)
+{
+    Layouting::Tools::access(this)->setPlaceholderText(text);
+}
+
+void LineEdit::setText(const QString &text)
+{
+    Layouting::Tools::access(this)->setText(text);
+}
+
+void LineEdit::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
+{
+    QObject::connect(Layouting::Tools::access(this), &QtcLineEdit::textChanged, guard, func);
 }
 
 SearchBox::SearchBox()

@@ -69,16 +69,26 @@ public:
     void setRole(Role role);
 };
 
-class QTCREATOR_UTILS_EXPORT QtcSearchBox : public Utils::FancyLineEdit
+class QTCREATOR_UTILS_EXPORT QtcLineEdit : public FancyLineEdit
 {
 public:
-    explicit QtcSearchBox(QWidget *parent = nullptr);
+    explicit QtcLineEdit(QWidget *parent = nullptr);
+
     QSize minimumSizeHint() const override;
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void enterEvent(QEnterEvent *event) override;
-    void leaveEvent(QEvent *event) override;
+};
+
+class QTCREATOR_UTILS_EXPORT QtcSearchBox : public QtcLineEdit
+{
+public:
+    explicit QtcSearchBox(QWidget *parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
 };
 
 class QTCREATOR_UTILS_EXPORT QtcComboBox : public QComboBox
@@ -267,6 +277,20 @@ public:
     void setText(const QString &text);
     void setChecked(bool checked);
     void onClicked(QObject *guard, const std::function<void()> &);
+};
+
+class QTCREATOR_UTILS_EXPORT LineEdit : public Layouting::Widget
+{
+public:
+    using Implementation = QtcLineEdit;
+    using I = Building::BuilderItem<LineEdit>;
+
+    LineEdit();
+    LineEdit(std::initializer_list<I> ps);
+
+    void setPlaceholderText(const QString &text);
+    void setText(const QString &text);
+    void onTextChanged(QObject *guard, const std::function<void(QString)> &);
 };
 
 class QTCREATOR_UTILS_EXPORT SearchBox : public Layouting::Widget
