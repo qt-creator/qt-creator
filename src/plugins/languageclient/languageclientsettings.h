@@ -48,6 +48,8 @@ class LANGUAGECLIENT_EXPORT LanguageFilter
 public:
     QStringList mimeTypes;
     QStringList filePattern;
+    // mime types that are explicitly not supported, even if they inherit a supported mime type
+    QStringList excludeMimeTypes;
     bool isSupported(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupported(const Core::IDocument *document) const;
     bool operator==(const LanguageFilter &other) const;
@@ -69,6 +71,7 @@ public:
 
     Utils::StringAspect name{this};
     MimeTypesAspect mimeTypes{this};
+    MimeTypesAspect excludeMimeTypes{this};
     Utils::StringAspect filePattern{this};
     Utils::StringAspect id{this};
     Utils::IdAspect settingsTypeId{this};

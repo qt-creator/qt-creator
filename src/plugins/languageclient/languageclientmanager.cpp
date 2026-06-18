@@ -623,20 +623,26 @@ static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document
 
     const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
     if (mimeType.isValid()) {
+        // further prefilter to respect excludes
+        const QList<BaseSettings *> withoutExplictExcludes
+            = Utils::filtered(prefilteredSettings, [mimeType](BaseSettings *setting) {
+                return !setting->excludeMimeTypes().contains(mimeType.name());
+            });
+
         QList<BaseSettings *> result;
         // prefer exact mime type matches
-        result << Utils::filtered(prefilteredSettings, [mimeType](BaseSettings *setting) {
+        result << Utils::filtered(withoutExplictExcludes, [mimeType](BaseSettings *setting) {
             return setting->languageFilter().mimeTypes.contains(mimeType.name());
         });
 
         // add filePath matches next
-        result << Utils::filtered(prefilteredSettings, [document](BaseSettings *setting) {
+        result << Utils::filtered(withoutExplictExcludes, [document](BaseSettings *setting) {
             return setting->languageFilter().isSupported(document->filePath(), {});
         });
 
         // add parent mime type matches last
         Utils::visitMimeParents(mimeType, [&](const Utils::MimeType &mt) -> bool {
-            result << Utils::filtered(prefilteredSettings, [mt](BaseSettings *setting) {
+            result << Utils::filtered(withoutExplictExcludes, [mt](BaseSettings *setting) {
                 return setting->languageFilter().mimeTypes.contains(mt.name());
             });
             return true; // continue

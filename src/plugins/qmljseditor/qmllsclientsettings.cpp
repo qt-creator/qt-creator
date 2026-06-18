@@ -165,6 +165,7 @@ QmllsClientSettings::QmllsClientSettings()
     name.setValue(Constants::QMLLS_NAME);
 
     mimeTypes.setValue(supportedMimeTypes());
+    excludeMimeTypes.setValue({Utils::Constants::QBS_MIMETYPE});
 
     settingsTypeId.setValue(Constants::QMLLS_CLIENT_SETTINGS_ID);
     startBehavior.setValue(RequiresProject);
@@ -529,6 +530,7 @@ void QmllsClientSettings::fromMap(const Store &map)
 {
     BaseSettings::fromMap(map);
     mimeTypes.setValue(supportedMimeTypes());
+    excludeMimeTypes.setValue({Utils::Constants::QBS_MIMETYPE});
 
     // port from previous settings
     if (map.contains(useLatestQmllsKey))

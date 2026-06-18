@@ -578,6 +578,8 @@ BaseSettings::BaseSettings()
 
     mimeTypes.setSettingsKey("mimeType");
 
+    excludeMimeTypes.setSettingsKey("excludeMimeType");
+
     initializationOptions.setSettingsKey("initializationOptions");
     initializationOptions.setLabelText(Tr::tr("Initialization options:"));
     initializationOptions.setDisplayStyle(StringAspect::LineEditDisplay);
@@ -679,7 +681,7 @@ bool BaseSettings::isEnabledOnProject(Project *project) const
 
 const LanguageFilter BaseSettings::languageFilter() const
 {
-    return LanguageFilter{mimeTypes(), filePattern().split(filterSeparator)};
+    return LanguageFilter{mimeTypes(), filePattern().split(filterSeparator), excludeMimeTypes()};
 }
 
 Client *BaseSettings::createClient(BuildConfiguration *bc) const
@@ -936,16 +938,21 @@ BaseSettingsWidget::BaseSettingsWidget(
     // clang-format on
 }
 
+static bool inheritsAnyMimeType(const MimeType &mimeType, const QStringList &mimeTypes)
+{
+    return Utils::anyOf(mimeTypes, [mimeType](const QString &type) {
+        return mimeType.inherits(type);
+    });
+}
 
 bool LanguageFilter::isSupported(const FilePath &filePath, const QString &mimeTypeName) const
 {
-    if (!mimeTypes.isEmpty()) {
+    if (!mimeTypeName.isEmpty() && (!excludeMimeTypes.isEmpty() || !mimeTypes.isEmpty())) {
         const MimeType mimeType = Utils::mimeTypeForName(mimeTypeName);
-        if (Utils::anyOf(mimeTypes, [mimeType](const QString &supported) {
-                return mimeType.inherits(supported);
-            })) {
+        if (inheritsAnyMimeType(mimeType, excludeMimeTypes))
+            return false;
+        if (inheritsAnyMimeType(mimeType, mimeTypes))
             return true;
-        }
     }
     if (filePattern.isEmpty() && filePath.isEmpty())
         return mimeTypes.isEmpty();
@@ -966,7 +973,8 @@ bool LanguageFilter::isSupported(const Core::IDocument *document) const
 
 bool LanguageFilter::operator==(const LanguageFilter &other) const
 {
-    return this->filePattern == other.filePattern && this->mimeTypes == other.mimeTypes;
+    return this->filePattern == other.filePattern && this->mimeTypes == other.mimeTypes
+           && this->excludeMimeTypes == other.excludeMimeTypes;
 }
 
 BaseTextEditor *createJsonEditor(QObject *parent)
