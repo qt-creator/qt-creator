@@ -34,7 +34,6 @@ add_subdirectory(qtcdebugger) ## windows only
 # add_subdirectory(qtcrashhandler)
 add_subdirectory(qtc-askpass)
 add_subdirectory(qtcreatorcrashhandler)
-# add_subdirectory(qtcreatorwidgets) ## qbs does not build this either
 add_subdirectory(qtpromaker)
 add_subdirectory(sdktool)
 add_subdirectory(valgrindfake)
