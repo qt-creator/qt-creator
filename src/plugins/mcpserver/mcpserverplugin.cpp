@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcpcommands.h"
+#include "mcplogcapture.h"
 #include "mcpserverconstants.h"
 #include "mcpserverinspector.h"
 #include "mcpservertr.h"
@@ -397,7 +398,15 @@ public:
         inspectAction.addToContainer(Core::Constants::M_TOOLS_DEBUG);
         inspectAction.addOnTriggered([this] { inspector.show(); });
 
+        LogCapture::instance().install();
+
         m_server.setInspector(&inspector);
+        m_server.setInstructions(
+            "File and directory tools accept both local paths and remote device paths in "
+            "Qt Creator's urlish form (e.g. ssh://user@host/path, docker://id/path); remote "
+            "access is handled transparently, so there is no need for device-specific file "
+            "tools. Use file_plain_text/set_file_plain_text for text and "
+            "read_file_bytes/write_file_bytes for binary content.");
         settings.readSettings();
 
         // Allow overriding the listen port from the command line, e.g. for
@@ -424,6 +433,7 @@ public:
     {
         // Initialize the server
         McpCommands::registerCommands();
+        registerLogTools();
         setupResources(this, m_server, &m_taskRunner);
     }
 

@@ -162,6 +162,8 @@ class ServerPrivate : public std::enable_shared_from_this<ServerPrivate>
     Schema::Implementation serverInfo;
 
 public:
+    QString instructions;
+
     ServerPrivate(Schema::Implementation serverInfo)
         : serverInfo(serverInfo)
     {
@@ -443,6 +445,9 @@ public:
                               .protocolVersion(negotiatedVersion)
                               .serverInfo(serverInfo)
                               .capabilities(caps);
+
+        if (!instructions.isEmpty())
+            initResult.instructions(instructions);
 
         qCDebug(mcpServerLog) << "Assigning session ID" << sessionId << "to new client";
         m_sessions.insert(
@@ -1617,6 +1622,11 @@ Server::Server(Schema::Implementation serverInfo)
 }
 
 Server::~Server() = default;
+
+void Server::setInstructions(const QString &instructions)
+{
+    d->instructions = instructions;
+}
 
 bool Server::bind(QTcpServer *server)
 {

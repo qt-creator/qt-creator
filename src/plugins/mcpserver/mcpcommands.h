@@ -30,6 +30,7 @@ public:
     bool openFile(const QString &path, int line = 0, int column = 0);
     QString getFilePlainText(const QString &path, int startLine = 0, int endLine = 0);
     QJsonObject setFilePlainText(const QString &path, const QString &contents);
+    QJsonObject writeFileContentsBase64(const QString &path, const QString &base64);
     bool saveFile(const QString &path);
     bool closeFile(const QString &path);
     bool reformatFile(const QString &path);

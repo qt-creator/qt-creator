@@ -3,6 +3,10 @@
 
 #include "buildconfiguration.h"
 #include "buildmanager.h"
+#include "devicesupport/devicemanager.h"
+#include "devicesupport/idevice.h"
+#include "devicesupport/idevicefactory.h"
+#include "devicesupport/sshparameters.h"
 #include "editorconfiguration.h"
 #include "issuesmanager.h"
 #include "kit.h"
@@ -30,21 +34,29 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/filepath.h>
 #include <utils/filesearch.h>
+#include <utils/id.h>
 #include <utils/mimeconstants.h>
 #include <utils/result.h>
+#include <utils/shutdownguard.h>
 
 #include <QElapsedTimer>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLoggingCategory>
 #include <QMap>
 #include <QPointer>
 #include <QRegularExpression>
 #include <QSet>
 #include <QString>
 #include <QStringList>
+#include <QTimer>
+#include <QUrl>
 
 using namespace Utils;
+
+Q_LOGGING_CATEGORY(mcpDevices, "qtc.projectexplorer.mcp", QtWarningMsg)
 
 namespace ProjectExplorer::Internal {
 
@@ -673,6 +685,102 @@ static void replaceInFiles(
     }
     FileListContainer fileContainer(encodings.keys(), encodings.values());
     mcpReplace(fileContainer, regex, caseSensitive, pattern, replacement, guard, callback);
+}
+
+// --- Device helpers --------------------------------------------------------
+
+static QString deviceStateString(IDevice::DeviceState state)
+{
+    switch (state) {
+    case IDevice::DeviceReadyToUse:
+        return "ready";
+    case IDevice::DeviceConnected:
+        return "connected";
+    case IDevice::DeviceDisconnected:
+        return "disconnected";
+    case IDevice::DeviceStateUnknown:
+        break;
+    }
+    return "unknown";
+}
+
+static QString hostKeyCheckingModeString(SshHostKeyCheckingMode mode)
+{
+    switch (mode) {
+    case SshHostKeyCheckingNone:
+        return "none";
+    case SshHostKeyCheckingStrict:
+        return "strict";
+    case SshHostKeyCheckingAllowNoMatch:
+        break;
+    }
+    return "allowNoMatch";
+}
+
+static SshHostKeyCheckingMode parseHostKeyCheckingMode(
+    const QString &s, SshHostKeyCheckingMode fallback)
+{
+    if (s == "none")
+        return SshHostKeyCheckingNone;
+    if (s == "strict")
+        return SshHostKeyCheckingStrict;
+    if (s == "allowNoMatch")
+        return SshHostKeyCheckingAllowNoMatch;
+    return fallback;
+}
+
+static QJsonObject deviceToJson(const IDevice::ConstPtr &device)
+{
+    const SshParameters ssh = device->sshParameters();
+    return QJsonObject{
+        {"id", device->id().toString()},
+        {"type", device->type().toString()},
+        {"displayName", device->displayName()},
+        {"displayType", device->displayType()},
+        {"state", deviceStateString(device->deviceState())},
+        {"rootPath", device->rootPath().toUrlishString()},
+        {"host", ssh.host()},
+        {"port", ssh.port()},
+        {"userName", ssh.userName()},
+        {"useKeyFile", ssh.authenticationType() == SshParameters::AuthenticationTypeSpecificKey},
+        {"privateKeyFile", ssh.privateKeyFile().toUserOutput()},
+        {"timeout", ssh.timeout()},
+        {"hostKeyCheckingMode", hostKeyCheckingModeString(ssh.hostKeyCheckingMode())},
+    };
+}
+
+// Overlays the SSH-related fields present in the JSON object onto a base parameter set,
+// so callers can update individual fields without resetting the others.
+static SshParameters mergeSshParameters(const SshParameters &base, const QJsonObject &params)
+{
+    SshParameters ssh = base;
+    if (params.contains("host"))
+        ssh.setHost(params.value("host").toString());
+    if (params.contains("port"))
+        ssh.setPort(params.value("port").toInt(ssh.port()));
+    if (params.contains("userName"))
+        ssh.setUserName(params.value("userName").toString());
+    if (params.contains("privateKeyFile"))
+        ssh.setPrivateKeyFile(FilePath::fromUserInput(params.value("privateKeyFile").toString()));
+    if (params.contains("useKeyFile")) {
+        ssh.setAuthenticationType(
+            params.value("useKeyFile").toBool() ? SshParameters::AuthenticationTypeSpecificKey
+                                                 : SshParameters::AuthenticationTypeAll);
+    }
+    if (params.contains("timeout"))
+        ssh.setTimeout(params.value("timeout").toInt(ssh.timeout()));
+    if (params.contains("hostKeyCheckingMode")) {
+        ssh.setHostKeyCheckingMode(parseHostKeyCheckingMode(
+            params.value("hostKeyCheckingMode").toString(), ssh.hostKeyCheckingMode()));
+    }
+    return ssh;
+}
+
+static void applySshParameters(const IDevice::Ptr &device, const QJsonObject &params)
+{
+    const SshParameters ssh = mergeSshParameters(device->sshParameters(), params);
+    device->sshParametersAspectContainer().setSshParameters(ssh);
+    device->sshParametersAspectContainer().apply();
 }
 
 void registerMcpTools()
@@ -1887,6 +1995,275 @@ void registerMcpTools()
                     .addRequired("configurations")),
         wrap([](const QJsonObject &) {
             return QJsonObject{{"configurations", getRunConfigurations()}};
+        }));
+
+    // --- Device management tools -------------------------------------------
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_devices")
+            .title("List configured devices")
+            .description(
+                "Lists all devices known to Qt Creator (ProjectExplorer::DeviceManager), with "
+                "their id, type, display name, connection state, and SSH parameters.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(Tool::InputSchema{})
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("devices", QJsonObject{{"type", "array"}})
+                    .addRequired("devices")),
+        wrap([](const QJsonObject &) {
+            QJsonArray devices;
+            DeviceManager::forEachDevice([&devices](const IDeviceConstPtr &device) {
+                devices.append(deviceToJson(device));
+            });
+            return QJsonObject{{"devices", devices}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("add_device")
+            .title("Add a device")
+            .description(
+                "Creates a new device of the given device-type id (e.g. 'GenericLinuxOsType') and "
+                "adds it to the DeviceManager, without going through the GUI wizard. 'params' sets "
+                "the SSH parameters (host, port, userName, privateKeyFile, useKeyFile, timeout, "
+                "hostKeyCheckingMode). Returns the new device id.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "type",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Device-type id, e.g. 'GenericLinuxOsType'. See the 'type' field of "
+                             "list_devices, or use list_device_types."}})
+                    .addProperty(
+                        "displayName",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Display name for the new device (optional)."}})
+                    .addProperty(
+                        "params",
+                        QJsonObject{
+                            {"type", "object"},
+                            {"description",
+                             "SSH parameters: host, port, userName, privateKeyFile, useKeyFile, "
+                             "timeout, hostKeyCheckingMode (none|strict|allowNoMatch)."}})
+                    .addRequired("type"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("id", QJsonObject{{"type", "string"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const Id typeId = Id::fromString(p.value("type").toString());
+            IDeviceFactory *factory = IDeviceFactory::find(typeId);
+            if (!factory)
+                return {{"success", false},
+                        {"error", QString("Unknown device type: " + p.value("type").toString())}};
+            if (!factory->canCreate())
+                return {{"success", false}, {"error", "Device type cannot be created programmatically."}};
+
+            IDevice::Ptr device = factory->construct();
+            if (!device)
+                return {{"success", false}, {"error", "Failed to construct device."}};
+
+            if (!device->id().isValid())
+                device->setupId(IDevice::ManuallyAdded);
+
+            const QString displayName = p.value("displayName").toString();
+            if (!displayName.isEmpty())
+                device->setDisplayName(displayName);
+
+            applySshParameters(device, p.value("params").toObject());
+
+            DeviceManager::addDevice(device);
+            qCInfo(mcpDevices) << "Added device" << device->id().toString()
+                               << "of type" << typeId.toString();
+            return {{"success", true}, {"id", device->id().toString()}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("set_device_parameters")
+            .title("Update device parameters")
+            .description(
+                "Updates the display name and/or SSH parameters of an existing device. Only the "
+                "fields present in 'params' are changed; others keep their current values.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "id",
+                        QJsonObject{{"type", "string"}, {"description", "Device id."}})
+                    .addProperty(
+                        "displayName",
+                        QJsonObject{{"type", "string"}, {"description", "New display name (optional)."}})
+                    .addProperty(
+                        "params",
+                        QJsonObject{
+                            {"type", "object"},
+                            {"description",
+                             "SSH parameters to change: host, port, userName, privateKeyFile, "
+                             "useKeyFile, timeout, hostKeyCheckingMode."}})
+                    .addRequired("id"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            IDevice::Ptr device = DeviceManager::find(Id::fromString(p.value("id").toString()));
+            if (!device)
+                return {{"success", false}, {"error", "No such device."}};
+
+            const QString displayName = p.value("displayName").toString();
+            if (!displayName.isEmpty())
+                device->setDisplayName(displayName);
+
+            if (p.contains("params"))
+                applySshParameters(device, p.value("params").toObject());
+
+            return {{"success", true}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("remove_device")
+            .title("Remove a device")
+            .description("Removes the device with the given id from the DeviceManager.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("id", QJsonObject{{"type", "string"}, {"description", "Device id."}})
+                    .addRequired("id"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const Id id = Id::fromString(p.value("id").toString());
+            if (!DeviceManager::find(id))
+                return {{"success", false}, {"error", "No such device."}};
+            DeviceManager::removeDevice(id);
+            return {{"success", true}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("test_device")
+            .title("Test a device connection")
+            .description(
+                "Runs the device's connection tester (IDevice::createDeviceTester()), collecting "
+                "the streamed progress and error messages, and returns the final result. Blocks "
+                "until the test finishes or the timeout elapses.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("id", QJsonObject{{"type", "string"}, {"description", "Device id."}})
+                    .addProperty(
+                        "timeoutSeconds",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Abort the test after this many seconds (default 60)."}})
+                    .addRequired("id"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "result",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"success", "failure", "timeout"}}})
+                    .addProperty("messages", QJsonObject{{"type", "array"}})
+                    .addRequired("result")
+                    .addRequired("messages")),
+        wrapAsync([](const QJsonObject &p, const Callback &callback) {
+            IDevice::Ptr device = DeviceManager::find(Id::fromString(p.value("id").toString()));
+            if (!device) {
+                callback(
+                    {{"result", "failure"},
+                     {"messages",
+                      QJsonArray{QJsonObject{{"kind", "error"}, {"text", "No such device."}}}}});
+                return;
+            }
+            if (!device->hasDeviceTester()) {
+                callback(
+                    {{"result", "failure"},
+                     {"messages",
+                      QJsonArray{QJsonObject{
+                          {"kind", "error"},
+                          {"text", "Device type does not support testing."}}}}});
+                return;
+            }
+
+            DeviceTester *tester = device->createDeviceTester();
+            if (!tester) {
+                callback(
+                    {{"result", "failure"},
+                     {"messages",
+                      QJsonArray{QJsonObject{
+                          {"kind", "error"}, {"text", "Could not create device tester."}}}}});
+                return;
+            }
+
+            tester->setParent(Utils::shutdownGuard());
+            auto messages = std::make_shared<QJsonArray>();
+            auto finished = std::make_shared<bool>(false);
+
+            const auto finish = [callback, tester, messages, finished](const QString &result) {
+                if (*finished)
+                    return;
+                *finished = true;
+                callback({{"result", result}, {"messages", *messages}});
+                tester->deleteLater();
+            };
+
+            QObject::connect(
+                tester, &DeviceTester::progressMessage, tester, [messages](const QString &msg) {
+                    messages->append(QJsonObject{{"kind", "progress"}, {"text", msg}});
+                });
+            QObject::connect(
+                tester, &DeviceTester::errorMessage, tester, [messages](const QString &msg) {
+                    messages->append(QJsonObject{{"kind", "error"}, {"text", msg}});
+                });
+            QObject::connect(
+                tester, &DeviceTester::finished, tester, [finish](DeviceTester::TestResult result) {
+                    finish(result == DeviceTester::TestSuccess ? "success" : "failure");
+                });
+
+            const int timeoutSeconds = p.value("timeoutSeconds").toInt(60);
+            QTimer::singleShot(timeoutSeconds * 1000, tester, [finish]() { finish("timeout"); });
+
+            tester->testDevice();
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_device_types")
+            .title("List available device types")
+            .description(
+                "Lists the device-type ids that can be passed to add_device, with their display "
+                "names and whether they can be created programmatically.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(Tool::InputSchema{})
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("types", QJsonObject{{"type", "array"}})
+                    .addRequired("types")),
+        wrap([](const QJsonObject &) {
+            QJsonArray types;
+            for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories()) {
+                types.append(QJsonObject{
+                    {"type", factory->deviceType().toString()},
+                    {"displayName", factory->displayName()},
+                    {"canCreate", factory->canCreate()},
+                });
+            }
+            return QJsonObject{{"types", types}};
         }));
 }
 

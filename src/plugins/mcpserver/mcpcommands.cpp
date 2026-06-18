@@ -20,11 +20,14 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/filepath.h>
+#include <utils/filepathinfo.h>
 #include <utils/filesearch.h>
 #include <utils/id.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/savefile.h>
+#include <utils/shutdownguard.h>
 
 #include <QApplication>
 #include <QFile>
@@ -34,12 +37,37 @@
 #include <QProcess>
 #include <QThread>
 #include <QTimer>
+#include <QUrl>
 
 using namespace Utils;
 
 Q_LOGGING_CATEGORY(mcpCommands, "qtc.mcpserver.commands", QtWarningMsg)
 
 namespace Mcp::Internal {
+
+// Turns a urlish tool argument into a FilePath. A "file://" URL denotes a local
+// file; routed through fromUrl() it becomes a scheme-less local path. Remote paths
+// such as "ssh://user@host/path" or "docker://id/path" keep their scheme via
+// fromUserInput(), which is how Qt Creator parses such device paths.
+static FilePath urlishToFilePath(const QString &path)
+{
+    if (path.startsWith("file:"))
+        return FilePath::fromUrl(QUrl(path));
+    return FilePath::fromUserInput(path);
+}
+
+// Runs a blocking function on a worker thread and delivers its result to the callback
+// on the main thread, so remote file access does not block the GUI thread. The shutdown
+// guard owns the watcher, so a pending callback is cancelled at controlled plugin
+// shutdown rather than firing into a torn-down state.
+static void runFileOpOffThread(
+    const std::function<QJsonObject()> &work, const std::function<void(const QJsonObject &)> &callback)
+{
+    QFuture<QJsonObject> future = Utils::asyncRun(work);
+    Utils::onResultReady(future, Utils::shutdownGuard(), [callback](const QJsonObject &result) {
+        callback(result);
+    });
+}
 
 McpCommands::McpCommands(QObject *parent)
     : QObject(parent)
@@ -229,6 +257,28 @@ QJsonObject McpCommands::setFilePlainText(const QString &path, const QString &co
     }
     return result(true, "ok_disk_write",
                   QStringLiteral("File written to disk successfully."));
+}
+
+QJsonObject McpCommands::writeFileContentsBase64(const QString &path, const QString &base64)
+{
+    // Binary write path: decode the base64 payload and write the raw bytes to
+    // disk. Unlike setFilePlainText() this does not route through the editor or
+    // guard against non-text MIME types, since the caller explicitly asked for a
+    // byte-exact write (e.g. of a binary artifact).
+    auto result = [](bool success, const QString &reason, const QString &message) {
+        return QJsonObject{{"success", success}, {"reason", reason}, {"message", message}};
+    };
+
+    if (path.isEmpty())
+        return result(false, "empty_path", "File path is empty.");
+
+    const QByteArray data = QByteArray::fromBase64(base64.toLatin1());
+    const Result<qint64> writeResult = urlishToFilePath(path).writeFileContents(data);
+    if (!writeResult) {
+        return result(false, "write_failed",
+                      QStringLiteral("Failed to write to disk: %1").arg(writeResult.error()));
+    }
+    return result(true, "ok_disk_write", QStringLiteral("File written to disk successfully."));
 }
 
 bool McpCommands::saveFile(const QString &path)
@@ -721,9 +771,11 @@ void McpCommands::registerCommands()
             .name("file_plain_text")
             .title("file plain text")
             .description(
-                "Returns the content of the file as plain text. "
-                "Optionally restrict to a line range via start_line/end_line (1-based, inclusive). "
-                "Also supports files on remote devices with uris like docker://... or ssh:// and others.")
+                "Returns the content of the file as plain text. Optionally restrict to a line "
+                "range via start_line/end_line (1-based, inclusive). For binary content use "
+                "read_file_bytes instead. Local and remote files are both supported via Qt "
+                "Creator urlish paths such as ssh://user@host/path or docker://id/path; remote "
+                "access is transparent.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -732,7 +784,9 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"format", "uri"},
-                            {"description", "Absolute path of the file"}})
+                            {"description",
+                             "Path of the file. May be a local path or a remote urlish path "
+                             "(ssh://user@host/path, docker://id/path)."}})
                     .addProperty(
                         "start_line",
                         QJsonObject{
@@ -772,8 +826,8 @@ void McpCommands::registerCommands()
                 "    'file_open_with_unsaved_changes' to avoid silently "
                 "    overwriting the user's edits. Caller should ask the user to "
                 "    save (or call save_file) and retry.\n"
-                "Also supports files on remote devices with URIs like "
-                "docker://... or ssh:// and others.")
+                "For binary content use write_file_bytes instead. Also supports files "
+                "on remote devices with URIs like docker://... or ssh:// and others.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -820,6 +874,295 @@ void McpCommands::registerCommands()
             const QString path = p.value("path").toString();
             const QString text = p.value("plain_text").toString();
             return commands.setFilePlainText(path, text);
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("read_file_bytes")
+            .title("Read raw bytes from a file")
+            .description(
+                "Reads raw file contents and returns them base64-encoded - use this for binary "
+                "files; for text use file_plain_text. Optionally restrict to a byte range via "
+                "offset/length. Local and remote files are both supported via Qt Creator urlish "
+                "paths such as ssh://user@host/path or docker://id/path; remote access is "
+                "transparent.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"format", "uri"},
+                            {"description", "Path of the file (local or remote urlish path)."}})
+                    .addProperty(
+                        "offset",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Byte offset to start reading from (optional)."}})
+                    .addProperty(
+                        "length",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Maximum number of bytes to read (optional)."}})
+                    .addRequired("path"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("base64", QJsonObject{{"type", "string"}})
+                    .addProperty("size", QJsonObject{{"type", "integer"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrapAsync([](const QJsonObject &p, const Callback &callback) {
+            const QString path = p.value("path").toString();
+            const qint64 offset = qint64(p.value("offset").toDouble(0));
+            const qint64 length = qint64(p.value("length").toDouble(-1));
+            runFileOpOffThread(
+                [path, offset, length]() -> QJsonObject {
+                    const Utils::Result<QByteArray> contents
+                        = urlishToFilePath(path).fileContents(length, offset);
+                    if (!contents)
+                        return QJsonObject{{"success", false}, {"error", contents.error()}};
+                    return QJsonObject{
+                        {"success", true},
+                        {"base64", QString::fromLatin1(contents->toBase64())},
+                        {"size", double(contents->size())},
+                    };
+                },
+                callback);
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("write_file_bytes")
+            .title("Write raw bytes to a file")
+            .description(
+                "Writes base64-decoded raw bytes to a file, creating or overwriting it - use this "
+                "for binary files; for text use set_file_plain_text. This writes directly to disk "
+                "and does not route through the editor. Local and remote files are both supported "
+                "via Qt Creator urlish paths such as ssh://user@host/path or docker://id/path.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"format", "uri"},
+                            {"description", "Path of the file (local or remote urlish path)."}})
+                    .addProperty(
+                        "base64",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Raw bytes to write, base64-encoded."}})
+                    .addRequired("path")
+                    .addRequired("base64"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty(
+                        "reason",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"ok_disk_write", "empty_path", "write_failed"}}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrapAsync([](const QJsonObject &p, const Callback &callback) {
+            const QString path = p.value("path").toString();
+            const QString base64 = p.value("base64").toString();
+            runFileOpOffThread(
+                [path, base64]() -> QJsonObject {
+                    return commands.writeFileContentsBase64(path, base64);
+                },
+                callback);
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_directory")
+            .title("List a directory")
+            .description(
+                "Lists directory entries via Utils::FilePath, with name, path, type, size, "
+                "modification time and executable bit. Optionally filter by glob name patterns and "
+                "recurse. Local and remote directories are both supported via Qt Creator urlish "
+                "paths such as ssh://user@host/path or docker://id/path; remote access is "
+                "transparent.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"format", "uri"},
+                            {"description", "Path of the directory (local or remote urlish path)."}})
+                    .addProperty(
+                        "name_filters",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "string"}}},
+                            {"description", "Glob patterns to match, e.g. ['*.txt'] (optional)."}})
+                    .addProperty(
+                        "recursive",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description", "Recurse into subdirectories (optional)."}})
+                    .addRequired("path"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("entries", QJsonObject{{"type", "array"}})
+                    .addRequired("entries")),
+        wrapAsync([](const QJsonObject &p, const Callback &callback) {
+            const QString path = p.value("path").toString();
+            QStringList nameFilters;
+            for (const QJsonValue &v : p.value("name_filters").toArray())
+                nameFilters.append(v.toString());
+            const bool recursive = p.value("recursive").toBool(false);
+            runFileOpOffThread(
+                [path, nameFilters, recursive]() -> QJsonObject {
+                    const FilePath dir = urlishToFilePath(path);
+                    const FileFilter filter(
+                        nameFilters,
+                        DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot,
+                        recursive ? DirIteratorFlag::Subdirectories
+                                  : DirIteratorFlag::NoIteratorFlags);
+                    QJsonArray entries;
+                    for (const FilePath &entry : dir.dirEntries(filter)) {
+                        const FilePathInfo info = entry.filePathInfo();
+                        entries.append(QJsonObject{
+                            {"name", entry.fileName()},
+                            {"path", entry.toUrlishString()},
+                            {"isDir", bool(info.fileFlags & FilePathInfo::DirectoryType)},
+                            {"size", double(info.fileSize)},
+                            {"lastModified", info.lastModified.toString(Qt::ISODate)},
+                            {"isExecutable", bool(info.fileFlags & FilePathInfo::ExeOwnerPerm)},
+                        });
+                    }
+                    return QJsonObject{{"entries", entries}};
+                },
+                callback);
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("file_info")
+            .title("Get metadata for a path")
+            .description(
+                "Returns metadata for a path via Utils::FilePath: existence, type, size, "
+                "modification time, executable bit and permissions. Local and remote paths are "
+                "both supported via Qt Creator urlish paths such as ssh://user@host/path or "
+                "docker://id/path; remote access is transparent.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"format", "uri"},
+                            {"description", "Path to inspect (local or remote urlish path)."}})
+                    .addRequired("path"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("exists", QJsonObject{{"type", "boolean"}})
+                    .addRequired("exists")),
+        wrapAsync([](const QJsonObject &p, const Callback &callback) {
+            const QString path = p.value("path").toString();
+            runFileOpOffThread(
+                [path]() -> QJsonObject {
+                    const FilePath fp = urlishToFilePath(path);
+                    const FilePathInfo info = fp.filePathInfo();
+                    const bool exists = bool(info.fileFlags & FilePathInfo::ExistsFlag);
+                    return QJsonObject{
+                        {"exists", exists},
+                        {"isFile", bool(info.fileFlags & FilePathInfo::FileType)},
+                        {"isDir", bool(info.fileFlags & FilePathInfo::DirectoryType)},
+                        {"size", double(info.fileSize)},
+                        {"lastModified", info.lastModified.toString(Qt::ISODate)},
+                        {"isExecutable", bool(info.fileFlags & FilePathInfo::ExeOwnerPerm)},
+                        {"permissions", int(info.fileFlags & FilePathInfo::PermsMask)},
+                    };
+                },
+                callback);
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("make_directory")
+            .title("Create a directory")
+            .description(
+                "Creates a directory and any missing parents via "
+                "Utils::FilePath::ensureWritableDir(). Local and remote paths are both supported "
+                "via Qt Creator urlish paths such as ssh://user@host/path or docker://id/path.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"format", "uri"},
+                            {"description",
+                             "Path of the directory to create (local or remote urlish path)."}})
+                    .addRequired("path"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrapAsync([](const QJsonObject &p, const Callback &callback) {
+            const QString path = p.value("path").toString();
+            runFileOpOffThread(
+                [path]() -> QJsonObject {
+                    const Utils::Result<> res = urlishToFilePath(path).ensureWritableDir();
+                    if (!res)
+                        return QJsonObject{{"success", false}, {"error", res.error()}};
+                    return QJsonObject{{"success", true}};
+                },
+                callback);
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("remove_path")
+            .title("Remove a file or directory")
+            .description(
+                "Removes a file, or a directory when 'recursive' is true, via "
+                "Utils::FilePath::removeFile() / removeRecursively(). Local and remote paths are "
+                "both supported via Qt Creator urlish paths such as ssh://user@host/path or "
+                "docker://id/path.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"format", "uri"},
+                            {"description", "Path to remove (local or remote urlish path)."}})
+                    .addProperty(
+                        "recursive",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description", "Remove directories and their contents (optional)."}})
+                    .addRequired("path"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrapAsync([](const QJsonObject &p, const Callback &callback) {
+            const QString path = p.value("path").toString();
+            const bool recursive = p.value("recursive").toBool(false);
+            runFileOpOffThread(
+                [path, recursive]() -> QJsonObject {
+                    const FilePath fp = urlishToFilePath(path);
+                    const Utils::Result<> res = recursive ? fp.removeRecursively() : fp.removeFile();
+                    if (!res)
+                        return QJsonObject{{"success", false}, {"error", res.error()}};
+                    return QJsonObject{{"success", true}};
+                },
+                callback);
         }));
 
     ToolRegistry::registerTool(

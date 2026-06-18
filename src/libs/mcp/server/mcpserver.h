@@ -87,6 +87,13 @@ public:
     */
     void setInspector(Inspector *inspector);
 
+    /*! \brief Sets the server-level instructions advertised to clients in the
+        initialize response. Use this to describe server-wide conventions, e.g.
+        that all path parameters accept remote urlish paths.
+        \param instructions Free-form guidance for clients.
+    */
+    void setInstructions(const QString &instructions);
+
     /*! \brief Binds the server to the given QTcpServer for incoming connections.
         \param server The QTcpServer to bind to.
         \return true if binding succeeded, false otherwise.

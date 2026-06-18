@@ -12,6 +12,7 @@ add_qtc_plugin(mcpserver
   LONG_DESCRIPTION_MD McpServerDescription.md
   SOURCES
     mcpcommands.cpp mcpcommands.h
+    mcplogcapture.cpp mcplogcapture.h
     mcpserverinspector.cpp mcpserverinspector.h
     mcpserverplugin.cpp
     mcpserverconstants.h
