@@ -7,9 +7,15 @@
 
 #include <QVariant>
 
+#include <chrono>
+
 namespace Utils::SettingsDatabase {
 
-QTCREATOR_UTILS_EXPORT void setValue(const QString &key, const QVariant &value);
+// Default time a value is kept after its last usage before being cleaned up.
+inline constexpr std::chrono::seconds defaultMaxAge = std::chrono::days(30);
+
+QTCREATOR_UTILS_EXPORT void setValue(const QString &key, const QVariant &value,
+                                     std::chrono::seconds maxAge = defaultMaxAge);
 QTCREATOR_UTILS_EXPORT QVariant value(const QString &key, const QVariant &defaultValue = {});
 
 QTCREATOR_UTILS_EXPORT bool contains(const QString &key);

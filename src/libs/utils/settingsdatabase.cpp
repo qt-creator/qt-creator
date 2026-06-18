@@ -42,6 +42,7 @@ enum { debug_settings = 0 };
 
 using SettingsMap = QMap<QString, QVariant>;
 using LastUsageMap = QMap<QString, std::chrono::system_clock::time_point>;
+using MaxAgeMap = QMap<QString, std::chrono::seconds>;
 
 class SettingsDatabaseImpl
 {
@@ -62,6 +63,7 @@ public:
 
     SettingsMap m_settings;
     LastUsageMap m_lastUsage;
+    MaxAgeMap m_maxAge;
 
     QStringList m_groups;
 
@@ -115,6 +117,7 @@ void ensureImpl()
         }
 
         QVariantMap lastUsages = value("SettingsDataBaseLastUsages").toMap();
+        QVariantMap maxAges = value("SettingsDataBaseMaxAges").toMap();
         for (auto it = d->m_settings.begin(); it != d->m_settings.constEnd(); ++it) {
             auto lastUsageIt = lastUsages.find(it.key());
             std::chrono::system_clock::time_point lastUsage;
@@ -123,6 +126,10 @@ void ensureImpl()
             else
                 lastUsage = std::chrono::system_clock::now();
             d->m_lastUsage.insert(it.key(), lastUsage);
+
+            auto maxAgeIt = maxAges.find(it.key());
+            if (maxAgeIt != maxAges.end())
+                d->m_maxAge.insert(it.key(), std::chrono::seconds(maxAgeIt.value().toLongLong()));
         }
 
         // syncing can be slow, especially on Linux and Windows
@@ -138,21 +145,29 @@ void destroy()
     // TODO: Delay writing of dirty keys and save them here
 
     QVariantMap lastUsages;
+    QVariantMap maxAges;
     const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     for (auto it = d->m_lastUsage.begin(); it != d->m_lastUsage.end(); ++it) {
-        if (now - it.value() > std::chrono::months(1))
+        const std::chrono::seconds maxAge = d->m_maxAge.value(it.key(), defaultMaxAge);
+        // Compare in seconds: promoting maxAge (e.g. seconds::max() for "keep
+        // forever") to the system clock's fine resolution would overflow.
+        const auto age = std::chrono::duration_cast<std::chrono::seconds>(now - it.value());
+        if (age > maxAge) {
             remove(it.key());
-        else
+        } else {
             lastUsages.insert(it.key(), static_cast<qint64>(std::chrono::system_clock::to_time_t(it.value())));
+            maxAges.insert(it.key(), static_cast<qint64>(maxAge.count()));
+        }
     }
     setValue("SettingsDataBaseLastUsages", lastUsages);
+    setValue("SettingsDataBaseMaxAges", maxAges);
 
     delete d;
     d = nullptr;
     QSqlDatabase::removeDatabase(QLatin1String("settings"));
 }
 
-void setValue(const QString &key, const QVariant &value)
+void setValue(const QString &key, const QVariant &value, std::chrono::seconds maxAge)
 {
     ensureImpl();
     const QString effectiveKey = d->effectiveKey(key);
@@ -160,6 +175,10 @@ void setValue(const QString &key, const QVariant &value)
     // Add to cache
     d->m_settings.insert(effectiveKey, value);
     d->m_lastUsage.insert(effectiveKey, std::chrono::system_clock::now());
+    if (maxAge == defaultMaxAge)
+        d->m_maxAge.remove(effectiveKey);
+    else
+        d->m_maxAge.insert(effectiveKey, maxAge);
 
     if (!d->m_db.isOpen())
         return;
