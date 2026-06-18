@@ -3169,7 +3169,10 @@ QAction *EditorManager::createDiffAgainstCurrentFileAction(
 }
 
 void EditorManagerPrivate::addNativeDirAndOpenWithActions(
-    QMenu *contextMenu, const FilePath &filePath, EditorView *view,
+    QMenu *contextMenu,
+    const FilePath &filePath,
+    IEditor *editor,
+    EditorView *view,
     EditorManager::ContextMenuFlags flags)
 {
     QTC_ASSERT(contextMenu, return);
@@ -3222,7 +3225,7 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
     const bool openWithEnabled = enabled && !filePath.isDir();
     openWith->setEnabled(openWithEnabled);
     if (openWithEnabled)
-        populateOpenWithMenu(openWith, filePath, view);
+        populateOpenWithMenu(openWith, filePath, editor, view);
 }
 
 void EditorManager::addContextMenuActions(
@@ -3279,7 +3282,7 @@ void EditorManagerPrivate::addContextMenuActions(
         EditorManagerPrivate::addPinEditorActions(contextMenu, entry);
         contextMenu->addSeparator();
     }
-    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePath, view, flags);
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePath, editor, view, flags);
     emit m_instance->aboutToShowContextMenu(contextMenu, filePath, insertionPoints);
 }
 
@@ -3293,7 +3296,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
 }
 
 void EditorManagerPrivate::populateOpenWithMenu(
-    QMenu *menu, const FilePath &filePath, EditorView *view)
+    QMenu *menu, const FilePath &filePath, IEditor *editor, EditorView *view)
 {
     menu->clear();
 
@@ -3307,6 +3310,9 @@ void EditorManagerPrivate::populateOpenWithMenu(
             // Add action to open with this very editor factory
             QString const actionTitle = editorType->displayName();
             QAction *action = menu->addAction(actionTitle);
+            action->setCheckable(editor);
+            if (editor && editorId == editor->document()->id())
+                action->setChecked(true);
             // Below we need QueuedConnection because otherwise, if a qrc file
             // is inside of a qrc file itself, and the qrc editor opens the Open with menu,
             // crashes happen, because the editor instance is deleted by openEditorWith

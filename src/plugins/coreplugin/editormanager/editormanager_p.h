@@ -231,11 +231,15 @@ private:
     static void addNativeDirAndOpenWithActions(
         QMenu *contextMenu,
         const Utils::FilePath &filePath,
+        IEditor *editor,
         EditorView *view = nullptr,
         EditorManager::ContextMenuFlags flags = EditorManager::DefaultContextMenu);
     static void addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void populateOpenWithMenu(
-        QMenu *menu, const Utils::FilePath &filePath, EditorView *view = nullptr);
+        QMenu *menu,
+        const Utils::FilePath &filePath,
+        IEditor *editor = nullptr,
+        EditorView *view = nullptr);
 
 private:
     explicit EditorManagerPrivate(QObject *parent);
