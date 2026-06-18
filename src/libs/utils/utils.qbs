@@ -285,8 +285,6 @@ QtcLibrary {
         "qtcsettings.cpp",
         "qtcsettings.h",
         "qtcsettings_p.h",
-        "qtdesignsystemstyle.cpp",
-        "qtdesignsystemstyle.h",
         "qtdesignwidgets.cpp",
         "qtdesignwidgets.h",
         "ranges.h",

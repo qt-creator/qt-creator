@@ -10,6 +10,7 @@
 #include <QAbstractButton>
 #include <QComboBox>
 #include <QLabel>
+#include <QTabBar>
 
 QT_FORWARD_DECLARE_CLASS(QVariantAnimation)
 
