@@ -11,13 +11,13 @@
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
+#include <utils/environmentdialog.h>
 #include <utils/environmentmodel.h>
 #include <utils/fileutils.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/macroexpander.h>
-#include <utils/namevaluesdialog.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>

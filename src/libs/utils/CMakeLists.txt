@@ -113,7 +113,6 @@ add_qtc_library(Utils
     namevaluedictionary.cpp namevaluedictionary.h
     namevaluedictionary.cpp namevaluedictionary.h
     namevalueitem.cpp namevalueitem.h
-    namevaluesdialog.cpp namevaluesdialog.h
     navigationtreeview.cpp navigationtreeview.h
     networkaccessmanager.cpp networkaccessmanager.h
     optionpushbutton.h
