@@ -28,6 +28,8 @@ public:
     explicit ActiveTestFrameworksAspect(Utils::AspectContainer *container);
 
     void setActive(ITestFramework *framework, bool active);
+    void fromStore(const Utils::Store &store);
+    void toStore(Utils::Store &store) const;
 };
 
 class ActiveTestToolsAspect : public Utils::TypedAspect<ActiveTestTools>
@@ -36,6 +38,8 @@ public:
     explicit ActiveTestToolsAspect(Utils::AspectContainer *container);
 
     void setActive(ITestTool *testTool, bool active);
+    void fromStore(const Utils::Store &store);
+    void toStore(Utils::Store &store) const;
 };
 
 class TestProjectSettings : public Utils::AspectContainer
@@ -58,7 +62,7 @@ public:
     ActiveTestFrameworksAspect activeTestFrameworks{this};
     ActiveTestToolsAspect activeTestTools{this};
 
-    Internal::ItemDataCache<Qt::CheckState> checkStateCache;
+    Internal::ItemDataCache<Qt::CheckState> checkStateCache{Qt::Checked};
 
 private:
     void load();

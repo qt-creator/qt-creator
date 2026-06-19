@@ -31,7 +31,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.projectsettings", QtWarningMsg)
 
 // Holds the per-project "active" flag for each registered test framework/tool.
 // Keyed by pointer (registered at runtime), so not serialized through the
-// container; TestProjectSettings reconciles in load()/save().
+// container; fromStore()/toStore() reconcile against currently registered objects.
 
 ActiveTestFrameworksAspect::ActiveTestFrameworksAspect(AspectContainer *container)
     : TypedAspect(container)
@@ -42,6 +42,24 @@ void ActiveTestFrameworksAspect::setActive(ITestFramework *framework, bool activ
     ActiveTestFrameworks map = value();
     map.insert(framework, active);
     setValue(map);
+}
+
+void ActiveTestFrameworksAspect::fromStore(const Store &store)
+{
+    const TestFrameworks registered = TestFrameworkManager::registeredFrameworks();
+    qCDebug(LOG) << "Registered frameworks sorted by priority" << registered;
+    ActiveTestFrameworks frameworks;
+    for (ITestFramework *framework : registered) {
+        const Id id = framework->id();
+        frameworks.insert(framework, store.value(id.toKey(), framework->active()).toBool());
+    }
+    setValue(frameworks);
+}
+
+void ActiveTestFrameworksAspect::toStore(Store &store) const
+{
+    for (auto it = value().cbegin(), end = value().cend(); it != end; ++it)
+        store.insert(it.key()->id().toKey(), it.value());
 }
 
 // ActiveTestToolsAspect
@@ -55,6 +73,23 @@ void ActiveTestToolsAspect::setActive(ITestTool *testTool, bool active)
     ActiveTestTools map = value();
     map.insert(testTool, active);
     setValue(map);
+}
+
+void ActiveTestToolsAspect::fromStore(const Store &store)
+{
+    const TestTools registered = TestFrameworkManager::registeredTestTools();
+    ActiveTestTools tools;
+    for (ITestTool *testTool : registered) {
+        const Id id = testTool->id();
+        tools.insert(testTool, store.value(id.toKey(), testTool->active()).toBool());
+    }
+    setValue(tools);
+}
+
+void ActiveTestToolsAspect::toStore(Store &store) const
+{
+    for (auto it = value().cbegin(), end = value().cend(); it != end; ++it)
+        store.insert(it.key()->id().toKey(), it.value());
 }
 
 // TestProjectSettings
@@ -104,34 +139,13 @@ void TestProjectSettings::load()
     const QVariant useGlobal = m_project->namedSettings(Constants::SK_USE_GLOBAL);
     useGlobalSettings.setValue(useGlobal.isValid() ? useGlobal.toBool() : true);
 
-    const TestFrameworks registeredFrameworks = TestFrameworkManager::registeredFrameworks();
-    qCDebug(LOG) << "Registered frameworks sorted by priority" << registeredFrameworks;
-    const TestTools registeredTestTools = TestFrameworkManager::registeredTestTools();
-    const QVariant activeFrameworksVar = m_project->namedSettings(SK_ACTIVE_FRAMEWORKS);
-
-    QHash<ITestFramework *, bool> frameworks;
-    QHash<ITestTool *, bool> tools;
-    if (activeFrameworksVar.isValid()) {
-        const Store frameworksMap = storeFromVariant(activeFrameworksVar);
-        for (ITestFramework *framework : registeredFrameworks) {
-            const Id id = framework->id();
-            frameworks.insert(framework, frameworksMap.value(id.toKey(), framework->active()).toBool());
-        }
-        for (ITestTool *testTool : registeredTestTools) {
-            const Id id = testTool->id();
-            tools.insert(testTool, frameworksMap.value(id.toKey(), testTool->active()).toBool());
-        }
-    } else {
-        for (ITestFramework *framework : registeredFrameworks)
-            frameworks.insert(framework, framework->active());
-        for (ITestTool *testTool : registeredTestTools)
-            tools.insert(testTool, testTool->active());
-    }
-    activeTestFrameworks.setValue(frameworks);
-    activeTestTools.setValue(tools);
+    const Store frameworksStore = storeFromVariant(m_project->namedSettings(SK_ACTIVE_FRAMEWORKS));
+    activeTestFrameworks.fromStore(frameworksStore);
+    activeTestTools.fromStore(frameworksStore);
 
     const QVariant runAfterBuildVar = m_project->namedSettings(SK_RUN_AFTER_BUILD);
-    runAfterBuild.setValue(static_cast<RunAfterBuildMode>(runAfterBuildVar.isValid() ? runAfterBuildVar.toInt() : 0));
+    runAfterBuild.setValue(static_cast<RunAfterBuildMode>(
+        runAfterBuildVar.isValid() ? runAfterBuildVar.toInt() : 0));
     checkStateCache.fromSettings(m_project->namedSettings(SK_CHECK_STATES).toMap());
     limitToFilter.setValue(m_project->namedSettings(SK_APPLY_FILTER).toBool());
     pathFilters.setValue(m_project->namedSettings(SK_PATH_FILTERS).toStringList());
@@ -140,15 +154,10 @@ void TestProjectSettings::load()
 void TestProjectSettings::save()
 {
     m_project->setNamedSettings(Constants::SK_USE_GLOBAL, useGlobalSettings());
-    QVariantMap activeFrameworksMap;
-    const QHash<ITestFramework *, bool> frameworks = activeTestFrameworks();
-    auto end = frameworks.cend();
-    for (auto it = frameworks.cbegin(); it != end; ++it)
-        activeFrameworksMap.insert(it.key()->id().toString(), it.value());
-    const QHash<ITestTool *, bool> tools = activeTestTools();
-    for (auto it = tools.cbegin(), end = tools.cend(); it != end; ++it)
-        activeFrameworksMap.insert(it.key()->id().toString(), it.value());
-    m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworksMap);
+    Store frameworksStore;
+    activeTestFrameworks.toStore(frameworksStore);
+    activeTestTools.toStore(frameworksStore);
+    m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, variantFromStore(frameworksStore));
     m_project->setNamedSettings(SK_RUN_AFTER_BUILD, int(runAfterBuild()));
     m_project->setNamedSettings(SK_CHECK_STATES, checkStateCache.toSettings());
     m_project->setNamedSettings(SK_APPLY_FILTER, limitToFilter());
