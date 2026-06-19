@@ -18,24 +18,22 @@ class ITestTool;
 namespace Internal {
 
 using ActiveTestFrameworks = QHash<ITestFramework *, bool>;
+using ActiveTestTools = QHash<ITestTool *, bool>;
 
-// Holds the per-project "active" flag for each registered test framework.
-// The frameworks are keyed by pointer (they are registered at runtime), so this
-// aspect is not serialized through the container; TestProjectSettings reconciles
-// it against the registered frameworks in load()/save().
 class ActiveTestFrameworksAspect : public Utils::TypedAspect<ActiveTestFrameworks>
 {
 public:
-    explicit ActiveTestFrameworksAspect(Utils::AspectContainer *container = nullptr)
-        : TypedAspect(container)
-    {}
+    explicit ActiveTestFrameworksAspect(Utils::AspectContainer *container);
 
-    void setActive(ITestFramework *framework, bool active)
-    {
-        ActiveTestFrameworks map = value();
-        map.insert(framework, active);
-        setValue(map);
-    }
+    void setActive(ITestFramework *framework, bool active);
+};
+
+class ActiveTestToolsAspect : public Utils::TypedAspect<ActiveTestTools>
+{
+public:
+    explicit ActiveTestToolsAspect(Utils::AspectContainer *container);
+
+    void setActive(ITestTool *testTool, bool active);
 };
 
 class TestProjectSettings : public Utils::AspectContainer
@@ -48,7 +46,6 @@ public:
 
     QHash<ITestFramework *, bool> activeFrameworks() const { return activeTestFrameworks(); }
     void activateFramework(const Utils::Id &id, bool activate);
-    QHash<ITestTool *, bool> activeTestTools() const { return m_activeTestTools; }
     void activateTestTool(const Utils::Id &id, bool activate);
     Internal::ItemDataCache<Qt::CheckState> *checkStateCache() { return &m_checkStateCache; }
     void setPathFilters(const QStringList &filters) { pathFilters.setValue(filters); }
@@ -59,13 +56,13 @@ public:
     Utils::BoolAspect limitToFilter{this};
     Utils::StringListAspect pathFilters{this};
     ActiveTestFrameworksAspect activeTestFrameworks{this};
+    ActiveTestToolsAspect activeTestTools{this};
 
 private:
     void load();
     void save();
 
     ProjectExplorer::Project *m_project;
-    QHash<ITestTool *, bool> m_activeTestTools;
     Internal::ItemDataCache<Qt::CheckState> m_checkStateCache;
 };
 
@@ -73,3 +70,4 @@ private:
 } // namespace Autotest
 
 Q_DECLARE_METATYPE(Autotest::Internal::ActiveTestFrameworks)
+Q_DECLARE_METATYPE(Autotest::Internal::ActiveTestTools)
