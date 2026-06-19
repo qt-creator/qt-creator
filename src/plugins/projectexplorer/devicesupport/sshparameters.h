@@ -93,13 +93,13 @@ public:
 
 #ifdef WITH_TESTS
 namespace SshTest {
-const QString PROJECTEXPLORER_EXPORT getHostFromEnvironment();
-quint16 PROJECTEXPLORER_EXPORT getPortFromEnvironment();
-const QString PROJECTEXPLORER_EXPORT getUserFromEnvironment();
-const QString PROJECTEXPLORER_EXPORT getKeyFileFromEnvironment();
-const PROJECTEXPLORER_EXPORT QString userAtHost();
-const PROJECTEXPLORER_EXPORT QString userAtHostAndPort();
-SshParameters PROJECTEXPLORER_EXPORT getParameters();
+const QString PROJECTEXPLORER_EXPORT getHostFromEnvironment(const QString &variant = {});
+quint16 PROJECTEXPLORER_EXPORT getPortFromEnvironment(const QString &variant = {});
+const QString PROJECTEXPLORER_EXPORT getUserFromEnvironment(const QString &variant = {});
+const QString PROJECTEXPLORER_EXPORT getKeyFileFromEnvironment(const QString &variant = {});
+const PROJECTEXPLORER_EXPORT QString userAtHost(const QString &variant = {});
+const PROJECTEXPLORER_EXPORT QString userAtHostAndPort(const QString &variant = {});
+SshParameters PROJECTEXPLORER_EXPORT getParameters(const QString &variant = {});
 bool PROJECTEXPLORER_EXPORT checkParameters(const SshParameters &params);
 void PROJECTEXPLORER_EXPORT printSetupHelp();
 } // namespace SshTest

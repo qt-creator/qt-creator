@@ -118,29 +118,39 @@ bool operator==(const SshParameters &p1, const SshParameters &p2)
 
 #ifdef WITH_TESTS
 namespace SshTest {
-const QString getHostFromEnvironment()
+
+// Reads a QTC_SSH_TEST_<SUFFIX> variable. When a variant (e.g. "WIN") is given, a variant-
+// specific QTC_SSH_TEST_<VARIANT>_<SUFFIX> takes precedence if set, so a second device type can
+// override selected parameters (user, key file, host, port) without disturbing the default set.
+static QString testEnvVar(const QString &suffix, const QString &variant)
 {
-    const QString host = qtcEnvironmentVariable("QTC_SSH_TEST_HOST");
+    const QString key = "QTC_SSH_TEST_" + (variant.isEmpty() ? QString() : variant + "_") + suffix;
+    return qtcEnvironmentVariable(key);
+}
+
+const QString getHostFromEnvironment(const QString &variant)
+{
+    const QString host = testEnvVar("HOST", variant);
     if (host.isEmpty() && qtcEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
         return QString("127.0.0.1");
     return host;
 }
 
-quint16 getPortFromEnvironment()
+quint16 getPortFromEnvironment(const QString &variant)
 {
-    const int port = qtcEnvironmentVariableIntValue("QTC_SSH_TEST_PORT");
+    const int port = testEnvVar("PORT", variant).toInt();
     return port != 0 ? quint16(port) : 22;
 }
 
-const QString getUserFromEnvironment()
+const QString getUserFromEnvironment(const QString &variant)
 {
-    return qtcEnvironmentVariable("QTC_SSH_TEST_USER");
+    return testEnvVar("USER", variant);
 }
 
-const QString getKeyFileFromEnvironment()
+const QString getKeyFileFromEnvironment(const QString &variant)
 {
     const FilePath defaultKeyFile = FileUtils::homePath() / ".ssh/id_rsa";
-    const QString keyFile = qtcEnvironmentVariable("QTC_SSH_TEST_KEYFILE");
+    const QString keyFile = testEnvVar("KEYFILE", variant);
     if (keyFile.isEmpty()) {
         if (qtcEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
             return defaultKeyFile.toUrlishString();
@@ -148,32 +158,32 @@ const QString getKeyFileFromEnvironment()
     return keyFile;
 }
 
-const QString userAtHost()
+const QString userAtHost(const QString &variant)
 {
-    QString userMidFix = getUserFromEnvironment();
+    QString userMidFix = getUserFromEnvironment(variant);
     if (!userMidFix.isEmpty())
         userMidFix.append('@');
-    return userMidFix + getHostFromEnvironment();
+    return userMidFix + getHostFromEnvironment(variant);
 }
 
-const QString userAtHostAndPort()
+const QString userAtHostAndPort(const QString &variant)
 {
-    QString res = userAtHost();
-    const int port = getPortFromEnvironment();
+    QString res = userAtHost(variant);
+    const int port = getPortFromEnvironment(variant);
     if (port != 22)
         res += QString(":%1").arg(port);
     return res;
 }
 
-SshParameters getParameters()
+SshParameters getParameters(const QString &variant)
 {
     SshParameters params;
     if (!qtcEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS")) {
-        params.setUserName(getUserFromEnvironment());
-        params.setPrivateKeyFile(FilePath::fromUserInput(getKeyFileFromEnvironment()));
+        params.setUserName(getUserFromEnvironment(variant));
+        params.setPrivateKeyFile(FilePath::fromUserInput(getKeyFileFromEnvironment(variant)));
     }
-    params.setHost(getHostFromEnvironment());
-    params.setPort(getPortFromEnvironment());
+    params.setHost(getHostFromEnvironment(variant));
+    params.setPort(getPortFromEnvironment(variant));
     params.setTimeout(10);
     params.setAuthenticationType(
         !params.privateKeyFile().isEmpty() ? SshParameters::AuthenticationTypeSpecificKey
@@ -207,7 +217,10 @@ void printSetupHelp()
                "4. Set the env variables before executing test:\n"
                "   QTC_SSH_TEST_HOST=127.0.0.1\n"
                "   QTC_SSH_TEST_KEYFILE=[full path to your private key]\n"
-               "   QTC_SSH_TEST_USER=[your user name]\n";
+               "   QTC_SSH_TEST_USER=[your user name]\n"
+               "To target a second device type from the same run, set variant-specific overrides,\n"
+               "e.g. QTC_SSH_TEST_WIN_HOST / _PORT / _USER / _KEYFILE for the Windows device.\n"
+               "Unset variant keys fall back to the plain QTC_SSH_TEST_* values.\n";
 }
 
 } // namespace SshTest

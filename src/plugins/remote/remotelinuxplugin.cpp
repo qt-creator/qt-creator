@@ -24,6 +24,7 @@
 
 #ifdef WITH_TESTS
 #include "filesystemaccess_test.h"
+#include "windowsdevicedetection_test.h"
 #endif
 
 using namespace Utils;
@@ -75,6 +76,7 @@ public:
 
 #ifdef WITH_TESTS
         addTest<FileSystemAccessTest>();
+        addTest<WindowsDeviceDetectionTest>();
 #endif
     }
 
