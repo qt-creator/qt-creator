@@ -6,7 +6,10 @@
 #include "tracingtr.h"
 
 #include <utils/elidinglabel.h>
+#include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QFont>
@@ -21,13 +24,6 @@
 
 namespace Timeline {
 
-static QColor themeColor(Utils::Theme::Color role)
-{
-    if (Utils::creatorTheme())
-        return Utils::creatorTheme()->color(role);
-    return QColor();
-}
-
 RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     : QWidget(parent)
 {
@@ -35,67 +31,41 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
 
     setObjectName("RangeDetails");
     setWindowTitle(Tr::tr("Details"));
-    setAutoFillBackground(true);
     setMinimumWidth(150);
 
-    m_titleLabel = new Utils::ElidingLabel;
-    QFont boldFont = m_titleLabel->font();
-    boldFont.setBold(true);
-    m_titleLabel->setFont(boldFont);
-    m_titleLabel->setTextFormat(Qt::PlainText);
+    m_titleBar = new Utils::StyledBar;
 
-    auto separator = new QWidget;
-    separator->setFixedHeight(1);
-    separator->setAutoFillBackground(true);
-    {
-        auto pal = separator->palette();
-        pal.setColor(QPalette::Window, themeColor(Utils::Theme::PanelTextColorMid));
-        separator->setPalette(pal);
-    }
+    m_titleLabel = new Utils::ElidingLabel;
+    m_titleLabel->setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementH6));
+    m_titleLabel->setTextFormat(Qt::PlainText);
 
     m_model = new QStandardItemModel(this);
     m_model->setColumnCount(2);
 
-    m_treeView = new QTreeView;
+    m_treeView = new Utils::TreeView;
     m_treeView->setModel(m_model);
     m_treeView->setHeaderHidden(true);
-    m_treeView->setRootIsDecorated(true);
+    m_treeView->setRootIsDecorated(false);
     m_treeView->setFrameShape(QFrame::NoFrame);
     m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_treeView->setUniformRowHeights(true);
+    m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeView->setWordWrap(true);
-    m_treeView->setItemsExpandable(true);
+    m_treeView->setItemsExpandable(false);
     m_treeView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_treeView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+
+    Column {
+        customMargins(Utils::StyleHelper::SpacingTokens::PaddingVS, 0, 0, 0),
+        spacing(0),
+        m_titleLabel,
+    }.attachTo(m_titleBar);
 
     Column{
         noMargin,
         spacing(0),
-        Widget{
-            bindTo(&m_titleBar),
-            Layouting::autoFillBackground(true),
-            Row{customMargins(8, 0, 4, 0), spacing(2), m_titleLabel},
-        },
-        separator,
+        m_titleBar,
         m_treeView,
-        stretch(2, 1),
-    }
-        .attachTo(this);
-
-    m_titleBar->setFixedHeight(24);
-
-    // Apply theme colors
-    //auto pal = palette();
-    //pal.setColor(QPalette::Window, themeColor(Utils::Theme::Timeline_PanelBackgroundColor));
-    //pal.setColor(QPalette::WindowText, themeColor(Utils::Theme::Timeline_TextColor));
-    //setPalette(pal);
-    //
-    //auto titlePal = m_titleBar->palette();
-    //titlePal.setColor(QPalette::Window, themeColor(Utils::Theme::Timeline_PanelHeaderColor));
-    //titlePal.setColor(QPalette::WindowText, themeColor(Utils::Theme::PanelTextColorLight));
-    //m_titleBar->setPalette(titlePal);
-    //m_titleLabel->setPalette(titlePal);
+    }.attachTo(this);
 
     clear();
 }
@@ -145,8 +115,16 @@ void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &conte
 {
     m_model->removeRows(0, m_model->rowCount());
 
+    constexpr Utils::StyleHelper::TextFormat keyFormat {
+        .themeColor = Utils::Theme::Token_Text_Muted,
+        .uiElement = Utils::StyleHelper::UiElementCaptionStrong,
+    };
+    const QFont keyFont = keyFormat.font();
+    const int lineHeight = int(keyFormat.lineHeight() * 1.8);
     for (const auto &[key, val] : content) {
         auto keyItem = new QStandardItem(key);
+        keyItem->setFont(keyFont);
+        keyItem->setForeground(keyFormat.color());
 
         if (key == "Arguments") {
             // Assume the value is a JSON object. Parse it and display each key-value pair on a separate line:
@@ -165,6 +143,7 @@ void RangeDetailsWidget::rebuildRows(const QList<QPair<QString, QString>> &conte
         }
 
         auto valItem = new QStandardItem(val);
+        valItem->setSizeHint({-1, lineHeight});
         m_model->appendRow({keyItem, valItem});
     }
 
