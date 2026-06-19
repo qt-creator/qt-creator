@@ -874,6 +874,7 @@ public:
     QStackedWidget *m_viewStack = nullptr;
     SidebarModel *m_sidebarModel = nullptr;
     SidebarView *m_sidebarView = nullptr;
+    QComboBox *m_pathCombo = nullptr;
     QComboBox *m_filterCombo = nullptr;
     QLabel *m_fileNameLabel = nullptr;
     FancyLineEdit *m_fileNameEdit = nullptr;
@@ -923,6 +924,25 @@ public:
             m_proxy->setSourceModel(m_model);
             setNormalRoot();
         }
+    }
+
+    // Refills the path combo with the current directory (index 0) followed by
+    // each of its parents up to the root, so the user can jump straight to any
+    // ancestor. Blocked while rebuilding so it does not look like a navigation.
+    void rebuildPathCombo()
+    {
+        QSignalBlocker blocker(m_pathCombo);
+        m_pathCombo->clear();
+        FilePath p = m_currentDir;
+        while (!p.isEmpty()) {
+            const QString name = p.fileName().isEmpty() ? p.toUserOutput() : p.fileName();
+            m_pathCombo->addItem(p.icon(), name, QVariant::fromValue(p));
+            const FilePath parent = p.parentDir();
+            if (parent.isEmpty() || parent == p)
+                break;
+            p = parent;
+        }
+        m_pathCombo->setCurrentIndex(0);
     }
 
     // The directory currently shown, when it is itself a valid target. In
@@ -1012,6 +1032,9 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_sidebarView->setModel(d->m_sidebarModel);
     d->m_sidebarView->setItemDelegate(new SidebarDelegate(d->m_sidebarView));
     d->m_sidebarView->setMinimumWidth(120);
+
+    d->m_pathCombo = new QComboBox(this);
+    d->m_pathCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     d->m_filterCombo = new QComboBox(this);
     d->m_filterCombo->setMinimumWidth(180);
@@ -1136,10 +1159,35 @@ FileDialog::FileDialog(QWidget *parent)
             Column {
                 noMargin,
 
+                Row {
+                    st,
+                    Label {
+                        bindTo(&d->m_fileNameLabel),
+                        text(Tr::tr("Save As:")),
+                    },
+                    LineEdit {
+                        bindTo(&d->m_fileNameEdit),
+                        placeholderText(Tr::tr("File Name")),
+                        onReturnPressed(this, [this](auto &lineEdit) {
+                            if (lineEdit.text().isEmpty())
+                                return;
+                            const FilePath path = FilePath::fromUserInput(lineEdit.text());
+                            if (path.isDir()) {
+                                setDirectory(path);
+                            } else if (path.exists() || d->m_acceptMode == QFileDialog::AcceptSave) {
+                                // When saving, a not-yet-existing file name is a valid choice.
+                                d->m_selectedFile = path;
+                                accept();
+                            }
+                        }),
+                    },
+                    st,
+                },
+
                 Grid {
                     columnStretch(0, 0),
-                    columnStretch(1, 0),
-                    columnStretch(2, 1),
+                    columnStretch(1, 1),
+                    columnStretch(2, 0),
                     Row {
                         QtDesignWidgets::IconButton {
                             bindTo(&backButton),
@@ -1173,34 +1221,10 @@ FileDialog::FileDialog(QWidget *parent)
                             }),
                         },
                     },
-                    Row {
-                        Label {
-                            bindTo(&d->m_fileNameLabel),
-                            text(Tr::tr("Save As:")),
-                        },
-                        LineEdit {
-                            bindTo(&d->m_fileNameEdit),
-                            placeholderText(Tr::tr("File Name")),
-                            onReturnPressed(this, [this](auto &lineEdit) {
-                                if (lineEdit.text().isEmpty())
-                                    return;
-                                const FilePath path = FilePath::fromUserInput(lineEdit.text());
-                                if (path.isDir()) {
-                                    setDirectory(path);
-                                } else if (path.exists() || d->m_acceptMode == QFileDialog::AcceptSave) {
-                                    // When saving, a not-yet-existing file name is a valid choice.
-                                    d->m_selectedFile = path;
-                                    accept();
-                                }
-                            }),
-                        }
-                    },
-                    Align {
-                        Qt::AlignRight,
-                        LineEdit {
-                            bindTo(&d->m_searchEdit),
-                            placeholderText(Tr::tr("Search")),
-                        },
+                    d->m_pathCombo,
+                    LineEdit {
+                        bindTo(&d->m_searchEdit),
+                        placeholderText(Tr::tr("Search")),
                     },
                 },
                 d->m_viewStack,
@@ -1239,6 +1263,7 @@ FileDialog::FileDialog(QWidget *parent)
     // clang-format on
 
     const bool saveMode = d->m_acceptMode == QFileDialog::AcceptSave;
+    d->m_fileNameEdit->setMinimumWidth(280);
     d->m_fileNameEdit->setVisible(saveMode);
     d->m_fileNameLabel->setVisible(saveMode);
 
@@ -1392,6 +1417,14 @@ FileDialog::FileDialog(QWidget *parent)
                 d->updateAcceptButtonState();
             });
 
+    // Selecting an ancestor from the path combo navigates to it. Uses activated
+    // (user interaction only) so the programmatic rebuilds do not navigate.
+    connect(d->m_pathCombo, &QComboBox::activated, this, [this](int index) {
+        const FilePath fp = d->m_pathCombo->itemData(index).value<FilePath>();
+        if (!fp.isEmpty() && fp != d->m_currentDir)
+            setDirectory(fp);
+    });
+
     connect(d->m_filterCombo,
             &QComboBox::currentIndexChanged,
             this,
@@ -1448,6 +1481,7 @@ void FileDialog::setDirectory(const FilePath &path)
         NavigationHistory::instance().visit(d->m_currentDir);
 
     emit directoryChanged(d->m_currentDir);
+    d->rebuildPathCombo();
     d->updateAcceptButtonState();
 
     d->m_model->setRootPath(d->m_currentDir);
