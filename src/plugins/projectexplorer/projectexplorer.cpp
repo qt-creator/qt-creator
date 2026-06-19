@@ -162,6 +162,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -4270,6 +4271,7 @@ void ProjectExplorerPluginPrivate::removeFile()
             filesToRemove << siblings;
     }
 
+    std::unordered_map<FolderNode *, FilePaths> filesToRemoveByFolderNode;
     for (const NodeAndPath &file : std::as_const(filesToRemove)) {
         // Nodes can become invalid if the project was re-parsed while the dialog was open
         if (!ProjectTree::hasNode(file.first)) {
@@ -4284,15 +4286,21 @@ void ProjectExplorerPluginPrivate::removeFile()
         FolderNode *folderNode = file.first->asFileNode()->parentFolderNode();
         QTC_ASSERT(folderNode, return);
 
-        const FilePath &currentFilePath = file.second;
-        const RemovedFilesFromProject status = folderNode->removeFiles({currentFilePath});
+        filesToRemoveByFolderNode[folderNode] << file.second;
+    }
+
+    for (const auto &[folderNode, files] : std::as_const(filesToRemoveByFolderNode)) {
+        FilePaths notRemoved;
+        const RemovedFilesFromProject status = folderNode->removeFiles(files, &notRemoved);
         const bool success = status == RemovedFilesFromProject::Ok
                 || (status == RemovedFilesFromProject::Wildcard && deleteFile);
         if (!success) {
-            TaskHub::addTask<BuildSystemTask>(Task::Error,
-                    Tr::tr("Could not remove file \"%1\" from project \"%2\".")
-                        .arg(currentFilePath.toUserOutput(), folderNode->managingProject()->displayName()),
-                    folderNode->managingProject()->filePath());
+            TaskHub::addTask<BuildSystemTask>(
+                        Task::Error,
+                        Tr::tr("Could not remove files from project \"%1\": %2")
+                        .arg(folderNode->managingProject()->displayName(),
+                             notRemoved.toUserOutput(", ")),
+                        folderNode->managingProject()->filePath());
         }
     }
 
