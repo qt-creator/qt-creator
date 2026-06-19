@@ -290,6 +290,16 @@ class Dumper(DumperBase):
         qualified = ('%s!%s' % (module, name)) if module else name
         return self.fromNativeValue(cdbext.parseAndEvaluate(qualified))
 
+    def createResolvePendingBreakpointsHookBreakpoint(self, args):
+        # No-op for cdb. The gdb/lldb bridges set a Python-side breakpoint on
+        # qt_qmlDebugConnectorOpen here to resolve pending QML breakpoints;
+        # CdbEngine instead sets that internal breakpoint itself (runEngine)
+        # and resolves the pending breakpoints from handleQmlDebugConnectorOpen.
+        # Overriding keeps the base insertInterpreterBreakpoint from calling the
+        # gdb/lldb-only helper and raising AttributeError before it reports the
+        # breakpoint pending.
+        pass
+
     def isWindowsTarget(self) -> bool:
         return True
 

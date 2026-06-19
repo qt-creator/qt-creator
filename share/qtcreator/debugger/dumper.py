@@ -2872,6 +2872,13 @@ typename))
         resdict = self.fetchInterpreterResult()
         return resdict.get('event') == 'break'
 
+    def reportInterpreterMessage(self):
+        # CDB drives stops from the C++ engine rather than from a Python stop
+        # handler (as GDB and LLDB do), so report the decoded QML debug event
+        # back to the engine, which decides whether to stay stopped.
+        resdict = self.fetchInterpreterResult()
+        print('interpretermessage=%s' % self.resultToMi(resdict))
+
     def reportInterpreterResult(self, resdict, args):
         print('interpreterresult=%s,token="%s"'
               % (self.resultToMi(resdict), args.get('token', -1)))

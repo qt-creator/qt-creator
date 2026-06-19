@@ -530,7 +530,11 @@ void CdbEngine::handleInitialSessionIdle()
                     }});
     }
     // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
-    BreakpointManager::claimBreakpointsForEngine(this);
+    // With the Python dumper, breakpoints are claimed later, from the
+    // loadDumpers callback in setupScripting(), so that interpreter (QML
+    // native-mixed) breakpoints are inserted only after theDumper exists.
+    if (!settings().cdbUsePythonDumper())
+        BreakpointManager::claimBreakpointsForEngine(this);
 
     const DebuggerSettings &s = settings();
     QStringList symbolPaths = s.cdbSymbolPaths();
@@ -564,7 +568,13 @@ void CdbEngine::handleInitialSessionIdle()
         if (response.resultClass == ResultDone || runParameters().startMode() == AttachToCore) {
             STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupOk")
                     notifyEngineSetupOk();
-            runEngine();
+            // With the Python dumper, defer runEngine() (which resumes the
+            // inferior with 'g') until setupScripting has created theDumper and
+            // claimed/inserted breakpoints - otherwise interpreter (QML
+            // native-mixed) breakpoints would only be inserted after the inferior
+            // is already running. See the loadDumpers callback in setupScripting().
+            if (!settings().cdbUsePythonDumper())
+                runEngine();
         }  else {
             showMessage(QString("Failed to determine inferior pid: %1").
                         arg(response.data["msg"].data()), LogError);
@@ -645,8 +655,17 @@ void CdbEngine::runEngine()
     // pending QML breakpoints) and qt_qmlDebugMessageAvailable (a QML event).
     // 'bu' defers until the qmldbg_native[d] plugin loads.
     if (isNativeMixedActive()) {
-        runCommand({breakAtFunctionCommand("qt_qmlDebugConnectorOpen"), BuiltinCommand, cb});
-        runCommand({breakAtFunctionCommand("qt_qmlDebugMessageAvailable"), BuiltinCommand, cb});
+        // The hooks live in the qmldbg_native[d] plugin, which is not loaded
+        // yet. A CDB deferred 'bu' only binds when a module it names as
+        // <module>!<function> is loaded; an unqualified name never resolves.
+        // Set a deferred breakpoint for each candidate module name (release and
+        // debug) and let whichever plugin actually loads bind it.
+        for (const QString &module : {QString("qmldbg_native"), QString("qmldbg_natived")}) {
+            runCommand({breakAtFunctionCommand("qt_qmlDebugConnectorOpen", module),
+                        BuiltinCommand, cb});
+            runCommand({breakAtFunctionCommand("qt_qmlDebugMessageAvailable", module),
+                        BuiltinCommand, cb});
+        }
     }
     if (runParameters().startMode() == AttachToCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
@@ -1729,6 +1748,23 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         return rc;
     }
     const int threadId = stopReason["threadId"].toInt();
+    // Native combined: the two internal hooks armed in runEngine() drive the
+    // QML side. They are not user breakpoints, so intercept them by the
+    // stopped function name and handle them asynchronously without notifying
+    // a user-visible stop. The conditionalBreakPointTriggered guard prevents
+    // re-entry when handleQmlDebugMessageAvailable() decides to stop for real.
+    if (isNativeMixedActive() && !conditionalBreakPointTriggered) {
+        const QString stopFunction = stopReason["stack"].childAt(0)["function"].data();
+        if (stopFunction.endsWith("qt_qmlDebugConnectorOpen")) {
+            *message = Tr::tr("Native QML debug connector opened.");
+            handleQmlDebugConnectorOpen();
+            return StopReportLog;
+        }
+        if (stopFunction.endsWith("qt_qmlDebugMessageAvailable")) {
+            handleQmlDebugMessageAvailable(stopReason);
+            return StopReportLog;
+        }
+    }
     if (reason == "breakpoint") {
         // Note: Internal breakpoints (run to line) are reported with id=0.
         // Step out creates temporary breakpoints with id 10000.
@@ -2166,6 +2202,23 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
             response.data.m_type = GdbMi::Tuple;
             response.data.addChild(msg);
         }
+        // Native combined (C++/QML) debugging: the QML bridge reports via printed
+        // interpreterresult=/interpreterasync=/interpretermessage= lines. GdbEngine
+        // lifts these straight from the raw output (see gdbengine.cpp); the cdb
+        // extension instead wraps script output as output=[msg=[line=...]], so pull
+        // the lines back out here and expose them as response.data[<key>] for the
+        // interpreter breakpoint and message callbacks to consume.
+        for (const char *key : {"interpreterresult", "interpreterasync", "interpretermessage"}) {
+            const QString prefix = QString::fromLatin1(key) + QLatin1Char('=');
+            for (const GdbMi &item : response.data["msg"]) {
+                if (!item.data().startsWith(prefix))
+                    continue;
+                GdbMi parsed;
+                parsed.fromStringMultiple(item.data(), m_cdbOutputDecoder);
+                response.data.addChild(parsed[key]);
+                break;
+            }
+        }
         command.callback(response);
         return;
     }
@@ -2550,6 +2603,24 @@ unsigned BreakpointCorrectionContext::fixLineNumber(const FilePath &filePath,
 void CdbEngine::insertBreakpoint(const Breakpoint &bp)
 {
     BreakpointParameters parameters = bp->requestedParameters();
+    if (!parameters.isCppBreakpoint()) {
+        // Native combined: a QML breakpoint is handled by the in-process
+        // NativeQmlDebugger service via the bridge. Direct insertion fails
+        // while the service connector is not yet up; the bridge then queues it
+        // as pending and the qt_qmlDebugConnectorOpen hook resolves it later
+        // (see runEngine() and handleQmlDebugConnectorOpen()).
+        DebuggerCommand cmd("theDumper.insertInterpreterBreakpoint", ScriptCommand);
+        bp->addToCommand(runParameters().buildDirectory(), &cmd);
+        cmd.callback = [this, bp](const DebuggerResponse &r) {
+            handleInsertInterpreterBreakpoint(r, bp);
+        };
+        notifyBreakpointInsertProceeding(bp);
+        // Track the in-flight insert so the initial runEngine() can be held back
+        // until the bridge has acknowledged it (see setupScripting()).
+        ++m_pendingInterpreterBreakpointInserts;
+        runCommand(cmd);
+        return;
+    }
     const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
     BreakpointParameters response = parameters;
     const QString responseId = breakPointCdbId(bp);
@@ -2894,6 +2965,26 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
                 [this](const DebuggerResponse &response) {
                     watchHandler()->addDumpers(response.data["result"]["dumpers"]);
+                    // theDumper is now available; claim breakpoints here so that
+                    // interpreter (QML native-mixed) breakpoints, which route
+                    // through theDumper.insertInterpreterBreakpoint, are inserted
+                    // only after the bridge exists (see handleInitialSessionIdle).
+                    BreakpointManager::claimBreakpointsForEngine(this);
+                    // Now that theDumper exists and (interpreter) breakpoints are
+                    // inserted/pending at the initial stop, resume the inferior.
+                    // runEngine() was deferred here from the pid callback for the
+                    // Python-dumper case (see setupEngine()/handleInitialSessionIdle).
+                    // If interpreter (QML native-mixed) breakpoint inserts are still
+                    // in flight, hold runEngine() back until the bridge has
+                    // acknowledged them (their handleInsertInterpreterBreakpoint
+                    // callbacks); resuming the inferior with 'g' before that would
+                    // flush the still-pending inserts, losing the QML breakpoints.
+                    if (settings().cdbUsePythonDumper()) {
+                        if (m_pendingInterpreterBreakpointInserts == 0)
+                            runEngine();
+                        else
+                            m_runEngineOnInterpreterBreakpointsInserted = true;
+                    }
     }});
 }
 
@@ -2939,6 +3030,66 @@ void CdbEngine::handleExpression(const DebuggerResponse &response, const Breakpo
         processStop(stopReason, true);
     else
         doContinueInferior();
+}
+
+void CdbEngine::handleInsertInterpreterBreakpoint(const DebuggerResponse &response,
+                                                  const Breakpoint &bp)
+{
+    QTC_ASSERT(bp, return);
+    const GdbMi data = response.data["interpreterresult"];
+    if (!data["pending"].toInt()) {
+        bp->setResponseId(data["number"].data());
+        bp->updateFromGdbOutput(data, runParameters());
+    }
+    notifyBreakpointInsertOk(bp);
+    // Release the runEngine() barrier once the bridge has acknowledged the last
+    // of the initial interpreter breakpoint inserts (see setupScripting()).
+    if (m_pendingInterpreterBreakpointInserts > 0
+            && --m_pendingInterpreterBreakpointInserts == 0
+            && m_runEngineOnInterpreterBreakpointsInserted) {
+        m_runEngineOnInterpreterBreakpointsInserted = false;
+        runEngine();
+    }
+}
+
+void CdbEngine::handleInterpreterBreakpointModified(const DebuggerResponse &response,
+                                                    const Breakpoint &bp)
+{
+    QTC_ASSERT(bp, return);
+    bp->updateFromGdbOutput(response.data["interpreterasync"], runParameters());
+}
+
+void CdbEngine::handleQmlDebugConnectorOpen()
+{
+    // The in-process service connector is now up. Resolve all pending QML
+    // breakpoints (this also enables the NativeQmlDebugger service), then
+    // continue - this hook is not a user-visible stop.
+    const Breakpoints bps = breakHandler()->breakpoints();
+    for (const Breakpoint &bp : bps) {
+        if (bp->requestedParameters().isCppBreakpoint())
+            continue;
+        DebuggerCommand cmd("theDumper.resolvePendingInterpreterBreakpoint", ScriptCommand);
+        bp->addToCommand(runParameters().buildDirectory(), &cmd);
+        cmd.callback = [this, bp](const DebuggerResponse &r) {
+            handleInterpreterBreakpointModified(r, bp);
+        };
+        runCommand(cmd);
+    }
+    doContinueInferior();
+}
+
+void CdbEngine::handleQmlDebugMessageAvailable(const GdbMi &stopReason)
+{
+    // Ask the bridge to decode the pending QML debug event and decide whether
+    // it warrants a real stop (e.g. a QML breakpoint hit) or is just machinery
+    // to be continued past.
+    runCommand({"theDumper.reportInterpreterMessage()", ScriptCommand,
+                [this, stopReason](const DebuggerResponse &r) {
+        if (r.data["interpretermessage"]["event"].data() == "break")
+            processStop(stopReason, true);
+        else
+            doContinueInferior();
+    }});
 }
 
 static void formatCdbBreakPointResponse(int modelId, const QString &responseId, const BreakpointParameters &r, QTextStream &str)

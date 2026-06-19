@@ -142,6 +142,11 @@ private:
     void handleRegisters(const DebuggerResponse &);
     void handleJumpToLineAddressResolution(const DebuggerResponse &response, const ContextData &context);
     void handleExpression(const DebuggerResponse &command, const Breakpoint &bp, const GdbMi &stopReason);
+    // Native combined (C++/QML) debugging.
+    void handleInsertInterpreterBreakpoint(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleInterpreterBreakpointModified(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleQmlDebugConnectorOpen();
+    void handleQmlDebugMessageAvailable(const GdbMi &stopReason);
     void handleResolveSymbol(const DebuggerResponse &command, const QString &symbol, DisassemblerAgent *agent);
     void handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent);
     void handleBreakInsert(const DebuggerResponse &response, const Breakpoint &bp);
@@ -208,6 +213,8 @@ private:
     QScopedPointer<GdbMi> m_coreStopReason;
     int m_pythonVersion = 0; // 0xMMmmpp MM = major; mm = minor; pp = patch
     bool m_initialSessionIdleHandled = false;
+    int m_pendingInterpreterBreakpointInserts = 0;
+    bool m_runEngineOnInterpreterBreakpointsInserted = false;
     mutable CPlusPlus::Snapshot m_codeModelSnapshot;
     mutable QStringDecoder m_cdbOutputDecoder;
 };
