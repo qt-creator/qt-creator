@@ -179,7 +179,7 @@ signals:
     void dragRequested(int index);
 
 private:
-    EditorView *m_editorView;
+    EditorView *m_editorView = nullptr;
     int m_leftClickedIndex = -1;
 };
 
@@ -216,6 +216,13 @@ public:
                     }
                 }
             });
+    }
+
+    ~TabBarInfo()
+    {
+        // The parent of m_tabBarContainer lives longer than `this`,
+        // so make sure that connections are removed when TabBarInfo dies
+        delete m_tabBarContainer;
     }
 
     QWidget *tabBar() { return m_tabBarContainer; }
@@ -310,6 +317,8 @@ public:
 
     int tabForEditor(IEditor *editor) const
     {
+        if (!editor)
+            return -1;
         return Utils::indexOf(m_tabData, [editor](const EditorView::TabData &data) {
             return data.editor ? data.editor == editor : data.entry->document == editor->document();
         });
@@ -506,13 +515,17 @@ private:
             &QAbstractItemModel::dataChanged,
             m_tabBar,
             [this](const QModelIndex &topLeft, const QModelIndex &bottomRight) {
+                bool anyTabUpdated = false;
                 for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
                     DocumentModel::Entry *e = DocumentModel::entryAtRow(i);
                     const int tabIndex = tabForEntry(e);
-                    if (tabIndex >= 0)
+                    if (tabIndex >= 0) {
                         updateTabUi(tabIndex, e->document);
-                    ensurePinnedOrder();
+                        anyTabUpdated = true;
+                    }
                 }
+                if (anyTabUpdated)
+                    ensurePinnedOrder();
             });
         // Handle dragging outside the tab bar (e.g. to a different view)
         QObject::connect(m_tabBar, &ViewTabBar::dragRequested, m_parentView, [this](int index) {
@@ -585,8 +598,8 @@ private:
     }
 
     ViewTabBar *m_tabBar = nullptr;
-    QWidget *m_tabBarContainer;
-    EditorView *m_parentView;
+    QWidget *m_tabBarContainer = nullptr;
+    EditorView *m_parentView = nullptr;
     QList<EditorView::TabData> m_tabData;
     bool m_ensuringPinnedOrder = false;
 };
