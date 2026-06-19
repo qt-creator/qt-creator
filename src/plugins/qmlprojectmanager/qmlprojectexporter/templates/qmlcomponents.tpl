@@ -13,14 +13,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://code.qt.io/qt-labs/qtquickdesigner-components.git
 )
 
-FetchContent_GetProperties(ds)
-
-if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
-  FetchContent_MakeAvailable(ds)
-else ()
-  FetchContent_Populate(ds)
-  add_subdirectory(${ds_SOURCE_DIR} ${ds_BINARY_DIR})
-endif()
+FetchContent_MakeAvailable(ds)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     QuickStudioComponentsplugin
