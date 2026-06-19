@@ -6,8 +6,8 @@
 #include "devcontainertr.h"
 #include "substitute.h"
 
-#include <utils/overloaded.h>
 #include <utils/stringutils.h>
+#include <utils/utility.h>
 
 using namespace Utils;
 

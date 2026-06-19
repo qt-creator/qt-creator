@@ -42,9 +42,9 @@
 #include <qmljs/qmljsvalueowner.h>
 
 #include <utils/algorithm.h>
-#include <utils/array.h>
 #include <utils/qrcparser.h>
 #include <utils/qtcassert.h>
+#include <utils/utility.h>
 
 #include <QDir>
 #include <QElapsedTimer>

@@ -27,11 +27,10 @@
 #include <cplusplus/Control.h>
 #include <cplusplus/Lexer.h>
 #include <cplusplus/Token.h>
-#include <cplusplus/Literals.h>
 #include <cplusplus/cppassert.h>
 
 #include <utils/filepath.h>
-#include <utils/scopedswap.h>
+#include <utils/utility.h>
 
 #include <QDebug>
 #include <QList>

@@ -11,9 +11,9 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/overloaded.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/utility.h>
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>

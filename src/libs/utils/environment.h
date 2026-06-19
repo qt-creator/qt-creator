@@ -8,7 +8,7 @@
 #include "environmentfwd.h"
 #include "filepath.h"
 #include "namevaluedictionary.h"
-#include "utiltypes.h"
+#include "utility.h"
 
 #include <QDateTime>
 

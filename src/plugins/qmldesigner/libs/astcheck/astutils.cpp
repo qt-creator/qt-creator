@@ -4,9 +4,9 @@
 #include "astutils.h"
 
 #include <utils/algorithm.h>
-#include <utils/array.h>
 #include <utils/expected.h>
 #include <utils/ranges.h>
+#include <utils/utility.h>
 
 #include <array>
 

@@ -8,9 +8,9 @@
 #include <qmljs/qmljsutils.h>
 
 #include <utils/algorithm.h>
-#include <utils/array.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
+#include <utils/utility.h>
 
 #include <QColor>
 #include <QDir>

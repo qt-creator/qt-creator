@@ -4,11 +4,10 @@
 #include "searchsymbols.h"
 
 #include <cplusplus/Icons.h>
-#include <cplusplus/LookupContext.h>
 
 #include <utils/qtcassert.h>
-#include <utils/scopedswap.h>
 #include <utils/stringtable.h>
+#include <utils/utility.h>
 
 #include <QDebug>
 

@@ -5,7 +5,7 @@
 
 #include "filepathinfo.h"
 #include "fsengine/fileiconprovider.h"
-#include "utiltypes.h"
+#include "utility.h"
 
 #include <QDir>
 #include <QDirIterator>

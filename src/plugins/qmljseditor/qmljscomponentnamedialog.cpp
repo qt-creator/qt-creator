@@ -4,11 +4,11 @@
 #include "qmljscomponentnamedialog.h"
 #include "qmljseditortr.h"
 
-#include <utils/array.h>
 #include <utils/fancylineedit.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/utility.h>
 
 #include <QCheckBox>
 #include <QDialogButtonBox>

@@ -30,10 +30,10 @@
 #include <coreplugin/icore.h>
 #include <qmljs/qmljssimplereader.h>
 #include <utils/algorithm.h>
-#include <utils/array.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/smallstring.h>
+#include <utils/utility.h>
 #include <utils/widgets.h>
 
 #ifdef QDS_USE_PROJECTSTORAGE

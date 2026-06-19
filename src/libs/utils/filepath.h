@@ -8,7 +8,7 @@
 #include "filepathinfo.h"
 #include "osspecificaspects.h"
 #include "result.h"
-#include "utiltypes.h"
+#include "utility.h"
 
 #include <QChar>
 #include <QFile>
@@ -19,7 +19,6 @@
 #include <functional>
 #include <memory>
 #include <optional>
-#include <variant>
 
 QT_BEGIN_NAMESPACE
 class QDateTime;
@@ -108,6 +107,7 @@ public:
     DirIteratorFlags iteratorFlags = DirIteratorFlag::NoIteratorFlags;
 };
 
+class FilePath;
 class FilePaths;
 using FilePair = std::pair<FilePath, FilePath>;
 using FilePairs = QList<FilePair>;

@@ -17,7 +17,6 @@ add_qtc_library(Utils
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appinfo.cpp appinfo.h
     appmainwindow.cpp appmainwindow.h
-    array.h
     aspectlist.cpp aspectlist.h
     aspects.cpp aspects.h
     async.cpp async.h
@@ -89,7 +88,6 @@ add_qtc_library(Utils
     jsonrpcinspector.cpp jsonrpcinspector.h
     jsontreeitem.cpp jsontreeitem.h
     layoutbuilder.cpp layoutbuilder.h
-    lazy.h
     link.cpp link.h
     listmodel.h
     lua.cpp lua.h
@@ -110,7 +108,6 @@ add_qtc_library(Utils
     outputformat.h
     outputformatter.cpp outputformatter.h
     overlaywidget.cpp overlaywidget.h
-    overloaded.h
     passworddialog.cpp passworddialog.h
     pathchooser.cpp pathchooser.h
     pathlisteditor.cpp pathlisteditor.h
@@ -138,7 +135,6 @@ add_qtc_library(Utils
     ranges.h
     result.cpp result.h
     savefile.cpp savefile.h
-    scopedswap.h
     scopedtimer.cpp scopedtimer.h
     searchresultitem.cpp searchresultitem.h
     set_algorithm.h
@@ -189,7 +185,6 @@ add_qtc_library(Utils
     utils_global.h
     utilstr.h
     utilsicons.cpp utilsicons.h
-    utiltypes.h
     utility.h
     variablechooser.cpp variablechooser.h
     widgets.cpp widgets.h

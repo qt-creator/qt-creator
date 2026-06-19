@@ -6,7 +6,7 @@
 #include "utils_global.h"
 
 #include "fancylineedit.h"
-#include "lazy.h"
+#include "utility.h"
 
 QT_BEGIN_NAMESPACE
 class QAbstractButton;

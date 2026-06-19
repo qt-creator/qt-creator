@@ -14,9 +14,9 @@
 #include "mimedatabase.h"
 #include "qtdesignwidgets.h"
 #include "theme/theme.h"
+#include "utility.h"
 #include "utilsicons.h"
 #include "utilstr.h"
-#include "utiltypes.h"
 #include "widgets.h"
 
 #include <solutions/spinner/spinner.h>

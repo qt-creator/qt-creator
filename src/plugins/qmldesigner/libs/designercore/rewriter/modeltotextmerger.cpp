@@ -16,8 +16,8 @@
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <utils/algorithm.h>
-#include <utils/array.h>
 #include <utils/span.h>
+#include <utils/utility.h>
 
 namespace {
     enum {
