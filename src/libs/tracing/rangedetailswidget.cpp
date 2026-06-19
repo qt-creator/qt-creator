@@ -8,9 +8,9 @@
 #include <utils/elidinglabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
-#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/widgets.h>
 
 #include <QFont>
 #include <QHeaderView>
