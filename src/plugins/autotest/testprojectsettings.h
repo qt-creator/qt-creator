@@ -46,28 +46,25 @@ public:
 
     static Utils::Key extraDataKey() { return "TestProjectSettings"; }
 
-    RunAfterBuildMode runAfterBuildMode() const;
-
-    QHash<ITestFramework *, bool> activeFrameworks() const { return activeTestFrameworks(); }
     void activateFramework(const Utils::Id &id, bool activate);
     void activateTestTool(const Utils::Id &id, bool activate);
-    Internal::ItemDataCache<Qt::CheckState> *checkStateCache() { return &m_checkStateCache; }
     void setPathFilters(const QStringList &filters) { pathFilters.setValue(filters); }
     void addPathFilter(const QString &filter) { setPathFilters(pathFilters() << filter); }
 
     ProjectExplorer::UseGlobalAspect useGlobalSettings; // not {this}: excluded from toMap/fromMap
-    Utils::SelectionAspect runAfterBuild{this};
+    Utils::TypedSelectionAspect<RunAfterBuildMode> runAfterBuild{this};
     Utils::BoolAspect limitToFilter{this};
     Utils::StringListAspect pathFilters{this};
     ActiveTestFrameworksAspect activeTestFrameworks{this};
     ActiveTestToolsAspect activeTestTools{this};
+
+    Internal::ItemDataCache<Qt::CheckState> checkStateCache;
 
 private:
     void load();
     void save();
 
     ProjectExplorer::Project *m_project;
-    Internal::ItemDataCache<Qt::CheckState> m_checkStateCache{Qt::Checked};
 };
 
 } // namespace Internal

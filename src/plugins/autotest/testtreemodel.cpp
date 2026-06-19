@@ -85,7 +85,7 @@ void TestTreeModel::setupParsingConnections()
         m_parser->onStartupProjectChanged(project);
         removeAllTestToolItems();
         synchronizeTestTools();
-        m_checkStateCache = project ? testProjectSettings(project)->checkStateCache() : nullptr;
+        m_checkStateCache = project ? &testProjectSettings(project)->checkStateCache : nullptr;
         onBuildSystemTestsUpdated(); // we may have old results if project was open before switching
         m_failedStateCache.clear();
         if (project) {

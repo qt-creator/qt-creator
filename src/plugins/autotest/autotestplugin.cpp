@@ -405,7 +405,7 @@ TestFrameworks activeTestFrameworks()
                                  &ITestFramework::active);
     } else { // we've got custom project settings
         const TestProjectSettings *settings = testProjectSettings(project);
-        const QHash<ITestFramework *, bool> active = settings->activeFrameworks();
+        const QHash<ITestFramework *, bool> active = settings->activeTestFrameworks();
         sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
                                  [active](ITestFramework *framework) {
             return active.value(framework, false);

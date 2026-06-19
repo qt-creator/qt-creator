@@ -100,7 +100,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
 
     m_generalWidget->setDisabled(m_projectSettings->useGlobalSettings());
 
-    populateFrameworks(m_projectSettings->activeFrameworks(),
+    populateFrameworks(m_projectSettings->activeTestFrameworks(),
                        m_projectSettings->activeTestTools());
 
     populatePathFilters(m_projectSettings->pathFilters());

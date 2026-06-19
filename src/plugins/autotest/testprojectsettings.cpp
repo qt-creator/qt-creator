@@ -77,11 +77,6 @@ TestProjectSettings::TestProjectSettings(ProjectExplorer::Project *project)
     connect(project, &ProjectExplorer::Project::aboutToSaveSettings, this, [this] { save(); });
 }
 
-RunAfterBuildMode TestProjectSettings::runAfterBuildMode() const
-{
-    return static_cast<RunAfterBuildMode>(runAfterBuild());
-}
-
 void TestProjectSettings::activateFramework(const Id &id, bool activate)
 {
     ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
@@ -136,8 +131,8 @@ void TestProjectSettings::load()
     activeTestTools.setValue(tools);
 
     const QVariant runAfterBuildVar = m_project->namedSettings(SK_RUN_AFTER_BUILD);
-    runAfterBuild.setValue(runAfterBuildVar.isValid() ? runAfterBuildVar.toInt() : 0);
-    m_checkStateCache.fromSettings(m_project->namedSettings(SK_CHECK_STATES).toMap());
+    runAfterBuild.setValue(static_cast<RunAfterBuildMode>(runAfterBuildVar.isValid() ? runAfterBuildVar.toInt() : 0));
+    checkStateCache.fromSettings(m_project->namedSettings(SK_CHECK_STATES).toMap());
     limitToFilter.setValue(m_project->namedSettings(SK_APPLY_FILTER).toBool());
     pathFilters.setValue(m_project->namedSettings(SK_PATH_FILTERS).toStringList());
 }
@@ -154,8 +149,8 @@ void TestProjectSettings::save()
     for (auto it = tools.cbegin(), end = tools.cend(); it != end; ++it)
         activeFrameworksMap.insert(it.key()->id().toString(), it.value());
     m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworksMap);
-    m_project->setNamedSettings(SK_RUN_AFTER_BUILD, runAfterBuild());
-    m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings());
+    m_project->setNamedSettings(SK_RUN_AFTER_BUILD, int(runAfterBuild()));
+    m_project->setNamedSettings(SK_CHECK_STATES, checkStateCache.toSettings());
     m_project->setNamedSettings(SK_APPLY_FILTER, limitToFilter());
     m_project->setNamedSettings(SK_PATH_FILTERS, pathFilters());
 }
