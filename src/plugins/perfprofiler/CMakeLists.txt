@@ -33,6 +33,7 @@ extend_qtc_plugin(PerfProfiler
   SOURCES
     tests/perfprofilertracefile_test.cpp tests/perfprofilertracefile_test.h
     tests/perfresourcecounter_test.cpp tests/perfresourcecounter_test.h
+    tests/perfnativemixed_test.cpp tests/perfnativemixed_test.h
     tests/tests.qrc
 )
 

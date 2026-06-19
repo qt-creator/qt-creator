@@ -9,6 +9,7 @@
 
 #if WITH_TESTS
 //#  include "tests/perfprofilertracefile_test.h"    // FIXME has to be rewritten
+#  include "tests/perfnativemixed_test.h"
 #  include "tests/perfresourcecounter_test.h"
 #endif // WITH_TESTS
 
@@ -38,6 +39,7 @@ class PerfProfilerPlugin final : public ExtensionSystem::IPlugin
 
 #if WITH_TESTS
         //   addTest<PerfProfilerTraceFileTest>();  // FIXME these tests have to get rewritten
+        addTestCreator(createPerfNativeMixedTest);
         addTestCreator(createPerfResourceCounterTest);
 #endif // WITH_TESTS
     }
