@@ -14,11 +14,16 @@
 #include <gocmdbridge/client/bridgedfileaccess.h>
 #include <gocmdbridge/client/cmdbridgeclient.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>
@@ -38,6 +43,7 @@
 #include <QProcess>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QSet>
 #include <QThread>
 #include <QUuid>
 
@@ -141,6 +147,9 @@ public:
         });
         connect(&m_process, &Process::done, this, [this] {
             ProcessResultData result = m_process.resultData();
+            qCDebug(windowsDeviceLog) << "WindowsProcessInterface done, exit code"
+                                      << result.m_exitCode << "stderr"
+                                      << m_process.readAllRawStandardError();
             // 255 is ssh's own exit code for connection or authentication failures.
             if (result.m_exitCode == 255) {
                 result.m_exitStatus = QProcess::CrashExit;
@@ -1002,35 +1011,103 @@ private:
     void updateDeviceFromUi() override {}
 };
 
-// Runs toolchain auto-detection for the device (MSVC, over SSH) and registers the results.
-// Kept to toolchains only for now; Qt detection and kit creation come later via the
-// generic kitDetectionRecipe.
+// Runs toolchain auto-detection for the device (MSVC, over SSH), registers the results and
+// creates a kit per detected target ABI. Qt detection is a later addition; until then the
+// kit comes up with the MSVC compiler and the device as build/run device, but no Qt.
 static void detectAndRegisterToolchains(const IDevice::Ptr &device)
 {
-    const FilePaths searchPaths = {device->rootPath()};
-    const Toolchains known = ToolchainManager::toolchains();
     qCDebug(windowsDeviceLog) << "Starting toolchain detection for"
                               << device->rootPath().toUserOutput();
-    QFuture<Toolchains> future = Utils::asyncRun([device, searchPaths, known]() -> Toolchains {
-        ToolchainDetector detector(known, device, searchPaths);
-        Toolchains found;
-        for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
-            const Toolchains detected = factory->autoDetect(detector);
-            for (Toolchain *tc : detected) {
-                if (tc->isValid())
-                    found.append(tc);
-                else
-                    delete tc;
-            }
+    // Run detection on the main thread. MSVC toolchains create an internal QFutureWatcher for
+    // their (async) vcvars environment capture; that watcher must have the main-thread affinity
+    // to deliver its results, so the toolchains must not be created on a worker thread. The
+    // blocking part here is vswhere over SSH, which is brief.
+    ToolchainDetector detector(ToolchainManager::toolchains(), device, {device->rootPath()});
+    Toolchains found;
+    for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
+        for (Toolchain *tc : factory->autoDetect(detector)) {
+            if (tc->isValid())
+                found.append(tc);
+            else
+                delete tc;
         }
-        return found;
+    }
+    if (found.isEmpty()) {
+        qCDebug(windowsDeviceLog) << "No toolchains detected";
+        return;
+    }
+
+    // Register only the newly created toolchains; re-runs reuse existing (already registered)
+    // ones via detector.alreadyKnown.
+    const Toolchains toRegister = Utils::filtered(found, [](Toolchain *tc) {
+        return !ToolchainManager::toolchains().contains(tc);
     });
-    future.then(device.get(), [](const Toolchains &found) {
-        const Toolchains registered = ToolchainManager::registerToolchains(found);
-        qCDebug(windowsDeviceLog) << "Registered" << registered.size() << "of" << found.size()
-                                  << "detected toolchain(s)";
-    });
-    Utils::futureSynchronizer()->addFuture(future);
+    ToolchainManager::registerToolchains(toRegister);
+    qCDebug(windowsDeviceLog) << "Detected" << found.size() << "toolchain(s),"
+                              << toRegister.size() << "new";
+
+    // Creates one kit per detected ABI, attaching the toolchain bundle and the device as
+    // build/run device. Removes kits previously auto-detected for this device first, so
+    // re-running does not accumulate duplicates.
+    const auto createKits = [device, found] {
+        const QString sourceId = device->id().toString();
+        const QList<Kit *> stale = Utils::filtered(KitManager::kits(), [&](Kit *k) {
+            return k->detectionSource().id == sourceId;
+        });
+        for (Kit *k : stale)
+            KitManager::deregisterKit(k);
+
+        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+            found, ToolchainBundle::HandleMissing::CreateAndRegister);
+        // Several bundles can map to the same target ABI (e.g. the native amd64 toolset and the
+        // x86-hosted cross toolset both target x64). Create only one kit per target ABI to avoid
+        // kits with identical names.
+        QSet<QString> seenAbis;
+        int created = 0;
+        for (const ToolchainBundle &bundle : bundles) {
+            const QString abi = bundle.targetAbi().toString();
+            if (seenAbis.contains(abi))
+                continue;
+            seenAbis.insert(abi);
+            ++created;
+            KitManager::registerKit([device, bundle, sourceId](Kit *k) {
+                k->setDetectionSource({DetectionSource::FromSystem, sourceId});
+                k->setUnexpandedDisplayName(
+                    "%{Device:Name} (" + bundle.targetAbi().toString() + ")");
+                RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+                RunDeviceKitAspect::setDevice(k, device);
+                BuildDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+                BuildDeviceKitAspect::setDevice(k, device);
+                k->setSticky(BuildDeviceKitAspect::id(), true);
+                k->setSticky(BuildDeviceTypeKitAspect::id(), true);
+                ToolchainKitAspect::setBundle(k, bundle);
+            });
+        }
+        qCDebug(windowsDeviceLog) << "Created" << created << "kit(s) for the device";
+    };
+
+    // The MSVC compilerCommand (cl.exe) is filled in asynchronously, after the vcvars
+    // environment capture. Create the kit only once every detected toolchain has resolved its
+    // compiler, so the kit gets a valid compiler instead of an empty one.
+    const auto ready = [found] {
+        return Utils::allOf(found, [](Toolchain *tc) {
+            return !tc->compilerCommand().isEmpty();
+        });
+    };
+    if (ready()) {
+        createKits();
+        return;
+    }
+    qCDebug(windowsDeviceLog) << "Awaiting MSVC environment before creating the kit";
+    const auto conn = std::make_shared<QMetaObject::Connection>();
+    *conn = QObject::connect(
+        ToolchainManager::instance(), &ToolchainManager::toolchainUpdated, device.get(),
+        [ready, createKits, conn](Toolchain *) {
+            if (ready()) {
+                QObject::disconnect(*conn);
+                createKits();
+            }
+        });
 }
 
 WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevicePtr &device)
@@ -1115,6 +1192,13 @@ WindowsDeviceFactory::WindowsDeviceFactory()
     });
     setExecutionTypeId(Constants::ExecutionType);
 }
+
+#ifdef WITH_TESTS
+void detectAndRegisterToolchainsForTest(const IDevice::Ptr &device)
+{
+    detectAndRegisterToolchains(device);
+}
+#endif
 
 } // namespace Internal
 } // namespace Remote

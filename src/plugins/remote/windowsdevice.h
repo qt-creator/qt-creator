@@ -55,5 +55,11 @@ public:
     WindowsDeviceFactory();
 };
 
+#ifdef WITH_TESTS
+// Test-only entry point that runs the same MSVC toolchain auto-detection and kit
+// creation the device widget's "Run Auto-Detection Now" button triggers.
+void detectAndRegisterToolchainsForTest(const ProjectExplorer::IDevice::Ptr &device);
+#endif
+
 } // namespace Internal
 } // namespace Remote
