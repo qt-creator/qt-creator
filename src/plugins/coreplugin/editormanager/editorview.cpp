@@ -180,7 +180,7 @@ signals:
 
 private:
     EditorView *m_editorView;
-    int m_leftClickedIndex = false;
+    int m_leftClickedIndex = -1;
 };
 
 class TabBarInfo
