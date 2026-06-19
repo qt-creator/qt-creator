@@ -3,7 +3,7 @@
 
 #include "mainsidebar.h"
 
-#include <qmlprofiler/profilertr.h>
+#include <profiler/profilertr.h>
 
 #include <utils/filepath.h>
 #include <utils/stylehelper.h>

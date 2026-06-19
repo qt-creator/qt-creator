@@ -4,7 +4,7 @@
 #pragma once
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmlprofiler/qmlprofilerdetailsrewriter.h>
+#include <profiler/qmlprofilerdetailsrewriter.h>
 
 namespace Profiler::Internal {
 

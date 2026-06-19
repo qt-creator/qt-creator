@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <qmlprofiler/pixmapcachemodel.h>
-#include <qmlprofiler/qmlprofilermodelmanager.h>
+#include <profiler/pixmapcachemodel.h>
+#include <profiler/qmlprofilermodelmanager.h>
 
 #include <QObject>
 

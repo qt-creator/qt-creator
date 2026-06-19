@@ -8,10 +8,10 @@
 #include "mainsidebar.h"
 #include "welcomepage.h"
 
-#include <qmlprofiler/ctfplainviewmanager.h>
-#include <qmlprofiler/profilertr.h>
-#include <qmlprofiler/qmlprofilerconstants.h>
-#include <qmlprofiler/qmlprofilerplainviewmanager.h>
+#include <profiler/ctfplainviewmanager.h>
+#include <profiler/profilertr.h>
+#include <profiler/qmlprofilerconstants.h>
+#include <profiler/qmlprofilerplainviewmanager.h>
 
 #include <coreplugin/minisplitter.h>
 

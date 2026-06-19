@@ -7,9 +7,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <qmlprofiler/qmlprofilerruncontrol.h>
-#include <qmlprofiler/qmlprofilerstatemanager.h>
-#include <qmlprofiler/qmlprofilertool.h>
+#include <profiler/qmlprofilerruncontrol.h>
+#include <profiler/qmlprofilerstatemanager.h>
+#include <profiler/qmlprofilertool.h>
 
 #include <utils/url.h>
 #include <utils/temporaryfile.h>

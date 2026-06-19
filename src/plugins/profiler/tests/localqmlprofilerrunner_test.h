@@ -3,21 +3,21 @@
 
 #pragma once
 
-#include <qmlprofiler/qmlprofilerattachdialog.h>
-
-#include <QObject>
+#include <profiler/qmlprofilermodelmanager.h>
 
 namespace Profiler::Internal {
 
-class QmlProfilerAttachDialogTest : public QObject
+class LocalQmlProfilerRunnerTest : public QObject
 {
     Q_OBJECT
 
 public:
-    QmlProfilerAttachDialogTest();
+    LocalQmlProfilerRunnerTest(QObject *parent = nullptr);
 
 private slots:
-    void testAccessors();
+    void testRunner();
+    void testFindFreePort();
+    void testFindFreeSocket();
 };
 
 } // namespace Profiler::Internal

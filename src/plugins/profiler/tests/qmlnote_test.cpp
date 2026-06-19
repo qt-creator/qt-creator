@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlnote_test.h"
-#include <qmlprofiler/qmlnote.h>
+#include <profiler/qmlnote.h>
 
 #include <QBuffer>
 #include <QTest>

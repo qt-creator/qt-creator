@@ -3,35 +3,37 @@
 
 #pragma once
 
-#include <qmlprofiler/qmlprofileranimationsmodel.h>
-#include <qmlprofiler/qmlprofilermodelmanager.h>
+#include <profiler/inputeventsmodel.h>
+#include <profiler/qmlprofilermodelmanager.h>
 
 #include <QObject>
 
 namespace Profiler::Internal {
 
-class QmlProfilerAnimationsModelTest : public QObject
+class InputEventsModelTest : public QObject
 {
     Q_OBJECT
 
 public:
-    QmlProfilerAnimationsModelTest();
+    InputEventsModelTest();
 
 private slots:
     void initTestCase();
-    void testRowMaxValue();
-    void testRowNumbers();
     void testTypeId();
     void testColor();
-    void testRelativeHeight();
     void testLabels();
     void testDetails();
+    void testExpandedRow();
+    void testCollapsedRow();
     void cleanupTestCase();
 
 private:
     QmlProfilerModelManager manager;
     Timeline::TimelineModelAggregator aggregator;
-    QmlProfilerAnimationsModel model;
+    InputEventsModel model;
+
+    int mouseTypeId = -1;
+    int keyTypeId = -1;
 };
 
 } // namespace Profiler::Internal

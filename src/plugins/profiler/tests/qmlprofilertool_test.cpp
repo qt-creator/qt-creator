@@ -10,11 +10,11 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <qmlprofiler/qmlprofilerattachdialog.h>
-#include <qmlprofiler/qmlprofilerclientmanager.h>
-#include <qmlprofiler/qmlprofilermodelmanager.h>
-#include <qmlprofiler/qmlprofilerstatemanager.h>
-#include <qmlprofiler/qmlprofilertool.h>
+#include <profiler/qmlprofilerattachdialog.h>
+#include <profiler/qmlprofilerclientmanager.h>
+#include <profiler/qmlprofilermodelmanager.h>
+#include <profiler/qmlprofilerstatemanager.h>
+#include <profiler/qmlprofilertool.h>
 
 #include <utils/qtcsettings.h>
 #include <utils/url.h>

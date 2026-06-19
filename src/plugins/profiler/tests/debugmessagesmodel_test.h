@@ -3,32 +3,35 @@
 
 #pragma once
 
-#include <qmlprofiler/flamegraphview.h>
-#include <qmlprofiler/qmlprofilermodelmanager.h>
-
-#include <tracing/timelinemodelaggregator.h>
+#include <profiler/debugmessagesmodel.h>
+#include <profiler/qmlprofilermodelmanager.h>
 
 #include <QObject>
 
 namespace Profiler::Internal {
 
-class FlameGraphViewTest : public QObject
+class DebugMessagesModelTest : public QObject
 {
     Q_OBJECT
 
 public:
-    FlameGraphViewTest();
+    DebugMessagesModelTest();
 
 private slots:
     void initTestCase();
-    void testSelection();
-    void testContextMenu();
+    void testTypeId();
+    void testColor();
+    void testLabels();
+    void testDetails();
+    void testExpandedRow();
+    void testCollapsedRow();
+    void testLocation();
     void cleanupTestCase();
 
 private:
     QmlProfilerModelManager manager;
     Timeline::TimelineModelAggregator aggregator;
-    FlameGraphView view;
+    DebugMessagesModel model;
 };
 
 } // namespace Profiler::Internal

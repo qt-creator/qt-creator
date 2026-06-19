@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <qmlprofiler/qmlprofilerclientmanager.h>
-#include <qmlprofiler/qmlprofilermodelmanager.h>
-#include <qmlprofiler/qmlprofilerstatemanager.h>
+#include <profiler/qmlprofilerclientmanager.h>
+#include <profiler/qmlprofilermodelmanager.h>
+#include <profiler/qmlprofilerstatemanager.h>
 
 #include <QObject>
 

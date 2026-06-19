@@ -4,7 +4,7 @@
 #include "flamegraphview_test.h"
 #include "flamegraphmodel_test.h"
 
-#include <qmlprofiler/qmlprofilertool.h>
+#include <profiler/qmlprofilertool.h>
 
 #include <QMenu>
 #include <QSignalSpy>

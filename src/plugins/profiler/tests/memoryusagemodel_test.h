@@ -3,37 +3,42 @@
 
 #pragma once
 
-#include <qmlprofiler/inputeventsmodel.h>
-#include <qmlprofiler/qmlprofilermodelmanager.h>
+#include <profiler/memoryusagemodel.h>
+#include <profiler/qmlprofilermodelmanager.h>
 
 #include <QObject>
 
 namespace Profiler::Internal {
 
-class InputEventsModelTest : public QObject
+class MemoryUsageModelTest : public QObject
 {
     Q_OBJECT
 
 public:
-    InputEventsModelTest();
+    MemoryUsageModelTest();
 
 private slots:
     void initTestCase();
+    void testRowMaxValue();
     void testTypeId();
     void testColor();
     void testLabels();
     void testDetails();
     void testExpandedRow();
     void testCollapsedRow();
+    void testLocation();
+    void testRelativeHeight();
     void cleanupTestCase();
 
 private:
     QmlProfilerModelManager manager;
     Timeline::TimelineModelAggregator aggregator;
-    InputEventsModel model;
+    MemoryUsageModel model;
 
-    int mouseTypeId = -1;
-    int keyTypeId = -1;
+    int heapPageTypeId = -1;
+    int smallItemTypeId = -1;
+    int largeItemTypeId = -1;
+    int rangeTypeId = -1;
 };
 
 } // namespace Profiler::Internal

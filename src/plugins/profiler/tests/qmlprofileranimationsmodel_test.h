@@ -3,42 +3,35 @@
 
 #pragma once
 
-#include <qmlprofiler/memoryusagemodel.h>
-#include <qmlprofiler/qmlprofilermodelmanager.h>
+#include <profiler/qmlprofileranimationsmodel.h>
+#include <profiler/qmlprofilermodelmanager.h>
 
 #include <QObject>
 
 namespace Profiler::Internal {
 
-class MemoryUsageModelTest : public QObject
+class QmlProfilerAnimationsModelTest : public QObject
 {
     Q_OBJECT
 
 public:
-    MemoryUsageModelTest();
+    QmlProfilerAnimationsModelTest();
 
 private slots:
     void initTestCase();
     void testRowMaxValue();
+    void testRowNumbers();
     void testTypeId();
     void testColor();
+    void testRelativeHeight();
     void testLabels();
     void testDetails();
-    void testExpandedRow();
-    void testCollapsedRow();
-    void testLocation();
-    void testRelativeHeight();
     void cleanupTestCase();
 
 private:
     QmlProfilerModelManager manager;
     Timeline::TimelineModelAggregator aggregator;
-    MemoryUsageModel model;
-
-    int heapPageTypeId = -1;
-    int smallItemTypeId = -1;
-    int largeItemTypeId = -1;
-    int rangeTypeId = -1;
+    QmlProfilerAnimationsModel model;
 };
 
 } // namespace Profiler::Internal

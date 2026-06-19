@@ -3,7 +3,7 @@
 
 #include "welcomepage.h"
 
-#include <qmlprofiler/profilertr.h>
+#include <profiler/profilertr.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>

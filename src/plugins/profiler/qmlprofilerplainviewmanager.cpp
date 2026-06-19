@@ -3,12 +3,12 @@
 
 #include "qmlprofilerplainviewmanager.h"
 
-#include "qmlprofiler/flamegraphview.h"
-#include "qmlprofiler/qmlprofilermodelmanager.h"
-#include "qmlprofiler/qmlprofilerstatisticsview.h"
-#include "qmlprofiler/quick3dframeview.h"
-#include "qmlprofiler/qmlprofilertool.h"
-#include "qmlprofiler/qmlprofilertraceview.h"
+#include "profiler/flamegraphview.h"
+#include "profiler/qmlprofilermodelmanager.h"
+#include "profiler/qmlprofilerstatisticsview.h"
+#include "profiler/quick3dframeview.h"
+#include "profiler/qmlprofilertool.h"
+#include "profiler/qmlprofilertraceview.h"
 
 #include <tracing/rangedetailswidget.h>
 

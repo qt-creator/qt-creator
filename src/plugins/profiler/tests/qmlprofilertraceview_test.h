@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <qmlprofiler/qmlprofilermodelmanager.h>
-#include <qmlprofiler/qmlprofilertraceview.h>
+#include <profiler/qmlprofilermodelmanager.h>
+#include <profiler/qmlprofilertraceview.h>
 
 #include <QObject>
 

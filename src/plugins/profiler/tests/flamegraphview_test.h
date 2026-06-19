@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <qmlprofiler/flamegraphmodel.h>
-#include <qmlprofiler/qmlprofilermodelmanager.h>
+#include <profiler/flamegraphview.h>
+#include <profiler/qmlprofilermodelmanager.h>
 
 #include <tracing/timelinemodelaggregator.h>
 
@@ -12,29 +12,23 @@
 
 namespace Profiler::Internal {
 
-class FlameGraphModelTest : public QObject
+class FlameGraphViewTest : public QObject
 {
     Q_OBJECT
 
 public:
-    FlameGraphModelTest();
-    static int generateData(QmlProfilerModelManager *manager,
-                            Timeline::TimelineModelAggregator *aggregator);
+    FlameGraphViewTest();
 
 private slots:
     void initTestCase();
-    void testIndex();
-    void testCounts();
-    void testData();
-    void testRoleNames();
-    void testNotes();
+    void testSelection();
+    void testContextMenu();
     void cleanupTestCase();
 
 private:
     QmlProfilerModelManager manager;
     Timeline::TimelineModelAggregator aggregator;
-    FlameGraphModel model;
-    int rangeModelId = -1;
+    FlameGraphView view;
 };
 
 } // namespace Profiler::Internal
