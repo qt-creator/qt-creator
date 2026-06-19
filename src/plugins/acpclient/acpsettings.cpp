@@ -11,6 +11,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/appinfo.h>
 #include <utils/aspectlist.h>
 #include <utils/aspects.h>
@@ -268,7 +269,8 @@ public:
                                          .arg(launchArguments());
                 templateCmdInfo->setText(info);
                 templateCmdInfo->setVisible(!isCustom);
-                const bool executableCanBeFound = executable.searchInPath().exists();
+                const bool executableCanBeFound
+                    = executable.searchInPath(FileUtils::usefulExtraSearchPaths()).exists();
                 cmdNotFoundLabel->setVisible(!isCustom && !executableCanBeFound);
                 QString warningText = Tr::tr("\"%1\" is needed for this Agent, but was not found.")
                                           .arg(executable.toUserOutput().toHtmlEscaped());

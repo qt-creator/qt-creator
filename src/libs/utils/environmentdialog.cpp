@@ -26,7 +26,7 @@ static EnvironmentItems cleanUp(const EnvironmentItems &items)
     EnvironmentItems cleanedItems;
     for (int i = items.count() - 1; i >= 0; i--) {
         EnvironmentItem item = items.at(i);
-        if (HostOsInfo::isWindowsHost())
+        if (HostOsInfo::isWindowsHost() && item.operation != EnvironmentItem::Comment)
             item.name = item.name.toUpper();
         const QString &itemName = item.name;
         QString emptyName = itemName;
