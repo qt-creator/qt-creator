@@ -17,6 +17,8 @@ template<class T>
 class ItemDataCache
 {
 public:
+    explicit ItemDataCache(const T &defaultValue = T{}) : m_defaultValue(defaultValue) {}
+
     void insert(ITestTreeItem *item, const T &value)
     {
         m_cache[item->cacheName()] = {0, value, item->testBase()->type()};
@@ -45,11 +47,11 @@ public:
 
     void clear() { m_cache.clear(); }
 
-    QVariantMap toSettings(const T &valueToIgnore) const
+    QVariantMap toSettings() const
     {
         QVariantMap result;
         for (auto it = m_cache.cbegin(), end = m_cache.cend(); it != end; ++it) {
-            if (it.value().value == valueToIgnore)
+            if (it.value().value == m_defaultValue)
                 continue;
             result.insert(QString::number(it.value().type) + '@'
                           + it.key(), QVariant::fromValue(it.value().value));
@@ -72,6 +74,7 @@ public:
 
 private:
     static constexpr int maxGen = 10;
+    T m_defaultValue;
     struct Entry
     {
         int generation = 0;

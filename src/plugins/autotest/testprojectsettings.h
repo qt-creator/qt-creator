@@ -63,7 +63,7 @@ private:
     void save();
 
     ProjectExplorer::Project *m_project;
-    Internal::ItemDataCache<Qt::CheckState> m_checkStateCache;
+    Internal::ItemDataCache<Qt::CheckState> m_checkStateCache{Qt::Checked};
 };
 
 } // namespace Internal

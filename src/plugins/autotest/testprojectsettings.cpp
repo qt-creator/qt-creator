@@ -155,7 +155,7 @@ void TestProjectSettings::save()
         activeFrameworksMap.insert(it.key()->id().toString(), it.value());
     m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworksMap);
     m_project->setNamedSettings(SK_RUN_AFTER_BUILD, runAfterBuild());
-    m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings(Qt::Checked));
+    m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings());
     m_project->setNamedSettings(SK_APPLY_FILTER, limitToFilter());
     m_project->setNamedSettings(SK_PATH_FILTERS, pathFilters());
 }
