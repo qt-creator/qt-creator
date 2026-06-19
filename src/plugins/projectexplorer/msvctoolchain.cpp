@@ -41,6 +41,7 @@
 #include <QLabel>
 #include <QLoggingCategory>
 #include <QRegularExpression>
+#include <QSet>
 #include <QSettings>
 #include <QVersionNumber>
 
@@ -290,6 +291,9 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVswhere(const FileP
         return installations;
     }
 
+    // vswhere invoked with both -prerelease and -legacy can list the same installation more
+    // than once; keep only the first entry per installation path.
+    QSet<QString> seenInstallationPaths;
     for (const QJsonValue &vsVersion : versions) {
         const QJsonObject vsVersionObj = vsVersion.toObject();
         if (vsVersionObj.isEmpty()) {
@@ -309,7 +313,11 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVswhere(const FileP
             qWarning() << "Could not obtain VS installation path from json output";
             continue;
         }
-        const FilePath installationPath = FilePath::fromUserInput(value.toString());
+        const QString installationPathString = value.toString();
+        if (seenInstallationPaths.contains(installationPathString))
+            continue;
+        seenInstallationPaths.insert(installationPathString);
+        const FilePath installationPath = FilePath::fromUserInput(installationPathString);
         std::optional<VisualStudioInstallation> installation
             = installationFromPathAndVersion(installationPath, version, root);
 
@@ -766,7 +774,10 @@ static Result<> generateEnvironmentSettings(const Environment &env,
     const auto writeLine = [&content](const QByteArray &line) { content += line + "\r\n"; };
 
     QByteArray call = "call ";
-    call += ProcessArgs::quoteArg(batchFile.nativePath()).toLocal8Bit();
+    // Quote for the OS that will run the batch file (the device), not the host: a Linux
+    // host would otherwise Unix-quote the Windows vcvarsall path and cmd.exe could not
+    // parse it, so vcvars would silently fail and we would capture only the base env.
+    call += ProcessArgs::quoteArg(batchFile.nativePath(), batchFile.osType()).toLocal8Bit();
     if (!batchArgs.isEmpty()) {
         call += ' ';
         call += batchArgs.toLocal8Bit();
@@ -2056,6 +2067,12 @@ static Toolchains findOrCreateToolchains(const ToolchainDetector &detector,
             return mtc->varsBat() == varsBat && mtc->varsBatArg() == varsBatArg;
         });
         if (tc) {
+            // A reused toolchain may have no resolved compiler yet - e.g. a device toolchain
+            // whose environment capture failed at startup, before the device was connected.
+            // Re-run the capture now (detection happens with the device available).
+            auto mtc = static_cast<MsvcToolchain *>(tc);
+            if (mtc->compilerCommand().isEmpty())
+                mtc->setupVarsBat(abi, varsBat, varsBatArg);
             res << tc;
         } else {
             auto mstc = new MsvcToolchain(Constants::MSVC_TOOLCHAIN_TYPEID);
