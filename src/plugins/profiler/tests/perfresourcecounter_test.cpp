@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfresourcecounter_test.h"
-#include <perfprofiler/perfresourcecounter.h>
+#include <profiler/perfresourcecounter.h>
 
 #include <QRandomGenerator>
 #include <QTest>

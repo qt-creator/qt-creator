@@ -38,7 +38,7 @@ QtcPlugin {
             "pixmapcachemodel.cpp", "pixmapcachemodel.h",
             "qmlnote.cpp", "qmlnote.h",
             "profilertr.h",
-            "qmlprofiler_global.h",
+            "profiler_global.h",
             "qmlprofileranimationsmodel.h", "qmlprofileranimationsmodel.cpp",
             "qmlprofilerattachdialog.cpp", "qmlprofilerattachdialog.h",
             "qmlprofilerclientmanager.cpp", "qmlprofilerclientmanager.h",
@@ -68,9 +68,44 @@ QtcPlugin {
         ]
     }
 
+    // Formerly the separate PerfProfiler plugin, folded in. See
+    // native-mixed-profiler-design.md.
+    Group {
+        name: "Perf"
+        files: [
+            "perfconfigeventsmodel.cpp", "perfconfigeventsmodel.h",
+            "perfdatareader.cpp", "perfdatareader.h",
+            "perfevent.h",
+            "perfeventtype.h",
+            "perfloaddialog.cpp", "perfloaddialog.h",
+            "perfprofilertr.h",
+            "perfprofilerconstants.h",
+            "perfprofilerflamegraphmodel.cpp", "perfprofilerflamegraphmodel.h",
+            "perfprofilerflamegraphview.cpp", "perfprofilerflamegraphview.h",
+            "perfprofilerruncontrol.cpp", "perfprofilerruncontrol.h",
+            "perfprofilerstatisticsmodel.cpp", "perfprofilerstatisticsmodel.h",
+            "perfprofilerstatisticsview.cpp", "perfprofilerstatisticsview.h",
+            "perfprofilertool.cpp", "perfprofilertool.h",
+            "perfprofilertracefile.cpp", "perfprofilertracefile.h",
+            "perfprofilertracemanager.cpp", "perfprofilertracemanager.h",
+            "perfresourcecounter.h",
+            "perfrunconfigurationaspect.cpp", "perfrunconfigurationaspect.h",
+            "perfsettings.cpp", "perfsettings.h",
+            "perftimelinemodel.cpp", "perftimelinemodel.h",
+            "perftimelinemodelmanager.cpp", "perftimelinemodelmanager.h",
+            "perftracepointdialog.cpp", "perftracepointdialog.h",
+            "perfprofiler.qrc",
+        ]
+    }
+
     QtcTestFiles {
         prefix: "tests/"
         files: [
+            "perfnativemixed_test.cpp", "perfnativemixed_test.h",
+            "perfprofilertracefile_test.cpp", "perfprofilertracefile_test.h",
+            "perfresourcecounter_test.cpp", "perfresourcecounter_test.h",
+            "perfprofilertests.qrc",
+
             "debugmessagesmodel_test.cpp", "debugmessagesmodel_test.h",
             "fakedebugserver.cpp", "fakedebugserver.h",
             "flamegraphmodel_test.cpp", "flamegraphmodel_test.h",

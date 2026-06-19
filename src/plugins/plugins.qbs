@@ -69,7 +69,6 @@ Project {
         "modeleditor/modeleditor.qbs",
         "nim/nim.qbs",
         "perforce/perforce.qbs",
-        "perfprofiler/perfprofiler.qbs",
         "profiler/qmlprofiler.qbs",
         "projectexplorer/projectexplorer.qbs",
         "qbsprojectmanager/qbsprojectmanager.qbs",

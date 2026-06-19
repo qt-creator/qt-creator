@@ -16,6 +16,10 @@ if(WITH_TESTS)
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
     tests/tests.qrc
+    tests/perfprofilertracefile_test.cpp tests/perfprofilertracefile_test.h
+    tests/perfresourcecounter_test.cpp tests/perfresourcecounter_test.h
+    tests/perfnativemixed_test.cpp tests/perfnativemixed_test.h
+    tests/perfprofilertests.qrc
   )
 else()
   set(TEST_SOURCES "")
@@ -40,7 +44,7 @@ set(QMLPROFILER_CPP_SOURCES
   pixmapcachemodel.cpp pixmapcachemodel.h
   qmlnote.cpp qmlnote.h
   profilertr.h
-  qmlprofiler_global.h
+  profiler_global.h
   qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
   qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h
   qmlprofilerclientmanager.cpp qmlprofilerclientmanager.h
@@ -69,6 +73,34 @@ set(QMLPROFILER_CPP_SOURCES
   quick3dframemodel.cpp quick3dframemodel.h
 )
 
+# Formerly the separate PerfProfiler plugin, folded in so the perf and QML
+# profilers share one tool/perspective/trace clock. Kept in the PerfProfiler
+# namespace; see native-mixed-profiler-design.md.
+set(PERFPROFILER_CPP_SOURCES
+  perfconfigeventsmodel.cpp perfconfigeventsmodel.h
+  perfdatareader.cpp perfdatareader.h
+  perfevent.h
+  perfeventtype.h
+  perfloaddialog.cpp perfloaddialog.h
+  perfprofiler.qrc
+  perfprofilerconstants.h
+  perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h
+  perfprofilerflamegraphview.cpp perfprofilerflamegraphview.h
+  perfprofilerruncontrol.cpp perfprofilerruncontrol.h
+  perfprofilerstatisticsmodel.cpp perfprofilerstatisticsmodel.h
+  perfprofilerstatisticsview.cpp perfprofilerstatisticsview.h
+  perfprofilertool.cpp perfprofilertool.h
+  perfprofilertracefile.cpp perfprofilertracefile.h
+  perfprofilertracemanager.cpp perfprofilertracemanager.h
+  perfprofilertr.h
+  perfresourcecounter.h
+  perfrunconfigurationaspect.cpp perfrunconfigurationaspect.h
+  perfsettings.cpp perfsettings.h
+  perftimelinemodel.cpp perftimelinemodel.h
+  perftimelinemodelmanager.cpp perftimelinemodelmanager.h
+  perftracepointdialog.cpp perftracepointdialog.h
+)
+
 add_qtc_plugin(QmlProfiler
   DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree
   INCLUDES ${PROJECT_SOURCE_DIR}/src
@@ -76,6 +108,7 @@ add_qtc_plugin(QmlProfiler
   SOURCES
     ${TEST_SOURCES}
     ${QMLPROFILER_CPP_SOURCES}
+    ${PERFPROFILER_CPP_SOURCES}
     ../../libs/3rdparty/json/json.hpp
   SBOM_ARGS
     USE_ATTRIBUTION_FILES

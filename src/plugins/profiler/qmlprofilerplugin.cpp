@@ -6,9 +6,16 @@
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilertool.h"
 
+#include "perfprofilerruncontrol.h"
+#include "perfprofilertool.h"
+#include "perfrunconfigurationaspect.h"
+
 #include <coreplugin/idocumentfactory.h>
 
 #ifdef WITH_TESTS
+
+#include "tests/perfnativemixed_test.h"
+#include "tests/perfresourcecounter_test.h"
 
 #include "tests/debugmessagesmodel_test.h"
 #include "tests/flamegraphmodel_test.h"
@@ -30,6 +37,7 @@
 #include <extensionsystem/iplugin.h>
 
 using namespace ProjectExplorer;
+using namespace PerfProfiler::Internal;
 
 namespace Profiler::Internal {
 
@@ -44,9 +52,18 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
         setupQmlProfilerTool();
         setupQmlProfilerRunning();
 
+        setupPerfProfilerTool();
+        setupPerfProfilerRunWorker();
+
         m_traceFileFactory.addMimeType("application/x-qmlprofiler-trace");
         m_traceFileFactory.setOpener([](const Utils::FilePath &filePath) -> Core::IDocument * {
             QmlProfilerTool::instance()->loadFile(filePath);
+            return nullptr;
+        });
+
+        m_perfTraceFileFactory.addMimeType("application/x-perfprofiler-trace");
+        m_perfTraceFileFactory.setOpener([](const Utils::FilePath &filePath) -> Core::IDocument * {
+            PerfProfilerTool::instance()->loadTraceFile(filePath);
             return nullptr;
         });
 
@@ -65,15 +82,26 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerDetailsRewriterTest>();
         addTest<QmlProfilerToolTest>();
         addTest<QmlProfilerTraceViewTest>();
+
+        addTestCreator(createPerfNativeMixedTest);
+        addTestCreator(createPerfResourceCounterTest);
 #endif
     }
 
     void extensionsInitialized() final
     {
         RunConfiguration::registerAspect<QmlProfilerRunConfigurationAspect>();
+        RunConfiguration::registerAspect<PerfRunConfigurationAspect>();
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        destroyPerfProfilerTool();
+        return SynchronousShutdown;
     }
 
     Core::IDocumentFactory m_traceFileFactory;
+    Core::IDocumentFactory m_perfTraceFileFactory;
 };
 
 } // namespace Profiler::Internal

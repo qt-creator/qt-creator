@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
+#include "profiler_global.h"
 
 #include <qwindowdefs.h>
 
@@ -13,7 +13,7 @@ namespace Utils { class FilePath; }
 
 namespace Profiler {
 
-class QMLPROFILER_EXPORT QmlProfilerPlainViewManager : public QObject
+class PROFILER_EXPORT QmlProfilerPlainViewManager : public QObject
 {
     Q_OBJECT
 

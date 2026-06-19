@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include "perfprofiler_global.h"
+#include "profiler_global.h"
 
 #include <projectexplorer/runconfiguration.h>
 
 namespace PerfProfiler {
 
-class PERFPROFILER_EXPORT PerfSettings final : public Utils::AspectContainer
+class PROFILER_EXPORT PerfSettings final : public Utils::AspectContainer
 {
     Q_OBJECT
 

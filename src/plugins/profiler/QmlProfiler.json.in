@@ -30,6 +30,10 @@
         "        <glob pattern='*.qtd'/>",
         "        <glob pattern='*.qzt'/>",
         "    </mime-type>",
+        "    <mime-type type='application/x-perfprofiler-trace'>",
+        "        <comment>Perf Profiler trace file</comment>",
+        "        <glob pattern='*.ptq'/>",
+        "    </mime-type>",
         "</mime-info>"
     ],
     ${IDE_PLUGIN_DEPENDENCIES}

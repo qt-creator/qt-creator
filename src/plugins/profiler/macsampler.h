@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
+#include "profiler_global.h"
 
 #include <utils/filepath.h>
 #include <utils/result.h>
@@ -31,7 +31,7 @@ struct SamplerOptions
 // thread may poll.
 //
 // macOS only: on other platforms this fails with an explanatory error.
-QMLPROFILER_EXPORT Utils::Result<Utils::FilePath> recordSampleTrace(
+PROFILER_EXPORT Utils::Result<Utils::FilePath> recordSampleTrace(
     const SamplerOptions &opts,
     const std::atomic_bool &stop,
     std::atomic<int> *progressPercent = nullptr);

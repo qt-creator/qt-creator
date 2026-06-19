@@ -7,7 +7,7 @@
 
 #include <debugger/debuggerruncontrol.h>
 
-#include <perfprofiler/perfprofilerconstants.h>
+#include <profiler/perfprofilerconstants.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>

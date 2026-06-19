@@ -14,7 +14,7 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerruncontrol.h>
 
-#include <perfprofiler/perfprofilerconstants.h>
+#include <profiler/perfprofilerconstants.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>

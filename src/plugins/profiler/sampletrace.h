@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
+#include "profiler_global.h"
 
 #include <utils/filepath.h>
 #include <utils/result.h>
@@ -54,6 +54,6 @@ Utils::Result<SampleTraceData> readSampleTrace(const Utils::FilePath &dir);
 
 // True if `dir` holds a CTF2 trace whose schema contains a data stream class
 // named samplerStreamName. Reads only the metadata file.
-QMLPROFILER_EXPORT bool isSamplerTrace(const Utils::FilePath &dir);
+PROFILER_EXPORT bool isSamplerTrace(const Utils::FilePath &dir);
 
 } // namespace QmlProfiler::Internal

@@ -3,11 +3,11 @@
 
 #include "perfnativemixed_test.h"
 
-#include <perfprofiler/perfprofilerconstants.h>
-#include <perfprofiler/perfprofilertracefile.h>
-#include <perfprofiler/perfprofilertracemanager.h>
-#include <perfprofiler/perftimelinemodel.h>
-#include <perfprofiler/perftimelinemodelmanager.h>
+#include <profiler/perfprofilerconstants.h>
+#include <profiler/perfprofilertracefile.h>
+#include <profiler/perfprofilertracemanager.h>
+#include <profiler/perftimelinemodel.h>
+#include <profiler/perftimelinemodelmanager.h>
 
 #include <QBuffer>
 #include <QByteArray>

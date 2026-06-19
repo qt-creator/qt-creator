@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
+#include "profiler_global.h"
 
 #include <qwindowdefs.h>
 
@@ -18,7 +18,7 @@ namespace Profiler {
 // Headless counterpart to CtfVisualizerTool: hosts the Chrome Trace Format /
 // Common Trace Format timeline and statistics views without QtCreator's
 // perspective/action-manager infrastructure, for use in the standalone viewer.
-class QMLPROFILER_EXPORT CtfPlainViewManager : public QObject
+class PROFILER_EXPORT CtfPlainViewManager : public QObject
 {
     Q_OBJECT
 
