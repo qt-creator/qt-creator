@@ -191,26 +191,33 @@ QDebug operator<<(QDebug d, const VisualStudioInstallation &i)
     return d;
 }
 
-static FilePath windowsProgramFilesDir()
+// Program Files directory of the device described by 'root' (used for remote detection).
+static FilePath windowsProgramFilesDir(const FilePath &root = {})
 {
-#ifdef Q_OS_WIN64
-    const char programFilesC[] = "ProgramFiles(x86)";
-#else
-    const char programFilesC[] = "ProgramFiles";
-#endif
-    return FilePath::fromUserInput(qtcEnvironmentVariable(programFilesC));
+    Environment env = root.deviceEnvironment();
+    QString dir = env.value("ProgramFiles(x86)");
+    if (dir.isEmpty())
+        dir = env.value("ProgramFiles");
+    return root.withNewPath(FilePath::fromUserInput(dir).path());
 }
 
+// 'root' is the device root for remote detection; empty means the local host. vswhere returns
+// plain path strings (parsed into a local FilePath), so for a device they are re-rooted onto
+// it; the stored vcVars paths then carry the device (local = plain path).
 static std::optional<VisualStudioInstallation> installationFromPathAndVersion(
-    const FilePath &installationPath, const QVersionNumber &version)
+    const FilePath &installationPath, const QVersionNumber &version, const FilePath &root = {})
 {
     const QString vcSubDir = version.majorVersion() > 14 ? QString("VC/Auxiliary/Build")
                                                          : QString("VC");
     const FilePath vcVarsPath = installationPath / vcSubDir;
     const FilePath vcVarsAllPath = vcVarsPath / "vcvarsall.bat";
-    if (!vcVarsAllPath.isFile()) {
+
+    const auto onDevice = [&root](const FilePath &path) {
+        return root.isEmpty() ? path : root.withNewPath(path.path());
+    };
+    if (!onDevice(vcVarsAllPath).isFile()) {
         qWarning().noquote() << "Unable to find MSVC setup script "
-                             << vcVarsPath.toUserOutput() << " in version " << version;
+                             << onDevice(vcVarsPath).toUserOutput() << " in version " << version;
         return std::nullopt;
     }
 
@@ -219,21 +226,21 @@ static std::optional<VisualStudioInstallation> installationFromPathAndVersion(
     installation.path = installationPath;
     installation.version = version;
     installation.vsName = versionString;
-    installation.vcVarsPath = vcVarsPath;
-    installation.vcVarsAll = vcVarsAllPath;
+    installation.vcVarsPath = onDevice(vcVarsPath);
+    installation.vcVarsAll = onDevice(vcVarsAllPath);
     return installation;
 }
 
 // Detect build tools introduced with MSVC2017
-static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
+static QList<VisualStudioInstallation> detectCppBuildTools2017(const FilePath &root)
 {
-    const FilePath installPath = windowsProgramFilesDir()
+    const FilePath installPath = windowsProgramFilesDir(root)
                                 / "Microsoft Visual Studio/2017/BuildTools";
     const FilePath vcVarsPath = installPath / "VC/Auxiliary/Build";
     const FilePath vcVarsAllPath = vcVarsPath / "vcvarsall.bat";
 
     if (!vcVarsAllPath.exists())
-        return std::nullopt;
+        return {};
 
     VisualStudioInstallation installation;
     installation.path = installPath;
@@ -242,17 +249,18 @@ static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
     installation.version = QVersionNumber(15);
     installation.vsName = "15.0";
 
-    return installation;
+    return {installation};
 }
 
-static FilePath vswherePath()
+static FilePath vswherePath(const FilePath &root)
 {
-    return windowsProgramFilesDir() / "Microsoft Visual Studio/Installer/vswhere.exe";
+    return windowsProgramFilesDir(root) / "Microsoft Visual Studio/Installer/vswhere.exe";
 }
 
-static QList<VisualStudioInstallation> detectVisualStudioFromVswhere()
+// 'root' is the device root for remote detection; empty means the local host.
+static QList<VisualStudioInstallation> detectVisualStudioFromVswhere(const FilePath &root)
 {
-    const FilePath vswhere = vswherePath();
+    const FilePath vswhere = vswherePath(root);
     if (!vswhere.isExecutableFile())
         return {};
 
@@ -261,7 +269,8 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVswhere()
     vsWhereProcess.setUtf8Codec();
     vsWhereProcess.setCommand({vswhere,
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
-    vsWhereProcess.runBlocking(5s);
+    // A device invocation goes over the (slower) device transport.
+    vsWhereProcess.runBlocking(root.isEmpty() ? 5s : 30s);
     if (vsWhereProcess.result() != ProcessResult::FinishedWithSuccess) {
         qWarning() << vsWhereProcess.verboseExitMessage();
         return installations;
@@ -302,7 +311,7 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVswhere()
         }
         const FilePath installationPath = FilePath::fromUserInput(value.toString());
         std::optional<VisualStudioInstallation> installation
-            = installationFromPathAndVersion(installationPath, version);
+            = installationFromPathAndVersion(installationPath, version, root);
 
         if (installation) {
             QJsonValue displayName = vsVersionObj.value("displayName");
@@ -314,8 +323,10 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVswhere()
     return installations;
 }
 
-static QList<VisualStudioInstallation> detectVisualStudioFromRegistry()
+static QList<VisualStudioInstallation> detectVisualStudioFromRegistry(const FilePath &root)
 {
+    if (!root.isLocal())
+        return {}; // TODO: Implement remote registry access for remote detection.
     QList<VisualStudioInstallation> result;
 #ifdef Q_OS_WIN64
     const QString keyRoot = QStringLiteral(
@@ -339,20 +350,17 @@ static QList<VisualStudioInstallation> detectVisualStudioFromRegistry()
         }
     }
 
-    // Detect VS 2017 Build Tools
-    auto installation = detectCppBuildTools2017();
-    if (installation)
-        result.append(*installation);
-
     return result;
 }
 
-static QList<VisualStudioInstallation> detectVisualStudio()
+static QList<VisualStudioInstallation> detectVisualStudio(const FilePath &root)
 {
-    const QList<VisualStudioInstallation> installations = detectVisualStudioFromVswhere();
-    if (!installations.isEmpty())
-        return installations;
-    return detectVisualStudioFromRegistry();
+    QList<VisualStudioInstallation> installations = detectVisualStudioFromVswhere(root);
+    if (installations.isEmpty()) {
+        installations << detectVisualStudioFromRegistry(root);
+        installations << detectCppBuildTools2017(root);
+    }
+    return installations;
 }
 
 static unsigned char wordWidthForPlatform(MsvcToolchain::Platform platform)
@@ -446,10 +454,12 @@ static Abi findAbiOfMsvc(MsvcToolchain::Type type,
     return result;
 }
 
-static QString generateDisplayName(const QString &name,
-                                   MsvcToolchain::Type t,
-                                   MsvcToolchain::Platform p,
-                                   const QString &displayName = {})
+static QString generateDisplayName(
+    const QString &name,
+    MsvcToolchain::Type t,
+    MsvcToolchain::Platform p,
+    IDeviceConstPtr device,
+    const QString &displayName = {})
 {
     if (t == MsvcToolchain::WindowsSDK) {
         QString sdkName = name;
@@ -461,6 +471,8 @@ static QString generateDisplayName(const QString &name,
     if (!displayName.isEmpty())
         vcName = QString::fromLatin1("%1 ").arg(displayName);
     vcName += name;
+    if (device && device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
+        vcName += Tr::tr(" on %1").arg(device->displayName());
     vcName += QString::fromLatin1(" (%1)").arg(platformName(p));
     return vcName;
 }
@@ -629,7 +641,20 @@ Macros MsvcToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
         }
     }
 
-    TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/envtestXXXXXX.cpp");
+    const FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
+    if (binary.isEmpty()) {
+        qWarning("%s: The compiler binary cl.exe could not be found in the path.", Q_FUNC_INFO);
+        return predefinedMacros;
+    }
+
+    // The test file must live on the same device as cl.exe so the compiler can read it.
+    const Result<FilePath> tmpDir = binary.tmpDir();
+    if (!tmpDir) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(tmpDir.error()));
+        return predefinedMacros;
+    }
+
+    TempFileSaver saver(tmpDir->pathAppended("envtestXXXXXX.cpp"));
     saver.write(msvcCompilationFile());
     if (const Result<> res = saver.finalize(); !res) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
@@ -638,14 +663,8 @@ Macros MsvcToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
 
     Process cpp;
     cpp.setEnvironment(env);
-    cpp.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
+    cpp.setWorkingDirectory(*tmpDir);
     QStringList arguments;
-    const FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
-    if (binary.isEmpty()) {
-        qWarning("%s: The compiler binary cl.exe could not be found in the path.", Q_FUNC_INFO);
-        return predefinedMacros;
-    }
-
     if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
         arguments << QLatin1String("/TC");
     arguments << toProcess << QLatin1String("/EP") << saver.filePath().toUserOutput();
@@ -741,53 +760,67 @@ static Result<> generateEnvironmentSettings(const Environment &env,
                                             QMap<QString, QString> &envPairs)
 {
     const QString marker = "####################";
-    // Create a temporary file name for the output. Use a temporary file here
-    // as I don't know another way to do this in Qt...
 
-    // Create a batch file to create and save the env settings
-    TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
+    // Build the batch file content (identical for local and device).
+    QByteArray content;
+    const auto writeLine = [&content](const QByteArray &line) { content += line + "\r\n"; };
 
     QByteArray call = "call ";
-    call += ProcessArgs::quoteArg(batchFile.path()).toLocal8Bit();
+    call += ProcessArgs::quoteArg(batchFile.nativePath()).toLocal8Bit();
     if (!batchArgs.isEmpty()) {
         call += ' ';
         call += batchArgs.toLocal8Bit();
     }
 
-    saver.write("chcp 65001\r\n");
-    saver.write("set VSCMD_SKIP_SENDTELEMETRY=1\r\n");
-    saver.write("set CLINK_NOAUTORUN=1\r\n");
-    saver.write("setlocal enableextensions\r\n");
-    saver.write("if defined VCINSTALLDIR (\r\n");
-    saver.write("  if not defined QTC_NO_MSVC_CLEAN_ENV (\r\n");
-    saver.write("    call \"%VCINSTALLDIR%/Auxiliary/Build/vcvarsall.bat\" /clean_env\r\n");
-    saver.write("  )\r\n");
-    saver.write(")\r\n");
-    saver.write(QByteArray(call + "\r\n"));
-    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
-    saver.write("set\r\n");
-    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
-    if (const Result<> &res = saver.finalize(); !res) {
-        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
-        return ResultOk;
-    }
+    if (batchFile.osType() == OsTypeWindows)
+        writeLine("chcp 65001");
+    writeLine("set VSCMD_SKIP_SENDTELEMETRY=1");
+    writeLine("set CLINK_NOAUTORUN=1");
+    writeLine("setlocal enableextensions");
+    writeLine("if defined VCINSTALLDIR (");
+    writeLine("  if not defined QTC_NO_MSVC_CLEAN_ENV (");
+    writeLine("    call \"%VCINSTALLDIR%/Auxiliary/Build/vcvarsall.bat\" /clean_env");
+    writeLine("  )");
+    writeLine(")");
+    writeLine(call);
+    writeLine("@echo " + marker.toLocal8Bit());
+    writeLine("set");
+    writeLine("@echo " + marker.toLocal8Bit());
+
+    QString stdOut;
+
+    // Write the batch file to the temp directory of the device the vcvars script lives on,
+    // then run it there via that device's cmd.exe and capture the environment it sets. Because
+    // all paths are rooted on 'batchFile's device, Process routes execution to the right host;
+    // for a plain/local path this keeps the original local behavior.
+    const Result<FilePath> tmpDir = batchFile.tmpDir();
+    if (!tmpDir)
+        return ResultError(tmpDir.error());
+
+    TempFileSaver saver(tmpDir->pathAppended("qtc_msvcenv_XXXXXX.bat"));
+    saver.write(content);
+    if (const Result<> &res = saver.finalize(); !res)
+        return ResultError(res.error());
+
+    const FilePath cmdPath = batchFile.findCmdExe(env);
+    if (!cmdPath.isExecutableFile())
+        return ResultError(Tr::tr("Failed to find cmd.exe"));
 
     Process run;
-
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems
     // if Creator is launched within a session set up by setenv.cmd.
     Environment runEnv = env;
     runEnv.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(runEnv);
-    const FilePath cmdPath = FilePath{}.findCmdExe(env);
-    // Windows SDK setup scripts require command line switches for environment expansion.
-    CommandLine cmd(cmdPath, {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
-    qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()
-                 << " Env: " << runEnv.toStringList().size();
     run.setUtf8Codec();
+    // Windows SDK setup scripts require command line switches for environment expansion.
+    const CommandLine cmd(cmdPath,
+        {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().nativePath()});
+    qCDebug(Log) << "readEnvironmentSetting:" << call << cmd.toUserOutput()
+                 << " Env:" << runEnv.toStringList().size();
     run.setCommand(cmd);
-    run.runBlocking(1min);
+    run.runBlocking(2min);
 
     if (run.result() != ProcessResult::FinishedWithSuccess) {
         const QString message = run.exitMessage(Process::FailureMessageFormat::WithStdErr);
@@ -798,9 +831,7 @@ static Result<> generateEnvironmentSettings(const Environment &env,
         return ResultError(Tr::tr("Failed to retrieve MSVC Environment from \"%1\":\n%2")
             .arg(command, message));
     }
-
-    // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
-    const QString stdOut = run.cleanedStdOut();
+    stdOut = run.cleanedStdOut();
 
     //
     // Now parse the file to get the environment settings
@@ -834,11 +865,14 @@ static Result<> generateEnvironmentSettings(const Environment &env,
 static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> &promise,
                                      FilePath vcvarsBat, QString varsBatArg)
 {
-    const Environment inEnv = Environment::systemEnvironment();
+    // The vcvars path carries its device: a device-rooted path means we capture the
+    // environment on that device; a plain/local path keeps the original local behavior.
+    const FilePath batchFile = vcvarsBat;
+    const Environment inEnv = batchFile.deviceEnvironment();
     Environment outEnv;
     QMap<QString, QString> envPairs;
     EnvironmentItems diff;
-    const Result<> result = generateEnvironmentSettings(inEnv, vcvarsBat, varsBatArg, envPairs);
+    const Result<> result = generateEnvironmentSettings(inEnv, batchFile, varsBatArg, envPairs);
     if (result) {
         // Now loop through and process them
         for (auto envIter = envPairs.cbegin(), end = envPairs.cend(); envIter != end; ++envIter) {
@@ -987,8 +1021,12 @@ MsvcToolchain::~MsvcToolchain()
 
 bool MsvcToolchain::isValid() const
 {
-    if (!m_isValid.has_value())
-        m_isValid = m_vcvarsBat.isExecutableFile();
+    if (!m_isValid.has_value()) {
+        // For a remote toolchain, don't do a blocking device round-trip here (the vcvars
+        // script's existence was verified at detection time); a non-empty path is enough.
+        m_isValid = m_vcvarsBat.isLocal() ? m_vcvarsBat.isExecutableFile()
+                                          : !m_vcvarsBat.isEmpty();
+    }
     return m_isValid.value_or(false);
 }
 
@@ -1327,19 +1365,38 @@ void MsvcToolchain::rescanForCompiler()
     if (typeId() == Constants::CLANG_CL_TOOLCHAIN_TYPEID)
         return;
 
-    Utils::Environment env = Utils::Environment::systemEnvironment();
+    const FilePath vcvars = m_vcvarsBat;
+    Utils::Environment env = vcvars.deviceEnvironment();
     addToEnvironment(env);
 
-    setCompilerCommand(
-          env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FilePath &name) {
-              QDir dir(QDir::cleanPath(name.toFileInfo().absolutePath() + QStringLiteral("/..")));
-              do {
-                  if (QFileInfo::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
-                      || QFileInfo::exists(dir.absolutePath() + "/Auxiliary/Build/vcvarsall.bat"))
-                      return true;
-              } while (dir.cdUp() && !dir.isRoot());
-              return false;
-          }));
+    if (vcvars.isLocal()) {
+        setCompilerCommand(
+              env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FilePath &name) {
+                  QDir dir(QDir::cleanPath(name.toFileInfo().absolutePath() + QStringLiteral("/..")));
+                  do {
+                      if (QFileInfo::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
+                          || QFileInfo::exists(dir.absolutePath() + "/Auxiliary/Build/vcvarsall.bat"))
+                          return true;
+                  } while (dir.cdUp() && !dir.isRoot());
+                  return false;
+              }));
+        return;
+    }
+
+    // Device: the vcvars environment puts the MSVC compiler bin directory on PATH. Probe
+    // only those entries (one remote check), not every PATH directory, and store a
+    // device-rooted path so the toolchain binds to the device and builds run cl.exe there.
+    const QStringList pathDirs = env.value("PATH").split(';', Qt::SkipEmptyParts);
+    for (const QString &dir : pathDirs) {
+        const QString slashed = FilePath::fromUserInput(dir).path();
+        if (!slashed.contains("/VC/Tools/MSVC/", Qt::CaseInsensitive))
+            continue;
+        const FilePath candidate = vcvars.withNewPath(slashed) / "cl.exe";
+        if (candidate.isExecutableFile()) {
+            setCompilerCommand(candidate);
+            return;
+        }
+    }
 }
 
 QList<OutputLineParser *> MsvcToolchain::createOutputParsers() const
@@ -1948,7 +2005,9 @@ public:
         setSupportedToolchainType(Constants::MSVC_TOOLCHAIN_TYPEID);
         setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new MsvcToolchain(Constants::MSVC_TOOLCHAIN_TYPEID); });
-        setUserCreatable(true);
+        // Manual creation only makes sense on a Windows host; on other hosts the factory
+        // still exists so MSVC can be auto-detected on a remote Windows device.
+        setUserCreatable(HostOsInfo::isWindowsHost());
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
@@ -2010,7 +2069,7 @@ static Toolchains findOrCreateToolchains(const ToolchainDetector &detector,
 }
 
 // Detect build tools introduced with MSVC2015
-static void detectCppBuildTools2015(Toolchains *list)
+static void detectCppBuildTools2015(Toolchains *list, const FilePath &root)
 {
     struct Entry
     {
@@ -2029,7 +2088,7 @@ static void detectCppBuildTools2015(Toolchains *list)
                              {" (x64_arm64)", "amd64_arm64", Abi::ArmArchitecture, Abi::PEFormat, 64}};
 
     const QString name = "Microsoft Visual C++ Build Tools";
-    const FilePath vcVarsBat = windowsProgramFilesDir() / name / "vcbuildtools.bat";
+    const FilePath vcVarsBat = windowsProgramFilesDir(root) / name / "vcbuildtools.bat";
     if (!vcVarsBat.isFile())
         return;
     for (const Entry &e : entries) {
@@ -2051,60 +2110,63 @@ static void detectCppBuildTools2015(Toolchains *list)
 
 Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        // FIXME currently no support for msvc toolchains on a device
+    // MSVC only exists on Windows: the local desktop, or a remote Windows device. Checking
+    // osType (rather than the desktop device type) keeps the local behavior and additionally
+    // covers device types whose remote host is Windows.
+    if (!detector.device || detector.device->osType() != Utils::OsTypeWindows)
         return {};
-    }
 
     Toolchains results;
 
-    // 1) Installed SDKs preferred over standalone Visual studio
-    const QSettings
-        sdkRegistry(QLatin1String(
-                        "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows"),
-                    QSettings::NativeFormat);
-    const QString defaultSdkPath = sdkRegistry.value(QLatin1String("CurrentInstallFolder"))
-                                       .toString();
-    if (!defaultSdkPath.isEmpty()) {
-        const QStringList groups = sdkRegistry.childGroups();
-        for (const QString &sdkKey : groups) {
-            const QString name = sdkRegistry.value(sdkKey + QLatin1String("/ProductName")).toString();
-            const QString folder = sdkRegistry.value(sdkKey + QLatin1String("/InstallationFolder"))
-                                       .toString();
-            if (folder.isEmpty())
-                continue;
+    const FilePath deviceRoot = detector.device->rootPath();
+    if (deviceRoot.isLocal()) { // TODO: Implement remote registry access for remote detection.
+        // 1) Installed SDKs preferred over standalone Visual studio
+        const QSettings sdkRegistry(
+            QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows"),
+            QSettings::NativeFormat);
+        const QString defaultSdkPath
+            = sdkRegistry.value(QLatin1String("CurrentInstallFolder")).toString();
+        if (!defaultSdkPath.isEmpty()) {
+            const QStringList groups = sdkRegistry.childGroups();
+            for (const QString &sdkKey : groups) {
+                const QString name
+                    = sdkRegistry.value(sdkKey + QLatin1String("/ProductName")).toString();
+                const QString folder
+                    = sdkRegistry.value(sdkKey + QLatin1String("/InstallationFolder")).toString();
+                if (folder.isEmpty())
+                    continue;
 
-            QDir dir(folder);
-            if (!dir.cd(QLatin1String("bin")))
-                continue;
-            QFileInfo fi(dir, QLatin1String("SetEnv.cmd"));
-            if (!fi.exists())
-                continue;
+                QDir dir(folder);
+                if (!dir.cd(QLatin1String("bin")))
+                    continue;
+                QFileInfo fi(dir, QLatin1String("SetEnv.cmd"));
+                if (!fi.exists())
+                    continue;
 
-            QList<Toolchain *> tmp;
-            const QList<QPair<MsvcToolchain::Platform, QString>> platforms = {
-                {MsvcToolchain::x86, "x86"},
-                {MsvcToolchain::amd64, "x64"},
-                {MsvcToolchain::ia64, "ia64"},
-                {MsvcToolchain::arm64, "arm64"},
-            };
-            for (const auto &platform : platforms) {
-                tmp.append(findOrCreateToolchains(detector,
-                                                  generateDisplayName(name,
-                                                                      MsvcToolchain::WindowsSDK,
-                                                                      platform.first),
-                                                  findAbiOfMsvc(MsvcToolchain::WindowsSDK,
-                                                                platform.first,
-                                                                sdkKey),
-                                                  FilePath::fromFileInfo(fi),
-                                                  "/" + platform.second));
-            }
-            // Make sure the default is front.
-            if (folder == defaultSdkPath)
-                results = tmp + results;
-            else
-                results += tmp;
-        } // for
+                QList<Toolchain *> tmp;
+                const QList<QPair<MsvcToolchain::Platform, QString>> platforms = {
+                    {MsvcToolchain::x86, "x86"},
+                    {MsvcToolchain::amd64, "x64"},
+                    {MsvcToolchain::ia64, "ia64"},
+                    {MsvcToolchain::arm64, "arm64"},
+                    };
+                for (const auto &platform : platforms) {
+                    const QString displayName = generateDisplayName(
+                        name, MsvcToolchain::WindowsSDK, platform.first, detector.device);
+                    tmp.append(findOrCreateToolchains(
+                        detector,
+                        displayName,
+                        findAbiOfMsvc(MsvcToolchain::WindowsSDK, platform.first, sdkKey),
+                        FilePath::fromFileInfo(fi),
+                        "/" + platform.second));
+                }
+                // Make sure the default is front.
+                if (folder == defaultSdkPath)
+                    results = tmp + results;
+                else
+                    results += tmp;
+            } // for
+        }
     }
 
     // 2) Installed MSVCs
@@ -2127,14 +2189,16 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
                                                  MsvcToolchain::arm64_x86,
                                                  MsvcToolchain::arm64_amd64};
 
-    const QList<VisualStudioInstallation> studios = detectVisualStudio();
+    const QList<VisualStudioInstallation> studios = detectVisualStudio(deviceRoot);
     for (const VisualStudioInstallation &i : studios) {
         for (MsvcToolchain::Platform platform : platforms) {
             const bool toolchainInstalled = vcVarsBatFor(i.vcVarsPath, platform, i.version).isFile();
             if (hostSupportsPlatform(platform) && toolchainInstalled) {
+                const QString displayName = generateDisplayName(
+                    i.vsName, MsvcToolchain::VS, platform, detector.device, i.displayName);
                 results.append(
                     findOrCreateToolchains(detector,
-                                           generateDisplayName(i.vsName, MsvcToolchain::VS, platform, i.displayName),
+                                           displayName,
                                            findAbiOfMsvc(MsvcToolchain::VS, platform, i.vsName),
                                            i.vcVarsAll,
                                            platformName(platform)));
@@ -2142,7 +2206,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
         }
     }
 
-    detectCppBuildTools2015(&results);
+    detectCppBuildTools2015(&results, deviceRoot);
 
     for (Toolchain *tc : std::as_const(results))
         tc->setDetectionSource(DetectionSource::FromSystem);
@@ -2232,12 +2296,12 @@ public:
     }
 };
 
-static ExecutableItem detectClangClRecipe()
+static ExecutableItem detectClangClRecipe(const FilePath &vswhere)
 {
-    const auto onSetup = [](Process &task) {
+    const auto onSetup = [vswhere](Process &task) {
         task.setUtf8Codec();
-        task.setCommand({vswherePath(),
-            {"-products", "*", "-format", "json", "-utf8", "-find", "**\\clang-cl.exe"}});
+        task.setCommand(
+            {vswhere, {"-products", "*", "-format", "json", "-utf8", "-find", "**\\clang-cl.exe"}});
     };
     const auto onDone = [](const Process &task, DoneWith result) {
         if (result != DoneWith::Success) {
@@ -2278,42 +2342,48 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
 #endif
 
     Toolchains results;
+    const FilePath deviceRoot = detector.device->rootPath();
     Toolchains known = detector.alreadyKnown;
 
-    Result<FilePath> qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
-    if (qtCreatorsClang) {
-        qtCreatorsClang = qtCreatorsClang->parentDir().pathAppended("clang-cl.exe");
-        results.append(detectClangClToolChainInPath(*qtCreatorsClang,
-                                                    detector.alreadyKnown, "", true));
-        known.append(results);
-    }
-
-    const QSettings registry(QLatin1String(registryNode), QSettings::NativeFormat);
-    if (registry.status() == QSettings::NoError) {
-        const FilePath path = FilePath::fromUserInput(registry.value(QStringLiteral(".")).toString());
-        const FilePath clangClPath = path / "bin/clang-cl.exe";
-        if (!path.isEmpty()) {
-            results.append(detectClangClToolChainInPath(clangClPath, known, ""));
+    if (deviceRoot.isLocal()) {
+        Result<FilePath> qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
+        if (qtCreatorsClang) {
+            qtCreatorsClang = qtCreatorsClang->parentDir().pathAppended("clang-cl.exe");
+            results.append(
+                detectClangClToolChainInPath(*qtCreatorsClang, detector.alreadyKnown, "", true));
             known.append(results);
+        }
+
+        const QSettings registry(QLatin1String(registryNode), QSettings::NativeFormat);
+        if (registry.status() == QSettings::NoError) {
+            const FilePath path = FilePath::fromUserInput(
+                registry.value(QStringLiteral(".")).toString());
+            const FilePath clangClPath = path / "bin/clang-cl.exe";
+            if (!path.isEmpty()) {
+                results.append(detectClangClToolChainInPath(clangClPath, known, ""));
+                known.append(results);
+            }
         }
     }
 
-    const Environment systemEnvironment = Environment::systemEnvironment();
-    const FilePath clangClPath = systemEnvironment.searchInPath("clang-cl.exe");
+    const Environment environment = deviceRoot.deviceEnvironment();
+    const FilePath clangClPath = environment.searchInPath("clang-cl.exe");
     if (!clangClPath.isEmpty())
         results.append(detectClangClToolChainInPath(clangClPath, known, ""));
 
-    if (vswherePath().isExecutableFile())
-        GlobalTaskTree::start({detectClangClRecipe()});
+    const FilePath vswhere = vswherePath(deviceRoot);
+    if (vswhere.isExecutableFile())
+        GlobalTaskTree::start({detectClangClRecipe(vswhere)});
 
     return results;
 }
 
 void setupMsvcToolchain()
 {
-#ifdef Q_OS_WIN
+    // Registered on all hosts (not just Windows) so MSVC can be auto-detected on a remote
+    // Windows device. On non-Windows hosts the factory is not user-creatable (see ctor) and
+    // its autoDetect() returns nothing for the local (non-Windows) desktop device.
     static MsvcToolchainFactory theMsvcToolChainFactory;
-#endif
 }
 
 void setupClangClToolchain()
