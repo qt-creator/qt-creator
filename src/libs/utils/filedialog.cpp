@@ -1599,6 +1599,7 @@ public:
     // True while navigating via back/forward, so setDirectory() does not record
     // the move as a fresh history entry.
     bool m_navigatingHistory = false;
+    bool m_showFullPaths = !HostOsInfo::isMacHost();
 
     bool acceptsAsSelection(bool isDir) const
     {
@@ -1649,10 +1650,18 @@ public:
     {
         QSignalBlocker blocker(m_pathCombo);
         m_pathCombo->clear();
+        // When showing full paths a single shared folder icon suffices and avoids
+        // a per-path icon lookup (which may hit the file system) for each ancestor
+        // on every navigation. With short labels the per-entry icon is shown, so
+        // use the path's own icon to match the visual identity of each entry.
+        static const QIcon folderIcon = FileIconProvider::icon(QFileIconProvider::Folder);
         FilePath p = m_currentDir;
         while (!p.isEmpty()) {
-            const QString name = p.fileName().isEmpty() ? p.toUserOutput() : p.fileName();
-            m_pathCombo->addItem(p.icon(), name, QVariant::fromValue(p));
+            const QString label = m_showFullPaths
+                                      ? p.toUserOutput()
+                                      : (p.fileName().isEmpty() ? p.toUserOutput() : p.fileName());
+            const QIcon icon = m_showFullPaths ? folderIcon : p.icon();
+            m_pathCombo->addItem(icon, label, QVariant::fromValue(p));
             const FilePath parent = p.parentDir();
             if (parent.isEmpty() || parent == p)
                 break;
@@ -1765,6 +1774,10 @@ FileDialog::FileDialog(QWidget *parent)
 
     d->m_pathCombo = new QComboBox(this);
     d->m_pathCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    // The items hold full paths, which can be long; keep the combo from dictating
+    // the dialog width and let it elide the collapsed text instead.
+    d->m_pathCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    d->m_pathCombo->setMinimumContentsLength(10);
 
     d->m_filterCombo = new QComboBox(this);
     d->m_filterCombo->setMinimumWidth(180);
@@ -2035,6 +2048,15 @@ FileDialog::FileDialog(QWidget *parent)
         d->m_proxy->setHideFiltered(checked);
     });
 
+    QAction *showFullPathsAction = new QAction(Tr::tr("Show full paths in ComboBox"), this);
+    showFullPathsAction->setCheckable(true);
+    showFullPathsAction->setChecked(d->m_showFullPaths);
+
+    connect(showFullPathsAction, &QAction::toggled, this, [this](bool checked) {
+        d->m_showFullPaths = checked;
+        d->rebuildPathCombo();
+    });
+
     using namespace Layouting;
     // clang-format off
     Column {
@@ -2073,6 +2095,7 @@ FileDialog::FileDialog(QWidget *parent)
                     menu.addSeparator();
                     menu.addAction(showHiddenAction);
                     menu.addAction(hideFilteredAction);
+                    menu.addAction(showFullPathsAction);
                     menu.exec(QCursor::pos());
                 }),
             },
