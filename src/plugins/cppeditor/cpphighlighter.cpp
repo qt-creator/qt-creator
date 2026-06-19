@@ -877,18 +877,17 @@ int main() {                              // 1,0
         t.setSingleShot(true);
         connect(&t, &QTimer::timeout, &loop, [&] {loop.exit(1); });
         const auto check = [&] {
+            const struct LoopHandler {
+                LoopHandler(QEventLoop &loop) : loop(loop) {}
+                ~LoopHandler() { loop.quit(); }
+            private:
+                QEventLoop &loop;
+            } loopHandler(loop);
+
             if (qobject_cast<TextDocument *>(testDocument.m_editor->document())
                     ->isFoldingIndentExternallyProvided()) {
                 QSKIP("folding is done via clangd");
             }
-
-            const struct LoopHandler {
-                LoopHandler(QEventLoop &loop) : loop(loop) {}
-                ~LoopHandler() { loop.quit(); }
-
-            private:
-                QEventLoop &loop;
-            } loopHandler(loop);
 
             const auto getExpectedBraceDepthAndFoldingIndent = [](const QTextBlock &block) {
                 const QString &text = block.text();
@@ -921,9 +920,10 @@ int main() {                              // 1,0
         };
 
         if (testDocument.m_editorWidget->cppEditorDocument()->ifdefedOutBlocks().isEmpty()) {
+            QObject guard;
             connect(testDocument.m_editorWidget->cppEditorDocument(),
                     &CppEditorDocument::ifdefedOutBlocksApplied,
-                    this, check);
+                    &guard, check);
             t.start(5000);
             QCOMPARE(loop.exec(), 0);
         } else {
