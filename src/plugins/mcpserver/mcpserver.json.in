@@ -21,5 +21,12 @@
     "LongDescription" : ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-mcp-server.html",
+    "Arguments" : [
+        {
+            "Name" : "-mcp-port",
+            "Parameter" : "port",
+            "Description" : "Start the MCP server on the given port (enables the server, overrides the configured port)"
+        }
+    ],
     ${IDE_PLUGIN_DEPENDENCIES}
 }

@@ -390,7 +390,7 @@ class McpServerPlugin final : public ExtensionSystem::IPlugin
 public:
     ~McpServerPlugin() final {}
 
-    void initialize() final
+    Result<> initialize(const QStringList &arguments) final
     {
         ActionBuilder inspectAction(this, "McpServer.Inspector");
         inspectAction.setText(Tr::tr("Inspect MCP Server..."));
@@ -399,7 +399,25 @@ public:
 
         m_server.setInspector(&inspector);
         settings.readSettings();
+
+        // Allow overriding the listen port from the command line, e.g. for
+        // headless or scripted instances: "-mcp-port 46327". This also enables
+        // the server so a single switch is enough to bring it up.
+        for (int i = 0; i + 1 < arguments.size(); ++i) {
+            if (arguments.at(i) != "-mcp-port")
+                continue;
+            bool ok = false;
+            const int p = arguments.at(i + 1).toInt(&ok);
+            if (!ok || p < 0 || p > 65535) {
+                return ResultError(Tr::tr("Invalid -mcp-port value \"%1\".")
+                                       .arg(arguments.at(i + 1)));
+            }
+            settings.enabled.setValue(true);
+            settings.port.setValue(p);
+        }
+
         restartServer();
+        return ResultOk;
     }
 
     void extensionsInitialized() final
