@@ -12,6 +12,7 @@
 #include "remotelinuxtr.h"
 #include "tarpackagecreationstep.h"
 #include "tarpackagedeploystep.h"
+#include "windowsdevice.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -60,6 +61,7 @@ public:
     void initialize() final
     {
         m_linuxDeviceFactory = std::make_unique<LinuxDeviceFactory>();
+        m_windowsDeviceFactory = std::make_unique<WindowsDeviceFactory>();
         setupRemoteLinuxRunConfiguration();
         setupRemoteLinuxCustomRunConfiguration();
         setupRemoteLinuxRunAndDebugSupport();
@@ -76,6 +78,7 @@ public:
 
 private:
     std::unique_ptr<LinuxDeviceFactory> m_linuxDeviceFactory;
+    std::unique_ptr<WindowsDeviceFactory> m_windowsDeviceFactory;
     RsyncToolFactory m_rsyncToolFactory;
 };
 

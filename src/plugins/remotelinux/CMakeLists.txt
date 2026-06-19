@@ -29,6 +29,8 @@ add_qtc_plugin(RemoteLinux
     sshkeycreationdialog.cpp sshkeycreationdialog.h
     tarpackagecreationstep.cpp tarpackagecreationstep.h
     tarpackagedeploystep.cpp tarpackagedeploystep.h
+    windowsdevice.cpp windowsdevice.h
+    windowsdevicetester.cpp windowsdevicetester.h
 )
 
 extend_qtc_plugin(RemoteLinux

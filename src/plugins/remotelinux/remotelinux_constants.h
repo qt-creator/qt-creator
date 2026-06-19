@@ -6,6 +6,7 @@
 namespace RemoteLinux::Constants {
 
 const char GenericLinuxOsType[] = "GenericLinuxOsType";
+const char GenericWindowsOsType[] = "GenericWindowsOsType";
 
 const char DeployToGenericLinux[] = "DeployToGenericLinux";
 

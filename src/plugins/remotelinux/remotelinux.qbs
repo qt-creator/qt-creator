@@ -60,6 +60,10 @@ QtcPlugin {
         "tarpackagecreationstep.h",
         "tarpackagedeploystep.cpp",
         "tarpackagedeploystep.h",
+        "windowsdevice.cpp",
+        "windowsdevice.h",
+        "windowsdevicetester.cpp",
+        "windowsdevicetester.h",
         "images/embeddedtarget.png",
     ]
 
