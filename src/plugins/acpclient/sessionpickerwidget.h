@@ -36,10 +36,13 @@ public:
     void setCurrentProjectDir(const Utils::FilePath &dir);
     void setNewSessionTargets(const QList<NewSessionTarget> &targets);
 
+    void setCanDeleteSessions(bool canDelete);
+
     void setInitialSessions(const QList<Acp::SessionInfo> &sessions,
                             const std::optional<QString> &nextCursor);
     void appendSessions(const QList<Acp::SessionInfo> &sessions,
                         const std::optional<QString> &nextCursor);
+    void removeSession(const QString &sessionId);
 
     void setResolved(const QString &title);
 
@@ -47,6 +50,7 @@ signals:
     void sessionSelected(const QString &sessionId, const Utils::FilePath &cwd);
     void loadMoreRequested(const QString &cursor);
     void newSessionRequested(const Utils::FilePath &cwd);
+    void deleteSessionRequested(const QString &sessionId);
 
 private:
     struct Group
@@ -66,6 +70,8 @@ private:
     void ensureProjectGroups();
     Group &ensureGroup(const QString &cwd);
 
+    bool m_canDeleteSessions = false;
+    QHash<QString, QWidget *> m_sessionItems;
     QList<NewSessionTarget> m_newSessionTargets;
     QVBoxLayout *m_newSessionContainer = nullptr;
     QVBoxLayout *m_currentGroupContainer = nullptr;

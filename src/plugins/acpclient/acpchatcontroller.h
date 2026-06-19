@@ -44,9 +44,11 @@ public:
     void setConfigOption(const QString &configId, const QString &value);
     void sendPermissionResponse(const QJsonValue &id, const QString &optionId);
     void sendPermissionCancelled(const QJsonValue &id);
+    void deleteSession(const QString &sessionId);
 
     bool isInitialized() const { return m_initialized; }
     bool supportsSessionList() const;
+    bool supportsSessionDelete() const;
     const QString &sessionId() const { return m_sessionId; }
     const QString &agentName() const { return m_agentName; }
     const QString &agentVersion() const { return m_agentVersion; }
@@ -59,6 +61,7 @@ signals:
     void sessionLoaded(const QString &sessionId);
     void sessionsListed(const QList<Acp::SessionInfo> &sessions,
                         const std::optional<QString> &nextCursor);
+    void sessionDeleted(const QString &sessionId);
     void configOptionsReceived(const QList<Acp::SessionConfigOption> &configOptions);
     void sessionUpdate(const QString &sessionId, const Acp::SessionUpdate &update);
     void authenticationRequired(const QList<Acp::AuthMethod> &methods);

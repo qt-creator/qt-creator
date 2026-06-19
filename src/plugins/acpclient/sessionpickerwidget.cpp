@@ -19,6 +19,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPushButton>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 using namespace Acp;
@@ -95,8 +96,21 @@ public:
         m_layout->addWidget(label, stretch, Qt::AlignRight);
     }
 
+    void setDeleteButton()
+    {
+        auto *btn = new QToolButton(this);
+        btn->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
+        btn->setAutoRaise(true);
+        btn->setToolTip(Tr::tr("Delete Session"));
+        const int sz = fontMetrics().height();
+        btn->setFixedSize(sz + 4, sz + 4);
+        connect(btn, &QToolButton::clicked, this, &PickerItem::deleteRequested);
+        m_layout->addWidget(btn);
+    }
+
 signals:
     void clicked();
+    void deleteRequested();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override
@@ -205,6 +219,23 @@ void SessionPickerWidget::setCurrentProjectDir(const Utils::FilePath &dir)
 {
     m_currentProjectDir = dir;
     m_currentGroupKey = dir.isEmpty() ? QString() : dir.toUserOutput();
+}
+
+void SessionPickerWidget::setCanDeleteSessions(bool canDelete)
+{
+    m_canDeleteSessions = canDelete;
+}
+
+void SessionPickerWidget::removeSession(const QString &sessionId)
+{
+    QWidget *item = m_sessionItems.take(sessionId);
+    if (!item)
+        return;
+    if (QWidget *pw = item->parentWidget())
+        if (QLayout *l = pw->layout())
+            l->removeWidget(item);
+    delete item;
+    updateEmptyState();
 }
 
 void SessionPickerWidget::setNewSessionTargets(const QList<NewSessionTarget> &targets)
@@ -395,12 +426,19 @@ void SessionPickerWidget::addSessionItem(const SessionInfo &session)
         item->setTrailingText(relativeTime(*session.updatedAt()));
 
     const QString sessionId = session.sessionId();
+    m_sessionItems.insert(sessionId, item);
     const Utils::FilePath cwd = Utils::FilePath::fromUserInput(session.cwd());
     connect(item, &PickerItem::clicked, this, [this, sessionId, cwd] {
         if (m_resolved)
             return;
         emit sessionSelected(sessionId, cwd);
     });
+    if (m_canDeleteSessions) {
+        item->setDeleteButton();
+        connect(item, &PickerItem::deleteRequested, this, [this, sessionId] {
+            emit deleteSessionRequested(sessionId);
+        });
+    }
 
     // Canonicalize the cwd so sessions land in the matching project group
     // (m_currentGroupKey is the current project's canonical user-output path).

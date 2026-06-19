@@ -462,6 +462,7 @@ void AcpChatTab::showSessionPicker()
         targets.append(t);
     }
     picker->setNewSessionTargets(targets);
+    picker->setCanDeleteSessions(m_controller->supportsSessionDelete());
 
     connect(picker, &SessionPickerWidget::sessionSelected, this,
             [this, picker](const QString &sessionId, const FilePath &cwd) {
@@ -474,6 +475,10 @@ void AcpChatTab::showSessionPicker()
     });
     connect(picker, &SessionPickerWidget::loadMoreRequested,
             m_controller, &AcpChatController::listSessions);
+    connect(picker, &SessionPickerWidget::deleteSessionRequested,
+            m_controller, &AcpChatController::deleteSession);
+    connect(m_controller, &AcpChatController::sessionDeleted,
+            picker, &SessionPickerWidget::removeSession);
 
     if (!m_controller->supportsSessionList())
         return;

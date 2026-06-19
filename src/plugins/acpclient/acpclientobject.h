@@ -43,6 +43,7 @@ public:
     void newSession(const Acp::NewSessionRequest &request, ResponseCallback callback = {});
     void listSessions(const Acp::ListSessionsRequest &request, ResponseCallback callback = {});
     void loadSession(const Acp::LoadSessionRequest &request, ResponseCallback callback = {});
+    void deleteSession(const Acp::DeleteSessionRequest &request, ResponseCallback callback = {});
     void prompt(const Acp::PromptRequest &request, ResponseCallback callback = {});
     void cancelSession(const Acp::CancelNotification &notification);
     void setSessionMode(const Acp::SetSessionModeRequest &request, ResponseCallback callback = {});

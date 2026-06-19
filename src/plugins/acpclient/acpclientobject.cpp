@@ -73,6 +73,11 @@ void AcpClientObject::loadSession(const LoadSessionRequest &request, ResponseCal
     sendRequest(QStringLiteral("session/load"), Acp::toJson(request), callback);
 }
 
+void AcpClientObject::deleteSession(const DeleteSessionRequest &request, ResponseCallback callback)
+{
+    sendRequest(QStringLiteral("session/delete"), Acp::toJson(request), callback);
+}
+
 void AcpClientObject::prompt(const PromptRequest &request, ResponseCallback callback)
 {
     sendRequest(QStringLiteral("session/prompt"), Acp::toJson(request), callback);

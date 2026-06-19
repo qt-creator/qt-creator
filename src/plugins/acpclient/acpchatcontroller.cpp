@@ -445,6 +445,14 @@ bool AcpChatController::supportsSessionList() const
     return sessionCaps.has_value() && sessionCaps->list().has_value();
 }
 
+bool AcpChatController::supportsSessionDelete() const
+{
+    if (!m_agentCapabilities)
+        return false;
+    const auto &sessionCaps = m_agentCapabilities->sessionCapabilities();
+    return sessionCaps.has_value() && sessionCaps->delete_().has_value();
+}
+
 void AcpChatController::listSessions(const std::optional<QString> &cursor)
 {
     if (!m_client || !m_initialized)
@@ -464,6 +472,23 @@ void AcpChatController::listSessions(const std::optional<QString> &cursor)
             return;
         }
         emit sessionsListed(resp->sessions(), resp->nextCursor());
+    });
+}
+
+void AcpChatController::deleteSession(const QString &sessionId)
+{
+    if (!m_client || !m_initialized)
+        return;
+
+    DeleteSessionRequest req;
+    req.sessionId(sessionId);
+
+    m_client->deleteSession(req, [this, sessionId](const QJsonObject &, const std::optional<Error> &error) {
+        if (error) {
+            emit errorOccurred(Tr::tr("Failed to delete session: %1").arg(error->message()));
+            return;
+        }
+        emit sessionDeleted(sessionId);
     });
 }
 
