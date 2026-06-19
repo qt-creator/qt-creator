@@ -9,6 +9,11 @@
 #include "sshkeycreationdialog.h"
 #include "windowsdevicetester.h"
 
+#include <coreplugin/icore.h>
+
+#include <gocmdbridge/client/bridgedfileaccess.h>
+#include <gocmdbridge/client/cmdbridgeclient.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
@@ -34,6 +39,7 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QThread>
+#include <QUuid>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -168,11 +174,14 @@ void WindowsProcessInterface::start()
     m_process.setExtraData(m_setup.m_extraData);
 
     // Windows OpenSSH keeps the session open until it sees EOF on stdin, even after the
-    // remote command has already finished. When we have no input to stream, point ssh's
-    // stdin at the null device so the connection terminates promptly.
+    // remote command has already finished. For a one-shot Reader command with no input,
+    // point ssh's stdin at the null device so the connection terminates promptly. A
+    // streaming process (e.g. the CmdBridge, started in Writer mode) must keep stdin open.
     const bool useTerminal = m_setup.m_terminalMode != TerminalMode::Off || m_setup.m_ptyData;
-    if (m_setup.m_writeData.isEmpty() && !useTerminal)
+    if (m_setup.m_processMode == ProcessMode::Reader && m_setup.m_writeData.isEmpty()
+        && !useTerminal) {
         m_process.setStandardInputFile(QProcess::nullDevice());
+    }
 
     SshParameters::setupSshEnvironment(&m_process);
     const CommandLine cmd = fullLocalCommandLine();
@@ -768,6 +777,96 @@ Result<qint64> WindowsDeviceAccess::writeFileContents(const FilePath &filePath,
     return data.size();
 }
 
+// Confirms the remote host is Windows with PowerShell.
+static Result<> probeWindows(const SshParameters &ssh)
+{
+    const Result<RunResult> res = runPowerShell(
+        ssh, "[Console]::Out.Write('QTCWIN:' + [Environment]::OSVersion.Platform)");
+    if (!res)
+        return ResultError(res.error());
+    if (res->exitCode != 0) {
+        return ResultError(Tr::tr("Failed to run PowerShell on the device: %1")
+                               .arg(QString::fromUtf8(res->stdErr)));
+    }
+    if (!QString::fromUtf8(res->stdOut).contains("QTCWIN:Win32NT")) {
+        return ResultError(Tr::tr("The remote host does not appear to be a Windows machine "
+                                  "with PowerShell available."));
+    }
+    return ResultOk;
+}
+
+// Tries to bring up the fast Go CmdBridge on the device: copy the matching cmdbridge.exe to
+// the device's temp directory (via sftp) and start it. Returns the bridge file access on
+// success. Runs on a worker thread. (A base64-over-PowerShell-stdin push is far too slow for
+// a multi-MB binary, so we use sftp, which ships with Windows OpenSSH.)
+static Result<DeviceFileAccessPtr> deployCmdBridge(const SshParameters &ssh,
+                                                   const FilePath &rootPath,
+                                                   const std::function<void()> &errorExitHandler)
+{
+    if (qtcEnvironmentVariableIsSet("QTC_DISABLE_CMDBRIDGE"))
+        return ResultError(QString("CmdBridge disabled via QTC_DISABLE_CMDBRIDGE."));
+
+    const Environment env = rootPath.deviceEnvironment();
+
+    const QString archStr = env.value("PROCESSOR_ARCHITECTURE").toUpper();
+    OsArch arch = OsArchUnknown;
+    if (archStr == "AMD64")
+        arch = OsArchAMD64;
+    else if (archStr == "ARM64")
+        arch = OsArchArm64;
+    else if (archStr == "X86")
+        arch = OsArchX86;
+    else
+        return ResultError(Tr::tr("Unsupported remote architecture \"%1\".").arg(archStr));
+
+    const Result<FilePath> localBridge = CmdBridge::Client::getCmdBridgePath(
+        OsTypeWindows, arch, Core::ICore::libexecPath());
+    if (!localBridge)
+        return ResultError(localBridge.error());
+
+    QString tempDir = env.value("TEMP");
+    if (tempDir.isEmpty())
+        tempDir = env.value("TMP");
+    if (tempDir.isEmpty())
+        tempDir = "C:/Windows/Temp";
+    tempDir.replace('\\', '/');
+
+    const FilePath remoteBridge = rootPath.withNewPath(
+        tempDir + "/qtc-cmdbridge-" + QUuid::createUuid().toString(QUuid::Id128) + ".exe");
+
+    // Transfer the binary via sftp. Windows OpenSSH sftp wants an absolute remote path with a
+    // leading slash before the drive letter, e.g. "/C:/Users/.../x.exe".
+    const FilePath sftpBinary = sshSettings().sftpFilePath();
+    if (sftpBinary.isEmpty())
+        return ResultError(Tr::tr("No sftp client is configured."));
+
+    CommandLine sftpCmd{sftpBinary};
+    sftpCmd.addArgs(ssh.connectionOptions(sftpBinary));
+    sftpCmd.addArgs({"-b", "-"}); // read the batch of commands from stdin
+    sftpCmd.addArg(ssh.host());
+
+    Process sftp;
+    SshParameters::setupSshEnvironment(&sftp);
+    sftp.setCommand(sftpCmd);
+    sftp.setWriteData(QString("put \"%1\" \"/%2\"\n")
+                          .arg(localBridge->path(), remoteBridge.path()).toUtf8());
+    qCDebug(windowsDeviceLog) << "Deploying CmdBridge via sftp to" << remoteBridge.toUserOutput();
+    sftp.runBlocking(std::chrono::seconds(60));
+    if (sftp.result() != ProcessResult::FinishedWithSuccess) {
+        return ResultError(Tr::tr("Failed to transfer the CmdBridge: %1")
+                               .arg(sftp.exitMessage(Process::FailureMessageFormat::WithStdErr)));
+    }
+
+    auto fileAccess = std::make_shared<CmdBridge::FileAccess>(errorExitHandler);
+    // deleteOnExit is false: the bridge cannot delete its own running .exe on Windows.
+    const Result<> initResult = fileAccess->init(remoteBridge, env, /*deleteOnExit=*/false);
+    if (!initResult)
+        return ResultError(initResult.error());
+
+    qCDebug(windowsDeviceLog) << "CmdBridge started on" << rootPath.toUserOutput();
+    return DeviceFileAccessPtr(fileAccess);
+}
+
 // WindowsDevicePrivate
 
 class WindowsDevicePrivate
@@ -786,40 +885,47 @@ void WindowsDevicePrivate::setupFileAccess(const Continuation<> &cont)
                cont(ResultError(ResultAssert, "setupFileAccess called from wrong thread"));
                return);
 
-    q->setFileAccess(nullptr);
-    // Make the process interface usable even though we are not "connected" yet.
     q->setIsTesting(true);
+    // Bootstrap with the slow (per-command) access so that deploying the CmdBridge binary
+    // via writeFileContents works; it is replaced by the bridge on success below.
+    q->setFileAccess(std::make_shared<WindowsDeviceAccess>(q->sshParameters()));
 
-    qCDebug(windowsDeviceLog) << "setupFileAccess: probing" << q->rootPath().toUserOutput();
-    QFuture<Result<>> future = Utils::asyncRun([ssh = q->sshParameters()]() -> Result<> {
-        qCDebug(windowsDeviceLog) << "setupFileAccess: running probe command...";
-        const Result<RunResult> res = runPowerShell(
-            ssh, "[Console]::Out.Write('QTCWIN:' + [Environment]::OSVersion.Platform)");
-        qCDebug(windowsDeviceLog) << "setupFileAccess: probe command returned, ok =" << bool(res);
-        if (!res)
-            return ResultError(res.error());
-        if (res->exitCode != 0) {
-            return ResultError(Tr::tr("Failed to run PowerShell on the device: %1")
-                                   .arg(QString::fromUtf8(res->stdErr)));
-        }
-        if (!QString::fromUtf8(res->stdOut).contains("QTCWIN:Win32NT")) {
-            return ResultError(Tr::tr("The remote host does not appear to be a Windows machine "
-                                      "with PowerShell available."));
-        }
-        return ResultOk;
-    });
-    future.then(q, [this, cont](const Result<> &res) {
-        qCDebug(windowsDeviceLog) << "setupFileAccess: continuation, ok =" << bool(res)
-                                 << (res ? QString() : res.error());
+    const SshParameters ssh = q->sshParameters();
+    const FilePath rootPath = q->rootPath();
+    const auto onBridgeExit = [id = q->id()] {
+        QMetaObject::invokeMethod(DeviceManager::instance(), [id] {
+            DeviceManager::setDeviceState(id, IDevice::DeviceDisconnected);
+        });
+    };
+
+    qCDebug(windowsDeviceLog) << "setupFileAccess: probing" << rootPath.toUserOutput();
+    QFuture<Result<DeviceFileAccessPtr>> future = Utils::asyncRun(
+        [ssh, rootPath, onBridgeExit]() -> Result<DeviceFileAccessPtr> {
+            if (const Result<> res = probeWindows(ssh); !res)
+                return ResultError(res.error());
+            // Prefer the fast CmdBridge; a null result means "keep the slow access".
+            const Result<DeviceFileAccessPtr> bridge = deployCmdBridge(ssh, rootPath, onBridgeExit);
+            if (bridge)
+                return bridge;
+            qCDebug(windowsDeviceLog) << "CmdBridge unavailable, using slow access:"
+                                      << bridge.error();
+            return DeviceFileAccessPtr();
+        });
+    future.then(q, [this, cont, ssh](const Result<DeviceFileAccessPtr> &res) {
         q->setIsTesting(false);
-        if (res) {
-            q->setFileAccess(std::make_shared<WindowsDeviceAccess>(q->sshParameters()));
-            q->setDeviceState(IDevice::DeviceReadyToUse);
-        } else {
+        if (!res) {
             q->setFileAccess(nullptr);
             q->setDeviceState(IDevice::DeviceDisconnected);
+            cont(ResultError(res.error()));
+        } else if (*res) {
+            q->setFileAccess(*res);
+            q->setDeviceState(IDevice::DeviceReadyToUse);
+            cont(ResultOk);
+        } else {
+            q->setFileAccess(std::make_shared<WindowsDeviceAccess>(ssh));
+            q->setDeviceState(IDevice::DeviceConnected);
+            cont(ResultOk);
         }
-        cont(res);
         DeviceManager::instance()->deviceUpdated(q->id());
     });
     Utils::futureSynchronizer()->addFuture(future);
@@ -877,7 +983,11 @@ ProcessInterface *WindowsDevice::createProcessInterface() const
 
 void WindowsDevice::tryToConnect(const Continuation<> &cont) const
 {
-    d->setupFileAccess(cont);
+    const DeviceState state = deviceState();
+    if (state == DeviceReadyToUse || state == DeviceConnected)
+        cont(ResultOk);
+    else
+        d->setupFileAccess(cont);
 }
 
 // WindowsDeviceConfigurationWidget
