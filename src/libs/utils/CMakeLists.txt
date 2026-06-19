@@ -92,7 +92,6 @@ add_qtc_library(Utils
     lazy.h
     link.cpp link.h
     listmodel.h
-    listutils.h
     lua.cpp lua.h
     macroexpander.cpp macroexpander.h
     markdownbrowser.cpp markdownbrowser.h
