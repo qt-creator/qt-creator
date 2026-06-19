@@ -13,6 +13,8 @@
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -149,7 +151,11 @@ private:
     CommandLine fullLocalCommandLine() const;
 
     IDevice::ConstPtr m_device;
-    Process m_process;
+    // Parented to this so it moves along when Process::waitForFinished() relocates the
+    // interface to its blocking worker thread; otherwise nested blocking calls (e.g. a
+    // device-rooted Process run via runBlocking) would never see the inner process's
+    // events and would hang.
+    Process m_process{this};
 };
 
 void WindowsProcessInterface::start()
@@ -214,7 +220,12 @@ CommandLine WindowsProcessInterface::fullLocalCommandLine() const
     // sshd hands the resulting string to the default shell, so a self-contained
     // "powershell -EncodedCommand ..." works regardless of which shell that is.
     const CommandLine remoteCommand = m_setup.m_commandLine;
-    QString remote = remoteCommand.executable().path();
+    // Quote the executable for the remote (Windows) shell: native backslash path, wrapped
+    // in double quotes when it contains spaces, e.g.
+    // "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe".
+    QString remote = remoteCommand.executable().nativePath();
+    if (remote.contains(' '))
+        remote = '"' + remote + '"';
     const QString args = remoteCommand.arguments();
     if (!args.isEmpty())
         remote += ' ' + args;
@@ -706,7 +717,11 @@ Result<Environment> WindowsDeviceAccess::deviceEnvironment() const
     if (res->exitCode != 0)
         return ResultError(Tr::tr("Cannot read the device environment."));
 
-    const QStringList lines = QString::fromUtf8(res->stdOut).split('\n', Qt::SkipEmptyParts);
+    // Strip CR so values (e.g. used to build paths) don't end up with a trailing '\r'.
+    QString out = QString::fromUtf8(res->stdOut);
+    out.remove('\r');
+    const QStringList lines = out.split('\n', Qt::SkipEmptyParts);
+    qCDebug(windowsDeviceLog) << "deviceEnvironment: parsed" << lines.size() << "entries";
     return Environment(lines, OsTypeWindows);
 }
 
@@ -877,6 +892,37 @@ private:
     void updateDeviceFromUi() override {}
 };
 
+// Runs toolchain auto-detection for the device (MSVC, over SSH) and registers the results.
+// Kept to toolchains only for now; Qt detection and kit creation come later via the
+// generic kitDetectionRecipe.
+static void detectAndRegisterToolchains(const IDevice::Ptr &device)
+{
+    const FilePaths searchPaths = {device->rootPath()};
+    const Toolchains known = ToolchainManager::toolchains();
+    qCDebug(windowsDeviceLog) << "Starting toolchain detection for"
+                              << device->rootPath().toUserOutput();
+    QFuture<Toolchains> future = Utils::asyncRun([device, searchPaths, known]() -> Toolchains {
+        ToolchainDetector detector(known, device, searchPaths);
+        Toolchains found;
+        for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
+            const Toolchains detected = factory->autoDetect(detector);
+            for (Toolchain *tc : detected) {
+                if (tc->isValid())
+                    found.append(tc);
+                else
+                    delete tc;
+            }
+        }
+        return found;
+    });
+    future.then(device.get(), [](const Toolchains &found) {
+        const Toolchains registered = ToolchainManager::registerToolchains(found);
+        qCDebug(windowsDeviceLog) << "Registered" << registered.size() << "of" << found.size()
+                                  << "detected toolchain(s)";
+    });
+    Utils::futureSynchronizer()->addFuture(future);
+}
+
 WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevicePtr &device)
     : IDeviceWidget(device)
 {
@@ -889,10 +935,13 @@ WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevice
     connect(autoDetectButton, &QPushButton::clicked, this, [windowsDevice, autoDetectButton] {
         autoDetectButton->setEnabled(false);
         windowsDevice->tryToConnect(
-            {windowsDevice.get(), [autoDetectButton = QPointer<QWidget>(autoDetectButton)](
-                                      const Result<> &) {
+            {windowsDevice.get(),
+             [windowsDevice, autoDetectButton = QPointer<QWidget>(autoDetectButton)](
+                 const Result<> &res) {
                  if (autoDetectButton)
                      autoDetectButton->setEnabled(true);
+                 if (res)
+                     detectAndRegisterToolchains(windowsDevice);
              }});
     });
 
