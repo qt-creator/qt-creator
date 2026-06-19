@@ -5,6 +5,7 @@
 
 #include "acpclienttr.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 
 #include <QLoggingCategory>
@@ -60,7 +61,7 @@ void AcpStdioTransport::start()
         return;
     }
     if (!executable.isExecutableFile()) {
-        executable = executable.searchInPath();
+        executable = executable.searchInPath(FileUtils::usefulExtraSearchPaths());
         if (!executable.isExecutableFile()) {
             // Report the originally configured path in the error message, which is more likely to
             // be helpful to the user than the searched path

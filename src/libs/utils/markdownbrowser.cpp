@@ -810,7 +810,7 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
         }();
 
         for (QTextCursor &fc : fragmentCursors) {
-            QTextCharFormat charFormat = block.charFormat();
+            QTextCharFormat charFormat = fc.charFormat();
 
             if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
                 charFormat.clearProperty(QTextFormat::FontSizeAdjustment);

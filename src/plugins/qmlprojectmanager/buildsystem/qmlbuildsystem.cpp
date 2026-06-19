@@ -695,9 +695,7 @@ EnvironmentItems QmlBuildSystem::environment() const
     Utils::EnvironmentItems env = m_projectItem->environment();
 
     if (qtForMCUs()) {
-        const Utils::FilePath projectRoot = ProjectExplorer::ProjectManager::startupProject()
-                                                ->projectFilePath()
-                                                .parentDir();
+        const Utils::FilePath projectRoot = project()->projectFilePath().parentDir();
         env.append({Constants::QMLPUPPET_ENV_PROJECT_ROOT, projectRoot.toUserOutput()});
 
         Utils::Result<Utils::FilePath> fontsDir = mcuFontsDir();
