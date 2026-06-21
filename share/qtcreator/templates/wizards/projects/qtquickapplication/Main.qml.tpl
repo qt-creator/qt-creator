@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Basic
-
 @if %{UseVirtualKeyboard}
 import QtQuick.VirtualKeyboard
 @endif
