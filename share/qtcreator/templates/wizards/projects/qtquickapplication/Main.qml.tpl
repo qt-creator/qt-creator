@@ -14,6 +14,7 @@ ApplicationWindow {
     minimumHeight: 250
     visible: true
     title: qsTr("Hello World")
+
     property bool lightMode: Application.styleHints.colorScheme === Qt.Light
     property color reallyDark: "#1f1f1f"
     property color dark: "#262626"
@@ -21,7 +22,6 @@ ApplicationWindow {
     property color light: "#e0e0e0"
 
 @if %{UseVirtualKeyboard}
-
     InputPanel {
         id: inputPanel
         z: 99
@@ -115,6 +115,5 @@ ApplicationWindow {
             }
         }
     }
-
 @endif
 }
