@@ -663,8 +663,8 @@ void EnvironmentChanges::setFile(const FilePath &file)
     m_itemsFromFile.reset();
 }
 
-EnvironmentChanges::EnvironmentChanges(const EnvironmentItems &items, const FilePath &file)
-    : m_itemsFromUser(items), m_file(file)
+EnvironmentChanges::EnvironmentChanges(const EnvironmentItems &items)
+    : m_itemsFromUser(items)
 {
 }
 

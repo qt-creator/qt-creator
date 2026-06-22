@@ -164,7 +164,7 @@ class QTCREATOR_UTILS_EXPORT EnvironmentChanges
 {
 public:
     EnvironmentChanges() = default;
-    EnvironmentChanges(const EnvironmentItems &items, const FilePath &file);
+    explicit EnvironmentChanges(const EnvironmentItems &items);
 
     void setItemsFromUser(const EnvironmentItems &items) { m_itemsFromUser = items; }
 

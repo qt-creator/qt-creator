@@ -271,7 +271,7 @@ void CocoQMakeSettings::setQMakeFeatures() const
     }
 
     Utils::EnvironmentItems diff = buildConfig()->baseEnvironment().diff(env);
-    buildConfig()->setUserEnvironmentChanges({diff, {}});
+    buildConfig()->setUserEnvironmentChanges(EnvironmentChanges(diff));
 }
 
 bool CocoQMakeSettings::environmentSet() const

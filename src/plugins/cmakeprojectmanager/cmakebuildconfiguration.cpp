@@ -1745,7 +1745,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         CMakeProject *cmakeProject = static_cast<CMakeProject *>(project());
         configureEnv.setUserEnvironmentChanges(
-                    {getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k), {}});
+                    EnvironmentChanges(getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k)));
 
         QStringList initialCMakeArguments = cmd.splitArguments();
         addCMakeConfigurePresetToInitialArguments(initialCMakeArguments,
@@ -2125,8 +2125,8 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps()
     for (qsizetype i = 0; i < buildStepList.size(); ++i) {
         CMakeBuildStep *cbs = qobject_cast<CMakeBuildStep *>(buildStepList[i]);
         cbs->setBuildPreset(buildPresets[i].name);
-        cbs->setUserEnvironmentChanges(
-                    {getEnvironmentItemsFromCMakeBuildPreset(project, kit(), buildPresets[i].name), {}});
+        cbs->setUserEnvironmentChanges(EnvironmentChanges(
+            getEnvironmentItemsFromCMakeBuildPreset(project, kit(), buildPresets[i].name)));
 
         if (buildPresets[i].targets) {
             QString targets = buildPresets[i].targets->join(" ");
