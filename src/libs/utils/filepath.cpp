@@ -1287,9 +1287,16 @@ static FilePaths appendExeExtensions(const FilePath &executable,
                 break;
             case FilePath::WithAnySuffix: {
                 // Check all the executable extensions on windows:
-                // PATHEXT is only used if the executable has no extension
-                static const QStringList extensions = Environment::systemEnvironment()
-                    .expandedValueForKey("PATHEXT").split(';');
+                // PATHEXT is only used if the executable has no extension.
+                // PATHEXT comes from the host, so it is only meaningful on a Windows host; for a
+                // Windows target reached from another host, fall back to the conventional set.
+                static const QStringList hostExtensions = Environment::systemEnvironment()
+                    .expandedValueForKey("PATHEXT").split(';', Qt::SkipEmptyParts);
+                static const QStringList defaultExtensions
+                    = {".com", ".exe", ".bat", ".cmd", ".vbs", ".vbe", ".js", ".jse",
+                       ".wsf", ".wsh", ".msc"};
+                const QStringList &extensions
+                    = hostExtensions.isEmpty() ? defaultExtensions : hostExtensions;
                 for (const QString &ext : extensions)
                     result.append(executable.stringAppended(ext.toLower()));
                 break;
@@ -2520,9 +2527,8 @@ FilePath FilePath::searchInDirectories(const FilePaths &dirs,
     if (isEmpty())
         return {};
 
-    const FilePaths execs = appendExeExtensions(*this, matchScope);
-
     if (isAbsolutePath()) {
+        const FilePaths execs = appendExeExtensions(*this, matchScope);
         for (const FilePath &filePath : execs) {
             if (filePath.isExecutableFile() && (!filter || filter(filePath)))
                 return filePath;
@@ -2542,6 +2548,8 @@ FilePath FilePath::searchInDirectories(const FilePaths &dirs,
         if (dir.isEmpty() || wasAlreadyChecked)
             continue;
 
+        // Match the executable suffix of the directory's OS, e.g. ".exe" on a Windows device.
+        const FilePaths execs = appendExeExtensions(dir.withNewPath(path()), matchScope);
         for (const FilePath &exe : execs) {
             const FilePath filePath = dir / exe.path();
             if (filePath.isExecutableFile() && (!filter || filter(filePath)))
@@ -2566,10 +2574,9 @@ FilePaths FilePath::searchAllInDirectories(const FilePaths &dirs,
     if (isEmpty())
         return {};
 
-    const FilePaths execs = appendExeExtensions(*this, matchScope);
-
     FilePaths result;
     if (isAbsolutePath()) {
+        const FilePaths execs = appendExeExtensions(*this, matchScope);
         for (const FilePath &filePath : execs) {
             if (filePath.isExecutableFile() && (!filter || filter(filePath)))
                 result.append(filePath);
@@ -2589,6 +2596,8 @@ FilePaths FilePath::searchAllInDirectories(const FilePaths &dirs,
         if (dir.isEmpty() || wasAlreadyChecked)
             continue;
 
+        // Match the executable suffix of the directory's OS, e.g. ".exe" on a Windows device.
+        const FilePaths execs = appendExeExtensions(dir.withNewPath(path()), matchScope);
         for (const FilePath &exe : execs) {
             const FilePath filePath = dir / exe.path();
             if (filePath.isExecutableFile() && (!filter || filter(filePath)))
