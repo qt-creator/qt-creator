@@ -8,6 +8,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
@@ -142,16 +143,39 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     QVERIFY2(cxxTc->compilerCommand().isSameDevice(deviceRoot),
              "C++ compiler is not located on the device.");
 
-    // A matching device Qt is attached asynchronously after the kit appears. Check it through the
-    // generic kit value (the numeric Qt version id) so this test needs no QtSupport dependency;
-    // an unset/-1 value means no Qt was attached.
+    // Qt and CMake are attached asynchronously after the kit appears, each by the owning plugin's
+    // kit aspect. Their kit values are checked generically (Qt version id / CMake tool id) so this
+    // test needs no QtSupport or CMakeProjectManager dependency. Each check is guarded on the
+    // aspect actually being registered: a -test run may not load those plugins (the full GUI
+    // always does), so run with e.g. "-load QtSupport -load CMakeProjectManager" to exercise them.
+    const auto aspectAvailable = [](const Id &id) {
+        return Utils::anyOf(KitAspectFactory::kitAspectFactories(),
+                            [&id](const KitAspectFactory *f) { return f->id() == id; });
+    };
+
     const Id qtAspectId("QtSupport.QtInformation");
-    const bool qtAttached = waitFor([&] {
-        const QVariant v = kit->value(qtAspectId);
-        return v.isValid() && v.toInt() >= 0;
-    }, 30 * 1000);
-    qDebug().noquote() << "  Qt: version id" << kit->value(qtAspectId).toInt();
-    QVERIFY2(qtAttached, "No Qt version was attached to the kit.");
+    if (aspectAvailable(qtAspectId)) {
+        const bool qtAttached = waitFor([&] {
+            const QVariant v = kit->value(qtAspectId);
+            return v.isValid() && v.toInt() >= 0;
+        }, 30 * 1000);
+        qDebug().noquote() << "  Qt: version id" << kit->value(qtAspectId).toInt();
+        QVERIFY2(qtAttached, "No Qt version was attached to the kit.");
+    } else {
+        qWarning("QtSupport not loaded; skipping the Qt attachment check.");
+    }
+
+    const Id cmakeAspectId("CMakeProjectManager.CMakeKitInformation");
+    if (aspectAvailable(cmakeAspectId)) {
+        const bool cmakeAttached = waitFor([&] {
+            const QVariant v = kit->value(cmakeAspectId);
+            return v.isValid() && !v.toString().isEmpty();
+        }, 30 * 1000);
+        qDebug().noquote() << "  CMake: tool id" << kit->value(cmakeAspectId).toString();
+        QVERIFY2(cmakeAttached, "No CMake tool was attached to the kit.");
+    } else {
+        qWarning("CMakeProjectManager not loaded; skipping the CMake attachment check.");
+    }
 }
 
 } // namespace Remote::Internal

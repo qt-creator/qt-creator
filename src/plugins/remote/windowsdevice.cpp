@@ -1063,32 +1063,59 @@ static FilePath findMsvcQtBinDir(const IDevice::Ptr &device, const Abi &abi)
     return best;
 }
 
-// Attaches a matching device Qt to the kit through the generic Qt kit-aspect auto-detection. This
-// keeps the Qt creation inside QtSupport (reached polymorphically via KitAspectFactory), so the
-// plugin needs no QtSupport dependency. Only the Qt aspect is run, matched by its stable id:
-// running every aspect would re-trigger MSVC detection and overwrite the bundle just set on the
-// kit. The previously detected Qt for this device is removed first so re-runs do not accumulate.
-static void detectAndAttachQt(const IDevice::Ptr &device, Kit *kit, const FilePath &qtBinDir)
+// Finds the bin directory of the CMake bundled with Qt under C:\Qt\Tools on the device, or an
+// empty path if none is present. The CMake kit aspect searches the given directories (not their
+// subdirectories), so the exact bin directory is returned.
+static FilePath findDeviceCMakeBinDir(const IDevice::Ptr &device)
+{
+    const FilePath toolsRoot = device->rootPath().withNewPath("C:/Qt/Tools");
+    if (!toolsRoot.isDir())
+        return {};
+    const FilePaths toolDirs = toolsRoot.dirEntries(
+        FileFilter({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot));
+    for (const FilePath &toolDir : toolDirs) {
+        if (!toolDir.fileName().toLower().contains("cmake"))
+            continue;
+        if ((toolDir / "bin" / "cmake.exe").isExecutableFile())
+            return toolDir / "bin";
+    }
+    return {};
+}
+
+// Attaches device tools (Qt, CMake) to the kit through the generic kit-aspect auto-detection,
+// running each requested aspect (matched by its stable id) over its own device search paths. This
+// keeps the tool creation inside the owning plugin (reached polymorphically via KitAspectFactory),
+// so RemoteLinux needs no dependency on QtSupport or CMakeProjectManager. Only the requested
+// aspects are run - running every aspect would re-trigger MSVC detection and overwrite the bundle
+// just set on the kit. Previously detected tools for this device are removed first, so re-running
+// auto-detection does not accumulate duplicates.
+static void detectAndAttachKitTools(const IDevice::Ptr &device, Kit *kit,
+                                    const QList<QPair<QString, FilePaths>> &aspectSearchPaths)
 {
     using namespace QtTaskTree;
     const DetectionSource source{DetectionSource::FromSystem, device->id().toString()};
     const auto log = [](const QString &msg) { qCDebug(windowsDeviceLog).noquote() << msg; };
 
-    qCDebug(windowsDeviceLog) << "Detecting Qt for the kit in" << qtBinDir.toUserOutput();
-    for (KitAspectFactory *factory : KitAspectFactory::kitAspectFactories()) {
-        if (factory->id().toString() != "QtSupport.QtInformation")
+    GroupItems items;
+    for (const auto &[aspectId, searchPaths] : aspectSearchPaths) {
+        if (searchPaths.isEmpty())
             continue;
-        GroupItems items;
+        KitAspectFactory *factory = Utils::findOrDefault(
+            KitAspectFactory::kitAspectFactories(),
+            [&aspectId](KitAspectFactory *f) { return f->id().toString() == aspectId; });
+        if (!factory)
+            continue;
+        qCDebug(windowsDeviceLog) << "Detecting" << aspectId << "for the kit in"
+                                  << Utils::transform(searchPaths, &FilePath::toUserOutput);
         if (const std::optional<ExecutableItem> remove = factory->removeAutoDetected(source.id, log))
             items.append({*remove});
         if (const std::optional<ExecutableItem> detect
-                = factory->autoDetect(kit, {qtBinDir}, source, log)) {
+                = factory->autoDetect(kit, searchPaths, source, log)) {
             items.append({*detect});
         }
-        if (!items.isEmpty())
-            GlobalTaskTree::start(Group{sequential, items});
-        return;
     }
+    if (!items.isEmpty())
+        GlobalTaskTree::start(Group{sequential, items});
 }
 
 // Runs toolchain auto-detection for the device (MSVC, over SSH), registers the results and
@@ -1181,12 +1208,16 @@ static void detectAndRegisterToolchains(const WindowsDevice::Ptr &device)
             k->setSticky(BuildDeviceTypeKitAspect::id(), true);
             ToolchainKitAspect::setBundle(k, bundle);
         });
-        // Attach a matching device Qt if one is installed (asynchronous, may complete after
-        // the kit appears). The kit is usable without Qt; only a "no Qt" warning shows then.
-        if (const FilePath qtBinDir = findMsvcQtBinDir(device, bundle.targetAbi());
-            !qtBinDir.isEmpty()) {
-            detectAndAttachQt(device, kit, qtBinDir);
-        }
+        // Attach the matching device Qt and CMake if installed (asynchronous, may complete
+        // after the kit appears). The kit is usable without them; missing Qt only shows a
+        // "no Qt" warning. Each is an empty path -> skipped when not found.
+        const FilePath qtBinDir = findMsvcQtBinDir(device, bundle.targetAbi());
+        const FilePath cmakeBinDir = findDeviceCMakeBinDir(device);
+        detectAndAttachKitTools(device, kit, {
+            {"QtSupport.QtInformation", qtBinDir.isEmpty() ? FilePaths{} : FilePaths{qtBinDir}},
+            {"CMakeProjectManager.CMakeKitInformation",
+             cmakeBinDir.isEmpty() ? FilePaths{} : FilePaths{cmakeBinDir}},
+        });
     }
     qCDebug(windowsDeviceLog) << "Created" << bundles.size() << "kit(s) for the device";
 }
