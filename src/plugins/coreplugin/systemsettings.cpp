@@ -18,6 +18,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
+#include <utils/globalfilechangeblocker.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
@@ -235,17 +236,44 @@ SystemSettings::SystemSettings()
 
     reloadSetting.setSettingsKey("EditorManager/ReloadBehavior");
     reloadSetting.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    reloadSetting.addOption(Tr::tr("Always Ask"));
-    reloadSetting.addOption(Tr::tr("Reload All Unchanged Editors"));
-    reloadSetting.addOption(Tr::tr("Ignore Modifications"));
+    reloadSetting.addOption(
+        {Tr::tr("Always Ask"),
+         Tr::tr(
+             "When %1 is or becomes active, ask what to do when open files are changed externally "
+             "regardless of whether they have unsaved changes or not.")
+             .arg(QGuiApplication::applicationDisplayName()),
+         IDocument::AlwaysAsk});
+    reloadSetting.addOption(
+        {Tr::tr("Reload All Unchanged Editors when Active"),
+         Tr::tr(
+             "When %1 is or becomes active, ask what to do with editors with unsaved changes when "
+             "their files are changed externally. Automatically reload all other files.")
+             .arg(QGuiApplication::applicationDisplayName()),
+         IDocument::ReloadUnmodified});
+    reloadSetting.addOption(
+        {Tr::tr("Reload All Unchanged Editors Immediately"),
+         Tr::tr(
+             "Ask what to do with editors with unsaved changes when their files are changed "
+             "externally. Automatically reload all other files."),
+         IDocument::ReloadUnmodifiedImmediately});
+    reloadSetting.addOption(
+        {Tr::tr("Ignore Modifications"),
+         Tr::tr("Ignore external changes of files that are open in editors."),
+         IDocument::IgnoreAll});
     reloadSetting.setDefaultValue(IDocument::ReloadUnmodified);
     reloadSetting.setLabelText(Tr::tr("When files are externally modified:"));
+    const auto syncReloadSetting = [this] {
+        GlobalFileChangeBlocker::instance()->setBlockingWhileAppIsInactive(
+            reloadSetting.value() != IDocument::ReloadUnmodifiedImmediately);
+    };
+    reloadSetting.addOnChanged(this, syncReloadSetting);
 
     askBeforeExit.setSettingsKey("AskBeforeExit");
     askBeforeExit.setLabelText(Tr::tr("Ask for confirmation before exiting"));
     askBeforeExit.setLabelPlacement(boolAspectLabelPlacement);
 
     readSettings();
+    syncReloadSetting();
     updateSystemEnv();
 
     autoSaveInterval.setEnabler(&autoSaveModifiedFiles);

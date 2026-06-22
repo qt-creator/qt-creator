@@ -19,6 +19,8 @@ public:
     static GlobalFileChangeBlocker *instance();
     void forceBlocked(bool blocked);
     bool isBlocked() const { return m_blockedState; }
+    void setBlockingWhileAppIsInactive(bool block);
+    bool isBlockingWhileAppIsInactive() const;
 
 signals:
     void stateChanged(bool blocked);
@@ -29,6 +31,7 @@ private:
 
     Guard m_ignoreChanges;
     bool m_blockedState = false;
+    bool m_isBlockingWhileAppIsInactive = true;
 };
 
 } // namespace Utils

@@ -26,12 +26,11 @@ class CORE_EXPORT IDocument : public QObject
     Q_OBJECT
 
 public:
-    // This enum must match the indexes of the reloadBehavior widget
-    // in generalsettings.ui
     enum ReloadSetting {
         AlwaysAsk = 0,
         ReloadUnmodified = 1,
-        IgnoreAll = 2
+        IgnoreAll = 2,
+        ReloadUnmodifiedImmediately = 3
     };
 
     enum ChangeTrigger {

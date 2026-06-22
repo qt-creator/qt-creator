@@ -6,6 +6,7 @@
 #include "core_global.h"
 
 #include "envvarseparatoraspect.h"
+#include "idocument.h"
 
 #include <utils/aspects.h>
 #include <utils/environmentchangesaspect.h>
@@ -47,7 +48,7 @@ public:
 
     Utils::IntegerAspect maxRecentFiles{this};
 
-    Utils::SelectionAspect reloadSetting{this};
+    Utils::TypedSelectionAspect<IDocument::ReloadSetting> reloadSetting{this};
 
     Utils::BoolAspect askBeforeExit{this};
 

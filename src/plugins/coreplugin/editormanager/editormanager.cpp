@@ -3385,8 +3385,7 @@ void EditorManager::runWithTemporaryEditor(const FilePath &filePath,
 */
 IDocument::ReloadSetting EditorManager::reloadSetting()
 {
-    // FIXME: Used TypedSelectionAspect once we have that.
-    return IDocument::ReloadSetting(systemSettings().reloadSetting.value());
+    return systemSettings().reloadSetting.value();
 }
 
 /*!

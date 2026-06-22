@@ -1093,7 +1093,9 @@ void DocumentManager::checkForReload()
 
     d->m_blockActivated = true;
 
-    IDocument::ReloadSetting defaultBehavior = EditorManager::reloadSetting();
+    const IDocument::ReloadSetting defaultBehavior = EditorManager::reloadSetting();
+    const bool reloadUnmodified = defaultBehavior == IDocument::ReloadUnmodified
+                                  || defaultBehavior == IDocument::ReloadUnmodifiedImmediately;
 
     // collect file information
     QMap<FilePath, FileStateItem> currentStates;
@@ -1202,14 +1204,12 @@ void DocumentManager::checkForReload()
         if (!type) {
             // Only permission change
             // now we know it's a content change or file was removed
-        } else if (defaultBehavior == IDocument::ReloadUnmodified && type == IDocument::TypeContents
-                   && !document->isModified()) {
+        } else if (reloadUnmodified && type == IDocument::TypeContents && !document->isModified()) {
             // content change, but unmodified (and settings say to reload in this case)
             reloadDocument(document, IDocument::FlagReload);
             // file was removed or it's a content change and the default behavior for
             // unmodified files didn't kick in
-        } else if (defaultBehavior == IDocument::ReloadUnmodified && type == IDocument::TypeRemoved
-                   && !document->isModified()) {
+        } else if (reloadUnmodified && type == IDocument::TypeRemoved && !document->isModified()) {
             // file removed, but unmodified files should be reloaded
             // so we close the file
             documentsToClose += document;
