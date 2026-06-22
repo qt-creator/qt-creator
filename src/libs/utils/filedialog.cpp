@@ -17,6 +17,7 @@
 #include "mimedatabase.h"
 #include "overlaywidget.h"
 #include "qtdesignwidgets.h"
+#include "stylehelper.h"
 #include "theme/theme.h"
 #include "utility.h"
 #include "utilsicons.h"
@@ -797,9 +798,15 @@ public:
 private:
     static QStandardItem *makeSectionItem(const QString &title)
     {
-        auto *it = new QStandardItem(title);
+        constexpr StyleHelper::TextFormat tf {
+            .themeColor = Theme::Token_Text_Muted,
+            .uiElement = StyleHelper::UiElementCaptionStrong,
+        };
+        auto *it = new QStandardItem("  " + title);
         it->setData(true, SidebarIsSectionRole);
         it->setFlags(Qt::NoItemFlags);
+        it->setFont(tf.font());
+        it->setForeground(tf.color());
         return it;
     }
 
@@ -1108,21 +1115,6 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
         const override
     {
-        if (index.data(SidebarIsSectionRole).toBool()) {
-            painter->save();
-            QFont f = option.font;
-            f.setPointSize(qMax(f.pointSize() - 2, 7));
-            f.setBold(true);
-            painter->setFont(f);
-            QColor c = option.palette.color(QPalette::WindowText);
-            c.setAlphaF(0.55f);
-            painter->setPen(c);
-            const QRect r = option.rect.adjusted(8, 0, -4, 0);
-            painter->drawText(
-                r, Qt::AlignLeft | Qt::AlignVCenter, index.data(Qt::DisplayRole).toString());
-            painter->restore();
-            return;
-        }
         if (index.row() == m_view->draggedRow()) {
             painter->save();
             painter->setPen(QPen(option.palette.color(QPalette::Mid), 1, Qt::DashLine));
