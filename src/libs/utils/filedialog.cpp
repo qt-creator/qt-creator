@@ -97,6 +97,9 @@ public:
     {
         if (role == Qt::TextAlignmentRole && index.column() == FileSystemModel::SizeColumn)
             return QVariant::fromValue(Qt::AlignRight | Qt::AlignVCenter);
+        // Inline rename edits the name column; seed the editor with the file name.
+        if (role == Qt::EditRole && index.column() == FileSystemModel::NameColumn)
+            return QSortFilterProxyModel::data(index, Qt::DisplayRole);
         return QSortFilterProxyModel::data(index, role);
     }
 
@@ -109,7 +112,11 @@ public:
         // file in Directory mode) stay visible but grayed out and unselectable.
         if (!acceptsContent(mapToSource(index.siblingAtColumn(0))))
             return f & ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-        return f | Qt::ItemIsDragEnabled;
+        f |= Qt::ItemIsDragEnabled;
+        // Only the name column is renamable.
+        if (index.column() == FileSystemModel::NameColumn)
+            f |= Qt::ItemIsEditable;
+        return f;
     }
 
     QMimeData *mimeData(const QModelIndexList &indexes) const override
@@ -174,6 +181,32 @@ private:
     QStringList m_suffixes;
     bool m_showHidden = false;
     bool m_directoriesOnly = false;
+};
+
+// ===== NameEditDelegate =====
+
+// Item delegate whose only customization is the inline rename editor: it
+// preselects the base name and leaves the extension unselected (like Finder and
+// Explorer), so typing replaces just the name while keeping the suffix.
+class NameEditDelegate : public QStyledItemDelegate
+{
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override
+    {
+        QStyledItemDelegate::setEditorData(editor, index);
+        auto *lineEdit = qobject_cast<QLineEdit *>(editor);
+        if (!lineEdit)
+            return;
+        const QString name = lineEdit->text();
+        const int dot = name.lastIndexOf(u'.');
+        // A leading dot ("...gitignore") is part of the name, not an extension.
+        const int end = dot > 0 ? dot : int(name.size());
+        // Defer: the view selects the whole text right after this returns, so
+        // applying our selection now would be overwritten.
+        QTimer::singleShot(0, lineEdit, [lineEdit, end] { lineEdit->setSelection(0, end); });
+    }
 };
 
 // ===== helpers =====
@@ -1194,6 +1227,15 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_treeView->setModel(d->m_proxy);
     d->m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     d->m_treeView->setRootIsDecorated(false);
+    // Editing is started explicitly (rename action / F2), never by clicks, so a
+    // double-click keeps navigating instead of opening the rename editor. The
+    // delegate preselects the base name (not the extension) when editing. Each
+    // view needs its own delegate instance: a delegate connects its editing
+    // signals to the view it is installed on, and sharing one across both views
+    // delivers commitData/closeEditor to the wrong view.
+    d->m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    auto *treeNameDelegate = new NameEditDelegate(d->m_treeView);
+    d->m_treeView->setItemDelegateForColumn(FileSystemModel::NameColumn, treeNameDelegate);
     // All rows are the same height, so the view can skip per-row size-hint
     // computation (which shapes the item text). Without this, relayout on every
     // insertion measures every row and dominates the profile.
@@ -1223,6 +1265,9 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_listView = new QListView(this);
     d->m_listView->setModel(d->m_proxy);
     d->m_listView->setSelectionModel(d->m_treeView->selectionModel());
+    d->m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    auto *listNameDelegate = new NameEditDelegate(d->m_listView);
+    d->m_listView->setItemDelegate(listNameDelegate);
     d->m_listView->setViewMode(QListView::IconMode);
     d->m_listView->setResizeMode(QListView::Adjust);
     d->m_listView->setIconSize(QSize(48, 48));
@@ -1352,6 +1397,19 @@ FileDialog::FileDialog(QWidget *parent)
 
         // Refresh so the trashed entries disappear from the listing.
         setDirectory(d->m_currentDir);
+    };
+
+    // Renames the single selected entry by opening the view's inline editor on
+    // its name. The model performs the actual rename when editing commits.
+    auto renameSelected = [this] {
+        auto *view = qobject_cast<QAbstractItemView *>(d->m_viewStack->currentWidget());
+        if (!view)
+            return;
+        const QModelIndex idx = view->currentIndex().siblingAtColumn(FileSystemModel::NameColumn);
+        if (!idx.isValid())
+            return;
+        view->setCurrentIndex(idx);
+        view->edit(idx);
     };
 
     QSplitter *splitter = nullptr;
@@ -1638,6 +1696,11 @@ FileDialog::FileDialog(QWidget *parent)
     connect(forwardAction, &QAction::triggered, this, goForward);
     addAction(forwardAction);
 
+    auto *renameAction = new QAction(Tr::tr("Rename..."), this);
+    renameAction->setShortcut(QKeySequence(Qt::Key_F2));
+    renameAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    connect(renameAction, &QAction::triggered, this, renameSelected);
+
     // Move the selection to the bin: Cmd+Backspace on macOS, Delete elsewhere.
     auto *trashAction = new QAction(Icons::CLEAN.icon(), Tr::tr("Move to Bin"), this);
     trashAction->setIconVisibleInMenu(true);
@@ -1646,19 +1709,24 @@ FileDialog::FileDialog(QWidget *parent)
     trashAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(trashAction, &QAction::triggered, this, moveToTrash);
 
-    // Register the shortcut once, on the views' common parent, so the context
-    // covers both the tree and icon view but not the search or name fields
-    // (which are not its children).
-    d->m_viewStack->addAction(trashAction);
+    // Register the shortcuts once, on the views' common parent, so the context
+    // covers both the tree and icon view (and their editors) but not the search
+    // or name fields (which are not its children). Adding each action to both
+    // views instead would register every shortcut twice and make Qt treat them
+    // as ambiguous - firing nothing, most visibly in the icon view.
+    const QList<QAction *> fileActions{renameAction, trashAction};
+    for (QAction *action : fileActions)
+        d->m_viewStack->addAction(action);
 
-    // Keeps the action's enabled state in sync with the selection. The bin only
+    // Keeps the actions' enabled state in sync with the selection. The bin only
     // exists for local files, so it stays disabled for remote ones.
-    auto updateFileActions = [trashAction, selectedPaths] {
+    auto updateFileActions = [renameAction, trashAction, selectedPaths] {
         const FilePaths paths = selectedPaths();
         const bool allLocal = !paths.isEmpty()
                               && std::all_of(paths.begin(), paths.end(), [](const FilePath &fp) {
                                      return fp.isLocal();
                                  });
+        renameAction->setEnabled(paths.size() == 1);
         trashAction->setEnabled(allLocal);
     };
     updateFileActions();
@@ -1668,8 +1736,30 @@ FileDialog::FileDialog(QWidget *parent)
         this,
         [updateFileActions] { updateFileActions(); });
 
+    // Committing an inline rename re-sorts the entry to its new position, which
+    // drops the view's selection (most visibly in the icon view) and leaves the
+    // actions disabled. Reselect the renamed entry once the edit settles so the
+    // selection — and the actions — follow it.
+    auto reselectRenamed = [this, updateFileActions](QWidget *editor) {
+        auto *lineEdit = qobject_cast<QLineEdit *>(editor);
+        if (!lineEdit)
+            return;
+        const FilePath renamed = d->m_currentDir.pathAppended(lineEdit->text());
+        QTimer::singleShot(0, this, [this, renamed, updateFileActions] {
+            const QModelIndex src = d->m_model->index(renamed);
+            if (src.isValid()) {
+                d->m_treeView->selectionModel()->setCurrentIndex(
+                    d->m_proxy->mapFromSource(src),
+                    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+            }
+            updateFileActions();
+        });
+    };
+    connect(treeNameDelegate, &QAbstractItemDelegate::commitData, this, reselectRenamed);
+    connect(listNameDelegate, &QAbstractItemDelegate::commitData, this, reselectRenamed);
+
     // Right-click on either view opens a context menu with the file actions.
-    auto showContextMenu = [trashAction, updateFileActions](
+    auto showContextMenu = [renameAction, trashAction, updateFileActions](
                                QAbstractItemView *view, const QPoint &pos) {
         // Right-clicking an unselected item selects it first, so the actions act
         // on what was clicked rather than a stale selection.
@@ -1678,6 +1768,8 @@ FileDialog::FileDialog(QWidget *parent)
             view->setCurrentIndex(idx);
         updateFileActions();
         QMenu menu;
+        menu.addAction(renameAction);
+        menu.addSeparator();
         menu.addAction(trashAction);
         menu.exec(view->viewport()->mapToGlobal(pos));
     };
