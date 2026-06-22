@@ -38,4 +38,11 @@ const char PerfZqfileMagic[] = "PTQFILE4.10";
 // for a future typed Symbol kind field; see perfnativemixed.h.
 const char QmlFrameMarker[] = "[QML]";
 
+// Real traces: QV4's JIT'd code lives in a memfd region named "JITCode:QtQml"
+// (see qtdeclarative .../masm/wtf/OSAllocatorPosix.cpp). perf attributes JIT'd
+// JS samples to that region, so its presence in a frame's "binary" marks the
+// frame as QML/JS without any producer change. perf-map then supplies the JS
+// function name; source file/line still needs producer-side work (jitdump).
+const char QmlJitRegionMarker[] = "JITCode:QtQml";
+
 } // namespace Profiler::Constants

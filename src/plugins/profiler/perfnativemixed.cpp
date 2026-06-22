@@ -22,8 +22,17 @@ FrameKind frameKind(const PerfProfilerTraceManager &manager, int locationId)
     if (binary < 0)
         return FrameKind::Native;
 
-    return manager.string(binary) == Constants::QmlFrameMarker ? FrameKind::Js
-                                                               : FrameKind::Native;
+    const QByteArray binaryName = manager.string(binary);
+
+    // Explicit marker (synthetic traces / future producer tagging) ...
+    if (binaryName == Constants::QmlFrameMarker)
+        return FrameKind::Js;
+
+    // ... or a real QV4 JIT region, e.g. "/memfd:JITCode:QtQml (deleted)".
+    if (binaryName.contains(Constants::QmlJitRegionMarker))
+        return FrameKind::Js;
+
+    return FrameKind::Native;
 }
 
 } // namespace Profiler::Internal

@@ -38,6 +38,7 @@ class PerfNativeMixedTest : public QObject
     Q_OBJECT
 private slots:
     void testMergedStacks();
+    void testFrameKindRecognizesJitRegion();
 };
 
 namespace {
@@ -250,6 +251,44 @@ void PerfNativeMixedTest::testMergedStacks()
     QVERIFY(!manager.aggregateAddresses());
     QCOMPARE(manager.symbol(LocInlinedJsAddr).binary, qint32(-1));
     QCOMPARE(frameKind(manager, LocInlinedJsAddr), FrameKind::Js);
+}
+
+// Real perf traces of a QML app attribute JIT'd JS samples to QV4's executable
+// memfd region "JITCode:QtQml" (confirmed by spike: perf-map gives the name
+// "compute", perfparser reports binary "/memfd:JITCode:QtQml (deleted)"). This
+// checks the seam classifies such a frame as JS with no explicit marker.
+void PerfNativeMixedTest::testFrameKindRecognizesJitRegion()
+{
+    PerfProfilerTraceManager manager;
+
+    const qint32 jsBinaryId = 0;
+    const qint32 nativeBinaryId = 1;
+    const qint32 jsNameId = 2;
+    const qint32 nativeNameId = 3;
+    manager.setString(jsBinaryId, "/memfd:JITCode:QtQml (deleted)");
+    manager.setString(nativeBinaryId, "libQt6Qml.so");
+    manager.setString(jsNameId, "compute");
+    manager.setString(nativeNameId, "QV4::Function::call");
+
+    // With address aggregation off (the default) frameKind() resolves through
+    // symbolLocation(), which only returns the location itself when its symbol
+    // carries a name. Give each symbol a name so the JIT-region binary check is
+    // actually reached, the same way the views resolve symbols.
+    const qint32 jsLoc = 0;
+    const qint32 nativeLoc = 1;
+    PerfProfilerTraceManager::Symbol jsSymbol;
+    jsSymbol.name = jsNameId;
+    jsSymbol.binary = jsBinaryId;
+    PerfProfilerTraceManager::Symbol nativeSymbol;
+    nativeSymbol.name = nativeNameId;
+    nativeSymbol.binary = nativeBinaryId;
+    manager.setSymbol(jsLoc, jsSymbol);
+    manager.setSymbol(nativeLoc, nativeSymbol);
+
+    QVERIFY(!manager.aggregateAddresses());
+    QCOMPARE(frameKind(manager, jsLoc), FrameKind::Js);
+    QCOMPARE(frameKind(manager, nativeLoc), FrameKind::Native);
+    QCOMPARE(frameKind(manager, -1), FrameKind::Native);
 }
 
 QObject *createPerfNativeMixedTest()
