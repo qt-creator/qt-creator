@@ -57,6 +57,15 @@ QWidget *widgets()
     });
     pageTimer->start();
 
+    auto progressBar = new QtcProgressBar;
+    progressBar->setRange(0, 100);
+    auto *progressTimer = new QTimer(widget);
+    progressTimer->setInterval(100);
+    QObject::connect(progressTimer, &QTimer::timeout, progressBar, [progressBar] {
+        progressBar->setValue((progressBar->value() + 1) % (progressBar->maximum() + 1));
+    });
+    progressTimer->start();
+
     using namespace Layouting;
     Column {
         Group {
@@ -148,6 +157,12 @@ QWidget *widgets()
             title("PageIndicator"),
             Row {
                 st, pageIndicator, st,
+            },
+        },
+        Group {
+            title("ProgressBar"),
+            Row {
+                progressBar,
             },
         },
     }.attachTo(widget);

@@ -674,6 +674,49 @@ void QtcSwitch::paintEvent([[maybe_unused]] QPaintEvent *event)
     }
 }
 
+constexpr int progressBarTrackHeight = PrimitiveM;
+constexpr int progressBarMinimumWidth = 64;
+
+QtcProgressBar::QtcProgressBar(QWidget *parent)
+    : QProgressBar(parent)
+{
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    setTextVisible(false);
+}
+
+QSize QtcProgressBar::sizeHint() const
+{
+    return {progressBarMinimumWidth, progressBarTrackHeight};
+}
+
+QSize QtcProgressBar::minimumSizeHint() const
+{
+    return {progressBarTrackHeight, progressBarTrackHeight};
+}
+
+void QtcProgressBar::paintEvent([[maybe_unused]] QPaintEvent *event)
+{
+    const int trackY = (height() - progressBarTrackHeight) / 2;
+    const QRect trackR(0, trackY, width(), progressBarTrackHeight);
+    const int rounding = progressBarTrackHeight / 2;
+
+    QPainter p(this);
+
+    const QBrush trackFill = creatorColor(Theme::Token_Foreground_Subtle);
+    StyleHelper::drawCardBg(&p, trackR, trackFill, QPen(Qt::NoPen), rounding);
+
+    const int span = maximum() - minimum();
+    if (span > 0 && value() > minimum()) {
+        const int fillWidth = qRound(qreal(value() - minimum()) / span * trackR.width());
+        if (fillWidth > 0) {
+            const QRect fillR(trackR.x(), trackR.y(), fillWidth, trackR.height());
+            const QBrush fill = creatorColor(isEnabled() ? Theme::Token_Accent_Default
+                                                         : Theme::Token_Foreground_Default);
+            StyleHelper::drawCardBg(&p, fillR, fill, QPen(Qt::NoPen), rounding);
+        }
+    }
+}
+
 QtcIconButton::QtcIconButton(QWidget *parent)
     : QAbstractButton(parent)
 {
@@ -1160,6 +1203,42 @@ void Switch::setChecked(bool checked)
 void Switch::onClicked(QObject *guard, const std::function<void()> &func)
 {
     QObject::connect(Layouting::Tools::access(this), &QtcSwitch::clicked, guard, func);
+}
+
+ProgressBar::ProgressBar()
+{
+    ptr = new Implementation();
+}
+
+ProgressBar::ProgressBar(std::initializer_list<I> ps)
+    : ProgressBar()
+{
+    Layouting::Tools::apply(this, ps);
+}
+
+void ProgressBar::setMinimum(int minimum)
+{
+    Layouting::Tools::access(this)->setMinimum(minimum);
+}
+
+void ProgressBar::setMaximum(int maximum)
+{
+    Layouting::Tools::access(this)->setMaximum(maximum);
+}
+
+void ProgressBar::setRange(int minimum, int maximum)
+{
+    Layouting::Tools::access(this)->setRange(minimum, maximum);
+}
+
+void ProgressBar::setValue(int value)
+{
+    Layouting::Tools::access(this)->setValue(value);
+}
+
+void ProgressBar::onValueChanged(QObject *guard, const std::function<void(int)> &func)
+{
+    QObject::connect(Layouting::Tools::access(this), &QtcProgressBar::valueChanged, guard, func);
 }
 
 Label::Label()

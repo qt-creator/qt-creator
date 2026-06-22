@@ -10,6 +10,7 @@
 #include <QAbstractButton>
 #include <QComboBox>
 #include <QLabel>
+#include <QProgressBar>
 #include <QTabBar>
 
 QT_FORWARD_DECLARE_CLASS(QVariantAnimation)
@@ -110,6 +111,19 @@ class QTCREATOR_UTILS_EXPORT QtcSwitch : public QAbstractButton
 {
 public:
     explicit QtcSwitch(const QString &text, QWidget *parent = nullptr);
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+};
+
+class QTCREATOR_UTILS_EXPORT QtcProgressBar : public QProgressBar
+{
+    Q_OBJECT
+public:
+    explicit QtcProgressBar(QWidget *parent = nullptr);
+
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
@@ -280,6 +294,20 @@ public:
     void onClicked(QObject *guard, const std::function<void()> &);
 };
 
+class QTCREATOR_UTILS_EXPORT ProgressBar : public Layouting::Widget
+{
+public:
+    using Implementation = QtcProgressBar;
+    using I = Building::BuilderItem<ProgressBar>;
+    ProgressBar();
+    ProgressBar(std::initializer_list<I> ps);
+    void setMinimum(int minimum);
+    void setMaximum(int maximum);
+    void setRange(int minimum, int maximum);
+    void setValue(int value);
+    void onValueChanged(QObject *guard, const std::function<void(int)> &);
+};
+
 class QTCREATOR_UTILS_EXPORT LineEdit : public Layouting::Widget
 {
 public:
@@ -352,5 +380,9 @@ inline constexpr auto strokePen = Building::setter(
     [](auto &x, auto &&...a) { x.setStrokePen(a...); });
 inline constexpr auto radius = Building::setter([](auto &x, auto &&...a) { x.setRadius(a...); });
 inline constexpr auto url = Building::setter([](auto &x, auto &&...a) { x.setUrl(a...); });
+inline constexpr auto value = Building::setter([](auto &x, auto &&...a) { x.setValue(a...); });
+inline constexpr auto minimum = Building::setter([](auto &x, auto &&...a) { x.setMinimum(a...); });
+inline constexpr auto maximum = Building::setter([](auto &x, auto &&...a) { x.setMaximum(a...); });
+inline constexpr auto range = Building::setter([](auto &x, auto &&...a) { x.setRange(a...); });
 
 } // namespace Utils
