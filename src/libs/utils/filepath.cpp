@@ -1071,6 +1071,28 @@ FilePaths FilePath::dirEntries(DirFilterFlags filters) const
     return dirEntries(FileFilter({}, filters));
 }
 
+// When searching for executables, also match names carrying the target OS executable suffix,
+// so e.g. "qmake" finds "qmake.exe" on a Windows device. Additive, and applied only to plain
+// (wildcard-free) names that do not already carry the suffix; a no-op on OSes without an
+// executable suffix.
+static FileFilter augmentExecutableNameFilters(const FileFilter &filter, OsType osType)
+{
+    if (!filter.fileFilters.testFlag(DirFilterFlag::Executable) || filter.nameFilters.isEmpty())
+        return filter;
+
+    QStringList names = filter.nameFilters;
+    for (const QString &name : filter.nameFilters) {
+        if (name.contains('*') || name.contains('?') || name.contains('['))
+            continue;
+        const QString withSuffix = OsSpecificAspects::withExecutableSuffix(osType, name);
+        if (withSuffix != name && !names.contains(withSuffix))
+            names.append(withSuffix);
+    }
+    if (names.size() == filter.nameFilters.size())
+        return filter;
+    return FileFilter(names, filter.fileFilters, filter.iteratorFlags);
+}
+
 /*!
     Runs \a callBack on each directory entry matching the \a filter.
 */
@@ -1081,7 +1103,7 @@ Result<> FilePath::iterateDirectory(const IterateDirCallback &callBack, const Fi
     if (!access)
         return ResultError(access.error());
 
-    return (*access)->iterateDirectory(*this, callBack, filter);
+    return (*access)->iterateDirectory(*this, callBack, augmentExecutableNameFilters(filter, osType()));
 }
 
 /*!
