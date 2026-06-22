@@ -20,6 +20,7 @@
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
+#include <projectexplorer/abi.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
@@ -31,6 +32,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/commandline.h>
+#include <utils/globaltasktree.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
@@ -48,6 +50,7 @@
 #include <QSet>
 #include <QThread>
 #include <QUuid>
+#include <QVersionNumber>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -1025,9 +1028,70 @@ static QString abiDisplayName(const Abi &abi)
     return name;
 }
 
+// Finds the bin directory of the highest-version MSVC Qt installed under C:\Qt on the device that
+// matches the given target ABI (x64 vs arm64), or an empty path if none is present. The scan is
+// bounded to C:\Qt\<version>\<kit>\bin and uses the (bridge-backed) device file access.
+static FilePath findMsvcQtBinDir(const IDevice::Ptr &device, const Abi &abi)
+{
+    const FilePath qtRoot = device->rootPath().withNewPath("C:/Qt");
+    if (!qtRoot.isDir())
+        return {};
+
+    const bool wantArm = abi.architecture() == Abi::ArmArchitecture;
+    const auto subDirs = [](const FilePath &p) {
+        return p.dirEntries(FileFilter({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot));
+    };
+
+    FilePath best;
+    QVersionNumber bestVersion;
+    for (const FilePath &versionDir : subDirs(qtRoot)) {
+        const QVersionNumber version = QVersionNumber::fromString(versionDir.fileName());
+        if (!best.isEmpty() && version <= bestVersion)
+            continue;
+        for (const FilePath &kitDir : subDirs(versionDir)) {
+            const QString name = kitDir.fileName().toLower();
+            if (!name.contains("msvc") || name.contains("arm64") != wantArm)
+                continue;
+            if ((kitDir / "bin" / "qmake.exe").isExecutableFile()) {
+                best = kitDir / "bin";
+                bestVersion = version;
+                break;
+            }
+        }
+    }
+    return best;
+}
+
+// Attaches a matching device Qt to the kit through the generic Qt kit-aspect auto-detection. This
+// keeps the Qt creation inside QtSupport (reached polymorphically via KitAspectFactory), so the
+// plugin needs no QtSupport dependency. Only the Qt aspect is run, matched by its stable id:
+// running every aspect would re-trigger MSVC detection and overwrite the bundle just set on the
+// kit. The previously detected Qt for this device is removed first so re-runs do not accumulate.
+static void detectAndAttachQt(const IDevice::Ptr &device, Kit *kit, const FilePath &qtBinDir)
+{
+    using namespace QtTaskTree;
+    const DetectionSource source{DetectionSource::FromSystem, device->id().toString()};
+    const auto log = [](const QString &msg) { qCDebug(windowsDeviceLog).noquote() << msg; };
+
+    qCDebug(windowsDeviceLog) << "Detecting Qt for the kit in" << qtBinDir.toUserOutput();
+    for (KitAspectFactory *factory : KitAspectFactory::kitAspectFactories()) {
+        if (factory->id().toString() != "QtSupport.QtInformation")
+            continue;
+        GroupItems items;
+        if (const std::optional<ExecutableItem> remove = factory->removeAutoDetected(source.id, log))
+            items.append({*remove});
+        if (const std::optional<ExecutableItem> detect
+                = factory->autoDetect(kit, {qtBinDir}, source, log)) {
+            items.append({*detect});
+        }
+        if (!items.isEmpty())
+            GlobalTaskTree::start(Group{sequential, items});
+        return;
+    }
+}
+
 // Runs toolchain auto-detection for the device (MSVC, over SSH), registers the results and
-// creates a kit per detected target ABI. Qt detection is a later addition; until then the
-// kit comes up with the MSVC compiler and the device as build/run device, but no Qt.
+// creates a kit per detected target ABI, attaching a matching device Qt when one is installed.
 static void detectAndRegisterToolchains(const WindowsDevice::Ptr &device)
 {
     qCDebug(windowsDeviceLog) << "Starting toolchain detection for"
@@ -1105,7 +1169,7 @@ static void detectAndRegisterToolchains(const WindowsDevice::Ptr &device)
         const QString abiName = abiDisplayName(bundle.targetAbi());
         if (!Utils::insert(seenAbis, abiName))
             continue;
-        KitManager::registerKit([device, bundle, sourceId, abiName](Kit *k) {
+        Kit *kit = KitManager::registerKit([device, bundle, sourceId, abiName](Kit *k) {
             k->setDetectionSource({DetectionSource::FromSystem, sourceId});
             k->setUnexpandedDisplayName("%{Device:Name} " + abiName);
             RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
@@ -1116,6 +1180,12 @@ static void detectAndRegisterToolchains(const WindowsDevice::Ptr &device)
             k->setSticky(BuildDeviceTypeKitAspect::id(), true);
             ToolchainKitAspect::setBundle(k, bundle);
         });
+        // Attach a matching device Qt if one is installed (asynchronous, may complete after
+        // the kit appears). The kit is usable without Qt; only a "no Qt" warning shows then.
+        if (const FilePath qtBinDir = findMsvcQtBinDir(device, bundle.targetAbi());
+            !qtBinDir.isEmpty()) {
+            detectAndAttachQt(device, kit, qtBinDir);
+        }
     }
     qCDebug(windowsDeviceLog) << "Created" << bundles.size() << "kit(s) for the device";
 }

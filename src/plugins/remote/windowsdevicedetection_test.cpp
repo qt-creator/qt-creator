@@ -141,6 +141,17 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
              "C compiler is not located on the device.");
     QVERIFY2(cxxTc->compilerCommand().isSameDevice(deviceRoot),
              "C++ compiler is not located on the device.");
+
+    // A matching device Qt is attached asynchronously after the kit appears. Check it through the
+    // generic kit value (the numeric Qt version id) so this test needs no QtSupport dependency;
+    // an unset/-1 value means no Qt was attached.
+    const Id qtAspectId("QtSupport.QtInformation");
+    const bool qtAttached = waitFor([&] {
+        const QVariant v = kit->value(qtAspectId);
+        return v.isValid() && v.toInt() >= 0;
+    }, 30 * 1000);
+    qDebug().noquote() << "  Qt: version id" << kit->value(qtAspectId).toInt();
+    QVERIFY2(qtAttached, "No Qt version was attached to the kit.");
 }
 
 } // namespace Remote::Internal
