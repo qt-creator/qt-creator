@@ -720,7 +720,8 @@ public:
         hbox->addWidget(&m_configureButton);
 
         auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
+        const int vSpacing = style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing);
+        layout->setContentsMargins(0, vSpacing, 0, 0);
         layout->addLayout(hbox);
 
         connect(&m_configureButton, &QAbstractButton::clicked,
@@ -746,7 +747,7 @@ public:
 
         auto lt = qobject_cast<QBoxLayout *>(layout());
         QTC_ASSERT(lt, return);
-        lt->insertWidget(0, m_targetSetupPage);
+        lt->addWidget(m_targetSetupPage);
         onCompleteChanged();
     }
 
