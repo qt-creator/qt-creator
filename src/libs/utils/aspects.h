@@ -654,17 +654,28 @@ template <class ValueType>
 class TypedSelectionAspect : public SelectionAspect
 {
 public:
-    using SelectionAspect::SelectionAspect;
+    TypedSelectionAspect(AspectContainer *container = nullptr)
+        : SelectionAspect(container) { setUseDataAsSavedValue(); }
 
-    ValueType operator()() const { return static_cast<ValueType>(SelectionAspect::operator()()); }
-    ValueType value() const { return static_cast<ValueType>(SelectionAspect::value()); }
-    void setValue(ValueType value) { SelectionAspect::setValue(int(value)); }
+    ValueType operator()() const { return fromIndex(SelectionAspect::operator()()); }
+    ValueType value() const { return fromIndex(SelectionAspect::value()); }
+    void setValue(ValueType value) { SelectionAspect::setValue(toIndex(value)); }
 
-    ValueType defaultValue() const { return static_cast<ValueType>(SelectionAspect::defaultValue()); }
-    void setDefaultValue(ValueType value) { SelectionAspect::setDefaultValue(int(value)); }
+    ValueType defaultValue() const { return fromIndex(SelectionAspect::defaultValue()); }
+    void setDefaultValue(ValueType value) { SelectionAspect::setDefaultValue(toIndex(value)); }
 
-    ValueType volatileValue() const { return static_cast<ValueType>(SelectionAspect::volatileValue()); }
-    void setVolatileValue(ValueType value) { SelectionAspect::setVolatileValue(int(value)); }
+    ValueType volatileValue() const { return fromIndex(SelectionAspect::volatileValue()); }
+    void setVolatileValue(ValueType value) { SelectionAspect::setVolatileValue(toIndex(value)); }
+
+private:
+    ValueType fromIndex(int index) const {
+        const QVariant iv = itemValueForIndex(index);
+        return static_cast<ValueType>(iv.isValid() ? iv.toInt() : index);
+    }
+    int toIndex(ValueType value) const {
+        const int idx = indexForItemValue(QVariant(static_cast<int>(value)));
+        return idx >= 0 ? idx : static_cast<int>(value);
+    }
 };
 
 class QTCREATOR_UTILS_EXPORT MultiSelectionAspect : public TypedAspect<QStringList>

@@ -2527,7 +2527,8 @@ QVariant SelectionAspect::toSettingsValue(const QVariant &valueToSave) const
     if (!d->m_useDataAsSavedValue)
         return valueToSave;
 
-    return itemValueForIndex(valueToSave.toInt());
+    const QVariant iv = itemValueForIndex(valueToSave.toInt());
+    return iv.isValid() ? iv : valueToSave;
 }
 
 QVariant SelectionAspect::fromSettingsValue(const QVariant &savedValue) const
@@ -2536,7 +2537,7 @@ QVariant SelectionAspect::fromSettingsValue(const QVariant &savedValue) const
         return savedValue;
 
     const int index = indexForItemValue(savedValue);
-    return index >= 0 ? index : defaultVariantValue();
+    return index >= 0 ? index : savedValue;
 }
 
 void SelectionAspect::setUseDataAsSavedValue()
