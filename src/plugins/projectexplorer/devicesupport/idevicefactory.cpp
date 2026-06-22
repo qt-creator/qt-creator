@@ -117,8 +117,10 @@ void IDeviceFactory::setIcon(const QIcon &icon)
 void IDeviceFactory::setCombinedIcon(const FilePath &small, const FilePath &large)
 {
     using namespace Utils;
-    m_icon = Icon::combinedIcon({Icon({{small, Theme::PanelTextColorDark}}, Icon::Tint),
-                                 Icon({{large, Theme::IconsBaseColor}})});
+    setIcon(
+        Icon::combinedIcon(
+            {Icon({{small, Theme::PanelTextColorDark}}, Icon::Tint),
+             Icon({{large, Theme::IconsBaseColor}})}));
 }
 
 void IDeviceFactory::setCreator(const std::function<IDevice::Ptr()> &creator)
