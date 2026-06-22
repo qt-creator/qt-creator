@@ -105,14 +105,22 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     event.setTimestamp(static_cast<qint64>(qMin(timestamp, qint64Max)));
 
     switch (event.m_feature) {
-    case PerfEventType::ThreadStart:
+    case PerfEventType::ThreadStart: {
         event.setTypeIndex(PerfEvent::ThreadStartTypeId);
+        // perfparser sends the parent pid here. We don't use it, but must read
+        // it to stay aligned; stash it in m_value (unused for this event type).
+        qint32 parentPid;
+        stream >> parentPid;
+        event.m_value = static_cast<quint32>(parentPid);
         break;
+    }
     case PerfEventType::ThreadEnd:
         event.setTypeIndex(PerfEvent::ThreadEndTypeId);
         break;
     case PerfEventType::LostDefinition:
         event.setTypeIndex(PerfEvent::LostTypeId);
+        // Number of lost records. Stashed in m_value (unused otherwise here).
+        stream >> event.m_value;
         break;
     case PerfEventType::ContextSwitchDefinition:
         event.setTypeIndex(PerfEvent::ContextSwitchTypeId);
@@ -152,8 +160,12 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
            << event.m_cpu;
     switch (feature) {
     case PerfEventType::ThreadStart:
+        stream << static_cast<qint32>(event.m_value); // parent pid, see operator>>
+        break;
     case PerfEventType::ThreadEnd:
+        break;
     case PerfEventType::LostDefinition:
+        stream << event.m_value; // number of lost records
         break;
     case PerfEventType::ContextSwitchDefinition:
         stream << bool(event.extra());

@@ -79,6 +79,7 @@ public:
         qint32 line = -1;
         qint32 column = -1;
         qint32 parentLocationId = -1;
+        quint64 relAddr = 0;
     };
 
     struct Meta {
@@ -170,13 +171,15 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEventType::Attribu
 inline QDataStream &operator>>(QDataStream &stream, PerfEventType::Location &location)
 {
     return stream >> location.address >> location.file >> location.pid
-                  >> location.line >> location.column >> location.parentLocationId;
+                  >> location.line >> location.column >> location.parentLocationId
+                  >> location.relAddr;
 }
 
 inline QDataStream &operator<<(QDataStream &stream, const PerfEventType::Location &location)
 {
     return stream << location.address << location.file << location.pid
-                  << location.line << location.column << location.parentLocationId;
+                  << location.line << location.column << location.parentLocationId
+                  << location.relAddr;
 }
 
 inline QDataStream &operator>>(QDataStream &stream, PerfEventType &eventType)

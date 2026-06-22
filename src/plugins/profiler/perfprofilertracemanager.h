@@ -71,6 +71,9 @@ public:
         qint32 binary;
         qint32 path;
         bool isKernel;
+        quint64 relAddr = 0;
+        quint64 size = 0;
+        qint32 actualPath = -1;
     };
 
     struct TracePoint {
@@ -204,12 +207,14 @@ private:
 
 inline QDataStream &operator>>(QDataStream &stream, PerfProfilerTraceManager::Symbol &symbol)
 {
-    return stream >> symbol.name >> symbol.binary >> symbol.path >> symbol.isKernel;
+    return stream >> symbol.name >> symbol.binary >> symbol.path >> symbol.isKernel
+                  >> symbol.relAddr >> symbol.size >> symbol.actualPath;
 }
 
 inline QDataStream &operator<<(QDataStream &stream, const PerfProfilerTraceManager::Symbol &symbol)
 {
-    return stream << symbol.name << symbol.binary << symbol.path << symbol.isKernel;
+    return stream << symbol.name << symbol.binary << symbol.path << symbol.isKernel
+                  << symbol.relAddr << symbol.size << symbol.actualPath;
 }
 
 inline QDataStream &operator>>(QDataStream &stream,
