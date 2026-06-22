@@ -109,14 +109,13 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_serverButtonsLayout->setSpacing(6);
             connectLayout->addLayout(m_serverButtonsLayout);
 
-            m_connectionErrorLabel = new QLabel;
+            m_connectionErrorLabel = new InfoLabel({}, InfoLabel::Error);
+            m_connectionErrorLabel->setFilled(true);
+            m_connectionErrorLabel->setElideMode(Qt::ElideNone);
             m_connectionErrorLabel->setWordWrap(true);
             m_connectionErrorLabel->setTextFormat(Qt::RichText);
             m_connectionErrorLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
             m_connectionErrorLabel->hide();
-            QPalette errorPal = m_connectionErrorLabel->palette();
-            errorPal.setColor(QPalette::WindowText, creatorColor(Theme::TextColorError));
-            m_connectionErrorLabel->setPalette(errorPal);
             connectLayout->addWidget(m_connectionErrorLabel);
 
             auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
@@ -418,8 +417,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_stack->setCurrentIndex(0);
         m_chatPanel->addErrorMessage(msg);
         // Also show on the connection page so errors are visible if we switch back
-        m_connectionErrorLabel->setText(
-            QStringLiteral("<b>\u26A0 Error:</b> %1").arg(msg.toHtmlEscaped()));
+        m_connectionErrorLabel->setText(Tr::tr("Error:") + " " + msg.toHtmlEscaped());
         m_connectionErrorLabel->show();
     });
 }

@@ -50,7 +50,7 @@ private:
     QStackedWidget *m_configStack;
     QVBoxLayout *m_serverButtonsLayout = nullptr;
     Utils::InfoLabel *m_noServerLabel;
-    QLabel *m_connectionErrorLabel = nullptr;
+    Utils::InfoLabel *m_connectionErrorLabel = nullptr;
     QString m_currentServerName;
 
     // Initializing page
