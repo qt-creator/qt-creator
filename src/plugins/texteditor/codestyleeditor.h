@@ -41,7 +41,6 @@ signals:
 protected:
     void addHeaderWidget(QWidget *widget);
     void addSelector(CodeStyleSelectorWidget *selector);
-    QWidget *addInfoLabel();
     void addEditorWidget(QWidget *editor);
     // Adds a vertically expanding empty widget at the end of the layout. Toggle
     // its visibility opposite to the editor area so that the remaining widgets

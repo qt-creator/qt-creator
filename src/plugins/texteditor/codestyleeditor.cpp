@@ -17,7 +17,6 @@
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>
 #include <utils/guiutils.h>
-#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <QChar>
@@ -49,21 +48,6 @@ void CodeStyleEditor::addSelector(CodeStyleSelectorWidget *selector)
 {
     m_layout->addWidget(selector);
     Utils::installMarkSettingsDirtyTriggerRecursively(selector);
-}
-
-QWidget *CodeStyleEditor::addInfoLabel()
-{
-    auto infoLabel = new InfoLabel(Tr::tr("All changes below take effect immediately."),
-                                   Utils::InfoLabel::Information);
-    infoLabel->setFilled(true);
-    // Wrap in a plain container: InfoLabel uses its own contentsMargins to place
-    // its icon, so callers indent the container instead of the label itself.
-    auto container = new QWidget;
-    auto layout = new QVBoxLayout(container);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(infoLabel);
-    m_layout->addWidget(container);
-    return container;
 }
 
 void CodeStyleEditor::addHeaderWidget(QWidget *widget)
@@ -142,7 +126,6 @@ public:
     {
         m_selector.setCodeStyle(codeStyle);
         addSelector(&m_selector);
-        addInfoLabel();
 
         DisplaySettingsData displaySettings = m_preview.displaySettings();
         displaySettings.m_visualizeWhitespace = true;
