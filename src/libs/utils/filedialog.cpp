@@ -78,7 +78,7 @@ public:
     void setSuffixes(const QStringList &suffixes)
     {
         m_suffixes = suffixes;
-        invalidateFilter();
+        invalidate();
     }
 
     void setShowHidden(bool show)
