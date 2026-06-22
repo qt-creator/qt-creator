@@ -29,6 +29,7 @@
 #include <QDropEvent>
 #include <QElapsedTimer>
 #include <QFileDialog>
+#include <QFile>
 #include <QFileIconProvider>
 #include <QFrame>
 #include <QHeaderView>
@@ -1314,6 +1315,45 @@ FileDialog::FileDialog(QWidget *parent)
         setDirectory(d->m_currentDir);
     };
 
+    // The selected entries. Uses selectedIndexes() filtered to column 0 rather
+    // than selectedRows(): the icon view only selects the single displayed
+    // column, so selectedRows() (which requires every column of a row to be
+    // selected) would come back empty there.
+    auto selectedPaths = [this] {
+        FilePaths paths;
+        const QModelIndexList indexes = d->m_treeView->selectionModel()->selectedIndexes();
+        for (const QModelIndex &idx : indexes) {
+            if (idx.column() != FileSystemModel::NameColumn)
+                continue;
+            const FilePath fp = idx.data(FileSystemModel::FilePathRole).value<FilePath>();
+            if (!fp.isEmpty())
+                paths << fp;
+        }
+        return paths;
+    };
+
+    // Moves the selected entries to the bin (trash / recycle bin). Only local
+    // files have a bin; entries on remote devices are reported as not moved.
+    auto moveToTrash = [this, selectedPaths] {
+        const FilePaths paths = selectedPaths();
+        if (paths.isEmpty())
+            return;
+
+        QStringList failed;
+        for (const FilePath &fp : paths) {
+            if (!fp.isLocal() || !QFile::moveToTrash(fp.toFSPathString()))
+                failed << fp.toUserOutput();
+        }
+        if (!failed.isEmpty()) {
+            AsynchronousMessageBox::warning(
+                Tr::tr("Move to Bin"),
+                Tr::tr("Could not move the following to the bin:\n%1").arg(failed.join(u'\n')));
+        }
+
+        // Refresh so the trashed entries disappear from the listing.
+        setDirectory(d->m_currentDir);
+    };
+
     QSplitter *splitter = nullptr;
     QtcIconButton *upButton = nullptr;
     QtcIconButton *backButton = nullptr;
@@ -1597,6 +1637,58 @@ FileDialog::FileDialog(QWidget *parent)
     forwardAction->setShortcutContext(Qt::WindowShortcut);
     connect(forwardAction, &QAction::triggered, this, goForward);
     addAction(forwardAction);
+
+    // Move the selection to the bin: Cmd+Backspace on macOS, Delete elsewhere.
+    auto *trashAction = new QAction(Icons::CLEAN.icon(), Tr::tr("Move to Bin"), this);
+    trashAction->setIconVisibleInMenu(true);
+    trashAction->setShortcut(HostOsInfo::isMacHost() ? QKeySequence(Qt::CTRL | Qt::Key_Backspace)
+                                                     : QKeySequence(QKeySequence::Delete));
+    trashAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    connect(trashAction, &QAction::triggered, this, moveToTrash);
+
+    // Register the shortcut once, on the views' common parent, so the context
+    // covers both the tree and icon view but not the search or name fields
+    // (which are not its children).
+    d->m_viewStack->addAction(trashAction);
+
+    // Keeps the action's enabled state in sync with the selection. The bin only
+    // exists for local files, so it stays disabled for remote ones.
+    auto updateFileActions = [trashAction, selectedPaths] {
+        const FilePaths paths = selectedPaths();
+        const bool allLocal = !paths.isEmpty()
+                              && std::all_of(paths.begin(), paths.end(), [](const FilePath &fp) {
+                                     return fp.isLocal();
+                                 });
+        trashAction->setEnabled(allLocal);
+    };
+    updateFileActions();
+    connect(
+        d->m_treeView->selectionModel(),
+        &QItemSelectionModel::selectionChanged,
+        this,
+        [updateFileActions] { updateFileActions(); });
+
+    // Right-click on either view opens a context menu with the file actions.
+    auto showContextMenu = [trashAction, updateFileActions](
+                               QAbstractItemView *view, const QPoint &pos) {
+        // Right-clicking an unselected item selects it first, so the actions act
+        // on what was clicked rather than a stale selection.
+        const QModelIndex idx = view->indexAt(pos);
+        if (idx.isValid() && !view->selectionModel()->isSelected(idx))
+            view->setCurrentIndex(idx);
+        updateFileActions();
+        QMenu menu;
+        menu.addAction(trashAction);
+        menu.exec(view->viewport()->mapToGlobal(pos));
+    };
+    d->m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    d->m_listView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(d->m_treeView, &QWidget::customContextMenuRequested, this, [this, showContextMenu](const QPoint &pos) {
+        showContextMenu(d->m_treeView, pos);
+    });
+    connect(d->m_listView, &QWidget::customContextMenuRequested, this, [this, showContextMenu](const QPoint &pos) {
+        showContextMenu(d->m_listView, pos);
+    });
 
     connect(
         this,
