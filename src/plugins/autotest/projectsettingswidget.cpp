@@ -76,7 +76,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
                     },
                     st,
                 },
-                m_projectSettings->runAfterBuild,
+                Row { m_projectSettings->runAfterBuild, st },
                 noMargin,
             },
         },
