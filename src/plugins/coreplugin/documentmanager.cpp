@@ -185,9 +185,6 @@ public:
 
     FileWatchers *fileWatcher();
 
-    void checkOnNextFocusChange();
-    void onApplicationFocusChange();
-
     QMap<FilePath, FileState> m_states; // filePathKey -> FileState
     QSet<FilePath> m_changedFiles; // watched file paths collected from file watcher notifications
     QList<IDocument *> m_documentsWithoutWatch;
@@ -198,7 +195,6 @@ public:
 
     bool m_postponeAutoReload = false;
     bool m_blockActivated = false;
-    bool m_checkOnFocusChange = false;
     bool m_useProjectsDirectory = kUseProjectsDirectoryDefault;
 
     FileWatchers m_fileWatcher; // Delayed creation.
@@ -223,27 +219,8 @@ FileWatchers *DocumentManagerPrivate::fileWatcher()
     return &m_fileWatcher;
 }
 
-void DocumentManagerPrivate::checkOnNextFocusChange()
-{
-    m_checkOnFocusChange = true;
-}
-
-void DocumentManagerPrivate::onApplicationFocusChange()
-{
-    if (!m_checkOnFocusChange)
-        return;
-    m_checkOnFocusChange = false;
-    m_instance->checkForReload();
-}
-
 DocumentManagerPrivate::DocumentManagerPrivate()
 {
-    // we do not want to do too much directly in the focus change event, so queue the connection
-    connect(qApp,
-            &QApplication::focusChanged,
-            this,
-            &DocumentManagerPrivate::onApplicationFocusChange,
-            Qt::QueuedConnection);
 }
 
 } // namespace Internal
@@ -1107,21 +1084,12 @@ void DocumentManager::checkForReload()
 {
     if (d->m_postponeAutoReload || d->m_changedFiles.isEmpty())
         return;
-    if (QApplication::applicationState() != Qt::ApplicationActive)
-        return;
     // If d->m_blockActivated is true, then it means that the event processing of either the
     // file modified dialog, or of loading large files, has delivered a file change event from
     // a watcher *and* the timer triggered. We may never end up here in a nested way, so
     // recheck later at the end of the checkForReload function.
     if (d->m_blockActivated)
         return;
-    if (QApplication::activeModalWidget()) {
-        // We do not want to prompt for modified file if we currently have some modal dialog open.
-        // There is no really sensible way to get notified globally if a window closed,
-        // so just check on every focus change.
-        d->checkOnNextFocusChange();
-        return;
-    }
 
     d->m_blockActivated = true;
 
