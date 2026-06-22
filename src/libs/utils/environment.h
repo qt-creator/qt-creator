@@ -179,8 +179,9 @@ public:
     void appendUserItem(const EnvironmentItem &item) { m_itemsFromUser << item; }
     void transformUserItems(const std::function<void(EnvironmentItem &)> &modifier);
 
-    void setFile(const FilePath &file);
+    void setFile(const FilePath &file, bool isScript);
     FilePath file() const { return m_file; }
+    bool isScript() const { return m_isScript; }
 
     QVariant toVariant() const;
     void fromVariant(const QVariant &v);
@@ -197,10 +198,12 @@ public:
 private:
     friend bool operator==(const EnvironmentChanges &e1, const EnvironmentChanges &e2)
     {
-        return e1.m_itemsFromUser == e2.m_itemsFromUser && e1.m_file == e2.m_file;
+        return e1.m_itemsFromUser == e2.m_itemsFromUser && e1.m_file == e2.m_file
+               && e1.m_isScript == e2.m_isScript;
     }
     EnvironmentItems m_itemsFromUser;
     FilePath m_file;
+    bool m_isScript = false;
     mutable std::optional<std::pair<QDateTime, EnvironmentItems>> m_itemsFromFile;
 };
 

@@ -655,11 +655,12 @@ int qtcEnvironmentVariableIntValue(const QString &key, bool *ok)
     return Environment::systemEnvironment().value(key).toInt(ok);
 }
 
-void EnvironmentChanges::setFile(const FilePath &file)
+void EnvironmentChanges::setFile(const FilePath &file, bool isScript)
 {
-    if (m_file == file)
+    if (m_file == file && m_isScript == isScript)
         return;
     m_file = file;
+    m_isScript = isScript;
     m_itemsFromFile.reset();
 }
 
@@ -680,7 +681,7 @@ EnvironmentItems EnvironmentChanges::itemsFromFile() const
 
     EnvironmentItems theItems;
 
-    if (m_file.endsWith(".sh") || m_file.endsWith(".bat")) {
+    if (m_isScript) {
         const Result<Environment> sourcedEnv = m_file.sourcedDeviceEnvironment();
         if (!sourcedEnv) {
             qWarning() << sourcedEnv.error();
@@ -733,6 +734,7 @@ void EnvironmentChanges::transformUserItems(const std::function<void (Environmen
 
 static Key userItemsKey() { return "UserItems"; }
 static Key fileKey() { return "File"; }
+static Key isScriptKey() { return "IsScript"; }
 static Key timeStampKey() { return "TimeStamp"; }
 static Key fileItemsKey() { return "FileItems"; }
 
@@ -742,7 +744,8 @@ QVariant EnvironmentChanges::toVariant() const
         return {};
     Store store{
         std::make_pair(userItemsKey(), EnvironmentItem::toStringList(m_itemsFromUser)),
-        std::make_pair(fileKey(), m_file.toSettings())};
+        std::make_pair(fileKey(), m_file.toSettings()),
+        std::make_pair(isScriptKey(), m_isScript)};
 
     // Not strictly necessary, but saves file I/O.
     if (m_itemsFromFile && m_itemsFromFile->first == m_file.lastModified()) {
@@ -760,7 +763,14 @@ void EnvironmentChanges::fromVariant(const QVariant &v)
     } else {
         const Store store = storeFromVariant(v);
         m_itemsFromUser = EnvironmentItem::fromStringList(store.value(userItemsKey()).toStringList());
-        setFile(FilePath::fromSettings(store.value(fileKey())));
+        const FilePath file = FilePath::fromSettings(store.value(fileKey()));
+        const QVariant isScriptVariant = store.value(isScriptKey());
+
+        // Backwards compat
+        const bool isScript = isScriptVariant.isValid()
+            ? isScriptVariant.toBool() : file.suffix() == "sh" || file.suffix() == "bat";
+
+        setFile(file, isScript);
         if (!m_file.isEmpty()) {
             const QVariant timeStampVariant = store.value(timeStampKey());
             if (timeStampVariant.isValid()) {
@@ -816,7 +826,7 @@ QString EnvironmentChanges::toShortSummary(MacroExpander *expander, bool multiLi
 void EnvironmentChanges::clear()
 {
     m_itemsFromUser.clear();
-    setFile({});
+    setFile({}, false);
 }
 
 Result<Environment> getUnixEnvironment(

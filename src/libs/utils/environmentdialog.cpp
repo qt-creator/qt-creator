@@ -6,10 +6,12 @@
 #include "guiutils.h"
 #include "hostosinfo.h"
 #include "pathchooser.h"
+#include "utility.h"
 #include "utilstr.h"
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -58,8 +60,9 @@ private:
 
 NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     : QWidget(parent)
-    , m_scriptCheckBox(new QCheckBox(this))
+    , m_fileCheckBox(new QCheckBox(this))
     , m_scriptChooser(new PathChooser(this))
+    , m_scriptCheckBox(new QCheckBox(this))
 {
     const QString fileHelpText = Tr::tr(
         "The file can be a simple text file containing key/value pairs,\n"
@@ -77,18 +80,23 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
               "Lines starting with \"##\" will be treated as comments.\n")
               .append("\n" + fileHelpText);
 
-    m_scriptCheckBox->setText(Tr::tr("Get variables from text file or shell script:"));
-    m_scriptCheckBox->setToolTip(fileHelpText);
-    connect(m_scriptCheckBox, &QCheckBox::toggled, m_scriptChooser, &PathChooser::setEnabled);
+    m_fileCheckBox->setText(Tr::tr("Get variables from file:"));
+    m_fileCheckBox->setToolTip(fileHelpText);
+    connect(m_fileCheckBox, &QCheckBox::toggled, m_scriptChooser, &PathChooser::setEnabled);
 
     m_scriptChooser->setExpectedKind(PathChooser::File);
     m_scriptChooser->setEnabled(false);
 
+    m_scriptCheckBox->setText(Tr::tr("File is a shell script"));
+
     m_editor = new Internal::TextEditHelper(this);
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_scriptCheckBox);
-    layout->addWidget(m_scriptChooser);
+    layout->addWidget(m_fileCheckBox);
+    const auto fileLayout = new QHBoxLayout;
+    fileLayout->addWidget(m_scriptChooser);
+    fileLayout->addWidget(m_scriptCheckBox);
+    layout->addLayout(fileLayout);
     layout->addWidget(m_editor);
     layout->addWidget(new QLabel(helpText, this));
 
@@ -96,7 +104,14 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     timer->setSingleShot(true);
     timer->setInterval(1000);
     connect(m_editor, &QPlainTextEdit::textChanged, timer, qOverload<>(&QTimer::start));
-    connect(m_scriptChooser, &PathChooser::rawPathChanged, this, [this] { forceUpdateCheck(); });
+    connect(m_scriptChooser, &PathChooser::rawPathChanged, this, [this] {
+        if (m_interactive) {
+            const FilePath file = m_scriptChooser->filePath();
+            m_scriptCheckBox->setChecked(file.suffix() == "sh" || file.suffix() == "bat");
+        }
+        forceUpdateCheck();
+    });
+    connect(m_fileCheckBox, &QCheckBox::toggled, this, [this] { forceUpdateCheck(); });
     connect(m_scriptCheckBox, &QCheckBox::toggled, this, [this] { forceUpdateCheck(); });
     connect(timer, &QTimer::timeout, this, &NameValueItemsWidget::forceUpdateCheck);
     connect(m_editor, &Internal::TextEditHelper::lostFocus, this, [this, timer] {
@@ -107,9 +122,11 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
 
 void NameValueItemsWidget::setEnvironmentChanges(const EnvironmentChanges &envFromUser)
 {
+    ScopedSwap swap(m_interactive, false);
     m_originalEnvChanges = envFromUser;
     m_scriptChooser->setFilePath(envFromUser.file());
-    m_scriptCheckBox->setChecked(!envFromUser.file().isEmpty());
+    m_fileCheckBox->setChecked(!envFromUser.file().isEmpty());
+    m_scriptCheckBox->setChecked(envFromUser.isScript());
     m_editor->document()->setPlainText(
         EnvironmentItem::toStringList(envFromUser.itemsFromUser()).join(QLatin1Char('\n')));
 }
@@ -119,8 +136,8 @@ EnvironmentChanges NameValueItemsWidget::envChanges() const
     const QStringList list = m_editor->document()->toPlainText().split(QLatin1String("\n"));
     EnvironmentChanges changes;
     changes.setItemsFromUser(Internal::cleanUp(EnvironmentItem::fromStringList(list)));
-    if (m_scriptCheckBox->isChecked())
-        changes.setFile(m_scriptChooser->filePath());
+    if (m_fileCheckBox->isChecked())
+        changes.setFile(m_scriptChooser->filePath(), m_scriptCheckBox->isChecked());
     return changes;
 }
 

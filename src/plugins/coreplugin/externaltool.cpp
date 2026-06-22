@@ -388,11 +388,13 @@ Result<ExternalTool *> ExternalTool::createFromXml(const QByteArray &xml, const 
                     for (auto iter = items.begin(); iter != items.end(); ++iter)
                         *iter = QString::fromUtf8(QByteArray::fromPercentEncoding(iter->toUtf8()));
                     tool->m_data.environment.setItemsFromUser(EnvironmentItem::fromStringList(items));
-                    if (elems.size() == 2) {
-                        tool->m_data.environment.setFile(
-                            FilePath::fromString(
-                                QString::fromUtf8(
-                                    QByteArray::fromPercentEncoding(elems.last().toUtf8()))));
+                    if (elems.size() > 1) {
+                        const FilePath file = FilePath::fromString(QString::fromUtf8(
+                                QByteArray::fromPercentEncoding(elems.at(1).toUtf8())));
+                        bool isScript = false;
+                        if (elems.size() == 3)
+                            isScript = elems.last() == "true";
+                        tool->m_data.environment.setFile(file, isScript);
                     }
                 } else {
                     reader.raiseError(QString::fromLatin1("Unknown element <%1> as subelement of <%2>").arg(
@@ -477,7 +479,11 @@ Result<> ExternalTool::save() const
             const QString envString = envLines.join(QLatin1Char(';'));
             const QString fileString = QString::fromUtf8(
                 environmentUserChanges().file().toFSPathString().toUtf8().toPercentEncoding());
-            out.writeTextElement(kEnvironment, envString + "__qtc_sep__" + fileString);
+            const QString isScriptString = environmentUserChanges().isScript()
+                ? QLatin1String("true") : QLatin1String("false");
+            out.writeTextElement(
+                kEnvironment,
+                envString + "__qtc_sep__" + fileString + "__qtc_sep__" + isScriptString);
         }
         out.writeEndElement();
 

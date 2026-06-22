@@ -250,7 +250,7 @@ void tst_Environment::environmentFromTextFile()
     f.write("FOO=BAR\r\n\n\nANSWER=42");
     f.close();
     EnvironmentChanges changes;
-    changes.setFile(FilePath::fromString(f.fileName()));
+    changes.setFile(FilePath::fromString(f.fileName()), false);
     EnvironmentItems items = changes.itemsFromFile();
     EnvironmentItem::sort(&items);
     QCOMPARE(EnvironmentItem::toStringList(items), (QStringList{"ANSWER=42", "FOO=BAR"}));
@@ -278,7 +278,7 @@ void tst_Environment::environmentFromTextFileComplex()
     f.write("REMOVED\n");
     f.close();
     EnvironmentChanges changes;
-    changes.setFile(FilePath::fromString(f.fileName()));
+    changes.setFile(FilePath::fromString(f.fileName()), false);
     Environment env;
     changes.modifyEnvironment(env, nullptr);
     QStringList resolved;

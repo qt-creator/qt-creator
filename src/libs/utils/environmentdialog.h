@@ -41,9 +41,11 @@ signals:
 
 private:
     Internal::TextEditHelper *m_editor;
-    QCheckBox * const m_scriptCheckBox;
+    QCheckBox * const m_fileCheckBox;
     PathChooser * const m_scriptChooser;
+    QCheckBox * const m_scriptCheckBox;
     EnvironmentChanges m_originalEnvChanges;
+    bool m_interactive = true;
 };
 
 class QTCREATOR_UTILS_EXPORT NameValuesDialog : public QDialog

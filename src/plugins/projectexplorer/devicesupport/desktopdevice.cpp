@@ -458,7 +458,7 @@ private slots:
         if (!HostOsInfo::isAnyUnixHost())
             QSKIP("Only applies on Unix hosts");
 
-        QTemporaryFile f(QDir::tempPath() + "/XXXXXXenv.sh");
+        QTemporaryFile f(QDir::tempPath() + "/XXXXXXenv.dummy");
         QVERIFY(f.open());
         f.write(R"(
 PREFIX=base
@@ -468,7 +468,7 @@ export LD_LIBRARY_PATH=/opt/lib
 )");
         f.close();
         EnvironmentChanges changes;
-        changes.setFile(FilePath::fromString(f.fileName()));
+        changes.setFile(FilePath::fromString(f.fileName()), true);
         Environment baseEnv;
         baseEnv.set("LD_LIBRARY_PATH", "/usr/local/lib");
         changes.modifyEnvironment(baseEnv, nullptr);
@@ -494,7 +494,7 @@ set PATH=C:\Program Files\MyTool;%PATH%
 )");
         f.close();
         EnvironmentChanges changes;
-        changes.setFile(FilePath::fromString(f.fileName()));
+        changes.setFile(FilePath::fromString(f.fileName()), true);
         Environment baseEnv;
         baseEnv.set("PATH", "C:\\Program\\ Files\\LLVM\\bin");
         changes.modifyEnvironment(baseEnv, nullptr);
