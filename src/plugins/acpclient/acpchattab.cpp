@@ -178,11 +178,10 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_authDescriptionLabel->hide();
         authLayout->addWidget(m_authDescriptionLabel);
 
-        m_authErrorLabel = new QLabel;
+        m_authErrorLabel = new InfoLabel({}, InfoLabel::Error);
+        m_authErrorLabel->setFilled(true);
+        m_authErrorLabel->setElideMode(Qt::ElideNone);
         m_authErrorLabel->setWordWrap(true);
-        QPalette errorPal = m_authErrorLabel->palette();
-        errorPal.setColor(QPalette::WindowText, Qt::red);
-        m_authErrorLabel->setPalette(errorPal);
         m_authErrorLabel->hide();
         authLayout->addWidget(m_authErrorLabel);
 

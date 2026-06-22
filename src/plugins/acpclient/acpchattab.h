@@ -59,7 +59,7 @@ private:
     // Auth page
     QComboBox *m_authMethodCombo = nullptr;
     QLabel *m_authDescriptionLabel = nullptr;
-    QLabel *m_authErrorLabel = nullptr;
+    Utils::InfoLabel *m_authErrorLabel = nullptr;
 
     // Chat page
     ChatPanel *m_chatPanel;

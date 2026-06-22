@@ -17,6 +17,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/markdownbrowser.h>
 #include <utils/progressindicator.h>
@@ -547,11 +548,10 @@ public:
         m_bodyLayout->addWidget(m_descriptionLabel);
 
         // Error label
-        m_errorLabel = new QLabel(this);
+        m_errorLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Error, this);
+        m_errorLabel->setFilled(true);
+        m_errorLabel->setElideMode(Qt::ElideNone);
         m_errorLabel->setWordWrap(true);
-        QPalette errorPal = m_errorLabel->palette();
-        errorPal.setColor(QPalette::WindowText, QColor(0xfc, 0x8c, 0x8c));
-        m_errorLabel->setPalette(errorPal);
         m_errorLabel->hide();
         m_bodyLayout->addWidget(m_errorLabel);
 
@@ -633,7 +633,7 @@ protected:
 private:
     QComboBox *m_methodCombo = nullptr;
     QLabel *m_descriptionLabel = nullptr;
-    QLabel *m_errorLabel = nullptr;
+    Utils::InfoLabel *m_errorLabel = nullptr;
     QPushButton *m_authButton = nullptr;
     QLabel *m_statusLabel = nullptr;
 };
@@ -1176,16 +1176,14 @@ void AcpMessageView::addErrorMessage(const QString &text)
     widget->setFrameShape(QFrame::NoFrame);
     widget->setCollapsible(false);
 
-    auto *icon = new Utils::QtcIconDisplay(widget);
-    icon->setIcon(Utils::Icons::CRITICAL);
-    widget->headerLayout()->addWidget(icon);
-
-    auto *label = new QLabel(QStringLiteral("<b>Error:</b> %1").arg(text.toHtmlEscaped()), widget);
+    auto *label = new Utils::InfoLabel(
+        QStringLiteral("<b>Error:</b> %1").arg(text.toHtmlEscaped()),
+        Utils::InfoLabel::Error,
+        widget);
+    label->setFilled(true);
+    label->setElideMode(Qt::ElideNone);
     label->setTextFormat(Qt::RichText);
     label->setWordWrap(true);
-    QPalette pal = label->palette();
-    pal.setColor(QPalette::WindowText, QColor(0xfc, 0x8c, 0x8c));
-    label->setPalette(pal);
     widget->headerLayout()->addWidget(label, 1);
 
     addWidget(widget);
