@@ -14,6 +14,7 @@
 namespace Utils {
 class QtcButton;
 class QtcIconButton;
+class QtcProgressBar;
 } // namespace Utils
 
 class QHBoxLayout;
@@ -45,6 +46,7 @@ public:
     void setConfigOptions(const QList<Acp::SessionConfigOption> &configOptions);
     void setSessionModes(const QList<Acp::SessionMode> &modes, const QString &currentModeId);
     void setCurrentMode(const QString &modeId);
+    void setUsage(const Acp::UsageUpdate &usage);
     void clear();
     void clearConfigOptions();
 
@@ -99,6 +101,7 @@ private:
     Utils::QtcIconButton *m_commandsButton;
     Utils::QtcIconButton *m_configButton = nullptr;
     Utils::QtcButton *m_modeButton = nullptr;
+    Utils::QtcProgressBar *m_usageBar = nullptr;
     QMenu *m_commandsMenu = nullptr;
     QWidget *m_contextBar = nullptr;
     QLayout *m_contextBarLayout = nullptr;

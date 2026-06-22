@@ -254,6 +254,12 @@ ChatPanel::ChatPanel(QWidget *parent)
 
     bottomRowLayout->addStretch(1);
 
+    m_usageBar = new QtcProgressBar;
+    m_usageBar->setFixedWidth(64);
+    m_usageBar->setToolTip(Tr::tr("Context usage"));
+    m_usageBar->hide();
+    bottomRowLayout->addWidget(m_usageBar, 0, Qt::AlignVCenter);
+
     bottomRowLayout->addWidget(addContextButton);
 
     m_commandsButton = new QtcIconButton;
@@ -390,6 +396,29 @@ void ChatPanel::setCurrentMode(const QString &modeId)
     updateModeButton();
 }
 
+void ChatPanel::setUsage(const Acp::UsageUpdate &usage)
+{
+    const int size = usage.size();
+    const int used = usage.used();
+    if (size <= 0) {
+        m_usageBar->hide();
+        return;
+    }
+    m_usageBar->setRange(0, size);
+    m_usageBar->setValue(used);
+    const int percent = qRound(qreal(qBound(0, used, size)) / size * 100.0);
+    QString tooltip = Tr::tr("Context usage: %1 / %2 tokens (%3%)").arg(used).arg(size).arg(percent);
+    if (usage.cost()) {
+        const Cost &cost = *usage.cost();
+        tooltip += QLatin1Char('\n')
+                   + Tr::tr("Cost: %1 %2")
+                         .arg(cost.amount(), 0, 'f', 2)
+                         .arg(cost.currency());
+    }
+    m_usageBar->setToolTip(tooltip);
+    m_usageBar->show();
+}
+
 void ChatPanel::updateModeButton()
 {
     if (m_sessionModes.isEmpty()) {
@@ -434,6 +463,8 @@ void ChatPanel::showModeMenu()
 void ChatPanel::clear()
 {
     m_messageView->clear();
+    if (m_usageBar)
+        m_usageBar->hide();
 }
 
 void ChatPanel::clearConfigOptions()

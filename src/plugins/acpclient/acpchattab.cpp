@@ -385,6 +385,9 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         } else if (kind == QLatin1String("available_commands_update")) {
             if (const auto *acu = update.get<AvailableCommandsUpdate>())
                 m_chatPanel->updateAvailableCommands(acu->availableCommands());
+        } else if (kind == QLatin1String("usage_update")) {
+            if (const auto *uu = update.get<UsageUpdate>())
+                m_chatPanel->setUsage(*uu);
         }
     });
     connect(m_controller, &AcpChatController::permissionRequested,
