@@ -244,6 +244,9 @@ public:
     {
         setPriority(120);
         setDisplayName("CMake");
+        setSupportsFunction([](Project *project) {
+            return qobject_cast<CMakeProject *>(project) != nullptr;
+        });
         setCreateWidgetFunction([](Project *project) {
             return new CMakeProjectSettingsWidget(project);
         });
