@@ -109,7 +109,7 @@ void Qt5BakeLightsNodeInstanceServer::bakeLights()
             nodeInstanceClient()->flush();
         } break;
         case QQuick3DLightmapBaker::BakingStatus::Cancelled:
-            abort(tr("Baking cancelled."));
+            abort(tr("Baking canceled."));
             break;
         case QQuick3DLightmapBaker::BakingStatus::Complete:
             runDenoiser();
@@ -135,7 +135,7 @@ void Qt5BakeLightsNodeInstanceServer::bakeLights()
             nodeInstanceClient()->flush();
         } break;
         case QQuick3DLightmapBaker::BakingStatus::Cancelled:
-            abort(tr("Baking cancelled."));
+            abort(tr("Baking canceled."));
             break;
         case QQuick3DLightmapBaker::BakingStatus::Complete:
             runDenoiser();
