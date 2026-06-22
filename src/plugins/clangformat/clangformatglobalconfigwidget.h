@@ -61,6 +61,8 @@ private:
     Utils::Guard m_ignoreChanges;
     bool m_useCustomSettings = false;
 
+    QCheckBox *m_useClangFormat = nullptr;
+    QWidget *m_clangFormatOptions = nullptr;
     QLabel *m_projectHasClangFormat = nullptr;
     QLabel *m_formattingModeLabel = nullptr;
     QLabel *m_fileSizeThresholdLabel = nullptr;

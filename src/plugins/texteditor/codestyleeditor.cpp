@@ -44,12 +44,19 @@ void CodeStyleEditor::addSelector(CodeStyleSelectorWidget *selector)
     Utils::installMarkSettingsDirtyTriggerRecursively(selector);
 }
 
-void CodeStyleEditor::addInfoLabel()
+QWidget *CodeStyleEditor::addInfoLabel()
 {
     auto infoLabel = new InfoLabel(Tr::tr("All changes below take effect immediately."),
                                    Utils::InfoLabel::Information);
     infoLabel->setFilled(true);
-    m_layout->addWidget(infoLabel);
+    // Wrap in a plain container: InfoLabel uses its own contentsMargins to place
+    // its icon, so callers indent the container instead of the label itself.
+    auto container = new QWidget;
+    auto layout = new QVBoxLayout(container);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(infoLabel);
+    m_layout->addWidget(container);
+    return container;
 }
 
 void CodeStyleEditor::addHeaderWidget(QWidget *widget)
@@ -62,8 +69,16 @@ void CodeStyleEditor::addEditorWidget(QWidget *editor)
     m_layout->addWidget(editor);
 }
 
-void CodeStyleEditor::setupPreview(SnippetEditorWidget *preview, Indenter *indenter,
-                                   const FilePath &projectFile, ICodeStylePreferences *codeStyle)
+QWidget *CodeStyleEditor::addExpandingFiller()
+{
+    auto filler = new QWidget;
+    filler->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    m_layout->addWidget(filler);
+    return filler;
+}
+
+QWidget *CodeStyleEditor::setupPreview(SnippetEditorWidget *preview, Indenter *indenter,
+                                       const FilePath &projectFile, ICodeStylePreferences *codeStyle)
 {
     indenter->setOverriddenPreferences(codeStyle);
     const FilePath fileName = !projectFile.isEmpty()
@@ -106,6 +121,7 @@ void CodeStyleEditor::setupPreview(SnippetEditorWidget *preview, Indenter *inden
     label->setFont(font);
     label->setWordWrap(true);
     m_layout->addWidget(label);
+    return label;
 }
 
 class CodeStyleProjectPreviewEditor final : public CodeStyleEditor

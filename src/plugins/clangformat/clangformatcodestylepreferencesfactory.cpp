@@ -528,10 +528,32 @@ public:
         addHeaderWidget(&m_globalSettings);
         m_selector.setCodeStyle(codeStyle);
         addSelector(&m_selector);
-        addInfoLabel();
+        QWidget *infoLabel = addInfoLabel();
         addEditorWidget(&m_widget);
+        QWidget *filler = addExpandingFiller();
 
         const ClangFormatSettings::Mode currentMode = m_globalSettings.mode();
+        const auto updateSelectorVisibility = [this, infoLabel, filler] {
+            // The selector and editor are relevant when ClangFormat is off (to
+            // pick a built-in code style) or when "Use custom settings" lets the
+            // user manage a ClangFormat style. They are hidden when ClangFormat
+            // is active and reads the project's own .clang-format file, where
+            // there is nothing to pick or edit. The filler then keeps the box
+            // packed at the top instead of letting the layout spread it out.
+            const bool clangFormatActive =
+                m_globalSettings.mode() != ClangFormatSettings::Mode::Disable;
+            const bool visible = !clangFormatActive || m_globalSettings.useCustomSettings();
+            m_selector.setVisible(visible);
+            infoLabel->setVisible(visible);
+            m_widget.setVisible(visible);
+            filler->setVisible(!visible);
+        };
+        updateSelectorVisibility();
+        connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
+                this, updateSelectorVisibility);
+        connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
+                this, updateSelectorVisibility);
+
         connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
                 &m_selector, &ClangFormatSelectorWidget::onModeChanged);
         m_selector.onModeChanged(currentMode);
@@ -577,7 +599,7 @@ public:
         addHeaderWidget(&m_globalSettings);
         m_selector.setCodeStyle(codeStyle);
         addSelector(&m_selector);
-        addInfoLabel();
+        QWidget *infoLabel = addInfoLabel();
 
         DisplaySettingsData displaySettings = m_preview.displaySettings();
         displaySettings.m_visualizeWhitespace = true;
@@ -585,12 +607,36 @@ public:
         SnippetProvider::decorateEditor(&m_preview, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
         m_preview.setPlainText(
                     QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
-        setupPreview(&m_preview,
-                     new ClangFormatForwardingIndenter(m_preview.document()),
-                     projectFile,
-                     codeStyle);
+        QWidget *previewLabel = setupPreview(
+            &m_preview,
+            new ClangFormatForwardingIndenter(m_preview.document()),
+            projectFile,
+            codeStyle);
+        QWidget *filler = addExpandingFiller();
 
         const ClangFormatSettings::Mode currentMode = m_globalSettings.mode();
+        const auto updateSelectorVisibility = [this, infoLabel, previewLabel, filler] {
+            // The selector and preview are relevant when ClangFormat is off (to
+            // pick a built-in code style) or when "Use custom settings" lets the
+            // user manage a ClangFormat style. They are hidden when ClangFormat
+            // is active and reads the project's own .clang-format file, where
+            // there is nothing to pick or edit. The filler then keeps the box
+            // packed at the top instead of letting the layout spread it out.
+            const bool clangFormatActive =
+                m_globalSettings.mode() != ClangFormatSettings::Mode::Disable;
+            const bool visible = !clangFormatActive || m_globalSettings.useCustomSettings();
+            m_selector.setVisible(visible);
+            infoLabel->setVisible(visible);
+            m_preview.setVisible(visible);
+            previewLabel->setVisible(visible);
+            filler->setVisible(!visible);
+        };
+        updateSelectorVisibility();
+        connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
+                this, updateSelectorVisibility);
+        connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
+                this, updateSelectorVisibility);
+
         connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged,
                 &m_selector, &ClangFormatSelectorWidget::onModeChanged);
         m_selector.onModeChanged(currentMode);
