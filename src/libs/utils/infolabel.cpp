@@ -21,6 +21,7 @@ InfoLabel::InfoLabel(QWidget *parent)
 InfoLabel::InfoLabel(const QString &text, InfoType type, QWidget *parent)
     : ElidingLabel(text, parent)
 {
+    setTextInteractionFlags(Qt::TextSelectableByMouse | textInteractionFlags());
     setType(type);
 }
 

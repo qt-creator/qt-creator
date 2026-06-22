@@ -58,27 +58,29 @@ void ElidingLabel::setAdditionalToolTip(const QString &additionalToolTip)
 
 void ElidingLabel::paintEvent(QPaintEvent *)
 {
-    if (m_elideMode == Qt::ElideNone) {
+    const int m = margin();
+    const QRect contents = contentsRect().adjusted(m, m, -m, -m);
+    const QFontMetrics fm = fontMetrics();
+    const QString txt = text();
+    const bool elide = m_elideMode != Qt::ElideNone
+                       && txt.size() > 4
+                       && fm.horizontalAdvance(txt) > contents.width();
+
+    if (!elide) {
+        // Nothing to truncate: let QLabel paint so that features handled by the
+        // base class, such as text selection, are rendered normally.
         QLabel::paintEvent(nullptr);
         updateToolTip({});
         return;
     }
 
-    const int m = margin();
-    QRect contents = contentsRect().adjusted(m, m, -m, -m);
-    QFontMetrics fm = fontMetrics();
-    QString txt = text();
-    if (txt.size() > 4 && fm.horizontalAdvance(txt) > contents.width()) {
-        updateToolTip(txt);
-        txt = fm.elidedText(txt, m_elideMode, contents.width());
-    } else {
-        updateToolTip(QString());
-    }
-    int flags = QStyle::visualAlignment(layoutDirection(), alignment()) | Qt::TextSingleLine;
+    updateToolTip(txt);
+    const QString elided = fm.elidedText(txt, m_elideMode, contents.width());
+    const int flags = QStyle::visualAlignment(layoutDirection(), alignment()) | Qt::TextSingleLine;
 
     QPainter painter(this);
     drawFrame(&painter);
-    painter.drawText(contents, flags, txt);
+    painter.drawText(contents, flags, elided);
 }
 
 void ElidingLabel::updateToolTip(const QString &elidedText)
