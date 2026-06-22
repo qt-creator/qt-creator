@@ -111,7 +111,7 @@ public:
 
     Utils::Result<QFuture<void>> setPermissions(const QString &path, QFile::Permissions perms);
 
-    Utils::Result<std::unique_ptr<Utils::FilePathWatcher>> watch(const QString &path);
+    Utils::Result<std::unique_ptr<Utils::FilePathWatcher>> watch(const Utils::FilePath &path);
     void stopWatch(int id);
 
     Utils::Result<QFuture<void>> signalProcess(int pid, Utils::ControlSignal signal);

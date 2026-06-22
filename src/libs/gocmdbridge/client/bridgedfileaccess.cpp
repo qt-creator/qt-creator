@@ -739,7 +739,7 @@ std::vector<Result<std::unique_ptr<FilePathWatcher>>> FileAccess::watch(
     // TODO: Watch whole sets of file paths for efficiency
     std::vector<Result<std::unique_ptr<FilePathWatcher>>> results;
     for (const FilePath &path : filePaths)
-        results.push_back(m_client->watch(path.nativePath()));
+        results.push_back(m_client->watch(path));
     return results;
 }
 

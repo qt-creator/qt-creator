@@ -59,7 +59,15 @@ struct ClientPrivate
 
     Utils::SynchronizedValue<Jobs> jobs;
 
-    QMap<int, std::shared_ptr<QPromise<FilePath>>> watchers;
+    struct Watcher
+    {
+        std::shared_ptr<QPromise<FilePath>> promise;
+        // The device-qualified path passed to watch(). Reported back on every
+        // change so, like the local watcher, a directory watch always emits the
+        // watched directory (not the individual child that changed).
+        FilePath watchedPath;
+    };
+    QMap<int, Watcher> watchers;
     QMap<int, std::shared_ptr<QPromise<Client::SocketServerEvent>>> socketServerForwards;
 
     Result<> readPacket(QCborStreamReader &reader);
@@ -182,9 +190,12 @@ std::optional<Result<>> ClientPrivate::handleWatchResults(const QVariantMap &map
         if (it == watchers.end())
             return ResultError(QString("No watcher found for id %1").arg(id));
 
-        auto promise = it.value();
-        if (!promise->isCanceled())
-            promise->addResult(FilePath::fromUserInput(map.value("Path").toString()));
+        const Watcher &watcher = it.value();
+        // Ignore the changed path the bridge reports (the individual child for a
+        // directory watch) and emit the watched path, matching the local
+        // watcher's contract. The stored path is already device-qualified.
+        if (!watcher.promise->isCanceled())
+            watcher.promise->addResult(watcher.watchedPath);
 
         return Result<>{};
     } else if (type == "removewatchresult") {
@@ -907,19 +918,21 @@ void Client::stopWatch(int id)
     });
 }
 
-Utils::Result<std::unique_ptr<FilePathWatcher>> Client::watch(const QString &path)
+Utils::Result<std::unique_ptr<FilePathWatcher>> Client::watch(const FilePath &path)
 {
     auto jobResult = createJob<GoFilePathWatcher::Watch>(
         d.get(),
-        QCborMap{{"Type", "watch"}, {"Path", path}},
-        [this](QVariantMap map, QPromise<GoFilePathWatcher::Watch> &promise) {
+        QCborMap{{"Type", "watch"}, {"Path", path.nativePath()}},
+        [this, path](QVariantMap map, QPromise<GoFilePathWatcher::Watch> &promise) {
             ASSERT_TYPE("addwatchresult");
 
             auto watchPromise = std::make_shared<QPromise<FilePath>>();
             QFuture<FilePath> watchFuture = watchPromise->future();
             watchPromise->start();
             auto watcherId = map.value("Id").toInt();
-            d->watchers.insert(watcherId, std::move(watchPromise));
+            // Report back the exact FilePath that was watched, so the change
+            // notifications carry the same path the caller passed in.
+            d->watchers.insert(watcherId, {std::move(watchPromise), path});
 
             promise.addResult(watchFuture);
 
