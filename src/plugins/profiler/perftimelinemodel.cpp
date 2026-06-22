@@ -1,6 +1,7 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "perfnativemixed.h"
 #include "perfprofilertr.h"
 #include "perfprofilertracemanager.h"
 #include "perftimelinemodel.h"
@@ -47,7 +48,17 @@ QRgb PerfTimelineModel::color(int index) const
     const qint64 saturation = 10 * avgSampleDuration / sampleDuration - 5;
     QTC_ASSERT(saturation < 16, return QRgb(0));
     QTC_ASSERT(saturation >= 0, return QRgb(0));
-    return table.get(qAbs(selectionId(index) * 25) % 360, static_cast<int>(saturation));
+
+    const int id = selectionId(index);
+    int hue = qAbs(id * 25) % 360;
+    // Native-mixed prototype: push QML/JS frames into a green band so they read
+    // apart from native C++ frames at a glance, while keeping per-function
+    // variation. A proper per-kind palette can replace this once the typed
+    // Symbol kind field lands; see perfnativemixed.h.
+    if (frameKind(traceManager(), id) == FrameKind::Js)
+        hue = 100 + hue % 60;
+
+    return table.get(hue, static_cast<int>(saturation));
 }
 
 Timeline::RowLabels PerfTimelineModel::labels() const

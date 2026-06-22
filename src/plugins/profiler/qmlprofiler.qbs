@@ -85,6 +85,7 @@ QtcPlugin {
             "perfevent.h",
             "perfeventtype.h",
             "perfloaddialog.cpp", "perfloaddialog.h",
+            "perfnativemixed.cpp", "perfnativemixed.h",
             "perfprofilertr.h",
             "perfprofilerconstants.h",
             "perfprofilerflamegraphmodel.cpp", "perfprofilerflamegraphmodel.h",

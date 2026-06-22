@@ -89,6 +89,7 @@ set(PERFPROFILER_CPP_SOURCES
   perfevent.h
   perfeventtype.h
   perfloaddialog.cpp perfloaddialog.h
+  perfnativemixed.cpp perfnativemixed.h
   perfprofiler.qrc
   perfprofilerconstants.h
   perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h

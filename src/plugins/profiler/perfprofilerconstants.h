@@ -33,4 +33,9 @@ const char PerfRecordArgsId[]           = "PerfRecordArgsId";
 const char PerfStreamMagic[] = "QPERFSTREAM";
 const char PerfZqfileMagic[] = "PTQFILE4.10";
 
+// Native-mixed prototype: a symbol whose "binary" equals this marker denotes a
+// QML/JS frame rather than a native one. This is the convention-based stand-in
+// for a future typed Symbol kind field; see perfnativemixed.h.
+const char QmlFrameMarker[] = "[QML]";
+
 } // namespace Profiler::Constants

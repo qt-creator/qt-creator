@@ -3,6 +3,7 @@
 
 #include "perfnativemixed_test.h"
 
+#include <profiler/perfnativemixed.h>
 #include <profiler/perfprofilerconstants.h>
 #include <profiler/perfprofilertracefile.h>
 #include <profiler/perfprofilertracemanager.h>
@@ -47,10 +48,12 @@ enum StringId {
     StrOnClicked, StrQmlMarker, StrMainQml, StrCompute, StrThread
 };
 
-// Location/symbol ids (shared key space, as perf uses it).
-enum FrameId { LocMain, LocEngine, LocOnClicked, LocCompute };
+// Location/symbol ids (shared key space, as perf uses it). LocInlinedJsAddr is an
+// address-level location that carries no Symbol of its own; its symbol is only
+// reachable via its parent (LocOnClicked), exercising the symbolLocation() path.
+enum FrameId { LocMain, LocEngine, LocOnClicked, LocCompute, LocInlinedJsAddr };
 
-const char *qmlMarker() { return "[QML]"; }
+const char *qmlMarker() { return Constants::QmlFrameMarker; }
 
 void appendFramed(QByteArray &out, const QByteArray &message)
 {
@@ -104,7 +107,8 @@ QByteArray buildSyntheticTrace()
         s << quint8(PerfEventType::AttributesDefinition) << qint32(0) << attribute;
     }));
 
-    const auto addLocation = [&](qint32 id, quint64 address, qint32 file, qint32 line) {
+    const auto addLocation = [&](qint32 id, quint64 address, qint32 file, qint32 line,
+                                 qint32 parent = -1) {
         appendFramed(trace, makeMessage(version, [&](QDataStream &s) {
             PerfEventType::Location location;
             location.address = address;
@@ -112,7 +116,7 @@ QByteArray buildSyntheticTrace()
             location.pid = 100;
             location.line = line;
             location.column = 1;
-            location.parentLocationId = -1;
+            location.parentLocationId = parent;
             s << quint8(PerfEventType::LocationDefinition) << id << location;
         }));
     };
@@ -137,6 +141,9 @@ QByteArray buildSyntheticTrace()
     addSymbol(LocOnClicked, StrOnClicked, StrQmlMarker, StrMainQml);
     addLocation(LocCompute, 0x3100, StrMainQml, 58);
     addSymbol(LocCompute, StrCompute, StrQmlMarker, StrMainQml);
+    // An address-level JS frame with no Symbol of its own; resolves to the
+    // "[QML]" symbol of its parent (LocOnClicked) via symbolLocation().
+    addLocation(LocInlinedJsAddr, 0x3050, StrMainQml, 50, LocOnClicked);
 
     // A thread (pid != 0 marks it enabled).
     appendFramed(trace, makeMessage(version, [&](QDataStream &s) {
@@ -202,6 +209,7 @@ void PerfNativeMixedTest::testMergedStacks()
     bool sawQml = false;
     int deepestRow = -1;
     QByteArray deepestBinary;
+    FrameKind deepestKind = FrameKind::Native;
     for (int i = 0; i < model->count(); ++i) {
         const int locationId = model->selectionId(i);
         if (locationId < 0)
@@ -210,23 +218,38 @@ void PerfNativeMixedTest::testMergedStacks()
         if (symbol.binary < 0)
             continue;
         const QByteArray binary = manager.string(symbol.binary);
-        if (binary == qmlMarker())
+        const FrameKind kind = frameKind(manager, locationId);
+        if (binary == qmlMarker()) {
             sawQml = true;
-        else if (binary == "app" || binary == "libQt6Qml.so")
+            QCOMPARE(kind, FrameKind::Js);
+        } else if (binary == "app" || binary == "libQt6Qml.so") {
             sawCpp = true;
+            QCOMPARE(kind, FrameKind::Native);
+        }
 
         const int row = model->expandedRow(i);
         if (row > deepestRow) {
             deepestRow = row;
             deepestBinary = binary;
+            deepestKind = kind;
         }
     }
 
     // The merged stack contains both C++ and QML/JS frames ...
     QVERIFY(sawCpp);
     QVERIFY(sawQml);
-    // ... and the deepest frame is a QML/JS one (JS nested below C++).
+    // ... and the deepest frame is a QML/JS one (JS nested below C++), as
+    // classified through the shared native-mixed seam.
     QCOMPARE(deepestBinary, QByteArray(qmlMarker()));
+    QCOMPARE(deepestKind, FrameKind::Js);
+
+    // A frame whose own location carries no symbol must still classify through
+    // its resolved (parent) symbol, the same way the views look symbols up. With
+    // address aggregation off (the default) frameKind() must follow
+    // symbolLocation() rather than reading the raw location's empty symbol.
+    QVERIFY(!manager.aggregateAddresses());
+    QCOMPARE(manager.symbol(LocInlinedJsAddr).binary, qint32(-1));
+    QCOMPARE(frameKind(manager, LocInlinedJsAddr), FrameKind::Js);
 }
 
 QObject *createPerfNativeMixedTest()
