@@ -1823,8 +1823,13 @@ FilePaths FileDialog::selectedFiles() const
     }
 
     FilePaths result;
-    const QModelIndexList indexes = d->m_treeView->selectionModel()->selectedRows(0);
+    // selectedIndexes() filtered to column 0, not selectedRows(): the icon view
+    // selects only its single displayed column, for which selectedRows() (which
+    // wants every column selected) returns nothing.
+    const QModelIndexList indexes = d->m_treeView->selectionModel()->selectedIndexes();
     for (const QModelIndex &proxyIdx : indexes) {
+        if (proxyIdx.column() != FileSystemModel::NameColumn)
+            continue;
         const auto flags
             = proxyIdx.data(FileSystemModel::FileFlagsRole).value<FilePathInfo::FileFlags>();
         if (d->acceptsAsSelection(flags & FilePathInfo::DirectoryType))
