@@ -104,6 +104,10 @@ public:
         // Inline rename edits the name column; seed the editor with the file name.
         if (role == Qt::EditRole && index.column() == FileSystemModel::NameColumn)
             return QSortFilterProxyModel::data(index, Qt::DisplayRole);
+        // Gray out entries that fail the content filter. They stay interactive
+        // (so they can be managed) but read as "not a valid choice here".
+        if (role == Qt::ForegroundRole && !acceptsContent(mapToSource(index.siblingAtColumn(0))))
+            return QGuiApplication::palette().brush(QPalette::Disabled, QPalette::Text);
         return QSortFilterProxyModel::data(index, role);
     }
 
@@ -112,15 +116,29 @@ public:
         Qt::ItemFlags f = QSortFilterProxyModel::flags(index);
         if (!index.isValid())
             return f;
-        // Items rejected by the active content filter (wrong suffix, or a plain
-        // file in Directory mode) stay visible but grayed out and unselectable.
-        if (!acceptsContent(mapToSource(index.siblingAtColumn(0))))
-            return f & ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        const bool nameColumn = index.column() == FileSystemModel::NameColumn;
+        // Entries rejected by the content filter are not selectable, so they
+        // can't be picked as a result or chosen with a left click, but stay
+        // enabled and renamable so the context menu can act on them (inline
+        // rename needs ItemIsEnabled). They are grayed out via data().
+        if (!acceptsContent(mapToSource(index.siblingAtColumn(0)))) {
+            f &= ~Qt::ItemIsSelectable;
+            if (nameColumn)
+                f |= Qt::ItemIsEditable;
+            return f;
+        }
         f |= Qt::ItemIsDragEnabled;
         // Only the name column is renamable.
-        if (index.column() == FileSystemModel::NameColumn)
+        if (nameColumn)
             f |= Qt::ItemIsEditable;
         return f;
+    }
+
+    // Whether the row behind \a proxyIndex passes the content filter. Convenience
+    // for the dialog, which holds proxy indices.
+    bool acceptsContentRow(const QModelIndex &proxyIndex) const
+    {
+        return acceptsContent(mapToSource(proxyIndex.siblingAtColumn(0)));
     }
 
     QMimeData *mimeData(const QModelIndexList &indexes) const override
@@ -189,13 +207,39 @@ private:
 
 // ===== NameEditDelegate =====
 
-// Item delegate whose only customization is the inline rename editor: it
-// preselects the base name and leaves the extension unselected (like Finder and
-// Explorer), so typing replaces just the name while keeping the suffix.
+// Item delegate that customizes the inline rename editor (it preselects the
+// base name and leaves the extension unselected, like Finder and Explorer) and
+// outlines the row the context menu currently acts on (the "right-clicked"
+// entry), which is tracked separately from the selection.
 class NameEditDelegate : public QStyledItemDelegate
 {
 public:
     using QStyledItemDelegate::QStyledItemDelegate;
+
+    // The right-clicked row (a proxy index) to outline, or invalid for none.
+    void setRightClickedRow(const QModelIndex &index) { m_rightClicked = index; }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
+        const override
+    {
+        QStyledItemDelegate::paint(painter, option, index);
+        if (!m_rightClicked.isValid() || index.row() != m_rightClicked.row()
+            || index.parent() != m_rightClicked.parent())
+            return;
+        // Outline the row: top/bottom on every cell, plus the outer left/right
+        // edges, so a multi-column row reads as a single box.
+        const QRect r = option.rect.adjusted(0, 0, -1, -1);
+        const int lastColumn = index.model()->columnCount(index.parent()) - 1;
+        painter->save();
+        painter->setPen(QPen(option.palette.color(QPalette::Highlight), 1));
+        painter->drawLine(r.topLeft(), r.topRight());
+        painter->drawLine(r.bottomLeft(), r.bottomRight());
+        if (index.column() == 0)
+            painter->drawLine(r.topLeft(), r.bottomLeft());
+        if (index.column() == lastColumn)
+            painter->drawLine(r.topRight(), r.bottomRight());
+        painter->restore();
+    }
 
     void setEditorData(QWidget *editor, const QModelIndex &index) const override
     {
@@ -211,7 +255,36 @@ public:
         // applying our selection now would be overwritten.
         QTimer::singleShot(0, lineEdit, [lineEdit, end] { lineEdit->setSelection(0, end); });
     }
+
+private:
+    QPersistentModelIndex m_rightClicked;
 };
+
+// ===== Views that ignore right-button presses =====
+
+// A right-click must only open the context menu, never move the current item or
+// change the selection. Qt's views update the current index on any press, so
+// swallow right-button presses here. The QEvent::ContextMenu that drives
+// customContextMenuRequested() is delivered separately and is unaffected.
+template<typename View>
+class NoRightPressView : public View
+{
+public:
+    using View::View;
+
+protected:
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        if (event->button() == Qt::RightButton) {
+            event->accept();
+            return;
+        }
+        View::mousePressEvent(event);
+    }
+};
+
+using FileTreeView = NoRightPressView<QTreeView>;
+using FileListView = NoRightPressView<QListView>;
 
 // ===== helpers =====
 
@@ -1139,6 +1212,10 @@ public:
     QTimer m_spinnerDelay;
     FilePath m_currentDir;
     FilePath m_selectedFile;
+    // The entry the context menu currently acts on (a proxy index). Tracked
+    // separately from the selection so right-clicking never changes the
+    // selected file; only valid while the context menu is open.
+    QPersistentModelIndex m_rightClicked;
     QFileDialog::FileMode m_fileMode = QFileDialog::ExistingFile;
     QFileDialog::AcceptMode m_acceptMode = QFileDialog::AcceptOpen;
     // True while navigating via back/forward, so setDirectory() does not record
@@ -1230,7 +1307,7 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_proxy->setSourceModel(d->m_model);
 
     // Detail view
-    d->m_treeView = new QTreeView(this);
+    d->m_treeView = new FileTreeView(this);
     d->m_treeView->setModel(d->m_proxy);
     d->m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     d->m_treeView->setRootIsDecorated(false);
@@ -1241,8 +1318,11 @@ FileDialog::FileDialog(QWidget *parent)
     // signals to the view it is installed on, and sharing one across both views
     // delivers commitData/closeEditor to the wrong view.
     d->m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    // Install on the whole view (not just the name column) so the right-clicked
+    // row is outlined across every column. Only the name column is editable, so
+    // the rename editor still only opens there.
     auto *treeNameDelegate = new NameEditDelegate(d->m_treeView);
-    d->m_treeView->setItemDelegateForColumn(FileSystemModel::NameColumn, treeNameDelegate);
+    d->m_treeView->setItemDelegate(treeNameDelegate);
     // All rows are the same height, so the view can skip per-row size-hint
     // computation (which shapes the item text). Without this, relayout on every
     // insertion measures every row and dominates the profile.
@@ -1269,7 +1349,7 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_treeView->header()->resizeSection(FileSystemModel::DateModifiedColumn, 140);
 
     // Icon view
-    d->m_listView = new QListView(this);
+    d->m_listView = new FileListView(this);
     d->m_listView->setModel(d->m_proxy);
     d->m_listView->setSelectionModel(d->m_treeView->selectionModel());
     d->m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -1384,10 +1464,24 @@ FileDialog::FileDialog(QWidget *parent)
         return paths;
     };
 
-    // Moves the selected entries to the bin (trash / recycle bin). Only local
+    // The entries the file actions operate on: the right-clicked entry while a
+    // context menu is up (so the actions act on what was clicked without
+    // changing the selection), otherwise the current selection.
+    auto actionPaths = [this, selectedPaths]() -> FilePaths {
+        if (d->m_rightClicked.isValid()) {
+            const FilePath fp = QModelIndex(d->m_rightClicked)
+                                    .siblingAtColumn(FileSystemModel::NameColumn)
+                                    .data(FileSystemModel::FilePathRole)
+                                    .value<FilePath>();
+            return fp.isEmpty() ? FilePaths{} : FilePaths{fp};
+        }
+        return selectedPaths();
+    };
+
+    // Moves the target entries to the bin (trash / recycle bin). Only local
     // files have a bin; entries on remote devices are reported as not moved.
-    auto moveToTrash = [this, selectedPaths] {
-        const FilePaths paths = selectedPaths();
+    auto moveToTrash = [this, actionPaths] {
+        const FilePaths paths = actionPaths();
         if (paths.isEmpty())
             return;
 
@@ -1406,22 +1500,24 @@ FileDialog::FileDialog(QWidget *parent)
         setDirectory(d->m_currentDir);
     };
 
-    // Renames the single selected entry by opening the view's inline editor on
-    // its name. The model performs the actual rename when editing commits.
+    // Renames the target entry by opening the view's inline editor on its name.
+    // The model performs the actual rename when editing commits. Prefers the
+    // right-clicked entry (context menu) over the current selection.
     auto renameSelected = [this] {
         auto *view = qobject_cast<QAbstractItemView *>(d->m_viewStack->currentWidget());
         if (!view)
             return;
-        const QModelIndex idx = view->currentIndex().siblingAtColumn(FileSystemModel::NameColumn);
+        const QModelIndex target = d->m_rightClicked.isValid() ? QModelIndex(d->m_rightClicked)
+                                                               : view->currentIndex();
+        const QModelIndex idx = target.siblingAtColumn(FileSystemModel::NameColumn);
         if (!idx.isValid())
             return;
-        view->setCurrentIndex(idx);
         view->edit(idx);
     };
 
-    // Puts the selected entries on the clipboard as file URLs.
-    auto copySelected = [selectedPaths] {
-        const FilePaths paths = selectedPaths();
+    // Puts the target entries on the clipboard as file URLs.
+    auto copySelected = [actionPaths] {
+        const FilePaths paths = actionPaths();
         if (paths.isEmpty())
             return;
         QList<QUrl> urls;
@@ -1819,10 +1915,10 @@ FileDialog::FileDialog(QWidget *parent)
     for (QAction *action : fileActions)
         d->m_viewStack->addAction(action);
 
-    // Keeps the actions' enabled state in sync with the selection and clipboard.
+    // Keeps the actions' enabled state in sync with the target and clipboard.
     // The bin only exists for local files, so it stays disabled for remote ones.
-    auto updateFileActions = [renameAction, copyAction, pasteAction, trashAction, selectedPaths] {
-        const FilePaths paths = selectedPaths();
+    auto updateFileActions = [renameAction, copyAction, pasteAction, trashAction, actionPaths] {
+        const FilePaths paths = actionPaths();
         const bool allLocal = !paths.isEmpty()
                               && std::all_of(paths.begin(), paths.end(), [](const FilePath &fp) {
                                      return fp.isLocal();
@@ -1866,14 +1962,24 @@ FileDialog::FileDialog(QWidget *parent)
     connect(listNameDelegate, &QAbstractItemDelegate::commitData, this, reselectRenamed);
 
     // Right-click on either view opens a context menu with the file actions.
-    auto showContextMenu = [renameAction, copyAction, pasteAction, trashAction, updateFileActions](
-                               QAbstractItemView *view, const QPoint &pos) {
-        // Right-clicking an unselected item selects it first, so the actions act
-        // on what was clicked rather than a stale selection.
-        const QModelIndex idx = view->indexAt(pos);
-        if (idx.isValid() && !view->selectionModel()->isSelected(idx))
-            view->setCurrentIndex(idx);
+    auto showContextMenu = [this,
+                            renameAction,
+                            copyAction,
+                            pasteAction,
+                            trashAction,
+                            updateFileActions,
+                            treeNameDelegate,
+                            listNameDelegate](QAbstractItemView *view, const QPoint &pos) {
+        // Track the right-clicked entry separately from the selection (which is
+        // left untouched) and outline it for the duration of the menu. The
+        // actions act on this entry, even when it is a filtered-out one.
+        const QModelIndex idx = view->indexAt(pos).siblingAtColumn(FileSystemModel::NameColumn);
+        d->m_rightClicked = idx;
+        treeNameDelegate->setRightClickedRow(idx);
+        listNameDelegate->setRightClickedRow(idx);
+        view->viewport()->update();
         updateFileActions();
+
         QMenu menu;
         menu.addAction(renameAction);
         menu.addSeparator();
@@ -1882,6 +1988,12 @@ FileDialog::FileDialog(QWidget *parent)
         menu.addSeparator();
         menu.addAction(trashAction);
         menu.exec(view->viewport()->mapToGlobal(pos));
+
+        d->m_rightClicked = QModelIndex();
+        treeNameDelegate->setRightClickedRow({});
+        listNameDelegate->setRightClickedRow({});
+        view->viewport()->update();
+        updateFileActions();
     };
     d->m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     d->m_listView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1924,7 +2036,7 @@ FileDialog::FileDialog(QWidget *parent)
         // mode, selecting the directory itself is reserved for the accept button.
         if (isDir) {
             setDirectory(fp);
-        } else if (d->acceptsAsSelection(isDir)) {
+        } else if (d->acceptsAsSelection(isDir) && d->m_proxy->acceptsContentRow(idx)) {
             d->m_selectedFile = fp;
             accept();
         }
@@ -1936,19 +2048,27 @@ FileDialog::FileDialog(QWidget *parent)
     connect(d->m_treeView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
-            [this](const QItemSelection &selected) {
-                if (selected.isEmpty()) {
+            [this] {
+                // selectedIndexes() yields only selectable, enabled cells, so a
+                // click on a filtered-out (enabled but non-selectable) entry
+                // leaves it empty rather than producing an unusable index. The
+                // changed-selection delta can be non-empty while its indexes()
+                // are all filtered out, so query the model, not that delta.
+                const QModelIndexList indexes
+                    = d->m_treeView->selectionModel()->selectedIndexes();
+                if (indexes.isEmpty()) {
                     d->m_selectedFile = {};
                     d->updateAcceptButtonState();
                     return;
                 }
-                const QModelIndex proxyIdx =
-                    selected.indexes().constFirst().siblingAtColumn(0);
+                const QModelIndex proxyIdx = indexes.constFirst().siblingAtColumn(0);
                 const FilePath fp = proxyIdx.data(FileSystemModel::FilePathRole).value<FilePath>();
                 const auto flags
                     = proxyIdx.data(FileSystemModel::FileFlagsRole).value<FilePathInfo::FileFlags>();
                 const bool isDir = flags & FilePathInfo::DirectoryType;
-                d->m_selectedFile = d->acceptsAsSelection(isDir) ? fp : FilePath();
+                const bool acceptable
+                    = d->acceptsAsSelection(isDir) && d->m_proxy->acceptsContentRow(proxyIdx);
+                d->m_selectedFile = acceptable ? fp : FilePath();
                 d->updateAcceptButtonState();
             });
 
@@ -2126,7 +2246,8 @@ FilePaths FileDialog::selectedFiles() const
             continue;
         const auto flags
             = proxyIdx.data(FileSystemModel::FileFlagsRole).value<FilePathInfo::FileFlags>();
-        if (d->acceptsAsSelection(flags & FilePathInfo::DirectoryType))
+        if (d->acceptsAsSelection(flags & FilePathInfo::DirectoryType)
+            && d->m_proxy->acceptsContentRow(proxyIdx))
             result << proxyIdx.data(FileSystemModel::FilePathRole).value<FilePath>();
     }
     // No child selected: fall back to the recorded selection (e.g. the current
