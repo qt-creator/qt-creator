@@ -7,6 +7,7 @@
 #include "fancylineedit.h"
 #include "filepathinfo.h"
 #include "filesystemmodel.h"
+#include "fileutils.h"
 #include "fsengine/fileiconprovider.h"
 #include "fsengine/fsengine.h"
 #include "hostosinfo.h"
@@ -21,9 +22,11 @@
 
 #include <solutions/spinner/spinner.h>
 
+#include <QClipboard>
 #include <QComboBox>
 #include <QCompleter>
 #include <QDir>
+#include <QGuiApplication>
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QDropEvent>
@@ -42,6 +45,7 @@
 #include <QMimeData>
 #include <QMimeDatabase>
 #include <QPainter>
+#include <QProgressDialog>
 #include <QPromise>
 #include <QPushButton>
 #include <QSettings>
@@ -1415,6 +1419,85 @@ FileDialog::FileDialog(QWidget *parent)
         view->edit(idx);
     };
 
+    // Puts the selected entries on the clipboard as file URLs.
+    auto copySelected = [selectedPaths] {
+        const FilePaths paths = selectedPaths();
+        if (paths.isEmpty())
+            return;
+        QList<QUrl> urls;
+        for (const FilePath &fp : paths)
+            urls << fp.toUrl();
+        auto *mime = new QMimeData;
+        mime->setUrls(urls);
+        QGuiApplication::clipboard()->setMimeData(mime);
+    };
+
+    // Copies the clipboard's files into the current directory, recursing into
+    // directories via FileUtils::copyRecursively. An entry gets a "<name> copy"
+    // name when one of that name already exists, so pasting back into the same
+    // directory duplicates rather than overwrites. A modal progress dialog
+    // reports each copied file and lets the user cancel.
+    auto pasteFiles = [this] {
+        const QMimeData *mime = QGuiApplication::clipboard()->mimeData();
+        if (!mime || !mime->hasUrls())
+            return;
+
+        // A target path in the current directory that does not collide with an
+        // existing entry, falling back to "<name> copy", "<name> copy 2", ...
+        const auto uniqueTarget = [this](const FilePath &src) {
+            FilePath target = d->m_currentDir.pathAppended(src.fileName());
+            if (!target.exists())
+                return target;
+            const QString base = src.completeBaseName();
+            const QString suffix = src.suffix();
+            const QString dotSuffix = suffix.isEmpty() ? QString() : u'.' + suffix;
+            for (int i = 1;; ++i) {
+                const QString copy = (i == 1) ? Tr::tr("%1 copy").arg(base)
+                                              : Tr::tr("%1 copy %2").arg(base).arg(i);
+                target = d->m_currentDir.pathAppended(copy + dotSuffix);
+                if (!target.exists())
+                    return target;
+            }
+        };
+
+        QProgressDialog progress(Tr::tr("Copying Files"), Tr::tr("Cancel"), 0, 0, this);
+        progress.setWindowModality(Qt::WindowModal);
+        progress.setMinimumDuration(500); // Don't flash for quick copies.
+
+        // Called per copied file. Bumping the value keeps the (busy) dialog
+        // alive once its minimum duration has passed, and pumps the event loop
+        // so Cancel stays responsive.
+        auto updateProgress = [&progress](const FilePath &filePath) {
+            progress.setValue(progress.value() + 1);
+            progress.setLabelText(Tr::tr("Copying\n%1").arg(filePath.fileName()));
+            return !progress.wasCanceled();
+        };
+
+        QStringList failed;
+        for (const QUrl &url : mime->urls()) {
+            const FilePath src = FilePath::fromUrl(url);
+            if (src.isEmpty())
+                continue;
+            const FilePath target = uniqueTarget(src);
+            FileUtils::CopyAskingForOverwrite copy(updateProgress);
+            const Result<FileUtils::CopyResult> res
+                = FileUtils::copyRecursively(src, target, copy());
+            if (!res) {
+                failed << src.toUserOutput();
+            } else if (*res == FileUtils::CopyResult::Canceled) {
+                target.removeRecursively(); // Drop the half-copied entry.
+                break;
+            }
+        }
+
+        if (!failed.isEmpty()) {
+            AsynchronousMessageBox::warning(
+                Tr::tr("Paste"),
+                Tr::tr("Could not paste the following:\n%1").arg(failed.join(u'\n')));
+        }
+        setDirectory(d->m_currentDir);
+    };
+
     QSplitter *splitter = nullptr;
     QtcIconButton *upButton = nullptr;
     QtcIconButton *backButton = nullptr;
@@ -1699,10 +1782,25 @@ FileDialog::FileDialog(QWidget *parent)
     connect(forwardAction, &QAction::triggered, this, goForward);
     addAction(forwardAction);
 
+    // Context actions for the file views: rename, copy, paste and move-to-bin.
+    // Their shortcuts are scoped to the file views so they do not shadow the same
+    // key sequences while editing in the search or file-name fields.
     auto *renameAction = new QAction(Tr::tr("Rename..."), this);
     renameAction->setShortcut(QKeySequence(Qt::Key_F2));
     renameAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(renameAction, &QAction::triggered, this, renameSelected);
+
+    auto *copyAction = new QAction(Icons::COPY.icon(), Tr::tr("Copy"), this);
+    copyAction->setIconVisibleInMenu(true);
+    copyAction->setShortcut(QKeySequence(QKeySequence::Copy));
+    copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    connect(copyAction, &QAction::triggered, this, copySelected);
+
+    auto *pasteAction = new QAction(Icons::PASTE.icon(), Tr::tr("Paste"), this);
+    pasteAction->setIconVisibleInMenu(true);
+    pasteAction->setShortcut(QKeySequence(QKeySequence::Paste));
+    pasteAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    connect(pasteAction, &QAction::triggered, this, pasteFiles);
 
     // Move the selection to the bin: Cmd+Backspace on macOS, Delete elsewhere.
     auto *trashAction = new QAction(Icons::CLEAN.icon(), Tr::tr("Move to Bin"), this);
@@ -1717,19 +1815,22 @@ FileDialog::FileDialog(QWidget *parent)
     // or name fields (which are not its children). Adding each action to both
     // views instead would register every shortcut twice and make Qt treat them
     // as ambiguous - firing nothing, most visibly in the icon view.
-    const QList<QAction *> fileActions{renameAction, trashAction};
+    const QList<QAction *> fileActions{renameAction, copyAction, pasteAction, trashAction};
     for (QAction *action : fileActions)
         d->m_viewStack->addAction(action);
 
-    // Keeps the actions' enabled state in sync with the selection. The bin only
-    // exists for local files, so it stays disabled for remote ones.
-    auto updateFileActions = [renameAction, trashAction, selectedPaths] {
+    // Keeps the actions' enabled state in sync with the selection and clipboard.
+    // The bin only exists for local files, so it stays disabled for remote ones.
+    auto updateFileActions = [renameAction, copyAction, pasteAction, trashAction, selectedPaths] {
         const FilePaths paths = selectedPaths();
         const bool allLocal = !paths.isEmpty()
                               && std::all_of(paths.begin(), paths.end(), [](const FilePath &fp) {
                                      return fp.isLocal();
                                  });
         renameAction->setEnabled(paths.size() == 1);
+        copyAction->setEnabled(!paths.isEmpty());
+        const QMimeData *mime = QGuiApplication::clipboard()->mimeData();
+        pasteAction->setEnabled(mime && mime->hasUrls());
         trashAction->setEnabled(allLocal);
     };
     updateFileActions();
@@ -1738,6 +1839,9 @@ FileDialog::FileDialog(QWidget *parent)
         &QItemSelectionModel::selectionChanged,
         this,
         [updateFileActions] { updateFileActions(); });
+    connect(QGuiApplication::clipboard(), &QClipboard::dataChanged, this, [updateFileActions] {
+        updateFileActions();
+    });
 
     // Committing an inline rename re-sorts the entry to its new position, which
     // drops the view's selection (most visibly in the icon view) and leaves the
@@ -1762,7 +1866,7 @@ FileDialog::FileDialog(QWidget *parent)
     connect(listNameDelegate, &QAbstractItemDelegate::commitData, this, reselectRenamed);
 
     // Right-click on either view opens a context menu with the file actions.
-    auto showContextMenu = [renameAction, trashAction, updateFileActions](
+    auto showContextMenu = [renameAction, copyAction, pasteAction, trashAction, updateFileActions](
                                QAbstractItemView *view, const QPoint &pos) {
         // Right-clicking an unselected item selects it first, so the actions act
         // on what was clicked rather than a stale selection.
@@ -1772,6 +1876,9 @@ FileDialog::FileDialog(QWidget *parent)
         updateFileActions();
         QMenu menu;
         menu.addAction(renameAction);
+        menu.addSeparator();
+        menu.addAction(copyAction);
+        menu.addAction(pasteAction);
         menu.addSeparator();
         menu.addAction(trashAction);
         menu.exec(view->viewport()->mapToGlobal(pos));
