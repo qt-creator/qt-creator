@@ -15,6 +15,8 @@ QtcPlugin {
     files: [
         "mcpcommands.cpp",
         "mcpcommands.h",
+        "mcplogcapture.cpp",
+        "mcplogcapture.h",
         "mcpserverplugin.cpp",
         "mcpserverconstants.h",
         "mcpserverinspector.cpp",
