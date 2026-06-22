@@ -22,6 +22,7 @@
 #include <solutions/spinner/spinner.h>
 
 #include <QComboBox>
+#include <QCompleter>
 #include <QDir>
 #include <QDrag>
 #include <QDragEnterEvent>
@@ -29,7 +30,9 @@
 #include <QElapsedTimer>
 #include <QFileDialog>
 #include <QFileIconProvider>
+#include <QFrame>
 #include <QHeaderView>
+#include <QKeyEvent>
 #include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
@@ -46,6 +49,7 @@
 #include <QStackedWidget>
 #include <QStandardItemModel>
 #include <QStandardPaths>
+#include <QStringListModel>
 #include <QStyle>
 #include <QStyledItemDelegate>
 #include <QTimer>
@@ -861,6 +865,210 @@ private:
     int m_index = -1;
 };
 
+// ===== Go to folder overlay =====
+
+// A small panel that drops in over the top of the dialog when the user invokes
+// "Go to Folder" (Cmd+Shift+G on macOS), letting them type an absolute path.
+// Mirrors the native macOS sheet: a labelled text field, prefilled with the
+// folder currently shown, with directory completion that accepts on Return and
+// dismisses on Escape or focus loss.
+//
+// Completion is device-aware: it lists the directory being typed through
+// FileSystemModel (the same model the dialog browses with, including remote
+// devices) and feeds the resulting child entries to a flat QCompleter. Listing
+// is asynchronous, so the popup is refreshed once the directory loads.
+class GoToFolderOverlay : public QFrame
+{
+    Q_OBJECT
+public:
+    explicit GoToFolderOverlay(QWidget *parent)
+        : QFrame(parent)
+    {
+        setFrameShape(QFrame::StyledPanel);
+        setAutoFillBackground(true);
+        setFocusPolicy(Qt::NoFocus);
+        hide();
+
+        m_edit = new QLineEdit(this);
+        m_edit->setPlaceholderText(Tr::tr("/path/to/folder"));
+        m_edit->setClearButtonEnabled(true);
+
+        m_listModel = new FileSystemModel(this);
+        m_completionItems = new QStringListModel(this);
+        m_completer = new QCompleter(m_completionItems, this);
+        m_completer->setCompletionMode(QCompleter::PopupCompletion);
+        m_completer->setFilterMode(Qt::MatchStartsWith);
+        const bool caseInsensitive = HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost();
+        m_completer->setCaseSensitivity(caseInsensitive ? Qt::CaseInsensitive : Qt::CaseSensitive);
+        m_edit->setCompleter(m_completer);
+
+        using namespace Layouting;
+        // clang-format off
+        Column {
+            new QLabel(Tr::tr("Go to the folder:"), this),
+            m_edit,
+        }.attachTo(this);
+        // clang-format on
+
+        m_edit->installEventFilter(this);
+        parent->installEventFilter(this);
+        // The completion popup is a Qt::Popup: while open it receives key events
+        // directly (the field no longer does), so filter it too to drive Tab.
+        m_completerPopup = m_completer->popup();
+        m_completerPopup->installEventFilter(this);
+
+        // Retarget the listing whenever the typed directory changes.
+        connect(m_edit, &QLineEdit::textEdited, this, [this](const QString &text) {
+            updateCompletions(text);
+        });
+        // The listing is async; refresh the candidate list (and re-show the
+        // popup) once the directory we are completing against has loaded.
+        connect(m_listModel, &FileSystemModel::directoryLoaded, this, [this](const FilePath &path) {
+            if (path != m_completionDir)
+                return;
+            QStringList entries;
+            const QModelIndex root = m_listModel->index(m_completionDir);
+            const int rows = m_listModel->rowCount(root);
+            entries.reserve(rows);
+            for (int r = 0; r < rows; ++r) {
+                const FilePath child = m_listModel->filePath(m_listModel->index(r, 0, root));
+                entries << m_completionPrefix + child.fileName();
+            }
+            m_completionItems->setStringList(entries);
+            if (m_edit->hasFocus() && !m_edit->text().isEmpty())
+                m_completer->complete();
+        });
+
+        connect(m_edit, &QLineEdit::returnPressed, this, [this] {
+            const QString text = m_edit->text().trimmed();
+            if (!text.isEmpty())
+                emit pathEntered(text);
+            hide();
+        });
+    }
+
+    // Shows the overlay prefilled with \a current, the folder the dialog shows.
+    void popup(const FilePath &current)
+    {
+        reposition();
+        m_edit->setText(current.toUserOutput());
+        show();
+        raise();
+        m_edit->setFocus(Qt::ShortcutFocusReason);
+        // Cursor at the end so the user can append a child directory directly.
+        m_edit->end(false);
+    }
+
+signals:
+    void pathEntered(const QString &path);
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == parent() && event->type() == QEvent::Resize) {
+            if (isVisible())
+                reposition();
+        } else if (watched == m_completerPopup) {
+            // While the popup is open it gets keys directly. Keep Tab as "step
+            // to next entry" here instead of letting it navigate focus away.
+            if (event->type() == QEvent::KeyPress
+                && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Tab) {
+                stepCompletion();
+                return true;
+            }
+        } else if (watched == m_edit) {
+            if (event->type() == QEvent::KeyPress) {
+                auto *ke = static_cast<QKeyEvent *>(event);
+                if (ke->key() == Qt::Key_Escape) {
+                    hide();
+                    return true;
+                }
+                // Tab opens the completion list and steps through it instead of
+                // navigating focus away, which would dismiss the overlay.
+                if (ke->key() == Qt::Key_Tab) {
+                    stepCompletion();
+                    return true;
+                }
+            }
+            // Dismiss when focus leaves the field (e.g. a click elsewhere), but
+            // not while the completion popup is open or taking focus itself.
+            if (event->type() == QEvent::FocusOut) {
+                const bool toPopup
+                    = static_cast<QFocusEvent *>(event)->reason() == Qt::PopupFocusReason
+                      || (m_completerPopup && m_completerPopup->isVisible());
+                if (!toPopup)
+                    hide();
+            }
+        }
+        return QFrame::eventFilter(watched, event);
+    }
+
+private:
+    // Opens the completion popup if needed and highlights the next entry (the
+    // first if none is selected, wrapping after the last). Keyboard focus stays
+    // in the field so the completer keeps the popup open.
+    void stepCompletion()
+    {
+        if (!m_completerPopup->isVisible()) {
+            m_completer->complete();
+            if (!m_completerPopup->isVisible())
+                return;
+        }
+        const int count = m_completerPopup->model()->rowCount();
+        if (count == 0)
+            return;
+        const QModelIndex cur = m_completerPopup->currentIndex();
+        const int next = cur.isValid() ? (cur.row() + 1) % count : 0;
+        m_completerPopup->setCurrentIndex(m_completerPopup->model()->index(next, 0));
+    }
+
+    // Points the listing model at the directory portion of \a rawText (the part
+    // up to the last separator), so completion offers that directory's children.
+    void updateCompletions(const QString &rawText)
+    {
+        const int slash = qMax(rawText.lastIndexOf('/'), rawText.lastIndexOf('\\'));
+        if (slash < 0)
+            return;
+        // The directory portion exactly as typed (e.g. "~/" or "/Users/me/").
+        // Candidates are built from this so they share the typed text's form and
+        // the completer's prefix matching works (notably for the ~ shorthand).
+        const QString typedPrefix = rawText.left(slash + 1);
+        QString expanded = typedPrefix;
+        // Only expand "~" and "~/"; do not treat "~user" as a home directory.
+        if (expanded == "~"_L1 || expanded.startsWith("~/"_L1))
+            expanded = QDir::homePath() + expanded.mid(1);
+        const FilePath dir = FilePath::fromUserInput(expanded);
+        if (dir == m_completionDir)
+            return; // Same directory: the completer filters the cached list live.
+        m_completionDir = dir;
+        m_completionPrefix = typedPrefix;
+        m_completionItems->setStringList({}); // Drop stale entries until loaded.
+        m_listModel->setRootPath(dir);
+        // No view drives this model, so nothing would lazily fetch the listing;
+        // kick it off explicitly. directoryLoaded then fills the candidates.
+        const QModelIndex root = m_listModel->index(dir);
+        if (m_listModel->canFetchMore(root))
+            m_listModel->fetchMore(root);
+    }
+
+    void reposition()
+    {
+        QWidget *p = parentWidget();
+        adjustSize();
+        const int w = qBound(360, p->width() / 2, p->width() - 40);
+        resize(w, sizeHint().height());
+        move((p->width() - width()) / 2, 12);
+    }
+
+    QLineEdit *m_edit = nullptr;
+    FileSystemModel *m_listModel = nullptr;
+    QStringListModel *m_completionItems = nullptr;
+    QCompleter *m_completer = nullptr;
+    QAbstractItemView *m_completerPopup = nullptr;
+    FilePath m_completionDir;
+    QString m_completionPrefix; // Directory portion as typed; prepended to candidates.
+};
+
 // ===== Private =====
 
 class FileDialogPrivate
@@ -876,6 +1084,7 @@ public:
     SidebarView *m_sidebarView = nullptr;
     QComboBox *m_pathCombo = nullptr;
     QComboBox *m_filterCombo = nullptr;
+    GoToFolderOverlay *m_gotoOverlay = nullptr;
     QLabel *m_fileNameLabel = nullptr;
     FancyLineEdit *m_fileNameEdit = nullptr;
     FancyLineEdit *m_searchEdit = nullptr;
@@ -1117,6 +1326,7 @@ FileDialog::FileDialog(QWidget *parent)
     const QKeySequence parentShortcut = HostOsInfo::isWindowsHost()
                                             ? QKeySequence(Qt::ALT | Qt::Key_Up)
                                             : QKeySequence(Qt::CTRL | Qt::Key_Up);
+    const QKeySequence gotoShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_G);
 
     // "Back (⌘[)" — appends the native shortcut text when there is one.
     const auto withShortcut = [](const QString &text, const QKeySequence &seq) {
@@ -1207,6 +1417,11 @@ FileDialog::FileDialog(QWidget *parent)
                             Layouting::toolTip(
                                 withShortcut(Tr::tr("Go to parent directory"), parentShortcut)),
                             onClicked(this, goToParent),
+                        },
+                        QtDesignWidgets::IconButton {
+                            icon(Icons::SLASH),
+                            Layouting::toolTip(withShortcut(Tr::tr("Go to folder"), gotoShortcut)),
+                            onClicked(this, [this] { d->m_gotoOverlay->popup(d->m_currentDir); }),
                         },
                         QtDesignWidgets::IconButton {
                             icon(Icons::SETTINGS),
@@ -1336,6 +1551,32 @@ FileDialog::FileDialog(QWidget *parent)
                     d->setSpinnerRunning(false);
             }
         });
+
+    // macOS-style "Go to Folder" (Cmd+Shift+G): drop in an overlay where the
+    // user can type an absolute path. The same sequence works on other hosts.
+    d->m_gotoOverlay = new GoToFolderOverlay(this);
+    connect(d->m_gotoOverlay, &GoToFolderOverlay::pathEntered, this, [this](const QString &input) {
+        QString text = input;
+        if (text == "~"_L1 || text.startsWith("~/"_L1))
+            text = QDir::homePath() + text.mid(1);
+        FilePath path = FilePath::fromUserInput(text);
+        if (!path.isAbsolutePath())
+            path = d->m_currentDir.resolvePath(text);
+        if (path.isDir()) {
+            setDirectory(path);
+        } else if (path.exists()) {
+            d->m_selectedFile = path;
+            accept();
+        }
+    });
+
+    auto *goToFolderAction = new QAction(this);
+    goToFolderAction->setShortcut(gotoShortcut);
+    goToFolderAction->setShortcutContext(Qt::WindowShortcut);
+    connect(goToFolderAction, &QAction::triggered, this, [this] {
+        d->m_gotoOverlay->popup(d->m_currentDir);
+    });
+    addAction(goToFolderAction);
 
     // Native "go to parent" shortcut: Cmd+Up on macOS, Alt+Up elsewhere.
     auto *parentAction = new QAction(this);
