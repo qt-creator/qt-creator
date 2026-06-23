@@ -29,6 +29,7 @@ QtcPlugin {
             "sampler.h",
             "samplerviewmanager.cpp", "samplerviewmanager.h",
             "sampletrace.cpp", "sampletrace.h",
+            "symbolicator.cpp", "symbolicator.h",
             "ctfplainviewmanager.cpp", "ctfplainviewmanager.h",
             "ctfstatisticsmodel.cpp", "ctfstatisticsmodel.h",
             "ctfstatisticsview.cpp", "ctfstatisticsview.h",

@@ -3,17 +3,16 @@
 
 #include "macsampler.h"
 #include "sampletrace.h"
+#include "symbolicator.h"
 
 #include "profilertr.h"
 
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
-#include <QHash>
 #include <QStandardPaths>
 #include <QVarLengthArray>
 
-#include <algorithm>
 #include <vector>
 
 using namespace Profiler;
@@ -37,10 +36,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &, const std::atomic_boo
 #include <mach/mach.h>
 #include <mach/mach_vm.h>
 #include <mach/thread_status.h>
-#include <mach-o/dyld_images.h>
 
-#include <cxxabi.h>
-#include <dlfcn.h>
 #include <time.h>
 
 using namespace Qt::StringLiterals;
@@ -65,47 +61,9 @@ struct Sample
     std::vector<quint64> frames;
 };
 
-// A loaded Mach-O image, used to attribute an address to "module+offset".
-struct Image
-{
-    quint64 base = 0;
-    QString name;
-};
-
 quint64 nowNs()
 {
     return clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
-}
-
-template<typename T>
-bool readRemote(task_t task, mach_vm_address_t addr, T *out)
-{
-    mach_vm_size_t got = 0;
-    const kern_return_t kr = mach_vm_read_overwrite(
-        task, addr, sizeof(T), reinterpret_cast<mach_vm_address_t>(out), &got);
-    return kr == KERN_SUCCESS && got == sizeof(T);
-}
-
-QString readRemoteCString(task_t task, mach_vm_address_t addr)
-{
-    QByteArray bytes;
-    while (bytes.size() < 4096) {
-        char chunk[64];
-        mach_vm_size_t got = 0;
-        if (mach_vm_read_overwrite(task, addr + bytes.size(), sizeof(chunk),
-                                   reinterpret_cast<mach_vm_address_t>(chunk), &got)
-                != KERN_SUCCESS
-            || got == 0) {
-            break;
-        }
-        const int nul = QByteArray(chunk, int(got)).indexOf('\0');
-        if (nul >= 0) {
-            bytes.append(chunk, nul);
-            break;
-        }
-        bytes.append(chunk, int(got));
-    }
-    return QString::fromUtf8(bytes);
 }
 
 Result<pid_t> findProcessByName(const QString &name)
@@ -143,178 +101,6 @@ Result<task_t> attachToPid(pid_t pid)
     }
     return task;
 }
-
-std::vector<Image> readImages(task_t task)
-{
-    std::vector<Image> images;
-
-    task_dyld_info_data_t dyldInfo;
-    mach_msg_type_number_t count = TASK_DYLD_INFO_COUNT;
-    if (task_info(task, TASK_DYLD_INFO, reinterpret_cast<task_info_t>(&dyldInfo), &count)
-        != KERN_SUCCESS) {
-        return images;
-    }
-
-    dyld_all_image_infos allInfos{};
-    if (!readRemote(task, dyldInfo.all_image_info_addr, &allInfos))
-        return images;
-
-    for (uint32_t i = 0; i < allInfos.infoArrayCount; ++i) {
-        dyld_image_info info{};
-        const mach_vm_address_t entry =
-            reinterpret_cast<mach_vm_address_t>(allInfos.infoArray) + i * sizeof(dyld_image_info);
-        if (!readRemote(task, entry, &info))
-            continue;
-        Image img;
-        img.base = reinterpret_cast<quint64>(info.imageLoadAddress);
-        const QString path =
-            readRemoteCString(task, reinterpret_cast<mach_vm_address_t>(info.imageFilePath));
-        img.name = path.isEmpty() ? QString("?") : QFileInfo(path).fileName();
-        images.push_back(img);
-    }
-
-    std::sort(images.begin(), images.end(),
-              [](const Image &a, const Image &b) { return a.base < b.base; });
-    return images;
-}
-
-// Module name and offset (addr - image base) for an address. Empty module and
-// offset = addr when no loaded image contains it.
-void moduleAndOffset(quint64 addr, const std::vector<Image> &images,
-                     QString *module, quint64 *offset)
-{
-    auto it = std::upper_bound(images.begin(), images.end(), addr,
-                               [](quint64 a, const Image &img) { return a < img.base; });
-    if (it != images.begin()) {
-        --it;
-        *module = it->name;
-        *offset = addr - it->base;
-    } else {
-        *module = QString();
-        *offset = addr;
-    }
-}
-
-// "module+0xoffset" (or a bare hex address when no image contains it). Used as
-// the fallback when CoreSymbolication has no function symbol for an address.
-QString moduleOffsetLabel(quint64 addr, const std::vector<Image> &images)
-{
-    QString module;
-    quint64 offset = 0;
-    moduleAndOffset(addr, images, &module, &offset);
-    return module.isEmpty() ? u"0x%1"_s.arg(offset, 0, 16)
-                            : u"%1+0x%2"_s.arg(module).arg(offset, 0, 16);
-}
-
-QString demangle(const char *name)
-{
-    if (!name || !*name)
-        return {};
-    if (name[0] == '_' && name[1] == 'Z') {
-        int status = 0;
-        if (char *d = abi::__cxa_demangle(name, nullptr, nullptr, &status)) {
-            QString result = QString::fromUtf8(d);
-            std::free(d);
-            return result;
-        }
-    }
-    return QString::fromUtf8(name);
-}
-
-// Resolves addresses to function names via the private CoreSymbolication
-// framework (the same engine Instruments/`sample` use), loaded with dlopen so a
-// missing framework degrades to module+offset rather than failing to link.
-class Symbolicator
-{
-public:
-    explicit Symbolicator(task_t task)
-    {
-        m_lib = dlopen("/System/Library/PrivateFrameworks/CoreSymbolication.framework/"
-                       "CoreSymbolication",
-                       RTLD_LAZY);
-        if (!m_lib)
-            return;
-        m_createWithTask = reinterpret_cast<CreateWithTaskFn>(
-            dlsym(m_lib, "CSSymbolicatorCreateWithTask"));
-        m_getSymbol = reinterpret_cast<GetSymbolFn>(
-            dlsym(m_lib, "CSSymbolicatorGetSymbolWithAddressAtTime"));
-        m_symbolName = reinterpret_cast<SymbolNameFn>(dlsym(m_lib, "CSSymbolGetName"));
-        m_release = reinterpret_cast<ReleaseFn>(dlsym(m_lib, "CSRelease"));
-        m_getSourceInfo = reinterpret_cast<GetSourceInfoFn>(
-            dlsym(m_lib, "CSSymbolicatorGetSourceInfoWithAddressAtTime"));
-        m_sourceInfoPath = reinterpret_cast<SourceInfoPathFn>(
-            dlsym(m_lib, "CSSourceInfoGetPath"));
-        m_sourceInfoLine = reinterpret_cast<SourceInfoLineFn>(
-            dlsym(m_lib, "CSSourceInfoGetLineNumber"));
-        if (m_createWithTask && m_getSymbol && m_symbolName && m_release)
-            m_cs = m_createWithTask(task);
-    }
-
-    ~Symbolicator()
-    {
-        if (m_release && !isNull(m_cs))
-            m_release(m_cs);
-        if (m_lib)
-            dlclose(m_lib);
-    }
-
-    Symbolicator(const Symbolicator &) = delete;
-    Symbolicator &operator=(const Symbolicator &) = delete;
-
-    bool isValid() const { return !isNull(m_cs); }
-
-    QString name(quint64 addr) const
-    {
-        if (isNull(m_cs))
-            return {};
-        const CSTypeRef symbol = m_getSymbol(m_cs, addr, kCSNow);
-        if (isNull(symbol))
-            return {};
-        return demangle(m_symbolName(symbol));
-    }
-
-    // Best-effort source path + line for an address. Leaves *path/*line
-    // untouched when the framework or debug info is unavailable.
-    void sourceInfo(quint64 addr, QString *path, int *line) const
-    {
-        if (isNull(m_cs) || !m_getSourceInfo || !m_sourceInfoPath || !m_sourceInfoLine)
-            return;
-        const CSTypeRef info = m_getSourceInfo(m_cs, addr, kCSNow);
-        if (isNull(info))
-            return;
-        if (const char *p = m_sourceInfoPath(info))
-            *path = QString::fromUtf8(p);
-        *line = m_sourceInfoLine(info);
-    }
-
-private:
-    // CoreSymbolication passes its handles by value as a pair of pointers.
-    struct CSTypeRef
-    {
-        void *a = nullptr;
-        void *b = nullptr;
-    };
-    static constexpr quint64 kCSNow = 0x8000000000000000ULL;
-    static bool isNull(CSTypeRef ref) { return ref.a == nullptr && ref.b == nullptr; }
-
-    using CreateWithTaskFn = CSTypeRef (*)(task_t);
-    using GetSymbolFn = CSTypeRef (*)(CSTypeRef, mach_vm_address_t, quint64);
-    using SymbolNameFn = const char *(*) (CSTypeRef);
-    using ReleaseFn = void (*)(CSTypeRef);
-    using GetSourceInfoFn = CSTypeRef (*)(CSTypeRef, mach_vm_address_t, quint64);
-    using SourceInfoPathFn = const char *(*) (CSTypeRef);
-    using SourceInfoLineFn = int (*)(CSTypeRef);
-
-    void *m_lib = nullptr;
-    CSTypeRef m_cs;
-    CreateWithTaskFn m_createWithTask = nullptr;
-    GetSymbolFn m_getSymbol = nullptr;
-    SymbolNameFn m_symbolName = nullptr;
-    ReleaseFn m_release = nullptr;
-    GetSourceInfoFn m_getSourceInfo = nullptr;
-    SourceInfoPathFn m_sourceInfoPath = nullptr;
-    SourceInfoLineFn m_sourceInfoLine = nullptr;
-};
 
 void walkThread(task_t task, thread_act_t thread, Sample &sample)
 {
@@ -360,12 +146,22 @@ void walkThread(task_t task, thread_act_t thread, Sample &sample)
     }
 }
 
-std::vector<Sample> capture(task_t task, const SamplerOptions &opts,
-                            const std::atomic_bool &stop,
-                            QHash<quint64, QString> &threadNames)
+// Samples the target until `stop` is set or it exits, resolving each stack into
+// trace labels via `labeler` as it is taken (so symbolication happens while the
+// target is alive) and appending the result to `data`.
+void capture(task_t task, const SamplerOptions &opts, const std::atomic_bool &stop,
+             SampleTraceData &data, LiveLabeler &labeler)
 {
-    std::vector<Sample> samples;
     const quint64 startNs = nowNs();
+    std::vector<Sample> tick; // raw stacks gathered during one suspend window
+
+    // Samples accumulate in RAM until the trace is written at the end (see
+    // writeSampleTrace). At the default 200 us cadence a busy multi-threaded
+    // target produces them quickly, so stop once the collected samples reach this
+    // budget rather than letting a long session grow without bound. Streaming
+    // straight to disk during capture could lift this cap later.
+    constexpr size_t kMaxSampleBytes = 512ull * 1024 * 1024;
+    size_t sampleBytes = 0;
 
     while (!stop.load(std::memory_order_relaxed)) {
         const quint64 elapsedNs = nowNs() - startNs;
@@ -394,6 +190,7 @@ std::vector<Sample> capture(task_t task, const SamplerOptions &opts,
 
         task_suspend(task);
         const quint64 tsUs = elapsedNs / 1000;
+        tick.clear();
         for (mach_msg_type_number_t i = 0; i < threadCount; ++i) {
             thread_identifier_info_data_t idInfo;
             mach_msg_type_number_t idCount = THREAD_IDENTIFIER_INFO_COUNT;
@@ -404,7 +201,7 @@ std::vector<Sample> capture(task_t task, const SamplerOptions &opts,
                 tid = idInfo.thread_id;
             }
 
-            if (!threadNames.contains(tid)) {
+            if (!data.threadNames.contains(tid)) {
                 thread_extended_info_data_t extInfo;
                 mach_msg_type_number_t extCount = THREAD_EXTENDED_INFO_COUNT;
                 QString name;
@@ -413,7 +210,7 @@ std::vector<Sample> capture(task_t task, const SamplerOptions &opts,
                     == KERN_SUCCESS) {
                     name = QString::fromUtf8(extInfo.pth_name);
                 }
-                threadNames.insert(tid, name);
+                data.threadNames.insert(tid, name);
             }
 
             Sample sample;
@@ -422,13 +219,41 @@ std::vector<Sample> capture(task_t task, const SamplerOptions &opts,
             sample.running = running[i];
             walkThread(task, threads[i], sample);
             if (!sample.frames.empty())
-                samples.push_back(std::move(sample));
+                tick.push_back(std::move(sample));
 
             mach_port_deallocate(mach_task_self(), threads[i]);
         }
+        // Resolve while the target is still suspended, so CoreSymbolication reads
+        // a stable target. Resolving in the brief window after resume (with the
+        // next suspend imminent) raced the running target and made symbol lookups
+        // fail intermittently. New addresses are resolved once and cached, so
+        // steady-state suspend windows stay short; images loaded during recording
+        // (e.g. dlopen()'d plugins) are picked up by refreshImagesIfChanged().
+        labeler.refreshImagesIfChanged();
+        for (Sample &sample : tick) {
+            SampleTraceData::ThreadSample out;
+            out.tsUs = sample.timestampUs;
+            out.tid = sample.tid;
+            out.running = sample.running;
+            out.frames.reserve(qsizetype(sample.frames.size()));
+            for (auto it = sample.frames.rbegin(); it != sample.frames.rend(); ++it)
+                out.frames.append(labeler.labelIdFor(*it)); // innermost-first -> root-first
+            sampleBytes += sizeof(SampleTraceData::ThreadSample)
+                           + size_t(out.frames.size()) * sizeof(int);
+            data.samples.append(std::move(out));
+        }
+
         task_resume(task);
         mach_vm_deallocate(mach_task_self(), reinterpret_cast<mach_vm_address_t>(threads),
                            threadCount * sizeof(thread_act_t));
+
+        // Stop cleanly when the memory budget is reached, keeping what was
+        // captured (the same outcome as the target exiting mid-recording).
+        if (sampleBytes >= kMaxSampleBytes) {
+            qWarning("QmlProfiler: reached the %llu MiB sample budget; stopping capture.",
+                     static_cast<unsigned long long>(kMaxSampleBytes >> 20));
+            break;
+        }
 
         if (opts.intervalUs > 0) {
             // Normalize into seconds + nanoseconds: tv_nsec must stay in [0, 1e9),
@@ -438,8 +263,6 @@ std::vector<Sample> capture(task_t task, const SamplerOptions &opts,
             nanosleep(&req, nullptr);
         }
     }
-
-    return samples;
 }
 
 } // namespace
@@ -462,70 +285,20 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
         return ResultError(taskResult.error());
     const task_t task = *taskResult;
 
-    const std::vector<Image> images = readImages(task);
-
-    // Create the symbolicator up front, while the target is guaranteed to be
-    // alive: it snapshots the loaded-image list now and resolves addresses from
-    // the on-disk binaries afterwards. Creating it after capture would fail to
-    // find any symbols if the target was force-quit during recording, leaving the
-    // stacks as bare module+offset. Symbolicating an address is comparatively
-    // expensive, so the lookups below memoize per address.
-    Symbolicator symbolicator(task);
-
-    QHash<quint64, QString> threadNames;
-    const std::vector<Sample> samples = capture(task, opts, stop, threadNames);
-
-    if (samples.empty()) {
-        mach_port_deallocate(mach_task_self(), task);
-        return ResultError(Tr::tr("No samples were captured. The target may have exited."));
-    }
-
     SampleTraceData data;
     data.pid = quint64(pid);
-    data.threadNames = threadNames;
 
-    QHash<QString, int> labelIds;
-    QHash<quint64, int> labelIdByAddr;
-    const auto labelIdFor = [&](quint64 addr) -> int {
-        if (auto it = labelIdByAddr.constFind(addr); it != labelIdByAddr.constEnd())
-            return it.value();
-        QString label = symbolicator.name(addr);
-        if (label.isEmpty())
-            label = moduleOffsetLabel(addr, images);
-        int id;
-        if (auto it = labelIds.constFind(label); it != labelIds.constEnd()) {
-            id = it.value();
-        } else {
-            id = int(data.labels.size());
-            labelIds.insert(label, id);
-            SampleTraceData::Label l;
-            l.name = label;
-            symbolicator.sourceInfo(addr, &l.file, &l.line); // representative location
-            moduleAndOffset(addr, images, &l.module, &l.offset);
-            data.labels.append(l);
-        }
-        labelIdByAddr.insert(addr, id);
-        return id;
-    };
+    // Symbolize while the target runs (see LiveLabeler): this picks up images
+    // loaded during recording, such as dlopen()'d plugins, and keeps symbols even
+    // if the target is force-quit, since nothing is resolved after capture ends.
+    Symbolicator symbolicator(task);
+    LiveLabeler labeler(task, symbolicator, data);
+    capture(task, opts, stop, data, labeler);
 
-    // Symbolication is the dominant cost; report progress across all samples,
-    // reserving the last 30% for writing the trace.
-    const int totalSamples = std::max<int>(1, int(samples.size()));
-    int processed = 0;
-    data.samples.reserve(qsizetype(samples.size()));
-    for (const Sample &sample : samples) {
-        SampleTraceData::ThreadSample out;
-        out.tsUs = sample.timestampUs;
-        out.tid = sample.tid;
-        out.running = sample.running;
-        out.frames.reserve(qsizetype(sample.frames.size()));
-        for (auto it = sample.frames.rbegin(); it != sample.frames.rend(); ++it)
-            out.frames.append(labelIdFor(*it)); // innermost-first -> root-first
-        data.samples.append(std::move(out));
-        if (progressPercent)
-            progressPercent->store(++processed * 70 / totalSamples, std::memory_order_relaxed);
-    }
     mach_port_deallocate(mach_task_self(), task);
+
+    if (data.samples.isEmpty())
+        return ResultError(Tr::tr("No samples were captured. The target may have exited."));
 
     const QString dirName = u"qmltraceviewer-sample-%1"_s.arg(
         QDateTime::currentMSecsSinceEpoch());
@@ -534,9 +307,11 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
     if (!QDir().mkpath(dirPath))
         return ResultError(Tr::tr("Cannot create temporary trace directory %1.").arg(dirPath));
 
+    // Symbolication already happened during capture, so the post-stop work is
+    // just writing the trace.
     const auto writeProgress = [progressPercent](int percent) {
         if (progressPercent)
-            progressPercent->store(70 + percent * 30 / 100, std::memory_order_relaxed);
+            progressPercent->store(percent, std::memory_order_relaxed);
     };
     const FilePath dir = FilePath::fromString(dirPath);
     if (Result<> r = writeSampleTrace(data, dir, writeProgress); !r)
