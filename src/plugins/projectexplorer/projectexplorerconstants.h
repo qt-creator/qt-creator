@@ -261,6 +261,9 @@ const char PROJECT_WELCOMEPAGE_ID[] = "Develop";
 const char URL_HANDLER_SCHEME[] = "QCProjectExplorer";
 const char ACTIVE_RUN_CONFIG_PATH[] = "activeRunConfiguration";
 
+// Project-local settings directory
+const char PROJECT_QTC_DIR[] = ".qtcreator";
+
 // UI texts
 PROJECTEXPLORER_EXPORT QString msgAutoDetected();
 PROJECTEXPLORER_EXPORT QString msgAutoDetectedToolTip();

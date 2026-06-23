@@ -25,6 +25,7 @@
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
@@ -407,7 +408,8 @@ public:
                 base.enabledByDefault = false;
 
                 BuildInfo venv;
-                const FilePath venvBase = projectPath.parentDir() / ".qtcreator"
+                const FilePath venvBase = projectPath.parentDir()
+                                          / ProjectExplorer::Constants::PROJECT_QTC_DIR
                                           / FileUtils::fileSystemFriendlyName(python->name + "venv");
                 venv.buildDirectory = venvBase;
                 int i = 2;

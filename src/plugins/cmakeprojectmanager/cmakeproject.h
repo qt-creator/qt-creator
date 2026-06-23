@@ -12,7 +12,13 @@
 
 namespace CMakeProjectManager {
 
-namespace Internal { class CMakeProjectImporter; }
+namespace Internal {
+
+QString packageManagerDir();
+
+class CMakeProjectImporter;
+
+} // namespace CMakeProjectManager::Internal
 
 class CMAKE_EXPORT CMakeProject final : public ProjectExplorer::Project
 {

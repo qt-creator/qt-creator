@@ -6,6 +6,7 @@
 #include "builddirparameters.h"
 #include "cmakeautogenparser.h"
 #include "cmakeoutputparser.h"
+#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
@@ -103,7 +104,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     // Copy the "cmake-helper" CMake code from the ${IDE:ResourcePath} to the build directory
     const FilePath ideCMakeHelperDir = Core::ICore::resourcePath("cmake-helper");
-    const FilePath localCMakeHelperDir = buildDirectory / Constants::PACKAGE_MANAGER_DIR;
+    const FilePath localCMakeHelperDir = buildDirectory / packageManagerDir();
 
     if (!ideCMakeHelperDir.isDir()) {
         BuildSystem::appendBuildSystemOutput(

@@ -244,7 +244,8 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
             "configurations."));
 
     stagingDir.setSettingsKey(STAGING_DIR_KEY);
-    stagingDir.setDefaultValue("%{BuildConfig:BuildDirectory:FilePath}/.qtcreator/staging");
+    stagingDir.setDefaultValue(QString("%{BuildConfig:BuildDirectory:FilePath}/")
+                                       + ProjectExplorer::Constants::PROJECT_QTC_DIR + "/staging");
     stagingDir.setExpectedKind(PathChooser::Kind::Directory);
 
     Kit *kit = this->kit();

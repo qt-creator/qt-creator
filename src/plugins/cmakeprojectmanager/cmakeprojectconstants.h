@@ -31,7 +31,6 @@ const char CMAKEFORMATTER_ACTION_ID[] = "CMakeFormatter.Action";
 const char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
 const char CMAKE_DEBUGGING_GROUP[] = "Debugger.Group.CMake";
 
-const char PACKAGE_MANAGER_DIR[] = ".qtcreator/cmake-helper";
 const char VCPKG_ROOT[] = "VCPKG_ROOT";
 
 const char CMAKE_LISTS_TXT[] = "CMakeLists.txt";

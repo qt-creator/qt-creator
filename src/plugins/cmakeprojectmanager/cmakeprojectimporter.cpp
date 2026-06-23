@@ -257,7 +257,8 @@ static void persistTemporaryCMake(Kit *k, const QVariantList &vl)
 CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const CMakeProject *project)
     : QtProjectImporter(path)
     , m_project(project)
-    , m_presetsTempDir(ensureDir(path.parentDir() / ".qtcreator", "qtc-cmake-presets-XXXXXXXX"))
+    , m_presetsTempDir(ensureDir(path.parentDir() / ProjectExplorer::Constants::PROJECT_QTC_DIR,
+                                 "qtc-cmake-presets-XXXXXXXX"))
 {
     useTemporaryKitAspect(CMakeKitAspect::id(), &cleanupTemporaryCMake, &persistTemporaryCMake);
 }
@@ -1290,7 +1291,8 @@ static void applyRunEnvironmentToKit(
 void CMakeProjectImporter::createKitsFromPresets()
 {
     m_presetsTempDir
-        = ensureDir(projectFilePath().parentDir() / ".qtcreator", "qtc-cmake-presets-XXXXXXXX");
+        = ensureDir(projectFilePath().parentDir() / ProjectExplorer::Constants::PROJECT_QTC_DIR,
+                    "qtc-cmake-presets-XXXXXXXX");
 
     const ListIterator iterator(presetCandidates());
     const Storage<InternalStorage> storage;

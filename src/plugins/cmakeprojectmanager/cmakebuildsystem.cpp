@@ -1653,7 +1653,7 @@ void CMakeBuildSystem::clearCMakeCache()
         m_parameters.buildDirectory / "CMakeFiles",
         m_parameters.buildDirectory / ".cmake/api/v1/reply",
         m_parameters.buildDirectory / ".cmake/api/v1/reply.prev",
-        m_parameters.buildDirectory / Constants::PACKAGE_MANAGER_DIR,
+        m_parameters.buildDirectory / packageManagerDir(),
         m_parameters.buildDirectory / "conan-dependencies",
         m_parameters.buildDirectory / "vcpkg-dependencies"
     };

@@ -6,6 +6,7 @@
 #include "buildsystem.h"
 #include "project.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 
@@ -268,11 +269,11 @@ FilePath UserFileAccessor::projectUserFileV2() const
 
     // Don't nest the hidden subdirs; e.g. WorkspaceProject already puts its project file
     // in there.
-    if (projectFile.parentDir().fileName() == ".qtcreator")
+    if (projectFile.parentDir().fileName() == Constants::PROJECT_QTC_DIR)
         return projectUserFileV1();
 
     return projectFile.parentDir()
-        .pathAppended(".qtcreator")
+        .pathAppended(Constants::PROJECT_QTC_DIR)
         .pathAppended(projectFile.fileName())
         .stringAppended(generateSuffix(userFileExtension()));
 }

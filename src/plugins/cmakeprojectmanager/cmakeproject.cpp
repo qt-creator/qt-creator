@@ -40,6 +40,15 @@ using namespace CMakeProjectManager::Internal;
 
 namespace CMakeProjectManager {
 
+namespace Internal {
+
+QString packageManagerDir()
+{
+    return QString(ProjectExplorer::Constants::PROJECT_QTC_DIR) + "/cmake-helper";
+}
+
+} // CMakeProjectManager::Internal
+
 static FilePath cmakeListTxtFromFilePath(const FilePath &filepath)
 {
     if (filepath.endsWith(Constants::CMAKE_CACHE_TXT)) {

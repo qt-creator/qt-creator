@@ -202,7 +202,7 @@ static CMakeConfigItem getCMakeHelperParameter()
     const QByteArray key("CMAKE_PROJECT_INCLUDE_BEFORE");
     const QByteArray value = QString(
                                  "%{BuildConfig:BuildDirectory:NativeFilePath}/%1/qtcreator-project.cmake")
-                                 .arg(Constants::PACKAGE_MANAGER_DIR)
+                                 .arg(packageManagerDir())
                                  .toUtf8();
     return CMakeConfigItem(key, CMakeConfigItem::FILEPATH, value);
 }

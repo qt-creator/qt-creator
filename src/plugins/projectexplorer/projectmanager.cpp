@@ -89,7 +89,8 @@ void CustomProjectSettingsHandler::load(Project &project) const
 {
     QTC_ASSERT(m_loader, return);
     const FilePath candidate
-        = project.projectDirectory().pathAppended(".qtcreator").pathAppended(m_fileName);
+        = project.projectDirectory().pathAppended(Constants::PROJECT_QTC_DIR)
+              .pathAppended(m_fileName);
     if (!candidate.exists())
         return;
     const auto showError = [](const FilePath &file, const QString &error) {

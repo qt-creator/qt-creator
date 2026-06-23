@@ -388,7 +388,9 @@ public:
         environment.setSupportForBuildEnvironment(bc);
 
         hint.setText(Tr::tr("Clone the configuration to change it. Or, make the changes in "
-                            "the .qtcreator/project.json file."));
+                            "the %1 file.")
+                         .arg(QString(ProjectExplorer::Constants::PROJECT_QTC_DIR)
+                              + "/project.json"));
 
         const BuildTargetInfo bti = buildTargetInfo();
         executable.setLabelText(Tr::tr("Executable:"));
@@ -653,14 +655,16 @@ public:
 WorkspaceBuildConfigurationFactory *WorkspaceBuildConfigurationFactory::m_instance = nullptr;
 
 WorkspaceProject::WorkspaceProject(const FilePath &file, const QJsonObject &defaultConfiguration)
-    : Project(FOLDER_MIMETYPE, file.isDir() ? file / ".qtcreator" / "project.json" : file)
+    : Project(FOLDER_MIMETYPE, file.isDir() ? file / Constants::PROJECT_QTC_DIR / "project.json"
+                                            : file)
 {
     QTC_CHECK(projectFilePath().absolutePath().ensureWritableDir());
     if (!projectFilePath().exists() && QTC_GUARD(projectFilePath().ensureExistingFile())) {
         QJsonObject projectJson = defaultConfiguration;
         projectJson.insert("$schema", "https://download.qt.io/official_releases/qtcreator/latest/installer_source/jsonschemas/project.json");
         QJsonArray excludes = projectJson.value(FILES_EXCLUDE_KEY).toArray();
-        excludes.append(".qtcreator/project.json.user");
+        excludes.append(QString(ProjectExplorer::Constants::PROJECT_QTC_DIR
+                                + QString("/project.json.user")));
         projectJson.insert(FILES_EXCLUDE_KEY, excludes);
         projectFilePath().writeFileContents(QJsonDocument(projectJson).toJson());
     }
