@@ -2845,14 +2845,14 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     connect(runControl, &QObject::destroyed, this, &ProjectExplorerPluginPrivate::checkForShutdown,
             Qt::QueuedConnection);
     ++m_activeRunControlCount;
-    runControl->initiateStart();
-    doUpdateRunActions();
     connect(runControl, &RunControl::started, m_instance, [runControl] {
         emit m_instance->runControlStarted(runControl);
     });
     connect(runControl, &RunControl::stopped, m_instance, [runControl] {
         emit m_instance->runControlStoped(runControl);
     });
+    runControl->initiateStart();
+    doUpdateRunActions();
 }
 
 void ProjectExplorerPluginPrivate::checkForShutdown()
