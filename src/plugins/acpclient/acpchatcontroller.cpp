@@ -11,10 +11,14 @@
 #include "acpstdiotransport.h"
 #include "acpterminalhandler.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/mcp/mcpmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/mimeutils.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -232,42 +236,66 @@ void AcpChatController::sendPrompt(const QString &text,
     TextContent textContent;
     textContent.text(text);
     QList<ContentBlock> content = {textContent};
-    TextEditorWidget *currentEditorWidget = TextEditorWidget::currentTextEditorWidget();
-    if (includeCurrentEditor && currentEditorWidget) {
-        const FilePath filePath = currentEditorWidget->textDocument()->filePath();
+    Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
+    if (includeCurrentEditor && currentEditor) {
+        const Core::IDocument *document = currentEditor->document();
+        const QString mimeTypeName = document->mimeType();
+        const FilePath filePath = document->filePath();
         if (!filePath.isEmpty()) {
             const QString uri = filePath.toUrl().toString();
             content << ResourceLink()
                            .name(filePath.fileName())
-                           .description("Qt Creators current main Text Editor file.")
+                           .description("Qt Creator's current editor file.")
+                           .mimeType(mimeTypeName)
                            .uri(uri);
 
             if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
-                TextResourceContents editorState;
-                editorState.uri(uri);
-                QString stateString
-                    = "This is the state of the current Text Editor in Qt Creator\n";
-                QTextCursor tc = currentEditorWidget->textCursor();
-                const QString cursorString
-                    = "Cursor %1: %2, Line(0-based): %3, Column(0-based): %4\n";
-                stateString += cursorString.arg("Position")
-                                   .arg(tc.position())
-                                   .arg(tc.blockNumber())
-                                   .arg(tc.positionInBlock());
-                tc.setPosition(tc.anchor());
-                stateString += cursorString.arg("Anchor")
-                                   .arg(tc.position())
-                                   .arg(tc.blockNumber())
-                                   .arg(tc.positionInBlock());
-                stateString += "First Visible Line: "
-                               + QString::number(currentEditorWidget->firstVisibleBlockNumber())
-                               + "\n";
-                stateString += "Last Visible Line: "
-                               + QString::number(currentEditorWidget->lastVisibleBlockNumber())
-                               + "\n";
-                content << EmbeddedResource().resource(
-                    TextResourceContents().text(stateString).uri(uri));
+                if (auto *currentTextEditor = qobject_cast<BaseTextEditor *>(currentEditor)) {
+                    TextEditorWidget *widget = currentTextEditor->editorWidget();
+                    TextResourceContents editorState;
+                    editorState.uri(uri);
+                    QString stateString
+                        = "This is the state of the current Text Editor in Qt Creator\n";
+                    QTextCursor tc = currentTextEditor->textCursor();
+                    const QString cursorString
+                        = "Cursor %1: %2, Line(0-based): %3, Column(0-based): %4\n";
+                    stateString += cursorString.arg("Position")
+                                       .arg(tc.position())
+                                       .arg(tc.blockNumber())
+                                       .arg(tc.positionInBlock());
+                    tc.setPosition(tc.anchor());
+                    stateString += cursorString.arg("Anchor")
+                                       .arg(tc.position())
+                                       .arg(tc.blockNumber())
+                                       .arg(tc.positionInBlock());
+                    stateString += "First Visible Line: "
+                                   + QString::number(widget->firstVisibleBlockNumber()) + "\n";
+                    stateString += "Last Visible Line: "
+                                   + QString::number(widget->lastVisibleBlockNumber()) + "\n";
+                    content << EmbeddedResource().resource(
+                        TextResourceContents().text(stateString).uri(uri));
+                }
             }
+        } else if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
+            auto embeddedResourceResource = [&]() -> EmbeddedResourceResource {
+                const MimeType mimeType = Utils::mimeTypeForName(mimeTypeName);
+                const QString uri = QStringLiteral("qt_creator://current_editor/%1")
+                        .arg(document->displayName());
+                if (mimeType.inherits("text/plain")) {
+                    TextResourceContents contents;
+                    contents.uri(uri);
+                    contents.text(TextEncoding::encodingForLocale().decode(document->contents()));
+                    contents.mimeType(mimeTypeName);
+                    return contents;
+                }
+                BlobResourceContents contents;
+                contents.uri(uri);
+                contents.blob(QString::fromLatin1(document->contents().toBase64()));
+                contents.mimeType(mimeTypeName);
+                return contents;
+            };
+
+            content << EmbeddedResource().resource(embeddedResourceResource());
         }
     }
 

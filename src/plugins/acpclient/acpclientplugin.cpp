@@ -66,11 +66,8 @@ public:
             showSidePanelAction, Constants::SHOW_CHAT_SIDEPANEL_ACTION_ID);
         menu->addAction(sidePanelCmd);
 
-        // Add a tool button to each text editor toolbar
-        auto checkEditor = [](IEditor *editor) {
-            auto textEditorWidget = TextEditor::TextEditorWidget::fromEditor(editor);
-            if (!textEditorWidget)
-                return;
+        // Add a tool button to each editor toolbar
+        EditorManager::addExtraToolBarWidgetCreator([](){
             auto button = new QToolButton;
             button->setIcon(sidePanelIcon());
             button->setToolTip(Tr::tr("Show Agentic AI Chat in Side Panel"));
@@ -79,12 +76,8 @@ public:
                 &QToolButton::clicked,
                 ActionManager::command(Constants::SHOW_CHAT_SIDEPANEL_ACTION_ID)->action(),
                 &QAction::trigger);
-
-            textEditorWidget->insertExtraToolBarWidget(TextEditor::TextEditorWidget::Right, button);
-        };
-        connect(EditorManager::instance(), &EditorManager::editorOpened, this, checkEditor);
-        for (Core::IEditor *editor : DocumentModel::editorsForOpenedDocuments())
-            checkEditor(editor);
+            return button;
+        });
 
         connect(showSidePanelAction, &QAction::triggered, this, [this] {
             createRightPaneChatWidget();

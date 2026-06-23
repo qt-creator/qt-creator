@@ -8,8 +8,9 @@
 #include "sessionpickerwidget.h"
 
 #include <coreplugin/coreicons.h>
-#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/idocument.h>
 
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
@@ -957,12 +958,13 @@ void ChatPanel::updateContextBar()
     }
 
     if (m_includeCurrentEditorContext) {
-        if (auto editorWidget = TextEditor::TextEditorWidget::currentTextEditorWidget()) {
-            Utils::FilePath filePath = editorWidget->textDocument()->filePath();
-            if (!filePath.isEmpty()) {
-                const QString name = filePath.fileName();
-                auto *item = new ContextItem(
-                    name, FileIconProvider::icon(filePath), m_contextBar);
+        if (Core::IEditor *editor = Core::EditorManager::currentEditor()) {
+            Core::IDocument *document = editor->document();
+            const Utils::FilePath filePath = document->filePath();
+            const QString name = filePath.isEmpty() ? document->displayName()
+                                                    : filePath.fileName();
+            if (!name.isEmpty()) {
+                auto *item = new ContextItem(name, FileIconProvider::icon(filePath), m_contextBar);
                 connect(item, &ContextItem::removeRequested, this, [this] {
                     m_includeCurrentEditorContext = false;
                     QMetaObject::invokeMethod(this, [this] { updateContextBar(); }, Qt::QueuedConnection);
