@@ -170,7 +170,11 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
         reportResult(ResultType::MessageFatal, Tr::tr("Test run canceled by user."));
     if (m_currentRunControl) {
         m_runControlIndex = m_selectedTests.size();
-        m_currentRunControl->initiateStop();
+        if (reason == UserCanceled && m_stopRequested)
+            m_currentRunControl->forceStop();
+        else
+            m_currentRunControl->initiateStop();
+        m_stopRequested = true;
     } else {
         m_taskTreeRunner.reset();
         onFinished();
@@ -684,6 +688,7 @@ void TestRunner::runTestsHelperViaRunControl()
 
     m_outputWarningShown = false;
     m_runControlIndex = 0;
+    m_stopRequested = false;
     runNextViaRunControl();
 }
 

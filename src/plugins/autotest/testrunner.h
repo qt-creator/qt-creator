@@ -111,6 +111,7 @@ private:
     bool m_outputWarningShown = false;
     int m_runControlIndex = 0;
     QPointer<ProjectExplorer::RunControl> m_currentRunControl;
+    bool m_stopRequested = false;
 };
 
 } // namespace Internal
