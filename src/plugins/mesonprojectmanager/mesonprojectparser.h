@@ -15,10 +15,7 @@
 
 #include <utils/processinterface.h>
 
-#include <QElapsedTimer>
-#include <QQueue>
-
-#include <utils/qtcprocess.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 namespace MesonProjectManager::Internal {
 
@@ -26,7 +23,6 @@ class MesonProjectParser : public QObject
 {
     Q_OBJECT
 
-    enum class IntroDataType { file, stdo };
     struct ParserData
     {
         MesonInfoParser::Result data;
@@ -60,6 +56,7 @@ public:
     QList<ProjectExplorer::BuildTargetInfo> appsTargets() const;
 
     ProjectExplorer::RawProjectParts buildProjectParts(
+        const Utils::FilePath &buildDir,
         const ProjectExplorer::Toolchain *cxxToolchain,
         const ProjectExplorer::Toolchain *cToolchain);
 
@@ -72,13 +69,21 @@ public:
     bool usesSameMesonVersion(const Utils::FilePath &buildPath);
 
 signals:
-     void parsingCompleted(bool success);
+    void parsingCompleted(bool success);
 
 private:
-    void startParser();
+    void startParsing(const QtTaskTree::Group &recipe);
+
+    QtTaskTree::ExecutableItem streamingProcessTask(const Utils::ProcessRunData &runData);
+    QtTaskTree::ExecutableItem fileParserTask(const Utils::FilePath &srcDir,
+                                              const Utils::FilePath &buildDir);
+
+    void applyParserResults(const Utils::FilePath &srcDir, ParserData &&parserData);
+
     static ParserData extractParserResults(const Utils::FilePath &srcDir,
                                            MesonInfoParser::Result &&parserResult);
-    ProjectExplorer::RawProjectPart buildRawPart(const Target &target,
+    ProjectExplorer::RawProjectPart buildRawPart(const Utils::FilePath &buildDir,
+                                                 const Target &target,
                                                  const Target::SourceGroup &sources,
                                                  const ProjectExplorer::Toolchain *cxxToolchain,
                                                  const ProjectExplorer::Toolchain *cToolchain);
@@ -86,33 +91,12 @@ private:
     MesonOutputParser m_outputParser;
     Utils::Environment m_env;
     Utils::Id m_meson;
-    Utils::FilePath m_buildDir;
-    Utils::FilePath m_srcDir;
-    bool m_configuring = false;
-    IntroDataType m_introType = IntroDataType::file;
     MesonInfoParser::Result m_parserResult;
     QStringList m_targetsNames;
     Utils::QtMajorVersion m_qtVersion = Utils::QtMajorVersion::Unknown;
-    std::unique_ptr<MesonProjectNode> m_rootNode; // <- project tree root node
+    std::unique_ptr<MesonProjectNode> m_rootNode;
     QString m_projectName;
-    // maybe moving meson to build step could make this class simpler
-    // also this should ease command dependencies
-    QQueue<std::tuple<Utils::ProcessRunData, bool>> m_pendingCommands;
-
-    bool run(const Utils::ProcessRunData &runData, const QString &projectName, bool captureStdo = false);
-
-    void handleProcessDone();
-    void setupProcess(const Utils::ProcessRunData &runData, const QString &projectName,
-                      bool captureStdo);
-    bool sanityCheck(const Utils::ProcessRunData &runData) const;
-
-    void processStandardOutput();
-    void processStandardError();
-
-    std::unique_ptr<Utils::Process> m_process;
-    QElapsedTimer m_elapsed;
-    QByteArray m_stdo;
-    QByteArray m_stderr;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace MesonProjectManager::Internal
