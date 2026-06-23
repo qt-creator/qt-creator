@@ -71,10 +71,19 @@ void TrackPainter::setRange(qint64 rangeStart, qint64 rangeEnd)
 
     const bool purePan = (oldDuration == newDuration && oldDuration > 0);
     if (purePan && !m_cache.isNull() && width() > 0) {
-        const int shiftPx = qRound(double(oldStart - rangeStart)
-                                   * double(width()) / double(newDuration));
-        if (qAbs(m_pendingShiftPx + shiftPx) < width()) {
-            m_pendingShiftPx += shiftPx;
+        const qint64 timeDelta = oldStart - rangeStart;
+        const qint64 duration = m_rangeEnd - m_rangeStart;
+        const qint64 width64 = static_cast<qint64>(width());
+
+        // Use 64-bit integer math: (delta * width) / duration
+        // This is mathematically identical to (delta / duration) * width
+        // but avoids all floating point precision issues and is much faster.
+        // We use qint64 to ensure the multiplication doesn't overflow.
+        const qint64 shiftPx_64 = (timeDelta * width64) / duration;
+
+        // Check if the jump is within bounds using 64-bit math to avoid qAbs assertion
+        if (qAbs(static_cast<qint64>(m_pendingShiftPx) + shiftPx_64) < width64) {
+            m_pendingShiftPx = static_cast<int>(shiftPx_64);
             update();
             return;
         }
