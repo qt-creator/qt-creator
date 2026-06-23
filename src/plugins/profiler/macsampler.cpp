@@ -108,7 +108,7 @@ QString readRemoteCString(task_t task, mach_vm_address_t addr)
     return QString::fromUtf8(bytes);
 }
 
-Result<task_t> attachToProcess(const QString &name, pid_t *outPid)
+Result<pid_t> findProcessByName(const QString &name)
 {
     std::vector<pid_t> pids(4096);
     const int bytes = proc_listpids(PROC_ALL_PIDS, 0, pids.data(),
@@ -117,7 +117,6 @@ Result<task_t> attachToProcess(const QString &name, pid_t *outPid)
         return ResultError(Tr::tr("Cannot enumerate running processes."));
 
     const int count = bytes / int(sizeof(pid_t));
-    pid_t found = 0;
     for (int i = 0; i < count; ++i) {
         const pid_t pid = pids[i];
         if (pid <= 0)
@@ -125,24 +124,23 @@ Result<task_t> attachToProcess(const QString &name, pid_t *outPid)
         char path[PROC_PIDPATHINFO_MAXSIZE] = {};
         if (proc_pidpath(pid, path, sizeof(path)) <= 0)
             continue;
-        if (QFileInfo(QString::fromUtf8(path)).fileName() == name) {
-            found = pid;
-            break;
-        }
+        if (QFileInfo(QString::fromUtf8(path)).fileName() == name)
+            return pid;
     }
-    if (found == 0)
-        return ResultError(Tr::tr("No running process named \"%1\" was found.").arg(name));
+    return ResultError(Tr::tr("No running process named \"%1\" was found.").arg(name));
+}
 
+Result<task_t> attachToPid(pid_t pid)
+{
     task_t task = MACH_PORT_NULL;
-    const kern_return_t kr = task_for_pid(mach_task_self(), found, &task);
+    const kern_return_t kr = task_for_pid(mach_task_self(), pid, &task);
     if (kr != KERN_SUCCESS) {
         return ResultError(
             Tr::tr("task_for_pid(%1) failed: %2. Run the viewer as root or sign it with the "
                    "com.apple.security.cs.debugger entitlement.")
-                .arg(found)
+                .arg(pid)
                 .arg(QString::fromUtf8(mach_error_string(kr))));
     }
-    *outPid = found;
     return task;
 }
 
@@ -374,59 +372,63 @@ std::vector<Sample> capture(task_t task, const SamplerOptions &opts,
 
         thread_act_array_t threads = nullptr;
         mach_msg_type_number_t threadCount = 0;
-        if (task_threads(task, &threads, &threadCount) == KERN_SUCCESS) {
-            // Sample each thread's run state from the still-running task: once
-            // the task is suspended every thread reports TH_STATE_WAITING, so
-            // the on-CPU flag has to be read before suspending. The stack walk
-            // below still needs the task suspended.
-            QVarLengthArray<bool, 32> running(threadCount);
-            for (mach_msg_type_number_t i = 0; i < threadCount; ++i) {
-                thread_basic_info_data_t basicInfo;
-                mach_msg_type_number_t basicCount = THREAD_BASIC_INFO_COUNT;
-                running[i] = thread_info(threads[i], THREAD_BASIC_INFO,
-                                         reinterpret_cast<thread_info_t>(&basicInfo), &basicCount)
-                                 == KERN_SUCCESS
-                             && basicInfo.run_state == TH_STATE_RUNNING;
-            }
+        // A failure here means the target task is gone (the process has exited).
+        // Stop sampling so the recording finishes: when attached to a process we
+        // did not launch ourselves, this is the only signal that the target quit.
+        if (task_threads(task, &threads, &threadCount) != KERN_SUCCESS)
+            break;
 
-            task_suspend(task);
-            const quint64 tsUs = elapsedNs / 1000;
-            for (mach_msg_type_number_t i = 0; i < threadCount; ++i) {
-                thread_identifier_info_data_t idInfo;
-                mach_msg_type_number_t idCount = THREAD_IDENTIFIER_INFO_COUNT;
-                quint64 tid = i;
-                if (thread_info(threads[i], THREAD_IDENTIFIER_INFO,
-                                reinterpret_cast<thread_info_t>(&idInfo), &idCount)
-                    == KERN_SUCCESS) {
-                    tid = idInfo.thread_id;
-                }
-
-                if (!threadNames.contains(tid)) {
-                    thread_extended_info_data_t extInfo;
-                    mach_msg_type_number_t extCount = THREAD_EXTENDED_INFO_COUNT;
-                    QString name;
-                    if (thread_info(threads[i], THREAD_EXTENDED_INFO,
-                                    reinterpret_cast<thread_info_t>(&extInfo), &extCount)
-                        == KERN_SUCCESS) {
-                        name = QString::fromUtf8(extInfo.pth_name);
-                    }
-                    threadNames.insert(tid, name);
-                }
-
-                Sample sample;
-                sample.timestampUs = tsUs;
-                sample.tid = tid;
-                sample.running = running[i];
-                walkThread(task, threads[i], sample);
-                if (!sample.frames.empty())
-                    samples.push_back(std::move(sample));
-
-                mach_port_deallocate(mach_task_self(), threads[i]);
-            }
-            task_resume(task);
-            mach_vm_deallocate(mach_task_self(), reinterpret_cast<mach_vm_address_t>(threads),
-                               threadCount * sizeof(thread_act_t));
+        // Sample each thread's run state from the still-running task: once
+        // the task is suspended every thread reports TH_STATE_WAITING, so
+        // the on-CPU flag has to be read before suspending. The stack walk
+        // below still needs the task suspended.
+        QVarLengthArray<bool, 32> running(threadCount);
+        for (mach_msg_type_number_t i = 0; i < threadCount; ++i) {
+            thread_basic_info_data_t basicInfo;
+            mach_msg_type_number_t basicCount = THREAD_BASIC_INFO_COUNT;
+            running[i] = thread_info(threads[i], THREAD_BASIC_INFO,
+                                     reinterpret_cast<thread_info_t>(&basicInfo), &basicCount)
+                             == KERN_SUCCESS
+                         && basicInfo.run_state == TH_STATE_RUNNING;
         }
+
+        task_suspend(task);
+        const quint64 tsUs = elapsedNs / 1000;
+        for (mach_msg_type_number_t i = 0; i < threadCount; ++i) {
+            thread_identifier_info_data_t idInfo;
+            mach_msg_type_number_t idCount = THREAD_IDENTIFIER_INFO_COUNT;
+            quint64 tid = i;
+            if (thread_info(threads[i], THREAD_IDENTIFIER_INFO,
+                            reinterpret_cast<thread_info_t>(&idInfo), &idCount)
+                == KERN_SUCCESS) {
+                tid = idInfo.thread_id;
+            }
+
+            if (!threadNames.contains(tid)) {
+                thread_extended_info_data_t extInfo;
+                mach_msg_type_number_t extCount = THREAD_EXTENDED_INFO_COUNT;
+                QString name;
+                if (thread_info(threads[i], THREAD_EXTENDED_INFO,
+                                reinterpret_cast<thread_info_t>(&extInfo), &extCount)
+                    == KERN_SUCCESS) {
+                    name = QString::fromUtf8(extInfo.pth_name);
+                }
+                threadNames.insert(tid, name);
+            }
+
+            Sample sample;
+            sample.timestampUs = tsUs;
+            sample.tid = tid;
+            sample.running = running[i];
+            walkThread(task, threads[i], sample);
+            if (!sample.frames.empty())
+                samples.push_back(std::move(sample));
+
+            mach_port_deallocate(mach_task_self(), threads[i]);
+        }
+        task_resume(task);
+        mach_vm_deallocate(mach_task_self(), reinterpret_cast<mach_vm_address_t>(threads),
+                           threadCount * sizeof(thread_act_t));
 
         if (opts.intervalUs > 0) {
             // Normalize into seconds + nanoseconds: tv_nsec must stay in [0, 1e9),
@@ -446,12 +448,30 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
                                    std::atomic<int> *progressPercent)
 {
     pid_t pid = 0;
-    auto taskResult = attachToProcess(opts.processName, &pid);
+    if (opts.pid > 0) {
+        pid = pid_t(opts.pid);
+    } else {
+        const Result<pid_t> found = findProcessByName(opts.processName);
+        if (!found)
+            return ResultError(found.error());
+        pid = *found;
+    }
+
+    auto taskResult = attachToPid(pid);
     if (!taskResult)
         return ResultError(taskResult.error());
     const task_t task = *taskResult;
 
     const std::vector<Image> images = readImages(task);
+
+    // Create the symbolicator up front, while the target is guaranteed to be
+    // alive: it snapshots the loaded-image list now and resolves addresses from
+    // the on-disk binaries afterwards. Creating it after capture would fail to
+    // find any symbols if the target was force-quit during recording, leaving the
+    // stacks as bare module+offset. Symbolicating an address is comparatively
+    // expensive, so the lookups below memoize per address.
+    Symbolicator symbolicator(task);
+
     QHash<quint64, QString> threadNames;
     const std::vector<Sample> samples = capture(task, opts, stop, threadNames);
 
@@ -459,11 +479,6 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
         mach_port_deallocate(mach_task_self(), task);
         return ResultError(Tr::tr("No samples were captured. The target may have exited."));
     }
-
-    // Symbolicate while the target task is still attached, then release it.
-    // Symbolicating an address is comparatively expensive, so memoize per
-    // address: every distinct return address is resolved only once.
-    Symbolicator symbolicator(task);
 
     SampleTraceData data;
     data.pid = quint64(pid);

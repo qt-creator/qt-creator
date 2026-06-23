@@ -27,10 +27,12 @@ endif()
 
 set(QMLPROFILER_CPP_SOURCES
   ctfloader.cpp ctfloader.h
+  callstacksampler.cpp callstacksampler.h
   calltreemodel.cpp calltreemodel.h
   calltreeview.cpp calltreeview.h
   cpuusagemodel.cpp cpuusagemodel.h
   macsampler.cpp macsampler.h
+  sampler.h
   samplerviewmanager.cpp samplerviewmanager.h
   sampletrace.cpp sampletrace.h
   ctfplainviewmanager.cpp ctfplainviewmanager.h
