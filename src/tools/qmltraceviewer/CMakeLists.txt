@@ -7,6 +7,7 @@ add_qtc_executable(qmltraceviewer
   DEPENDS app_version QmlProfiler CommonTraceFormat Tracing
   SOURCES
     mainsidebar.cpp mainsidebar.h
+    processpickerdialog.cpp processpickerdialog.h
     qmltraceviewerinit.cpp qmltraceviewerinit.h
     qmltraceviewermain.cpp
     qmltraceviewerrpc.cpp qmltraceviewerrpc.h

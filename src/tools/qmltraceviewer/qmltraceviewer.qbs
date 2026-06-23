@@ -22,6 +22,8 @@ QtcTool {
         "qmltraceviewerwindow.h",
         "mainsidebar.cpp",
         "mainsidebar.h",
+        "processpickerdialog.cpp",
+        "processpickerdialog.h",
         "recordingpage.cpp",
         "recordingpage.h",
         "welcomepage.cpp",
