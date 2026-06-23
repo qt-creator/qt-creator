@@ -8,7 +8,8 @@
 namespace QmlTraceViewer {
 
 // Shown in the trace area while no trace is loaded yet. Offers the user the
-// choice between opening an existing trace and recording a new one.
+// choice between opening an existing trace, attaching to a running process, and
+// launching an executable to profile.
 class WelcomePage : public QWidget
 {
     Q_OBJECT
@@ -18,7 +19,8 @@ public:
 
 signals:
     void openTraceRequested();
-    void recordTraceRequested();
+    void attachToProcessRequested();
+    void launchExecutableRequested();
 };
 
 } // namespace QmlTraceViewer

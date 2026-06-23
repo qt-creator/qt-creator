@@ -19,6 +19,12 @@ public:
     Utils::StringAspect recordProcessName{this};
     Utils::IntegerAspect recordIntervalUs{this};
 
+    // Launch a process to profile. When recordExecutable is set, recording
+    // launches it and samples it by PID instead of attaching to recordProcessName.
+    Utils::FilePathAspect recordExecutable{this};
+    Utils::StringAspect recordArguments{this};
+    Utils::FilePathAspect recordWorkingDirectory{this};
+
     // Not persisted:
     Utils::BoolAspect exitOnError{this};
     Utils::BoolAspect withRpc{this};

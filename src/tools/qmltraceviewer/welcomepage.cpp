@@ -25,9 +25,16 @@ WelcomePage::WelcomePage(QWidget *parent)
             st,
             QtDesignWidgets::Button {
                 role(QtcButton::LargePrimary),
-                text(Tr::tr("Start Recording")),
-                Layouting::toolTip(Tr::tr("Record a new trace.")),
-                onClicked(this, [this] { emit recordTraceRequested(); }),
+                text(Tr::tr("Attach to Process")),
+                Layouting::toolTip(Tr::tr("Record a trace of a running process.")),
+                onClicked(this, [this] { emit attachToProcessRequested(); }),
+            },
+            Space(SpacingTokens::PrimitiveM),
+            QtDesignWidgets::Button {
+                role(QtcButton::LargePrimary),
+                text(Tr::tr("Launch Executable")),
+                Layouting::toolTip(Tr::tr("Launch an executable and record a trace of it.")),
+                onClicked(this, [this] { emit launchExecutableRequested(); }),
             },
             Space(SpacingTokens::PrimitiveM),
             QtDesignWidgets::Button {

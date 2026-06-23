@@ -11,6 +11,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/commandline.h>
 #include <utils/filepath.h>
 #include <utils/qtcsettings.h>
 #include <utils/qtcsettings_p.h>
@@ -59,6 +60,10 @@ int main(int argc, char *argv[])
                                    "Set a custom window title. Defaults to the trace file name.",
                                    "title");
     parser.addOption(windowTitle);
+    QCommandLineOption launch(QStringList({"l", "launch"}),
+                              "Launch the given command and profile it (e.g. \"/path/to/app --arg\").",
+                              "command");
+    parser.addOption(launch);
     parser.process(app);
 
     if (parser.isSet(printRpcSchema)) {
@@ -75,6 +80,12 @@ int main(int argc, char *argv[])
 
     QmlTraceViewer::settings().exitOnError.setValue(parser.isSet(exitOnError));
     QmlTraceViewer::settings().withRpc.setValue(parser.isSet(withRpc));
+
+    if (parser.isSet(launch)) {
+        const CommandLine cmd = CommandLine::fromUserInput(parser.value(launch));
+        QmlTraceViewer::settings().recordExecutable.setValue(cmd.executable());
+        QmlTraceViewer::settings().recordArguments.setValue(cmd.arguments());
+    }
 
     QmlTraceViewer::Window window;
     if (!parser.positionalArguments().isEmpty()) {

@@ -18,10 +18,18 @@ QmlTraceViewerSettings::QmlTraceViewerSettings()
     windowGeometry.setSettingsKey("WindowGeometry");
 
     recordProcessName.setSettingsKey("RecordProcessName");
-    recordProcessName.setDefaultValue("Qt Creator");
+    recordProcessName.setDefaultValue("sampler-testapp");
 
     recordIntervalUs.setSettingsKey("RecordIntervalUs");
     recordIntervalUs.setDefaultValue(200); // ~5 kHz; 0 = as fast as possible
+
+    recordExecutable.setSettingsKey("RecordExecutable");
+    recordExecutable.setExpectedKind(Utils::PathChooser::Command);
+
+    recordArguments.setSettingsKey("RecordArguments");
+
+    recordWorkingDirectory.setSettingsKey("RecordWorkingDirectory");
+    recordWorkingDirectory.setExpectedKind(Utils::PathChooser::ExistingDirectory);
 
     exitOnError.setDefaultValue(false);
 
