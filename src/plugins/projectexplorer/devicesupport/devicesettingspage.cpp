@@ -522,7 +522,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
             [](const IDevice::ConstPtr &) { return true; }};
     }
 
-    for (const IDevice::DeviceAction &deviceAction : deviceActions) {
+    for (const IDevice::DeviceAction &deviceAction : std::as_const(deviceActions)) {
         QPushButton * const button = new DeviceActionButton(deviceAction);
         m_additionalActionButtons << button;
         connect(button, &QAbstractButton::clicked, this, [this, deviceAction] {

@@ -346,7 +346,7 @@ private slots:
                     QVERIFY2(w, qPrintable(
                         u"no data stream class with id %1"_s.arg(originals[i].dscId)));
 
-                    for (const EventRecord &e : originals[i].events) {
+                    for (const EventRecord &e : std::as_const(originals[i].events)) {
                         QVERIFY_RESULT(w->writeEvent(e.eventClassId, e.payload,
                                                      e.specificContext, e.commonContext,
                                                      e.timestamp));

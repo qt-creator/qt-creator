@@ -1375,7 +1375,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
             s.qmlformatIniContent = QString::fromUtf8(*fileContents);
         auto csPool = codeStylePool(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
         QTC_ASSERT(csPool, return);
-        auto builtInCodeStyles = csPool->builtInCodeStyles();
+        const auto builtInCodeStyles = csPool->builtInCodeStyles();
         for (auto codeStyle : builtInCodeStyles) {
             if (auto qtCodeStyle = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle))
                 qtCodeStyle->setCodeStyleSettings(s);

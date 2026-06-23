@@ -343,7 +343,7 @@ static QList<IconConfig> iconConfigs()
 
 void Android::Internal::IconContainerWidget::clearAll()
 {
-    for (auto iconButton : m_iconButtons)
+    for (auto iconButton : std::as_const(m_iconButtons))
         iconButton->removeIcon();
     updateManifestIcon();
 }

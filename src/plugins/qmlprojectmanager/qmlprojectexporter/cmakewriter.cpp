@@ -354,7 +354,7 @@ std::tuple<QString, QString> CMakeWriter::makeResourcesBlocksRoot(const NodePtr 
 
     if (!res.isEmpty()) {
         QString resourceContent;
-        for (const QString &r : res)
+        for (const QString &r : std::as_const(res))
             resourceContent.append(QString("\n\t\t%1").arg(r));
 
         const QString resourceName = node->name + "Resource";
@@ -364,7 +364,7 @@ std::tuple<QString, QString> CMakeWriter::makeResourcesBlocksRoot(const NodePtr 
 
     if (!bigRes.isEmpty()) {
         QString bigResourceContent;
-        for (const QString &r : bigRes)
+        for (const QString &r : std::as_const(bigRes))
             bigResourceContent.append(QString("\n\t\t%1").arg(r));
 
         const QString resourceName = node->name + "BigResource";
@@ -386,13 +386,13 @@ std::tuple<QString, QString> CMakeWriter::makeResourcesBlocksModule(const NodePt
 
     if (!res.isEmpty()) {
         resourcesOut = "\tRESOURCES\n";
-        for (const QString &r : res)
+        for (const QString &r : std::as_const(res))
             resourcesOut.append(QString("\t\t%1\n").arg(r));
     }
 
     if (!bigRes.isEmpty()) {
         QString resourceContent;
-        for (const QString &res : bigRes)
+        for (const QString &res : std::as_const(bigRes))
             resourceContent.append(QString("\n\t\t%1").arg(res));
 
         const QString prefixPath = QString(node->uri).replace('.', '/');

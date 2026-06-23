@@ -573,7 +573,7 @@ QStringList McpCommands::listOpenFiles()
 {
     QStringList files;
 
-    QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
+    const QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
     for (Core::IDocument *doc : documents) {
         files.append(doc->filePath().toUserOutput());
     }

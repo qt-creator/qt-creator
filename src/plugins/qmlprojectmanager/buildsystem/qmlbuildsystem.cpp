@@ -276,7 +276,7 @@ void QmlBuildSystem::generateProjectTree()
     for (const auto &file : m_projectItem->files())
         uniqueFiles.insert(file);
 
-    for (const auto &mcuProjectItem : m_mcuProjectItems) {
+    for (const auto &mcuProjectItem : std::as_const(m_mcuProjectItems)) {
         for (const auto &file : mcuProjectItem->files())
             uniqueFiles.insert(file);
     }

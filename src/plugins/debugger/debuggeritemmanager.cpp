@@ -352,7 +352,7 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
 
     paths = Utils::filteredUnique(paths);
 
-    for (const FilePath &path : paths)
+    for (const FilePath &path : std::as_const(paths))
         suspects.append(path.dirEntries(Utils::FileFilter{filters, Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Executable}));
 
     QStringList logMessages{Tr::tr("Searching debuggers...")};
@@ -671,7 +671,7 @@ ExecutableItem autoDetectDebuggerRecipe(
     };
 
     auto searchDone = [kit, logCallback](const Async<DebuggerItem> &async) {
-        QList<DebuggerItem> items = async.results();
+        const QList<DebuggerItem> items = async.results();
         for (const DebuggerItem &item : items) {
             if (item.isValid() && item.engineType() != NoEngineType) {
                 logCallback(Tr::tr("Found debugger: \"%1\".").arg(item.command().toUserOutput()));

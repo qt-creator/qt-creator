@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
         spinnerTimer->stop();
         FileIconProvider::shutdown();
 
-        for (auto *t : threads)
+        for (auto *t : std::as_const(threads))
             t->wait();
 
         const qint64 rate = kDurationSecs > 0 ? total / kDurationSecs : 0;
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
     // then join — all before QApplication destructs.
     stop.store(true, std::memory_order_relaxed);
 
-    for (auto *t : threads)
+    for (auto *t : std::as_const(threads))
         t->wait();
 
     return ret;

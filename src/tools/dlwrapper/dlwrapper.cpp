@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
         FilePath::fromUserInput(commandLineParser.positionalArguments().value(0)),
         commandLineParser.positionalArguments().mid(1)};
 
-    QStringList envVars = commandLineParser.values("env");
+    const QStringList envVars = commandLineParser.values("env");
     if (!envVars.isEmpty())
         qCDebug(dlWrapper) << "Environment variables to set:" << envVars;
 

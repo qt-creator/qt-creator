@@ -405,7 +405,7 @@ void ValgrindTestRunnerTest::testUninit2()
     const QString srcDir = srcDirForApp(app);
 
     QByteArray logOutput;
-    for (const QByteArray &msg : m_logMessages)
+    for (const QByteArray &msg : std::as_const(m_logMessages))
         logOutput += msg;
     QVERIFY2(logOutput.isEmpty() || logOutput.contains("If you believe"),
              logOutput.constData());
@@ -476,7 +476,7 @@ void ValgrindTestRunnerTest::testUninit3()
     const QString srcDir = srcDirForApp(app);
 
     QByteArray logOutput;
-    for (const QByteArray &msg : m_logMessages)
+    for (const QByteArray &msg : std::as_const(m_logMessages))
         logOutput += msg;
     QVERIFY2(logOutput.isEmpty() || logOutput.contains("If you believe"),
              logOutput.constData());
