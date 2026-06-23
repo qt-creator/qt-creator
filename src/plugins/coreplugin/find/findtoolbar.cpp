@@ -428,7 +428,8 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     connect(m_currentDocumentFind, &CurrentDocumentFind::changed, this, [this] {
         updateActions();
         updateToolBar();
-        m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
+        if (isVisible())
+            m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
     });
     updateActions();
     updateToolBar();
