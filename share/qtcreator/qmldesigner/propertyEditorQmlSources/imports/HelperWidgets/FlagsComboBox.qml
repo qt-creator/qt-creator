@@ -58,7 +58,7 @@ StudioControls.CustomComboBox {
 
             root.model = numSelected === 0 ? [qsTr("empty")]
                        : numSelected === 1 ? root.model = [selectedItem]
-                                           : [qsTr("%1 items selected").arg(numSelected)]
+                                           : [qsTr("%n item(s) selected", "", numSelected)]
         }
     }
 
