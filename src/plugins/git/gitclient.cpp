@@ -2858,12 +2858,10 @@ FilePath GitClient::gitBinDirectory() const
 
 bool GitClient::launchGitBash(const FilePath &workingDirectory)
 {
-    bool success = true;
+    bool success = false;
     const FilePath git = vcsBinary(workingDirectory);
 
-    if (git.isEmpty()) {
-        success = false;
-    } else {
+    if (!git.isEmpty()) {
         const FilePath gitBash = git.absolutePath().parentDir() / "git-bash.exe";
         success = Process::startDetached(CommandLine{gitBash}, workingDirectory);
     }
