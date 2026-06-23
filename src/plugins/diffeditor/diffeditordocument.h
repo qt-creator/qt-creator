@@ -69,6 +69,8 @@ public:
 
     QString plainText() const;
 
+    QByteArray contents() const override;
+
 signals:
     void temporaryStateChanged();
     void documentChanged();

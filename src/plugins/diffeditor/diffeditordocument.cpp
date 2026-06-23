@@ -356,6 +356,11 @@ QString DiffEditorDocument::plainText() const
                                DiffUtils::makePatch(diffFiles())}, '\n');
 }
 
+QByteArray DiffEditorDocument::contents() const
+{
+    return TextEncoding::encodingForLocale().encode(plainText());
+}
+
 void DiffEditorDocument::beginReload()
 {
     emit aboutToReload();
