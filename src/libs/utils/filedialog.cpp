@@ -641,12 +641,19 @@ public:
     }
 };
 
-// ===== Views that ignore right-button presses =====
+// ===== Views that ignore right-button and unselectable presses =====
 
 // A right-click must only open the context menu, never move the current item or
 // change the selection. Qt's views update the current index on any press, so
 // swallow right-button presses here. The QEvent::ContextMenu that drives
 // customContextMenuRequested() is delivered separately and is unaffected.
+//
+// Filtered-out entries stay enabled (so the context menu can act on them) but
+// are not selectable. Qt still moves the current index onto any enabled item on
+// a press, and some styles (notably on Linux) paint the current cell with a
+// focus highlight that reads as a selection even though selectedIndexes()
+// correctly excludes it. Swallow left presses on such entries too, so the
+// current index — and the existing selection — are left untouched.
 template<typename View>
 class NoRightPressView : public View
 {
@@ -657,6 +664,11 @@ protected:
     void mousePressEvent(QMouseEvent *event) override
     {
         if (event->button() == Qt::RightButton) {
+            event->accept();
+            return;
+        }
+        const QModelIndex index = View::indexAt(event->position().toPoint());
+        if (index.isValid() && !(index.flags() & Qt::ItemIsSelectable)) {
             event->accept();
             return;
         }
