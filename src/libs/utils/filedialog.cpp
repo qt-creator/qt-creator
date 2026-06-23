@@ -393,6 +393,9 @@ private:
         for (const FilePath &root : FSEngine::registeredDeviceRoots()) {
             if (root.isLocal())
                 continue;
+            // Only list devices we can actually browse (those with file access).
+            if (!root.hasFileAccess())
+                continue;
             appendRow(makeEntryItem(root.host().toString(), root));
         }
     }
