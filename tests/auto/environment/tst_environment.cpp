@@ -258,6 +258,12 @@ void tst_Environment::environmentFromTextFile()
 
 void tst_Environment::environmentFromTextFileComplex()
 {
+    Environment::setListSeparatorProvider([](const QString &var) -> std::optional<QString> {
+        if (var == "WEIRD")
+            return QString();
+        return {};
+    });
+
     QTemporaryFile f;
     QVERIFY(f.open());
     f.write("PATH+=/bin\n");
@@ -265,6 +271,9 @@ void tst_Environment::environmentFromTextFileComplex()
     f.write("VAR=val\n");
     f.write("## VAR=ignored\n");
     f.write("#VAR2=${VAR}2\n");
+    f.write("WEIRD=A+=B\n");
+    f.write("WEIRD+=X=Y\n");
+    f.write("WEIRD=+S+=T\n");
     f.write("REMOVED=something\n");
     f.write("REMOVED\n");
     f.close();
@@ -280,7 +289,9 @@ void tst_Environment::environmentFromTextFileComplex()
         resolved << val;
     });
     const QString pathEntry = QString("PATH=/usr/bin%1/bin").arg(HostOsInfo::pathListSeparator());
-    QCOMPARE(resolved, (QStringList{pathEntry, "VAR=val", "#VAR2=val2"}));
+    QCOMPARE(resolved, (QStringList{pathEntry, "VAR=val", "#VAR2=val2", "WEIRD=S+=TA+=BX=Y"}));
+
+    Environment::setListSeparatorProvider({});
 }
 
 void tst_Environment::expansion_data()

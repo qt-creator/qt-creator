@@ -25,27 +25,31 @@ EnvironmentItems EnvironmentItem::fromStringList(const QStringList &list)
             result.append({string.mid(2), {}, EnvironmentItem::Comment});
             continue;
         }
-        int pos = string.indexOf("+=");
-        if (pos != -1) {
-            result.append({string.left(pos), string.mid(pos + 2), EnvironmentItem::Append});
-            continue;
-        }
-        pos = string.indexOf("=+");
-        if (pos != -1) {
-            result.append({string.left(pos), string.mid(pos + 2), EnvironmentItem::Prepend});
-            continue;
-        }
-        pos = string.indexOf('=', 1);
-        if (pos == -1) {
+        const int setPos = string.indexOf('=', 1);
+        if (setPos == -1) {
             result.append(EnvironmentItem(string, QString(), EnvironmentItem::Unset));
             continue;
         }
+        const int appendPos = string.indexOf("+=");
+        const int prependPos = string.indexOf("=+");
+        const int minValidPos = int(std::min(
+            {unsigned(setPos), unsigned(appendPos), unsigned(prependPos)}));
+        if (minValidPos == appendPos) {
+            result.append(
+                {string.left(appendPos), string.mid(appendPos + 2), EnvironmentItem::Append});
+            continue;
+        }
+        if (minValidPos == prependPos) {
+            result.append(
+                {string.left(prependPos), string.mid(prependPos + 2), EnvironmentItem::Prepend});
+            continue;
+        }
         const int hashPos = string.indexOf('#');
-        if (hashPos != -1 && hashPos < pos) {
-            result.append({string.mid(hashPos + 1, pos - hashPos - 1), string.mid(pos + 1),
+        if (hashPos != -1 && hashPos < setPos) {
+            result.append({string.mid(hashPos + 1, setPos - hashPos - 1), string.mid(setPos + 1),
                            EnvironmentItem::SetDisabled});
         } else {
-            result.append({string.left(pos), string.mid(pos + 1)});
+            result.append({string.left(setPos), string.mid(setPos + 1)});
         }
     }
     return result;
