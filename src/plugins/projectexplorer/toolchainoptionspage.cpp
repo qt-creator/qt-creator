@@ -395,8 +395,16 @@ void ToolchainModel::apply()
                 removedTcs << Utils::transform(notRegistered, &Toolchain::displayName);
                 for (Toolchain *tc : notRegistered)
                     it.bundle->removeToolchain(tc);
-                setVolatileItem(row, it);
-                notRegisteredTcs << notRegistered;
+                if (it.bundle->toolchains().isEmpty()) {
+                    // All toolchains were rejected. markRemoved() frees them via deleteToolchains()
+                    // on the stored item's copy, so do NOT add them to notRegisteredTcs.
+                    // Must be done inside the guard so that signal handlers cannot re-insert a bundle
+                    // at this row before GroupedModel::apply() runs.
+                    markRemoved(row--);
+                } else {
+                    notRegisteredTcs << notRegistered;
+                    setVolatileItem(row, it);
+                }
             }
         }
     }
