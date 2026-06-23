@@ -64,6 +64,7 @@ public:
 signals:
     void rootPathChanged(const Utils::FilePath &newPath);
     void directoryLoaded(const Utils::FilePath &path);
+    void directoryLoadFailed(const Utils::FilePath &path, const QString &error);
     // Brackets the asynchronous listing of a directory. The end notification
     // is not delivered for fetches a setRootPath() discards while in flight.
     void fetchingChanged(const Utils::FilePath &path, bool fetching);

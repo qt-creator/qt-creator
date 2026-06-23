@@ -75,7 +75,7 @@ public slots:
         FilePaths children;
         QList<FilePathInfo> infos;
 
-        dirPath.iterateDirectory(
+        const Result<> result = dirPath.iterateDirectory(
             [&](const FilePath &path, const FilePathInfo &info) {
                 children.append(path);
                 infos.append(info);
@@ -84,6 +84,11 @@ public slots:
             FileFilter(
                 {},
                 DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot | DirFilterFlag::Hidden));
+
+        if (!result) {
+            emit childrenFetchFailed(dirPath, result.error(), generation);
+            return;
+        }
 
         emit childrenFetched(dirPath, children, infos, generation);
     }
@@ -105,6 +110,9 @@ signals:
                          const Utils::FilePaths &children,
                          const QList<Utils::FilePathInfo> &infos,
                          quint64 generation);
+    void childrenFetchFailed(const Utils::FilePath &dirPath,
+                             const QString &error,
+                             quint64 generation);
     void iconFetched(const Utils::FilePath &path, const QIcon &icon, quint64 generation);
 
 private slots:
@@ -189,6 +197,9 @@ private slots:
                            const Utils::FilePaths &children,
                            const QList<Utils::FilePathInfo> &infos,
                            quint64 generation);
+    void onChildrenFetchFailed(const Utils::FilePath &dirPath,
+                               const QString &error,
+                               quint64 generation);
     void onIconFetched(const Utils::FilePath &path, const QIcon &icon, quint64 generation);
     void flushIconUpdates();
     void onDirectoryChanged(const Utils::FilePath &path);
@@ -231,6 +242,10 @@ FileSystemModelPrivate::FileSystemModelPrivate(FileSystemModel *q)
             &FileSystemWorker::childrenFetched,
             this,
             &FileSystemModelPrivate::onChildrenFetched);
+    connect(m_worker,
+            &FileSystemWorker::childrenFetchFailed,
+            this,
+            &FileSystemModelPrivate::onChildrenFetchFailed);
     connect(m_worker,
             &FileSystemWorker::iconFetched,
             this,
@@ -366,6 +381,22 @@ void FileSystemModelPrivate::onChildrenFetched(const Utils::FilePath &dirPath,
     node->m_state = FileSystemNode::State::Fetched;
     emit m_q->fetchingChanged(dirPath, false);
     emit m_q->directoryLoaded(dirPath);
+}
+
+void FileSystemModelPrivate::onChildrenFetchFailed(const Utils::FilePath &dirPath,
+                                                   const QString &error,
+                                                   quint64 generation)
+{
+    if (generation != m_generation)
+        return;
+
+    FileSystemNode *node = m_nodeIndex.value(dirPath, nullptr);
+    if (!node || node->m_state != FileSystemNode::State::Fetching)
+        return;
+
+    node->m_state = FileSystemNode::State::Fetched;
+    emit m_q->fetchingChanged(dirPath, false);
+    emit m_q->directoryLoadFailed(dirPath, error);
 }
 
 void FileSystemModelPrivate::onDirectoryChanged(const Utils::FilePath &path)
