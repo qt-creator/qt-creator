@@ -278,7 +278,6 @@ ChatPanel::ChatPanel(QWidget *parent)
     m_configButton = new QtcIconButton;
     m_configButton->setIcon(Icons::SETTINGS.icon());
     m_configButton->setToolTip(Tr::tr("Configuration Options"));
-    m_configButton->hide();
     connect(m_configButton, &QAbstractButton::clicked, this, &ChatPanel::showConfigMenu);
     bottomRowLayout->addWidget(m_configButton);
 
@@ -374,13 +373,18 @@ void ChatPanel::showConfigMenu()
             }
         }
     }
+
+    if (!menu->isEmpty())
+        menu->addSeparator();
+    QAction *inspect = menu->addAction(Tr::tr("Inspect ACP Client..."));
+    connect(inspect, &QAction::triggered, this, &ChatPanel::inspectRequested);
+
     menu->popup(QCursor::pos());
 }
 
 void ChatPanel::setConfigOptions(const QList<SessionConfigOption> &configOptions)
 {
     m_configOptions = configOptions;
-    m_configButton->setVisible(!m_configOptions.isEmpty());
 }
 
 void ChatPanel::setSessionModes(const QList<SessionMode> &modes, const QString &currentModeId)
@@ -470,7 +474,6 @@ void ChatPanel::clear()
 void ChatPanel::clearConfigOptions()
 {
     m_configOptions.clear();
-    m_configButton->setVisible(false);
     m_sessionModes.clear();
     m_currentModeId.clear();
     updateModeButton();

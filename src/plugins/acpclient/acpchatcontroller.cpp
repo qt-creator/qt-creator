@@ -42,6 +42,12 @@ void AcpChatController::setInspector(AcpInspector *inspector)
     m_inspector = inspector;
 }
 
+void AcpChatController::showInspector()
+{
+    if (m_inspector)
+        m_inspector->show(m_serverName);
+}
+
 void AcpChatController::connectToServer(const QString &serverId)
 {
     disconnectFromServer();

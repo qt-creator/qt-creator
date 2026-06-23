@@ -80,6 +80,7 @@ signals:
     void permissionOptionSelected(const QJsonValue &id, const QString &optionId);
     void permissionCancelled(const QJsonValue &id);
     void authenticateRequested(const QString &methodId);
+    void inspectRequested();
 
 private:
     QList<Acp::SessionConfigOption> m_configOptions;

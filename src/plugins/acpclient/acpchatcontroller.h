@@ -30,6 +30,7 @@ public:
     ~AcpChatController() override;
 
     void setInspector(AcpInspector *inspector);
+    void showInspector();
 
     void connectToServer(const QString &serverId);
     void disconnectFromServer();

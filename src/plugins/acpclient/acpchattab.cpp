@@ -293,6 +293,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_controller, &AcpChatController::setConfigOption);
     connect(m_chatPanel, &ChatPanel::modeChanged,
             m_controller, &AcpChatController::setSessionMode);
+    connect(m_chatPanel, &ChatPanel::inspectRequested,
+            m_controller, &AcpChatController::showInspector);
 
     // --- Connections: Controller -> UI ---
     connect(m_controller, &AcpChatController::connectionStateChanged, this, [this](AcpClientObject::State state) {
