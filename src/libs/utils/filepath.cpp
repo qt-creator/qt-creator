@@ -1062,26 +1062,33 @@ FilePaths FilePath::dirEntries(DirFilterFlags filters) const
     Runs \a callBack on each directory entry matching the \a filter.
 */
 
-void FilePath::iterateDirectory(const IterateDirCallback &callBack, const FileFilter &filter) const
+Result<> FilePath::iterateDirectory(const IterateDirCallback &callBack, const FileFilter &filter) const
 {
     Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
-        return;
+        return ResultError(access.error());
 
-    (*access)->iterateDirectory(*this, callBack, filter);
+    return (*access)->iterateDirectory(*this, callBack, filter);
 }
 
 /*!
     Runs \a callBack on each directory entry matching \a filter in each of the \a dirs.
 
+    Every directory in \a dirs is visited even if some fail; the first error
+    encountered is returned, or success if all directories were iterated.
+
     \sa iterateDirectory()
 */
-void FilePath::iterateDirectories(const FilePaths &dirs,
-                                  const IterateDirCallback &callBack,
-                                  const FileFilter &filter)
+Result<> FilePath::iterateDirectories(const FilePaths &dirs,
+                                      const IterateDirCallback &callBack,
+                                      const FileFilter &filter)
 {
-    for (const FilePath &dir : dirs)
-        dir.iterateDirectory(callBack, filter);
+    Result<> result;
+    for (const FilePath &dir : dirs) {
+        if (const Result<> res = dir.iterateDirectory(callBack, filter); !res && result)
+            result = res;
+    }
+    return result;
 }
 
 /*!

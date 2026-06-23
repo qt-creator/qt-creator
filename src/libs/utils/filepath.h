@@ -266,11 +266,11 @@ public:
             std::function<IterationPolicy(const FilePath &item, const FilePathInfo &info)>
           >;
 
-    void iterateDirectory(
+    Result<> iterateDirectory(
             const IterateDirCallback &callBack,
             const FileFilter &filter) const;
 
-    static void iterateDirectories(
+    static Result<> iterateDirectories(
             const FilePaths &dirs,
             const IterateDirCallback &callBack,
             const FileFilter &filter);
