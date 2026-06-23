@@ -21,6 +21,9 @@
     "LongDescription" : ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-use-acp-client.html",
+    "Recommends" : [
+        "mcpserver"
+    ],
     "extensionsystem" : {
         "TermsAndConditionsDependency" : "licensechecker"
     },
