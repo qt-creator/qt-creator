@@ -20,12 +20,25 @@
 
 #include <iostream>
 
+#ifndef Q_OS_WIN
+#include <csignal>
+#endif
+
 using namespace Utils;
 
 using namespace Qt::StringLiterals;
 
 int main(int argc, char *argv[])
 {
+#ifndef Q_OS_WIN
+    // Launched targets are profiled with their stdio forwarded to our controlling
+    // terminal (see Window::recordingRecipe). When such a target exits, the
+    // terminal/job-control layer can deliver SIGHUP to us; its default action is
+    // to terminate, which would kill the viewer just as the recording finishes.
+    // A GUI tool has no use for a terminal hangup, so ignore it.
+    std::signal(SIGHUP, SIG_IGN);
+#endif
+
     QApplication app(argc, argv);
     QApplication::setOrganizationName(Core::Constants::IDE_SETTINGSVARIANT_STR);
     QApplication::setApplicationName("QmlTraceViewer");

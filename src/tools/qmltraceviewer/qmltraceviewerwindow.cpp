@@ -322,6 +322,11 @@ QtTaskTree::Group WindowPrivate::recordingRecipe()
         process.setCommand(cmd);
         if (!workingDir.isEmpty())
             process.setWorkingDirectory(workingDir);
+        // Forward the target's stdout/stderr straight to our console. We do not
+        // display its output, and reading it ourselves would make Process install
+        // channel socket notifiers whose teardown on macOS can crash when the
+        // process exits (QTBUG-style QCFSocketNotifier removal fault).
+        process.setProcessChannelMode(QProcess::ForwardedChannels);
         *launched = &process;
         // The PID is known once the process is running; the same started() signal
         // also releases the sampler in the When() clause below.
