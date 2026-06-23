@@ -131,6 +131,10 @@ public:
     static void setPlaceholderText(const QString &text);
     static QString placeholderText();
 
+    static void addExtraToolBarWidgetCreator(
+        const EditorManager::ExtraToolBarWidgetCreator &creator);
+    static QList<EditorManager::ExtraToolBarWidgetCreator> extraToolBarWidgetCreators();
+
     static void updateAutoSave();
 
     static void handleFileRenamed(
@@ -301,6 +305,7 @@ private:
 
     QString m_placeholderText;
     QList<std::function<bool(IEditor *)>> m_closeEditorListeners;
+    QList<EditorManager::ExtraToolBarWidgetCreator> m_extraToolBarWidgetCreators;
 };
 
 } // Internal

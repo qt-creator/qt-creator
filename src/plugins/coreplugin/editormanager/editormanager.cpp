@@ -28,6 +28,7 @@
 #include "../vcsmanager.h"
 #include "documentmodel.h"
 #include "documentmodel_p.h"
+#include "editortoolbar.h"
 #include "editorview.h"
 #include "editorwindow.h"
 #include "ieditor.h"
@@ -3677,6 +3678,31 @@ bool EditorManager::openExternalEditor(const FilePath &filePath, Id editorId)
 void EditorManager::addCloseEditorListener(const std::function<bool (IEditor *)> &listener)
 {
     d->m_closeEditorListeners.append(listener);
+}
+
+/*!
+    Registers \a generator, which is called for every editor view to create an
+    extra widget that is inserted into the editor toolbar between the center
+    toolbar and the split button.
+*/
+void EditorManager::addExtraToolBarWidgetCreator(const ExtraToolBarWidgetCreator &creator)
+{
+    EditorManagerPrivate::addExtraToolBarWidgetCreator(creator);
+}
+
+void EditorManagerPrivate::addExtraToolBarWidgetCreator(
+    const EditorManager::ExtraToolBarWidgetCreator &creator)
+{
+    d->m_extraToolBarWidgetCreators.append(creator);
+    for (EditorView *view : allEditorViews())
+        if (QWidget *widget = creator())
+            view->toolBar()->addExtraWidget(widget);
+}
+
+QList<EditorManager::ExtraToolBarWidgetCreator>
+EditorManagerPrivate::extraToolBarWidgetCreators()
+{
+    return d->m_extraToolBarWidgetCreators;
 }
 
 /*!

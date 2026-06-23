@@ -637,6 +637,9 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
         m_toolBar->setMenuProvider([this](QMenu *menu) { fillListContextMenu(menu); });
         m_toolBar->setGoBackMenu(m_backMenu);
         m_toolBar->setGoForwardMenu(m_forwardMenu);
+        for (const auto &creator : EditorManagerPrivate::extraToolBarWidgetCreators())
+            if (QWidget *widget = creator())
+                m_toolBar->addExtraWidget(widget);
         tl->addWidget(m_toolBar);
     }
 
@@ -762,6 +765,11 @@ EditorArea *EditorView::editorArea() const
 }
 
 EditorView::~EditorView() = default;
+
+EditorToolBar *EditorView::toolBar() const
+{
+    return m_toolBar;
+}
 
 SplitterOrView *EditorView::parentSplitterOrView() const
 {

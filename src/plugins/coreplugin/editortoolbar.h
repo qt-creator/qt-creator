@@ -56,6 +56,8 @@ public:
       */
     void addCenterToolBar(QWidget *toolBar);
 
+    void addExtraWidget(QWidget *widget);
+
     void setNavigationVisible(bool isVisible);
     void setCanGoBack(bool canGoBack);
     void setCanGoForward(bool canGoForward);

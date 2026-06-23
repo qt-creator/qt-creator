@@ -145,6 +145,8 @@ public:
     void saveTabState(QDataStream *stream) const;
     void restoreTabState(QDataStream *stream);
 
+    EditorToolBar *toolBar() const;
+
 signals:
     void currentEditorChanged(Core::IEditor *editor);
 

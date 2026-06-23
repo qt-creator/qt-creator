@@ -80,6 +80,7 @@ struct EditorToolBarPrivate
     QWidget *m_activeToolBar;
     QWidget *m_toolBarPlaceholder;
     QWidget *m_defaultToolBar;
+    QHBoxLayout *m_toplayout = nullptr;
 
     QPoint m_dragStartPosition;
 
@@ -181,6 +182,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     toplayout->addWidget(d->m_toolBarPlaceholder, 1); // Custom toolbar stretches
     toplayout->addWidget(d->m_splitButton);
     toplayout->addWidget(d->m_closeSplitButton);
+    d->m_toplayout = toplayout;
 
     setLayout(toplayout);
 
@@ -274,6 +276,14 @@ void EditorToolBar::addEditor(IEditor *editor)
 
     if (toolBar && !d->m_isStandalone)
         addCenterToolBar(toolBar);
+}
+
+void EditorToolBar::addExtraWidget(QWidget *widget)
+{
+    QTC_ASSERT(widget, return);
+    QTC_ASSERT(d->m_toplayout, return);
+    const int splitIndex = d->m_toplayout->indexOf(d->m_splitButton);
+    d->m_toplayout->insertWidget(splitIndex, widget);
 }
 
 void EditorToolBar::addCenterToolBar(QWidget *toolBar)
