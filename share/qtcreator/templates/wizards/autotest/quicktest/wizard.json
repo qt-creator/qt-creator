@@ -126,7 +126,7 @@
                     "visible": "%{JS: !value('IsSubproject')}",
                     "data":
                     {
-                        "index": 1,
+                        "index": 2,
                         "items":
                         [
                             {
