@@ -11,8 +11,10 @@
 #include "fsengine/fileiconprovider.h"
 #include "fsengine/fsengine.h"
 #include "hostosinfo.h"
+#include "infolabel.h"
 #include "layoutbuilder.h"
 #include "mimedatabase.h"
+#include "overlaywidget.h"
 #include "qtdesignwidgets.h"
 #include "theme/theme.h"
 #include "utility.h"
@@ -1549,6 +1551,8 @@ public:
     FancyLineEdit *m_fileNameEdit = nullptr;
     FancyLineEdit *m_searchEdit = nullptr;
     SpinnerSolution::Spinner *m_spinner = nullptr;
+    OverlayWidget *m_errorOverlay = nullptr;
+    InfoLabel *m_errorLabel = nullptr;
     QAbstractButton *m_acceptButton = nullptr;
     // Coalesces keystrokes so the recursive walk only starts once typing
     // settles, avoiding a storm of started/canceled finds on remote devices.
@@ -1576,6 +1580,17 @@ public:
     bool isSearching() const { return m_proxy->sourceModel() == m_searchModel; }
 
     void setSpinnerRunning(bool running) { m_spinner->setVisible(running); }
+
+    // Shows/hides the overlay reporting that the current directory could not be
+    // listed (e.g. permission denied). The overlay sits on top of the file views.
+    void setError(const QString &error)
+    {
+        m_errorLabel->setText(error);
+        m_errorOverlay->setVisible(!error.isEmpty());
+        m_errorOverlay->raise();
+    }
+
+    void clearError() { setError({}); }
 
     // Points both views at the contents of the current directory in the file
     // system model. index(0,0) is the directory node itself.
@@ -2124,6 +2139,17 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_spinner
         = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Medium, d->m_viewStack);
     d->m_spinner->hide();
+
+    // Overlay shown on top of the file views when the current directory cannot
+    // be listed. It reports the error from the file system model.
+    d->m_errorOverlay = new OverlayWidget(d->m_viewStack);
+    d->m_errorLabel = new InfoLabel({}, InfoLabel::Error);
+    d->m_errorLabel->setAlignment(Qt::AlignCenter);
+    Layouting::Grid {
+        Layouting::GridCell({Layouting::Align(Qt::AlignCenter, d->m_errorLabel)}),
+    }.attachTo(d->m_errorOverlay);
+    d->m_errorOverlay->attachToWidget(d->m_viewStack);
+    d->m_errorOverlay->hide();
     d->m_searchTimer.setSingleShot(true);
     d->m_searchTimer.setInterval(300);
     connect(d->m_searchEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
@@ -2167,6 +2193,8 @@ FileDialog::FileDialog(QWidget *parent)
             if (path != d->m_currentDir)
                 return;
             if (fetching) {
+                // A fresh listing supersedes any previously reported error.
+                d->clearError();
                 if (!d->isSearching())
                     d->m_spinnerDelay.start();
             } else {
@@ -2175,6 +2203,16 @@ FileDialog::FileDialog(QWidget *parent)
                 if (!d->isSearching())
                     d->setSpinnerRunning(false);
             }
+        });
+
+    connect(
+        d->m_model,
+        &FileSystemModel::directoryLoadFailed,
+        this,
+        [this](const FilePath &path, const QString &error) {
+            if (path != d->m_currentDir)
+                return;
+            d->setError(error);
         });
 
     // macOS-style "Go to Folder" (Cmd+Shift+G): drop in an overlay where the
@@ -2484,6 +2522,7 @@ void FileDialog::setDirectory(const FilePath &path)
     d->rebuildPathCombo();
     d->updateAcceptButtonState();
 
+    d->clearError();
     d->m_model->setRootPath(d->m_currentDir);
 
     // index(0,0) is the directory node itself; set as root so both views show its contents.
