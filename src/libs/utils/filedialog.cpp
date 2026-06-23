@@ -45,6 +45,7 @@
 #include <QMimeData>
 #include <QMimeDatabase>
 #include <QPainter>
+#include <QPlainTextEdit>
 #include <QProgressDialog>
 #include <QPromise>
 #include <QPushButton>
@@ -57,6 +58,8 @@
 #include <QStringListModel>
 #include <QStyle>
 #include <QStyledItemDelegate>
+#include <QTextLayout>
+#include <QTextOption>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeView>
@@ -66,6 +69,25 @@
 using namespace Qt::StringLiterals;
 
 namespace Utils {
+
+// ===== Icon-view layout constants =====
+//
+// All tunable metrics for the icon (QListView::IconMode) view live here so they
+// can be adjusted in one place. Each item is exactly kGridSize; within it the
+// icon and the (one- or two-line) name each get their own rounded highlight,
+// inset from the cell border and separated from one another.
+constexpr QSize kGridSize{100, 104};    // size of each item cell
+constexpr int kRows = 2;                // max name lines (label band height)
+constexpr int kEditorMaxRows = 3;       // rename editor lines before it scrolls
+constexpr int kOuterMargin = 1;         // cell border -> any background
+constexpr int kGap = 2;                 // icon background -> name background
+constexpr int kIconPad = 6;             // icon -> its background edge
+constexpr int kNamePadX = 7;            // text -> name background side
+constexpr int kNamePadY = 4;            // text -> name background top/bottom
+constexpr int kHighlightRadius = 5;     // rounded-highlight corner radius
+constexpr int kHoverAlpha = 50;         // alpha of the (unselected) hover highlight
+constexpr int kEditorDocMargin = 2;     // rename editor document margin
+constexpr int kMaxExtensionLen = 6;     // keep extension visible when eliding if shorter
 
 // ===== FileFilterProxy =====
 
@@ -256,8 +278,343 @@ public:
         QTimer::singleShot(0, lineEdit, [lineEdit, end] { lineEdit->setSelection(0, end); });
     }
 
+protected:
+    // True when the given index is the row the context menu currently acts on.
+    bool isRightClicked(const QModelIndex &index) const
+    {
+        return m_rightClicked.isValid() && index.row() == m_rightClicked.row()
+               && index.parent() == m_rightClicked.parent();
+    }
+
 private:
     QPersistentModelIndex m_rightClicked;
+};
+
+// ===== IconViewDelegate =====
+
+// Wrap-mode shared by measuring and drawing icon-view labels: break at word
+// boundaries, but also mid-word when a single word is wider than the cell.
+static constexpr QTextOption::WrapMode kLabelWrapMode
+    = QTextOption::WrapAtWordBoundaryOrAnywhere;
+
+// True if `text`, wrapped to `width`, occupies at most `maxLines` lines.
+static bool fitsInLines(const QString &text, const QFont &font, int width, int maxLines)
+{
+    QTextLayout layout(text, font);
+    QTextOption option;
+    option.setWrapMode(kLabelWrapMode);
+    layout.setTextOption(option);
+    layout.beginLayout();
+    int lines = 0;
+    bool fits = true;
+    while (true) {
+        QTextLine line = layout.createLine();
+        if (!line.isValid())
+            break;
+        line.setLineWidth(width);
+        if (++lines > maxLines) {
+            fits = false;
+            break;
+        }
+    }
+    layout.endLayout();
+    return fits;
+}
+
+// Number of lines `text` occupies when wrapped to `width` (at least one).
+static int wrappedLineCount(const QString &text, const QFont &font, int width)
+{
+    QTextLayout layout(text, font);
+    QTextOption option;
+    option.setWrapMode(kLabelWrapMode);
+    layout.setTextOption(option);
+    layout.beginLayout();
+    int lines = 0;
+    while (true) {
+        QTextLine line = layout.createLine();
+        if (!line.isValid())
+            break;
+        line.setLineWidth(width);
+        ++lines;
+    }
+    layout.endLayout();
+    return qMax(1, lines);
+}
+
+// Elide `text` so it wraps into at most `maxLines` lines of `width`. The
+// ellipsis is inserted before the file extension, so a short extension (fewer
+// than 6 characters, a leading dot excepted) stays fully visible.
+static QString elideLabel(const QString &text, const QFont &font, int width, int maxLines)
+{
+    if (fitsInLines(text, font, width, maxLines))
+        return text;
+
+    const int dot = text.lastIndexOf(u'.');
+    // A leading dot (".gitignore") is part of the name, not an extension.
+    QString ext;
+    if (dot > 0 && text.size() - dot - 1 < kMaxExtensionLen)
+        ext = text.mid(dot);
+    const QString base = ext.isEmpty() ? text : text.left(dot);
+    const QString tail = QChar(0x2026) + ext; // "…" followed by ".ext"
+
+    // Longest prefix of the base name that still fits together with the tail.
+    int lo = 0;
+    int hi = base.size();
+    while (lo < hi) {
+        const int mid = (lo + hi + 1) / 2;
+        if (fitsInLines(base.left(mid) + tail, font, width, maxLines))
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return base.left(lo) + tail;
+}
+
+// Delegate for the icon (QListView::IconMode) view. Each item occupies exactly
+// the view's grid size, with the icon centered horizontally near the top and
+// the (word-wrapped, centered) name below it. Inherits NameEditDelegate so the
+// inline-rename editor and right-clicked outline keep working.
+class IconViewDelegate : public NameEditDelegate
+{
+public:
+    using NameEditDelegate::NameEditDelegate;
+
+    // Rect the name text is drawn in: a kRows-line band anchored to the bottom
+    // of the (margin-inset) content area. Shared by paint() and the editor.
+    static QRect textRectFor(const QRect &cell, const QFontMetrics &fm)
+    {
+        const QRect content
+            = cell.adjusted(kOuterMargin, kOuterMargin, -kOuterMargin, -kOuterMargin);
+        const int nameHeight = kRows * fm.height() + 2 * kNamePadY;
+        const QRect nameBackground(
+            content.x(), content.bottom() - nameHeight + 1, content.width(), nameHeight);
+        return nameBackground.adjusted(kNamePadX, kNamePadY, -kNamePadX, -kNamePadY);
+    }
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        if (const auto *view = qobject_cast<const QListView *>(option.widget)) {
+            const QSize grid = view->gridSize();
+            if (grid.isValid())
+                return grid;
+        }
+        return NameEditDelegate::sizeHint(option, index);
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
+        const override
+    {
+        QStyleOptionViewItem opt = option;
+        initStyleOption(&opt, index);
+
+        const QRect rect = opt.rect;
+        const QRect content
+            = rect.adjusted(kOuterMargin, kOuterMargin, -kOuterMargin, -kOuterMargin);
+
+        const bool selected = opt.state & QStyle::State_Selected;
+        const bool highlighted = opt.state & (QStyle::State_Selected | QStyle::State_MouseOver);
+
+        // Fill a rounded highlight: solid for the selection, faint for hover.
+        const auto fillHighlight = [&](const QRectF &r) {
+            QColor color = opt.palette.color(QPalette::Highlight);
+            if (!selected)
+                color.setAlpha(kHoverAlpha);
+            painter->save();
+            painter->setRenderHint(QPainter::Antialiasing, true);
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(color);
+            painter->drawRoundedRect(r, kHighlightRadius, kHighlightRadius);
+            painter->restore();
+        };
+
+        // Name band (where the text is drawn) and its surrounding background.
+        const QRect textRect = textRectFor(rect, opt.fontMetrics);
+        const QRect nameBackground = textRect.adjusted(-kNamePadX, -kNamePadY, kNamePadX, kNamePadY);
+
+        // Icon: scaled (square) to fill the space between the top of the item
+        // and the top of the name text, leaving room for its highlight padding,
+        // and centered in that space.
+        const int areaTop = content.top();
+        const int areaBottom = nameBackground.top() - kGap;
+        const int extent = qMax(0, qMin(content.width(), areaBottom - areaTop) - 2 * kIconPad);
+        const QRect iconRect(
+            content.x() + (content.width() - extent) / 2,
+            areaTop + (areaBottom - areaTop - extent) / 2,
+            extent,
+            extent);
+
+        // Rounded highlight around the icon, clamped so it stays within the item
+        // and never reaches into the gap above the name background.
+        if (highlighted) {
+            QRectF iconBackground
+                = QRectF(iconRect).adjusted(-kIconPad, -kIconPad, kIconPad, kIconPad);
+            iconBackground.setTop(qMax<qreal>(iconBackground.top(), content.top()));
+            iconBackground.setBottom(
+                qMin<qreal>(iconBackground.bottom(), nameBackground.top() - kGap));
+            fillHighlight(iconBackground);
+        }
+
+        const QIcon::Mode mode = selected ? QIcon::Selected : QIcon::Normal;
+        painter->save();
+        painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+        opt.icon.paint(painter, iconRect, Qt::AlignCenter, mode);
+        painter->restore();
+
+        // Name: centered, wrapped into at most kRows lines, and elided (before
+        // the extension) when it would not otherwise fit.
+        if (!opt.text.isEmpty() && textRect.height() > 0) {
+            const QString text = elideLabel(opt.text, opt.font, textRect.width(), kRows);
+            QTextOption textOption;
+            textOption.setWrapMode(kLabelWrapMode);
+            QTextLayout layout(text, opt.font);
+            layout.setTextOption(textOption);
+            layout.beginLayout();
+            qreal y = 0;
+            qreal usedWidth = 0;
+            for (int n = 0; n < kRows; ++n) {
+                QTextLine line = layout.createLine();
+                if (!line.isValid())
+                    break;
+                line.setLineWidth(textRect.width());
+                // Center each wrapped line horizontally within the band.
+                const qreal x = qMax(0.0, (textRect.width() - line.naturalTextWidth()) / 2.0);
+                line.setPosition(QPointF(x, y));
+                usedWidth = qMax(usedWidth, line.naturalTextWidth());
+                y += line.height();
+            }
+            layout.endLayout();
+
+            // Rounded highlight hugging the actual text (kept within the
+            // content). Its height follows the real line count, so a one-line
+            // name gets a one-line background.
+            if (highlighted) {
+                const qreal width = qMin<qreal>(usedWidth + 2 * kNamePadX, content.width());
+                const QRectF background(
+                    content.x() + (content.width() - width) / 2.0,
+                    nameBackground.top(),
+                    width,
+                    y + 2 * kNamePadY);
+                fillHighlight(background);
+            }
+
+            painter->save();
+            painter->setPen(
+                opt.palette.color(selected ? QPalette::HighlightedText : QPalette::Text));
+            layout.draw(painter, textRect.topLeft());
+            painter->restore();
+        }
+
+        // Outline the row the context menu currently acts on.
+        if (isRightClicked(index)) {
+            painter->save();
+            painter->setRenderHint(QPainter::Antialiasing, true);
+            painter->setPen(QPen(opt.palette.color(QPalette::Highlight), 1));
+            painter->setBrush(Qt::NoBrush);
+            painter->drawRoundedRect(QRectF(content).adjusted(0.5, 0.5, -0.5, -0.5),
+                                     kHighlightRadius,
+                                     kHighlightRadius);
+            painter->restore();
+        }
+    }
+
+    // Use a wrapping, vertically-scrolling editor (instead of the single-line
+    // QLineEdit) so a long name stays within the cell width while being renamed.
+    QWidget *createEditor(QWidget *parent,
+                          const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const override
+    {
+        Q_UNUSED(option)
+        Q_UNUSED(index)
+        auto *editor = new QPlainTextEdit(parent);
+        editor->setWordWrapMode(kLabelWrapMode);
+        editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        editor->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        editor->setTabChangesFocus(true);
+        editor->document()->setDocumentMargin(kEditorDocMargin);
+        return editor;
+    }
+
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override
+    {
+        auto *textEdit = qobject_cast<QPlainTextEdit *>(editor);
+        if (!textEdit) {
+            NameEditDelegate::setEditorData(editor, index);
+            return;
+        }
+        const QString name = index.data(Qt::EditRole).toString();
+        textEdit->setPlainText(name);
+        // Preselect the base name, leaving the extension unselected (a leading
+        // dot is part of the name), matching the tree view's rename editor.
+        const int dot = name.lastIndexOf(u'.');
+        const int end = dot > 0 ? dot : int(name.size());
+        QTextCursor cursor = textEdit->textCursor();
+        cursor.setPosition(0);
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+        textEdit->setTextCursor(cursor);
+    }
+
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index)
+        const override
+    {
+        auto *textEdit = qobject_cast<QPlainTextEdit *>(editor);
+        if (!textEdit) {
+            NameEditDelegate::setModelData(editor, model, index);
+            return;
+        }
+        // Wrapping is purely visual; a file name never contains newlines.
+        QString name = textEdit->toPlainText();
+        name.replace(u'\n', QString());
+        model->setData(index, name, Qt::EditRole);
+    }
+
+    void updateEditorGeometry(QWidget *editor,
+                              const QStyleOptionViewItem &option,
+                              const QModelIndex &index) const override
+    {
+        auto *textEdit = qobject_cast<QPlainTextEdit *>(editor);
+        if (!textEdit) {
+            NameEditDelegate::updateEditorGeometry(editor, option, index);
+            return;
+        }
+
+        const int frame = 2 * textEdit->frameWidth();
+        const int docMargin = int(2 * textEdit->document()->documentMargin());
+        const int lineHeight = option.fontMetrics.lineSpacing();
+
+        // Match the painted name band: same width and top, so the editor sits
+        // exactly where the label was. Wrapping keeps the text inside this width.
+        const QRect textRect = textRectFor(option.rect, option.fontMetrics);
+        const int width = textRect.width() + 2 * kNamePadX;
+        const int x = textRect.x() - kNamePadX;
+
+        // Size the height from the actual name (the editor's document is still
+        // empty when this runs), capped at kEditorMaxRows, scrolling beyond that.
+        const QString name = index.data(Qt::EditRole).toString();
+        const int lines = qMin(wrappedLineCount(name, option.font, width - frame - docMargin),
+                               kEditorMaxRows);
+        const int height = lines * lineHeight + docMargin + frame;
+
+        const int top = textRect.top() - kNamePadY;
+        editor->setGeometry(x, top, width, height);
+    }
+
+    // The base class lets Enter insert a newline in text editors; here Enter
+    // (without Shift) must commit the rename instead.
+    bool eventFilter(QObject *object, QEvent *event) override
+    {
+        if (event->type() == QEvent::KeyPress) {
+            if (auto *editor = qobject_cast<QPlainTextEdit *>(object)) {
+                auto *keyEvent = static_cast<QKeyEvent *>(event);
+                if ((keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
+                    && !(keyEvent->modifiers() & Qt::ShiftModifier)) {
+                    emit commitData(editor);
+                    emit closeEditor(editor);
+                    return true;
+                }
+            }
+        }
+        return NameEditDelegate::eventFilter(object, event);
+    }
 };
 
 // ===== Views that ignore right-button presses =====
@@ -1353,12 +1710,11 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_listView->setModel(d->m_proxy);
     d->m_listView->setSelectionModel(d->m_treeView->selectionModel());
     d->m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    auto *listNameDelegate = new NameEditDelegate(d->m_listView);
+    auto *listNameDelegate = new IconViewDelegate(d->m_listView);
     d->m_listView->setItemDelegate(listNameDelegate);
     d->m_listView->setViewMode(QListView::IconMode);
     d->m_listView->setResizeMode(QListView::Adjust);
-    d->m_listView->setIconSize(QSize(48, 48));
-    d->m_listView->setGridSize(QSize(90, 80));
+    d->m_listView->setGridSize(kGridSize);
     d->m_listView->setWordWrap(true);
     d->m_listView->setUniformItemSizes(true);
     d->m_listView->setDragEnabled(true);
