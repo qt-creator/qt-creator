@@ -13,6 +13,7 @@
 
 namespace Utils {
 class QtcButton;
+class QtcComboBox;
 class QtcIconButton;
 class QtcProgressBar;
 } // namespace Utils
@@ -108,7 +109,6 @@ private:
 
     QList<Acp::SessionMode> m_sessionModes;
     QString m_currentModeId;
-    void showModeMenu();
     void updateModeButton();
 
     // Message area
@@ -119,7 +119,7 @@ private:
     Utils::QtcButton *m_sendButton;
     Utils::QtcIconButton *m_commandsButton;
     Utils::QtcIconButton *m_configButton = nullptr;
-    Utils::QtcButton *m_modeButton = nullptr;
+    Utils::QtcComboBox *m_modeCombo = nullptr;
     Utils::QtcProgressBar *m_usageBar = nullptr;
     QMenu *m_commandsMenu = nullptr;
     QWidget *m_contextBar = nullptr;

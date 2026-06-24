@@ -581,11 +581,13 @@ ChatPanel::ChatPanel(QWidget *parent)
         menu->popup(QCursor::pos());
     });
 
-    m_modeButton = new QtcButton({}, QtcButton::SmallGhost);
-    m_modeButton->setToolTip(Tr::tr("Switch Mode"));
-    m_modeButton->hide();
-    connect(m_modeButton, &QAbstractButton::clicked, this, &ChatPanel::showModeMenu);
-    bottomRowLayout->addWidget(m_modeButton, 0, Qt::AlignVCenter);
+    m_modeCombo = new QtcComboBox(QtcComboBox::SmallPrimary);
+    m_modeCombo->setToolTip(Tr::tr("Switch Mode"));
+    m_modeCombo->hide();
+    connect(m_modeCombo, &QComboBox::activated, this, [this](int index) {
+        emit modeChanged(m_modeCombo->itemData(index).toString());
+    });
+    bottomRowLayout->addWidget(m_modeCombo, 0, Qt::AlignBottom);
 
     bottomRowLayout->addStretch(1);
 
@@ -788,42 +790,18 @@ void ChatPanel::setUsage(const Acp::UsageUpdate &usage)
 void ChatPanel::updateModeButton()
 {
     if (m_sessionModes.isEmpty()) {
-        m_modeButton->hide();
+        m_modeCombo->hide();
         return;
     }
 
-    QString name = m_currentModeId;
-    for (const SessionMode &mode : std::as_const(m_sessionModes)) {
-        if (mode.id() == m_currentModeId) {
-            name = mode.name();
-            break;
-        }
-    }
-    m_modeButton->setText(name);
-    m_modeButton->show();
-}
+    QSignalBlocker blocker(m_modeCombo);
+    m_modeCombo->clear();
+    for (const SessionMode &mode : std::as_const(m_sessionModes))
+        m_modeCombo->addItem(mode.name(), mode.id());
 
-void ChatPanel::showModeMenu()
-{
-    if (m_sessionModes.isEmpty())
-        return;
-
-    auto *menu = new QMenu(m_modeButton);
-    menu->setAttribute(Qt::WA_DeleteOnClose);
-    menu->setToolTipsVisible(true);
-    for (const SessionMode &mode : std::as_const(m_sessionModes)) {
-        QAction *action = menu->addAction(mode.name());
-        if (const auto &description = mode.description())
-            action->setToolTip(*description);
-        action->setCheckable(true);
-        action->setChecked(mode.id() == m_currentModeId);
-        const QString id = mode.id();
-        connect(action, &QAction::triggered, this, [this, id] { emit modeChanged(id); });
-    }
-
-    const QPoint topLeft = m_modeButton->mapToGlobal(QPoint(0, 0));
-    const QSize menuSize = menu->sizeHint();
-    menu->popup(QPoint(topLeft.x(), topLeft.y() - menuSize.height()));
+    const int idx = m_modeCombo->findData(m_currentModeId);
+    m_modeCombo->setCurrentIndex(idx >= 0 ? idx : 0);
+    m_modeCombo->show();
 }
 
 void ChatPanel::clear()
