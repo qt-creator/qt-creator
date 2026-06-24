@@ -45,6 +45,11 @@ GNTargetNode::GNTargetNode(const FilePath &directory,
     }
 }
 
+bool GNTargetNode::canBuild(ProjectExplorer::BuildAction action)
+{
+    return action == BuildAction::Build;
+}
+
 void GNTargetNode::build(BuildAction action)
 {
     QTC_ASSERT(action == BuildAction::Build, return);

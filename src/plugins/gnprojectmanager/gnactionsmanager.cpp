@@ -7,17 +7,11 @@
 #include "gnbuildsystem.h"
 #include "gnpluginconstants.h"
 #include "gnprojectmanagertr.h"
-#include "gnprojectnodes.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projecttree.h>
-
-#include <utils/action.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -27,8 +21,6 @@ namespace GNProjectManager::Internal {
 
 void setupGNActions(QObject *guard)
 {
-    static Action *buildTargetContextAction = nullptr;
-
     const Context projectContext{Constants::GN_PROJECT_ID};
 
     ActionBuilder(guard, "GNProject.Generate")
@@ -45,30 +37,6 @@ void setupGNActions(QObject *guard)
                 bs->generate();
         });
 
-    ActionBuilder(guard, "GN.BuildTargetContextMenu")
-        .setParameterText(Tr::tr("Build \"%1\""), Tr::tr("Build"), ActionBuilder::AlwaysEnabled)
-        .bindContextAction(&buildTargetContextAction)
-        .setContext(projectContext)
-        .setCommandAttribute(Command::CA_Hide)
-        .setCommandAttribute(Command::CA_UpdateText)
-        .setCommandDescription(Tr::tr("Build"))
-        .addToContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT,
-                        ProjectExplorer::Constants::G_PROJECT_BUILD)
-        .addOnTriggered(guard, [] {
-            if (qobject_cast<GNBuildSystem *>(activeBuildSystemForCurrentProject())) {
-                auto targetNode = dynamic_cast<GNTargetNode *>(ProjectTree::currentNode());
-                targetNode->build(BuildAction::Build);
-            }
-        });
-
-    QObject::connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, guard, [&] {
-        auto targetNode = dynamic_cast<const GNTargetNode *>(ProjectTree::currentNode());
-        const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
-
-        buildTargetContextAction->setParameter(targetDisplayName);
-        buildTargetContextAction->setEnabled(targetNode);
-        buildTargetContextAction->setVisible(targetNode);
-    });
 }
 
 } // namespace GNProjectManager::Internal
