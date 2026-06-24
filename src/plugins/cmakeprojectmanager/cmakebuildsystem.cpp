@@ -1970,22 +1970,20 @@ void CMakeBuildSystem::updateFallbackProjectData()
     updateInitialCMakeExpandableVars();
 }
 
-void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
+void CMakeBuildSystem::updateCMakeConfiguration()
 {
-    CMakeConfig cmakeConfig = m_reader.takeParsedConfiguration(errorMessage);
+    CMakeConfig cmakeConfig = m_reader.takeParsedConfiguration();
     for (auto &ci : cmakeConfig)
         ci.inCMakeCache = true;
-    if (!errorMessage.isEmpty()) {
-        const CMakeConfig changes = configurationChanges();
-        for (const auto &ci : changes) {
-            if (ci.isInitial)
-                continue;
-            const bool haveConfigItem = Utils::contains(cmakeConfig, [ci](const CMakeConfigItem& i) {
-                return i.key == ci.key;
-            });
-            if (!haveConfigItem)
-                cmakeConfig.insert(ci);
-        }
+    const CMakeConfig changes = configurationChanges();
+    for (const auto &ci : changes) {
+        if (ci.isInitial)
+            continue;
+        const bool haveConfigItem = Utils::contains(cmakeConfig, [ci](const CMakeConfigItem& i) {
+            return i.key == ci.key;
+        });
+        if (!haveConfigItem)
+            cmakeConfig.insert(ci);
     }
 
     const bool hasAndroidTargetBuildDirSupport
@@ -2039,7 +2037,10 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
 
 void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
 {
-    clearError();
+    if (restoredFromBackup)
+        setError(Tr::tr("CMake failed, using data from previous successful run."));
+    else
+        clearError();
 
     QString errorMessage;
     {
@@ -2057,10 +2058,7 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
         checkAndReportError(errorMessage);
     }
 
-    {
-        updateCMakeConfiguration(errorMessage);
-        checkAndReportError(errorMessage);
-    }
+    updateCMakeConfiguration();
 
     m_ctestPath = m_parameters.cmakeExecutable.withNewPath(m_reader.ctestPath());
 
@@ -2081,9 +2079,7 @@ void CMakeBuildSystem::handleParsingFailed(const QString &msg)
 {
     setError(msg);
 
-    QString errorMessage;
-    updateCMakeConfiguration(errorMessage);
-    // ignore errorMessage here, we already got one.
+    updateCMakeConfiguration();
 
     m_ctestPath.clear();
 

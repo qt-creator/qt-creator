@@ -43,7 +43,7 @@ public:
 
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage);
     QSet<CMakeFileInfo> takeCMakeFileInfos(QString &errorMessage);
-    CMakeConfig takeParsedConfiguration(QString &errorMessage);
+    CMakeConfig takeParsedConfiguration();
     QString ctestPath() const;
     ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage);
 
@@ -87,7 +87,7 @@ private:
     QString m_cmakeGenerator;
     bool m_isMultiConfig = false;
     bool m_usesAllCapsTargets = false;
-    int m_lastCMakeExitCode = 0;
+    bool m_lastCMakeFailed = false;
 
     // Update related:
     bool m_isParsing = false;

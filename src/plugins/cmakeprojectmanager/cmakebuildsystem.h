@@ -213,7 +213,7 @@ private:
     void combineScanAndParse(bool restoredFromBackup);
     void checkAndReportError(QString &errorMessage);
 
-    void updateCMakeConfiguration(QString &errorMessage);
+    void updateCMakeConfiguration();
 
     void updateProjectData();
     void updateFallbackProjectData();

@@ -189,18 +189,15 @@ QSet<CMakeFileInfo> FileApiReader::takeCMakeFileInfos(QString &errorMessage)
     return std::exchange(m_cmakeFiles, {});
 }
 
-CMakeConfig FileApiReader::takeParsedConfiguration(QString &errorMessage)
+CMakeConfig FileApiReader::takeParsedConfiguration()
 {
-    if (m_lastCMakeExitCode != 0)
-        errorMessage = Tr::tr("CMake returned error code: %1").arg(m_lastCMakeExitCode);
-
     return std::exchange(m_cache, {});
 }
 
 QString FileApiReader::ctestPath() const
 {
     // if we failed to run cmake we should not offer ctest information either
-    return m_lastCMakeExitCode == 0 ? m_ctestPath : QString();
+    return m_lastCMakeFailed ? QString() : m_ctestPath;
 }
 
 bool FileApiReader::isMultiConfig() const
@@ -408,16 +405,15 @@ void FileApiReader::cmakeFinishedState(int exitCode)
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: CMAKE FINISHED STATE.";
 
-    m_lastCMakeExitCode = exitCode;
+    m_lastCMakeFailed = (exitCode != 0);
     m_cmakeProcess.release()->deleteLater();
 
-    if (m_lastCMakeExitCode != 0)
+    if (m_lastCMakeFailed)
         makeBackupConfiguration(false);
 
     setupCMakeFileApi();
 
-    endState(FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory),
-             m_lastCMakeExitCode != 0);
+    endState(FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory), m_lastCMakeFailed);
 }
 
 void FileApiReader::handleReplyIndexFileChange(const FilePath &indexFile)
