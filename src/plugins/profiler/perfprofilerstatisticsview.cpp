@@ -8,6 +8,7 @@
 #include <coreplugin/minisplitter.h>
 
 #include <utils/basetreeview.h>
+#include <utils/stringutils.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -176,14 +177,6 @@ QString StatisticsView::rowToString(int row) const
     return str + QLatin1Char('\n');
 }
 
-static void sendToClipboard(const QString &str)
-{
-    QClipboard *clipboard = QApplication::clipboard();
-    if (clipboard->supportsSelection())
-        clipboard->setText(str, QClipboard::Selection);
-    clipboard->setText(str, QClipboard::Clipboard);
-}
-
 void StatisticsView::copyTableToClipboard() const
 {
     const QAbstractItemModel *m = model();
@@ -202,13 +195,13 @@ void StatisticsView::copyTableToClipboard() const
     for (int row = 0; row < rowCount; ++row)
         str += rowToString(row);
 
-    sendToClipboard(str);
+    Utils::setClipboardAndSelection(str);
 }
 
 void StatisticsView::copySelectionToClipboard() const
 {
     if (currentIndex().isValid())
-        sendToClipboard(rowToString(currentIndex().row()));
+        Utils::setClipboardAndSelection(rowToString(currentIndex().row()));
 }
 
 } // namespace Profiler::Internal
