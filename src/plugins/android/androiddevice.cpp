@@ -898,6 +898,8 @@ void AndroidDevice::updateDeviceFileAccess()
     }
 }
 
+static QHash<QString, Id> s_trackedAvdSerialIds;
+
 static void handleDevicesListChange(const QString &serialNumber)
 {
     const QStringList serialBits = serialNumber.split('\t');
@@ -929,13 +931,9 @@ static void handleDevicesListChange(const QString &serialNumber)
         state = IDevice::DeviceConnected;
 
     if (isEmulator) {
-        // cache (serial->avdId) on device events so we can still route
-        // an offline/disconnected event after the dead emulator can no longer
-        // answer "emu avd name" command
-        static QHash<QString, Id> serialToAvdId;
         Id avdId;
         if (state == IDevice::DeviceDisconnected) {
-            avdId = serialToAvdId.take(serial);
+            avdId = s_trackedAvdSerialIds.take(serial);
             if (!avdId.isValid())
                 return;
         } else {
@@ -943,14 +941,18 @@ static void handleDevicesListChange(const QString &serialNumber)
             if (avdName.isEmpty())
                 return;
             avdId = androidDeviceId(avdName);
-            serialToAvdId.insert(serial, avdId);
+            s_trackedAvdSerialIds.insert(serial, avdId);
         }
-        DeviceManager::setDeviceState(avdId, state);
+        // Update the serial before the state change is announced.
         if (IDevice::Ptr dev = DeviceManager::find(avdId)) {
             AndroidDevice *androidDev = static_cast<AndroidDevice *>(dev.get());
             if (QTC_GUARD(androidDev))
                 androidDev->updateSerialNumber(serial);
+            if (dev->deviceState() != state)
+                qCDebug(androidDeviceLog, "Device id \"%s\" changed its state.",
+                        avdId.toString().toUtf8().data());
         }
+        DeviceManager::setDeviceState(avdId, state);
         updateDeviceFileAccess(avdId);
     } else {
         const Id id = androidDeviceId(serial);
@@ -1060,22 +1062,15 @@ static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
             dev = newDev;
         }
         connectedDevs.append(dev->id());
-        // Find the state of the AVD retrieved from the AVD watcher
+        // The cached serial can be stale (emulators reuse ports): use the
+        // live mapping and write it back.
         auto androidDevice = qobject_cast<AndroidDevice *>(dev.get());
         QTC_ASSERT(androidDevice, continue);
-        const QString serial = androidDevice->serialNumber();
-        if (!serial.isEmpty()) {
-            const IDevice::DeviceState state = getDeviceState(serial, IDevice::Emulator);
-            if (dev->deviceState() != state) {
-                dev->setDeviceState(state);
-                qCDebug(
-                    androidDeviceLog,
-                    "Device id \"%s\" changed its state.",
-                    dev->id().toString().toUtf8().data());
-            }
-        } else {
+        const QString serial = s_trackedAvdSerialIds.key(androidDevice->id());
+        androidDevice->updateSerialNumber(serial);
+        // Device events own a running AVD's state. A stopped one is just connected.
+        if (serial.isEmpty())
             DeviceManager::setDeviceState(dev->id(), IDevice::DeviceConnected);
-        }
     }
 
     // Remove AVDs that no longer exist from Qt Creator's device list.
