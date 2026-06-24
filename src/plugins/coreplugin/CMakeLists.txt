@@ -155,6 +155,7 @@ add_qtc_plugin(Core
     generatedfile.h
     helpitem.cpp
     helpitem.h
+    helplink.h
     helpmanager.cpp
     helpmanager.h
     helpmanager_implementation.h

@@ -18,6 +18,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/helplink.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
@@ -587,7 +588,7 @@ bool LocalHelpManager::openOnlineHelp(const QUrl &url)
         });
 }
 
-QMultiMap<QString, QUrl> LocalHelpManager::linksForKeyword(const QString &keyword)
+QList<Core::HelpLink> LocalHelpManager::linksForKeyword(const QString &keyword)
 {
     return HelpManager::linksForKeyword(&LocalHelpManager::helpEngine(), keyword, std::nullopt);
 }

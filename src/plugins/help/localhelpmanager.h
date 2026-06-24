@@ -106,7 +106,7 @@ public:
     static bool isQtUrl(const QUrl &url);
     static void openQtUrl(const QUrl &url);
 
-    static QMultiMap<QString, QUrl> linksForKeyword(const QString &keyword);
+    static QList<Core::HelpLink> linksForKeyword(const QString &keyword);
 
     static void addOnlineHelpHandler(const Core::HelpManager::OnlineHelpHandler &handler);
 

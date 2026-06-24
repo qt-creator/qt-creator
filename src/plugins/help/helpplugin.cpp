@@ -26,6 +26,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/helpitem.h>
+#include <coreplugin/helplink.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
@@ -106,7 +107,7 @@ public:
     void activateContents();
 
     void saveExternalWindowSettings();
-    void showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key);
+    void showLinksInCurrentViewer(const QList<Core::HelpLink> &links, const QString &key);
 
     void setupHelpEngineIfNeeded();
 
@@ -311,7 +312,7 @@ HelpViewer *HelpPluginPrivate::externalHelpViewer()
     return m_externalWindow->currentViewer();
 }
 
-void showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)
+void showLinksInCurrentViewer(const QList<Core::HelpLink> &links, const QString &key)
 {
     dd->showLinksInCurrentViewer(links, key);
 }
@@ -355,7 +356,8 @@ HelpWidget *modeHelpWidget()
     return dd->m_centralWidget;
 }
 
-void HelpPluginPrivate::showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)
+void HelpPluginPrivate::showLinksInCurrentViewer(const QList<Core::HelpLink> &links,
+                                                 const QString &key)
 {
     if (links.size() < 1)
         return;
@@ -515,9 +517,9 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
     } else if (links.size() == 1 && !contextHelp.isFuzzyMatch()) {
         showHelpUrl(links.front().second, helpSettings().contextHelpOption());
     } else {
-        QMultiMap<QString, QUrl> map;
-        for (const HelpItem::Link &link : links)
-            map.insert(link.first, link.second);
+        const QList<HelpLink> map = Utils::transform<QList>(links, [](const HelpItem::Link &link) {
+            return HelpLink{link.second, link.first};
+        });
         auto tc = new TopicChooser(ICore::dialogParent(), contextHelp.keyword(), map);
         tc->setModal(true);
         connect(tc, &QDialog::accepted, this, [this, tc] {

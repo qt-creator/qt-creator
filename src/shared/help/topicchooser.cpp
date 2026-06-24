@@ -8,9 +8,9 @@
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 
+#include <coreplugin/helplink.h>
 #include <coreplugin/icore.h>
 
-#include <QMap>
 #include <QUrl>
 
 #include <QKeyEvent>
@@ -24,7 +24,7 @@ const int kInitialHeight = 220;
 const char kPreferenceDialogSize[] = "Core/TopicChooserSize";
 
 TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
-        const QMultiMap<QString, QUrl> &links)
+        const QList<Core::HelpLink> &links)
     : QDialog(parent)
     , m_filterModel(new QSortFilterProxyModel(this))
 {
@@ -37,11 +37,10 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
     m_filterModel->setSourceModel(model);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    QMultiMap<QString, QUrl>::const_iterator it = links.constBegin();
-    for (; it != links.constEnd(); ++it) {
-        m_links.append(it.value());
-        QStandardItem *item = new QStandardItem(it.key());
-        item->setToolTip(it.value().toString());
+    for (const Core::HelpLink &link : links) {
+        m_links.append(link.url);
+        auto *item = new QStandardItem(link.title);
+        item->setToolTip(link.url.toString());
         model->appendRow(item);
     }
 

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "helpitem.h"
+#include "helplink.h"
 #include "helpmanager.h"
 
 #include <utils/algorithm.h>
@@ -270,7 +271,7 @@ const HelpItem::Links &HelpItem::links() const
             m_helpLinks.emplace(Links{{m_keyword, m_helpUrl}});
         } else {
             m_helpLinks.emplace(); // set a value even if there are no help IDs
-            QMultiMap<QString, QUrl> helpLinks;
+            QList<Core::HelpLink> helpLinks;
             for (const QString &id : m_helpIds) {
                 helpLinks = Core::HelpManager::linksForIdentifier(id);
                 if (!helpLinks.isEmpty()) {
@@ -288,8 +289,8 @@ const HelpItem::Links &HelpItem::links() const
                     }
                 }
             }
-            for (auto it = helpLinks.cbegin(), end = helpLinks.cend(); it != end; ++it)
-                m_helpLinks->emplace_back(it.key(), it.value());
+            for (const auto &l : std::as_const(helpLinks))
+                m_helpLinks->emplace_back(Link{l.title, l.url});
         }
         Utils::sort(*m_helpLinks, linkLessThan);
     }

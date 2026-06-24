@@ -4,7 +4,7 @@
 #pragma once
 
 #include <QUrl>
-#include <QMap>
+#include <QList>
 #include <QModelIndex>
 #include <QString>
 
@@ -15,6 +15,11 @@ class QListView;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
+
+namespace Core {
+struct HelpLink;
+}
+
 namespace Utils { class FancyLineEdit; }
 
 class TopicChooser : public QDialog
@@ -22,8 +27,8 @@ class TopicChooser : public QDialog
     Q_OBJECT
 
 public:
-    TopicChooser(QWidget *parent, const QString &keyword,
-        const QMultiMap<QString, QUrl> &links);
+    explicit TopicChooser(QWidget *parent, const QString &keyword,
+                          const QList<Core::HelpLink> &links);
     ~TopicChooser() override;
 
     QUrl link() const;

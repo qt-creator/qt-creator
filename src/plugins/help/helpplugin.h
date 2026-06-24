@@ -14,7 +14,7 @@ namespace Help::Internal {
 class HelpWidget;
 class HelpViewer;
 
-void showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links,
+void showLinksInCurrentViewer(const QList<Core::HelpLink> &links,
                               const QString &key);
 HelpViewer *createHelpViewer();
 HelpWidget *modeHelpWidget();

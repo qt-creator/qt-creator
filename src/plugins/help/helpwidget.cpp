@@ -20,6 +20,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/helplink.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/locator/locatormanager.h>
 #include <coreplugin/minisplitter.h>
@@ -774,13 +775,13 @@ HelpViewer *HelpWidget::openNewPage(const QUrl &url)
     return page;
 }
 
-void HelpWidget::showLinks(const QMultiMap<QString, QUrl> &links,
+void HelpWidget::showLinks(const QList<Core::HelpLink> &links,
     const QString &keyword, bool newPage)
 {
     if (links.size() < 1)
         return;
     if (links.size() == 1) {
-        open(links.first(), newPage);
+        open(links.constFirst().url, newPage);
     } else {
         TopicChooser tc(this, keyword, links);
         if (tc.exec() == QDialog::Accepted)

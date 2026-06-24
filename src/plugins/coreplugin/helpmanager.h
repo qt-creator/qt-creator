@@ -8,13 +8,12 @@
 #include <utils/filepath.h>
 
 #include <QObject>
-#include <QMap>
-
-QT_BEGIN_NAMESPACE
-class QUrl;
-QT_END_NAMESPACE
+#include <QList>
+#include <QUrl>
 
 namespace Core {
+
+struct HelpLink;
 
 namespace HelpManager {
 
@@ -43,8 +42,8 @@ CORE_EXPORT void registerDocumentation(const Utils::FilePaths &fileNames);
 CORE_EXPORT void setBlockedDocumentation(const Utils::FilePaths &fileNames);
 CORE_EXPORT void unregisterDocumentation(const Utils::FilePaths &fileNames);
 
-CORE_EXPORT QMultiMap<QString, QUrl> linksForIdentifier(const QString &id);
-CORE_EXPORT QMultiMap<QString, QUrl> linksForKeyword(const QString &id);
+CORE_EXPORT QList<Core::HelpLink> linksForIdentifier(const QString &id);
+CORE_EXPORT QList<Core::HelpLink> linksForKeyword(const QString &id);
 CORE_EXPORT QByteArray fileData(const QUrl &url);
 
 CORE_EXPORT void showHelpUrl(const QUrl &url, HelpViewerLocation location = HelpModeAlways);

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <coreplugin/helplink.h>
+
 #include <QAbstractProxyModel>
 #include <QList>
 #include <QUrl>
@@ -68,7 +70,7 @@ public:
     void setOpenInNewPageActionVisible(bool visible);
 
 signals:
-    void linksActivated(const QMultiMap<QString, QUrl> &links,
+    void linksActivated(const QList<Core::HelpLink> &links,
         const QString &keyword, bool newPage);
 
 private:

@@ -73,7 +73,7 @@ public:
     void open(const QUrl &url, bool newPage = false);
     HelpViewer *openNewPage(const QUrl &url);
     void openFromSearch(const QUrl &url, const QStringList &searchTerms, bool newPage = false);
-    void showLinks(const QMultiMap<QString, QUrl> &links, const QString &key,
+    void showLinks(const QList<Core::HelpLink> &links, const QString &key,
                           bool newPage = false);
     void activateSideBarItem(const QString &id);
     void reloadAll();

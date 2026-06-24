@@ -9,6 +9,7 @@
 #include "helptr.h"
 
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/helplink.h>
 #include <coreplugin/icore.h>
 #include <utils/async.h>
 #include <utils/utilsicons.h>

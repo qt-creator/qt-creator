@@ -4,6 +4,7 @@
 #include "helpmanager_implementation.h"
 
 #include "coreplugin.h"
+#include "helplink.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -72,14 +73,14 @@ void unregisterDocumentation(const FilePaths &fileNames)
         m_instance->unregisterDocumentation(fileNames);
 }
 
-QMultiMap<QString, QUrl> linksForIdentifier(const QString &id)
+QList<Core::HelpLink> linksForIdentifier(const QString &id)
 {
-    return checkInstance() ? m_instance->linksForIdentifier(id) : QMultiMap<QString, QUrl>();
+    return checkInstance() ? m_instance->linksForIdentifier(id) : QList<Core::HelpLink>{};
 }
 
-QMultiMap<QString, QUrl> linksForKeyword(const QString &keyword)
+QList<Core::HelpLink> linksForKeyword(const QString &keyword)
 {
-    return checkInstance() ? m_instance->linksForKeyword(keyword) : QMultiMap<QString, QUrl>();
+    return checkInstance() ? m_instance->linksForKeyword(keyword) : QList<Core::HelpLink>{};
 }
 
 QByteArray fileData(const QUrl &url)

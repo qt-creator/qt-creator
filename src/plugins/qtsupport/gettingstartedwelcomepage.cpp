@@ -11,6 +11,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwelcomepage.h>
+#include <coreplugin/helplink.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/welcomepagehelper.h>
@@ -182,9 +183,9 @@ static QUrl exampleItemUrl(const ExampleItem &item)
     // to support multiple Qt versions. See QTCREATORBUG-32772
     const QStringList identifiers = item.metaData.value("keyword");
     for (const QString &identifier : identifiers) {
-        const QMultiMap<QString, QUrl> links = HelpManager::linksForIdentifier(identifier);
+        const QList<HelpLink> links = HelpManager::linksForIdentifier(identifier);
         if (!links.isEmpty())
-            return links.first();
+            return links.constFirst().url;
     }
     return QUrl::fromUserInput(item.docUrl);
 }

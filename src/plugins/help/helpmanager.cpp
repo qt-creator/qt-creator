@@ -6,6 +6,7 @@
 
 #include "helptr.h"
 
+#include <coreplugin/helplink.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -29,11 +30,42 @@
 
 #include <QtHelp/QHelpLink>
 
+#include <algorithm>
+
 static Q_LOGGING_CATEGORY(helpLog, "qtc.help.helpmanager", QtWarningMsg)
 
 using namespace Core;
 using namespace QtTaskTree;
 using namespace Utils;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 12, 0)
+static QList<HelpLink> qHelpLinks2Links(const QList<QHelpLink> &in)
+{
+    return Utils::transform(in, [](const QHelpLink &link) {
+        return HelpLink{link.url, link.title};
+    });
+}
+#else
+// Pre 6.12, QHelpLib returned duplicate matches and unsorted results.
+// Remove duplicate URLs and sort by title.
+static bool titleLessThan(const HelpLink &lhs, const HelpLink &rhs)
+{
+    return lhs.title < rhs.title;
+}
+
+static QList<HelpLink> qHelpLinks2Links(const QList<QHelpLink> &in)
+{
+    QList<HelpLink> result;
+    result.reserve(in.size());
+    for (const auto &qLink : in) {
+        const auto urlExists = [&qLink](const HelpLink &link){ return link.url == qLink.url; };
+        if (std::none_of(result.cbegin(), result.cend(), urlExists))
+            result.append({qLink.url, qLink.title});
+    }
+    std::stable_sort(result.begin(), result.end(), titleLessThan);
+    return result;
+}
+#endif // < 6.12
 
 namespace Help {
 namespace Internal {
@@ -259,22 +291,14 @@ QSet<FilePath> HelpManager::userDocumentationPaths()
     return d->m_userRegisteredFiles;
 }
 
-QMultiMap<QString, QUrl> HelpManager::linksForKeyword(QHelpEngineCore *engine,
-                                                      const QString &key,
-                                                      std::optional<QString> filterName)
+QList<HelpLink> HelpManager::linksForKeyword(QHelpEngineCore *engine,
+                                             const QString &key,
+                                             std::optional<QString> filterName)
 {
-    QMultiMap<QString, QUrl> links;
-    const QList<QHelpLink> docs = filterName.has_value()
-                                      ? engine->documentsForKeyword(key, filterName.value())
-                                      : engine->documentsForKeyword(key);
-
-    for (const auto &doc : docs)
-        links.insert(doc.title, doc.url);
-
-    // Remove duplicates (workaround for QTBUG-108131)
-    links.removeIf([&links](const QMultiMap<QString, QUrl>::iterator it) {
-        return links.find(it.key(), it.value()) != it;
-    });
+    const QList<QHelpLink> qLinks = filterName.has_value()
+        ? engine->documentsForKeyword(key, filterName.value())
+        : engine->documentsForKeyword(key);
+    QList<Core::HelpLink> links = qHelpLinks2Links(qLinks);
 
     qCDebug(helpLog) << "Looking up help for keyword" << key
                      << (filterName.has_value() ? "with filter" : "without filter")
@@ -283,7 +307,7 @@ QMultiMap<QString, QUrl> HelpManager::linksForKeyword(QHelpEngineCore *engine,
     return links;
 }
 
-QMultiMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
+QList<HelpLink> HelpManager::linksForKeyword(const QString &key)
 {
     QTC_ASSERT(!d->m_needsSetup, return {});
     if (key.isEmpty())
@@ -297,15 +321,13 @@ QMultiMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
     return results;
 }
 
-QMultiMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
+QList<HelpLink> HelpManager::linksForIdentifier(const QString &id)
 {
     QTC_ASSERT(!d->m_needsSetup, return {});
     if (id.isEmpty())
         return {};
-    QMultiMap<QString, QUrl> links;
-    const QList<QHelpLink> docs = d->m_helpEngine->documentsForIdentifier(id, QString());
-    for (const auto &doc : docs)
-        links.insert(doc.title, doc.url);
+    const auto qLinks = d->m_helpEngine->documentsForIdentifier(id, QString());
+    QList<Core::HelpLink> links = qHelpLinks2Links(qLinks);
 
     qCDebug(helpLog) << "Looking up help for id" << id
                      << "returned" << links.size() << "links";

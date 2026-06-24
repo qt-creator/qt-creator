@@ -35,11 +35,11 @@ public:
     static void registerUserDocumentation(const Utils::FilePaths &filePaths);
     static QSet<Utils::FilePath> userDocumentationPaths();
 
-    QMultiMap<QString, QUrl> linksForIdentifier(const QString &id) override;
-    QMultiMap<QString, QUrl> linksForKeyword(const QString &key) override;
-    static QMultiMap<QString, QUrl> linksForKeyword(QHelpEngineCore *engine,
-                                                    const QString &key,
-                                                    std::optional<QString> filterName);
+    QList<Core::HelpLink> linksForIdentifier(const QString &id) override;
+    QList<Core::HelpLink> linksForKeyword(const QString &key) override;
+    static QList<Core::HelpLink> linksForKeyword(QHelpEngineCore *engine,
+                                                 const QString &key,
+                                                 std::optional<QString> filterName);
 
     static QUrl findFile(const QUrl &url);
     QByteArray fileData(const QUrl &url) override;
