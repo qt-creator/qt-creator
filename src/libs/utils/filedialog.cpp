@@ -116,6 +116,12 @@ public:
         invalidateFilter();
     }
 
+    void setHideFiltered(bool hide)
+    {
+        m_hideFiltered = hide;
+        invalidateFilter();
+    }
+
     void setDirectoriesOnly(bool on)
     {
         m_directoriesOnly = on;
@@ -216,11 +222,16 @@ public:
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override
     {
-        if (m_showHidden)
-            return true;
         const QModelIndex idx = sourceModel()->index(row, 0, parent);
         const auto flags = idx.data(FileSystemModel::FileFlagsRole)
                                .value<FilePathInfo::FileFlags>();
+        if (m_hideFiltered && (flags & FilePathInfo::FileType) && !m_suffixes.isEmpty()) {
+            const auto fp = idx.data(FileSystemModel::FilePathRole).value<FilePath>();
+            if (!filterMatches(m_suffixes, fp))
+                return false;
+        }
+        if (m_showHidden)
+            return true;
         const bool hiddenByFlag = flags & FilePathInfo::HiddenFlag;
         const bool hiddenByDot
             = idx.data(FileSystemModel::FileNameRole).toString().startsWith('.');
@@ -236,6 +247,7 @@ protected:
 private:
     QStringList m_suffixes;
     bool m_showHidden = false;
+    bool m_hideFiltered = !HostOsInfo::isMacHost();
     bool m_directoriesOnly = false;
 };
 
@@ -2009,6 +2021,14 @@ FileDialog::FileDialog(QWidget *parent)
         d->m_proxy->setShowHidden(checked);
     });
 
+    QAction *hideFilteredAction = new QAction(Tr::tr("Hide filtered files"), this);
+    hideFilteredAction->setCheckable(true);
+    hideFilteredAction->setChecked(HostOsInfo::isMacHost() ? false : true);
+
+    connect(hideFilteredAction, &QAction::toggled, this, [this](bool checked) {
+        d->m_proxy->setHideFiltered(checked);
+    });
+
     using namespace Layouting;
     // clang-format off
     Column {
@@ -2084,6 +2104,7 @@ FileDialog::FileDialog(QWidget *parent)
                                 menu.addAction(listViewAction);
                                 menu.addSeparator();
                                 menu.addAction(showHiddenAction);
+                                menu.addAction(hideFilteredAction);
                                 menu.exec(QCursor::pos());
                             }),
                         },
