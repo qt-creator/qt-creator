@@ -1896,6 +1896,8 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     auto buildManager = new BuildManager(this, dd->m_cancelBuildAction);
     connect(buildManager, &BuildManager::buildStateChanged,
             dd, &ProjectExplorerPluginPrivate::updateActions);
+    connect(buildManager, &BuildManager::buildStateChanged,
+            dd, [] { dd->updateContextMenuActions(ProjectTree::currentNode()); });
     connect(buildManager, &BuildManager::buildQueueFinished,
             dd, &ProjectExplorerPluginPrivate::buildQueueFinished, Qt::QueuedConnection);
 
