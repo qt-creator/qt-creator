@@ -30,6 +30,7 @@ public:
     EditorView *findFirstView() const;
     EditorView *findLastView() const;
 
+    SplitterOrView *splitterOrView() const;
     bool hasSplits() const;
     EditorView *unsplit(EditorView *view);
     void unsplitAll(EditorView *viewToKeep);

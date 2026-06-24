@@ -110,6 +110,7 @@ inline constexpr char REMOVE_CURRENT_SPLIT[]  = "QtCreator.RemoveCurrentSplit";
 inline constexpr char REMOVE_ALL_SPLITS[]     = "QtCreator.RemoveAllSplits";
 inline constexpr char GOTO_PREV_SPLIT[]       = "QtCreator.GoToPreviousSplit";
 inline constexpr char GOTO_NEXT_SPLIT[]       = "QtCreator.GoToNextSplit";
+inline constexpr char EQUALLY_DISTRIBUTE_SPLITS[] = "QtCreator.EquallyDistributeSplits";
 inline constexpr char CLOSE[]                 = "QtCreator.Close";
 inline constexpr char CLOSE_ALTERNATIVE[]     = "QtCreator.Close_Alternative"; // temporary, see QTCREATORBUG-72
 inline constexpr char CLOSEALL[]              = "QtCreator.CloseAll";

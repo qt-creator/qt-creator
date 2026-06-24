@@ -74,6 +74,11 @@ EditorView *EditorArea::findLastView() const
     return m_splitterOrView->findLastView();
 }
 
+SplitterOrView *EditorArea::splitterOrView() const
+{
+    return m_splitterOrView;
+}
+
 bool EditorArea::hasSplits() const
 {
     return m_splitterOrView->isSplitter();

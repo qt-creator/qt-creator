@@ -719,6 +719,13 @@ void EditorManagerPrivate::init()
     gotoNextSplit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
     gotoNextSplit.addOnTriggered(this, &EditorManagerPrivate::gotoNextSplit);
 
+    ActionBuilder equallyDistributeSplits(this, Constants::EQUALLY_DISTRIBUTE_SPLITS);
+    equallyDistributeSplits.setText(::Core::Tr::tr("Equally Distribute Splits"));
+    equallyDistributeSplits.bindContextAction(&m_equallyDistributeSplitsAction);
+    equallyDistributeSplits.setContext(editManagerContext);
+    equallyDistributeSplits.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
+    equallyDistributeSplits.addOnTriggered(this, &EditorManagerPrivate::equallyDistributeSplits);
+
     ActionBuilder cycleToNextEditorAction(this, Constants::CYCLE_NEXT_EDITOR);
     cycleToNextEditorAction.setText(Tr::tr(Constants::TR_CYCLE_NEXT_EDITOR));
     cycleToNextEditorAction.bindContextAction(&m_cycleNextEditorAction);
@@ -2243,6 +2250,7 @@ void EditorManagerPrivate::updateActions()
     d->m_removeAllSplitsAction->setEnabled(hasSplitter);
     d->m_gotoPreviousSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
     d->m_gotoNextSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
+    d->m_equallyDistributeSplitsAction->setEnabled(hasSplitter);
     const bool splitActionsEnabled = viewCount < kMaxViews;
     d->m_splitAction->setEnabled(splitActionsEnabled);
     d->m_splitNewWindowAction->setEnabled(splitActionsEnabled);
@@ -2417,6 +2425,33 @@ void EditorManagerPrivate::gotoPreviousSplit()
 
     if (QTC_GUARD(prevView))
         activateView(prevView);
+}
+
+// Returns the number of leaf views this node contributes in parentOrientation's direction.
+static int equallyDistribute(SplitterOrView *sov, Qt::Orientation parentOrientation)
+{
+    QTC_ASSERT(sov, return 1);
+    if (sov->isView())
+        return 1;
+    QSplitter *s = sov->splitter();
+    Qt::Orientation orientation = s->orientation();
+    auto *c0 = qobject_cast<SplitterOrView *>(s->widget(0));
+    auto *c1 = qobject_cast<SplitterOrView *>(s->widget(1));
+    const int n0 = equallyDistribute(c0, orientation);
+    const int n1 = equallyDistribute(c1, orientation);
+    s->setSizes({n0, n1});
+    return orientation == parentOrientation ? n0 + n1 : 1;
+};
+
+void EditorManagerPrivate::equallyDistributeSplits()
+{
+    EditorView *view = currentEditorView();
+    QTC_ASSERT(view, return);
+
+    SplitterOrView *root = view->editorArea()->splitterOrView();
+
+    if (root->isSplitter())
+        equallyDistribute(root, root->splitter()->orientation());
 }
 
 void EditorManagerPrivate::cycleToNextEditor(const Utils::FilePath &filePath)
