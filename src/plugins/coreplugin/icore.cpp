@@ -2251,7 +2251,11 @@ void ICorePrivate::setFocusToEditor()
 
 void ICorePrivate::openFileFromDevice()
 {
-    ICore::openFiles(EditorManager::getOpenFilePaths(QFileDialog::DontUseNativeDialog), ICore::SwitchMode);
+    ICore::openFiles(
+        EditorManager::getOpenFilePaths(QFileDialog::DontUseNativeDialog),
+        ICore::SwitchMode,
+        {},
+        /*openProjects=*/false);
 }
 
 static void acceptModalDialogs()
