@@ -95,16 +95,29 @@ protected:
 
 class QTCREATOR_UTILS_EXPORT QtcComboBox : public QComboBox
 {
+    Q_OBJECT // Needed for the Q_ENUM(Role) to work
+
 public:
+    enum Role {
+        LargePrimary,
+        SmallPrimary,
+    };
+    Q_ENUM(Role)
+
+    explicit QtcComboBox(Role role, QWidget *parent = nullptr);
     explicit QtcComboBox(QWidget *parent = nullptr);
+
     QSize sizeHint() const override;
+
+    void setRole(Role role);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-
-protected:
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
+
+private:
+    Role m_role = LargePrimary;
 };
 
 class QTCREATOR_UTILS_EXPORT QtcSwitch : public QAbstractButton

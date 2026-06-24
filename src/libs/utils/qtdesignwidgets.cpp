@@ -45,6 +45,7 @@ enum WidgetState {
     WidgetStateDefault,
     WidgetStateChecked,
     WidgetStateHovered,
+    WidgetStateDisabled,
 };
 
 namespace {
@@ -211,12 +212,15 @@ static int iconLabelGap(QtcButton::Role role)
 
 static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget *w)
 {
-    const QBrush fill(creatorColor(Theme::Token_Background_Muted));
+    const bool enabled = w->isEnabled();
+    const bool hover = w->underMouse();
+    const QBrush fill(creatorColor(hover && enabled ? Theme::Token_Foreground_Subtle
+                                                    : Theme::Token_Background_Muted));
     const Theme::Color c =
-        w->isEnabled() ? (w->hasFocus() ? Theme::Token_Stroke_Strong
-                                        : (w->underMouse() ? Theme::Token_Stroke_Muted
-                                                           : Theme::Token_Stroke_Subtle))
-                       : Theme::Token_Foreground_Subtle;
+        enabled ? (w->hasFocus() ? Theme::Token_Stroke_Strong
+                                 : (hover ? Theme::Token_Stroke_Muted
+                                          : Theme::Token_Stroke_Subtle))
+                : Theme::Token_Foreground_Subtle;
     const QPen pen(creatorColor(c));
     StyleHelper::drawCardBg(p, rect, fill, pen);
 }
@@ -515,26 +519,55 @@ void QtcSearchBox::paintEvent(QPaintEvent *event)
     }
 }
 
-constexpr TextFormat ComboBoxTf
-    {Theme::Token_Text_Muted, StyleHelper::UiElementIconActive,
-     Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip};
+constexpr TextFormat comboBoxTf {
+    .themeColor = Theme::Token_Text_Default, // All states except disabled
+    .uiElement = StyleHelper::UiElementLabelMedium,
+    .drawTextFlags = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip
+};
 
-static const QPixmap &comboBoxIcon()
+static const QPixmap &comboBoxIcon(WidgetState state)
 {
-    static const QPixmap icon = Icon({{FilePath::fromString(":/core/images/expandarrow.png"),
-                                       ComboBoxTf.themeColor}}, Icon::Tint).pixmap();
-    return icon;
+    const FilePath mask = FilePath::fromString(":/core/images/expandarrow.png");
+    switch (state) {
+    case WidgetStateDefault: {
+        static const QPixmap icon = Icon({{mask, Theme::Token_Text_Muted}}, Icon::Tint).pixmap();
+        return icon;
+    }
+    case WidgetStateChecked:
+    case WidgetStateHovered: {
+        static const QPixmap icon = Icon({{mask, Theme::Token_Text_Default}}, Icon::Tint).pixmap();
+        return icon;
+    }
+    case WidgetStateDisabled:
+    default: {
+        static const QPixmap icon = Icon({{mask, Theme::Token_Text_Subtle}}, Icon::Tint).pixmap();
+        return icon;
+    }
+    }
+}
+
+QtcComboBox::QtcComboBox(Role role, QWidget *parent)
+    : QComboBox(parent)
+{
+    setFont(comboBoxTf.font());
+    setMouseTracking(true);
+    setRole(role);
 }
 
 QtcComboBox::QtcComboBox(QWidget *parent)
-    : QComboBox(parent)
-{
-    setFont(ComboBoxTf.font());
-    setMouseTracking(true);
+    : QtcComboBox(LargePrimary, parent)
+{}
 
-    const QSize iconSize = comboBoxIcon().deviceIndependentSize().toSize();
-    setContentsMargins({PaddingHM, PaddingVM,
-                        GapHXs + iconSize.width() + PaddingHM, PaddingVM});
+void QtcComboBox::setRole(Role role)
+{
+    m_role = role;
+    setFont(comboBoxTf.font());
+    const QSize iconSize = comboBoxIcon(WidgetStateDefault).deviceIndependentSize().toSize();
+    const int hPadding = m_role == SmallPrimary ? PaddingHXs : PaddingHM;
+    const int vPadding = m_role == SmallPrimary ? PaddingVXs : PaddingVM;
+    const int hGap = m_role == SmallPrimary ? GapHXs : GapHM;
+    setContentsMargins({hPadding, vPadding, hGap + iconSize.width() + hPadding, vPadding});
+    update();
 }
 
 QSize QtcComboBox::sizeHint() const
@@ -542,7 +575,7 @@ QSize QtcComboBox::sizeHint() const
     const QSize parentS = QComboBox::sizeHint();
     const QMargins margins = contentsMargins();
     return {margins.left() + parentS.width() + margins.right(),
-            margins.top() + ComboBoxTf.lineHeight() + margins.bottom()};
+            margins.top() + comboBoxTf.lineHeight() + margins.bottom()};
 }
 
 void QtcComboBox::enterEvent(QEnterEvent *event)
@@ -559,30 +592,35 @@ void QtcComboBox::leaveEvent(QEvent *event)
 
 void QtcComboBox::paintEvent(QPaintEvent *)
 {
-    // +-----------+-------------+--------+-------+-----------+
-    // |           | (PaddingVM) |        |       |           |
-    // |           +-------------+        |       |           |
-    // |(PaddingHM)|<currentItem>|(GapHXs)|<arrow>|(PaddingHM)|
-    // |           +-------------+        |       |           |
-    // |           | (PaddingVM) |        |       |           |
-    // +-----------+-------------+--------+-------+-----------+
+    // Small|Default:
+    // +----------------------+----------------------+--------------+-------+----------------------+
+    // |                      |(PaddingVXs|PaddingVM)|              |       |                      |
+    // |                      +----------------------+              |       |                      |
+    // |(PaddingHXs|PaddingHM)|    <currentItem>     |(GapHXs|GapHM)|<arrow>|(PaddingHXs|PaddingHM)|
+    // |                      +----------------------+              |       |                      |
+    // |                      |(PaddingVXs|PaddingVM)|              |       |                      |
+    // +----------------------+----------------------+--------------+-------+----------------------+
 
     QPainter p(this);
     paintCommonBackground(&p, rect(), this);
 
     const QMargins margins = contentsMargins();
     const QRect textR(margins.left(), margins.top(),
-                      width() - margins.right(), ComboBoxTf.lineHeight());
-    p.setFont(ComboBoxTf.font());
-    const QColor color = isEnabled() ? ComboBoxTf.color() : creatorColor(Theme::Token_Text_Subtle);
+                      width() - margins.right(), comboBoxTf.lineHeight());
+    p.setFont(comboBoxTf.font());
+    const QColor color = isEnabled() ? comboBoxTf.color() : creatorColor(Theme::Token_Text_Subtle);
     p.setPen(color);
-    p.drawText(textR, ComboBoxTf.drawTextFlags, currentText());
+    p.drawText(textR, comboBoxTf.drawTextFlags, currentText());
 
-    const QPixmap icon = comboBoxIcon();
+    const WidgetState state = hasFocus() ? WidgetStateChecked
+                                         : (underMouse() ? WidgetStateHovered
+                                                         : (isEnabled() ? WidgetStateDefault
+                                                                        : WidgetStateDisabled));
+
+    const QPixmap icon = comboBoxIcon(state);
     const QSize iconS = icon.deviceIndependentSize().toSize();
-    const QPoint iconPos(width() - PaddingHM - iconS.width(), (height() - iconS.height()) / 2);
-    if (!isEnabled())
-        p.setOpacity(disabledIconOpacity);
+    const QPoint iconPos(width() - contentsMargins().left() - iconS.width(),
+                         (height() - iconS.height()) / 2);
     p.drawPixmap(iconPos, icon);
 }
 

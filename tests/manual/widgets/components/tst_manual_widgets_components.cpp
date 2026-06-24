@@ -27,13 +27,20 @@ static QWidget *button(QtcButton::Role role, bool withPixmap = false)
     return button;
 }
 
+static QWidget *comboBox(QtcComboBox::Role role)
+{
+    static const int roleEnumIndex = QtcComboBox::staticMetaObject.indexOfEnumerator("Role");
+    static const QMetaEnum roleEnum = QtcComboBox::staticMetaObject.enumerator(roleEnumIndex);
+    static const QStringList colorNames = QColor::colorNames();
+    auto comboBox = new QtcComboBox(role);
+    comboBox->addItem(roleEnum.key(role));
+    comboBox->addItems(colorNames.first(8));
+    return comboBox;
+}
+
 QWidget *widgets()
 {
     auto widget = new QWidget;
-
-    auto comboBox = new QtcComboBox;
-    const QStringList content = QColor::colorNames();
-    comboBox->addItems(content.first(8));
 
     auto switchOn = new QtcSwitch("Qt::RightToLeft");
     switchOn->setChecked(true);
@@ -131,11 +138,12 @@ QWidget *widgets()
                     new QtcSearchBox,
                 },
             },
-            Group {
-                title("ComboBox"),
-                Column {
-                    comboBox,
-                },
+        },
+        Group {
+            title("ComboBox"),
+            Row {
+                comboBox(QtcComboBox::LargePrimary),
+                comboBox(QtcComboBox::SmallPrimary),
             },
         },
         Row {
