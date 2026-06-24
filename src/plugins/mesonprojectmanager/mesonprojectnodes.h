@@ -18,6 +18,7 @@ class MesonTargetNode : public ProjectExplorer::ProjectNode
 public:
     MesonTargetNode(const Utils::FilePath &directory, const QString &name, const QString &target_type, const QStringList &filenames, bool build_by_default);
 
+    bool canBuild(ProjectExplorer::BuildAction action) override;
     void build(ProjectExplorer::BuildAction action) override;
     QString tooltip() const final;
     QString buildKey() const final;
