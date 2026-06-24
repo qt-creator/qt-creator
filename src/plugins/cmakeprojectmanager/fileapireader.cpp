@@ -294,14 +294,15 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
     m_taskTreeRunner.start({AsyncTask<ResultType>(onSetup, onDone)});
 }
 
-void FileApiReader::makeBackupConfiguration(bool store)
+bool FileApiReader::makeBackupConfiguration(bool store)
 {
     FilePath reply = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply");
     FilePath replyPrev = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply.prev");
     if (!store)
         std::swap(reply, replyPrev);
 
-    if (reply.exists()) {
+    const bool existed = reply.exists();
+    if (existed) {
         if (replyPrev.exists())
             replyPrev.removeRecursively();
         QTC_CHECK(!replyPrev.exists());
@@ -323,6 +324,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
                     .arg(cmakeCacheTxt.toUserOutput(), cmakeCacheTxtPrev.toUserOutput(), res.error())));
         }
     }
+    return existed;
 }
 
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)
@@ -408,12 +410,11 @@ void FileApiReader::cmakeFinishedState(int exitCode)
     m_lastCMakeFailed = (exitCode != 0);
     m_cmakeProcess.release()->deleteLater();
 
-    if (m_lastCMakeFailed)
-        makeBackupConfiguration(false);
+    const bool restoredFromBackup = m_lastCMakeFailed && makeBackupConfiguration(false);
 
     setupCMakeFileApi();
 
-    endState(FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory), m_lastCMakeFailed);
+    endState(FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory), restoredFromBackup);
 }
 
 void FileApiReader::handleReplyIndexFileChange(const FilePath &indexFile)

@@ -70,7 +70,7 @@ private:
     void cmakeFinishedState(int exitCode);
 
     void handleReplyIndexFileChange(const Utils::FilePath &indexFile);
-    void makeBackupConfiguration(bool store);
+    bool makeBackupConfiguration(bool store);
 
     void writeConfigurationIntoBuildDirectory(const QStringList &configuration);
     void setupCMakeFileApi();
