@@ -2238,6 +2238,7 @@ void EditorManagerPrivate::updateActions()
     const bool hasSplitter = view && view->isInSplit();
     d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
     d->m_removeAllSplitsAction->setEnabled(hasSplitter);
+    d->m_gotoPreviousSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
     d->m_gotoNextSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
     const bool splitActionsEnabled = viewCount < kMaxViews;
     d->m_splitAction->setEnabled(splitActionsEnabled);
