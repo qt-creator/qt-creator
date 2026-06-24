@@ -657,17 +657,6 @@ static QString nameFilterForMime(const QString &mimeType)
     return mime.comment() + " ("_L1 + patterns + u')';
 }
 
-static QString truncatedFilter(const QString &filter, int maxLen = 60)
-{
-    if (filter.size() <= maxLen)
-        return filter;
-    const int open = filter.indexOf('(');
-    // If we can fit the description and an opening paren, truncate inside the pattern list.
-    if (open > 0 && open < maxLen - 3)
-        return filter.left(maxLen - 2) + u"…)";
-    return filter.left(maxLen - 1) + u"…";
-}
-
 static bool looksLikeMimeType(const QString &filter)
 {
     // MIME types look like "type/subtype"; Qt name filters always contain "("
@@ -2528,7 +2517,7 @@ void FileDialog::setNameFilters(const QStringList &filters)
 
     d->m_filterCombo->clear();
     for (const QString &f : std::as_const(resolved))
-        d->m_filterCombo->addItem(truncatedFilter(f), f);
+        d->m_filterCombo->addItem(f, f);
     if (!resolved.isEmpty())
         d->m_proxy->setSuffixes(parseSuffixes(resolved.first()));
 
