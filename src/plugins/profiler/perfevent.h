@@ -12,7 +12,7 @@
 #include <QDataStream>
 #include <QVariant>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfEvent : public Timeline::TraceEvent
 {
@@ -180,4 +180,4 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
     return stream;
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

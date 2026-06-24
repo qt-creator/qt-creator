@@ -7,7 +7,7 @@
 
 #include <tracing/flamegraphwidget.h>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfProfilerFlameGraphView : public Timeline::FlameGraphWidget
 {
@@ -15,4 +15,4 @@ public:
     explicit PerfProfilerFlameGraphView(PerfProfilerFlameGraphModel *model);
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

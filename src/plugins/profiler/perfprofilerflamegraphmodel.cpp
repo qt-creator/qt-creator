@@ -11,7 +11,7 @@
 
 #include <unordered_map>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class Payload
 {
@@ -399,4 +399,4 @@ void Payload::countLostRequest()
         allocator->lostResourceRequests += m_numSamples;
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

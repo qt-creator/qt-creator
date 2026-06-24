@@ -20,7 +20,7 @@ class Project;
 class RunControl;
 }
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfProfilerToolPrivate;
 
@@ -77,4 +77,4 @@ private:
 void setupPerfProfilerTool();
 void destroyPerfProfilerTool();
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

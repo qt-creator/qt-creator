@@ -7,7 +7,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace PerfProfiler {
+namespace Profiler {
 
 class PROFILER_EXPORT PerfSettings final : public Utils::AspectContainer
 {
@@ -35,4 +35,4 @@ public:
 
 PerfSettings &globalSettings();
 
-} // namespace PerfProfiler
+} // namespace Profiler

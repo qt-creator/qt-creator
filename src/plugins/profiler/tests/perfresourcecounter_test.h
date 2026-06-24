@@ -5,8 +5,8 @@
 
 #include <QObject>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 QObject *createPerfResourceCounterTest();
 
-} // PerfProfiler::Internal
+} // Profiler::Internal

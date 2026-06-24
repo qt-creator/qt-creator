@@ -7,7 +7,7 @@
 
 #include <QAbstractTableModel>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfConfigEventsModel : public QAbstractTableModel
 {
@@ -116,4 +116,4 @@ private:
     void reset();
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

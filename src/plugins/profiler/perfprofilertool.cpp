@@ -55,11 +55,11 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace PerfProfiler::Constants;
+using namespace Profiler::Constants;
 using namespace Utils;
 using namespace std::placeholders;
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfProfilerToolPrivate
 {
@@ -708,4 +708,4 @@ void destroyPerfProfilerTool()
     delete s_instance;
 }
 
-} // PerfProfiler::Internal
+} // Profiler::Internal

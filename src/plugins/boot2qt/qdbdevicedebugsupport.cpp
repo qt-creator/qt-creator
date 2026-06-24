@@ -59,13 +59,13 @@ static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
             }
         }
         if (runControl->usesPerfChannel()) {
-            const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
+            const Store perfArgs = runControl->settingsData(Profiler::Constants::PerfSettingsId);
             // appcontroller is not very clear about this, but it expects a comma-separated list of arguments.
             // Any literal commas that apper in the args should be escaped by additional commas.
             // See the source at
             // https://code.qt.io/cgit/qt-apps/boot2qt-appcontroller.git/tree/main.cpp?id=658dc91cf561e41704619a55fbb1f708decf134e#n434
             // and adjust if necessary.
-            const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId]
+            const QString recordArgs = perfArgs[Profiler::Constants::PerfRecordArgsId]
                                            .toString()
                                            .replace(',', ",,")
                                            .split(' ', Qt::SkipEmptyParts)

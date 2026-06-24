@@ -22,7 +22,7 @@
 
 using namespace Utils;
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 PerfLoadDialog::PerfLoadDialog(QWidget *parent)
     : QDialog(parent)
@@ -118,4 +118,4 @@ void PerfLoadDialog::chooseDefaults()
         m_executableDirLineEdit->setText(bc->buildDirectory().toUrlishString());
 }
 
-} // PerfProfiler::Internal
+} // Profiler::Internal

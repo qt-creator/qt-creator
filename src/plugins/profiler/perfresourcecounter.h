@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 struct NoPayload
 {
@@ -444,4 +444,4 @@ private:
     qint64 m_maxTotal = 0;
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

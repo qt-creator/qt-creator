@@ -16,7 +16,7 @@
 
 using namespace Utils;
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 const QByteArray PerfProfilerTraceManager::s_resourceNamePrefix
         = QByteArrayLiteral("perfprofiler_");
@@ -628,4 +628,4 @@ PerfProfilerTraceManager &traceManager()
     return thePerfProfilerTraceManager;
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

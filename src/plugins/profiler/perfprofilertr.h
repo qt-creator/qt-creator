@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace PerfProfiler {
+namespace Profiler {
 
 struct Tr
 {
     Q_DECLARE_TR_FUNCTIONS(QtC::PerfProfiler)
 };
 
-} // namespace PerfProfiler
+} // namespace Profiler

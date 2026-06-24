@@ -16,7 +16,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class Process; }
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfTracePointDialog : public QDialog
 {
@@ -42,4 +42,4 @@ private:
     void reject() final;
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

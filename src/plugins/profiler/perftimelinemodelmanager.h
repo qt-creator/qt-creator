@@ -11,7 +11,7 @@
 
 #include <unordered_map>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfEvent;
 class PerfEventType;
@@ -46,4 +46,4 @@ private:
 
 PerfTimelineModelManager &modelManager();
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

@@ -5,7 +5,7 @@
 #include "perfprofilerflamegraphview.h"
 #include "perfprofilertr.h"
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(PerfProfilerFlameGraphModel *model)
     : Timeline::FlameGraphWidget(model)
@@ -35,4 +35,4 @@ PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(PerfProfilerFlameGraphMod
     setOthersText(Tr::tr("Various"));
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

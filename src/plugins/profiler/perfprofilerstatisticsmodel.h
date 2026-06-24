@@ -6,7 +6,7 @@
 #include <QAbstractItemModel>
 #include <QFont>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 struct PerfProfilerStatisticsData;
 
@@ -138,4 +138,4 @@ private:
     int m_currentRelative;
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

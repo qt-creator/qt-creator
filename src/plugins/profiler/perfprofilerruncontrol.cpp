@@ -32,7 +32,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfDataReaderTaskAdapter
 {
@@ -102,7 +102,7 @@ public:
         setId("PerfRecordWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             const auto modifier = [runControl](Process &process) {
-                const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
+                const Store perfArgs = runControl->settingsData(Profiler::Constants::PerfSettingsId);
                 const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
 
                 CommandLine cmd({runControl->device()->filePath("perf"), {"record"}});
@@ -170,4 +170,4 @@ void setupPerfProfilerRunWorker()
     static PerfRecordWorkerFactory thePerfRecordWorkerFactory;
 }
 
-} // PerfProfiler::Internal
+} // Profiler::Internal

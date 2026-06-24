@@ -9,7 +9,7 @@
 
 #include <QFileInfo>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 static const char *headerLabels[] = {
     QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Address"),
@@ -508,4 +508,4 @@ const PerfProfilerStatisticsMainModel *PerfProfilerStatisticsRelativesModel::mai
     return static_cast<const PerfProfilerStatisticsMainModel *>(parent());
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

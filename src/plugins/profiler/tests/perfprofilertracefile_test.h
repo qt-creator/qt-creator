@@ -5,7 +5,7 @@
 
 #include <QObject>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfProfilerTraceFileTest : public QObject
 {
@@ -17,4 +17,4 @@ private slots:
     void testSaveLoadTraceData();
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

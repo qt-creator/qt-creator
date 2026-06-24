@@ -37,7 +37,7 @@
 #include <extensionsystem/iplugin.h>
 
 using namespace ProjectExplorer;
-using namespace PerfProfiler::Internal;
+using namespace Profiler::Internal;
 
 namespace Profiler::Internal {
 

@@ -14,7 +14,7 @@ class Kit;
 class KitChooser;
 } // ProjectExplorer
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfLoadDialog : public QDialog
 {
@@ -37,4 +37,4 @@ private:
     ProjectExplorer::KitChooser *m_kitChooser;
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

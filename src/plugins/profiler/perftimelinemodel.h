@@ -8,7 +8,7 @@
 #include "perfevent.h"
 #include "perfresourcecounter.h"
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfTimelineModelManager;
 
@@ -140,4 +140,4 @@ private:
                    int guesses);
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

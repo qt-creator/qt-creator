@@ -12,7 +12,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime, qint64 endTime,
                                      PerfTimelineModelManager *parent) :
@@ -602,4 +602,4 @@ qint64 PerfTimelineModel::rowMaxValue(int rowNumber) const
     return rowNumber == SamplesRow ? m_resourceBlocks.maxTotal() : 0;
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

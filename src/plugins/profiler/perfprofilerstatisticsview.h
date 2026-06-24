@@ -5,7 +5,7 @@
 
 #include <QWidget>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class StatisticsView;
 
@@ -32,4 +32,4 @@ private:
     StatisticsView *m_childrenView;
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

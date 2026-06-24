@@ -76,8 +76,8 @@ static ProcessTask inferiorProcess(RunControl *runControl, QmlDebugServicesPrese
             cmd.addArg(debugArgs.join(' '));
         }
         if (runControl->usesPerfChannel()) {
-            const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
-            const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
+            const Store perfArgs = runControl->settingsData(Profiler::Constants::PerfSettingsId);
+            const QString recordArgs = perfArgs[Profiler::Constants::PerfRecordArgsId].toString();
             cmd.addArg(QString("perf record %1 -o - --").arg(recordArgs));
         }
 

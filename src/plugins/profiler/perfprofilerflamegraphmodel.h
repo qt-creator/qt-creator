@@ -7,7 +7,7 @@
 
 #include <QAbstractItemModel>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfProfilerFlameGraphData;
 class PerfProfilerFlameGraphModel : public QAbstractItemModel
@@ -75,4 +75,4 @@ private:
     std::unique_ptr<PerfProfilerFlameGraphData> m_offlineData;
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

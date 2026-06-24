@@ -3,8 +3,8 @@
 
 #pragma once
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 void setupPerfProfilerRunWorker();
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

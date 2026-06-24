@@ -11,7 +11,7 @@
 #include <QObject>
 #include <QPointer>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfProfilerTraceFile : public Timeline::TimelineTraceFile
 {
@@ -49,4 +49,4 @@ protected:
     bool m_compressed;
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

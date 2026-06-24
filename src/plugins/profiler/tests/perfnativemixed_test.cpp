@@ -17,7 +17,7 @@
 
 #include <functional>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 // This test proves the "native mixed" claim on the consumer side only: a single
 // sampled call stack that interleaves C++ frames with QML/JS frames renders as
@@ -234,6 +234,6 @@ QObject *createPerfNativeMixedTest()
     return new PerfNativeMixedTest;
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal
 
 #include "perfnativemixed_test.moc"

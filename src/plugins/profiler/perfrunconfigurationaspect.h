@@ -5,7 +5,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfRunConfigurationAspect final : public ProjectExplorer::GlobalOrProjectAspect
 {
@@ -13,4 +13,4 @@ public:
     explicit PerfRunConfigurationAspect(ProjectExplorer::BuildConfiguration *bc);
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

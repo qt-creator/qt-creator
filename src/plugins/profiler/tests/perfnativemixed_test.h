@@ -5,8 +5,8 @@
 
 #include <QObject>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 QObject *createPerfNativeMixedTest();
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

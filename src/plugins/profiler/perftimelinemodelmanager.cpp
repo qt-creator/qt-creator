@@ -7,7 +7,7 @@
 
 #include <utils/qtcassert.h>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 PerfTimelineModelManager::PerfTimelineModelManager()
    : Timeline::TimelineModelAggregator(&traceManager())
@@ -119,4 +119,4 @@ PerfTimelineModelManager &modelManager()
     return thePerfTimelineModelManager;
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

@@ -10,12 +10,12 @@
 
 using namespace ProjectExplorer;
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 PerfRunConfigurationAspect::PerfRunConfigurationAspect(BuildConfiguration *bc)
 {
     setProjectSettings(new PerfSettings(bc->target()));
-    setGlobalSettings(&PerfProfiler::globalSettings(), Constants::PerfSettingsId);
+    setGlobalSettings(&Profiler::globalSettings(), Constants::PerfSettingsId);
     setId(Constants::PerfSettingsId);
     setDisplayName(Tr::tr("Performance Analyzer Settings"));
     setUsingGlobalSettings(true);
@@ -23,4 +23,4 @@ PerfRunConfigurationAspect::PerfRunConfigurationAspect(BuildConfiguration *bc)
     setConfigWidgetCreator([this] { return createRunConfigAspectWidget(this); });
 }
 
-} // PerfProfiler::Internal
+} // Profiler::Internal

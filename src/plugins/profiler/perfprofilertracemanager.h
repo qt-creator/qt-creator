@@ -15,7 +15,7 @@
 
 namespace ProjectExplorer { class Kit; }
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class PerfProfilerEventStorage : public Timeline::TraceEventStorage
 {
@@ -236,4 +236,4 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfProfilerTraceManag
 
 PerfProfilerTraceManager &traceManager();
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

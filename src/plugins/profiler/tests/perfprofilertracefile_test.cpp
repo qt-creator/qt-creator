@@ -9,7 +9,7 @@
 
 #include <QTest>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 PerfProfilerTraceFileTest::PerfProfilerTraceFileTest(QObject *parent) : QObject(parent)
 {
@@ -46,6 +46,8 @@ static void checkModels(PerfProfilerTraceManager *traceManager,
     checkModelContainsTraceData(static_cast<PerfTimelineModel *>(perfModels[0]));
 }
 
+namespace {
+
 struct MessageHandler {
     MessageHandler(QtMessageHandler handler)
     {
@@ -61,6 +63,8 @@ struct MessageHandler {
 };
 
 QtMessageHandler MessageHandler::defaultHandler = nullptr;
+
+} // namespace
 
 static void handleMessage(QtMsgType type, const QMessageLogContext &context, const QString &string)
 {
@@ -116,4 +120,4 @@ void PerfProfilerTraceFileTest::testSaveLoadTraceData()
 
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

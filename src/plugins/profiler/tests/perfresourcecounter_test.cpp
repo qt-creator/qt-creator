@@ -7,7 +7,7 @@
 #include <QRandomGenerator>
 #include <QTest>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 struct SizePayload : public NoPayload
 {
@@ -367,6 +367,6 @@ QObject *createPerfResourceCounterTest()
     return new PerfResourceCounterTest;
 }
 
-} // PerfProfiler::Internal
+} // Profiler::Internal
 
 #include "perfresourcecounter_test.moc"

@@ -14,7 +14,7 @@
 #include <QStyledItemDelegate>
 #include <QVBoxLayout>
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 class StatisticsView : public Utils::BaseTreeView
 {
@@ -211,4 +211,4 @@ void StatisticsView::copySelectionToClipboard() const
         sendToClipboard(rowToString(currentIndex().row()));
 }
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal

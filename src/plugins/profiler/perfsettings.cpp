@@ -31,9 +31,9 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-using namespace PerfProfiler::Internal;
+using namespace Profiler::Internal;
 
-namespace PerfProfiler {
+namespace Profiler {
 
 class PerfConfigWidget : public QWidget
 {
@@ -500,4 +500,4 @@ public:
 
 const PerfSettingsPage settingsPage;
 
-} // namespace PerfProfiler
+} // namespace Profiler

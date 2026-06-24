@@ -17,7 +17,7 @@ class Kit;
 class RunControl;
 } // ProjectExplorer
 
-namespace PerfProfiler::Internal {
+namespace Profiler::Internal {
 
 Utils::FilePath findPerfParser();
 
@@ -83,4 +83,4 @@ private:
     qint64 delay(qint64 currentTime);
 };
 
-} // namespace PerfProfiler::Internal
+} // namespace Profiler::Internal
