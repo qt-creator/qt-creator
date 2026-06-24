@@ -13,9 +13,8 @@
 #include <projectexplorer/rawprojectpart.h>
 
 #include <utils/processinterface.h>
-#include <utils/qtcprocess.h>
 
-#include <QElapsedTimer>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 namespace GNProjectManager::Internal {
 
@@ -56,21 +55,11 @@ signals:
     void completed(bool success);
 
 private:
-    void startParser();
-    void handleProcessDone();
-    bool parse(const Utils::FilePath &sourcePath, const Utils::FilePath &buildPath);
-    static ParserData extractParserResults(const Utils::FilePath &srcDir,
-                                           GNInfoParser::Result &&parserResult);
-    QStringList processGnOutput(const QStringList &list);
-
-    Utils::FilePath m_buildDir;
-    Utils::FilePath m_srcDir;
     GNInfoParser::Result m_parserResult;
     QStringList m_targetsNames;
     std::unique_ptr<GNProjectNode> m_rootNode;
     QString m_projectName;
-    std::unique_ptr<Utils::Process> m_process;
-    QElapsedTimer m_elapsed;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace GNProjectManager::Internal
