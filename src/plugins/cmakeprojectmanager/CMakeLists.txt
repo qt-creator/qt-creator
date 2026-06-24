@@ -23,7 +23,6 @@ add_qtc_plugin(CMakeProjectManager
     cmakemcpsupport.cpp cmakemcpsupport.h
     cmakelocatorfilter.cpp cmakelocatorfilter.h
     cmakeoutputparser.cpp cmakeoutputparser.h
-    cmakeprocess.cpp cmakeprocess.h
     cmakeproject.cpp cmakeproject.h
     cmakeproject.qrc
     cmakeprojectconstants.h
@@ -38,6 +37,7 @@ add_qtc_plugin(CMakeProjectManager
     cmaketool.cpp cmaketool.h
     cmaketoolmanager.cpp cmaketoolmanager.h
     cmaketoolsettingsaccessor.cpp cmaketoolsettingsaccessor.h
+    cmakeutils.cpp cmakeutils.h
     configmodel.cpp configmodel.h
     configmodelitemdelegate.cpp configmodelitemdelegate.h
     fileapidataextractor.cpp fileapidataextractor.h

@@ -3,9 +3,9 @@
 
 #include "fileapiparser.h"
 
-#include "cmakeprocess.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakeutils.h"
 
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/rawprojectpart.h>

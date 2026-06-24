@@ -18,15 +18,12 @@ namespace ProjectExplorer { class ProjectNode; }
 
 namespace CMakeProjectManager::Internal {
 
-class CMakeProcess;
-
 class FileApiReader final : public QObject
 {
     Q_OBJECT
 
 public:
-    FileApiReader();
-    ~FileApiReader();
+    ~FileApiReader() override;
 
     void setParameters(const BuildDirParameters &p);
 
@@ -62,20 +59,13 @@ signals:
     void dirty() const;
     void errorOccurred(const QString &message) const;
     void debuggingStarted() const;
+    void cancelCMakeRequested() const;
 
 private:
-    void startState();
-    void endState(const Utils::FilePath &replyFilePath, bool restoredFromBackup);
-    void startCMakeState(const QStringList &configurationArguments);
-    void cmakeFinishedState(int exitCode);
-
     void handleReplyIndexFileChange(const Utils::FilePath &indexFile);
     bool makeBackupConfiguration(bool store);
-
     void writeConfigurationIntoBuildDirectory(const QStringList &configuration);
     void setupCMakeFileApi();
-
-    std::unique_ptr<CMakeProcess> m_cmakeProcess;
 
     // cmake data:
     CMakeConfig m_cache;
@@ -89,8 +79,6 @@ private:
     bool m_usesAllCapsTargets = false;
     bool m_lastCMakeFailed = false;
 
-    // Update related:
-    bool m_isParsing = false;
     BuildDirParameters m_parameters;
 
     // Notification on changes outside of creator:

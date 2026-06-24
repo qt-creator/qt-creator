@@ -9,12 +9,12 @@
 #include "cmakebuildtarget.h"
 #include "cmakeinstallstep.h"
 #include "cmakekitaspect.h"
-#include "cmakeprocess.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
 #include "cmaketoolmanager.h"
+#include "cmakeutils.h"
 #include "projecttreehelper.h"
 #include "targethelper.h"
 
