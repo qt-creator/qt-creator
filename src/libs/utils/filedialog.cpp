@@ -3,6 +3,7 @@
 
 #include "filedialog.h"
 
+#include "algorithm.h"
 #include "async.h"
 #include "fancylineedit.h"
 #include "filepathinfo.h"
@@ -182,6 +183,15 @@ public:
         return mime;
     }
 
+    static bool filterMatches(const QStringList &suffixes, const FilePath &fp)
+    {
+        const auto fn = fp.fileName();
+        return Utils::anyOf(suffixes, [s = fp.suffix(), fn](const QString &suffix) {
+            const bool hasDot = suffix.contains('.');
+            return (hasDot && fn == suffix) || (!hasDot && s == suffix);
+        });
+    }
+
     // Whether the row passes the active content filter. Rows that fail are still
     // shown (grayed out via flags()), so this is kept separate from row filtering,
     // which only hides hidden files.
@@ -200,7 +210,7 @@ public:
         if (isDir)
             return true;
         const auto fp = sourceIdx.data(FileSystemModel::FilePathRole).value<FilePath>();
-        return m_suffixes.contains(fp.suffix().toLower());
+        return filterMatches(m_suffixes, fp);
     }
 
 protected:
@@ -678,6 +688,8 @@ static QStringList parseSuffixes(const QString &filter)
             return {};
         if (part.startsWith(u"*."))
             suffixes << part.mid(2).toLower();
+        else
+            suffixes << part;
     }
     return suffixes;
 }
