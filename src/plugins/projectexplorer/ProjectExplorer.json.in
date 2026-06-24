@@ -21,6 +21,11 @@
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-tos.html#manage-projects",
     "Arguments" : [
         {
+            "Name" : "-project",
+            "Parameter" : "<file>",
+            "Description" : "Opens the project <file>"
+        },
+        {
             "Name" : "-customwizard-verbose",
             "Description" : "Verbose loading of custom wizards"
         },

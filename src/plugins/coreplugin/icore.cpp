@@ -1627,7 +1627,7 @@ void ICorePrivate::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 {
     m_mainwindow->raiseWindow();
     const FilePaths filePaths = Utils::transform(files, &DropSupport::FileSpec::filePath);
-    ICore::openFiles(filePaths, ICore::SwitchMode);
+    ICore::openFiles(filePaths, ICore::SwitchMode, {}, /*openProjects=*/false);
 }
 
 void ICorePrivate::registerDefaultContainers()

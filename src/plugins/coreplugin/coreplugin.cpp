@@ -585,9 +585,12 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
     }
     const FilePaths filePaths = Utils::transform(args, FilePath::fromUserInput);
     IDocument *res = ICore::openFiles(
-                filePaths,
-                ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineAndColumnNumbers | ICore::SwitchSplitIfAlreadyVisible),
-                FilePath::fromString(workingDirectory));
+        filePaths,
+        ICore::OpenFilesFlags(
+            ICore::SwitchMode | ICore::CanContainLineAndColumnNumbers
+            | ICore::SwitchSplitIfAlreadyVisible),
+        FilePath::fromString(workingDirectory),
+        /*openProjects=*/false);
     ICore::raiseMainWindow();
     return res;
 }

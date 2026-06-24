@@ -971,7 +971,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     qRegisterMetaType<ProjectExplorer::RunControl *>();
     qRegisterMetaType<ProjectExplorer::DeployableFile>("ProjectExplorer::DeployableFile");
 
-    handleCommandLineArguments(arguments);
+    handleStartupArguments(arguments);
 
     dd->m_toolChainManager = new ToolchainManager;
 
@@ -3444,8 +3444,50 @@ bool ProjectExplorerPlugin::coreAboutToClose()
     return appOutputPane().aboutToClose();
 }
 
-void ProjectExplorerPlugin::handleCommandLineArguments(const QStringList &arguments)
+static void openProjectsFromArguments(
+    const QStringList &arguments, const FilePath &workingDir, bool isInitializing)
 {
+    const FilePath baseDir = workingDir.isEmpty() ? FilePath::currentWorkingPath() : workingDir;
+    FilePaths projectFiles;
+    int fromIndex = 0;
+    while (fromIndex < arguments.size()) {
+        const int index = arguments.indexOf("-project", fromIndex);
+        if (index < 0)
+            break;
+        if (index < arguments.size() - 1)
+            projectFiles << baseDir.resolvePath(FilePath::fromUserInput(arguments.at(index + 1)))
+                                .absoluteFilePath();
+        fromIndex = index + 2;
+    }
+    const auto loadProjects = [projectFiles] {
+        const OpenProjectResult result = ProjectExplorerPlugin::openProjects(projectFiles);
+        if (!result)
+            ProjectExplorerPlugin::showOpenProjectError(result);
+    };
+    if (isInitializing) {
+        QObject::connect(
+            SessionManager::instance(),
+            &SessionManager::startupSessionRestored,
+            ProjectExplorerPlugin::instance(),
+            loadProjects,
+            Qt::SingleShotConnection);
+    } else {
+        loadProjects();
+    }
+}
+
+QObject *ProjectExplorerPlugin::remoteCommand(
+    const QStringList &options, const QString &workingDirectory, const QStringList &arguments)
+{
+    Q_UNUSED(arguments)
+    openProjectsFromArguments(
+        options, FilePath::fromUserInput(workingDirectory), /*isInitializing=*/false);
+    return nullptr;
+}
+
+void ProjectExplorerPlugin::handleStartupArguments(const QStringList &arguments)
+{
+    openProjectsFromArguments(arguments, {}, /*isInitializing=*/true);
     CustomWizard::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
     JsonWizardFactory::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
 

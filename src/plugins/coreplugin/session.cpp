@@ -465,9 +465,11 @@ void SessionManagerPrivate::restoreStartupSession()
                                                                      : QString(),
                                 true);
 
-    ICore::openFiles(Utils::transform(arguments, &FilePath::fromUserInput),
-                     ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers
-                                           | ICore::SwitchMode));
+    ICore::openFiles(
+        Utils::transform(arguments, &FilePath::fromUserInput),
+        ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode),
+        {},
+        /*openProjects=*/false);
     emit sessionManager()->startupSessionRestored();
 }
 

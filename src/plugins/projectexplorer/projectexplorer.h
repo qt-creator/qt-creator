@@ -111,6 +111,10 @@ public:
     void extensionsInitialized() final;
     bool delayedInitialize() final;
     ShutdownFlag aboutToShutdown() final;
+    QObject *remoteCommand(
+        const QStringList &options,
+        const QString &workingDirectory,
+        const QStringList &arguments) final;
 
     static void startRunControl(RunControl *runControl);
 
@@ -179,7 +183,7 @@ signals:
 
 private:
     static bool coreAboutToClose();
-    void handleCommandLineArguments(const QStringList &arguments);
+    void handleStartupArguments(const QStringList &arguments);
 };
 
 } // namespace ProjectExplorer

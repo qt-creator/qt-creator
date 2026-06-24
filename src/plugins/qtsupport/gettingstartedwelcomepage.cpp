@@ -234,7 +234,7 @@ void openExampleProject(const ExampleItem &item)
 
     OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
     if (result) {
-        ICore::openFiles(filesToOpen);
+        ICore::openFiles(filesToOpen, {}, {}, /*openProjects=*/false);
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
         if (docUrl.isValid())
             HelpManager::showHelpUrl(docUrl, HelpManager::ExternalHelpAlways);
