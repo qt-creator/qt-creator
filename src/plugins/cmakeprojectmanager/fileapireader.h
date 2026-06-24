@@ -4,11 +4,7 @@
 #pragma once
 
 #include "builddirparameters.h"
-#include "cmakebuildtarget.h"
-#include "cmakeprojectnodes.h"
 #include "fileapidataextractor.h"
-
-#include <projectexplorer/rawprojectpart.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -67,16 +63,7 @@ private:
     void writeConfigurationIntoBuildDirectory(const QStringList &configuration);
     void setupCMakeFileApi();
 
-    // cmake data:
-    CMakeConfig m_cache;
-    QSet<CMakeFileInfo> m_cmakeFiles;
-    QList<CMakeBuildTarget> m_buildTargets;
-    ProjectExplorer::RawProjectParts m_projectParts;
-    std::unique_ptr<CMakeProjectNode> m_rootProjectNode;
-    QString m_ctestPath;
-    QString m_cmakeGenerator;
-    bool m_isMultiConfig = false;
-    bool m_usesAllCapsTargets = false;
+    FileApiQtcData m_data;
     bool m_lastCMakeFailed = false;
 
     BuildDirParameters m_parameters;
