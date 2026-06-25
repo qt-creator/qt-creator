@@ -77,6 +77,9 @@ private slots:
 
     void qrcSchemeHostless();
 
+    void uncSchemeDecomposition_data();
+    void uncSchemeDecomposition();
+
     void comparison_data();
     void comparison();
 
@@ -1019,6 +1022,53 @@ void tst_filepath::qrcSchemeHostless()
     // shape Qt ever produces for resources.
     const FilePath parsed = FilePath::fromString("qrc://host/foo.txt");
     QCOMPARE(parsed.host().toString(), QString("host"));
+}
+
+void tst_filepath::uncSchemeDecomposition_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("scheme");
+    QTest::addColumn<QString>("host");
+    QTest::addColumn<QString>("path");
+
+    // Target model for first-class UNC support: the server name moves into the
+    // host part under a dedicated "unc" scheme, while the path keeps only the
+    // share and the remainder. The scheme/host/path expectations below are
+    // marked QEXPECT_FAIL in uncSchemeDecomposition() because the parser still
+    // keeps the whole UNC string (server included) in the path with an empty
+    // scheme. Remove those QEXPECT_FAIL markers once fromString() produces this
+    // decomposition.
+    QTest::newRow("unc-full") << "//server/share/test.txt" << "unc" << "server"
+                              << "/share/test.txt";
+    QTest::newRow("unc-deep") << "//server/share/a/b/c" << "unc" << "server" << "/share/a/b/c";
+    QTest::newRow("unc-share-only") << "//server/share" << "unc" << "server" << "/share";
+}
+
+void tst_filepath::uncSchemeDecomposition()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, scheme);
+    QFETCH(QString, host);
+    QFETCH(QString, path);
+
+    const FilePath filePath = FilePath::fromString(input);
+
+    // UNC paths are resolved by the local OS, so they must stay "local"
+    // regardless of the internal representation. This holds today (empty
+    // scheme) and must keep holding once the "unc" scheme is introduced.
+    QCOMPARE(filePath.isLocal(), true);
+
+    // toFSPathString() must yield the real UNC string for QFile/QDir, both with
+    // the current path-based representation and with the future "unc" scheme.
+    QCOMPARE(filePath.toFSPathString(), input);
+
+    // The remaining expectations encode the not-yet-implemented decomposition.
+    QEXPECT_FAIL("", "UNC scheme not yet extracted; server stays in the path", Continue);
+    QCOMPARE(filePath.scheme().toString(), scheme);
+    QEXPECT_FAIL("", "UNC host not yet extracted; server stays in the path", Continue);
+    QCOMPARE(filePath.host().toString(), host);
+    QEXPECT_FAIL("", "UNC path still contains the leading //server", Continue);
+    QCOMPARE(filePath.path(), path);
 }
 
 enum ExpectedPass { PassEverywhere = 0, FailOnWindows = 1, FailOnLinux = 2, FailEverywhere = 3 };
