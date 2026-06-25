@@ -124,7 +124,7 @@ protected:
         StyleHelper::drawCardBg(
             &p,
             rect(),
-            creatorColor(Theme::Token_Background_Subtle),
+            creatorColor(Theme::Token_Background_Muted),
             creatorColor(Theme::Token_Foreground_Muted),
             RadiusM);
     }
@@ -216,9 +216,9 @@ public:
             fontSettings.setFontSize(appFont.pointSize());
             fontSettings.setFontZoom(100);
             fontSettings.formatFor(C_TEXT).setForeground(creatorColor(Theme::Token_Text_Default));
-            fontSettings.formatFor(C_TEXT).setBackground(creatorColor(Theme::Token_Background_Subtle));
+            fontSettings.formatFor(C_TEXT).setBackground(creatorColor(Theme::Token_Background_Muted));
             fontSettings.formatFor(C_DISABLED_CODE).setForeground(creatorColor(Theme::Token_Text_Subtle));
-            fontSettings.formatFor(C_DISABLED_CODE).setBackground(creatorColor(Theme::Token_Background_Subtle));
+            fontSettings.formatFor(C_DISABLED_CODE).setBackground(creatorColor(Theme::Token_Background_Muted));
             textDocument()->setFontSettings(fontSettings);
         };
         applyWidgetColors();
@@ -400,7 +400,7 @@ protected:
         StyleHelper::drawCardBg(
             &p,
             rect(),
-            creatorColor(Theme::Token_Background_Subtle),
+            creatorColor(Theme::Token_Background_Muted),
             creatorColor(Theme::Token_Foreground_Muted),
             RadiusM);
     }

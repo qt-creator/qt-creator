@@ -49,9 +49,9 @@ ChatInputEdit::ChatInputEdit(QWidget *parent)
         fontSettings.setFontZoom(100);
         const QPalette appPalette = QApplication::palette();
         fontSettings.formatFor(C_TEXT).setForeground(creatorColor(Utils::Theme::Token_Text_Default));
-        fontSettings.formatFor(C_TEXT).setBackground(creatorColor(Utils::Theme::Token_Background_Subtle));
+        fontSettings.formatFor(C_TEXT).setBackground(creatorColor(Utils::Theme::Token_Background_Muted));
         fontSettings.formatFor(C_DISABLED_CODE).setForeground(creatorColor(Utils::Theme::Token_Text_Subtle));
-        fontSettings.formatFor(C_DISABLED_CODE).setBackground(creatorColor(Utils::Theme::Token_Background_Subtle));
+        fontSettings.formatFor(C_DISABLED_CODE).setBackground(creatorColor(Utils::Theme::Token_Background_Muted));
         textDocument()->setFontSettings(fontSettings);
     };
     applyWidgetColors();
