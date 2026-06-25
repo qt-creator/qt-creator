@@ -382,6 +382,14 @@ QString decodeHost(QString host)
 */
 QString FilePath::toUrlishString() const
 {
+    if (scheme() == u"unc") {
+        // Reconstitute the UNC path with the server from the host part.
+        QString result(QLatin1String("//"));
+        result += host();
+        result += path();
+        return result;
+    }
+
     if (isLocal())
         return path();
 
@@ -1828,6 +1836,19 @@ void FilePath::setFromString(const QString &fileNameStr)
 
     if (fileNameView.startsWith(u"/./")) {
         setParts({}, {}, fileNameView.mid(3));
+        return;
+    }
+
+    // UNC paths "//server/share/..." map to the "unc" scheme with the server
+    // in the host part. The Win32 namespaces "//?/..." (extended-length) and
+    // "//./..." (devices) are not network shares, so they stay plain paths.
+    if (fileNameView.size() > 2 && fileNameView[0] == slash && fileNameView[1] == slash
+            && fileNameView[2] != slash && fileNameView[2] != '?' && fileNameView[2] != '.') {
+        const int hostEnd = fileNameView.indexOf(slash, 2);
+        const QStringView host = hostEnd == -1 ? fileNameView.mid(2)
+                                               : fileNameView.mid(2, hostEnd - 2);
+        const QStringView path = hostEnd == -1 ? QStringView(u"/") : fileNameView.mid(hostEnd);
+        setParts(u"unc", host, path);
         return;
     }
 

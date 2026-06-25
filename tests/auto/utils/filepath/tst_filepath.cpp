@@ -396,7 +396,7 @@ void tst_filepath::parentDir_data()
                                         << "//server/"
                                         << "";
     QTest::newRow("//server") << "//server"
-                              << "//server"
+                              << "//server/"
                               << "";
 
     QTest::newRow("qrc") << ":/foo/bar.txt"
@@ -1067,12 +1067,9 @@ void tst_filepath::uncSchemeDecomposition()
     native.replace('\\', '/');
     QCOMPARE(native, input);
 
-    // The remaining expectations encode the not-yet-implemented decomposition.
-    QEXPECT_FAIL("", "UNC scheme not yet extracted; server stays in the path", Continue);
+    // The parser decomposes UNC into the "unc" scheme, server as host.
     QCOMPARE(filePath.scheme().toString(), scheme);
-    QEXPECT_FAIL("", "UNC host not yet extracted; server stays in the path", Continue);
     QCOMPARE(filePath.host().toString(), host);
-    QEXPECT_FAIL("", "UNC path still contains the leading //server", Continue);
     QCOMPARE(filePath.path(), path);
 }
 
@@ -1133,11 +1130,11 @@ void tst_filepath::fromString_data()
     QTest::newRow("qrc-no-slash") << D(":test.txt", "", "", ":test.txt");
 
     QTest::newRow("unc-incomplete") << D("//", "", "", "//");
-    QTest::newRow("unc-incomplete-only-server") << D("//server", "", "", "//server");
-    QTest::newRow("unc-incomplete-only-server-2") << D("//server/", "", "", "//server/");
-    QTest::newRow("unc-server-and-share") << D("//server/share", "", "", "//server/share");
-    QTest::newRow("unc-server-and-share-2") << D("//server/share/", "", "", "//server/share/");
-    QTest::newRow("unc-full") << D("//server/share/test.txt", "", "", "//server/share/test.txt");
+    QTest::newRow("unc-incomplete-only-server") << D("//server", "unc", "server", "/");
+    QTest::newRow("unc-incomplete-only-server-2") << D("//server/", "unc", "server", "/");
+    QTest::newRow("unc-server-and-share") << D("//server/share", "unc", "server", "/share");
+    QTest::newRow("unc-server-and-share-2") << D("//server/share/", "unc", "server", "/share/");
+    QTest::newRow("unc-full") << D("//server/share/test.txt", "unc", "server", "/share/test.txt");
 
     QTest::newRow("unix-root") << D("/", "", "", "/");
     QTest::newRow("unix-folder") << D("/tmp", "", "", "/tmp");
@@ -1205,10 +1202,10 @@ void tst_filepath::fromString_data()
     // WSL paths (UNC via wsl.localhost / wsl$)
     QTest::newRow("wsl-localhost")
         << D("//wsl.localhost/Ubuntu-22.04/home/mtillmanns",
-             "", "", "//wsl.localhost/Ubuntu-22.04/home/mtillmanns");
+             "unc", "wsl.localhost", "/Ubuntu-22.04/home/mtillmanns");
     QTest::newRow("wsl-dollar")
         << D("//wsl$/distro/home/mtillmanns/test.txt",
-             "", "", "//wsl$/distro/home/mtillmanns/test.txt");
+             "unc", "wsl$", "/distro/home/mtillmanns/test.txt");
 }
 
 void tst_filepath::fromString()
@@ -1250,11 +1247,11 @@ void tst_filepath::fromUserInput_data()
     QTest::newRow("tilde-only") << D("~", "", "", QDir::homePath());
 
     QTest::newRow("unc-incomplete") << D("//", "", "", "//");
-    QTest::newRow("unc-incomplete-only-server") << D("//server", "", "", "//server");
-    QTest::newRow("unc-incomplete-only-server-2") << D("//server/", "", "", "//server/");
-    QTest::newRow("unc-server-and-share") << D("//server/share", "", "", "//server/share");
-    QTest::newRow("unc-server-and-share-2") << D("//server/share/", "", "", "//server/share");
-    QTest::newRow("unc-full") << D("//server/share/test.txt", "", "", "//server/share/test.txt");
+    QTest::newRow("unc-incomplete-only-server") << D("//server", "unc", "server", "/");
+    QTest::newRow("unc-incomplete-only-server-2") << D("//server/", "unc", "server", "/");
+    QTest::newRow("unc-server-and-share") << D("//server/share", "unc", "server", "/share");
+    QTest::newRow("unc-server-and-share-2") << D("//server/share/", "unc", "server", "/share");
+    QTest::newRow("unc-full") << D("//server/share/test.txt", "unc", "server", "/share/test.txt");
 
     QTest::newRow("unix-root") << D("/", "", "", "/");
     QTest::newRow("unix-folder") << D("/tmp", "", "", "/tmp");
@@ -1325,17 +1322,17 @@ void tst_filepath::fromUserInput_data()
     // WSL paths — backslash form as typed on Windows
     QTest::newRow("wsl-localhost-backslash")
         << D("\\\\wsl.localhost\\Ubuntu-22.04\\home\\mtillmanns",
-             "", "", "//wsl.localhost/Ubuntu-22.04/home/mtillmanns");
+             "unc", "wsl.localhost", "/Ubuntu-22.04/home/mtillmanns");
     QTest::newRow("wsl-dollar-backslash")
         << D("\\\\wsl$\\distro\\home\\mtillmanns\\test.txt",
-             "", "", "//wsl$/distro/home/mtillmanns/test.txt");
+             "unc", "wsl$", "/distro/home/mtillmanns/test.txt");
     // WSL paths — forward-slash form
     QTest::newRow("wsl-localhost-fwdslash")
         << D("//wsl.localhost/Ubuntu-22.04/home/mtillmanns",
-             "", "", "//wsl.localhost/Ubuntu-22.04/home/mtillmanns");
+             "unc", "wsl.localhost", "/Ubuntu-22.04/home/mtillmanns");
     QTest::newRow("wsl-dollar-fwdslash")
         << D("//wsl$/distro/home/mtillmanns/test.txt",
-             "", "", "//wsl$/distro/home/mtillmanns/test.txt");
+             "unc", "wsl$", "/distro/home/mtillmanns/test.txt");
 }
 
 void tst_filepath::fromUserInput()
@@ -1412,9 +1409,9 @@ void tst_filepath::fromToString_data()
                         << ""
                         << "/Global?\?/UNC/host"
                         << "/Global?\?/UNC/host";
-    QTest::newRow("w4") << ""
-                        << ""
-                        << "//server/dir/file"
+    QTest::newRow("w4") << "unc"
+                        << "server"
+                        << "/dir/file"
                         << "//server/dir/file";
 }
 
