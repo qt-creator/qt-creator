@@ -522,8 +522,24 @@ bool FilePath::supportsRemoving() const
 */
 QString FilePath::toFSPathString() const
 {
-    if (scheme().isEmpty())
+    const QStringView s = scheme();
+
+    // Schemes the local file system resolves directly are rendered as plain
+    // local paths, not __qtc_devices__ entries, so the result is usable with
+    // QFile/QFileInfo without a detour through the file system engine.
+    if (s.isEmpty() || s == u"file")
         return path();
+    if (s == u"qrc") {
+        QString result(QLatin1Char(':'));
+        result += path();
+        return result;
+    }
+    if (s == u"unc") {
+        QString result(QLatin1String("//"));
+        result += host();
+        result += path();
+        return result;
+    }
 
     if (pathView().isEmpty())
         return specialRootPath() + '/' + scheme() + '/' + encodedHost();

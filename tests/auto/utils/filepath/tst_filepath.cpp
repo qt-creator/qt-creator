@@ -82,6 +82,8 @@ private slots:
 
     void uncSchemeLocalAndNative();
 
+    void toFSPathStringLocalSchemes();
+
     void comparison_data();
     void comparison();
 
@@ -1075,14 +1077,27 @@ void tst_filepath::uncSchemeDecomposition()
 
 void tst_filepath::uncSchemeLocalAndNative()
 {
-    // The parser does not produce the "unc" scheme yet, so construct it
-    // directly. A UNC path is resolved by the local OS, and nativePath() must
-    // put the server back together from the host part.
+    // A UNC path is resolved by the local OS, and nativePath() must put the
+    // server back together from the host part.
     const FilePath unc = FilePath::fromParts(u"unc", u"server", u"/share/foo");
     QVERIFY(unc.isLocal());
     QString native = unc.nativePath();
     native.replace('\\', '/');
     QCOMPARE(native, QString("//server/share/foo"));
+}
+
+void tst_filepath::toFSPathStringLocalSchemes()
+{
+    // Schemes the local OS resolves directly render as plain local paths, so
+    // the result is usable with QFile/QFileInfo/QDir.
+    QCOMPARE(FilePath::fromParts(u"file", u"", u"/a/b").toFSPathString(), QString("/a/b"));
+    QCOMPARE(FilePath::fromParts(u"unc", u"server", u"/share/foo").toFSPathString(),
+             QString("//server/share/foo"));
+    QCOMPARE(FilePath::fromUrl(QUrl("qrc:/foo.txt")).toFSPathString(), QString(":/foo.txt"));
+
+    // A genuine device scheme still maps into the __qtc_devices__ tree.
+    QVERIFY(FilePath::fromParts(u"docker", u"1234", u"/a/b").toFSPathString().contains(
+        "__qtc_devices__/docker/1234/a/b"));
 }
 
 enum ExpectedPass { PassEverywhere = 0, FailOnWindows = 1, FailOnLinux = 2, FailEverywhere = 3 };
