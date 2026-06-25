@@ -62,14 +62,14 @@ static void doParse(QPromise<FileApiQtcData> &promise,
                     const QString &cmakeBuildType)
 {
     FileApiQtcData result;
-    FileApiData data = FileApiParser::parseData(promise,
+    const QFuture<void> canceler(promise.future());
+    FileApiData data = FileApiParser::parseData(canceler,
                                                 replyFilePath,
                                                 buildDirectory,
                                                 cmakeBuildType,
                                                 result.errorMessage);
     if (result.errorMessage.isEmpty()) {
-        result = extractData(QFuture<void>(promise.future()), data,
-                             sourceDirectory, buildDirectory);
+        result = extractData(canceler, data, sourceDirectory, buildDirectory);
     } else {
         qWarning() << result.errorMessage;
         result.cache = std::move(data.cache);

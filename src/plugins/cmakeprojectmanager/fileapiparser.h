@@ -16,7 +16,7 @@
 
 QT_BEGIN_NAMESPACE
 template <typename Ret>
-class QPromise;
+class QFuture;
 QT_END_NAMESPACE
 
 namespace CMakeProjectManager::Internal {
@@ -352,7 +352,7 @@ public:
 class FileApiParser
 {
 public:
-    static FileApiData parseData(QPromise<FileApiQtcData> &promise,
+    static FileApiData parseData(const QFuture<void> &future,
                                  const Utils::FilePath &replyFilePath,
                                  const Utils::FilePath &buildDir,
                                  const QString &cmakeBuildType,

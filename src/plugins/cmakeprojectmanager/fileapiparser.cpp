@@ -1140,7 +1140,7 @@ static QStringList uniqueTargetFiles(const ConfigurationInfo &config)
     return files;
 }
 
-FileApiData FileApiParser::parseData(QPromise<FileApiQtcData> &promise,
+FileApiData FileApiParser::parseData(const QFuture<void> &future,
                                      const FilePath &replyFilePath,
                                      const FilePath &buildDir,
                                      const QString &cmakeBuildType,
@@ -1151,8 +1151,8 @@ FileApiData FileApiParser::parseData(QPromise<FileApiQtcData> &promise,
 
     FileApiData result;
 
-    const auto cancelCheck = [&promise, &errorMessage] {
-        if (promise.isCanceled()) {
+    const auto cancelCheck = [&future, &errorMessage] {
+        if (future.isCanceled()) {
             errorMessage = Tr::tr("CMake parsing was canceled.");
             return true;
         }
