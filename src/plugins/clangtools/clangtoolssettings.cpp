@@ -50,6 +50,7 @@ ClangToolsSettings *ClangToolsSettings::instance()
 
 RunSettings::RunSettings(const Key &prefix)
 {
+    diagnosticConfigId.setSettingsKey(prefix + diagnosticConfigIdKey);
     diagnosticConfigId.setDefaultValue(defaultDiagnosticId());
 
     parallelJobs.setSettingsKey(prefix + "ParallelJobs");
