@@ -175,8 +175,10 @@ Timeline::TimelineTraceFile *PerfProfilerTraceManager::createTraceFile()
     return file;
 }
 
-void PerfProfilerTraceManager::replayEvents(TraceEventLoader loader, Initializer initializer,
-                                            Finalizer finalizer, ErrorHandler errorHandler,
+void PerfProfilerTraceManager::replayEvents(const TraceEventLoader &loader,
+                                            const Initializer &initializer,
+                                            const Finalizer &finalizer,
+                                            const ErrorHandler &errorHandler,
                                             QFutureInterface<void> &future) const
 {
     replayPerfEvents(static_cast<PerfEventLoader>(loader), initializer, finalizer, errorHandler,
@@ -217,8 +219,8 @@ PerfProfilerTraceManager::PerfEventFilter PerfProfilerTraceManager::rangeAndThre
         qint64 rangeStart, qint64 rangeEnd) const
 {
     return [rangeStart, rangeEnd, this](PerfEventLoader loader) {
-        return [rangeStart, rangeEnd, this, loader](const PerfEvent &event,
-                                                    const PerfEventType &type) {
+        return [rangeStart, rangeEnd, this, loader = std::move(loader)](const PerfEvent &event,
+                                                                        const PerfEventType &type) {
             if (thread(event.tid()).enabled
                             && (rangeStart == -1 || event.timestamp() >= rangeStart)
                             && (rangeEnd == -1 || event.timestamp() <= rangeEnd)) {
@@ -248,8 +250,10 @@ void PerfProfilerTraceManager::restrictByFilter(PerfProfilerTraceManager::PerfEv
     });
 }
 
-void PerfProfilerTraceManager::replayPerfEvents(PerfEventLoader loader, Initializer initializer,
-                                                Finalizer finalizer, ErrorHandler errorHandler,
+void PerfProfilerTraceManager::replayPerfEvents(const PerfEventLoader &loader,
+                                                const Initializer &initializer,
+                                                const Finalizer &finalizer,
+                                                const ErrorHandler &errorHandler,
                                                 QFutureInterface<void> &future) const
 {
     if (initializer)

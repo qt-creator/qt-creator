@@ -39,8 +39,9 @@ public:
 
     const QmlDebug::QmlEventType &eventType(int typeId) const;
 
-    void replayQmlEvents(QmlEventLoader loader, Initializer initializer, Finalizer finalizer,
-                         ErrorHandler errorHandler, QFutureInterface<void> &future) const;
+    void replayQmlEvents(const QmlEventLoader &loader, const Initializer &initializer,
+                         const Finalizer &finalizer, const ErrorHandler &errorHandler,
+                         QFutureInterface<void> &future) const;
 
     void initialize() override;
     void finalize() override;
@@ -80,8 +81,9 @@ private:
     void clearTypeStorage() final;
 
     Timeline::TimelineTraceFile *createTraceFile() override;
-    void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
-                      ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
+    void replayEvents(const TraceEventLoader &loader, const Initializer &initializer,
+                      const Finalizer &finalizer, const ErrorHandler &errorHandler,
+                      QFutureInterface<void> &future) const override;
 
     QmlProfilerDetailsRewriter *m_detailsRewriter = nullptr;
     bool m_isRestrictedToRange = false;

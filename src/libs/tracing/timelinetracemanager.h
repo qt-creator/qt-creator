@@ -117,8 +117,9 @@ protected:
     virtual void loadEvent(const TraceEvent &event, const TraceEventType &type) = 0;
 
     virtual TimelineTraceFile *createTraceFile() = 0;
-    virtual void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
-                              ErrorHandler errorHandler, QFutureInterface<void> &future) const = 0;
+    virtual void replayEvents(const TraceEventLoader &loader, const Initializer &initializer,
+                              const Finalizer &finalizer, const ErrorHandler &errorHandler,
+                              QFutureInterface<void> &future) const = 0;
 
 private:
     class TimelineTraceManagerPrivate;

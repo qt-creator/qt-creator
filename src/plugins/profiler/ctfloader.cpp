@@ -16,6 +16,7 @@
 #include <fstream>
 #include <set>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 
 using namespace Profiler::Constants;
@@ -137,15 +138,13 @@ void loadChromeJson(QPromise<json> &promise, const QString &fileName)
         return;
     }
 
-    CtfJsonParserFunctor functor(promise);
-    json::parser_callback_t callback = [&functor](int depth, json::parse_event_t event, json &parsed) {
-        return functor(depth, event, parsed);
-    };
-
     try {
-        json unusedValues = json::parse(file, callback, /*allow_exceptions*/ false);
+        // The result is discarded by the callback; we only want the side effects
+        // (events pushed into the promise).
+        std::ignore = json::parse(file, CtfJsonParserFunctor(promise), /*allow_exceptions*/ false);
     } catch (...) {
         // nlohmann::json can throw exceptions when requesting type that is wrong
+        promise.future().cancel();
     }
 
     file.close();

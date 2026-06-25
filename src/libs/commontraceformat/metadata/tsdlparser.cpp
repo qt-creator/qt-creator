@@ -1579,7 +1579,8 @@ private:
             mappings[it.key()] = ranges;
         }
 
-        return [baseFactory, mappings]() -> FieldClassPtr {
+        return [baseFactory = std::move(baseFactory), mappings = std::move(mappings)]()
+                   -> FieldClassPtr {
             auto fc = baseFactory();
             if (fc && fc->kind == FieldClassKind::FixedLengthUInt)
                 static_cast<FixedLengthUIntFC &>(*fc).mappings = mappings;
@@ -1642,14 +1643,14 @@ private:
                     }
                     expect(TT::RBracket, "]");
                     auto arr = std::make_shared<StaticLengthArrayFC>();
-                    arr->elementFieldClass = typeFC;
+                    arr->elementFieldClass = std::move(typeFC);
                     arr->length = count;
                     sfc->members.append({fieldName, arr, {}});
                 } else if (lex.at(TT::Ident)) {
                     QString lenField = lex.next().text;
                     expect(TT::RBracket, "]");
                     auto arr = std::make_shared<DynamicLengthArrayFC>();
-                    arr->elementFieldClass = typeFC;
+                    arr->elementFieldClass = std::move(typeFC);
                     arr->lengthFieldLocation.origin = origin;
                     arr->lengthFieldLocation.path = {std::optional<QString>(lenField)};
                     sfc->members.append({fieldName, arr, {}});
@@ -1658,7 +1659,7 @@ private:
                     return {};
                 }
             } else {
-                sfc->members.append({fieldName, typeFC, {}});
+                sfc->members.append({fieldName, std::move(typeFC), {}});
             }
             expect(TT::Semi, ";");
         }

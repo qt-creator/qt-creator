@@ -136,8 +136,9 @@ void PerfProfilerStatisticsMainModel::finalize(PerfProfilerStatisticsData *data)
     resort();
 
     QTC_ASSERT(data->isEmpty(), data->clear());
-    QTC_CHECK(!m_offlineData);
-    m_offlineData.reset(data);
+    // m_offlineData keeps owning the same object across loads; it was filled in
+    // place and has now been swapped out, so nothing to re-acquire here.
+    QTC_CHECK(data == m_offlineData.get());
 }
 
 int PerfProfilerStatisticsMainModel::rowCount(const QModelIndex &parent) const
@@ -179,10 +180,11 @@ quint64 PerfProfilerStatisticsMainModel::address(int typeId) const
 
 void PerfProfilerStatisticsMainModel::initialize()
 {
-    // Make offline data unaccessible while we're loading events
-    PerfProfilerStatisticsData *offline = m_offlineData.release();
-    QTC_ASSERT(offline, return);
-    QTC_ASSERT(offline->isEmpty(), offline->clear());
+    // The offline data object lives for the whole lifetime of the model (owned by
+    // m_offlineData) and is filled in place while loading. Just make sure we start
+    // from an empty state.
+    QTC_ASSERT(m_offlineData, return);
+    QTC_ASSERT(m_offlineData->isEmpty(), m_offlineData->clear());
 }
 
 void PerfProfilerStatisticsData::loadEvent(const PerfEvent &event, const PerfEventType &type)
@@ -290,13 +292,10 @@ void PerfProfilerStatisticsMainModel::sort(int column, Qt::SortOrder order)
 void PerfProfilerStatisticsMainModel::clear(PerfProfilerStatisticsData *data)
 {
     beginResetModel();
-    if (!m_offlineData) {
-        // We didn't finalize
-        data->clear();
-        m_offlineData.reset(data);
-    } else {
-        QTC_CHECK(data == m_offlineData.get());
-    }
+    // m_offlineData owns this object for the whole lifetime of the model; just
+    // empty it again (a no-op if we already finalized).
+    QTC_CHECK(data == m_offlineData.get());
+    data->clear();
     m_totalSamples = 0;
     m_data.clear();
     m_forwardIndex.clear();
@@ -335,7 +334,8 @@ PerfProfilerStatisticsMainModel::PerfProfilerStatisticsMainModel(QObject *parent
 
 PerfProfilerStatisticsMainModel::~PerfProfilerStatisticsMainModel()
 {
-    // If the offline data isn't here, we're being deleted while loading something. That's unnice.
+    // m_offlineData owns the data object for the whole lifetime of the model, so it
+    // is always present here and cleaned up even if we're destroyed mid-load.
     QTC_CHECK(m_offlineData);
 }
 

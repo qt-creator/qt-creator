@@ -212,7 +212,7 @@ private:
         qint16 internal16bit[s_internalDataLength / 2];
         qint32 internal32bit[s_internalDataLength / 4];
         qint64 internal64bit[s_internalDataLength / 8];
-    } m_data;
+    } m_data = {};
 
     void assignData(const QmlEvent &other)
     {

@@ -266,7 +266,8 @@ void PacketWriter::beginPacket(const StructureValue &packetContext)
         const QString dscIdName = memberNameWithRole(phfc, UIntRole::DataStreamClassId);
         if (!dscIdName.isEmpty())
             hdr.set(dscIdName, m_dsc.id);
-        FieldWriter(*m_buf, makeResolver(packetContext)).write(*phfc, makeStructureValue(hdr));
+        FieldWriter(*m_buf, makeResolver(packetContext))
+            .write(*phfc, makeStructureValue(std::move(hdr)));
     }
 
     if (m_dsc.packetContextFieldClass) {
@@ -317,7 +318,7 @@ void PacketWriter::writeEventRecord(
         StructureValue hdr;
         if (hfc->kind == FieldClassKind::Structure)
             hdr = makeEventHeader(static_cast<const StructureFC &>(*hfc), eventClassId, timestamp);
-        FieldWriter(*m_buf, resolver).write(*hfc, makeStructureValue(hdr));
+        FieldWriter(*m_buf, resolver).write(*hfc, makeStructureValue(std::move(hdr)));
     }
 
     if (m_dsc.eventRecordCommonContextFieldClass)
@@ -337,7 +338,8 @@ void PacketWriter::writeEventRecord(
             FieldWriter(*m_buf, resolver)
                 .write(*erc->specificContextFieldClass, makeStructureValue(specificCtx));
         if (erc->payloadFieldClass)
-            FieldWriter(*m_buf, resolver).write(*erc->payloadFieldClass, makeStructureValue(payload));
+            FieldWriter(*m_buf, std::move(resolver))
+                .write(*erc->payloadFieldClass, makeStructureValue(payload));
     }
 }
 

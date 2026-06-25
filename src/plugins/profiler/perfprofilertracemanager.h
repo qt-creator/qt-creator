@@ -97,8 +97,9 @@ public:
     };
     QList<PerfLoaderEntry> perfLoaders;
 
-    void replayPerfEvents(PerfEventLoader loader, Initializer initializer, Finalizer finalizer,
-                          ErrorHandler errorHandler, QFutureInterface<void> &future) const;
+    void replayPerfEvents(const PerfEventLoader &loader, const Initializer &initializer,
+                          const Finalizer &finalizer, const ErrorHandler &errorHandler,
+                          QFutureInterface<void> &future) const;
 
     bool open();
 
@@ -166,8 +167,9 @@ protected:
                    const Timeline::TraceEventType &type) override;
 
     Timeline::TimelineTraceFile *createTraceFile() override;
-    void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
-                      ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
+    void replayEvents(const TraceEventLoader &loader, const Initializer &initializer,
+                      const Finalizer &finalizer, const ErrorHandler &errorHandler,
+                      QFutureInterface<void> &future) const override;
 
 private:
     QTimer m_reparseTimer;

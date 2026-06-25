@@ -139,8 +139,10 @@ const QmlEventType &QmlProfilerModelManager::eventType(int typeId) const
     return type.asConstRef<QmlEventType>();
 }
 
-void QmlProfilerModelManager::replayEvents(TraceEventLoader loader, Initializer initializer,
-                                           Finalizer finalizer, ErrorHandler errorHandler,
+void QmlProfilerModelManager::replayEvents(const TraceEventLoader &loader,
+                                           const Initializer &initializer,
+                                           const Finalizer &finalizer,
+                                           const ErrorHandler &errorHandler,
                                            QFutureInterface<void> &future) const
 {
     replayQmlEvents(static_cast<QmlEventLoader>(loader), initializer, finalizer, errorHandler,
@@ -156,9 +158,10 @@ static bool isStateful(const QmlEventType &type)
     return message == PixmapCacheEvent || message == MemoryAllocation;
 }
 
-void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
-                                              Initializer initializer, Finalizer finalizer,
-                                              ErrorHandler errorHandler,
+void QmlProfilerModelManager::replayQmlEvents(const QmlEventLoader &loader,
+                                              const Initializer &initializer,
+                                              const Finalizer &finalizer,
+                                              const ErrorHandler &errorHandler,
                                               QFutureInterface<void> &future) const
 {
     if (initializer)
@@ -282,7 +285,8 @@ void QmlProfilerModelManager::setTypeDetails(int typeId, const QString &details)
 
 void QmlProfilerModelManager::restrictByFilter(QmlProfilerModelManager::QmlEventFilter filter)
 {
-    return Timeline::TimelineTraceManager::restrictByFilter([filter](TraceEventLoader loader) {
+    return Timeline::TimelineTraceManager::restrictByFilter(
+        [filter = std::move(filter)](TraceEventLoader loader) {
         const auto filteredQmlLoader = filter([loader](const QmlEvent &event,
                                                        const QmlEventType &type) {
             loader(event, type);
