@@ -1184,7 +1184,9 @@ static bool localFileSystemSupportsAtomicSaveFile(const FilePath &path)
     QTC_ASSERT(path.isLocal(), return true);
 #ifdef Q_OS_WIN
 
-    if (path.path().startsWith("//wsl."))
+    // Use the reconstituted local path so this keeps working once the WSL
+    // server moves from the path into the host part of a "unc" scheme.
+    if (localPathString(path).startsWith("//wsl."))
         return false;
 
     const HANDLE handle = CreateFile(
