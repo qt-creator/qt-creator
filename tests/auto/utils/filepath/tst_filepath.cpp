@@ -72,6 +72,11 @@ private slots:
     void toFSPathString_data();
     void toFSPathString();
 
+    void resourcePathFSString_data();
+    void resourcePathFSString();
+
+    void qrcSchemeHostless();
+
     void comparison_data();
     void comparison();
 
@@ -967,6 +972,53 @@ void tst_filepath::toFSPathString()
     QString cleanedOutput = filePath.isLocal() ? QDir::cleanPath(filePath.toUserOutput())
                                                : filePath.toUserOutput();
     QCOMPARE(cleanedOutput, userResult);
+}
+
+void tst_filepath::resourcePathFSString_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<bool>("isLocal");
+    QTest::addColumn<bool>("fsStringMatchesPath");
+
+    // Qt resource paths in their common ":/..." form carry no scheme, so they
+    // stay local and toFSPathString() returns path() verbatim. This is the
+    // invariant that makes replacing path() with toFSPathString() in the local
+    // file access backend a no-op for resources.
+    QTest::newRow("qrc-slash") << ":/foo/bar.txt" << true << true;
+    QTest::newRow("qrc-no-slash") << ":foo.txt" << true << true;
+    QTest::newRow("qrc-bare-colon") << ":" << true << true;
+
+    // A plain local path behaves the same way, for contrast.
+    QTest::newRow("local") << "/a/b/c" << true << true;
+}
+
+void tst_filepath::resourcePathFSString()
+{
+    QFETCH(QString, input);
+    QFETCH(bool, isLocal);
+    QFETCH(bool, fsStringMatchesPath);
+
+    const FilePath filePath = FilePath::fromString(input);
+
+    QCOMPARE(filePath.isLocal(), isLocal);
+    QCOMPARE(filePath.toFSPathString() == filePath.path(), fsStringMatchesPath);
+}
+
+void tst_filepath::qrcSchemeHostless()
+{
+    // Qt resource URLs ("qrc:/foo.txt") have no authority: the resource is
+    // compiled into the binary, so there is no host to connect to. Going
+    // through QUrl, as Qt Quick does, yields an empty host, not a real one.
+    const FilePath fromUrl = FilePath::fromUrl(QUrl("qrc:/foo.txt"));
+    QCOMPARE(fromUrl.scheme().toString(), QString("qrc"));
+    QVERIFY(fromUrl.host().isEmpty());
+    QVERIFY(fromUrl.isResourceFile());
+
+    // A "host" only appears if the generic scheme://host/path parser is handed
+    // an authority. That is a parser artifact, not a qrc concept, and is not a
+    // shape Qt ever produces for resources.
+    const FilePath parsed = FilePath::fromString("qrc://host/foo.txt");
+    QCOMPARE(parsed.host().toString(), QString("host"));
 }
 
 enum ExpectedPass { PassEverywhere = 0, FailOnWindows = 1, FailOnLinux = 2, FailEverywhere = 3 };
