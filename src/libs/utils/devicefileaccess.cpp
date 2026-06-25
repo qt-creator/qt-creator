@@ -727,16 +727,38 @@ DeviceFileAccessPtr DesktopDeviceFileAccess::instance()
     return theInstance;
 }
 
+// Renders a FilePath as a path for QFile/QFileInfo/QDir inside this local
+// backend. Unlike FilePath::toFSPathString(), it never produces a
+// __qtc_devices__ path: that form is meant to be re-dispatched by the fs
+// engine, which would route it straight back into this backend and recurse
+// (device paths reach here via the no-hooks fallback in fileAccess()).
+static QString localPathString(const FilePath &filePath)
+{
+    const QStringView scheme = filePath.scheme();
+    if (scheme == u"qrc") {
+        QString result(QLatin1Char(':'));
+        result += filePath.path();
+        return result;
+    }
+    if (scheme == u"unc") {
+        QString result(QLatin1String("//"));
+        result += filePath.host();
+        result += filePath.path();
+        return result;
+    }
+    return filePath.path();
+}
+
 Result<bool> DesktopDeviceFileAccess::isExecutableFile(const FilePath &filePath) const
 {
-    const QFileInfo fi(filePath.path());
+    const QFileInfo fi(localPathString(filePath));
     return fi.isExecutable() && !fi.isDir();
 }
 
 static std::optional<FilePath> isWindowsExecutableHelper(const FilePath &filePath,
                                                          const QStringView suffix)
 {
-    const QFileInfo fi(filePath.path().append(suffix));
+    const QFileInfo fi(localPathString(filePath).append(suffix));
     if (!fi.isExecutable() || fi.isDir())
         return {};
 
@@ -772,43 +794,43 @@ Result<std::optional<FilePath>> DesktopDeviceFileAccess::refersToExecutableFile(
 
 Result<bool> DesktopDeviceFileAccess::isReadableFile(const FilePath &filePath) const
 {
-    const QFileInfo fi(filePath.path());
+    const QFileInfo fi(localPathString(filePath));
     return fi.exists() && fi.isFile() && fi.isReadable();
 }
 
 Result<bool> DesktopDeviceFileAccess::isWritableFile(const FilePath &filePath) const
 {
-    const QFileInfo fi(filePath.path());
+    const QFileInfo fi(localPathString(filePath));
     return fi.exists() && fi.isFile() && fi.isWritable();
 }
 
 Result<bool> DesktopDeviceFileAccess::isReadableDirectory(const FilePath &filePath) const
 {
-    const QFileInfo fi(filePath.path());
+    const QFileInfo fi(localPathString(filePath));
     return fi.exists() && fi.isDir() && fi.isReadable();
 }
 
 Result<bool> DesktopDeviceFileAccess::isWritableDirectory(const FilePath &filePath) const
 {
-    const QFileInfo fi(filePath.path());
+    const QFileInfo fi(localPathString(filePath));
     return fi.exists() && fi.isDir() && fi.isWritable();
 }
 
 Result<bool> DesktopDeviceFileAccess::isFile(const FilePath &filePath) const
 {
-    const QFileInfo fi(filePath.path());
+    const QFileInfo fi(localPathString(filePath));
     return fi.isFile();
 }
 
 Result<bool> DesktopDeviceFileAccess::isDirectory(const FilePath &filePath) const
 {
-    const QFileInfo fi(filePath.path());
+    const QFileInfo fi(localPathString(filePath));
     return fi.isDir();
 }
 
 Result<bool> DesktopDeviceFileAccess::isSymLink(const FilePath &filePath) const
 {
-    const QFileInfo fi(filePath.path());
+    const QFileInfo fi(localPathString(filePath));
     return fi.isSymLink();
 }
 
@@ -851,7 +873,7 @@ Result<bool> DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) con
 
 Result<> DesktopDeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
 {
-    QFile f(filePath.path());
+    QFile f(localPathString(filePath));
     if (f.exists())
         return ResultOk;
     if (!f.open(QFile::WriteOnly))
@@ -863,19 +885,19 @@ Result<> DesktopDeviceFileAccess::ensureExistingFile(const FilePath &filePath) c
 
 Result<> DesktopDeviceFileAccess::createDirectory(const FilePath &filePath) const
 {
-    QDir dir(filePath.path());
+    QDir dir(localPathString(filePath));
     return dir.mkpath(dir.absolutePath()) ? ResultOk : ResultError(
         Tr::tr("Could not create directory \"%1\".").arg(filePath.toUserOutput()));
 }
 
 Result<bool> DesktopDeviceFileAccess::exists(const FilePath &filePath) const
 {
-    return !filePath.isEmpty() && QFileInfo::exists(filePath.path());
+    return !filePath.isEmpty() && QFileInfo::exists(localPathString(filePath));
 }
 
 Result<> DesktopDeviceFileAccess::removeFile(const FilePath &filePath) const
 {
-    QFile f(filePath.path());
+    QFile f(localPathString(filePath));
     if (!f.remove())
         return ResultError(f.errorString());
     return ResultOk;
@@ -934,7 +956,7 @@ Result<> DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath) co
         if (!QDir::root().rmdir(dir.path()))
             return ResultError(Tr::tr("Failed to remove directory \"%1\".").arg(filePath.toUserOutput()));
     } else {
-        if (!QFile::remove(filePath.path()))
+        if (!QFile::remove(localPathString(filePath)))
             return ResultError(Tr::tr("Failed to remove file \"%1\".").arg(filePath.toUserOutput()));
     }
     return ResultOk;
@@ -942,9 +964,9 @@ Result<> DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath) co
 
 Result<> DesktopDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
 {
-    QFile srcFile(filePath.path());
+    QFile srcFile(localPathString(filePath));
 
-    if (srcFile.copy(target.path()))
+    if (srcFile.copy(localPathString(target)))
         return ResultOk;
     return ResultError(
         Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
@@ -953,8 +975,8 @@ Result<> DesktopDeviceFileAccess::copyFile(const FilePath &filePath, const FileP
 
 static Result<> createSymLinkGeneric(const FilePath &filePath, const FilePath &symLink)
 {
-    QFile srcFile(filePath.path());
-    if (srcFile.link(symLink.path()))
+    QFile srcFile(localPathString(filePath));
+    if (srcFile.link(localPathString(symLink)))
         return ResultOk;
     return ResultError(srcFile.errorString());
 }
@@ -997,9 +1019,9 @@ Result<> DesktopDeviceFileAccess::createSymLink(
 Result<> DesktopDeviceFileAccess::renameFile(
     const FilePath &filePath, const FilePath &target) const
 {
-    QFile f(filePath.path());
+    QFile f(localPathString(filePath));
 
-    if (f.rename(target.path()))
+    if (f.rename(localPathString(target)))
         return ResultOk;
     return ResultError(
         Tr::tr("Failed to rename file \"%1\" to \"%2\": %3")
@@ -1010,7 +1032,7 @@ Result<FilePathInfo> DesktopDeviceFileAccess::filePathInfo(const FilePath &fileP
 {
     FilePathInfo result;
 
-    QFileInfo fi(filePath.path());
+    QFileInfo fi(localPathString(filePath));
     result.fileSize = fi.size();
     result.lastModified = fi.lastModified();
     result.fileFlags = (FilePathInfo::FileFlag) int(fi.permissions());
@@ -1035,7 +1057,7 @@ Result<FilePathInfo> DesktopDeviceFileAccess::filePathInfo(const FilePath &fileP
 
 Result<FilePath> DesktopDeviceFileAccess::symLinkTarget(const FilePath &filePath) const
 {
-    const QFileInfo info(filePath.path());
+    const QFileInfo info(localPathString(filePath));
     if (!info.isSymLink())
         return {};
     return FilePath::fromString(info.symLinkTarget());
@@ -1046,7 +1068,7 @@ Result<> DesktopDeviceFileAccess::iterateDirectory(
     const FilePath::IterateDirCallback &callBack,
     const FileFilter &filter) const
 {
-    QDirIterator it(filePath.path(), filter.nameFilters,
+    QDirIterator it(localPathString(filePath), filter.nameFilters,
                     QDir::Filters(filter.fileFilters.toInt()),
                     QDirIterator::IteratorFlags(filter.iteratorFlags.toInt()));
     while (it.hasNext()) {
@@ -1071,7 +1093,7 @@ Result<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePat
                                                          qint64 limit,
                                                          qint64 offset) const
 {
-    const QString path = filePath.path();
+    const QString path = localPathString(filePath);
     QFile f(path);
     if (!f.exists())
         return ResultError(Tr::tr("File \"%1\" does not exist.").arg(path));
@@ -1097,7 +1119,7 @@ Result<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePat
 Result<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &filePath,
                                                                 const QByteArray &data) const
 {
-    QFile file(filePath.path());
+    QFile file(localPathString(filePath));
     const bool isOpened = file.open(QFile::WriteOnly | QFile::Truncate);
     if (!isOpened)
         return ResultError(
@@ -1116,7 +1138,7 @@ Result<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &filePa
 
 Result<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &filePath)
 {
-    QTemporaryFile file(filePath.path());
+    QTemporaryFile file(localPathString(filePath));
     file.setAutoRemove(false);
     if (!file.open()) {
         return ResultError(Tr::tr("Could not create temporary file in \"%1\" (%2).")
@@ -1128,7 +1150,7 @@ Result<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &filePat
 
 Result<FilePath> DesktopDeviceFileAccess::createTempDir(const FilePath &filePath)
 {
-    QTemporaryDir dir(filePath.path());
+    QTemporaryDir dir(localPathString(filePath));
     dir.setAutoRemove(false);
     if (!dir.isValid()) {
         return ResultError(
@@ -1206,18 +1228,18 @@ bool DesktopDeviceFileAccess::supportsAtomicSaveFile(const FilePath &filePath) c
 
 Result<QDateTime> DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const
 {
-    return QFileInfo(filePath.path()).lastModified();
+    return QFileInfo(localPathString(filePath)).lastModified();
 }
 
 Result<QFile::Permissions> DesktopDeviceFileAccess::permissions(const FilePath &filePath) const
 {
-    return QFileInfo(filePath.path()).permissions();
+    return QFileInfo(localPathString(filePath)).permissions();
 }
 
 Result<> DesktopDeviceFileAccess::setPermissions(
     const FilePath &filePath, QFile::Permissions permissions) const
 {
-    if (QFile(filePath.path()).setPermissions(permissions))
+    if (QFile(localPathString(filePath)).setPermissions(permissions))
         return ResultOk;
     return ResultError(
         Tr::tr("Could not change permissions for \"%1\".").arg(filePath.toUserOutput()));
@@ -1225,32 +1247,32 @@ Result<> DesktopDeviceFileAccess::setPermissions(
 
 Result<qint64> DesktopDeviceFileAccess::fileSize(const FilePath &filePath) const
 {
-    return QFileInfo(filePath.path()).size();
+    return QFileInfo(localPathString(filePath)).size();
 }
 
 Result<qint64> DesktopDeviceFileAccess::bytesAvailable(const FilePath &filePath) const
 {
-    return QStorageInfo(filePath.path()).bytesAvailable();
+    return QStorageInfo(localPathString(filePath)).bytesAvailable();
 }
 
 Result<QString> DesktopDeviceFileAccess::owner(const FilePath &filePath) const
 {
-    return QFileInfo(filePath.path()).owner();
+    return QFileInfo(localPathString(filePath)).owner();
 }
 
 Result<uint> DesktopDeviceFileAccess::ownerId(const FilePath &filePath) const
 {
-    return QFileInfo(filePath.path()).ownerId();
+    return QFileInfo(localPathString(filePath)).ownerId();
 }
 
 Result<QString> DesktopDeviceFileAccess::group(const FilePath &filePath) const
 {
-    return QFileInfo(filePath.path()).group();
+    return QFileInfo(localPathString(filePath)).group();
 }
 
 Result<uint> DesktopDeviceFileAccess::groupId(const FilePath &filePath) const
 {
-    return QFileInfo(filePath.path()).groupId();
+    return QFileInfo(localPathString(filePath)).groupId();
 }
 
 // Copied from qfilesystemengine_win.cpp
