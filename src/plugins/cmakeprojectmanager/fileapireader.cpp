@@ -179,8 +179,6 @@ void FileApiReader::parse(bool forceCMakeRun,
     const BuildDirParameters params = m_parameters;
     const QString cmakeBuildType = params.cmakeBuildType == "Build" ? "" : params.cmakeBuildType;
 
-    const Storage<bool> restoredFromBackup;
-
     const auto onParseSetup = [this, params, cmakeBuildType](Async<FileApiQtcData> &task) {
         const FilePath replyFilePath = FileApiParser::scanForCMakeReplyFile(params.buildDirectory);
         m_lastReplyTimestamp = replyFilePath.lastModified();
@@ -189,12 +187,13 @@ void FileApiReader::parse(bool forceCMakeRun,
         task.setThreadPool(ProjectExplorerPlugin::sharedThreadPool());
     };
 
-    const auto onParseDone = [this, restoredFromBackup](const Async<FileApiQtcData> &task) {
-        if (!task.isResultAvailable())
-            return;
+    const auto onParseDone = [this](const Async<FileApiQtcData> &task) {
         m_data = task.takeResult();
+    };
+
+    const auto onRecipeDone = [this] {
         if (m_data.errorMessage.isEmpty())
-            emit dataAvailable(*restoredFromBackup);
+            emit dataAvailable(m_restoredFromBackup);
         else
             emit errorOccurred(m_data.errorMessage);
     };
@@ -329,12 +328,12 @@ void FileApiReader::parse(bool forceCMakeRun,
             return SetupResult::Continue;
         };
 
-        const auto onCMakeDone = [this, outputFormatter, restoredFromBackup, elapsed]
+        const auto onCMakeDone = [this, outputFormatter, elapsed]
             (const Process &process, DoneWith result) {
             outputFormatter->flush();
             m_lastCMakeFailed = result != DoneWith::Success;
             if (result != DoneWith::Success) {
-                *restoredFromBackup = makeBackupConfiguration(false);
+                makeBackupConfiguration(false);
                 if (result != DoneWith::Cancel) {
                     const QString message = process.exitMessage();
                     BuildSystem::appendBuildSystemOutput(
@@ -356,11 +355,11 @@ void FileApiReader::parse(bool forceCMakeRun,
         };
     }
 
+    m_restoredFromBackup = false;
     m_taskTreeRunner.start({
-        restoredFromBackup,
         updateTask,
-        AsyncTask<FileApiQtcData>(onParseSetup, onParseDone)
-    });
+        AsyncTask<FileApiQtcData>(onParseSetup, onParseDone, CallDoneFlag::OnSuccess)
+    }, {}, onRecipeDone);
 }
 
 void FileApiReader::stop()
@@ -420,7 +419,7 @@ RawProjectParts FileApiReader::createRawProjectParts(QString &errorMessage)
 }
 
 
-bool FileApiReader::makeBackupConfiguration(bool store)
+void FileApiReader::makeBackupConfiguration(bool store)
 {
     FilePath reply = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply");
     FilePath replyPrev = m_parameters.buildDirectory.pathAppended(".cmake/api/v1/reply.prev");
@@ -450,7 +449,8 @@ bool FileApiReader::makeBackupConfiguration(bool store)
                     .arg(cmakeCacheTxt.toUserOutput(), cmakeCacheTxtPrev.toUserOutput(), res.error())));
         }
     }
-    return existed;
+    if (!store)
+        m_restoredFromBackup = existed;
 }
 
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)

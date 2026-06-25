@@ -101,10 +101,7 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
         clearError(ForceEnabledChanged::True);
     });
 
-    connect(&m_reader,
-            &FileApiReader::dataAvailable,
-            this,
-            &CMakeBuildSystem::handleParsingSucceeded);
+    connect(&m_reader, &FileApiReader::dataAvailable, this, &CMakeBuildSystem::handleParsingSucceeded);
     connect(&m_reader, &FileApiReader::errorOccurred, this, &CMakeBuildSystem::handleParsingFailed);
     connect(&m_reader, &FileApiReader::dirty, this, &CMakeBuildSystem::becameDirty);
     connect(&m_reader, &FileApiReader::debuggingStarted, this, &BuildSystem::debuggingStarted);

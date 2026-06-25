@@ -59,11 +59,12 @@ signals:
 
 private:
     void handleReplyIndexFileChange(const Utils::FilePath &indexFile);
-    bool makeBackupConfiguration(bool store);
+    void makeBackupConfiguration(bool store);
     void writeConfigurationIntoBuildDirectory(const QStringList &configuration);
     void setupCMakeFileApi();
 
     FileApiQtcData m_data;
+    bool m_restoredFromBackup = false;
     bool m_lastCMakeFailed = false;
 
     BuildDirParameters m_parameters;
