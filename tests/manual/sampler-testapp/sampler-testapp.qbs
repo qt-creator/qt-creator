@@ -8,6 +8,7 @@ QtcManualTest {
     Depends { name: "Qt.gui" }
     Depends { name: "Qt.qml" }
     Depends { name: "Qt.quick" }
+    Depends { name: "Qt.quick3d" }
 
     files: "main.cpp"
 }

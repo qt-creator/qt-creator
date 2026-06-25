@@ -11,9 +11,17 @@
 //  - main:        idle event loop with a 1 s heartbeat (low-weight stack)
 //  - QML window:  a looping animation drives the GUI and scene-graph render
 //                 threads, so the sampler also sees Qt Quick activity.
+//  - 3D window:   a Qt Quick 3D scene with rotating models keeps the 3D
+//                 rendering and scene-graph render threads busy too.
+//
+// The GUI scene is chosen at launch with --scene <2d|3d> (default 2d); only one
+// of the Qt Quick / Qt Quick 3D windows is created so their render-side activity
+// never overlaps in a single trace.
 
-#include <QGuiApplication>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
 #include <QElapsedTimer>
+#include <QGuiApplication>
 #include <QList>
 #include <QQmlApplicationEngine>
 #include <QThread>
@@ -185,6 +193,84 @@ Window {
 }
 )qml";
 
+// A self-contained Qt Quick 3D window with continuously rotating models. The 3D
+// rendering pipeline keeps the scene-graph render thread and the 3D renderer
+// busy, giving the sampler a distinct source of GPU/render-side activity.
+static const char *const qml3dSource = R"qml(
+import QtQuick
+import QtQuick.Window
+import QtQuick3D
+
+Window {
+    width: 400
+    height: 400
+    visible: true
+    title: "sampler-testapp 3D"
+
+    View3D {
+        anchors.fill: parent
+
+        environment: SceneEnvironment {
+            clearColor: "#101820"
+            backgroundMode: SceneEnvironment.Color
+            antialiasingMode: SceneEnvironment.MSAA
+            antialiasingQuality: SceneEnvironment.High
+        }
+
+        PerspectiveCamera {
+            position: Qt.vector3d(0, 200, 400)
+            eulerRotation.x: -20
+        }
+
+        DirectionalLight {
+            eulerRotation.x: -30
+            eulerRotation.y: -70
+            brightness: 1.5
+        }
+
+        Model {
+            position: Qt.vector3d(-120, 0, 0)
+            source: "#Cube"
+            scale: Qt.vector3d(1.2, 1.2, 1.2)
+            materials: PrincipledMaterial { baseColor: "#3daee9"; metalness: 0.3; roughness: 0.4 }
+
+            NumberAnimation on eulerRotation.y {
+                from: 0; to: 360
+                duration: 4000
+                loops: Animation.Infinite
+                running: true
+            }
+        }
+
+        Model {
+            position: Qt.vector3d(120, 0, 0)
+            source: "#Sphere"
+            materials: PrincipledMaterial { baseColor: "#e9963d"; metalness: 0.6; roughness: 0.2 }
+
+            SequentialAnimation on position.y {
+                loops: Animation.Infinite
+                running: true
+                NumberAnimation { from: -60; to: 60; duration: 1200; easing.type: Easing.InOutQuad }
+                NumberAnimation { from: 60; to: -60; duration: 1200; easing.type: Easing.InOutQuad }
+            }
+        }
+
+        Model {
+            source: "#Cylinder"
+            scale: Qt.vector3d(0.6, 0.6, 0.6)
+            materials: PrincipledMaterial { baseColor: "#7bd83d"; roughness: 0.5 }
+
+            NumberAnimation on eulerRotation.x {
+                from: 0; to: 360
+                duration: 3000
+                loops: Animation.Infinite
+                running: true
+            }
+        }
+    }
+}
+)qml";
+
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -196,11 +282,39 @@ int main(int argc, char *argv[])
                 "then record. Ctrl+C stops.\n");
     std::fflush(stdout);
 
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Sampling profiler manual test app.");
+    parser.addHelpOption();
+    QCommandLineOption sceneOption(
+        "scene",
+        "GUI scene to drive the render threads: 2d (Qt Quick) or 3d (Qt Quick 3D).",
+        "2d|3d",
+        "2d");
+    parser.addOption(sceneOption);
+    parser.process(app);
+
+    const QString scene = parser.value(sceneOption);
+    if (scene != "2d" && scene != "3d") {
+        std::fprintf(
+            stderr, "Unknown --scene value '%s'; expected '2d' or '3d'.\n", qPrintable(scene));
+        return 1;
+    }
+
     std::signal(SIGINT, requestStop);
     std::signal(SIGTERM, requestStop);
 
+    // Cmd+Q (or any window-close driven quit) makes exec() return without going
+    // through the signal handler, so stop the workers here too; otherwise the
+    // join loop below would block forever and freeze the app on shutdown.
+    QObject::connect(&app, &QGuiApplication::aboutToQuit, &app, [] {
+        stopRequested.store(true, std::memory_order_relaxed);
+    });
+
     QQmlApplicationEngine engine;
-    engine.loadData(QByteArray(qmlSource), QUrl("qrc:/sampler-testapp/main.qml"));
+    if (scene == "3d")
+        engine.loadData(QByteArray(qml3dSource), QUrl("qrc:/sampler-testapp/main3d.qml"));
+    else
+        engine.loadData(QByteArray(qmlSource), QUrl("qrc:/sampler-testapp/main.qml"));
 
     const QList<QThread *> workers = {
         startWorker("fibonacci", fibonacciWorker),
