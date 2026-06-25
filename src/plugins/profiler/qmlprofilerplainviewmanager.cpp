@@ -4,6 +4,7 @@
 #include "qmlprofilerplainviewmanager.h"
 
 #include "profiler/flamegraphview.h"
+#include "profiler/qmlprofilerdashboardview.h"
 #include "profiler/qmlprofilermodelmanager.h"
 #include "profiler/qmlprofilerstatisticsview.h"
 #include "profiler/quick3dframeview.h"
@@ -47,6 +48,8 @@ QmlProfilerPlainViewManager::QmlProfilerPlainViewManager(QObject *parent)
 
 QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
 {
+    auto dashboardView = new Internal::QmlProfilerDashboardView(&d->modelManager, parent);
+
     auto traceView = new Internal::QmlProfilerTraceView(&d->modelManager);
     traceView->setParent(parent);
     connect(traceView, &Internal::QmlProfilerTraceView::gotoSourceLocation,
@@ -83,7 +86,7 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
     connect(flameGraphView, &Internal::FlameGraphView::detailsCleared,
             d->rangeDetails, &Timeline::RangeDetailsWidget::clear);
 
-    return { traceView, flameGraphView, statisticsView, quick3DView };
+    return { dashboardView, traceView, flameGraphView, statisticsView, quick3DView };
 }
 
 QWidget *QmlProfilerPlainViewManager::rangeDetailsWidget() const

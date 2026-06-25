@@ -4,6 +4,7 @@
 #include "qmlprofilertool.h"
 
 #include "flamegraphview.h"
+#include "qmlprofilerdashboardview.h"
 #include "profilertr.h"
 #include "qmlprofilerattachdialog.h"
 #include "qmlprofilerclientmanager.h"
@@ -93,6 +94,7 @@ public:
     QmlProfilerModelManager m_profilerModelManager;
 
     Perspective m_perspective{Constants::QmlProfilerPerspectiveId, Tr::tr("QML Profiler")};
+    QmlProfilerDashboardView m_dashboardView{&m_profilerModelManager};
     QmlProfilerTraceView m_traceView{&m_profilerModelManager};
     QmlProfilerStatisticsView m_statisticsView{&m_profilerModelManager};
     FlameGraphView m_flameGraphView{&m_profilerModelManager};
@@ -164,16 +166,17 @@ QmlProfilerTool::QmlProfilerTool()
     prepareEventsView(&d->m_quick3dView);
 
     d->m_perspective.setObjectName("QML Profiler View Manager");
-    d->m_perspective.addWindow(&d->m_traceView, Perspective::SplitVertical, nullptr);
+    d->m_perspective.addWindow(&d->m_dashboardView, Perspective::SplitVertical, nullptr);
     // Split the details off the trace view before tabbing the other views onto it.
     // QMainWindow::splitDockWidget() only splits when the anchor is not yet tabbed;
     // doing this later would just add the details as another tab.
     d->m_perspective.addWindow(d->m_traceView.rangeDetailsWidget(),
-                               Perspective::SplitHorizontal, &d->m_traceView);
+                               Perspective::SplitHorizontal, &d->m_dashboardView);
+    d->m_perspective.addWindow(&d->m_traceView, Perspective::AddToTab, &d->m_dashboardView);
     d->m_perspective.addWindow(&d->m_flameGraphView, Perspective::AddToTab, &d->m_traceView);
     d->m_perspective.addWindow(&d->m_quick3dView, Perspective::AddToTab, &d->m_flameGraphView);
-    d->m_perspective.addWindow(&d->m_statisticsView, Perspective::AddToTab, &d->m_traceView);
-    d->m_perspective.addWindow(&d->m_traceView, Perspective::Raise, nullptr);
+    d->m_perspective.addWindow(&d->m_statisticsView, Perspective::AddToTab, &d->m_quick3dView);
+    d->m_perspective.addWindow(&d->m_dashboardView, Perspective::Raise, nullptr);
 
     connect(&d->m_profilerState, &QmlProfilerStateManager::stateChanged,
             this, &QmlProfilerTool::profilerStateChanged);
