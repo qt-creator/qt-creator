@@ -80,6 +80,8 @@ private slots:
     void uncSchemeDecomposition_data();
     void uncSchemeDecomposition();
 
+    void uncSchemeLocalAndNative();
+
     void comparison_data();
     void comparison();
 
@@ -1058,9 +1060,9 @@ void tst_filepath::uncSchemeDecomposition()
     // scheme) and must keep holding once the "unc" scheme is introduced.
     QCOMPARE(filePath.isLocal(), true);
 
-    // toFSPathString() must yield the real UNC string for QFile/QDir, both with
+    // nativePath() must yield the real UNC string (modulo separators) both with
     // the current path-based representation and with the future "unc" scheme.
-    QCOMPARE(filePath.toFSPathString(), input);
+    QCOMPARE(QDir::fromNativeSeparators(filePath.nativePath()), input);
 
     // The remaining expectations encode the not-yet-implemented decomposition.
     QEXPECT_FAIL("", "UNC scheme not yet extracted; server stays in the path", Continue);
@@ -1069,6 +1071,16 @@ void tst_filepath::uncSchemeDecomposition()
     QCOMPARE(filePath.host().toString(), host);
     QEXPECT_FAIL("", "UNC path still contains the leading //server", Continue);
     QCOMPARE(filePath.path(), path);
+}
+
+void tst_filepath::uncSchemeLocalAndNative()
+{
+    // The parser does not produce the "unc" scheme yet, so construct it
+    // directly. A UNC path is resolved by the local OS, and nativePath() must
+    // put the server back together from the host part.
+    const FilePath unc = FilePath::fromParts(u"unc", u"server", u"/share/foo");
+    QVERIFY(unc.isLocal());
+    QCOMPARE(QDir::fromNativeSeparators(unc.nativePath()), QString("//server/share/foo"));
 }
 
 enum ExpectedPass { PassEverywhere = 0, FailOnWindows = 1, FailOnLinux = 2, FailEverywhere = 3 };

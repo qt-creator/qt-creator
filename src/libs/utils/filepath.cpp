@@ -571,7 +571,15 @@ QString FilePath::toUserOutput() const
 
 QString FilePath::nativePath() const
 {
-    QString data = path();
+    QString data;
+    if (scheme() == u"unc") {
+        // Reconstitute the UNC path: the server lives in the host part.
+        data = QLatin1String("//");
+        data += host();
+        data += path();
+    } else {
+        data = path();
+    }
     if (osType() == OsTypeWindows)
         data.replace('/', '\\');
     return data;
@@ -1189,7 +1197,7 @@ FileStreamHandle FilePath::asyncWrite(const Continuation<qint64> &cont, const QB
 */
 bool FilePath::isLocal() const
 {
-    return m_schemeLen == 0 || scheme() == u"file";
+    return m_schemeLen == 0 || scheme() == u"file" || scheme() == u"unc";
 }
 
 /*!
