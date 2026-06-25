@@ -5,7 +5,6 @@
 
 #include "qtprofilersettings.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/manhattanstyle.h>
 
 #include <utils/algorithm.h>
@@ -76,9 +75,11 @@ static void initTheme()
 {
     const Qt::ColorScheme systemColorScheme = QApplication::styleHints()->colorScheme();
     const QLatin1String scheme(systemColorScheme == Qt::ColorScheme::Dark ? "dark" : "light");
-    const QString fileName = "%1-2024.creatortheme"_L1.arg(scheme);
-    const FilePath themeFile = Core::ICore::resourcePath("themes") / fileName;
-    QSettings settings(themeFile.toFSPathString(), QSettings::IniFormat);
+    // The themes are compiled into the binary (see qt_add_resources in
+    // CMakeLists.txt). Theme::readSettings resolves the theme's includes relative
+    // to this path, so they are picked up from the same resource prefix.
+    const QString themeFile = ":/qtprofiler/themes/%1-2024.creatortheme"_L1.arg(scheme);
+    QSettings settings(themeFile, QSettings::IniFormat);
     static Theme theme("");
     theme.readSettings(settings);
     setCreatorTheme(&theme);

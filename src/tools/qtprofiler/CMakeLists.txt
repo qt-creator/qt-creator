@@ -24,6 +24,28 @@ qtc_add_resources(qtprofiler "schema"
     schema/qtprofilerapi.json.schema
 )
 
+# Compile the editor themes (and every file they include) straight into the
+# binary, so the application loads them from ":/qtprofiler/themes" instead of a
+# themes directory on disk. The includes are resolved relative to the theme
+# file, so they must live next to it under the same resource prefix.
+if (TARGET qtprofiler)
+  set(qtprofiler_themes_dir "${PROJECT_SOURCE_DIR}/share/qtcreator/themes")
+  qt_add_resources(qtprofiler "themes"
+    PREFIX "/qtprofiler/themes"
+    BASE "${qtprofiler_themes_dir}"
+    FILES
+      "${qtprofiler_themes_dir}/dark-2024.creatortheme"
+      "${qtprofiler_themes_dir}/light-2024.creatortheme"
+      "${qtprofiler_themes_dir}/dark.figmatokens"
+      "${qtprofiler_themes_dir}/light.figmatokens"
+      "${qtprofiler_themes_dir}/primitive-colors.inc"
+      "${qtprofiler_themes_dir}/2024.tokenmapping"
+      "${qtprofiler_themes_dir}/ds.tokenmapping"
+      "${qtprofiler_themes_dir}/qmldesigner-dark.inc"
+      "${qtprofiler_themes_dir}/qmldesigner-light.inc"
+  )
+endif()
+
 # The call-stack sampler uses task_for_pid(), which requires the binary to carry
 # the debugger entitlement. Re-sign (ad-hoc) after each build so the freshly
 # linked binary keeps it. Without this the sampler fails at attach time.
@@ -60,6 +82,5 @@ create_standalone_install_component(standalone_qtprofiler
     QtQml
     QtWayland
   RESOURCES
-    themes
     translations
 )
