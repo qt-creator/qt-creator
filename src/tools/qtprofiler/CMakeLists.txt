@@ -2,9 +2,25 @@ option(BUILD_EXECUTABLE_QTPROFILER_STANDALONE
        "Creates an install target for standalone qtprofiler"
        OFF)
 
+# On macOS qtprofiler is built as its own application bundle next to
+# "Qt Creator.app" (instead of being buried inside its libexec directory), so
+# it behaves like a standalone application with its own icon and Info.plist.
+# The bundle (and its executable) use the "Qt Profiler" display name, while the
+# target/identifier stays "qtprofiler".
+set(qtprofiler_bundle_name "Qt Profiler")
+set(qtprofiler_props "")
+set(qtprofiler_destination "${IDE_LIBEXEC_PATH}")
+if (APPLE)
+  list(APPEND qtprofiler_props MACOSX_BUNDLE ON OUTPUT_NAME "${qtprofiler_bundle_name}")
+  set(qtprofiler_destination "${IDE_APP_PATH}")
+endif()
+
 add_qtc_executable(qtprofiler
   CONDITION TARGET Profiler
+  SKIP_INSTALL
   DEPENDS app_version Profiler CommonTraceFormat Tracing
+  PROPERTIES ${qtprofiler_props}
+  DESTINATION "${qtprofiler_destination}"
   SOURCES
     mainsidebar.cpp mainsidebar.h
     qtprofilerinit.cpp qtprofilerinit.h
@@ -16,6 +32,37 @@ add_qtc_executable(qtprofiler
     welcomepage.cpp welcomepage.h
     schema/api.h
 )
+
+# Turn it into a proper macOS application bundle: attach the Info.plist and the
+# app icon, and make sure both end up in the build tree and in the install tree.
+if (APPLE AND TARGET qtprofiler)
+  if (CMAKE_OSX_DEPLOYMENT_TARGET)
+    set(MACOSX_DEPLOYMENT_TARGET ${CMAKE_OSX_DEPLOYMENT_TARGET})
+  endif()
+
+  set_target_properties(qtprofiler PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
+  )
+
+  # Copies the icon into qtprofiler.app/Contents/Resources in the build tree.
+  set(qtprofiler_icon "${CMAKE_CURRENT_SOURCE_DIR}/macos/qtprofiler.icns")
+  target_sources(qtprofiler PRIVATE "${qtprofiler_icon}")
+  set_source_files_properties("${qtprofiler_icon}" PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources"
+  )
+
+  # Copy translations to build dir. Themes are compiled into the app with
+  # qt_add_resources below
+  qtc_output_binary_dir(_output_binary_dir)
+  qtc_copy_to_builddir(copy_qtprofiler_resources
+    DIRECTORIES "${_output_binary_dir}/${IDE_DATA_PATH}/translations"
+    DESTINATION "${qtprofiler_bundle_name}.app/Contents/Resources/translations"
+  )
+  # The generated translations must exist in the build tree before we copy them.
+  if (TARGET generate_qm_files)
+    add_dependencies(copy_qtprofiler_resources generate_qm_files)
+  endif()
+endif()
 
 qtc_add_resources(qtprofiler "schema"
   PREFIX "/qtprofiler"
@@ -52,8 +99,8 @@ endif()
 if (APPLE AND TARGET qtprofiler)
   add_custom_command(TARGET qtprofiler POST_BUILD
     COMMAND codesign --sign - --force
-            --entitlements "${CMAKE_CURRENT_LIST_DIR}/qtprofiler.entitlements"
-            "$<TARGET_FILE:qtprofiler>"
+            --entitlements "${QtCreator_SOURCE_DIR}/dist/installer/mac/Qt Profiler.entitlements"
+            "$<TARGET_BUNDLE_DIR:qtprofiler>"
     VERBATIM
     COMMENT "Codesigning qtprofiler with the debugger entitlement"
   )
@@ -63,9 +110,8 @@ if (NOT TARGET qtprofiler OR NOT BUILD_EXECUTABLE_QTPROFILER_STANDALONE)
   return()
 endif()
 
-create_standalone_install_component(standalone_qtprofiler
+create_standalone_install_component(qtprofiler
   TARGET qtprofiler
-  BUNDLE_PLIST_TEMPLATE ${CMAKE_CURRENT_LIST_DIR}/Info.plist.in
   PLUGINS
     platforminputcontexts
     platforms

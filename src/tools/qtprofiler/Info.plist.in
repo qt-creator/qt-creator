@@ -6,20 +6,24 @@
 	<string>NSApplication</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>${IDE_COPYRIGHT}</string>
+	<key>CFBundleName</key>
+	<string>Qt Profiler</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>qtprofiler</string>
 	<key>CFBundleIconName</key>
-	<string></string>
+	<string>qtprofiler</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>${EXECUTABLE}</string>
+	<string>Qt Profiler</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.qt-project.${TARGET}</string>
+	<string>org.qt-project.qtprofiler</string>
 	<key>CFBundleVersion</key>
 	<string>${IDE_VERSION}</string>
 	<key>CFBundleShortVersionString</key>

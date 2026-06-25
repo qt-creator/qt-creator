@@ -29,16 +29,16 @@ using namespace Qt::StringLiterals;
 
 namespace QtProfiler {
 
-static FilePath relativePathFromAppDirToShare()
+static FilePath resourcePath()
 {
-    switch (HostOsInfo::hostOs()) {
-    case OsTypeMac:
-        return Utils::findOr(FilePaths{"../Resources", ".."}, "", &FilePath::isReadableDir);
-    case OsTypeWindows:
-        return "../share/qtcreator/";
-    case OsTypeLinux:
-        default: return "../../share/qtcreator/";
-    };
+    static const FilePath appDirPath = FilePath::fromUserInput(QApplication::applicationDirPath());
+
+    if constexpr (HostOsInfo::isMacHost())
+        return appDirPath / "../Resources";
+    else if constexpr (HostOsInfo::isWindowsHost())
+        return appDirPath / "../share/qtcreator";
+
+    return appDirPath / "../../share/qtcreator";
 }
 
 static void initAppInfo()
@@ -52,8 +52,7 @@ static void initAppInfo()
     info.id = QApplication::applicationName().toLower();
     info.revision = Constants::IDE_REVISION_STR;
     info.revisionUrl = Constants::IDE_REVISION_URL;
-    const FilePath appDirPath = FilePath::fromUserInput(QApplication::applicationDirPath());
-    info.resources = appDirPath.resolvePath(relativePathFromAppDirToShare());
+    info.resources = resourcePath();
 #ifdef QTC_SHOW_BUILD_DATE
     const auto dateTime = QLatin1String(__DATE__ " " __TIME__);
     info.buildTime = QDateTime::fromString(dateTime, "MMM d yyyy hh:mm:ss");

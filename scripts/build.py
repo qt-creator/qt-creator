@@ -239,7 +239,7 @@ def build_qtcreator(args, paths):
                                 paths.build)
     if args.with_standalone_qtprofiler:
         common.check_print_call(['cmake', '--install', '.', '--prefix', paths.qtprofiler_install,
-                                 '--component', 'standalone_qtprofiler'],
+                                 '--component', 'qtprofiler'],
                                 paths.build)
 
 def build_wininterrupt(args, paths):

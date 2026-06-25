@@ -74,7 +74,12 @@ function(create_standalone_install_component component_name)
 
   cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
 
-  if (_arg_BUNDLE_PLIST_TEMPLATE)
+  # When the target already is a macOS application bundle (it carries its own
+  # Info.plist and icon), install the whole bundle to the prefix root and deploy
+  # the dependencies into it below. Otherwise install the bare executable.
+  get_target_property(_target_is_bundle ${_arg_TARGET} MACOSX_BUNDLE)
+
+  if (_arg_BUNDLE_PLIST_TEMPLATE OR ${_target_is_bundle})
     set(create_appbundle YES)
   else()
     set(create_appbundle NO)
@@ -143,11 +148,19 @@ Qml2Imports=qml
     )
   endif()
 
-  install(TARGETS ${_arg_TARGET}
-    DESTINATION ${libexec_dest}
-    COMPONENT ${component_name}
-    EXCLUDE_FROM_ALL
-  )
+  if (APPLE AND _target_is_bundle)
+    install(TARGETS ${_arg_TARGET}
+      BUNDLE DESTINATION "."
+      COMPONENT ${component_name}
+      EXCLUDE_FROM_ALL
+    )
+  else()
+    install(TARGETS ${_arg_TARGET}
+      DESTINATION ${libexec_dest}
+      COMPONENT ${component_name}
+      EXCLUDE_FROM_ALL
+    )
+  endif()
 
   # function for collecting all dependencies
   function(all_dependencies out_var targets)
@@ -321,24 +334,28 @@ Qml2Imports=qml
 
   # set up app bundle
   if (APPLE AND create_appbundle)
-    set(EXECUTABLE "${_arg_TARGET}")
-    set(TARGET "${_arg_TARGET}")
-    configure_file("${_arg_BUNDLE_PLIST_TEMPLATE}" "${CMAKE_CURRENT_BINARY_DIR}/Info.plist")
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
-      DESTINATION ${base_dir}
-      COMPONENT ${component_name}
-      EXCLUDE_FROM_ALL
-    )
+    # A bundle target already ships its own Info.plist (and icon); only generate
+    # one from the template when the target is a plain executable.
+    if (NOT _target_is_bundle)
+      set(EXECUTABLE "${_arg_TARGET}")
+      set(TARGET "${_arg_TARGET}")
+      configure_file("${_arg_BUNDLE_PLIST_TEMPLATE}" "${CMAKE_CURRENT_BINARY_DIR}/Info.plist")
+      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
+        DESTINATION ${base_dir}
+        COMPONENT ${component_name}
+        EXCLUDE_FROM_ALL
+      )
+    endif()
     # fix rpaths
     ## remove old
     get_target_property(existing_rpaths ${_arg_TARGET} INSTALL_RPATH)
     set(install_rpath "${_RPATH_BASE}/../Frameworks;${_RPATH_BASE}/../PlugIns/qtcreator")
     install(CODE "
       foreach (path ${existing_rpaths})
-        execute_process(COMMAND install_name_tool -delete_rpath \"\${path}\" \"\${CMAKE_INSTALL_PREFIX}/${libexec_dest}/${_arg_TARGET}\")
+        execute_process(COMMAND install_name_tool -delete_rpath \"\${path}\" \"\${CMAKE_INSTALL_PREFIX}/${libexec_dest}/${_bundle_output_name}\")
       endforeach()
       foreach (path ${install_rpath})
-        execute_process(COMMAND install_name_tool -add_rpath \"\${path}\" \"\${CMAKE_INSTALL_PREFIX}/${libexec_dest}/${_arg_TARGET}\")
+        execute_process(COMMAND install_name_tool -add_rpath \"\${path}\" \"\${CMAKE_INSTALL_PREFIX}/${libexec_dest}/${_bundle_output_name}\")
       endforeach()
     "
     COMPONENT ${component_name}

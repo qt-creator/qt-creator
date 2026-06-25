@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a2d6e"/>
+      <stop offset="1" stop-color="#1c1638"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="0.45" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- macOS squircle background -->
+  <rect x="0" y="0" width="1024" height="1024" rx="228" ry="228" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="228" ry="228" fill="url(#sheen)"/>
+
+  <!-- timeline ruler -->
+  <g fill="#b9aee8">
+    <rect x="180" y="206" width="664" height="6" rx="3" opacity="0.55"/>
+    <rect x="180" y="200" width="6" height="18" rx="3"/>
+    <rect x="346" y="200" width="6" height="18" rx="3"/>
+    <rect x="512" y="200" width="6" height="18" rx="3"/>
+    <rect x="678" y="200" width="6" height="18" rx="3"/>
+    <rect x="838" y="200" width="6" height="18" rx="3"/>
+  </g>
+
+  <!-- flame graph -->
+  <g>
+    <!-- row 0 (top) -->
+    <rect x="220" y="280" width="120" height="80" rx="16" fill="#ffd166"/>
+    <rect x="600" y="280" width="120" height="80" rx="16" fill="#ff9f1c"/>
+    <!-- row 1 -->
+    <rect x="200" y="376" width="160" height="80" rx="16" fill="#ff9f1c"/>
+    <rect x="400" y="376" width="100" height="80" rx="16" fill="#ffd166"/>
+    <rect x="580" y="376" width="180" height="80" rx="16" fill="#ffbf69"/>
+    <!-- row 2 -->
+    <rect x="180" y="472" width="180" height="80" rx="16" fill="#ffd166"/>
+    <rect x="380" y="472" width="120" height="80" rx="16" fill="#ffbf69"/>
+    <rect x="560" y="472" width="260" height="80" rx="16" fill="#ff9f1c"/>
+    <!-- row 3 -->
+    <rect x="180" y="568" width="320" height="80" rx="16" fill="#ff9f1c"/>
+    <rect x="520" y="568" width="324" height="80" rx="16" fill="#e84855"/>
+    <!-- row 4 (base) -->
+    <rect x="180" y="664" width="664" height="80" rx="16" fill="#f4743b"/>
+  </g>
+</svg>
