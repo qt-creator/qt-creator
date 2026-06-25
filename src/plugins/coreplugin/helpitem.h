@@ -4,6 +4,7 @@
 #pragma once
 
 #include "core_global.h"
+#include "helplink.h"
 
 #include <utils/filepath.h>
 
@@ -23,8 +24,7 @@ namespace Core {
 class CORE_EXPORT HelpItem
 {
 public:
-    using Link = std::pair<QString, QUrl>;
-    using Links = std::vector<Link>;
+    using Links = std::vector<HelpLink>;
     using LinkNarrower = std::function<Links(const HelpItem &, const Links &)>;
 
     enum Category {

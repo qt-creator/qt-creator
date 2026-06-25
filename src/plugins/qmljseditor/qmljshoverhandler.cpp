@@ -202,10 +202,10 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     if (m.hasMatch()) {
         QMap<QString, QUrl> filteredUrlMap;
         const QString maj = m.captured(2);
-        for (const HelpItem::Link &link : links) {
-            QString urlModuleName = link.second.path().split('/')[1];
+        for (const HelpLink &link : links) {
+            QString urlModuleName = link.url.path().split('/')[1];
             if (urlModuleName.contains(maj))
-                filteredUrlMap.insert(link.first, link.second);
+                filteredUrlMap.insert(link.title, link.url);
         }
         if (!filteredUrlMap.isEmpty()) {
             // Use the URL, to disambiguate different versions

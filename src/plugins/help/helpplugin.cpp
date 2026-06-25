@@ -515,12 +515,10 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
                                 .arg(Tr::tr("No documentation available.")));
         }
     } else if (links.size() == 1 && !contextHelp.isFuzzyMatch()) {
-        showHelpUrl(links.front().second, helpSettings().contextHelpOption());
+        showHelpUrl(links.front().url, helpSettings().contextHelpOption());
     } else {
-        const QList<HelpLink> map = Utils::transform<QList>(links, [](const HelpItem::Link &link) {
-            return HelpLink{link.second, link.first};
-        });
-        auto tc = new TopicChooser(ICore::dialogParent(), contextHelp.keyword(), map);
+        auto tc = new TopicChooser(ICore::dialogParent(), contextHelp.keyword(),
+                                   {links.begin(), links.end()});
         tc->setModal(true);
         connect(tc, &QDialog::accepted, this, [this, tc] {
             showHelpUrl(tc->link(), helpSettings().contextHelpOption());

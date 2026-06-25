@@ -266,9 +266,8 @@ void QtSupportPlugin::extensionsInitialized()
         HelpItem::Links sameMinor;
         HelpItem::Links sameMajor;
         HelpItem::Links noVersion;
-        for (const HelpItem::Link &link : links) {
-            const QUrl url = link.second;
-            const QVersionNumber version = HelpItem::extractQtVersionNumber(url).second;
+        for (const HelpLink &link : links) {
+            const QVersionNumber version = HelpItem::extractQtVersionNumber(link.url).second;
             // version.isNull() means it's not a Qt documentation URL, so include regardless
             if (version.isNull()) {
                 noVersion.push_back(link);

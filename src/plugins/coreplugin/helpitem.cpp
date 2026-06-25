@@ -134,9 +134,8 @@ QString HelpItem::extractContent(bool extended) const
         htmlExtractor.setMode(Utils::HtmlDocExtractor::FirstParagraph);
 
     QString contents;
-    for (const Link &item : links()) {
-        const QUrl url = item.second;
-        const QString html = QString::fromUtf8(Core::HelpManager::fileData(url));
+    for (const HelpLink &item : links()) {
+        const QString html = QString::fromUtf8(Core::HelpManager::fileData(item.url));
         switch (m_category) {
         case Brief:
             contents = htmlExtractor.getClassOrNamespaceBrief(html, m_docMark);
@@ -235,12 +234,12 @@ void HelpItem::debugPrintLinks(const QString &title, const Links &toPrint, const
 {
     if (helpItemLog().isDebugEnabled()) {
         qCDebug(helpItemLog) << title;
-        for (const HelpItem::Link &link : toPrint) {
+        for (const HelpLink &link : toPrint) {
             const size_t posInMarked
                 = std::distance(toMark.cbegin(), std::find(toMark.cbegin(), toMark.cend(), link));
             const bool isMarked = posInMarked < toMark.size();
             const QString mark = QString("%1").arg(isMarked ? QString::number(posInMarked) : "", 4);
-            qDebug() << qPrintable(mark) << link.first << "->" << link.second.toString();
+            qDebug() << qPrintable(mark) << link.title << "->" << link.url.toString();
         }
     }
 }
@@ -257,9 +256,9 @@ static bool helpUrlLessThan(const QUrl &a, const QUrl &b)
     return sa < sb;
 }
 
-static bool linkLessThan(const HelpItem::Link &a, const HelpItem::Link &b)
+static bool linkLessThan(const HelpLink &a, const HelpLink &b)
 {
-    return helpUrlLessThan(a.second, b.second);
+    return helpUrlLessThan(a.url, b.url);
 }
 
 // links are sorted with highest "version" first (for Qt help urls)
@@ -268,7 +267,7 @@ const HelpItem::Links &HelpItem::links() const
     if (!m_helpLinks) {
         if (!m_helpUrl.isEmpty()) {
             m_keyword = m_helpUrl.toString();
-            m_helpLinks.emplace(Links{{m_keyword, m_helpUrl}});
+            m_helpLinks.emplace({HelpLink{m_helpUrl, m_keyword}});
         } else {
             m_helpLinks.emplace(); // set a value even if there are no help IDs
             QList<Core::HelpLink> helpLinks;
@@ -289,8 +288,7 @@ const HelpItem::Links &HelpItem::links() const
                     }
                 }
             }
-            for (const auto &l : std::as_const(helpLinks))
-                m_helpLinks->emplace_back(Link{l.title, l.url});
+            m_helpLinks = Links{helpLinks.cbegin(), helpLinks.cend()};
         }
         Utils::sort(*m_helpLinks, linkLessThan);
     }
@@ -302,8 +300,8 @@ static const HelpItem::Links getBestLinks(const HelpItem::Links &links)
     // extract the highest version (== first) link of each individual topic
     HelpItem::Links bestLinks;
     QUrl currentUnversionedUrl;
-    for (const HelpItem::Link &link : links) {
-        const QUrl unversionedUrl = HelpItem::extractQtVersionNumber(link.second).first;
+    for (const HelpLink &link : links) {
+        const QUrl unversionedUrl = HelpItem::extractQtVersionNumber(link.url).first;
         if (unversionedUrl != currentUnversionedUrl) {
             currentUnversionedUrl = unversionedUrl;
             bestLinks.push_back(link);
@@ -322,9 +320,9 @@ static const HelpItem::Links getBestLink(const HelpItem::Links &links)
     // different.
     QVersionNumber highestVersion;
     // Default to first link if version extraction failed, possibly because it is not a Qt doc link
-    HelpItem::Link bestLink = links.front();
-    for (const HelpItem::Link &link : links) {
-        const QVersionNumber version = HelpItem::extractQtVersionNumber(link.second).second;
+    HelpLink bestLink = links.front();
+    for (const auto &link : links) {
+        const QVersionNumber version = HelpItem::extractQtVersionNumber(link.url).second;
         if (version > highestVersion) {
             highestVersion = version;
             bestLink = link;

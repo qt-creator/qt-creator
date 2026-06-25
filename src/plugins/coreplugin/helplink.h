@@ -12,6 +12,8 @@ struct HelpLink
 {
     QUrl url;
     QString title;
+
+    bool operator==(const HelpLink &other) const = default;
 };
 
 } // namespace Core
