@@ -4,7 +4,7 @@
 #pragma once
 
 #include "clangdiagnosticconfig.h"
-#include "clangdiagnosticconfigsselectionwidget.h"
+#include "clangdiagnosticconfigidaspect.h"
 #include "cppeditor_global.h"
 
 #include <utils/aspects.h>
@@ -105,7 +105,7 @@ public:
     Utils::TypedSelectionAspect<HeaderSourceSwitchMode> headerSourceSwitchMode{this};
     Utils::TypedSelectionAspect<CompletionRankingModel> completionRankingModel{this};
     Utils::TypedSelectionAspect<CompletionStyle> completionStyle{this};
-    DiagnosticConfigIdAspect diagnosticConfigId{this};
+    ClangDiagnosticConfigIdAspect diagnosticConfigId{this};
 
     static ClangdSettings &instance();
     static void setUseClangd(bool use);

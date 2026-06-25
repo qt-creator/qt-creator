@@ -4,7 +4,7 @@
 #pragma once
 
 #include <cppeditor/clangdiagnosticconfig.h>
-#include <cppeditor/clangdiagnosticconfigsselectionwidget.h>
+#include <cppeditor/clangdiagnosticconfigidaspect.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/useglobalaspect.h>
@@ -47,7 +47,7 @@ public:
     bool hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) const;
     void setRunSettingsEnabled(bool enabled);
 
-    CppEditor::DiagnosticConfigIdAspect diagnosticConfigId{this};
+    CppEditor::ClangDiagnosticConfigIdAspect diagnosticConfigId{this};
     Utils::IntegerAspect parallelJobs{this};
     Utils::BoolAspect preferConfigFile{this};
     Utils::BoolAspect buildBeforeAnalysis{this};

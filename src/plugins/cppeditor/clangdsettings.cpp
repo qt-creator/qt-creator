@@ -3,8 +3,8 @@
 
 #include "clangdsettings.h"
 
+#include "clangdiagnosticconfigidaspect.h"
 #include "clangdiagnosticconfigsmodel.h"
-#include "clangdiagnosticconfigsselectionwidget.h"
 #include "clangdiagnosticconfigswidget.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"

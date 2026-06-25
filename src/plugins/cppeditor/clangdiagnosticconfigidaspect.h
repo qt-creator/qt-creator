@@ -19,11 +19,11 @@ class ClangDiagnosticConfigsWidget;
 
 // Aspect holding a ClangDiagnosticConfig identifier.
 
-class CPPEDITOR_EXPORT DiagnosticConfigIdAspect final
+class CPPEDITOR_EXPORT ClangDiagnosticConfigIdAspect final
     : public Utils::TypedAspect<Utils::Id>
 {
 public:
-    explicit DiagnosticConfigIdAspect(Utils::AspectContainer *container = nullptr);
+    explicit ClangDiagnosticConfigIdAspect(Utils::AspectContainer *container = nullptr);
 
     using ModelFactory      = std::function<ClangDiagnosticConfigsModel()>;
     using EditWidgetFactory = std::function<ClangDiagnosticConfigsWidget *(

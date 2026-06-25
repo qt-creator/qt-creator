@@ -1,7 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "clangdiagnosticconfigsselectionwidget.h"
+#include "clangdiagnosticconfigidaspect.h"
 
 #include "clangdiagnosticconfigswidget.h"
 #include "cppeditortr.h"
@@ -111,23 +111,23 @@ private:
     CreateEditWidget m_createEditWidget;
 };
 
-// DiagnosticConfigIdAspect
+// ClangDiagnosticConfigIdAspect
 
-DiagnosticConfigIdAspect::DiagnosticConfigIdAspect(AspectContainer *container)
+ClangDiagnosticConfigIdAspect::ClangDiagnosticConfigIdAspect(AspectContainer *container)
     : TypedAspect(container)
 {}
 
-void DiagnosticConfigIdAspect::setModelFactory(ModelFactory factory)
+void ClangDiagnosticConfigIdAspect::setModelFactory(ModelFactory factory)
 {
     m_modelFactory = std::move(factory);
 }
 
-void DiagnosticConfigIdAspect::setEditWidgetFactory(EditWidgetFactory factory)
+void ClangDiagnosticConfigIdAspect::setEditWidgetFactory(EditWidgetFactory factory)
 {
     m_editFactory = std::move(factory);
 }
 
-void DiagnosticConfigIdAspect::addToLayoutImpl(Layouting::Layout &parent)
+void ClangDiagnosticConfigIdAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     m_widget = createSubWidget<ClangDiagnosticConfigsSelectionWidget>();
     if (m_modelFactory && m_editFactory) {
@@ -143,7 +143,7 @@ void DiagnosticConfigIdAspect::addToLayoutImpl(Layouting::Layout &parent)
     parent.addItem(m_widget.data());
 }
 
-bool DiagnosticConfigIdAspect::guiToVolatileValue()
+bool ClangDiagnosticConfigIdAspect::guiToVolatileValue()
 {
     if (!m_widget)
         return false;
@@ -155,28 +155,28 @@ bool DiagnosticConfigIdAspect::guiToVolatileValue()
     return changed;
 }
 
-bool DiagnosticConfigIdAspect::isDirty() const
+bool ClangDiagnosticConfigIdAspect::isDirty() const
 {
     return TypedAspect<Id>::isDirty() || m_customConfigs != m_committedCustomConfigs;
 }
 
-void DiagnosticConfigIdAspect::apply()
+void ClangDiagnosticConfigIdAspect::apply()
 {
     TypedAspect<Id>::apply();
     m_committedCustomConfigs = m_customConfigs;
 }
 
-void DiagnosticConfigIdAspect::refresh()
+void ClangDiagnosticConfigIdAspect::refresh()
 {
     volatileValueToGui();
 }
 
-bool DiagnosticConfigIdAspect::hasWidget() const
+bool ClangDiagnosticConfigIdAspect::hasWidget() const
 {
     return m_widget != nullptr;
 }
 
-void DiagnosticConfigIdAspect::volatileValueToGui()
+void ClangDiagnosticConfigIdAspect::volatileValueToGui()
 {
     if (!m_widget || !m_modelFactory || !m_editFactory)
         return;
@@ -186,7 +186,7 @@ void DiagnosticConfigIdAspect::volatileValueToGui()
     m_customConfigs = m_widget->customConfigs();
 }
 
-void DiagnosticConfigIdAspect::fromMap(const Store &map)
+void ClangDiagnosticConfigIdAspect::fromMap(const Store &map)
 {
     if (!settingsKey().isEmpty()) {
         const auto it = map.find(settingsKey());
@@ -195,20 +195,20 @@ void DiagnosticConfigIdAspect::fromMap(const Store &map)
     }
 }
 
-void DiagnosticConfigIdAspect::toMap(Store &map) const
+void ClangDiagnosticConfigIdAspect::toMap(Store &map) const
 {
     if (!settingsKey().isEmpty())
         map.insert(settingsKey(), value().toSetting());
 }
 
-void DiagnosticConfigIdAspect::readSettings()
+void ClangDiagnosticConfigIdAspect::readSettings()
 {
     TypedAspect<Id>::readSettings();
     if (m_persistCustomConfigs)
         m_customConfigs = diagnosticConfigsFromSettings(&Utils::userSettings());
 }
 
-void DiagnosticConfigIdAspect::writeSettings() const
+void ClangDiagnosticConfigIdAspect::writeSettings() const
 {
     TypedAspect<Id>::writeSettings();
     if (m_persistCustomConfigs)
@@ -217,4 +217,4 @@ void DiagnosticConfigIdAspect::writeSettings() const
 
 } // namespace CppEditor
 
-#include "clangdiagnosticconfigsselectionwidget.moc"
+#include "clangdiagnosticconfigidaspect.moc"
