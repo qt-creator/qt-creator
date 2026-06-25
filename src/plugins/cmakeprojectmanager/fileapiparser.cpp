@@ -1140,9 +1140,9 @@ static QStringList uniqueTargetFiles(const ConfigurationInfo &config)
     return files;
 }
 
-FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &promise,
+FileApiData FileApiParser::parseData(QPromise<FileApiQtcData> &promise,
                                      const FilePath &replyFilePath,
-                                     const Utils::FilePath &buildDir,
+                                     const FilePath &buildDir,
                                      const QString &cmakeBuildType,
                                      QString &errorMessage)
 {
