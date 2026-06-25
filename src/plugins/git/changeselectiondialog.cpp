@@ -25,6 +25,7 @@
 #include <QStringListModel>
 #include <QTimer>
 
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -170,25 +171,6 @@ void ChangeSelectionDialog::acceptCommand(ChangeCommand command)
     QDialog::accept();
 }
 
-//! Set commit message in details
-void ChangeSelectionDialog::setDetails()
-{
-    QPalette palette;
-    if (m_process->result() == ProcessResult::FinishedWithSuccess) {
-        const QString text = m_process->cleanedStdOut();
-        AnsiEscapeCodeHandler::setTextInDocument(m_detailsText->document(), text);
-        palette.setColor(QPalette::Text, creatorColor(Theme::TextColorNormal));
-        m_changeNumberEdit->setPalette(palette);
-    } else if (m_process->result() == ProcessResult::StartFailed) {
-        m_detailsText->setPlainText(Tr::tr("Error: Could not start Git."));
-    } else {
-        m_detailsText->setPlainText(Tr::tr("Error: Unknown reference"));
-        palette.setColor(QPalette::Text, creatorColor(Theme::TextColorError));
-        m_changeNumberEdit->setPalette(palette);
-        enableButtons(false);
-    }
-}
-
 void ChangeSelectionDialog::enableButtons(bool b)
 {
     m_showButton->setEnabled(b);
@@ -203,23 +185,22 @@ void ChangeSelectionDialog::recalculateCompletion()
     if (workingDir == m_oldWorkingDir)
         return;
     m_oldWorkingDir = workingDir;
-    m_changeModel->setStringList(QStringList());
+    m_changeModel->setStringList({});
 
     if (workingDir.isEmpty())
         return;
 
-    Process *process = new Process(this);
-    process->setEnvironment(gitClient().processEnvironment(workingDir));
-    process->setCommand(
-        {gitClient().vcsBinary(workingDir), {"for-each-ref", "--format=%(refname:short)"}});
-    process->setWorkingDirectory(workingDir);
-    process->setUseCtrlCStub(true);
-    connect(process, &Process::done, this, [this, process] {
-        if (process->result() == ProcessResult::FinishedWithSuccess)
-            m_changeModel->setStringList(process->cleanedStdOut().split('\n'));
-        process->deleteLater();
-    });
-    process->start();
+    const auto onSetup = [workingDir](Process &process) {
+        process.setEnvironment(gitClient().processEnvironment(workingDir));
+        process.setCommand(
+            {gitClient().vcsBinary(workingDir), {"for-each-ref", "--format=%(refname:short)"}});
+        process.setWorkingDirectory(workingDir);
+        process.setUseCtrlCStub(true);
+    };
+    const auto onDone = [this](const Process &process) {
+        m_changeModel->setStringList(process.cleanedStdOut().split('\n'));
+    };
+    m_completionRunner.start({ProcessTask(onSetup, onDone, CallDoneFlag::OnSuccess)});
 }
 
 void ChangeSelectionDialog::recalculateDetails()
@@ -238,11 +219,6 @@ void ChangeSelectionDialog::recalculateDetails()
         return;
     }
 
-    m_process.reset(new Process);
-    connect(m_process.get(), &Process::done, this, &ChangeSelectionDialog::setDetails);
-    m_process->setWorkingDirectory(workingDir);
-    m_process->setEnvironment(m_gitEnvironment);
-
     const ColorNames colors = GitClient::colorNames();
     const QString showFormat = QStringLiteral(
                                    "--pretty=format:"
@@ -253,9 +229,29 @@ void ChangeSelectionDialog::recalculateDetails()
                                    ).arg(colors.hash, colors.decoration, colors.author,
                                          colors.date, colors.subject);
 
-    m_process->setCommand({m_gitExecutable, {"show", "--decorate", "--stat=80",
-                                             "--color=always", showFormat, ref}});
-    m_process->start();
+    const auto onSetup = [this, workingDir, showFormat, ref](Process &process) {
+        process.setWorkingDirectory(workingDir);
+        process.setEnvironment(m_gitEnvironment);
+        process.setCommand({m_gitExecutable, {"show", "--decorate", "--stat=80",
+                                              "--color=always", showFormat, ref}});
+    };
+    const auto onDone = [this](const Process &process, DoneWith result) {
+        QPalette palette;
+        if (result == DoneWith::Success) {
+            AnsiEscapeCodeHandler::setTextInDocument(m_detailsText->document(),
+                                                     process.cleanedStdOut());
+            palette.setColor(QPalette::Text, creatorColor(Theme::TextColorNormal));
+            m_changeNumberEdit->setPalette(palette);
+        } else if (process.result() == ProcessResult::StartFailed) {
+            m_detailsText->setPlainText(Tr::tr("Error: Could not start Git."));
+        } else {
+            m_detailsText->setPlainText(Tr::tr("Error: Unknown reference"));
+            palette.setColor(QPalette::Text, creatorColor(Theme::TextColorError));
+            m_changeNumberEdit->setPalette(palette);
+            enableButtons(false);
+        }
+    };
+    m_detailsRunner.start({ProcessTask(onSetup, onDone)});
     m_detailsText->setPlainText(Tr::tr("Fetching commit data..."));
 }
 

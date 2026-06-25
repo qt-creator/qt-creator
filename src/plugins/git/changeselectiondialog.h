@@ -7,6 +7,8 @@
 #include <utils/filepath.h>
 #include <utils/id.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -18,7 +20,6 @@ QT_END_NAMESPACE
 namespace Utils {
 class CompletingLineEdit;
 class PathChooser;
-class Process;
 } // Utils
 
 namespace Git::Internal {
@@ -45,7 +46,6 @@ public:
 
 private:
     void selectCommitFromRecentHistory();
-    void setDetails();
     void recalculateCompletion();
     void recalculateDetails();
     void changeTextChanged(const QString &text);
@@ -53,7 +53,8 @@ private:
 
     void enableButtons(bool b);
 
-    std::unique_ptr<Utils::Process> m_process;
+    QtTaskTree::QSingleTaskTreeRunner m_completionRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_detailsRunner;
     Utils::FilePath m_gitExecutable;
     Utils::Environment m_gitEnvironment;
     ChangeCommand m_command = NoCommand;
