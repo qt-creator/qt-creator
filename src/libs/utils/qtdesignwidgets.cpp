@@ -578,6 +578,12 @@ QSize QtcComboBox::sizeHint() const
             margins.top() + comboBoxTf.lineHeight() + margins.bottom()};
 }
 
+QSize QtcComboBox::minimumSizeHint() const
+{
+    const QSize parentS = QComboBox::minimumSizeHint();
+    return {parentS.width(), sizeHint().height()};
+}
+
 void QtcComboBox::enterEvent(QEnterEvent *event)
 {
     QComboBox::enterEvent(event);

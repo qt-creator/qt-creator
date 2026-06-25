@@ -108,6 +108,7 @@ public:
     explicit QtcComboBox(QWidget *parent = nullptr);
 
     QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
 
     void setRole(Role role);
 
