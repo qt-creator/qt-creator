@@ -537,7 +537,7 @@ Result<> WindowsDeviceAccess::setPermissions(const FilePath &filePath,
         "try { $i = Get-Item -LiteralPath %1 -Force -ErrorAction Stop; "
         "if (-not $i.PSIsContainer) { $i.IsReadOnly = $%2 } } "
         "catch { [Console]::Error.Write($_.Exception.Message); exit 1 }")
-        .arg(psPath(filePath), readOnly ? "true" : "false");
+        .arg(psPath(filePath), readOnly ? QString("true") : QString("false"));
     const Result<RunResult> res = run(script);
     if (!res)
         return ResultError(res.error());
