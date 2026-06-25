@@ -1990,7 +1990,9 @@ FileDialog::FileDialog(QWidget *parent)
     const QKeySequence parentShortcut = HostOsInfo::isWindowsHost()
                                             ? QKeySequence(Qt::ALT | Qt::Key_Up)
                                             : QKeySequence(Qt::CTRL | Qt::Key_Up);
-    const QKeySequence gotoShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_G);
+    const QKeySequence gotoShortcut = HostOsInfo::isMacHost()
+                                          ? QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_G)
+                                          : QKeySequence(Qt::CTRL | Qt::Key_L);
 
     // "Back (⌘[)" — appends the native shortcut text when there is one.
     const auto withShortcut = [](const QString &text, const QKeySequence &seq) {
