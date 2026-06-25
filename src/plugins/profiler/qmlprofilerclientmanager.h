@@ -9,6 +9,8 @@
 
 #include <QPointer>
 
+#include <functional>
+
 namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
@@ -26,6 +28,12 @@ public:
     void clearBufferedData();
     void stopRecording();
 
+    // Where connection state messages go. By default they are flashed in the
+    // Creator message pane; callers running outside Creator (e.g. the standalone
+    // trace viewer, which has no initialized Core) can redirect them, e.g. to
+    // qDebug(). The message is already prefixed with "QML Profiler: ".
+    void setLogger(const std::function<void(const QString &message)> &logger);
+
 private:
     void createClients() final;
     void destroyClients() final;
@@ -34,6 +42,7 @@ private:
     QPointer<QmlDebug::QmlProfilerTraceClient> m_clientPlugin;
     QPointer<QmlProfilerStateManager> m_profilerState;
     QPointer<QmlProfilerModelManager> m_modelManager;
+    std::function<void(const QString &)> m_logger;
     quint32 m_flushInterval = 0;
 };
 

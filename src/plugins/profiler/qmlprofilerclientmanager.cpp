@@ -119,9 +119,18 @@ void QmlProfilerClientManager::destroyClients()
     m_clientPlugin.clear();
 }
 
+void QmlProfilerClientManager::setLogger(const std::function<void(const QString &)> &logger)
+{
+    m_logger = logger;
+}
+
 void QmlProfilerClientManager::logState(const QString &message)
 {
-    QmlProfilerTool::logState(QLatin1String("QML Profiler: ") + message);
+    const QString prefixed = QLatin1String("QML Profiler: ") + message;
+    if (m_logger)
+        m_logger(prefixed);
+    else
+        QmlProfilerTool::logState(prefixed);
 }
 
 } // namespace Profiler::Internal

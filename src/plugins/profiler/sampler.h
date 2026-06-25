@@ -5,12 +5,15 @@
 
 #include "profiler_global.h"
 
+#include <utils/aspects.h>
+#include <utils/commandline.h>
 #include <utils/filepath.h>
 #include <utils/result.h>
 
 #include <QtTaskTree/QTaskTree>
 
 #include <QString>
+#include <QUrl>
 
 #include <atomic>
 #include <memory>
@@ -27,13 +30,53 @@ struct RecordingSession
     int intervalUs = 200;            // Backend-specific cadence hint.
     QString processName;             // Attach-by-name target, used when pid == 0.
 
+    // Set when a target is to be launched (otherwise the backend attaches to or
+    // connects to an already-running target). The backend composes the launch
+    // itself (see launchThenCapture()), so it may rewrite the command, e.g. to
+    // inject -qmljsdebugger arguments.
+    std::optional<Utils::CommandLine> launchCommand;
+    Utils::FilePath launchWorkingDir;
+
+    // QML debug channel for protocol-based backends; empty for native ones.
+    QUrl serverUrl;
+
     // Set once a launched process is running; selects attach-by-pid instead.
     std::atomic<qint64> pid = 0;
 
     // Runtime control and output.
+    std::atomic_bool started = false; // Set once the backend is actually capturing.
     std::atomic_bool stop = false;   // The GUI sets this to end recording.
     std::atomic<int> progress = 0;   // 0..100 post-processing percent.
     std::optional<Utils::Result<Utils::FilePath>> result; // Set on the GUI thread when done.
+};
+
+// Backend-specific recording settings. Besides holding the options, it renders its
+// own configuration controls via AspectContainer::setLayouter(), keeping them next
+// to the settings they use. All backends can launch an executable, so the launch
+// command lives here; backend-specific alternatives (attach to a pid, connect to a
+// debug server) are added by subclasses, which decide in createSession() which
+// mode the current settings select.
+class PROFILER_EXPORT SamplerSettings : public Utils::AspectContainer
+{
+    Q_OBJECT
+
+public:
+    SamplerSettings();
+
+    // The executable to launch and profile, used unless a subclass selects a
+    // different start mode (attach/connect).
+    Utils::FilePathAspect executable{this};
+    Utils::StringAspect arguments{this};
+    Utils::FilePathAspect workingDirectory{this};
+
+    // Builds a RecordingSession from the current settings, or an error explaining
+    // what is missing/misconfigured (e.g. no executable, or attach with no process).
+    virtual Utils::Result<std::shared_ptr<RecordingSession>> createSession() const = 0;
+
+protected:
+    // Populates session->launchCommand/launchWorkingDir from executable+arguments;
+    // fails if no executable is set.
+    Utils::Result<> fillLaunch(RecordingSession &session) const;
 };
 
 // A profiling backend: records a trace of a target process until the session is
@@ -53,10 +96,18 @@ public:
     // fills *error with a human-readable reason.
     virtual bool isAvailable(QString *error = nullptr) const = 0;
 
-    // A task that records the target described by `session`, runs off the GUI
-    // thread, and stores its Result into session->result when done.
+    // The complete recipe that records the target described by `session`: it
+    // launches session->launchCommand (when set) and captures the target until
+    // session->stop, storing its Result into session->result when done. Backends
+    // compose launching themselves (see launchThenCapture()) so the caller never
+    // needs to know how a particular backend starts its target.
     virtual QtTaskTree::ExecutableItem recordRecipe(
         const std::shared_ptr<RecordingSession> &session) const = 0;
+
+    // Backend-specific recording settings, which also render the backend's own
+    // configuration controls and attach/connect start buttons (see SamplerSettings).
+    // Null when the backend has no options. Owned by the backend.
+    virtual SamplerSettings *settings() const { return nullptr; }
 };
 
 } // namespace QmlProfiler::Internal
