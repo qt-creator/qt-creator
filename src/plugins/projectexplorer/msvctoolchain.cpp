@@ -168,21 +168,13 @@ static bool hostSupportsPlatform(MsvcToolchain::Platform platform)
     }
 }
 
-static QString fixRegistryPath(const QString &path)
-{
-    QString result = QDir::fromNativeSeparators(path);
-    if (result.endsWith(QLatin1Char('/')))
-        result.chop(1);
-    return result;
-}
-
 struct VisualStudioInstallation
 {
     QString vsName;
     QVersionNumber version;
-    QString path;       // Main installation path
-    QString vcVarsPath; // Path under which the various vc..bat are to be found
-    QString vcVarsAll;
+    FilePath path;       // Main installation path
+    FilePath vcVarsPath; // Path under which the various vc..bat are to be found
+    FilePath vcVarsAll;
     QString displayName;
 };
 
@@ -191,38 +183,34 @@ QDebug operator<<(QDebug d, const VisualStudioInstallation &i)
     QDebugStateSaver saver(d);
     d.noquote();
     d.nospace();
-    d << "VisualStudioInstallation(\"" << i.vsName << "\", v=" << i.version << ", path=\""
-      << QDir::toNativeSeparators(i.path) << "\", vcVarsPath=\""
-      << QDir::toNativeSeparators(i.vcVarsPath) << "\", vcVarsAll=\""
-      << QDir::toNativeSeparators(i.vcVarsAll) << "\")";
+    d << "VisualStudioInstallation(\"" << i.vsName;
+    d << "\", v=" << i.version;
+    d << ", path=\"" << i.path.toUserOutput();
+    d << "\", vcVarsPath=\"" << i.vcVarsPath.toUserOutput();
+    d << "\", vcVarsAll=\"" << i.vcVarsAll.toUserOutput() << "\")";
     return d;
 }
 
-static QString windowsProgramFilesDir()
+static FilePath windowsProgramFilesDir()
 {
 #ifdef Q_OS_WIN64
     const char programFilesC[] = "ProgramFiles(x86)";
 #else
     const char programFilesC[] = "ProgramFiles";
 #endif
-    return QDir::fromNativeSeparators(qtcEnvironmentVariable(programFilesC));
+    return FilePath::fromUserInput(qtcEnvironmentVariable(programFilesC));
 }
 
 static std::optional<VisualStudioInstallation> installationFromPathAndVersion(
-    const QString &installationPath, const QVersionNumber &version)
+    const FilePath &installationPath, const QVersionNumber &version)
 {
-    QString vcVarsPath = QDir::fromNativeSeparators(installationPath);
-    if (!vcVarsPath.endsWith('/'))
-        vcVarsPath += '/';
-    if (version.majorVersion() > 14)
-        vcVarsPath += QStringLiteral("VC/Auxiliary/Build");
-    else
-        vcVarsPath += QStringLiteral("VC");
-
-    const QString vcVarsAllPath = vcVarsPath + QStringLiteral("/vcvarsall.bat");
-    if (!QFileInfo(vcVarsAllPath).isFile()) {
+    const QString vcSubDir = version.majorVersion() > 14 ? QString("VC/Auxiliary/Build")
+                                                         : QString("VC");
+    const FilePath vcVarsPath = installationPath / vcSubDir;
+    const FilePath vcVarsAllPath = vcVarsPath / "vcvarsall.bat";
+    if (!vcVarsAllPath.isFile()) {
         qWarning().noquote() << "Unable to find MSVC setup script "
-                             << QDir::toNativeSeparators(vcVarsPath) << " in version " << version;
+                             << vcVarsPath.toUserOutput() << " in version " << version;
         return std::nullopt;
     }
 
@@ -239,12 +227,12 @@ static std::optional<VisualStudioInstallation> installationFromPathAndVersion(
 // Detect build tools introduced with MSVC2017
 static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
 {
-    const QString installPath = windowsProgramFilesDir()
-                                + "/Microsoft Visual Studio/2017/BuildTools";
-    const QString vcVarsPath = installPath + "/VC/Auxiliary/Build";
-    const QString vcVarsAllPath = vcVarsPath + "/vcvarsall.bat";
+    const FilePath installPath = windowsProgramFilesDir()
+                                / "Microsoft Visual Studio/2017/BuildTools";
+    const FilePath vcVarsPath = installPath / "VC/Auxiliary/Build";
+    const FilePath vcVarsAllPath = vcVarsPath / "vcvarsall.bat";
 
-    if (!QFileInfo::exists(vcVarsAllPath))
+    if (!vcVarsAllPath.exists())
         return std::nullopt;
 
     VisualStudioInstallation installation;
@@ -259,8 +247,7 @@ static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
 
 static FilePath vswherePath()
 {
-    return FilePath::fromString(
-        windowsProgramFilesDir() + "/Microsoft Visual Studio/Installer/vswhere.exe");
+    return windowsProgramFilesDir() / "Microsoft Visual Studio/Installer/vswhere.exe";
 }
 
 static QList<VisualStudioInstallation> detectVisualStudioFromVswhere()
@@ -313,7 +300,7 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVswhere()
             qWarning() << "Could not obtain VS installation path from json output";
             continue;
         }
-        const QString installationPath = value.toString();
+        const FilePath installationPath = FilePath::fromUserInput(value.toString());
         std::optional<VisualStudioInstallation> installation
             = installationFromPathAndVersion(installationPath, version);
 
@@ -343,8 +330,8 @@ static QList<VisualStudioInstallation> detectVisualStudioFromRegistry()
     for (const QString &vsName : keys) {
         const QVersionNumber version = QVersionNumber::fromString(vsName);
         if (!version.isNull()) {
-            const QString installationPath = fixRegistryPath(vsRegistry.value(vsName).toString());
-
+            const FilePath installationPath = FilePath::fromUserInput(
+                vsRegistry.value(vsName).toString());
             std::optional<VisualStudioInstallation> installation
                 = installationFromPathAndVersion(installationPath, version);
             if (installation)
@@ -749,7 +736,7 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
 }
 
 static Result<> generateEnvironmentSettings(const Environment &env,
-                                            const QString &batchFile,
+                                            const FilePath &batchFile,
                                             const QString &batchArgs,
                                             QMap<QString, QString> &envPairs)
 {
@@ -761,14 +748,13 @@ static Result<> generateEnvironmentSettings(const Environment &env,
     TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
 
     QByteArray call = "call ";
-    call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
+    call += ProcessArgs::quoteArg(batchFile.path()).toLocal8Bit();
     if (!batchArgs.isEmpty()) {
         call += ' ';
         call += batchArgs.toLocal8Bit();
     }
 
-    if (HostOsInfo::isWindowsHost())
-        saver.write("chcp 65001\r\n");
+    saver.write("chcp 65001\r\n");
     saver.write("set VSCMD_SKIP_SENDTELEMETRY=1\r\n");
     saver.write("set CLINK_NOAUTORUN=1\r\n");
     saver.write("setlocal enableextensions\r\n");
@@ -806,7 +792,7 @@ static Result<> generateEnvironmentSettings(const Environment &env,
     if (run.result() != ProcessResult::FinishedWithSuccess) {
         const QString message = run.exitMessage(Process::FailureMessageFormat::WithStdErr);
         qWarning().noquote() << message;
-        QString command = QDir::toNativeSeparators(batchFile);
+        QString command = batchFile.toUserOutput();
         if (!batchArgs.isEmpty())
             command += ' ' + batchArgs;
         return ResultError(Tr::tr("Failed to retrieve MSVC Environment from \"%1\":\n%2")
@@ -846,7 +832,7 @@ static Result<> generateEnvironmentSettings(const Environment &env,
 }
 
 static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> &promise,
-                                     QString vcvarsBat, QString varsBatArg)
+                                     FilePath vcvarsBat, QString varsBatArg)
 {
     const Environment inEnv = Environment::systemEnvironment();
     Environment outEnv;
@@ -1002,7 +988,7 @@ MsvcToolchain::~MsvcToolchain()
 bool MsvcToolchain::isValid() const
 {
     if (!m_isValid.has_value())
-        m_isValid = Utils::FilePath::fromUserInput(m_vcvarsBat).isExecutableFile();
+        m_isValid = m_vcvarsBat.isExecutableFile();
     return m_isValid.value_or(false);
 }
 
@@ -1104,7 +1090,7 @@ Abis MsvcToolchain::supportedAbis() const
 void MsvcToolchain::toMap(Store &data) const
 {
     Toolchain::toMap(data);
-    data.insert(varsBatKeyC, m_vcvarsBat);
+    data.insert(varsBatKeyC, m_vcvarsBat.toSettings());
     if (!m_varsBatArg.isEmpty())
         data.insert(varsBatArgKeyC, m_varsBatArg);
     EnvironmentItem::sort(&m_environmentModifications);
@@ -1118,7 +1104,7 @@ void MsvcToolchain::fromMap(const Store &data)
         g_availableMsvcToolchains.removeOne(this);
         return;
     }
-    m_vcvarsBat = QDir::fromNativeSeparators(data.value(varsBatKeyC).toString());
+    m_vcvarsBat = FilePath::fromSettings(data.value(varsBatKeyC));
     m_isValid.reset();
     m_varsBatArg = data.value(varsBatArgKeyC).toString();
 
@@ -1361,7 +1347,7 @@ QList<OutputLineParser *> MsvcToolchain::createOutputParsers() const
     return {new MsvcParser};
 }
 
-void MsvcToolchain::setupVarsBat(const Abi &abi, const QString &varsBat, const QString &varsBatArg)
+void MsvcToolchain::setupVarsBat(const Abi &abi, const FilePath &varsBat, const QString &varsBatArg)
 {
     m_lastEnvironment = Utils::Environment::systemEnvironment();
     setTargetAbiNoSignal(abi);
@@ -1400,7 +1386,7 @@ MsvcToolchain::Platform MsvcToolchain::platform() const
 
 static QString msvcVarsToDisplay(const MsvcToolchain &tc)
 {
-    QString varsBatDisplay = QDir::toNativeSeparators(tc.varsBat());
+    QString varsBatDisplay = tc.varsBat().toUserOutput();
     if (!tc.varsBatArg().isEmpty()) {
         varsBatDisplay += QLatin1Char(' ');
         varsBatDisplay += tc.varsBatArg();
@@ -1468,7 +1454,7 @@ public:
         m_varsBatPathCombo->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
         m_varsBatPathCombo->setEditable(true);
         for (const MsvcToolchain *tmpTc : std::as_const(g_availableMsvcToolchains)) {
-            const QString nativeVcVars = QDir::toNativeSeparators(tmpTc->varsBat());
+            const QString nativeVcVars = tmpTc->varsBat().toUserOutput();
             if (!tmpTc->varsBat().isEmpty()
                 && m_varsBatPathCombo->findText(nativeVcVars) == -1) {
                 m_varsBatPathCombo->addItem(nativeVcVars);
@@ -1530,7 +1516,7 @@ private:
 
 void MsvcToolchainConfigWidget::applyImpl()
 {
-    const QString vcVars = QDir::fromNativeSeparators(m_varsBatPathCombo->currentText());
+    const FilePath vcVars = FilePath::fromUserInput(m_varsBatPathCombo->currentText());
     bundle().set(&MsvcToolchain::setupVarsBat, m_abiWidget->currentAbi(), vcVars, vcVarsArguments());
     setFromMsvcToolchain();
 }
@@ -1555,15 +1541,14 @@ void MsvcToolchainConfigWidget::setFromMsvcToolchain()
             break;
         }
     }
-    m_varsBatPathCombo->setCurrentText(
-        QDir::toNativeSeparators(bundle().get(&MsvcToolchain::varsBat)));
+    m_varsBatPathCombo->setCurrentText(bundle().get(&MsvcToolchain::varsBat).toUserOutput());
     m_varsBatArgumentsEdit->setText(args);
     m_abiWidget->setAbis(bundle().supportedAbis(), bundle().targetAbi());
 }
 
 void MsvcToolchainConfigWidget::updateAbis()
 {
-    const QString normalizedVcVars = QDir::fromNativeSeparators(m_varsBatPathCombo->currentText());
+    const FilePath normalizedVcVars = FilePath::fromUserInput(m_varsBatPathCombo->currentText());
     const MsvcToolchain::Platform platform = m_varsBatArchCombo->currentData().value<MsvcToolchain::Platform>();
     const Abi::Architecture arch = archForPlatform(platform);
     const unsigned char wordWidth = wordWidthForPlatform(platform);
@@ -1974,23 +1959,21 @@ public:
         return std::make_unique<MsvcToolchainConfigWidget>(bundle);
     }
 
-    static QString vcVarsBatFor(const QString &basePath,
-                                MsvcToolchain::Platform platform,
-                                const QVersionNumber &v);
+    static FilePath vcVarsBatFor(const FilePath &basePath,
+                                 MsvcToolchain::Platform platform,
+                                 const QVersionNumber &v);
 };
 
-QString MsvcToolchainFactory::vcVarsBatFor(const QString &basePath,
-                                           MsvcToolchain::Platform platform,
-                                           const QVersionNumber &v)
+FilePath MsvcToolchainFactory::vcVarsBatFor(
+    const FilePath &basePath, MsvcToolchain::Platform platform, const QVersionNumber &v)
 {
-    QString result;
+    FilePath result;
     if (const MsvcPlatform *p = platformEntry(platform)) {
-        result += basePath;
+        result = basePath;
         // Starting with 15.0 (MSVC2017), the .bat are in one folder.
         if (v.majorVersion() <= 14)
-            result += QLatin1String(p->prefix);
-        result += QLatin1Char('/');
-        result += QLatin1String(p->bat);
+            result = result / QLatin1String(p->prefix);
+        result = result / QLatin1String(p->bat);
     }
     return result;
 }
@@ -1998,7 +1981,7 @@ QString MsvcToolchainFactory::vcVarsBatFor(const QString &basePath,
 static Toolchains findOrCreateToolchains(const ToolchainDetector &detector,
                                          const QString &name,
                                          const Abi &abi,
-                                         const QString &varsBat,
+                                         const FilePath &varsBat,
                                          const QString &varsBatArg)
 {
     Toolchains res;
@@ -2046,8 +2029,8 @@ static void detectCppBuildTools2015(Toolchains *list)
                              {" (x64_arm64)", "amd64_arm64", Abi::ArmArchitecture, Abi::PEFormat, 64}};
 
     const QString name = "Microsoft Visual C++ Build Tools";
-    const QString vcVarsBat = windowsProgramFilesDir() + '/' + name + "/vcbuildtools.bat";
-    if (!QFileInfo(vcVarsBat).isFile())
+    const FilePath vcVarsBat = windowsProgramFilesDir() / name / "vcbuildtools.bat";
+    if (vcVarsBat.isFile())
         return;
     for (const Entry &e : entries) {
         const Abi abi(e.architecture,
@@ -2113,7 +2096,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
                                                   findAbiOfMsvc(MsvcToolchain::WindowsSDK,
                                                                 platform.first,
                                                                 sdkKey),
-                                                  fi.absoluteFilePath(),
+                                                  FilePath::fromFileInfo(fi),
                                                   "/" + platform.second));
             }
             // Make sure the default is front.
@@ -2147,8 +2130,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
     const QList<VisualStudioInstallation> studios = detectVisualStudio();
     for (const VisualStudioInstallation &i : studios) {
         for (MsvcToolchain::Platform platform : platforms) {
-            const bool toolchainInstalled
-                = QFileInfo(vcVarsBatFor(i.vcVarsPath, platform, i.version)).isFile();
+            const bool toolchainInstalled = vcVarsBatFor(i.vcVarsPath, platform, i.version).isFile();
             if (hostSupportsPlatform(platform) && toolchainInstalled) {
                 results.append(
                     findOrCreateToolchains(detector,

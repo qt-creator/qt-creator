@@ -54,8 +54,8 @@ public:
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
 
     QString varsBatArg() const { return m_varsBatArg; }
-    QString varsBat() const { return m_vcvarsBat; }
-    void setupVarsBat(const Abi &abi, const QString &varsBat, const QString &varsBatArg);
+    Utils::FilePath varsBat() const { return m_vcvarsBat; }
+    void setupVarsBat(const Abi &abi, const Utils::FilePath &varsBat, const QString &varsBatArg);
     void resetVarsBat();
     Platform platform() const;
 
@@ -113,7 +113,7 @@ private:
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
 
 protected:
-    QString m_vcvarsBat;
+    Utils::FilePath m_vcvarsBat;
     QString m_varsBatArg; // Argument
     mutable std::optional<bool> m_isValid;
 };
