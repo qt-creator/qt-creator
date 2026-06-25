@@ -202,6 +202,10 @@ void QmlProfilerModelManager::clearEventStorage()
 
 void QmlProfilerModelManager::clearTypeStorage()
 {
+    // Drop any pending detail-rewrite requests: they reference type indices that are
+    // about to be invalidated. Otherwise a late delivery would call setTypeDetails()
+    // with a now-out-of-range typeId.
+    m_detailsRewriter->clear();
     emit typesCleared();
     TimelineTraceManager::clearTypeStorage();
 }
