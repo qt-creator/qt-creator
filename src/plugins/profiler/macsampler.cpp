@@ -300,7 +300,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
     if (data.samples.isEmpty())
         return ResultError(Tr::tr("No samples were captured. The target may have exited."));
 
-    const QString dirName = u"qmltraceviewer-sample-%1"_s.arg(
+    const QString dirName = u"qtprofiler-sample-%1"_s.arg(
         QDateTime::currentMSecsSinceEpoch());
     const QString dirPath = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
                                 .filePath(dirName);

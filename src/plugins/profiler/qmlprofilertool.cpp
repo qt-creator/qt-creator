@@ -792,7 +792,7 @@ void QmlProfilerTool::clear()
 QList <QAction *> QmlProfilerTool::profilerContextMenuActions()
 {
     // In case of QmlProfilerTool being used outside of Qt Creator, like with the stand alone
-    // QML Trace Viewer, ActionManager does not get initialized. Avoid crash.
+    // Qt Profiler, ActionManager does not get initialized. Avoid crash.
     if (!ActionManager::instance())
         return {};
 

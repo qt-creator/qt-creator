@@ -44,5 +44,5 @@ if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/perfparser/CMakeLists.txt)
 endif()
 
 add_subdirectory(process_stub)
-add_subdirectory(qmltraceviewer)
+add_subdirectory(qtprofiler)
 add_subdirectory(dlwrapper)

@@ -78,7 +78,7 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--with-extra-cmdbridge', help='Creates a separate archive with the cmdbridge, in addition to '
                         'including it in the Qt Creator package.', action='store_true', default=False)
-    parser.add_argument('--with-standalone-qmltraceviewer', help='Creates a separate archive with QML Trace Viewer',
+    parser.add_argument('--with-standalone-qtprofiler', help='Creates a separate archive with Qt Profiler',
                         action='store_true', default=False)
     parser.add_argument('--add-path', help='Prepends a CMAKE_PREFIX_PATH to the build',
                         action='append', dest='prefix_paths', default=[])
@@ -184,7 +184,7 @@ def build_qtcreator(args, paths):
                   '-DBUILD_DEVELOPER_DOCS=' + cmake_option(not args.no_docs),
                   '-DBUILD_LIBRARY_SDKTOOLLIB=' + cmake_option(args.with_sdk_tool),
                   '-DBUILD_EXECUTABLE_SDKTOOL=' + cmake_option(args.with_sdk_tool),
-                  '-DBUILD_EXECUTABLE_QMLTRACEVIEWER_STANDALONE=' + cmake_option(args.with_standalone_qmltraceviewer),
+                  '-DBUILD_EXECUTABLE_QTPROFILER_STANDALONE=' + cmake_option(args.with_standalone_qtprofiler),
                   '-DQTC_FORCE_XCB=ON',
                   '-DQTC_USE_SYSTEM_LIBARCHIVE=OFF',
                   '-DWITH_TESTS=' + cmake_option(args.with_tests)]
@@ -237,9 +237,9 @@ def build_qtcreator(args, paths):
         common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
                                  '--component', 'html_docs'],
                                 paths.build)
-    if args.with_standalone_qmltraceviewer:
-        common.check_print_call(['cmake', '--install', '.', '--prefix', paths.qmltraceviewer_install,
-                                 '--component', 'standalone_qmltraceviewer'],
+    if args.with_standalone_qtprofiler:
+        common.check_print_call(['cmake', '--install', '.', '--prefix', paths.qtprofiler_install,
+                                 '--component', 'standalone_qtprofiler'],
                                 paths.build)
 
 def build_wininterrupt(args, paths):
@@ -314,8 +314,8 @@ def package_qtcreator(args, paths):
         common.check_print_call(command + [paths.wininterrupt_install])
         if not args.no_cdb:
             common.check_print_call(command + [paths.qtcreatorcdbext_install])
-        if args.with_standalone_qmltraceviewer:
-            common.check_print_call(command + [paths.qmltraceviewer_install])
+        if args.with_standalone_qtprofiler:
+            common.check_print_call(command + [paths.qtprofiler_install])
 
     sevenzip = common.sevenzip_command(threads=args.zip_threads)
     zip = common.sevenzip_command(threads=args.zip_threads, targets_7zip=False)
@@ -345,11 +345,11 @@ def package_qtcreator(args, paths):
                                         + [os.path.join(paths.result, 'cmdbridge' + args.zip_infix + '.7z'),
                                            'cmdbridge-*'],
                                         cmdbridge_dir)
-            if args.with_standalone_qmltraceviewer:
+            if args.with_standalone_qtprofiler:
                 common.check_print_call(zip
-                                        + [os.path.join(paths.result, 'qmltraceviewer' + args.zip_infix + '.zip'),
+                                        + [os.path.join(paths.result, 'qtprofiler' + args.zip_infix + '.zip'),
                                            '*'],
-                                        paths.qmltraceviewer_install)
+                                        paths.qtprofiler_install)
         if common.is_windows_platform():
             common.check_print_call(sevenzip
                                     + [os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
@@ -367,9 +367,9 @@ def package_qtcreator(args, paths):
         sign_app_bundle(paths.install,
                         os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-signed.7z'),
                         None if args.no_zip else sevenzip)
-        if args.with_standalone_qmltraceviewer:
-            sign_app_bundle(paths.qmltraceviewer_install,
-                            os.path.join(paths.result, 'qmltraceviewer' + args.zip_infix + '-signed.zip'),
+        if args.with_standalone_qtprofiler:
+            sign_app_bundle(paths.qtprofiler_install,
+                            os.path.join(paths.result, 'qtprofiler' + args.zip_infix + '-signed.zip'),
                             None if args.no_zip else zip)
         if not args.no_dmg:
             common.check_print_call([args.python3, '-u',
@@ -388,7 +388,7 @@ def get_paths(args):
                                    ['qt', 'src', 'build', 'wininterrupt_build', 'qtcreatorcdbext_build',
                                     'install', 'dev_install', 'debug_install',
                                     'wininterrupt_install', 'qtcreatorcdbext_install',
-                                    'qmltraceviewer_install',
+                                    'qtprofiler_install',
                                     'result', 'elfutils', 'llvm'])
     build_path = os.path.abspath(args.build)
     install_path = os.path.join(build_path, 'install')
@@ -403,7 +403,7 @@ def get_paths(args):
                  debug_install=os.path.join(install_path, 'qt-creator-debug'),
                  wininterrupt_install=os.path.join(install_path, 'wininterrupt'),
                  qtcreatorcdbext_install=os.path.join(install_path, 'qtcreatorcdbext'),
-                 qmltraceviewer_install=os.path.join(install_path, 'qmltraceviewer'),
+                 qtprofiler_install=os.path.join(install_path, 'qtprofiler'),
                  result=build_path,
                  elfutils=os.path.abspath(args.elfutils_path) if args.elfutils_path else None,
                  llvm=os.path.abspath(args.llvm_path) if args.llvm_path else None)

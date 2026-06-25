@@ -172,7 +172,7 @@ SamplerSettings *QmlProfilerSampler::settings() const
 static FilePath tempQtdPath()
 {
     const QString dir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-    const QString name = u"qmltraceviewer-qml-%1%2"_s
+    const QString name = u"qtprofiler-qml-%1%2"_s
                              .arg(QDateTime::currentMSecsSinceEpoch())
                              .arg(QLatin1String(Constants::QtdFileExtension));
     return FilePath::fromString(QDir(dir).filePath(name));

@@ -17,7 +17,7 @@ Project {
         "sdktool/sdktoollib.qbs",
         "valgrindfake/valgrindfake.qbs",
         "iostool/iostool.qbs",
-        "qmltraceviewer/qmltraceviewer.qbs",
+        "qtprofiler/qtprofiler.qbs",
     ].concat(project.additionalTools)
 
     Project {

@@ -1,7 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-// Manual test target for the qmltraceviewer sampling profiler: spawns named
+// Manual test target for the qtprofiler sampling profiler: spawns named
 // threads with distinctive call stacks and CPU behaviors. Set
 // RecordProcessName=sampler-testapp in the viewer settings, then record:
 //  - "fibonacci": always busy in a deep recursive chain (heaviest path)
