@@ -39,7 +39,7 @@ class TextEncoding;
 
 using DeviceFileAccessPtr = std::shared_ptr<DeviceFileAccess>;
 
-enum class QTCREATOR_UTILS_EXPORT DirFilterFlag
+enum class DirFilterFlag
 {
     Dirs        = 0x001,
     Files       = 0x002,
@@ -67,7 +67,7 @@ enum class QTCREATOR_UTILS_EXPORT DirFilterFlag
 };
 Q_DECLARE_FLAGS(DirFilterFlags, DirFilterFlag)
 
-enum class QTCREATOR_UTILS_EXPORT DirSortFlag
+enum class DirSortFlag
 {
     Name        = 0x00,
     Time        = 0x01,
@@ -85,7 +85,7 @@ enum class QTCREATOR_UTILS_EXPORT DirSortFlag
 };
 Q_DECLARE_FLAGS(DirSortFlags, DirSortFlag)
 
-enum class QTCREATOR_UTILS_EXPORT DirIteratorFlag
+enum class DirIteratorFlag
 {
     NoIteratorFlags = 0x0,
     FollowSymlinks = 0x1,
