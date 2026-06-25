@@ -161,6 +161,7 @@ QtcButton::QtcButton(const QString &text, Role role, QWidget *parent)
 {
     setText(text);
     setAttribute(Qt::WA_Hover);
+    setAttribute(Qt::WA_LayoutUsesWidgetRect);
 
     updateMargins();
     if (m_role == SmallList)
@@ -549,6 +550,7 @@ static const QPixmap &comboBoxIcon(WidgetState state)
 QtcComboBox::QtcComboBox(Role role, QWidget *parent)
     : QComboBox(parent)
 {
+    setAttribute(Qt::WA_LayoutUsesWidgetRect);
     setFont(comboBoxTf.font());
     setMouseTracking(true);
     setRole(role);
@@ -640,6 +642,7 @@ QtcSwitch::QtcSwitch(const QString &text, QWidget *parent)
     setText(text);
     setCheckable(true);
     setAttribute(Qt::WA_Hover);
+    setAttribute(Qt::WA_LayoutUsesWidgetRect);
     setLayoutDirection(Qt::RightToLeft); // Switch right, label left
 }
 
@@ -724,6 +727,7 @@ constexpr int progressBarMinimumWidth = 64;
 QtcProgressBar::QtcProgressBar(QWidget *parent)
     : QProgressBar(parent)
 {
+    setAttribute(Qt::WA_LayoutUsesWidgetRect);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     setTextVisible(false);
 }
@@ -765,6 +769,7 @@ QtcIconButton::QtcIconButton(QWidget *parent)
     : QAbstractButton(parent)
 {
     setAttribute(Qt::WA_Hover);
+    setAttribute(Qt::WA_LayoutUsesWidgetRect);
 }
 
 void QtcIconButton::paintEvent(QPaintEvent *e)
