@@ -211,6 +211,7 @@ public:
     QString displayName() const override;
     void build(BuildAction action) override;
     bool canBuild(BuildAction action) override;
+    ProjectNode *buildableSubProject();
 
     bool hasError() const;
     void setHasError(const bool error);

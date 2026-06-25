@@ -86,6 +86,7 @@ public:
     void buildNamedTarget(const QString &target) final;
     void buildFile(ProjectExplorer::FileNode *file) final;
     bool canBuildFile(ProjectExplorer::FileNode *file) const final;
+    ProjectExplorer::ProjectNode *buildableSubProject(ProjectExplorer::FileNode *file) const override;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
 

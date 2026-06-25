@@ -472,6 +472,13 @@ bool FileNode::canBuild(BuildAction action)
     return false;
 }
 
+ProjectNode *FileNode::buildableSubProject()
+{
+    if (BuildSystem * const bs = activeBuildSystem(getProject()))
+        return bs->buildableSubProject(this);
+    return nullptr;
+}
+
 /*!
   \class ProjectExplorer::FolderNode
 

@@ -1207,6 +1207,25 @@ bool CMakeBuildSystem::canBuildFile(ProjectExplorer::FileNode *file) const
     return dynamic_cast<CMakeTargetNode *>(file->parentProjectNode());
 }
 
+ProjectNode *CMakeBuildSystem::buildableSubProject(ProjectExplorer::FileNode *file) const
+{
+    if (!file)
+        return nullptr;
+    const auto targetNode = dynamic_cast<const CMakeTargetNode *>(file->parentProjectNode());
+    if (!targetNode)
+        return nullptr;
+    const CMakeBuildTarget cmakeBuildTarget = targetNode->cmakeBuildTarget();
+    if (cmakeBuildTarget.backtrace.isEmpty())
+        return nullptr;
+    const FilePath targetDefinitionDir = cmakeBuildTarget.backtrace.last().path.parentDir();
+    return project()->rootProjectNode()->findProjectNode(
+        [&targetDefinitionDir](const ProjectNode *node) {
+            if (auto cmakeListsNode = dynamic_cast<const CMakeListsNode *>(node))
+                return cmakeListsNode->path() == targetDefinitionDir;
+            return false;
+        });
+}
+
 static Result<bool> insertDependencies(
     const QString &targetName,
     const FilePath &targetCMakeFile,

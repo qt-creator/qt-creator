@@ -249,6 +249,11 @@ bool BuildSystem::canBuildFile(FileNode *file) const
     return false;
 }
 
+ProjectNode *BuildSystem::buildableSubProject(FileNode *file) const
+{
+    return file ? file->parentProductNode() : nullptr;
+}
+
 ExtraCompiler *BuildSystem::extraCompilerForSource(const Utils::FilePath &source) const
 {
     return findExtraCompiler([source](const ExtraCompiler *ec) { return ec->source() == source; });
