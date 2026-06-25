@@ -62,8 +62,12 @@ Group qmlProfilerRecipe(RunControl *runControl)
             return;
         QmlProfilerTool::instance()->handleStop();
         QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
+        // Reaching onDone still in AppRunning means the application went away on its
+        // own: the user-cancel path has already advanced the state past AppRunning.
+        // Route that through AppDying rather than AppStopRequested - there is no live
+        // connection left to ask the server to stop recording.
         if (stateManager && stateManager->currentState() == QmlProfilerStateManager::AppRunning)
-            stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
+            stateManager->setCurrentState(QmlProfilerStateManager::AppDying);
     };
     return { QBarrierTask(onSetup, onDone) };
 }
