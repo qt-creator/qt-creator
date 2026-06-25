@@ -64,6 +64,7 @@ private:
 
     AcpChatController *m_controller;
     SessionPickerWidget *m_activePicker = nullptr;
+    bool m_sessionPending = false;
     QString m_pendingPrompt;
 };
 

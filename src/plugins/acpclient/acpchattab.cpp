@@ -273,10 +273,19 @@ AcpChatTab::AcpChatTab(QWidget *parent)
 
     // --- Connections: ChatPanel -> Controller ---
     connect(m_chatPanel, &ChatPanel::sendRequested, this, [this](const QString &text) {
+        if (m_sessionPending) {
+            // A session is already being created/loaded (e.g. the user picked a
+            // session in the picker). Remember the prompt; it is sent once the
+            // session is ready. Do not start a second session.
+            m_pendingPrompt = text;
+            return;
+        }
         if (m_activePicker) {
             QObject::disconnect(m_controller, &AcpChatController::sessionsListed,
                                 m_activePicker, nullptr);
             m_activePicker->deleteLater();
+            m_activePicker = nullptr;
+            m_sessionPending = true;
             m_pendingPrompt = text;
             const Project *project = ProjectManager::startupProject();
             m_controller->createNewSession(project ? project->projectDirectory() : FilePath{});
@@ -301,6 +310,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     connect(m_controller, &AcpChatController::connectionStateChanged, this, [this](AcpClientObject::State state) {
         const bool disconnected = state == AcpClientObject::State::Disconnected;
         if (disconnected) {
+            m_sessionPending = false;
+            m_pendingPrompt.clear();
             m_stack->setCurrentIndex(0);
             m_chatPanel->clear();
             m_chatPanel->setSendEnabled(false);
@@ -327,6 +338,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             Tr::tr("Authentication failed: %1").arg(error));
     });
     connect(m_controller, &AcpChatController::sessionCreated, this, [this](const QString &sessionId) {
+        m_sessionPending = false;
         m_chatPanel->setSessionId(sessionId);
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
@@ -408,9 +420,19 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         showSessionPicker();
     });
     connect(m_controller, &AcpChatController::sessionLoaded, this, [this](const QString &sessionId) {
+        m_sessionPending = false;
         m_chatPanel->setSessionId(sessionId);
         m_stack->setCurrentIndex(2);
         m_chatPanel->setSendEnabled(true);
+        if (!m_pendingPrompt.isEmpty()) {
+            const QString text = m_pendingPrompt;
+            m_pendingPrompt.clear();
+            m_chatPanel->addUserMessage(text);
+            m_chatPanel->setPrompting(true);
+            m_controller->sendPrompt(
+                text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext(),
+                m_chatPanel->textContexts());
+        }
     });
 
     connect(m_controller, &AcpChatController::promptFinished, this, [this] {
@@ -418,6 +440,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->finishAgentMessage();
     });
     connect(m_controller, &AcpChatController::errorOccurred, this, [this](const QString &msg) {
+        m_sessionPending = false;
+        m_pendingPrompt.clear();
         if (m_stack->currentIndex() == 3)
             m_stack->setCurrentIndex(0);
         m_chatPanel->addErrorMessage(msg);
@@ -481,11 +505,15 @@ void AcpChatTab::showSessionPicker()
     connect(picker, &SessionPickerWidget::sessionSelected, this,
             [this, picker](const QString &sessionId, const FilePath &cwd) {
         picker->setResolved(sessionId);
+        m_activePicker = nullptr;
+        m_sessionPending = true;
         m_controller->loadSession(sessionId, cwd);
         emit titleChanged();
     });
     connect(picker, &SessionPickerWidget::newSessionRequested,
             this, [this](const FilePath &cwd) {
+        m_activePicker = nullptr;
+        m_sessionPending = true;
         m_controller->createNewSession(cwd);
         emit titleChanged();
     });
