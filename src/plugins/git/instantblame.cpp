@@ -374,6 +374,7 @@ void InstantBlame::once()
 void InstantBlame::scheduleInstantBlame()
 {
     m_lastVisitedEditorLine = -1;
+    m_cursorPositionChangedTimer->stop();
     if (m_scheduleTimer->isActive())
         m_taskTreeRunner.reset();
     else
