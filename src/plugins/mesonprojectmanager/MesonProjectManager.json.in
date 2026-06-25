@@ -27,6 +27,9 @@
     ],
     "Url" : "https://www.mesonbuild.com",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-meson.html",
+    "core" : {
+        "ProjectFileMimeTypes" : [ "text/x-meson" ]
+    },
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
