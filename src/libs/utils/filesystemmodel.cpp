@@ -762,6 +762,9 @@ QVariant FileSystemModel::data(const QModelIndex &index, int role) const
                                                        : node->m_path.fileName();
         return QVariant(QString(node->isDir() ? QChar('0') : QChar('1')) + name.toLower());
     }
+    case Qt::ToolTipRole:
+        return node->m_path.isRootPath() ? node->m_path.displayName() : node->m_path.toUserOutput();
+
     case Qt::EditRole:
         if (index.column() == NameColumn)
             return node->m_path.fileName();
