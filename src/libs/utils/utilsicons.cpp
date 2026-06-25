@@ -101,8 +101,7 @@ const Icon EXPORTFILE_TOOLBAR({
 const Icon MULTIEXPORTFILE_TOOLBAR({
         {":/utils/images/filemultiexport.png", Theme::IconsBaseColor}});
 
-const Icon DIR({
-        {":/utils/images/dir.png", Theme::IconsBaseColor}});
+const Icon DIR(":/utils/images/dir.png");
 const Icon HELP({
         {":/utils/images/help.png", Theme::IconsBaseColor}});
 const Icon UNKNOWN_FILE({
