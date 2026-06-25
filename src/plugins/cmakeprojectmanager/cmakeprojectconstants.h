@@ -16,9 +16,6 @@ inline constexpr char RUN_CMAKE_CONTEXT_MENU[] = "CMakeProject.RunCMakeContextMe
 inline constexpr char CMAKE_HOME_DIR[] = "CMakeProject.HomeDirectory";
 inline constexpr char QML_DEBUG_SETTING[] = "CMakeProject.EnableQmlDebugging";
 inline constexpr char RELOAD_CMAKE_PRESETS[] = "CMakeProject.ReloadCMakePresets";
-inline constexpr char BUILD_SUBPROJECT[] = "CMakeProject.BuildSubProject";
-inline constexpr char CLEAN_SUBPROJECT[] = "CMakeProject.CleanSubProject";
-inline constexpr char REBUILD_SUBPROJECT[] = "CMakeProject.RebuildSubProject";
 
 inline constexpr char CMAKE_CURRENT_SOURCE_DIR[] = "${CMAKE_CURRENT_SOURCE_DIR}";
 

@@ -15,9 +15,6 @@ inline constexpr char PROFILE_EDITOR_ID[] = "Qt4.proFileEditor";
 // Actions
 inline constexpr char RUNQMAKE[] = "Qt4Builder.RunQMake";
 inline constexpr char RUNQMAKECONTEXTMENU[] = "Qt4Builder.RunQMakeContextMenu";
-inline constexpr char BUILDSUBDIR[] = "Qt4Builder.BuildSubDir";
-inline constexpr char REBUILDSUBDIR[] = "Qt4Builder.RebuildSubDir";
-inline constexpr char CLEANSUBDIR[] = "Qt4Builder.CleanSubDir";
 inline constexpr char ADDLIBRARY[] = "Qt4.AddLibrary";
 
 // Tasks

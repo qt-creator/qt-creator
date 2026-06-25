@@ -526,7 +526,7 @@ public:
     void startRunControl(RunControl *runControl);
 
     void updateActions();
-    void updateFileActions();
+    void updateBuildActionsForCurrentDocument();
     void updateContext();
     void updateDeployActions();
     void updateRunWithoutDeployMenu();
@@ -602,6 +602,7 @@ public:
 
     void buildCurrentFile();
     void buildSelectedNode(BuildAction action);
+    void buildSubProjectForCurrentDocument(BuildAction action);
 
 public:
     QMenu *m_openWithMenu;
@@ -620,6 +621,9 @@ public:
     Action *m_buildAction;
     Action *m_buildFileAction;
     QAction *m_buildFileActionCtx;
+    Action *m_buildSubProjectAction;
+    QAction *m_cleanSubProjectAction;
+    QAction *m_rebuildSubProjectAction;
     QAction *m_buildSubProjectActionCtx;
     QAction *m_cleanSubProjectActionCtx;
     QAction *m_rebuildSubProjectActionCtx;
@@ -1014,7 +1018,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     connect(SessionManager::instance(), &SessionManager::sessionRemoved,
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            dd, &ProjectExplorerPluginPrivate::updateFileActions);
+            dd, &ProjectExplorerPluginPrivate::updateBuildActionsForCurrentDocument);
     connect(&dd->m_projectTree, &ProjectTree::currentProjectChanged, sessionManager, [sessionManager] {
         emit sessionManager->currentBuildConfigurationChanged(activeBuildConfigForCurrentProject());
     });
@@ -1131,7 +1135,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 
     mbuild->appendGroup(Constants::G_BUILD_ALLPROJECTS);
     mbuild->appendGroup(Constants::G_BUILD_PROJECT);
-    mbuild->appendGroup(Constants::G_BUILD_PRODUCT);
     mbuild->appendGroup(Constants::G_BUILD_SUBPROJECT);
     mbuild->appendGroup(Constants::G_BUILD_FILE);
     mbuild->appendGroup(Constants::G_BUILD_ALLPROJECTS_ALLCONFIGURATIONS);
@@ -1226,7 +1229,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     mfile->addSeparator(Core::Constants::G_FILE_PROJECT);
     mbuild->addSeparator(Constants::G_BUILD_ALLPROJECTS);
     mbuild->addSeparator(Constants::G_BUILD_PROJECT);
-    mbuild->addSeparator(Constants::G_BUILD_PRODUCT);
     mbuild->addSeparator(Constants::G_BUILD_SUBPROJECT);
     mbuild->addSeparator(Constants::G_BUILD_FILE);
     mbuild->addSeparator(Constants::G_BUILD_ALLPROJECTS_ALLCONFIGURATIONS);
@@ -1446,6 +1448,44 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     cmd->setDescription(Tr::tr("Build Active Project"));
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
+
+    dd->m_buildSubProjectAction = new Action(
+                Tr::tr("Build Subproject"),
+                Tr::tr("Build SubProject \"%1\""),
+                Utils::Action::AlwaysEnabled,
+                this);
+    cmd = ActionManager::registerAction(dd->m_buildSubProjectAction, Constants::BUILD_SUBPROJECT);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDescription(dd->m_buildSubProjectAction->text());
+    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+Shift+B")));
+    mbuild->addAction(cmd, Constants::G_BUILD_SUBPROJECT);
+    connect(dd->m_buildSubProjectAction, &QAction::triggered, this, [] {
+        dd->buildSubProjectForCurrentDocument(BuildAction::Build);
+    });
+
+    dd->m_cleanSubProjectAction = new QAction(Utils::Icons::CLEAN.icon(), Tr::tr("Clean"), this);
+    dd->m_cleanSubProjectAction->setWhatsThis(Tr::tr("Clean Subproject"));
+    cmd = ActionManager::registerAction(dd->m_cleanSubProjectAction, Constants::CLEAN_SUBPROJECT);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDescription(dd->m_cleanSubProjectAction->whatsThis());
+    mbuild->addAction(cmd, Constants::G_BUILD_SUBPROJECT);
+    connect(dd->m_cleanSubProjectAction, &QAction::triggered, this, [] {
+        dd->buildSubProjectForCurrentDocument(BuildAction::Clean);
+    });
+
+    dd->m_rebuildSubProjectAction = new QAction(Icons::REBUILD.icon(), Tr::tr("Rebuild"), this);
+    dd->m_rebuildSubProjectAction->setWhatsThis(Tr::tr("Rebuild Subproject"));
+    cmd = Core::ActionManager::registerAction(
+                dd->m_rebuildSubProjectAction, Constants::REBUILD_SUBPROJECT);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDescription(dd->m_rebuildSubProjectAction->whatsThis());
+    mbuild->addAction(cmd, Constants::G_BUILD_SUBPROJECT);
+    connect(dd->m_rebuildSubProjectAction, &QAction::triggered, this, [] {
+        dd->buildSubProjectForCurrentDocument(BuildAction::Rebuild);
+    });
 
     dd->m_buildProjectForAllConfigsAction
             = new Action(Tr::tr("Build Project for All Configurations"),
@@ -3095,10 +3135,10 @@ void ProjectExplorerPluginPrivate::updateActions()
 
     updateDeployActions();
     updateRunWithoutDeployMenu();
-    updateFileActions();
+    updateBuildActionsForCurrentDocument();
 }
 
-void ProjectExplorerPluginPrivate::updateFileActions()
+void ProjectExplorerPluginPrivate::updateBuildActionsForCurrentDocument()
 {
     IDocument * const doc = EditorManager::currentDocument();
     Node * const node = doc ? ProjectTree::nodeForFile(doc->filePath()) : nullptr;
@@ -3106,14 +3146,27 @@ void ProjectExplorerPluginPrivate::updateFileActions()
     Project * const project = fileNode ? fileNode->getProject() : nullptr;
     BuildSystem * const bs = project ? activeBuildSystem(project) : nullptr;
     ProjectNode * const productNode = fileNode ? fileNode->parentProductNode() : nullptr;
-    const bool visible = project && project->canBuildFiles() && productNode;
-    const bool enabled = visible && bs && !bs->isParsing() && bs->canBuildFile(fileNode)
-            && !BuildManager::isBuilding(project);
-    const QString fileName = visible && fileNode ? fileNode->filePath().fileName() : QString();
+    ProjectNode * const subProjectNode = fileNode ? fileNode->buildableSubProject() : nullptr;
+    const bool buildPossible = bs && !bs->isParsing() && !BuildManager::isBuilding(project);
 
-    m_buildFileAction->setVisible(visible);
-    m_buildFileAction->setEnabled(enabled);
+    const bool fileVisible = project && project->canBuildFiles() && productNode;
+    const bool fileEnabled = fileVisible && buildPossible && bs->canBuildFile(fileNode);
+    const QString fileName = fileVisible && fileNode ? fileNode->filePath().fileName() : QString();
+    m_buildFileAction->setVisible(fileVisible);
+    m_buildFileAction->setEnabled(fileEnabled);
     m_buildFileAction->setParameter(fileName);
+
+    const auto handleBuildAction = [&](QAction *action, BuildAction buildAction) {
+        const bool visible = subProjectNode && subProjectNode->canBuild(buildAction);
+        const bool enabled = visible && buildPossible;
+        action->setVisible(visible);
+        action->setEnabled(enabled);
+    };
+    handleBuildAction(m_buildSubProjectAction, BuildAction::Build);
+    handleBuildAction(m_cleanSubProjectAction, BuildAction::Clean);
+    handleBuildAction(m_rebuildSubProjectAction, BuildAction::Rebuild);
+    dd->m_buildSubProjectAction->setParameter(
+                subProjectNode ? subProjectNode->displayName() : QString());
 }
 
 bool ProjectExplorerPlugin::saveModifiedFiles()
@@ -3341,6 +3394,20 @@ void ProjectExplorerPluginPrivate::buildSelectedNode(BuildAction action)
     QTC_ASSERT(node, return);
     QTC_ASSERT(node->canBuild(action), return);
     node->build(action);
+}
+
+void ProjectExplorerPluginPrivate::buildSubProjectForCurrentDocument(BuildAction action)
+{
+    IDocument * const doc = EditorManager::currentDocument();
+    QTC_ASSERT(doc, return);
+    Node * const node = ProjectTree::nodeForFile(doc->filePath());
+    QTC_ASSERT(node, return);
+    FileNode * const fileNode = node->asFileNode();
+    QTC_ASSERT(fileNode, return);
+    ProjectNode * const subProject = fileNode->buildableSubProject();
+    QTC_ASSERT(subProject, return);
+    QTC_ASSERT(subProject->canBuild(action), return);
+    subProject->build(action);
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu(RunConfiguration *rc)

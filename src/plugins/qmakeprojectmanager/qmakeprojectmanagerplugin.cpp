@@ -32,7 +32,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -40,10 +39,8 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <utils/action.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
-#include <utils/utilsicons.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -74,9 +71,6 @@ public:
 
     QAction *m_runQMakeAction = nullptr;
     QAction *m_runQMakeActionContextMenu = nullptr;
-    Action *m_buildSubProjectAction = nullptr;
-    QAction *m_rebuildSubProjectAction = nullptr;
-    QAction *m_cleanSubProjectAction = nullptr;
     QAction *m_addLibraryAction = nullptr;
     QAction *m_addLibraryActionContextMenu = nullptr;
 
@@ -85,11 +79,6 @@ public:
     void runQMake();
     void runQMakeContextMenu();
 
-    void buildSubDirContextMenu() { handleSubDirContextMenu(BuildAction::Build, false); }
-    void rebuildSubDirContextMenu() { handleSubDirContextMenu(BuildAction::Rebuild, false); }
-    void cleanSubDirContextMenu() { handleSubDirContextMenu(BuildAction::Clean, false); }
-
-    void handleSubDirContextMenu(BuildAction action, bool isFileBuild);
     void addLibraryImpl(const FilePath &filePath, TextEditor::BaseTextEditor *editor);
     void runQMakeImpl(Project *p, ProjectExplorer::Node *node);
 };
@@ -165,42 +154,12 @@ void QmakeProjectManagerPlugin::initialize()
     connect(d->m_runQMakeActionContextMenu, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::runQMakeContextMenu);
 
-    d->m_buildSubProjectAction = new Action(Tr::tr("Build &Subproject"), Tr::tr("Build &Subproject \"%1\""),
-                                                         Action::AlwaysEnabled, this);
-    command = ActionManager::registerAction(d->m_buildSubProjectAction, Constants::BUILDSUBDIR, projectContext);
-    command->setAttribute(Command::CA_Hide);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(d->m_buildSubProjectAction->text());
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_SUBPROJECT);
-    connect(d->m_buildSubProjectAction, &QAction::triggered,
-            d, &QmakeProjectManagerPluginPrivate::buildSubDirContextMenu);
-
     d->m_runQMakeAction = new QAction(Tr::tr("Run qmake"), this);
     const Context globalcontext(Core::Constants::C_GLOBAL);
     command = ActionManager::registerAction(d->m_runQMakeAction, Constants::RUNQMAKE, globalcontext);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(d->m_runQMakeAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::runQMake);
-
-    d->m_rebuildSubProjectAction = new QAction(ProjectExplorer::Icons::REBUILD.icon(), Tr::tr("Rebuild"), this);
-    d->m_rebuildSubProjectAction->setWhatsThis(Tr::tr("Rebuild Subproject"));
-    command = ActionManager::registerAction(d->m_rebuildSubProjectAction, Constants::REBUILDSUBDIR, projectContext);
-    command->setAttribute(Command::CA_Hide);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(d->m_rebuildSubProjectAction->whatsThis());
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_SUBPROJECT);
-    connect(d->m_rebuildSubProjectAction, &QAction::triggered,
-            d, &QmakeProjectManagerPluginPrivate::rebuildSubDirContextMenu);
-
-    d->m_cleanSubProjectAction = new QAction(Utils::Icons::CLEAN.icon(),Tr::tr("Clean"), this);
-    d->m_cleanSubProjectAction->setWhatsThis(Tr::tr("Clean Subproject"));
-    command = ActionManager::registerAction(d->m_cleanSubProjectAction, Constants::CLEANSUBDIR, projectContext);
-    command->setAttribute(Command::CA_Hide);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(d->m_cleanSubProjectAction->whatsThis());
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_SUBPROJECT);
-    connect(d->m_cleanSubProjectAction, &QAction::triggered,
-            d, &QmakeProjectManagerPluginPrivate::cleanSubDirContextMenu);
 
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             d, &QmakeProjectManagerPluginPrivate::buildStateChanged);
@@ -329,19 +288,6 @@ void QmakeProjectManagerPluginPrivate::runQMakeImpl(Project *p, Node *node)
     bc->setSubNodeBuild(nullptr);
 }
 
-void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(BuildAction action, bool isFileBuild)
-{
-    Node *node = ProjectTree::currentNode();
-
-    QmakeProFileNode *subProjectNode = QmakeProFileNode::buildableFileProFile(node);
-    FileNode *fileNode = node ? node->asFileNode() : nullptr;
-    bool buildFilePossible = subProjectNode && fileNode && fileNode->fileType() == FileType::Source;
-    FileNode *buildableFileNode = buildFilePossible ? fileNode : nullptr;
-
-    if (auto bs = qobject_cast<QmakeBuildSystem *>(activeBuildSystemForCurrentProject()))
-        bs->buildHelper(action, isFileBuild, subProjectNode, buildableFileNode);
-}
-
 void QmakeProjectManagerPluginPrivate::updateActions()
 {
     updateRunQMakeAction();
@@ -391,21 +337,11 @@ void QmakeProjectManagerPluginPrivate::updateContextActions(Node *node)
     if (subProjectActionsVisible)
         subProjectName = subProjectNode->displayName();
 
-    m_buildSubProjectAction->setParameter(subProjectName);
-
     auto buildConfiguration = static_cast<QmakeBuildConfiguration *>(
         activeBuildConfig(qmakeProject));
     bool isProjectNode = qmakeProject && proFileNode && buildConfiguration;
     bool isBuilding = BuildManager::isBuilding(project);
-    bool enabled = subProjectActionsVisible && !isBuilding;
 
-    m_buildSubProjectAction->setVisible(subProjectActionsVisible);
-    m_rebuildSubProjectAction->setVisible(subProjectActionsVisible);
-    m_cleanSubProjectAction->setVisible(subProjectActionsVisible);
-
-    m_buildSubProjectAction->setEnabled(enabled);
-    m_rebuildSubProjectAction->setEnabled(enabled);
-    m_cleanSubProjectAction->setEnabled(enabled);
     m_runQMakeActionContextMenu->setEnabled(isProjectNode && !isBuilding
                                             && buildConfiguration->qmakeStep());
 }

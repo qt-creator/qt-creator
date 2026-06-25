@@ -13,12 +13,6 @@ inline constexpr char PROJECT_ID[] = "Qbs.QbsProject";
 // Actions:
 inline constexpr char ACTION_REPARSE_QBS[] = "Qbs.Reparse";
 inline constexpr char ACTION_REPARSE_QBS_CONTEXT[] = "Qbs.ReparseCtx";
-inline constexpr char ACTION_BUILD_PRODUCT[] = "Qbs.BuildProduct";
-inline constexpr char ACTION_BUILD_SUBPROJECT[] = "Qbs.BuildSubproduct";
-inline constexpr char ACTION_CLEAN_PRODUCT[] = "Qbs.CleanProduct";
-inline constexpr char ACTION_CLEAN_SUBPROJECT[] = "Qbs.CleanSubproject";
-inline constexpr char ACTION_REBUILD_PRODUCT[] = "Qbs.RebuildProduct";
-inline constexpr char ACTION_REBUILD_SUBPROJECT[] = "Qbs.RebuildSubproject";
 
 // Ids:
 inline constexpr char QBS_BUILDSTEP_ID[] = "Qbs.BuildStep";

@@ -12,6 +12,9 @@ inline constexpr char MODE_SESSION[]         = "Project";
 
 // Actions
 inline constexpr char BUILD[]                = "ProjectExplorer.Build";
+inline constexpr char BUILD_SUBPROJECT[]     = "ProjectExplorer.BuildSubProject";
+inline constexpr char CLEAN_SUBPROJECT[]     = "ProjectExplorer.CleanSubProject";
+inline constexpr char REBUILD_SUBPROJECT[]   = "ProjectExplorer.RebuildSubProject";
 inline constexpr char BUILD_FILE[]           = "ProjectExplorer.BuildFile";
 inline constexpr char BUILD_FILE_CTX[]       = "ProjectExplorer.BuildFileCtx";
 inline constexpr char BUILD_SUBPROJECT_CTX[] = "ProjectExplorer.BuildSubProjectCtx";
@@ -38,7 +41,6 @@ inline constexpr char M_DEBUG_STARTDEBUGGING[] = "ProjectExplorer.Menu.Debug.Sta
 inline constexpr char G_BUILD_BUILD[]        = "ProjectExplorer.Group.Build";
 inline constexpr char G_BUILD_ALLPROJECTS[]  = "ProjectExplorer.Group.AllProjects";
 inline constexpr char G_BUILD_PROJECT[]      = "ProjectExplorer.Group.Project";
-inline constexpr char G_BUILD_PRODUCT[]      = "ProjectExplorer.Group.Product";
 inline constexpr char G_BUILD_SUBPROJECT[]   = "ProjectExplorer.Group.SubProject";
 inline constexpr char G_BUILD_FILE[]         = "ProjectExplorer.Group.File";
 inline constexpr char G_BUILD_ALLPROJECTS_ALLCONFIGURATIONS[] = "ProjectExplorer.Group.AllProjects.AllConfigurations";

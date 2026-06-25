@@ -17,8 +17,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
 
@@ -37,7 +35,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
-#include <utils/action.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/utilsicons.h>
 
@@ -67,9 +64,7 @@ private:
     void clearCMakeCache(BuildSystem *buildSystem);
     void rescanProject(BuildSystem *buildSystem);
     void reloadCMakePresets();
-    void enableBuildSubprojectMenu();
     void runSubprojectOperation(const QString &clean, const QString &build);
-    const CMakeListsNode* currentListsNodeForEditor();
 
     QAction *m_runCMakeAction;
     QAction *m_clearCMakeCacheAction;
@@ -81,9 +76,6 @@ private:
     QAction *m_cmakeDebuggerAction;
     QAction *m_cmakeDebuggerSeparator;
     bool m_canDebugCMake = false;
-    Action *m_buildSubprojectAction = nullptr;
-    QAction *m_cleanSubprojectAction = nullptr;
-    QAction *m_rebuildSubprojectAction = nullptr;
 };
 
 bool CMakeManager::isCMakeUrl(const QUrl &url)
@@ -162,36 +154,6 @@ CMakeManager::CMakeManager()
         .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
         .addOnTriggered(this, [this] { reloadCMakePresets(); });
 
-    // Subproject
-    ActionBuilder(this, Constants::BUILD_SUBPROJECT)
-        .setParameterText(
-            Tr::tr("Build &Subproject \"%1\""),
-            Tr::tr("Build &Subproject"),
-            ActionBuilder::AlwaysEnabled)
-        .setContext(projectContext)
-        .bindContextAction(&m_buildSubprojectAction)
-        .setCommandAttribute(Command::CA_Hide)
-        .setCommandAttribute(Command::CA_UpdateText)
-        .setCommandDescription(m_buildSubprojectAction->text())
-        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_SUBPROJECT)
-        .addOnTriggered(this, [&] { runSubprojectOperation(QString(), "all"); });
-
-    ActionBuilder(this, Constants::REBUILD_SUBPROJECT)
-        .setText(Tr::tr("Rebuild"))
-        .setContext(projectContext)
-        .bindContextAction(&m_rebuildSubprojectAction)
-        .setCommandAttribute(Command::CA_Hide)
-        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_SUBPROJECT)
-        .addOnTriggered(this, [&] { runSubprojectOperation("clean", "all"); });
-
-    ActionBuilder(this, Constants::CLEAN_SUBPROJECT)
-        .setText(Tr::tr("Clean"))
-        .setContext(projectContext)
-        .bindContextAction(&m_cleanSubprojectAction)
-        .setCommandAttribute(Command::CA_Hide)
-        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_SUBPROJECT)
-        .addOnTriggered(this, [&] { runSubprojectOperation("clean", QString()); });
-
     // CMake Profiler
     ActionBuilder(this, Constants::RUN_CMAKE_PROFILER)
         .setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon())
@@ -229,8 +191,6 @@ CMakeManager::CMakeManager()
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this, [this] {
         updateCMakeActions();
     });
-    connect(EditorManager::instance(), &EditorManager::currentEditorChanged, this,
-            &CMakeManager::enableBuildSubprojectMenu);
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, this, [this](Node *node) {
         updateCMakeActions();
         updateCMakeBuildTarget(node);
@@ -411,27 +371,6 @@ void CMakeManager::reloadCMakePresets()
     Core::ModeManager::setFocusToCurrentMode();
 }
 
-void CMakeManager::enableBuildSubprojectMenu()
-{
-    auto subProjectNode = currentListsNodeForEditor();
-    const Project *project = ProjectTree::projectForNode(subProjectNode);
-
-    const QString subProjectDisplayName = subProjectNode ? subProjectNode->displayName()
-                                                         : QString();
-    const bool subProjectVisible = subProjectNode && subProjectNode->hasSubprojectBuildSupport()
-                                   && !BuildManager::isBuilding(project);
-
-    m_buildSubprojectAction->setParameter(subProjectDisplayName);
-    m_buildSubprojectAction->setEnabled(subProjectVisible);
-    m_buildSubprojectAction->setVisible(subProjectVisible);
-
-    m_cleanSubprojectAction->setEnabled(subProjectVisible);
-    m_cleanSubprojectAction->setVisible(subProjectVisible);
-
-    m_rebuildSubprojectAction->setEnabled(subProjectVisible);
-    m_rebuildSubprojectAction->setVisible(subProjectVisible);
-}
-
 void CMakeManager::runSubprojectOperation(
     BuildSystem *bs, const ProjectNode *node, const QString &clean, const QString &build)
 {
@@ -449,52 +388,6 @@ void CMakeManager::runSubprojectOperation(
         cmakeBs->reBuildCMakeTarget(
             relativePath.path() + "/" + clean, relativePath.path() + "/" + build);
     }
-}
-
-void CMakeManager::runSubprojectOperation(const QString &clean, const QString &build)
-{
-    auto subProject = dynamic_cast<const CMakeListsNode *>(ProjectTree::currentNode());
-
-    // We want to allow the build action from a source file when triggered from a keyboard sequence
-    if (!subProject)
-        subProject = currentListsNodeForEditor();
-    if (!subProject)
-        return;
-
-    runSubprojectOperation(activeBuildSystemForCurrentProject(), subProject, clean, build);
-}
-
-const CMakeListsNode *CMakeManager::currentListsNodeForEditor()
-{
-    Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
-    if (!currentDocument)
-        return nullptr;
-
-    const FilePath file = currentDocument->filePath();
-    Node *n = ProjectTree::nodeForFile(file);
-    FileNode *node = n ? n->asFileNode() : nullptr;
-    if (!node)
-        return nullptr;
-    auto targetNode = dynamic_cast<const CMakeTargetNode *>(node->parentProjectNode());
-    if (!targetNode)
-        return nullptr;
-
-    auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject());
-    if (!bs)
-        return nullptr;
-
-    const CMakeBuildTarget cmakeBuildTarget = targetNode->cmakeBuildTarget();
-    if (cmakeBuildTarget.backtrace.isEmpty())
-        return nullptr;
-    const FilePath targetDefinitionDir = cmakeBuildTarget.backtrace.last().path.parentDir();
-
-    auto projectNode = bs->project()->rootProjectNode()->findProjectNode(
-        [&targetDefinitionDir](const ProjectNode *node) {
-            if (auto cmakeListsNode = dynamic_cast<const CMakeListsNode *>(node))
-                return cmakeListsNode->path() == targetDefinitionDir;
-            return false;
-        });
-    return dynamic_cast<CMakeListsNode *>(projectNode);
 }
 
 void setupCMakeManager()
