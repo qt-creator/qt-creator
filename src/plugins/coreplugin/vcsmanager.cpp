@@ -723,6 +723,11 @@ QString VcsManager::fileStateDescription(const VcsFileState &state)
     }
 }
 
+FileStateHash VcsManager::modifiedFiles(const Utils::FilePath &repository)
+{
+    return d->m_fileStates.value(repository);
+}
+
 void VcsManager::updateModifiedFiles(const Utils::FilePath &repository, const FileStateHash &modifiedFiles)
 {
     QTC_ASSERT(d->m_fileStates.contains(repository), return);

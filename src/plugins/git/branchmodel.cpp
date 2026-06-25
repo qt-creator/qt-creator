@@ -9,6 +9,8 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <coreplugin/vcsmanager.h>
+
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -260,6 +262,7 @@ public:
     QString tracking;
     QDateTime dateTime;
     UpstreamStatus status;
+    int modified = 0;
     mutable QString toolTip;
 };
 
@@ -285,6 +288,7 @@ public:
     void flushOldEntries();
     ExecutableItem updateUpstreamStatusTask(BranchNode *node);
     void updateAllUpstreamStatus(BranchNode *node);
+    int currentBranchModifiedFiles();
 
     BranchModel *q = nullptr;
     FilePath workingDirectory;
@@ -322,6 +326,13 @@ BranchModel::BranchModel(QObject *parent) :
     // Abuse the hash field for ref prefix
     d->rootNode->append(new BranchNode(Tr::tr("Local Branches"), "refs/heads"));
     d->rootNode->append(new BranchNode(Tr::tr("Remote Branches"), "refs/remotes"));
+
+    connect(Core::VcsManager::instance(), &Core::VcsManager::repositoryChanged,
+            this, &BranchModel::updateCurrentBranchModifiedFiles);
+    connect(Core::VcsManager::instance(), &Core::VcsManager::updateFileState,
+            this, &BranchModel::updateCurrentBranchModifiedFiles);
+    connect(Core::VcsManager::instance(), &Core::VcsManager::clearFileState,
+            this, &BranchModel::updateCurrentBranchModifiedFiles);
 }
 
 BranchModel::~BranchModel()
@@ -395,6 +406,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
     qCDebug(modelLog) << "data() called: index=" << index << "role=" << role;
     const QChar arrowUp(0x2191);
     const QChar arrowDown(0x2193);
+    const QChar plusMinus(0x00B1);
 
     BranchNode *node = indexToNode(index);
     if (!node) {
@@ -408,17 +420,23 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case ColumnBranch: {
             res = node->name;
-            if (!node->isLocal() || !node->isLeaf())
+            if (!node->isLeaf())
                 break;
+
+            if (!node->isLocal()) {
+                if (node->modified)
+                    res += " +" + QString::number(node->modified);
+                break;
+            }
 
             if (node->status.ahead >= 0)
                 res += ' ' + arrowUp + QString::number(node->status.ahead);
-
-            if (!node->tracking.isEmpty()) {
-                if (node->status.behind >= 0)
-                    res += ' ' + arrowDown + QString::number(node->status.behind);
+            if (node->status.behind >= 0)
+                res += ' ' + arrowDown + QString::number(node->status.behind);
+            if (node->modified)
+                res += ' ' + plusMinus + QString::number(node->modified);
+            if (!node->tracking.isEmpty())
                 res += " [" + node->tracking + ']';
-            }
             break;
         }
         case ColumnDateTime:
@@ -581,6 +599,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
             local->prepend(d->headNode);
         }
         d->updateAllUpstreamStatus(d->rootNode->children.at(LocalBranches));
+        updateCurrentBranchModifiedFiles();
     };
 
     const Group recipe {
@@ -1002,8 +1021,22 @@ void BranchModel::refreshCurrentBranch()
     BranchNode *node = indexToNode(currentIndex);
     QTC_ASSERT(node, return);
 
-    d->parallelTaskTreeRunner.start({d->updateUpstreamStatusTask(node)});
+    if (node->isLocal())
+        d->parallelTaskTreeRunner.start({d->updateUpstreamStatusTask(node)});
+    else
+        updateCurrentBranchModifiedFiles();
+
     qCDebug(modelLog) << "refreshCurrentBranch: upstream status updated for" << node->name;
+}
+
+void BranchModel::updateCurrentBranchModifiedFiles()
+{
+    BranchNode *node = d->currentBranch;
+    QTC_ASSERT(node, return);
+
+    node->modified = d->currentBranchModifiedFiles();
+    const QModelIndex idx = nodeToIndex(node, ColumnBranch);
+    emit dataChanged(idx, idx, {Qt::DisplayRole});
 }
 
 void BranchModel::Private::parseOutputLine(const QString &line, bool force)
@@ -1209,6 +1242,10 @@ ExecutableItem BranchModel::Private::updateUpstreamStatusTask(BranchNode *node)
 
             nodePtr->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
         }
+
+        if (nodePtr.get() == currentBranch)
+            nodePtr->modified = currentBranchModifiedFiles();
+
         const QModelIndex idx = q->nodeToIndex(nodePtr.get(), ColumnBranch);
         if (idx.isValid()) {
             emit q->dataChanged(idx, idx, {Qt::DisplayRole});
@@ -1239,6 +1276,11 @@ void BranchModel::Private::updateAllUpstreamStatus(BranchNode *node)
     }
     for (BranchNode *child : std::as_const(node->children))
         updateAllUpstreamStatus(child);
+}
+
+int BranchModel::Private::currentBranchModifiedFiles()
+{
+    return Core::VcsManager::instance()->modifiedFiles(workingDirectory).size();
 }
 
 QString BranchModel::toolTip(const QString &hash) const

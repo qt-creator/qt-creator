@@ -62,6 +62,7 @@ public:
     void setOldBranchesIncluded(bool value);
     std::optional<QString> remoteName(const QModelIndex &idx) const;
     void refreshCurrentBranch();
+    void updateCurrentBranchModifiedFiles();
 
 private:
     void setCurrentBranch();

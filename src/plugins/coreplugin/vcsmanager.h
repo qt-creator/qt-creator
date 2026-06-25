@@ -92,6 +92,7 @@ public:
     static QColor fileStateColor(const VcsFileState &state);
     static QString fileStateText(const VcsFileState &state);
     static QString fileStateDescription(const VcsFileState &state);
+    static FileStateHash modifiedFiles(const Utils::FilePath &repository);
 
     static void updateModifiedFiles(const Utils::FilePath &repository, const FileStateHash &modifiedFiles);
     static void emitClearFileState(const Utils::FilePath &repository);
