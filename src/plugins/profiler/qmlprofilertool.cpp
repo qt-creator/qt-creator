@@ -721,6 +721,10 @@ void QmlProfilerTool::clientsDisconnected()
             if (d->m_profilerState.currentState() != QmlProfilerStateManager::AppStopRequested) {
                 showNonmodalWarning(Tr::tr("Application finished before loading profiled data.\n"
                                        "Please use the stop button instead."));
+                // The application went away while still recording, so no more data is
+                // coming. Finalize whatever was received so it gets displayed and the
+                // "Profiling application" overlay is dismissed.
+                d->m_profilerModelManager.finalize();
             }
         }
     }
