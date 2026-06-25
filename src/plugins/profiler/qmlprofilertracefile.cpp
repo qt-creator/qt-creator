@@ -385,6 +385,7 @@ void QmlProfilerTraceFile::loadEventTypes(QXmlStreamReader &stream)
                     elementName == _("memoryEventType") ||
                     elementName == _("mouseEvent") ||
                     elementName == _("keyEvent") ||
+                    elementName == _("quick3dEventType") ||
                     elementName == _("level")) {
                 detailType = readData.toInt();
                 break;
@@ -549,6 +550,17 @@ void QmlProfilerTraceFile::loadEvents(QXmlStreamReader &stream)
                         event.setNumber<qint32>(2, attributes.value(_("data2")).toInt());
                     if (attributes.hasAttribute(_("text")))
                         event.setString(attributes.value(_("text")).toString());
+                    if (attributes.hasAttribute(_("numbers"))) {
+                        const QStringView raw = attributes.value(_("numbers"));
+                        if (!raw.isEmpty()) {
+                            QList<quint64> numbers;
+                            const QList<QStringView> parts = raw.split(QLatin1Char(','));
+                            numbers.reserve(parts.size());
+                            for (const QStringView part : parts)
+                                numbers.append(part.toULongLong());
+                            event.setNumbers<QList<quint64>, quint64>(numbers);
+                        }
+                    }
 
                     events.addEvent(event);
                 }
@@ -668,6 +680,8 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
             stream.writeTextElement(_("memoryEventType"), QString::number(type.detailType()));
         } else if (type.message() == DebugMessage) {
             stream.writeTextElement(_("level"), QString::number(type.detailType()));
+        } else if (type.message() == Quick3DEvent) {
+            stream.writeTextElement(_("quick3dEventType"), QString::number(type.detailType()));
         }
         stream.writeEndElement();
     }
@@ -741,6 +755,17 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
 
         if (type.message() == DebugMessage)
             stream.writeAttribute(_("text"), event.string());
+
+        // special: Quick3D events carry a variable-length list of quint64 (the
+        // frame duration, packed counters, and View3D/object event-data ids).
+        if (type.message() == Quick3DEvent) {
+            const QList<quint64> numbers = event.numbers<QList<quint64>>();
+            QStringList parts;
+            parts.reserve(numbers.size());
+            for (quint64 number : numbers)
+                parts.append(QString::number(number));
+            stream.writeAttribute(_("numbers"), parts.join(QLatin1Char(',')));
+        }
 
         stream.writeEndElement();
 
