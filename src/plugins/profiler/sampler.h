@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
+#include "profiler_global.h"
 
 #include <utils/filepath.h>
 #include <utils/result.h>
@@ -42,7 +42,7 @@ struct RecordingSession
 // Implementations differ in how they capture (call-stack sampling today; a QML
 // profiler or perf-based recorder could be added alongside). Each returns a
 // QtTaskTree recipe so the window can compose it with process launching.
-class QMLPROFILER_EXPORT Sampler
+class PROFILER_EXPORT Sampler
 {
 public:
     virtual ~Sampler() = default;

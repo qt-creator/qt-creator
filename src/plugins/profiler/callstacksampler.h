@@ -10,7 +10,7 @@ namespace QmlProfiler::Internal {
 // Records a trace by periodically suspending the target process and walking
 // every thread's call stack, then symbolizing the samples (see macsampler.cpp).
 // macOS only.
-class QMLPROFILER_EXPORT CallStackSampler : public Sampler
+class PROFILER_EXPORT CallStackSampler : public Sampler
 {
 public:
     QString displayName() const override;

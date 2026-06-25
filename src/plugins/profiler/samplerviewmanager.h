@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
+#include "profiler_global.h"
 
 #include <utils/filepath.h>
 
@@ -18,7 +18,7 @@ namespace QmlProfiler::Internal {
 // recorder: a CPU usage timeline and the merged call-stack tree. Counterpart
 // to the plain view managers in the qmlprofiler plugin, but specific to the
 // standalone viewer's sampler trace format.
-class QMLPROFILER_EXPORT SamplerViewManager : public QObject
+class PROFILER_EXPORT SamplerViewManager : public QObject
 {
     Q_OBJECT
 
