@@ -11,60 +11,14 @@
 #include <utils/id.h>
 
 #include <QPointer>
-#include <QWidget>
-
-#include <functional>
-
-namespace Layouting { class Layout; }
-
-QT_BEGIN_NAMESPACE
-class QFormLayout;
-class QPushButton;
-QT_END_NAMESPACE
 
 namespace CppEditor {
 
+class ClangDiagnosticConfigsSelectionWidget;
 class ClangDiagnosticConfigsWidget;
 
-class CPPEDITOR_EXPORT ClangDiagnosticConfigsSelectionWidget : public QWidget
-{
-    Q_OBJECT
+// Aspect holding a ClangDiagnosticConfig identifier.
 
-public:
-    explicit ClangDiagnosticConfigsSelectionWidget(QWidget *parent = nullptr);
-    explicit ClangDiagnosticConfigsSelectionWidget(QFormLayout *parentLayout);
-
-    using CreateEditWidget
-        = std::function<ClangDiagnosticConfigsWidget *(const ClangDiagnosticConfigs &configs,
-                                                       const Utils::Id &configToSelect)>;
-
-    void refresh(const ClangDiagnosticConfigsModel &model,
-                 const Utils::Id &configToSelect,
-                 const CreateEditWidget &createEditWidget);
-
-    Utils::Id currentConfigId() const;
-    ClangDiagnosticConfigs customConfigs() const;
-
-signals:
-    void changed();
-
-private:
-    QString label() const;
-    void setUpUi(bool withLabel);
-    void onButtonClicked();
-
-    ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
-    Utils::Id m_currentConfigId;
-    bool m_showTidyClazyUi = true;
-
-    QPushButton *m_button = nullptr;
-
-    CreateEditWidget m_createEditWidget;
-};
-
-// Aspect holding a ClangDiagnosticConfig identifier. addToLayoutImpl() creates a
-// ClangDiagnosticConfigsSelectionWidget driven by caller-supplied factories, so
-// it participates fully in AspectContainer setEnabled() and setLayouter() machinery.
 class CPPEDITOR_EXPORT DiagnosticConfigIdAspect final
     : public Utils::TypedAspect<Utils::Id>
 {

@@ -15,100 +15,101 @@
 
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QFormLayout>
-#include <QHBoxLayout>
-#include <QLabel>
 #include <QPushButton>
+#include <QVBoxLayout>
+#include <QWidget>
 
 using namespace Utils;
 
 namespace CppEditor {
 
-ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWidget *parent)
-    : QWidget(parent)
+class ClangDiagnosticConfigsSelectionWidget : public QWidget
 {
-    setUpUi(true);
-}
+    Q_OBJECT
 
-ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(
-        QFormLayout *parentLayout)
-{
-    setUpUi(false);
-    parentLayout->addRow(label(), this);
-}
+public:
+    ClangDiagnosticConfigsSelectionWidget()
+    {
+        using namespace Layouting;
+        Row {
+            Tr::tr("Diagnostic configuration:"),
+            &m_button,
+            st,
+            noMargin
+        }.attachTo(this);
 
-void ClangDiagnosticConfigsSelectionWidget::refresh(const ClangDiagnosticConfigsModel &model,
-                                                    const Id &configToSelect,
-                                                    const CreateEditWidget &createEditWidget)
-{
-    m_diagnosticConfigsModel = model;
-    m_currentConfigId = configToSelect;
-    m_createEditWidget = createEditWidget;
+        connect(&m_button, &QPushButton::clicked,
+                this, &ClangDiagnosticConfigsSelectionWidget::onButtonClicked);
+    }
 
-    const ClangDiagnosticConfig config = m_diagnosticConfigsModel.configWithId(configToSelect);
-    m_button->setText(config.displayName());
-}
+    using CreateEditWidget
+        = std::function<ClangDiagnosticConfigsWidget *(const ClangDiagnosticConfigs &configs,
+                                                       const Id &configToSelect)>;
 
-Id ClangDiagnosticConfigsSelectionWidget::currentConfigId() const
-{
-    return m_currentConfigId;
-}
+    void refresh(const ClangDiagnosticConfigsModel &model,
+                 const Id &configToSelect,
+                 const CreateEditWidget &createEditWidget)
+    {
+        m_diagnosticConfigsModel = model;
+        m_currentConfigId = configToSelect;
+        m_createEditWidget = createEditWidget;
 
-ClangDiagnosticConfigs ClangDiagnosticConfigsSelectionWidget::customConfigs() const
-{
-    return m_diagnosticConfigsModel.customConfigs();
-}
+        const ClangDiagnosticConfig config = m_diagnosticConfigsModel.configWithId(configToSelect);
+        m_button.setText(config.displayName());
+    }
 
-QString ClangDiagnosticConfigsSelectionWidget::label() const
-{
-    return Tr::tr("Diagnostic configuration:");
-}
+    Id currentConfigId() const
+    {
+        return m_currentConfigId;
+    }
 
-void ClangDiagnosticConfigsSelectionWidget::setUpUi(bool withLabel)
-{
-    m_button = new QPushButton;
-    const auto layout = new QHBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    if (withLabel)
-        layout->addWidget(new QLabel(label()));
-    layout->addWidget(m_button);
-    layout->addStretch();
+    ClangDiagnosticConfigs customConfigs() const
+    {
+        return m_diagnosticConfigsModel.customConfigs();
+    }
 
-    connect(m_button, &QPushButton::clicked,
-            this, &ClangDiagnosticConfigsSelectionWidget::onButtonClicked);
-}
+    void onButtonClicked()
+    {
+        const ClangDiagnosticConfigs oldConfigs = m_diagnosticConfigsModel.allConfigs();
+        ClangDiagnosticConfigsWidget *widget = m_createEditWidget(oldConfigs, m_currentConfigId);
+        widget->sync();
+        widget->layout()->setContentsMargins(0, 0, 0, 0);
 
-void ClangDiagnosticConfigsSelectionWidget::onButtonClicked()
-{
-    const ClangDiagnosticConfigs oldConfigs = m_diagnosticConfigsModel.allConfigs();
-    ClangDiagnosticConfigsWidget *widget = m_createEditWidget(oldConfigs, m_currentConfigId);
-    widget->sync();
-    widget->layout()->setContentsMargins(0, 0, 0, 0);
+        QDialog dialog;
+        dialog.setWindowTitle(Tr::tr("Diagnostic Configurations"));
+        dialog.setLayout(new QVBoxLayout);
+        dialog.layout()->addWidget(widget);
+        auto buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        dialog.layout()->addWidget(buttonsBox);
 
-    QDialog dialog;
-    dialog.setWindowTitle(Tr::tr("Diagnostic Configurations"));
-    dialog.setLayout(new QVBoxLayout);
-    dialog.layout()->addWidget(widget);
-    auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    dialog.layout()->addWidget(buttonsBox);
+        connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
-    connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-    connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+        if (dialog.exec() == QDialog::Accepted) {
+            const Id origId = m_currentConfigId;
+            m_diagnosticConfigsModel = ClangDiagnosticConfigsModel(widget->configs());
+            m_currentConfigId = widget->currentConfig().id();
+            const QString origDisplayName = m_button.text();
+            m_button.setText(widget->currentConfig().displayName());
 
-    if (dialog.exec() == QDialog::Accepted) {
-        const Id origId = m_currentConfigId;
-        m_diagnosticConfigsModel = ClangDiagnosticConfigsModel(widget->configs());
-        m_currentConfigId = widget->currentConfig().id();
-        const QString origDisplayName = m_button->text();
-        m_button->setText(widget->currentConfig().displayName());
-
-        emit changed();
-        if (origId != m_currentConfigId || origDisplayName != m_button->text()
-            || oldConfigs != widget->configs()) {
-            Utils::checkSettingsDirty();
+            emit changed();
+            if (origId != m_currentConfigId || origDisplayName != m_button.text()
+                || oldConfigs != widget->configs()) {
+                Utils::checkSettingsDirty();
+            }
         }
     }
-}
+
+signals:
+    void changed();
+
+private:
+    ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
+    Utils::Id m_currentConfigId;
+
+    QPushButton m_button;
+    CreateEditWidget m_createEditWidget;
+};
 
 // DiagnosticConfigIdAspect
 
@@ -210,3 +211,5 @@ void DiagnosticConfigIdAspect::writeSettings() const
 }
 
 } // namespace CppEditor
+
+#include "clangdiagnosticconfigsselectionwidget.moc"
