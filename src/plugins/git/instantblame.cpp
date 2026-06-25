@@ -264,7 +264,8 @@ void InstantBlame::setup()
                                                disconnect(m_blameCursorPosConn);
                                                return;
                                            }
-                                           m_cursorPositionChangedTimer->start(500);
+                                           if (!m_scheduleTimer->isActive())
+                                               m_cursorPositionChangedTimer->start(500);
                                        });
         m_document = widget->textDocument();
         m_documentChangedConn = connect(m_document, &IDocument::changed,
