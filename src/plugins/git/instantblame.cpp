@@ -217,6 +217,9 @@ InstantBlame::InstantBlame()
     m_cursorPositionChangedTimer = new QTimer(this);
     m_cursorPositionChangedTimer->setSingleShot(true);
     connect(m_cursorPositionChangedTimer, &QTimer::timeout, this, &InstantBlame::perform);
+    m_scheduleTimer = new QTimer(this);
+    m_scheduleTimer->setSingleShot(true);
+    connect(m_scheduleTimer, &QTimer::timeout, this, &InstantBlame::perform);
 }
 
 void InstantBlame::setup()
@@ -268,7 +271,7 @@ void InstantBlame::setup()
                                         this, &InstantBlame::slotDocumentChanged,
                                         Qt::UniqueConnection);
 
-        force();
+        scheduleInstantBlame();
     };
 
     connect(&settings().instantBlame, &BaseAspect::changed, this, setupBlameForEditor);
@@ -365,14 +368,16 @@ void InstantBlame::once()
             return;
     }
 
-    force();
+    scheduleInstantBlame();
 }
 
-void InstantBlame::force()
+void InstantBlame::scheduleInstantBlame()
 {
-    qCDebug(log) << "Forcing blame now";
     m_lastVisitedEditorLine = -1;
-    perform();
+    if (m_scheduleTimer->isActive())
+        m_taskTreeRunner.reset();
+    else
+        m_scheduleTimer->start(0);
 }
 
 void InstantBlame::perform()
@@ -478,6 +483,7 @@ void InstantBlame::perform()
 void InstantBlame::stop()
 {
     qCInfo(log) << "Stopping blame now";
+    m_scheduleTimer->stop();
     m_blameMark.reset();
     m_cursorPositionChangedTimer->stop();
     disconnect(m_blameCursorPosConn);
@@ -508,7 +514,7 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
         if (m_encoding != encoding) {
             qCInfo(log) << "Setting new text codec:" << encoding.name();
             m_encoding = encoding;
-            force();
+            scheduleInstantBlame();
         }
     };
     gitClient().readConfigAsync(workingDirectory, {"config", "i18n.commitEncoding"},
@@ -522,7 +528,7 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
             if (m_author != author) {
                 qCInfo(log) << "Setting new author name:" << author.name << author.email;
                 m_author = author;
-                force();
+                scheduleInstantBlame();
             }
         }
     };
@@ -543,7 +549,7 @@ void InstantBlame::slotDocumentChanged()
     const bool modified = m_document->isModified();
     qCDebug(log) << "Document is changed, modified:" << modified;
     if (m_modified && !modified)
-        force();
+        scheduleInstantBlame();
     m_modified = modified;
 }
 

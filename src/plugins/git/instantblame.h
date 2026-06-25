@@ -57,7 +57,7 @@ public:
 
     void setup();
     void once();
-    void force();
+    void scheduleInstantBlame();
     void stop();
     void perform();
 
@@ -72,6 +72,7 @@ private:
     Core::IDocument *m_document = nullptr;
     bool m_modified = false;
     QTimer *m_cursorPositionChangedTimer = nullptr;
+    QTimer *m_scheduleTimer = nullptr;
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     std::unique_ptr<BlameMark> m_blameMark;
     QMetaObject::Connection m_blameCursorPosConn;
