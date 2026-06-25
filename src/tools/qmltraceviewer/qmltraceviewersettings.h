@@ -15,17 +15,12 @@ public:
     Utils::FilePathAspect lastTraceFile{this};
     Utils::ByteArrayAspect windowGeometry{this};
 
-    // Call-stack sampling (Record a new Trace).
-    Utils::StringAspect recordProcessName{this};
-    Utils::IntegerAspect recordIntervalUs{this};
-
-    // Launch a process to profile. When recordExecutable is set, recording
-    // launches it and samples it by PID instead of attaching to recordProcessName.
+    // Not persisted. A command line passed via --launch; the window seeds the
+    // active backend's launch settings from these. Backend-specific recording
+    // options (executable, arguments, interval, host/port, ...) live in each
+    // backend's own settings.
     Utils::FilePathAspect recordExecutable{this};
     Utils::StringAspect recordArguments{this};
-    Utils::FilePathAspect recordWorkingDirectory{this};
-
-    // Not persisted:
     Utils::BoolAspect exitOnError{this};
     Utils::BoolAspect withRpc{this};
 };

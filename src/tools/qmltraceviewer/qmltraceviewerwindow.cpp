@@ -5,13 +5,16 @@
 
 #include <profiler/callstacksampler.h>
 #include "mainsidebar.h"
-#include "processpickerdialog.h"
 #include "qmltraceviewerrpc.h"
 #include "qmltraceviewersettings.h"
 #include "recordingpage.h"
+#include <profiler/qmlprofilersampler.h>
 #include <profiler/sampler.h>
 #include <profiler/samplerviewmanager.h>
 #include "welcomepage.h"
+
+#include <utils/aspects.h>
+#include <utils/layoutbuilder.h>
 
 #include <profiler/ctfplainviewmanager.h>
 #include <profiler/profilertr.h>
@@ -85,11 +88,11 @@ public:
 
     void showOpenFileDialog();
     void showOpenCtfDirDialog();
-    void attachToProcess();
-    void launchExecutable();
+    void selectBackend(int index);
+    bool selectBackendByName(const QString &name);
+    void startRecording();
+    void startTimedRecording(milliseconds duration);
     void beginRecording(const QString &displayName);
-    QtTaskTree::Group recordingRecipe();
-    void onTargetExited();
     void finishRecording();
     void stopAndWaitForRecording();
 
@@ -126,13 +129,15 @@ public:
     ViewGroup ctfGroup;
     ViewGroup samplerGroup;
     bool recording = false;
+    bool processingShown = false;                 // setProcessing() already called this session.
     bool closing = false;                         // Set while waiting for shutdown.
-    std::unique_ptr<Sampler> sampler;             // The active profiling backend.
+    std::vector<std::unique_ptr<Sampler>> backends; // Available profiling backends.
+    Sampler *sampler = nullptr;                   // The selected backend (owned by `backends`).
     std::shared_ptr<RecordingSession> session;    // Non-null while recording.
-    std::optional<Utils::CommandLine> launchCommand; // Set => launch a process to profile.
-    Utils::FilePath launchWorkingDir;
     QtTaskTree::QSingleTaskTreeRunner recordingRunner;
     QTimer *processingPoll = nullptr;
+    std::optional<milliseconds> recordDuration;   // Set by --record-for; auto-stop span.
+    bool recordDurationArmed = false;             // Stop timer armed once capture started.
 };
 
 WindowPrivate::WindowPrivate(Window *window)
@@ -154,26 +159,66 @@ WindowPrivate::WindowPrivate(Window *window)
     rightPane->addWidget(traceArea);
     rightPane->setCurrentWidget(welcomePage);
 
-    connect(welcomePage, &WelcomePage::openTraceRequested,
-            this, &WindowPrivate::showOpenFileDialog);
-    connect(welcomePage, &WelcomePage::attachToProcessRequested,
-            this, &WindowPrivate::attachToProcess);
-    connect(welcomePage, &WelcomePage::launchExecutableRequested,
-            this, &WindowPrivate::launchExecutable);
-    sampler = std::make_unique<CallStackSampler>();
+    connect(welcomePage, &WelcomePage::startRecordingRequested,
+            this, &WindowPrivate::startRecording);
+    connect(welcomePage, &WelcomePage::backendChanged, this, &WindowPrivate::selectBackend);
+
+    // The native call-stack sampler first, then the QML-protocol profiler. Each
+    // backend persists and renders its own settings, and decides how to start
+    // (launch / attach / connect) from those settings in createSession().
+    backends.push_back(std::make_unique<CallStackSampler>());
+    backends.push_back(std::make_unique<QmlProfilerSampler>());
+
+    QStringList backendNames;
+    int defaultBackend = -1;
+    for (int i = 0; i < int(backends.size()); ++i) {
+        if (SamplerSettings *s = backends[i]->settings())
+            s->readSettings();
+        backendNames << backends[i]->displayName();
+        if (defaultBackend < 0 && backends[i]->isAvailable())
+            defaultBackend = i;
+    }
+    if (defaultBackend < 0)
+        defaultBackend = 0;
+    welcomePage->setBackends(backendNames, defaultBackend);
+    selectBackend(defaultBackend);
+
+    // A command line passed on the CLI (--launch) seeds the active backend's
+    // launch settings so it can be started straight away.
+    if (const FilePath exe = settings().recordExecutable(); !exe.isEmpty()) {
+        if (SamplerSettings *s = sampler->settings()) {
+            s->executable.setValue(exe);
+            s->arguments.setValue(settings().recordArguments());
+        }
+    }
 
     processingPoll = new QTimer(this);
     processingPoll->setInterval(50);
     connect(processingPoll, &QTimer::timeout, this, [this] {
-        if (session)
-            recordingPage->setProgress(session->progress.load(std::memory_order_relaxed));
+        if (!session)
+            return;
+        // The recipe (or the user) may set stop on its own (e.g. the target exited);
+        // reflect the switch to post-processing exactly once.
+        if (session->stop.load(std::memory_order_relaxed) && !processingShown) {
+            processingShown = true;
+            recordingPage->setProcessing();
+        }
+        // For --record-for: once capture is actually live, start the span clock
+        // (exactly once) so launch/connect time isn't counted against it.
+        if (recordDuration && !recordDurationArmed
+                && session->started.load(std::memory_order_relaxed)) {
+            recordDurationArmed = true;
+            QTimer::singleShot(*recordDuration, this, [this] {
+                if (session)
+                    session->stop.store(true);
+            });
+        }
+        recordingPage->setProgress(session->progress.load(std::memory_order_relaxed));
     });
 
     connect(recordingPage, &RecordingPage::stopRequested, this, [this] {
         if (session)
             session->stop.store(true);
-        recordingPage->setProcessing();
-        processingPoll->start();
     });
 
     qmlManager = new QmlProfilerPlainViewManager(traceArea);
@@ -228,31 +273,45 @@ void WindowPrivate::showOpenCtfDirDialog()
         q->loadTraceFile(dir);
 }
 
-void WindowPrivate::attachToProcess()
+void WindowPrivate::selectBackend(int index)
 {
-    if (recording)
+    if (index < 0 || index >= int(backends.size()))
         return;
-
-    QString reason;
-    if (!sampler->isAvailable(&reason)) {
-        onError(reason);
-        return;
+    sampler = backends[index].get();
+    QWidget *config = nullptr;
+    if (SamplerSettings *s = sampler->settings()) {
+        config = new QWidget;
+        s->layouter()().attachTo(config);
     }
-
-    const std::optional<ProcessInfo> info = ProcessPickerDialog::pickProcess(q);
-    if (!info)
-        return;
-
-    launchCommand.reset();
-    session = std::make_shared<RecordingSession>();
-    session->intervalUs = int(settings().recordIntervalUs());
-    session->pid = info->processId;
-    session->processName = FilePath::fromUserInput(info->executable).fileName();
-
-    beginRecording(session->processName);
+    welcomePage->setActiveBackend(config);
 }
 
-void WindowPrivate::launchExecutable()
+bool WindowPrivate::selectBackendByName(const QString &name)
+{
+    for (int i = 0; i < int(backends.size()); ++i) {
+        if (backends[i]->displayName().contains(name, Qt::CaseInsensitive)) {
+            welcomePage->setCurrentBackend(i); // emits backendChanged() -> selectBackend()
+            return true;
+        }
+    }
+    return false;
+}
+
+void WindowPrivate::startTimedRecording(milliseconds duration)
+{
+    startRecording();
+    if (!recording)
+        return; // startRecording() reported the error already.
+
+    // The clock only starts once the backend is actually capturing (after launch
+    // and, for the QML profiler, after the debug connection is up); otherwise the
+    // launch/connect delay would eat into the requested span. The processing poll
+    // watches session->started and arms the stop timer on the 0->1 transition.
+    recordDuration = duration;
+    recordDurationArmed = false;
+}
+
+void WindowPrivate::startRecording()
 {
     if (recording)
         return;
@@ -263,113 +322,44 @@ void WindowPrivate::launchExecutable()
         return;
     }
 
-    const FilePath previous = settings().recordExecutable();
-    const FilePath exe = FileUtils::getOpenFilePath(
-        Tr::tr("Select Executable to Profile"),
-        previous.isEmpty() ? FilePath::fromUserInput(QDir::homePath()) : previous);
-    if (exe.isEmpty())
+    SamplerSettings *settings = sampler->settings();
+    if (!settings) {
+        onError(Tr::tr("This backend cannot be configured for recording."));
         return;
-    settings().recordExecutable.setValue(exe);
+    }
 
-    launchCommand = CommandLine(exe, ProcessArgs::splitArgs(settings().recordArguments(),
-                                                            HostOsInfo::hostOs()));
-    launchWorkingDir = settings().recordWorkingDirectory();
+    const Result<std::shared_ptr<RecordingSession>> created = settings->createSession();
+    if (!created) {
+        onError(created.error());
+        return;
+    }
+    session = *created;
 
-    session = std::make_shared<RecordingSession>();
-    session->intervalUs = int(settings().recordIntervalUs());
-
-    beginRecording(exe.fileName());
+    // A name for the recording page: the launched command, the attach target, or
+    // the connect endpoint.
+    QString name;
+    if (session->launchCommand)
+        name = session->launchCommand->executable().fileName();
+    else if (!session->processName.isEmpty())
+        name = session->processName;
+    else if (!session->serverUrl.isEmpty())
+        name = session->serverUrl.host() + u':' + QString::number(session->serverUrl.port());
+    beginRecording(name);
 }
 
 void WindowPrivate::beginRecording(const QString &displayName)
 {
     recording = true;
+    processingShown = false;
     recordingPage->start(displayName);
     rightPane->setCurrentWidget(recordingPage);
-
-    // The task tree owns the recording: it launches the target (when configured),
-    // samples it while it runs, and tears it down once the sampler finishes. When
-    // the tree is done, finishRecording() loads the captured trace.
-    recordingRunner.start(recordingRecipe(), [] {}, [this](QtTaskTree::DoneWith) {
-        finishRecording();
-    });
-}
-
-QtTaskTree::Group WindowPrivate::recordingRecipe()
-{
-    using namespace QtTaskTree;
-
-    const ExecutableItem record = sampler->recordRecipe(session);
-
-    // Attaching to an existing process: the sampler uses session->pid directly,
-    // with no process to launch.
-    if (!launchCommand)
-        return Group{record};
-
-    // Launch the chosen command, then sample it once it is running. The process
-    // and the sampler run in parallel; the sampler keeps the target alive until
-    // it has finished symbolizing. If the target exits on its own,
-    // onTargetExited() stops the sampler so the trace is still written.
-    const CommandLine cmd = *launchCommand;
-    const FilePath workingDir = launchWorkingDir;
-    const std::shared_ptr<RecordingSession> s = session;
-    // Lets the "sampler finished" handler terminate the launched process. The
-    // pointer is valid exactly while the ProcessTask runs, i.e. whenever we might
-    // still need to stop the process.
-    const auto launched = std::make_shared<QPointer<Process>>();
-
-    const auto onProcessSetup = [s, cmd, workingDir, launched](Process &process) {
-        process.setCommand(cmd);
-        if (!workingDir.isEmpty())
-            process.setWorkingDirectory(workingDir);
-        // Forward the target's stdout/stderr straight to our console. We do not
-        // display its output, and reading it ourselves would make Process install
-        // channel socket notifiers whose teardown on macOS can crash when the
-        // process exits (QTBUG-style QCFSocketNotifier removal fault).
-        process.setProcessChannelMode(QProcess::ForwardedChannels);
-        *launched = &process;
-        // The PID is known once the process is running; the same started() signal
-        // also releases the sampler in the When() clause below.
-        QObject::connect(&process, &Process::started, &process,
-                         [s, p = &process] { s->pid.store(p->processId()); });
-    };
-    const auto onProcessDone = [this](const Process &process, DoneWith result) {
-        // A failure before sampling produced anything (e.g. the executable was
-        // not found) becomes the recording's error so the user sees the reason.
-        if (result == DoneWith::Error && session && !session->result) {
-            const QString error = process.errorString().isEmpty()
-                                      ? Tr::tr("The process to profile could not be started.")
-                                      : process.errorString();
-            session->result.emplace(ResultError(error));
-        }
-        onTargetExited();
-    };
-    // Once the sampler is done (Stop pressed or the target exited), terminate the
-    // launched process so its parallel task ends and the recording can finish.
-    // Without this the group would wait for the long-running process forever.
-    const auto onSamplingDone = [launched] {
-        if (Process *process = launched->data())
-            process->stop();
-    };
-
-    return Group {
-        When(ProcessTask(onProcessSetup, onProcessDone), &Process::started) >> Do {
-            record,
-            onGroupDone(onSamplingDone),
-        }
-    };
-}
-
-void WindowPrivate::onTargetExited()
-{
-    // Called when the launched process finishes. If it exited before the user
-    // stopped recording, end sampling so the trace is written; if it is being
-    // torn down because sampling already finished, this is a no-op.
-    if (!recording || !session || session->stop.load())
-        return;
-    session->stop.store(true);
-    recordingPage->setProcessing();
     processingPoll->start();
+
+    // The backend owns the complete recipe: it launches the target (when
+    // session->launchCommand is set), captures it, and tears it down. When the
+    // tree is done, finishRecording() loads the captured trace.
+    recordingRunner.start(QtTaskTree::Group{sampler->recordRecipe(session)}, [] {},
+                          [this](QtTaskTree::DoneWith) { finishRecording(); });
 }
 
 void WindowPrivate::finishRecording()
@@ -377,10 +367,11 @@ void WindowPrivate::finishRecording()
     recording = false;
     processingPoll->stop();
     recordingPage->stop();
+    recordDuration.reset(); // one-shot: don't auto-stop a later manual recording
+    recordDurationArmed = false;
 
     const std::shared_ptr<RecordingSession> finished = session;
     session.reset();
-    launchCommand.reset();
 
     if (closing)
         return; // The window is shutting down: don't touch the UI or load a trace.
@@ -669,9 +660,23 @@ void Window::loadTraceFile(const FilePath &filePath)
     d->doLoad(filePath);
 }
 
+bool Window::selectBackend(const QString &name)
+{
+    return d->selectBackendByName(name);
+}
+
+void Window::startTimedRecording(std::chrono::milliseconds duration)
+{
+    d->startTimedRecording(duration);
+}
+
 void Window::closeEvent(QCloseEvent *event)
 {
     settings().windowGeometry.setValue(saveGeometry());
+    for (const std::unique_ptr<Sampler> &backend : d->backends) {
+        if (Utils::AspectContainer *s = backend->settings())
+            s->writeSettings();
+    }
     d->stopAndWaitForRecording();
     QMainWindow::closeEvent(event);
 }

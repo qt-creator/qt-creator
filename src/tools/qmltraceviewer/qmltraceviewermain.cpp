@@ -18,6 +18,8 @@
 
 #include <app/app_version.h>
 
+#include <chrono>
+
 #include <iostream>
 
 #ifndef Q_OS_WIN
@@ -32,7 +34,7 @@ int main(int argc, char *argv[])
 {
 #ifndef Q_OS_WIN
     // Launched targets are profiled with their stdio forwarded to our controlling
-    // terminal (see Window::recordingRecipe). When such a target exits, the
+    // terminal (see launchThenCapture()). When such a target exits, the
     // terminal/job-control layer can deliver SIGHUP to us; its default action is
     // to terminate, which would kill the viewer just as the recording finishes.
     // A GUI tool has no use for a terminal hangup, so ignore it.
@@ -77,6 +79,15 @@ int main(int argc, char *argv[])
                               "Launch the given command and profile it (e.g. \"/path/to/app --arg\").",
                               "command");
     parser.addOption(launch);
+    QCommandLineOption backend(QStringList({"b", "backend"}),
+                               "Recording backend to use, matched by name (e.g. \"QML\").",
+                               "name");
+    parser.addOption(backend);
+    QCommandLineOption recordFor(QStringList({"record-for"}),
+                                 "Start recording on launch and stop after <seconds>, then show "
+                                 "the trace. Combine with --launch (and optionally --backend).",
+                                 "seconds");
+    parser.addOption(recordFor);
     parser.process(app);
 
     if (parser.isSet(printRpcSchema)) {
@@ -112,6 +123,26 @@ int main(int argc, char *argv[])
         window.setWindowTitle(title);
     } else if (parser.isSet(windowTitle)) {
         window.setWindowTitle(parser.value(windowTitle));
+    }
+
+    if (parser.isSet(backend)) {
+        if (!window.selectBackend(parser.value(backend))) {
+            std::cerr << "Unknown backend: " << parser.value(backend).toStdString() << std::endl;
+            return -1;
+        }
+    }
+
+    if (parser.isSet(recordFor)) {
+        bool ok = false;
+        const double seconds = parser.value(recordFor).toDouble(&ok);
+        if (!ok || seconds <= 0.0) {
+            std::cerr << "--record-for expects a positive number of seconds" << std::endl;
+            return -1;
+        }
+        const auto duration = std::chrono::milliseconds(qint64(seconds * 1000));
+        QTimer::singleShot(0, &window, [&window, duration] {
+            window.startTimedRecording(duration);
+        });
     }
 
     window.show();
