@@ -2030,7 +2030,7 @@ static void detectCppBuildTools2015(Toolchains *list)
 
     const QString name = "Microsoft Visual C++ Build Tools";
     const FilePath vcVarsBat = windowsProgramFilesDir() / name / "vcbuildtools.bat";
-    if (vcVarsBat.isFile())
+    if (!vcVarsBat.isFile())
         return;
     for (const Entry &e : entries) {
         const Abi abi(e.architecture,
