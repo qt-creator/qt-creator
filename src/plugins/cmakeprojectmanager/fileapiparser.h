@@ -223,14 +223,14 @@ class IncludeInfo
 {
 public:
     ProjectExplorer::HeaderPath path;
-    int backtrace;
+    int backtrace = 0;
 };
 
 class DefineInfo
 {
 public:
     ProjectExplorer::Macro define;
-    int backtrace;
+    int backtrace = 0;
 };
 
 class CompileInfo
