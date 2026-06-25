@@ -17,6 +17,7 @@
 
 #include <coreplugin/generalsettings.h>
 #include <coreplugin/rightpane.h>
+#include <utils/stylehelper.h>
 
 namespace AcpClient::Internal {
 
@@ -33,16 +34,16 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
     toolBarLayout->setSpacing(0);
     layout->addWidget(toolBar);
 
-    auto *addButton = new QToolButton(toolBar);
-    addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    addButton->setText(Tr::tr("Add Chat"));
-    addButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    addButton->setToolTip(addButton->text());
-    connect(addButton, &QToolButton::clicked, this, [this] {
+    m_addButton = new QToolButton(toolBar);
+    m_addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+    m_addButton->setText(Tr::tr("Add Chat"));
+    m_addButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_addButton->setToolTip(m_addButton->text());
+    connect(m_addButton, &QToolButton::clicked, this, [this] {
         AcpChatTab *tab = addNewTab();
         tab->setFocus();
     });
-    toolBarLayout->addWidget(addButton);
+    toolBarLayout->addWidget(m_addButton);
 
     // Combobox selector (shown when "Use tabbed editors" is disabled).
     m_switcher = new QComboBox(toolBar);
@@ -52,16 +53,17 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
             this, &AcpChatWidget::setCurrentIndex);
     toolBarLayout->addWidget(m_switcher);
 
-    toolBarLayout->addStretch();
-
     // Close-chat button (shown only in combobox mode; tabs carry their own close button).
     m_closeChatButton = new QToolButton(toolBar);
     m_closeChatButton->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     m_closeChatButton->setToolTip(Tr::tr("Close Chat"));
+    m_closeChatButton->setProperty(Utils::StyleHelper::C_SHOW_BORDER, true);
     connect(m_closeChatButton, &QToolButton::clicked, this, [this] {
         closeTab(m_stack->currentIndex());
     });
     toolBarLayout->addWidget(m_closeChatButton);
+
+    toolBarLayout->addStretch();
 
     auto *closeButton = new QToolButton(toolBar);
     closeButton->setIcon(Utils::Icons::CLOSE_SPLIT_RIGHT.icon());
@@ -99,6 +101,7 @@ AcpChatWidget::~AcpChatWidget() = default;
 void AcpChatWidget::setUseTabs(bool useTabs)
 {
     m_tabBar->setVisible(useTabs);
+    m_addButton->setProperty(Utils::StyleHelper::C_SHOW_BORDER, !useTabs);
     m_switcher->setVisible(!useTabs);
     m_closeChatButton->setVisible(!useTabs);
 }

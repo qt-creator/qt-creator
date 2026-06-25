@@ -37,6 +37,7 @@ private:
     void closeTab(int index);
     void setCurrentIndex(int index);
 
+    QToolButton *m_addButton = nullptr;
     QToolButton *m_closeChatButton = nullptr;
 
     // Both selectors always exist and stay in sync with m_stack; visibility follows
