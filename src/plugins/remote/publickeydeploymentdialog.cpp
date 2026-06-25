@@ -3,6 +3,7 @@
 
 #include "publickeydeploymentdialog.h"
 
+#include "powershellutils.h"
 #include "remotelinuxtr.h"
 
 #include <coreplugin/documentmanager.h>
@@ -18,6 +19,7 @@
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
+#include <QProcess>
 #include <QProgressDialog>
 
 using namespace ProjectExplorer;
@@ -68,32 +70,59 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
         return;
     }
 
-    const QString command = "test -d .ssh || mkdir -p ~/.ssh && chmod 0700 .ssh && echo '"
-            + QString::fromLocal8Bit(*publicKey)
-            + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
+    const IDevice::ConstPtr dev = device.lock();
+    const bool isWindowsDevice = dev && dev->osType() == OsTypeWindows;
 
     const SshParameters params = device.sshParameters();
-    const QString hostKeyCheckingString = params.hostKeyCheckingMode() == SshHostKeyCheckingStrict
-            ? QLatin1String("yes") : QLatin1String("no");
-    const bool isWindows = HostOsInfo::isWindowsHost()
-            && sshSettings().sshFilePath().path().toLower().contains("/system32/");
-    const bool useTimeout = (params.timeout() != 0) && !isWindows;
 
     CommandLine cmd{sshSettings().sshFilePath()};
-    QStringList args{"-q",
-                     "-o", "StrictHostKeyChecking=" + hostKeyCheckingString,
-                     "-o", "Port=" + QString::number(params.port())};
-    if (!params.userName().isEmpty())
-        args << "-o" << "User=" + params.userName();
-    args << "-o" << "BatchMode=no";
-    if (useTimeout)
-        args << "-o" << "ConnectTimeout=" + QString::number(params.timeout());
-    args << params.host();
-    cmd.addArgs(args);
+    if (isWindowsDevice) {
+        // Native Windows OpenSSH: no POSIX shell. Append the key to
+        // %USERPROFILE%\.ssh\authorized_keys via "powershell -EncodedCommand", which works
+        // whether the remote default shell is cmd.exe or PowerShell.
+        cmd.addArgs(params.connectionOptions(sshSettings().sshFilePath()));
+        cmd.addArg(params.host());
 
-    QString execCommandString("exec /bin/sh -c");
-    ProcessArgs::addArg(&execCommandString, command, OsType::OsTypeLinux);
-    cmd.addArg(execCommandString);
+        const QString key = QString::fromLocal8Bit(publicKey.value()).trimmed();
+        const QString script = QStringLiteral(
+            "$ErrorActionPreference = 'Stop';"
+            "$d = Join-Path $env:USERPROFILE '.ssh';"
+            "if (!(Test-Path $d)) { New-Item -ItemType Directory -Path $d | Out-Null };"
+            "Add-Content -Path (Join-Path $d 'authorized_keys') -Value %1 -Encoding ascii")
+            .arg(psQuote(key));
+        cmd.addArg("powershell -NoProfile -NonInteractive -EncodedCommand "
+                   + encodePowerShellCommand(script));
+
+        // Windows OpenSSH keeps the session open waiting for stdin EOF after the remote
+        // command has finished, so point stdin at the null device to let it terminate.
+        m_process.setStandardInputFile(QProcess::nullDevice());
+    } else {
+        const QString command = "test -d .ssh || mkdir -p ~/.ssh && chmod 0700 .ssh && echo '"
+                + QString::fromLocal8Bit(publicKey.value())
+                + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
+
+        const QString hostKeyCheckingString
+            = params.hostKeyCheckingMode() == SshHostKeyCheckingStrict ? QLatin1String("yes")
+                                                                       : QLatin1String("no");
+        const bool isWindowsHost = HostOsInfo::isWindowsHost()
+                && sshSettings().sshFilePath().path().toLower().contains("/system32/");
+        const bool useTimeout = (params.timeout() != 0) && !isWindowsHost;
+
+        QStringList args{"-q",
+                         "-o", "StrictHostKeyChecking=" + hostKeyCheckingString,
+                         "-o", "Port=" + QString::number(params.port())};
+        if (!params.userName().isEmpty())
+            args << "-o" << "User=" + params.userName();
+        args << "-o" << "BatchMode=no";
+        if (useTimeout)
+            args << "-o" << "ConnectTimeout=" + QString::number(params.timeout());
+        args << params.host();
+        cmd.addArgs(args);
+
+        QString execCommandString("exec /bin/sh -c");
+        ProcessArgs::addArg(&execCommandString, command, OsType::OsTypeLinux);
+        cmd.addArg(execCommandString);
+    }
 
     m_process.setCommand(cmd);
     SshParameters::setupSshEnvironment(&m_process);

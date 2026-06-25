@@ -3,6 +3,7 @@
 
 #include "windowsdevice.h"
 
+#include "powershellutils.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 #include "sshdevicewizard.h"
@@ -54,36 +55,6 @@ using namespace Utils;
 namespace Remote {
 
 static Q_LOGGING_CATEGORY(windowsDeviceLog, "qtc.remotewindows.device", QtWarningMsg)
-
-// Helpers for running a single PowerShell command on the remote machine over SSH.
-// We always go through PowerShell with -EncodedCommand: the script is base64 of its
-// UTF-16LE representation, which side-steps all quoting issues across the local
-// shell, ssh and the remote default shell (cmd.exe or PowerShell) layers.
-
-static QString encodePowerShellCommand(const QString &script)
-{
-    QByteArray utf16le;
-    utf16le.reserve(script.size() * 2);
-    for (const QChar c : script) {
-        const ushort u = c.unicode();
-        utf16le.append(char(u & 0xff));
-        utf16le.append(char((u >> 8) & 0xff));
-    }
-    return QString::fromLatin1(utf16le.toBase64());
-}
-
-// Quotes a string for use inside a single-quoted PowerShell literal.
-static QString psQuote(const QString &str)
-{
-    QString result = str;
-    result.replace('\'', "''");
-    return '\'' + result + '\'';
-}
-
-static QString psPath(const FilePath &filePath)
-{
-    return psQuote(filePath.nativePath());
-}
 
 // Builds the local "ssh ... <host> <remoteCommand>" invocation. The remote command is
 // passed raw (unquoted): the -EncodedCommand base64 has no spaces or shell metacharacters,

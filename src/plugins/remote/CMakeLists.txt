@@ -14,6 +14,7 @@ add_qtc_plugin(Remote
     linuxprocessinterface.h
     macdevice.cpp macdevice.h
     makeinstallstep.cpp makeinstallstep.h
+    powershellutils.h
     publickeydeploymentdialog.cpp publickeydeploymentdialog.h
     remotelinux.qrc
     remotelinux_constants.h

@@ -35,6 +35,7 @@ QtcPlugin {
         "macdevice.h",
         "makeinstallstep.cpp",
         "makeinstallstep.h",
+        "powershellutils.h",
         "publickeydeploymentdialog.cpp",
         "publickeydeploymentdialog.h",
         "remotelinux.qrc",
