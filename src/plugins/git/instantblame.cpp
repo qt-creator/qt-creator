@@ -228,6 +228,7 @@ void InstantBlame::setup()
             qCDebug(log) << "Instant blame is disabled.";
             m_lastVisitedEditorLine = -1;
             stop();
+            m_taskTreeRunner.reset();
             return;
         }
 
@@ -235,6 +236,7 @@ void InstantBlame::setup()
         if (!widget) {
             qCInfo(log) << "Cannot get current text editor widget.";
             stop();
+            m_taskTreeRunner.reset();
             return;
         }
 
