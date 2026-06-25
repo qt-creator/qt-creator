@@ -740,6 +740,12 @@ void ChatPanel::showConfigMenu()
 
     if (!menu->isEmpty())
         menu->addSeparator();
+
+    QAction *showThoughts = menu->addAction(Tr::tr("Show Thoughts"));
+    showThoughts->setCheckable(true);
+    showThoughts->setChecked(m_messageView->thoughtsVisible());
+    connect(showThoughts, &QAction::toggled, m_messageView, &AcpMessageView::setThoughtsVisible);
+
     QAction *inspect = menu->addAction(Tr::tr("Inspect ACP Client..."));
     connect(inspect, &QAction::triggered, this, &ChatPanel::inspectRequested);
 
