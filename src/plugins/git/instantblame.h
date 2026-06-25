@@ -9,6 +9,8 @@
 
 #include <utils/filepath.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 QT_BEGIN_NAMESPACE
 class QLayout;
 class QTimer;
@@ -70,6 +72,7 @@ private:
     Core::IDocument *m_document = nullptr;
     bool m_modified = false;
     QTimer *m_cursorPositionChangedTimer = nullptr;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     std::unique_ptr<BlameMark> m_blameMark;
     QMetaObject::Connection m_blameCursorPosConn;
     QMetaObject::Connection m_documentChangedConn;

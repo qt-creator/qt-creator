@@ -16,6 +16,7 @@
 #include <texteditor/textmark.h>
 
 #include <utils/filepath.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
@@ -36,6 +37,7 @@ namespace Git::Internal {
 static Q_LOGGING_CATEGORY(log, "qtc.vcs.git.instantblame", QtWarningMsg);
 
 using namespace Core;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 using namespace VcsBase;
@@ -407,33 +409,21 @@ void InstantBlame::perform()
 
     const FilePath filePath = widget->textDocument()->filePath();
     const FilePath workingDirectory = filePath.parentDir();
+    const FilePath topLevel = currentState().topLevel();
     const QString lineString = QString("%1,%1").arg(line);
-    const auto lineDiffHandler = [this](const CommandResult &result) {
-        const QString error = result.cleanedStdErr().trimmed();
-        if (!error.isEmpty()) {
-            qCWarning(log) << error;
-        }
-        if (!m_blameMark) {
-            qCInfo(log) << "m_blameMark is invalid";
-            return;
-        }
 
-        static const QRegularExpression re("^[-+][^-+].*");
-        const QStringList lines = result.cleanedStdOut().split("\n").filter(re);
-        for (const QString &line : lines) {
-            if (line.startsWith("-")) {
-                m_blameMark->addOldLine(line);
-                qCDebug(log) << "Found removed line: " << line;
-            } else if (line.startsWith("+")) {
-                m_blameMark->addNewLine(line);
-                qCDebug(log) << "Found added line: " << line;
-            }
-        }
-    };
-    const auto commandHandler = [this, filePath, line, lineDiffHandler]
-        (const CommandResult &result) {
-        if (result.result() == ProcessResult::FinishedWithError &&
-            result.cleanedStdErr().contains("no such path")) {
+    QStringList options = {"blame", "-p"};
+    if (settings().instantBlameIgnoreSpaceChanges())
+        options.append("-w");
+    if (settings().instantBlameIgnoreLineMoves())
+        options.append("-M");
+    options.append({"-L", lineString, "--", filePath.path()});
+    qCDebug(log) << "Running git" << options.join(' ');
+
+    const Storage<CommitInfo> infoStorage;
+    const auto blameHandler = [this, filePath, line, infoStorage](const CommandResult &result) {
+        if (result.result() == ProcessResult::FinishedWithError
+                && result.cleanedStdErr().contains("no such path")) {
             stop();
             return;
         }
@@ -442,31 +432,47 @@ void InstantBlame::perform()
             stop();
             return;
         }
-        const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, line, m_author);
-        m_blameMark.reset(new BlameMark(filePath, line, info));
-
-        if (info.modified)
-            return;
-
-        // Get line diff: `git log -n 1 -p -L47,47:README.md a5c4c34c9ab4`
-        const QString origLineString = QString("%1,%1").arg(info.originalLine);
-        const QString fileLineRange = "-L" + origLineString + ":" + info.originalFileName;
-        const QStringList lineDiffOptions = {"log", "-n 1", "-p", fileLineRange, info.hash};
-        const FilePath topLevel = currentState().topLevel();
-
-        qCDebug(log) << "Running git" << lineDiffOptions.join(' ');
-        gitClient().enqueueCommand({topLevel, lineDiffOptions, RunFlag::NoOutput, {},
-                                    m_encoding, lineDiffHandler});
+        *infoStorage = parseBlameOutput(output.split('\n'), filePath, line, m_author);
+        m_blameMark.reset(new BlameMark(filePath, line, *infoStorage));
     };
-    QStringList options = {"blame", "-p"};
-    if (settings().instantBlameIgnoreSpaceChanges())
-        options.append("-w");
-    if (settings().instantBlameIgnoreLineMoves())
-        options.append("-M");
-    options.append({"-L", lineString, "--", filePath.path()});
-    qCDebug(log) << "Running git" << options.join(' ');
-    gitClient().enqueueCommand({workingDirectory, options, RunFlag::NoOutput, {}, m_encoding,
-                                commandHandler});
+    const TextEncoding encoding = m_encoding;
+    const auto onLogSetup = [infoStorage, topLevel, encoding](Process &process) -> SetupResult {
+        if (infoStorage->hash.isEmpty() || infoStorage->modified)
+            return SetupResult::StopWithSuccess;
+        // Get line diff: `git log -n 1 -p -L47,47:README.md a5c4c34c9ab4`
+        const QString origLineString = QString("%1,%1").arg(infoStorage->originalLine);
+        const QString fileLineRange = "-L" + origLineString + ":" + infoStorage->originalFileName;
+        const QStringList logOptions = {"log", "-n 1", "-p", fileLineRange, infoStorage->hash};
+        qCDebug(log) << "Running git" << logOptions.join(' ');
+        gitClient().setupCommand(process, topLevel, logOptions);
+        process.setEncoding(encoding);
+        return SetupResult::Continue;
+    };
+    const auto onLogDone = [this](const Process &process) {
+        if (!m_blameMark)
+            return;
+        const QString error = process.cleanedStdErr().trimmed();
+        if (!error.isEmpty())
+            qCWarning(log) << error;
+        static const QRegularExpression re("^[-+][^-+].*");
+        const QStringList diffLines = process.cleanedStdOut().split("\n").filter(re);
+        for (const QString &diffLine : diffLines) {
+            if (diffLine.startsWith("-")) {
+                m_blameMark->addOldLine(diffLine);
+                qCDebug(log) << "Found removed line: " << diffLine;
+            } else if (diffLine.startsWith("+")) {
+                m_blameMark->addNewLine(diffLine);
+                qCDebug(log) << "Found added line: " << diffLine;
+            }
+        }
+    };
+
+    m_taskTreeRunner.start({
+        infoStorage,
+        gitClient().commandTask({workingDirectory, options, RunFlag::NoOutput, {}, m_encoding,
+                                 blameHandler}),
+        ProcessTask(onLogSetup, onLogDone, CallDoneFlag::OnSuccess)
+    });
 }
 
 void InstantBlame::stop()
