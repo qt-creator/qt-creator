@@ -330,7 +330,7 @@ QString reformatInteger(quint64 value, int format, int size, bool isSigned);
 QString reformatCharacter(int code, int size, bool isSigned);
 QString reformatCharacterWithFormat(int code, int size, bool isSigned, int format);
 
-#if defined(__SIZEOF_INT128__)
+#if defined(HAVE_INT128)
 QString reformatUnsignedInteger128(unsigned __int128 value, int format);
 #endif
 

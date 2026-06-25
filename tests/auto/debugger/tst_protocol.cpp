@@ -29,7 +29,7 @@ private slots:
     void reformatCharacter_data();
     void reformatCharacterWithFormat();
     void reformatCharacterWithFormat_data();
-#if defined(__SIZEOF_INT128__)
+#if defined(HAVE_INT128)
     void reformatUnsignedInteger128Test();
     void reformatUnsignedInteger128Test_data();
 #endif
@@ -292,7 +292,7 @@ void tst_protocol::reformatCharacterWithFormat_data()
         << QString("(hex) 41");
 }
 
-#if defined(__SIZEOF_INT128__)
+#if defined(HAVE_INT128)
 void tst_protocol::reformatUnsignedInteger128Test()
 {
     QFETCH(QString, decimalValue);

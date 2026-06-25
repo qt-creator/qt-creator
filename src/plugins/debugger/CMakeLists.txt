@@ -128,3 +128,23 @@ add_qtc_library(ptracepreload SHARED
     SKIP_PCH
     SOURCES ptracepreload.c
 )
+
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES "") # Ensure no external link dependencies interfere with the probe
+check_cxx_source_compiles("
+    typedef __int128_t int128_t;
+    int main() {
+        volatile int128_t v = 12345678901234567890ULL;
+        unsigned int base = 10;
+        unsigned int rem = (unsigned int)(v % base);
+        v = v / base;
+        (void)rem;
+        (void)v;
+        return 0;
+    }
+" HAVE_INT128)
+
+extend_qtc_plugin(Debugger
+  CONDITION HAVE_INT128
+  DEFINES HAVE_INT128
+)

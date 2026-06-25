@@ -964,7 +964,7 @@ QString reformatInteger(quint64 value, int format, int size, bool isSigned)
                     : reformatUnsignedInteger(value, format);
 }
 
-#if defined(__SIZEOF_INT128__)
+#if defined(HAVE_INT128)
 static QString uint128ToBase(unsigned __int128 v, int base)
 {
     if (v == 0)

@@ -38,6 +38,25 @@ endif()
 
 set(DEBUGGERDIR "${PROJECT_SOURCE_DIR}/src/plugins/debugger")
 
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES "") # Ensure no external link dependencies interfere with the probe
+check_cxx_source_compiles("
+    typedef __int128_t int128_t;
+    int main() {
+        volatile int128_t v = 12345678901234567890ULL;
+        unsigned int base = 10;
+        unsigned int rem = (unsigned int)(v % base);
+        v = v / base;
+        (void)rem;
+        (void)v;
+        return 0;
+    }
+" HAVE_INT128)
+
+if(HAVE_INT128)
+  add_definitions(-DHAVE_INT128)
+endif()
+
 add_qtc_test(tst_debugger_disassembler
   INCLUDES "${DEBUGGERDIR}"
   SOURCES
