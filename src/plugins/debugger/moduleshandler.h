@@ -14,7 +14,6 @@ QT_END_NAMESPACE
 namespace Debugger::Internal {
 
 class DebuggerEngine;
-class ModuleItem;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -77,6 +76,7 @@ public:
     quint64 endAddress = 0;
 
     Utils::ElfData elfData;
+    bool updated = false;
 };
 
 using Modules = QList<Module>;
@@ -109,8 +109,6 @@ public:
     const Modules modules() const;
 
 private:
-    ModuleItem *moduleFromPath(const Utils::FilePath &modulePath) const;
-
     ModulesModel *m_model;
     QSortFilterProxyModel *m_proxyModel;
 };

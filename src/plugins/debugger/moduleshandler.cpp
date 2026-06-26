@@ -11,9 +11,9 @@
 
 #include <utils/basetreeview.h>
 #include <utils/hostosinfo.h>
+#include <utils/listmodel.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -26,17 +26,34 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-class ModuleItem : public TreeItem
+//////////////////////////////////////////////////////////////////
+//
+// ModulesModel
+//
+//////////////////////////////////////////////////////////////////
+
+class ModulesModel : public ListModel<Module>
 {
 public:
-    QVariant data(int column, int role) const override;
+    QVariant itemData(const Module &module, int column, int role) const final;
 
-public:
-    Module module;
-    bool updated;
+    bool setData(const QModelIndex &idx, const QVariant &data, int role) override
+    {
+        if (role == BaseTreeView::ItemViewEventRole) {
+            ItemViewEvent ev = data.value<ItemViewEvent>();
+            if (ev.type() == QEvent::ContextMenu)
+                return contextMenuEvent(ev);
+        }
+
+        return ListModel::setData(idx, data, role);
+    }
+
+    bool contextMenuEvent(const ItemViewEvent &ev);
+
+    DebuggerEngine *engine;
 };
 
-QVariant ModuleItem::data(int column, int role) const
+QVariant ModulesModel::itemData(const Module &module, int column, int role) const
 {
     switch (column) {
     case 0:
@@ -116,31 +133,6 @@ QVariant ModuleItem::data(int column, int role) const
     return QVariant();
 }
 
-//////////////////////////////////////////////////////////////////
-//
-// ModulesModel
-//
-//////////////////////////////////////////////////////////////////
-
-class ModulesModel : public TreeModel<TypedTreeItem<ModuleItem>, ModuleItem>
-{
-public:
-    bool setData(const QModelIndex &idx, const QVariant &data, int role) override
-    {
-        if (role == BaseTreeView::ItemViewEventRole) {
-            ItemViewEvent ev = data.value<ItemViewEvent>();
-            if (ev.type() == QEvent::ContextMenu)
-                return contextMenuEvent(ev);
-        }
-
-        return TreeModel::setData(idx, data, role);
-    }
-
-    bool contextMenuEvent(const ItemViewEvent &ev);
-
-    DebuggerEngine *engine;
-};
-
 static bool dependsCanBeFound()
 {
     static bool dependsInPath = Environment::systemEnvironment().searchInPath("depends").isEmpty();
@@ -149,15 +141,15 @@ static bool dependsCanBeFound()
 
 bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
 {
-    ModuleItem *item = itemForIndexAtLevel<1>(ev.sourceModelIndex());
+    const Module module = dataAt(ev.sourceModelIndex().row());
 
     const bool enabled = engine->debuggerActionsEnabled();
     const bool canReload = engine->hasCapability(ReloadModuleCapability);
     const bool canLoadSymbols = engine->hasCapability(ReloadModuleSymbolsCapability);
     const bool canShowSymbols = engine->hasCapability(ShowModuleSymbolsCapability);
-    const bool moduleNameValid = item && !item->module.moduleName.isEmpty();
-    const QString moduleName = item ? item->module.moduleName : QString();
-    const FilePath modulePath = item ? item->module.modulePath : FilePath();
+    const bool moduleNameValid = !module.moduleName.isEmpty();
+    const QString moduleName = module.moduleName;
+    const FilePath modulePath = module.modulePath;
 
     auto menu = new QMenu;
 
@@ -253,14 +245,6 @@ QAbstractItemModel *ModulesHandler::model() const
     return m_proxyModel;
 }
 
-ModuleItem *ModulesHandler::moduleFromPath(const FilePath &modulePath) const
-{
-    // Recent modules are more likely to be unloaded first.
-    return m_model->findItemAtLevel<1>([modulePath](ModuleItem *item) {
-        return item->module.modulePath == modulePath;
-    });
-}
-
 void ModulesHandler::removeAll()
 {
     m_model->clear();
@@ -268,15 +252,14 @@ void ModulesHandler::removeAll()
 
 const Modules ModulesHandler::modules() const
 {
-    Modules mods;
-    m_model->forItemsAtLevel<1>([&mods](ModuleItem *item) { mods.append(item->module); });
-    return mods;
+    return m_model->allData();
 }
 
 void ModulesHandler::removeModule(const FilePath &modulePath)
 {
-    if (ModuleItem *item = moduleFromPath(modulePath))
-        m_model->destroyItem(item);
+    m_model->destroyItems([&modulePath](const Module &module) {
+        return module.modulePath == modulePath;
+    });
 }
 
 static FilePath pickPath(const FilePath &hostPath, const FilePath &modulePath)
@@ -292,19 +275,19 @@ void ModulesHandler::updateModule(const Module &module)
     if (path.isEmpty())
         return;
 
-    ModuleItem *item = moduleFromPath(path);
-    if (item) {
-        item->module = module;
-    } else {
-        item = new ModuleItem;
-        item->module = module;
-        m_model->rootItem()->appendChild(item);
-    }
+    // Recent modules are more likely to be unloaded first.
+    auto item = m_model->findItemByData([&path](const Module &module) {
+        return module.modulePath == path;
+    });
+    if (item)
+        item->itemData = module;
+    else
+        item = m_model->appendItem(module);
 
     if (path.isLocal()) {
         try { // MinGW occasionallly throws std::bad_alloc.
             ElfReader reader(path);
-            item->module.elfData = reader.readHeaders();
+            item->itemData.elfData = reader.readHeaders();
             item->update();
         } catch(...) {
             qWarning("%s: An exception occurred while reading module '%s'",
@@ -314,23 +297,17 @@ void ModulesHandler::updateModule(const Module &module)
         m_model->engine->showMessage(
                     QString("Skipping elf-reading of remote path %1").arg(path.toUserOutput()));
     }
-    item->updated = true;
+    item->itemData.updated = true;
 }
 
 void ModulesHandler::beginUpdateAll()
 {
-    m_model->forItemsAtLevel<1>([](ModuleItem *item) { item->updated = false; });
+    m_model->forAllData([](Module &module) { module.updated = false; });
 }
 
 void ModulesHandler::endUpdateAll()
 {
-    QList<TreeItem *> toDestroy;
-    m_model->forItemsAtLevel<1>([&toDestroy](ModuleItem *item) {
-        if (!item->updated)
-            toDestroy.append(item);
-    });
-    for (TreeItem *item : toDestroy)
-        m_model->destroyItem(item);
+    m_model->destroyItems([](const Module &module) { return !module.updated; });
 }
 
 } // namespace Debugger::Internal
