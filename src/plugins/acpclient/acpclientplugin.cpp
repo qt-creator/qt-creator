@@ -68,8 +68,8 @@ public:
 
         // Add a tool button to each text editor toolbar
         auto checkEditor = [](IEditor *editor) {
-            auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-            if (!textEditor)
+            auto textEditorWidget = TextEditor::TextEditorWidget::fromEditor(editor);
+            if (!textEditorWidget)
                 return;
             auto button = new QToolButton;
             button->setIcon(sidePanelIcon());
@@ -79,8 +79,8 @@ public:
                 &QToolButton::clicked,
                 ActionManager::command(Constants::SHOW_CHAT_SIDEPANEL_ACTION_ID)->action(),
                 &QAction::trigger);
-            textEditor->editorWidget()
-                ->insertExtraToolBarWidget(TextEditor::TextEditorWidget::Right, button);
+
+            textEditorWidget->insertExtraToolBarWidget(TextEditor::TextEditorWidget::Right, button);
         };
         connect(EditorManager::instance(), &EditorManager::editorOpened, this, checkEditor);
         for (Core::IEditor *editor : DocumentModel::editorsForOpenedDocuments())
