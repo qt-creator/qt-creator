@@ -23,6 +23,7 @@
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/globaltasktree.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 
@@ -35,6 +36,7 @@
 
 using namespace Core;
 using namespace Utils;
+using namespace QtTaskTree;
 
 using namespace Git::Internal;
 
@@ -51,107 +53,6 @@ enum FetchMode
     FetchCherryPick,
     FetchCheckout
 };
-
-/* FetchContext: Retrieves the patch and displays
- * or applies it as desired. Does deleteLater() once it is done. */
-
-class FetchContext : public QObject
-{
-     Q_OBJECT
-public:
-    FetchContext(const std::shared_ptr<GerritChange> &change,
-                 const FilePath &repository, const FilePath &git,
-                 const GerritServer &server,
-                 FetchMode fm, QObject *parent = nullptr);
-    void start();
-
-private:
-    void processDone();
-
-    void show();
-    void cherryPick();
-    void checkout();
-
-    const std::shared_ptr<GerritChange> m_change;
-    const FilePath m_repository;
-    const FetchMode m_fetchMode;
-    const Utils::FilePath m_git;
-    const GerritServer m_server;
-    Process m_process;
-};
-
-FetchContext::FetchContext(const std::shared_ptr<GerritChange> &change,
-                           const FilePath &repository, const FilePath &git,
-                           const GerritServer &server,
-                           FetchMode fm, QObject *parent)
-    : QObject(parent)
-    , m_change(change)
-    , m_repository(repository)
-    , m_fetchMode(fm)
-    , m_git(git)
-    , m_server(server)
-{
-    m_process.setUseCtrlCStub(true);
-    connect(&m_process, &Process::done, this, &FetchContext::processDone);
-    connect(&m_process, &Process::readyReadStandardError, this, [this, repository] {
-        VcsBase::VcsOutputWindow::appendSilently(
-            repository, QString::fromLocal8Bit(m_process.readAllRawStandardError()));
-    });
-    connect(&m_process, &Process::readyReadStandardOutput, this, [this, repository] {
-        VcsBase::VcsOutputWindow::appendSilently(
-            repository, QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
-    });
-    m_process.setWorkingDirectory(repository);
-    m_process.setEnvironment(gitClient().processEnvironment(repository));
-}
-
-void FetchContext::start()
-{
-    // Order: initialize future before starting the process in case error handling is invoked.
-    const CommandLine commandLine{m_git, m_change->gitFetchArguments(m_server)};
-    VcsBase::VcsOutputWindow::appendCommand(m_repository, commandLine);
-    m_process.setCommand(commandLine);
-    new ProcessProgress(&m_process);
-    m_process.start();
-}
-
-void FetchContext::processDone()
-{
-    deleteLater();
-
-    if (m_process.result() != ProcessResult::FinishedWithSuccess) {
-        if (m_process.result() != ProcessResult::Canceled)
-            VcsBase::VcsOutputWindow::appendError(m_repository, m_process.exitMessage());
-        return;
-    }
-
-    if (m_fetchMode == FetchDisplay)
-        show();
-    else if (m_fetchMode == FetchCherryPick)
-        cherryPick();
-    else if (m_fetchMode == FetchCheckout)
-        checkout();
-}
-
-void FetchContext::show()
-{
-    const QString title = QString::number(m_change->number) + '/'
-            + QString::number(m_change->currentPatchSet.patchSetNumber);
-    gitClient().show(m_repository, "FETCH_HEAD", title);
-}
-
-void FetchContext::cherryPick()
-{
-    // Point user to errors.
-    VcsBase::VcsOutputWindow::instance()->popup(IOutputPane::ModeSwitch
-                                                  | IOutputPane::WithFocus);
-    gitClient().synchronousCherryPick(m_repository, {"FETCH_HEAD"});
-}
-
-void FetchContext::checkout()
-{
-    gitClient().checkout(m_repository, "FETCH_HEAD");
-}
 
 GerritPlugin::GerritPlugin()
     : m_server(new GerritServer)
@@ -340,10 +241,55 @@ void GerritPlugin::fetch(const std::shared_ptr<GerritChange> &change, int mode)
     if (repository.isEmpty())
         return;
 
-    auto fc = new FetchContext(change, repository, git, *m_server, FetchMode(mode), this);
-    connect(fc, &QObject::destroyed, this, &GerritPlugin::fetchFinished);
+    const GerritServer server = *m_server;
+    const FetchMode fetchMode = FetchMode(mode);
+
+    const auto onSetup = [this, change, repository, git, server](Process &process) {
+        process.setUseCtrlCStub(true);
+        process.setWorkingDirectory(repository);
+        process.setEnvironment(gitClient().processEnvironment(repository));
+        connect(&process, &Process::readyReadStandardError, this, [repository, &process] {
+            VcsBase::VcsOutputWindow::appendSilently(
+                repository, QString::fromLocal8Bit(process.readAllRawStandardError()));
+        });
+        connect(&process, &Process::readyReadStandardOutput, this, [repository, &process] {
+            VcsBase::VcsOutputWindow::appendSilently(
+                repository, QString::fromLocal8Bit(process.readAllRawStandardOutput()));
+        });
+        const CommandLine commandLine{git, change->gitFetchArguments(server)};
+        VcsBase::VcsOutputWindow::appendCommand(repository, commandLine);
+        process.setCommand(commandLine);
+        new ProcessProgress(&process);
+    };
+
+    const auto onDone = [this, change, repository, fetchMode](const Process &process,
+                                                              DoneWith result) {
+        if (result == DoneWith::Success) {
+            switch (fetchMode) {
+            case FetchDisplay: {
+                const QString title = QString::number(change->number) + '/'
+                        + QString::number(change->currentPatchSet.patchSetNumber);
+                gitClient().show(repository, "FETCH_HEAD", title);
+                break;
+            }
+            case FetchCherryPick:
+                // Point user to errors.
+                VcsBase::VcsOutputWindow::instance()->popup(IOutputPane::ModeSwitch
+                                                            | IOutputPane::WithFocus);
+                gitClient().synchronousCherryPick(repository, {"FETCH_HEAD"});
+                break;
+            case FetchCheckout:
+                gitClient().checkout(repository, "FETCH_HEAD");
+                break;
+            }
+        } else if (process.result() != ProcessResult::Canceled) {
+            VcsBase::VcsOutputWindow::appendError(repository, process.exitMessage());
+        }
+        emit fetchFinished();
+    };
+
     emit fetchStarted(change);
-    fc->start();
+    GlobalTaskTree::start({ProcessTask(onSetup, onDone)});
 }
 
 // Try to find a matching repository for a project by asking the VcsManager.
@@ -388,5 +334,3 @@ FilePath GerritPlugin::findLocalRepository(const QString &project, const QString
 }
 
 } // Gerrit::Internal
-
-#include "gerritplugin.moc"
