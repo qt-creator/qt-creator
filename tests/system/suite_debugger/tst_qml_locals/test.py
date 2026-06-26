@@ -18,7 +18,7 @@ def main():
         return
     qmlProjFile = os.path.join(qmlProjDir, projName)
     # start Creator by passing a .qmlproject file
-    startQC(['"%s"' % qmlProjFile])
+    startQC(['-project', '"%s"' % qmlProjFile])
     if not startedWithoutPluginError():
         return
     waitFor('object.exists(":Qt Creator_Utils::NavigationTreeView")', 10000)
