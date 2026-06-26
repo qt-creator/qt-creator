@@ -103,7 +103,7 @@ public:
 
         auto updateOk = [okButton] {
             okButton->setEnabled(settings().lastBauhausConfig.pathChooser()->isValid()
-                                 && !settings().lastSfaCommand().isEmpty());
+                                 && !settings().lastSfaCommand.volatileValue().isEmpty());
         };
         connect(&settings().lastBauhausConfig, &FilePathAspect::validChanged, this, updateOk);
         connect(&settings().lastSfaCommand, &FilePathAspect::volatileValueChanged, this, updateOk);
