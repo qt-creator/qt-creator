@@ -45,7 +45,7 @@ public:
     void addToLayoutImpl(Layouting::Layout &parent) final;
 
     void refresh();
-    bool hasWidget() const { return m_widget != nullptr; }
+    bool hasWidget() const;
 
 private:
     bool guiToVolatileValue() final;

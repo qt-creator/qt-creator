@@ -171,6 +171,11 @@ void DiagnosticConfigIdAspect::refresh()
     volatileValueToGui();
 }
 
+bool DiagnosticConfigIdAspect::hasWidget() const
+{
+    return m_widget != nullptr;
+}
+
 void DiagnosticConfigIdAspect::volatileValueToGui()
 {
     if (!m_widget || !m_modelFactory || !m_editFactory)
