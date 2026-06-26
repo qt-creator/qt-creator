@@ -228,7 +228,7 @@ private:
     template<typename Big, typename Small>
     bool squeezable(Big source)
     {
-        return static_cast<Small>(source) == source;
+        return static_cast<Big>(static_cast<Small>(source)) == source;
     }
 
     template<typename Container, typename Number>
