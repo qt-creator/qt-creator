@@ -10,7 +10,6 @@
 #include <utils/theme/theme.h>
 
 #include <QCanvasPainter>
-#include <QCanvasPath>
 #include <QColor>
 #include <QHash>
 #include <QMouseEvent>
@@ -33,9 +32,13 @@ void TrackPainter::setTracks(const QList<TimelineModel *> &models)
 {
     m_tracks.clear();
     m_tracks.reserve(models.size());
-    for (TimelineModel *model : models)
-        m_tracks.append(Track{model, 0, true});
+    for (TimelineModel *model : models) {
+        Track track;
+        track.model = model;
+        m_tracks.append(std::move(track));
+    }
     rebuildGeometry();
+    m_geometryValid = false;
     update();
 }
 
@@ -58,6 +61,7 @@ void TrackPainter::rebuildGeometry()
 void TrackPainter::refreshGeometry()
 {
     rebuildGeometry();
+    m_geometryValid = false;
     update();
 }
 
@@ -83,13 +87,16 @@ void TrackPainter::setNotes(const TimelineNotesModel *notes)
         disconnect(m_notes, nullptr, this, nullptr);
     m_notes = notes;
     if (m_notes)
-        connect(m_notes, &TimelineNotesModel::changed, this, [this] { update(); });
+        connect(m_notes, &TimelineNotesModel::changed, this,
+                [this] { m_geometryValid = false; update(); });
+    m_geometryValid = false;
     update();
 }
 
 void TrackPainter::setMarkers(const QList<qint64> &markers)
 {
     m_markers = markers;
+    m_geometryValid = false;
     update();
 }
 
@@ -99,8 +106,8 @@ void TrackPainter::setRange(qint64 rangeStart, qint64 rangeEnd)
         return;
     m_rangeStart = rangeStart;
     m_rangeEnd = rangeEnd;
-    // The whole area is re-rendered on the GPU each frame, so panning and
-    // zooming simply request a repaint.
+    // Event/grid geometry is range-dependent; the cache is rebuilt lazily in
+    // ensureGeometry() on the next paint (keyed on range + width).
     update();
 }
 
@@ -193,6 +200,8 @@ void TrackPainter::paint(QCanvasPainter *painter)
 {
     QCanvasPainter &p = *painter;
 
+    ensureGeometry();
+
     // Striped background covering the whole viewport (continues below the last
     // track, like the QML striped background). Tracks overdraw their own rows.
     const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
@@ -204,17 +213,34 @@ void TrackPainter::paint(QCanvasPainter *painter)
         p.fillRect(0, vy, width(), stripeH);
     }
 
-    // Render each visible track, translated into content space.
-    for (const Track &track : std::as_const(m_tracks)) {
+    const QColor divider   = themeColor(Utils::Theme::Timeline_DividerColor);
+    const QColor handle     = themeColor(Utils::Theme::Timeline_HandleColor);
+    const QColor highlight  = themeColor(Utils::Theme::Timeline_HighlightColor);
+
+    // Replay the cached per-track geometry, translated into content space. No
+    // event iteration happens here, so scrolling, hovering and selection (which
+    // do not change the geometry) repaint almost for free.
+    for (int i = 0; i < m_tracks.size(); ++i) {
+        const Track &track = m_tracks[i];
         if (!track.model)
             continue;
         const int top = track.yOffset - m_scrollOffset;
         const int trackH = track.model->height();
         if (top + trackH <= 0 || top >= height())
             continue; // fully scrolled out of view
+
+        const TrackGeometry &g = m_geometry[i];
         p.save();
         p.translate(0.0f, float(top));
-        renderTrack(p, track);
+        if (g.hasBackground[0]) { p.setFillStyle(bg1); p.fill(g.background[0]); }
+        if (g.hasBackground[1]) { p.setFillStyle(bg2); p.fill(g.background[1]); }
+        if (g.hasGrid) { p.setFillStyle(divider); p.fill(g.grid); }
+        for (const ColorPath &cp : g.fills) {
+            p.setFillStyle(QColor::fromRgb(cp.color));
+            p.fill(cp.path);
+        }
+        if (g.hasMarkers) { p.setFillStyle(handle); p.fill(g.markers); }
+        if (g.hasNotes) { p.setFillStyle(highlight); p.fill(g.notes); }
         paintScaleOverlay(p, track);
         p.restore();
     }
@@ -222,33 +248,65 @@ void TrackPainter::paint(QCanvasPainter *painter)
     paintSelectionOverlay(p);
 }
 
-// Renders one track in track-local coordinates (y = 0 at the track top).
-void TrackPainter::renderTrack(QCanvasPainter &p, const Track &track) const
+void TrackPainter::ensureGeometry()
+{
+    if (m_geometryValid && m_geomRangeStart == m_rangeStart
+            && m_geomRangeEnd == m_rangeEnd && m_geomWidth == width())
+        return;
+
+    m_geometry.clear();
+    m_geometry.resize(m_tracks.size());
+    for (int i = 0; i < m_tracks.size(); ++i) {
+        ensureAttrCache(m_tracks[i]);
+        buildTrackGeometry(m_tracks[i], m_geometry[i]);
+    }
+
+    m_geomRangeStart = m_rangeStart;
+    m_geomRangeEnd = m_rangeEnd;
+    m_geomWidth = width();
+    m_geometryValid = true;
+}
+
+void TrackPainter::ensureAttrCache(Track &track) const
+{
+    const TimelineModel *model = track.model;
+    if (!model)
+        return;
+    const int n = model->count();
+    // The track is recreated whenever expansion/colour/model content changes, so
+    // a matching size means the cache is still valid for this content.
+    if (track.rowCache.size() == n)
+        return;
+    track.rowCache.resize(n);
+    track.colorCache.resize(n);
+    track.relHeightCache.resize(n);
+    for (int i = 0; i < n; ++i) {
+        track.rowCache[i] = model->row(i);
+        track.colorCache[i] = model->color(i);
+        track.relHeightCache[i] = model->relativeHeight(i);
+    }
+}
+
+// Builds the range-dependent fill geometry for one track in track-local
+// coordinates (y = 0 at the track top). Called only when the cache is rebuilt.
+void TrackPainter::buildTrackGeometry(const Track &track, TrackGeometry &geom) const
 {
     const TimelineModel *model = track.model;
     if (!model || model->hidden())
         return;
 
-    const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
-    const QColor bg2 = themeColor(Utils::Theme::Timeline_BackgroundColor2);
     const int trackH = model->height();
-
-    // Row backgrounds: batch the two zebra colors into one path each so the GPU
-    // draws each color in a single call rather than one per row.
     const int rowCount = model->rowCount();
+
+    // Row backgrounds: one path per zebra color.
     for (int phase = 0; phase < 2; ++phase) {
-        bool any = false;
-        p.beginPath();
+        QCanvasPath &path = geom.background[phase];
         for (int row = 0; row < rowCount; ++row) {
             const bool odd = ((row % 2 == 0) == track.startOdd);
             if (odd != (phase == 0))
                 continue;
-            p.rect(0, model->rowOffset(row), width(), model->rowHeight(row));
-            any = true;
-        }
-        if (any) {
-            p.setFillStyle(phase == 0 ? bg1 : bg2);
-            p.fill();
+            path.rect(0, model->rowOffset(row), width(), model->rowHeight(row));
+            geom.hasBackground[phase] = true;
         }
     }
 
@@ -256,36 +314,33 @@ void TrackPainter::renderTrack(QCanvasPainter &p, const Track &track) const
     if (model->isEmpty() || rangeDuration <= 0 || width() == 0)
         return;
 
-    // Vertical grid lines (same block geometry as TimeRuler). QCanvasPainter has
-    // no drawLine(); thin filled rects accumulated into one path render as crisp
-    // 1px columns in a single fill.
+    // Vertical grid lines (same block geometry as TimeRuler) as 1px columns.
     {
         const double scale = double(width()) / double(rangeDuration);
         const qint64 timePerBlock = rulerBlockDuration(rangeDuration, double(width()));
         const double pixelsPerBlock = double(timePerBlock) * scale;
         const double pixelsPerSection = pixelsPerBlock / 5.0;
         const qint64 alignedStart = m_rangeStart - (m_rangeStart % timePerBlock);
-        p.beginPath();
         for (qint64 t = alignedStart; ; t += timePerBlock) {
             const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, double(width()));
             if (x > double(width()))
                 break;
             for (int s = 1; s <= 4; ++s) {
                 const double sx = x + s * pixelsPerSection;
-                if (sx >= 0.0 && sx <= double(width()))
-                    p.rect(qRound(sx), 0, 1, trackH);
+                if (sx >= 0.0 && sx <= double(width())) {
+                    geom.grid.rect(qRound(sx), 0, 1, trackH);
+                    geom.hasGrid = true;
+                }
             }
             const double tickX = x + pixelsPerBlock;
-            if (tickX >= 0.0 && tickX <= double(width()))
-                p.rect(qRound(tickX), 0, 1, trackH);
+            if (tickX >= 0.0 && tickX <= double(width())) {
+                geom.grid.rect(qRound(tickX), 0, 1, trackH);
+                geom.hasGrid = true;
+            }
         }
-        p.setFillStyle(themeColor(Utils::Theme::Timeline_DividerColor));
-        p.fill();
     }
 
-    // Density graphs (e.g. CPU usage) fill each pixel column by the activity in
-    // the time it covers, rather than drawing one bar per item. All columns of a
-    // row share a color, so accumulate them into one path and fill once.
+    // Density graphs: one path per row (all columns share the row color).
     if (model->rendersAsDensity()) {
         const int w = width();
         QList<float> columns;
@@ -295,20 +350,24 @@ void TrackPainter::renderTrack(QCanvasPainter &p, const Track &track) const
                 continue;
             const int rowH = model->rowHeight(row);
             const int rowY = model->rowOffset(row);
-            p.beginPath();
+            QCanvasPath path;
+            bool any = false;
             for (int x = 0; x < w; ++x) {
                 const double frac = qBound(0.0f, columns[x], 1.0f);
                 if (frac <= 0.0)
                     continue;
                 const double itemH = rowH * frac;
-                p.rect(QRectF(x, rowY + rowH - itemH, 1.0, itemH));
+                path.rect(QRectF(x, rowY + rowH - itemH, 1.0, itemH));
+                any = true;
             }
-            p.setFillStyle(QColor::fromRgb(model->rowColor(row)));
-            p.fill();
+            if (any)
+                geom.fills.append({model->rowColor(row), std::move(path)});
         }
     } else {
-    // Events grouped by color so each distinct color is filled in a single GPU
-    // draw call, instead of toggling the fill style for every event.
+    // Events grouped by color so each distinct color fills in one draw call.
+    // Drawn event rects never overlap (per-row coverage skipping keeps them
+    // disjoint horizontally, rows are disjoint vertically), so per-color draw
+    // order is visually irrelevant.
     const int first = model->firstIndex(m_rangeStart);
     const int last = model->lastIndex(m_rangeEnd);
 
@@ -319,16 +378,54 @@ void TrackPainter::renderTrack(QCanvasPainter &p, const Track &track) const
         std::fill(rowNextX.begin(), rowNextX.end(), -1.0);
 
         const double wf = double(width());
+        // Precompute the pixels-per-time scale once so the per-event hot loop uses
+        // a multiply instead of a division (timeToPixel divides every call).
+        const double scale = wf / double(rangeDuration);
+        const bool expanded = model->expanded();
+
+        // Cache per-row geometry once instead of calling the (range-independent)
+        // rowHeight/rowOffset accessors for every drawn event.
+        QVarLengthArray<int, 64> rowH(rowCount), rowY(rowCount);
+        for (int r = 0; r < rowCount; ++r) {
+            rowH[r] = model->rowHeight(r);
+            rowY[r] = model->rowOffset(r);
+        }
+
+        // Per-row "open" run coalescing, to cut the rect count the GPU has to
+        // tessellate each frame:
+        //   * contiguous events with the exact same color and height always
+        //     merge (pixel-identical), and
+        //   * while a run is still narrower than one pixel, contiguous sub-pixel
+        //     events are absorbed into it regardless of color (the run keeps the
+        //     first event's color/height).
+        // The sub-pixel rule only fires when both the run and the incoming event
+        // are < 1px wide, so when zoomed in (events span pixels) nothing is
+        // merged across colors and the output is exact; when zoomed out, dense
+        // sub-pixel events collapse to ~one rect per pixel column. A gap always
+        // flushes the run. The run takes the color and height of its widest
+        // (most significant) event, so the dominant activity shows through.
+        struct OpenRun { bool active = false; QRgb color; double y; double h; double x0; double x1; double domW; };
+        QVarLengthArray<OpenRun, 64> open(rowCount);
+        for (OpenRun &o : open)
+            o.active = false;
 
         QHash<QRgb, QCanvasPath> pathByColor;
+        const auto flush = [&](OpenRun &o) {
+            if (o.active) {
+                pathByColor[o.color].rect(QRectF(o.x0, o.y, o.x1 - o.x0, o.h));
+                o.active = false;
+            }
+        };
+
+        const int *rowCache = track.rowCache.constData();
+        const QRgb *colorCache = track.colorCache.constData();
+        const float *relHeightCache = track.relHeightCache.constData();
 
         for (int i = first; i <= last; ++i) {
-            const int row = model->row(i);
-            const qint64 start = model->startTime(i);
-            const qint64 end   = model->endTime(i);
+            const int row = rowCache[i];
 
-            double x1 = timeToPixel(start, m_rangeStart, m_rangeEnd, wf);
-            double x2 = timeToPixel(end,   m_rangeStart, m_rangeEnd, wf);
+            double x1 = double(model->startTime(i) - m_rangeStart) * scale;
+            double x2 = double(model->endTime(i) - m_rangeStart) * scale;
             if (x2 - x1 < 1.0)
                 x2 = x1 + 1.0;
 
@@ -338,44 +435,64 @@ void TrackPainter::renderTrack(QCanvasPainter &p, const Track &track) const
             x1 = qMax(x1, 0.0);
             x2 = qMin(x2, wf);
 
-            // Skip if entirely covered by a previous event in this row.
-            if (x2 <= rowNextX[row] && model->expanded())
+            // Skip if entirely covered by a previous event in this row (expanded
+            // mode only, matching the original; collapsed mode keeps overdraw so
+            // per-event colors are preserved).
+            if (x2 <= rowNextX[row] && expanded)
                 continue;
             const double drawX1 = qMax(x1, rowNextX[row]);
             rowNextX[row] = x2;
 
-            const int rowH = model->rowHeight(row);
-            const int rowY = model->rowOffset(row);
-            const double relH = model->relativeHeight(i);
-            const double itemH = rowH * relH;
-            const double itemY = rowY + rowH - itemH;
+            // Nothing visible (fully covered / zero width): skip the color()
+            // lookup, but keep the advanced coverage above.
+            if (x2 - drawX1 <= 0.0)
+                continue;
 
-            pathByColor[model->color(i)].rect(QRectF(drawX1, itemY, x2 - drawX1, itemH));
+            const QRgb color = colorCache[i];
+            const double itemH = rowH[row] * relHeightCache[i];
+            const double itemY = rowY[row] + rowH[row] - itemH;
+
+            const double drawW = x2 - drawX1;
+            OpenRun &o = open[row];
+            const bool contiguous = o.active && drawX1 <= o.x1;
+            const bool sameStyle = o.active && o.color == color && o.y == itemY && o.h == itemH;
+            const bool subPixelAbsorb = contiguous && drawW < 1.0 && (o.x1 - o.x0) < 1.0;
+            if (contiguous && (sameStyle || subPixelAbsorb)) {
+                o.x1 = qMax(o.x1, x2);
+                // The widest event in the run wins its color/height.
+                if (drawW > o.domW) {
+                    o.domW = drawW;
+                    o.color = color;
+                    o.y = itemY;
+                    o.h = itemH;
+                }
+            } else {
+                flush(o);
+                o = {true, color, itemY, itemH, drawX1, x2, drawW};
+            }
         }
 
-        for (auto it = pathByColor.cbegin(); it != pathByColor.cend(); ++it) {
-            p.setFillStyle(QColor::fromRgb(it.key()));
-            p.fill(it.value());
-        }
+        for (OpenRun &o : open)
+            flush(o);
+
+        geom.fills.reserve(pathByColor.size());
+        for (auto it = pathByColor.begin(); it != pathByColor.end(); ++it)
+            geom.fills.append({it.key(), std::move(it.value())});
     }
     }
 
     // Time ruler marker lines (2px wide filled columns).
     if (!m_markers.isEmpty()) {
-        p.beginPath();
         for (qint64 ts : m_markers) {
             const double mx = timeToPixel(ts, m_rangeStart, m_rangeEnd, double(width()));
-            p.rect(QRectF(mx - 1.0, 0.0, 2.0, trackH));
+            geom.markers.rect(QRectF(mx - 1.0, 0.0, 2.0, trackH));
+            geom.hasMarkers = true;
         }
-        p.setFillStyle(themeColor(Utils::Theme::Timeline_HandleColor));
-        p.fill();
     }
 
     // Note markers: exclamation mark shape matching the QSG notes shader.
     // The shader draws d < 2/3 (stick) and d > 5/6 (dot), masking the gap between them.
     if (m_notes) {
-        p.beginPath();
-        bool any = false;
         const int modelId = model->modelId();
         for (int i = 0; i < m_notes->count(); ++i) {
             if (m_notes->timelineModel(i) != modelId)
@@ -394,13 +511,9 @@ void TrackPainter::renderTrack(QCanvasPainter &p, const Track &track) const
             const double dotStart = top + (5.0 / 6.0) * span;
             const double dotEnd   = top + span;
             // Stick: a 3px wide filled column. Dot: a small filled disc.
-            p.rect(QRectF(cx - 1.5, top, 3.0, stickEnd - top));
-            p.circle(float(cx), float((dotStart + dotEnd) / 2.0), 1.5f);
-            any = true;
-        }
-        if (any) {
-            p.setFillStyle(themeColor(Utils::Theme::Timeline_HighlightColor));
-            p.fill();
+            geom.notes.rect(QRectF(cx - 1.5, top, 3.0, stickEnd - top));
+            geom.notes.circle(float(cx), float((dotStart + dotEnd) / 2.0), 1.5f);
+            geom.hasNotes = true;
         }
     }
 }
