@@ -44,6 +44,8 @@ public:
 
     DeploymentData m_deploymentData;
     QList<BuildTargetInfo> m_appTargets;
+
+    QHash<QString, QHash<Utils::Id, QVariant>> m_extraData;
 };
 
 BuildSystem::BuildSystem(BuildConfiguration *bc) : d(new BuildSystemPrivate)
@@ -387,13 +389,19 @@ void BuildSystem::emitBuildSystemUpdated()
 
 void BuildSystem::setExtraData(const QString &buildKey, Utils::Id dataKey, const QVariant &data)
 {
-    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
-    QTC_ASSERT(node, return);
-    node->setData(dataKey, data);
+    d->m_extraData[buildKey].insert(dataKey, data);
 }
 
 QVariant BuildSystem::extraData(const QString &buildKey, Utils::Id dataKey) const
 {
+    const auto it = d->m_extraData.constFind(buildKey);
+    if (it != d->m_extraData.constEnd()) {
+        const auto dataIt = it->constFind(dataKey);
+        if (dataIt != it->constEnd())
+            return *dataIt;
+    }
+
+    // Fallback for data that is still served directly from the project tree node.
     const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return {});
     return node->data(dataKey);

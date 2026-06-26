@@ -9,6 +9,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
@@ -55,9 +56,8 @@ public:
         extraAppArgs.addOnChanged(this, [this, bc] {
             if (bc->target()->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
                 const QString buildKey = bc->activeBuildKey();
-                bc->buildSystem()->setExtraData(buildKey,
-                                                    Android::Constants::AndroidApplicationArgs,
-                                                    extraAppArgs());
+                if (ProjectNode *node = bc->project()->findNodeForBuildKey(buildKey))
+                    node->setData(Android::Constants::AndroidApplicationArgs, extraAppArgs());
             }
         });
 

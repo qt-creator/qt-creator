@@ -170,7 +170,7 @@ void LibraryListModel::addEntries(const QStringList &list)
     for (const QString &path : list)
         m_entries += "$$PWD/" + dir.relativeFilePath(path);
 
-    m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
+    node->setData(Constants::AndroidExtraLibs, m_entries);
     endInsertRows();
 }
 
@@ -201,7 +201,9 @@ void LibraryListModel::removeEntries(QModelIndexList list)
     }
 
     const QString buildKey = m_buildSystem->buildConfiguration()->activeBuildKey();
-    m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
+    const ProjectNode *node = m_buildSystem->project()->findNodeForBuildKey(buildKey);
+    QTC_ASSERT(node, return);
+    node->setData(Constants::AndroidExtraLibs, m_entries);
 }
 
 void LibraryListModel::updateModel()
