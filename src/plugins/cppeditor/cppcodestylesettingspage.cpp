@@ -574,67 +574,6 @@ void CppCodeStylePreferencesWidget::cancel()
 
 namespace Internal {
 
-// CppCodeStyleSettingsPageWidget
-
-class CppCodeStyleSettingsPageWidget : public Core::IOptionsPageWidget
-{
-public:
-    CppCodeStyleSettingsPageWidget()
-    {
-        CppCodeStylePreferences *originalCodeStylePreferences = cppCodeStyle();
-        m_pageCppCodeStylePreferences.setDelegatingPool(
-            originalCodeStylePreferences->delegatingPool());
-        m_pageCppCodeStylePreferences.setCodeStyleSettings(
-            originalCodeStylePreferences->codeStyleSettings());
-        m_pageCppCodeStylePreferences.setCurrentDelegate(
-            originalCodeStylePreferences->currentDelegate());
-        // we set id so that it won't be possible to set delegate to the original prefs
-        m_pageCppCodeStylePreferences.setId(originalCodeStylePreferences->id());
-
-        m_codeStyleEditor
-            = codeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID)
-                  ->createSettingsEditor(&m_pageCppCodeStylePreferences);
-
-        auto hbox = new QVBoxLayout(this);
-        hbox->addWidget(m_codeStyleEditor);
-    }
-
-    void apply() final
-    {
-        CppCodeStylePreferences *originalCppCodeStylePreferences = cppCodeStyle();
-        if (originalCppCodeStylePreferences->codeStyleSettings()
-            != m_pageCppCodeStylePreferences.codeStyleSettings()) {
-            originalCppCodeStylePreferences->setCodeStyleSettings(
-                m_pageCppCodeStylePreferences.codeStyleSettings());
-            originalCppCodeStylePreferences->toSettings(CppEditor::Constants::CPP_SETTINGS_ID);
-        }
-        if (originalCppCodeStylePreferences->tabSettings()
-            != m_pageCppCodeStylePreferences.tabSettings()) {
-            originalCppCodeStylePreferences->setTabSettings(
-                m_pageCppCodeStylePreferences.tabSettings());
-            originalCppCodeStylePreferences->toSettings(CppEditor::Constants::CPP_SETTINGS_ID);
-        }
-        if (originalCppCodeStylePreferences->currentDelegate()
-            != m_pageCppCodeStylePreferences.currentDelegate()) {
-            originalCppCodeStylePreferences->setCurrentDelegate(
-                m_pageCppCodeStylePreferences.currentDelegate());
-            originalCppCodeStylePreferences->toSettings(CppEditor::Constants::CPP_SETTINGS_ID);
-        }
-
-        m_codeStyleEditor->apply();
-    }
-
-    void cancel() final
-    {
-        m_codeStyleEditor->cancel();
-        const auto codeStyle = cppCodeStyle();
-        emit codeStyle->currentPreferencesChanged(codeStyle->currentPreferences());
-    }
-
-    CppCodeStylePreferences m_pageCppCodeStylePreferences;
-    CodeStyleEditor *m_codeStyleEditor = nullptr;
-};
-
 // CppCodeStyleSettingsPage
 
 class CppCodeStyleSettingsPage : public Core::IOptionsPage
@@ -645,7 +584,10 @@ public:
         setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
         setDisplayName(Tr::tr("Code Style"));
         setCategory(Constants::CPP_SETTINGS_CATEGORY);
-        setWidgetCreator([] { return new CppCodeStyleSettingsPageWidget; });
+        setSettingsProvider([] {
+            static CodeStyleAspect theSettings(cppCodeStyle(), CppEditor::Constants::CPP_SETTINGS_ID);
+            return &theSettings;
+        });
     }
 };
 

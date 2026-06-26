@@ -53,13 +53,15 @@ public:
     {
         m_selector.setCodeStyle(codeStyle);
         addSelector(&m_selector);
-        addInfoLabel();
         m_widget.layout()->setContentsMargins(0, 0, 0, 0);
         addEditorWidget(&m_widget);
+        // The widget edits the (page-local) style live; report changes so the
+        // hosting CodeStyleAspect can track dirtiness and defer the commit.
+        connect(codeStyle, &ICodeStylePreferences::currentValueChanged,
+                this, &CodeStyleEditor::changed);
+        connect(codeStyle, &ICodeStylePreferences::currentTabSettingsChanged,
+                this, &CodeStyleEditor::changed);
     }
-
-    void apply() final { m_widget.apply(); }
-    void cancel() final { m_widget.cancel(); }
 
 private:
     CodeStyleSelectorWidget m_selector;
