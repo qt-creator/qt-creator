@@ -91,19 +91,22 @@ public:
     void setPreferences(ICodeStylePreferences *preferences);
 
     TabSettingsData data() const;
+    // Like data(), but reads the in-progress (volatile) values, e.g. to drive a
+    // live preview while edits are still pending in a deferred (apply/cancel) page.
+    TabSettingsData volatileData() const;
     void setData(const TabSettingsData &s);
-
-private:
-    void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences);
-    void slotTabSettingsChanged();
-
-    ICodeStylePreferences *m_preferences = nullptr;
 
     Utils::BoolAspect autoDetect{this};
     Utils::SelectionAspect tabPolicy{this};
     Utils::IntegerAspect tabSize{this};
     Utils::IntegerAspect indentSize{this};
     Utils::SelectionAspect continuationAlignBehavior{this};
+
+private:
+    void slotCurrentPreferencesChanged(ICodeStylePreferences *preferences);
+    void slotTabSettingsChanged();
+
+    ICodeStylePreferences *m_preferences = nullptr;
 
 protected:
     Utils::TextDisplay codingStyleWarning{this};

@@ -183,6 +183,20 @@ TabSettingsData TabSettings::data() const
     return set;
 }
 
+TabSettingsData TabSettings::volatileData() const
+{
+    TabSettingsData set;
+
+    set.m_autoDetect = autoDetect.volatileValue();
+    set.m_tabPolicy = TabSettingsData::TabPolicy(tabPolicy.volatileValue());
+    set.m_tabSize = tabSize.volatileValue();
+    set.m_indentSize = indentSize.volatileValue();
+    set.m_continuationAlignBehavior =
+        TabSettingsData::ContinuationAlignBehavior(continuationAlignBehavior.volatileValue());
+
+    return set;
+}
+
 class GlobalTabSettings : public TabSettings
 {
 public:
