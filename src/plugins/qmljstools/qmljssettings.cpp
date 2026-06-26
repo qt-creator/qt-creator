@@ -1228,46 +1228,6 @@ void QmlJSCodeStylePreferencesWidget::customFormatterPreview()
     TextEditor::formatEditor(m_previewTextEdit, command);
 }
 
-// QmlJSCodeStyleSettingsPageWidget
-
-class QmlJSCodeStyleSettingsPageWidget : public Core::IOptionsPageWidget
-{
-public:
-    QmlJSCodeStyleSettingsPageWidget()
-    {
-        QmlJSCodeStylePreferences *originalPreferences = globalQmlJSCodeStyle();
-        m_preferences.setDelegatingPool(originalPreferences->delegatingPool());
-        m_preferences.setCodeStyleSettings(originalPreferences->codeStyleSettings());
-        m_preferences.setTabSettings(originalPreferences->tabSettings());
-        m_preferences.setCurrentDelegate(originalPreferences->currentDelegate());
-        m_preferences.setId(originalPreferences->id());
-
-        auto vbox = new QVBoxLayout(this);
-        vbox->addWidget(
-            codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID)
-                ->createSettingsEditor(&m_preferences));
-    }
-
-    void apply() final
-    {
-        QmlJSCodeStylePreferences *originalPreferences = globalQmlJSCodeStyle();
-        if (originalPreferences->codeStyleSettings() != m_preferences.codeStyleSettings()) {
-            originalPreferences->setCodeStyleSettings(m_preferences.codeStyleSettings());
-            originalPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-        }
-        if (originalPreferences->tabSettings() != m_preferences.tabSettings()) {
-            originalPreferences->setTabSettings(m_preferences.tabSettings());
-            originalPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-        }
-        if (originalPreferences->currentDelegate() != m_preferences.currentDelegate()) {
-            originalPreferences->setCurrentDelegate(m_preferences.currentDelegate());
-            originalPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-        }
-    }
-
-      QmlJSCodeStylePreferences m_preferences;
-};
-
 // QmlJSCodeStyleSettingsPage
 
 QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
@@ -1275,7 +1235,11 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
     setId(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
     setDisplayName(Tr::tr(Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    setWidgetCreator([] { return new QmlJSCodeStyleSettingsPageWidget; });
+    setSettingsProvider([] {
+        static CodeStyleAspect theSettings(globalQmlJSCodeStyle(),
+                                           QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+        return &theSettings;
+    });
 }
 
 // QmlJsCodeStyleEditor
@@ -1289,9 +1253,14 @@ public:
     {
         m_selector.setCodeStyle(codeStyle);
         addSelector(&m_selector);
-        addInfoLabel();
         m_widget.setPreferences(codeStyle);
         addEditorWidget(&m_widget);
+        // The widget edits the (page-local) style live; report changes so the
+        // hosting CodeStyleAspect can track dirtiness and defer the commit.
+        connect(codeStyle, &ICodeStylePreferences::currentValueChanged,
+                this, &CodeStyleEditor::changed);
+        connect(codeStyle, &ICodeStylePreferences::currentTabSettingsChanged,
+                this, &CodeStyleEditor::changed);
     }
 
 private:
