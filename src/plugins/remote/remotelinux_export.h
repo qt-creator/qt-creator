@@ -5,9 +5,9 @@
 
 #include <qglobal.h>
 
-#if defined(REMOTELINUX_LIBRARY)
+#if defined(REMOTE_LIBRARY)
 #  define REMOTELINUX_EXPORT Q_DECL_EXPORT
-#elif defined(REMOTELINUX_STATIC_LIBRARY)
+#elif defined(REMOTE_STATIC_LIBRARY)
 #  define REMOTELINUX_EXPORT
 #else
 #  define REMOTELINUX_EXPORT Q_DECL_IMPORT

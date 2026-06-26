@@ -1,6 +1,6 @@
 add_qtc_plugin(Qnx
   DEPENDS QmlDebug Qt::Xml
-  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport RemoteLinux
+  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport Remote
   SOURCES
     qnx.qrc
     qnxanalyzesupport.cpp qnxanalyzesupport.h

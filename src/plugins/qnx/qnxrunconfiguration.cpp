@@ -15,7 +15,7 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <remotelinux/remotelinuxenvironmentaspect.h>
+#include <remote/remotelinuxenvironmentaspect.h>
 
 #include <utils/processinterface.h>
 

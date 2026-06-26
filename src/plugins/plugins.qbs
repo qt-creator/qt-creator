@@ -82,7 +82,7 @@ Project {
         "qmakeprojectmanager/qmakeprojectmanager.qbs",
         "qtapplicationmanager/qtapplicationmanager.qbs",
         "qtsupport/qtsupport.qbs",
-        "remotelinux/remotelinux.qbs",
+        "remote/remote.qbs",
         "resourceeditor/resourceeditor.qbs",
         "saferenderer/saferenderer.qbs",
         "screenrecorder/screenrecorder.qbs",

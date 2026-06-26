@@ -15,7 +15,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <remotelinux/remotelinux_constants.h>
+#include <remote/remotelinux_constants.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 using namespace ProjectExplorer;

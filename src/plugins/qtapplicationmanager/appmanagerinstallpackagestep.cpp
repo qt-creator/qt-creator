@@ -11,7 +11,7 @@
 #include "appmanagertr.h"
 #include "appmanagerutilities.h"
 
-#include <remotelinux/abstractremotelinuxdeploystep.h>
+#include <remote/abstractremotelinuxdeploystep.h>
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsystem.h>

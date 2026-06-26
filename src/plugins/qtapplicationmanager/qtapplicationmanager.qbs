@@ -10,7 +10,7 @@ QtcPlugin {
     Depends { name: "QmakeProjectManager" }
     Depends { name: "QmlJS" }
     Depends { name: "QtSupport" }
-    Depends { name: "RemoteLinux" }
+    Depends { name: "Remote" }
     Depends { name: "ResourceEditor" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }

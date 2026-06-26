@@ -4,7 +4,7 @@ add_qtc_plugin(QtApplicationManagerIntegration
   CONDITION TARGET yaml-cpp::yaml-cpp
   PLUGIN_DEPENDS
     Core Debugger ProjectExplorer
-    QtSupport RemoteLinux
+    QtSupport Remote
   PLUGIN_CLASS AppManagerPlugin
   DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils yaml-cpp::yaml-cpp
   SOURCES

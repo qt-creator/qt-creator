@@ -1,7 +1,7 @@
 add_qtc_plugin(Boot2Qt
   PLUGIN_CLASS QdbPlugin
   DEPENDS Qt::Network
-  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport RemoteLinux
+  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport Remote
   SOURCES
     qdb_global.h
     qdbconstants.h

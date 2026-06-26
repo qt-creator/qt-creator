@@ -13,8 +13,8 @@
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <remotelinux/linuxprocessinterface.h>
-#include <remotelinux/remotelinux_constants.h>
+#include <remote/linuxprocessinterface.h>
+#include <remote/remotelinux_constants.h>
 
 #include <utils/globaltasktree.h>
 #include <utils/portlist.h>

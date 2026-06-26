@@ -34,7 +34,7 @@
 #include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
-#include <remotelinux/remotelinux_constants.h>
+#include <remote/remotelinux_constants.h>
 
 #include <qnx/qnxconstants.h>
 #include <qtsupport/qtkitaspect.h>

@@ -51,7 +51,7 @@
 
 #include <QtTaskTree/QBarrier>
 
-#include <remotelinux/remotelinux_constants.h>
+#include <remote/remotelinux_constants.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>

@@ -21,7 +21,7 @@
 #include <android/androidconstants.h>
 #include <baremetal/baremetalconstants.h>
 #include <qnx/qnxconstants.h>
-#include <remotelinux/remotelinux_constants.h>
+#include <remote/remotelinux_constants.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/persistentsettings.h>

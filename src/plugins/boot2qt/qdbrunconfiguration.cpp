@@ -16,7 +16,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <remotelinux/remotelinuxenvironmentaspect.h>
+#include <remote/remotelinuxenvironmentaspect.h>
 
 #include <utils/commandline.h>
 #include <utils/qtcassert.h>

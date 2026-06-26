@@ -11,9 +11,9 @@
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 
-#include <remotelinux/linuxdevice.h>
-#include <remotelinux/remotelinux_constants.h>
-#include <remotelinux/sshdevicewizard.h>
+#include <remote/linuxdevice.h>
+#include <remote/remotelinux_constants.h>
+#include <remote/sshdevicewizard.h>
 
 #include <utils/qtcassert.h>
 

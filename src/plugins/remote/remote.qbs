@@ -1,5 +1,5 @@
 QtcPlugin {
-    name: "RemoteLinux"
+    name: "Remote"
 
     Depends { name: "Qt.widgets" }
 

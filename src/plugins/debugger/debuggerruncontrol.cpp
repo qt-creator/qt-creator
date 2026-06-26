@@ -18,7 +18,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/taskhub.h>
 
-#include <remotelinux/remotelinux_constants.h>
+#include <remote/remotelinux_constants.h>
 
 #include <qtsupport/baseqtversion.h>
 

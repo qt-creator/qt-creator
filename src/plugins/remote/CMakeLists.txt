@@ -1,4 +1,4 @@
-add_qtc_plugin(RemoteLinux
+add_qtc_plugin(Remote
   DEPENDS QmlDebug CmdBridgeClient
   PLUGIN_DEPENDS Core Debugger ProjectExplorer
   SOURCES
@@ -33,7 +33,7 @@ add_qtc_plugin(RemoteLinux
     windowsdevicetester.cpp windowsdevicetester.h
 )
 
-extend_qtc_plugin(RemoteLinux
+extend_qtc_plugin(Remote
   CONDITION WITH_TESTS
   SOURCES
     filesystemaccess_test.cpp

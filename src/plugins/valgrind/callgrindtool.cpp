@@ -52,7 +52,7 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
-#include <remotelinux/remotelinux_constants.h>
+#include <remote/remotelinux_constants.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>

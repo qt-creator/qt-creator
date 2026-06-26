@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <remotelinux/linuxdevicetester.h>
+#include <remote/linuxdevicetester.h>
 
 namespace Qnx::Internal {
 

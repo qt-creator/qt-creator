@@ -4,7 +4,7 @@
 #pragma once
 
 #include <projectexplorer/kit.h>
-#include <remotelinux/linuxdevice.h>
+#include <remote/linuxdevice.h>
 
 namespace Qdb::Internal {
 

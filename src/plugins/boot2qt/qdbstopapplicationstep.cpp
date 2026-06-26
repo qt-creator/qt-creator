@@ -11,7 +11,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
-#include <remotelinux/abstractremotelinuxdeploystep.h>
+#include <remote/abstractremotelinuxdeploystep.h>
 
 #include <utils/qtcprocess.h>
 

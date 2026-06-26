@@ -11,7 +11,7 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "RemoteLinux" }
+    Depends { name: "Remote" }
 
     files: [
         "qnxdeployqtlibrariesdialog.cpp",

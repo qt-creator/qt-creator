@@ -8,7 +8,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
-    Depends { name: "RemoteLinux" }
+    Depends { name: "Remote" }
     Depends { name: "Utils" }
 
     cpp.defines: base.concat("BOOT2QT_LIBRARY")

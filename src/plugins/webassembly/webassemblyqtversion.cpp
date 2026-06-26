@@ -15,7 +15,7 @@
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <remotelinux/remotelinux_constants.h>
+#include <remote/remotelinux_constants.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
