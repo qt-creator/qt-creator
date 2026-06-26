@@ -1,7 +1,7 @@
 {
-    "Id" : "qmlprofiler",
-    "DisplayName" : "QML Profiler",
-    "Name" : "QmlProfiler",
+    "Id" : "profiler",
+    "DisplayName" : "Profiler",
+    "Name" : "Profiler",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",
@@ -15,10 +15,13 @@
                   "",
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
-    "Category" : "Qt Quick",
-    "Description" : "Profile Qt Quick applications.",
+    "Category" : "Code Analyzer",
+    "Description" : "Profile Qt Quick applications and analyze CPU and memory usage.",
     "LongDescription" : [
-        "Find causes for typical performance problems, such as slowness and unresponsive, stuttering user interfaces."
+        "Find causes for typical performance problems, such as slowness and unresponsive, stuttering user interfaces.",
+        "Analyze the CPU and memory usage of an application on embedded devices and, to a limited extent, on Linux desktop platforms.",
+        "For perf-based analysis you also need:",
+            "- Perf tool (bundled with the Linux kernel)"
     ],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-qml-performance-monitor.html",

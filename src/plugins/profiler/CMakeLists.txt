@@ -112,7 +112,7 @@ set(PERFPROFILER_CPP_SOURCES
   perftracepointdialog.cpp perftracepointdialog.h
 )
 
-add_qtc_plugin(QmlProfiler
+add_qtc_plugin(Profiler
   DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree
   INCLUDES ${PROJECT_SOURCE_DIR}/src
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor

@@ -69,7 +69,7 @@ Project {
         "modeleditor/modeleditor.qbs",
         "nim/nim.qbs",
         "perforce/perforce.qbs",
-        "profiler/qmlprofiler.qbs",
+        "profiler/profiler.qbs",
         "projectexplorer/projectexplorer.qbs",
         "qbsprojectmanager/qbsprojectmanager.qbs",
         "python/python.qbs",

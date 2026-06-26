@@ -6,7 +6,7 @@ QtcTool {
     Depends { name: "app_version_header" }
     Depends { name: "Utils" }
     Depends { name: "Core" }
-    Depends { name: "QmlProfiler" }
+    Depends { name: "Profiler" }
     Depends { name: "CommonTraceFormat" }
     Depends { name: "Tracing" }
 

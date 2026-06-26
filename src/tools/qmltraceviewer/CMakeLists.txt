@@ -3,8 +3,8 @@ option(BUILD_EXECUTABLE_QMLTRACEVIEWER_STANDALONE
        OFF)
 
 add_qtc_executable(qmltraceviewer
-  CONDITION TARGET QmlProfiler
-  DEPENDS app_version QmlProfiler CommonTraceFormat Tracing
+  CONDITION TARGET Profiler
+  DEPENDS app_version Profiler CommonTraceFormat Tracing
   SOURCES
     mainsidebar.cpp mainsidebar.h
     qmltraceviewerinit.cpp qmltraceviewerinit.h

@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <qglobal.h>
 
-#if defined(QMLPROFILER_LIBRARY)
+#if defined(PROFILER_LIBRARY)
 #  define PROFILER_EXPORT Q_DECL_EXPORT
-#elif defined(QMLPROFILER_STATIC_LIBRARY)
+#elif defined(PROFILER_STATIC_LIBRARY)
 #  define PROFILER_EXPORT
 #else
 #  define PROFILER_EXPORT Q_DECL_IMPORT

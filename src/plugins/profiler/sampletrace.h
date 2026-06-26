@@ -70,6 +70,6 @@ Utils::Result<SampleTraceData> readSampleTrace(const Utils::FilePath &dir);
 
 // True if `dir` holds a CTF2 trace whose schema contains a data stream class
 // named samplerStreamName. Reads only the metadata file.
-PROFILER_EXPORT bool isSamplerTrace(const Utils::FilePath &dir);
+bool isSamplerTrace(const Utils::FilePath &dir);
 
 } // namespace QmlProfiler::Internal

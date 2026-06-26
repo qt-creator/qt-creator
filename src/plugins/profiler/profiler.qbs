@@ -1,7 +1,7 @@
 import qbs 1.0
 
 QtcPlugin {
-    name: "QmlProfiler"
+    name: "Profiler"
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
 
