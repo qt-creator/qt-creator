@@ -36,7 +36,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace Remote {
 
 static Q_LOGGING_CATEGORY(windowsDeviceLog, "qtc.remotewindows.device", QtWarningMsg)
 
@@ -958,4 +958,4 @@ WindowsDeviceFactory::WindowsDeviceFactory()
 }
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace Remote

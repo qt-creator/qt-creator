@@ -7,7 +7,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-namespace RemoteLinux {
+namespace Remote {
 
 class REMOTELINUX_EXPORT WindowsDeviceTester : public ProjectExplorer::DeviceTester
 {
@@ -21,4 +21,4 @@ public:
     void stopTest() override;
 };
 
-} // namespace RemoteLinux
+} // namespace Remote

@@ -13,7 +13,7 @@ using namespace Utils;
 namespace Qnx::Internal {
 
 QnxDeviceTester::QnxDeviceTester(const ProjectExplorer::IDevice::Ptr &device, QObject *parent)
-    : RemoteLinux::GenericLinuxDeviceTester(device, parent)
+    : Remote::GenericLinuxDeviceTester(device, parent)
 {}
 
 void QnxDeviceTester::testDevice()
@@ -64,7 +64,7 @@ void QnxDeviceTester::testDevice()
     };
     setExtraTests({ProcessTask(onSetup, onDone, CallDoneFlag::OnSuccess)});
 
-    RemoteLinux::GenericLinuxDeviceTester::testDevice();
+    Remote::GenericLinuxDeviceTester::testDevice();
 }
 
 } // Qnx::Internal

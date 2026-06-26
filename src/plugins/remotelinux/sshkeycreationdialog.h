@@ -14,7 +14,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class FilePath; }
 
-namespace RemoteLinux {
+namespace Remote {
 
 class SshKeyCreationDialog : public QDialog
 {
@@ -42,4 +42,4 @@ private:
     QRadioButton *m_ecdsa;
 };
 
-} // namespace RemoteLinux
+} // namespace Remote

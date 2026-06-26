@@ -34,7 +34,7 @@ namespace AppManager::Internal {
 
 const char ArgumentsDefault[] = "install-package --acknowledge";
 
-class AppManagerInstallPackageStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
+class AppManagerInstallPackageStep final : public Remote::AbstractRemoteLinuxDeployStep
 {
 public:
     AppManagerInstallPackageStep(BuildStepList *bsl, Id id);

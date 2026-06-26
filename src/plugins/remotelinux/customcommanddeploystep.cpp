@@ -17,7 +17,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 class CustomCommandDeployStep : public AbstractRemoteLinuxDeployStep
 {
@@ -87,7 +87,7 @@ public:
     {
         registerStep<CustomCommandDeployStep>(Constants::CustomCommandDeployStepId);
         setDisplayName(Tr::tr("Run custom remote command"));
-        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedConfiguration(Remote::Constants::DeployToGenericLinux);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
 };
@@ -97,4 +97,4 @@ void setupCustomCommandDeployStep()
     static CustomCommandDeployStepFactory theCustomCommandDeployStepFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

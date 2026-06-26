@@ -56,11 +56,11 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-using namespace RemoteLinux::Internal;
+using namespace Remote::Internal;
 
 using namespace QtTaskTree;
 
-namespace RemoteLinux {
+namespace Remote {
 
 const QByteArray s_pidMarker = "__qtc";
 
@@ -1709,6 +1709,6 @@ void LinuxDevice::postLoad()
     }});
 }
 
-} // namespace RemoteLinux
+} // namespace Remote
 
 #include "linuxdevice.moc"

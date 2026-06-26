@@ -32,7 +32,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 const QByteArray s_pidMarker = "__qtc";
 
@@ -462,4 +462,4 @@ FileTransferInterface *createRemoteLinuxFileTransferInterface
     return new GenericTransferImpl(setup);
 }
 
-} // namespace RemoteLinux::Internal
+} // namespace Remote::Internal

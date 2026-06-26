@@ -27,7 +27,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 const int TarBlockSize = 512;
 
@@ -453,7 +453,7 @@ public:
         registerStep<TarPackageCreationStep>(Constants::TarPackageCreationStepId);
         setDisplayName(Tr::tr("Create tarball"));
 
-        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedConfiguration(Remote::Constants::DeployToGenericLinux);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
 };
@@ -463,4 +463,4 @@ void setupTarPackageCreationStep()
     static TarPackageCreationStepFactory theTarPackageCreationStepFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

@@ -147,11 +147,11 @@ static Id runDeviceTypeForKit(const Kit *kit)
         case Abi::BsdOS:
         case Abi::DarwinOS:
         case Abi::UnixOS:
-            return RemoteLinux::Constants::GenericLinuxOsType;
+            return Remote::Constants::GenericLinuxOsType;
         case Abi::LinuxOS:
             if (tcAbi.osFlavor() == Abi::AndroidLinuxFlavor)
                 return Android::Constants::ANDROID_DEVICE_TYPE;
-            return RemoteLinux::Constants::GenericLinuxOsType;
+            return Remote::Constants::GenericLinuxOsType;
         case Abi::QnxOS:
             return Qnx::Constants::QNX_QNX_OS_TYPE;
         case Abi::VxWorks:

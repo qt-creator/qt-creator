@@ -20,7 +20,7 @@
 #include <utils/processinterface.h>
 
 using namespace ProjectExplorer;
-using namespace RemoteLinux;
+using namespace Remote;
 using namespace Utils;
 
 namespace Qnx::Internal {

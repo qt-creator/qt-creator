@@ -26,7 +26,7 @@ Q_DECLARE_METATYPE(ProjectExplorer::FileTransferMethod)
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 static const char TEST_DIR[] = "/tmp/testdir";
 
@@ -664,4 +664,4 @@ void FileSystemAccessTest::testFileStreamerManager()
     QCOMPARE(*remoteRemoteData, data);
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

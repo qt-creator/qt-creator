@@ -7,10 +7,10 @@
 
 #include <utils/filepath.h>
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 // Asks for public key and returns true if the file dialog is not canceled.
 bool runPublicKeyDeploymentDialog(const ProjectExplorer::DeviceConstRef &device,
                                   const Utils::FilePath &publicKeyFilePath = {});
 
-} // namespace RemoteLinux::Internal
+} // namespace Remote::Internal

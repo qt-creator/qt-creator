@@ -15,7 +15,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace Remote {
 
 namespace {
 const char LastDeployedHostsKey[] = "ProjectExplorer.RunConfiguration.LastDeployedHosts";
@@ -164,4 +164,4 @@ void DeploymentTimeInfo::importDeployTimes(const Store &map)
     }
 }
 
-} // namespace RemoteLinux
+} // namespace Remote

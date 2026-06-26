@@ -22,7 +22,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace Remote {
 namespace Internal {
 
 class GenericLinuxDeviceTesterPrivate
@@ -366,4 +366,4 @@ void GenericLinuxDeviceTester::stopTest()
     emit finished(TestFailure);
 }
 
-} // namespace RemoteLinux
+} // namespace Remote

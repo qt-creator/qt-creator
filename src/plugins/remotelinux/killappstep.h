@@ -3,8 +3,8 @@
 
 #pragma once
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 void setupKillAppStep();
 
-} // RemoteLinux::Internal
+} // Remote::Internal

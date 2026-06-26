@@ -1758,7 +1758,7 @@ static void setupBuildAndRunDevice(Kit *k, const QString &cmakeSystemName, const
     } else if (cmakeSystemName == "Emscripten") {
         RunDeviceTypeKitAspect::setDeviceTypeId(k, WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE);
     } else if (cmakeSystemName == "Linux" && !sysroot.isEmpty()) {
-        RunDeviceTypeKitAspect::setDeviceTypeId(k, RemoteLinux::Constants::GenericLinuxOsType);
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Remote::Constants::GenericLinuxOsType);
     } else if (cmakeSystemName == "QNX") {
         RunDeviceTypeKitAspect::setDeviceTypeId(k, Qnx::Constants::QNX_QNX_OS_TYPE);
     } else if (cmakeSystemName == "VxWorks") {

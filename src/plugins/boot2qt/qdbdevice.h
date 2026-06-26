@@ -8,7 +8,7 @@
 
 namespace Qdb::Internal {
 
-class QdbDevice final : public RemoteLinux::LinuxDevice
+class QdbDevice final : public Remote::LinuxDevice
 {
 public:
     typedef std::shared_ptr<QdbDevice> Ptr;

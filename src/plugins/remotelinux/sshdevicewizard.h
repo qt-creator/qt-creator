@@ -9,7 +9,7 @@
 
 namespace ProjectExplorer { class DeviceRef; }
 
-namespace RemoteLinux {
+namespace Remote {
 
 class REMOTELINUX_EXPORT SshDeviceWizard : public Utils::Wizard
 {
@@ -17,4 +17,4 @@ public:
     SshDeviceWizard(const QString &title, const ProjectExplorer::DeviceRef &device);
 };
 
-} // namespace RemoteLinux
+} // namespace Remote

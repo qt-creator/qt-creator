@@ -23,7 +23,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 class PublicKeyDeploymentDialog : public QProgressDialog
 {
@@ -134,4 +134,4 @@ bool runPublicKeyDeploymentDialog(const DeviceConstRef &device, const FilePath &
     return dialog.exec() == QDialog::Accepted;
 }
 
-} // namespace RemoteLinux::Internal
+} // namespace Remote::Internal

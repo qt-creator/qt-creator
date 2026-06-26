@@ -5,11 +5,11 @@
 
 #include "linuxdevice.h"
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 ProjectExplorer::FileTransferInterface *
     createRemoteLinuxFileTransferInterface(
         const LinuxDevice &device,
         const ProjectExplorer::FileTransferSetupData &setup);
 
-} // namespace RemoteLinux
+} // namespace Remote

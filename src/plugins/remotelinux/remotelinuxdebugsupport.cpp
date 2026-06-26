@@ -23,7 +23,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 static const QList<Id> supportedRunConfigs()
 {
@@ -119,4 +119,4 @@ void setupRemoteLinuxRunAndDebugSupport()
     static RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

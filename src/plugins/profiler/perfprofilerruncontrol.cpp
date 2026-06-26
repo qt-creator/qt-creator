@@ -120,8 +120,8 @@ public:
 
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportForLocalRunConfigs();
-        addSupportedRunConfig(RemoteLinux::Constants::RunConfigId);
-        addSupportedRunConfig(RemoteLinux::Constants::CustomRunConfigId);
+        addSupportedRunConfig(Remote::Constants::RunConfigId);
+        addSupportedRunConfig(Remote::Constants::CustomRunConfigId);
         setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
     }
 };
@@ -158,8 +158,8 @@ public:
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
         addSupportForLocalRunConfigs();
-        addSupportedRunConfig(RemoteLinux::Constants::RunConfigId);
-        addSupportedRunConfig(RemoteLinux::Constants::CustomRunConfigId);
+        addSupportedRunConfig(Remote::Constants::RunConfigId);
+        addSupportedRunConfig(Remote::Constants::CustomRunConfigId);
         setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
     }
 };

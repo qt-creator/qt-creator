@@ -109,17 +109,17 @@ public:
         setDefaultDisplayName(Tr::tr("Deploy to Boot to Qt target"));
         setUseDeploymentDataView();
 
-        addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](BuildConfiguration *bc) {
+        addInitialStep(Remote::Constants::MakeInstallStepId, [](BuildConfiguration *bc) {
             const Project * const prj = bc->project();
             return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
                    && prj->hasMakeInstallEquivalent();
         });
-        addInitialStep(RemoteLinux::Constants::ConnectStepId);
+        addInitialStep(Remote::Constants::ConnectStepId);
         addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
 #ifdef Q_OS_WIN
-        addInitialStep(RemoteLinux::Constants::DirectUploadStepId);
+        addInitialStep(Remote::Constants::DirectUploadStepId);
 #else
-        addInitialStep(RemoteLinux::Constants::GenericDeployStepId);
+        addInitialStep(Remote::Constants::GenericDeployStepId);
 #endif
     }
 };
@@ -134,10 +134,10 @@ public:
     QdbStopApplicationStepFactory m_stopApplicationStepFactory;
     QdbMakeDefaultAppStepFactory m_makeDefaultAppStepFactory;
 
-    QdbDeployStepFactory m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};
-    QdbDeployStepFactory m_rsyncDeployStepFactory{RemoteLinux::Constants::GenericDeployStepId};
-    QdbDeployStepFactory m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
-    QdbDeployStepFactory m_customRunRemoteStepFactory{RemoteLinux::Constants::CustomCommandDeployStepId};
+    QdbDeployStepFactory m_directUploadStepFactory{Remote::Constants::DirectUploadStepId};
+    QdbDeployStepFactory m_rsyncDeployStepFactory{Remote::Constants::GenericDeployStepId};
+    QdbDeployStepFactory m_makeInstallStepFactory{Remote::Constants::MakeInstallStepId};
+    QdbDeployStepFactory m_customRunRemoteStepFactory{Remote::Constants::CustomCommandDeployStepId};
 
     DeviceDetector m_deviceDetector;
 };

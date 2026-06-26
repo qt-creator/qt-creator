@@ -61,7 +61,7 @@ public:
         addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
         setUseDeploymentDataView();
 
-        addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](BuildConfiguration *bc) {
+        addInitialStep(Remote::Constants::MakeInstallStepId, [](BuildConfiguration *bc) {
             const Project * const prj = bc->project();
             return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
                     && prj->hasMakeInstallEquivalent();
@@ -74,9 +74,9 @@ public:
 void setupQnxDeployment()
 {
     static QnxDeployConfigurationFactory deployConfigFactory;
-    static QnxDeployStepFactory directUploadDeployFactory{RemoteLinux::Constants::DirectUploadStepId,
+    static QnxDeployStepFactory directUploadDeployFactory{Remote::Constants::DirectUploadStepId,
                                                    Constants::QNX_DIRECT_UPLOAD_STEP_ID};
-    static QnxDeployStepFactory makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
+    static QnxDeployStepFactory makeInstallStepFactory{Remote::Constants::MakeInstallStepId};
 }
 
 class QnxSdpEnvFileToolAspectFactory : public DeviceToolAspectFactory

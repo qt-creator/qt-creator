@@ -9,7 +9,7 @@
 
 #include <utils/processinterface.h>
 
-namespace RemoteLinux {
+namespace Remote {
 
 class SshProcessInterfacePrivate;
 
@@ -36,4 +36,4 @@ private:
     SshProcessInterfacePrivate *d = nullptr;
 };
 
-} // namespace RemoteLinux
+} // namespace Remote

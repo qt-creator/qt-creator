@@ -14,7 +14,7 @@ class DeployableFile;
 class Kit;
 }
 
-namespace RemoteLinux {
+namespace Remote {
 
 class DeploymentTimeInfoPrivate;
 
@@ -42,4 +42,4 @@ private:
     DeploymentTimeInfoPrivate *d;
 };
 
-} // namespace RemoteLinux
+} // namespace Remote

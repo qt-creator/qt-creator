@@ -22,7 +22,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace Remote {
 
 const char DISPLAY_KEY[] = "DISPLAY";
 const char VERSION_KEY[] = "RemoteLinux.EnvironmentAspect.Version";
@@ -118,4 +118,4 @@ void RemoteLinuxEnvironmentAspect::handleKitUpdate()
     setRemoteEnvironment(Environment(device ? device->osType() : OsTypeLinux));
 }
 
-} // namespace RemoteLinux
+} // namespace Remote

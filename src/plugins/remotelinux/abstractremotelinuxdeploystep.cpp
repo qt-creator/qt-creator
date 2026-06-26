@@ -20,7 +20,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace Remote {
 namespace Internal {
 
 class AbstractRemoteLinuxDeployStepPrivate
@@ -161,4 +161,4 @@ GroupItem AbstractRemoteLinuxDeployStep::runRecipe()
     };
 }
 
-} // namespace RemoteLinux
+} // namespace Remote

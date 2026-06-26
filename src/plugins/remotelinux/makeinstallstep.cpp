@@ -31,7 +31,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 class MakeInstallStep final : public MakeStep
 {
@@ -279,7 +279,7 @@ public:
         registerStep<MakeInstallStep>(Constants::MakeInstallStepId);
         setDisplayName(Tr::tr("Install into temporary host directory"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        setSupportedDeviceType(Remote::Constants::GenericLinuxOsType);
     }
 };
 
@@ -288,4 +288,4 @@ void setupMakeInstallStep()
     static MakeInstallStepFactory theMakeInstallStepFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

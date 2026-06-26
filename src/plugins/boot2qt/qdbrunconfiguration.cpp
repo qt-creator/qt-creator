@@ -89,7 +89,7 @@ private:
 
     ExecutableAspect executable{this};
     SymbolFileAspect symbolFile{this};
-    RemoteLinux::RemoteLinuxEnvironmentAspect environment{this};
+    Remote::RemoteLinuxEnvironmentAspect environment{this};
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDir{this};
     StringAspect fullCommand{this};

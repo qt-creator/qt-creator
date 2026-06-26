@@ -15,7 +15,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 class RemoteLinuxCustomRunConfiguration : public RunConfiguration
 {
@@ -105,4 +105,4 @@ void setupRemoteLinuxCustomRunConfiguration()
     static RemoteLinuxCustomRunConfigurationFactory theRemoteLinuxCustomRunConfigurationFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

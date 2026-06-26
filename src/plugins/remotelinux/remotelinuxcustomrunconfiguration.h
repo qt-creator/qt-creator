@@ -3,8 +3,8 @@
 
 #pragma once
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 void setupRemoteLinuxCustomRunConfiguration();
 
-} // RemoteLinux::Internal
+} // Remote::Internal

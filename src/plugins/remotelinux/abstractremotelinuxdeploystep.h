@@ -10,7 +10,7 @@
 
 namespace ProjectExplorer { class DeployableFile; }
 
-namespace RemoteLinux {
+namespace Remote {
 
 namespace Internal { class AbstractRemoteLinuxDeployStepPrivate; }
 

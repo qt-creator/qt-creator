@@ -11,7 +11,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace Remote {
 
 WindowsDeviceTester::WindowsDeviceTester(const IDevice::Ptr &device, QObject *parent)
     : DeviceTester(device, parent)
@@ -39,4 +39,4 @@ void WindowsDeviceTester::stopTest()
     emit finished(TestFailure);
 }
 
-} // namespace RemoteLinux
+} // namespace Remote

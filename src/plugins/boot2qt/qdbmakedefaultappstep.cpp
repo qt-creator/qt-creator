@@ -22,7 +22,7 @@ using namespace Utils;
 
 namespace Qdb::Internal {
 
-class QdbMakeDefaultAppStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
+class QdbMakeDefaultAppStep final : public Remote::AbstractRemoteLinuxDeployStep
 {
 public:
     QdbMakeDefaultAppStep(BuildStepList *bsl, Id id)

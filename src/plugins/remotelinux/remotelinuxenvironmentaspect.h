@@ -7,7 +7,7 @@
 
 #include <projectexplorer/environmentaspect.h>
 
-namespace RemoteLinux {
+namespace Remote {
 
 class REMOTELINUX_EXPORT RemoteLinuxEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
 {
@@ -26,4 +26,4 @@ private:
     Utils::Environment m_remoteEnvironment{Utils::OsTypeLinux};
 };
 
-} // namespace RemoteLinux
+} // namespace Remote

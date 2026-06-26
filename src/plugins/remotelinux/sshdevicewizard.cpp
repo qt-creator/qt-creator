@@ -24,7 +24,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace Remote {
 
 class SetupPage : public QWizardPage
 {
@@ -199,4 +199,4 @@ SshDeviceWizard::SshDeviceWizard(const QString &title, const DeviceRef &device)
     addPage(new FinalPage);
 }
 
-} // namespace RemoteLinux
+} // namespace Remote

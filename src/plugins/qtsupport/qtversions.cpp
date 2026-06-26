@@ -43,7 +43,7 @@ public:
         if (Utils::contains(qtAbis(), [](const ProjectExplorer::Abi a) {
                 return a.os() == ProjectExplorer::Abi::LinuxOS;
             }))
-            result.insert(RemoteLinux::Constants::GenericLinuxOsType);
+            result.insert(Remote::Constants::GenericLinuxOsType);
         return result;
     }
 };
@@ -83,7 +83,7 @@ public:
 
     QSet<Utils::Id> targetDeviceTypes() const final
     {
-        return {RemoteLinux::Constants::GenericLinuxOsType};
+        return {Remote::Constants::GenericLinuxOsType};
     }
 };
 

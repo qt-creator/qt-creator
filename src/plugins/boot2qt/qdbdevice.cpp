@@ -28,7 +28,7 @@
 #include <QWizard>
 
 using namespace ProjectExplorer;
-using namespace RemoteLinux;
+using namespace Remote;
 using namespace QtTaskTree;
 using namespace Utils;
 
@@ -116,7 +116,7 @@ QdbDevice::QdbDevice()
 
 ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
 {
-    return RemoteLinux::LinuxDevice::createWidget();
+    return Remote::LinuxDevice::createWidget();
 }
 
 ProcessInterface *QdbDevice::createProcessInterface() const
@@ -235,7 +235,7 @@ public:
                 return IDevice::Ptr();
             return wizard.device();
         });
-        setExecutionTypeId(RemoteLinux::Constants::ExecutionType);
+        setExecutionTypeId(Remote::Constants::ExecutionType);
     }
 };
 

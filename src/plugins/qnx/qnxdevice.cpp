@@ -18,7 +18,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
-using namespace RemoteLinux;
+using namespace Remote;
 using namespace Utils;
 
 namespace Qnx::Internal {
@@ -80,7 +80,7 @@ public:
                 return {};
             return device;
         });
-        setExecutionTypeId(RemoteLinux::Constants::ExecutionType);
+        setExecutionTypeId(Remote::Constants::ExecutionType);
     }
 };
 

@@ -11,7 +11,7 @@ QT_BEGIN_NAMESPACE
 namespace QtTaskTree { class GroupItem; }
 QT_END_NAMESPACE
 
-namespace RemoteLinux {
+namespace Remote {
 
 namespace Internal { class GenericLinuxDeviceTesterPrivate; }
 
@@ -33,4 +33,4 @@ private:
     std::unique_ptr<Internal::GenericLinuxDeviceTesterPrivate> d;
 };
 
-} // namespace RemoteLinux
+} // namespace Remote

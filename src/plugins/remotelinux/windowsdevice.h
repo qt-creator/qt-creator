@@ -8,7 +8,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-namespace RemoteLinux {
+namespace Remote {
 
 // A remote Windows machine reached over SSH. Unlike LinuxDevice, all file and
 // process operations are expressed in native Windows terms (PowerShell, backslash
@@ -56,4 +56,4 @@ public:
 };
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace Remote

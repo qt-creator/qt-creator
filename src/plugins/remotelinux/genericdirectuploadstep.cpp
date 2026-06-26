@@ -27,7 +27,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 const int MaxConcurrentStatCalls = 10;
 
@@ -276,7 +276,7 @@ public:
         registerStep<GenericDirectUploadStep>(Constants::DirectUploadStepId);
         setDisplayName(Tr::tr("Upload files via SFTP"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        setSupportedDeviceType(Remote::Constants::GenericLinuxOsType);
     }
 };
 
@@ -285,4 +285,4 @@ void setupGenericDirectUploadStep()
     static GenericDirectUploadStepFactory theGenericDirectUploadStepFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

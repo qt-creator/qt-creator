@@ -3,7 +3,7 @@
 
 #pragma once
 
-namespace RemoteLinux::Constants {
+namespace Remote::Constants {
 
 const char GenericLinuxOsType[] = "GenericLinuxOsType";
 const char GenericWindowsOsType[] = "GenericWindowsOsType";
@@ -28,4 +28,4 @@ const char CustomRunConfigId[] = "RemoteLinux.CustomRunConfig";
 
 const char ExecutionType[] = "RemoteLinux.ExecutionType";
 
-} // RemoteLinux::Constants
+} // Remote::Constants

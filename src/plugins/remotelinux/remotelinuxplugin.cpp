@@ -27,7 +27,7 @@
 
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 class RsyncToolFactory : public ProjectExplorer::DeviceToolAspectFactory
 {
@@ -82,6 +82,6 @@ private:
     RsyncToolFactory m_rsyncToolFactory;
 };
 
-} // RemoteLinux::Internal
+} // Remote::Internal
 
 #include "remotelinuxplugin.moc"

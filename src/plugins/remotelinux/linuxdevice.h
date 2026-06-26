@@ -12,7 +12,7 @@
 
 namespace Utils { class ProcessResultData; }
 
-namespace RemoteLinux {
+namespace Remote {
 namespace Internal {
 
 class SshConnectionHandle : public QObject
@@ -114,4 +114,4 @@ private:
 };
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace Remote

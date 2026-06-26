@@ -27,7 +27,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 // GenericDeployStep
 
@@ -228,7 +228,7 @@ public:
         registerStep<GenericDeployStep>(Constants::GenericDeployStepId);
         setDisplayName(Tr::tr("Deploy files"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        setSupportedDeviceType(Remote::Constants::GenericLinuxOsType);
     }
 };
 
@@ -237,4 +237,4 @@ void setupGenericDeployStep()
     static GenericDeployStepFactory theGenericDeployStepFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

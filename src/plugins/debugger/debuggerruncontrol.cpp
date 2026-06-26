@@ -400,8 +400,8 @@ static ProcessTask debugServerTask(const Storage<DebuggerData> &storage)
 
                 if (runControl->device()->sshForwardDebugServerPort()) {
                     QVariantHash extraData;
-                    extraData[RemoteLinux::Constants::SshForwardPort] = port;
-                    extraData[RemoteLinux::Constants::DisableSharing] = true;
+                    extraData[Remote::Constants::SshForwardPort] = port;
+                    extraData[Remote::Constants::DisableSharing] = true;
                     process.setExtraData(extraData);
                 }
 

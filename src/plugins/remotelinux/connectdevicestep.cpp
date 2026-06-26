@@ -19,7 +19,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 class ConnectDeviceStep final : public AbstractRemoteLinuxDeployStep
 {
@@ -96,7 +96,7 @@ public:
         registerStep<ConnectDeviceStep>(Constants::ConnectStepId);
         setDisplayName(Tr::tr("Connect to the target device"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        setSupportedDeviceType(Remote::Constants::GenericLinuxOsType);
     }
 };
 
@@ -105,4 +105,4 @@ void setupConnectDeviceStep()
     static ConnectDeviceStepFactory theConnectDeviceStepFactory;
 }
 
-} // namespace RemoteLinux::Internal
+} // namespace Remote::Internal

@@ -26,7 +26,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace Remote {
 
 SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     : QDialog(parent)
@@ -156,4 +156,4 @@ FilePath SshKeyCreationDialog::publicKeyFilePath() const
     return FilePath::fromUserInput(m_publicKeyFileLabel->text());
 }
 
-} // namespace RemoteLinux
+} // namespace Remote

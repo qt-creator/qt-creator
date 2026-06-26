@@ -17,15 +17,15 @@
 
 using namespace ProjectExplorer;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 class RemoteLinuxDeployConfigurationFactory final : public DeployConfigurationFactory
 {
 public:
     RemoteLinuxDeployConfigurationFactory()
     {
-        setConfigBaseId(RemoteLinux::Constants::DeployToGenericLinux);
-        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        setConfigBaseId(Remote::Constants::DeployToGenericLinux);
+        addSupportedTargetDeviceType(Remote::Constants::GenericLinuxOsType);
         setDefaultDisplayName(Tr::tr("Deploy to Remote Linux Host"));
         setUseDeploymentDataView();
 
@@ -61,4 +61,4 @@ void setupRemoteLinuxDeploySupport()
     static RemoteLinuxDeployConfigurationFactory deployConfigurationFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

@@ -19,7 +19,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 // TarPackageDeployStep
 
@@ -130,7 +130,7 @@ public:
     {
         registerStep<TarPackageDeployStep>(Constants::TarPackageDeployStepId);
         setDisplayName(Tr::tr("Deploy tarball via SFTP upload"));
-        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedConfiguration(Remote::Constants::DeployToGenericLinux);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
 };
@@ -140,4 +140,4 @@ void setupTarPackageDeployStep()
     static TarPackageDeployStepFactory theTarPackageDeployStepFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

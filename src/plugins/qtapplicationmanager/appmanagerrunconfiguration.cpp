@@ -79,7 +79,7 @@ public:
     {
         registerRunConfiguration<AppManagerRunConfiguration>(Constants::RUNCONFIGURATION_ID);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedTargetDeviceType(Remote::Constants::GenericLinuxOsType);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     }
 
@@ -136,7 +136,7 @@ public:
     {
         registerRunConfiguration<AppManagerRunAndDebugConfiguration>(Constants::RUNANDDEBUGCONFIGURATION_ID);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedTargetDeviceType(Remote::Constants::GenericLinuxOsType);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     }
 

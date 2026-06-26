@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace RemoteLinux {
+namespace Remote {
 
 struct Tr
 {
     Q_DECLARE_TR_FUNCTIONS(QtC::RemoteLinux)
 };
 
-} // namespace RemoteLinux
+} // namespace Remote

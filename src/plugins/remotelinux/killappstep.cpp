@@ -20,7 +20,7 @@ using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace Remote::Internal {
 
 class KillAppStep : public AbstractRemoteLinuxDeployStep
 {
@@ -87,7 +87,7 @@ public:
     {
         registerStep<KillAppStep>(Constants::KillAppStepId);
         setDisplayName(Tr::tr("Kill current application instance"));
-        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedConfiguration(Remote::Constants::DeployToGenericLinux);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
 };
@@ -97,4 +97,4 @@ void setupKillAppStep()
     static KillAppStepFactory theKillAppStepFactory;
 }
 
-} // RemoteLinux::Internal
+} // Remote::Internal

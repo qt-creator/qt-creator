@@ -23,7 +23,7 @@ namespace Qdb::Internal {
 
 // QdbStopApplicationStep
 
-class QdbStopApplicationStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
+class QdbStopApplicationStep final : public Remote::AbstractRemoteLinuxDeployStep
 {
 public:
     QdbStopApplicationStep(BuildStepList *bsl, Id id)
