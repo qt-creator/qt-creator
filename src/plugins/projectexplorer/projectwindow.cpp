@@ -1138,8 +1138,16 @@ TargetGroupItem::~TargetGroupItem()
 
 ProjectItemBase *TargetGroupItem::activeItem()
 {
-    if (TargetItem *item = currentTargetItem())
-        return item->activeItem();
+    if (TargetItem *item = currentTargetItem()) {
+        // A target may exist on a kit that has errors for this project, e.g.
+        // after removing the Qt version from the only active kit. Such a target
+        // cannot be built, and its panels are rendered greyed out. Showing them
+        // leaves the user in a weird, unexplained state with no route to fix the
+        // kit. Fall back to the setup page instead, so a usable kit can be
+        // chosen or repaired.
+        if (!item->m_kitErrorsForProject)
+            return item->activeItem();
+    }
     return this;
 }
 

@@ -1487,9 +1487,6 @@ bool BuildConfigurationFactory::canHandle(const Target *target) const
     if (m_supportedProjectType.isValid() && m_supportedProjectType != target->project()->type())
         return false;
 
-    if (containsType(target->project()->projectIssues(target->kit()), Task::TaskType::Error))
-        return false;
-
     if (!supportsTargetDeviceType(RunDeviceTypeKitAspect::deviceTypeId(target->kit())))
         return false;
 
