@@ -43,7 +43,7 @@ public:
     ~GerritDialog() override;
     Utils::FilePath repositoryPath() const;
     void setCurrentPath(const Utils::FilePath &path);
-    void fetchStarted(const std::shared_ptr<Gerrit::Internal::GerritChange> &change);
+    void fetchStarted(const QString &changeTitle);
     void fetchFinished();
     void refresh();
     void scheduleUpdateRemotes();

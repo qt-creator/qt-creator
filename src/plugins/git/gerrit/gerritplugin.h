@@ -40,7 +40,7 @@ public:
     void updateActions(const VcsBase::VcsBasePluginState &state);
 
 signals:
-    void fetchStarted(const std::shared_ptr<Gerrit::Internal::GerritChange> &change);
+    void fetchStarted(const QString &changeTitle);
     void fetchFinished();
 
 private:

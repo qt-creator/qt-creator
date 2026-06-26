@@ -332,12 +332,12 @@ void GerritDialog::slotCurrentChanged()
     updateButtons();
 }
 
-void GerritDialog::fetchStarted(const std::shared_ptr<GerritChange> &change)
+void GerritDialog::fetchStarted(const QString &changeTitle)
 {
     // Disable buttons to prevent parallel gerrit operations which can cause mix-ups.
     m_fetchRunning = true;
     updateButtons();
-    const QString toolTip = Git::Tr::tr("Fetching \"%1\"...").arg(change->title);
+    const QString toolTip = Git::Tr::tr("Fetching \"%1\"...").arg(changeTitle);
     m_displayButton->setToolTip(toolTip);
     m_cherryPickButton->setToolTip(toolTip);
     m_checkoutButton->setToolTip(toolTip);

@@ -288,7 +288,7 @@ void GerritPlugin::fetch(const std::shared_ptr<GerritChange> &change, int mode)
         emit fetchFinished();
     };
 
-    emit fetchStarted(change);
+    emit fetchStarted(change->title);
     GlobalTaskTree::start({ProcessTask(onSetup, onDone)});
 }
 
