@@ -115,6 +115,8 @@ extend_qtc_plugin(TextEditor
   SOURCES
     codeassist/codeassist_test.cpp
     codeassist/codeassist_test.h
+    codestyleaspect_test.cpp
+    codestyleaspect_test.h
     highlighter_test.cpp
     highlighter_test.h
     texteditor_test.cpp

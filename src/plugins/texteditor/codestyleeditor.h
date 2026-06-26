@@ -5,6 +5,10 @@
 
 #include "texteditor_global.h"
 
+#include <utils/aspects.h>
+#include <utils/id.h>
+
+#include <QPointer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -51,6 +55,30 @@ protected:
 
 private:
     QVBoxLayout *m_layout = nullptr;
+};
+
+// Reusable settings-page container for editing an ICodeStylePreferences with
+// deferred apply/cancel. A page-local copy of the style is its volatile state;
+// the language's code style editor edits that copy, and apply() commits it to
+// the real style. Lets a code style page be a plain setSettingsProvider().
+class TEXTEDITOR_EXPORT CodeStyleAspect : public Utils::AspectContainer
+{
+public:
+    CodeStyleAspect(ICodeStylePreferences *codeStyle, Utils::Id languageId);
+    ~CodeStyleAspect() override;
+
+    void apply() override;
+    void cancel() override;
+    bool isDirty() const override;
+
+private:
+    void syncFromReal();
+
+    ICodeStylePreferences *m_codeStyle = nullptr;
+    Utils::Id m_languageId;
+    ICodeStylePreferences *m_pageCodeStyle = nullptr;
+    QPointer<CodeStyleEditor> m_editor;
+    bool m_syncing = false;
 };
 
 } // namespace TextEditor

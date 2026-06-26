@@ -17,6 +17,7 @@
 #include <utils/filepath.h>
 #include <utils/guiutils.h>
 #include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 
 #include <QChar>
 #include <QFont>
@@ -159,6 +160,89 @@ CodeStyleEditor *ICodeStylePreferencesFactory::createProjectEditor(
     const FilePath &projectFile, ICodeStylePreferences *codeStyle) const
 {
     return new CodeStyleProjectPreviewEditor{this, projectFile, codeStyle};
+}
+
+CodeStyleAspect::CodeStyleAspect(ICodeStylePreferences *codeStyle, Id languageId)
+    : m_codeStyle(codeStyle)
+    , m_languageId(languageId)
+{
+    setLayouter([this] {
+        ICodeStylePreferencesFactory *factory = codeStyleFactory(m_languageId);
+        if (!m_pageCodeStyle) {
+            m_pageCodeStyle = factory->createCodeStyle();
+            m_pageCodeStyle->setDelegatingPool(m_codeStyle->delegatingPool());
+            // Share the real style's id so it cannot be picked as its own delegate.
+            m_pageCodeStyle->setId(m_codeStyle->id());
+            connect(m_pageCodeStyle, &ICodeStylePreferences::currentDelegateChanged, this, [this] {
+                if (!m_syncing)
+                    emit volatileValueChanged();
+            });
+        }
+        syncFromReal();
+
+        m_editor = factory->createSettingsEditor(m_pageCodeStyle);
+        connect(m_editor, &CodeStyleEditor::changed, this, [this] { emit volatileValueChanged(); });
+
+        using namespace Layouting;
+        return Column { m_editor.data() };
+    });
+}
+
+CodeStyleAspect::~CodeStyleAspect()
+{
+    delete m_editor;
+    delete m_pageCodeStyle;
+}
+
+void CodeStyleAspect::apply()
+{
+    // Flush the editor's pending edits into the page-local copy, then commit the
+    // copy's settings and delegate to the real style.
+    if (m_editor)
+        m_editor->apply();
+
+    bool changed = false;
+    if (m_codeStyle->value() != m_pageCodeStyle->value()) {
+        m_codeStyle->setValue(m_pageCodeStyle->value());
+        changed = true;
+    }
+    if (m_codeStyle->tabSettings() != m_pageCodeStyle->tabSettings()) {
+        m_codeStyle->setTabSettings(m_pageCodeStyle->tabSettings());
+        changed = true;
+    }
+    if (m_codeStyle->currentDelegate() != m_pageCodeStyle->currentDelegate()) {
+        m_codeStyle->setCurrentDelegate(m_pageCodeStyle->currentDelegate());
+        changed = true;
+    }
+    if (changed)
+        m_codeStyle->toSettings(m_languageId.toKey());
+    emit volatileValueChanged();
+}
+
+void CodeStyleAspect::cancel()
+{
+    if (m_editor)
+        m_editor->cancel();
+    syncFromReal();
+}
+
+bool CodeStyleAspect::isDirty() const
+{
+    // Guard on m_editor: until the page is shown the copy is not yet synced.
+    return m_editor
+           && (m_editor->isDirty()
+               || m_codeStyle->value() != m_pageCodeStyle->value()
+               || m_codeStyle->tabSettings() != m_pageCodeStyle->tabSettings()
+               || m_codeStyle->currentDelegate() != m_pageCodeStyle->currentDelegate());
+}
+
+void CodeStyleAspect::syncFromReal()
+{
+    m_syncing = true;
+    m_pageCodeStyle->setValue(m_codeStyle->value());
+    m_pageCodeStyle->setTabSettings(m_codeStyle->tabSettings());
+    m_pageCodeStyle->setCurrentDelegate(m_codeStyle->currentDelegate());
+    m_syncing = false;
 }
 
 } // TextEditor

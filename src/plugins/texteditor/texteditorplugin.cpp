@@ -36,6 +36,7 @@
 
 #ifdef WITH_TESTS
 #include "codeassist/codeassist_test.h"
+#include "codestyleaspect_test.h"
 #include "highlighter_test.h"
 #endif
 
@@ -103,6 +104,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createTextDocumentTest);
     addTestCreator(createTextEditorTest);
     addTestCreator(createSnippetParserTest);
+    addTestCreator(createCodeStyleAspectTest);
 #endif
 
     IOptionsPage::registerCategory(
