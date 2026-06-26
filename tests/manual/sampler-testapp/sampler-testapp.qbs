@@ -8,7 +8,9 @@ QtcManualTest {
     Depends { name: "Qt.gui" }
     Depends { name: "Qt.qml" }
     Depends { name: "Qt.quick" }
-    Depends { name: "Qt.quick3d" }
+    Depends { name: "Qt.quick3d"; required: false }
+
+    builtByDefault: Qt.quick3d.present
 
     files: "main.cpp"
 }
