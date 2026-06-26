@@ -188,6 +188,25 @@ void LldbEngine::abortDebuggerProcess()
         notifyEngineShutdownFinished();
 }
 
+void LldbEngine::detachDebugger()
+{
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    QTC_CHECK(runParameters().startMode() != AttachToCore);
+    DebuggerCommand cmd("detachInferior");
+    cmd.callback = [this](const DebuggerResponse &response) {
+        QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+        if (!response.data["success"].toInt()) {
+            const QString error = response.data["error"]["status"].data()
+                                  + response.data["status"].data();
+            showMessage(error, LogError);
+            showStatusMessage(Tr::tr("Detaching failed: %1").arg(error));
+            return;
+        }
+        notifyInferiorExited();
+    };
+    runCommand(cmd);
+}
+
 static QString adapterStartFailed()
 {
     return Tr::tr("Adapter start failed.");
