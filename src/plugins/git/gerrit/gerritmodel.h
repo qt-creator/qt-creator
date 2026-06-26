@@ -5,12 +5,12 @@
 
 #include "gerritserver.h"
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 #include <QStandardItemModel>
 #include <QDateTime>
 
 namespace Gerrit::Internal {
-
-class QueryContext;
 
 class GerritApproval {
 public:
@@ -110,7 +110,7 @@ private:
     QList<QStandardItem *> changeToRow(const GerritChangePtr &c) const;
 
     std::shared_ptr<GerritServer> m_server;
-    QueryContext *m_query = nullptr;
+    QtTaskTree::QSingleTaskTreeRunner m_queryRunner;
     QueryState m_state = Idle;
 };
 

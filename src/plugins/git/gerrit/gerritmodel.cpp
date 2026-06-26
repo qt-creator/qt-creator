@@ -12,6 +12,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/globaltasktree.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 
@@ -30,6 +31,7 @@
 #include <QVariant>
 
 using namespace Utils;
+using namespace QtTaskTree;
 using namespace VcsBase;
 
 namespace Gerrit::Internal {
@@ -194,140 +196,46 @@ QString GerritChange::fullTitle() const
     return res;
 }
 
-// Helper class that runs ssh gerrit queries from a list of query argument
-// string lists,
+// Runs ssh gerrit queries from a list of query argument string lists,
 // see http://gerrit.googlecode.com/svn/documentation/2.1.5/cmd-query.html
 // In theory, querying uses a continuation/limit protocol, but we assume
 // we will never reach a limit with those queries.
 
-class QueryContext : public QObject
-{
-    Q_OBJECT
-public:
-    QueryContext(const QString &query,
-                 const GerritServer &server,
-                 QObject *parent = nullptr);
-
-    ~QueryContext() override;
-    void start();
-    void terminate();
-
-signals:
-    void resultRetrieved(const QByteArray &);
-    void errorText(const QString &text);
-    void finished();
-
-private:
-    void processDone();
-    void timeout();
-
-    Process m_process;
-    QTimer m_timer;
-    FilePath m_binary;
-    QByteArray m_output;
-    QString m_error;
-    QStringList m_arguments;
-};
-
 enum { timeOutMS = 30000 };
 
-QueryContext::QueryContext(const QString &query,
-                           const GerritServer &server,
-                           QObject *parent)
-    : QObject(parent)
+struct QueryData
 {
-    m_process.setUseCtrlCStub(true);
-    if (server.type == GerritServer::Ssh) {
-        m_binary = gerritSettings().ssh;
-        if (server.port)
-            m_arguments << gerritSettings().portFlag << QString::number(server.port);
-        m_arguments << server.hostArgument() << "gerrit"
-                    << "query" << "--dependencies"
-                    << "--current-patch-set"
-                    << "--format=JSON" << query;
-    } else {
-        m_binary = gerritSettings().curl;
-        const QString url = server.url(GerritServer::RestUrl) + "/changes/?q="
-                + QString::fromUtf8(QUrl::toPercentEncoding(query))
-                + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
-        m_arguments = server.curlArguments() << url;
-    }
-    connect(&m_process, &Process::readyReadStandardError, this, [this] {
-        const QString text = QString::fromLocal8Bit(m_process.readAllRawStandardError());
-        VcsOutputWindow::appendError(m_process.workingDirectory(), text);
-        m_error.append(text);
-    });
-    connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
-        m_output.append(m_process.readAllRawStandardOutput());
-    });
-    connect(&m_process, &Process::done, this, &QueryContext::processDone);
+    QByteArray output;
+    QString error;
+};
 
-    m_timer.setInterval(timeOutMS);
-    m_timer.setSingleShot(true);
-    connect(&m_timer, &QTimer::timeout, this, &QueryContext::timeout);
-}
-
-QueryContext::~QueryContext()
+// The query may hang on SSH authentication problems. Offer to terminate it.
+// Use a non-modal dialog to avoid spinning a nested event loop inside the recipe.
+static void handleQueryTimeout(Process &process, QTimer *timer)
 {
-    if (m_timer.isActive())
-        m_timer.stop();
-}
-
-void QueryContext::start()
-{
-    // Order: synchronous call to error handling if something goes wrong.
-    const CommandLine commandLine{m_binary, m_arguments};
-    VcsOutputWindow::appendCommand(m_process.workingDirectory(), commandLine);
-    m_timer.start();
-    m_process.setCommand(commandLine);
-    m_process.setEnvironment(Git::Internal::gitClient().processEnvironment(m_binary));
-    auto progress = new Core::ProcessProgress(&m_process);
-    progress->setDisplayName(Git::Tr::tr("Querying Gerrit"));
-    m_process.start();
-}
-
-void QueryContext::terminate()
-{
-    m_process.stop();
-    m_process.waitForFinished();
-}
-
-void QueryContext::processDone()
-{
-    if (m_timer.isActive())
-        m_timer.stop();
-
-    if (!m_error.isEmpty())
-        emit errorText(m_error);
-
-    if (m_process.result() == ProcessResult::FinishedWithSuccess)
-        emit resultRetrieved(m_output);
-    else if (m_process.result() != ProcessResult::Canceled)
-        VcsOutputWindow::appendError(m_process.workingDirectory(), m_process.exitMessage());
-
-    emit finished();
-}
-
-void QueryContext::timeout()
-{
-    if (m_process.state() != QProcess::Running)
+    if (process.state() != QProcess::Running)
         return;
 
-    QMessageBox box(QMessageBox::Question, Git::Tr::tr("Timeout"),
+    auto box = new QMessageBox(QMessageBox::Question, Git::Tr::tr("Timeout"),
                     Git::Tr::tr("The gerrit process has not responded within %1 s.\n"
                        "Most likely this is caused by problems with SSH authentication.\n"
                        "Would you like to terminate it?").
                     arg(timeOutMS / 1000), QMessageBox::NoButton, Core::ICore::dialogParent());
-    QPushButton *terminateButton = box.addButton(Git::Tr::tr("Terminate"), QMessageBox::YesRole);
-    box.addButton(Git::Tr::tr("Keep Running"), QMessageBox::NoRole);
-    connect(&m_process, &Process::done, &box, &QDialog::reject);
-    box.exec();
-    if (m_process.state() != QProcess::Running)
-        return;
-    if (box.clickedButton() == terminateButton)
-        terminate();
-    else
-        m_timer.start();
+    box->setAttribute(Qt::WA_DeleteOnClose);
+    QPushButton *terminateButton = box->addButton(Git::Tr::tr("Terminate"), QMessageBox::YesRole);
+    box->addButton(Git::Tr::tr("Keep Running"), QMessageBox::NoRole);
+    // Close the dialog if the process finishes on its own in the meantime.
+    QObject::connect(&process, &Process::done, box, &QMessageBox::reject);
+    QObject::connect(box, &QMessageBox::finished, &process,
+                     [&process, timer, terminateButton, box] {
+        if (process.state() != QProcess::Running)
+            return;
+        if (box->clickedButton() == terminateButton)
+            process.stop();
+        else
+            timer->start();
+    });
+    box->open();
 }
 
 GerritModel::GerritModel(QObject *parent)
@@ -438,8 +346,6 @@ QStandardItem *GerritModel::itemForNumber(int number) const
 
 void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QString &query)
 {
-    if (m_query)
-        m_query->terminate();
     clearData();
     m_server = server;
 
@@ -451,12 +357,65 @@ void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QSt
             realQuery += QString(" (owner:%1 OR reviewer:%1)").arg(user);
     }
 
-    m_query = new QueryContext(realQuery, *m_server, this);
-    connect(m_query, &QueryContext::resultRetrieved, this, &GerritModel::resultRetrieved);
-    connect(m_query, &QueryContext::errorText, this, &GerritModel::errorText);
-    connect(m_query, &QueryContext::finished, this, &GerritModel::queryFinished);
+    FilePath binary;
+    QStringList arguments;
+    if (m_server->type == GerritServer::Ssh) {
+        binary = gerritSettings().ssh;
+        if (m_server->port)
+            arguments << gerritSettings().portFlag << QString::number(m_server->port);
+        arguments << m_server->hostArgument() << "gerrit"
+                  << "query" << "--dependencies"
+                  << "--current-patch-set"
+                  << "--format=JSON" << realQuery;
+    } else {
+        binary = gerritSettings().curl;
+        const QString url = m_server->url(GerritServer::RestUrl) + "/changes/?q="
+                + QString::fromUtf8(QUrl::toPercentEncoding(realQuery))
+                + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
+        arguments = m_server->curlArguments() << url;
+    }
+
+    const CommandLine commandLine{binary, arguments};
+    const auto data = std::make_shared<QueryData>();
+
+    const auto onSetup = [binary, commandLine, data](Process &process) {
+        process.setUseCtrlCStub(true);
+        process.setCommand(commandLine);
+        process.setEnvironment(Git::Internal::gitClient().processEnvironment(binary));
+        QObject::connect(&process, &Process::readyReadStandardError, &process, [data, &process] {
+            const QString text = QString::fromLocal8Bit(process.readAllRawStandardError());
+            VcsOutputWindow::appendError(process.workingDirectory(), text);
+            data->error.append(text);
+        });
+        QObject::connect(&process, &Process::readyReadStandardOutput, &process, [data, &process] {
+            data->output.append(process.readAllRawStandardOutput());
+        });
+        auto progress = new Core::ProcessProgress(&process);
+        progress->setDisplayName(Git::Tr::tr("Querying Gerrit"));
+        VcsOutputWindow::appendCommand(process.workingDirectory(), commandLine);
+
+        // Scope the timeout timer to the process so it dies together with it.
+        auto timer = new QTimer(&process);
+        timer->setInterval(timeOutMS);
+        timer->setSingleShot(true);
+        QObject::connect(timer, &QTimer::timeout, &process, [&process, timer] {
+            handleQueryTimeout(process, timer);
+        });
+        timer->start();
+    };
+
+    const auto onDone = [this, data](const Process &process, DoneWith result) {
+        if (!data->error.isEmpty())
+            emit errorText(data->error);
+        if (result == DoneWith::Success)
+            resultRetrieved(data->output);
+        else if (process.result() != ProcessResult::Canceled)
+            VcsOutputWindow::appendError(process.workingDirectory(), process.exitMessage());
+        queryFinished();
+    };
+
     emit refreshStateChanged(true);
-    m_query->start();
+    m_queryRunner.start({ProcessTask(onSetup, onDone)});
     setState(Running);
 }
 
@@ -894,12 +853,8 @@ void GerritModel::resultRetrieved(const QByteArray &output)
 
 void GerritModel::queryFinished()
 {
-    m_query->deleteLater();
-    m_query = nullptr;
     setState(Idle);
     emit refreshStateChanged(false);
 }
 
 } // Gerrit::Internal
-
-#include "gerritmodel.moc"
