@@ -21,11 +21,17 @@ class SnippetEditorWidget;
 
 class TEXTEDITOR_EXPORT CodeStyleEditor : public QWidget
 {
+    Q_OBJECT
+
 public:
     CodeStyleEditor();
 
     virtual void apply();
     virtual void cancel();
+    virtual bool isDirty() const;
+
+signals:
+    void changed();
 
 protected:
     void addHeaderWidget(QWidget *widget);

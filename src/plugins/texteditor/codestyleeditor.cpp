@@ -38,6 +38,11 @@ void CodeStyleEditor::apply() {}
 
 void CodeStyleEditor::cancel() {}
 
+bool CodeStyleEditor::isDirty() const
+{
+    return false;
+}
+
 void CodeStyleEditor::addSelector(CodeStyleSelectorWidget *selector)
 {
     m_layout->addWidget(selector);
