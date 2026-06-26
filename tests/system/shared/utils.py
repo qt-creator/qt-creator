@@ -240,14 +240,14 @@ def selectFromFileDialog(fileName, waitForFile=False, ignoreFinalSnooze=False):
 
         root = "/"
         if platform.system() in ('Microsoft', 'Windows'):
-            root = pName[:3]
+            root = pName[:2] + "/" # we use Qt style here
         # click root
         rootIdxStr = "{container=%s text='%s' type='QModelIndex'}" % (sideView, root)
         index = waitForObject(rootIdxStr, 500)
         waitForObject(sideView, 500).scrollTo(index)
         mouseClick(index)
         # progress down the path.. first split part done with rootIdx, last empty (trailing sep)
-        parts = pName.split('/')[1:-1]
+        parts = pName.split(os.sep)[1:-1]
         for p in parts:
             idxStr = "{container=%s text='%s' type='QModelIndex'}" % (fileTree, p)
             index = waitForObject(idxStr, 1000)
