@@ -11,6 +11,7 @@
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/algorithm.h>
+#include <utils/dialogtask.h>
 #include <utils/environment.h>
 #include <utils/globaltasktree.h>
 #include <utils/qtcprocess.h>
@@ -23,12 +24,12 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QMessageBox>
-#include <QPushButton>
 #include <QStringList>
 #include <QTextStream>
-#include <QTimer>
 #include <QUrl>
 #include <QVariant>
+
+#include <chrono>
 
 using namespace Utils;
 using namespace QtTaskTree;
@@ -209,35 +210,6 @@ struct QueryData
     QString error;
 };
 
-// The query may hang on SSH authentication problems. Offer to terminate it.
-// Use a non-modal dialog to avoid spinning a nested event loop inside the recipe.
-static void handleQueryTimeout(Process &process, QTimer *timer)
-{
-    if (process.state() != QProcess::Running)
-        return;
-
-    auto box = new QMessageBox(QMessageBox::Question, Git::Tr::tr("Timeout"),
-                    Git::Tr::tr("The gerrit process has not responded within %1 s.\n"
-                       "Most likely this is caused by problems with SSH authentication.\n"
-                       "Would you like to terminate it?").
-                    arg(timeOutMS / 1000), QMessageBox::NoButton, Core::ICore::dialogParent());
-    box->setAttribute(Qt::WA_DeleteOnClose);
-    QPushButton *terminateButton = box->addButton(Git::Tr::tr("Terminate"), QMessageBox::YesRole);
-    box->addButton(Git::Tr::tr("Keep Running"), QMessageBox::NoRole);
-    // Close the dialog if the process finishes on its own in the meantime.
-    QObject::connect(&process, &Process::done, box, &QMessageBox::reject);
-    QObject::connect(box, &QMessageBox::finished, &process,
-                     [&process, timer, terminateButton, box] {
-        if (process.state() != QProcess::Running)
-            return;
-        if (box->clickedButton() == terminateButton)
-            process.stop();
-        else
-            timer->start();
-    });
-    box->open();
-}
-
 GerritModel::GerritModel(QObject *parent)
     : QStandardItemModel(0, ColumnCount, parent)
 {
@@ -393,15 +365,6 @@ void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QSt
         auto progress = new Core::ProcessProgress(&process);
         progress->setDisplayName(Git::Tr::tr("Querying Gerrit"));
         VcsOutputWindow::appendCommand(process.workingDirectory(), commandLine);
-
-        // Scope the timeout timer to the process so it dies together with it.
-        auto timer = new QTimer(&process);
-        timer->setInterval(timeOutMS);
-        timer->setSingleShot(true);
-        QObject::connect(timer, &QTimer::timeout, &process, [&process, timer] {
-            handleQueryTimeout(process, timer);
-        });
-        timer->start();
     };
 
     const auto onDone = [this, data](const Process &process, DoneWith result) {
@@ -414,8 +377,36 @@ void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QSt
         queryFinished();
     };
 
+    // Asks the user whether to keep waiting for a query that hasn't responded in
+    // time (typically stuck on SSH authentication).
+    const auto onTimeoutSetup = [](DialogWrapper<QMessageBox> &task) {
+        task.setParent(Core::ICore::dialogParent());
+        QMessageBox *box = task.dialog();
+        box->setIcon(QMessageBox::Question);
+        box->setWindowTitle(Git::Tr::tr("Timeout"));
+        box->setText(Git::Tr::tr("The gerrit process has not responded within %1 s.\n"
+                       "Most likely this is caused by problems with SSH authentication.\n"
+                       "Would you like to terminate it?").arg(timeOutMS / 1000));
+        box->addButton(Git::Tr::tr("Terminate"), QMessageBox::RejectRole);
+        box->addButton(Git::Tr::tr("Keep Running"), QMessageBox::AcceptRole);
+    };
+
+    // Run the query in parallel with a timeout watcher. Whoever finishes first
+    // stops the other: a finished query cancels the watcher, while choosing to
+    // terminate in the watcher's dialog cancels the query. The watcher re-arms
+    // itself as long as the user keeps the query running.
+    const Group recipe {
+        parallel,
+        stopOnSuccessOrError,
+        ProcessTask(onSetup, onDone),
+        Forever {
+            timeoutTask(std::chrono::milliseconds(timeOutMS)),
+            DialogTask<QMessageBox>(onTimeoutSetup)
+        }
+    };
+
     emit refreshStateChanged(true);
-    m_queryRunner.start({ProcessTask(onSetup, onDone)});
+    m_queryRunner.start(recipe);
     setState(Running);
 }
 
