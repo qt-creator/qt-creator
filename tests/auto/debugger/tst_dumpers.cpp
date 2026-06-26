@@ -6389,6 +6389,9 @@ void tst_Dumpers::dumper_data()
                + Check("a1.0", "[0]", Pointer(), "double[4]")
                + Check("a1.0.0", "[0]", FloatValue("0"), "double")
                + Check("a1.0.2", "[2]", FloatValue("20"), "double")
+               // a1[1][2] == 1 + 10 * 2 == 21. Reading 11 here would mean rows
+               // and columns are swapped, see QTCREATORBUG-18946.
+               + Check("a1.1.2", "[2]", FloatValue("21"), "double")
                + Check("a1.2", "[2]", Pointer(), "double[4]")
 
                + Check("a2", Value("\"abcd" + QString(16, QChar(0)) + '"'), "char [20]")
