@@ -757,7 +757,7 @@ static QString formattedValue(const WatchItem *item)
             || format == BinaryIntegerFormat
             || format == CharCodeIntegerFormat) {
         bool isSigned = item->value.startsWith('-');
-#if defined(__SIZEOF_INT128__)
+#if defined(HAVE_INT128)
         if (item->size == 16) {
             if (format == DecimalIntegerFormat)
                 return item->value;
