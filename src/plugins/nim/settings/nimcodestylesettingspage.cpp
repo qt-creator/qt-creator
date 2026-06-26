@@ -28,7 +28,6 @@
 #include <utils/shutdownguard.h>
 
 #include <QTextDocument>
-#include <QVBoxLayout>
 
 using namespace TextEditor;
 using namespace Utils;
@@ -42,6 +41,9 @@ public:
         : QWidget(parent)
         , m_preferences(preferences)
     {
+        // Edits are held in the aspect and committed by the hosting page on
+        // apply(), not written through to the preferences immediately.
+        m_tabSettingsWidget.setAutoApply(false);
         m_tabSettingsWidget.setPreferences(preferences);
 
         m_previewTextEdit.setPlainText(Nim::Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
@@ -65,9 +67,14 @@ public:
 
         connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
                 this, &NimCodeStylePreferencesWidget::updatePreview);
+        connect(&m_tabSettingsWidget, &AspectContainer::volatileValueChanged,
+                this, &NimCodeStylePreferencesWidget::updatePreview);
 
         updatePreview();
     }
+
+    TabSettings *tabSettings() { return &m_tabSettingsWidget; }
+    const TabSettings *tabSettings() const { return &m_tabSettingsWidget; }
 
 private:
     void decorateEditor();
@@ -88,8 +95,8 @@ void NimCodeStylePreferencesWidget::updatePreview()
 {
     QTextDocument *doc = m_previewTextEdit.document();
 
-    const TabSettingsData &ts = m_preferences
-            ? m_preferences->currentTabSettings()
+    const TabSettingsData ts = m_preferences
+            ? m_tabSettingsWidget.volatileData()
             : globalCodeStyle().tabSettings();
     m_previewTextEdit.textDocument()->setTabSettings(ts);
 
@@ -114,9 +121,14 @@ public:
     {
         m_selector.setCodeStyle(codeStyle);
         addSelector(&m_selector);
-        addInfoLabel();
         addEditorWidget(&m_widget);
+        connect(m_widget.tabSettings(), &AspectContainer::volatileValueChanged,
+                this, &CodeStyleEditor::changed);
     }
+
+    void apply() final { m_widget.tabSettings()->apply(); }
+    void cancel() final { m_widget.tabSettings()->cancel(); }
+    bool isDirty() const final { return m_widget.tabSettings()->isDirty(); }
 
 private:
     CodeStyleSelectorWidget m_selector;
@@ -166,42 +178,6 @@ private:
     }
 };
 
-class NimCodeStyleSettingsWidget final : public Core::IOptionsPageWidget
-{
-public:
-    explicit NimCodeStyleSettingsWidget(ICodeStylePreferences *codeStyle)
-        : m_codeStyle(codeStyle)
-    {
-        m_nimCodeStylePreferences.setDelegatingPool(m_codeStyle->delegatingPool());
-        m_nimCodeStylePreferences.setTabSettings(m_codeStyle->tabSettings());
-        m_nimCodeStylePreferences.setCurrentDelegate(m_codeStyle->currentDelegate());
-        m_nimCodeStylePreferences.setId(m_codeStyle->id());
-
-        auto factory = codeStyleFactory(Nim::Constants::C_NIMLANGUAGE_ID);
-        CodeStyleEditor *editor
-            = factory->createSettingsEditor(&m_nimCodeStylePreferences);
-
-        auto layout = new QVBoxLayout(this);
-        layout->addWidget(editor);
-    }
-
-    void apply() final
-    {
-        if (m_codeStyle->tabSettings() != m_nimCodeStylePreferences.tabSettings()) {
-            m_codeStyle->setTabSettings(m_nimCodeStylePreferences.tabSettings());
-            m_codeStyle->toSettings(Nim::Constants::C_NIMLANGUAGE_ID);
-        }
-        if (m_codeStyle->currentDelegate() != m_nimCodeStylePreferences.currentDelegate()) {
-            m_codeStyle->setCurrentDelegate(m_nimCodeStylePreferences.currentDelegate());
-            m_codeStyle->toSettings(Nim::Constants::C_NIMLANGUAGE_ID);
-        }
-    }
-
-private:
-    ICodeStylePreferences *m_codeStyle;
-    ICodeStylePreferences m_nimCodeStylePreferences;
-};
-
 // NimCodeStyleSettingsPage
 
 class NimCodeStyleSettingsPage final : public Core::IOptionsPage
@@ -212,7 +188,7 @@ public:
         setId(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_ID);
         setDisplayName(Tr::tr("Code Style"));
         setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
-        setWidgetCreator([this] { return new NimCodeStyleSettingsWidget(&m_globalCodeStyle); });
+        setSettingsProvider([this] { return &m_settings; });
 
         m_globalCodeStyle.setSettingsSuffix("TabPreferences");
         m_globalCodeStyle.setDelegatingPool(&m_pool);
@@ -255,6 +231,7 @@ private:
     CodeStylePool m_pool{&m_factory, Nim::Constants::C_NIMLANGUAGE_ID};
     ICodeStylePreferences m_globalCodeStyle;
     ICodeStylePreferences m_nimCodeStyle;
+    CodeStyleAspect m_settings{&m_globalCodeStyle, Nim::Constants::C_NIMLANGUAGE_ID};
 };
 
 void Internal::setupNimCodeStyle()
