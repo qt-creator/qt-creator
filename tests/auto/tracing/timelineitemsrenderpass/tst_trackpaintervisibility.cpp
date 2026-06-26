@@ -9,6 +9,15 @@
 
 using namespace Timeline;
 
+// TrackPainter renders all tracks in one widget; for these single-track tests
+// the item index under a point is the item of track 0.
+static int itemIndexAt(const TrackPainter &painter, QPoint pos)
+{
+    int track = -1, item = -1;
+    painter.itemAt(pos, &track, &item);
+    return item;
+}
+
 class DummyModel : public TimelineModel
 {
 public:
@@ -36,7 +45,7 @@ void tst_TrackPainterVisibility::noModel()
 {
     TrackPainter painter;
     painter.resize(100, 30);
-    QCOMPARE(painter.indexAt(QPoint(50, 15)), -1);
+    QCOMPARE(itemIndexAt(painter, QPoint(50, 15)), -1);
 }
 
 void tst_TrackPainterVisibility::emptyRange()
@@ -45,10 +54,10 @@ void tst_TrackPainterVisibility::emptyRange()
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
-    painter.setModel(&model);
+    painter.setTracks({&model});
     painter.setRange(0, 0);
     painter.resize(100, 30);
-    QCOMPARE(painter.indexAt(QPoint(50, 15)), -1);
+    QCOMPARE(itemIndexAt(painter, QPoint(50, 15)), -1);
 }
 
 void tst_TrackPainterVisibility::indexAtItem()
@@ -57,11 +66,11 @@ void tst_TrackPainterVisibility::indexAtItem()
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
-    painter.setModel(&model);
+    painter.setTracks({&model});
     painter.setRange(0, 100);
     painter.resize(QSize(100, 30));
 
-    int idx = painter.indexAt(QPoint(50, 15));
+    int idx = itemIndexAt(painter, QPoint(50, 15));
     QVERIFY(idx >= 0);
     QVERIFY(idx < model.count());
 }
@@ -72,10 +81,10 @@ void tst_TrackPainterVisibility::outOfRange()
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
-    painter.setModel(&model);
+    painter.setTracks({&model});
     painter.setRange(200, 300);
     painter.resize(100, 30);
-    QCOMPARE(painter.indexAt(QPoint(50, 15)), -1);
+    QCOMPARE(itemIndexAt(painter, QPoint(50, 15)), -1);
 }
 
 QTEST_MAIN(tst_TrackPainterVisibility)

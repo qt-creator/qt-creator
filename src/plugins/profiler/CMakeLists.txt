@@ -115,6 +115,7 @@ set(PERFPROFILER_CPP_SOURCES
 )
 
 add_qtc_plugin(Profiler
+  CONDITION TARGET Tracing
   DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree
   INCLUDES ${PROJECT_SOURCE_DIR}/src
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor

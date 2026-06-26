@@ -15,51 +15,21 @@
 #include "tracklabels.h"
 #include "trackpainter.h"
 
-#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QEvent>
 #include <QHBoxLayout>
-#include <QLabel>
-#include <QLoggingCategory>
 #include <QPainter>
 #include <QResizeEvent>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QSplitterHandle>
-#include <QTimer>
 #include <QVBoxLayout>
 
 #include <cmath>
 
 namespace Timeline {
-
-// Off by default (QtWarningMsg); enable the overlay with
-// QT_LOGGING_RULES="qtc.tracing.frametime.debug=true".
-namespace {
-Q_LOGGING_CATEGORY(frameTimeLog, "qtc.tracing.frametime", QtWarningMsg)
-}
-
-class StripedBackground : public QWidget
-{
-public:
-    explicit StripedBackground(QWidget *parent = nullptr) : QWidget(parent) {}
-
-protected:
-    void paintEvent(QPaintEvent *) override
-    {
-        const auto *theme = Utils::creatorTheme();
-        if (!theme)
-            return;
-        const QColor bg1 = theme->color(Utils::Theme::Timeline_BackgroundColor1);
-        const QColor bg2 = theme->color(Utils::Theme::Timeline_BackgroundColor2);
-        const int rowH = TimelineModel::defaultRowHeight();
-        QPainter p(this);
-        for (int y = 0, row = 0; y < height(); y += rowH, ++row)
-            p.fillRect(0, y, width(), rowH, (row % 2 == 0) ? bg1 : bg2);
-    }
-};
 
 class DividerHandle : public QSplitterHandle
 {
@@ -105,56 +75,56 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
 
     m_labels = new TrackLabels;
 
-    m_trackContainer = new StripedBackground;
-    m_trackLayout = new QVBoxLayout(m_trackContainer);
-    m_trackLayout->setContentsMargins(0, 0, 0, 0);
-    m_trackLayout->setSpacing(0);
+    // The track container is an empty spacer: it is sized to the full content
+    // height so the scroll area provides a correctly-ranged vertical scroll bar.
+    // The actual rendering happens in m_tracksView, a single viewport-sized
+    // widget that paints all tracks with an internal scroll offset.
+    m_trackContainer = new QWidget;
 
     m_scrollArea = new QScrollArea;
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_scrollArea->setWidgetResizable(true);
+    m_scrollArea->setWidgetResizable(false);
     m_scrollArea->setFrameShape(QFrame::NoFrame);
     m_scrollArea->setWidget(m_trackContainer);
+
+    m_tracksView = new TrackPainter(m_scrollArea->viewport());
+    m_tracksView->resize(m_scrollArea->viewport()->size());
+    m_tracksView->raise();
 
     m_overlay = new SelectionRangeOverlay(zoom, m_scrollArea->viewport());
     m_overlay->resize(m_scrollArea->viewport()->size());
     m_overlay->raise();
     m_scrollArea->viewport()->installEventFilter(this);
 
-    // Frame-time overlay (top-right of the track area): shows the worst
-    // single-frame time over the last sample window. Off by default; enable with
-    // QT_LOGGING_RULES="qtc.tracing.frametime.debug=true".
-    if (frameTimeLog().isDebugEnabled()) {
-        using namespace Utils::StyleHelper;
-        m_frameTimeLabel = new QLabel(m_scrollArea->viewport());
-        m_frameTimeLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
-        m_frameTimeLabel->setAutoFillBackground(true);
-        m_frameTimeLabel->setContentsMargins(SpacingTokens::PaddingVXs, SpacingTokens::PaddingVXs,
-                                             SpacingTokens::PaddingVXs, SpacingTokens::PaddingVXs);
-        m_frameTimeLabel->setFont(uiFont(UiElementCaptionStrong));
-        QPalette pal = m_frameTimeLabel->palette();
-        pal.setColor(QPalette::WindowText, Utils::creatorColor(Utils::Theme::Token_Text_Accent));
-        const QColor bg = Utils::creatorColor(Utils::Theme::Token_Basic_Black);
-        pal.setColor(QPalette::Window, bg);
-        m_frameTimeLabel->setPalette(pal);
-        m_frameTimeLabel->setText("-- ms");
-        m_frameTimeLabel->adjustSize();
-        m_frameTimeLabel->raise();
-        auto frameTimeTimer = new QTimer(this);
-        frameTimeTimer->setInterval(500);
-        connect(frameTimeTimer, &QTimer::timeout, this, &TimelineContentWidget::updateFrameTime);
-        frameTimeTimer->start();
-    }
+    // Drive the render widget's scroll offset from the scroll bar.
+    connect(m_scrollArea->verticalScrollBar(), &QScrollBar::valueChanged,
+            m_tracksView, &TrackPainter::setScrollOffset);
+
+    // Per-area interaction signals (one connection for the whole track area).
+    connect(m_tracksView, &TrackPainter::itemClicked,
+            this, &TimelineContentWidget::selectItem);
+    connect(m_tracksView, &TrackPainter::itemHovered,
+            this, &TimelineContentWidget::onItemHovered);
+    connect(m_tracksView, &TrackPainter::horizontalPan,
+            this, [this](int dx) { applyHorizontalPan(dx); });
+    connect(m_tracksView, &TrackPainter::verticalPan, this, [this](int dy) {
+        QScrollBar *vbar = m_scrollArea->verticalScrollBar();
+        vbar->setValue(vbar->value() - dy);
+    });
+    connect(m_tracksView, &TrackPainter::zoomRequested,
+            this, [this](double cursorX, int dy) { applyZoom(cursorX, dy); });
+
+    m_sync->registerContent(m_tracksView);
 
     connect(m_details, &RangeDetailsWidget::recenterOnItem, this, [this] {
         recenterOnItem(m_selectedModelIndex, m_selectedItemIndex);
     });
 
     connect(m_details, &RangeDetailsWidget::rowDoubleClicked, this, [this](int row) {
-        if (m_selectedModelIndex >= 0 && m_selectedModelIndex < m_painters.size()
+        if (m_selectedModelIndex >= 0 && m_selectedModelIndex < m_trackModels.size()
                 && m_selectedItemIndex >= 0) {
-            m_painters[m_selectedModelIndex]->model()->navigateToDetail(
+            m_trackModels[m_selectedModelIndex]->navigateToDetail(
                 m_selectedItemIndex, row);
         }
     });
@@ -190,15 +160,11 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     connect(m_overlay, &SelectionRangeOverlay::passthruClick, this,
             [this](const QPoint &viewportPos) {
         m_selectionDetails->hide();
-        const QPoint containerPos = m_trackContainer->mapFrom(
-            m_scrollArea->viewport(), viewportPos);
-        for (int i = 0; i < m_painters.size(); ++i) {
-            const QRect r(m_painters[i]->pos(), m_painters[i]->size());
-            if (r.contains(containerPos)) {
-                selectItem(i, m_painters[i]->indexAt(containerPos - m_painters[i]->pos()));
-                break;
-            }
-        }
+        // viewportPos is in viewport coordinates, which match the render widget.
+        int track = -1, item = -1;
+        m_tracksView->itemAt(viewportPos, &track, &item);
+        if (track >= 0)
+            selectItem(track, item);
     });
 
     m_sync->registerLabels(m_labels);
@@ -240,9 +206,9 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     mainLayout->addWidget(splitter);
 
     connect(m_labels, &TrackLabels::expandToggled, this, [this](int trackIndex) {
-        if (trackIndex < 0 || trackIndex >= m_painters.size())
+        if (trackIndex < 0 || trackIndex >= m_trackModels.size())
             return;
-        const int modelId = m_painters[trackIndex]->model()->modelId();
+        const int modelId = m_trackModels[trackIndex]->modelId();
         for (TimelineModel *model : m_aggregator->models()) {
             if (model->modelId() == modelId) {
                 model->setExpanded(!model->expanded());
@@ -257,9 +223,9 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
 
     connect(m_labels, &TrackLabels::rowLabelClicked,
             this, [this](int trackIndex, int rowIndex, bool reverse) {
-        if (trackIndex < 0 || trackIndex >= m_painters.size())
+        if (trackIndex < 0 || trackIndex >= m_trackModels.size())
             return;
-        const int modelId = m_painters[trackIndex]->model()->modelId();
+        const int modelId = m_trackModels[trackIndex]->modelId();
         for (TimelineModel *model : m_aggregator->models()) {
             if (model->modelId() != modelId)
                 continue;
@@ -282,13 +248,14 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
 
     connect(m_labels, &TrackLabels::rowHeightChangeRequested,
             this, [this](int trackIndex, int rowIndex, int newHeight) {
-        if (trackIndex < 0 || trackIndex >= m_painters.size())
+        if (trackIndex < 0 || trackIndex >= m_trackModels.size())
             return;
-        const int modelId = m_painters[trackIndex]->model()->modelId();
+        const int modelId = m_trackModels[trackIndex]->modelId();
         for (TimelineModel *model : m_aggregator->models()) {
             if (model->modelId() == modelId) {
                 model->setExpandedRowHeight(rowIndex + 1, newHeight);
-                m_painters[trackIndex]->updateGeometry();
+                m_tracksView->refreshGeometry();
+                updateContainerSize();
                 return;
             }
         }
@@ -303,8 +270,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     connect(aggregator, &TimelineModelAggregator::notesChanged,
             this, &TimelineContentWidget::updateNotes);
     connect(m_ruler, &TimeRuler::markersChanged, this, [this](const QList<qint64> &markers) {
-        for (auto painter : std::as_const(m_painters))
-            painter->setMarkers(markers);
+        m_tracksView->setMarkers(markers);
     });
 
     rebuildTracks();
@@ -350,43 +316,21 @@ bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == m_scrollArea->viewport() && event->type() == QEvent::Resize) {
         auto *re = static_cast<QResizeEvent *>(event);
+        m_tracksView->resize(re->size());
         m_overlay->resize(re->size());
-        positionFrameTimeLabel();
+        updateContainerSize();
     }
     return false;
 }
 
-void TimelineContentWidget::onFramePainted(std::chrono::nanoseconds renderTime)
+void TimelineContentWidget::updateContainerSize()
 {
-    // Sum the paint durations of all track widgets that repaint in the same
-    // event-loop cycle: that sum is the CPU time to render one full frame. The
-    // queued flush runs once, after every widget in this cycle has painted.
-    m_frameAccum += renderTime;
-    if (!m_frameFlushScheduled) {
-        m_frameFlushScheduled = true;
-        QMetaObject::invokeMethod(this, [this] {
-            m_maxRender = std::max(m_maxRender, m_frameAccum);
-            m_frameAccum = {};
-            m_frameFlushScheduled = false;
-        }, Qt::QueuedConnection);
-    }
-}
-
-void TimelineContentWidget::positionFrameTimeLabel()
-{
-    if (m_frameTimeLabel)
-        m_frameTimeLabel->move(m_scrollArea->viewport()->width() - m_frameTimeLabel->width() - 4, 4);
-}
-
-void TimelineContentWidget::updateFrameTime()
-{
-    // Worst full-frame render time observed in the last sample window.
-    const double ms = std::chrono::duration<double, std::milli>(m_maxRender).count();
-    m_frameTimeLabel->setText(QString::number(ms, 'f', 1) + " ms");
-    m_maxRender = {};
-    m_frameTimeLabel->adjustSize();
-    positionFrameTimeLabel();
-    m_frameTimeLabel->raise();
+    // Keep the spacer container as wide as the viewport (no horizontal scroll)
+    // and as tall as the full track content so the vertical scroll bar covers
+    // the whole timeline. The render widget itself stays viewport-sized.
+    const int viewW = m_scrollArea->viewport()->width();
+    const int contentH = m_tracksView->totalHeight();
+    m_trackContainer->resize(viewW, contentH);
 }
 
 static void fitFloatingWidget(QWidget *w, int parentW, int parentH)
@@ -420,9 +364,9 @@ void TimelineContentWidget::rebuildTracks()
     // Save selection to restore after rebuild (expand/collapse keeps the item alive)
     int savedModelId = -1;
     int savedItemIndex = -1;
-    if (m_selectedModelIndex >= 0 && m_selectedModelIndex < m_painters.size()
+    if (m_selectedModelIndex >= 0 && m_selectedModelIndex < m_trackModels.size()
             && m_selectedItemIndex >= 0) {
-        savedModelId = m_painters[m_selectedModelIndex]->model()->modelId();
+        savedModelId = m_trackModels[m_selectedModelIndex]->modelId();
         savedItemIndex = m_selectedItemIndex;
     }
 
@@ -431,21 +375,15 @@ void TimelineContentWidget::rebuildTracks()
         disconnect(model, nullptr, this, nullptr);
     }
 
-    // Delete painters; Qt removes their layout items automatically on destruction
-    qDeleteAll(m_painters);
-    m_painters.clear();
+    m_trackModels.clear();
     m_painterAggregatorMap.clear();
     m_selectedModelIndex = -1;
     m_selectedItemIndex = -1;
     m_hoveredModelIndex = -1;
     m_hoveredItemIndex = -1;
-    // Remove any remaining non-widget items (e.g. the trailing stretch)
-    while (m_trackLayout->count() > 0)
-        delete m_trackLayout->takeAt(0);
 
     QList<TrackInfo> tracks;
     const bool hasTrace = m_zoom->traceDuration() > 0;
-    int totalRowsBefore = 0;
     int aggIdx = -1;
     for (TimelineModel *model : m_aggregator->models()) {
         ++aggIdx;
@@ -461,40 +399,20 @@ void TimelineContentWidget::rebuildTracks()
         if (hasTrace && model->isEmpty())
             continue;
 
-        auto painter = new TrackPainter(m_trackContainer);
-        painter->setModel(model);
-        painter->setNotes(m_aggregator->notes());
-        painter->setStartOdd(totalRowsBefore % 2 == 0);
-        painter->setSelectionLocked(m_selectionLocked);
-        totalRowsBefore += model->rowCount();
-        m_trackLayout->addWidget(painter);
-        m_sync->registerContent(painter);
-        m_painters.append(painter);
+        m_trackModels.append(model);
         m_painterAggregatorMap.append(aggIdx);
-        if (frameTimeLog().isDebugEnabled())
-            connect(painter, &TrackPainter::painted, this, &TimelineContentWidget::onFramePainted);
-        const int modelIndex = m_painters.size() - 1;
-        connect(painter, &TrackPainter::itemClicked, this,
-                [this, modelIndex](int itemIndex) { selectItem(modelIndex, itemIndex); });
-        connect(painter, &TrackPainter::itemHovered, this,
-                [this, modelIndex](int itemIndex) { onItemHovered(modelIndex, itemIndex); });
-        connect(painter, &TrackPainter::horizontalPan, this,
-                [this](int dx) { applyHorizontalPan(dx); });
-        connect(painter, &TrackPainter::verticalPan, this, [this](int dy) {
-            QScrollBar *vbar = m_scrollArea->verticalScrollBar();
-            vbar->setValue(vbar->value() - dy);
-        });
-        connect(painter, &TrackPainter::zoomRequested, this,
-                [this](double cursorX, int dy) { applyZoom(cursorX, dy); });
+        const int modelIndex = m_trackModels.size() - 1;
 
         // Per-model live-update connections (hiddenChanged and labelsChanged are above)
         connect(model, &TimelineModel::expandedChanged, this, [this] { rebuildTracks(); });
         connect(model, &TimelineModel::displayNameChanged, this, [this] { rebuildTracks(); });
         connect(model, &TimelineModel::tooltipChanged, this, [this] { rebuildTracks(); });
         connect(model, &TimelineModel::categoryColorChanged, this, [this] { rebuildTracks(); });
-        connect(model, &TimelineModel::heightChanged, painter,
-                [painter] { painter->updateGeometry(); });
-        connect(model, &TimelineModel::detailsChanged, painter,
+        connect(model, &TimelineModel::heightChanged, this, [this] {
+            m_tracksView->refreshGeometry();
+            updateContainerSize();
+        });
+        connect(model, &TimelineModel::detailsChanged, this,
                 [this, modelIndex] {
             if (m_selectedModelIndex == modelIndex && m_selectedItemIndex >= 0)
                 showItemDetails(m_selectedModelIndex, m_selectedItemIndex);
@@ -523,7 +441,13 @@ void TimelineContentWidget::rebuildTracks()
         }
         tracks.append(info);
     }
-    m_trackLayout->addStretch(1);
+
+    m_tracksView->setNotes(m_aggregator->notes());
+    m_tracksView->setSelectionLocked(m_selectionLocked);
+    m_tracksView->setTracks(m_trackModels);
+    updateContainerSize();
+    m_tracksView->setScrollOffset(m_scrollArea->verticalScrollBar()->value());
+
     m_labels->setTracks(tracks);
     m_labels->setScrollOffset(m_scrollArea->verticalScrollBar()->value());
 
@@ -531,13 +455,13 @@ void TimelineContentWidget::rebuildTracks()
     // exists; otherwise clear details. The item index can go stale when the model
     // was cleared (e.g. on a new profiling run), which would index out of bounds.
     if (savedModelId >= 0) {
-        for (int i = 0; i < m_painters.size(); ++i) {
-            const TimelineModel *model = m_painters[i]->model();
+        for (int i = 0; i < m_trackModels.size(); ++i) {
+            const TimelineModel *model = m_trackModels[i];
             if (model->modelId() == savedModelId
                     && savedItemIndex >= 0 && savedItemIndex < model->count()) {
                 m_selectedModelIndex = i;
                 m_selectedItemIndex = savedItemIndex;
-                m_painters[i]->setSelectedItem(savedItemIndex);
+                m_tracksView->setSelectedItem(i, savedItemIndex);
                 showItemDetails(i, savedItemIndex);
                 return;
             }
@@ -560,8 +484,7 @@ void TimelineContentWidget::updateNotes()
             connect(m_notes, &TimelineNotesModel::changed, this,
                     &TimelineContentWidget::rebuildTracks);
     }
-    for (auto painter : std::as_const(m_painters))
-        painter->setNotes(notes);
+    m_tracksView->setNotes(notes);
     rebuildTracks();
 }
 
@@ -584,19 +507,18 @@ void TimelineContentWidget::onItemHovered(int modelIndex, int itemIndex)
 
 void TimelineContentWidget::selectItem(int modelIndex, int itemIndex)
 {
-    if (m_selectedModelIndex != modelIndex && m_selectedModelIndex >= 0
-            && m_selectedModelIndex < m_painters.size()) {
-        m_painters[m_selectedModelIndex]->setSelectedItem(-1);
-    }
-
     m_selectedModelIndex = modelIndex;
     m_selectedItemIndex = itemIndex;
 
-    if (modelIndex >= 0 && modelIndex < m_painters.size())
-        m_painters[modelIndex]->setSelectedItem(itemIndex);
+    // The single render widget holds one (track, item) selection; setting it
+    // replaces any previous selection.
+    if (modelIndex >= 0 && modelIndex < m_trackModels.size())
+        m_tracksView->setSelectedItem(modelIndex, itemIndex);
+    else
+        m_tracksView->setSelectedItem(-1, -1);
 
-    if (modelIndex >= 0 && modelIndex < m_painters.size() && itemIndex >= 0) {
-        const TimelineModel *model = m_painters[modelIndex]->model();
+    if (modelIndex >= 0 && modelIndex < m_trackModels.size() && itemIndex >= 0) {
+        const TimelineModel *model = m_trackModels[modelIndex];
         const int newTypeId = model->typeId(itemIndex);
         const ItemLocation loc = model->location(itemIndex);
         m_currentFile = loc.file;
@@ -619,10 +541,9 @@ void TimelineContentWidget::selectItem(int modelIndex, int itemIndex)
 
 void TimelineContentWidget::applyHorizontalPan(int dx)
 {
-    if (m_painters.isEmpty() || dx == 0)
+    if (m_trackModels.isEmpty() || dx == 0)
         return;
-    const TrackPainter *painter = m_painters.first();
-    const int viewW = painter->width();
+    const int viewW = m_tracksView->width();
     if (viewW <= 0)
         return;
     const qint64 rangeDuration = m_zoom->rangeEnd() - m_zoom->rangeStart();
@@ -645,9 +566,9 @@ void TimelineContentWidget::applyHorizontalPan(int dx)
 
 void TimelineContentWidget::recenterOnItem(int modelIndex, int itemIndex)
 {
-    if (modelIndex < 0 || modelIndex >= m_painters.size() || itemIndex < 0)
+    if (modelIndex < 0 || modelIndex >= m_trackModels.size() || itemIndex < 0)
         return;
-    const TimelineModel *model = m_painters[modelIndex]->model();
+    const TimelineModel *model = m_trackModels[modelIndex];
     const qint64 startTime = model->startTime(itemIndex);
     const qint64 endTime = model->endTime(itemIndex);
 
@@ -661,7 +582,7 @@ void TimelineContentWidget::recenterOnItem(int modelIndex, int itemIndex)
 
     // Vertical: scroll so the item's row is visible
     const int row = model->row(itemIndex);
-    const int rowTop = m_painters[modelIndex]->pos().y() + model->rowOffset(row);
+    const int rowTop = m_tracksView->trackYOffset(modelIndex) + model->rowOffset(row);
     const int rowH = model->rowHeight(row);
     QScrollBar *vbar = m_scrollArea->verticalScrollBar();
     const int viewH = m_scrollArea->viewport()->height();
@@ -674,9 +595,9 @@ void TimelineContentWidget::recenterOnItem(int modelIndex, int itemIndex)
 
 void TimelineContentWidget::applyZoom(double cursorX, int dy)
 {
-    if (m_painters.isEmpty())
+    if (m_trackModels.isEmpty())
         return;
-    const int viewW = m_painters.first()->width();
+    const int viewW = m_tracksView->width();
     if (viewW <= 0)
         return;
 
@@ -717,8 +638,8 @@ void TimelineContentWidget::selectByAggregatorIndex(int aggModelIndex, int itemI
 {
     const int pi = aggregatorToPainter(aggModelIndex);
     // Pre-set typeId to suppress updateCursorPosition feedback to the caller.
-    if (pi >= 0 && pi < m_painters.size() && itemIndex >= 0 && m_selectedItemIndex != -1)
-        m_currentTypeId = m_painters[pi]->model()->typeId(itemIndex);
+    if (pi >= 0 && pi < m_trackModels.size() && itemIndex >= 0 && m_selectedItemIndex != -1)
+        m_currentTypeId = m_trackModels[pi]->typeId(itemIndex);
     selectItem(pi, itemIndex);
 }
 
@@ -809,15 +730,14 @@ void TimelineContentWidget::setSelectionLocked(bool locked)
     if (m_selectionLocked == locked)
         return;
     m_selectionLocked = locked;
-    for (auto painter : std::as_const(m_painters))
-        painter->setSelectionLocked(locked);
+    m_tracksView->setSelectionLocked(locked);
     emit selectionLockedChanged(locked);
 }
 
 void TimelineContentWidget::showItemDetails(int modelIndex, int itemIndex)
 {
-    if (modelIndex >= 0 && modelIndex < m_painters.size() && itemIndex >= 0) {
-        const TimelineModel *model = m_painters[modelIndex]->model();
+    if (modelIndex >= 0 && modelIndex < m_trackModels.size() && itemIndex >= 0) {
+        const TimelineModel *model = m_trackModels[modelIndex];
         const OrderedItemDetails od = model->orderedDetails(itemIndex);
         const QString title = od.title;
         const QList<QPair<QString, QString>> content = od.content;

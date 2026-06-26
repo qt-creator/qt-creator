@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
     painterLayout->setContentsMargins(0, 0, 0, 0);
 
     auto trackPainter = new Timeline::TrackPainter(painterWindow);
-    trackPainter->setModel(model);
+    trackPainter->setTracks({model});
     trackPainter->setNotes(notes);
     trackPainter->setRange(0, oneMs * 1000 / 3);
     painterLayout->addWidget(trackPainter);
@@ -195,13 +195,13 @@ int main(int argc, char *argv[])
                      });
 
     QObject::connect(trackPainter, &Timeline::TrackPainter::itemHovered,
-                     trackPainter, [trackPainter](int index) {
-                         trackPainter->setHoveredItem(index);
+                     trackPainter, [trackPainter](int track, int index) {
+                         trackPainter->setHoveredItem(track, index);
                      });
 
     QObject::connect(trackPainter, &Timeline::TrackPainter::itemClicked,
-                     trackPainter, [trackPainter](int index) {
-                         trackPainter->setSelectedItem(index);
+                     trackPainter, [trackPainter](int track, int index) {
+                         trackPainter->setSelectedItem(track, index);
                      });
 
     painterWindow->show();

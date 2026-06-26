@@ -9,6 +9,15 @@
 
 using namespace Timeline;
 
+// TrackPainter renders all tracks in one widget; for these single-track tests
+// the item index under a point is the item of track 0.
+static int itemIndexAt(const TrackPainter &painter, QPoint pos)
+{
+    int track = -1, item = -1;
+    painter.itemAt(pos, &track, &item);
+    return item;
+}
+
 class DummyModel : public TimelineModel
 {
 public:
@@ -35,14 +44,14 @@ private slots:
 void tst_SelectionStatePaint::initialState()
 {
     TrackPainter painter;
-    QCOMPARE(painter.indexAt(QPoint(-1, -1)), -1);
+    QCOMPARE(itemIndexAt(painter, QPoint(-1, -1)), -1);
 }
 
 void tst_SelectionStatePaint::selectedItemGetter()
 {
     TrackPainter painter;
-    painter.setSelectedItem(5);
-    painter.setSelectedItem(-1);
+    painter.setSelectedItem(0, 5);
+    painter.setSelectedItem(-1, -1);
 }
 
 void tst_SelectionStatePaint::paintWithSelection()
@@ -51,9 +60,9 @@ void tst_SelectionStatePaint::paintWithSelection()
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
-    painter.setModel(&model);
+    painter.setTracks({&model});
     painter.setRange(0, 100);
-    painter.setSelectedItem(0);
+    painter.setSelectedItem(0, 0);
     painter.repaint();
 }
 

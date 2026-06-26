@@ -1,6 +1,7 @@
 add_qtc_library(Tracing
   DEPENDS Utils
-  PUBLIC_DEPENDS Qt::Widgets
+  CONDITION TARGET Qt::CanvasPainter
+  PUBLIC_DEPENDS Qt::Widgets Qt::CanvasPainter
   SOURCES
     flamegraphwidget.cpp flamegraphwidget.h
     safecastable.h
@@ -29,16 +30,18 @@ add_qtc_library(Tracing
     tracingtr.h
 )
 
-qt_add_resources(Tracing "images"
-  PREFIX "/tracing"
-  BASE "."
-  FILES
-    images/edit.png
-    images/edit@2x.png
-    images/rangeselected.png
-    images/rangeselected@2x.png
-    images/rangeselection.png
-    images/rangeselection@2x.png
-    images/selectionmode.png
-    images/selectionmode@2x.png
-)
+if(TARGET Tracing)
+  qt_add_resources(Tracing "images"
+    PREFIX "/tracing"
+    BASE "."
+    FILES
+      images/edit.png
+      images/edit@2x.png
+      images/rangeselected.png
+      images/rangeselected@2x.png
+      images/rangeselection.png
+      images/rangeselection@2x.png
+      images/selectionmode.png
+      images/selectionmode@2x.png
+  )
+endif()

@@ -9,10 +9,7 @@
 #include <QString>
 #include <QWidget>
 
-#include <chrono>
-
 QT_BEGIN_NAMESPACE
-class QLabel;
 class QScrollArea;
 class QVBoxLayout;
 class QWidget;
@@ -20,6 +17,7 @@ QT_END_NAMESPACE
 
 namespace Timeline {
 
+class TimelineModel;
 class TimelineModelAggregator;
 class TimelineNotesModel;
 class TimelineZoomControl;
@@ -87,9 +85,6 @@ private:
     void recenterOnItem(int modelIndex, int itemIndex);
     void onItemHovered(int modelIndex, int itemIndex);
     void showItemDetails(int modelIndex, int itemIndex);
-    void onFramePainted(std::chrono::nanoseconds renderTime);
-    void updateFrameTime();
-    void positionFrameTimeLabel();
 
     // Translate between painter index (into m_painters) and aggregator model index.
     int painterToAggregator(int painterIdx) const;
@@ -101,8 +96,7 @@ private:
     TimeRuler *m_ruler;
     TrackLabels *m_labels;
     QScrollArea *m_scrollArea;
-    QWidget *m_trackContainer;
-    QVBoxLayout *m_trackLayout;
+    QWidget *m_trackContainer; // sizing spacer that drives the vertical scroll range
     QWidget *m_leftPanel = nullptr;
     QVBoxLayout *m_leftLayout = nullptr;
     QWidget *m_leftHeader = nullptr;
@@ -110,8 +104,11 @@ private:
     SelectionRangeDetailsWidget *m_selectionDetails;
     RangeDetailsWidget *m_details; // Not owned; lives in a dockable view.
     TimelineNotesModel *m_notes = nullptr;
-    QList<TrackPainter *> m_painters;
-    QList<int> m_painterAggregatorMap; // m_painterAggregatorMap[painterIdx] = aggregator model index
+    TrackPainter *m_tracksView = nullptr; // single widget rendering all tracks
+    QList<TimelineModel *> m_trackModels; // visible models, parallel to track index
+    QList<int> m_painterAggregatorMap; // m_painterAggregatorMap[trackIdx] = aggregator model index
+
+    void updateContainerSize();
 
     int m_selectedModelIndex = -1;
     int m_selectedItemIndex = -1;
@@ -124,13 +121,6 @@ private:
     int m_hoveredItemIndex = -1;
 
     bool m_selectionLocked = false;
-
-    // Frame-time overlay: shows the worst full-frame render time, i.e. the
-    // per-repaint-cycle sum of the track widgets' paint durations.
-    QLabel *m_frameTimeLabel = nullptr;
-    std::chrono::nanoseconds m_frameAccum{};  // paint time accumulated for the current cycle
-    std::chrono::nanoseconds m_maxRender{};   // worst full-frame render time this sample window
-    bool m_frameFlushScheduled = false;
 };
 
 } // namespace Timeline

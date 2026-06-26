@@ -10,6 +10,15 @@
 
 using namespace Timeline;
 
+// TrackPainter renders all tracks in one widget; for these single-track tests
+// the item index under a point is the item of track 0.
+static int itemIndexAt(const TrackPainter &painter, QPoint pos)
+{
+    int track = -1, item = -1;
+    painter.itemAt(pos, &track, &item);
+    return item;
+}
+
 class DummyModel : public TimelineModel
 {
 public:
@@ -35,11 +44,11 @@ void tst_TrackPainterProperties::model()
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
 
-    QCOMPARE(painter.model(), nullptr);
-    painter.setModel(&model);
-    QCOMPARE(painter.model(), &model);
-    painter.setModel(nullptr);
-    QCOMPARE(painter.model(), nullptr);
+    QCOMPARE(painter.trackModel(0), nullptr);
+    painter.setTracks({&model});
+    QCOMPARE(painter.trackModel(0), &model);
+    painter.setTracks({});
+    QCOMPARE(painter.trackModel(0), nullptr);
 }
 
 void tst_TrackPainterProperties::notes()
@@ -70,22 +79,22 @@ void tst_TrackPainterProperties::selectionLocked()
 void tst_TrackPainterProperties::selectedItem()
 {
     TrackPainter painter;
-    painter.setSelectedItem(-1);
-    painter.setSelectedItem(0);
-    painter.setSelectedItem(5);
-    painter.setSelectedItem(-1);
+    painter.setSelectedItem(-1, -1);
+    painter.setSelectedItem(0, 0);
+    painter.setSelectedItem(0, 5);
+    painter.setSelectedItem(-1, -1);
 }
 
 void tst_TrackPainterProperties::indexAt()
 {
     TrackPainter painter;
-    QCOMPARE(painter.indexAt(QPoint(0, 0)), -1);
+    QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
 
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
-    painter.setModel(&model);
+    painter.setTracks({&model});
     painter.setRange(0, 0);
-    QCOMPARE(painter.indexAt(QPoint(0, 0)), -1);
+    QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
 }
 
 QTEST_MAIN(tst_TrackPainterProperties)

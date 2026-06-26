@@ -5,62 +5,68 @@
 
 #include "tracing_global.h"
 
-#include <QElapsedTimer>
+#include <QCanvasPainterWidget>
 #include <QList>
-#include <QPixmap>
-#include <QWidget>
 
-#include <chrono>
+QT_BEGIN_NAMESPACE
+class QCanvasPainter;
+QT_END_NAMESPACE
 
 namespace Timeline {
 
 class TimelineModel;
 class TimelineNotesModel;
 
-class TRACING_EXPORT TrackPainter : public QWidget
+// Renders the whole track area (all visible tracks stacked vertically) into a
+// single hardware-accelerated QCanvasPainter surface. The widget fills the
+// scroll-area viewport and scrolls its content by an internal pixel offset
+// rather than being a tall widget moved by the scroll area; this keeps the GPU
+// render target viewport-sized regardless of how many tracks there are.
+class TRACING_EXPORT TrackPainter : public QCanvasPainterWidget
 {
     Q_OBJECT
 public:
     explicit TrackPainter(QWidget *parent = nullptr);
 
-    void setModel(TimelineModel *model);
-    TimelineModel *model() { return m_model; }
-    const TimelineModel *model() const { return m_model; }
+    // The ordered list of visible track models. Per-track Y offsets and zebra
+    // parity are recomputed and the total content height is updated.
+    void setTracks(const QList<TimelineModel *> &models);
+    void refreshGeometry(); // recompute offsets/total height after row sizes change
 
-    void setStartOdd(bool startOdd);
-    bool startOdd() const { return m_startOdd; }
+    int trackCount() const { return m_tracks.size(); }
+    TimelineModel *trackModel(int trackIndex) const;
+    int trackYOffset(int trackIndex) const; // absolute Y of the track top in content space
+    int totalHeight() const { return m_totalHeight; }
 
     void setNotes(const TimelineNotesModel *notes);
     void setMarkers(const QList<qint64> &markers);
 
     void setRange(qint64 rangeStart, qint64 rangeEnd);
-
     qint64 rangeStart() const { return m_rangeStart; }
     qint64 rangeEnd() const { return m_rangeEnd; }
 
-    void setSelectedItem(int index);  // -1 = none
-    void setHoveredItem(int index);   // -1 = none
+    void setScrollOffset(int y);
+    int scrollOffset() const { return m_scrollOffset; }
+
+    void setSelectedItem(int trackIndex, int itemIndex); // -1 = none
+    void setHoveredItem(int trackIndex, int itemIndex);   // -1 = none
     void setSelectionLocked(bool locked);
 
-    int indexAt(const QPoint &pos) const;
+    // Hit test in widget(viewport)-local coordinates. Writes the track and item
+    // index under the cursor, or -1 when nothing is hit.
+    void itemAt(const QPoint &pos, int *trackIndex, int *itemIndex) const;
 
     QSize sizeHint() const override;
 
 signals:
-    void itemHovered(int index);
-    void itemClicked(int index);
+    void itemHovered(int trackIndex, int itemIndex);
+    void itemClicked(int trackIndex, int itemIndex);
     void horizontalPan(int dx);
     void verticalPan(int dy);
     void zoomRequested(double cursorX, int dy);
 
-    // CPU time spent in this paintEvent(), for the frame-time overlay. Summed
-    // across the track widgets over one repaint cycle it gives the full-frame
-    // render time.
-    void painted(std::chrono::nanoseconds renderTime);
-
 protected:
-    void paintEvent(QPaintEvent *) override;
-    void resizeEvent(QResizeEvent *) override;
+    void paint(QCanvasPainter *painter) override;
     void mouseMoveEvent(QMouseEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
@@ -68,48 +74,34 @@ protected:
     void leaveEvent(QEvent *) override;
 
 private:
-    void invalidateCache();
-    void rebuildCache(const QRect &viewRect);
-    // The on-screen portion of this (potentially very tall) widget, in widget
-    // coordinates. The cache and all rendering are bounded to this slice.
-    QRect visibleRect() const;
-    // Renders the cached content (events, markers, notes) using m_rangeStart/End
-    // and width() for coordinates, in widget space. Only events in
-    // [iterStart, iterEnd] are iterated and only rows intersecting viewRect are
-    // drawn. Backgrounds and grid lines are drawn live (see paintBackground /
-    // paintGridOverlay), not baked into the cache. Caller must translate the
-    // painter so viewRect.topLeft() maps to the pixmap origin, and set the clip
-    // rect for strip renders.
-    void renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd,
-                       const QRect &viewRect) const;
-    // Live layers (not cached): cheap and range/scroll dependent, so drawing
-    // them every frame avoids the drift that baking + integer pixel shifting
-    // introduced. Drawn in widget coordinates, bounded to viewRect.
-    void paintBackground(QPainter &p, const QRect &viewRect) const;
-    void paintGridOverlay(QPainter &p, const QRect &viewRect) const;
-    void paintScaleOverlay(QPainter &p);
+    struct Track {
+        TimelineModel *model = nullptr;
+        int yOffset = 0;     // absolute top within the content
+        bool startOdd = true;
+    };
 
-    TimelineModel *m_model = nullptr;
+    void rebuildGeometry();
+    int trackAt(int contentY) const; // index of the track containing content-Y, or -1
+    int indexInModel(const TimelineModel *model, const QPoint &local) const;
+    void renderTrack(QCanvasPainter &p, const Track &track) const;
+    void paintScaleOverlay(QCanvasPainter &p, const Track &track) const;
+    void paintSelectionOverlay(QCanvasPainter &p) const;
+
+    QList<Track> m_tracks;
     const TimelineNotesModel *m_notes = nullptr;
     QList<qint64> m_markers;
     qint64 m_rangeStart = 0;
     qint64 m_rangeEnd = 0;
+    int m_scrollOffset = 0;
+    int m_totalHeight = 0;
+    int m_selectedTrack = -1;
     int m_selectedItem = -1;
+    int m_hoveredTrack = -1;
     int m_hoveredItem = -1;
     bool m_selectionLocked = true;
-    bool m_startOdd = true;
 
     QPoint m_pressPos;
     bool m_panning = false;
-
-    // Off-screen cache of the current view. Bounded to the on-screen slice
-    // (m_cacheRect, widget coordinates), so an expanded track that is far taller
-    // than the viewport never allocates a full-height pixmap.
-    // m_pendingShiftPx: pixels the cache must be shifted to match the current range.
-    // Positive = shift right (user panned left / earlier time is now visible).
-    QPixmap m_cache;
-    QRect m_cacheRect;
-    int m_pendingShiftPx = 0;
 };
 
 } // namespace Timeline

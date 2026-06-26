@@ -9,40 +9,70 @@
 
 #include <utils/theme/theme.h>
 
-#include <QVarLengthArray>
-#include <QElapsedTimer>
+#include <QCanvasPainter>
+#include <QCanvasPath>
+#include <QColor>
+#include <QHash>
 #include <QMouseEvent>
-#include <QPaintEvent>
-#include <QPainter>
-#include <QPixmap>
-#include <QResizeEvent>
-#include <QScopeGuard>
 #include <QString>
+#include <QVarLengthArray>
 #include <QWheelEvent>
 
 #include <cmath>
+#include <limits>
 
 namespace Timeline {
 
 TrackPainter::TrackPainter(QWidget *parent)
-    : QWidget(parent)
+    : QCanvasPainterWidget(parent)
 {
     setMouseTracking(true);
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
-void TrackPainter::setModel(TimelineModel *model)
+void TrackPainter::setTracks(const QList<TimelineModel *> &models)
 {
-    m_model = model;
-    invalidateCache();
+    m_tracks.clear();
+    m_tracks.reserve(models.size());
+    for (TimelineModel *model : models)
+        m_tracks.append(Track{model, 0, true});
+    rebuildGeometry();
     update();
 }
 
-void TrackPainter::setMarkers(const QList<qint64> &markers)
+void TrackPainter::rebuildGeometry()
 {
-    m_markers = markers;
-    invalidateCache();
+    int y = 0;
+    int totalRowsBefore = 0;
+    for (Track &track : m_tracks) {
+        track.yOffset = y;
+        // Zebra parity continues across track boundaries (matches TimeMarks).
+        track.startOdd = (totalRowsBefore % 2 == 0);
+        if (track.model) {
+            y += track.model->height();
+            totalRowsBefore += track.model->rowCount();
+        }
+    }
+    m_totalHeight = y;
+}
+
+void TrackPainter::refreshGeometry()
+{
+    rebuildGeometry();
     update();
+}
+
+TimelineModel *TrackPainter::trackModel(int trackIndex) const
+{
+    if (trackIndex >= 0 && trackIndex < m_tracks.size())
+        return m_tracks[trackIndex].model;
+    return nullptr;
+}
+
+int TrackPainter::trackYOffset(int trackIndex) const
+{
+    if (trackIndex >= 0 && trackIndex < m_tracks.size())
+        return m_tracks[trackIndex].yOffset;
+    return 0;
 }
 
 void TrackPainter::setNotes(const TimelineNotesModel *notes)
@@ -53,11 +83,13 @@ void TrackPainter::setNotes(const TimelineNotesModel *notes)
         disconnect(m_notes, nullptr, this, nullptr);
     m_notes = notes;
     if (m_notes)
-        connect(m_notes, &TimelineNotesModel::changed, this, [this] {
-            invalidateCache();
-            update();
-        });
-    invalidateCache();
+        connect(m_notes, &TimelineNotesModel::changed, this, [this] { update(); });
+    update();
+}
+
+void TrackPainter::setMarkers(const QList<qint64> &markers)
+{
+    m_markers = markers;
     update();
 }
 
@@ -65,49 +97,36 @@ void TrackPainter::setRange(qint64 rangeStart, qint64 rangeEnd)
 {
     if (m_rangeStart == rangeStart && m_rangeEnd == rangeEnd)
         return;
-    const qint64 oldStart = m_rangeStart;
-    const qint64 oldDuration = m_rangeEnd - m_rangeStart;
-    const qint64 newDuration = rangeEnd - rangeStart;
     m_rangeStart = rangeStart;
     m_rangeEnd = rangeEnd;
-
-    const bool purePan = (oldDuration == newDuration && oldDuration > 0);
-    if (purePan && !m_cache.isNull() && width() > 0) {
-        const qint64 timeDelta = oldStart - rangeStart;
-        const qint64 duration = m_rangeEnd - m_rangeStart;
-        const qint64 width64 = static_cast<qint64>(width());
-
-        // Use 64-bit integer math: (delta * width) / duration
-        // This is mathematically identical to (delta / duration) * width
-        // but avoids all floating point precision issues and is much faster.
-        // We use qint64 to ensure the multiplication doesn't overflow.
-        const qint64 shiftPx_64 = (timeDelta * width64) / duration;
-
-        // Check if the jump is within bounds using 64-bit math to avoid qAbs assertion
-        if (qAbs(static_cast<qint64>(m_pendingShiftPx) + shiftPx_64) < width64) {
-            m_pendingShiftPx = static_cast<int>(shiftPx_64);
-            update();
-            return;
-        }
-    }
-
-    invalidateCache();
+    // The whole area is re-rendered on the GPU each frame, so panning and
+    // zooming simply request a repaint.
     update();
 }
 
-void TrackPainter::setSelectedItem(int index)
+void TrackPainter::setScrollOffset(int y)
 {
-    if (m_selectedItem == index)
+    if (m_scrollOffset == y)
         return;
-    m_selectedItem = index;
+    m_scrollOffset = y;
     update();
 }
 
-void TrackPainter::setHoveredItem(int index)
+void TrackPainter::setSelectedItem(int trackIndex, int itemIndex)
 {
-    if (m_hoveredItem == index)
+    if (m_selectedTrack == trackIndex && m_selectedItem == itemIndex)
         return;
-    m_hoveredItem = index;
+    m_selectedTrack = trackIndex;
+    m_selectedItem = itemIndex;
+    update();
+}
+
+void TrackPainter::setHoveredItem(int trackIndex, int itemIndex)
+{
+    if (m_hoveredTrack == trackIndex && m_hoveredItem == itemIndex)
+        return;
+    m_hoveredTrack = trackIndex;
+    m_hoveredItem = itemIndex;
     update();
 }
 
@@ -119,19 +138,11 @@ void TrackPainter::setSelectionLocked(bool locked)
     update();
 }
 
-void TrackPainter::setStartOdd(bool startOdd)
-{
-    if (m_startOdd == startOdd)
-        return;
-    m_startOdd = startOdd;
-    invalidateCache();
-    update();
-}
-
 QSize TrackPainter::sizeHint() const
 {
-    int h = m_model ? m_model->height() : TimelineModel::defaultRowHeight();
-    return QSize(200, h);
+    // The widget fills the viewport; its size is driven externally. The hint is
+    // only a sensible fallback.
+    return QSize(200, TimelineModel::defaultRowHeight());
 }
 
 static QColor themeColor(Utils::Theme::Color role)
@@ -164,49 +175,142 @@ static QString prettyPrintScale(qint64 amount)
     return result;
 }
 
-void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd,
-                                 const QRect &viewRect) const
+int TrackPainter::trackAt(int contentY) const
 {
-    if (!m_model || m_model->hidden())
+    if (contentY < 0)
+        return -1;
+    for (int i = 0; i < m_tracks.size(); ++i) {
+        const Track &t = m_tracks[i];
+        if (!t.model)
+            continue;
+        if (contentY >= t.yOffset && contentY < t.yOffset + t.model->height())
+            return i;
+    }
+    return -1;
+}
+
+void TrackPainter::paint(QCanvasPainter *painter)
+{
+    QCanvasPainter &p = *painter;
+
+    // Striped background covering the whole viewport (continues below the last
+    // track, like the QML striped background). Tracks overdraw their own rows.
+    const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
+    const QColor bg2 = themeColor(Utils::Theme::Timeline_BackgroundColor2);
+    const int stripeH = qMax(1, TimelineModel::defaultRowHeight());
+    for (int vy = -(m_scrollOffset % stripeH); vy < height(); vy += stripeH) {
+        const int absRow = (vy + m_scrollOffset) / stripeH;
+        p.setFillStyle((absRow % 2 == 0) ? bg1 : bg2);
+        p.fillRect(0, vy, width(), stripeH);
+    }
+
+    // Render each visible track, translated into content space.
+    for (const Track &track : std::as_const(m_tracks)) {
+        if (!track.model)
+            continue;
+        const int top = track.yOffset - m_scrollOffset;
+        const int trackH = track.model->height();
+        if (top + trackH <= 0 || top >= height())
+            continue; // fully scrolled out of view
+        p.save();
+        p.translate(0.0f, float(top));
+        renderTrack(p, track);
+        paintScaleOverlay(p, track);
+        p.restore();
+    }
+
+    paintSelectionOverlay(p);
+}
+
+// Renders one track in track-local coordinates (y = 0 at the track top).
+void TrackPainter::renderTrack(QCanvasPainter &p, const Track &track) const
+{
+    const TimelineModel *model = track.model;
+    if (!model || model->hidden())
         return;
+
+    const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
+    const QColor bg2 = themeColor(Utils::Theme::Timeline_BackgroundColor2);
+    const int trackH = model->height();
+
+    // Row backgrounds: batch the two zebra colors into one path each so the GPU
+    // draws each color in a single call rather than one per row.
+    const int rowCount = model->rowCount();
+    for (int phase = 0; phase < 2; ++phase) {
+        bool any = false;
+        p.beginPath();
+        for (int row = 0; row < rowCount; ++row) {
+            const bool odd = ((row % 2 == 0) == track.startOdd);
+            if (odd != (phase == 0))
+                continue;
+            p.rect(0, model->rowOffset(row), width(), model->rowHeight(row));
+            any = true;
+        }
+        if (any) {
+            p.setFillStyle(phase == 0 ? bg1 : bg2);
+            p.fill();
+        }
+    }
 
     const qint64 rangeDuration = m_rangeEnd - m_rangeStart;
-    if (m_model->isEmpty() || rangeDuration <= 0 || width() == 0)
+    if (model->isEmpty() || rangeDuration <= 0 || width() == 0)
         return;
 
-    const int rowCount = m_model->rowCount();
-    const int visTop = viewRect.top();
-    const int visBottom = viewRect.bottom();
+    // Vertical grid lines (same block geometry as TimeRuler). QCanvasPainter has
+    // no drawLine(); thin filled rects accumulated into one path render as crisp
+    // 1px columns in a single fill.
+    {
+        const double scale = double(width()) / double(rangeDuration);
+        const qint64 timePerBlock = rulerBlockDuration(rangeDuration, double(width()));
+        const double pixelsPerBlock = double(timePerBlock) * scale;
+        const double pixelsPerSection = pixelsPerBlock / 5.0;
+        const qint64 alignedStart = m_rangeStart - (m_rangeStart % timePerBlock);
+        p.beginPath();
+        for (qint64 t = alignedStart; ; t += timePerBlock) {
+            const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, double(width()));
+            if (x > double(width()))
+                break;
+            for (int s = 1; s <= 4; ++s) {
+                const double sx = x + s * pixelsPerSection;
+                if (sx >= 0.0 && sx <= double(width()))
+                    p.rect(qRound(sx), 0, 1, trackH);
+            }
+            const double tickX = x + pixelsPerBlock;
+            if (tickX >= 0.0 && tickX <= double(width()))
+                p.rect(qRound(tickX), 0, 1, trackH);
+        }
+        p.setFillStyle(themeColor(Utils::Theme::Timeline_DividerColor));
+        p.fill();
+    }
 
     // Density graphs (e.g. CPU usage) fill each pixel column by the activity in
-    // the time it covers, rather than drawing one bar per item. The density
-    // branch ignores the [iterStart, iterEnd] strip range and renders every
-    // column across [m_rangeStart, m_rangeEnd]; the painter's clip rect limits
-    // what is shown during a strip (pan) render, like the value-scale block.
-    if (m_model->rendersAsDensity()) {
+    // the time it covers, rather than drawing one bar per item. All columns of a
+    // row share a color, so accumulate them into one path and fill once.
+    if (model->rendersAsDensity()) {
         const int w = width();
         QList<float> columns;
         for (int row = 0; row < rowCount; ++row) {
-            const int rowH = m_model->rowHeight(row);
-            const int rowY = m_model->rowOffset(row);
-            if (rowY + rowH < visTop || rowY > visBottom)
-                continue;
             columns.assign(w, 0.0f);
-            if (!m_model->fillDensityColumns(row, m_rangeStart, m_rangeEnd, columns))
+            if (!model->fillDensityColumns(row, m_rangeStart, m_rangeEnd, columns))
                 continue;
-            const QColor rowColor = QColor::fromRgb(m_model->rowColor(row));
+            const int rowH = model->rowHeight(row);
+            const int rowY = model->rowOffset(row);
+            p.beginPath();
             for (int x = 0; x < w; ++x) {
                 const double frac = qBound(0.0f, columns[x], 1.0f);
                 if (frac <= 0.0)
                     continue;
                 const double itemH = rowH * frac;
-                p.fillRect(QRectF(x, rowY + rowH - itemH, 1.0, itemH), rowColor);
+                p.rect(QRectF(x, rowY + rowH - itemH, 1.0, itemH));
             }
+            p.setFillStyle(QColor::fromRgb(model->rowColor(row)));
+            p.fill();
         }
     } else {
-    // Events (fills only; selection/hover borders are overlaid live in paintEvent)
-    const int first = m_model->firstIndex(iterStart);
-    const int last = m_model->lastIndex(iterEnd);
+    // Events grouped by color so each distinct color is filled in a single GPU
+    // draw call, instead of toggling the fill style for every event.
+    const int first = model->firstIndex(m_rangeStart);
+    const int last = model->lastIndex(m_rangeEnd);
 
     if (first >= 0 && last >= first) {
         // Per-row "next available x": skip events entirely covered by an earlier draw in the
@@ -216,14 +320,12 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd,
 
         const double wf = double(width());
 
+        QHash<QRgb, QCanvasPath> pathByColor;
+
         for (int i = first; i <= last; ++i) {
-            const int row = m_model->row(i);
-            const int rowH = m_model->rowHeight(row);
-            const int rowY = m_model->rowOffset(row);
-            if (rowY + rowH < visTop || rowY > visBottom)
-                continue;
-            const qint64 start = m_model->startTime(i);
-            const qint64 end   = m_model->endTime(i);
+            const int row = model->row(i);
+            const qint64 start = model->startTime(i);
+            const qint64 end   = model->endTime(i);
 
             double x1 = timeToPixel(start, m_rangeStart, m_rangeEnd, wf);
             double x2 = timeToPixel(end,   m_rangeStart, m_rangeEnd, wf);
@@ -237,121 +339,78 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd,
             x2 = qMin(x2, wf);
 
             // Skip if entirely covered by a previous event in this row.
-            if (x2 <= rowNextX[row] && m_model->expanded())
+            if (x2 <= rowNextX[row] && model->expanded())
                 continue;
             const double drawX1 = qMax(x1, rowNextX[row]);
             rowNextX[row] = x2;
 
-            const double relH = m_model->relativeHeight(i);
+            const int rowH = model->rowHeight(row);
+            const int rowY = model->rowOffset(row);
+            const double relH = model->relativeHeight(i);
             const double itemH = rowH * relH;
             const double itemY = rowY + rowH - itemH;
 
-            p.fillRect(QRectF(drawX1, itemY, x2 - drawX1, itemH),
-                       QColor::fromRgb(m_model->color(i)));
+            pathByColor[model->color(i)].rect(QRectF(drawX1, itemY, x2 - drawX1, itemH));
+        }
+
+        for (auto it = pathByColor.cbegin(); it != pathByColor.cend(); ++it) {
+            p.setFillStyle(QColor::fromRgb(it.key()));
+            p.fill(it.value());
         }
     }
     }
 
-    // Time ruler marker lines
+    // Time ruler marker lines (2px wide filled columns).
     if (!m_markers.isEmpty()) {
-        const QColor handleColor = themeColor(Utils::Theme::Timeline_HandleColor);
-        p.setPen(QPen(handleColor, 2));
+        p.beginPath();
         for (qint64 ts : m_markers) {
             const double mx = timeToPixel(ts, m_rangeStart, m_rangeEnd, double(width()));
-            p.drawLine(QPointF(mx, visTop), QPointF(mx, visBottom));
+            p.rect(QRectF(mx - 1.0, 0.0, 2.0, trackH));
         }
+        p.setFillStyle(themeColor(Utils::Theme::Timeline_HandleColor));
+        p.fill();
     }
 
     // Note markers: exclamation mark shape matching the QSG notes shader.
     // The shader draws d < 2/3 (stick) and d > 5/6 (dot), masking the gap between them.
-    if (m_notes && m_model) {
-        const QColor noteColor = themeColor(Utils::Theme::Timeline_HighlightColor);
-        p.setPen(QPen(noteColor, 3));
-        const int modelId = m_model->modelId();
+    if (m_notes) {
+        p.beginPath();
+        bool any = false;
+        const int modelId = model->modelId();
         for (int i = 0; i < m_notes->count(); ++i) {
             if (m_notes->timelineModel(i) != modelId)
                 continue;
             const int idx = m_notes->timelineIndex(i);
-            if (m_model->startTime(idx) > iterEnd || m_model->endTime(idx) < iterStart)
+            if (model->startTime(idx) > m_rangeEnd || model->endTime(idx) < m_rangeStart)
                 continue;
-            const int row = m_model->row(idx);
-            const double rowH = m_model->rowHeight(row);
-            const double rowY = m_model->rowOffset(row);
-            if (rowY + rowH < visTop || rowY > visBottom)
-                continue;
-            const qint64 center = (m_model->startTime(idx) + m_model->endTime(idx)) / 2;
+            const int row = model->row(idx);
+            const double rowH = model->rowHeight(row);
+            const double rowY = model->rowOffset(row);
+            const qint64 center = (model->startTime(idx) + model->endTime(idx)) / 2;
             const double cx = timeToPixel(center, m_rangeStart, m_rangeEnd, double(width()));
             const double span = 0.8 * rowH;
             const double top = rowY + 0.1 * rowH;
             const double stickEnd = top + (2.0 / 3.0) * span;
             const double dotStart = top + (5.0 / 6.0) * span;
             const double dotEnd   = top + span;
-            p.drawLine(QPointF(cx, top), QPointF(cx, stickEnd));
-            p.drawPoint(QPointF(cx, (dotStart + dotEnd) / 2.0));
+            // Stick: a 3px wide filled column. Dot: a small filled disc.
+            p.rect(QRectF(cx - 1.5, top, 3.0, stickEnd - top));
+            p.circle(float(cx), float((dotStart + dotEnd) / 2.0), 1.5f);
+            any = true;
+        }
+        if (any) {
+            p.setFillStyle(themeColor(Utils::Theme::Timeline_HighlightColor));
+            p.fill();
         }
     }
 }
 
-void TrackPainter::paintBackground(QPainter &p, const QRect &viewRect) const
+// Value scale for expanded rows with min/max values (TimeMarks.qml equivalent).
+// Drawn in track-local coordinates (the painter is already translated).
+void TrackPainter::paintScaleOverlay(QCanvasPainter &p, const Track &track) const
 {
-    const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
-    const QColor bg2 = themeColor(Utils::Theme::Timeline_BackgroundColor2);
-
-    if (!m_model || m_model->hidden()) {
-        p.fillRect(viewRect, bg1);
-        return;
-    }
-
-    const int rowCount = m_model->rowCount();
-    for (int row = 0; row < rowCount; ++row) {
-        const int rowY = m_model->rowOffset(row);
-        const int rowH = m_model->rowHeight(row);
-        if (rowY + rowH < viewRect.top() || rowY > viewRect.bottom())
-            continue;
-        p.fillRect(viewRect.left(), rowY, viewRect.width(), rowH,
-                   ((row % 2 == 0) == m_startOdd) ? bg1 : bg2);
-    }
-}
-
-// Vertical grid lines (same block geometry as TimeRuler). Drawn live rather than
-// cached: they depend on the exact range, so baking them and shifting by an
-// integer pixel amount on pan made them drift away from the ruler over time.
-void TrackPainter::paintGridOverlay(QPainter &p, const QRect &viewRect) const
-{
-    if (!m_model || m_model->hidden())
-        return;
-    const qint64 rangeDuration = m_rangeEnd - m_rangeStart;
-    if (m_model->isEmpty() || rangeDuration <= 0 || width() == 0)
-        return;
-
-    const int y0 = viewRect.top();
-    const int y1 = viewRect.bottom();
-    const double scale = double(width()) / double(rangeDuration);
-    const qint64 timePerBlock = rulerBlockDuration(rangeDuration, double(width()));
-    const double pixelsPerBlock = double(timePerBlock) * scale;
-    const double pixelsPerSection = pixelsPerBlock / 5.0;
-    const qint64 alignedStart = m_rangeStart - (m_rangeStart % timePerBlock);
-    const QColor gridColor = themeColor(Utils::Theme::Timeline_DividerColor);
-    p.setPen(QPen(gridColor, 1));
-    for (qint64 t = alignedStart; ; t += timePerBlock) {
-        const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, double(width()));
-        if (x > double(width()))
-            break;
-        for (int s = 1; s <= 4; ++s) {
-            const double sx = x + s * pixelsPerSection;
-            if (sx >= 0.0 && sx <= double(width()))
-                p.drawLine(qRound(sx), y0, qRound(sx), y1);
-        }
-        const double tickX = x + pixelsPerBlock;
-        if (tickX >= 0.0 && tickX <= double(width()))
-            p.drawLine(qRound(tickX), y0, qRound(tickX), y1);
-    }
-}
-
-// Value scale for expanded rows with min/max values (TimeMarks.qml equivalent)
-void TrackPainter::paintScaleOverlay(QPainter &p)
-{
-    if (!m_model || !m_model->expanded())
+    const TimelineModel *model = track.model;
+    if (!model || !model->expanded())
         return;
 
     static const int kScaleMinH = 60;
@@ -360,20 +419,20 @@ void TrackPainter::paintScaleOverlay(QPainter &p)
     static const int kMarg = 2;
 
     p.save();
-    QFont sf = p.font();
+    QFont sf = font();
     sf.setPixelSize(kFontPx);
     p.setFont(sf);
     const QColor scaleText = themeColor(Utils::Theme::Timeline_TextColor);
     const QColor scaleDiv  = themeColor(Utils::Theme::Timeline_DividerColor);
 
-    const int rowCount = m_model->rowCount();
+    const int rowCount = model->rowCount();
     for (int row = 0; row < rowCount; ++row) {
-        const int rowH = m_model->rowHeight(row);
-        const int rowY = m_model->rowOffset(row);
+        const int rowH = model->rowHeight(row);
+        const int rowY = model->rowOffset(row);
         if (rowH < kScaleMinH)
             continue;
-        const qint64 minVal = m_model->rowMinValue(row);
-        const qint64 maxVal = m_model->rowMaxValue(row);
+        const qint64 minVal = model->rowMinValue(row);
+        const qint64 maxVal = model->rowMaxValue(row);
         if (maxVal <= minVal)
             continue;
         const qint64 valDiff = maxVal - minVal;
@@ -388,188 +447,84 @@ void TrackPainter::paintScaleOverlay(QPainter &p)
         const double stepH = double(stepVal) * double(rowH) / double(valDiff);
         const int topLabelBottom = rowY + kFontPx + kMarg * 2 + 2;
 
-        p.setPen(scaleText);
-        p.drawText(QPointF(kMarg, topLabelBottom), prettyPrintScale(maxVal));
+        p.setFillStyle(scaleText);
+        p.fillText(prettyPrintScale(maxVal), float(kMarg), float(topLabelBottom));
 
         const int numLines = int(valDiff / stepVal);
         for (int i = 0; i < numLines; ++i) {
             if (rowY + qRound(double(rowH) - double(i + 1) * stepH) <= topLabelBottom)
                 break;
             const int lineY = rowY + rowH - qRound(double(i) * stepH);
-            p.setPen(scaleDiv);
-            p.drawLine(0, lineY, width() - 1, lineY);
-            p.setPen(scaleText);
-            p.drawText(QPointF(kMarg, lineY - kMarg),
-                       prettyPrintScale(minVal + qint64(i) * stepVal));
+            p.setFillStyle(scaleDiv);
+            p.fillRect(0, lineY, width(), 1);
+            p.setFillStyle(scaleText);
+            p.fillText(prettyPrintScale(minVal + qint64(i) * stepVal),
+                       float(kMarg), float(lineY - kMarg));
         }
     }
     p.restore();
 }
 
-void TrackPainter::invalidateCache()
+// Selection and hover borders, drawn on top of the track content. The painter
+// is in widget(content) space here, so the track's scroll-adjusted top is added.
+void TrackPainter::paintSelectionOverlay(QCanvasPainter &p) const
 {
-    m_cache = QPixmap();
-    m_cacheRect = QRect();
-    m_pendingShiftPx = 0;
-}
-
-QRect TrackPainter::visibleRect() const
-{
-    // Inside the QScrollArea this returns only the on-screen portion of the
-    // (possibly very tall) widget, in widget-local coordinates. Fall back to the
-    // full rect for the degenerate case where nothing is reported visible.
-    QRect vis = visibleRegion().boundingRect();
-    if (vis.isEmpty())
-        vis = rect();
-    return vis;
-}
-
-void TrackPainter::rebuildCache(const QRect &viewRect)
-{
-    m_cache = QPixmap();
-    m_cacheRect = QRect();
-    m_pendingShiftPx = 0;
-    if (width() <= 0 || height() <= 0 || viewRect.isEmpty())
+    if (m_rangeStart >= m_rangeEnd)
         return;
 
-    const qreal dpr = devicePixelRatioF();
-    QPixmap pix(qRound(viewRect.width() * dpr), qRound(viewRect.height() * dpr));
-    pix.setDevicePixelRatio(dpr);
-    pix.fill(Qt::transparent);
+    const QColor selectionColor = m_selectionLocked ? QColor(96, 0, 255) : QColor(Qt::blue);
+    const QColor hoverColor(Qt::white);
 
-    QPainter p(&pix);
-    // Map widget coordinates into the pixmap, which only covers viewRect.
-    p.translate(-viewRect.topLeft());
-    renderContent(p, m_rangeStart, m_rangeEnd, viewRect);
-
-    m_cache = pix;
-    m_cacheRect = viewRect;
-}
-
-void TrackPainter::paintEvent(QPaintEvent *)
-{
-    // Time the CPU cost of producing this widget's frame; reported so the
-    // container can sum it across the track widgets (see TrackPainter::painted).
-    QElapsedTimer frameTimer;
-    frameTimer.start();
-    const QScopeGuard reportFrame([&] {
-        emit painted(std::chrono::nanoseconds(frameTimer.nsecsElapsed()));
-    });
-
-    const QRect vis = visibleRect();
-
-    // Rebuild when there is no cache yet or the on-screen slice moved
-    // (vertical scroll / resize). A horizontal pan keeps vis unchanged and is
-    // handled by the m_pendingShiftPx fast path below.
-    if (m_cache.isNull() || m_cacheRect != vis)
-        rebuildCache(vis);
-
-    if (m_cache.isNull())
-        return; // zero-size widget: nothing to paint
-
-    QPainter p(this);
-
-    if (m_pendingShiftPx != 0) {
-        // Apply the accumulated pan: shift the cache and render the newly exposed strip.
-        const qreal dpr = devicePixelRatioF();
-        QPixmap newCache(qRound(m_cacheRect.width() * dpr),
-                         qRound(m_cacheRect.height() * dpr));
-        newCache.setDevicePixelRatio(dpr);
-        newCache.fill(Qt::transparent);
-
-        QPainter cp(&newCache);
-        cp.drawPixmap(QPointF(m_pendingShiftPx, 0.0), m_cache);
-        cp.translate(-m_cacheRect.topLeft());
-
-        // Exposed strip in pixel space, and the corresponding time range.
-        int stripLeft, stripRight;
-        if (m_pendingShiftPx > 0) {
-            stripLeft = 0;
-            stripRight = qMin(m_pendingShiftPx, width());
+    const auto paintOverlay = [&](int trackIndex, int idx) {
+        if (trackIndex < 0 || trackIndex >= m_tracks.size() || idx < 0)
+            return;
+        const Track &track = m_tracks[trackIndex];
+        const TimelineModel *model = track.model;
+        if (!model)
+            return;
+        const int topPx = track.yOffset - m_scrollOffset;
+        const int row = model->row(idx);
+        const int rowH = model->rowHeight(row);
+        const int rowY = model->rowOffset(row);
+        const double relH = model->relativeHeight(idx);
+        const double itemH = rowH * relH;
+        const double itemY = topPx + rowY + rowH - itemH;
+        const qint64 start = model->startTime(idx);
+        const qint64 end = model->endTime(idx);
+        double x1 = timeToPixel(start, m_rangeStart, m_rangeEnd, double(width()));
+        double x2 = timeToPixel(end, m_rangeStart, m_rangeEnd, double(width()));
+        if (x2 - x1 < 1.0)
+            x2 = x1 + 1.0;
+        x1 = qMax(x1, 0.0);
+        x2 = qMin(x2, double(width()));
+        const QRectF itemRect(x1, itemY, x2 - x1, itemH);
+        if (trackIndex == m_selectedTrack && idx == m_selectedItem) {
+            p.setStrokeStyle(selectionColor);
+            p.setLineWidth(4);
+            p.strokeRect(itemRect.adjusted(2.0, 2.0, -2.0, -2.0));
         } else {
-            stripLeft = qMax(0, width() + m_pendingShiftPx);
-            stripRight = width();
+            p.setStrokeStyle(hoverColor);
+            p.setLineWidth(1);
+            p.strokeRect(itemRect.adjusted(0.5, 0.5, -0.5, -0.5));
         }
+    };
 
-        if (stripRight > stripLeft) {
-            const double wf = double(width());
-            const qint64 iterStart = pixelToTime(double(stripLeft), wf,
-                                                  m_rangeStart, m_rangeEnd);
-            const qint64 iterEnd = pixelToTime(double(stripRight), wf,
-                                                m_rangeStart, m_rangeEnd);
-            const QRect strip(stripLeft, m_cacheRect.top(),
-                              stripRight - stripLeft, m_cacheRect.height());
-            cp.setClipRect(strip);
-            renderContent(cp, iterStart, iterEnd, strip);
-            cp.setClipping(false);
-        }
-
-        m_cache = newCache;
-        m_pendingShiftPx = 0;
-    }
-
-    // Live layers behind the cached events: cheap and drift-free.
-    paintBackground(p, m_cacheRect);
-    paintGridOverlay(p, m_cacheRect);
-
-    p.drawPixmap(m_cacheRect.topLeft(), m_cache);
-
-    paintScaleOverlay(p);
-
-    // Overlay selection/hover borders live (not cached).
-    if (m_model && !m_model->hidden() && m_rangeStart < m_rangeEnd
-            && (m_selectedItem >= 0 || m_hoveredItem >= 0)) {
-        const QColor selectionColor = m_selectionLocked ? QColor(96, 0, 255) : Qt::blue;
-        const QColor hoverColor = Qt::white;
-
-        const auto paintOverlay = [&](int idx) {
-            if (idx < 0)
-                return;
-            const int row = m_model->row(idx);
-            const int rowH = m_model->rowHeight(row);
-            const int rowY = m_model->rowOffset(row);
-            const double relH = m_model->relativeHeight(idx);
-            const double itemH = rowH * relH;
-            const double itemY = rowY + rowH - itemH;
-            const qint64 start = m_model->startTime(idx);
-            const qint64 end = m_model->endTime(idx);
-            double x1 = timeToPixel(start, m_rangeStart, m_rangeEnd, double(width()));
-            double x2 = timeToPixel(end, m_rangeStart, m_rangeEnd, double(width()));
-            if (x2 - x1 < 1.0)
-                x2 = x1 + 1.0;
-            x1 = qMax(x1, 0.0);
-            x2 = qMin(x2, double(width()));
-            const QRectF itemRect(x1, itemY, x2 - x1, itemH);
-            if (idx == m_selectedItem) {
-                p.setPen(QPen(selectionColor, 4));
-                p.drawRect(itemRect.adjusted(2.0, 2.0, -2.0, -2.0));
-            } else {
-                p.setPen(QPen(hoverColor, 1));
-                p.drawRect(itemRect.adjusted(0.5, 0.5, -0.5, -0.5));
-            }
-        };
-
-        paintOverlay(m_hoveredItem);
-        paintOverlay(m_selectedItem);
-    }
+    paintOverlay(m_hoveredTrack, m_hoveredItem);
+    paintOverlay(m_selectedTrack, m_selectedItem);
 }
 
-void TrackPainter::resizeEvent(QResizeEvent *)
+// Hit test within a single model. local is in track-local coordinates.
+int TrackPainter::indexInModel(const TimelineModel *model, const QPoint &local) const
 {
-    invalidateCache();
-}
-
-int TrackPainter::indexAt(const QPoint &pos) const
-{
-    if (!m_model || m_model->isEmpty())
+    if (!model || model->isEmpty())
         return -1;
     const qint64 rangeDuration = m_rangeEnd - m_rangeStart;
     if (rangeDuration <= 0 || width() == 0)
         return -1;
 
-    const qint64 t = pixelToTime(pos.x(), double(width()), m_rangeStart, m_rangeEnd);
+    const qint64 t = pixelToTime(local.x(), double(width()), m_rangeStart, m_rangeEnd);
 
-    const int candidate = m_model->bestIndex(t);
+    const int candidate = model->bestIndex(t);
     if (candidate < 0)
         return -1;
 
@@ -581,31 +536,31 @@ int TrackPainter::indexAt(const QPoint &pos) const
     // the start-time ordering proves no further item can match.
     int best = -1;
     qint64 bestWidth = std::numeric_limits<qint64>::max();
-    const int count = m_model->count();
+    const int count = model->count();
 
     // Test whether item i is drawn under the cursor and, if so, whether it is
     // narrower than the current best (innermost nested item wins).
     const auto test = [&](int i) {
-        const int row = m_model->row(i);
-        const int rowH = m_model->rowHeight(row);
-        const int rowY = m_model->rowOffset(row);
+        const int row = model->row(i);
+        const int rowH = model->rowHeight(row);
+        const int rowY = model->rowOffset(row);
 
-        const double relH = m_model->relativeHeight(i);
+        const double relH = model->relativeHeight(i);
         const double itemH = rowH * relH;
         const double itemY = rowY + rowH - itemH;
 
-        if (pos.y() < itemY || pos.y() >= itemY + itemH)
+        if (local.y() < itemY || local.y() >= itemY + itemH)
             return;
 
-        const qint64 start = m_model->startTime(i);
-        const qint64 end = m_model->endTime(i);
+        const qint64 start = model->startTime(i);
+        const qint64 end = model->endTime(i);
 
         double x1 = timeToPixel(start, m_rangeStart, m_rangeEnd, double(width()));
         double x2 = timeToPixel(end, m_rangeStart, m_rangeEnd, double(width()));
         if (x2 - x1 < 1.0)
             x2 = x1 + 1.0;
 
-        if (pos.x() < x1 || pos.x() >= x2)
+        if (local.x() < x1 || local.x() >= x2)
             return;
 
         const qint64 w = end - start;
@@ -618,7 +573,7 @@ int TrackPainter::indexAt(const QPoint &pos) const
     // Forward: start times only increase, so once an item starts to the right
     // of the cursor no later item can contain it.
     for (int i = candidate; i < count; ++i) {
-        if (timeToPixel(m_model->startTime(i), m_rangeStart, m_rangeEnd, double(width())) > pos.x())
+        if (timeToPixel(model->startTime(i), m_rangeStart, m_rangeEnd, double(width())) > local.x())
             break;
         test(i);
     }
@@ -627,10 +582,10 @@ int TrackPainter::indexAt(const QPoint &pos) const
     // long parent that does. Only stop once neither the item nor its parent can
     // cover the cursor time.
     for (int i = candidate - 1; i >= 0; --i) {
-        const qint64 end = m_model->endTime(i);
+        const qint64 end = model->endTime(i);
         if (end < t) {
-            const int parent = m_model->parentIndex(i);
-            const qint64 parentEnd = parent == -1 ? end : m_model->endTime(parent);
+            const int parent = model->parentIndex(i);
+            const qint64 parentEnd = parent == -1 ? end : model->endTime(parent);
             if (parentEnd < t)
                 break;
         }
@@ -638,6 +593,21 @@ int TrackPainter::indexAt(const QPoint &pos) const
     }
 
     return best;
+}
+
+void TrackPainter::itemAt(const QPoint &pos, int *trackIndex, int *itemIndex) const
+{
+    *trackIndex = -1;
+    *itemIndex = -1;
+    const int contentY = pos.y() + m_scrollOffset;
+    const int track = trackAt(contentY);
+    if (track < 0)
+        return;
+    const Track &t = m_tracks[track];
+    const QPoint local(pos.x(), contentY - t.yOffset);
+    const int item = indexInModel(t.model, local);
+    *trackIndex = track;
+    *itemIndex = item;
 }
 
 void TrackPainter::mouseMoveEvent(QMouseEvent *event)
@@ -664,11 +634,13 @@ void TrackPainter::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    const int idx = indexAt(event->pos());
-    if (idx != m_hoveredItem) {
-        m_hoveredItem = idx;
+    int track = -1, item = -1;
+    itemAt(event->pos(), &track, &item);
+    if (track != m_hoveredTrack || item != m_hoveredItem) {
+        m_hoveredTrack = track;
+        m_hoveredItem = item;
         update();
-        emit itemHovered(idx);
+        emit itemHovered(track, item);
     }
 }
 
@@ -683,8 +655,11 @@ void TrackPainter::mousePressEvent(QMouseEvent *event)
 void TrackPainter::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        if (!m_panning)
-            emit itemClicked(indexAt(event->pos()));
+        if (!m_panning) {
+            int track = -1, item = -1;
+            itemAt(event->pos(), &track, &item);
+            emit itemClicked(track, item);
+        }
         m_panning = false;
     }
 }
@@ -710,16 +685,18 @@ void TrackPainter::wheelEvent(QWheelEvent *event)
         emit horizontalPan(-dx);
         event->accept();
     } else {
+        // Vertical wheel falls through to the scroll area for vertical scrolling.
         event->ignore();
     }
 }
 
 void TrackPainter::leaveEvent(QEvent *)
 {
-    if (m_hoveredItem != -1) {
+    if (m_hoveredTrack != -1 || m_hoveredItem != -1) {
+        m_hoveredTrack = -1;
         m_hoveredItem = -1;
         update();
-        emit itemHovered(-1);
+        emit itemHovered(-1, -1);
     }
 }
 

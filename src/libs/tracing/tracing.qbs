@@ -1,7 +1,7 @@
 QtcLibrary {
     name: "Tracing"
 
-    Depends { name: "Qt"; submodules: ["widgets"] }
+    Depends { name: "Qt"; submodules: ["widgets", "canvaspainter"] }
     Depends { name: "Qt.testlib"; condition: qtc.withAutotests }
     Depends { name: "Utils" }
 

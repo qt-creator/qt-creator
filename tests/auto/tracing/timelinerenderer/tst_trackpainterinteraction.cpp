@@ -12,6 +12,15 @@
 
 using namespace Timeline;
 
+// TrackPainter renders all tracks in one widget; for these single-track tests
+// the item index under a point is the item of track 0.
+static int itemIndexAt(const TrackPainter &painter, QPoint pos)
+{
+    int track = -1, item = -1;
+    painter.itemAt(pos, &track, &item);
+    return item;
+}
+
 class DummyModel : public TimelineModel
 {
 public:
@@ -57,8 +66,8 @@ void tst_TrackPainterInteraction::initialState()
 {
     TrackPainter painter;
     QCOMPARE(painter.findChildren<QObject *>().size(), 0);
-    painter.setSelectedItem(-1);
-    QCOMPARE(painter.indexAt(QPoint(0, 0)), -1);
+    painter.setSelectedItem(-1, -1);
+    QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
     painter.setSelectionLocked(true);
 }
 
@@ -68,7 +77,7 @@ void tst_TrackPainterInteraction::selectionLockedHover()
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
-    painter.setModel(&model);
+    painter.setTracks({&model});
     painter.setRange(0, 100);
     painter.resize(100, 30);
     painter.setSelectionLocked(true);
@@ -84,11 +93,11 @@ void tst_TrackPainterInteraction::indexAtWithData()
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
-    painter.setModel(&model);
+    painter.setTracks({&model});
     painter.setRange(0, 100);
     painter.resize(100, 30);
 
-    int idx = painter.indexAt(QPoint(5, 15));
+    int idx = itemIndexAt(painter, QPoint(5, 15));
     QVERIFY(idx >= 0);
     QCOMPARE(idx, 0);
 }
@@ -99,18 +108,18 @@ void tst_TrackPainterInteraction::indexAtFarParent()
     TimelineModelAggregator aggregator;
     NestedModel model(&aggregator);
     model.loadData();
-    painter.setModel(&model);
+    painter.setTracks({&model});
     painter.setRange(0, 1000);
     painter.resize(1000, 30);
 
     // x=610 falls in a gap between the children at 600..605 and 640..645, so
     // only the long parent (index 0) is drawn there. bestIndex() lands near the
     // children, far from index 0 in the index space.
-    QCOMPARE(painter.indexAt(QPoint(610, 15)), 0);
+    QCOMPARE(itemIndexAt(painter, QPoint(610, 15)), 0);
 
     // x=602 is covered by both the child at 600..605 and the parent; the
     // narrower child must win.
-    QCOMPARE(painter.indexAt(QPoint(602, 15)), 15);
+    QCOMPARE(itemIndexAt(painter, QPoint(602, 15)), 15);
 }
 
 void tst_TrackPainterInteraction::unlockedHover()
@@ -119,7 +128,7 @@ void tst_TrackPainterInteraction::unlockedHover()
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
-    painter.setModel(&model);
+    painter.setTracks({&model});
     painter.setRange(0, 100);
     painter.resize(100, 30);
     painter.setSelectionLocked(false);
