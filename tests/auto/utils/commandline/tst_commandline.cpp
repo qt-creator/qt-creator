@@ -299,6 +299,17 @@ private slots:
         CommandLine cmd(self, {{"foo", "bar"}, {"baz", "blizz"}});
         QCOMPARE(cmd.arguments(), "foo bar baz blizz");
     }
+
+    void testShellOperatorQuoting()
+    {
+        // Shell operators passed as literal arguments via QStringList
+        // must not be interpreted as shell operators when the process is run.
+        for (const QString &op : {"&&", "||", "&", ";"}) {
+            CommandLine cmd(self, {"before", op, "after"});
+            const QString expected = "before" + newLine + op + newLine + "after" + newLine;
+            QCOMPARE(run(cmd), expected);
+        }
+    }
 };
 
 int main(int argc, char *argv[])
