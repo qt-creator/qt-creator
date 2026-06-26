@@ -11,13 +11,12 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
@@ -117,10 +116,7 @@ bool IosRunConfiguration::isEnabled(Id runMode) const
 
 QString IosRunConfiguration::applicationName() const
 {
-    if (ProjectNode *node = project()->findNodeForBuildKey(buildKey()))
-        return node->data(Constants::IosTarget).toString();
-
-    return QString();
+    return buildSystem()->extraData(buildKey(), Constants::IosTarget).toString();
 }
 
 FilePath IosRunConfiguration::bundleDirectory() const
@@ -133,31 +129,30 @@ FilePath IosRunConfiguration::bundleDirectory() const
     }
     FilePath res;
     bool shouldAppendBuildTypeAndPlatform = true;
-    if (ProjectNode *node = project()->findNodeForBuildKey(buildKey())) {
-        QString pathStr = node->data(Constants::IosBuildDir).toString();
-        const QString cmakeGenerator = node->data(Constants::IosCmakeGenerator).toString();
+    QString pathStr = buildSystem()->extraData(buildKey(), Constants::IosBuildDir).toString();
+    const QString cmakeGenerator
+        = buildSystem()->extraData(buildKey(), Constants::IosCmakeGenerator).toString();
 
-        if (cmakeGenerator.isEmpty()) {
-            // qmake node gives absolute IosBuildDir
-            res = FilePath::fromString(pathStr);
-        } else if (!pathStr.isEmpty()) {
-            // CMake node gives IosBuildDir relative to root build directory
-            if (cmakeGenerator == "Xcode") {
-                // When generating Xcode project, CMake may put a "${EFFECTIVE_PLATFORM_NAME}" macro,
-                // which is expanded by Xcode at build time.
-                // To get an actual executable path at configure time, replace this macro here
-                // depending on the device type.
-                pathStr.replace(
-                    "${EFFECTIVE_PLATFORM_NAME}",
-                    QLatin1String(isDevice ? "-iphoneos" : "-iphonesimulator"));
-            }
-
-            // With Ninja generator IosBuildDir may be just "." when executable is in the root directory,
-            // so use canonical path to ensure that redundand dot is removed.
-            res = buildConfiguration()->buildDirectory().pathAppended(pathStr).canonicalPath();
-            // All done with path provided by CMake
-            shouldAppendBuildTypeAndPlatform = false;
+    if (cmakeGenerator.isEmpty()) {
+        // qmake gives absolute IosBuildDir
+        res = FilePath::fromString(pathStr);
+    } else if (!pathStr.isEmpty()) {
+        // CMake gives IosBuildDir relative to root build directory
+        if (cmakeGenerator == "Xcode") {
+            // When generating Xcode project, CMake may put a "${EFFECTIVE_PLATFORM_NAME}" macro,
+            // which is expanded by Xcode at build time.
+            // To get an actual executable path at configure time, replace this macro here
+            // depending on the device type.
+            pathStr.replace(
+                "${EFFECTIVE_PLATFORM_NAME}",
+                QLatin1String(isDevice ? "-iphoneos" : "-iphonesimulator"));
         }
+
+        // With Ninja generator IosBuildDir may be just "." when executable is in the root directory,
+        // so use canonical path to ensure that redundand dot is removed.
+        res = buildConfiguration()->buildDirectory().pathAppended(pathStr).canonicalPath();
+        // All done with path provided by CMake
+        shouldAppendBuildTypeAndPlatform = false;
     }
 
     if (res.isEmpty()) {
