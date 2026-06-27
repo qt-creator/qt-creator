@@ -240,7 +240,7 @@ void TimelineOverviewWidget::paintEvent(QPaintEvent *)
 
     // Semi-transparent fill
     QColor rangeColor = themeColor(Utils::Theme::Timeline_RangeColor);
-    rangeColor.setAlphaF(0.4);
+    rangeColor.setAlphaF(0.4f);
     if (rangeRight - rangeLeft > 1.0)
         p.fillRect(QRectF(rangeLeft, 0, rangeRight - rangeLeft, height()), rangeColor);
 
