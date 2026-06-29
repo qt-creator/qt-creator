@@ -673,6 +673,7 @@ ChatPanel::ChatPanel(QWidget *parent)
                 emit sendRequested(text);
             }
         }
+        m_inputEdit->setFocus();
     });
 
     updateContextBar();
@@ -688,7 +689,6 @@ void ChatPanel::setPrompting(bool prompting)
     m_prompting = prompting;
     m_sendButton->setText(prompting ? Tr::tr("Cancel") : Tr::tr("Send"));
     m_sendButton->setRole(prompting ? QtcButton::MediumTertiary : QtcButton::MediumPrimary);
-    m_inputEdit->setEnabled(!prompting);
     m_messageView->setPrompting(prompting);
 }
 
