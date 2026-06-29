@@ -5,19 +5,19 @@
 
 namespace Subversion::Constants {
 
-const char SUBVERSION_PLUGIN[] = "SubversionPlugin";
+inline constexpr char SUBVERSION_PLUGIN[] = "SubversionPlugin";
 
-const char NON_INTERACTIVE_OPTION[] = "--non-interactive";
+inline constexpr char NON_INTERACTIVE_OPTION[] = "--non-interactive";
 
-const char SUBVERSION_CONTEXT[]        = "Subversion Context";
+inline constexpr char SUBVERSION_CONTEXT[]        = "Subversion Context";
 
-const char SUBVERSION_COMMIT_EDITOR_ID[]  = "Subversion Commit Editor";
-const char SUBVERSION_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.svn.submit";
+inline constexpr char SUBVERSION_COMMIT_EDITOR_ID[]  = "Subversion Commit Editor";
+inline constexpr char SUBVERSION_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.svn.submit";
 
-const char SUBVERSION_LOG_EDITOR_ID[] = "Subversion File Log Editor";
-const char SUBVERSION_LOG_MIMETYPE[] = "text/vnd.qtcreator.svn.log";
+inline constexpr char SUBVERSION_LOG_EDITOR_ID[] = "Subversion File Log Editor";
+inline constexpr char SUBVERSION_LOG_MIMETYPE[] = "text/vnd.qtcreator.svn.log";
 
-const char SUBVERSION_BLAME_EDITOR_ID[] = "Subversion Annotation Editor";
-const char SUBVERSION_BLAME_MIMETYPE[] = "text/vnd.qtcreator.svn.annotation";
+inline constexpr char SUBVERSION_BLAME_EDITOR_ID[] = "Subversion Annotation Editor";
+inline constexpr char SUBVERSION_BLAME_MIMETYPE[] = "text/vnd.qtcreator.svn.annotation";
 
 } // Subversion::Constants

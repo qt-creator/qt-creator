@@ -6,15 +6,15 @@
 namespace WebAssembly {
 namespace Constants {
 
-const char SETTINGS_ID[] = "CC.WebAssembly.Configuration";
+inline constexpr char SETTINGS_ID[] = "CC.WebAssembly.Configuration";
 
-const char WEBASSEMBLY_TOOLCHAIN_TYPEID[] = "WebAssembly.ToolChain.Emscripten";
-const char WEBASSEMBLY_DEVICE_TYPE[] = "WebAssemblyDeviceType";
-const char WEBASSEMBLY_DEVICE_DEVICE_ID[] = "WebAssembly Device";
-const char WEBASSEMBLY_QT_VERSION[] = "Qt4ProjectManager.QtVersion.WebAssembly";
-const char WEBASSEMBLY_RUNCONFIGURATION_EMRUN[] = "WebAssembly.RunConfiguration.Emrun";
+inline constexpr char WEBASSEMBLY_TOOLCHAIN_TYPEID[] = "WebAssembly.ToolChain.Emscripten";
+inline constexpr char WEBASSEMBLY_DEVICE_TYPE[] = "WebAssemblyDeviceType";
+inline constexpr char WEBASSEMBLY_DEVICE_DEVICE_ID[] = "WebAssembly Device";
+inline constexpr char WEBASSEMBLY_QT_VERSION[] = "Qt4ProjectManager.QtVersion.WebAssembly";
+inline constexpr char WEBASSEMBLY_RUNCONFIGURATION_EMRUN[] = "WebAssembly.RunConfiguration.Emrun";
 
-const char WEBASSEMBLY_EMSDK_CONFIG_FILE[] = ".emscripten";
+inline constexpr char WEBASSEMBLY_EMSDK_CONFIG_FILE[] = ".emscripten";
 
 } // namespace WebAssembly
 } // namespace Constants

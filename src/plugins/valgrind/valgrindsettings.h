@@ -9,7 +9,7 @@
 
 namespace Valgrind::Internal {
 
-const char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
+inline constexpr char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
 
 class SuppressionAspectPrivate;
 

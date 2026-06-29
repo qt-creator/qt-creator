@@ -8,18 +8,18 @@
 
 namespace Todo::Constants {
 
-const char TODO_SETTINGS[] = "TodoSettings";
+inline constexpr char TODO_SETTINGS[] = "TodoSettings";
 
 // Settings entries
-const char SETTINGS_GROUP[] = "TodoPlugin";
-const char SCANNING_SCOPE[] = "ScanningScope";
-const char ITEMS_DISPLAY_PLACE[] = "ItemsDisplayPlace";
-const char KEYWORDS_LIST[] = "Keywords";
-const char OUTPUT_PANE_TEXT_WIDTH[] = "OutputPaneTextColumnWidth";
-const char OUTPUT_PANE_FILE_WIDTH[] = "OutputPaneFileColumnWidth";
-const char SETTINGS_NAME_KEY[] = "TodoProjectSettings";
-const char EXCLUDES_LIST_KEY[] = "ExcludesList";
-const char USE_GLOBAL_KEY[]    = "UseGlobal";
+inline constexpr char SETTINGS_GROUP[] = "TodoPlugin";
+inline constexpr char SCANNING_SCOPE[] = "ScanningScope";
+inline constexpr char ITEMS_DISPLAY_PLACE[] = "ItemsDisplayPlace";
+inline constexpr char KEYWORDS_LIST[] = "Keywords";
+inline constexpr char OUTPUT_PANE_TEXT_WIDTH[] = "OutputPaneTextColumnWidth";
+inline constexpr char OUTPUT_PANE_FILE_WIDTH[] = "OutputPaneFileColumnWidth";
+inline constexpr char SETTINGS_NAME_KEY[] = "TodoProjectSettings";
+inline constexpr char EXCLUDES_LIST_KEY[] = "ExcludesList";
+inline constexpr char USE_GLOBAL_KEY[]    = "UseGlobal";
 
 // TODO Output TreeWidget columns
 enum OutputColumnIndex {
@@ -29,10 +29,10 @@ enum OutputColumnIndex {
     OUTPUT_COLUMN_COUNT
 };
 
-const int OUTPUT_TOOLBAR_SPACER_WIDTH = 25;
+inline constexpr int OUTPUT_TOOLBAR_SPACER_WIDTH = 25;
 
-const int OUTPUT_PANE_UPDATE_INTERVAL = 2000;
+inline constexpr int OUTPUT_PANE_UPDATE_INTERVAL = 2000;
 
-const char FILTER_KEYWORD_NAME[] = "filterKeywordName";
+inline constexpr char FILTER_KEYWORD_NAME[] = "filterKeywordName";
 
 } // namespace Todo::Constants

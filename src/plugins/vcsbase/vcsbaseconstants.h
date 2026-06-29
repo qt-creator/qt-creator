@@ -7,19 +7,19 @@
 
 namespace VcsBase::Constants {
 
-const char VCS_SETTINGS_CATEGORY[] = "V.Version Control";
-const char VCS_COMMON_SETTINGS_ID[] = "A.VCS.General";
+inline constexpr char VCS_SETTINGS_CATEGORY[] = "V.Version Control";
+inline constexpr char VCS_COMMON_SETTINGS_ID[] = "A.VCS.General";
 
 // Ids for sort order (wizards and preferences)
-const char VCS_ID_BAZAAR[] = "B.Bazaar";
-const char VCS_ID_GIT[] = "G.Git";
-const char VCS_ID_MERCURIAL[] = "H.Mercurial";
-const char VCS_ID_SUBVERSION[] = "J.Subversion";
-const char VCS_ID_PERFORCE[] = "P.Perforce";
-const char VCS_ID_CVS[] = "Z.CVS";
+inline constexpr char VCS_ID_BAZAAR[] = "B.Bazaar";
+inline constexpr char VCS_ID_GIT[] = "G.Git";
+inline constexpr char VCS_ID_MERCURIAL[] = "H.Mercurial";
+inline constexpr char VCS_ID_SUBVERSION[] = "J.Subversion";
+inline constexpr char VCS_ID_PERFORCE[] = "P.Perforce";
+inline constexpr char VCS_ID_CVS[] = "Z.CVS";
 
-const char VAR_VCS_NAME[] = "CurrentDocument:Project:VcsName";
-const char VAR_VCS_TOPIC[] = "CurrentDocument:Project:VcsTopic";
-const char VAR_VCS_TOPLEVELPATH[] = "CurrentDocument:Project:VcsTopLevelPath";
+inline constexpr char VAR_VCS_NAME[] = "CurrentDocument:Project:VcsName";
+inline constexpr char VAR_VCS_TOPIC[] = "CurrentDocument:Project:VcsTopic";
+inline constexpr char VAR_VCS_TOPLEVELPATH[] = "CurrentDocument:Project:VcsTopLevelPath";
 
 } // namespace VcsBase::Constants

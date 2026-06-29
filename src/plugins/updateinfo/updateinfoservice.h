@@ -8,8 +8,8 @@
 
 namespace UpdateInfo {
 
-const char SERVICE_SCHEME[] = "updateinfo";
-const char SERVICE_URL[] = "updateinfo://install?";
+inline constexpr char SERVICE_SCHEME[] = "updateinfo";
+inline constexpr char SERVICE_URL[] = "updateinfo://install?";
 
 class Service
 {

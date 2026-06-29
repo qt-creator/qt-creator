@@ -7,13 +7,13 @@
 
 namespace Squish::Constants {
 
-const char SQUISH_ID[]                    = "SquishPlugin.Squish";
-const char SQUISH_CONTEXT[]               = "Squish";
-const char SQUISH_SETTINGS_CATEGORY[]     = "ZYY.Squish";
+inline constexpr char SQUISH_ID[]                    = "SquishPlugin.Squish";
+inline constexpr char SQUISH_CONTEXT[]               = "Squish";
+inline constexpr char SQUISH_SETTINGS_CATEGORY[]     = "ZYY.Squish";
 
 // MIME type defined by Squish plugin
-const char SQUISH_OBJECTSMAP_MIMETYPE[] = "text/squish-objectsmap";
-const char OBJECTSMAP_EDITOR_ID[]       = "Squish.ObjectsMapEditor";
+inline constexpr char SQUISH_OBJECTSMAP_MIMETYPE[] = "text/squish-objectsmap";
+inline constexpr char OBJECTSMAP_EDITOR_ID[]       = "Squish.ObjectsMapEditor";
 
 } // namespace Squish::Constants
 

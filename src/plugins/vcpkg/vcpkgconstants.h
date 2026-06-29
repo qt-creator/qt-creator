@@ -5,17 +5,17 @@
 
 namespace Vcpkg::Constants {
 
-const char WEBSITE_URL[] = "https://vcpkg.io/";
-const char ENVVAR_VCPKG_ROOT[] = "VCPKG_ROOT";
-const char VCPKG_COMMAND[] = "vcpkg";
-const char VCPKGMANIFEST_EDITOR_ID[] = "Vcpkg.VcpkgManifestEditor";
-const char VCPKGMANIFEST_MIMETYPE[] = "application/vcpkg.manifest+json";
+inline constexpr char WEBSITE_URL[] = "https://vcpkg.io/";
+inline constexpr char ENVVAR_VCPKG_ROOT[] = "VCPKG_ROOT";
+inline constexpr char VCPKG_COMMAND[] = "vcpkg";
+inline constexpr char VCPKGMANIFEST_EDITOR_ID[] = "Vcpkg.VcpkgManifestEditor";
+inline constexpr char VCPKGMANIFEST_MIMETYPE[] = "application/vcpkg.manifest+json";
 
 namespace Settings {
-const char GENERAL_ID[] = "Vcpkg.VcpkgSettings";
-const char GROUP_ID[] = "Vcpkg";
-const char CATEGORY[] = "K.CMake"; // Yep, it is was pointed into K.CMake originally
-const char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
+inline constexpr char GENERAL_ID[] = "Vcpkg.VcpkgSettings";
+inline constexpr char GROUP_ID[] = "Vcpkg";
+inline constexpr char CATEGORY[] = "K.CMake"; // Yep, it is was pointed into K.CMake originally
+inline constexpr char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
 } // namespace Settings
 
 

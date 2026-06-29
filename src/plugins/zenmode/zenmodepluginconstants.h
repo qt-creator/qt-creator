@@ -5,8 +5,8 @@
 
 namespace ZenMode::Constants {
 
-const char DISTRACTION_FREE_ACTION_ID[] = "ZenMode.ToggleDistractionFreeMode";
-const char ZEN_MODE_ACTION_ID[] = "ZenMode.ToggleZenMode";
-const char MENU_ID[] = "ZenMode.Menu";
+inline constexpr char DISTRACTION_FREE_ACTION_ID[] = "ZenMode.ToggleDistractionFreeMode";
+inline constexpr char ZEN_MODE_ACTION_ID[] = "ZenMode.ToggleZenMode";
+inline constexpr char MENU_ID[] = "ZenMode.Menu";
 
 } // namespace ZenMode::Constants

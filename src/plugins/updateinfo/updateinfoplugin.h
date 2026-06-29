@@ -13,7 +13,7 @@ namespace UpdateInfo {
 
 namespace Internal {
 
-const char FILTER_OPTIONS_PAGE_ID[] = "Update";
+inline constexpr char FILTER_OPTIONS_PAGE_ID[] = "Update";
 
 class UpdateInfoPlugin final : public ExtensionSystem::IPlugin
 {
