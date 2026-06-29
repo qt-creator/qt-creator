@@ -21,7 +21,7 @@ class FilePath;
 class WizardPrivate;
 class WizardProgress;
 
-const char SHORT_TITLE_PROPERTY[] = "shortTitle";
+inline constexpr char SHORT_TITLE_PROPERTY[] = "shortTitle";
 
 class QTCREATOR_UTILS_EXPORT Wizard : public QWizard
 {

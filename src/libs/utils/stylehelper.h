@@ -24,8 +24,8 @@ QT_END_NAMESPACE
 namespace Utils::StyleHelper {
 
 const unsigned int DEFAULT_BASE_COLOR = 0x666666;
-const int progressFadeAnimationDuration = 600;
-const int defaultFadeAnimationDuration = 160;
+inline constexpr int progressFadeAnimationDuration = 600;
+inline constexpr int defaultFadeAnimationDuration = 160;
 
 constexpr char C_ALIGN_ARROW[] = "alignarrow";
 constexpr char C_DRAW_LEFT_BORDER[] = "drawleftborder";

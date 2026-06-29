@@ -8,7 +8,7 @@
 
 namespace Utils {
 
-const int FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID = QTextFormat::UserProperty + 43;
+inline constexpr int FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID = QTextFormat::UserProperty + 43;
 
 using FormatRanges = QList<QTextLayout::FormatRange>;
 
