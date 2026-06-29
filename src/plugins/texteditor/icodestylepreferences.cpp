@@ -17,7 +17,8 @@ namespace Internal {
 class ICodeStylePreferencesPrivate
 {
 public:
-    CodeStylePool *m_pool = nullptr;
+    CodeStylePool *m_delegatingPool = nullptr;
+    CodeStylePool *m_memberPool = nullptr;
     ICodeStylePreferences *m_currentDelegate = nullptr;
     Utils::Id m_globalSettingsCategory;
     TabSettingsData m_tabSettings;
@@ -47,6 +48,8 @@ ICodeStylePreferences::ICodeStylePreferences(QObject *parent) :
 
 ICodeStylePreferences::~ICodeStylePreferences()
 {
+    if (d->m_memberPool)
+        d->m_memberPool->detachCodeStyle(this);
     delete d;
 }
 
@@ -118,24 +121,29 @@ ICodeStylePreferences *ICodeStylePreferences::currentPreferences() const
 
 CodeStylePool *ICodeStylePreferences::delegatingPool() const
 {
-    return d->m_pool;
+    return d->m_delegatingPool;
 }
 
 void ICodeStylePreferences::setDelegatingPool(CodeStylePool *pool)
 {
-    if (pool == d->m_pool)
+    if (pool == d->m_delegatingPool)
         return;
 
     setCurrentDelegate(nullptr);
-    if (d->m_pool) {
-        disconnect(d->m_pool, &CodeStylePool::codeStyleRemoved,
+    if (d->m_delegatingPool) {
+        disconnect(d->m_delegatingPool, &CodeStylePool::codeStyleRemoved,
                    this, &ICodeStylePreferences::codeStyleRemoved);
     }
-    d->m_pool = pool;
-    if (d->m_pool) {
-        connect(d->m_pool, &CodeStylePool::codeStyleRemoved,
+    d->m_delegatingPool = pool;
+    if (d->m_delegatingPool) {
+        connect(d->m_delegatingPool, &CodeStylePool::codeStyleRemoved,
                 this, &ICodeStylePreferences::codeStyleRemoved);
     }
+}
+
+void ICodeStylePreferences::setCodeStylePool(CodeStylePool *pool)
+{
+    d->m_memberPool = pool;
 }
 
 ICodeStylePreferences *ICodeStylePreferences::currentDelegate() const
@@ -145,7 +153,7 @@ ICodeStylePreferences *ICodeStylePreferences::currentDelegate() const
 
 void ICodeStylePreferences::setCurrentDelegate(ICodeStylePreferences *delegate)
 {
-    if (delegate && d->m_pool && !d->m_pool->codeStyles().contains(delegate)) {
+    if (delegate && d->m_delegatingPool && !d->m_delegatingPool->codeStyles().contains(delegate)) {
         // warning
         return;
     }
@@ -190,8 +198,8 @@ QByteArray ICodeStylePreferences::currentDelegateId() const
 
 void ICodeStylePreferences::setCurrentDelegate(const QByteArray &id)
 {
-    if (d->m_pool)
-        setCurrentDelegate(d->m_pool->codeStyle(id));
+    if (d->m_delegatingPool)
+        setCurrentDelegate(d->m_delegatingPool->codeStyle(id));
 }
 
 void ICodeStylePreferences::setSettingsSuffix(const Key &suffix)

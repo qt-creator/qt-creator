@@ -34,9 +34,9 @@ public:
     ICodeStylePreferencesFactory *m_factory = nullptr;
     Id m_languageId;
     bool m_transient = false;
-    QList<ICodeStylePreferences *> m_pool;
-    QList<ICodeStylePreferences *> m_builtInPool;
-    QList<ICodeStylePreferences *> m_customPool;
+    QList<ICodeStylePreferences *> m_codeStyles;
+    QList<ICodeStylePreferences *> m_builtInCodeStyles;
+    QList<ICodeStylePreferences *> m_customCodeStyles;
     QMap<QByteArray, ICodeStylePreferences *> m_idToCodeStyle;
     QString m_settingsPath;
 };
@@ -86,6 +86,11 @@ CodeStylePool::~CodeStylePool()
 {
     if (d->m_languageId.isValid())
         g_languageToCodeStylePool.remove(d->m_languageId);
+    // Drop the back-links so a style that outlives the pool does not try to
+    // detach from it later (e.g. the global style vs. the global pool statics).
+    const QList<ICodeStylePreferences *> styles = d->m_codeStyles;
+    for (ICodeStylePreferences *codeStyle : styles)
+        codeStyle->setCodeStylePool(nullptr);
     delete d;
 }
 
@@ -107,17 +112,17 @@ FilePath CodeStylePool::settingsPath(const QByteArray &id) const
 
 QList<ICodeStylePreferences *> CodeStylePool::codeStyles() const
 {
-    return d->m_pool;
+    return d->m_codeStyles;
 }
 
 QList<ICodeStylePreferences *> CodeStylePool::builtInCodeStyles() const
 {
-    return d->m_builtInPool;
+    return d->m_builtInCodeStyles;
 }
 
 QList<ICodeStylePreferences *> CodeStylePool::customCodeStyles() const
 {
-    return d->m_customPool;
+    return d->m_customCodeStyles;
 }
 
 ICodeStylePreferences *CodeStylePool::cloneCodeStyle(ICodeStylePreferences *originalCodeStyle)
@@ -166,12 +171,13 @@ void CodeStylePool::addCodeStyle(ICodeStylePreferences *codeStyle)
     const QByteArray newId = d->generateUniqueId(codeStyle->id());
     codeStyle->setId(newId);
 
-    d->m_pool.append(codeStyle);
+    d->m_codeStyles.append(codeStyle);
     if (codeStyle->isReadOnly())
-        d->m_builtInPool.append(codeStyle);
+        d->m_builtInCodeStyles.append(codeStyle);
     else
-        d->m_customPool.append(codeStyle);
+        d->m_customCodeStyles.append(codeStyle);
     d->m_idToCodeStyle.insert(newId, codeStyle);
+    codeStyle->setCodeStylePool(this);
 
     auto doSaveStyle = [this, codeStyle] { saveCodeStyle(codeStyle); };
     connect(codeStyle, &ICodeStylePreferences::valueChanged, this, doSaveStyle);
@@ -180,38 +186,43 @@ void CodeStylePool::addCodeStyle(ICodeStylePreferences *codeStyle)
     emit codeStyleAdded(codeStyle);
 }
 
+void CodeStylePool::detachCodeStyle(ICodeStylePreferences *codeStyle)
+{
+    if (!d->m_codeStyles.contains(codeStyle))
+        return;
+
+    emit codeStyleRemoved(codeStyle);
+    d->m_codeStyles.removeOne(codeStyle);
+    d->m_builtInCodeStyles.removeOne(codeStyle);
+    d->m_customCodeStyles.removeOne(codeStyle);
+    d->m_idToCodeStyle.remove(codeStyle->id());
+    codeStyle->setCodeStylePool(nullptr);
+}
+
 void CodeStylePool::removeCodeStyle(ICodeStylePreferences *codeStyle)
 {
-    const int idx = d->m_customPool.indexOf(codeStyle);
-    if (idx < 0)
+    if (!d->m_customCodeStyles.contains(codeStyle))
         return;
 
     if (codeStyle->isReadOnly())
         return;
 
-    emit codeStyleRemoved(codeStyle);
-    d->m_customPool.removeAt(idx);
-    d->m_pool.removeOne(codeStyle);
-    d->m_idToCodeStyle.remove(codeStyle->id());
-
     if (!d->m_transient)
         settingsPath(codeStyle->id()).removeFile();
-
+    detachCodeStyle(codeStyle);
     delete codeStyle;
 }
 
 void CodeStylePool::removeAutoImportedCodeStyle(Id id)
 {
-    const auto style = std::find_if(
-        d->m_builtInPool.begin(),
-        d->m_builtInPool.end(),
+    const auto it = std::find_if(
+        d->m_builtInCodeStyles.begin(),
+        d->m_builtInCodeStyles.end(),
         [id = id.toByteArray()](const ICodeStylePreferences *style) { return style->id() == id; });
-    QTC_ASSERT(style != d->m_builtInPool.end(), return);
-    emit codeStyleRemoved(*style);
-    d->m_builtInPool.erase(style);
-    d->m_pool.removeOne(*style);
-    d->m_idToCodeStyle.remove((*style)->id());
-    delete *style;
+    QTC_ASSERT(it != d->m_builtInCodeStyles.end(), return);
+    ICodeStylePreferences *style = *it;
+    detachCodeStyle(style);
+    delete style;
 }
 
 ICodeStylePreferences *CodeStylePool::codeStyle(const QByteArray &id) const

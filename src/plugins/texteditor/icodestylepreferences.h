@@ -53,6 +53,10 @@ public:
     CodeStylePool *delegatingPool() const;
     void setDelegatingPool(CodeStylePool *pool);
 
+    // The pool this style is registered in (set by CodeStylePool::addCodeStyle).
+    // Used to detach automatically on destruction; distinct from delegatingPool().
+    void setCodeStylePool(CodeStylePool *pool);
+
     ICodeStylePreferences *currentDelegate() const; // null or one of delegates from the pool
     void setCurrentDelegate(ICodeStylePreferences *delegate);
 

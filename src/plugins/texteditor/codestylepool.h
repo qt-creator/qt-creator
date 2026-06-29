@@ -65,6 +65,10 @@ private:
     Utils::FilePath settingsDir() const;
     Utils::FilePath settingsPath(const QByteArray &id) const;
     void saveCodeStyle(ICodeStylePreferences *codeStyle) const;
+    // Unlinks the style from the pool (without deleting it or its settings file).
+    void detachCodeStyle(ICodeStylePreferences *codeStyle);
+
+    friend class ICodeStylePreferences;
 
     Internal::CodeStylePoolPrivate *d;
 };
