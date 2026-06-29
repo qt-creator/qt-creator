@@ -155,6 +155,28 @@ public:
         setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
             return new NimCodeStyleEditor{codeStyle};
         });
+
+        setGlobalCodeStyleId(Constants::C_NIMGLOBALCODESTYLE_ID);
+        setDefaultCodeStyleId("nim");
+        setBuiltInCodeStyles([](CodeStylePool *pool) {
+            // Built-in, read-only "Nim" style.
+            TabSettingsData tabSettings;
+            tabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
+            tabSettings.m_tabSize = 2;
+            tabSettings.m_indentSize = 2;
+            tabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
+
+            auto nim = new ICodeStylePreferences;
+            nim->setId("nim");
+            nim->setDisplayName(Tr::tr("Nim"));
+            nim->setReadOnly(true);
+            nim->setTabSettings(tabSettings);
+            pool->addCodeStyle(nim);
+        });
+        setupCodeStyles();
+
+        registerMimeTypeForLanguageId(Constants::C_NIM_MIMETYPE, Constants::C_NIMLANGUAGE_ID);
+        registerMimeTypeForLanguageId(Constants::C_NIM_SCRIPT_MIMETYPE, Constants::C_NIMLANGUAGE_ID);
     }
 };
 
@@ -165,58 +187,21 @@ class NimCodeStyleSettingsPage final : public Core::IOptionsPage
 public:
     NimCodeStyleSettingsPage()
     {
-        setId(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_ID);
+        setId(Constants::C_NIMCODESTYLESETTINGSPAGE_ID);
         setDisplayName(Tr::tr("Code Style"));
-        setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
-        setSettingsProvider([this] { return &m_settings; });
-
-        // Built-in, read-only "Nim" style.
-        TabSettingsData nimTabSettings;
-        nimTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
-        nimTabSettings.m_tabSize = 2;
-        nimTabSettings.m_indentSize = 2;
-        nimTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
-
-        m_nimCodeStyle.setId("nim");
-        m_nimCodeStyle.setDisplayName(Tr::tr("Nim"));
-        m_nimCodeStyle.setReadOnly(true);
-        m_nimCodeStyle.setTabSettings(nimTabSettings);
-
-        // Editable global style.
-        m_globalCodeStyle.setSettingsSuffix("TabPreferences");
-        m_globalCodeStyle.setDelegatingPool(&m_pool);
-        m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
-        m_globalCodeStyle.setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
-
-        m_pool.addCodeStyle(&m_globalCodeStyle);
-        m_pool.addCodeStyle(&m_nimCodeStyle);
-        m_globalCodeStyle.setCurrentDelegate(&m_nimCodeStyle);
-        m_pool.loadCustomCodeStyles();
-        m_globalCodeStyle.fromSettings(Nim::Constants::C_NIMLANGUAGE_ID);
-
-        registerCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID, &m_globalCodeStyle);
-
-        registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE,
-                                      Nim::Constants::C_NIMLANGUAGE_ID);
-        registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
-                                      Nim::Constants::C_NIMLANGUAGE_ID);
+        setCategory(Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
+        setSettingsProvider([] {
+            static CodeStyleAspect settings(
+                codeStyleFactory(Constants::C_NIMLANGUAGE_ID)->globalCodeStyle(),
+                Constants::C_NIMLANGUAGE_ID);
+            return &settings;
+        });
     }
-
-    ~NimCodeStyleSettingsPage()
-    {
-        unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
-    }
-
-private:
-    NimCodeStylePreferencesFactory m_factory;
-    CodeStylePool m_pool{&m_factory, Nim::Constants::C_NIMLANGUAGE_ID};
-    ICodeStylePreferences m_globalCodeStyle;
-    ICodeStylePreferences m_nimCodeStyle;
-    CodeStyleAspect m_settings{&m_globalCodeStyle, Nim::Constants::C_NIMLANGUAGE_ID};
 };
 
 void Internal::setupNimCodeStyle()
 {
+    static GuardedObject<NimCodeStylePreferencesFactory> theNimCodeStylePreferencesFactory;
     static GuardedObject<NimCodeStyleSettingsPage> theNimCodeStyleSettingsPage;
 }
 
