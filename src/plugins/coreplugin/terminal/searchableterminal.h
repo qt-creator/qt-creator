@@ -75,7 +75,6 @@ public:
     ~SearchableTerminal() override;
 
 protected:
-    void surfaceChanged() override;
     const QList<TerminalSolution::SearchHit> &searchHits() const override;
     void selectionChanged(const std::optional<Selection> &newSelection) override;
 

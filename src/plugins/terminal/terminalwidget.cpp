@@ -64,7 +64,42 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     setupColors();
     setupActions();
 
-    surfaceChanged();
+    auto baseUpdater = surfaceUpdater();
+    setSurfaceUpdater([this, baseUpdater] {
+        if (baseUpdater)
+            baseUpdater();
+
+        m_shellIntegration.reset(new ShellIntegration());
+        setSurfaceIntegration(m_shellIntegration.get());
+
+        connect(m_shellIntegration.get(),
+                &ShellIntegration::titleChanged,
+                this,
+                [this](const QString &title) {
+                    const FilePath titleFile = FilePath::fromUserInput(title);
+                    if (!m_title.isEmpty()
+                        || m_openParameters.shellCommand.value_or(CommandLine{}).executable()
+                               != titleFile) {
+                        m_title = titleFile.isFile() ? titleFile.baseName() : title;
+                    }
+                    emit titleChanged();
+                });
+
+        connect(m_shellIntegration.get(),
+                &ShellIntegration::commandChanged,
+                this,
+                [this](const CommandLine &command) {
+                    m_currentCommand = command;
+                    emit commandChanged(m_currentCommand);
+                });
+        connect(m_shellIntegration.get(),
+                &ShellIntegration::currentDirChanged,
+                this,
+                [this](const FilePath &currentDir) {
+                    m_cwd = currentDir;
+                    emit cwdChanged(m_cwd);
+                });
+    });
 
     setAllowBlinkingCursor(settings().allowBlinkingCursor());
     enableMouseTracking(settings().enableMouseTracking());
@@ -359,41 +394,6 @@ bool TerminalWidget::resizePty(QSize newSize)
     return true;
 }
 
-void TerminalWidget::surfaceChanged()
-{
-    Core::SearchableTerminal::surfaceChanged();
-
-    m_shellIntegration.reset(new ShellIntegration());
-    setSurfaceIntegration(m_shellIntegration.get());
-
-    connect(m_shellIntegration.get(),
-            &ShellIntegration::titleChanged,
-            this,
-            [this](const QString &title) {
-                const FilePath titleFile = FilePath::fromUserInput(title);
-                if (!m_title.isEmpty()
-                    || m_openParameters.shellCommand.value_or(CommandLine{}).executable()
-                           != titleFile) {
-                    m_title = titleFile.isFile() ? titleFile.baseName() : title;
-                }
-                emit titleChanged();
-            });
-
-    connect(m_shellIntegration.get(),
-            &ShellIntegration::commandChanged,
-            this,
-            [this](const CommandLine &command) {
-                m_currentCommand = command;
-                emit commandChanged(m_currentCommand);
-            });
-    connect(m_shellIntegration.get(),
-            &ShellIntegration::currentDirChanged,
-            this,
-            [this](const FilePath &currentDir) {
-                m_cwd = currentDir;
-                emit cwdChanged(m_cwd);
-            });
-}
 
 QString TerminalWidget::title() const
 {

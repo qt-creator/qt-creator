@@ -70,8 +70,6 @@ protected:
 
     void handleEscKey(QKeyEvent *event);
 
-    void surfaceChanged() override;
-
     void selectionChanged(const std::optional<Selection> &newSelection) override;
     void linkActivated(const Link &link) override;
     void contextMenuRequested(const QPoint &pos) override;

@@ -286,7 +286,26 @@ SearchableTerminal::SearchableTerminal(QWidget *parent)
     m_aggregate = new Aggregation::Aggregate(this);
     m_aggregate->add(this);
 
-    surfaceChanged();
+    auto baseUpdater = surfaceUpdater();
+    setSurfaceUpdater([this, baseUpdater] {
+        if (baseUpdater)
+            baseUpdater();
+        m_search = TerminalSearchPtr(new TerminalSearch(surface()), [this](TerminalSearch *p) {
+            m_aggregate->remove(p);
+            delete p;
+        });
+
+        m_aggregate->add(m_search.get());
+
+        connect(m_search.get(), &TerminalSearch::hitsChanged, this, &SearchableTerminal::updateViewport);
+        connect(m_search.get(), &TerminalSearch::currentHitChanged, this, [this] {
+            TerminalSolution::SearchHit hit = m_search->currentHit();
+            if (hit.start >= 0) {
+                setSelection(Selection{hit.start, hit.end, true}, hit != m_lastSelectedHit);
+                m_lastSelectedHit = hit;
+            }
+        });
+    });
 
     connect(this, &TerminalSolution::TerminalView::cleared, this, [this] {
         m_search->clearAndSearchAgain();
@@ -294,27 +313,6 @@ SearchableTerminal::SearchableTerminal(QWidget *parent)
 }
 
 SearchableTerminal::~SearchableTerminal() = default;
-
-void SearchableTerminal::surfaceChanged()
-{
-    TerminalView::surfaceChanged();
-
-    m_search = TerminalSearchPtr(new TerminalSearch(surface()), [this](TerminalSearch *p) {
-        m_aggregate->remove(p);
-        delete p;
-    });
-
-    m_aggregate->add(m_search.get());
-
-    connect(m_search.get(), &TerminalSearch::hitsChanged, this, &SearchableTerminal::updateViewport);
-    connect(m_search.get(), &TerminalSearch::currentHitChanged, this, [this] {
-        TerminalSolution::SearchHit hit = m_search->currentHit();
-        if (hit.start >= 0) {
-            setSelection(Selection{hit.start, hit.end, true}, hit != m_lastSelectedHit);
-            m_lastSelectedHit = hit;
-        }
-    });
-}
 
 void SearchableTerminal::selectionChanged(const std::optional<Selection> &newSelection)
 {

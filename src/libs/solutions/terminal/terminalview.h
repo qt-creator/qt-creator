@@ -12,6 +12,7 @@
 #include <QTimer>
 
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <optional>
 
@@ -148,8 +149,6 @@ public:
 
     virtual void contextMenuRequested(const QPoint &pos) { Q_UNUSED(pos) }
 
-    virtual void surfaceChanged(){};
-
     TerminalSurface *surface() const;
 
 protected:
@@ -170,6 +169,9 @@ protected:
     bool event(QEvent *event) override;
 
 protected:
+    void setSurfaceUpdater(const std::function<void()> &updater);
+    std::function<void()> surfaceUpdater() const;
+
     void setupSurface();
 
     int paintCell(QPainter &p,

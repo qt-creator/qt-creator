@@ -97,6 +97,8 @@ public:
     bool m_passwordModeActive{false};
 
     SurfaceIntegration *m_surfaceIntegration{nullptr};
+
+    std::function<void()> m_surfaceUpdater;
 };
 
 QString defaultFontFamily()
@@ -174,6 +176,22 @@ TerminalSurface *TerminalView::surface() const
     return d->m_surface.get();
 }
 
+/*!
+    Sets an \a updater function to call when the surface changes.
+    If \a updater is valid, it also directly calls it once.
+*/
+void TerminalView::setSurfaceUpdater(const std::function<void()> &updater)
+{
+    d->m_surfaceUpdater = updater;
+    if (updater)
+        updater();
+}
+
+std::function<void()> TerminalView::surfaceUpdater() const
+{
+    return d->m_surfaceUpdater;
+}
+
 void TerminalView::setupSurface()
 {
     d->m_surface = std::make_unique<TerminalSurface>(QSize{80, 60});
@@ -223,7 +241,8 @@ void TerminalView::setupSurface()
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
 
-    surfaceChanged();
+    if (d->m_surfaceUpdater)
+        d->m_surfaceUpdater();
     updateScrollBars();
 }
 
