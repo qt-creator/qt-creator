@@ -33,6 +33,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/dialogtask.h>
 #include <utils/environment.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/utilsicons.h>
@@ -765,12 +766,10 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
 
     const Storage<QString> passwordStorage;
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> dashboardStorage;
-    const auto onPasswordGroupSetup
-            = [serverId, serverUrlStorage, passwordStorage, dashboardStorage] {
+    const auto onPasswordGroupSetup = [serverId] {
         if (dd->m_apiToken)
             return SetupResult::StopWithSuccess;
 
-        bool ok = false;
         const AxivionServer server = settings().serverForId(serverId);
         if (server.username == "anon_auth" || server.username.isEmpty()) {
             showErrorMessage(Tr::tr("Dashboard server \"%1\" does not support unauthenticated access.\n"
@@ -778,17 +777,26 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
                              .arg(server.displayString()));
             return SetupResult::StopWithError;
         }
-        const QString text(Tr::tr("Enter the password for:\nDashboard: %1\nUser: %2")
-                               .arg(server.dashboard, server.username));
-        *passwordStorage = QInputDialog::getText(ICore::dialogParent(),
-            Tr::tr("Axivion Server Password"), text, QLineEdit::Password, {}, &ok);
-        if (!ok)
-            return SetupResult::StopWithError;
-
+        return SetupResult::Continue;
+    };
+    const auto onPasswordDialogSetup = [serverId](DialogWrapper<QInputDialog> &task) {
+        const AxivionServer server = settings().serverForId(serverId);
+        task.setParent(ICore::dialogParent());
+        QInputDialog *dialog = task.dialog();
+        dialog->setWindowTitle(Tr::tr("Axivion Server Password"));
+        dialog->setLabelText(Tr::tr("Enter the password for:\nDashboard: %1\nUser: %2")
+                                 .arg(server.dashboard, server.username));
+        dialog->setTextEchoMode(QLineEdit::Password);
+    };
+    // Runs only on accept; "Cancel" reports an error that aborts the password group.
+    const auto onPasswordDialogDone
+            = [serverId, serverUrlStorage, passwordStorage, dashboardStorage]
+              (const DialogWrapper<QInputDialog> &task) {
+        const AxivionServer server = settings().serverForId(serverId);
+        *passwordStorage = task.dialog()->textValue();
         const QString credential = server.username + ':' + *passwordStorage;
         dashboardStorage->credential = "Basic " + credential.toUtf8().toBase64();
         dashboardStorage->url = *serverUrlStorage;
-        return SetupResult::Continue;
     };
 
     const Storage<PostDtoStorage<Dto::ApiTokenInfoDto>> apiTokenStorage;
@@ -874,6 +882,8 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
                 passwordStorage,
                 dashboardStorage,
                 onGroupSetup(onPasswordGroupSetup),
+                DialogTask<QInputDialog>(onPasswordDialogSetup, onPasswordDialogDone,
+                                         CallDoneFlag::OnSuccess),
                 dtoRecipe(dashboardStorage) || successItem, // GET DashboardInfoDto
                 Group { // POST ApiTokenCreationRequestDto, GET ApiTokenInfoDto.
                     apiTokenStorage,
