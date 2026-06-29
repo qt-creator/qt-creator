@@ -383,7 +383,8 @@ class DumperBase():
         return range(min(self.currentMaxNumChild, self.currentNumChild))
 
     def maxArrayCount(self):
-        if self.currentIName in self.expandedINames:
+        # In CLI mode expandedINames is a set, not a dict
+        if not self.isCli and self.currentIName in self.expandedINames:
             return self.expandedINames[self.currentIName]
         return 100
 
@@ -2489,7 +2490,10 @@ typename))
         #self.warn('ADDRESS: 0x%x INNERSIZE: %s INNERTYPE: %s' % (base, inner_size, inner_typeid))
         enc = self.type_encoding_cache.get(inner_typeid, None)
         maxNumChild = self.maxArrayCount()
-        if enc:
+        # In CLI mode show the elements as plain children instead of the
+        # compressed array encoding, which a human reader would have to decode
+        # manually.
+        if enc and not self.isCli:
             self.put('childtype="%s",' % self.type_name(inner_typeid))
             self.put('addrbase="0x%x",' % base)
             self.put('addrstep="0x%x",' % inner_size)

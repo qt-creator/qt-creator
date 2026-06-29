@@ -1924,7 +1924,7 @@ def qdump__QString(d, value):
     displayFormat = d.currentItemFormat()
     if displayFormat == DisplayFormat.Separate:
         d.putDisplay('utf16:separate', d.encodeString(value, limit=100000))
-    if (length > 0):
+    if length > 0 and not d.isCli:
         d.putExpandable()
         if d.isExpanded():
             d.putArrayData(data, length, d.createType('@QChar'))
