@@ -4,6 +4,7 @@
 #include "codestyleeditor.h"
 
 #include "codestyleselectorwidget.h"
+#include "codestylepool.h"
 #include "displaysettings.h"
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
@@ -170,9 +171,15 @@ CodeStyleAspect::CodeStyleAspect(ICodeStylePreferences *codeStyle, Id languageId
 {
     setLayouter([this] {
         ICodeStylePreferencesFactory *factory = codeStyleFactory(m_languageId);
-        if (!m_pageCodeStyle) {
+        if (!m_pagePool) {
+            // A transient, page-local pool holding editable copies of the real
+            // pool's styles, so that selecting, editing, adding and removing
+            // styles on the page is all deferred until apply().
+            m_pagePool = new CodeStylePool(factory);
+            m_pagePool->setTransient(true);
+
             m_pageCodeStyle = factory->createCodeStyle();
-            m_pageCodeStyle->setDelegatingPool(m_codeStyle->delegatingPool());
+            m_pageCodeStyle->setDelegatingPool(m_pagePool);
             // Share the real style's id so it cannot be picked as its own delegate.
             m_pageCodeStyle->setId(m_codeStyle->id());
             connect(m_pageCodeStyle, &ICodeStylePreferences::currentDelegateChanged, this, [this] {
@@ -194,16 +201,72 @@ CodeStyleAspect::~CodeStyleAspect()
 {
     delete m_editor;
     delete m_pageCodeStyle;
+    delete m_pagePool;
+}
+
+ICodeStylePreferences *CodeStyleAspect::addPageCopy(ICodeStylePreferences *realStyle)
+{
+    ICodeStylePreferences *copy = codeStyleFactory(m_languageId)->createCodeStyle();
+    copy->setId(realStyle->id());
+    // Set read-only before adding so the pool files it as built-in vs. custom.
+    copy->setReadOnly(realStyle->isReadOnly());
+    copy->setDisplayName(realStyle->displayName());
+    copy->setValue(realStyle->value());
+    copy->setTabSettings(realStyle->tabSettings());
+    m_pagePool->addCodeStyle(copy);
+    // addCodeStyle() does not take ownership, so parent the copy to the pool.
+    copy->setParent(m_pagePool);
+    return copy;
 }
 
 void CodeStyleAspect::apply()
 {
-    // Flush the editor's pending edits into the page-local copy, then commit the
-    // copy's settings and delegate to the real style.
+    // Flush the editor's pending edits into the page-local copies.
     if (m_editor)
         m_editor->apply();
 
+    CodeStylePool *realPool = m_codeStyle->delegatingPool();
+    const QByteArray selfId = m_codeStyle->id();
     bool changed = false;
+
+    if (realPool) {
+        // Remove the real custom styles that were deleted on the page.
+        const QList<ICodeStylePreferences *> realCustom = realPool->customCodeStyles();
+        for (ICodeStylePreferences *realStyle : realCustom) {
+            if (realStyle->id() != selfId && !m_pagePool->codeStyle(realStyle->id())) {
+                realPool->removeCodeStyle(realStyle);
+                changed = true;
+            }
+        }
+        // Add styles created on the page and write back edited ones. Built-in
+        // styles are read-only and never change.
+        const QList<ICodeStylePreferences *> pageStyles = m_pagePool->codeStyles();
+        for (ICodeStylePreferences *pageStyle : pageStyles) {
+            if (pageStyle->isReadOnly())
+                continue;
+            ICodeStylePreferences *realStyle = realPool->codeStyle(pageStyle->id());
+            if (!realStyle) {
+                realPool->createCodeStyle(pageStyle->id(), pageStyle->tabSettings(),
+                                          pageStyle->value(), pageStyle->displayName());
+                changed = true;
+                continue;
+            }
+            if (realStyle->value() != pageStyle->value()) {
+                realStyle->setValue(pageStyle->value());
+                changed = true;
+            }
+            if (realStyle->tabSettings() != pageStyle->tabSettings()) {
+                realStyle->setTabSettings(pageStyle->tabSettings());
+                changed = true;
+            }
+            if (realStyle->displayName() != pageStyle->displayName()) {
+                realStyle->setDisplayName(pageStyle->displayName());
+                changed = true;
+            }
+        }
+    }
+
+    // The global style's own settings and selected delegate.
     if (m_codeStyle->value() != m_pageCodeStyle->value()) {
         m_codeStyle->setValue(m_pageCodeStyle->value());
         changed = true;
@@ -212,12 +275,20 @@ void CodeStyleAspect::apply()
         m_codeStyle->setTabSettings(m_pageCodeStyle->tabSettings());
         changed = true;
     }
-    if (m_codeStyle->currentDelegate() != m_pageCodeStyle->currentDelegate()) {
-        m_codeStyle->setCurrentDelegate(m_pageCodeStyle->currentDelegate());
+    ICodeStylePreferences *pageDelegate = m_pageCodeStyle->currentDelegate();
+    ICodeStylePreferences *realDelegate =
+        (pageDelegate && realPool) ? realPool->codeStyle(pageDelegate->id()) : nullptr;
+    if (m_codeStyle->currentDelegate() != realDelegate) {
+        m_codeStyle->setCurrentDelegate(realDelegate);
         changed = true;
     }
+
     if (changed)
         m_codeStyle->toSettings(m_languageId.toKey());
+
+    // Re-mirror so the page reflects the persisted state (e.g. ids assigned to
+    // newly created styles) and dirtiness clears.
+    syncFromReal();
     emit volatileValueChanged();
 }
 
@@ -231,19 +302,86 @@ void CodeStyleAspect::cancel()
 bool CodeStyleAspect::isDirty() const
 {
     // Guard on m_editor: until the page is shown the copy is not yet synced.
-    return m_editor
-           && (m_editor->isDirty()
-               || m_codeStyle->value() != m_pageCodeStyle->value()
-               || m_codeStyle->tabSettings() != m_pageCodeStyle->tabSettings()
-               || m_codeStyle->currentDelegate() != m_pageCodeStyle->currentDelegate());
+    if (!m_editor)
+        return false;
+    if (m_editor->isDirty())
+        return true;
+    if (m_codeStyle->value() != m_pageCodeStyle->value()
+        || m_codeStyle->tabSettings() != m_pageCodeStyle->tabSettings()) {
+        return true;
+    }
+    const ICodeStylePreferences *realDelegate = m_codeStyle->currentDelegate();
+    const ICodeStylePreferences *pageDelegate = m_pageCodeStyle->currentDelegate();
+    const QByteArray realDelegateId = realDelegate ? realDelegate->id() : QByteArray();
+    const QByteArray pageDelegateId = pageDelegate ? pageDelegate->id() : QByteArray();
+    if (realDelegateId != pageDelegateId)
+        return true;
+    return poolsDiffer();
+}
+
+bool CodeStyleAspect::poolsDiffer() const
+{
+    CodeStylePool *realPool = m_codeStyle->delegatingPool();
+    if (!realPool)
+        return false;
+
+    // A page style missing from, or differing from, the real pool?
+    const QList<ICodeStylePreferences *> pageStyles = m_pagePool->codeStyles();
+    for (ICodeStylePreferences *pageStyle : pageStyles) {
+        ICodeStylePreferences *realStyle = realPool->codeStyle(pageStyle->id());
+        if (!realStyle)
+            return true;
+        if (realStyle->value() != pageStyle->value()
+            || realStyle->tabSettings() != pageStyle->tabSettings()
+            || realStyle->displayName() != pageStyle->displayName()) {
+            return true;
+        }
+    }
+    // A real (delegatable) style removed on the page?
+    const QByteArray selfId = m_codeStyle->id();
+    const QList<ICodeStylePreferences *> realStyles = realPool->codeStyles();
+    for (ICodeStylePreferences *realStyle : realStyles) {
+        if (realStyle->id() != selfId && !m_pagePool->codeStyle(realStyle->id()))
+            return true;
+    }
+    return false;
 }
 
 void CodeStyleAspect::syncFromReal()
 {
     m_syncing = true;
+    CodeStylePool *realPool = m_codeStyle->delegatingPool();
+    const QByteArray selfId = m_codeStyle->id();
+
+    // Drop page styles whose real counterpart is gone.
+    const QList<ICodeStylePreferences *> pageStyles = m_pagePool->codeStyles();
+    for (ICodeStylePreferences *pageStyle : pageStyles) {
+        if (!realPool || !realPool->codeStyle(pageStyle->id()))
+            m_pagePool->removeCodeStyle(pageStyle);
+    }
+    // Add or refresh a page copy for every delegatable real style. The real
+    // global is represented by m_pageCodeStyle, so it is skipped.
+    if (realPool) {
+        const QList<ICodeStylePreferences *> realStyles = realPool->codeStyles();
+        for (ICodeStylePreferences *realStyle : realStyles) {
+            if (realStyle->id() == selfId)
+                continue;
+            ICodeStylePreferences *pageStyle = m_pagePool->codeStyle(realStyle->id());
+            if (!pageStyle)
+                pageStyle = addPageCopy(realStyle);
+            pageStyle->setValue(realStyle->value());
+            pageStyle->setTabSettings(realStyle->tabSettings());
+            pageStyle->setDisplayName(realStyle->displayName());
+        }
+    }
+
+    // Sync the page global's own settings and its selected delegate.
     m_pageCodeStyle->setValue(m_codeStyle->value());
     m_pageCodeStyle->setTabSettings(m_codeStyle->tabSettings());
-    m_pageCodeStyle->setCurrentDelegate(m_codeStyle->currentDelegate());
+    ICodeStylePreferences *realDelegate = m_codeStyle->currentDelegate();
+    m_pageCodeStyle->setCurrentDelegate(
+        realDelegate ? m_pagePool->codeStyle(realDelegate->id()) : nullptr);
+
     m_syncing = false;
 }
 

@@ -33,6 +33,7 @@ public:
 
     ICodeStylePreferencesFactory *m_factory = nullptr;
     Id m_languageId;
+    bool m_transient = false;
     QList<ICodeStylePreferences *> m_pool;
     QList<ICodeStylePreferences *> m_builtInPool;
     QList<ICodeStylePreferences *> m_customPool;
@@ -86,6 +87,11 @@ CodeStylePool::~CodeStylePool()
     if (d->m_languageId.isValid())
         g_languageToCodeStylePool.remove(d->m_languageId);
     delete d;
+}
+
+void CodeStylePool::setTransient(bool transient)
+{
+    d->m_transient = transient;
 }
 
 FilePath CodeStylePool::settingsDir() const
@@ -188,7 +194,8 @@ void CodeStylePool::removeCodeStyle(ICodeStylePreferences *codeStyle)
     d->m_pool.removeOne(codeStyle);
     d->m_idToCodeStyle.remove(codeStyle->id());
 
-    settingsPath(codeStyle->id()).removeFile();
+    if (!d->m_transient)
+        settingsPath(codeStyle->id()).removeFile();
 
     delete codeStyle;
 }
@@ -259,6 +266,9 @@ ICodeStylePreferences *CodeStylePool::loadCodeStyle(
 
 void CodeStylePool::saveCodeStyle(ICodeStylePreferences *codeStyle) const
 {
+    if (d->m_transient)
+        return;
+
     const FilePath codeStylesPath = customCodeStylesPath();
 
     // Create the base directory when it doesn't exist

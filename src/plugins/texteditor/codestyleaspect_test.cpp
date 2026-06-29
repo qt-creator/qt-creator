@@ -4,6 +4,7 @@
 #include "codestyleaspect_test.h"
 
 #include "codestyleeditor.h"
+#include "codestylepool.h"
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
 #include "tabsettings.h"
@@ -222,6 +223,43 @@ private slots:
         aspect.cancel();
         QVERIFY(!aspect.isDirty());
         QCOMPARE(codeStyle.tabSettings().m_tabSize, 13);
+    }
+
+    // A live-write editor while a (custom, editable) pool delegate is active.
+    // The page edits a page-local copy of the delegate, so the shared pool
+    // delegate stays untouched until apply(); cancel() must revert the edit.
+    void testDelegateCancelReverts()
+    {
+        LiveTestCodeStyleFactory factory;
+        CodeStylePool pool(&factory, LIVE_TEST_LANGUAGE_ID);
+        pool.setTransient(true); // do not persist the test style to the settings
+        ICodeStylePreferences *delegate = pool.createCodeStyle("Custom");
+        const TabSettingsData original = makeTabSettings(5, 8);
+        delegate->setTabSettings(original);
+
+        ICodeStylePreferences codeStyle;
+        codeStyle.setId("RealStyle");
+        codeStyle.setDelegatingPool(&pool);
+        codeStyle.setTabSettings(makeTabSettings(11, 7));
+        codeStyle.setCurrentDelegate(delegate);
+
+        CodeStyleAspect aspect(&codeStyle, LIVE_TEST_LANGUAGE_ID);
+        QWidget host;
+        aspect.layouter()().attachTo(&host);
+
+        // The editor shows the active delegate's tab size (5).
+        QSpinBox *tabSize = spinBoxWithValue(&host, 5);
+        QVERIFY(tabSize);
+        tabSize->setValue(9);
+
+        // The edit is held by the page copy and not committed to the shared
+        // pool delegate.
+        QCOMPARE(delegate->tabSettings(), original);
+        QVERIFY(aspect.isDirty());
+
+        aspect.cancel();
+        QVERIFY(!aspect.isDirty());
+        QCOMPARE(delegate->tabSettings(), original);
     }
 };
 

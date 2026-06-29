@@ -18,6 +18,7 @@ QT_END_NAMESPACE
 namespace Utils { class FilePath; }
 
 namespace TextEditor {
+class CodeStylePool;
 class CodeStyleSelectorWidget;
 class ICodeStylePreferences;
 class Indenter;
@@ -73,9 +74,12 @@ public:
 
 private:
     void syncFromReal();
+    bool poolsDiffer() const;
+    ICodeStylePreferences *addPageCopy(ICodeStylePreferences *realStyle);
 
     ICodeStylePreferences *m_codeStyle = nullptr;
     Utils::Id m_languageId;
+    CodeStylePool *m_pagePool = nullptr;
     ICodeStylePreferences *m_pageCodeStyle = nullptr;
     QPointer<CodeStyleEditor> m_editor;
     bool m_syncing = false;

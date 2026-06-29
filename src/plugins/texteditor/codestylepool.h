@@ -28,6 +28,10 @@ public:
     explicit CodeStylePool(ICodeStylePreferencesFactory *factory, Utils::Id languageId = {});
     ~CodeStylePool() override;
 
+    // A transient pool persists nothing to disk (used for the volatile,
+    // page-local copies of a settings page). Set before adding styles.
+    void setTransient(bool transient);
+
     QList<ICodeStylePreferences *> codeStyles() const;
     QList<ICodeStylePreferences *> builtInCodeStyles() const;
     QList<ICodeStylePreferences *> customCodeStyles() const;
