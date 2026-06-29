@@ -110,6 +110,37 @@ public:
     }
 };
 
+const char MODEL_TEST_LANGUAGE_ID[] = "TextEditor.CodeStyleAspectTest.Model";
+
+// Exercises ICodeStylePreferencesFactory::setupCodeStyles(): a built-in style
+// plus an editable global that delegates to it.
+class ModelTestCodeStyleFactory final : public ICodeStylePreferencesFactory
+{
+public:
+    ModelTestCodeStyleFactory()
+        : ICodeStylePreferencesFactory(MODEL_TEST_LANGUAGE_ID)
+    {
+        setCodeStyleCreator([] {
+            auto prefs = new ICodeStylePreferences;
+            prefs->setSettingsSuffix("ModelTestCodeStyle");
+            return prefs;
+        });
+        setGlobalCodeStyleId("ModelTestGlobal");
+        setDefaultCodeStyleId("builtin");
+        setBuiltInCodeStyles([](CodeStylePool *pool) {
+            auto builtin = new ICodeStylePreferences;
+            builtin->setId("builtin");
+            builtin->setReadOnly(true);
+            TabSettingsData ts;
+            ts.m_tabSize = 3;
+            ts.m_indentSize = 3;
+            builtin->setTabSettings(ts);
+            pool->addCodeStyle(builtin);
+        });
+        setupCodeStyles();
+    }
+};
+
 class CodeStyleAspectTest final : public QObject
 {
     Q_OBJECT
@@ -260,6 +291,26 @@ private slots:
         aspect.cancel();
         QVERIFY(!aspect.isDirty());
         QCOMPARE(delegate->tabSettings(), original);
+    }
+
+    // Verifies the factory builds the pool + global and registers them.
+    void testFactorySetupCodeStyles()
+    {
+        ModelTestCodeStyleFactory factory;
+
+        ICodeStylePreferences *global = factory.globalCodeStyle();
+        QVERIFY(global);
+        QVERIFY(factory.codeStylePool());
+
+        ICodeStylePreferences *builtin = factory.codeStylePool()->codeStyle("builtin");
+        QVERIFY(builtin);
+
+        // The global delegates to the built-in and resolves its tab settings.
+        QCOMPARE(global->currentDelegate(), builtin);
+        QCOMPARE(global->currentTabSettings().m_tabSize, 3);
+
+        // It is registered for the language.
+        QCOMPARE(codeStyleForLanguage(MODEL_TEST_LANGUAGE_ID), global);
     }
 };
 

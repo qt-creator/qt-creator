@@ -21,6 +21,7 @@ namespace Utils { class FilePath; }
 
 namespace TextEditor {
 class CodeStyleEditor;
+class CodeStylePool;
 class ICodeStylePreferences;
 class Indenter;
 
@@ -60,6 +61,18 @@ public:
     void setSettingsEditorCreator(const SettingsEditorCreator &creator);
     void setProjectEditorCreator(const ProjectEditorCreator &creator);
 
+    // Builds and owns the language's code style pool and its editable global
+    // style. setupCodeStyles() must be called once the creators above are set;
+    // it adds the global (delegating to the default built-in), the built-ins,
+    // and the custom styles in the right order, loads the saved settings, and
+    // registers the global for the language.
+    void setGlobalCodeStyleId(const QByteArray &id);
+    void setDefaultCodeStyleId(const QByteArray &id);
+    void setBuiltInCodeStyles(const std::function<void(CodeStylePool *)> &adder);
+    void setupCodeStyles();
+    ICodeStylePreferences *globalCodeStyle() const;
+    CodeStylePool *codeStylePool() const;
+
 private:
     Utils::Id m_languageId;
     QString m_displayName;
@@ -69,6 +82,11 @@ private:
     CodeStyleCreator m_codeStyleCreator;
     SettingsEditorCreator m_settingsEditorCreator;
     ProjectEditorCreator m_projectEditorCreator;
+    std::function<void(CodeStylePool *)> m_builtInCodeStyles;
+    QByteArray m_globalCodeStyleId;
+    QByteArray m_defaultCodeStyleId;
+    CodeStylePool *m_pool = nullptr;
+    ICodeStylePreferences *m_globalCodeStyle = nullptr;
 };
 
 TEXTEDITOR_EXPORT ICodeStylePreferencesFactory *codeStyleFactory(Utils::Id languageId);

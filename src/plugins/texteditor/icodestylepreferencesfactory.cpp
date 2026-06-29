@@ -3,6 +3,12 @@
 
 #include "icodestylepreferencesfactory.h"
 
+#include "codestylepool.h"
+#include "icodestylepreferences.h"
+#include "texteditortr.h"
+
+#include <utils/qtcassert.h>
+
 #include <QMap>
 
 using namespace Utils;
@@ -22,6 +28,17 @@ ICodeStylePreferencesFactory::~ICodeStylePreferencesFactory()
 {
     if (m_languageId.isValid())
         g_languageToFactory.remove(m_languageId);
+
+    if (m_pool) {
+        unregisterCodeStyle(m_languageId);
+        // The pool holds non-owning pointers, so delete the styles it built.
+        // Delete them before the pool: custom styles are parented to the pool
+        // (see CodeStylePool::loadCodeStyle), so their QObject destruction drops
+        // them from the pool's child list and the pool will not free them again.
+        const QList<ICodeStylePreferences *> styles = m_pool->codeStyles();
+        qDeleteAll(styles);
+        delete m_pool;
+    }
 }
 
 Id ICodeStylePreferencesFactory::languageId() const
@@ -93,6 +110,61 @@ void ICodeStylePreferencesFactory::setSettingsEditorCreator(const SettingsEditor
 void ICodeStylePreferencesFactory::setProjectEditorCreator(const ProjectEditorCreator &creator)
 {
     m_projectEditorCreator = creator;
+}
+
+void ICodeStylePreferencesFactory::setGlobalCodeStyleId(const QByteArray &id)
+{
+    m_globalCodeStyleId = id;
+}
+
+void ICodeStylePreferencesFactory::setDefaultCodeStyleId(const QByteArray &id)
+{
+    m_defaultCodeStyleId = id;
+}
+
+void ICodeStylePreferencesFactory::setBuiltInCodeStyles(
+    const std::function<void(CodeStylePool *)> &adder)
+{
+    m_builtInCodeStyles = adder;
+}
+
+void ICodeStylePreferencesFactory::setupCodeStyles()
+{
+    QTC_ASSERT(!m_pool, return);
+    m_pool = new CodeStylePool(this, m_languageId);
+
+    // The editable global style is added first (so it leads the per-project
+    // "based on" list), then the built-ins, so the default delegate is already
+    // in the pool when it is selected.
+    m_globalCodeStyle = createCodeStyle();
+    QTC_ASSERT(m_globalCodeStyle, return);
+    m_globalCodeStyle->setDelegatingPool(m_pool);
+    m_globalCodeStyle->setId(m_globalCodeStyleId);
+    m_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
+    m_pool->addCodeStyle(m_globalCodeStyle);
+
+    if (m_builtInCodeStyles)
+        m_builtInCodeStyles(m_pool);
+
+    if (ICodeStylePreferences *defaultStyle = m_pool->codeStyle(m_defaultCodeStyleId))
+        m_globalCodeStyle->setCurrentDelegate(defaultStyle);
+
+    m_pool->loadCustomCodeStyles();
+
+    // Load the saved global settings after the pool is complete.
+    m_globalCodeStyle->fromSettings(m_languageId.toKey());
+
+    registerCodeStyle(m_languageId, m_globalCodeStyle);
+}
+
+ICodeStylePreferences *ICodeStylePreferencesFactory::globalCodeStyle() const
+{
+    return m_globalCodeStyle;
+}
+
+CodeStylePool *ICodeStylePreferencesFactory::codeStylePool() const
+{
+    return m_pool;
 }
 
 ICodeStylePreferencesFactory *codeStyleFactory(Id languageId)
