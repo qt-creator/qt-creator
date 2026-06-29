@@ -16,6 +16,7 @@
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <QLoggingCategory>
@@ -231,9 +232,9 @@ void AcpChatController::sendPrompt(const QString &text,
     TextContent textContent;
     textContent.text(text);
     QList<ContentBlock> content = {textContent};
-    BaseTextEditor *currentTextEditor = BaseTextEditor::currentTextEditor();
-    if (includeCurrentEditor && currentTextEditor) {
-        const FilePath filePath = currentTextEditor->document()->filePath();
+    TextEditorWidget *currentEditorWidget = TextEditorWidget::currentTextEditorWidget();
+    if (includeCurrentEditor && currentEditorWidget) {
+        const FilePath filePath = currentEditorWidget->textDocument()->filePath();
         if (!filePath.isEmpty()) {
             const QString uri = filePath.toUrl().toString();
             content << ResourceLink()
@@ -242,12 +243,11 @@ void AcpChatController::sendPrompt(const QString &text,
                            .uri(uri);
 
             if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
-                TextEditorWidget *widget = currentTextEditor->editorWidget();
                 TextResourceContents editorState;
                 editorState.uri(uri);
                 QString stateString
                     = "This is the state of the current Text Editor in Qt Creator\n";
-                QTextCursor tc = currentTextEditor->textCursor();
+                QTextCursor tc = currentEditorWidget->textCursor();
                 const QString cursorString
                     = "Cursor %1: %2, Line(0-based): %3, Column(0-based): %4\n";
                 stateString += cursorString.arg("Position")
@@ -260,9 +260,11 @@ void AcpChatController::sendPrompt(const QString &text,
                                    .arg(tc.blockNumber())
                                    .arg(tc.positionInBlock());
                 stateString += "First Visible Line: "
-                               + QString::number(widget->firstVisibleBlockNumber()) + "\n";
+                               + QString::number(currentEditorWidget->firstVisibleBlockNumber())
+                               + "\n";
                 stateString += "Last Visible Line: "
-                               + QString::number(widget->lastVisibleBlockNumber()) + "\n";
+                               + QString::number(currentEditorWidget->lastVisibleBlockNumber())
+                               + "\n";
                 content << EmbeddedResource().resource(
                     TextResourceContents().text(stateString).uri(uri));
             }

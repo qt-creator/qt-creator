@@ -6,7 +6,8 @@ import qbs.TextFile
 import qbs.Utilities
 
 Module {
-    Depends { name: "cpp" }
+    property bool useCpp: true
+    Depends { name: "cpp"; condition: useCpp }
 
     Probe {
         id: branding
@@ -119,7 +120,9 @@ Module {
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
 
     validate: {
-        if (qbs.toolchain.contains("msvc") && Utilities.versionCompare(cpp.compilerVersion, "19.30.0") < 0)
+        if (useCpp && qbs.toolchain.contains("msvc")
+                && Utilities.versionCompare(cpp.compilerVersion, "19.30.0") < 0) {
             throw "You need at least MSVC2022 to build Qt Creator.";
+        }
     }
 }

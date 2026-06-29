@@ -58,6 +58,7 @@ ClangToolsSettings *ClangToolsSettings::instance()
 
 RunSettings::RunSettings(const Key &prefix)
 {
+    diagnosticConfigId.setSettingsKey(prefix + diagnosticConfigIdKey);
     diagnosticConfigId.setDefaultValue(defaultDiagnosticId());
     diagnosticConfigId.setSettingsKey(prefix + diagnosticConfigIdKey);
     diagnosticConfigId.setModelFactory([] { return diagnosticConfigsModel(); });

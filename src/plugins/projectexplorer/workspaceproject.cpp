@@ -27,6 +27,7 @@
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
+#include <utils/processinterface.h>
 #include <utils/stringutils.h>
 
 #include <QElapsedTimer>
@@ -434,6 +435,11 @@ public:
             // terminal.setUseTerminalHint(bti.usesTerminal);
         });
 
+        setRunnableModifier([this](Utils::ProcessRunData &prcsRunData) {
+            prcsRunData.command.setExecutable(findIfRelative(prcsRunData.command.executable()));
+            prcsRunData.workingDirectory = findIfRelative(prcsRunData.workingDirectory, true);
+        });
+
         auto enabledUpdater = [this] { setEnabled(enabled.value()); };
         connect(&enabled, &BaseAspect::changed, this, enabledUpdater);
         connect(this, &AspectContainer::fromMapFinished, this, enabledUpdater);
@@ -446,6 +452,33 @@ public:
         RunConfiguration *result = RunConfiguration::clone(bc);
         dynamic_cast<WorkspaceRunConfiguration *>(result)->enabled.setValue(true);
         return result;
+    }
+
+    FilePath findIfRelative(const FilePath &fp, bool isDir = false) const
+    {
+        if (fp.isAbsolutePath())
+            return fp;
+
+        const BuildSystem *bs = buildSystem();
+        if (!bs)
+            return fp;
+
+        const Project *project = bs->project();
+        if (!project)
+            return fp;
+
+        if (auto bc = activeBuildConfig(bs->project())) {
+            const FilePath inBuildDirPath = bc->buildDirectory().resolvePath(fp);
+            if ((isDir && inBuildDirPath.isDir()) || inBuildDirPath.isExecutableFile())
+                return inBuildDirPath;
+        }
+
+        const FilePath inProjectDirPath = project->projectDirectory().resolvePath(fp);
+
+        if ((isDir && inProjectDirPath.isDir()) || inProjectDirPath.isExecutableFile())
+            return inProjectDirPath;
+
+        return fp;
     }
 
     TextDisplay hint{this};

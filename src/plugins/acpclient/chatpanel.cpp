@@ -28,6 +28,8 @@
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
+#include <texteditor/textdocument.h>
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QDragEnterEvent>
@@ -950,8 +952,8 @@ void ChatPanel::updateContextBar()
     }
 
     if (m_includeCurrentEditorContext) {
-        if (auto editor = TextEditor::BaseTextEditor::currentTextEditor()) {
-            Utils::FilePath filePath = editor->document()->filePath();
+        if (auto editorWidget = TextEditor::TextEditorWidget::currentTextEditorWidget()) {
+            Utils::FilePath filePath = editorWidget->textDocument()->filePath();
             if (!filePath.isEmpty()) {
                 const QString name = filePath.fileName();
                 auto *item = new ContextItem(

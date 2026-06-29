@@ -60,12 +60,17 @@ func processReadFile(cmd command, out chan<- []byte) {
 
 		readSize -= int64(bytesRead)
 
-		result, _ := cbor.Marshal(readfiledata{
-			Type:     "readfiledata",
-			Id:       cmd.Id,
-			Contents: contents,
-		})
-		out <- result
+		// Read may return fewer bytes than requested (e.g. on a partial read);
+		// only send the bytes that were actually read, otherwise the trailing
+		// zero padding of the buffer corrupts the reassembled file.
+		if bytesRead > 0 {
+			result, _ := cbor.Marshal(readfiledata{
+				Type:     "readfiledata",
+				Id:       cmd.Id,
+				Contents: contents[:bytesRead],
+			})
+			out <- result
+		}
 
 		if readErr == io.EOF || readSize == 0 {
 			result, _:= cbor.Marshal(readfiledone{
