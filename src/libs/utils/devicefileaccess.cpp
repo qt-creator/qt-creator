@@ -1557,11 +1557,20 @@ Result<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &filePath,
         return localSource->fileContents(limit, offset);
 
     QStringList args = {"if=" + filePath.path()};
-    if (limit > 0 || offset > 0) {
+    if (limit > 0 && offset > 0) {
+        // Choose the largest block size that divides both limit and offset, so that count
+        // and skip stay integral. Note: skipping the input requires "skip=", not "seek="
+        // (which operates on the output file).
         const qint64 gcd = std::gcd(limit, offset);
         args += QString("bs=%1").arg(gcd);
+        args += QString("skip=%1").arg(offset / gcd);
         args += QString("count=%1").arg(limit / gcd);
-        args += QString("seek=%1").arg(offset / gcd);
+    } else if (offset > 0) { // Read everything starting at offset.
+        args += QString("bs=%1").arg(offset);
+        args += QString("skip=1");
+    } else if (limit > 0) { // Read the first limit bytes.
+        args += QString("bs=%1").arg(limit);
+        args += QString("count=1");
     }
 #ifndef UTILS_STATIC_LIBRARY
     const FilePath dd = filePath.withNewPath("dd");
