@@ -1411,7 +1411,7 @@ void IconDisplay::setIcon(const Utils::Icon &icon)
     Layouting::Tools::access(this)->setIcon(icon);
 }
 
-} // namespace QtcWidgets
+} // namespace QtDesignWidgets
 
 void QtDesignSystemStyle::drawControl(ControlElement element, const QStyleOption *opt,
                                       QPainter *painter, const QWidget *widget) const

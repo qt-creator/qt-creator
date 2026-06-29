@@ -385,7 +385,7 @@ public:
     void setIcon(const Icon &icon);
 };
 
-} // namespace QtcWidgets
+} // namespace QtDesignWidgets
 
 inline constexpr auto role = Building::setter([](auto &x, auto &&...a) { x.setRole(a...); });
 inline constexpr auto fillBrush = Building::setter(
