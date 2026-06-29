@@ -37,11 +37,12 @@ using namespace Utils;
 
 namespace CppEditor {
 
-static CppCodeStylePreferences *g_globalCodeStyle = nullptr;
-
 CppCodeStylePreferences *cppCodeStyle()
 {
-    return g_globalCodeStyle;
+    // The C++ factory registers the global style; ClangFormat replaces the
+    // factory (same language id) but reuses that same registered global.
+    return static_cast<CppCodeStylePreferences *>(
+        codeStyleForLanguage(Constants::CPP_SETTINGS_ID));
 }
 
 class CppCodeStyleEditor final : public CodeStyleEditor
@@ -74,6 +75,8 @@ public:
     CppCodeStylePreferencesFactory()
         : ICodeStylePreferencesFactory(Constants::CPP_SETTINGS_ID)
     {
+        qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
+
         setDisplayName(Tr::tr(Constants::CPP_SETTINGS_NAME));
         setSnippetGroupId(Constants::CPP_SNIPPETS_GROUP_ID);
         setPreviewText(QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
@@ -82,118 +85,57 @@ public:
         setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
             return new CppCodeStyleEditor{static_cast<CppCodeStylePreferences *>(codeStyle)};
         });
+
+        setGlobalCodeStyleId(idKey);
+        setDefaultCodeStyleId("qt");
+        setBuiltInCodeStyles([](CodeStylePool *pool) {
+            // Qt style
+            auto qtCodeStyle = new CppCodeStylePreferences;
+            qtCodeStyle->setId("qt");
+            qtCodeStyle->setDisplayName(Tr::tr("Qt"));
+            qtCodeStyle->setReadOnly(true);
+            TabSettingsData qtTabSettings;
+            qtTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
+            qtTabSettings.m_tabSize = 4;
+            qtTabSettings.m_indentSize = 4;
+            qtTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
+            qtTabSettings.m_autoDetect = false;
+            qtCodeStyle->setTabSettings(qtTabSettings);
+            pool->addCodeStyle(qtCodeStyle);
+
+            // GNU style
+            auto gnuCodeStyle = new CppCodeStylePreferences;
+            gnuCodeStyle->setId("gnu");
+            gnuCodeStyle->setDisplayName(Tr::tr("GNU"));
+            gnuCodeStyle->setReadOnly(true);
+            TabSettingsData gnuTabSettings;
+            gnuTabSettings.m_tabPolicy = TabSettingsData::TabsOnlyTabPolicy;
+            gnuTabSettings.m_tabSize = 2;
+            gnuTabSettings.m_indentSize = 2;
+            gnuTabSettings.m_autoDetect = false;
+            gnuTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
+            gnuCodeStyle->setTabSettings(gnuTabSettings);
+            CppCodeStyleSettings gnuCodeStyleSettings;
+            gnuCodeStyleSettings.indentNamespaceBody = true;
+            gnuCodeStyleSettings.indentBlockBraces = true;
+            gnuCodeStyleSettings.indentSwitchLabels = true;
+            gnuCodeStyleSettings.indentBlocksRelativeToSwitchLabels = true;
+            gnuCodeStyle->setCodeStyleSettings(gnuCodeStyleSettings);
+            pool->addCodeStyle(gnuCodeStyle);
+        });
+        setupCodeStyles();
+
+        using namespace Utils::Constants;
+        registerMimeTypeForLanguageId(C_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
+        registerMimeTypeForLanguageId(C_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
+        registerMimeTypeForLanguageId(CPP_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
+        registerMimeTypeForLanguageId(CPP_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
     }
 };
 
-class CppToolsSettings final : public QObject
-{
-public:
-    CppToolsSettings();
-    ~CppToolsSettings() final;
-
-    CppCodeStylePreferencesFactory m_factory;
-    CodeStylePool m_pool{&m_factory, Constants::CPP_SETTINGS_ID};
-};
-
-CppToolsSettings::CppToolsSettings()
-{
-    qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
-
-    // global code style settings
-    g_globalCodeStyle = new CppCodeStylePreferences(this);
-    g_globalCodeStyle->setDelegatingPool(&m_pool);
-    g_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
-    g_globalCodeStyle->setId(idKey);
-    m_pool.addCodeStyle(g_globalCodeStyle);
-    registerCodeStyle(Constants::CPP_SETTINGS_ID, g_globalCodeStyle);
-
-    /*
-    For every language we have exactly 1 pool. The pool contains:
-    1) All built-in code styles (Qt/GNU)
-    2) All custom code styles (which will be added dynamically)
-    3) A global code style
-
-    If the code style gets a pool (setCodeStylePool()) it means it can behave
-    like a proxy to one of the code styles from that pool
-    (ICodeStylePreferences::setCurrentDelegate()).
-    That's why the global code style gets a pool (it can point to any code style
-    from the pool), while built-in and custom code styles don't get a pool
-    (they can't point to any other code style).
-
-    The instance of the language pool is shared. The same instance of the pool
-    is used for all project code style settings and for global one.
-    Project code style can point to one of built-in or custom code styles
-    or to the global one as well. That's why the global code style is added
-    to the pool. The proxy chain can look like:
-    ProjectCodeStyle -> GlobalCodeStyle -> BuildInCodeStyle (e.g. Qt).
-
-    With the global pool there is an exception - it gets a pool
-    in which it exists itself. The case in which a code style point to itself
-    is disallowed and is handled in ICodeStylePreferences::setCurrentDelegate().
-    */
-
-    // built-in settings
-    // Qt style
-    auto qtCodeStyle = new CppCodeStylePreferences(this);
-    qtCodeStyle->setId("qt");
-    qtCodeStyle->setDisplayName(Tr::tr("Qt"));
-    qtCodeStyle->setReadOnly(true);
-    TabSettingsData qtTabSettings;
-    qtTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
-    qtTabSettings.m_tabSize = 4;
-    qtTabSettings.m_indentSize = 4;
-    qtTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
-    qtTabSettings.m_autoDetect = false;
-    qtCodeStyle->setTabSettings(qtTabSettings);
-    m_pool.addCodeStyle(qtCodeStyle);
-
-    // GNU style
-    auto gnuCodeStyle = new CppCodeStylePreferences(this);
-    gnuCodeStyle->setId("gnu");
-    gnuCodeStyle->setDisplayName(Tr::tr("GNU"));
-    gnuCodeStyle->setReadOnly(true);
-    TabSettingsData gnuTabSettings;
-    gnuTabSettings.m_tabPolicy = TabSettingsData::TabsOnlyTabPolicy;
-    gnuTabSettings.m_tabSize = 2;
-    gnuTabSettings.m_indentSize = 2;
-    gnuTabSettings.m_autoDetect = false;
-    gnuTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
-    gnuCodeStyle->setTabSettings(gnuTabSettings);
-    CppCodeStyleSettings gnuCodeStyleSettings;
-    gnuCodeStyleSettings.indentNamespaceBody = true;
-    gnuCodeStyleSettings.indentBlockBraces = true;
-    gnuCodeStyleSettings.indentSwitchLabels = true;
-    gnuCodeStyleSettings.indentBlocksRelativeToSwitchLabels = true;
-    gnuCodeStyle->setCodeStyleSettings(gnuCodeStyleSettings);
-    m_pool.addCodeStyle(gnuCodeStyle);
-
-    // default delegate for global preferences
-    g_globalCodeStyle->setCurrentDelegate(qtCodeStyle);
-
-    m_pool.loadCustomCodeStyles();
-
-    // load global settings (after built-in settings are added to the pool)
-    g_globalCodeStyle->fromSettings(Constants::CPP_SETTINGS_ID);
-
-    // mimetypes to be handled
-    using namespace Utils::Constants;
-    registerMimeTypeForLanguageId(C_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
-    registerMimeTypeForLanguageId(C_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
-    registerMimeTypeForLanguageId(CPP_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
-    registerMimeTypeForLanguageId(CPP_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
-}
-
-CppToolsSettings::~CppToolsSettings()
-{
-    unregisterCodeStyle(Constants::CPP_SETTINGS_ID);
-
-    delete g_globalCodeStyle;
-    g_globalCodeStyle = nullptr;
-}
-
 void Internal::setupCppToolsSettings()
 {
-    static GuardedObject<CppToolsSettings> theCppToolsSettings;
+    static GuardedObject<CppCodeStylePreferencesFactory> theCppCodeStylePreferencesFactory;
 }
 
 } // namespace CppEditor
