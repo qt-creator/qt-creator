@@ -39,6 +39,7 @@ add_qtc_library(Utils
     delegates.cpp delegates.h
     detailswidget.cpp detailswidget.h
     devicefileaccess.cpp devicefileaccess.h
+    dialogtask.h
     differ.cpp differ.h
     displayname.cpp displayname.h
     dropsupport.cpp dropsupport.h
