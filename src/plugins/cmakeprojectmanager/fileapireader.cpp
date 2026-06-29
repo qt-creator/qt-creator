@@ -101,13 +101,17 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
 
 void FileApiReader::resetData()
 {
-    m_data = {};
+    m_data.cmakeFiles.clear();
     if (!m_parameters.sourceDirectory.isEmpty()) {
         CMakeFileInfo cmakeListsTxt;
         cmakeListsTxt.path = m_parameters.sourceDirectory.pathAppended(Constants::CMAKE_LISTS_TXT);
         cmakeListsTxt.isCMakeListsDotTxt = true;
         m_data.cmakeFiles.insert(cmakeListsTxt);
     }
+    m_data.cache.clear();
+    m_data.buildTargets.clear();
+    m_data.projectParts.clear();
+    m_data.rootProjectNode.reset();
 }
 
 void FileApiReader::parse(bool forceCMakeRun,
