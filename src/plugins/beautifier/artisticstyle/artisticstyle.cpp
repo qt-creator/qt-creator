@@ -263,11 +263,8 @@ public:
         settings().supportedMimeTypes.addOnChanged(this, [this] {
             updateActions(Core::EditorManager::currentEditor());
         });
-    }
 
-    QString id() const final
-    {
-        return "Artistic Style";
+        setup("Artistic Style");
     }
 
     void updateActions(Core::IEditor *editor) final

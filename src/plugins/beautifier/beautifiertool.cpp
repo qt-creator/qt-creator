@@ -5,10 +5,21 @@
 
 #include "beautifierconstants.h"
 #include "beautifiertr.h"
+#include "generalsettings.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
+
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
+
+#include <texteditor/formattexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -26,20 +37,76 @@ using namespace Utils;
 
 namespace Beautifier::Internal {
 
-static QList<BeautifierTool *> &theTools()
+static bool isAutoFormatApplicable(const Core::IDocument *document,
+                                   const QList<MimeType> &allowedMimeTypes)
 {
-    static QList<BeautifierTool *> tools;
-    return tools;
+    if (!document)
+        return false;
+
+    if (allowedMimeTypes.isEmpty())
+        return true;
+
+    const MimeType documentMimeType = mimeTypeForName(document->mimeType());
+    return anyOf(allowedMimeTypes, [&documentMimeType](const MimeType &mime) {
+        return documentMimeType.inherits(mime.name());
+    });
 }
 
-BeautifierTool::BeautifierTool()
+BeautifierTool::BeautifierTool() = default;
+
+void BeautifierTool::setup(const QString &id)
 {
-    theTools().append(this);
+    m_id = id;
+
+    generalSettings().autoFormatTools.addOption(id);
+    updateActions(nullptr);
+
+    const Core::EditorManager *editorManager = Core::EditorManager::instance();
+    connect(editorManager, &Core::EditorManager::currentEditorChanged,
+            this, &BeautifierTool::updateActions);
+    connect(editorManager, &Core::EditorManager::aboutToSave, this,
+            [this](Core::IDocument *document, Core::IDocument::SaveOption option) {
+        if (option == Core::IDocument::SaveOption::None)
+            autoFormatOnSave(document);
+    });
 }
 
-const QList<BeautifierTool *> &BeautifierTool::allTools()
+void BeautifierTool::autoFormatOnSave(Core::IDocument *document)
 {
-    return theTools();
+    if (generalSettings().autoFormatTools.stringValue() != m_id)
+        return;
+
+    if (!generalSettings().autoFormatOnSave())
+        return;
+
+    if (!isAutoFormatApplicable(document, generalSettings().allowedMimeTypes()))
+        return;
+
+    // Check if file is contained in the current project (if wished).
+    if (generalSettings().autoFormatOnlyCurrentProject()) {
+        const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
+        if (!pro
+            || pro->files([document](const ProjectExplorer::Node *n) {
+                      return ProjectExplorer::Project::SourceFiles(n)
+                             && n->filePath() == document->filePath();
+                  }).isEmpty()) {
+            return;
+        }
+    }
+
+    if (!isApplicable(document))
+        return;
+
+    const TextEditor::Command command = textCommand();
+    if (!command.isValid())
+        return;
+
+    const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
+    if (editors.isEmpty())
+        return;
+
+    if (auto widget = TextEditor::TextEditorWidget::fromEditor(editors.first()))
+        TextEditor::formatEditor(widget, command);
 }
 
 void BeautifierTool::showError(const QString &error)

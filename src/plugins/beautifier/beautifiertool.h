@@ -28,9 +28,6 @@ class BeautifierTool : public QObject
 public:
     BeautifierTool();
 
-    static const QList<BeautifierTool *> &allTools();
-
-    virtual QString id() const = 0;
     virtual void updateActions(Core::IEditor *editor) = 0;
 
     /**
@@ -50,6 +47,14 @@ public:
     static QString msgDisableFormattingSelectedText();
     static QString msgCommandPromptDialogTitle(const QString &command);
     static void showError(const QString &error);
+
+protected:
+    void setup(const QString &id);
+
+private:
+    void autoFormatOnSave(Core::IDocument *document);
+
+    QString m_id;
 };
 
 class AbstractSettings : public Utils::AspectContainer

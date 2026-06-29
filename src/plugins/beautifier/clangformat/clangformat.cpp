@@ -357,11 +357,8 @@ public:
         settings().supportedMimeTypes.addOnChanged(this, [this] {
             updateActions(Core::EditorManager::currentEditor());
         });
-    }
 
-    QString id() const final
-    {
-        return "ClangFormat";
+        setup("ClangFormat");
     }
 
     void updateActions(Core::IEditor *editor) final

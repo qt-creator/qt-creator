@@ -261,11 +261,8 @@ public:
         settings().supportedMimeTypes.addOnChanged(this, [this] {
             updateActions(Core::EditorManager::currentEditor());
         });
-    }
 
-    QString id() const final
-    {
-        return "Uncrustify";
+        setup("Uncrustify");
     }
 
     void updateActions(Core::IEditor *editor) final
