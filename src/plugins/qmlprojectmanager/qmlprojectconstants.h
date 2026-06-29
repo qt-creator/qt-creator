@@ -5,36 +5,36 @@
 
 namespace QmlProjectManager::Constants {
 
-const char customFileSelectorsData[] = "CustomFileSelectorsData";
-const char supportedLanguagesData[] = "SupportedLanguagesData";
-const char primaryLanguageData[] = "PrimaryLanguageData";
-const char customForceFreeTypeData[] = "CustomForceFreeType";
-const char customQtForMCUs[] = "CustomQtForMCUs";
-const char customQt6Project[] = "CustomQt6Project";
-const char customDefaultFontFamilyMCU[] = "CustomDefaultFontFamilyMCU";
+inline constexpr char customFileSelectorsData[] = "CustomFileSelectorsData";
+inline constexpr char supportedLanguagesData[] = "SupportedLanguagesData";
+inline constexpr char primaryLanguageData[] = "PrimaryLanguageData";
+inline constexpr char customForceFreeTypeData[] = "CustomForceFreeType";
+inline constexpr char customQtForMCUs[] = "CustomQtForMCUs";
+inline constexpr char customQt6Project[] = "CustomQt6Project";
+inline constexpr char customDefaultFontFamilyMCU[] = "CustomDefaultFontFamilyMCU";
 
-const char mainFilePath[] = "MainFilePath";
-const char canonicalProjectDir[] ="CanonicalProjectDir";
+inline constexpr char mainFilePath[] = "MainFilePath";
+inline constexpr char canonicalProjectDir[] ="CanonicalProjectDir";
 
-const char ALWAYS_OPEN_UI_MODE[] = "J.QtQuick/QmlJSEditor.openUiQmlMode";
-const char QML_RESOURCE_PATH[] = "qmldesigner/propertyEditorQmlSources/imports";
-const char LANDING_PAGE_PATH[] = "qmldesigner/landingpage";
+inline constexpr char ALWAYS_OPEN_UI_MODE[] = "J.QtQuick/QmlJSEditor.openUiQmlMode";
+inline constexpr char QML_RESOURCE_PATH[] = "qmldesigner/propertyEditorQmlSources/imports";
+inline constexpr char LANDING_PAGE_PATH[] = "qmldesigner/landingpage";
 
-const char QML_PROJECT_ID[] = "QmlProjectManager.QmlProject";
-const char QML_RUNCONFIG_ID[] = "QmlProjectManager.QmlRunConfiguration.Qml";
-const char QML_VIEWER_KEY[] = "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewer";
-const char QML_VIEWER_ARGUMENTS_KEY[] = "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments";
-const char QML_VIEWER_TARGET_DISPLAY_NAME[] = "QML Viewer";
-const char QML_MAINSCRIPT_KEY[] = "QmlProjectManager.QmlRunConfiguration.MainScript";
-const char USE_MULTILANGUAGE_KEY[] = "QmlProjectManager.QmlRunConfiguration.UseMultiLanguage";
-const char LAST_USED_LANGUAGE[] = "QmlProjectManager.QmlRunConfiguration.LastUsedLanguage";
-const char USER_ENVIRONMENT_CHANGES_KEY[] = "QmlProjectManager.QmlRunConfiguration.UserEnvironmentChanges";
+inline constexpr char QML_PROJECT_ID[] = "QmlProjectManager.QmlProject";
+inline constexpr char QML_RUNCONFIG_ID[] = "QmlProjectManager.QmlRunConfiguration.Qml";
+inline constexpr char QML_VIEWER_KEY[] = "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewer";
+inline constexpr char QML_VIEWER_ARGUMENTS_KEY[] = "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments";
+inline constexpr char QML_VIEWER_TARGET_DISPLAY_NAME[] = "QML Viewer";
+inline constexpr char QML_MAINSCRIPT_KEY[] = "QmlProjectManager.QmlRunConfiguration.MainScript";
+inline constexpr char USE_MULTILANGUAGE_KEY[] = "QmlProjectManager.QmlRunConfiguration.UseMultiLanguage";
+inline constexpr char LAST_USED_LANGUAGE[] = "QmlProjectManager.QmlRunConfiguration.LastUsedLanguage";
+inline constexpr char USER_ENVIRONMENT_CHANGES_KEY[] = "QmlProjectManager.QmlRunConfiguration.UserEnvironmentChanges";
 
-const char EXPORT_MENU[] = "QmlDesigner.ExportMenu";
-const char G_EXPORT_GENERATE[] = "QmlDesigner.Group.GenerateProject";
-const char G_EXPORT_CONVERT[] = "QmlDesigner.Group.ConvertProject";
+inline constexpr char EXPORT_MENU[] = "QmlDesigner.ExportMenu";
+inline constexpr char G_EXPORT_GENERATE[] = "QmlDesigner.Group.GenerateProject";
+inline constexpr char G_EXPORT_CONVERT[] = "QmlDesigner.Group.ConvertProject";
 
-const char fakeProjectName[] = "fake85673.qmlproject";
+inline constexpr char fakeProjectName[] = "fake85673.qmlproject";
 
 inline constexpr const char *QDS_FONT_FILES_FILTERS[] = {
     "*.afm", "*.bdf", "*.ccc", "*.cff", "*.fmp",  "*.fnt", "*.otc", "*.otf",  "*.pcf",   "*.pfa",

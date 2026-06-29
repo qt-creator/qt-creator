@@ -15,7 +15,7 @@
 
 namespace QmlDesigner {
 
-const char BINDINGEDITOR_CONTEXT_ID[] = "BindingEditor.BindingEditorContext";
+inline constexpr char BINDINGEDITOR_CONTEXT_ID[] = "BindingEditor.BindingEditorContext";
 
 class BindingEditorWidget : public QmlJSEditor::QmlJSEditorWidget
 {

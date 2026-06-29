@@ -5,44 +5,44 @@
 
 namespace Profiler::Constants {
 
-const char PerfProfilerTaskLoadPerf[]   =
+inline constexpr char PerfProfilerTaskLoadPerf[]   =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.LoadPerf";
-const char PerfProfilerTaskLoadTrace[]  =
+inline constexpr char PerfProfilerTaskLoadTrace[]  =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.LoadTrace";
-const char PerfProfilerTaskSaveTrace[]  =
+inline constexpr char PerfProfilerTaskSaveTrace[]  =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.SaveTrace";
-const char PerfProfilerTaskLimit[]      =
+inline constexpr char PerfProfilerTaskLimit[]      =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.LimitToRange";
-const char PerfProfilerTaskFullRange[]  =
+inline constexpr char PerfProfilerTaskFullRange[]  =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.ShowFullRange";
-const char PerfProfilerTaskTracePoints[]  =
+inline constexpr char PerfProfilerTaskTracePoints[]  =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.CreateTracePoints";
 
-const char PerfProfilerTaskSkipDelay[]  = "Analyzer.Perf.SkipDelay";
+inline constexpr char PerfProfilerTaskSkipDelay[]  = "Analyzer.Perf.SkipDelay";
 
-const char TraceFileExtension[]         = ".data";
+inline constexpr char TraceFileExtension[]         = ".data";
 
-const char PerfProfilerPerspectiveId[]  = "PerfProfiler.Perspective";
-const char PerfProfilerLocalActionId[]  = "PerfProfiler.Local";
-const char AnalyzerSettingsGroupId[]    = "Analyzer";
+inline constexpr char PerfProfilerPerspectiveId[]  = "PerfProfiler.Perspective";
+inline constexpr char PerfProfilerLocalActionId[]  = "PerfProfiler.Local";
+inline constexpr char AnalyzerSettingsGroupId[]    = "Analyzer";
 
-const char PerfSettingsId[]             = "Analyzer.Perf.Settings";
-const char PerfCallgraphDwarf[]         = "dwarf";
-const char PerfRecordArgsId[]           = "PerfRecordArgsId";
+inline constexpr char PerfSettingsId[]             = "Analyzer.Perf.Settings";
+inline constexpr char PerfCallgraphDwarf[]         = "dwarf";
+inline constexpr char PerfRecordArgsId[]           = "PerfRecordArgsId";
 
-const char PerfStreamMagic[] = "QPERFSTREAM";
-const char PerfZqfileMagic[] = "PTQFILE4.10";
+inline constexpr char PerfStreamMagic[] = "QPERFSTREAM";
+inline constexpr char PerfZqfileMagic[] = "PTQFILE4.10";
 
 // Native-mixed prototype: a symbol whose "binary" equals this marker denotes a
 // QML/JS frame rather than a native one. This is the convention-based stand-in
 // for a future typed Symbol kind field; see perfnativemixed.h.
-const char QmlFrameMarker[] = "[QML]";
+inline constexpr char QmlFrameMarker[] = "[QML]";
 
 // Real traces: QV4's JIT'd code lives in a memfd region named "JITCode:QtQml"
 // (see qtdeclarative .../masm/wtf/OSAllocatorPosix.cpp). perf attributes JIT'd
 // JS samples to that region, so its presence in a frame's "binary" marks the
 // frame as QML/JS without any producer change. perf-map then supplies the JS
 // function name; source file/line still needs producer-side work (jitdump).
-const char QmlJitRegionMarker[] = "JITCode:QtQml";
+inline constexpr char QmlJitRegionMarker[] = "JITCode:QtQml";
 
 } // namespace Profiler::Constants

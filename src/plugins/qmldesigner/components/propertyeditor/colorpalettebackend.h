@@ -18,7 +18,7 @@
 
 namespace QmlDesigner {
 
-const int g_maxPaletteSize = 8;
+inline constexpr int g_maxPaletteSize = 8;
 const QString g_recent = "Recent";
 const QString g_favorite = "Favorite";
 

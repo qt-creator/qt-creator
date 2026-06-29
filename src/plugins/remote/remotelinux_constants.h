@@ -5,27 +5,27 @@
 
 namespace Remote::Constants {
 
-const char GenericLinuxOsType[] = "GenericLinuxOsType";
-const char GenericWindowsOsType[] = "GenericWindowsOsType";
+inline constexpr char GenericLinuxOsType[] = "GenericLinuxOsType";
+inline constexpr char GenericWindowsOsType[] = "GenericWindowsOsType";
 
-const char DeployToGenericLinux[] = "DeployToGenericLinux";
+inline constexpr char DeployToGenericLinux[] = "DeployToGenericLinux";
 
-const char ConnectStepId[] = "RemoteLinux.ConnectStep";
-const char DirectUploadStepId[] = "RemoteLinux.DirectUploadStep";
-const char MakeInstallStepId[] = "RemoteLinux.MakeInstall";
-const char TarPackageCreationStepId[]  = "MaemoTarPackageCreationStep";
-const char TarPackageFilePathId[] = "TarPackageFilePath";
-const char TarPackageDeployStepId[] = "MaemoUploadAndInstallTarPackageStep";
-const char GenericDeployStepId[] = "RemoteLinux.RsyncDeployStep";
-const char CustomCommandDeployStepId[] = "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
-const char KillAppStepId[] = "RemoteLinux.KillAppStep";
+inline constexpr char ConnectStepId[] = "RemoteLinux.ConnectStep";
+inline constexpr char DirectUploadStepId[] = "RemoteLinux.DirectUploadStep";
+inline constexpr char MakeInstallStepId[] = "RemoteLinux.MakeInstall";
+inline constexpr char TarPackageCreationStepId[]  = "MaemoTarPackageCreationStep";
+inline constexpr char TarPackageFilePathId[] = "TarPackageFilePath";
+inline constexpr char TarPackageDeployStepId[] = "MaemoUploadAndInstallTarPackageStep";
+inline constexpr char GenericDeployStepId[] = "RemoteLinux.RsyncDeployStep";
+inline constexpr char CustomCommandDeployStepId[] = "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
+inline constexpr char KillAppStepId[] = "RemoteLinux.KillAppStep";
 
-const char SshForwardPort[] = "RemoteLinux.SshForwardPort";
-const char DisableSharing[] = "RemoteLinux.DisableSharing";
+inline constexpr char SshForwardPort[] = "RemoteLinux.SshForwardPort";
+inline constexpr char DisableSharing[] = "RemoteLinux.DisableSharing";
 
-const char RunConfigId[] = "RemoteLinuxRunConfiguration:";
-const char CustomRunConfigId[] = "RemoteLinux.CustomRunConfig";
+inline constexpr char RunConfigId[] = "RemoteLinuxRunConfiguration:";
+inline constexpr char CustomRunConfigId[] = "RemoteLinux.CustomRunConfig";
 
-const char ExecutionType[] = "RemoteLinux.ExecutionType";
+inline constexpr char ExecutionType[] = "RemoteLinux.ExecutionType";
 
 } // Remote::Constants

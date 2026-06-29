@@ -7,14 +7,14 @@
 
 namespace QmlJSTools::Constants {
 
-const char QML_JS_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
-const char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QtC::QmlJSTools", "Code Style");
+inline constexpr char QML_JS_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
+inline constexpr char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QtC::QmlJSTools", "Code Style");
 
-const char QML_JS_SETTINGS_ID[] = "QmlJS";
+inline constexpr char QML_JS_SETTINGS_ID[] = "QmlJS";
 
-const char M_TOOLS_QMLJS[] = "QmlJSTools.Tools.Menu";
-const char RESET_CODEMODEL[] = "QmlJSTools.ResetCodeModel";
+inline constexpr char M_TOOLS_QMLJS[] = "QmlJSTools.Tools.Menu";
+inline constexpr char RESET_CODEMODEL[] = "QmlJSTools.ResetCodeModel";
 
-const char QML_TOOL_ID[] = "QmlsceneKey";
+inline constexpr char QML_TOOL_ID[] = "QmlsceneKey";
 
 } // namespace QmlJSTools::Constants

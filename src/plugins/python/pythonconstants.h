@@ -7,30 +7,30 @@
 
 namespace Python::Constants {
 
-const char C_PYTHONEDITOR_ID[] = "PythonEditor.PythonEditor";
-const char C_PYTHONRUNCONFIGURATION_ID[] = "PythonEditor.RunConfiguration.";
+inline constexpr char C_PYTHONEDITOR_ID[] = "PythonEditor.PythonEditor";
+inline constexpr char C_PYTHONRUNCONFIGURATION_ID[] = "PythonEditor.RunConfiguration.";
 
-const char C_PYTHONOPTIONS_PAGE_ID[] = "PythonEditor.OptionsPage";
-const char C_PYLSCONFIGURATION_PAGE_ID[] = "PythonEditor.PythonLanguageServerConfiguration";
-const char C_PYTHON_SETTINGS_CATEGORY[] = "P.Python";
+inline constexpr char C_PYTHONOPTIONS_PAGE_ID[] = "PythonEditor.OptionsPage";
+inline constexpr char C_PYLSCONFIGURATION_PAGE_ID[] = "PythonEditor.PythonLanguageServerConfiguration";
+inline constexpr char C_PYTHON_SETTINGS_CATEGORY[] = "P.Python";
 
-const char PYTHON_TOOLKIT_ASPECT_ID[] = "Python.Interpreter";
+inline constexpr char PYTHON_TOOLKIT_ASPECT_ID[] = "Python.Interpreter";
 
-const char PYTHON_OPEN_REPL[] = "Python.OpenRepl";
-const char PYTHON_OPEN_REPL_IMPORT[] = "Python.OpenReplImport";
-const char PYTHON_OPEN_REPL_IMPORT_TOPLEVEL[] = "Python.OpenReplImportToplevel";
+inline constexpr char PYTHON_OPEN_REPL[] = "Python.OpenRepl";
+inline constexpr char PYTHON_OPEN_REPL_IMPORT[] = "Python.OpenReplImport";
+inline constexpr char PYTHON_OPEN_REPL_IMPORT_TOPLEVEL[] = "Python.OpenReplImportToplevel";
 
-const char PYLS_SETTINGS_ID[] = "Python.PyLSSettingsID";
+inline constexpr char PYLS_SETTINGS_ID[] = "Python.PyLSSettingsID";
 
 /*******************************************************************************
  * MIME type
  ******************************************************************************/
-const char C_PY_MIMETYPE[] = "text/x-python";
-const char C_PY_GUI_MIMETYPE[] = "text/x-python-gui";
-const char C_PY3_MIMETYPE[] = "text/x-python3";
-const char C_PY_MIME_ICON[] = "text-x-python";
-const char C_PY_PROJECT_MIME_TYPE[] = "text/x-python-project";
-const char C_PY_PROJECT_MIME_TYPE_LEGACY[] = "text/x-pyqt-project";
-const char C_PY_PROJECT_MIME_TYPE_TOML[] = "text/x-python-pyproject-toml";
+inline constexpr char C_PY_MIMETYPE[] = "text/x-python";
+inline constexpr char C_PY_GUI_MIMETYPE[] = "text/x-python-gui";
+inline constexpr char C_PY3_MIMETYPE[] = "text/x-python3";
+inline constexpr char C_PY_MIME_ICON[] = "text-x-python";
+inline constexpr char C_PY_PROJECT_MIME_TYPE[] = "text/x-python-project";
+inline constexpr char C_PY_PROJECT_MIME_TYPE_LEGACY[] = "text/x-pyqt-project";
+inline constexpr char C_PY_PROJECT_MIME_TYPE_TOML[] = "text/x-python-pyproject-toml";
 
 } // namespace Python::Constants

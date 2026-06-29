@@ -10,8 +10,8 @@ namespace Utils { class FilePath; }
 
 namespace Python::Internal {
 
-const char PythonProjectId[] = "PythonProject";
-const char PythonErrorTaskCategory[] = "Task.Category.Python";
+inline constexpr char PythonProjectId[] = "PythonProject";
+inline constexpr char PythonErrorTaskCategory[] = "Task.Category.Python";
 
 class PythonFileNode : public ProjectExplorer::FileNode
 {

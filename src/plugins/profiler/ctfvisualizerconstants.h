@@ -6,30 +6,30 @@
 
 namespace Profiler::Constants {
 
-const char CtfVisualizerMenuId[] = "Analyzer.Menu.CtfVisualizer";
-const char CtfVisualizerTaskLoadJson[] =
+inline constexpr char CtfVisualizerMenuId[] = "Analyzer.Menu.CtfVisualizer";
+inline constexpr char CtfVisualizerTaskLoadJson[] =
         "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadTrace";
-const char CtfVisualizerTaskLoadCtf2[] =
+inline constexpr char CtfVisualizerTaskLoadCtf2[] =
         "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadCtf2Trace";
 
-const char CtfVisualizerPerspectiveId[] = "CtfVisualizer.Perspective";
+inline constexpr char CtfVisualizerPerspectiveId[] = "CtfVisualizer.Perspective";
 
-const char CtfTraceEventsKey[] = "traceEvents";
+inline constexpr char CtfTraceEventsKey[] = "traceEvents";
 
-const char CtfEventNameKey[] = "name";
-const char CtfEventCategoryKey[] = "cat";
-const char CtfEventPhaseKey[] = "ph";
-const char CtfTracingClockTimestampKey[] = "ts";
-const char CtfProcessIdKey[] = "pid";
-const char CtfThreadIdKey[] = "tid";
-const char CtfDurationKey[] = "dur";
+inline constexpr char CtfEventNameKey[] = "name";
+inline constexpr char CtfEventCategoryKey[] = "cat";
+inline constexpr char CtfEventPhaseKey[] = "ph";
+inline constexpr char CtfTracingClockTimestampKey[] = "ts";
+inline constexpr char CtfProcessIdKey[] = "pid";
+inline constexpr char CtfThreadIdKey[] = "tid";
+inline constexpr char CtfDurationKey[] = "dur";
 
-const char CtfEventTypeBegin[] = "B";
-const char CtfEventTypeEnd[] = "E";
-const char CtfEventTypeComplete[] = "X";
-const char CtfEventTypeMetadata[] = "M";
-const char CtfEventTypeInstant[] = "i";
-const char CtfEventTypeInstantDeprecated[] = "I";
-const char CtfEventTypeCounter[] = "C";
+inline constexpr char CtfEventTypeBegin[] = "B";
+inline constexpr char CtfEventTypeEnd[] = "E";
+inline constexpr char CtfEventTypeComplete[] = "X";
+inline constexpr char CtfEventTypeMetadata[] = "M";
+inline constexpr char CtfEventTypeInstant[] = "i";
+inline constexpr char CtfEventTypeInstantDeprecated[] = "I";
+inline constexpr char CtfEventTypeCounter[] = "C";
 
 } // namespace Profiler::Constants

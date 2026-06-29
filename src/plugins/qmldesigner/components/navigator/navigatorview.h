@@ -22,7 +22,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-const int delegateMargin = 2;
+inline constexpr int delegateMargin = 2;
 
 class NavigatorWidget;
 class NavigatorTreeModel;

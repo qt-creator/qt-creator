@@ -7,16 +7,16 @@
 
 namespace QmlDesigner::TransitionEditorConstants {
 
-const int sectionWidth = 200;
+inline constexpr int sectionWidth = 200;
 
-const int transitionEditorSectionItemUserType = QGraphicsItem::UserType + 6;
-const int transitionEditorPropertyItemUserType = QGraphicsItem::UserType + 7;
+inline constexpr int transitionEditorSectionItemUserType = QGraphicsItem::UserType + 6;
+inline constexpr int transitionEditorPropertyItemUserType = QGraphicsItem::UserType + 7;
 
-const char C_QMLTRANSITIONS[] = "QmlDesigner::Transitions";
+inline constexpr char C_QMLTRANSITIONS[] = "QmlDesigner::Transitions";
 
-const char C_SETTINGS[] = "QmlDesigner.Transitions.Settings";
-const char C_CURVE_PICKER[] = "QmlDesigner.Transitions.CurvePicker";
-const char C_ZOOM_IN[] = "QmlDesigner.Transitions.ZoomIn";
-const char C_ZOOM_OUT[] = "QmlDesigner.Transitions.ZoomOut";
+inline constexpr char C_SETTINGS[] = "QmlDesigner.Transitions.Settings";
+inline constexpr char C_CURVE_PICKER[] = "QmlDesigner.Transitions.CurvePicker";
+inline constexpr char C_ZOOM_IN[] = "QmlDesigner.Transitions.ZoomIn";
+inline constexpr char C_ZOOM_OUT[] = "QmlDesigner.Transitions.ZoomOut";
 
 } // namespace QmlDesigner::TransitionEditorConstants

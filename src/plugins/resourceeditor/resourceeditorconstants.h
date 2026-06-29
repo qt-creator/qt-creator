@@ -7,22 +7,22 @@
 
 namespace ResourceEditor::Constants {
 
-const char C_RESOURCEEDITOR[] = "Qt4.ResourceEditor";
-const char RESOURCEEDITOR_ID[] = "Qt4.ResourceEditor";
+inline constexpr char C_RESOURCEEDITOR[] = "Qt4.ResourceEditor";
+inline constexpr char RESOURCEEDITOR_ID[] = "Qt4.ResourceEditor";
 
-const char REFRESH[] = "ResourceEditor.Refresh";
+inline constexpr char REFRESH[] = "ResourceEditor.Refresh";
 
-const char C_ADD_PREFIX[] = "ResourceEditor.AddPrefix";
-const char C_REMOVE_PREFIX[] = "ResourceEditor.RemovePrefix";
-const char C_RENAME_PREFIX[] = "ResourceEditor.RenamePrefix";
-const char C_REMOVE_NON_EXISTING[] = "ResourceEditor.RemoveNonExisting";
+inline constexpr char C_ADD_PREFIX[] = "ResourceEditor.AddPrefix";
+inline constexpr char C_REMOVE_PREFIX[] = "ResourceEditor.RemovePrefix";
+inline constexpr char C_RENAME_PREFIX[] = "ResourceEditor.RenamePrefix";
+inline constexpr char C_REMOVE_NON_EXISTING[] = "ResourceEditor.RemoveNonExisting";
 
-const char C_REMOVE_FILE[] = "ResourceEditor.RemoveFile";
-const char C_RENAME_FILE[] = "ResourceEditor.RenameFile";
+inline constexpr char C_REMOVE_FILE[] = "ResourceEditor.RemoveFile";
+inline constexpr char C_RENAME_FILE[] = "ResourceEditor.RenameFile";
 
-const char C_OPEN_EDITOR[] = "ResourceEditor.OpenEditor";
+inline constexpr char C_OPEN_EDITOR[] = "ResourceEditor.OpenEditor";
 
-const char C_COPY_PATH[] = "ResourceEditor.CopyPath";
-const char C_COPY_URL[] = "ResourceEditor.CopyUrl";
+inline constexpr char C_COPY_PATH[] = "ResourceEditor.CopyPath";
+inline constexpr char C_COPY_URL[] = "ResourceEditor.CopyUrl";
 
 } // namespace ResourceEditor::Constants

@@ -5,22 +5,22 @@
 
 namespace Profiler::Constants {
 
-const char TASK_LOAD[] = "QmlProfiler.TaskLoad";
-const char TASK_SAVE[] = "QmlProfiler.TaskSave";
-const char SETTINGS[] = "Analyzer.QmlProfiler.Settings";
-const char ANALYZER[] = "Analyzer";
-const char TEXT_MARK_CATEGORY[] = "Analyzer.QmlProfiler.TextMark";
+inline constexpr char TASK_LOAD[] = "QmlProfiler.TaskLoad";
+inline constexpr char TASK_SAVE[] = "QmlProfiler.TaskSave";
+inline constexpr char SETTINGS[] = "Analyzer.QmlProfiler.Settings";
+inline constexpr char ANALYZER[] = "Analyzer";
+inline constexpr char TEXT_MARK_CATEGORY[] = "Analyzer.QmlProfiler.TextMark";
 
-const int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line between models in the timeline
+inline constexpr int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line between models in the timeline
 
-const char QtdFileExtension[] = ".qtd";
-const char QztFileExtension[] = ".qzt";
+inline constexpr char QtdFileExtension[] = ".qtd";
+inline constexpr char QztFileExtension[] = ".qzt";
 
-const char QmlProfilerPerspectiveId[]  = "QmlProfiler.Perspective";
+inline constexpr char QmlProfilerPerspectiveId[]  = "QmlProfiler.Perspective";
 
-const char QmlProfilerLoadActionId[] =
+inline constexpr char QmlProfilerLoadActionId[] =
         "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace";
-const char QmlProfilerSaveActionId[] =
+inline constexpr char QmlProfilerSaveActionId[] =
         "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace";
 
 } // namespace Profiler::Constants

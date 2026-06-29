@@ -8,29 +8,29 @@
 namespace QmakeProjectManager::Constants {
 
 // Menus
-const char M_CONTEXT[] = "ProFileEditor.ContextMenu";
+inline constexpr char M_CONTEXT[] = "ProFileEditor.ContextMenu";
 
 // Kinds
-const char PROFILE_EDITOR_ID[] = "Qt4.proFileEditor";
+inline constexpr char PROFILE_EDITOR_ID[] = "Qt4.proFileEditor";
 // Actions
-const char RUNQMAKE[] = "Qt4Builder.RunQMake";
-const char RUNQMAKECONTEXTMENU[] = "Qt4Builder.RunQMakeContextMenu";
-const char BUILDSUBDIR[] = "Qt4Builder.BuildSubDir";
-const char REBUILDSUBDIR[] = "Qt4Builder.RebuildSubDir";
-const char CLEANSUBDIR[] = "Qt4Builder.CleanSubDir";
-const char ADDLIBRARY[] = "Qt4.AddLibrary";
+inline constexpr char RUNQMAKE[] = "Qt4Builder.RunQMake";
+inline constexpr char RUNQMAKECONTEXTMENU[] = "Qt4Builder.RunQMakeContextMenu";
+inline constexpr char BUILDSUBDIR[] = "Qt4Builder.BuildSubDir";
+inline constexpr char REBUILDSUBDIR[] = "Qt4Builder.RebuildSubDir";
+inline constexpr char CLEANSUBDIR[] = "Qt4Builder.CleanSubDir";
+inline constexpr char ADDLIBRARY[] = "Qt4.AddLibrary";
 
 // Tasks
-const char PROFILE_EVALUATE[] = "Qt4ProjectManager.ProFileEvaluate";
+inline constexpr char PROFILE_EVALUATE[] = "Qt4ProjectManager.ProFileEvaluate";
 
 // Project
-const char QMAKEPROJECT_ID[] = "Qt4ProjectManager.Qt4Project";
+inline constexpr char QMAKEPROJECT_ID[] = "Qt4ProjectManager.Qt4Project";
 
-const char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
-const char MAKESTEP_BS_ID[] = "Qt4ProjectManager.MakeStep";
-const char QMAKE_BS_ID[] = "QtProjectManager.QMakeBuildStep";
+inline constexpr char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
+inline constexpr char MAKESTEP_BS_ID[] = "Qt4ProjectManager.MakeStep";
+inline constexpr char QMAKE_BS_ID[] = "QtProjectManager.QMakeBuildStep";
 
 // Kit
-const char KIT_INFORMATION_ID[] = "QtPM4.mkSpecInformation";
+inline constexpr char KIT_INFORMATION_ID[] = "QtPM4.mkSpecInformation";
 
 } // namespace QmakeProjectManager::Constants
