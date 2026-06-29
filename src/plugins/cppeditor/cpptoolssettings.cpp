@@ -88,40 +88,38 @@ public:
 
         setGlobalCodeStyleId(idKey);
         setDefaultCodeStyleId("qt");
-        setBuiltInCodeStyles([](CodeStylePool *pool) {
+        setBuiltInCodeStyles([this](CodeStylePool *pool) {
             // Qt style
-            auto qtCodeStyle = new CppCodeStylePreferences;
-            qtCodeStyle->setId("qt");
-            qtCodeStyle->setDisplayName(Tr::tr("Qt"));
-            qtCodeStyle->setReadOnly(true);
+            m_qtCodeStyle.setId("qt");
+            m_qtCodeStyle.setDisplayName(Tr::tr("Qt"));
+            m_qtCodeStyle.setReadOnly(true);
             TabSettingsData qtTabSettings;
             qtTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
             qtTabSettings.m_tabSize = 4;
             qtTabSettings.m_indentSize = 4;
             qtTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
             qtTabSettings.m_autoDetect = false;
-            qtCodeStyle->setTabSettings(qtTabSettings);
-            pool->addCodeStyle(qtCodeStyle);
+            m_qtCodeStyle.setTabSettings(qtTabSettings);
+            pool->addCodeStyle(&m_qtCodeStyle);
 
             // GNU style
-            auto gnuCodeStyle = new CppCodeStylePreferences;
-            gnuCodeStyle->setId("gnu");
-            gnuCodeStyle->setDisplayName(Tr::tr("GNU"));
-            gnuCodeStyle->setReadOnly(true);
+            m_gnuCodeStyle.setId("gnu");
+            m_gnuCodeStyle.setDisplayName(Tr::tr("GNU"));
+            m_gnuCodeStyle.setReadOnly(true);
             TabSettingsData gnuTabSettings;
             gnuTabSettings.m_tabPolicy = TabSettingsData::TabsOnlyTabPolicy;
             gnuTabSettings.m_tabSize = 2;
             gnuTabSettings.m_indentSize = 2;
             gnuTabSettings.m_autoDetect = false;
             gnuTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
-            gnuCodeStyle->setTabSettings(gnuTabSettings);
+            m_gnuCodeStyle.setTabSettings(gnuTabSettings);
             CppCodeStyleSettings gnuCodeStyleSettings;
             gnuCodeStyleSettings.indentNamespaceBody = true;
             gnuCodeStyleSettings.indentBlockBraces = true;
             gnuCodeStyleSettings.indentSwitchLabels = true;
             gnuCodeStyleSettings.indentBlocksRelativeToSwitchLabels = true;
-            gnuCodeStyle->setCodeStyleSettings(gnuCodeStyleSettings);
-            pool->addCodeStyle(gnuCodeStyle);
+            m_gnuCodeStyle.setCodeStyleSettings(gnuCodeStyleSettings);
+            pool->addCodeStyle(&m_gnuCodeStyle);
         });
         setupCodeStyles();
 
@@ -131,6 +129,10 @@ public:
         registerMimeTypeForLanguageId(CPP_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
         registerMimeTypeForLanguageId(CPP_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
     }
+
+private:
+    CppCodeStylePreferences m_qtCodeStyle;
+    CppCodeStylePreferences m_gnuCodeStyle;
 };
 
 void Internal::setupCppToolsSettings()

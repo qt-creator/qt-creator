@@ -127,18 +127,20 @@ public:
         });
         setGlobalCodeStyleId("ModelTestGlobal");
         setDefaultCodeStyleId("builtin");
-        setBuiltInCodeStyles([](CodeStylePool *pool) {
-            auto builtin = new ICodeStylePreferences;
-            builtin->setId("builtin");
-            builtin->setReadOnly(true);
+        setBuiltInCodeStyles([this](CodeStylePool *pool) {
+            m_builtin.setId("builtin");
+            m_builtin.setReadOnly(true);
             TabSettingsData ts;
             ts.m_tabSize = 3;
             ts.m_indentSize = 3;
-            builtin->setTabSettings(ts);
-            pool->addCodeStyle(builtin);
+            m_builtin.setTabSettings(ts);
+            pool->addCodeStyle(&m_builtin);
         });
         setupCodeStyles();
     }
+
+private:
+    ICodeStylePreferences m_builtin;
 };
 
 class CodeStyleAspectTest final : public QObject

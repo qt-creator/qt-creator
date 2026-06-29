@@ -31,12 +31,12 @@ ICodeStylePreferencesFactory::~ICodeStylePreferencesFactory()
 
     if (m_pool) {
         unregisterCodeStyle(m_languageId);
-        // The pool holds non-owning pointers, so delete the styles it built.
-        // Delete them before the pool: custom styles are parented to the pool
-        // (see CodeStylePool::loadCodeStyle), so their QObject destruction drops
-        // them from the pool's child list and the pool will not free them again.
-        const QList<ICodeStylePreferences *> styles = m_pool->codeStyles();
-        qDeleteAll(styles);
+        // The factory owns the global style (created here); the built-in styles
+        // are members of the concrete factory and are already gone by the time
+        // this base destructor runs; the pool owns and deletes its custom styles.
+        if (QTC_GUARD(m_globalCodeStyle))
+            m_globalCodeStyle->setCurrentDelegate(nullptr);
+        delete m_globalCodeStyle;
         delete m_pool;
     }
 }

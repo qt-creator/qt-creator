@@ -158,7 +158,7 @@ public:
 
         setGlobalCodeStyleId(Constants::C_NIMGLOBALCODESTYLE_ID);
         setDefaultCodeStyleId("nim");
-        setBuiltInCodeStyles([](CodeStylePool *pool) {
+        setBuiltInCodeStyles([this](CodeStylePool *pool) {
             // Built-in, read-only "Nim" style.
             TabSettingsData tabSettings;
             tabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
@@ -166,18 +166,20 @@ public:
             tabSettings.m_indentSize = 2;
             tabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
 
-            auto nim = new ICodeStylePreferences;
-            nim->setId("nim");
-            nim->setDisplayName(Tr::tr("Nim"));
-            nim->setReadOnly(true);
-            nim->setTabSettings(tabSettings);
-            pool->addCodeStyle(nim);
+            m_nimCodeStyle.setId("nim");
+            m_nimCodeStyle.setDisplayName(Tr::tr("Nim"));
+            m_nimCodeStyle.setReadOnly(true);
+            m_nimCodeStyle.setTabSettings(tabSettings);
+            pool->addCodeStyle(&m_nimCodeStyle);
         });
         setupCodeStyles();
 
         registerMimeTypeForLanguageId(Constants::C_NIM_MIMETYPE, Constants::C_NIMLANGUAGE_ID);
         registerMimeTypeForLanguageId(Constants::C_NIM_SCRIPT_MIMETYPE, Constants::C_NIMLANGUAGE_ID);
     }
+
+private:
+    ICodeStylePreferences m_nimCodeStyle;
 };
 
 // NimCodeStyleSettingsPage

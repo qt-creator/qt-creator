@@ -1287,18 +1287,17 @@ public:
 
         setGlobalCodeStyleId(idKey);
         setDefaultCodeStyleId("qt");
-        setBuiltInCodeStyles([](CodeStylePool *pool) {
-            auto qtCodeStyle = new QmlJSCodeStylePreferences;
-            qtCodeStyle->setId("qt");
-            qtCodeStyle->setDisplayName(Tr::tr("Qt"));
-            qtCodeStyle->setReadOnly(true);
+        setBuiltInCodeStyles([this](CodeStylePool *pool) {
+            m_qtCodeStyle.setId("qt");
+            m_qtCodeStyle.setDisplayName(Tr::tr("Qt"));
+            m_qtCodeStyle.setReadOnly(true);
             TabSettingsData qtTabSettings;
             qtTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
             qtTabSettings.m_tabSize = 4;
             qtTabSettings.m_indentSize = 4;
             qtTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
-            qtCodeStyle->setTabSettings(qtTabSettings);
-            pool->addCodeStyle(qtCodeStyle);
+            m_qtCodeStyle.setTabSettings(qtTabSettings);
+            pool->addCodeStyle(&m_qtCodeStyle);
         });
         setupCodeStyles();
 
@@ -1328,6 +1327,9 @@ public:
         registerMimeTypeForLanguageId(JS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
         registerMimeTypeForLanguageId(JSON_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
     }
+
+private:
+    QmlJSCodeStylePreferences m_qtCodeStyle;
 };
 
 QmlJSCodeStylePreferences *globalQmlJSCodeStyle()
