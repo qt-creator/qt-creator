@@ -740,14 +740,10 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             d, &Internal::QmlJSEditorDocumentPrivate::invalidateFormatterCache);
     resetSyntaxHighlighter([] { return new QmlJSHighlighter(); });
-    setEncoding(TextEncoding::Utf8); // qml files are defined to be utf-8
+    setSupportedEncodings({TextEncoding::Utf8}); // qml files are defined to be utf-8
     setIndenter(createQmlJsIndenter(document()));
 }
 
-bool QmlJSEditorDocument::supportsEncoding(const TextEncoding &encoding) const
-{
-    return encoding.isUtf8();
-}
 
 class RefactoringFileWithoutReindenting : public TextEditor::RefactoringFile
 {

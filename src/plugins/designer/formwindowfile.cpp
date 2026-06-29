@@ -31,7 +31,7 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     setParent(parent);
     setId(Utils::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     // Designer needs UTF-8 regardless of settings.
-    setEncoding(TextEncoding::Utf8);
+    setSupportedEncodings({TextEncoding::Utf8});
     connect(m_formWindow->core()->formWindowManager(), &QDesignerFormWindowManagerInterface::formWindowRemoved,
             this, &FormWindowFile::slotFormWindowRemoved);
     connect(m_formWindow->commandHistory(), &QUndoStack::indexChanged,
@@ -214,10 +214,6 @@ QString FormWindowFile::fallbackSaveAsFileName() const
     return m_suggestedName;
 }
 
-bool FormWindowFile::supportsEncoding(const TextEncoding &encoding) const
-{
-    return encoding.isUtf8();
-}
 
 Result<> FormWindowFile::writeFile(const FilePath &filePath) const
 {

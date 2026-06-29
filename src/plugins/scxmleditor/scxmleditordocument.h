@@ -31,7 +31,6 @@ public:
     bool isSaveAsAllowed() const override;
     bool isModified() const override;
     Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
-    bool supportsEncoding(const Utils::TextEncoding &encoding) const override;
 
     // Internal
     Common::MainWidget *designWidget() const;

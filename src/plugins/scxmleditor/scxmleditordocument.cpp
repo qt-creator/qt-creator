@@ -29,7 +29,7 @@ ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *pare
     setId(Utils::Id(ScxmlEditor::Constants::K_SCXML_EDITOR_ID));
 
     // Designer needs UTF-8 regardless of settings.
-    setEncoding(TextEncoding::Utf8);
+    setSupportedEncodings({TextEncoding::Utf8});
     connect(m_designWidget.data(), &Common::MainWidget::dirtyChanged, this, [this]{
         emit changed();
     });
@@ -120,10 +120,6 @@ Result<> ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
     return makeResult(success, errorString);
 }
 
-bool ScxmlEditorDocument::supportsEncoding(const TextEncoding &encoding) const
-{
-    return encoding.isUtf8();
-}
 
 QString ScxmlEditorDocument::designWidgetContents() const
 {

@@ -25,7 +25,8 @@ public:
 
     Utils::TextEncoding encoding() const;
     void setEncoding(const Utils::TextEncoding &encoding);
-    virtual bool supportsEncoding(const Utils::TextEncoding &) const;
+    bool supportsEncoding(const Utils::TextEncoding &encoding) const;
+    void setSupportedEncodings(const QList<Utils::TextEncoding> &encodings);
 
     void switchUtf8Bom();
     bool supportsUtf8Bom() const;

@@ -34,10 +34,10 @@ class TextDocumentPrivate
 {
 public:
     TextFileFormat m_format;
+    QList<TextEncoding> m_supportedEncodings; // empty means all are supported
     bool m_supportsUtf8Bom = true;
     bool m_hasDecodingError = false;
     QByteArray m_decodingErrorSample;
-
 };
 
 } // namespace Internal
@@ -132,9 +132,23 @@ TextEncoding BaseTextDocument::encoding() const
     return d->m_format.encoding();
 }
 
-bool BaseTextDocument::supportsEncoding(const TextEncoding &) const
+bool BaseTextDocument::supportsEncoding(const TextEncoding &encoding) const
 {
-    return true;
+    return d->m_supportedEncodings.isEmpty() || d->m_supportedEncodings.contains(encoding);
+}
+
+/*!
+    Sets the list of supported \a encodings.
+
+    An empty list means that all encodings are supported.
+    If the current encoding is not supported, the encoding is set to the first
+    supported encoding.
+*/
+void BaseTextDocument::setSupportedEncodings(const QList<TextEncoding> &encodings)
+{
+    d->m_supportedEncodings = encodings;
+    if (!supportsEncoding(encoding()) && QTC_GUARD(!encodings.isEmpty()))
+        d->m_format.setEncoding(encodings.first());
 }
 
 void BaseTextDocument::switchUtf8Bom()

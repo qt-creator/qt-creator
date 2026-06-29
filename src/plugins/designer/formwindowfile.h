@@ -34,8 +34,6 @@ public:
     bool isSaveAsAllowed() const override;
     Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
     QString fallbackSaveAsFileName() const override;
-    bool supportsEncoding(const Utils::TextEncoding &encoding) const override;
-
     // Internal
     void setFallbackSaveAsFileName(const QString &fileName);
 
