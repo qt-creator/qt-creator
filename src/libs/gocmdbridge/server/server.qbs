@@ -8,6 +8,8 @@ Product {
     Depends { name: "go"; required: false }
     Depends { name: "qtc" }
 
+    qtc.useCpp: false
+
     Profile { name: "linux-amd64"; go.platform: "linux"; go.architecture: "amd64" }
     Profile { name: "linux-arm64"; go.platform: "linux"; go.architecture: "arm64" }
     Profile { name: "windows-amd64"; go.platform: "windows"; go.architecture: "amd64" }

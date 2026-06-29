@@ -20,6 +20,7 @@
     int max;
     int value;
     bool visible;
+    bool userCustomIcon;
     NSImage *dockIcon;
 }
 
@@ -81,18 +82,36 @@ static ApplicationProgressView *sharedProgressView = nil;
 {
     Q_UNUSED(rect)
     if (dockIcon == nil) {
-        dockIcon = [[NSImage alloc]
-            initByReferencingFile:(Core::ICore::resourcePath("icon.png").path().toNSString())];
+        // Normally we want to replace the app icon, which has the rounded box,
+        // by our purely polygonal version in icon.png .
+        // But we do not want to override any custom icon that the user might have
+        // set up for the app. For that feature, Finder creates a hidden file with
+        // a funny name in the app bundle, so check for the existence of that, and
+        // if it is there just use `NSApp applicationIconImage` (which does the
+        // correct resolution).
+        NSString *customIconPath = [[[NSBundle mainBundle] bundlePath]
+            stringByAppendingPathComponent:@"Icon\r"];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:customIconPath]) {
+            dockIcon = [[NSApp applicationIconImage] retain];
+            userCustomIcon = true;
+        } else {
+            dockIcon = [[NSImage alloc]
+                initByReferencingFile:(Core::ICore::resourcePath("icon.png").path().toNSString())];
+            userCustomIcon = false;
+        }
     }
     NSRect boundary = [self bounds];
-    // static CGFloat scale = .65;
-    static CGFloat scale = .78;
-    CGFloat xShrink = boundary.size.width * (1 - scale);
-    CGFloat yShrink = boundary.size.height * (1 - scale);
-    NSRect iconRect = NSMakeRect(boundary.origin.x + xShrink / 2,
-                                 boundary.origin.y + yShrink / 2,
-                                 boundary.size.width - xShrink,
-                                 boundary.size.height - yShrink);
+    NSRect iconRect = boundary;
+    if (!userCustomIcon) {
+        // static CGFloat scale = .65;
+        static CGFloat scale = .78;
+        CGFloat xShrink = boundary.size.width * (1 - scale);
+        CGFloat yShrink = boundary.size.height * (1 - scale);
+        iconRect = NSMakeRect(boundary.origin.x + xShrink / 2,
+                              boundary.origin.y + yShrink / 2,
+                              boundary.size.width - xShrink,
+                              boundary.size.height - yShrink);
+    }
     [dockIcon drawInRect:iconRect
                 fromRect:NSZeroRect
                operation:NSCompositingOperationCopy

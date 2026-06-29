@@ -6,6 +6,7 @@
 #include "fancylineedit.h"
 #include "fancyiconbutton.h"
 #include "macroexpander.h"
+#include "plaintextedit/plaintextedit.h"
 #include "qtcassert.h"
 #include "treemodel.h"
 #include "utilsicons.h"
@@ -89,7 +90,8 @@ public:
 
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QTextEdit> m_textEdit;
-    QPointer<QPlainTextEdit> m_plainTextEdit;
+    QPointer<QPlainTextEdit> m_qplainTextEdit;
+    QPointer<PlainTextEdit> m_plainTextEdit;
     QPointer<FancyIconButton> m_iconButton;
 
     FancyLineEdit *m_variableFilter;
@@ -239,6 +241,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     : q(parent),
       m_lineEdit(nullptr),
       m_textEdit(nullptr),
+      m_qplainTextEdit(nullptr),
       m_plainTextEdit(nullptr),
       m_iconButton(nullptr),
       m_variableFilter(nullptr),
@@ -388,7 +391,7 @@ void VariableChooser::addMacroExpanderProvider(const MacroExpanderProvider &prov
 static bool isSupportedWidget(const QWidget *w)
 {
     return qobject_cast<const QLineEdit *>(w) || qobject_cast<const QTextEdit *>(w)
-           || qobject_cast<const QPlainTextEdit *>(w);
+           || qobject_cast<const QPlainTextEdit *>(w) || qobject_cast<const PlainTextEdit *>(w);
 }
 
 /*!
@@ -473,6 +476,7 @@ void VariableChooserPrivate::updateCurrentEditor()
     QWidget *previousWidget = currentWidget();
     m_lineEdit = nullptr;
     m_textEdit = nullptr;
+    m_qplainTextEdit = nullptr;
     m_plainTextEdit = nullptr;
     auto chooser = widget->property(kVariableSupportProperty).value<QWidget *>();
     m_currentVariableName = widget->property(kVariableNameProperty).toByteArray();
@@ -482,6 +486,9 @@ void VariableChooserPrivate::updateCurrentEditor()
     else if (auto textEdit = qobject_cast<QTextEdit *>(widget))
         m_textEdit = (supportsVariables && !textEdit->isReadOnly() ? textEdit : nullptr);
     else if (auto plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
+        m_qplainTextEdit = (supportsVariables && !plainTextEdit->isReadOnly() ?
+                               plainTextEdit : nullptr);
+    else if (auto plainTextEdit = qobject_cast<PlainTextEdit *>(widget))
         m_plainTextEdit = (supportsVariables && !plainTextEdit->isReadOnly() ?
                                plainTextEdit : nullptr);
 
@@ -544,6 +551,8 @@ QWidget *VariableChooserPrivate::currentWidget() const
         return m_lineEdit;
     if (m_textEdit)
         return m_textEdit;
+    if (m_qplainTextEdit)
+        return m_qplainTextEdit;
     return m_plainTextEdit;
 }
 
@@ -568,6 +577,9 @@ void VariableChooserPrivate::insertText(const QString &text)
     } else if (m_textEdit) {
         m_textEdit->insertPlainText(text);
         m_textEdit->activateWindow();
+    } else if (m_qplainTextEdit) {
+        m_qplainTextEdit->insertPlainText(text);
+        m_qplainTextEdit->activateWindow();
     } else if (m_plainTextEdit) {
         m_plainTextEdit->insertPlainText(text);
         m_plainTextEdit->activateWindow();
