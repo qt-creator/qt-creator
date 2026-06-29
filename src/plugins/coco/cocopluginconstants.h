@@ -5,19 +5,19 @@
 
 namespace Coco::Constants {
 
-const char ACTION_ID[] = "coco.Action";
-const char MENU_ID[] = "coco.Menu";
-const char COCO_STEP_ID[] = "Cocoplugin.BuildStep";
+inline constexpr char ACTION_ID[] = "coco.Action";
+inline constexpr char MENU_ID[] = "coco.Menu";
+inline constexpr char COCO_STEP_ID[] = "Cocoplugin.BuildStep";
 
-const char PROFILE_NAME[] = "cocoplugin"; // Name of the Coco profile file
+inline constexpr char PROFILE_NAME[] = "cocoplugin"; // Name of the Coco profile file
 
-const char COCO_SETTINGS_GROUP[] = "Coco";
-const char COCO_SETTINGS_PAGE_ID[] = "A.CocoOptions";
+inline constexpr char COCO_SETTINGS_GROUP[] = "Coco";
+inline constexpr char COCO_SETTINGS_PAGE_ID[] = "A.CocoOptions";
 
 // Project settings
-const char SETTINGS_NAME_KEY[] = "CocoProjectSettings";
-const char SELECTION_DIR_KEY[] = "SelectionDir";
-const char COCO_DIR_KEY[] = "CocoDirectory";
-const char CSMES_PATH_KEY[] = "CsmesPath";
+inline constexpr char SETTINGS_NAME_KEY[] = "CocoProjectSettings";
+inline constexpr char SELECTION_DIR_KEY[] = "SelectionDir";
+inline constexpr char COCO_DIR_KEY[] = "CocoDirectory";
+inline constexpr char CSMES_PATH_KEY[] = "CsmesPath";
 
 } // namespace Coco::Constants

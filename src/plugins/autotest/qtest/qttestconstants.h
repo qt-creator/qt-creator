@@ -8,8 +8,8 @@
 namespace Autotest {
 namespace QtTest::Constants {
 
-const char FRAMEWORK_ID[]                = "AutoTest.Framework.QtTest";
-const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Qt Test");
+inline constexpr char FRAMEWORK_ID[]                = "AutoTest.Framework.QtTest";
+inline constexpr char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Qt Test");
 const unsigned FRAMEWORK_PRIORITY        = 1;
 
 } // namespace QtTest::Constants

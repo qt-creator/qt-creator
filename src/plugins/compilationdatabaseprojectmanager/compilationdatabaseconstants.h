@@ -5,8 +5,8 @@
 
 namespace CompilationDatabaseProjectManager::Constants {
 
-const char COMPILATIONDATABASEMIMETYPE[]  = "text/x-compilation-database-project";
-const char COMPILATIONDATABASEPROJECT_ID[] = "CompilationDatabase.CompilationDatabaseEditor";
-const char COMPILATIONDATABASEPROJECT_FILES_SUFFIX[] = ".files";
+inline constexpr char COMPILATIONDATABASEMIMETYPE[]  = "text/x-compilation-database-project";
+inline constexpr char COMPILATIONDATABASEPROJECT_ID[] = "CompilationDatabase.CompilationDatabaseEditor";
+inline constexpr char COMPILATIONDATABASEPROJECT_FILES_SUFFIX[] = ".files";
 
 } // CompilationDatabaseProjectManager::Constants

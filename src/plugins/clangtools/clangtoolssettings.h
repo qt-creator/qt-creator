@@ -21,7 +21,7 @@
 
 namespace ClangTools::Internal {
 
-const char diagnosticConfigIdKey[] = "DiagnosticConfig";
+inline constexpr char diagnosticConfigIdKey[] = "DiagnosticConfig";
 
 using VersionAndSuffix = QPair<QVersionNumber, QString>;
 

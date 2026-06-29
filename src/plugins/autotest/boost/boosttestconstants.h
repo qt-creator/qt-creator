@@ -7,9 +7,9 @@
 
 namespace Autotest::BoostTest::Constants {
 
-const char FRAMEWORK_ID[]                = "AutoTest.Framework.Boost";
-const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Boost Test");
+inline constexpr char FRAMEWORK_ID[]                = "AutoTest.Framework.Boost";
+inline constexpr char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Boost Test");
 const unsigned FRAMEWORK_PRIORITY        = 11;
-const char BOOST_MASTER_SUITE[]          = "Master Test Suite";
+inline constexpr char BOOST_MASTER_SUITE[]          = "Master Test Suite";
 
 } // namespace Autotest::BoostTest::Constants

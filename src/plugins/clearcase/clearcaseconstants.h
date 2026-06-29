@@ -7,11 +7,11 @@
 
 namespace ClearCase::Constants {
 
-const char VCS_ID_CLEARCASE[] = "E.ClearCase";
-const char CLEARCASE_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.clearcase.submit";
-const char CLEARCASECHECKINEDITOR_ID[] = "ClearCase Check In Editor";
-const char TASK_INDEX[] = "ClearCase.Task.Index";
-const char KEEP_ACTIVITY[] = "__KEEP__";
+inline constexpr char VCS_ID_CLEARCASE[] = "E.ClearCase";
+inline constexpr char CLEARCASE_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.clearcase.submit";
+inline constexpr char CLEARCASECHECKINEDITOR_ID[] = "ClearCase Check In Editor";
+inline constexpr char TASK_INDEX[] = "ClearCase.Task.Index";
+inline constexpr char KEEP_ACTIVITY[] = "__KEEP__";
 enum { debug = 0 };
 
 } // namespace ClearCase::Constants

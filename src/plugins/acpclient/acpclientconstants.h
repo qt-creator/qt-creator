@@ -5,11 +5,11 @@
 
 namespace AcpClient::Constants {
 
-const char ACTION_ID[] = "AcpClient.Action";
-const char MENU_ID[] = "AcpClient.Menu";
-const char SHOW_CHAT_ACTION_ID[] = "AcpClient.ShowChat";
-const char OUTPUT_PANE_ID[] = "AcpClient.ChatPanel";
-const char INSPECT_ACTION_ID[] = "AcpClient.Inspect";
-const char SHOW_CHAT_SIDEPANEL_ACTION_ID[] = "AcpClient.ShowChatSidePanel";
+inline constexpr char ACTION_ID[] = "AcpClient.Action";
+inline constexpr char MENU_ID[] = "AcpClient.Menu";
+inline constexpr char SHOW_CHAT_ACTION_ID[] = "AcpClient.ShowChat";
+inline constexpr char OUTPUT_PANE_ID[] = "AcpClient.ChatPanel";
+inline constexpr char INSPECT_ACTION_ID[] = "AcpClient.Inspect";
+inline constexpr char SHOW_CHAT_SIDEPANEL_ACTION_ID[] = "AcpClient.ShowChatSidePanel";
 
 } // namespace AcpClient::Constants

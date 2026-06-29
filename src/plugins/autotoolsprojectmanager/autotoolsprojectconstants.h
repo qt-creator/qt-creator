@@ -6,12 +6,12 @@
 namespace AutotoolsProjectManager::Constants {
 
 // Steps
-const char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
-const char AUTORECONF_STEP_ID[] = "AutotoolsProjectManager.AutoreconfStep";
-const char CONFIGURE_STEP_ID[] = "AutotoolsProjectManager.ConfigureStep";
-const char MAKE_STEP_ID[] = "AutotoolsProjectManager.MakeStep";
+inline constexpr char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
+inline constexpr char AUTORECONF_STEP_ID[] = "AutotoolsProjectManager.AutoreconfStep";
+inline constexpr char CONFIGURE_STEP_ID[] = "AutotoolsProjectManager.ConfigureStep";
+inline constexpr char MAKE_STEP_ID[] = "AutotoolsProjectManager.MakeStep";
 
 // Project
-const char AUTOTOOLS_PROJECT_ID[] = "AutotoolsProjectManager.AutotoolsProject";
+inline constexpr char AUTOTOOLS_PROJECT_ID[] = "AutotoolsProjectManager.AutotoolsProject";
 
 } // AutotoolsProjectManager::Constants

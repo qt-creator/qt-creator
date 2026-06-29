@@ -4,5 +4,5 @@
 #pragma once
 
 namespace CompilerExplorer::Constants {
-const char CE_EDITOR_ID[] = "CompilerExplorer.Editor";
+inline constexpr char CE_EDITOR_ID[] = "CompilerExplorer.Editor";
 }

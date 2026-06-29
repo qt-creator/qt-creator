@@ -5,13 +5,13 @@
 
 namespace Qdb::Constants {
 
-const char QdbRunConfigurationId[] = "QdbLinuxRunConfiguration:";
-const char QdbDeployConfigurationId[] = "Qt4ProjectManager.Qdb.QdbDeployConfiguration";
+inline constexpr char QdbRunConfigurationId[] = "QdbLinuxRunConfiguration:";
+inline constexpr char QdbDeployConfigurationId[] = "Qt4ProjectManager.Qdb.QdbDeployConfiguration";
 
-const char QdbStopApplicationStepId[] = "Qdb.StopApplicationStep";
-const char QdbMakeDefaultAppStepId[] = "Qdb.MakeDefaultAppStep";
+inline constexpr char QdbStopApplicationStepId[] = "Qdb.StopApplicationStep";
+inline constexpr char QdbMakeDefaultAppStepId[] = "Qdb.MakeDefaultAppStep";
 
-const char QdbHardwareDevicePrefix[] = "QdbHardwareDevice";
-const char AppcontrollerFilepath[] = "/usr/bin/appcontroller";
+inline constexpr char QdbHardwareDevicePrefix[] = "QdbHardwareDevice";
+inline constexpr char AppcontrollerFilepath[] = "/usr/bin/appcontroller";
 
 } // namespace Qdb::Constants

@@ -5,10 +5,10 @@
 
 namespace ClangCodeModel::Constants {
 
-const char GENERATE_COMPILATION_DB[]  = "ClangCodeModel.GenerateCompilationDB";
-const char CLANG_ERROR[] = "Clang.Error";
-const char CLANG_WARNING[] = "Clang.Warning";
+inline constexpr char GENERATE_COMPILATION_DB[]  = "ClangCodeModel.GenerateCompilationDB";
+inline constexpr char CLANG_ERROR[] = "Clang.Error";
+inline constexpr char CLANG_WARNING[] = "Clang.Warning";
 
-const char TASK_CATEGORY_DIAGNOSTICS[] = "ClangCodeModel";
+inline constexpr char TASK_CATEGORY_DIAGNOSTICS[] = "ClangCodeModel";
 
 } // namespace ClangCodeModel::Constants

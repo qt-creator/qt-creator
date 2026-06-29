@@ -5,82 +5,82 @@
 
 namespace CMakeProjectManager::Constants {
 
-const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
-const char RUN_CMAKE[] = "CMakeProject.RunCMake";
-const char RUN_CMAKE_PROFILER[] = "CMakeProject.RunCMakeProfiler";
-const char RUN_CMAKE_DEBUGGER[] = "CMakeProject.RunCMakeDebugger";
-const char CLEAR_CMAKE_CACHE[] = "CMakeProject.ClearCache";
-const char CLEAR_CMAKE_CACHE_CONTEXT_MENU[] = "CMakeProject.ClearCacheContextMenu";
-const char RESCAN_PROJECT[] = "CMakeProject.RescanProject";
-const char RUN_CMAKE_CONTEXT_MENU[] = "CMakeProject.RunCMakeContextMenu";
-const char CMAKE_HOME_DIR[] = "CMakeProject.HomeDirectory";
-const char QML_DEBUG_SETTING[] = "CMakeProject.EnableQmlDebugging";
-const char RELOAD_CMAKE_PRESETS[] = "CMakeProject.ReloadCMakePresets";
-const char BUILD_SUBPROJECT[] = "CMakeProject.BuildSubProject";
-const char CLEAN_SUBPROJECT[] = "CMakeProject.CleanSubProject";
-const char REBUILD_SUBPROJECT[] = "CMakeProject.RebuildSubProject";
+inline constexpr char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
+inline constexpr char RUN_CMAKE[] = "CMakeProject.RunCMake";
+inline constexpr char RUN_CMAKE_PROFILER[] = "CMakeProject.RunCMakeProfiler";
+inline constexpr char RUN_CMAKE_DEBUGGER[] = "CMakeProject.RunCMakeDebugger";
+inline constexpr char CLEAR_CMAKE_CACHE[] = "CMakeProject.ClearCache";
+inline constexpr char CLEAR_CMAKE_CACHE_CONTEXT_MENU[] = "CMakeProject.ClearCacheContextMenu";
+inline constexpr char RESCAN_PROJECT[] = "CMakeProject.RescanProject";
+inline constexpr char RUN_CMAKE_CONTEXT_MENU[] = "CMakeProject.RunCMakeContextMenu";
+inline constexpr char CMAKE_HOME_DIR[] = "CMakeProject.HomeDirectory";
+inline constexpr char QML_DEBUG_SETTING[] = "CMakeProject.EnableQmlDebugging";
+inline constexpr char RELOAD_CMAKE_PRESETS[] = "CMakeProject.ReloadCMakePresets";
+inline constexpr char BUILD_SUBPROJECT[] = "CMakeProject.BuildSubProject";
+inline constexpr char CLEAN_SUBPROJECT[] = "CMakeProject.CleanSubProject";
+inline constexpr char REBUILD_SUBPROJECT[] = "CMakeProject.RebuildSubProject";
 
-const char CMAKE_CURRENT_SOURCE_DIR[] = "${CMAKE_CURRENT_SOURCE_DIR}";
+inline constexpr char CMAKE_CURRENT_SOURCE_DIR[] = "${CMAKE_CURRENT_SOURCE_DIR}";
 
-const char CMAKEFORMATTER_SETTINGS_GROUP[] = "CMakeFormatter";
-const char CMAKEFORMATTER_GENERAL_GROUP[] = "General";
-const char CMAKEFORMATTER_ACTION_ID[] = "CMakeFormatter.Action";
-const char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
-const char CMAKE_DEBUGGING_GROUP[] = "Debugger.Group.CMake";
+inline constexpr char CMAKEFORMATTER_SETTINGS_GROUP[] = "CMakeFormatter";
+inline constexpr char CMAKEFORMATTER_GENERAL_GROUP[] = "General";
+inline constexpr char CMAKEFORMATTER_ACTION_ID[] = "CMakeFormatter.Action";
+inline constexpr char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
+inline constexpr char CMAKE_DEBUGGING_GROUP[] = "Debugger.Group.CMake";
 
-const char VCPKG_ROOT[] = "VCPKG_ROOT";
+inline constexpr char VCPKG_ROOT[] = "VCPKG_ROOT";
 
-const char CMAKE_LISTS_TXT[] = "CMakeLists.txt";
-const char CMAKE_CACHE_TXT[] = "CMakeCache.txt";
-const char CMAKE_CACHE_TXT_PREV[] = "CMakeCache.txt.prev";
+inline constexpr char CMAKE_LISTS_TXT[] = "CMakeLists.txt";
+inline constexpr char CMAKE_CACHE_TXT[] = "CMakeCache.txt";
+inline constexpr char CMAKE_CACHE_TXT_PREV[] = "CMakeCache.txt.prev";
 
 // Project
-const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
+inline constexpr char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 
-const char CMAKE_BUILDCONFIGURATION_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
-const char CMAKE_IMPORTED_BUILD[] = "CMake.Imported";
+inline constexpr char CMAKE_BUILDCONFIGURATION_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
+inline constexpr char CMAKE_IMPORTED_BUILD[] = "CMake.Imported";
 
 // Menu
-const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
+inline constexpr char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 
 namespace Settings {
-const char GENERAL_ID[] = "CMakeSpecificSettings";
-const char TOOLS_ID[] = "K.CMake.Tools";
-const char FORMATTER_ID[] = "K.CMake.Formatter";
-const char CATEGORY[] = "K.CMake";
-const char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
+inline constexpr char GENERAL_ID[] = "CMakeSpecificSettings";
+inline constexpr char TOOLS_ID[] = "K.CMake.Tools";
+inline constexpr char FORMATTER_ID[] = "K.CMake.Formatter";
+inline constexpr char CATEGORY[] = "K.CMake";
+inline constexpr char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
 } // namespace Settings
 
 // Snippets
-const char CMAKE_SNIPPETS_GROUP_ID[] = "CMake";
+inline constexpr char CMAKE_SNIPPETS_GROUP_ID[] = "CMake";
 
 namespace Icons {
-const char FILE_OVERLAY[] = ":/cmakeproject/images/fileoverlay_cmake.png";
-const char SETTINGS_CATEGORY[] = ":/cmakeproject/images/settingscategory_cmakeprojectmanager.png";
+inline constexpr char FILE_OVERLAY[] = ":/cmakeproject/images/fileoverlay_cmake.png";
+inline constexpr char SETTINGS_CATEGORY[] = ":/cmakeproject/images/settingscategory_cmakeprojectmanager.png";
 } // namespace Icons
 
 // Build Step
-const char CMAKE_BUILD_STEP_ID[] = "CMakeProjectManager.MakeStep";
+inline constexpr char CMAKE_BUILD_STEP_ID[] = "CMakeProjectManager.MakeStep";
 
 // Install Step
-const char CMAKE_INSTALL_STEP_ID[] = "CMakeProjectManager.InstallStep";
+inline constexpr char CMAKE_INSTALL_STEP_ID[] = "CMakeProjectManager.InstallStep";
 
 
 // Features
-const char CMAKE_FEATURE_ID[] = "CMakeProjectManager.Wizard.FeatureCMake";
+inline constexpr char CMAKE_FEATURE_ID[] = "CMakeProjectManager.Wizard.FeatureCMake";
 
 // Tool
-const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
+inline constexpr char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
 
 // Data
-const char BUILD_FOLDER_ROLE[] = "CMakeProjectManager.data.buildFolder";
+inline constexpr char BUILD_FOLDER_ROLE[] = "CMakeProjectManager.data.buildFolder";
 
 // Output
-const char OUTPUT_PREFIX[] = "[cmake] ";
+inline constexpr char OUTPUT_PREFIX[] = "[cmake] ";
 
-const char VXWORKS_DEVICE_TYPE[] = "VxWorks.Device.Type";
+inline constexpr char VXWORKS_DEVICE_TYPE[] = "VxWorks.Device.Type";
 
-const char KIT_BUILDINFO_LIST[] = "CMakeProjectManager.BuildInfoList";
-const char PRESETS_KITS_PROGRESS[] = "CMakeProjectManager.Presets.Kits.Progress";
+inline constexpr char KIT_BUILDINFO_LIST[] = "CMakeProjectManager.BuildInfoList";
+inline constexpr char PRESETS_KITS_PROGRESS[] = "CMakeProjectManager.Presets.Kits.Progress";
 
 } // namespace CMakeProjectManager::Constants

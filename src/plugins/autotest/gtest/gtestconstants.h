@@ -7,10 +7,10 @@
 
 namespace Autotest::GTest::Constants {
 
-const char FRAMEWORK_ID[]                = "AutoTest.Framework.GTest";
-const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Google Test");
+inline constexpr char FRAMEWORK_ID[]                = "AutoTest.Framework.GTest";
+inline constexpr char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Google Test");
 const unsigned FRAMEWORK_PRIORITY        = 10;
-const char DEFAULT_FILTER[]              = "*.*";
+inline constexpr char DEFAULT_FILTER[]              = "*.*";
 
 enum GroupMode
 {

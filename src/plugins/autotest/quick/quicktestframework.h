@@ -10,7 +10,7 @@
 namespace Autotest {
 namespace QuickTest::Constants {
 
-const char FRAMEWORK_ID[]                = "AutoTest.Framework.QtQuickTest";
+inline constexpr char FRAMEWORK_ID[]                = "AutoTest.Framework.QtQuickTest";
 
 } // namespace QuickTest::Constants
 

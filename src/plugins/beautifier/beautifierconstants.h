@@ -7,16 +7,16 @@
 
 namespace Beautifier::Constants {
 
-const char ACTION_ID[]              = "Beautifier.Action";
-const char MENU_ID[]                = "Beautifier.Menu";
-const char OPTION_CATEGORY[]        = "II.Beautifier";
-const char OPTION_GENERAL_ID[]      = "aaa.General";
-const char SETTINGS_DIRNAME[]       = "beautifier";
-const char DOCUMENTATION_DIRNAME[]  = "documentation";
-const char DOCUMENTATION_XMLROOT[]  = "beautifier_documentation";
-const char DOCUMENTATION_XMLENTRY[] = "entry";
-const char DOCUMENTATION_XMLKEYS[]  = "keys";
-const char DOCUMENTATION_XMLKEY[]   = "key";
-const char DOCUMENTATION_XMLDOC[]   = "doc";
+inline constexpr char ACTION_ID[]              = "Beautifier.Action";
+inline constexpr char MENU_ID[]                = "Beautifier.Menu";
+inline constexpr char OPTION_CATEGORY[]        = "II.Beautifier";
+inline constexpr char OPTION_GENERAL_ID[]      = "aaa.General";
+inline constexpr char SETTINGS_DIRNAME[]       = "beautifier";
+inline constexpr char DOCUMENTATION_DIRNAME[]  = "documentation";
+inline constexpr char DOCUMENTATION_XMLROOT[]  = "beautifier_documentation";
+inline constexpr char DOCUMENTATION_XMLENTRY[] = "entry";
+inline constexpr char DOCUMENTATION_XMLKEYS[]  = "keys";
+inline constexpr char DOCUMENTATION_XMLKEY[]   = "key";
+inline constexpr char DOCUMENTATION_XMLDOC[]   = "doc";
 
 } // Beautifier::Constants
