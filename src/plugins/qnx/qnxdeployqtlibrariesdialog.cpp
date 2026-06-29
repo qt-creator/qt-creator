@@ -7,6 +7,8 @@
 #include "qnxqtversion.h"
 #include "qnxtr.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -14,6 +16,7 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/dialogtask.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
@@ -29,6 +32,7 @@
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QtTaskTree/QConditional>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 using namespace ProjectExplorer;
@@ -84,12 +88,11 @@ private:
 
 private:
     Group deployRecipe();
-    GroupItem checkDirTask();
+    GroupItem checkDirTask(const Storage<bool> &directoryExists);
+    GroupItem confirmOverwriteTask();
     GroupItem removeDirTask();
     GroupItem uploadTask();
 
-    enum class CheckResult { RemoveDir, SkipRemoveDir, Abort };
-    CheckResult m_checkResult = CheckResult::Abort;
     mutable QList<DeployableFile> m_deployableFiles;
     QSingleTaskTreeRunner m_taskTreeRunner;
 };
@@ -109,42 +112,51 @@ QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
     return collected;
 }
 
-GroupItem QnxDeployQtLibrariesDialog::checkDirTask()
+GroupItem QnxDeployQtLibrariesDialog::checkDirTask(const Storage<bool> &directoryExists)
 {
     const auto onSetup = [this](Process &process) {
         m_deployLogWindow->appendPlainText(Tr::tr("Checking existence of \"%1\"")
                                            .arg(fullRemoteDirectory()));
         process.setCommand({m_device->filePath("test"), {"-d", fullRemoteDirectory()}});
     };
-    const auto onDone = [this](const Process &process, DoneWith result) {
-        if (result != DoneWith::Success) {
-            if (process.result() != ProcessResult::FinishedWithError) {
-                m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
-                                                       .arg(process.errorString()));
-                m_checkResult = CheckResult::Abort;
-                return;
-            }
-            m_checkResult = CheckResult::SkipRemoveDir;
-            return;
+    const auto onDone = [this, directoryExists](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
+            *directoryExists = true;
+            return DoneResult::Success;
         }
-        const int answer = QMessageBox::question(this, windowTitle(),
-                Tr::tr("The remote directory \"%1\" already exists.\n"
-                       "Deploying to that directory will remove any files already present.\n\n"
-                       "Are you sure you want to continue?").arg(fullRemoteDirectory()),
-                       QMessageBox::Yes | QMessageBox::No);
-        m_checkResult = answer == QMessageBox::Yes ? CheckResult::RemoveDir : CheckResult::Abort;
+        if (process.result() == ProcessResult::FinishedWithError) {
+            // The remote directory does not exist - nothing to remove.
+            *directoryExists = false;
+            return DoneResult::Success;
+        }
+        m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
+                                           .arg(process.errorString()));
+        return DoneResult::Error;
     };
     return ProcessTask(onSetup, onDone);
+}
+
+GroupItem QnxDeployQtLibrariesDialog::confirmOverwriteTask()
+{
+    const auto onSetup = [this](DialogWrapper<QMessageBox> &task) {
+        task.setParent(Core::ICore::dialogParent());
+        QMessageBox *box = task.dialog();
+        box->setIcon(QMessageBox::Question);
+        box->setWindowTitle(windowTitle());
+        box->setText(Tr::tr("The remote directory \"%1\" already exists.\n"
+                       "Deploying to that directory will remove any files already present.\n\n"
+                       "Are you sure you want to continue?").arg(fullRemoteDirectory()));
+        box->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    };
+    // "No" reports an error, which aborts the deployment via the recipe's stop-on-error policy.
+    return DialogTask<QMessageBox>(onSetup);
 }
 
 GroupItem QnxDeployQtLibrariesDialog::removeDirTask()
 {
     const auto onSetup = [this](Process &process) {
-        if (m_checkResult != CheckResult::RemoveDir)
-            return SetupResult::StopWithSuccess;
         m_deployLogWindow->appendPlainText(Tr::tr("Removing \"%1\"").arg(fullRemoteDirectory()));
         process.setCommand({m_device->filePath("rm"), {"-rf", fullRemoteDirectory()}});
-        return SetupResult::Continue;
     };
     const auto onError = [this](const Process &process) {
         QTC_ASSERT(process.exitCode() == 0, return);
@@ -213,25 +225,18 @@ Group QnxDeployQtLibrariesDialog::deployRecipe()
     const auto doneHandler = [this] {
         emitProgressMessage(Tr::tr("All files successfully deployed."));
     };
-    const auto subGroupSetupHandler = [this] {
-        if (m_checkResult == CheckResult::Abort)
-            return SetupResult::StopWithError;
-        return SetupResult::Continue;
-    };
-    const Group root {
+    const Storage<bool> directoryExists;
+    return {
+        directoryExists,
         onGroupSetup(setupHandler),
-        Group {
-            finishAllAndSuccess,
-            checkDirTask()
+        checkDirTask(directoryExists),
+        If ([directoryExists] { return *directoryExists; }) >> Then {
+            confirmOverwriteTask(),
+            removeDirTask()
         },
-        Group {
-            onGroupSetup(subGroupSetupHandler),
-            removeDirTask(),
-            uploadTask()
-        },
+        uploadTask(),
         onGroupDone(doneHandler, CallDoneFlag::OnSuccess)
     };
-    return root;
 }
 
 void QnxDeployQtLibrariesDialog::start()
@@ -250,8 +255,6 @@ void QnxDeployQtLibrariesDialog::start()
     m_deployButton->setEnabled(false);
     m_qtLibraryCombo->setEnabled(false);
     m_deployLogWindow->clear();
-
-    m_checkResult = CheckResult::Abort;
 
     m_deployableFiles = gatherFiles();
     m_deployProgress->setRange(0, m_deployableFiles.count());
