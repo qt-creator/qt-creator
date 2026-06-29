@@ -49,6 +49,7 @@ public:
     Utils::BoolAspect saveBeforeBuild{this};
     Utils::BoolAspect useJom{this};
     Utils::BoolAspect promptToStopRunControl{this};
+    Utils::BoolAspect promptToStopCloseTab{this};
     Utils::BoolAspect automaticallyCreateRunConfigurations{this};
     Utils::TypedSelectionAspect<SyncRunConfigs> syncRunConfigurations{this};
     Utils::BoolAspect addLibraryPathsToRunEnv{this};
@@ -138,6 +139,7 @@ inline void ProjectExplorerSettings::registerCallback(
 namespace Internal {
 
 void setPromptToStopSettings(bool promptToStop); // FIXME: Remove.
+void setPromptToStopOnCloseTabSettings(bool promptToStop); // FIXME: Remove.
 void setSaveBeforeBuildSettings(bool saveBeforeBuild); // FIXME: Remove.
 
 void setupProjectExplorerSettings();

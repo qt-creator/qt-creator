@@ -73,6 +73,12 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
     promptToStopRunControl.setLabel(Tr::tr("Always ask before stopping applications"));
     promptToStopRunControl.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
+    promptToStopCloseTab.setSettingsKey("PromptToStopOnCloseTab");
+    promptToStopCloseTab.setDefaultValue(true);
+    promptToStopCloseTab.setLabel(
+        Tr::tr("Always ask before closing tabs of running applications"));
+    promptToStopCloseTab.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+
     automaticallyCreateRunConfigurations.setSettingsKey("AutomaticallyCreateRunConfigurations");
     automaticallyCreateRunConfigurations.setDefaultValue(true);
     automaticallyCreateRunConfigurations.setLabel(Tr::tr("Create suitable run configurations automatically"));
@@ -232,6 +238,7 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
                         deployBeforeRun,
                         addLibraryPathsToRunEnv,
                         promptToStopRunControl,
+                        promptToStopCloseTab,
                         automaticallyCreateRunConfigurations,
                         clearIssuesOnRebuild,
                         abortBuildAllOnError,
@@ -348,6 +355,13 @@ namespace Internal {
 void setPromptToStopSettings(bool promptToStop)
 {
     globalProjectExplorerSettings().promptToStopRunControl.setValue(promptToStop);
+    globalProjectExplorerSettings().writeSettings();
+    emit globalProjectExplorerSettings().changed();
+}
+
+void setPromptToStopOnCloseTabSettings(bool promptToStop)
+{
+    globalProjectExplorerSettings().promptToStopCloseTab.setValue(promptToStop);
     globalProjectExplorerSettings().writeSettings();
     emit globalProjectExplorerSettings().changed();
 }

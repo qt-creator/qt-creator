@@ -394,6 +394,7 @@ AppOutputPane::AppOutputPane() :
     m_closeCurrentTabAction(new QAction(Tr::tr("Close Tab"), this)),
     m_closeAllTabsAction(new QAction(Tr::tr("Close All Tabs"), this)),
     m_closeOtherTabsAction(new QAction(Tr::tr("Close Other Tabs"), this)),
+    m_closeAllNonRunningTabsAction(new QAction(Tr::tr("Close All Non-Running Tabs"), this)),
     m_reRunButton(new QToolButton),
     m_stopButton(new QToolButton),
     m_attachButton(new QToolButton),
@@ -1057,7 +1058,7 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     qCDebug(appOutputLog) << "AppOutputPane::closeTab tab" << tabIndex << runControl << window;
     // Prompt user to stop
     if (closeTabMode == CloseTabWithPrompt) {
-        if (runControl && runControl->isRunning() && !runControl->promptToStop())
+        if (runControl && runControl->isRunning() && !optionallyPromptToStopOnClose(runControl))
             return;
         // The event loop has run, thus the ordering might have changed, a tab might
         // have been closed, so do some strange things...
@@ -1093,6 +1094,18 @@ bool AppOutputPane::optionallyPromptToStop(RunControl *runControl)
     if (!runControl->promptToStop(&promptToStop))
         return false;
     setPromptToStopSettings(promptToStop);
+    return true;
+}
+
+bool AppOutputPane::optionallyPromptToStopOnClose(RunControl *runControl)
+{
+    // Closing a tab has its own "don't ask again" state, separate from the stop
+    // button: silently killing a still-running application when merely closing
+    // its output tab is more surprising than when explicitly stopping it.
+    bool promptToStop = ProjectExplorerSettings::get(runControl).promptToStopCloseTab();
+    if (!runControl->promptToStop(&promptToStop))
+        return false;
+    setPromptToStopOnCloseTabSettings(promptToStop);
     return true;
 }
 
@@ -1169,7 +1182,8 @@ void AppOutputPane::tabChanged(int i)
 void AppOutputPane::contextMenuRequested(const QPoint &pos)
 {
     const int index = m_tabWidget->tabBar()->tabAt(pos);
-    const QList<QAction *> actions = {m_closeCurrentTabAction, m_closeAllTabsAction, m_closeOtherTabsAction};
+    const QList<QAction *> actions = {m_closeCurrentTabAction, m_closeAllTabsAction,
+                                      m_closeOtherTabsAction, m_closeAllNonRunningTabsAction};
     QAction *action = QMenu::exec(actions, m_tabWidget->mapToGlobal(pos), nullptr, m_tabWidget);
     if (action == m_closeAllTabsAction) {
         closeTabs(AppOutputPane::CloseTabWithPrompt);
@@ -1184,6 +1198,12 @@ void AppOutputPane::contextMenuRequested(const QPoint &pos)
         for (int t = m_tabWidget->count() - 1; t >= 0; t--)
             if (t != currentIdx)
                 closeTab(t);
+    } else if (action == m_closeAllNonRunningTabsAction) {
+        for (int t = m_tabWidget->count() - 1; t >= 0; t--) {
+            const RunControlTab * const tab = tabFor(m_tabWidget->widget(t));
+            if (!tab || !tab->runControl || !tab->runControl->isRunning())
+                closeTab(t);
+        }
     }
 }
 

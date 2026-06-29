@@ -126,6 +126,7 @@ private:
 
     void closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
     bool optionallyPromptToStop(RunControl *runControl);
+    bool optionallyPromptToStopOnClose(RunControl *runControl);
 
     RunControlTab *tabFor(const RunControl *rc);
     RunControlTab *tabFor(const QWidget *outputWindow);
@@ -161,6 +162,7 @@ private:
     QAction *m_closeCurrentTabAction;
     QAction *m_closeAllTabsAction;
     QAction *m_closeOtherTabsAction;
+    QAction *m_closeAllNonRunningTabsAction;
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
     QToolButton *m_attachButton;
