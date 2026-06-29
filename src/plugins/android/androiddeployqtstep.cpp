@@ -33,6 +33,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/commandline.h>
+#include <utils/dialogtask.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
@@ -41,7 +42,6 @@
 
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QPushButton>
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
@@ -412,7 +412,7 @@ Group AndroidDeployQtStep::deployRecipe()
         return true;
     };
 
-    const auto onAskForUninstallSetup = [this, storage] {
+    const auto onAskForUninstallSetup = [this, storage](DialogWrapper<QMessageBox> &task) {
         const DeployErrorFlags &errorFlags = *storage;
         QString uninstallMsg = Tr::tr("Deployment failed with the following errors:") + "\n\n";
         if (errorFlags & InconsistentCertificates)
@@ -427,12 +427,18 @@ Group AndroidDeployQtStep::deployRecipe()
         uninstallMsg.append(Tr::tr("Uninstalling the installed package may solve the issue.") + '\n');
         uninstallMsg.append(Tr::tr("Do you want to uninstall the existing package?"));
 
-        if (QMessageBox::critical(nullptr, Tr::tr("Install failed"), uninstallMsg,
-                                  QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-            m_uninstallPreviousPackageRun = true;
-            return SetupResult::Continue;
-        }
-        return SetupResult::StopWithSuccess;
+        task.setParent(Core::ICore::dialogParent());
+        QMessageBox *box = task.dialog();
+        box->setIcon(QMessageBox::Critical);
+        box->setWindowTitle(Tr::tr("Install Failed"));
+        box->setText(uninstallMsg);
+        box->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        box->setDefaultButton(QMessageBox::No);
+    };
+    // Runs only on "Yes" (see CallDoneFlag::OnSuccess below), which proceeds with the
+    // uninstall and reinstall tasks; "No" stops the branch early.
+    const auto onAskForUninstallDone = [this] {
+        m_uninstallPreviousPackageRun = true;
     };
 
     return Group {
@@ -443,7 +449,8 @@ Group AndroidDeployQtStep::deployRecipe()
             onGroupDone(DoneResult::Success)
         },
         If ([storage] { return *storage != NoError; }) >> Then {
-            onGroupSetup(onAskForUninstallSetup),
+            DialogTask<QMessageBox>(onAskForUninstallSetup, onAskForUninstallDone,
+                                    CallDoneFlag::OnSuccess),
             ProcessTask(onUninstallSetup, onUninstallDone, CallDoneFlag::OnError).withTimeout(2min),
             ProcessTask(onInstallSetup, onInstallDone),
             onGroupDone(DoneResult::Success)
