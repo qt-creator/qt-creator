@@ -71,31 +71,15 @@ class CppCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 public:
     CppCodeStylePreferencesFactory()
         : ICodeStylePreferencesFactory(Constants::CPP_SETTINGS_ID)
-    {}
-
-private:
-    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const final
     {
-        return new CppCodeStyleEditor{static_cast<CppCodeStylePreferences *>(codeStyle)};
-    }
-
-    QString snippetGroupId() const final { return Constants::CPP_SNIPPETS_GROUP_ID; }
-
-    QString previewText() const final
-    {
-        return QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]);
-    }
-
-    QString displayName() final { return Tr::tr(Constants::CPP_SETTINGS_NAME); }
-
-    ICodeStylePreferences *createCodeStyle() const final
-    {
-        return new CppCodeStylePreferences;
-    }
-
-    Indenter *createIndenter(QTextDocument *doc) const final
-    {
-        return createCppQtStyleIndenter(doc);
+        setDisplayName(Tr::tr(Constants::CPP_SETTINGS_NAME));
+        setSnippetGroupId(Constants::CPP_SNIPPETS_GROUP_ID);
+        setPreviewText(QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
+        setIndenterCreator([](QTextDocument *doc) { return createCppQtStyleIndenter(doc); });
+        setCodeStyleCreator([] { return new CppCodeStylePreferences; });
+        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
+            return new CppCodeStyleEditor{static_cast<CppCodeStylePreferences *>(codeStyle)};
+        });
     }
 };
 

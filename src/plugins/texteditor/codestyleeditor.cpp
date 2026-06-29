@@ -159,6 +159,8 @@ private:
 CodeStyleEditor *ICodeStylePreferencesFactory::createProjectEditor(
     const FilePath &projectFile, ICodeStylePreferences *codeStyle) const
 {
+    if (m_projectEditorCreator)
+        return m_projectEditorCreator(projectFile, codeStyle);
     return new CodeStyleProjectPreviewEditor{this, projectFile, codeStyle};
 }
 

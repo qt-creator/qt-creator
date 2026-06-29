@@ -661,30 +661,16 @@ class ClangFormatCodeStylePreferencesFactory final : public ICodeStylePreference
 public:
     ClangFormatCodeStylePreferencesFactory()
         : ICodeStylePreferencesFactory(CppEditor::Constants::CPP_SETTINGS_ID)
-    {}
-
-    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const override
     {
-        return new ClangFormatSettingsEditor{codeStyle};
-    }
-
-    CodeStyleEditor *createProjectEditor(
-            const FilePath &projectFile,
-            ICodeStylePreferences *codeStyle) const override
-    {
-        return new ClangFormatProjectEditor{projectFile, codeStyle};
-    }
-
-    QString displayName() override { return Tr::tr("C++"); }
-
-    ICodeStylePreferences *createCodeStyle() const override
-    {
-        return new CppEditor::CppCodeStylePreferences;
-    }
-
-    Indenter *createIndenter(QTextDocument *doc) const override
-    {
-        return new ClangFormatForwardingIndenter(doc);
+        setDisplayName(Tr::tr("C++"));
+        setIndenterCreator([](QTextDocument *doc) { return new ClangFormatForwardingIndenter(doc); });
+        setCodeStyleCreator([] { return new CppEditor::CppCodeStylePreferences; });
+        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
+            return new ClangFormatSettingsEditor{codeStyle};
+        });
+        setProjectEditorCreator([](const FilePath &projectFile, ICodeStylePreferences *codeStyle) {
+            return new ClangFormatProjectEditor{projectFile, codeStyle};
+        });
     }
 };
 

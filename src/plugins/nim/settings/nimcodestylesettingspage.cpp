@@ -142,39 +142,19 @@ class NimCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 public:
     NimCodeStylePreferencesFactory()
         : ICodeStylePreferencesFactory(Constants::C_NIMLANGUAGE_ID)
-    {}
-
-private:
-    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const final
     {
-        return new NimCodeStyleEditor{codeStyle};
-    }
-
-    QString snippetGroupId() const final
-    {
-        return Constants::C_NIMSNIPPETSGROUP_ID;
-    }
-
-    QString previewText() const final
-    {
-        return QString::fromLatin1(Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
-    }
-
-    QString displayName() final
-    {
-        return Tr::tr(Constants::C_NIMLANGUAGE_NAME);
-    }
-
-    ICodeStylePreferences *createCodeStyle() const final
-    {
-        auto prefs = new ICodeStylePreferences();
-        prefs->setSettingsSuffix("TabPreferences");
-        return prefs;
-    }
-
-    Indenter *createIndenter(QTextDocument *doc) const final
-    {
-        return createNimIndenter(doc);
+        setDisplayName(Tr::tr(Constants::C_NIMLANGUAGE_NAME));
+        setSnippetGroupId(Constants::C_NIMSNIPPETSGROUP_ID);
+        setPreviewText(QString::fromLatin1(Constants::C_NIMCODESTYLEPREVIEWSNIPPET));
+        setIndenterCreator([](QTextDocument *doc) { return createNimIndenter(doc); });
+        setCodeStyleCreator([] {
+            auto prefs = new ICodeStylePreferences;
+            prefs->setSettingsSuffix("TabPreferences");
+            return prefs;
+        });
+        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
+            return new NimCodeStyleEditor{codeStyle};
+        });
     }
 };
 
@@ -190,30 +170,31 @@ public:
         setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
         setSettingsProvider([this] { return &m_settings; });
 
-        m_globalCodeStyle.setSettingsSuffix("TabPreferences");
-        m_globalCodeStyle.setDelegatingPool(&m_pool);
-        m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
-        m_globalCodeStyle.setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
-        m_pool.addCodeStyle(&m_globalCodeStyle);
-        registerCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID, &m_globalCodeStyle);
-
-        m_nimCodeStyle.setId("nim");
-        m_nimCodeStyle.setDisplayName(Tr::tr("Nim"));
-        m_nimCodeStyle.setReadOnly(true);
-
+        // Built-in, read-only "Nim" style.
         TabSettingsData nimTabSettings;
         nimTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
         nimTabSettings.m_tabSize = 2;
         nimTabSettings.m_indentSize = 2;
         nimTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
+
+        m_nimCodeStyle.setId("nim");
+        m_nimCodeStyle.setDisplayName(Tr::tr("Nim"));
+        m_nimCodeStyle.setReadOnly(true);
         m_nimCodeStyle.setTabSettings(nimTabSettings);
 
+        // Editable global style.
+        m_globalCodeStyle.setSettingsSuffix("TabPreferences");
+        m_globalCodeStyle.setDelegatingPool(&m_pool);
+        m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
+        m_globalCodeStyle.setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
+
+        m_pool.addCodeStyle(&m_globalCodeStyle);
         m_pool.addCodeStyle(&m_nimCodeStyle);
         m_globalCodeStyle.setCurrentDelegate(&m_nimCodeStyle);
         m_pool.loadCustomCodeStyles();
-
-        // load global settings (after built-in settings are added to the pool)
         m_globalCodeStyle.fromSettings(Nim::Constants::C_NIMLANGUAGE_ID);
+
+        registerCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID, &m_globalCodeStyle);
 
         registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE,
                                       Nim::Constants::C_NIMLANGUAGE_ID);

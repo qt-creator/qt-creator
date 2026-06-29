@@ -51,21 +51,17 @@ class TestCodeStyleFactory final : public ICodeStylePreferencesFactory
 public:
     TestCodeStyleFactory()
         : ICodeStylePreferencesFactory(TEST_LANGUAGE_ID)
-    {}
-
-    Indenter *createIndenter(QTextDocument *doc) const final { return new PlainTextIndenter(doc); }
-    QString displayName() final { return QString("Test"); }
-
-    ICodeStylePreferences *createCodeStyle() const final
     {
-        auto prefs = new ICodeStylePreferences;
-        prefs->setSettingsSuffix("TestCodeStyle");
-        return prefs;
-    }
-
-    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const final
-    {
-        return new TestCodeStyleEditor(codeStyle);
+        setDisplayName(QString("Test"));
+        setIndenterCreator([](QTextDocument *doc) { return new PlainTextIndenter(doc); });
+        setCodeStyleCreator([] {
+            auto prefs = new ICodeStylePreferences;
+            prefs->setSettingsSuffix("TestCodeStyle");
+            return prefs;
+        });
+        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
+            return new TestCodeStyleEditor(codeStyle);
+        });
     }
 };
 
@@ -99,21 +95,17 @@ class LiveTestCodeStyleFactory final : public ICodeStylePreferencesFactory
 public:
     LiveTestCodeStyleFactory()
         : ICodeStylePreferencesFactory(LIVE_TEST_LANGUAGE_ID)
-    {}
-
-    Indenter *createIndenter(QTextDocument *doc) const final { return new PlainTextIndenter(doc); }
-    QString displayName() final { return QString("Live Test"); }
-
-    ICodeStylePreferences *createCodeStyle() const final
     {
-        auto prefs = new ICodeStylePreferences;
-        prefs->setSettingsSuffix("LiveTestCodeStyle");
-        return prefs;
-    }
-
-    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const final
-    {
-        return new LiveTestCodeStyleEditor(codeStyle);
+        setDisplayName(QString("Live Test"));
+        setIndenterCreator([](QTextDocument *doc) { return new PlainTextIndenter(doc); });
+        setCodeStyleCreator([] {
+            auto prefs = new ICodeStylePreferences;
+            prefs->setSettingsSuffix("LiveTestCodeStyle");
+            return prefs;
+        });
+        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
+            return new LiveTestCodeStyleEditor(codeStyle);
+        });
     }
 };
 

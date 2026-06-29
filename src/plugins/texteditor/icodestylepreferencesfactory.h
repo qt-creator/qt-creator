@@ -7,6 +7,10 @@
 
 #include <utils/id.h>
 
+#include <QString>
+
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 template <typename Key, typename T>
 class QMap;
@@ -28,22 +32,43 @@ class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory
     ICodeStylePreferencesFactory &operator=(const ICodeStylePreferencesFactory &&) = delete;
 
 public:
+    using IndenterCreator = std::function<Indenter *(QTextDocument *)>;
+    using CodeStyleCreator = std::function<ICodeStylePreferences *()>;
+    using SettingsEditorCreator = std::function<CodeStyleEditor *(ICodeStylePreferences *)>;
+    using ProjectEditorCreator
+        = std::function<CodeStyleEditor *(const Utils::FilePath &, ICodeStylePreferences *)>;
+
     explicit ICodeStylePreferencesFactory(Utils::Id languageId = {});
     virtual ~ICodeStylePreferencesFactory();
 
-    virtual TextEditor::Indenter *createIndenter(QTextDocument *doc) const = 0;
-    virtual QString snippetGroupId() const { return {}; }
-    virtual QString previewText() const { return {}; }
     Utils::Id languageId() const;
-    virtual QString displayName() = 0;
-    virtual ICodeStylePreferences *createCodeStyle() const = 0;
-    virtual CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const = 0;
-    virtual CodeStyleEditor *createProjectEditor(
-        const Utils::FilePath &projectFile,
-        ICodeStylePreferences *codeStyle) const;
+
+    QString displayName() const;
+    QString snippetGroupId() const;
+    QString previewText() const;
+    Indenter *createIndenter(QTextDocument *doc) const;
+    ICodeStylePreferences *createCodeStyle() const;
+    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const;
+    CodeStyleEditor *createProjectEditor(const Utils::FilePath &projectFile,
+                                         ICodeStylePreferences *codeStyle) const;
+
+    void setDisplayName(const QString &displayName);
+    void setSnippetGroupId(const QString &snippetGroupId);
+    void setPreviewText(const QString &previewText);
+    void setIndenterCreator(const IndenterCreator &creator);
+    void setCodeStyleCreator(const CodeStyleCreator &creator);
+    void setSettingsEditorCreator(const SettingsEditorCreator &creator);
+    void setProjectEditorCreator(const ProjectEditorCreator &creator);
 
 private:
     Utils::Id m_languageId;
+    QString m_displayName;
+    QString m_snippetGroupId;
+    QString m_previewText;
+    IndenterCreator m_indenterCreator;
+    CodeStyleCreator m_codeStyleCreator;
+    SettingsEditorCreator m_settingsEditorCreator;
+    ProjectEditorCreator m_projectEditorCreator;
 };
 
 TEXTEDITOR_EXPORT ICodeStylePreferencesFactory *codeStyleFactory(Utils::Id languageId);

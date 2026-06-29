@@ -29,6 +29,72 @@ Id ICodeStylePreferencesFactory::languageId() const
     return m_languageId;
 }
 
+QString ICodeStylePreferencesFactory::displayName() const
+{
+    return m_displayName;
+}
+
+QString ICodeStylePreferencesFactory::snippetGroupId() const
+{
+    return m_snippetGroupId;
+}
+
+QString ICodeStylePreferencesFactory::previewText() const
+{
+    return m_previewText;
+}
+
+Indenter *ICodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
+{
+    return m_indenterCreator ? m_indenterCreator(doc) : nullptr;
+}
+
+ICodeStylePreferences *ICodeStylePreferencesFactory::createCodeStyle() const
+{
+    return m_codeStyleCreator ? m_codeStyleCreator() : nullptr;
+}
+
+CodeStyleEditor *ICodeStylePreferencesFactory::createSettingsEditor(
+    ICodeStylePreferences *codeStyle) const
+{
+    return m_settingsEditorCreator ? m_settingsEditorCreator(codeStyle) : nullptr;
+}
+
+void ICodeStylePreferencesFactory::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
+
+void ICodeStylePreferencesFactory::setSnippetGroupId(const QString &snippetGroupId)
+{
+    m_snippetGroupId = snippetGroupId;
+}
+
+void ICodeStylePreferencesFactory::setPreviewText(const QString &previewText)
+{
+    m_previewText = previewText;
+}
+
+void ICodeStylePreferencesFactory::setIndenterCreator(const IndenterCreator &creator)
+{
+    m_indenterCreator = creator;
+}
+
+void ICodeStylePreferencesFactory::setCodeStyleCreator(const CodeStyleCreator &creator)
+{
+    m_codeStyleCreator = creator;
+}
+
+void ICodeStylePreferencesFactory::setSettingsEditorCreator(const SettingsEditorCreator &creator)
+{
+    m_settingsEditorCreator = creator;
+}
+
+void ICodeStylePreferencesFactory::setProjectEditorCreator(const ProjectEditorCreator &creator)
+{
+    m_projectEditorCreator = creator;
+}
+
 ICodeStylePreferencesFactory *codeStyleFactory(Id languageId)
 {
     return g_languageToFactory.value(languageId);
