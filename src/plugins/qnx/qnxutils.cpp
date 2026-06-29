@@ -4,6 +4,7 @@
 #include "qnxutils.h"
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
@@ -60,49 +61,43 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     if (!filePath.exists())
         return items;
 
-    const bool isWindows = filePath.osType() == Utils::OsTypeWindows;
-
-    // locking creating sdp-env file wrapper script
-    const Result<FilePath> tmpPath = filePath.tmpDir();
-    if (!tmpPath)
-        return {}; // make_unexpected(tmpPath.error());
-
-    const QString tmpName = "sdp-env-eval-XXXXXX" + QLatin1String(isWindows ? ".bat" : "");
-    const FilePath pattern = *tmpPath / tmpName;
-
-    const Result<FilePath> tmpFile = pattern.createTempFile();
-    if (!tmpFile)
-        return {}; // make_unexpected(tmpFile.error());
-
-    QStringList fileContent;
-
-    // writing content to wrapper script.
-    // this has to use bash as qnxsdp-env.sh requires this
-    if (isWindows)
-        fileContent << "@echo off" << "call " + filePath.path();
-    else
-        fileContent << "#!/bin/bash" << ". " + filePath.path();
-
-    QLatin1String linePattern(isWindows ? "echo %1=%%1%" : "echo %1=$%1");
-
-    static const char *envVars[] = {
+    static const QByteArray envVars[] = {
         "QNX_TARGET", "QNX_HOST", "QNX_CONFIGURATION", "QNX_CONFIGURATION_EXCLUSIVE",
         "MAKEFLAGS", "LD_LIBRARY_PATH", "PATH", "QDE", "CPUVARDIR", "PYTHONPATH"
     };
 
-    for (const char *envVar : envVars)
-        fileContent << linePattern.arg(QLatin1String(envVar));
-
-    QString content = fileContent.join(QLatin1String(isWindows ? "\r\n" : "\n"));
-
-    tmpFile->writeFileContents(content.toUtf8());
-
-    // running wrapper script
     Process process;
-    if (isWindows)
+
+    const bool isWindows = filePath.osType() == Utils::OsTypeWindows;
+    if (isWindows) {
+        // cmd.exe needs a wrapper file.
+        const Result<FilePath> tmpPath = filePath.tmpDir();
+        if (!tmpPath)
+            return {};
+
+        const FilePath pattern = *tmpPath / "sdp-env-eval-XXXXXX.bat";
+        const Result<FilePath> tmpFile = pattern.createTempFile();
+        if (!tmpFile)
+            return {};
+
+        const QString quotedPath = ProcessArgs::quoteArg(filePath.path(), OsTypeWindows);
+        QByteArray content = "@echo off\r\ncall " + quotedPath.toUtf8() + "\r\n";
+        for (const QByteArray &envVar : envVars)
+            content += "echo " + envVar + "=%" + envVar + "%\r\n";
+
+        tmpFile->writeFileContents(content);
         process.setCommand({filePath.findCmdExe(), {"/C", tmpFile->path()}});
-    else
-        process.setCommand({filePath.withNewPath("/bin/bash"), {tmpFile->path()}});
+    } else {
+        // This has to use bash as qnxsdp-env.sh requires it. Pipe the script in
+        // via stdin instead of using a temporary file.
+        const QString quotedPath = ProcessArgs::quoteArg(filePath.path(), OsTypeLinux);
+        QByteArray content = "source " + quotedPath.toUtf8() + "\n";
+        for (const QByteArray &envVar : envVars)
+            content += "echo " + envVar + "=$" + envVar + "\n";
+        process.setCommand({filePath.withNewPath("/bin/bash"), {}});
+        process.setWriteData(content);
+    }
+
     process.start();
 
     // waiting for finish
