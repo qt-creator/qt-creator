@@ -14,16 +14,16 @@ class FilePath;
 
 namespace Ios::Internal {
 
-const char kDeviceName[] = "deviceName";
-const char kDeveloperStatus[] = "developerStatus";
-const char kDeviceConnected[] = "deviceConnected";
-const char kOsVersion[] = "osVersion";
-const char kProductType[] = "productType";
-const char kCpuArchitecture[] = "cpuArchitecture";
-const char kUniqueDeviceId[] = "uniqueDeviceId";
-const char vOff[] = "*off*";
-const char vDevelopment[] = "Development";
-const char vYes[] = "YES";
+inline constexpr char kDeviceName[] = "deviceName";
+inline constexpr char kDeveloperStatus[] = "developerStatus";
+inline constexpr char kDeviceConnected[] = "deviceConnected";
+inline constexpr char kOsVersion[] = "osVersion";
+inline constexpr char kProductType[] = "productType";
+inline constexpr char kCpuArchitecture[] = "cpuArchitecture";
+inline constexpr char kUniqueDeviceId[] = "uniqueDeviceId";
+inline constexpr char vOff[] = "*off*";
+inline constexpr char vDevelopment[] = "Development";
+inline constexpr char vYes[] = "YES";
 
 Utils::Result<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput);
 Utils::Result<> checkDevicectlResult(const QByteArray &rawOutput);

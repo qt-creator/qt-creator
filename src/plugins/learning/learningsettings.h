@@ -7,16 +7,16 @@
 
 namespace Learning::Internal {
 
-const char EXPERIENCE_PREFIX[] = "experience_";
-const char EXPERIENCE_BASIC[] = "basic";
-const char EXPERIENCE_ADVANCED[] = "advanced";
+inline constexpr char EXPERIENCE_PREFIX[] = "experience_";
+inline constexpr char EXPERIENCE_BASIC[] = "basic";
+inline constexpr char EXPERIENCE_ADVANCED[] = "advanced";
 
-const char TARGET_PREFIX[] = "target_";
-const char TARGET_DESKTOP[] = "desktop";
-const char TARGET_ANDROID[] = "android";
-const char TARGET_IOS[] = "ios";
-const char TARGET_BOOT2QT[] = "boot2qt";
-const char TARGET_QTFORMCUS[] = "qtformcus";
+inline constexpr char TARGET_PREFIX[] = "target_";
+inline constexpr char TARGET_DESKTOP[] = "desktop";
+inline constexpr char TARGET_ANDROID[] = "android";
+inline constexpr char TARGET_IOS[] = "ios";
+inline constexpr char TARGET_BOOT2QT[] = "boot2qt";
+inline constexpr char TARGET_QTFORMCUS[] = "qtformcus";
 
 class LearningSettings final : public Utils::AspectContainer
 {

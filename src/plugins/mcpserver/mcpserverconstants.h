@@ -5,12 +5,12 @@
 
 namespace Mcp::Constants {
 
-const char ACTION_ID[] = "MCPServer.Action";
-const char MENU_ID[] = "MCPServer.Menu";
+inline constexpr char ACTION_ID[] = "MCPServer.Action";
+inline constexpr char MENU_ID[] = "MCPServer.Menu";
 
-const char SETTINGS_PAGE_ID[] = "MCPServer.SettingsPage";
+inline constexpr char SETTINGS_PAGE_ID[] = "MCPServer.SettingsPage";
 
 // About action
-const char ABOUT_ACTION_ID[] = "MCPServer.About";
+inline constexpr char ABOUT_ACTION_ID[] = "MCPServer.About";
 
 } // namespace Mcp::Constants

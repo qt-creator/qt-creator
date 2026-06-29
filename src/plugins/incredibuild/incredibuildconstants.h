@@ -5,9 +5,9 @@
 
 namespace IncrediBuild::Constants {
 
-const char INCREDIBUILD_BUILDSTEP_TYPE[] = "IncrediBuild.BuildStep.Type";
+inline constexpr char INCREDIBUILD_BUILDSTEP_TYPE[] = "IncrediBuild.BuildStep.Type";
 
-const char BUILDCONSOLE_BUILDSTEP_ID[] = "IncrediBuild.BuildStep.BuildConsole";
-const char IBCONSOLE_BUILDSTEP_ID[] = "IncrediBuild.BuildStep.IB_Console";
+inline constexpr char BUILDCONSOLE_BUILDSTEP_ID[] = "IncrediBuild.BuildStep.BuildConsole";
+inline constexpr char IBCONSOLE_BUILDSTEP_ID[] = "IncrediBuild.BuildStep.IB_Console";
 
 } // IncrediBuild::Constants

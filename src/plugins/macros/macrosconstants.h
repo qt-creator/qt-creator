@@ -7,18 +7,18 @@
 
 namespace Macros::Constants {
 
-const char M_TOOLS_MACRO[] = "Macros.Tools.Menu";
+inline constexpr char M_TOOLS_MACRO[] = "Macros.Tools.Menu";
 
-const char START_MACRO[] = "Macros.StartMacro";
-const char END_MACRO[] = "Macros.EndMacro";
-const char EXECUTE_LAST_MACRO[] = "Macros.ExecuteLastMacro";
-const char SAVE_LAST_MACRO[] = "Macros.SaveLastMacro";
-const char PREFIX_MACRO[] = "Macros.";
+inline constexpr char START_MACRO[] = "Macros.StartMacro";
+inline constexpr char END_MACRO[] = "Macros.EndMacro";
+inline constexpr char EXECUTE_LAST_MACRO[] = "Macros.ExecuteLastMacro";
+inline constexpr char SAVE_LAST_MACRO[] = "Macros.SaveLastMacro";
+inline constexpr char PREFIX_MACRO[] = "Macros.";
 
-const char M_OPTIONS_PAGE[] = "Macros";
+inline constexpr char M_OPTIONS_PAGE[] = "Macros";
 
-const char M_STATUS_BUFFER[] = "Macros.Status";
+inline constexpr char M_STATUS_BUFFER[] = "Macros.Status";
 
-const char M_EXTENSION[] = "mac";
+inline constexpr char M_EXTENSION[] = "mac";
 
 } // namespace Macros::Constants

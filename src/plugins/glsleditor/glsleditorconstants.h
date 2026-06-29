@@ -7,11 +7,11 @@
 
 namespace GlslEditor::Constants {
 
-const char M_CONTEXT[] = "GLSL Editor.ContextMenu";
-const char M_TOOLS_GLSL[] = "GLSLEditor.Tools.Menu";
+inline constexpr char M_CONTEXT[] = "GLSL Editor.ContextMenu";
+inline constexpr char M_TOOLS_GLSL[] = "GLSLEditor.Tools.Menu";
 
-const char M_REFACTORING_MENU_INSERTION_POINT[] = "GLSLEditor.RefactorGroup";
+inline constexpr char M_REFACTORING_MENU_INSERTION_POINT[] = "GLSLEditor.RefactorGroup";
 
-const char C_GLSLEDITOR_ID[] = "GLSLEditor.GLSLEditor";
+inline constexpr char C_GLSLEDITOR_ID[] = "GLSLEditor.GLSLEditor";
 
 } // namespace GlslEditor::Constants
