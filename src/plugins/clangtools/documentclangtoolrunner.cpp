@@ -211,7 +211,7 @@ void DocumentClangToolRunner::run()
     }
 
     vfso().update();
-    const ClangDiagnosticConfig config = diagnosticConfig(runSettings.diagnosticConfigId());
+    const ClangDiagnosticConfig config = diagnosticConfig(runSettings.safeDiagnosticConfigId());
     const Environment env = projectBuildEnvironment(project);
     GroupItems tasks;
     const auto addClangTool = [this, bc = project->activeBuildConfiguration(), &runSettings,
