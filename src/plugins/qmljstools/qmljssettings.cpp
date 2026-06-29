@@ -1284,91 +1284,61 @@ public:
         setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
             return new QmlJsCodeStyleEditor{static_cast<QmlJSCodeStylePreferences *>(codeStyle)};
         });
+
+        setGlobalCodeStyleId(idKey);
+        setDefaultCodeStyleId("qt");
+        setBuiltInCodeStyles([](CodeStylePool *pool) {
+            auto qtCodeStyle = new QmlJSCodeStylePreferences;
+            qtCodeStyle->setId("qt");
+            qtCodeStyle->setDisplayName(Tr::tr("Qt"));
+            qtCodeStyle->setReadOnly(true);
+            TabSettingsData qtTabSettings;
+            qtTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
+            qtTabSettings.m_tabSize = 4;
+            qtTabSettings.m_indentSize = 4;
+            qtTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
+            qtCodeStyle->setTabSettings(qtTabSettings);
+            pool->addCodeStyle(qtCodeStyle);
+        });
+        setupCodeStyles();
+
+        // Push a created qmlformat.ini into the built-in styles' settings.
+        QObject::connect(&QmlFormatSettings::instance(), &QmlFormatSettings::qmlformatIniCreated,
+                         [](Utils::FilePath qmlformatIniPath) {
+            QmlJSCodeStyleSettings s;
+            s.lineLength = 80;
+            const Utils::Result<QByteArray> fileContents = qmlformatIniPath.fileContents();
+            if (fileContents)
+                s.qmlformatIniContent = QString::fromUtf8(*fileContents);
+            auto csPool = TextEditor::codeStylePool(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+            QTC_ASSERT(csPool, return);
+            const auto builtInCodeStyles = csPool->builtInCodeStyles();
+            for (auto codeStyle : builtInCodeStyles) {
+                if (auto qtCodeStyle = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle))
+                    qtCodeStyle->setCodeStyleSettings(s);
+            }
+        });
+
+        using namespace Utils::Constants;
+        registerMimeTypeForLanguageId(QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+        registerMimeTypeForLanguageId(QMLUI_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+        registerMimeTypeForLanguageId(QBS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+        registerMimeTypeForLanguageId(QMLPROJECT_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+        registerMimeTypeForLanguageId(QMLTYPES_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+        registerMimeTypeForLanguageId(JS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+        registerMimeTypeForLanguageId(JSON_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
     }
 };
 
-// QmlJSToolsSettings
-
-class QmlJSToolsSettings final : public QObject
-{
-public:
-    QmlJSToolsSettings();
-    ~QmlJSToolsSettings() final;
-
-    QmlJSCodeStylePreferencesFactory m_factory;
-    CodeStylePool m_pool{&m_factory, Constants::QML_JS_SETTINGS_ID};
-    QmlJSCodeStylePreferences m_globalCodeStyle;
-};
-
-QmlJSToolsSettings::QmlJSToolsSettings()
-{
-    m_globalCodeStyle.setDelegatingPool(&m_pool);
-    m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
-    m_globalCodeStyle.setId(idKey);
-    m_pool.addCodeStyle(&m_globalCodeStyle);
-    registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, &m_globalCodeStyle);
-
-    auto qtCodeStyle = new QmlJSCodeStylePreferences(this);
-    qtCodeStyle->setId("qt");
-    qtCodeStyle->setDisplayName(Tr::tr("Qt"));
-    qtCodeStyle->setReadOnly(true);
-    TabSettingsData qtTabSettings;
-    qtTabSettings.m_tabPolicy = TabSettingsData::SpacesOnlyTabPolicy;
-    qtTabSettings.m_tabSize = 4;
-    qtTabSettings.m_indentSize = 4;
-    qtTabSettings.m_continuationAlignBehavior = TabSettingsData::ContinuationAlignWithIndent;
-    qtCodeStyle->setTabSettings(qtTabSettings);
-
-    connect(&QmlFormatSettings::instance(), &QmlFormatSettings::qmlformatIniCreated,
-            this, [](Utils::FilePath qmlformatIniPath) {
-        QmlJSCodeStyleSettings s;
-        s.lineLength = 80;
-        const Utils::Result<QByteArray> fileContents = qmlformatIniPath.fileContents();
-        if (fileContents)
-            s.qmlformatIniContent = QString::fromUtf8(*fileContents);
-        auto csPool = codeStylePool(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-        QTC_ASSERT(csPool, return);
-        const auto builtInCodeStyles = csPool->builtInCodeStyles();
-        for (auto codeStyle : builtInCodeStyles) {
-            if (auto qtCodeStyle = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle))
-                qtCodeStyle->setCodeStyleSettings(s);
-        }
-    });
-
-    m_pool.addCodeStyle(qtCodeStyle);
-    m_globalCodeStyle.setCurrentDelegate(qtCodeStyle);
-    m_pool.loadCustomCodeStyles();
-    m_globalCodeStyle.fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-
-    using namespace Utils::Constants;
-    registerMimeTypeForLanguageId(QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    registerMimeTypeForLanguageId(QMLUI_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    registerMimeTypeForLanguageId(QBS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    registerMimeTypeForLanguageId(QMLPROJECT_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    registerMimeTypeForLanguageId(QMLTYPES_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    registerMimeTypeForLanguageId(JS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-    registerMimeTypeForLanguageId(JSON_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
-}
-
-QmlJSToolsSettings::~QmlJSToolsSettings()
-{
-    unregisterCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-}
-
-static QmlJSToolsSettings &toolsSettings()
-{
-    static GuardedObject<QmlJSToolsSettings> theQmlJSToolsSettings;
-    return theQmlJSToolsSettings;
-}
-
 QmlJSCodeStylePreferences *globalQmlJSCodeStyle()
 {
-    return &toolsSettings().m_globalCodeStyle;
+    return static_cast<QmlJSCodeStylePreferences *>(
+        codeStyleForLanguage(QmlJSTools::Constants::QML_JS_SETTINGS_ID));
 }
 
 void Internal::setupQmlJSToolsSettings()
 {
-    (void) toolsSettings();
+    static GuardedObject<QmlJSCodeStylePreferencesFactory> theQmlJSCodeStylePreferencesFactory;
 }
 
 } // QmlJSTools::Internal
