@@ -7,10 +7,10 @@
 
 namespace Core::Constants {
 
-const char LOCATE[] = "QtCreator.Locate";
-const char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("QtC::Core", "Locator");
-const char CUSTOM_DIRECTORY_FILTER_BASEID[] = "Locator.CustomFilter";
-const char CUSTOM_URL_FILTER_BASEID[] = "Locator.CustomUrlFilter";
-const char TASK_INDEX[] = "Locator.Task.Index";
+inline constexpr char LOCATE[] = "QtCreator.Locate";
+inline constexpr char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("QtC::Core", "Locator");
+inline constexpr char CUSTOM_DIRECTORY_FILTER_BASEID[] = "Locator.CustomFilter";
+inline constexpr char CUSTOM_URL_FILTER_BASEID[] = "Locator.CustomUrlFilter";
+inline constexpr char TASK_INDEX[] = "Locator.Task.Index";
 
 } // namespace Core::Constants

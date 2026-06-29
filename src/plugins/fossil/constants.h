@@ -5,75 +5,75 @@
 
 namespace Fossil::Constants {
 
-const char VCS_ID_FOSSIL[] = "I.Fossil";
+inline constexpr char VCS_ID_FOSSIL[] = "I.Fossil";
 
-const char FOSSIL[] = "fossil";
+inline constexpr char FOSSIL[] = "fossil";
 #if defined(Q_OS_WIN) || defined(Q_OS_CYGWIN)
-const char FOSSILREPO[] = "_FOSSIL_";
+inline constexpr char FOSSILREPO[] = "_FOSSIL_";
 #else
-const char FOSSILREPO[] = ".fslckout";
+inline constexpr char FOSSILREPO[] = ".fslckout";
 #endif
-const char FOSSILDEFAULT[] = "fossil";
-const char FOSSIL_CONTEXT[] = "Fossil Context";
+inline constexpr char FOSSILDEFAULT[] = "fossil";
+inline constexpr char FOSSIL_CONTEXT[] = "Fossil Context";
 
-const char FOSSIL_FILE_SUFFIX[] = ".fossil";
-const char FOSSIL_FILE_FILTER[] = "Fossil Repositories (*.fossil *.fsl);;All Files (*)";
+inline constexpr char FOSSIL_FILE_SUFFIX[] = ".fossil";
+inline constexpr char FOSSIL_FILE_FILTER[] = "Fossil Repositories (*.fossil *.fsl);;All Files (*)";
 
 //changeset identifiers
-const char CHANGESET_ID[] = "([0-9a-f]{5,40})"; // match and capture
-const char CHANGESET_ID_EXACT[] = "[0-9a-f]{5,40}"; // match
+inline constexpr char CHANGESET_ID[] = "([0-9a-f]{5,40})"; // match and capture
+inline constexpr char CHANGESET_ID_EXACT[] = "[0-9a-f]{5,40}"; // match
 
 //diff chunk identifiers
-const char DIFFFILE_ID_EXACT[] = "[+]{3} (.*)\\s*";  // match and capture
+inline constexpr char DIFFFILE_ID_EXACT[] = "[+]{3} (.*)\\s*";  // match and capture
 
 //BaseEditorParameters
-const char FILELOG_ID[] = "Fossil File Log Editor";
-const char LOGAPP[] = "text/vnd.qtcreator.fossil.log";
+inline constexpr char FILELOG_ID[] = "Fossil File Log Editor";
+inline constexpr char LOGAPP[] = "text/vnd.qtcreator.fossil.log";
 
-const char ANNOTATELOG_ID[] = "Fossil Annotation Editor";
-const char ANNOTATEAPP[] = "text/vnd.qtcreator.fossil.annotation";
+inline constexpr char ANNOTATELOG_ID[] = "Fossil Annotation Editor";
+inline constexpr char ANNOTATEAPP[] = "text/vnd.qtcreator.fossil.annotation";
 
-const char DIFFLOG_ID[] = "Fossil Diff Editor";
-const char DIFFAPP[] = "text/x-patch";
+inline constexpr char DIFFLOG_ID[] = "Fossil Diff Editor";
+inline constexpr char DIFFAPP[] = "text/x-patch";
 
 //SubmitEditorParameters
-const char COMMIT_ID[] = "Fossil Commit Log Editor";
-const char COMMITMIMETYPE[] = "text/vnd.qtcreator.fossil.commit";
+inline constexpr char COMMIT_ID[] = "Fossil Commit Log Editor";
+inline constexpr char COMMITMIMETYPE[] = "text/vnd.qtcreator.fossil.commit";
 
 //menu items
 //File menu actions
-const char ADD[] = "Fossil.AddSingleFile";
-const char DELETE[] = "Fossil.DeleteSingleFile";
-const char ANNOTATE[] = "Fossil.Annotate";
-const char DIFF[] = "Fossil.DiffSingleFile";
-const char LOG[] = "Fossil.LogSingleFile";
-const char REVERT[] = "Fossil.RevertSingleFile";
-const char STATUS[] = "Fossil.Status";
+inline constexpr char ADD[] = "Fossil.AddSingleFile";
+inline constexpr char DELETE[] = "Fossil.DeleteSingleFile";
+inline constexpr char ANNOTATE[] = "Fossil.Annotate";
+inline constexpr char DIFF[] = "Fossil.DiffSingleFile";
+inline constexpr char LOG[] = "Fossil.LogSingleFile";
+inline constexpr char REVERT[] = "Fossil.RevertSingleFile";
+inline constexpr char STATUS[] = "Fossil.Status";
 
 //directory menu Actions
-const char DIFFMULTI[] = "Fossil.Action.DiffMulti";
-const char REVERTMULTI[] = "Fossil.Action.RevertAll";
-const char STATUSMULTI[] = "Fossil.Action.StatusMulti";
-const char LOGMULTI[] = "Fossil.Action.LogMulti";
+inline constexpr char DIFFMULTI[] = "Fossil.Action.DiffMulti";
+inline constexpr char REVERTMULTI[] = "Fossil.Action.RevertAll";
+inline constexpr char STATUSMULTI[] = "Fossil.Action.StatusMulti";
+inline constexpr char LOGMULTI[] = "Fossil.Action.LogMulti";
 
 //repository menu actions
-const char PULL[] = "Fossil.Action.Pull";
-const char PUSH[] = "Fossil.Action.Push";
-const char UPDATE[] = "Fossil.Action.Update";
-const char COMMIT[] = "Fossil.Action.Commit";
-const char CONFIGURE_REPOSITORY[] = "Fossil.Action.Settings";
-const char CREATE_REPOSITORY[] = "Fossil.Action.CreateRepository";
+inline constexpr char PULL[] = "Fossil.Action.Pull";
+inline constexpr char PUSH[] = "Fossil.Action.Push";
+inline constexpr char UPDATE[] = "Fossil.Action.Update";
+inline constexpr char COMMIT[] = "Fossil.Action.Commit";
+inline constexpr char CONFIGURE_REPOSITORY[] = "Fossil.Action.Settings";
+inline constexpr char CREATE_REPOSITORY[] = "Fossil.Action.CreateRepository";
 
 // File status hint
-const char FSTATUS_NEW[] = "New";
-const char FSTATUS_ADDED[] = "Added";
-const char FSTATUS_ADDED_BY_MERGE[] = "Added by Merge";
-const char FSTATUS_ADDED_BY_INTEGRATE[] = "Added by Integrate";
-const char FSTATUS_DELETED[] = "Deleted";
-const char FSTATUS_EDITED[] = "Edited";
-const char FSTATUS_UPDATED_BY_MERGE[] = "Updated by Merge";
-const char FSTATUS_UPDATED_BY_INTEGRATE[] = "Updated by Integrate";
-const char FSTATUS_RENAMED[] = "Renamed";
-const char FSTATUS_UNKNOWN[] = "Unknown";
+inline constexpr char FSTATUS_NEW[] = "New";
+inline constexpr char FSTATUS_ADDED[] = "Added";
+inline constexpr char FSTATUS_ADDED_BY_MERGE[] = "Added by Merge";
+inline constexpr char FSTATUS_ADDED_BY_INTEGRATE[] = "Added by Integrate";
+inline constexpr char FSTATUS_DELETED[] = "Deleted";
+inline constexpr char FSTATUS_EDITED[] = "Edited";
+inline constexpr char FSTATUS_UPDATED_BY_MERGE[] = "Updated by Merge";
+inline constexpr char FSTATUS_UPDATED_BY_INTEGRATE[] = "Updated by Integrate";
+inline constexpr char FSTATUS_RENAMED[] = "Renamed";
+inline constexpr char FSTATUS_UNKNOWN[] = "Unknown";
 
 } // Fossil::Constants

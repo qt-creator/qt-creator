@@ -339,14 +339,14 @@ QString reformatUnsignedInteger128(unsigned __int128 value, int format);
 // typically as a result of passing a related DisplayFormat value.
 // They are never stored in settings.
 
-const char DisplayLatin1String[] = "latin1:separate";
-const char DisplayUtf8String[]   = "utf8:separate";
-const char DisplayUtf16String[]  = "utf16:separate";
-const char DisplayUcs4String[]   = "ucs4:separate";
-const char DisplayImageData[]    = "imagedata:separate";
-const char DisplayImageFile[]    = "imagefile:separate";
-const char DisplayPlotData[]     = "plotdata:separate";
-const char DisplayArrayData[]    = "arraydata:separate";
+inline constexpr char DisplayLatin1String[] = "latin1:separate";
+inline constexpr char DisplayUtf8String[]   = "utf8:separate";
+inline constexpr char DisplayUtf16String[]  = "utf16:separate";
+inline constexpr char DisplayUcs4String[]   = "ucs4:separate";
+inline constexpr char DisplayImageData[]    = "imagedata:separate";
+inline constexpr char DisplayImageFile[]    = "imagefile:separate";
+inline constexpr char DisplayPlotData[]     = "plotdata:separate";
+inline constexpr char DisplayArrayData[]    = "arraydata:separate";
 
 enum LocationType { UnknownLocation, LocationByFile, LocationByAddress };
 

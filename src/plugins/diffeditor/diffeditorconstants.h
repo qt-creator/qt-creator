@@ -7,15 +7,15 @@
 
 namespace DiffEditor::Constants {
 
-const char DIFF_EDITOR_PLUGIN[] = "DiffEditorPlugin";
+inline constexpr char DIFF_EDITOR_PLUGIN[] = "DiffEditorPlugin";
 
-const char DIFF_EDITOR_ID[] = "Diff Editor";
-const char DIFF_EDITOR_MIMETYPE[] = "text/x-patch";
-const char C_DIFF_EDITOR_DESCRIPTION[] = "DiffEditor.Description";
-const char SIDE_BY_SIDE_VIEW_ID[] = "DiffEditor.SideBySide";
-const char UNIFIED_VIEW_ID[] = "DiffEditor.Unified";
-const char SELECT_ENCODING[] = "DiffEditor.SelectEncoding";
+inline constexpr char DIFF_EDITOR_ID[] = "Diff Editor";
+inline constexpr char DIFF_EDITOR_MIMETYPE[] = "text/x-patch";
+inline constexpr char C_DIFF_EDITOR_DESCRIPTION[] = "DiffEditor.Description";
+inline constexpr char SIDE_BY_SIDE_VIEW_ID[] = "DiffEditor.SideBySide";
+inline constexpr char UNIFIED_VIEW_ID[] = "DiffEditor.Unified";
+inline constexpr char SELECT_ENCODING[] = "DiffEditor.SelectEncoding";
 
-const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Diff";
+inline constexpr char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Diff";
 
 } // namespace DiffEditor::Constants

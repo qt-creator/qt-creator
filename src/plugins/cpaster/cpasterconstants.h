@@ -7,6 +7,6 @@
 
 namespace CodePaster::Constants {
 
-const char CPASTER_SETTINGS_CATEGORY[] = "XZ.CPaster";
+inline constexpr char CPASTER_SETTINGS_CATEGORY[] = "XZ.CPaster";
 
 } // namespace CodePaster::Constants

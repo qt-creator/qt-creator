@@ -9,11 +9,11 @@ Q_DECLARE_LOGGING_CATEGORY(dockerDeviceLog)
 
 namespace Docker::Constants {
 
-const char DOCKER[] = "docker";
-const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
+inline constexpr char DOCKER[] = "docker";
+inline constexpr char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
 
 const char16_t DOCKER_DEVICE_SCHEME[] = u"docker";
 
-const char DOCKER_SETTINGS_ID[] = "Docker.Settings";
+inline constexpr char DOCKER_SETTINGS_ID[] = "Docker.Settings";
 
 } // Docker::Constants

@@ -4,8 +4,8 @@
 #pragma once
 
 namespace DevContainer::Constants {
-const char DEVCONTAINER_DEVICE_TYPE[] = "DevContainerDeviceType";
+inline constexpr char DEVCONTAINER_DEVICE_TYPE[] = "DevContainerDeviceType";
 const char16_t DEVCONTAINER_FS_SCHEME[] = u"devcontainer";
 
-const char ACTION_START_DEVCONTAINER[] = "devcontainer.start";
+inline constexpr char ACTION_START_DEVCONTAINER[] = "devcontainer.start";
 } // namespace DevContainer::Constants

@@ -8,59 +8,59 @@ namespace Debugger {
 namespace Constants {
 
 // Common actions
-const char INTERRUPT[]                        = "Debugger.Interrupt";
-const char CONTINUE[]                         = "Debugger.Continue";
-const char STOP[]                             = "Debugger.Stop";
-const char ABORT[]                            = "Debugger.Abort";
-const char STEP[]                             = "Debugger.StepLine";
-const char STEPOUT[]                          = "Debugger.StepOut";
-const char NEXT[]                             = "Debugger.NextLine";
-const char RUNTOLINE[]                        = "Debugger.RunToLine";
-const char RUNTOSELECTEDFUNCTION[]            = "Debugger.RunToSelectedFunction";
-const char JUMPTOLINE[]                       = "Debugger.JumpToLine";
-const char RETURNFROMFUNCTION[]               = "Debugger.ReturnFromFunction";
-const char RESET[]                            = "Debugger.Reset";
-const char WATCH[]                            = "Debugger.AddToWatch";
-const char DETACH[]                           = "Debugger.Detach";
-const char OPERATE_BY_INSTRUCTION[]           = "Debugger.OperateByInstruction";
-const char OPEN_MEMORY_EDITOR[]               = "Debugger.Views.OpenMemoryEditor";
-const char FRAME_UP[]                         = "Debugger.FrameUp";
-const char FRAME_DOWN[]                       = "Debugger.FrameDown";
-const char QML_SHOW_APP_ON_TOP[]              = "Debugger.QmlShowAppOnTop";
-const char QML_SELECTTOOL[]                   = "Debugger.QmlSelectTool";
-const char RELOAD_DEBUGGING_HELPERS[]         = "Debugger.ReloadDebuggingHelpers";
+inline constexpr char INTERRUPT[]                        = "Debugger.Interrupt";
+inline constexpr char CONTINUE[]                         = "Debugger.Continue";
+inline constexpr char STOP[]                             = "Debugger.Stop";
+inline constexpr char ABORT[]                            = "Debugger.Abort";
+inline constexpr char STEP[]                             = "Debugger.StepLine";
+inline constexpr char STEPOUT[]                          = "Debugger.StepOut";
+inline constexpr char NEXT[]                             = "Debugger.NextLine";
+inline constexpr char RUNTOLINE[]                        = "Debugger.RunToLine";
+inline constexpr char RUNTOSELECTEDFUNCTION[]            = "Debugger.RunToSelectedFunction";
+inline constexpr char JUMPTOLINE[]                       = "Debugger.JumpToLine";
+inline constexpr char RETURNFROMFUNCTION[]               = "Debugger.ReturnFromFunction";
+inline constexpr char RESET[]                            = "Debugger.Reset";
+inline constexpr char WATCH[]                            = "Debugger.AddToWatch";
+inline constexpr char DETACH[]                           = "Debugger.Detach";
+inline constexpr char OPERATE_BY_INSTRUCTION[]           = "Debugger.OperateByInstruction";
+inline constexpr char OPEN_MEMORY_EDITOR[]               = "Debugger.Views.OpenMemoryEditor";
+inline constexpr char FRAME_UP[]                         = "Debugger.FrameUp";
+inline constexpr char FRAME_DOWN[]                       = "Debugger.FrameDown";
+inline constexpr char QML_SHOW_APP_ON_TOP[]              = "Debugger.QmlShowAppOnTop";
+inline constexpr char QML_SELECTTOOL[]                   = "Debugger.QmlSelectTool";
+inline constexpr char RELOAD_DEBUGGING_HELPERS[]         = "Debugger.ReloadDebuggingHelpers";
 
-const char DEBUGGER_COMMON_SETTINGS_ID[]      = "A.Debugger.General";
-const char DEBUGGER_SETTINGS_CATEGORY[]       = "O.Debugger";
+inline constexpr char DEBUGGER_COMMON_SETTINGS_ID[]      = "A.Debugger.General";
+inline constexpr char DEBUGGER_SETTINGS_CATEGORY[]       = "O.Debugger";
 
 // Contexts
-const char C_CPPDEBUGGER[]                    = "Gdb Debugger";
-const char C_QMLDEBUGGER[]                    = "Qml/JavaScript Debugger";
-const char C_DEBUGGER_NOTRUNNING[]            = "Debugger.NotRunning";
+inline constexpr char C_CPPDEBUGGER[]                    = "Gdb Debugger";
+inline constexpr char C_QMLDEBUGGER[]                    = "Qml/JavaScript Debugger";
+inline constexpr char C_DEBUGGER_NOTRUNNING[]            = "Debugger.NotRunning";
 
-const char PRESET_PERSPECTIVE_ID[]            = "Debugger.Perspective.Preset";
-const char DAP_PERSPECTIVE_ID[]               = "DAPDebugger";
+inline constexpr char PRESET_PERSPECTIVE_ID[]            = "Debugger.Perspective.Preset";
+inline constexpr char DAP_PERSPECTIVE_ID[]               = "DAPDebugger";
 
-const char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";
+inline constexpr char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";
 
-const char TEXT_MARK_CATEGORY_BREAKPOINT[]    = "Debugger.Mark.Breakpoint";
-const char TEXT_MARK_CATEGORY_LOCATION[]      = "Debugger.Mark.Location";
-const char TEXT_MARK_CATEGORY_VALUE[]         = "Debugger.Mark.Value";
+inline constexpr char TEXT_MARK_CATEGORY_BREAKPOINT[]    = "Debugger.Mark.Breakpoint";
+inline constexpr char TEXT_MARK_CATEGORY_LOCATION[]      = "Debugger.Mark.Location";
+inline constexpr char TEXT_MARK_CATEGORY_VALUE[]         = "Debugger.Mark.Value";
 
-const char OPENED_BY_DEBUGGER[]               = "OpenedByDebugger";
-const char OPENED_WITH_DISASSEMBLY[]          = "DisassemblerView";
-const char DISASSEMBLER_SOURCE_FILE[]         = "DisassemblerSourceFile";
+inline constexpr char OPENED_BY_DEBUGGER[]               = "OpenedByDebugger";
+inline constexpr char OPENED_WITH_DISASSEMBLY[]          = "DisassemblerView";
+inline constexpr char DISASSEMBLER_SOURCE_FILE[]         = "DisassemblerSourceFile";
 
-const char CRT_DEBUG_REPORT[]                 = "CrtDbgReport";
+inline constexpr char CRT_DEBUG_REPORT[]                 = "CrtDbgReport";
 
-const char NO_DEBUG_HEAP[]                    = "_NO_DEBUG_HEAP";
+inline constexpr char NO_DEBUG_HEAP[]                    = "_NO_DEBUG_HEAP";
 
-const char DEBUGSERVER_TOOL_ID[]              = "DebugServer";
+inline constexpr char DEBUGSERVER_TOOL_ID[]              = "DebugServer";
 
-const char RunConfigId[]                      = "RemoteDebugger.RunConfig";
-const char GdbServerAddressAspectId[]         = "RemoteDebugger.GdbServerAddress";
-const char GdbServerBreakOnMainAspectId[]     = "RemoteDebugger.GdbServerBreakOnMain";
-const char GdbServerExtendedModeAspectId[]    = "RemoteDebugger.GdbServerExtendedMode";
+inline constexpr char RunConfigId[]                      = "RemoteDebugger.RunConfig";
+inline constexpr char GdbServerAddressAspectId[]         = "RemoteDebugger.GdbServerAddress";
+inline constexpr char GdbServerBreakOnMainAspectId[]     = "RemoteDebugger.GdbServerBreakOnMain";
+inline constexpr char GdbServerExtendedModeAspectId[]    = "RemoteDebugger.GdbServerExtendedMode";
 
 } // namespace Constants
 

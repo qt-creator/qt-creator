@@ -15,8 +15,8 @@
 
 namespace Core::Internal {
 
-const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
-const char kEnvVarSeparators[] = "Core/EnvVarSeparators";
+inline constexpr char kEnvironmentChanges[] = "Core/EnvironmentChanges";
+inline constexpr char kEnvVarSeparators[] = "Core/EnvVarSeparators";
 
 class EnvChangeAspect : public Utils::EnvironmentChangesAspect
 {

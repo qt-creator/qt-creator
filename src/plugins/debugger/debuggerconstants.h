@@ -9,15 +9,15 @@ namespace Debugger {
 namespace Constants {
 
 // Debug mode
-const char MODE_DEBUG[]             = "Mode.Debug";
+inline constexpr char MODE_DEBUG[]             = "Mode.Debug";
 
 // Debug mode context
-const char C_DEBUGMODE[]            = "Debugger.DebugMode";
+inline constexpr char C_DEBUGMODE[]            = "Debugger.DebugMode";
 
-const char DEBUGGER_RUN_FACTORY[]   = "DebuggerRunWorkerFactory";
+inline constexpr char DEBUGGER_RUN_FACTORY[]   = "DebuggerRunWorkerFactory";
 
 // Debugger commands
-const char DEBUGGER_START[]          = "Debugger.Start";
+inline constexpr char DEBUGGER_START[]          = "Debugger.Start";
 
 } // namespace Constants
 

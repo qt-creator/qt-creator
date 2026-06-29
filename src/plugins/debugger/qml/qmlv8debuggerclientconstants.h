@@ -6,85 +6,85 @@
 namespace Debugger {
 namespace Internal {
 
-const char V8REQUEST[] = "v8request";
-const char V8MESSAGE[] = "v8message";
-const char BREAKONSIGNAL[] = "breakonsignal";
-const char CONNECT[] = "connect";
-const char INTERRUPT[] = "interrupt";
-const char V8DEBUG[] = "V8DEBUG";
-const char SEQ[] = "seq";
-const char TYPE[] = "type";
-const char COMMAND[] = "command";
-const char ARGUMENTS[] = "arguments";
-const char STEPACTION[] = "stepaction";
-const char EXPRESSION[] = "expression";
-const char FRAME[] = "frame";
-const char GLOBAL[] = "global";
-const char DISABLE_BREAK[] = "disable_break";
-const char CONTEXT[] = "context";
-const char HANDLES[] = "handles";
-const char INCLUDESOURCE[] = "includeSource";
-const char FROMFRAME[] = "fromFrame";
-const char TOFRAME[] = "toFrame";
-const char BOTTOM[] = "bottom";
-const char NUMBER[] = "number";
-const char FRAMENUMBER[] = "frameNumber";
-const char TYPES[] = "types";
-const char IDS[] = "ids";
-const char FILTER[] = "filter";
-const char FROMLINE[] = "fromLine";
-const char TOLINE[] = "toLine";
-const char TARGET[] = "target";
-const char LINE[] = "line";
-const char COLUMN[] = "column";
-const char ENABLED[] = "enabled";
-const char CONDITION[] = "condition";
-const char IGNORECOUNT[] = "ignoreCount";
-const char BREAKPOINT[] = "breakpoint";
-const char FLAGS[] = "flags";
+inline constexpr char V8REQUEST[] = "v8request";
+inline constexpr char V8MESSAGE[] = "v8message";
+inline constexpr char BREAKONSIGNAL[] = "breakonsignal";
+inline constexpr char CONNECT[] = "connect";
+inline constexpr char INTERRUPT[] = "interrupt";
+inline constexpr char V8DEBUG[] = "V8DEBUG";
+inline constexpr char SEQ[] = "seq";
+inline constexpr char TYPE[] = "type";
+inline constexpr char COMMAND[] = "command";
+inline constexpr char ARGUMENTS[] = "arguments";
+inline constexpr char STEPACTION[] = "stepaction";
+inline constexpr char EXPRESSION[] = "expression";
+inline constexpr char FRAME[] = "frame";
+inline constexpr char GLOBAL[] = "global";
+inline constexpr char DISABLE_BREAK[] = "disable_break";
+inline constexpr char CONTEXT[] = "context";
+inline constexpr char HANDLES[] = "handles";
+inline constexpr char INCLUDESOURCE[] = "includeSource";
+inline constexpr char FROMFRAME[] = "fromFrame";
+inline constexpr char TOFRAME[] = "toFrame";
+inline constexpr char BOTTOM[] = "bottom";
+inline constexpr char NUMBER[] = "number";
+inline constexpr char FRAMENUMBER[] = "frameNumber";
+inline constexpr char TYPES[] = "types";
+inline constexpr char IDS[] = "ids";
+inline constexpr char FILTER[] = "filter";
+inline constexpr char FROMLINE[] = "fromLine";
+inline constexpr char TOLINE[] = "toLine";
+inline constexpr char TARGET[] = "target";
+inline constexpr char LINE[] = "line";
+inline constexpr char COLUMN[] = "column";
+inline constexpr char ENABLED[] = "enabled";
+inline constexpr char CONDITION[] = "condition";
+inline constexpr char IGNORECOUNT[] = "ignoreCount";
+inline constexpr char BREAKPOINT[] = "breakpoint";
+inline constexpr char FLAGS[] = "flags";
 
-const char CONTINEDEBUGGING[] = "continue";
-const char EVALUATE[] = "evaluate";
-const char LOOKUP[] = "lookup";
-const char BACKTRACE[] = "backtrace";
-const char SCOPE[] = "scope";
-const char SCRIPTS[] = "scripts";
-const char SETBREAKPOINT[] = "setbreakpoint";
-const char CLEARBREAKPOINT[] = "clearbreakpoint";
-const char CHANGEBREAKPOINT[] = "changebreakpoint";
-const char SETEXCEPTIONBREAK[] = "setexceptionbreak";
-const char VERSION[] = "version";
-const char DISCONNECT[] = "disconnect";
+inline constexpr char CONTINEDEBUGGING[] = "continue";
+inline constexpr char EVALUATE[] = "evaluate";
+inline constexpr char LOOKUP[] = "lookup";
+inline constexpr char BACKTRACE[] = "backtrace";
+inline constexpr char SCOPE[] = "scope";
+inline constexpr char SCRIPTS[] = "scripts";
+inline constexpr char SETBREAKPOINT[] = "setbreakpoint";
+inline constexpr char CLEARBREAKPOINT[] = "clearbreakpoint";
+inline constexpr char CHANGEBREAKPOINT[] = "changebreakpoint";
+inline constexpr char SETEXCEPTIONBREAK[] = "setexceptionbreak";
+inline constexpr char VERSION[] = "version";
+inline constexpr char DISCONNECT[] = "disconnect";
 //const char PROFILE[] = "profile";
 
-const char REQUEST[] = "request";
-const char IN[] = "in";
-const char NEXT[] = "next";
-const char OUT[] = "out";
+inline constexpr char REQUEST[] = "request";
+inline constexpr char IN[] = "in";
+inline constexpr char NEXT[] = "next";
+inline constexpr char OUT[] = "out";
 
-const char FUNCTION[] = "function";
-const char SCRIPTREGEXP[] = "scriptRegExp";
-const char EVENT[] = "event";
+inline constexpr char FUNCTION[] = "function";
+inline constexpr char SCRIPTREGEXP[] = "scriptRegExp";
+inline constexpr char EVENT[] = "event";
 
-const char ALL[] = "all";
-const char UNCAUGHT[] = "uncaught";
+inline constexpr char ALL[] = "all";
+inline constexpr char UNCAUGHT[] = "uncaught";
 
 //const char PAUSE[] = "pause";
 //const char RESUME[] = "resume";
 
-const char HANDLE[] = "handle";
-const char REF[] = "ref";
-const char REFS[] = "refs";
-const char BODY[] = "body";
-const char NAME[] = "name";
-const char VALUE[] = "value";
-const char SUCCESS[] = "success";
-const char MESSAGE[] = "message";
+inline constexpr char HANDLE[] = "handle";
+inline constexpr char REF[] = "ref";
+inline constexpr char REFS[] = "refs";
+inline constexpr char BODY[] = "body";
+inline constexpr char NAME[] = "name";
+inline constexpr char VALUE[] = "value";
+inline constexpr char SUCCESS[] = "success";
+inline constexpr char MESSAGE[] = "message";
 
-const char OBJECT[] = "{}";
-const char ARRAY[] = "[]";
+inline constexpr char OBJECT[] = "{}";
+inline constexpr char ARRAY[] = "[]";
 
-const char INTERNAL_FUNCTION[] = "(function(method) { "\
+inline constexpr char INTERNAL_FUNCTION[] = "(function(method) { "\
         "return (function(object, data, qmlglobal) { "\
             "return (function() { "\
                 "return method(object, data, qmlglobal, arguments.length, arguments); "\

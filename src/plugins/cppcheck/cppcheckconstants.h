@@ -5,14 +5,14 @@
 
 namespace Cppcheck::Constants {
 
-const char TEXTMARK_CATEGORY_ID[] = "Cppcheck";
+inline constexpr char TEXTMARK_CATEGORY_ID[] = "Cppcheck";
 
-const char OPTIONS_PAGE_ID[] = "Analyzer.Cppcheck.Settings";
+inline constexpr char OPTIONS_PAGE_ID[] = "Analyzer.Cppcheck.Settings";
 
-const char CHECK_PROGRESS_ID[] = "Cppcheck.CheckingTask";
+inline constexpr char CHECK_PROGRESS_ID[] = "Cppcheck.CheckingTask";
 
-const char MANUAL_CHECK_PROGRESS_ID[] = "Cppcheck.ManualCheckingTask";
-const char MANUAL_RUN_ACTION[] = "Cppcheck.ManualRun";
-const char PERSPECTIVE_ID[] = "Cppcheck.Perspective";
+inline constexpr char MANUAL_CHECK_PROGRESS_ID[] = "Cppcheck.ManualCheckingTask";
+inline constexpr char MANUAL_RUN_ACTION[] = "Cppcheck.ManualRun";
+inline constexpr char PERSPECTIVE_ID[] = "Cppcheck.Perspective";
 
 } // Cppcheck::Constants

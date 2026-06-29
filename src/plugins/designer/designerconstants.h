@@ -7,21 +7,21 @@
 
 namespace Designer::Constants {
 
-const char INFO_READ_ONLY[] = "DesignerXmlEditor.ReadOnly";
-const char K_DESIGNER_XML_EDITOR_ID[] = "FormEditor.DesignerXmlEditor";
-const char C_DESIGNER_XML_EDITOR[] = "Designer Xml Editor";
-const char C_DESIGNER_XML_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("QtC::Designer", "Form Editor");
+inline constexpr char INFO_READ_ONLY[] = "DesignerXmlEditor.ReadOnly";
+inline constexpr char K_DESIGNER_XML_EDITOR_ID[] = "FormEditor.DesignerXmlEditor";
+inline constexpr char C_DESIGNER_XML_EDITOR[] = "Designer Xml Editor";
+inline constexpr char C_DESIGNER_XML_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("QtC::Designer", "Form Editor");
 
-const char SETTINGS_CATEGORY[] = "P.Designer";
-const char SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Designer", "Designer");
+inline constexpr char SETTINGS_CATEGORY[] = "P.Designer";
+inline constexpr char SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Designer", "Designer");
 
 // Context
-const char C_FORMEDITOR[] = "FormEditor.FormEditor";
-const char M_FORMEDITOR[] = "FormEditor.Menu";
-const char M_FORMEDITOR_PREVIEW[] = "FormEditor.Menu.Preview";
+inline constexpr char C_FORMEDITOR[] = "FormEditor.FormEditor";
+inline constexpr char M_FORMEDITOR[] = "FormEditor.Menu";
+inline constexpr char M_FORMEDITOR_PREVIEW[] = "FormEditor.Menu.Preview";
 
 // Wizard type
-const char FORM_FILE_TYPE[] = "Qt4FormFiles";
+inline constexpr char FORM_FILE_TYPE[] = "Qt4FormFiles";
 
 enum DesignerSubWindows
 {

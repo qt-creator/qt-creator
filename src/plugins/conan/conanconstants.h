@@ -5,6 +5,6 @@
 
 namespace Conan::Constants {
 
-const char INSTALL_STEP[]  = "ConanPackageManager.InstallStep";
+inline constexpr char INSTALL_STEP[]  = "ConanPackageManager.InstallStep";
 
 } // Conan::Constants

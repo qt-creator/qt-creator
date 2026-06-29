@@ -11,7 +11,7 @@
 
 namespace Core {
 
-const char SESSION_BASE_ID[] = "Welcome.OpenSession";
+inline constexpr char SESSION_BASE_ID[] = "Welcome.OpenSession";
 
 namespace Internal { class SessionNameInputDialog; }
 
