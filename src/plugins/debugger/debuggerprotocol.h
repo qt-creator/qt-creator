@@ -350,8 +350,13 @@ QString reformatCharacter(int code, int size, bool isSigned);
 QString reformatCharacterWithFormat(int code, int size, bool isSigned, int format);
 
 #if defined(HAVE_INT128)
-QString reformatUnsignedInteger128(unsigned __int128 value, int format);
+QString reformatUnsignedInteger128(unsigned __int128 value, int format, int size);
 #endif
+
+// Prefixes the reformat functions above prepend to hex and binary values.
+// Views re-parsing the formatted text split at these.
+inline constexpr char HEX_INTEGER_PREFIX[] = "(hex) ";
+inline constexpr char BIN_INTEGER_PREFIX[] = "(bin) ";
 
 
 // These values are passed from the dumper to the frontend,

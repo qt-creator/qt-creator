@@ -1166,6 +1166,11 @@ QString reformatInteger(quint64 value, int format, int size, bool isSigned)
         }
         return res + "'";
     }
+    // Show hex and binary values in full length, padded with leading zeros.
+    if (format == HexadecimalIntegerFormat)
+        return HEX_INTEGER_PREFIX + QString::number(value, 16).rightJustified(size * 2, '0');
+    if (format == BinaryIntegerFormat)
+        return BIN_INTEGER_PREFIX + QString::number(value, 2).rightJustified(size * 8, '0');
     return isSigned ? reformatSignedInteger(qint64(value), format)
                     : reformatUnsignedInteger(value, format);
 }
@@ -1184,13 +1189,13 @@ static QString uint128ToBase(unsigned __int128 v, int base)
     return result;
 }
 
-QString reformatUnsignedInteger128(unsigned __int128 value, int format)
+QString reformatUnsignedInteger128(unsigned __int128 value, int format, int size)
 {
     switch (format) {
     case HexadecimalIntegerFormat:
-        return "(hex) " + uint128ToBase(value, 16);
+        return HEX_INTEGER_PREFIX + uint128ToBase(value, 16).rightJustified(size * 2, '0');
     case BinaryIntegerFormat:
-        return "(bin) " + uint128ToBase(value, 2);
+        return BIN_INTEGER_PREFIX + uint128ToBase(value, 2).rightJustified(size * 8, '0');
     case OctalIntegerFormat:
         return "(oct) " + uint128ToBase(value, 8);
     default:

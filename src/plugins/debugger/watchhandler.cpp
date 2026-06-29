@@ -881,7 +881,7 @@ static QString formattedValue(const WatchItem *item)
                 for (QChar c : str)
                     uval = uval * 10 + unsigned(c.unicode() - '0');
             }
-            return reformatUnsignedInteger128(uval, format);
+            return reformatUnsignedInteger128(uval, format, item->size);
         }
 #endif
         quint64 raw = isSigned ? quint64(item->value.toLongLong()) : item->value.toULongLong();
@@ -1082,6 +1082,17 @@ static QString displayType(const WatchItem *item)
     return result;
 }
 
+// A value counts as changed only when it is actually being shown: a stale,
+// disabled or empty value does not, however its text compares to the cache.
+static bool isValueChanged(const WatchModel *model, const WatchItem *item)
+{
+    if (!item->valueEnabled || item->value.isEmpty())
+        return false;
+    if (!model->m_contentsValid && !item->isInspect())
+        return false;
+    return item->value != model->m_valueCache.value(item->iname);
+}
+
 static QColor valueColor(const WatchItem *item, int column)
 {
     Theme::Color color = Theme::Debugger_WatchItem_ValueNormal;
@@ -1091,11 +1102,9 @@ static QColor valueColor(const WatchItem *item, int column)
         } else if (column == WatchModel::ValueColumn) {
             if (!item->valueEnabled)
                 color = Theme::Debugger_WatchItem_ValueInvalid;
-            else if (!model->m_contentsValid && !item->isInspect())
-                color = Theme::Debugger_WatchItem_ValueInvalid;
             else if (item->value.isEmpty()) // This might still show 0x...
                 color = Theme::Debugger_WatchItem_ValueInvalid;
-            else if (item->value != model->m_valueCache.value(item->iname))
+            else if (isValueChanged(model, item))
                 color = Theme::Debugger_WatchItem_ValueChanged;
         }
     }
@@ -1259,6 +1268,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case LocalsIndividualFormatRole:
             return itemIndividualFormat(item);
+
+        case LocalsValueChangedRole:
+            return isValueChanged(this, item);
 
         default:
             break;
@@ -3294,6 +3306,66 @@ public:
         const QModelIndex &) const override
     {
         editor->setGeometry(option.rect);
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+        const QModelIndex &index) const override
+    {
+        if (index.column() == WatchModelBase::ValueColumn) {
+            const QString str = index.data(Qt::DisplayRole).toString();
+            if (str.startsWith(BIN_INTEGER_PREFIX) || str.startsWith(HEX_INTEGER_PREFIX)) {
+                QStyleOptionViewItem opt = setOptions(index, option);
+                drawBackground(painter, opt, index);
+                painter->save();
+                painter->setClipRect(opt.rect);
+                painter->setFont(opt.font);
+                const bool selected = opt.state & QStyle::State_Selected;
+                const QColor fore = selected
+                    ? opt.palette.color(QPalette::HighlightedText)
+                    : index.data(Qt::ForegroundRole).value<QColor>();
+                painter->setPen(fore);
+                const QFontMetrics fm(opt.font);
+                const QWidget *widget = opt.widget;
+                QStyle *style = widget ? widget->style() : QApplication::style();
+                const int margin =
+                    style->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, widget) + 1;
+                QRect rect = opt.rect.adjusted(margin, 0, -margin, 0);
+                static_assert(sizeof(BIN_INTEGER_PREFIX) == sizeof(HEX_INTEGER_PREFIX));
+                constexpr int PrefixLength = int(sizeof(HEX_INTEGER_PREFIX)) - 1;
+                painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter,
+                    str.left(PrefixLength));
+                rect.setX(rect.x() + fm.horizontalAdvance(str.left(PrefixLength)));
+                const QColor changedColor = !selected
+                        && index.data(LocalsValueChangedRole).toBool()
+                    ? creatorColor(Theme::Debugger_WatchItem_ValueChanged) : QColor();
+                // setOptions() has overwritten the option's text colors with
+                // the item's foreground, so the disabled color has to come
+                // from the palette the view passed in.
+                const QColor light = selected
+                    ? fore
+                    : option.palette.color(QPalette::Disabled, QPalette::Text);
+                QString digits = str.mid(PrefixLength);
+                const int charWidth =
+                    qMax(fm.horizontalAdvance('x'), fm.horizontalAdvance('0'));
+                if (const int cells = (rect.right() - rect.x() + 1) / charWidth;
+                        cells >= 0 && digits.size() > cells) {
+                    // Leading zeros carry no information, drop them first. The
+                    // significant digits are at the right end, so elide on the
+                    // left if even they do not fit.
+                    int zeros = 0;
+                    while (zeros + 1 < digits.size() && digits.at(zeros) == QLatin1Char('0'))
+                        ++zeros;
+                    digits.remove(0, zeros);
+                    if (digits.size() > cells)
+                        digits = QChar(0x2026) + digits.right(cells - 1);
+                }
+                drawGreyLeadingZeros(painter, fm, rect, digits, light, changedColor);
+                painter->restore();
+                drawFocus(painter, opt, opt.rect);
+                return;
+            }
+        }
+        QItemDelegate::paint(painter, option, index);
     }
 };
 

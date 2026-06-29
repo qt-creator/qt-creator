@@ -96,21 +96,26 @@
 #include <utils/store.h>
 #include <utils/url.h>
 
+#include <QAbstractItemDelegate>
 #include <QAbstractProxyModel>
 #include <QApplication>
+#include <QIdentityProxyModel>
 #include <QComboBox>
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QLabel>
 #include <QMessageBox>
 #include <QMouseEvent>
-#include <QPushButton>
+#include <QPainter>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QRegularExpression>
 #include <QScopeGuard>
 #include <QSignalSpy>
+#include <QStyleOption>
 #include <QTcpServer>
 #include <QTemporaryDir>
 #include <QTest>
@@ -282,6 +287,14 @@ private slots:
     void testMcpSelectFrameBeforeTheStopsLocals();
     void testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame_data();
     void testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFrame();
+    void testAChangedValueStopsLookingChangedOnceTheDebuggeeRuns_data();
+    void testAChangedValueStopsLookingChangedOnceTheDebuggeeRuns();
+    void testAPaintedHexValueKeepsItsLeadingZerosLighter_data();
+    void testAPaintedHexValueKeepsItsLeadingZerosLighter();
+    void testAStringOfZerosKeepsItsLastDigitInNormalColor_data();
+    void testAStringOfZerosKeepsItsLastDigitInNormalColor();
+    void testAChangedValueKeepsItsColorAcrossSpaces_data();
+    void testAChangedValueKeepsItsColorAcrossSpaces();
     void testMcpVariableFetchesItsChildren_data();
     void testMcpVariableFetchesItsChildren();
     void testMcpCollectsTheStacksOfAllThreads_data();
@@ -6964,6 +6977,242 @@ void DebuggerUnitTests::testLocalsOfAFrameSelectedEarlyKeepNothingOfTheOtherFram
         return started > 0 && finished >= started && watch->findItem("local.first");
     }, 30000));
     QVERIFY2(!watch->findItem("local.value"), "a local of frame 0 is shown for frame 1");
+}
+
+void DebuggerUnitTests::testAChangedValueStopsLookingChangedOnceTheDebuggeeRuns_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testAChangedValueStopsLookingChangedOnceTheDebuggeeRuns()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    WatchHandler *watch = session.engine()->watchHandler();
+    WatchItem *item = nullptr;
+    QVERIFY(QTest::qWaitFor([&] {
+        item = watch->findItem("local.value");
+        return item && !item->value.isEmpty();
+    }, 30000));
+
+    // A value that differs from what was cached at the previous stop reads as
+    // changed ...
+    watch->resetValueCache();
+    item->value = "not what was shown before";
+    const QModelIndex index = watch->model()->indexForItem(item);
+    QVERIFY(watch->model()->data(index, LocalsValueChangedRole).toBool());
+    // ... but once the debuggee runs, the whole stop is stale, and marking
+    // the value red would present it as freshly arrived.
+    watch->scheduleResetLocation();
+    QVERIFY(!watch->model()->data(index, LocalsValueChangedRole).toBool());
+}
+
+// Forces a known foreground color through the model so the painted colors
+// can be told apart no matter what the theme says.
+class FixedForegroundProxyModel : public QIdentityProxyModel
+{
+public:
+    QVariant data(const QModelIndex &proxyIndex, int role) const override
+    {
+        if (role == Qt::ForegroundRole)
+            return QColor(0, 0, 255);
+        return QIdentityProxyModel::data(proxyIndex, role);
+    }
+};
+
+void DebuggerUnitTests::testAPaintedHexValueKeepsItsLeadingZerosLighter_data()
+{
+    addBackendRows();
+}
+
+void DebuggerUnitTests::testAPaintedHexValueKeepsItsLeadingZerosLighter()
+{
+    QFETCH(bool, generic);
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    WatchHandler *watch = session.engine()->watchHandler();
+    WatchItem *item = nullptr;
+    QVERIFY(QTest::qWaitFor([&] {
+        item = watch->findItem("local.value");
+        return item && !item->value.isEmpty();
+    }, 30000));
+    QModelIndex index = watch->model()->indexForItem(item)
+                            .siblingAtColumn(WatchModelBase::ValueColumn);
+    QVERIFY(watch->model()->setData(index, int(HexadecimalIntegerFormat),
+                                    LocalsIndividualFormatRole));
+
+    // The re-read triggered by the format change delivers the padded value.
+    // It also moves rows, so the index has to be found anew.
+    QString shown;
+    const bool padded = QTest::qWaitFor([&] {
+        item = watch->findItem("local.value");
+        index = watch->model()->indexForItem(item)
+                    .siblingAtColumn(WatchModelBase::ValueColumn);
+        shown = index.data(Qt::DisplayRole).toString();
+        return shown.startsWith("(hex) 0000");
+    }, 30000);
+    QVERIFY2(padded, qPrintable("displayed as \"" + shown + '"'));
+    QVERIFY(!index.data(LocalsValueChangedRole).toBool());
+
+    auto delegate = qvariant_cast<QAbstractItemDelegate *>(
+        index.model()->data(index, BaseTreeView::ItemDelegateRole));
+    QVERIFY(delegate);
+
+    FixedForegroundProxyModel foregroundProxy;
+    foregroundProxy.setSourceModel(watch->model());
+    const QModelIndex proxyIndex = foregroundProxy.mapFromSource(index);
+    QVERIFY(proxyIndex.isValid());
+
+    QImage image(300, 30, QImage::Format_ARGB32);
+    image.fill(Qt::white);
+    QPainter painter(&image);
+    QStyleOptionViewItem option;
+    option.rect = QRect(0, 0, 300, 30);
+    option.palette = QApplication::palette();
+    const QColor light(255, 0, 255);
+    option.palette.setColor(QPalette::Disabled, QPalette::Text, light);
+    delegate->paint(&painter, option, proxyIndex);
+    painter.end();
+
+    // The digits are drawn one per cell, so the ink of the leading zeros has
+    // to end left of the ink of the significant digits: the zeros took the
+    // view's disabled color (magenta), the digits the foreground (blue).
+    // Only the glyph cores carry a pen color, subpixel rendering adds colored
+    // fringes around them, and those are ignored.
+    int lightRight = -1;
+    int foreRight = -1;
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            const QRgb pixel = image.pixel(x, y);
+            if (qRed(pixel) > 150 && qBlue(pixel) > 150 && qGreen(pixel) < 100)
+                lightRight = qMax(lightRight, x);
+            else if (qBlue(pixel) > 150 && qRed(pixel) < 100 && qGreen(pixel) < 100)
+                foreRight = qMax(foreRight, x);
+        }
+    }
+    QVERIFY2(lightRight >= 0, "no digit painted in the view's disabled color");
+    QVERIFY(foreRight > lightRight);
+
+    watch->model()->setData(index, int(AutomaticFormat), LocalsIndividualFormatRole);
+}
+
+void DebuggerUnitTests::testAStringOfZerosKeepsItsLastDigitInNormalColor_data()
+{
+    QTest::addColumn<QString>("str");
+    // The digit string of a watch item and the display string of a register,
+    // both of a value of zero, and the joined lanes of a register sub-item.
+    QTest::newRow("watch digits") << QString("0000");
+    QTest::newRow("register value") << QString("0x0");
+    QTest::newRow("register lanes") << QString("00 00");
+}
+
+void DebuggerUnitTests::testAStringOfZerosKeepsItsLastDigitInNormalColor()
+{
+    QFETCH(QString, str);
+    QImage image(60, 20, QImage::Format_ARGB32);
+    image.fill(Qt::white);
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::TextAntialiasing, false);
+    const QColor normal(Qt::black);
+    const QColor light(255, 0, 255);
+    painter.setPen(normal);
+    const QFontMetrics fm(painter.font());
+    drawGreyLeadingZeros(&painter, fm, image.rect(), str, light, QColor());
+    painter.end();
+
+    // The last character has to end the light run, its ink must be normal
+    // (black). Only the glyph cores carry a pen color, subpixel rendering
+    // adds colored fringes around them, and those are ignored.
+    int lightRight = -1;
+    int normalRight = -1;
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            const QRgb pixel = image.pixel(x, y);
+            if (qRed(pixel) > 150 && qBlue(pixel) > 150 && qGreen(pixel) < 100)
+                lightRight = qMax(lightRight, x);
+            else if (qRed(pixel) < 100 && qGreen(pixel) < 100 && qBlue(pixel) < 100)
+                normalRight = qMax(normalRight, x);
+        }
+    }
+    QVERIFY2(normalRight >= 0, "a value of zero painted fully in the light color");
+    QVERIFY(normalRight > lightRight);
+
+    // The digit in front of a space is the last one of its lane. It has to
+    // be normal as well, and it sits in the cell the drawing loop advanced
+    // to for character index i.
+    const int charWidth = qMax(fm.horizontalAdvance('x'), fm.horizontalAdvance('0'));
+    for (int i = 0; i + 1 < str.size(); ++i) {
+        if (str.at(i + 1) != QLatin1Char(' ') || str.at(i) == QLatin1Char(' '))
+            continue;
+        int lightPixels = 0;
+        int normalPixels = 0;
+        for (int x = i * charWidth; x < (i + 1) * charWidth; ++x) {
+            for (int y = 0; y < image.height(); ++y) {
+                const QRgb pixel = image.pixel(x, y);
+                if (qRed(pixel) > 150 && qBlue(pixel) > 150 && qGreen(pixel) < 100)
+                    ++lightPixels;
+                else if (qRed(pixel) < 100 && qGreen(pixel) < 100 && qBlue(pixel) < 100)
+                    ++normalPixels;
+            }
+        }
+        QVERIFY2(lightPixels == 0, "a lane's last digit painted in the light color");
+        QVERIFY2(normalPixels > 0, "a lane's last digit not painted in any color");
+    }
+}
+
+void DebuggerUnitTests::testAChangedValueKeepsItsColorAcrossSpaces_data()
+{
+    QTest::addColumn<QString>("str");
+    // A changed register value in decimal format is space padded, and a wide
+    // register joins its lanes with spaces.
+    QTest::newRow("space padded") << QString(" 12");
+    QTest::newRow("register lanes") << QString("00 05");
+}
+
+void DebuggerUnitTests::testAChangedValueKeepsItsColorAcrossSpaces()
+{
+    QFETCH(QString, str);
+    QImage image(60, 20, QImage::Format_ARGB32);
+    image.fill(Qt::white);
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::TextAntialiasing, false);
+    const QColor normal(Qt::black);
+    const QColor light(255, 0, 255);
+    const QColor changed(255, 0, 0);
+    painter.setPen(normal);
+    const QFontMetrics fm(painter.font());
+    drawGreyLeadingZeros(&painter, fm, image.rect(), str, light, changed);
+    painter.end();
+
+    // A changed value reads as changed as a whole: every digit cell has to
+    // carry ink in the changed color, also the ones past a space.
+    const int charWidth = qMax(fm.horizontalAdvance('x'), fm.horizontalAdvance('0'));
+    for (int i = 0; i < str.size(); ++i) {
+        if (str.at(i) == QLatin1Char(' '))
+            continue;
+        int changedPixels = 0;
+        for (int x = i * charWidth; x < (i + 1) * charWidth; ++x) {
+            for (int y = 0; y < image.height(); ++y) {
+                const QRgb pixel = image.pixel(x, y);
+                if (qRed(pixel) > 150 && qGreen(pixel) < 100 && qBlue(pixel) < 100)
+                    ++changedPixels;
+            }
+        }
+        QVERIFY2(changedPixels > 0, "a digit of a changed value not painted in the changed color");
+    }
 }
 
 void DebuggerUnitTests::testMcpLocalsOutlastFramesAddedToTheStack_data()

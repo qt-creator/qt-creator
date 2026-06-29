@@ -13,6 +13,7 @@
 
 #include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QDebug>
 #include <QItemDelegate>
@@ -44,6 +45,45 @@ enum RegisterDataRole
 // RegisterDelegate
 //
 ///////////////////////////////////////////////////////////////////////
+
+void drawGreyLeadingZeros(QPainter *painter, const QFontMetrics &fm, const QRect &rect,
+                          const QString &str, const QColor &lightColor, const QColor &changedColor)
+{
+    QPen oldPen = painter->pen();
+    if (changedColor.isValid())
+        painter->setPen(changedColor);
+    else
+        painter->setPen(lightColor);
+    // FIXME: performance? this changes only on real font changes.
+    int charWidth = qMax(fm.horizontalAdvance('x'), fm.horizontalAdvance('0'));
+    int x = rect.x();
+    bool light = !changedColor.isValid();
+    for (int i = 0; i < str.size(); ++i) {
+        const QChar c = str.at(i);
+        const int uc = c.unicode();
+        // The last digit of a lane is significant even if the string is all
+        // zeros. A space ends one lane and starts the next.
+        if (light && (i + 1 == str.size() || str.at(i + 1) == ' '
+                      || (uc != 'x' && uc != '0'))) {
+            light = false;
+            painter->setPen(oldPen.color());
+        }
+        if (uc == ' ') {
+            // A changed value keeps the changed color across lane breaks.
+            if (!changedColor.isValid()) {
+                light = true;
+                painter->setPen(lightColor);
+            }
+        } else {
+            QRect r = rect;
+            r.setX(x);
+            r.setWidth(charWidth);
+            painter->drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, c);
+        }
+        x += charWidth;
+    }
+    painter->setPen(oldPen);
+}
 
 class RegisterDelegate : public QItemDelegate
 {
@@ -90,37 +130,12 @@ public:
     {
         if (index.column() == m_column) {
             const bool paintRed = index.data(Qt::UserRole).toBool();
-            QPen oldPen = painter->pen();
-            const QColor lightColor(140, 140, 140);
-            if (paintRed)
-                painter->setPen(QColor(200, 0, 0));
-            else
-                painter->setPen(lightColor);
-            // FIXME: performance? this changes only on real font changes.
-            QFontMetrics fm(option.font);
-            int charWidth = qMax(fm.horizontalAdvance('x'), fm.horizontalAdvance('0'));
-            QString str = index.data(Qt::DisplayRole).toString();
-            int x = option.rect.x();
-            bool light = !paintRed;
-            for (int i = 0; i < str.size(); ++i) {
-                const QChar c = str.at(i);
-                const int uc = c.unicode();
-                if (light && (uc != 'x' && uc != '0')) {
-                    light = false;
-                    painter->setPen(oldPen.color());
-                }
-                if (uc == ' ') {
-                    light = true;
-                    painter->setPen(lightColor);
-                } else {
-                    QRect r = option.rect;
-                    r.setX(x);
-                    r.setWidth(charWidth);
-                    painter->drawText(r, Qt::AlignHCenter, c);
-                }
-                x += charWidth;
-            }
-            painter->setPen(oldPen);
+            const QString str = index.data(Qt::DisplayRole).toString();
+            const QColor changedColor = paintRed
+                ? creatorColor(Theme::Debugger_WatchItem_ValueChanged) : QColor();
+            drawGreyLeadingZeros(painter, QFontMetrics(option.font), option.rect, str,
+                                 option.palette.color(QPalette::Disabled, QPalette::Text),
+                                 changedColor);
         } else {
             QItemDelegate::paint(painter, option, index);
         }

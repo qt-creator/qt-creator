@@ -198,6 +198,15 @@ void tst_protocol::reformatIntegerOverload_data()
     // Non-decimal formats force unsigned display
     QTest::newRow("hex-signed-becomes-unsigned")
         << quint64(0xff) << int(HexadecimalIntegerFormat) << 1 << true << QString("(hex) ff");
+    // Hex and binary are padded to the full width of size
+    QTest::newRow("hex-4byte-padded")
+        << quint64(0x41) << int(HexadecimalIntegerFormat) << 4 << false
+        << QString("(hex) 00000041");
+    QTest::newRow("bin-1byte-padded")
+        << quint64(5) << int(BinaryIntegerFormat) << 1 << false << QString("(bin) 00000101");
+    // Unknown size (0) stays unpadded
+    QTest::newRow("hex-unknown-size")
+        << quint64(0x41) << int(HexadecimalIntegerFormat) << 0 << false << QString("(hex) 41");
     // Decimal signed: value is already masked, sign extension not applied inside
     QTest::newRow("decimal-unsigned")
         << quint64(42) << int(DecimalIntegerFormat) << 4 << false << QString("42");
@@ -318,6 +327,7 @@ void tst_protocol::reformatUnsignedInteger128Test()
 {
     QFETCH(QString, decimalValue);
     QFETCH(int, format);
+    QFETCH(int, size);
     QFETCH(QString, expected);
 
     // Parse decimal string to unsigned __int128 (mirroring the watchhandler.cpp logic)
@@ -325,36 +335,47 @@ void tst_protocol::reformatUnsignedInteger128Test()
     for (QChar c : decimalValue)
         uval = uval * 10 + unsigned(c.unicode() - '0');
 
-    QCOMPARE(reformatUnsignedInteger128(uval, format), expected);
+    QCOMPARE(reformatUnsignedInteger128(uval, format, size), expected);
 }
 
 void tst_protocol::reformatUnsignedInteger128Test_data()
 {
     QTest::addColumn<QString>("decimalValue");
     QTest::addColumn<int>("format");
+    QTest::addColumn<int>("size");
     QTest::addColumn<QString>("expected");
 
     // 2^64 = 18446744073709551616
     QTest::newRow("2pow64-hex")
-        << "18446744073709551616" << int(HexadecimalIntegerFormat)
-        << QString("(hex) 10000000000000000");
+        << "18446744073709551616" << int(HexadecimalIntegerFormat) << 16
+        << QString("(hex) 00000000000000010000000000000000");
     QTest::newRow("2pow64-dec")
-        << "18446744073709551616" << int(DecimalIntegerFormat)
+        << "18446744073709551616" << int(DecimalIntegerFormat) << 16
         << QString("18446744073709551616");
     QTest::newRow("2pow64-bin")
-        << "18446744073709551616" << int(BinaryIntegerFormat)
-        << QString("(bin) 10000000000000000000000000000000000000000000000000000000000000000");
+        << "18446744073709551616" << int(BinaryIntegerFormat) << 16
+        << QString("(bin) ") + QString(63, '0') + "1" + QString(64, '0');
     QTest::newRow("2pow64-oct")
-        << "18446744073709551616" << int(OctalIntegerFormat)
+        << "18446744073709551616" << int(OctalIntegerFormat) << 16
         << QString("(oct) 2000000000000000000000");
 
     // UINT128_MAX = 2^128 - 1 = 340282366920938463463374607431768211455
     QTest::newRow("uint128max-hex")
-        << "340282366920938463463374607431768211455" << int(HexadecimalIntegerFormat)
+        << "340282366920938463463374607431768211455" << int(HexadecimalIntegerFormat) << 16
         << QString("(hex) ffffffffffffffffffffffffffffffff");
     QTest::newRow("uint128max-dec")
-        << "340282366920938463463374607431768211455" << int(DecimalIntegerFormat)
+        << "340282366920938463463374607431768211455" << int(DecimalIntegerFormat) << 16
         << QString("340282366920938463463374607431768211455");
+
+    // Hex and binary are padded to the full width of size
+    QTest::newRow("ff-hex-padded")
+        << "255" << int(HexadecimalIntegerFormat) << 16
+        << QString("(hex) 000000000000000000000000000000ff");
+    QTest::newRow("5-bin-padded")
+        << "5" << int(BinaryIntegerFormat) << 2 << QString("(bin) 0000000000000101");
+    // Unknown size (0) stays unpadded
+    QTest::newRow("ff-hex-unknown-size")
+        << "255" << int(HexadecimalIntegerFormat) << 0 << QString("(hex) ff");
 }
 #endif
 

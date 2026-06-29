@@ -12,6 +12,11 @@
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemDelegate;
+class QColor;
+class QFontMetrics;
+class QPainter;
+class QRect;
+class QString;
 QT_END_NAMESPACE
 
 namespace Utils { class ItemViewEvent; }
@@ -229,5 +234,11 @@ private:
 };
 
 QAbstractItemDelegate *createRegisterDelegate(int column);
+
+// Paints a zero-padded numeric string, leading zeros in lightColor, a
+// changed value in changedColor (invalid when the value did not change).
+void drawGreyLeadingZeros(QPainter *painter, const QFontMetrics &fontMetrics,
+                          const QRect &rect, const QString &str,
+                          const QColor &lightColor, const QColor &changedColor);
 
 } // Debugger::Internal

@@ -72,6 +72,7 @@ enum ModelRoles
     LocalsExpandedRole,     // The preferred expanded state to the view
     LocalsTypeFormatRole,   // Used to communicate alternative formats to the view
     LocalsIndividualFormatRole,
+    LocalsValueChangedRole,
 
     // Snapshots
     SnapshotCapabilityRole
