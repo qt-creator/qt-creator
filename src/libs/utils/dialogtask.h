@@ -8,8 +8,24 @@
 #include <QtTaskTree/qtasktree.h>
 
 #include <QDialog>
+#include <QMessageBox>
+
+#include <functional>
 
 namespace Utils {
+
+// A ready-made result mapper for QMessageBox-based dialogs: maps an accept-like
+// clicked button (AcceptRole or YesRole) to DoneResult::Success, and everything
+// else - including closing the dialog without a choice - to DoneResult::Error.
+// It is the default mapper for DialogWrapper<QMessageBox> (see below), and can be
+// reused when installing a custom mapper.
+inline QtTaskTree::DoneResult messageBoxResult(const QMessageBox *box)
+{
+    QAbstractButton *clicked = box->clickedButton();
+    const auto role = clicked ? box->buttonRole(clicked) : QMessageBox::InvalidRole;
+    return QtTaskTree::toDoneResult(role == QMessageBox::AcceptRole
+                                 || role == QMessageBox::YesRole);
+}
 
 template <typename Dialog>
 class DialogWrapper
@@ -22,6 +38,8 @@ class DialogWrapper
                   "DialogWrapper<Dialog>: Dialog must be default-constructible.");
 
 public:
+    using ResultMapper = std::function<QtTaskTree::DoneResult(const Dialog *)>;
+
     DialogWrapper() = default;
 
     Dialog *dialog() { return &m_dialog; }
@@ -33,8 +51,26 @@ public:
 
     int result() const { return m_dialog.result(); }
 
+    // Overrides how the dialog's outcome is mapped to the task's DoneResult.
+    // By default a plain QDialog maps Accepted to Success (and everything else to
+    // Error), while a QMessageBox uses messageBoxResult().
+    void setResultMapper(ResultMapper mapper) { m_resultMapper = std::move(mapper); }
+
 private:
+    static ResultMapper defaultResultMapper()
+    {
+        if constexpr (std::is_base_of_v<QMessageBox, Dialog>)
+            return [](const Dialog *dialog) { return messageBoxResult(dialog); };
+        else
+            return [](const Dialog *dialog) {
+                return QtTaskTree::toDoneResult(dialog->result() == QDialog::Accepted);
+            };
+    }
+
     Dialog m_dialog;
+    ResultMapper m_resultMapper = defaultResultMapper();
+
+    template <typename T> friend class DialogTaskAdapter;
 };
 
 template <typename Dialog>
@@ -51,9 +87,8 @@ public:
             qWarning("DialogTask: Qt::WA_DeleteOnClose is managed by the task; forcing it off.");
             dialog->setAttribute(Qt::WA_DeleteOnClose, false);
         }
-        QObject::connect(dialog, &QDialog::finished, iface, [iface](int result) {
-            iface->reportDone(result == QDialog::Accepted ? QtTaskTree::DoneResult::Success
-                                                          : QtTaskTree::DoneResult::Error);
+        QObject::connect(dialog, &QDialog::finished, iface, [task, iface](int) {
+            iface->reportDone(task->m_resultMapper(task->dialog()));
         }, Qt::SingleShotConnection);
         dialog->open();
     }

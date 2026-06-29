@@ -5,7 +5,10 @@
 
 #include <QtTaskTree/qtasktree.h>
 
+#include <QAbstractButton>
 #include <QDialog>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QTest>
 #include <QTimer>
 
@@ -23,6 +26,9 @@ private slots:
     void accepted();
     void rejected();
     void customResultCode();
+    void customResultMapper();
+    void messageBoxAcceptRole();
+    void messageBoxRejectRole();
     void forcesDeleteOnCloseOff();
     void cancel();
 
@@ -73,6 +79,50 @@ void tst_DialogTask::customResultCode()
     });
     QCOMPARE(outcome.doneWith, DoneWith::Error);
     QCOMPARE(outcome.result, 42);
+}
+
+void tst_DialogTask::customResultMapper()
+{
+    // A custom mapper overrides the default Accepted->Success contract.
+    int captured = -1;
+    const auto onSetup = [](DialogWrapper<QDialog> &task) {
+        task.setResultMapper([](const QDialog *dialog) {
+            return toDoneResult(dialog->result() == 42);
+        });
+        QTimer::singleShot(0, task.dialog(), [dialog = task.dialog()] { dialog->done(42); });
+    };
+    const auto onDone = [&captured](const DialogWrapper<QDialog> &task, DoneWith) {
+        captured = task.result();
+    };
+    QTaskTree taskTree({DialogTask<QDialog>(onSetup, onDone).withTimeout(5000ms)});
+    QCOMPARE(taskTree.runBlocking(), DoneWith::Success);
+    QCOMPARE(captured, 42);
+}
+
+void tst_DialogTask::messageBoxAcceptRole()
+{
+    // The default QMessageBox mapper treats an AcceptRole button as Success.
+    const auto onSetup = [](DialogWrapper<QMessageBox> &task) {
+        QMessageBox *box = task.dialog();
+        box->addButton("Terminate", QMessageBox::RejectRole);
+        QAbstractButton *keep = box->addButton("Keep Running", QMessageBox::AcceptRole);
+        QTimer::singleShot(0, keep, [keep] { keep->click(); });
+    };
+    QTaskTree taskTree({DialogTask<QMessageBox>(onSetup).withTimeout(5000ms)});
+    QCOMPARE(taskTree.runBlocking(), DoneWith::Success);
+}
+
+void tst_DialogTask::messageBoxRejectRole()
+{
+    // A RejectRole button maps to Error under the default QMessageBox mapper.
+    const auto onSetup = [](DialogWrapper<QMessageBox> &task) {
+        QMessageBox *box = task.dialog();
+        QAbstractButton *terminate = box->addButton("Terminate", QMessageBox::RejectRole);
+        box->addButton("Keep Running", QMessageBox::AcceptRole);
+        QTimer::singleShot(0, terminate, [terminate] { terminate->click(); });
+    };
+    QTaskTree taskTree({DialogTask<QMessageBox>(onSetup).withTimeout(5000ms)});
+    QCOMPARE(taskTree.runBlocking(), DoneWith::Error);
 }
 
 void tst_DialogTask::forcesDeleteOnCloseOff()
