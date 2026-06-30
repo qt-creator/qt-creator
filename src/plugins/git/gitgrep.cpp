@@ -236,6 +236,20 @@ FindFlags GitGrep::supportedFindFlags() const
            | Utils::DontFindBinaryFiles;
 }
 
+static QStringList toGitGrepFilter(const QStringList &filters)
+{
+    return Utils::transform(filters, [](const QString &filter) {
+        return QString(":(glob)**/" + filter);
+    });
+}
+
+static QStringList toGitGrepExcludeFilter(const QStringList &filters)
+{
+    return Utils::transform(filters, [](const QString &filter) {
+        return QString(":(exclude,glob)**/" + filter);
+    });
+}
+
 SearchExecutor GitGrep::searchExecutor() const
 {
     return [gitParameters = gitParameters()](const FileFindParameters &parameters) {
@@ -268,13 +282,10 @@ SearchExecutor GitGrep::searchExecutor() const
         if (!gitParameters.ref.isEmpty()) {
             arguments << gitParameters.ref;
         }
-        const QStringList filterArgs =
-            parameters.nameFilters.isEmpty() ? QStringList("*") // needed for exclusion filters
-                                             : parameters.nameFilters;
-        const QStringList exclusionArgs =
-            Utils::transform(parameters.exclusionFilters, [](const QString &filter) {
-                return QString(":!" + filter);
-            });
+        const QStringList filterArgs = parameters.nameFilters.isEmpty()
+                                           ? QStringList("*") // needed for exclusion filters
+                                           : toGitGrepFilter(parameters.nameFilters);
+        const QStringList exclusionArgs = toGitGrepExcludeFilter(parameters.exclusionFilters);
         arguments << "--" << filterArgs << exclusionArgs;
 
         inputs.command = CommandLine{vcsBinary, arguments};
