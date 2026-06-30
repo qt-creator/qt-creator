@@ -133,10 +133,24 @@ DocumentModel::Entry *DocumentModelPrivate::addEntry(DocumentModel::Entry *entry
             previousEntry->document = entry->document;
             connect(previousEntry->document, &IDocument::changed,
                     this, [this, document = previousEntry->document] { itemChanged(document); });
+            delete entry;
+            disambiguateDisplayNames(previousEntry);
+            return nullptr;
         }
-        delete entry;
-        disambiguateDisplayNames(previousEntry);
-        return nullptr;
+        // Normal case: drop the new entry when the existing one covers the same document.
+        if (previousEntry->document == entry->document || entry->isSuspended) {
+            delete entry;
+            disambiguateDisplayNames(previousEntry);
+            return nullptr;
+        }
+        // Unexpected: a non-suspended entry for this path already exists but points to a
+        // different IDocument. Two active documents claim the same file path — an
+        // inconsistent state. Don't silently drop the new entry; that would leave the new
+        // editor's document with no corresponding entry and cause null-pointer crashes
+        // in entryForDocument(). Fall through to insert a separate entry so that
+        // entryForDocument() works for both documents. The caller should investigate
+        // how this inconsistency arose.
+        QTC_CHECK(false);
     }
 
     auto positions = positionEntry(m_entries, entry);
