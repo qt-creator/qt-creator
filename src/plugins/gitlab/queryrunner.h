@@ -6,7 +6,11 @@
 #include <utils/id.h>
 #include <utils/qtcprocess.h>
 
+#include <QtTaskTree/qtasktree.h>
+
 #include <QObject>
+
+#include <functional>
 
 namespace GitLab {
 
@@ -50,5 +54,32 @@ signals:
 private:
     Utils::Process m_process;
 };
+
+class GitLabQuery;
+using QuerySetupHandler = std::function<void(GitLabQuery &)>;
+using QueryDoneHandler = std::function<void(const GitLabQuery &)>;
+
+// Configures and carries the result of a single gitLabQuery() task. Set the query and the
+// server in the task's setup handler; read the response body in its done handler.
+class GitLabQuery
+{
+public:
+    void setQuery(const Query &query) { m_query = query; }
+    void setServerId(const Utils::Id &id) { m_id = id; }
+    QByteArray result() const { return m_result; }
+
+private:
+    friend QtTaskTree::Group gitLabQuery(const QuerySetupHandler &, const QueryDoneHandler &);
+    Query m_query{Query::NoQuery};
+    Utils::Id m_id;
+    QByteArray m_result;
+};
+
+// Runs a single GitLab query as a composable subtree: a curl process and, only on an SSL
+// certificate error, an asynchronous prompt followed by at most one retry that ignores the
+// certificate. onSetup configures the query and server; on success onDone is invoked with the
+// query whose result() holds the response body. A process failure or a rejected prompt stops
+// the subtree with DoneResult::Error without invoking onDone.
+QtTaskTree::Group gitLabQuery(const QuerySetupHandler &onSetup, const QueryDoneHandler &onDone);
 
 } // namespace GitLab

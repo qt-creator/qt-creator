@@ -263,12 +263,24 @@ void GitLabPluginPrivate::handleEvents(const Events &events, const QDateTime &ti
         createAndSendEventsRequest(timeStamp, events.pageInfo.currentPage + 1);
 }
 
+void acceptCertificate(const Utils::Id &serverId)
+{
+    QTC_ASSERT(dd, return);
+
+    GitLabParameters &params = gitLabParameters();
+    GitLabServer server = params.serverForId(serverId);
+    const int index = params.gitLabServers.indexOf(server);
+    server.validateCert = false;
+    params.gitLabServers.replace(index, server);
+    if (dd->dialog)
+        dd->dialog->updateRemotes();
+}
+
 bool handleCertificateIssue(const Utils::Id &serverId)
 {
     QTC_ASSERT(dd, return false);
 
-    GitLabParameters &params = gitLabParameters();
-    GitLabServer server = params.serverForId(serverId);
+    const GitLabServer server = gitLabParameters().serverForId(serverId);
     if (QMessageBox::question(Core::ICore::dialogParent(),
                               Tr::tr("Certificate Error"),
                               Tr::tr(
@@ -277,12 +289,7 @@ bool handleCertificateIssue(const Utils::Id &serverId)
                                   "Note: This can expose you to man-in-the-middle attack.")
                               .arg(server.host))
             == QMessageBox::Yes) {
-        int index = params.gitLabServers.indexOf(server);
-        server.validateCert = false;
-        params.gitLabServers.replace(index, server);
-        if (dd->dialog)
-            dd->dialog->updateRemotes();
-
+        acceptCertificate(serverId);
         return true;
     }
     return false;

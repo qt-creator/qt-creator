@@ -5,16 +5,24 @@
 
 #include "gitlabparameters.h"
 #include "gitlabplugin.h"
+#include "gitlabtr.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
+#include <utils/dialogtask.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/qtasktree.h>
+
+#include <QMessageBox>
 #include <QUrl>
 
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace GitLab {
@@ -80,10 +88,8 @@ QString Query::toString() const
     return query;
 }
 
-QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
-    : QObject(parent)
+static CommandLine gitLabCommand(const Query &query, const GitLabServer &server)
 {
-    const auto server = gitLabParameters().serverForId(id);
     QStringList args = server.curlArguments();
     if (query.hasPaginatedResults())
         args << "-i";
@@ -94,7 +100,13 @@ QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
         url.append(':' + QString::number(server.port));
     url += query.toString();
     args << url;
-    m_process.setCommand({gitLabParameters().curl, args});
+    return {gitLabParameters().curl, args};
+}
+
+QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
+    : QObject(parent)
+{
+    m_process.setCommand(gitLabCommand(query, gitLabParameters().serverForId(id)));
     connect(&m_process, &Process::done, this, [this, id] {
         if (m_process.result() != ProcessResult::FinishedWithSuccess) {
             const int exitCode = m_process.exitCode();
@@ -121,6 +133,72 @@ void QueryRunner::start()
 {
     QTC_ASSERT(!m_process.isRunning(), return);
     m_process.start();
+}
+
+Group gitLabQuery(const QuerySetupHandler &onSetup, const QueryDoneHandler &onDone)
+{
+    const Storage<GitLabQuery> storage;
+    const Storage<bool> needsPrompt; // first attempt hit a (recoverable) certificate error
+
+    const auto onProcessSetup = [storage](Process &process) {
+        process.setCommand(gitLabCommand(storage->m_query,
+                                         gitLabParameters().serverForId(storage->m_id)));
+    };
+
+    const auto onFirstDone = [storage, needsPrompt](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
+            storage->m_result = process.rawStdOut();
+            return DoneResult::Success;
+        }
+        const GitLabServer server = gitLabParameters().serverForId(storage->m_id);
+        // Only offer to ignore the certificate while it is still being validated, so a
+        // persistent SSL error can't keep prompting and retrying.
+        if (server.secure && server.validateCert
+                && process.exitStatus() == QProcess::NormalExit
+                && (process.exitCode() == 35 || process.exitCode() == 60)) { // ssl certificate issues
+            *needsPrompt = true;
+            return DoneResult::Success; // proceed to the prompt + retry branch
+        }
+        VcsBase::VcsOutputWindow::appendError(process.workingDirectory(), process.exitMessage());
+        return DoneResult::Error;
+    };
+
+    const auto onPromptSetup = [storage](DialogWrapper<QMessageBox> &task) {
+        const GitLabServer server = gitLabParameters().serverForId(storage->m_id);
+        task.setParent(Core::ICore::dialogParent());
+        QMessageBox *box = task.dialog();
+        box->setIcon(QMessageBox::Question);
+        box->setWindowTitle(Tr::tr("Certificate Error"));
+        box->setText(Tr::tr("Server certificate for %1 cannot be authenticated.\n"
+                            "Do you want to disable SSL verification for this server?\n"
+                            "Note: This can expose you to man-in-the-middle attack.").arg(server.host));
+        box->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        box->setDefaultButton(QMessageBox::No);
+    };
+    // Runs only on "Yes" (CallDoneFlag::OnSuccess): disabling certificate validation makes
+    // the retry below pass -k. "No" stops the branch, and therefore the whole query.
+    const auto onPromptDone = [storage] { acceptCertificate(storage->m_id); };
+
+    const auto onRetryDone = [storage](const Process &process, DoneWith result) {
+        if (result != DoneWith::Success) {
+            VcsBase::VcsOutputWindow::appendError(process.workingDirectory(), process.exitMessage());
+            return DoneResult::Error;
+        }
+        storage->m_result = process.rawStdOut();
+        return DoneResult::Success;
+    };
+
+    return {
+        storage,
+        needsPrompt,
+        onGroupSetup([storage, onSetup] { onSetup(*storage); }),
+        ProcessTask(onProcessSetup, onFirstDone),
+        If ([needsPrompt] { return *needsPrompt; }) >> Then {
+            DialogTask<QMessageBox>(onPromptSetup, onPromptDone, CallDoneFlag::OnSuccess),
+            ProcessTask(onProcessSetup, onRetryDone),
+        },
+        onGroupDone([storage, onDone] { onDone(*storage); }, CallDoneFlag::OnSuccess),
+    };
 }
 
 } // namespace GitLab

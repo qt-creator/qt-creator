@@ -14,6 +14,8 @@ GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project);
 
 bool handleCertificateIssue(const Utils::Id &serverId);
 
+void acceptCertificate(const Utils::Id &serverId);
+
 void linkedStateChanged(bool enabled);
 
 } // GitLab
