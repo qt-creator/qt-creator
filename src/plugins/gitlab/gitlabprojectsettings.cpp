@@ -6,8 +6,8 @@
 #include "gitlaboptionspage.h"
 #include "gitlabparameters.h"
 #include "gitlabplugin.h"
+#include "gitlabquery.h"
 #include "gitlabtr.h"
-#include "queryrunner.h"
 #include "resultparser.h"
 
 #include <git/gitclient.h>

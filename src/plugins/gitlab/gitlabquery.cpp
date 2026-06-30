@@ -1,7 +1,7 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "queryrunner.h"
+#include "gitlabquery.h"
 
 #include "gitlabparameters.h"
 #include "gitlabplugin.h"
@@ -11,6 +11,7 @@
 #include <utils/commandline.h>
 #include <utils/dialogtask.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QtTaskTree/qconditional.h>
@@ -98,25 +99,6 @@ static CommandLine gitLabCommand(const Query &query, const GitLabServer &server)
     url += query.toString();
     args << url;
     return {gitLabParameters().curl, args};
-}
-
-QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
-    : QObject(parent)
-    , m_query(query)
-    , m_id(id)
-{}
-
-void QueryRunner::start()
-{
-    QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
-    m_result.clear();
-    const Group recipe = gitLabQuery([this](GitLabQuery &query) {
-        query.setServerId(m_id);
-        query.setQuery(m_query);
-    }, [this](const GitLabQuery &query) { m_result = query.result(); });
-    m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
-        emit done(result == DoneWith::Success);
-    });
 }
 
 Group gitLabQuery(const QuerySetupHandler &onSetup, const QueryDoneHandler &onDone)

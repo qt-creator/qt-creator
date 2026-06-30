@@ -22,8 +22,8 @@ QtcPlugin {
         "gitlabplugin.h",
         "gitlabprojectsettings.cpp",
         "gitlabprojectsettings.h",
-        "queryrunner.cpp",
-        "queryrunner.h",
+        "gitlabquery.cpp",
+        "gitlabquery.h",
         "resultparser.cpp",
         "resultparser.h",
     ]

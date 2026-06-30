@@ -4,12 +4,11 @@
 #pragma once
 
 #include <utils/id.h>
-#include <utils/qtcprocess.h>
 
 #include <QtTaskTree/qtasktree.h>
-#include <QtTaskTree/QSingleTaskTreeRunner>
 
-#include <QObject>
+#include <QByteArray>
+#include <QStringList>
 
 #include <functional>
 
@@ -38,25 +37,6 @@ private:
     QStringList m_parameter;
     QStringList m_additionalParameters;
     int m_pageParameter = -1;
-};
-
-class QueryRunner : public QObject
-{
-    Q_OBJECT
-public:
-    QueryRunner(const Query &query, const Utils::Id &id, QObject *parent = nullptr);
-    void start();
-
-    QByteArray result() const { return m_result; }
-
-signals:
-    void done(bool success);
-
-private:
-    const Query m_query;
-    const Utils::Id m_id;
-    QByteArray m_result;
-    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 class GitLabQuery;

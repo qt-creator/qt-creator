@@ -7,8 +7,8 @@
 #include "gitlaboptionspage.h"
 #include "gitlabparameters.h"
 #include "gitlabprojectsettings.h"
+#include "gitlabquery.h"
 #include "gitlabtr.h"
-#include "queryrunner.h"
 #include "resultparser.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
