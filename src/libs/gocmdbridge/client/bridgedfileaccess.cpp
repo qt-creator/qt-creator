@@ -482,6 +482,13 @@ Result<FilePathInfo> FileAccess::filePathInfo(const FilePath &filePath) const
         return FilePathInfo{stat.size,
                 fileInfoFlagsfromStatMode(stat.mode) | FilePathInfo::FileFlags(stat.usermode),
                 stat.modTime};
+    } catch (const std::system_error &e) {
+        // A non-existent file is not an error here: report it as "does not exist"
+        // (empty FilePathInfo), matching the Unix and Windows file access backends.
+        if (e.code().value() == ENOENT)
+            return FilePathInfo();
+        return logError(
+            Tr::tr("Could not get the file path info of \"%1\": %2").arg(str(filePath), str(e)));
     } catch (const std::exception &e) {
         return logError(
             Tr::tr("Could not get the file path info of \"%1\": %2").arg(str(filePath), str(e)));
