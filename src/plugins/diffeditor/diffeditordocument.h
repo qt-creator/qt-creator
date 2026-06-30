@@ -67,7 +67,7 @@ public:
     bool selectEncoding();
     State state() const { return m_state; }
 
-    QString plainText() const;
+    QString plainText() const override;
 
     QByteArray contents() const override;
 

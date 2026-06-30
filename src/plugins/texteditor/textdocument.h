@@ -56,7 +56,7 @@ public:
     static TextDocument *textDocumentForFilePath(const Utils::FilePath &filePath);
     static QString convertToPlainText(const QString &rawText);
 
-    virtual QString plainText() const;
+    QString plainText() const override;
     virtual QString textAt(int pos, int length) const;
     virtual QChar characterAt(int pos) const;
     QString blockText(int blockNumber) const;

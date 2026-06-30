@@ -115,6 +115,11 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
     return res;
 }
 
+QString BaseTextDocument::plainText() const
+{
+    return d->m_format.encoding().decode(contents());
+}
+
 void BaseTextDocument::setEncoding(const TextEncoding &encoding)
 {
     qCDebug(logBaseTextDocument) << Q_FUNC_INFO << this << encoding.name();

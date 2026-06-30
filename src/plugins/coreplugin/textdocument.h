@@ -33,6 +33,7 @@ public:
     Utils::TextFileFormat::LineTerminationMode lineTerminationMode() const;
 
     ReadResult read(const Utils::FilePath &filePath);
+    virtual QString plainText() const;
 
     bool hasDecodingError() const;
     QByteArray decodingErrorSample() const;
