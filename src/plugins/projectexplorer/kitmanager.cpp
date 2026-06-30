@@ -144,8 +144,13 @@ static Id runDeviceTypeForKit(const Kit *kit)
         switch (tcAbi.os()) {
         case Abi::BareMetalOS:
             return BareMetal::Constants::BareMetalOsType;
-        case Abi::BsdOS:
         case Abi::DarwinOS:
+            // A clang toolchain auto-detected on a remote macOS build device should
+            // produce a kit that runs on that same Mac, not on a Remote Linux device.
+            if (buildDeviceType == Remote::Constants::GenericMacOsType)
+                return Remote::Constants::GenericMacOsType;
+            return Remote::Constants::GenericLinuxOsType;
+        case Abi::BsdOS:
         case Abi::UnixOS:
             return Remote::Constants::GenericLinuxOsType;
         case Abi::LinuxOS:

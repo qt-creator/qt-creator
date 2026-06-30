@@ -44,6 +44,10 @@ public:
                 return a.os() == ProjectExplorer::Abi::LinuxOS;
             }))
             result.insert(Remote::Constants::GenericLinuxOsType);
+        if (Utils::contains(qtAbis(), [](const ProjectExplorer::Abi a) {
+                return a.os() == ProjectExplorer::Abi::DarwinOS;
+            }))
+            result.insert(Remote::Constants::GenericMacOsType);
         return result;
     }
 };
