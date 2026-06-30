@@ -3525,7 +3525,12 @@ IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEdito
 */
 void EditorManager::addEditor(IEditor *editor, OpenEditorFlags flags)
 {
+    // editor shouldn't already be open
     QTC_ASSERT(!DocumentModel::editorsForDocument(editor->document()).contains(editor), return);
+    // there shouldn't already be an editor for the same file with a different document
+    // (but suspended document is ok)
+    DocumentModel::Entry *entry = DocumentModel::entryForFilePath(editor->document()->filePath());
+    QTC_ASSERT(!entry || entry->isSuspended || entry->document == editor->document(), return);
     d->addEditor(editor);
     activateEditor(editor, flags);
 }
