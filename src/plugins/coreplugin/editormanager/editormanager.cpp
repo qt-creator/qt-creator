@@ -1413,8 +1413,8 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
             editor->restoreState(state);
             return editor;
         } else if (QTC_GUARD(duplicateSupported)) {
-            editor = duplicateEditor(editor);
-            Q_ASSERT(editor);
+            if (IEditor *duplicate = duplicateEditor(editor))
+                editor = duplicate;
         }
     }
     view->addEditor(editor);
@@ -1429,6 +1429,8 @@ IEditor *EditorManagerPrivate::duplicateEditor(IEditor *editor)
         return nullptr;
 
     IEditor *duplicate = editor->duplicate();
+    QTC_ASSERT(
+        duplicate && duplicate->document() == editor->document(), delete duplicate; return nullptr);
     emit m_instance->editorCreated(duplicate, duplicate->document()->filePath());
     addEditor(duplicate);
     return duplicate;
