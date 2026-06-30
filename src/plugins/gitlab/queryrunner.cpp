@@ -110,10 +110,10 @@ QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
                 return;
             }
             VcsBase::VcsOutputWindow::appendError(m_process.workingDirectory(), m_process.exitMessage());
+            emit done(false);
         } else {
-            emit resultRetrieved(m_process.rawStdOut());
+            emit done(true);
         }
-        emit finished();
     });
 }
 

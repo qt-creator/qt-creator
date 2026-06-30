@@ -211,11 +211,11 @@ void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
     // can't use server, projName as captures inside the lambda below (bindings vs. local vars) :/
     const Id id = server.id;
     const QString projectName = projName;
-    connect(runner, &QueryRunner::resultRetrieved, this,
-            [this, id, remote, projectName](const QByteArray &result) {
-        onConnectionChecked(ResultParser::parseProject(result), id, remote, projectName);
+    connect(runner, &QueryRunner::done, this, [this, runner, id, remote, projectName](bool success) {
+        if (success)
+            onConnectionChecked(ResultParser::parseProject(runner->result()), id, remote, projectName);
+        runner->deleteLater();
     });
-    connect(runner, &QueryRunner::finished, this, [runner]() { runner->deleteLater(); });
     runner->start();
 }
 

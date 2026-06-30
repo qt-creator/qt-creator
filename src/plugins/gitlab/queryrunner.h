@@ -42,9 +42,10 @@ public:
     QueryRunner(const Query &query, const Utils::Id &id, QObject *parent = nullptr);
     void start();
 
+    QByteArray result() const { return m_process.rawStdOut(); }
+
 signals:
-    void finished();
-    void resultRetrieved(const QByteArray &json);
+    void done(bool success);
 
 private:
     Utils::Process m_process;

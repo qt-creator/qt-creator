@@ -206,10 +206,11 @@ void GitLabDialog::requestMainViewUpdate()
 
     const Query query(Query::User);
     QueryRunner *runner = new QueryRunner(query, m_currentServerId, this);
-    connect(runner, &QueryRunner::resultRetrieved, this, [this](const QByteArray &result) {
-        handleUser(ResultParser::parseUser(result));
+    connect(runner, &QueryRunner::done, this, [this, runner](bool success) {
+        if (success)
+            handleUser(ResultParser::parseUser(runner->result()));
+        runner->deleteLater();
     });
-    connect(runner, &QueryRunner::finished, [runner]() { runner->deleteLater(); });
     runner->start();
 }
 
@@ -351,10 +352,11 @@ void GitLabDialog::handleProjects(const Projects &projects)
 void GitLabDialog::fetchProjects()
 {
     QueryRunner *runner = new QueryRunner(m_lastTreeViewQuery, m_currentServerId, this);
-    connect(runner, &QueryRunner::resultRetrieved, this, [this](const QByteArray &result) {
-        handleProjects(ResultParser::parseProjects(result));
+    connect(runner, &QueryRunner::done, this, [this, runner](bool success) {
+        if (success)
+            handleProjects(ResultParser::parseProjects(runner->result()));
+        runner->deleteLater();
     });
-    connect(runner, &QueryRunner::finished, [runner]() { runner->deleteLater(); });
     runner->start();
 }
 

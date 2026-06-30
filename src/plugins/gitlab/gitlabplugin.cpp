@@ -170,10 +170,11 @@ void GitLabPluginPrivate::fetchUser()
 
     const Query query(Query::User);
     QueryRunner *runner = new QueryRunner(query, serverId, this);
-    QObject::connect(runner, &QueryRunner::resultRetrieved, this, [this](const QByteArray &result) {
-        handleUser(ResultParser::parseUser(result));
+    QObject::connect(runner, &QueryRunner::done, this, [this, runner](bool success) {
+        if (success)
+            handleUser(ResultParser::parseUser(runner->result()));
+        runner->deleteLater();
     });
-    QObject::connect(runner, &QueryRunner::finished, [runner]() { runner->deleteLater(); });
     runningQuery = true;
     runner->start();
 }
@@ -194,11 +195,11 @@ void GitLabPluginPrivate::createAndSendEventsRequest(const QDateTime timeStamp, 
         query.setPageParameter(page);
 
     QueryRunner *runner = new QueryRunner(query, serverId, this);
-    QObject::connect(runner, &QueryRunner::resultRetrieved, this,
-                     [this, timeStamp](const QByteArray &result) {
-        handleEvents(ResultParser::parseEvents(result), timeStamp);
+    QObject::connect(runner, &QueryRunner::done, this, [this, runner, timeStamp](bool success) {
+        if (success)
+            handleEvents(ResultParser::parseEvents(runner->result()), timeStamp);
+        runner->deleteLater();
     });
-    QObject::connect(runner, &QueryRunner::finished, [runner]() { runner->deleteLater(); });
     runningQuery = true;
     runner->start();
 }
