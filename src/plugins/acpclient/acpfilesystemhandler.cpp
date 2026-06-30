@@ -4,6 +4,9 @@
 #include "acpfilesystemhandler.h"
 #include "acpclientobject.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/textdocument.h>
+
 #include <utils/filepath.h>
 #include <utils/result.h>
 #include <utils/textfileformat.h>
@@ -32,26 +35,24 @@ void AcpFilesystemHandler::handleReadTextFile(const QJsonValue &id, const ReadTe
     const FilePath filePath = FilePath::fromUserInput(request.path());
     qCDebug(logFs) << "Reading file:" << filePath;
 
-    const Result<QByteArray> contents = filePath.fileContents();
-    if (!contents) {
-        m_client->sendErrorResponse(id, ErrorCode::Resource_not_found,
-                                    QStringLiteral("Cannot read file: %1").arg(filePath.toUserOutput()));
-        return;
-    }
+    QString text;
+    if (auto *doc = qobject_cast<Core::BaseTextDocument *>(Core::DocumentModel::documentForFilePath(filePath))) {
+        text = doc->plainText();
+    } else {
+        TextFileFormat::ReadResult result
+            = TextFileFormat().readFile(filePath, TextEncoding::encodingForLocale());
+        if (result.code != TextFileFormat::ReadSuccess) {
+            m_client->sendErrorResponse(
+                id,
+                ErrorCode::Internal_error,
+                QStringLiteral("Cannot read file: %1. %2")
+                    .arg(filePath.toUserOutput())
+                    .arg(result.error));
+            return;
+        }
 
-    TextFileFormat::ReadResult result
-        = TextFileFormat().readFile(filePath, TextEncoding::encodingForLocale());
-    if (result.code != TextFileFormat::ReadSuccess) {
-        m_client->sendErrorResponse(
-            id,
-            ErrorCode::Internal_error,
-            QStringLiteral("Cannot read file: %1. %2")
-                .arg(filePath.toUserOutput())
-                .arg(result.error));
-        return;
+        text = result.content;
     }
-
-    QString text = result.content;
 
     // Apply line offset and limit if specified
     const auto startLine = request.line();
