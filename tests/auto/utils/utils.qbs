@@ -7,6 +7,7 @@ Project {
         "async/async.qbs",
         "commandline/commandline.qbs",
         "covariantcallback/covariantcallback.qbs",
+        "dialogtask/dialogtask.qbs",
         "expander/expander.qbs",
         "expected/expected.qbs",
         "filepath/filepath.qbs",

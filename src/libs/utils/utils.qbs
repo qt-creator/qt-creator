@@ -102,6 +102,7 @@ QtcLibrary {
         "detailswidget.h",
         "devicefileaccess.cpp",
         "devicefileaccess.h",
+        "dialogtask.h",
         "differ.cpp",
         "differ.h",
         "displayname.cpp",
