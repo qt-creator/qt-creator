@@ -27,33 +27,42 @@
 
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/qtasktree.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 #include <QAction>
 #include <QMessageBox>
 #include <QPointer>
 #include <QTimer>
 
+#include <optional>
+
 using namespace Core;
 
 namespace GitLab {
+
+// Cross-step state shared by the optional user query and the paginated events loop.
+struct EventsData
+{
+    QString projectName;
+    QDateTime timeStamp; // reference time; events newer than this get reported
+    std::optional<int> currentPage = 1; // page to request; nullopt once there is nothing more
+};
 
 class GitLabPluginPrivate : public QObject
 {
 public:
     void setupNotificationTimer();
     void fetchEvents();
-    void fetchUser();
-    void createAndSendEventsRequest(const QDateTime timeStamp, int page = -1);
-    void handleUser(const User &user);
-    void handleEvents(const Events &events, const QDateTime &timeStamp);
 
     GitLabOptionsPage optionsPage;
     QHash<ProjectExplorer::Project *, GitLabProjectSettings *> projectSettings;
     QPointer<GitLabDialog> dialog;
 
+    QtTaskTree::QSingleTaskTreeRunner taskTreeRunner;
     QTimer notificationTimer;
-    QString projectName;
     Utils::Id serverId;
-    bool runningQuery = false;
 };
 
 static GitLabPluginPrivate *dd = nullptr;
@@ -143,95 +152,15 @@ void GitLabPluginPrivate::setupNotificationTimer()
     notificationTimer.start();
 }
 
-void GitLabPluginPrivate::fetchEvents()
+static void handleEvents(const Events &events, EventsData *data)
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    QTC_ASSERT(project, return);
-
-    if (runningQuery)
-        return;
-
-    const GitLabProjectSettings *projSettings = GitLab::projectSettings(project);
-    projectName = projSettings->currentProject();
-    serverId = projSettings->currentServer();
-
-    const QDateTime lastRequest = projSettings->lastRequest();
-    if (!lastRequest.isValid()) { // we haven't queried events for this project yet
-        fetchUser();
-        return;
-    }
-    createAndSendEventsRequest(lastRequest);
-}
-
-void GitLabPluginPrivate::fetchUser()
-{
-    if (runningQuery)
-        return;
-
-    const Query query(Query::User);
-    QueryRunner *runner = new QueryRunner(query, serverId, this);
-    QObject::connect(runner, &QueryRunner::done, this, [this, runner](bool success) {
-        if (success)
-            handleUser(ResultParser::parseUser(runner->result()));
-        runner->deleteLater();
-    });
-    runningQuery = true;
-    runner->start();
-}
-
-void GitLabPluginPrivate::createAndSendEventsRequest(const QDateTime timeStamp, int page)
-{
-    if (runningQuery)
-        return;
-
-    Query query(Query::Events, {projectName});
-    QStringList additional = {"sort=asc"};
-
-    QDateTime after = timeStamp.addDays(-1);
-    additional.append(QLatin1String("after=%1").arg(after.toString("yyyy-MM-dd")));
-    query.setAdditionalParameters(additional);
-
-    if (page > 1)
-        query.setPageParameter(page);
-
-    QueryRunner *runner = new QueryRunner(query, serverId, this);
-    QObject::connect(runner, &QueryRunner::done, this, [this, runner, timeStamp](bool success) {
-        if (success)
-            handleEvents(ResultParser::parseEvents(runner->result()), timeStamp);
-        runner->deleteLater();
-    });
-    runningQuery = true;
-    runner->start();
-}
-
-void GitLabPluginPrivate::handleUser(const User &user)
-{
-    runningQuery = false;
-
-    QTC_ASSERT(user.error.message.isEmpty(), return);
-    const QDateTime timeStamp = QDateTime::fromString(user.lastLogin, Qt::ISODateWithMs);
-    createAndSendEventsRequest(timeStamp);
-}
-
-GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project)
-{
-    QTC_ASSERT(project, return nullptr);
-    QTC_ASSERT(dd, return nullptr);
-    auto &settings = dd->projectSettings[project];
-    if (!settings)
-        settings = new GitLabProjectSettings(project);
-    return settings;
-}
-
-void GitLabPluginPrivate::handleEvents(const Events &events, const QDateTime &timeStamp)
-{
-    runningQuery = false;
+    data->currentPage = std::nullopt; // stop the loop unless we make it to the end successfully
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return);
 
     GitLabProjectSettings *projSettings = GitLab::projectSettings(project);
-    QTC_ASSERT(projSettings->currentProject() == projectName, return);
+    QTC_ASSERT(projSettings->currentProject() == data->projectName, return);
 
     if (!projSettings->isLinked()) // link state has changed meanwhile - ignore the request
         return;
@@ -246,7 +175,7 @@ void GitLabPluginPrivate::handleEvents(const Events &events, const QDateTime &ti
     QDateTime lastTimeStamp;
     for (const Event &event : events.events) {
         const QDateTime eventTimeStamp = QDateTime::fromString(event.timeStamp, Qt::ISODateWithMs);
-        if (!timeStamp.isValid() || timeStamp < eventTimeStamp) {
+        if (!data->timeStamp.isValid() || data->timeStamp < eventTimeStamp) {
             const Utils::FilePath workingDirectory = project->projectDirectory();
             VcsBase::VcsOutputWindow::appendMessage(workingDirectory, "GitLab: " + event.toMessage());
             if (!lastTimeStamp.isValid() || lastTimeStamp < eventTimeStamp)
@@ -259,8 +188,81 @@ void GitLabPluginPrivate::handleEvents(const Events &events, const QDateTime &ti
         projSettings->setLastRequest(lastTimeStamp);
     }
 
+    // Queue the next page if there is one; otherwise currentPage stays unset and the loop ends.
     if (events.pageInfo.currentPage < events.pageInfo.totalPages)
-        createAndSendEventsRequest(timeStamp, events.pageInfo.currentPage + 1);
+        data->currentPage = events.pageInfo.currentPage + 1;
+}
+
+void GitLabPluginPrivate::fetchEvents()
+{
+    using namespace QtTaskTree;
+
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    QTC_ASSERT(project, return);
+
+    if (taskTreeRunner.isRunning())
+        return;
+
+    const GitLabProjectSettings *projSettings = GitLab::projectSettings(project);
+    const QString projectName = projSettings->currentProject();
+    serverId = projSettings->currentServer();
+    const QDateTime lastRequest = projSettings->lastRequest();
+
+    const Storage<EventsData> storage{projectName, lastRequest};
+
+    // When we haven't queried this project yet, look up the user first to learn the reference
+    // timestamp; otherwise this task is skipped and the last request time is used.
+    const auto onUserSetup = [this](GitLabQuery &query) {
+        query.setServerId(serverId);
+        query.setQuery(Query(Query::User));
+    };
+    const auto onUserDone = [storage](const GitLabQuery &query) {
+        const User user = ResultParser::parseUser(query.result());
+        if (user.error.message.isEmpty())
+            storage->timeStamp = QDateTime::fromString(user.lastLogin, Qt::ISODateWithMs);
+        else // give up - without a user we have no reference time to fetch events against
+            storage->currentPage = std::nullopt;
+    };
+
+    // Fetch events page by page until the last page has been retrieved.
+    const auto morePages = [storage](int) { return storage->currentPage.has_value(); };
+
+    const auto onEventsSetup = [this, storage](GitLabQuery &query) {
+        Query events(Query::Events, {storage->projectName});
+        QStringList additional = {"sort=asc"};
+        const QDateTime after = storage->timeStamp.addDays(-1);
+        additional.append(QLatin1String("after=%1").arg(after.toString("yyyy-MM-dd")));
+        events.setAdditionalParameters(additional);
+        if (*storage->currentPage > 1) // the first page is requested without an explicit number
+            events.setPageParameter(*storage->currentPage);
+        query.setServerId(serverId);
+        query.setQuery(events);
+    };
+    const auto onEventsDone = [storage](const GitLabQuery &query) {
+        handleEvents(ResultParser::parseEvents(query.result()), storage.activeStorage());
+    };
+
+    const Group recipe {
+        storage,
+        If ([storage] { return !storage->timeStamp.isValid(); }) >> Then {
+            gitLabQuery(onUserSetup, onUserDone),
+        },
+        For (UntilIterator(morePages)) >> Do {
+            gitLabQuery(onEventsSetup, onEventsDone),
+        },
+    };
+
+    taskTreeRunner.start(recipe);
+}
+
+GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project)
+{
+    QTC_ASSERT(project, return nullptr);
+    QTC_ASSERT(dd, return nullptr);
+    auto &settings = dd->projectSettings[project];
+    if (!settings)
+        settings = new GitLabProjectSettings(project);
+    return settings;
 }
 
 void acceptCertificate(const Utils::Id &serverId)
@@ -284,10 +286,8 @@ void linkedStateChanged(bool enabled)
     if (project) {
         const GitLabProjectSettings *pSettings = projectSettings(project);
         dd->serverId = pSettings->currentServer();
-        dd->projectName = pSettings->currentProject();
     } else {
         dd->serverId = Utils::Id();
-        dd->projectName = QString();
     }
 
     if (enabled) {
