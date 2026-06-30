@@ -140,7 +140,11 @@ bool FSEngineImpl::open(QIODeviceBase::OpenMode openMode, std::optional<QFile::P
 
     if (read || append) {
         const Result<QByteArray> readResult = m_filePath.fileContents();
-        QTC_ASSERT_RESULT(readResult, return false);
+        // Reading can legitimately fail at runtime (e.g. a dangling symlink that the
+        // cached info still reports as existing, or insufficient permissions). That is
+        // not a programming error, so fail the open gracefully instead of asserting.
+        if (!readResult)
+            return false;
 
         const Result<qint64> writeResult = m_tempStorage->write(*readResult);
         QTC_ASSERT_RESULT(writeResult, return false);
