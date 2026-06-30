@@ -3434,17 +3434,18 @@ void EditorManager::revertToSaved()
 
 /*!
     Closes the documents specified by \a entries.
+    Ignores entries that are \c pinned.
 
-    Returns whether all documents were closed.
+    Returns whether all not-pinned documents were closed.
 */
 bool EditorManager::closeDocuments(const QList<DocumentModel::Entry *> &entries)
 {
     QList<IDocument *> documentsToClose;
     for (DocumentModel::Entry *entry : entries) {
-        if (!entry)
-            continue;
         // Pinned files shouldn't be removed from Open Documents, even when pressing the "x" button.
-        if (!entry->pinned && entry->isSuspended)
+        if (!entry || entry->pinned)
+            continue;
+        if (entry->isSuspended)
             delete DocumentModelPrivate::removeEntry(entry);
         else
             documentsToClose << entry->document;
