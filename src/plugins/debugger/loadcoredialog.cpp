@@ -14,6 +14,7 @@
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/aspects.h>
 #include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -36,6 +37,51 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
+class AttachCoreDialogData : public AspectContainer
+{
+public:
+    AttachCoreDialogData()
+    {
+        setSettingsGroup("DebugMode");
+
+        coreFile.setSettingsKey("LastLocalCoreFile");
+        coreFile.setHistoryCompleter("Debugger.CoreFile.History");
+        coreFile.setExpectedKind(PathChooser::File);
+        coreFile.setPromptDialogTitle(Tr::tr("Select Core File"));
+        coreFile.setAllowPathFromDevice(true);
+        coreFile.setLabelText(Tr::tr("Core file:"));
+
+        symbolFile.setSettingsKey("LastExternalExecutableFile");
+        symbolFile.setHistoryCompleter("Executable");
+        symbolFile.setExpectedKind(PathChooser::File);
+        symbolFile.setPromptDialogTitle(Tr::tr("Select Executable or Symbol File"));
+        symbolFile.setAllowPathFromDevice(true);
+        symbolFile.setLabelText(Tr::tr("&Executable or symbol file:"));
+        symbolFile.setToolTip(
+            Tr::tr("Select a file containing debug information corresponding to the core file. "
+                   "Typically, this is the executable or a *.debug file if the debug "
+                   "information is stored separately from the executable."));
+
+        overrideStartScript.setSettingsKey("LastExternalStartScript");
+        overrideStartScript.setHistoryCompleter("Debugger.StartupScript.History");
+        overrideStartScript.setExpectedKind(PathChooser::File);
+        overrideStartScript.setPromptDialogTitle(Tr::tr("Select Startup Script"));
+        overrideStartScript.setLabelText(Tr::tr("Override &start script:"));
+
+        sysRoot.setSettingsKey("LastSysRoot");
+        sysRoot.setHistoryCompleter("Debugger.SysRoot.History");
+        sysRoot.setExpectedKind(PathChooser::Directory);
+        sysRoot.setPromptDialogTitle(Tr::tr("Select SysRoot Directory"));
+        sysRoot.setToolTip(Tr::tr("This option can be used to override the kit's SysRoot setting"));
+        sysRoot.setLabelText(Tr::tr("Override S&ysRoot:"));
+    }
+
+    FilePathAspect coreFile{this};
+    FilePathAspect symbolFile{this};
+    FilePathAspect overrideStartScript{this};
+    FilePathAspect sysRoot{this};
+};
+
 class AttachCoreDialog final : public QDialog
 {
 public:
@@ -43,19 +89,17 @@ public:
 
     int exec() final;
 
-    FilePath symbolFile() const { return m_symbolFileName->filePath(); }
-    FilePath coreFile() const { return m_coreFileName->filePath(); }
-    FilePath overrideStartScript() const { return m_overrideStartScript->filePath(); }
-    FilePath sysRoot() const { return m_sysRootDirectory->filePath(); }
+    FilePath symbolFile() const { return m_data.symbolFile(); }
+    FilePath coreFile() const { return m_data.coreFile(); }
+    FilePath overrideStartScript() const { return m_data.overrideStartScript(); }
+    FilePath sysRoot() const { return m_data.sysRoot(); }
 
     // For persistance.
     ProjectExplorer::Kit *kit() const { return m_kitChooser->currentKit(); }
 
-    void setSymbolFile(const FilePath &filePath) { m_symbolFileName->setFilePath(filePath); }
-    void setCoreFile(const FilePath &filePath) { m_coreFileName->setFilePath(filePath); }
-    void setOverrideStartScript(const FilePath &filePath) { m_overrideStartScript->setFilePath(filePath); }
-    void setSysRoot(const FilePath &sysRoot) { m_sysRootDirectory->setFilePath(sysRoot); }
     void setKitId(Id id) { m_kitChooser->setCurrentKitId(id); }
+    void restoreSettings() { m_data.readSettings(); }
+    void saveSettings() const { m_data.writeSettings(); }
 
     FilePath coreFileCopy() const;
     FilePath symbolFileCopy() const;
@@ -67,10 +111,7 @@ private:
 
     KitChooser *m_kitChooser;
 
-    PathChooser *m_symbolFileName;
-    PathChooser *m_coreFileName;
-    PathChooser *m_overrideStartScript;
-    PathChooser *m_sysRootDirectory;
+    AttachCoreDialogData m_data;
 
     FilePath m_debuggerPath;
 
@@ -98,8 +139,8 @@ private:
     {
         State st;
         st.validKit = (m_kitChooser->currentKit() != nullptr);
-        st.validSymbolFilename = m_symbolFileName->isValid();
-        st.validCoreFilename = m_coreFileName->isValid();
+        st.validSymbolFilename = m_data.symbolFile.pathChooser()->isValid();
+        st.validCoreFilename = m_data.coreFile.pathChooser()->isValid();
         return st;
     }
 };
@@ -118,34 +159,6 @@ AttachCoreDialog::AttachCoreDialog()
     m_kitChooser->setShowIcons(true);
     m_kitChooser->populate();
 
-    m_coreFileName = new PathChooser(this);
-    m_coreFileName->setHistoryCompleter("Debugger.CoreFile.History");
-    m_coreFileName->setExpectedKind(PathChooser::File);
-    m_coreFileName->setPromptDialogTitle(Tr::tr("Select Core File"));
-    m_coreFileName->setAllowPathFromDevice(true);
-
-    m_symbolFileName = new PathChooser(this);
-    m_symbolFileName->setHistoryCompleter("Executable");
-    m_symbolFileName->setExpectedKind(PathChooser::File);
-    m_symbolFileName->setPromptDialogTitle(Tr::tr("Select Executable or Symbol File"));
-    m_symbolFileName->setAllowPathFromDevice(true);
-    m_symbolFileName->setToolTip(
-        Tr::tr("Select a file containing debug information corresponding to the core file. "
-           "Typically, this is the executable or a *.debug file if the debug "
-           "information is stored separately from the executable."));
-
-    m_overrideStartScript = new PathChooser(this);
-    m_overrideStartScript->setHistoryCompleter("Debugger.StartupScript.History");
-    m_overrideStartScript->setExpectedKind(PathChooser::File);
-    m_overrideStartScript->setPromptDialogTitle(Tr::tr("Select Startup Script"));
-
-    m_sysRootDirectory = new PathChooser(this);
-    m_sysRootDirectory->setHistoryCompleter("Debugger.SysRoot.History");
-    m_sysRootDirectory->setExpectedKind(PathChooser::Directory);
-    m_sysRootDirectory->setPromptDialogTitle(Tr::tr("Select SysRoot Directory"));
-    m_sysRootDirectory->setToolTip(Tr::tr(
-     "This option can be used to override the kit's SysRoot setting"));
-
     m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Small, this);
     m_progressIndicator->setVisible(false);
 
@@ -158,10 +171,10 @@ AttachCoreDialog::AttachCoreDialog()
     Column {
         Form {
             Tr::tr("Kit:"), m_kitChooser, br,
-            Tr::tr("Core file:"), m_coreFileName, br,
-            Tr::tr("&Executable or symbol file:"), m_symbolFileName, br,
-            Tr::tr("Override &start script:"), m_overrideStartScript, br,
-            Tr::tr("Override S&ysRoot:"), m_sysRootDirectory, br,
+            m_data.coreFile, br,
+            m_data.symbolFile, br,
+            m_data.overrideStartScript, br,
+            m_data.sysRoot, br,
         },
         st,
         hr,
@@ -174,12 +187,9 @@ AttachCoreDialog::AttachCoreDialog()
 
 int AttachCoreDialog::exec()
 {
-    connect(m_symbolFileName, &PathChooser::validChanged, this, &AttachCoreDialog::changed);
-    connect(m_coreFileName, &PathChooser::validChanged, this, [this] {
-        coreFileChanged(m_coreFileName->unexpandedFilePath());
-    });
-    connect(m_coreFileName, &PathChooser::textChanged, this, [this] {
-        coreFileChanged(m_coreFileName->unexpandedFilePath());
+    connect(&m_data.symbolFile, &FilePathAspect::validChanged, this, &AttachCoreDialog::changed);
+    connect(&m_data.coreFile, &FilePathAspect::validChanged, this, [this] {
+        coreFileChanged(m_data.coreFile());
     });
     connect(m_kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -220,9 +230,9 @@ int AttachCoreDialog::exec()
     if (!st.validKit) {
         m_kitChooser->setFocus();
     } else if (!st.validCoreFilename) {
-        m_coreFileName->setFocus();
+        m_data.coreFile.pathChooser()->setFocus();
     } else if (!st.validSymbolFilename) {
-        m_symbolFileName->setFocus();
+        m_data.symbolFile.pathChooser()->setFocus();
     }
 
     return QDialog::exec();
@@ -295,9 +305,9 @@ void AttachCoreDialog::coreFileChanged(const FilePath &coreFile)
         ProcessRunData debugger = DebuggerKitAspect::runnable(k);
         CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, coreFile);
         if (!cinfo.foundExecutableName.isEmpty())
-            m_symbolFileName->setFilePath(cinfo.foundExecutableName);
-        else if (!m_symbolFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
-            m_symbolFileName->setFilePath(FilePath::fromString(cinfo.rawStringFromCore));
+            m_data.symbolFile.setValue(cinfo.foundExecutableName);
+        else if (!m_data.symbolFile.pathChooser()->isValid() && !cinfo.rawStringFromCore.isEmpty())
+            m_data.symbolFile.setValue(FilePath::fromString(cinfo.rawStringFromCore));
     }
     changed();
 }
@@ -310,42 +320,31 @@ void AttachCoreDialog::changed()
 
 FilePath AttachCoreDialog::coreFileCopy() const
 {
-    return m_coreFileResult.value_or(m_symbolFileName->filePath());
+    return m_coreFileResult.value_or(m_data.symbolFile());
 }
 
 FilePath AttachCoreDialog::symbolFileCopy() const
 {
-    return m_symbolFileResult.value_or(m_symbolFileName->filePath());
+    return m_symbolFileResult.value_or(m_data.symbolFile());
 }
 
 void runAttachToCoreDialog()
 {
     AttachCoreDialog dlg;
 
-    QtcSettings *settings  = ICore::settings();
-
-    const Key executableKey("DebugMode/LastExternalExecutableFile");
-    const Key localCoreKey("DebugMode/LastLocalCoreFile");
+    QtcSettings *settings = ICore::settings();
     const Key kitKey("DebugMode/LastExternalKit");
-    const Key startScriptKey("DebugMode/LastExternalStartScript");
-    const Key sysrootKey("DebugMode/LastSysRoot");
 
     const QString lastExternalKit = settings->value(kitKey).toString();
     if (!lastExternalKit.isEmpty())
         dlg.setKitId(Id::fromString(lastExternalKit));
-    dlg.setSymbolFile(FilePath::fromSettings(settings->value(executableKey)));
-    dlg.setCoreFile(FilePath::fromSettings(settings->value(localCoreKey)));
-    dlg.setOverrideStartScript(FilePath::fromSettings(settings->value(startScriptKey)));
-    dlg.setSysRoot(FilePath::fromSettings(settings->value(sysrootKey)));
+    dlg.restoreSettings();
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    settings->setValue(executableKey, dlg.symbolFile().toSettings());
-    settings->setValue(localCoreKey, dlg.coreFile().toSettings());
+    dlg.saveSettings();
     settings->setValue(kitKey, dlg.kit()->id().toSetting());
-    settings->setValue(startScriptKey, dlg.overrideStartScript().toSettings());
-    settings->setValue(sysrootKey, dlg.sysRoot().toSettings());
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(dlg.kit());
