@@ -56,12 +56,12 @@ def qdump__QByteArray(d, value):
         d.putValue(p, 'latin1', length=length)
     elif displayFormat == DisplayFormat.SeparateLatin1String:
         d.putValue(p, 'latin1', length=length)
-        d.putDisplay('latin1:separate', d.encodeByteArray(value, limit=100000))
+        d.putDisplay('latin1:separate', d.encodeByteArray(value, d.separateStringLimit()))
     elif displayFormat == DisplayFormat.Utf8String:
         d.putValue(p, 'utf8', length=length)
     elif displayFormat == DisplayFormat.SeparateUtf8String:
         d.putValue(p, 'utf8', length=length)
-        d.putDisplay('utf8:separate', d.encodeByteArray(value, limit=100000))
+        d.putDisplay('utf8:separate', d.encodeByteArray(value, d.separateStringLimit()))
     if d.isExpanded():
         d.putArrayData(data, length, d.charType())
 
@@ -2040,7 +2040,7 @@ def qdump__QString(d, value):
     data, length, _ = d.stringData(value)
     displayFormat = d.currentItemFormat()
     if displayFormat == DisplayFormat.Separate:
-        d.putDisplay('utf16:separate', d.encodeString(value, limit=100000))
+        d.putDisplay('utf16:separate', d.encodeString(value, d.separateStringLimit()))
     if length > 0 and not d.isCli:
         d.putExpandable()
         if d.isExpanded():

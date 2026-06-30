@@ -837,6 +837,10 @@ class DumperBase():
             return length
         return limit
 
+    # The minimum of the "Maximum string length" setting reads "<unlimited>".
+    def separateStringLimit(self):
+        return None if self.stringCutOff <= 20 else self.stringCutOff
+
     def vectorData(self, value):
         if self.qtVersionAtLeast(0x060000):
             data, length, alloc = self.qArrayData(value)
@@ -906,7 +910,7 @@ class DumperBase():
         data, length, alloc = self.qArrayData(value)
         if alloc != 0:
             self.check(0 <= length and length <= alloc and alloc <= 100 * 1000 * 1000)
-        shown = self.computeLimit(2 * length, 2 * limit)
+        shown = self.computeLimit(2 * length, None if limit is None else 2 * limit)
         return length, self.readMemory(data, shown)
 
     def encodeByteArrayHelper(self, value, limit):
@@ -939,8 +943,8 @@ class DumperBase():
                 DisplayFormat.SeparateLatin1String,
                 DisplayFormat.SeparateUtf8String,
                 DisplayFormat.Separate):
-            shown = self.computeLimit(length, 100000)
-            self.putDisplay(encodingType + ':separate', self.readMemory(data, shown))
+            shown = self.computeLimit(length, self.separateStringLimit())
+            self.putDisplay(encodingType + ':separate', self.readMemory(data, shown * charSize))
 
     def putCharArrayHelper(self, data, size, charType,
                            displayFormat=DisplayFormat.Automatic,
