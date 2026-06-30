@@ -38,8 +38,6 @@ HelpIndexFilter::HelpIndexFilter()
             &Core::HelpManager::Signals::documentationChanged,
             this,
             &HelpIndexFilter::invalidateCache);
-    connect(HelpManager::instance(), &HelpManager::collectionFileChanged,
-            this, &HelpIndexFilter::invalidateCache);
 }
 
 static void matches(QPromise<QStringList> &promise, const LocatorStorage &storage,

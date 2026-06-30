@@ -57,7 +57,6 @@ public:
     static void setupHelpManager();
 
 signals:
-    void collectionFileChanged();
     void helpRequested(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
 };
 

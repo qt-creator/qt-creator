@@ -177,8 +177,6 @@ HelpPluginPrivate::HelpPluginPrivate()
             &Core::HelpManager::Signals::documentationChanged,
             this,
             &HelpPluginPrivate::setupHelpEngineIfNeeded);
-    connect(HelpManager::instance(), &HelpManager::collectionFileChanged,
-            this, &HelpPluginPrivate::setupHelpEngineIfNeeded);
 
     connect(ToolTip::instance(), &ToolTip::shown, ICore::instance(), []() {
         ICore::addAdditionalContext(Context(kToolTipHelpContext), ICore::ContextPriority::High);
