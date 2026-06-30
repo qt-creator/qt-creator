@@ -45,6 +45,7 @@ public:
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
+        addSupportedDeviceType(Constants::GenericMacOsType);
         setSupportedRunConfigs(supportedRunConfigs());
         setExecutionType(Constants::ExecutionType);
     }
@@ -76,6 +77,7 @@ public:
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
+        addSupportedDeviceType(Constants::GenericMacOsType);
         setSupportedRunConfigs(supportedRunConfigs());
         setExecutionType(Constants::ExecutionType);
     }
@@ -107,6 +109,7 @@ public:
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
+        addSupportedDeviceType(Constants::GenericMacOsType);
         setSupportedRunConfigs(supportedRunConfigs());
         setExecutionType(Constants::ExecutionType);
     }
