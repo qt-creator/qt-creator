@@ -19,6 +19,20 @@ Project {
 
     Product {
         name: "CMake helpers"
-        files: "cmake/*"
+        files: [
+            "CMakePresets.json",
+            "cmake/*",
+        ]
+    }
+
+    Product {
+        name: "Other Files"
+        files: [
+            "CLAUDE.md",
+            "HACKING",
+            "README.md",
+            "TESTING.md",
+            "qt_attributions.json",
+        ]
     }
 }
