@@ -3,6 +3,8 @@
 
 #include "externaltoolsfilter.h"
 
+#include "ilocatorfilter.h"
+
 #include "../coreconstants.h"
 #include "../coreplugintr.h"
 #include "../externaltool.h"
@@ -12,6 +14,20 @@
 using namespace QtTaskTree;
 
 namespace Core::Internal {
+
+class ExternalToolsFilter final : public ILocatorFilter
+{
+public:
+    ExternalToolsFilter();
+
+private:
+    LocatorMatcherTasks matchers() final;
+};
+
+void setupExternalToolsFilter()
+{
+    static ExternalToolsFilter theExternalToolsFilter;
+}
 
 ExternalToolsFilter::ExternalToolsFilter()
 {

@@ -3,48 +3,8 @@
 
 #pragma once
 
-#include "ilocatorfilter.h"
-
-#include <utils/commandline.h>
-
-#include <QStringList>
-
-namespace Utils { class Process; }
-
 namespace Core::Internal {
 
-class ExecuteFilter final : public Core::ILocatorFilter
-{
-    struct ExecuteData
-    {
-        Utils::CommandLine command;
-        Utils::FilePath workingDirectory;
-        QString displayName;
-    };
-
-public:
-    ExecuteFilter();
-    ~ExecuteFilter() final;
-
-private:
-    LocatorMatcherTasks matchers() final;
-    void acceptCommand(const QString &cmd);
-    void done();
-    void readStdOutput();
-    void readStdError();
-    void runHeadCommand();
-
-    void createProcess();
-    void removeProcess();
-
-    void saveState(QJsonObject &object) const final;
-    void restoreState(const QJsonObject &object) final;
-
-    QString headCommand() const;
-
-    QList<ExecuteData> m_taskQueue;
-    QStringList m_commandHistory;
-    Utils::Process *m_process = nullptr;
-};
+void setupExecuteFilter();
 
 } // namespace Core::Internal

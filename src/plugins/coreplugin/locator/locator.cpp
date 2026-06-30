@@ -102,13 +102,6 @@ public:
     LocatorManager m_locatorManager;
     LocatorSettingsPage m_locatorSettingsPage;
 
-#ifndef QTPROFILER_STANDALONE
-    JavaScriptFilter m_javaScriptFilter;
-#endif
-    OpenDocumentsFilter m_openDocumentsFilter;
-    FileSystemFilter m_fileSystemFilter;
-    ExecuteFilter m_executeFilter;
-    ExternalToolsFilter m_externalToolsFilter;
     LocatorFiltersFilter m_locatorsFiltersFilter;
     ActionsFilter m_actionsFilter;
     UrlLocatorFilter m_urlFilter{Tr::tr("Web Search"), "RemoteHelpFilter"};
@@ -118,6 +111,14 @@ public:
 
 LocatorData::LocatorData()
 {
+    setupFileSystemFilter();
+#ifndef QTPROFILER_STANDALONE
+    setupJavaScriptFilter();
+#endif
+    setupOpenDocumentsFilter();
+    setupExecuteFilter();
+    setupExternalToolsFilter();
+
     m_urlFilter.setDescription(Tr::tr("Triggers a web search with the selected search engine."));
     m_urlFilter.setDefaultShortcutString("r");
     m_urlFilter.addDefaultUrl("https://www.bing.com/search?q=%1");
@@ -338,6 +339,10 @@ void Locator::updateEditorManagerPlaceholderText()
 {
     Command *openCommand = ActionManager::command(Constants::OPEN);
     Command *locateCommand = ActionManager::command(Constants::LOCATE);
+    const ILocatorFilter *fileSystemFilter = Utils::findOrDefault(m_filters,
+        Utils::equal(&ILocatorFilter::id, Id(Constants::FILE_SYSTEM_FILTER_ID)));
+    const QString fileSystemFilterShortcut = fileSystemFilter ? fileSystemFilter->shortcutString()
+                                                              : QString();
     const QString placeholderText = Tr::tr("<html><body style=\"color:#909090; font-size:14px\">"
           "<div align='center'>"
           "<div style=\"font-size:20px\">Open a document</div>"
@@ -357,7 +362,7 @@ void Locator::updateEditorManagerPlaceholderText()
           "</body></html>")
          .arg(openCommand->keySequence().toString(QKeySequence::NativeText))
          .arg(locateCommand->keySequence().toString(QKeySequence::NativeText))
-         .arg(m_locatorData->m_fileSystemFilter.shortcutString());
+         .arg(fileSystemFilterShortcut);
 
     QString classes;
     // not nice, but anyhow

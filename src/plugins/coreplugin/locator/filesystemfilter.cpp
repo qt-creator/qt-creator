@@ -3,11 +3,14 @@
 
 #include "filesystemfilter.h"
 
+#include "ilocatorfilter.h"
+
 #include "../coreplugintr.h"
 #include "../documentmanager.h"
 #include "../editormanager/editormanager.h"
 #include "../icore.h"
 #include "../vcsmanager.h"
+#include "locatorconstants.h"
 #include "locatormanager.h"
 
 #include <utils/algorithm.h>
@@ -133,9 +136,31 @@ static std::pair<FilePaths, FilePaths> dirEntries(const FilePath &dir, const Fil
     return {FilePaths({dir / ".."}) + dirs, files};
 }
 
+class FileSystemFilter final : public ILocatorFilter
+{
+public:
+    FileSystemFilter();
+    bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;
+
+protected:
+    void saveState(QJsonObject &object) const final;
+    void restoreState(const QJsonObject &object) final;
+
+private:
+    LocatorMatcherTasks matchers() final;
+
+    static const bool s_includeHiddenDefault = true;
+    bool m_includeHidden = s_includeHiddenDefault;
+};
+
+void setupFileSystemFilter()
+{
+    static FileSystemFilter theFileSystemFilter;
+}
+
 FileSystemFilter::FileSystemFilter()
 {
-    setId("Files in file system");
+    setId(Constants::FILE_SYSTEM_FILTER_ID);
     setDisplayName(Tr::tr("Files in File System"));
     setDescription(Tr::tr("Opens a file given by a relative path to the current document, or absolute "
                       "path. \"~\" refers to your home directory. You have the option to create a "

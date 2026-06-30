@@ -3,17 +3,8 @@
 
 #pragma once
 
-#include "ilocatorfilter.h"
-
 namespace Core::Internal {
 
-class OpenDocumentsFilter final : public ILocatorFilter
-{
-public:
-    OpenDocumentsFilter();
-
-private:
-    LocatorMatcherTasks matchers() final;
-};
+void setupOpenDocumentsFilter();
 
 } // namespace Core::Internal

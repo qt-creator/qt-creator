@@ -3,6 +3,8 @@
 
 #include "opendocumentsfilter.h"
 
+#include "ilocatorfilter.h"
+
 #include "../coreplugintr.h"
 #include "../editormanager/documentmodel.h"
 
@@ -23,16 +25,6 @@ public:
     Utils::FilePath fileName;
     QString displayName;
 };
-
-OpenDocumentsFilter::OpenDocumentsFilter()
-{
-    setId("Open documents");
-    setDisplayName(Tr::tr("Open Documents"));
-    setDescription(Tr::tr("Switches to an open document."));
-    setDefaultShortcutString("o");
-    setPriority(High);
-    setDefaultIncludedByDefault(true);
-}
 
 static void matchEditors(QPromise<void> &promise, const LocatorStorage &storage,
                          const QList<Entry> &editorsData)
@@ -68,15 +60,37 @@ static void matchEditors(QPromise<void> &promise, const LocatorStorage &storage,
     storage.reportOutput(betterEntries + goodEntries);
 }
 
-LocatorMatcherTasks OpenDocumentsFilter::matchers()
+class OpenDocumentsFilter final : public ILocatorFilter
 {
-    const auto onSetup = [](Async<void> &async) {
-        const QList<Entry> editorsData = Utils::transform(DocumentModel::entries(),
-            [](const DocumentModel::Entry *e) { return Entry{e->filePath(), e->displayName()}; });
-        async.setConcurrentCallData(matchEditors, *LocatorStorage::storage(), editorsData);
-    };
+public:
+    OpenDocumentsFilter()
+    {
+        setId("Open documents");
+        setDisplayName(Tr::tr("Open Documents"));
+        setDescription(Tr::tr("Switches to an open document."));
+        setDefaultShortcutString("o");
+        setPriority(High);
+        setDefaultIncludedByDefault(true);
+    }
 
-    return {AsyncTask<void>(onSetup)};
+private:
+    LocatorMatcherTasks matchers() final
+    {
+        const auto onSetup = [](Async<void> &async) {
+            const QList<Entry> editorsData = Utils::transform(DocumentModel::entries(),
+                [](const DocumentModel::Entry *e) {
+                    return Entry{e->filePath(), e->displayName()};
+                });
+            async.setConcurrentCallData(matchEditors, *LocatorStorage::storage(), editorsData);
+        };
+
+        return {AsyncTask<void>(onSetup)};
+    }
+};
+
+void setupOpenDocumentsFilter()
+{
+    static OpenDocumentsFilter theOpenDocumentsFilter;
 }
 
 } // namespace Core::Internal

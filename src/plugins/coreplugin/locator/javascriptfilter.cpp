@@ -3,7 +3,10 @@
 
 #include "javascriptfilter.h"
 
+#include "ilocatorfilter.h"
+
 #include "../coreplugintr.h"
+#include "../icore.h"
 
 #include <utils/algorithm.h>
 
@@ -345,12 +348,31 @@ using JavaScriptRequestTask = QCustomTask<JavaScriptRequest>;
 
 namespace Core::Internal {
 
+class JavaScriptFilter final : public ILocatorFilter
+{
+public:
+    JavaScriptFilter();
+    ~JavaScriptFilter();
+
+private:
+    LocatorMatcherTasks matchers() final;
+    std::unique_ptr<JavaScriptEngine> m_javaScriptEngine;
+};
+
+void setupJavaScriptFilter()
+{
+    static JavaScriptFilter theJavaScriptFilter;
+}
+
 JavaScriptFilter::JavaScriptFilter()
 {
     setId("JavaScriptFilter");
     setDisplayName(Tr::tr("Evaluate JavaScript"));
     setDescription(Tr::tr("Evaluates arbitrary JavaScript expressions and copies the result."));
     setDefaultShortcutString("=");
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this] {
+        m_javaScriptEngine.reset();
+    });
 }
 
 JavaScriptFilter::~JavaScriptFilter() = default;

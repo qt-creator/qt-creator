@@ -3,17 +3,8 @@
 
 #pragma once
 
-#include "ilocatorfilter.h"
-
 namespace Core::Internal {
 
-class ExternalToolsFilter final : public ILocatorFilter
-{
-public:
-    ExternalToolsFilter();
-
-private:
-    LocatorMatcherTasks matchers() final;
-};
+void setupExternalToolsFilter();
 
 } // namespace Core::Internal

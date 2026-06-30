@@ -3,25 +3,8 @@
 
 #pragma once
 
-#include "ilocatorfilter.h"
-
 namespace Core::Internal {
 
-class FileSystemFilter final : public ILocatorFilter
-{
-public:
-    FileSystemFilter();
-    bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;
-
-protected:
-    void saveState(QJsonObject &object) const final;
-    void restoreState(const QJsonObject &object) final;
-
-private:
-    LocatorMatcherTasks matchers() final;
-
-    static const bool s_includeHiddenDefault = true;
-    bool m_includeHidden = s_includeHiddenDefault;
-};
+void setupFileSystemFilter();
 
 } // namespace Core::Internal

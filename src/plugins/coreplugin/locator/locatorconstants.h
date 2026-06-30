@@ -12,5 +12,6 @@ inline constexpr char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("QtC::Core", "Lo
 inline constexpr char CUSTOM_DIRECTORY_FILTER_BASEID[] = "Locator.CustomFilter";
 inline constexpr char CUSTOM_URL_FILTER_BASEID[] = "Locator.CustomUrlFilter";
 inline constexpr char TASK_INDEX[] = "Locator.Task.Index";
+inline constexpr char FILE_SYSTEM_FILTER_ID[] = "Files in file system";
 
 } // namespace Core::Constants

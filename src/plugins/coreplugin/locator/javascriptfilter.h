@@ -3,21 +3,8 @@
 
 #pragma once
 
-#include "ilocatorfilter.h"
-
-class JavaScriptEngine;
-
 namespace Core::Internal {
 
-class JavaScriptFilter final : public Core::ILocatorFilter
-{
-public:
-    JavaScriptFilter();
-    ~JavaScriptFilter();
-
-private:
-    LocatorMatcherTasks matchers() final;
-    std::unique_ptr<JavaScriptEngine> m_javaScriptEngine;
-};
+void setupJavaScriptFilter();
 
 } // namespace Core::Internal
