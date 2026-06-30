@@ -230,8 +230,11 @@ def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<N
     template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Application (Qt)", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
+    origBuildSystem = buildSystem
     buildSystem = __handleBuildSystem__(buildSystem)
-
+    # CMake without Qt5 compatibility does not support Qt before 6.5
+    if buildSystem == "CMake" and origBuildSystem != "CMake":
+        Targets.removeTargetsBefore(available, "6.5")
     if checks:
         exp_filename = "mainwindow"
         h_file = exp_filename + ".h"
@@ -272,8 +275,12 @@ def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<N
 def createProject_Qt_Console(path, projectName, checks = True, buildSystem = None, targets=[]):
     available = __createProjectOrFileSelectType__("  Application (Qt)", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
+    origBuildSystem = buildSystem
     buildSystem = __handleBuildSystem__(buildSystem)
     __createProjectHandleTranslationSelection__()
+    # CMake without Qt5 compatibility does not support Qt before 6.5
+    if buildSystem == "CMake" and origBuildSystem != "CMake":
+        Targets.removeTargetsBefore(available, '6.5')
     if targets:
         available = set(targets).intersection(available)
         if len(available) < len(targets):

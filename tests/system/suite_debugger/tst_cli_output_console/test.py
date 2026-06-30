@@ -14,8 +14,7 @@ def main():
         return
     targets = []
     if platform.system() in ('Microsoft', 'Windows'):
-        # Qt5.10 has constructs that do not work on Win because of limitation to older C++
-        targets = [Targets.DESKTOP_5_14_1_DEFAULT, Targets.DESKTOP_6_2_4]
+        targets = [Targets.DESKTOP_6_9_2]
         if os.getenv('SYSTEST_NEW_SETTINGS') == '1':
             targets.append(Targets.DESKTOP_6_7_3_GCC)
     createProject_Qt_Console(tempDir(), project, targets=targets)
