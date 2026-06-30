@@ -132,6 +132,7 @@ private:
     QPushButton m_checkConnection{Tr::tr("Test Connection")};
     InfoLabel m_infoLabel;
     CheckMode m_checkMode = Connection;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Project *project)
@@ -192,7 +193,7 @@ void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
     const GitLabServer server = m_linkedGitLabServer.currentData().value<GitLabServer>();
     const QString remote = m_hostCB.currentData().toString();
 
-    const auto [remoteHost, projName, port] = GitLabProjectSettings::remotePartsFromRemote(remote);
+    const auto [remoteHost, projectName, port] = GitLabProjectSettings::remotePartsFromRemote(remote);
     if (remoteHost != server.host) { // port check as well
         m_infoLabel.setType(InfoLabel::NotOk);
         m_infoLabel.setText(Tr::tr("Remote host does not match chosen GitLab configuration."));
@@ -206,17 +207,15 @@ void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
     m_checkConnection.setEnabled(false);
 
     m_checkMode = mode;
-    const Query query(Query::Project, {projName});
-    QueryRunner *runner = new QueryRunner(query, server.id, this);
-    // can't use server, projName as captures inside the lambda below (bindings vs. local vars) :/
-    const Id id = server.id;
-    const QString projectName = projName;
-    connect(runner, &QueryRunner::done, this, [this, runner, id, remote, projectName](bool success) {
-        if (success)
-            onConnectionChecked(ResultParser::parseProject(runner->result()), id, remote, projectName);
-        runner->deleteLater();
-    });
-    runner->start();
+    m_taskTreeRunner.start(gitLabQuery(
+        [serverId = server.id, projectName](GitLabQuery &query) {
+            query.setServerId(serverId);
+            query.setQuery(Query(Query::Project, {projectName}));
+        },
+        [this, serverId = server.id, remote, projectName](const GitLabQuery &query) {
+            onConnectionChecked(ResultParser::parseProject(query.result()), serverId, remote,
+                                projectName);
+        }));
 }
 
 void GitLabProjectSettingsWidget::onConnectionChecked(const Project &project,
