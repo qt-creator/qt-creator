@@ -3892,7 +3892,17 @@ QList<IEditor*> EditorManager::visibleEditors()
 */
 bool EditorManager::closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors)
 {
-    return m_instance->closeEditors(DocumentModel::editorsForDocuments(documents), askAboutModifiedEditors);
+    QList<IEditor *> editorsToClose;
+    for (IDocument *doc : documents) {
+        DocumentModel::Entry *entry = DocumentModel::entryForDocument(doc);
+        // if entry is suspended, close the entry
+        if (QTC_GUARD(entry) && entry->isSuspended) {
+            delete DocumentModelPrivate::removeEntry(entry);
+        } else {
+            editorsToClose += DocumentModel::editorsForDocuments({doc});
+        }
+    }
+    return m_instance->closeEditors(editorsToClose, askAboutModifiedEditors);
 }
 
 /*!
