@@ -193,7 +193,7 @@ static uint decodeHexChar(unsigned char c)
 void RegisterValue::fromString(const QString &str, RegisterFormat format)
 {
     known = !str.isEmpty();
-    v.u64[1] = v.u64[0] = 0;
+    v.u128[1] = v.u128[0] = 0;
 
     const int n = str.size();
     int pos = 0;
@@ -216,47 +216,82 @@ void RegisterValue::fromString(const QString &str, RegisterFormat format)
     }
 
     if (negative) {
-        v.u64[1] = ~v.u64[1];
-        v.u64[0] = ~v.u64[0];
-        ++v.u64[0];
-        if (v.u64[0] == 0)
-            ++v.u64[1];
+        v.u128[1] = ~v.u128[1];
+        v.u128[0] = ~v.u128[0];
+        ++v.u128[0];
+        if (v.u128[0] == 0)
+            ++v.u128[1];
     }
 }
 
 bool RegisterValue::operator==(const RegisterValue &other)
 {
-    return v.u64[0] == other.v.u64[0] && v.u64[1] == other.v.u64[1];
+    return v.u128[0] == other.v.u128[0] && v.u128[1] == other.v.u128[1];
 }
 
-static QString formatRegister(quint64 v, int size, RegisterFormat format, bool forEdit)
+static QString toDec(Quint128 v)
+{
+    if (!v)
+        return QString("0");
+    QString result;
+    while (v) {
+        result.prepend(QChar::fromLatin1('0' + char(v % 10)));
+        v = v / 10;
+    }
+    return result;
+}
+
+static QString toHex(Quint128 v)
+{
+    if (!v)
+        return QString("0");
+    static const char digits[] = "0123456789abcdef";
+    QString result;
+    while (v) {
+        result.prepend(QChar::fromLatin1(digits[v & 15]));
+        v = v / 16;
+    }
+    return result;
+}
+
+static QString formatRegister(Quint128 v, int size, RegisterFormat format, bool forEdit)
 {
     QString result;
     if (format == HexadecimalFormat) {
-        result = QString::number(v, 16);
-        result.prepend(QString(2*size - result.size(), '0'));
+        result = toHex(v);
+        result.prepend(QString(2 * size - result.size(), '0'));
     } else if (format == DecimalFormat) {
-        result = QString::number(v, 10);
-        result.prepend(QString(2*size - result.size(), ' '));
+        result = toDec(v);
+        result.prepend(QString(2 * size - result.size(), ' '));
     } else if (format == SignedDecimalFormat) {
-        qint64 sv;
-        if (size >= 8)
-            sv = qint64(v);
-        else if (size >= 4)
-            sv = qint32(v);
-        else if (size >= 2)
-            sv = qint16(v);
-        else
-            sv = qint8(v);
-        result = QString::number(sv, 10);
-        result.prepend(QString(2*size - result.size(), ' '));
+        if (size >= 16) {
+            if (v.hi >> 63) { // negative
+                Quint128 magnitude = ~v;
+                ++magnitude;
+                result = '-' + toDec(magnitude);
+            } else {
+                result = toDec(v);
+            }
+        } else {
+            qint64 sv;
+            if (size >= 8)
+                sv = qint64(v.lo);
+            else if (size >= 4)
+                sv = qint32(v.lo);
+            else if (size >= 2)
+                sv = qint16(v.lo);
+            else
+                sv = qint8(v.lo);
+            result = QString::number(sv, 10);
+        }
+        result.prepend(QString(2 * size - result.size(), ' '));
     } else if (format == CharacterFormat) {
         bool spacesOnly = true;
-        if (v >= 32 && v < 127) {
+        if (v.hi == 0 && v.lo >= 32 && v.lo < 127) {
             spacesOnly = false;
             if (!forEdit)
                 result += '\'';
-            result += char(v);
+            result += char(v.lo);
             if (!forEdit)
                 result += '\'';
         } else {
@@ -265,7 +300,7 @@ static QString formatRegister(quint64 v, int size, RegisterFormat format, bool f
         if (spacesOnly && forEdit)
             result.clear();
         else
-            result.prepend(QString(2*size - result.size(), ' '));
+            result.prepend(QString(2 * size - result.size(), ' '));
     }
     return result;
 }
@@ -282,13 +317,13 @@ QString RegisterValue::toString(RegisterKind kind, int size, RegisterFormat form
     }
 
     QString result;
-    if (size > 8) {
-        result += formatRegister(v.u64[1], size - 8, format, forEdit);
-        size = 8;
+    if (size > 16) {
+        result += formatRegister(v.u128[1], size - 16, format, forEdit);
+        size = 16;
         if (format != HexadecimalFormat)
             result += ',';
     }
-    return result + formatRegister(v.u64[0], size, format, forEdit);
+    return result + formatRegister(v.u128[0], size, format, forEdit);
 }
 
 RegisterValue RegisterValue::subValue(int size, int index) const
@@ -307,6 +342,9 @@ RegisterValue RegisterValue::subValue(int size, int index) const
             break;
         case 8:
             value.v.u64[0] = v.u64[index];
+            break;
+        case 16:
+            value.v.u128[0] = v.u128[index];
             break;
     }
     return value;
@@ -327,14 +365,17 @@ void RegisterValue::setSubValue(int size, int index, RegisterValue subValue)
         case 8:
             v.u64[index] = subValue.v.u64[0];
             break;
+        case 16:
+            v.u128[index] = subValue.v.u128[0];
+            break;
     }
 }
 
 static inline void shiftBitsLeft(RegisterValue *val, int amount)
 {
-    val->v.u64[1] <<= amount;
-    val->v.u64[1] |= val->v.u64[0] >> (64 - amount);
-    val->v.u64[0] <<= amount;
+    val->v.u128[1] <<= amount;
+    val->v.u128[1] |= val->v.u128[0] >> (128 - amount);
+    val->v.u128[0] <<= amount;
 }
 
 void RegisterValue::shiftOneDigit(uint digit, RegisterFormat format)
@@ -342,34 +383,34 @@ void RegisterValue::shiftOneDigit(uint digit, RegisterFormat format)
     switch (format) {
     case HexadecimalFormat:
         shiftBitsLeft(this, 4);
-        v.u64[0] |= digit;
+        v.u128[0] |= digit;
         break;
     case OctalFormat:
         shiftBitsLeft(this, 3);
-        v.u64[0] |= digit;
+        v.u128[0] |= digit;
         break;
     case BinaryFormat:
         shiftBitsLeft(this, 1);
-        v.u64[0] |= digit;
+        v.u128[0] |= digit;
         break;
     case DecimalFormat:
     case SignedDecimalFormat: {
         shiftBitsLeft(this, 1);
-        quint64 tmp0 = v.u64[0];
-        quint64 tmp1 = v.u64[1];
+        Quint128 tmp0 = v.u128[0];
+        Quint128 tmp1 = v.u128[1];
         shiftBitsLeft(this, 2);
-        v.u64[1] += tmp1;
-        v.u64[0] += tmp0;
-        if (v.u64[0] < tmp0)
-            ++v.u64[1];
-        v.u64[0] += digit;
-        if (v.u64[0] < digit)
-            ++v.u64[1];
+        v.u128[1] += tmp1;
+        v.u128[0] += tmp0;
+        if (v.u128[0] < tmp0)
+            ++v.u128[1];
+        v.u128[0] += digit;
+        if (v.u128[0] < digit)
+            ++v.u128[1];
         break;
     }
     case CharacterFormat:
         shiftBitsLeft(this, 8);
-        v.u64[0] |= digit;
+        v.u128[0] |= digit;
     }
 }
 

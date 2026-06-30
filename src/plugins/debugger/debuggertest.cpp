@@ -8,6 +8,7 @@
 #include "debuggercore.h"
 #include "debuggeritem.h"
 #include "debuggerruncontrol.h"
+#include "registerhandler.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -58,6 +59,9 @@ private slots:
 
     void testBenchmark();
     void testStateMachine();
+
+    void testRegisterValue_data();
+    void testRegisterValue();
 
 private:
     CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
@@ -237,6 +241,44 @@ void DebuggerUnitTests::testDebuggerMatching()
         level = DebuggerItem::MatchesWell;
 
     QCOMPARE(expectedLevel, level);
+}
+
+void DebuggerUnitTests::testRegisterValue_data()
+{
+    // Lowercase hex of the register value, no "0x"; its length defines the size.
+    QTest::addColumn<QString>("hexValue");
+
+    QTest::newRow("8bit") << "ab";
+    QTest::newRow("32bit") << "89abcdef";
+    QTest::newRow("64bit") << "0123456789abcdef";
+    QTest::newRow("64bit-leading-zero") << "00000000deadbeef";
+    QTest::newRow("128bit") << "fedcba98765432100123456789abcdef";
+    QTest::newRow("128bit-high-only") << "ffffffffffffffff0000000000000000";
+    // 256-bit (e.g. AVX YMM): used to show up as 0 because the upper half was dropped.
+    QTest::newRow("256bit")
+        << "99aabbccddeeff001122334455667788fedcba98765432100123456789abcdef";
+    QTest::newRow("256bit-high-only")
+        << "abcdef01234567899876543210fedcba00000000000000000000000000000000";
+    QTest::newRow("256bit-all-f") << QString(64, 'f');
+}
+
+void DebuggerUnitTests::testRegisterValue()
+{
+    QFETCH(QString, hexValue);
+    const int size = int(hexValue.size()) / 2; // bytes
+
+    RegisterValue value;
+    value.fromString("0x" + hexValue, HexadecimalFormat);
+
+    // Round-trips through the (up to 256-bit wide) representation. On the old
+    // 128-bit-only implementation the upper half of a 256-bit value was lost.
+    QCOMPARE(value.toString(IntegerRegister, size, HexadecimalFormat), hexValue);
+
+    // Decimal formatting goes through the synthesized 128-bit division.
+    RegisterValue twoPow64;
+    twoPow64.fromString("0x10000000000000000", HexadecimalFormat);
+    QCOMPARE(twoPow64.toString(IntegerRegister, 16, DecimalFormat).trimmed(),
+             QString("18446744073709551616"));
 }
 
 QObject *createDebuggerTest()
