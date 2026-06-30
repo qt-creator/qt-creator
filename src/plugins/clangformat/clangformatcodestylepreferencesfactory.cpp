@@ -185,8 +185,10 @@ public:
     ~ClangFormatConfigWidget() override;
 
     void apply();
+    void cancel();
 
     void onUseCustomSettingsChanged(bool doUse);
+    void setOnChanged(const std::function<void()> &onChanged) { m_onChanged = onChanged; }
 
 private:
     bool eventFilter(QObject *object, QEvent *event) override;
@@ -213,6 +215,7 @@ private:
     ClangFormatIndenter *m_indenter;
 
     bool m_useCustomSettings = false;
+    std::function<void()> m_onChanged;
 };
 
 bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
@@ -322,6 +325,11 @@ void ClangFormatConfigWidget::initEditor()
                                 this);
 
     connect(m_editor->document(), &TextDocument::contentsChanged, this, [this] {
+        // A real user edit (programmatic reopens are guarded); let the hosting
+        // editor know so the deferred page becomes dirty.
+        if (!m_ignoreChanges.isLocked() && m_onChanged)
+            m_onChanged();
+
         clang::format::FormatStyle currentSettingsStyle{};
         const Result<> success
             = parseConfigurationContent(m_editor->document()->contents().toStdString(),
@@ -443,6 +451,13 @@ void ClangFormatConfigWidget::apply()
     m_editor->document()->save(m_config->filePath());
 }
 
+void ClangFormatConfigWidget::cancel()
+{
+    // Discard unsaved edits by reloading the style file's content.
+    reopenClangFormatDocument();
+    updatePreview();
+}
+
 void ClangFormatConfigWidget::onUseCustomSettingsChanged(bool doUse)
 {
     m_useCustomSettings = doUse;
@@ -462,6 +477,10 @@ public:
 
     void apply();
     void cancel();
+    void setOnChanged(const std::function<void()> &onChanged)
+    {
+        m_clangFormatSettings->setOnChanged(onChanged);
+    }
 
 private:
     CppEditor::CppCodeStylePreferencesWidget *m_legacyIndenterSettings = nullptr;
@@ -511,8 +530,8 @@ void ClangFormatCodeStyleWidget::apply()
 void ClangFormatCodeStyleWidget::cancel()
 {
     if (m_legacyIndenterSettings)
-        m_legacyIndenterSettings->apply();
-    m_clangFormatSettings->apply();
+        m_legacyIndenterSettings->cancel();
+    m_clangFormatSettings->cancel();
 }
 
 // ClangFormatSettingsEditor
@@ -567,24 +586,47 @@ public:
         connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
                 &m_widget, &ClangFormatCodeStyleWidget::onUseCustomSettingsChanged);
         m_widget.onUseCustomSettingsChanged(m_globalSettings.useCustomSettings());
+
+        // ClangFormat keeps its settings in .clang-format files and the global
+        // ClangFormatSettings, which the hosting CodeStyleAspect cannot see in
+        // the preferences. Track edits explicitly so Apply/Cancel enable and the
+        // deferred page commits them on apply(). Wired last so the setup above
+        // does not mark the page dirty.
+        const auto markChanged = [this] {
+            m_dirty = true;
+            emit changed();
+        };
+        m_widget.setOnChanged(markChanged);
+        connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::modeChanged, this, markChanged);
+        connect(&m_globalSettings, &ClangFormatGlobalConfigWidget::useCustomSettingsChanged,
+                this, markChanged);
+        connect(codeStyle, &ICodeStylePreferences::currentValueChanged, this, markChanged);
+        connect(codeStyle, &ICodeStylePreferences::currentTabSettingsChanged, this, markChanged);
     }
 
     void apply() final
     {
         m_widget.apply();
         m_globalSettings.apply();
+        m_dirty = false;
+        emit changed();
     }
 
     void cancel() final
     {
         m_widget.cancel();
         m_globalSettings.cancel();
+        m_dirty = false;
+        emit changed();
     }
+
+    bool isDirty() const final { return m_dirty; }
 
 private:
     ClangFormatGlobalConfigWidget m_globalSettings;
     ClangFormatSelectorWidget m_selector;
     ClangFormatCodeStyleWidget m_widget;
+    bool m_dirty = false;
 };
 
 // ClangFormatProjectEditor
