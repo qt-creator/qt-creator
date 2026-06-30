@@ -7,6 +7,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QtTaskTree/qtasktree.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QObject>
 
@@ -46,13 +47,16 @@ public:
     QueryRunner(const Query &query, const Utils::Id &id, QObject *parent = nullptr);
     void start();
 
-    QByteArray result() const { return m_process.rawStdOut(); }
+    QByteArray result() const { return m_result; }
 
 signals:
     void done(bool success);
 
 private:
-    Utils::Process m_process;
+    const Query m_query;
+    const Utils::Id m_id;
+    QByteArray m_result;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 class GitLabQuery;

@@ -8,9 +8,6 @@
 #include "gitlabtr.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/dialogtask.h>
 #include <utils/qtcassert.h>
@@ -105,34 +102,21 @@ static CommandLine gitLabCommand(const Query &query, const GitLabServer &server)
 
 QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
     : QObject(parent)
-{
-    m_process.setCommand(gitLabCommand(query, gitLabParameters().serverForId(id)));
-    connect(&m_process, &Process::done, this, [this, id] {
-        if (m_process.result() != ProcessResult::FinishedWithSuccess) {
-            const int exitCode = m_process.exitCode();
-            if (m_process.exitStatus() == QProcess::NormalExit
-                    && (exitCode == 35 || exitCode == 60) // common ssl certificate issues
-                    && handleCertificateIssue(id)) {
-                m_process.close();
-                // prepend -k for re-requesting the same query
-                CommandLine cmdline = m_process.commandLine();
-                cmdline.prependArgs({"-k"});
-                m_process.setCommand(cmdline);
-                start();
-                return;
-            }
-            VcsBase::VcsOutputWindow::appendError(m_process.workingDirectory(), m_process.exitMessage());
-            emit done(false);
-        } else {
-            emit done(true);
-        }
-    });
-}
+    , m_query(query)
+    , m_id(id)
+{}
 
 void QueryRunner::start()
 {
-    QTC_ASSERT(!m_process.isRunning(), return);
-    m_process.start();
+    QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
+    m_result.clear();
+    const Group recipe = gitLabQuery([this](GitLabQuery &query) {
+        query.setServerId(m_id);
+        query.setQuery(m_query);
+    }, [this](const GitLabQuery &query) { m_result = query.result(); });
+    m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
+        emit done(result == DoneWith::Success);
+    });
 }
 
 Group gitLabQuery(const QuerySetupHandler &onSetup, const QueryDoneHandler &onDone)

@@ -276,25 +276,6 @@ void acceptCertificate(const Utils::Id &serverId)
         dd->dialog->updateRemotes();
 }
 
-bool handleCertificateIssue(const Utils::Id &serverId)
-{
-    QTC_ASSERT(dd, return false);
-
-    const GitLabServer server = gitLabParameters().serverForId(serverId);
-    if (QMessageBox::question(Core::ICore::dialogParent(),
-                              Tr::tr("Certificate Error"),
-                              Tr::tr(
-                                  "Server certificate for %1 cannot be authenticated.\n"
-                                  "Do you want to disable SSL verification for this server?\n"
-                                  "Note: This can expose you to man-in-the-middle attack.")
-                              .arg(server.host))
-            == QMessageBox::Yes) {
-        acceptCertificate(serverId);
-        return true;
-    }
-    return false;
-}
-
 void linkedStateChanged(bool enabled)
 {
     QTC_ASSERT(dd, return);
