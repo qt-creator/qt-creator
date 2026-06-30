@@ -228,6 +228,16 @@ int main(int argc, char *argv[])
                 Utils::QtDesignWidgets::Label { text("Secondary label"), role(Utils::QtcLabel::Secondary) },
                 st,
             },
+            "QtcBadge:",
+            Row {
+                Utils::QtDesignWidgets::Badge { text("OK"), role(Utils::QtcBadge::NumberPrimary), infoType(InfoLabel::Ok)},
+                Utils::QtDesignWidgets::Badge { text("!"), role(Utils::QtcBadge::NumberPrimary), infoType(InfoLabel::Warning) },
+                Utils::QtDesignWidgets::Badge { text("Bad"), role(Utils::QtcBadge::NumberPrimary), infoType(InfoLabel::Error) },
+                Utils::QtDesignWidgets::Badge { text("OK"), role(Utils::QtcBadge::NumberSecondary), infoType(InfoLabel::Ok)},
+                Utils::QtDesignWidgets::Badge { text("!"), role(Utils::QtcBadge::NumberSecondary), infoType(InfoLabel::Warning) },
+                Utils::QtDesignWidgets::Badge { text("Bad"), role(Utils::QtcBadge::NumberSecondary), infoType(InfoLabel::Error) },
+                st,
+            },
             Row {
                 Column {
                     "QtcLineEdit:",

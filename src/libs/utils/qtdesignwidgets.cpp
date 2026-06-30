@@ -1173,6 +1173,104 @@ void QtcIconDisplay::setIcon(const Icon &icon)
     update();
 }
 
+constexpr StyleHelper::TextFormat badgeTfPrimary {
+    .themeColor = Theme::Token_Basic_White,
+    .uiElement = StyleHelper::UiElementLabelSmall,
+    .drawTextFlags = Qt::AlignCenter,
+};
+
+constexpr StyleHelper::TextFormat badgeTfSecondary {
+    .themeColor = Theme::Token_Text_Default,
+    .uiElement = badgeTfPrimary.uiElement,
+    .drawTextFlags = badgeTfPrimary.drawTextFlags,
+};
+
+static Theme::Color colorForInfoType(InfoLabel::InfoType infoType)
+{
+    switch (infoType) {
+    case Utils::InfoLabel::Information:
+        return Theme::Token_Notification_Neutral_Muted;
+    case Utils::InfoLabel::Warning:
+        return Theme::Token_Notification_Alert_Muted;
+    case Utils::InfoLabel::Error:
+    case Utils::InfoLabel::NotOk:
+        return Theme::Token_Notification_Danger_Muted;
+    case Utils::InfoLabel::Ok:
+    case Utils::InfoLabel::None:
+    default:
+        return Theme::Token_Notification_Success_Muted;
+    }
+}
+
+QtcBadge::QtcBadge(QWidget *parent)
+    : QWidget(parent)
+{
+}
+
+QSize QtcBadge::minimumSizeHint() const
+{
+    const int height = StyleHelper::SpacingTokens::PaddingVXxs
+                       + badgeTfPrimary.lineHeight()
+                       + StyleHelper::SpacingTokens::PaddingVXxs;
+    const QFontMetrics fm(badgeTfPrimary.font());
+    const int textWidth = QFontMetrics(badgeTfPrimary.font()).boundingRect(text()).width();
+    const int width = StyleHelper::SpacingTokens::PaddingHXs
+                      + textWidth
+                      + StyleHelper::SpacingTokens::PaddingHXs;
+    return {width, height};
+}
+
+QString QtcBadge::text() const
+{
+    return m_text;
+}
+
+void QtcBadge::setText(const QString &text)
+{
+    m_text = text;
+    update();
+}
+
+InfoLabel::InfoType QtcBadge::infoType() const
+{
+    return m_infoType;
+}
+
+void QtcBadge::setInfoType(InfoLabel::InfoType newInfoType)
+{
+    m_infoType = newInfoType;
+    update();
+}
+
+QtcBadge::Role QtcBadge::role() const
+{
+    return m_role;
+}
+
+void QtcBadge::setRole(Role role)
+{
+    m_role = role;
+    update();
+}
+
+void QtcBadge::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+
+    const QColor color = creatorColor(isEnabled() ? colorForInfoType(m_infoType)
+                                                  : Theme::Token_Foreground_Subtle);
+    const bool filled = m_role == NumberPrimary;
+    const QBrush fill = filled ? QBrush(color) : Qt::NoBrush;
+    const QPen pen = filled ? Qt::NoPen : QPen(color);
+    const qreal rounding = qMin(height(), width()) / 2.0;
+    QPainter p(this);
+    StyleHelper::drawCardBg(&p, rect(), fill,  pen, rounding);
+    const TextFormat &tf = filled ? badgeTfPrimary : badgeTfSecondary;
+    const QColor fontColor = isEnabled() ? tf.color() : creatorColor(Theme::Token_Text_Subtle);
+    p.setPen(fontColor);
+    p.setFont(tf.font());
+    p.drawText(rect(), tf.drawTextFlags, m_text);
+}
 
 namespace QtDesignWidgets {
 
@@ -1409,6 +1507,32 @@ IconDisplay::IconDisplay(std::initializer_list<I> ps)
 void IconDisplay::setIcon(const Utils::Icon &icon)
 {
     Layouting::Tools::access(this)->setIcon(icon);
+}
+
+Badge::Badge()
+{
+    ptr = new Implementation();
+}
+
+Badge::Badge(std::initializer_list<I> ps)
+    : Badge()
+{
+    Layouting::Tools::apply(this, ps);
+}
+
+void Badge::setText(const QString &text)
+{
+    Layouting::Tools::access(this)->setText(text);
+}
+
+void Badge::setInfoType(InfoLabel::InfoType infoType)
+{
+    Layouting::Tools::access(this)->setInfoType(infoType);
+}
+
+void Badge::setRole(QtcBadge::Role role)
+{
+    Layouting::Tools::access(this)->setRole(role);
 }
 
 } // namespace QtDesignWidgets

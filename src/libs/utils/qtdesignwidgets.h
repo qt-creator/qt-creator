@@ -4,6 +4,7 @@
 #pragma once
 
 #include "fancylineedit.h"
+#include "infolabel.h"
 #include "layoutbuilder.h"
 #include "stylehelper.h"
 
@@ -259,6 +260,39 @@ private:
     std::unique_ptr<IconDisplayPrivate> d;
 };
 
+class QTCREATOR_UTILS_EXPORT QtcBadge : public QWidget
+{
+    Q_OBJECT // Needed for the Q_ENUM(Role) to work
+
+public:
+    enum Role {
+        NumberPrimary,
+        NumberSecondary,
+    };
+    Q_ENUM(Role)
+
+    QtcBadge(QWidget *parent = nullptr);
+
+    QSize minimumSizeHint() const override;
+
+    InfoLabel::InfoType infoType() const;
+    void setInfoType(InfoLabel::InfoType infoType);
+
+    QString text() const;
+    void setText(const QString &text);
+
+    Role role() const;
+    void setRole(Role role);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    InfoLabel::InfoType m_infoType{InfoLabel::Ok};
+    Role m_role{NumberPrimary};
+    QString m_text;
+};
+
 namespace QtDesignWidgets {
 
 class QTCREATOR_UTILS_EXPORT Label : public Layouting::Widget
@@ -385,6 +419,20 @@ public:
     void setIcon(const Icon &icon);
 };
 
+class QTCREATOR_UTILS_EXPORT Badge : public Layouting::Widget
+{
+public:
+    using Implementation = QtcBadge;
+    using I = Building::BuilderItem<Badge>;
+
+    Badge();
+    Badge(std::initializer_list<I> ps);
+
+    void setText(const QString &text);
+    void setInfoType(InfoLabel::InfoType infoType);
+    void setRole(QtcBadge::Role role);
+};
+
 } // namespace QtDesignWidgets
 
 inline constexpr auto role = Building::setter([](auto &x, auto &&...a) { x.setRole(a...); });
@@ -398,5 +446,7 @@ inline constexpr auto value = Building::setter([](auto &x, auto &&...a) { x.setV
 inline constexpr auto minimum = Building::setter([](auto &x, auto &&...a) { x.setMinimum(a...); });
 inline constexpr auto maximum = Building::setter([](auto &x, auto &&...a) { x.setMaximum(a...); });
 inline constexpr auto range = Building::setter([](auto &x, auto &&...a) { x.setRange(a...); });
+inline constexpr auto infoType = Building::setter(
+    [](auto &x, auto &&...a) { x.setInfoType(a...); });
 
 } // namespace Utils
