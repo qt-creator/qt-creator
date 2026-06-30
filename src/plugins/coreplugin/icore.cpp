@@ -624,9 +624,7 @@ FilePath ICore::installerResourcePath(const QString &rel)
  */
 FilePath ICore::libexecPath(const QString &rel)
 {
-    return FilePath::fromString(QDir::cleanPath(QApplication::applicationDirPath()
-                                                + pathHelper(RELATIVE_LIBEXEC_PATH)))
-           / rel;
+    return appInfo().libexec / rel;
 }
 
 FilePath ICore::crashReportsPath()

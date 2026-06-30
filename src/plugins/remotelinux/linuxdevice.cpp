@@ -1488,6 +1488,9 @@ void LinuxDevicePrivate::setupFileAccessFinalize(const Result<> &result, const C
 
 void LinuxDevicePrivate::announceConnectionAttempt()
 {
+    if (!Core::ICore::instance())
+        return;
+
     const QString message = Tr::tr("Establishing initial connection to device \"%1\". "
                                    "This might take a moment.").arg(q->displayName());
     DEBUG(message);
@@ -1501,6 +1504,9 @@ void LinuxDevicePrivate::announceConnectionAttempt()
 
 void LinuxDevicePrivate::unannounceConnectionAttempt()
 {
+    if (!Core::ICore::instance())
+        return;
+
     QString message =
         Tr::tr("Connection attempt to device \"%1\" finished.").arg(q->displayName()) + "\n";
 

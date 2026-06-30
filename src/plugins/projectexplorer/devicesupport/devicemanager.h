@@ -26,6 +26,7 @@ class PROJECTEXPLORER_EXPORT DeviceManager final : public QObject
     friend class IDevice;
 
 public:
+    DeviceManager();
     ~DeviceManager() final;
 
     static DeviceManager *instance();
@@ -62,8 +63,6 @@ signals:
     void devicesLoaded(); // Emitted once load() is done
 
 private:
-    DeviceManager();
-
     static void load();
     static void save();
     static QList<IDevice::Ptr> fromMap(const Utils::Store &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
