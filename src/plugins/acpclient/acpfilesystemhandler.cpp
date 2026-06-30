@@ -6,6 +6,7 @@
 
 #include <utils/filepath.h>
 #include <utils/result.h>
+#include <utils/textfileformat.h>
 
 #include <QLoggingCategory>
 
@@ -38,7 +39,19 @@ void AcpFilesystemHandler::handleReadTextFile(const QJsonValue &id, const ReadTe
         return;
     }
 
-    QString text = QString::fromUtf8(*contents);
+    TextFileFormat::ReadResult result
+        = TextFileFormat().readFile(filePath, TextEncoding::encodingForLocale());
+    if (result.code != TextFileFormat::ReadSuccess) {
+        m_client->sendErrorResponse(
+            id,
+            ErrorCode::Internal_error,
+            QStringLiteral("Cannot read file: %1. %2")
+                .arg(filePath.toUserOutput())
+                .arg(result.error));
+        return;
+    }
+
+    QString text = result.content;
 
     // Apply line offset and limit if specified
     const auto startLine = request.line();
@@ -62,15 +75,21 @@ void AcpFilesystemHandler::handleWriteTextFile(const QJsonValue &id, const Write
     const FilePath filePath = FilePath::fromUserInput(request.path());
     qCDebug(logFs) << "Writing file:" << filePath;
 
-    const Result<qint64> result = filePath.writeFileContents(request.content().toUtf8());
-    if (!result) {
-        m_client->sendErrorResponse(id, ErrorCode::Internal_error,
-                                    QStringLiteral("Cannot write file: %1").arg(filePath.toUserOutput()));
-        return;
-    }
+    // try to detect file encoding by reading the file contents first, if it exists
+    TextFileFormat format;
+    if (const Result<QByteArray> contents = filePath.fileContents(); contents)
+        format.detectFromData(*contents);
+    if (!format.encoding().isValid())
+        format.setEncoding(TextEncoding::encodingForLocale());
 
-    WriteTextFileResponse response;
-    m_client->sendResponse(id, Acp::toJson(response));
+    if (format.writeFile(filePath, request.content())) {
+        WriteTextFileResponse response;
+        m_client->sendResponse(id, Acp::toJson(response));
+    }
+    m_client->sendErrorResponse(id, ErrorCode::Internal_error,
+                                QStringLiteral("Cannot write file: %1").arg(filePath.toUserOutput()));
+    return;
+
 }
 
 } // namespace AcpClient::Internal
