@@ -305,6 +305,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_controller, &AcpChatController::setSessionMode);
     connect(m_chatPanel, &ChatPanel::inspectRequested,
             m_controller, &AcpChatController::showInspector);
+    connect(m_chatPanel, &ChatPanel::closeSessionRequested,
+            m_controller, &AcpChatController::closeSession);
 
     // --- Connections: Controller -> UI ---
     connect(m_controller, &AcpChatController::connectionStateChanged, this, [this](AcpClientObject::State state) {
@@ -317,6 +319,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_chatPanel->setSendEnabled(false);
             m_chatPanel->setPrompting(false);
             m_chatPanel->clearConfigOptions();
+            m_chatPanel->setCanCloseSession(false);
             emit titleChanged();
         }
     });
@@ -343,6 +346,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
         m_chatPanel->setSendEnabled(true);
+        m_chatPanel->setCanCloseSession(m_controller->supportsSessionClose());
         if (m_pendingPrompt.isEmpty()) {
             m_chatPanel->appendAgentText(
                 "Cute Greetings,\n\n your AI Agent is ready and you can start chatting.");
@@ -415,6 +419,10 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_controller, &AcpChatController::sendPermissionCancelled);
 
     connect(m_controller, &AcpChatController::sessionSelectionRequired, this, [this] {
+        m_chatPanel->clear();
+        m_chatPanel->clearConfigOptions();
+        m_chatPanel->setPrompting(false);
+        m_chatPanel->setCanCloseSession(false);
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
         showSessionPicker();
@@ -424,6 +432,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->setSessionId(sessionId);
         m_stack->setCurrentIndex(2);
         m_chatPanel->setSendEnabled(true);
+        m_chatPanel->setCanCloseSession(m_controller->supportsSessionClose());
         if (!m_pendingPrompt.isEmpty()) {
             const QString text = m_pendingPrompt;
             m_pendingPrompt.clear();

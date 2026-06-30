@@ -60,6 +60,7 @@ public:
     void setSessionId(const QString &sessionId);
     void setPrompting(bool prompting);
     void setSendEnabled(bool enabled);
+    void setCanCloseSession(bool canClose) { m_canCloseSession = canClose; }
 
     void setConfigOptions(const QList<Acp::SessionConfigOption> &configOptions);
     void setSessionModes(const QList<Acp::SessionMode> &modes, const QString &currentModeId);
@@ -100,6 +101,7 @@ signals:
     void permissionCancelled(const QJsonValue &id);
     void authenticateRequested(const QString &methodId);
     void inspectRequested();
+    void closeSessionRequested();
 
 private:
     QList<Acp::SessionConfigOption> m_configOptions;
@@ -146,6 +148,7 @@ private:
     void hideTextContextEditor();
 
     bool m_prompting = false;
+    bool m_canCloseSession = false;
 };
 
 } // namespace AcpClient::Internal

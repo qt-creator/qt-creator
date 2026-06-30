@@ -751,6 +751,11 @@ void ChatPanel::showConfigMenu()
     QAction *inspect = menu->addAction(Tr::tr("Inspect ACP Client..."));
     connect(inspect, &QAction::triggered, this, &ChatPanel::inspectRequested);
 
+    if (m_canCloseSession) {
+        QAction *closeSession = menu->addAction(Tr::tr("Close Session"));
+        connect(closeSession, &QAction::triggered, this, &ChatPanel::closeSessionRequested);
+    }
+
     menu->popup(QCursor::pos());
 }
 
