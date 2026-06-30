@@ -50,6 +50,7 @@ const auto defaultInterval = 10ms;
 const auto maxInterval = 1000ms;
 
 static Q_LOGGING_CATEGORY(chunkLog, "qtc.core.outputChunking", QtWarningMsg)
+static Q_LOGGING_CATEGORY(filterLog, "qtc.core.outputFiltering", QtWarningMsg)
 
 namespace Core {
 namespace Internal {
@@ -97,7 +98,7 @@ public:
     QTextCursor startOfNewContentCursor;
     QTextCursor cursor;
     QString filterText;
-    int lastFilteredBlockNumber = -1;
+    QTextBlock lastFilteredBlock;
     qsizetype chunkSize = defaultChunkSize;
     QPalette originalPalette;
     OutputWindow::FilterModeFlags filterMode = OutputWindow::FilterModeFlag::Default;
@@ -243,7 +244,7 @@ void OutputWindow::adaptContextMenu(QMenu *, const QPoint &) {}
 
 void OutputWindow::resetLastFilteredBlockNumber()
 {
-    d->lastFilteredBlockNumber = -1;
+    d->lastFilteredBlock = {};
 }
 
 bool OutputWindow::shouldFilterNewContentOnBlockCountChanged() const
@@ -499,15 +500,20 @@ OutputWindow::TextMatchingFunction OutputWindow::makeMatchingFilterFunction() co
 
 void OutputWindow::filterNewContent()
 {
+    qCDebug(filterLog) << "filtering new content, last filtered block was"
+                       << d->lastFilteredBlock.blockNumber();
+
     const auto findNextMatchFilter = makeMatchingFilterFunction();
     QTC_ASSERT(findNextMatchFilter, return);
+    QTextBlock lastBlock = d->lastFilteredBlock;
     const int requiredBacklog = std::max(d->beforeContext, d->afterContext);
-    const int firstBlockIndex = d->lastFilteredBlockNumber - requiredBacklog;
-
-    std::vector<int> matchedBlocks;
-    QTextBlock lastBlock = document()->findBlockByNumber(firstBlockIndex);
+    for (int i = 0; i < requiredBacklog && lastBlock.isValid(); ++i)
+        lastBlock = lastBlock.previous();
     if (!lastBlock.isValid())
         lastBlock = document()->begin();
+    std::vector<int> matchedBlocks;
+
+    qCDebug(filterLog) << "starting to filter at block" << lastBlock.blockNumber();
 
     // Find matching text blocks for the current filter.
     for (; lastBlock != document()->end(); lastBlock = lastBlock.next()) {
@@ -529,7 +535,7 @@ void OutputWindow::filterNewContent()
         }
     }
 
-    d->lastFilteredBlockNumber = document()->lastBlock().blockNumber();
+    d->lastFilteredBlock = document()->lastBlock();
 
     // FIXME: Why on earth is this necessary? We should probably do something else instead...
     setDocument(document());
