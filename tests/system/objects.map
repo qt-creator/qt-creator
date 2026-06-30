@@ -67,9 +67,9 @@
 :EnableQMLDebugger_Label	{container=':qt_tabwidget_stackedwidget.Run Settings_QScrollArea' text='QML debugger:' type='QLabel' unnamed='1' visible='1'}
 :Events.QmlProfilerEventsTable_QmlProfiler::Internal::QmlProfilerStatisticsMainView	{container=':Qt Creator.Events_QDockWidget' name='QmlProfilerEventsTable' type='Profiler::Internal::QmlProfilerStatisticsMainView' visible='1'}
 :Failed to start application_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Failed to start application'}
-:File has been removed.Close_QPushButton	{text='Close' type='QPushButton' unnamed='1' visible='1' window=':File has been removed_QMessageBox'}
-:File has been removed.Save_QPushButton	{text='Save' type='QPushButton' unnamed='1' visible='1' window=':File has been removed_QMessageBox'}
-:File has been removed_QMessageBox	{text?='The file * removed*. Do you want to save it under a different name, or close the editor?' type='QMessageBox' unnamed='1' visible='1'}
+:File has been removed.Close_QToolButton	{leftWidget=':File has been removed.Save_QToolButton' text='Close' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:File has been removed.Save_QToolButton	{leftWidget=':File has been removed_QLabel' text='Save As...' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:File has been removed_QLabel	{text?='The file * removed*. Do you want to save it under a different name, or close the editor?' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Files.Check all_QCheckBox	{container=':splitter.Files_QGroupBox' name='checkAllCheckBox' text='Check all' type='QCheckBox' visible='1'}
 :Form.Startup_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='startupGroupBox' type='QGroupBox' visible='1'}
 :FormEditorStack.CheckBox_QCheckBox	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='checkBox' text='CheckBox' type='QCheckBox' visible='1'}

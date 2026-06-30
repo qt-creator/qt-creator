@@ -34,23 +34,26 @@ def main():
             os.remove(currentFile)
 
         if not currentFile.endswith(".bin"):
-            popupText = ("The file %s has been removed from disk. Do you want to "
+            popupText = ("The file <i>%s</i> has been removed from disk. Do you want to "
                          "save it under a different name, or close the editor?")
-            test.compare(waitForObject(":File has been removed_QMessageBox").text,
-                         popupText % currentFile)
-            clickButton(waitForObject(":File has been removed.Save_QPushButton"))
+            test.compare(waitForObject(":File has been removed_QLabel").text,
+                         popupText % os.path.basename(currentFile))
+            clickButton(waitForObject(":File has been removed.Save_QToolButton"))
+
+            handleSaveAsDialog(currentFile)
+
             waitFor("os.path.exists(currentFile)", 5000)
             # avoids a lock-up on some Linux machines, purely empiric, might have different cause
-            waitFor("checkIfObjectExists(':File has been removed_QMessageBox', False, 0)", 5000)
+            waitFor("checkIfObjectExists(':File has been removed_QLabel', False, 0)", 5000)
 
             test.compare(readFile(currentFile), contentBefore,
                          "Verifying that file '%s' was restored correctly" % currentFile)
 
             # Test for QTCREATORBUG-8130
             os.remove(currentFile)
-            test.compare(waitForObject(":File has been removed_QMessageBox").text,
-                         popupText % currentFile)
-            clickButton(waitForObject(":File has been removed.Close_QPushButton"))
+            test.compare(waitForObject(":File has been removed_QLabel").text,
+                         popupText % os.path.basename(currentFile))
+            clickButton(waitForObject(":File has been removed.Close_QToolButton"))
         test.verify(checkIfObjectExists(editorRealName, False),
                     "Was the editor closed after deleting the file?")
     invokeMenuItem("File", "Exit")

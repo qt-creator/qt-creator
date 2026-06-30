@@ -289,6 +289,33 @@ def selectFromFileDialog(fileName, waitForFile=False, ignoreFinalSnooze=False):
         if not waitFor("str(fileCombo.currentText) in fileName", 5000):
             test.fail("%s could not be opened in time." % fileName)
 
+
+def handleSaveAsDialog(fileNameWithPath):
+    try:
+        qcFileDialog = "{type='Utils::FileDialog' unnamed='1' visible='1'}"
+        waitForObject(qcFileDialog, 5000)
+        saveAsLabel = "{type='QLabel' text='Save As:' unnamed='1'}"
+        fnLineEdit = ("{type='Utils::FancyLineEdit' unnamed='1' window=%s leftWidget=%s}"
+                      % (qcFileDialog, saveAsLabel))
+        fileNameLE = waitForObject(fnLineEdit)
+        if test.verify(str(fileNameLE.text) == os.path.basename(fileNameWithPath)):
+            clickButton("{type='Utils::QtcButton' text='Save' window=%s}" % qcFileDialog)
+        else:
+            test.fatal("Not yet implemented.")
+            clickButton("{type='Utils::QtcButton' text='Cancel' window=%s}" % qcFileDialog)
+    except:
+        waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}", 500)
+        pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
+        replaceEditorContent(pathLine, pName)
+        snooze(1)
+        clickButton(waitForObject("{text='Open' type='QPushButton'}"))
+        waitFor("str(pathLine.text)==''")
+        replaceEditorContent(pathLine, fName)
+        snooze(1)
+        __closePopupIfNecessary__()
+        clickButton(waitForObject("{text='Save' type='QPushButton'}"))
+
+
 # add Qt documentations from given paths
 # param which a list/tuple of the paths to the qch files to be added
 def addHelpDocumentation(which):

@@ -25,11 +25,23 @@ def main():
 
     setReloadBehavior("Always Ask")
 
-    mBox = ("{text?='The file * has been changed on disk. Do you want to reload it?' "
-            "type='QMessageBox' unnamed='1' visible='1'}")
-    popupText = ("<p>The file \"%s\" has been changed on disk. Do you want to reload it?</p>"
-                 "<p>The default behavior can be set in X > Preferences > Environment > System.</p>")
-    popupText = popupText.replace("X", "Qt Creator" if platform.system() == "Darwin" else "Edit")
+    qcMainWindow = ":Qt Creator_Core::Internal::MainWindow"
+    banner = ("{text?='The file * has been changed on disk. Do you want to reload it?' "
+              "type='QLabel' unnamed='1' visible='1' window='%s'}" % qcMainWindow)
+    popupText = "The file \"%s\" has been changed on disk. Do you want to reload it?"
+
+    buttons = ("Ignore", "Reload", "Close", "Diff", "Ignore All", "Reload All", "Save As")
+    def __getBannerButton__(buttonLabel):
+        if buttonLabel not in buttons:
+            test.fatal("Unexpected button requested: %s" % buttonLabel)
+            return None
+        index = buttons.index(buttonLabel)
+        if index == 0:
+            return "{text='%s' type='QToolButton' leftWidget=%s}" % (buttons[0], banner)
+        return ("{text='%s' type='QToolButton' leftWidget={text='%s' "
+                "type='QToolButton' window='%s'}}"
+                % (buttons[index], buttons[index - 1], qcMainWindow))
+
     formerContent = None
 
     for i, currentFile in enumerate(files):
@@ -49,17 +61,17 @@ def main():
             # modify current file and store content for next modification
             formerContent = contentBefore
             modifyExternally(currentFile)
-            test.compare(waitForObject(mBox).text, popupText % os.path.basename(currentFile))
-            clickButton(waitForObject("{text='Yes' type='QPushButton' window=%s}" % mBox))
+            test.compare(waitForObject(banner).text, popupText % os.path.basename(currentFile))
+            clickButton(waitForObject(__getBannerButton__("Reload")))
         else:
-            # modify the current and the former file after AUT had lost focus and use 'Yes to All'
+            # modify the current and the former file after AUT had lost focus and use 'Reload All'
             invokeMenuItem("File", "New Project...")
             modifyExternally(currentFile)
             modifyExternally(files[i - 1])
-            # clicking Cancel does not work when running inside Squish - mBox would not come up
+            # clicking Cancel does not work when running inside Squish - banner would not come up
             sendEvent("QCloseEvent", waitForObject(":New_Core::Internal::NewDialog"))
             try:
-                shownMBox = waitForObject(mBox)
+                shownMBox = waitForObject(banner)
             except:
                 test.fatal("No MessageBox shown after modifying file %s" % currentFile)
                 continue
@@ -67,7 +79,7 @@ def main():
                         in (popupText % os.path.basename(currentFile),
                             popupText % os.path.basename(files[i - 1])),
                         "Verifying: One of the modified files is offered as changed.")
-            clickButton(waitForObject("{text='Yes to All' type='QPushButton' window=%s}" % mBox))
+            clickButton(__getBannerButton__("Reload All"))
             # verify former file
             editor = switchOpenDocsTo(os.path.basename(files[i - 1]))
             if not editor:
