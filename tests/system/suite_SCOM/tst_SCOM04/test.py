@@ -12,7 +12,8 @@ def main():
                                  "'SyntaxError' : undeclared identifier", # MSVC2013
                                  "'SyntaxError': undeclared identifier", # MSVC2015
                                  "use of undeclared identifier 'SyntaxError'",
-                                 "unknown type name 'SyntaxError'"]
+                                 "unknown type name 'SyntaxError'",
+                                 "Unknown type name 'SyntaxError'"]
     startQC()
     if not startedWithoutPluginError():
         return
