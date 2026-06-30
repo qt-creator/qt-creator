@@ -8,6 +8,8 @@
 #include <utils/filepath.h>
 #include <utils/id.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -50,6 +52,10 @@ private:
     void handleProjects(const Projects &projects);
     void fetchProjects();
 
+    QtTaskTree::Group queryTask(const QueryDoneHandler &onDone);
+    QtTaskTree::Group userRecipe();
+    QtTaskTree::Group projectsRecipe();
+
     void cloneSelected();
 
     QPushButton *m_clonePB = nullptr;
@@ -69,6 +75,8 @@ private:
     QLabel *m_currentPageLabel;
     QToolButton *m_nextToolButton;
     QToolButton *m_lastToolButton;
+
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace GitLab

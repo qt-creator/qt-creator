@@ -18,6 +18,9 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/qtasktree.h>
+
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -38,6 +41,7 @@
 #include <QToolButton>
 #include <QTreeView>
 
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace GitLab {
@@ -204,14 +208,17 @@ void GitLabDialog::requestMainViewUpdate()
     if (!m_currentServerId.isValid())
         return;
 
-    const Query query(Query::User);
-    QueryRunner *runner = new QueryRunner(query, m_currentServerId, this);
-    connect(runner, &QueryRunner::done, this, [this, runner](bool success) {
-        if (success)
-            handleUser(ResultParser::parseUser(runner->result()));
-        runner->deleteLater();
+    // Both tasks send m_lastTreeViewQuery: it starts as the user query, and on success
+    // handleUser() switches it to a projects query (and leaves it untouched on error, so the
+    // projects task below is skipped). Each task's setup reads it when that task starts.
+
+    m_lastTreeViewQuery = Query(Query::User);
+    m_taskTreeRunner.start({
+        userRecipe(),
+        If ([this] { return m_lastTreeViewQuery.type() == Query::Projects; }) >> Then {
+            projectsRecipe()
+        }
     });
-    runner->start();
 }
 
 void GitLabDialog::updatePageButtons()
@@ -324,7 +331,6 @@ void GitLabDialog::handleUser(const User &user)
         m_detailsLabel->setToolTip({});
     }
     m_lastTreeViewQuery = Query(Query::Projects);
-    fetchProjects();
 }
 
 void GitLabDialog::handleProjects(const Projects &projects)
@@ -351,13 +357,30 @@ void GitLabDialog::handleProjects(const Projects &projects)
 
 void GitLabDialog::fetchProjects()
 {
-    QueryRunner *runner = new QueryRunner(m_lastTreeViewQuery, m_currentServerId, this);
-    connect(runner, &QueryRunner::done, this, [this, runner](bool success) {
-        if (success)
-            handleProjects(ResultParser::parseProjects(runner->result()));
-        runner->deleteLater();
+    m_taskTreeRunner.start(projectsRecipe());
+}
+
+Group GitLabDialog::queryTask(const QueryDoneHandler &onDone)
+{
+    const auto onSetup = [this](GitLabQuery &query) {
+        query.setServerId(m_currentServerId);
+        query.setQuery(m_lastTreeViewQuery);
+    };
+    return gitLabQuery(onSetup, onDone);
+}
+
+Group GitLabDialog::userRecipe()
+{
+    return queryTask([this](const GitLabQuery &query) {
+        handleUser(ResultParser::parseUser(query.result()));
     });
-    runner->start();
+}
+
+Group GitLabDialog::projectsRecipe()
+{
+    return queryTask([this](const GitLabQuery &query) {
+        handleProjects(ResultParser::parseProjects(query.result()));
+    });
 }
 
 void GitLabDialog::cloneSelected()
