@@ -4,6 +4,7 @@
 #include "customcommanddeploystep.h"
 #include "killappstep.h"
 #include "linuxdevice.h"
+#include "macdevice.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
@@ -62,6 +63,7 @@ public:
     {
         m_linuxDeviceFactory = std::make_unique<LinuxDeviceFactory>();
         m_windowsDeviceFactory = std::make_unique<WindowsDeviceFactory>();
+        m_macDeviceFactory = std::make_unique<MacDeviceFactory>();
         setupRemoteLinuxRunConfiguration();
         setupRemoteLinuxCustomRunConfiguration();
         setupRemoteLinuxRunAndDebugSupport();
@@ -79,6 +81,7 @@ public:
 private:
     std::unique_ptr<LinuxDeviceFactory> m_linuxDeviceFactory;
     std::unique_ptr<WindowsDeviceFactory> m_windowsDeviceFactory;
+    std::unique_ptr<MacDeviceFactory> m_macDeviceFactory;
     RsyncToolFactory m_rsyncToolFactory;
 };
 

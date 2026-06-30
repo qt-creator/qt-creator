@@ -7,6 +7,7 @@ namespace Remote::Constants {
 
 inline constexpr char GenericLinuxOsType[] = "GenericLinuxOsType";
 inline constexpr char GenericWindowsOsType[] = "GenericWindowsOsType";
+inline constexpr char GenericMacOsType[] = "GenericMacOsType";
 
 inline constexpr char DeployToGenericLinux[] = "DeployToGenericLinux";
 

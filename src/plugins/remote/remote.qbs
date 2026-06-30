@@ -31,6 +31,8 @@ QtcPlugin {
         "linuxdevicetester.cpp",
         "linuxdevicetester.h",
         "linuxprocessinterface.h",
+        "macdevice.cpp",
+        "macdevice.h",
         "makeinstallstep.cpp",
         "makeinstallstep.h",
         "publickeydeploymentdialog.cpp",
