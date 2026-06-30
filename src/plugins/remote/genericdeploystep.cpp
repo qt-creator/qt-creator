@@ -228,7 +228,8 @@ public:
         registerStep<GenericDeployStep>(Constants::GenericDeployStepId);
         setDisplayName(Tr::tr("Deploy files"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceType(Remote::Constants::GenericLinuxOsType);
+        setSupportedDeviceTypes(
+            {Remote::Constants::GenericLinuxOsType, Remote::Constants::GenericMacOsType});
     }
 };
 

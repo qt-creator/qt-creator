@@ -276,7 +276,8 @@ public:
         registerStep<GenericDirectUploadStep>(Constants::DirectUploadStepId);
         setDisplayName(Tr::tr("Upload files via SFTP"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceType(Remote::Constants::GenericLinuxOsType);
+        setSupportedDeviceTypes(
+            {Remote::Constants::GenericLinuxOsType, Remote::Constants::GenericMacOsType});
     }
 };
 

@@ -96,7 +96,8 @@ public:
         registerStep<ConnectDeviceStep>(Constants::ConnectStepId);
         setDisplayName(Tr::tr("Connect to the target device"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceType(Remote::Constants::GenericLinuxOsType);
+        setSupportedDeviceTypes(
+            {Remote::Constants::GenericLinuxOsType, Remote::Constants::GenericMacOsType});
     }
 };
 

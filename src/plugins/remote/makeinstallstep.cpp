@@ -279,7 +279,8 @@ public:
         registerStep<MakeInstallStep>(Constants::MakeInstallStepId);
         setDisplayName(Tr::tr("Install into temporary host directory"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceType(Remote::Constants::GenericLinuxOsType);
+        setSupportedDeviceTypes(
+            {Remote::Constants::GenericLinuxOsType, Remote::Constants::GenericMacOsType});
     }
 };
 

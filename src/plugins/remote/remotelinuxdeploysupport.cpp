@@ -26,6 +26,7 @@ public:
     {
         setConfigBaseId(Remote::Constants::DeployToGenericLinux);
         addSupportedTargetDeviceType(Remote::Constants::GenericLinuxOsType);
+        addSupportedTargetDeviceType(Remote::Constants::GenericMacOsType);
         setDefaultDisplayName(Tr::tr("Deploy to Remote Linux Host"));
         setUseDeploymentDataView();
 

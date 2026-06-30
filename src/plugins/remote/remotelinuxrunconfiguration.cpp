@@ -100,6 +100,7 @@ public:
         registerRunConfiguration<RemoteLinuxRunConfiguration>(Constants::RunConfigId);
         setDecorateDisplayNames(true);
         addSupportedTargetDeviceType(Constants::GenericLinuxOsType);
+        addSupportedTargetDeviceType(Constants::GenericMacOsType);
     }
 };
 
