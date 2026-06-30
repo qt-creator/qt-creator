@@ -78,7 +78,7 @@ void FileInProjectFinder::setProjectFiles(const FilePaths &projectFiles)
 
     m_projectFiles = projectFiles;
     m_cache.clear();
-    m_qrcUrlFinder.setProjectFiles(projectFiles);
+    m_qrcFileFinder.setProjectFiles(projectFiles);
 }
 
 void FileInProjectFinder::setSysroot(const FilePath &sysroot)
@@ -105,23 +105,23 @@ void FileInProjectFinder::addMappedPath(const FilePath &localFilePath, const QSt
 }
 
 /*!
+  \overload
+
   Returns the best match for the file URL \a fileUrl in the project directory.
 
-  The function first checks whether the file inside the project directory exists.
-  If not, the leading directory in the path is stripped, and the - now shorter - path is
-  checked for existence, and so on. Second, it tries to locate the file in the sysroot
-  folder specified. Third, it walks the list of project files and searches for a file name match
-  there.
-
-  If all fails, the function returns the original path from the file URL. To
-  indicate that no match was found in the project, \a success is set to false.
+  A \c qrc URL, or a URL starting with \c{:}, is first looked up in the \c .qrc
+  files of the project. If that finds nothing, the URL is reduced to a file path that is
+  passed on to findFile(const FilePath &, bool *) together with \a success. A
+  \c file URL becomes its local file, any other URL its path without the
+  scheme. So if nothing matches, \c{qrc:/qml/main.qml} comes back as
+  \c{/qml/main.qml}.
   */
 FilePaths FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 {
     qCDebug(finderLog) << "FileInProjectFinder: trying to find file" << fileUrl.toString() << "...";
 
     if (fileUrl.scheme() == "qrc" || fileUrl.toString().startsWith(':')) {
-        const FilePaths result = m_qrcUrlFinder.find(fileUrl);
+        const FilePaths result = m_qrcFileFinder.find(fileUrl.toString());
         if (!result.isEmpty()) {
             if (success)
                 *success = true;
@@ -130,15 +130,53 @@ FilePaths FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) cons
     }
 
     FilePath originalPath = FilePath::fromString(fileUrl.toLocalFile());
-    if (originalPath.isEmpty()) // e.g. qrc://
+    if (originalPath.isEmpty())
         originalPath = FilePath::fromString(fileUrl.path());
 
+    return findFile(originalPath, success);
+}
+
+/*!
+  Returns the best match for \a filePath in the project directory.
+
+  A resource path, as recognized by FilePath::isResourceFile(), is first looked
+  up in the \c .qrc files of the project. If that finds nothing, the search
+  continues with the path without the \c{:} or \c qrc prefix.
+
+  The function then checks whether the file inside the project directory exists.
+  If not, the leading directory in the path is stripped, and the - now shorter - path is
+  checked for existence, and so on. Second, it tries to locate the file in the sysroot
+  folder specified. Third, it walks the list of project files and searches for a file name match
+  there.
+
+  If all fails, the function returns \a filePath unchanged, including a resource
+  path such as \c{:/qml/main.qml}. To indicate that no match was found in the
+  project, \a success is set to false.
+  */
+FilePaths FileInProjectFinder::findFile(const FilePath &filePath, bool *success) const
+{
+    qCDebug(finderLog) << "FileInProjectFinder: trying to find file" << filePath.toUserOutput() << "...";
+
+    FilePath searchPath = filePath;
+    if (filePath.isResourceFile()) {
+        QString resourcePath = filePath.path();
+        if (!filePath.isLocal()) // The "qml" in qrc://qml/main.qml ends up as host.
+            resourcePath = QString(u'/') + filePath.host() + resourcePath;
+        const FilePaths result = m_qrcFileFinder.find(resourcePath);
+        if (!result.isEmpty()) {
+            if (success)
+                *success = true;
+            return result;
+        }
+        searchPath = FilePath::fromString(QrcParser::normalizedQrcFilePath(resourcePath));
+    }
+
     FilePaths result;
-    bool found = findFileOrDirectory(originalPath, [&](const FilePath &fileName, int) {
+    bool found = findFileOrDirectory(searchPath, [&](const FilePath &fileName, int) {
         result << fileName;
     });
     if (!found)
-        result << originalPath;
+        result << filePath;
 
     if (success)
         *success = found;
@@ -504,9 +542,10 @@ void FileInProjectFinder::setAdditionalSearchDirectories(const FilePaths &search
     m_searchDirectories = searchDirectories;
 }
 
-FilePaths FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
+FilePaths FileInProjectFinder::QrcFileFinder::find(const QString &resourcePath) const
 {
-    const auto fileIt = m_fileCache.constFind(fileUrl);
+    const QString qrcPath = QrcParser::normalizedQrcFilePath(resourcePath);
+    const auto fileIt = m_fileCache.constFind(qrcPath);
     if (fileIt != m_fileCache.cend())
         return fileIt.value();
     FilePaths result;
@@ -516,14 +555,14 @@ FilePaths FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
             qrcParser = QrcParser::parseQrcFile(f, QString());
         if (!qrcParser->isValid())
             continue;
-        qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &result);
+        qrcParser->collectFilesAtPath(qrcPath, &result);
     }
     FilePath::removeDuplicates(result);
-    m_fileCache.insert(fileUrl, result);
+    m_fileCache.insert(qrcPath, result);
     return result;
 }
 
-void FileInProjectFinder::QrcUrlFinder::setProjectFiles(const FilePaths &projectFiles)
+void FileInProjectFinder::QrcFileFinder::setProjectFiles(const FilePaths &projectFiles)
 {
     m_allQrcFiles = filtered(projectFiles, [](const FilePath &f) { return f.endsWith(".qrc"); });
     m_fileCache.clear();

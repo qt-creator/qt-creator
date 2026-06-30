@@ -507,6 +507,30 @@ private slots:
         QVERIFY(result.contains(qmlFile));
     }
 
+    void qrc_extra_slashes_data()
+    {
+        QTest::addColumn<QUrl>("url");
+        QTest::newRow("empty authority") << QUrl("qrc:////qml/single.qml");
+        QTest::newRow("authority") << QUrl("qrc://qml/single.qml");
+    }
+
+    void qrc_extra_slashes()
+    {
+        QFETCH(QUrl, url);
+        FilePath qrcFile = makeFile(tempPath.pathAppended("test_single.qrc"));
+        QVERIFY(!qrcFile.isEmpty());
+        qrcFile.writeFileContents(R"(<RCC><qresource prefix="/"><file>qml/single.qml</file></qresource></RCC>)");
+        FilePath qmlFile = makeFile(tempPath.pathAppended("qml/single.qml"));
+        QVERIFY(!qmlFile.isEmpty());
+        finder.setProjectFiles({qrcFile});
+        bool success = false;
+
+        auto result = finder.findFile(url, &success);
+
+        QVERIFY(success);
+        QCOMPARE(result, FilePaths{qmlFile});
+    }
+
     void qrc_no_match()
     {
         FilePath qrcFile = makeFile(tempPath.pathAppended("test_none.qrc"));
@@ -541,6 +565,88 @@ private slots:
         QVERIFY(success);
         QCOMPARE(result.size(), 1);
         QVERIFY(result.contains(second));
+    }
+
+    void qrc_single_match_filepath_data()
+    {
+        QTest::addColumn<FilePath>("filePath");
+        QTest::newRow("resource") << FilePath::fromString(":/qml/single.qml");
+        QTest::newRow("scheme") << FilePath::fromUrl(QUrl("qrc:/qml/single.qml"));
+        QTest::newRow("empty authority") << FilePath::fromUrl(QUrl("qrc:////qml/single.qml"));
+        QTest::newRow("authority") << FilePath::fromUrl(QUrl("qrc://qml/single.qml"));
+        QTest::newRow("authority string") << FilePath::fromString("qrc://qml/single.qml");
+    }
+
+    void qrc_single_match_filepath()
+    {
+        QFETCH(FilePath, filePath);
+        FilePath qrcFile = makeFile(tempPath.pathAppended("test_single.qrc"));
+        QVERIFY(!qrcFile.isEmpty());
+        qrcFile.writeFileContents(R"(<RCC><qresource prefix="/"><file>qml/single.qml</file></qresource></RCC>)");
+        FilePath qmlFile = makeFile(tempPath.pathAppended("qml/single.qml"));
+        QVERIFY(!qmlFile.isEmpty());
+        finder.setProjectFiles({qrcFile});
+        bool success = false;
+
+        auto result = finder.findFile(filePath, &success);
+
+        QVERIFY(success);
+        QCOMPARE(result, FilePaths{qmlFile});
+    }
+
+    void qrc_no_match_filepath()
+    {
+        FilePath qrcFile = makeFile(tempPath.pathAppended("test_none.qrc"));
+        QVERIFY(!qrcFile.isEmpty());
+        qrcFile.writeFileContents(R"(<RCC><qresource prefix="/"><file>qml/empty.qml</file></qresource></RCC>)");
+        finder.setProjectFiles({qrcFile});
+        const FilePath missing = FilePath::fromString(":/qml/missing.qml");
+        bool success = true;
+
+        auto result = finder.findFile(missing, &success);
+
+        QVERIFY(!success);
+        QCOMPARE(result, FilePaths{missing});
+    }
+
+    void resource_filepath_without_qrc_match_data()
+    {
+        QTest::addColumn<FilePath>("filePath");
+        QTest::newRow("resource") << FilePath::fromString(":/qml/main.qml");
+        QTest::newRow("scheme") << FilePath::fromUrl(QUrl("qrc:/qml/main.qml"));
+        QTest::newRow("authority") << FilePath::fromString("qrc://qml/main.qml");
+    }
+
+    void resource_filepath_without_qrc_match()
+    {
+        QFETCH(FilePath, filePath);
+        FilePath qmlFile = makeFile(tempPath.pathAppended("qml/main.qml"));
+        QVERIFY(!qmlFile.isEmpty());
+        finder.setProjectDirectory(tempPath);
+        bool success = false;
+
+        auto result = finder.findFile(filePath, &success);
+
+        QVERIFY(success);
+        QCOMPARE(result, FilePaths{qmlFile});
+    }
+
+    void local_file_filepath_matches_url()
+    {
+        FilePath testFile = makeFile(tempPath.pathAppended("testfile.txt"));
+        QVERIFY(!testFile.isEmpty());
+        finder.setProjectDirectory(tempPath);
+        finder.setProjectFiles({testFile});
+        bool urlSuccess = false;
+        bool pathSuccess = false;
+
+        auto urlResult = finder.findFile(QUrl::fromLocalFile(testFile.path()), &urlSuccess);
+        auto pathResult = finder.findFile(testFile, &pathSuccess);
+
+        QVERIFY(urlSuccess);
+        QVERIFY(pathSuccess);
+        QCOMPARE(pathResult, urlResult);
+        QCOMPARE(pathResult, FilePaths{testFile});
     }
 
     void trigger_directoryHandler_for_mapped_path()
