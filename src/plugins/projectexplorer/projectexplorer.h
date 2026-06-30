@@ -29,10 +29,6 @@ class Project;
 class RunControl;
 class RunConfiguration;
 
-namespace Internal {
-class MiniProjectTargetSelector;
-}
-
 class RecentProjectsEntry
 {
 public:
@@ -147,7 +143,6 @@ public:
     static QStringList projectFileGlobs();
 
     static QThreadPool *sharedThreadPool();
-    static Internal::MiniProjectTargetSelector *targetSelector();
 
     static void openNewProjectDialog();
     static void openOpenProjectDialog();

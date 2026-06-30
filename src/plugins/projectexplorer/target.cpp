@@ -192,7 +192,7 @@ void Target::addBuildConfiguration(BuildConfiguration *bc)
     // add it
     d->m_buildConfigurations.push_back(bc);
 
-    ProjectExplorerPlugin::targetSelector()->addedBuildConfiguration(bc);
+    Internal::targetSelector()->addedBuildConfiguration(bc);
     emit addedBuildConfiguration(bc);
     d->m_buildConfigurationModel.addProjectConfiguration(bc);
 
@@ -223,7 +223,7 @@ bool Target::removeBuildConfiguration(BuildConfiguration *bc)
     }
 
     emit removedBuildConfiguration(bc);
-    ProjectExplorerPlugin::targetSelector()->removedBuildConfiguration(bc);
+    Internal::targetSelector()->removedBuildConfiguration(bc);
     d->m_buildConfigurationModel.removeProjectConfiguration(bc);
 
     emit ProjectManager::instance()->buildConfigurationRemoved(bc);

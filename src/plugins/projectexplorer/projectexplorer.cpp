@@ -691,7 +691,6 @@ public:
     FilePath m_lastOpenDirectory;
     QPointer<RunConfiguration> m_defaultRunConfiguration;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
-    MiniProjectTargetSelector * m_targetSelector;
     QList<CustomProjectSettingsHandler> m_projectSettingsHandlers;
     bool m_shouldHaveRunConfiguration = false;
     Id m_runMode = Constants::NO_RUN_MODE;
@@ -1806,16 +1805,16 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     dd->m_projectSelectorAction->setObjectName("KitSelector"); // used for UI introduction
     dd->m_projectSelectorAction->setCheckable(true);
     dd->m_projectSelectorAction->setEnabled(false);
-    dd->m_targetSelector = new MiniProjectTargetSelector(dd->m_projectSelectorAction, ICore::dialogParent());
+    setupMiniTargetSelector(dd->m_projectSelectorAction);
     connect(dd->m_projectSelectorAction, &QAction::triggered,
-            dd->m_targetSelector, &QWidget::show);
+            targetSelector(), &QWidget::show);
     ModeManager::addProjectSelector(dd->m_projectSelectorAction);
 
     dd->m_projectSelectorActionMenu = new QAction(this);
     dd->m_projectSelectorActionMenu->setEnabled(false);
     dd->m_projectSelectorActionMenu->setText(Tr::tr("Open Build and Run Kit Selector..."));
     connect(dd->m_projectSelectorActionMenu, &QAction::triggered,
-            dd->m_targetSelector,
+            targetSelector(),
             &MiniProjectTargetSelector::toggleVisible);
     cmd = ActionManager::registerAction(dd->m_projectSelectorActionMenu, Constants::SELECTTARGET);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
@@ -1824,7 +1823,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     dd->m_projectSelectorActionQuick->setEnabled(false);
     dd->m_projectSelectorActionQuick->setText(Tr::tr("Quick Switch Kit Selector"));
     connect(dd->m_projectSelectorActionQuick, &QAction::triggered,
-            dd->m_targetSelector, &MiniProjectTargetSelector::nextOrShow);
+            targetSelector(), &MiniProjectTargetSelector::nextOrShow);
     cmd = ActionManager::registerAction(dd->m_projectSelectorActionQuick, Constants::SELECTTARGETQUICK);
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+T")));
 
@@ -2608,11 +2607,6 @@ QStringList ProjectExplorerPlugin::projectFileGlobs()
 QThreadPool *ProjectExplorerPlugin::sharedThreadPool()
 {
     return &(dd->m_threadPool);
-}
-
-MiniProjectTargetSelector *ProjectExplorerPlugin::targetSelector()
-{
-    return dd->m_targetSelector;
 }
 
 void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfig, Id runMode)

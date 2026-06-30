@@ -101,5 +101,8 @@ private:
     QDateTime m_earliestHidetime;
 };
 
+MiniProjectTargetSelector *targetSelector();
+void setupMiniTargetSelector(QAction *projectAction);
+
 } // namespace Internal
 } // namespace ProjectExplorer

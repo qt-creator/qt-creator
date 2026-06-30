@@ -1669,6 +1669,18 @@ void MiniProjectTargetSelector::switchToProjectsMode()
     hide();
 }
 
+static MiniProjectTargetSelector *theTargetSelector = nullptr;
+
+MiniProjectTargetSelector *targetSelector()
+{
+    return theTargetSelector;
+}
+
+void setupMiniTargetSelector(QAction *projectAction)
+{
+    theTargetSelector = new MiniProjectTargetSelector(projectAction, Core::ICore::dialogParent());
+}
+
 } // ProjectExplorer::Internal
 
 #include <miniprojecttargetselector.moc>

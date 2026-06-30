@@ -566,7 +566,7 @@ void BuildConfiguration::addDeployConfiguration(DeployConfiguration *dc)
     // add it
     d->m_deployConfigurations.push_back(dc);
 
-    ProjectExplorerPlugin::targetSelector()->addedDeployConfiguration(dc); // TODO: Use signal instead?
+    Internal::targetSelector()->addedDeployConfiguration(dc); // TODO: Use signal instead?
     d->m_deployConfigurationModel.addProjectConfiguration(dc);
     emit addedDeployConfiguration(dc);
     if (this == target()->activeBuildConfiguration())
@@ -595,7 +595,7 @@ bool BuildConfiguration::removeDeployConfiguration(DeployConfiguration *dc)
             setActiveDeployConfiguration(d->m_deployConfigurations.at(0), SetActive::Cascade);
     }
 
-    ProjectExplorerPlugin::targetSelector()->removedDeployConfiguration(dc);
+    Internal::targetSelector()->removedDeployConfiguration(dc);
     d->m_deployConfigurationModel.removeProjectConfiguration(dc);
     emit removedDeployConfiguration(dc);
     if (this == target()->activeBuildConfiguration())
@@ -860,7 +860,7 @@ void BuildConfiguration::addRunConfiguration(RunConfiguration *rc, NameHandling 
 
     d->m_runConfigurations.push_back(rc);
 
-    ProjectExplorerPlugin::targetSelector()->addedRunConfiguration(rc);
+    Internal::targetSelector()->addedRunConfiguration(rc);
     d->m_runConfigurationModel.addProjectConfiguration(rc);
     emit addedRunConfiguration(rc);
     if (this == target()->activeBuildConfiguration())
@@ -886,7 +886,7 @@ void BuildConfiguration::removeRunConfiguration(RunConfiguration *rc)
     emit removedRunConfiguration(rc);
     if (this == target()->activeBuildConfiguration())
         emit target()->removedRunConfiguration(rc);
-    ProjectExplorerPlugin::targetSelector()->removedRunConfiguration(rc);
+    Internal::targetSelector()->removedRunConfiguration(rc);
     d->m_runConfigurationModel.removeProjectConfiguration(rc);
 
     delete rc;
@@ -924,7 +924,7 @@ void BuildConfiguration::removeRunConfigurationsHelper(
         emit removedRunConfiguration(rc);
         if (this == target()->activeBuildConfiguration())
             emit target()->removedRunConfiguration(rc);
-        ProjectExplorerPlugin::targetSelector()->removedRunConfiguration(rc);
+        Internal::targetSelector()->removedRunConfiguration(rc);
         d->m_runConfigurationModel.removeProjectConfiguration(rc);
         delete rc;
     }
