@@ -24,7 +24,10 @@
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QSpinBox>
+#include <QThread>
 #include <QWidget>
+
+#include <atomic>
 
 namespace Utils {
 
@@ -94,7 +97,7 @@ bool isIgnoredForDirtyHook(const QObject *object)
 static std::function<void (bool)> s_markSettingDirtyHook;
 static std::function<void ()> s_checkSettingDirtyHook;
 
-static bool s_suppressSettingsDirtyTrigger = false;
+static std::atomic<int> s_suppressSettingsDirtyLevel = 0;
 
 namespace Internal {
 
@@ -112,13 +115,16 @@ void setCheckSettingsDirtyHook(const std::function<void ()> &hook)
 
 void markSettingsDirty()
 {
+    // The hook drives a QWidget (the settings dialog), so this must run on the GUI thread.
+    QTC_ASSERT(QThread::isMainThread(), return);
+
     // This can happen if per-project settings are opened before
     // the settings mode was entered. The hook is not installed at
     // that time, and it's ok to do nothing.
     if (!s_markSettingDirtyHook)
         return;
 
-    if (s_suppressSettingsDirtyTrigger)
+    if (s_suppressSettingsDirtyLevel.load() > 0)
         return;
 
     s_markSettingDirtyHook(true);
@@ -126,7 +132,10 @@ void markSettingsDirty()
 
 void checkSettingsDirty()
 {
-    if (s_suppressSettingsDirtyTrigger)
+    // The hook drives a QWidget (the settings dialog), so this must run on the GUI thread.
+    QTC_ASSERT(QThread::isMainThread(), return);
+
+    if (s_suppressSettingsDirtyLevel.load() > 0)
         return;
 
     if (!s_checkSettingDirtyHook)
@@ -196,9 +205,12 @@ void installCheckSettingsDirtyTrigger(QObject *object)
 
 bool suppressSettingsDirtyTrigger(bool suppress)
 {
-    const bool prev = s_suppressSettingsDirtyTrigger;
-    s_suppressSettingsDirtyTrigger = suppress;
-    return prev;
+    if (suppress)
+        return s_suppressSettingsDirtyLevel.fetch_add(1) > 0;
+
+    const int previousLevel = s_suppressSettingsDirtyLevel.fetch_sub(1);
+    QTC_CHECK(previousLevel > 0); // unbalanced pop
+    return previousLevel > 0;
 }
 
 void installMarkSettingsDirtyTriggerRecursively(QObject *object)
