@@ -62,6 +62,7 @@ public:
     QString         value;                 // Displayed value
     QString         editvalue;             // Displayed value
     QString         editformat;            // Format of displayed value
+    QString         color;                 // ARGB hex "aarrggbb" for an inline swatch, or empty
     DebuggerEncoding editencoding;         // Encoding of displayed value
     QString         type;                  // Type for further processing
     quint64         address = 0;           // Displayed address of the actual object

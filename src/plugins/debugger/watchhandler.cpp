@@ -1127,6 +1127,16 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case Qt::ForegroundRole:
             return valueColor(item, column);
 
+        case Qt::DecorationRole:
+            // An inline color swatch for items that carry a color (e.g. QColor).
+            if (column == ValueColumn && !item->color.isEmpty()) {
+                bool ok = false;
+                const uint argb = item->color.toUInt(&ok, 16);
+                if (ok)
+                    return QColor::fromRgba(QRgb(argb));
+            }
+            break;
+
         case LocalsINameRole:
             return item->iname;
 

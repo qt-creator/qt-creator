@@ -191,6 +191,7 @@ public:
     QString type;
     QString expression;
     QColor valueColor;
+    QColor color;
     bool expandable = false;
     QString iname;
 };
@@ -204,6 +205,7 @@ ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
     type = model->data(idx.sibling(idx.row(), WatchModelBase::TypeColumn), Qt::DisplayRole).toString();
     iname = model->data(idx.sibling(idx.row(), WatchModelBase::NameColumn), LocalsINameRole).toString();
     valueColor = model->data(idx.sibling(idx.row(), WatchModelBase::ValueColumn), Qt::ForegroundRole).value<QColor>();
+    color = model->data(idx.sibling(idx.row(), WatchModelBase::ValueColumn), Qt::DecorationRole).value<QColor>();
     expandable = model->hasChildren(idx);
     expression = model->data(idx.sibling(idx.row(), WatchModelBase::NameColumn), Qt::EditRole).toString();
     for (TreeItem *child : *item)
@@ -273,6 +275,11 @@ QVariant ToolTipWatchItem::data(int column, int role) const
 
         case LocalsINameRole:
             return iname;
+
+        case Qt::DecorationRole:
+            if (column == 1 && color.isValid())
+                return color;
+            break;
 
         case Qt::ForegroundRole:
             if (model() && static_cast<ToolTipModel *>(model())->m_enabled) {

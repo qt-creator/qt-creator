@@ -294,6 +294,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
     editvalue = input["editvalue"].data();
     editformat = input["editformat"].data();
     editencoding = DebuggerEncoding(input["editencoding"].data());
+    color = input["color"].data();
 
     // We need it for UVSC engine!
     mi = input["id"];

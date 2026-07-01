@@ -194,6 +194,11 @@ def qdump__QColor(d, value):
         d.putValue('<Unknown spec %d>' % cspec)
         names = [('spec', cspec)]
 
+    # Let the frontend show an inline color swatch next to the value.
+    if rgb is not None:
+        r, g, b = rgb
+        d.putField('color', '%02x%02x%02x%02x' % (alpha, r, g, b))
+
     d.putExpandable()
     if d.isExpanded():
         with Children(d):
