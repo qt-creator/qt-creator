@@ -3,6 +3,7 @@
 
 #include "buildconfiguration.h"
 #include "buildmanager.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
@@ -36,6 +37,7 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/filesearch.h>
+#include <utils/globaltasktree.h>
 #include <utils/id.h>
 #include <utils/mimeconstants.h>
 #include <utils/result.h>
@@ -2239,6 +2241,74 @@ void registerMcpTools()
             QTimer::singleShot(timeoutSeconds * 1000, tester, [finish]() { finish("timeout"); });
 
             tester->testDevice();
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("detect_device_tools")
+            .title("Detect tools on a device and create kits")
+            .description(
+                "Connects to the device and runs the same auto-detection as the device "
+                "configuration's \"Run Auto-Detection Now\" button: detects toolchains and "
+                "debuggers on the device, detects on-device build tools (rsync, cmake, ...), "
+                "and then creates kits for the device. Use this to set up a remote "
+                "build/run/debug environment without the GUI. Returns the kits now "
+                "associated with the device.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "id", QJsonObject{{"type", "string"}, {"description", "Device id."}})
+                    .addRequired("id"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("kits", QJsonObject{{"type", "array"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrapAsync([](const QJsonObject &p, const Callback &callback) {
+            IDevice::Ptr device = DeviceManager::find(Id::fromString(p.value("id").toString()));
+            if (!device) {
+                callback({{"success", false}, {"error", "No such device."}});
+                return;
+            }
+
+            const auto reportKits = [device, callback] {
+                // requestToolDetection() only creates kits when kit creation is enabled for
+                // the device; create them explicitly so this tool always produces kits.
+                // Skip if the device already has kits (from a prior run or the enabled
+                // auto-creation) to avoid duplicates.
+                const bool hasKits = Utils::anyOf(KitManager::kits(), [&](Kit *k) {
+                    return BuildDeviceKitAspect::deviceId(k) == device->id();
+                });
+                if (!hasKits)
+                    KitManager::createKitsForBuildDevice(device);
+
+                QJsonArray kits;
+                for (Kit *k : KitManager::kits()) {
+                    if (BuildDeviceKitAspect::deviceId(k) == device->id()
+                        || RunDeviceKitAspect::deviceId(k) == device->id()) {
+                        kits.append(QJsonObject{{"id", k->id().toString()},
+                                                {"name", k->displayName()},
+                                                {"valid", k->isValid()}});
+                    }
+                }
+                callback({{"success", true}, {"kits", kits}});
+            };
+
+            const auto onConnected = [device, reportKits, callback](const Utils::Result<> &res) {
+                if (!res) {
+                    callback({{"success", false}, {"error", res.error()}});
+                    return;
+                }
+                // Toolchain and debugger detection run synchronously here.
+                device->requestToolDetection(device->toolSearchPaths());
+                // On-device build tools (rsync, cmake, ...) are detected asynchronously;
+                // create the kits once that has finished.
+                GlobalTaskTree::start(device->autoDetectDeviceToolsRecipe(), {}, reportKits);
+            };
+
+            device->tryToConnect({Utils::shutdownGuard(), onConnected});
         }));
 
     ToolRegistry::registerTool(
