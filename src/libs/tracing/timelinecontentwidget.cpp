@@ -15,21 +15,31 @@
 #include "tracklabels.h"
 #include "trackpainter.h"
 
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QEvent>
 #include <QHBoxLayout>
+#include <QLabel>
+#include <QLoggingCategory>
 #include <QPainter>
 #include <QResizeEvent>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QSplitterHandle>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #include <cmath>
 
 namespace Timeline {
+
+// Off by default (QtWarningMsg); enable the overlay with
+// QT_LOGGING_RULES="qtc.tracing.frametime.debug=true".
+namespace {
+Q_LOGGING_CATEGORY(frameTimeLog, "qtc.tracing.frametime", QtWarningMsg)
+}
 
 class StripedBackground : public QWidget
 {
@@ -111,6 +121,31 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     m_overlay->resize(m_scrollArea->viewport()->size());
     m_overlay->raise();
     m_scrollArea->viewport()->installEventFilter(this);
+
+    // Frame-time overlay (top-right of the track area): shows the worst
+    // single-frame time over the last sample window. Off by default; enable with
+    // QT_LOGGING_RULES="qtc.tracing.frametime.debug=true".
+    if (frameTimeLog().isDebugEnabled()) {
+        using namespace Utils::StyleHelper;
+        m_frameTimeLabel = new QLabel(m_scrollArea->viewport());
+        m_frameTimeLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+        m_frameTimeLabel->setAutoFillBackground(true);
+        m_frameTimeLabel->setContentsMargins(SpacingTokens::PaddingVXs, SpacingTokens::PaddingVXs,
+                                             SpacingTokens::PaddingVXs, SpacingTokens::PaddingVXs);
+        m_frameTimeLabel->setFont(uiFont(UiElementCaptionStrong));
+        QPalette pal = m_frameTimeLabel->palette();
+        pal.setColor(QPalette::WindowText, Utils::creatorColor(Utils::Theme::Token_Text_Accent));
+        const QColor bg = Utils::creatorColor(Utils::Theme::Token_Basic_Black);
+        pal.setColor(QPalette::Window, bg);
+        m_frameTimeLabel->setPalette(pal);
+        m_frameTimeLabel->setText("-- ms");
+        m_frameTimeLabel->adjustSize();
+        m_frameTimeLabel->raise();
+        auto frameTimeTimer = new QTimer(this);
+        frameTimeTimer->setInterval(500);
+        connect(frameTimeTimer, &QTimer::timeout, this, &TimelineContentWidget::updateFrameTime);
+        frameTimeTimer->start();
+    }
 
     connect(m_details, &RangeDetailsWidget::recenterOnItem, this, [this] {
         recenterOnItem(m_selectedModelIndex, m_selectedItemIndex);
@@ -316,8 +351,42 @@ bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
     if (watched == m_scrollArea->viewport() && event->type() == QEvent::Resize) {
         auto *re = static_cast<QResizeEvent *>(event);
         m_overlay->resize(re->size());
+        positionFrameTimeLabel();
     }
     return false;
+}
+
+void TimelineContentWidget::onFramePainted(std::chrono::nanoseconds renderTime)
+{
+    // Sum the paint durations of all track widgets that repaint in the same
+    // event-loop cycle: that sum is the CPU time to render one full frame. The
+    // queued flush runs once, after every widget in this cycle has painted.
+    m_frameAccum += renderTime;
+    if (!m_frameFlushScheduled) {
+        m_frameFlushScheduled = true;
+        QMetaObject::invokeMethod(this, [this] {
+            m_maxRender = std::max(m_maxRender, m_frameAccum);
+            m_frameAccum = {};
+            m_frameFlushScheduled = false;
+        }, Qt::QueuedConnection);
+    }
+}
+
+void TimelineContentWidget::positionFrameTimeLabel()
+{
+    if (m_frameTimeLabel)
+        m_frameTimeLabel->move(m_scrollArea->viewport()->width() - m_frameTimeLabel->width() - 4, 4);
+}
+
+void TimelineContentWidget::updateFrameTime()
+{
+    // Worst full-frame render time observed in the last sample window.
+    const double ms = std::chrono::duration<double, std::milli>(m_maxRender).count();
+    m_frameTimeLabel->setText(QString::number(ms, 'f', 1) + " ms");
+    m_maxRender = {};
+    m_frameTimeLabel->adjustSize();
+    positionFrameTimeLabel();
+    m_frameTimeLabel->raise();
 }
 
 static void fitFloatingWidget(QWidget *w, int parentW, int parentH)
@@ -402,6 +471,8 @@ void TimelineContentWidget::rebuildTracks()
         m_sync->registerContent(painter);
         m_painters.append(painter);
         m_painterAggregatorMap.append(aggIdx);
+        if (frameTimeLog().isDebugEnabled())
+            connect(painter, &TrackPainter::painted, this, &TimelineContentWidget::onFramePainted);
         const int modelIndex = m_painters.size() - 1;
         connect(painter, &TrackPainter::itemClicked, this,
                 [this, modelIndex](int itemIndex) { selectItem(modelIndex, itemIndex); });

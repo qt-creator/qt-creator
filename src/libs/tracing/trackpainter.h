@@ -5,9 +5,12 @@
 
 #include "tracing_global.h"
 
+#include <QElapsedTimer>
 #include <QList>
 #include <QPixmap>
 #include <QWidget>
+
+#include <chrono>
 
 namespace Timeline {
 
@@ -49,6 +52,11 @@ signals:
     void horizontalPan(int dx);
     void verticalPan(int dy);
     void zoomRequested(double cursorX, int dy);
+
+    // CPU time spent in this paintEvent(), for the frame-time overlay. Summed
+    // across the track widgets over one repaint cycle it gives the full-frame
+    // render time.
+    void painted(std::chrono::nanoseconds renderTime);
 
 protected:
     void paintEvent(QPaintEvent *) override;

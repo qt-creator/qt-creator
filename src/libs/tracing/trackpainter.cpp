@@ -10,11 +10,13 @@
 #include <utils/theme/theme.h>
 
 #include <QVarLengthArray>
+#include <QElapsedTimer>
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPixmap>
 #include <QResizeEvent>
+#include <QScopeGuard>
 #include <QString>
 #include <QWheelEvent>
 
@@ -399,6 +401,14 @@ void TrackPainter::rebuildCache()
 
 void TrackPainter::paintEvent(QPaintEvent *)
 {
+    // Time the CPU cost of producing this widget's frame; reported so the
+    // container can sum it across the track widgets (see TrackPainter::painted).
+    QElapsedTimer frameTimer;
+    frameTimer.start();
+    const QScopeGuard reportFrame([&] {
+        emit painted(std::chrono::nanoseconds(frameTimer.nsecsElapsed()));
+    });
+
     if (m_cache.isNull())
         rebuildCache();
 
