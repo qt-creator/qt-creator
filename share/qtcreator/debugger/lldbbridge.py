@@ -1767,8 +1767,9 @@ class Dumper(DumperBase):
         return result
 
     def createBreakpointAtMain(self):
-        return self.target.BreakpointCreateByName(
-            'main', self.target.GetExecutable().GetFilename())
+        # On Android main() lives in a shared object rather than the executable,
+        # so do not restrict the breakpoint to the executable's module.
+        return self.target.BreakpointCreateByName('main')
 
     def breakpointCallback(self, frame, bp_loc, extra_args, internal_dict):
         command_str = extra_args.GetValueForKey('command').GetStringValue(65536)
