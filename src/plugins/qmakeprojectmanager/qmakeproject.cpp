@@ -21,6 +21,8 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/generatedcodemodelsupport.h>
 
+#include <ios/iosconstants.h>
+
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
@@ -1157,6 +1159,12 @@ void QmakeBuildSystem::updateBuildSystemData()
         }
         bti.buildKey = bti.projectFilePath.toUrlishString();
         bti.isQtcRunnable = config.contains("qtc_runnable");
+
+        // Build data formerly served from QmakeProFileNode::data(). qmake has no
+        // CMake generator, hence the empty value.
+        setExtraData(bti.buildKey, Ios::Constants::IosTarget, ti.target);
+        setExtraData(bti.buildKey, Ios::Constants::IosBuildDir, ti.buildDir.toUrlishString());
+        setExtraData(bti.buildKey, Ios::Constants::IosCmakeGenerator, QString());
 
         if (config.contains("console") && !config.contains("testcase")) {
             const QStringList qt = node->variableValue(Variable::Qt);

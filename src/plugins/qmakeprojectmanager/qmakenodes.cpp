@@ -19,7 +19,6 @@
 #include <utils/qtcassert.h>
 
 #include <android/androidconstants.h>
-#include <ios/iosconstants.h>
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -391,23 +390,6 @@ QVariant QmakeProFileNode::data(Id role) const
         return {};
     if (role == Android::Constants::AndroidApk)
         return {};
-
-    if (role == Ios::Constants::IosTarget) {
-        const TargetInformation info = targetInformation();
-        if (info.valid)
-            return info.target;
-    }
-
-    if (role == Ios::Constants::IosBuildDir) {
-        const TargetInformation info = targetInformation();
-        if (info.valid)
-            return info.buildDir.toUrlishString();
-    }
-
-    if (role == Ios::Constants::IosCmakeGenerator) {
-        // qmake is not CMake, so return empty value
-        return {};
-    }
 
     if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
         return !proFile()->variableValue(Variable::Config).contains("no_keywords");
