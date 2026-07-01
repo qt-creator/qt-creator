@@ -6,22 +6,6 @@
 #include "request.h"
 
 namespace CompilerExplorer::Api {
-QFuture<CompileResult> compile(const Config &config, const CompileParameters &parameters)
-{
-    const QUrl url = config.url({"api/compiler", parameters.compilerId, "compile"});
-
-    return jsonRequest<CompileResult>(
-        config.networkManager,
-        url,
-        [](const QJsonDocument &response) {
-            CompileResult result;
-
-            QJsonObject obj = response.object();
-            return CompileResult::fromJson(obj);
-        },
-        QNetworkAccessManager::PostOperation,
-        parameters.toByteArray());
-}
 
 QtTaskTree::ExecutableItem compileTask(const Config &config,
                                        const CompileParameters &parameters,

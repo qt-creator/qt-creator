@@ -5,38 +5,13 @@
 
 #include "request.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QUrlQuery>
 
+#include <algorithm>
+
 namespace CompilerExplorer::Api {
-
-QFuture<Languages> languages(const Config &config)
-{
-    QUrl url = config.url({"api/languages"});
-    url.setQuery(QUrlQuery{{"fields", "id,name,extensions,logoUrl"}});
-
-    return jsonRequest<Languages>(config.networkManager, url, [](const QJsonDocument &doc) {
-        const QJsonArray languages = doc.array();
-        Languages result;
-        for (const auto &language : languages) {
-            QJsonObject obj = language.toObject();
-            Language l;
-            l.id = obj["id"].toString();
-            l.name = obj["name"].toString();
-            l.logoUrl = obj["logoUrl"].toString();
-            const QJsonArray extensions = obj["extensions"].toArray();
-            for (const auto &extension : extensions) {
-                l.extensions.append(extension.toString());
-            }
-
-            result.append(l);
-        }
-        std::sort(result.begin(), result.end(), [](const Language &a, const Language &b) {
-            return a.name < b.name;
-        });
-
-        return result;
-    });
-}
 
 QtTaskTree::ExecutableItem languagesTask(const Config &config, const ResultStorage<Languages> &result)
 {

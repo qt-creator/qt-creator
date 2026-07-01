@@ -5,7 +5,6 @@
 
 #include "config.h"
 
-#include <QFuture>
 #include <QMap>
 #include <QSet>
 #include <QString>
@@ -24,10 +23,6 @@ struct Compiler
 };
 
 using Compilers = QList<Compiler>;
-
-QFuture<Compilers> compilers(const Config &config,
-                             const QString &languageId = {},
-                             const QSet<QString> &extraFields = {});
 
 QtTaskTree::ExecutableItem compilersTask(const Config &config,
                                          const QString &languageId,

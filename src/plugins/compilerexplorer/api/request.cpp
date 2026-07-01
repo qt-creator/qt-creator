@@ -6,11 +6,40 @@
 #include <utils/appinfo.h>
 #include <utils/mimeconstants.h>
 
+#include <QCoreApplication>
+#include <QLoggingCategory>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+
 #include <QtTaskTree/QNetworkReplyWrapper>
 
 using namespace QtTaskTree;
 
+static Q_LOGGING_CATEGORY(apiLog, "qtc.compilerexplorer.api", QtWarningMsg);
+
 namespace CompilerExplorer::Api {
+
+static QString toString(QNetworkAccessManager::Operation op)
+{
+    switch (op) {
+    case QNetworkAccessManager::GetOperation:
+        return QStringLiteral("GET");
+    case QNetworkAccessManager::PostOperation:
+        return QStringLiteral("POST");
+    case QNetworkAccessManager::PutOperation:
+        return QStringLiteral("PUT");
+    case QNetworkAccessManager::DeleteOperation:
+        return QStringLiteral("DELETE");
+    case QNetworkAccessManager::HeadOperation:
+        return QStringLiteral("HEAD");
+    case QNetworkAccessManager::CustomOperation:
+        return QStringLiteral("CUSTOM");
+    case QNetworkAccessManager::UnknownOperation:
+        break;
+    }
+
+    return "<unknown>";
+}
 
 static QByteArray userAgent()
 {

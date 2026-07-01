@@ -5,7 +5,6 @@
 
 #include "config.h"
 
-#include <QFuture>
 #include <QList>
 #include <QString>
 #include <QUrl>
@@ -26,8 +25,6 @@ struct Library
 };
 
 using Libraries = QList<Library>;
-
-QFuture<Libraries> libraries(const Config &config, const QString &languageId);
 
 QtTaskTree::ExecutableItem librariesTask(const Config &config,
                                          const QString &languageId,
