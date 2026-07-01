@@ -31,4 +31,6 @@ QByteArray axivionUserAgent();
 
 bool saveModifiedFiles(const QString &projectName);
 
+bool buildInfoForCurrentDocumentDerivable();
+
 } // namespace Axivion::Internal
