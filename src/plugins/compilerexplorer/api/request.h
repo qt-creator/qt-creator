@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <utils/appinfo.h>
+#include <utils/mimeconstants.h>
+#include <utils/result.h>
+
 #include <QCoreApplication>
 #include <QFuture>
 #include <QJsonArray>
@@ -14,8 +18,7 @@
 #include <QPromise>
 #include <QString>
 
-#include <utils/appinfo.h>
-#include <utils/mimeconstants.h>
+#include <QtTaskTree/QTaskTree>
 
 static Q_LOGGING_CATEGORY(apiLog, "qtc.compilerexplorer.api", QtWarningMsg);
 
@@ -151,5 +154,16 @@ QFuture<Result> jsonRequest(QNetworkAccessManager *networkManager,
         op,
         payload);
 }
+
+// TaskTree-based variant of jsonRequest(): performs the request as a QNetworkReplyWrapperTask
+// and hands the outcome to \a onResponse as a single Result: either the parsed JSON document,
+// or an error message (network failure or JSON parse error). The callback typically converts
+// and stores it into its own Storage<Result<...>>.
+QtTaskTree::ExecutableItem jsonRequestTask(
+    QNetworkAccessManager *networkManager,
+    const QUrl &url,
+    const std::function<void(const Utils::Result<QJsonDocument> &)> &onResponse,
+    QNetworkAccessManager::Operation op = QNetworkAccessManager::GetOperation,
+    const QByteArray &payload = {});
 
 } // namespace CompilerExplorer::Api

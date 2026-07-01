@@ -21,6 +21,7 @@ QtcPlugin {
         "api/language.h",
         "api/library.cpp",
         "api/library.h",
+        "api/request.cpp",
         "api/request.h",
 
         "compilerexplorer.qrc",

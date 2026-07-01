@@ -22,4 +22,23 @@ QFuture<CompileResult> compile(const Config &config, const CompileParameters &pa
         QNetworkAccessManager::PostOperation,
         parameters.toByteArray());
 }
+
+QtTaskTree::ExecutableItem compileTask(const Config &config,
+                                       const CompileParameters &parameters,
+                                       const QtTaskTree::Storage<Utils::Result<CompileResult>> &result)
+{
+    const QUrl url = config.url({"api/compiler", parameters.compilerId, "compile"});
+
+    return jsonRequestTask(
+        config.networkManager,
+        url,
+        [result](const Utils::Result<QJsonDocument> &response) {
+            if (response)
+                *result = CompileResult::fromJson(response->object());
+            else
+                *result = Utils::ResultError(response.error());
+        },
+        QNetworkAccessManager::PostOperation,
+        parameters.toByteArray());
+}
 } // namespace CompilerExplorer::Api
