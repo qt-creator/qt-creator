@@ -1646,10 +1646,15 @@ class QtcInternalDumper():
                     self.putType(v[1:p])
                 else:
                     self.putType(tt)
-                    # The repr may contain quotes, commas or non-ASCII (e.g.
-                    # PySide objects with an object name), so encode it.
-                    self.putValue(self.hexencode(v))
-                    self.putField('valueencoded', 'utf8')
+                    # The repr may contain quotes or non-ASCII characters (for
+                    # example a PySide object with an object name, or unicode
+                    # text), which would corrupt the reported data. Encode it
+                    # in that case, but keep plain values (numbers, ...) as is.
+                    if any(ord(c) < 32 or ord(c) > 126 or c == '"' for c in v):
+                        self.putValue(self.hexencode(v))
+                        self.putField('valueencoded', 'utf8')
+                    else:
+                        self.putValue(v)
 
             # PySide/Shiboken wrap Qt objects; their state is exposed as Qt
             # meta-properties (and as methods, which are filtered out below),

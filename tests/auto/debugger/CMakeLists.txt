@@ -140,3 +140,11 @@ add_qtc_test(tst_debugger_simplifytypes
     "${DEBUGGERDIR}/debuggertr.h"
     "${DEBUGGERDIR}/simplifytype.cpp" "${DEBUGGERDIR}/simplifytype.h"
 )
+
+add_qtc_test(tst_debugger_pdb
+  DEFINES
+    DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
+    PDBDUMPER_DRIVER="${CMAKE_CURRENT_SOURCE_DIR}/pdbdumper.py"
+  SOURCES
+    tst_pdb.cpp
+)
