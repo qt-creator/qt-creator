@@ -1164,10 +1164,11 @@ void MsvcToolchain::fromMap(const Store &data)
 
     m_environmentModifications = EnvironmentItem::itemsFromVariantList(
         data.value(environModsKeyC).toList());
-    rescanForCompiler();
-
-    initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &environmentModifications,
-                                      m_vcvarsBat, m_varsBatArg));
+    if (m_vcvarsBat.hasFileAccess()) {
+        rescanForCompiler();
+        initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &environmentModifications,
+                                          m_vcvarsBat, m_varsBatArg));
+    }
 
     if (m_vcvarsBat.isEmpty() || !targetAbi().isValid()) {
         reportError();
@@ -1408,7 +1409,7 @@ void MsvcToolchain::rescanForCompiler()
         if (!slashed.contains("/VC/Tools/MSVC/", Qt::CaseInsensitive))
             continue;
         const FilePath candidate = vcvars.withNewPath(slashed) / "cl.exe";
-        if (candidate.isExecutableFile()) {
+        if (candidate.hasFileAccess() && candidate.isExecutableFile()) {
             setCompilerCommand(candidate);
             return;
         }
@@ -2136,6 +2137,10 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
     // osType (rather than the desktop device type) keeps the local behavior and additionally
     // covers device types whose remote host is Windows.
     if (!detector.device || detector.device->osType() != Utils::OsTypeWindows)
+        return {};
+
+    const IDevice::DeviceState state = detector.device->deviceState();
+    if (state == IDevice::DeviceDisconnected || state == IDevice::DeviceStateUnknown)
         return {};
 
     Toolchains results;
