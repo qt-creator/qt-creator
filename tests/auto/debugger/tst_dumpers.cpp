@@ -2679,6 +2679,25 @@ void tst_Dumpers::dumper_data()
                + Check("pm", "(200x199)", "@QPixmap");
 
 
+    QTest::newRow("QColor")
+            << Data("#include <QColor>\n",
+
+                    "QColor c0;\n"
+                    "QColor c1(255, 0, 0);\n"
+                    "QColor c2(10, 20, 30, 128);\n"
+                    "QColor c3 = QColor::fromHsv(120, 200, 255);\n"
+                    "QColor c4 = QColor::fromCmyk(10, 20, 30, 40);\n",
+                    "&c0, &c1, &c2, &c3, &c4")
+
+               + GuiProfile()
+
+               + Check("c0", "<Invalid>", "@QColor")
+               + Check("c1", "(R: 255, G: 0, B: 0, A: 255) #ffff0000", "@QColor")
+               + Check("c2", "(R: 10, G: 20, B: 30, A: 128) #800a141e", "@QColor")
+               + Check("c3", "(H: 120, S: 200, V: 255, A: 255)", "@QColor")
+               + Check("c4", "(C: 10, M: 20, Y: 30, K: 40, A: 255)", "@QColor");
+
+
     QTest::newRow("QLinkedList")
             << Data("#include <QLinkedList>\n"
                     "#include <string>\n"
@@ -4477,7 +4496,7 @@ void tst_Dumpers::dumper_data()
                + Check("var64", "", "@QVariant (QFont)")
                + Check("var65", "(1x2)", "@QVariant (QPixmap)")
                + Check("var66", "", "@QVariant (QBrush)")
-               + Check("var67", "", "@QVariant (QColor)")
+               + Check("var67", "<Invalid>", "@QVariant (QColor)")
                + Check("var68", "", "@QVariant (QPalette)")
                + Check("var69", "", "@QVariant (QIcon)")
                + Check("var70", "(1x2)", "@QVariant (QImage)")

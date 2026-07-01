@@ -99,6 +99,119 @@ def qdump__QChar(d, value):
     d.putValue(d.extractUShort(value))
 
 
+def qform__QColor():
+    return [DisplayFormat.Simple, DisplayFormat.Separate]
+
+
+def qdump__QColor(d, value):
+    # QColor: 'enum Spec cspec;' followed by a union of five ushorts.
+    # For the Rgb spec the values are {alpha, red, green, blue, pad}, with
+    # each channel scaled to 0..65535. The other specs reinterpret the same
+    # five values (see QColor::Spec).
+    cspec, v0, v1, v2, v3, v4 = value.split('iHHHHH')
+
+    # Matches qt_div_257(), used by QColor's 8-bit channel accessors.
+    def to8(x):
+        x = x + 128
+        return (x - (x >> 8)) >> 8
+
+    def clamp8(x):
+        return 0 if x < 0 else (255 if x > 255 else int(round(x)))
+
+    # The following convert to 8-bit r, g, b just accurately enough for a
+    # visual swatch; they need not match Qt's rounding to the last bit.
+    def hsvToRgb(h, s, v):  # h in degrees or -1, s and v in 0..255
+        if h < 0 or s == 0:
+            return (v, v, v)
+        sf, vf, hh = s / 255.0, v / 255.0, (h % 360) / 60.0
+        i = int(hh)
+        f = hh - i
+        p = vf * (1.0 - sf)
+        q = vf * (1.0 - sf * f)
+        t = vf * (1.0 - sf * (1.0 - f))
+        seq = [(vf, t, p), (q, vf, p), (p, vf, t),
+               (p, q, vf), (t, p, vf), (vf, p, q)][i % 6]
+        return tuple(clamp8(c * 255) for c in seq)
+
+    def hslToRgb(h, s, lightn):  # h in degrees or -1, s and lightn in 0..255
+        lf = lightn / 255.0
+        if h < 0 or s == 0:
+            return (clamp8(lf * 255),) * 3
+        sf = s / 255.0
+        c = (1.0 - abs(2.0 * lf - 1.0)) * sf
+        hh = (h % 360) / 60.0
+        x = c * (1.0 - abs((hh % 2.0) - 1.0))
+        m = lf - c / 2.0
+        seq = [(c, x, 0.0), (x, c, 0.0), (0.0, c, x),
+               (0.0, x, c), (x, 0.0, c), (c, 0.0, x)][int(hh) % 6]
+        return tuple(clamp8((comp + m) * 255) for comp in seq)
+
+    alpha = to8(v0)
+    rgb = None  # (r, g, b), each 0..255, when a swatch color is known
+    if cspec == 0:  # Invalid
+        d.putValue('<Invalid>')
+        names = [('spec', 'Invalid')]
+    elif cspec == 1:  # Rgb
+        r, g, b = to8(v1), to8(v2), to8(v3)
+        rgb = (r, g, b)
+        d.putValue('(R: %d, G: %d, B: %d, A: %d) #%02x%02x%02x%02x'
+                   % (r, g, b, alpha, alpha, r, g, b))
+        names = [('spec', 'Rgb'), ('alpha', alpha),
+                 ('red', r), ('green', g), ('blue', b)]
+    elif cspec == 2:  # Hsv
+        h = -1 if v1 == 0xffff else v1 // 100
+        s, v = to8(v2), to8(v3)
+        rgb = hsvToRgb(h, s, v)
+        d.putValue('(H: %d, S: %d, V: %d, A: %d)' % (h, s, v, alpha))
+        names = [('spec', 'Hsv'), ('alpha', alpha),
+                 ('hue', h), ('saturation', s), ('value', v)]
+    elif cspec == 3:  # Cmyk
+        c, m, y, k = to8(v1), to8(v2), to8(v3), to8(v4)
+        kf = k / 255.0
+        rgb = (clamp8(255 * (1.0 - c / 255.0) * (1.0 - kf)),
+               clamp8(255 * (1.0 - m / 255.0) * (1.0 - kf)),
+               clamp8(255 * (1.0 - y / 255.0) * (1.0 - kf)))
+        d.putValue('(C: %d, M: %d, Y: %d, K: %d, A: %d)' % (c, m, y, k, alpha))
+        names = [('spec', 'Cmyk'), ('alpha', alpha),
+                 ('cyan', c), ('magenta', m), ('yellow', y), ('black', k)]
+    elif cspec == 4:  # Hsl
+        h = -1 if v1 == 0xffff else v1 // 100
+        s, lightness = to8(v2), to8(v3)
+        rgb = hslToRgb(h, s, lightness)
+        d.putValue('(H: %d, S: %d, L: %d, A: %d)' % (h, s, lightness, alpha))
+        names = [('spec', 'Hsl'), ('alpha', alpha),
+                 ('hue', h), ('saturation', s), ('lightness', lightness)]
+    elif cspec == 5:  # ExtendedRgb, channels stored as float16
+        def f16(x):
+            return struct.unpack('<e', struct.pack('<H', x))[0]
+        af, rf, gf, bf = f16(v0), f16(v1), f16(v2), f16(v3)
+        alpha = clamp8(af * 255)
+        rgb = (clamp8(rf * 255), clamp8(gf * 255), clamp8(bf * 255))
+        d.putValue('(R: %g, G: %g, B: %g, A: %g)' % (rf, gf, bf, af))
+        names = [('spec', 'ExtendedRgb'), ('alpha', af),
+                 ('red', rf), ('green', gf), ('blue', bf)]
+    else:
+        d.putValue('<Unknown spec %d>' % cspec)
+        names = [('spec', cspec)]
+
+    d.putExpandable()
+    if d.isExpanded():
+        with Children(d):
+            for name, channel in names:
+                with SubItem(d, name):
+                    d.putValue(channel)
+
+    # On request, show a larger swatch using the existing image preview path.
+    if rgb is not None and d.currentItemFormat() == DisplayFormat.Separate:
+        r, g, b = rgb
+        sw = sh = 24
+        # QImage::Format_ARGB32 (5); little-endian memory order is b, g, r, a.
+        pixel = '%02x%02x%02x%02x' % (b, g, r, alpha)
+        d.putDisplay('imagedata:separate',
+                     '%08x%08x%08x%08x' % (sw, sh, sw * sh * 4, 5)
+                     + pixel * (sw * sh))
+
+
 def qform_X_QAbstractItemModel():
     return [DisplayFormat.Simple, DisplayFormat.Enhanced]
 
