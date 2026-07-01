@@ -67,6 +67,8 @@ class Dumper(DumperBase):
 
         self.outputLock = threading.Lock()
 
+        self.lastError = lldb.SBError() # Profiler says these are expensive to initialize
+
         if debugger:
             # Re-use existing debugger
             self.debugger = debugger
@@ -169,13 +171,13 @@ class Dumper(DumperBase):
     def fromNativeValue(self, nativeValue):
         self.check(isinstance(nativeValue, lldb.SBValue))
         nativeType = nativeValue.GetType()
-        type_name = nativeType.GetName()
         code = nativeType.GetTypeClass()
 
         # Display the result of GetSummary() for Core Foundation string
         # and string-like types.
         summary = None
         if self.useFancy:
+            type_name = nativeType.GetName()
             if (type_name.startswith('CF')
                     or type_name.startswith('__CF')
                     or type_name.startswith('NS')
@@ -223,14 +225,13 @@ class Dumper(DumperBase):
             if address is not None:
                 val.laddress = address
             if True:
-                data = nativeValue.GetData()
-                error = lldb.SBError()
-                size = nativeValue.GetType().GetByteSize()
+                size = nativeType.GetByteSize()
                 if size > 1:
+                    data = nativeValue.GetData()
                     # 0 happens regularly e.g. for cross-shared-object types.
                     # 1 happens on Linux e.g. for QObject uses outside of QtCore.
                     try:
-                        val.ldata = data.ReadRawData(error, 0, size)
+                        val.ldata = data.ReadRawData(self.lastError, 0, size)
                     except Exception:
                         pass
 
@@ -380,9 +381,8 @@ class Dumper(DumperBase):
                             # data as base class data.
                             data = nativeValue.GetData()
                             size = nativeType.GetByteSize()
-                            error = lldb.SBError()
                             member.laddress = value.laddress
-                            member.ldata = data.ReadRawData(error, 0, size)
+                            member.ldata = data.ReadRawData(self.lastError, 0, size)
                         member.isBaseClass = True
                         fields.append(member)
         return fields
@@ -1911,9 +1911,8 @@ class Dumper(DumperBase):
     def readRawMemory(self, address, size):
         if size == 0:
             return bytes()
-        error = lldb.SBError()
         #DumperBase.warn("READ: %s %s" % (address, size))
-        res = self.process.ReadMemory(address, size, error)
+        res = self.process.ReadMemory(address, size, self.lastError)
         if res is None or len(res) != size:
             # Using code in e.g. readToFirstZero relies on exceptions.
             raise RuntimeError("Unreadable %s bytes at 0x%x" % (size, address))
