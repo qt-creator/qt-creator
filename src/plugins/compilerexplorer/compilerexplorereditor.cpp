@@ -35,13 +35,14 @@
 
 #include <QDesktopServices>
 #include <QDockWidget>
-#include <QFutureWatcher>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
 #include <QUndoStack>
+
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <memory>
 
@@ -233,7 +234,7 @@ private:
     SpinnerSolution::Spinner *m_spinner{nullptr};
     QSharedPointer<AsmDocument> m_asmDocument;
 
-    std::unique_ptr<QFutureWatcher<Api::CompileResult>> m_compileWatcher;
+    QtTaskTree::QSingleTaskTreeRunner m_compileRunner;
 
     QString m_source;
     QTimer *m_delayTimer{nullptr};
@@ -701,13 +702,11 @@ void CompilerWidget::compile(const QString &source)
 void CompilerWidget::doCompile()
 {
     using namespace Api;
+    using namespace QtTaskTree;
 
     QString compilerId = m_compilerSettings->compiler.volatileValue();
     if (compilerId.isEmpty())
         compilerId = "clang_trunk";
-
-    m_spinner->setVisible(true);
-    m_asmEditor->setEnabled(false);
 
     CompileParameters params
         = CompileParameters(compilerId)
@@ -729,64 +728,74 @@ void CompilerWidget::doCompile()
                                      false})
                            .libraries(m_compilerSettings->libraries.volatileValue()));
 
-    auto f = Api::compile(m_sourceSettings->apiConfigFunction()(), params);
+    const Storage<Result<CompileResult>> resultStorage;
 
-    m_compileWatcher.reset(new QFutureWatcher<CompileResult>);
-
-    connect(m_compileWatcher.get(), &QFutureWatcher<CompileResult>::finished, this, [this] {
+    const auto onDone = [this, resultStorage] {
         m_spinner->setVisible(false);
         m_asmEditor->setEnabled(true);
 
-        try {
-            Api::CompileResult r = m_compileWatcher->result();
+        const Result<CompileResult> &compileResult = *resultStorage;
+        if (!compileResult) {
+            MessageManager::writeDisrupting(
+                Tr::tr("Failed to compile: \"%1\".").arg(compileResult.error()));
+            return;
+        }
 
-            m_resultTerminal->restart();
-            m_resultTerminal->writeToTerminal("\x1b[?25l", false);
+        const CompileResult &r = *compileResult;
 
-            for (const auto &err : std::as_const(r.stdErr))
+        m_resultTerminal->restart();
+        m_resultTerminal->writeToTerminal("\x1b[?25l", false);
+
+        for (const auto &err : std::as_const(r.stdErr))
+            m_resultTerminal->writeToTerminal((err.text + "\r\n").toUtf8(), false);
+        for (const auto &out : std::as_const(r.stdOut))
+            m_resultTerminal->writeToTerminal((out.text + "\r\n").toUtf8(), false);
+
+        m_resultTerminal->writeToTerminal(
+            QString("ASM generation compiler returned: %1\r\n\r\n").arg(r.code).toUtf8(), true);
+
+        if (r.execResult) {
+            for (const auto &err : std::as_const(r.execResult->buildResult.stdErr))
                 m_resultTerminal->writeToTerminal((err.text + "\r\n").toUtf8(), false);
-            for (const auto &out : std::as_const(r.stdOut))
+            for (const auto &out : std::as_const(r.execResult->buildResult.stdOut))
                 m_resultTerminal->writeToTerminal((out.text + "\r\n").toUtf8(), false);
 
-            m_resultTerminal->writeToTerminal(
-                QString("ASM generation compiler returned: %1\r\n\r\n").arg(r.code).toUtf8(), true);
+            m_resultTerminal
+                ->writeToTerminal(QString("Execution build compiler returned: %1\r\n\r\n")
+                                      .arg(r.execResult->buildResult.code)
+                                      .toUtf8(),
+                                  true);
 
-            if (r.execResult) {
-                for (const auto &err : std::as_const(r.execResult->buildResult.stdErr))
-                    m_resultTerminal->writeToTerminal((err.text + "\r\n").toUtf8(), false);
-                for (const auto &out : std::as_const(r.execResult->buildResult.stdOut))
-                    m_resultTerminal->writeToTerminal((out.text + "\r\n").toUtf8(), false);
+            if (r.execResult->didExecute) {
+                m_resultTerminal->writeToTerminal(QString("Program returned: %1\r\n")
+                                                      .arg(r.execResult->code)
+                                                      .toUtf8(),
+                                                  true);
 
-                m_resultTerminal
-                    ->writeToTerminal(QString("Execution build compiler returned: %1\r\n\r\n")
-                                          .arg(r.execResult->buildResult.code)
-                                          .toUtf8(),
-                                      true);
-
-                if (r.execResult->didExecute) {
-                    m_resultTerminal->writeToTerminal(QString("Program returned: %1\r\n")
-                                                          .arg(r.execResult->code)
-                                                          .toUtf8(),
-                                                      true);
-
-                    for (const auto &err : std::as_const(r.execResult->stdErrLines))
-                        m_resultTerminal
-                            ->writeToTerminal(("  \033[0;31m" + err + "\033[0m\r\n\r\n").toUtf8(),
-                                              false);
-                    for (const auto &out : std::as_const(r.execResult->stdOutLines))
-                        m_resultTerminal->writeToTerminal((out + "\r\n").toUtf8(), false);
-                }
+                for (const auto &err : std::as_const(r.execResult->stdErrLines))
+                    m_resultTerminal
+                        ->writeToTerminal(("  \033[0;31m" + err + "\033[0m\r\n\r\n").toUtf8(),
+                                          false);
+                for (const auto &out : std::as_const(r.execResult->stdOutLines))
+                    m_resultTerminal->writeToTerminal((out + "\r\n").toUtf8(), false);
             }
-
-            const QList<QTextEdit::ExtraSelection> links = m_asmDocument->setCompileResult(r);
-            m_asmEditor->setExtraSelections(AsmEditorLinks, links);
-        } catch (const std::exception &e) {
-            MessageManager::writeDisrupting(
-                Tr::tr("Failed to compile: \"%1\".").arg(QString::fromUtf8(e.what())));
         }
-    });
 
-    m_compileWatcher->setFuture(f);
+        const QList<QTextEdit::ExtraSelection> links = m_asmDocument->setCompileResult(r);
+        m_asmEditor->setExtraSelections(AsmEditorLinks, links);
+    };
+
+    const Group recipe {
+        resultStorage,
+        onGroupSetup([this] {
+            m_spinner->setVisible(true);
+            m_asmEditor->setEnabled(false);
+        }),
+        compileTask(m_sourceSettings->apiConfigFunction()(), params, resultStorage),
+        onGroupDone(onDone, CallDoneFlag::OnSuccess | CallDoneFlag::OnError),
+    };
+
+    m_compileRunner.start(recipe);
 }
 
 EditorWidget::EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
