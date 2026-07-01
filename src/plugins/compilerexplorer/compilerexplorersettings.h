@@ -12,6 +12,8 @@
 
 #include <texteditor/textdocument.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 namespace CompilerExplorer {
 class SourceSettings;
 class CompilerSettings;
@@ -80,6 +82,7 @@ private:
     CompilerExplorerSettings *m_parent;
     ApiConfigFunction m_apiConfigFunction;
     TextEditor::TextDocumentPtr m_sourceTextDocument{nullptr};
+    QtTaskTree::QSingleTaskTreeRunner m_languagesRunner;
 };
 
 class CompilerSettings : public Utils::AspectContainer,
@@ -108,6 +111,8 @@ private:
 
     QString m_languageId;
     ApiConfigFunction m_apiConfigFunction;
+    QtTaskTree::QSingleTaskTreeRunner m_compilersRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_librariesRunner;
 };
 
 } // namespace CompilerExplorer

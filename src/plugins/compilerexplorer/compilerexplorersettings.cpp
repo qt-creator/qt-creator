@@ -12,7 +12,8 @@
 
 #include <QComboBox>
 #include <QFileInfo>
-#include <QFutureWatcher>
+
+using namespace QtTaskTree;
 
 namespace CompilerExplorer {
 
@@ -197,23 +198,22 @@ void CompilerSettings::fillLibraries(const LibrarySelectionAspect::ResultCallbac
         return;
     }
 
-    auto future = Api::libraries(m_apiConfigFunction(), lang);
-
-    auto watcher = new QFutureWatcher<Api::Libraries>(this);
-    QObject::connect(watcher,
-                     &QFutureWatcher<Api::Libraries>::finished,
-                     this,
-                     [watcher, fillFromCache, lang]() {
-                         try {
-                             cachedLibraries(lang) = watcher->result();
-                             fillFromCache();
-                         } catch (const std::exception &e) {
-                             Core::MessageManager::writeDisrupting(
-                                 Tr::tr("Failed to fetch libraries: \"%1\".")
-                                     .arg(QString::fromUtf8(e.what())));
-                         }
-                     });
-    watcher->setFuture(future);
+    const Api::ResultStorage<Api::Libraries> storage;
+    const Group recipe {
+        storage,
+        Api::librariesTask(m_apiConfigFunction(), lang, storage),
+        onGroupDone([storage, fillFromCache, lang] {
+            const auto &result = *storage;
+            if (result) {
+                cachedLibraries(lang) = *result;
+                fillFromCache();
+            } else {
+                Core::MessageManager::writeDisrupting(
+                    Tr::tr("Failed to fetch libraries: \"%1\".").arg(result.error()));
+            }
+        }, CallDoneFlag::OnSuccess | CallDoneFlag::OnError),
+    };
+    m_librariesRunner.start(recipe);
 }
 
 void SourceSettings::fillLanguageIdModel(const Utils::StringSelectionAspect::ResultCallback &cb)
@@ -240,23 +240,22 @@ void SourceSettings::fillLanguageIdModel(const Utils::StringSelectionAspect::Res
         return;
     }
 
-    auto future = Api::languages(m_apiConfigFunction());
-
-    auto watcher = new QFutureWatcher<Api::Languages>(this);
-    QObject::connect(watcher,
-                     &QFutureWatcher<Api::Languages>::finished,
-                     this,
-                     [watcher, fillFromCache]() {
-                         try {
-                             cachedLanguages() = watcher->result();
-                             fillFromCache();
-                         } catch (const std::exception &e) {
-                             Core::MessageManager::writeDisrupting(
-                                 Tr::tr("Failed to fetch languages: \"%1\".")
-                                     .arg(QString::fromUtf8(e.what())));
-                         }
-                     });
-    watcher->setFuture(future);
+    const Api::ResultStorage<Api::Languages> storage;
+    const Group recipe {
+        storage,
+        Api::languagesTask(m_apiConfigFunction(), storage),
+        onGroupDone([storage, fillFromCache] {
+            const auto &result = *storage;
+            if (result) {
+                cachedLanguages() = *result;
+                fillFromCache();
+            } else {
+                Core::MessageManager::writeDisrupting(
+                    Tr::tr("Failed to fetch languages: \"%1\".").arg(result.error()));
+            }
+        }, CallDoneFlag::OnSuccess | CallDoneFlag::OnError),
+    };
+    m_languagesRunner.start(recipe);
 }
 
 void CompilerSettings::fillCompilerModel(const Utils::StringSelectionAspect::ResultCallback &cb)
@@ -277,28 +276,24 @@ void CompilerSettings::fillCompilerModel(const Utils::StringSelectionAspect::Res
         return;
     }
 
-    auto future = Api::compilers(m_apiConfigFunction(), m_languageId);
-
-    auto watcher = new QFutureWatcher<Api::Compilers>(this);
-    QObject::connect(watcher,
-                     &QFutureWatcher<Api::Compilers>::finished,
-                     this,
-                     [watcher, this, fillFromCache]() {
-                         try {
-                             const auto result = watcher->result();
-                             auto itCache = cachedCompilers().insert(m_languageId, {});
-
-                             for (const Api::Compiler &compiler : result)
-                                 itCache->insert(compiler.name, compiler.id);
-
-                             fillFromCache(itCache);
-                         } catch (const std::exception &e) {
-                             Core::MessageManager::writeDisrupting(
-                                 Tr::tr("Failed to fetch compilers: \"%1\".")
-                                     .arg(QString::fromUtf8(e.what())));
-                         }
-                     });
-    watcher->setFuture(future);
+    const Api::ResultStorage<Api::Compilers> storage;
+    const Group recipe {
+        storage,
+        Api::compilersTask(m_apiConfigFunction(), m_languageId, storage),
+        onGroupDone([this, storage, fillFromCache] {
+            const auto &result = *storage;
+            if (result) {
+                auto itCache = cachedCompilers().insert(m_languageId, {});
+                for (const Api::Compiler &compiler : *result)
+                    itCache->insert(compiler.name, compiler.id);
+                fillFromCache(itCache);
+            } else {
+                Core::MessageManager::writeDisrupting(
+                    Tr::tr("Failed to fetch compilers: \"%1\".").arg(result.error()));
+            }
+        }, CallDoneFlag::OnSuccess | CallDoneFlag::OnError),
+    };
+    m_compilersRunner.start(recipe);
 }
 
 CompilerExplorerSettings::CompilerExplorerSettings()
