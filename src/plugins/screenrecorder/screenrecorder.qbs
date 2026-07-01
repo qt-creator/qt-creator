@@ -19,6 +19,7 @@ QtcPlugin {
         "screenrecorderplugin.cpp",
         "screenrecordersettings.cpp",
         "screenrecordersettings.h",
+        "screenrecordertr.h",
     ]
 
     QtcTestFiles {

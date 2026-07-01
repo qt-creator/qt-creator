@@ -19,6 +19,7 @@ QtcPlugin {
         "copilotplugin.cpp",
         "copilotsettings.cpp",
         "copilotsettings.h",
+        "copilottr.h",
         "requests/checkstatus.h",
         "requests/getcompletions.h",
         "requests/signinconfirm.h",

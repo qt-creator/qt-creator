@@ -50,6 +50,7 @@ add_qtc_plugin(AppStatisticsMonitor
   PLUGIN_DEPENDS QtCreator::Core QtCreator::ProjectExplorer
   SOURCES
     appstatisticsmonitorplugin.cpp
+    appstatisticsmonitortr.h
     chart.cpp chart.h
     manager.cpp manager.h
     idataprovider.h idataprovider.cpp

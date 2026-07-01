@@ -16,6 +16,7 @@ QtcPlugin {
         "compilationdatabaseutils.cpp",
         "compilationdatabaseutils.h",
         "compilationdatabaseprojectmanagerplugin.cpp",
+        "compilationdatabaseprojectmanagertr.h",
         "compilationdbparser.cpp",
         "compilationdbparser.h",
     ]

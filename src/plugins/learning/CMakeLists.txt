@@ -3,6 +3,7 @@ add_qtc_plugin(Learning
   SOURCES
     learningplugin.cpp
     learningsettings.h learningsettings.cpp
+    learningtr.h
     onboardingwizard.h onboardingwizard.cpp
     overviewwelcomepage.h overviewwelcomepage.cpp
     qtacademywelcomepage.h qtacademywelcomepage.cpp

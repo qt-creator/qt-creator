@@ -17,6 +17,7 @@ QtcPlugin {
         "learningplugin.cpp",
         "learningsettings.cpp",
         "learningsettings.h",
+        "learningtr.h",
         "onboardingwizard.cpp",
         "onboardingwizard.h",
         "overviewwelcomepage.cpp",

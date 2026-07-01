@@ -8,6 +8,7 @@ add_qtc_plugin(Copilot
     copilotconstants.h
     copilotplugin.cpp
     copilotsettings.cpp copilotsettings.h
+    copilottr.h
     requests/checkstatus.h
     requests/getcompletions.h
     requests/signinconfirm.h

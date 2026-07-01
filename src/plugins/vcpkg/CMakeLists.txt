@@ -7,6 +7,7 @@ add_qtc_plugin(Vcpkg
     vcpkgplugin.cpp
     vcpkgsearch.cpp vcpkgsearch.h
     vcpkgsettings.cpp vcpkgsettings.h
+    vcpkgtr.h
 )
 
 extend_qtc_plugin(Vcpkg

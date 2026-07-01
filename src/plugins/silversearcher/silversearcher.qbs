@@ -11,6 +11,7 @@ QtcPlugin {
         "findinfilessilversearcher.cpp", "findinfilessilversearcher.h",
         "silversearcherparser.cpp", "silversearcherparser.h",
         "silversearcherplugin.cpp",
+        "silversearchertr.h",
     ]
 
     QtcTestFiles {

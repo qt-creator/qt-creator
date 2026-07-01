@@ -21,6 +21,7 @@ QtcPlugin {
         "vcpkgsearch.h",
         "vcpkgsettings.cpp",
         "vcpkgsettings.h",
+        "vcpkgtr.h",
     ]
 
     QtcTestFiles {

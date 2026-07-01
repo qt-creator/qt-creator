@@ -9,6 +9,7 @@ add_qtc_plugin(ScreenRecorder
     screenrecorderconstants.h
     screenrecorderplugin.cpp
     screenrecordersettings.cpp screenrecordersettings.h
+    screenrecordertr.h
 )
 
 extend_qtc_plugin(ScreenRecorder

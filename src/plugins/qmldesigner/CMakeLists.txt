@@ -99,6 +99,7 @@ add_qtc_plugin(QmlDesigner
     qmldesignericons.h
     qmldesignerplugin.cpp qmldesignerplugin.h
     qmldesignerexternaldependencies.cpp qmldesignerexternaldependencies.h
+    qmldesignertr.h
     settingspage.cpp settingspage.h
     shortcutmanager.cpp shortcutmanager.h
     designermcumanager.cpp designermcumanager.h
