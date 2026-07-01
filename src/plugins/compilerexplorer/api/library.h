@@ -28,4 +28,8 @@ struct Library
 using Libraries = QList<Library>;
 
 QFuture<Libraries> libraries(const Config &config, const QString &languageId);
+
+QtTaskTree::ExecutableItem librariesTask(const Config &config,
+                                         const QString &languageId,
+                                         const ResultStorage<Libraries> &result);
 } // namespace CompilerExplorer::Api

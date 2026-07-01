@@ -6,16 +6,12 @@
 #include "compiler.h"
 #include "config.h"
 
-#include <utils/result.h>
-
 #include <QFuture>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QList>
 #include <QString>
-
-#include <QtTaskTree/QTaskTree>
 
 namespace CompilerExplorer::Api {
 
@@ -373,6 +369,6 @@ QFuture<CompileResult> compile(const Config &config, const CompileParameters &pa
 // CompileResult on success, or an error message on failure (network or JSON parse error).
 QtTaskTree::ExecutableItem compileTask(const Config &config,
                                        const CompileParameters &parameters,
-                                       const QtTaskTree::Storage<Utils::Result<CompileResult>> &result);
+                                       const ResultStorage<CompileResult> &result);
 
 } // namespace CompilerExplorer::Api

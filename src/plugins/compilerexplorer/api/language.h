@@ -23,4 +23,6 @@ struct Language
 using Languages = QList<Language>;
 QFuture<Languages> languages(const Config &config);
 
+QtTaskTree::ExecutableItem languagesTask(const Config &config, const ResultStorage<Languages> &result);
+
 } // namespace CompilerExplorer::Api

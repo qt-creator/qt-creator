@@ -29,4 +29,9 @@ QFuture<Compilers> compilers(const Config &config,
                              const QString &languageId = {},
                              const QSet<QString> &extraFields = {});
 
+QtTaskTree::ExecutableItem compilersTask(const Config &config,
+                                         const QString &languageId,
+                                         const ResultStorage<Compilers> &result,
+                                         const QSet<QString> &extraFields = {});
+
 } // namespace CompilerExplorer::Api

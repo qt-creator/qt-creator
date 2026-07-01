@@ -58,4 +58,54 @@ QFuture<Compilers> compilers(const Config &config,
     return jsonRequest<Compilers>(config.networkManager, url, fromJson);
 }
 
+QtTaskTree::ExecutableItem compilersTask(const Config &config,
+                                         const QString &languageId,
+                                         const ResultStorage<Compilers> &result,
+                                         const QSet<QString> &extraFields)
+{
+    QUrl url = config.url(QStringList{"api/compilers"}
+                          << (languageId.isEmpty() ? QString() : languageId));
+
+    QString fieldParam;
+
+    if (!extraFields.isEmpty()) {
+        QSet<QString> fields = {"id", "name", "lang", "compilerType", "semver"};
+        fields.unite(extraFields);
+        for (const auto &field : fields) {
+            if (!fieldParam.isEmpty())
+                fieldParam += ",";
+            fieldParam += field;
+        }
+    }
+
+    if (!fieldParam.isEmpty())
+        url.setQuery(QUrlQuery{{"fields", fieldParam}});
+
+    return jsonRequestTask(
+        config.networkManager, url,
+        [result, extraFields](const Utils::Result<QJsonDocument> &response) {
+            if (!response) {
+                *result = Utils::ResultError(response.error());
+                return;
+            }
+            Compilers compilers;
+            for (const auto &compiler : response->array()) {
+                QJsonObject obj = compiler.toObject();
+                Compiler c;
+                c.id = obj["id"].toString();
+                c.name = obj["name"].toString();
+                c.languageId = obj["lang"].toString();
+                c.compilerType = obj["compilerType"].toString();
+                c.version = obj["semver"].toString();
+                c.instructionSet = obj["instructionSet"].toString();
+
+                for (const auto &field : extraFields)
+                    c.extraFields[field] = obj[field].toString();
+
+                compilers.append(c);
+            }
+            *result = compilers;
+        });
+}
+
 } // namespace CompilerExplorer::Api

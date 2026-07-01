@@ -3,10 +3,18 @@
 
 #pragma once
 
+#include <utils/result.h>
+
 #include <QNetworkAccessManager>
 #include <QUrl>
 
+#include <QtTaskTree/QTaskTree>
+
 namespace CompilerExplorer::Api {
+
+// Storage for the outcome of an API task: either the parsed result, or an error message.
+template<typename T>
+using ResultStorage = QtTaskTree::Storage<Utils::Result<T>>;
 
 struct Config
 {

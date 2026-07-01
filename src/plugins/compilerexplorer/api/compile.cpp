@@ -25,7 +25,7 @@ QFuture<CompileResult> compile(const Config &config, const CompileParameters &pa
 
 QtTaskTree::ExecutableItem compileTask(const Config &config,
                                        const CompileParameters &parameters,
-                                       const QtTaskTree::Storage<Utils::Result<CompileResult>> &result)
+                                       const ResultStorage<CompileResult> &result)
 {
     const QUrl url = config.url({"api/compiler", parameters.compilerId, "compile"});
 
