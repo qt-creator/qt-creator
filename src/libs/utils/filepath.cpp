@@ -955,15 +955,6 @@ Result<FilePath> FilePath::tmpDir() const
 */
 Result<FilePath> FilePath::createTempFile() const
 {
-    if (isLocal()) {
-        QTemporaryFile file(path());
-        file.setAutoRemove(false);
-        if (file.open())
-            return FilePath::fromString(file.fileName());
-
-        return ResultError(Tr::tr("Could not create temporary file: %1").arg(file.errorString()));
-    }
-
     Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return ResultError(access.error());
@@ -979,16 +970,6 @@ Result<FilePath> FilePath::createTempFile() const
 */
 Result<FilePath> FilePath::createTempDir() const
 {
-    if (isLocal()) {
-        QTemporaryDir dir(path());
-        dir.setAutoRemove(false);
-        if (!dir.path().isEmpty())
-            return FilePath::fromString(dir.path());
-
-        return ResultError(
-            Tr::tr("Could not create temporary directory: %1").arg(dir.errorString()));
-    }
-
     Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return ResultError(access.error());
