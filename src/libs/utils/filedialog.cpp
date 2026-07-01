@@ -2038,6 +2038,51 @@ FileDialog::FileDialog(QWidget *parent)
     using namespace Layouting;
     // clang-format off
     Column {
+        Row {
+            QtDesignWidgets::IconButton {
+                bindTo(&backButton),
+                icon(Icons::PREV_NEUTRAL),
+                Layouting::toolTip(withShortcut(Tr::tr("Back"), backShortcut)),
+                onClicked(this, goBack),
+            },
+            QtDesignWidgets::IconButton {
+                bindTo(&forwardButton),
+                icon(Icons::NEXT_NEUTRAL),
+                Layouting::toolTip(withShortcut(Tr::tr("Forward"), forwardShortcut)),
+                onClicked(this, goForward),
+            },
+            QtDesignWidgets::IconButton {
+                bindTo(&upButton),
+                icon(Icons::ARROW_UP),
+                Layouting::toolTip(
+                    withShortcut(Tr::tr("Go to parent directory"), parentShortcut)),
+                onClicked(this, goToParent),
+            },
+            QtDesignWidgets::IconButton {
+                icon(Icons::SLASH),
+                Layouting::toolTip(withShortcut(Tr::tr("Go to folder"), gotoShortcut)),
+                onClicked(this, [this] { d->m_gotoOverlay->popup(d->m_currentDir); }),
+            },
+            QtDesignWidgets::IconButton {
+                icon(Icons::SETTINGS),
+                Layouting::toolTip(Tr::tr("View options")),
+                onClicked(this, [=] {
+                    QMenu menu;
+                    menu.addAction(iconViewAction);
+                    menu.addAction(listViewAction);
+                    menu.addSeparator();
+                    menu.addAction(showHiddenAction);
+                    menu.addAction(hideFilteredAction);
+                    menu.exec(QCursor::pos());
+                }),
+            },
+            d->m_pathCombo,
+            LineEdit {
+                bindTo(&d->m_searchEdit),
+                placeholderText(Tr::tr("Search")),
+            },
+        },
+
         Splitter {
             bindTo(&splitter),
             orientation(Qt::Horizontal),
@@ -2072,55 +2117,6 @@ FileDialog::FileDialog(QWidget *parent)
                     st,
                 },
 
-                Grid {
-                    columnStretch(0, 0),
-                    columnStretch(1, 1),
-                    columnStretch(2, 0),
-                    Row {
-                        QtDesignWidgets::IconButton {
-                            bindTo(&backButton),
-                            icon(Icons::PREV_NEUTRAL),
-                            Layouting::toolTip(withShortcut(Tr::tr("Back"), backShortcut)),
-                            onClicked(this, goBack),
-                        },
-                        QtDesignWidgets::IconButton {
-                            bindTo(&forwardButton),
-                            icon(Icons::NEXT_NEUTRAL),
-                            Layouting::toolTip(withShortcut(Tr::tr("Forward"), forwardShortcut)),
-                            onClicked(this, goForward),
-                        },
-                        QtDesignWidgets::IconButton {
-                            bindTo(&upButton),
-                            icon(Icons::ARROW_UP),
-                            Layouting::toolTip(
-                                withShortcut(Tr::tr("Go to parent directory"), parentShortcut)),
-                            onClicked(this, goToParent),
-                        },
-                        QtDesignWidgets::IconButton {
-                            icon(Icons::SLASH),
-                            Layouting::toolTip(withShortcut(Tr::tr("Go to folder"), gotoShortcut)),
-                            onClicked(this, [this] { d->m_gotoOverlay->popup(d->m_currentDir); }),
-                        },
-                        QtDesignWidgets::IconButton {
-                            icon(Icons::SETTINGS),
-                            Layouting::toolTip(Tr::tr("View options")),
-                            onClicked(this, [=] {
-                                QMenu menu;
-                                menu.addAction(iconViewAction);
-                                menu.addAction(listViewAction);
-                                menu.addSeparator();
-                                menu.addAction(showHiddenAction);
-                                menu.addAction(hideFilteredAction);
-                                menu.exec(QCursor::pos());
-                            }),
-                        },
-                    },
-                    d->m_pathCombo,
-                    LineEdit {
-                        bindTo(&d->m_searchEdit),
-                        placeholderText(Tr::tr("Search")),
-                    },
-                },
                 d->m_viewStack,
                 Column {
                     d->m_filterCombo,
